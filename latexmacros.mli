@@ -22,6 +22,7 @@ val exec_init : string -> unit
 
 val open_group : unit -> unit
 val close_group : unit -> unit
+val get_level : unit -> int
 
 val exists : string -> bool
 val find : string -> Lexstate.pat * Lexstate.action

@@ -197,50 +197,79 @@ As a matter of fact, base style files are \TeX{} and not \LaTeX{} source and
 
 
 \subsection{Other style files}
+A \LaTeX{} document usually loads additional style files, by using
+the commands  \verb+\input+ or \verb+\usepackage+ or \verb+\input+.
 
-A \LaTeX{} document usually loads additional style files (using
-\verb+\input+ or \verb+\usepackage+, or by giving optional arguments
-to \verb+\documentstyle+).
-\hevea{} treats \verb+\usepackage+ and optional arguments to
-\verb+\documentstyle+ in its own way,
-but it attempts to load a file given as argument
-to \verb+\input+.
-As a consequence, \hevea{} may choke on personnal style files, which
-are read by using \verb+\input+.
 
-A simple situation is when \hevea{} is not happy  with just a few macros
-in a style file.
+\subsubsection{Files loaded with \texttt{\char92 input}}
+Just like \LaTeX{}, \hevea{} reacts to the construct
+\verb+\input{+\textit{file}\verb+}+ by loading the file
+\textit{file}. (if I got it right, \hevea{} even follows \TeX{} crazy
+convention on ``\texttt{.tex}'' extensions).
+
 As it is often the case, assume that the document \texttt{mydoc.tex} has a
-\verb+\input{macros.tex}+ instruction in its preamble, where
-\texttt{macros.tex} gathers custom definitions.
+\verb+\input{mymacros.tex}+ instruction in its preamble, where
+\texttt{mymacros.tex} gathers custom definitions.
 Hopefully, only a few macros give rise to trouble: macros that performs fine
 typesetting or {\TeX}ish macros.
 Such macros need to be rewritten, using basic \LaTeX{}
 constructs (section~\ref{trouble} gives examples of macro-rewriting).
 The new definitions are best collected in a style file,
-\texttt{macros.hva} for instance.
+\texttt{mymacros.hva} for instance.
 Then, \texttt{mydoc.tex} is to be translated by issuing the command:
 \begin{verbatim}
-# hevea macros.hva mydoc.tex
+# hevea mymacros.hva mydoc.tex
 \end{verbatim}
-The file \texttt{macros.hva} is processed before
-\texttt{mydoc.tex} (and thus before \texttt{macros.tex}).
+The file \texttt{mymacros.hva} is processed before
+\texttt{mydoc.tex} (and thus before \texttt{mymacros.tex}).
 As a consequence of \hevea{} behavior with respect to
 definition and redefinition (see section~\ref{usermacro}),
 the macro definitions in \texttt{mymacros.tex}
-override the ones in  \texttt{macros.tex}.
+override the ones in  \texttt{mymacros.tex}, provided
+the document original definitions are performed by \verb+\newcommand+
+(or \verb+\newenvironment+).
 
 
 Another situation is when  \hevea{} fails to process a whole 
 style file. Usually, this means that \hevea{} crashes on that style
 file.
-Then, you should also instruct
-\hevea{} not to load the faulty file, by issuing the command:
+The basic idea is then
+to write a \texttt{mymacros.hva} style file that contains alternative
+definitions for all the commands defined in \texttt{mymacros.sty}.
+Then, \hevea{} should be instructed
+to load \texttt{mymacros.hva} and not to load \texttt{mymacros.tex}.
+This is done by invoking \texttt{hevea} as follows:
 \begin{verbatim}
-# hevea macros.hva -e macros.tex mydoc.tex
+# hevea mymacros.hva -e mymacros.tex mydoc.tex
 \end{verbatim}
-Of course, \texttt{macros.hva} must now contain replacements for
-all the useful macros of \texttt{macro.tex}.
+
+
+Of course, \texttt{mymacros.hva} must now contain replacements for
+all the useful macros of \texttt{mymacro.tex}.
+
+
+
+
+
+\subsubsection{Files loaded with \texttt{\char92 usepackage}}
+As far as I know, \LaTeX{} reacts to the construct
+\verb+\usepackage{+\textit{name}\verb+}+ by loading the file
+\textit{name}\texttt{.sty}.
+\hevea{} reacts in a similar, but different, manner, by
+loading the file \textit{name}\texttt{.hva}.
+
+\hevea{} distributions already includes quite a few ``\texttt{.hva}''
+implementations of famous packages (see section~\ref{implemented:package}).
+When a given package (say  \texttt{zorglub}) is not implemented, the
+situation may not be as bad as it may seem first.
+Hopefully, you are only using a few commands from package
+\texttt{zorglub}, and you feel confident enough to implement
+them yourself.
+Then, it suffices to put your definitions in file~\texttt{zorglub.hva}
+and \hevea{} will react to \verb+\usepackage{zorglub}+ by loading
+\texttt{zorglob.hva}.
+
+See section~\ref{usepackage} for the full story on \verb+\usepackage+.
 
 
 \section{A note on style}
@@ -757,8 +786,9 @@ black square.
 Which \LaTeX{} typesets as follows:
 \begin{latexout}
 %BEGIN IMAGE
-\newcommand{\blob}{\rule[.2ex]{1ex}{1ex}}
+\begingroup\newcommand{\blob}{\rule[.2ex]{1ex}{1ex}}
 \blob\ Blob \blob
+\endgroup
 %END IMAGE
 %HEVEA\imageflush%
 \end{latexout}
@@ -973,11 +1003,7 @@ simple: it  suffices to invoke \hevea{} as follows:
 \begin{flushleft}
 \verb+# hevea+ \filename{heveaonly}\ldots
 \end{flushleft}
-Using an \hevea{}-specific style file given as a command line argument
-is the method of choice for supplying command definitions
-to \hevea{} only. Users can then be sure that these definitions are
-not seen by \LaTeX{} and will not get echoed to the \textit{image}
-file (see section~\ref{imagen}).
+
 
 Finally, if one has an \hevea{} equivalent \textit{style}\texttt{.hva}
 for a \LaTeX{} style file \textit{style}\texttt{.sty},
@@ -990,6 +1016,29 @@ while \hevea{} loads \textit{style}\texttt{.hva}.
 As \hevea{} will not fail in case \textit{style}\texttt{.hva} does not
 exist, this is another method for having a style file loaded by
 \LaTeX{} only.
+
+Writing an \hevea{}-specific file \textit{file}\texttt{.hva}
+is the method of choice for supplying command definitions
+to \hevea{} only. Users can then be sure that these definitions are
+not seen by \LaTeX{} and will not get echoed to the \textit{image}
+file (see section~\ref{imagen}).
+
+The file \textit{file}\texttt{.hva} can be loaded by either
+supplying the command-line argument
+\textit{file}\texttt{.hva}, or by
+\verb+\usepackage{+\textit{file}\verb+}+ from inside the document.
+Which method is better depends
+on whether it is choosed to override or to replace the document
+definition.
+In the command-line case,
+definitions from \textit{file}\texttt{.hva} are processed before the
+ones from the document and will override them, provided
+the document definitions are made using \verb+\newcommand+ (or
+\verb+\newenvironment+).
+In the \verb+\usepackage+ case, \hevea{} loads \textit{file}\texttt{.hva}
+at the place where \LaTeX{} loads \textit{file}\texttt{.sty}, hence
+the definitions from \textit{file}\texttt{.hva} replace
+the definitions from \textit{file}\texttt{.sty} in the strict sense.
 
 
 \subsection{The \protect\texttt{hevea} package}\label{heveastyle}
@@ -1066,9 +1115,18 @@ can be achieved
 by using the \texttt{hevea} boolean register
 or comments, see sections~\ref{heveabool}
 and~\ref{comments}.
+
 Also note that environments define a scope and that style changes
 (and non-global definitions) are local to them. For instance, in the
 example above, ``\ldots'' appears in black in \html{} output.
+However, as an exception, the environments \texttt{image}
+and \texttt{verbimage} do not create scope.
+It takes a little practice of \hevea{} to understand why this is
+convenient.
+
+
+
+
 
 \subsubsection{Why are there two environments for ignoring input?}\label{why}
 \envindex{verblatex}\envindex{latexonly}
@@ -2895,7 +2953,7 @@ fails, then a fatal error is flagged, since it can be sure
 that the document cannot be processed.
 
 
-\subsection{Packages and Page Styles}
+\subsection{Packages and Page Styles}\label{usepackage}
 
 \hevea{} reacts to
 \verb+\usepackage[+\textit{options}\verb+]{+\textit{pkg}\verb+}+ in
@@ -4176,25 +4234,15 @@ Note that full compatibility with \TeX{} is not guaranteed.
 
 \subsubsection{À la \TeX{} macros definitions}
 \comindex{def}\index{command!definition}
-The \verb+\def+ construct for defining commands is supported, with the
-same behavior as \verb+\newcommand+ with respect to command
-redefinition (see section~\ref{usermacro}).
+The \verb+\def+ construct for defining commands is supported.
 It is important to
-notice that \hevea{} semantics for \verb+\def+ here departs significantly
-from \TeX{} semantics. That is, defining a command that already
-exists with \verb+\def+ fails in \hevea{}, whereas it succeeds in
-\TeX{}.  Users are thus invited to use \LaTeX{} \verb+\renewcommand+
-when they purposely redefine commands.
-
-
-\comindex{texdef}
-However, \hevea{} also provides the construct \verb+\texdef+,
-which is equivalent to \verb+\def+,
-except that \TeX{} semantics of silently rebinding
-macros is followed.
-Files that contain \verb+\texdef+ (or \verb+\texlet+, see next
-section) still can be processed by
-\LaTeX{}, provided they load the \texttt{hevea.sty} style file.
+notice that \hevea{} semantics for \verb+\def+ 
+follows \TeX{} semantics.
+That is, defining a command that already
+exists with \verb+\def+ succeeds.
+This is an important change with respect to previous versions of
+\hevea{}, where \verb+\def+ had the same semantics as
+\verb+\newcommand+.
 
 
 Delimiting characters in command definition are supported.
@@ -4266,11 +4314,6 @@ See sections~\ref{customize-let} and~\ref{exlet} for examples of using
 \verb+\let+ in such a situation.
 
 
-\comindex{texlet}
-Since \verb+\let+ is a binding operator it fails to rebind {\it
-macro-name1} when it is already bound.
-However, there exist a \verb+\texlet+ construct which follow \TeX{}
-semantics of silent rebinding.
 
 
 \subsubsection{The \texttt{\char92 global} construct}
@@ -4278,9 +4321,7 @@ semantics of silent rebinding.
 It is possible to escape scope and to make global definitions
 and bindings by using the \TeX{} construct \verb+\global+.
 The \verb+\global+ construct is significant before
-\verb+\def+, \verb+\let+, \verb+\texdef+ and \verb+\texlet+.
-Surprises are likely when using local and global definitions with
-identical names.
+\verb+\def+ and \verb+\let+ constructs.
 
 \comindex{gdef}
 Also note that \verb+\gdef+ is equivalent to \verb+\global\def+.
@@ -4458,15 +4499,17 @@ For instance, you get various mixes of red and orange by:
 (See section~\ref{color:package} for details on the \texttt{named}
 color model that is used above.)
 
-Another choice is to define \verb+\@color+
-to be a certain \emph{hue} value to be interpreted in the HSV model.
-This must be done \emph{before} loading \texttt{fancysection.hva}:
+\comdefindex{colorsections}
+Another choice is issuing the command
+\verb+\colorsection{+\textit{hue}\verb+}+, where
+\textit{hue} is a hue value to be interpreted in the HSV model.
+For instance,
 \begin{verbatim}
 \input{article.hva}
-\newcommand{\@color}{20}
 \input{fancysection.hva}
+\colorsections{20}
 \end{verbatim}
-This will yield sectionnal headers on a red-orange background.
+will yield sectionnal headers on a red-orange background.
 
 \subsection{\hevea{} as a Back-End for VideoC}
 \hevea{} is one of the back-ends of the VideoC system for producing
@@ -4486,21 +4529,21 @@ by VideoC. The rest of VideoC constructs are implemented by
 the \texttt{.hva} files from VideoC distribution.
 
 
-\section{Implemented Packages}
+\section{Implemented Packages}\label{implemented:package}
 \hevea{} distribution includes ``.hva'' packages that are
-implementations of
-\LaTeX{} packages.
-I provide no full documentation for these packages, users should refer
-to the first pages of the 
-package documentation, which can usually be found in the book~\cite{latexbis}, in your local
+implementations of \LaTeX{} packages.
+Packages described in the ``\emph{Blue Book}'' (\texttt{makeidx},
+\texttt{ifthen}, \texttt{graphics} ---and \texttt{graphicx}!---,
+\texttt{color}, \texttt{alltt}) are provided.  Additionnaly, quite a
+few extra packages are provided.  I provide no full documentation for
+these packages, users should refer to the first pages of the package
+documentation, which can usually be found in the book~\cite{latexbis},
+in your local
 \LaTeX{} installation or in a TeX CTAN-archive.
 
+At the moment, package options are not ignored.
 
-Those packages generally are loaded explicitly from user source code,
-by using the \verb+\usepackage+ command.  A few packages are loaded by
-defaut (\texttt{array}, \texttt{calc}, \texttt{ifthen}), however
-reloading them explicitely by
-\verb+\usepackage+ is harmless. Package options are not supported.
+
 
 \subsection{AMS compatibility}
 \hevea{} \texttt{amsmath} package defines  some of the constructs of the

@@ -26,7 +26,7 @@ byte:
 tmp.tex: text.tex
 	$(GPIC) -t < text.tex > tmp.tex
 
-manual.html: manual.hva  macros.tex version.tex tmp.tex
+manual.html: manual.hva  macros.tex manual.tex version.tex tmp.tex
 	${HEVEA} $(HEVEAOPTS) manual.hva manual.tex
 
 manual.dvi: manual.tex macros.tex version.tex tmp.tex

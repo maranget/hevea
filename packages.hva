@@ -1,13 +1,24 @@
+\newcommand{\@usepackage}[1]
+  {\@ifundefined{#1@loaded}
+    {\@iffileexists{#1.hva}
+       {\input{#1.hva}\def\csname#1@loaded\endcsname{}}
+       {}}
+    {}}
+\def\@iter@usepackage#1,{%
+\def\@test{#1}
+\ifx\@test\relax
+\let\@next\relax
+\else
+\@usepackage{#1}%
+\let\@next\@iter@usepackage
+\fi
+\@next}
 \newcommand{\usepackage}[2][!*!]
 {\ifthenelse{\equal{#1}{!*!}}
 {\begin{toimage}\usepackage{#2}
 \end{toimage}}
 {\begin{toimage}\usepackage[#1]{#2}
 \end{toimage}}%
-\@ifundefined{#2@loaded}
-  {\@iffileexists{#2.hva}
-     {\@stopoutput\@stopimage%
-     \input{#2.hva}\def\csname#2@loaded\endcsname{}%
-     \@restartimage\@restartoutput{}}%
-     {}}
-  {}}
+\@stopoutput\@stopimage\@funcall{\@iter@usepackage}{#2,,}\@restartimage\@restartoutput
+}
+

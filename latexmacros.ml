@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmacros.ml,v 1.59 2000-05-30 12:28:43 maranget Exp $" 
+let header = "$Id: latexmacros.ml,v 1.60 2000-05-30 19:00:10 maranget Exp $" 
 open Misc
 open Parse_opts
 open Symb
@@ -23,6 +23,11 @@ module OString = struct
 end
 
 module Strings = Set.Make (OString)
+
+(* Temporaire *)
+let track_set = ref Strings.empty
+
+let track name = Strings.mem name !track_set
 
 (* Data structures for TeX macro  model *)
 let local_table = Hashtbl.create 97
@@ -108,6 +113,8 @@ and close_group () =
   decr group_level ;
   purge := Stack.pop purge_stack
 
+let get_level () = !group_level
+
 (* Remove one local definition in advance ... *)
 let pre_purge name purge =
   if Strings.mem name purge then begin
@@ -118,6 +125,9 @@ let pre_purge name purge =
 
 (* Definitions *)
 let hidden_global_def name x =
+  if track name then begin
+    warning ("Global definition of ``"^name^"''")
+  end ;
   if !group_level > 0 && Hashtbl.mem local_table name then begin
     (*
       global definition of a localy defined macro,
@@ -130,6 +140,9 @@ let hidden_global_def name x =
   Hashtbl.add global_table name x
 
 let hidden_local_def name x =
+  if track name then begin
+    warning ("Local definition of ``"^name^"''")
+  end ;
   if !group_level > 0 then begin (* indeed local *)
     if Strings.mem name !purge then (* redefinition *)
       Hashtbl.remove local_table name

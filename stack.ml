@@ -1,22 +1,27 @@
 exception Fatal of string
 
-type 'a t = {mutable l : 'a list ; name : string}
+type 'a t = {mutable l : 'a list ; name : string ; bottom : 'a option}
 
 
-let create name = {l = [] ; name=name}
+let create name = {l = [] ; name=name ; bottom = None}
+let create_init name x = {l = [] ; name=name ; bottom = Some x}
 
-and name {name=name} = name
+let bottom msg s = match s.bottom with
+| None -> raise (Fatal (msg^": "^s.name))
+| Some x -> x
+
+let name {name=name} = name
 
 and push s x = s.l <- x :: s.l
 
 and pop s = match s.l with
-| [] -> raise (Fatal ("pop: "^s.name))
+| [] -> bottom "pop" s
 | x :: r ->
     s.l <- r ;
     x
 
 and top s = match s.l with
-| [] -> raise (Fatal ("top: "^s.name))
+| [] -> bottom "top" s
 | x :: _ -> x
 
 and length s = List.length s.l

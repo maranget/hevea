@@ -21,7 +21,8 @@ module type S =
     val cur_env : string ref
     val new_env : string -> unit
     val close_env : string -> unit
-    val env_level : int ref
+    val echo_toimage : unit -> bool
+    val echo_global_toimage : unit -> bool
 
     val fun_register : (unit -> unit) -> unit
     val newif_ref : string -> bool ref -> unit

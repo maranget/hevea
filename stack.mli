@@ -2,6 +2,7 @@ exception Fatal of string
 
 type 'a t
 val create : string ->  'a t
+val create_init : string -> 'a ->  'a t
 val name : 'a t -> string
 val push : 'a t -> 'a -> unit
 val pop : 'a t -> 'a

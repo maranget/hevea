@@ -1,7 +1,7 @@
 \@ifundefined{@base}{\typeout{``fancysection.hva'' must be loaded after base style}\endinput}{}
 \usepackage{color}
 %%% Color section
-\def\@color{120}%% green
+\newcommand{\colorsections}[1]{\def \@color {#1}
 \definecolor{part}{hsv}{\@color, 1, .8}
 \ifthenelse{\equal{\@base}{article}}{%
 \definecolor{section}{hsv}{\@color, .8, .9}
@@ -11,6 +11,8 @@
 \definecolor{section}{hsv}{\@color, .6, 1}
 \definecolor{subsection}{hsv}{\@color, .5, 1}
 \definecolor{subsubsection}{hsv}{\@color, .4, 1}}
+}
+\colorsections {120}
 %%%%%%%%%%%%%%%%% Command section
 \newcommand{\OPENTABLE}[2]
   {\@open{TABLE}{#1}\@open{TR}{}\@open{TD}{#2}}

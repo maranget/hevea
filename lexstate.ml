@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: lexstate.ml,v 1.45 2000-05-30 12:28:48 maranget Exp $"
+let header = "$Id: lexstate.ml,v 1.46 2000-05-30 19:00:19 maranget Exp $"
 
 open Misc
 open Lexing
@@ -632,7 +632,7 @@ let real_input_file loc_verb main filename input =
       restore_lexstate ();
       close_in input ;
       verbose := old_verb ;
-      Location.restore () ;
+(*   NO  Location.restore () ;  for proper error messages *)
       raise e
   end ;
   restore_lexstate ();

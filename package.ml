@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.18 2000-05-30 12:28:51 maranget Exp $    *)
+(*  $Id: package.ml,v 1.19 2000-05-30 19:00:20 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -307,7 +307,7 @@ register_init "url"
         let _ = save_verbatim lexbuf in
         let arg = Save.get_echo () in
         let what = get_this_main (url_macro^arg) in
-        if !env_level > 0  then begin
+        if Scan.echo_toimage () then begin
           Image.put "\\urldef" ;
           Image.put true_args ;
           Image.put arg

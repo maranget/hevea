@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlCommon.ml,v 1.21 2000-05-30 12:28:41 maranget Exp $" 
+let header = "$Id: htmlCommon.ml,v 1.22 2000-05-30 19:00:07 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -127,7 +127,7 @@ let pretty_stack s = Stack.pretty
 ;;
 
 let rec pop_out s = match pop s with
-  Normal (a,b,c) -> a,b,c
+| Normal (a,b,c) -> a,b,c
 | Freeze f       -> raise PopFreeze
 (* begin
   if !verbose > 2 then begin
@@ -139,7 +139,8 @@ let rec pop_out s = match pop s with
 ;;
 
 
-let out_stack = Stack.create "out_stack"
+let out_stack =
+  Stack.create_init "out_stack" (Normal ("NADA","",!cur_out))
 ;;
 
 type saved_out = status * stack_item Stack.saved
@@ -310,18 +311,18 @@ type stack_t = {
 let stacks = {
   s_table_inside = Stack.create "inside" ;
   s_saved_inside = Stack.create "saved_inside" ;
-  s_in_math = Stack.create "in_math" ;
+  s_in_math = Stack.create_init "in_math" false ;
   s_ncols = Stack.create "ncols" ;
-  s_empty = Stack.create "empty" ;
-  s_blank = Stack.create "blank" ;
+  s_empty = Stack.create_init "empty" false;
+  s_blank = Stack.create_init "blank" false ;
   s_pending_par = Stack.create "pending_par" ;
   s_vsize = Stack.create "vsize" ;
   s_nrows = Stack.create "nrows" ;
   s_table_vsize = Stack.create "table_vsize" ;
-  s_nitems = Stack.create "nitems" ;
-  s_dt = Stack.create "dt" ;
-  s_dcount = Stack.create "dcount" ;
-  s_insert = Stack.create "insert" ;
+  s_nitems = Stack.create_init "nitems" 0 ;
+  s_dt = Stack.create_init "dt" "" ;
+  s_dcount = Stack.create_init "dcount" "" ;
+  s_insert = Stack.create_init "insert" None;
   s_active = Stack.create "active" ;
   s_after = Stack.create "after"
 } 

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.174 2000-05-30 12:28:44 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.175 2000-05-30 19:00:15 maranget Exp $ *)
 
 
 {
@@ -24,7 +24,8 @@ module type S =
     val cur_env : string ref
     val new_env : string -> unit
     val close_env : string -> unit
-    val env_level : int ref
+    val echo_toimage : unit -> bool
+    val echo_global_toimage : unit -> bool
 
     val fun_register : (unit -> unit) -> unit
     val newif_ref : string -> bool ref -> unit
@@ -80,16 +81,15 @@ let if_level = ref 0
 let cur_env = ref ""
 and after = ref [] 
 and stack_env = Stack.create "stack_env"
-and env_level = ref 0
 ;;
 
-let echo_toimage () =  !env_level = 0 && top_level ()
+let echo_toimage () =  get_level () = 0 && top_level ()
 and echo_global_toimage () = top_level ()
 
 let stack_env_pretty () =  Stack.pretty (fun (x,_,_) -> x) stack_env
 
 let fun_register f =
-  if !env_level > 0 then after := f :: !after
+  if get_level () > 0 then after := f :: !after
 ;;
 
 
@@ -141,7 +141,7 @@ let new_env env =
   after := [] ;
   if !verbose > 1 then begin
     Location.print_pos () ;
-    Printf.fprintf stderr "Begin : %s <%d>" env !env_level ;
+    Printf.fprintf stderr "Begin : %s <%d>" env (get_level ());
     prerr_endline ""
   end
 
@@ -152,7 +152,7 @@ let error_env close_e open_e =
 
 let close_env env  =
   if !verbose > 1 then begin
-    Printf.fprintf stderr "End: %s <%d>" env !env_level ;
+    Printf.fprintf stderr "End: %s <%d>" env (get_level ());
     prerr_endline  ""
   end ;
   if env = !cur_env then begin  
@@ -183,7 +183,7 @@ and stack_format = Stack.create "stack_format"
 and cur_col = ref 0
 and stack_col = Stack.create "stack_col"
 and in_table = ref NoTable
-and stack_table = Stack.create "stack_table"
+and stack_table = Stack.create_init "stack_table" NoTable
 and first_col = ref false
 and first_border = ref false
 and stack_first = Stack.create "stack_first"
@@ -456,9 +456,16 @@ let show_inside main format i closing =
   begin try while true do
     begin match get_col format !t with
       Tabular.Inside s ->
-        if math_table !in_table then scan_this main "$" ;
+        let saved_table = !in_table in
+        if math_table saved_table then
+          scan_this main "$"
+        else
+          scan_this main "{" ;
         let s = get_this_string main s in
-        if math_table !in_table then scan_this main "$" ;
+        if math_table saved_table then
+          scan_this main "$"
+        else
+          scan_this main "}" ;
 	Dest.make_inside s !in_multi;
     | Tabular.Border s -> 
 	Dest.make_border s;
@@ -529,7 +536,8 @@ let do_open_col main format span insides =
   end ;
   if math_table !in_table && not (as_wrap format) then begin
     scan_this main "$"
-  end ;
+  end else
+    scan_this main "{" ;
   scan_this main (as_pre format) ;
   in_table := save_table 
 
@@ -551,7 +559,9 @@ let erase_col main =
   let old_format = get_col !cur_format !cur_col in
   scan_this main (as_post old_format) ;
   if math_table !in_table  && not (as_wrap old_format) then
-    scan_this main "$" ;
+    scan_this main "$"
+  else
+    scan_this main "}" ;
   if !display then begin
     Dest.close_display () ;
     display := false
@@ -611,7 +621,9 @@ let close_col_aux main content is_last =
   let old_format = get_col !cur_format !cur_col in
   scan_this main (as_post old_format) ;
   if math_table !in_table && not (as_wrap old_format) then
-    scan_this main "$" ;
+    scan_this main "$"
+  else
+    scan_this main "}" ;
   if !display then begin
     Dest.close_display () ;
     display := false
@@ -1198,24 +1210,27 @@ and comment = parse
     {latex2html_latexonly lexbuf}
 | ' '* ("HEVEA"|"hevea") ' '*
    {()}
-| ' '* ("BEGIN"|"begin") ' '+ ("LATEX"|"latex")
-    {skip_comment lexbuf ;
-    start_other_scan "latexonly" latexonly lexbuf ;
-    skip_spaces lexbuf}
+| ['%'' ']* ("BEGIN"|"begin") ' '+ ("LATEX"|"latex")
+    {skip_to_end_latex lexbuf}
 | ""
     {skip_comment lexbuf ; more_skip lexbuf}
 
 and skip_comment = parse    
 |  [^ '\n']* '\n'
-   {if !verbose > 1 then
+   {if !verbose > 0 then
      prerr_endline ("Comment:"^lexeme lexbuf) ;
    if !flushing then Dest.flush_out () }
 | "" {raise (Misc.ScanError "Latex comment is not terminated")}
 
-
+and skip_to_end_latex = parse
+| '%' ['%'' ']* ("END"|"end") ' '+ ("LATEX"|"latex")
+    {skip_comment lexbuf ; skip_spaces lexbuf}
+| _ 
+    {skip_to_end_latex lexbuf}
+| eof {fatal ("End of file in %BEGIN LATEX ... %END LATEX")}
 {
+let _ = ()
 ;;
-
 (* A few subst definitions, with 2 optional arguments *)
 
 def "\\makebox" (latex_pat ["" ; ""] 3)
@@ -1248,8 +1263,9 @@ def_code "\\@hevea@percent"
         let lxm = lexeme lexbuf in
         Dest.put lxm ;
         main lexbuf
-      end else
-        comment lexbuf)
+      end else begin
+        comment lexbuf
+      end)
 ;;
 
 def_code "\\@hevea@newline"
@@ -1485,9 +1501,12 @@ let do_newcommand lxm lexbuf =
   let name = get_csname lexbuf in
   let nargs = save_opts ["0" ; ""] lexbuf in
   let body = subst_body lexbuf in
-  if echo_toimage () && lxm <> "\\@forcecommand"  && top_level () then
-    Image.put
-      (lxm^Save.get_echo ()^"\n") ;
+  let echo () =
+    if echo_toimage () && lxm <> "\\@forcecommand" then begin      
+      Image.put lxm ;
+      Image.put (Save.get_echo ()) ;
+      Image.put_char '\n'
+    end in
   let nargs,(def,defval) = match nargs with
     [a1 ; a2] ->
       Get.get_int (from_ok a1),
@@ -1500,18 +1519,22 @@ let do_newcommand lxm lexbuf =
   match lxm with
   | "\\@forcecommand" -> Latexmacros.def name pat (Subst body)
   | "\\newcommand"    ->
+      echo () ;
       if Latexmacros.exists name then
         warning ("Ignoring (re-)definition of ``"^name^"'' by \\newcommand")
-      else
+      else begin
         Latexmacros.def name pat (Subst body)
+      end
     | "\\renewcommand" ->
-      if Latexmacros.exists name then
+        if not (Latexmacros.exists name) then begin
+          warning ("Defining ``"^name^"'' by \\renewcommand")
+        end else
+          echo () ;
         Latexmacros.def name pat (Subst body)
-      else
-        warning ("Defining ``"^name^"'' by \\renewcommand")
     | _                ->
-      if not (Latexmacros.exists name) then
-        Latexmacros.def name pat (Subst body)
+        echo () ;
+        if not (Latexmacros.exists name) then
+          Latexmacros.def name pat (Subst body)
 ;;
 
 def_name_code "\\renewcommand" do_newcommand  ;
@@ -2183,8 +2206,8 @@ def_code "\\end"
   (fun lexbuf ->
     let env = get_prim_arg lexbuf in
     scan_this main ("\\csname end"^env^"\\endcsname") ;
-    if env <> "document" then top_close_block "" ;
     close_env env ;
+    if env <> "document" then top_close_block "" ;
     if env = "document" then raise Misc.EndDocument)
 ;;
 

@@ -1,6 +1,6 @@
 (* <Christian.Queinnec@lip6.fr>
  The plugin for HeVeA that implements the VideoC style.
- $Id: videoc.mll,v 1.19 2000-05-30 12:28:55 maranget Exp $ 
+ $Id: videoc.mll,v 1.20 2000-05-30 19:00:22 maranget Exp $ 
 *)
 
 {
@@ -24,7 +24,7 @@ open Scan
 
 
 let header = 
-  "$Id: videoc.mll,v 1.19 2000-05-30 12:28:55 maranget Exp $"
+  "$Id: videoc.mll,v 1.20 2000-05-30 19:00:22 maranget Exp $"
 (* So I can synchronize my changes from Luc's ones *)
 let qnc_header = 
   "17 aout 99"
@@ -276,9 +276,10 @@ and do_define_url lxm lexbuf =
   let name = Scan.get_csname lexbuf in
   let body = Save.arg_verbatim lexbuf in
   let real_arg = Save.get_echo () in
-  if !Scan.env_level = 0 then begin
+  if Scan.echo_toimage () then begin
     Image.put lxm ;
-    Image.put real_arg
+    Image.put real_arg ;
+    Image.put_char '\n' ;
   end ;
   snippet_def name (make_do_defined_macro_url body)
 
@@ -293,7 +294,7 @@ and make_do_defined_macro_url body lexbuf =
 and do_edef lxm lexbuf =
   let name = Scan.get_csname lexbuf in
   let body = subst_arg lexbuf in
-  if !Scan.env_level = 0 then 
+  if Scan.echo_toimage () then 
     Image.put ("\\def"^name^"{"^body^"}\n") ;
   Latexmacros.def name zero_pat (caml_print body);
   ()
