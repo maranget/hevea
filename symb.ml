@@ -109,6 +109,7 @@ let rightarrow = ("<FONT FACE=symbol>\174</FONT>","-&gt;", "-&gt;");;
 let uprightarrow = ("<FONT FACE=symbol>\222</FONT>","=&gt;", "=&gt;");;
 let leftrightarrow = ("<FONT FACE=symbol>\171</FONT>","&lt;-&gt;", "&lt;-&gt;");;
 let upleftrightarrow = ("<FONT FACE=symbol>\219</FONT>","&lt;=&gt;", "&lt;=&gt;");;
+let longrightarrow = ("<FONT FACE=symbol>\190\174</FONT>","--&gt;", "--&gt;");;
 
 let infty = ("<FONT FACE=symbol>\165</FONT>","oo", "oo");;
 let int = ("<FONT FACE=symbol>\242</FONT>","int", "integrale");;
@@ -119,6 +120,24 @@ let exists = ("<FONT FACE=symbol>\036</FONT>","exists", "il existe");;
 let forall = ("<FONT FACE=symbol>\034</FONT>","for all", "pour tout");;
 
 let notin  = ("<FONT FACE=symbol>\207</FONT>","not in", "n'appartient pas à");;
+
+let uparrow =
+  ("<FONT FACE=symbol>\173</FONT>","uparrow","flèche en haut")
+and upuparrow =
+ ("<FONT FACE=symbol>\221</FONT>","Uparrow","double flèche en haut")
+and downarrow =
+ ("<FONT FACE=symbol>\175</FONT>","downarrow","flèche en bas")
+and updownarrow =
+ ("<FONT FACE=symbol>\223</FONT>","Downarrow","double flèche en bas")
+;;
+
+let oplus =
+  ("<FONT FACE=symbol>\197</FONT>","oplus","oplus")
+and otimes =
+ ("<FONT FACE=symbol>\196</FONT>","otimes","otimes")
+and ominus =
+ ("<FONT FACE=symbol>\081</FONT>","ominus","ominus")
+;;
 
 let lfloor = ("<FONT FACE=symbol>\235</FONT>","|_", "|_");;
 let rfloor = ("<FONT FACE=symbol>\251</FONT>","_|", "_|");;

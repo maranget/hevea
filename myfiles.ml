@@ -27,13 +27,7 @@ with Not_found -> ["." ; "/usr/local/lib/tex"]
 exception Found of (string * in_channel)
 ;;
 
-let open_tex filename =
-  if is_except filename then raise Not_found ;
-  let filename =
-    try
-      let _ = Filename.chop_extension filename in
-      filename
-    with Invalid_argument _ -> filename^".tex" in
+let do_open_tex filename =
   try
     List.iter (fun dir ->
       try
@@ -44,5 +38,16 @@ let open_tex filename =
     tex_path ;
     failwith ("Cannot open file: "^filename)
   with Found r -> r
+;;
+
+let open_tex filename =
+  if is_except filename then raise Not_found ;
+  try
+    do_open_tex filename
+  with Failure _ as x ->
+    if Filename.check_suffix filename ".tex" then
+      raise x
+    else
+      do_open_tex (filename^".tex")
 ;;
 

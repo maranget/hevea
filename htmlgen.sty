@@ -1,8 +1,19 @@
-\def\cases#1{\mbox{\left\{\begin{tabular}{ll}#1\end{tabular}\right.}}
-\def\caption#1{\par\begin{center}Figure: {#1}\end{center}}
+\newcounter{eqno}
+\newcounter{figno}
+\newenvironment{equation}{$$}{\quad\quad\addtocounter{eqno}{1}(\arabic{eqno})$$}
+\newenvironment{eqnarray*}{$$\begin{array}{rtcl}}{\end{array}$$}
+\newenvironment{eqnarray}{$$\begin{array}{rtcl@{\quad\addtocounter{eqno}{1}(\arabic{eqno})}}}{\end{array}$$}
+\newenvironment{displaymath}{$$}{$$}
+\def\cases#1{\mbox{\left\{\begin{tabular}{ltl}#1\end{tabular}\right.}}
+\def\caption#1{\par\begin{center}Figure \addtocounter{figno}{1}\arabic{figno}: {#1}\end{center}}
 \def\footnote#1{ (#1)}
 \def\quad{~~~}
-\def\frac#1#2{#1\over #2}
+\def\qquad{\quad\quad}
+\def\underbrace#1{\underline{#1}}
+\def\ { }
+\def\,{~}
+\def\!{}
+\def\frac#1#2{{#1 \over #2}}
 \def\mathord{}
 \def\mathrel{}
 \def\makeindex{}
@@ -10,7 +21,9 @@
 \def\manual#1{\maroon #1}
 \def\cal{\red}
 
-\def\ { }
+\def\oe{oe}
+\def\ae{ae}
+
 \def\le{\leq}
 \def\ge{\geq}
 \def\uplus{uplus}
@@ -71,3 +84,39 @@
 \def\tth{||-}
 \def\bibliographystyle#1{}
 \newenvironment{abstract}{\begin{quote}{\bf Abstract:}}{\end{quote}}
+\def\mathrm#1{{\rm #1}}
+\def\mathtt#1{{\tt #1}}
+\def\mathit#1{{\it #1}}
+\def\mathbf#1{{\bf #1}}
+\def\textrm#1{{\rm #1}}
+\def\texttt#1{{\tt #1}}
+\def\textit#1{{\it #1}}
+\def\textbf#1{{\bf #1}}
+\def\sf{}
+\def\textsf{{\sf #1}}
+\def\sl{\purple\it}
+\def\textsl#1{{\sl #1}}
+\def\sc{\bf}
+\def\emph#1{{\em #1}}
+\def\makeatletter{}
+\def\setlength#1#2{}
+\def\cfoot{}
+\def\rfoot{}
+\def\lfoot{}
+\def\today{}
+\def\protect{}
+\def\rhead#1{}
+\def\lhead#1{}
+\def\fancyplain#1#2{}
+\def\newblock{}
+\def\vec#1{vec(#1)}
+\def\newindex#1#2#3{}
+\def\renewindex#1#2#3{}
+\def\pagebreak{}
+\def\newbox#1{}
+\def\newdimen#1{}
+\def\displaystyle{}
+\def\linebreak{}
+\def\fbox#1{\begin{array}{|c|}\hline #1\end{array}}
+\def\nocite#1{}
+\def\printindex{}

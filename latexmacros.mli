@@ -24,6 +24,7 @@ type action =
   | Test of bool ref
   | SetTest of (bool ref * bool)
   | IfCond of bool ref * action list * action list
+  | Br
 ;;
 
 type pat =  string list * string list

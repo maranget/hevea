@@ -107,11 +107,11 @@ let parse_args (popt,pat) lexbuf =
 let to_image = ref true
 ;;
 
-type format = Align of string | Inside of string
+type format = Align of string * bool | Inside of string
 ;;
 
 let pretty_format = function
-  Align s -> s
+  Align (s,b) -> (if b then "t" else "")^s
 | Inside s -> "@{"^s^"}"
 ;;
 
@@ -273,7 +273,7 @@ let put_delim delim i =
   end
 ;;
 
-let default_format = Align "left"
+let default_format = Align ("left",false)
 ;;
 
 type in_table = Table | Border | NoTable | Tabbing
@@ -311,8 +311,12 @@ and as_inside = function
 | _        -> ""
 
 and as_align = function
-  Align s -> "ALIGN="^s
+  Align (s,_) -> "ALIGN="^s
 | _       -> failwith "as_align"
+
+and is_display = function
+  Align (_,true) -> false
+| _              -> true
 
 and as_colspan = function
   1 -> ""
@@ -383,8 +387,10 @@ let close_multi = ref []
 
 let open_col main  =
   cur_col :=  show_inside main !cur_format !cur_col ;
-  Html.open_block "TD" ("NOWRAP "^as_align (get_col !cur_format !cur_col)) ;
-  open_display () ;
+  let format = (get_col !cur_format !cur_col) in
+  Html.open_block "TD" ("NOWRAP "^as_align format) ;
+  if is_display format then open_display ()
+  else scan_this main "\\hbox{" ;
   push close_multi (0,[||])
 ;;
 
@@ -437,7 +443,11 @@ let do_multi n format main =
 
 
 let close_col main =
-  close_display ();
+  let old_format = get_col !cur_format !cur_col in
+  if is_display old_format then
+    close_display ()
+  else
+    scan_this main "}" ;
   cur_col := !cur_col + 1;
   Html.force_block "TD" "&nbsp;";
   let (i,format) = pop close_multi in
@@ -906,7 +916,7 @@ rule  main = parse
       
       
 (* environments *)
-|   "\\begin" " "* "{" ['a'-'z']+ '*'?"}"
+|   "\\begin" " "* "{" ['A'-'Z' 'a'-'z']+ '*'?"}"
     {let lxm = lexeme lexbuf in
     let env = env_extract lxm in
     if env = "document" then begin
@@ -926,7 +936,7 @@ rule  main = parse
          if env = "document" then Html.open_par () ;
          main lb) in
     new_env env lexfun lexbuf}
-|  "\\end" " " * "{" ['a'-'z']+ '*'? "}"
+|  "\\end" " " * "{" ['A'-'Z' 'a'-'z']+ '*'? "}"
     {let lxm = lexeme lexbuf in
     let env = env_extract lxm in
     close_env
@@ -973,7 +983,10 @@ rule  main = parse
   | "\\else"  {skip_false lexbuf}
   | "\\fi"    {main lexbuf}
 
-
+(* index *)
+  | "\\index" [' ''\n']*
+     {Index.treat lexbuf ;
+     main lexbuf}
 (* General case for commands *)
   | "\\" '@'? ((['A'-'Z' 'a'-'z']+ '*'?) | [^ 'A'-'Z' 'a'-'z'])
       {let lxm = lexeme lexbuf in
@@ -1022,6 +1035,7 @@ rule  main = parse
              if !verbose > 2 then
                prerr_endline ("IfCond: "^if !b then "true" else "false") ;
              if !b then exec stack t else exec stack f
+          | Br -> Html.skip_line ()
           end ;
         exec stack rest in
 
@@ -1170,9 +1184,12 @@ and image = parse
      image lexbuf}
 
 and tformat = parse
-  'c' {Align "center"::tformat lexbuf}
-| 'l' {Align "left"::tformat lexbuf}
-| 'r' {Align "right"::tformat lexbuf}
+  'c' {Align ("center",false)::tformat lexbuf}
+| 'l' {Align ("left",false)::tformat lexbuf}
+| 'r' {Align ("right",false)::tformat lexbuf}
+| "tc" {Align ("center",true)::tformat lexbuf}
+| "tl" {Align ("left",true)::tformat lexbuf}
+| "tr" {Align ("right",true)::tformat lexbuf}
 | '|' {border := true ; tformat lexbuf}
 | '@'
     {let inside = Save.arg lexbuf in

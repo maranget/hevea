@@ -38,7 +38,7 @@ and opt2 =  parse
       Out.put_char arg_buff s ; opt2 lexbuf }
 
 and arg = parse
-    ' '+ {arg lexbuf}
+    [' ''\n']+ {arg lexbuf}
   | '{'
       {incr brace_nesting;
       arg2 lexbuf}

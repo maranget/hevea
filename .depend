@@ -1,20 +1,26 @@
 html.cmi: latexmacros.cmi out.cmi 
 aux.cmo: save.cmo 
 aux.cmx: save.cmx 
+entry.cmo: out.cmi 
+entry.cmx: out.cmx 
 html.cmo: latexmacros.cmi out.cmi html.cmi 
 html.cmx: latexmacros.cmx out.cmx html.cmi 
 image.cmo: out.cmi image.cmi 
 image.cmx: out.cmx image.cmi 
+index.cmo: entry.cmo html.cmi index.cmi 
+index.cmx: entry.cmx html.cmx index.cmi 
 latexmacros.cmo: aux.cmo location.cmi symb.cmo latexmacros.cmi 
 latexmacros.cmx: aux.cmx location.cmx symb.cmx latexmacros.cmi 
 latexmain.cmo: aux.cmo html.cmi image.cmi latexmacros.cmi latexscan.cmo \
     location.cmi myfiles.cmi out.cmi 
 latexmain.cmx: aux.cmx html.cmx image.cmx latexmacros.cmx latexscan.cmx \
     location.cmx myfiles.cmx out.cmx 
-latexscan.cmo: counter.cmo html.cmi image.cmi latexmacros.cmi location.cmi \
-    myfiles.cmi out.cmi save.cmo subst.cmo symb.cmo 
-latexscan.cmx: counter.cmx html.cmx image.cmx latexmacros.cmx location.cmx \
-    myfiles.cmx out.cmx save.cmx subst.cmx symb.cmx 
+latexscan.cmo: aux.cmo counter.cmo html.cmi image.cmi index.cmi \
+    latexmacros.cmi location.cmi myfiles.cmi out.cmi save.cmo subst.cmo \
+    symb.cmo 
+latexscan.cmx: aux.cmx counter.cmx html.cmx image.cmx index.cmx \
+    latexmacros.cmx location.cmx myfiles.cmx out.cmx save.cmx subst.cmx \
+    symb.cmx 
 location.cmo: location.cmi 
 location.cmx: location.cmi 
 myfiles.cmo: myfiles.cmi 

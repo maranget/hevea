@@ -253,6 +253,7 @@ let in_pre = ref false
 
 let ok_pre = function
   Style "BIG"| Style "SMALL"| Style "SUP"| Style "SUB" -> false
+| Style _ -> false
 | Font _ -> false
 | _      -> true
 ;;
@@ -584,7 +585,7 @@ let open_display args =
   push ncols_stack !ncols ;
   ncols := 0;
   open_block "DISPLAY" args ;
-  open_block "TD" "" ;
+  open_block "TD" "nowrap" ;
   if !verbose > 1 then begin
     pretty_cur !cur_out ;
     prerr_endline ""
@@ -636,7 +637,7 @@ let item_display () =
   let f,is_freeze = pop_freeze () in
   if close_flow_loc "TD" then
     ncols := !ncols + 1;
-  open_block "TD" "" ;
+  open_block "TD" "nowrap" ;
   if is_freeze then push out_stack (Freeze f) ;
   if !verbose > 1 then begin
     prerr_string "item display -> stack=" ;
@@ -648,7 +649,7 @@ and begin_item_display () =
     Printf.fprintf stderr "begin item_display: ncols=%d" !ncols;
     prerr_newline ()
   end ;
-  open_block "TD" ""
+  open_block "TD" "nowrap"
 
 and end_item_display () =
   if close_flow_loc "TD" then
@@ -719,8 +720,10 @@ let par () =
   if pblock () = "P" then begin
     close_par () ; open_par ()
   end else begin
-   prerr_endline "Warning: bad par"  ;
-   pretty_stack !out_stack ;
+   if !verbose > 0 then begin
+     prerr_endline "Warning: bad par"  ;
+     pretty_stack !out_stack
+   end ;
    put "\n<BR><BR>\n"
   end
 ;;

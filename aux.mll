@@ -34,5 +34,10 @@ rule main = parse
     let value = Save.arg lexbuf in
     bset name value ;
     main lexbuf}
+| "\\@input"
+    {let filename = Save.arg lexbuf in
+    let newbuf = from_channel (open_in filename) in
+    main newbuf ;
+    main lexbuf}
 | _   {main lexbuf}
 | eof {()}

@@ -30,6 +30,7 @@ type action =
   | Test of bool ref
   | SetTest of (bool ref * bool)
   | IfCond of bool ref * action list * action list
+  | Br
 ;;
 
 type pat = string list * string list
@@ -188,11 +189,17 @@ def_macro "\\description" 0 [Open ("DL","")];
 def_macro "\\enddescription" 0 [Close "DL"];
 def_macro "\\center" 0 [Open ("DIV","ALIGN=center")];
 def_macro "\\endcenter" 0 [Close "DIV"];
+def_macro "\\flushleft" 0 [Open ("DIV","ALIGN=left")];
+def_macro "\\endflushleft" 0 [Close "DIV"];
+def_macro "\\flushright" 0 [Open ("DIV","ALIGN=right")];
+def_macro "\\endflushright" 0 [Close "DIV"];
+
 let no_dot = function
   "." -> ""
 | s   -> s in
 def_macro "\\centerline" 1 [Subst "\\begin{center}#1\\end{center}"] ;
 def_env "quote"  [Open ("BLOCKQUOTE","")] [Close "BLOCKQUOTE"];
+def_env "quotation"  [Open ("BLOCKQUOTE","")] [Close "BLOCKQUOTE"];
 def_macro_pat
   "\\figure"  ([""],[]) [Open ("BLOCKQUOTE","") ; Print "<HR>\n"] ;
 def_macro "\\endfigure" 0 [Print "<HR>\n" ; Close "BLOCKQUOTE"];
@@ -211,7 +218,8 @@ def_macro "\\markboth" 2 [];
 def_macro "\\dots" 0 [Print "..."];
 def_macro "\\ldots" 0 [Print "..."];
 def_macro "\\cdots" 0 [Print "..."];
-
+def_macro "\\underline" 1
+  [Subst "{" ; Env (Style "U") ; Print_arg 0 ; Subst "}"];
 def_macro "\\ " 0 [Print " "];
 def_macro "\\{" 0 [Print "{"];
 def_macro "\\}" 0 [Print "}"];
@@ -236,10 +244,13 @@ def_macro "\\endthebibliography" 0 [Close "DL"];
 def_macro "\\bibitem" 1
   [Subst "\\item[{\\purple [\\@bibref{#1}]}]\\label{#1}"] ;
 def_macro "\\@bibref" 1  [Print_fun (Aux.bget,0)] ;
-def_macro "\\index" 1 [];
-def_macro "\\oe" 0 [Print "oe"];
+def_macro_pat "\\index" ([""],["#1"]) [];
+def_macro "\\index*" 1 [];
 def_macro "\\&" 0 [Print "&amp;"];
 def_macro "\\_" 0 [Print "_"];
+def_macro "\\\n" 0 [Print " "];
+def_macro "\\backslash" 0 [Print "\\"];
+def_macro "\\neg" 0 [Print "\172"];
 def_macro "\\not" 0 [Print "\172"];
 def_macro "\\raise" 2 [Print_arg 1];
 def_macro "\\hbox" 0 [];
@@ -249,11 +260,11 @@ def_macro "\\parbox" 2 [Print_arg 1];
 def_macro "\\copyright" 0 [Print "\169"];
 def_macro "\\emptyset" 0 [Print "\216"];
 def_macro "\\noindent" 0 [];
-def_macro "flushleft" 0 [Open ("blockquote","")];
-def_macro "\\endflushleft" 0 [Close "blockquote"];
 def_macro "\\cr" 0 [Subst "\\\\"];
 def_macro "\\kern" 1 [];
 def_macro "\\vspace" 1 [];
+def_macro "\\vspace*" 1 [];
+def_macro "\\vfill" 0 [Print "<BR><BR>"];
 let spaces = function
   ".5ex" -> ""
 | _      -> "~" in
@@ -279,6 +290,11 @@ def_macro "\\stackrel" 2
     [Subst "\\begin{array}{c}\\scriptsize #1\\\\ #2\\\\ ~ \\end{array}"],
     [Subst "{#2}^{#1}"])];
 (* Maths *)
+def_macro "\\vdots" 0
+  [IfCond (display,
+     [ItemDisplay ; Subst "\\cdot" ; Br ;
+     Subst "\\cdot" ; Br ; Subst "\\cdot" ;ItemDisplay],
+     [Print ":"])];;
 def_macro "\\[" 0 [Subst "$$"];
 def_macro "\\]" 0 [Subst "$$"];
 def_macro "\\alpha" 0 [Print (get alpha)];
@@ -390,6 +406,7 @@ def_macro "\\rightarrow" 0 [Print (get rightarrow)];;
 def_macro "\\Rightarrow" 0 [Print (get uprightarrow)];;
 def_macro "\\leftrightarrow" 0 [Print (get leftrightarrow)];;
 def_macro "\\Leftrightarrow" 0 [Print (get upleftrightarrow)];;
+def_macro "\\longrightarrow" 0 [Print (get longrightarrow)];;
 
 def_macro "\\infty" 0 [Print (get infty)];;
 def_macro "\\forall" 0 [Print (get forall)];;
@@ -403,6 +420,15 @@ def_macro "\\langle" 0 [Print (get langle)];;
 def_macro "\\rangle" 0 [Print (get rangle)];;
 
 def_macro "\\notin" 0 [Print (get notin)];;
+
+def_macro "\\uparrow" 0 [Print (get uparrow)];;
+def_macro "\\Uparrow" 0 [Print (get upuparrow)];;
+def_macro "\\downarrow" 0 [Print (get downarrow)];;
+def_macro "\\Downarrow" 0 [Print (get updownarrow)];;
+
+def_macro "\\oplus" 0 [Print (get oplus)];;
+def_macro "\\otimes" 0 [Print (get otimes)];;
+def_macro "\\ominus" 0 [Print (get ominus)];;
 
 
 def_macro "\\sum" 0 [IfCond (display,[Env (Font 7)],[]) ; Print (get upsigma)];
@@ -467,6 +493,10 @@ and cedille = function
   "c" -> "ç"
 | "C" -> "Ç"
 | s   -> s
+and tilde = function
+  "n" -> "ñ"
+| "N" -> "Ñ"
+| s   -> s
 ;;
 
 let do_char s = s
@@ -478,6 +508,7 @@ def_macro "\\`" 1 [Print_fun (grave,0)];
 def_macro "\\^" 1 [Print_fun (circonflexe,0)];
 def_macro "\\\"" 1 [Print_fun (trema,0)];
 def_macro "\c" 1  [Print_fun (cedille,0)];
+def_macro "\\~" 1 [Print_fun (tilde,0)];
 (* Chars *)
 def_macro "\\char" 1 [Print_fun (do_char,0)];
 (* Counters *)

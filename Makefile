@@ -1,4 +1,4 @@
-OBJS=myfiles.cmo location.cmo out.cmo counter.cmo symb.cmo image.cmo subst.cmo save.cmo  aux.cmo latexmacros.cmo  html.cmo latexscan.cmo latexmain.cmo
+OBJS=myfiles.cmo location.cmo out.cmo counter.cmo symb.cmo image.cmo subst.cmo save.cmo  aux.cmo latexmacros.cmo  html.cmo entry.cmo index.cmo latexscan.cmo latexmain.cmo
 
 OPTS=$(OBJS:.cmo=.cmx)
 
@@ -9,7 +9,7 @@ htmlgen: ${OBJS}
 	ocamlc -o htmlgen ${OBJS}
 
 htmlgen.opt: ${OPTS}
-	ocamlopt -o htmlgen ${OPTS}
+	ocamlopt -o htmlgen.opt ${OPTS}
 
 .SUFFIXES:
 .SUFFIXES: .ml .cmo .mli .cmi .c .mll .cmx
@@ -31,11 +31,11 @@ htmlgen.opt: ${OPTS}
 
 clean:
 	rm -f htmlgen htmlgen.opt
-	rm -f subst.ml latexscan.ml aux.ml save.ml
+	rm -f subst.ml latexscan.ml aux.ml save.ml entry.ml
 	rm -f *.o *.cmi *.cmo *.cmix *.cmx *.o 
 	rm -f *~ #*#
 
-depend: latexscan.ml subst.ml save.ml aux.ml
+depend: latexscan.ml subst.ml save.ml aux.ml entry.ml
 	- cp .depend .depend.bak
 	ocamldep *.mli *.ml > .depend
 
