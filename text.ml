@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.29 1999-07-05 08:30:30 tessaud Exp $"
+let header = "$Id: text.ml,v 1.30 1999-07-05 15:23:02 tessaud Exp $"
 
 
 open Misc
@@ -1702,7 +1702,7 @@ let standard_sup_sub scanner what sup sub display =
     item_display_format f ;
     if sup<>"" || sub<>"" then begin
       open_vdisplay display;
-      if sup<>"" || vide then begin
+      (*if sup<>"" || vide then*) begin
 	open_vdisplay_row "lt";
 	scanner sup ;
 	close_vdisplay_row ();
