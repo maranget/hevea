@@ -104,7 +104,7 @@
 \cutdef[\thecuttingdepth]{\cuttingunit}%
 }{%
 \@footnoteflush{document}%
-\@atenddocument\@raise@enddocument}
+\@atenddocument\@final@footer\@raise@enddocument}
 \newenvironment{center}{\@open{ALIGN}{CENTER}}{\@close{ALIGN}}
 \newenvironment{flushleft}{\@open{ALIGN}{LEFT}}{\@close{ALIGN}}
 \newenvironment{flushright}{\@open{ALIGN}{RIGHT}}{\@close{ALIGN}}

@@ -267,11 +267,10 @@
 \end{toimage}}
 \newtokens{\@atenddocument}
 \newcommand{\AtEndDocument}[1]{\addtokens{\@atenddocument}{#1}}
-\AtEndDocument
-{\iffooter\ifhtml\@print{
-<!--FOOTER-->
-}\fi%
-\input{footer.tex}\fi}
+\def\@final@footer{%
+\iffooter\ifhtml
+\@print{<!--FOOTER-->}
+\fi\input{footer.tex}\fi}
 \AtEndDocument
 {\begin{toimage}
 \end{document}
@@ -316,7 +315,7 @@
 \newenvironment{thebibliography}[1]
   {\@bibliosection{\bibname}%
   \begin{list}{\stepcounter{heveabib}\theheveabib}
-    {\renewcommand{\makelabel}[1]{\@biblabel{##1}}}}
+    {\let\makelabel\@biblabel}}
   {\end{list}}
 \newcounter{heveabib}
 \newcommand{\bibitem}[2][!*!]

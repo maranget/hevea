@@ -12,7 +12,7 @@
 {
 open Lexing
 open Stack
-let header = "$Id: cut.mll,v 1.31 2001-07-02 16:23:08 maranget Exp $" 
+let header = "$Id: cut.mll,v 1.32 2001-07-02 16:25:57 maranget Exp $" 
 
 let verbose = ref 0
 ;;
@@ -552,7 +552,6 @@ and closeflow () =
 | "<!--HTML" ' '* "FOOT" ' '* "-->" '\n' ?
     {let foot =  save_html lexbuf in
     if !phase = 0 then begin
-      Printf.eprintf "FOOTER: <<%s>>\n" foot ;
       html_foot := foot
     end ;
     main lexbuf}
