@@ -403,26 +403,10 @@ register_init "moreverb"
   ())
 
 (* The comment package *)
-let env_stack = Stack.create "Verb.env_stack"
 
 let init_comment () =
   def_code "\\@excludecomment" open_forget ;
   def_code "\\end@excludecomment"  Scan.check_alltt_skip ;
-(*
-  def_code "\\@includecomment" 
-    (fun lexbuf ->
-      push env_stack !Scan.cur_env ;
-      Scan.skip_pop lexbuf ;
-      Scan.top_close_block "" ;
-      Scan.close_env !Scan.cur_env ;
-      Scan.main lexbuf) ;
-  def_code "\\end@includecomment"
-    (fun lexbuf ->
-      let env = pop env_stack in
-      Scan.new_env env ;
-      Scan.top_open_block "" "" ;
-      Scan.skip_pop lexbuf)
-*)
 ;;
 
 register_init "comment" init_comment      

@@ -45,7 +45,7 @@ manual001.gif: manual.image.tex
 	${IMAGEN} manual
 
 info: manual.inf tmp.tex
-	$(HEVEA) -info -v manual.inf tmp.tex -o hevea.info
+	$(HEVEA) -info -v manual.inf tmp.tex -o manual.info
 
 ############ Installation stuff
 install:
@@ -123,11 +123,12 @@ devrpm:
 rpm:
 	$(MAKE) $(MFLAGS) dorpm
 clean:
-	rm -f *~ *.aux *.log *.toc *.idx *.ilg *.ind *.haux
+	rm -f *~ *.aux *.log *.toc *.idx *.ilg *.ind *.haux *.hidx *.hind
 
 cleanall: clean
 	rm -f manual.dvi manual.ps manual[0-9][0-9][0-9].html *_motif.gif \
-	manual*.gif tmp.* *.image.tex manual.html index.html faq.html hevea.spec
+	manual*.gif tmp.* *.image.tex manual.html index.html faq.html\
+	 hevea.spec manual.txt manual.info manual.info-[0-9]
 
 include ../libs.def
 RPMLIB=/usr/lib/hevea

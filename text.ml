@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.40 2000-01-26 17:08:57 maranget Exp $"
+let header = "$Id: text.ml,v 1.41 2000-01-26 19:39:50 maranget Exp $"
 
 
 open Misc
@@ -1189,7 +1189,7 @@ let multi = ref []
 and multi_stack = Stack.create "multi_stack";;
 
 
-let open_table border htmlargs =
+let open_table border _ =
   (* creation d'une table : on prepare les donnees : creation de l'environnement qvb, empilage du precedent. *)
   push table_stack !table;
   push row_stack !row;
@@ -1516,8 +1516,9 @@ let put_ligne texte pos align width taille wrap=
   with
   | Not_found -> String.length texte
   | Invalid_argument _ ->
-      assert (texte="" && pos=0) ;
-      0
+      let l = String.length texte in
+      assert (pos=l) ;
+      l
   in
   let s = String.sub texte pos (pos_suiv - pos) in
   let t,post= 
@@ -1790,14 +1791,14 @@ let pop_freeze () = match top  out_stack with
 let open_display args =
   open_table (!verbose>1) "";
   new_row ();
-  if !verbose > 0 then make_border "{";
+  if !verbose > 1 then make_border "{";
   open_cell cm_format 1 0;
   open_cell_group ();
 ;;
 
 let close_display () =
   if not (flush_freeze ()) then begin
-    if !verbose > 0 then make_border "}";
+    if !verbose > 1 then make_border "}";
     close_cell_group ();
     close_cell ();
     close_row ();
@@ -1807,7 +1808,7 @@ let close_display () =
 
 let item_display () = 
   let f,is_freeze = pop_freeze () in
-  if !verbose > 0 then make_border "|";
+  if !verbose > 1 then make_border "|";
   close_cell ();
   close_cell_group ();
   open_cell cm_format 1 0;
@@ -1817,7 +1818,7 @@ let item_display () =
 
 let item_display_format format =
   let f,is_freeze = pop_freeze () in
-  if !verbose > 0 then make_border "|";
+  if !verbose > 1 then make_border "|";
   close_cell ();
   close_cell_group ();
   open_cell (formated format) 1 0;

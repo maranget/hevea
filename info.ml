@@ -10,7 +10,7 @@
 (***********************************************************************)
 
 
-let header = "$Id: info.ml,v 1.22 2000-01-21 18:48:44 maranget Exp $"
+let header = "$Id: info.ml,v 1.23 2000-01-26 19:39:36 maranget Exp $"
 
 open Misc
 open Text
@@ -104,23 +104,28 @@ let finalize check =
   if check then begin
     if !verbose>1 then prerr_endline "Beginning of second phase.";
     InfoRef.finalize_nodes ();
-    let buf, out_chan = match Parse_opts.name_out with
+    Text.finalize check ;
+    let name, buf, out_chan = match Parse_opts.name_out with
     | "" -> 
         let texte = get_current_output () in 
         Text.finalize check;
-        Lexing.from_string texte, Out.create_chan stdout
+        "",Lexing.from_string texte, Out.create_chan stdout
     | s ->  
         Text.finalize check;
       (* changer de nom de fichier (renommer ?) *)
         let f = s^".tmp" in
         if !verbose >1 then prerr_endline ("Out file:"^s);
-        Lexing.from_channel  (open_in f),Out.create_chan (open_out s)
+        f,Lexing.from_channel  (open_in f),Out.create_chan (open_out s)
     in
     InfoRef.set_out out_chan;
     InfoRef.set_out_file Parse_opts.name_out;
     InfoRef.main buf;
+    begin match name with
+    | "" -> ()
+    | _  -> if !verbose <= 0 then Myfiles.remove name
+    end
   end else
-    Text.finalize check
+    Text.finalize false
 ;;
 
 let horizontal_line =Text.horizontal_line;;

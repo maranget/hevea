@@ -329,4 +329,5 @@
 \newcommand{\newverbenv}[1]
 {\@stopimage%
 \let{\csname #1\endcsname}\verbatim
-\let{\csname end#1\endcsname}\endverbatim}
+\let{\csname end#1\endcsname}\endverbatim
+\@restartimage}

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.160 2000-01-26 17:08:50 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.161 2000-01-26 19:39:43 maranget Exp $ *)
 
 
 {
@@ -118,7 +118,7 @@ let big_size () =  Dest.open_mod (Font 7)
 
 (* Horizontal display *)
 let display_arg  verbose =
-  if verbose > 0 then
+  if verbose > 1 then
     "BORDER=1 CELLSPACING=0 CELLPADDING=0"
   else
     "CELLSPACING=0 CELLPADDING=0"
