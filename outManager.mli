@@ -44,9 +44,10 @@ module type S =
     val begin_item_display : (unit -> unit) -> bool -> unit
     val erase_display : unit -> unit
 
-    val set_dt : string -> unit
     val set_dcount : string -> unit
-    val item : (string -> unit) -> string -> unit
+    val item  : unit -> unit
+    val nitem : unit -> unit
+    val ditem : (string -> unit) -> string -> unit
     val change_block : string -> string -> unit
     val erase_block : string -> unit
     val open_group : string -> unit

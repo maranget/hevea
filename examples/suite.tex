@@ -691,6 +691,19 @@ Foo! foooooooooooooooooooo.
 \end{foo}
 \index{autre@L'index \hevea{} doit être~\ref{listes}}
 
+Et puis encore un:
+\newenvironment{list2}{\begin{list}
+    {}{\setlength{\itemsep}{0em} \setlength{\labelsep}{0em}
+      \renewcommand{\makelabel}[1]{\textbf{$\bullet$\ ##1}}}}{\end{list}}
+\begin{list2}
+\item Coucou
+\item Zobi
+\begin{list2}
+\item[a] Coucou
+\item[b] Zobi
+\end{list2}
+\end{list2}
+
 \section{Beurk}
 
 {\centering coucou}
@@ -1034,6 +1047,23 @@ Coucou & \Gamma_A \\
         ocamlc -use-runtime /home/me/ocamlunixrun -o myprog \char92
                 unix.cma threads.cma {\it{your .cmo and .cma files}}
 \end{alltt}
+
+\begin{alltt}
+Et voici notre ami le ``#1''
+\end{alltt}
+\section{Les notes de bas de page en folie}
+I hate this footnote\footnote{this is the footnote}
+twice\footnotemark[\value{footnote}].
+
+\newcounter{bof}\setcounter{bof}{\value{footnote}}\addtocounter{bof}{1}
+It was Gnats\footnotemark\ and Gnus\footnotemark\
+\addtocounter{footnote}{-1}%
+\footnotetext{Small insects}%
+\addtocounter{footnote}{1}\footnotetext{Large mammals}%
+as we trekked through Africa, and gnats\footnotemark[\value{bof}]
+and gnus\addtocounter{bof}{1}\footnotemark[\value{bof}] again and again\ldots
+Une dernière note de bas de page pour la route\footnote{Je suis la
+dernière}.
 
 \begin{thebibliography}{xxxxxxxxxx}
 \bibitem[\LaTeX-bis]{latexbis}

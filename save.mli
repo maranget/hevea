@@ -10,6 +10,7 @@ val opt : Lexing.lexbuf -> string
 val arg : Lexing.lexbuf -> string
 val arg_verbatim : Lexing.lexbuf -> string
 val csname : Lexing.lexbuf -> string
+val incsname : Lexing.lexbuf -> string
 val cite_arg : Lexing.lexbuf -> string list
 val macro_names : Lexing.lexbuf -> string list
 val num_arg : Lexing.lexbuf -> int
@@ -20,6 +21,5 @@ val get_sup : Lexing.lexbuf -> string
 val get_sub : Lexing.lexbuf -> string
 val defargs : Lexing.lexbuf -> string list
 val tagout : Lexing.lexbuf -> string
-
-
+val checklimits : Lexing.lexbuf -> bool
 

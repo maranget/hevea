@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: html.ml,v 1.53 1999-06-02 12:07:16 tessaud Exp $" 
+let header = "$Id: html.ml,v 1.54 1999-06-02 15:42:21 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -270,9 +270,6 @@ let out_stack = ref []
 
 let pblock () = match !out_stack with
   Normal (s,_,_)::_ -> s
-| _ -> ""
-and parg ()  = match !out_stack with
-  Normal (_,s,_)::_ -> s
 | _ -> ""
 ;;
 
@@ -1306,14 +1303,33 @@ let set_dt s = flags.dt <- s
 and set_dcount s = flags.dcount <- s
 ;;
 
-let item scan arg =
-  if !verbose > 2 then begin
-    prerr_string "Item stack=" ;
+let item () =
+   if !verbose > 2 then begin
+    prerr_string "item: stack=" ;
     pretty_stack !out_stack
   end ;
-  if not (is_list (pblock ())) then
-    raise (Error "Item not inside a list element") ;
+  let mods = !cur_out.pending @ !cur_out.active in
+  do_close_mods () ;
+  !cur_out.pending <- mods ;
+  let saved =
+    if flags.nitems = 0 then begin
+      let _ = forget_par () in () ;
+      Out.to_string !cur_out.out
+    end else  "" in
+  flags.nitems <- flags.nitems+1;
+  try_flush_par () ;
+  do_put "\n<LI>" ;
+  do_put saved
+;;
 
+let nitem = item
+;;
+
+let ditem scan arg =
+  if !verbose > 2 then begin
+    prerr_string "ditem: stack=" ;
+    pretty_stack !out_stack
+  end ;
   let mods = !cur_out.pending @ !cur_out.active in
   do_close_mods () ;
   let true_scan =
@@ -1325,21 +1341,12 @@ let item scan arg =
   try_flush_par ();
   !cur_out.pending <- mods ;
   flags.nitems <- flags.nitems+1;
-  if pblock() = "DL" then begin
-    let parg = parg() in
-    do_put "\n<DT>" ;    
-    open_group "" ;
-    if flags.dcount <> "" then scan ("\\refstepcounter{"^ flags.dcount^"}") ;
-    if parg <> "" then
-      true_scan ("\\makelabel{"^(if arg = "" then flags.dt else arg)^"}")
-    else
-      true_scan (if arg = "" then flags.dt else arg) ;
-    close_group () ;
-    do_put "<DD>"
-  end else begin
-    do_put "\n<LI>" ;
-    true_scan arg
-  end
+  do_put "\n<DT>" ;    
+  open_group "" ;
+  if flags.dcount <> "" then scan ("\\refstepcounter{"^ flags.dcount^"}") ;
+  true_scan ("\\makelabel{"^arg^"}") ;
+  close_group () ;
+  do_put "<DD>"
 ;;
 
 

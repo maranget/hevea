@@ -23,12 +23,15 @@ val pretty_env : env -> string
 val find_macro: string -> pat * action
 val exists_macro: string -> bool
 val is_subst_noarg : action -> pat -> bool
+val start_env : string -> string
+val end_env : string -> string
 
 val make_pat: string list -> int -> pat
 val def_coltype: string -> pat  -> action -> unit
 val def_macro_pat: string -> pat  -> action -> unit
 val redef_macro_pat: string -> pat  -> action -> unit
 val provide_macro_pat: string -> pat  -> action -> unit
+val silent_def_pat: string -> pat  -> action -> unit
 val def_macro: string -> int -> action -> unit
 val def_code: string -> (Lexing.lexbuf -> unit) -> unit
 val redef_code: string -> (Lexing.lexbuf -> unit) -> unit

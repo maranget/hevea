@@ -11,7 +11,9 @@
 
 module type T =
   sig
-    val register : int -> string -> string -> string -> unit
+    val step_anchor : int -> unit
+    val get_anchor : int -> int
+    val register : int -> string -> string -> unit
     val flush : (string -> unit)  -> string -> string -> unit
     val some : bool ref
   end
@@ -19,62 +21,74 @@ module type T =
 module MakeFoot ( Dest : OutManager.S )=
 struct
 
-let header = "$Id: foot.ml,v 1.10 1999-05-27 15:38:09 tessaud Exp $" 
+let header = "$Id: foot.ml,v 1.11 1999-06-02 15:42:20 maranget Exp $" 
 open Parse_opts
 (*open Dest*)
 
-type ok = Some of int * string * string * string | None
-
-let table = ref (Array.make 2 None)
-and some = ref false
+let some = ref false
 ;;
 
-let current = ref 0
+
+let anchor = ref 0
 ;;
-let register i mark text anchor =
+
+let mark_to_anchor = Hashtbl.create 17
+and anchor_to_note = Hashtbl.create 17
+;;
+
+let step_anchor mark =
+  incr anchor ;
+  Hashtbl.remove mark_to_anchor mark ;
+  Hashtbl.add mark_to_anchor mark !anchor
+;;
+
+let get_anchor mark =
+  let r =
+    try Hashtbl.find mark_to_anchor mark
+    with Not_found -> begin
+      step_anchor mark ;
+      !anchor
+    end in
+  r
+;;
+  
+let register mark themark text =
   some := true ;
-  let b =  Array.length !table < !current in
-  if Array.length !table <= !current then begin
-    let t = Array.make (2* !current) None in
-    Array.blit !table 0 t 0 (Array.length !table) ;
-    table := t
+  let anchor = get_anchor mark in
+  begin try
+    let _ = Hashtbl.find anchor_to_note anchor in    
+    Parse_opts.warning "erasing previous footnote" ;
+    Hashtbl.remove  anchor_to_note anchor
+  with Not_found -> ()
   end ;
-  begin match !table.(!current) with
-    None -> ()
-  | Some (_,_,_,_) -> begin
-      Location.print_pos () ;
-      prerr_endline "Warning: erasing previous footnote"
-    end
-  end ;
-  !table.(!current) <- Some (i,mark,text,anchor) ;
-  incr current
+  Hashtbl.add anchor_to_note anchor (mark,themark,text)
 ;;
 
 
 let flush lexer sec_notes sec_here =
   if !some && Section.value sec_here <= Section.value sec_notes then begin
     some := false ;
-    Dest.put_tag "<!--BEGIN NOTES " ;
-    Dest.put_tag sec_notes ;
-    Dest.put_tag "-->\n" ;
-    lexer "\\footnoterule" ;
-    Dest.open_block "DL" "" ;
-    let t = !table in
-    for i = 0 to Array.length t - 1 do
-      match t.(i) with
-        None -> ()
-      | Some (_,m,txt,anchor) ->
-          t.(i) <- None ;
-          Dest.item (fun s ->
-             lexer ("\\@openanchor{text}{note}{"^anchor^"}") ;
-             Dest.put s ;
-             lexer ("\\@closeanchor")) m;
-          Dest.put txt ;
-          Dest.put_char '\n'
-    done ;
-    Dest.force_block "DL" "" ;
-    Dest.put_tag "<!--END NOTES-->" ;
-    current := 0;
+    lexer ("\\begin{thefootnotes}{"^sec_notes^"}") ;
+    let all = ref [] in
+    Hashtbl.iter
+      (fun anchor (mark,themark,text) ->
+        all := ((mark,anchor),(themark,text)) :: !all)
+      anchor_to_note ;
+    all := Sort.list
+         (fun ((m1,a1),_) ((m2,a2),_) ->
+           (m1 < m2) ||
+           ((m1 = m1) && (a1 <= a2))) !all ;
+    List.iter
+      (fun ((_,anchor),(themark,text)) ->
+        Dest.ditem (fun s ->
+          lexer ("\\@openanchor{text}{note}{"^string_of_int anchor^"}") ;
+          lexer s ;
+          lexer "\\@closeanchor") themark ;
+        Dest.put text)
+      !all ;
+    lexer "\\end{thefootnotes}" ;
+    Hashtbl.clear mark_to_anchor ;
+    Hashtbl.clear anchor_to_note ;
   end
 ;;
 

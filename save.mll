@@ -12,7 +12,7 @@
 {
 open Lexing
 
-let header = "$Id: save.mll,v 1.33 1999-04-14 09:50:48 maranget Exp $" 
+let header = "$Id: save.mll,v 1.34 1999-06-02 15:42:36 maranget Exp $" 
 
 let verbose = ref 0 and silent = ref false
 ;;
@@ -281,3 +281,7 @@ and instring = parse
 | eof  {Out.to_string tag_buff}
 
 
+and checklimits = parse
+  "\\limits"   {true}
+| "\\nolimits" {false}
+| ""           {false}

@@ -82,10 +82,10 @@ mylib.cmx: mylib.ml mylib.cmi
 	${OCAMLOPT} -pp '${CPP} -DLIBDIR=\"${LIBDIR}\"' -c mylib.ml
 
 cutfoot-fra.html: cutfoot.tex html/hevea.hva ${HEVEA}
-	export HEVEADIR=. ; ${HEVEA} -francais < cutfoot.tex > $@
+	HEVEADIR=. ; export HEVEADIR ; ${HEVEA} -francais < cutfoot.tex > $@
 
 cutfoot-eng.html: cutfoot.tex html/hevea.hva ${HEVEA}
-	export HEVEADIR=. ; ${HEVEA} < cutfoot.tex > $@
+	HEVEADIR=. ; export HEVEADIR ; ${HEVEA} < cutfoot.tex > $@
 
 .SUFFIXES:
 .SUFFIXES: .ml .cmo .mli .cmi .c .mll .cmx 

@@ -20,7 +20,7 @@ module type T =
 module Make (Dest : OutManager.S) =
 struct
 
-let header = "$Id: index.ml,v 1.27 1999-05-21 15:54:16 maranget Exp $"
+let header = "$Id: index.ml,v 1.28 1999-06-02 15:42:23 maranget Exp $"
 open Misc
 open Parse_opts
 open Entry
@@ -292,14 +292,14 @@ let rec close_prev = function
 let rec open_this  main k = match k with
   [],_ -> ()
 | k::r,p::rp ->
-    Dest.item
-      (fun tag ->
-      try
-        main tag
-      with x -> begin
-          prerr_endline ("Something wrong with index: "^tag) ;
-          raise x
-      end) (if p <> "" then p else k) ;
+    Dest.item () ;
+    let tag = if p <> "" then p else k in
+    begin try
+      main tag 
+    with x -> begin
+      prerr_endline ("Something wrong with index: "^tag) ;
+      raise x end
+    end ;
     begin match r with
       [] -> ()
     | _  -> Dest.open_block "UL" "" 

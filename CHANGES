@@ -1,4 +1,8 @@
 version 1.04-1
+  - Better list-making environment and better documentation for them.
+  - Suppressed ``Videoc'' when in text mode.
+  - Added \csname ... \endcsname,
+    environement names such as ``list1'' are supported
   - Symbols defined as .hva source files.
   - Simplified macro values (-> 3 constructor only, and CamlCode arg is
       lexbuf -> unit)

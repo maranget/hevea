@@ -44,7 +44,7 @@ open Tabular
 open Lexstate
 
 
-let header = "$Id: latexscan.mll,v 1.106 1999-06-02 12:07:21 tessaud Exp $" 
+let header = "$Id: latexscan.mll,v 1.107 1999-06-02 15:42:31 maranget Exp $" 
 
 
 let sbool = function
@@ -993,6 +993,63 @@ let no_prelude () =
 let macro_depth = ref 0
 ;;
 
+let expand_command main skip_blanks name lexbuf =
+  let exec = function
+    | Subst body ->
+        if !verbose > 2 then
+          prerr_endline ("user macro: "^body) ;            
+        scan_this_may_cont main lexbuf body
+    | CamlCode f -> f lexbuf in
+
+  let pat,body = find_macro name in
+  let args = make_stack name pat lexbuf in
+  let saw_par = !Save.seen_par in
+  let is_limit = checklimits lexbuf ||  Latexmacros.limit name in
+  if not !alltt && (is_limit || Latexmacros.big name) then begin
+    let sup,sub = Save.get_sup_sub lexbuf in
+    let do_what =
+      (fun () -> scan_body exec body args) in
+    if !display && is_limit then
+      limit_sup_sub main do_what sup sub
+    else if !display &&  Latexmacros.int name then
+      int_sup_sub true 3 main do_what sup sub
+    else
+      standard_sup_sub main do_what sup sub
+  end else begin
+    if (!verbose > 1) then begin
+      prerr_endline
+        ("Expanding macro "^name^" {"^(string_of_int !macro_depth)^"}") ;
+      macro_depth := !macro_depth + 1
+    end ;
+    push stack_alltt !alltt ;
+    if !alltt then begin
+      alltt := false ;
+      scan_body exec body args ;
+      alltt := not !alltt
+    end else
+      scan_body exec body args ;
+    let _ = pop stack_alltt in
+    if (!verbose > 1) then begin
+      prerr_endline ("Cont after macro "^name^": ") ;
+      macro_depth := !macro_depth - 1
+    end ;
+    if saw_par then top_par (par_val !in_table)
+    else if
+      (!in_math && Latexmacros.invisible name) ||
+      (not !in_math && not !alltt &&
+       is_subst_noarg body pat && last_letter name)
+    then begin
+      if !verbose > 2 then
+        prerr_endline "skipping blanks";
+      skip_blanks lexbuf
+    end else begin
+      if !verbose > 2 then begin
+        prerr_endline "not skipping blanks"
+      end
+    end ;
+  end
+;;
+
 } 
 
 let command_name = '\\' (('@' ? ['A'-'Z' 'a'-'z']+ '*'?) | [^ 'A'-'Z' 'a'-'z'])
@@ -1102,68 +1159,18 @@ rule  main = parse
 (* Substitution  *)
   | '#' ['1'-'9']
       {let lxm = lexeme lexbuf in
-      let i = Char.code lxm.[1] - Char.code '1' in
-      scan_arg (scan_this main) i ;
+      begin if !alltt then
+        Dest.put lxm
+      else
+        let i = Char.code lxm.[1] - Char.code '1' in
+        scan_arg (scan_this main) i
+      end ;
       main lexbuf}
 (* Commands *)
   | command_name
       {let name = lexeme lexbuf in
-      let exec = function
-        | Subst body ->
-            if !verbose > 2 then
-              prerr_endline ("user macro: "^body) ;            
-            scan_this_may_cont main lexbuf body
-        | CamlCode f -> f lexbuf in
-
-      let pat,body = find_macro name in
-      let args = make_stack name pat lexbuf in
-      let saw_par = !Save.seen_par in
-      let is_limit = checklimits lexbuf ||  Latexmacros.limit name in
-      if not !alltt && (is_limit || Latexmacros.big name) then begin
-        let sup,sub = Save.get_sup_sub lexbuf in
-        let do_what =
-          (fun () -> scan_body exec body args) in
-        if !display && is_limit then
-          limit_sup_sub main do_what sup sub
-        else if !display &&  Latexmacros.int name then
-          int_sup_sub true 3 main do_what sup sub
-        else
-          standard_sup_sub main do_what sup sub ;
-        main lexbuf
-      end else begin
-        if (!verbose > 1) then begin
-          prerr_endline
-            ("Expanding macro "^name^" {"^(string_of_int !macro_depth)^"}") ;
-          macro_depth := !macro_depth + 1
-        end ;
-        push stack_alltt !alltt ;
-        if !alltt then begin
-          alltt := false ;
-          scan_body exec body args ;
-          alltt := not !alltt
-        end else
-          scan_body exec body args ;
-        let _ = pop stack_alltt in
-        if (!verbose > 1) then begin
-          prerr_endline ("Cont after macro "^name^": ") ;
-          macro_depth := !macro_depth - 1
-        end ;
-        if saw_par then top_par (par_val !in_table)
-        else if
-          (!in_math && Latexmacros.invisible name) ||
-          (not !in_math && not !alltt &&
-           is_subst_noarg body pat && last_letter name)
-        then begin
-          if !verbose > 2 then
-            prerr_endline "skipping blanks";
-          skip_blanks lexbuf
-        end else begin
-          if !verbose > 2 then begin
-            prerr_endline "not skipping blanks"
-          end
-        end ;
-        main lexbuf 
-      end}
+      expand_command main skip_blanks name lexbuf ;
+      main lexbuf}
 (* Groups *)
 | '{' 
     {if !activebrace then
@@ -1236,7 +1243,7 @@ and latexonly = parse
      end else if arg = top stack_entry then begin
        let _ = pop stack_entry in
        push stack_out arg ;
-       begin match find_macro ("\\end"^arg) with
+       begin match find_macro (end_env arg) with
          _,(Subst body) ->
            scan_this_may_cont latexonly lexbuf body
        |  _,_ ->
@@ -1286,7 +1293,7 @@ and image = parse
      end else if arg = top stack_entry then begin
        let _ = pop stack_entry in
        push stack_out arg ;
-       begin match find_macro ("\\end"^arg) with
+       begin match find_macro (end_env arg) with
          _,(Subst body) ->
            scan_this_may_cont  image lexbuf body
        |  _,_ -> raise (Misc.ScanError ("Bad closing macro in image: ``"^arg^"''"))
@@ -1404,27 +1411,6 @@ and skip_blanks = parse
 | '\n' {more_skip lexbuf}
 | ""   {()}
 
-and skip_endrow = parse
-| [' ''\n']+ {skip_endrow lexbuf}
-| "\\\\"
-    {
-  scan_this main "\\\\"
-(*
-   let _ = skip_opt lexbuf in
-   skip_blanks_pop lexbuf
-*)
-}
-| eof
-    {if not (Lexstate.empty stack_lexbuf) then begin
-     let lexbuf = previous_lexbuf () in
-     if !verbose > 2 then begin
-       prerr_endline "Poping lexbuf in skip_endrow" ;
-       pretty_lexbuf lexbuf
-     end ;
-     skip_endrow lexbuf
-   end else ()}
-| "" {()}
-
 and more_skip = parse
   '\n'+ {top_par (par_val !in_table)}
 | ""    {skip_blanks lexbuf}
@@ -1456,10 +1442,6 @@ and skip_false = parse
      end}
 | _ {skip_false lexbuf}
 
-and checklimits = parse
-  "\\limits"   {true}
-| "\\nolimits" {false}
-| ""           {false}
 
 and comment = parse
   ' '* ("BEGIN"|"begin") ' '+ ("IMAGE"|"image")
@@ -1562,6 +1544,9 @@ def_code "\\bibliography" (do_input "\\bibliography")
 ;;
 
 (* Command definitions *)
+let subst_body s = if top_level () then s else subst_this subst s
+;;
+
 let do_newcommand lxm lexbuf =
   Save.start_echo () ;
   let name = subst_this subst (Save.csname lexbuf) in
@@ -1569,7 +1554,7 @@ let do_newcommand lxm lexbuf =
   let body =
     if top_level () then save_arg lexbuf
     else subst_arg subst lexbuf in    
-  if (!env_level = 0) then
+  if (!env_level = 0) && lxm <> "\\@forcecommand"  then
     Image.put
       (lxm^Save.get_echo ()^"\n") ;
   let nargs,(def,defval) = match nargs with
@@ -1583,8 +1568,12 @@ let do_newcommand lxm lexbuf =
     (match lxm with
       "\\newcommand"   -> def_macro_pat
     | "\\renewcommand" -> redef_macro_pat
+    | "\\@forcecommand" -> silent_def_pat        
     | _                -> provide_macro_pat) name
-      (Latexmacros.make_pat (if def then [defval] else []) nargs)
+      (Latexmacros.make_pat
+         (if def then
+           [subst_body  defval]
+         else []) nargs)
       (Subst body) ;
     macro_register name
   with Latexmacros.Failed -> () end
@@ -1592,7 +1581,8 @@ let do_newcommand lxm lexbuf =
 
 def_name_code "\\renewcommand" do_newcommand  ;
 def_name_code "\\newcommand" do_newcommand ;
-def_name_code "\\providecommand" do_newcommand
+def_name_code "\\providecommand" do_newcommand ;
+def_name_code "\\@forcecommand" do_newcommand ;
 ;;
 
 def_name_code "\\newcolumntype"
@@ -1625,11 +1615,13 @@ let do_newenvironment lxm lexbuf =
       "\\newenvironment" -> def_env_pat
     |  _ -> redef_env_pat) name
       (Latexmacros.make_pat
-         (match optdef with No _ -> [] | Yes s -> [s])
+         (match optdef with
+         | No _ -> []
+         | Yes s -> [subst_body s])
          (match nargs with No _ -> 0 | Yes s -> Get.get_int s))
-      (Subst body1) (Subst body2);
-    macro_register ("\\"^name) ; 
-                      macro_register ("\\end"^name)
+      (Subst (subst_body body1)) (Subst (subst_body body2));
+    macro_register (start_env name) ; 
+    macro_register (end_env name)
   with Latexmacros.Failed -> () end
 ;;
 
@@ -1746,6 +1738,13 @@ def_code "\\unskip"
       check_alltt_skip lexbuf)
 ;;
 
+def_code "\\csname"
+  (fun lexbuf ->
+    skip_blanks lexbuf ;
+    let name = "\\"^subst_this subst (Save.incsname lexbuf) in
+    check_alltt_skip lexbuf ;
+    expand_command main skip_blanks name lexbuf)
+;;
 
 (* Complicated use of output blocks *)
 def_code "\\left"
@@ -1801,7 +1800,7 @@ let check_not = function
   | "\\in" -> "\\notin"
   | "="    -> "\\neq"
   | "\\subset" -> "\\notsubset"
-  | s -> "\\neg\:s"
+  | s -> "\\neg\\:"^s
 ;;
 
 def_fun "\\not" check_not
@@ -1811,12 +1810,15 @@ def_fun "\\upercase" String.uppercase
 ;;
 
 (* list items *)
-def_code "\\item"
- (fun lexbuf ->
-    let arg = save_opt "" lexbuf in
-    Dest.item (scan_this main) arg)
+def_code "\\@li" (fun _ -> Dest.item ()) ;
+def_code "\\@linum" (fun _ -> Dest.nitem ()) ;
+def_code "\\@dt"
+  (fun lexbuf ->
+    let arg = save_arg lexbuf in
+    Dest.ditem (scan_this main) arg)
 ;;
 
+    
 (* Html primitives *)
 def_code "\\@open"
   (fun lexbuf ->
@@ -1868,8 +1870,13 @@ def_code "\\@close"
 def_code "\\@print"
   (fun lexbuf ->
           let arg = save_arg lexbuf in
-          Dest.put arg )
+          Dest.put arg) ;
+def_code "\\@subst"
+  (fun lexbuf ->
+    let arg = subst_arg subst lexbuf in
+    Dest.put arg)
 ;;
+
 def_code "\\@notags"
   (fun lexbuf ->
           let arg = save_arg lexbuf in
@@ -1913,11 +1920,7 @@ def_code "\\htmlcolor"
           let arg = get_this_nostyle main arg in
           Dest.open_mod (Color ("\"#"^arg^"\"")) )
 ;;
-def_code "\\@defaultdt"
-  (fun lexbuf ->
-          let arg = subst_arg subst lexbuf in
-          Dest.set_dt arg )
-;;
+
 def_code "\\usecounter"
   (fun lexbuf ->
           let arg = subst_arg subst lexbuf in
@@ -2104,19 +2107,26 @@ def_code "\\includeonly"
 ;;
 
 (* Foot notes *)
+def_code "\\@stepanchor"
+  (fun lexbuf ->
+    let mark = Get.get_int (save_arg lexbuf) in
+    Foot.step_anchor mark) ;
+def_code "\\@anchorval"
+  (fun lexbuf ->
+    let mark = Get.get_int (save_arg lexbuf) in
+    Dest.put (string_of_int (Foot.get_anchor mark)))
+;;
+
 def_code "\\@footnotetext"
   (fun lexbuf ->
     start_lexstate () ; 
-    let mark = save_arg lexbuf in
-    let mark = Get.get_int mark in
+    let mark = Get.get_int (save_arg lexbuf) in
     let text = save_arg lexbuf in
     let text = get_this main ("\\@clearstyle "^text) in
-    let anchor = save_arg lexbuf in
-    let anchor = get_this main anchor in
     Foot.register
       mark
-      (get_this main ("\\@footnotemark{note}{"^string_of_int mark^"}"))
-      text anchor ;
+      (get_this main ("\\@fnmarknote{"^string_of_int mark^"}"))
+      text ;
     restore_lexstate ())
 ;;
 
@@ -2141,7 +2151,7 @@ def_code "\\begin"
       Dest.set_out out_file
     end ;
     new_env env ;
-    let macro = "\\"^env in
+    let macro = "\\csname "^env^"\\endcsname"  in
       if env <> "document" then
         top_open_block "" "" ;
       let old_envi = save_stack stack_entry in
@@ -2153,7 +2163,7 @@ def_code "\\begin"
 def_code "\\end"
   (fun lexbuf ->
     let env = subst_arg subst lexbuf in
-    scan_this main ("\\end"^env) ;
+    scan_this main ("\\csname end"^env^"\\endcsname") ;
     if env <> "document" then top_close_block "" ;
     close_env env ;
     if env = "document" then raise Misc.EndInput)
@@ -2253,7 +2263,7 @@ def_code "\\symbol"
 def_code "\\label"
   (fun lexbuf ->
     let save_last_closed = Dest.get_last_closed () in
-    let lab = get_this main (subst_arg subst lexbuf) in
+    let lab = subst_arg subst lexbuf in
     Dest.loc_name lab "" ;
     Dest.set_last_closed save_last_closed)
 ;;
@@ -2288,10 +2298,13 @@ def_code "\\@printindex"
   (fun lexbuf ->
     start_lexstate () ;
     let tag =  get_this_nostyle main (save_opt "default" lexbuf) in
+    new_env "*index*" ;
+    scan_this main "\\@forcecommand{\\makelabel}[1]{#1}" ;
     begin try
       Index.print (scan_this main) tag
     with Index.Error s -> raise (Misc.ScanError s)
     end ;
+    close_env "*index*" ;
     restore_lexstate ())
 ;;
 
@@ -2482,7 +2495,7 @@ def_code "\\hline"
   (fun lexbuf ->
     (* if is_noborder_table !in_table then*)
     do_hline main ;
-     skip_endrow lexbuf ;
+    skip_blanks_pop lexbuf ;
     let _ = Dest.forget_par () in
     ())
 ;;
@@ -2754,7 +2767,8 @@ Get.init
 	do_get_this
 	  (if nostyle then Dest.nostyle else (fun () -> ()))
 	  main s)
-      macro_register new_env close_env;;
+      macro_register new_env close_env
+;;
       
 Tabular.init (subst_this subst);;
 

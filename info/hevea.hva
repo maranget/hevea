@@ -19,29 +19,6 @@
 @@footNote\{#1#3\}}
 \renewcommand{\@closeanchor}{@@footNoteEnd}
 
-\renewcommand{\footnotemark}[1][!*!]{%
-\ifthenelse{\equal{#1}{!*!}}%
-  {\stepcounter{footnote}\setcounter{onemark}{\value{footnote}}}%
-  {\setcounter{onemark}{#1}}%
-\setcounter{anchornote}{\value{onemark}}%
-{\@clearstyle\@openanchor{note}{text}{\theanchornote}%
-\@footnotemark{text}{\value{onemark}}%
-\@closeanchor}
-}
-
-
-\renewcommand{\footnote}[2][!*!]{%
-\ifthenelse{\equal{#1}{!*!}}%
-  {\stepcounter{footnote}\setcounter{onefoot}{\value{footnote}}}%
-  {\setcounter{onefoot}{#1}}%
-\setcounter{anchornote}{\value{onefoot}}%
-{\@clearstyle\@openanchor{note}{text}{\theanchornote}%
-\@footnotemark{text}{\value{onefoot}}%
-\@closeanchor}%
-\@footnotetext{\value{onefoot}}{#2}{\theanchornote}%
-}
-
-
 \newcounter{footnotesflush}
 \newcommand{\theflush}{Notes \arabic{footnotesflush}}
 \let\@oldflush=\@footnoteflush%

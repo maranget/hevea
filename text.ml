@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.17 1999-06-02 12:07:25 tessaud Exp $"
+let header = "$Id: text.ml,v 1.18 1999-06-02 15:42:37 maranget Exp $"
 
 
 open Misc
@@ -734,13 +734,31 @@ let set_dt s = flags.dt <- s
 and set_dcount s = flags.dcount <- s
 ;;
 
-let item scan arg =
+let do_item isnum =
   if !verbose > 2 then begin
-    prerr_string "Item stack=";
+    prerr_string "do_item: stack=";
     pretty_stack !out_stack
   end;
-  if not (is_list (pblock())) then
-    raise (Error "Item not inside a list element");
+  let mods = !cur_out.active in
+  if flags.nitems = 0 then begin let _ = forget_par () in () end ;
+  try_flush_par () ;
+  flags.nitems<-flags.nitems+1;
+  if isnum then
+    do_put ("\n"^(string_of_int flags.nitems)^". ")
+  else
+    do_put "\n- "
+;;
+
+let item () = do_item false
+and nitem () = do_item true
+;;
+
+    
+let ditem scan arg =
+  if !verbose > 2 then begin
+    prerr_string "ditem: stack=";
+    pretty_stack !out_stack
+  end;
   
   let mods = !cur_out.active in
   let true_scan =
@@ -751,28 +769,12 @@ let item scan arg =
   
   try_flush_par();
   flags.nitems<-flags.nitems+1;
-  match pblock() with 
-    "DL" -> begin (* description list *)
-      let parg = parg() in
-      do_put_char '\n';
-    (* Emission du champ description *)
-      if flags.dcount <> "" then scan("\\refstepcounter{"^flags.dcount^"}");
-      if parg<>"" then
-	true_scan ("\\makelabel{"^(if arg="" then flags.dt else arg)^"}")
-      else
-	true_scan (if arg="" then flags.dt else arg);
-      do_put_char ' '
-    end
-  | "OL" -> begin (* ordered list : enumerate *)
-      do_put ("\n"^(string_of_int flags.nitems)^". ");
-      true_scan arg
-  end
-  | "UL" -> begin (* unordered list : itemize *)
-      do_put "\n- ";
-      true_scan arg
-  end
-  | _->  raise (Error "Item not inside a list element")
+  do_put_char '\n';
+  if flags.dcount <> "" then scan("\\refstepcounter{"^flags.dcount^"}");
+  true_scan ("\\makelabel{"^arg^"}") ;
+  do_put_char ' '
 ;;
+
 
 let change_block s args = ()
 ;;

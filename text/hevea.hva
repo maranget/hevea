@@ -6,8 +6,7 @@
 \def\!{}
 \def\;{~}
 \def\
-{\@print{
-}}
+{\@print{ }}
 \def\frenchspacing{}
 \def\nonfrenchspacing{}
 \def\/{}
@@ -52,48 +51,39 @@
 \newcommand{\htmlhead}[1]{\sbox{\@htmlhead}{#1}}
 \newcommand{\htmlfoot}[1]{\sbox{\@htmlfoot}{#1}}
 %%%%%%%%%%% Footnotes
-\newcommand{\footnoterule}{\@printHR{left}{50}%
-}
+%%%%%%%%%%% Footnotes
+\newcommand{\footnoterule}{{\@nostyle\@printHR{}{50}}}
 \newcommand{\footnotesep}[1]{}
-\newcommand{\@fnmarktext}[1]{#1}
-\newcommand{\@fnmarknote}[1]{{\@clearstyle\Large #1}}
-\newcounter{savenote}
-\newcommand{\@footnotemark}[2]{%
-\setcounter{savenote}{\value{footnote}}%
-\setcounter{footnote}{#2}%
-\ifthenelse{\equal{#1}{text}}%
-{\@fnmarktext{\thefootnote}}%
-{\@fnmarknote{\thefootnote}}%
-\setcounter{footnote}{\value{savenote}}%
-}
+\newcounter{savenote}\newcounter{onemark}
+\newcommand{\@fnmarktext}[1]{%
+  \setcounter{savenote}{\value{footnote}}%
+  \setcounter{footnote}{#1}%
+  {\@clearstyle\normalfont(\thefootnote)}%
+  \setcounter{footnote}{\value{savenote}}}
+\newcommand{\@fnmarknote}[1]{%
+  \setcounter{savenote}{\value{footnote}}%
+  \setcounter{footnote}{#1}%
+  {\@clearstyle\Large\thefootnote}%
+  \setcounter{footnote}{\value{savenote}}}
 \newcommand{\@openanchor}[3]{}
 \newcommand{\@closeanchor}{}
-\newcounter{onemark}
+%%%%%%%%%%%%%%%%%%
 \newcommand{\footnotemark}[1][!*!]{%
 \ifthenelse{\equal{#1}{!*!}}%
-  {\stepcounter{footnote}\setcounter{onemark}{\value{footnote}}}%
+  {\stepcounter{footnote}\@stepanchor{\value{footnote}}\setcounter{onemark}{\value{footnote}}}%
   {\setcounter{onemark}{#1}}%
-\setcounter{anchornote}{\value{onemark}}%
-{\@clearstyle\@openanchor{note}{text}{\theanchornote}%
-\@footnotemark{text}{\value{onemark}}%
+\@openanchor{note}{text}{\@anchorval{\value{onemark}}}%
+\@fnmarktext{\value{onemark}}%
 \@closeanchor}
-}
-
-\newcommand{\footnotetext}[2][\value{footnote}]{%
-\setcounter{anchornote}{#1}%
-\@footnotetext{#1}{#2}{\theanchornote}}
-\newcounter{onefoot}
-
+\newcommand{\footnotetext}[2][\value{footnote}]{\@footnotetext{#1}{#2}}
 \newcommand{\footnote}[2][!*!]{%
-\ifthenelse{\equal{#1}{!*!}}%
-  {\stepcounter{footnote}\setcounter{onefoot}{\value{footnote}}}%
-  {\setcounter{onefoot}{#1}}%
-\setcounter{anchornote}{\value{onefoot}}%
-{\@clearstyle\@openanchor{note}{text}{\theanchornote}%
-\@footnotemark{text}{\value{onefoot}}%
-\@closeanchor}%
-\@footnotetext{\value{onefoot}}{#2}{\theanchornote}%
-}
+\ifthenelse{\equal{#1}{!*!}}
+  {\footnotemark\footnotetext{#2}}
+  {\footnotemark[#1]\footnotetext[#1]{#2}}}
+\newenvironment{thefootnotes}[1]
+  {\footnoterule\begin{list}[]{}{\renewcommand{\makelabel}[1]{\@subst{##1}}}}
+  {\end{list}}
+
 %%%% Accents and special symbols.
 % Accents commands are defined in latexmacros.ml
 \def\oe{oe}
@@ -163,17 +153,29 @@
 \newenvironment{titlepage}{}{}
 \newcommand{\and}{\quad}
 %% Lists
-\newenvironment{itemize}{\@open{UL}{}}{\@close{UL}}
-\newenvironment{enumerate}{\@open{OL}{}}{\@close{OL}}
-\newenvironment{description}
-  {\@open{DL}{}}
-  {\@close{DL}}
-\newenvironment{list}[2]
-  {\@open{DL}{COMPACT=compact}\newcommand{\makelabel}[1]{##1}%open
-  \@defaultdt{#1}%default
-  #2%exec
+\newcommand{\item}[1][]{\warning{\item outside a list-making environment}}
+\newenvironment{itemize}
+  {\@open{UL}{}%
+   \renewcommand{\item}[1][!*!]
+    {\ifthenelse{\equal{##1}{!*!}}{}
+       {\warning{Optional argument to \item ignored}}%
+       \@li}}
+  {\@close{UL}}
+\newenvironment{enumerate}
+  {\@open{OL}{}
+  \renewcommand{\item}[1][!*!]
+    {\ifthenelse{\equal{##1}{!*!}}{}
+       {\warning{Optional argument to \item ignored}}%
+       \@linum}}
+  {\@close{OL}}
+\newenvironment{list}[3][!*!]
+  {\ifthenelse{\equal{#1}{!*!}}{\@open{DL}{COMPACT=compact}}{\@open{DL}{}}%open
+  \renewcommand{\item}[1][#2]{\@dt{##1}}%
+  \@forcecommand{\makelabel}[1]{##1}%
+  #3%exec
 }{\@close{DL}}
-\newenvironment{trivlist}{\@open{DL}{}}{\@close{DL}}
+\newenvironment{description}{\begin{list}{}{}}{\end{list}}
+\newenvironment{trivlist}{\begin{list}{}{}}{\end{list}}
 %%% Maths
 \input{text/symb.hva}
 \newenvironment{math}{$}{$}
@@ -341,8 +343,12 @@
 \def\bibliographystyle#1{}
 \def\nocite#1{}
 \newcommand{\bibname}{\iffrench Références\else References\fi}
-\newenvironment{thebibliography}[1]{\@bibliosection{\bibname}\@open{DL}{COMPACT}\newcommand{\makelabel}[1]{##1}}{\@close{DL}}
-\newcommand{\bibitem}[2][]{\item[{\purple[\@bibref{#2}]\label{#2}}]}
+\newenvironment{thebibliography}[1]
+  {\@bibliosection{\bibname}%
+  \begin{list}{}
+    {\renewcommand{\makelabel}[1]{[\@bibref{##1}]}}}
+  {\end{list}}
+\newcommand{\bibitem}[2][]{\item[#2]}
 %% Indexes a` la index.cls
 \newcommand{\index}[2][default]{\@index[#1]{#2}}
 \newcommand{\printindex}[1][default]{%
@@ -407,7 +413,7 @@
 \newenvironment{document}{%
 \cutdef[\thecuttingdepth]{\cuttingunit}%
 \renewcommand{\thefootnote}{\arabic{footnote}}%
-%%\setcounter{footnote}{0}%
+\setcounter{footnote}{0}%
 }{%
 \@footnoteflush{document}%
 \iffooter\input{footer.tex}\fi%

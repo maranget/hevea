@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmacros.ml,v 1.50 1999-05-21 14:46:52 maranget Exp $" 
+let header = "$Id: latexmacros.ml,v 1.51 1999-06-02 15:42:25 maranget Exp $" 
 open Misc
 open Parse_opts
 open Symb
@@ -122,11 +122,15 @@ let def_code name f = def_macro name 0 (CamlCode f)
 and redef_code name f = redef_macro name 0 (CamlCode f)
 and def_name_code name f = def_macro name 0 (CamlCode (f name))
 ;;
-     
+
+let start_env env = "\\"^ env
+and end_env env = "\\end"^env
+;;
+
 let def_env name body1 body2 =
   try
-    def_macro ("\\"^name) 0 body1 ;
-    def_macro ("\\end"^name) 0 body2
+    def_macro (start_env name) 0 body1 ;
+    def_macro (end_env name) 0 body2
   with Failed -> begin
     warning ("not defining environment "^name);
     raise Failed
@@ -135,16 +139,16 @@ let def_env name body1 body2 =
 
 let def_env_pat name pat b1 b2 =
   try
-    def_macro_pat ("\\"^name) pat b1 ;
-    def_macro ("\\end"^name) 0 b2
+    def_macro_pat (start_env name) pat b1 ;
+    def_macro (end_env name) 0 b2
   with Failed -> begin
     warning ("not defining environment "^name);
     raise Failed
   end
 
 and redef_env_pat name pat b1 b2 =
-  redef_macro_pat ("\\"^name) pat b1 ;
-  redef_macro ("\\end"^name) 0 b2
+  redef_macro_pat (start_env name) pat b1 ;
+  redef_macro (end_env name) 0 b2
 ;;
 
 let unregister name =  Hashtbl.remove cmdtable name

@@ -10,7 +10,7 @@
 (***********************************************************************)
 
 
-let header = "$Id: info.ml,v 1.10 1999-05-26 15:45:39 tessaud Exp $"
+let header = "$Id: info.ml,v 1.11 1999-06-02 15:42:24 maranget Exp $"
 
 open Misc
 open Text
@@ -51,9 +51,10 @@ let end_item_display =Text.end_item_display;;
 let begin_item_display =Text.begin_item_display;;
 let erase_display =Text.erase_display;;
 
-let set_dt =Text.set_dt;;
 let set_dcount =Text.set_dcount;;
-let item =Text.item;;
+let item = Text.item;;
+let nitem = Text.nitem;;
+let ditem = Text.ditem;;
 let change_block =Text.change_block;;
 let erase_block =Text.erase_block;;
 let open_group =Text.open_group;;

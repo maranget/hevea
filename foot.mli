@@ -11,7 +11,9 @@
 
 module type T =
   sig
-    val register : int -> string -> string -> string -> unit
+    val step_anchor : int -> unit
+    val get_anchor : int -> int
+    val register : int -> string -> string -> unit
     val flush : (string -> unit)  -> string -> string -> unit
     val some : bool ref
   end
