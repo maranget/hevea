@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: html.ml,v 1.51 1999-05-21 18:11:56 tessaud Exp $" 
+let header = "$Id: html.ml,v 1.52 1999-06-01 12:25:44 tessaud Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -1578,9 +1578,15 @@ let center_format =
 
 let make_inside s multi =
   if not (multi) then begin
-    open_cell center_format 1 0;
-    put s ;
-    close_cell ""
+    if pblock ()="TD" then begin
+      close_cell "";
+      open_cell center_format 1 0;
+      put s;
+    end else begin
+      open_cell center_format 1 0;
+      put s;
+      close_cell ""
+    end;
   end
 ;;
 

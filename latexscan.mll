@@ -44,7 +44,7 @@ open Tabular
 open Lexstate
 
 
-let header = "$Id: latexscan.mll,v 1.104 1999-05-27 15:38:14 tessaud Exp $" 
+let header = "$Id: latexscan.mll,v 1.105 1999-06-01 12:25:48 tessaud Exp $" 
 
 
 let sbool = function
@@ -230,7 +230,9 @@ and stack_col = Lexstate.create ()
 and in_table = ref NoTable
 and stack_table = Lexstate.create ()
 and first_col = ref false
+and first_border = ref false
 and stack_first = Lexstate.create ()
+and stack_first_b = Lexstate.create ()
 and in_multi = ref false
 and stack_multi_flag = Lexstate.create ()
 and stack_multi = Lexstate.create ()
@@ -405,7 +407,8 @@ let save_array_state () =
   push stack_format !cur_format ;
   push stack_col !cur_col ;
   push stack_table !in_table ;
-  push stack_first !first_col ;
+  push stack_first !first_col;
+  push stack_first_b !first_border;
   push stack_multi_flag !in_multi ;
   in_multi := false ;
   if !verbose > 1 then begin
@@ -417,7 +420,8 @@ and restore_array_state () =
   in_table := pop stack_table ;
   cur_col := pop stack_col ;
   cur_format := pop stack_format ;
-  first_col  := pop stack_first ;
+  first_col := pop stack_first ;
+  first_border := pop stack_first_b;
   in_multi := pop stack_multi_flag ;
   if !verbose > 1 then begin
     prerr_endline "Restore array state:" ;
@@ -512,12 +516,12 @@ let show_inside main format i closing =
 *)
     | Tabular.Border s -> 
 	Dest.make_border s;
-	if !first_col then first_col := false;
+	if !first_border then first_border := false;
     | _ -> raise EndInside
     end ;
     t := !t+1
   done with EndInside ->
-    if (!t = i) && (closing || !first_col)  then
+    if (!t = i) && (closing || !first_border)  then
       Dest.make_border " ";
   end ;
 (*
@@ -604,6 +608,7 @@ let open_col main  =
 
 let open_first_col main =
   first_col := true ;
+  first_border := true;
   open_col main  
 ;;
 
@@ -701,7 +706,8 @@ let close_col_aux main content is_last =
     end;
     Dest.close_cell content;
     if !first_col then begin
-      first_col := false
+      first_col := false;
+      first_border := false;
     end
   end ;
   Dest.close_cell_group ()
@@ -1401,8 +1407,13 @@ and skip_blanks = parse
 and skip_endrow = parse
 | [' ''\n']+ {skip_endrow lexbuf}
 | "\\\\"
-   {let _ = skip_opt lexbuf in
-   skip_blanks_pop lexbuf}
+    {
+  scan_this main "\\\\"
+(*
+   let _ = skip_opt lexbuf in
+   skip_blanks_pop lexbuf
+*)
+}
 | eof
     {if not (Lexstate.empty stack_lexbuf) then begin
      let lexbuf = previous_lexbuf () in
@@ -2471,7 +2482,7 @@ def_code "\\hline"
   (fun lexbuf ->
     (* if is_noborder_table !in_table then*)
     do_hline main ;
-    skip_endrow lexbuf ;
+     skip_endrow lexbuf ;
     let _ = Dest.forget_par () in
     ())
 ;;
