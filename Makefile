@@ -66,12 +66,14 @@ install-lib:
 
 
 install-opt: install-lib
+	- $(MKDIR) $(DESTDIR)/$(BINDIR)
 	$(INSTALL) hevea.opt $(DESTDIR)/$(BINDIR)/hevea
 	$(INSTALL) hacha.opt $(DESTDIR)/$(BINDIR)/hacha
 	$(INSTALL) esponja.opt $(DESTDIR)/$(BINDIR)/esponja
 	$(INSTALL) imagen $(DESTDIR)/$(BINDIR)
 
 install-byte: install-lib
+	- $(MKDIR) $(DESTDIR)/$(BINDIR)
 	$(INSTALL) hevea.byte $(DESTDIR)/$(BINDIR)/hevea
 	$(INSTALL) hacha.byte $(DESTDIR)/$(BINDIR)/hacha
 	$(INSTALL) esponja.byte $(DESTDIR)/$(BINDIR)/esponja

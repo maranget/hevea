@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlMath.ml,v 1.32 2005-03-11 19:17:47 maranget Exp $" 
+let header = "$Id: htmlMath.ml,v 1.33 2005-03-17 16:46:07 maranget Exp $" 
 
 
 open Misc
@@ -395,13 +395,13 @@ let limit_sup_sub scanner what sup sub display =
   else begin
     force_item_display () ;
     open_vdisplay display ;
-    open_vdisplay_row "" "ALIGN=center" ;
+    open_vdisplay_row "" "ALIGN=center NOWRAP" ;
     put sup ;
     close_vdisplay_row () ;
-    open_vdisplay_row "" "ALIGN=left" ;
+    open_vdisplay_row "" "ALIGN=center NOWRAP" ;
     what () ;
     close_vdisplay_row () ;
-    open_vdisplay_row "" "ALIGN=center" ;
+    open_vdisplay_row "" "ALIGN=center NOWRAP" ;
     put sub ;
     close_vdisplay_row () ;
     close_vdisplay () ;
