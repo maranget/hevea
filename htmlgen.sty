@@ -1,3 +1,18 @@
+\newenvironment{document}{%
+\@print{<HTML>
+}%
+\@print{<HEAD><TITLE>}%
+\@title%
+\@print{</TITLE></HEAD>}%
+\@print{<BODY>
+}%
+}{%
+\@footnoteflush%
+\@print{</BODY>
+</HTML>
+}
+}
+
 \newenvironment{itemize}{\@open{UL}{}}{\@close{UL}}
 \newenvironment{enumerate}{\@open{OL}{}}{\@close{OL}}
 \newenvironment{description}{\@open{DL}{}}{\@close{DL}}
@@ -9,6 +24,24 @@
 \newcommand{\centerline}[1]{\begin{center}#1\end{center}}
 \newenvironment{quote}{\@open{BLOCKQUOTE}{}}{\@close{BLOCKQUOTE}}
 \newenvironment{quotation}{\@open{BLOCKQUOTE}{}}{\@close{BLOCKQUOTE}}
+%%% Title stuff
+\newsavebox{\@title}
+\newcommand{\title}[1]{\savebox{\@title}{#1}}
+\newsavebox{\@author}
+\newcommand{\author}[1]{\savebox{\@author}{#1}}
+\newcommand{\date}[1]{}
+\newenvironment{titlepage}{}{}
+\newcommand{\maketitle}{%
+\@open{H1}{ALIGN=center}%
+\@title%
+\@close{H1}%
+\@open{H3}{ALIGN=center}%
+\@author%
+\@close{H3}%
+\@print{<BR><BR><BR>}
+}
+
+
 %%%%%%%%%%% Figures
 \newsavebox{\@caption}
 \def\caption#1{\savebox{\@caption}{#1}}
@@ -26,11 +59,54 @@
 \newenvironment{eqnarray}{$$\begin{array}
   {rtcl@{\stepcounter{equation}\eqnno{(\theequation)}}}}{\end{array}$$}
 \newenvironment{displaymath}{$$}{$$}
-
+\def\hrule{\@print{<BR><HR><BR>}}
 \def\cases#1{\left\{\begin{array}{ltl}#1\end{array}\right.}
-\newcommand{\footnote}[2][""]{{\small (#2)}}
+%%%%%%%%%%% Footnotes
+\newcommand{\@fnmarktext}[1]{$^{\hbox{#1}}$}
+\newcommand{\@fnmarknote}[1]{{\Large #1}}
+\newcounter{savenote}
+\newcommand{\@footnotemark}[2]{%
+\setcounter{savenote}{\value{footnote}}%
+\setcounter{footnote}{#2}%
+#1\thefootnote%
+\setcounter{footnote}{\value{savenote}}%
+}
+\newcommand{\@openanchor}[3]{%
+\@print{<A NAME="}\@print{#2}%
+#3%
+\@print{"></A>}%
+\@print{<A HREF="}\#\@print{#1}%
+#3%
+\@print{">}%
+}
+\newcommand{\@closeanchor}{\@print{</A>
+}%
+}
+\newcounter{onemark}
+\newcommand{\footnotemark}[1][\stepcounter{footnote}\value{footnote}]{%
+\setcounter{onemark}{#1}%
+\setcounter{anchornote}{\value{onemark}}%
+\@openanchor{note}{text}{\theanchornote}%
+\@footnotemark{\@fnmarktext}{\value{onemark}}%
+\@closeanchor
+}
+
+\newcommand{\footenotetext}[2][\value{footnote}]{%
+\setcounter{anchornote}{#1}%
+\@footnotetext{#1}{#2}{\theanchornote}}
+\newcounter{onefoot}
+\newcommand{\footnote}[2][\stepcounter{footnote}\value{footnote}]{%
+\setcounter{onefoot}{#1}
+\setcounter{anchornote}{\value{onefoot}}
+\@openanchor{note}{text}{\theanchornote}%
+\@footnotemark{\@fnmarktext}{\value{onefoot}}%
+\@closeanchor
+\@footnotetext{\value{onefoot}}{#2}{\theanchornote}%
+}
+\newcommand{\thanks}[1]{\footnote{#1}}
 \def\quad{~~~}
 \def\qquad{\quad\quad}
+\def\hfill{\qquad\qquad}
 \def\underbrace#1{\underline{#1}}
 \def\ { }
 \def\,{~}
@@ -38,6 +114,9 @@
 \def\frac#1#2{{#1 \over #2}}
 \def\mathord{}
 \def\mathrel{}
+\def\ldots{...}
+\def\dots{...}
+\def\cdots{...}
 %index
 \def\tableofcontents{}
 \def\manual#1{\maroon #1}
@@ -121,8 +200,25 @@
 \def\textsc#1{{\sc #1}}
 \def\emph#1{{\em #1}}
 \def\makeatletter{}
+%%%%%%%%%%%% Ignore hyphenation
+\def\-{}
+%%%%%%%%%%%% Ignore length
+\def\parskip#1{}
+\def\oddsidemargin#1{}
+\def\evensidemargin#1{}
+\def\textwidth#1{}
+\def\textheight#1{}
+\def\parindent#1{}
+\def\topmargin#1{}
+\def\headsep#1{}
+\def\topsep#1{}
+\def\partopsep#1{}
+\def\baselineskip#1{}
+\def\itemsep#1{}
+\newcommand{\addtolength}[2]{}
 \def\setlength#1#2{}
 \def\cfoot{}
+\newcommand{\markboth}[2]{}
 \newcommand{\rfoot}[2][]{}
 \newcommand{\lfoot}[2][]{}
 \newcommand{\rhead}[2][]{}
@@ -137,6 +233,7 @@
 \def\newblock{}
 \def\vec#1{vec(#1)}
 \def\pagebreak{}
+\def\nopagebreak{}
 \def\newbox#1{}
 \def\newdimen#1{}
 \def\displaystyle{}
@@ -147,7 +244,11 @@
 \def\raggedbottom{}
 \def\emergencystretch#1{}
 \def\null{}
+\def\cr{\\}
+\def\smallskip{\\}
 \def\vskip#1{\\}
+\def\medskip{\\}
+\def\bigskip{\\ \\}
 \def\par{
 
 }
@@ -169,3 +270,5 @@
 }}
 \def\makeindex{\newindex{default}{idx}{ind}{Index}}
 \newcommand{\index*}[1]{#1\index{#1}}
+\newcommand{\long}{}
+\newcommand{\usepackage}[2][""]{\input{#2}}

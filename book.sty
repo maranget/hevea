@@ -5,12 +5,16 @@
 \newcounter {subsubsection}[subsection]
 \newcounter {paragraph}[subsubsection]
 \newcounter {subparagraph}[paragraph]
+\newcounter {footnote}[chapter]
+\newcounter {anchornote}
+\renewcommand \theanchornote{\arabic{chapter}.\arabic{anchornote}}
 \renewcommand \thepart {\Roman{part}}
 \renewcommand \thesection {\thechapter.\arabic{section}}
 \renewcommand\thesubsection   {\thesection.\arabic{subsection}}
 \renewcommand\thesubsubsection{\thesubsection .\arabic{subsubsection}}
 \renewcommand\theparagraph    {\thesubsubsection.\arabic{paragraph}}
 \renewcommand\thesubparagraph {\theparagraph.\arabic{subparagraph}}
+\renewcommand\thefootnote     {\fnsymbol{footnote}}
 \newcommand{\partname}{Part}
 \newcommand{\chaptername}{Chapter}
 \newcommand{\appendixname}{Appendix}
@@ -29,6 +33,7 @@
 \renewcommand{\thefigure}{\thechapter.\arabic{figure}}
 
 \newcommand{\part}[1]{%
+\@footnoteflush
 \@print{<!--CUT PART-->}%
 \@open{H1}{ALIGN=center}%
 \stepcounter{part}%
@@ -37,6 +42,7 @@
 \@close{H1}%
 }
 \newcommand{\part*}[1]{%
+\@footnoteflush
 \@print{<!--CUT PART-->}%
 \@open{H1}{ALIGN=center}%
 #1%
@@ -44,6 +50,7 @@
 }
 
 \newcommand{\chapter}[1]{%
+\@footnoteflush
 \@print{<!--CUT CHAPTER-->}%
 \@open{H1}{}%
 \stepcounter{chapter}%
@@ -51,6 +58,7 @@
 \@close{H1}%
 }
 \newcommand{\chapter*}[1]{%
+\@footnoteflush
 \@print{<!--CUT CHAPTER-->}%
 \@open{H1}{}%
 #1%
@@ -61,7 +69,7 @@
 \@print{<!--CUT SECTION-->}%
 \@open{H2}{}%
 \stepcounter{section}%
-\thesection~#1%
+\thesection\quad #1%
 \@close{H2}%
 }
 \newcommand{\section*}[1]{%
@@ -75,7 +83,7 @@
 \newcommand{\subsection}[1]{%
 \@open{H3}{}%
 \stepcounter{subsection}%
-\thesubsection~#1%
+\thesubsection\quad #1%
 \@close{H3}%
 }
 \newcommand{\subsection*}[1]{%

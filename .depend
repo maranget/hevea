@@ -6,6 +6,8 @@ counter.cmo: location.cmi counter.cmi
 counter.cmx: location.cmx counter.cmi 
 entry.cmo: out.cmi save.cmo 
 entry.cmx: out.cmx save.cmx 
+foot.cmo: html.cmi location.cmi parse_opts.cmi foot.cmi 
+foot.cmx: html.cmx location.cmx parse_opts.cmx foot.cmi 
 html.cmo: latexmacros.cmi out.cmi parse_opts.cmi html.cmi 
 html.cmx: latexmacros.cmx out.cmx parse_opts.cmx html.cmi 
 image.cmo: out.cmi parse_opts.cmi image.cmi 
@@ -18,10 +20,10 @@ latexmain.cmo: aux.cmo html.cmi image.cmi latexscan.cmi location.cmi \
     myfiles.cmi out.cmi parse_opts.cmi 
 latexmain.cmx: aux.cmx html.cmx image.cmx latexscan.cmx location.cmx \
     myfiles.cmx out.cmx parse_opts.cmx 
-latexscan.cmo: aux.cmo counter.cmi html.cmi image.cmi index.cmi \
+latexscan.cmo: aux.cmo counter.cmi foot.cmi html.cmi image.cmi index.cmi \
     latexmacros.cmi location.cmi myfiles.cmi out.cmi parse_opts.cmi save.cmo \
     subst.cmo symb.cmi latexscan.cmi 
-latexscan.cmx: aux.cmx counter.cmx html.cmx image.cmx index.cmx \
+latexscan.cmx: aux.cmx counter.cmx foot.cmx html.cmx image.cmx index.cmx \
     latexmacros.cmx location.cmx myfiles.cmx out.cmx parse_opts.cmx save.cmx \
     subst.cmx symb.cmx latexscan.cmi 
 location.cmo: location.cmi 

@@ -1,6 +1,6 @@
 LIBDIR=/usr/local/lib/htmlgen
 CPP=gcc -E -P -x c
-OBJS=parse_opts.cmo myfiles.cmo location.cmo out.cmo counter.cmo symb.cmo image.cmo subst.cmo save.cmo  aux.cmo latexmacros.cmo  html.cmo entry.cmo index.cmo latexscan.cmo latexmain.cmo
+OBJS=parse_opts.cmo myfiles.cmo location.cmo out.cmo counter.cmo symb.cmo image.cmo subst.cmo save.cmo  aux.cmo latexmacros.cmo  html.cmo foot.cmo entry.cmo index.cmo latexscan.cmo latexmain.cmo
 
 OPTS=$(OBJS:.cmo=.cmx)
 

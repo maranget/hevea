@@ -130,6 +130,9 @@ and num_arg = parse
 |  '"' ['0'-'9' 'a'-'f' 'A'-'F']+ 
     {let lxm = lexeme  lexbuf in
     int_of_string ("0x"^String.sub lxm 1 (String.length lxm-1))}
+| '`' '\\' _
+    {let c = lexeme_char lexbuf 2 in
+    Char.code c}
 | '`' _
     {let c = lexeme_char lexbuf 1 in
     Char.code c}

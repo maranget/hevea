@@ -12,7 +12,8 @@ esac
 TMP=${BASE}.tmp
 
 test -r  ${BASE}.image.tex || exit 2
-gpic -t < ${BASE}.image.tex > ${TMP}.tex
+#gpic -t < ${BASE}.image.tex > ${TMP}.tex
+cp ${BASE}.image.tex ${TMP}.tex
 latex < /dev/null ${TMP}.tex
 dvips -t a3 -x1414 -S 1 -i -o${BASE} ${TMP}.dvi
 /bin/rm -f ${TMP}.log ${TMP}.aux ${TMP}.tex ${TMP}.dvi

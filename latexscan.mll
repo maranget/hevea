@@ -21,6 +21,11 @@ let no_prelude () =
   Html.set_out !out_file
 ;;
 
+let my_int_of_string s =
+  try int_of_string s with
+  Failure m -> raise (Failure (m^": "^s))
+;;
+
 let env_extract s =
   let i = String.index s '{'
   and j = String.rindex s '}' in
@@ -281,9 +286,11 @@ let iput_arg arg =
 ;;
 
 let iput_newpage () =
-  Image.put "\\hrule\n\\newpage\n\n" ;
+  let n = Image.page () in
+  Image.put ("% page: "^n^"\n") ;
+  Image.put "\\newpage\n\n" ;
   Html.put "<IMG SRC=\"" ;
-  Html.put (Image.page ()) ;
+  Html.put n ;
   Html.put "\">"
 ;;
 
@@ -315,7 +322,7 @@ let get_this lexfun s =
   if !verbose > 2 then begin
     Printf.fprintf stderr "get_this : [%s] = " s ;
   end ;
-  let lexer = Lexing.from_string s in
+  let lexer = Lexing.from_string ("{"^s^"}") in
   let r = Html.to_string (fun () -> lexfun lexer) in
   if !verbose > 2 then begin
     prerr_endline r
@@ -662,7 +669,7 @@ let int_sup_sub main what sup sub =
 }
 
 rule  main = parse
-   '%' + ' '* ("BEGIN"|"begin") ' '+ ("IMAGE"|"image")  [^'\n']* '\n'
+   '%'+ ' '* ("BEGIN"|"begin") ' '+ ("IMAGE"|"image")  [^'\n']* '\n'
     {Image.dump "" image lexbuf}
 |  '%' [^ '\n']* '\n'
    {if !verbose > 1 then
@@ -696,10 +703,11 @@ rule  main = parse
    Image.put_char '\n' ;
    iput_newpage () ;
    main lexbuf}
-| "\\documentstyle" 
-    {let opts = parse_args_opt [""] lexbuf in
+| "\\documentstyle"  | "\\documentclass"
+    {let command = lexeme lexbuf in
+    let opts = parse_args_opt [""] lexbuf in
     let arg =  Save.arg lexbuf in
-    Image.put "\\documentstyle" ;
+    Image.put command ;
     Image.put (unparse_args opts [arg]) ;
     Image.put "\n" ;
     main lexbuf}
@@ -731,10 +739,16 @@ rule  main = parse
               prerr_endline ("Closing file: "^filename) ;
             main b)
          lexbuf
-     with Not_found -> begin
+     with Not_found ->
        if !verbose > 0 then
          prerr_endline ("Not opening file: "^filename) ;
        main lexbuf
+     | Failure m -> begin
+         if !verbose > 0 then begin
+           Location.print_pos () ;
+           prerr_endline ("Warning: "^m) ;
+         end ;
+         main lexbuf
      end}
 (* subscripts and superscripts *)
   | ('_' | '^')
@@ -829,7 +843,7 @@ rule  main = parse
       (lxm^"{"^name^"}"^unparse_args nargs [body]^"\n") ;
     let nargs,(def,defval) = match nargs with
       [a1 ; a2] ->
-        int_of_string (from_ok a1),
+        my_int_of_string (from_ok a1),
         (match a2 with
            No s -> false,s
         | Yes s -> true,s)
@@ -849,7 +863,7 @@ rule  main = parse
      def_env_pat name
        (Latexmacros.make_pat
          (match optdef with No _ -> [] | Yes s -> [s])
-         (match nargs with No _ -> 0 | Yes s -> int_of_string s))
+         (match nargs with No _ -> 0 | Yes s -> my_int_of_string s))
        [Subst body1] [Subst body2];     
      main lexbuf}
   | "\\newtheorem" | "\\renewtheorem"
@@ -1032,7 +1046,7 @@ rule  main = parse
       {let n = Save.arg lexbuf in      
       let format = scan_this tformat (Save.arg lexbuf) in
       let n = try 
-        int_of_string n
+        my_int_of_string n
         with Failure _ -> raise (Failure "multicolumn") in
       do_multi n (Array.of_list format) main ;
       main lexbuf}
@@ -1153,12 +1167,13 @@ rule  main = parse
   | "\\addtocounter"
      {let name = save_arg lexbuf in
       let arg = save_arg lexbuf in
-      Counter.add_counter name (int_of_string arg) ;
+      Counter.add_counter name (my_int_of_string arg) ;
       main lexbuf}
   | "\\setcounter"
      {let name = save_arg lexbuf in
       let arg = save_arg lexbuf in
-      Counter.set_counter name (int_of_string arg) ;
+      let arg = get_this main arg in
+      Counter.set_counter name (my_int_of_string arg) ;
       main lexbuf}
   | "\\stepcounter"
      {let name = save_arg lexbuf in
@@ -1169,6 +1184,23 @@ rule  main = parse
      Counter.step_counter name ;
      Counter.setrefvalue (get_this main ("\\the"^name)) ;
      main lexbuf}
+  | "\\value"
+     {let name = save_arg lexbuf in
+     Html.put (string_of_int (Counter.value_counter name)) ;
+     main lexbuf}
+(* Foot notes *)
+  | "\\@footnotetext"
+     {let mark = get_this main (save_arg lexbuf) in
+     let text = get_this main (save_arg lexbuf) in
+     let anchor = get_this main (save_arg lexbuf) in
+     Foot.register
+       (my_int_of_string mark)
+       (get_this main ("\\@footnotemark{\@fnmarknote}{"^mark^"}"))
+       text anchor ;
+     main lexbuf}
+  | "\\@footnoteflush"
+     {Foot.flush (scan_this main) ;
+     main lexbuf}
 (* Boxes *)
   | "\\newsavebox"
       {let name = save_arg lexbuf in
@@ -1177,7 +1209,7 @@ rule  main = parse
   | "\\savebox"
       {let name = save_arg lexbuf in
       skip_opt lexbuf ; skip_opt lexbuf ;
-      let body = save_arg lexbuf in
+      let body = "{"^save_arg lexbuf^"}" in
       redef_macro name 0 [Print (get_this main body)] ;
       main lexbuf}
 (* Html primitives *)
@@ -1376,12 +1408,12 @@ and image = parse
      {Image.put ".PE\n" ; Image.close_image  () ; main lexbuf}
 |  '%'+ ' '* ("END"|"end") ' '+ ("IMAGE"|"image")  [^'\n']* '\n'
      {Image.put_char '\n' ; Image.close_image  () ;
-     main lexbuf}
-|  '%'+ ' '* ("PUT"|"put") ' '+ ("IMAGE"|"image")  [^'\n']* '\n'
-     {Image.put_char '\n' ; Image.close_image  () ;
      iput_newpage () ;
      main lexbuf}
-| [^'\n']*'\n'
+|  '%'+ ' '* ("TO"|"to") ' '+ ("IMAGE"|"image")  [^'\n']* '\n'
+     {Image.put_char '\n' ; Image.close_image  () ;
+     main lexbuf}
+| _
      {let s = lexeme lexbuf in
      Image.put s ;
      image lexbuf}

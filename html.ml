@@ -204,8 +204,13 @@ let forget_par () =
   pending_par := false
 ;;
 
+let no_par s =
+  is_header s || is_list s ||
+  (match s with "PRE" -> true | _ -> false)
+;;
+
 let par () =
-  if not (is_header !last_closed) then pending_par := true
+  if not (no_par !last_closed) then pending_par := true
 ;;
 
 let debug m =
@@ -530,7 +535,7 @@ let rec force_block s content =
     free old_out ;
     !cur_out.pending <- mods
   end ;
-  if not was_empty then last_closed := true_s
+  if not was_empty && true_s <> ""  then last_closed := true_s
 
 and close_block_loc pred s =
   if !verbose > 1 then

@@ -190,38 +190,14 @@ def_env "blue" [Env (Color "blue")] [];
 def_env "teal" [Env (Color "teal")] [];
 def_env "aqua" [Env (Color "aqua")] [];
 
-def_macro "\\title"  1 [Save_arg 0];
-def_macro "\\maketitle" 0 [];
-
-def_macro "\\document" 0
-  [Print "<HTML>\n" ; Print "<HEAD><TITLE>\n" ;
-   Print_saved; Print "</TITLE></HEAD>" ;
-   Print "<BODY>\n" ; Print "<H1 ALIGN=center>" ;
-   Print_saved ; Print "</H1>\n"];
-
-def_macro "\\enddocument" 0 [Print "</BODY>\n</HTML>\n"];
-
 def_macro "\\alltt" 0 [];
 def_macro "\\endalltt" 0 [];
 
 let no_dot = function
   "." -> ""
 | s   -> s in
-def_env "titlepage" [] [] ;
-def_macro "\\cr" 0 [Subst "\\\\"] ;
 def_macro "\\bgroup" 0 [Subst "{"] ;
 def_macro "\\egroup" 0 [Subst "}"] ;
-def_macro "\\smallskip" 0 [];
-def_macro "\\medskip" 0 [];
-def_macro "\\bigskip" 0 [Print "<BR>\n"];
-def_macro "\\date" 1 [];
-def_macro "\\author" 1 [];
-def_macro "\\documentclass" 1 [];
-def_macro "\\usepackage" 1 [];
-def_macro "\\markboth" 2 [];
-def_macro "\\dots" 0 [Print "..."];
-def_macro "\\ldots" 0 [Print "..."];
-def_macro "\\cdots" 0 [Print "..."];
 def_macro "\\underline" 1
   [Subst "{" ; Env (Style "U") ; Print_arg 0 ; Subst "}"];
 def_macro "\\{" 0
@@ -275,18 +251,6 @@ let spaces = function
   ".5ex" -> ""
 | _      -> "~" in
 def_macro "\\hspace" 1 [Print_fun (spaces,0)];
-def_macro "\\parskip" 1 [];
-def_macro "\\oddsidemargin" 1 [];
-def_macro "\\evensidemargin" 1 [];
-def_macro "\\textwidth" 1 [];
-def_macro "\\textheight" 1 [];
-def_macro "\\parindent" 1 [];
-def_macro "\\topmargin" 1 [];
-def_macro "\\headsep" 1 [];
-def_macro "\\topsep" 1 [];
-def_macro "\\partopsep" 1 [];
-def_macro "\\baselineskip" 1 [];
-def_macro "\\-" 0 [];
 (* oddities *)
 def_macro "\\TeX" 0 [Print "TeX"] ;
 def_macro "\\LaTeX" 0 [Print "L<sup>a</sup>T<sub>e</sub>X"] ;
@@ -478,7 +442,20 @@ let rec roman_of_int = function
 let uproman_of_int i = String.uppercase (roman_of_int i)
 ;;
 
-      
+let fnsymbol_of_int = function
+  1 -> "*"
+| 2 -> "#"
+| 3 -> "%"
+| 4 -> "\167"
+| 5 -> "\182"
+| 6 -> "||"
+| 7 -> "**"
+| 8 -> "##"
+| 9 -> "%%"
+| i -> alpha_of_int i
+;;
+
+        
 
 let aigu = function
   "e" -> "é"
@@ -539,6 +516,7 @@ def_macro "\\alph" 1 [Print_count (alpha_of_int,0)] ;
 def_macro "\\Alph" 1 [Print_count (upalpha_of_int,0)] ;
 def_macro "\\roman" 1 [Print_count (roman_of_int,0)];
 def_macro "\\Roman" 1 [Print_count (uproman_of_int,0)];
+def_macro "\\fnsymbol" 1 [Print_count (fnsymbol_of_int,0)];
 def_macro "\\uppercase" 1 [Print_fun (String.uppercase,0)];
 ();;
 
