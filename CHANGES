@@ -1,5 +1,7 @@
   
 version 1.06-5
+  - Bug par, Dest.par None doit e^tre un nop (cf. appel dans expand_command,
+    avec name = \par).
   - insertion d'un @verbarg pour les clefs de labels et de citations
   - Hot oubliait les notes de bas de page.
   - Simplification Misc.copy_hashtbl,

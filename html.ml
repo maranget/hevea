@@ -10,7 +10,7 @@
 (***********************************************************************)
 
 
-let header = "$Id: html.ml,v 1.82 2000-10-31 08:25:12 maranget Exp $" 
+let header = "$Id: html.ml,v 1.83 2001-01-15 10:55:18 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -332,42 +332,7 @@ let ditem scan arg =
   do_put "<DD>"
 ;;
 
-(*
-let loc_ref s1 s2 =
-  if flags.in_math && !Parse_opts.mathml then begin
-    put "<mrow xml:link=\"simple\" href=\"";
-    put s2;
-    put "\">";
-    put s1;
-    put "</mrow>"
-  end else begin
-    put "<A HREF=\"#" ;
-    put s2 ;
-    put "\">" ;
-    put s1 ;
-    put "</A>"
-  end
-;;
 
-
-let loc_name s1 s2 =
-  let pval = forget_par () in
-  if flags.in_math && !Parse_opts.mathml then begin
-    put "<mrow xml:link=\"simple\" id=\"";
-    put s1;
-    put "\">";
-    put s2;
-    put "</mrow>";
-  end else begin
-    put "<A NAME=\"" ;
-    put s1 ;
-    put "\">" ;
-    put s2 ;
-    put "</A>" ;
-  end;
-  par pval
-;;
-*)
 let loc_name _ = ()
 
   

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.201 2001-01-05 14:00:02 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.202 2001-01-15 10:55:25 maranget Exp $ *)
 
 
 {
@@ -356,6 +356,7 @@ let do_get_this start_lexstate restore_lexstate
     top_close_group () ;
     if !display then Dest.close_display ()) in
 
+  let _ = Dest.forget_par () in
   verbose := !verbose + 1 ;
   if !verbose > 1 then begin
     prerr_endline ("get_this ``"^s^"'' -> ``"^r^"''")
@@ -786,6 +787,9 @@ let debug = function
 
 
 let expand_command main skip_blanks name lexbuf =
+  if !verbose > 2 then begin
+    Printf.fprintf stderr "expand_command: %s\n" name
+  end ;
   let cur_subst = get_subst () in
   let exec =
     if !alltt_loaded then

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.52 2000-10-13 19:17:44 maranget Exp $"
+let header = "$Id: text.ml,v 1.53 2001-01-15 10:55:30 maranget Exp $"
 
 
 open Misc
@@ -712,13 +712,13 @@ let par = function (*Nombre de lignes a sauter avant le prochain put*)
 	  (match pblock() with
 	  | "QUOTE" | "QUOTATION" -> Some (n-1)
 	  | _ -> Some n);
-	if !verbose>2 then
+	if !verbose> 2 then
 	  prerr_endline
 	    ("par: last_close="^flags.last_closed^
 	     " r="^string_of_int n);
       end
-  | _ -> flags.pending_par <- None
-;;
+  | _ -> ()
+
 
 let forget_par () = 
   let r = flags.pending_par in
@@ -729,7 +729,8 @@ let forget_par () =
 let flush_par n =
   flags.pending_par <- None;
   let p = n in
-  for i=1 to p do
+  do_put_char '\n' ;
+  for i=1 to p-1 do
     do_put_char '\n'
   done;
   if !verbose >2 then

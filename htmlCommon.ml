@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlCommon.ml,v 1.30 2000-11-01 13:22:22 maranget Exp $" 
+let header = "$Id: htmlCommon.ml,v 1.31 2001-01-15 10:55:20 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -69,6 +69,8 @@ let string_of_block = function
 
 let block_t = Hashtbl.create 17
 ;;
+let no_opt = true
+
 let add b =
   Hashtbl.add block_t (string_of_block b) b
 ;;
@@ -90,7 +92,12 @@ add DIV ;
 add UL ;
 add OL ;
 add DL ;
-add GROUP ;
+begin
+  if no_opt then
+    Hashtbl.add block_t "" INTERN
+  else
+    add GROUP
+end ;
 add AFTER ;
 add DELAY ;
 add FORGET ;
@@ -636,7 +643,7 @@ let par  = function
         prerr_endline
           ("par: last_close="^ string_of_block flags.last_closed^
            " r="^string_of_int n)
-  | _ ->  ()
+  | _ -> ()
 ;;
 
 let flush_par n =
@@ -1470,7 +1477,7 @@ let erase_block s =
   end ;
   try_close_block s ;
   let ts,_,tout = pop_out out_stack in
-  if ts <> s then
+  if ts <> s && not (s = GROUP && ts = INTERN) then
     failclose "erase_block" s ts;
   free !cur_out ;
   cur_out := tout
@@ -1479,9 +1486,10 @@ let erase_block s =
 
 let open_group ss =
   let e = Style ss in
-  if ss  <> "" && (not flags.in_pre || (ok_pre e)) then begin
+  if no_opt || (ss  <> "" && (not flags.in_pre || (ok_pre e))) then begin
     open_block INTERN "" ;
-    !cur_out.pending <- !cur_out.pending @ [e]
+    if ss <> "" then
+      !cur_out.pending <- !cur_out.pending @ [e]
   end else
     open_block GROUP ""
     
