@@ -10,7 +10,7 @@
 (***********************************************************************)
 
 
-let header = "$Id: html.ml,v 1.78 2000-07-10 13:36:19 maranget Exp $" 
+let header = "$Id: html.ml,v 1.79 2000-07-10 15:06:16 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -23,6 +23,9 @@ open Latexmacros
 open HtmlCommon
 
 exception Error of string
+;;
+
+type block = HtmlCommon.block
 ;;
 
 
@@ -231,27 +234,6 @@ let
     HtmlMath.standard_sup_sub
 ;;
 
-let skip_line = skip_line
-and flush_out = flush_out
-and close_group = close_group
-and open_aftergroup = open_aftergroup
-and open_group = open_group
-and erase_block = erase_block
-and insert_block = insert_block
-and force_block = force_block
-and close_block = close_block
-and open_block = open_block
-and forget_par = forget_par
-and par = par
-and erase_mods = erase_mods
-and open_mod = open_mod
-and clearstyle = clearstyle
-and nostyle = nostyle
-and get_fontsize = get_fontsize
-and horizontal_line = horizontal_line
-and close_flow = close_flow
-and to_string = to_string
-;;
 
 
 let set_out out =  !cur_out.out <- out
@@ -411,7 +393,7 @@ let to_style f =
   !cur_out.pending <- [] ;
   f () ;
   let r = to_pending !cur_out.pending !cur_out.active in
-  erase_block "" ;
+  erase_block GROUP ;
   set_flags flags old_flags ;
   r
 ;;
@@ -477,14 +459,14 @@ let open_table border htmlargs =
       "mtable","frame = \"solid\"",""
     else "TABLE","BORDER=1",htmlargs
   in
-  if border then open_block table (arg_b^" "^arg)
-  else open_block table arg
+  if border then open_block TABLE (arg_b^" "^arg)
+  else open_block TABLE arg
 ;;
 
 let new_row () =
   if flags.in_math && !Parse_opts.mathml then
-    open_block "mtr" ""
-  else open_block "TR" ""
+    open_block (OTHER "mtr") ""
+  else open_block TR ""
 ;;
 
 
@@ -517,52 +499,52 @@ let as_align_mathml f span = match f with
 
 let open_direct_cell attrs span =
   if flags.in_math && !Parse_opts.mathml then begin
-    open_block "mtd" (attrs^as_colspan_mathml span);
+    open_block (OTHER "mtd") (attrs^as_colspan_mathml span);
     open_display ()
-  end else open_block "TD" (attrs^as_colspan span)
+  end else open_block TD (attrs^as_colspan span)
 
 let open_cell format span i= 
   if flags.in_math && !Parse_opts.mathml then begin
-    open_block "mtd" (as_align_mathml format span);
+    open_block (OTHER "mtd") (as_align_mathml format span);
     open_display ()
-  end else open_block "TD" (as_align format span)
+  end else open_block TD (as_align format span)
 ;;
 
 let erase_cell () =  
   if flags.in_math && !Parse_opts.mathml then begin
     erase_display ();
-    erase_block "mtd"
-  end else erase_block "TD"
+    erase_block (OTHER "mtd")
+  end else erase_block TD
 and close_cell content = 
   if flags.in_math && !Parse_opts.mathml then begin
     close_display ();
-    force_block "mtd" ""
-  end else force_block "TD" content
+    force_block (OTHER "mtd") ""
+  end else force_block TD content
 and do_close_cell () = 
     if flags.in_math && !Parse_opts.mathml then begin
       close_display ();
-      close_block "mtd"
-    end else close_block "TD"
+      close_block (OTHER "mtd")
+    end else close_block TD
 and open_cell_group () = open_group ""
 and close_cell_group () = close_group ()
-and erase_cell_group () = erase_block ""
+and erase_cell_group () = erase_block GROUP
 ;;
 
 
 let erase_row () = 
   if flags.in_math && !Parse_opts.mathml then
-    erase_block "mtr"
-  else erase_block "TR"
+    erase_block (OTHER "mtr")
+  else erase_block TR
 and close_row () = 
   if flags.in_math && !Parse_opts.mathml then
-    close_block "mtr"
-  else close_block "TR"
+    close_block (OTHER "mtr")
+  else close_block TR
 ;;
 
 let close_table () = 
   if flags.in_math && !Parse_opts.mathml then
-    close_block "mtable"
-  else close_block "TABLE"
+    close_block (OTHER "mtable")
+  else close_block TABLE
 ;;
 let make_border s = ()
 ;;
@@ -576,7 +558,7 @@ let center_format =
 
 let make_inside s multi =
   if not (multi) then begin
-    if pblock ()="TD" || pblock() = "mtd" then begin
+    if pblock ()=TD || pblock() = (OTHER "mtd") then begin
       close_cell "&nbsp;";
       open_cell center_format 1 0;
       put s;
@@ -636,3 +618,25 @@ type saved = HtmlCommon.saved
 
 let check = HtmlCommon.check
 and hot = HtmlCommon.hot
+
+let skip_line = skip_line
+and flush_out = flush_out
+and close_group = close_group
+and open_aftergroup = open_aftergroup
+and open_group = open_group
+and erase_block s = erase_block (find_block s)
+and insert_block s = insert_block (find_block s)
+and force_block s = force_block (find_block s)
+and close_block s = close_block (find_block s)
+and open_block s = open_block (find_block s)
+and forget_par = forget_par
+and par = par
+and erase_mods = erase_mods
+and open_mod = open_mod
+and clearstyle = clearstyle
+and nostyle = nostyle
+and get_fontsize = get_fontsize
+and horizontal_line = horizontal_line
+and close_flow s = close_flow (find_block s)
+and to_string = to_string
+;;

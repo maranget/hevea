@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlMath.ml,v 1.18 2000-07-05 17:46:22 maranget Exp $" 
+let header = "$Id: htmlMath.ml,v 1.19 2000-07-10 15:06:20 maranget Exp $" 
 
 
 open Misc
@@ -29,17 +29,17 @@ let delay f =
   push stacks.s_vsize flags.vsize ;
   flags.vsize <- 0;
   push delay_stack f ;
-  open_block "DELAY" "" ;
+  open_block DELAY "" ;
   if !verbose > 2 then prerr_flags "<= delay"
 ;;
 
 let flush x =
   if !verbose > 2 then
     prerr_flags ("=> flush arg is ``"^string_of_int x^"''");
-  try_close_block "DELAY" ;
+  try_close_block DELAY ;
   let ps,_,pout = pop_out out_stack in
-  if ps <> "DELAY" then
-    raise (Misc.Fatal ("html: Flush attempt on: "^ps)) ;
+  if ps <> DELAY then
+    raise (Misc.Fatal ("html: Flush attempt on: "^string_of_block ps)) ;
   let mods = as_envs !cur_out.active !cur_out.pending in
   do_close_mods () ;
   let old_out = !cur_out in
@@ -76,8 +76,8 @@ let put_in_math s =
 (* DISPLAYS *)
 (*----------*)
 
-let open_center () =  open_block "DIV" "ALIGN=center"
-and close_center () = close_block "DIV"
+let open_center () =  open_block DIV "ALIGN=center"
+and close_center () = close_block DIV
 ;;
 
 let display_arg  verbose =
@@ -95,15 +95,15 @@ let begin_item_display f is_freeze =
     Printf.fprintf stderr "begin_item_display: ncols=%d empty=%s" flags.ncols (sbool flags.empty) ;
     prerr_newline ()
   end ;
-  open_block "TD" "NOWRAP";
-  open_block "" "" ;
+  open_block TD "NOWRAP";
+  open_block GROUP "" ;
   if is_freeze then(* push out_stack (Freeze f) ;*)freeze f;
 
 
 and end_item_display () =
   let f,is_freeze = pop_freeze () in
-  let _ = close_flow_loc "" in
-  if close_flow_loc "TD" then
+  let _ = close_flow_loc GROUP in
+  if close_flow_loc TD then
     flags.ncols <- flags.ncols + 1;
   if !verbose > 2 then begin
     Printf.fprintf stderr "end_item_display: ncols=%d stck: " flags.ncols;
@@ -117,9 +117,9 @@ let open_display () =
     Printf.fprintf stderr "open_display: "
   end ;
   try_open_display () ;
-  open_block "DISPLAY" (display_arg !verbose) ;
-  open_block "TD" "NOWRAP" ;
-  open_block "" "" ;
+  open_block DISPLAY (display_arg !verbose) ;
+  open_block TD "NOWRAP" ;
+  open_block GROUP "" ;
   if !verbose > 2 then begin
     pretty_cur !cur_out ;
     prerr_endline ""
@@ -131,7 +131,7 @@ let close_display () =
     prerr_flags "=> close_display"
   end ;
   if not (flush_freeze ()) then begin
-    close_flow "" ;
+    close_flow GROUP ;
     let n = flags.ncols in
     if !verbose > 2 then
       Printf.fprintf stderr "=> close_display, ncols=%d\n" n ;
@@ -144,14 +144,14 @@ let close_display () =
       let active = !cur_out.active and pending = !cur_out.pending in
       do_close_mods () ;
       let ps,_,pout = pop_out out_stack in
-      if ps <> "TD" then
-        failclose ("close_display: "^ps^" closes TD") ;
+      if ps <> TD then
+        failclose "close_display" ps TD ;
       do_close_mods () ;
-      try_close_block "TD" ;
+      try_close_block TD ;
       let ps,_,ppout = pop_out out_stack in
-      if ps <> "DISPLAY" then
-        failclose ("close_display: "^ps^" closes DISPLAY") ;
-      try_close_block "DISPLAY" ;
+      if ps <> DISPLAY then
+        failclose "close_display" ps DISPLAY ;
+      try_close_block DISPLAY ;
       let old_out = !cur_out in
       cur_out := ppout ;
       do_close_mods () ;
@@ -165,12 +165,12 @@ let close_display () =
         (Out.debug stderr !cur_out.out);
         prerr_endline "" ;
       end;
-      close_flow "FORGET" ;
+      close_flow FORGET ;
       let active = !cur_out.active and pending = !cur_out.pending in
       let ps,_,pout = pop_out out_stack in
-      if ps <> "DISPLAY" then
-        failclose ("close_display: "^ps^" closes DISPLAY") ;
-      try_close_block "DISPLAY" ;
+      if ps <> DISPLAY then
+        failclose "close_display" ps DISPLAY ;
+      try_close_block DISPLAY ;
       let old_out = !cur_out in
       cur_out := pout ;
       do_close_mods () ;
@@ -185,8 +185,8 @@ let close_display () =
         prerr_endline ""
       end;
       flags.empty <- flags.blank ;
-      close_flow "TD" ;
-      close_flow "DISPLAY"
+      close_flow TD ;
+      close_flow DISPLAY
     end ;
     try_close_display ()
   end ;
@@ -207,12 +207,12 @@ let do_item_display force =
     let active  = !cur_out.active
     and pending = !cur_out.pending in
     flags.ncols <- flags.ncols + 1 ;
-    let save = get_block "TD" "NOWRAP" in
+    let save = get_block TD "NOWRAP" in
     if !verbose > 2 then begin
       Out.debug stderr !cur_out.out ;
       prerr_endline "To be copied"
     end;
-    if close_flow_loc "TD" then flags.ncols <- flags.ncols + 1; 
+    if close_flow_loc TD then flags.ncols <- flags.ncols + 1; 
     if !verbose > 2 then begin
       Out.debug stderr !cur_out.out ;
       prerr_endline "Was copied"
@@ -226,21 +226,21 @@ let do_item_display force =
       Out.debug stderr !cur_out.out ;
       prerr_endline ("Some Item")
     end;
-    open_block "TD" "NOWRAP" ;
-    open_block "" ""
+    open_block TD "NOWRAP" ;
+    open_block GROUP ""
   end else begin
     if !verbose > 2 then begin
       Out.debug stderr !cur_out.out ;
       prerr_endline "No Item" ;
       prerr_endline ("flags: empty="^sbool flags.empty^" blank="^sbool flags.blank)
     end;
-    close_flow "" ;
+    close_flow GROUP ;
     if !verbose > 2 then begin
       Out.debug stderr !cur_out.out ;
       prerr_endline "No Item" ;
       prerr_endline ("flags: empty="^sbool flags.empty^" blank="^sbool flags.blank)
     end;
-    open_block "" ""
+    open_block GROUP ""
   end ;
   if is_freeze then push out_stack (Freeze f) ;
   if !verbose > 2 then begin
@@ -255,9 +255,9 @@ and force_item_display () = do_item_display true
 
 
 let erase_display () =
-  erase_block "" ;
-  erase_block "TD" ;
-  erase_block "DISPLAY" ;
+  erase_block GROUP ;
+  erase_block TD ;
+  erase_block DISPLAY ;
   try_close_display ()
 ;;
 
@@ -287,26 +287,26 @@ let open_vdisplay display =
     prerr_endline "open_vdisplay";
   if not display then
     raise (Misc.Fatal ("VDISPLAY in non-display mode"));
-  open_block "TABLE" (display_arg !verbose)
+  open_block TABLE (display_arg !verbose)
 
 and close_vdisplay () =
   if !verbose > 1 then
     prerr_endline "close_vdisplay";
-  close_block "TABLE"
+  close_block TABLE
 
 and open_vdisplay_row s =
   if !verbose > 1 then
     prerr_endline "open_vdisplay_row";
-  open_block "TR" "" ;
-  open_block "TD" s ;
+  open_block TR "" ;
+  open_block TD s ;
   open_display ()
 
 and close_vdisplay_row () =
   if !verbose > 1 then
     prerr_endline "close_vdisplay_row";
   close_display () ;
-  force_block "TD" "&nbsp;" ;
-  close_block "TR"
+  force_block TD "&nbsp;" ;
+  close_block TR
 ;;
 
 
@@ -434,14 +434,14 @@ let insert_vdisplay open_fun =
   try
     let mods = to_pending !cur_out.pending !cur_out.active in
     let bs,bargs,bout = pop_out out_stack in
-    if bs <> "" then
-      failclose ("insert_vdisplay: "^bs^" closes ``''");
+    if bs <> GROUP then
+      failclose "insert_vdisplay" bs GROUP ;
     let ps,pargs,pout = pop_out out_stack in
-    if ps <> "TD" then
-      failclose ("insert_vdisplay: "^ps^" closes TD");
+    if ps <> TD then
+      failclose "insert_vdisplay" ps TD ;
     let pps,ppargs,ppout = pop_out out_stack  in
-    if pps <> "DISPLAY" then
-      failclose ("insert_vdisplay: "^pps^" closes DISPLAY");
+    if pps <> DISPLAY then
+      failclose "insert_vdisplay" pps DISPLAY ;
     let new_out = new_status false [] [] in
     push_out out_stack (pps,ppargs,new_out) ;
     push_out out_stack (ps,pargs,pout) ;

@@ -94,7 +94,6 @@ val flushing : bool ref
 val stack_in_math : bool Stack.t
 val stack_display : bool Stack.t
 val stack_alltt : alltt Stack.t
-val stack_closed : string Stack.t
 
 val start_normal: subst -> unit
 val end_normal : unit -> unit

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: lexstate.ml,v 1.52 2000-07-10 13:36:30 maranget Exp $"
+let header = "$Id: lexstate.ml,v 1.53 2000-07-10 15:06:30 maranget Exp $"
 
 open Misc
 open Lexing
@@ -139,8 +139,7 @@ let case = ref Neutral
 let string_to_arg arg = {arg=arg ; subst= !subst }
 
 (* Stacks for flags *)
-let stack_closed = Stack.create "stack_closed"
-and stack_in_math = Stack.create "stack_in_math"
+let stack_in_math = Stack.create "stack_in_math"
 and stack_display = Stack.create "stack_display"
 
 (* Stacks for entry stream  *)

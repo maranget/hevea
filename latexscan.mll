@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.185 2000-07-10 13:36:25 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.186 2000-07-10 15:06:25 maranget Exp $ *)
 
 
 {
@@ -2513,6 +2513,9 @@ def_code "\\warning"
 ;;
 
 (* spacing *)
+
+let stack_closed = Stack.create "stack_closed"
+;;
 
 def_code "\\@saveclosed"
   (fun lexbuf ->

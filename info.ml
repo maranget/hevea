@@ -10,13 +10,14 @@
 (***********************************************************************)
 
 
-let header = "$Id: info.ml,v 1.25 2000-07-06 16:48:38 maranget Exp $"
+let header = "$Id: info.ml,v 1.26 2000-07-10 15:06:20 maranget Exp $"
 
 open Misc
 open Text
 open InfoRef
 
 exception Error of string
+type block = Text.block
 
 
 let iso =Text.iso;;

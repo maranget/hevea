@@ -10,6 +10,7 @@
 (***********************************************************************)
 open Lexstate
     exception Error of string
+    type block
 
     val iso : char -> string
     val iso_string : string -> string
@@ -17,8 +18,8 @@ open Lexstate
     val set_out : Out.t -> unit
     val stop : unit -> unit
     val restart : unit -> unit
-    val get_last_closed : unit -> string
-    val set_last_closed : string -> unit
+    val get_last_closed : unit -> block
+    val set_last_closed : block -> unit
     val is_empty : unit -> bool
   
     val get_fontsize : unit -> int

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.48 2000-07-06 16:48:50 maranget Exp $"
+let header = "$Id: text.ml,v 1.49 2000-07-10 15:06:35 maranget Exp $"
 
 
 open Misc
@@ -21,6 +21,7 @@ open Stack
 open Length
 
 exception Error of string;;
+type block = string
 
 
 let r_quote = String.create 1

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: mathML.ml,v 1.13 2000-06-05 08:07:30 maranget Exp $" 
+let header = "$Id: mathML.ml,v 1.14 2000-07-10 15:06:32 maranget Exp $" 
 
 
 open Misc
@@ -28,15 +28,15 @@ let begin_item_display f is_freeze =
     Printf.fprintf stderr "begin_item_display: ncols=%d empty=%s" flags.ncols (sbool flags.empty) ;
     prerr_newline ()
   end ;
-  open_block "mrow" "";
-  open_block "" "" ;
+  open_block (OTHER "mrow") "";
+  open_block GROUP "" ;
   if is_freeze then(* push out_stack (Freeze f) ;*)freeze f;
 
 
 and end_item_display () =
   let f,is_freeze = pop_freeze () in
-  let _ = close_flow_loc "" in
-  if close_flow_loc "mrow" then
+  let _ = close_flow_loc GROUP in
+  if close_flow_loc (OTHER "mrow") then
     flags.ncols <- flags.ncols + 1;
   if !verbose > 2 then begin
     Printf.fprintf stderr "end_item_display: ncols=%d stck: " flags.ncols;
@@ -50,9 +50,9 @@ and open_display () =
     Printf.fprintf stderr "open_display: "
   end ;
   try_open_display () ;
-  open_block "mrow" "";
+  open_block (OTHER "mrow") "";
   do_put_char '\n';
-  open_block "" "" ;
+  open_block GROUP "" ;
   if !verbose > 2 then begin
     pretty_cur !cur_out ;
     prerr_endline ""
@@ -64,7 +64,7 @@ and close_display () =
     prerr_flags "=> close_display"
   end ;
   if not (flush_freeze ()) then begin
-    close_flow "" ;
+    close_flow GROUP ;
     let n = flags.ncols in
     if (n = 0 && not flags.blank) then begin
       if !verbose > 2 then begin
@@ -75,9 +75,9 @@ and close_display () =
       let active = !cur_out.active and pending = !cur_out.pending in
       do_close_mods () ;
       let ps,_,ppout = pop_out out_stack in
-      if ps <> "mrow" then
-	failclose ("close_display: "^ps^" closes mrow");
-      try_close_block "mrow";
+      if ps <> (OTHER "mrow") then
+	failclose "close_display"  ps (OTHER "mrow") ;
+      try_close_block (OTHER "mrow");
       let old_out = !cur_out in
       cur_out := ppout ;
       do_close_mods () ;
@@ -93,9 +93,9 @@ and close_display () =
       end;
       let active = !cur_out.active and pending = !cur_out.pending in
       let ps,_,pout = pop_out out_stack in
-      if ps<> "mrow" then
-	failclose ("close_display: "^ps^" closes mrow");
-      try_close_block "mrow";
+      if ps<> (OTHER "mrow") then
+	failclose "close_display" ps (OTHER "mrow");
+      try_close_block (OTHER "mrow") ;
       let old_out = !cur_out in
       cur_out := pout ;
       do_close_mods () ;
@@ -111,7 +111,7 @@ and close_display () =
         prerr_endline ""
       end;
       flags.empty <- flags.blank ;
-      close_flow "mrow";
+      close_flow (OTHER "mrow") ;
       do_put_char '\n';
     end ;
     try_close_display ()
@@ -130,8 +130,8 @@ let do_item_display force =
     flags.ncols <- flags.ncols + 1 ;
   let active  = !cur_out.active
   and pending = !cur_out.pending in
-  close_flow "";
-  open_block "" "";
+  close_flow GROUP ;
+  open_block GROUP "";
   !cur_out.pending <- to_pending pending active;
   !cur_out.active <- [] ;
   if is_freeze then freeze f;
@@ -148,8 +148,8 @@ and force_item_display () = do_item_display true
 
 
 let erase_display () =
-  erase_block "" ;
-  erase_block "mrow";
+  erase_block GROUP ;
+  erase_block (OTHER "mrow");
   try_close_display ()
 ;;
 
@@ -157,7 +157,7 @@ let open_maths display =
   if !verbose > 1 then prerr_endline "=> open_maths";
   push stacks.s_in_math flags.in_math;
   if display then do_put "<BR>\n";
-  if not flags.in_math then open_block "math" "align=\"center\""
+  if not flags.in_math then open_block (OTHER "math") "align=\"center\""
   else erase_mods [Style "mtext"];
   do_put_char '\n';
   flags.in_math <- true;
@@ -172,7 +172,7 @@ let close_maths display =
   flags.in_math <- pop stacks.s_in_math ;
   do_put_char '\n';
   if not flags.in_math then begin
-    close_block "math" end
+    close_block (OTHER "math") end
   else open_mod (Style "mtext");
 ;;
 
@@ -186,11 +186,11 @@ let insert_vdisplay open_fun =
   try
     let mods = to_pending !cur_out.pending !cur_out.active in
     let bs,bargs,bout = pop_out out_stack in
-    if bs <> "" then
-      failclose ("insert_vdisplay: "^bs^" closes ``''");
+    if bs <> GROUP then
+      failclose "insert_vdisplay" bs GROUP ;
     let ps,pargs,pout = pop_out out_stack in
-    if ps <> "mrow" then
-      failclose ("insert_vdisplay: "^ps^" closes mrow");
+    if ps <> (OTHER "mrow") then
+      failclose "insert_vdisplay" ps (OTHER "mrow");
     let new_out = new_status false [] [] in
     push_out out_stack (ps,pargs,new_out) ;
     push_out out_stack (bs,bargs,bout) ;    
@@ -396,10 +396,10 @@ let put_sub_sup  s =
 let insert_sub_sup tag s t =
   let f, is_freeze = pop_freeze () in
   let ps,pargs,pout = pop_out out_stack in
-  if ps <> "" then failclose ("sup_sub: "^ps^" closes ``''");
+  if ps <> GROUP then failclose "sup_sub" ps GROUP ;
   let new_out = new_status false [] [] in
   push_out out_stack (ps,pargs,new_out);
-  close_block "";
+  close_block GROUP;
   cur_out := pout;
   open_block tag "";
   open_display ();
@@ -411,7 +411,7 @@ let insert_sub_sup tag s t =
   put_sub_sup s;
   if t<>"" then put_sub_sup t;
   close_block tag;
-  open_block "" "";
+  open_block GROUP "";
   if is_freeze then freeze f
 ;;
 
@@ -426,44 +426,44 @@ let standard_sup_sub scanner what sup sub display =
   match sub,sup with
   | "","" -> what ()
   | a,"" -> 
-      open_block "msub" "";
+      open_block (OTHER "msub") "";
       open_display ();
       what ();
       if flags.empty then begin
 	erase_display ();
-	erase_block "msub";
-	insert_sub_sup "msub" a "";
+	erase_block (OTHER "msub") ;
+	insert_sub_sup (OTHER "msub") a "";
       end else begin
 	close_display ();
 	put_sub_sup a;
-	close_block "msub";
+	close_block (OTHER "msub") ;
       end;
   | "",b ->
-      open_block "msup" "";
+      open_block (OTHER "msup") "";
       open_display ();
       what ();
       if flags.empty then begin
 	erase_display ();
-	erase_block "msup";
-	insert_sub_sup "msup" b "";
+	erase_block (OTHER "msup") ;
+	insert_sub_sup (OTHER "msup") b "";
       end else begin
 	close_display ();
 	put_sub_sup b;
-	close_block "msup";
+	close_block (OTHER "msup");
       end;
   | a,b ->
-      open_block "msubsup" "";
+      open_block (OTHER "msubsup") "";
       open_display ();
       what ();
       if flags.empty then begin
 	erase_display ();
-	erase_block "msubsup";
-	insert_sub_sup "msubsup" a b;
+	erase_block (OTHER "msubsup") ;
+	insert_sub_sup (OTHER "msubsup") a b;
       end else begin
 	close_display ();
 	put_sub_sup a;
 	put_sub_sup b;
-	close_block "msubsup";
+	close_block (OTHER "msubsup") ;
       end;
 ;;
 
@@ -475,44 +475,44 @@ let limit_sup_sub scanner what sup sub display =
   match sub,sup with
   | "","" -> what ()
   | a,"" -> 
-      open_block "munder" "";
+      open_block (OTHER "munder") "";
       open_display ();
       what ();
       if flags.empty then begin
 	erase_display ();
-	erase_block "munder";
-	insert_sub_sup "munder" a "";
+	erase_block (OTHER "munder");
+	insert_sub_sup (OTHER "munder") a "";
       end else begin
 	close_display ();
 	put_sub_sup a;
-	close_block "munder";
+	close_block (OTHER "munder");
       end;
   | "",b ->
-      open_block "mover" "";
+      open_block (OTHER "mover") "";
       open_display ();
       what ();
       if flags.empty then begin
 	erase_display ();
-	erase_block "mover";
-	insert_sub_sup "mover" b "";
+	erase_block (OTHER "mover");
+	insert_sub_sup (OTHER "mover") b "";
       end else begin
 	close_display ();
 	put_sub_sup b;
-	close_block "mover";
+	close_block (OTHER "mover");
       end;
   | a,b ->
-      open_block "munderover" "";
+      open_block (OTHER "munderover") "";
       open_display ();
       what ();
       if flags.empty then begin
 	erase_display ();
-	erase_block "munderover";
-	insert_sub_sup "munderover" a b;
+	erase_block (OTHER "munderover");
+	insert_sub_sup (OTHER "munderover") a b;
       end else begin
 	close_display ();
 	put_sub_sup a;
 	put_sub_sup b;
-	close_block "munderover";
+	close_block (OTHER "munderover");
       end;
 ;;
 
@@ -526,7 +526,7 @@ let over display lexbuf =
     force_item_display ();
     let mods = insert_vdisplay
         (fun () ->
-          open_block "mfrac" "";
+          open_block (OTHER "mfrac") "";
 	  open_display ()) in
     force_item_display ();
     flags.ncols <- flags.ncols +1;
@@ -537,7 +537,7 @@ let over display lexbuf =
 	force_item_display ();
 	flags.ncols <- flags.ncols +1;
         close_display () ;
-        close_block "mfrac")
+        close_block (OTHER "mfrac"))
   end else begin
     put "/"
   end
@@ -580,7 +580,7 @@ let right delim =
     try
       let ps,parg,pout = pop_out out_stack in
       let pps,pparg,ppout = pop_out out_stack in
-      if pblock() = "mfrac" then begin
+      if pblock() = (OTHER "mfrac") then begin
 	warning "Right delimitor not matched with a left one.";
 	push_out out_stack (pps,pparg,ppout);
 	push_out out_stack (ps,parg,pout);

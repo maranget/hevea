@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlCommon.ml,v 1.24 2000-06-05 08:07:23 maranget Exp $" 
+let header = "$Id: htmlCommon.ml,v 1.25 2000-07-10 15:06:18 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -24,12 +24,93 @@ open Stack
 open Length
 
 
-let failclose s = raise (Misc.Close s)
+
+type block =
+  | H1 | H2 | H3 | H4 | H5 | H6
+  | PRE
+  | TABLE | TR | TD
+  | DISPLAY
+  | QUOTE | BLOCKQUOTE
+  | DIV
+  | UL | OL | DL
+  | GROUP | AFTER | DELAY | FORGET
+  | P
+  | NADA
+  | OTHER of string
+;;
+
+let string_of_block = function
+  | H1 -> "H1"
+  | H2 -> "H2"
+  | H3  -> "H3"
+  | H4 -> "H4"
+  | H5 -> "H5"
+  | H6 -> "H6"
+  | PRE -> "PRE"
+  | TABLE -> "TABLE"
+  | TR -> "TR"
+  | TD  -> "TD"
+  | DISPLAY -> "DISPLAY"
+  | QUOTE -> "QUOTE"
+  | BLOCKQUOTE -> "BLOCKQUOTE"
+  | DIV -> "DIV"
+  | UL -> "UL"
+  | OL -> "OL"
+  | DL -> "DL"
+  | GROUP -> ""
+  | AFTER -> "AFTER"
+  | DELAY -> "DELAY"
+  | FORGET -> "FORGET"
+  | P     -> "P"
+  | NADA  -> "NADA"
+  | OTHER s -> s
+
+let block_t = Hashtbl.create 17
+;;
+let add b =
+  Hashtbl.add block_t (string_of_block b) b
+;;
+
+add H1 ;
+add H2 ;
+add H3 ;
+add H4 ;
+add H5 ;
+add H6 ;
+add PRE ;
+add TABLE ;
+add TR ;
+add TD ;
+add DISPLAY ;
+add QUOTE ;
+add BLOCKQUOTE ;
+add DIV ;
+add UL ;
+add OL ;
+add DL ;
+add GROUP ;
+add AFTER ;
+add DELAY ;
+add FORGET ;
+add P ;
+add NADA ; ()
+;;
+
+
+let failclose s b1 b2=
+  raise (Misc.Close (s^": ``"^string_of_block b1^"'' closes ``"^
+                     string_of_block b2^"''"))
+;;
+
+let find_block s =
+  let s = String.uppercase s in
+  try Hashtbl.find block_t s with
+  | Not_found -> OTHER s
 ;;
 
 let check_block_closed opentag closetag =
-  if opentag <> closetag && not (opentag = "AFTER" && closetag = "") then
-    failclose ("html: ``"^closetag^"'' closes ``"^opentag^"''") 
+  if opentag <> closetag && not (opentag = AFTER && closetag = GROUP) then
+    failclose "html" closetag opentag
 ;;
 
 (* output globals *)
@@ -111,7 +192,7 @@ let pretty_cur {pending = pending ; active = active} =
 ;;
 
 type stack_item =
-  Normal of string * string * status
+  Normal of block * string * status
 | Freeze of (unit -> unit)
 ;;
 
@@ -122,7 +203,7 @@ let push_out s (a,b,c) = push s (Normal (a,b,c))
 ;;
 
 let pretty_stack s = Stack.pretty 
-   (function Normal (s,args,_) -> "["^s^"]-{"^args^"} "
+   (function Normal (s,args,_) -> "["^string_of_block s^"]-{"^args^"} "
    | Freeze _   -> "Freeze ") s
 ;;
 
@@ -140,7 +221,7 @@ let rec pop_out s = match pop s with
 
 
 let out_stack =
-  Stack.create_init "out_stack" (Normal ("NADA","",!cur_out))
+  Stack.create_init "out_stack" (Normal (NADA,"",!cur_out))
 ;;
 
 type saved_out = status * stack_item Stack.saved
@@ -161,11 +242,11 @@ and restore_out (a,b) =
   Stack.restore out_stack b
 
 let pblock () =
-  if Stack.empty out_stack then ""
+  if Stack.empty out_stack then NADA
   else
     match Stack.top out_stack with
     | Normal (s,_,_) -> s
-    | _ -> ""
+    | _ -> NADA
 ;;
 
 let do_put_char c =
@@ -194,9 +275,9 @@ type flags_t = {
     mutable nitems:int;
     mutable dt:string;
     mutable dcount:string;
-    mutable last_closed:string;
+    mutable last_closed:block;
     mutable in_pre:bool;
-    mutable insert: (string * string) option;
+    mutable insert: (block * string) option;
 } ;;
 
 let debug_flags f =
@@ -217,7 +298,7 @@ let flags = {
   nitems = 0;
   dt = "";
   dcount = "";
-  last_closed = "rien";
+  last_closed = NADA;
   in_pre = false;
   insert = None;
 } ;;
@@ -306,7 +387,7 @@ type stack_t = {
   s_nitems : int Stack.t ;
   s_dt : string Stack.t ;
   s_dcount : string Stack.t ;
-  s_insert : (string * string) option Stack.t ;
+  s_insert : (block * string) option Stack.t ;
 (* Other stacks, not corresponding to flags *)
   s_active : Out.t Stack.t ;
   s_after : (string -> string) Stack.t
@@ -345,7 +426,7 @@ type saved_stacks = {
   ss_nitems : int Stack.saved ;
   ss_dt : string Stack.saved ;
   ss_dcount : string Stack.saved ;
-  ss_insert : (string * string) option Stack.saved ;
+  ss_insert : (block * string) option Stack.saved ;
 (* Other stacks, not corresponding to flags *)
   ss_active : Out.t Stack.saved ;
   ss_after : (string -> string) Stack.saved
@@ -479,12 +560,13 @@ let prerr_flags s =
     " blank="^sbool flags.blank^
     " table="^sbool flags.table_inside)
 
-let is_header s =
-  String.length s = 2 && String.unsafe_get s 0 = 'H'
+let is_header = function
+  | H1 | H2 | H3 | H4 | H5 | H6 -> true
+  | _ -> false
 ;;
 
 let is_list = function
-  "UL" | "DL" | "OL" -> true
+  UL | DL | OL -> true
 | _ -> false
 ;;
 
@@ -493,12 +575,12 @@ let par_val last now n =
   if is_list last then begin
     if is_list now then 1 else 0
   end
-  else if last = "P" then
+  else if last = P then
     0
   else if
-    is_header last || last = "PRE" || last = "BLOCKQUOTE"
+    is_header last || last = PRE || last = BLOCKQUOTE
   then n-1
-  else if last = "DIV" || last = "TABLE" then n
+  else if last = DIV || last = TABLE then n
   else n+1
 ;;
 
@@ -507,7 +589,7 @@ let par  = function
       flags.pending_par <- p ;
       if !verbose > 2 then
         prerr_endline
-          ("par: last_close="^ flags.last_closed^
+          ("par: last_close="^ string_of_block flags.last_closed^
            " r="^string_of_int n)
   | _ ->  ()
 ;;
@@ -520,10 +602,10 @@ let flush_par n =
   done ;
   if !verbose > 2 then
      prerr_endline
-       ("flush_par: last_closed="^ flags.last_closed^
+       ("flush_par: last_closed="^ string_of_block flags.last_closed^
        " p="^string_of_int p);
   flags.vsize <- flags.vsize + p;
-  flags.last_closed <- "rien"
+  flags.last_closed <- NADA
 ;;
 
 let try_flush_par () = match flags.pending_par with
@@ -690,7 +772,7 @@ let do_pending () =
   | Some n -> flush_par n
   | _ -> ()
   end ;
-  flags.last_closed <- "rien" ;
+  flags.last_closed <- NADA ;
   do_open_mods ()
 ;;
 
@@ -858,43 +940,43 @@ let rec open_mods = function
 (* Blocks *)
 
 let pstart = function
-  "H1" | "H2" | "H3" | "H4" | "H5" | "H6" -> true
-| "PRE" -> true
-| "DIV" -> true
-| "BLOCKQUOTE" -> true
-| "UL" | "OL" | "DL"-> true
-| "TABLE" -> true
+  H1 | H2 | H3 | H4 | H5 | H6 -> true
+| PRE -> true
+| DIV -> true
+| BLOCKQUOTE -> true
+| UL | OL | DL-> true
+| TABLE -> true
 | _ -> false
 ;;
 
 
 let rec try_open_block s args =
   if !verbose > 2 then
-    prerr_flags ("=> try open ``"^s^"''");  
-  if s = "DISPLAY" then begin
-    try_open_block "TABLE" args ;
-    try_open_block "TR" "VALIGN=middle" ;
+    prerr_flags ("=> try open ``"^string_of_block s^"''");  
+  if s = DISPLAY then begin
+    try_open_block TABLE args ;
+    try_open_block TR "VALIGN=middle" ;
   end else begin
     push stacks.s_empty flags.empty ; push stacks.s_blank flags.blank ;
     push stacks.s_insert flags.insert ;
     flags.empty <- true ; flags.blank <- true ;
     flags.insert <- None ;
-    if s = "TABLE" then begin
+    if s = TABLE then begin
       push stacks.s_table_vsize flags.table_vsize ;
       push stacks.s_vsize flags.vsize ;
       push stacks.s_nrows flags.nrows ;
       flags.table_vsize <- 0 ;
       flags.vsize <- 0 ;
       flags.nrows <- 0
-    end else if s = "TR"  then begin
+    end else if s = TR  then begin
       flags.vsize <- 1
-    end else if s = "TD" then begin
+    end else if s = TD then begin
       push stacks.s_vsize flags.vsize ;
       flags.vsize <- 1
     end else if is_list s then begin
       push stacks.s_nitems flags.nitems;
       flags.nitems <- 0 ;
-      if s = "DL" then begin
+      if s = DL then begin
         push stacks.s_dt flags.dt ;
         push stacks.s_dcount flags.dcount;
         flags.dt <- "";
@@ -903,14 +985,14 @@ let rec try_open_block s args =
     end
   end ;
   if !verbose > 2 then
-    prerr_flags ("<= try open ``"^s^"''")
+    prerr_flags ("<= try open ``"^string_of_block s^"''")
 ;;
 
 let do_do_open_block s args =
-    if s = "TR" || is_header s then
+    if s = TR || is_header s then
       do_put "\n";
     do_put_char '<' ;
-    do_put s ;
+    do_put (string_of_block s) ;
     if args <> "" then begin
       if args.[0] <> ' ' then do_put_char ' ' ;
       do_put args
@@ -918,17 +1000,17 @@ let do_do_open_block s args =
     do_put_char '>'
 
 let rec do_open_block insert s args = match s with
-|  ""|"DELAY"|"FORGET"|"AFTER" ->
+| GROUP|DELAY|FORGET|AFTER ->
    begin match insert with
    | Some (tag,iargs) -> do_do_open_block tag iargs
    | _ -> ()
    end
-| "DISPLAY" ->
-   do_open_block insert "TABLE" args ;
-   do_open_block None "TR" "VALIGN=middle"
+| DISPLAY ->
+   do_open_block insert TABLE args ;
+   do_open_block None TR "VALIGN=middle"
 | _  -> begin match insert with
   | Some (tag,iargs) ->
-      if is_list s || s = "TABLE" then begin
+      if is_list s || s = TABLE then begin
         do_do_open_block tag iargs ;
         do_do_open_block s args
       end else begin
@@ -940,61 +1022,61 @@ end
 
 let rec try_close_block s =
   if !verbose > 2 then
-    prerr_flags ("=> try close ``"^s^"''") ;
-  if s = "DISPLAY" then begin
-    try_close_block "TR" ;
-    try_close_block "TABLE"
+    prerr_flags ("=> try close ``"^string_of_block s^"''") ;
+  if s = DISPLAY then begin
+    try_close_block TR ;
+    try_close_block TABLE
   end else begin
     let ehere = flags.empty and ethere = pop  stacks.s_empty in
     flags.empty <- (ehere && ethere) ;
     let bhere = flags.blank and bthere = pop  stacks.s_blank in
     flags.blank <- (bhere && bthere) ;
     flags.insert <- pop  stacks.s_insert ;
-    if s = "TABLE" then begin
+    if s = TABLE then begin
       let p_vsize = pop stacks.s_vsize in
       flags.vsize <- max
        (flags.table_vsize + (flags.nrows)/3) p_vsize ;
       flags.nrows <- pop  stacks.s_nrows ;
       flags.table_vsize <- pop stacks.s_table_vsize
-    end else if s = "TR" then begin
+    end else if s = TR then begin
       if ehere then begin
         flags.vsize <- 0
       end ;
       flags.table_vsize <- flags.table_vsize + flags.vsize;
       if not ehere then flags.nrows <- flags.nrows + 1
-    end else if s = "TD" then begin
+    end else if s = TD then begin
       let p_vsize = pop stacks.s_vsize in
       flags.vsize <- max p_vsize flags.vsize
     end else if is_list s then begin
       flags.nitems <- pop stacks.s_nitems ;
-      if s = "DL" then begin
+      if s = DL then begin
         flags.dt <- pop stacks.s_dt ;
         flags.dcount <- pop  stacks.s_dcount
       end
     end
   end ;
   if !verbose > 2 then
-    prerr_flags ("<= try close ``"^s^"''")
+    prerr_flags ("<= try close ``"^string_of_block s^"''")
 ;;
 
 let do_do_close_block s =
   do_put "</" ;
-  do_put s ;
+  do_put (string_of_block s) ;
   do_put_char '>' ;
-  match s with "TD" -> do_put_char '\n' | _ -> ()
+  match s with TD -> do_put_char '\n' | _ -> ()
 
 let rec do_close_block insert s = match s with
-|  ""|"DELAY"|"FORGET"|"AFTER" -> 
+|  GROUP|DELAY|FORGET|AFTER -> 
    begin match insert with
    | Some (tag,_) -> do_do_close_block tag
    | _ -> ()
    end
-| "DISPLAY" ->
-    do_close_block None "TR" ;
-    do_close_block insert "TABLE"
+| DISPLAY ->
+    do_close_block None TR ;
+    do_close_block insert TABLE
 | s  -> begin match insert with
   | Some (tag,_) ->
-      if is_list s || s = "TABLE" then begin
+      if is_list s || s = TABLE then begin
         do_do_close_block s;
         do_do_close_block tag
       end else begin
@@ -1013,22 +1095,22 @@ and make_empty () =
 
 let rec force_block s content =
   if !verbose > 2 then begin
-    prerr_string ("force_block: "^s^" stack: ");
+    prerr_string ("force_block: "^string_of_block s^" stack: ");
     pretty_stack out_stack
   end ;
   let was_empty = flags.empty in
-  if s = "FORGET" then begin
+  if s = FORGET then begin
     make_empty () ;
   end else if flags.empty then begin
     flags.empty <- false; flags.blank <- false ;
     do_open_mods () ;
     do_put content
   end ;
-  if s = "TABLE" || s="DISPLAY" then flags.table_inside <- true;
-  if s = "PRE" then flags.in_pre <- false ;
+  if s = TABLE || s=DISPLAY then flags.table_inside <- true;
+  if s = PRE then flags.in_pre <- false ;
   do_close_mods () ;
   let true_s =
-    if s = "FORGET" then pblock() else s in
+    if s = FORGET then pblock() else s in
   let insert = flags.insert in
   try_close_block true_s ;
   do_close_block insert true_s ;
@@ -1036,12 +1118,12 @@ let rec force_block s content =
   check_block_closed ps true_s ;
   let old_out = !cur_out in  
   cur_out := pout ;
-  if s = "FORGET" then free old_out
-  else if ps <> "DELAY" then begin
+  if s = FORGET then free old_out
+  else if ps <> DELAY then begin
     let mods = to_pending !cur_out.pending !cur_out.active in
     do_close_mods () ;
     do_open_block insert s args ;
-    if ps = "AFTER" then begin
+    if ps = AFTER then begin
       let f = pop stacks.s_after in
       Out.copy_fun f old_out.out !cur_out.out
     end else begin
@@ -1049,32 +1131,32 @@ let rec force_block s content =
     end ;
     free old_out ;    
     !cur_out.pending <- mods
-  end else begin (* ps = "DELAY" *)
+  end else begin (* ps = DELAY *)
     raise (Misc.Fatal ("html: unflushed DELAY"))
   end ;
-  if not was_empty && true_s <> "" && true_s <> "AFTER" then
+  if not was_empty && true_s <> GROUP && true_s <> AFTER then
     flags.last_closed <- true_s
 
     
 and close_block_loc pred s =
   if !verbose > 2 then
-    prerr_string ("close_block_loc: ``"^s^"'' = ");
+    prerr_string ("close_block_loc: ``"^string_of_block s^"'' = ");
   if not (pred ()) then begin
     if !verbose > 2 then prerr_endline "do it" ;
     force_block s "";
     true
   end else begin
     if !verbose > 2 then prerr_endline "forget it" ;
-    force_block "FORGET" "";
+    force_block FORGET "";
     false
   end
 
 and open_block s args =
  if !verbose > 2 then begin
-   prerr_flags ("=> open_block ``"^s^"''");
+   prerr_flags ("=> open_block ``"^string_of_block s^"''");
  end ;
  try_flush_par ();
- if s = "PRE" then
+ if s = PRE then
     flags.in_pre <- true;
  let cur_mods = to_pending !cur_out.pending !cur_out.active in
  push_out out_stack (s,args,!cur_out) ;
@@ -1085,7 +1167,7 @@ and open_block s args =
    [] ;
  try_open_block s args ;
  if !verbose > 2 then
-   prerr_flags ("<= open_block ``"^s^"''")
+   prerr_flags ("<= open_block ``"^string_of_block s^"''")
 ;;
 
 let insert_block tag arg =
@@ -1099,20 +1181,20 @@ let close_block  s =
 
 let erase_block s =
   if !verbose > 2 then begin
-    Printf.fprintf stderr "erase_block: %s" s;
+    Printf.fprintf stderr "erase_block: %s" (string_of_block s);
     prerr_newline ()
   end ;
   try_close_block s ;
   let ts,_,tout = pop_out out_stack in
   if ts <> s then
-    failclose ("erase_block: "^s^" closes "^ts);
+    failclose "erase_block" s ts;
   free !cur_out ;
   cur_out := tout
 ;;
    
 
 let open_group ss =
-  open_block "" "" ;
+  open_block GROUP "" ;
   let e = Style ss in
     !cur_out.pending <-
        (!cur_out.pending @
@@ -1120,10 +1202,10 @@ let open_group ss =
         else [e]))
 
 and open_aftergroup f =
-  open_block "AFTER" "" ;
+  open_block AFTER "" ;
   push stacks.s_after f
 
-and close_group () = close_block ""
+and close_group () = close_block GROUP
 ;;
 
 
@@ -1177,14 +1259,14 @@ let put_length which  = function
   | No s       -> raise (Misc.Fatal ("No-length ``"^s^"'' in outManager"))
 
 let horizontal_line attr width height =
-  open_block "" "" ;
+  open_block GROUP "" ;
   nostyle () ;
   put "<HR" ;
   begin match attr with "" -> () | _ -> put_char ' ' ; put attr end ;
   put_length " WIDTH=" width ;
   put_length " SIZE=" height ;
   put_char '>' ;
-  close_block ""
+  close_block GROUP
 ;;
 
 let line_in_table h =
@@ -1236,7 +1318,7 @@ and try_close_display () =
 
 let close_flow_loc s =
   if !verbose > 2 then
-    prerr_endline ("close_flow_loc: "^s) ;
+    prerr_endline ("close_flow_loc: "^string_of_block s) ;
 
   let active  = !cur_out.active
   and pending = !cur_out.pending in
@@ -1250,10 +1332,10 @@ let close_flow_loc s =
 ;;
 let close_flow s =
   if !verbose > 2 then
-    prerr_flags ("=> close_flow ``"^s^"''");
+    prerr_flags ("=> close_flow ``"^string_of_block s^"''");
   let _ = close_flow_loc s in
   if !verbose > 2 then
-    prerr_flags ("<= close_flow ``"^s^"''")
+    prerr_flags ("<= close_flow ``"^string_of_block s^"''")
 ;;
 
 
