@@ -8,6 +8,9 @@ let finalize () =
 let read_style name =
   try
     let name,chan =  Myfiles.open_tex name in
+    if !verbose > 0 then begin
+       prerr_endline ("read_style: "^name)
+    end ;
     let buf = Lexing.from_channel chan in
     Location.set name buf ;
     Latexscan.main buf ;

@@ -2,7 +2,7 @@ exception Error of string
 ;;
 
 let libdir =
-  try Sys.getenv "HTMLGENDIR" with Not_found -> LIBDIR
+  try Sys.getenv "HEVEADIR" with Not_found -> LIBDIR
 ;;
 
 

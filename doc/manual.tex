@@ -2198,10 +2198,10 @@ If an argument \textit{filename} does not have an extension, such as
 in case of failure, another attempt to open
 \textit{filename}\texttt{.text} is made.
 In all cases, filenames that do not containt ``\texttt{/}'' are
-searched along \hevea{} search path.
-\hevea{} search path consist in the current, directory ``\texttt{.}'',
+searched along \texttt{hevea} search path.
+\texttt{hevea} search path consist in the current, directory ``\texttt{.}'',
 followed by directories specified by the user with the \texttt{-I}
-option, and by \hevea{} library (normaly \texttt{/usr/local/lib/hevea}).
+option, and by \texttt{hevea} library (normaly \texttt{/usr/local/lib/hevea}).
 
 If the last argument has extension \texttt{.text}, i.e., if
 this last argument is \textit{name}\texttt{.tex}, then \textit{name} is
@@ -2223,7 +2223,7 @@ The \texttt{hevea} command recognizes the following options:
 \item[{\tt -v}] Verbose flag, can be repeated to increase
 verbosity. However, this is mostly for debug.
 \item[{\tt -s}] Suppress warnings.
-\item[{\tt -e} {\it filename}] Prevent \hevea{} from loading any file
+\item[{\tt -e} {\it filename}] Prevent \texttt{hevea} from loading any file
 whose name is \textit{filename}. Note that this option applies to all
 files, including \texttt{hevea.sty} and style files.
 \item[{\tt -idx}] Read the \textit{name}\texttt{.idx} file, where
@@ -2238,15 +2238,15 @@ This has three consequences:
 are replaced by french word.
 \item Text replacement for symbols are  in french (see the
 \texttt{-nosymb} option below).
-\item \hevea{} executes the \TeX{} conditionnal macro
+\item \texttt{hevea} executes the \TeX{} conditionnal macro
 \verb+\frenchtrue+.
 \end{itemize}
 \item[{\tt -nosymb}] Avoid symbol font.
 In this mode, symbols are replaced by text-only equivalents. By
 default, these equivalent are in english.
 \item[{\tt -I} {\it dirname}] Add {\it dirname} to the search path.
-\item[{\tt -o} {\it filename}] Make \hevea{} output go into file {\it
-filename}. By default, \hevea{} output goes into
+\item[{\tt -o} {\it filename}] Make \texttt{hevea} output go into file {\it
+filename}. By default, \texttt{hevea} output goes into
 \textit{name}\texttt{.html}, where \textit{name} is the input base name.
 \item[{\tt -help}] Print version number and a short help message.
 \end{description}
@@ -2311,9 +2311,11 @@ part of the input (see section~\ref{imagen}). Instead, this part is
 processed into a 
 \verb+.gif+ file and \hevea{} ouputs a  link to the image file.
 \LaTeX\ is changed into a \verb+.gif+ file by the the \verb+imagen+
-script, which basically calls, \LaTeX, ghostscript a few tools from
+script, which basically calls, \LaTeX, ghostscript, a few tools from
 the image processing package
 \footurl{ftp://wuarchive.wustl.edu/graphics/graphics/packages/NetPBM}{netpbm}.
+and
+\footurl{ftp://ftp.rz.uni-karlsruhe.de/pub/net/www/tools/giftrans.c}{giftrans}.
 To benefit from the full functionnality of \hevea, you need all
 this software. However, \hevea{} runs without them, but then you will
 have to accept ``X'' labels and to manage to produce images by yourself.
@@ -2352,50 +2354,7 @@ L. Lamport.
 Guide and Reference Manual}.
 \newblock Addison-Websley, 1994.
 \bibitem[\LaTeX-bis]{latexbis}
-
 \end{thebibliography}
-
 \end{document}
 
-\subsection{Labels, references}
-
-
-\subsection{Bibliography}
-
-\subsection{Footnotes}
-
-
-\subsection{Indexes}
-
-A TOUT EXPLIQUER
-
-\begin{verbatim}
-hevea -idx mydoc.tex
-\end{verbatim}
-
-
-Hopefully, \hevea understands most of \LaTeX base macros and environments.
-This includes positionning environemnts such as \verb+center+,
-\verb+flushleft+ or \verb+quote+; sectioning commands, such as
-\verb+\section+; most of font atribute
-changes such as \verb+\em+, \verb+\tt+, \verb+\large+ and the
-associated environements; math mode as introduced by \verb+$+ and
-display mode as introduced by \verb+$$+\ldots; subscripting and
-superscriting; many math symbols, such as \verb+\in+ ($\in$) or
-\verb+\leftarrow+ ($\leftarrow$); array and tabular
-environmnents; cross references, figures, indexes, footnotes and
-bibliographic references are
-also handled. Again, I made some choices while mapping \LaTeX\
-constructs onto {\html} and some part of them can be modified by
-rewriting macros and environments in \LaTeX.
-
-The {\html} implementation of some nasty \TeX\ or \LaTeX\ constructs such
-as \verb+\over+, \verb+\left...\right+ or limits would deserve a more
-thorough description. Some others such as the \verb+tabbing+ environment would
-deserve a more thourough implementation.
-Some may have deserved an implementation, such as \verb+\sqrt+\ldots\ 
-I will not say more about them, you are invited to experiment and send
-your remarks or critics to \mailto{Luc.Maranget@inria.fr}.
-You can also have a look at \hevea{} test suite, see \urlex{suite.tex}
-and \urlex{suite.html}.
 

@@ -1,4 +1,9 @@
 #! /bin/sh
+LATEX=latex
+DVIPS=dvips
+GS=gs
+PNMCROP=pnmcrop
+PPMTOGIF=ppmtogif
 
 case $1 in
   '')
@@ -10,18 +15,51 @@ case $1 in
 esac
 
 NAME=${BASE}.image
+DVIPSOPTS="-t a3 -x1414"
+GSOPTS="-q -sPAPERSIZE=a3 -dNOPAUSE -dNO_PAUSE -sDEVICE=ppmraw"
+PPMTOGIFOPTS="-sort -transparent  #ffffff"
 
-test -r  ${NAME}.tex || exit 2
-latex < /dev/null ${BASE}.image.tex 
-dvips -t a3 -x1414 -S 1 -i -o${BASE} ${NAME}.dvi
-/bin/rm -f ${NAME}.log ${NAME}.aux ${NAME}.dvi
+NEWDVIPS=true
+if ${DVIPS} -i 2>&1 | grep -i 'bad option' 2> /dev/null 1> /dev/null
+then
+  NEWDVIPS=false
+fi
 
-test -f ${BASE}001 && \
-for i in ${BASE}[0-9][0-9][0-9]
-do
-  mv $i $i.ps
-  (echo "($i.ps) run" ; echo "quit") |\
-  gs -q -sPAPERSIZE=a3 -dNOPAUSE -dNO_PAUSE -sDEVICE=ppmraw -sOutputFile=$i.ppm
-  pnmcrop < $i.ppm | ppmtogif | giftrans -t '#ffffff' > $i.gif
-  /bin/rm -f $i.ps $i.ppm
-done
+test -f  ${NAME}.tex ||\
+{ echo "Failure: no ${NAME}.tex file!" 2>&1 ; exit 2 ; }
+${LATEX} ${BASE}.image.tex
+
+if ${NEWDVIPS}
+then
+  DVIPSOPTS="${DVIPSOPTS} -S 1 -i"
+  ${DVIPS} ${DVIPSOPTS} -o${BASE} ${NAME}.dvi
+  /bin/rm -f ${NAME}.log ${NAME}.aux ${NAME}.dvi
+
+  test -f ${BASE}001 || {  echo "Failure: no ps files!" 2>&1 ; exit 2 ; }
+  for i in ${BASE}[0-9][0-9][0-9]
+  do
+    mv $i $i.ps
+    (echo "($i.ps) run" ; echo "quit") |\
+    ${GS} ${GSOPTS} -sOutputFile=$i.ppm
+    ${PNMCROP} < $i.ppm  |\
+    ${PPMTOGIF} ${PPMTOGIFOPTS} > $i.gif
+    /bin/rm -f $i.ps $i.ppm
+  done
+else
+  ${DVIPS} ${DVIPSOPTS} -o${BASE}.ps ${NAME}.dvi
+  /bin/rm -f ${NAME}.log ${NAME}.aux ${NAME}.dvi
+
+  test -f ${BASE}.ps || { echo "No ps file!" 2>&1 ; exit 2 ; }
+
+  (echo "(${BASE}.ps) run" ; echo "quit") |\
+  ${GS} ${GSOPTS} -sOutputFile=${BASE}%03d
+  /bin/rm -f ${BASE}.ps
+
+  test -f ${BASE}001 || { echo "No ppm files!"  2>&1 ; exit 2 ; }
+  for i in ${BASE}[0-9][0-9][0-9]
+  do
+    ${PNMCROP}  < $i |\
+    ${PPMTOGIF} ${PPMTOGIFOPTS}  > $i.gif
+    /bin/rm -f $i
+  done
+fi

@@ -873,10 +873,10 @@ let int_sup_sub main what sup sub =
     force_item_display ()
 ;;
 
-let input_file main filename =
+let input_file verbose main filename =
   try
     let filename,input = Myfiles.open_tex filename in
-    if !verbose > 0 then
+    if verbose > 0 then
       prerr_endline ("Input file: "^filename) ;
     let buf = Lexing.from_channel input in
     Location.set filename buf ;
@@ -885,11 +885,11 @@ let input_file main filename =
     Location.restore () ;
     close_env "*input"
   with Myfiles.Except -> begin
-    if !verbose > 0 then
+    if verbose > 0 then
       prerr_endline ("Not opening file: "^filename) ;
     end
  | Myfiles.Error m -> begin
-     if !verbose > 0 then begin
+     if not !silent || verbose > 0 then begin
        Location.print_pos () ;
        prerr_endline ("Warning: "^m) ;
      end ;
@@ -922,7 +922,7 @@ rule  main = parse
     let oldverb = !verbose in
     verbose := 0;
     begin try if not !Latexmacros.styleloaded then
-      input_file main (arg^".sty") with
+      input_file oldverb main (arg^".sty") with
     Not_found -> prerr_endline "Warning: cannot read style file" end ;
     Image.start () ;
     Image.put command ;
@@ -942,7 +942,7 @@ rule  main = parse
      let filename =
        if lxm = "\\bibliography" then Location.get_base ()^".bbl"
        else arg in
-     begin try input_file main filename
+     begin try input_file !verbose main filename
      with Not_found ->
        Image.put (lxm^"{"^arg^"}\n")
      end ;

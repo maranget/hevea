@@ -135,9 +135,11 @@ let treat tag arg =
       let ((ka,_),_ as key_arg) =
          try read_index lexbuf with
          NoGood _ -> begin
-           Location.print_pos () ;
-           prerr_endline
-             ("Warning, bad index arg syntax: "^arg);
+           if not !silent then begin
+             Location.print_pos () ;
+             prerr_endline
+               ("Warning, bad index arg syntax: "^arg)
+           end ;
            bad_entry
          end
       and ((ki,_),_ as key_idx) = match idxstruct with

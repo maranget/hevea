@@ -858,10 +858,12 @@ let item scan arg =
   let mods = !cur_out.pending @ !cur_out.active in
   do_close_mods () ;
   let true_scan =
-    if !nitems = 0 then
+    if !nitems = 0 then begin
+      forget_par () ;
       let saved = Out.to_string !cur_out.out in
       (fun arg -> do_put saved ; scan arg)
-    else scan in
+    end else scan in
+  if !pending_par then flush_par ();
   !cur_out.pending <- mods ;
   nitems := !nitems+1;
   if pblock() = "DL" then begin
