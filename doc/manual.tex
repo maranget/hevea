@@ -833,9 +833,14 @@ closed consistently. \LaTeX{} style being recommended, one should write:
 \end{verbatim}
 And we get:
 \begin{htmlout}\newenvironment{quoteright}{\begin{quote}\begin{flushright}}{\end{flushright}\end{quote}}
+\begin{htmlonly}
 \begin{quoteright}
 This is a right-flushed quotation
 \end{quoteright}
+\end{htmlonly}
+\begin{latexonly}\vspace*{.5ex}
+\epsfbox{rquote.ps}
+\end{latexonly}
 \end{htmlout}
 
 
@@ -1106,7 +1111,7 @@ And we get:
 \imageflush}\newsavebox{\blobbox}\sbox{\blobbox}{\blob}
 \usebox{\blobbox}\ Blob \usebox{\blobbox}
 \end{htmlonly}
-\begin{latexonly}%
+\begin{latexonly}\vspace*{.5ex}
 \epsfbox{realblob.ps}
 \end{latexonly}%
 \end{htmlout}
