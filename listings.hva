@@ -17,19 +17,11 @@
 % Helpers %
 %%%%%%%%%%%
 \def\lstinfo#1{\typeout{LST, #1}}
-%%%%%%% Iterator on comma separated lists
-\def\lst@iter@#1,#2\@{%
-\lst@do{#1}%
-\ifthenelse{\equal{#2}{}}{}
-  {\@funcall{\lst@iter@}{#2\@}}}
-\def\lst@iter#1#2{%
-\ifthenelse{\equal{#2}{}}{}
-  {\def\lst@do##1{#1##1}%
-  \@funcall{\lst@iter@}{#2,\@}}}
+\def\lst@iter#1#2{\@iter#1,#2}
 %%%%%%%% Interface with keyval
 \def\lstset#1{\@setkeys{lst}{#1}}
 %%%%%%%% Def if not empty
-\newcommand{\lst@defne}[2]{\ifx#1\empty\def#1{#2}\fi}
+\newcommand{\lst@defne}[2]{\ifx#1\@empty\def#1{#2}\fi}
 %%%%%%%%%%%%
 % Hooks    %
 %%%%%%%%%%%%
@@ -47,16 +39,46 @@
 \lst@Hook{InitVar}
 \lst@Hook{Init}
 \lst@Hook{DeInit}
+\lst@Hook{SelectCharTable}
+\lst@Hook{SetLanguage}
 %%%%%%%%%%%%
 % Keywords %
 %%%%%%%%%%%%
+\newtokens{\lst@allkeywords}
+\def\lst@record@kwds#1{\addtokens{\lst@allkeywords}{#1,}}
+\newtokens{\lst@allotherkeywords}
+\def\lst@record@okwds#1{\addtokens{\lst@allotherkeywords}{#1,}}
+\lst@AddToHook{InitVar}{\lstinfo{Keywords: \lst@allkeywords}}
+\lst@addToHook{SelectLanguage}
+  {\lst@delete@kwds\lst@allkeywords%
+  \lst@delete@okwds\lst@allotherkeywords}
 \def\lst@install@kwd#1#2{\def\csname lstk@\@rawchars{#2}\endcsname{#1}}
-\def\lst@install@kwds#1#2{\lst@iter{\lst@install@kwd{#1}}{#2}}
+\def\lst@install@kwds
+  #1#2{%
+    \lst@record@kwds{#2}%
+    \lst@iter{\lst@install@kwd{#1}}{#2}}
+\def\lst@install@okwds
+  #1#2{%
+    \lst@record@okwds{#2}%
+    \lst@iter{\lst@install@kwd{#1}}{#2}}
+\def\lst@delete@kwd
+  #1{\def\csname lstk@\@rawchars{#1}\endcsname{\lst@identifier@style}}
+\def\lst@delete@okwds#1{\lst@iter{\lst@delete@okwd}{#1}}
+\def\lst@delete@okwd
+  #1{\def\csname lstk@\@rawchars{#1}\endcsname{}}
+\def\lst@delete@kwds#1{\lst@iter{\lst@delete@kwd}{#1}}
 \lst@define@key{keywords}{\lst@install@kwds{\lst@kwd@style}}
 \lst@define@key{morekeywords}{\lst@install@kwds{\lst@kwd@style}}
+\lst@define@key{deletekeywords}{\lst@delete@kwds}
 \lst@define@key{ndkeywords}{\lst@install@kwds{\lst@ndkwd@style}}
+\lst@define@key{morendkeywords}{\lst@install@kwds{\lst@ndkwd@style}}
+\lst@define@key{deletendkeywords}{\lst@delete@kwds}
 \lst@define@key{rdkeywords}{\lst@install@kwds{\lst@rdkwd@style}}
-\lst@define@key{otherkeywords}{\lst@install@kwds{\lst@kwd@style}}
+\lst@define@key{morerdkeywords}{\lst@install@kwds{\lst@rdkwd@style}}
+\lst@define@key{deleterdkeywords}{\lst@delete@kwds}
+\lst@define@key{otherkeywords}{\lst@install@okwds{\lst@kwd@style}}
+\lst@define@key{moreotherkeywords}{\lst@install@okwds{\lst@kwd@style}}
+\lst@define@key{deleteotherkeywords}{\lst@delete@okwds}
 %%%%%%%
 \define@key{lst}{keywordstyle}{\def\lst@kwd@style##1{#1{##1}}}
 \define@key{lst}{ndkeywordstyle}{\def\lst@ndkwd@style##1{#1{##1}}}
@@ -81,8 +103,7 @@
     {lstlang@#2@\csname lstdd@#2\endcsname}
     {lstlang@#2@#1}}
 \newcommand{\lst@language@key}[2][]
-  {\def\lst@language@init{\csname\lst@mklang[#1]{#2}\endcsname}}
-\lst@AddToHook{Init}{\lst@language@init}
+  {\lsthk@SetLanguage\csname\lst@mklang[#1]{#2}\endcsname}
 \lst@define@key@opt{language}{\lst@language@key}
 \newcommand{\lst@definelanguage@}[3]
   {\def\csname\lst@mklang[#2]{#1}\endcsname{\lstset{#3}}}
@@ -119,7 +140,7 @@
 \newcommand{\lst@labelstep}{0}
 \define@key{lst}{labelsep}{\def{\lst@labelsep}{\hspace{#1}}}
 \newcommand{\lst@labelsep}{\hspace{1em}}
-\newcommand{\lst@pad}[1]{\@pad{ }{3}{#1}}
+\newcommand{\lst@pad}[1]{\@pad{ }{4}{#1}}
 \newcommand{\lst@linenumber@}[1]
   {{\@clearstyle\lst@basic@style\lst@label@style{\lst@pad{#1}}}\lst@labelsep}
 \newcommand{\lst@linenumber}
@@ -137,7 +158,7 @@
 \newcommand{\lst@last}{9999}
 \define@key{lst}{first}{\def\lst@first{#1}}
 \define@key{lst}{last}{\def\lst@last{#1}}
-
+% print key
 \define@key{lst}{print}[true]{\def\lst@print{#1}}
 \setboolean{lst@print}{true}
 \lst@AddToHook{Init}
@@ -145,30 +166,28 @@
      {\setboolean{lst@print}{\lst@boolean{\lst@print}}}}
 \lst@AddToHook{DeInit}{\setboolean{lst@print}{true}}
 %%%%%%% Strings
-\newcommand{\lst@stringizers}{}
-\newcommand{\lst@quote@stringizers}{}
 \newcommand{\lst@stringizer@key}[2][]
-  {\lst@defne\lst@quote@stringizers{\@rawchars{#1}}%
-  \lst@defne\lst@stringizers{\@rawchars{#2}}}
+  {\def\lst@quote@stringizers{\@rawchars{#1}}%
+  \def\lst@stringizers{\@rawchars{#2}}}
 \lst@define@key@opt{stringizer}{\lst@stringizer@key}
-\lst@AddToHook{PreSet}
+\lst@AddToHookExe{SetLanguage}
   {\def\lst@stringizers{}\def\lst@quote@stringizers{}}
 %%%%%% Comments
 % Line comments
 \newcommand{\lst@LC@key}[1]
   {\lst@defne{\lst@LC}{\@rawchars{#1}}}
 \define@key{lst}{commentline}{\lst@LC@key{#1}}
-\lst@AddToHookExe{PreSet}{\def\lst@LC{}}
+\lst@AddToHookExe{SetLanguage}{\def\lst@LC{}}
 % Balanced comments
 \newcommand{\lst@NC@key}[2]
   {\lst@defne\lst@BNC{\@rawchars{#1}}\lst@defne\lst@ENC{\@rawchars{#2}}}
 \define@key[2]{lst}{nestedcomment}{\lst@NC@key{#1}{#2}}
-\lst@AddToHookExe{PreSet}
+\lst@AddToHookExe{SetLanguage}
   {\def\lst@BNC{}\def\lst@ENC{}}
 \newcommand{\lst@SC@key}[2]
    {\lst@defne\lst@BBC@one{\@rawchars{#1}}\lst@defne\lst@EBC@one{\@rawchars{#2}}}
 \define@key[2]{lst}{singlecomment}{\lst@SC@key{#1}{#2}}
-\lst@AddToHookExe{PreSet}
+\lst@AddToHookExe{SetLanguage}
   {\def\lst@BBC@one{}\def\lst@EBC@one{}}
 \newcommand{\lst@DC@key}[4]
    {\lst@defne\lst@BBC@two{\@rawchars{#1}}%
@@ -176,11 +195,18 @@
    \lst@defne\lst@BBC@three{\@rawchars{#3}}%
    \lst@defne\lst@EBC@three{\@rawchars{#4}}}
 \define@key[4]{lst}{doublecomment}{\lst@DC@key{#1}{#2}{#3}{#4}}
-\lst@AddToHookExe{PreSet}
+\lst@AddToHookExe{SetLanguage}
  {\def\lst@BBC@two{}%
   \def\lst@EBC@two{}%
   \def\lst@BBC@three{}%
   \def\lst@EBC@three{}}
+%%%%%%% Extended chars
+\lst@AddToHookExe{DeInit}{\setboolean{lst@extendedchars}{false}}
+\lst@AddToHookExe{SetLanguage}{\def\lst@extendedchars{false}}
+\define@key{lst}{extendedchars}[true]{\def\lst@extendedchars{#1}}
+\lst@AddToHook{SelectCharTable}
+  {\lstinfo{Extended Chars: \lst@extendedchars}%
+  \setboolean{lst@extendedchars}{\lst@boolean{\lst@extendedchars}}}
 %%%%%%% Output
 \def\lst@output#1{%
 %\lstinfo{Output: ``#1''}%
@@ -206,7 +232,8 @@
    sensitive,
    nestedcomment={(*}{*)},
    stringizer=[b]",
-   directives={open,close,include}
+   directives={open,close,include},
+   extendedchars=true
   }[keywords,comments,strings,directives]%
 \lst@definelanguage{Java}%
   {keywords={abstract,boolean,break,byte,case,catch,char,class,const,%

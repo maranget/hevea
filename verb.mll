@@ -75,6 +75,7 @@ and lst_nlines  = ref 0
 and lst_first   = ref 1
 and lst_last    = ref 9999
 and lst_print   = ref true
+and lst_extended = ref false
 
 let lst_buff = Out.create_buff ()
 
@@ -809,10 +810,15 @@ let open_lst keys lab =
   lst_nlines := 0 ;
   if not !lst_print then begin
     lst_last := -2 ; lst_first := -1
-  end ;
+  end ;  
   Printf.fprintf stderr "first=%d, last=%d\nprint=%b\n"
     !lst_first !lst_last !lst_print ;
   lst_init_char_table () ;
+  scan_this Scan.main "\\lsthk@SelectCharTable" ;
+  if !lst_extended then
+    for i = 128 to 255 do
+      lst_init_char (Char.chr i) lst_process_letter
+    done ;
   scan_this Scan.main "\\lsthk@Init" ;
 (* Strings *)
   let quote_mode =
@@ -862,6 +868,7 @@ let lst_boolean lexbuf =
 
 let init_listings () =
   Scan.newif_ref "lst@print" lst_print ;
+  Scan.newif_ref "lst@extendedchars" lst_extended ;
   def_code "\\lst@boolean" lst_boolean ;
   def_code "\\lst@funcall"
     (fun lexbuf ->
