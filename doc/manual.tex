@@ -1958,6 +1958,7 @@ get translated into \html{} \emph{groups}, which are shadow block-level
 elements with neither opening tag nor closing tag.
 
 \index{"@print@\texttt{\char92"@print}|defocc}
+\index{"@hr@\texttt{\char92"@hr}|defocc}
 \index{"@open@\texttt{\char92"@open}|defocc}
 \index{"@close@\texttt{\char92"@close}|defocc}
 \index{"@style@\texttt{\char92"@style}|defocc}
@@ -1967,6 +1968,14 @@ elements with neither opening tag nor closing tag.
 \begin{description}
 \item[{\tt\char92 @print\char123}{\it text}{\tt\char125}]
 Echo \textit{text} verbatim.
+\item[{\tt\char92 @hr[}{\it attr}{\tt]\char123}{\it
+width}{\tt\char125\char123}{\it height}{\tt\char125}]
+Ouput an \html{} horizontal rule, \textit{attr} is attributes given
+directly (e.g. \verb+SIZE=3 HOSHADE+), while \textit{width} and
+\textit{height} are length arguments given in the \LaTeX{} style
+(e.g. \verb+2pt+ or \verb+.5\linewidth+).
+
+
 
 \item[{\tt\char92 @open\char123}{\it BLOCK}{\tt\char125\char123}{\it
 attributes}{\tt\char125}]

@@ -13,3 +13,4 @@
 %\cutend[subsection]
 %\ifthenelse{\equal{#1}{!*!}}{\oldsection{#2}}{\oldsection[#1]{#2}}
 %\cutdef{subsection}}
+\renewcommand{\@bodyargs}{TEXT=black BGCOLOR=white}
