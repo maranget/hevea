@@ -164,10 +164,9 @@
 \fi
 \input{mathop.hva}
 %%%%%%%%%%%% Bibliography
-\newcommand{\@bibref}[2]{\@locref{#1}{#2}}
+\newcommand{\@bibref}[2]{\@locref{#1}{\ifx#2\@empty\@verbarg{#1}\else#2\fi}}
 \newsavebox{\@bibbox}
-\newcommand{\@biblabel}[1]
-{\@locname{#1}{\purple[\@bibread{#1}]}}
+\newcommand{\@biblabel}[1]{\@locname{#1}{\purple[\@bibread{#1}]}}
 %%% Environment document.
 \newcommand{\@charset}{ISO-8859-1}
 \newcommand{\@bodyargs}{}

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.42 2003-04-18 17:41:15 maranget Exp $    *)
+(*  $Id: package.ml,v 1.43 2003-09-29 08:54:54 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -195,7 +195,10 @@ def_code "\\@auxread"
 def_code "\\@bibread"
   (fun lexbuf ->
     let key = get_raw lexbuf in
-    scan_this main (Auxx.bget false key))
+    let arg = match Auxx.bget false key with
+    | None -> "\\@verbarg{"^key^"}"
+    | Some s -> s in
+    scan_this main arg)
 ;;
 
 def_code "\\@bibwrite"
@@ -615,6 +618,26 @@ register_init "xypic"
 ;;
 
 
+register_init "natbib"
+  (fun () ->
+    def_code "\\NAT@write"
+      (fun lexbuf ->
+        let key = get_raw lexbuf in
+        let num = get_prim_arg lexbuf in
+        let auth = subst_arg lexbuf in
+        let year = subst_arg lexbuf in
+        let long = subst_arg lexbuf in
+        Auxx.bwrite key
+          ("{"^num^"}{"^auth^"}{"^year^"}{"^long^"}")) ;
+    def_code "\\NAT@bibread"
+      (fun lexbuf ->
+        let key = get_raw lexbuf in
+        let arg =
+          match Auxx.bget false key with
+          | None -> "{}{??}{}{}"
+          | Some s -> s in
+        scan_this main ("\\NAT@args" ^ arg)) ;
+    ())
             
         
 end

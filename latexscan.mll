@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.230 2003-07-24 14:42:02 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.231 2003-09-29 08:54:53 maranget Exp $ *)
 
 
 {
@@ -2356,8 +2356,13 @@ def_code "\\if@toplevel"
 
 
 (* Bibliographies *)
-let bib_ref s1 s2 =
-  scan_this main ("\\@bibref{"^s1^"}{"^s2^"}")
+let bib_ref s1 s2 = scan_this main ("\\@bibref{"^s1^"}{"^s2^"}")
+;;
+
+let cite_arg key =
+  match Auxx.bget true key with
+  | None   -> ""
+  | Some s -> s
 ;;
 
 def_code "\\cite"
@@ -2365,14 +2370,14 @@ def_code "\\cite"
     let opt = save_opt "" lexbuf in
     check_alltt_skip lexbuf ; 
     let args = List.map subst_this (Save.cite_arg lexbuf) in
-    Dest.put_char '[' ;
+    scan_this main "\\@open@cite" ;
     Dest.open_group "CITE" ;
     let rec do_rec = function
         [] -> ()
-      | [x] -> bib_ref x (Auxx.bget true x)
+      | [x] -> bib_ref x (cite_arg x)
       | x::rest ->
-          bib_ref x (Auxx.bget true x) ;
-          Dest.put ", " ;
+          bib_ref x (cite_arg x) ;
+          scan_this main "\\@sep@cite" ;
           do_rec rest in
     do_rec args ;
     if opt.arg <> "" then begin
@@ -2380,7 +2385,7 @@ def_code "\\cite"
       scan_this_arg main opt ;
     end ;
     Dest.close_group () ;
-    Dest.put_char ']' )
+    scan_this main "\\@close@cite")
 ;;
 
 (* Includes *)

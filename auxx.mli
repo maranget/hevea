@@ -12,7 +12,7 @@
 val rset : string -> string -> unit
 val rget : string -> string
 val bset : string -> string -> unit
-val bget : bool -> string -> string
+val bget : bool -> string -> string option
 val init : string -> unit
 val final : string -> unit
 val finalize : bool -> bool

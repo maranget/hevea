@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: verb.mll,v 1.59 2003-07-24 17:40:55 maranget Exp $            *)
+(*  $Id: verb.mll,v 1.60 2003-09-29 08:54:54 maranget Exp $            *)
 (***********************************************************************)
 {
 exception VError of string
@@ -665,7 +665,7 @@ and get_line = parse
 | '\n'     {Out.to_string line_buff}
 
 and do_escape = parse
-| eof {}
+| eof {()}
 | "\\esc"
     {let arg = save_arg lexbuf in
     scan_this main "\\mbox{" ;

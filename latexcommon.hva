@@ -23,6 +23,8 @@
   \ifx\@edm@act\relax$$\fi}
   {\ifx\@edm@act\relax$$\fi}
 \newcommand{\to}{\rightarrow}
+%%%
+\newcommand{\\*}{\\}
 %%% Arrays
 \newenvironment{array}
   {\let\\=\@HEVEA@bsbs\let\@hevea@amper=\@HEVEA@amper\@array}
@@ -197,12 +199,13 @@
 %% Line breaking
 \newcommand{\linebreak}[1][4]{\ifthenelse{#1=4}{\vspace{1em}}{}}
 \newcommand{\nolinebreak}[1][4]{}
-\def\sloppy{}
-\def\fussy{}
+\newcommand{\sloppy}{}
+\newcommand{\fussy}{}
 \newenvironment{sloppypar}{}{}
+\newcommand{\goodbreak}{}
 %%%%%%%%%%%% Ignore hyphenation
-\def\-{}
-\def\hyphenation#1{}
+\newcommand{\-}{}
+\newcommand{\hyphenation}[1]{}
 %% Page Breaking
 \newcommand{\pagebreak}[1][]{}
 \newcommand{\nopagebreak}[1][]{}
@@ -328,6 +331,9 @@
   {\ifthenelse{\equal{#1}{!*!}}
     {\stepcounter{heveabib}\@bibwrite{\theheveabib}{#2}}
     {\@bibwrite{#1}{#2}}\item[#2]}
+\newcommand{\@open@cite}{[}
+\newcommand{\@close@cite}{]}
+\newcommand{\@sep@cite}{, }
 %%%%%%%%%%% Footnotes
 \newcommand{\footnoterule}{{\@nostyle\@hr{.5\textwidth}{1pt}}}
 \newcommand{\footnotesep}[1]{}

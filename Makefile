@@ -22,6 +22,7 @@ OCAMLCI=$(OCAMLC)
 OCAMLOPT=${DIR}ocamlopt$(SUF)
 OCAMLLEX=${DIR}ocamllex$(SUF)
 INSTALL=cp
+MKDIR=mkdir -p
 
 ONLYESPONJA=emisc.cmo buff.cmo htmllex.cmo htmlparse.cmo htmltext.cmo pp.cmo util.cmo explode.cmo ultra.cmo esponja.cmo
 
@@ -49,15 +50,15 @@ byte:
 	$(MAKE) $(MFLAGS) TARGET=byte hevea.byte hacha.byte esponja.byte cutfoot-fra.html cutfoot-eng.html
 
 install-lib:
-	-mkdir $(LIBDIR)
+	- $(MKDIR) $(LIBDIR)
 	$(INSTALL) hevea.sty cutfoot-fra.html cutfoot-eng.html footer.tex ${LIBDIR}
 	$(INSTALL) contents_motif.gif next_motif.gif previous_motif.gif ${LIBDIR}
 	$(INSTALL) $(ALLLIB) $(LIBDIR)
-	-mkdir  $(LIBDIR)/html
+	- $(MKDIR)  $(LIBDIR)/html
 	cd html ; $(INSTALL) $(HTMLLIB) $(LIBDIR)/html
-	-mkdir  $(LIBDIR)/text
+	- $(MKDIR)  $(LIBDIR)/text
 	cd text ; $(INSTALL) $(TEXTLIB) $(LIBDIR)/text
-	-mkdir $(LIBDIR)/info
+	- $(MKDIR) $(LIBDIR)/info
 	cd info ; $(INSTALL) $(INFOLIB) $(LIBDIR)/info
 
 
