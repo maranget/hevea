@@ -1,4 +1,3 @@
-%% Indexes a` la index.sty
 \@primitives{index}
 \newsavebox{\@indexbox}
 \newcommand{\index}[2][default]
@@ -13,5 +12,8 @@
 \newcommand{\makeindex}{\newindex{default}{idx}{ind}{Index}}
 \newcommand{\@seename}{\iffrench voir\else see\fi}
 \newcommand{\see}[2]{\@seename\ \textit{#1}}
-\newcommand{\indexspace}{\par}
 \newcommand{\@vwritefile}[2]{}
+%%%%%% Formating
+\newcommand{\indexspace}{\par}
+\newenvironment{indexenv}{\begin{itemize}}{\end{itemize}}
+\newcommand{\indexitem}{\item}

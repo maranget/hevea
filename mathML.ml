@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: mathML.ml,v 1.9 2000-01-21 18:49:00 maranget Exp $" 
+let header = "$Id: mathML.ml,v 1.10 2000-01-27 16:31:38 maranget Exp $" 
 
 
 open Misc
@@ -44,9 +44,9 @@ and end_item_display () =
   flags.vsize,f,is_freeze
 
 
-and open_display args =
+and open_display () =
   if !verbose > 2 then begin
-    Printf.fprintf stderr "open_display: %s -> " args
+    Printf.fprintf stderr "open_display: "
   end ;
   try_open_display () ;
   open_block "mrow" "";
@@ -160,8 +160,8 @@ let open_maths display =
   else erase_mods [Style "mtext"];
   do_put_char '\n';
   flags.in_math <- true;
-  open_display "";
-  open_display "";
+  open_display ();
+  open_display ();
 ;;
 
 let close_maths display =
@@ -278,7 +278,7 @@ and is_close_delim = function
 ;;
 
 let open_delim () =
-  open_display "";
+  open_display ();
   freeze
     ( fun () ->
       close_display ();
@@ -296,7 +296,7 @@ and close_delim () =
     close_display ();
   end else begin
     close_display ();
-    open_display "";
+    open_display ();
     warning "Math expression improperly parenthesized";
   end
 ;;
@@ -386,7 +386,7 @@ let put_in_math s =
 
 
 let put_sub_sup  scanner s = 
-  open_display "";
+  open_display ();
   scanner s;
   item_display ();
   
@@ -402,7 +402,7 @@ let insert_sub_sup tag scanner s t =
   close_block "";
   cur_out := pout;
   open_block tag "";
-  open_display "";
+  open_display ();
   let texte = Out.to_string new_out.out in
   do_put (if texte = "" then "<mo> &InvisibleTimes; </mo>" else texte);
   flags.empty <- false; flags.blank <- false;
@@ -420,7 +420,7 @@ let standard_sup_sub scanner what sup sub display =
   | "","" -> what ()
   | a,"" -> 
       open_block "msub" "";
-      open_display "";
+      open_display ();
       what ();
       if flags.empty then begin
 	erase_display ();
@@ -433,7 +433,7 @@ let standard_sup_sub scanner what sup sub display =
       end;
   | "",b ->
       open_block "msup" "";
-      open_display "";
+      open_display ();
       what ();
       if flags.empty then begin
 	erase_display ();
@@ -446,7 +446,7 @@ let standard_sup_sub scanner what sup sub display =
       end;
   | a,b ->
       open_block "msubsup" "";
-      open_display "";
+      open_display ();
       what ();
       if flags.empty then begin
 	erase_display ();
@@ -466,7 +466,7 @@ let limit_sup_sub scanner what sup sub display =
   | "","" -> what ()
   | a,"" -> 
       open_block "munder" "";
-      open_display "";
+      open_display ();
       what ();
       if flags.empty then begin
 	erase_display ();
@@ -479,7 +479,7 @@ let limit_sup_sub scanner what sup sub display =
       end;
   | "",b ->
       open_block "mover" "";
-      open_display "";
+      open_display ();
       what ();
       if flags.empty then begin
 	erase_display ();
@@ -492,7 +492,7 @@ let limit_sup_sub scanner what sup sub display =
       end;
   | a,b ->
       open_block "munderover" "";
-      open_display "";
+      open_display ();
       what ();
       if flags.empty then begin
 	erase_display ();
@@ -517,11 +517,11 @@ let over display lexbuf =
     let mods = insert_vdisplay
         (fun () ->
           open_block "mfrac" "";
-	  open_display "") in
+	  open_display ()) in
     force_item_display ();
     flags.ncols <- flags.ncols +1;
     close_display () ;
-    open_display "" ;
+    open_display () ;
     freeze
       (fun () ->
 	force_item_display ();
@@ -544,7 +544,7 @@ let tr = function
 
 let left delim = 
   force_item_display ();
-  open_display "";
+  open_display ();
   if delim <>"." then put ("<mo> "^ tr delim^" </mo>");
   force_item_display ();
   freeze
@@ -564,7 +564,7 @@ let right delim =
   if not is_freeze then begin
     warning "Right delimitor alone";
     close_display ();
-    open_display "";
+    open_display ();
   end else begin
     try
       let ps,parg,pout = pop_out out_stack in
@@ -575,7 +575,7 @@ let right delim =
 	push_out out_stack (ps,parg,pout);
 	freeze f;
 	close_display ();
-	open_display "";
+	open_display ();
       end else begin
 	push_out out_stack (pps,pparg,ppout);
 	push_out out_stack (ps,parg,pout);

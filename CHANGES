@@ -1,4 +1,5 @@
-
+vesrion 1.05-7
+  - Bug footnotes at document end in info mode
 version 1.05-6
   - Bad index entries are better treated
   - nasty regression bug in \bibitem, example in suite.tex

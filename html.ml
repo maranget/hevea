@@ -10,7 +10,7 @@
 (***********************************************************************)
 
 
-let header = "$Id: html.ml,v 1.71 2000-01-21 18:48:39 maranget Exp $" 
+let header = "$Id: html.ml,v 1.72 2000-01-27 16:31:21 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -513,7 +513,7 @@ let as_align_mathml f span = match f with
 let open_cell format span i= 
   if flags.in_math && !Parse_opts.mathml then begin
     open_block "mtd" (as_align_mathml format span);
-    open_display ""
+    open_display ()
   end else open_block "TD" (as_align format span)
 ;;
 

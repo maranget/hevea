@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlMath.ml,v 1.11 2000-01-21 18:48:43 maranget Exp $" 
+let header = "$Id: htmlMath.ml,v 1.12 2000-01-27 16:31:23 maranget Exp $" 
 
 
 open Misc
@@ -83,7 +83,7 @@ and close_center () = close_block "DIV"
 ;;
 
 let display_arg  verbose =
-  if verbose > 0 then
+  if verbose > 1 then
     "BORDER=1 CELLSPACING=0 CELLPADDING=0"
   else
     "CELLSPACING=0 CELLPADDING=0"
@@ -114,12 +114,12 @@ and end_item_display () =
   flags.vsize,f,is_freeze
 ;;
 
-let open_display args =
+let open_display () =
   if !verbose > 2 then begin
-    Printf.fprintf stderr "open_display: %s -> " args
+    Printf.fprintf stderr "open_display: "
   end ;
   try_open_display () ;
-  open_block "DISPLAY" args ;
+  open_block "DISPLAY" (display_arg !verbose) ;
   open_block "TD" "NOWRAP" ;
   open_block "" "" ;
   if !verbose > 2 then begin
@@ -267,7 +267,7 @@ let open_maths display =
   if display then open_center ();
   push stacks.s_in_math flags.in_math;
   flags.in_math <- true;
-  if display then open_display (display_arg !verbose)
+  if display then open_display ()
   else open_group "";
 ;;
 
@@ -299,7 +299,7 @@ and open_vdisplay_row s =
     prerr_endline "open_vdisplay_row";
   open_block "TR" "" ;
   open_block "TD" s ;
-  open_display (display_arg !verbose)
+  open_display ()
 
 and close_vdisplay_row () =
   if !verbose > 1 then

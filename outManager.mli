@@ -37,7 +37,7 @@ module type S =
 
     val open_maths : bool -> unit
     val close_maths : bool -> unit
-    val open_display : string -> unit
+    val open_display : unit -> unit
     val close_display : unit -> unit
     val item_display : unit -> unit
     val force_item_display : unit -> unit

@@ -19,3 +19,8 @@ val bwrite : string -> string -> unit
 val rwrite : string -> string -> unit
 
 val hot_start : unit -> unit
+
+type saved
+
+val check : unit -> saved
+val hot : saved -> unit

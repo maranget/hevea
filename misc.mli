@@ -26,3 +26,4 @@ val print_verb : int -> string -> unit
 val message : string -> unit
 val fatal : string -> 'a
 val copy_hashtbl : (string, 'a) Hashtbl.t -> (string, 'a) Hashtbl.t -> unit
+val clone_hashtbl : (string, 'a) Hashtbl.t -> (string, 'a) Hashtbl.t

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: index.ml,v 1.36 2000-01-26 17:08:42 maranget Exp $"
+let header = "$Id: index.ml,v 1.37 2000-01-27 16:31:25 maranget Exp $"
 open Misc
 open Parse_opts
 open Entry
@@ -213,7 +213,7 @@ let rec common e1 e2 = match e1,e2 with
 let rec close_prev out = function
   [],_ | [_],_ -> ()
 | _::r,_::p    ->
-    Out.put out "\\end{itemize}\n" ;
+    Out.put out "\\end{indexenv}\n" ;
     close_prev out (r,p)
 |  _ -> assert false
 ;;
@@ -221,12 +221,12 @@ let rec close_prev out = function
 let rec open_this out k = match k with
   [],_ -> ()
 | k::r,p::rp ->
-    Out.put out "\\item " ;
+    Out.put out "\\indexitem " ;
     let tag = if p <> "" then p else k in
     Out.put out tag  ;
     begin match r with
       [] -> ()
-    | _  -> Out.put out "\\begin{itemize}\n" ;
+    | _  -> Out.put out "\\begin{indexenv}\n" ;
     end ;
     open_this out (r,rp)
 |  _ -> assert false
@@ -241,7 +241,7 @@ let print_entry out tag entries bk k xs  =
   let rp,rt = common bk k in
   close_prev out rp ;
   if fst rp = [] then
-    Out.put out "\\begin{itemize}\n"
+    Out.put out "\\begin{indexenv}\n"
   else begin
     let top_prev = first_key bk
     and top_now = first_key k in
@@ -292,7 +292,7 @@ let output_index tag name entries out =
     prev := k)
     all_keys ;
   let pk,_ = !prev in
-  List.iter (fun _ -> Out.put out "\\end{itemize}\n") pk
+  List.iter (fun _ -> Out.put out "\\end{indexenv}\n") pk
 
 
 let newindex tag sufin sufout name =  

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: misc.ml,v 1.11 2000-01-21 18:49:00 maranget Exp $" 
+let header = "$Id: misc.ml,v 1.12 2000-01-27 16:31:39 maranget Exp $" 
 
 exception Fatal of string
 exception Purposly of string
@@ -63,6 +63,9 @@ let copy_hashtbl from_table to_table =
       match vals with
       | [] -> assert false
       | value :: _ -> Hashtbl.add to_table key value)
-    !keys ;
+    !keys
 
-
+let clone_hashtbl from_table =
+  let to_table = Hashtbl.create 17 in
+  copy_hashtbl from_table to_table ;
+  to_table 

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.161 2000-01-26 19:39:43 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.162 2000-01-27 16:31:33 maranget Exp $ *)
 
 
 {
@@ -117,18 +117,12 @@ let big_size () =  Dest.open_mod (Font 7)
 ;;
 
 (* Horizontal display *)
-let display_arg  verbose =
-  if verbose > 1 then
-    "BORDER=1 CELLSPACING=0 CELLPADDING=0"
-  else
-    "CELLSPACING=0 CELLPADDING=0"
-;;
 
 let top_open_display () =
   if !display then begin
     if !verbose > 1 then
        prerr_endline "open display" ;
-    Dest.open_display (display_arg !verbose)
+    Dest.open_display ()
   end
 
 and top_item_display () =
@@ -232,7 +226,7 @@ let top_open_block block args =
   | _ ->
       if !display then begin
         Dest.item_display () ; Dest.open_block block args ;
-        Dest.open_display (display_arg !verbose)
+        Dest.open_display ()
       end else
         Dest.open_block block args
   end
@@ -530,7 +524,7 @@ let do_open_col main format span insides =
   Dest.open_cell format span insides;
   if not (as_wrap format) && math_table !in_table then begin
     display  := true ;
-    Dest.open_display (display_arg !verbose)
+    Dest.open_display ()
   end ;
   if math_table !in_table && not (as_wrap format) then begin
     scan_this main "$"
@@ -1229,7 +1223,7 @@ and comment = parse
   ' '* ("BEGIN"|"begin") ' '+ ("IMAGE"|"image")
     {skip_comment lexbuf ; start_image_scan "" image lexbuf ; main lexbuf}
 (* Backward compatibility with latex2html *)
-| [ ' ' '\t' ] * "begin{latexonly}"
+| [ ' ' '\t' ] * "\\begin{latexonly}"
     {latex2html_latexonly lexbuf;
      main lexbuf}
 | ' '* ("HEVEA"|"hevea") ' '*
@@ -1590,7 +1584,7 @@ def_code "\\unskip"
 def_code "\\csname"
   (fun lexbuf ->
     skip_blanks lexbuf ;
-    let name = "\\"^subst_this (Save.incsname lexbuf) in
+    let name = "\\"^get_prim (Save.incsname lexbuf) in
     check_alltt_skip lexbuf ;
     expand_command main skip_blanks name lexbuf)
 ;;
@@ -2028,7 +2022,14 @@ def_code "\\begin"
       top_open_block "" "" ;
     let old_envi = save stack_entry in
     push stack_entry env ;
-    scan_this_may_cont main lexbuf cur_subst (macro,get_subst ()) ;
+    begin try
+      scan_this_may_cont
+        main lexbuf cur_subst (macro,get_subst ())
+    with
+    | e ->
+        restore stack_entry old_envi ;
+        raise e
+    end ;
     restore stack_entry old_envi)
 ;;
 
@@ -2675,7 +2676,8 @@ def_code "\\@try"
     and saved = Hot.checkpoint ()
     and saved_lexstate = Lexstate.check_lexstate ()
     and saved_out = Dest.check ()
-    and saved_get = Get.check () in
+    and saved_get = Get.check ()
+    and saved_aux = Auxx.check () in
     let e1 = save_arg lexbuf in
     let e2 = save_arg lexbuf in
     try
@@ -2690,6 +2692,7 @@ def_code "\\@try"
       Lexstate.hot_lexstate saved_lexstate ;
       Dest.hot saved_out ;
       Get.hot saved_get ;
+      Auxx.hot saved_aux ;
       Hot.start saved ;
       scan_this_arg main e2
     end)

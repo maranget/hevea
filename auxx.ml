@@ -11,7 +11,7 @@
 
 open Misc
 
-let header = "$Id: auxx.ml,v 1.8 2000-01-26 17:08:36 maranget Exp $" 
+let header = "$Id: auxx.ml,v 1.9 2000-01-27 16:31:19 maranget Exp $" 
 
 let rtable = Hashtbl.create 17
 ;;
@@ -148,6 +148,27 @@ and rwrite key pretty =
         output_string file "}{X}}\n") key pretty
 ;;
 
+type saved =
+(string, string) Hashtbl.t * (string, unit) Hashtbl.t *
+  (string, string) Hashtbl.t * (string, unit) Hashtbl.t *
+  out_channel option * string * bool * bool
+
+let check () =
+  Misc.clone_hashtbl rtable,  Misc.clone_hashtbl rseen,
+  Misc.clone_hashtbl btable,  Misc.clone_hashtbl  bseen,
+  !auxfile, !auxname, !something, !changed
+
+let hot
+ (srtable, srseen, sbtable, sbseen,
+  sauxfile, sauxname, ssomething, schanged) =
+  Misc.copy_hashtbl srtable rtable ; Misc.copy_hashtbl srseen rseen ;
+  Misc.copy_hashtbl sbtable btable ; Misc.copy_hashtbl sbseen bseen ;
+  auxfile := sauxfile ;
+  auxname := sauxname ;
+  something := ssomething ;
+  changed := schanged
+
+(* Valid only juste before reading main input file *)
 let hot_start () =
   Hashtbl.clear rtable ; Hashtbl.clear rseen ;
   Hashtbl.clear btable ; Hashtbl.clear bseen ;
