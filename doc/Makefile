@@ -18,6 +18,7 @@ manual.html: manual.sty tmp.tex
 manual.dvi: tmp.tex
 	$(LATEX) < /dev/null tmp.tex &&\
 	$(LATEX) < /dev/null tmp.tex &&\
+	$(LATEX) < /dev/null tmp.tex &&\
 	mv tmp.dvi manual.dvi
 
 index.html: manual.html
