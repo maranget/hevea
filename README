@@ -43,10 +43,9 @@ DOCUMENTATION
     distribution directory:
     ftp://ftp.inria.fr/INRIA/Projects/para/hevea
 
-    
-INSTALLATION
 
- REQUIREMENTS
+
+REQUIREMENTS
      HEVEA is written in Objective Caml version 2.00 or later
      (Ocaml). It compiles under Ocaml, which should thus be properly
      installed. Ocaml is  available at
@@ -67,15 +66,27 @@ INSTALLATION
      * the netpbm image processing package.
        ftp://wuarchive.wustl.edu/graphics/graphics/packages/NetPBM
     However, these softwares are optional and hevea runs without them.
+    
+INSTALLATION FROM THE SOURCE DISTRIBUTION
 
-     
+  Download the source distribution
+    ftp://ftp.inria.fr/INRIA/Projects/para/hevea/hevea-1.05.tar.gz
+
+  Unsizp it
+    gunzip hevea-1.05.tar.gz
+
+  Untar it
+    tar xf  hevea-1.05.tar
+
+  Go to the source directory
+    cd hevea-1.05
 
 CONFIGURATION
     There are a few configuration variables at the beginning of
     the Makefile.
      * TARGET
 
-      TARGET= opt makes hevea compile under ocamlopt, the
+      TARGET=opt makes hevea compile under ocamlopt, the
       Objective Caml compiler that produces native code. This is
       the default.
 
@@ -97,7 +108,15 @@ CONFIGURATION
 
 MAKE
     Once configuration variables are set, type:
-    make ; make install
+      make 
 
-    Note that the hevea.sty file,  is simply copied to LIBDIR.
+   Then install hevea binary in BINDIR and hevea library files in LIBDIR     
+   (This might require gaining root privilege)
+      make install
+
+      
+  ** Note that the hevea.sty file,  is simply copied to LIBDIR.
     It remains users responsability to make it accessible to LaTeX.
+
+   Once hevea is installed, you can remove the sources.
+

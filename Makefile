@@ -10,9 +10,9 @@ CPP=gcc -E -P -x c
 ############### End of configuration parameters
 
 HEVEA=./hevea.$(TARGET)
-OCAMLC=ocamlc.opt
+OCAMLC=ocamlc
 OCAMLCI=$(OCAMLC)
-OCAMLOPT=ocamlopt.opt
+OCAMLOPT=ocamlopt
 OCAMLLEX=ocamllex
 INSTALL=cp
 OBJS=version.cmo stack.cmo location.cmo misc.cmo element.cmo out.cmo table.cmo parse_opts.cmo mylib.cmo myfiles.cmo symb.cmo save.cmo auxx.cmo  lexstate.cmo subst.cmo latexmacros.cmo counter.cmo noimage.cmo image.cmo length.cmo  get.cmo tabular.cmo htmlCommon.cmo htmlMath.cmo mathML.cmo html.cmo  text.cmo infoRef.cmo info.cmo section.cmo foot.cmo entry.cmo index.cmo colscan.cmo color.cmo hot.cmo package.cmo videoc.cmo verb.cmo latexscan.cmo zyva.cmo latexmain.cmo
@@ -40,9 +40,9 @@ install-lib:
 	$(INSTALL) hevea.sty cutfoot-fra.html cutfoot-eng.html footer.tex ${LIBDIR}
 	$(INSTALL) contents_motif.gif next_motif.gif previous_motif.gif ${LIBDIR}
 	$(INSTALL) $(ALLLIB) $(LIBDIR)
-	-mkdir $(LIBDIR)/html
+	-mkdir  $(LIBDIR)/html
 	cd html ; $(INSTALL) $(HTMLLIB) $(LIBDIR)/html
-	-mkdir $(LIBDIR)/text
+	-mkdir  $(LIBDIR)/text
 	cd text ; $(INSTALL) $(TEXTLIB) $(LIBDIR)/text
 	-mkdir $(LIBDIR)/info
 	cd info ; $(INSTALL) $(INFOLIB) $(LIBDIR)/info
