@@ -16,6 +16,7 @@ val create_chan : out_channel -> t
 val create_null : unit -> t
 
 val reset : t -> unit
+val is_empty: t -> bool
 
 val put : t -> string -> unit
 val put_char : t -> char -> unit

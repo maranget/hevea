@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: out.ml,v 1.4 1998-07-21 11:18:40 maranget Exp $" 
+let header = "$Id: out.ml,v 1.5 1998-08-17 13:22:00 maranget Exp $" 
 type buff = {
   mutable buff : string;
   mutable bp : int;
@@ -28,6 +28,11 @@ and create_null () = Null
 let reset = function
   Buff b -> b.bp <- 0
 | _      -> failwith "Out.reset"
+;;
+
+let is_empty = function
+  Buff b -> b.bp = 0
+| _      -> failwith "Out.is_empty"
 ;;
 
 let realloc out =

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: html.ml,v 1.24 1998-07-28 09:32:25 maranget Exp $" 
+let header = "$Id: html.ml,v 1.25 1998-08-17 13:21:53 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -192,6 +192,7 @@ and do_put s =
 
 let inside_stack = ref []
 and table_inside = ref false
+and vdisplay_inside = ref false
 ;;
 
 let table_vsize = ref 0
@@ -773,7 +774,26 @@ let do_item_display force =
     pretty_stack !out_stack
   end ;
   let f,is_freeze = pop_freeze () in
-  if force || !table_inside then begin
+  if !vdisplay_inside then begin
+    vdisplay_inside := false ;
+    let ps,pargs,pout = pop_out out_stack in
+    if ps <> "" then
+      failwith ("do_item_display "^ps^" closes ``''") ;
+    let new_out = new_status false [] [] in
+    push_out out_stack (ps,pargs,new_out) ;
+    close_flow "" ;
+    cur_out := pout ;
+    empty := Out.is_empty !cur_out.out ;
+    if close_flow_loc "TD" then ncols := !ncols + 1;
+    open_block "TD" "nowarp" ;
+    do_put (Out.to_string new_out.out) ;
+    free new_out ;
+    empty := false ;
+    close_flow "TD" ;
+    ncols := !ncols + 1;
+    open_block "TD" "nowrap" ;
+    open_block "" ""   
+  end else if force || !table_inside then begin
     close_flow "" ;
     close_flow "TD" ;
     ncols := !ncols + 1;
@@ -961,6 +981,12 @@ let insert_vdisplay open_fun =
     failwith "\\over should be properly parenthesized"
 ;;
 
+let close_vdisplay () =
+  vdisplay_inside := true ;
+  close_block "TABLE"
+;;
+
+  
 (* freeze everyting and change output file *)
 
 let open_chan chan =

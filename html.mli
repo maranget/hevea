@@ -56,6 +56,7 @@ val loc_ref: string -> string -> unit
 val loc_name: string -> string -> unit
 
 val insert_vdisplay: (unit -> unit) -> Latexmacros.env list
+val close_vdisplay: unit -> unit
 val freeze : (unit -> unit) -> unit
 
 val open_chan: out_channel  -> unit

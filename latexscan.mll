@@ -17,7 +17,7 @@ open Latexmacros
 open Html
 open Save
 
-let header = "$Id: latexscan.mll,v 1.32 1998-07-28 09:32:28 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.33 1998-08-17 13:21:57 maranget Exp $" 
 
 let push s e = s := e:: !s
 and pop s = match !s with
@@ -341,7 +341,7 @@ let open_vdisplay () =
 and close_vdisplay () =
   if !verbose > 1 then
     prerr_endline "close_vdisplay";
-  Html.close_block "TABLE"
+  Html.close_vdisplay ()
 
 and open_vdisplay_row s =
   if !verbose > 1 then
@@ -1341,7 +1341,10 @@ rule  main = parse
         open_vdisplay_row "ALIGN=center" ;
         Html.close_mods () ;
         Html.open_mods mods ;
-        Html.freeze (fun () -> close_vdisplay_row () ; close_vdisplay ()) ;
+        Html.freeze
+          (fun () ->
+            close_vdisplay_row () ;
+            close_vdisplay ()) ;
         main lexbuf        
       end else begin
         Html.put "/" ;

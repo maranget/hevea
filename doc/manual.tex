@@ -920,13 +920,16 @@ and \verb+%END LATEX+ comments.
 
 
 \subsection{The \protect\texttt{html.sty} style file}
-The \texttt{html.sty} style file is intended to be loaded by \LaTeX{}.
+The \texttt{html.sty} style file is intended to be loaded by \LaTeX{}
+and not by \hevea{}.
 It provides \LaTeX{} with means to ignore or process some parts of the
 document.
+Note that \hevea{} copes with the constructs defined in
+the \texttt{html.sty} file by default.
 
 \subsubsection{Selecting a translator}
 \hevea{} and \LaTeX{} perform the following actions on source inside
-the four \verb+latexonly+, \verb+\htmlonly+, \verb+htmlraw+
+the four \verb+latexonly+, \verb+\htmlonly+, \verb+rawhtml+
 \verb+toimage+ environments.
 \begin{center}
 \begin{tabular}{l@{~}l@{\quad}l}\hline
@@ -934,7 +937,7 @@ environment & \multicolumn{1}{c}{\hevea} &  \multicolumn{1}{c}{\LaTeX}
 \\ \hline
 \verb+latexonly+ & ignore & process \\
 \verb+htmlonly+ & process & ignore \\
-\verb+htmlraw+   & echo verbatim & ignore\\
+\verb+rawhtml+   & echo verbatim & ignore\\
 \verb+toimage+&
 send to the \filename{image} file (see section~\ref{imagen})  & process\\
 \hline
@@ -1031,7 +1034,7 @@ Sometimes,
 have \LaTeX{} process it, to produce a \texttt{.gif} image from
 \LaTeX{} output and to include a link to this image into \hevea{}
 output.
-\hevea{} provides a limited support for doing this, which is always
+\hevea{} provides a limited support for doing this, which always remains
 under user control.
 
 \subsection{The \filename{image} file}
@@ -2482,8 +2485,9 @@ More information on LaTeX2html can be found at
 
 \item[TTH] The principle behind TTH is the main source of inspiration
 of \hevea{}: write a fast translator as a lexer, use symbol fonts and
-tables. However, there are differences, TTH source is \TeX{} (and not
-\LaTeX), TTH is written in C and the full source is not available
+tables. However, there are differences, TTH accepts both \TeX{} and
+\LaTeX{} source, 
+TTH is written in C and the full source is not available
 (only \verb+lex+ output is available).
 Additionaly, TTH author insist on not using any kind of \LaTeX{}
 generated information, whereas \hevea{} rather try to make advantage
