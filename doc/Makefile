@@ -62,7 +62,7 @@ install:
 VERSIONFILE=../version.ml
 dateversion::
 	 sed  -e "s/^let release_date = .*/let release_date = \"`date +%Y-%m-%d`\"/" $(VERSIONFILE) > /tmp/version.ml && mv /tmp/version.ml $(VERSIONFILE)
-	cvs commit -m version $(VERSIONFILE)
+	(cd .. ; cvs commit -m version version.ml)
 
 
 doversion:: $(VERSIONFILE)

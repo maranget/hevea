@@ -474,3 +474,5 @@
 \newcommand{\addcontentsline}[3]
 {\@auxdowrite{\@print{\@addcontentsline}{\{\@nostyle{}h#1\}\{\csname @#2@level\endcsname\}}\{\@subst{#3}\}\@print{
 }}}
+%%%%%%%%% Minipage
+\newenvironment{minipage}[2][]{\warning{minipage, output may be poor}}{}
