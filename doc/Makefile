@@ -62,7 +62,7 @@ UNSTABLE=
 dorelease:
 # hevea relase
 	cd $(RELEASEDIR) ; rm -rf $(RELEASENAME) ;\
-	cvs -d $(CVSDIR) export  $(RELEASEOPT) -l htmlgen ;\
+	cvs -d $(CVSDIR) export  $(RELEASEOPT) -l htmlgen htmlgen/html htmlgen/text htmlgen/info ;\
 	mv htmlgen $(RELEASENAME) ;\
 	tar cfo $(RELEASENAME).tar $(RELEASENAME) ;\
 	gzip -f -best  $(RELEASENAME).tar
