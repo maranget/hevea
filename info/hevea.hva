@@ -4,11 +4,10 @@
 {#2{\@nostyle\@print{\@reference}\{#1\}}}
 \renewcommand{\@locnameref}[3]
 {\@infoname{#1}#3{{\@nostyle\@print{\@reference}\{#2\}}}}
-\AtBeginDocument{\@infonode{Top}{Racine}}
 \let\textdocument=\document
 \let\endtextdocument=\enddocument
 \renewenvironment{document}
-{\textdocument}
+{\textdocument\@infonode{Top}{Racine}}
 {\newboolean{infofoot}\setboolean{infofoot}{\boolean{footer}}\footerfalse
 \endtextdocument\setboolean{footer}{\boolean{infofoot}}}
 %%%%%%%%%%% Footnotes

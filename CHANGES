@@ -1,5 +1,6 @@
   
 version 1.06-5
+  - Big dynamic scoping bug in packages.hva
   - Two easy misfeature disappear
         . trailing -exec prog brougth back one step
         . blanks allowed in array formats        

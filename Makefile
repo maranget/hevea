@@ -10,7 +10,7 @@ CPP=gcc -E -P -x c
 ############### End of configuration parameters
 HEVEA=./hevea.$(TARGET)
 OCAMLC=${DIR}ocamlc
-OCAMLFLAGS=
+OCAMLFLAGS=-g
 OCAMLCI=$(OCAMLC)
 OCAMLOPT=${DIR}ocamlopt
 OCAMLLEX=${DIR}ocamllex

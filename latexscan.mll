@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.204 2001-02-12 10:05:34 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.205 2001-03-06 12:11:20 maranget Exp $ *)
 
 
 {
@@ -2148,7 +2148,8 @@ let extract_if name =
   String.sub name 3 (l-3)
 ;;
 
-let def_and_register name f = def name zero_pat (CamlCode f)
+let def_and_register name f =
+  def name zero_pat (CamlCode f)
 ;;
 
 let tverb name cell lexbuf =
