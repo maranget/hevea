@@ -595,8 +595,6 @@
 \newcommand{\long}{}
 \def\relax{}
 \def\newline{\\}
-%%% videoc
-\newcommand{\IfFileExists}[3]{\ifthenelse{\@fileexists{#1}}{#2}{#3}}
 %%% For defining Sectioning commands
 \newcounter{secnumdepth}\setcounter{secnumdepth}{3}%
 \newcommand{\checkdepth}[2]{\ifthenelse{\value{secnumdepth} > #1}{#2}{}}%
@@ -609,3 +607,12 @@
 \newcommand{#1*}[1]{%
 \cuthere{#3}{##1}%
 #4##1#6}}%
+%%%%%%%%%%%%%%
+% Extensions %
+%%%%%%%%%%%%%%
+%%% VIDEOC
+\newcommand{\IfFileExists}[3]{\ifthenelse{\@fileexists{#1}}{#2}{#3}}
+%%% Scientific Word
+\def\swEXT{.gif}  %graphics extension
+\def\swFRAME#1{\imgrsc{#1\swEXT}}
+%%%

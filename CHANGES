@@ -1,4 +1,6 @@
 version 1.05-1
+  - Support for the \FRAME macro from Scientific Word.
+  - For paragraph breaks -> empty lines may contain spaces.
   - Added a -entities switch -> math symbols as HTML 4.0 entities and
     unicode character references (yet uncomplete)
   - Refine the -pedantic option wrt to 4.0 transitional

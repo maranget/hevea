@@ -44,7 +44,7 @@ open Tabular
 open Lexstate
 
 
-let header = "$Id: latexscan.mll,v 1.120 1999-07-12 15:49:47 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.121 1999-08-10 09:22:42 maranget Exp $" 
 
 
 let sbool = function
@@ -819,6 +819,15 @@ let expand_command main skip_blanks name lexbuf =
   end
 ;;
 
+let count_newlines s =
+  let l = String.length s in
+  let rec c_rec i =
+    if i >= l then 0
+    else match s.[i] with
+    | '\n'  -> 1 + c_rec (i+1)
+    | _     ->  c_rec (i+1) in
+  c_rec 0
+;;
 } 
 
 let command_name = '\\' (('@' ? ['A'-'Z' 'a'-'z']+ '*'?) | [^ 'A'-'Z' 'a'-'z'])
@@ -834,15 +843,17 @@ rule  main = parse
      comment lexbuf}
 
 (* Paragraphs *)
-  | '\n' +
-      {let nlnum = String.length (lexeme lexbuf) in
+  | '\n' (' '* '\n')*
+      {
+       let lxm = lexeme lexbuf in
+       let nlnum = count_newlines lxm in
        if !withinLispComment
        then begin
          afterLispCommentNewlines := nlnum;
          if !verbose > 2 then prerr_endline "NL caught after LispComment"
        end else begin
          if !alltt then
-           Dest.put (lexeme lexbuf)
+           Dest.put lxm
          else if nlnum >= 2 then
            top_par (par_val !in_table)
          else
@@ -1556,7 +1567,7 @@ let check_not = function
 def_fun "\\not" check_not
 ;;
 
-def_fun "\\upercase" String.uppercase
+def_fun "\\uppercase" String.uppercase
 ;;
 
 (* list items *)
@@ -2534,6 +2545,34 @@ def_fun "\\^"  circonflexe ;
 def_fun "\\\"" trema ;
 def_fun "\\c"  cedille ;
 def_fun "\\~"  tilde
+;;
+
+(* support for the Scientific Word FRAME macro *)
+
+def_code "\\FRAME"
+  (fun lexbuf ->
+    let lxm = lexeme lexbuf in
+(* discard the first 7 arguments *)
+    let _ = save_arg lexbuf in  
+    let _ = save_arg lexbuf in
+    let _ = save_arg lexbuf in
+    let _ = save_arg lexbuf in
+    let _ = save_arg lexbuf in
+    let _ = save_arg lexbuf in
+    let _ = save_arg lexbuf in
+(* keep argument 8 *)
+    let t = subst_arg subst lexbuf in
+(* extract the filename, assumed to be the rightmost material in single
+quotes *)
+     let i = String.rindex t '\'' in
+     let j = String.rindex_from t (i - 1) '\'' in
+     let s = String.sub t (j + 1) (i - j - 1) in
+     let t = Filename.basename (s) in
+     let s = Filename.chop_extension (t) in
+(* now form the macro swFRAME whose arg is just the base file name *)
+     let cmd = "\\swFRAME{"^s^"}" in
+(* put it back into the input stream *)
+     scan_this main cmd)
 ;;
 
 Get.init

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlMath.ml,v 1.5 1999-07-05 17:13:36 maranget Exp $" 
+let header = "$Id: htmlMath.ml,v 1.6 1999-08-10 09:22:38 maranget Exp $" 
 
 
 open Misc
@@ -202,7 +202,7 @@ let begin_item_display f is_freeze =
     Printf.fprintf stderr "begin_item_display: ncols=%d empty=%s" flags.ncols (sbool flags.empty) ;
     prerr_newline ()
   end ;
-  open_block "TD" "nowrap";
+  open_block "TD" "NOWRAP";
   open_block "" "" ;
   if is_freeze then(* push out_stack (Freeze f) ;*)freeze f;
 
@@ -330,7 +330,7 @@ let do_item_display force =
       Out.debug stderr !cur_out.out ;
       prerr_endline ("Some Item")
     end;
-    open_block "TD" "nowrap" ;
+    open_block "TD" "NOWRAP" ;
     open_block "" ""
   end else begin
     if !verbose > 2 then begin

@@ -1,4 +1,4 @@
-let header =  "$Id: lexstate.ml,v 1.17 1999-07-07 14:53:54 maranget Exp $"
+let header =  "$Id: lexstate.ml,v 1.18 1999-08-10 09:22:46 maranget Exp $"
 
 open Misc
 open Lexing
@@ -329,10 +329,6 @@ let rec parse_args_norm pat lexbuf = match pat with
 
 let parse_arg_opt def lexbuf =
   let arg = parse_quote_arg_opt def lexbuf in
-(*
-   (match arg with Yes s -> Yes (subst_arg s)
-           | No s -> No (subst_arg s))
-*)
   arg
 ;;
 
