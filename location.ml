@@ -9,19 +9,12 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: location.ml,v 1.12 1999-08-17 13:26:44 maranget Exp $" 
+let header = "$Id: location.ml,v 1.13 1999-10-13 17:00:10 maranget Exp $" 
 
 exception Fatal of string
 ;;
 
 type fileOption = No | Yes of in_channel
-;;
-
-let base = ref ""
-;;
-
-let set_base s = base := s
-and get_base () = !base
 ;;
 
 let stack = ref []

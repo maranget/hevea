@@ -20,7 +20,7 @@ module type T =
 module Make (Dest : OutManager.S) =
 struct
 
-let header = "$Id: index.ml,v 1.29 1999-08-17 13:26:32 maranget Exp $"
+let header = "$Id: index.ml,v 1.30 1999-10-13 16:59:58 maranget Exp $"
 open Misc
 open Parse_opts
 open Entry
@@ -161,7 +161,7 @@ let bad_entry = (([],[]),"")
 ;;
 
 let newindex tag suf name =  
-  let basename = Location.get_base () in
+  let basename = Parse_opts.base_in in
   let filename = basename^"."^suf in
   let idxstruct =
     if !read_idx then begin

@@ -36,6 +36,11 @@
 %% FRAMES
 \newcommand{\slideframe}[2][]{}
 \newcommand{\newslideframe}[1]{\slideframe}
+\newcommand{\slidetopmargin}{}
+\newcommand{\slidebottommargin}{}
+\newcommand{\slideleftmargin}{}
+\newcommand{\sliderightmargin}{}
+\newcommand{\slidesmag}[1]{}
 %%%% load the article style file
 \input{article.hva}
 \fi

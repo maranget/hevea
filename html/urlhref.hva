@@ -5,13 +5,11 @@
 \def\@urlrmstyle{\texdef\UrlFont{\rmfamily}}%
 \def\urlstyle#1{\csname @url#1style\endcsname}%
 \urlstyle{tt}%
-\def\url{\begingroup \urlstyle{tt}\Url}%
-\let\UrlLeft\relax\let\UrlRight\relax%
-\urldef{\heveaurl}{\url}{http://pauillac.inria.fr/~maranget/hevea}%
-\@endpackage{url}
-
-%%% Pour plus tard
 \texdef\url{\begingroup
 \texdef\UrlLeft##1\UrlRight{{\@nostyle\@print{<A HREF="}##1\@print{">}}##1{\@nostyle\@print{</A>}}}%
 \urlstyle{tt}%
 \Url}
+\let\UrlLeft\relax\let\UrlRight\relax%
+\urldef{\heveaurl}{\url}{http://pauillac.inria.fr/~maranget/hevea}%
+\@endpackage{url}
+

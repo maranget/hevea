@@ -95,4 +95,6 @@ val scan_this_arg : (Lexing.lexbuf -> 'a ) -> (string * subst) -> 'a
 val scan_this_may_cont :
     (Lexing.lexbuf -> 'a ) -> Lexing.lexbuf -> subst ->  string * subst -> 'a
 
+val real_input_file :
+    int -> (Lexing.lexbuf -> unit) -> string -> in_channel -> unit
 val input_file : int -> (Lexing.lexbuf -> unit) -> string -> unit

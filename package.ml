@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.3 1999-10-13 08:21:26 maranget Exp $    *)
+(*  $Id: package.ml,v 1.4 1999-10-13 17:00:12 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -131,14 +131,16 @@ register_init "sword"
         scan_this main cmd))
 ;;
 
+let verb_arg lexbuf =
+  let url,_ = save_verbatim lexbuf in
+  for i = 0 to String.length url - 1 do
+    Dest.put (Dest.iso url.[i])
+  done
+;;
+
 register_init "url"
   (fun () ->
-    def_code "\\@Url"
-      (fun lexbuf ->
-        let url,_ = save_verbatim lexbuf in
-        for i = 0 to String.length url - 1 do
-          Dest.put (Dest.iso url.[i])
-        done) ;
+    def_code "\\@Url" verb_arg ;
 
     def_code "\\Url"
       (fun lexbuf ->
@@ -158,7 +160,7 @@ register_init "url"
         let arg = Save.get_echo () in
         let what = get_this_main (url_macro^arg) in
         if csname = "\\urldef" then begin
-          if !env_level > 0 then begin
+          if !env_level > 0  then begin
             Image.put "\\urldef" ;
             Image.put true_args ;
             Image.put arg
@@ -174,5 +176,36 @@ register_init "url"
     ())
 ;;         
 
+
+register_init "hyperref"
+  (fun () ->
+    def_code "\\href"
+      (fun lexbuf ->
+        Save.start_echo () ;
+        let _ = save_arg lexbuf in
+        let url = Save.get_echo () in
+        let arg,subst = save_arg lexbuf in
+        scan_this_arg main
+          (("\\ahref{\\textalltt[]"^url^"}{"^arg^"}"),subst)) ;
+    def_code "\\hyperimage"
+      (fun lexbuf ->
+        Save.start_echo () ;
+        let _ = save_arg lexbuf in
+        let url = Save.get_echo () in
+        let _ = save_arg lexbuf in
+        scan_this main
+          ("\\imgsrc{\\textalltt[]"^url^"}")) ;
+    def_code "\\hyperref"
+      (fun lexbuf ->
+        Save.start_echo () ;
+        let url = save_arg lexbuf in
+        let url = Save.get_echo () in
+        let category = get_prim_arg lexbuf in
+        let name = get_prim_arg lexbuf in
+        let text,subst = save_arg lexbuf in
+        scan_this_arg main
+          ("\\ahref{\\textalltt[]"^url^
+           "\\#"^category^"."^name^"}{"^text^"}",subst)))
+;;
 
 end

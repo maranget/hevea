@@ -1,4 +1,4 @@
-let header =  "$Id: lexstate.ml,v 1.34 1999-10-13 08:21:22 maranget Exp $"
+let header =  "$Id: lexstate.ml,v 1.35 1999-10-13 17:00:09 maranget Exp $"
 
 open Misc
 open Lexing
@@ -476,26 +476,37 @@ let scan_this_may_cont lexfun lexbuf cur_subst (s,env) =
   end ;
   r
 
+let real_input_file loc_verb main filename input =
+  if !verbose > 0 then
+    prerr_endline ("Input file: "^filename) ;
+  let buf = Lexing.from_channel input in
+  Location.set filename buf ;
+  let old_verb = !verbose in
+  verbose := loc_verb ;
+  if !verbose > 1 then prerr_endline ("scanning: "^filename) ;
+  start_lexstate () ;
+  let old_lexstate = Stack.save stack_lexstate in
+  subst := Top ;
+  begin try  main buf with
+  | Misc.EndInput -> Stack.restore  stack_lexstate old_lexstate
+  | Misc.EndDocument ->
+      Stack.restore  stack_lexstate old_lexstate ;
+      restore_lexstate ();
+      close_in input ;
+      verbose := old_verb ;
+      Location.restore ()  ;
+      raise Misc.EndDocument
+  end ;
+  restore_lexstate ();
+  if !verbose > 1 then prerr_endline ("scanning over: "^filename) ;    
+  close_in input ;
+  verbose := old_verb ;
+  Location.restore ()  
+
 let input_file loc_verb main filename =
   try
     let filename,input = Myfiles.open_tex filename in
-    if !verbose > 0 then
-      prerr_endline ("Input file: "^filename) ;
-    let buf = Lexing.from_channel input in
-    Location.set filename buf ;
-    let old_verb = !verbose in
-    verbose := loc_verb ;
-    if !verbose > 1 then prerr_endline ("scanning: "^filename) ;
-    start_lexstate () ;
-    let old_lexstate = Stack.save stack_lexstate in
-    subst := Top ;
-    begin try  main buf with
-    | Misc.EndInput -> Stack.restore  stack_lexstate old_lexstate end ;
-    restore_lexstate ();
-    if !verbose > 1 then prerr_endline ("scanning over: "^filename) ;    
-    close_in input ;
-    verbose := old_verb ;
-    Location.restore ()  
+    real_input_file loc_verb main filename input
   with Myfiles.Except -> begin
     if !verbose > 0 then
       prerr_endline ("Not opening file: "^filename) ;

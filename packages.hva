@@ -9,6 +9,9 @@
 \end{toimage}}
 {\begin{toimage}\usepackage[#1]{#2}
 \end{toimage}}%
-\@iffileexists{#2.hva}
-   {\input{#2.hva}}
-   {}}
+\@ifundefined{#2@loaded}
+  {\@iffileexists{#2.hva}
+     {\input{#2.hva}}
+     {}}
+  {}}
+

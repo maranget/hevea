@@ -9,11 +9,12 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: misc.ml,v 1.8 1999-10-05 17:02:29 maranget Exp $" 
+let header = "$Id: misc.ml,v 1.9 1999-10-13 17:00:11 maranget Exp $" 
 
 exception Fatal of string
 exception ScanError of string
 exception EndInput
+exception EndDocument
 exception Close of string
 exception EndOfLispComment of int (* QNC *)
 

@@ -12,6 +12,7 @@
 exception Fatal of string
 exception ScanError of string
 exception EndInput
+exception EndDocument
 exception Close of string
 exception EndOfLispComment of int (* QNC *)
 

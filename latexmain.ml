@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmain.ml,v 1.53 1999-10-13 08:21:15 maranget Exp $" 
+let header = "$Id: latexmain.ml,v 1.54 1999-10-13 16:59:59 maranget Exp $" 
 
 open Misc
 open Parse_opts
@@ -105,14 +105,13 @@ let open_tex name =
   name,chan
 
 let read_tex name_in =
-    let input_name,chan =
-      match name_in with "" -> "",stdin | _ -> open_tex name_in in
-    let buf = Lexing.from_channel chan in
-    Location.set input_name buf ;
-    Save.set_verbose !silent !verbose ;
-    begin try scan_main buf with Misc.EndInput -> () end ;
-    close_in chan ;
-    Location.restore ()
+  Save.set_verbose !silent !verbose ;
+  try
+    match name_in with
+    | "" -> Lexstate.real_input_file !verbose scan_main "" stdin
+    | _  -> Lexstate.input_file !verbose scan_main name_in
+  with
+  | Misc.EndDocument -> ()
 
 let main () = 
 
@@ -128,8 +127,6 @@ let main () =
     let styles =  Parse_opts.styles in
 
     do_rec styles ;
-
-    Location.set_base base_in ;
 
     begin match base_in with
       "" -> no_prelude ()

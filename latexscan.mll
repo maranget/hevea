@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.142 1999-10-13 08:21:16 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.143 1999-10-13 17:00:04 maranget Exp $ *)
 
 
 {
@@ -1333,7 +1333,7 @@ let do_input lxm lexbuf =
   let echo_arg = Save.get_echo () in
   if lxm <> "\\include" || check_include arg then begin
     let filename =
-      if lxm = "\\bibliography" then Location.get_base ()^".bbl"
+      if lxm = "\\bibliography" then Parse_opts.base_in^".bbl"
       else arg in
     
     begin try input_file !verbose main filename
@@ -1799,20 +1799,21 @@ def_code "\\@fromlib"
 ;;
 def_code "\\imageflush"
   (fun lexbuf ->
-          let arg = subst_opt "" lexbuf in
+          let arg = get_prim_opt "" lexbuf in
           iput_newpage arg)
 ;;
 def_code "\\textalltt"
   (fun lexbuf ->
-          let arg = save_arg lexbuf in
-          let old = !alltt in
-          scan_this main "\\mbox{" ;
-          alltt := true ;
-          Dest.open_group "CODE" ;
-          scan_this_arg main arg ;
-          Dest.close_group () ;
-          scan_this main "}" ;
-          alltt := old )
+       let opt = get_prim_opt "CODE" lexbuf in
+       let arg = save_arg lexbuf in
+       let old = !alltt in
+       scan_this main "\\mbox{" ;
+       alltt := true ;
+       Dest.open_group opt ;
+       scan_this_arg main arg ;
+       Dest.close_group () ;
+       scan_this main "}" ;
+       alltt := old )
 ;;
 def_code "\\@itemdisplay"
   (fun lexbuf -> Dest.force_item_display ())
@@ -2009,7 +2010,7 @@ def_code "\\end"
     scan_this main ("\\csname end"^env^"\\endcsname") ;
     if env <> "document" then top_close_block "" ;
     close_env env ;
-    if env = "document" then raise Misc.EndInput)
+    if env = "document" then raise Misc.EndDocument)
 ;;
 
 let little_more lexbuf =
