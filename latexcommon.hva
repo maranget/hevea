@@ -239,6 +239,11 @@
 %%% AtBeginDocument and AtEndDocument
 \newtokens{\@atbegindocument}
 \newcommand{\AtBeginDocument}[1]{\addtokens{\@atbegindocument}{#1}}
+\AtBeginDocument
+{\begin{toimage}
+\pagestyle{empty}
+\begin{document}
+\end{toimage}}
 \newtokens{\@atenddocument}
 \newcommand{\AtEndDocument}[1]{\addtokens{\@atenddocument}{#1}}
 \AtEndDocument
@@ -246,6 +251,10 @@
 <!--FOOTER-->
 }\fi%
 \input{footer.tex}\fi}
+\AtEndDocument
+{\begin{toimage}
+\end{document}
+\end{toimage}}
 %%% Boxes
 \newcommand{\textfbox}[1]{\warning{\fbox in text}\mbox{#1}}
 \def\fbox#1{%

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: image.ml,v 1.22 1999-12-13 16:18:40 maranget Exp $" 
+let header = "$Id: image.ml,v 1.23 2000-07-20 14:21:19 maranget Exp $" 
 open Misc
 
 let base = Parse_opts.base_out
@@ -55,17 +55,11 @@ let open_chan () =
   buff := Out.create_chan chan
 
 
-and close_chan () =
-  Out.put !buff "\\end{document}\n" ;
-  Out.close !buff
+and close_chan () = Out.close !buff
 ;;
 
 
-let my_string_of_int n =
-  let r0 = n mod 10 and q0 = n / 10 in
-  let r1 = q0 mod 10 and q1 = q0 / 10 in
-  let r2 = q1 mod 10 in
-  string_of_int r2^string_of_int r1^string_of_int r0
+let my_string_of_int n = Printf.sprintf "%03d" n
 ;;
 
 

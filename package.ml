@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.26 2000-07-19 16:39:32 maranget Exp $    *)
+(*  $Id: package.ml,v 1.27 2000-07-20 14:21:28 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -34,6 +34,10 @@ let def_print name s =
 def_code "\\@lexbuf"
   (fun lexbuf ->
     prerr_endline ("LEXBUF: "^string_of_int (Stack.length stack_lexbuf)))
+;;
+
+def_code "\\@macros"
+  (fun _ -> Latexmacros.pretty_table ())
 ;;
 
 def_print "\\@basein" Parse_opts.base_in ;

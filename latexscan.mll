@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.189 2000-07-19 16:39:24 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.190 2000-07-20 14:21:23 maranget Exp $ *)
 
 
 {
@@ -1522,7 +1522,9 @@ let do_documentclass command lexbuf =
   Image.start () ;
   Image.put command ;
   Image.put real_args ;
-  Image.put_char '\n'  
+  Image.put_char '\n' ;
+  Dest.set_out (mk_out_file ()) ;
+  Dest.stop ()
 ;;
 
 def_name_code  "\\documentstyle" do_documentclass ;
@@ -2169,9 +2171,11 @@ newif_ref "activebrace" activebrace;
 newif_ref "pedantic" pedantic ;
 newif_ref "fixpoint" fixpoint ;
 newif_ref "alltt@loaded" alltt_loaded ;
+newif_ref "filter" (ref filter) ;
 def_code ("\\iftrue") (testif (ref true)) ;
 def_code ("\\iffalse") (testif (ref false))
 ;;
+
 
 
 (* Bibliographies *)
@@ -2265,15 +2269,9 @@ def_code "\\begin"
   (fun lexbuf ->
     let cur_subst = get_subst () in
     let env = get_prim_arg lexbuf in
-    if env = "document" && not filter then begin
-      Image.put "\\pagestyle{empty}\n\\begin{document}\n";
-      let _ = Dest.forget_par () in () ;
-      Dest.set_out (mk_out_file ())
-    end ;
     new_env env ;
+    top_open_block "" "" ;
     let macro = start_env env in
-    if env <> "document" then
-      top_open_block "" "" ;
     let old_envi = save stack_entry in
     push stack_entry env ;
     begin try
@@ -2299,8 +2297,10 @@ def_code "\\end"
     let env = get_prim_arg lexbuf in
     expand_command main skip_blanks ("\\end"^env) lexbuf ;
     close_env env ;
-    if env <> "document" then top_close_block "" ;
-    if env = "document" then raise Misc.EndDocument)
+    top_close_block "")
+;;
+
+def_code "\\@raise@enddocument" (fun _ -> raise Misc.EndDocument)
 ;;
 
 def_code "\\@end"

@@ -1,4 +1,6 @@
-version 1.06-3
+version 1.06-3  
+  - All document was typeset inside a Latexmacros group !
+      -> change \document \enddocument commands
   - Corrected a bugs in argument parsing/scanning (save_sup/sub and
     arg scanning with ``may_cont''
   - alltt flags ignored when the alltt package is not loaded

@@ -98,11 +98,13 @@
 % Document environment %
 %%%%%%%%%%%%%%%%%%%%%%%%
 \newenvironment{document}{%
-\@atbegindocument%
+\@end{document}
+\@atbegindocument
+\@restartoutput\unskip
 \cutdef[\thecuttingdepth]{\cuttingunit}%
 }{%
 \@footnoteflush{document}%
-\@atenddocument}
+\@atenddocument\@raise@enddocument}
 \newenvironment{center}{\@open{ALIGN}{CENTER}}{\@close{ALIGN}}
 \newenvironment{flushleft}{\@open{ALIGN}{LEFT}}{\@close{ALIGN}}
 \newenvironment{flushright}{\@open{ALIGN}{RIGHT}}{\@close{ALIGN}}

@@ -172,7 +172,9 @@
 \@print{<META name="GENERATOR" content="hevea }\usebox{\@heveaversion}\@print{">
 }}
 \newenvironment{document}{%
+\@end{document}
 \@atbegindocument
+\@restartoutput\unskip
 \@print{<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
             "http://www.w3.org/TR/REC-html40/loose.dtd">
 }\@print{<HTML>
@@ -207,7 +209,7 @@
 \@clearstyle%
 \@print{</BODY>
 </HTML>
-}}
+}\@raise@enddocument}
 \newenvironment{center}{\@open{DIV}{ALIGN=center}}{\@close{DIV}}
 \newenvironment{flushleft}{\@open{DIV}{ALIGN=left}}{\@close{DIV}}
 \newenvironment{flushright}{\@open{DIV}{ALIGN=right}}{\@close{DIV}}
