@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: htmllex.mll,v 1.8 2001-05-29 09:23:31 maranget Exp $          *)
+(*  $Id: htmllex.mll,v 1.9 2001-05-29 15:09:22 maranget Exp $          *)
 (***********************************************************************)
 {
 open Lexing
@@ -47,7 +47,7 @@ let ptop () =
     prerr_endline "This opening tag is pending"
   end
 
-let warnings = ref false
+let warnings = ref true
 
 let check_nesting lb name =
   try
