@@ -3,7 +3,7 @@ open Misc
 open Lexing
 open Table
 
-let header = "$Id: tabular.mll,v 1.6 1999-05-12 17:39:27 maranget Exp $"
+let header = "$Id: tabular.mll,v 1.7 1999-05-14 08:53:05 maranget Exp $"
 
 exception Error of string
 ;;
@@ -54,7 +54,7 @@ let pretty_format = function
       ->
         ">{"^pre^"}"^
         "h="^h^" v="^v^
-        "<{"^post^"}"
+        "<{"^post^"}"^(if b then " warp" else "")
   | Inside s -> "@{"^s^"}"
 
 

@@ -1,5 +1,6 @@
 LATEX=latex
 HEVEA=hevea
+HEVEAOPTS=
 IMAGEN=imagen
 HACHA=hacha
 EXDIR=$(HOME)/public_html/hevea/examples
@@ -33,7 +34,7 @@ a.dvi: a.tex
 	$(LATEX) < /dev/null a.tex
 
 a.html: a.tex
-	$(HEVEA) -francais a.tex
+	$(HEVEA) $(HEVEAOPTS) -francais a.tex
 
 tmp.tex: pat.def pat.tex
 	gpic -t < pat.tex > tmp.tex
@@ -46,7 +47,7 @@ tmp.aux tmp.bbl pat.dvi: tmp.tex
 	mv tmp.dvi pat.dvi
 
 tmp.html: tmp.tex pat.hva tmp.aux tmp.bbl 
-	$(HEVEA) pat.hva -e pat.def tmp.tex
+	$(HEVEA) $(HEVEAOPTS) pat.hva -e pat.def tmp.tex
 	$(MAKE) $(MFLAGS) IMAGEN=$(IMAGEN) tmp001.gif
 
 tmp001.gif: tmp.image.tex
@@ -63,7 +64,7 @@ env.dvi:tenv.tex
 	mv tenv.dvi env.dvi
 
 env.html: env.hva tenv.tex
-	$(HEVEA) env.hva -o env.html tenv.tex
+	$(HEVEA) $(HEVEAOPTS) env.hva -o env.html tenv.tex
 	$(MAKE) $(MFLAGS) IMAGEN=$(IMAGEN) env001.gif
 
 env001.gif: env.image.tex
@@ -77,7 +78,7 @@ smile.dvi:tsmile.tex
 	mv tsmile.dvi smile.dvi
 
 smile.html: smile.hva tsmile.tex
-	$(HEVEA) smile.hva -o smile.html tsmile.tex
+	$(HEVEA) $(HEVEAOPTS) smile.hva -o smile.html tsmile.tex
 	$(MAKE) $(MFLAGS) IMAGEN=$(IMAGEN) smile001.gif
 
 smile001.gif: smile.image.tex
@@ -90,16 +91,16 @@ suite.dvi suite.aux: suite.tex
 	$(LATEX) < /dev/null suite.tex
 
 suite.html: suite.tex suite.aux
-	$(HEVEA) suite.tex
+	$(HEVEA) $(HEVEAOPTS) suite.tex
 
 amstex.dvi: amstex.tex
 	latex < /dev/null amstex.tex
 
 amstex.html: amstex.tex
-	$(HEVEA) ams.hva amstex
+	$(HEVEA) $(HEVEAOPTS) ams.hva amstex
 
 index.html: index.tex
-	$(HEVEA) index.tex
+	$(HEVEA) $(HEVEAOPTS) index.tex
 
 cleanhtml:
 	rm -f $(HTML) tmp.html

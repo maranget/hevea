@@ -47,7 +47,7 @@ open Save
 open Tabular
 open Lexstate
 
-let header = "$Id: latexscan.mll,v 1.91 1999-05-11 17:20:18 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.92 1999-05-14 08:53:00 maranget Exp $" 
 
 let sbool = function
   | false -> "false"
@@ -509,7 +509,9 @@ and as_post = function
 
 let get_col format i =
   let r = 
-    if i >= Array.length format then default_format
+    if i >= Array.length format+1 then
+      raise (Misc.ScanError ("This array/tabular column has no specification"))
+    else if i = Array.length format then default_format
     else format.(i) in
   if !verbose > 2 then begin
    Printf.fprintf stderr "get_col : %d: " i ;
@@ -588,8 +590,8 @@ let show_inside_multi main format i j =
 
 let do_open_col main format span =
   let save_table = !in_table in
-   Dest.open_cell format span ;
-  if not (as_wrap format) then begin
+  Dest.open_cell format span ;
+  if not (as_wrap format) && math_table !in_table then begin
     display  := true ;
     Dest.open_display (display_arg !verbose)
   end ;
@@ -969,12 +971,15 @@ let check_include s =
 
 
 let no_prelude () =
+  if !verbose > 1 then prerr_endline "Filter mode" ;
   flushing := true ;
   prelude := false ;
   let _ = Dest.forget_par () in () ;
   Dest.set_out out_file
 ;;
 
+let macro_depth = ref 0
+;;
 
 } 
 
@@ -1132,9 +1137,16 @@ rule  main = parse
           standard_sup_sub main do_what sup sub ;
         main lexbuf
       end else begin
+        if (!verbose > 1) then begin
+          prerr_endline
+            ("Expanding macro "^name^" {"^(string_of_int !macro_depth)^"}") ;
+          macro_depth := !macro_depth + 1
+        end ;
         scan_body exec body args ;
-        if (!verbose > 2) then
-          prerr_string ("Cont after macro "^name^": ") ;
+        if (!verbose > 1) then begin
+          prerr_endline ("Cont after macro "^name^": ") ;
+          macro_depth := !macro_depth - 1
+        end ;
         if saw_par then top_par (par_val !in_table)
         else if
           (!in_math && Latexmacros.invisible name) ||
@@ -1170,8 +1182,7 @@ rule  main = parse
       Dest.put_char '}' ;
       main lexbuf
     end}
-| eof
-   {if !verbose > 1 then Printf.fprintf stderr "Eof\n" ; ()}
+| eof {()}
 | ' '+
    {if !alltt then
      let lxm = lexeme lexbuf in Dest.put lxm
@@ -1811,7 +1822,7 @@ def_code "\\@anti"
   (fun lexbuf _ ->
           let arg = save_arg lexbuf in
           let envs = get_style main arg in
-          Dest.erase_mods envs )
+          Dest.erase_mods envs)
 ;;
 def_code "\\@style"  
   (fun lexbuf _ ->
@@ -2423,7 +2434,7 @@ let open_array env lexbuf  _ =
     Dest.open_table false "CELLSPACING=2 CELLPADDING=0";
   open_row() ;
   open_first_col main ;
-  skip_blanks lexbuf
+  skip_blanks_pop lexbuf
 ;;
 
 def_code "\\array" (open_array "array") ;
@@ -2444,6 +2455,7 @@ def_code "\\endtabbing" close_tabbing
 ;;
 
 let close_array env _ _ =
+  do_unskip () ;
   close_last_col main "" ;
   close_last_row () ;
   if env = !cur_env then begin
