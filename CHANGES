@@ -1,4 +1,8 @@
 version 1.03-1
+  - Cleaned up somehow the output of iso-latin1 special symbols by putting
+    all their definitions in hevea.sty.
+  - Added a -noiso switch to output HTML entities such as &eacute; in place
+    of iso-latin1 characters such as ``é''.
   - Better macro for \simeq (-> defined in hevea.sty)
   - Bug in displays : spurious </text-level> were introduced by get_block
     and by "FORGET".

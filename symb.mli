@@ -21,7 +21,6 @@ val vartheta : string
 val iota : string
 val kappa : string
 val lambda : string
-val mu : string
 val nu : string
 val xi : string
 val pi : string
@@ -48,11 +47,6 @@ val upupsilon : string
 val upphi : string
 val uppsi : string
 val upomega : string
-val pm : string
-val mp : string
-val times : string
-val div : string
-val ast : string
 val circ : string
 val bullet : string
 val cap : string

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: parse_opts.ml,v 1.7 1998-10-22 09:45:23 maranget Exp $" 
+let header = "$Id: parse_opts.ml,v 1.8 1998-12-28 13:06:08 maranget Exp $" 
 let verbose = ref 0
 and readverb = ref 0
 ;;
@@ -28,6 +28,7 @@ type language = Francais | English
 
 let language = ref English
 and symbols = ref true
+and iso = ref true
 ;;
 
 let read_idx = ref false
@@ -55,6 +56,8 @@ let _ = Arg.parse
        ", french mode") ;
      ("-nosymb",Arg.Unit (fun () -> symbols := false),
        ", do not output symbol fonts") ;
+     ("-noiso",Arg.Unit (fun () -> iso := false),
+       ", do not output iso characters above 127") ;
      ("-I", Arg.String (fun s -> path := s :: !path),
        "dir, add directory ``dir'' to search path") ;
      ("-o", Arg.String (fun s -> outname := s),

@@ -13,6 +13,7 @@ val verbose : int ref
 val readverb : int ref
 val silent : bool ref
 val symbols : bool ref
+val iso : bool ref
 type language = Francais | English
 val language : language  ref
 val read_idx : bool ref

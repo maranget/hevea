@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmacros.ml,v 1.31 1998-12-18 17:03:39 maranget Exp $" 
+let header = "$Id: latexmacros.ml,v 1.32 1998-12-28 13:06:00 maranget Exp $" 
 open Parse_opts
 open Symb
 
@@ -238,7 +238,6 @@ def_macro "\\vartheta" 0 [Print vartheta];
 def_macro "\\iota" 0 [Print iota];
 def_macro "\\kappa" 0 [Print kappa];
 def_macro "\\lambda" 0 [Print lambda];
-def_macro "\\mu" 0 [Print mu];
 def_macro "\\nu" 0 [Print nu];
 def_macro "\\xi" 0 [Print xi];
 def_macro "\\pi" 0 [Print pi];
@@ -268,11 +267,6 @@ def_macro "\\Psi" 0 [Print uppsi];
 def_macro "\\Omega" 0 [Print upomega];
 ();;
 
-def_macro "\\pm" 0 [Print pm];;
-def_macro "\\mp" 0 [Print mp];;
-def_macro "\\times" 0 [Print times];;
-def_macro "\\div" 0 [Print div];;
-def_macro "\\ast" 0 [Print ast];;
 def_macro "\\circ" 0 [Print circ];;
 def_macro "\\bullet" 0 [Subst "{\\@incsize{1}" ; Print bullet ; Subst "}"];;
 def_macro "\\cap" 0 [Print cap];;
@@ -408,7 +402,129 @@ let fnsymbol_of_int = function
 | i -> alpha_of_int (i-9)
 ;;
 
-        
+let r_quote = String.create 1
+;;
+
+let quote_char = function
+  '<' -> "&lt;"
+| '>' -> "&gt;"
+| '&' -> "&amp;"
+| c   -> (r_quote.[0] <- c ; r_quote)
+;;
+
+let r_translate = String.create 1
+;;
+
+let iso_translate = function
+  '<' -> "&lt;"
+| '>' -> "&gt;"
+| '&' -> "&amp;"
+| ' ' -> "&nbsp;"
+| '¡' -> "&iexcl;"
+| '¢' -> "&cent;"
+| '£' -> "&pound;"
+| '¤' -> "&curren;"
+| '¥' -> "&yen;"
+| '¦' -> "&brvbar;"
+| '§' -> "&sect;"
+| '¨' -> "&uml;"
+| '©' -> "&copy;"
+| 'ª' -> "&ordf;"
+| '«' -> "&laquo;"
+| '¬' -> "&not;"
+| '­' -> "&shy;"
+| '®' -> "&reg;"
+| '¯' -> "&macr;"
+| '°' -> "&deg;"
+| '±' -> "&plusmn;"
+| '²' -> "&sup2;"
+| '³' -> "&sup3;"
+| '´' -> "&acute;"
+| 'µ' -> "&micro;"
+| '¶' -> "&para;"
+| '·' -> "&middot;"
+| '¸' -> "&cedil;"
+| '¹' -> "&sup1;"
+| 'º' -> "&ordm;"
+| '»' -> "&raquo;"
+| '¼' -> "&frac14;"
+| '½' -> "&frac12;"
+| '¾' -> "&frac34;"
+| '¿' -> "&iquest;"
+| 'À' -> "&Agrave;"
+| 'Á' -> "&Aacute;"
+| 'Â' -> "&Acirc;"
+| 'Ã' -> "&Atilde;"
+| 'Ä' -> "&Auml;"
+| 'Å' -> "&Aring;"
+| 'Æ' -> "&AElig;"
+| 'Ç' -> "&Ccedil;"
+| 'È' -> "&Egrave;"
+| 'É' -> "&Eacute;"
+| 'Ê' -> "&Ecirc;"
+| 'Ë' -> "&Euml;"
+| 'Ì' -> "&Igrave;"
+| 'Í' -> "&Iacute;"
+| 'Î' -> "&Icirc;"
+| 'Ï' -> "&Iuml;"
+| 'Ð' -> "&ETH;"
+| 'Ñ' -> "&Ntilde;"
+| 'Ò' -> "&Ograve;"
+| 'Ó' -> "&Oacute;"
+| 'Ô' -> "&Ocirc;"
+| 'Õ' -> "&Otilde;"
+| 'Ö' -> "&Ouml;"
+| '×' -> "&times;"
+| 'Ø' -> "&Oslash;"
+| 'Ù' -> "&Ugrave;"
+| 'Ú' -> "&Uacute;"
+| 'Û' -> "&Ucirc;"
+| 'Ü' -> "&Uuml;"
+| 'Ý' -> "&Yacute;"
+| 'Þ' -> "&THORN;"
+| 'ß' -> "&szlig;"
+| 'à' -> "&agrave;"
+| 'á' -> "&aacute;"
+| 'â' -> "&acirc;"
+| 'ã' -> "&atilde;"
+| 'ä' -> "&auml;"
+| 'å' -> "&aring;"
+| 'æ' -> "&aelig;"
+| 'ç' -> "&ccedil;"
+| 'è' -> "&egrave;"
+| 'é' -> "&eacute;"
+| 'ê' -> "&ecirc;"
+| 'ë' -> "&euml;"
+| 'ì' -> "&igrave;"
+| 'í' -> "&iacute;"
+| 'î' -> "&icirc;"
+| 'ï' -> "&iuml;"
+| 'ð' -> "&eth;"
+| 'ñ' -> "&ntilde;"
+| 'ò' -> "&ograve;"
+| 'ó' -> "&oacute;"
+| 'ô' -> "&ocirc;"
+| 'õ' -> "&otilde;"
+| 'ö' -> "&ouml;"
+| '÷' -> "&divide;"
+| 'ø' -> "&oslash;"
+| 'ù' -> "&ugrave;"
+| 'ú' -> "&uacute;"
+| 'û' -> "&ucirc;"
+| 'ü' -> "&uuml;"
+| 'ý' -> "&yacute;"
+| 'þ' -> "&thorn;"
+| 'ÿ' -> "&yuml;"
+| c   -> (r_translate.[0] <- c ; r_translate)
+;;
+
+let iso =
+  if !Parse_opts.iso then
+    (fun c -> quote_char c)
+  else
+    (fun c -> iso_translate c)
+;;
+
 let aigu = function
   "a" -> "á" | "e" -> "é" | "i" | "\\i" | "\\i " -> "í"
 | "o" -> "ó" | "u" -> "ú"

@@ -9,8 +9,8 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: out.ml,v 1.7 1998-12-18 17:03:44 maranget Exp $" 
-let verbose = ref 3
+let header = "$Id: out.ml,v 1.8 1998-12-28 13:06:07 maranget Exp $" 
+let verbose = ref 0
 ;;
 
 type buff = {

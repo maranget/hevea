@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: symb.ml,v 1.14 1998-11-10 18:06:52 maranget Exp $" 
+let header = "$Id: symb.ml,v 1.15 1998-12-28 13:06:09 maranget Exp $" 
 open Parse_opts
 
 exception No
@@ -37,7 +37,6 @@ let vartheta = get ("<FONT FACE=symbol>\074</FONT>","vartheta","vartheta");;
 let iota = get ("<FONT FACE=symbol>\105</FONT>","iota","iota");;
 let kappa = get ("<FONT FACE=symbol>\107</FONT>","kappa","kappa");;
 let lambda = get ("<FONT FACE=symbol>\108</FONT>","lambda","lambda");;
-let mu = get ("\181","\181","\181");;
 let nu = get ("<FONT FACE=symbol>\110</FONT>","nu","nu");;
 let xi = get ("<FONT FACE=symbol>\120</FONT>","xi","xi");;
 let pi = get ("<FONT FACE=symbol>\112</FONT>","pi","pi");;
@@ -66,11 +65,6 @@ let upphi = get ("<FONT FACE=symbol>\070</FONT>","Phi","Phi");;
 let uppsi = get ("<FONT FACE=symbol>\089</FONT>","Psi","Psi");;
 let upomega = get ("<FONT FACE=symbol>\087</FONT>","Omega","Omega");;
 
-let pm = get ("\177","\177","\177");;
-let mp = get ("\177","\177","\177");;
-let times = get ("\215","\215","215");;
-let div = get  ("\247","\247","247");;
-let ast = get ("*","*","*");;
 let circ = get ("<FONT FACE=symbol>\176</FONT>","o","o");;
 let bullet = get ("<FONT FACE=symbol>\183</FONT>","o","o");;
 let cap = get ("<FONT FACE=symbol>\199</FONT>","inter", "inter");;

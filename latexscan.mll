@@ -16,7 +16,7 @@ open Myfiles
 open Latexmacros
 open Html
 
-let header = "$Id: latexscan.mll,v 1.57 1998-12-18 17:03:41 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.58 1998-12-28 13:06:05 maranget Exp $" 
 
 
 let prerr_args args =
@@ -1202,15 +1202,6 @@ let no_prelude () =
   Html.set_out !out_file
 ;;
 
-let r_quote = String.create 1
-;;
-
-let quote_char = function
-  '<' -> "&lt;"
-| '>' -> "&gt;"
-| '&' -> "&amp;"
-| c   -> (r_quote.[0] <- c ; r_quote)
-;;
 
 } 
 
@@ -1598,7 +1589,7 @@ rule  main = parse
     {if !alltt then begin
       let lxm = lexeme lexbuf in
       for i = 0 to String.length lxm -1 do
-        Html.put (quote_char lxm.[i])
+        Html.put (Latexmacros.iso lxm.[i])
       done
     end else if is_table !in_table  then begin
       close_col main "&nbsp;"; 
@@ -1903,7 +1894,7 @@ rule  main = parse
             Location.print_pos () ;
             prerr_endline ("Warning: \\char");
           end ;
-          Html.put (quote_char (Char.chr arg)) ;
+          Html.put (Latexmacros.iso (Char.chr arg)) ;
           skip_blanks_pop lexbuf ; main lexbuf
       | "\\symbol" ->
           let arg = save_arg lexbuf in
@@ -2093,10 +2084,7 @@ rule  main = parse
               end
           end
       end}
-(* Html specials *)
-| '<'         { Html.put "&lt;"; main lexbuf }
-| '>'         { Html.put "&gt;"; main lexbuf }
-| '~'         { Html.put "&nbsp;"; main lexbuf }
+(* Groups *)
 | '{'
     {if !Latexmacros.activebrace then
       top_open_group ()
@@ -2123,6 +2111,7 @@ rule  main = parse
    else
      Html.put_char ' ';
    main lexbuf}
+(* Alphabetic characters *)
 | ['a'-'z' 'A'-'Z']+
    {let lxm =  lexeme lexbuf in
    if !in_math then begin
@@ -2132,11 +2121,22 @@ rule  main = parse
     end else
       Html.put lxm ;
     main lexbuf}
-| "?`" {Html.put_char '¿' ; main lexbuf}
-| "!`" {Html.put_char '¡' ; main lexbuf}
+(* Html specials *)
+| '<'         { Html.put "&lt;"; main lexbuf }
+| '>'         { Html.put "&gt;"; main lexbuf }
+| '~'         { Html.put "&nbsp;"; main lexbuf }
+(* Spanish stuff *)
+| "?`"
+    {Html.put (Latexmacros.iso '¿') ;
+    main lexbuf}
+| "!`"
+  {Html.put (Latexmacros.iso '¡') ;
+  main lexbuf}
+(* One character *)
 | _ 
    {let lxm = lexeme_char lexbuf 0 in
-   Html.put_char lxm ; main lexbuf}
+   Html.put (Latexmacros.iso lxm) ;
+   main lexbuf}
 
 and rawhtml = parse
     "\\end{rawhtml}" { () }
@@ -2168,7 +2168,7 @@ and verbenv = parse
       done ;
       verbenv lexbuf}
 | eof {()}
-| _   { Html.put (quote_char (lexeme_char lexbuf 0)) ; verbenv lexbuf}
+| _   { Html.put (Latexmacros.iso (lexeme_char lexbuf 0)) ; verbenv lexbuf}
 
 and inverb = parse
  _
@@ -2178,7 +2178,7 @@ and inverb = parse
     close_env "*verb" ;
     main lexbuf
   end else begin
-    Html.put (quote_char c) ;
+    Html.put (Latexmacros.iso c) ;
     inverb lexbuf
   end}
 

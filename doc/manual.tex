@@ -1783,6 +1783,13 @@ However, it is more simple to write the document using iso-latin1.
 \LaTeX{} can process such documents by loading the package
 \texttt{isolatin1}.
 
+Browsers may fail to display non-ascii characters in at least two
+manners.
+\begin{itemize}
+\item The first and more frequent case regards characters from the symbol
+fonts.
+\end{itemize}
+
 \section{Sectioning}
 
 \subsection{Sectioning commands}
@@ -2001,7 +2008,7 @@ An attempt is made to render all ellipsis constructs (\verb+\ldots+,
 strange for the latter two.
 
 \subsection{Mathematical symbols}
-Symbols that can be printed using browser iso-latin or symbol fonts
+Symbols that can be printed using browser iso-latin1 or symbol fonts
 are translated.
 Other symbols are undefined most of the time.
 Attempting to translate them will thus generate ``Unknown macro''
@@ -2727,6 +2734,8 @@ This has three consequences:
 \item[{\tt -nosymb}] Avoid symbol font.
 In this mode, symbols are replaced by text-only equivalents. By
 default, these equivalent are in English.
+\item[{\tt -noiso}] Avoid (iso-latin1) chararacters whose code is above 127.
+These characters are replaced by \html{} entities.
 \item[{\tt -I} {\it dirname}] Add {\it dirname} to the search path.
 \item[{\tt -o} {\it filename}] Make \texttt{hevea} output go into file {\it
 filename}. By default, \texttt{hevea} output goes into
