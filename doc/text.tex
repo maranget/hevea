@@ -2208,18 +2208,19 @@ Any text enclosed between \verb+\begin{rawhtml}+ and
 For avoiding to break \html~element nesting, the \texttt{rawhtml}
 environment should be used only at toplevel (i.e. not within another
 environment), and it should contain only \html~text that makes sense
-alone
-(e.g. \verb+\begin{rawhtml}<TABLE><ALIGN=right>\end{rawhtml}+\ldots{}
+alone. For instance, writing
+\verb+\begin{rawhtml}<TABLE><ALIGN=right>\end{rawhtml}+\ldots{}
 \verb+\begin{rawhtml}</TABLE>\end{rawhtml}+ is
-dangerous. In that case,
-use the internal macros \verb+\@open+ and \verb+\@close+ of
-the following section instead).
+dangerous, because \hevea{} is not informed about opening and closing
+the block-level element \texttt{TABLE}. In that case, one should use
+the internal macros \verb+\@open+ and \verb+\@close+ of the following
+section.
 
 When \hevea{} is given the command line option ``\texttt{-O}'',
 checking and optimization of text-level elements in the whole document
-takes place.
-As a consequence, incorrect \html{} introduced by using the \texttt{rawhtml}
-environment may be detected at a later stage.
+takes place.  As a consequence, incorrect \html{} introduced by using
+the \texttt{rawhtml} environment may be detected at a later stage.
+
 
 
 For the document to remain processable by \LaTeX{}, it must load the
@@ -2267,6 +2268,7 @@ elements with neither opening tag nor closing tag.
 \index{"@style@\texttt{\char92"@style}|defocc}
 \index{"@styleattr@\texttt{\char92"@style}|defocc}
 \index{"@nostyle@\texttt{\char92"@nostyle}|defocc}
+\index{"@clearstyle@\texttt{\char92"@nostyle}|defocc}
 \index{"@fontsize@\texttt{\char92"@fontsize}|defocc}
 \index{"@fontcolor@\texttt{\char92"@fontcolor}|defocc}
 It is important to notice that primitive arguments \emph{are}
@@ -2351,6 +2353,8 @@ numerical color arguments should be given as \verb+"\#+\textit{XXXXXX}\verb+"+.
 Close active text-level declarations and ignore further text-level
 declarations.
 The effect stops when the enclosing block-level element is closed.
+\item[{\tt\char92 @clearstyle}]
+Simply close active text-level declarations.
 \end{description}
 
 \subsection{Examples}
