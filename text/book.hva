@@ -5,31 +5,31 @@
 \@makesection
   {\part}{-2}{part}
   {\@forcenewline\@open{ALIGN}{CENTER}\@open{HEAD}{*}}
-  {\partname:~\thepart\\}
+  {\partname:~\thepart}{\\}
   {\@close{HEAD}\@close{ALIGN}}
 \@makesection
   {\chapter}{-1}{chapter}
   {\@forcenewline\@open{HEAD}{*}}
-  {\chaptername~\thechapter\qquad}
+  {\chaptername~\thechapter}{\qquad}
   {\@close{HEAD}}
 \@makesection
   {\section}{0}{section}
   {\@forcenewline\@open{HEAD}{*=}}
-  {\thesection\quad}
+  {\thesection}{\quad}
   {\@forcenewline\@close{HEAD}}
 \@makesection
   {\subsection}{1}{subsection}
   {\@forcenewline\@open{HEAD}{=}}
-  {\thesubsection\quad}
+  {\thesubsection}{\quad}
   {\@close{HEAD}}
 \@makesection
   {\subsubsection}{2}{subsubsection}
-  {\@forcenewline\@open{HEAD}{-}}{\thesubsubsection\quad}{\@close{HEAD}}
+  {\@forcenewline\@open{HEAD}{-}}{\thesubsubsection}{\quad}{\@close{HEAD}}
 \@makesection
   {\paragraph}{3}{paragraph}
-  {\@open{HEAD}{}}{\theparagraph}{\@close{HEAD}}
+  {\@open{HEAD}{}}{\theparagraph}{\quad}{\@close{HEAD}}
 \@makesection
   {\subparagraph}{4}{subparagraph}
-  {\@open{HEAD}{}}{\thesubparagraph}{\@close{HEAD}}
+  {\@open{HEAD}{}}{\thesubparagraph}{\quad}{\@close{HEAD}}
 \styleloadedtrue
 \fi

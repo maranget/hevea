@@ -6,7 +6,7 @@ LIBDIR=/usr/local/lib/hevea
 # Where to install programms
 BINDIR=/usr/local/bin
 # A replacement for /lib/cpp
-CPP=gcc -E -P -x c 
+CPP=gcc -E -P -x c
 ############### End of configuration parameters
 HEVEA=./hevea.$(TARGET)
 OCAMLC=${DIR}ocamlc

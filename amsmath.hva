@@ -1,6 +1,7 @@
 \@primitives{amsmath}
 \let\text\mbox
 %% Equation tags
+\renewcommand{\theequation}{\arabic{equation}}
 \newif\ifams@star
 \newcommand{\ams@yesnumber}
   {\@yesnumber\gdef\ams@currentlabel{\theequation}}
@@ -66,7 +67,7 @@
   \@array{@{#1}c@{\@number}}}
   {\end@array\]}
 \newenvironment{gather}
-  {\typeout{\theequation}\ams@starfalse\begin{ams@gather}{\ams@yesnumber\stepcounter{equation}}}
+  {\ams@starfalse\begin{ams@gather}{\ams@yesnumber\stepcounter{equation}}}
   {\end{ams@gather}}
 \newenvironment{gather*}
   {\ams@startrue\begin{ams@gather}{\ams@nonumber}}

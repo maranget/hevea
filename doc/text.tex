@@ -554,7 +554,7 @@ potential problem. However, rendering may be correct.
 In the following (silly) example, \hevea{} gets nervous  because of
 the complicated length given as argument to \verb+\hspace+:
 \begin{verbatim}
-\setlength{\mylength}{5pt}
+\newlength{\mylength}\setlength{\mylength}{5pt}
 \begin{tabular}{c@{\hspace{\mylength}}c}
 Before & After
 \end{tabular}
@@ -568,7 +568,7 @@ manual.tex:507: Warning: \hspace with arg ``\mylength''
 \end{verbatim}
 However the final rendering is correct:
 \begin{htmlout}
-\setlength{\mylength}{5pt}
+\newlength{\mylength}\setlength{\mylength}{5pt}
 \begin{tabular}{c@{\hspace{\mylength}}c}
 Before & After
 \end{tabular}
@@ -1681,8 +1681,8 @@ depend on the document style.
 \subsubsection{Cutting macros}
 The following cutting instructions are for use in the document
 preamble. They command the cutting scheme of the whole document:
-\comindex{cuttingunit}
-\countindex{cuttingdepth}
+\comindex{cuttingunit}\comindex{tocnumber}\comindex{notocnumber}%
+\countindex{cuttingdepth}%
 \begin{description}
 \item[{\tt\char92 cuttingunit}]
 This is a macro that holds the document cutting unit. You can change
@@ -1691,6 +1691,11 @@ and {\em chapter} in the \filename{book} style)  by doing:
 \begin{flushleft}
 \verb+\renewcommand{\cuttingunit}{+{\it secname}\verb+}+.
 \end{flushleft}
+\item[{\tt\char92 tocnumber}] Instruct \hevea{} to put section numbers
+into table of content entries.
+\item[{\tt\char92 notocnumber}] Instruct \hevea{} \emph{not} to put
+section numbers
+into table of content entries. This is the default.
 \item[{\tt cuttingdepth}]
 This is a counter that holds the document cutting depth.
 You can change the default value of 1 by doing

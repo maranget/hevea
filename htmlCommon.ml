@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlCommon.ml,v 1.34 2001-04-02 18:06:17 maranget Exp $" 
+let header = "$Id: htmlCommon.ml,v 1.35 2001-04-23 16:04:27 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -1483,8 +1483,6 @@ let insert_block tag arg =
       !cur_out.active <- !cur_out.active @ add_active ;
       !cur_out.top <- Insert (true,to_pending [] add_active)
   | Closed (_,n) ->
-      prerr_endline "coucou" ;
-      Out.debug stderr !cur_out.out ;
       Out.erase_start n !cur_out.out ;
       !cur_out.top <- Insert (false,[])
   | ActivateClosed {top_active=active ; top_pending=pending}->

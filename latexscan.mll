@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.206 2001-04-02 18:06:23 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.207 2001-04-23 16:04:33 maranget Exp $ *)
 
 
 {
@@ -2258,8 +2258,14 @@ newif_ref "fixpoint" fixpoint ;
 newif_ref "alltt@loaded" alltt_loaded ;
 newif_ref "filter" (ref filter) ;
 newif_ref "@sawdocument" sawdocument ;
-def_code ("\\iftrue") (testif (ref true)) ;
-def_code ("\\iffalse") (testif (ref false))
+def_code "\\iftrue" (testif (ref true)) ;
+def_code "\\iffalse" (testif (ref false))
+;;
+
+def_code "\\if@toplevel"
+  (fun lexbuf ->
+    if echo_global_toimage () then check_alltt_skip lexbuf
+    else skip_false lexbuf)
 ;;
 
 

@@ -40,36 +40,36 @@
 \remakesection
   {\part}{-1}{part}
   {\begin{center}\begin{bgcolor}{part}\centering\huge\bf}
-  {\partname~\thepart\\}
+  {\partname~\thepart}{\\}
   {\end{bgcolor}\end{center}}
 \remakesection
   {\section}{0}{section}
-  {\opensection}{\thesection\sectitle}{\closesection}
+  {\opensection}{\thesection}{\sectitle}{\closesection}
 \remakesection
   {\subsection}{1}{subsection}
-  {\opensubsection}{\thesubsection\sectitle}{\closesection}
+  {\opensubsection}{\thesubsection}{\sectitle}{\closesection}
 \remakesection
   {\subsubsection}{2}{subsubsection}
-  {\opensubsubsection}{\thesubsubsection\sectitle}{\closesection}
+  {\opensubsubsection}{\thesubsubsection}{\sectitle}{\closesection}
 }{%
 \ifthenelse{\equal{\@base}{book}}{%
 \remakesection
   {\part}{-2}{part}
   {\begin{center}\begin{bgcolor}{part}\centering\huge\bf}
-  {\partname~\thepart\\}
+  {\partname~\thepart}{\\}
   {\end{bgcolor}\end{center}}
 \remakesection
   {\chapter}{-1}{chapter}
-  {\openchapter}{\chaptername~\thechapter\sectitle}{\closesection}
+  {\openchapter}{\chaptername~\thechapter}{\sectitle}{\closesection}
 \remakesection
   {\section}{0}{section}
-  {\opensection}{\thesection\sectitle}{\closesection}
+  {\opensection}{\thesection}{\sectitle}{\closesection}
 \remakesection
   {\subsection}{1}{subsection}
-  {\opensubsection}{\thesubsection\sectitle}{\closesection}
+  {\opensubsection}{\thesubsection}{\sectitle}{\closesection}
 \remakesection
   {\subsubsection}{2}{subsubsection}
-  {\opensubsubsection}{\thesubsubsection\sectitle}{\closesection}
+  {\opensubsubsection}{\thesubsubsection}{\sectitle}{\closesection}
 }{}}
 \renewcommand{\maketitle}
 {\newcommand{\checkbox}[4]

@@ -3,24 +3,24 @@
 \input{bookcommon.hva}
 \@makesection
   {\part}{-2}{part}
-  {\@open{H1}{ALIGN=center}}{\partname~\thepart\\}{\@close{H1}}
+  {\@open{H1}{ALIGN=center}}{\partname~\thepart}{\\}{\@close{H1}}
 \@makesection
   {\chapter}{-1}{chapter}
-   {\@open{H1}{}}{\chaptername~\thechapter\quad}{\@close{H1}}
+   {\@open{H1}{}}{\chaptername~\thechapter}{\quad}{\@close{H1}}
 \@makesection
   {\section}{0}{section}
-  {\@open{H2}{}}{\thesection\quad}{\@close{H2}}%
+  {\@open{H2}{}}{\thesection}{\quad}{\@close{H2}}%
 \@makesection
   {\subsection}{1}{subsection}
-  {\@open{H3}{}}{\thesubsection\quad}{\@close{H3}}%
+  {\@open{H3}{}}{\thesubsection}{\quad}{\@close{H3}}%
 \@makesection
   {\subsubsection}{2}{subsubsection}
-  {\@open{H4}{}}{\thesubsubsection\quad}{\@close{H4}}%
+  {\@open{H4}{}}{\thesubsubsection}{\quad}{\@close{H4}}%
 \@makesection
   {\paragraph}{3}{paragraph}
-  {\@open{H5}{}}{\theparagraph\quad}{\@close{H5}}%
+  {\@open{H5}{}}{\theparagraph}{\quad}{\@close{H5}}%
 \@makesection
   {\subparagraph}{4}{subparagraph}
-  {\@open{H5}{}}{\thesubparagraph\quad}{\@close{H5}}%
+  {\@open{H5}{}}{\thesubparagraph}{\quad}{\@close{H5}}%
 \styleloadedtrue
 \fi

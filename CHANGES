@@ -1,4 +1,7 @@
-  
+version 1.06-6
+  - Added a \tocnomber command to include section numbers in table of
+    contents
+  - Better amstmath package  
 version 1.06-5
   - \index allowed in section titles (@norefs extension)
   - Big dynamic scoping bug in packages.hva

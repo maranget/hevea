@@ -12,6 +12,7 @@
 \begin{document}
 \maketitle
 
+\part{Some tests}
 \section{Matrices}
 \section*{Toutes les r\'ef\'erences}
 Les num\'eros sont~:
@@ -110,4 +111,84 @@ num\'ero~\ref{dessus} et~\ref{dessous}.
  = y_0+{e^{-y_0}\over y_0^2(1+2/y_0)}
 -{1+4/y_0+2/y_0^2\over 2y_0^4(1+2/y_0)^3}e^{-2y_0}+O(e^{-3y_0}).
 \end{multline}
+
+\part{Other tests}
+
+\section{Z\'ero}
+
+\begin{equation}
+x^2+y^2 = z^2\label{un:un}
+\end{equation}
+\begin{equation*}
+x^2+y^2 = z^2
+\end{equation*}
+\begin{equation}
+x^2+y^2 = z^2\label{un:deux}
+\end{equation}
+\begin{equation}
+x^2+y^2 = z^2\notag
+\end{equation}
+\begin{equation*}
+\tag{oups}x^2+y^2 = z^2\label{oups}
+\end{equation*}
+Au desus \ref{un:un}, \ref{un:deux} et \ref{oups}.
+Apr\`es
+\theequation
+
+\section{Deux}
+\begin{gather}
+x^2+y^2 = z^2\\
+x^3+y^3 = z^3\\
+x^4+y^4 = z^4\\
+x^5+y^5 = z^5\\
+x^6+y^6 = z^6\\
+x^7+y^7 = z^7
+\end{gather}
+
+\section{Un}
+\begin{gather}
+x^2+y^2 = z^2 \label{eq:r2}\\
+x^3+y^3 = z^3 \notag\\
+x^4+y^4 = z^4 \tag{$*$}\label{foo}\\
+x^5+y^5 = z^5 \tag*{$*$}\\
+x^6+y^6 = z^6 \tag*{\ref{eq:r2}$'$}\\
+x^7+y^7 = z^7
+\end{gather}
+Ben mon vieux pour avoir l'\'equation~\ref{foo}.
+
+\section{Trois}
+\begin{gather*}
+x^2+y^2 = z^2\tag{$+$}\\
+x^3+y^3 = z^3\\
+x^4+y^4 = z^4\\
+x^5+y^5 = z^5\\
+x^6+y^6 = z^6\\
+x^7+y^7 = z^7
+\end{gather*}
+
+\section{Quatre}
+\begin{gather}
+x^2+y^2 = z^2\\
+x^3+y^3 = z^3\\
+x^4+y^4 = z^4\\
+x^5+y^5 = z^5\\
+x^6+y^6 = z^6\\
+x^7+y^7 = z^7
+\end{gather}
+Maintenant~: \theequation.
+
+\section{Cinq}
+\begin{align}
+\tag{a} x^2+y^2 &= z^2 & x^3+y^3 &= z^3\label{a}\\
+\notag x^4+y^4 &= z^4 & x^5+y^5 &= z^5\label{b}\\
+x^6+y^6 &= z^6 & x^7+y^7 &= z^7
+\end{align}
+Au dessus ya l'\'equation~\eqref{a}.
+
+\section{Multline}
+\begin{multline}
+x+1 =\\
+y+2
+\end{multline}
+
 \end{document}

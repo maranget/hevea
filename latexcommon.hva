@@ -211,9 +211,12 @@
 \newcommand{\clearpage}{}
 \newcommand{\cleardoublepage}{}
 %%Lengths are ignored
-\newcommand{\newlength}[1]{\begin{toimage}\newlength{#1}\end{toimage}}
-\newcommand{\setlength}[2]{\begin{toimage}\setlength{#1}{#2}\end{toimage}}
-\newcommand{\addtolength}[2]{\begin{toimage}\addtolength{#1}{#2}\end{toimage}}
+\newcommand{\newlength}[1]
+  {\if@toplevel\begin{toimage}\newlength{#1}\end{toimage}\fi}
+\newcommand{\setlength}[2]
+  {\if@toplevel\begin{toimage}\setlength{#1}{#2}\end{toimage}\fi}
+\newcommand{\addtolength}[2]
+  {\if@toplevel\begin{toimage}\addtolength{#1}{#2}\end{toimage}\fi}
 \newcommand{\settowidth}[2]{}
 \newcommand{\settodepth}[2]{}
 \newcommand{\settoheight}[2]{}
@@ -356,23 +359,30 @@
   {}
 \newcounter{secnumdepth}\setcounter{secnumdepth}{3}%
 \newcommand{\checkdepth}[2]{\ifthenelse{\value{secnumdepth} > #1}{#2}{}}%
-\newcommand{\@makesection}[6]{%
+%% Putting (or not putting) section numbers in table of content
+\newcommand{\@addsecnumber@yes}[3]{\checkdepth{#1}{#2\quad}#3}
+\newcommand{\@addsecnumber@no}[3]{#3}
+\newcommand{\tocnumber}{\let\@addsecnumber\@addsecnumber@yes}
+\newcommand{\notocnumber}{\let\@addsecnumber\@addsecnumber@no}
+\notocnumber
+\newcommand{\@makesection}[7]{%
 \newcommand{#1}[2][]{%
 \checkdepth{#2}{\refstepcounter{#3}}%
-\ifoptarg\cuthere{#3}{##1}\else
-\cuthere{#3}{\begin{@norefs}##2\end{@norefs}}\fi%
-#4\checkdepth{#2}{#5} ##2#6\@secend}%
+\ifoptarg\cuthere{#3}{\@addsecnumber{#2}{#5}{##1}}\else
+\cuthere{#3}{\@addsecnumber{#2}{#5}{\begin{@norefs}##2\end{@norefs}}}\fi%
+#4\checkdepth{#2}{#5#6}##2#7\@secend}%
 \newcommand{#1*}[1]{%
 \cuthere{#3}{##1}%
-#4##1#6\@secend}}%
-\newcommand{\remakesection}[6]{%
+#4#6##1#7\@secend}}%
+\newcommand{\remakesection}[7]{%
 \renewcommand{#1}[2][]{%
 \checkdepth{#2}{\refstepcounter{#3}}%
-\ifoptarg\cuthere{#3}{##1}\else\cuthere{#3}{\begin{@norefs}##2\end{@norefs}}\fi%
-#4\checkdepth{#2}{#5} ##2#6\@secend}%
+\ifoptarg\cuthere{#3}{\@addsecnumber{#2}{#5}{##1}}\else
+\cuthere{#3}{\@addsecnumber{#2}{#5}{\begin{@norefs}##2\end{@norefs}}}\fi%
+#4\checkdepth{#2}{#5#6}##2#7\@secend}%
 \renewcommand{#1*}[1]{%
 \cuthere{#3}{\begin{@norefs}##1\end{@norefs}}%
-#4##1#6\@secend}}%
+#4#6##1#7\@secend}}%
 %%%%%%%%%%%%%%
 % Images     %
 %%%%%%%%%%%%%%
