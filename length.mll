@@ -7,12 +7,12 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: length.mll,v 1.13 2001-06-06 16:52:52 maranget Exp $          *)
+(*  $Id: length.mll,v 1.14 2004-05-27 14:25:43 maranget Exp $          *)
 (***********************************************************************)
 
 {
 open Lexing
-let header = "$Id: length.mll,v 1.13 2001-06-06 16:52:52 maranget Exp $" 
+let header = "$Id: length.mll,v 1.14 2004-05-27 14:25:43 maranget Exp $" 
 
 exception Cannot
 ;;
@@ -31,6 +31,10 @@ let pretty = function
   | Percent x  -> string_of_int x^"%"
   | Default    -> "default"
   | No s       -> "*"^s^"*"
+
+let is_zero = function
+  | Char 0|Pixel 0|Percent 0 -> true
+  | _ -> false
 
 let pixel_to_char x =  (100 * x + 50)/(100 * font)
 and char_to_pixel x = font * x

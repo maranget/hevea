@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.58 2003-02-13 14:51:01 maranget Exp $"
+let header = "$Id: text.ml,v 1.59 2004-05-27 14:25:43 maranget Exp $"
 
 
 open Misc
@@ -1754,11 +1754,14 @@ let image arg n =
   end
 ;;
 
-let horizontal_line s width height =
+let horizontal_line s width height =  
   if flags.in_table then begin
-    !cell.w <- 0;
-    !cell.wrap <- Fill;
-    put_char '-';
+    Printf.eprintf "HR: %s %s %s\n" s (Length.pretty width) (Length.pretty height) ;
+    if false &&  not (Length.is_zero width || Length.is_zero height) then begin
+      !cell.w <- 0;
+      !cell.wrap <- Fill;
+      put_char '-'
+    end
   end else begin
     open_block "INFO" "";
     finit_ligne ();

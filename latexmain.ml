@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmain.ml,v 1.74 2002-11-06 11:02:57 maranget Exp $" 
+let header = "$Id: latexmain.ml,v 1.75 2004-05-27 14:25:43 maranget Exp $" 
 
 open Misc
 open Parse_opts
@@ -236,9 +236,11 @@ let _ =
         prerr_bug ("Fatal error: "^s)
     |  Stack.Fatal s ->
         prerr_bug ("Fatal stack error, "^s)
+(*
     |  x ->
         prerr_bug
           ("Fatal error, spurious exception:\n\t"^Printexc.to_string x)
+*)
   end ;
   let _ = finalize false in
   prerr_endline "Adios" ;

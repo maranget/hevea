@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: verb.mll,v 1.61 2004-05-04 08:15:47 maranget Exp $            *)
+(*  $Id: verb.mll,v 1.62 2004-05-27 14:25:44 maranget Exp $            *)
 (***********************************************************************)
 {
 exception VError of string
@@ -795,7 +795,7 @@ def_code "\\verbatim*"
       noeof scan_byline lexbuf) ;        
 def_code "\\endverbatim*" close_verbenv ;
 
-def_code "\\rawtext" open_rawhtml ;
+def_code "\\rawtext" open_rawtext ;
 def_code "\\endrawtext" close_nothing ;
 def_code "\\rawhtml" open_rawhtml ;
 def_code "\\endrawhtml" close_nothing ;

@@ -15,15 +15,16 @@ CPP=gcc -E -P -x c
 # reported to work on MacOsX by Georg
 #CPP=cc --traditional-cpp -E -P -x c
 # reported to work on Mac OS 10.3 (using gcc-3.3) by John T. Hale
-# <jthale @ msu.edu>
 #CPP=cc --traditional-cpp -E -P -xassembler-with-cpp
+# Repported to work on mac OS X 10.3.3 by Pau Gastin.
+CPP=m4 -E -P # This works with mac OS X 10.3.3
 ############### End of configuration parameters
 SUF=
 DIR=
 HEVEA=./hevea.$(TARGET)
 ESPONJA=./esponja.$(TARGET)
 OCAMLC=${DIR}ocamlc$(SUF)
-OCAMLFLAGS=
+OCAMLFLAGS=-g
 OCAMLCI=$(OCAMLC)
 OCAMLOPT=${DIR}ocamlopt$(SUF)
 OCAMLLEX=${DIR}ocamllex$(SUF)
