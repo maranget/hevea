@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.231 2003-09-29 08:54:53 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.232 2003-11-20 17:40:07 maranget Exp $ *)
 
 
 {
@@ -2306,7 +2306,17 @@ def_code "\\ifu"
     with
     | Failed -> check_alltt_skip lexbuf)
 ;;    
-    
+
+def_code "\\ife"
+  (fun lexbuf ->
+    let arg = get_csname lexbuf in
+    let r = get_prim arg in
+    if r <> "" then
+      skip_false lexbuf
+    else
+      check_alltt_skip lexbuf)
+;;
+
 def_code "\\newif" newif 
 ;;
 
@@ -2471,8 +2481,14 @@ def_code "\\end"
 ;;
 
 (* to be called by \document *)
-    def_code "\\@begin@document"
-    (fun lexbuf -> begin match !Misc.image_opt with
+let append_to_opt o s = match o with
+| None | Some "" -> Some s
+| Some os -> Some (os ^ " " ^s)
+;;
+
+def_code "\\@begin@document"
+    (fun lexbuf ->
+    begin match !Misc.image_opt with
     | None ->
         let s = get_prim "\\heveaimageext" in
         if String.length s = 0 then  warning "Empty \\heveaimageext"
@@ -2480,12 +2496,16 @@ def_code "\\end"
           s.[0] <- '-' ;
           begin match s with
           | "-gif" -> Misc.image_opt := Some ""
-          | _ -> Misc.image_opt := Some s
+          | _      -> Misc.image_opt := Some s
           end
         end
     | _ -> ()
     end ;
-      check_alltt_skip lexbuf)
+    let s = get_prim "\\heveaimagedir" in
+    if s <> "" then begin
+      Misc.image_opt := append_to_opt !Misc.image_opt ("-todir "^s)
+    end ;
+    check_alltt_skip lexbuf)
 ;;
 
 def_code "\\@raise@enddocument"
