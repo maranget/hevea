@@ -17,7 +17,7 @@ open Latexmacros
 open Lexstate
 
 (* Compute functions *)
-let header = "$Id: get.mll,v 1.3 1999-04-02 18:34:15 maranget Exp $"
+let header = "$Id: get.mll,v 1.4 1999-05-10 14:06:26 maranget Exp $"
 
 exception Error of string
 
@@ -261,10 +261,11 @@ rule result = parse
     | "\\boolean" when !bool_out ->
         let name = !subst_this (save_arg lexbuf) in
         let b = try
-          let _,body = Latexmacros.find_macro ("\\if"^name) in
-          match body with
-          | Latexmacros.Test cell -> !cell
-          | _         -> raise (Error ("Bad \\if"^name^" macro"))
+          let r = !get_this ("\\if"^name^" true\\else false\\fi") in
+          match r with
+          | "true" -> true
+          | "false" -> false
+          | _ -> assert false
         with
           Latexmacros.Failed -> true  in
         push bool_stack b ;

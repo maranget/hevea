@@ -47,7 +47,7 @@ open Save
 open Tabular
 open Lexstate
 
-let header = "$Id: latexscan.mll,v 1.85 1999-05-07 17:45:19 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.86 1999-05-10 14:06:33 maranget Exp $" 
 
 let sbool = function
   | false -> "false"
@@ -1071,108 +1071,6 @@ rule  main = parse
      end end}
 
 (* Definitions of  simple macros *)
-(* opening and closing environments *)
-| "\\begin"
-   {let env = save_arg lexbuf in
-   begin match env with
-   | "tabbing" ->
-        let lexfun lb =
-          Dest.open_block "TABLE" "CELLSPACING=0 CELLPADDING=0" ;
-          Dest.open_block "TR" "" ;
-          Dest.open_block "TD" "" ;
-          main lb in
-        push stack_table !in_table ;
-        in_table := Tabbing ;
-        new_env "tabbing" ;
-        lexfun lexbuf
-   |  "tabular" | "array" ->       
-        save_array_state ();
-        Tabular.border := false ;
-        skip_opt lexbuf ;
-        let format = save_arg lexbuf in
-        let format = Tabular.main format in
-        cur_format := format ;
-        push stack_in_math !in_math ;
-        in_table := Table
-             {math = (match env with "array" -> true | _ -> false) ;
-             border = !Tabular.border} ;
-        in_math := false ;
-        let lexfun lb =
-          if !display then Dest.item_display () ;
-          push stack_display !display ;
-          display := false ;
-          if !Tabular.border then
-            Dest.open_table true "CELLSPACING=0 CELLPADDING=1"
-          else
-            Dest.open_table false "CELLSPACING=2 CELLPADDING=0";
-          open_row() ;
-          open_first_col main ;
-          main lb in
-        new_env env ;
-        skip_blanks lexbuf ;
-        lexfun lexbuf
-    | "lrbox" ->
-        let name = subst_arg subst lexbuf in
-        Dest.open_aftergroup
-          (fun s ->
-            redef_macro name 0 (Print s) ;
-            macro_register name ;
-            "") ;
-        scan_this main ("\\mbox{") ;
-        main lexbuf
-    |  _ ->
-        if env = "document" && !prelude then begin
-          Image.put "\\pagestyle{empty}\n\\begin{document}\n";
-          prelude := false ;
-          let _ = Dest.forget_par () in () ;
-          Dest.set_out out_file
-        end ;
-        let lexfun = 
-            let macro = "\\"^env in
-            (fun lb ->
-              if env <> "document" then
-                top_open_block "" "" ;
-              let old_envi = save_stack stack_entry in
-              push stack_entry env ;
-              scan_this_may_cont main lexbuf macro ;
-              restore_stack stack_entry old_envi ;
-              main lb) in
-            new_env env ;
-            lexfun lexbuf
-    end}
-| "\\end"
-    {let env = save_arg lexbuf in
-    begin match env with
-      "tabbing" ->
-        Dest.close_block "TD" ;
-        Dest.close_block "TR" ;
-        Dest.close_block "TABLE" ;
-        in_table := pop stack_table ;
-        close_env "tabbing" ;
-        main lexbuf
-    | "array" | "tabular" ->
-        close_last_col main "" ;
-        close_last_row () ;
-        if env = !cur_env then begin
-          Dest.close_table () ;
-          restore_array_state () ;
-          in_math := pop stack_in_math ;
-          display := pop stack_display;
-          if !display then Dest.item_display () ;
-          close_env env
-        end else begin
-          error_env env !cur_env ;
-        end ;
-        main lexbuf
-    | "lrbox" ->
-        scan_this main "}" ; Dest.close_group () ; main lexbuf
-    | _ ->
-        scan_this main ("\\end"^env) ;
-        begin if env <> "document" then top_close_block "" end ;
-	Dest.put_char '\n';
-        close_env env ;
-        if env <> "document" then main lexbuf
-    end}
 (* inside tables and array *)
   | [' ''\n']* "&"
     {if !alltt then begin
@@ -1206,12 +1104,6 @@ rule  main = parse
               (fun s ->
                 let c = Counter.value_counter s in
                 Dest.put (f c)) i
-        | Test cell ->
-            if not !cell then raise IfFalse
-            else
-              if !verbose > 2 then
-                prerr_endline "Seen if as true"
-        | SetTest (cell,b) -> cell := b
         | Subst body ->
             if !verbose > 2 then
               prerr_endline ("user macro: "^body) ;            
@@ -1235,42 +1127,35 @@ rule  main = parse
           standard_sup_sub main do_what sup sub ;
         main lexbuf
       end else begin
-        try
-          scan_body exec body args ;
-          if (!verbose > 2) then
-            prerr_string ("Cont after macro "^name^": ") ;
-          if saw_par then top_par (par_val !in_table)
-          else if
-            (!in_math && Latexmacros.invisible name) ||
-            (not !in_math && not !alltt &&
-             is_subst_noarg body pat && last_letter name)
-          then begin
-            if !verbose > 2 then
-              prerr_endline "skipping blanks";
-            skip_blanks lexbuf
-          end else begin
-            if !verbose > 2 then begin
-              prerr_endline "not skipping blanks"
-            end
-          end ;
-          main lexbuf 
-        with 
-          IfFalse -> begin
-            if (!verbose > 2) then
-              prerr_endline ("Cont after iffalse:"^name) ;
-            skip_false lexbuf
+        scan_body exec body args ;
+        if (!verbose > 2) then
+          prerr_string ("Cont after macro "^name^": ") ;
+        if saw_par then top_par (par_val !in_table)
+        else if
+          (!in_math && Latexmacros.invisible name) ||
+          (not !in_math && not !alltt &&
+           is_subst_noarg body pat && last_letter name)
+        then begin
+          if !verbose > 2 then
+            prerr_endline "skipping blanks";
+          skip_blanks lexbuf
+        end else begin
+          if !verbose > 2 then begin
+            prerr_endline "not skipping blanks"
           end
+        end ;
+        main lexbuf 
       end}
 (* Groups *)
 | '{' 
-    {if !Latexmacros.activebrace then
+    {if !activebrace then
       top_open_group ()
     else begin
       Dest.put_char '{'
     end ;
     main lexbuf}
 | '}' 
-    {if !Latexmacros.activebrace then begin
+    {if !activebrace then begin
       let cenv = !cur_env in
       top_close_group () ;
       if cenv <> "*mbox" then
@@ -1531,13 +1416,13 @@ and skip_false = parse
 | "\\else" ['a'-'z' 'A'-'Z']+
      {skip_false lexbuf}
 | "\\else"
-     {if !if_level = 0 then (skip_blanks lexbuf ; main lexbuf)
+     {if !if_level = 0 then skip_blanks lexbuf
      else skip_false lexbuf}
 | "\\fi" ['a'-'z' 'A'-'Z']+
      {skip_false lexbuf}
 | "\\fi"
      {if !if_level = 0 then begin
-        skip_blanks lexbuf ; main lexbuf
+        skip_blanks lexbuf
      end else begin
        if_level := !if_level -1 ;
        skip_false lexbuf
@@ -1591,7 +1476,7 @@ let do_documentclass lexbuf command =
   let opt = parse_quote_arg_opt "" lexbuf in
   let arg =  save_arg lexbuf in
   let echo_args = Save.get_echo () in
-  begin try if not !Latexmacros.styleloaded then
+  begin try if not !styleloaded then
     input_file 0 main (arg^".hva")
   with
     Myfiles.Except | Myfiles.Error _ ->
@@ -1622,7 +1507,7 @@ let do_input lxm lexbuf _ =
       Image.put lxm ;
       Image.put echo_arg ;
       Image.put "\n" ;
-    | Myfiles.Error _ -> ()           
+    | Myfiles.Error _ -> ()
     end
   end
 ;;
@@ -2001,23 +1886,65 @@ def_code "\\@br"
 
 
 (* TeX conditionals *)
-def_code "\\newif"
-  (fun lexbuf _ ->
-    let arg = save_arg lexbuf in
-    try
-      let name = newif arg  in
-      macro_register ("\\if"^name) ;
-      macro_register ("\\"^name^"true") ;
-      macro_register ("\\"^name^"false")
-    with Latexmacros.Failed -> ())
+let testif cell lexbuf _ =
+  if !cell then skip_blanks lexbuf
+  else skip_false lexbuf
+
+let setif cell b lexbuf _ =
+  cell := b ;
+  skip_blanks lexbuf 
+;;
+
+let extract_if name =
+  let l = String.length name in
+  if l <= 3 || String.sub name 0 3 <> "\\if" then
+    raise (Error ("Bad newif: "^name)) ;
+  String.sub name 3 (l-3)
+;;
+
+let def_and_register name f =
+  def_code name f ; macro_register name
+;;
+
+let newif lexbuf _ =
+  let arg = subst_arg subst lexbuf in
+  try
+    let name = extract_if arg in
+    let cell = ref false in
+    def_and_register ("\\if"^name) (testif cell) ;
+    def_and_register ("\\"^name^"true") (setif cell true) ;
+    def_and_register ("\\"^name^"false") (setif cell false)
+  with Latexmacros.Failed -> ()
+;;
+
+def_code "\\newif" newif 
 ;;
 
 def_code "\\else" (fun lexbuf _ -> skip_false lexbuf)
 ;;
 
-def_code "\\fi" (fun _ _ -> ())
+def_code "\\fi" (fun lexbuf _ -> skip_blanks lexbuf)
 ;;
 
+
+let newif_ref name cell =
+  def_code ("\\if"^name) (testif cell) ;
+  def_code ("\\"^name^"true") (setif cell true) ;
+  def_code ("\\"^name^"false") (setif cell false)
+;;
+
+newif_ref "alltt" alltt ;
+newif_ref "silent" silent;
+newif_ref "math" in_math ;
+newif_ref "mmode" in_math ;
+newif_ref "display" display ;
+newif_ref "french" french ;
+newif_ref "optarg" optarg;
+newif_ref "styleloaded" styleloaded;
+newif_ref "activebrace" activebrace;
+def_code ("\\iftrue") (testif (ref true)) ;
+def_code ("\\iffalse") (testif (ref false))
+;;
 
 (* ifthen package *)
 def_code "\\ifthenelse"
@@ -2127,6 +2054,40 @@ def_code "\\@footnoteflush"
     restore_lexstate ())
 ;;
 
+(* Opening and closing environments *)
+
+def_code "\\begin"
+  (fun lexbuf _ ->
+    let env = subst_arg subst lexbuf in
+    if env = "document" && !prelude then begin
+      Image.put "\\pagestyle{empty}\n\\begin{document}\n";
+      prelude := false ;
+      let _ = Dest.forget_par () in () ;
+      Dest.set_out out_file
+    end ;
+    new_env env ;
+    let macro = "\\"^env in
+      if env <> "document" then
+        top_open_block "" "" ;
+      let old_envi = save_stack stack_entry in
+      push stack_entry env ;
+      scan_this_may_cont main lexbuf macro ;
+      restore_stack stack_entry old_envi)
+;;
+
+def_code "\\end"
+  (fun lexbuf _ ->
+    let env = subst_arg subst lexbuf in
+    scan_this main ("\\end"^env) ;
+    if env <> "document" then top_close_block "" ;
+    Dest.put_char '\n';
+    close_env env ;
+    if env = "document" then raise Misc.EndInput)
+;;
+
+def_code "\\endinput" (fun _ _ -> raise Misc.EndInput)    
+;;
+
 (* Boxes *)
 
 def_code "\\mbox" (fun lexbuf _ -> mbox_arg lexbuf)
@@ -2163,6 +2124,26 @@ def_code "\\usebox"
     let arg = save_arg lexbuf in
     scan_this main arg )
 ;;
+
+def_code "\\lrbox"
+  (fun _ _ ->
+    top_close_block "" ;
+    let lexbuf = previous_lexbuf () in
+    let name = subst_arg subst lexbuf in
+    Dest.open_aftergroup
+      (fun s ->
+        redef_macro name 0 (Print s) ;
+        macro_register name ;
+        "") ;
+    scan_this main ("\\mbox{"))
+;;
+
+def_code "\\endlrbox"
+  (fun _ _ ->
+    scan_this main "}" ; Dest.close_group () ;
+    top_open_block "" "")
+;;
+
 
 (* chars *)
 def_code "\\char"
@@ -2392,6 +2373,89 @@ def_code "\\kill"
 
 
 (* Tabular and arrays *)
+
+
+let open_tabbing lexbuf _ =
+  top_close_block "" ;
+  let lexbuf = Lexstate.previous_lexbuf in
+  let lexfun lb =
+    Dest.open_block "TABLE" "CELLSPACING=0 CELLPADDING=0" ;
+    Dest.open_block "TR" "" ;
+    Dest.open_block "TD" "" in
+  push stack_table !in_table ;
+  in_table := Tabbing ;
+  new_env "tabbing" ;
+  lexfun lexbuf
+;;
+
+def_code "\\tabbing" open_tabbing
+;;
+
+let open_array env lexbuf  _ =
+  top_close_block "" ;
+
+  save_array_state ();
+  Tabular.border := false ;
+  skip_opt lexbuf ;
+  let format = save_arg lexbuf in
+  let format = Tabular.main format in
+  cur_format := format ;
+  push stack_in_math !in_math ;
+  in_table := Table
+       {math = (env = "array")  ;
+         border = !Tabular.border} ;
+  in_math := false ;
+  new_env env ;
+  if !display then Dest.item_display () ;
+  push stack_display !display ;
+  display := false ;
+  if !Tabular.border then
+    Dest.open_table true "CELLSPACING=0 CELLPADDING=1"
+  else
+    Dest.open_table false "CELLSPACING=2 CELLPADDING=0";
+  open_row() ;
+  open_first_col main ;
+  skip_blanks lexbuf
+;;
+
+def_code "\\array" (open_array "array") ;
+def_code "\\tabular" (open_array "tabular")
+;;
+
+
+let close_tabbing _ _ =
+  Dest.close_block "TD" ;
+  Dest.close_block "TR" ;
+  Dest.close_block "TABLE" ;
+  in_table := pop stack_table ;
+  close_env "tabbing" ;
+  top_open_block "" ""
+;;
+
+def_code "\\endtabbing" close_tabbing
+;;
+
+let close_array env _ _ =
+  close_last_col main "" ;
+  close_last_row () ;
+  if env = !cur_env then begin
+    Dest.close_table () ;
+    restore_array_state () ;
+    in_math := pop stack_in_math ;
+    display := pop stack_display;
+    if !display then Dest.item_display () ;
+    close_env env
+  end else begin
+    error_env env !cur_env ;
+  end ;
+  top_open_block "" ""
+;;
+
+def_code "\\endarray" (close_array "array") ;
+def_code "\\endtabular" (close_array "tabular")
+;;
+
+
 def_code "\\\\"
  (fun lexbuf _ -> 
    do_unskip () ;

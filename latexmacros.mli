@@ -24,8 +24,6 @@ type action =
   | Print_fun of ((string -> string) * int)
   | Subst of string
   | Print_count of ((int -> string)  * int)
-  | Test of bool ref
-  | SetTest of (bool ref * bool)
   | CamlCode of (Lexing.lexbuf -> string -> unit)
 ;;
 
@@ -50,14 +48,6 @@ val redef_macro: string -> int -> action -> unit
 val def_env_pat: string -> pat -> action -> action -> unit
 val redef_env_pat: string -> pat -> action -> action -> unit
 val unregister : string -> unit
-val newif : string -> string
-
-val display :  bool ref
-val in_math :  bool ref
-val alltt :  bool ref
-val optarg : bool ref
-val styleloaded : bool ref
-val activebrace : bool ref
 
 val invisible : string -> bool
 val limit : string -> bool

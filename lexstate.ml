@@ -1,10 +1,22 @@
-let header =  "$Id: lexstate.ml,v 1.9 1999-05-07 11:33:55 maranget Exp $"
+let header =  "$Id: lexstate.ml,v 1.10 1999-05-10 14:06:37 maranget Exp $"
 
 open Misc
 open Lexing
 
 exception Error of string
-exception IfFalse
+
+(* Status flags *)
+let display = ref false
+and in_math = ref false
+and alltt = ref false
+and french =
+  ref
+    (match !Parse_opts.language with
+    | Parse_opts.Francais -> true | _ -> false)
+and optarg = ref false
+and styleloaded = ref false
+and activebrace = ref true
+;;
 
 
 type 'a t = 'a list ref
@@ -105,7 +117,7 @@ let scan_arg lexfun i =
   stack := old_args ;
   r
 
-and scan_fun f lexbuf name = f lexbuf name
+and scan_fun f lexbuf name =  f lexbuf name
 
 and scan_body exec body args =
   begin match body with
@@ -114,23 +126,18 @@ and scan_body exec body args =
       push stack_stack !stack ;
       stack := args
   end ;
-  try
 (*
     prerr_string "scan_body :" ;
     Latexmacros.pretty_action body ;
     prerr_args () ;
-*)
-    let r = exec body in
-    begin match body with
-    | Latexmacros.CamlCode _ -> ()
-    | _ -> stack := pop stack_stack
-    end;
-    r
-  with IfFalse -> begin
-    stack := pop stack_stack ;
-    raise IfFalse
-  end
-
+*)    
+  let r = exec body in
+  begin match body with
+  | Latexmacros.CamlCode _ -> ()
+  | _ -> stack := pop stack_stack
+  end;
+  r
+    
 let tab_val = ref 8
 
 
@@ -230,8 +237,8 @@ type ok = No of string | Yes of string
 ;;
 
 let from_ok = function
-  Yes s -> (Latexmacros.optarg := true ; s)
-| No s  -> (Latexmacros.optarg := false ; s)
+  Yes s -> (optarg := true ; s)
+| No s  -> (optarg := false ; s)
 ;;
 
 let pretty_ok = function
@@ -375,7 +382,7 @@ let input_file loc_verb main filename =
     Location.set filename buf ;
     let old_verb = !verbose in
     verbose := loc_verb ;
-    main buf ;
+    begin try main buf with Misc.EndInput -> () end ;
     close_in input ;
     verbose := old_verb ;
     Location.restore ()  

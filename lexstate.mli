@@ -1,5 +1,12 @@
 exception Error of string
-exception IfFalse
+
+val display : bool ref
+val in_math : bool ref
+val alltt : bool ref
+val french : bool ref
+val optarg : bool ref
+val styleloaded : bool ref
+val activebrace : bool ref
 
 val out_file : Out.t
 type 'a t

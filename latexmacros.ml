@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmacros.ml,v 1.45 1999-05-06 15:03:23 maranget Exp $" 
+let header = "$Id: latexmacros.ml,v 1.46 1999-05-10 14:06:27 maranget Exp $" 
 open Misc
 open Parse_opts
 open Symb
@@ -33,8 +33,6 @@ type action =
   | Print_fun of ((string -> string) * int)
   | Subst of string
   | Print_count of ((int -> string)  * int)
-  | Test of bool ref
-  | SetTest of (bool ref * bool)
   | CamlCode of (Lexing.lexbuf -> string -> unit)
 ;;
 
@@ -52,8 +50,9 @@ let cmdtable =
 
 let pretty_action acs =
    match acs with
-     Subst s -> Printf.fprintf stderr "{%s}\n" s
-   | _         -> Printf.fprintf stderr "...\n"
+   | Subst s    -> Printf.fprintf stderr "{%s}\n" s
+   | CamlCode _ -> prerr_endline "*code*"
+   | _          -> Printf.fprintf stderr "...\n"
 
 let pretty_macro n acs =
   pretty_pat n ;
@@ -180,49 +179,6 @@ let exists_macro name =
 let is_subst_noarg body pat = match body with
 | CamlCode _ -> false
 | _ -> pat = ([],[])
-
-(* for conditionals *)
-let display = ref false
-and in_math = ref false
-and alltt = ref false
-and french = ref (match !language with Francais -> true | _ -> false)
-and optarg = ref false
-and styleloaded = ref false
-and activebrace = ref true
-;;
-
-
-let extract_if name =
-  let l = String.length name in
-  if l <= 3 || String.sub name 0 3 <> "\\if" then
-    raise (Error ("Bad newif: "^name)) ;
-  String.sub name 3 (l-3)
-;;
-
-let newif_ref name cell =
-  def_macro ("\\if"^name) 0 (Test cell) ;
-  def_macro ("\\"^name^"true") 0 (SetTest (cell,true)) ;
-  def_macro ("\\"^name^"false") 0 (SetTest (cell,false))
-;;
-
-newif_ref "alltt" alltt ;
-newif_ref "silent" silent;
-newif_ref "math" in_math ;
-newif_ref "mmode" in_math ;
-newif_ref "display" display ;
-newif_ref "french" french ;
-newif_ref "optarg" optarg;
-newif_ref "styleloaded" styleloaded;
-newif_ref "activebrace" activebrace;
-def_macro ("\\iftrue") 0 (Test (ref true));
-def_macro ("\\iffalse") 0 (Test (ref false))
-;;
-
-let newif name = 
-  let name = extract_if name in
-  let cell = ref false in
-  newif_ref name cell ;
-  name
 ;;
 
 

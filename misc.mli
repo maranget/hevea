@@ -11,6 +11,7 @@
 
 exception Fatal of string
 exception ScanError of string
+exception EndInput
 
 val verbose : int ref
 val readverb : int ref
