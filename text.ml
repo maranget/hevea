@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.24 1999-06-10 16:16:59 tessaud Exp $"
+let header = "$Id: text.ml,v 1.25 1999-06-16 08:31:32 tessaud Exp $"
 
 
 open Misc
@@ -720,12 +720,6 @@ let item_display () = ()
 let force_item_display () = ()
 ;;
 
-let end_item_display () = 0,(fun ()->()),true
-;;
-
-let begin_item_display f is_freeze = ()
-;;
-
 let erase_display () = ()
 ;;
 
@@ -737,6 +731,8 @@ and standard_sup_sub scanner what sup sub display = ()
 and limit_sup_sub scanner what sup sub display = ()
 and int_sup_sub something vsize scanner what sup sub display = ()
 and over display lexbuf = ()
+and left delim = ()
+and right delim = 3
 ;;
 
 (* Autres *)
@@ -838,17 +834,6 @@ let skip_line () =
   put_char '\n'
 ;;
 
-let flush i = ()
-;;
-
-let delay f =
-  ();;
-
-let forget () =
-()
-;;
-
-
 let loc_ref s1 s2 =
   put s1
 ;;
@@ -938,7 +923,7 @@ and wrap_t = True | False | Fill
 ;;
 
 
-type cell = {
+type cell_t = {
     mutable ver : align;
     mutable hor : align_t;
     mutable h : int;
@@ -953,25 +938,22 @@ type cell = {
   } 
 ;;
 
-type row = {
+type cell_set = Tabl of cell_t Table.t | Arr of cell_t array
+;;
+
+type row_t = {
     mutable haut : int;
-    mutable cells : cell Table.t;
+    mutable cells : cell_set;
   } 
 ;;
 
-type row2 = {
-    mutable hauteur : int;
-    mutable cellules : cell array;
-  } 
-
-type table_flags_t = {
+type table_t = {
     mutable lines : int;
     mutable cols : int;
     mutable width : int;
-    mutable height : int;
     mutable taille : int Table.t;
     mutable tailles : int array;
-    mutable table : row2 Table.t;
+    mutable table : row_t Table.t;
     mutable line : int;
     mutable col : int;
     mutable in_cell : bool;
@@ -996,7 +978,7 @@ let cell = ref {
 
 let row= ref {
   haut = 0;
-  cells = Table.create  !cell
+  cells = Tabl (Table.create  !cell)
 } 
 ;;
 
@@ -1004,10 +986,9 @@ let table =  ref {
   lines = 0;
   cols = 0;
   width = 0;
-  height = 0;
   taille = Table.create 0;
   tailles = Array.create 0 0;
-  table = Table.create {hauteur = 0; cellules = (Array.create 0 !cell)};
+  table = Table.create {haut = 0; cells = Arr (Array.create 0 !cell)};
   line = 0;
   col = 0;
   in_cell = false;
@@ -1024,15 +1005,6 @@ and multi_stack = ref [];;
 
 let open_table border htmlargs =
   (* creation d'une table : on prepare les donnees : creation de l'environnement qvb, empilage du precedent. *)
-
-  (* environnement de table : bordure (totale pour l'instant) ou non,
-     nombre de lignes, de colonnes total
-     largeur de chaque colonne (liste)
-     hauteur de chaque ligne (liste)
-     creation d'un out par cellule, puis on le recopie a la fin dans la liste de liste ( ou le tableau ) de string.
-     chaque cellule va etre formatee. pour le centrage, il faut connaitre la taille. Donc le formatage se fera a la fin. Lors du close_table, on reparcourt toutes les cellules en les formattant => il faut garder les infos de formattage..
-     
-*)
   push table_stack !table;
   push row_stack !row;
   push cell_stack !cell;
@@ -1050,10 +1022,9 @@ let open_table border htmlargs =
     lines = 0;
     cols = 0;
     width = 0;
-    height = 0;
     taille = Table.create 0;
     tailles = Array.create 0 0;
-    table = Table.create {hauteur = 0; cellules = (Array.create 0 !cell)};
+    table = Table.create {haut = 0; cells = Arr (Array.create 0 !cell)};
     line = -1;
     col = -1;
     in_cell = false;
@@ -1061,7 +1032,7 @@ let open_table border htmlargs =
     
   row := {
     haut = 0;
-    cells = Table.create  !cell
+    cells = Tabl (Table.create  !cell)
   };
 
   cell :=  {
@@ -1087,7 +1058,10 @@ let new_row () =
   !table.col <- -1;
   !table.line <- !table.line +1;
   if !table.line = 1 && (( Array.length !table.tailles)=0) then  !table.tailles<-Table.trim !table.taille;
-  Table.reset !row.cells;
+  let _=match !row.cells with
+  | Tabl t -> Table.reset t
+  | _-> raise (Error "invalid table type in array")
+  in
   !cell.pre <- "";
   !cell.pre_inside <- [];
   !row.haut<-0;
@@ -1188,19 +1162,23 @@ let close_cell content =
   if !verbose>2 then prerr_endline ("size : width="^string_of_int !cell.w^
 				    ", height="^string_of_int !cell.h^
 				    ", span="^string_of_int !cell.span);
-  Table.emit !row.cells { ver = !cell.ver;
-			  hor = !cell.hor;
-			  h = !cell.h;
-			  w = !cell.w;
-			  wrap = !cell.wrap;
-			  span = !cell.span;
-			  text = !cell.text;
-			  pre  = !cell.pre;
-			  post = !cell.post;
-			  pre_inside  = !cell.pre_inside;
-			  post_inside = !cell.post_inside;
-			};
-(*  !table.emitted <- true;*)
+  let _ = match !row.cells with
+  | Tabl t ->
+      Table.emit t { ver = !cell.ver;
+		     hor = !cell.hor;
+		     h = !cell.h;
+		     w = !cell.w;
+		     wrap = !cell.wrap;
+		     span = !cell.span;
+		     text = !cell.text;
+		     pre  = !cell.pre;
+		     post = !cell.post;
+		     pre_inside  = !cell.pre_inside;
+		     post_inside = !cell.post_inside;
+		   }
+  | _ -> raise (Error "Invalid row type")
+  in
+
   (* on a la taille de la cellule, on met sa largeur au bon endroit, si necessaire.. *)
   (* Multicolonne : Il faut mettre des zeros dans le tableau pour avoir la taille minimale des colonnes atomiques. Puis on range start,end dans une liste que l'on regardera a la fin pour ajuster les tailles selon la loi : la taille de la multicolonne doit etre <= la somme des tailles minimales. Sinon, il faut agrandir les colonnes atomiques pour que ca rentre. *)
   if !cell.span = 1 then begin
@@ -1264,8 +1242,11 @@ let erase_row () = !table.line <- !table.line -1
 and close_row erase =
   if !verbose>2 then prerr_endline "close_row";
   Table.emit !table.table
-     { hauteur = !row.haut;
-     cellules = Table.trim !row.cells}; 
+     { haut = !row.haut;
+     cells = Arr (Table.trim 
+		    (match !row.cells with
+		    | Tabl t -> t
+		    | _-> raise (Error "Invalid row type")))}; 
 ;;
 
 
@@ -1423,13 +1404,16 @@ let close_table () =
   if !table.width > flags.hsize then warning ("overfull line in array : array too wide");
 
   for i = 0 to !table.lines - 1 do
-    let ligne = tab.(i).cellules in
+    let ligne = match tab.(i).cells with
+    | Arr a -> a
+    | _-> raise (Error "Invalid row type:table")
+    in
     (* affichage de la ligne *)
     (* il faut envoyer ligne apres ligne dans chaque cellule, en tenant compte de l'alignement vertical et horizontal..*)
-    if !verbose>2 then prerr_endline ("line "^string_of_int i^", columns:"^string_of_int (Array.length ligne)^", height:"^string_of_int tab.(i).hauteur);
+    if !verbose>2 then prerr_endline ("line "^string_of_int i^", columns:"^string_of_int (Array.length ligne)^", height:"^string_of_int tab.(i).haut);
     let pos = Array.create (Array.length ligne) 0 in
     !row.haut <-0;
-    for j = 0 to tab.(i).hauteur -1 do
+    for j = 0 to tab.(i).haut -1 do
       if not ( i=0 && j=0) then do_put_char '\n';
       let col = ref 0 in
       for k = 0 to Array.length ligne -1 do
@@ -1446,7 +1430,7 @@ let close_table () =
 	  
 	  put_border ligne.(k).pre ligne.(k).pre_inside j;
 
-	  if (text_out j tab.(i).hauteur ligne.(k).h ligne.(k).ver) 
+	  if (text_out j tab.(i).haut ligne.(k).h ligne.(k).ver) 
 	      && (ligne.(k).wrap <> Fill )then begin
 	    pos.(k) <- 
 	      put_ligne 

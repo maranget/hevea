@@ -3,19 +3,11 @@
 \newcommand{\@mopop}[1]{\@print{<mo> &}\@subst{#1}\@print{; </mo>}}
 \newcommand{\@mid}[1]{\@print{<mi> &}\@subst{#1}\@print{; </mi>}%
   \ifmath\@itemdisplay\fi}
+\newcommand{\@mfun}[1]{\@print{<mo> }\@subst{#1}\@print{ </mo>}}
 
 %% Symboles mathematiques
 %% classes dans le meme ordre que
 %% dans le livre LaTeX, de Leslie Lamport.
-
-% Fractions
-\renewcommand{\frac}[2]{
-\@print{<mfrac>
-}
-\@open{DISPLAY}{}#1\@close{DISPLAY}
-\@open{DISPLAY}{}#2\@close{DISPLAY}
-\@print{</mfrac>
-}}
 
 
 % Roots
@@ -32,7 +24,7 @@
 }}}
 
 % Ellipsis
-\renewcommand{\ldots}{\@mop{TripleDot}}
+\renewcommand{\ldots}{\ifmath\@mop{TripleDot}\else{...}\fi}
 \renewcommand{\cdots}{\@mop{ctdot}}
 \renewcommand{\ddots}{\@mop{dtdot}}
 \renewcommand{\vdots}{\@mop{ratio}}
@@ -243,3 +235,41 @@
 \renewcommand{\bigotimes}{\@mopop{bigotimes}}
 \renewcommand{\bigoplus}{\@mopop{bigoplus}}
 \renewcommand{\biguplus}{\@mopop{biguplus}}
+
+
+
+%% Functions
+
+\renewcommand{\arccos}{\@mfun{arccos}}
+\renewcommand{\arcsin}{\@mfun{arcsin}}
+\renewcommand{\arctan}{\@mfun{arctan}}
+\renewcommand{\arg}{\@mfun{arg}}
+\renewcommand{\cos}{\@mfun{cos}}
+\renewcommand{\cosh}{\@mfun{cosh}}
+\renewcommand{\cot}{\@mfun{cot}}
+\renewcommand{\coth}{\@mfun{coth}}
+\renewcommand{\csc}{\@mfun{csc}}
+\renewcommand{\deg}{\@mfun{deg}}
+\renewcommand{\det}{\@mfun{det}}
+\renewcommand{\dim}{\@mfun{dim}}
+\renewcommand{\exp}{\@mfun{exp}}
+\renewcommand{\gcd}{\@mfun{gcd}}
+\renewcommand{\hom}{\@mfun{hom}}
+\renewcommand{\inf}{\@mfun{inf}}
+\renewcommand{\ker}{\@mfun{ker}}
+\renewcommand{\lg}{\@mfun{lg}}
+\renewcommand{\lim}{\@mfun{lim}}
+\renewcommand{\liminf}{\@mfun{liminf}}
+\renewcommand{\limsup}{\@mfun{limsup}}
+\renewcommand{\ln}{\@mfun{ln}}
+\renewcommand{\log}{\@mfun{log}}
+\renewcommand{\max}{\@mfun{max}}
+\renewcommand{\min}{\@mfun{min}}
+\renewcommand{\Pr}{\@mfun{Pr}}
+\renewcommand{\sec}{\@mfun{sec}}
+\renewcommand{\sin}{\@mfun{sin}}
+\renewcommand{\sinh}{\@mfun{sinh}}
+\renewcommand{\sup}{\@mfun{sup}}
+\renewcommand{\tan}{\@mfun{tan}}
+\renewcommand{\tanh}{\@mfun{tanh}}
+\renewcommand{\bmod}{\@mfun{mod}}

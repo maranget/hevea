@@ -10,7 +10,7 @@
 (***********************************************************************)
 
 
-let header = "$Id: info.ml,v 1.13 1999-06-07 17:42:44 tessaud Exp $"
+let header = "$Id: info.ml,v 1.14 1999-06-16 08:31:20 tessaud Exp $"
 
 open Misc
 open Text
@@ -48,8 +48,6 @@ let open_display =Text.open_display;;
 let close_display =Text.close_display;;
 let item_display =Text.item_display;;
 let force_item_display =Text.force_item_display;;
-let end_item_display =Text.end_item_display;;
-let begin_item_display =Text.begin_item_display;;
 let erase_display =Text.erase_display;;
 let open_vdisplay = Text.open_vdisplay
 and close_vdisplay = Text.close_vdisplay
@@ -59,6 +57,8 @@ and standard_sup_sub = Text.standard_sup_sub
 and limit_sup_sub = Text.limit_sup_sub
 and int_sup_sub = Text.int_sup_sub
 and over = Text.over
+and left = Text.left
+and right = Text.right
 ;;
 
 let set_dcount =Text.set_dcount;;
@@ -91,12 +91,6 @@ let put_char c=
 
 let flush_out =Text.flush_out;;
 let skip_line =Text.skip_line;;
-
-
-let delay =Text.delay;;
-let flush =Text.flush;;
-let forget =Text.forget;;
-
 
 (* Gestion des references *)
 let loc_ref=InfoRef.loc_ref;;

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: mathML.ml,v 1.2 1999-06-09 16:25:40 tessaud Exp $" 
+let header = "$Id: mathML.ml,v 1.3 1999-06-16 08:31:31 tessaud Exp $" 
 
 
 open Misc
@@ -53,9 +53,6 @@ let ncols_stack = ref []
 ;;
 let in_math_stack = ref []
 ;;
-
-
-
 
 let try_open_display () =
   push ncols_stack flags.ncols ;
@@ -127,10 +124,7 @@ let get_block s args =
 (* DISPLAYS *)
 (*----------*)
 
-
-
-
-let begin_item_display f is_freeze =
+and begin_item_display f is_freeze =
   if !verbose > 2 then begin
     Printf.fprintf stderr "begin_item_display: ncols=%d empty=%s" flags.ncols (sbool flags.empty) ;
     prerr_newline ()
@@ -150,9 +144,9 @@ and end_item_display () =
     pretty_stack !out_stack
   end;
   flags.vsize,f,is_freeze
-;;
 
-let open_display args =
+
+and open_display args =
   if !verbose > 2 then begin
     Printf.fprintf stderr "open_display: %s -> " args
   end ;
@@ -164,9 +158,9 @@ let open_display args =
     pretty_cur !cur_out ;
     prerr_endline ""
   end     
-;;
 
-let close_display () =
+
+and close_display () =
   if !verbose > 2 then begin
     prerr_flags "=> close_display"
   end ;
@@ -233,7 +227,7 @@ let do_item_display force =
     prerr_endline ("Item Display ncols="^string_of_int flags.ncols^" table_inside="^sbool flags.table_inside)
   end ;
   let f,is_freeze = pop_freeze () in
-  if (force && not flags.empty) || flags.table_inside then
+  if ((*force && *)not flags.empty) || flags.table_inside then
     flags.ncols <- flags.ncols + 1 ;
 
   close_flow "";
@@ -261,19 +255,27 @@ let erase_display () =
 let open_maths display =
   if !verbose > 1 then prerr_endline "=> open_maths";
   push in_math_stack flags.in_math;
-  flags.in_math <- true;
   if display then do_put "<BR>\n";
-  open_block "math" "class=\"centered\"";
+  if not flags.in_math then open_block "math" "align=\"center\""
+  else erase_mods [Style "mtext"];
+(*  else if pblock()="mtext" then close_block "mtext";*)
   do_put_char '\n';
+  flags.in_math <- true;
+  open_display "";
   open_display "";
 ;;
 
 let close_maths display =
   if !verbose >1 then prerr_endline "=> close_maths";
   close_display ();
+  close_display ();
   flags.in_math <- pop "in_math" in_math_stack;
-  close_block "math";
-  do_put_char '\n'
+  do_put_char '\n';
+  if not flags.in_math then begin
+(*    if pblock ()="mtext" then close_block "mtext";*)
+    close_block "math" end
+  else open_mod (Style "mtext");
+(*  end else open_block "mtext" "";*)
 ;;
 
 
@@ -286,7 +288,8 @@ let display_arg  verbose =
     "CELLSPACING=0 CELLPADDING=0"
 ;;
 
-let open_vdisplay display =  
+let open_vdisplay display 
+=  
   if !verbose > 1 then
     prerr_endline "open_vdisplay";
   if not display then
@@ -347,6 +350,43 @@ let insert_vdisplay open_fun =
     raise (Error "wrong parenthesization");
 ;;
 
+
+(* delaying output .... *)
+(*
+let delay f =
+  if !verbose > 2 then
+    prerr_flags "=> delay" ;
+  push vsize_stack flags.vsize ;
+  flags.vsize <- 0;
+  push delay_stack f ;
+  open_block "DELAY" "" ;
+  if !verbose > 2 then
+    prerr_flags "<= delay"
+;;
+
+let flush x =
+  if !verbose > 2 then
+    prerr_flags ("=> flush arg is ``"^string_of_int x^"''");
+  try_close_block "DELAY" ;
+  let ps,_,pout = pop_out out_stack in
+  if ps <> "DELAY" then
+    raise (Misc.Fatal ("html: Flush attempt on: "^ps)) ;
+  let mods = !cur_out.active @ !cur_out.pending in
+  do_close_mods () ;
+  let old_out = !cur_out in
+  cur_out := pout ;
+  let f = pop "delay" delay_stack in
+  f x ;
+  Out.copy old_out.out !cur_out.out ;
+  flags.empty <- false ; flags.blank <- false ;
+  free old_out ;
+  !cur_out.pending <- mods ;
+  flags.vsize <- max (pop "vsive" vsize_stack) flags.vsize ;
+  if !verbose > 2 then
+    prerr_flags "<= flush"
+;;
+*)
+
 (* put functions *)
 
 let is_digit = function
@@ -368,6 +408,39 @@ let is_op = function
 | _ -> false
 ;;
 
+let is_open_delim = function
+  | "(" | "[" | "{" | "<" -> true
+  | _ -> false
+and is_close_delim = function
+  | ")" | "]" | "}" | ">" -> true
+  | _ -> false
+;;
+
+let open_delim () =
+  open_display "";
+  freeze
+    ( fun () ->
+      close_display ();
+      close_display (););
+and is_close () =
+  let f, is_freeze = pop_freeze () in
+  if is_freeze then begin
+    freeze f;
+    false
+  end else
+    true;
+and close_delim () =
+  let f, is_freeze = pop_freeze () in
+  if is_freeze then begin
+    close_display ();
+  end else begin
+    close_display ();
+    open_display "";
+  end
+;;
+
+
+
 let put s =
   let s_blank =
     let r = ref true in
@@ -378,35 +451,44 @@ let put s =
   let s_op = is_op s
   and s_number = is_number s in
   let save_last_closed = flags.last_closed in
+  if is_open_delim s then open_delim ();
+  let s_text = if is_close_delim s then is_close () else false in
   if s_op || s_number then force_item_display ();
   do_pending () ;
   flags.empty <- false;
   flags.blank <- s_blank && flags.blank ;
   if s_number then do_put ("<mn> "^s^" </mn>\n")
+  else if s_text then do_put ("<mtext>"^s^"</mtext>")
   else if s_op then begin
     do_put ("<mo> "^s^" </mo>\n");
   end else begin
-    do_put s;
+    do_put s
   end;
   if s_blank then flags.last_closed <- save_last_closed;
+  if is_close_delim s then close_delim ();
 ;;
 
 let put_char c =
   let save_last_closed = flags.last_closed in
   let c_blank = is_blank c in
-  let c_op = is_op (String.make 1 c) in
+  let s = String.make 1 c in
+  let c_op = is_op s in
   let c_digit = is_digit c in
+  if is_open_delim s then open_delim ();
+  let c_text = if is_close_delim s then is_close () else false in
   if c_op || c_digit then force_item_display ();
   do_pending () ;
   flags.empty <- false;
   flags.blank <- c_blank && flags.blank ;
-  if c_digit then do_put ("<mn> "^String.make 1 c^" </mn>\n")
+  if c_digit then do_put ("<mn> "^s^" </mn>\n")
+  else if c_text then do_put ("<mtext>"^s^"</mtext>")
   else if c_op then begin
-    do_put ("<mo> "^String.make 1 c^" </mo>\n");
+    do_put ("<mo> "^s^" </mo>\n");
   end else begin
     do_put_char c;
   end;
   if c_blank then flags.last_closed <- save_last_closed;
+  if is_close_delim s then close_delim ();
 ;;
 
 let put_in_math s =
@@ -443,7 +525,8 @@ let insert_sub_sup tag scanner s t =
 	cur_out := pout;
 	open_block tag "";
 	open_display "";
-	do_put (Out.to_string new_out.out);
+	let texte = Out.to_string new_out.out in
+	do_put (if texte = "" then "<mo> &InvisibleTimes; </mo>" else texte);
 	flags.empty <- false; flags.blank <- false;
 	free new_out;
 	close_display ();
@@ -503,42 +586,51 @@ let standard_sup_sub scanner what sup sub display =
 let limit_sup_sub scanner what sup sub display =
   match sub,sup with
   | "","" -> what ()
-  | a,b ->
-      open_block "munderover" "";
-      do_put_char '\n';
+  | a,"" -> 
+      open_block "munder" "";
       open_display "";
       what ();
-      close_display ();
-      put_sub_sup scanner a;
-      put_sub_sup scanner b;
-      close_block "munderover";
+      if flags.empty then begin
+	erase_display ();
+	erase_block "munder";
+	insert_sub_sup "munder" scanner a "";
+      end else begin
+	close_display ();
+	put_sub_sup scanner a;
+	close_block "munder";
+      end;
+  | "",b ->
+      open_block "mover" "";
+      open_display "";
+      what ();
+      if flags.empty then begin
+	erase_display ();
+	erase_block "mover";
+	insert_sub_sup "mover" scanner b "";
+      end else begin
+	close_display ();
+	put_sub_sup scanner b;
+	close_block "mover";
+      end;
+  | a,b ->
+      open_block "munderover" "";
+      open_display "";
+      what ();
+      if flags.empty then begin
+	erase_display ();
+	erase_block "munderover";
+	insert_sub_sup "munderover" scanner a b;
+      end else begin
+	close_display ();
+	put_sub_sup scanner a;
+	put_sub_sup scanner b;
+	close_block "munderover";
+      end;
 ;;
 
 let int_sup_sub something vsize scanner what sup sub display =
-  match sub,sup,something with
-  | "","",true -> what (); force_item_display ();
-  | "","",false -> ()
-  | a,b,true -> 
-      open_block "msubsup" "";
-      open_display "";
-      what ();
-      close_display ();
-      put_sub_sup scanner a;
-      put_sub_sup scanner b;
-      close_block "msubsup";
-      force_item_display ();
-  | a,b,false ->
-      open_block "msubsup" "";
-      open_display "";
-      put "&InvisibleTimes;";
-      close_display ();
-      put_sub_sup scanner a;
-      put_sub_sup scanner b;
-      close_block "msubsup";
-      force_item_display ();
+  standard_sup_sub scanner what sup sub display
 ;;
-
-
 
 
 let over display lexbuf =
@@ -556,4 +648,37 @@ let over display lexbuf =
   end else begin
     put "/"
   end
+;;
+
+
+let tr = function
+  "<" -> "<"
+| ">" -> ">"
+| "\\{" -> "{"
+| "\\}" -> "}"
+| s   -> s
+;;
+
+let left delim = 
+  force_item_display ();
+  open_display "";
+  if delim <>"." then put ("<mo> "^ tr delim^" </mo>");
+  force_item_display ();
+  freeze
+    ( fun () ->
+      force_item_display ();
+      close_display ();
+      force_item_display ();
+      close_display ();)
+;;
+
+let right delim =
+  force_item_display ();
+  if delim <> "." then put ("<mo> "^tr delim^" </mo>");
+  force_item_display ();
+  let f,is_freeze = pop_freeze () in
+  if not is_freeze then (*raise (Error ("Bad placement of right delimitor"));*)
+    warning "right delimitor alone";
+  close_display ();
+  3
 ;;

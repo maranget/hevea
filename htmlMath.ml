@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlMath.ml,v 1.2 1999-06-07 17:42:43 tessaud Exp $" 
+let header = "$Id: htmlMath.ml,v 1.3 1999-06-16 08:31:20 tessaud Exp $" 
 
 
 open Misc
@@ -53,6 +53,8 @@ let saved_inside = ref []
 let ncols_stack = ref []
 ;;
 let in_math_stack = ref []
+;;
+let delay_stack = ref []
 ;;
 
 
@@ -122,6 +124,43 @@ let get_block s args =
     prerr_flags "<= get_block"
   end ;
   r
+
+(* delaying output .... *)
+
+let delay f =
+  if !verbose > 2 then
+    prerr_flags "=> delay" ;
+  push vsize_stack flags.vsize ;
+  flags.vsize <- 0;
+  push delay_stack f ;
+  open_block "DELAY" "" ;
+  if !verbose > 2 then
+    prerr_flags "<= delay"
+;;
+
+let flush x =
+  if !verbose > 2 then
+    prerr_flags ("=> flush arg is ``"^string_of_int x^"''");
+  try_close_block "DELAY" ;
+  let ps,_,pout = pop_out out_stack in
+  if ps <> "DELAY" then
+    raise (Misc.Fatal ("html: Flush attempt on: "^ps)) ;
+  let mods = !cur_out.active @ !cur_out.pending in
+  do_close_mods () ;
+  let old_out = !cur_out in
+  cur_out := pout ;
+  let f = pop "delay" delay_stack in
+  f x ;
+  Out.copy old_out.out !cur_out.out ;
+  flags.empty <- false ; flags.blank <- false ;
+  free old_out ;
+  !cur_out.pending <- mods ;
+  flags.vsize <- max (pop "vsive" vsize_stack) flags.vsize ;
+  if !verbose > 2 then
+    prerr_flags "<= flush"
+;;
+
+
 
 (* put functions *)
 
@@ -581,3 +620,33 @@ let over display lexbuf =
     put "/"
   end
 ;;
+
+
+(* Gestion of left and right delimiters *)
+
+let put_delim delim i =
+  if !verbose > 1 then
+    prerr_endline
+     ("put_delim: ``"^delim^"'' ("^string_of_int i^")") ;
+  if delim <> "." then begin
+    begin_item_display (fun () -> ()) false ;
+    Symb.put_delim skip_line put delim i ;
+    let _ = end_item_display () in ()
+  end
+;;
+
+let left delim =
+  let _,f,is_freeze = end_item_display () in
+  delay (fun vsize -> put_delim delim vsize) ;
+  begin_item_display f is_freeze
+;;
+
+let right delim =
+  let vsize,f,is_freeze = end_item_display () in
+  put_delim delim vsize;
+  flush vsize ;
+  begin_item_display f is_freeze ;
+  vsize
+;;
+
+

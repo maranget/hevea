@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlCommon.ml,v 1.2 1999-06-07 17:42:42 tessaud Exp $" 
+let header = "$Id: htmlCommon.ml,v 1.3 1999-06-16 08:31:19 tessaud Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -290,6 +290,8 @@ and dcount_stack = ref []
 let insert_stack = ref []
 
 
+
+
 let sbool = function true -> "true" | _ -> "false"
 ;;
 
@@ -362,17 +364,33 @@ let forget_par () =
 (* styles *)
 
 let do_close_mod = function
-  Style m ->  do_put ("</"^m^">")
-| (Color _ | Font _)  ->  do_put "</FONT>"
+  Style m ->  
+    if flags.in_math && !Parse_opts.mathml then 
+      if m="mtext" then do_put ("</"^m^">")
+      else do_put "</mstyle>"
+    else do_put ("</"^m^">")
+| (Color _ | Font _)  -> 
+    if flags.in_math && !Parse_opts.mathml then 
+      do_put "</mstyle>"
+    else do_put "</FONT>"
 
 and do_open_mod e =
   if !verbose > 3 then
       prerr_endline ("do_open_mod: "^Latexmacros.pretty_env e) ;
   match e with
-  Style m ->  do_put ("<"^m^">")
+  Style m ->  
+    if flags.in_math && !Parse_opts.mathml then 
+      if m="mtext" then do_put ("<"^m^">")
+      else do_put ("<mstyle style = \""^m^"\">")
+    else do_put ("<"^m^">")
 | Font i  ->
-    do_put ("<FONT SIZE="^string_of_int i^">")
-| Color s ->  do_put ("<FONT COLOR="^s^">")
+    if flags.in_math && !Parse_opts.mathml then 
+      do_put ("<mstyle style = \"size :"^string_of_int i^"\">")
+    else do_put ("<FONT SIZE="^string_of_int i^">")
+| Color s ->
+    if flags.in_math && !Parse_opts.mathml then 
+      do_put ("<mstyle style = \"color :"^s^"\">")
+    else do_put ("<FONT COLOR="^s^">")
 ;;
 
 

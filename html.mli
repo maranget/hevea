@@ -39,8 +39,6 @@
     val close_display : unit -> unit
     val item_display : unit -> unit
     val force_item_display : unit -> unit
-    val end_item_display : unit -> int * (unit -> unit) * bool
-    val begin_item_display : (unit -> unit) -> bool -> unit
     val erase_display : unit -> unit
     val open_vdisplay : bool -> unit
     val close_vdisplay : unit -> unit
@@ -50,6 +48,8 @@
     val limit_sup_sub : (string -> unit) -> (unit -> unit) -> string -> string -> bool -> unit
     val int_sup_sub : bool -> int -> (string -> unit) -> (unit -> unit) -> string -> string -> bool -> unit
     val over : bool -> Lexing.lexbuf -> unit
+    val left : string -> unit
+    val right : string -> int
 
     val set_dcount : string -> unit
     val item  : unit -> unit
@@ -63,11 +63,6 @@
     val put_char : char -> unit
     val flush_out : unit -> unit
     val skip_line : unit -> unit
-
-
-    val delay : (int -> unit) -> unit
-    val flush : int -> unit
-    val forget : unit -> unit
 
     val loc_ref : string -> string -> unit
     val loc_name : string -> string -> unit

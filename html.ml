@@ -10,7 +10,7 @@
 (***********************************************************************)
 
 
-let header = "$Id: html.ml,v 1.57 1999-06-07 17:42:40 tessaud Exp $" 
+let header = "$Id: html.ml,v 1.58 1999-06-16 08:31:17 tessaud Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -176,7 +176,9 @@ let freeze,
   saved_inside,
   ncols_stack,
   math_put,
-  math_put_char
+  math_put_char,
+  left,
+  right
     =
   if !Parse_opts.mathml then begin
     MathML.freeze,
@@ -204,7 +206,9 @@ let freeze,
     MathML.saved_inside,
     MathML.ncols_stack,
     MathML.put,
-    MathML.put_char
+    MathML.put_char,
+    MathML.left,
+    MathML.right
   end else begin
     HtmlMath.freeze,
     HtmlMath.over,
@@ -231,7 +235,9 @@ let freeze,
     HtmlMath.saved_inside,
     HtmlMath.ncols_stack,
     HtmlMath.put,
-    HtmlMath.put_char
+    HtmlMath.put_char,
+    HtmlMath.left,
+    HtmlMath.right
   end
 ;;
 
@@ -271,11 +277,6 @@ and set_last_closed s = flags.last_closed <- s
 ;;
 
     
-(* Independant stacks for flags *)  
-
-let delay_stack = ref []
-;;
-
 
 let debug m =
   Printf.fprintf stderr "%s : table_vsize=%d vsize=%d" m flags.table_vsize flags.vsize ;
@@ -283,40 +284,6 @@ let debug m =
 ;;
 
 
-(* delaying output .... *)
-
-let delay f =
-  if !verbose > 2 then
-    prerr_flags "=> delay" ;
-  push vsize_stack flags.vsize ;
-  flags.vsize <- 0;
-  push delay_stack f ;
-  open_block "DELAY" "" ;
-  if !verbose > 2 then
-    prerr_flags "<= delay"
-;;
-
-let flush x =
-  if !verbose > 2 then
-    prerr_flags ("=> flush arg is ``"^string_of_int x^"''");
-  try_close_block "DELAY" ;
-  let ps,_,pout = pop_out out_stack in
-  if ps <> "DELAY" then
-    raise (Misc.Fatal ("html: Flush attempt on: "^ps)) ;
-  let mods = !cur_out.active @ !cur_out.pending in
-  do_close_mods () ;
-  let old_out = !cur_out in
-  cur_out := pout ;
-  let f = pop "delay" delay_stack in
-  f x ;
-  Out.copy old_out.out !cur_out.out ;
-  flags.empty <- false ; flags.blank <- false ;
-  free old_out ;
-  !cur_out.pending <- mods ;
-  flags.vsize <- max (pop "vsive" vsize_stack) flags.vsize ;
-  if !verbose > 2 then
-    prerr_flags "<= flush"
-;;
 
 
 
@@ -380,17 +347,6 @@ let ditem scan arg =
   do_put "<DD>"
 ;;
 
-
-
-
-
-let rec forget () =
-  let ps = pblock () in
-  if ps <> "DELAY" then begin
-    force_block ps "" ; forget ()
-  end else
-    force_block "FORGET" ""
-;;
 
 let loc_ref s1 s2 =
   put "<A HREF=\"#" ;
@@ -468,7 +424,7 @@ let finalize check =
     check_stack "empty_stack" empty_stack;
     check_stack "vsize_stack" vsize_stack;
     check_stack "nrows_stack" nrows_stack;
-    check_stack "delay_stack" delay_stack;
+    check_stack "delay_stack" HtmlMath.delay_stack;
     check_stack "nitems_stack" nitems_stack;
     check_stack "dt_stack" dt_stack;
     check_stack "dcount_stack" dcount_stack;
@@ -497,7 +453,10 @@ let put_tag tag =
 ;;
 
 let put_nbsp () =
-  put "&nbsp;"
+  if flags.in_math && !Parse_opts.mathml then
+    put " "
+  else
+    put "&nbsp;"
 ;;
 
 let put_open_group () =
@@ -511,12 +470,19 @@ let put_close_group () =
 
 
 let open_table border htmlargs =
-  if border then open_block "TABLE" ("BORDER=1 "^htmlargs)
-  else open_block "TABLE" htmlargs
+  let table,arg_b, arg =
+    if flags.in_math && !Parse_opts.mathml then
+      "mtable","frame = \"solid\"",""
+    else "TABLE","BORDER=1",htmlargs
+  in
+  if border then open_block table (arg_b^arg)
+  else open_block table arg
 ;;
 
 let new_row () =
-  open_block "TR" ""
+  if flags.in_math && !Parse_opts.mathml then
+    open_block "mtr" ""
+  else open_block "TR" ""
 ;;
 
 
@@ -526,6 +492,9 @@ let attribut name = function
 and as_colspan = function
   |  1  -> ""
   |  n -> " COLSPAN="^string_of_int n
+and as_colspan_mathml = function
+  |  1  -> ""
+  |  n -> " columnspan= \""^string_of_int n^"\""
 
 let as_align f span = match f with
   Tabular.Align {Tabular.vert=v ; Tabular.hor=h ; Tabular.wrap=w ; Tabular.width=size} ->
@@ -536,23 +505,56 @@ let as_align f span = match f with
 | _       ->  raise (Misc.Fatal ("as_align"))
 ;;
 
-let open_cell format span i= open_block "TD" (as_align format span)
+let as_align_mathml f span = match f with
+  Tabular.Align {Tabular.vert=v ; Tabular.hor=h ; Tabular.wrap=w ; Tabular.width=size} ->
+    attribut "rowalign" ("\""^v^"\"")^
+    attribut "columnalign" ("\""^h^"\"")^
+    as_colspan_mathml span
+| _       ->  raise (Misc.Fatal ("as_align_mathml"))
 ;;
 
-let erase_cell () =  erase_block "TD"
-and close_cell content = force_block "TD" content
-and do_close_cell () = close_block "TD"
+let open_cell format span i= 
+  if flags.in_math && !Parse_opts.mathml then begin
+    open_block "mtd" (as_align_mathml format span);
+    open_display ""
+  end else open_block "TD" (as_align format span)
+;;
+
+let erase_cell () =  
+  if flags.in_math && !Parse_opts.mathml then begin
+    erase_display ();
+    erase_block "mtd"
+  end else erase_block "TD"
+and close_cell content = 
+  if flags.in_math && !Parse_opts.mathml then begin
+    close_display ();
+    force_block "mtd" ""
+  end else force_block "TD" content
+and do_close_cell () = 
+    if flags.in_math && !Parse_opts.mathml then begin
+      close_display ();
+      close_block "mtd"
+    end else close_block "TD"
 and open_cell_group () = open_group ""
 and close_cell_group () = close_group ()
 and erase_cell_group () = erase_block ""
 ;;
 
 
-let erase_row () = erase_block "TR"
-and close_row () = close_block "TR"
+let erase_row () = 
+  if flags.in_math && !Parse_opts.mathml then
+    erase_block "mtr"
+  else erase_block "TR"
+and close_row () = 
+  if flags.in_math && !Parse_opts.mathml then
+    close_block "mtr"
+  else close_block "TR"
 ;;
 
-let close_table () = close_block "TABLE"
+let close_table () = 
+  if flags.in_math && !Parse_opts.mathml then
+    close_block "mtable"
+  else close_block "TABLE"
 ;;
 let make_border s = ()
 ;;
@@ -566,14 +568,14 @@ let center_format =
 
 let make_inside s multi =
   if not (multi) then begin
-    if pblock ()="TD" then begin
-      close_cell "&nbsp";
+    if pblock ()="TD" || pblock() = "mtd" then begin
+      close_cell "&nbsp;";
       open_cell center_format 1 0;
       put s;
     end else begin
       open_cell center_format 1 0;
       put s;
-      close_cell "&nbsp"
+      close_cell "&nbsp;"
     end;
   end
 ;;
@@ -583,7 +585,9 @@ let make_hline w noborder =
     new_row ();
     open_cell center_format w 0;
     close_mods () ;
-    horizontal_line "NOSHADE" "2" "100" ;
+    if not (flags.in_math && !Parse_opts.mathml) then
+      horizontal_line "NOSHADE" "2" "100" 
+    else do_put "<mo stretchy=\"true\" > &horbar; </mo>";
     close_cell "" ;
     close_row ();
   end

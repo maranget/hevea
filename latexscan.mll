@@ -44,7 +44,7 @@ open Tabular
 open Lexstate
 
 
-let header = "$Id: latexscan.mll,v 1.111 1999-06-07 17:42:48 tessaud Exp $" 
+let header = "$Id: latexscan.mll,v 1.112 1999-06-16 08:31:24 tessaud Exp $" 
 
 
 let sbool = function
@@ -129,37 +129,6 @@ let top_close_display () =
   if !display then begin
     Dest.close_display ()
   end
-
-(* vertical display *)
-(*
-let open_vdisplay () =  
-  if !verbose > 1 then
-    prerr_endline "open_vdisplay";
-  if not !display then
-    raise (Misc.Fatal ("VDISPLAY in non-display mode"));
-  Dest.open_block "TABLE" (display_arg !verbose)
-
-and close_vdisplay () =
-  if !verbose > 1 then
-    prerr_endline "close_vdisplay";
-  Dest.close_block "TABLE"
-
-and open_vdisplay_row s =
-  if !verbose > 1 then
-    prerr_endline "open_vdisplay_row";
-  Dest.open_block "TR" "" ;
-  Dest.open_block "TD" s ;
-  Dest.open_display (display_arg !verbose)
-
-and close_vdisplay_row () =
-  if !verbose > 1 then
-    prerr_endline "close_vdisplay_row";
-  Dest.close_display () ;
-  Dest.force_block "TD" "&nbsp;" ;
-  Dest.close_block "TR"
-;;
-*)
-
 
 
 (* Latex environment stuff *)
@@ -333,16 +302,6 @@ and subst_opt def subst lexbuf = subst_this subst (save_opt def lexbuf)
 ;;
 
   
-let put_delim delim i =
-  if !verbose > 1 then
-    prerr_endline
-     ("put_delim: ``"^delim^"'' ("^string_of_int i^")") ;
-  if delim <> "." then begin
-    Dest.begin_item_display (fun () -> ()) false ;
-    Symb.put_delim Dest.skip_line Dest.put delim i ;
-    let _ = Dest.end_item_display () in ()
-  end
-;;
 
 let default_format =
   Tabular.Align
@@ -439,19 +398,10 @@ let is_inside = function
 let is_border = function
   | Tabular.Border _ -> true
   | _ -> false
-
-and as_inside = function
-  Tabular.Inside s -> s
-| _        -> ""
 (*
-and as_align f span = match f with
-  Tabular.Align {vert=v ; hor=h ; wrap=w ; width=size} ->
-(*    (match size with
-    | Some (Length.Percent n) ->
-        attribut "WIDTH" (string_of_int n^"%")
-    | Some (Length.Absolute n) ->
-        attribut "WIDTH" (string_of_int (n * Length.font))
-    | _ -> "")^ *)
+and as_inside = function
+    Tabular.Inside s -> s
+  | _        -> ""
     attribut "VALIGN" v^
     attribut "ALIGN" h^
     (if w then "" else " NOWRAP")^
@@ -499,11 +449,6 @@ let show_inside main format i closing =
       Tabular.Inside s ->
         let s = get_this main s in
 	Dest.make_inside s !in_multi;
-(*
-        Dest.open_cell center_format 1;
-        Dest.put s ;
-        Dest.close_cell "";
-*)
     | Tabular.Border s -> 
 	Dest.make_border s;
 	if !first_border then first_border := false;
@@ -563,7 +508,7 @@ let next_no_border format n =
   done;
   !t
 ;;
-
+(*
 let show_inside_multi main format i j =
   let rec show_rec i =
     if i >= j then ()
@@ -574,7 +519,7 @@ let show_inside_multi main format i j =
     end in
   show_rec i
 ;;
-
+*)
 let do_open_col main format span insides =
   let save_table = !in_table in
   Dest.open_cell format span insides;
@@ -633,14 +578,6 @@ let do_hline main =
   Dest.erase_row () ;
   
   Dest.make_hline (Array.length !cur_format) (is_noborder_table !in_table);
-(*
-  Dest.new_row () ;
-  Dest.open_cell center_format (Array.length !cur_format) ;
-  Dest.close_mods () ;
-  Dest.horizontal_line "NOSHADE" "2" "100" ;
-  Dest.close_cell "" ;
-  Dest.close_row () ;
-*)  
   open_row () ;
   open_first_col main
 ;;
@@ -662,7 +599,6 @@ let do_multi n format main =
   in_multi := true;
 
   let i = show_inside main format 0 true in
-(* let i = find_align format in*)
 
   Dest.open_cell_group () ;
   do_open_col main (get_col format i) (end_span - start_span) insides;
@@ -713,16 +649,6 @@ and close_last_row () =
     Dest.close_row ()
 ;;
 
-(*
-let rec open_ngroups = function
-  | 0 -> ()
-  | n -> Dest.open_group "" ; open_ngroups (n-1)
-
-let rec close_ngroups = function
-  | 0 -> ()
-  | n -> Dest.force_block "" "" ; close_ngroups (n-1)
-*)
-
 (* Compute functions *)
 
 let get_style lexfun s =
@@ -759,15 +685,6 @@ let iput_newpage arg =
   Image.put ("% page: "^n^"\n") ;
   Image.put "\\clearpage\n\n" ;
   Dest.image arg n
-
-(*  Dest.put "<IMG " ;
-  if arg <> "" then begin
-    Dest.put arg;
-    Dest.put_char ' '
-  end ;
-  Dest.put "SRC=\"" ;
-  Dest.put n ;
-  Dest.put "\">"*)
 ;;
 
 
@@ -821,89 +738,6 @@ let stop_other_scan comment main lexbuf =
   end ;
   restore_lexstate ()
 ;;
-
-
-(* maths *)
-
-(*
-let standard_sup_sub main what sup sub =
-  if !display && (complex sup || complex sub) then begin
-    Dest.force_item_display () ;
-    open_vdisplay () ;
-    if sup <> "" then begin
-      open_vdisplay_row "NOWRAP" ;
-      open_script_font () ;
-      scan_this main sup ;
-      close_vdisplay_row ()
-    end ;           
-    open_vdisplay_row "" ;
-    what ();
-    close_vdisplay_row () ;
-    if sub <> "" then begin
-      open_vdisplay_row "NOWRAP" ;
-      open_script_font () ;
-      scan_this main sub ;
-      close_vdisplay_row ()
-    end ;
-      close_vdisplay () ;
-      Dest.force_item_display ()
-  end else begin
-     what ();
-     put_sup_sub "SUB" main sub ;
-     put_sup_sub "SUP" main sup
-  end
-;;
-
-
-let limit_sup_sub main what sup sub =
-  if sup = "" && sub = "" then
-    what ()
-  else begin
-    Dest.force_item_display () ;
-    open_vdisplay () ;
-    open_vdisplay_row "ALIGN=center" ;
-    open_script_font () ;
-    scan_this main sup ;
-    close_vdisplay_row () ;
-    open_vdisplay_row "ALIGN=center" ;
-    what () ;
-    close_vdisplay_row () ;
-    open_vdisplay_row "ALIGN=center" ;
-    open_script_font () ;
-    scan_this main sub ;
-    close_vdisplay_row () ;
-    close_vdisplay () ;
-    Dest.force_item_display ()
-  end
-;;
-
-let int_sup_sub something vsize main what sup sub =
-  if something then begin
-    Dest.force_item_display () ;
-    what () ;
-    Dest.force_item_display ()
-  end ;
-  if sup <> "" || sub <> "" then begin
-    open_vdisplay () ;
-    open_vdisplay_row "ALIGN=left NOWRAP" ;
-    open_script_font () ;
-    scan_this main sup ;
-    close_vdisplay_row () ;
-    open_vdisplay_row "ALIGN=left" ;
-    for i = 2 to vsize do
-      Dest.skip_line ()
-    done ;
-    close_vdisplay_row () ;
-    open_vdisplay_row "ALIGN=left NOWRAP" ;
-    open_script_font () ;
-    scan_this main sub ;
-    close_vdisplay_row () ;
-    close_vdisplay () ;
-    Dest.force_item_display ()
-  end
-;;
-
-*)
 
 let includes_table = Hashtbl.create 17
 and check_includes = ref false
@@ -1053,12 +887,9 @@ rule  main = parse
        if !in_math then begin
          in_math := pop stack_in_math ;
          if dodo then begin
-(*           Dest.close_display () ;*)
 	   Dest.close_maths dodo;
-(*           close_center ()*)
          end else begin
            top_close_display () ;
-(*           Dest.close_group ();*)
 	   Dest.close_maths dodo;
          end ;
          display := pop stack_display ;
@@ -1075,12 +906,9 @@ rule  main = parse
          push stack_display !display ;
          if dodo then begin
            display  := true ;
-(*           open_center() ;*)
 	   Dest.open_maths dodo;
-(*           Dest.open_display (display_arg !verbose)*)
          end else begin
 	   Dest.open_maths dodo;
-(*           Dest.open_group "" ;*)
            top_open_display () ;
          end;
          skip_blanks lb ; main lb in
@@ -1147,6 +975,11 @@ rule  main = parse
       Dest.put_in_math lxm;
     end else
       Dest.put lxm ;
+    main lexbuf}
+(* Numbers *)
+| ['0'-'9']+
+    {let lxm = lexeme lexbuf in
+    Dest.put lxm;
     main lexbuf}
 (* Html specials *)
 | '~'         { Dest.put_nbsp () ; main lexbuf }
@@ -1686,10 +1519,8 @@ def_code "\\csname"
 def_code "\\left"
   (fun lexbuf ->
     if !display then begin
-      let _,f,is_freeze = Dest.end_item_display () in
       let delim = save_arg lexbuf in
-      Dest.delay (fun vsize -> put_delim delim vsize) ;
-      Dest.begin_item_display f is_freeze
+      Dest.left delim;
     end)
 ;;
 
@@ -1697,10 +1528,7 @@ def_code "\\right"
   (fun lexbuf ->
     if !display then begin
       let delim = save_arg lexbuf in
-      let vsize,f,is_freeze = Dest.end_item_display () in
-      put_delim delim vsize;
-      Dest.flush vsize ;
-      Dest.begin_item_display f is_freeze ;
+      let vsize = Dest.right delim in
       let sup,sub = Save.get_sup_sub lexbuf in
       let do_what = (fun () -> ()) in
       Dest.int_sup_sub false vsize (scan_this main) do_what sup sub !display
@@ -1712,30 +1540,7 @@ def_code "\\over"
    (fun lexbuf ->
      Dest.over !display lexbuf)
 ;;
-(*  
-(fun lexbuf ->
-    if !display then begin
-      let mods = Dest.insert_vdisplay
-          (fun () ->
-            Dest.open_vdisplay !display ;
-            Dest.open_vdisplay_row "NOWRAP ALIGN=center") in
-      Dest.close_vdisplay_row () ;
-      Dest.open_vdisplay_row "" ;
-      Dest.close_mods () ;
-      Dest.horizontal_line  "NOSHADE" "2" "100";
-      Dest.close_vdisplay_row () ;
-      Dest.open_vdisplay_row "NOWRAP ALIGN=center" ;
-      Dest.close_mods () ;
-      Dest.open_mods mods ;
-      Dest.freeze
-        (fun () ->
-          Dest.close_vdisplay_row () ;
-          Dest.close_vdisplay ())
-    end else begin
-      Dest.put "/"
-    end)
-;;
-*)
+
 let check_not = function
   | "\\in" -> "\\notin"
   | "="    -> "\\neq"
@@ -2531,9 +2336,9 @@ let open_array env lexbuf =
   in_table := Table
        {math = (env = "array")  ;
          border = !Tabular.border} ;
+  if !display then Dest.item_display () ;
   in_math := false ;
   new_env env ;
-  if !display then Dest.item_display () ;
   push stack_display !display ;
   display := false ;
   if !Tabular.border then

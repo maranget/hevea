@@ -1,9 +1,5 @@
 \newcommand{\sqrt}[2][!*!]{\ifthenelse{\equal{#1}{!*!}}%
-{\mbox{root(%
-\@subst{#2})}%
-}{\mbox{\@subst{#2}nth root %
-\@print{(}\@subst{#1}%
-\@print{)}}}
+{\mbox{root(#2)}}{\mbox{#2nth root(#1)}}}
 
 
 \newcommand{\forall}{\mbox{for all}}
