@@ -369,6 +369,7 @@
 \def\noprint#1{{\@nostyle\@print{#1}}}%
 \newcommand{\@bodyargs}{BGCOLOR=silver TEXT=black}
 \newcommand{\@htmlargs}{}
+\newif\iffooter\footertrue
 \newenvironment{document}{%
 \@print{<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
 <HTML}\@notags{\@htmlargs}\@print{>
@@ -386,10 +387,10 @@
 \setcounter{footnote}{0}%
 }{%
 \@footnoteflush{document}%
-\@print{
+\iffooter\@print{
 <!--FOOTER-->
 }%
-\input{footer.tex}%
+\input{footer.tex}\fi%
 \@print{</BODY>
 </HTML>
 }
