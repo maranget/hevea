@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.143 1999-10-13 17:00:04 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.144 1999-10-29 15:58:32 maranget Exp $ *)
 
 
 {
@@ -333,7 +333,7 @@ and is_tabbing = function
 
 and math_table = function
   | Table {math = m} -> m
-  | _ -> raise (Misc.Fatal "math_table")
+  | _ -> raise (Misc.Fatal "Array construct outside an array")
 ;;
 
 let par_val t =
@@ -2351,6 +2351,8 @@ def_code "\\endalltt"
 
 def_code "\\multicolumn"
     (fun lexbuf ->
+      if not (is_table !in_table) then
+        raise (ScanError "\\multicolumn should occur in some array") ;
       let n = Get.get_int (save_arg lexbuf) in      
       let format =  Tabular.main (save_arg lexbuf) in
       do_multi n  format main)
@@ -2358,7 +2360,8 @@ def_code "\\multicolumn"
 
 def_code "\\hline"
   (fun lexbuf ->
-    (* if is_noborder_table !in_table then*)
+    if not (is_table !in_table) then
+      raise (ScanError "\\hline should occur in some array") ;
     do_hline main ;
     skip_blanks_pop lexbuf ;
     let _ = Dest.forget_par () in

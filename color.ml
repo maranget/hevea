@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: color.ml,v 1.6 1999-10-06 17:18:45 maranget Exp $" 
+let header = "$Id: color.ml,v 1.7 1999-10-29 15:58:27 maranget Exp $" 
 
 let default_color = "#000000"
 ;;
@@ -123,7 +123,7 @@ let retrieve clr =
   try
     Hashtbl.find table clr
   with Not_found ->
-    Misc.warning ("Colors.retrieve, unknown color: "^clr);
+    Misc.warning ("Color.retrieve, unknown color: "^clr);
     default_color
 ;;
 

@@ -2062,6 +2062,14 @@ Another example is the definition of the \verb+\purple+ high-level
 \newcommand{\purple}{\@fontcolor{purple}}
 \end{verbatim}
 
+\hevea{} does not feature all text-level elements by default.
+However one can easily use them with the internal macro
+\verb+\@style+.
+For instance this is how you can make all emphasized text blink:
+\begin{verbatim}
+\renewcommand{\em}{\@style{EM}\@style{BLINK}}
+\end{verbatim}
+
 \comindex{imgsrc}
 \index{"@print@\texttt{\char92"@print}}
 \index{"@nostyle@\texttt{\char92"@nostyle}}

@@ -102,7 +102,7 @@ testrelease:
 devrelease:
 	/bin/rm -rf ${FTPDIR}/unstable ; mkdir ${FTPDIR}/unstable
 	$(MAKE) $(MFLAGS) dorelease VERSION=`date +%Y-%m-%d` RELEASENAME="hevea-`date +%Y-%m-%d`" RELEASEOPT="-D now" FTPDIR="${FTPDIR}/unstable"
-
+	$(MAKE) install DOCDIR=$(HOME)/public_html/hevea/newdoc
 
 RPMDIR=/usr/src/redhat
 dorpm: hevea.spec
