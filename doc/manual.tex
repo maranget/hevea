@@ -1857,8 +1857,8 @@ file, then a \texttt{doc.tex} document can include it by:
 \epsfbox{screenshot.ps}
 \end{verbatim}
 We may very well also have a GIF version of the screenshot image
-(or be able to produce one easily using image converting tools)
-let us put it in a \texttt{screenshot.ps.gif} file.
+(or be able to produce one easily using image converting tools),
+let us store it in a \texttt{screenshot.ps.gif} file.
 Then, for \hevea{} to include a link to the GIF image in its
 output, it suffices
 to define the \verb+\epsfbox+ command in the \texttt{macro.hva} file
@@ -1983,7 +1983,7 @@ to block-level elements.
 \item[{\tt\char92 @fontsize\char123}{\it int}{\tt\char125}]
 Declare the text-level element \verb+FONT+ with attribute
 \verb+SIZE=+\textit{int} as active. Note that \textit{int} must
-\texttt{1},\texttt{2}, \ldots{} , \texttt{7}.
+be a small integer in the range \texttt{1},\texttt{2}, \ldots{} , \texttt{7}.
 \item[{\tt\char92 @fontcolor\char123}{\it color}{\tt\char125}]
 Declare the text-level element \verb+FONT+ with attribute
 \verb+COLOR=+\textit{color} as active.
@@ -3430,11 +3430,11 @@ He said \frenchquote(Alors cette accolade ouvrante {``\{''}~?).
 
 
 Another source of incompatibilty with \TeX{} is that  substitution of
-macros parametres is not performed at the same moment by \hevea{} and
+macros parameters is not performed at the same moment by \hevea{} and
 \TeX{}.
 However, things should go smoothly at the first level of macro
 expansion, that is when the delimiters
-appear in source code at the same level than the macro that is to
+appear in source code at the same level as the macro that is to
 parse them.
 For instance, the following source will give different results in
 \LaTeX{} and in \hevea:
@@ -3498,6 +3498,8 @@ It is possible to escape scope and to make global definitions
 and bindings by using the \TeX{} construct \verb+\global+.
 The \verb+\global+ construct is significant before
 \verb+\def+, \verb+\let+, \verb+\texdef+ and \verb+\texlet+.
+Surprises are likely when using local and global definitions with
+identical names.
 
 \comindex{gdef}
 Also note that \verb+\gdef+ is equivalent to \verb+\global\def+.
