@@ -28,10 +28,14 @@
 \newcommand{\rtimes}{\@print{&#8906;}}
 \newcommand{\smallsetminus}{\@print{&#8726;}}
 
+\newcommand{\Box}{\@print{&#9723;}}
+\newcommand{\Diamond}{\@entity{loz}}
+\newcommand{\square}{\@print{&#9723;}}
+
 %% Miscellaneous Simple Symbols under "amssymb"
 
 \newcommand{\backprime}{\@print{&#0096;}}
-%\newcommand{\bigstar}{\@print{&#;}}
+\newcommand{\bigstar}{\ifdisplay{\Large\@star}\else\fi}
 \newcommand{\blacklozenge}{\@print{&#9670;}}
 \newcommand{\blacksquare}{\@print{&#9632;}}
 \newcommand{\blacktriangle}{\@print{&#9650;}}
@@ -185,13 +189,17 @@
 \newcommand{\nsupseteq}{\@print{&#8841;}}
 \newcommand{\nsubseteqq}{\nsubseteq}	       % not ideal
 \newcommand{\nsupseteqq}{\nsupseteq}	       % not ideal
+\newcommand{\lhd}{\@print{&#9665;}}
+\newcommand{\rhd}{\@print{&#9655;}}
+\newcommand{\unlhd}{\@entity{LeftTriangleEqual}}
+\newcommand{\unrhd}{\@entity{RightTriangleEqual}}
 
 %% Miscellaneous Symbols under "amssymb"
 
 \newcommand{\Game}{\@print{&#;}}
 \newcommand{\eth}{\@print{&#;}}
 \newcommand{\Finv}{\@print{&#8498;}}
-\newcommand{\mho}{\@print{&#;}}
+\newcommand{\mho}{\@print{&#8487;}}
 \newcommand{\hslash}{\@print{&#8463;}}
 \newcommand{\backepsilon}{\@print{&#;}}
 \newcommand{\circledS}{\@print{&#;}}

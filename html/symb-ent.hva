@@ -16,27 +16,27 @@
 \newcommand{\gamma}{\@entity{gamma}}
 \newcommand{\delta}{\@entity{delta}}
 \newcommand{\epsilon}{\@entity{epsilon}}
-%\newcommand{\varepsilon}{\@entity{epsiv}}
+\newcommand{\varepsilon}{\@print{&#1013;}}
 \newcommand{\zeta}{\@entity{zeta}}
 \newcommand{\eta}{\@entity{eta}}
 \newcommand{\theta}{\@entity{theta}}
-\newcommand{\vartheta}{\@entity{thetasym}}
+\newcommand{\vartheta}{\@print{&#977;}}%\@entity{thetasym}}
 \newcommand{\iota}{\@entity{iota}}
 \newcommand{\kappa}{\@entity{kappa}}
 \newcommand{\lambda}{\@entity{lambda}}
-%\newcommand{\mu}{\@entity{mu}}
+\renewcommand{\mu}{\@entity{mu}}
 \newcommand{\nu}{\@entity{nu}}
 \newcommand{\xi}{\@entity{xi}}
-\newcommand{\pi}{\@entity{pi}}
-\newcommand{\varpi}{\@entity{piv}}
+\newcommand{\pi}{\@print{&#982;}}
+\newcommand{\varpi}{\@print{&#982;}}
 \newcommand{\rho}{\@entity{rho}}
 \newcommand{\varrho}{\@print{&#1009;}}
 \newcommand{\sigma}{\@entity{sigma}}
 \newcommand{\varsigma}{\@entity{sigmaf}}
 \newcommand{\tau}{\@entity{tau}}
 \newcommand{\upsilon}{\@entity{upsilon}}
-\newcommand{\phi}{\@entity{phi}}
-\newcommand{\varphi}{\@print{&#981;}}
+\newcommand{\phi}{\@print{&#981;}}
+\newcommand{\varphi}{\@entity{phi}}
 \newcommand{\chi}{\@entity{chi}}
 \newcommand{\psi}{\@entity{psi}}
 \newcommand{\omega}{\@entity{omega}}
@@ -59,78 +59,83 @@
 
 \renewcommand{\pm}{\@print{&#0177;}}
 \newcommand{\mp}{\@print{&#8723;}}
-%\newcommand{\ast}{\@entity{lowast}}
-\renewcommand{\star}{\@print{&#42;}}
+\renewcommand{\ast}{\@entity{lowast}}
+\renewcommand{\star}{\@print{&#8902;}}
 \newcommand{\circ}{\@print{&#8728;}}
-\newcommand{\@bullet}{\@print{&#8729;}}
+\newcommand{\bullet}{\@print{&#8226;}}
 \renewcommand{\cdot}{\@entity{sdot}}
 \newcommand{\cap}{\@entity{cap}}
 \newcommand{\cup}{\@entity{cup}}
-\newcommand{\uplus}{\@print{&#8844;}}
+\newcommand{\uplus}{\@print{&#8846;}}
 \newcommand{\sqcap}{\@print{&#8851;}}
 \newcommand{\sqcup}{\@print{&#8852;}}
 \newcommand{\vee}{\@entity{or}}
 \newcommand{\wedge}{\@entity{and}}
-%\newcommand{\setminus}{\@print{&#8725;}}
+\renewcommand{\setminus}{\@print{&#92;}}
 \newcommand{\wr}{\@print{&#8768;}}
-\newcommand{\diamond}{\@entity{loz}}
-\newcommand{\bigtriangleup}{\@print{&#9651;}}
-\newcommand{\bigtriangledown}{\@print{&#9661;}}
-%\newcommand{\triangleleft}{\@entity{triangleleft}}
-\newcommand{\triangleright}{\@entity{triangleright}}
-%\newcommand{\lhd}{\@entity{LeftTriangle}}
-%\newcommand{\rhd}{\@entity{RightTriangle}}
+\newcommand{\diamond}{\@print{&#9671;}}
+\newcommand{\bigtriangleup}{\@print{<BIG>&#9651;</BIG>}}
+\newcommand{\bigtriangledown}{\@print{<BIG>&#9661;</BIG>}}
+\newcommand{\triangleleft}{\@print{&#9665;}}
+\newcommand{\triangleright}{\@print{&#9655;}}
+%\newcommand{\lhd}{\@print{&#9665;}}
+%\newcommand{\rhd}{\@print{&#9655;}}
 %\newcommand{\unlhd}{\@entity{LeftTriangleEqual}}
 %\newcommand{\unrhd}{\@entity{RightTriangleEqual}}
 \newcommand{\oplus}{\@entity{oplus}}
-%\newcommand{\ominus}{\@entity{CircleMinus}}
+\newcommand{\ominus}{\@print{&#8854;}}
 \newcommand{\otimes}{\@entity{otimes}}
-%\newcommand{\oslash}{\@entity{oslash}}
-\newcommand{\odot}{\@entity{circ}}
-\renewcommand{\bigcirc}{\@entity{bigcirc}}
-\newcommand{\dagger}{\@entity{dagger}}
-\newcommand{\ddagger}{\@entity{Dagger}}
-%\newcommand{\amalg}{\@entity{amalg}}
+\newcommand{\oslash}{\@print{&#8856;}}
+\newcommand{\odot}{\@print{&#8857;}}   	
+\renewcommand{\bigcirc}{\@print{&#9711;}}
+\newcommand{\dagger}{\@print{<SMALL>&#8224;</SMALL>}}  % better but bold
+\newcommand{\ddagger}{\@print{<SMALL>&#8225;</SMALL>}} % better but bold
+\newcommand{\amalg}{\@print{<SMALL>&#1062;</SMALL>}}   % EVENTUALLY 10815
 
-% Relation Symbols
+% Relation Symbols (Table 8.5 of 'Goos-Mitt-Sam')
 
-\newcommand{\leq}{\@entity{le}}
-\newcommand{\prec}{\@print{&#8826;}}
-\newcommand{\preceq}{\@print{&#8828;}}
-\newcommand{\subset}{\@entity{sub}}
-\newcommand{\subseteq}{\@entity{sube}}
-\newcommand{\sqsubset}{\@print{&#8847;}}
-\newcommand{\sqsubseteq}{\@print{&#8849;}}
-\newcommand{\in}{\@entity{isin}}
-\renewcommand{\vdash}{\@print{&#8866;}}
-\newcommand{\geq}{\@entity{ge}}
-\newcommand{\succ}{\@print{&#8827;}}
-\newcommand{\supset}{\@entity{sup}}
-\newcommand{\supseteq}{\@entity{supe}}
-\newcommand{\sqsupset}{\@print{&#8847;}}
-\newcommand{\sqsupseteq}{\@print{&#8849;}}
-\newcommand{\ni}{\@entity{ni}}
-\renewcommand{\dashv}{\@print{&#8867;}}
+\newcommand{\leq}{\@print{&#8804;}}     %{\@entity{le}} 
+\renewcommand{\le}{\@print{&#8804;}}
+\newcommand{\geq}{\@print{&#8805;}}	%entity{ge}}
+\renewcommand{\ge}{\@print{&#8805;}}
 \newcommand{\equiv}{\@entity{equiv}}
-\renewcommand{\sim}{\@entity{sim}}
-\renewcommand{\simeq}{\@print{&#8771;}}
-\newcommand{\asymp}{\@print{&#8781;}}
-\newcommand{\approx}{\@entity{asymp}}
-\newcommand{\cong}{\@entity{cong}}
-\newcommand{\neq}{\@print{&#8800;}}
-\newcommand{\doteq}{\@print{#8784;}}
-\newcommand{\notin}{\@entity{notin}}
 \renewcommand{\models}{\@print{&#8872;}}
+\newcommand{\prec}{\@print{&#8826;}}
+\newcommand{\succ}{\@print{&#8827;}}
+\renewcommand{\sim}{\@entity{sim}}
 \newcommand{\perp}{\bot}
+\newcommand{\preceq}{\@print{&#8828;}}
+\newcommand{\succeq}{\@print{&#8829;}}
+\renewcommand{\simeq}{\@print{&#8771;}}
 \renewcommand{\mid}{\@print{&#8739;}}
-\newcommand{\parallel}{\@entity{parallel}}
-\newcommand{\bowtie}{\@entity{bowtie}}
-%\newcommand{\Join}{\@entity{}}
-\newcommand{\smile}{\@entity{smile}}
-\newcommand{\frown}{\@entity{frown}}
-\newcommand{\propto}{\@entity{Proportional}}
+\renewcommand{\ll}{\@print{&#8810;}}
+\renewcommand{\gg}{\@print{&#8811;}}
+\newcommand{\asymp}{\@print{&#8781;}}
+\newcommand{\parallel}{\@print{&#8741;}}
+\newcommand{\subset}{\@entity{sub}}
+\newcommand{\supset}{\@entity{sup}}
+\newcommand{\approx}{\@print{&#8776;}}
+\newcommand{\bowtie}{\@print{&#8904;}}
+\newcommand{\subseteq}{\@entity{sube}}
+\newcommand{\supseteq}{\@entity{supe}}
+\newcommand{\cong}{\@entity{cong}}
+\newcommand{\Join}{\@print{&#8904;}}
+\newcommand{\sqsubset}{\@print{&#8847;}}
+\newcommand{\sqsupset}{\@print{&#8847;}}
+\newcommand{\neq}{\@print{&#8800;}}
+\newcommand{\smile}{\@print{&#8255;}}
+\newcommand{\sqsubseteq}{\@print{&#8849;}}
+\newcommand{\sqsupseteq}{\@print{&#8849;}}
+\newcommand{\doteq}{\@print{&#8784;}}
+\newcommand{\frown}{\@print{&#8256;}}
+\newcommand{\in}{\@entity{isin}}
+\newcommand{\ni}{\@entity{ni}}
+\newcommand{\propto}{\@print{&#8733;}}
+\renewcommand{\vdash}{\@print{&#8866;}}
+\renewcommand{\dashv}{\@print{&#8867;}}
+\newcommand{\notin}{\@print{&#8713;}}
 
-% Arrow Symbols
+% Arrow Symbols (Table 8.6 of 'Goos-Mitt-Sam')
 
 \newcommand{\leftarrow}{\@entity{larr}}
 \newcommand{\Leftarrow}{\@entity{lArr}}
@@ -139,17 +144,17 @@
 \newcommand{\leftrightarrow}{\@print{&#8596;}}
 \newcommand{\Leftrightarrow}{\@print{&#8660;}}
 \renewcommand{\mapsto}{\@print{&#8614;}}
-\newcommand{\hookleftarrow}{\@print{&#8618;}}
+\newcommand{\hookleftarrow}{\@print{&#8617;}}
 \newcommand{\leftharpoonup}{\@print{&#8636;}}
 \newcommand{\leftharpoondown}{\@print{&#8637;}}
 \newcommand{\rightleftharpoons}{\@print{&#8652;}}
-\newcommand{\longleftarrow}{\leftarrow\@entity{mdash}}
-\newcommand{\Longleftarrow}{\@print{&#57856;}}
-\newcommand{\longrightarrow}{\@entity{mdash}\rightarrow}
-\newcommand{\Longrightarrow}{\@print{&#57860;}}
-\newcommand{\longleftrightarrow}{\leftarrow\rightarrow}
-\newcommand{\Longleftrightarrow}{\@print{&#57856;}}
-\newcommand{\longmapsto}{\@print{&#57864;}}
+\newcommand{\longleftarrow}{\leftarrow\@entity{mdash}} 	% EVENTUALY 10229
+\newcommand{\Longleftarrow}{\Leftarrow}			% EVENTUALY 10232
+\newcommand{\longrightarrow}{\@entity{mdash}\rightarrow}% EVENTUALY 10230
+\newcommand{\Longrightarrow}{\Rightarrow}		% EVENTUALY 10233
+\newcommand{\longleftrightarrow}{\leftarrow\rightarrow} % EVENTUALY 10231
+\newcommand{\Longleftrightarrow}{\Leftarrow\Rightarrow} % EVENTUALY 10234
+\newcommand{\longmapsto}{\vdash\rightarrow}		% EVENTUALY 10236
 \newcommand{\hookrightarrow}{\@print{&#8618;}}
 \newcommand{\rightharpoonup}{\@print{&#8640;}}
 \newcommand{\rightharpoondown}{\@print{&#8641;}}
@@ -160,72 +165,82 @@
 \newcommand{\Downarrow}{\@print{&#8659;}}
 \newcommand{\updownarrow}{\@print{&#8597;}}
 \newcommand{\Updownarrow}{\@print{&#8661;}}
-\newcommand{\@displayUpdownarrow}{\mbox{\@print{&#8657;}\@br\@print{&#8659;}}}
+%\newcommand{\@displayUpdownarrow}{\mbox{\@print{&#8657;}\@br\@print{&#8659;}}}
 \newcommand{\nearrow}{\@print{&#8598;}}
 \newcommand{\searrow}{\@print{&#8600;}}
 \newcommand{\swarrow}{\@print{&#8601;}}
 \newcommand{\nwarrow}{\@print{&#8598;}}
-\renewcommand{\longleftarrow}{\@print{&#10229;}}
-\renewcommand{\Longleftarrow}{\@print{&#10232;}}
-\renewcommand{\longrightarrow}{\@print{&#10230;}}
-\renewcommand{\Longrightarrow}{\@print{&#10233;}}
-\renewcommand{\longleftrightarrow}{\@print{&#10231;}}
-\renewcommand{\Longleftrightarrow}{\@print{&#10234;}}
-\renewcommand{\longmapsto}{\@print{&#10236;}}
 
-% Miscellaneous symbols
+%%%
+%%%Eventually these commands would be activated
+%%%
+%\renewcommand{\longleftarrow}{\@print{&#10229;}}
+%\renewcommand{\Longleftarrow}{\@print{&#10232;}}
+%\renewcommand{\longrightarrow}{\@print{&#10230;}}
+%\renewcommand{\Longrightarrow}{\@print{&#10233;}}
+%\renewcommand{\longleftrightarrow}{\@print{&#10231;}}
+%\renewcommand{\Longleftrightarrow}{\@print{&#10234;}}
+%\renewcommand{\longmapsto}{\@print{&#10236;}}
+
+% Miscellaneous symbols (Table 8.7 of 'Goos-Mitt-Sam')
 
 \newcommand{\aleph}{\@print{&#8501;}}
-\newcommand{\hbar}{\@print{&#0295;}}
-\newcommand{\imath}{\@entity{imath}}
-\newcommand{\jmath}{\@entity{jmath}}
-\newcommand{\ell}{\@print{&#8467}}
-\newcommand{\wp}{\@entity{weierp}}
-\newcommand{\Re}{\@print{&#8476;}}
-\newcommand{\Im}{\@entity{image}}
-%\newcommand{\mho}{\@entity{mho}}
 \newcommand{\prime}{\@entity{prime}}
+\newcommand{\forall}{\@entity{forall}}
+\newcommand{\infty}{\@entity{infin}}
+\newcommand{\hbar}{\@print{&#8463;}}
+\renewcommand{\emptyset}{\@print{&#216;}}
+\newcommand{\exists}{\@entity{exist}}
 \newcommand{\nabla}{\@entity{nabla}}
 \newcommand{\surd}{\@entity{radic}}
-\newcommand{\top}{\@entity{top}}
+\newcommand{\triangle}{\@print{&#9651;}}
+\newcommand{\imath}{\@print{<I>&#953;</I>}}
+\newcommand{\jmath}{\@print{<I><SMALL>j</SMALL></I>}} %????
+\newcommand{\ell}{\@print{&#8467}}
+\renewcommand{\neg}{\@entity{not}}
+\newcommand{\top}{\@print{&#8868;}}
+\newcommand{\flat}{\@print{<SMALL>b</SMALL>}}   % EVENTUALLY
+\newcommand{\natural}{\@print{&#35;}} 		% EVENTUALLY
+\newcommand{\sharp}{\@print{&#35;}}		% EVENTUALLY
+\newcommand{\wp}{\@entity{weierp}}
 \renewcommand{\bot}{\@entity{perp}}
-%\newcommand{\|}{\@entity{DoubleVerticalBar}}
-\newcommand{\angle}{\@entity{lang}}
-\newcommand{\forall}{\@entity{forall}}
-\newcommand{\exists}{\@entity{exist}}
-%latin1\newcommand{\neg}{\@entity{not}}
-\newcommand{\flat}{\@entity{flat}}
-\newcommand{\natural}{\@entity{natural}}
-\newcommand{\sharp}{\@entity{sharp}}
-%latin1\newcommand{\backslash}{\@entity{Backslash}}
-\newcommand{\partial}{\@entity{part}}
-\newcommand{\infty}{\@entity{infin}}
-\newcommand{\Box}{\@entity{square}}
-\newcommand{\Diamond}{\@entity{loz}}
-\newcommand{\triangle}{\@entity{triangle}}
 \newcommand{\clubsuit}{\@entity{clubs}}
 \newcommand{\diamondsuit}{\@entity{diams}}
 \newcommand{\heartsuit}{\@entity{hearts}}
 \newcommand{\spadesuit}{\@entity{spades}}
-
+\newcommand{\Re}{\@print{&#8476;}}
+\newcommand{\Im}{\@entity{image}}
+\newcommand{\angle}{\@print{&#8736;}}
+\newcommand{\partial}{\@entity{part}}
+%
+%\newcommand{\square}{\@print{&#9723;}}
+%\newcommand{\Box}{\@print{&#9723;}}
+%\newcommand{\Diamond}{\@entity{loz}}
+%\newcommand{\mho}{\@print{&#8487;}}
+%
 %%% Delimiters
-
+%
 \newcommand{\lfloor}{\@entity{lfloor}}
 \newcommand{\rfloor}{\@entity{rfloor}}
 \newcommand{\lceil}{\@entity{lceil}}
 \newcommand{\rceil}{\@entity{rceil}}
 \newcommand{\langle}{\@entity{lang}}
 \newcommand{\rangle}{\@entity{rang}}
-
+\renewcommand{\|}{\@print{&#8741;}}
+\renewcommand{\backslash}{\@print{&#92;}}
+%
 %% Variable-sized Symbols
-
-\newcommand{\@sum}{\@entity{sum}}
-\newcommand{\@prod}{\@entity{prod}}
-\newcommand{\@coprod}{\@entity{coproduct}}
+%
+\newcommand{\@sum}{\@entity{Sigma}}
+\newcommand{\@prod}{\@entity{Pi}}
+\newcommand{\@coprod}{\@print{&#1062;}}
 \newcommand{\@int}{\@entity{int}}
-\newcommand{\@displayint}{\mbox{\Huge\@entity{int}}}
-\newcommand{\@displaysum}{\mbox{\Huge\@entity{sum}}}
-\newcommand{\@oint}{\@entity{oint}}
+\newcommand{\@oint}{\@print{&#8750;}}
+\newcommand{\@displayint}{\mbox{\large\@entity{int}}}
+\newcommand{\@displaysum}{\mbox{\large\@entity{Sigma}}}
+\newcommand{\@displayprod}{\mbox{\large\@entity{Pi}}}
+\newcommand{\@displaycoprod}{\mbox{\large\@print{&#1062;}}}
+\newcommand{\@displayoint}{\mbox{\large\@print{&#8750;}}}
 %
 %%%Additional
 %
@@ -238,3 +253,5 @@
 \let\mathtt\@mathtt
 \newcommand{\mathit}[1]{\@open{I}{}#1\@close{I}}
 %
+\def\bigl#1{\ifdisplay{\Large #1}\else{\large #1}\fi}
+\def\bigr#1{\ifdisplay{\Large #1}\else{\large #1}\fi}

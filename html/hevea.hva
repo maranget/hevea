@@ -167,19 +167,19 @@
 \fi
 %% Maths fonts
 %%%%%%%%%%%
-\def\bullet{{\@incsize{1}\@bullet}}
+%\def\bullet{{\@incsize{1}\@bullet}}
 \def\textsqsubset{\mbox{sqsubset}}
-\def\sqsubset{%
-\ifdisplay\@itemdisplay\@sqsubset\@itemdisplay\else
-\textsqsubset\fi}
+%\def\sqsubset{%
+%\ifdisplay\@itemdisplay\@sqsubset\@itemdisplay\else
+%\textsqsubset\fi}
 \def\textsqsupset{\mbox{sqsupset}}
-\def\sqsupset{%
-\ifdisplay\@itemdisplay\@sqsupset\@itemdisplay\else
-\textsqsupset\fi}
+%\def\sqsupset{%
+%\ifdisplay\@itemdisplay\@sqsupset\@itemdisplay\else
+%\textsqsupset\fi}
 \def\textdoteq{=^{\cdot}}
-\def\doteq{%
-\ifdisplay\@itemdisplay\@print{<FONT SIZE=7>·</FONT><BR>}=\@itemdisplay\else
-\textdoteq\fi}
+%\def\doteq{%
+%\ifdisplay\@itemdisplay\@print{<FONT SIZE=7>·</FONT><BR>}=\@itemdisplay\else
+%\textdoteq\fi}
 \ifmathml
 \input{html/symb-mathml.hva}
 \fi
