@@ -1,4 +1,5 @@
 version 1.02-1
+  - the tabbing environment now works as specified.
   - small bug corrected: spaces after \begin{verbatim} were eaten.
   - _\cmd and ^\cmd are now recognized
   - \hspace and \vspace now interpret simple length arguments. (added a length.mll file)

@@ -17,7 +17,7 @@ open Latexmacros
 open Html
 open Save
 
-let header = "$Id: latexscan.mll,v 1.39 1998-09-03 15:26:36 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.40 1998-09-04 09:46:08 maranget Exp $" 
 
 let push s e = s := e:: !s
 and pop s = match !s with
@@ -1291,7 +1291,7 @@ rule  main = parse
  |  [' ''\n']* "\\kill"  [' ''\n']*
     {if is_tabbing !in_table then begin
       Html.force_block "TD" "&nbsp;";
-      Html.close_block "TR" ;
+      Html.erase_block "TR" ;
       Html.open_block "TR" "" ;
       Html.open_block "TD" ""
     end ;
