@@ -1,3 +1,4 @@
+version 1.07+2
 version 1.07+1
    - Add lineranges in listings + cleaning showlines
    - Start using style-sheets
