@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.55 2001-11-15 17:06:40 maranget Exp $"
+let header = "$Id: text.ml,v 1.56 2001-11-20 13:54:34 maranget Exp $"
 
 
 open Misc
@@ -1293,6 +1293,7 @@ let new_row () =
   !table.line <- !table.line +1;
   if !table.line = 1 && (( Array.length !table.tailles)=0) then begin
     !table.tailles<-Table.trim !table.taille;
+    Printf.eprintf "SET %a\n" ptailles !table ;
   end ;
   let _ =match !row.cells with
   | Tabl t -> Table.reset t
@@ -1490,6 +1491,7 @@ let erase_cell () =
 let erase_row () =
   if !verbose > 2 then prerr_endline "erase_row" ;
   !table.line <- !table.line -1
+
 and close_row erase =
   if !verbose>2 then prerr_endline "close_row";
   Table.emit !table.table
@@ -1576,6 +1578,8 @@ let put_ligne texte pos align width taille wrap=
   let t,post= 
     if wrap=Wtrue then String.length s,0
     else width,width - String.length s in
+  Printf.eprintf "taille=%d, t=%d, post=%d\n" taille t post ;
+  flush stderr ;
   let ligne = match align with
   | Left -> String.concat "" 
 	[s; String.make (taille-t+post) ' ']

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.217 2001-11-02 09:54:08 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.218 2001-11-20 13:54:33 maranget Exp $ *)
 
 
 {
@@ -2827,6 +2827,7 @@ def_code "\\=" do_tabul
 
 def_code "\\kill"
   (fun lexbuf ->
+    prerr_endline "KILL" ;
     if is_tabbing !in_table then begin
       do_unskip () ;
       Dest.close_cell "";
@@ -2861,6 +2862,7 @@ let get_table_attributes border len =
   
 
 let open_tabbing lexbuf =
+  prerr_endline "OPEN TABBING";
   let lexbuf = Lexstate.previous_lexbuf in
   let lexfun lb =
     Dest.open_table false "border=0 cellspacing=0 cellpadding=0" ;
