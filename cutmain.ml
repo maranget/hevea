@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: cutmain.ml,v 1.18 2002-02-04 19:32:35 maranget Exp $" 
+let header = "$Id: cutmain.ml,v 1.19 2003-02-13 14:51:00 maranget Exp $" 
 
 exception Error of string
 ;;
@@ -24,13 +24,15 @@ let log = ref false
 let main () =
   Arg.parse
     [("-o", Arg.String (fun s -> outname := s),
-       "filename, make htmlcut output go into file ``filename'' (defaults to index.html)");
+       "filename, make hacha output go into file ``filename'' (defaults to index.html)");
      ("-francais", Arg.Unit (fun () -> Cut.language := "fra"),
        ", French mode");      
      ("-tocbis", Arg.Unit (fun () -> Cut.toc_style := Cut.Both),
        ", duplicate table of contents at the begining of files");      
      ("-tocter", Arg.Unit (fun () -> Cut.toc_style := Cut.Special),
-       ", Insert most of table of contents at the beginning of files");      
+       ", Insert most of table of contents at the beginning of files");
+     ("-nolinks", Arg.Unit (fun () -> Cut.cross_links := false),
+       ", Suppress the prevous/up/next links in generated pages");
      ("-hrf", Arg.Unit (fun () -> log := true),
         ", output a log file showing the association from local anchors to files"); 
      ("-v", Arg.Unit (fun () -> incr Cut.verbose),
@@ -66,7 +68,8 @@ let copy_gifs () =
 
 let _ = try
   main () ;
-  copy_gifs ()
+  if !Cut.some_links then
+    copy_gifs ()
 with
 | Error s  ->
     prerr_endline s ;

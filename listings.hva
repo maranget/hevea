@@ -466,7 +466,7 @@ breakindent,breakautoindent}
 \define@key{lst}{post}{\def\lst@post{#1}}
 %%%%% Column allignement None !
 \lst@iter{\ignore@key}
-  {columns,flexiblecolumns,keepspaces,basewidth,fontadjust}
+  {columns,flexiblecolumns,keepspaces,basewidth,fontadjust,aboveskip,belowskip,lineskip}
 %%%%%%% User interface
 \newcommand{\lstinputlisting}[2][]
   {\@scaninput{\begin{lstlisting}[#1]{}

@@ -1,4 +1,8 @@
 version 1.06+1
+   - Bug in text manager : incorrect behavior \centering-like declarations.
+     Solution make the align flags systematically stacked
+   - Add a command-line flag to hacha
+        -nolinks -> suppress Previous/Up/Next links
    - Small hacha bug : replicate \htmlfoot argument in index.html file
      even when hevea generated footer is absent.
    - New \@charset command and xxcharset.exe script, to control

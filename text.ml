@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.57 2002-01-04 18:41:21 maranget Exp $"
+let header = "$Id: text.ml,v 1.58 2003-02-13 14:51:01 maranget Exp $"
 
 
 open Misc
@@ -765,6 +765,9 @@ let try_open_block s args =
     (flags.hsize,flags.x,flags.x_start,flags.x_end,
     flags.first_line,flags.last_space);
 
+  push stacks.s_align flags.align;
+  push stacks.s_in_align flags.in_align;
+
   if is_list s then begin
     do_put_char '\n';
     push stacks.s_nitems flags.nitems;
@@ -774,7 +777,6 @@ let try_open_block s args =
     flags.hsize <- flags.x_end - flags.x_start+1;
     
     if not flags.in_align then begin
-      push stacks.s_align flags.align;
       flags.align <- Left
     end;
     if s="DL" then begin
@@ -783,12 +785,10 @@ let try_open_block s args =
       flags.dt <- "";
       flags.dcount <- "";
     end;
-  end else match s with
+  end else begin match s with
   | "ALIGN" ->
       begin
 	finit_ligne ();	
-	push stacks.s_align flags.align;
-	push stacks.s_in_align flags.in_align;
 	flags.in_align<-true;
 	flags.first_line <-2;
 	match args with
@@ -807,8 +807,6 @@ let try_open_block s args =
   | "QUOTE" ->
       begin
 	finit_ligne ();
-	push stacks.s_align flags.align;
-	push stacks.s_in_align flags.in_align;
 	flags.in_align<-true;
 	flags.align <- Left;
 	flags.first_line<-0;
@@ -818,8 +816,6 @@ let try_open_block s args =
   | "QUOTATION" ->
       begin
 	finit_ligne ();
-	push stacks.s_align flags.align;
-	push stacks.s_in_align flags.in_align;
 	flags.in_align<-true;
 	flags.align <- Left;
 	flags.first_line<-2;
@@ -840,7 +836,8 @@ let try_open_block s args =
       flags.nocount <- true ;
       flags.first_line <-0 ;
       finit_ligne ()
-  | _ -> ();
+  | _ -> ()
+  end ;
 
   if !verbose > 2 then
     prerr_endline ("<= try_open ``"^s^"''")
@@ -853,40 +850,32 @@ let try_close_block s =
   flags.x_end<-xe;
   flags.first_line <-fl;
 
-
   if (is_list s) then begin
     finit_ligne();
-    if not flags.in_align then begin
-      let a = pop stacks.s_align in
-      flags.align <- a
-    end;
     flags.nitems <- pop  stacks.s_nitems;
     if s="DL" then begin
       flags.dt <- pop stacks.s_dt;
-      flags.dcount <- pop stacks.s_dcount;
-    end;
-  end else match s with
+      flags.dcount <- pop stacks.s_dcount
+    end
+  end else begin match s with
   | "ALIGN" | "QUOTE" | "QUOTATION" ->
-      begin
-	finit_ligne ();
-	let a = pop stacks.s_align in
-	flags.align <- a;
-	let ia = pop  stacks.s_in_align in
-	flags.in_align <- ia;
-      end
+	finit_ligne ()
   | "HEAD" ->
-      begin
-	finit_ligne();
-	let u = pop stacks.s_underline in
-	flags.underline <- u
-      end
+      finit_ligne();
+      let u = pop stacks.s_underline in
+      flags.underline <- u
   | "PRE" ->
       flags.first_line <-0;
       do_put ">>\n";
-      flags.first_line <-fl;
+      flags.first_line <-fl
   | "INFO"|"INFOLINE"->
       flags.nocount <- pop stacks.s_nocount
   | _ -> ()
+  end ;
+  let a = pop stacks.s_align in
+  flags.align <- a;
+  let ia = pop  stacks.s_in_align in
+  flags.in_align <- ia
 ;;
 
 let open_block s args =
@@ -945,14 +934,11 @@ let close_block s =
 
 
 
-let insert_block tag arg = 
-  if tag = "ALIGN" then begin
-    match arg with
-      "LEFT" -> flags.align <- Left
-    | "CENTER" -> flags.align <- Center
-    | "RIGHT" -> flags.align <- Right
-    | _ -> raise (Misc.ScanError "Invalid argument in ALIGN");
-  end;
+let insert_block tag arg =  match arg with
+| "LEFT" -> flags.align <- Left
+| "CENTER" -> flags.align <- Center
+| "RIGHT" -> flags.align <- Right
+| _ -> raise (Misc.ScanError "Invalid argument in ALIGN");
 
 and insert_attr _ _ = ()
 ;;

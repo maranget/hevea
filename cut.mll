@@ -12,7 +12,7 @@
 {
 open Lexing
 open Stack
-let header = "$Id: cut.mll,v 1.39 2002-11-18 15:03:03 maranget Exp $" 
+let header = "$Id: cut.mll,v 1.40 2003-02-13 14:51:00 maranget Exp $" 
 
 let verbose = ref 0
 
@@ -21,6 +21,9 @@ let language = ref "eng"
 type toc_style = Normal | Both | Special
 
 let toc_style = ref Normal
+
+let cross_links = ref true
+and some_links = ref false
 
 exception Error of string
 
@@ -162,7 +165,7 @@ let putlinks  name =
   begin try
     putlink link_buff (Thread.prev name) "previous_motif.gif" 
       (if !language = "fra" then "Précédent"
-       else "Previous") ;
+      else "Previous") ;
     links_there := true
   with Not_found ->
     if !verbose > 0 then
@@ -171,13 +174,13 @@ let putlinks  name =
   begin try
     putlink link_buff (Thread.up name) "contents_motif.gif" 
       (if !language = "fra" then "Remonter"
-       else "Up") ;
+      else "Up") ;
     links_there := true
   with Not_found -> () end ;
   begin try
     putlink link_buff (Thread.next name) "next_motif.gif" 
       (if !language = "fra" then "Suivant"
-       else "Next") ;
+      else "Next") ;
     links_there := true
   with Not_found -> () end ;
   if !links_there then
@@ -185,17 +188,23 @@ let putlinks  name =
   else
     None
 
-let putlinks_start out outname = match putlinks outname with
-| Some s -> 
-    Out.put out s ;
-    Out.put out "<HR>\n"
-| None -> ()
+let putlinks_start out outname =
+  if !cross_links then
+    match putlinks outname with
+    | Some s -> 
+        some_links := true ;
+        Out.put out s ;
+        Out.put out "<HR>\n"
+    | None -> ()
 
-let putlinks_end out outname = match putlinks outname with
-| Some s -> 
-    Out.put out "<HR>\n" ;
-    Out.put out s
-| None -> ()
+let putlinks_end out outname =
+  if !cross_links then
+    match putlinks outname with
+    | Some s -> 
+        some_links := true ;
+        Out.put out "<HR>\n" ;
+        Out.put out s
+    | None -> ()
   
 
 let openhtml withlinks title out outname =
