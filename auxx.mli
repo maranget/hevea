@@ -13,10 +13,13 @@ val rset : string -> string -> unit
 val rget : string -> string
 val bset : string -> string -> unit
 val bget : bool -> string -> string
-val init : string -> unit
+val final : string -> unit
 val finalize : bool -> bool
 val bwrite : string -> string -> unit
 val rwrite : string -> string -> unit
+val swrite : string -> unit
+
+val addtoc : string -> string -> int -> string -> string -> unit
 
 val hot_start : unit -> unit
 

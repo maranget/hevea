@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: cross.ml,v 1.10 2000-03-28 13:52:53 maranget Exp $" 
+let header = "$Id: cross.ml,v 1.11 2001-10-19 18:35:45 maranget Exp $" 
 let verbose = ref 0
 ;;
 
@@ -52,4 +52,20 @@ let change oldname name =
     (fun k x -> if !x = oldname then x := name)
     table
 
-    
+let dump outname =
+  try
+    let chan = open_out outname in
+    try
+      Hashtbl.iter
+        (fun k x -> Printf.fprintf chan "%s\t%s\n" k !x)
+        table ;
+      close_out chan
+    with
+    | e -> close_out chan ; raise e
+  with
+  | Sys_error msg ->
+      prerr_endline ("Error while dumping "^outname^": "^msg)
+      
+        
+
+

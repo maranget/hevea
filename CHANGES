@@ -1,5 +1,8 @@
 version 1.06-7
-  - Added a ``ppmquant 256'' step in imagen filters
+  - Table of contents a` la LaTeX.
+  - new ``-hrf'' option for hacha
+  - PNG managment in hevea/imagen
+  - Added a ``-quant'' option to imagen
   - Changed ``\@getprint'' to interpret characters Cleaned a few bad usages of ``\@getprint''
   - Added ``\hyperref'' with optional argument.
   - Added underscore package

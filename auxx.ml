@@ -11,7 +11,7 @@
 
 open Misc
 
-let header = "$Id: auxx.ml,v 1.14 2001-05-25 09:07:06 maranget Exp $" 
+let header = "$Id: auxx.ml,v 1.15 2001-10-19 18:35:44 maranget Exp $" 
 
 let rtable = Hashtbl.create 17
 ;;
@@ -53,18 +53,9 @@ let rseen = Hashtbl.create 17
 and bseen = Hashtbl.create 17
 ;;
 
-let init base =
-  let filename = base^".haux" in
-  try
-    let file = open_out filename in
-    auxname := filename ;
-    auxfile := Some file
-  with Sys_error s ->
-    warning ("Cannot open out file: "^filename^" : "^s)
-
 (* result is true when another run is needed *)
 
-and finalize check =
+let finalize check =
   match !auxfile with
   | None -> false
   | Some file ->
@@ -128,7 +119,12 @@ let rcheck key =
       Hashtbl.add rseen key () ;
       true
 
-
+let swrite msg = match !auxfile with
+| None -> ()
+| Some file ->
+    something := true ;
+    output_string file msg
+  
 let bwrite key pretty =
   if bcheck key then
     write  btable
@@ -149,6 +145,71 @@ and rwrite key pretty =
         output_string file pretty ;
         output_string file "}{X}}\n") key pretty
 ;;
+
+type toc_t = {mutable level : int ; mutable depth : int ; chan : out_channel}
+
+let toctable = Hashtbl.create 5
+;;
+
+
+let rec addtoc suf anchor level number title = 
+  try
+    try
+      let toc = Hashtbl.find toctable suf in
+
+      (* First adjust nesting of tocenv *)
+      if level > toc.level then begin
+        for i = toc.level to level-1 do
+          output_string toc.chan "\\begin{tocenv}\n"
+        done ;
+        toc.depth <- toc.depth + level - toc.level ;
+        toc.level <- level
+      end else if level < toc.level then begin
+        let nclose = min toc.depth (toc.level - level) in
+        for i = 1 to nclose do
+          output_string toc.chan "\\end{tocenv}\n"
+        done ;
+        toc.depth <- toc.depth - nclose ;
+        if toc.depth=0 then begin
+          output_string toc.chan "\\begin{tocenv}\n" ;
+          toc.depth <- 1 ;          
+        end ;
+        toc.level <- level
+      end ;
+
+      (* Then ouput toc item *)
+      Printf.fprintf toc.chan
+        "\\tocitem \\@locref{%s%s}{\\begin{@norefs}%s%s\\end{@norefs}}\n"
+        suf anchor number title
+    with
+    | Not_found ->
+        let name = Parse_opts.base_out^"."^suf in
+        let chan = open_out name in
+        output_string chan "\\begin{tocenv}\n" ;
+        Hashtbl.add toctable suf {level=level ; depth=1 ; chan=chan} ;
+        addtoc suf anchor level number title
+  with
+  | Sys_error msg ->
+      Misc.warning
+        ("Problem with toc file "^Parse_opts.base_out^"."^suf^": "^msg)
+
+let final base =
+  Hashtbl.iter
+    (fun suf toc ->
+      for i=1 to toc.depth do
+        output_string toc.chan "\\end{tocenv}\n" ;
+      done ;
+      close_out toc.chan) 
+    toctable ;
+  Hashtbl.clear toctable ;
+  let filename = base^".haux" in
+  try
+    let file = open_out filename in
+    auxname := filename ;
+    auxfile := Some file
+  with Sys_error s ->
+    warning ("Cannot open out file: "^filename^" : "^s)
+
 
 type saved =
 (string, string) Hashtbl.t * (string, unit) Hashtbl.t *

@@ -102,7 +102,6 @@
 \def\pagestyle#1{}
 \def\thispagestyle#1{}
 %%% No table of contents, no a lot of things
-\def\tableofcontents{}
 \def\listoffigures{}
 \def\listoftables{}
 \def\contentsname{}
@@ -300,7 +299,7 @@
 \newcommand{\pageref}[1]{\@locref{#1}{??}}
 \let\@input\input%appears inside aux files
 \newcommand{\@readhaux}
-{\@iffileexists{\jobname.haux}{\input{\jobname.haux}}{}\@hauxinit}
+{\@hauxinit\@iffileexists{\jobname.haux}{\input{\jobname.haux}}{}\@hauxfinal}
 \newcommand{\@readaux}{\input{\@basein.aux}}
 \AtBeginDocument
 {\@sawdocumenttrue\@stopoutput\@stopimage%
@@ -358,28 +357,40 @@
   {\@refsfalse\renewcommand{\label}[2][]{}\renewcommand{\ref}[1]{\@auxread{##1}}}
   {}
 \newcounter{secnumdepth}\setcounter{secnumdepth}{3}%
+\newcounter{tocdepth}\setcounter{tocdepth}{2}%
 \newcommand{\checkdepth}[2]{\ifthenelse{\value{secnumdepth} > #1}{#2}{}}%
+\newcommand{\checktocdepth}[2]{\ifthenelse{\value{tocdepth} > #1}{#2}{}}%
+\newcommand{\alttocdepth}[3]{\ifthenelse{\value{tocdepth} > #1}{#2}{#3}}%
 %% Putting (or not putting) section numbers in table of content
 \newcommand{\@addsecnumber@yes}[3]{\checkdepth{#1}{#2\quad}#3}
 \newcommand{\@addsecnumber@no}[3]{#3}
 \newcommand{\tocnumber}{\let\@addsecnumber\@addsecnumber@yes}
 \newcommand{\notocnumber}{\let\@addsecnumber\@addsecnumber@no}
 \notocnumber
+\newcounter{tocanchor}
+\newcommand{\@doaddtoc}[3]
+{\stepcounter{tocanchor}%
+\@auxdowrite{\@print{\@addtocsec{htoc}}\{\thetocanchor\}\{#1\}\{\checkdepth{#1}{\@print{\@print}\{#2\}\@print{\quad{}}}\}\{\@subst{#3}\}\@print{
+}}}
 \newcommand{\@makesection}[7]{%
 \newcommand{#1}[2][]{%
 \checkdepth{#2}{\refstepcounter{#3}}%
+\ifoptarg\checktocdepth{#2}{\@doaddtoc{#2}{#5}{##1}}\else
+\checktocdepth{#2}{\@doaddtoc{#2}{#5}{##2}}\fi
 \ifoptarg\cuthere{#3}{\@addsecnumber{#2}{#5}{##1}}\else
 \cuthere{#3}{\@addsecnumber{#2}{#5}{\begin{@norefs}##2\end{@norefs}}}\fi%
-#4\checkdepth{#2}{#5#6}##2#7\@secend}%
+#4\checkdepth{#2}{\alttocdepth{#2}{\@locname{htoc\thetocanchor}{#5}#6}{#5#6}}##2#7\@secend}%
 \newcommand{#1*}[1]{%
 \cuthere{#3}{##1}%
 #4#6##1#7\@secend}}%
 \newcommand{\remakesection}[7]{%
 \renewcommand{#1}[2][]{%
 \checkdepth{#2}{\refstepcounter{#3}}%
+\ifoptarg\checktocdepth{#2}{\@doaddtoc{#2}{#5}{##1}}\else
+\checktocdepth{#2}{\@doaddtoc{#2}{#5}{##2}}\fi
 \ifoptarg\cuthere{#3}{\@addsecnumber{#2}{#5}{##1}}\else
 \cuthere{#3}{\@addsecnumber{#2}{#5}{\begin{@norefs}##2\end{@norefs}}}\fi%
-#4\checkdepth{#2}{#5#6}##2#7\@secend}%
+#4\checkdepth{#2}{\alttocdepth{#2}{\@locname{htoc\thetocanchor}{#5}#6}{#5#6}}##2#7\@secend}%
 \renewcommand{#1*}[1]{%
 \cuthere{#3}{\begin{@norefs}##1\end{@norefs}}%
 #4#6##1#7\@secend}}%
@@ -450,3 +461,11 @@
 \def\linewidth{@percent}
 \def\textwidth{@percent}
 \def\hsize{@percent}
+%%%%%%%%%%%%%%%%% Toc
+\newenvironment{tocenv}{\begin{itemize}}{\end{itemize}}
+\newcommand{\tocitem}[1][]{\ifoptarg\item[#1]\else\item\fi}
+\newcommand{\tocname}{\iffrench Table des matières\else Table of Contents\fi}
+\newcommand{\@readtoc}[2]
+{\@tocsection{#2}
+\@iffileexists{\jobname.#1}{\input{\jobname.#1}}{\warning{File \jobname.#1 not found}}}
+\newcommand{\tableofcontents}{\@readtoc{htoc}{\tocname}}

@@ -12,16 +12,13 @@
 {
 open Lexing
 open Stack
-let header = "$Id: cut.mll,v 1.32 2001-07-02 16:25:57 maranget Exp $" 
+let header = "$Id: cut.mll,v 1.33 2001-10-19 18:35:46 maranget Exp $" 
 
 let verbose = ref 0
-;;
 
 let language = ref "eng"
-;;
 
 let tocbis = ref false
-;;
 
 exception Error of string
 

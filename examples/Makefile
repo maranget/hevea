@@ -1,5 +1,5 @@
 LATEX=latex
-HEVEA=hevea.opt
+HEVEA=hevea
 HEVEAOPTS=-fix -O -v
 IMAGEN=imagen
 HACHA=hacha

@@ -75,7 +75,10 @@ Information on \hevea{} is available at \ahrefurl{\heveaurl}.
 
 
 \clearpage
+\cutdef{section}
 \tableofcontents
+\cutend
+
 \begin{htmlonly}
 This document consists in three parts, a tutorial introduction, a
 reference manual and some practical information. The latter part
@@ -2969,12 +2972,17 @@ Have a try for this section~\ref{section:section}!
 The \verb+\appendix+ command exists and should work as in \LaTeX.
 
 \subsection{Table of Contents}
-\hevea{} does not generate a table of contents.
-As a consequence, all table of contents
-related commands such as \verb+\tableofcontents+ or
-\verb+\addcontentsline+ do nothing.
+\index{table of contents}
+\hevea{} now generates a table of contents, using a procedure similar
+to the one of \LaTeX
+(a ``\texttt{.htoc}'' file is involved).
+For the moment, what goes into the table of contents is not
+under user control and \verb+\addcontentsline+ is a do-nothing command.
 
-However, a later run of {\hacha} on \hevea{} output file splits it
+
+However, \hevea{} has a more sophisticated way of producing
+a kind of map w.r.t. the sectioning of the document.
+A later run of {\hacha} on \hevea{} output file splits it
 in smaller files organized in a tree whose nodes are tables of
 links.
 By contrast with \LaTeX{}, starred sectioning commands generate
@@ -5096,7 +5104,8 @@ while \hevea{} reference manual is part~\ref{referencemanual}.
 
 \subsection{\hacha{} usage}
 \index{hacha@\texttt{hacha} command}
-The \texttt{hacha} command interprets its argument as the name of
+The \texttt{hacha} command interprets its argument
+\textit{base}\texttt{.html} as the name of
 a \html{} source file to cut into pieces.
 
 It also recognizes the following options:
@@ -5105,6 +5114,11 @@ It also recognizes the following options:
 \item[{\tt -o} {\it filename}] Make \hacha{} output go into file
 \textit{filename} (defaults  to index.html).
 \item[{\tt -tocbis}] Add a small table of contents at every file start.
+\item[{\tt -hrf}] Output a \textit{base}\texttt{.hrf} file, showing
+in which output files are the anchors from the input file gone.
+The format of this summary is one
+``\textit{anchor}\verb+\t+\textit{file}'' line per anchor.
+This information may be needed by other tools.
 \item[{\tt -help}] Print version number and a short help message.
 \end{description}
 
@@ -5304,6 +5318,7 @@ $(DOC).html: macros.hva $(DOC).tex
 
 clean:
         rm -f $(DOC).html index.html $(DOC)[0-9][0-9][0-9].html $(DOC).haux
+        rm -f $(DOC).htoc
         rm -f $(DOC).image.*
         rm -f $(DOC)[0-9][0-9][0-9].gif
 \end{verbatim}
@@ -5529,6 +5544,5 @@ D.~Ragget, A.~Le~Hors and I.~Jacobs.
 
 \end{thebibliography}
 \printindex
-
 \cutend
 \end{document}

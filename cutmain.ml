@@ -9,16 +9,17 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: cutmain.ml,v 1.15 2001-05-25 09:07:08 maranget Exp $" 
+let header = "$Id: cutmain.ml,v 1.16 2001-10-19 18:35:47 maranget Exp $" 
 
 exception Error of string
 ;;
 
 let filename = ref ""
-;;
 
 let outname = ref "index.html"
-;;
+
+let log = ref false
+
   
 let main () =
   Arg.parse
@@ -28,6 +29,8 @@ let main () =
        ", French mode");      
      ("-tocbis", Arg.Unit (fun () -> Cut.tocbis := true),
        ", Add small table of contents at the begining of files");      
+     ("-hrf", Arg.Unit (fun () -> log := true),
+        ", output a log file showing the association from local anchors to files"); 
      ("-v", Arg.Unit (fun () -> incr Cut.verbose),
         ", verbose flag")    ]
      (fun s -> filename := s) ("hacha "^Version.version);
@@ -44,7 +47,8 @@ let main () =
   let buf = Lexing.from_channel chan in
   Location.set !filename buf ;
   Cut.start_phase !outname ;
-  Cut.main buf
+  Cut.main buf ;
+  if !log then Cross.dump (!Cut.name^".hrf")
 ;;
 
 

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.53 2001-01-15 10:55:30 maranget Exp $"
+let header = "$Id: text.ml,v 1.54 2001-10-19 18:36:01 maranget Exp $"
 
 
 open Misc
@@ -1140,7 +1140,7 @@ let put_in_math s =
 (*--------------*)
 
 type align = Top | Middle | Bottom | Base of int
-and wrap_t = True | False | Fill
+and wrap_t = Wtrue | Wfalse | Fill
 ;;
 
 
@@ -1186,7 +1186,7 @@ let cell = ref {
   hor = Left;
   h = 0;
   w = 0;
-  wrap = False;
+  wrap = Wfalse;
   span = 1;
   text = "";
   pre  = "";
@@ -1261,7 +1261,7 @@ let open_table border _ =
     hor = Left;
     h = 0;
     w = 0;
-    wrap = False;
+    wrap = Wfalse;
     span = 1;
     text = "";
     pre  = "";
@@ -1313,14 +1313,14 @@ let change_format format = match format with
       | "left" -> Left
       | "right" -> Right
       | _-> raise (Misc.Fatal ("open_cell, invalid horizontal format :"^h)));
-    !cell.wrap <- (if w then True else False);
+    !cell.wrap <- (if w then Wtrue else Wfalse);
     if w then
       !cell.w <- 
 	(match size with
 	| Length.Char l -> l
 	| Length.Pixel l -> l / Length.font
 	| Length.Percent l -> l * !Parse_opts.width / 100              
-	| Length.Default -> !cell.wrap <- False; warning "cannot wrap column with no width"; 0
+	| Length.Default -> !cell.wrap <- Wfalse; warning "cannot wrap column with no width"; 0
         | Length.No s ->
             raise (Misc.Fatal ("No-length ``"^s^"'' in out-manager")))
     else !cell.w <- 0;
@@ -1347,7 +1347,7 @@ let open_cell format span insides =
   !cell.post_inside <- [];
   open_block "" "";
   if !cell.w > String.length line then raise ( Error "Column too wide");
-  if (!cell.wrap=True) then begin (* preparation de l'alignement *)
+  if (!cell.wrap=Wtrue) then begin (* preparation de l'alignement *)
     !cur_out.temp <- false;
     flags.x_start <- 0;
     flags.x_end <- !cell.w-1;
@@ -1365,7 +1365,7 @@ let open_cell format span insides =
 
 let close_cell content =
   if !verbose>2 then prerr_endline "=> force_cell";
-  if (!cell.wrap=True) then begin
+  if (!cell.wrap=Wtrue) then begin
     do_flush ();
     flags.in_align <- pop stacks.s_in_align;
     flags.align <- pop stacks.s_align;
@@ -1378,13 +1378,13 @@ let close_cell content =
 				    "#,post :#"^ !cell.post^
 				    "#");
   (* il faut remplir les champs w et h de cell *)
-  if (!cell.wrap = False ) then !cell.w <- 0;
+  if (!cell.wrap = Wfalse ) then !cell.w <- 0;
   !cell.h <- 1;
   let taille = ref 0 in
   for i = 0 to (String.length !cell.text) -1 do
     if !cell.text.[i]='\n' then begin
       !cell.h<- !cell.h+1;
-      if (!cell.wrap = False) && (!taille > !cell.w) then begin
+      if (!cell.wrap = Wfalse) && (!taille > !cell.w) then begin
 	!cell.w <- !taille;
       end;
       taille:=0;
@@ -1392,7 +1392,7 @@ let close_cell content =
       taille:=!taille+1;
     end;
   done;
-  if (!cell.wrap = False) && (!taille > !cell.w) then !cell.w <- !taille;
+  if (!cell.wrap = Wfalse) && (!taille > !cell.w) then !cell.w <- !taille;
   !cell.w <- !cell.w + (String.length !cell.pre) + (String.length !cell.post);
   if !verbose>2 then prerr_endline ("size : width="^string_of_int !cell.w^
 				    ", height="^string_of_int !cell.h^
@@ -1461,7 +1461,7 @@ and erase_cell_group () = !table.in_cell <- false;
 
 let erase_cell () =
   if !verbose>2 then prerr_endline "erase cell";
-  if (!cell.wrap=True) then begin
+  if (!cell.wrap=Wtrue) then begin
     flags.in_align <- pop stacks.s_in_align;
     flags.align <- pop stacks.s_align;
   end;
@@ -1558,7 +1558,7 @@ let put_ligne texte pos align width taille wrap=
   in
   let s = String.sub texte pos (pos_suiv - pos) in
   let t,post= 
-    if wrap=True then String.length s,0
+    if wrap=Wtrue then String.length s,0
     else width,width - String.length s in
   let ligne = match align with
   | Left -> String.concat "" 

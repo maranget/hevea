@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: misc.ml,v 1.21 2001-10-02 12:51:36 maranget Exp $" 
+let header = "$Id: misc.ml,v 1.22 2001-10-19 18:35:58 maranget Exp $" 
 
 exception Fatal of string
 exception NoSupport of string
@@ -112,3 +112,5 @@ let get_image_opt () = match !image_opt with
 | None -> ""
 | Some s -> s
 
+
+let dump_index = ref false

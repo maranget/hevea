@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: index.ml,v 1.40 2001-05-25 09:07:12 maranget Exp $"
+let header = "$Id: index.ml,v 1.41 2001-10-19 18:35:48 maranget Exp $"
 open Misc
 open Parse_opts
 open Entry
@@ -350,32 +350,41 @@ let diff_entries e1 e2 =
         e1.(i) <> e2.(i) || diff_rec (i+1) in
     diff_rec 0
 
+let do_dump_index idxname idx = 
+  try
+    let chan = open_out idxname in
+    Out.to_chan chan idx.out ;
+    close_out chan
+  with
+  | Sys_error s ->
+      Misc.warning
+        ("File error on "^idxname^": "^s)          
+
 let finalize check =
   if check then begin
     let top_changed = ref false in
     Hashtbl.iter
       (fun tag idx ->
-(*        prerr_endline ("Check index changed: "^tag) ; *)
         let entries = Table.trim idx.from_doc in
         let changed =
           match idx.from_file with
           | Some t -> diff_entries t entries
           | None   -> Array.length entries <> 0 in
+        let idxname = index_filename idx.sufin in
         if changed || idx.onebad then begin
           top_changed := !top_changed || changed ;
-          let idxname = index_filename idx.sufin in
           try
             if Array.length entries = 0 && not idx.onebad then
               Mysys.remove idxname 
             else begin
-              let chan = open_out idxname in
-              Out.to_chan chan idx.out ;
-              close_out chan
+              do_dump_index idxname idx
             end
           with
           | Sys_error s ->
               Misc.warning
                 ("File error on "^idxname^": "^s)
+        end else if !Misc.dump_index then begin
+          do_dump_index idxname idx
         end)
       itable ;
     if !top_changed then

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.31 2001-08-03 09:20:36 maranget Exp $    *)
+(*  $Id: package.ml,v 1.32 2001-10-19 18:35:59 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -113,12 +113,15 @@ def_code "\\@callsubst" call_subst ;
 def_code "\\@callprim" call_prim ;
 ;;
 
-(* Aux files parsing *)
+(* Haux files parsing hooks before and after reading the file *)
 def_code "\\@hauxinit"
-  (fun lexbuf ->
-    Auxx.init Parse_opts.base_out ;
-    check_alltt_skip lexbuf)
+  (fun lexbuf -> check_alltt_skip lexbuf)
 ;;
+
+def_code "\\@hauxfinal"
+  (fun lexbuf -> Auxx.final Parse_opts.base_out ; check_alltt_skip lexbuf)
+;;
+
 
 let get_raw lexbuf =
   let saved = !raw_chars in
@@ -142,6 +145,7 @@ def_code "\\@auxwrite"
     let theref = get_prim_arg lexbuf in
     Auxx.rwrite lab theref)
 ;;
+
 
 def_code "\\@auxread"
   (fun lexbuf ->

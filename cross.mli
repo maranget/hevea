@@ -12,3 +12,4 @@
 val add : string -> string -> unit
 val fullname : string -> string -> string
 val change : string -> string -> unit
+val dump : string -> unit

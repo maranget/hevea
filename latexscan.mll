@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.214 2001-09-21 14:50:54 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.215 2001-10-19 18:35:53 maranget Exp $ *)
 
 
 {
@@ -2046,6 +2046,26 @@ def_code "\\@subst"
     Dest.put arg)
 ;;
 
+(* write a string in aux file *)
+def_code "\\@auxdowrite"
+  (fun lexbuf ->
+     let what = save_arg lexbuf in
+     let s = get_this_arg main what in
+     Auxx.swrite s)
+;;
+
+(* format toc file *)
+def_code "\\@addtocsec"
+  (fun lexbuf ->
+     let suf = get_prim_arg lexbuf in
+     let anchor = get_prim_arg lexbuf in
+     let level = get_num_arg lexbuf in
+     let {arg=number} = save_arg lexbuf in
+     let {arg=title} = save_arg lexbuf in
+     Auxx.addtoc suf anchor level number title)
+;;
+
+
 def_code "\\@notags"
   (fun lexbuf ->
     let arg = save_arg lexbuf in
@@ -2263,6 +2283,7 @@ newif_ref "alltt@loaded" alltt_loaded ;
 newif_ref "filter" (ref filter) ;
 newif_ref "@sawdocument" sawdocument ;
 newif_ref "@warnunder" warn_under ;
+newif_ref "@dumpindex" Misc.dump_index ;
 def_code "\\iftrue" (testif (ref true)) ;
 def_code "\\iffalse" (testif (ref false))
 ;;
