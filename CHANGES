@@ -1,4 +1,5 @@
 version 1.06+1
+   - Added a new primitive \@styleattr
    - Almost complete multibib package.
    - Small bit of xypic (-> all \xymatrix are images).
 version 1.06
