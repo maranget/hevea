@@ -3,7 +3,7 @@ open Misc
 open Lexing
 open Table
 
-let header = "$Id"
+let header = "$Id: tabular.mll,v 1.6 1999-05-12 17:39:27 maranget Exp $"
 
 exception Error of string
 ;;
