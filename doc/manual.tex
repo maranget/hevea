@@ -430,12 +430,12 @@ translated using only \html{} text-level elements.
 \hevea{} display mode allows more control on text placement, since
 entering display mode means opening
 a \html{} \verb+TABLE+ element and that tables allow to control the
-relative position of their elements.
+relative position of their sub-elements.
 Displays come in two flavor, horizontal displays and vertical
 displays.
 An horizontal display is a one-row table, while a vertical display is
-a one-column table. These tables holds display elements, displays
-elements being centered vertically in horizontal display mode and
+a one-column table. These tables holds display sub-elements, displays
+sub-elements being centered vertically in horizontal display mode and
 horizontally in vertical display mode.
 
 Display mode is first opened by opening a \verb+displaymath+ environment
@@ -484,7 +484,7 @@ $$
 \end{center}
 %END LATEX
 The reason is that vertical displays in an horizontal display are
-boxes (i.e. \html{} tables)
+\html{} tables
 that always get centered in the vertical direction.
 Such a crude model cannot  faithfully emulate any \TeX{} box placement.
 
@@ -495,8 +495,8 @@ border to the \verb+TABLE+ elements introduced by displays.
 \subsubsection{Arrays and display mode}
 
 By contrast with formulas, which \hevea{} attempts to render with
-text-level elements only when they appear inside paragraphs, arrays
-are always translated to the
+text-level elements only when they appear inside paragraphs, \LaTeX{} arrays
+always translate to the
 block-level element \verb+TABLE+, thereby introducing non-desired line
 breaks before and after in-text arrays.
 As a consequence, in-text arrays yield an acceptable output, only while
@@ -1018,7 +1018,7 @@ the  \verb+latexonly+, \verb+verblatex+, \verb+htmlonly+, \verb+rawhtml+,
 environment & \multicolumn{1}{c}{\hevea} &  \multicolumn{1}{c}{\LaTeX}
 \\ \hline
 \verb+latexonly+ & ignore, \verb+\end{+\textit{env}\verb+}+
-constructs are processed  & process \\
+constructs are processed (see section~\ref{why}) & process \\
 \verb+verblatex+ & ignore & process \\
 \verb+htmlonly+ & process & ignore \\
 \verb+rawhtml+  & echo verbatim & ignore\\
@@ -1064,7 +1064,7 @@ Also note that environments define a scope and that style changes
 (and non-global definitions) are local to them. For instance, in the
 example above, ``\ldots'' appears in black in \html{} output.
 
-\subsubsection{Why is there a \texttt{verblatex} environment?}
+\subsubsection{Why are there two environments for ignoring input?}\label{why}
 Some scanning and analysis of source is performed
 by \hevea{} inside the \texttt{latexonly} environment, in order to
 allow  \texttt{latexonly} to dynamically occur inside other environments.
@@ -1985,6 +1985,11 @@ manual~\cite[Appendix~C]{latex}.
 
 \LaTeX{} comments, that start with ``\verb+%+'' %
 and end at end of line are ignored and produce no output.
+Usually, \hevea{} ignore such comments. However, \hevea{} processes
+text that follows ``\verb+%HEVEA+'' %
+and some other comments have a specific meaning to it (see
+section~\ref{comments}).
+This features allows having source processed by \hevea{} only.
 
 Command names follow strict \LaTeX{} syntax. That is, apart from
 \verb+#+, \verb+$+, %$
@@ -2064,8 +2069,8 @@ Optional arguments to \verb+\\+ and \verb+\\*+ are ignored.
 Document structure is a bit simplified with respect to \LaTeX{}, since
 documents consist of only two parts.
 The \emph{preamble} starts as soon as \hevea{} starts to operate and
-ends when with \verb+\begin{document}+ constructs.
-Then, any input is  before
+ends with the \verb+\begin{document}+ construct.
+Then, any input occuring before
 \verb+\end{document}+ is translated to \html{}.
 However, the preamble is processed
 and the preamble comprises the content of the files given as command line
@@ -2372,6 +2377,21 @@ and \verb+<SUP>+ text-level elements and their appearance should be correct
 both in in-text and displayed  formulas.
 
 The n$^{\mbox{th}}$ root command \verb+\sqrt+ is not supported.
+The ``root'' symbol is not necessary, thanks
+to fractional exponents. For instance, the \verb+\sqrt+ command can be
+defined as follows:
+\begin{verbatim}
+\newcommand{\sqrt}[2][2]{\left(#2\right)^{1/#1}}
+\end{verbatim}
+\begin{htmlonly}
+Then, the source
+fragment: \verb"$$\sqrt[3]{\frac{1}{n!}} + \sqrt{\pi}$$" gets rendered
+as follows:
+$$
+\newcommand{\sqrt}[2][2]{\left(#2\right)^{1/#1}}
+\sqrt[3]{\frac{1}{n!}} + \sqrt{\pi}
+$$
+\end{htmlonly}
 
 
 An attempt is made to render all ellipsis constructs (\verb+\ldots+,
@@ -2545,7 +2565,7 @@ will clobber the output.
 
 The \texttt{ifthen} package is partially supported.
 The one unsupported construct is the
-\verb+\lengthtest+ test expressions, which is
+\verb+\lengthtest+ test expression, which is
 undefined.
 
 As a consequence, \hevea{} accepts the following example from the
@@ -2635,7 +2655,7 @@ By contrast with \LaTeX{},
 some of the array items always are typeset in display mode.
 Whether an array item is typeset in display mode or not depends upon
 its column specification,
-the \verb+l+, \verb+c+ and~\verb+r+ specifications open display modes
+the \verb+l+, \verb+c+ and~\verb+r+ specifications open display mode
 while the remaining \verb+p+ and \verb+@+ do not.
 The \verb+l+, \verb+c+,\verb+r+ and~\verb+@+ specifications
 disable word wrap, while the \verb+p+~specification enables it.
@@ -3435,7 +3455,8 @@ This has three consequences:
 \item[{\tt -nosymb}] Avoid symbol font.
 In this mode, symbols are replaced by text-only equivalents. By
 default, these equivalent are in English.
-\item[{\tt -noiso}] Do not output (iso-latin1) characters whose code is above 127.
+\item[{\tt -noiso}] Do not output (iso-latin1) characters whose code
+is above 127 (i.e. output ascii only).
 These characters are replaced by \html{} entities. This option is
 mostly useful for generating \html{} that will be displayed properly
 by \emph{Netscape Communicator} on a Macintosh.
@@ -3661,7 +3682,7 @@ See the \footurl{\ftpbase/LICENSE}{LICENSE} file for details.
 The programs \commandname{hevea} and \commandname{hacha} are written in
 \footurl{http://caml.inria.fr/ocaml/}{Objective Caml}. Thus, you
 really need Objective Caml (version 2.00 or further) to compile them.
-However, a Red~Hat 5.1
+However, a Red~Hat 5.2
 \footurl{\ftpbase/hevea-\heveaversion-1.i386.rpm}{binary distribution}
 is also available, it does not require an Objective Caml installation
 and can be installed on most Red~Hat Linux PC's.
@@ -3731,7 +3752,7 @@ whereas \hacha{} can cut the output of \hevea{} into several files.
 version of TTH that provides this extra functionality).
 TTH can be found at
 \begin{center}
-\oneurl{http://hutchinson.belmont.ma.us/tth/tth.html}.
+\oneurl{http://hutchinson.belmont.ma.us/tth/}.
 \end{center}
 
 \item[\texttt{htmlgen}] The \texttt{htmlgen} translator is specialized

@@ -1,3 +1,7 @@
+version 1.04-1
+  - Better error message for missing \makeindex.
+  - Eat \\ optional argument after \hline.
+  - Bug in book.hva : \section* down to \sussubsection* should ``\cuthere''
 version 1.03
   - \htmlfoot and \htmlhead commands.
   - Independant lexers for getting booleans and integers (module Get)

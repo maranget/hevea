@@ -19,7 +19,7 @@ module type T =
 module Make (Html : OutManager.S) =
 struct
 
-let header = "$Id: index.ml,v 1.18 1999-03-12 13:17:57 maranget Exp $"
+let header = "$Id: index.ml,v 1.19 1999-04-07 19:24:51 maranget Exp $"
 open Misc
 open Parse_opts
 open Entry
@@ -172,10 +172,15 @@ let check_key lexcheck ((l,p),_) =
   end ;
   r
 
+let find_index tag =
+  try Hashtbl.find itable tag
+  with Not_found ->
+    raise (Error ("Missing \makeindex for index: "^tag))
+
 let treat lexcheck tag arg =
   try
     if !verbose > 2 then prerr_endline ("Index.treat with arg: "^arg) ;
-    let name,all,table,count,idxstruct = Hashtbl.find itable tag in
+    let name,all,table,count,idxstruct = find_index tag in
     let lexbuf = Lexing.from_string arg in
     let key = 
       let ((ka,_),_ as key_arg) =
@@ -273,7 +278,7 @@ let print_entry main bk k xs  =
     
 let print main  tag =
   if !verbose > 1 then prerr_endline ("Print index ``"^tag^"''") ;
-  let name,all,table,_,_ = Hashtbl.find itable tag in
+  let name,all,table,_,_ = find_index tag in
   main ("\\@indexsection{"^name^"}") ;
   let prev = ref ([],[]) in
   KeySet.iter (fun k ->

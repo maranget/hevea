@@ -49,7 +49,7 @@ open Save
 open Tabular
 open Lexstate
 
-let header = "$Id: latexscan.mll,v 1.74 1999-04-05 11:01:37 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.75 1999-04-07 19:24:54 maranget Exp $" 
 
 let sbool = function
   | false -> "false"
@@ -1450,7 +1450,7 @@ rule  main = parse
     end ;
     main lexbuf}
 (* inside tables and array *)
-  |  [' ''\n']* "\\hline" [' ''\n']* ("\\\\"  [' ''\n']*)?
+  |  [' ''\n']* "\\hline" [' ''\n']* ("\\\\" ('[' [^']']* ']')? [' ''\n']*)?
      {if is_noborder_table !in_table then
        do_hline main ;
      eat_space := true ;
@@ -1847,7 +1847,10 @@ rule  main = parse
       | "\\@printindex" ->
           start_lexstate () ;
           let tag =  subst_opt "default" subst lexbuf in
-          Index.print (scan_this main) tag ;
+          begin try
+            Index.print (scan_this main) tag
+          with Index.Error s -> raise (Error s)
+          end ;
           restore_lexstate ();
           main lexbuf
       | "\\newindex" |  "\\renewindex" ->
