@@ -77,6 +77,7 @@ and lst_last    = ref 9999
 and lst_print   = ref true
 and lst_texcl   = ref false
 and lst_extended = ref false
+and lst_sensitive = ref true
 
 let lst_buff = Out.create_buff ()
 
@@ -116,11 +117,18 @@ let dest_string s =
     Dest.put (Dest.iso s.[i])
   done
 
+let dest_case s =
+  Dest.put
+    (match !case with
+    | Upper -> String.uppercase s
+    | Lower -> String.lowercase s
+    | _     -> s)
+
 (* Keywords *)
 
 let def_print s =
   Latexmacros.def "\\@tmp@lst" zero_pat
-    (CamlCode (fun _ ->  Dest.put s)) ;
+    (CamlCode (fun _ ->  dest_case s)) ;
   Latexmacros.def "\\@tmp@lst@print" zero_pat
     (CamlCode (fun _ ->  dest_string s))
 ;;
@@ -886,8 +894,6 @@ let open_lst inline keys lab =
   if not !lst_print then begin
     lst_last := -2 ; lst_first := -1
   end ;  
-  Printf.fprintf stderr "first=%d, last=%d\nprint=%b\n"
-    !lst_first !lst_last !lst_print ;
 (* Strings *)
   let quote_mode =
      Scan.get_this_main "\\@getprint{\\lst@quote@stringizers}" in
@@ -914,8 +920,6 @@ let open_lst inline keys lab =
 (* Escapes to TeX *)
   let begc = Scan.get_this_main "\\@getprint{\\lst@BET}"
   and endc = Scan.get_this_main "\\@getprint{\\lst@EET}" in
-  prerr_endline ("BEG: "^begc) ;
-  prerr_endline ("END: "^endc) ;
   if begc <> "" && endc <> "" then begin
     lst_init_save_char begc.[0] (lst_process_escape endc.[0])
   end ;
@@ -927,7 +931,6 @@ let open_lst inline keys lab =
   else
     lst_top_mode := Skip
 
-
 and close_lst inline =
   lst_finalize inline ;
   while !Scan.cur_env = "command-group" do
@@ -938,7 +941,6 @@ and close_lst inline =
 
 let lst_boolean lexbuf =
   let b = get_prim_arg lexbuf in
-  prerr_endline ("BOOL: "^b) ;
   Dest.put
     (match b with
     | "" -> "false"
@@ -950,6 +952,7 @@ let init_listings () =
   Scan.newif_ref "lst@print" lst_print ;
   Scan.newif_ref "lst@extendedchars" lst_extended ;
   Scan.newif_ref "lst@texcl" lst_texcl ;
+  Scan.newif_ref "lst@sensitive" lst_sensitive ;
   def_code "\\lst@boolean" lst_boolean ;
   def_code "\\lst@funcall"
     (fun lexbuf ->
@@ -960,7 +963,6 @@ let init_listings () =
       let opt = Subst.subst_opt "" lexarg in
       let arg = Save.rest lexarg in
       let exec = csname^"["^opt^"]{"^arg^"}" in
-      prerr_endline exec ;
       scan_this  Scan.main exec) ;
   def_code "\\lst@AddTo"
     (fun lexbuf ->

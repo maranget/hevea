@@ -248,11 +248,9 @@
   \def\lst@BBC@three{}%
   \def\lst@EBC@three{}}
 %%%%%%% Extended chars
-\lst@AddToHookExe{DeInit}{\setboolean{lst@extendedchars}{false}}
-\lst@AddToHookExe{SetLanguage}{\def\lst@extendedchars{false}}
-\define@key{lst}{extendedchars}[true]{\def\lst@extendedchars{#1}}
-\lst@AddToHook{SelectCharTable}
-  {\setboolean{lst@extendedchars}{\lst@boolean{\lst@extendedchars}}}
+\lst@AddToHook{DeInit}{\setboolean{lst@extendedchars}{false}}
+\lst@AddToHookExe{SetLanguage}{\setboolean{lst@extendedchars}{false}}
+\define@key{lst}{extendedchars}[true]{\setboolean{lst@extendedchars}{\lst@boolean{#1}}
 %%%%%%% Sensitive keywords (not implemented !)
 \lst@AddToHookExe{DeInit}{\setboolean{lst@sensitive}{true}}
 \lst@AddToHook{SetLanguage}{\setboolean{lst@sensitive}{true}}

@@ -10,5 +10,5 @@
         \let\@next\relax\else
         #1{##1}%
         \let\@next\@@iter\fi
-        \@next}
+        \@next}%
     \@funcall{\@@iter}{#3,,}\fi}
