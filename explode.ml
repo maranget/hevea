@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: explode.ml,v 1.4 2001-05-25 12:37:21 maranget Exp $           *)
+(*  $Id: explode.ml,v 1.5 2001-05-25 17:23:10 maranget Exp $           *)
 (***********************************************************************)
 
 open Lexeme
@@ -19,28 +19,31 @@ let of_styles env r = match env with
 | _  -> Node (env,[r])
 
 
-let rec tree env t k = match t with
+let rec tree blanks env t k = match t with
 | Text s ->
     of_styles env (Text s)::k
 | Blanks s ->
-    of_styles
-      (List.filter (fun s -> not (Htmltext.blanksNeutral s)) env)
-      (Blanks s)::
-    k
+    if blanks then
+      of_styles
+        (List.filter (fun s -> not (Htmltext.blanksNeutral s)) env)
+        (Blanks s)::
+      k
+    else
+    of_styles env (Text s)::k      
 | Node (s,ts) ->
     if s.Tree.tag = A then
       ONode
         (s.Tree.txt, s.Tree.ctxt,
-         List.fold_right (tree env) ts [])::k
+         List.fold_right (tree false env) ts [])::k
     else
       begin try
         let new_env = Htmltext.add_style s env in
-        List.fold_right (tree new_env) ts k
+        List.fold_right (tree blanks new_env) ts k
       with
       | Split (s,env) ->
-          let ts = List.fold_right (tree []) ts [] in
+          let ts = List.fold_right (tree false []) ts [] in
           let now =
-            if Util.is_blanks ts then
+            if blanks && Util.is_blanks ts then
               (List.filter (fun s -> not (Htmltext.blanksNeutral s)) env)
             else
               env in
@@ -51,4 +54,4 @@ let rec tree env t k = match t with
       end
 | ONode (so,sc,ts) -> assert false
 
-let trees ts =  List.fold_right (tree []) ts []
+let trees ts =  List.fold_right (tree true []) ts []

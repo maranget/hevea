@@ -1,3 +1,4 @@
+version 1.06-7
 version 1.06-6
   - Added esponja
   - Better error diagnostic for bad usage of \begin{document}... \end{document}

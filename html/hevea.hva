@@ -22,15 +22,18 @@
 {\@incsize{-1}\@print{<sup>H</sup>}}\@print{A}}
 \newcommand{\html}{HTML}
 %%% HTML related stuff (TEX equivalents are in the hevea.sty file)
-\newcommand{\@aelement}[2]
+\newcommand{\@doaelement}[2]
 {{\@nostyle\@print{<A }\@getprint{#1}\@print{>}}{#2}{\@nostyle\@print{</A>}}}
+\newcommand{\@nestedaelement}[2]{\warning{Suppressing nested A element}#2}
+\newcommand{\@aelement}[2]
+{\bgroup\let\@aelement\@nestedaelement\@doaelement{#1}{#2}\egroup}
 \newcommand{\ahref}[2]{\@aelement{HREF="#1"}{#2}}
 \def\ahrefurl#1{\@aelement{HREF="#1"}{\texttt{#1}}}
 \let\footahref\ahref
 \newcommand{\mailto}[1]{\@aelement{HREF="mailto:#1"}{#1}}
-\newcommand{\imgsrc}[2][]{%
-{\@nostyle\@print{<IMG SRC="}\@getprint{#2}\ifpedantic\@print{" ALT="}\@getprint{#2}\fi
-\ifthenelse{\equal{#1}{}}{\@print{"}}{\@print{" }\@getprint{#1}}\@print{>}}}
+\newcommand{\imgsrc}[2][]
+{\@print{<IMG SRC="}\@getprint{#2}\ifpedantic\@print{" ALT="}\@getprint{#2}\fi
+\ifthenelse{\equal{#1}{}}{\@print{"}}{\@print{" }\@getprint{#1}}\@print{>}}
 %% Hyper-text references inside the document, internal usage
 \newcommand{\@locref}[2]{\@aelement{HREF="\@print{#}#1"}{#2}}
 \newcommand{\@locname}[2]{\@aelement{NAME="#1"}{#2}}

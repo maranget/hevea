@@ -7,20 +7,24 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: util.ml,v 1.3 2001-05-25 12:37:32 maranget Exp $c             *)
+(*  $Id: util.ml,v 1.4 2001-05-25 17:23:20 maranget Exp $c             *)
 (***********************************************************************)
 
 open Tree
 open Htmltext
 
-let rec cost ((k1,k2) as c) = function
+let rec do_cost ((k1,k2) as c) = function
   | Text _ | Blanks _ -> c
-  | ONode (_,_,ts) -> costs c ts
+  | ONode (_,_,ts) -> do_costs c ts
   | Node (s,ts) ->
       let l1, l2 = Htmltext.cost s in
-      costs (l1+k1, l2+k2) ts
+      do_costs (l1+k1, l2+k2) ts
 
-and costs k ts = List.fold_left cost k ts
+and do_costs k ts = List.fold_left do_cost k ts
+
+let cost t = do_cost (0,0) t
+and costs ts = do_costs (0,0) ts
+
 
 let there s l = List.exists (fun os -> Htmltext.same_style s os) l
 

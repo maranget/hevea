@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: ultra.ml,v 1.5 2001-05-25 12:37:31 maranget Exp $             *)
+(*  $Id: ultra.ml,v 1.6 2001-05-25 17:23:19 maranget Exp $             *)
 (***********************************************************************)
 
 open Tree
@@ -339,9 +339,11 @@ let check_node t k = match t with
         let lift,keep = extract_props ps si in
         Node (lift@s, clean (Node (keep,args)) rem)::k
     end
-  | Node (s, ts) when List.for_all blanksNeutral s ->
+(*
+  | Node (s, ts) when top List.for_all blanksNeutral s ->
       let bef,inside,after = bouts is_blank ts in
       bef@Node (s,inside)::after@k
+*)
   | _ -> t::k
 
 let rec as_list i j ts k =
@@ -439,17 +441,20 @@ and trees i j ts k =
         end ;
         zyva i fs k
 
+and opt_onodes = function
+  |  ONode (s,c,args) -> begin match opt false (Array.of_list args) [] with
+      | [Node (x,args)] ->
+          Node (x,[ONode (s,c,args)])
+      | t ->
+          ONode (s,c,t)
+  end
+  | Node (s,args) -> Node (s,List.map opt_onodes args)
+  | t -> t
+
 and opt top ts k =
   let l = Array.length ts in  
   for i = 0 to l-1 do
-    match ts.(i) with
-    | ONode (s,c,args) -> begin match opt false (Array.of_list args) [] with
-      | [Node (x,args)] ->
-          ts.(i) <- Node (x,[ONode (s,c,args)])
-      | t ->
-          ts.(i) <- ONode (s,c,t)
-    end
-    | _ -> ()
+    ts.(i) <- opt_onodes ts.(i)
   done ;
   let p = if top then is_text_blank else is_text in
   let start,pre = cut_begin p ts l 0 in
@@ -458,4 +463,6 @@ and opt top ts k =
     let fin,post  = cut_end p ts l in
     pre@trees start fin ts (post@k)
 
-let main ts = opt true (Array.of_list (Explode.trees ts)) []
+let main ts =
+  opt true (Array.of_list (Explode.trees ts)) []
+

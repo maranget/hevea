@@ -2179,15 +2179,22 @@ Postscript to bitmap format and thus degrade it.
 \envindex{rawhtml}
 Any text enclosed between \verb+\begin{rawhtml}+ and
 \verb+\end{rawhtml}+ is echoed verbatim into the \html{} output file.
-No processing of any kind is performed on this text.
 For avoiding to break \html~element nesting, the \texttt{rawhtml}
 environment should be used only at toplevel (i.e. not within another
 environment), and it should contain only \html~text that makes sense
 alone
 (e.g. \verb+\begin{rawhtml}<TABLE><ALIGN=right>\end{rawhtml}+\ldots{}
 \verb+\begin{rawhtml}</TABLE>\end{rawhtml}+ is
-dangerous, use the internal macros \verb+\@open+ and \verb+\@close+ of
+dangerous. In that case,
+use the internal macros \verb+\@open+ and \verb+\@close+ of
 the following section instead).
+
+When \hevea{} is given the command line option ``\texttt{-O}'',
+checking and optimization of text-level elements in the whole document
+takes place.
+As a consequence, incorrect \html{} introduced by using the \texttt{rawhtml}
+environment may be detected at a later stage.
+
 
 For the document to remain processable by \LaTeX{}, it must load the
 \texttt{hevea.sty} style file (see section~\ref{heveastyle}).
@@ -2297,7 +2304,7 @@ Note that \textit{color} must be a color attribute value in the \html{}
 style. That is either one of the sixteen conventional colors
 \verb+black+, \verb+silver+ etc, or a RGB hexadecimal color specification
 of the form
-\verb+"#+\textit{XXXXXX}\verb+"+.
+\verb+"#+\textit{XXXXXX}\verb+"+ (yes, quotes are needed).
 Note that the argument \textit{color} is processed, as a consequence
 numerical color arguments should be given as \verb+"\#+\textit{XXXXXX}\verb+"+.
 
@@ -2336,20 +2343,33 @@ For instance this is how you can make all emphasized text blink:
 \index{"@getprint@\texttt{\char92"@getprint}}
 \index{"@nostyle@\texttt{\char92"@nostyle}}
 Then, here is the definition of a simplified \verb+\imgsrc+
-command (see section~\ref{hyperlink}), without optional argument:
+command (see section~\ref{hyperlink}), without its optional argument:
 \begin{verbatim}
 \newcommand{\imgsrc}[1]
-  {{\@nostyle\@print{<IMG SRC="}\@getprint{#1}\@print{">}}}
+  {\@print{<IMG SRC="}\@getprint{#1}\@print{">}}
 \end{verbatim}
-This macro body is typeset inside
-a group \verb+{+\ldots{} \verb+}+, which starts
-by a \verb+\@nostyle+ declaration, so as to avoid nesting the
-block-level \verb+IMG+ inside text-level elements.
-Then \verb+\@print+ and \verb+\@getprint+ are used to output
+Here, \verb+\@print+ and \verb+\@getprint+ are used to output
 \html~text, depending upon wether this text requires processing or not.
-Finally, note that \verb+\@open{IMG}{SRC="#1"}+ is not correct,
-because the block-level element \verb+IMG+
-consists in a single tag.
+Note that \verb+\@open{IMG}{SRC="#1"}+ is not correct,
+because the element \verb+IMG+ consists in a single tag, without a
+closing tag.
+
+\index{"@nostyle@\texttt{\char92"@nostyle}}
+Another interesting example is the definition of the command
+\verb+\@doaelement+,
+which \hevea{} uses internaly to output \texttt{A} elements.
+\begin{verbatim}
+\newcommand{\@doaelement}[2]
+  {{\@nostyle\@print{<A }\@getprint{#1}\@print{>}}{#2}{\@nostyle\@print{</A>}}
+\end{verbatim}
+The command \verb+\@doaelement+ takes two arguments: the first
+argument contains the opening tag attributes; while the second element is
+the textual content of the \verb+A+ element.
+By contrast with the \verb+\imgsrc+ exemple above,
+tags are emitted inside groups where styles are canceled by using the
+\verb+\@nostyle+ declaration.
+Such a complication is needed, so as to avoid breaking proper nesting
+of text-level elements.
 
 \label{getcolor:usage}
 \envindex{bgcolor}
@@ -2515,7 +2535,7 @@ This can be achieved as follows~:
 \end{verbatim}
 
 \subsection{Changing the Format of Images}
-\index{imagen output format}
+\index{image inclusion!output format}
 \index{PNG}
 \comindex{imageflush}
 \comindex{imgsrc}
@@ -4876,13 +4896,14 @@ packages are partly implemented.
 
 \section{Usage}
 \subsection{\hevea{} usage}\label{heveausage}
+\index{hevea@\texttt{hevea} command}
 The \texttt{hevea} command has two operating modes, normal mode and
 filter mode.
 Operating mode is determined by the nature of the last command line
 argument.
 
 \subsubsection{Command line arguments}\label{comline}
-The \texttt{hevea} command interprets its arguments as the names of
+The \texttt{hevea} command interprets its arguments as names of
 files and attempts to process them.
 Given an argument \textit{filename} there are two cases:
 \begin{itemize}
@@ -5000,9 +5021,11 @@ whose name is \textit{filename}. Note that this option applies to all
 files, including \texttt{hevea.hva} and base style files.
 \item[{\tt -fix}] Iterate \hevea{} until a fixpoint is found.
 Additionnaly, images get generated automatically.
+\item[{\tt -O}] Optimize HTML by calling \esponja{} (see
+section~\ref{esponjausage}.
 \item[{\tt -exec} {\it prog}] Execute file \textit{prog} and read the
 output. The file \textit{prog} must have execution permission and is
-searched following the searching rules of~\texttt{hevea}.
+searched by following the searching rules of~\texttt{hevea}.
 \item[{\tt -francais}] Set French mode.
 This has three consequences:
 \begin{itemize}
@@ -5048,6 +5071,7 @@ while \hevea{} reference manual is part~\ref{referencemanual}.
 
 
 \subsection{\hacha{} usage}
+\index{hacha@\texttt{hacha} command}
 The \texttt{hacha} command interprets its argument as the name of
 a \html{} source file to cut into pieces.
 
@@ -5063,9 +5087,64 @@ It also recognizes the following options:
 \noindent Section~\ref{hacha} of the user manual explains how to
 alter \hacha{} default behavior.
 
-\subsection{\texttt{imagen} usage}\label{imagenusage}
+\subsection{\texttt{esponja} usage}\label{esponjausage}
+\index{esponja@\texttt{esponja} command}
+The program~\texttt{esponja}
+is part of \hevea{} and is designed to optimize \texttt{hevea}
+output.
+However, \texttt{esponja} can also be used alone to optimize
+text-level elements in \html{} files.
+Since \texttt{esponja} fails
+to operate when it detects incorrect~\html, it can be used as a
+partial \html~validator.
 
-\texttt{imagen} is a simple shell script that translates
+
+\subsubsection{Operating modes}
+With no argument, \texttt{esponja} acts as a filter, it reads the
+standard input and writes on the standard output.
+Otherwise, \texttt{esponja} interprets its arguments as names of
+files and attempt to process them.
+It is important to notice that \texttt{esponja} will \emph{replace} files
+by their optimized versions.
+
+Hence, to optimize file \texttt{foo.html} into \texttt{foo\_opt.html},
+one should invoke \texttt{esponja} as follows.
+\begin{verbatim}
+# esponja < foo.html > foo_opt.html
+\end{verbatim}
+By contrast, invoking \texttt{esponja} as
+\begin{verbatim}
+# esponja foo.html
+\end{verbatim}
+will alter \texttt{foo.html}.
+Of course, if \texttt{esponja} does not succeed in making \texttt{foo.html} any
+smaller or if \texttt{esponja} fails, the original \texttt{foo.html}
+is left unchanged.
+Note that this feature allows to optimize all \html{} files in a given directory
+by:
+\begin{verbatim}
+# esponja *.html
+\end{verbatim}
+
+
+
+\subsubsection{Options}\label{esponjaoptions}
+The command \texttt{esponja} recognizes the following options:
+\begin{description}
+\item[{\tt -v}]Be verbose, can be repeated to increase verbosity.
+\item[{\tt -n}]Do not alter input files. Instead, \texttt{esponja}
+output for file \textit{input} goes to file
+\textit{input}\texttt{.esp}. Option \texttt{-n}
+implies option \texttt{-v}.
+\item[{\tt -u}]Output \texttt{esponja} intermediate version of \html.
+In most occasions, this amouts to pessimize instead of to optimize.
+It may yield challenging input for other \html~optimizers.
+\end{description}
+
+
+\subsection{\texttt{imagen} usage}\label{imagenusage}
+\index{imagen@\texttt{imagen} command}
+The command \texttt{imagen} is a simple shell script that translates
 a \LaTeX{} document into many \texttt{.gif} images.
 
 It is a companion program of \hevea{}, which must have been previously run as:

@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: esponja.ml,v 1.5 2001-05-25 12:37:20 maranget Exp $           *)
+(*  $Id: esponja.ml,v 1.6 2001-05-25 17:23:10 maranget Exp $           *)
 (***********************************************************************)
 
 open Mysys
@@ -37,14 +37,19 @@ let process in_name input output =
         output_char stderr '\n' ;
       Location.print_fullpos () ;
       Printf.fprintf stderr "Lexer error: %s\n" s ;
+      Location.restore () ;
       false
   | Htmlparse.Error s ->
       if !Ultra.verbose > 0 then
         output_char stderr '\n' ;
       Location.print_fullpos () ;
       Printf.fprintf stderr "Parser error: %s\n" s ;
+      Location.restore () ;
       false
-
+  | e ->
+      Location.restore () ;
+      raise e
+      
 
 let file in_name =
   if !Ultra.verbose > 0 then begin

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.210 2001-05-25 09:07:20 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.211 2001-05-25 17:23:15 maranget Exp $ *)
 
 
 {
@@ -1308,16 +1308,10 @@ def "\\framebox" (latex_pat ["" ; ""] 3)
     (Subst "\\warning{framebox}\\fbox{#3}")
 ;;
 
+
 let check_alltt_skip lexbuf =
   if not (effective !alltt) then skip_blanks lexbuf
-(*  
-  if not (Stack.empty stack_alltt) && pop stack_alltt then begin
-    push stack_alltt true
-  end else begin
-    push stack_alltt false ;
-    skip_blanks lexbuf
-  end
-*)
+
 and skip_pop lexbuf =
   save_lexstate () ;
   skip_blanks_pop lexbuf ;
@@ -1980,7 +1974,8 @@ def_code "\\@linum" (fun _ -> Dest.nitem ()) ;
 def_code "\\@dt"
   (fun lexbuf ->
     let arg = subst_arg lexbuf in
-    Dest.ditem (scan_this main) arg)
+    Dest.ditem (scan_this main) arg ;
+    check_alltt_skip lexbuf)
 ;;
 
     
