@@ -3641,12 +3641,20 @@ then a first attempt to open \textit{filename}\texttt{.tex} is made.
 In case of failure, a second attempt to open  \textit{filename} is made.
 \end{itemize}
 In all attempts, implicit filenames are
-searched along \texttt{hevea} search path.
-\texttt{hevea} search path consists in the current directory ``\texttt{.}'',
-followed by user-specified directories (with the \texttt{-I}
-command line option), and by \texttt{hevea} library directory
-(normally \texttt{/usr/local/lib/hevea}). However,
-\texttt{hevea} library directory compile-time value can be overridden
+searched along \texttt{hevea} search path, which consist in:
+\begin{enumerate}
+\item the current directory ``\texttt{.}'',
+\item user-specified directories (with the \texttt{-I} command line
+option),
+\item one of the sub-directories \texttt{html}, \texttt{text} or
+\texttt{info} \texttt{hevea} library directory, depending upon
+\texttt{hevea} output format,
+\item \texttt{hevea} library directory.
+\end{enumerate}
+The \texttt{hevea} library directory is fixed at compile-time
+(this is where \texttt{hevea} library files are installed)
+and typically is \texttt{/usr/local/lib/hevea}.
+However, this compile-time value can be overridden
 by setting the \texttt{HEVEADIR} shell environment variable.
 
 
