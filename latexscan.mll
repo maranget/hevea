@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.197 2000-10-23 07:34:35 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.198 2000-10-30 10:16:58 maranget Exp $ *)
 
 
 {
@@ -2157,13 +2157,31 @@ let newif lexbuf =
   with Latexmacros.Failed -> ()
 ;;
 
+exception FailedFirst
+;;
+
 def_code "\\ifx"
   (fun lexbuf ->
     let arg1 = get_csname lexbuf in
     let arg2 = get_csname lexbuf  in
-    if Latexmacros.find arg1 = Latexmacros.find arg2 then
+    let r =
+      try
+        let m1 =
+          try Latexmacros.find_fail arg1 with
+          |  Failed -> raise FailedFirst in
+        let m2 = Latexmacros.find_fail arg2 in
+        m1 = m2
+      with
+      | FailedFirst ->
+          begin
+            try let _ = Latexmacros.find_fail arg2 in false
+            with Failed -> true
+          end
+      | Failed -> false in
+    if r then
       check_alltt_skip lexbuf
-    else skip_false lexbuf)
+    else
+      skip_false lexbuf)
 ;;
 def_code "\\ifu"
   (fun lexbuf ->

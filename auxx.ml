@@ -11,12 +11,13 @@
 
 open Misc
 
-let header = "$Id: auxx.ml,v 1.11 2000-06-28 20:48:34 maranget Exp $" 
+let header = "$Id: auxx.ml,v 1.12 2000-10-30 10:16:53 maranget Exp $" 
 
 let rtable = Hashtbl.create 17
 ;;
 
-let rset name value = Hashtbl.add rtable name value
+let rset name value =
+  Hashtbl.add rtable name value
 ;;
 
   

@@ -104,6 +104,7 @@
 \def\listoftables{}
 \def\contentsname{}
 \newcommand{\addcontentsline}[3]{}
+\newcommand{\contentsline}[3]{}
 \newcommand{\numberline}[2]{}
 \newcommand{\addtocontents}[2]{}
 \newcommand{\markright}[1]{}
@@ -294,10 +295,11 @@
 \newcommand{\pageref}[1]{\@locref{#1}{??}}
 \newcommand{\@readhaux}
 {\@iffileexists{\jobname.haux}{\input{\jobname.haux}}{}\@hauxinit}
+\newcommand{\@readaux}{\input{\@basein.aux}}
 \AtBeginDocument
 {\@stopoutput\@stopimage%
 \ifthenelse{\@fileexists{\@basein.aux} \and \not \boolean{fixpoint}}
-  {\@try{\input{\@basein.aux}}{\@readhaux}}
+  {\@try{\@readaux}{\warning{Failure while reading .aux, reading .haux}\@readhaux}}
   {\@readhaux}%
 \@restartoutput\@restartimage}
 %%%%%%%%%%% Bibliography

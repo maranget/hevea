@@ -3,6 +3,7 @@
 \newcommand{\hyperlink}[2]{\ahref{\#{}#1}{#2}}
 \newcommand{\hypertarget}[2]{\aname{\#{}#1}{#2}}
 \newcommand{\hyperdef}[3]{\hypertarget{#1.#2}{#3}}
+\newcommand{\hyperbaseurl}[1]{}
 \def\url{\begingroup
 \def\UrlLeft##1\UrlRight{\ahrefurl{##1}}%
 \urlstyle{tt}%
