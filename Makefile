@@ -45,16 +45,16 @@ everything: byte opt
 install: install-$(TARGET)
 
 opt:
-	$(MAKE) $(MFLAGS) TARGET=opt hevea.opt hacha.opt esponja.opt cutfoot-fra.html cutfoot-eng.html
+	$(MAKE) $(MFLAGS) TARGET=opt hevea.opt hacha.opt esponja.opt
 
 byte:
-	$(MAKE) $(MFLAGS) TARGET=byte hevea.byte hacha.byte esponja.byte cutfoot-fra.html cutfoot-eng.html
+	$(MAKE) $(MFLAGS) TARGET=byte hevea.byte hacha.byte esponja.byte
 
 install-lib:
 	- $(MKDIR) $(DESTDIR)/$(LATEXLIBDIR)
 	$(INSTALL)  hevea.sty $(DESTDIR)/$(LATEXLIBDIR)
 	- $(MKDIR) $(DESTDIR)/$(LIBDIR)
-	$(INSTALL) cutfoot-fra.html cutfoot-eng.html footer.tex $(DESTDIR)/$(LIBDIR)
+	$(INSTALL) $(DESTDIR)/$(LIBDIR)
 	$(INSTALL) contents_motif.gif next_motif.gif previous_motif.gif $(DESTDIR)/$(LIBDIR)
 	$(INSTALL) $(ALLLIB) $(DESTDIR)/$(LIBDIR)
 	- $(MKDIR)  $(DESTDIR)/$(LIBDIR)/html
@@ -103,12 +103,6 @@ mylib.cmo: mylib.ml mylib.cmi
 mylib.cmx: mylib.ml mylib.cmi
 	${OCAMLOPT} -pp 'sed -e "s,LIBDIR,${LIBDIR},g"' -c mylib.ml
 
-cutfoot-fra.html: cutfoot-fra.tex html/hevea.hva ${HEVEA}
-	HEVEADIR=. ; export HEVEADIR ; ${HEVEA} < cutfoot-fra.tex | ${ESPONJA}> $@
-
-cutfoot-eng.html: cutfoot.tex html/hevea.hva ${HEVEA}
-	HEVEADIR=. ; export HEVEADIR ; ${HEVEA} < cutfoot.tex | ${ESPONJA}> $@
-
 .SUFFIXES:
 .SUFFIXES: .ml .cmo .mli .cmi .c .mll .cmx 
 
@@ -136,7 +130,6 @@ clean: cleanbyte
 	rm -f $(GENSRC)
 	rm -f *.o *.cmi *.cmo *.cmx *.o *.ppo *.ppi
 	rm -f *~ #*# html/*~ html/#*# text/*~ text/#*# info/*~ info/#*# 
-	rm -f cutfoot-fra.html cutfoot-eng.html
 
 depend: $(GENSRC)
 	- cp .depend .depend.bak

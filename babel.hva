@@ -34,7 +34,7 @@
 	\InitiateOption{czech}%
 }%
 \DeclareOption{american}{%
-	\InitiateOption{american}% 
+	\InitiateOption{english}% 
 }%
 \DeclareOption{croatian}{%
 	\InitiateOption{croatian}% 

@@ -12,7 +12,7 @@
 {
 open Lexing
 open Stack
-let header = "$Id: cut.mll,v 1.42 2004-11-26 13:13:05 maranget Exp $" 
+let header = "$Id: cut.mll,v 1.43 2004-12-17 16:36:15 maranget Exp $" 
 
 let verbose = ref 0
 
@@ -434,22 +434,18 @@ let restore_state () =
   out_prefix := oldprefix
 ;;
 
+
 let hevea_footer = ref false
+
+let hevea_footer_buff = Out.create_buff ()
+
 
 let close_top lxm =
   Out.put !toc !html_foot ;
   putlinks_end !toc !tocname ;
   if !hevea_footer then begin
     Out.put !out "<!--FOOTER-->\n" ;
-    begin try
-      Mysys.put_from_file
-        (Filename.concat Mylib.libdir ("cutfoot-"^ !language^".html"))
-        (Out.put !out)
-    with Mysys.Error s -> begin
-      Location.print_pos () ;
-      prerr_endline s
-    end
-    end
+    Out.copy hevea_footer_buff !out 
   end ;
   Out.put !toc lxm ;
   if !tocname = "" then
@@ -698,12 +694,12 @@ and skip_title = parse
 |  _          {skip_title lexbuf}
     
 and footer = parse
-    "</BODY>" _*
-    {let lxm = lexeme lexbuf in
-    if !phase > 0 then begin
+    "</BODY>" _* as lxm 
+    {if !phase > 0 then begin
       close_top lxm 
     end}
-| _   {footer lexbuf}
+| _  as lxm {if !phase = 0 then begin Out.put_char hevea_footer_buff lxm end ;
+       footer lexbuf}
 | eof {raise (Misc.Fatal ("End of file in footer (no </BODY> tag)"))}
 
 

@@ -51,6 +51,6 @@
   \def\headpagename{Page}%
   \def\seename{see}%
   \def\alsoseename{see also}%
-  \renewcommand{\footertext}{This document was translated from \LaTeX{} by
+  \def\footertext{This document was translated from \LaTeX{} by
 \footahref{\heveaurl/index.html}{\hevea}.}%
 }
