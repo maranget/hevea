@@ -16,6 +16,9 @@ let nesting = ref 0
 exception Over of string * string
 ;;
 
+exception Fini
+;;
+
 }
 rule entry = parse
   "\\\""
@@ -45,5 +48,13 @@ rule entry = parse
    {let lxm = lexeme_char lexbuf 0 in put_char lxm ; entry lexbuf}
 
 and skip_par = parse [' ''\n']* '{' {nesting := 1}
+
+and idx = parse
+  "\\indexentry"
+     {let x = Save.arg lexbuf in
+     let _ = Save.arg lexbuf in
+     x}
+| eof {raise Fini}
+| _ {idx lexbuf}
 
 

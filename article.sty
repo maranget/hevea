@@ -81,5 +81,5 @@
   \@close{H5}
 }
 
-\newenvironment{thebibliography}{\section*{\bibname}\@open{DL}{}}{\@close{DL}}
+\newenvironment{thebibliography}[1]{\section*{\bibname}\@open{DL}{}}{\@close{DL}}
 \newcommand{\bibitem}[1]{\item[{\purple[\@bibref{#1}]\label{#1}}]}

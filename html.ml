@@ -10,6 +10,9 @@
 open Latexmacros
 ;;
 
+type 'a ok  = No | Yes of 'a
+;;
+
 let verbose = ref 0
 ;;
 (* Saving mods accross blocks *)
@@ -423,7 +426,7 @@ let pstart = function
 | "PRE" -> true
 | "DIV" -> true
 | "BLOCKQUOTE" -> true
-| "UL" -> true
+| "UL" | "OL" | "DL"-> true
 | _ -> false
 ;;
 
@@ -472,10 +475,10 @@ let rec force_block s content =
     Out.copy old_out.out !cur_out.out ;
     free old_out ;
     !cur_out.pending <- mods
-  end ;
+  end (* ;
   if pstart s then
     open_par ()
-
+*)
 
 and close_block_loc pred s =
   if !verbose > 1 then
@@ -514,7 +517,7 @@ and open_block s args =
    prerr_string ("open_block: "^s^" "^args^" stack=") ;
    pretty_stack !out_stack
  end ;
- if pblock () = "P" && s <> "" then close_par () ;
+ if s <> "" then close_fullpar () ;
  if s = "PRE" then
     in_pre := true;
  let cur_mods = !cur_out.active @ !cur_out.pending in
@@ -526,43 +529,28 @@ and open_block s args =
  try_open_block s args
 
 
-(*
 and close_fullpar () =
   let rec test = function
-    (Normal ("",_,_) as x)::rest -> begin match test rest with
-      Yes l -> Yes (x::l)
+    Normal ("",a,b)::rest -> begin match test rest with
+      Yes l -> Yes (("",a,b)::l)
     | _ -> No end
-  | Normal ("P",_,_) as x)::_   -> 
+  | Normal ("P",a,b)::_   -> Yes ["P",a,b]
   | _              -> No in
 
-  if test !out_stack then begin
-    let styles =
-      (List.map
-        (fun (,args,{pending=p ; active=a}) ->
-          b,args,a@p)
-        !out_stack ;
-    while pblock() = "" do
-      close_block ""
-    done ;
-    close_flow "P"
-  end else
-    ()
-*)
+  match test !out_stack with
+    No -> ()
+  | Yes [("P",_,_)] -> close_par ()
+  | _ -> ()
+
 and open_par () =
-  if !verbose > 1 then begin
-    prerr_string "open_par stack=" ;
-    pretty_stack !out_stack
-  end ;
-  open_block "P" ""
-and close_par () =
-  if !verbose > 1 then begin
-    prerr_string "close_par stack=" ;
-    pretty_stack !out_stack
-  end ;
-  close_flow "P"
+  vsize := !vsize + 2 ;
+  do_put "\n<BR><BR>\n"
+
+and close_par () = ()
+
 ;;
 
-  
+
 let force_flow s content =
   let active = !cur_out.active and pending = !cur_out.pending in
   force_block s content ;
@@ -720,16 +708,12 @@ let put_char c =
   do_put_char c
 ;;
 
-let par () =
-  if pblock () = "P" then begin
-    close_par () ; open_par ()
-  end else begin
-   if !verbose > 0 then begin
-     prerr_endline "Warning: bad par"  ;
-     pretty_stack !out_stack
-   end ;
-   put "\n<BR><BR>\n"
-  end
+let skip_line () =
+  vsize := !vsize + 1 ;
+  put "<BR>\n"
+;;
+
+let par () =  close_par () ; open_par ()
 ;;
 
 let item f =
@@ -750,10 +734,6 @@ let item f =
   end
 ;;
 
-let skip_line () =
-  vsize := !vsize + 1 ;
-  put "<BR>\n"
-;;
 
 (* delaying output .... *)
 
@@ -769,7 +749,12 @@ let flush () =
 
 
 
-let forget () = force_block "FORGET" ""
+let rec forget () =
+  let ps = pblock () in
+  if ps <> "DELAY" then begin
+    force_block ps "" ; forget ()
+  end else
+    force_block "FORGET" ""
 ;;
 
 let loc_ref s1 s2 =

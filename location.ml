@@ -1,3 +1,10 @@
+let base = ref ""
+;;
+
+let set_base s = base := s
+and get_base () = !base
+;;
+
 let stack = ref []
 ;;
 let push s e = s := e:: !s
@@ -43,10 +50,6 @@ let print_pos () =
     let nline = find_line file 1 (Lexing.lexeme_start !curlexbuf) in
     close_in file ;
     prerr_string (!curlexname^":"^string_of_int nline^": ")
-  with Sys_error s ->
-     prerr_endline
-       ("Trouble in print_pos, file: "^ !curlexname^
-       ", "^s)
-         
+  with Sys_error s -> ()
 ;;
 

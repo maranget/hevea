@@ -2,6 +2,7 @@ let verbose = ref 0
 ;;
 
 let set_verbose () =
+  Index.verbose := !verbose ;
   Image.verbose := !verbose ;
   Html.verbose := !verbose ;
   Latexscan.verbose := !verbose;
@@ -33,7 +34,9 @@ let main () =
     [("-v", Arg.Unit (fun () -> verbose := !verbose + 1),
        "verbose flag, can be repeated to increase verbosity") ;
      ("-e", Arg.String Myfiles.erecord,
-       "-e filename, prevents filename from being read")
+       "-e filename, prevents filename from being read") ;
+     ("-idx",Arg.Unit (fun () -> Index.set_idx ()),
+       "Attempt to read .idx file (useful if indexing is non-standard)")
     ]
     (add_input)
     "htmlgen 0.00" ;
@@ -61,15 +64,19 @@ let main () =
 
     do_rec !files ;
 
-    Latexscan.out_file := begin match texfile with
-      "" ->  Out.create_chan stdout
-    | _   -> Out.create_chan
-        (open_out (Filename.chop_suffix texfile ".tex"^".html")) end ;
+    let basename = match texfile with "" -> ""
+      | _ -> Filename.chop_suffix texfile ".tex" in
 
+    Location.set_base basename ;
+    Latexscan.out_file := begin match basename with
+      "" ->  Out.create_chan stdout
+    | _   -> Out.create_chan (open_out (basename^".html")) end ;
+
+        
     begin match texfile with
       "" -> ()
     | _  ->
-       let auxname = Filename.chop_suffix texfile ".tex"^".aux" in
+       let auxname = basename^".aux" in
        try
          let auxchan = open_in auxname in
          let buf = Lexing.from_channel auxchan in

@@ -54,15 +54,14 @@ let open_image () =
     Printf.fprintf stderr "dump image number %d\n" (n+1) ;
   (if n = 0 then
     open_chan()) ;
-  count := !count + 1;
-  Out.put !buff ".PS\n" ;
+  count := !count + 1
 
-and close_image () =
-  Out.put !buff ".PE\n";
+and close_image () = ()
 ;;
 
-let dump image lexbuf =
+let dump s_open image  lexbuf =
   open_image ();
+  Out.put !buff s_open ;
   image lexbuf
 ;;
 

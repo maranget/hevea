@@ -10,6 +10,8 @@ let verbose = ref 0
 let out_file = ref (Out.create_null ())
 ;;
 
+let prelude = ref true
+;;
 
 let env_extract s =
   let i = String.index s '{'
@@ -350,8 +352,9 @@ and as_align = function
 | _       -> failwith "as_align"
 
 and is_display = function
-  Align (_,true) -> false
-| _              -> true
+    Align (_,true) -> false
+  | _              -> true
+
 
 and as_colspan = function
   1 -> ""
@@ -615,14 +618,14 @@ let int_sup_sub main what sup sub =
 }
 
 rule  main = parse
-   "%" ' '* ("BEGIN"|"begin") ' '+ ("IMAGE"|"image")  [^'\n']* '\n'
-    {Image.dump image lexbuf}
+   '%' + ' '* ("BEGIN"|"begin") ' '+ ("IMAGE"|"image")  [^'\n']* '\n'
+    {Image.dump "" image lexbuf}
 |  '%' [^ '\n']* '\n'
    {if !verbose > 1 then
      Printf.fprintf stderr "Comment : %s" (lexeme lexbuf) ;
    main lexbuf}
 (* included images *)
-| ".PS\n" {Image.dump image lexbuf}
+| ".PS\n" {Image.dump  "\n.PS\n" image lexbuf}
 | "\\box\\graph" ' '*
     {if !verbose > 2 then prerr_endline "Graph" ;
     Image.put "\\box\\graph\n";
@@ -662,19 +665,25 @@ rule  main = parse
 | "\\input" | "\\include" | "\\bibliography"
      {let lxm = lexeme lexbuf in
      let filename = Save.arg lexbuf in
+     if !verbose > 0 then
+      prerr_endline ("input file: "^filename) ;
+     if !prelude then Image.put (lxm^"{"^filename^"}\n") ;
      let filename =
        if lxm = "\\bibliography" then
          (Filename.chop_extension (Location.get ())^".bbl")
-       else (Image.put (lxm^"{"^filename^"}\n") ; filename) in
-     if !verbose > 0 then
-       Printf.fprintf stderr "input file : %s \n" filename ;
+       else filename in
      try
        let filename,input = Myfiles.open_tex filename in
        let buf = Lexing.from_channel input in
        Location.set filename buf ;
        new_env "*input" main buf ;
        Location.restore () ;
-       close_env "*input" (fun () -> ()) main lexbuf
+       close_env "*input" (fun () -> ())
+         (fun b ->
+            if !verbose > 0 then
+              prerr_endline ("Closing file: "^filename) ;
+            main b)
+         lexbuf
      with Not_found -> begin
        if !verbose > 0 then
          prerr_endline ("Not opening file: "^filename) ;
@@ -761,7 +770,7 @@ rule  main = parse
     let nargs = parse_args_opt ["0" ; ""] lexbuf in
     let body = Save.arg lexbuf in
     Image.put
-      (lxm^"{"^name^"}"^unparse_args nargs [body]) ;
+      (lxm^"{"^name^"}"^unparse_args nargs [body]^"\n") ;
     let nargs,(def,defval) = match nargs with
       [a1 ; a2] ->
         int_of_string (from_ok a1),
@@ -803,9 +812,9 @@ rule  main = parse
             [Subst ("\\the"^s^".\\arabic{"^name^"}")]
       end ;
       def_env_pat name (Latexmacros.make_pat [] 0)
-        [Subst ("\\par\\bgroup{\\bf\\stepcounter{"^name^"}"^caption^"~"^
+        [Subst ("\\cr{\\bf\\stepcounter{"^name^"}"^caption^"~"^
           "\\the"^name^"}\\quad\\it")]
-        [Subst "\\egroup"] ;
+        [Subst "\\cr"] ;
       main lexbuf}
   | "\\let\\" (['A'-'Z' 'a'-'z']+ '*'? | [^ 'A'-'Z' 'a'-'z']) '='
      {let lxm = lexeme lexbuf in
@@ -883,11 +892,10 @@ rule  main = parse
     new_env env lexfun lexbuf}
   | "\\\\"? [' ' '\n']* "\\end" ' '* ("{tabular}" | "{array}")
       {let lxm = lexeme lexbuf in
+      close_col main ;
+      close_row () ;
       let env = env_extract lxm in
       if env = !cur_env then begin
-       close_display () ;
-       Html.close_block "TD" ;
-       Html.close_block "TR" ;
        Html.close_block "TABLE" ;
        in_table := pop stack_table ;
        cur_col := pop stack_col ;
@@ -978,6 +986,7 @@ rule  main = parse
     {let lxm = lexeme lexbuf in
     let env = env_extract lxm in
     if env = "document" then begin
+      prelude := false ;
       Html.set_out !out_file
     end ;
     let lexfun = match env with
@@ -1047,15 +1056,15 @@ rule  main = parse
      Index.treat tag lexbuf ;
      main lexbuf}
   | "\\printindex"
-     {let tag =  save_opt "default" lexbuf in      
+     {let tag =  save_opt "default" lexbuf in
      Index.print (scan_this main) tag ;
      main lexbuf}
   | "\\newindex" |  "\\renewindex"
      {let tag = save_arg lexbuf in
-     let _ = save_arg lexbuf in
-     let _ = save_arg lexbuf in
+     let suf = save_arg lexbuf in
+     let _   = save_arg lexbuf in
      let name = save_arg lexbuf in
-     Index.newindex tag name ;
+     Index.newindex tag suf name ;
      main lexbuf}
 (* Counters *)
   | "\\newcounter" 
@@ -1099,6 +1108,10 @@ rule  main = parse
      {let tag = save_arg lexbuf in
      let arg = save_arg lexbuf in
      Html.open_block tag arg ;
+     main lexbuf}
+  | "\\@close"
+     {let tag = save_arg lexbuf in
+     Html.close_block tag;
      main lexbuf}
   | "\\@close"
      {let tag = save_arg lexbuf in
@@ -1282,8 +1295,11 @@ and inverb = parse
 
 and image = parse
   ".PE\n"
-     {Image.put_char '\n' ; Image.close_image  () ; main lexbuf}
-|  "%" ' '* ("END"|"end") ' '+ ("IMAGE"|"image")  [^'\n']* '\n'
+     {Image.put ".PE\n" ; Image.close_image  () ; main lexbuf}
+|  '%'+ ' '* ("END"|"end") ' '+ ("IMAGE"|"image")  [^'\n']* '\n'
+     {Image.put_char '\n' ; Image.close_image  () ;
+     main lexbuf}
+|  '%'+ ' '* ("PUT"|"put") ' '+ ("IMAGE"|"image")  [^'\n']* '\n'
      {Image.put_char '\n' ; Image.close_image  () ;
      iput_newpage () ;
      main lexbuf}

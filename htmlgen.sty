@@ -19,15 +19,15 @@
 \begin{center}Figure \thefigure:\@caption\end{center}
 \@print{<HR>}\@close{BLOCKQUOTE}}
 
-
+\newcommand{\eqno}[1]{\quad\quad#1}
 \newenvironment{equation}{$$}
-  {\quad\quad\stepcounter{equation}(\theequation)$$}
+  {\stepcounter{equation}\eqno{(\theequation)}$$}
 \newenvironment{eqnarray*}{$$\begin{array}{rtcl}}{\end{array}$$}
 \newenvironment{eqnarray}{$$\begin{array}
-  {rtcl@{\quad\stepcounter{equation}(\theequation)}}}{\end{array}$$}
+  {rtcl@{\stepcounter{equation}\eqnno{(\theequation)}}}}{\end{array}$$}
 \newenvironment{displaymath}{$$}{$$}
 
-\def\cases#1{\mbox{\left\{\begin{tabular}{ltl}#1\end{tabular}\right.}}
+\def\cases#1{\left\{\begin{array}{ltl}#1\end{array}\right.}
 \newcommand{\footnote}[2][""]{{\small (#2)}}
 \def\quad{~~~}
 \def\qquad{\quad\quad}
@@ -145,3 +145,4 @@
 \def\linebreak{}
 \def\fbox#1{\begin{array}{|c|}\hline #1\end{array}}
 \def\nocite#1{}
+\newcommand{\sqrt}[1]{sqrt(#1)}
