@@ -6,6 +6,7 @@
 \usepackage{isolatin1}
 \usepackage{epsf}
 \usepackage{ifthen}
+\usepackage{array}
 %HEVEA\usepackage{color}
 
 
@@ -43,7 +44,7 @@
 \author{Luc Maranget\thanks{Inria Rocquencourt -- BP 105, 78153 Le
 Chesnay Cedex. {\tt \mailto{Luc.Maranget@inria.fr}}}}
 \date{}
-
+\setcounter{tocdepth}{2}
 \begin{document}
 
 \maketitle
@@ -104,7 +105,7 @@ Information on \hevea{} is available at \oneurl{\docurl}.
 Assume that you have a file, ``\texttt{a.tex}'', written in \LaTeX, using the
 \filename{article}, \filename{book} or \filename{report} style. Then,
 translation
-is achieved by issuing the command~:
+is achieved by issuing the command:
 \begin{verbatim}
 # hevea a.tex
 \end{verbatim}
@@ -205,7 +206,8 @@ If the document base style departs significantly from \hevea{} base
 styles, a specific base style file has to be written.
 Although tedious, it remains feasible because \hevea{} source langage
 is \LaTeX, but this probably requires some understanding of
-\hevea{} internals. Reading the base style files \texttt{article.hva} and
+\hevea{} internals. Reading section~\ref{internal},
+the base style files \texttt{article.hva} and
 \texttt{seminar.hva} from the distribution will give clues on how to
 proceed.
 
@@ -602,9 +604,9 @@ declarations, then you
 can choose your own, by redefining the \verb+\cal+ and \verb+\sc+
 macros, using \verb+\renewcommand+, the macro redefinition operator of
 \LaTeX{}. The key point is that you need not worry with \hevea{}
-internals~: just redefine the old-\LaTeX{} style text-style
+internals: just redefine the old-\LaTeX{} style text-style
 declarations (i.e. \verb+\it+, \verb+\sc+, etc.) and everything should
-get fine~:
+get fine:
 \begin{verbatim}
 \renewcommand{\sc}{\Huge}
 \renewcommand{\cal}{\em}
@@ -822,7 +824,7 @@ explain how to proceed.
 However, it may also stem from a wrong \LaTeX{} input.
 Thus, this section is to be read before reporting a bug\ldots
 
-\subsubsection{Simple cases~: \LaTeX{} also crashes}
+\subsubsection{Simple cases: \LaTeX{} also crashes}
 In  the following source, environments are not properly balanced:
 \begin{verbatim}
 \begin{flushright}
@@ -902,7 +904,7 @@ This is a right-flushed quotation
 
 Unclosed \LaTeX{} groups (\verb+{+\ldots{}) is another source
 of nuisance to \hevea{}.
-Consider the following \texttt{horreur.tex} file~:
+Consider the following \texttt{horreur.tex} file:
 \begin{verbatim}
 \documentclass{article}
 
@@ -910,7 +912,7 @@ Consider the following \texttt{horreur.tex} file~:
 In this sentence, a group is opened now {\em and never closed.
 \end{document}
 \end{verbatim}
-\LaTeX{} accepts this file, although it produces a warning~:
+\LaTeX{} accepts this file, although it produces a warning:
 \begin{verbatim}
 # latex horreur.tex 
 This is TeX, Version 3.14159 (Web2C 7.2)
@@ -920,7 +922,7 @@ Output written on horreur.dvi (1 page, 280 bytes).
 
 \end{verbatim}
 
-By contrast, running \hevea{} on \texttt{horreur.tex} yields a fatal error~:
+By contrast, running \hevea{} on \texttt{horreur.tex} yields a fatal error:
 \begin{verbatim}
 # hevea horreur.tex 
 horreur.tex:5: Latex env error: ``document'' closes ``''
@@ -1002,7 +1004,7 @@ not seen by \LaTeX{} and will not get echoed to the \textit{image}
 file (see section~\ref{imagen}).
 
 
-\subsection{The \protect\texttt{hevea.sty} style file}
+\subsection{The \protect\texttt{hevea.sty} style file}\label{heveastyle}
 The \texttt{hevea.sty} style file is intended to be loaded by \LaTeX{}
 and not by \hevea{}.
 It provides \LaTeX{} with means to ignore or process some parts of the
@@ -1124,7 +1126,7 @@ Additionally, formal parameters \verb+#+\textit{i} are replaced by
 actual arguments inside the \texttt{toimage} environment
 (see end of section~\ref{substimage} for an example of this feature).
 
-\subsubsection{Bonus macros}
+\subsubsection{Bonus macros}\label{bonus}
 By default, \hevea{} knows some macros to process a few \html-related
 constructs.
 The \texttt{hevea} package defines \LaTeX{} equivalents for them.
@@ -1435,6 +1437,14 @@ because \hevea{} does not know about \verb+\epsfbox+ by default.
 Also observe that this not a recursive definition, since
 commands do not get expanded inside the \verb+toimage+ environment.
 
+
+Finally, if the Postcript image is produced from a bitmap, it is
+a pity to translate it back into a bitmap.
+A better idea is first to generate a GIF file from the bitmap source
+and then to include a link to that GIF file in \html{} output, see
+section~\ref{imgsrc} for description of this more adequate technique.
+
+
 \subsection{Using filters}
 
 Some programs extend \LaTeX{} capabilities using a filter principle.
@@ -1508,7 +1518,7 @@ section~\ref{heveausage} for the full definition of \hevea{} output basename).
 In the \texttt{gpic} example, modifying user source cannot be totally avoided.
 However, writing in a generic style saves typing.
 For instance, users may define the following environment for
-centered \texttt{gpic} pictures in \LaTeX{}~:
+centered \texttt{gpic} pictures in \LaTeX{}:
 \begin{verbatim}
  \newenvironment{centergpic}{}{\begin{center}~\box\graph~\end{center}}
 \end{verbatim}
@@ -1537,7 +1547,7 @@ the command sequence for translating
  tmp.tex:5: Warning: not defining environment centergpic
  # imagen smile
 \end{verbatim}
-The warnings above are normal~: they are issued when \hevea{} runs
+The warnings above are normal: they are issued when \hevea{} runs
 across the \LaTeX{}-intended definition of the \verb+centergpic+
 environment and refuses to override its own definition for that
 environment.
@@ -1745,6 +1755,211 @@ unit by typing:
 source. However, \LaTeX{} still can process the document, since the
 \texttt{hevea} package is loaded).
 
+\section{Writing \html{} directly}
+In some rare occasions, it may be appropriate to
+generate \html{} directly.
+
+
+\subsection{The \texttt{rawhtml} environment}\label{rawhtml}
+Any text enclosed between \verb+\begin{rawhtml}+ and
+\verb+\end{rawhtml}+ is echoed verbatim into the \html{} output file.
+Normally, no processing of any kind is performed on this text.
+
+However, if \texttt{hevea} is given the \texttt{-noiso} command line
+option (see section~\ref{heveausage} some
+characters (such as ``é'') get translated into \html{} entities (such as
+\verb+&eacute;+).
+
+For the document to remain processable by \LaTeX{}, it must load the
+\texttt{hevea.sty} style file (see section~\ref{heveastyle}).
+
+\subsection{Convenience macros}\label{imgsrc}
+A few ``\emph{high-level}'' macros are provided. These are first the
+``\emph{bonus}'' macros, \verb+\url+, \verb+\oneurl+, \verb+\home+ and
+\verb+\mailto+ that are described in section~\ref{bonus}.
+All these macros have \LaTeX{} equivalents defined in the
+\texttt{hevea.sty} style file.
+
+The following macros can be used to output specific \html{}
+constructs. They have no \LaTeX{} equivalents and should be seen by
+\hevea{} only.
+\begin{description}
+\item[{\tt\char92 imgsrc\char123}{\it arg}{\tt\char125}]
+Output \verb+<IMG SRC="+\textit{arg}\verb+">+. The argument
+\textit{arg} should reduce to a file name.
+\item[{\tt\char92 anchor\char123}{\it arg}{\tt\char125}]
+Output \verb+<A NAME="#+\textit{arg}\verb+">+. The argument
+should reduce to some kind of label.
+\end{description}
+
+The \verb+\anchor+ command is an alternative to the \verb+\label+ command for
+inserting hyperlinks targets.
+
+The \verb+\imgsrc+ command is more useful.
+It becomes handy when one has images both in Postscript and GIF format.
+As explained in section~\ref{substimage}, Postscript images can
+be included in \LaTeX{} documents by using the \verb+\epsfbox+
+command from the \texttt{epsf} package.
+For instance, if \texttt{screenshot.ps} is an encapsulated  Postscript
+file, then a \texttt{doc.tex} document can include it by:
+\begin{verbatim}
+\epsfbox{screenshot.ps}
+\end{verbatim}
+We may very well also have a GIF version of the screenshot image,
+let us put it in a \texttt{screenshot.ps.gif} file.
+Then, for \hevea{} to include a link to the GIF image in its
+output, it suffices
+to define the \verb+\epsfbox+ command in the \texttt{macro.hva} file
+as follows:
+\begin{verbatim}
+\newcommand{\epsfbox}[1]{\imgsrc{#1.gif}}
+\end{verbatim}
+Then \hevea{} has to be run as:
+\begin{verbatim}
+# hevea macros.hva doc.tex
+\end{verbatim}
+Since it has its own definition of \verb+\epsfbox+, \hevea{} will
+silently include a link the GIF image and not to the Postscript image.
+
+If another naming scheme for image files is prefered, there are
+alternatives.
+For instance, assume that Postscript files are of the kind
+\textit{name}\texttt{.ps}, while GIF files are of the kind
+\textit{name}\texttt{.gif}.
+Then, images can be included using
+\verb+\includeimage{+\textit{name}\verb+}+, where
+\verb+\includeimage+ is a specific user-defined command:
+\begin{verbatim}
+\newcommand{\includeimage}[1]{\ifhevea\imgsrc{#1.gif}\else\epsfbox{#1.ps}\fi}
+\end{verbatim}
+Note that this method uses the \texttt{hevea} boolean register (see
+section~\ref{heveabool}).
+If one does not wish to load the \texttt{hevea.sty} file,
+one can adopt the slightly more verbose definition:
+\begin{verbatim}
+\newcommand{\includeimage}[1]{%
+%HEVEA\imgsrc{#1.gif}%
+%BEGIN LATEX
+\epsfbox{#1.ps}
+%END LATEX
+}
+\end{verbatim}
+When the Postscript file has been produced by
+translating a bitmap file, this simple method of making a GIF image and
+using the \verb+\imagsrc+ command 
+is the most adequate.
+It should be prefered over using the \textit{image} file
+mechanism (see section~\ref{imagen}),
+which will translate the image back from
+Postscript to bitmap format and thus degrade it.
+
+
+\subsection{Internal macros}\label{internal}
+In this short section a few of \hevea{} internal macros are
+described.
+Internal macros occur at the last expansion stage of \hevea{}, they are
+interpreted by \hevea{} main lexical analyzer and cannot
+be redefined.
+
+Normally, user source code should not use them, since
+their behavior may change from one version of \hevea{} to another and
+because using them incorrectly may generate cryptic error messages or
+crash \hevea.
+However:
+\begin{itemize}
+\item Internal macros
+are almost mandatory for writing supplementary base style files.
+\item Casual usage is a convenient (but dangerous) way to finely control
+output (cf. the \verb+\@nostyle+ declaration below).
+\item Knowing a little about internal macros helps in understanding how
+\hevea{} works.
+\end{itemize}
+
+
+The general principle of \hevea{} is that \LaTeX{} environments
+\verb+\begin{+\textit{env}\verb+}+\ldots{}
+\verb+\end{+\textit{env}\verb+}+ get
+translated into \html{} block-level elements \verb+<+\textit{block}
+\textit{attributes}\verb+>+\ldots{} \verb+</+\textit{block}\verb+>+.
+More specifically, such block level elements are opened by the
+internal macro \verb+\@open+ and closed by the internal macro
+\verb+\@close+.
+As a special case, \LaTeX{} groups \verb+{+\ldots{} \verb+}+
+get translated into \html{} groups, which are shadow block-level
+elements with neither opening tag nor closing tag.
+
+Text-level element need not be closed, they are replaced by the
+internal text-level declarations \verb+\@style+, \verb+\@fontsize+ and
+\verb+\@fontcolor+. Block-level elements delimit the effect of such
+declarations.
+
+\begin{description}
+\item[{\tt\char92 @print\char123}{\it text}{\tt\char125}]
+Echo \textit{text} verbatim. The word ``verbatim'' means that (almost,
+see section~\ref{rawhtml})
+no processing of \textit{text} occurs.
+\item[{\tt\char92 @print\char123}{\it BLOCK}{\tt\char125\char123}{\it
+attributes}{\tt\char125}]
+Open \html{} block-level elements \textit{BLOCK} with attributes
+\textit{attributes}. The block name \textit{BLOCK} \emph{must} be
+uppercase.
+As a special case \textit{BLOCK} may be the empty string, then a \html{}
+group is opened.
+\item[{\tt\char92 @close\char123}{\it BLOCK}{\tt\char125}]
+Close \html{} block-level element \textit{BLOCK}.
+Note that \verb+\@open+ and \verb+\@close+ must be properly balanced.
+
+\item[{\tt\char92 @style\char123}{\it SHAPE}{\tt\char125}]
+Declare the the text shape \textit{SHAPE} (which must be uppercase)
+as active. Text shapes are known as font style elements (\verb+I+, \verb+TT+,
+etc.) or phrase elements (\verb+EM+, etc.) in the
+\html{} terminology, they are part of the more general class of
+text-level elements.
+
+The text-level element {\it SHAPE} will get opened as soon as
+necessary and closed automatically, when the
+enclosing block-level elements get closed.
+Enclosed block-level elements are treated properly by closing {\it
+SHAPE} before them, and re-opening {\it SHAPE} inside them.
+The next text-level constructs exhibit similar behavior with respect
+to block-level elements.
+\item[{\tt\char92 @fontsize\char123}{\it int}{\tt\char125}]
+Declare the text-level element \verb+FONT+ with attribute
+\verb+SIZE=+\textit{int} as active. Note that \textit{int} must
+\texttt{1},\texttt{2}, \ldots{} , \texttt{7}.
+\item[{\tt\char92 @fontcolor\char123}{\it color}{\tt\char125}]
+Declare the text-level element \verb+FONT+ with attribute
+\verb+COLOR=+\textit{color} as active.
+Note that \textit{color} must be a color specification in the \html{}
+style.
+\item[{\tt\char92 @nostyle}]
+Close active text-level declarations and ignore further text-level
+declarations (such as \verb+\@style+, etc).
+The effect stops when the enclosing block-level element is closed.
+\end{description}
+
+As a first example of using internal macros, consider the following
+excerpt from the \texttt{hevea.hva} file that
+defines the \LaTeX{} \verb+center+ environment:
+\begin{verbatim}
+\newenvironment{center}{\@open{DIV}{ALIGN=center}}{\@close{DIV}}
+\end{verbatim}
+Another example is the definition of the \verb+\purple+ high-level
+color declaration (see section~\ref{htmlcolor}):
+\begin{verbatim}
+\newcommand{\purple}{\@fontcolor{purple}}
+\end{verbatim}
+
+Finally, here is the definition of the \verb+\imgsrc+ command, also
+extracted from the \texttt{hevea.hva} file:
+\begin{verbatim}
+\newcommand{\imgsrc}[1]{{\@nostyle\@print{<IMG SRC="}#1\@print{">}}}
+\end{verbatim}
+Observe how a group \verb+{+\ldots{} \verb+}+ and the text-level
+declaration \verb+\@nostyle+ are combined in order to allow the
+expansion of the macro-argument \verb+#1+ without introducing
+untimely \html{} tags.
+
 \setcounter{section}{0}
 \renewcommand{\thesection}{\thepart.\arabic{section}}
 \part{Reference manual}\label{referencemanual}
@@ -1786,6 +2001,22 @@ recognized and processed as ``\'ecole'' ``$a_1$'' and ``$a_\Gamma$''.
 Note that, by contrast with \LaTeX{}, comments are parsed during
 argument scanning, as an important consequence brace nesting is also
 checked inside comments.
+
+Another important restriction is that command names must appear followed by
+\emph{all} their arguments, in the same static body of text.
+As a consequence, the following definition is dangerous:
+\begin{verbatim}
+\newcommand{\boite}{\textbf}
+\end{verbatim}
+In the command application \verb+\boite{+\textit{text}\verb+}+,
+the command \verb+\textbf+ and its argument~\textit{text}
+do not appear in the same static
+body of text. A sure definition is:
+\begin{verbatim}
+\newcommand{\boite}[1]{\textbf{#1}}
+\end{verbatim}
+Note that this restriction is not that absolute, source that does not
+follow it may work as expected or not.
 
 \subsection{Environments}
 
@@ -2309,7 +2540,7 @@ For example: \printgcd{54}{30}
   \arabic{ca}.}%
 For example: \printgcd{54}{30}
 
-Additionnaly, a few boolean registers are defined by \hevea{}.
+Additionally, a few boolean registers are defined by \hevea{}.
 Some of them are of interest to users.
 \begin{description}
 \item[\texttt{hevea}] Initial value is \texttt{true}.
@@ -2344,7 +2575,7 @@ figure related counters (such as \verb+topnumber+) exist but are useless.
 Marginal notes are not handled and the \verb+\marginpar+ command does
 not exist.
 If their document holds \verb+\marginpar+ command, users should define
-it as a null command~:
+it as a null command:
 \begin{verbatim}
 \newcommand{\marginpar}[1]{}
 \end{verbatim}
@@ -2360,7 +2591,7 @@ commands
 All other tabbing commands do not even exist.
 
 \subsection{The \protect\texttt{array} and \protect\texttt{tabular}
-environments}
+environments}\label{arraydef}
 
 These environments are partially supported, using \html{}
 \verb+<TABLE>+, however rendering is
@@ -2383,8 +2614,11 @@ Some others are partly rendered:
 appears around \verb+@+~formatting specification.
 \item \verb+@+ formatting specifications in \verb+\multicolumn+
 argument are ignored.
-\item The \verb+p{+{\it wd}\verb+}+ column specification is equivalent
-to \verb+l+ with word wrap enabled. This is the only occasion where
+\item The \verb+p{+{\it wd}\verb+}+ column specification is roughly equivalent
+to \verb+l+ with word wrap enabled.
+Additionnaly, entries in this column get top-aligned in the vertical direction
+explicitely and paragraph break reduces to one line break inside them.
+This is the only occasion where
 \hevea{} makes a distinction between LR-mode and paragraph mode.
 The length arguments to \verb+p+ specifications are ignored.
 \item If a \verb+|+ appears somewhere in the column formatting
@@ -2395,18 +2629,15 @@ specification, then the array is shown with borders.
 to \verb+\hline+.
 \item The \verb+tabular*+ environment is rendered as an ordinary
 \verb+tabular+.
-(A warning is issued).
-Its first argument is ignored.
+Its first mandatory argument is ignored and no optional argument is accepted.
 \item Similarly the command
 \verb+\extracolsep+ issues a warning and ignores its argument.
 \end{itemize}
 
-There is an additional feature: if ``\verb+t+'' appears before a
-column format (\verb+c+, \verb+l+ or \verb+r+), then the corresponding
-column is typeset after exiting math-mode.
-This additional feature enables the encoding of \TeX{} \verb+\cases+ using
-the \LaTeX{} arrays.
-The command \verb+\cases+ is defined in \texttt{hevea.hva}.
+By default, \hevea{} implement the \texttt{array} package
+(see \cite[Section~5.3]{latexbis} and section~\ref{arraypack} in this
+document), which significantlty extends the
+\verb+array+ and \verb+tabular+ environments.
 
 \section{Moving Information Around}
 \subsection{Files}\label{files}
@@ -2686,7 +2917,7 @@ the image to appear in \html{} output:
 %HEVEA\imageflush
 \end{verbatim}
 This will result in normal processing by \LaTeX{} and image inclusion
-by \hevea~:
+by \hevea:
 
 %BEGIN IMAGE
 \newcounter{cms}
@@ -2723,7 +2954,7 @@ pre-defined.
 
 \section{Font Selection}
 
-\subsection{Changing the Type Style}
+\subsection{Changing the Type Style}\label{htmlcolor}
 All \LaTeXe{} declarations and environments for changing type style
 are recognized. Aspect is rather like \LaTeXe{} output, but there is
 no guarantee.
@@ -2809,8 +3040,8 @@ manual.
 However \hevea{} recognizes à la \TeX{} conditional macros.
 The \verb+\newif+\textit{name}, where \textit{name} is made of letters
 only, creates three macros:
-\verb+\if+\textit{name}, \verb+\+\textit{name}\texttt{true} and
-\verb+\+\textit{name}\textit{false}.
+\verb+\if+\textit{name}, \verb+\+\textit{name}\verb+true+ and
+\verb+\+\textit{name}\verb+false+.
 The latter two set the \textit{name} condition to \textit{true} and
 \textit{false}, respectively.
 The \verb+\if+\textit{name} command tests the condition \textit{name}:
@@ -2829,7 +3060,7 @@ omitted.
 Note that \hevea{} also implements \LaTeX{} \texttt{ifthen} package
 and that \TeX{} simple conditional macros are fully compatible with
 \LaTeX{} boolean registers. More precisely,
-we have the following correspondances~:
+we have the following correspondances:
 \begin{center}
 \begin{tabular}{p{.3\linewidth}@{\quad}p{.4\linewidth}}
 \multicolumn{1}{c}{\TeX} & \multicolumn{1}{c}{\LaTeX}\\[1em]
@@ -2853,8 +3084,134 @@ fully supported. Basically, this command typesets the content of a
 file whose name is given as argument inside a \texttt{verbatim} environment.
 
 \subsection{The \texttt{calc} Package}
+This package enables using traditional, infix, notation for
+arthmetic operations
+inside the \textit{num} argument to the
+\verb+\setcounter{+\textit{name}\verb+}{+\textit{num}\verb+}+
+and \verb+\addtocounter{+\textit{name}\verb+}{+\textit{num}\verb+}+
+constructs (see~\cite[Section~A.4]{latexbis})
 
-\subsection{The \texttt{array} and \texttt{tabularx} Packages}
+The \texttt{calc} package provides a similar extension of the syntax
+of the \textit{len} argument to the \verb+\setlength+ and
+\verb+\addtolength+ constructs.
+\hevea{} does not implement this extension, since it does not
+implement length registers in the first place.
+
+\subsection{The \texttt{array} and \texttt{tabularx}
+Packages}\label{arraypack}
+
+The \texttt{array} package is described in
+\cite[Section~5.3]{latexbis} and in the local documention of \LaTeX{}
+modern installation.
+It is a compatible extension of \LaTeX{} arrays (see~\ref{arraydef}).
+Basically, it provides new column specifications
+and a \verb+\newcolumntype+ construct for user-defined  column
+specifications.
+Here is a summary of the new column specifications and of how \hevea{}
+implement them~:
+\begin{center}
+\begin{tabular*}{.7\linewidth}{l@{\quad}p{.5\linewidth}}\hline
+\verb+m{+\textit{width}\verb+}+ &
+Equivalent to the \verb+p+ column specification (the \textit{width}
+argument is ignored, entries are typeset in paragraph mode with
+paragraph breaks being reduced to a single line break), except that the entries
+are centered vertically.\\ \hline
+\verb+b{+\textit{width}\verb+}+ &
+Equivalent to the \verb+p+ column specification, except that the entries
+are bottom-aligned vertically.\\ \hline
+\verb+>{+\textit{decl}\verb+}+ &
+Can be used before \verb+l+, \verb+c+, \verb+r+,
+\verb+p{+\ldots\verb+}+, \verb+m{+\ldots\verb+}+ or
+\verb+b{+\ldots\verb+}+.
+It inserts \textit{decl} in front of the entries in the corresponding
+column. \\ \hline
+\verb+<{+\textit{decl}\verb+}+ &
+Can be used after \verb+l+, \verb+c+, \verb+r+,
+\verb+p{+\ldots\verb+}+, \verb+m{+\ldots\verb+}+ or
+\verb+b{+\ldots\verb+}+.
+It inserts \textit{decl} after entries in the corresponding
+column. \\ \hline
+\verb+!{+\textit{decl}\verb+}+ &
+Equivalent to \verb+@{+\textit{decl}\verb+}+ \\ \hline
+\end{tabular*}
+\end{center}
+
+Note that \emph{centered}, \emph{top-aligned} or \emph{bottom-aligned}
+in the vertical direction, do not
+have exactly the same meaning in \LaTeX{} and in \html{}. However, the
+aspect is the same when all columns agree w.r.t. vertical alignment.
+Ordinary column types (\verb+c+, \verb+l+ and \verb+r+)
+do not specify vertical alignement, which therefore becomes browser
+dependant.
+
+The \verb+>{+\textit{decl}\verb+}+ and \verb+<{+\textit{decl}\verb+}+
+constructs permit the encoding of \TeX{} \verb+\cases+ macro as follows:
+\begin{verbatim}
+\def\cases#1{\left\{\begin{array}{l>{$}l<{$}}#1\end{array}\right.}
+\end{verbatim}
+(This is an excerpt of the \texttt{hevea.hva} file.)
+
+New column specifications are defined by the \verb+\newcolumntype+
+construct:
+\begin{flushleft}
+\quad\verb+\newcolumntype{+\textit{col}\verb+}[+\textit{narg}\verb+]{+\textit{body}\verb+}+
+\end{flushleft}
+Where \textit{col} is one letter, the optional \textit{narg} is a
+number (defaults to \texttt{0}), and \texttt{body} is built up with
+valid column specifications and macro-argument references
+(\verb+#+\textit{int}).
+Examples are:
+\begin{verbatim}
+\newcolumntype{C}{>{\bf}c}
+\newcolumntype{E}[1]{*{#1}{c}}
+\begin{tabular}{CE{3}}\hline
+one & two & three & four \\
+five & six & seven & eight \\ \hline
+\end{tabular}
+\end{verbatim}
+The column specification
+\texttt{C} means that entries will be typeset centered and using bold
+font, while the column specifications \verb+E{+\textit{num}\verb+}+
+stands for \textit{num} centered columns. We get:
+
+\newcolumntype{C}{>{\bf}c}
+\newcolumntype{E}[1]{*{#1}{c}}
+\begin{tabular}{CE{3}}\hline
+one & two & three & four \\
+five & six & seven & eight \\ \hline
+\end{tabular}
+
+\hevea{} implements column specifications with commands defined in the
+\verb+\newcommand+ style. Thus, they have the same behavior as regards
+double definition, which is not performed and induces a warning
+message.
+Thus, a column specification that is
+first defined in a \texttt{macro.hva} specific
+file, overrides the documemnt definition.
+
+The \verb+tabularx+ package~\cite[Section~5.3.5]{latexbis}
+provides a new tabular environment
+\verb+tabularx+ and a new column type \verb+X+. \hevea{} makes the
+former equivalent to \verb+tabular+ and the latter equivalent to
+\verb+p{+\textit{ignored}\verb+}+.
+By contrast with the subtle array formatting that the
+\texttt{tabularx} package performs, this may seem a crude implementation.
+However, rendering is usually correct, although different.
+
+More generally and from the \html{} point of view such sophisticated
+formatting is browser job in the first place.
+However, the \html{} definition allows suggested widths or heights for
+table entries or table themselves.
+From \hevea{} point of view, drawing the border line between what can be
+specified and what can be left to the browser is not obvious at all.
+At the moment \hevea{} choice is not to specify too much (in
+particular, all length
+arguments, either to column specifications or to the arrays
+themselves, are ignored). As a consequence, the final, browser viewed,
+aspect of arrays will usually be different from their printed
+aspect.
+
+
 
 
 \setcounter{section}{0}
@@ -2867,7 +3224,7 @@ file whose name is given as argument inside a \texttt{verbatim} environment.
 The \texttt{hevea} command interprets its arguments as the names of
 \LaTeX{} source
 files and attempts to process them.
-Given an argument \textit{filename} there are two cases~:
+Given an argument \textit{filename} there are two cases:
 \begin{itemize}
 \item If \textit{filename} is \textit{base}\texttt{.tex}, then a single
 attempt is made to open \textit{filename}.
@@ -2886,7 +3243,7 @@ by setting the \texttt{HEVEADIR} shell environment variable.
 
 If the last argument has extension \texttt{.tex} or no extension,
 then it is interpreted as the name of the \emph{main input file}.
-In that case two \emph{basenames} are defined~:
+In that case two \emph{basenames} are defined:
 \begin{itemize}
 \item The input basename, \textit{basein},
 is defined as the main input file name,
@@ -2895,14 +3252,14 @@ with the \texttt{.tex} extension removed when present.
 with leading directories omitted.
 \end{itemize}
 \hevea{} will attempt to load the main input file.
-Ancilary files (such as the \texttt{.aux} file)
+Ancillary files (such as the \texttt{.aux} file)
 will be searched as \textit{basein}\verb+.+\textit{ext}.
-The output of \hevea{} normally goes to the file \textit{basout}\texttt{.html}.
+The output of \hevea{} normally goes to the file \textit{baseout}\texttt{.html}.
 If an \textit{image} file is generated (cf. section~\ref{imagen}), its
 name will be \textit{baseout}\texttt{.image.tex}.
 
 Thus, in the simple case where the \texttt{hevea} command is invoked
-as~:
+as:
 \begin{verbatim}
 # hevea file.tex
 \end{verbatim}
@@ -2913,7 +3270,7 @@ Whereas output goes into the file
 \texttt{file.html} in the current directory.
 
 In the more complicated case where the \texttt{hevea} command is invoked
-as~:
+as:
 \begin{verbatim}
 # hevea ./dir/file
 \end{verbatim}

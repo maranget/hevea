@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmain.ml,v 1.31 1999-03-12 13:17:58 maranget Exp $" 
+let header = "$Id: latexmain.ml,v 1.32 1999-03-16 17:41:58 maranget Exp $" 
 
 open Misc
 open Parse_opts
@@ -21,7 +21,8 @@ module Scan = Latexscan.Make (Html)
 module Otherscan = Videoc.Makealso (Scan);;
 Otherscan.init ();;
 
-Tabular.init (Scan.subst_this Scan.subst) (Scan.get_int Scan.main)
+Get.init (Scan.subst_this Scan.subst) (Scan.get_this Scan.main) ;
+Tabular.init (Scan.subst_this Scan.subst)
 ;;
 
 
@@ -129,6 +130,11 @@ with
 | Tabular.Error s ->
     Location.print_pos () ;
     prerr_endline ("Error while reading table format:\n\t"^s) ;
+    prerr_endline "Adios" ;
+    exit 2
+| Get.Error s ->
+    Location.print_pos () ;
+    prerr_endline ("Error while getting a value:\n\t"^s) ;
     prerr_endline "Adios" ;
     exit 2
 | Latexmacros.Error s ->

@@ -9,11 +9,10 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmacros.ml,v 1.39 1999-03-08 18:37:29 maranget Exp $" 
+let header = "$Id: latexmacros.ml,v 1.40 1999-03-16 17:41:57 maranget Exp $" 
 open Misc
 open Parse_opts
 open Symb
-open Lexstate
 
 exception Failed
 exception Error of string
@@ -68,8 +67,7 @@ let def_coltype name pat action =
   let cname = Misc.column_to_command name in
   try
     let _ = Hashtbl.find cmdtable cname in () ;
-    warning ("Column "^name^" is already defined") ;
-    Hashtbl.add cmdtable cname (pat,action)
+    warning ("Column "^name^" is already defined, not redefining it")
   with
     Not_found ->
       Hashtbl.add cmdtable cname (pat,action)

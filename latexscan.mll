@@ -20,8 +20,6 @@ module type S =
     val main : Lexing.lexbuf -> unit
 
     (* additional resources needed for extension modules. *)
-    val save_arg : Lexing.lexbuf -> string
-    val save_opt : string -> Lexing.lexbuf -> string
     val subst : Lexing.lexbuf -> unit
     val subst_arg : (Lexing.lexbuf -> unit) -> Lexing.lexbuf -> string
     val subst_this : (Lexing.lexbuf -> unit) -> string -> string
@@ -32,10 +30,8 @@ module type S =
     val macro_register : string -> unit
     val top_open_block : string -> string -> unit
     val top_close_block : string -> unit
-    val scan_this : (Lexing.lexbuf -> 'a ) -> string -> 'a
-    val get_this : (Lexing.lexbuf -> unit) -> string -> string
-    val get_int : (Lexing.lexbuf -> unit) -> string -> int
     val tab_val : int ref
+    val get_this : (Lexing.lexbuf -> unit) -> string -> string
 
     val withinLispComment : bool ref
     val afterLispCommentNewlines : int ref
@@ -53,7 +49,7 @@ open Save
 open Tabular
 open Lexstate
 
-let header = "$Id: latexscan.mll,v 1.70 1999-03-12 16:29:31 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.71 1999-03-16 17:42:01 maranget Exp $" 
 
 module Index = Index.Make (Html)
 
@@ -64,13 +60,6 @@ let withinLispComment = ref false;;
 let afterLispCommentNewlines = ref 0;;
 let withinSnippet = ref false;;
 
-let pretty_lexbuf lb =
-  let  pos = lb.lex_curr_pos and len = String.length lb.lex_buffer in
-  prerr_endline "Buff contents:" ;
-  prerr_endline ("<<"^String.sub lb.lex_buffer pos (len-pos)^">>");
-  prerr_endline ("curr_pos="^string_of_int lb.lex_curr_pos);
-  prerr_endline "End of buff"
-;;
 
 let my_int_of_string s =
   try int_of_string s with
@@ -93,131 +82,6 @@ let top_par n =
 ;;
 
 
-let save_arg lexbuf =
-
-  let rec save_rec lexbuf =
-    try Save.arg lexbuf
-    with Save.Eof -> begin
-        if Lexstate.empty stack_lexbuf then
-          raise (Error "Eof while looking for argument");
-        let lexbuf = previous_lexbuf () in
-        if !verbose > 2 then begin
-          prerr_endline "popping stack_lexbuf in save_arg";
-          pretty_lexbuf lexbuf ;
-          prerr_args ()
-        end;
-        save_rec lexbuf end in
-
-  Save.seen_par := false ;
-  save_lexstate () ;
-  let arg = save_rec lexbuf in
-  restore_lexstate () ;
-  if !verbose > 2 then
-    prerr_endline ("Arg parsed: ``"^arg^"''") ;
-  arg
-;;
-
-type ok = No of string | Yes of string
-;;
-
-let from_ok = function
-  Yes s -> (Latexmacros.optarg := true ; s)
-| No s  -> (Latexmacros.optarg := false ; s)
-;;
-
-let pretty_ok = function
-  Yes s -> "+"^s^"+"
-| No s  -> "-"^s^"-"
-;;
-
-
-let parse_quote_arg_opt def lexbuf =
-
-  let rec save_rec lexbuf = 
-    try Yes (Save.opt lexbuf) with
-      Save.NoOpt -> No def
-    | Save.Eof -> begin
-        if Lexstate.empty stack_lexbuf  then No def
-        else let lexbuf = previous_lexbuf () in
-        if !verbose > 2 then begin
-          prerr_endline "poping stack_lexbuf in parse_quote_arg_opt";
-          pretty_lexbuf lexbuf
-        end;
-        save_rec lexbuf end in
-  
-  save_lexstate () ;
-  let r = save_rec lexbuf in
-  restore_lexstate () ;
-  if !verbose > 2 then begin
-     Printf.fprintf stderr "Parse opt : %s" (pretty_ok r) ;
-     prerr_endline ""
-  end ;
-  Save.seen_par := false ;
-  r
-;;
-
-let rec parse_args_norm pat lexbuf = match pat with
-  [] -> []
-| s :: pat ->
-    let arg = save_arg lexbuf in
-    let r = parse_args_norm pat lexbuf in
-     arg :: r
-;;
-
-
-let parse_arg_opt def lexbuf =
-  let arg = parse_quote_arg_opt def lexbuf in
-(*
-   (match arg with Yes s -> Yes (subst_arg s)
-           | No s -> No (subst_arg s))
-*)
-  arg
-;;
-
-let rec parse_args_opt pat lexbuf = match pat with
-  [] -> []
-| def::rest ->
-   let arg = parse_arg_opt def lexbuf in
-   let r   = parse_args_opt rest lexbuf in
-   arg :: r
-;;
-
-
-let skip_opt lexbuf =
-  let _ =  parse_quote_arg_opt "" lexbuf  in
-  ()
-
-and check_opt lexbuf =
-  match parse_quote_arg_opt "" lexbuf  with
-    Yes _ -> true
-  | No  _ -> false
-
-and save_opt def lexbuf =
-  match parse_arg_opt def  lexbuf with
-    Yes s -> s
-  | No s  -> s
-;;
-
-
-let parse_args (popt,pat) lexbuf =
-  let opts =  parse_args_opt popt lexbuf in
-  let args =  parse_args_norm pat lexbuf in
-  (opts,args)
-;;
-
-let make_stack name pat lexbuf =
-  let (opts,args) = parse_args pat lexbuf in
-  let args = Array.of_list (List.map from_ok opts@args) in
-  if !verbose > 2 then begin
-    Printf.fprintf stderr "make_stack for macro: %s "  name ;
-    Latexmacros.pretty_pat pat ;
-    prerr_endline "";
-    for i = 0 to Array.length args-1 do
-      Printf.fprintf stderr "\t#%d = %s\n" (i+1) args.(i)
-    done
-  end ;
-  args
-;;
 
 
 let if_level = ref 0
@@ -442,45 +306,6 @@ and top_close_group () =
   end
 ;;
 
-
-let scan_this lexfun s =
-  start_lexstate ();
-  if !verbose > 1 then begin
-    Printf.fprintf stderr "scan_this : [%s]" s ;
-    prerr_endline ""  
-  end ;
-  let lexer = Lexing.from_string s in
-  let r = lexfun lexer in
-  if !verbose > 1 then begin
-    Printf.fprintf stderr "scan_this : over" ;
-    prerr_endline ""
-  end ;
-  restore_lexstate ();
-  r
-;;
-
-let scan_this_may_cont eat lexfun lexbuf s =
-  if !verbose > 1 then begin
-    Printf.fprintf stderr "scan_this_may_cont : [%s]" s ;
-    prerr_endline "" ;
-    if !verbose > 2 then begin
-      prerr_endline "Pushing lexbuf" ;
-      pretty_lexbuf lexbuf
-    end
-  end ;
-  save_lexstate ();
-  record_lexbuf lexbuf eat;
-
-  let lexer = Lexing.from_string s in
-  let r = lexfun lexer in
-
-  restore_lexstate ();
-  if !verbose > 1 then begin
-    Printf.fprintf stderr "scan_this_may_cont : over" ;
-    prerr_endline ""
-  end ;
-  r
-;;
 
 (*
 let scan_this_arg old_stack lexfun lexbuf s =
@@ -895,63 +720,9 @@ let rec close_ngroups = function
 
 (* Compute functions *)
 
-let bool_out = ref false
-and int_out = ref false
-;;
-
-let int_stack = Lexstate.create ()
-and bool_stack = Lexstate.create ()
-;;
-
 let sbool = function
   | false -> "false"
   | true  -> "true"
-
-let get_bool lexfun expr =
-  if !verbose > 1 then
-    prerr_endline ("get_bool : "^expr) ;
-  let old_bool = !bool_out in
-  start_normal display in_math ;
-  bool_out := true ;
-  let save_par = Html.forget_par () in
-  top_open_block "" "" ;
-  Html.nostyle () ;
-  open_ngroups 7 ;
-  scan_this lexfun expr ;
-  close_ngroups 7 ;
-  top_erase_block "" ;
-  Html.par save_par ;
-  if Lexstate.empty bool_stack then
-    raise (Error ("``"^expr^"'' has no value as a boolean"));
-  let r = pop bool_stack in
-  if !verbose > 1 then
-    prerr_endline ("get_bool: "^expr^" = "^sbool r) ;
-  bool_out := old_bool ;
-  end_normal display in_math ;
-  r
-
-let get_int lexfun expr =
-  if !verbose > 1 then
-    prerr_endline ("get_int : "^expr) ;
-  let old_int = !int_out in
-  start_normal display in_math ;
-  int_out := true ;
-  let save_par = Html.forget_par () in
-  top_open_block "" "" ;
-  Html.nostyle () ;
-  open_ngroups 2 ;
-  scan_this lexfun expr ;
-  close_ngroups 2 ;
-  top_erase_block "" ;
-  Html.par save_par ;
-  if Lexstate.empty int_stack then
-    raise (Error ("``"^expr^"'' has no value as an integer"));
-  let r = pop int_stack in
-  if !verbose > 1 then
-    prerr_endline ("get_int: "^expr^" = "^string_of_int r) ;
-  int_out := old_int ;
-  end_normal display in_math ;
-  r
 
 let get_style lexfun s =
   start_normal display in_math ;
@@ -1284,7 +1055,6 @@ rule  main = parse
        end else begin
          if nlnum >= 2 then
            if !alltt then Html.put (lexeme lexbuf)
-           else if !bool_out || !int_out then ()
            else top_par (par_val !in_table)
          else Html.put_char '\n';
          main lexbuf
@@ -1310,7 +1080,7 @@ rule  main = parse
      main lexbuf}
 | "\\verbatiminput"
       {let lxm = lexeme lexbuf in
-      let tabs = get_int main  (save_opt "8" lexbuf) in      
+      let tabs = Get.get_int (save_opt "8" lexbuf) in      
       let arg = save_arg lexbuf in
       let old_tabs = !tab_val in
       tab_val := tabs ;
@@ -1355,15 +1125,8 @@ rule  main = parse
      if !withinSnippet && lxm = "\\]" then begin
        if !verbose > 2 then prerr_endline "\\] caught within TeX escape"; 
        ()
-     end else begin
-     if !alltt && (lxm = "$" || lxm = "$$") then
-       begin Html.put lxm ; main lexbuf end
-     else if !bool_out && lxm = "\\(" then begin
-       open_ngroups 6 ;
-       main lexbuf
-     end else if !bool_out && lxm = "\\)" then begin
-       close_ngroups 6 ;
-       main lexbuf
+     end else if !alltt && (lxm = "$" || lxm = "$$") then begin
+       Html.put lxm ; main lexbuf
      end else begin
        let lxm = match lxm with
          "\\(" | "\\)" -> "$"
@@ -1403,7 +1166,7 @@ rule  main = parse
          skip_blanks lb ; main lb in
        new_env math_env ;
        lexfun lexbuf
-     end end end}
+     end end}
 | "\\mbox"
    {mbox_arg lexbuf}
 
@@ -1435,7 +1198,7 @@ rule  main = parse
         (lxm^Save.get_echo ()^"\n") ;
     let nargs,(def,defval) = match nargs with
       [a1 ; a2] ->
-        get_int main (from_ok a1),
+        Get.get_int (from_ok a1),
         (match a2 with
         | No s -> false,s
         | Yes s -> true,s)
@@ -1458,10 +1221,10 @@ rule  main = parse
      let body = save_arg lexbuf in
      let rest = Save.get_echo () in
      if !env_level = 0 then
-       Image.put (lxm^Save.get_echo ()^"\n") ;
+       Image.put (lxm^rest^"\n") ;
      def_coltype
        name
-       (Latexmacros.make_pat [] (get_int main nargs))
+       (Latexmacros.make_pat [] (Get.get_int nargs))
        (Subst body) ;
      macro_register (Misc.column_to_command name) ;
      main lexbuf}
@@ -1481,7 +1244,7 @@ rule  main = parse
        |  _ -> redef_env_pat) name
          (Latexmacros.make_pat
            (match optdef with No _ -> [] | Yes s -> [s])
-           (match nargs with No _ -> 0 | Yes s -> get_int main  s))
+           (match nargs with No _ -> 0 | Yes s -> Get.get_int s))
          (Subst body1) (Subst body2);
        macro_register ("\\"^name) ; 
        macro_register ("\\end"^name)
@@ -1712,7 +1475,7 @@ rule  main = parse
       eat_space := false ;
       main lexbuf}
   | ['\n'' ']* "\\multicolumn" 
-      {let n = get_int main (save_arg lexbuf) in      
+      {let n = Get.get_int (save_arg lexbuf) in      
       let format =  Tabular.main (save_arg lexbuf) in
       do_multi n  format main ;
       main lexbuf}
@@ -1865,7 +1628,7 @@ rule  main = parse
           main lexbuf
       | "\\@fontsize"   ->
           let arg = save_arg lexbuf in
-          Html.open_mod (Font (get_int main arg)) ;
+          Html.open_mod (Font (Get.get_int arg)) ;
           main lexbuf
       | "\\@nostyle" ->
           Html.nostyle () ;
@@ -1875,7 +1638,7 @@ rule  main = parse
           skip_blanks lexbuf ; main lexbuf
       | "\\@incsize" ->
           let arg = save_arg lexbuf in
-          inc_size (get_int main arg) ;
+          inc_size (Get.get_int arg) ;
           main lexbuf
       | "\\htmlcolor" ->
           let arg = save_arg lexbuf in
@@ -1939,83 +1702,16 @@ rule  main = parse
           let arg_true = save_arg lexbuf in
           let arg_false = save_arg lexbuf in
           scan_this main
-            (if get_bool main cond then arg_true else arg_false) ;
+            (if Get.get_bool cond then arg_true else arg_false) ;
           main lexbuf
       | "\\whiledo" ->
           let test = save_arg lexbuf in
           let body = save_arg lexbuf in
-          let btest = ref (get_bool main test) in
+          let btest = ref (Get.get_bool test) in
           while !btest do
             scan_this main body ;
-            btest := get_bool main test
+            btest := Get.get_bool test
           done ;
-          main lexbuf
-      | "\\@fileexists" when !bool_out ->
-          let name = subst_arg subst lexbuf in
-          push bool_stack
-            (try
-              let _ = Myfiles.open_tex name in
-              true
-            with Myfiles.Except | Myfiles.Error _ -> false) ;
-          main lexbuf
-      | "\\equal" when !bool_out ->
-          Save.start_echo () ;
-          let arg1 = save_arg lexbuf in
-          let arg2 = save_arg lexbuf in
-          Html.put ("\\equal"^Save.get_echo ()) ;
-          push bool_stack (get_this main arg1 = get_this main arg2) ;
-          main lexbuf
-      | "\\or" when !bool_out ->
-          close_ngroups 7 ;
-          Html.open_aftergroup
-            (fun s ->
-              if !verbose > 2 then begin
-                prerr_endline "OR" ;
-                prerr_stack_string "bool" sbool bool_stack
-              end ;
-              let b1 = pop bool_stack in
-              let b2 = pop bool_stack in
-              push bool_stack (b1 || b2) ;
-              s) ;
-          open_ngroups 6 ;
-          main lexbuf
-      | "\\and" when !bool_out ->
-          close_ngroups 6 ;
-          Html.open_aftergroup
-            (fun s ->
-              if !verbose > 2 then begin
-                prerr_endline "AND" ;
-                prerr_stack_string "bool" sbool bool_stack
-              end ;
-              let b1 = pop bool_stack in
-              let b2 = pop bool_stack in
-              push bool_stack (b1 && b2) ;
-              s) ;
-          open_ngroups 5 ;
-          main lexbuf
-      | "\\not" when !bool_out ->
-          close_ngroups 4 ;
-          Html.open_aftergroup
-            (fun s ->
-               if !verbose > 2 then begin
-                prerr_endline "NOT" ;
-                prerr_stack_string "bool" sbool bool_stack
-              end ;
-              let b1 = pop bool_stack in
-              push bool_stack (not b1) ;
-              s) ;
-          open_ngroups 3;
-          main lexbuf
-      | "\\boolean" when !bool_out ->
-          let name = subst_arg subst lexbuf in
-          let b = try
-            let _,body = Latexmacros.find_macro ("\\if"^name) in
-            match body with
-            | Test cell -> !cell
-            | _         -> raise (Error ("Bad \\if"^name^" macro"))
-          with
-            Latexmacros.Failed -> true  in
-          Html.put (sbool b) ; push bool_stack b ;
           main lexbuf
       | "\\newboolean" ->
           let name = subst_arg subst lexbuf in
@@ -2024,7 +1720,7 @@ rule  main = parse
       | "\\setboolean" ->
           let name = subst_arg subst lexbuf in
           let arg = save_arg lexbuf in
-          let b = get_bool main arg in
+          let b = Get.get_bool arg in
           scan_this main ("\\"^name^(if b then "true" else "false")) ;
           main lexbuf
 (* Bibliographies *)
@@ -2057,7 +1753,7 @@ rule  main = parse
       | "\\@footnotetext" ->
           start_lexstate () ; 
           let mark = save_arg lexbuf in
-          let mark = get_int main mark in
+          let mark = Get.get_int mark in
           let text = save_arg lexbuf in
           let text = get_this main ("\\@clearstyle "^text) in
           let anchor = save_arg lexbuf in
@@ -2158,12 +1854,12 @@ rule  main = parse
       | "\\addtocounter" ->
           let name = save_arg lexbuf in
           let arg = save_arg lexbuf in
-          Counter.add_counter name (get_int main arg) ;
+          Counter.add_counter name (Get.get_int arg) ;
           main lexbuf
       | "\\setcounter" ->
           let name = subst_arg subst lexbuf in
           let arg = save_arg lexbuf in
-          Counter.set_counter name (get_int main arg) ;
+          Counter.set_counter name (Get.get_int arg) ;
           main lexbuf
       | "\\stepcounter" ->
           let name = subst_arg subst lexbuf in
@@ -2174,15 +1870,7 @@ rule  main = parse
           Counter.step_counter name ;
           Counter.setrefvalue (get_this main ("\\@nostyle\\the"^name)) ;
           main lexbuf
-      | "\\value" ->
-          let name = subst_arg subst lexbuf in
-          if !int_out || !bool_out then begin
-            push int_stack (Counter.value_counter name) ;
-            Html.put name
-          end else begin
-            raise (Misc.Fatal ("\\value should not appear here"))
-          end ;
-          main lexbuf
+      
 (* terminal output *)
       | "\\typeout" ->
           let what = save_arg lexbuf in
@@ -2296,8 +1984,7 @@ rule  main = parse
 | eof
    {if !verbose > 1 then Printf.fprintf stderr "Eof\n" ; ()}
 | ' '+
-   {if !bool_out || !int_out then ()   
-   else if !alltt then
+   {if !alltt then
      let lxm = lexeme lexbuf in Html.put lxm
    else
      Html.put_char ' ';
@@ -2305,11 +1992,6 @@ rule  main = parse
 (* Alphabetic characters *)
 | ['a'-'z' 'A'-'Z']+
    {let lxm =  lexeme lexbuf in
-   if !bool_out then begin match lxm with
-   | "true" -> push bool_stack true
-   | "false" -> push bool_stack false
-   | _ -> ()
-   end ;
    if !in_math then begin
       Html.put "<I>";      
       Html.put lxm;
@@ -2318,126 +2000,11 @@ rule  main = parse
       Html.put lxm ;
     main lexbuf}
 (* Html specials *)
+| '<'
+    {Html.put "&lt;" ; main lexbuf}
+| '>'
+    {Html.put "&gt;" ; main lexbuf}
 | '~'         { Html.put "&nbsp;"; main lexbuf }
-(* boolean computing *)
-| '<' | '>' | '=' 
-    {let lxm = Lexing.lexeme_char lexbuf 0 in
-    if !bool_out then begin
-      close_ngroups 3 ;
-      Html.open_aftergroup
-        (fun s ->
-          if !verbose > 2 then begin
-            prerr_endline ("COMP: "^String.make 1 lxm) ;
-            prerr_stack_string "int" string_of_int int_stack
-          end ;
-          let x2 = pop int_stack in
-          let x1 = pop int_stack in              
-          push bool_stack
-            (match lxm with
-            | '<' -> x1 < x2
-            | '>' -> x1 > x2
-            | '=' -> x1 = x2
-          | _   -> assert false) ;
-          if !verbose > 2 then
-            prerr_stack_string "bool" sbool bool_stack ;
-          s) ;
-      open_ngroups 2
-    end else begin
-      match lxm with
-      | '<' -> Html.put "&lt;"
-      | '>' -> Html.put "&gt;"
-      | '=' -> Html.put_char '='
-      | _   -> assert false
-    end ;
-    main lexbuf}
-(* computing mode *)
-| '('
-    {if !int_out then begin
-      open_ngroups 2
-    end else
-      Html.put_char '(';
-    main lexbuf}
-| ')'
-    {if !int_out then begin
-      close_ngroups 2
-    end else
-      Html.put_char ')';
-    main lexbuf}
-| ['0'-'9']+
-    {let lxm = Lexing.lexeme lexbuf in
-    if !int_out || !bool_out then
-      push int_stack (int_of_string lxm) ;
-    Html.put lxm;
-    main lexbuf}
-| '\'' ['0'-'7']+
-    {let lxm = lexeme lexbuf in
-    if !int_out || !bool_out then
-      push int_stack
-        (int_of_string ("0o"^String.sub lxm 1 (String.length lxm-1))) ;
-    Html.put lxm ;
-    main lexbuf}
-|  "\"" ['0'-'9' 'a'-'f' 'A'-'F']+
-    {let lxm = lexeme lexbuf in
-    if !int_out || !bool_out then
-      push int_stack
-        (int_of_string ("0x"^String.sub lxm 1 (String.length lxm-1))) ;
-    Html.put lxm ;
-    main lexbuf}
-| '`' '\\'  [^ 'A'-'Z' 'a'-'z']
-    {let lxm = lexeme lexbuf in
-    if !int_out || !bool_out then
-      push int_stack (Char.code lxm.[2]);
-    Html.put lxm ;
-    main lexbuf}
-| '`' _
-    {let lxm = lexeme lexbuf in
-    if !int_out || !bool_out then
-      push int_stack (Char.code lxm.[1]);
-    Html.put lxm ;
-    main lexbuf}
-| '/' | '*'
-    {let lxm = lexeme_char lexbuf 0 in
-    if !int_out then begin
-      close_ngroups 1 ;
-      Html.open_aftergroup
-        (fun s ->
-          if !verbose > 2 then begin
-            prerr_endline ("MULTOP"^String.make 1 lxm) ;
-            prerr_stack_string "int" string_of_int int_stack
-          end ;
-          let x1 = pop int_stack in
-          let x2 = pop int_stack in
-          let r = match lxm with
-          | '*' -> x1 * x2
-          | '/' -> x1 / x2
-          | _   -> assert false in
-          push int_stack r ; s)
-    end else
-      Html.put_char lxm;
-    main lexbuf}
-| '+' | '-'
-    {let lxm = lexeme_char lexbuf 0 in
-    if !int_out || !bool_out then begin
-      if Html.is_empty () then push int_stack 0 ;
-      close_ngroups 2 ;
-      Html.open_aftergroup
-        (fun s ->
-          if !verbose > 2 then begin
-            prerr_endline ("OPPADD: "^String.make 1 lxm) ;
-            prerr_stack_string "int" string_of_int int_stack
-          end ;
-          let x2 = pop int_stack in
-          let x1 = pop int_stack in
-
-          let r = match lxm with
-          | '+' -> x1 + x2
-          | '-' -> x1 - x2
-          | _   -> assert false in
-          push int_stack r ; s) ;
-      open_ngroups 1 ;
-    end else
-      Html.put_char lxm;
-    main lexbuf}
 (* Spanish stuff *)
 | "?`"
     {Html.put (Html.iso '¿') ;

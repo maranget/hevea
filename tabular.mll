@@ -8,12 +8,10 @@ let header = "$Id"
 exception Error of string
 ;;
 
-let get_int = ref (fun s -> 0)
-and subst_this = ref (fun s -> s)
+let subst_this = ref (fun s -> s)
 
 let init latexsubst latexgetint =
   subst_this := latexsubst ;
-  get_int := latexgetint
 
 type align =
     {hor : string ; vert : string ; wrap : bool ;
@@ -102,17 +100,15 @@ and tfmiddle = parse
 
 | ['a'-'z''A'-'Z']
     {let lxm = lexeme lexbuf in
-    let (_,nargs),body = Latexmacros.find_macro (column_to_command lxm) in
-    let arg_t = Table.create "" in
-    for i = 0 to List.length nargs - 1 do
-      emit arg_t (Save.arg lexbuf)
-    done ;
+    let name = column_to_command lxm in
+    let pat,body = Latexmacros.find_macro name in
+    let args = Lexstate.make_stack name pat lexbuf in
     Lexstate.scan_body
       (function
         | (Latexmacros.Subst body) ->
             scan_this lexformat body ;            
         | _ -> assert false)
-      body (trim arg_t) ;
+      body args ;
     let post = tfpostlude lexbuf in
     Table.apply out_table
       (function
@@ -139,7 +135,7 @@ and lexformat = parse
    | i ->
       let sbuf = Lexing.from_string what in
       lexformat sbuf ; do_rec (i-1) in
-   do_rec (!get_int ntimes)}
+   do_rec (Get.get_int ntimes)}
 | '|' {border := true ; lexformat lexbuf}
 | '@'|'!'
     {let lxm = Lexing.lexeme_char lexbuf 0 in

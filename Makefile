@@ -15,8 +15,8 @@ OCAMLCI=ocamlc
 OCAMLOPT=ocamlopt
 OCAMLLEX=ocamllex
 INSTALL=cp
-OBJS=version.cmo misc.cmo location.cmo table.cmo parse_opts.cmo mylib.cmo myfiles.cmo  out.cmo  lexstate.cmo counter.cmo symb.cmo image.cmo  length.cmo save.cmo  auxx.cmo latexmacros.cmo  html.cmo section.cmo foot.cmo entry.cmo index.cmo colscan.cmo color.cmo tabular.cmo videoc.cmo latexscan.cmo latexmain.cmo
-OBJSCUT=version.cmo misc.cmo location.cmo out.cmo thread.cmo cross.cmo mylib.cmo section.cmo  length.cmo save.cmo cut.cmo cutmain.cmo
+OBJS=version.cmo misc.cmo location.cmo table.cmo parse_opts.cmo mylib.cmo myfiles.cmo out.cmo symb.cmo save.cmo auxx.cmo latexmacros.cmo lexstate.cmo counter.cmo image.cmo length.cmo html.cmo section.cmo foot.cmo entry.cmo index.cmo colscan.cmo color.cmo get.cmo tabular.cmo videoc.cmo latexscan.cmo latexmain.cmo
+OBJSCUT=version.cmo misc.cmo location.cmo out.cmo thread.cmo cross.cmo mylib.cmo section.cmo length.cmo save.cmo cut.cmo cutmain.cmo
 
 
 OBJPLUGINS=videoc.cmo
@@ -30,7 +30,7 @@ everything: byte opt
 install: install-$(TARGET)
 
 opt: hevea.opt hacha.opt cutfoot-fra.html cutfoot-eng.html
-byte:  hevea.byte hacha.byte cutfoot-fra.html cutfoot-eng.html
+byte: hevea.byte hacha.byte cutfoot-fra.html cutfoot-eng.html
 
 install-lib:
 	-mkdir $(LIBDIR)
@@ -98,7 +98,7 @@ clean:
 	rm -f *~ #*#
 	rm -f cutfoot-fra.html cutfoot-eng.html
 
-depend: videoc.ml colscan.ml length.ml latexscan.ml subst.ml save.ml auxx.ml entry.ml cut.ml tabular.ml
+depend: videoc.ml colscan.ml length.ml latexscan.ml subst.ml save.ml auxx.ml entry.ml cut.ml tabular.ml get.ml
 	- cp .depend .depend.bak
 	ocamldep *.mli *.ml > .depend
 

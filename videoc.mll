@@ -1,6 +1,6 @@
 (* <Christian.Queinnec@lip6.fr>
  The plugin for HeVeA that implements the VideoC style.
- $Id: videoc.mll,v 1.1 1999-03-08 18:37:41 maranget Exp $ 
+ $Id: videoc.mll,v 1.2 1999-03-16 17:42:08 maranget Exp $ 
 *)
 
 {
@@ -19,7 +19,7 @@ open Latexmacros
 (* open Html *)
 
 let header = 
-  "$Id: videoc.mll,v 1.1 1999-03-08 18:37:41 maranget Exp $"
+  "$Id: videoc.mll,v 1.2 1999-03-16 17:42:08 maranget Exp $"
 
 (* Re-link with these variables inserted in latexscan. *)
 
@@ -46,7 +46,7 @@ let snippetRunHook parsing name =
   let run name = begin
     if !verbose > 2 then prerr_endline ("Trying to run hook " ^ name);
     if exists_macro name 
-    then begin Scan.scan_this parsing name; () end
+    then begin Lexstate.scan_this parsing name; () end
   end in
   let rec iterate name suffix =
     run name;
@@ -103,7 +103,7 @@ rule snippetenv = parse
         withinLispComment := false;
         let nlnum = !afterLispCommentNewlines in
         afterLispCommentNewlines := 0;
-        let _ = Scan.scan_this snippetenv (String.make nlnum '\n') in
+        let _ = Lexstate.scan_this snippetenv (String.make nlnum '\n') in
         ()
      end;
      snippetenv lexbuf}
@@ -179,7 +179,7 @@ let rec do_handle_command lexbuf csname =
  (* Handle a backslash newline to let it appear as it is: *)
   end else if csname = "\\\n" then begin
     Html.put csname;
-    Scan.scan_this snippetenv "\n";
+    Lexstate.scan_this snippetenv "\n";
     snippetenv lexbuf
 
   end else if csname = "\\ViCIndex" then begin
@@ -202,7 +202,7 @@ let rec do_handle_command lexbuf csname =
 
   (* Execute the nullary macro with Scan.main then return to the snippetenv: *)
   end else begin
-    Scan.scan_this Scan.main csname;
+    Lexstate.scan_this Scan.main csname;
     snippetenv lexbuf
   end
 
@@ -296,7 +296,7 @@ and do_snippet lexbuf lxm =
   else begin
     let snippetDefaultLanguage = 
       Scan.get_this Scan.main "\\snippetDefaultLanguage" in
-    let language = Scan.save_opt snippetDefaultLanguage lexbuf in
+    let language = Lexstate.save_opt snippetDefaultLanguage lexbuf in
     let language = if language = "" then snippetDefaultLanguage
                                     else language in
     skip_blanks_till_eol_included lexbuf;
@@ -359,9 +359,9 @@ and do_disableSchemeCharacters lexbuf lxm =
    environment. So I code them by hand. *)
 
 and do_vicanchor lexbuf lxm = begin
-  let style = Scan.save_opt "" lexbuf in
+  let style = Lexstate.save_opt "" lexbuf in
   if !verbose > 2 then prerr_endline ("\\vicanchor"^style);
-  let nfn   = Scan.save_opt "0,filename,notename" lexbuf in
+  let nfn   = Lexstate.save_opt "0,filename,notename" lexbuf in
   if !verbose > 2 then prerr_endline ("\\vicanchor"^style^nfn);
   let fields =
     comma_separated_values (Lexing.from_string (nfn ^ ",")) in
@@ -377,7 +377,7 @@ usable'><SPAN style=\"" ^ style ^ "\"><!-- "
 end
 
 and do_vicendanchor lexbuf lxm = begin
-  let nfn = Scan.save_opt "0,filename,notename" lexbuf in
+  let nfn = Lexstate.save_opt "0,filename,notename" lexbuf in
   if !verbose > 2 then prerr_endline ("\\vicendanchor"^nfn);
   let fields = 
     comma_separated_values (Lexing.from_string (nfn ^ ",")) in
@@ -391,7 +391,7 @@ and do_vicendanchor lexbuf lxm = begin
 end  
 
 and do_vicindex lexbuf lxm = begin
-  let nfn = Scan.save_opt "0,filename,notename" lexbuf in
+  let nfn = Lexstate.save_opt "0,filename,notename" lexbuf in
   Html.put_char ' ';
   ()
 end

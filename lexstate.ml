@@ -1,6 +1,7 @@
-let header =  "$Id: lexstate.ml,v 1.5 1999-03-12 13:18:06 maranget Exp $"
+let header =  "$Id: lexstate.ml,v 1.6 1999-03-16 17:42:06 maranget Exp $"
 
 open Misc
+open Lexing
 
 exception Error of string
 exception IfFalse
@@ -31,6 +32,14 @@ and restore_stack s old = s := old
 
 (* stack for recoding lexbuf *)
 let stack_lexbuf = ref []
+;;
+
+let pretty_lexbuf lb =
+  let  pos = lb.lex_curr_pos and len = String.length lb.lex_buffer in
+  prerr_endline "Buff contents:" ;
+  prerr_endline ("<<"^String.sub lb.lex_buffer pos (len-pos)^">>");
+  prerr_endline ("curr_pos="^string_of_int lb.lex_curr_pos);
+  prerr_endline "End of buff"
 ;;
 
 (* arguments inside macros*)
@@ -198,5 +207,170 @@ and  end_normal display in_math =
   in_math := pop stack_in_math ;
   display := pop stack_display ;
   restore_lexstate () ;
+;;
+
+let save_arg lexbuf =
+
+  let rec save_rec lexbuf =
+    try Save.arg lexbuf
+    with Save.Eof -> begin
+        if empty stack_lexbuf then
+          raise (Error "Eof while looking for argument");
+        let lexbuf = previous_lexbuf () in
+        if !verbose > 2 then begin
+          prerr_endline "popping stack_lexbuf in save_arg";
+          pretty_lexbuf lexbuf ;
+          prerr_args ()
+        end;
+        save_rec lexbuf end in
+
+  Save.seen_par := false ;
+  save_lexstate () ;
+  let arg = save_rec lexbuf in
+  restore_lexstate () ;
+  if !verbose > 2 then
+    prerr_endline ("Arg parsed: ``"^arg^"''") ;
+  arg
+;;
+
+type ok = No of string | Yes of string
+;;
+
+let from_ok = function
+  Yes s -> (Latexmacros.optarg := true ; s)
+| No s  -> (Latexmacros.optarg := false ; s)
+;;
+
+let pretty_ok = function
+  Yes s -> "+"^s^"+"
+| No s  -> "-"^s^"-"
+;;
+
+
+let parse_quote_arg_opt def lexbuf =
+
+  let rec save_rec lexbuf = 
+    try Yes (Save.opt lexbuf) with
+      Save.NoOpt -> No def
+    | Save.Eof -> begin
+        if empty stack_lexbuf  then No def
+        else let lexbuf = previous_lexbuf () in
+        if !verbose > 2 then begin
+          prerr_endline "poping stack_lexbuf in parse_quote_arg_opt";
+          pretty_lexbuf lexbuf
+        end;
+        save_rec lexbuf end in
+  
+  save_lexstate () ;
+  let r = save_rec lexbuf in
+  restore_lexstate () ;
+  if !verbose > 2 then begin
+     Printf.fprintf stderr "Parse opt : %s" (pretty_ok r) ;
+     prerr_endline ""
+  end ;
+  Save.seen_par := false ;
+  r
+;;
+
+let rec parse_args_norm pat lexbuf = match pat with
+  [] -> []
+| s :: pat ->
+    let arg = save_arg lexbuf in
+    let r = parse_args_norm pat lexbuf in
+     arg :: r
+;;
+
+
+let parse_arg_opt def lexbuf =
+  let arg = parse_quote_arg_opt def lexbuf in
+(*
+   (match arg with Yes s -> Yes (subst_arg s)
+           | No s -> No (subst_arg s))
+*)
+  arg
+;;
+
+let rec parse_args_opt pat lexbuf = match pat with
+  [] -> []
+| def::rest ->
+   let arg = parse_arg_opt def lexbuf in
+   let r   = parse_args_opt rest lexbuf in
+   arg :: r
+;;
+
+
+let skip_opt lexbuf =
+  let _ =  parse_quote_arg_opt "" lexbuf  in
+  ()
+
+and check_opt lexbuf =
+  match parse_quote_arg_opt "" lexbuf  with
+    Yes _ -> true
+  | No  _ -> false
+
+and save_opt def lexbuf =
+  match parse_arg_opt def  lexbuf with
+    Yes s -> s
+  | No s  -> s
+;;
+
+
+let parse_args (popt,pat) lexbuf =
+  let opts =  parse_args_opt popt lexbuf in
+  let args =  parse_args_norm pat lexbuf in
+  (opts,args)
+;;
+
+let make_stack name pat lexbuf =
+  let (opts,args) = parse_args pat lexbuf in
+  let args = Array.of_list (List.map from_ok opts@args) in
+  if !verbose > 2 then begin
+    Printf.fprintf stderr "make_stack for macro: %s "  name ;
+    Latexmacros.pretty_pat pat ;
+    prerr_endline "";
+    for i = 0 to Array.length args-1 do
+      Printf.fprintf stderr "\t#%d = %s\n" (i+1) args.(i)
+    done
+  end ;
+  args
+;;
+
+let scan_this lexfun s =
+  start_lexstate ();
+  if !verbose > 1 then begin
+    Printf.fprintf stderr "scan_this : [%s]" s ;
+    prerr_endline ""  
+  end ;
+  let lexer = Lexing.from_string s in
+  let r = lexfun lexer in
+  if !verbose > 1 then begin
+    Printf.fprintf stderr "scan_this : over" ;
+    prerr_endline ""
+  end ;
+  restore_lexstate ();
+  r
+;;
+
+let scan_this_may_cont eat lexfun lexbuf s =
+  if !verbose > 1 then begin
+    Printf.fprintf stderr "scan_this_may_cont : [%s]" s ;
+    prerr_endline "" ;
+    if !verbose > 2 then begin
+      prerr_endline "Pushing lexbuf" ;
+      pretty_lexbuf lexbuf
+    end
+  end ;
+  save_lexstate ();
+  record_lexbuf lexbuf eat;
+
+  let lexer = Lexing.from_string s in
+  let r = lexfun lexer in
+
+  restore_lexstate ();
+  if !verbose > 1 then begin
+    Printf.fprintf stderr "scan_this_may_cont : over" ;
+    prerr_endline ""
+  end ;
+  r
 ;;
 
