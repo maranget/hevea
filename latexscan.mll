@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.164 2000-02-24 14:04:15 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.165 2000-02-29 14:27:24 maranget Exp $ *)
 
 
 {
@@ -2271,7 +2271,7 @@ def_code "\\typeout"
 
 def_code "\\warning"
   (fun lexbuf ->
-    let what = get_prim_arg lexbuf in
+    let what = subst_arg lexbuf in
     warning what )
 ;;
 
