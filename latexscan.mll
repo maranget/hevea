@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.154 1999-12-08 18:10:17 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.155 1999-12-13 16:00:49 maranget Exp $ *)
 
 
 {
@@ -2345,7 +2345,6 @@ def_code "\\kill"
 
 
 let open_tabbing lexbuf =
-  top_close_block "" ;
   let lexbuf = Lexstate.previous_lexbuf in
   let lexfun lb =
     Dest.open_table false "CELLSPACING=0 CELLPADDING=0" ;
@@ -2366,6 +2365,18 @@ let open_tabbing lexbuf =
 
 def_code "\\tabbing" open_tabbing
 ;;
+
+let close_tabbing _ =
+  Dest.do_close_cell ();
+  Dest.close_row ();
+  Dest.close_table ();
+  in_table := pop stack_table ;
+  close_env "tabbing" ;
+;;
+
+def_code "\\endtabbing" close_tabbing
+;;
+
 
 let check_width = function
   | Length.Char x ->
@@ -2419,17 +2430,6 @@ def_code "\\tabular" (open_array "tabular") ;
 def_code "\\tabular*" (open_array "tabular*")
 ;;
 
-
-let close_tabbing _ =
-  Dest.do_close_cell ();
-  Dest.close_row ();
-  Dest.close_table ();
-  in_table := pop stack_table ;
-  close_env "tabbing" ;
-;;
-
-def_code "\\endtabbing" close_tabbing
-;;
 
 let close_array env _ =
   do_unskip () ;
