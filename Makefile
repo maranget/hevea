@@ -13,8 +13,8 @@ OCAMLCI=ocamlc
 OCAMLOPT=ocamlopt
 OCAMLLEX=ocamllex
 INSTALL=cp
-OBJS=parse_opts.cmo mylib.cmo myfiles.cmo location.cmo out.cmo counter.cmo symb.cmo image.cmo subst.cmo save.cmo  aux.cmo latexmacros.cmo  html.cmo foot.cmo entry.cmo index.cmo latexscan.cmo latexmain.cmo
-OBJSCUT=location.cmo out.cmo thread.cmo cross.cmo mylib.cmo cut.cmo cutmain.cmo
+OBJS=parse_opts.cmo mylib.cmo myfiles.cmo location.cmo out.cmo counter.cmo symb.cmo image.cmo subst.cmo save.cmo  aux.cmo latexmacros.cmo  html.cmo section.cmo foot.cmo entry.cmo index.cmo latexscan.cmo latexmain.cmo
+OBJSCUT=location.cmo out.cmo thread.cmo cross.cmo mylib.cmo section.cmo save.cmo cut.cmo cutmain.cmo
 
 OPTS=$(OBJS:.cmo=.cmx)
 OPTSCUT=$(OBJSCUT:.cmo=.cmx)

@@ -128,11 +128,12 @@ let rec open_this key main = function
     Html.delay (fun _ -> ()) ;
     Html.item
       (fun tag ->
-        try main tag ; let _ = Html.flush () in () with
-        _ -> begin
+        try main (tag^"{}") ; let _ = Html.flush () in () with
+        x -> begin
           Html.forget () ;
           Location.print_pos () ;
-          prerr_endline ("Something wrong with index: "^pretty_key key)
+          prerr_endline ("Something wrong with index: "^tag) ;
+          raise x
       end) t ;
     begin match r with
       [] -> ()

@@ -803,7 +803,7 @@ let item scan arg =
     do_put "<DD>"
   end else begin
     do_put "\n<LI>" ;
-    scan arg
+    true_scan arg
   end
 ;;
 

@@ -3,7 +3,7 @@
 \usepackage{html}
 \usepackage{isolatin1}
 \usepackage{a4wide}
-\usepackage{alltt}
+
 
 \newcommand{\commandname}[1]{{\tt #1}}
 \newcommand{\filename}[1]{{\em #1}}
@@ -23,16 +23,18 @@
 \newenvironment{latexout}{\begin{htmlout}}{\end{htmlout}}
 
 
-\title{{\hevea} user documentation}
+\title{\hevea{} user documentation}
 \author{Luc Maranget\thanks{Inria Rocquencourt -- BP 105, 78153 Le
 Chesnay Cedex. {\tt \mail{Luc.Maranget}{inria.fr}}}}
 
+\setcounter{cuttingdepth}{2}
 \begin{document}
 
 \maketitle
 
 \begin{abstract}
-The programm \hevea\ is a \LaTeX\ to {\html} translator.
+{\hevea} is a {\LaTeX} to
+{\html} translator.
 The input language is a fairly complete subset of \LaTeX2e\ (old
 \LaTeX\ style is also accepted) and the
 output langaguage is {\html} that is (hopefullly) correct with respect to
@@ -45,22 +47,24 @@ This allows the translation to {\html} of quite a lot of the symbols used in
 \LaTeX.
 
 
-{\hevea} understands {\LaTeX} user macros. This allows to use user style
-files with little or no modifications, provided these style files are
-not too tricky.
+{\hevea} understands {\LaTeX} macro definitions. This allows to use user style
+files with little or no modifications.
+This also allow customizing {\hevea} by writting {\LaTeX} code.
+
 
 {\hevea} is written in Objective Caml, as many lexers. It is
 quite fast and flexible.
 Using {\hevea} it is possible to translate  big documents such
 as manuals, books, etc. very quickly. All documents are
 translated as one single {\html} file. Then, the output file can be cut into
-smaller file, using the companion program \htmlcut.
+smaller files, using the companion program \htmlcut.
 \end{abstract}
 
 
 \newpage
+\tableofcontents
 
-\part{Tutorial}
+\part{User manual}
 
 \section{How to get started}\label{getstarted}
 
@@ -104,7 +108,7 @@ documentation, including examples of \urlex{a.tex} and
 \subsection{Base style files}
 
 \noindent\hevea\ knows about two {\LaTeX} base style file,
-\filename{article}.
+\filename{article} and \filename{book}.
 Additionnaly, the \filename{report} base style is recognized and
 considerd equivalent to \filename{book}. In case your source file uses
 another base style, then you can instruct {\hevea} to load one of the
@@ -119,7 +123,7 @@ Either \hevea\ finds the the \filename{acmconf.sty} file (e.g. if you have a
 private copy of it in your directory) and fails to
 interpret it~:
 \begin{verbatim}
-# hevea acmarticle.tex
+# hevea mydoc.tex
 ./acmconf.sty:84: Unknown macro: \typeout
 ./acmconf.sty:85: Unknown macro: \typeout
 ./acmconf.sty:87: Adios
@@ -150,9 +154,10 @@ It will then ignore the base style specified by
 \subsection{Other style files}
 
 A \LaTeX\ document usually loads additional style files (using
-\verb+\input+ or \verb+\usepackage+).
-\hevea\ simply ignores \verb+\usepackage+ but attempt to load
-input files.
+\verb+\input+ or \verb+\usepackage+, or by giving optional arguments to \verb+\documentstyle+).
+\hevea\ simply ignores \verb+\usepackage+ and optional arguments to
+\verb+\documentstyle+, but it attempts to load a file given as argument
+to \verb+\input+.
 (You can see what files {\hevea} loads or attempts to load by using
 the \verb+-v+ option.)
 
@@ -166,16 +171,17 @@ typesetting or {\TeX}ish macros.
 Such macros need to be rewritten, using more basic {\LaTeX}
 constructs (section~\ref{trouble} gives examples of macro-rewritting).
 The new definition are best collected in a style file,
-\filename{macros.tex} for instance.
+\filename{mymacros.sty} for instance.
 Then, \filename{mydoc.tex} is to be compiled by issuing the command:
 \begin{verbatim}
 # hevea mymacros.sty mydoc.tex
 \end{verbatim}
-The file \filename{mymacros.tex} is processed before
+The file \filename{mymacros.sty} is processed before
 \filename{mydoc.tex} (and thus before \filename{macros.tex}).
 As a consequence, the macro definitions in \filename{mymacros.tex}
 overide the ones in  \filename{macros.tex}, provided the latter are made
-using \verb+\newcommand+ or \verb+\def+.
+using \verb+\newcommand+ or \verb+\def+ (section~\ref{usermacro}
+explains how {\hevea} handle macro definitions and redefinitions).
 
 Another situation is when  {\hevea} fails to process a whole 
 style file. Usually, this means that {\hevea} crashes on that style
@@ -188,8 +194,9 @@ Then, you should also instruct
 Of course, \filename{mymacros.sty} must now contain replacements for
 all the useful macros of \filename{macro.tex}.
 Note that another solution to instruct {\LaTeX} to load a file and
-{\hevea} not to load it is to use \verb+\usepackage+, which {\hevea}
-ignores.
+{\hevea} not to load it is to use \verb+\usepackage+ or optional
+arguments to \verb+\documentstyle+, which {\hevea}
+ignore.
 
 
 As to writting replacement macros,
@@ -211,33 +218,46 @@ This means that you formulas have to be spaced properly in the source
 file.
 
 
+\subsection{Supported symbol}
 
 
 
-\section{Macros}
-Just like \LaTeX, \hevea\ can be seen as a macro langaguage, macros
-are rewritten until no more expansion is possible. Then either some
+
+\section{Definitions}
+Just like {\LaTeX}, {\hevea} can be seen as a macro language, macros
+are rewritten until no more expansion is possible. Then, either some
 caracters (such as letters, integers\ldots) are outputed or some
 internal operation (such as changing font attributes, or arranging
 text items in a certain manner) are performed.
 
+This scheme favors easy extension of program capabilities
+by users. However predicting program behavior and correcting errors
+may prove difficult, since final output or errors
+may occur after several levels of macro expansion.
+As a consequence, users can tailor {\hevea} to their needs, but it
+remains a subtle task.
+However, happy {\LaTeX} users should enjoy customizing
+{\hevea}, since this is done merely by writting {\LaTeX} code.
+
+
+
 \subsection{Base macros}
-\LaTeX\ and {\html} differ in many aspects. For instance, \LaTeX\ allows
-much flexibility in spacing, raising or lowering texts items, whereas
+{\LaTeX} and {\html} differ in many aspects. For instance, {\LaTeX} allows
+fine control over text placement, whereas
 {\html} does not.
-Much more symbols and font attributes are available in \LaTeX\ than in
-{\html}. However, {\html} has font attributes, such as color, which \LaTeX\
-has not.
+More symbols and font attributes are available in \LaTeX\ than in
+{\html}. However, {\html} has font attributes, such as color, which
+standard {\LaTeX} has not.
 
 As a consequence, there are many situations where {\hevea} just cannot
-render the visual effect of \LaTeX\ constructions. Here some choices
+render the visual effect of {\LaTeX} constructions. Here some choices
 have to be made. For instance, the calligraphic letters (\verb+\cal+)
 are rendered in red (\verb+<FONT COLOR=red>+), and the small caps
 (\verb+\sc+) are rendered in bold font (\verb+<BF>+).
 
 If you are not satisfied with my choices, then you
 can make your own choices, by redefining the \verb+\cal+ and \verb+\sc+
-macros, using \verb+renewcommand+, the macro redefinition operator of
+macros, using \verb+\renewcommand+, the macro redefinition operator of
 {\LaTeX}.
 \begin{verbatim}
 \renewcommand{\sc}{\large}
@@ -246,18 +266,28 @@ macros, using \verb+renewcommand+, the macro redefinition operator of
 
 
 
-Note that base macros and environments are partly defined in \LaTeX\
-style in the 
-\verb+hevea.sty+ file that \hevea\ loads before processing any
-input. Other base macros that require a special processing are defined
-in \hevea source code.
+Note that many base macros and environments are defined in the 
+\verb+hevea.sty+ file that {\hevea} loads before processing any
+input.
+These macros are written using {\LaTeX} source code.
 Having a look at the \verb+hevea.sty+ file (or at the base style
 files of \hevea) will help you in designing your own implementation
 of base macros.
 
-\subsection{User macros}
+Other base macros that require a special processing are defined
+in {\hevea} source code.
+However, most of these macro definitions can be overiden by a
+redefinition.
+There remains a small number of macros that cannot be changed.
+They either are {\hevea} internal macros that finally output {\html}
+or {\LaTeX} core macros and environments, such as \verb+\newcounter+
+or \verb+array+.
+If you attempt to define or redefine these macros, nothing should happen.
 
-{\hevea} understands user macro definition
+
+\subsection{Defining macros}\label{usermacro}
+
+{\hevea} understands macro definitions
 given in {\LaTeX} style
 (using \verb+\newcommand+, \verb+\renewcommand+ and
 \verb+\providecommand+).
@@ -266,7 +296,7 @@ These three  instructions have the same meaning as in {\LaTeX}. However
 If macro {\it name} already exists, then a subsequent
 \verb+\newcommand{+{\it name}\verb+}+ is ignored.
 If macro {\it name} does not exists, then
-\verb+\newcommand{+{\it name}\verb+}+ performs a definition of {\it name}.
+\verb+\renewcommand{+{\it name}\verb+}+ performs a definition of {\it name}.
 In both cases, a warning is issued.
 
 The behavior of \verb+\newcommand+ allows to shadow document
@@ -277,16 +307,13 @@ specific style file given as an argument to {\hevea}.
 By contrast, changes of base macros (i.e. the ones that {\hevea}
 defines before loading any user-specified file) must be performed
 using \verb+\renewcommand+. Such personal (re)-definition can be made
-in any user style file.
-
-
-
+in any user file.
 
 
 {\hevea} also accepts simple {\TeX} style (using \verb+\def#1#2...+
 without delimiting 
 characters), with the same behavior as \verb+\newcommand+.
-It also processes the \verb+\[re]newenvironment+ constructs and a
+It also processes a
 limited version of \verb+\let+:
 
 \begin{flushleft}
@@ -294,16 +321,35 @@ limited version of \verb+\let+:
 \end{flushleft}
 
 Scoping rules apply to macros, as they do in {\LaTeX}.
-You can escape them by using
-\verb+\gdef+, \verb+\global\def+ or \verb+\global\let+, as you can in
-{\LaTeX}.
+You can escape them by using the {\TeX} constructs
+\verb+\gdef+, \verb+\global\def+ and \verb+\global\let+
+
+
+\subsubsection{\LaTeX{} environments}
+\hevea{} accepts environment definitions and redefinitions
+by \verb+\newenvironment+ and \verb+\renewenvironment+.
+New theorem-like environments can also be introduced and redefined,
+using \verb+\newtheorem+ and \verb+\renewtheorem+.
+The support is complete and should conform
+to~\cite[section~C.8]{latex}.
+
+
+\subsubsection{Counters}
+{\LaTeX} counters are (fully ?) supported. {\TeX} style is not
+supported.
+
+\section{Ignored \LaTeX{} constructs}
+As \html{} ignores pages in the paper document sense, all commands
+relative to page styles and umbering are ignored.
+That is, these commands silently do nothing.
+
 
 
 
 \section{How to detect and correct errors}\label{trouble}
 
 Most of the problems that occur during the translation of a given
-\LaTeX\ file (say \verb+trouble.tex+) can be solved at
+{\LaTeX} file (say \verb+trouble.tex+) can be solved at
 the macro-level. That is, most problems can be solved by writing a few
 macros. The best place for these macros is an user-style file (say
 \verb+trouble.sty+) given as
@@ -326,7 +372,7 @@ Consider the following \LaTeX\ source excerpt:
 You can \raisebox{.6ex}{\em raise} text.
 \end{verbatim}
 
-\LaTeX\ typesets this as follows:
+{\LaTeX} typesets this as follows:
 \begin{htmlout}
 \begin{htmlonly}
 \begin{toimage}
@@ -439,7 +485,7 @@ Which \LaTeX typesets as follows:
 \imageflush
 \end{htmlonly}
 \end{latexout}
-\hevea\ always translate \verb+\\rule+ by \verb+<HR>+, ignoring size
+\hevea\ always translate \verb+\rule+ as \verb+<HR>+, ignoring size
 arguments.
 Hence, it here produces the following, wrong, output:
 \begin{htmlout}\newcommand{\blob}{\rule[.2ex]{1ex}{1ex}}
@@ -588,7 +634,8 @@ as follows:
 \end{verbatim}
 
 \subsection{Indexes}
-\hevea supports several simultaneaous indexes, following the scheme of
+A TOUT EXPLIQUER
+{\hevea} supports several simultaneaous indexes, following the scheme of
 the style
 file \filename{index} from the {\LaTeX} distribution.
 This scheme is backward compatible with the standard indexing scheme
@@ -609,10 +656,13 @@ hevea -idx mydoc.tex
 \end{verbatim}
 
 
+\section{Other \LaTeX{} ``primitives''}
 
-\section{Cutting your document into pieces}
+
+
+\section{Cutting your document into pieces with {\htmlcut}}\label{htmlcut}
 {\hevea} outputs a single \filename{.html} file. This file can be
-cut into pieces at various sectionning units by {\htmlcut}
+cut into pieces at various sectionnal units by {\htmlcut}
 \subsection{Simple usage}
 First generate your {\html} document by applying {\hevea}:
 \begin{verbatim}
@@ -622,60 +672,140 @@ Then cut \filename{mydoc.html} into pieces by the command:
 \begin{verbatim}
 # htmlcut mydoc.html
 \end{verbatim}
-This will generate a simple table of content file
+This will generate a simple root file
 \filename{index.html}.
-Every item in the table of content file is a link to a file that holds
-a single sectional unit.
-The default behavior of {\htmlcut} is to cut documents with the
-\filename{article} style at the section level and documents with the
-\filename{book} style at the chapter level.
-Additionnaly, a new table of content is started at the
-document parts are shown in the \filename{index.html} file.
+This root files holds document title, abstract and a simple table of
+contents.
+Every item in the table of contents contains a link to or into a file
+that holds a ``cutting'' sectional unit.
+By default, the cutting sectional unit is {\em section} in the
+\filename{article} style and {\em chapter} in the \filename{book}
+style.
 
-The name of the table of content file can be changed using the
+Additionaly, one level of sectionning below the cutting unit (i.e.,
+subsections in the \filename{article} style and sections in the
+\filename{book} style) is shown
+as an entry in the table of contents.
+Sectional units above the cutting section (i.e. parts in both
+\filename{article} and \filename{book} styles) close the current table
+of contents and open a new one.
+
+Cross references are properly handled, the local links generated by
+{\hevea} are changed into distant links.
+
+The name of the root  file can be changed using the
 \verb+-o+ option:
 \begin{verbatim}
-# hevea -o mytoc.html mydoc.html
+# hevea -o root.html mydoc.html
 \end{verbatim}
 
 \subsection{Advanced usage}
-{\htmlcut} works by recognizing certain comments that
-{\hevea} inserts in its output.
-A few macros are provided to generate such cutting instructions.
+
+{\htmlcut} behavior can be altered by using
+a counter and a few macros, directly in the {\LaTeX} document source.
+
+A document that explicitly includes cutting macros still can be typeset by
+{\LaTeX}, provided it loads the
+\filename{html} package from the {\hevea} distribution.
+(See section~\ref{both} for details on the \filename{html.sty} style file).
+An alternative to loading the \filename{html} package is to put
+all cutting instructions in comments starting with \verb+%HEVEA+.
+
+
+
+\subsubsection{Principle}
+{\htmlcut} recognizes five sectional units, ordered as follows, from
+top to bottom: {\em
+part}, {\em chapter},
+{\em section}, {\em subsection} and {\em subsubection}.
+
+At any point between \verb+\begin{document}+ and
+\verb+\end{document}+,
+there exist a current cutting sectional unit (cutting unit for short),
+a current cutting depth, a root file and an output file.
+Table of contents output goes to the root file, normal output goes to
+the output file.
+Cutting units start a new output file, whereas units comprised between the
+cuttting unit and the cutting units plus the cutting depth add new
+entries in the table of contents.
+
+At document start, the root file and the output file are {\htmlcut}
+output file (i.e., \filename{index.html}).
+The cutting unit and the cutting depth are set to default values that
+depend on the document style.
+
+\subsubsection{Cutting macros}
+The following cutting instructions are for use in the document
+preambule. They command the cutting scheme of the whole document:
 \begin{description}
-\item[{\tt\char92 cutdef\{}{\it partname}{\tt\}\{}{\it secname}{\tt \}}]
-   Close the current table of content and change the current
-   cutting and parting sectional units. Argument {\it secname} is the
-   new cutting
-   sectionnal unit, whereas {\it partname} is the new parting sectional unit.
-\item[{\tt\char92 cutend}]
-   End the current table of content. This closes the scope of the
-   previous \verb+\cutdef+. Cutting and parting sectional unit are
-   restored as they were before.
+\item[{\tt\char92 cuttingunit}]
+This is a macro that holds the document cutting unit. You can change
+the default (which is {\em section} in the \filename{article} style
+and {\em chapter} in the \filename{book} style)  by doing
+\verb+\renewcommand{\cuttingunit}{+{\it secname}\verb+}+.
+\item[{\tt cuttingdepth}]
+This is a counter that holds the document cutting depth.
+You can change the default value of 1 by doing
+\verb+\setcounter{cuttingdepth}{+{\it numvalue}\verb+}+.
+A cutting depth of zero means no other entries than the cutting units
+in the table of contents.
+\end{description}
+
+Other cutting instructions are to be used after
+\verb+\begin{document}+. They all generate comments in {\hevea}
+output.
+These comments act as instructions to {\htmlcut}.
+
+\begin{description}
 \item[{\tt\char92 cuthere\{}{\it secname}{\tt\}\{}{\it itemtitle}{\tt\}}]
    Attempt a cut.
    \begin{itemize}
-   \item If {\it secname} is the current sectional unit, then
-   a new file is started and an entry in the current table of content
-   is generated, with title {\it itemtitle}. If no table of content is
-   opened yet, open one.
-   \item If {\it secname} is the current parting unit, then the
-   current table of content is closed.
+   \item If {\it secname} is the current cutting  unit or if {\it
+   secname is ``now''}, then
+   a new output file is started and an entry in the current table of contents
+   is generated, with title {\it itemtitle}. This entry holds a link
+   to the new output file.
+   \item If {\it secname} is above the cutting  unit, then the
+   current table of contents is closed. The output file is set to the
+   current root file.
+   \item If {\it secname} is below the cutting  unit and less than the
+   cutting depth away from it, then an entry is added in the table of
+   contents.
+   This entry contains {\em itemtitle} and a link to the point where
+   \verb+\cuthere+ appears.
    \item Otherwise, no action is performed.
-\end{itemize}
+   \end{itemize}
+
+\item[{\tt\char92 cutdef[}{\it depth}{\tt]\{}{\it secname}{\tt \}}]
+   Open a new table of contents, with cutting depth~{\em depth} and
+   cutting unit {\em secname}. If the optional {\em depth} is absent,
+   the cutting depth does not change.
+   The output file becomes the root file.
+   Result is unspecified if whatever {\em secname} expands to is an
+   a sectional unit name above
+   the current cutting  unit, is not a valid sectional unit name or if
+   {\em depth} does not expand to a small positive number.
+\item[{\tt\char92 cutend}]
+   End the current table of contents. This closes the scope of the
+   previous \verb+\cutdef+. The cutting unit and cutting depth are
+   restored.
+   Note that \verb+\cutdef+ and \verb+\cutend+ must be properly balanced.
 \end{description}
 
-In a  document whose style is \filename{article}
-(resp. \filename{book}),
-\verb+\begin{document}+ performs \verb+\cutdef{part}{section}+
-(resp. \verb+\cutdef{part}{chapter}+) and \verb+\end{document}+
-performs \verb+cutend+.
-All sectional unist down to \verb+subsection+ perform \verb+\cuthere+,
-whith the sectional unit name as first argument and the sectioning
+Default settings work as follows:
+\verb+\begin{document}+ performs \verb+\cutdef[\value{cuttingdepth}]{\cuttingunit}+ and \verb+\end{document}+
+performs \verb+\cutend+.
+All sectionning commands down to \verb+\subsubsection+ perform \verb+\cuthere+,
+with the sectional unit name as first argument and the (optional, if
+present) sectioning
 command argument (i.e., the section title) as second argument.
+Note that started versions of the sectioning commands also perform
+cutting instructions.
+
+\subsubsection{Examples}
 
 Consider, for instance, a \filename{book} document with a long chapter
-that you want to cut at the section level:
+that you want to cut at the section level, showing subsections:
 \begin{verbatim}
 \chapter{A long chapter}
 .....
@@ -686,28 +816,192 @@ Then, you should insert a \verb+\cutdef+ at chapter start and a
 \verb+\cutend+ at chapter end:
 \begin{verbatim}
 \chapter{A long chapter}
-\cutdef{part}{section}
+\cutdef[1]{section}
 .....
 \cutend
 \chapter{The next chapter}
 \end{verbatim}
 The macro \verb+section+ already performs the appropriate
 \verb+\cuthere{section}{...}+ commands. As a consequence, the file
-that would otherwise contain the long chapter now contains chapter
+that would otherwise contain the long chapter now contains the chapter
 title and a table of sections.
 
-The \verb+\cuthere+ can be used to put some document parts into
+The \verb+\cuthere+ macro can be used to put some document parts into
 their own file.
 This may prove appropriate for long cover pages or abstracts that would
-otherwise go into \filename{index.html}.
+otherwise go into the root file.
+Consider the following document:
+\begin{verbatim}
+\documentclass{article}
 
+\begin{document}
 
-A documemnt that includes cutting macros still can be typeset by
-{\LaTeX}, provided it loads the
-\filename{html.sty} style file from the {\hevea} distribution.
-(See section~\ref{both} for details on the \filename{html.sty} style file).
+\begin{abstract} A big abstract \end{abstract}
+...
+\end{verbatim}
+
+Then, you make the abstract go to its own file as it was a cutting
+unit by typing:
+\begin{verbatim}
+\documentclass{article}
+\usepackage{html}
+
+\begin{document}
+\cuthere{\cuttingunit}{Abstract}
+\begin{abstract} A big abstract \end{abstract}
+...
+\end{verbatim}
 
 \part{Reference manual}
+
+This part follows the pattern of the {\LaTeX} reference
+manual~\cite[Appendix~C]{latex}.
+
+\section{Sentences and paragraph}
+
+\subsection{Spacing}
+Generally speaking, spaces (and single newline characters) in the
+source are echoed in the output.
+Browser then manage with spaces and linebreaks.
+Following \LaTeX{} behavior, spaces after commands are not echoed.
+Spaces after invisible commands with arguments are not echoed either.
+
+By contrast with \LaTeX{}, spaces are significant
+in math mode. Futhermore,
+spaces after commands (such as \verb+\alpha+) are echoed in math mode,
+except for invisible commands (such as \verb+\tt+).
+This allows users to control space in their formulas, output being
+near to what can be expected.
+
+
+\subsection{Paragraphs}
+New paragraphs are introduced by one blank line or more.
+Paragraphs are not indented. Thus the macros \verb+\indent+ and
+\verb+noinent+ perform no action.
+
+\subsection{Accents and special symbols}
+When there exist an equivalent to a given \LaTeX{} symbol, using
+the iso-latin1 and symbol character sets, then {\hevea} outputs such
+an equivalent.
+Otherwise, {\hevea} usually issues a warning to draw user attention.
+Users can then choose their own equivalent for the symbol.
+
+Commands for making accents used in non-english languages, such as
+\verb+\'+, work when then produce letters from the iso-latin1 character set.
+Otherwise, the argument to the command is not modified (no warning here).
+However, it is more simple to write the document using iso-latin1.
+\LaTeX{} can process such documents by loading the package
+\filename{isolatin1}.
+
+\section{Sectioning}
+
+\subsection{Sectioning commands}
+Sectioning commands from \verb+\part+ down to
+\verb+\subparagraph+ are defined in base style files.
+They accept an optional argument and have starred versions.
+
+
+The non-starred sectionning commands show a section numbers in sectional
+unit headings,
+from \verb+\part+ down to \verb+\subsubsection+.
+This behavoir cannot be changed and
+the \verb+secnumdepth+ counter does not exist.
+However, given a sectionnal unit {\it secname}, the counter
+{\it secname} exists and
+the appearance of sectional units numbers can be changed
+by redefining \verb+\the+{\it secname}.
+
+
+\subsection{The Appendix}
+The \verb+\appendix+ command exists and should work as in \LaTeX.
+
+\subsection{Table of Contents}
+\hevea does not generate a table of contents and all table of contents
+related commands such as \verb+\tableofcontents+ or
+\verb+\addcontentsline+ do nothing.
+
+However, a later run of {\htmlcut} on \hevea{} output file splits it
+in smaller files organized in a tree whose nodes are tables of
+contents.
+By contrast with \LaTeX{}, starred sectioning commands generate
+entries in these tables of contents.
+Table of content entries hold the optional argument to sectioning
+commands or their argument when there is no optional
+argument. Section~\ref{htmlcut} explains how to
+control {\htmlcut}.
+
+There is no list of figures nor list of tables.
+
+\section{Classes, Packages and Page Styles}
+
+\subsection{Document Class}
+Both \LaTeX2e{} \verb+\documentclass+ and old \LaTeX{}
+\verb+\documentstyle+ are accepted.
+Their argument {\it style} is interpreted by attempting to load a
+\filename{style.sty} file (see~\ref{files} to see where \hevea{}
+searches its files).
+Presently, only the style files \filename{article.sty},
+\filename{book.sty} and \filename{report.sty} exist, the latter two
+being the same file.
+
+If one of the three styles has already been loaded at the time when
+\verb+\documentclass+ or
+\verb+\documentstyle+ is executed, then no attempt to load a style
+file is made.
+
+\subsection{Packages and Page Styles}
+They are ignored. Related commands do nothing.
+As a consequence, style files that are relevant to \hevea{} sould be
+loaded using the \verb+\input+ command.
+Note, however, \verb+\usepackage+ commands are echoed to the \filename{image}
+file (see~\ref{image}).
+
+\subsection{The Title Page and Abstract}
+All title related commands exist, with the following peculiarities:
+\begin{itemize}
+  \item The \verb+\title+ command must appear in the preambule for the title
+to appear in \html{} document header.
+  \item When not present the date is left empty. The \verb+\today+
+command generates an empty date.
+\end{itemize}
+
+The \verb+abstract+ environment is present is all base styles,
+including the \filename{book} style.
+The \verb+titlepage+ environment does nothing.
+
+\section{Displayed Paragraphs}
+Displayed-paragraph environments translate to block-level
+\html-elements.
+
+\subsection{Quotation and Verse}
+The \verb+quote+ and \verb+quotation+ are the same thing: the
+translate to \verb+<BLOCKQUOTE>+ elements.
+The \verb+verse+ environment is not supported.
+
+\subsection{List-Making environments}
+The \verb+itemize+, \verb+enumerate+ and \verb+description+
+environments translate to the \verb+<UL>+, \verb+<OL>+, and
+\verb+<DL>+ elements.
+There is no control over the default item labels in an \verb+itemize+
+or on numbering in a \verb+enumerate+ environment. The
+\verb+\labelitemi+\ldots commands and \verb+enumi+\ldots  counters are
+not defined.
+
+\subsection{The \protect\texttt{list} and \protect\texttt{trivlist}
+environments}
+The \verb+list+ environment translate to the
+\verb+<DD COMPACT=compact>+ element.
+Arguments to \verb+\begin{list}+ are handled as follows:
+\begin{flushleft}
+\quad\verb+\begin{list}{+{\it default\_label}\verb+}{+{\it decls}\verb+}+
+\end{flushleft}
+\newcounter{coucou}
+\begin{list}{$\bullet$}{\usecounter{coucou}}
+\item Coucou
+\item Zobi
+\end{list}
+
+\part{Practical information}
 
 \section{Usage}
 \begin{verbatim}
@@ -727,11 +1021,10 @@ hevea 0.0
   -o filename, make htmlcut output go into file ``filename'' (defaults to index.html)
 \end{verbatim}
 
-\part{Installation}
 
 \section{Browser configuration}\label{browser}
 
-\subsection{Nescape}
+\subsection{Netscape}
 \begin{description}
 \item[Unix]
 For Netscape, add the following line to
@@ -746,16 +1039,19 @@ Choose  {\bf Roman-Encodings} in the item {\bf Document~Encoding}
 from {\em Preferences} menu.
 \end{description}
 
+\section{Installation}
 
-\section{Requirements}
 
-This package is mainly written in
+\subsection{Requirements}
+
+The programs \commandname{hevea} and \commandname{htmlcut} are written in
 \url{http://caml.inria.fr/ocaml/}{Objective Caml}. Thus, you
 really need Objective Caml to compile it.
 
 {\hevea} extract referencing information for \filename{.aux} files,
 and bibliographic information from \filename{.bbl} files.
-Hence you need a fully functional {\LaTeX} system.
+Hence you need a fully functional {\LaTeX} system to get the right
+cross reference labels in {\hevea} output.
 Additionnaly, the {\hevea} user may instruct the program not to process a
 part of the input (see section~\ref{imagegen}). Instead, this part is
 processed into a 
@@ -765,13 +1061,20 @@ script, which basically calls, \LaTeX, ghostscript a few tools from
 the image processing package
 \url{ftp://wuarchive.wustl.edu/graphics/graphics/packages/NetPBM}{netpbm}.
 To benefit from the full functionnality of \hevea, you need all
-this software. However, \hevea\ runs without them, but then you will
-have to manage to produce images by yourself.
+this software. However, {\hevea} runs without them, but then you will
+have to accept ``X'' labels and to manage to produce images by yourself.
 
 \subsection{Principles}
 The details are given in the \verb+README+ file in the distribution.
 
+\begin{thebibliography}{xxxxxx}
+\bibitem[\LaTeX]{latex}
+L. Lamport.
+\newblock {\em A Document Preparation System System, {\LaTeX}, User's
+Guide and Reference Manual}.
+\newblock Addison-Websley, 1994.
 
+\end{thebibliography}
 
 \end{document}
 

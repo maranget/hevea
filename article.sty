@@ -24,9 +24,12 @@
 \renewcommand{\appendixname}{Annexe}
 \fi
 %%%%%%%%%%% Initial cutting
-\newcommand{\@docpart}{part}
-\newcommand{\@docchapter}{section}
+\newcommand{\cuttingunit}{section}
 %%%%%%%%%%%%%%%%
+\newcommand{\appendix}{%
+\setcounter{section}{0}%
+\renewcommand{\thesection}{\Alph{section}}%
+}
 \newcommand{\part}[2][]{%
 \stepcounter{part}%
 \ifoptarg\cuthere{part}{#1}%
@@ -91,6 +94,16 @@
 \@close{H5}%
 }
 \newcommand{\paragraph*}[1]{%
+\@open{H5}{}%
+#1%
+\@close{H5}%
+}
+\newcommand{\subparagraph}[2][]{%
+\@open{H5}{}%
+#2%
+\@close{H5}%
+}
+\newcommand{\subparagraph*}[1]{%
 \@open{H5}{}%
 #1%
 \@close{H5}%

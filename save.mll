@@ -27,7 +27,9 @@ rule opt = parse
    '['
       {incr brace_nesting ; opt2 lexbuf}
 |  ' '+ {opt lexbuf}
+|  eof  {raise (BadParse "EOF")}
 |  ""   {raise NoOpt}
+
 
 and opt2 =  parse
     '['         {  incr brace_nesting;
@@ -47,9 +49,10 @@ and arg = parse
   | '{'
       {incr brace_nesting;
       arg2 lexbuf}
-  | '='?'-'?(['0'-'9']*'.')?(['0'-'9']+|'"'['A'-'E''0'-'9']+)
+(*  | '='?'-'?(['0'-'9']*'.')?(['0'-'9']+|'"'['A'-'E''0'-'9']+)
     ("pt"|"cm"|"in"|"em"|"ex")?
             {lexeme lexbuf}
+*)
   | '%' [^'\n']* '\n'
             {arg lexbuf}
   | "\\box" '\\' (['A'-'Z' 'a'-'z']+ '*'? | [^ 'A'-'Z' 'a'-'z'])
@@ -226,6 +229,7 @@ and intag = parse
 
 and instring = parse
   '"'  {intag lexbuf}
+| '\\' '"' {instring lexbuf}
 | _    {instring lexbuf}
 | eof  {Out.to_string tag_buff}
 (*  

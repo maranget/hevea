@@ -1,5 +1,7 @@
 {
 open Lexing
+let verbose = ref 1
+;;
 
 let push s e = s := e:: !s
 and pop s = match !s with
@@ -12,6 +14,9 @@ let phase = ref 0
 
 let name = ref "main"
 and count = ref 0
+;;
+
+let body = ref "<BODY>"
 ;;
 
 let new_filename () =
@@ -43,13 +48,28 @@ let start_phase name =
 
 let openlist out = Out.put out "<UL>\n"
 and closelist out = Out.put out "</UL>\n"
-and itemlistref filename s out =
+and itemref filename s out =
   Out.put out "<LI>" ;
   Out.put out "<A HREF=\"" ;
   Out.put out filename ;
   Out.put out "\">" ;
   Out.put out s ;
   Out.put out "</A>\n"
+
+and itemanchor filename label s out =
+  Out.put out "<LI>" ;
+  Out.put out "<A HREF=\"" ;
+  Out.put out filename ;
+  Out.put_char out '#' ;
+  Out.put out label ;
+  Out.put out "\">" ;
+  Out.put out s ;
+  Out.put out "</A>\n"
+
+and putanchor label out =
+  Out.put out "<A NAME=\"" ;
+  Out.put out label ;
+  Out.put out "\"></A>"
 
 and itemlist s out =
   Out.put out "<LI>" ;
@@ -83,10 +103,12 @@ let openhtml title out outname =
   Out.put out "<HTML>\n" ;
   Out.put out "<HEAD>\n" ;
   Out.put out "<TITLE>\n" ;
+  let title = Save.tagout (Lexing.from_string title) in
   Out.put out title ;
   Out.put out "\n</TITLE>\n" ;
   Out.put out "</HEAD>\n" ;
-  Out.put out "<BODY>\n" ;
+  Out.put out !body;
+  Out.put out "\n" ;
   putlinks out outname ;
   Out.put out "<HR>\n"
 
@@ -110,55 +132,81 @@ let put_sec hd title hde out =
 let put s = Out.put !out s
 ;;
 
-let in_part = ref false
-and in_chapter = ref false
+let cur_level = ref (Section.value "DOCUMENT")
+and chapter = ref (Section.value "CHAPTER")
+and depth = ref 2
 ;;
 
-let chapter = ref "CHAPTER"
-and part = ref "PART"
-;;
 
-let close_chapter () =
-(*  prerr_endline ("Close chapter out="^ !outname^" toc="^ !tocname) ; *)
-  if !in_chapter then begin
-    in_chapter := false ;
-    if !phase > 0 then closehtml !outname !out
-    else lastclosed := !outname ;
-    outname := !tocname ;
-    out := !toc
-  end else
-   if !phase > 0 then openlist !toc
-
-and open_chapter name =
-  outname := new_filename () ;
-  if !phase > 0 then begin
-    itemlistref !outname name !toc ;
-     out := Out.create_chan (open_out !outname)
-  end ;
-  in_chapter := true;
-  if !phase > 0 then openhtml name !out !outname
-  else begin
-    Thread.setup !outname !tocname ;
-    Thread.setprevnext !lastclosed !outname
+(* Open all lists in toc from chapter to sec, with sec > chapter *)
+let rec do_open l1 l2 =
+  if l1 < l2 then begin
+    openlist !toc ;
+    do_open (l1+1) l2
   end
 ;;
 
-let close_part () =
-  if !phase > 0 then closelist !toc ;
-  in_part := false;
-and open_part () =
-  in_part := true
+(* close from l1 down to l2 *)
+let rec do_close l1 l2 =
+  if l1 > l2 then begin
+     closelist !toc ;
+     do_close (l1-1) l2
+  end else
+  cur_level := l1
+;;
+
+let anchor = ref 0
+;;
+
+let open_section sec name =
+  if !cur_level > sec then do_close !cur_level sec
+  else if !cur_level < sec then do_open  !cur_level sec ;
+  incr anchor ;
+  let label = "toc"^string_of_int !anchor in
+  itemanchor !outname label name !toc ;
+  putanchor label !out ;
+  cur_level := sec
+
+and close_section sec =  do_close !cur_level sec
+;;
+
+let close_chapter0 () =
+  lastclosed := !outname ;
+  outname := !tocname
+
+and open_chapter0 name =
+  outname := new_filename () ;
+  Thread.setup !outname !tocname ;
+  Thread.setprevnext !lastclosed !outname
+;;
+
+let close_chapter () =
+  if !verbose > 0 then
+    prerr_endline ("Close chapter out="^ !outname^" toc="^ !tocname) ;
+  closehtml !outname !out ;
+  out := !toc ;
+  close_chapter0 ()
+
+and open_chapter name =
+  outname := new_filename () ;
+  if !verbose > 0 then
+    prerr_endline ("Open chapter out="^ !outname^" toc="^ !tocname) ;
+  itemref !outname name !toc ;
+  out := Out.create_chan (open_out !outname) ;
+  openhtml name !out !outname ;
+  cur_level := !chapter
 ;;
 
 let open_notes sec_notes =
-  if String.uppercase sec_notes <> !chapter || !outname = !tocname then begin
+  if sec_notes <> !chapter || !outname = !tocname then begin
     otheroutname := !outname ;
     outname := new_filename () ;
     if !phase > 0 then begin
       otherout := !out ;
       out := Out.create_chan (open_out !outname) ;
       Out.put !out "<HTML><HEAD><TITLE>Notes</TITLE></HEAD>\n" ;
-      Out.put !out "<BODY>\n"
+      Out.put !out !body ;
+      Out.put !out "\n"
     end
   end else
    otheroutname := ""
@@ -180,30 +228,28 @@ let toc_buf = Out.create_buff ()
 let stack = ref []
 ;;
 
-let save_state newpart newchapter =
-(*  prerr_endline ("New state: "^newpart^" "^newchapter) ; *)
-  push stack (!part,!chapter,!toc,!tocname,!in_part,!in_chapter,!lastclosed) ;
-  part := newpart ;
+let save_state newchapter newdepth =
+  if !verbose > 0 then
+    prerr_endline ("New state: "^string_of_int newchapter) ;
+  push stack (!chapter,!depth,!toc,!tocname,!cur_level,!lastclosed) ;
   chapter := newchapter ;
+  depth := newdepth ;
   tocname := !outname ;
   lastclosed := "" ;
-  toc := !out ;
-  in_part := false ;
-  in_chapter := false
+  toc := !out
 ;;
 
 let restore_state () =
-(*  prerr_endline ("Restore") ; *)
+  if !verbose > 0 then prerr_endline ("Restore") ;
   let
-    oldpart,oldchapter,oldtoc,oldtocname,
-    oldinpart,oldinchapter,oldlastclosed  = pop stack in
+    oldchapter,olddepth,oldtoc,oldtocname,
+    oldlevel,oldlastclosed  = pop stack in
   chapter := oldchapter ;
-  part := oldpart ;
+  depth := olddepth ;
   toc := oldtoc ;
   tocname := oldtocname ;
   lastclosed := !lastclosed ;
-  in_part := oldinpart ;
-  in_chapter := oldinchapter
+  cur_level := oldlevel
 ;;
 
 let language = ref "eng"
@@ -213,7 +259,6 @@ let close_top lxm =
   closelist !toc ;
   Out.put !out "<!--FOOTER-->\n" ;
   Mylib.put_from_lib ("cutfoot-"^ !language^".html") (Out.put !out) ;
-  Out.put !out "\n</BODY></HTML>\n" ;
   Out.put !toc lxm ;
   if !tocname = "" then
     Out.flush !toc
@@ -221,38 +266,91 @@ let close_top lxm =
    Out.close !toc
 ;;
 
+let open_toc () = openlist !toc
+and close_toc () = closelist !toc
+;;
+
+let close_all () =
+  if !phase > 0 then begin
+    if !cur_level > !chapter then begin
+      close_section !chapter ;
+      close_chapter () ;
+      close_toc ()
+    end else if !cur_level = !chapter then begin
+      close_chapter () ;
+      close_toc ()
+    end
+  end else begin
+    if !cur_level <= !chapter then
+      close_chapter0 ();
+  end ;
+  cur_level := (Section.value "DOCUMENT")
 }
 
 rule main = parse
   "<!--" ("TOC"|"toc") ' '
-  {let sn = String.uppercase (secname lexbuf) in
+  {let arg = secname lexbuf in
+  let sn = 
+    if String.uppercase arg = "NOW" then !chapter
+    else Section.value arg in
   let name = tocline lexbuf in
-  if sn = !part then begin
-      close_chapter () ;
-      close_part () ;
-      open_part ()
-  end else if sn = !chapter then begin
-      close_chapter () ;
-      open_chapter name
+  if !phase > 0 then begin
+    if sn < !chapter then begin
+       if !cur_level >= !chapter then begin
+         close_section (!chapter) ;
+         close_chapter () ;
+         close_toc ()
+       end ;
+       cur_level := sn
+    end else if sn = !chapter then begin
+        if !cur_level < sn then begin
+          open_toc () ;
+        end else begin
+          close_section !chapter ;
+          close_chapter  ()
+        end ;
+        open_chapter name
+    end else if sn <= !chapter + !depth then begin (* sn > !chapter *)
+      if !cur_level < !chapter then begin
+        open_toc () ;
+        open_chapter ""
+      end ;
+      close_section sn ;
+      open_section sn name
+    end
+  end else begin (* !phase = 0 *)
+    if sn < !chapter then begin
+      if !cur_level >= !chapter then
+        close_chapter0 ();
+      cur_level := sn;
+    end else if sn = !chapter then begin
+      if !cur_level >= !chapter then
+        close_chapter0 () ;
+      open_chapter0 name ;
+      cur_level := sn
+    end else if sn <=  !chapter + !depth then begin
+       if !cur_level < !chapter then
+         open_chapter0 "";
+       cur_level :=  sn
+     end ;
   end ;
-  main lexbuf      
-  }
+  main lexbuf}     
 | "<!--CUT DEF" ' '+
-  {let part = String.uppercase (secname lexbuf) in
-  skip_blanks lexbuf ;
-  let chapter = String.uppercase (secname lexbuf) in
+  {let chapter = Section.value (String.uppercase (secname lexbuf)) in
+  skip_blanks lexbuf;
+  let depth = intarg lexbuf in
   skip_endcom lexbuf ;
-  save_state part chapter ;
+  save_state chapter depth ;
+  cur_level := Section.value "DOCUMENT" ;
   main lexbuf}
 | "<!--CUT END" ' '* "-->" '\n'?
-   {close_chapter () ;
-   close_part () ;
+   {close_all () ;
    restore_state () ;
    main lexbuf}
 | "<!--BEGIN" ' '+ "NOTES "
    {let sec_notes = secname lexbuf in
    skip_endcom lexbuf ;
-   open_notes sec_notes ;     
+   open_notes (Section.value sec_notes) ;     
    main lexbuf}
 | "<!--END" ' '+ "NOTES" ' '* "-->" '\n'?
    {if !otheroutname <> "" then
@@ -285,14 +383,19 @@ rule main = parse
    main lexbuf}
 | "<!--FOOTER-->" '\n'?
    {let lxm = lexeme lexbuf in
-   close_chapter () ;
-   close_part () ;
+   close_all () ;
    if !phase > 0 then Out.put !out lxm ;
    footer lexbuf}
+| "<BODY" [^'>']* '>'
+   {let lxm = lexeme lexbuf in
+   if !phase = 0 then
+     body := lxm
+   else
+     Out.put !out lxm;
+   main lexbuf}
 | "</BODY>" _*
    {let lxm = lexeme lexbuf in
-   close_chapter () ;
-   close_part () ;
+   close_all () ;
    if !phase > 0 then begin
      close_top lxm
    end}
@@ -317,6 +420,11 @@ and footer = parse
 and secname = parse
   ['a'-'z' 'A'-'Z']+
     {let r = lexeme lexbuf in r}
+| "" {failwith "secname"}
+
+and intarg = parse
+  ['0'-'9']+ {int_of_string (lexeme lexbuf)}
+| ""         {!depth}
 
 and tocline = parse
   "-->" '\n' ? {Out.to_string toc_buf}
@@ -330,13 +438,14 @@ and refname = parse
    String.sub lxm 1 (String.length lxm-2)}
 | ['a'-'z' '.' 'A'-'Z' '0'-'9']+
    {lexeme lexbuf}
+| "" {failwith "refname"}
 
 and skip_blanks = parse
   ' '* {()}
 
 and skip_endcom  = parse
   ' '* "-->" '\n'? {()}
-
+| ""               {failwith "endcom"}
 and skip_aref = parse
   "</A>" {()}
 | _      {skip_aref lexbuf}  

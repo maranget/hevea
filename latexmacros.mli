@@ -52,7 +52,6 @@ val optarg : bool ref
 val styleloaded : bool ref
 
 
-val stylemacro : string -> bool
 val invisible : string -> bool
 val limit : string -> bool
 val int : string -> bool

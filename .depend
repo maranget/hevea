@@ -6,22 +6,24 @@ counter.cmo: location.cmi counter.cmi
 counter.cmx: location.cmx counter.cmi 
 cross.cmo: location.cmi cross.cmi 
 cross.cmx: location.cmx cross.cmi 
-cut.cmo: cross.cmi mylib.cmi out.cmi thread.cmi 
-cut.cmx: cross.cmx mylib.cmx out.cmx thread.cmx 
+cut.cmo: cross.cmi mylib.cmi out.cmi save.cmo section.cmi thread.cmi 
+cut.cmx: cross.cmx mylib.cmx out.cmx save.cmx section.cmx thread.cmx 
 cutmain.cmo: cut.cmo location.cmi mylib.cmi 
 cutmain.cmx: cut.cmx location.cmx mylib.cmx 
 entry.cmo: out.cmi save.cmo 
 entry.cmx: out.cmx save.cmx 
-foot.cmo: html.cmi location.cmi parse_opts.cmi foot.cmi 
-foot.cmx: html.cmx location.cmx parse_opts.cmx foot.cmi 
+foot.cmo: html.cmi location.cmi parse_opts.cmi section.cmi foot.cmi 
+foot.cmx: html.cmx location.cmx parse_opts.cmx section.cmx foot.cmi 
 html.cmo: latexmacros.cmi out.cmi parse_opts.cmi html.cmi 
 html.cmx: latexmacros.cmx out.cmx parse_opts.cmx html.cmi 
 image.cmo: out.cmi parse_opts.cmi image.cmi 
 image.cmx: out.cmx parse_opts.cmx image.cmi 
 index.cmo: entry.cmo html.cmi location.cmi parse_opts.cmi index.cmi 
 index.cmx: entry.cmx html.cmx location.cmx parse_opts.cmx index.cmi 
-latexmacros.cmo: aux.cmo location.cmi parse_opts.cmi symb.cmi latexmacros.cmi 
-latexmacros.cmx: aux.cmx location.cmx parse_opts.cmx symb.cmx latexmacros.cmi 
+latexmacros.cmo: aux.cmo location.cmi parse_opts.cmi save.cmo symb.cmi \
+    latexmacros.cmi 
+latexmacros.cmx: aux.cmx location.cmx parse_opts.cmx save.cmx symb.cmx \
+    latexmacros.cmi 
 latexmain.cmo: aux.cmo html.cmi image.cmi latexscan.cmi location.cmi \
     myfiles.cmi out.cmi parse_opts.cmi 
 latexmain.cmx: aux.cmx html.cmx image.cmx latexscan.cmx location.cmx \
@@ -44,6 +46,8 @@ parse_opts.cmo: parse_opts.cmi
 parse_opts.cmx: parse_opts.cmi 
 save.cmo: out.cmi 
 save.cmx: out.cmx 
+section.cmo: section.cmi 
+section.cmx: section.cmi 
 subst.cmo: out.cmi 
 subst.cmx: out.cmx 
 symb.cmo: parse_opts.cmi symb.cmi 

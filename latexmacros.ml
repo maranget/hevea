@@ -69,7 +69,7 @@ let redef_macro_pat name pat action =
    pretty_macro pat action
   end ;
   try
-    Hashtbl.find cmdtable name ;
+    let _ = Hashtbl.find cmdtable name in
     Hashtbl.add cmdtable name (pat,action)
   with
     Not_found -> begin
@@ -84,7 +84,7 @@ let provide_macro_pat name pat action =
    pretty_macro pat action
   end ;
   try
-    Hashtbl.find cmdtable name ;
+    let _ = Hashtbl.find cmdtable name in
     Hashtbl.add cmdtable name (pat,action)
   with
     Not_found -> begin
@@ -129,7 +129,7 @@ let find_macro name =
   with Not_found -> begin
     Location.print_pos () ;
     prerr_string "Unknown macro: "; prerr_endline name ;
-    ([],[]),[]
+    (([],[]),[])
   end
 ;;
 
@@ -230,19 +230,6 @@ def_style "aqua" (Color "aqua");
 ();;
 
 
-let stylemacro = function
-  "\\nostyle" | "\\rm" | "\\tt"
-| "\\bf" | "\\em" | "\\it" | "\\sl" 
-| "\\tiny" | "\\footnotesize" | "\\scriptsize"
-| "\\small" | "\\normalsize" | "\\large" | "\\Large" | "\\LARGE"
-| "\\huge" | "\\Huge"
-| "\\purple" | "\\silver" | "\\gray" | "\\white"
-| "\\maroon" | "\\red" | "\\fuchsia" | "\\green"
-| "\\lime" | "\\olive" | "\\yellow" | "\\navy"
-| "\\blue" | "\\teal" | "\\aqua" -> true
-| _ -> false
-;;
-
 def_env "program" [] [];
 def_env "alltt" [] []
 ;;
@@ -334,7 +321,7 @@ def_macro "\\div" 0 [Print div];;
 def_macro "\\ast" 0 [Print ast];;
 def_macro "\\star" 0 [Print star];;
 def_macro "\\circ" 0 [Print circ];;
-def_macro "\\bullet" 0 [Print bullet];;
+def_macro "\\bullet" 0 [Subst "{\\@incsize{1}" ; Print bullet ; Subst "}"];;
 def_macro "\\cdot" 0 [Print cdot];;
 def_macro "\\cap" 0 [Print cap];;
 def_macro "\\cup" 0 [Print cup];;
@@ -476,46 +463,47 @@ let fnsymbol_of_int = function
         
 
 let aigu = function
-  "e" -> "é"
-| "E" -> "É"
+  "a" -> "á" | "e" -> "é" | "i" | "\\i" -> "í"
+| "o" -> "ó" | "u" -> "ú"
+| "A" -> "Á" | "E" -> "É" | "I" | "\\I" -> "Í"
+| "O" -> "Ó" | "U" -> "Ú"
+| "y" -> "ý" | "Y" -> "Ý"
+| "" | " " -> "'"
 | s   -> s
+
 and grave = function
-  "a"  -> "à"
-| "A"  -> "À"
-| "e"  -> "è"
-| "E" -> "È"
-| "u" -> "ù"
-| "U" -> "Ù"
+  "a" -> "à" | "e" -> "è"  | "i" -> "ì"
+| "o" -> "ò" | "u" -> "ù"  | "\\i" -> "í"
+| "A" -> "À" | "E" -> "È"  | "I" -> "Ì"
+| "O" -> "Ò" | "U" -> "Ù"  | "\\I" -> "Ì"
+| "" | " " -> "`"
 | s -> s
 and circonflexe = function
-  "a"  -> "â"
-| "A"  -> "Â"
-| "e"  -> "ê"
-| "E" -> "Ê"
-| "i" -> "î"
-| "\\i" -> "î"
-| "I" -> "Î"
-| "\\I" -> "Î"
-| "u" -> "û"
-| "U" -> "Û"
+  "a" -> "â" | "e" -> "ê"  | "i" -> "î"
+| "o" -> "ô" | "u" -> "û"  | "\\i" -> "î"
+| "A" -> "Â" | "E" -> "Ê"  | "I" -> "Î"
+| "O" -> "Ô" | "U" -> "Û"  | "\\I" -> "Î"
+| "" | " " -> "^"
 | s -> s
+
 and trema = function
-  "e"  -> "ë"
-| "E" -> "Ë"
-| "i" -> "ï"
-| "\\i" -> "ï"
-| "I" -> "Ï"
-| "\\I" -> "Ï"
-| "u" -> "ü"
-| "U" -> "Ü"
+  "a" -> "ä" | "e" -> "ë"  | "i" -> "ï"
+| "o" -> "ö" | "u" -> "ü"  | "\\i" -> "ï"
+| "A" -> "Ä" | "E" -> "Ë"  | "I" -> "Ï"
+| "O" -> "Ö" | "U" -> "Ü"  | "\\I" -> "Ï"
+| "" | " " -> "¨"
 | s -> s
+
 and cedille = function
   "c" -> "ç"
 | "C" -> "Ç"
 | s   -> s
+
 and tilde = function
-  "n" -> "ñ"
-| "N" -> "Ñ"
+  "a" -> "ã" | "A" -> "Ã"
+| "o" -> "õ" | "O" -> "Õ"
+| "n" -> "ñ" | "N" -> "Ñ"
+| "" | " " -> "~"
 | s   -> s
 ;;
 
@@ -525,7 +513,7 @@ def_macro "\\'" 1 [Print_fun (aigu,0)];
 def_macro "\\`" 1 [Print_fun (grave,0)];
 def_macro "\\^" 1 [Print_fun (circonflexe,0)];
 def_macro "\\\"" 1 [Print_fun (trema,0)];
-def_macro "\c" 1  [Print_fun (cedille,0)];
+def_macro "\\c" 1  [Print_fun (cedille,0)];
 def_macro "\\~" 1 [Print_fun (tilde,0)];
 
 (* Counters *)
@@ -539,18 +527,20 @@ def_macro "\\uppercase" 1 [Print_fun (String.uppercase,0)];
 ();;
 
 let invisible = function
-  "\\pagebreak" -> true
-| "\\nopagebreak" -> true
-| "\linebreak" -> true
-| "\\nolinebreak" -> true
-| "\\label" -> true
-| "\\index" -> true
-| "\\vspace" -> true
-| "\\glossary" -> true
-| "\\marginpar" -> true
-| "\\figure" -> true
-| "\\table" -> true
-| _         -> false
+  "\\pagebreak" | "\\nopagebreak" | "\linebreak"
+| "\\nolinebreak" | "\\label" | "\\index"
+| "\\vspace" | "\\glossary" | "\\marginpar"
+| "\\figure" | "\\table"
+| "\\nostyle" | "\\rm" | "\\tt"
+| "\\bf" | "\\em" | "\\it" | "\\sl" 
+| "\\tiny" | "\\footnotesize" | "\\scriptsize"
+| "\\small" | "\\normalsize" | "\\large" | "\\Large" | "\\LARGE"
+| "\\huge" | "\\Huge"
+| "\\purple" | "\\silver" | "\\gray" | "\\white"
+| "\\maroon" | "\\red" | "\\fuchsia" | "\\green"
+| "\\lime" | "\\olive" | "\\yellow" | "\\navy"
+| "\\blue" | "\\teal" | "\\aqua" -> true
+| _ -> false
 ;;
 
 let limit = function

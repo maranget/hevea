@@ -28,16 +28,9 @@ let register i mark text anchor =
   incr current
 ;;
 
-let sec_value s = match String.uppercase s with
-  "DOCUMENT"|"" -> 0
-| "PART" -> 1
-| "CHAPTER" -> 2
-| "SECTION" -> 3
-| _         -> 4
-;;
 
 let flush lexer sec_notes sec_here =
-  if !some && sec_value sec_here <= sec_value sec_notes then begin
+  if !some && Section.value sec_here <= Section.value sec_notes then begin
     some := false ;
     Html.put "<!--BEGIN NOTES " ;
     Html.put sec_notes ;
