@@ -261,6 +261,7 @@
 \AtBeginDocument{\@begin@document}
 \AtBeginDocument
 {\begin{toimage}
+\makeatletter\@ifundefined{ifimagen}{\newif\ifimagen}\makeatother\imagentrue
 \pagestyle{empty}
 \begin{document}
 \end{toimage}}
