@@ -328,8 +328,6 @@
 \thispagestyle{empty}
 \begin{document}
 \end{toimage}}
-\AtBeginDocument
-{\sbox{\@@title}{\@title}\sbox{\@@author}{\@author}\sbox{\@@date}{\@date}}
 \newtokens{\@atenddocument}
 \newcommand{\AtEndDocument}[1]{\addtokens{\@atenddocument}{#1}}
 \def\@final@footer{%
@@ -486,11 +484,16 @@
 %%%%%%%%%% Compatibility with old hevea \url
 \AtBeginDocument{\@ifundefined{url}{\input{compat.hva}}{}}
 %%%%%%%%% Time stuff
-\AtBeginDocument{\@ifundefined{theyear}{}
+\AtBeginDocument
+{\@ifundefined{theyear}
+{\renewcommand{\today}{\warning{\today needs ``-exec xxdate.exe'' option}}}
 {\renewcommand{\theHour}{\@twoarabic{Hour}}
 \renewcommand{\thehour}{\@twoarabic{hour}}
 \renewcommand{\theminute}{\@twoarabic{minute}}
-\renewcommand{\thesecond}{\@twoarabic{second}}}}
+\renewcommand{\thesecond}{\@twoarabic{second}}}%
+%Format date after \today is defined
+{\sbox{\@@title}{\@title}\sbox{\@@author}{\@author}\sbox{\@@date}{\@date}}}
+
 %%%%%%%% Corrected format for the day  
 \newcommand\english@day{%
         \ifthenelse{\value{day}=1 }{\theday st} {%
@@ -522,9 +525,6 @@
 %%%%%%%%%%%%%% Defined counter printing functions
 \newcommand{\@arabic}[1]{\@pad{0}{3}{\arabic{#1}}}
 \newcommand{\@twoarabic}[1]{\@pad{0}{2}{\arabic{#1}}}
-%%%%%%%%%%%%%% Deprecated
-\def\texdef{\warning{\texdef is deprecated, use \def}\def}
-\def\texlet{\warning{\texlet is deprecated, use \let}\let}
 %%%%%%%%%%%%%%% Une horreur qui peut etre utile
 \newcommand{\newverbenv}[1]
 {\@stopimage%

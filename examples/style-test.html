@@ -4,8 +4,7 @@
 
 <HEAD>
 
-<TITLE>HEVEA User Documentation 
-Version 1.07</TITLE>
+<TITLE></TITLE>
 
 <META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <META name="GENERATOR" content="hevea 1.07">
@@ -14,7 +13,8 @@ Version 1.07</TITLE>
 <LINK REL=STYLESHEET type="text/css" HREF="y.css">
 
 <STYLE type="text/css">
-    .titlecommon{background:green;color:white;padding:3}
+    .part{text-align: center }
+    .title{background:green;color:white;padding:3}
     .titlemain{background:green;color:white;padding:3}
     .titlerest{background:green;color:white;padding:3}
     .part{background:green;color:white;padding:3}
@@ -48,30 +48,20 @@ Version 1.07</TITLE>
 </HEAD>
 
 <BODY >
-<!--HEVEA command line is: ../hevea.byte -exec xxdate.exe style-test.tex -->
+<!--HEVEA command line is: hevea -fix -fix -O style-test.tex -->
 <!--HTMLHEAD-->
 <!--ENDHTML-->
 <!--PREFIX <ARG ></ARG>-->
 <!--CUT DEF section 1 -->
 
-
-
-
 <BR>
-<TABLE CELLPADDING=1.5ex ALIGN=center>
-<TR><TD CLASS=titlecommon>
-<H1 ALIGN=center CLASS=titlemain>H<FONT SIZE=2><sup>E</sup></FONT>V<FONT SIZE=2><sup>E</sup></FONT>A User Documentation<BR>
-Version&nbsp;1.07</H1>
-<H3 ALIGN=center CLASS=titlerest>Luc Maranget<SUP><A NAME="text1" HREF="#note1">*</A></SUP></H3>
-<H3 ALIGN=center CLASS=titlerest>						26th							July,&nbsp;2004</H3></TD>
-</TR></TABLE><BR>
+<BR>
+<BR>
 <!--TOC part Adding Style to Macros and Environments-->
-<TABLE ALIGN=center>
-<TR><TD>
-<H1 CLASS=part ALIGN=center><A NAME="htoc1">Part&nbsp;A</A><BR>
-Adding Style to Macros and Environments</H1></TD>
-</TR></TABLE><!--SEC END -->
-<BR>
+
+<H1 CLASS=part><A NAME="htoc1">Part&nbsp;I</A><BR>
+Adding Style to Macros and Environments</H1><!--SEC END -->
+
 <!--TOC section Adding 'Style' to Listing Mechanisms-->
 
 <H2 CLASS=section><A NAME="htoc2">1</A>&nbsp;&nbsp;Adding 'Style' to Listing Mechanisms</H2><!--SEC END -->
@@ -177,22 +167,22 @@ An input of the form
 \item[Description] Lists with user-defined labels, (also referred to as description lists). $${description \over lists}$$ 
 \end{description}
 </PRE>would then produce output of the form
-<DL CLASS=list COMPACT=compact><DT CLASS=dt-list >
-<B>Itemize</B><DD CLASS=dd-list > Unordered lists. <DIV ALIGN=center><TABLE CELLSPACING=0 CELLPADDING=0>
+<DL CLASS=description COMPACT=compact><DT CLASS=dt-description >
+<B>Itemize</B><DD CLASS=dd-description > Unordered lists. <DIV ALIGN=center><TABLE CELLSPACING=0 CELLPADDING=0>
 <TR><TD NOWRAP ALIGN=center><I>unordered</I> </TD>
 </TR>
 <TR><TD BGCOLOR=black><TABLE BORDER=0 WIDTH="100%" CELLSPACING=0 CELLPADDING=1><TR><TD></TD></TR></TABLE></TD>
 </TR>
 <TR><TD NOWRAP ALIGN=center><I>lists</I></TD>
 </TR></TABLE></DIV>
-<DT CLASS=dt-list ><B>Enumerate</B><DD CLASS=dd-list > Ordered lists. <DIV ALIGN=center><TABLE CELLSPACING=0 CELLPADDING=0>
+<DT CLASS=dt-description ><B>Enumerate</B><DD CLASS=dd-description > Ordered lists. <DIV ALIGN=center><TABLE CELLSPACING=0 CELLPADDING=0>
 <TR><TD NOWRAP ALIGN=center><I>ordered</I> </TD>
 </TR>
 <TR><TD BGCOLOR=black><TABLE BORDER=0 WIDTH="100%" CELLSPACING=0 CELLPADDING=1><TR><TD></TD></TR></TABLE></TD>
 </TR>
 <TR><TD NOWRAP ALIGN=center><I>lists</I></TD>
 </TR></TABLE></DIV>
-<DT CLASS=dt-list ><B>Description</B><DD CLASS=dd-list > Lists with user-defined labels, (also referred to as description lists). <DIV ALIGN=center><TABLE CELLSPACING=0 CELLPADDING=0>
+<DT CLASS=dt-description ><B>Description</B><DD CLASS=dd-description > Lists with user-defined labels, (also referred to as description lists). <DIV ALIGN=center><TABLE CELLSPACING=0 CELLPADDING=0>
 <TR><TD NOWRAP ALIGN=center><I>description</I> </TD>
 </TR>
 <TR><TD BGCOLOR=black><TABLE BORDER=0 WIDTH="100%" CELLSPACING=0 CELLPADDING=1><TR><TD></TD></TR></TABLE></TD>
@@ -216,549 +206,3 @@ A class definition of the form
 %HEVEA \setHTMLstyle{.proof}{border:solid \#88aacc;background:\#bbddff;color:black;align:center}
 </PRE>would produce proofs of the form
 (1)
-<DIV ALIGN=center><TABLE CLASS=proof ALIGN=center >
-<TR><TD ALIGN=center><TABLE CELLSPACING=0 CELLPADDING=0>
-<TR VALIGN=bottom><TD NOWRAP VALIGN=bottom>
- </TD>
-<TD NOWRAP><TABLE CLASS=proof ALIGN=center >
-<TR><TD ALIGN=center><TABLE CELLSPACING=0 CELLPADDING=0>
-<TR VALIGN=bottom><TD NOWRAP VALIGN=bottom>
- </TD>
-<TD NOWRAP><TABLE CELLSPACING=0 CELLPADDING=0>
-<TR><TD NOWRAP ALIGN=center>&Pi;</TD>
-</TR>
-<TR><TD BGCOLOR=black><TABLE BORDER=0 WIDTH="100%" CELLSPACING=0 CELLPADDING=1><TR><TD></TD></TR></TABLE></TD>
-</TR>
-<TR><TD NOWRAP ALIGN=center>2</TD>
-</TR></TABLE></TD>
-<TD NOWRAP>&nbsp;&nbsp;
- </TD>
-<TD NOWRAP><TABLE CLASS=proof ALIGN=center >
-<TR><TD ALIGN=center><I>B</I>21 &and; <I>B</I>22</TD>
-<TD ALIGN=center>&nbsp;</TD>
-</TR>
-<TR><TD ALIGN=center><HR NOSHADE SIZE="2">
-</TD>
-<TD ALIGN=center>&and;E<SUB><FONT SIZE=2>1</FONT></SUB>&nbsp;&nbsp;</TD>
-</TR>
-<TR><TD ALIGN=center><I>B</I>21</TD>
-<TD ALIGN=center>&nbsp;</TD>
-</TR></TABLE></TD>
-<TD NOWRAP>&nbsp;&nbsp; 
- <I>D</I>1 &and; <I>D</I>2
- </TD>
-</TR></TABLE></TD>
-<TD ALIGN=center>&nbsp;</TD>
-</TR>
-<TR><TD ALIGN=center><HR NOSHADE SIZE="4">
-</TD>
-<TD ALIGN=center>&rarr;E&nbsp;&nbsp;</TD>
-</TR>
-<TR><TD ALIGN=center><I>B</I></TD>
-<TD ALIGN=center>&nbsp;</TD>
-</TR></TABLE></TD>
-<TD NOWRAP>&nbsp;&nbsp;
- <TABLE CLASS=proof ALIGN=center >
-<TR><TD ALIGN=center><I>C</I>11 &and; <I>C</I>12</TD>
-<TD ALIGN=center>&nbsp;</TD>
-</TR>
-<TR><TD ALIGN=center><HR NOSHADE SIZE="4">
-</TD>
-<TD ALIGN=center>&nbsp;&nbsp;</TD>
-</TR>
-<TR><TD ALIGN=center><I>C</I></TD>
-<TD ALIGN=center>&nbsp;</TD>
-</TR></TABLE>
-</TD>
-</TR></TABLE></TD>
-<TD ALIGN=center>&nbsp;</TD>
-</TR>
-<TR><TD ALIGN=center><HR NOSHADE SIZE="2">
-</TD>
-<TD ALIGN=center>&nbsp;&nbsp;</TD>
-</TR>
-<TR><TD ALIGN=center><I>A</I></TD>
-<TD ALIGN=center>&nbsp;</TD>
-</TR></TABLE>
-</DIV><BR>
-<BR>
-(2)
-<DIV ALIGN=center><TABLE CLASS=proof ALIGN=center >
-<TR><TD ALIGN=center><TABLE CELLSPACING=0 CELLPADDING=0>
-<TR VALIGN=bottom><TD NOWRAP VALIGN=bottom>
- </TD>
-<TD NOWRAP><TABLE CLASS=proof ALIGN=center >
-<TR><TD ALIGN=center><TABLE CELLSPACING=0 CELLPADDING=0>
-<TR VALIGN=bottom><TD NOWRAP VALIGN=bottom>
- </TD>
-<TD NOWRAP><TABLE CELLSPACING=0 CELLPADDING=0>
-<TR><TD NOWRAP ALIGN=center>&Pi;</TD>
-</TR>
-<TR><TD BGCOLOR=black><TABLE BORDER=0 WIDTH="100%" CELLSPACING=0 CELLPADDING=1><TR><TD></TD></TR></TABLE></TD>
-</TR>
-<TR><TD NOWRAP ALIGN=center>2</TD>
-</TR></TABLE></TD>
-<TD NOWRAP>&nbsp;&nbsp;
- </TD>
-<TD NOWRAP><TABLE CLASS=proof ALIGN=center >
-<TR><TD ALIGN=center><I>B</I>21 &and; <I>B</I>22</TD>
-<TD ALIGN=center>&nbsp;</TD>
-</TR>
-<TR><TD ALIGN=center>&#8942
-</TD>
-<TD ALIGN=center>&and;E<SUB><FONT SIZE=2>1</FONT></SUB>&nbsp;&nbsp;</TD>
-</TR>
-<TR><TD ALIGN=center><I>B</I>21</TD>
-<TD ALIGN=center>&nbsp;</TD>
-</TR></TABLE></TD>
-<TD NOWRAP>&nbsp;&nbsp; 
- <I>D</I>1 &and; <I>D</I>2
- </TD>
-</TR></TABLE></TD>
-<TD ALIGN=center>&nbsp;</TD>
-</TR>
-<TR><TD ALIGN=center><HR NOSHADE SIZE="4">
-</TD>
-<TD ALIGN=center>&rarr;E&nbsp;&nbsp;</TD>
-</TR>
-<TR><TD ALIGN=center><I>B</I></TD>
-<TD ALIGN=center>&nbsp;</TD>
-</TR></TABLE></TD>
-<TD NOWRAP>&nbsp;&nbsp;
- <TABLE CLASS=proof ALIGN=center >
-<TR><TD ALIGN=center><I>C</I>11 &and; <I>C</I>12</TD>
-<TD ALIGN=center>&nbsp;</TD>
-</TR>
-<TR><TD ALIGN=center>&nbsp;</TD>
-<TD ALIGN=center>&nbsp;&nbsp;</TD>
-</TR>
-<TR><TD ALIGN=center><I>C</I></TD>
-<TD ALIGN=center>&nbsp;</TD>
-</TR></TABLE>
-</TD>
-</TR></TABLE></TD>
-<TD ALIGN=center>&nbsp;</TD>
-</TR>
-<TR><TD ALIGN=center><HR NOSHADE SIZE="4">
-</TD>
-<TD ALIGN=center>&nbsp;&nbsp;</TD>
-</TR>
-<TR><TD ALIGN=center><I>A</I></TD>
-<TD ALIGN=center>&nbsp;</TD>
-</TR></TABLE>
-</DIV><BR>
-<BR>
-(3)
-<DIV ALIGN=center><TABLE CLASS=proof ALIGN=center >
-<TR><TD ALIGN=center>
- <TABLE CLASS=proof ALIGN=center >
-<TR><TD ALIGN=center>[<I>A</I>]</TD>
-<TD ALIGN=center>&nbsp;</TD>
-</TR>
-<TR><TD ALIGN=center>&#8942
-</TD>
-<TD ALIGN=center>&nbsp;&nbsp;</TD>
-</TR>
-<TR><TD ALIGN=center><I>B</I></TD>
-<TD ALIGN=center>&nbsp;</TD>
-</TR></TABLE>
-</TD>
-<TD ALIGN=center>&nbsp;</TD>
-</TR>
-<TR><TD ALIGN=center><HR NOSHADE SIZE="4">
-</TD>
-<TD ALIGN=center>RI&nbsp;&nbsp;</TD>
-</TR>
-<TR><TD ALIGN=center><I>A</I> &rarr; <I>B</I></TD>
-<TD ALIGN=center>&nbsp;</TD>
-</TR></TABLE>
-</DIV><BR>
-<BR>
-(4)
-<DIV ALIGN=center><TABLE CLASS=proof ALIGN=center >
-<TR><TD ALIGN=center><TABLE CELLSPACING=0 CELLPADDING=0>
-<TR VALIGN=bottom><TD NOWRAP VALIGN=bottom>
- </TD>
-<TD NOWRAP><TABLE CLASS=proof ALIGN=center >
-<TR><TD ALIGN=center><TABLE CELLSPACING=0 CELLPADDING=0>
-<TR VALIGN=bottom><TD NOWRAP>
- <I>B</I>11&amp; <I>B</I>12&amp; <I>B</I>13</TD>
-<TD NOWRAP>&nbsp;&nbsp;
- <I>B</I>21&amp; <I>B</I>22&amp; <I>B</I>23
- </TD>
-</TR></TABLE></TD>
-<TD ALIGN=center>&nbsp;</TD>
-</TR>
-<TR><TD ALIGN=center><HR NOSHADE SIZE="2">
-</TD>
-<TD ALIGN=center>&nbsp;&nbsp;</TD>
-</TR>
-<TR><TD ALIGN=center><I>B</I></TD>
-<TD ALIGN=center>&nbsp;</TD>
-</TR></TABLE></TD>
-<TD NOWRAP>&nbsp;&nbsp;
- <I>C</I>
-</TD>
-</TR></TABLE></TD>
-<TD ALIGN=center>&nbsp;</TD>
-</TR>
-<TR><TD ALIGN=center><HR NOSHADE SIZE="4">
-</TD>
-<TD ALIGN=center>(1)&nbsp;&nbsp;</TD>
-</TR>
-<TR><TD ALIGN=center><I>A</I></TD>
-<TD ALIGN=center>&nbsp;</TD>
-</TR></TABLE>
-</DIV><BR>
-<BR>
-(5)
-<DIV ALIGN=center><TABLE CELLSPACING=2 CELLPADDING=0>
-<TR><TD ALIGN=center NOWRAP><TABLE CLASS=proof ALIGN=center >
-<TR><TD ALIGN=center><TABLE CELLSPACING=0 CELLPADDING=0>
-<TR VALIGN=bottom><TD NOWRAP><I>A</I></TD>
-<TD NOWRAP>&nbsp;&nbsp; <I>B</I></TD>
-</TR></TABLE></TD>
-<TD ALIGN=center>&nbsp;</TD>
-</TR>
-<TR><TD ALIGN=center><HR NOSHADE SIZE="2">
-</TD>
-<TD ALIGN=center>(&amp;I)&nbsp;&nbsp;</TD>
-</TR>
-<TR><TD ALIGN=center><I>A</I> &amp; <I>B</I></TD>
-<TD ALIGN=center>&nbsp;</TD>
-</TR></TABLE></TD>
-<TD ALIGN=center NOWRAP>&nbsp;</TD>
-<TD ALIGN=center NOWRAP><TABLE CLASS=proof ALIGN=center >
-<TR><TD ALIGN=center><I>A</I>&amp; <I>B</I></TD>
-<TD ALIGN=center>&nbsp;</TD>
-</TR>
-<TR><TD ALIGN=center><HR NOSHADE SIZE="2">
-</TD>
-<TD ALIGN=center>(&amp;E<SUB><FONT SIZE=2><I>l</I></FONT></SUB>)&nbsp;&nbsp;</TD>
-</TR>
-<TR><TD ALIGN=center><I>A</I></TD>
-<TD ALIGN=center>&nbsp;</TD>
-</TR></TABLE></TD>
-<TD ALIGN=center NOWRAP>&nbsp;</TD>
-<TD ALIGN=center NOWRAP><TABLE CLASS=proof ALIGN=center >
-<TR><TD ALIGN=center><I>A</I>&amp; <I>B</I></TD>
-<TD ALIGN=center>&nbsp;</TD>
-</TR>
-<TR><TD ALIGN=center><HR NOSHADE SIZE="2">
-</TD>
-<TD ALIGN=center>(&amp;E<SUB><FONT SIZE=2><I>r</I></FONT></SUB>)&nbsp;&nbsp;</TD>
-</TR>
-<TR><TD ALIGN=center><I>B</I></TD>
-<TD ALIGN=center>&nbsp;</TD>
-</TR></TABLE></TD>
-</TR></TABLE></DIV><BR>
-<BR>
-<!--TOC subsection Style Options with 'Bussproofs'-->
-
-<H3 CLASS=subsection><A NAME="htoc8">2.2</A>&nbsp;&nbsp;Style Options with 'Bussproofs'</H3><!--SEC END -->
-
-A class definition of the form
-<PRE>
-%HEVEA \setHTMLstyle{.bussproofs}{border:thin solid red;background:\#eeddbb;color:black;align:center}
-</PRE>would produce proofs like
-
-<DIV ALIGN=center>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<TABLE CLASS=bussproofs ALIGN=center CELLSPACING="0">
-  <TR>
-    <TD>&nbsp;</TD>
-    <TD ALIGN=center VALIGN=bottom>
-	<TABLE CLASS=bussproofs ALIGN=center CELLSPACING="0">
-	  <TR>
-	    <TD>&nbsp;</TD>
-	    <TD ALIGN=center VALIGN=bottom>
-		<TABLE CLASS=bussproofs ALIGN=center CELLSPACING="0">
-		  <TR>
-		    <TD>&nbsp;</TD>
-		    <TD ALIGN=center VALIGN=bottom>
-			<TABLE CLASS=bussproofs ALIGN=center CELLSPACING="0">			
-			  <TR>
-			    <TD ALIGN=center>
-			      
-			    </TD>			
-			  </TR>
-			</TABLE>
-		    </TD>
-		    <TD>&nbsp;</TD>
-		</TR>
-		  <TR>
-		    <TD>&nbsp;&nbsp;
-		    </TD>
-		    <TD><HR style="border-top:medium solid grey;border-bottom:thin none;"></TD>
-		    <TD>Ax&nbsp;&nbsp;
-		    </TD>
-		  </TR>
-		<TR>
-		    <TD>&nbsp;</TD>
-		    <TD ALIGN=center>
-		        &Gamma;, <I>a</I> &#8866; <I>b</I>
-		    </TD>
-		    <TD>&nbsp;</TD>
-		</TR>
-		</TABLE>
-	    </TD>
-	    <TD>&nbsp;</TD>
-	</TR>
-	  <TR>
-	    <TD>&nbsp;&nbsp;
-	    </TD>
-	    <TD><HR NOSHADE SIZE="2"></TD>
-	    <TD>&rarr;I&nbsp;&nbsp;
-	    </TD>
-	  </TR>
-	<TR>
-	    <TD>&nbsp;</TD>
-	    <TD ALIGN=center>
-	        &Gamma; &#8866; <I>a</I> &rarr; <I>b</I>
-	    </TD>
-	    <TD>&nbsp;</TD>
-	</TR>
-	</TABLE>
-    </TD>
-    <TD>&nbsp;&nbsp;</TD>
-    <TD ALIGN=center VALIGN=bottom>
-	<TABLE CLASS=bussproofs ALIGN=center CELLSPACING="0">
-	  <TR>
-	    <TD>&nbsp;</TD>
-	    <TD ALIGN=center VALIGN=bottom>
-		<TABLE CLASS=bussproofs ALIGN=center CELLSPACING="0">
-		  <TR>
-		    <TD>&nbsp;</TD>
-		    <TD ALIGN=center VALIGN=bottom>
-			<TABLE CLASS=bussproofs ALIGN=center CELLSPACING="0">			
-			  <TR>
-			    <TD ALIGN=center>
-			      
-			    </TD>			
-			  </TR>
-			</TABLE>
-		    </TD>
-		    <TD>&nbsp;</TD>
-		</TR>
-		  <TR>
-		    <TD>&nbsp;&nbsp;
-		    </TD>
-		    <TD><HR NOSHADE SIZE="2"></TD>
-		    <TD>Ax&nbsp;&nbsp;
-		    </TD>
-		  </TR>
-		<TR>
-		    <TD>&nbsp;</TD>
-		    <TD ALIGN=center>
-		        &Gamma; &#8866; <I>c</I>
-		    </TD>
-		    <TD>&nbsp;</TD>
-		</TR>
-		</TABLE>
-	    </TD>
-	    <TD>&nbsp;&nbsp;</TD>
-	    <TD ALIGN=center VALIGN=bottom>
-		<TABLE CLASS=bussproofs ALIGN=center CELLSPACING="0">
-		  <TR>
-		    <TD>&nbsp;</TD>
-		    <TD ALIGN=center VALIGN=bottom>
-			<TABLE CLASS=bussproofs ALIGN=center CELLSPACING="0">			
-			  <TR>
-			    <TD ALIGN=center>
-			      
-			    </TD>			
-			  </TR>
-			</TABLE>
-		    </TD>
-		    <TD>&nbsp;</TD>
-		</TR>
-		  <TR>
-		    <TD>&nbsp;&nbsp;
-		    </TD>
-		    <TD><HR style="border-bottom:medium dashed grey;border-top:medium none"></TD>
-		    <TD>Ax&nbsp;&nbsp;
-		    </TD>
-		  </TR>
-		<TR>
-		    <TD>&nbsp;</TD>
-		    <TD ALIGN=center>
-		        &Gamma;  &#8866; <I>d</I>
-		    </TD>
-		    <TD>&nbsp;</TD>
-		</TR>
-		</TABLE>
-	    </TD>
-	    <TD>&nbsp;</TD>
-	  </TR>
-	  <TR>
-	    <TD>&nbsp;&nbsp;
-	    </TD>
-	    <TD COLSPAN="3"><HR style="border-top:thick double grey;border-bottom:thin none;"></TD>
-	    <TD>&and;I&nbsp;&nbsp;
-	    </TD>
-	  </TR>
-	  <TR>
-	    <TD>&nbsp;</TD>
-	    <TD COLSPAN="3" ALIGN=center>
-	        &Gamma; &#8866; <I>c</I> &and; <I>d</I>
-	    </TD>
-	    <TD>&nbsp;</TD>
-	  </TR>
-	</TABLE>
-    </TD>
-    <TD>&nbsp;</TD>
-  </TR>
-  <TR>
-    <TD>&nbsp;&nbsp;
-    </TD>
-    <TD COLSPAN="3"><HR style="border-bottom:medium dotted grey;border-top:medium none"></TD>
-    <TD>&and;I&nbsp;&nbsp;
-    </TD>
-  </TR>
-  <TR>
-    <TD>&nbsp;</TD>
-    <TD COLSPAN="3" ALIGN=center>
-        &Gamma; &#8866; (<I>a</I> &rarr; <I>b</I>) &and; (<I>c</I> &and; <I>d</I>)
-    </TD>
-    <TD>&nbsp;</TD>
-  </TR>
-</TABLE>
-</DIV><BR>
-<BR>
-<!--TOC section Using DIV for Styles-->
-
-<H2 CLASS=section><A NAME="htoc9">3</A>&nbsp;&nbsp;Using DIV for Styles</H2><!--SEC END -->
-
-Due to internal use of certain environments by HEVEA, they cannot be supported by defining an appropriate class in the preamble. A typical example would be the <TT>table</TT> environment. Defining a class <EM>.table</EM> and using it universaly would throw also effect math constructs, such as <CODE>\over,\frac,\xleftarrow,etc.</CODE>, besides many other things.<BR>
-<BR>
-One could separate <EM>internal</EM> usages from the <EM>real</EM> ones, using a class <EM>.internal</EM> for the former; however, the use of constructs such as tables and arrays is too wide and entertwined to be able to do that. <BR>
-<BR>
-However, for such constructs, limited support for style-sheets is offered by the environment <CODE>\divstyle</CODE>, which takes the name of a class as an argument, and encloses the part inside using <CODE>&lt;DIV CLASS=...&gt;</CODE> and <CODE>&lt;/DIV&gt;</CODE>. <BR>
-<BR>
-The limitation is that the enclosed part may generate more HTML blocks, and only the inherited style attributes shall apply uniformly inside. However, it is pretty effective for some basic styling.<BR>
-<BR>
-As an example consider the class definition below.
-<PRE>
-\setHTMLstyle{.ruled-table}{border:solid black; padding:5; background:\#00cb00;color:white}
-</PRE>Enclosing a <EM>tabular</EM> environment using <EM>divstyle</EM> with the class <EM>.ruled-table</EM> as the argument, as shown below
-<PRE>
-$$
-\begin{divstyle}{ruled-table}
-\begin{tabular}{|&gt;{\tt}c|p{0.7\hsize}|}
-...
-\end{tabular}
-\end{divstyle}
-$$
-</PRE>will produced output of the form<BR>
-<BR>
-<DIV ALIGN=center><TABLE CELLSPACING=0 CELLPADDING=0>
-<TR VALIGN=center><TD NOWRAP VALIGN=center>
-
-</TD>
-<TD NOWRAP><DIV CLASS=ruled-table><TABLE CELLSPACING=0 CELLPADDING=0>
-<TR VALIGN=center><TD NOWRAP VALIGN=center>
-</TD>
-<TD NOWRAP><TABLE BORDER=1 CELLSPACING=0 CELLPADDING=1>
-<TR><TD VALIGN=top ALIGN=center NOWRAP><TT><B>key</B></TT></TD>
-<TD VALIGN=top ALIGN=left><B>Effect for value <EM>v</EM></B></TD>
-</TR>
-<TR><TD VALIGN=top ALIGN=center NOWRAP><TT>before</TT></TD>
-<TD VALIGN=top ALIGN=left>Execute <EM>v</EM> before typesetting the rule.
- Useful for instance to change the maximal width of the rule.</TD>
-</TR>
-<TR><TD VALIGN=top ALIGN=center NOWRAP><TT>width</TT></TD>
-<TD VALIGN=top ALIGN=left>Set the width of the rule to <EM>v</EM></TD>
-</TR>
-<TR><TD VALIGN=top ALIGN=center NOWRAP><TT>narrower</TT></TD>
-<TD VALIGN=top ALIGN=left>Set the width of the rule to <EM>v</EM> times <CODE>\hsize</CODE>.</TD>
-</TR>
-<TR><TD VALIGN=top ALIGN=center NOWRAP><TT>left</TT></TD>
-<TD VALIGN=top ALIGN=left>Put a label <EM>v</EM> on the left of the rule</TD>
-</TR>
-<TR><TD VALIGN=top ALIGN=center NOWRAP><TT>Left</TT></TD>
-<TD VALIGN=top ALIGN=left>Idem, but as if the label had zero width.</TD>
-</TR>
-<TR><TD VALIGN=top ALIGN=center NOWRAP><TT>Right</TT></TD>
-<TD VALIGN=top ALIGN=left>As <CODE>Left</CODE>, but on the right of the rule.</TD>
-</TR>
-<TR><TD VALIGN=top ALIGN=center NOWRAP><TT>right</TT></TD>
-<TD VALIGN=top ALIGN=left>As <CODE>left</CODE>, but on the right of the rule.</TD>
-</TR>
-<TR><TD VALIGN=top ALIGN=center NOWRAP><TT>leftskip</TT></TD>
-<TD VALIGN=top ALIGN=left>Cheat by (skip negative space) <EM>v</EM> on the left side.</TD>
-</TR>
-<TR><TD VALIGN=top ALIGN=center NOWRAP><TT>rightskip</TT></TD>
-<TD VALIGN=top ALIGN=left>Cheat by <EM>v</EM> on the right side of the rule.</TD>
-</TR>
-<TR><TD VALIGN=top ALIGN=center NOWRAP><TT>vdots</TT></TD>
-<TD VALIGN=top ALIGN=left>Raise the rule by <EM>v</EM> and insert vertical dots.</TD>
-</TR></TABLE></TD>
-</TR></TABLE></DIV></TD>
-</TR></TABLE></DIV>
-<BR>
-<BR>
-As one can see, all attributes except color (which is not inherited), worked. Thus the user should remember to use only those arttributes which do not need to be inherited (e.g. border and padding, used once at the beginning), or those that get inherited by blocks inside (e.g. background).<BR>
-<BR>
-A typical error would be of the kind.
-<PRE>
-\begin{divstyle}{ruled-table}
-I should be $$\frac{white}{white}$$
-\end{divstyle}
-</PRE>which would result in<BR>
-<BR>
-<DIV CLASS=ruled-table>
-I should be <DIV ALIGN=center><TABLE CELLSPACING=0 CELLPADDING=0>
-<TR><TD NOWRAP ALIGN=center><I>white</I></TD>
-</TR>
-<TR><TD BGCOLOR=black><TABLE BORDER=0 WIDTH="100%" CELLSPACING=0 CELLPADDING=1><TR><TD></TD></TR></TABLE></TD>
-</TR>
-<TR><TD NOWRAP ALIGN=center><I>white</I></TD>
-</TR></TABLE></DIV>
-</DIV><BR>
-<BR>
-However, such problems usually arise in math mode, when most stuff is set using tables, and fewer attributes are inherited. The simpler version
- <PRE>
-\begin{divstyle}{ruled-table}
-I should be $\frac{white}{white}$
-\end{divstyle}
-</PRE>would still work!<BR>
-<BR>
-<DIV CLASS=ruled-table>
-I should be <I>white</I>/<I>white</I>
-</DIV><BR>
-<BR>
-<A NAME="options"></A><BR>
-<BR>
-<!--BEGIN NOTES document-->
-<HR WIDTH="50%" SIZE=1><DL CLASS=list><DT CLASS=dt-list ><A NAME="note1" HREF="#text1"><FONT SIZE=5>*</FONT></A><DD CLASS=dd-list >Inria Rocquencourt -- BP 105, 78153 Le
-Chesnay Cedex. <A HREF="mailto:Luc.Maranget@inria.fr"><TT>Luc.Maranget@inria.fr</TT></A>
-</DL>
-<!--END NOTES-->
-<!--HTMLFOOT-->
-<!--ENDHTML-->
-<!--FOOTER-->
-<HR SIZE=2>
-<BLOCKQUOTE><EM>This document was translated from L<sup>A</sup>T<sub>E</sub>X by
-</EM><A HREF="http://pauillac.inria.fr/~maranget/hevea/index.html"><EM>H<FONT SIZE=2><sup>E</sup></FONT>V<FONT SIZE=2><sup>E</sup></FONT>A</EM></A><EM>.
-</EM></BLOCKQUOTE>
-</BODY>
-</HTML>

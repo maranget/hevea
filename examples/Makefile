@@ -4,21 +4,20 @@ HEVEAOPTS=-fix -O
 IMAGEN=imagen
 HACHA=hacha
 EXDIR=$(HOME)/public_html/hevea/examples
-HTML=a.html pat.html suite.html env.html smile.html amstex.html graphics.html graphicx.html verbs.html style-test.html bussproofs-test.html proof-test.html
-DVI=$(HTML:.html=.dvi)
 TEX=$(HTML:.html=.tex)
-TEXT=$(HTML:.html=.txt)
-INFO=$(HTML:.html=.info)
+HTML=a.html pat.html suite.html env.html smile.html amstex.html graphics.html graphicx.html verbs.html style-test.html bussproofs-test.html proof-test.html
+DVI=a.dvi pat.dvi suite.dvi amstex.dvi verbs.dvi
+TEXT=a.txt pat.txt suite.txt env.txt
+INFO=$(TEXT:.txt=.info)
 
 
 all: dvi html text info
-opt:
-	export HEVEADIR=.. ;\
+opt:	export HEVEADIR=.. ;\
 	$(MAKE) $(MFLAGS) HEVEAOPTS="$(HEVEAOPTS)" HEVEA=../hevea.opt HACHA=../hacha.opt IMAGEN=../imagen all
 
 byte:
 	export HEVEADIR=.. ;\
-	$(MAKE) $(MFLAGS)  HEVEAOPTS="$(HEVEAOPTS)" HEVEA=../hevea.byte HACHA=../hacha.byte IMAGEN=../imagen all
+	$(MAKE) $(MFLAGS)  HEVEAOPTS="$(HEVEAOPTS)" HEVEA=../hevea.byte HACHA=../hacha.byte IMAGEN=../imagen html
 
 dvi: $(DVI)
 
@@ -39,18 +38,21 @@ a.dvi: a.tex
 	$(LATEX) < /dev/null a.tex
 
 a.html: a.tex
-	$(HEVEA) $(HEVEAOPTS) -francais a.tex
+	$(HEVEA) $(HEVEAOPTS) a.tex
 
 a.txt : a.tex
-	$(HEVEA) $(HEVEAOPTS) -text -francais a.tex
+	$(HEVEA) $(HEVEAOPTS) -text a.tex
 
 a.info : a.tex
-	$(HEVEA) $(HEVEAOPTS) -info -francais a.tex
+	$(HEVEA) $(HEVEAOPTS) -info a.tex
 
 tmp.tex: pat.def pat.tex
 	gpic -t < pat.tex > tmp.tex
 
-tmp.aux tmp.bbl pat.dvi: tmp.tex
+hevea.sty: ../hevea.sty
+	cp ../hevea.sty .
+
+tmp.bbl pat.dvi: tmp.tex hevea.sty
 	$(LATEX) tmp.tex < /dev/null
 	bibtex tmp ;
 	$(LATEX) tmp.tex < /dev/null
@@ -90,7 +92,7 @@ smile.html: smile.hva tsmile.tex
 	$(HEVEA) $(HEVEAOPTS) smile.hva -o smile.html tsmile.tex
 smile.txt smile.info:
 
-suite.dvi suite.aux: suite.tex
+suite.dvi: suite.tex
 	$(LATEX) < /dev/null suite.tex
 	makeindex suite
 	$(LATEX) < /dev/null suite.tex
@@ -152,3 +154,9 @@ cleaninfo:
 
 clean cleanall: cleanhtml cleantext cleaninfo
 	rm -f *.aux *.log *.dvi *~ *.gif *.pnm *.png *.bbl tmp.* tenv.* tsmile.* *.ilg *.ind *.idx *.image.tex  *.tid HF.ps *.haux *.hidx *.hind
+	/bin/rm -f hevea.sty
+
+.SUFFIXES: .tex .html
+
+.tex.html:
+	$(HEVEA) -fix $(HEVEAOPTS) $<

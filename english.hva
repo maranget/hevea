@@ -30,7 +30,7 @@
  	\ifthenelse{\value{month}=11}{November} {
  	\ifthenelse{\value{month}=12}{December} {
   }}}}}}}}}}}}}%
-  \def\today{\english@day\english@month,~\theyear}%
+  \@ifundefined{theyear}{}{\def\today{\english@day\english@month,~\theyear}}%
   \def\prefacename{Preface}%
   \def\refname{References}%
   \def\abstractname{Abstract}%

@@ -24,7 +24,7 @@
  	\ifthenelse{\value{month}=11}{novembre}{%
  	\ifthenelse{\value{month}=12}{d\'ecembre}{%
   }}}}}}}}}}}}}%  
-  \def\today{\theday.~\french@month~\theyear}%
+  \@ifundefined{theyear}{}{\def\today{\theday.~\french@month~\theyear}}%
   \def\prefacename{Pr\'eface}%
   \def\refname{R\'ef\'erences}%
   \def\abstractname{R\'esum\'e}%

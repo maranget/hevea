@@ -1,4 +1,7 @@
-\documentstyle[fullpage,isolatin1,hevea]{article}
+\documentclass{article}
+\usepackage{fullpage}
+\usepackage{isolatin1}
+\usepackage{hevea}
 
 \addtolength{\topmargin}{-1cm}
 \input{pat.def}
@@ -279,8 +282,9 @@ and A(n) | C() = Q(n)
 \end{verbatim}
 This defines three names $A$, $B$ and $C$. Name $A$ has arity one,
 whereas names $B$ and $C$ have arity zero.  Names may be synchronous
-or asynchronous, depending on whether there are \verb+reply ... to
-...+ constructs applying to them inside the guarded processes~$P(n)$
+or asynchronous, depending on whether there are
+\verb+reply ... to ...+
+constructs applying to them inside the guarded processes~$P(n)$
 and $Q(n)$ or not.
 
 According to the general join-calculus semantics, the guarded process

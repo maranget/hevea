@@ -13,6 +13,12 @@ http://caml.inria.fr/ocaml/distrib.html
 
 ----------------------------------------------------------------------
 
+  As a special exception to the Q Public Licence, you may develop
+  application programs, reusable components and other software items
+  that link with the original or modified versions of the Software
+  and are not made available to the general public, without any of the
+  additional requirements listed in clause 6c of the Q Public licence.
+
                    THE Q PUBLIC LICENSE version 1.0
 
               Copyright (C) 1999 Troll Tech AS, Norway.
@@ -114,8 +120,7 @@ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 
                             Choice of Law
 
-This license is governed by the Laws of France. Disputes shall be
-settled by the Court of Versailles.
+This license is governed by the Laws of France.
 
 ----------------------------------------------------------------------
 

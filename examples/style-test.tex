@@ -1,33 +1,17 @@
-
 \documentclass {article}
-
-%\usepackage {mathpartir}
 \usepackage {bussproofs}
-\usepackage{makeidx}
-\usepackage{texnames}
+%\usepackage {texnames}
 \usepackage {proof}
-\usepackage {listings}
 \usepackage {array}
 \usepackage {url}
 \usepackage {amssymb}
 \usepackage {amsmath}
-\newif \ifhevea 
-%HEVEA \heveatrue
-\ifhevea 
 \usepackage {hevea}
-\fi
-\input{macros.tex}
-\makeindex
-\input{version.tex}
-
-\lstset {basicstyle=\tt}
-\let \lst \verb
 
 \def\imp{\to}
 \def\land{\mathbin\&}
 
-\title{\hevea{} User Documentation\\
-{\normalsize Version~\heveaversion}}
+\title{\hevea{} User Documentation}
 \author{Luc Maranget\thanks{Inria Rocquencourt -- BP 105, 78153 Le
 Chesnay Cedex. {\tt \mailto{Luc.Maranget@inria.fr}}}}
 \date{\today}
