@@ -7,15 +7,18 @@ GS=gs
 PNMCROP=pnmcrop
 PNMEXTRA=""
 DVIPSMAG=1414
-EXT=gif
-PPMTOGIF=ppmtogif
-PPMTOGIFOPTS="-transparent  #ffffff"
 PPMQUANT=cat
 PPMQUANTOPTS=""
 PNMMARGIN=pnmmargin
 RM="/bin/rm -f"
 
-doconvert()
+## Three output formats are possible
+doconvertgif()
+{
+  ppmtogif -transparent '#ffffff'
+}
+
+doconvertpng()
 {
   pnmtopng -transparent '#ffffff'
 }
@@ -24,6 +27,9 @@ donothing ()
 {
   cat
 }
+## Default output format is GIF
+EXT=gif
+PPMTOEXT=doconvertgif
 
 while true
 do
@@ -31,13 +37,11 @@ do
      -gif)
        ;;
      -png)
-        PPMTOGIF=doconvert
-        PPMTOGIFOPT=""
+        PPMTOEXT=doconvertpng
         EXT=png
         ;;
      -pnm)
-        PPMTOGIF=donothing
-        PPMTOGIFOPT=""
+        PPMTOEXT=donothing
         EXT=pnm
         ;;  
      -quant)
@@ -60,7 +64,7 @@ do
     shift
 done
 
-#always quantize for gifs (ppmtogif ouputs non valid files when colors >= 256)
+#always quantize for gifs (ppmtogif outputs non valid files when colors >= 256)
 if [ "$EXT" = "gif" -a  "$PPMQUANT" = "cat" ]
 then
   PPMQUANT=ppmquant
@@ -79,8 +83,8 @@ case $0 in
 esac
 
 NAME=${BASE}.image
-DVIPSOPTS="-t a0 -x${DVIPSMAG}"
-GSOPTS="-q -sPAPERSIZE=a0 -dNOPAUSE -DNOPROMPT -sDEVICE=ppmraw -dTextAlphaBits=2"
+DVIPSOPTS="-t a3 -x${DVIPSMAG}"
+GSOPTS="-q -sPAPERSIZE=a3 -dNOPAUSE -DNOPROMPT -sDEVICE=ppmraw -dTextAlphaBits=2"
 PNMMARGINOPTS="-white 1"
 
 NEWDVIPS=true
@@ -118,7 +122,7 @@ then
     esac |\
     ${PNMMARGIN} ${PNMMARGINOPTS} |\
     ${PPMQUANT} ${PPMQUANTOPTS} |\
-    ${PPMTOGIF} ${PPMTOGIFOPTS} > `basename $i`.${EXT}
+    ${PPMTOEXT}  > `basename $i`.${EXT}
     ${RM} $i
   done
 else
@@ -146,7 +150,7 @@ else
     esac |\
     ${PNMMARGIN} ${PNMMARGINOPTS} |\
     ${PPMQUANT} ${PPMQUANTOPTS} |\
-    ${PPMTOGIF} ${PPMTOGIFOPTS}  > `basename $i`.${EXT}
+    ${PPMTOEXT}  > `basename $i`.${EXT}
     ${RM} $i
   done
 fi
