@@ -40,7 +40,9 @@
 \newcommand{\docurl}{http://para.inria.fr/\home{maranget}/hevea}
 \newcommand{\mailto}[1]{\@url{mailto:#1}{#1}}
 %%%% HTML constructs (no equivalents in html.sty)
-\newcommand{\imgsrc}[1]{{\@nostyle\@print{<IMG SRC="}#1\ifpedantic\@print{" ALT="}#1\fi\@print{">}}}
+\newcommand{\imgsrc}[2][!*!]{%
+{\@nostyle\@print{<IMG SRC="}#2\ifpedantic\@print{" ALT="}#1\fi
+\ifthenelse{\equal{#1}{!*!}}{}{\@print{ }#1}\@print{">}}}
 \newcommand{\anchor}[1]{{\@nostyle\@print{<A NAME="}#1\@print{"></A>}}}
 %% Paragraphs
 \def\noindent{}
@@ -242,27 +244,17 @@
 \def\scriptscriptstyle{\ifmathml{\scriptsize\@incsize{-1}}\else\scriptsize\@incsize{-1}\fi}
 \def\textstyle{\ifmathml{\@style{mtext}#1}\else{#1}\fi}
 %%%%% Figures and tables
-\newsavebox{\@caption}
-\def\caption#1{\sbox{\@caption}{#1}}
 \newenvironment{figure}[1][]{%
-\caption{}\refstepcounter{figure}%
+\@forcecommand{\caption}[1]{\par\begin{center}Figure \thefigure\iffrench~\fi: ##1\end{center}\par}\refstepcounter{figure}%
 \@open{BLOCKQUOTE}{}\@printHR{}{}%
-%\@open{DISPLAY}{}%
-}{%
-%\@close{DISPLAY}%
-\par\begin{center}Figure \thefigure\iffrench~\fi: \usebox{\@caption}\end{center}
-\@printHR{}{}\@close{BLOCKQUOTE}}
+}{\@printHR{}{}\@close{BLOCKQUOTE}}
 \newenvironment{figure*}[1][]{\begin{figure}[#1]}{\end{figure}}
 \newenvironment{table}[1][]{%
-\caption{}\refstepcounter{table}%
+\newcommand{\caption}[1]{\par\begin{center}Table \thetable\iffrench~\fi: ##1\end{center}\par}\refstepcounter{table}%
 \@open{BLOCKQUOTE}{}\@printHR{}{}%
-%\@open{DISPLAY}{}%
-}{%
-%\@close{DISPLAY}%
-\par\begin{center}Table \thetable\iffrench~\fi: \usebox{\@caption}\end{center}
-\@printHR{}{}\@close{BLOCKQUOTE}}
+}{\@printHR{}{}\@close{BLOCKQUOTE}}
 \newenvironment{table*}[1][]{\begin{table}[#1]}{\end{table}}
-\newcommand{\suppressfloats}[1][]{}
+\@forcecommand{\suppressfloats}[1][]{}
 \newcounter{topnumber}
 \newcounter{bottomnumber}
 \newcounter{totalnumber}

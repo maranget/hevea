@@ -378,6 +378,7 @@ output.
 
 \subsubsection{Symbols}\label{symbols}
 \begin{figure}[p]
+\caption{\label{xfd} Symbol font in X}
 \begin{center}
 %BEGIN LATEX
 \rule{0ex}{1ex}\epsfbox{xfd.ps}\rule{0ex}{1ex}
@@ -386,7 +387,6 @@ output.
 \imgsrc{xfd.gif}
 \end{htmlonly}
 \end{center}
-\caption{\label{xfd} Symbol font in X}
 \end{figure}
 Outputting symbols is performed using an \html{} extension:
 the non-standard \verb+FACE+ attribute to the \verb+FONT+
@@ -1825,9 +1825,11 @@ The following macros can be used to output specific \html{}
 constructs. They have no \LaTeX{} equivalents and should be seen by
 \hevea{} only.
 \begin{description}
-\item[{\tt\char92 imgsrc\char123}{\it arg}{\tt\char125}]
-Output \verb+<IMG SRC="+\textit{arg}\verb+">+. The argument
-\textit{arg} should reduce to a file name.
+\item[{\tt\char92 imgsrc\char91}{\it opt}{\tt\char93}{\tt\char123}{\it
+arg}{\tt\char125}]
+Output \verb+<IMG SRC="+\textit{arg}\verb+" +\textit{opt}\verb+>+. The argument
+\textit{arg} should reduce to a file name, wheras the optional
+argument \textit{opt} should reduce to the intended attributes.
 \item[{\tt\char92 anchor\char123}{\it arg}{\tt\char125}]
 Output \verb+<A NAME="+\textit{arg}\verb+">+. The argument
 should reduce to some kind of label.
@@ -1999,8 +2001,8 @@ color declaration (see section~\ref{htmlcolor}):
 \newcommand{\purple}{\@fontcolor{purple}}
 \end{verbatim}
 
-Finally, here is the definition of the \verb+\imgsrc+ command, also
-extracted from the \texttt{hevea.hva} file:
+Finally, here is the definition of a simplified \verb+\imgsrc+
+command, without optional argument:
 \begin{verbatim}
 \newcommand{\imgsrc}[1]{{\@nostyle\@print{<IMG SRC="}#1\@print{">}}}
 \end{verbatim}
@@ -2826,6 +2828,8 @@ separated from enclosing text by two
 horizontal rules.
 
 Captions and cross referencing are handled.
+However captions are not moved at end of figures: instead, they appear
+where the \verb+\caption+ commands occur in source code.
 The \verb+\suppressfloats+ command does nothing and the
 figure related counters (such as \verb+topnumber+) exist but are useless.
 
@@ -3404,8 +3408,7 @@ For instance, the following source will give different results in
 Here is \ifhevea\hevea\else\LaTeX\fi{} output:
 {\def\cs#1A{``#1''}
 \def\othercs#1{\cs#1A}
-\othercs{coucouA}
-\end{flushleft}}
+\othercs{coucouA}}
 Please note that in most situations this discrepancy will make
 \hevea{} crash. 
 
