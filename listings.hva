@@ -189,7 +189,7 @@
     \lstset{#5}}}
 \lst@define@key@opt{defaultdialect}{\lst@define@dd}{}
 %%%%%%% Frames
-\newstyle{.lstlisting}{white-space:pre;margin-right:auto;margin-left:0pt;font-family:monospace;}
+\newstyle{.lstlisting}{font-family:monospace;white-space:pre;margin-right:auto;margin-left:0pt;text-align:left}
 \setenvclass{lstlisting}{lstlisting}
 \def\lst@color@in@temp{%
    \let\old@color\color%
