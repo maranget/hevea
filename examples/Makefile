@@ -1,4 +1,4 @@
-HTMLGEN=htmlgen.opt
+HTMLGEN=hevea
 IMAGEGEN=imagegen
 HTMLCUT=htmlcut
 

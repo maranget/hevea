@@ -1,13 +1,13 @@
 # Compile using ocamlopt, to use ocamlc set TARGET=byte
 TARGET=byte
-# Library directory of htmlgen
-LIBDIR=/usr/local/lib/htmlgen
+# Library directory of hevea
+LIBDIR=/usr/local/lib/hevea
 # A replacement for /lib/cpp
 CPP=gcc -E -P -x c 
 # Where to install programms
 BINDIR=/usr/local/bin
 
-HTMLGEN=./htmlgen.$(TARGET)
+HEVEA=./hevea.$(TARGET)
 OCAMLC=ocamlc
 OCAMLCI=ocamlc
 OCAMLOPT=ocamlopt
@@ -24,31 +24,31 @@ everything: byte opt
 
 install: install-$(TARGET)
 
-opt: htmlgen.opt htmlcut.opt cutfoot-fra.html cutfoot-eng.html
-byte:  htmlgen.byte htmlcut.byte cutfoot-fra.html cutfoot-eng.html
+opt: hevea.opt htmlcut.opt cutfoot-fra.html cutfoot-eng.html
+byte:  hevea.byte htmlcut.byte cutfoot-fra.html cutfoot-eng.html
 
 install-lib:
-	$(INSTALL) article.sty book.sty htmlgen.sty cutfoot-fra.html cutfoot-eng.html footer.tex ${LIBDIR}
+	$(INSTALL) article.sty book.sty hevea.sty cutfoot-fra.html cutfoot-eng.html footer.tex ${LIBDIR}
 	ln -s book.sty ${LIBDIR}/report.sty
 	$(INSTALL) contents_motif.gif next_motif.gif previous_motif.gif ${LIBDIR}
 
 install-opt: install-lib
-	$(INSTALL) htmlgen.opt $(BINDIR)/htmlgen
+	$(INSTALL) hevea.opt $(BINDIR)/hevea
 	$(INSTALL) htmlcut.opt $(BINDIR)/htmlcut
 	$(INSTALL) imagegen $(BINDIR)
 
 install-byte: install-lib
-	$(INSTALL) htmlgen.byte $(BINDIR)/htmlgen
+	$(INSTALL) hevea.byte $(BINDIR)/hevea
 	$(INSTALL) htmlcut.byte $(BINDIR)/htmlcut
 	$(INSTALL) imagegen $(BINDIR)
 
-htmlgen.byte: ${OBJS}
+hevea.byte: ${OBJS}
 	${OCAMLC} -o $@ ${OBJS}
 
 htmlcut.byte: ${OBJSCUT}
 	${OCAMLC} -o $@ ${OBJSCUT}
 
-htmlgen.opt: ${OPTS}
+hevea.opt: ${OPTS}
 	${OCAMLOPT} -o $@ ${OPTS}
 
 htmlcut.opt: ${OPTSCUT}
@@ -66,11 +66,11 @@ cutmain.cmo: cutmain.ml
 cutmain.cmx: cutmain.ml
 	${OCAMLOPT} -pp '${CPP} -DLIBDIR=\"${LIBDIR}\"' -c cutmain.ml
 
-cutfoot-fra.html: cutfoot.tex htmlgen.sty ${HTMLGEN}
-	${HTMLGEN} -francais < $< > $@
+cutfoot-fra.html: cutfoot.tex hevea.sty ${HEVEA}
+	${HEVEA} -francais < $< > $@
 
-cutfoot-eng.html: cutfoot.tex htmlgen.sty ${HTMLGEN}
-	${HTMLGEN} < $< > $@
+cutfoot-eng.html: cutfoot.tex hevea.sty ${HEVEA}
+	${HEVEA} < $< > $@
 
 .SUFFIXES:
 .SUFFIXES: .ml .cmo .mli .cmi .c .mll .cmx 

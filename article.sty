@@ -29,8 +29,8 @@
 %%%%%%%%%%%%%%%%
 \newcommand{\part}[2][]{%
 \stepcounter{part}%
-\ifoptarg\cuthere{toc}{part}{#1}%
-\else\cuthere{toc}{part}{#2}\fi
+\ifoptarg\cuthere{part}{#1}%
+\else\cuthere{part}{#2}\fi
 \@open{H1}{ALIGN=center}%
 \partname:~\thepart\\%
 #2%
@@ -43,14 +43,14 @@
 }
 \newcommand{\section}[2][]{%
 \stepcounter{section}%
-\ifoptarg\cuthere{toc}{section}{#1}%
-\else\cuthere{toc}{section}{#2}\fi%
+\ifoptarg\cuthere{section}{#1}%
+\else\cuthere{section}{#2}\fi%
 \@open{H2}{}%
 \thesection\quad #2%
 \@close{H2}%
 }
 \newcommand{\section*}[1]{%
-\cuthere{toc}{section}{#1}%
+\cuthere{section}{#1}%
 \@open{H2}{}%
 #1%
 \@close{H2}%
@@ -59,28 +59,28 @@
 
 \newcommand{\subsection}[2][]{%
 \stepcounter{subsection}%
-\ifoptarg\cuthere{toc}{subsection}{#1}%
-\else\cuthere{toc}{subsection}{#2}\fi%
+\ifoptarg\cuthere{subsection}{#1}%
+\else\cuthere{subsection}{#2}\fi%
 \@open{H3}{}%
 \thesubsection\quad #2%
 \@close{H3}%
 }
 \newcommand{\subsection*}[1]{%
-\cuthere{toc}{subsection}{#1}%
+\cuthere{subsection}{#1}%
 \@open{H3}{}%
 #1%
 \@close{H3}%
 }
 \newcommand{\subsubsection}[2][]{%
 \stepcounter{subsubsection}%
-\ifoptarg\cuthere{toc}{subsubsection}{#1}%
-\else\cuthere{toc}{subsubsection}{#2}\fi%
+\ifoptarg\cuthere{subsubsection}{#1}%
+\else\cuthere{subsubsection}{#2}\fi%
 \@open{H4}{}%
 \thesubsubsection\quad #2%
 \@close{H4}%
 }
 \newcommand{\subsubsection*}[1]{%
-\cuthere{toc}{subsubsection}{#1}%
+\cuthere{subsubsection}{#1}%
 \@open{H4}{}%
 #1%
 \@close{H4}%

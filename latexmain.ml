@@ -18,7 +18,7 @@ let read_style name =
 let main () = 
 
     if !readverb > 0 then Parse_opts.verbose := 1;
-    read_style "htmlgen.sty" ;
+    read_style "hevea.sty" ;
 
     begin match !files with
      [] -> files := ["article.sty"]

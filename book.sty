@@ -44,8 +44,8 @@
 
 \newcommand{\part}[2][]{%
 \stepcounter{part}%
-\ifoptarg\cuthere{toc}{part}{#1}%
-\else\cuthere{toc}{part}{#2}\fi
+\ifoptarg\cuthere{part}{#1}%
+\else\cuthere{part}{#2}\fi
 \@open{H1}{ALIGN=center}%
 \par
 \partname:~\thepart\\%
@@ -53,7 +53,7 @@
 \@close{H1}%
 }
 \newcommand{\part*}[1]{%
-\cuthere{toc}{part}{#1}%
+\cuthere{part}{#1}%
 \@open{H1}{ALIGN=center}%
 \par
 #1%
@@ -62,14 +62,14 @@
 
 \newcommand{\chapter}[2][]{%
 \stepcounter{chapter}%
-\ifoptarg\cuthere{toc}{chapter}{#1}%
-\else\cuthere{toc}{chapter}{#2}\fi
+\ifoptarg\cuthere{chapter}{#1}%
+\else\cuthere{chapter}{#2}\fi
 \@open{H1}{}%
 \chaptername~\thechapter\qquad #2%
 \@close{H1}%
 }
 \newcommand{\chapter*}[1]{%
-\cuthere{toc}{chapter}{#1}%
+\cuthere{chapter}{#1}%
 \@open{H1}{}%
 #1%
 \@close{H1}%
@@ -77,8 +77,8 @@
 
 \newcommand{\section}[2][]{%
 \stepcounter{section}%
-\ifoptarg\cuthere{toc}{section}{#1}%
-\else\cuthere{toc}{section}{#2}\fi%
+\ifoptarg\cuthere{section}{#1}%
+\else\cuthere{section}{#2}\fi%
 \@open{H2}{}%
 \thesection\quad #2%
 \@close{H2}%
@@ -92,8 +92,8 @@
 
 \newcommand{\subsection}[2][]{%
 \stepcounter{subsection}%
-\ifoptarg\cuthere{toc}{subsection}{#1}%
-\else\cuthere{toc}{subsection}{#2}\fi%
+\ifoptarg\cuthere{subsection}{#1}%
+\else\cuthere{subsection}{#2}\fi%
 \@open{H3}{}%
 \thesubsection\quad #2%
 \@close{H3}%

@@ -1,4 +1,4 @@
-HTMLGEN=htmlgen.opt
+HTMLGEN=hevea.opt
 HTMLCUT=htmlcut.opt
 
 all: manual.dvi index.html

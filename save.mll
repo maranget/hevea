@@ -62,6 +62,10 @@ and arg = parse
   | eof    {raise (BadParse "EOF")}
   | ""     {raise (BadParse "Empty Arg")}
 
+and sarg = parse
+  [^'{'] {lexeme lexbuf}
+| ""     {arg lexbuf}
+
 and arg2 = parse
     '{'         {  incr brace_nesting;
                    if !brace_nesting > 1 then begin
@@ -182,19 +186,19 @@ and skip_equal = parse
 
 and get_sup_sub = parse
   '^'
-    {let sup = arg lexbuf in
+    {let sup = sarg lexbuf in
     sup,get_sub lexbuf}
 | '_'
-    {let sub = arg lexbuf in
+    {let sub = sarg lexbuf in
     get_sup lexbuf,sub}
 | "" {("","")}
 
 and get_sup = parse
-  '^'  {arg lexbuf}
+  '^'  {sarg lexbuf}
 | ""   {""}
 
 and get_sub = parse
-  '_'  {arg lexbuf}
+  '_'  {sarg lexbuf}
 | ""   {""}
 
 and defargs = parse 

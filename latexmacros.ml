@@ -57,7 +57,7 @@ let def_macro_pat name pat action =
   try
     Hashtbl.find cmdtable name ;
     Location.print_pos () ;
-    prerr_string "Ignoring redefinition of: "; prerr_endline name ;
+    prerr_string "Ignoring definition of: "; prerr_endline name ;
   with
     Not_found ->
       Hashtbl.add cmdtable name (pat,action)
@@ -74,7 +74,7 @@ let redef_macro_pat name pat action =
   with
     Not_found -> begin
       Location.print_pos () ;
-      prerr_string "Redefining non existing: "; prerr_endline name ;
+      prerr_string "Defining a macro with \\renewcommand: "; prerr_endline name ;
       Hashtbl.add cmdtable name (pat,action)
   end
 ;;

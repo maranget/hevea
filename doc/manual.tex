@@ -1,43 +1,59 @@
 \documentclass[a4paper]{article}
-\usepackage{../html}
+
+\usepackage{html}
 \usepackage{isolatin1}
 \usepackage{a4wide}
+\usepackage{alltt}
 
+\newcommand{\commandname}[1]{{\tt #1}}
+\newcommand{\filename}[1]{{\em #1}}
 \newcommand{\urlex}[1]{\url{\docurl/examples/#1}{\filename{#1}}}
-\newcommand{\command}[1]{{\tt #1}}
-\newcommand{\filename}[1]{{\tt #1}}
 
-\title{~\htmlgen\ user documentation}
+\begin{latexonly}
+\gdef\myrule{\rule{10cm}{.05ex}}
+\gdef\htmlout{\begingroup\parskip=0pt\parindent=0pt\begin{quote}\myrule\par}
+\gdef\endhtmlout{\par\myrule\end{quote}\endgroup}
+\end{latexonly} 
+\begin{htmlonly}
+\gdef\myrule{\@print{<HR NOSHADE SIZE=1 ALIGN=left WIDTH=75%>
+}}%
+\gdef\htmlout{\begin{quote}\myrule}
+\gdef\endhtmlout{\myrule\end{quote}}
+\end{htmlonly}
+\newenvironment{latexout}{\begin{htmlout}}{\end{htmlout}}
+
+
+\title{{\hevea} user documentation}
 \author{Luc Maranget\thanks{Inria Rocquencourt -- BP 105, 78153 Le
-Chesnay Cedex. {\tt Luc.Maranget@inria.fr}}}
+Chesnay Cedex. {\tt \mail{Luc.Maranget}{inria.fr}}}}
 
 \begin{document}
-\cutdef{document}{part}
+
 \maketitle
 
 \begin{abstract}
-The programm \htmlgen\ is a \LaTeX\ to html translator.
+The programm \hevea\ is a \LaTeX\ to {\html} translator.
 The input language is a fairly complete subset of \LaTeX2e\ (old
 \LaTeX\ style is also accepted) and the
-output langaguage is html that is (hopefullly) correct with respect to
+output langaguage is {\html} that is (hopefullly) correct with respect to
 version 3.2.
 
 Mathematics and other exotic symbols are translated into symbols
-pertening to the symbol font of the html browser, using the
+pertening to the symbol font of the {\html} browser, using the
 non-standard \verb+FACE+ atribute of the \verb+FONT+ tag.
-This allows the translation to html of quite a lot of the symbols used in
+This allows the translation to {\html} of quite a lot of the symbols used in
 \LaTeX.
 
 
-\indent\htmlgen\ understands \LaTeX\ user macros. This allows to use user style
+{\hevea} understands {\LaTeX} user macros. This allows to use user style
 files with little or no modifications, provided these style files are
 not too tricky.
 
-\indent\htmlgen\ is written in Objective Caml, as many lexers. It is
+{\hevea} is written in Objective Caml, as many lexers. It is
 quite fast and flexible.
-Using \htmlgen\ is is possible to translate  big documents such
+Using {\hevea} it is possible to translate  big documents such
 as manuals, books, etc. very quickly. All documents are
-translated as one single html file. Then, the output file can be cut into
+translated as one single {\html} file. Then, the output file can be cut into
 smaller file, using the companion program \htmlcut.
 \end{abstract}
 
@@ -53,29 +69,23 @@ Assume that you have a file \filename{a.tex} written in \LaTeX, using the
 translation
 is achieved by issuing the command~:
 \begin{verbatim}
-     htmlgen a.tex
+     hevea a.tex
 \end{verbatim}
 Probably, you will get some warnings about unknown macros. If
-\htmlgen\ does not crash, just ignore them for the moment.
+\hevea\ does not crash, just ignore them for the moment
+(Section~\ref{trouble}  explains how to correct errors).
 
-\label{browser}If everything goes fine, this will produce a new file
-``\filename{a.html}'' that you can visualize using an html brower.
+If everything goes fine, this will produce a new file
+``\filename{a.html}'' that you can visualize using an {\html} brower.
 If \filename{a.tex} contains maths symbols you need to instruct your
-browser to use symbol fonts. For Netscape, add the following line to
-your \filename{.Xdefaults} file 
-\begin{verbatim}
-Netscape*documentFonts.charset*adobe-fontspecific:   iso-8859-1
-\end{verbatim}
-(Then, you probably need something like a \command{xrdb} command before
-you start Netscape.)
+browser to use symbol fonts (see section~\ref{browser}).
 
-
-If you wish to experiment \htmlgen\ on small \LaTeX\ source fragments,
-then lauch \htmlgen\ without arguments. \htmlgen\ will read its
+If you wish to experiment \hevea\ on small \LaTeX\ source fragments,
+then lauch \hevea\ without arguments. \hevea\ will read its
 standard input and print the translation on its standard output.
 For instance:
 \begin{verbatim}
-# htmlgen
+# hevea
 $
 x \in {\cal E}
 $
@@ -93,90 +103,680 @@ documentation, including examples of \urlex{a.tex} and
 
 \subsection{Base style files}
 
-\noindent\htmlgen\ knows about three \LaTeX\ base style file, \verb+article+,
-\verb+book+ and \verb+report+. In case your source file uses
-another base style, then you can instruct \htmlgen to load one of the
+\noindent\hevea\ knows about two {\LaTeX} base style file,
+\filename{article}.
+Additionnaly, the \filename{report} base style is recognized and
+considerd equivalent to \filename{book}. In case your source file uses
+another base style, then you can instruct {\hevea} to load one of the
 style files it knows about before processing your source file.
 This is done by giving the desired style file as an extra command line
 argument.
 
-Let us assume that \verb+acmarticle.tex+ uses an exotic style
-file such as \verb+acmconf.sty+. Them, typing
-\verb+htmlgen acmarticle.tex+ may yield two kind of errors.
-Either \htmlgen\ finds the the \verb+acmconf.sty+ file (e.g. if you have a
+Let us assume that \filename{mydoc.tex} uses an exotic style
+file such as \verb+acmconf+. Then, typing
+\verb+hevea mydoc.tex+ may yield two kind of errors.
+Either \hevea\ finds the the \filename{acmconf.sty} file (e.g. if you have a
 private copy of it in your directory) and fails to
 interpret it~:
 \begin{verbatim}
-# htmlgen acmarticle.tex
+# hevea acmarticle.tex
 ./acmconf.sty:84: Unknown macro: \typeout
 ./acmconf.sty:85: Unknown macro: \typeout
 ./acmconf.sty:87: Adios
 Fatal error: uncaught exception Failure("Bad newif: \if")
 \end{verbatim}
-Or,  \htmlgen\ cannot find the \verb+acmconf.sty+ file and you get a
+Or,  \hevea\ cannot find the \filename{acmconf.sty} file and you get a
 lot of warnings:
 \begin{verbatim}
-# htmlgen acmarticle.tex
-main.tex:9: Unknown macro: \@docpart
-main.tex:9: Unknown macro: \@docchapter
-main.tex:18: Unknown counter: footnote
+# hevea acmarticle.tex
+mydoc.tex:9: Unknown macro: \@docpart
+mydoc.tex:9: Unknown macro: \@docchapter
+mydoc.tex:18: Unknown counter: footnote
 ...
 \end{verbatim}
 
-Both situations are avoided by issuing the command
-\verb+htmlgen article.sty acmarticle.sty+ that instruct
-\htmlgen\ to load its \verb+article.sty+
-style file in place of the document style file.
 
-\subsection{Macros}
-Just like \LaTeX, \htmlgen\ can be seen as a macro langaguage, macros
+Both situations are avoided by invoking \verb+hevea+ with a known
+base style file  as an extra argument:
+\begin{verbatim}
+hevea article.sty mydoc.tex
+\end{verbatim}
+Such an extra argument instructs
+\hevea\ to load its \filename{article.sty}
+style file before processing \filename{mydoc.tex}
+It will then ignore the base style specified by
+\verb+\documentstyle+ or \verb+\documentclass+.
+
+\subsection{Other style files}
+
+A \LaTeX\ document usually loads additional style files (using
+\verb+\input+ or \verb+\usepackage+).
+\hevea\ simply ignores \verb+\usepackage+ but attempt to load
+input files.
+(You can see what files {\hevea} loads or attempts to load by using
+the \verb+-v+ option.)
+
+A simple situation is when {\hevea} is not happy  with just a few macros
+in a style file.
+As it is often the case, assume that the document \filename{mydoc.tex} has a
+\verb+\input{macros.tex}+ instruction in its preambule, where
+\filename{macros.tex} gathers custom definitions.
+Hopefully, only a few macros give rise to trouble: macros that performs fine
+typesetting or {\TeX}ish macros.
+Such macros need to be rewritten, using more basic {\LaTeX}
+constructs (section~\ref{trouble} gives examples of macro-rewritting).
+The new definition are best collected in a style file,
+\filename{macros.tex} for instance.
+Then, \filename{mydoc.tex} is to be compiled by issuing the command:
+\begin{verbatim}
+# hevea mymacros.sty mydoc.tex
+\end{verbatim}
+The file \filename{mymacros.tex} is processed before
+\filename{mydoc.tex} (and thus before \filename{macros.tex}).
+As a consequence, the macro definitions in \filename{mymacros.tex}
+overide the ones in  \filename{macros.tex}, provided the latter are made
+using \verb+\newcommand+ or \verb+\def+.
+
+Another situation is when  {\hevea} fails to process a whole 
+style file. Usually, this means that {\hevea} crashes on that style
+file.
+Then, you should also instruct
+{\hevea} not to load the faulty file, by issuing the command:
+\begin{verbatim}
+# hevea mymacros.sty -e macros.tex mydoc.tex
+\end{verbatim}
+Of course, \filename{mymacros.sty} must now contain replacements for
+all the useful macros of \filename{macro.tex}.
+Note that another solution to instruct {\LaTeX} to load a file and
+{\hevea} not to load it is to use \verb+\usepackage+, which {\hevea}
+ignores.
+
+
+As to writting replacement macros,
+things get tricky for style files that
+significantly extends {\LaTeX} capabilities to typeset inderence rules
+or categorical diagrams for instance.
+Then, the  solution depends both on {\html} capabilities and on your
+willingness to rewrite macros.
+However, it is still possible to have {\LaTeX} typeset some subparts of
+the document and to include them as images (see section~\ref{imagegen}).
+
+\section{A note on style}
+
+\subsection{Spacing}
+Spacing in the {\html} document reflects the original source spacing.
+Space after macros with no argument is skipped (as in {\LaTeX}) except
+within math mode.
+This means that you formulas have to be spaced properly in the source
+file.
+
+
+
+
+
+\section{Macros}
+Just like \LaTeX, \hevea\ can be seen as a macro langaguage, macros
 are rewritten until no more expansion is possible. Then either some
 caracters (such as letters, integers\ldots) are outputed or some
 internal operation (such as changing font attributes, or arranging
 text items in a certain manner) are performed.
 
 \subsection{Base macros}
-\LaTeX\ and html differ in many aspects. For instance, \LaTeX\ allows
+\LaTeX\ and {\html} differ in many aspects. For instance, \LaTeX\ allows
 much flexibility in spacing, raising or lowering texts items, whereas
-html does not.
+{\html} does not.
 Much more symbols and font attributes are available in \LaTeX\ than in
-html. However, html has font attributes, such as color, which \LaTeX\
+{\html}. However, {\html} has font attributes, such as color, which \LaTeX\
 has not.
 
-As a consequence, there are many situation where \htmlgen\ just cannot
+As a consequence, there are many situations where {\hevea} just cannot
 render the visual effect of \LaTeX\ constructions. Here some choices
 have to be made. For instance, the calligraphic letters (\verb+\cal+)
 are rendered in red (\verb+<FONT COLOR=red>+), and the small caps
 (\verb+\sc+) are rendered in bold font (\verb+<BF>+).
 
-If you are not satisfied with my choice, then you
-can make your own choice, by redefining the \verb+\cal+ and \verb+\sc+
-macros. To avoid modyfing your \LaTeX\ file, it is advised to use an
-extra-style file that contains your definitions. Thus in a
-\verb+mydefs.sty+ file you can type:
+If you are not satisfied with my choices, then you
+can make your own choices, by redefining the \verb+\cal+ and \verb+\sc+
+macros, using \verb+renewcommand+, the macro redefinition operator of
+{\LaTeX}.
 \begin{verbatim}
 \renewcommand{\sc}{\large}
 \renewcommand{\cal}{\em}
 \end{verbatim}
-Then, you process a tex file \verb+testsccal.tex+ by the command:
-\begin{verbatim}
-htmlgen mydefs.sty testsccal.tex
-\end{verbatim}
-You find the files
-\urlex{testsccal.tex}
-\urlex{testsccal.sty}
-and the result file \urlex{testsccal.html} in the on-line documentation.
 
 
-Note that base macros are partly defined in \LaTeX\ style in the
-\verb+htmlgen.sty+ file that \htmlgen\ loads before processing any
+
+Note that base macros and environments are partly defined in \LaTeX\
+style in the 
+\verb+hevea.sty+ file that \hevea\ loads before processing any
 input. Other base macros that require a special processing are defined
-in \htmlgen source code.
-Having a look at the \verb+htmlgen.sty+ file (or at the base style
-files of \htmlgen) will help you in
-designing your own macros.
+in \hevea source code.
+Having a look at the \verb+hevea.sty+ file (or at the base style
+files of \hevea) will help you in designing your own implementation
+of base macros.
 
-Hopefully, \htmlgen understands most of \LaTeX base macros and environments.
+\subsection{User macros}
+
+{\hevea} understands user macro definition
+given in {\LaTeX} style
+(using \verb+\newcommand+, \verb+\renewcommand+ and
+\verb+\providecommand+).
+These three  instructions have the same meaning as in {\LaTeX}. However
+{\hevea} is more tolerant:
+If macro {\it name} already exists, then a subsequent
+\verb+\newcommand{+{\it name}\verb+}+ is ignored.
+If macro {\it name} does not exists, then
+\verb+\newcommand{+{\it name}\verb+}+ performs a definition of {\it name}.
+In both cases, a warning is issued.
+
+The behavior of \verb+\newcommand+ allows to shadow document
+definition, provided the new definitions are processed before the
+document definitions.
+This is easily done by grouping the shadowing definition  in a
+specific style file given as an argument to {\hevea}.
+By contrast, changes of base macros (i.e. the ones that {\hevea}
+defines before loading any user-specified file) must be performed
+using \verb+\renewcommand+. Such personal (re)-definition can be made
+in any user style file.
+
+
+
+
+
+{\hevea} also accepts simple {\TeX} style (using \verb+\def#1#2...+
+without delimiting 
+characters), with the same behavior as \verb+\newcommand+.
+It also processes the \verb+\[re]newenvironment+ constructs and a
+limited version of \verb+\let+:
+
+\begin{flushleft}
+\verb+\let+ {\it macro-name} \verb+=+ {\it macro-name}
+\end{flushleft}
+
+Scoping rules apply to macros, as they do in {\LaTeX}.
+You can escape them by using
+\verb+\gdef+, \verb+\global\def+ or \verb+\global\let+, as you can in
+{\LaTeX}.
+
+
+
+\section{How to detect and correct errors}\label{trouble}
+
+Most of the problems that occur during the translation of a given
+\LaTeX\ file (say \verb+trouble.tex+) can be solved at
+the macro-level. That is, most problems can be solved by writing a few
+macros. The best place for these macros is an user-style file (say
+\verb+trouble.sty+) given as
+argument to \hevea.
+\begin{verbatim}
+# hevea trouble.sty trouble.tex
+\end{verbatim}
+By doing so, the macros written specially for \hevea\ are not
+seen by \LaTeX. Even better, \verb+trouble.tex+ is not changed
+at all.
+
+Of course, this will be easier if the \LaTeX\ source is written in a
+generic style, using macros.
+Note that this style is recommended anyway, since it eases the changing
+and tuning of documents.
+
+\subsection{\hevea\ does not know a macro}
+Consider the following \LaTeX\ source excerpt:
+\begin{verbatim}
+You can \raisebox{.6ex}{\em raise} text.
+\end{verbatim}
+
+\LaTeX\ typesets this as follows:
+\begin{htmlout}
+\begin{htmlonly}
+\begin{toimage}
+You can \raisebox{.6ex}{\em raise} text.
+\end{toimage}
+\imageflush
+\end{htmlonly}      
+\begin{latexonly}
+You can \raisebox{.6ex}{\em raise} text.
+\end{latexonly}
+\end{htmlout}
+
+Since \hevea\ does not know about \verb+raisebox+,
+it uncorrectly processes this input. More precisely,
+it first prints a warning message:
+\begin{verbatim}
+trouble.tex:34: Unknown macro: \raisebox
+\end{verbatim}
+Then, it goes on by translating the arguments of \verb+\raisebox+ as
+there were normal text. As a
+consequence some \verb+.6ex+ is finally found in the {\html} output:
+\begin{htmlout}
+\begin{latexonly}
+You can .6ex{\em raise} text.
+\end{latexonly}
+\begin{htmlonly}
+You can \raisebox{.6ex}{\em raise} text.
+\end{htmlonly}
+\end{htmlout}
+
+To correct this, you should provide a macro that more or less has the effect of
+\verb+raisebox+. It is difficult, yet impossible, to write a generic
+\verb+raisebox+ macro for \hevea. However, in this case, the effect
+of \verb+\raisebox+ is to raise the box {\em a little}.
+Thus, the first, numerical, argument to \verb+\raisebox+  can be
+ignored in a private \verb+\raisebox+ macro defined in \filename{trouble.sty}:
+\begin{verbatim}
+\newcommand{\raisebox}[2]{$^{\mbox{#2}}$}
+\end{verbatim}
+
+Now, tranlating the document yields:
+\begin{htmlout}
+\renewcommand{\raisebox}[2]{$^{\mbox{#2}}$}%
+You can \raisebox{.6ex}{\em raise} text a little.
+\end{htmlout}
+
+Of course, this will work only when all \verb+\raisebox+ in the document
+raise text a little. Consider, for instance, this example, where text
+is both raised a lowered a little:
+\begin{verbatim}
+You can \raisebox{.6ex}{\em raise} or \raisebox{-.6ex}{\em lower} text.
+\end{verbatim}
+Which \LaTeX, renders as follows:
+\begin{htmlout}
+\begin{htmlonly}
+%% BEGIN IMAGE
+You can \raisebox{.6ex}{\em raise} or \raisebox{-.6ex}{\em lower} text.
+%% END IMAGE
+\imageflush
+\end{htmlonly}
+\begin{latexonly}
+You can \raisebox{.6ex}{\em raise} or \raisebox{-.6ex}{\em lower} text.
+\end{latexonly}
+\end{htmlout}
+Whereas, with the above definition of \verb+\raisebox+, \hevea\ produces:
+\begin{htmlout}
+\renewcommand{\raisebox}[2]{$^{\mbox{#2}}$}%
+You can \raisebox{.6ex}{\em raise} or \raisebox{-.6ex}{\em lower} text.
+\end{htmlout}
+
+
+A solution is to add a new macro definition in the \verb+trouble.sty+ file:
+\begin{verbatim}
+\newcommand{\lowerbox}[2]{$_{\mbox{#2}}$}
+\end{verbatim}
+Then, \verb+trouble.tex+ itself has to be modified a little.
+\begin{verbatim}
+You can \raisebox{.6ex}{\em raise} or \lowerbox{-.6ex}{\em lower} text.
+\end{verbatim}
+{\hevea} now produces a satisfying output:
+\begin{htmlout}
+\begin{latexonly}\renewcommand{\raisebox}[2]{$^{\mbox{#2}}$}%
+\newcommand{\lowerbox}[2]{$_{\mbox{#2}}$}
+You can \raisebox{.6ex}{\em raise} or \lowerbox{-.6ex}{\em lower} text.
+\end{latexonly}
+\begin{htmlonly}\newcommand{\raisebox}[2]{$^{\mbox{#2}}$}%
+\newcommand{\lowerbox}[2]{$_{\mbox{#2}}$}
+You can \raisebox{.6ex}{\em raise} or \lowerbox{-.6ex}{\em lower} text.
+\end{htmlonly}
+\end{htmlout}
+
+\subsection{\hevea\ uncorrectly interprets a macro}
+
+Sometimes \hevea\ knows about a macro, but the produced {\html}
+is obviously wrong.
+This kind of errors is a little more difficult to detect than the
+previous one because the translator does not issue a warning. Here you
+have to look at the output.
+Consider, for instance, this definition:
+\begin{verbatim}
+\newcommand{\blob}{\rule[.2ex]{1ex}{1ex}}
+\blob\ Blob \blob
+\end{verbatim}
+Which \LaTeX typesets as follows:
+\begin{latexout}
+\begin{htmlonly}
+\begin{toimage}\newcommand{\blob}{\rule[.2ex]{1ex}{1ex}}
+\blob\ Blob \blob
+\end{toimage}
+\imageflush
+\end{htmlonly}
+\end{latexout}
+\hevea\ always translate \verb+\\rule+ by \verb+<HR>+, ignoring size
+arguments.
+Hence, it here produces the following, wrong, output:
+\begin{htmlout}\newcommand{\blob}{\rule[.2ex]{1ex}{1ex}}
+\begin{htmlonly}
+\blob\ Blob \blob
+\end{htmlonly}
+\end{htmlout}
+
+There is not small square in the symbol font used by \hevea.
+However there are other small symbols that would perfectly do the job
+of \verb+\blob+, such as a small bullet (\verb+\bullet+ in \LaTeX).
+Thus you may choose to give \verb+\blob+ a shadowing definition in
+\verb+trouble.sty+:
+\begin{verbatim}
+\newcommand{\blob}{\bullet}
+\end{verbatim}
+This new definition yields the following, more satisfying output:
+\begin{htmlout}\newcommand{\blob}{\bullet}
+\begin{htmlonly}
+\blob\ Blob \blob
+\end{htmlonly}
+\end{htmlout}
+
+\subsection{\hevea\ crashes}
+
+Such an errors may have many causes, including a bug in \hevea.
+However, it may also steem from a wrong \LaTeX\ input.
+Thus this section is to be read before reporting a bug\ldots
+
+In  the following source, environments are not properly balanced:
+\begin{verbatim}
+\begin{flushright}
+\begin{quote}
+This is right-flushed quoted text.
+\end{flushright}
+\end{quote}
+\end{verbatim}
+Such a source will make both {\LaTeX} and {\hevea} choke.
+Thus, when {\hevea} crashes, it is a good idea to check that the
+input is correct by running {\LaTeX} on it.
+
+
+Unfortunatly, {\hevea} may crash on input that does not affect
+\LaTeX.
+Such errors are likely to appear when processiong {\TeX}ish input,
+such as found in style files.
+Consider for instance the following ``optimized'' version of a
+\verb+quoteright+  environment:
+\begin{verbatim}
+\newenvironment{quotebis}{\quote\flushright}{\endquote}
+
+\begin{quotebis}
+This a right-flushed quotation
+\end{quotebis}
+\end{verbatim}
+
+{\LaTeX} produces the expected output:
+\begin{latexout}
+\begin{toimage}
+\newenvironment{quotebis}{\quote\flushright}{\endquote}
+\begin{quotebis}
+This is a right-flushed quotation
+\end{quotebis}
+\end{toimage}\imageflush[ALIGN=right]\par
+\end{latexout}
+
+However, as {\hevea} often translates {\LaTeX} environments by {\html}
+opening and  closing tags  and refuses to generate obviously
+non-correct {\html}, it crashes:
+\begin{verbatim}
+trouble.tex:8: Adios
+Fatal error: uncaught exception Failure("hml: BLOCKQUOTE closes DIV")
+\end{verbatim}
+
+In this case the solution is easy: environments must be opened and
+closed consistently. {\LaTeX} style being recommended, one should write:
+\begin{verbatim}
+\newenvironment{quotebis}
+  {\begin{quote}\begin{flushright}}
+  {\end{flushright}\end{quote}}
+\end{verbatim}
+And we get:
+\begin{htmlout}\newenvironment{quotebis}{\begin{quote}\begin{flushright}}{\end{flushright}\end{quote}}
+\begin{quotebis}
+This is a right-flushed quotation
+\end{quotebis}
+\end{htmlout}
+
+\section{Cross references}
+
+\subsection{Labels, references}
+The {\LaTeX} \verb+\label+ and \verb+\ref+ are changed by {\hevea}
+into {\html} anchors and local links.
+Additionnaly, numerical references to sectional units, figures,
+tables, etc. are shown, as they would appear in the \filename{.dvi} file,
+provided a \filename{.aux} file exists.
+Numerical references to pages (such as generated by \verb+\pageref+ by
+{\LaTeX}) are not shown; only an link is generated.
+
+Thus, to get the cross references right in a document
+\filename{mydoc.tex}, you should first generate an 
+up-to-date \filename{mydoc.aux} file by running {\LaTeX} as many times
+as necessary.
+If no \filename{mydoc.aux} exists,  all references are shown as
+``X''.
+If a non-correct \filename{mydoc.aux} file is present, then cross
+references will apparently be wrong. However the links are correct in
+both cases.
+
+\subsection{Bibliography}
+The \verb+\cite+ macro is supported. Its optional argument is
+correctly handled. Citation labels are extracted from the
+\filename{.aux} file, if present. Otherwise the argument to
+\verb+cite+ is used.
+
+For those who format their bibliographies by hand, the
+\verb+thebibliography+ style is recognized.
+For those who use bibtex, the \verb+\bibliography+ macro is
+recognized, it loads the file \filename{mydoc.bbl} which should thus
+have been generated before, using the appropriate combination of
+{\LaTeX} and bibtex runs.
+
+The \verb+\nocite+ and \verb+\bibliographystyle+ macros do nothing.
+
+\subsection{Footnotes}
+The commands \verb+\footnote+,
+\verb+\footnotetext+ and \verb+\footnotemark+ (with or without
+optional arguments) are supported.
+The \verb+footnote+ counter exists and (re)setting it or redefining
+\verb+\thefootnote+ should work properly.
+
+Footnotes appear at document end in the \filename{article} style and
+at every chapter end in the \filename{book} style.
+If the document is then cut into smaller files by {\htmlcut} (see
+section~\ref{htmlcut}) footnotes may go to a separate file.
+
+Footnotes are bad.
+If you want to suppress them, redefine \verb+\footnote+ as follows:
+\begin{verbatim}
+\renewcommand{\footnote}[2][]{}
+\end{verbatim}
+If you want to put then in the text flow,  redefine \verb+\footnote+
+as follows:
+\begin{verbatim}
+\renewcommand{\footnote}[2][]{~(#2)}
+\end{verbatim}
+
+\subsection{Indexes}
+\hevea supports several simultaneaous indexes, following the scheme of
+the style
+file \filename{index} from the {\LaTeX} distribution.
+This scheme is backward compatible with the standard indexing scheme
+of {\LaTeX}.
+Thus, indexing in {\hevea} is exactly the same as in {\LaTeX}.
+However, {\hevea} does its own index computation  and does not need
+\verb+makeindex+.
+
+Some user modify \filename{.idx} files before running
+\verb+makeindex+, for instance to sort index entries taking
+non-english diacritics into account.
+{\hevea} can read such files and use the index entry labels they define,
+provided it is given the \verb+-idx+ option.
+Thus, if you follow such a scheme on \filename{mydoc.tex}, first run
+{\LaTeX}, process \filename{mydoc.idx} and invoke \hevea as follows:
+\begin{verbatim}
+hevea -idx mydoc.tex
+\end{verbatim}
+
+
+
+\section{Cutting your document into pieces}
+{\hevea} outputs a single \filename{.html} file. This file can be
+cut into pieces at various sectionning units by {\htmlcut}
+\subsection{Simple usage}
+First generate your {\html} document by applying {\hevea}:
+\begin{verbatim}
+# hevea mydoc.tex
+\end{verbatim}
+Then cut \filename{mydoc.html} into pieces by the command:
+\begin{verbatim}
+# htmlcut mydoc.html
+\end{verbatim}
+This will generate a simple table of content file
+\filename{index.html}.
+Every item in the table of content file is a link to a file that holds
+a single sectional unit.
+The default behavior of {\htmlcut} is to cut documents with the
+\filename{article} style at the section level and documents with the
+\filename{book} style at the chapter level.
+Additionnaly, a new table of content is started at the
+document parts are shown in the \filename{index.html} file.
+
+The name of the table of content file can be changed using the
+\verb+-o+ option:
+\begin{verbatim}
+# hevea -o mytoc.html mydoc.html
+\end{verbatim}
+
+\subsection{Advanced usage}
+{\htmlcut} works by recognizing certain comments that
+{\hevea} inserts in its output.
+A few macros are provided to generate such cutting instructions.
+\begin{description}
+\item[{\tt\char92 cutdef\{}{\it partname}{\tt\}\{}{\it secname}{\tt \}}]
+   Close the current table of content and change the current
+   cutting and parting sectional units. Argument {\it secname} is the
+   new cutting
+   sectionnal unit, whereas {\it partname} is the new parting sectional unit.
+\item[{\tt\char92 cutend}]
+   End the current table of content. This closes the scope of the
+   previous \verb+\cutdef+. Cutting and parting sectional unit are
+   restored as they were before.
+\item[{\tt\char92 cuthere\{}{\it secname}{\tt\}\{}{\it itemtitle}{\tt\}}]
+   Attempt a cut.
+   \begin{itemize}
+   \item If {\it secname} is the current sectional unit, then
+   a new file is started and an entry in the current table of content
+   is generated, with title {\it itemtitle}. If no table of content is
+   opened yet, open one.
+   \item If {\it secname} is the current parting unit, then the
+   current table of content is closed.
+   \item Otherwise, no action is performed.
+\end{itemize}
+\end{description}
+
+In a  document whose style is \filename{article}
+(resp. \filename{book}),
+\verb+\begin{document}+ performs \verb+\cutdef{part}{section}+
+(resp. \verb+\cutdef{part}{chapter}+) and \verb+\end{document}+
+performs \verb+cutend+.
+All sectional unist down to \verb+subsection+ perform \verb+\cuthere+,
+whith the sectional unit name as first argument and the sectioning
+command argument (i.e., the section title) as second argument.
+
+Consider, for instance, a \filename{book} document with a long chapter
+that you want to cut at the section level:
+\begin{verbatim}
+\chapter{A long chapter}
+.....
+
+\chapter{The next chapter}
+\end{verbatim}
+Then, you should insert a \verb+\cutdef+ at chapter start and a
+\verb+\cutend+ at chapter end:
+\begin{verbatim}
+\chapter{A long chapter}
+\cutdef{part}{section}
+.....
+\cutend
+\chapter{The next chapter}
+\end{verbatim}
+The macro \verb+section+ already performs the appropriate
+\verb+\cuthere{section}{...}+ commands. As a consequence, the file
+that would otherwise contain the long chapter now contains chapter
+title and a table of sections.
+
+The \verb+\cuthere+ can be used to put some document parts into
+their own file.
+This may prove appropriate for long cover pages or abstracts that would
+otherwise go into \filename{index.html}.
+
+
+A documemnt that includes cutting macros still can be typeset by
+{\LaTeX}, provided it loads the
+\filename{html.sty} style file from the {\hevea} distribution.
+(See section~\ref{both} for details on the \filename{html.sty} style file).
+
+\part{Reference manual}
+
+\section{Usage}
+\begin{verbatim}
+# hevea -help
+hevea 0.0
+  -v , verbose flag, can be repeated to increase verbosity
+  -e filename, prevent file ``filename'' from being read
+  -idx , attempt to read .idx file (useful if indexing is non-standard)
+  -francais , french mode
+  -nosymb , do not output symbol fonts
+  -I dir, add directory ``dir'' to search path
+  -o filename, make hevea output go into file ``filename''
+\end{verbatim}
+
+\begin{verbatim}
+# htmlcut 0.0
+  -o filename, make htmlcut output go into file ``filename'' (defaults to index.html)
+\end{verbatim}
+
+\part{Installation}
+
+\section{Browser configuration}\label{browser}
+
+\subsection{Nescape}
+\begin{description}
+\item[Unix]
+For Netscape, add the following line to
+your \filename{.Xdefaults} file 
+\begin{verbatim}
+Netscape*documentFonts.charset*adobe-fontspecific:   iso-8859-1
+\end{verbatim}
+(Then, you probably need something like a \commandname{xrdb} command before
+you start Netscape.)
+\item[Macintosh]
+Choose  {\bf Roman-Encodings} in the item {\bf Document~Encoding}
+from {\em Preferences} menu.
+\end{description}
+
+
+\section{Requirements}
+
+This package is mainly written in
+\url{http://caml.inria.fr/ocaml/}{Objective Caml}. Thus, you
+really need Objective Caml to compile it.
+
+{\hevea} extract referencing information for \filename{.aux} files,
+and bibliographic information from \filename{.bbl} files.
+Hence you need a fully functional {\LaTeX} system.
+Additionnaly, the {\hevea} user may instruct the program not to process a
+part of the input (see section~\ref{imagegen}). Instead, this part is
+processed into a 
+\verb+.gif+ file and {\hevea} ouputs a  link to the image file.
+\LaTeX\ is changed into a \verb+.gif+ file by the the \verb+imagegen+
+script, which basically calls, \LaTeX, ghostscript a few tools from
+the image processing package
+\url{ftp://wuarchive.wustl.edu/graphics/graphics/packages/NetPBM}{netpbm}.
+To benefit from the full functionnality of \hevea, you need all
+this software. However, \hevea\ runs without them, but then you will
+have to manage to produce images by yourself.
+
+\subsection{Principles}
+The details are given in the \verb+README+ file in the distribution.
+
+
+
+\end{document}
+
+
+Hopefully, \hevea understands most of \LaTeX base macros and environments.
 This includes positionning environemnts such as \verb+center+,
 \verb+flushleft+ or \verb+quote+; sectioning commands, such as
 \verb+\section+; most of font atribute
@@ -188,96 +788,16 @@ superscriting; many math symbols, such as \verb+\in+ ($\in$) or
 environmnents; cross references, figures, indexes, footnotes and
 bibliographic references are
 also handled. Again, I made some choices while mapping \LaTeX\
-constructs onto html and some part of them can be modified by
+constructs onto {\html} and some part of them can be modified by
 rewriting macros and environments in \LaTeX.
 
-The html implementation of some nasty \TeX\ or \LaTeX\ constructs such
+The {\html} implementation of some nasty \TeX\ or \LaTeX\ constructs such
 as \verb+\over+, \verb+\left...\right+ or limits would deserve a more
 thorough description. Some others such as the \verb+tabbing+ environment would
 deserve a more thourough implementation.
 Some may have deserved an implementation, such as \verb+\sqrt+\ldots\ 
 I will not say more about them, you are invited to experiment and send
 your remarks or critics to \mail{Luc.Maranget}{inria.fr}.
-You can also have a look at \htmlgen\ test suite, see \url{suite.tex}
+You can also have a look at {\hevea} test suite, see \urlex{suite.tex}
 and \urlex{suite.html}.
 
-\subsection{User macros}
-\noindent\htmlgen\ understands user macros,
-given both in \LaTeX\ style
-(using \verb+\newcommand+, \verb+\renewcommand+ and
-\verb+\providecommand+) and in simple
-\TeX\ style (using \verb+\[g]def#1#2...+ without delimiting
-characters).
-It also processes the \verb+\[re]newenvironment+ constructs and a
-limited version of \verb+\let+.
-
-
-In good cases, when the macros does not perform subtle typesetting or
-overuse \TeX\ constructs, everything goes fine.
-However it may happen that the visual effect obtained is not
-satisfactory, even worse some spurious output such as arguments of
-unknown macros may get their way into the final html output.
-
-Consider another example, \urlex{trouble.tex}, which includes the
-following macro definition and usage:
-\begin{verbatim}
-\newcommand\blob{\hrule height 1ex length 1ex}
-\end{verbatim}
-
-
-\section{Other style files}
-
-A \LaTeX\ document usually loads additional style files (using
-\verb+\input+ or \verb+\usepackage+).
-\htmlgen\ simply ignores \verb+\usepackage+ but attempt to load
-input files.
-Appart from understanding the warning of \htmlgen, you can see which
-files it loads by using the \verb+-v+ option.
-
-Consider again a simple \verb+article.tex+ article whose header is as follows
-
-\part{Reference manual}
-
-\section{Usage}
-\begin{verbatim}
-# htmlgen -help
-htmlgen 0.0
-  -v , verbose flag, can be repeated to increase verbosity
-  -e filename, prevent file ``filename'' from being read
-  -idx , attempt to read .idx file (useful if indexing is non-standard)
-  -francais , french mode
-  -nosymb , do not output symbol fonts
-  -I dir, add directory ``dir'' to search path
-  -o filename, make htmlgen output go into file ``filename''
-\end{verbatim}
-
-\begin{verbatim}
-# htmlcut 0.0
-  -o filename, make htmlcut output go into file ``filename'' (defaults to index.html)
-\end{verbatim}
-
-\part{Installation}
-
-\section{Requirements}
-
-This package is mainly written in
-\url{http://caml.inria.fr/ocaml/}{Objective Caml}. Thus, you
-really need Objective Caml to compile it.
-
-The \htmlgen\ user may instruct the program not to process a
-part of the input. Instead, this parts is processed into a
-\verb+.gif+ file and \htmlgen\ ouptuts a  link to the image file.
-\LaTeX\ is changed into a \verb+.gif+ file by the the \verb+imagegen+
-script, which basically calls, \LaTeX, ghostscript a few tools from
-the image processing package
-\url{ftp://wuarchive.wustl.edu/graphics/graphics/packages/NetPBM}{netpbm}.
-To benefit from the full functionnality of \htmlgen, you need all
-this software. However, \htmlgen\ runs without them, but then you will
-have to manage to produce images by yourself.
-
-\subsection{Principles}
-The details are given in the \verb+README+ file in the distribution.
-
-
-
-\end{document}

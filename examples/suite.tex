@@ -1,6 +1,6 @@
 \documentstyle[html,isolatin1]{article}
 
-\title{Test de \htmlgen\footnote{Une étoile}}
+\title{Test de \hevea\footnote{Une étoile}}
 
 \begin{document}
 \maketitle
@@ -26,7 +26,7 @@ Roman
 
 \subsection{Italiques en mode math}
 
-Alors j'y vais~: $1+a_{i+1} + \int^N_0 1/x dx + \partial x/2$
+Alors j'y vais~: $1 + a_{i+1} + \int^N_01/x dx + \frac{\partial x}{2}$
 
 Et puis une petite mbox en exposant~: {\LARGE $\alpha^{\mbox{gros $\beta$}}$}.
 
@@ -40,6 +40,8 @@ $$
  1 + {\cal A} + 1 = 3
 $$
 
+Comme au dessus mais en mode display:
+$$1 + a_{i+1} + \int^N_01/x dx + \frac{\partial x}{2}$$
 \section{Les tableaux}
 
 \subsection{Environnement définissant un tableau}

@@ -157,9 +157,6 @@ let make_stack name pat lexbuf =
   stack
 ;;
 
-let to_image = ref true
-;;
-
 
 let pretty_format = function
   Align (s,b) -> (if b then "t" else "")^s
@@ -305,11 +302,16 @@ let iput_arg arg =
   Image.put "}"
 ;;
 
-let iput_newpage () =
+let iput_newpage arg =
   let n = Image.page () in
   Image.put ("% page: "^n^"\n") ;
   Image.put "\\clearpage\n\n" ;
-  Html.put "<IMG SRC=\"" ;
+  Html.put "<IMG " ;
+  if arg <> "" then begin
+    Html.put arg;
+    Html.put_char ' '
+  end ;
+  Html.put "SRC=\"" ;
   Html.put n ;
   Html.put "\">"
 ;;
@@ -620,12 +622,12 @@ let put_sup_sub tag main = function
   "" -> ()
 | s  -> begin
    match check_ital s with
-     Complex|NoItal ->
+     Complex|Ital ->
        Html.open_group tag ;
        open_script_font () ;
        scan_this main s;
        Html.close_group ()
-   | Ital ->     
+   | NoItal ->     
        Html.put_char '<' ;
        Html.put tag ;
        Html.put_char '>' ;
@@ -749,6 +751,12 @@ let no_prelude () =
 rule  main = parse
    '%'+ ' '* ("BEGIN"|"begin") ' '+ ("IMAGE"|"image")  [^'\n']* '\n'
     {Image.dump "" image lexbuf}
+| '%'+ ' '* ("HEVEA"|"hevea") ' '* ':'
+   {main lexbuf}
+| '%'+ ' '* ("BEGIN"|"begin") ' '+ ("LATEX"|"latex") [^ '\n']* '\n'
+    {latexonly lexbuf ; skip_spaces_main lexbuf}
+| "\\begin" ' '* "{toimage}"
+    {Image.dump "" image lexbuf}
 |  '%'+ [^ '\n']* '\n'
    {if !verbose > 1 then
      prerr_endline ("Comment:"^lexeme lexbuf) ;
@@ -759,7 +767,7 @@ rule  main = parse
 | "\\box\\graph" ' '*
     {if !verbose > 2 then prerr_endline "Graph" ;
     Image.put "\\box\\graph\n";
-    iput_newpage () ;
+    iput_newpage "" ;
     main lexbuf}
 (* Styles and packages *)
 | "\\documentstyle"  | "\\documentclass"
@@ -791,7 +799,12 @@ rule  main = parse
      with Not_found ->
        Image.put (lxm^"{"^arg^"}\n")
      end ;
-     main lexbuf}   
+     main lexbuf}
+| "\\usepackage"
+      {let lxm = lexeme lexbuf in
+      let arg = save_arg lexbuf in
+      Image.put (lxm^unparse_args [] [arg]^"\n") ;
+      main lexbuf}
 (* subscripts and superscripts *)
   | ('_' | '^')
      {let lxm = lexeme lexbuf in
@@ -799,11 +812,11 @@ rule  main = parse
      else begin
        let sup,sub = match lxm with
          "^" ->
-           let sup = Save.arg lexbuf in
+           let sup = Save.sarg lexbuf in
            let sub = get_sub lexbuf in
            sup,sub
        | _   ->
-           let sub = Save.arg lexbuf in
+           let sub = Save.sarg lexbuf in
            let sup = get_sup lexbuf in
            sup,sub in
        standard_sup_sub main (fun () -> ()) sup sub
@@ -849,7 +862,6 @@ rule  main = parse
            display := false ;
            open_group ""
          end;
-         open_ital () ;
          main lb in
        new_env math_env lexfun lexbuf
      end end}
@@ -866,7 +878,6 @@ rule  main = parse
        in_math := false ;
        let lexfun lb =
          open_fun () ;
-         no_ital () ;
          main lb in
        new_env "*mbox" lexfun lexbuf
     end else begin
@@ -878,7 +889,7 @@ rule  main = parse
      let name = Save.csname lexbuf in
      let args_pat = defargs lexbuf in
      let body = defbody lexbuf in
-     if (!to_image) then
+     if !env_level = 0 || lxm <> "\\def" then
        Image.put
          (lxm^name^
          (List.fold_right (fun s r -> s^r) args_pat ("{"^body^"}\n"))) ;
@@ -891,8 +902,9 @@ rule  main = parse
     let name = Save.csname lexbuf in
     let nargs = parse_args_opt ["0" ; ""] lexbuf in
     let body = Save.arg lexbuf in
-    Image.put
-      (lxm^"{"^name^"}"^unparse_args nargs [body]^"\n") ;
+    if (!env_level = 0) then
+      Image.put
+        (lxm^"{"^name^"}"^unparse_args nargs [body]^"\n") ;
     let nargs,(def,defval) = match nargs with
       [a1 ; a2] ->
         my_int_of_string (from_ok a1),
@@ -909,11 +921,17 @@ rule  main = parse
     macro_register name ;
     main lexbuf}
   | "\\newenvironment" ' '*
-     {let name = save_arg lexbuf in
+     {let lxm = lexeme lexbuf in
+     let name = save_arg lexbuf in
      let nargs = parse_arg_opt "0" lexbuf in
      let optdef = parse_arg_opt "" lexbuf in
      let body1 = save_arg lexbuf in
      let body2 = save_arg lexbuf in
+     if !env_level = 0 then
+       Image.put
+         (lxm^
+         unparse_args [] [name]^
+         unparse_args [nargs;optdef] [body1;body2]) ;
      def_env_pat name
        (Latexmacros.make_pat
          (match optdef with No _ -> [] | Yes s -> [s])
@@ -928,6 +946,7 @@ rule  main = parse
       let numbered_like = parse_arg_opt "" lexbuf in
       let caption = save_arg lexbuf in
       let within = parse_arg_opt "" lexbuf in
+      if !env_level = 0 then
       Image.put (lxm^
        unparse_args [] [name]^
        unparse_args [numbered_like] [caption]^
@@ -960,11 +979,13 @@ rule  main = parse
        def_macro_pat name nargs body ;
        macro_register name
      with Not_found -> () end ;
-     Image.put lxm ;
-     Image.put name ;
-     Image.put "=" ;
-     Image.put alt ;
-     Image.put "\n" ;
+     if !env_level = 0 || lxm <> "\\let" then begin
+       Image.put lxm ;
+       Image.put name ;
+       Image.put "=" ;
+       Image.put alt ;
+       Image.put "\n"
+     end ;
      if lxm = "\\let" then macro_register name ;
      main lexbuf}
 (* Raw html, latex only *)
@@ -972,7 +993,8 @@ rule  main = parse
      {rawhtml lexbuf; main lexbuf }
 | "\\begin" ' '* "{latexonly}"
      { latexonly lexbuf; main lexbuf }
-
+| "\\begin" ' '* "{image}"
+     {Image.dump "" image lexbuf}
 (* tabbing *)
 | "\\begin" ' '* "{tabbing}"
    {let lexfun lb =
@@ -1133,7 +1155,7 @@ rule  main = parse
       prelude := false ;
       Html.forget_par () ;
       Html.set_out !out_file
-    end ;
+   end ;
     let lexfun = match env with
       "program" | "verbatim" ->
          (fun lexbuf -> Html.open_block "PRE" "" ; verbenv lexbuf)
@@ -1247,6 +1269,10 @@ rule  main = parse
       | "\\@fromlib" ->
          let arg = save_arg lexbuf in
          Mylib.put_from_lib arg Html.put;
+         skip_blanks_main lexbuf
+      | "\\imageflush" ->
+         let arg = save_opt "" lexbuf in
+         iput_newpage arg ;
          skip_blanks_main lexbuf
 (* Bibliographies *)
       | "\\cite" ->
@@ -1468,12 +1494,11 @@ rule  main = parse
     Html.put_char '\n' ;
   end ;
   main lexbuf}
-| '|' | '[' | ']' | '(' | ')' | ':' | ';' | ',' | '*' |
-  ['0'-'9' ' ' '+' '-' '=']+
+| ['a'-'z' 'A'-'Z']+
    {let lxm =  lexeme lexbuf in
    if !in_math then begin
       Html.open_group "" ;
-      no_ital ();
+      open_ital ();
       Html.put lxm;
       Html.close_group ()
     end else
@@ -1489,6 +1514,7 @@ and rawhtml = parse
 
 and latexonly = parse
     "\\end{latexonly}" { () }
+  | '%'+ ' '* ("END"|"end") ' '* ("LATEX"|"latex") [^'\n']* '\n' {()}
   | _           { latexonly lexbuf }
 
 and verbenv = parse
@@ -1513,6 +1539,7 @@ and verbenv = parse
     verbenv lexbuf}
 | "<"         { Html.put "&lt;"; verbenv lexbuf }
 | ">"         { Html.put "&gt;"; verbenv lexbuf }
+| eof  {failwith "End of file in verbatim"}
 | _  { Html.put_char (lexeme_char lexbuf 0) ; verbenv lexbuf}
 
 and inverb = parse
@@ -1534,11 +1561,10 @@ and image = parse
      {Image.put ".PE\n" ; Image.close_image  () ; main lexbuf}
 |  '%'+ ' '* ("END"|"end") ' '+ ("IMAGE"|"image")  [^'\n']* '\n'
      {Image.put_char '\n' ; Image.close_image  () ;
-     iput_newpage () ;
      main lexbuf}
-|  '%'+ ' '* ("TO"|"to") ' '+ ("IMAGE"|"image")  [^'\n']* '\n'
+|  "\\end" ' '* "{toimage}"
      {Image.put_char '\n' ; Image.close_image  () ;
-     main lexbuf}
+     skip_blanks_main lexbuf}
 | _
      {let s = lexeme lexbuf in
      Image.put s ;

@@ -42,9 +42,9 @@ let _ = Arg.parse
      ("-I", Arg.String (fun s -> path := s :: !path),
        "dir, add directory ``dir'' to search path") ;
      ("-o", Arg.String (fun s -> outname := s),
-       "filename, make htmlgen output go into file ``filename''")
+       "filename, make hevea output go into file ``filename''")
     ]
     (add_input)
-   "htmlgen 0.0"
+   "hevea 0.0"
 ;;
 

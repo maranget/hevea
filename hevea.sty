@@ -1,13 +1,15 @@
 %%% not so serious
 \def\TeX{\@print{TeX}}
 \def\LaTeX{\@print{L<sup>A</sup>T<sub>E</sub>X}}
-\newcommand{\htmlgen}{\@print{H<sup>TML</sup>G<sub>E</sub>N}}
+\newcommand{\hevea}{\@print{H}{\scriptsize\@print{<sup>E</sup>}}\@print{V}{\scriptsize\@print{<sup>E</sup>}}\@print{A}}
+\newcommand{\html}{HTML}
+%\newcommand{\htmlgen}{\@print{H<sup>TML</sup>G<sub>E</sub>N}}
 \newcommand{\htmlcut}{\@print{H<sup>TML</sup>C<sub>U</sub>T}}
 \def\url#1#2{{\@nostyle\@print{<A HREF="}#1\@print{">}}{#2}{\@nostyle\@print{</A>}}}
 \def\home#1{\char126#1}
 \def\oneurl#1{\url{#1}{#1}}
 \def\localurl#1{}
-\newcommand{\docurl}{http://para.inria.fr/\home{maranget}/htmlgen}
+\newcommand{\docurl}{http://para.inria.fr/\home{maranget}/hevea}
 \newcommand{\mail}[2]{\url{mailto:#1\char64 #2}{#1\char64 #2}}
 %%% now serious
 \def\noprint#1{{\@nostyle\@print{#1}}}
@@ -100,8 +102,8 @@
 }%
 }
 \newcommand{\footnotesep}[1]{}
-\newcommand{\@fnmarktext}[1]{$^{\hbox{#1}}$}
-\newcommand{\@fnmarknote}[1]{\Large #1}
+\newcommand{\@fnmarktext}[1]{{\normalfont $^{\mbox{#1}}$}}
+\newcommand{\@fnmarknote}[1]{{\@clearstyle\Large #1}}
 \newcounter{savenote}
 \newcommand{\@footnotemark}[2]{%
 \setcounter{savenote}{\value{footnote}}%
@@ -403,10 +405,10 @@
 \@print{<!--CUT END -->
 }%
 }
-\newcommand{\cuthere}[3]{%
-\@footnoteflush{#2}%
-{\@nostyle\@print{<!--}#1\@print{ }#2\@print{ }%
-{#3}\@print{-->
+\newcommand{\cuthere}[2]{%
+\@footnoteflush{#1}%
+{\@nostyle\@print{<!--}TOC\@print{ }#1\@print{ }%
+{#2}\@print{-->
 }}%
 }
 \def\tableofcontents{}

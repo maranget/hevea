@@ -5,135 +5,244 @@
 \newcommand{\rbox}[2]{$^{\mbox{#2}}$}
 \newcommand{\lbox}[2]{$_{\mbox{#2}}$}
 \begin{latexonly}
-\gdef\myrule{\rule{10cm}{.05ex}\\[-.5ex]}
-\end{latexonly}
+\gdef\myrule{\rule{10cm}{.05ex}}
+\gdef\htmlout{\begingroup\parskip=0pt\parindent=0pt\begin{quote}\myrule\par}
+\gdef\endhtmlout{\par\myrule\end{quote}\endgroup}
+\end{latexonly} 
 \begin{htmlonly}
-\gdef\myrule{\@print{<HR NOSHADE SIZE=1 ALIGN=center WIDTH=75%>
+\gdef\myrule{\@print{<HR NOSHADE SIZE=1 ALIGN=leftWIDTH=75%>
 }}%
-\gdef\suite{\@print{<HR NOSHADE SIZE=1 ALIGN=center WIDTH=25%>
-}}%
+\gdef\htmlout{\begin{quote}\myrule}
+\gdef\endhtmlout{\myrule\end{quote}}
 \end{htmlonly}
-\newenvironment{htmlout}{\begin{quote}\center\myrule}{~\\[-1ex]\myrule\endcenter\end{quote}}
+\newenvironment{latexout}{\begin{htmlout}}{\end{htmlout}}
 \title{How to spot and correct some trouble}
 \begin{document}
 \maketitle
 
-\section{\htmlgen\  ignores a macro}
+\section{Simple corrections}
+Most of the problems that occur during the translation of a given
+\LaTeX\ file (say \verb+trouble.tex+) can be solved at
+the macro-level. That is, most problems can be solved by writing a few
+macros. The best place for these macros is an user-style file (say
+\verb+trouble.sty+) given as
+argument to \htmlgen.
+\begin{verbatim}
+# htmlgen trouble.sty trouble.tex
+\end{verbatim}
+By doing so, the macros written specially for \htmlgen\ are not
+seen by \LaTeX. Even better, \verb+trouble.tex+ is not changed
+at all.
 
-\subsection{Trouble}
+Of course, this will be easier if the \LaTeX\ source is written in a
+generic style, using macros.
+Note that this style is recommended anyway, since it eases the changing
+and tuning of documents.
+
+\subsection{\htmlgen\ does not know a macro}
 Consider the following \LaTeX\ source excerpt:
 \begin{verbatim}
-\begin{quote}
-You can \raisebox{.6ex}{\em raise} or \raisebox{-.6ex}{\em lower}
-text.
-\end{quote}
+You can \raisebox{.6ex}{\em raise} text.
 \end{verbatim}
-Since \htmlgen\ does not know about \verb+raisebox+, it will
-incorrectly process this input. More precisely,
+
+\LaTeX\ typesets this as follows:
+\begin{htmlout}
+\begin{htmlonly}
+%% BEGIN IMAGE      
+You can \raisebox{.6ex}{\em raise} text.
+%% END IMAGE
+\imageflush
+\end{htmlonly}      
+\begin{latexonly}
+You can \raisebox{.6ex}{\em raise} text.
+\end{latexonly}
+\end{htmlout}
+
+Since \htmlgen\ does not know about \verb+raisebox+,
+it uncorrectly processes this input. More precisely,
 it first prints a warning message:
 \begin{verbatim}
 trouble.tex:34: Unknown macro: \raisebox
 \end{verbatim}
-Then, it goes on reading the arguments of \verb+\raisebox+ as normal text. As a
+Then, it goes on by translating the arguments of \verb+\raisebox+ as
+there were normal text. As a
 consequence some \verb+.6ex+ is finally found in the html output:
 \begin{htmlout}
 \begin{latexonly}
-You can .6ex{\em raise} or -.6ex{\em lower text}.
-\rule[.1ex]{5cm}{.4ex}\\
-You can \raisebox{.6ex}{\em raise} or \raisebox{-.6ex}{\em lower}
-text.
+You can .6ex{\em raise} text.
 \end{latexonly}
 \begin{htmlonly}
-You can \raisebox{.6ex}{\em raise} or \raisebox{-.6ex}{\em lower}
-text.
-\suite
-You can \rbox{.6ex}{\em raise} or \lbox{-.6ex}{\em lower}
-text.
+You can \raisebox{.6ex}{\em raise} text.
 \end{htmlonly}
 \end{htmlout}
 
-
-\subsection{Patch}
-
-A first patch is to forget altogether about raising or lowering text,
-by defining \verb+\raisebox+ as a two arguments macro that ignores its
-first argument.
-\begin{verbatim}
-\newcommand{\raisebox}[2]{{#2}}
-\end{verbatim}
-The best place for this definition is an user-style file (say
-\verb+trouble.sty+) given as
-argument to \htmlgen.
-Then, issue the follwing command:
-\begin{verbatim}
-# htmlgen trouble.sty trouble.tex
-\end{verbatim}
-Both \LaTeX\ and \htmlgen\ correctly process the example. However
-there is no more raising or lowering in the produced hml.
-\begin{htmlout}\renewcommand{\raisebox}[2]{{#2}}
-You can \raisebox{.6ex}{\em raise} or \raisebox{-.6ex}{\em lower}
-text.
-\end{htmlout}
-
-If you stick to raising or lowering text, then you need change the
-text itself. Write two macros:
+To correct this, you should provide a macro that more or less has the effect of
+\verb+raisebox+. It is difficult, yet impossible, to write a generic
+\verb+raisebox+ macro for \htmlgen. However, in this case, the effect
+of \verb+\raisebox+ is to raise the box {\em a little}.
+Thus, the first, numerical, argument to \verb+\raisebox+  can be
+ignored:
 \begin{verbatim}
 \newcommand{\raisebox}[2]{$^{\mbox{#2}}$}
-\newcommand{\lowerbox}[2]{$_{\mbox{#2}}$}
 \end{verbatim}
-And then, use \verb+\lowertext+ where appropriate.
-\begin{verbatim}
-\begin{htmlout}
-You can \raisebox{.6ex}{\em raise} or
-\lowerbox{-.6ex}{\em lower} text a little.
-\end{quote}
-\end{verbatim}
-We get:
+
+Now, tranlating the document yields:
 \begin{htmlout}
 \renewcommand{\raisebox}[2]{$^{\mbox{#2}}$}%
-\newcommand{\lowerbox}[2]{$_{\mbox{#2}}$}
-You can \raisebox{.6ex}{\em raise} or \lowerbox{-.6ex}{\em lower}
-text a little.
+You can \raisebox{.6ex}{\em raise} text a little.
 \end{htmlout}
-
-
-\subsection{Advanced patch}
-
+Of course this will work only when all \verb+\raisebox+ in the document
+raise text a little. Consider, for instance, this example, where text
+is both raised a lowered a little:
+\begin{verbatim}
+You can \raisebox{.6ex}{\em raise} or \raisebox{-.6ex}{\em lower} text.
+\end{verbatim}
+Which \LaTeX, renders as follows:
+\begin{htmlout}
 \begin{htmlonly}
-\gdef\raisebox#1#2{\@open{}{}\@print{<SUP>}#2\@print{</SUP>}\@close{}}
-\gdef\lowerbox#1#2{\@open{}{}\@print{<SUB>}#2\@print{</SUB>}\@close{}}
+%% BEGIN IMAGE
+You can \raisebox{.6ex}{\em raise} or \raisebox{-.6ex}{\em lower} text.
+%% END IMAGE
+\imageflush
 \end{htmlonly}
 \begin{latexonly}
-\gdef\lowerbox#1#2{\raisebox{#1}{#2}}
+You can \raisebox{.6ex}{\em raise} or \raisebox{-.6ex}{\em lower} text.
 \end{latexonly}
+\end{htmlout}
+Whereas, with the above definition of \verb+\raisebox+, \htmlgen\ produces:
 \begin{htmlout}
-You can \raisebox{.6ex}{\em raise} or \lowerbox{-.6ex}{\em lower}
-text a little.
+\renewcommand{\raisebox}[2]{$^{\mbox{#2}}$}%
+You can \raisebox{.6ex}{\em raise} or \raisebox{-.6ex}{\em lower} text.
 \end{htmlout}
-\section{\htmlgen\  uncorrectly interprets a macro}
 
-\subsection{Trouble}
-Sometime, \htmlgen\  
 
-This will not work. \htmlgen\  translate the \LaTeX macro
-\verb+\rule+. Thus, it prints a wraning message and then goes on
-processing the arguments as normal text.
+A solution is to add a new macro definition in the \verb+trouble.sty+ file:
+\begin{verbatim}
+\newcommand{\lowerbox}[2]{$_{\mbox{#2}}$}
+\end{verbatim}
+Then, \verb+trouble.tex+ itself has to be modified a little.
+\begin{verbatim}
+You can \raisebox{.6ex}{\em raise} or \lowerbox{-.6ex}{\em lower} text.
+\end{verbatim}
+{\htmlgen} now produces a satisfying output:
+\begin{htmlout}
+\begin{latexonly}\renewcommand{\raisebox}[2]{$^{\mbox{#2}}$}%
+\newcommand{\lowerbox}[2]{$_{\mbox{#2}}$}
+You can \raisebox{.6ex}{\em raise} or \lowerbox{-.6ex}{\em lower} text.
+\end{latexonly}
+\begin{htmlonly}\newcommand{\raisebox}[2]{$^{\mbox{#2}}$}%
+\newcommand{\lowerbox}[2]{$_{\mbox{#2}}$}
+You can \raisebox{.6ex}{\em raise} or \lowerbox{-.6ex}{\em lower} text.
+\end{htmlonly}
+\end{htmlout}
 
+\subsection{\htmlgen\ uncorrectly interprets a macro}
+
+Sometimes \htmlgen\ knows about a macro, but the produced hthml
+is obviously wrong.
+This kind of errors is a little more difficult to spot than the
+previous one because the translator does not issue a warning. Here you
+have to look a the output.
+Consider, for instance, this definition:
+\begin{verbatim}
+\newcommand{\blob}{\rule[.2ex]{1ex}{1ex}}
+\blob\ Blob \blob
+\end{verbatim}
+Which \LaTeX typesets as follows:
+\begin{latexout}
+\begin{htmlonly}
+\begin{toimage}\newcommand{\blob}{\rule[.2ex]{1ex}{1ex}}
+\blob\ Blob \blob
+\end{toimage}
+\imageflush
+\end{htmlonly}
+\end{latexout}
+\htmlgen\ always translate \verb+\\rule+ by \verb+<HR>+, ignoring size
+arguments.
+Hence, it here produces the following, wrong, output:
 \begin{htmlout}\newcommand{\blob}{\rule[.2ex]{1ex}{1ex}}
+\begin{htmlonly}
 \blob\ Blob \blob
+\end{htmlonly}
 \end{htmlout}
 
-\section{An alternative}
-
-Now a blob is a diamond:
-\begin{htmlout}\newcommand{\blob}{$\diamondsuit$}
+There is not small square in the symbol font used by \htmlgen.
+However there are other small symbols that would perfectly do the job
+of \verb+\blob+, such as a small bullet (\verb+\bullet+ in \LaTeX).
+Thus you may choose to define \verb+\blob+ in \verb+trouble.sty+ as:
+\begin{verbatim}
+\newcommand{\blob}{\bullet}
+\end{verbatim}
+This new definition yields the following, more satisfying output:
+\begin{htmlout}\newcommand{\blob}{\bullet}
+\begin{htmlonly}
 \blob\ Blob \blob
+\end{htmlonly}
 \end{htmlout}
 
+\subsection{\htmlgen\ crashes with a \protect\texttt{html:} failure}
 
-\section{\htmlgen\ crashes with a \protect\texttt{html:} failure}
+Such an errors may have many causes, including a bug in \htmlgen.
+However, it may also steem from a wrong \LaTeX\ input.
+Thus this section is to be read before reporting a bug\ldots
+
+In  the following source, environments are not properly balanced:
+\begin{verbatim}
+\begin{flushright}
+\begin{quote}
+This is right-flushed quoted text.
+\end{flushright}
+\end{quote}
+\end{verbatim}
+Such a source will make both {\LaTeX} and {\htmlgen} choke.
+Thus, when {\htmlgen} crashes, it is a good idea to check that the
+input is correct by running {\LaTeX} on it.
 
 
+Unfortunatly, {\htmlgen} may crash on input that does not affect
+\LaTeX.
+Such errors are likely to appear when processiong {\TeX}ish input,
+such as found in style files.
+Consider for instance the following ``optimized'' version of a
+\verb+quoteright+  environment:
+\begin{verbatim}
+\newenvironment{quotebis}{\quote\flushright}{\endquote}
 
+\begin{quotebis}
+This a right-flushed quotation
+\end{quotebis}
+\end{verbatim}
+
+{\LaTeX} produces the expected output:
+\begin{latexout}
+\begin{toimage}
+\newenvironment{quotebis}{\quote\flushright}{\endquote}
+\begin{quotebis}
+This is a right-flushed quotation
+\end{quotebis}
+\end{toimage}\imageflush[ALIGN=right]\\
+\end{latexout}
+
+However, as {\htmlgen} often translates {\LaTeX} environments by html
+opening and  closing tags and that it refuses to generate obviously
+non-correct html, it crashes:
+\begin{verbatim}
+trouble.tex:8: Adios
+Fatal error: uncaught exception Failure("hml: BLOCKQUOTE closes DIV")
+\end{verbatim}
+
+In this case the solution is easy: environments must be opened and
+closed consistently. {\LaTeX} style being recommended, one should write:
+\begin{verbatim}
+\newenvironment{quotebis}
+  {\begin{quote}\begin{flushright}}
+  {\end{flushright}\end{quote}}
+\end{verbatim}
+And we get:
+\begin{htmlout}\newenvironment{quotebis}{\begin{quote}\begin{flushright}}{\end{flushright}\end{quote}}
+\begin{quotebis}
+This is a right-flushed quotation
+\end{quotebis}
+\end{htmlout}
 
 \end{document}
