@@ -10,7 +10,7 @@
 (***********************************************************************)
 
 
-let header = "$Id: info.ml,v 1.8 1999-05-20 16:11:43 tessaud Exp $"
+let header = "$Id: info.ml,v 1.9 1999-05-21 18:11:58 tessaud Exp $"
 
 open Misc
 open Text
@@ -155,6 +155,7 @@ let close_row =Text.close_row;;
 let erase_row =Text.erase_row;;
 let close_table =Text.close_table;;
 let make_border = Text.make_border;;
+let make_inside = Text.make_inside;;
 let make_hline = Text.make_hline;;
 
 let infonode = InfoRef.infonode;;

@@ -43,7 +43,9 @@ open Save
 open Tabular
 open Lexstate
 
-let header = "$Id: latexscan.mll,v 1.101 1999-05-21 15:54:21 maranget Exp $" 
+
+let header = "$Id: latexscan.mll,v 1.102 1999-05-21 18:12:02 tessaud Exp $" 
+
 
 let sbool = function
   | false -> "false"
@@ -502,20 +504,21 @@ let show_inside main format i closing =
     begin match get_col format !t with
       Tabular.Inside s ->
         let s = get_this main s in
+	Dest.make_inside s !in_multi;
+(*
         Dest.open_cell center_format 1;
         Dest.put s ;
         Dest.close_cell "";
-    | Tabular.Border c -> 
-	(try 
-	  Dest.make_border c
-	with Exit -> t:= !t+1 ;
-	  raise EndInside)
+*)
+    | Tabular.Border s -> 
+	Dest.make_border s;
+	if !first_col then first_col := false;
     | _ -> raise EndInside
     end ;
     t := !t+1
   done with EndInside ->
     if (!t = i) && (closing || !first_col)  then
-      Dest.make_border ' ';
+      Dest.make_border " ";
   end ;
 (*
   if !verbose > -1 then
@@ -524,28 +527,28 @@ let show_inside main format i closing =
   !t
 ;;
 
-let rec eat_inside format i b =
-  if i >= Array.length format then (i ,b)
+let rec eat_inside format i b insides =
+  if i >= Array.length format then (i , b , insides)
   else begin
     let f = get_col format i in
     if is_inside f then
-      eat_inside format (i+1) b
+      eat_inside format (i+1) b (insides+1)
     else if is_border f then
-      eat_inside format (i+1) (b+1)
-    else i, b
+      eat_inside format (i+1) (b+1) insides
+    else i, b, insides
   end
 ;;
 
-let rec find_end n format i b = match n with
-  0 -> eat_inside format i b
+let rec find_end n format i b insides = match n with
+  0 -> eat_inside format i b insides
 | _ ->
    let f = get_col format i in
    if is_inside f then
-     find_end n format (i+1) b
+     find_end n format (i+1) b (insides +1)
    else if is_border f then
-     find_end n format (i+1) (b+1)
+     find_end n format (i+1) (b+1) insides
    else
-     find_end (n-1) format (i+1) b
+     find_end (n-1) format (i+1) b insides
 ;;
 
 
@@ -578,9 +581,9 @@ let show_inside_multi main format i j =
   show_rec i
 ;;
 
-let do_open_col main format span =
+let do_open_col main format span insides =
   let save_table = !in_table in
-  Dest.open_cell format span ;
+  Dest.open_cell format span insides;
   if not (as_wrap format) && math_table !in_table then begin
     display  := true ;
     Dest.open_display (display_arg !verbose)
@@ -596,7 +599,7 @@ let open_col main  =
   Dest.open_cell_group () ;
   cur_col :=  show_inside main !cur_format !cur_col false;
   let format = (get_col !cur_format !cur_col) in
-  do_open_col main format 1
+  do_open_col main format 1 0
 ;;
 
 let open_first_col main =
@@ -656,18 +659,21 @@ let do_multi n format main =
   end ;
 
   erase_col main ;
-  Dest.open_cell_group () ;
 
   let start_span = find_start !cur_col
-  and k,b = find_end n !cur_format !cur_col 0 in
+  and k,b,insides = find_end n !cur_format !cur_col 0 0 in
   let end_span = k - b in
 
-  let i = find_align format in
-  do_open_col main (get_col format i) (end_span - start_span) ;      
+  in_multi := true;
+
+  let i = show_inside main format 0 true in
+(* let i = find_align format in*)
+
+  Dest.open_cell_group () ;
+  do_open_col main (get_col format i) (end_span - start_span) insides;
   push stack_multi (!cur_format,k) ;
   cur_format := format ;
   cur_col := i ;
-  in_multi := true
 ;;
 
 
@@ -682,15 +688,18 @@ let close_col_aux main content is_last =
   end ;
   if is_last && Dest.is_empty () then Dest.erase_cell ()
   else begin
-    Dest.close_cell content;
     if !in_multi then begin
+      let _ = show_inside main !cur_format (!cur_col+1) true in
       in_multi := false ;
       let f,n = pop stack_multi in
       cur_format := f ;
       cur_col := next_no_border f n;
-    end else
+      cur_col := show_inside main !cur_format !cur_col false;
+    end else begin
       cur_col := !cur_col + 1;
-    cur_col := show_inside main !cur_format !cur_col true;
+      cur_col := show_inside main !cur_format !cur_col true;
+    end;
+    Dest.close_cell content;
     if !first_col then begin
       first_col := false
     end
@@ -2471,7 +2480,7 @@ def_code "\\hline"
 let do_tabul lexbuf =
   if is_tabbing !in_table then begin
     do_unskip () ;
-    Dest.close_cell ""; Dest.open_cell default_format 1
+    Dest.close_cell ""; Dest.open_cell default_format 1 0
   end ;
   skip_blanks_pop lexbuf
 ;;
@@ -2487,7 +2496,7 @@ def_code "\\kill"
       Dest.close_cell "";
       Dest.erase_row () ;
       Dest.new_row () ;
-      Dest.open_cell default_format 1
+      Dest.open_cell default_format 1 0
     end ;
     skip_blanks_pop lexbuf)
 ;;
@@ -2502,7 +2511,7 @@ let open_tabbing lexbuf =
   let lexfun lb =
     Dest.open_table false "CELLSPACING=0 CELLPADDING=0" ;
     Dest.new_row ();
-    Dest.open_cell default_format 1 in
+    Dest.open_cell default_format 1 0 in
   push stack_table !in_table ;
   in_table := Tabbing ;
   new_env "tabbing" ;
@@ -2611,7 +2620,7 @@ def_code "\\\\"
      Dest.close_cell "";
      Dest.close_row () ;
      Dest.new_row () ;
-     Dest.open_cell default_format 1
+     Dest.open_cell default_format 1 0
    end else begin
      if !display then
        warning "\\\\ in display mode, ignored"

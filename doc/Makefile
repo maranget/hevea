@@ -1,6 +1,6 @@
 LATEX=latex
 GPIC=gpic
-HEVEA=hevea
+HEVEA=hevea.opt
 HEVEAOPTS=
 HACHA=hacha
 IMAGEN=imagen
@@ -40,7 +40,7 @@ manual001.gif: manual.image.tex
 	${IMAGEN} manual
 
 info: manual.hva tmp.tex
-	$(HEVEA) -info manual.inf tmp.tex -o hevea.info
+	$(HEVEA) -info -v manual.inf tmp.tex -o hevea.info
 
 ############ Installation stuff
 install:

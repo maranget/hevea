@@ -1,5 +1,1 @@
-\renewcommand{\makeindex}[1]{\newindex{#1}{#1}{}{Index}}
-\let\oldprintindex=\printindex
-\renewcommand{\printindex}[2]{\@indexname[#1]{#2}\oldprintindex[#1]}
-\let\oldindex=\index
-\renewcommand{\index}[2]{\oldindex[#1]{#2}}
+\input{text/multind.hva}

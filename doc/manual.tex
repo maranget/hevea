@@ -46,6 +46,7 @@ Chesnay Cedex. {\tt \mailto{Luc.Maranget@inria.fr}}}}
 \newcommand{\ftpbase}{ftp://ftp.inria.fr/INRIA/Projects/para/hevea}%
 \newcommand{\httpbase}{http://para.inria.fr/\home{maranget}/hevea}%
 \begin{htmlonly}
+\ifhtml
 \@print{
 <HR>
 }%
@@ -55,6 +56,7 @@ a \url{\ftpbase/hevea-\heveaversion-manual.tar.gz}{bundle of HTML files}.
 \@print{
 <HR>
 }%
+\fi
 \end{htmlonly}
 
 \begin{abstract}
@@ -378,9 +380,9 @@ output.
 %BEGIN LATEX
 \rule{0ex}{1ex}\epsfbox{xfd.ps}\rule{0ex}{1ex}
 %END LATEX
-\begin{rawhtml}
-<IMG SRC="xfd.gif">
-\end{rawhtml}
+\begin{htmlonly}
+\imgsrc{"xfd.gif"}
+\end{htmlonly}
 \end{center}
 \caption{\label{xfd} Symbol font in X}
 \end{figure}

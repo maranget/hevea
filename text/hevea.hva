@@ -83,6 +83,7 @@
 \setcounter{anchornote}{#1}%
 \@footnotetext{#1}{#2}{\theanchornote}}
 \newcounter{onefoot}
+
 \newcommand{\footnote}[2][!*!]{%
 \ifthenelse{\equal{#1}{!*!}}%
   {\stepcounter{footnote}\setcounter{onefoot}{\value{footnote}}}%
@@ -514,3 +515,6 @@
 \def\newline{\\}
 %%% videoc
 \newcommand{\IfFileExists}[3]{\ifthenelse{\@fileexists{#1}}{#2}{#3}}
+
+
+\renewcommand{\over}{}

@@ -76,7 +76,7 @@
 
     val horizontal_line : string -> string -> string -> unit
     val put_separator : unit -> unit
-     val unskip : unit -> unit
+    val unskip : unit -> unit
     val put_tag : string -> unit
     val put_nbsp : unit -> unit
     val put_open_group : unit -> unit
@@ -86,7 +86,7 @@
 
     val open_table : bool -> string -> unit
     val new_row : unit -> unit
-    val open_cell : Tabular.format -> int -> unit
+    val open_cell : Tabular.format -> int -> int -> unit
     val erase_cell : unit -> unit
     val close_cell : string -> unit
     val do_close_cell : unit -> unit
@@ -96,7 +96,8 @@
     val close_row : unit -> unit
     val erase_row : unit -> unit
     val close_table : unit -> unit
-    val make_border : char -> unit
+    val make_border : string -> unit
+    val make_inside : string -> bool -> unit
     val make_hline : int -> bool -> unit
 
     val infomenu : string -> unit

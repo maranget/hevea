@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.12 1999-05-20 16:11:53 tessaud Exp $"
+let header = "$Id: text.ml,v 1.13 1999-05-21 18:12:08 tessaud Exp $"
 
 
 open Misc
@@ -330,6 +330,7 @@ let do_put_char2 c =
 	  (* On coupe brutalement le mot trop long *)
       if !verbose >2 then
 	prerr_endline ("line cut :"^line);
+      warning ("line too long");
       line.[flags.x-1]<-'\n';
 	  (* La ligne est prete et complete*)
       do_put_line (String.sub line 0 (flags.x));
@@ -560,7 +561,7 @@ let try_open_block s args =
       end
   | "QUOTE" ->
       begin
-	do_put_char '\n';
+	finit_ligne ();
 	push align_stack flags.align;
 	push in_align_stack flags.in_align;
 	flags.in_align<-true;
@@ -571,7 +572,7 @@ let try_open_block s args =
       end
   | "QUOTATION" ->
       begin
-	do_put_char '\n';
+	finit_ligne ();
 	push align_stack flags.align;
 	push in_align_stack flags.in_align;
 	flags.in_align<-true;
@@ -582,7 +583,8 @@ let try_open_block s args =
       end
   | "PRE" ->
       flags.first_line <-0;
-      do_put "\n<<";
+      finit_ligne ();
+      do_put "<<";
       flags.first_line <-2;
   | "INFO" ->
       flags.first_line <-0;
@@ -869,7 +871,7 @@ let to_style f =
   open_block "TEMP" "";
   f ();
   let r = !cur_out.active in
-  close_block "TEMP";
+  erase_block "TEMP";
   r
 ;;
 
@@ -926,7 +928,11 @@ type cell = {
     mutable w : int;
     mutable wrap : wrap_t;
     mutable span : int; (* Nombre de colonnes *)
-    mutable text : string
+    mutable text : string;
+    mutable pre  : string; (* bordures *)
+    mutable post : string;
+    mutable pre_inside  : int list;
+    mutable post_inside : int list;
   } 
 ;;
 
@@ -942,8 +948,10 @@ type row2 = {
   } 
 
 type table_flags_t = {
+(*
     mutable border : bool;
     mutable borders : (int,char) Hashtbl.t;
+*)
     mutable lines : int;
     mutable cols : int;
     mutable width : int;
@@ -953,7 +961,7 @@ type table_flags_t = {
     mutable table : row2 Table.t;
     mutable line : int;
     mutable col : int;
-    mutable emitted : bool;
+    mutable in_cell : bool;
   } 
 ;;
 
@@ -964,7 +972,11 @@ let cell = ref {
   w = 0;
   wrap = False;
   span = 1;
-  text = ""
+  text = "";
+  pre  = "";
+  post = "";
+  pre_inside  = [];
+  post_inside = [];
 } 
 ;;
 
@@ -976,8 +988,10 @@ let row= ref {
 ;;
 
 let table =  ref {
+(*
   border = false;
   borders = Hashtbl.create 7;
+*)
   lines = 0;
   cols = 0;
   width = 0;
@@ -987,7 +1001,7 @@ let table =  ref {
   table = Table.create {hauteur = 0; cellules = (Array.create 0 !cell)};
   line = 0;
   col = 0;
-  emitted = false;
+  in_cell = false;
 } 
 ;;
 
@@ -1023,8 +1037,10 @@ let open_table border htmlargs =
   flags.first_line <- 0;
 
   table := {
+(*
     border = border;
     borders = Hashtbl.create 7;
+*)
     lines = 0;
     cols = 0;
     width = 0;
@@ -1034,7 +1050,7 @@ let open_table border htmlargs =
     table = Table.create {hauteur = 0; cellules = (Array.create 0 !cell)};
     line = -1;
     col = -1;
-    emitted = false;
+    in_cell = false;
   };
     
   row := {
@@ -1049,7 +1065,11 @@ let open_table border htmlargs =
     w = 0;
     wrap = False;
     span = 1;
-    text = ""
+    text = "";
+    pre  = "";
+    post = "";
+    pre_inside  = [];
+    post_inside = [];
   };
 
   multi := [];
@@ -1060,14 +1080,16 @@ let new_row () =
   if !table.col> !table.cols then !table.cols<- !table.col;
   !table.col <- -1;
   !table.line <- !table.line +1;
-  if !table.line = 1 then  !table.tailles<-Table.trim !table.taille;
+  if !table.line = 1 && (( Array.length !table.tailles)=0) then  !table.tailles<-Table.trim !table.taille;
   Table.reset !row.cells;
+  !cell.pre <- "";
+  !cell.pre_inside <- [];
   !row.haut<-0;
   if !verbose>2 then prerr_endline ("new_row, line ="^string_of_int !table.line)
 ;;
 
 
-let open_cell format span =
+let open_cell format span insides =
   open_block "TEMP" "";
     
   (* preparation du formattage : les flags de position sont sauvegardes par l'ouverture du bloc TEMP *)
@@ -1100,7 +1122,13 @@ let open_cell format span =
 	  | Some Length.Percent l -> l * !Parse_opts.width / 100
 	  | _-> !cell.wrap <- False; 0);
   | _       ->  raise (Misc.Fatal ("as_align")) in
-  !cell.span <- span;
+  !cell.span <- span - insides;
+  if !table.col > 0 && !cell.span=1 then begin
+    !cell.pre <- "";
+    !cell.pre_inside <- [];
+  end;
+  !cell.post <- "";
+  !cell.post_inside <- [];
   open_block "" "";
   if (!cell.wrap=True) then begin (* preparation de l'alignement *)
     !cur_out.temp <- false;
@@ -1128,7 +1156,10 @@ let close_cell content =
   force_block "" content;
   !cell.text<-Out.to_string !cur_out.out;
   close_block "TEMP";
-  if !verbose>2 then prerr_endline ("cell :"^ !cell.text);
+  if !verbose>2 then prerr_endline ("cell :#"^ !cell.text^
+				    "#,pre :#"^ !cell.pre^
+				    "#,post :#"^ !cell.post^
+				    "#");
   (* il faut remplir les champs w et h de cell *)
   if (!cell.wrap = False ) then !cell.w <- 0;
   !cell.h <- 1;
@@ -1145,15 +1176,23 @@ let close_cell content =
     end;
   done;
   if (!cell.wrap = False) && (!taille > !cell.w) then !cell.w <- !taille;
-  if !verbose>2 then prerr_endline ("size : width="^string_of_int !cell.w^", height="^string_of_int !cell.h^", span="^string_of_int !cell.span);
+  !cell.w <- !cell.w + (String.length !cell.pre) + (String.length !cell.post);
+  if !verbose>2 then prerr_endline ("size : width="^string_of_int !cell.w^
+				    ", height="^string_of_int !cell.h^
+				    ", span="^string_of_int !cell.span);
   Table.emit !row.cells { ver = !cell.ver;
 			  hor = !cell.hor;
 			  h = !cell.h;
 			  w = !cell.w;
 			  wrap = !cell.wrap;
 			  span = !cell.span;
-			  text = !cell.text};
-  !table.emitted <- true;
+			  text = !cell.text;
+			  pre  = !cell.pre;
+			  post = !cell.post;
+			  pre_inside  = !cell.pre_inside;
+			  post_inside = !cell.post_inside;
+			};
+(*  !table.emitted <- true;*)
   (* on a la taille de la cellule, on met sa largeur au bon endroit, si necessaire.. *)
   (* Multicolonne : Il faut mettre des zeros dans le tableau pour avoir la taille minimale des colonnes atomiques. Puis on range start,end dans une liste que l'on regardera a la fin pour ajuster les tailles selon la loi : la taille de la multicolonne doit etre <= la somme des tailles minimales. Sinon, il faut agrandir les colonnes atomiques pour que ca rentre. *)
   if !cell.span = 1 then begin
@@ -1183,21 +1222,25 @@ let close_cell content =
   end;
   !table.col <- !table.col + !cell.span -1;
   if !cell.h> !row.haut then !row.haut<- !cell.h;
+  !cell.pre <- "";
+  !cell.pre_inside <- [];
   if !verbose>2 then prerr_endline "<= force_cell";
 ;;
 
 let do_close_cell () = close_cell ""
 ;;
 
-let open_cell_group () = !table.emitted <- false
+let open_cell_group () = !table.in_cell <- true;
 
-and close_cell_group () = ()
+and close_cell_group () = !table.in_cell <- false;
 
-and erase_cell_group () = if !table.emitted then begin
+and erase_cell_group () = !table.in_cell <- false;
+(*
+if !table.emitted then begin
   Table.remove_last !row.cells;
   !table.col <- !table.col -1;
 end
-
+*)
 ;;
 
 
@@ -1211,10 +1254,11 @@ let erase_cell () =
   let _ = Out.to_string !cur_out.out in
   erase_block "TEMP";
   !table.col <- !table.col -1;
+  !cell.pre <- "";
+  !cell.pre_inside <- [];
 ;;
 
-let erase_row () = ()
-
+let erase_row () = !table.line <- !table.line -1
 and close_row erase =
   if !verbose>2 then prerr_endline "close_row";
   Table.emit !table.table
@@ -1224,11 +1268,12 @@ and close_row erase =
 
 
 let center_format =
-  Tabular.Align  {Tabular.hor="center" ; Tabular.vert = "" ;
+  Tabular.Align  {Tabular.hor="center" ; Tabular.vert = "top" ;
 		   Tabular.wrap = false ; Tabular.pre = "" ; 
 		   Tabular.post = "" ; Tabular.width = None} 
 ;;
 
+(*
 let make_border c =
   (* sauve le numero de la colonne courante. il faut mettre le caractere c a la fin de la colonne *)
   if !verbose>2 then prerr_endline ("Adding border after column "^string_of_int !table.col^" :'"^String.make 1 c^"'")
@@ -1244,16 +1289,40 @@ let make_border c =
   with Not_found -> begin
     Hashtbl.add !table.borders !table.col c;
   end;
-  (*
-  open_cell center_format 1;
-  put_char c;
-  close_cell ""
-  *)
 ;;
+*)
+
+let make_border s =
+  if !verbose>2 then prerr_endline ("Adding border after column "^string_of_int !table.col^" :'"^s^"'");
+  
+  if (!table.col = -1) || not ( !table.in_cell) then
+    !cell.pre <- !cell.pre ^ s
+  else
+    !cell.post <- !cell.post ^ s
+;;
+
+let make_inside s multi =
+  if !verbose>2 then prerr_endline ("Adding inside after column "^string_of_int !table.col^" :'"^s^"'");
+  
+  if (!table.col = -1) || not ( !table.in_cell) then begin
+    let start = String.length !cell.pre in
+    !cell.pre <- !cell.pre ^ s;
+    for i = start to String.length !cell.pre -1 do
+      !cell.pre_inside <- i::!cell.pre_inside;
+    done;
+  end else begin
+    let start = String.length !cell.post in
+    !cell.post <- !cell.post ^ s;
+    for i = start to String.length !cell.post -1 do
+      !cell.post_inside <- i::!cell.post_inside;
+    done;
+  end;
+;;
+
 
 let make_hline w noborder =
   new_row();
-  open_cell center_format 0;
+  open_cell center_format 0 0;
   close_mods ();
   !cell.w <- 0;
   !cell.wrap <- Fill;
@@ -1294,8 +1363,8 @@ let put_ligne texte pos align taille =
   pos_suiv + 1
 ;;
 
+(*
 let put_border k =
-  (* met la bordure eventuelle apres la colonne k *)
   let c =
     try
       String.make 1 (Hashtbl.find !table.borders k);
@@ -1303,13 +1372,21 @@ let put_border k =
   in
   do_put c
 ;;
+*)
+
+let put_border s inside j =
+  for i = 0 to String.length s -1 do
+    if j=0 || not (List.mem i inside) then do_put_char s.[i]
+    else do_put_char ' ';
+  done;
+;;
 
 let rec somme debut fin = 
   if debut = fin 
   then !table.tailles.(debut)
-      + (if Hashtbl.mem !table.borders debut then 1 else 0)
+  (*    + (if Hashtbl.mem !table.borders debut then 1 else 0)*)
   else !table.tailles.(debut)
-      + (if Hashtbl.mem !table.borders debut then 1 else 0)
+(*      + (if Hashtbl.mem !table.borders debut then 1 else 0)*)
       + (somme (debut+1) fin)
 ;;
 
@@ -1320,17 +1397,26 @@ let calculate_multi () =
       [] -> ()
     | (debut,fin,taille_mini) :: reste -> begin
 	let taille = somme debut fin in
-	if taille < taille_mini then  (* il faut agrandir *)
+	if taille < taille_mini then begin (* il faut agrandir *)
+	  if !verbose>3 then prerr_endline ("from "^string_of_int debut^
+					    " to "^string_of_int fin^
+					    ", size was "^string_of_int taille^
+					    " and should be at least "^string_of_int taille_mini^", ajusting..");
 	  for i = debut to fin do
 	    if taille = 0
 	    then
 	      !table.tailles.(debut) <- taille_mini
 	    else
-	      !table.tailles.(i) <- !table.tailles.(i) * taille_mini / taille;
+	      let t = !table.tailles.(i) * taille_mini in
+	      !table.tailles.(i) <- (t / taille
+				       + ( if 2*(t mod taille) >= taille then 1 else 0));
+	      
 	  done; (* Attention : on agrandit aussi les colonnes p !! *)
+	end;
 	do_rec reste;
     end
   in
+  if !verbose>2 then prerr_endline "Finalizing multi-columns.";
   do_rec !multi
 ;;
 
@@ -1346,20 +1432,12 @@ let close_table () =
   if !verbose>2 then prerr_endline ("lines :"^string_of_int !table.lines);
 
   calculate_multi ();
-(*
-  !table.width<-0 
-  for i = 0 to Array.length !table.tailles -1 do
-    !table.width <- !table.width + !table.tailles.(i);
-  done;
-*)
-  !table.width <- somme 0 (Array.length !table.tailles -1)
-      + (if (Hashtbl.mem !table.borders (-1)) then 1 else 0);
 
-(*  if !table.border then begin
-    !table.width <- !table.width + 2;
-    do_put (String.make !table.width '-');
-  end;
-  *)  
+  !table.width <- somme 0 (Array.length !table.tailles -1);
+(*      + (if (Hashtbl.mem !table.borders (-1)) then 1 else 0);*)
+  
+  if !table.width > flags.hsize then warning ("overfull line in array : array too wide");
+
   for i = 0 to !table.lines - 1 do
     let ligne = tab.(i).cellules in
     (* affichage de la ligne *)
@@ -1368,20 +1446,28 @@ let close_table () =
     let pos = Array.create (Array.length ligne) 0 in
     !row.haut <-0;
     for j = 0 to tab.(i).hauteur -1 do
-      if not ((* not !table.border &&*) i=0 && j=0) then do_put_char '\n';
-(*      if !table.border then do_put_char '|';*)
-      if ligne.(0).wrap <> Fill then put_border (-1);
+      if not ( i=0 && j=0) then do_put_char '\n';
+(*      if ligne.(0).wrap <> Fill then put_border (-1);*)
       let col = ref 0 in
       for k = 0 to Array.length ligne -1 do
 	begin
 	  (* ligne j de la cellule k *)
 	  if ligne.(k).wrap = Fill then ligne.(k).span <- Array.length !table.tailles;
-	  let taille =
-	    (if ligne.(k).span > 1 then somme !col (!col + ligne.(k).span-1)
+	  let taille = (somme !col (!col + ligne.(k).span-1))
+	      - (String.length ligne.(k).pre)
+	      - (String.length ligne.(k).post)
+(*	    (if ligne.(k).span > 1 then somme !col (!col + ligne.(k).span-1)
 	    else  !table.tailles.(!col))
-	      + if (ligne.(k).wrap = Fill) && (Hashtbl.mem !table.borders (k-1)) then 1 else 0
+	      + if (ligne.(k).wrap = Fill) && (Hashtbl.mem !table.borders (k-1)) then 1 else 0*)
 	  in
-	  if !verbose>3 then prerr_endline ("cell to output:"^ligne.(k).text^", taille="^string_of_int taille);
+	  if !verbose>3 then prerr_endline ("cell to output:"^
+					    ligne.(k).pre^
+					    ligne.(k).text^
+					    ligne.(k).post^
+					    ", taille="^string_of_int taille);
+	  
+	  put_border ligne.(k).pre ligne.(k).pre_inside j;
+
 	  if (text_out j tab.(i).hauteur ligne.(k).h ligne.(k).ver) 
 	      && (ligne.(k).wrap <> Fill )then begin
 	    pos.(k) <- 
@@ -1393,17 +1479,12 @@ let close_table () =
 	  end else 
 	    if ligne.(k).wrap = Fill then do_put (String.make taille ligne.(k).text.[0])
 	    else do_put (String.make taille ' ');
-(*	  if !table.border then do_put_char '|'
-	  else do_put_char ' ';*)
 	  col := !col + ligne.(k).span;
-	  if ligne.(k).span =1 then put_border (!col - 1);
+	  put_border ligne.(k).post ligne.(k).post_inside j;
+	  (*if ligne.(k).span =1 then put_border (!col - 1);*)
 	end;
       done;
     done;
-(*    if !table.border then begin
-      do_put_char '\n';
-      do_put (String.make !table.width '-');
-    end;*)
   done;
 
   table := pop "table" table_stack;

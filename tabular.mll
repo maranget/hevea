@@ -3,7 +3,7 @@ open Misc
 open Lexing
 open Table
 
-let header = "$Id: tabular.mll,v 1.9 1999-05-19 16:27:07 tessaud Exp $"
+let header = "$Id: tabular.mll,v 1.10 1999-05-21 18:12:07 tessaud Exp $"
 
 exception Error of string
 ;;
@@ -33,7 +33,7 @@ and make_vert = function
 type format =
   Align of align
 | Inside of string
-| Border of char
+| Border of string
 ;;
 
 
@@ -57,7 +57,7 @@ let pretty_format = function
         "h="^h^" v="^v^
         "<{"^post^"}"^(if b then " warp" else "")
   | Inside s -> "@{"^s^"}"
-  | Border c -> String.make 1 c
+  | Border s -> s
 
 let pretty_formats f =
   Array.iter (fun f -> prerr_string (pretty_format f) ; prerr_char ',') f
@@ -136,7 +136,7 @@ and lexformat = parse
       let sbuf = Lexing.from_string what in
       lexformat sbuf ; do_rec (i-1) in
    do_rec (Get.get_int ntimes)}
-| '|' {border := true ; emit out_table (Border '|') ; lexformat lexbuf}
+| '|' {border := true ; emit out_table (Border "|") ; lexformat lexbuf}
 | '@'|'!'
     {let lxm = Lexing.lexeme_char lexbuf 0 in
     let inside = !subst_this (Save.arg lexbuf) in

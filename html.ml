@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: html.ml,v 1.50 1999-05-20 16:11:41 tessaud Exp $" 
+let header = "$Id: html.ml,v 1.51 1999-05-21 18:11:56 tessaud Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -1548,7 +1548,7 @@ let as_align f span = match f with
 | _       ->  raise (Misc.Fatal ("as_align"))
 ;;
 
-let open_cell format span = open_block "TD" (as_align format span)
+let open_cell format span i= open_block "TD" (as_align format span)
 ;;
 
 let erase_cell () =  erase_block "TD"
@@ -1566,19 +1566,28 @@ and close_row () = close_block "TR"
 
 let close_table () = close_block "TABLE"
 ;;
-let make_border c = ()
+let make_border s = ()
 ;;
 
+
 let center_format =
-  Tabular.Align  {Tabular.hor="center" ; Tabular.vert = "" ;
+  Tabular.Align  {Tabular.hor="center" ; Tabular.vert = "top" ;
 		   Tabular.wrap = false ; Tabular.pre = "" ; 
 		   Tabular.post = "" ; Tabular.width = None} 
+;;
+
+let make_inside s multi =
+  if not (multi) then begin
+    open_cell center_format 1 0;
+    put s ;
+    close_cell ""
+  end
 ;;
 
 let make_hline w noborder =
   if noborder then begin
     new_row ();
-    open_cell center_format w;
+    open_cell center_format w 0;
     close_mods () ;
     horizontal_line "NOSHADE" "2" "100" ;
     close_cell "" ;

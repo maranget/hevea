@@ -150,10 +150,13 @@ let open_rawhtml lexbuf =
   Scan.top_close_block "" ;
   let lexbuf = previous_lexbuf () in
   begin match !Parse_opts.destination with
-  | Parse_opts.Html -> ()
-  | _ -> Parse_opts.warning "rawhtml detected.." end ;
+  | Parse_opts.Html -> rawhtml lexbuf 
+  | _ -> begin
+      Parse_opts.warning "rawhtml detected";
+      rawhtml lexbuf
+  end;
+  end
  (* Dest.open_block "TEMP" "";*)
-  rawhtml lexbuf 
 
 let open_verblatex lexbuf =
   Scan.top_close_block "" ;
@@ -193,3 +196,10 @@ let init () =
 
 end
 } 
+
+
+
+
+
+
+

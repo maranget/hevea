@@ -6,7 +6,7 @@ type align =
 type format =
     Align of align
   | Inside of string
-  | Border of char
+  | Border of string
 
 val border : bool ref
 
