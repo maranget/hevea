@@ -74,7 +74,7 @@ RELEASENAME=hevea-$(VERSION)
 FTPDIR=/home/tobago/para-ftp/hevea
 UNSTABLE=
 
-dorelease: doversion
+dorelease: byte doversion
 # hevea relase
 	cd $(RELEASEDIR) ; rm -rf $(RELEASENAME) ;\
 	cvs -d $(CVSDIR) export  $(RELEASEOPT) -l htmlgen htmlgen/html htmlgen/text htmlgen/info ;\
@@ -82,7 +82,6 @@ dorelease: doversion
 	tar cfo $(RELEASENAME).tar $(RELEASENAME) ;\
 	gzip -f -best  $(RELEASENAME).tar
 # Doc release
-	$(MAKE) $(MFLAGS) opt
 	dvips -o$(RELEASEDIR)/$(RELEASENAME)-manual.ps manual.dvi
 	rm -rf $(RELEASEDIR)/$(RELEASENAME)-manual-dvi
 	mkdir $(RELEASEDIR)/$(RELEASENAME)-manual-dvi
