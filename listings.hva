@@ -189,23 +189,31 @@
     \lstset{#5}}}
 \lst@define@key@opt{defaultdialect}{\lst@define@dd}{}
 %%%%%%% Frames
-\setenvclass{lstlisting}{flushleft}
-\def\lst@bgcolor{}
+\newstyle{.lstlisting}{white-space:pre;margin-right:auto;margin-left:0pt;font-family:monospace;}
+\setenvclass{lstlisting}{lstlisting}
+\def\lst@color@in@temp{%
+   \let\old@color\color%
+   \renewcommand{\color}[2][!*!]{\@getstylecolor[##1]{##2}}%
+   \prim@def\lst@temp{\lst@bgcolor}%
+   \let\color\old@color%
+}
 \lst@AddToHook{InitVar}
-  {\ife\lst@bgcolor
-   \def\@open@lstbox{\setenvclass{flushleft}{\getenvclass{lstlisting}}\begin{flushleft}\ttfamily}\def\@close@lstbox{\end{flushleft}}%
+  {\ifu\lst@bgcolor
+   \def\@open@lstbox{\@open{DIV}{\envclass@attr{lstlisting}}}%
+   \def\@close@lstbox{\@close{DIV}}%
    \else
-   \def\@open@lstbox
-      {\begin{Tabular}[bgcolor=\lst@bgcolor]{l}\ttfamily}%
-   \def\@close@lstbox{\end{Tabular}}%
+   \lst@color@in@temp%
+   \def\@open@lstbox{\@opencell{STYLE="padding:1ex;background-color:\lst@temp"}{}{\envclass@attr{lstlisting}}}%
+   \def\@close@lstbox{\@closecell}%
    \fi}
-%   \ifhtml\else
-%   \def\@open@lstbox{\begin{flushleft}\ttfamily}\def\@close@lstbox{\end{flushleft}}\fi}
-\newcommand{\lst@define@bgcolor}[2][!*!]
-  {\def\lst@tmp{#2}%
-  \ifx\lst@tmp\@empty\let\lst@bgcolor\@empty
-  \else\def\lst@bgcolor{\@getcolor[#1]{#2}}\fi}
-\lst@define@key@opt{backgroundcolor}{\lst@define@bgcolor}{}
+%\newcommand{\lst@define@bgcolor}[2][!*!]
+%  {\def\lst@tmp{#2}%
+%  \ifx\lst@tmp\@empty\let\lst@bgcolor\@empty
+%  \else\def\lst@bgcolor{\@getcolor[#1]{#2}}\fi}
+%\lst@define@key@opt{backgroundcolor}{\lst@define@bgcolor}{}
+\def\colorwarning{\warning{Colors in listings and 'color' package not loaded}}
+\define@key{lst}{backgroundcolor}
+{\ifu\color\colorwarning\else\def\lst@bgcolor{#1}\fi}
 %%%%%%% Margins and line shape
 \def\lst@doindent#1{}
 \define@key{lst}{indent}{\def\lst@doindent{\hspace{#1}}}
@@ -255,8 +263,8 @@ breakindent,breakautoindent}
 \lst@AddToHook{InlineUnsave}{\def\lst@labelstep{1}}
 \lst@AddToHookExe{EmptyStyle}{\def\lst@labelstep{1}}
 \define@key{lst}{labelsep}{\def{\lst@labelsep}{\hspace{#1}}}
-\newcommand{\lst@labelsep}{\hspace{1em}}
-\newcommand{\lst@pad}[1]{\@pad{~}{4}{#1}}
+\newcommand{\lst@labelsep}{ }
+\newcommand{\lst@pad}[1]{\@pad{\@print{ }}{4}{#1}}
 \newcommand{\lst@linenumber@}[1]
   {\lst@label@style{\lst@pad{#1}}\lst@labelsep}
 \newboolean{lst@numbers}
@@ -272,6 +280,8 @@ breakindent,breakautoindent}
 \lst@AddToHook{InitVarEOL}{\stepcounter{lstlabel}}
 \newsavebox{\@prevlines}
 \newsavebox{\@curline}
+\lst@AddToHook{Init}
+{\def\lst@br{}}
 \newcommand{\lst@forget@lastline}
 {\sbox{\@curline}{}\setcounter{lst@spaces}{0}\addtocounter{lstlabel}{-1}}
 \newcommand{\@NewLine@}
@@ -279,7 +289,7 @@ breakindent,breakautoindent}
 \sbox{\@prevlines}{}\sbox{\@curline}{}\global\let\@NewLine\lst@spaces}
 \lst@AddToHook{EveryLine}{\setcounter{lst@spaces}{0}%
 \sbox{\@prevlines}{\usebox{\@prevlines}\usebox{\@curline}}%
-\sbox{\@curline}{\@br\@rawchars{\lst@doindent}\lst@linenumber}%
+\sbox{\@curline}{\lst@br\@rawchars{\lst@doindent}\lst@linenumber}%
 \global\let\@NewLine\@NewLine@}
 \lst@AddToHook{LastLine}{\setcounter{lst@spaces}{0}%
 \sbox{\@prevlines}{\usebox{\@prevlines}\usebox{\@curline}}%

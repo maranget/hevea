@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: verb.mll,v 1.67 2005-02-17 19:07:41 maranget Exp $            *)
+(*  $Id: verb.mll,v 1.68 2005-02-17 22:55:15 maranget Exp $            *)
 (***********************************************************************)
 {
 exception VError of string
@@ -344,11 +344,9 @@ match !lst_top_mode with
 | Skip ->
     if !lst_nlines = !lst_first - 1 then begin
       lst_top_mode := Normal ;
-      if !lst_nblocks = 0 then
-        scan_this Scan.main "\\let\\old@br\\@br\\def\\@br{\n}" ;
       lst_process_newline real_eol lb c ;
       if !lst_nblocks = 0 then
-        scan_this Scan.main "\\let\\@br\\old@br" ;
+        scan_this Scan.main "\\def\\lst@br{\n}" ;
     end else begin
       if real_eol then begin
         incr lst_nlines ;
@@ -543,8 +541,7 @@ match !lst_top_mode with
         lst_put lxm
 
 (*  Caml code for \stepcounter{lst@space}  *)
-let lst_output_space () =
-  Counter.step_counter "lst@spaces"
+let lst_output_space () = Counter.step_counter "lst@spaces"
 
 let lst_process_space lb lxm =
 if !verbose > 1 then
@@ -1209,7 +1206,7 @@ let code_spaces lexbuf =
     done
   else
     for i = n-1 downto 0 do
-      Dest.put_nbsp ()
+      Dest.put_char ' '
     done ;
   Counter.set_counter "lst@spaces" 0
 ;;
