@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.13 1999-05-21 18:12:08 tessaud Exp $"
+let header = "$Id: text.ml,v 1.14 1999-05-24 13:27:28 maranget Exp $"
 
 
 open Misc
@@ -567,7 +567,7 @@ let try_open_block s args =
 	flags.in_align<-true;
 	flags.align <- Left;
 	flags.first_line<-0;
-	flags.x_start<-25 * flags.hsize / 100;
+	flags.x_start<- 25 * flags.hsize / 100;
 	flags.hsize <- flags.x_end - flags.x_start+1;
       end
   | "QUOTATION" ->
