@@ -1,0 +1,2 @@
+\newcommand{\select@language}[1]{}
+\newcommand{\selectlanguage}[2][]{}

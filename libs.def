@@ -1,4 +1,4 @@
-ALLLIB=amsmath.hva iso-symb.hva moreverb.hva url.hva compat.hva latexcommon.hva multind.hva verbatim.hva hyperref.hva mathaccents.hva packages.hva ifthen.hva  spaces.hva articlecommon.hva bookcommon.hva makeidx.hva index.hva comment.hva xxdate.exe keyval.hva
+ALLLIB=amsmath.hva iso-symb.hva moreverb.hva url.hva compat.hva latexcommon.hva multind.hva verbatim.hva hyperref.hva mathaccents.hva packages.hva ifthen.hva  spaces.hva articlecommon.hva bookcommon.hva makeidx.hva index.hva comment.hva xxdate.exe keyval.hva babel.hva
 HTMLLIB=article.hva book.hva color.hva fancysection.hva graphics.hva graphicx.hva hevea.hva report.hva seminar.hva symb-eng.hva symb-ent.hva symb-fra.hva symb-mathml.hva symb-text.hva symb.hva urlhref.hva sword.hva commongraphic.hva
 TEXTLIB=article.hva book.hva report.hva seminar.hva hevea.hva symb.hva color.hva fancysection.hva
 INFOLIB=article.hva book.hva report.hva seminar.hva hevea.hva color.hva fancysection.hva

@@ -2660,8 +2660,8 @@ the iso-latin1 and symbol character sets, then \hevea{}
 outputs such an equivalent.
 \html{} pages that show these character sets can be found
 in the directory \texttt{\heveaurl/doc/}
-at \url{iso.html}{\texttt{iso.html}} and
-\url{symbol.html}{\texttt{symbol.html}}.
+at \ahref{iso.html}{\texttt{iso.html}} and
+\ahref{symbol.html}{\texttt{symbol.html}}.
 Otherwise, \hevea{} usually issues a warning to draw user attention.
 Users can then choose their own equivalent for the symbol.
 
@@ -3566,7 +3566,8 @@ Boxes can be saved for latter usage by storing them in {\em bins}.
 New bins are defined by \verb+\newsavebox{+{\it cmd}\verb+}+.
 
 Then some text can be saved into {\it cmd} by
-\verb+\sbox{+{\it text}\verb+}{+{\it cmd}\verb+}+.
+\verb+\sbox{+{\it text}\verb+}{+{\it cmd}\verb+}+ or
+\verb+\begin{lrbox}{+\textit{cmd}\verb+}+ \textit{text} \verb+\end{lrbox}+.
 The text is translated to \html{}, as if it was inside a \verb+\mbox+
 and the resulting output is stored.
 It is retrieved (and outputed) by the command
@@ -4934,7 +4935,11 @@ The author can be contacted at \mailto{Luc.Maranget@inria.fr}.
 
 \subsection{Law}
 \hevea{} can be freely used and redistributed without modifications.
-Modifying and redistributing \hevea{} requires a permission from INRIA.
+Modifying and redistributing \hevea{} implies a few constraints.
+More precisely, \hevea{} is distributed under the terms of the
+Q~Public License, but \hevea{} binaries include the Objective Caml
+runtime system, which is distributed under the Gnu Library General
+Public License (LGPL).
 See the \footahref{\ftpbase/LICENSE}{LICENSE} file for details.
 
 \section{Installation}
@@ -4964,7 +4969,7 @@ this software. However, \hevea{} runs without them, but then you will
 to manage to produce images by yourself.
 
 \subsection{Principles}
-The details are given in the \url{\ftpbase/README}{\texttt{README}}
+The details are given in the \ahref{\ftpbase/README}{\texttt{README}}
 file from the distribution.
 Basically, \hevea{} should be given a library
 directory. The installation procedure stores the \texttt{hevea.hva}

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.163 2000-01-28 15:40:08 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.164 2000-02-24 14:04:15 maranget Exp $ *)
 
 
 {
@@ -2088,6 +2088,12 @@ def_code "\\newsavebox"
     with Latexmacros.Failed -> () end )
 ;;
 
+def_code "\\providesavebox"
+  (fun lexbuf ->
+    let name = get_csname lexbuf in
+    silent_def name 0 (CamlCode (fun _ -> ())))
+;;
+
 def_code "\\savebox" 
   (fun lexbuf ->
     let name = get_csname lexbuf in
@@ -2265,7 +2271,7 @@ def_code "\\typeout"
 
 def_code "\\warning"
   (fun lexbuf ->
-    let what = subst_arg lexbuf in
+    let what = get_prim_arg lexbuf in
     warning what )
 ;;
 

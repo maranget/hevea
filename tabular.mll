@@ -1,11 +1,21 @@
+(***********************************************************************)
+(*                                                                     *)
+(*                          HEVEA                                      *)
+(*                                                                     *)
+(*  Luc Maranget, projet PARA, INRIA Rocquencourt                      *)
+(*                                                                     *)
+(*  Copyright 1998 Institut National de Recherche en Informatique et   *)
+(*  Automatique.  Distributed only by permission.                      *)
+(*                                                                     *)
+(***********************************************************************)
+
+(* $Id: tabular.mll,v 1.20 2000-02-24 14:04:20 maranget Exp $ *)
 {
 open Misc
 open Lexing
 open Table
 open Lexstate
 open Subst
-
-let header = "$Id: tabular.mll,v 1.19 2000-02-22 16:22:47 maranget Exp $"
 
 exception Error of string
 ;;

@@ -130,9 +130,9 @@ symb.cmx: parse_opts.cmx symb.cmi
 table.cmo: table.cmi 
 table.cmx: table.cmi 
 tabular.cmo: get.cmi latexmacros.cmi length.cmi lexstate.cmi misc.cmi \
-    subst.cmi table.cmi tabular.cmi 
+    parse_opts.cmi subst.cmi table.cmi tabular.cmi 
 tabular.cmx: get.cmx latexmacros.cmx length.cmx lexstate.cmx misc.cmx \
-    subst.cmx table.cmx tabular.cmi 
+    parse_opts.cmx subst.cmx table.cmx tabular.cmi 
 text.cmo: latexmacros.cmi length.cmi misc.cmi out.cmi parse_opts.cmi \
     stack.cmi table.cmi tabular.cmi text.cmi 
 text.cmx: latexmacros.cmx length.cmx misc.cmx out.cmx parse_opts.cmx \
