@@ -19,6 +19,7 @@
 \newcommand{\sp}[1]{^{#1}}\newcommand{\sb}[1]{_{#1}}
 \newcommand{\ensuremath}[1]{\ifmmode#1\else\(#1\)\fi}
 \newcommand{\@edm@act}{}
+
 \newenvironment{ensuredisplaymath}
   {\ifdisplay\ifmmode\def\@edm@act{NO}\else\let\@edm@act\relax\fi\else\let\@edm@act\relax\fi%
   \ifx\@edm@act\relax$$\fi}
@@ -433,7 +434,34 @@
 \renewcommand{\thehour}{\@twoarabic{hour}}
 \renewcommand{\theminute}{\@twoarabic{minute}}
 \renewcommand{\thesecond}{\@twoarabic{second}}}}
-\newcommand{\today}
+
+  \newcommand\english@day{
+        \ifthenelse{\value{day}=1 }{\theday st} {
+  	\ifthenelse{\value{day}=21}{\theday st} {
+ 	\ifthenelse{\value{day}=31}{\theday st} {
+ 	\ifthenelse{\value{day}=2 }{\theday nd} {
+ 	\ifthenelse{\value{day}=22}{\theday nd} {
+ 	\ifthenelse{\value{day}=3 }{\theday rd} {
+ 	\ifthenelse{\value{day}=23}{\theday rd} {
+        \theday th
+  }}}}}}}}  
+  \newcommand\english@month{ 
+  	\ifthenelse{\value{month}=1 }{January}  {
+  	\ifthenelse{\value{month}=2 }{February} {
+ 	\ifthenelse{\value{month}=3 }{March}    {
+ 	\ifthenelse{\value{month}=4 }{April}    {
+ 	\ifthenelse{\value{month}=5 }{May}      {
+ 	\ifthenelse{\value{month}=6 }{June}     {
+ 	\ifthenelse{\value{month}=7 }{July}     {
+ 	\ifthenelse{\value{month}=8 }{August}   {
+ 	\ifthenelse{\value{month}=9 }{September}{
+ 	\ifthenelse{\value{month}=10}{October}  {
+ 	\ifthenelse{\value{month}=11}{November} {
+ 	\ifthenelse{\value{month}=12}{December} {
+  }}}}}}}}}}}}}  
+  \newcommand\today@english{\english@day\english@month,~\theyear}
+
+\newcommand\today
 {\@ifundefined{theyear}{\warning{\today needs ``-exec xxdate.exe'' option}}
 {\ifthenelse{\boolean{french}}
 {\theday%
@@ -451,18 +479,7 @@
 \ifthenelse{\value{month}=11}{novembre}{}%
 \ifthenelse{\value{month}=12}{décembre}{} \theyear}
 {%
-\ifthenelse{\value{month}=1}{January}{}%
-\ifthenelse{\value{month}=2}{February}{}%
-\ifthenelse{\value{month}=3}{March}{}%
-\ifthenelse{\value{month}=4}{April}{}%
-\ifthenelse{\value{month}=5}{May}{}%
-\ifthenelse{\value{month}=6}{June}{}%
-\ifthenelse{\value{month}=7}{July}{}%
-\ifthenelse{\value{month}=8}{August}{}%
-\ifthenelse{\value{month}=9}{September}{}%
-\ifthenelse{\value{month}=10}{October}{}%
-\ifthenelse{\value{month}=11}{November}{}%
-\ifthenelse{\value{month}=12}{December}{} \theday, \theyear}}}
+\today@english}}}
 %%%%%%%%%%%%%% Defined counter printing functions
 \newcommand{\@arabic}[1]{\@pad{0}{3}{\arabic{#1}}}
 \newcommand{\@twoarabic}[1]{\@pad{0}{2}{\arabic{#1}}}
@@ -506,3 +523,39 @@ poor}}{}
 {\@scaninput{\begin{rawtext}}{#1}{\end{rawtext}}}
 \newcommand{\rawinput}[1]
 {\@scaninput{\begin{raw}}{#1}{\end{raw}}}
+
+  \newcommand{\glqq}{\@print{&#8222;}}
+  \newcommand{\grqq}{\@print{&#8220;}}
+  \newcommand{\glq }{\@print{&#8218;}}
+  \newcommand{\grq }{\@print{&#8216;}}
+  \newcommand{\flqq}{\@print{&#0171;}}
+  \newcommand{\frqq}{\@print{&#0187;}}
+  \newcommand{\flq }{\@print{&#8249;}}
+  \newcommand{\frq }{\@print{&#8250;}}
+  %\newcommand{\'}[1]{#1}
+  %\newcommand{\`}[1]{#1}
+  \newcommand\prefacename{Preface}
+  %\newcommand\abstractname{Abstract}
+  \newcommand\bibname{Binliography}
+  \newcommand\chaptername{Chapter}
+  %\newcommand\appendixname{Appendix}
+  \newcommand\listfigurename{List of Figured}
+  \newcommand\listtablename{List of Tables}
+  \newcommand\indexname{Index}
+  \newcommand\figurename{Figure}
+  \newcommand\tablename{Table}
+  %\newcommand\partname{Part}
+  \newcommand\enclname{encl}
+  \newcommand\ccname{cc}
+  \newcommand\headtoname{To}
+  \newcommand\pagename{Page}
+  \newcommand\headpagename{Page}
+  \newcommand\seename{see}
+  \newcommand\alsoname{see also}
+  \newcommand\dq{No-dq}
+  \newcommand\german@month{}
+  \newcommand\austrian@month{}
+  \newcommand\french@day{}
+  \newcommand\french@month{}
+  %\newcommand\english@day{}
+  %\newcommand\english@month{}
