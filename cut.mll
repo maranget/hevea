@@ -11,7 +11,7 @@
 
 {
 open Lexing
-let header = "$Id: cut.mll,v 1.19 1999-08-16 08:10:05 maranget Exp $" 
+let header = "$Id: cut.mll,v 1.20 1999-08-17 09:04:19 maranget Exp $" 
 
 let verbose = ref 0
 ;;
@@ -135,16 +135,15 @@ let putlinks out name =
        else "Previous")
   with Not_found -> () end ;
   begin try
-    putlink out (Thread.next name) "next_motif.gif" 
-      (if !language = "fra" then "Suivant"
-       else "Next")
-  with Not_found -> () end ;
-  begin try
     putlink out (Thread.up name) "contents_motif.gif" 
       (if !language = "fra" then "Index"
        else "Contents")
+  with Not_found -> () end ;
+  begin try
+    putlink out (Thread.next name) "next_motif.gif" 
+      (if !language = "fra" then "Suivant"
+       else "Next")
   with Not_found -> () end
-
 ;;
 
 let openhtml title out outname =
@@ -295,7 +294,8 @@ let stack = ref []
 let save_state newchapter newdepth =
   if !verbose > 0 then
     prerr_endline ("New state: "^string_of_int newchapter) ;
-  push stack (!chapter,!depth,!toc,!tocname,!cur_level,!lastclosed) ;
+  push stack
+    (!chapter,!depth,!toc,!tocname,!cur_level,!lastclosed,!out_prefix) ;
   chapter := newchapter ;
   depth := newdepth ;
   tocname := !outname ;
@@ -307,13 +307,14 @@ let restore_state () =
   if !verbose > 0 then prerr_endline ("Restore") ;
   let
     oldchapter,olddepth,oldtoc,oldtocname,
-    oldlevel,oldlastclosed  = pop stack in
+    oldlevel,oldlastclosed,oldprefix  = pop stack in
   chapter := oldchapter ;
   depth := olddepth ;
   toc := oldtoc ;
   tocname := oldtocname ;
   lastclosed := !lastclosed ;
-  cur_level := oldlevel
+  cur_level := oldlevel ;
+  out_prefix := oldprefix
 ;;
 
 let close_top lxm =
