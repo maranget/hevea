@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.56 2001-11-20 13:54:34 maranget Exp $"
+let header = "$Id: text.ml,v 1.57 2002-01-04 18:41:21 maranget Exp $"
 
 
 open Misc
@@ -1189,6 +1189,14 @@ let ptailles chan table =
   done ;
   Printf.fprintf chan  "]"
 
+let ptaille chan table =
+  let t = Table.to_array table.taille in
+  Printf.fprintf chan  "[" ;
+  for i = 0 to Array.length t-1 do
+    Printf.fprintf chan "%d; " t.(i)
+  done ;
+  Printf.fprintf chan  "]"
+
 let cell = ref {
   ver = Middle;
   hor = Left;
@@ -1282,19 +1290,33 @@ let open_table border _ =
   flags.in_table<-true;
 ;;
 
+let register_taille table =
+  let old = table.tailles
+  and cur = Table.trim table.taille in
+  let old_len = Array.length old
+  and cur_len = Array.length cur in
+  let dest = 
+    if cur_len > old_len then begin
+      let t = Array.create cur_len 0 in
+      Array.blit old 0 t 0 old_len ;
+      t
+    end else
+      old in
+  for i=0 to cur_len-1 do
+    dest.(i) <- max dest.(i) cur.(i)
+  done ;
+  table.tailles <- dest
 
 let new_row () =
-  if !verbose>2 then begin
+  if !verbose> 2 then begin
     Printf.eprintf "=> new_row, line =%d, tailles=%a\n"
       !table.line ptailles !table
   end ;
   if !table.col> !table.cols then !table.cols<- !table.col;
   !table.col <- -1;
   !table.line <- !table.line +1;
-  if !table.line = 1 && (( Array.length !table.tailles)=0) then begin
-    !table.tailles<-Table.trim !table.taille;
-    Printf.eprintf "SET %a\n" ptailles !table ;
-  end ;
+  Table.reset !table.taille ;
+
   let _ =match !row.cells with
   | Tabl t -> Table.reset t
   | _-> raise (Error "invalid table type in array")
@@ -1432,28 +1454,13 @@ let close_cell content =
   (* on a la taille de la cellule, on met sa largeur au bon endroit, si necessaire.. *)
   (* Multicolonne : Il faut mettre des zeros dans le tableau pour avoir la taille minimale des colonnes atomiques. Puis on range start,end dans une liste que l'on regardera a la fin pour ajuster les tailles selon la loi : la taille de la multicolonne doit etre <= la somme des tailles minimales. Sinon, il faut agrandir les colonnes atomiques pour que ca rentre. *)
   if !cell.span = 1 then begin
-    if !table.line = 0 then
-      Table.emit !table.taille !cell.w
-    else
-      begin
-	if !table.col >= (Array.length !table.tailles) then 
-	  begin (* depassement du tableau : on l'agrandit.. *)
-	    let t = Array.create (!table.col +1) 0 in
-	    Array.blit !table.tailles 0 t 0 (Array.length !table.tailles) ;
-	    !table.tailles <- t;
-	  end;
-	if (!cell.w > (!table.tailles.(!table.col))) then 
-	  begin
-	    !table.tailles.(!table.col)<- !cell.w;
-	  end;
-      end;
+    Table.emit !table.taille !cell.w
   end else if !cell.span = 0 then begin
-    if !table.line = 0 then Table.emit !table.taille 0;
+    Table.emit !table.taille 0;
   end else begin
-    if !table.line=0 then
-      for i = 1 to !cell.span do
-	Table.emit !table.taille 0
-      done;
+    for i = 1 to !cell.span do
+      Table.emit !table.taille 0
+    done;
     multi := (!table.col,!table.col + !cell.span -1,!cell.w) :: !multi;
   end;
   !table.col <- !table.col + !cell.span -1;
@@ -1489,11 +1496,14 @@ let erase_cell () =
 ;;
 
 let erase_row () =
-  if !verbose > 2 then prerr_endline "erase_row" ;
+  if !verbose > 2 then prerr_endline "erase_row" ;  
   !table.line <- !table.line -1
 
 and close_row erase =
-  if !verbose>2 then prerr_endline "close_row";
+  if !verbose> 2  then
+    Printf.eprintf "close_row tailles=%a, taille=%a\n"
+      ptailles !table ptaille !table ;
+  register_taille !table ;
   Table.emit !table.table
      { haut = !row.haut;
      cells = Arr (Table.trim 
@@ -1578,8 +1588,7 @@ let put_ligne texte pos align width taille wrap=
   let t,post= 
     if wrap=Wtrue then String.length s,0
     else width,width - String.length s in
-  Printf.eprintf "taille=%d, t=%d, post=%d\n" taille t post ;
-  flush stderr ;
+
   let ligne = match align with
   | Left -> String.concat "" 
 	[s; String.make (taille-t+post) ' ']
@@ -1605,10 +1614,12 @@ let put_border s inside j =
   done;
 ;;
 
-let rec somme debut fin = 
-  if debut = fin 
-  then !table.tailles.(debut)
-  else !table.tailles.(debut) + (somme (debut+1) fin)
+let rec somme debut fin =
+  let r = ref 0 in
+  for k = debut to fin do
+    r := !r + !table.tailles.(k)
+  done ;
+  !r
 ;;
 
 
@@ -1649,8 +1660,9 @@ let close_table () =
     prerr_endline "=> close_table";
     pretty_stack out_stack
   end;
-  if !table.line=0 && (Array.length !table.tailles = 0) then
-    !table.tailles<-Table.trim !table.taille;
+
+  register_taille !table ;
+
   let tab = Table.trim !table.table in
   (* il reste a formatter et a flusher dans la sortie principale.. *)
   !table.lines<-Array.length tab;
@@ -1670,7 +1682,7 @@ let close_table () =
     in
     (* affichage de la ligne *)
     (* il faut envoyer ligne apres ligne dans chaque cellule, en tenant compte de l'alignement vertical et horizontal..*)
-    if !verbose>2 then prerr_endline ("line "^string_of_int i^", columns:"^string_of_int (Array.length ligne)^", height:"^string_of_int tab.(i).haut);
+    if !verbose> 2 then prerr_endline ("line "^string_of_int i^", columns:"^string_of_int (Array.length ligne)^", height:"^string_of_int tab.(i).haut);
     let pos = Array.create (Array.length ligne) 0 in
     !row.haut <-0;
     for j = 0 to tab.(i).haut -1 do
@@ -1678,11 +1690,11 @@ let close_table () =
       let col = ref 0 in
       for k = 0 to Array.length ligne -1 do
 	begin
-	  (* ligne j de la cellule k *)
+	  (* ligne j de la cellule k *)          
 	  if ligne.(k).wrap = Fill then ligne.(k).span <- Array.length !table.tailles;
 	  let taille_borders = (String.length ligne.(k).pre) + (String.length ligne.(k).post) in
 	  let taille = (somme !col (!col + ligne.(k).span-1)) - taille_borders in
-	  if !verbose>3 then prerr_endline ("cell to output:"^
+	  if !verbose> 2 then prerr_endline ("cell to output:"^
 					    ligne.(k).pre^
 					    ligne.(k).text^
 					    ligne.(k).post^
@@ -1844,13 +1856,15 @@ let pop_freeze () = match top  out_stack with
 ;;
 
 (* Displays *)
-let open_display args =
+let open_display _ =
   open_table (!verbose>1) "";
   new_row ();
   if !verbose > 1 then make_border "{";
   open_cell cm_format 1 0;
   open_cell_group ();
 ;;
+
+let open_display_varg _ = open_display ""
 
 let close_display () =
   if not (flush_freeze ()) then begin

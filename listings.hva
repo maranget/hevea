@@ -305,9 +305,11 @@
   {\lst@AddToHook{String}{\lst@def@stringizer{#1}{#2}}}
 \newcommand{\lst@stringizer@key}[2][]
   {\lst@ResetHook{String}\lst@AddToHook{String}{\lst@def@stringizer{#1}{#2}}}
+\newcommand{\lst@stringizer@key@delete}[2][]{\lst@ResetHook{String}}
 \lst@define@key@opt{stringizer}{\lst@stringizer@key}{}
 \lst@define@key@opt{string}{\lst@stringizer@key}{}
 \lst@define@key@opt{morestring}{\lst@stringizer@key@add}{}
+\lst@define@key@opt{deletestring}{\lst@stringizer@key@delete}{}
 % stringspaces
 \define@key{lst}{stringspaces}[true]{\def\lst@stringspaces{#1}}
 \setboolean{lst@stringspaces}{false}

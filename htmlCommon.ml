@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlCommon.ml,v 1.35 2001-04-23 16:04:27 maranget Exp $" 
+let header = "$Id: htmlCommon.ml,v 1.36 2002-01-04 18:41:21 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -76,7 +76,9 @@ let no_opt = false
 
 let add b =
   Hashtbl.add block_t (string_of_block b) b
-;;
+
+and add_verb s b = Hashtbl.add block_t s b
+  ;;
 
 add H1 ;
 add H2 ;
@@ -1151,12 +1153,12 @@ and is_pre = function
   | PRE -> true
   | _ -> false
 
-let rec do_try_open_block s args =  
+let rec do_try_open_block s =  
   if !verbose > 2 then
     prerr_flags ("=> try open ``"^string_of_block s^"''");  
-  if s = DISPLAY then begin
-    do_try_open_block TABLE args ;
-    do_try_open_block TR "VALIGN=middle" ;
+  if s=DISPLAY then begin
+    do_try_open_block TABLE ;
+    do_try_open_block TR  ;
   end else begin
     push stacks.s_empty flags.empty ; push stacks.s_blank flags.blank ;
     push stacks.s_insert flags.insert ;
@@ -1199,7 +1201,7 @@ let try_open_block s args =
   | Some (TR,_) when s <> TR -> ()
   | _ -> flags.insert_attr <- None
   end ;
-  do_try_open_block s args
+  do_try_open_block s
 
 let do_do_open_block s args =
   if s = TR || is_header s then
@@ -1212,6 +1214,7 @@ let do_do_open_block s args =
   end ;
   do_put_char '>'
 
+  
 let rec do_open_block insert s args = match s with
 | GROUP|DELAY|FORGET|AFTER|INTERN ->
    begin match insert with
@@ -1219,8 +1222,8 @@ let rec do_open_block insert s args = match s with
    | _ -> ()
    end
 | DISPLAY ->
-   do_open_block insert TABLE args ;
-   do_open_block None TR "VALIGN=middle"
+   do_open_block insert TABLE "" ;
+   do_open_block None TR args
 | _  -> begin match insert with
   | Some (tag,iargs) ->
       if is_list s || s = TABLE then begin

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.218 2001-11-20 13:54:33 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.219 2002-01-04 18:41:21 maranget Exp $ *)
 
 
 {
@@ -106,12 +106,17 @@ let big_size () =  Dest.open_mod (Font 7)
 ;;
 
 (* Horizontal display *)
+let pre_format = ref None
 
 let top_open_display () =
   if !display then begin
     if !verbose > 1 then
        prerr_endline "open display" ;
-    Dest.open_display ()
+    match !pre_format with
+    | Some (Align {vert=s})   ->
+        Dest.open_display_varg ("VALIGN="^s)
+    | _ ->
+        Dest.open_display ()        
   end
 
 and top_item_display () =
@@ -545,6 +550,7 @@ let next_no_border format n =
   !t
 ;;
 
+
 let do_open_col main format span insides =
   let save_table = !in_table in
   Dest.open_cell format span insides;
@@ -556,7 +562,9 @@ let do_open_col main format span insides =
     scan_this main "$"
   end else
     scan_this main "{" ;
+  pre_format := Some format ;
   scan_this main (as_pre format) ;
+  pre_format := None ;
   in_table := save_table 
 
 let open_col main  =
@@ -2827,7 +2835,6 @@ def_code "\\=" do_tabul
 
 def_code "\\kill"
   (fun lexbuf ->
-    prerr_endline "KILL" ;
     if is_tabbing !in_table then begin
       do_unskip () ;
       Dest.close_cell "";
@@ -2862,7 +2869,6 @@ let get_table_attributes border len =
   
 
 let open_tabbing lexbuf =
-  prerr_endline "OPEN TABBING";
   let lexbuf = Lexstate.previous_lexbuf in
   let lexfun lb =
     Dest.open_table false "border=0 cellspacing=0 cellpadding=0" ;

@@ -1,6 +1,6 @@
 LATEX=latex
 HEVEA=hevea
-HEVEAOPTS=-fix -O -v
+HEVEAOPTS=-fix -O
 IMAGEN=imagen
 HACHA=hacha
 EXDIR=$(HOME)/public_html/hevea/examples
@@ -9,7 +9,7 @@ DVI=$(HTML:.html=.dvi)
 TEX=$(HTML:.html=.tex)
 TEXT=$(HTML:.html=.txt)
 INFO=$(HTML:.html=.info)
-# coucou
+
 
 all: dvi html text info
 opt:
@@ -129,7 +129,7 @@ graphicx.dvi: HF.ps graphicx.tex
 	latex < /dev/null graphicx.tex
 
 graphicx.html: graphicx.tex HF.ps
-	$(HEVEA) $(HEVEAOPTS) graphicx
+	$(HEVEA) $(HEVEAOPTS) png.hva graphicx
 graphicx.txt graphicx.info:
 
 verbs.dvi: verbs.tex
@@ -151,4 +151,4 @@ cleaninfo:
 	rm -f *.info *.info-*
 
 clean cleanall: cleanhtml cleantext cleaninfo
-	rm -f *.aux *.log *.dvi *~ *.gif *.bbl tmp.* tenv.* tsmile.* *.ilg *.ind *.idx *.image.tex  *.tid HF.ps *.haux *.hidx *.hind
+	rm -f *.aux *.log *.dvi *~ *.gif *.pnm *.png *.bbl tmp.* tenv.* tsmile.* *.ilg *.ind *.idx *.image.tex  *.tid HF.ps *.haux *.hidx *.hind

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: lexstate.ml,v 1.58 2001-09-21 14:50:58 maranget Exp $"
+let header = "$Id: lexstate.ml,v 1.59 2002-01-04 18:41:21 maranget Exp $"
 
 open Misc
 open Lexing
@@ -230,12 +230,12 @@ let scan_arg lexfun i =
   let r = lexfun arg in
   r
 
-and scan_body exec body args = match body with
-| CamlCode _|Toks _ -> exec body
+and scan_body do_exec body args = match body with
+| CamlCode _|Toks _ -> do_exec body
 | Subst _ -> 
     let old_subst = !subst in
     subst := args ;
-    let r = exec body in
+    let r = do_exec body in
     subst := old_subst ;
     r
 
@@ -465,21 +465,21 @@ let protect_save_string lexfun lexbuf =
     (fun s -> s)
     lexfun lexbuf
 
-let eof_opt def () = {arg=No def ; subst=Top }
+let eof_opt default () = {arg=No default ; subst=Top }
 
-let save_arg_opt def lexbuf =
+let save_arg_opt default lexbuf =
   let r = 
     full_save_arg
-      (eof_opt def)
+      (eof_opt default)
       mkarg
       pok
       (fun lexbuf ->
         try Yes (Save.opt lexbuf) with          
-        | Save.NoOpt -> No def)
+        | Save.NoOpt -> No default)
       lexbuf in
   match r.arg with
   | Yes _ -> r
-  | No  _ -> mkarg (No def) !subst
+  | No  _ -> mkarg (No default) !subst
       
   
 ;;

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.34 2001-11-27 09:58:46 maranget Exp $    *)
+(*  $Id: package.ml,v 1.35 2002-01-04 18:41:21 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -78,6 +78,18 @@ def_code "\\addtokens"
     begin try match Latexmacros.find_fail toks with
     | _,Toks l ->
         Latexmacros.def toks zero_pat (Toks (arg::l))
+    | _ -> raise Failed
+    with Failed ->
+      Misc.warning ("\\addtokens for "^toks^" failed")
+    end)
+;;
+def_code "\\addrevtokens"
+  (fun lexbuf ->
+    let toks = Scan.get_csname lexbuf in
+    let arg = Subst.subst_arg lexbuf in
+    begin try match Latexmacros.find_fail toks with
+    | _,Toks l ->
+        Latexmacros.def toks zero_pat (Toks (l@[arg]))
     | _ -> raise Failed
     with Failed ->
       Misc.warning ("\\addtokens for "^toks^" failed")

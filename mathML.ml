@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: mathML.ml,v 1.15 2000-10-13 19:17:41 maranget Exp $" 
+let header = "$Id: mathML.ml,v 1.16 2002-01-04 18:41:21 maranget Exp $" 
 
 
 open Misc
@@ -119,6 +119,8 @@ and close_display () =
   if !verbose > 2 then
     prerr_flags ("<= close_display")
 ;;
+
+let open_display_varg _ = open_display ()
 
   
 let do_item_display force =

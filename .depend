@@ -7,7 +7,6 @@ htmltext.cmi: lexeme.cmi
 info.cmi: element.cmi length.cmi lexstate.cmi out.cmi tabular.cmi 
 latexmacros.cmi: lexstate.cmi 
 latexscan.cmi: imageManager.cmi lexstate.cmi outManager.cmi 
-lexstate.cmi: misc.cmi stack.cmi 
 outManager.cmi: element.cmi length.cmi lexstate.cmi out.cmi tabular.cmi 
 package.cmi: imageManager.cmi latexscan.cmi outManager.cmi 
 pp.cmi: htmltext.cmi lexeme.cmi tree.cmi 

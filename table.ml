@@ -38,6 +38,8 @@ let apply table f =
     raise Empty ;
   f table.data.(table.next - 1)
 
+let to_array t = Array.sub t.data 0 t.next
+
 let trim t =
   let r = Array.sub t.data 0 t.next in
   reset t ;

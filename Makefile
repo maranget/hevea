@@ -7,15 +7,17 @@ LIBDIR=/usr/local/lib/hevea
 BINDIR=/usr/local/bin
 # A replacement for /lib/cpp
 CPP=gcc -E -P -x c
-DIR=/usr/bin/
 ############### End of configuration parameters
+SUF=.opt
+#DIR=/usr/bin/
+DIR=
 HEVEA=./hevea.$(TARGET)
 ESPONJA=./esponja.$(TARGET)
-OCAMLC=${DIR}ocamlc
-OCAMLFLAGS=-g
-OCAMLCI=$(OCAMLC)
-OCAMLOPT=${DIR}ocamlopt
-OCAMLLEX=${DIR}ocamllex
+OCAMLC=${DIR}ocamlc$(SUF)
+OCAMLFLAGS=
+OCAMLCI=${DIR}ocamlc$(SUF)
+OCAMLOPT=${DIR}ocamlopt$(SUF)
+OCAMLLEX=${DIR}ocamllex$(SUF)
 INSTALL=cp
 
 ONLYESPONJA=emisc.cmo buff.cmo htmllex.cmo htmlparse.cmo htmltext.cmo pp.cmo util.cmo explode.cmo ultra.cmo esponja.cmo
@@ -89,7 +91,7 @@ esponja.opt: ${OPTSESPONJA}
 	${OCAMLOPT} -o $@ ${OPTSESPONJA}
 
 mylib.cmo: mylib.ml mylib.cmi
-	${OCAMLCI} ${OCAMLFLAGS} -pp '${CPP} -DLIBDIR=\"${LIBDIR}\"' -c mylib.ml
+	${OCAMLC} ${OCAMLFLAGS} -pp '${CPP} -DLIBDIR=\"${LIBDIR}\"' -c mylib.ml
 
 mylib.cmx: mylib.ml mylib.cmi
 	${OCAMLOPT} -pp '${CPP} -DLIBDIR=\"${LIBDIR}\"' -c mylib.ml

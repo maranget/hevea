@@ -38,6 +38,7 @@ open Lexstate
 
     val open_maths : bool -> unit
     val close_maths : bool -> unit
+    val open_display_varg : string -> unit
     val open_display : unit -> unit
     val close_display : unit -> unit
     val item_display : unit -> unit

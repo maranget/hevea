@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlMath.ml,v 1.21 2000-10-31 08:25:14 maranget Exp $" 
+let header = "$Id: htmlMath.ml,v 1.22 2002-01-04 18:41:21 maranget Exp $" 
 
 
 open Misc
@@ -112,12 +112,12 @@ and end_item_display () =
   flags.vsize,f,is_freeze
 ;;
 
-let open_display () =
+let open_display_varg varg =
   if !verbose > 2 then begin
     Printf.fprintf stderr "open_display: "
   end ;
   try_open_display () ;
-  open_block DISPLAY (display_arg !verbose) ;
+  open_block DISPLAY varg ;
   open_block TD "NOWRAP" ;
   open_block INTERN "" ;
   if !verbose > 2 then begin
@@ -125,6 +125,8 @@ let open_display () =
     prerr_endline ""
   end     
 ;;
+
+let open_display () = open_display_varg "VALIGN=middle"
 
 let close_display () =
   if !verbose > 2 then begin
@@ -150,7 +152,7 @@ let close_display () =
       try_close_block TD ;
       let ps,_,ppout = pop_out out_stack in
       if ps <> DISPLAY then
-        failclose "close_display" ps DISPLAY ;
+        failclose "close_display" ps DISPLAY;
       try_close_block DISPLAY ;
       let old_out = !cur_out in
       cur_out := ppout ;
