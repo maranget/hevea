@@ -11,19 +11,6 @@ BINDIR=$(PREFIX)/bin
 DESTDIR=
 #Where to install hevea.sty
 LATEXLIBDIR=$(PREFIX)/lib/hevea
-# C preprocessor with proper options
-#CPP=cpp -E -P
-#Some alternatives...
-#Old fashioned Unix
-#CPP=/lib/cpp -E -P 
-#GCC installed
-CPP=gcc -E -P -x c
-# reported to work on MacOsX by Georg
-#CPP=cc --traditional-cpp -E -P -x c
-# reported to work on Mac OS 10.3 (using gcc-3.3) by John T. Hale
-#CPP=cc --traditional-cpp -E -P -xassembler-with-cpp
-# Repported to work on mac OS X 10.3.3 by Pau Gastin.
-CPP=m4 -E -P # This works with mac OS X 10.3.3
 ############### End of configuration parameters
 SUF=
 DIR=
@@ -110,10 +97,10 @@ esponja.opt: ${OPTSESPONJA}
 	${OCAMLOPT} -o $@ ${OPTSESPONJA}
 
 mylib.cmo: mylib.ml mylib.cmi
-	${OCAMLC} ${OCAMLFLAGS} -pp '${CPP} -DLIBDIR=\"${LIBDIR}\"' -c mylib.ml
+	${OCAMLC} ${OCAMLFLAGS} -pp 'sed -e "s,LIBDIR,${LIBDIR},g"' -c mylib.ml
 
 mylib.cmx: mylib.ml mylib.cmi
-	${OCAMLOPT} -pp '${CPP} -DLIBDIR=\"${LIBDIR}\"' -c mylib.ml
+	${OCAMLOPT} -pp 'sed -e "s,LIBDIR,${LIBDIR},g"' -c mylib.ml
 
 cutfoot-fra.html: cutfoot-fra.tex html/hevea.hva ${HEVEA}
 	HEVEADIR=. ; export HEVEADIR ; ${HEVEA} < cutfoot-fra.tex | ${ESPONJA}> $@

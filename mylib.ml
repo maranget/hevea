@@ -9,14 +9,13 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: mylib.ml,v 1.7 2001-05-25 09:07:26 maranget Exp $" 
+let header = "$Id: mylib.ml,v 1.8 2004-11-23 14:32:37 maranget Exp $" 
 exception Error of string
 ;;
 
-let static_libdir  = LIBDIR
+let static_libdir  = "LIBDIR"
 ;;
 
-let libdir =
-  try Sys.getenv "HEVEADIR" with Not_found -> LIBDIR
+let libdir = try Sys.getenv "HEVEADIR" with Not_found -> static_libdir
 ;;
 
