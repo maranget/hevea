@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.43 2003-09-29 08:54:54 maranget Exp $    *)
+(*  $Id: package.ml,v 1.44 2004-05-27 14:48:59 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -617,7 +617,6 @@ register_init "xypic"
   )
 ;;
 
-
 register_init "natbib"
   (fun () ->
     def_code "\\NAT@write"
@@ -638,6 +637,17 @@ register_init "natbib"
           | Some s -> s in
         scan_this main ("\\NAT@args" ^ arg)) ;
     ())
-            
-        
+;;            
+
+
+register_init "bussproof"
+    (fun () ->
+      def_code "\\AxiomC"
+        (fun lexbuf ->
+          let arg = save_arg lexbuf in
+          let formatted = Scan.get_this_arg_mbox arg in
+          ())
+    )
+;;
+
 end

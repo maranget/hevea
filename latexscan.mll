@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.232 2003-11-20 17:40:07 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.233 2004-05-27 14:48:59 maranget Exp $ *)
 
 
 {
@@ -40,6 +40,7 @@ module type S =
     val def_name_code : string -> (string -> Lexing.lexbuf -> unit) -> unit
     val def_fun : string -> (string -> string) -> unit
     val get_this_main : string -> string
+    val get_this_arg_mbox : string Lexstate.arg -> string
     val check_this_main : string -> bool
     val get_prim : string -> string
     val get_prim_arg : Lexing.lexbuf -> string
@@ -2565,6 +2566,15 @@ def_code "\\providesavebox"
 ;;
 
 let caml_print s = CamlCode (fun _ -> Dest.put s)
+;;
+
+let get_this_arg_mbox arg =
+  start_mbox () ;
+  let r = get_this_arg main arg in
+  top_close_group () ;
+  r
+;;
+
 
 let do_sbox global name body =
   if not (Latexmacros.exists name) then
@@ -2572,6 +2582,7 @@ let do_sbox global name body =
   start_mbox () ;
   let to_print =  get_this_arg main body in
   top_close_group () ;
+  let to_print =  get_this_arg_mbox body in
   (if global then global_def else def) name zero_pat (caml_print to_print)
 ;;
 

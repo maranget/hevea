@@ -37,6 +37,7 @@ module type S =
     val def_name_code : string -> (string -> Lexing.lexbuf -> unit) -> unit
     val def_fun : string -> (string -> string) -> unit
     val get_this_main : string -> string
+    val get_this_arg_mbox : string arg -> string
     val check_this_main : string -> bool
     val get_prim : string -> string
     val get_prim_arg : Lexing.lexbuf -> string
