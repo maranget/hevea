@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.66 2004-10-11 16:22:00 maranget Exp $    *)
+(*  $Id: package.ml,v 1.67 2004-11-26 13:13:05 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -392,7 +392,7 @@ register_init "sword"
 (fun () ->
       def_code "\\FRAME"
         (fun lexbuf ->
-          let lxm = lexeme lexbuf in
+          let _ = lexeme lexbuf in
           (* discard the first 7 arguments *)
           let _ = save_arg lexbuf in 
           let _ = save_arg lexbuf in
@@ -432,7 +432,7 @@ fallback name");
       (*    arg1 = hex number w/o leading 0, eg x23ab *)
       (*    arg2 = decimal equivalent, eg 9131 *)
       (* it is up to \swUNICODE (in sword.hva) to do final formatting *) 
-      let lxm = lexeme lexbuf in
+      let _ = lexeme lexbuf in
       let t = Subst.subst_arg lexbuf in
       let s = string_of_int (int_of_string (t)) in
       let tt = String.sub t (String.index t 'x') (-1+String.length t) in
@@ -521,7 +521,7 @@ register_init "hyperref"
       (fun lexbuf ->
         let _ = save_arg lexbuf in
         Save.start_echo () ;
-        let url = save_arg lexbuf in
+        let _ = save_arg lexbuf in
         let url = Save.get_echo () in
         let category = get_prim_arg lexbuf in
         let name = get_prim_arg lexbuf in
@@ -1161,25 +1161,25 @@ let end_table () =
 ************************************************************)
 
 let get_labels_from_stack () =
- 	let top1 = stack_top1 () in
-	let top2 = stack_top2 () in
-            match (top1,top2) with
-	        (LL s1, RL s2) -> 
-		      let ll = stack_pop() in
-		      let rl = stack_pop() in
-		          (s1,s2)
-	      | (RL s1, LL s2) -> 
-	              let rl = stack_pop() in
-		      let ll = stack_pop () in
-		          (s2,s1)
-	      | (LL s1, _    ) ->
-	              let ll = stack_pop() in
-		          (s1,"")
-	      | (RL s1, _    ) ->
-	              let rl = stack_pop() in
-		          ("",s1)
-	      | (_    , _    ) ->
-	              ("","")
+  let top1 = stack_top1 () in
+  let top2 = stack_top2 () in
+  match (top1,top2) with
+    (LL s1, RL s2) -> 
+      let _ll = stack_pop() in
+      let _rl = stack_pop() in
+      (s1,s2)
+  | (RL s1, LL s2) -> 
+      let _rl = stack_pop() in
+      let _ll = stack_pop () in
+      (s2,s1)
+  | (LL s1, _) ->
+      let _ll = stack_pop() in
+      (s1,"")
+  | (RL s1, _) ->
+      let _rl = stack_pop() in
+      ("",s1)
+  | (_    , _) ->
+      ("","")
 ;;
 
 (************************************************************
@@ -1290,7 +1290,6 @@ register_init "proof"
 			in (true) 
                     else (false) in
           let optarg2 = save_opt "" lexbuf in
-          let is_opt_arg = if ("" = optarg2.arg) then false else true in  
 	  let arg3 = save_arg lexbuf in
 	  let arg4 = save_arg lexbuf in
 	  start_table "CLASS=proof" "ALIGN=center" ;
@@ -1323,7 +1322,6 @@ register_init "proof"
 			in (true) 
                     else (false) in
           let optarg2 = save_opt "" lexbuf in
-          let is_opt_arg = if ("" = optarg2.arg) then false else true in  
 	  let arg3 = save_arg lexbuf in
 	  let arg4 = save_arg lexbuf in
 	  start_table "CLASS=proof" "ALIGN=center" ;
@@ -1355,7 +1353,6 @@ register_init "proof"
 	(fun lexbuf ->
         if !inside_proof then begin
           let optarg1 = save_opt "" lexbuf in
-          let is_opt_arg = if ("" = optarg1.arg) then false else true in  
 	  let arg2 = save_arg lexbuf in
 	  let arg3 = save_arg lexbuf in
 	  start_table "CLASS=proof" "ALIGN=center";
@@ -1383,7 +1380,6 @@ register_init "proof"
           scan_this Scan.main "$"; 
           inside_proof := true; 
           let optarg1 = save_opt "" lexbuf in
-          let is_opt_arg = if ("" = optarg1.arg) then false else true in  
 	  let arg2 = save_arg lexbuf in
 	  let arg3 = save_arg lexbuf in
 	  start_table "CLASS=proof" "ALIGN=center";
@@ -1414,7 +1410,6 @@ register_init "proof"
 	(fun lexbuf ->
         if !inside_proof then begin
           let optarg1 = save_opt "" lexbuf in
-          let is_opt_arg = if ("" = optarg1.arg) then false else true in  
 	  let arg2 = save_arg lexbuf in
 	  let arg3 = save_arg lexbuf in
 	  start_table "CLASS=proof" "ALIGN=center";
@@ -1443,7 +1438,6 @@ register_init "proof"
           scan_this Scan.main "$"; 
           inside_proof := true; 
           let optarg1 = save_opt "" lexbuf in
-          let is_opt_arg = if ("" = optarg1.arg) then false else true in  
 	  let arg2 = save_arg lexbuf in
 	  let arg3 = save_arg lexbuf in
 	  start_table "CLASS=proof" "ALIGN=center";

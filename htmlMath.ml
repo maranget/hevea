@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlMath.ml,v 1.26 2004-07-22 18:55:04 thakur Exp $" 
+let header = "$Id: htmlMath.ml,v 1.27 2004-11-26 13:13:05 maranget Exp $" 
 
 
 open Misc
@@ -489,7 +489,7 @@ let insert_vdisplay open_fun =
 
 
 
-let over display lexbuf =
+let over display _lexbuf =
   if display then begin
     let mods = insert_vdisplay
         (fun () ->
@@ -524,7 +524,7 @@ let over display lexbuf =
  *          instead of the fraction bar                 *
  ********************************************************)
 
-let over_align align1 align2 display lexbuf =
+let over_align align1 align2 display _lexbuf =
   if align1 then begin
     let mods = insert_vdisplay
       (fun () ->

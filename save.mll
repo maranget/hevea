@@ -13,7 +13,7 @@
 open Lexing
 open Misc
 
-let header = "$Id: save.mll,v 1.66 2004-07-02 16:49:25 thakur Exp $" 
+let header = "$Id: save.mll,v 1.67 2004-11-26 13:13:05 maranget Exp $" 
 
 let rec if_next_char  c lb =
   let pos = lb.lex_curr_pos
@@ -262,11 +262,11 @@ and csname = parse
     {(fun get_prim subst ->
       blit_echo lexbuf ; csname lexbuf get_prim subst)}
 | '{'? "\\csname" space*
-      {(fun get_prim subst_fun ->
+      {(fun get_prim _subst ->
         blit_echo lexbuf ;
         let r = incsname lexbuf in
         "\\"^get_prim r)}
-| ""  {fun get_prim subst -> let r = arg lexbuf in subst r}
+| ""  {fun _get_prim subst -> let r = arg lexbuf in subst r}
 
 and incsname = parse
   "\\endcsname"  '}'?
@@ -293,24 +293,24 @@ and cite_args_bis = parse
 and num_arg = parse
 | (space|'\n')+ {(fun get_int -> num_arg lexbuf get_int)}
 | ['0'-'9']+ 
-    {fun get_int ->
+    {fun _get_int ->
       let lxm = lexeme lexbuf in
       my_int_of_string lxm}
 |  "'" ['0'-'7']+ 
-    {fun get_int ->let lxm = lexeme  lexbuf in
+    {fun _get_int ->let lxm = lexeme  lexbuf in
     my_int_of_string ("0o"^String.sub lxm 1 (String.length lxm-1))}
 |  '"' ['0'-'9' 'a'-'f' 'A'-'F']+ 
-    {fun get_int ->let lxm = lexeme  lexbuf in
+    {fun _get_int ->let lxm = lexeme  lexbuf in
     my_int_of_string ("0x"^String.sub lxm 1 (String.length lxm-1))}
 | '`' '\\' _
-    {fun get_int ->let c = lexeme_char lexbuf 2 in
+    {fun _get_int ->let c = lexeme_char lexbuf 2 in
     Char.code c}
 | '`' '#' ['1'-'9']
     {fun get_int ->
       let lxm = lexeme lexbuf in
       get_int (String.sub lxm 1 2)}
 | '`' _
-    {fun get_int ->let c = lexeme_char lexbuf 1 in
+    {fun _get_int ->let c = lexeme_char lexbuf 1 in
     Char.code c}
 | ""
     {fun get_int ->
@@ -391,38 +391,37 @@ and checklimits = parse
 | "\\nolimits" {false}
 | ""           {false}
 
-and eat_delim_init = parse
+and eat_delim_init delim next i = parse
 | eof {raise Eof}
 | '{'
-    {fun delim next _ ->
-      put_echo_char '{' ;
+    { put_echo_char '{' ;
       incr brace_nesting ;
       let r = arg2 lexbuf in
       check_comment lexbuf ;
       if if_next_string delim lexbuf then begin
-        skip_delim_rec lexbuf delim 0 ;
+        skip_delim_rec  delim 0 lexbuf ;
         r
       end else begin
         Out.put_char arg_buff '{' ;
         Out.put arg_buff r ;
         Out.put_char arg_buff '}' ;
-        eat_delim_rec lexbuf delim next 0
+        eat_delim_rec delim next 0 lexbuf
       end}
-| ""  {eat_delim_rec lexbuf}
+| ""  {eat_delim_rec  delim next i lexbuf}
 
-and eat_delim_rec = parse
+and eat_delim_rec  delim next i = parse
 | "\\{"
-  {fun delim next i ->
+  {
     put_echo "\\{" ;
     match kmp_char delim next i '\\' with
     | Stop _ ->
         error "Delimitors cannot end with ``\\''"
     | Continue i -> match  kmp_char delim next i '{' with
       | Stop s -> s
-      | Continue i ->  eat_delim_rec lexbuf delim next i}
+      | Continue i ->  eat_delim_rec delim next i lexbuf}
       
 | '{'
-  {fun delim next i ->
+  {
     put_echo_char '{' ;
     Out.put arg_buff (if i > 0 then String.sub delim 0 i else "") ;
     Out.put_char arg_buff '{' ;
@@ -430,35 +429,35 @@ and eat_delim_rec = parse
     let r = arg2 lexbuf in
     Out.put arg_buff r ;
     Out.put_char arg_buff '}' ;
-    eat_delim_rec lexbuf delim next 0}
+    eat_delim_rec delim next 0 lexbuf
+   }
 | _
-  {fun delim next i ->
+  {
     let c = lexeme_char lexbuf 0 in
     put_echo_char c ;
     match kmp_char delim next i c with
     | Stop s -> s
-    | Continue i -> eat_delim_rec lexbuf delim next i}
+    | Continue i -> eat_delim_rec delim next i lexbuf}
 |  eof
     {error ("End of file in delimited argument, read:
 	"^
             Out.to_string echo_buff)}
 
-and skip_delim_init = parse
-| space|'\n' {skip_delim_init lexbuf}
-| ""       {skip_delim_rec lexbuf}
+and skip_delim_init delim i = parse
+| space|'\n' {skip_delim_init delim i lexbuf}
+| ""       {skip_delim_rec delim i lexbuf}
 
-and skip_delim_rec = parse
+and skip_delim_rec delim i = parse
 | _
-  {fun delim i ->
+  {
     let c = lexeme_char lexbuf 0 in
     put_echo_char c ;
     if c <> delim.[i] then
       raise (Delim delim) ;
     if i+1 < String.length delim then
-      skip_delim_rec lexbuf delim (i+1)}
+      skip_delim_rec delim (i+1) lexbuf}
 |  eof
-    {fun delim i ->
-      error ("End of file checking delimiter ``"^delim^"''")}
+    { error ("End of file checking delimiter ``"^delim^"''")}
 and check_equal = parse
 | '=' {true}
 | ""  {false}
@@ -470,6 +469,19 @@ and do_xyarg = parse
     do_xyarg lexbuf}
 | eof {raise Eof}
 | ""  {Out.to_string arg_buff}
+
+and simple_delim c = parse
+| _ as x
+  {if c = x then begin
+    put_echo_char x ;
+    Out.to_string arg_buff
+  end else begin
+    put_both_char x ;
+    simple_delim c lexbuf
+  end
+  } 
+| eof
+  {error (Printf.sprintf "End of file in simple delim '%c'" c)}
 
 {
 
@@ -491,27 +503,22 @@ let init_kmp s =
 let with_delim delim lexbuf =
   let next = init_kmp delim  in
   check_comment lexbuf ;
-  let r = eat_delim_init lexbuf delim next 0 in
+  let r = eat_delim_init delim next 0 lexbuf in
   r
 
 and skip_delim delim lexbuf =
   check_comment lexbuf ;
-  skip_delim_init lexbuf delim 0
+  skip_delim_init delim 0 lexbuf
 
 let skip_blanks_init lexbuf =
   let _ = skip_blanks lexbuf in
   ()
 
-let arg_verbatim2 c lexbuf =
-  let delim = String.make 1 c in
-  let next = init_kmp delim  in
-  eat_delim_init lexbuf delim next 0
-
 let arg_verbatim lexbuf = match first_char lexbuf with
   | '{' ->
        incr brace_nesting ;
        arg2 lexbuf
-  | c -> arg_verbatim2 c lexbuf
+  | c -> simple_delim c lexbuf
 
 
 let xy_arg lexbuf = do_xyarg lexbuf

@@ -11,7 +11,7 @@
 
 open Misc
 
-let header = "$Id: auxx.ml,v 1.18 2003-09-29 08:54:53 maranget Exp $" 
+let header = "$Id: auxx.ml,v 1.19 2004-11-26 13:13:05 maranget Exp $" 
 
 let rtable = Hashtbl.create 17
 ;;
@@ -77,7 +77,7 @@ let finalize check =
         false
 ;;
 
-let write table output_fun key pretty = match !auxfile with
+let write output_fun = match !auxfile with
 | None -> ()
 | Some file ->
     something := true ;
@@ -113,23 +113,23 @@ let swrite msg = match !auxfile with
   
 let bwrite key pretty =
   if bcheck key then
-    write  btable
+    write
       (fun file ->
         output_string file "\\bibcite{" ;
         output_string file key ;
         output_string file "}{" ;
         output_string file pretty ;
-        output_string file "}\n") key pretty
+        output_string file "}\n")
 
 and rwrite key pretty =
   if rcheck key then
-    write rtable
+    write
       (fun file ->
         output_string file "\\newlabel{" ;
         output_string file key ;
         output_string file "}{{" ;
         output_string file pretty ;
-        output_string file "}{X}}\n") key pretty
+        output_string file "}{X}}\n")
 ;;
 
 type toc_t =
@@ -143,14 +143,14 @@ let tocfilename suf = Parse_opts.base_out^"."^suf
 let do_addtoc toc level what =
   (* First adjust nesting of tocenv *)
   if level > toc.level then begin
-    for i = toc.level to level-1 do
+    for _i = toc.level to level-1 do
       output_string toc.chan "\\begin{tocenv}\n"
     done ;
     toc.depth <- toc.depth + level - toc.level ;
     toc.level <- level
   end else if level < toc.level then begin
     let nclose = min toc.depth (toc.level - level) in
-    for i = 1 to nclose do
+    for _i = 1 to nclose do
       output_string toc.chan "\\end{tocenv}\n"
     done ;
     toc.depth <- toc.depth - nclose ;
@@ -189,8 +189,8 @@ let init base =
 
 let final base =
   Hashtbl.iter
-    (fun suf toc ->
-      for i=1 to toc.depth do
+    (fun _ toc ->
+      for _i=1 to toc.depth do
         output_string toc.chan "\\end{tocenv}\n" ;
       done ;
       close_out toc.chan) 

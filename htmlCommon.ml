@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlCommon.ml,v 1.43 2004-07-22 18:55:04 thakur Exp $" 
+let header = "$Id: htmlCommon.ml,v 1.44 2004-11-26 13:13:05 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -235,7 +235,7 @@ let pretty_stack s = Stack.pretty
 
 let rec pop_out s = match pop s with
 | Normal (a,b,c) -> a,b,c
-| Freeze f       -> raise PopFreeze
+| Freeze _f      -> raise PopFreeze
 (* begin
   if !verbose > 2 then begin
      prerr_string "unfreeze in pop_out" ;
@@ -1217,7 +1217,7 @@ let rec do_try_open_block s =
     prerr_flags ("<= try open ``"^string_of_block s^"''")
       ;;
 
-let try_open_block s args =
+let try_open_block s _ =
   push stacks.s_insert_attr flags.insert_attr ;
   begin match flags.insert_attr with
   | Some (TR,_) when s <> TR -> ()
@@ -1405,7 +1405,6 @@ let rec force_block s content =
   let true_s = if s = FORGET then pblock() else s in
   let insert = flags.insert
   and insert_attr = flags.insert_attr
-  and was_nostyle = !cur_out.nostyle
   and was_top = !cur_out.top in
 
   do_close_mods () ;

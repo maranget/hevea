@@ -11,7 +11,7 @@
 (***********************************************************************)
 (* <Christian.Queinnec@lip6.fr>
  The plugin for HeVeA that implements the VideoC style.
- $Id: videoc.mll,v 1.26 2001-05-25 12:37:35 maranget Exp $ 
+ $Id: videoc.mll,v 1.27 2004-11-26 13:13:05 maranget Exp $ 
 *)
 
 {
@@ -35,7 +35,7 @@ open Scan
 
 
 let header = 
-  "$Id: videoc.mll,v 1.26 2001-05-25 12:37:35 maranget Exp $"
+  "$Id: videoc.mll,v 1.27 2004-11-26 13:13:05 maranget Exp $"
 (* So I can synchronize my changes from Luc's ones *)
 let qnc_header = 
   "30 oct 2000"
@@ -429,7 +429,7 @@ and do_vicendanchor lexbuf = begin
 end
 
 and do_vicindex lexbuf = begin
-  let nfn = Lexstate.save_opt "0,filename,notename" lexbuf in
+  let _nfn = Lexstate.save_opt "0,filename,notename" lexbuf in
   Dest.put_char ' ';
   ()
 end  

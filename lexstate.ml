@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: lexstate.ml,v 1.62 2004-06-11 13:35:33 thakur Exp $"
+let header = "$Id: lexstate.ml,v 1.63 2004-11-26 13:13:05 maranget Exp $"
 
 open Misc
 open Lexing
@@ -519,7 +519,7 @@ let rec parse_args_norm pat lexbuf = match pat with
 | s :: pat when not (norm_arg s) ->
     Save.skip_delim s lexbuf ;
     parse_args_norm pat lexbuf
-| s :: pat ->
+| _ :: pat ->
     let arg = save_arg lexbuf in
     let r = parse_args_norm pat lexbuf in
     arg :: r

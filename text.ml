@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.62 2004-07-27 01:24:50 thakur Exp $"
+let header = "$Id: text.ml,v 1.63 2004-11-26 13:13:05 maranget Exp $"
 
 
 open Misc
@@ -155,7 +155,7 @@ let pretty_stack s =
 
 let rec pop_out s = match pop s with
   Normal (a,b,c) -> a,b,c
-| Freeze f       -> raise PopFreeze
+| Freeze _       -> raise PopFreeze
 ;;
 
 let free_list = ref [];;
@@ -194,7 +194,7 @@ let set_out out =
   !cur_out.out <- out
 ;;
 
-let newstatus nostyle p a t = match !free_list with
+let newstatus nostyle _ a t = match !free_list with
   [] ->
     { nostyle = nostyle;
       active = a;
@@ -692,7 +692,7 @@ let close_mod () = match !cur_out.active with
 | _ -> ()
 ;;
 
-let erase_mods ml = ()
+let erase_mods _ = ()
 ;;
 
 let rec open_mods = function
@@ -706,7 +706,7 @@ let close_mods () =
 ;;
 
 let par = function (*Nombre de lignes a sauter avant le prochain put*)
-  | Some n as p->
+  | Some n ->
       begin
 	flags.pending_par <-
 	  (match pblock() with
@@ -957,7 +957,6 @@ let do_item isnum =
     prerr_string "do_item: stack=";
     pretty_stack out_stack
   end;
-  let mods = !cur_out.active in
   if flags.nitems = 0 then begin let _ = forget_par () in () end ;
   try_flush_par () ;
   flags.nitems<-flags.nitems+1;
@@ -980,7 +979,6 @@ let ditem scan arg =
     pretty_stack out_stack
   end;
   
-  let mods = !cur_out.active in
   let true_scan =
     if flags.nitems = 0 then begin
       let _ = forget_par() in ();

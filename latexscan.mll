@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.245 2004-07-29 15:12:29 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.246 2004-11-26 13:13:05 maranget Exp $ *)
 
 
 {
@@ -2509,7 +2509,6 @@ def_code "\\@footnoteflush"
 
 def_code "\\begin"
   (fun lexbuf ->
-    let cur_subst = get_subst () in
     let env = get_prim_arg lexbuf in
     new_env env ;
     top_open_block "" "" ;

@@ -10,7 +10,7 @@
 (***********************************************************************)
 
 
-let header = "$Id: html.ml,v 1.87 2004-07-27 01:24:47 thakur Exp $" 
+let header = "$Id: html.ml,v 1.88 2004-11-26 13:13:05 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -475,7 +475,7 @@ let put_close_group () =
 
 
 let open_table border htmlargs =
-  let table,arg_b, arg =
+  let _,arg_b, arg =
     if flags.in_math && !Parse_opts.mathml then
       "mtable","frame = \"solid\"",""
     else "TABLE","BORDER=1",htmlargs
@@ -502,7 +502,9 @@ and as_colspan_mathml = function
   |  n -> " columnspan= \""^string_of_int n^"\""
 
 let as_align f span = match f with
-  Tabular.Align {Tabular.vert=v ; Tabular.hor=h ; Tabular.wrap=w ; Tabular.width=size} ->
+  Tabular.Align
+    {Tabular.vert=v ; Tabular.hor=h ;
+     Tabular.wrap=w ; Tabular.width=_} ->
     attribut "VALIGN" v^
     attribut "ALIGN" h^
     (if w then "" else " NOWRAP")^
@@ -511,7 +513,9 @@ let as_align f span = match f with
 ;;
 
 let as_align_mathml f span = match f with
-  Tabular.Align {Tabular.vert=v ; Tabular.hor=h ; Tabular.wrap=w ; Tabular.width=size} ->
+  Tabular.Align
+    {Tabular.vert=v ; Tabular.hor=h ;
+     Tabular.wrap=w ; Tabular.width=_} ->
     attribut "rowalign" ("\""^v^"\"")^
     attribut "columnalign" ("\""^h^"\"")^
     as_colspan_mathml span
@@ -524,7 +528,7 @@ let open_direct_cell attrs span =
     open_display ()
   end else open_block TD (attrs^as_colspan span)
 
-let open_cell format span i= 
+let open_cell format span _= 
   if flags.in_math && !Parse_opts.mathml then begin
     open_block (OTHER "mtd") (as_align_mathml format span);
     open_display ()
@@ -567,7 +571,8 @@ let close_table () =
     close_block (OTHER "mtable")
   else close_block TABLE
 ;;
-let make_border s = ()
+
+let make_border _ = ()
 ;;
 
 
@@ -610,9 +615,9 @@ let make_hline w noborder =
   end
 ;;
 
-let infomenu arg = ()
-and infonode opt num arg = ()
-and infoextranode num arg text = ()
+let infomenu _ = ()
+and infonode _opt _num _arg = ()
+and infoextranode _num _arg _text = ()
 ;;
 
 

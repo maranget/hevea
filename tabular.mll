@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: tabular.mll,v 1.28 2002-09-05 13:15:14 maranget Exp $ *)
+(* $Id: tabular.mll,v 1.29 2004-11-26 13:13:05 maranget Exp $ *)
 {
 open Misc
 open Lexing
@@ -115,7 +115,7 @@ rule tfone = parse
     tfone lexbuf ;
     try
       apply out_table (function
-        |  Align a as r ->
+        |  Align a ->
             a.pre <- concat_pre_post pre a.pre ;
         | _ -> raise (Error "Bad syntax in array argument (>)"))
     with Table.Empty ->

@@ -18,7 +18,7 @@ open Lexstate
 open Stack
 
 (* Compute functions *)
-let header = "$Id: get.mll,v 1.24 2001-02-12 10:05:29 maranget Exp $"
+let header = "$Id: get.mll,v 1.25 2004-11-26 13:13:05 maranget Exp $"
 
 exception Error of string
 
@@ -26,8 +26,8 @@ let sbool = function
   | true -> "true"
   | false -> "false"
 
-let get_this = ref (fun s -> assert false)
-and get_fun = ref (fun f lexbuf -> assert false)
+let get_this = ref (fun _ -> assert false)
+and get_fun = ref (fun _f _lexbuf -> assert false)
 and open_env = ref (fun _ -> ())
 and close_env = ref (fun _ -> ())
 and get_csname = ref (fun _ -> assert false)
@@ -346,7 +346,7 @@ let def_commands_bool () =
               Latexmacros.Failed -> true  in
             push bool_stack b) ;
         "\\isodd",
-        (fun lexbuf ->
+        (fun _lexbuf ->
           close_ngroups 3 ;
           open_aftergroup
             (fun () ->

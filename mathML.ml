@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: mathML.ml,v 1.20 2004-07-22 18:55:05 thakur Exp $" 
+let header = "$Id: mathML.ml,v 1.21 2004-11-26 13:13:05 maranget Exp $" 
 
 
 open Misc
@@ -123,7 +123,7 @@ and close_display () =
 let open_display_varg _ = open_display ()
 
   
-let do_item_display force =
+let do_item_display _force =
   if !verbose > 2 then begin
     prerr_endline ("Item Display ncols="^string_of_int flags.ncols^" table_inside="^sbool flags.table_inside)
   end ;
@@ -165,7 +165,7 @@ let open_maths display =
   open_display ();
 ;;
 
-let close_maths display =
+let close_maths _display =
   if !verbose >1 then prerr_endline "=> close_maths";
   close_display ();
   close_display ();
@@ -305,7 +305,7 @@ and is_close () =
     true
 
 and close_delim () =
-  let f, is_freeze = pop_freeze () in
+  let _, is_freeze = pop_freeze () in
   if is_freeze then begin
     close_display ();
   end else begin
@@ -430,9 +430,9 @@ let standard_sup_sub scanner what sup sub display =
   if !verbose > 1 then
     Printf.eprintf "STANDARD «%s, %s» display=%B\n"
       sup.Lexstate.arg sub.Lexstate.arg display ;
-  let sup, fsup =
+  let sup, _ =
     hidden_to_string (fun () -> put_sup_sub display scanner sup) in
-  let sub,fsub =
+  let sub,_ =
     hidden_to_string (fun () -> put_sup_sub display scanner sub) in
   if !verbose > 1 then
     Printf.eprintf "STANDARD FORMAT «%s, %s»\n" sup sub ;
@@ -469,9 +469,9 @@ let standard_sup_sub scanner what sup sub display =
 let limit_sup_sub scanner what sup sub display =
   if !verbose > 1 then
     Printf.eprintf "STANDARD «%s, %s»\n" sup.Lexstate.arg sub.Lexstate.arg ;
-  let sup, fsup =
+  let sup, _ =
     hidden_to_string (fun () -> put_sup_sub display scanner sup) in
-  let sub,fsub =
+  let sub, _ =
     hidden_to_string (fun () -> put_sup_sub display scanner sub) in
   match sub,sup with
   | "","" -> what ()
@@ -501,7 +501,7 @@ let limit_sup_sub scanner what sup sub display =
       close_block (OTHER "munderover") ;
 ;;
 
-let int_sup_sub something vsize scanner what sup sub display =
+let int_sup_sub _something _vsize scanner what sup sub display =
   standard_sup_sub scanner what sup sub display
 ;;
 
@@ -509,7 +509,7 @@ let int_sup_sub something vsize scanner what sup sub display =
 let over display lexbuf =
  if display then begin
     force_item_display ();
-    let mods = insert_vdisplay
+    let _mods = insert_vdisplay
         (fun () ->
           open_block (OTHER "mfrac") "";
 	  open_display ()) in
@@ -528,9 +528,9 @@ let over display lexbuf =
   end
 ;;
 
-let box_around_display scanner arg = ();;
+let box_around_display _scanner _arg = ();;
 
-let over_align align1 align2 display lexbuf = over display lexbuf
+let over_align _align1 _align2 display lexbuf = over display lexbuf
 ;;
 
 let tr = function

@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: verb.mll,v 1.63 2004-10-08 15:56:59 maranget Exp $            *)
+(*  $Id: verb.mll,v 1.64 2004-11-26 13:13:05 maranget Exp $            *)
 (***********************************************************************)
 {
 exception VError of string
@@ -35,8 +35,7 @@ let input_verb = ref false
 ;;
 
 (* For scanning by line *)
-let verb_delim = ref (Char.chr 0)
-and line_buff = Out.create_buff ()
+let line_buff = Out.create_buff ()
 and process = ref (fun () -> ())
 and finish = ref (fun () -> ())
 ;;
@@ -381,7 +380,7 @@ exception EndVerb
 
 let lst_process_end  endstring old_process lb lxm =
 if !verbose > 1 then
- Printf.fprintf stderr "process_end: ``%c''\n" lxm ;
+ Printf.fprintf stderr "process_end: «%c»\n" lxm ;
   if
     (not !input_verb || Stack.empty stack_lexbuf)
       && if_next_string endstring lb then begin
@@ -427,21 +426,41 @@ let rec restore_char_table to_restore =
         do_rec rest in
   do_rec to_restore
 
-let lst_bs_string old_process lb lxm =
+let lst_bs_string process_c c old_process lb lxm =
+  if !verbose > 1 then begin
+    Printf.eprintf "lst_bs_string: «%c»\n" lxm
+  end ;
+
+(* Processs backslash, as usual *)
   old_process lb lxm ;
+
+(* Change char_tables for backshalsh and c *)
   let saved = Array.copy lst_char_table in
-  let process_quoted _ lxm =
-    lst_put lxm ;
-    Array.blit saved 0 lst_char_table 0 (Array.length saved) in
-  Array.fill lst_char_table 0 (Array.length lst_char_table) process_quoted
+
+  let restore_lst_char_table () =
+    Array.blit saved 0 lst_char_table 0 (Array.length saved)  in
+
+  lst_char_table.(Char.code lxm) <- old_process ;
+  lst_char_table.(Char.code c) <- process_c ;
+(* Change all entries in  char_table, -> restore table once the
+   backslashed char is processed *)
+   for i = 0 to Array.length lst_char_table-1 do
+     let do_process = lst_char_table.(i) in
+     lst_char_table.(i) <-
+        (fun lb lxm ->
+          do_process lb lxm ;
+          restore_lst_char_table ())
+   done
   
 
-let lst_init_quote s =
+      
+(* c is the character to be quoted *)
+let lst_init_quote old_process c s =
   let r = ref [] in
   for i = 0 to String.length s-1 do
     if s.[i] = 'b' then begin
       r := ('\\',lst_char_table.(Char.code '\\')) :: !r ;
-      lst_init_save_char '\\' lst_bs_string
+      lst_init_save_char '\\' (lst_bs_string old_process c)
     end
   done ;
   !r 
@@ -449,7 +468,7 @@ let lst_init_quote s =
 let lst_process_stringizer quote old_process lb lxm = match !lst_top_mode with
   | Normal ->
       lst_output_token () ;
-      let to_restore = lst_init_quote quote in
+      let to_restore = lst_init_quote old_process lxm quote in
       lst_top_mode := String (lxm, to_restore) ;
       lst_save_spaces := !lst_effective_spaces ;
       lst_effective_spaces := !lst_string_spaces ;
@@ -562,34 +581,29 @@ let lst_process_LC s old_process lb c = match !lst_top_mode with
 } 
 
 
-rule inverb = parse
-|  _
-    {(fun put -> let c = lexeme_char lexbuf 0 in
-    if c = !verb_delim then begin
+rule inverb verb_delim put = parse
+|  (_ as c)
+    {if c = verb_delim then begin
       Dest.close_group () ;
     end else begin
       put c ;
-      inverb lexbuf put
-    end)}
+      inverb verb_delim put lexbuf
+    end}
 | eof
-    {(fun put -> if not (empty stack_lexbuf) then
+    {if not (empty stack_lexbuf) then
       let lexbuf = previous_lexbuf () in
-      inverb lexbuf put
+      inverb verb_delim put lexbuf
     else
-      raise (VError ("End of file after \\verb")))}
+      raise (VError ("End of file after \\verb"))}
 
-and start_inverb = parse
-| _
-    {(fun put -> let c = lexeme_char lexbuf 0 in
-    verb_delim := c ;
-    inverb lexbuf put)}
+and start_inverb put = parse
+| (_ as c) {inverb c put lexbuf}
 | eof
-    {(fun put ->
-      if not (empty stack_lexbuf) then
+    {if not (empty stack_lexbuf) then
         let lexbuf = previous_lexbuf () in
-        start_inverb lexbuf put
+        start_inverb put lexbuf
       else
-        raise (VError ("End of file after \\verb")))}
+        raise (VError ("End of file after \\verb"))}
 
 and scan_byline = parse
     "\\end" [' ''\t']* '{' [^'}']+ '}'
@@ -632,9 +646,8 @@ and listings = parse
       raise
         (Eof "listings")
     end}
-| _
-    {let lxm = lexeme_char lexbuf 0 in
-    lst_char_table.(Char.code lxm) lexbuf lxm ;
+| (_ as lxm)
+    {lst_char_table.(Char.code lxm) lexbuf lxm ;
     listings lexbuf}
 
 and eat_line = parse
@@ -690,7 +703,7 @@ and put_char = function
 
 let open_verb put lexbuf =
   Dest.open_group "CODE" ;
-  start_inverb lexbuf put
+  start_inverb put lexbuf
 ;;
   
 def_code "\\verb" (open_verb (fun c -> Dest.put (Dest.iso c)));
@@ -888,7 +901,6 @@ let open_listing start_arg inter_arg star =
   Scan.top_open_block "PRE" "" ;
   line := start_arg ;
   let first_line = ref true in
-  let inter = if inter_arg <= 0 then 1 else inter_arg in
   process := 
     (fun () ->
       if !first_line then begin
@@ -1202,7 +1214,6 @@ let lst_boolean lexbuf =
 def_code "\\@callopt"
     (fun lexbuf ->
       let csname = Scan.get_csname lexbuf in
-      let old_raw = !raw_chars in
       let all_arg = get_prim_arg lexbuf in
       let lexarg = Lexing.from_string all_arg in
       let opt = Subst.subst_opt "" lexarg in

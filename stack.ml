@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: stack.ml,v 1.8 2001-05-28 17:28:56 maranget Exp $             *)
+(*  $Id: stack.ml,v 1.9 2004-11-26 13:13:05 maranget Exp $             *)
 (***********************************************************************)
 exception Fatal of string
 
@@ -67,7 +67,7 @@ let empty_saved = []
 and save {l=l} = l
 and restore s x = s.l <- x
 
-let finalize {l=now ;  name=name} p f =
+let finalize {l=now} p f =
   let rec f_rec = function
     | [] -> ()
     | nx::n -> 

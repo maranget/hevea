@@ -12,7 +12,7 @@
 {
 open Lexing
 open Stack
-let header = "$Id: cut.mll,v 1.41 2004-09-03 12:31:16 maranget Exp $" 
+let header = "$Id: cut.mll,v 1.42 2004-11-26 13:13:05 maranget Exp $" 
 
 let verbose = ref 0
 
@@ -678,8 +678,7 @@ and save_html = parse
 
 and collect_header = parse
 | "</HEAD>"
-    {let lxm = lexeme lexbuf in
-    finalize_header () ;
+    {finalize_header () ;
     if !verbose > 0 then begin
       prerr_string "Header is: ``" ;
       prerr_string !common_headers ;
