@@ -85,7 +85,7 @@
   {\footnotemark[#1]\footnotetext[#1]{#2}}}
 \newenvironment{thefootnotes}[1]
   {{\@nostyle\@print{<!--BEGIN NOTES }#1\@print{-->
-}}\footnoterule\begin{list}[]{}{\renewcommand{\makelabel}[1]{\@subst{##1}}}}
+}}\footnoterule\begin{list}[]{}{\renewcommand{\makelabel}[1]{##1}}}
   {\end{list}{\@nostyle\@print{
 <!--END NOTES-->
 }}}

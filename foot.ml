@@ -21,7 +21,7 @@ module type T =
 module MakeFoot ( Dest : OutManager.S )=
 struct
 
-let header = "$Id: foot.ml,v 1.12 1999-08-17 13:26:31 maranget Exp $" 
+let header = "$Id: foot.ml,v 1.13 1999-08-30 07:30:33 maranget Exp $" 
 open Parse_opts
 (*open Dest*)
 
@@ -83,7 +83,7 @@ let flush lexer sec_notes sec_here =
         Dest.ditem (fun s ->
           lexer ("\\@openanchor{text}{note}{"^string_of_int anchor^"}") ;
           lexer s ;
-          lexer "\\@closeanchor") themark ;
+          lexer "\\@closeanchor") ("\@print{"^themark^"}") ;
         Dest.put text)
       !all ;
     lexer "\\end{thefootnotes}" ;

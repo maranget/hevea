@@ -44,7 +44,7 @@ open Tabular
 open Lexstate
 
 
-let header = "$Id: latexscan.mll,v 1.124 1999-08-20 13:44:15 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.125 1999-08-30 07:30:33 maranget Exp $" 
 
 
 let sbool = function
@@ -1259,7 +1259,7 @@ and subst = parse
     subst lexbuf}
 | '#' '#'
     {Out.put_char subst_buff '#' ; subst lexbuf}
-|  "\\#" | '\\' | [^'\\' '#']+
+|  "\\#" | '#' | '\\' | [^'\\' '#']+
     {Out.put subst_buff (lexeme lexbuf) ; subst lexbuf}
 |  eof {()}
 
