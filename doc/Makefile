@@ -51,7 +51,7 @@ info: manual.inf tmp.tex
 install:
 	-mkdir $(DOCDIR)
 	cp iso.html symbol.html index.html manual[0-9][0-9][0-9].html *.gif $(DOCDIR)
-	cp ../html/urlhref.hav $(DOCDIR)
+	cp ../html/urlhref.hva $(DOCDIR)
 ############# Release stuff
 VERSIONFILE=../version.ml
 devversion::
