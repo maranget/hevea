@@ -88,5 +88,37 @@ En ligne~: \lstinline!var i:integer!.
     end;
 \end{lstlisting}
 
+\section*{Line numbers}
+\begin{lstlisting}[firstnumber=100, numbers=left, stepnumber=2]
+  for i := 0 to maxtint do
+  begin
+   { do nothing }
+  end
+\end{lstlisting}
+And we continue the listing:
+\begin{lstlisting}[firstnumber=last, numbers=left, stepnumber=2]
+Write('Case insensitive') ;
+WritE('Pascal keywords') ;
+\end{lstlisting}
+
+\begin{lstlisting}[name=Test, numbers=left]
+  for i := 0 to maxtint do
+  begin
+   { do nothing }
+  end
+\end{lstlisting}
+And we continue the listing:
+\begin{lstlisting}[name=Test, numbers=left]
+Write('Case insensitive') ;
+WritE('Pascal keywords') ;
+\end{lstlisting}
+
+\section*{Layout elements}
+\begin{lstlisting}[frame=single]
+  for i := 0 to maxtint do
+  begin
+   { do nothing }
+  end
+\end{lstlisting}
 \end{document}
 

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.225 2002-08-28 08:02:08 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.226 2002-11-05 09:35:15 maranget Exp $ *)
 
 
 {
@@ -2215,10 +2215,14 @@ let def_and_register name f =
   def name zero_pat (CamlCode f)
 ;;
 
+let tbool  = function
+  | true ->  "+"
+  | false -> "-"
+
 let tverb name cell lexbuf =
   if !verbose > 1 then
   Printf.fprintf stderr
-    "Testing %s -> %b\n" name !cell ;
+    "Testing %s -> %s\n" name (tbool !cell) ;
   testif cell lexbuf
 ;;
 

@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: subst.mll,v 1.15 2002-04-29 14:31:03 maranget Exp $           *)
+(*  $Id: subst.mll,v 1.16 2002-11-05 09:35:15 maranget Exp $           *)
 (***********************************************************************)
 {
 open Misc
@@ -21,9 +21,8 @@ let subst_buff = Out.create_buff ()
 let command_name = '\\' ((['@''A'-'Z' 'a'-'z']+ '*'?) | [^ 'A'-'Z' 'a'-'z'])
 
 rule subst = parse
-| '#' ['1'-'9']
-    {let lxm = lexeme lexbuf in
-    if is_plain '#' then begin
+| '#' ['1'-'9'] as lxm
+    {if is_plain '#' then begin
       let i = Char.code (lxm.[1]) - Char.code '1' in
       scan_arg
         (fun arg -> scan_this_arg subst arg) i
@@ -31,17 +30,15 @@ rule subst = parse
       Out.put subst_buff lxm ;
     subst lexbuf}
 | '#' '#'
-    {let lxm = lexeme lexbuf in    
-    if is_plain '#' then
+    {if is_plain '#' then
       Out.put_char subst_buff '#'
     else
-      Out.put subst_buff lxm ;
+      Out.put subst_buff "##" ;
     subst lexbuf}
 |  "\\#" | '\\' | [^'\\' '#']+
     {Out.blit subst_buff lexbuf ; subst lexbuf}
-| "\\@print"
-    {let lxm = lexeme lexbuf in
-    Save.start_echo () ;
+| "\\@print" as lxm
+    {Save.start_echo () ;
     let _ = Save.arg lexbuf in
     let real_arg = Save.get_echo () in
     Out.put subst_buff lxm ;
@@ -54,9 +51,8 @@ rule subst = parse
 | "" {raise (Error "Empty lexeme in subst")}
 
 and do_translate = parse
-| "\\@print"
+| "\\@print" as lxm
     {fun f ->
-      let lxm = lexeme lexbuf in
       Save.start_echo () ;
       let _ = Save.arg lexbuf in
       let real_arg = Save.get_echo () in
@@ -67,9 +63,9 @@ and do_translate = parse
     {fun f ->
       Out.blit subst_buff lexbuf ;
       do_translate lexbuf f}
-| _
+| _ as lxm
     {fun f ->
-      Out.put_char subst_buff (f (Lexing.lexeme_char lexbuf 0)) ;
+      Out.put_char subst_buff (f lxm) ;
       do_translate lexbuf f}
 | eof {fun _ -> Out.to_string subst_buff}
 

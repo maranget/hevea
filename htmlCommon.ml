@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlCommon.ml,v 1.38 2002-06-04 11:37:06 maranget Exp $" 
+let header = "$Id: htmlCommon.ml,v 1.39 2002-11-05 09:35:15 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -172,6 +172,9 @@ let pretty_top_styles stderr {top_pending = pending ; top_active = active} =
     pretty_mods pending
     pretty_tmods active
 
+let tbool = function
+  | true -> "+"
+  | false -> "-"
 
 let pretty_top stderr = function
   | Nothing x -> Printf.fprintf stderr "Nothing %a"  pretty_top_styles x
@@ -180,7 +183,7 @@ let pretty_top stderr = function
   | ActivateClosed _ -> Printf.fprintf stderr "ActivateClosed"
   | NotMe -> Printf.fprintf stderr "NotMe"
   | Insert (b,active) ->
-      Printf.fprintf stderr "Insert %b %a" b pretty_mods active
+      Printf.fprintf stderr "Insert %s %a" (tbool b) pretty_mods active
 
 type status = {
   mutable nostyle : bool ;

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.40 2002-10-04 17:27:27 maranget Exp $    *)
+(*  $Id: package.ml,v 1.41 2002-11-05 09:35:15 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -125,7 +125,7 @@ and call_subst_opt lexbuf =
   let opt = try Save.opt lb with Save.NoOpt -> default in
   let rem = Save.remain lb in
   let exec = csname ^ "{" ^ opt ^ "}"  ^ rem  in
-  if !verbose > -1 then begin
+  if !verbose > 1 then begin
     prerr_string "\\@callsubstopt: " ;
     prerr_endline exec ;
   end ;

@@ -12,7 +12,7 @@
 {
 open Lexing
 open Stack
-let header = "$Id: cut.mll,v 1.37 2002-02-04 19:32:35 maranget Exp $" 
+let header = "$Id: cut.mll,v 1.38 2002-11-05 09:35:15 maranget Exp $" 
 
 let verbose = ref 0
 
@@ -470,6 +470,8 @@ and closeflow () =
 
 } 
 
+let secname = ['a'-'z' 'A'-'Z']+
+
   rule main = parse
 | "<!--HEVEA" [^'>']* "-->" '\n'?
     {let lxm = lexeme lexbuf in
@@ -512,9 +514,8 @@ and closeflow () =
     {let name = tocline lexbuf in
     change_name !outname name ;
     main lexbuf} 
-|  "<!--" ("TOC"|"toc") ' '+
-    {let arg = secname lexbuf in
-    let sn = 
+|  "<!--" ("TOC"|"toc") ' '+ (secname as arg)
+    {let sn = 
       if String.uppercase arg = "NOW" then !chapter
       else Section.value arg in
     let name = tocline lexbuf in
@@ -545,10 +546,11 @@ and closeflow () =
       open_section sn name
     end ;
     main lexbuf}     
-| "<!--CUT DEF" ' '+
-    {let chapter = Section.value (String.uppercase (secname lexbuf)) in
-    skip_blanks lexbuf;
-    let depth = intarg lexbuf in
+| "<!--CUT DEF" ' '+ (secname as name) ' '* (['0'-'9']+ as i_opt)?
+    {let chapter = Section.value (String.uppercase name) in
+    let depth = match i_opt with
+    | None -> !depth 
+    | Some s -> int_of_string s in
     skip_endcom lexbuf ;
     save_state chapter depth ;
     cur_level := Section.value "DOCUMENT" ;
@@ -565,9 +567,8 @@ and closeflow () =
     {close_all () ;
       restore_state () ;
       main lexbuf}
-| "<!--BEGIN" ' '+ "NOTES" ' '+
-    {let sec_notes = secname lexbuf in
-    skip_endcom lexbuf ;
+| "<!--BEGIN" ' '+ "NOTES" ' '+ (secname as sec_notes)
+    {skip_endcom lexbuf ;
     open_notes (Section.value sec_notes) ;     
     main lexbuf}
 | "<!--END" ' '+ "NOTES" ' '* "-->" '\n'?
@@ -636,9 +637,8 @@ and closeflow () =
     if !phase > 0 then begin
       close_top lxm
     end}
-|  _
-    {let lxm = lexeme_char lexbuf 0 in
-    if !phase > 0 then put_char lxm ;
+|  _ as lxm
+    {if !phase > 0 then put_char lxm ;
     main lexbuf}
 | eof
     {raise (Error ("No </BODY> tag in input file"))}
@@ -670,9 +670,8 @@ and collect_header = parse
 | "<TITLE" [^'>']* '>'
     {skip_title lexbuf ;
       collect_header lexbuf}
-| _
-    {let lxm = lexeme_char lexbuf 0 in
-    adjoin_to_header_char lxm;
+| _ as lxm
+    {adjoin_to_header_char lxm;
     collect_header lexbuf}
 
 and skip_title = parse
@@ -688,14 +687,6 @@ and footer = parse
 | _   {footer lexbuf}
 | eof {raise (Misc.Fatal ("End of file in footer (no </BODY> tag)"))}
 
-and secname = parse
-    ['a'-'z' 'A'-'Z']+
-    {let r = lexeme lexbuf in r}
-| "" {raise (Error "Bad section name syntax")}
-
-and intarg = parse
-    ['0'-'9']+ {int_of_string (lexeme lexbuf)}
-| ""         {!depth}
 
 and tocline = parse
     "-->" '\n' ? {Out.to_string toc_buf}

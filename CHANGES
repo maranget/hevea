@@ -1,4 +1,5 @@
 version 1.06+1
+   - firstnumber=auto|last|nnn in listings.hva
    - started adding an example for listings (exlst.tex)
    - proper (?) implementation of emph classes in listings
      (some debug print left)
