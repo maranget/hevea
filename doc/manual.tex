@@ -1497,12 +1497,16 @@ They accept an optional argument and have starred versions.
 The non-starred sectionning commands show a section numbers in sectional
 unit headings,
 from \verb+\part+ down to \verb+\subsubsection+.
-This behavoir cannot be changed and
+This behavior cannot be changed and
 the \verb+secnumdepth+ counter does not exist.
 However, given a sectionnal unit {\it secname}, the counter
 {\it secname} exists and
 the appearance of sectional units numbers can be changed
 by redefining \verb+\the+{\it secname}.
+
+Sectionning commands output \html{} comments targeted to \hacha, for
+cutting the document at various sectionnal units, see
+section~\ref{hacha} for details.
 
 
 \subsection{The Appendix}
@@ -1568,7 +1572,7 @@ Displayed-paragraph environments translate to block-level
 \html-elements.
 
 \subsection{Quotation and Verse}
-The \verb+quote+ and \verb+quotation+ are the same thing: the
+The \verb+quote+ and \verb+quotation+ are the same thing: they
 translate to \verb+<BLOCKQUOTE>+ elements.
 The \verb+verse+ environment is not supported.
 
@@ -2374,8 +2378,8 @@ More information on producing images can be found in section~\ref{imagen}.
 \section{Browser configuration}\label{browser}
 By default, \hevea{} insert non-standard font changes in its output,
 using the \verb+FACE=symbol+ attribute to the \verb+<FONT>+ element.
-The symbol font is the one available on the Linux RedHat X
-distribution and seems to be present on many X instalations.
+The symbol font is the one available on the Linux RedHat
+distribution and seems to be present on many Unix instalations.
 A good way to know whether your browser can show \hevea{} symbols or
 not is
 comparing figure~\ref{xfd} and the web page located at
