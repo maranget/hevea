@@ -16,7 +16,7 @@ open Myfiles
 open Latexmacros
 open Html
 
-let header = "$Id: latexscan.mll,v 1.51 1998-10-23 15:40:26 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.52 1998-10-26 16:23:18 maranget Exp $" 
 
 
 let prerr_args args =
@@ -1800,6 +1800,19 @@ rule  main = parse
           scan_this main "}" ;
           alltt := old ;
           main lexbuf
+(* Color package *)
+      |  "\\definecolor" ->
+          let clr = subst_arg subst lexbuf in
+          let mdl = subst_arg subst lexbuf in
+          let value = subst_arg subst lexbuf in
+          Color.define clr mdl value ;
+          main lexbuf
+      | "\\color" ->
+          let clr = subst_arg subst lexbuf in
+          let htmlval = Color.retrieve clr in
+          Html.open_mod (Color ("\"#"^htmlval^"\"")) ;
+          skip_blanks lexbuf ;
+          main lexbuf
 (* Bibliographies *)
       | "\\cite" ->
           let opt = save_opt "" lexbuf in
@@ -2146,7 +2159,7 @@ and inverb = parse
   end}
 
 and latexonly = parse
-   '%'+ ' '* ("END"|"end") ' '+ ("LATEX"|"latexonly")  [^'\n']* '\n'
+   '%'+ ' '* ("END"|"end") ' '+ ("LATEX"|"latex")  [^'\n']* '\n'
      {stop_other_scan main lexbuf}
 |  '%'
      {latex_comment lexbuf ; latexonly lexbuf}
@@ -2179,12 +2192,13 @@ and latex_comment = parse
 
 
 and image = parse
-  ".PE\n"
-     {Image.put ".PE\n" ; stop_other_scan main lexbuf}
-|  '%'+ ' '* ("END"|"end") ' '+ ("IMAGE"|"image")  [^'\n']* '\n'
+   '%'+ ' '* ("END"|"end") ' '+ ("IMAGE"|"image")  [^'\n']* '\n'
      {Image.put_char '\n' ; stop_other_scan main lexbuf}
 |  '%'
-     {image_comment lexbuf ; image lexbuf}
+     {let lxm = lexeme lexbuf in
+     Image.put lxm ;
+     image_comment lexbuf ;
+     image lexbuf}
 (* Substitution in image *)
 | '#' ['1'-'9']
     {let lxm = lexeme lexbuf in

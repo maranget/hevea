@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: html.ml,v 1.28 1998-10-22 09:45:15 maranget Exp $" 
+let header = "$Id: html.ml,v 1.29 1998-10-26 16:23:15 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -612,15 +612,15 @@ let rec do_open_block s args = match s with
 
 let rec try_close_block s =
   if !verbose > 2 then
-    prerr_flags ("=> try close ``"^s^"''") ;
+    prerr_flags ("=> coucou try close ``"^s^"''") ;
   if s = "DISPLAY" then begin
     try_close_block "TR" ;
     try_close_block "TABLE"
   end else begin
     let ehere = flags.empty and ethere = pop "empty" empty_stack in
-    flags.empty <- ehere && ethere ;
+    flags.empty <- (ehere && ethere) ;
     let bhere = flags.blank and bthere = pop "blank" blank_stack in
-    flags.blank <- bhere && bthere ;
+    flags.blank <- (bhere && bthere) ;
     if s = "TABLE" then begin
       let p_vsize = pop "vsize" vsize_stack in
       flags.vsize <- max

@@ -1,13 +1,13 @@
-\documentclass[a4paper]{article}
+\documentclass{article}
+\usepackage{a4}
+\usepackage{fullpage}
 \usepackage{texnames}
 \usepackage{../html}
 \usepackage{isolatin1}
-\usepackage{a4wide}
 \usepackage{epsf}
 
 
 \renewcommand{\thepart}{\Alph{part}}
-\addtolength{\topmargin}{-2cm}
 \renewcommand{\numberline}[1]{#1\quad}
 %%%%%%%%%%%%%%%%%%%%
 \newcommand{\commandname}[1]{{\tt #1}}
@@ -350,12 +350,7 @@ output.
 
 
 \subsubsection{symbols}\label{symbols}
-Outputing symbols is performed using an \html{} extension:
-the non-standard \verb+FACE+ attribute to the \verb+FONT+
-element instruct the browser to switch to a symbol font.
-\hevea{} assumes this choice for the symbol font to be
-as shown by figure~\ref{xfd}.
-\begin{figure}[ht]
+\begin{figure}[h]
 \begin{center}
 %BEGIN LATEX
 \rule{0ex}{1ex}\epsfbox{xfd.ps}\rule{0ex}{1ex}
@@ -366,6 +361,12 @@ as shown by figure~\ref{xfd}.
 \end{center}
 \caption{\label{xfd} Symbol font in X}
 \end{figure}
+Outputing symbols is performed using an \html{} extension:
+the non-standard \verb+FACE+ attribute to the \verb+FONT+
+element instruct the browser to switch to a symbol font.
+\hevea{} assumes this choice for the symbol font to be
+as shown by figure~\ref{xfd}.
+
 
 A browser  correctly displays \hevea{} symbols when
 figure~\ref{xfd} resembles the \html{} page located
@@ -911,32 +912,6 @@ simple: it  suffices to invoke \hevea{} as follows:
 \verb+# hevea+ \filename{heveaonly}\ldots
 \end{flushleft}
 
-\subsection{Comments}
-\hevea{} processes all lines that start with \verb+%HEVEA+, while
-\LaTeX{} treats these lines as comments.
-
-As an example, this is how some text can be typeset in purple by
-\hevea{} and left alone by \LaTeX.
-\begin{verbatim}
-We get
-%HEVEA{\purple
-purple rain, purple rain%
-%HEVEA}%
-\ldots
-\end{verbatim}
-(Note how comments are placed at the end of some lines to avoid spurious spaces
-in the final output).
-
-We get:
-%HEVEA{\purple
-purple rain, purple rain%
-%HEVEA}%
-\ldots
-
-Some source can also be processed by \LaTeX{} and not by \hevea{} by
-enclosing it  between \verb+%BEGIN LATEX+
-and \verb+%END LATEX+ comments.
-
 
 \subsection{The \protect\texttt{html.sty} style file}
 The \texttt{html.sty} style file is intended to be loaded by \LaTeX{}
@@ -948,17 +923,24 @@ the \texttt{html.sty} file by default.
 
 \subsubsection{Selecting a translator}
 \hevea{} and \LaTeX{} perform the following actions on source inside
-the four \verb+latexonly+, \verb+\htmlonly+, \verb+rawhtml+
-\verb+toimage+ environments.
+the  \verb+latexonly+, \verb+verblatex+, \verb+htmlonly+, \verb+rawhtml+,
+\verb+toimage+ and \verb+verbimage+ environments:
 \begin{center}
-\begin{tabular}{l@{~}l@{\quad}l}\hline
+\begin{tabular}{l@{~}p{.5\linewidth}@{\quad}l}\hline
 environment & \multicolumn{1}{c}{\hevea} &  \multicolumn{1}{c}{\LaTeX}
 \\ \hline
-\verb+latexonly+ & ignore & process \\
+\verb+latexonly+ & ignore, (\verb+\end{+\textit{env}\verb+}+
+constructs are processed)  & process \\
+\verb+verblatex+ & ignore & process \\
 \verb+htmlonly+ & process & ignore \\
-\verb+rawhtml+   & echo verbatim & ignore\\
+\verb+rawhtml+  & echo verbatim & ignore\\
 \verb+toimage+&
-send to the \filename{image} file (see section~\ref{imagen})  & process\\
+send to the \filename{image} file, \verb+\end{+\textit{env}\verb+}+
+constructs and macro characters are processed (see section~\ref{imagen})  &
+process\\
+\verb+verbimage+&
+send to the \filename{image} file (see section~\ref{imagen})  &
+process\\
 \hline
 \end{tabular}
 \end{center}
@@ -1033,7 +1015,7 @@ substitution, however style changes are ignored in the
 ``\verb+HREF+'' option argument of the \verb+<A ...>+ elements.
 As a consequence one can safely write something like:
 \begin{verbatim}
-\mailto{Luc.Maranget@\texit{inria}.\texttt{fr}}
+\mailto{Luc.Maranget@\textit{inria}.\texttt{fr}}
 \end{verbatim}
 And one gets \mailto{Luc.Maranget@\textit{inria}.\texttt{fr}}.
 That is, one gets the following correct link:
@@ -1047,6 +1029,80 @@ Additionally, the \verb+\imageflush+ macro that controls included images
 control document cutting (see
 section~\ref{hacha})
 are defined as null macros.
+
+\subsection{Comments}
+\hevea{} processes all lines that start with \verb+%HEVEA+, while
+\LaTeX{} treats these lines as comments.
+
+As an example, this is how some text can be typeset in purple by
+\hevea{} and left alone by \LaTeX.
+\begin{verbatim}
+We get
+%HEVEA{\purple
+purple rain, purple rain%
+%HEVEA}%
+\ldots
+\end{verbatim}
+(Note how comments are placed at the end of some lines to avoid spurious spaces
+in the final output).
+
+We get:
+%HEVEA{\purple
+purple rain, purple rain%
+%HEVEA}%
+\ldots
+
+Moreover, comments provides an alternative to loading the
+\textit{html} package,
+since \LaTeX{} does not process comments by default.
+For instance, is some url is to appear only in
+the \html{} output, one can write:
+\begin{verbatim}
+Please, have a look at my home page%
+%HEVEA\ (\url{http://para.inria.fr/\home{maranget}/})
+.
+\end{verbatim}
+In \LaTeX{} one gets:
+\begin{latexout}
+\begin{showlatex}
+Please, have a look at my home page%
+%HEVEA\ (\oneurl{http://para.inria.fr/\home{maranget}/})
+.
+\end{showlatex}
+\end{latexout}
+\noindent While \html{} output is:
+\begin{htmlout}
+%HEVEA Please, have a look at my home page%
+%HEVEA~(\oneurl{http://para.inria.fr/\home{maranget}/}).
+%BEGIN LATEX
+\epsfbox{home.ps}
+%END LATEX
+\end{htmlout}
+Additionally, there are some comment equivalents for the
+\verb+latexonly+ and \verb+toimage+ environments.
+\begin{center}
+\begin{tabular}{ll}\hline
+\multicolumn{1}{c}{environment} & \multicolumn{1}{c}{comment
+equivalent}\\ \hline
+\verb+\begin{latexonly}+\ldots{} \verb+\end{latexonly}+ &
+\begin{tabular}{l}
+\verb+%BEGIN LATEX+ \\
+\ldots \\
+\verb+%END LATEX+
+\end{tabular}
+\\ & \\ \hline
+\verb+\begin{toimage}+\ldots{} \verb+\end{toimage}+ &
+\begin{tabular}{l}
+\verb+%BEGIN IMAGE+ \\
+\ldots \\
+\verb+%END IMAGE+
+\end{tabular}
+\end{tabular}
+\end{center}
+
+\noindent Thus, the ``have a look at my home page'' examples can also
+be written as follows:
+\begin{verbatim}
 
 
 \section{With a little help from \LaTeX}\label{imagen}
@@ -1261,7 +1317,7 @@ The \texttt{gpic} filter is applied first, then come \texttt{hevea}
 and \texttt{imagen}:
 \begin{verbatim}
 # gpic -t < smile.tex > tmp.tex
-# hevea tmp.tex -o smile.hml
+# hevea tmp.tex -o smile.html
 # imagen smile
 \end{verbatim}
 And we get:
@@ -1303,9 +1359,9 @@ own definition for the \verb+centergpic+ environment beforehand:
   {\begin{toimage}}
   {\box\graph\end{toimage}\begin{center}\imageflush\end{center}}
 \end{verbatim}
-Assuming the definition above is in a \texttt{smile.sty} file,
+Assuming the definition above is in a \url{../examples/smile.sty}{\texttt{smile.sty}} file,
 the command sequence for translating
-\url{../examples/smile.tex}{\textt{smile.tex}} now is:
+\url{../examples/smile.tex}{\texttt{smile.tex}} now is:
 \begin{verbatim}
 # gpic -t < smile.tex > tmp.tex
 # hevea smile.sty tmp.tex -o smile.html

@@ -2,6 +2,10 @@ html.cmi: latexmacros.cmi out.cmi
 latexscan.cmi: out.cmi 
 auxx.cmo: location.cmi myfiles.cmi parse_opts.cmi save.cmi 
 auxx.cmx: location.cmx myfiles.cmx parse_opts.cmx save.cmx 
+color.cmo: colscan.cmi parse_opts.cmi color.cmi 
+color.cmx: colscan.cmx parse_opts.cmx color.cmi 
+colscan.cmo: out.cmi colscan.cmi 
+colscan.cmx: out.cmx colscan.cmi 
 counter.cmo: location.cmi counter.cmi 
 counter.cmx: location.cmx counter.cmi 
 cross.cmo: location.cmi cross.cmi 
@@ -32,12 +36,12 @@ latexmain.cmo: auxx.cmo html.cmi image.cmi latexscan.cmi location.cmi \
     myfiles.cmi out.cmi parse_opts.cmi save.cmi 
 latexmain.cmx: auxx.cmx html.cmx image.cmx latexscan.cmx location.cmx \
     myfiles.cmx out.cmx parse_opts.cmx save.cmx 
-latexscan.cmo: auxx.cmo counter.cmi foot.cmi html.cmi image.cmi index.cmi \
-    latexmacros.cmi length.cmi location.cmi myfiles.cmi mylib.cmi out.cmi \
-    parse_opts.cmi save.cmi symb.cmi latexscan.cmi 
-latexscan.cmx: auxx.cmx counter.cmx foot.cmx html.cmx image.cmx index.cmx \
-    latexmacros.cmx length.cmx location.cmx myfiles.cmx mylib.cmx out.cmx \
-    parse_opts.cmx save.cmx symb.cmx latexscan.cmi 
+latexscan.cmo: auxx.cmo color.cmi counter.cmi foot.cmi html.cmi image.cmi \
+    index.cmi latexmacros.cmi length.cmi location.cmi myfiles.cmi mylib.cmi \
+    out.cmi parse_opts.cmi save.cmi symb.cmi latexscan.cmi 
+latexscan.cmx: auxx.cmx color.cmx counter.cmx foot.cmx html.cmx image.cmx \
+    index.cmx latexmacros.cmx length.cmx location.cmx myfiles.cmx mylib.cmx \
+    out.cmx parse_opts.cmx save.cmx symb.cmx latexscan.cmi 
 length.cmo: length.cmi 
 length.cmx: length.cmi 
 location.cmo: location.cmi 

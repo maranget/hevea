@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmacros.ml,v 1.27 1998-10-23 15:40:24 maranget Exp $" 
+let header = "$Id: latexmacros.ml,v 1.28 1998-10-26 16:23:16 maranget Exp $" 
 open Parse_opts
 open Symb
 
@@ -311,13 +311,13 @@ def_macro "\\sim" 0 [Print "~"];;
 def_macro "\\simeq" 0
   [IfCond (display,
      [ItemDisplay ; Print "~<BR>-" ; ItemDisplay],
-     [Print "simeq"])];;
+     [Subst "\\textsimeq"])];;
 def_macro "\\approx" 0 [Print approx];;
 def_macro "\\neq" 0 [Print neq];;
 def_macro "\\doteq" 0
   [IfCond (display,
      [ItemDisplay ; Print ".<BR>=" ; ItemDisplay],
-     [Print "doteq"])];;
+     [Subst "\\textdoteq"])];;
 def_macro "\\propto" 0 [Print propto];;
 def_macro "\\perp" 0 [Print perp];;
 

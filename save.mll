@@ -12,7 +12,7 @@
 {
 open Lexing
 
-let header = "$Id: save.mll,v 1.21 1998-10-13 16:57:03 maranget Exp $" 
+let header = "$Id: save.mll,v 1.22 1998-10-26 16:23:20 maranget Exp $" 
 
 let verbose = ref 0 and silent = ref false
 ;;
@@ -94,15 +94,12 @@ and opt2 =  parse
       put_both_char s ; opt2 lexbuf }
 
 and arg = parse
-    ' '* '\n'? ' '* {put_echo (lexeme lexbuf) ; arg lexbuf}
+    ' '+   {put_echo (lexeme lexbuf) ; arg lexbuf}
+  | '\n'+  {put_echo (lexeme lexbuf) ; arg lexbuf}
   | '{'
       {incr brace_nesting;
       put_echo_char '{' ;
       arg2 lexbuf}
-(*  | '='?'-'?(['0'-'9']*'.')?(['0'-'9']+|'"'['A'-'E''0'-'9']+)
-    ("pt"|"cm"|"in"|"em"|"ex")?
-            {lexeme lexbuf}
-*)
   | '%' [^'\n']* '\n'
      {put_echo (lexeme lexbuf) ; arg lexbuf}
   | "\\box" '\\' (['A'-'Z' 'a'-'z']+ '*'? | [^ 'A'-'Z' 'a'-'z'])
@@ -140,8 +137,8 @@ and more_skip = parse
   {Out.to_string arg_buff}
 
 and sarg = parse
-  [^'{'] {lexeme lexbuf}
-| ""     {arg lexbuf}
+  [^'{'' '] {lexeme lexbuf}
+| ""        {arg lexbuf}
 
 and arg2 = parse
   '{'         

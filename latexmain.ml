@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmain.ml,v 1.20 1998-10-22 09:45:18 maranget Exp $" 
+let header = "$Id: latexmain.ml,v 1.21 1998-10-26 16:23:17 maranget Exp $" 
 
 open Parse_opts
 
@@ -105,7 +105,6 @@ let main () =
 begin try
   main ()
 with x -> begin
-  finalize false;
   Location.print_pos () ;
   prerr_endline "Adios" ;
   raise x
