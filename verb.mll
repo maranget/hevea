@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: verb.mll,v 1.56 2002-02-04 19:32:35 maranget Exp $            *)
+(*  $Id: verb.mll,v 1.57 2002-10-01 09:00:58 maranget Exp $            *)
 (***********************************************************************)
 {
 exception VError of string
@@ -1045,6 +1045,8 @@ let code_stringizer lexbuf =
 ;;
 
 let open_lst inline keys lab =
+  if lab <> "" then
+    def "\\lst@intname" zero_pat (CamlCode (fun _ -> Dest.put lab)) ;
   scan_this Scan.main ("\\lsthk@PreSet\\lstset{"^keys^"}") ;
 (* For inline *)
   if inline then
@@ -1156,10 +1158,12 @@ let init_listings () =
     (fun lexbuf ->
       Image.stop () ;
       let keys = Subst.subst_opt "" lexbuf in
-      let lab = Scan.get_prim_arg lexbuf in
+      let lab =
+        if Save.if_next_char '\n' lexbuf then
+          ""
+        else
+          Scan.get_prim_arg lexbuf in
       let lab = if lab = " " then "" else lab in
-      if lab <> "" then
-        def "\\lst@intname" zero_pat (CamlCode (fun _ -> Dest.put lab)) ;
       open_lst false keys lab ;
       scan_this Scan.main "\\lst@pre\\@open@lstbox" ;  
       scan_this Scan.main "\\lst@basic@style" ;

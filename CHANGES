@@ -1,4 +1,6 @@
 version 1.06+1
+   - key label in listings + ignore empty fst argument of env
+     listing + patch on initial line numbers
    - An attempt to follow << listings >> pace of developement
      all '*label*' keys are now '*numbers*' keys, snif.
    - Added bgcolor definition in hevea.sty, not very good

@@ -210,10 +210,12 @@
     {\@ifundefined{thelst@saved@\lst@intname}
       {0}
       {\value{lst@saved@\lst@intname}}}}
-\lst@AddToHook{PreSet}
-  {\@ifundefined{lst@intname}{\def\lst@firstline{1}}
-  {\@ifundefined{thelst@saved@\lst@intname}{\def\lst@firstline{1}}
-  {\def\lst@firstline{\csname thelst@saved@\lst@intname\endcsname+1}}}}
+\lst@AddToHook{Init}
+  {\@ifundefined{lst@firstline}
+    {\@ifundefined{lst@intname}{\def\lst@firstline{1}}
+    {\@ifundefined{thelst@saved@\lst@intname}{\def\lst@firstline{1}}
+    {\def\lst@firstline{\csname thelst@saved@\lst@intname\endcsname+1}}}}{}}
+\define@key{lst}{name}{\def\lst@intname{#1}}
 \define@key{lst}{firstlabel}{\def\lst@firstline{#1}}
 \define@key{lst}{firstnumber}{\def\lst@firstline{#1}}
 \define@key{lst}{advancelabel}{\def\lst@firstline{\lst@saved@lastline+#1+1}}
