@@ -1,6 +1,6 @@
 LATEX=latex
 HEVEA=hevea
-HEVEAOPTS=
+HEVEAOPTS=-fix
 IMAGEN=imagen
 HACHA=hacha
 EXDIR=$(HOME)/public_html/hevea/examples
@@ -16,7 +16,7 @@ opt:
 
 byte:
 	export HEVEADIR=.. ;\
-	$(MAKE) $(MFLAGS)  HEVEAOPTS="$(HEVEAOPTS)" HEVEA=../hevea.byte HACHA=../hacha.byte IMAGEN=../imagen all
+	$(MAKE) $(MFLAGS)  HEVEAOPTS="$(HEVEAOPTS)" HEVEA=../hevea.byte HACHA=../hacha.byte IMAGEN=../imagen html
 
 dvi: $(DVI)
 
@@ -46,7 +46,7 @@ tmp.aux tmp.bbl pat.dvi: tmp.tex
 	$(LATEX) tmp.tex < /dev/null
 	mv tmp.dvi pat.dvi
 
-tmp.html: tmp.tex pat.hva tmp.aux tmp.bbl 
+tmp.html: tmp.tex pat.hva tmp.bbl 
 	$(HEVEA) $(HEVEAOPTS) pat.hva -e pat.def tmp.tex
 	$(MAKE) $(MFLAGS) IMAGEN=$(IMAGEN) tmp001.gif
 
@@ -90,7 +90,7 @@ suite.dvi suite.aux: suite.tex
 	$(LATEX) < /dev/null suite.tex
 	$(LATEX) < /dev/null suite.tex
 
-suite.html: suite.tex suite.aux
+suite.html: suite.tex
 	$(HEVEA) $(HEVEAOPTS) suite.tex
 
 amstex.dvi: amstex.tex

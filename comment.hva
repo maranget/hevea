@@ -1,0 +1,4 @@
+\@beginpackage{comment}
+\@initprimitives{comment}
+\excludecomment{comment}
+\@endpackage{comment}

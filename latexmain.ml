@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmain.ml,v 1.57 1999-11-05 19:01:59 maranget Exp $" 
+let header = "$Id: latexmain.ml,v 1.58 1999-11-08 12:58:11 maranget Exp $" 
 
 open Misc
 open Parse_opts
@@ -63,9 +63,9 @@ let prerr_bug msg =
 
 let finalize check =
   try
-    image_finalize check ;
     let changed = Auxx.finalize check in
     let changed = Index.finalize check || changed  in
+    image_finalize check ;
     dest_finalize check ;
     if !verbose > 0 && Parse_opts.name_out <> "" then begin
       prerr_endline ("Output is in file: "^Parse_opts.name_out)
@@ -145,6 +145,10 @@ let main () =
           Counter.hot_start () ;
           Color.hot_start () ;
           Foot.hot_start () ;
+          begin match !Parse_opts.destination with
+          | Info -> InfoRef.hot_start ()
+          | _ -> ()
+          end ;
           Auxx.hot_start () ;
           Misc.message ("Run, run, again...") ;
           do_rec (i+1)

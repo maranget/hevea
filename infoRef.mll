@@ -10,7 +10,7 @@
 (***********************************************************************)
 
 {
-let header = "$Id: infoRef.mll,v 1.14 1999-11-05 19:01:54 maranget Exp $"
+let header = "$Id: infoRef.mll,v 1.15 1999-11-08 12:58:09 maranget Exp $"
 ;;
 
 
@@ -58,6 +58,24 @@ let counter = ref 0
 let cur_file = ref (Parse_opts.name_out^"-1")
 ;;
 let file_number = ref 1
+;;
+
+type label_t = {
+    mutable lab_name : string;
+    mutable noeud : node_t option;
+  };;
+
+let labels_list = ref [];;
+
+let hot_start () =
+  menu_list :=  [];
+  Hashtbl.clear nodes ;
+  current_node := None ;
+  menu_num := 0 ;
+  counter := 0 ;
+  cur_file := Parse_opts.name_out^"-1" ;
+  file_number :=  1 ;
+  labels_list := []
 ;;
 
 let infomenu arg =
@@ -147,12 +165,6 @@ let change_file() =
 ;;
 
 (* References *)
-type label_t = {
-    mutable lab_name : string;
-    mutable noeud : node_t option;
-  };;
-
-let labels_list = ref [];;
 
 let rec cherche_label s = function
   | [] -> raise Not_found
@@ -163,7 +175,7 @@ let loc_name s1 = (* pose un label *)
   let _ = 
     try 
       let _ = cherche_label s1 !labels_list in
-      Misc.warning ("Duplicate use of labels: "^s1)
+      Misc.warning ("Multiple use of label: "^s1)
     with Not_found -> ()
   in
 

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: cross.ml,v 1.7 1999-11-04 23:11:39 maranget Exp $" 
+let header = "$Id: cross.ml,v 1.8 1999-11-08 12:58:07 maranget Exp $" 
 let verbose = ref 0
 ;;
 
@@ -22,7 +22,7 @@ let add name file =
   try
     let _ = Hashtbl.find table name in
     Location.print_pos () ;
-    prerr_endline ("Warning, multiple defintions for anchor: "^name) ;
+    prerr_endline ("Warning, multiple definitions for anchor: "^name) ;
   with
   | Not_found ->
       Hashtbl.add table name file

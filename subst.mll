@@ -7,6 +7,7 @@ open Lexing
 let subst_buff = Out.create_buff ()
 ;;
 } 
+let command_name = '\\' (('@' ? ['A'-'Z' 'a'-'z']+ '*'?) | [^ 'A'-'Z' 'a'-'z'])
 
 rule subst = parse
 | '#' ['1'-'9']
@@ -26,6 +27,18 @@ rule subst = parse
     subst lexbuf}
 |  "\\#" | '\\' | [^'\\' '#']+
     {Out.put subst_buff (lexeme lexbuf) ; subst lexbuf}
+| "\\@print"
+    {let lxm = lexeme lexbuf in
+    Save.start_echo () ;
+    let _ = Save.arg lexbuf in
+    let real_arg = Save.get_echo () in
+    Out.put subst_buff lxm ;
+    Out.put subst_buff real_arg ;
+    subst lexbuf}
+|  command_name
+    {let lxm = lexeme lexbuf in
+    Out.put subst_buff lxm ;
+    subst lexbuf}
 |  eof {()}
 | "" {raise (Error "Empty lexeme in subst")}
 

@@ -11,7 +11,7 @@
 
 open Misc
 
-let header = "$Id: auxx.ml,v 1.3 1999-11-05 19:01:45 maranget Exp $" 
+let header = "$Id: auxx.ml,v 1.4 1999-11-08 12:58:05 maranget Exp $" 
 
 let rtable = Hashtbl.create 17
 ;;
@@ -45,6 +45,10 @@ and something = ref false
 and changed = ref false
 ;;
 
+let rseen = Hashtbl.create 17
+and bseen = Hashtbl.create 17
+;;
+
 let init base =
   let filename = base^".haux" in
   try
@@ -64,6 +68,16 @@ and finalize check =
       if not !something then
         Sys.remove !auxname;
       if check then begin
+        let check_disappear table seen =
+          Hashtbl.iter
+            (fun key _ ->
+              try Hashtbl.find seen key
+              with Not_found -> changed := true)
+            table in
+        if not !changed then begin
+          check_disappear rtable rseen ;
+          check_disappear btable bseen
+        end ;
         if !changed then
           Misc.message
             "HeVeA Warning: Label(s) may have changed. Rerun to get cross-references right." ;
@@ -87,9 +101,6 @@ let write table output_fun key pretty = match !auxfile with
     output_fun file
 ;;
 
-
-let rseen = Hashtbl.create 17
-and bseen = Hashtbl.create 17
 
 let bcheck key =
   try

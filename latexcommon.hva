@@ -192,7 +192,7 @@
 {\@stopoutput\@stopimage%
 \@iffileexists{\@basein.aux}
   {\input{\@basein.aux}}
-  {\input{\jobname.haux}\@hauxinit}%
+  {\@iffileexists{\jobname.haux}{\input{\jobname.haux}}{}\@hauxinit}%
 \@restartoutput\@restartimage}
 %%%%%%%%%%% Bibliography
 \def\bibliographystyle#1{}

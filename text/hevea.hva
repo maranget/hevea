@@ -41,7 +41,7 @@
 \newcommand{\@notetextstyle}[1]{~(#1)}
 \newcommand{\@notenotestyle}[1]{(#1)}
 \newenvironment{thefootnotes}[1]
-  {\footnoterule\begin{list}[]{}{\renewcommand{\makelabel}[1]{(##1)}}}
+  {\footnoterule\begin{list}[]{}{\renewcommand{\makelabel}[1]{##1}}}
   {\end{list}}
 %%%% Accents and special symbols.
 %%% for htmlcut
