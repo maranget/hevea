@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.59 2004-05-27 14:25:43 maranget Exp $"
+let header = "$Id: text.ml,v 1.60 2004-07-14 02:46:22 thakur Exp $"
 
 
 open Misc
@@ -1198,7 +1198,6 @@ let cell = ref {
 } 
 ;;
 
-
 let row= ref {
   haut = 0;
   cells = Tabl (Table.create  !cell)
@@ -1919,7 +1918,7 @@ and close_maths display =
     prerr_endline "close_maths";
 ;;
 
-
+let box_around_display lexbuf = ();;
 
 let open_vdisplay display = 
   open_table (!verbose>1) "";
@@ -2095,6 +2094,9 @@ let translate = function
 | "\\{" -> "{"
 | "\\}" -> "}"
 | s   -> s
+;;
+
+let over_align align1 align2 display lexbuf = over display lexbuf
 ;;
 
 let left delim k =

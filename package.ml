@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.61 2004-07-10 19:39:41 thakur Exp $    *)
+(*  $Id: package.ml,v 1.62 2004-07-14 02:46:22 thakur Exp $    *)
 
 module type S = sig  end
 
@@ -758,27 +758,49 @@ def_code "\\xrightarrow"
     let arg = save_arg lexbuf in
     Dest.open_block "TABLE" "border=0 cellpadding=0 cellspacing=0";
     Dest.open_block "SMALL" "" ;
-    
     Dest.open_block "TR" "" ;
+    Dest.open_block "TD" "" ;
+    Dest.put "&nbsp;&nbsp; " ;
+    Dest.close_block "TD" ;
     Dest.open_block "TD" "align=center valign=bottom" ;
     scan_this_arg Scan.main arg;
     Dest.close_block "TD" ;
+    Dest.open_block "TD" "color=black" ;
+    Dest.put "&nbsp;" ;
+    Dest.close_block "TD" ;
     Dest.close_block "TR" ;
+    Dest.close_block "SMALL";
 
     Dest.open_block "TR" "" ;
-    Dest.open_block "TD" "align=center style=\"font-size:7pt;\"" ;
-    Dest.put "&mdash;&mdash;&mdash;&mdash;&rarr" ;
+    Dest.open_block "TD" "ALIGN=right" ;
+    Dest.put ("<TABLE border=0 cellspacing=0 cellpadding=1 bgcolor=black "^
+	      "width=\"100%\"><TR><TD></TD></TR></TABLE>") ;
+    Dest.close_block "TD" ;
+    Dest.open_block "TD" "align=center" ;
+    Dest.put ("<TABLE border=0 cellspacing=0 cellpadding=1 bgcolor=black "^
+	      "width=\"100%\"><TR><TD></TD></TR></TABLE>") ;
+    Dest.close_block "TD" ;
+    Dest.open_block "TD" "ALIGN=left" ;
+    Dest.put "&gt" ;
     Dest.close_block "TD" ; 
     Dest.close_block "TR" ;
 
+    Dest.open_block "SMALL" "" ;
     Dest.open_block "TR" "" ;
+    Dest.open_block "TD" "" ;
+    Dest.put "&nbsp;" ;
+    Dest.close_block "TD" ;
     Dest.open_block "TD" "align=center valign=top" ;
     scan_this_arg Scan.main optarg;
+    Dest.close_block "TD" ;
+    Dest.open_block "TD" "" ;
+    Dest.put "&nbsp;" ;
     Dest.close_block "TD" ;
     Dest.close_block "TR" ;
     Dest.close_block "SMALL" ;
     Dest.close_block "TABLE")
 ;;
+
 
 def_code "\\xleftarrow"
   (fun lexbuf ->
@@ -805,6 +827,46 @@ def_code "\\xleftarrow"
     Dest.close_block "TD" ;
     Dest.close_block "TR" ;
     Dest.close_block "SMALL" ;
+    Dest.close_block "TABLE")
+;;
+*)
+(*
+def_code "\\cfrac"
+  (fun lexbuf ->
+    let optarg = save_opt "" lexbuf in
+    let arg_up = save_arg lexbuf in
+    let arg_down = save_arg lexbuf in
+    let opt_str = optarg.arg in
+    let align = match opt_str with
+      "l" -> "align=left"
+    | "r" -> "align=right"
+    | "" ->  "align=center"  
+    | _ -> "align=center" (* WARNING : need to give appropriate warning *) in
+    Dest.open_block "TABLE" "border=0 cellpadding=0 cellspacing=0";
+        
+    Dest.open_block "TR" "" ;
+    Dest.open_block "TD" (align^" valign=bottom") ;
+    scan_this_arg Scan.main arg_up;
+    Dest.close_block "TD" ;
+    Dest.close_block "TR" ;
+
+    Dest.open_block "TR" "" ;
+    Dest.open_block "TD" "bgcolor=black" ;
+    Dest.open_block "TABLE" 
+      "border=0 width=\"100%\" cellspacing=0 cellpadding=1" ;
+    Dest.open_block "TR" "" ;
+    Dest.open_block "TD" "";
+    Dest.close_block "TD" ; 
+    Dest.close_block "TR" ;
+    Dest.close_block "TABLE" ;
+    Dest.close_block "TD" ; 
+    Dest.close_block "TR" ;
+
+    Dest.open_block "TR" "" ;
+    Dest.open_block "TD" (align^" valign=top") ;
+    scan_this_arg Scan.main arg_down;
+    Dest.close_block "TD" ;
+    Dest.close_block "TR" ;
     Dest.close_block "TABLE")
 ;;
 *)
@@ -954,7 +1016,7 @@ let rec ntabs n = match n with
 
 let rec gen_tables pf = match pf with
     (AXIOM (s, h, linestyle)) -> 
-      (ntabs h)^"<TABLE ALIGN=center CELLSPACING=\"0\">"^(ntabs h)^"\n"^
+      (ntabs h)^"<TABLE CLASS=bussproofs ALIGN=center CELLSPACING=\"0\">"^(ntabs h)^"\n"^
       (ntabs h)^"  <TR>"^
       "\n"^(ntabs h)^"    <TD ALIGN=center>\n"^(ntabs h)^"      "^
       s^
@@ -962,7 +1024,7 @@ let rec gen_tables pf = match pf with
       "  </TR>\n"^(ntabs h)^"</TABLE>" 
 
   | (UNARY_INF (p, s, h, str1, str2, linestyle)) -> 
-      (ntabs h)^"<TABLE ALIGN=center CELLSPACING=\"0\">\n"^
+      (ntabs h)^"<TABLE CLASS=bussproofs ALIGN=center CELLSPACING=\"0\">\n"^
       (ntabs h)^"  <TR>\n"^(ntabs h)^"    <TD>&nbsp;</TD>\n"^(ntabs h)^
       "    <TD ALIGN=center VALIGN=bottom>\n"^ 
       (gen_tables p)^
@@ -981,7 +1043,7 @@ let rec gen_tables pf = match pf with
       (ntabs h)^"</TR>\n"^(ntabs h)^"</TABLE>"
 
   | (BINARY_INF (p1, p2, s, h, str1, str2, linestyle)) ->
-      (ntabs h)^"<TABLE ALIGN=center CELLSPACING=\"0\">\n"^(ntabs h)^
+      (ntabs h)^"<TABLE CLASS=bussproofs ALIGN=center CELLSPACING=\"0\">\n"^(ntabs h)^
       "  <TR>\n"^(ntabs h)^"    <TD>&nbsp;</TD>"^"\n"^(ntabs h)^
       "    <TD ALIGN=center VALIGN=bottom>\n"^ 
       (gen_tables p1)^
@@ -1004,7 +1066,7 @@ let rec gen_tables pf = match pf with
       (ntabs h)^"  </TR>\n"^(ntabs h)^"</TABLE>"
 
   | (TRINARY_INF (p1,p2,p3,s,h, str1, str2, linestyle)) -> 
-      (ntabs h)^"<TABLE ALIGN=center CELLSPACING=\"0\">\n"^(ntabs h)^
+      (ntabs h)^"<TABLE CLASS=bussproofs ALIGN=center CELLSPACING=\"0\">\n"^(ntabs h)^
       "  <TR>\n"^(ntabs h)^"    <TD>&nbsp;</TD>"^"\n"^(ntabs h)^
       "    <TD ALIGN=center VALIGN=bottom>\n"^ 
       (gen_tables p1)^
@@ -1040,12 +1102,11 @@ let rec gen_tables pf = match pf with
 *                                                           *
 ************************************************************)
 
-let start_table s =
+let start_table s1 s2=
   Dest.open_block "TABLE"
-    "style = \"text-align: center;\" border=\"0\" 
-     cellspacing=\"2\" cellpadding=\"1\"" ;
+    (s1^" ALIGN=center ")(*^"style = \"text-align: center;\" cellspacing=\"1\" cellpadding=\"1\""*) ;
   Dest.open_block "TR" "" ;
-  Dest.open_block "TD" s
+  Dest.open_block "TD" s2
 ;;
 
 let next_row () =
@@ -1212,7 +1273,7 @@ register_init "proof"
 	  let formatted2 = Scan.get_this_arg_mbox optarg2 in
 	  let arg3 = save_arg lexbuf in
 	  let arg4 = save_arg lexbuf in
-	  start_table "ALIGN=center" ;
+	  start_table "CLASS=proof" "ALIGN=center" ;
           def "\\@hevea@amper" zero_pat
 	    (CamlCode (fun _ ->  
 	      Dest.force_item_display (); 
@@ -1241,7 +1302,7 @@ register_init "proof"
 	  let formatted1 = Scan.get_this_arg_mbox optarg1 in
           let arg2 = save_arg lexbuf in
 	  let arg3 = save_arg lexbuf in
-	  start_table "ALIGN=center";
+	  start_table "CLASS=proof" "ALIGN=center";
           def "\\@hevea@amper" zero_pat
 	    (CamlCode (fun _ ->  
 	      Dest.force_item_display (); 
@@ -1269,7 +1330,7 @@ register_init "proof"
 	  let formatted1 = Scan.get_this_arg_mbox optarg1 in
           let arg2 = save_arg lexbuf in
 	  let arg3 = save_arg lexbuf in
-	  start_table "ALIGN=center";
+	  start_table "CLASS=proof" "ALIGN=center";
           def "\\@hevea@amper" zero_pat
 	    (CamlCode (fun _ ->  
 	      Dest.force_item_display (); 

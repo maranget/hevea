@@ -1,9 +1,25 @@
 \documentclass{article}
 \usepackage{amssymb}
-
-\newcommand{\abc}[1]{\ensuremath{#1}\begin{toimage}{\huge\ensuremath{#1}}\end{toimage}\imageflush}
+\usepackage{amsmath}
+%\newcommand{\abc}[1]
+%{\ensuremath{#1}\begin{toimage}{\huge\ensuremath{#1}}\end{toimage}\imageflush}
 \begin{document}
-$\mathcal{A} \mathrm{A}$
+
+$$1+\frac{a}{1+\cfrac[l]{left-align}{1 + \sqrt{left-align}}}$$
+
+$$1+\cfrac[r]{\sqrt{right-align}}{1 + right-align}$$
+
+%outside : $a \xrightarrow[2]{1} b \xleftarrow[4]{3} c$ : display
+$$a \xrightarrow[2]{1} b \xleftarrow{3} c$$
+$$\sqrt{x \star x}~\xrightarrow{\beta} x$$
+
+$\sqrt{4 \star 4}\rightarrow\sqrt{16}$
+
+$$output = \sqrt{\frac{100+int}{100} ~\star input}$$
+
+$$\boxed{\eta \leq \frac{\pi}{2}}$$
+
+$\boxed{\eta \leq \frac{\pi}{2}}$
 
 \section{Math}
 %$\backprime $\\\\
@@ -25,7 +41,7 @@ $\circledcirc \circleddash $\\\\
 $\curlyvee \curlywedge $\\\\
 $\div \divideontimes $\\\\
 $\dotplus$\\\\
-$\doublebarwedge \intercal$\\\\
+$\doublebarwedge \intercal$\\\\ 
 $\lessdot \gtrdot $\\\\
 $\smallsetminus$\\\\
 $\leftthreetimes \rightthreetimes $\\\\

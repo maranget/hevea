@@ -110,15 +110,28 @@
 %%%%%%%%%%%% Some commands by B. Salvy
 \newcommand{\binom}[2]{\begin{pmatrix}#1\\#2\end{pmatrix}}
 \newcommand{\boldmath}{\bf}
-\newcommand{\cfrac}[2]{\frac{#1}{#2}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   Other variants of \frac					%
+%      	\dfrac makes no estimate of display-style in HEVEA	%
+%       \tfrac makes no estimate of text-style in HEVEA         %
+%       \cfrac takes an optional argument as well		%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\dfrac}[2]{\frac{#1}{#2}}
+\newcommand{\tfrac}[2]{\frac{#1}{#2}}
+\newcommand{\cfrac}[3][c]{%
+\ifthenelse{\equal{#1}{c}}{{#2\over #3}}{%
+\ifthenelse{\equal{#1}{l}}{{#2\@lover #3}}{%
+\ifthenelse{\equal{#1}{r}}{{#2\@rover #3}}{%
+\warning{Invalid Argument To \cfrac ignored}{#2\over #3}%
+}}}}
 \newcommand{\dotsb}{\cdots}
 \newcommand{\dotsc}{\dots}
 \newcommand{\dotsm}{\cdots}
 \newcommand{\eqref}[1]{(\ref{#1})}
 \newcommand{\iiint}{\int\!\!\int\!\!\int}
 \newcommand{\iiiint}{\int\!\!\int\!\!\int\!\!\int}
-\newcommand{\mathbb}[1]{{\bf #1}}
-\newcommand{\mathfrak}[1]{{\green #1}}
+%\newcommand{\mathbb}[1]{{\bf #1}}
+%\newcommand{\mathfrak}[1]{{\green #1}}
 \newcommand{\mathnormal}[1]{#1}
 \newcommand{\mod}{\text{mod}}
 \newcommand{\operatorname}[1]{\text{#1}}

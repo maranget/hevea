@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlCommon.ml,v 1.41 2004-03-24 14:57:17 maranget Exp $" 
+let header = "$Id: htmlCommon.ml,v 1.42 2004-07-14 02:46:19 thakur Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -1629,6 +1629,50 @@ let horizontal_line attr width height =
   put_length " SIZE=" height ;
   put_char '>' ;
   close_block GROUP
+;;
+
+let skip_column () =
+    put "&nbsp;</TD><TD NOWRAP ALIGN=center>"
+;;    
+
+let arrow_in_three_cols dir =
+  if dir then begin
+    put "<TABLE BGCOLOR=black BORDER=0 WIDTH=\"100%\" CELLSPACING=0 " ;
+    put "CELLPADDING=1><TR><TD></TD></TR></TABLE>" ;
+    put "</TD><TD>" ;
+    put "<TABLE BGCOLOR=black BORDER=0 WIDTH=\"100%\" CELLSPACING=0 " ;
+    put ("CELLPADDING=1><TR><TD></TD></TR></TABLE>") ;
+    put "</TD><TD>&#9654;"
+  end
+  else begin
+    put "&#9664;</TD><TD>" ;
+    put "<TABLE BGCOLOR=black BORDER=0 WIDTH=\"100%\" CELLSPACING=0 " ;
+    put "CELLPADDING=1><TR><TD></TD></TR></TABLE>" ;
+    put "</TD><TD>" ;
+    put "<TABLE BGCOLOR=black BORDER=0 WIDTH=\"100%\" CELLSPACING=0 " ;
+    put ("CELLPADDING=1><TR><TD></TD></TR></TABLE>")
+  end 
+;;
+
+
+let arrow_in_table h dir =
+  let pad = (h-1)/2 in
+  if dir then begin
+    put "<TABLE BORDER=0 WIDTH=\"100%\" CELLSPACING=0 CELLPADDING=0>" ;
+    put "<TR><TD>" ;
+    put "<TABLE BGCOLOR=black BORDER=0 WIDTH=\"100%\" CELLSPACING=0 CELLPADDING=" ;
+    put (string_of_int pad) ;
+    put "><TR><TD></TD></TR></TABLE>" ;
+    put "</TD><TD>&gt</TD></TR></TABLE>"
+  end
+  else begin
+    put "<TABLE BORDER=1 WIDTH=\"100%\" CELLSPACING=0 CELLPADDING=0>" ;
+    put "<TR><TD>&lt</TD><TD>" ;
+    put "<TABLE BGCOLOR=black BORDER=1 WIDTH=\"100%\" CELLSPACING=0 CELLPADDING=" ;
+    put (string_of_int pad) ;
+    put "><TR><TD></TD></TR></TABLE>" ;
+    put "</TD></TR></TABLE>"
+  end 
 ;;
 
 let line_in_table h =

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: mathML.ml,v 1.18 2003-03-17 13:24:51 maranget Exp $" 
+let header = "$Id: mathML.ml,v 1.19 2004-07-14 02:46:21 thakur Exp $" 
 
 
 open Misc
@@ -528,6 +528,10 @@ let over display lexbuf =
   end
 ;;
 
+let box_around_display lexbuf = ();;
+
+let over_align align1 align2 display lexbuf = over display lexbuf
+;;
 
 let tr = function
   "<" -> "<"

@@ -1,7 +1,9 @@
 
 \documentclass {article}
 
-\usepackage {mathpartir}
+%\usepackage {mathpartir}
+\usepackage {bussproofs}
+\usepackage {proof}
 \usepackage {listings}
 \usepackage {array}
 \usepackage {url}
@@ -14,219 +16,236 @@
 \lstset {basicstyle=\tt}
 \let \lst \verb
 
-\title {Didier's Mathpartir}
+\def\imp{\to}
+\def\land{\mathbin\&}
+
+\title {Styles Everywhere}
+\author {Abhishek Thakur}
 
 %HEVEA \loadcssfile{x.css}
 %HEVEA \loadcssfile{y.css}
-%HEVEA \setstyles{background:green;color:black;padding:5}
-%HEVEA \setHTMLstyle{H1.part}{background:green;color:white;font:helvetica}
+%HEVEA \setstyles{background:green;color:white;padding:3}
+%HEVEA \setHTMLstyle{H1.part}{background:blue;color:white;font-variant:small-caps}
 %HEVEA \setLATEXstyle{section}{background:blue;color:white}
 %HEVEA \setLATEXstyle{subsection}{background:blue;color:white}
 %HEVEA \setHTMLstyle{H5}{background:cyan;color:black}
 %HEVEA \setLATEXstyle{subparagraph}{background:magenta;color:white}
+%HEVEA \setHTMLstyle{.itemize}{margin-left:20;background:\#eeddbb;color:black;font-variant:small-caps}
+%HEVEA \setHTMLstyle{.enumerate}{margin-left:20;background:\#eeddbb;color:\#ccccc;font-style:italic}
+%HEVEA \setHTMLstyle{.list}{padding:3;margin-left:20;background:\#eeddbb;color:black;font-style:italic;font-variant:small-caps}
+%HEVEA \setHTMLstyle{.tabular}{margin-left:20;background:\#eeddbb;color:black}
+%HEVEA \setHTMLstyle{.proof}{background:\#bbddff;color:black;align:center}
+%HEVEA \setHTMLstyle{.bussproofs}{border-width:thin;background:\#eeddbb;color:black;align:center}
 
 %\setHTMLstyle{H3}{background:blue;color:white;font:sans-serif}
 %\setstyles{background:blue;color:white;font:sans-serif}
 %\setstyles{backgound:green}
-
-
+%HEVEA \setHTMLstyle{.fancy}{background:\#00cb00;color:white}
 \begin{document}
 
 \maketitle
 
-\part{Only One Part}
+\part{Lists, Arrays, Tables}
 
-\section {The inferrule macro}
+\section {Adding 'Style' to Listing Mechanisms}
+HEVEA implements the list environments \texttt{itemize}, \texttt{enumerate}, \texttt{description} using the HTML block elements \texttt{UL}, \texttt{OL}, and \texttt{DL}. The \texttt{$\setminus$begin} and \texttt{$\setminus$end} commands correspond to opening and closing of the respective blocks. 
 
-The inferrule macro is designed to typeset inference rules.  It should
-only\footnote {Even though the basic version may work in text mode,
-we discourage its use in text mode; the star-version cannot be used in
-text-mode} be used in math mode (or display math mode). 
+To allow the user to add style, the blocks for each environment is opened with the a class, whose name is the same as the name of the environment. This allows the user to give a specific style by defining the class in the preamble using the \texttt{$\setminus$setHTMLstyle} command. The following subsections describe the three environments in detail, with examples. 
 
-The basic use of the rule is 
+\subsection{Itemize}
+\begin{tabular}{lll}
+Name of Class & : & itemize\\
+Example & : & <UL CLASS=itemize> .... </UL>\\
+\end{tabular}
+
+A class definition 
 \begin{verbatim}
-\inferrule
-  {one \\ two \\ three \\ or \\ more \\ premisses}
-  {and \\ any \\ number \\ of \\ conclusions \\ as \\ well}
+\setHTMLstyle{.itemize}{margin-left:20;background:\#eeddbb;color:black;font-variant:small-caps}
 \end{verbatim}
-This is the rendering on a large page
-\def \one {\inferrule
-  {one \\ two \\ three \\ or \\ more \\ premisses}
-  {and \\ any \\ number \\ of \\ conclusions \\ as \\ well}
+in the document preamble, for an input 
+\begin{verbatim}
+\begin{itemize}
+\item First Row of \texttt{Itemize}
+\item Second Row of \texttt{Itemize}
+\item Third Row of \texttt{Itemize}
+\end{itemize}
+\end{verbatim}
+would produce output 
+\begin{itemize}
+\item First Row of \texttt{Itemize}
+\item Second Row of \texttt{Itemize}
+\item Third Row of \texttt{Itemize}
+\end{itemize}
+Note the use of $\setminus$\# when specifying the color in the \emph{rgb} format. It is exactly what one would do when printing out \# in \LaTeX{} (it would be unreasonable to expect the argument to be parsed in verbose). The arguments of all style commands follow the same principle.
+\subsection{Enumerate}
+\begin{tabular}{lll}
+Name of Class & : & enumerate\\
+Example & : & <OL CLASS=enumerate> .... </OL>\\
+Example Class Definition & : & $\setminus$setHTMLstyle\{.enumerate\}\{margin-left:20;background:\#eeddbb;color:black;font-style:italics\}\\
+\end{tabular}
+
+An input of the form
+\begin{verbatim}
+\begin{enumerate}
+\item First Row of \texttt{Enumerate}
+\item Second Row of \texttt{Enumerate}
+\item Third Row of \texttt{Enumerate}
+\end{enumerate}
+\end{verbatim}
+would then produce output of the form\begin{enumerate}
+\item First Row of \texttt{Enumerate}
+\item Second Row of \texttt{Enumerate}
+\item Third Row of \texttt{Enumerate}
+\end{enumerate}
+
+\subsection{Description}
+\begin{tabular}{lll}
+Name of Class & : & list\\
+Example & : & <DL CLASS=list> .... </DL>\\
+Example Class Definition & : & $\setminus$setHTMLstyle\{.list\}\{padding:3;margin-left:20;background:$\setminus$\#eeddbb;color:black;font-style:italic;font-variant:small-caps\}\\
+\end{tabular}
+
+An input of the form
+\begin{verbatim}
+\begin{description}
+\item[Itemize] Unordered lists. 
+\item[Enumerate] Ordered lists.
+\item[Description] Lists with user-defined labels, (also referred to as description lists).
+\end{description}
+\end{verbatim}
+would then produce output of the form
+\begin{description}
+\item[Itemize] Unordered lists. 
+\item[Enumerate] Ordered lists.
+\item[Description] Lists with user-defined labels, (also referred to as description lists).
+\end{description}
+
+\section{Styled Tables}
+$$
+\begin{tabular}{cc}
+\tt tt & \it it\\
+\sf sf & \sc sc\\
+\end{tabular}
+$$
+\section{Styled Arrays}
+$$
+\begin{array}{lll}
+1 & 2 & 3
+\end{array}
+$$
+
+\part{Proof Packages}
+HEVEA sets proofs using (nested) tables. Each of these tables is opened with a class, whose name is the name of the proof package being used. Thus the user may define that particular class in the preamble to give a particular style to the proofs. 
+
+Examples for two proof packages supported by HEVEA (\texttt{bussproofs}, \texttt{proof}) are given below. The third supported package, \textrm{mathpartir}, is omitted as the commands clash with those of \texttt{proof}. 
+\section{Style Options with 'Proofs'}
+A class definition of the form
+\begin{verbatim}
+%HEVEA \setHTMLstyle{.proof}{background:\#bbddff;color:black;align:center}
+\end{verbatim}
+would produce proofs of the form
+\noindent(1)
+$$
+\infer{A}{
+        \infer=[\imp E]{B}{
+                \frac{\Pi}{2}
+                &
+                \infer[\wedge E$_1$]{B21}{B21 \wedge B22} 
+                & 
+                D1 \wedge D2
+        }
+        &
+        \infer={C}{C11 \wedge C12}
 }
 $$
-\ifhevea \one
-\else
-\fbox {\vbox {\advance \hsize by -2\fboxsep \advance \hsize by -2\fboxrule
-       \linewidth\hsize
-        $$\one$$}}
-\fi
-$$
 
-However, the same formula on a narrower page will automatically be typsetted
-like that:
-\def \two {\inferrule
-  {one \\\\ two \\ three \\ or \\\\ more \\ premisses}
-  {and \\ any \\ number \\\\ of \\ conclusions \\\\ as \\ well}
+\noindent(2)
+$$
+\infer={A}{
+        \infer=[\imp E]{B}{
+                \frac{\Pi}{2}
+                &
+                \infer*[\wedge E$_1$]{B21}{B21 \wedge B22} 
+                & 
+                D1 \wedge D2
+        }
+        &
+        \deduce{C}{C11 \wedge C12}
 }
 $$
-\ifhevea \two
-\else
-\fbox {\hsize 0.33 \hsize \vbox {$$\two$$}}
-\fi
+
+\noindent (3)
 $$
-An inference rule is mainly composed of a premisse and a conclusion. 
-The premisse and the conclusions are both list of formulas where the
-elements are separated by \verb"\\". 
-
-Note the dissymetry between typesetting of the premisses and of
-conclusions where lines closer to the center are fit first. 
-
-A newline can be forced by adding an empty line \verb"\\\\"
-
-\begin{tabular}{m{0.44\hsize}m{0.1\hsize}m{0.44\hsize}}
-\begin{lstlisting}{Ocaml}
-\inferrule 
-   {aa \\\\ bb}
-   {dd \\ ee \\ ff}
-\end{lstlisting}
-&
-~~~
-&
-$\inferrule {aa \\\\bb}{dd \\ ee \\ ff}$
-\\
-\end{tabular}
-
-\subsection {Single rules}
-
-Single rules are the default mode. 
-Rules are aligned on their fraction bar, as illustrated below:
+\infer=[RI]{A \imp B}{
+        \infer*{B}{[A]}
+}
 $$
-\inferrule {aa \\ bb}{ee} \hspace {4em} \inferrule {aa \\\\ bb \\ ee}{ee}
+
+\noindent (4)
 $$
-If the premise or the conclusion is empty, then the fraction bar is not
-typeset and the premise or the conclusion is centered:
+\infer=[(1)]{A}{
+        \infer{B}{
+                B11\land B12\land B13
+                &
+                B21\land B22\land B23
+        }
+        &
+        C
+}
 $$
-\begin{tabular}{m{0.45\hsize}m{0.1\hsize}m{0.45\hsize}}
-\begin{lstlisting}{Ocaml}
-\inferrule {}{aa} + 
-\inferrule {aa \\\\ aa}{}
-\end{lstlisting}
+
+\noindent (5)
+$$
+\begin{tabular}{ccccc}
+$\infer[(\land I)]{A \land B}{A & B}$
 &
-~~~~~~~~
+~
 &
-$
-\inferrule {}{aa} + 
-\inferrule {aa \\\\ aa}{}
-$
+$\infer[(\land E$_l$)]{A}{A\land B}$
+&
+~
+&
+$\infer[(\land E$_r$)]{B}{A\land B}$
 \\
 \end{tabular}
 $$
-\paragraph{OOOOOH}
-Use use \verb"{ }" instead of \verb"{}" to get an axiom for instance:
+
+\section{Style Options with 'Bussproofs'}
+A class definition of the form
+\begin{verbatim}
+%HEVEA \setHTMLstyle{.bussproofs}{background:\#eeddbb;color:black;align:center}
+\end{verbatim}
+would produce proofs like
+\EnableBpAbbreviations
 $$
-\begin{tabular}{m{0.45\hsize}m{0.1\hsize}m{0.45\hsize}}
-\begin{lstlisting}{Ocaml}
-\inferrule { }{aa} + 
-\inferrule {aa}{ }
-\end{lstlisting}
-&
-~~~~~~
-&
-\mbox {$
-\inferrule { }{aa} + 
-\inferrule {aa}{ }
-$}
-\\
-\end{tabular}
+%\begin{divstyle}{fancy}
+\solidLine
+\AxiomC{}
+\RightLabel{Ax}
+\UnaryInfC{$\Gamma, a \vdash b$}
+\RightLabel{$\to$I}
+\noLine
+\UnaryInfC{$\Gamma \vdash a \to b$}
+\singleLine
+\AxiomC{}
+\RightLabel{Ax}
+\UnaryInfC{$\Gamma \vdash c$}
+\AXC{}
+\dashedLine
+\RightLabel{Ax}
+\UnaryInf$\Gamma \fCenter \vdash d$
+\RightLabel{$\wedge$I}
+\doubleLine
+\BinaryInfC{$\Gamma \vdash c \wedge d$}
+\RightLabel{$\wedge$I}
+\dottedLine
+\BinaryInfC{$\Gamma \vdash (a \to b) \wedge (c \wedge d)$}
+\DP
+%\end{divstyle}
 $$
-\subparagraph{OOOOHOOOH}
-The macro \lst"\inferrule" acceps a label as optional argument, which will
-be typeset on the top left corner of the rule: 
-\par
-\begin{tabular}{m{0.45\hsize}m{0.1\hsize}m{0.45\hsize}}
-\begin{lstlisting}{Ocaml}
-\inferrule [yop]
-   {aa \\ bb}
-   {cc}
-\end{lstlisting}
-&
-$\inferrule [Yop]{aa \\ bb}{cc}$
-\\
-\end{tabular}
-\par\noindent
-See section~\ref{options} for changing typesetting of labels. 
-A label can also be placed next to the rule directly, since the rule is
-centered: 
-\par
-\begin{tabular}{m{0.45\hsize}m{0.1\hsize}m{0.45\hsize}}
-\begin{lstlisting}{Ocaml}
-\inferrule 
-   {aa \\ bb}
-   {cc}
-\quad (\textsc {Yop})
-\end{lstlisting}
-&
-~~~~~~
-&
-$\inferrule{aa \\ bb}{cc} \quad (\textsc {Yop})$
-\\
-\end{tabular}
-
-\subsection {Customizing}
-
-By default, lines are centerred in inference rules. 
-However, this can be changed by either \lst"\mprset{flushleft}"
-or \lst"\mprset{center}". For instance, 
-
-\begin{tabular}{m{0.44\hsize}m{0.12\hsize}m{0.44\hsize}}
-\begin{lstlisting}{Ocaml}
-$$\mprset{flushleft}
-  \inferrule 
-    {a \\ bbb \\\\ ccc \\ dddd}
-    {e \\ ff \\ gg}$$ 
-\end{lstlisting}
-&
-~~~~~
-&
-$$\mprset{flushleft} 
-\inferrule {a \\ bbb  \\\\ ccc \\ dddd}{e \\ ff \\ gg}$$
-\\
-\end{tabular}
-
-\noindent
-Note that lines are aligned independently in the premise and the
-conclusion, which are both themselves centered. In particular, 
-left alignment will not affect a single-line premisse or conclusion. 
 
 
-\subsection {Derivation trees}
-
-To help writing cascades of rules forming a derivation tree, inference rules
-can also be aligned on their bottom line. For this, we use the star-version:
-$$
-\begin{tabular}{m{0.45\hsize}m{0.1\hsize}m{0.45\hsize}}
-\begin{lstlisting}{Ocaml}
-\inferrule*
-   {\inferrule* {aa \\ bb}{cc}
-    \\ dd}
-   {ee}
-\end{lstlisting}
-&
-~~~~~~
-&
-$
-\inferrule*
-   {\inferrule* {aa \\ bb}{cc}
-    \\ dd}
-   {ee}
-$
-\\
-\end{tabular}
-$$
-The star version can also take an optional argument, 
-but with a different semantics. The optional argument is parsed by the 
-\verb"keyval" package, so as to offer a set of record-like options: 
+\section{Trying Out Tabular}
 $$
 \def \val {{\em v}}
 \def \arraystretch {1.4}
@@ -257,80 +276,7 @@ vdots & Raise the rule by {\val} and insert vertical dots.
 \\\hline
 \end{tabular}
 $$
-Here is an example of a complex derivation:
-$$
-\inferrule* [left=Total]
-  {\inferrule* [Left=Foo]
-     {\inferrule* [Right=Bar,
-                       leftskip=2em,rightskip=2em,vdots=1.5em]
-         {a \\ a \\\\ bb \\ cc \\ dd}
-         {ee}
-       \\ ff \\ gg}
-     {hh}
-  \\
-  \inferrule* [lab=XX]{uu \\ vv}{ww}}
-  {(1)}
-$$
-and its code
-\begin{lstlisting}{Ocaml}
-\inferrule* [left=Total]
-  {\inferrule* [Left=Foo]
-     {\inferrule* [Right=Bar,
-                       leftskip=2em,rightskip=2em,vdots=1.5em]
-         {a \\ a \\\\ bb \\ cc \\ dd}
-         {ee}
-       \\ ff \\ gg}
-     {hh}
-  \\
-  \inferrule* [lab=XX]{uu \\ vv}{ww}}
-  {(1)}
-\end{lstlisting}
-
-\def \L#1{\lower 0.4ex \hbox {#1}}
-\def \R#1{\raise 0.4ex \hbox {#1}}
-\def \hevea {H\L{E}\R{V}\L{E}A}
-\def \hevea {$\mbox {H}\!_{\mbox {E}}\!\mbox {V}\!_{\mbox {E}}\!\mbox {A}$}
-
-
-\subsection {Implementation}
-
-The main macro in the implementation of inference rules is the one that
-either premises and conclusions.  The macros uses two box-registers one
-\verb"hbox" for typesetting each line and one \verb"vbox" for collecting
-lines. The premise appears as a list with
-\verb"\\" as separator. Each element is considered in turn typeset in a
-\verb"hbox" in display math mode. Its width is compare to the space left on
-the current line. If the box would not fit, the current horizontal line is
-transferred to the vertical box and emptied. Then, the current formula can
-safely be added to the horizontal line (if it does not fit, nothing can be
-done). When moved to the vertical list, lines are aligned on their center
-(as if their left-part was a left overlapped). At the end the vbox is
-readjusted on the right. 
-
-This description works for conclusions. For premises, the elements must be
-processes in reverse order and the vertical list is simply built upside
-down. 
-
-
-\section {Other Options}
 
 \label {options}
-
-The package also defines \verb"\infer" as a shortcut for \verb"\inferrule"
-but only if it is not previously defined. 
-
-The package uses \verb"\TirName" and \verb"\RefTirName" to typeset labels,
-which can safely be redefined by the user. The former is used for defining
-occurrences ({\em ie.} in rule \lst"\inferrule") while the latter is used
-for referencing ({\em ie.} in the star-version). 
-
-The vertical space in \verb"mathpar" is adjusted by
-\verb"\MathparLineskip". To restore the normal paragraph parameters in mathpar
-mode (for instance for some inner paragraph), use the command
-\verb"\MathparNormalpar".  
-The environment uses \verb"\MathparBindings" to
-rebind \verb"\\", \verb"and", and \verb"\par". You can redefine thus command
-to change the default bindings or add your own. 
-
 
 \end{document}

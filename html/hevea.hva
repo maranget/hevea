@@ -113,27 +113,32 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Using style CLASSES with DIV for local style-setting   %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\newenvironment{divstyle}[1]
-{\@open{DIV}{CLASS=#1}}{\@close{DIV}}
+%
+\newenvironment{divstyle}[1]%
+	{\@open{DIV}{CLASS=#1}}{\@close{DIV}}%
+%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Echoing to the image file %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
 \def\@iopt@def{!*!}
 \newcommand{\@imageopt}[1][!*!]
 {\def\@itmp{#1}\ifx\@itmp\@iopt@def\else\begin{toimage}[#1]\end{toimage}\fi}
 \newcommand{\@imagearg}[1]{\begin{toimage}{#1}\end{toimage}}
 \newcommand{\@imagecommand}[2]
   {\newcommand{#1}{\begin{toimage}#1\end{toimage}#2}}
+%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%   maketitle (is no longer redefined by fancysection)		%
+%   \maketitle (is no longer redefined by fancysection)		%
 %   Thus defining different styles explicitly will have to 	%
 %     be done using the respective classes :			%
 %     .titlecommon : table containing the title and supplements %
 %     .titlename : H1 containing title name		        %
 %     .titlerest : H3 containing other fields (author,date,etc.)%
-%   'checkbox' now takes two instead of three arguments,        %
+%   'checkbox' now takes three instead of two arguments,        %
 %     one for the class.					%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
 \newcommand{\maketitle}{%
   \newcommand{\checkbox}[3]%
     {\ifthenelse{\equal{\usebox{##3}}{}}%
@@ -145,7 +150,8 @@
   \checkbox{H3}{titlerest}{\@author}%
   \checkbox{H3}{titlerest}{\@date}%
   \@close{TD}\@close{TR}\@close{TABLE}%
-}
+}%
+%
 %%%%%%%%%
 % Maths %
 %%%%%%%%%
@@ -193,6 +199,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %   Hacking into '\@meta' to make style declarations      %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
 \ife\css@link\else%
 %\@print{LINK REL=STYLESHEET type="text/css"}
 \css@link\@print{
@@ -203,21 +210,25 @@
 }
 \fi
 }
+%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %   Support for linking to external style sheets          %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
 \newtokens{\css@link}%
 \newcommand{\addcssfile}[1]{\addtokens{\css@link}{#1}}%
 \newcommand{\loadcssfile}[1]{\addcssfile{\@print{<}\@getprint{LINK REL=STYLESHEET type=\char34 text/css\char34\@print{ }HREF=\char34#1\char34\char62\@print{
 }}}}%
+%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %   Support for defining styles in the 'head'             %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
 \newtokens{\hevea@css}%
 \newcommand{\addstyle}[1]{\addtokens{\hevea@css}{#1}}%
 \newcommand{\newstyle}[2]{\addstyle{\@getprint{\@print{ }\@print{ }\@print{ }\@print{ }#1\char123#2\char125\@print{
 }}}}%
-
+%
 \newenvironment{document}{%
 \@end{document}
 \@restartoutput\unskip
@@ -337,10 +348,12 @@
 \def\textsl#1{\mbox{\slshape#1}}
 \def\textsc#1{\mbox{\scshape#1}}
 \newcommand{\emph}[1]{\mbox{\em#1}}
-%%%%%%
-%%%%%% New implementation of \sc & \textsc using "small-caps" style. 
-%%%%%%
-\def\sc{\@styleattr{SPAN}{STYLE="font-variant:small-caps"}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  New implementation of \sc & \textsc using "small-caps" style. %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+\def\sc{\@styleattr{SPAN}{STYLE="font-variant:small-caps"}}%
+%
 %%%%%%%%%%%%%%% Multicolumns index formating
 \newcommand{\setindexpos}[2]
 {\providesavebox{\csname indexpos#1\endcsname}%
@@ -403,7 +416,52 @@
 \newcommand{\@table@attributes@border}{CELLSPACING=0 CELLPADDING=1}
 %%%%%% Do not load hevea.hva again !
 \def\csname hevea@loaded\endcsname{}
+%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%   Support for use of style-sheets				%
+%   including HEVEA commands used for style-sheets		%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\input{style-sheets.hva}
+%
+\input{style-sheets.hva}%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   Support for \xleftarrow and \xrightarrow			%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+\newcommand{\xleftarrow}[2][]{\ifdisplay{#2\@xleft #1}\else%
+\warning{\xleftarrow outside display mode, arguments ignored}\leftarrow\fi}%
+\newcommand{\xrightarrow}[2][]{\ifdisplay{#2\@xright #1}\else%
+\warning{\xrightarrow outside display mode, arguments ignored}\rightarrow\fi}%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   Redefining \textoverline of latexcommon.hva			%
+%   Here we can use HTML primitives				%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+\newcommand{\overlinedbox}[1]%
+     {\@print{<SPAN style="text-decoration:overline">}#1\@print{</SPAN>}}% 
+\renewcommand{\textoverline}[1]{\overlinedbox{#1}}%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   We can now define \sqrt using \overlinedbox                 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+\newcommand{\sqrt}[1]{\ifdisplay%
+	\@print{<BIG><BIG>}\surd\@print{</BIG></BIG>}\overline{#1}%
+	\else\surd\overlinedbox{#1}\fi%
+}%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   \boxed is more complicated, though                          %
+%   1) outside display mode, we can use style-sheets            %
+%   2) in display mode, we need to maintain the display-like    %
+%      treatment of the argument, so the solution would be to   %
+%      create a virtual display-box inside the current box, and %
+%      then draw a box around it before continuing in display   %
+%      mode.							%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+\newcommand{\boxed}[1]{\ifdisplay%
+	\warning{\boxed in display, ignored}#1%
+	\else\@print{<SPAN style="border:solid thin black">}#1\@print{</SPAN>}%
+	\fi%
+}%
+%

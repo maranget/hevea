@@ -171,7 +171,7 @@ $$
 If the premise or the conclusion is empty, then the fraction bar is not
 typeset and the premise or the conclusion is centered:
 $$
-\begin{tabular}{m{0.45\hsize}m{0.1\hsize}m{0.45\hsize}}
+\begin{tabular}{m{0.3\hsize}m{0.05\hsize}m{0.3\hsize}m{0.05\hsize}m{0.3\hsize}}
 \begin{lstlisting}{Ocaml}
 \inferrule {}{aa} + 
 \inferrule {aa \\\\ aa}{}
@@ -179,10 +179,11 @@ $$
 &
 ~~~~~~~~
 &
-$
-\inferrule {}{aa} + 
-\inferrule {aa \\\\ aa}{}
-$
+$\inferrule {}{aa}$
+&
+$+$
+&
+$\inferrule {aa \\\\ aa}{}$
 \\
 \end{tabular}
 $$
@@ -196,10 +197,10 @@ $$
 &
 ~~~~~~
 &
-\mbox {$
+$
 \inferrule { }{aa} + 
 \inferrule {aa}{ }
-$}
+$
 \\
 \end{tabular}
 $$

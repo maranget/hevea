@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.237 2004-07-10 19:39:40 thakur Exp $ *)
+(* $Id: latexscan.mll,v 1.238 2004-07-14 02:46:21 thakur Exp $ *)
 
 
 {
@@ -1988,6 +1988,30 @@ def_code "\\over"
      skip_blanks lexbuf)
 ;;
 
+def_code "\\@lover"
+   (fun lexbuf ->
+     Dest.over_align false false !display lexbuf;
+     skip_blanks lexbuf)
+;;
+
+def_code "\\@rover"
+   (fun lexbuf ->
+     Dest.over_align false true !display lexbuf;
+     skip_blanks lexbuf)
+;;
+
+def_code "\\@xleft"
+   (fun lexbuf ->
+     Dest.over_align true false !display lexbuf;
+     skip_blanks lexbuf)
+;;
+
+def_code "\\@xright"
+   (fun lexbuf ->
+     Dest.over_align true true !display lexbuf;
+     skip_blanks lexbuf)
+;;
+
 let check_not = function
   | "\\in" -> "\\notin"
   | "="    -> "\\neq"
@@ -3024,11 +3048,11 @@ let open_array env lexbuf =
   begin match attributes with
   | "" ->
       if !Tabular.border then
-        Dest.open_table true (get_table_attributes true len)
+        Dest.open_table true (get_table_attributes true len)(*^" CLASS=tabular"**)
       else
-        Dest.open_table false (get_table_attributes false len);
+        Dest.open_table false (get_table_attributes false len)(*^" CLASS=tabular"*);
   | _  ->
-       Dest.open_table !Tabular.border (attributes^check_width len)
+       Dest.open_table !Tabular.border (attributes^check_width len(*^" CLASS=tabular"*))
   end ;
   open_row() ;
   open_first_col main ;

@@ -40,7 +40,7 @@
 \newcommand{\chi}{\@entity{chi}}
 \newcommand{\psi}{\@entity{psi}}
 \newcommand{\omega}{\@entity{omega}}
-
+../
 %% Capital Greek Letters
 
 \newcommand{\Gamma}{\@entity{Gamma}}
@@ -60,7 +60,7 @@
 \renewcommand{\pm}{\@print{&#0177;}}
 \newcommand{\mp}{\@print{&#8723;}}
 %\newcommand{\ast}{\@entity{lowast}}
-\renewcommand{\star}{\@print{&#8902;}}
+\renewcommand{\star}{\@print{&#42;}}
 \newcommand{\circ}{\@print{&#8728;}}
 \newcommand{\@bullet}{\@print{&#8729;}}
 \renewcommand{\cdot}{\@entity{sdot}}
@@ -226,14 +226,15 @@
 \newcommand{\@displayint}{\mbox{\Huge\@entity{int}}}
 \newcommand{\@displaysum}{\mbox{\Huge\@entity{sum}}}
 \newcommand{\@oint}{\@entity{oint}}
-
+%
 %%%Additional
-
+%
 \newcommand{\dag}{\@print{&#8224;}}
-
+%
 \let\mathsf\@mathsf
 \let\mathbf\@mathbf
 \let\mathrm\@mathrm
 \let\mathcal\@mathcal
 \let\mathtt\@mathtt
 \newcommand{\mathit}[1]{\@open{I}{}#1\@close{I}}
+%

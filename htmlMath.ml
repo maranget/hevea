@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlMath.ml,v 1.24 2004-06-03 17:16:07 thakur Exp $" 
+let header = "$Id: htmlMath.ml,v 1.25 2004-07-14 02:46:19 thakur Exp $" 
 
 
 open Misc
@@ -519,6 +519,71 @@ let over display lexbuf =
   end
 ;;
 
+(********************************************************
+ *  For use by                                          *
+ *      \cfrac to align arguments to the left or right  *
+ *      \xleftarrow and \xrightarrow to print the arrow *
+ *          instead of the fraction bar                 *
+ ********************************************************)
+
+let over_align align1 align2 display lexbuf =
+  if align1 then begin
+    let mods = insert_vdisplay
+      (fun () ->
+        open_vdisplay display ;
+        open_vdisplay_row ("NOWRAP ALIGN=center") ;
+        skip_column ()) in
+    skip_column () ;
+    close_vdisplay_row () ;
+    open_vdisplay_row "" ;
+    close_mods () ;
+    arrow_in_three_cols align2 ;
+    close_vdisplay_row () ;
+    open_vdisplay_row ("NOWRAP ALIGN=center") ;
+    skip_column () ;
+    close_mods () ;
+    open_mods mods ;
+    freeze
+      (fun () ->
+        skip_column () ;
+        close_vdisplay_row () ;
+        close_vdisplay ();)
+  end
+  else begin
+    let alignment = if align2 then "ALIGN=right" else "ALIGN=left" in
+    if display then begin
+      let mods = insert_vdisplay
+        (fun () ->
+          open_vdisplay display ;
+          open_vdisplay_row ("NOWRAP "^alignment)) in
+      close_vdisplay_row () ;
+      open_vdisplay_row "BGCOLOR=black" ;
+      close_mods () ;
+      line_in_table 3 ;
+      close_vdisplay_row () ;
+      open_vdisplay_row ("NOWRAP "^alignment) ;
+      close_mods () ;
+      open_mods mods ;
+      freeze
+        (fun () ->
+          close_vdisplay_row () ;
+          close_vdisplay ();)
+    end 
+    else begin
+      put "/"
+    end
+  end
+;;
+
+let box_around_display lexbuf = 
+  let mods = insert_vdisplay
+      (fun () ->
+        open_vdisplay true ;
+        open_vdisplay_row ("NOWRAP ALIGN=center")) in
+  close_vdisplay_row () ;
+  close_vdisplay () 
+;;
+    
 
 (* Gestion of left and right delimiters *)
 

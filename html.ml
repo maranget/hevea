@@ -10,7 +10,7 @@
 (***********************************************************************)
 
 
-let header = "$Id: html.ml,v 1.85 2002-01-04 18:41:20 maranget Exp $" 
+let header = "$Id: html.ml,v 1.86 2004-07-14 02:46:19 thakur Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -169,6 +169,8 @@ let iso_string s =
 
 let 
   over,
+  over_align,
+  box_around_display,
   erase_display,
   begin_item_display,
   end_item_display,
@@ -187,6 +189,8 @@ let
     =
   if !Parse_opts.mathml then begin
     MathML.over,
+    MathML.over_align,
+    MathML.box_around_display,
     MathML.erase_display,
     MathML.begin_item_display,
     MathML.end_item_display,
@@ -204,6 +208,8 @@ let
     MathML.right
   end else begin
     HtmlMath.over,
+    HtmlMath.over_align,
+    HtmlMath.box_around_display,
     HtmlMath.erase_display,
     HtmlMath.begin_item_display,
     HtmlMath.end_item_display,

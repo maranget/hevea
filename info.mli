@@ -44,6 +44,7 @@ open Lexstate
     val item_display : unit -> unit
     val force_item_display : unit -> unit
     val erase_display : unit -> unit
+    val box_around_display : Lexing.lexbuf -> unit
 
     val standard_sup_sub :
         (string arg -> unit) -> (unit -> unit) -> string arg -> string arg -> bool -> unit
@@ -54,6 +55,8 @@ open Lexstate
           (string arg -> unit) -> (unit -> unit) -> string arg -> string arg -> bool -> unit
 
     val over : bool -> Lexing.lexbuf -> unit
+    (* For use by \cfrac, \xleftarrow and \xrightarrow *)
+    val over_align : bool -> bool -> bool -> Lexing.lexbuf -> unit
     val left : string -> (int -> unit) -> unit
     val right : string -> int
 
