@@ -1,6 +1,6 @@
 \documentclass{article}
 
-\usepackage[english,french,german]{babel}
+\usepackage[english,french,austrian,german]{babel}
 %\usepackage{babel}
 
 \usepackage{makeidx}
@@ -9,11 +9,11 @@
 \title{Babel}
 \author{XYZ}
 
-%\newcommand{\DQ}[1]{\dq#1~~\"#1}
+%\newcommand{\DQ}[1]{\dq#1~~"#1}
 
 \begin{document}
 The initial language is : 
-\iflanguage{english}{english}{bonga}
+\iflanguage{german}{german}{bonga}
 \\
 \today\\
 \newcommand{\DQ}[1]{\dq#1~~\"#1}
@@ -55,9 +55,7 @@ The language now is (german? french?) : \iflanguage{german}{german}{bonga}
 \DQ{o}\\
 \DQ{O}\\
 \DQ{u}\\
-\DQ{U}\\
-\DQ{y}\\
-\DQ{Y}
+\DQ{U}
 
 \section{Quotes}
 \index{Quotes}
@@ -66,7 +64,11 @@ Trying out the quotation mark itself : \dq\\
 \glqq Trying out quotes \grqq\\
 \glq Trying out single quotes \grq\\
 \flqq Trying out French quotes \frqq\\
-\flq Trying out french single quotes \frq
+\flq Trying out french single quotes \frq\\
+%\"<\\
+%\">\\
+%\"`\\
+%\"'
 
 \selectlanguage{english}\\
 \today\\
@@ -75,7 +77,7 @@ The language is : \iflanguage{english}{english}{bonga}
 \section{Correspondences in French}
 \index{Correspondences in French}
 \selectlanguage{french}\\
-The language is : \iflanguage{french}{french}{bonga}
+The language is : \iflanguage{french}{french}{bonga}\\
 \today\\
 \newcommand{\LS}[1]{`#1~~\`#1}
 \newcommand{\RS}[1]{'#1~~\'#1}
@@ -84,6 +86,10 @@ The language is : \iflanguage{french}{french}{bonga}
 \LS{a}\\
 \RS{e}\\
 \HAT{u}\\
+
+\selectlanguage{austrian}\\
+\today\\
+The language is : \iflanguage{austrian}{austrian}{bonga}
 
 \appendix
 

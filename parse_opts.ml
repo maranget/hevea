@@ -11,7 +11,7 @@
 
 open Misc
 
-let header = "$Id: parse_opts.ml,v 1.26 2004-06-04 08:05:37 thakur Exp $" 
+let header = "$Id: parse_opts.ml,v 1.27 2004-06-11 13:35:34 thakur Exp $" 
 
 type input = File of string | Prog of string
 
@@ -24,7 +24,12 @@ and add_program s =
   files := Prog s :: !files
 ;;
 
-type language = Francais | English
+(* NO NEED AFTER BABEL SUPPORT *)
+(*type language = Francais | English
+;;*)
+
+(* use this to create your warnings if you wish to *)
+let frenchwarning = ref false
 ;;
 
 type destination = Html | Text | Info
@@ -33,8 +38,9 @@ let mathml = ref false
 and entities = ref true
 ;;
 
-let language = ref English
-and symbols = ref true
+(* NO NEED AFTER BABEL SUPPORT *)
+(*let language = ref English*)
+let symbols = ref true
 and iso = ref true
 and pedantic = ref false
 and destination = ref Html
@@ -75,7 +81,7 @@ let _ = Arg.parse
        "call esponja to optimize HTML output") ;
      ("-exec", Arg.String add_program,
        "prog , execute external program ``prog'', then read its result") ;
-     ("-francais",Arg.Unit (fun () -> language := Francais),
+     ("-francais",Arg.Unit (fun () -> frenchwarning := true),
        "french mode") ;
      ("-nosymb",Arg.Unit (fun () -> symbols := false),
        "do not output symbol fonts") ;
@@ -88,7 +94,7 @@ let _ = Arg.parse
      ("-mathml",Arg.Unit (fun() -> mathml := true),
        "produces MathML output for equations, very experimental");
      ("-entities",Arg.Unit (fun() -> entities := true),
-       "produces HTML 4.0 entities and unicode characters references for symbols, very experimental");
+       "produces HTML 4.0 entities and unicode characters references for symbols, default anyway");
      ("-noent",Arg.Unit (fun() -> entities := true),
        "refrains from producing HTML 4.0 entities and unicode characters references for symbols, very experimental");
      ("-text",Arg.Unit (fun () -> symbols := false; destination := Text),
@@ -127,7 +133,7 @@ files :=
    | None,rem -> rem
    | Some arg,rem -> arg::rem
 
-   
+
       
 let base_in,name_in,styles = match !files with
 | File x :: rest ->

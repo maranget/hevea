@@ -1,3 +1,26 @@
+\ProvidesPackage{babel}
+\DeclareOption{english}{%
+	\english@babel%
+	\let\current@language\english@language%
+}
+\DeclareOption{french}{%
+	\french@babel%
+	\let\current@language\french@language%
+}
+\DeclareOption{german}{%
+	\german@babel%
+	\let\current@language\german@language%
+}
+\DeclareOption{austrian}{%
+	\austrian@babel%
+	\let\current@language\austrian@language%
+}
+\DeclareOption{czech}{%
+	\czech@babel%
+	\let\current@language\czech@language%
+}
+%\ProcessOptions*
+
 \newcommand\english@language{english}
 \newcommand\french@language{french}
 \newcommand\german@language{german}
@@ -61,7 +84,6 @@
   \renewcommand\chaptername{Chapter}
   \renewcommand\appendixname{Appendix}
   \renewcommand\contentsname{Contents}
-  \renewcommand\tocname{Contents}
   \renewcommand\listfigurename{List of Figures}
   \renewcommand\listtablename{List of Tables}
   \renewcommand\indexname{Index}
@@ -74,36 +96,36 @@
   \renewcommand\pagename{Page}
   \renewcommand\headpagename{Page}
   \renewcommand\seename{see}
-  \renewcommand\alsoname{see also}
+  \renewcommand\alsoseename{see also}
 }
 
 \newcommand{\french@babel}{
   \renewcommand{\flqq}{\@print{&#0171;}}
   \renewcommand{\frqq}{\@print{&#0187;}}
-  \renewcommand{\'}[1]{
-        \ifthenelse{\equal{##1}{a}}{\@print{&#0225;}} {
-        \ifthenelse{\equal{##1}{e}}{\@print{&#0233;}} {
-	\ifthenelse{\equal{##1}{i}}{\@print{&#0237;}} {
-	\ifthenelse{\equal{##1}{o}}{\@print{&#0243;}} {
-	\ifthenelse{\equal{##1}{u}}{\@print{&#0250;}} {
-        ##1
-  }}}}}}
-  \renewcommand{\`}[1]{
-        \ifthenelse{\equal{##1}{a}}{\@print{&#0224;}} {
-        \ifthenelse{\equal{##1}{e}}{\@print{&#0232;}} {
- 	\ifthenelse{\equal{##1}{i}}{\@print{&#0236;}} {
-	\ifthenelse{\equal{##1}{o}}{\@print{&#0242;}} {
-	\ifthenelse{\equal{##1}{u}}{\@print{&#0251;}} {
-        ##1
-  }}}}}}
-  \renewcommand{\^}[1]{
-        \ifthenelse{\equal{##1}{a}}{\@print{&#0226;}} {
-        \ifthenelse{\equal{##1}{e}}{\@print{&#0234;}} {
-        \ifthenelse{\equal{##1}{i}}{\@print{&#0238;}} {
-	\ifthenelse{\equal{##1}{o}}{\@print{&#0244;}} {
-	\ifthenelse{\equal{##1}{u}}{\@print{&#0252;}} {
-        ##1
-  }}}}}}
+  %\renewcommand{\'}[1]{
+  %      \ifthenelse{\equal{##1}{a}}{\@print{&#0225;}} {
+  %      \ifthenelse{\equal{##1}{e}}{\@print{&#0233;}} {
+  %	\ifthenelse{\equal{##1}{i}}{\@print{&#0237;}} {
+  %	\ifthenelse{\equal{##1}{o}}{\@print{&#0243;}} {
+  %	\ifthenelse{\equal{##1}{u}}{\@print{&#0250;}} {
+  %      ##1
+  %}}}}}}
+  %\renewcommand{\`}[1]{
+  %      \ifthenelse{\equal{##1}{a}}{\@print{&#0224;}} {
+  %      \ifthenelse{\equal{##1}{e}}{\@print{&#0232;}} {
+  %	\ifthenelse{\equal{##1}{i}}{\@print{&#0236;}} {
+  %	\ifthenelse{\equal{##1}{o}}{\@print{&#0242;}} {
+  %	\ifthenelse{\equal{##1}{u}}{\@print{&#0251;}} {
+  %      ##1
+  %}}}}}}
+  %\renewcommand{\^}[1]{
+  %      \ifthenelse{\equal{##1}{a}}{\@print{&#0226;}} {
+  %      \ifthenelse{\equal{##1}{e}}{\@print{&#0234;}} {
+  %      \ifthenelse{\equal{##1}{i}}{\@print{&#0238;}} {
+  %	\ifthenelse{\equal{##1}{o}}{\@print{&#0244;}} {
+  %	\ifthenelse{\equal{##1}{u}}{\@print{&#0252;}} {
+  %      ##1
+  %}}}}}}
   \renewcommand\french@day{
         \ifthenelse{\value{day}=1 }{\theday st} {
   	\ifthenelse{\value{day}=21}{\theday st} {
@@ -115,15 +137,15 @@
         \theday th
   }}}}}}}}  
   \renewcommand\french@month{ 
-  	\ifthenelse{\value{month}=1 }{Janvier}    {
-  	\ifthenelse{\value{month}=2 }{F\'evrier}  {
- 	\ifthenelse{\value{month}=3 }{Mars}       {
- 	\ifthenelse{\value{month}=4 }{Avril}      {
- 	\ifthenelse{\value{month}=5 }{Mai}        {
- 	\ifthenelse{\value{month}=6 }{Juin}       {
- 	\ifthenelse{\value{month}=7 }{Juillet}    {
- 	\ifthenelse{\value{month}=8 }{Ao\^ut}     {
- 	\ifthenelse{\value{month}=9 }{Septembre}  {
+  	\ifthenelse{\value{month}=1}{Janvier}    {
+  	\ifthenelse{\value{month}=2}{F\'evrier}  {
+ 	\ifthenelse{\value{month}=3}{Mars}       {
+ 	\ifthenelse{\value{month}=4}{Avril}      {
+ 	\ifthenelse{\value{month}=5}{Mai}        {
+ 	\ifthenelse{\value{month}=6}{Juin}       {
+ 	\ifthenelse{\value{month}=7}{Juillet}    {
+ 	\ifthenelse{\value{month}=8}{Ao\^ut}     {
+ 	\ifthenelse{\value{month}=9}{Septembre}  {
  	\ifthenelse{\value{month}=10}{Octobre}    {
  	\ifthenelse{\value{month}=11}{Novembre}   {
  	\ifthenelse{\value{month}=12}{D\'ecembre} {
@@ -136,7 +158,6 @@
   \renewcommand\chaptername{Chapitre}
   \renewcommand\appendixname{Annexe}
   \renewcommand\contentsname{Table des mati\`eres}
-  \renewcommand\tocname{Table des mati\`eres}
   \renewcommand\listfigurename{Liste des figures}
   \renewcommand\listtablename{Liste des tableaux}
   \renewcommand\indexname{Index}
@@ -149,51 +170,52 @@
   \renewcommand\pagename{Page}
   \renewcommand\headpagename{Page}
   \renewcommand\seename{voir}
-  \renewcommand\alsoname{voir aussi}
+  \renewcommand\alsoseename{voir aussi}
 }
 
 \newcommand{\german@babel}{
   \renewcommand{\glqq}{\@print{&#8222;}}
   \renewcommand{\grqq}{\@print{&#8220;}}
-  \renewcommand{\glq }{\@print{&#8218;}}
-  \renewcommand{\grq }{\@print{&#8216;}}
+  \renewcommand{\glq} {\@print{&#8218;}}
+  \renewcommand{\grq} {\@print{&#8216;}}
   \renewcommand{\flqq}{\@print{&#0171;}}
   \renewcommand{\frqq}{\@print{&#0187;}}
-  \renewcommand{\flq }{\@print{&#8249;}}
-  \renewcommand{\frq }{\@print{&#8250;}}
-  \renewcommand{\"}[1]{
-        \ifthenelse{\equal{##1}{`}}{\glqq} {
-	\ifthenelse{\equal{##1}{'}}{\grqq} {
-	\ifthenelse{\equal{##1}{<}}{\flqq} {
-	\ifthenelse{\equal{##1}{>}}{\frqq} {
-   	\ifthenelse{\equal{##1}{s}}{\@print{&#0223;}} {
-        \ifthenelse{\equal{##1}{S}}{SS} 	      {
-        \ifthenelse{\equal{##1}{A}}{\@print{&#0196;}} {
-        \ifthenelse{\equal{##1}{a}}{\@print{&#0228;}} {
-        \ifthenelse{\equal{##1}{E}}{\@print{&#0203;}} {
-        \ifthenelse{\equal{##1}{e}}{\@print{&#0235;}} {
-        \ifthenelse{\equal{##1}{I}}{\@print{&#0207;}} {
-        \ifthenelse{\equal{##1}{i}}{\@print{&#0239;}} {
-        \ifthenelse{\equal{##1}{O}}{\@print{&#0214;}} {
-        \ifthenelse{\equal{##1}{o}}{\@print{&#0246;}} {
-        \ifthenelse{\equal{##1}{U}}{\@print{&#0220;}} {
-        \ifthenelse{\equal{##1}{u}}{\@print{&#0252;}} {
-        \ifthenelse{\equal{##1}{Y}}{\@print{&#0376;}} {
-        \ifthenelse{\equal{##1}{y}}{\@print{&#0255;}} {
-        ##1
-	}}}}}}}}}}}}}}}}}}
-  }
+  \renewcommand{\flq} {\@print{&#8249;}}
+  \renewcommand{\frq} {\@print{&#8250;}}
+  %\renewcommand{\"}{<}{\flqq}
+  %\renewcommand{\"}[1]{
+  %      \ifthenelse{\equal{##1}{`}}{\glqq} {
+  %	\ifthenelse{\equal{##1}{'}}{\grqq} {
+  %	\ifthenelse{\equal{##1}{<}}{\flqq} {
+  %	\ifthenelse{\equal{##1}{>}}{\frqq} {
+  % 	\ifthenelse{\equal{##1}{s}}{\@print{&#0223;}} {
+  %      \ifthenelse{\equal{##1}{S}}{SS} 	      {
+  %      \ifthenelse{\equal{##1}{A}}{\@print{&#0196;}} {
+  %      \ifthenelse{\equal{##1}{a}}{\@print{&#0228;}} {
+  %      \ifthenelse{\equal{##1}{E}}{\@print{&#0203;}} {
+  %      \ifthenelse{\equal{##1}{e}}{\@print{&#0235;}} {
+  %      \ifthenelse{\equal{##1}{I}}{\@print{&#0207;}} {
+  %      \ifthenelse{\equal{##1}{i}}{\@print{&#0239;}} {
+  %      \ifthenelse{\equal{##1}{O}}{\@print{&#0214;}} {
+  %      \ifthenelse{\equal{##1}{o}}{\@print{&#0246;}} {
+  %      \ifthenelse{\equal{##1}{U}}{\@print{&#0220;}} {
+  %      \ifthenelse{\equal{##1}{u}}{\@print{&#0252;}} {
+  %      \ifthenelse{\equal{##1}{Y}}{\@print{&#0376;}} {
+  %      \ifthenelse{\equal{##1}{y}}{\@print{&#0255;}} {
+  %      ##1
+  %	}}}}}}}}}}}}}}}}}}
+  %}
   %\renewcommand{"}[1]{\"{##1}}
   \renewcommand{\german@month}{ 
-  	\ifthenelse{\value{month}=1 }{Januar}   {
-  	\ifthenelse{\value{month}=2 }{Februar}  {
- 	\ifthenelse{\value{month}=3 }{M\"arz}   {
- 	\ifthenelse{\value{month}=4 }{April}    {
- 	\ifthenelse{\value{month}=5 }{Mai}      {
- 	\ifthenelse{\value{month}=6 }{Juni}     {
- 	\ifthenelse{\value{month}=7 }{Juli}     {
- 	\ifthenelse{\value{month}=8 }{August}   {
- 	\ifthenelse{\value{month}=9 }{September}{
+  	\ifthenelse{\value{month}=1}{Januar}   {
+  	\ifthenelse{\value{month}=2}{Februar}  {
+ 	\ifthenelse{\value{month}=3}{M\"arz}   {
+ 	\ifthenelse{\value{month}=4}{April}    {
+ 	\ifthenelse{\value{month}=5}{Mai}      {
+ 	\ifthenelse{\value{month}=6}{Juni}     {
+ 	\ifthenelse{\value{month}=7}{Juli}     {
+ 	\ifthenelse{\value{month}=8}{August}   {
+ 	\ifthenelse{\value{month}=9}{September}{
  	\ifthenelse{\value{month}=10}{Oktober}  {
  	\ifthenelse{\value{month}=11}{November} {
  	\ifthenelse{\value{month}=12}{Dezember} {
@@ -206,7 +228,6 @@
   \renewcommand\chaptername{Kapitel}
   \renewcommand\appendixname{Anhang}
   \renewcommand\contentsname{Inhaltsverzeichnis}
-  \renewcommand\tocname{Inhaltsverzeichnis} 	
   \renewcommand\listfigurename{Abbildungsverzeichnis}
   \renewcommand\listtablename{Tabellenverzeichnis}
   \renewcommand\indexname{Index}
@@ -219,8 +240,8 @@
   \renewcommand\pagename{Seite}
   \renewcommand\headpagename{Siete}
   \renewcommand\seename{siehe}
-  \renewcommand\alsoname{siehe auch}
-  \renewcommand\dq{\@print{&#0034}}
+  \renewcommand\alsoseename{siehe auch}
+  \renewcommand\dq{\@print{"}}
 }
 
 \newcommand{\american@babel}{}
@@ -228,34 +249,34 @@
 \newcommand{\austrian@babel}{
   \renewcommand{\glqq}{\@print{&#8222;}}
   \renewcommand{\grqq}{\@print{&#8220;}}
-  \renewcommand{\glq }{\@print{&#8218;}}
-  \renewcommand{\grq }{\@print{&#8216;}}
+  \renewcommand{\glq}{\@print{&#8218;}}
+  \renewcommand{\grq}{\@print{&#8216;}}
   \renewcommand{\flqq}{\@print{&#0171;}}
   \renewcommand{\frqq}{\@print{&#0187;}}
-  \renewcommand{\flq }{\@print{&#8249;}}
-  \renewcommand{\frq }{\@print{&#8250;}}
-  \renewcommand{\"}[1]{
-        \ifthenelse{\equal{##1}{`}}{\glqq} {
-	\ifthenelse{\equal{##1}{'}}{\grqq} {
-	\ifthenelse{\equal{##1}{<}}{\flqq} {
-	\ifthenelse{\equal{##1}{>}}{\frqq} {
-        \ifthenelse{\equal{##1}{s}}{\@print{&#0223;}} {
-        \ifthenelse{\equal{##1}{S}}{SS} 	      {
-        \ifthenelse{\equal{##1}{A}}{\@print{&#0196;}} {
-        \ifthenelse{\equal{##1}{a}}{\@print{&#0228;}} {
-        \ifthenelse{\equal{##1}{E}}{\@print{&#0203;}} {
-        \ifthenelse{\equal{##1}{e}}{\@print{&#0235;}} {
-        \ifthenelse{\equal{##1}{I}}{\@print{&#0207;}} {
-        \ifthenelse{\equal{##1}{i}}{\@print{&#0239;}} {
-        \ifthenelse{\equal{##1}{O}}{\@print{&#0214;}} {
-        \ifthenelse{\equal{##1}{o}}{\@print{&#0246;}} {
-        \ifthenelse{\equal{##1}{U}}{\@print{&#0220;}} {
-        \ifthenelse{\equal{##1}{u}}{\@print{&#0252;}} {
-        \ifthenelse{\equal{##1}{Y}}{\@print{&#0376;}} {
-        \ifthenelse{\equal{##1}{y}}{\@print{&#0255;}} {
-        ##1
-	}}}}}}}}}}}}}}}}}}
-  }
+  \renewcommand{\flq}{\@print{&#8249;}}
+  \renewcommand{\frq}{\@print{&#8250;}}
+  %\renewcommand{\"}[1]{
+  %      \ifthenelse{\equal{##1}{`}}{\glqq} {
+  %	 \ifthenelse{\equal{##1}{'}}{\grqq} {
+  %	 \ifthenelse{\equal{##1}{<}}{\flqq} {
+  %	 \ifthenelse{\equal{##1}{>}}{\frqq} {
+  %        \ifthenelse{\equal{##1}{s}}{\@print{&#0223;}} {
+  %        \ifthenelse{\equal{##1}{S}}{SS} 	      {
+  %        \ifthenelse{\equal{##1}{A}}{\@print{&#0196;}} {
+  %        \ifthenelse{\equal{##1}{a}}{\@print{&#0228;}} {
+  %        \ifthenelse{\equal{##1}{E}}{\@print{&#0203;}} {
+  %        \ifthenelse{\equal{##1}{e}}{\@print{&#0235;}} {
+  %        \ifthenelse{\equal{##1}{I}}{\@print{&#0207;}} {
+  %        \ifthenelse{\equal{##1}{i}}{\@print{&#0239;}} {
+  %        \ifthenelse{\equal{##1}{O}}{\@print{&#0214;}} {
+  %        \ifthenelse{\equal{##1}{o}}{\@print{&#0246;}} {
+  %        \ifthenelse{\equal{##1}{U}}{\@print{&#0220;}} {
+  %        \ifthenelse{\equal{##1}{u}}{\@print{&#0252;}} {
+  %        \ifthenelse{\equal{##1}{Y}}{\@print{&#0376;}} {
+  %        \ifthenelse{\equal{##1}{y}}{\@print{&#0255;}} {
+  %        ##1
+  %	}}}}}}}}}}}}}}}}}}
+  %}
   \renewcommand{\austrian@month}{ 
   	\ifthenelse{\value{month}=1 }{J\"anner} {
   	\ifthenelse{\value{month}=2 }{Februar}  {
@@ -271,27 +292,27 @@
  	\ifthenelse{\value{month}=12}{Dezember} {
   }}}}}}}}}}}}}
   \renewcommand\today{\theday.~\austrian@month~\theyear}
-  \renewcommand\prefacename{Predmluva}
-  \renewcommand\refname{Reference}
-  \renewcommand\abstractname{Abstrakt}
-  \renewcommand\bibname{Literatura}
-  \renewcommand\chaptername{Kapitola}
-  \renewcommand\appendixname{Dodatek}
-  \renewcommand\contentsname{Obsah}
-  \renewcommand\tocname{Obsah} 	
-  \renewcommand\listfigurename{Seznam Obrazku}
-  \renewcommand\listtablename{Seznam Tabulek}
+  \renewcommand\prefacename{Vorwort}
+  \renewcommand\refname{Literatur}
+  \renewcommand\abstractname{Zusammenfassung}
+  \renewcommand\bibname{Literaturverzeichnis}
+  \renewcommand\chaptername{Kapitel}
+  \renewcommand\appendixname{Anhang}
+  \renewcommand\contentsname{Inhaltsverzeichnis}
+  \renewcommand\listfigurename{Abbildungsverzeichnis}
+  \renewcommand\listtablename{Tabellenverzeichnis}
   \renewcommand\indexname{Index}
-  \renewcommand\figurename{Obrazek}
-  \renewcommand\tablename{Tabluka}
-  \renewcommand\partname{Cast}
-  \renewcommand\enclname{Priloha}
-  \renewcommand\ccname{cc}
-  \renewcommand\headtoname{Komu}
-  \renewcommand\pagename{Strana}
-  \renewcommand\headpagename{Strana}
-  \renewcommand\seename{viz}
-  \renewcommand\alsoname{viz tez}
+  \renewcommand\figurename{Abbildung}
+  \renewcommand\tablename{Tabelle}
+  \renewcommand\partname{Teil}
+  \renewcommand\enclname{Anlage(n)}
+  \renewcommand\ccname{Verteiler}
+  \renewcommand\headtoname{An}
+  \renewcommand\pagename{Seite}
+  \renewcommand\headpagename{Siete}
+  \renewcommand\seename{siehe}
+  \renewcommand\alsoseename{siehe auch}
+  \renewcommand\dq{\@print{"}}
 }
 
 \newcommand{\brazil@babel}{}
@@ -300,7 +321,43 @@
 
 \newcommand{\croatian@babel}{}
 
-\newcommand{\czech@babel}{}
+\newcommand{\czech@babel}{
+  \renewcommand{\czech@month}{ 
+  	\ifthenelse{\value{month}=1 }{Leden}    {
+  	\ifthenelse{\value{month}=2 }{\'Unor}   {
+ 	\ifthenelse{\value{month}=3 }{Brezen}   {
+ 	\ifthenelse{\value{month}=4 }{Duben}    {
+ 	\ifthenelse{\value{month}=5 }{Kveten}   {
+ 	\ifthenelse{\value{month}=6 }{Cerven}   {
+ 	\ifthenelse{\value{month}=7 }{Cervenec} {
+ 	\ifthenelse{\value{month}=8 }{Srpen}    {
+ 	\ifthenelse{\value{month}=9 }{Z\'ar\'i} {
+ 	\ifthenelse{\value{month}=10}{R\'ijen}  {
+ 	\ifthenelse{\value{month}=11}{Listopad} {
+ 	\ifthenelse{\value{month}=12}{Pronisec} {
+  }}}}}}}}}}}}}
+  \renewcommand\today{\theday.~\czech@month~\theyear}
+  \renewcommand\prefacename{Predmluva}
+  \renewcommand\refname{Reference}
+  \renewcommand\abstractname{Abstrakt}
+  \renewcommand\bibname{Literatura}
+  \renewcommand\chaptername{Kapitola}
+  \renewcommand\appendixname{Dodatek}
+  \renewcommand\contentsname{Obsah}
+  \renewcommand\listfigurename{Seznam Obr\'azku}
+  \renewcommand\listtablename{Seznam Tabulek}
+  \renewcommand\indexname{Index}
+  \renewcommand\figurename{Obrazek}
+  \renewcommand\tablename{Tabluka}
+  \renewcommand\partname{C\'ast}
+  \renewcommand\enclname{Pr\'iloha}
+  \renewcommand\ccname{cc}
+  \renewcommand\headtoname{Komu}
+  \renewcommand\pagename{Strana}
+  \renewcommand\headpagename{Strana}
+  \renewcommand\seename{viz}
+  \renewcommand\alsoseename{viz t\'ez}
+}
 
 \newcommand{\danish@babel}{}
 
@@ -400,5 +457,6 @@
   \ifthenelse{\equal{#1}{\current@language}} {#2}{#3}
 }
 
+\ProcessOptions*
 
  

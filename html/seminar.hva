@@ -2,11 +2,7 @@
 \else
 %%%% Landscape and portrait
 \newif\ifplanche\planchetrue
-\iffrench
-\newcommand{\slidename}{Planche~:}
-\else
 \newcommand{\slidename}{Slide:}
-\fi
 \newcounter{slide}
 \newenvironment{slide}[1][]{%
 \stepcounter{slide}%

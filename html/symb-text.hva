@@ -74,8 +74,4 @@
 \newcommand{\Longleftarrow}{\mbox{==>}}
 \newcommand{\@displayprod}{\mbox{---\@br| |\@br| |}}
 
-\iffrench
-\input{html/symb-fra.hva}
-\else
 \input{html/symb-eng.hva}
-\fi

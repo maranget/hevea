@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.52 2004-06-11 13:22:06 maranget Exp $    *)
+(*  $Id: package.ml,v 1.53 2004-06-11 13:35:33 thakur Exp $    *)
 
 module type S = sig  end
 
@@ -49,8 +49,8 @@ def_print "\\@heveacomline"
 def_print "\\@heveaversion" Version.version ;
 def_print "\\@hevealibdir" Mylib.libdir
 ;;
-(* Unicode entities given in hexa *)
 
+(* Unicode entities given in hexa *)
 def_code "\\@unicode"
  (fun lexbuf ->
    let arg = get_prim_arg lexbuf in
@@ -1103,25 +1103,27 @@ register_init "proof"
           let is_opt_arg = if ("" = optarg2.arg) then false else true in  
 	  let formatted2 = Scan.get_this_arg_mbox optarg2 in
 	  let arg3 = save_arg lexbuf in
-	  let formatted3 = Scan.get_this_arg_mbox arg3 in
 	  let arg4 = save_arg lexbuf in
 	  start_table () ;
           def "\\@hevea@amper" zero_pat
 	    (CamlCode (fun _ ->  
 	      Dest.force_item_display (); 
-              Dest.put "&nbsp; &nbsp;")
+              Dest.put_nbsp (); Dest.put_nbsp ())
             ) ;
 	  Dest.open_display_varg "VALIGN=bottom";	  
 	  scan_this_arg Scan.main arg4;
 	  Dest.close_display();
-          next_column () ; Dest.put "&nbsp;"; 
+          next_column () ; 
+          Dest.put_nbsp () ; 
           next_row () ; 
           if (tag=true) then Dest.put "<HR NOSHADE SIZE=\"4\">\n" 
              else Dest.put "<HR>\n" ;
-          next_column () ; Dest.put (formatted2^"&nbsp;&nbsp;");
+          next_column () ; 
+          Dest.put (formatted2^"&nbsp;&nbsp;") ;
           next_row () ;
-	  Dest.put formatted3; (*scan_this_arg Scan.main arg3 ;*)
-          next_column () ; Dest.put "&nbsp;";
+	  scan_this_arg Scan.main arg3 ;
+          next_column () ; 
+          Dest.put_nbsp () ; 
 	  end_table ()
         ) ;
       def_code "\\infer*"
@@ -1130,24 +1132,26 @@ register_init "proof"
           let is_opt_arg = if ("" = optarg1.arg) then false else true in  
 	  let formatted1 = Scan.get_this_arg_mbox optarg1 in
           let arg2 = save_arg lexbuf in
-	  let formatted2 = Scan.get_this_arg_mbox arg2 in
 	  let arg3 = save_arg lexbuf in
 	  start_table ();
           def "\\@hevea@amper" zero_pat
 	    (CamlCode (fun _ ->  
 	      Dest.force_item_display (); 
-              Dest.put "&nbsp; &nbsp;")
+              Dest.put_nbsp () ; Dest.put_nbsp ()) ;
             ) ;
 	  Dest.open_display_varg "VALIGN=bottom";	  
 	  scan_this_arg Scan.main arg3;
 	  Dest.close_display();
-          next_column() ; Dest.put "&nbsp;";
+          next_column () ; 
+          Dest.put_nbsp () ;
           next_row () ;
           Dest.put "&#8942\n" ; 
-          next_column() ; Dest.put (formatted1^"&nbsp;&nbsp;");
+          next_column () ; 
+          Dest.put (formatted1^"&nbsp;&nbsp;");
           next_row () ;
 	  scan_this_arg Scan.main arg2 ;
-          next_column() ; Dest.put "&nbsp;";
+          next_column () ; 
+          Dest.put_nbsp () ;
 	  end_table ()
         ) ;
       def_code "\\deduce"
@@ -1156,24 +1160,28 @@ register_init "proof"
           let is_opt_arg = if ("" = optarg1.arg) then false else true in  
 	  let formatted1 = Scan.get_this_arg_mbox optarg1 in
           let arg2 = save_arg lexbuf in
-	  let formatted2 = Scan.get_this_arg_mbox arg2 in
 	  let arg3 = save_arg lexbuf in
 	  start_table ();
           def "\\@hevea@amper" zero_pat
 	    (CamlCode (fun _ ->  
 	      Dest.force_item_display (); 
-              Dest.put "&nbsp;&nbsp;")
+              Dest.put_nbsp () ; Dest.put_nbsp ()) (* scan_this_main "~~" *)
             ) ;
 	  Dest.open_display_varg "VALIGN=bottom";	  
 	  scan_this_arg Scan.main arg3;
 	  Dest.close_display();
-          next_column () ; Dest.put "&nbsp;";
+          next_column () ; 
+          Dest.put_nbsp () ;
           next_row () ;
-          Dest.put "&nbsp;\n" ; 
-          next_column () ; Dest.put (formatted1^"&nbsp;&nbsp;");
+          Dest.put_nbsp () ; 
+          next_column () ; 
+          Dest.put formatted1 ;
+          Dest.put_nbsp () ;
+          Dest.put_nbsp () ;
           next_row () ;
 	  scan_this_arg Scan.main arg2 ;
-          next_column () ; Dest.put "&nbsp;";
+          next_column () ; 
+          Dest.put_nbsp () ;
 	  end_table ()
         ) ;
     )

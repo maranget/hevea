@@ -7,12 +7,26 @@
        \input{\pkg@arg.hva}}
        {}%
     \fi}
+\newsavebox{\@pkg@opts}
 \newcommand{\usepackage}[2][!*!]
 {\ifthenelse{\equal{#1}{!*!}}
-{\begin{toimage}\usepackage{#2}
+{\sbox{\@pkg@opts}{}\begin{toimage}\usepackage{#2}
 \end{toimage}}
-{\begin{toimage}\usepackage[#1]{#2}
+{\sbox{\@pkg@opts}{#1}\begin{toimage}\usepackage[#1]{#2}
 \end{toimage}}%
 \@stopoutput\@stopimage\@funcall{\@iter}{\@usepackage,{#2}}\@restartimage\@restartoutput
 }
+\newsavebox{\@pkg@me}
+\newcommand{\ProvidesPackage}[1]
+  {\sbox{\@pkg@me}{\@getprint{#1}}}
+\newcommand{\@pkg@opt@name}[1]
+  {@pkg\usebox{\@pkg@me}@@#1}
+\newcommand{\DeclareOption}[2]
+  {\newcommand{\csname\@pkg@opt@name{#1}\endcsname}{#2}}
 
+\newcommand{\@process@option}[1]%
+	{\def\pkg@opt{{\@nostyle\@callprim{\@eatspaces}{#1,}}}%
+	 \csname\@pkg@opt@name{\pkg@opt}\endcsname}%
+\newcommand{\ProcessOptions*}
+{\@callprim{\@iter}
+  {\string\@process@option,{\char123\usebox{\@pkg@opts}\char125}}}

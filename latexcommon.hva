@@ -91,12 +91,12 @@
 %%%%% Figures and tables
 \newcommand{\@figrule}{\begin{center}\@hr{.8\linewidth}{2pt}\end{center}}
 \newenvironment{figure}[1][]
-{\@forcecommand{\caption}[1]{\par\refstepcounter{figure}\begin{center}Figure \thefigure\iffrench~\fi: ##1\end{center}\par}%
+{\@forcecommand{\caption}[1]{\par\refstepcounter{figure}\begin{center}Figure \thefigure: ##1\end{center}\par}%
 \@open{BLOCKQUOTE}{}\@figrule}
 {\@figrule\@close{BLOCKQUOTE}}
 \newenvironment{figure*}[1][]{\begin{figure}[#1]}{\end{figure}}
 \newenvironment{table}[1][]
-{\newcommand{\caption}[1]{\par\refstepcounter{table}\begin{center}Table \thetable\iffrench~\fi: ##1\end{center}\par}%
+{\newcommand{\caption}[1]{\par\refstepcounter{table}\begin{center}Table \thetable: ##1\end{center}\par}%
 \@open{BLOCKQUOTE}{}\@figrule%
 }{\@figrule\@close{BLOCKQUOTE}}
 \newenvironment{table*}[1][]{\begin{table}[#1]}{\end{table}}
@@ -111,7 +111,6 @@
 %%% No table of contents, no a lot of things
 \def\listoffigures{}
 \def\listoftables{}
-\def\contentsname{}
 \newcommand{\contentsline}[3]{}
 \newcommand{\numberline}[2]{}
 \newcommand{\addtocontents}[2]{}
@@ -328,7 +327,7 @@
 %%%%%%%%%%% Bibliography
 \def\bibliographystyle#1{}
 \def\nocite#1{}
-\newcommand{\refname}{\iffrench Références\else References\fi}
+\newcommand{\refname}{References}
 \newenvironment{thebibliography}[1]
   {\@bibliosection{\refname}%
   \begin{list}{\stepcounter{heveabib}\theheveabib}
@@ -434,52 +433,34 @@
 \renewcommand{\thehour}{\@twoarabic{hour}}
 \renewcommand{\theminute}{\@twoarabic{minute}}
 \renewcommand{\thesecond}{\@twoarabic{second}}}}
-
-  \newcommand\english@day{
-        \ifthenelse{\value{day}=1 }{\theday st} {
-  	\ifthenelse{\value{day}=21}{\theday st} {
- 	\ifthenelse{\value{day}=31}{\theday st} {
- 	\ifthenelse{\value{day}=2 }{\theday nd} {
- 	\ifthenelse{\value{day}=22}{\theday nd} {
- 	\ifthenelse{\value{day}=3 }{\theday rd} {
- 	\ifthenelse{\value{day}=23}{\theday rd} {
-        \theday th
-  }}}}}}}}  
-  \newcommand\english@month{ 
-  	\ifthenelse{\value{month}=1 }{January}  {
-  	\ifthenelse{\value{month}=2 }{February} {
- 	\ifthenelse{\value{month}=3 }{March}    {
- 	\ifthenelse{\value{month}=4 }{April}    {
- 	\ifthenelse{\value{month}=5 }{May}      {
- 	\ifthenelse{\value{month}=6 }{June}     {
- 	\ifthenelse{\value{month}=7 }{July}     {
- 	\ifthenelse{\value{month}=8 }{August}   {
- 	\ifthenelse{\value{month}=9 }{September}{
- 	\ifthenelse{\value{month}=10}{October}  {
- 	\ifthenelse{\value{month}=11}{November} {
- 	\ifthenelse{\value{month}=12}{December} {
-  }}}}}}}}}}}}}  
-  \newcommand\today@english{\english@day\english@month,~\theyear}
-
-\newcommand\today
-{\@ifundefined{theyear}{\warning{\today needs ``-exec xxdate.exe'' option}}
-{\ifthenelse{\boolean{french}}
-{\theday%
-\ifthenelse{\value{day}=1}{$^{\textrm{er}}$ }{ }%
-\ifthenelse{\value{month}=1}{janvier}{}%
-\ifthenelse{\value{month}=2}{février}{}%
-\ifthenelse{\value{month}=3}{mars}{}%
-\ifthenelse{\value{month}=4}{avril}{}%
-\ifthenelse{\value{month}=5}{mai}{}%
-\ifthenelse{\value{month}=6}{juin}{}%
-\ifthenelse{\value{month}=7}{juillet}{}%
-\ifthenelse{\value{month}=8}{août}{}%
-\ifthenelse{\value{month}=9}{septembre}{}%
-\ifthenelse{\value{month}=10}{octobre}{}%
-\ifthenelse{\value{month}=11}{novembre}{}%
-\ifthenelse{\value{month}=12}{décembre}{} \theyear}
-{%
-\today@english}}}
+%%%%%%%% Corrected format for the day  
+\newcommand\english@day{%
+        \ifthenelse{\value{day}=1 }{\theday st} {%
+  	\ifthenelse{\value{day}=21}{\theday st} {%
+ 	\ifthenelse{\value{day}=31}{\theday st} {%
+ 	\ifthenelse{\value{day}=2 }{\theday nd} {%
+ 	\ifthenelse{\value{day}=22}{\theday nd} {%
+ 	\ifthenelse{\value{day}=3 }{\theday rd} {%
+ 	\ifthenelse{\value{day}=23}{\theday rd} {%
+        \theday th%
+}}}}}}}}%
+%%%%%%%% Usual format for the month  
+\newcommand\english@month{% 
+  	\ifthenelse{\value{month}=1 }{January}  {%
+  	\ifthenelse{\value{month}=2 }{February} {%
+ 	\ifthenelse{\value{month}=3 }{March}    {%
+ 	\ifthenelse{\value{month}=4 }{April}    {%
+ 	\ifthenelse{\value{month}=5 }{May}      {%
+ 	\ifthenelse{\value{month}=6 }{June}     {%
+ 	\ifthenelse{\value{month}=7 }{July}     {%
+ 	\ifthenelse{\value{month}=8 }{August}   {%
+ 	\ifthenelse{\value{month}=9 }{September}{%
+ 	\ifthenelse{\value{month}=10}{October}  {%
+ 	\ifthenelse{\value{month}=11}{November} {%
+ 	\ifthenelse{\value{month}=12}{December} {%
+}}}}}}}}}}}}}%  
+%%%%%%%% Format for \today, e.g 31st July, 1980
+\newcommand\today{\english@day\english@month,~\theyear}
 %%%%%%%%%%%%%% Defined counter printing functions
 \newcommand{\@arabic}[1]{\@pad{0}{3}{\arabic{#1}}}
 \newcommand{\@twoarabic}[1]{\@pad{0}{2}{\arabic{#1}}}
@@ -505,11 +486,12 @@
 %%%%%%%%%%%%%%%%% Toc
 \newenvironment{tocenv}{\begin{itemize}}{\end{itemize}}
 \newcommand{\tocitem}[1][]{\ifoptarg\item[#1]\else\item\fi}
-\newcommand{\tocname}{\iffrench Table des matières\else Table of Contents\fi}
+%%%%%%%%tocname changed to contentsname (standard)
+\newcommand{\contentsname}{Contents}
 \newcommand{\@readtoc}[2]
 {\@tocsection{#2}
 \@iffileexists{\jobname.#1}{\input{\jobname.#1}}{\warning{File \jobname.#1 not found}}}
-\newcommand{\tableofcontents}{\@readtoc{htoc}{\tocname}}
+\newcommand{\tableofcontents}{\@readtoc{htoc}{\contentsname}}
 \newcommand{\addcontentsline}[3]
 {\@auxdowrite{\@print{\@addcontentsline}{\{\@nostyle{}h#1\}\{\csname @#2@level\endcsname\}}\{\@subst{#3}\}\@print{
 }}}
@@ -523,39 +505,33 @@ poor}}{}
 {\@scaninput{\begin{rawtext}}{#1}{\end{rawtext}}}
 \newcommand{\rawinput}[1]
 {\@scaninput{\begin{raw}}{#1}{\end{raw}}}
-
-  \newcommand{\glqq}{\@print{&#8222;}}
-  \newcommand{\grqq}{\@print{&#8220;}}
-  \newcommand{\glq }{\@print{&#8218;}}
-  \newcommand{\grq }{\@print{&#8216;}}
-  \newcommand{\flqq}{\@print{&#0171;}}
-  \newcommand{\frqq}{\@print{&#0187;}}
-  \newcommand{\flq }{\@print{&#8249;}}
-  \newcommand{\frq }{\@print{&#8250;}}
-  %\newcommand{\'}[1]{#1}
-  %\newcommand{\`}[1]{#1}
-  \newcommand\prefacename{Preface}
-  %\newcommand\abstractname{Abstract}
-  \newcommand\bibname{Binliography}
-  \newcommand\chaptername{Chapter}
-  %\newcommand\appendixname{Appendix}
-  \newcommand\listfigurename{List of Figured}
-  \newcommand\listtablename{List of Tables}
-  \newcommand\indexname{Index}
-  \newcommand\figurename{Figure}
-  \newcommand\tablename{Table}
-  %\newcommand\partname{Part}
-  \newcommand\enclname{encl}
-  \newcommand\ccname{cc}
-  \newcommand\headtoname{To}
-  \newcommand\pagename{Page}
-  \newcommand\headpagename{Page}
-  \newcommand\seename{see}
-  \newcommand\alsoname{see also}
-  \newcommand\dq{No-dq}
-  \newcommand\german@month{}
-  \newcommand\austrian@month{}
-  \newcommand\french@day{}
-  \newcommand\french@month{}
-  %\newcommand\english@day{}
-  %\newcommand\english@month{}
+\newcommand{\glqq}{\@print{&#8222;}}
+\newcommand{\grqq}{\@print{&#8220;}}
+\newcommand{\glq}{\@print{&#8218;}}
+\newcommand{\grq}{\@print{&#8216;}}
+\newcommand{\flqq}{\@print{&#0171;}}
+\newcommand{\frqq}{\@print{&#0187;}}
+\newcommand{\flq}{\@print{&#8249;}}
+\newcommand{\frq}{\@print{&#8250;}}
+\newcommand\prefacename{Preface}
+\newcommand\bibname{Binliography}
+\newcommand\chaptername{Chapter}
+\newcommand\listfigurename{List of Figured}
+\newcommand\listtablename{List of Tables}
+\newcommand\indexname{Index}
+\newcommand\figurename{Figure}
+\newcommand\tablename{Table}
+\newcommand\enclname{encl}
+\newcommand\ccname{cc}
+\newcommand\headtoname{To}
+\newcommand\pagename{Page}
+\newcommand\headpagename{Page}
+\newcommand\seename{see}
+\newcommand\alsoseename{see also}
+\newcommand\dq{No-dq}
+\newcommand\german@month{}
+\newcommand\austrian@month{}
+\newcommand\czech@month{}
+\newcommand\french@day{}
+\newcommand\french@month{}
+  

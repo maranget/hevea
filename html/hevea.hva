@@ -197,8 +197,6 @@
 }%
 \@print{<!--HEVEA command line is: }\usebox{\@heveacomline}\@print{-->
 }%
-\iffrench\@print{<!--FRENCH-->
-}\fi
 {\@nostyle\@print{<!--HTMLHEAD-->
 }}%
 \usebox{\@htmlhead}%
