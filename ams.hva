@@ -1,0 +1,14 @@
+\def\text#1{\mbox{#1}}
+%%AMS environments for dispayed equations
+\newenvironment{equation*}{\[}{\]}
+\newenvironment{align}{\[\begin{array}{@{\numbertrue}rl@{\ifnumber\stepcounter{equation}\eqno{(\theequation)}\fi}}}{\end{array}\]}
+\newenvironment{align*}{\[\begin{array}{rl}}{\end{array}\]}
+\newenvironment{gather}{\[\begin{array}{@{\numbertrue}c@{\ifnumber\stepcounter{equation}\eqno{(\theequation)}\fi}}}{\end{array}\]}
+\newenvironment{gather*}{\[\begin{array}{c}}{\end{array}\]}
+\newenvironment{alignat*}[1]{\[\begin{array}{*{#1}{rl}}}{\end{array}\]}
+\newenvironment{multline}{\begin{equation}\begin{array}{l}}{\end{array}\end{equation}}
+\newenvironment{multline*}{\begin{equation*}\nonumber\begin{array}{l}}{\end{array}\end{equation*}}
+\newenvironment{split}{\begin{array}{r}}{\end{array}}
+\renewenvironment{cases}{\left\{\begin{array}{l>{$}l<{$}}}{\end{array}\right.}
+\newcommand{\intertext}[1]{\qquad\mbox{#1}\\}
+

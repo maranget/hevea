@@ -190,8 +190,7 @@
 \newenvironment{displaymath}{\[}{\]}
 \newcommand{\ensuremath}[1]{\ifmath#1\else\(#1\)\fi}
 \newcommand{\eqno}[1]{\quad\quad#1}
-\newenvironment{equation}{\[}
-  {\stepcounter{equation}\eqno{(\theequation)}\]}
+\newenvironment{equation}{\[}{\stepcounter{equation}\eqno{(\theequation)}\]}
 \newenvironment{eqnarray*}{$$\begin{array}{rcl}}{\end{array}$$}
 \newif\ifnumber
 \newcommand{\nonumber}{\numberfalse}

@@ -49,7 +49,7 @@ open Save
 open Tabular
 open Lexstate
 
-let header = "$Id: latexscan.mll,v 1.76 1999-04-08 09:24:33 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.77 1999-04-09 13:38:36 maranget Exp $" 
 
 let sbool = function
   | false -> "false"
@@ -1355,7 +1355,7 @@ rule  main = parse
         skip_blanks lexbuf ;
         lexfun lexbuf
     | "lrbox" ->
-        let name = subst_this subst (save_arg lexbuf) in
+        let name = subst_arg subst lexbuf in
         Html.open_aftergroup
           (fun s ->
             redef_macro name 0 (Print s) ;
@@ -1481,7 +1481,10 @@ rule  main = parse
         Html.open_block "TR" "" ;
         Html.open_block "TD" ""
       end else begin
-        Html.skip_line ()
+        if !display then
+          warning "\\ in display mode, ignored"
+        else
+          Html.skip_line ()
       end ;
       eat_space := true ;
       skip_blanks_pop lexbuf ;
@@ -1739,8 +1742,8 @@ rule  main = parse
           main lexbuf
 (* Bibliographies *)
       | "\\cite" ->
-          let opt = save_opt "" lexbuf in
-          let args = Save.cite_arg lexbuf in
+          let opt = subst_opt "" subst lexbuf in
+          let args = List.map (subst_this subst) (Save.cite_arg lexbuf) in
           Html.put_char '[' ;
           Html.open_group "CITE" ;
           let rec do_rec = function
@@ -1828,7 +1831,7 @@ rule  main = parse
           main lexbuf
       |  "\\ref" ->
           let lab = subst_arg subst lexbuf in 
-          Html.loc_ref (Auxx.rget lab) lab ;
+          Html.loc_ref (get_this main (Auxx.rget lab)) lab ;
           main lexbuf
       |  "\\pageref" ->
           let lab = subst_arg subst lexbuf in
@@ -1863,14 +1866,14 @@ rule  main = parse
           main lexbuf
 (* Counters *)
       | "\\newcounter"  ->
-          let name = save_arg lexbuf in
+          let name = subst_arg subst lexbuf in
           let within = save_opt "" lexbuf in
           let within = get_this main within in
           Counter.def_counter name within ;
           scan_this main ("\\def\\the"^name^"{\\arabic{"^name^"}}") ;
           main lexbuf
       | "\\addtocounter" ->
-          let name = save_arg lexbuf in
+          let name = subst_arg subst lexbuf in
           let arg = save_arg lexbuf in
           Counter.add_counter name (Get.get_int arg) ;
           main lexbuf
@@ -1888,7 +1891,11 @@ rule  main = parse
           Counter.step_counter name ;
           Counter.setrefvalue (get_this main ("\\@nostyle\\the"^name)) ;
           main lexbuf
-      
+      | "\\numberwithin" ->
+          let name = get_this main (save_arg lexbuf) in
+          let within = get_this main (save_arg lexbuf) in
+          Counter.number_within name within ;
+          main lexbuf
 (* terminal output *)
       | "\\typeout" ->
           let what = save_arg lexbuf in

@@ -1,4 +1,8 @@
 version 1.04-1
+  - \\ in display mode does not emit <BR> anymore
+  - Small ams compatibility  mode : displayed equations (ams.hva)
+    and \numberwithin
+  - Silly bug : opened files where never closed.
   - Better error message for missing \makeindex.
   - Eat \\ optional argument after \hline.
   - Bug in book.hva : \section* down to \sussubsection* should ``\cuthere''
