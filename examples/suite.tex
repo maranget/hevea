@@ -7,6 +7,7 @@
 \usepackage{index}
 \usepackage{color}
 \usepackage{ifthen}
+\usepackage{calc}
 \usepackage{array}
 
 \title{Test de \hevea\footnote{Une étoile}}
@@ -856,6 +857,67 @@ Test du pgcd : \printgcd{54}{30}
 
 \section{The \texttt{calc} package}
 Aller voir~\cite{latexbis}
+
+
+\subsection{Me suis-je planté~?}
+\newcounter{plante}
+\setcounter{plante}{2}
+\addtocounter{plante}{1 + -\value{plante} * -2 }
+Ça doit faire $7$~: \theplante
+
+\setcounter{plante}{\value{plante}/2}
+Ça doit faire $3$~: \theplante
+
+\addtocounter{plante}{1+--1}
+Ça doit faire $5$~: \theplante
+
+\addtocounter{plante}{0-+-+1}
+Ça doit faire $6$~: \theplante
+
+\setcounter{plante}{1+---2}
+Ça doit faire $-1$~: \theplante
+
+\setcounter{plante}{1+-1*-2*-\value{plante}}
+Ça doit faire $3$~: \theplante
+
+\subsection{Pascal chez les Romains}
+\newcounter{res}\newcounter{x}\newcounter{y}
+\newcommand{\crec}[2]{%
+\setcounter{x}{#1}\setcounter{y}{#2}%
+\ifthenelse{\value{x}=0}{\addtocounter{res}{1}}
+{\ifthenelse{\value{x}=\value{y}}{\addtocounter{res}{1}}{\crec{#1}{#2-1}\crec{#1-1}{#2-1}}}}
+\newcommand{\C}[2]{\setcounter{res}{0}\crec{#1}{#2}\theres}
+
+\newcommand{\pascalrow}{%
+\ifthenelse{\value{j} < \value{i}}
+  {\C{\value{j}}{\value{i}}& &\addtocounter{j}{1}\pascalrow}
+  {\C{\value{i}}{\value{i}}}}%
+
+\newcounter{i}\newcounter{j}\newcounter{k}
+\newcommand{\emptycols}[1]{\setcounter{k}{#1}\ifthenelse{\value{k}=0}{}{&\emptycols{#1-1}}}%
+\newcommand{\pascalcols}[1]{%
+\setcounter{i}{0}%
+\whiledo{\value{i} < #1}{%
+  \setcounter{j}{0}%
+  \emptycols{#1-\value{i}-1}\pascalrow%
+  \addtocounter{i}{1}%
+  \ifthenelse{\value{i}<#1}{\\}{}}}%
+%BEGIN LATEX
+\newcommand{\PBS}[1]{\let\tmp=\\#1\let\\=\tmp}
+%END LATEX
+%HEVEA\newcommand{\PBS}[1]{#1}
+\newcolumntype{P}[1]{p{#1}}
+\newcommand{\pascal}[2]{%
+\setcounter{i}{2*#1-1}
+\begin{tabular}{*{\value{i}}{@{}>{\PBS\centering}P{#2}}}
+\pascalcols{#1}
+\end{tabular}}
+
+\begin{tabular}{cc}\hline
+\pascal{8}{2ex} &
+\renewcommand{\theres}{\roman{res}}
+\pascal{8}{4ex}\\ \hline
+\end{tabular}
 
 \section{The \texttt{array} package}
 

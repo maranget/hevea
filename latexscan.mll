@@ -49,7 +49,11 @@ open Save
 open Tabular
 open Lexstate
 
-let header = "$Id: latexscan.mll,v 1.71 1999-03-16 17:42:01 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.72 1999-03-17 15:24:50 maranget Exp $" 
+
+let sbool = function
+  | false -> "false"
+  | true  -> "true"
 
 module Index = Index.Make (Html)
 
@@ -673,7 +677,7 @@ let do_multi n format main =
 ;;
 
 
-let close_col main content =
+let close_col_aux main content is_last =
   let old_format = get_col !cur_format !cur_col in
   scan_this main (as_post old_format) ;
   if math_table !in_table && not (as_wrap old_format) then
@@ -682,26 +686,26 @@ let close_col main content =
     Html.close_display () ;
     display := false
   end ;
-  Html.force_block "TD" content ;
-  if !in_multi then begin
-    in_multi := false ;
-    let f,n = pop stack_multi in
-    cur_format := f ;
-    cur_col := n
-  end else
-    cur_col := !cur_col + 1;
-  cur_col := show_inside main !cur_format !cur_col ;
-  if !first_col then begin
-    first_col := false
+  if is_last && Html.is_empty () then Html.erase_block "TD"
+  else begin
+    Html.force_block "TD" content ;
+    if !in_multi then begin
+      in_multi := false ;
+      let f,n = pop stack_multi in
+      cur_format := f ;
+      cur_col := n
+    end else
+      cur_col := !cur_col + 1;
+    cur_col := show_inside main !cur_format !cur_col ;
+    if !first_col then begin
+      first_col := false
+    end
   end ;
   Html.close_group ()
 ;;
 
-let close_last_col main content =
-  if !first_col && Html.is_empty () then begin
-    erase_col main
-  end else
-    close_col main content
+let close_col main content = close_col_aux main content false
+and close_last_col main content = close_col_aux main content true
 
 and close_last_row () =
   if !first_col then
@@ -719,10 +723,6 @@ let rec close_ngroups = function
   | n -> Html.force_block "" "" ; close_ngroups (n-1)
 
 (* Compute functions *)
-
-let sbool = function
-  | false -> "false"
-  | true  -> "true"
 
 let get_style lexfun s =
   start_normal display in_math ;

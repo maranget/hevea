@@ -1438,9 +1438,10 @@ Also observe that this not a recursive definition, since
 commands do not get expanded inside the \verb+toimage+ environment.
 
 
-Finally, if the Postcript image is produced from a bitmap, it is
+Finally, if the Postscript image is produced from a bitmap, it is
 a pity to translate it back into a bitmap.
 A better idea is first to generate a GIF file from the bitmap source
+independantly
 and then to include a link to that GIF file in \html{} output, see
 section~\ref{imgsrc} for description of this more adequate technique.
 
@@ -1805,7 +1806,8 @@ file, then a \texttt{doc.tex} document can include it by:
 \begin{verbatim}
 \epsfbox{screenshot.ps}
 \end{verbatim}
-We may very well also have a GIF version of the screenshot image,
+We may very well also have a GIF version of the screenshot image
+(or be able to produce one easily using image converting tools)
 let us put it in a \texttt{screenshot.ps.gif} file.
 Then, for \hevea{} to include a link to the GIF image in its
 output, it suffices
@@ -1846,9 +1848,9 @@ one can adopt the slightly more verbose definition:
 \end{verbatim}
 When the Postscript file has been produced by
 translating a bitmap file, this simple method of making a GIF image and
-using the \verb+\imagsrc+ command 
+using the \verb+\imgsrc+ command 
 is the most adequate.
-It should be prefered over using the \textit{image} file
+It should be prefered over using the more automated \textit{image} file
 mechanism (see section~\ref{imagen}),
 which will translate the image back from
 Postscript to bitmap format and thus degrade it.
@@ -2509,8 +2511,8 @@ will clobber the output.
 \subsection{The \texttt{ifthen} Package}\label{ifthen}
 
 The \texttt{ifthen} package is partially supported.
-Unsupported constructs are the
-\verb+\lengthtest+ and \verb+\isodd+ test expressions, which are
+The one unsupported construct is the
+\verb+\lengthtest+ test expressions, which is
 undefined.
 
 As a consequence, \hevea{} accepts the following example from the
@@ -2590,7 +2592,7 @@ commands
 \verb+\=+ and \verb+\>+ start a new column.
 All other tabbing commands do not even exist.
 
-\subsection{The \protect\texttt{array} and \protect\texttt{tabular}
+\subsection{The \texttt{array} and \texttt{tabular}
 environments}\label{arraydef}
 
 These environments are partially supported, using \html{}
@@ -2620,7 +2622,7 @@ Additionnaly, entries in this column get top-aligned in the vertical direction
 explicitely and paragraph break reduces to one line break inside them.
 This is the only occasion where
 \hevea{} makes a distinction between LR-mode and paragraph mode.
-The length arguments to \verb+p+ specifications are ignored.
+The length argument \textit{wd} to the \verb+p+ specification is ignored.
 \item If a \verb+|+ appears somewhere in the column formatting
 specification, then the array is shown with borders.
 \item The command \verb+\hline+ does nothing if the array has borders
@@ -2822,7 +2824,7 @@ arguments.  Such arguments get converted to a number of non-breaking
 spaces or line breaks.
 Basically, the value of \verb+1em+ or \verb+1ex+ is one space or one
 line-break. For other length units, a simple conversion based upon a
-12pt font is used.
+10pt font is used.
 
 
 \hevea{} cannot interpret more complicated length arguments

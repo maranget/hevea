@@ -16,7 +16,7 @@ open Lexing
 open Lexstate
 
 (* Compute functions *)
-let header = "$Id: get.mll,v 1.1 1999-03-16 17:41:55 maranget Exp $"
+let header = "$Id: get.mll,v 1.2 1999-03-17 15:24:47 maranget Exp $"
 
 exception Error of string
 
@@ -40,20 +40,35 @@ and group_stack = Lexstate.create ()
 and just_opened = ref false
 
 let push_int x =
+  if !verbose > 2 then
+    prerr_endline ("PUSH INT: "^string_of_int x) ;
   just_opened := false ;
   push int_stack x
 
-let rec open_ngroups = function
-  | 0 -> just_opened := true
-  | n -> push group_stack (fun () -> ()) ; open_ngroups (n-1)
+let open_ngroups n =
+  let rec open_ngroups_rec  = function
+    | 0 ->()
+    | n -> push group_stack (fun () -> ()) ; open_ngroups_rec (n-1) in
+  if !verbose > 2 then
+    prerr_endline ("OPEN NGROUPS: "^string_of_int n) ;
+  if n > 0 then begin
+    just_opened := true ;
+    open_ngroups_rec n
+  end
 
-let rec close_ngroups = function
-  | 0 -> ()
-  | n ->
-      let f = pop group_stack in
-      f() ; close_ngroups (n-1)
+let close_ngroups n =
+  let rec close_ngroups_rec  = function
+    | 0 -> ()
+    | n ->
+        let f = pop group_stack in
+        f() ; close_ngroups_rec (n-1) in
+  if !verbose > 2 then
+    prerr_endline ("CLOSE NGROUPS: "^string_of_int n);
+  close_ngroups_rec n
 
-let open_aftergroup f =
+let open_aftergroup f s =
+  if !verbose > 2 then
+    prerr_endline ("OPEN AFTER: "^s) ;
   just_opened := true ;
   push group_stack f
 
@@ -96,10 +111,25 @@ rule result = parse
 (* Operands *)
 | '+' | '-'
     {let lxm = lexeme_char lexbuf 0 in
-    if !just_opened then push_int 0;
-    close_ngroups 2 ;
-    open_aftergroup
-      (fun () ->
+    let unary = !just_opened in
+    if unary then begin
+      let f = pop group_stack in
+      open_aftergroup
+        (fun () ->
+          if !verbose > 2 then begin
+            prerr_endline ("UNARY: "^String.make 1 lxm) ;
+            prerr_stack_string "int" string_of_int int_stack
+          end ;
+          let x1 = pop int_stack in
+          let r = match lxm with
+          | '+' -> x1
+          | '-' -> 0 - x1
+          | _   -> assert false in
+          push_int r ; f()) "UNARY"
+    end else begin
+      close_ngroups 2 ;
+      open_aftergroup
+        (fun () ->
           if !verbose > 2 then begin
             prerr_endline ("OPPADD: "^String.make 1 lxm) ;
             prerr_stack_string "int" string_of_int int_stack
@@ -110,8 +140,9 @@ rule result = parse
           | '+' -> x1 + x2
           | '-' -> x1 - x2
           | _   -> assert false in
-          push_int r) ;
-    open_ngroups 1 ;
+          push_int r) "ADD";
+      open_ngroups 1 ;
+    end ;
     result lexbuf}
 | '/' | '*'
     {let lxm = lexeme_char lexbuf 0 in
@@ -122,13 +153,13 @@ rule result = parse
             prerr_endline ("MULTOP"^String.make 1 lxm) ;
             prerr_stack_string "int" string_of_int int_stack
           end ;
-          let x1 = pop int_stack in
           let x2 = pop int_stack in
+          let x1 = pop int_stack in
           let r = match lxm with
           | '*' -> x1 * x2
           | '/' -> x1 / x2
           | _   -> assert false in
-          push_int r) ;
+          push_int r) "MULT";
     result lexbuf}
 (* boolean openrands *)
 | '<' | '>' | '=' 
@@ -149,14 +180,15 @@ rule result = parse
           | '=' -> x1 = x2
           | _   -> assert false) ;
           if !verbose > 2 then
-            prerr_stack_string "bool" sbool bool_stack) ;
+            prerr_stack_string "bool" sbool bool_stack) "COMP" ;
     open_ngroups 2 ;
     result lexbuf}
+
 (* Parenthesis for integer computing *)
-| '('
+| '('|'{'
     {open_ngroups 2 ;
     result lexbuf}
-| ')'
+| ')'|'}'
     {close_ngroups 2 ;
     result lexbuf}
 (* Commands *)
@@ -197,7 +229,7 @@ rule result = parse
             end ;
             let b1 = pop bool_stack in
             let b2 = pop bool_stack in
-            push bool_stack (b1 || b2)) ;
+            push bool_stack (b1 || b2)) "OR";
         open_ngroups 6 ;
         result lexbuf
     | "\\and" when !bool_out ->
@@ -210,7 +242,7 @@ rule result = parse
             end ;
             let b1 = pop bool_stack in
             let b2 = pop bool_stack in
-            push bool_stack (b1 && b2)) ;            
+            push bool_stack (b1 && b2)) "AND";            
         open_ngroups 5 ;
         result lexbuf
     | "\\not" when !bool_out ->
@@ -222,7 +254,7 @@ rule result = parse
               prerr_stack_string "bool" sbool bool_stack
             end ;
             let b1 = pop bool_stack in
-            push bool_stack (not b1)) ;
+            push bool_stack (not b1)) "NOT";
         open_ngroups 3;
         result lexbuf
     | "\\boolean" when !bool_out ->
@@ -235,6 +267,20 @@ rule result = parse
         with
           Latexmacros.Failed -> true  in
         push bool_stack b ;
+        result lexbuf
+    | "\\isodd" when !bool_out ->
+        close_ngroups 3 ;
+        open_aftergroup
+          (fun () ->
+            if !verbose > 2 then begin
+              prerr_endline ("ISODD") ;
+              prerr_stack_string "int" string_of_int int_stack
+            end ;
+        let x = pop int_stack in
+        push bool_stack (x mod 2 = 1) ;
+        if !verbose > 2 then
+            prerr_stack_string "bool" sbool bool_stack) "ISODD" ;
+        open_ngroups 2 ;
         result lexbuf
     | "\\value" ->
         let name = !subst_this (Save.arg lexbuf) in
