@@ -1,0 +1,36 @@
+%%% Headers and trailers
+\newcommand{\tablehead}[1]{\def\@tablehead{#1}}
+\newcommand{\tablefirsthead}[1]{\def\@firsttablehead{#1}}
+\newcommand{\tabletail}[1]{\def\@tabletail{#1}}
+\newcommand{\tablelasttail}[1]{\def\@lasttabletail{#1}}
+\newcommand{\@st@head}
+  {\@ifundefined{@firsttablehead}%
+      {\@ifundefined{@tablehead}{}{\@tablehead}}%
+      {\@firsttablehead}}
+\newcommand{\@st@tail}
+  {\@ifundefined{@lasttabletail}%
+      {\@ifundefined{@tabletail}{}{\@tabletail}}%
+      {\@lasttabletail}}
+%%%%% Caption
+\newcommand{\topcaption}[1]{\def\@st@topcaption{#1}}
+\newcommand{\bottomcaption}[1]{\def\@st@bottomcaption{#1}}
+\let\tablecaption\topcaption
+\newcommand{\@st@caption}[1]
+  {\@ifundefined{#1}{}{\caption{\csname #1\endcsname}}}
+%%%% An finally supertabular envs
+\newenvironment{supertabular}[1]
+  {\begin{table}%
+   \@st@caption{@st@topcaption}%
+   \begin{tabular}{#1}\@st@head}
+  {\@st@tail%
+   \end{tabular}%
+   \@st@caption{@st@bottomcaption}%
+   \end{table}}
+\newenvironment{supertabular*}[2]
+  {\begin{table}%
+   \@st@caption{@st@topcaption}%
+   \begin{tabular*}{#1}{#2}\@st@head}
+  {\@st@tail%
+   \end{tabular*}%
+   \@st@caption{@st@bottomcaption}%
+   \end{table}}
