@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.5 1999-05-11 08:58:11 tessaud Exp $"
+let header = "$Id: text.ml,v 1.6 1999-05-11 14:05:53 tessaud Exp $"
 
 
 open Misc
@@ -653,6 +653,8 @@ let open_block s args =
 ;;
 
 let force_block s content =  
+  if !verbose > 2 then
+    prerr_endline ("   force_block ``"^s^"''");
   let old_out = !cur_out in
   let ps,pa,pout = pop "out_stack" out_stack in
   cur_out:=pout;
@@ -1112,11 +1114,23 @@ let close_cell content =
 			  span = !cell.span;
 			  text = !cell.text};
   (* on a la taille de la cellule, on met sa largeur au bon endroit, si necessaire.. *)
-  (* Multicolonne : Il faut mettre des zeros dans le tableau pour avoir la taille minimale des colonnes atomiques. Puis on range start,end dans une liste que l'on regardera a la fin pour ajuster les tailles selon la loi : la taille de la multicolonne doit etre <= la somme des tailles minimales. Sinon, il faut agrandir les colonnes atomiques pour que ca rentre. Cas d'interactions entre plusieurs multi-colonnes : Une fois qu'un multi-colonne est ajuste, on met (start,end) dans une liste et on verifie a chaque nouveau multi-colonne s'il y a interaction. Si oui, et qu'on agrandit les colonnes qui interagissent, il faut agrandir les colonnes qui sont dans le multi deja fait mais pas dans celui en cours, proportionnellement. C'est recursif!!! ;(( *)
+  (* Multicolonne : Il faut mettre des zeros dans le tableau pour avoir la taille minimale des colonnes atomiques. Puis on range start,end dans une liste que l'on regardera a la fin pour ajuster les tailles selon la loi : la taille de la multicolonne doit etre <= la somme des tailles minimales. Sinon, il faut agrandir les colonnes atomiques pour que ca rentre. *)
   if !cell.span = 1 then begin
     if !line=0 then
       Table.emit !table.taille !cell.w
-    else if (!cell.w > (!table.tailles.(!col))) then !table.tailles.(!col)<- !cell.w;
+    else
+      begin
+	if !col >= (Array.length !table.tailles) then 
+	  begin (* depassement du tableau : on l'agrandit.. *)
+	    let t = Array.create ((Array.length !table.tailles)+1) 0 in
+	    Array.blit !table.tailles 0 t 0 (Array.length !table.tailles) ;
+	    !table.tailles <- t
+	  end;
+	if (!cell.w > (!table.tailles.(!col))) then 
+	  begin
+	    !table.tailles.(!col)<- !cell.w;
+	  end;
+      end;
   end else begin
     if !line=0 then
       for i = 1 to !cell.span do
@@ -1127,6 +1141,9 @@ let close_cell content =
   col := !col + !cell.span -1;
   if !cell.h> !row.haut then !row.haut<- !cell.h;
   if !verbose>2 then prerr_endline "<= force_cell";
+;;
+
+let do_close_cell () = close_cell ""
 ;;
 
 let erase_cell () =

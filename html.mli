@@ -89,6 +89,7 @@
     val open_cell : Tabular.format -> int -> unit
     val erase_cell : unit -> unit
     val close_cell : string -> unit
+    val do_close_cell : unit -> unit
     val close_row : unit -> unit
     val erase_row : unit -> unit
     val close_table : unit -> unit

@@ -47,7 +47,7 @@ open Save
 open Tabular
 open Lexstate
 
-let header = "$Id: latexscan.mll,v 1.89 1999-05-11 08:58:06 tessaud Exp $" 
+let header = "$Id: latexscan.mll,v 1.90 1999-05-11 14:05:49 tessaud Exp $" 
 
 let sbool = function
   | false -> "false"
@@ -2385,9 +2385,9 @@ let open_tabbing lexbuf _ =
   top_close_block "" ;
   let lexbuf = Lexstate.previous_lexbuf in
   let lexfun lb =
-    Dest.open_block "TABLE" "CELLSPACING=0 CELLPADDING=0" ;
-    Dest.open_block "TR" "" ;
-    Dest.open_block "TD" "" in
+    Dest.open_table false "CELLSPACING=0 CELLPADDING=0" ;
+    Dest.new_row ();
+    Dest.open_cell default_format 1 in
   push stack_table !in_table ;
   in_table := Tabbing ;
   new_env "tabbing" ;
@@ -2430,9 +2430,9 @@ def_code "\\tabular" (open_array "tabular")
 
 
 let close_tabbing _ _ =
-  Dest.close_block "TD" ;
-  Dest.close_block "TR" ;
-  Dest.close_block "TABLE" ;
+  Dest.do_close_cell ();
+  Dest.close_row ();
+  Dest.close_table ();
   in_table := pop stack_table ;
   close_env "tabbing" ;
   top_open_block "" ""

@@ -62,16 +62,16 @@ module type S =
     val flush : int -> unit
     val forget : unit -> unit
 
-    val loc_ref: string -> string -> unit
-    val loc_name: string -> string -> unit
+    val loc_ref : string -> string -> unit
+    val loc_name : string -> string -> unit
 
-    val insert_vdisplay: (unit -> unit) -> Latexmacros.env list
+    val insert_vdisplay : (unit -> unit) -> Latexmacros.env list
     val freeze : (unit -> unit) -> unit
 
-    val open_chan: out_channel  -> unit
-    val close_chan: unit -> unit
-    val to_string: (unit -> unit) -> string
-    val to_style: (unit -> unit) -> Latexmacros.env list
+    val open_chan : out_channel  -> unit
+    val close_chan : unit -> unit
+    val to_string : (unit -> unit) -> string
+    val to_style : (unit -> unit) -> Latexmacros.env list
     val get_current_output : unit -> string
 
     val finalize : bool -> unit
@@ -91,6 +91,7 @@ module type S =
     val open_cell : Tabular.format -> int -> unit
     val erase_cell : unit -> unit
     val close_cell : string -> unit
+    val do_close_cell : unit -> unit
     val close_row : unit -> unit
     val erase_row : unit -> unit
     val close_table : unit -> unit

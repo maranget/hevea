@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: html.ml,v 1.44 1999-05-10 17:47:43 maranget Exp $" 
+let header = "$Id: html.ml,v 1.45 1999-05-11 14:05:43 tessaud Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -1537,9 +1537,8 @@ let open_cell format span = open_block "TD" (as_align format span)
 ;;
 
 let erase_cell () =  erase_block "TD"
-;;
-
-let close_cell content =  force_block "TD" content
+and close_cell content =  force_block "TD" content
+and do_close_cell () = close_block "TD"
 ;;
 
 let erase_row () = erase_block "TR"
@@ -1549,11 +1548,11 @@ and close_row () = close_block "TR"
 let close_table () = close_block "TABLE"
 ;;
 
+
 let infomenu arg = ()
+and infonode opt num arg = ()
 ;;
 
-let infonode opt num arg = ()
-;;
 
 let image arg n = 
   put "<IMG " ;

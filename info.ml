@@ -1,3 +1,17 @@
+(***********************************************************************)
+(*                                                                     *)
+(*                          HEVEA                                      *)
+(*                                                                     *)
+(*  Luc Maranget, projet PARA, INRIA Rocquencourt                      *)
+(*                                                                     *)
+(*  Copyright 1998 Institut National de Recherche en Informatique et   *)
+(*  Automatique.  Distributed only by permission.                      *)
+(*                                                                     *)
+(***********************************************************************)
+
+
+let header = "$Id: info.ml,v 1.5 1999-05-11 14:05:45 tessaud Exp $"
+
 open Misc
 open Text
 open InfoRef
@@ -126,6 +140,7 @@ let new_row =Text.new_row;;
 let open_cell =Text.open_cell;;
 let erase_cell =Text.erase_cell;;
 let close_cell =Text.close_cell;;
+let do_close_cell = Text.do_close_cell;;
 let close_row =Text.close_row;;
 let erase_row =Text.erase_row;;
 let close_table =Text.close_table;;
