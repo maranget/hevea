@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: misc.ml,v 1.12 2000-01-27 16:31:39 maranget Exp $" 
+let header = "$Id: misc.ml,v 1.13 2000-05-22 12:19:10 maranget Exp $" 
 
 exception Fatal of string
 exception Purposly of string
@@ -26,11 +26,33 @@ let silent = ref false
 
 let column_to_command s = "\\@"^s^"@"
 
+let warn_max = 100
+let n_warns = ref warn_max
+
+let w_table = Hashtbl.create 37
+let hot_start () =
+  Hashtbl.clear w_table ;
+  n_warns := warn_max
+
+let new_warn s =
+  try
+    Hashtbl.find w_table s ; false
+  with
+  | Not_found ->
+      n_warns := !n_warns - 1 ;
+      if !n_warns <= 0 then
+        hot_start () ;
+      Hashtbl.add w_table s () ;
+      true
+
+        
 let warning s =
   if not !silent || !verbose > 0 then begin
-    Location.print_pos () ;
-    prerr_string "Warning: " ;
-    prerr_endline s
+    if (* !verbose > 0 || new_warn s *) true then begin
+      Location.print_pos () ;
+      prerr_string "Warning: " ;
+      prerr_endline s
+    end
   end
 
 let print_verb level s =

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.14 2000-01-28 15:40:15 maranget Exp $    *)
+(*  $Id: package.ml,v 1.15 2000-05-22 12:19:11 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -85,12 +85,18 @@ def_code "\\@fst"
 
 let do_call lexbuf =
   let csname = Scan.get_csname lexbuf in
-  let nargs = Get.get_int (save_arg lexbuf) in
   let arg = subst_arg lexbuf in
-  scan_this  main (csname^" "^arg)
+  let exec = csname^" "^arg in
+  if !verbose > 1 then begin
+    prerr_string "\\@funcall: " ;
+    prerr_endline exec ;
+  end ;
+  scan_this  main exec
 ;;
 
-def_code "\\@funcall" do_call
+
+
+def_code "\\@funcall" do_call ;
 ;;
 
 def_code "\\@auxwrite"
@@ -380,7 +386,7 @@ let do_definekey lexbuf =
       let extra = keyval_extra key family in
       silent_def (keyval_name family key) 1
         (Subst
-           ("\\@funcall{"^extra^"}{"^string_of_int nargs^"}{#1}")) ;
+           ("\\@funcall{"^extra^"}{#1}")) ;
       begin match opt with
       | No _,_ ->
           silent_def extra nargs (Subst body)
@@ -394,6 +400,22 @@ let do_definekey lexbuf =
   end
 ;;
 
+let do_definekeyopt lexbuf =
+  let familly = get_prim_arg lexbuf in
+  let key =  get_prim_arg lexbuf in
+  let opt = subst_arg lexbuf in
+  let body = subst_body lexbuf in
+  let name = keyval_name familly key in
+  let extra = keyval_extra key familly in
+  silent_def name 1
+    (Subst
+       ("\\@funcallopt{"^extra^"}{"^opt^"}{#1}")) ;
+  silent_def_pat
+    extra
+    (make_pat [opt] 2)
+    (Subst body)
+     
+  
 let do_setkey lexbuf =
   let family = get_prim_arg lexbuf in
   let arg = subst_arg lexbuf^",," in
@@ -411,7 +433,8 @@ let do_setkey lexbuf =
           scan_this main (csname^"{"^value^"}")
         else
           scan_this main (csname^"@default")
-      end ;
+      end else
+        warning ("keval, uknown key: "^csname) ;
       do_rec ()
     end in
   do_rec ()
@@ -420,6 +443,7 @@ let do_setkey lexbuf =
 register_init "keyval"
   (fun () ->
     def_code "\\define@key" do_definekey ;
+    def_code "\\define@keyopt" do_definekeyopt ;
     def_code "\\@setkeys" do_setkey
   )
   

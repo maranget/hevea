@@ -22,9 +22,9 @@ counter.cmx: latexmacros.cmx misc.cmx counter.cmi
 cross.cmo: location.cmi cross.cmi 
 cross.cmx: location.cmx cross.cmi 
 cut.cmo: cross.cmi location.cmi misc.cmi mylib.cmi out.cmi save.cmi \
-    section.cmi thread.cmi 
+    section.cmi stack.cmi thread.cmi 
 cut.cmx: cross.cmx location.cmx misc.cmx mylib.cmx out.cmx save.cmx \
-    section.cmx thread.cmx 
+    section.cmx stack.cmx thread.cmx 
 cutmain.cmo: cut.cmo location.cmi misc.cmi mylib.cmi version.cmi 
 cutmain.cmx: cut.cmx location.cmx misc.cmx mylib.cmx version.cmx 
 entry.cmo: out.cmi save.cmi entry.cmi 
@@ -47,10 +47,10 @@ htmlCommon.cmo: latexmacros.cmi length.cmi misc.cmi out.cmi parse_opts.cmi \
     stack.cmi 
 htmlCommon.cmx: latexmacros.cmx length.cmx misc.cmx out.cmx parse_opts.cmx \
     stack.cmx 
-htmlMath.cmo: htmlCommon.cmo latexmacros.cmi length.cmi misc.cmi out.cmi \
-    parse_opts.cmi stack.cmi symb.cmi 
-htmlMath.cmx: htmlCommon.cmx latexmacros.cmx length.cmx misc.cmx out.cmx \
-    parse_opts.cmx stack.cmx symb.cmx 
+htmlMath.cmo: htmlCommon.cmo latexmacros.cmi misc.cmi out.cmi parse_opts.cmi \
+    stack.cmi symb.cmi 
+htmlMath.cmx: htmlCommon.cmx latexmacros.cmx misc.cmx out.cmx parse_opts.cmx \
+    stack.cmx symb.cmx 
 image.cmo: location.cmi misc.cmi myfiles.cmi out.cmi parse_opts.cmi stack.cmi \
     image.cmi 
 image.cmx: location.cmx misc.cmx myfiles.cmx out.cmx parse_opts.cmx stack.cmx \

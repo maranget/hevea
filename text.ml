@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.41 2000-01-26 19:39:50 maranget Exp $"
+let header = "$Id: text.ml,v 1.42 2000-05-22 12:19:12 maranget Exp $"
 
 
 open Misc
@@ -320,6 +320,7 @@ type stack_t = {
   s_in_table : bool Stack.t ;
   s_vsize : int Stack.t ;
   s_active : Out.t Stack.t ;
+  s_pending_par : int option Stack.t ;
   s_after : (string -> string) Stack.t
 } 
 
@@ -335,6 +336,7 @@ let stacks = {
   s_in_table = Stack.create "in_table" ;
   s_vsize = Stack.create "vsize" ;
   s_active = Stack.create "active" ;
+  s_pending_par = Stack.create "pending_par" ;
   s_after = Stack.create "after"
 } 
 
@@ -349,7 +351,8 @@ type saved_stacks = {
   ss_nocount : bool Stack.saved ;
   ss_in_table : bool Stack.saved ;
   ss_vsize : int Stack.saved ;
-  ss_active : Out.t Stack.saved ;
+  ss_active : Out.t Stack.saved ;  
+  ss_pending_par : int option Stack.saved ;
   ss_after : (string -> string) Stack.saved
 } 
 
@@ -366,6 +369,7 @@ let save_stacks () =
   ss_in_table = Stack.save stacks.s_in_table ;
   ss_vsize = Stack.save stacks.s_vsize ;
   ss_active = Stack.save stacks.s_active ;
+  ss_pending_par = Stack.save stacks.s_pending_par ;
   ss_after = Stack.save stacks.s_after
 }
 
@@ -382,6 +386,7 @@ and restore_stacks
   ss_in_table = saved_in_table ;
   ss_vsize = saved_vsize ;
   ss_active = saved_active ;
+  ss_pending_par = saved_pending_par ;
   ss_after = saved_after
 } =
   Stack.restore stacks.s_nitems saved_nitems ;
@@ -395,6 +400,7 @@ and restore_stacks
   Stack.restore stacks.s_in_table saved_in_table ;
   Stack.restore stacks.s_vsize saved_vsize ;
   Stack.restore stacks.s_active saved_active ;
+  Stack.restore stacks.s_pending_par saved_pending_par ;
   Stack.restore stacks.s_after saved_after
 
 let check_stack what =
@@ -417,6 +423,7 @@ let check_stacks () = match stacks with
   s_in_table = in_table ;
   s_vsize = vsize ;
   s_active = active ;
+  s_pending_par = pending_par ;
   s_after = after
 } ->
   check_stack nitems ;
@@ -430,6 +437,7 @@ let check_stacks () = match stacks with
   check_stack in_table ;
   check_stack vsize ;
   check_stack active ;
+  check_stack pending_par ;
   check_stack after
 
 let line = String.create (!Parse_opts.width +2);;
@@ -451,10 +459,12 @@ and hot (l,f,s,o) =
 
 let stop () =
   Stack.push stacks.s_active !cur_out.out ;
+  Stack.push stacks.s_pending_par flags.pending_par ;
   !cur_out.out <- Out.create_null ()
 
 and restart () =
-  !cur_out.out <- Stack.pop stacks.s_active
+  !cur_out.out <- Stack.pop stacks.s_active ;
+  flags.pending_par <- Stack.pop stacks.s_pending_par
 
 let do_do_put_char c =
   Out.put_char !cur_out.out c;;

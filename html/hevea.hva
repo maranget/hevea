@@ -80,17 +80,29 @@
 {\@nostyle\@print{<!--TOC }\@getprint{#1}\@print{ }}%
 {#2}{\@nostyle\@print{-->
 }}}
-\newcommand{\@flowarg}[2]
+\newcommand{\@hacha@arg}[2]
   {{\@nostyle\@print{<ARG }\@getprint{#1}\@print{>}{#2}\@print{</ARG>}}}
 \newenvironment{cutflow}[1]
   {\@printnostyle{<!--FLOW }%
-  \@flowarg{TITLE}{#1}%
+  \@hacha@arg{TITLE}{#1}%
   \@printnostyle{-->
 }}
 {\@printnostyle{<!--END FLOW-->
 }}
 \newcommand{\cutname}[1]
   {{\@nostyle\@print{<!--NAME }\@getprint{#1}\@print{-->
+}}}
+\newcommand{\@link@arg}[2]
+  {\ifthenelse{\equal{#2}{}}{}
+  {\@hacha@arg{#1}{#2}}}
+\newsavebox{\@toplinks}
+\newcommand{\toplinks}[3]
+  {\sbox{\@toplinks}
+    {\@printnostyle{<!--LINKS }%
+    \@link@arg{PREV}{#1}%
+    \@link@arg{UP}{#2}%
+    \@link@arg{NEXT}{#3}%
+    \@printnostyle{-->
 }}}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Echoing to the image file %
@@ -198,6 +210,7 @@
 \usebox{\@htmlhead}%
 {\@nostyle\@print{<!--ENDHTML-->
 }}%
+\usebox{\@toplinks}%
 \cutdef[\thecuttingdepth]{\cuttingunit}%
 }{%
 \@clearstyle\@footnoteflush{document}%
@@ -336,7 +349,7 @@
 \ifthenelse{\value{indexclines}>\value{indexlimit}}
 {\end{itemize}&\begin{itemize}\setboolean{spaceallowed}{false}%
 \setcounter{indexclines}{0}}{}%
-\stepcounter{indexwork}\setcounter{indexprev}{\value{indexnow}}}
+\stepcounter{indexwork}\setcounter{indexprev}{\value{indexnow}}}%
 \end{itemize}\end{tabular}}
 %%%%%% Default TABLE attribute for array and tabular
 \newcommand{\@table@attributes}{CELLSPACING=2 CELLPADDING=0}

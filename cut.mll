@@ -12,7 +12,7 @@
 {
 open Lexing
 open Stack
-let header = "$Id: cut.mll,v 1.28 2000-04-17 09:32:37 maranget Exp $" 
+let header = "$Id: cut.mll,v 1.29 2000-05-22 12:18:54 maranget Exp $" 
 
 let verbose = ref 0
 ;;
@@ -148,25 +148,47 @@ let putlink out name img alt =
   Out.put out "\"></A>\n"
 ;;
 
-let putlinks out name =
+let link_buff = Out.create_buff ()
+
+let putlinks  name =
+  let links_there = ref false in
   if !verbose > 0 then
     prerr_endline ("putlinks: "^name) ;
   begin try
-    putlink out (Thread.prev name) "previous_motif.gif" 
+    putlink link_buff (Thread.prev name) "previous_motif.gif" 
       (if !language = "fra" then "Précédent"
-       else "Previous")
+       else "Previous") ;
+    links_there := true
   with Not_found -> () end ;
   begin try
-    putlink out (Thread.up name) "contents_motif.gif" 
+    putlink link_buff (Thread.up name) "contents_motif.gif" 
       (if !language = "fra" then "Index"
-       else "Contents")
+       else "Contents") ;
+    links_there := true
   with Not_found -> () end ;
   begin try
-    putlink out (Thread.next name) "next_motif.gif" 
+    putlink link_buff (Thread.next name) "next_motif.gif" 
       (if !language = "fra" then "Suivant"
-       else "Next")
-  with Not_found -> () end
-;;
+       else "Next") ;
+    links_there := true
+  with Not_found -> () end ;
+  if !links_there then
+    Some (Out.to_string link_buff)
+  else
+    None
+
+let putlinks_start out outname = match putlinks outname with
+| Some s -> 
+    Out.put out s ;
+    Out.put out "<HR>\n"
+| None -> ()
+
+let putlinks_end out outname = match putlinks outname with
+| Some s -> 
+    Out.put out "<HR>\n" ;
+    Out.put out s
+| None -> ()
+  
 
 let openhtml withlinks title out outname =
   Out.put out !doctype ; Out.put_char out '\n' ;
@@ -180,18 +202,15 @@ let openhtml withlinks title out outname =
   Out.put out "</HEAD>\n" ;
   Out.put out !body;
   Out.put out "\n" ;
-  if withlinks then begin
-    putlinks out outname ;
-    Out.put out "<HR>\n"
-  end ;
+  if withlinks then
+    putlinks_start out outname ;
   Out.put out !html_head
 
 
 and closehtml withlinks name out =
   Out.put out !html_foot ;
   if withlinks then begin
-    Out.put out "<HR>\n" ;
-    putlinks out name
+    putlinks_end out name
   end ;
   Out.put out "</BODY>\n" ;
   Out.put out "</HTML>\n" ;
@@ -301,6 +320,9 @@ and open_chapter name =
     cur_level := !chapter
   end
 ;;
+let setlink set target =
+  if !phase = 0 && target <> "" then
+    set !outname target
 
 let open_notes sec_notes =
   if sec_notes <> !chapter || !outname = !tocname then begin
@@ -371,6 +393,7 @@ let restore_state () =
 let hevea_footer = ref false
 
 let close_top lxm =
+  putlinks_end !toc !tocname ;
   if !hevea_footer then begin
     Out.put !out "<!--FOOTER-->\n" ;
     begin try
@@ -440,6 +463,9 @@ and closeflow () =
 |  "<!--" "FLOW" ' '+
    {let title = flowline lexbuf in
    openflow title ;
+   main lexbuf}
+| "<!--" "LINKS" ' '+
+   {linkline lexbuf ;
    main lexbuf}
 | "<!--" "END" ' '+ "FLOW" ' '* "-->" '\n'?
    {closeflow () ;
@@ -551,8 +577,10 @@ and closeflow () =
     {let lxm = lexeme lexbuf in
     if !phase = 0 then
       body := lxm
-    else
-      Out.put !out lxm;
+    else begin
+      Out.put !out lxm ;
+      putlinks_start !out !outname
+    end ;
     main lexbuf}
 | "<HEAD" [^'>']* '>'
     {put (lexeme lexbuf);
@@ -561,7 +589,7 @@ and closeflow () =
         collect_header lexbuf
       end else
         main lexbuf}
-| "</BODY>" _*
+| "</BODY>"
     {let lxm = lexeme lexbuf in
     close_all () ;
     if !phase > 0 then begin
@@ -648,6 +676,24 @@ and flowline = parse
     {""}
 | eof {raise (Misc.Fatal "Unclosed comment")}
 | _   {flowline lexbuf}
+
+and linkline = parse
+| "<ARG" ' '+ "PREV>"
+  {let link = arg lexbuf in
+  setlink Thread.setprev link ;
+  linkline lexbuf}
+| "<ARG" ' '+ "NEXT>"
+  {let link = arg lexbuf in
+  setlink Thread.setnext link ;
+  linkline lexbuf}
+| "<ARG" ' '+ "UP>"
+  {let link = arg lexbuf in
+  setlink Thread.setup link ;
+  linkline lexbuf}
+| "-->" '\n'?
+  {()}
+| eof {raise (Misc.Fatal "Unclosed comment")}
+| _   {linkline lexbuf}
 
 and aargs = parse
 | ("name"|"NAME") ' '* '=' ' '*

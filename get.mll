@@ -18,7 +18,7 @@ open Lexstate
 open Stack
 
 (* Compute functions *)
-let header = "$Id: get.mll,v 1.17 2000-05-05 07:13:56 maranget Exp $"
+let header = "$Id: get.mll,v 1.18 2000-05-22 12:18:55 maranget Exp $"
 
 exception Error of string
 
@@ -27,6 +27,7 @@ let sbool = function
   | false -> "false"
 
 let get_this = ref (fun b s -> assert false)
+and get_fun = ref (fun f lexbuf -> assert false)
 and register_this = ref (fun s -> ())
 and open_env = ref (fun _ -> ())
 and close_env = ref (fun _ -> ())
@@ -221,7 +222,9 @@ rule result = parse
       (function
         | Subst body ->
             scan_this result body
-        | CamlCode f -> f lexbuf)
+        | CamlCode f ->
+            let rs = !get_fun f lexbuf in
+            scan_this result rs)
           body args ;
     result lexbuf}
 | _   {raise (Error ("Bad character in Get.result: ``"^lexeme lexbuf^"''"))}
@@ -239,9 +242,10 @@ and after_quote = parse
 | ""
     {Misc.fatal "Cannot understand `-like numerical argument"}
 {
-let init latexget latexregister latexopenenv latexcloseenv latexcsname
+let init latexget latexgetfun latexregister latexopenenv latexcloseenv latexcsname
     latexmain =
   get_this := latexget ;
+  get_fun := latexgetfun ;
   register_this := latexregister ;
   open_env := latexopenenv ;
   close_env := latexcloseenv ;

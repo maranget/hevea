@@ -10,6 +10,8 @@
 (***********************************************************************)
 
 val setup : string -> string -> unit
+val setprev : string -> string -> unit
+val setnext : string -> string -> unit
 val setprevnext : string -> string -> unit
 
 val next : string -> string

@@ -10,7 +10,7 @@
 (***********************************************************************)
 
 
-let header = "$Id: html.ml,v 1.73 2000-05-03 17:50:25 maranget Exp $" 
+let header = "$Id: html.ml,v 1.74 2000-05-22 12:18:58 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -238,10 +238,13 @@ and close_flow = close_flow
 let set_out out =  !cur_out.out <- out
 and stop () =
   Stack.push stacks.s_active !cur_out.out ;
-  !cur_out.out <- Out.create_null ()
+  Stack.push stacks.s_pending_par flags.pending_par ;
+  !cur_out.out <- Out.create_null () ;
+  flags.pending_par <- None
 
 and restart () =
-  !cur_out.out <- Stack.pop stacks.s_active
+  !cur_out.out <- Stack.pop stacks.s_active ;
+  flags.pending_par <- Stack.pop stacks.s_pending_par
 ;;
 
 

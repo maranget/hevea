@@ -9,6 +9,7 @@ let checkpoint () =
   Color.checkpoint ()
 
 and start (lexstate, latexmacros, counter, color) =
+  Misc.hot_start () ;
   Lexstate.hot_start lexstate ;
   Latexmacros.hot_start latexmacros ;
   Counter.hot_start counter ;

@@ -1,5 +1,5 @@
-\newcommand{\usepackage}[2][!*!]{
-\ifthenelse{\equal{#1}{!*!}}
+\newcommand{\usepackage}[2][!*!]
+{\ifthenelse{\equal{#1}{!*!}}
 {\begin{toimage}\usepackage{#2}
 \end{toimage}}
 {\begin{toimage}\usepackage[#1]{#2}
@@ -8,6 +8,6 @@
   {\@iffileexists{#2.hva}
      {\@stopoutput\@stopimage%
      \input{#2.hva}\def\csname#2@loaded\endcsname{}%
-     \@restartimage\@restartoutput}
+     \@restartimage\@restartoutput{}}%
      {}}
   {}}

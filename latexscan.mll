@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.170 2000-05-05 07:14:01 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.171 2000-05-22 12:19:05 maranget Exp $ *)
 
 
 {
@@ -332,6 +332,21 @@ and top_close_group () =
     close_env ""
   end
 ;;
+
+
+let get_fun_result f lexbuf =
+   if !verbose > 1 then
+    prerr_endline ("get_fun") ;
+  let r = Dest.to_string (fun () ->
+    top_open_group () ;
+    Dest.nostyle () ;
+    f lexbuf ;
+    top_close_group ()) in
+  if !verbose > 1 then begin
+    prerr_endline ("get_fun -> ``"^r^"''")
+  end ;
+  r
+
 
 let do_get_this make_style  lexfun (s,subst) =
   let par_val = Dest.forget_par () in
@@ -2558,6 +2573,8 @@ def_code "\\@restartimage"
       check_alltt_skip lexbuf)
 ;;
 
+
+
 def_code "\\@stopoutput"
     (fun lexbuf  ->
       Dest.stop () ;
@@ -2683,6 +2700,7 @@ Get.init
       get_this_nostyle_arg main s
   else
     get_this_arg main s)
+  get_fun_result
   macro_register new_env close_env
   get_csname
   main

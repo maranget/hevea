@@ -4,6 +4,7 @@ exception Error of string
 
 val init :
   (bool -> string * Lexstate.subst -> string) ->
+  ((Lexing.lexbuf -> unit) -> Lexing.lexbuf -> string) ->
   (string -> unit) -> (string -> unit) -> (string -> unit) ->
   (Lexing.lexbuf -> string) ->
   (Lexing.lexbuf -> unit) -> unit

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmacros.ml,v 1.56 2000-01-19 20:11:03 maranget Exp $" 
+let header = "$Id: latexmacros.ml,v 1.57 2000-05-22 12:19:00 maranget Exp $" 
 open Misc
 open Parse_opts
 open Symb
@@ -137,7 +137,12 @@ let provide_macro_pat name pat action =
   end
 ;;
 
-let silent_def_pat name pat action =  Hashtbl.add cmdtable name (pat,action)
+let silent_def_pat name pat action = 
+  Hashtbl.add cmdtable name (pat,action) ;
+  if !verbose > 1 then begin
+    Printf.fprintf stderr "texdef_macro %s = " name;
+    pretty_macro pat action
+  end
 ;;
 
 let make_pat opts n =

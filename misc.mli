@@ -17,6 +17,7 @@ exception EndDocument
 exception Close of string
 exception EndOfLispComment of int (* QNC *)
 
+val hot_start : unit -> unit
 val verbose : int ref
 val readverb : int ref
 val silent : bool ref

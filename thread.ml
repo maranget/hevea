@@ -9,13 +9,15 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: thread.ml,v 1.3 2000-03-28 13:52:57 maranget Exp $" 
+let header = "$Id: thread.ml,v 1.4 2000-05-22 12:19:14 maranget Exp $" 
 let uptable = Hashtbl.create 17
 and nexttable = Hashtbl.create 17
 and prevtable = Hashtbl.create 17
 ;;
 
 let setup file upname = Hashtbl.add uptable file (ref upname)
+and setprev file prevname = Hashtbl.add prevtable file (ref prevname)
+let setnext file nextname = Hashtbl.add nexttable file (ref nextname)
 ;;
 
 let setprevnext prev now =

@@ -1328,7 +1328,7 @@ Cost can be lowered using \verb+\savebox+, but the other problems remain.
 In this section, a technique to transform included Postscript images
 into included GIF images is described.
 Note that this technique is used by \hevea{} implementation of the
-the \texttt{graphics} package (see section~\ref{graphics}),
+\texttt{graphics} package (see section~\ref{graphics}),
 which provides a more standard manner to include Postcript images in
 \LaTeX{} documents.
 
@@ -1853,11 +1853,29 @@ references with the \verb+\aname+ and \verb+\ahrefloc+ commands
 (see section~\ref{hyperlink})
 will be more practical most of the time.
 
+\subsection{Links for the root file}
+\comdefindex{toplinks}
+The command \verb+\toplinks{+\textit{prev}\verb+}{+\textit{up}\verb+}{+\textit{next}\verb+}+ instructs \hacha{}  to put links to a
+``previous'', ``up'' and ``next'' page in the root file.
+The following points are worth noticing:
+\begin{itemize}
+\item The \verb+\toplink+ command must appear in the document preamble
+(i.e., before \verb+\begin{document}+).
+\item The arguments
+\textit{prev}, \textit{up} and \textit{next} should expand to url's,
+notice that these argument are processed (see section~\ref{urlareprocessed}).
+\item When one of the expected argument is left empty,
+the corresponding link is not generated.
+\end{itemize}
+This feature can prove useful to
+relate documents that are generated independantly by
+\hevea{} and \hacha{}.
+
 
 \latexsection{Generating \html{} constructs}
 \pdfsection{Generating HTML constructs}
 \hevea{} output language being \html{}, it is normal for users to insert
-hypertext constructs their documents, or to control their colors.
+hypertext constructs their documents, or to control colors.
 
 \subsection{High-Level Commands}
 \hevea{} provides high-level commands for doing this.
@@ -1921,7 +1939,8 @@ typeset \textit{address} in typewriter font
 \verb+\home{+\textit{text}\verb+}+ &
 \multicolumn{2}{p{.6\linewidth}}{produce a home-dir url both for output and links, output aspect is: ``\home{\textit{text}}''}
 \end{tabular}
-It is important to notice that all arguments are processed.
+\label{urlareprocessed}It is important to notice that all arguments
+are processed.
 For instance, to insert a link to
 my home page, (\verb+http://pauillac.inria.fr/~maranget/index.html+),
 you should do something like this~:
@@ -2188,7 +2207,7 @@ internal text-level declarations \verb+\@style+, \verb+\@fontsize+ and
 delimit the effect of such declarations.
 \begin{description}
 \item[{\tt\char92 @style\char123}{\it SHAPE}{\tt\char125}]
-Declare the the text shape \textit{SHAPE} (which must be uppercase)
+Declare the text shape \textit{SHAPE} (which must be uppercase)
 as active. Text shapes are known as font style elements (\verb+I+, \verb+TT+,
 etc.) or phrase elements (\verb+EM+, etc.) in the
 \html{} terminology, they are part of the more general class of
@@ -2831,9 +2850,6 @@ chapters into alphabetic (uppercase) style:
 \renewcommand{\thechapter}{\Alph{chapter}}
 \end{verbatim}
 
-It is not advised to put anything else than a section title inside
-a sectioning command argument (no \verb+\label+, no \verb+\index+\ldots).
-
 \subsection{The Appendix}
 The \verb+\appendix+ command exists and should work as in \LaTeX.
 
@@ -3016,11 +3032,12 @@ the \verb+description+ environment.
 \subsection{Verbatim}
 
 The \verb+verbatim+ and \verb+verbatim*+ environments translate to
-the \verb+PRE+ element. There is no difference between
-\verb+verbatim+ and \verb+verbatim*+.
+the \verb+PRE+ element.
+Inside \verb+verbatim*+, spaces are replaced by underscores (``\verb*+ +'').
 
-Similarly, \verb+\verb+ and \verb+\verb*+ are the same and they
-translate to the \verb+CODE+ text element.
+
+Similarly, \verb+\verb+ and \verb+\verb*+ translate to the \verb+CODE+
+text element.
 
 The \verb+alltt+ environment is supported.
 
@@ -4398,10 +4415,8 @@ Moreover, the \texttt{hevea} program does not execute
 \texttt{xxdate.exe} by default since it is difficult to write such 
 a script in a portable manner.
 
-
-Windows users, once they have installed the
-\footahref{http://www.arch.ohio-state.edu/crp/faculty/pviton/support/htoday.html}{\texttt{xxdate.exe}}
-programm in \hevea{} directory, should enjoy the same features.
+Windows users should enjoy the same features with the version of
+\texttt{xxdate.exe} included in the Win32 distribution.   
 
 
 \subsection{Fancy sectioning commands}
@@ -4483,7 +4498,8 @@ package documentation, which can usually be found in the book~\cite{latexbis}, i
 
 Those packages generally are loaded explicitly from user source code,
 by using the \verb+\usepackage+ command.  A few packages are loaded by
-defaut (array, calc, ifthen), however reloading them explicitely by
+defaut (\texttt{array}, \texttt{calc}, \texttt{ifthen}), however
+reloading them explicitely by
 \verb+\usepackage+ is harmless. Package options are not supported.
 
 \subsection{AMS compatibility}
@@ -5168,7 +5184,7 @@ and can be installed on most Red~Hat Linux PC's.
 part of the input (see section~\ref{imagen}). Instead, this part is
 processed into a 
 \verb+.gif+ file and \hevea{} outputs a  link to the image file.
-\LaTeX{} source is changed into \verb+.gif+ images by the the \verb+imagen+
+\LaTeX{} source is changed into \verb+.gif+ images by the \verb+imagen+
 script, which basically calls, \LaTeX, \texttt{dvips},
 \footahref{http://www.cs.wisc.edu/\home{ghost}/index.html}{\texttt{ghostscript}}
 and a few tools from the image processing package
