@@ -462,6 +462,7 @@
 \def\linewidth{@percent}
 \def\textwidth{@percent}
 \def\hsize{@percent}
+\def\baselineskip{1ex}
 %%%%%%%%%%%%%%%%% Toc
 \newenvironment{tocenv}{\begin{itemize}}{\end{itemize}}
 \newcommand{\tocitem}[1][]{\ifoptarg\item[#1]\else\item\fi}
