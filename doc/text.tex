@@ -11,8 +11,6 @@
 %HEVEA\usepackage{color}
 \input{macros.tex}
 \makeindex
-
-
 \input{version.tex}
 
 \title{\hevea{} User Documentation\\
@@ -21,19 +19,24 @@
 Chesnay Cedex. {\tt \mailto{Luc.Maranget@inria.fr}}}}
 \date{\today}
 \setcounter{tocdepth}{2}
-
+\ifdevrelease
+\urldef{\ftpbase}{\url}{ftp://ftp.inria.fr/INRIA/Projects/para/hevea/unstable}
+\else
+\urldef{\ftpbase}{\url}{ftp://ftp.inria.fr/INRIA/Projects/para/hevea}
+\fi
+\urldef{\httpbase}{\url}{http://pauillac.inria.fr/~maranget/hevea}
 \begin{document}
 
 \maketitle
 
-\urldef{\ftpbase}{\url}{ftp://ftp.inria.fr/INRIA/Projects/para/hevea}%
-\urldef{\httpbase}{\url}{http://pauillac.inria.fr/~maranget/hevea}%
 \begin{htmlonly}
 \ifhtml
+\def\locversion{\ifdevrelease\releasedate\else\heveaversion\fi}
 \@hr[]{}{}
 This manual also exists in
-\ahref{\ftpbase/hevea-\heveaversion-manual.ps.gz}{Postscript} and and as
-a \ahref{\ftpbase/hevea-\heveaversion-manual.tar.gz}{bundle of HTML files}.
+\ahref{\ftpbase/hevea-\locversion-manual.ps.gz}{compressed Postscript},
+\ahref{\ftpbase/hevea-\locversion-manual.pdf}{PDF}, and as
+a \ahref{\ftpbase/hevea-\locversion-manual.tar.gz}{bundle of HTML files}.
 \@hr[]{}{}
 \fi
 \end{htmlonly}
@@ -1278,7 +1281,7 @@ script.
 
 
 \subsection{A toy example}
-Consider the ``blob'' example from the section~\ref{blob}.
+Consider the ``blob'' example from section~\ref{blob}.
 Here is the active part of a \texttt{blob.tex} file:
 \begin{verbatim}
  \newcommand{\blob}{\rule[.2ex]{1ex}{1ex}}
@@ -2212,12 +2215,7 @@ of the form
 \verb+"#+\textit{XXXXXX}\verb+"+.
 Note that the argument \textit{color} is processed, as a consequence
 numerical color arguments should be given as \verb+"\#+\textit{XXXXXX}\verb+"+.
-\index{"@getcolor@\texttt{\char92"@getcolor}|defocc}A
-color \textit{high-color} defined with \verb+\definecolor+ (see
-section~\ref{color:package}) can be transformed into a low-level
-\html{} color by the \verb+\@getcolor+ primitive.
-Hence, one changes the font color to such a color by
-\verb+\@fontcolor{\@getcolor{+\textit{high-color}\verb+}}+.
+
 \item[{\tt\char92 @nostyle}]
 Close active text-level declarations and ignore further text-level
 declarations (such as \verb+\@style+, etc).
@@ -2234,8 +2232,8 @@ defines the \LaTeX{} \verb+center+ environment:
 \begin{verbatim}
 \newenvironment{center}{\@open{DIV}{ALIGN=center}}{\@close{DIV}}
 \end{verbatim}
-Another example is the definition of the \verb+\purple+ high-level
-\html-style color declaration (see section~\ref{color:high}):
+Another example is the definition of the \verb+\purple+
+color declaration (see section~\ref{color:high}):
 \begin{verbatim}
 \newcommand{\purple}{\@fontcolor{purple}}
 \end{verbatim}
@@ -2252,8 +2250,8 @@ For instance this is how you can make all emphasized text blink:
 \index{"@print@\texttt{\char92"@print}}
 \index{"@getprint@\texttt{\char92"@getprint}}
 \index{"@nostyle@\texttt{\char92"@nostyle}}
-Finally, here is the definition of a simplified \verb+\imgsrc+
-command, without optional argument:
+Then, here is the definition of a simplified \verb+\imgsrc+
+command (see section~\ref{hyperlink}), without optional argument:
 \begin{verbatim}
 \newcommand{\imgsrc}[1]
   {{\@nostyle\@print{<IMG SRC="}\@getprint{#1}\@print{">}}}
@@ -2268,6 +2266,36 @@ Finally, note that \verb+\@open{IMG}{SRC="#1"}+ is not correct,
 because the block-level element \verb+IMG+
 consists in a single tag.
 
+\label{getcolor:usage}
+\envindex{bgcolor}
+\index{"@open@\texttt{\char92"@open}}
+\index{"@close@\texttt{\char92"@close}}
+Finally, here is an example of direct block opening.
+The \texttt{bgcolor} environment from the \texttt{color} package
+locally changes background color (see section~\ref{bgcolor}).
+This environment is defined as follows:
+\begin{verbatim}
+\newenvironment{bgcolor}[2][CELLPADDING=10]
+  {\@open{TABLE}{#1}\@open{TR}{}\@open{TD}{BGCOLOR=\@getcolor{#2}}}
+  {\@close{TD}\@close{TR}\@close{TABLE}}
+\end{verbatim}
+The \texttt{bgcolor} environment operates by opening a \html{} table
+(\verb+TABLE+) with only one row (\verb+TR+) and cell (\verb+TD+) in
+its opening command, and closing all these elements in its closing
+command. In my opinion, such a style of opening block-level elements
+in environment opening commands and closing them in environment
+closing commands is good style.
+
+\index{"@getcolor@\texttt{\char92"@getcolor}}
+The one cell background color is forced with a \verb+BGCOLOR+
+attribute.
+Note that the mandatory argument to \verb+\begin{bgcolor}+ is the
+background color expressed as a high-level color, which therefore
+needs to be translated into a low-level color by using the
+\verb+\@getcolor+ internal macro from the \texttt{color} package.
+Additionally,  \verb+\begin{bgcolor}+ takes \html{} attributes
+as an optional argument. These attributes are the ones of the
+\verb+TABLE+ element.
 
 \latexsection{Customizing \hevea}
 \pdfsection{Customizing HeVeA}
@@ -2292,7 +2320,9 @@ instance, assume that \emph{all} quotations in a text should be
 emphasized. Then, it suffices to put the following redeclaration in
 \texttt{macros.hva}:
 \begin{verbatim}
-\renewenvironment{quote}{\@open{BLOCKQUOTE}{}\@style{EM}}{\@close{BLOCKQUOTE}}
+\renewenvironment{quote}
+  {\@open{BLOCKQUOTE}{}\@style{EM}}
+  {\@close{BLOCKQUOTE}}
 \end{verbatim}
 
 The same effect can be achieved without using any of the internal
@@ -3817,8 +3847,33 @@ colors \showcolor{black}, \showcolor{white},
 \showcolor{cyan}, \showcolor{yellow} and \showcolor{magenta} are
 pre-defined.
 
+Colors are defined by
+\verb+\definecolor{+\textit{name}\verb+}{+\textit{model}\verb+}{+\textit{spec}\verb+}+,
+where \textit{name} is the color name, \textit{model} is the color
+model used, and \textit{spec} is the color specification according to
+the given model.
+Defined colors are used by the declaration
+\verb+\color{+\textit{name}\verb+}+ and by the command
+\verb+\textcolor{+\textit{name}\verb+}{+\textit{text}\verb+}+, which
+change text color.
+Please note that, the \verb+\color+ declaration
+accepts color specifications directly
+when invoked as
+\verb+\color[+\textit{model}\verb+]{+\textit{spec}\verb+}+.
+The \verb+\textcolor+ command has a similar feature.
+
 As regards color models, \hevea{} implements the \texttt{rgb},
-\texttt{cmyk}, \texttt{hsv}, \texttt{hls} and \texttt{named} color models.
+\texttt{cmyk}, \texttt{hsv} and \texttt{hls} color models.
+In those models, color specifications are floating point numbers less
+than one.
+For instance, here is the definition for the \texttt{red} color:
+\begin{verbatim}
+\definecolor{red}{rgb}{1, 0, 0}
+\end{verbatim}
+
+
+The \texttt{named} color model is also supported, in this model color
+specification are just names\ldots
 Named colors are the ones of \texttt{dvips}.
 \begin{flushleft}
 %%BEGIN LATEX
@@ -3893,19 +3948,31 @@ Named colors are the ones of \texttt{dvips}.
 \textcolor[named]{Black}{Black},
 \textcolor[named]{White}{White}.
 \end{flushleft}
-One uses such colors either by defining a new name for them, or
-directly (\hevea{} implements the \texttt{color} package with
-the \texttt{usenames} option given):
-\begin{verbatim}
-\definecolor{brickred}{named}{BrickRed}
-\textcolor{brickred}{Text as a brick}.
-\textcolor{BrickRed}{Text as another brick}.
-\end{verbatim}
-\ifhevea\begin{flushleft}
-\definecolor{brickred}{named}{BrickRed}
-\textcolor{brickred}{Text as a brick}.
-\textcolor[named]{BrickRed}{Text as another brick}.
-\end{flushleft}\fi
+
+There are at least three ways to use colors from the \texttt{named}
+ model.
+\begin{enumerate}
+\item Define a color name for them.
+\item Specify the named color model as an optional argument to
+ \verb+\color+ and \verb+\textcolor+.
+\item Use the names directly
+(\hevea{} implements the \texttt{color} package with
+the \texttt{usenames} option given).
+\end{enumerate}
+That is:
+\begin{enumerate}
+\item
+\verb+\definecolor{rouge-brique}{named}{BrickRed}\textcolor{rouge-brique}{Text as a brick}+.
+\item \verb+\textcolor[named]{BrickRed}{Text as another brick}+.
+\item \verb+\textcolor{BrickRed}{Text as another brick}+.
+\end{enumerate}
+\ifhevea Which yields:
+\begin{enumerate}
+\item \definecolor{rouge-brique}{named}{BrickRed}
+\textcolor{rouge-brique}{Text as a brick}.
+\item \textcolor[named]{BrickRed}{Text as another brick}.
+\item \textcolor{BrickRed}{Text as another brick}.
+\end{enumerate}\fi
 
 
 Colors should be used carefully. Too many colors
@@ -3913,7 +3980,7 @@ hinders clarity and some of the colors may not be readable on the
 document background color.
 
 \subsubsection{The \texttt{bgcolor} environment}
-\envindex{bgcolor}
+\envdefindex{bgcolor}\label{bgcolor}
 Due to limitations in \html{} 3.2 (and 4.0 transitional viewed as
 3.2!), it is not possible to implement
 the \verb+\colorbox+ command for changing the background color inside
@@ -3947,7 +4014,7 @@ element (default value is \verb+CELLPADDING=10+).
 For instance, the following source:
 \begin{verbatim}
 \begin{bgcolor}[CELLPADDING=0]{yellow}
-\color{\red}Red letters on a yellow backgroud
+\color{red}Red letters on a yellow backgroud
 \end{bgcolor}
 \end{verbatim}
 will be typeset on a yellow background and without padding:
@@ -3957,6 +4024,22 @@ will be typeset on a yellow background and without padding:
 \end{bgcolor}
 \end{htmlonly}
 
+
+\subsubsection{From High-Level Colors to Low-Level Colors}\label{getcolor}
+\index{"@getcolor@\texttt{\char92"@getcolor}|defocc}
+High-level colors are color names
+defined with \verb+\definecolor+.
+Low-level colors are \html-style colors.
+That is, they are either one of the sixteen conventional colors black,
+silver etc., or a RGB hexadecimal color specification of the form
+\verb+"#XXXXXX"+.
+
+One changes the high-level \emph{high-color} into a low-level color by
+\verb+\@getcolor{+\emph{high-color}\verb+}+.
+Low-level colors are appropriate inside \html{} attributes and as
+arguments to the \verb+\@fontcolor+ internal macro.
+An example of \verb+\@getcolor+ usage can be found at the end of
+section~\ref{getcolor:usage}.
 
 \section{Font Selection}
 
@@ -4353,9 +4436,9 @@ For instance, you get various mixes of red and orange by:
 \begin{verbatim}
 \input{article.hva}
 \input{fancysection.hva}
-\definecolor{part}[named]{RedBrick}
-\definecolor{section}[named]{RedOrange}
-\definecolor{subsection}[named]{BurntOrange}
+\definecolor{part}{named}{RedBrick}
+\definecolor{section}{named}{RedOrange}
+\definecolor{subsection}{named}{BurntOrange}
 \end{verbatim}
 (See section~\ref{color:package} for details on the \texttt{named}
 color model that is used above.)

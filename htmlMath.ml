@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlMath.ml,v 1.12 2000-01-27 16:31:23 maranget Exp $" 
+let header = "$Id: htmlMath.ml,v 1.13 2000-05-03 17:50:28 maranget Exp $" 
 
 
 open Misc
@@ -501,9 +501,14 @@ let over display lexbuf =
           open_vdisplay display ;
           open_vdisplay_row "NOWRAP ALIGN=center") in
     close_vdisplay_row () ;
+(*
     open_vdisplay_row "" ;
     close_mods () ;
     horizontal_line  "NOSHADE" Length.Default (Length.Pixel 2);
+*)
+    open_vdisplay_row "BGCOLOR=black" ;
+    close_mods () ;
+    line_in_table 3 ;
     close_vdisplay_row () ;
     open_vdisplay_row "NOWRAP ALIGN=center" ;
     close_mods () ;

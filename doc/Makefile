@@ -60,16 +60,19 @@ install:
 	cp ../html/urlhref.hva $(DOCDIR)
 ############# Release stuff
 VERSIONFILE=../version.ml
-devversion::
+dateversion::
 	 sed  -e "s/^let release_date = .*/let release_date = \"`date +%Y-%m-%d`\"/" $(VERSIONFILE) > /tmp/version.ml && mv /tmp/version.ml $(VERSIONFILE)
 	cvs commit -m version $(VERSIONFILE)
 
 
 doversion:: $(VERSIONFILE)
-	- rm -f version.make version.tex
+	-rm -f version.make version.tex	
 	sed -n -e 's/^let real_version = "\(.*\)".*$$/\\def\\heveaversion{\1}/p' $(VERSIONFILE) > version.tex
+	sed -n -e 's/^let release_date = "\([0-9\-]*\)".*$$/\\def\\releasedate{\1}/p' $(VERSIONFILE) >> version.tex
+	echo "\\newif\\ifdevrelease\\devreleasefalse" >> version.tex
 	sed -n -e 's/^let real_version = "\(.*\)".*$$/VERSION=\1/p' $(VERSIONFILE) > version.make
 	sed -n -e 's/^let real_version = "\(.\)\.\(.*\)".*$$/RELEASETAG=release-\1-\2/p' $(VERSIONFILE) >> version.make
+	sed -n -e '/let real_version = ".*-.*"/s//\\devreleasetrue/p' $(VERSIONFILE) >> version.tex
 
 
 include version.make
@@ -80,7 +83,8 @@ RELEASENAME=hevea-$(VERSION)
 FTPDIR=/home/tobago/para-ftp/hevea
 UNSTABLE=
 
-dorelease: byte pdfmanual.pdf doversion
+dorelease: doversion
+	$(MAKE) $(MFLAGS) byte pdfmanual.pdf
 # hevea relase
 	cd $(RELEASEDIR) ; rm -rf $(RELEASENAME) ;\
 	cvs -d $(CVSDIR) export  $(RELEASEOPT) -l htmlgen htmlgen/html htmlgen/text htmlgen/info ;\
@@ -102,7 +106,7 @@ home.ps intd.ps round.ps xfd.ps $(RELEASEDIR)/$(RELEASENAME)-manual-dvi
 	tar cfo $(RELEASENAME)-manual-dvi.tar $(RELEASENAME)-manual-dvi ;\
 	gzip -f -best  $(RELEASENAME)-manual-dvi.tar $(RELEASENAME)-manual.ps  $(RELEASENAME)-manual.tar
 # Copy to FTPDIR
-	cd $(RELEASEDIR) ; mv $(RELEASENAME)-manual-dvi.tar.gz $(RELEASENAME)-manual.ps.gz $(RELEASENAME)-manual.tar.gz  $(RELEASENAME).tar.gz $(RELEASENAME)/README $(RELEASENAME)/LICENSE $(RELEASENAME)/CHANGES $(FTPDIR)
+	cd $(RELEASEDIR) ; mv $(RELEASENAME)-manual-dvi.tar.gz $(RELEASENAME)-manual.ps.gz  $(RELEASENAME)-manual.pdf $(RELEASENAME)-manual.tar.gz  $(RELEASENAME).tar.gz $(RELEASENAME)/README $(RELEASENAME)/LICENSE $(RELEASENAME)/CHANGES $(FTPDIR)
 
 release:
 	$(MAKE) $(MFLAGS) dorelease RELEASEOPT="-r $(RELEASETAG)"
@@ -111,7 +115,7 @@ testrelease:
 	$(MAKE) $(MFLAGS) dorelease RELEASEOPT="-D now"
 
 devrelease:
-	$(MAKE) devversion
+	$(MAKE) dateversion
 	/bin/rm -rf ${FTPDIR}/unstable ; mkdir ${FTPDIR}/unstable
 	$(MAKE) $(MFLAGS) dorelease VERSION=`date +%Y-%m-%d` RELEASENAME="hevea-`date +%Y-%m-%d`" RELEASEOPT="-D now" FTPDIR="${FTPDIR}/unstable"
 	$(MAKE) install DOCDIR=$(HOME)/public_html/hevea/newdoc

@@ -338,7 +338,7 @@ Comme au dessus mais en mode display:
 
 $$1 + a_{i+1} + \int^N_01/x dx + \frac{\partial x}{2}$$
 
-Mauvais espaceemnt en mode display~:
+Mauvais espacemnt en mode display~:
 $$
 {C_N \over C_{N-1}} + \frac{C_{N+1}}{C_N} + \begin{array}{c}C_{N-2} \\
 \hline C_{N-1}\end{array} + 4 + \cdots + 5
@@ -385,6 +385,10 @@ $$
 \subsection{Maranget}
 $$
 \sum_{t=2}^T u_{it} + \frac{1}{\frac{1}{1 + \frac{\pi}{2}}}
+$$
+Et
+$$
+\sum_{t=2}^T u_{it} + \frac{\frac{1}{1}}{1 + \frac{\pi}{2}}
 $$
 
 \section{Les tableaux}
@@ -487,6 +491,49 @@ typeset \textit{address} in typewriter font\\ \hline
 \verb+\home{+\textit{text}\verb+}+ &
 \multicolumn{2}{p{.6\linewidth}}{produce a home-dir url both for output and links, output aspect is: ``\home{\textit{text}}''}
 \end{tabular}
+
+\subsection{Les attributs des tables}
+\begin{center}
+\ifhevea\renewcommand{\@table@attributes}{WIDTH=50\%{} BORDER=10}\fi
+\begin{tabular}{cc}
+coucou & foo \\
+argl   & bar
+\end{tabular}
+
+\ifhevea\renewcommand{\@table@attributes}{BGCOLOR=gray  CELLSPACING=0
+CELLPADDING=0 BORDER=0}
+\newenvironment{bg}[1]
+  {\begin{bgcolor}[CELLSPACING=0 CELLPADDING=4 BORDER=0]{#1}}
+  {\end{bgcolor}}
+\begin{tabular}{cc}
+\begin{bg}{red}coucou\end{bg} & \begin{bg}{white}foo\end{bg}\\
+argl   & \raggedleft
+\begin{tabular}{cc}
+\begin{bg}{yellow}coucou\end{bg}&\begin{bg}{green}coucou\end{bg}
+\end{tabular}
+\end{tabular}
+
+\newcommand{\pair}[2]
+  {\@open{TR}{}%
+  \@open{TD}{BGCOLOR=yellow}#1\@close{TD}%
+  \@open{TD}{}#2\@close{TD}\@close{TR}}
+\newcommand{\impair}[2]
+  {\@open{TR}{}%
+  \@open{TD}{}#1\@close{TD}%
+  \@open{TD}{BGCOLOR=yellow}#2\@close{TD}\@close{TR}}
+\newenvironment{damier}
+  {\@open{TABLE}{BGCOLOR=lime CELLSPACING=0 CELLPADDING=3 BORDER=0}}
+  {\@close{TABLE}}
+\newcounter{damier}
+\begin{damier}
+\whiledo{\value{damier}<2}
+{\pair{coucou}{foo}
+\impair{foo}{coucou}
+\addtocounter{damier}{1}}
+\end{damier}
+\fi
+\end{center}
+
 
 \subsection{Les délimiteurs}
 $$

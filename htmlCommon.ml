@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlCommon.ml,v 1.19 2000-04-17 09:32:39 maranget Exp $" 
+let header = "$Id: htmlCommon.ml,v 1.20 2000-05-03 17:50:27 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -905,7 +905,7 @@ let do_do_open_block s args =
     do_put_char '<' ;
     do_put s ;
     if args <> "" then begin
-      do_put_char ' ' ;
+      if args.[0] <> ' ' then do_put_char ' ' ;
       do_put args
     end ;
     do_put_char '>'
@@ -1180,6 +1180,12 @@ let horizontal_line attr width height =
   close_block ""
 ;;
 
+let line_in_table h =
+  let pad = (h-1)/2 in
+  put "<TABLE BORDER=0 WIDTH=\"100%\" CELLSPACING=0 CELLPADING=" ;
+  put (string_of_int pad) ;
+  put "><TR><TD></TD></TR></TABLE>"
+
 let freeze f =
   push out_stack (Freeze f) ;
   if !verbose > 2 then begin
@@ -1242,6 +1248,7 @@ let close_flow s =
   if !verbose > 2 then
     prerr_flags ("<= close_flow ``"^s^"''")
 ;;
+
 
 let get_block s args =
   if !verbose > 2 then begin

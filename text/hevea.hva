@@ -179,5 +179,8 @@
 \newenvironment{indexenv}{\begin{itemize}}{\end{itemize}}
 \newcommand{\indexitem}{\item}
 \newcommand{\indexspace}{\vspace*{1em}}
+%%%%%%%%%% No attributes for arrays and tabular
+\newcommand{\@table@attributes}{}
+\newcommand{\@table@attributes@border}{}
 %% Over
 \def\csname hevea@loaded\endcsname{}

@@ -9,7 +9,6 @@
 \global\advance\pdflabel by 1
 }
 \def\pdfsection#1{
-\typeout{Coucou: \thesection. #1}
 \pdfdest num \pdflabel fit
 \pdfoutline goto num \pdflabel {\thesection. #1}
 \global\advance\pdflabel by 1
@@ -58,3 +57,5 @@
 {\ifhevea\imgsrc{#1.gif}\else
 \ifpdf\includegraphics{#1.png}\else
 \includegraphics{#1.ps}\fi\fi}
+%%%%%%
+

@@ -10,7 +10,7 @@
 (***********************************************************************)
 
 
-let header = "$Id: html.ml,v 1.72 2000-01-27 16:31:21 maranget Exp $" 
+let header = "$Id: html.ml,v 1.73 2000-05-03 17:50:25 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -510,6 +510,12 @@ let as_align_mathml f span = match f with
 | _       ->  raise (Misc.Fatal ("as_align_mathml"))
 ;;
 
+let open_direct_cell attrs span =
+  if flags.in_math && !Parse_opts.mathml then begin
+    open_block "mtd" (attrs^as_colspan_mathml span);
+    open_display ()
+  end else open_block "TD" (attrs^as_colspan span)
+
 let open_cell format span i= 
   if flags.in_math && !Parse_opts.mathml then begin
     open_block "mtd" (as_align_mathml format span);
@@ -577,14 +583,17 @@ let make_inside s multi =
   end
 ;;
 
+
 let make_hline w noborder =
   if noborder then begin
     new_row ();
-    open_cell center_format w 0;
-    close_mods () ;
-    if not (flags.in_math && !Parse_opts.mathml) then
-      horizontal_line "NOSHADE" Length.Default (Length.Pixel 2)
-    else begin
+    if not (flags.in_math && !Parse_opts.mathml) then begin
+      open_direct_cell "BGCOLOR=black" w ;
+      close_mods () ;
+      line_in_table 3 ;
+    end else begin
+      open_cell center_format w 0;
+      close_mods () ;
       put "<mo stretchy=\"true\" > &horbar; </mo>";
       force_item_display ();
     end;

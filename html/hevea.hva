@@ -338,5 +338,8 @@
 \setcounter{indexclines}{0}}{}%
 \stepcounter{indexwork}\setcounter{indexprev}{\value{indexnow}}}
 \end{itemize}\end{tabular}}
+%%%%%% Default TABLE attribute for array and tabular
+\newcommand{\@table@attributes}{CELLSPACING=2 CELLPADDING=0}
+\newcommand{\@table@attributes@border}{CELLSPACING=0 CELLPADDING=1}
 %%%%%% Do not load hevea.hva again !
 \def\csname hevea@loaded\endcsname{}

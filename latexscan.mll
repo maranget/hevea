@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.168 2000-04-17 09:32:43 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.169 2000-05-03 17:50:32 maranget Exp $ *)
 
 
 {
@@ -575,8 +575,7 @@ let do_hline main =
     prerr_newline ()
   end ;
   erase_col main ;
-  Dest.erase_row () ;
-  
+  Dest.erase_row () ;  
   Dest.make_hline (Array.length !cur_format) (is_noborder_table !in_table);
   open_row () ;
   open_first_col main
@@ -2406,10 +2405,29 @@ def_code "\\kill"
 (* Tabular and arrays *)
 
 
+let check_width = function
+  | Length.Char x ->
+      " WIDTH="^string_of_int (Length.char_to_pixel x)
+  | Length.Pixel x ->
+      " WIDTH="^string_of_int x
+  | Length.Percent x ->
+      " WIDTH=\""^string_of_int x^"%\""
+  | _ -> ""
+;;
+
+let get_table_attributes border len =
+  let attrs = get_prim
+      (if border then
+        "\\@table@attributes@border"
+      else
+        "\\@table@attributes") in
+  attrs^check_width len
+  
+
 let open_tabbing lexbuf =
   let lexbuf = Lexstate.previous_lexbuf in
   let lexfun lb =
-    Dest.open_table false "CELLSPACING=0 CELLPADDING=0" ;
+    Dest.open_table false (get_table_attributes false Length.Default) ;
     Dest.new_row ();
     Dest.open_cell default_format 1 0 in
   push stack_table !in_table ;
@@ -2437,17 +2455,6 @@ let close_tabbing _ =
 ;;
 
 def_code "\\endtabbing" close_tabbing
-;;
-
-
-let check_width = function
-  | Length.Char x ->
-      " WIDTH="^string_of_int (Length.char_to_pixel x)
-  | Length.Pixel x ->
-      " WIDTH="^string_of_int x
-  | Length.Percent x ->
-      " WIDTH=\""^string_of_int x^"%\""
-  | _ -> ""
 ;;
 
 let open_array env lexbuf =
@@ -2479,9 +2486,9 @@ let open_array env lexbuf =
   push stack_display !display ;
   display := false ;
   if !Tabular.border then
-    Dest.open_table true ("CELLSPACING=0 CELLPADDING=1"^check_width len)
+    Dest.open_table true (get_table_attributes true len)
   else
-    Dest.open_table false ("CELLSPACING=2 CELLPADDING=0"^check_width len);
+    Dest.open_table false (get_table_attributes false len);
   open_row() ;
   open_first_col main ;
   skip_blanks_pop lexbuf
