@@ -1139,6 +1139,7 @@ let init_listings () =
             warning ("Cannot \\lst@lExtend ``"^name^"''")) ;
   def_code "\\lstlisting"
     (fun lexbuf ->
+      Image.stop () ;
       let keys = Subst.subst_opt "" lexbuf in
       let lab = Scan.get_prim_arg lexbuf in
       let lab = if lab = " " then "" else lab in
@@ -1157,6 +1158,7 @@ let init_listings () =
       scan_this Scan.main "\\@close@lstbox\\lst@post" ;
       Scan.top_close_block "" ;
       Scan.close_env !Scan.cur_env ;
+      Image.restart () ;
       Scan.check_alltt_skip lexbuf) ;
 (* Init comments from .hva *)
   def_code "\\lst@balanced@comment"
