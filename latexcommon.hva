@@ -248,7 +248,8 @@
   #3%exec
 }{\@close{DL}}
 \newenvironment{description}{\begin{@list@description}{}{\renewcommand{\makelabel}[1]{\textbf{##1}}}}{\end{@list@description}}
-\newenvironment{trivlist}{\setclassenv{list}{trivlist}\begin{list}{}{}}{\end{list}}
+\setenvclass{trivlist}{trivlist}
+\newenvironment{trivlist}{\setenvclass{list}{\getenvclass{trivlist}}\begin{list}{}{}}{\end{list}}
 %% Input...
 \newcommand{\listfiles}{}
 %% Line breaking

@@ -168,20 +168,21 @@
 %   \maketitle (is no longer redefined by fancysection)		%
 %   Thus defining different styles explicitly will have to 	%
 %     be done using the respective classes :			%
-%     .titlecommon : table containing the title and supplements %
-%     .titlename : H1 containing title name		        %
+%     .title     : table containing the title and supplements   %
+%     .titlemain : H1 containing title name		        %
 %     .titlerest : H3 containing other fields (author,date,etc.)%
 %   'checkbox' now takes three instead of two arguments,        %
 %     one for the class.					%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
+\newstyle{.title}{margin:auto;text-align:center}
 \newcommand{\maketitle}{%
   \bgroup\newcommand{\checkbox}[4]%
     {\ifthenelse{\equal{\usebox{##3}}{}}%
       {\ifthenelse{\equal{##4}{}}{}{\warning{No ##4 given}}}%
       {\@open{##1}{\class@attr{##2}{}}\usebox{##3}\@close{##1}}%
     }%
-  \@open{TABLE}{}\@open{TR}{}\@open{TD}{CLASS=title}%
+  \@open{TABLE}{CLASS="title"}\@open{TR}{}\@open{TD}{}%
   \checkbox{H1}{titlemain}{\@@title}{title}%
   \checkbox{H3}{titlerest}{\@@author}{author}%
   \checkbox{H3}{titlerest}{\@@date}{}%

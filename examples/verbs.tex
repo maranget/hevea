@@ -2,8 +2,65 @@
 \usepackage{isolatin1}
 \usepackage{moreverb}
 \begin{document}
+
+\section*{Les environnements de positionnement}
+\subsection*{D'abord quelques imbriqués simples}
+\begin{center}
+Je centre.
+\begin{flushleft}
+Je fer à gauche.
+\begin{flushright}
+Je fer à droite.
+\end{flushright}
+\end{flushleft}
+\end{center}
+
+\subsection*{Ensuite quelques tables dans les flush}
+Il faut positionner la table, mais ne pas hériter des
+positionnements de texte (si j'ai bien compris).
+\begin{center}
+Je centre une table.\\
+\begin{tabular}{rcl}
+Coucou & = & Z\\
+Z & = & Coucou (zobi, la mouche)\\
+\end{tabular}
+\begin{flushleft}
+Je fer à gauche.\\
+\begin{tabular}{rcl}
+Coucou & = & Z\\
+Z & = & Coucou (zobi, la mouche)\\
+\end{tabular}
+\begin{flushright}
+Je fer à droite.\\
+\begin{tabular}{rcl}
+Coucou & = & Z\\
+Z & = & Coucou (zobi, la mouche)\\
+\end{tabular}
+\end{flushright}
+\end{flushleft}
+\end{center}
+
+
+\section*{Les \texttt{verbatim} dans les environnements}
 \begin{boxedverbatim}
 Coucou j'essaie le verbatim dans une boîte.
 Ça a l'air de fonctionner.
 \end{boxedverbatim}
+
+\begin{flushright}
+\begin{verbatim}
+Coucou j'essaie le verbatim dans un flushright.
+Et bien ça a l'air de fonctionner.
+C'est à dire que c'est bien à gauche !
+\end{verbatim}
+\end{flushright}
+
+\begin{center}
+\begin{verbatim}
+Coucou j'essaie le verbatim dans un center.
+Et bien ça a l'air de fonctionner.
+C'est à dire que c'est bien à gauche !
+\end{verbatim}
+\end{center}
+
 \end{document}
