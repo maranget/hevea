@@ -190,8 +190,14 @@
 \newcommand{\diamondsuit}{\@entity{diams}}
 \newcommand{\heartsuit}{\@entity{hearts}}
 \newcommand{\spadesuit}{\@entity{spades}}
-
-% Variable-sized Symbols
+%%% Delimiters
+\newcommand{\lfloor}{\@entity{lfloor}}
+\newcommand{\rfloor}{\@entity{rfloor}}
+\newcommand{\lceil}{\@entity{lceil}}
+\newcommand{\rceil}{\@entity{rceil}}
+\newcommand{\langle}{\@entity{lang}}
+\newcommand{\rangle}{\@entity{rang}}
+ Variable-sized Symbols
 \newcommand{\@sum}{\@entity{sum}}
 \newcommand{\@prod}{\@entity{prod}}
 \newcommand{\@coprod}{\@entity{coproduct}}

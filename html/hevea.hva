@@ -22,14 +22,14 @@
 \newcommand{\html}{HTML}
 %%% HTML related stuff (TEX equivalents are in the hevea.sty file)
 \newcommand{\@aelement}[2]
-{{\@nostyle\@print{<A }\@notags{#1}\@print{>}}{#2}{\@nostyle\@print{</A>}}}
+{{\@nostyle\@print{<A }\@getprint{#1}\@print{>}}{#2}{\@nostyle\@print{</A>}}}
 \newcommand{\ahref}[2]{\@aelement{HREF="#1"}{#2}}
 \def\ahrefurl#1{\@aelement{HREF="#1"}{\texttt{#1}}}
 \let\footahref\ahref
 \newcommand{\mailto}[1]{\@aelement{HREF="mailto:#1"}{#1}}
 \newcommand{\imgsrc}[2][]{%
-{\@nostyle\@print{<IMG SRC="}#2\ifpedantic\@print{" ALT="}#2\fi
-\ifthenelse{\equal{#1}{}}{\@print{"}}{\@print{" }#1}\@print{>}}}
+{\@nostyle\@print{<IMG SRC="}\@getprint{#2}\ifpedantic\@print{" ALT="}\@getprint{#2}\fi
+\ifthenelse{\equal{#1}{}}{\@print{"}}{\@print{" }\@getprint{#1}}\@print{>}}}
 \newcommand{\anchor}[1]{\@saveclosed{\@nostyle\@print{<A NAME="}#1\@print{"></A>}}\@restoreclosed}
 %% Hyper-text references inside the document, internal usage
 \newcommand{\@locref}[2]{\@aelement{HREF="\##1"}{#2}}
