@@ -5,7 +5,9 @@ val last_closed : string ref
 val get_fontsize : unit -> int
 val open_mod : Latexmacros.env -> unit
 val open_mods : Latexmacros.env list -> unit
+val close_mods : unit -> unit
 val par : unit -> unit
+val forget_par : unit -> unit
 val open_block : string -> string -> unit
 val close_flow : string -> unit
 val close_block : string -> unit
@@ -18,7 +20,8 @@ val end_item_display : unit -> unit
 val begin_item_display : unit -> unit
 val erase_display : unit -> unit
 
-val item : (unit -> unit) -> unit
+val set_dt : string -> unit
+val item : (string -> unit) -> string -> unit
 val change_block : string -> string -> unit
 val erase_block : string -> unit
 val open_group : string -> unit

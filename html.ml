@@ -93,6 +93,9 @@ let nitems = ref 0
 and nitems_stack = ref []
 ;;
 
+let dt = ref ""
+and dt_stack = ref []
+;;
 
 
 
@@ -132,7 +135,10 @@ let rec pop_out s = match pop s with
 let out_stack = ref []
 ;;
 
-
+let pblock () = match !out_stack with
+  Normal (s,_,_)::_ -> s
+| _ -> ""
+;;
 
 let freeze f =
   push out_stack (Freeze f) ;
@@ -196,6 +202,10 @@ let flush_par () =
   vsize := !vsize + 2
 ;;
 
+let forget_par () =
+  pending_par := false
+;;
+
 let par () =
   if not (is_header !last_closed) then pending_par := true
 ;;
@@ -226,6 +236,9 @@ let do_close_mods () =
    List.iter do_close_mod !cur_out.active ;
   !cur_out.active <- [] ;
   !cur_out.pending <- []
+;;
+
+let close_mods () = do_close_mods ()
 ;;
 
 let do_open_mods () =
@@ -329,7 +342,7 @@ let get_fontsize () =
   do_rec (!cur_out.pending @ !cur_out.active)
 ;;
      
-let open_mod = function
+let open_mod  = function
   Style "RM" ->
     let pending = perform_rm !cur_out.pending in
     if List.exists rm_erases  !cur_out.active then begin
@@ -391,7 +404,11 @@ let rec try_open_block s args =
       vsize := 1
     end else if is_list s then begin
       push nitems_stack !nitems;
-      nitems := 0
+      nitems := 0 ;
+      if s = "DL" then begin
+        push dt_stack !dt ;
+        dt := ""
+      end
     end
   end
 ;;
@@ -403,7 +420,7 @@ let rec do_open_block s args = match s with
    do_open_block "TR" ""
 | _  ->
     if s = "TR" || s = "TABLE" || is_header s then
-      do_put "\n\n";
+      do_put "\n";
     do_put_char '<' ;
     do_put s ;
     if args <> "" then begin
@@ -460,10 +477,6 @@ let rec do_close_block s = match s with
     do_put_char '\n' ;
 ;;
 
-let pblock () = match !out_stack with
-  Normal (s,_,_)::_ -> s
-| _ -> ""
-;;
 
 let pop_freeze () = match !out_stack with
   Freeze f::rest ->
@@ -741,7 +754,10 @@ let skip_line () =
   put "<BR>\n"
 ;;
 
-let item f =
+let set_dt s = dt := s
+;;
+
+let item scan arg =
   if !verbose > 1 then begin
     prerr_string "Item stack=" ;
     pretty_stack !out_stack
@@ -752,15 +768,20 @@ let item f =
     else pending_par := false;
   let mods = !cur_out.pending @ !cur_out.active in
   do_close_mods () ;
+  let scan =
+    if !nitems = 0 then
+      let saved = Out.to_string !cur_out.out in
+      (fun arg -> do_put saved ; scan arg)
+    else scan in
   !cur_out.pending <- mods ;
   nitems := !nitems+1;
   if pblock() = "DL" then begin
     do_put "\n<DT>" ;
-    f () ;
+    scan (if arg = "" then !dt else arg) ;
     do_put "<DD>"
   end else begin
     do_put "\n<LI>" ;
-    f () ;
+    scan arg
   end
 ;;
 
@@ -822,7 +843,7 @@ let insert_vdisplay open_fun =
     close_display () ;
     cur_out := ppout ;
     open_fun () ;
-    put (Out.to_string new_out.out) ;
+    do_put (Out.to_string new_out.out) ;
     free new_out ;
     if !verbose > 1 then begin
       prerr_string "insert_vdisplay -> " ;

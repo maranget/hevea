@@ -3,6 +3,8 @@
 \newenvironment{itemize}{\@open{UL}{}}{\@close{UL}}
 \newenvironment{enumerate}{\@open{OL}{}}{\@close{OL}}
 \newenvironment{description}{\@open{DL}{}}{\@close{DL}}
+\newenvironment{trivlist}{\@open{DL}{}}{\@close{DL}}
+\newenvironment{list}[2]{\@open{DL}{COMPACT=compact}\@defaultdt{#1}#2}{\@close{DL}}
 \newenvironment{center}{\@open{DIV}{ALIGN=center}}{\@close{DIV}}
 \newenvironment{flushleft}{\@open{DIV}{ALIGN=left}}{\@close{DIV}}
 \newenvironment{flushright}{\@open{DIV}{ALIGN=right}}{\@close{DIV}}

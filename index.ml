@@ -106,7 +106,8 @@ let treat tag lexbuf =
     count := !count + 1
   with Not_found -> begin
     Location.print_pos () ;
-    prerr_endline ("Index: "^tag^" is undefined, makeindex or newindex is missing")
+    prerr_endline ("Index: "^tag^" is undefined, makeindex or newindex is missing") ;
+    let _ = read_index lexbuf in ()
   end
 ;;
 
@@ -131,13 +132,13 @@ let rec open_this key main = function
     let t = match t with "" -> k | _ -> t in
     Html.delay (fun _ -> ()) ;
     Html.item
-      (fun () ->
-        try main t ; let _ = Html.flush () in () with
+      (fun tag ->
+        try main tag ; let _ = Html.flush () in () with
         _ -> begin
           Html.forget () ;
           Location.print_pos () ;
           prerr_endline ("Something wrong with index: "^pretty_key key)
-      end) ;
+      end) t ;
     begin match r with
       [] -> ()
     | _  -> Html.open_block "UL" "" 

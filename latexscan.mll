@@ -179,9 +179,13 @@ and stack_in_math = ref []
 let open_ital () = Html.open_mod (Style "I")
 ;;
 
-let open_script_font () =
+let get_script_font () =
   let n = Html.get_fontsize () in
-  Html.open_mod (Font (if n >= 1 then n-1 else n))
+  if n >= 1 then n-1 else n
+;;
+
+let open_script_font () =
+  Html.open_mod (Font (get_script_font ()))
 ;;
 
 let big_size () =  Html.open_mod (Font 7)
@@ -467,6 +471,7 @@ let do_hline main =
       "TD"
       ("ALIGN=center HEIGHT=2"^
       as_colspan (Array.length !cur_format)) ;
+    Html.close_mods () ;
     Html.put "<HR NOSHADE SIZE=2>" ;
     Html.close_block "TD" ;
     close_row () ;
@@ -492,17 +497,21 @@ let do_multi n format main =
 ;;
 
 
-let close_col main =
+let close_col main content =
   let old_format = get_col !cur_format !cur_col in
   if is_display old_format then
     close_display ()
   else
     scan_this main "}" ;
-  cur_col := !cur_col + 1;
-  Html.force_block "TD" "&nbsp;";
-  let (i,format) = pop close_multi in
-  show_inside_multi main format i (Array.length format-1) ;
-  cur_col := show_inside main !cur_format !cur_col
+  begin match content with
+    "" -> Html.close_block "TD" (* last col in array, may be empty *)
+  | _  ->
+     cur_col := !cur_col + 1;
+     Html.force_block "TD" content ;
+     let (i,format) = pop close_multi in
+     show_inside_multi main format i (Array.length format-1) ;
+     cur_col := show_inside main !cur_format !cur_col
+   end
 ;;
 
 
@@ -538,46 +547,61 @@ let close_env env endaction lexfun lexbuf =
     error_env env !cur_env
 ;;
 
-let standard_sup_sub main what sup sub =
+let complex s =
+  try let _ = String.index s '\\' in true with Not_found -> false
+;;
+
+let put_sup_sub tag main = function
+  "" -> ()
+| s  ->
   try
-    let _ = String.index sup '\\'
-    and _ = String.index sub '\\' in
-    if !display then begin
-      item_display () ;
-      open_vdisplay () ;
-      open_script_font () ;
-      if sup <> "" then begin
-        open_vdisplay_row "" ;
-        scan_this main sup ;
-        close_vdisplay_row ()
-      end ;           
+    let _ =  String.index s '\\' in
+    Html.open_group tag ;
+    open_script_font () ;
+    scan_this main s;
+    Html.close_group ();    
+  with Not_found -> begin
+    Html.put_char '<' ;
+    Html.put tag ;
+    Html.put_char '>' ;
+    let sf = get_script_font () in
+    Html.put ("<FONT SIZE="^string_of_int sf^">") ;
+    scan_this main s ;
+    Html.put "</FONT>" ;
+    Html.put "</" ;
+    Html.put tag ;
+    Html.put_char '>'
+  end
+;;
+
+
+
+let standard_sup_sub main what sup sub =
+  if !display && (complex sup || complex sub) then begin
+    item_display () ;
+    open_vdisplay () ;
+    if sup <> "" then begin
       open_vdisplay_row "" ;
-      what ();
-      close_vdisplay_row () ;
-      if sub <> "" then begin
-        open_vdisplay_row "" ;
-        scan_this main sub ;
-        close_vdisplay_row ()
-      end ;
-        close_vdisplay () ;
-        item_display ()
-    end else begin
-      what ();
-      Html.open_group "SUB" ;
-      scan_this main sub;
-      Html.close_group ();
-      Html.open_group "SUP" ;
-      scan_this main sup;
-      Html.close_group ()
-    end with Not_found  -> begin
-      what ();
-      Html.put ("<SUB>") ;
-      scan_this main sub ;
-      Html.put ("</SUB>") ;
-      Html.put ("<SUP>") ;
+      open_script_font () ;
       scan_this main sup ;
-      Html.put ("</SUP>")
-    end
+      close_vdisplay_row ()
+    end ;           
+    open_vdisplay_row "" ;
+    what ();
+    close_vdisplay_row () ;
+    if sub <> "" then begin
+      open_vdisplay_row "" ;
+      open_script_font () ;
+      scan_this main sub ;
+      close_vdisplay_row ()
+    end ;
+      close_vdisplay () ;
+      item_display ()
+  end else begin
+     what ();
+     put_sup_sub "SUB" main sub ;
+     put_sup_sub "SUP" main sup
+  end
 ;;
 
 
@@ -911,7 +935,7 @@ rule  main = parse
     new_env env lexfun lexbuf}
   | "\\\\"? [' ' '\n']* "\\end" ' '* ("{tabular}" | "{array}")
       {let lxm = lexeme lexbuf in
-      close_col main ;
+      close_col main "" ;
       close_row () ;
       let env = env_extract lxm in
       if env = !cur_env then begin
@@ -953,10 +977,11 @@ rule  main = parse
              open_vdisplay_row "ALIGN=center") in
         close_vdisplay_row () ;
         open_vdisplay_row "ALIGN=center" ;
-        Html.open_mods mods ;
+        Html.close_mods () ;
         Html.put "<HR NOSHADE SIZE=2>" ;
         close_vdisplay_row () ;
         open_vdisplay_row "ALIGN=center" ;
+        Html.close_mods () ;
         Html.open_mods mods ;
         Html.freeze (fun () -> close_vdisplay_row () ; close_vdisplay ()) ;
         main lexbuf        
@@ -970,14 +995,14 @@ rule  main = parse
      main lexbuf}
   | [' ''\n']* "&"  [' ''\n']*
      {if is_table !in_table  then begin
-        close_col main ; 
+        close_col main "&nbsp;"; 
         open_col main
      end ;
      main lexbuf}
   | ['\n'' ']* "\\\\"
       {let _ = parse_args_opt [""] lexbuf in
       if is_table !in_table  then begin
-         close_col main ; close_row () ;
+         close_col main "&nbsp;" ; close_row () ;
          open_row () ; open_col main
       end else if is_tabbing !in_table then begin
         Html.force_block "TD" "&nbsp;";
@@ -1006,6 +1031,7 @@ rule  main = parse
     let env = env_extract lxm in
     if env = "document" then begin
       prelude := false ;
+      Html.forget_par () ;
       Html.set_out !out_file
     end ;
     let lexfun = match env with
@@ -1044,7 +1070,7 @@ rule  main = parse
    new_env "*verb" inverb lexbuf}
 | "\\item" ' '*
     {let arg = save_opt "" lexbuf in
-    Html.item (fun () -> scan_this main arg) ;
+    Html.item (scan_this main) arg ;
     main lexbuf}
 (* Bibliographies *)
   | "\\cite{"
@@ -1087,13 +1113,13 @@ rule  main = parse
      last_closed := save_last_closed ;
      main lexbuf}
 (* index *)
-  | "\\index"
+  | "\\@index"
      {let save_last_closed = !last_closed in
      let tag = save_opt "default" lexbuf in
      Index.treat tag lexbuf ;
      last_closed := save_last_closed ;
      main lexbuf}
-  | "\\printindex"
+  | "\\@printindex"
      {let tag =  save_opt "default" lexbuf in
      Index.print (scan_this main) tag ;
      main lexbuf}
@@ -1154,6 +1180,10 @@ rule  main = parse
   | "\\@print"
      {let arg = save_arg lexbuf in
      Html.put arg ;
+     skip_blanks_main lexbuf}
+  | "\\@defaultdt"
+     {let arg = save_arg lexbuf in
+     Html.set_dt arg ;
      skip_blanks_main lexbuf}
 (* General case for commands *)
   | "\\" '@'? ((['A'-'Z' 'a'-'z']+ '*'?) | [^ 'A'-'Z' 'a'-'z'])
@@ -1361,8 +1391,9 @@ and tformat = parse
 | eof {[]}
 
 and skip_blanks_main = parse
-  ' ' * '\n'? ' '* {main lexbuf}
-| eof              {main lexbuf}
+   ' ' * '\n' '\n'  {Html.par () ; skip_blanks_main lexbuf}
+|  ' ' * '\n'? ' '* {main lexbuf}
+| eof               {main lexbuf}
 
 and skip_blanks = parse 
   [' ']* '\n'? [' ']* {()}

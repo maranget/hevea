@@ -124,7 +124,7 @@ and num_arg = parse
 
 and input_arg = parse
   [' ''\n'] {input_arg lexbuf}
-| ['0'-'9' '_' 'a'-'z' 'A'-'Z' '.']+ {lexeme lexbuf}
+| [^'\n''{'' ']+ {lexeme lexbuf}
 | "" {arg lexbuf}  
 (*  
 and do_arg_delim = parse

@@ -105,5 +105,21 @@
 \@close{H5}
 }
 
-\newenvironment{thebibliography}[1]{\chapter*{\bibname}\@open{DL}{}}{\@close{DL}}
+\newenvironment{thebibliography}[1]{%
+\@print{
+<!-- CUT BEGIN BIBLIO -->
+}
+\chapter*{\bibname}\@open{DL}{}}{%
+\@close{DL}
+\@print{
+<!-- CUT END BIBLIO -->
+}}
 \newcommand{\bibitem}[1]{\item[{\purple[\@bibref{#1}]\label{#1}}]}
+\newcommand{\index}[2][default]{\@index[#1]{#2}}
+\newcommand{\printindex}[1][default]{%
+\@print{
+<!-- CUT BEGIN INDEX -->
+}
+\@printindex[#1]\@print{
+<!-- CUT END INDEX -->
+}}
