@@ -1,0 +1,41 @@
+
+It is my pleasure to anounce the first release of HEVEA.
+
+      This is HEVEA, version 1.0, a fast LaTeX to HTML translator.
+
+
+    HEVEA is a LaTeX to HTML translator.  The input language is a fairly
+    complete subset of LaTeX2e (old LaTeX style is also accepted) and the
+    output language is HTML that is (hopefully) correct with respect to
+    version 3.2.
+
+    Exotic symbols are translated into symbols
+    pertaining to the symbol font of the HTML browser, using the
+    non-standard FACE attribute of the FONT tag.
+    This allows the translation to HTML of quite a lot of the symbols
+    used in LaTeX.
+
+    HEVEA understands LaTeX macro definitions. Simple user style
+    files are understood with little or no modifications.
+    Furthermore, HEVEA customization is done by writing LaTeX code.
+    
+    HEVEA is written in Objective Caml, as many lexers. It is quite fast
+    and flexible. Using HEVEA it is possible to translate large documents
+    such as manuals, books, etc. very quickly. All documents are
+    translated as one single HTML file. Then, the output file can be cut
+    into smaller files, using the companion program HACHA.
+
+CONTACTS
+    mail:      Luc.Maranget@inria.fr
+    distribution:  ftp://ftp.inria.fr/INRIA/Projects/para/hevea
+
+DOCUMENTATION
+    On-line documentation is available at
+    http://para.inria.fr/~maranget/hevea
+    The first sections explain how to use hevea.
+
+IMPORTANT REQUIREMENT
+    To compile HEVEA, you need Objective Caml 1.07, see
+    http://caml.inria.fr/ocaml/
+
+--Luc Maranget
