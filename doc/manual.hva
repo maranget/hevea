@@ -1,0 +1,6 @@
+\newcommand{\BibTeX}{Bib\TeX}
+\newenvironment{showlatex}{\begin{toimage}}{\end{toimage}\imageflush}
+\newcommand{\showcolor}[1]{\textcolor{#1}{\texttt{#1}}}
+\newcommand{\myrule}{\@print{<HR NOSHADE SIZE=1 ALIGN=center>}}
+\newenvironment{htmlout}{\begin{quote}\myrule}{\myrule\end{quote}}
+\newcommand{\localurl}[1]{\url{#1}{\docurl/doc/#1}}

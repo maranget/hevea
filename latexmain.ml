@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmain.ml,v 1.32 1999-03-16 17:41:58 maranget Exp $" 
+let header = "$Id: latexmain.ml,v 1.33 1999-03-26 18:59:32 maranget Exp $" 
 
 open Misc
 open Parse_opts
@@ -88,7 +88,7 @@ let main () =
        end
     end ;
     let input_name,chan =
-      match base_in with "" -> "",stdin | _ -> read_tex base_in in
+      match name_in with "" -> "",stdin | _ -> read_tex name_in in
     let buf = Lexing.from_channel chan in
     Location.set input_name buf ;
     Save.set_verbose !silent !verbose ;
@@ -113,6 +113,11 @@ with
     prerr_endline "Adios" ;
     exit 2
 | Scan.Error s ->
+    Location.print_pos () ;
+    prerr_endline ("Error while reading LaTeX:\n\t"^s) ;
+    prerr_endline "Adios" ;
+    exit 2
+| Lexstate.Error s ->
     Location.print_pos () ;
     prerr_endline ("Error while reading LaTeX:\n\t"^s) ;
     prerr_endline "Adios" ;

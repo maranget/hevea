@@ -11,7 +11,7 @@
 
 open Misc
 
-let header = "$Id: parse_opts.ml,v 1.10 1999-03-12 13:18:08 maranget Exp $" 
+let header = "$Id: parse_opts.ml,v 1.11 1999-03-26 18:59:33 maranget Exp $" 
 
 
 let files = ref []
@@ -73,15 +73,17 @@ let warning s =
   end
 ;;
 
-let base_in,styles = match !files with
-| [] -> "",[]
+let base_in,name_in,styles = match !files with
+| [] -> "","",[]
 | x :: rest ->
-    if Filename.check_suffix x ".tex" then
-      Filename.chop_suffix x ".tex",rest
-    else try
-      let _ = Filename.chop_extension (Filename.basename x) in
-      "", !files
-    with Invalid_argument _ -> x, rest
+    if Filename.check_suffix x ".hva" then
+      "","", !files
+    else
+      let base_file = Filename.basename x in
+      try
+        let base = Filename.chop_extension base_file in
+        base,x,rest
+    with Invalid_argument _ -> base_file, x,rest
 
 let base_out = match !outname with
 | "" -> begin match base_in with

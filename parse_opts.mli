@@ -20,5 +20,6 @@ val warning : string -> unit
 
 val styles : string list
 val base_in : string
+val name_in : string
 val base_out : string
 val name_out : string

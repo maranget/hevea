@@ -19,8 +19,8 @@ byte:
 tmp.tex: manual.tex version.tex
 	$(GPIC) -t < manual.tex > tmp.tex
 
-manual.html: manual.sty tmp.tex
-	${HEVEA} manual.sty tmp.tex -o manual.html
+manual.html: manual.hva tmp.tex
+	${HEVEA} manual.hva tmp.tex -o manual.html
 	$(MAKE) $(MFLAGS) images
 
 manual.dvi: tmp.tex
