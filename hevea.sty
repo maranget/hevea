@@ -197,6 +197,7 @@
 \newcommand{\textoverline}[1]{\warning{Warning: overline in text}#1}
 \def\overline#1{\ifdisplay
 \begin{array}{c}\hline\\ #1 \\~\end{array}\else\textoverline{#1}\fi}
+\newcommand{\textunderline}[1]{{\@style{U}#1}}
 \def\underline#1{\ifdisplay
 \begin{array}{c}~\\ #1\\ \hline\end{array}\else\textunderline{#1}\fi}
 \def\mathrm#1{{\rm #1}}
@@ -409,12 +410,41 @@
 %% Equations
 \newcommand{\rule}[3][]{\@print{<HR>
 }}%
-%%%%%%%%%%%%%%%% Missing series and shapes
+%%%%%%%%%%%%%%%% LaTeX 2.09 style declarations
+\newenvironment{tt}{\@style{TT}}{}
+\newenvironment{bf}{\@style{B}}{}
+\newenvironment{em}{\@style{EM}}{}
+\newenvironment{it}{\@style{I}}{}
+\newenvironment{rm}{\@anti{\sf,\tt}}{}
+\newenvironment{tiny}{\@fontsize{1}}{}
+\newenvironment{footnotesize}{\@fontsize{2}}{}
+\newenvironment{scriptsize}{\@fontsize{2}}{}
+\newenvironment{small}{\@fontsize{3}}{}
+\newenvironment{normalsize}{\@fontsize{3}}{}
+\newenvironment{large}{\@fontsize{4}}{}
+\newenvironment{Large}{\@fontsize{5}}{}
+\newenvironment{LARGE}{\@fontsize{5}}{}
+\newenvironment{huge}{\@fontsize{6}}{}
+\newenvironment{Huge}{\@fontsize{7}}{}
+\newenvironment{purple}{\@fontcolor{purple}}{}
+\newenvironment{silver}{\@fontcolor{silver}}{}
+\newenvironment{gray}{\@fontcolor{gray}}{}
+\newenvironment{white}{\@fontcolor{white}}{}
+\newenvironment{maroon}{\@fontcolor{maroon}}{}
+\newenvironment{red}{\@fontcolor{red}}{}
+\newenvironment{fuchsia}{\@fontcolor{fuchsia}}{}
+\newenvironment{green}{\@fontcolor{green}}{}
+\newenvironment{lime}{\@fontcolor{lime}}{}
+\newenvironment{olive}{\@fontcolor{olive}}{}
+\newenvironment{yellow}{\@fontcolor{yellow}}{}
+\newenvironment{navy}{\@fontcolor{navy}}{}
+\newenvironment{blue}{\@fontcolor{blue}}{}
+\newenvironment{teal}{\@fontcolor{teal}}{}
+\newenvironment{aqua}{\@fontcolor{aqua}}{}
 \def\cal{\red}
 \def\sf{\purple}
 \def\sc{\bf}
 \def\sl{\it\maroon}
-\newenvironment{rm}{\@anti{\sf,\tt}}{}
 %%%% LaTeX2e verbose declarations
 \newenvironment{mdseries}{\@anti{\bf}}{}
 \newenvironment{bfseries}{\bf}{}

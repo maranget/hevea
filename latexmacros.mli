@@ -24,7 +24,6 @@ type action =
   | Print_fun of ((string -> string) * int)
   | Subst of string
   | Print_count of ((int -> string)  * int)
-  | Env of env
   | Test of bool ref
   | SetTest of (bool ref * bool)
   | IfCond of bool ref * action list * action list
@@ -49,9 +48,7 @@ val redef_macro: string -> int -> action list -> unit
 val def_env_pat: string -> pat -> action list -> action list -> unit
 val unregister : string -> unit
 val newif : string -> unit
-exception NotEnv
-;;
-val as_env : string -> env list
+
 
 
 val display :  bool ref

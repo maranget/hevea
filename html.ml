@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: html.ml,v 1.23 1998-07-21 11:18:29 maranget Exp $" 
+let header = "$Id: html.ml,v 1.24 1998-07-28 09:32:25 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -980,6 +980,16 @@ let to_string f =
   f () ;
   let r = Out.to_string !cur_out.out in
   close_group () ;
+  r
+;;
+
+let to_style f =
+  open_group "" ;
+  !cur_out.active  <- [] ;
+  !cur_out.pending <- [] ;
+  f () ;
+  let r = !cur_out.active @ !cur_out.pending in
+  erase_block "" ;
   r
 ;;
 

@@ -61,5 +61,6 @@ val freeze : (unit -> unit) -> unit
 val open_chan: out_channel  -> unit
 val close_chan: unit -> unit
 val to_string: (unit -> unit) -> string
+val to_style: (unit -> unit) -> Latexmacros.env list
 
 val finalize : unit -> unit

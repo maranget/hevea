@@ -12,7 +12,7 @@
 {
 open Lexing
 
-let header = "$Id: save.mll,v 1.15 1998-07-21 11:18:41 maranget Exp $" 
+let header = "$Id: save.mll,v 1.16 1998-07-28 09:32:30 maranget Exp $" 
 
 let silent = ref false
 ;;
@@ -154,7 +154,7 @@ and cite_args_bis = parse
 
 and macro_names = parse
   eof {[]}
-| '\\' ((['A'-'Z' 'a'-'z']+ '*'?) | [^ 'A'-'Z' 'a'-'z'])
+| '\\' (('@'? ['A'-'Z' 'a'-'z']+ '*'?) | [^ 'A'-'Z' 'a'-'z'])
   {let name = lexeme lexbuf in
   name :: macro_names lexbuf}
 | _   {macro_names lexbuf}

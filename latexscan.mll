@@ -7,7 +7,7 @@
 (*  Copyright 1998 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(***********************************************************************)
+(*****************************2******************************************)
 
 {
 open Parse_opts
@@ -17,7 +17,7 @@ open Latexmacros
 open Html
 open Save
 
-let header = "$Id: latexscan.mll,v 1.31 1998-07-21 11:18:36 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.32 1998-07-28 09:32:28 maranget Exp $" 
 
 let push s e = s := e:: !s
 and pop s = match !s with
@@ -107,13 +107,15 @@ and last_letter name =
 ;;
 
 let subst_arg arg = try
-    Subst.subst (Lexing.from_string arg) !stack
-  with
+  let _ = String.index arg '#' in
+  Subst.subst (Lexing.from_string arg) !stack
+with
   Subst.BadArg -> begin
     prerr_endline ("Bad var number in  ``"^arg^"''");
     raise (Failure "subst")
-  end
-
+    end
+| Not_found -> arg
+;;
 
 let save_quote_arg lexbuf =
 
@@ -463,6 +465,17 @@ let get_this lexfun s =
   r
 ;;
 
+let get_style lexfun s =
+  start_lexstate ();
+  push stack_display !display;
+  display := false;
+  let lexer = Lexing.from_string s in
+  let r = Html.to_style (fun () -> lexfun lexer) in
+  display := pop stack_display;
+  restore_lexstate();
+  r
+;;
+  
 let put_delim delim i =
   if !verbose > 1 then
     prerr_endline
@@ -1480,18 +1493,22 @@ rule  main = parse
            [] -> []
          | arg::rest ->
            let r = do_rec rest in
-           begin try
-             let env = Latexmacros.as_env arg in
-             env @ r
-           with Latexmacros.NotEnv ->
-             if true then begin
-               Location.print_pos () ;
-               prerr_endline ("Anti, not a style: "^arg)
-             end ;
-             r
-           end  in
+           let env = get_style main arg in
+           env @ r in
          let envs = do_rec args in
          Html.erase_mods envs ;
+         main lexbuf
+      | "\\@style"   ->
+         let arg = save_arg lexbuf in
+         Html.open_mod (Style arg) ;
+         main lexbuf
+      | "\\@fontcolor"   ->
+         let arg = save_arg lexbuf in
+         Html.open_mod (Color arg) ;
+         main lexbuf
+      | "\\@fontsize"   ->
+         let arg = save_arg lexbuf in
+         Html.open_mod (Font (my_int_of_string arg)) ;
          main lexbuf
       | "\\@nostyle" ->
          Html.nostyle () ;
@@ -1704,8 +1721,7 @@ rule  main = parse
                 if !verbose > 2 then
                   prerr_endline "Seen if as true"
           | SetTest (cell,b) -> cell := b
-          | Env s -> Html.open_mod s
-          | ItemDisplay   -> item_display ()
+          | ItemDisplay   -> force_item_display ()
           | Subst body ->
               if !verbose > 2 then
                 prerr_endline ("user macro: "^body) ;            

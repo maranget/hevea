@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmacros.ml,v 1.19 1998-07-21 11:18:34 maranget Exp $" 
+let header = "$Id: latexmacros.ml,v 1.20 1998-07-28 09:32:26 maranget Exp $" 
 open Parse_opts
 open Symb
 
@@ -32,7 +32,6 @@ type action =
   | Print_fun of ((string -> string) * int)
   | Subst of string
   | Print_count of ((int -> string)  * int)
-  | Env of env
   | Test of bool ref
   | SetTest of (bool ref * bool)
   | IfCond of bool ref * action list * action list
@@ -191,63 +190,6 @@ let newif name =
 
 
 (* Base LaTeX macros *)
-
-let def_style name style =
-  def_env name [Env style] []
-;;
-
-exception NotEnv
-;;
-
-let rec as_env_rec name r =
-  try match Hashtbl.find cmdtable name with
-    _,[Subst s] ->
-      List.fold_right as_env_rec
-        (Save.macro_names (Lexing.from_string s)) r
-  | _,[Env env] -> env :: r
-  | _,_         -> raise NotEnv
-  with Not_found -> raise NotEnv
-;;
-
-let as_env name = as_env_rec name []
-;;
-
-   
-
-def_style "tt" (Style "TT");
-def_style "bf" (Style  "B");
-def_style "em" (Style "EM");
-def_style "it" (Style "I");
-def_style "tiny" (Font 1);
-def_style "footnotesize" (Font 2);
-def_style "scriptsize" (Font 2);
-def_style "small" (Font 3);
-def_style "normalsize" (Font 3);
-def_style "large" (Font 4);
-def_style "Large" (Font 5);
-def_style "LARGE" (Font 5);
-def_style "huge" (Font 6);
-def_style "Huge" (Font 7);
-
-
-def_style "purple" (Color "purple");
-def_style "silver" (Color "silver");
-def_style "gray" (Color "gray");
-def_style "white" (Color "white");
-def_style "maroon" (Color "maroon");
-def_style "red" (Color "red");
-def_style "fuchsia" (Color "fuchsia");
-def_style "green" (Color "green");
-def_style "lime" (Color "lime");
-def_style "olive" (Color "olive");
-def_style "yellow" (Color "yellow");
-def_style "navy" (Color "navy");
-def_style "blue" (Color "blue");
-def_style "teal" (Color "teal");
-def_style "aqua" (Color "aqua");
-();;
-
-
 def_env "program" [] [];
 def_env "alltt" [] []
 ;;
@@ -257,8 +199,6 @@ let no_dot = function
 | s   -> s in
 def_macro "\\bgroup" 0 [Subst "{"] ;
 def_macro "\\egroup" 0 [Subst "}"] ;
-def_macro "\\textunderline" 1
-  [Subst "{" ; Env (Style "U") ; Print_arg 0 ; Subst "}"];
 def_macro "\\ref" 1
   [Print "<A href=\"#"; Subst "\\@print{#1}" ; Print "\">" ;
    Print_fun (Aux.rget,0) ; Print "</A>"];
@@ -426,7 +366,7 @@ def_macro "\\otimes" 0 [Print otimes];;
 def_macro "\\ominus" 0 [Print ominus];;
 
 
-def_macro "\\sum" 0 [IfCond (display,[Env (Font 7)],[]) ; Print upsigma];
+def_macro "\\sum" 0 [IfCond (display,[Subst ("\\Huge")],[]) ; Print upsigma];
 def_macro "\\int" 0
   [IfCond (display,
     [Print display_int],

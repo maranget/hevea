@@ -30,6 +30,9 @@ patbis.html: pat.html
 
 suite.html: suite.tex
 	$(LATEX) < /dev/null suite.tex
+	makeindex suite
+	$(LATEX) < /dev/null suite.tex
+	$(LATEX) < /dev/null suite.tex
 	$(HTMLGEN) suite.tex
 
 index.html: index.tex
