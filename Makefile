@@ -6,11 +6,14 @@ LIBDIR=/usr/local/lib/hevea
 # Where to install programms
 BINDIR=/usr/local/bin
 # C preprocessor with proper options (don't ask)
-CPP=cpp -E -P
+#CPP=cpp -E -P
 #Some alternatives...
-#CPP=/lib/cpp -E -P  (Old fashioned Unix)
-#CPP=gcc -E -P -x c  (If you have gcc)
-#CPP=cc --traditional-cpp -E -P -x c (repported to work on MacOsX by Georg)
+#Old fashioned Unix
+#CPP=/lib/cpp -E -P 
+#GCC installed
+CPP=gcc -E -P -x c
+# reported to work on MacOsX by Georg
+#CPP=cc --traditional-cpp -E -P -x c
 ############### End of configuration parameters
 SUF=
 DIR=

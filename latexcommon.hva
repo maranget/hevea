@@ -1,4 +1,5 @@
 \newif\ifhevea\heveatrue
+\let\ifimage\iffalse
 \newenvironment{htmlonly}{}{}
 \newif\iffooter\footertrue
 \newcommand{\home}[1]{\~{}#1}
