@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmain.ml,v 1.71 2001-10-02 12:51:36 maranget Exp $" 
+let header = "$Id: latexmain.ml,v 1.72 2001-11-02 09:54:04 maranget Exp $" 
 
 open Misc
 open Parse_opts
@@ -68,16 +68,6 @@ and prerr_not_supported msg =
 
 let finalize check =
   try
-    begin match !Misc.image_opt with
-    | None ->
-        let s = scan_get_prim "\\heveaimageext" in
-        s.[0] <- '-' ;
-        begin match s with
-        | "-gif" -> Misc.image_opt := Some ""
-        | _ -> Misc.image_opt := Some s
-        end
-    | _ -> ()
-    end ;
     let changed = Auxx.finalize check in
     let changed = Index.finalize check || changed  in
     let image_changed = image_finalize check in

@@ -2573,6 +2573,8 @@ for PNG images, while they work as advertised for GIF images.
 This does not harm as long as the final \html{} document has a white
 background color (see Section~\ref{metadef}).
 
+
+
 \section{Other output formats}\label{alternative}
 It is possible to translate \LaTeX{} file into other formats than
 \html. There are two such formats: plain text and info files.
@@ -5205,6 +5207,8 @@ It may yield challenging input for other \html~optimizers.
 \index{imagen@\texttt{imagen} command}
 The command \texttt{imagen} is a simple shell script that translates
 a \LaTeX{} document into many \texttt{.gif} images.
+The \texttt{imagen} script relies on much software to be installed on
+your computer, see Section~\ref{imagen:needs}.
 
 It is a companion program of \hevea{}, which must have been previously run as:
 \begin{flushleft}
@@ -5266,6 +5270,8 @@ Note that \texttt{hevea} should have been previously run as
 ``\texttt{.png}'' filename
 extension is given to image file references from within the \html{}
 document).
+Beware that the \texttt{pnmtopng} program looks to be plagued by bugs
+in old versions of the \texttt{netpbm} package.
 \item[{\tt -pnm}] Output PPM images. This option mostly serves
 debugging purposes. Experimented users can also take advantage
 of it for performing additional image transformation or
@@ -5434,7 +5440,7 @@ However, a Red~Hat 5.2
 is also available, it does not require an Objective Caml installation
 and can be installed on most Red~Hat Linux PC's.
 
-\hevea{} users may instruct the program not to process a
+\label{imagen:needs}\hevea{} users may instruct the program not to process a
 part of the input (see section~\ref{imagen}). Instead, this part is
 processed into a 
 \verb+.gif+ file and \hevea{} outputs a  link to the image file.

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.216 2001-10-22 18:04:03 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.217 2001-11-02 09:54:08 maranget Exp $ *)
 
 
 {
@@ -2412,6 +2412,21 @@ def_code "\\end"
     expand_command main no_skip ("\\end"^env) lexbuf ;
     close_env env ;
     top_close_block "")
+;;
+
+(* to be called by \document *)
+def_code "\\@begin@document"
+  (fun lexbuf -> begin match !Misc.image_opt with
+    | None ->
+        let s = get_prim "\\heveaimageext" in
+        s.[0] <- '-' ;
+        begin match s with
+        | "-gif" -> Misc.image_opt := Some ""
+        | _ -> Misc.image_opt := Some s
+        end
+    | _ -> ()
+    end ;
+    check_alltt_skip lexbuf)
 ;;
 
 def_code "\\@raise@enddocument"

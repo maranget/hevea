@@ -258,6 +258,7 @@
 %%% AtBeginDocument and AtEndDocument
 \newtokens{\@atbegindocument}
 \newcommand{\AtBeginDocument}[1]{\addtokens{\@atbegindocument}{#1}}
+\AtBeginDocument{\@begin@document}
 \AtBeginDocument
 {\begin{toimage}
 \pagestyle{empty}
