@@ -989,7 +989,7 @@ in the source and to invoke \hevea{} as follows:
 \verb+# hevea+ \texttt{-e} \filename{latexonly}\ldots
 \end{flushleft}
 
-Having \filename{heveaonly} loaded by \hevea{} only is more
+\label{heveaonly}Having \filename{heveaonly} loaded by \hevea{} only is more
 simple: it  suffices to invoke \hevea{} as follows:
 \begin{flushleft}
 \verb+# hevea+ \filename{heveaonly}\ldots
@@ -1420,7 +1420,7 @@ the image file and performs \verb+\imageflush+:
 \end{verbatim}
 Such a definition must be seen by \hevea{} only. So, it is best put
 in a separate file whose name is given as an extra argument on
-\hevea{} command line (see section~\ref{fileloading}).
+\hevea{} command line (see section~\ref{heveaonly}).
 Putting it in the document source
 protected inside an \verb+%HEVEA+ comment is a bad idea, %
 because it might then get echoed to the \textit{image} file
@@ -1432,6 +1432,9 @@ and not a redefinition (i.e., \verb+\newcommand+ is used and not
 because \hevea{} does not know about \verb+\epsfbox+ by default.
 Also observe that this not a recursive definition, since
 commands do not get expanded inside the \verb+toimage+ environment.
+
+Note that this technique also works for the
+\verb+\includegraphics+ command from the \texttt{graphics} package.
 
 
 Finally, if the Postscript image is produced from a bitmap, it is
@@ -1804,7 +1807,9 @@ The \verb+\imgsrc+ command is more useful.
 It becomes handy when one has images both in Postscript and GIF format.
 As explained in section~\ref{substimage}, Postscript images can
 be included in \LaTeX{} documents by using the \verb+\epsfbox+
-command from the \texttt{epsf} package.
+command from the \texttt{epsf} package (or by using the
+\verb+\includegraphics+ command from the more standard
+\texttt{graphics} package).
 For instance, if \texttt{screenshot.ps} is an encapsulated  Postscript
 file, then a \texttt{doc.tex} document can include it by:
 \begin{verbatim}
@@ -2975,6 +2980,29 @@ by \hevea:
 \end{picture}
 %END IMAGE
 %HEVEA\imageflush
+
+By contrast with the case of the picture given above, simple usage of
+the \verb+\includegraphics+ command
+from the \texttt{graphics} package can be treated without altering the
+\LaTeX{} document at all.
+Basically it suffices to give \hevea{} its own definition for the
+\verb+\includegraphics+ command:
+\begin{verbatim}
+\newcommand{\includegraphics}[1]{%
+\begin{toimage}\includegraphics{#1}\end{toimage}\imageflush}
+\end{verbatim}
+This definition tells \hevea{} to echo the \verb+\includegraphics+
+command and its argument to the \textit{image} file and then to
+output an \verb+IMG+ tag,
+whose \verb+SRC+ attribute is a conventional GIF image name.
+The corresponding GIF image can be generated from the \LaTeX{} source
+echoed to the \textit{image} file by the companion script
+\texttt{imagen}.
+See section~\ref{substimage} and the whole section~\ref{imagen} for
+details. See also section~\ref{imgsrc} for another technique, which is
+more adequate when included Postcript images were bitmap images in the first
+place.
+
 
 
 \subsection{The \texttt{color} Package}\label{color}

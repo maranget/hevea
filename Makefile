@@ -17,7 +17,7 @@ OCAMLLEX=ocamllex
 INSTALL=cp
 OBJS=version.cmo misc.cmo location.cmo table.cmo parse_opts.cmo mylib.cmo myfiles.cmo out.cmo symb.cmo save.cmo auxx.cmo latexmacros.cmo lexstate.cmo counter.cmo image.cmo length.cmo html.cmo section.cmo foot.cmo entry.cmo index.cmo colscan.cmo color.cmo get.cmo tabular.cmo videoc.cmo latexscan.cmo latexmain.cmo
 OBJSCUT=version.cmo misc.cmo location.cmo out.cmo thread.cmo cross.cmo mylib.cmo section.cmo length.cmo save.cmo cut.cmo cutmain.cmo
-
+GENSRC=auxx.ml colscan.ml cut.ml entry.ml get.ml latexscan.ml length.ml save.ml tabular.ml videoc.ml 
 
 OBJPLUGINS=videoc.cmo
 
@@ -93,12 +93,12 @@ cutfoot-eng.html: cutfoot.tex hevea.hva ${HEVEA}
 
 clean:
 	rm -f *.byte *.opt
-	rm -f subst.ml latexscan.ml auxx.ml save.ml entry.ml cut.ml
+	rm -f $(GENSRC)
 	rm -f *.o *.cmi *.cmo *.cmix *.cmx *.o *.ppo *.ppi
 	rm -f *~ #*#
 	rm -f cutfoot-fra.html cutfoot-eng.html
 
-depend: videoc.ml colscan.ml length.ml latexscan.ml subst.ml save.ml auxx.ml entry.ml cut.ml tabular.ml get.ml
+depend: $(GENSRC)
 	- cp .depend .depend.bak
 	ocamldep *.mli *.ml > .depend
 

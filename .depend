@@ -77,8 +77,6 @@ save.cmo: out.cmi save.cmi
 save.cmx: out.cmx save.cmi 
 section.cmo: section.cmi 
 section.cmx: section.cmi 
-subst.cmo: out.cmi 
-subst.cmx: out.cmx 
 symb.cmo: parse_opts.cmi symb.cmi 
 symb.cmx: parse_opts.cmx symb.cmi 
 table.cmo: table.cmi 
