@@ -47,7 +47,7 @@ open Save
 open Tabular
 open Lexstate
 
-let header = "$Id: latexscan.mll,v 1.96 1999-05-18 17:12:09 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.97 1999-05-19 16:27:03 tessaud Exp $" 
 
 let sbool = function
   | false -> "false"
@@ -445,13 +445,17 @@ and as_colspan = function
   |  n -> " COLSPAN="^string_of_int n
 
 let is_inside = function
-  Tabular.Inside _ -> true
-| _ -> false
+    Tabular.Inside _ -> true
+  | _ -> false
+
+let is_border = function
+  | Tabular.Border _ -> true
+  | _ -> false
 
 and as_inside = function
   Tabular.Inside s -> s
 | _        -> ""
-
+(*
 and as_align f span = match f with
   Tabular.Align {vert=v ; hor=h ; wrap=w ; width=size} ->
 (*    (match size with
@@ -465,7 +469,7 @@ and as_align f span = match f with
     (if w then "" else " NOWRAP")^
     as_colspan span
 | _       ->  raise (Misc.Fatal ("as_align"))
-
+*)
 and as_wrap = function
   | Tabular.Align {wrap = w} -> w
   | _ -> false
@@ -509,10 +513,17 @@ let show_inside main format i =
         Dest.open_cell center_format 1;
         Dest.put s ;
         Dest.close_cell "";
+    | Tabular.Border c -> 
+	(try 
+	  Dest.make_border c;
+	  if !first_col then first_col := false;
+	with Exit -> t:= !t+1;
+	  if !first_col then first_col := false;
+	  raise EndInside)
     | _ -> raise EndInside
     end ;
     t := !t+1
-  done with EndInside -> ()
+  done with EndInside -> if !t = i then  Dest.make_border ' ';
   end ;
 (*
   if !verbose > -1 then
@@ -543,7 +554,7 @@ let find_start i = if !first_col then 0 else i
 
 let find_align format =
   let t = ref 0 in
-  while is_inside (get_col format !t) do
+  while (is_inside (get_col format !t)) || (is_border (get_col format !t)) do
     t := !t+1
   done ;
   !t
@@ -613,16 +624,20 @@ let do_hline main =
     Printf.fprintf stderr "hline: %d %d" !cur_col (Array.length !cur_format) ;
     prerr_newline ()
   end ;
-    erase_col main ;
-    Dest.erase_row () ;
-    Dest.new_row () ;
-    Dest.open_cell center_format (Array.length !cur_format) ;
-    Dest.close_mods () ;
-    Dest.horizontal_line "NOSHADE" "2" "100" ;
-    Dest.close_cell "" ;
-    Dest.close_row () ;
-    open_row () ;
-    open_first_col main
+  erase_col main ;
+  Dest.erase_row () ;
+  
+  Dest.make_hline (Array.length !cur_format) (is_noborder_table !in_table);
+(*
+  Dest.new_row () ;
+  Dest.open_cell center_format (Array.length !cur_format) ;
+  Dest.close_mods () ;
+  Dest.horizontal_line "NOSHADE" "2" "100" ;
+  Dest.close_cell "" ;
+  Dest.close_row () ;
+*)  
+  open_row () ;
+  open_first_col main
 ;;
 
 let do_multi n format main =
@@ -2424,11 +2439,11 @@ def_code "\\multicolumn"
 
 def_code "\\hline"
   (fun lexbuf ->
-     if is_noborder_table !in_table then
-       do_hline main ;
-     skip_endrow lexbuf ;
-     let _ = Dest.forget_par () in
-     ())
+    (* if is_noborder_table !in_table then*)
+    do_hline main ;
+    skip_endrow lexbuf ;
+    let _ = Dest.forget_par () in
+    ())
 ;;
 
 (* inside tabbing *)

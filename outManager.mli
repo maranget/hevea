@@ -95,6 +95,8 @@ module type S =
     val close_row : unit -> unit
     val erase_row : unit -> unit
     val close_table : unit -> unit
+    val make_border : char -> unit
+    val make_hline : int -> bool -> unit
 
     val infomenu : string -> unit
     val infonode : string -> string -> string -> unit

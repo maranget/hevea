@@ -60,16 +60,16 @@
     val flush : int -> unit
     val forget : unit -> unit
 
-    val loc_ref: string -> string -> unit
-    val loc_name: string -> string -> unit
+    val loc_ref : string -> string -> unit
+    val loc_name : string -> string -> unit
 
-    val insert_vdisplay: (unit -> unit) -> Latexmacros.env list
+    val insert_vdisplay : (unit -> unit) -> Latexmacros.env list
     val freeze : (unit -> unit) -> unit
 
-    val open_chan: out_channel  -> unit
-    val close_chan: unit -> unit
-    val to_string: (unit -> unit) -> string
-    val to_style: (unit -> unit) -> Latexmacros.env list
+    val open_chan : out_channel  -> unit
+    val close_chan : unit -> unit
+    val to_string : (unit -> unit) -> string
+    val to_style : (unit -> unit) -> Latexmacros.env list
     val get_current_output : unit -> string
 
     val finalize : bool -> unit
@@ -93,6 +93,8 @@
     val close_row : unit -> unit
     val erase_row : unit -> unit
     val close_table : unit -> unit
+    val make_border : char -> unit
+    val make_hline : int -> bool -> unit
 
     val infomenu : string -> unit
     val infonode : string -> string -> string -> unit

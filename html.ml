@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: html.ml,v 1.48 1999-05-18 17:12:05 maranget Exp $" 
+let header = "$Id: html.ml,v 1.49 1999-05-19 16:26:55 tessaud Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -1560,7 +1560,25 @@ and close_row () = close_block "TR"
 
 let close_table () = close_block "TABLE"
 ;;
+let make_border c = raise Exit
+;;
 
+let center_format =
+  Tabular.Align  {Tabular.hor="center" ; Tabular.vert = "" ;
+		   Tabular.wrap = false ; Tabular.pre = "" ; 
+		   Tabular.post = "" ; Tabular.width = None} 
+;;
+
+let make_hline w noborder =
+  if noborder then begin
+    new_row ();
+    open_cell center_format w;
+    close_mods () ;
+    horizontal_line "NOSHADE" "2" "100" ;
+    close_cell "" ;
+    close_row ();
+  end
+;;
 
 let infomenu arg = ()
 and infonode opt num arg = ()

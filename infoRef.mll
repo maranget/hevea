@@ -369,7 +369,12 @@ let  affiche_tag_table_un out_file =
     | n::r ->  put ("File: "^ out_file ^",\tNode: "^noeud_name n^""^string_of_int n.pos^"\n");
 	do_rec r
   in
-      
+
+  if !top_node then begin
+    put_credits ();
+    top_node := false;
+  end;
+
   put "\n\nTag table:\n";
   Hashtbl.iter (fun num n -> put ("File: "^ out_file ^",\tNode: "^noeud_name n^""^string_of_int n.pos^"\n")) nodes;
   (*do_rec (List.rev !node_list);*)
