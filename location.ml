@@ -10,7 +10,7 @@
 (***********************************************************************)
 open Stack
 
-let header = "$Id: location.ml,v 1.18 2001-05-25 09:07:25 maranget Exp $" 
+let header = "$Id: location.ml,v 1.19 2001-05-28 17:28:56 maranget Exp $" 
 
 type fileOption = No | Yes of in_channel
 ;;
@@ -80,17 +80,18 @@ let restore () =
 ;;
 
 
-let rec do_find_line file r c = function
-  0 -> r,c
+let rec do_find_line file lp r c = function
+  0 -> lp,r,c
 | n ->
    let cur = input_char file in
    do_find_line file
+    (match cur with '\n' -> lp+c+1 | _ -> lp)
     (match cur with '\n' -> r+1 | _ -> r)
-    (match cur with '\n' -> 1 | _ -> c+1)
+    (match cur with '\n' -> 0 | _ -> c+1)
     (n-1)
 ;;
 
-let find_line file nline nchars = do_find_line file nline 1 nchars
+let find_line file lp nline nchars = do_find_line file lp nline 0 nchars
 
 type t = string * int * int
 
@@ -104,9 +105,9 @@ let do_get_pos () =  match !curfile with
         if char_pos < last_pos then 0,1 else last_pos,last_line in
       seek_in file last_pos ;
 (*      prerr_endline ("char_pos="^string_of_int char_pos) ; *)
-      let nline,nchar =
-        find_line file last_line (char_pos-last_pos) in
-      curline := (char_pos,nline);
+      let line_pos,nline,nchar =
+        find_line file last_pos last_line (char_pos-last_pos) in
+      curline := (line_pos,nline);
       nline,nchar
     with Sys_error _ -> -1,-1
 ;;
@@ -120,7 +121,7 @@ let do_print_pos full (s,nline,nchars) =
   if nline >= 0 then
     prerr_string
       (s^":"^string_of_int nline^
-       (if full then ":"^string_of_int nchars^": " else ": "))
+       (if full then ":"^string_of_int (nchars+1)^": " else ": "))
   else
     match s with
     | "" -> ()
@@ -135,5 +136,6 @@ and print_fullpos () =
   do_print_pos true (!curlexname,nlines,nchars)
 
 and print_this_pos p = do_print_pos false p
+and print_this_fullpos p = do_print_pos true p
 
 

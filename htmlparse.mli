@@ -7,9 +7,10 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: htmlparse.mli,v 1.3 2001-05-25 12:37:24 maranget Exp $        *)
+(*  $Id: htmlparse.mli,v 1.4 2001-05-28 17:28:55 maranget Exp $        *)
 (***********************************************************************)
 exception Error of string
 
-val main : Lexing.lexbuf -> Tree.style Tree.t list
+val reset : unit -> unit
+val main : Lexing.lexbuf -> Lexeme.style Tree.t list
 

@@ -7,13 +7,15 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: stack.mli,v 1.7 2001-05-25 12:37:29 maranget Exp $            *)
+(*  $Id: stack.mli,v 1.8 2001-05-28 17:28:56 maranget Exp $            *)
 (***********************************************************************)
 exception Fatal of string
 
 type 'a t
 val create : string ->  'a t
 val create_init : string -> 'a ->  'a t
+val reset : 'a t -> unit
+
 val name : 'a t -> string
 val push : 'a t -> 'a -> unit
 val pop : 'a t -> 'a

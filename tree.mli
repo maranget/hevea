@@ -7,12 +7,10 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: tree.mli,v 1.3 2001-05-25 12:37:30 maranget Exp $             *)
+(*  $Id: tree.mli,v 1.4 2001-05-28 17:28:56 maranget Exp $             *)
 (***********************************************************************)
 open Lexeme
 
-type style =
- {tag : tag ; attrs : attrs ; txt : string ; ctxt : string}
 
 
 type 'a t =

@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: htmltext.ml,v 1.4 2001-05-25 12:37:24 maranget Exp $          *)
+(*  $Id: htmltext.ml,v 1.5 2001-05-28 17:28:56 maranget Exp $          *)
 (***********************************************************************)
 open Lexeme
 
@@ -173,7 +173,7 @@ let  add_fontattrs txt ctxt attrs env = match attrs with
         
 
 let add_style
-    {Tree.tag=tag ; Tree.attrs=attrs ; Tree.txt=txt ; Tree.ctxt=ctxt}
+    {Lexeme.tag=tag ; Lexeme.attrs=attrs ; Lexeme.txt=txt ; Lexeme.ctxt=ctxt}
     env
     =
   match tag with
@@ -196,6 +196,5 @@ let add_style
         add {nat=Other ; txt=txt ; ctxt=ctxt} env
       
 let blanksNeutral s = match s.nat with
-|  Face "symbol" -> true
-  | Size _ | Face _ | Style (TT|CODE|SUB|SUP) | Other -> false
-  | _ -> true
+| Size _ | Style (TT|CODE|SUB|SUP) | Other -> false
+| _ -> true

@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: explode.mli,v 1.3 2001-05-25 12:37:22 maranget Exp $          *)
+(*  $Id: explode.mli,v 1.4 2001-05-28 17:28:55 maranget Exp $          *)
 (***********************************************************************)
 
-val trees : Tree.style Tree.t list -> Htmltext.style Tree.t list
+val trees : Lexeme.style Tree.t list -> Htmltext.style Tree.t list

@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: buff.ml,v 1.3 2001-05-25 12:37:19 maranget Exp $              *)
+(*  $Id: buff.ml,v 1.4 2001-05-28 17:28:55 maranget Exp $              *)
 (***********************************************************************)
 type t = {mutable t : string ; mutable p : int}
 ;;
@@ -39,4 +39,6 @@ let to_string b =
   let r = String.sub b.t 0 b.p in
   b.p <- 0 ;
   r
+
+let reset b = b.p <- 0
   

@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: htmltext.mli,v 1.4 2001-05-25 12:37:24 maranget Exp $         *)
+(*  $Id: htmltext.mli,v 1.5 2001-05-28 17:28:56 maranget Exp $         *)
 (***********************************************************************)
 exception No
 
@@ -33,7 +33,7 @@ val same_style : t_style -> t_style -> bool
 type env = t_style list
 exception Split of t_style * env
 
-val add_style : Tree.style -> env -> env
+val add_style : Lexeme.style -> env -> env
 
 
 val blanksNeutral : t_style -> bool

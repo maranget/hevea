@@ -1,22 +1,22 @@
-explode.cmi: htmltext.cmi tree.cmi 
+explode.cmi: htmltext.cmi lexeme.cmi tree.cmi 
 get.cmi: length.cmi lexstate.cmi 
-html.cmi: element.cmi length.cmi lexstate.cmi out.cmi tabular.cmi 
 htmllex.cmi: lexeme.cmi 
-htmlparse.cmi: tree.cmi 
-htmltext.cmi: lexeme.cmi tree.cmi 
+html.cmi: element.cmi length.cmi lexstate.cmi out.cmi tabular.cmi 
+htmlparse.cmi: lexeme.cmi tree.cmi 
+htmltext.cmi: lexeme.cmi 
 info.cmi: element.cmi length.cmi lexstate.cmi out.cmi tabular.cmi 
 latexmacros.cmi: lexstate.cmi 
 latexscan.cmi: imageManager.cmi lexstate.cmi outManager.cmi 
 lexstate.cmi: misc.cmi stack.cmi 
 outManager.cmi: element.cmi length.cmi lexstate.cmi out.cmi tabular.cmi 
 package.cmi: imageManager.cmi latexscan.cmi outManager.cmi 
-pp.cmi: htmltext.cmi tree.cmi 
+pp.cmi: htmltext.cmi lexeme.cmi tree.cmi 
 save.cmi: misc.cmi 
 subst.cmi: lexstate.cmi 
 tabular.cmi: length.cmi lexstate.cmi 
 text.cmi: element.cmi length.cmi lexstate.cmi out.cmi tabular.cmi 
 tree.cmi: lexeme.cmi 
-ultra.cmi: htmltext.cmi tree.cmi 
+ultra.cmi: htmltext.cmi lexeme.cmi tree.cmi 
 util.cmi: htmltext.cmi tree.cmi 
 verb.cmi: imageManager.cmi latexscan.cmi outManager.cmi 
 videoc.cmi: imageManager.cmi latexscan.cmi outManager.cmi 
@@ -32,22 +32,22 @@ counter.cmo: latexmacros.cmi misc.cmi counter.cmi
 counter.cmx: latexmacros.cmx misc.cmx counter.cmi 
 cross.cmo: location.cmi cross.cmi 
 cross.cmx: location.cmx cross.cmi 
+cutmain.cmo: cut.cmo location.cmi misc.cmi mylib.cmi mysys.cmi version.cmi 
+cutmain.cmx: cut.cmx location.cmx misc.cmx mylib.cmx mysys.cmx version.cmx 
 cut.cmo: cross.cmi location.cmi misc.cmi mylib.cmi mysys.cmi out.cmi save.cmi \
     section.cmi stack.cmi thread.cmi 
 cut.cmx: cross.cmx location.cmx misc.cmx mylib.cmx mysys.cmx out.cmx save.cmx \
     section.cmx stack.cmx thread.cmx 
-cutmain.cmo: cut.cmo location.cmi misc.cmi mylib.cmi mysys.cmi version.cmi 
-cutmain.cmx: cut.cmx location.cmx misc.cmx mylib.cmx mysys.cmx version.cmx 
 element.cmo: element.cmi 
 element.cmx: element.cmi 
 entry.cmo: out.cmi save.cmi entry.cmi 
 entry.cmx: out.cmx save.cmx entry.cmi 
+esponjamain.cmo: esponja.cmi mysys.cmi ultra.cmi 
+esponjamain.cmx: esponja.cmx mysys.cmx ultra.cmx 
 esponja.cmo: explode.cmi htmllex.cmi htmlparse.cmi location.cmi mysys.cmi \
     pp.cmi ultra.cmi esponja.cmi 
 esponja.cmx: explode.cmx htmllex.cmx htmlparse.cmx location.cmx mysys.cmx \
     pp.cmx ultra.cmx esponja.cmi 
-esponjamain.cmo: esponja.cmi mysys.cmi ultra.cmi 
-esponjamain.cmx: esponja.cmx mysys.cmx ultra.cmx 
 explode.cmo: htmltext.cmi lexeme.cmi tree.cmi util.cmi explode.cmi 
 explode.cmx: htmltext.cmx lexeme.cmi tree.cmi util.cmx explode.cmi 
 foot.cmo: misc.cmi parse_opts.cmi section.cmi foot.cmi 
@@ -60,24 +60,24 @@ hot.cmo: color.cmi counter.cmi foot.cmi infoRef.cmo latexmacros.cmi \
     lexstate.cmi misc.cmi parse_opts.cmi hot.cmi 
 hot.cmx: color.cmx counter.cmx foot.cmx infoRef.cmx latexmacros.cmx \
     lexstate.cmx misc.cmx parse_opts.cmx hot.cmi 
-html.cmo: htmlCommon.cmo htmlMath.cmo latexmacros.cmi length.cmi lexstate.cmi \
-    mathML.cmo misc.cmi out.cmi parse_opts.cmi stack.cmi tabular.cmi html.cmi 
-html.cmx: htmlCommon.cmx htmlMath.cmx latexmacros.cmx length.cmx lexstate.cmx \
-    mathML.cmx misc.cmx out.cmx parse_opts.cmx stack.cmx tabular.cmx html.cmi 
 htmlCommon.cmo: element.cmi latexmacros.cmi length.cmi misc.cmi out.cmi \
     parse_opts.cmi stack.cmi 
 htmlCommon.cmx: element.cmx latexmacros.cmx length.cmx misc.cmx out.cmx \
     parse_opts.cmx stack.cmx 
+htmllex.cmo: buff.cmi lexeme.cmi htmllex.cmi 
+htmllex.cmx: buff.cmx lexeme.cmi htmllex.cmi 
 htmlMath.cmo: element.cmi htmlCommon.cmo lexstate.cmi misc.cmi out.cmi \
     parse_opts.cmi stack.cmi symb.cmi 
 htmlMath.cmx: element.cmx htmlCommon.cmx lexstate.cmx misc.cmx out.cmx \
     parse_opts.cmx stack.cmx symb.cmx 
-htmllex.cmo: buff.cmi lexeme.cmi htmllex.cmi 
-htmllex.cmx: buff.cmx lexeme.cmi htmllex.cmi 
-htmlparse.cmo: htmllex.cmi lexeme.cmi tree.cmi htmlparse.cmi 
-htmlparse.cmx: htmllex.cmx lexeme.cmi tree.cmi htmlparse.cmi 
-htmltext.cmo: lexeme.cmi tree.cmi htmltext.cmi 
-htmltext.cmx: lexeme.cmi tree.cmi htmltext.cmi 
+html.cmo: htmlCommon.cmo htmlMath.cmo latexmacros.cmi length.cmi lexstate.cmi \
+    mathML.cmo misc.cmi out.cmi parse_opts.cmi stack.cmi tabular.cmi html.cmi 
+html.cmx: htmlCommon.cmx htmlMath.cmx latexmacros.cmx length.cmx lexstate.cmx \
+    mathML.cmx misc.cmx out.cmx parse_opts.cmx stack.cmx tabular.cmx html.cmi 
+htmlparse.cmo: buff.cmi htmllex.cmi lexeme.cmi tree.cmi htmlparse.cmi 
+htmlparse.cmx: buff.cmx htmllex.cmx lexeme.cmi tree.cmi htmlparse.cmi 
+htmltext.cmo: lexeme.cmi htmltext.cmi 
+htmltext.cmx: lexeme.cmi htmltext.cmi 
 image.cmo: location.cmi misc.cmi myfiles.cmi mysys.cmi out.cmi parse_opts.cmi \
     stack.cmi image.cmi 
 image.cmx: location.cmx misc.cmx myfiles.cmx mysys.cmx out.cmx parse_opts.cmx \
@@ -146,8 +146,8 @@ package.cmx: auxx.cmx color.cmx counter.cmx get.cmx imageManager.cmi \
     package.cmi 
 parse_opts.cmo: location.cmi misc.cmi mylib.cmi version.cmi parse_opts.cmi 
 parse_opts.cmx: location.cmx misc.cmx mylib.cmx version.cmx parse_opts.cmi 
-pp.cmo: htmltext.cmi tree.cmi pp.cmi 
-pp.cmx: htmltext.cmx tree.cmi pp.cmi 
+pp.cmo: htmltext.cmi lexeme.cmi tree.cmi pp.cmi 
+pp.cmx: htmltext.cmx lexeme.cmi tree.cmi pp.cmi 
 save.cmo: misc.cmi out.cmi save.cmi 
 save.cmx: misc.cmx out.cmx save.cmi 
 section.cmo: section.cmi 
@@ -170,8 +170,10 @@ text.cmx: element.cmx latexmacros.cmx length.cmx lexstate.cmx misc.cmx \
     out.cmx parse_opts.cmx stack.cmx table.cmx tabular.cmx text.cmi 
 thread.cmo: thread.cmi 
 thread.cmx: thread.cmi 
-ultra.cmo: explode.cmi htmltext.cmi pp.cmi tree.cmi util.cmi ultra.cmi 
-ultra.cmx: explode.cmx htmltext.cmx pp.cmx tree.cmi util.cmx ultra.cmi 
+ultra.cmo: explode.cmi htmllex.cmi htmltext.cmi pp.cmi tree.cmi util.cmi \
+    ultra.cmi 
+ultra.cmx: explode.cmx htmllex.cmx htmltext.cmx pp.cmx tree.cmi util.cmx \
+    ultra.cmi 
 util.cmo: htmltext.cmi tree.cmi util.cmi 
 util.cmx: htmltext.cmx tree.cmi util.cmi 
 verb.cmo: counter.cmi get.cmi imageManager.cmi latexmacros.cmi latexscan.cmi \

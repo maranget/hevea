@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: ultra.ml,v 1.6 2001-05-25 17:23:19 maranget Exp $             *)
+(*  $Id: ultra.ml,v 1.7 2001-05-28 17:28:56 maranget Exp $             *)
 (***********************************************************************)
 
 open Tree
@@ -330,21 +330,66 @@ let bouts p ts =
   let inside,aft = as_long_end is_blank rem in
   bef,inside,aft
 
-let check_node t k = match t with
-  | Node (s, (Node (si,args)::rem as ts)) when
-    some_font s && font_trees ts ->
-    begin match all_props (other_props s) ts with
-    | [] -> t::k
+exception Failed
+
+let extract_props_trees ps ts =
+  let card = List.length ps in
+  let rec do_rec seen = function
+    | [] -> seen,[]
+    | Blanks _ as t::rem ->
+        begin match do_rec seen rem with
+        | r,rem -> r,t::rem
+        end
+    | Node (s,args)::rem ->
+        let lift,keep = extract_props ps s in
+        let seen = union seen lift in
+        if List.length seen > card then
+          raise Failed
+        else
+          let r,rem = do_rec seen rem in
+          begin match keep with
+          | [] -> r,args@rem
+          | _  -> r,Node (keep,args)::rem
+          end
+    | _ -> assert false in
+  do_rec [] ts
+
+
+let rec neutrals started r = function
+  | [] -> r
+  | Blanks _::rem -> neutrals started r rem
+  | Node (s, _)::rem ->
+      if started then
+        neutrals true (inter r (List.filter blanksNeutral s)) rem
+      else
+        neutrals true (List.filter blanksNeutral s) rem        
+  | _ -> []
+
+let rec remove_list fs ts = match ts with
+  | [] -> []
+  | Node (gs,args)::rem ->
+      begin match sub gs fs with
+      | [] -> args @ remove_list fs rem
+      | ks -> Node (ks,args) :: remove_list fs rem
+      end
+  | t::rem -> t::remove_list fs rem
+
+let lift_neutral fs ts k = match neutrals false [] ts with
+| [] -> Node (fs,ts)::k
+| lift -> Node (lift@fs, remove_list lift ts)::k
+  
+
+let check_node fs ts k = match ts with
+  | Node (si,args)::rem when
+    some_font fs && font_trees ts ->
+    begin match all_props (other_props fs) ts with
+    | [] -> lift_neutral fs ts k
     | ps ->
         let lift,keep = extract_props ps si in
-        Node (lift@s, clean (Node (keep,args)) rem)::k
+        lift_neutral
+          (lift@fs) (clean (Node (keep,args)) rem) k
     end
-(*
-  | Node (s, ts) when top List.for_all blanksNeutral s ->
-      let bef,inside,after = bouts is_blank ts in
-      bef@Node (s,inside)::after@k
-*)
-  | _ -> t::k
+  | _ -> lift_neutral fs ts k
 
 let rec as_list i j ts k =
   if i > j then k
@@ -425,7 +470,7 @@ and trees i j ts k =
               ts.(k) <- remove gs ts.(k)
             done ;
             deeper cur (ii-1) ts
-              (check_node (node gs (trees ii jj ts []))
+              (check_node gs (trees ii jj ts [])
                  (zyva (jj+1) rem k)) in
         let fs = select_factors fs in
         if !verbose > 1 then begin
@@ -441,28 +486,57 @@ and trees i j ts k =
         end ;
         zyva i fs k
 
-and opt_onodes = function
-  |  ONode (s,c,args) -> begin match opt false (Array.of_list args) [] with
-      | [Node (x,args)] ->
-          Node (x,[ONode (s,c,args)])
+and opt_onodes ts i = match ts.(i) with
+  |  ONode (o,c,args) -> begin match opt false (Array.of_list args) [] with
+      | [Node (s,args)] ->
+          ts.(i) <- Node (s,[ONode (o,c,args)])
       | t ->
-          ONode (s,c,t)
+          ts.(i) <- ONode (o,c,t)
   end
-  | Node (s,args) -> Node (s,List.map opt_onodes args)
-  | t -> t
+  | _ -> ()
 
 and opt top ts k =
   let l = Array.length ts in  
   for i = 0 to l-1 do
-    ts.(i) <- opt_onodes ts.(i)
+    opt_onodes ts i
   done ;
-  let p = if top then is_text_blank else is_text in
+  let p =  is_text_blank in
   let start,pre = cut_begin p ts l 0 in
   if start >= l then pre@k
   else
     let fin,post  = cut_end p ts l in
-    pre@trees start fin ts (post@k)
+    if top then pre@trees start fin ts (post@k)
+    else
+      extend_blanks pre (trees start fin ts []) post k
 
-let main ts =
-  opt true (Array.of_list (Explode.trees ts)) []
+and extend_blanks pre ts post k = match ts with
+| [Node (s,args)] when
+    pre <> [] && post <> [] &&
+    List.exists blanksNeutral s &&
+    is_blanks pre && is_blanks post ->
+      let neutral,not_neutral =
+        List.partition blanksNeutral s in
+      [Node
+          (neutral,
+           (match not_neutral with
+           | [] -> pre@args@post@k
+           | _  -> pre@Node (not_neutral,args)::post@k))]
+| _ -> pre@ts@post@k
+    
+
+
+let main chan ts =
+  let ci = costs Htmllex.cost ts in
+  let rs =  opt true (Array.of_list (Explode.trees ts)) [] in
+  let cf = costs Htmltext.cost rs in
+  if compare ci cf < 0 then begin
+    if !verbose > 1 then begin
+      prerr_endline "*********** Pessimization ***********" ;
+      Pp.ptrees stderr ts ;
+      prerr_endline "***********   Into        ***********" ;
+      Pp.trees stderr rs
+    end ;
+    Pp.ptrees chan ts
+  end else
+    Pp.trees chan rs 
 

@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: esponjamain.ml,v 1.2 2001-05-25 17:23:10 maranget Exp $           *)
+(*  $Id: esponjamain.ml,v 1.3 2001-05-28 17:28:55 maranget Exp $           *)
 (***********************************************************************)
 
 open Mysys
@@ -32,7 +32,7 @@ let main () =
     | [] ->
         ignore (process "" stdin stdout)
     | files ->
-        List.iter (fun f -> ignore (Esponja.file f)) files
+        List.iter (fun f -> ignore (Esponja.file f)) (List.rev files)
     end ;
     exit 0
   with

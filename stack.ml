@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: stack.ml,v 1.7 2001-05-25 12:37:28 maranget Exp $             *)
+(*  $Id: stack.ml,v 1.8 2001-05-28 17:28:56 maranget Exp $             *)
 (***********************************************************************)
 exception Fatal of string
 
@@ -16,6 +16,8 @@ type 'a t = {mutable l : 'a list ; name : string ; bottom : 'a option}
 
 let create name = {l = [] ; name=name ; bottom = None}
 let create_init name x = {l = [] ; name=name ; bottom = Some x}
+
+let reset s = s.l <- []
 
 let bottom msg s = match s.bottom with
 | None -> raise (Fatal (msg^": "^s.name))

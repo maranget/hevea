@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: htmlparse.ml,v 1.4 2001-05-25 12:37:24 maranget Exp $         *)
+(*  $Id: htmlparse.ml,v 1.5 2001-05-28 17:28:55 maranget Exp $         *)
 (***********************************************************************)
 open Lexeme
 open Htmllex
@@ -15,7 +15,8 @@ open Tree
 
 exception Error of string
 
-let error msg lb =  raise (Error msg)
+let error msg lb = 
+  raise (Error msg)
 ;;
 
 let buff = ref None
@@ -28,15 +29,37 @@ and put_back lexbuf tok = match !buff with
 | None -> buff := Some tok
 | _    -> error "Put back" lexbuf
 
+let txt_buff = Buff.create ()
+
+let rec to_close tag lb = match next_token lb with
+|  Close (t,txt) when t=tag ->
+    Buff.put txt_buff txt
+| Open (t,_,txt) when t=tag ->
+    Buff.put txt_buff txt ;
+    to_close tag lb ;
+    to_close tag lb
+| Eof -> error ("Eof in to_close") lb
+| tok ->
+    Buff.put txt_buff (Htmllex.to_string tok);
+    to_close tag lb
+    
 let rec tree lexbuf =
   match next_token lexbuf with
   | (Eof|Close (_,_)) as tok-> put_back lexbuf tok ; None
+  | Open (SCRIPT,_,txt) ->
+      Buff.put txt_buff txt ;
+      to_close SCRIPT lexbuf ;
+      Some (Text (Buff.to_string txt_buff))
   | Open (tag,attrs,txt) ->
       let fils = trees lexbuf in
       begin match next_token lexbuf with
-      | Close (ctag,ctxt) when tag=ctag ->
+      | Close (ctag,ctxt) when tag=ctag ->          
           Some
-            (Node
+            (match tag with
+            | A ->
+                ONode (txt,ctxt,fils)
+            | _ ->
+              Node
                ({tag=tag ; attrs=attrs ; txt=txt ; ctxt=ctxt},fils))
       | tok ->
           error (Htmllex.to_string tok ^ " closes "^txt) lexbuf
@@ -48,14 +71,20 @@ and trees lexbuf = match tree lexbuf with
 | None -> []
 | Some t -> t::trees lexbuf
 
-let rec main lexbuf = match tree lexbuf with
+let rec do_main lexbuf = match tree lexbuf with
 | None ->
     begin match next_token lexbuf with
     | Eof ->  []
     | tok  -> error ("Unexpected " ^ to_string tok) lexbuf
     end
 | Some (Text _ as last) -> [last]
-| Some t -> t :: main lexbuf
-  
-    
+| Some t -> t :: do_main lexbuf
+
+let reset () =  Buff.reset txt_buff 
+
+let main lexbuf =
+  try
+    do_main lexbuf
+  with
+  | e -> reset () ; raise e
 

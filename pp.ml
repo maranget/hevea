@@ -7,9 +7,10 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: pp.ml,v 1.3 2001-05-25 12:37:28 maranget Exp $                *)
+(*  $Id: pp.ml,v 1.4 2001-05-28 17:28:56 maranget Exp $                *)
 (***********************************************************************)
 open Printf 
+open Lexeme
 open Tree
 
 let  potag chan ({txt=txt} as s)= output_string chan txt ; s
@@ -18,7 +19,9 @@ let rec pctag chan  {ctxt=txt} = output_string chan txt
 
 
 let rec tree po pc chan = function
-  | Text txt | Blanks txt -> output_string chan txt
+  | Text txt -> output_string chan txt
+  | Blanks txt ->
+      output_string chan txt
   | Node (styles, ts) ->
       let styles = po chan styles in
       trees po pc chan ts ;
@@ -70,7 +73,9 @@ let potags chan x =
           (fun {txt=atxt} r -> atxt ^ r)
           fs ">" in
       {nat=Other ; txt=txt ; ctxt=ctxt}::os in
+(*  output_char chan '[' ; *)
   do_potags chan styles ;
+(*  output_char chan ']' ; *)
   styles
       
 and pctags chan x = do_pctags chan x

@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: esponja.ml,v 1.6 2001-05-25 17:23:10 maranget Exp $           *)
+(*  $Id: esponja.ml,v 1.7 2001-05-28 17:28:55 maranget Exp $           *)
 (***********************************************************************)
 
 open Mysys
@@ -16,6 +16,7 @@ let pess  = ref false
 and move  = ref true
 ;;
 
+
 let process in_name input output =
   let rec do_rec lexbuf = match Htmlparse.main lexbuf with
   | [] -> ()
@@ -23,7 +24,7 @@ let process in_name input output =
       if !pess then
         Pp.trees output (Explode.trees ts)
       else
-        Pp.trees output (Ultra.main ts) ;
+        Ultra.main output ts ;
       do_rec lexbuf in
   try
     let lexbuf = Lexing.from_channel input in
@@ -44,6 +45,8 @@ let process in_name input output =
         output_char stderr '\n' ;
       Location.print_fullpos () ;
       Printf.fprintf stderr "Parser error: %s\n" s ;
+      Htmllex.ptop () ;
+      Htmllex.reset () ;
       Location.restore () ;
       false
   | e ->
@@ -68,17 +71,20 @@ let file in_name =
       with Sys_error _ as e ->
         close_in input ; raise e in
     let size_in = in_channel_length input in
-    let ok = process in_name input out in
+    let ok =
+      try process in_name input out with e ->
+        close_in input ; close_out out ; raise e in
+    close_in input ;
     flush out ;
     let size_out = out_channel_length out in
-    close_in input ;
     close_out out ;
     if ok && size_in > size_out then
       begin if !move then rename out_name in_name end
     else
       remove out_name ;
     if !Ultra.verbose > 0  && ok then begin
-      Printf.fprintf stderr "saved %0.2f%%"
+      Printf.fprintf stderr "saved %d -> %d, %0.2f%%"
+        size_in size_out
         ((float (size_in-size_out) *. 100.0) /.
          float size_in) ;
       prerr_endline ""
