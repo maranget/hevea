@@ -886,7 +886,7 @@ let init_listings () =
       let name = Scan.get_csname lexbuf in
       let old = get_prim name in
       let toadd = get_prim_arg lexbuf in
-      Latexmacros.def name zero_pat (Subst (old^to_add))) ;      
+      Latexmacros.def name zero_pat (Subst (old^toadd))) ;      
   def_code "\\lstlisting"
     (fun lexbuf ->
       let keys = Subst.subst_opt "" lexbuf in
