@@ -44,7 +44,7 @@ open Tabular
 open Lexstate
 open Stack
 
-let header = "$Id: latexscan.mll,v 1.133 1999-09-08 15:11:26 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.134 1999-09-11 18:02:45 maranget Exp $" 
 
 
 let sbool = function
@@ -759,12 +759,19 @@ let check_include s =
 ;;
 
 
+let mk_out_file () = match Parse_opts.name_out,!Parse_opts.destination with
+| "", Parse_opts.Info ->  Out.create_buff ()
+| "", _ -> Out.create_chan stdout
+| x , Parse_opts.Info -> Out.create_chan (open_out (x^".tmp"))
+| x , _  -> Out.create_chan (open_out x)
+;;
+
 let no_prelude () =
   if !verbose > 1 then prerr_endline "Filter mode" ;
   flushing := true ;
   prelude := false ;
   let _ = Dest.forget_par () in () ;
-  Dest.set_out out_file
+  Dest.set_out (mk_out_file ())
 ;;
 
 let macro_depth = ref 0
@@ -1988,6 +1995,7 @@ def_code "\\@footnoteflush"
 
 (* Opening and closing environments *)
 
+
 def_code "\\begin"
   (fun lexbuf ->
     let env = subst_arg subst lexbuf in
@@ -1995,7 +2003,7 @@ def_code "\\begin"
       Image.put "\\pagestyle{empty}\n\\begin{document}\n";
       prelude := false ;
       let _ = Dest.forget_par () in () ;
-      Dest.set_out out_file
+      Dest.set_out (mk_out_file ())
     end ;
     new_env env ;
     let macro = "\\csname "^env^"\\endcsname"  in
@@ -2036,7 +2044,12 @@ let def_print name s = def_code name (fun _ -> Dest.put s)
 and redef_print name s = redef_code name (fun _ -> Dest.put s)
 ;;
 
-def_print "\\jobname" Parse_opts.base_out
+def_print "\\jobname" Parse_opts.base_out ;
+def_print "\\@heveacomline"
+  (Array.fold_right
+     (fun arg r -> arg^" "^r)
+     Sys.argv "") ;
+def_print "\@heveaversion" Version.version
 ;;
 
 def_code "\\newsavebox"

@@ -11,7 +11,7 @@
 
 {
 open Lexing
-let header = "$Id: cut.mll,v 1.21 1999-09-01 13:53:44 maranget Exp $" 
+let header = "$Id: cut.mll,v 1.22 1999-09-11 18:02:38 maranget Exp $" 
 
 let verbose = ref 0
 ;;
@@ -365,7 +365,19 @@ let close_all () =
 }
 
 rule main = parse
-  "<!--" ("TOC"|"toc") ' '+
+| "<!--HEVEA" [^'>']* "-->" '\n'?
+  {let lxm = lexeme lexbuf in
+  if !phase > 0 then begin
+    put lxm ;
+    put ("<!--HACHA command line is: ") ;
+    for i = 0 to Array.length Sys.argv - 1 do
+      put Sys.argv.(i) ;
+      put_char ' '
+    done ;
+    put "-->\n"
+  end ;
+  main lexbuf}
+|  "<!--" ("TOC"|"toc") ' '+
   {let arg = secname lexbuf in
   let sn = 
     if String.uppercase arg = "NOW" then !chapter

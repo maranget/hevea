@@ -40,8 +40,6 @@ val unset_plain : char -> unit
 val withinLispComment : bool ref
 val afterLispCommentNewlines : int ref
 
-val out_file : Out.t
-
 type closenv
 val top_level : unit -> bool
 

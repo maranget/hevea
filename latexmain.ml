@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmain.ml,v 1.49 1999-09-08 15:11:21 maranget Exp $" 
+let header = "$Id: latexmain.ml,v 1.50 1999-09-11 18:02:39 maranget Exp $" 
 
 open Misc
 open Parse_opts
@@ -69,7 +69,10 @@ let finalize check =
   try
     image_finalize () ;
     Auxx.finalize () ;
-    dest_finalize check
+    dest_finalize check ;
+    if !verbose > 0 && Parse_opts.name_out <> "" then begin
+      prerr_endline ("Output is in file: "^Parse_opts.name_out)
+    end
   with e ->
     if check then raise e
     else begin

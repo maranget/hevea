@@ -6,9 +6,8 @@
 \newenvironment{multicols}[1]{}{}
 \let\oldmeta=\@meta
 \renewcommand{\@meta}{\oldmeta
-\@print{<META NAME="Author" CONTENT="Luc Maranget">
+\@print{<META name="Author" content="Luc Maranget">
 }}
-\input{article.hva}
 %\let\oldsection\section
 %\renewcommand{\section}[2][!*!]{%
 %\cutend[subsection]

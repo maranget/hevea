@@ -11,7 +11,7 @@
 
 open Misc
 
-let header = "$Id: parse_opts.ml,v 1.17 1999-07-12 15:49:51 maranget Exp $" 
+let header = "$Id: parse_opts.ml,v 1.18 1999-09-11 18:02:51 maranget Exp $" 
 
 
 let files = ref []
@@ -104,7 +104,11 @@ let base_in,name_in,styles = match !files with
     else
       let base_file = Filename.basename x in
       try
-        let base = Filename.chop_extension base_file in
+        let base =
+          if Filename.check_suffix base_file ".tex" then
+            Filename.chop_extension base_file
+          else
+            base_file in
         base,x,rest
     with Invalid_argument _ -> base_file, x,rest
 

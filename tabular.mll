@@ -4,7 +4,7 @@ open Lexing
 open Table
 open Lexstate
 
-let header = "$Id: tabular.mll,v 1.15 1999-09-08 20:26:47 maranget Exp $"
+let header = "$Id: tabular.mll,v 1.16 1999-09-11 18:02:53 maranget Exp $"
 
 exception Error of string
 ;;
@@ -176,7 +176,15 @@ and lexformat = parse
 
 {
 
-let main   s =
-  lexformat (Lexing.from_string s) ; check_vert (trim out_table)
+let main s =
+  if !verbose > 1 then prerr_endline ("Table format: "^s);
+  lexformat (Lexing.from_string s) ;
+  let r = check_vert (trim out_table) in
+  if !verbose > 1 then begin
+    prerr_string "Format parsed: " ;
+    pretty_formats r ;
+    prerr_endline ""
+  end ;
+  r
 }
 

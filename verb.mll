@@ -185,12 +185,10 @@ let init () =
       let old_tabs = !tab_val in
       tab_val := tabs ;
       Scan.top_open_block "PRE" "" ;
-      begin try
-        input_file !verbose verbenv arg ;
-      with
-      | Eof _ -> ()
-      | Myfiles.Except | Myfiles.Error _ -> ()
-      end ;
+      input_file !verbose
+        (fun lexbuf ->
+          try verbenv lexbuf with Eof _ -> raise Misc.EndInput)
+        arg ;
       Scan.top_close_block "PRE" ;
       tab_val := old_tabs)
 ;;

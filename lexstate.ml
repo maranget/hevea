@@ -1,4 +1,4 @@
-let header =  "$Id: lexstate.ml,v 1.28 1999-09-08 20:26:44 maranget Exp $"
+let header =  "$Id: lexstate.ml,v 1.29 1999-09-11 18:02:50 maranget Exp $"
 
 open Misc
 open Lexing
@@ -245,13 +245,6 @@ and restore_lexstate () =
 let start_lexstate () =
   save_lexstate () ;
   Stack.restore stack_lexbuf (Stack.empty_saved)
-;;
-
-let out_file = match Parse_opts.name_out,!Parse_opts.destination with
-| "", Parse_opts.Info ->  Out.create_buff ()
-| "", _ -> Out.create_chan stdout
-| x , Parse_opts.Info -> Out.create_chan (open_out (x^".tmp"))
-| x , _  -> Out.create_chan (open_out x)
 ;;
 
 let prelude = ref true

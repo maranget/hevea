@@ -442,6 +442,8 @@
 \def\noprint#1{{\@nostyle\@print{#1}}}%
 \newcommand{\@bodyargs}{}
 \newcommand{\@meta}{\@print{<META http-equiv="Content-Type" content="text/html; charset= ISO-8859-1">
+}%
+\@print{<META name="GENERATOR" content="hevea }\usebox{\@heveaversion}\@print{">
 }}
 \newif\iffooter\footertrue
 \newenvironment{document}{%
@@ -461,6 +463,8 @@
 \@print{</HEAD>
 }%
 \@print{<BODY }\@notags{\@bodyargs}\@print{>
+}%
+\@print{<!--HEVEA command line is: }\usebox{\@heveacomline}\@print{--->
 }%
 \iffrench\@print{<!--FRENCH-->
 }\fi

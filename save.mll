@@ -12,7 +12,7 @@
 {
 open Lexing
 
-let header = "$Id: save.mll,v 1.43 1999-09-08 15:11:32 maranget Exp $" 
+let header = "$Id: save.mll,v 1.44 1999-09-11 18:02:52 maranget Exp $" 
 
 let verbose = ref 0 and silent = ref false
 ;;
@@ -282,7 +282,8 @@ and get_defargs = parse
   [^'{']* {let r = lexeme lexbuf in r}
 
 and tagout = parse
-  '<'  {intag lexbuf}
+| "<BR>" {Out.put_char tag_buff ' ' ; tagout lexbuf}
+|  '<'  {intag lexbuf}
 | "&nbsp;" {Out.put tag_buff " " ; tagout lexbuf}
 | "&gt;" {Out.put tag_buff ">" ; tagout lexbuf}
 | "&lt;" {Out.put tag_buff "<" ; tagout lexbuf}
