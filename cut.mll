@@ -11,7 +11,7 @@
 
 {
 open Lexing
-let header = "$Id: cut.mll,v 1.18 1999-07-01 15:23:45 maranget Exp $" 
+let header = "$Id: cut.mll,v 1.19 1999-08-16 08:10:05 maranget Exp $" 
 
 let verbose = ref 0
 ;;
@@ -63,6 +63,7 @@ let new_filename () =
 ;;
 
 let out = ref (Out.create_null ())
+and out_prefix = ref (Out.create_null ())
 and outname = ref ""
 and lastclosed = ref ""
 and otheroutname = ref ""
@@ -195,6 +196,7 @@ and depth = ref 2
 let rec do_open l1 l2 =
   if l1 < l2 then begin
     openlist !toc ;
+    openlist !out_prefix ;
     do_open (l1+1) l2
   end
 ;;
@@ -203,6 +205,7 @@ let rec do_open l1 l2 =
 let rec do_close l1 l2 =
   if l1 > l2 then begin
      closelist !toc ;
+     closelist !out_prefix ;
      do_close (l1-1) l2
   end else
   cur_level := l1
@@ -217,6 +220,7 @@ let open_section sec name =
   incr anchor ;
   let label = "toc"^string_of_int !anchor in
   itemanchor !outname label name !toc ;
+  itemanchor "" label name !out_prefix ;
   putanchor label !out ;
   cur_level := sec
 
@@ -237,6 +241,10 @@ let close_chapter () =
   if !verbose > 0 then
     prerr_endline ("Close chapter out="^ !outname^" toc="^ !tocname) ;
   closehtml !outname !out ;
+  let real_out = open_out !outname in
+  Out.to_chan real_out !out_prefix ;
+  Out.to_chan real_out !out ;
+  close_out real_out ;
   out := !toc ;
   close_chapter0 ()
 
@@ -244,9 +252,10 @@ and open_chapter name =
   outname := new_filename () ;
   if !verbose > 0 then
     prerr_endline ("Open chapter out="^ !outname^" toc="^ !tocname) ;
+  out_prefix := Out.create_buff () ;
+  out := Out.create_buff () ;
   itemref !outname name !toc ;
-  out := Out.create_chan (open_out !outname) ;
-  openhtml name !out !outname ;
+  openhtml name !out_prefix !outname ;
   cur_level := !chapter
 ;;
 

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlCommon.ml,v 1.6 1999-07-07 14:53:46 maranget Exp $" 
+let header = "$Id: htmlCommon.ml,v 1.7 1999-08-16 08:10:06 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -28,7 +28,7 @@ let failclose s = raise (Misc.Close s)
 
 let check_block_closed opentag closetag =
   if opentag <> closetag && not (opentag = "AFTER" && closetag = "") then
-    failclose ("hml: ``"^closetag^"'' closes ``"^opentag^"''") 
+    failclose ("html: ``"^closetag^"'' closes ``"^opentag^"''") 
 ;;
 
 

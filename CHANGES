@@ -1,4 +1,5 @@
 version 1.05-1
+  - Smal table of contents at file start (hacha modification).
   - Support for the \FRAME macro from Scientific Word.
   - For paragraph breaks -> empty lines may contain spaces.
   - Added a -entities switch -> math symbols as HTML 4.0 entities and

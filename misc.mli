@@ -13,6 +13,7 @@ exception Fatal of string
 exception ScanError of string
 exception EndInput
 exception Close of string
+exception EndOfLispComment of int (* QNC *)
 
 val verbose : int ref
 val readverb : int ref
