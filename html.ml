@@ -9,8 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-
-let header = "$Id: html.ml,v 1.88 2004-11-26 13:13:05 maranget Exp $" 
+let header = "$Id: html.ml,v 1.89 2005-02-25 17:49:18 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -267,18 +266,14 @@ and set_last_closed s = flags.last_closed <- s
     
 
 let debug m =
-  Printf.fprintf stderr "%s : table_vsize=%d vsize=%d" m flags.table_vsize flags.vsize ;
+  Printf.fprintf stderr
+    "%s : table_vsize=%d vsize=%d" m flags.table_vsize flags.vsize ;
   prerr_newline ()
 ;;
 
 let debug_empty f =
   prerr_string (if f.empty then "empty=true" else "empty=false")
 ;;
-
-  
-
-
-
 
 let put s = 
   if flags.in_math then math_put s

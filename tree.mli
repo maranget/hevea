@@ -7,11 +7,8 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: tree.mli,v 1.4 2001-05-28 17:28:56 maranget Exp $             *)
+(*  $Id: tree.mli,v 1.5 2005-02-25 17:49:18 maranget Exp $             *)
 (***********************************************************************)
-open Lexeme
-
-
 
 type 'a t =
   | Text of string

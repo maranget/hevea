@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: htmltext.ml,v 1.10 2001-08-03 09:20:35 maranget Exp $          *)
+(*  $Id: htmltext.ml,v 1.11 2005-02-25 17:49:18 maranget Exp $          *)
 (***********************************************************************)
 open Emisc
 open Lexeme
@@ -173,7 +173,7 @@ let add_fontattr txt ctxt a env =
   | SIZE s  -> Size (Int (size_val s))
   | COLOR s -> Color (color_val s)
   | FACE s  -> Face s
-  | OTHER   -> raise No in
+  | CLASS _|OTHER   -> raise No in
   add {nat=nat ; txt=txt ; ctxt=ctxt} env
 
 let  add_fontattrs txt ctxt attrs env = match attrs with

@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: lexeme.mli,v 1.4 2001-05-28 17:28:56 maranget Exp $           *)
+(*  $Id: lexeme.mli,v 1.5 2005-02-25 17:49:18 maranget Exp $           *)
 (***********************************************************************)
 type tag =
   | TT |I |B |BIG |SMALL
@@ -17,7 +17,9 @@ type tag =
   | Q |SUB |SUP | A | SCRIPT | SPAN
 
 type atag =
-  | SIZE of string | COLOR of string | FACE of string | OTHER
+  | SIZE of string | COLOR of string | FACE of string
+  | CLASS of string
+  | OTHER
 
 type attr = atag * string
 

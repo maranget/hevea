@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: ultra.ml,v 1.9 2005-01-13 15:00:41 maranget Exp $             *)
+(*  $Id: ultra.ml,v 1.10 2005-02-25 17:49:18 maranget Exp $             *)
 (***********************************************************************)
 
 open Tree
@@ -121,10 +121,6 @@ and correct_cfl_high ts i1 j1 i2 j2 =
     j2
   else
     j1
-
-
-
-
 
 let rec mk_cover_one ts i j f = function
   | [] -> (i,j),f
@@ -542,7 +538,7 @@ and opt top ts k =
   for i = 0 to l-1 do
     opt_onodes ts i
   done ;
-  let p =  is_text_blank in
+  let p = is_text_blank in
   let start,pre = cut_begin p ts l 0 in
   if start >= l then pre@k
   else
