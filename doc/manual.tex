@@ -1189,12 +1189,18 @@ That is, one gets the following correct link:
 <A HREF="mailto:Luc.Maranget@inria.fr">...
 \end{verbatim}
 
-Additionally, the \verb+\imageflush+ macro that controls included images
+Additionally,
+the \verb+\texdef+ and \verb+\texlet+ tokens (see
+section~\ref{texmacro})
+are defined as \verb+\def+ and \verb+\let+ in
+in the \texttt{hevea.sty} file,
+while
+the \verb+\imageflush+ macro that controls included images
 (see section~\ref{imagen}) and the \verb+\cuttingunit+,
 \verb+\cuthere+, etc. macros that
 control document cutting (see
 section~\ref{hacha})
-are defined as null macros in the \texttt{hevea.sty} file.
+are defined as null macros.
 
 \subsubsection{The \texttt{hevea} boolean register}\label{heveabool}
 
@@ -2707,29 +2713,13 @@ defines before loading any user-specified file) must be performed
 using \verb+\renewcommand+. Such personal (re)-definition can be made
 in any user file.
 
-\comindex{def}
-\hevea{} also accepts \TeX{} style, using
-\verb+\def\+{\it name}\ldots with or without delimiting characters
-(see Section~\ref{delimiting}),
-with the same behavior as \verb+\newcommand+.  It is important to
-notice that \hevea{} semantics for \verb+\def+ departs significantly
-from \TeX{} semantics. In particular, defining a command that already
-exists with \verb+\def+ fails in \hevea{}, whereas it succeeds in
-\TeX{}.  Users are thus invited to use \LaTeX{} \verb+\renewcommand+
-for the purpose of redefining commands.
-
-
-
-\comindex{let}\hevea{} also processes a
-limited version of \verb+\let+:
-\begin{flushleft}
-\verb+\let+ {\it macro-name} \verb+=+ {\it macro-name}
-\end{flushleft}
-See section~\ref{exlet} for an example of using \verb+\let+.
-
 Scoping rules apply to macros, as they do in \LaTeX{}.
-You can escape them by using the {\TeX} constructs
-\verb+\gdef+, \verb+\global\def+ and \verb+\global\let+
+Environments and groups define a scope and command definition
+are local to the scope they occur.
+
+It is worth noticing that \hevea{} also partly implements \TeX{} definitions
+(using \verb+\def+) and bindings (using \verb+\let+), see
+section~\ref{texmacro} for details.
 
 
 \subsection{Defining Environments}
@@ -3374,7 +3364,7 @@ This section describes \hevea{} functionalities that extends on plain \LaTeX{},
 as defined in \cite{latex}.
 The features described here are performed by default.
 
-\subsection{\TeX{} macros}
+\subsection{\TeX{} macros}\label{texmacro}
 Normally, \hevea{} does not recognize constructs that are specific to
 \TeX{}.
 However, some of the internal commands of \hevea{} are homonymous to
@@ -3382,12 +3372,29 @@ However, some of the internal commands of \hevea{} are homonymous to
 Note that full compatibility with \TeX{} is not guaranteed.
 
 
-\subsubsection{À la \TeX{} macros definitions}\label{delimiting}
+\subsubsection{À la \TeX{} macros definitions}
 
 \comindex{def}
 The \verb+\def+ construct for defining commands is supported, with the
-same behavior as the \verb+\newcommand+ with respect to command
+same behavior as \verb+\newcommand+ with respect to command
 redefinition (see section~\ref{usermacro}).
+It is important to
+notice that \hevea{} semantics for \verb+\def+ here departs significantly
+from \TeX{} semantics. That is, defining a command that already
+exists with \verb+\def+ fails in \hevea{}, whereas it succeeds in
+\TeX{}.  Users are thus invited to use \LaTeX{} \verb+\renewcommand+
+when they purposely redefine commands.
+
+
+\comindex{texdef}
+However, \hevea{} also provides the construct \verb+\texdef+,
+which is equivalent to \verb+\def+,
+except that \TeX{} semantics of silently rebinding
+macros is followed.
+Files that contain \verb+\texdef+ (or \verb+\texlet+, see next
+section) still can be processed by
+\LaTeX{}, provided they load the \texttt{hevea.sty} style file.
+
 
 Delimiting characters in command definition are supported.
 Consider the following example from the \TeX{} Book:
@@ -3445,6 +3452,35 @@ Please note that in most situations this discrepancy will make
 \hevea{} crash. 
 
 
+\subsubsection{The \texttt{\char92 let} construct}
+\comindex{let}\hevea{} also processes a
+limited version of \verb+\let+:
+\begin{flushleft}
+\verb+\let+ {\it macro-name1} = {\it macro-name2}
+\end{flushleft}
+The effect is to bind  {\it macro-name1} to whatever {\it macro-name2}
+is bound to at the time \verb+\let+ is processed. This construct is
+quite useful since most (if not all) active elements are commands in \hevea.
+See section~\ref{exlet} for an example of using \verb+\let+.
+
+
+\comindex{texlet}
+Since \verb+\let+ is a binding operator it fails to rebind {\it
+macro-name1} when it is already bound.
+However, there exist a \verb+\texlet+ construct which follow \TeX{}
+semantics of silent rebinding.
+
+
+\subsubsection{The \texttt{\char92 global} construct}
+\comindex{global}
+It is possible to escape scope and to make global definitions
+and bindings by using the \TeX{} construct \verb+\global+.
+The \verb+\global+ construct is significant before
+\verb+\def+, \verb+\let+, \verb+\texdef+ and \verb+\texlet+.
+
+\comindex{gdef}
+Also note that \verb+\gdef+ is equivalent to \verb+\global\def+.
+
 
 \subsubsection{\TeX{} Conditional Macros}\label{texcond}
 \comindex{newif}\comindex{if}\comindex{else}\comindex{fi}
@@ -3486,7 +3522,13 @@ we have the following correspondences:
 \end{tabular}
 \end{center}
 
-\subsubsection{Command Definition inside Command Definition}
+\subsubsection{Other \TeX{} Macros}
+\hevea{} implements the macros \verb+\unskip+ and \verb+\endinput+.
+It also supports the \verb+\csname+\ldots{} \verb+\endcsname+
+construct.
+
+
+\subsection{Command Definition inside Command Definition}
 \index{##n@\texttt{\#\#}\textit{n}}
 If one strictly follows the \LaTeX{} manual, only commands with no
 arguments can be defined inside other commands.
@@ -3518,14 +3560,6 @@ yields this output:
 \newcommand{\outercom}[1]{\newcommand{\insidecom}[1]{##1}\insidecom{inner}}
 \outercom{outer}
 \end{center}
-
-
-\subsubsection{Other \TeX{} Macros}
-\hevea{} implements the macros \verb+\unskip+ and \verb+\endinput+.
-It also supports the \verb+\csname+\ldots{} \verb+\endcsname+
-construct.
-
-
 
 \subsection{The \protect{\texttt{\char92{}verbatiminput}} Command}
 

@@ -44,7 +44,7 @@ open Tabular
 open Lexstate
 
 
-let header = "$Id: latexscan.mll,v 1.127 1999-08-30 17:59:22 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.128 1999-08-30 19:21:50 maranget Exp $" 
 
 
 let sbool = function
@@ -1479,7 +1479,7 @@ let do_def realdef global lxm lexbuf =
 ;;
 
 def_name_code "\\def" (do_def false false) ;
-def_name_code "\\@texdef" (do_def true false) ;
+def_name_code "\\texdef" (do_def true false) ;
 def_name_code "\\gdef" (do_def false true)
 ;;
 
@@ -1505,16 +1505,17 @@ let do_let reallet global lxm lexbuf =
   if not global then macro_register name
 ;;
 
-def_name_code "\\let" (do_let false false)
+def_name_code "\\let" (do_let false false) ;
+def_name_code "\\texlet" (do_let true false)
 ;;
 
 let do_global lxm lexbuf =
   let next = save_arg lexbuf in
   begin match next with
   | "\\def" -> do_def false true (lxm^next) lexbuf
-  | "\\@texdef" -> do_def true true (lxm^next) lexbuf
+  | "\\texdef" -> do_def true true (lxm^next) lexbuf
   | "\\let" -> do_let false true (lxm^next) lexbuf
-  | "\\@texlet" -> do_let true true (lxm^next) lexbuf
+  | "\\texlet" -> do_let true true (lxm^next) lexbuf
   | _       -> warning "Ignored \\global"
   end
 ;;

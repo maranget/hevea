@@ -1,4 +1,5 @@
 version 1.05-3
+  - Introduced \texlet \texdef and better documentation for TeX macros.
   - Computation of cross-referencing information using .haux files
   - Delimited arguments
 version 1.05-2
