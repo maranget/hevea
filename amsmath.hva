@@ -1,3 +1,4 @@
+\@primitives{amsmath}
 \def\text#1{\mbox{#1}}%
 %%AMS environments for displayed equations
 \newenvironment{equation*}{\[}{\]}%

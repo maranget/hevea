@@ -55,6 +55,7 @@ val scan_body :
 
 val stack_lexbuf : Lexing.lexbuf Stack.t
 val previous_lexbuf : unit -> Lexing.lexbuf
+val record_lexbuf : Lexing.lexbuf -> subst -> unit
 val top_lexstate : unit -> bool
 
 (* Saving and restoring lexstates on a stack *)

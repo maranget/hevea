@@ -24,6 +24,7 @@ module type S =
     val env_level : int ref
     val macro_register : string -> unit
     val fun_register : (unit -> unit) -> unit
+    val newif_ref : string -> bool ref -> unit
     val top_open_block : string -> string -> unit
     val top_close_block : string -> unit
     val check_alltt_skip : Lexing.lexbuf -> unit

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.42 2000-05-22 12:19:12 maranget Exp $"
+let header = "$Id: text.ml,v 1.43 2000-05-23 18:00:57 maranget Exp $"
 
 
 open Misc
@@ -107,6 +107,16 @@ let iso c =
     iso_translate c
 ;;
 
+let iso_buff = Out.create_buff ()
+
+let iso_string s =
+  if !Parse_opts.iso then begin
+    for i = 0 to String.length s - 1 do
+      Out.put iso_buff (iso_translate s.[i])
+    done ;
+    Out.to_string iso_buff
+  end else
+    s
 
 
 let failclose s = raise (Misc.Close s)

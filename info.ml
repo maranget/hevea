@@ -10,7 +10,7 @@
 (***********************************************************************)
 
 
-let header = "$Id: info.ml,v 1.23 2000-01-26 19:39:36 maranget Exp $"
+let header = "$Id: info.ml,v 1.24 2000-05-23 18:00:40 maranget Exp $"
 
 open Misc
 open Text
@@ -20,6 +20,7 @@ exception Error of string
 
 
 let iso =Text.iso;;
+let iso_string =Text.iso_string;;
 let set_out=Text.set_out;;
 let stop = Text.stop;;
 let restart = Text.restart;;

@@ -18,7 +18,7 @@ open Lexstate
 open Stack
 
 (* Compute functions *)
-let header = "$Id: get.mll,v 1.18 2000-05-22 12:18:55 maranget Exp $"
+let header = "$Id: get.mll,v 1.19 2000-05-23 18:00:36 maranget Exp $"
 
 exception Error of string
 
@@ -94,7 +94,8 @@ let open_aftergroup f s =
   push group_stack f
 
 } 
-let command_name = '\\' (('@' ? ['A'-'Z' 'a'-'z']+ '*'?) | [^ 'A'-'Z' 'a'-'z'])
+let command_name =
+ '\\' ((['@''A'-'Z' 'a'-'z']+ '*'?) | [^ '@' 'A'-'Z' 'a'-'z'])
 
 rule result = parse
 (* Skip comments and spaces *)

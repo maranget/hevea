@@ -12,7 +12,7 @@
 {
 open Lexing
 
-let header = "$Id: save.mll,v 1.51 2000-01-28 15:40:17 maranget Exp $" 
+let header = "$Id: save.mll,v 1.52 2000-05-23 18:00:55 maranget Exp $" 
 
 let verbose = ref 0 and silent = ref false
 ;;
@@ -126,14 +126,23 @@ and opt2 =  parse
       {let s = lexeme_char lexbuf 0 in
       put_both_char s ; opt2 lexbuf }
 
+and skip_comment = parse
+  | eof       {()}
+  | '\n' ' '* {()}
+  | _         {skip_comment lexbuf}
+
+and check_comment = parse
+  | '%' {skip_comment lexbuf}
+  | ""  {()}
+
 and arg = parse
     ' '+ | '\n'+  {put_echo (lexeme lexbuf) ; arg lexbuf}
   | '{'
       {incr brace_nesting;
       put_echo_char '{' ;
       arg2 lexbuf}
-  | '%' [^'\n']* '\n'
-     {put_echo (lexeme lexbuf) ; arg lexbuf}
+  | '%'
+     {skip_comment lexbuf  ; arg lexbuf}
   | "\\box" '\\' (['A'-'Z' 'a'-'z']+ '*'? | [^ 'A'-'Z' 'a'-'z'])
      {let lxm = lexeme lexbuf in
      put_echo lxm ;
@@ -417,10 +426,12 @@ let init_kmp s =
 
 let with_delim delim lexbuf =
   let next = init_kmp delim  in
+  check_comment lexbuf ;
   let r = eat_delim_init lexbuf delim next 0 in
   r
 
 and skip_delim delim lexbuf =
+  check_comment lexbuf ;
   skip_delim_init lexbuf delim 0
 
 let skip_blanks_init lexbuf =

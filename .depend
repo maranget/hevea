@@ -36,9 +36,9 @@ get.cmo: counter.cmi latexmacros.cmi length.cmi lexstate.cmi misc.cmi \
 get.cmx: counter.cmx latexmacros.cmx length.cmx lexstate.cmx misc.cmx \
     myfiles.cmx parse_opts.cmx stack.cmx subst.cmx get.cmi 
 hot.cmo: color.cmi counter.cmi foot.cmi infoRef.cmo latexmacros.cmi \
-    lexstate.cmi parse_opts.cmi hot.cmi 
+    lexstate.cmi misc.cmi parse_opts.cmi hot.cmi 
 hot.cmx: color.cmx counter.cmx foot.cmx infoRef.cmx latexmacros.cmx \
-    lexstate.cmx parse_opts.cmx hot.cmi 
+    lexstate.cmx misc.cmx parse_opts.cmx hot.cmi 
 html.cmo: htmlCommon.cmo htmlMath.cmo latexmacros.cmi length.cmi mathML.cmo \
     misc.cmi out.cmi parse_opts.cmi stack.cmi tabular.cmi html.cmi 
 html.cmx: htmlCommon.cmx htmlMath.cmx latexmacros.cmx length.cmx mathML.cmx \
@@ -141,10 +141,10 @@ thread.cmo: thread.cmi
 thread.cmx: thread.cmi 
 verb.cmo: get.cmi imageManager.cmi latexmacros.cmi latexscan.cmi lexstate.cmi \
     misc.cmi myfiles.cmi out.cmi outManager.cmi parse_opts.cmi save.cmi \
-    stack.cmi verb.cmi 
+    stack.cmi subst.cmi verb.cmi 
 verb.cmx: get.cmx imageManager.cmi latexmacros.cmx latexscan.cmx lexstate.cmx \
     misc.cmx myfiles.cmx out.cmx outManager.cmi parse_opts.cmx save.cmx \
-    stack.cmx verb.cmi 
+    stack.cmx subst.cmx verb.cmi 
 version.cmo: version.cmi 
 version.cmx: version.cmi 
 videoc.cmo: imageManager.cmi latexmacros.cmi latexscan.cmi lexstate.cmi \

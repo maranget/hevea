@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.15 2000-05-22 12:19:11 maranget Exp $    *)
+(*  $Id: package.ml,v 1.16 2000-05-23 18:00:54 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -378,7 +378,7 @@ let do_definekey lexbuf =
           silent_def
             (keyval_name family key^"@default") 0
             (Subst
-               (keyval_name family key^" "^do_subst_this (opt,subst)^"="))
+               (keyval_name family key^"{"^do_subst_this (opt,subst)^"}"))
       | _ -> assert false
       end
   | [Yes nargs, subst ; opt] ->
@@ -409,10 +409,10 @@ let do_definekeyopt lexbuf =
   let extra = keyval_extra key familly in
   silent_def name 1
     (Subst
-       ("\\@funcallopt{"^extra^"}{"^opt^"}{#1}")) ;
+       ("\\@funcall{"^extra^"}{"^opt^"}")) ;
   silent_def_pat
     extra
-    (make_pat [opt] 2)
+    (make_pat [] 1)
     (Subst body)
      
   
@@ -434,7 +434,7 @@ let do_setkey lexbuf =
         else
           scan_this main (csname^"@default")
       end else
-        warning ("keval, uknown key: "^csname) ;
+        warning ("keyval, uknown key: ``"^key^"''") ;
       do_rec ()
     end in
   do_rec ()
@@ -446,6 +446,18 @@ register_init "keyval"
     def_code "\\define@keyopt" do_definekeyopt ;
     def_code "\\@setkeys" do_setkey
   )
-  
+;;
+
+register_init "amsmath"
+  (fun () ->
+    def_code "\\numberwithin"
+      (fun lexbuf ->
+        let name = get_prim_arg lexbuf in
+        let within = get_prim_arg  lexbuf in
+        Counter.number_within name within)
+  )
+;;
+
+
   
 end

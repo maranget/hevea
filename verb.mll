@@ -31,8 +31,46 @@ let env_extract s =
   String.sub s (i+1) (j-i-1)
 
 (* For scanning the ``listings'' way *)
+let lst_print = ref false
+let lst_gobble  = ref 0
+and lst_nchars  = ref 0
+and lst_nlines  = ref 0
+and lst_first   = ref 1
+and lst_last    = ref 9999
+
+let lst_good_line () =
+  !lst_print &&
+  (!lst_first <= !lst_nlines && !lst_nlines <= !lst_last)
+let lst_line_zero () =
+  !lst_print &&
+  !lst_nlines = !lst_first-1
+
+let lst_do_output () =
+  !lst_print &&
+  lst_good_line () && !lst_nchars > !lst_gobble
+
 let lst_buff = Out.create_buff ()
-let lst_put c = Out.put_char lst_buff c
+let lst_put c =
+  incr lst_nchars ;
+  if lst_do_output () then
+    Out.put_char lst_buff c
+
+and lst_direct_put c =
+  incr lst_nchars ;
+  if lst_do_output () then
+    Dest.put_char c
+
+let lst_output_newline () =
+  lst_nchars := 0 ;
+  if lst_good_line () || lst_line_zero () then begin
+    scan_this Scan.main "\\lsthk@EOL\\lsthk@InitVarEOL" ;
+    Dest.put_char '\n'
+  end ;
+  incr lst_nlines ;  
+  if lst_good_line () then begin
+    scan_this Scan.main
+      "\\lsthk@InitVarBOL\\lsthk@EveryLine\\lst@doindent\\lst@linenumber"
+  end
 
 type lst_scan_mode = Letter | Other | Empty
 let lst_scan_mode = ref Other
@@ -55,14 +93,23 @@ let lst_output_other () =
   def_print arg ;
   scan_this Scan.main ("{\lst@output@other{\@temp@lst}}")
 
-and lst_output_letter () = 
+and lst_output_letter () =
   let arg = Out.to_string lst_buff in
   def_print arg ;
   scan_this Scan.main ("{\lst@output{\@temp@lst}}")
     
-and lst_output_space s =
-  Dest.put_char s
+and lst_output_space s = match s with
+| '\n' -> lst_output_newline ()
+| _    -> lst_direct_put s
 ;;
+
+let lst_finalize () =
+  begin match !lst_scan_mode with
+  | Letter -> lst_output_letter ()
+  | Other  -> lst_output_other ()
+  | _ -> ()
+  end ;
+  Dest.put_char '\n'
 } 
 
 let letter = ['a'-'z''A'-'Z''@' '$' '_']
@@ -131,10 +178,11 @@ and scan_byline = parse
     end}
 
 and listings = parse
- "\\end" [' ''\t']* '{' [^'}']+ '}'
+ '\n'* "\\end" [' ''\t']* '{' [^'}']+ '}'
     {let lxm = lexeme lexbuf in
     let env = env_extract lxm in
     if env = !Scan.cur_env then begin
+      lst_finalize () ;
       scan_this Scan.main ("\\end"^env) ;
       Scan.top_close_block "" ;
       Scan.close_env !Scan.cur_env ;
@@ -198,6 +246,17 @@ and listings = parse
         (Eof "listings")
     end}
 
+and eat_line = parse
+| '\n' {()}
+| eof
+    {if not (Stack.empty stack_lexbuf) then begin
+      let lexbuf = previous_lexbuf () in
+      eat_line lexbuf
+    end else begin
+      raise
+        (Eof "eat_line")
+    end}
+| _  {eat_line lexbuf}
 {
 let _ = ()
 ;;
@@ -527,16 +586,39 @@ register_init "comment" init_comment
 let open_lst keys lab =
   Scan.top_open_block "PRE" "" ;
   scan_this Scan.main ("\\lstset{"^keys^"}") ;
-  scan_this Scan.main "\\lst@language@init" ;
+  lst_gobble := Get.get_int ("\\lst@gobble",get_subst ()) ;
+  lst_nchars := 0 ;
+  lst_first := Get.get_int ("\\lst@first",get_subst ()) ;
+  lst_last := Get.get_int ("\\lst@last",get_subst ()) ;
+  lst_nlines := 0 ;
+  Printf.fprintf stderr "first=%d, last=%d\nprint=%b\n"
+    !lst_first !lst_last !lst_print ;
+  scan_this Scan.main "\\lsthk@Init" ;
+  scan_this Scan.main "\\lsthk@InitVar" ;
   scan_this Scan.main "\\lst@basic@style" ;
-  lst_scan_mode := Empty
+  lst_scan_mode := Empty ;
+  lst_output_newline ()
 
 
 and close_lst lexbuf =
+  scan_this Scan.main "\\lsthk@DeInit" ;
   Scan.top_close_block "PRE" ;
   Scan.check_alltt_skip lexbuf
 ;;
+
+let lst_boolean lexbuf =
+  let b = get_prim_arg lexbuf in
+  prerr_endline ("BOOL: "^b) ;
+  Dest.put
+    (match b with
+    | "" -> "false"
+    | s  when s.[0] = 't' || s.[0] = 'T' -> "true"
+    | _ -> "false")
+;;
+
 let init_listings () =
+  Scan.newif_ref "lst@print" lst_print ;
+  def_code "\\lst@boolean" lst_boolean ;
   def_code "\\lst@funcall"
     (fun lexbuf ->
       let csname = Scan.get_csname lexbuf in
@@ -552,7 +634,13 @@ let init_listings () =
     (fun lexbuf ->
       let keys = Subst.subst_opt "" lexbuf in
       let lab = Scan.get_prim_arg lexbuf in
+      let lab = if lab = " " then "" else lab in
+      silent_def "\\lst@intname" 0 (Subst lab) ;
       open_lst keys lab ;
+      (* Eat first line *)
+      save_lexstate () ;
+      noeof eat_line lexbuf ;
+      restore_lexstate () ;
       noeof listings lexbuf) ;
   def_code "\\endlstlisting" close_lst ;
   def_code "\\@lstinputlisting" 
@@ -594,6 +682,18 @@ let init_listings () =
 
 register_init "listings" init_listings
 ;;
-    
+
+(* Va pas, ca casse les locations... *)
+def_code "\\@scaninput"
+  (fun lexbuf ->
+    let pre,pre_subst = save_arg lexbuf in
+    let file = get_prim_arg lexbuf in
+    let post,post_subst = save_arg lexbuf in
+    let _,chan = Myfiles.open_tex file in
+    start_lexstate () ;
+    record_lexbuf (Lexing.from_string post) post_subst ;
+    scan_this_may_cont Scan.main (Lexing.from_channel chan) top_subst
+      (pre,pre_subst) ;
+    restore_lexstate ())
 end
 } 

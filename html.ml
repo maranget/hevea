@@ -10,7 +10,7 @@
 (***********************************************************************)
 
 
-let header = "$Id: html.ml,v 1.74 2000-05-22 12:18:58 maranget Exp $" 
+let header = "$Id: html.ml,v 1.75 2000-05-23 18:00:38 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -149,6 +149,16 @@ let iso c =
     iso_translate c
 ;;
 
+let iso_buff = Out.create_buff ()
+
+let iso_string s =
+  if !Parse_opts.iso then begin
+    for i = 0 to String.length s - 1 do
+      Out.put iso_buff (iso_translate s.[i])
+    done ;
+    Out.to_string iso_buff
+  end else
+    s
 (* Calls to other modules that are in the interface *)
 
 let 

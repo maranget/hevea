@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.171 2000-05-22 12:19:05 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.172 2000-05-23 18:00:47 maranget Exp $ *)
 
 
 {
@@ -25,6 +25,7 @@ module type S =
     val env_level : int ref
     val macro_register : string -> unit
     val fun_register : (unit -> unit) -> unit
+    val newif_ref : string -> bool ref -> unit
     val top_open_block : string -> string -> unit
     val top_close_block : string -> unit
     val check_alltt_skip : Lexing.lexbuf -> unit
@@ -1885,17 +1886,20 @@ let def_and_register name f =
   def_code name f ; macro_register name
 ;;
 
+let newif_ref name cell =  
+  def_and_register ("\\if"^name) (testif cell) ;
+  def_and_register ("\\"^name^"true") (setif cell true) ;
+  def_and_register ("\\"^name^"false") (setif cell false) ;
+  register_cell name cell ;
+  fun_register (fun () -> unregister_cell name)
+;;
 
 let newif lexbuf =
   let arg = subst_arg lexbuf in
   try
     let name = extract_if arg in
     let cell = ref false in
-    def_and_register ("\\if"^name) (testif cell) ;
-    def_and_register ("\\"^name^"true") (setif cell true) ;
-    def_and_register ("\\"^name^"false") (setif cell false) ;
-    register_cell name cell ;
-    fun_register (fun () -> unregister_cell name)
+    newif_ref name cell
   with Latexmacros.Failed -> ()
 ;;
 
@@ -1918,13 +1922,6 @@ def_code "\\else" (fun lexbuf -> skip_false lexbuf)
 def_code "\\fi" (fun lexbuf -> check_alltt_skip lexbuf)
 ;;
 
-
-let newif_ref name cell =
-  def_code ("\\if"^name) (testif cell) ;
-  def_code ("\\"^name^"true") (setif cell true) ;
-  def_code ("\\"^name^"false") (setif cell false) ;
-  register_cell name cell (* Used at top level only ! *)
-;;
 
 newif_ref "symb" symbols ;
 newif_ref "iso" iso ;
@@ -2219,14 +2216,12 @@ let fnsymbol_of_int = function
 let def_printcount name f =
   def_code name
     (fun lexbuf ->
-      let cname = get_this_nostyle_arg main (save_arg lexbuf) in
+      let cname = get_prim_arg lexbuf in
       let cval = Counter.value_counter cname in
       Dest.put (f cval))
 ;;
 
 def_printcount "\\arabic" string_of_int ;
-def_printcount "\\@arabic" (fun i -> Printf.sprintf "%0.3d" i) ;
-def_printcount "\\@twoarabic" (fun i -> Printf.sprintf "%0.2d" i) ;
 def_printcount "\\alph"  alpha_of_int ;
 def_printcount "\\Alph"  upalpha_of_int ;
 def_printcount "\\roman" roman_of_int;
@@ -2234,12 +2229,29 @@ def_printcount "\\Roman" uproman_of_int;
 def_printcount "\\fnsymbol" fnsymbol_of_int
 ;;
 
+let pad p l s =
+  if l > String.length s then
+    String.make (l-String.length s) p^s
+  else
+    s
+;;
 
+def_code "\\@pad"
+  (fun lexbuf ->
+    let p = get_prim_arg lexbuf in
+    let p = match p with
+    | "" -> ' '
+    | _  -> p.[0] in
+    let l = Get.get_int (save_arg lexbuf) in
+    let arg = get_prim_arg lexbuf in
+    Dest.put (Dest.iso_string (pad p l arg)))
+;;
+
+    
 def_code "\\newcounter"
   (fun lexbuf ->
-    let name = get_this_nostyle_arg main (save_arg lexbuf) in
-    let within = save_opt "" lexbuf in
-    let within = get_this_nostyle_arg main within in
+    let name = get_prim_arg lexbuf in
+    let within = get_prim_opt "" lexbuf in
     try
       Counter.def_counter name within ;
       def_macro ("\\the"^name) 0 (Subst ("\\arabic{"^name^"}"))
@@ -2249,39 +2261,32 @@ def_code "\\newcounter"
 
 def_code "\\addtocounter"
   (fun lexbuf ->
-    let name = get_this_nostyle_arg main (save_arg lexbuf) in
+    let name = get_prim_arg lexbuf in
     let arg = save_arg lexbuf in
     Counter.add_counter name (Get.get_int arg))
 ;;
 
 def_code "\\setcounter"
   (fun lexbuf ->
-          let name = get_this_nostyle_arg main (save_arg lexbuf) in
-          let arg = save_arg lexbuf in
-          Counter.set_counter name (Get.get_int arg) )
+    let name = get_prim_arg lexbuf in
+    let arg = save_arg lexbuf in
+    Counter.set_counter name (Get.get_int arg) )
 ;;
 
 def_code "\\stepcounter"
   (fun lexbuf ->
-          let name = get_this_nostyle_arg main (save_arg lexbuf) in
-          Counter.step_counter name )
+    let name = get_prim_arg lexbuf in
+    Counter.step_counter name)
 ;;
 
 def_print "\\@currentlabel" "" ;
 def_code "\\refstepcounter"
   (fun lexbuf ->
-          let name = get_this_nostyle_arg main (save_arg lexbuf) in
-          Counter.step_counter name ;
-          redef_print "\\@currentlabel"
-            (get_this_clearstyle main ("\\the"^name)) ;
-          macro_register "\\@currentlabel")
-;;
-
-def_code "\\numberwithin"
-  (fun lexbuf ->
-          let name = get_this_nostyle_arg main (save_arg lexbuf) in
-          let within = get_this_nostyle_arg  main (save_arg lexbuf) in
-          Counter.number_within name within )
+    let name = get_prim_arg lexbuf in
+    Counter.step_counter name ;
+    redef_print "\\@currentlabel"
+      (get_this_clearstyle main ("\\the"^name)) ;
+    macro_register "\\@currentlabel")
 ;;
 
 (* terminal output *)

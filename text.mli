@@ -12,6 +12,7 @@
     exception Error of string
 
     val iso : char -> string
+    val iso_string : string -> string
 
     val set_out : Out.t -> unit
     val stop : unit -> unit

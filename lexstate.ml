@@ -1,4 +1,4 @@
-let header =  "$Id: lexstate.ml,v 1.42 2000-05-05 07:14:05 maranget Exp $"
+let header =  "$Id: lexstate.ml,v 1.43 2000-05-23 18:00:51 maranget Exp $"
 
 open Misc
 open Lexing
@@ -26,6 +26,7 @@ type subst = Top | Env of (string * subst) array
 
 let subst = ref Top
 let get_subst () = !subst
+let set_subst s = subst := s
 let top_subst = Top
 
 

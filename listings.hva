@@ -1,0 +1,152 @@
+\usepackage{keyval}
+%%%%%%%%%%% interface keyval
+\def\lst@define@key#1#2{\define@key{lst}{#1}{\@funcall{#2}{##1}}}
+\def\lst@define@key@opt#1#2{\define@key{lst}{#1}{\lst@funcall{#2}{##1}}}
+%%%%%%%%%%%
+% Helpers %
+%%%%%%%%%%%
+\def\lstinfo#1{\typeout{LST, #1}}
+%%%%%%% Iterator on comma separated lists
+\def\lst@iter@#1,#2\@{%
+\lst@do{#1}%
+\ifthenelse{\equal{#2}{}}{}
+  {\@funcall{\lst@iter@}{#2\@}}}
+\def\lst@iter#1#2{%
+\ifthenelse{\equal{#2}{}}{}
+  {\texdef\lst@do##1{#1##1}%
+  \@funcall{\lst@iter@}{#2,\@}}}
+%%%%%%%% Interface with keyval
+\def\lstset#1{\@setkeys{lst}{#1}}
+%%%%%%%%%%%%
+% Hooks    %
+%%%%%%%%%%%%
+\newcommand{\lst@Hook}[1]
+  {\newtokens{\csname lsthk@#1\endcsname}}
+\newcommand{\lst@UseHook}
+  {\csname lsthk@#1\endcsname}
+\newcommand{\lst@AddToHook}[2]
+  {\addtokens{\csname lsthk@#1\endcsname}{#2}}
+\lst@Hook{EOL}\lst@Hook{InitVarEOL}
+\lst@Hook{InitVarBOL}\lst@Hook{EveryLine}
+\lst@Hook{InitVar}
+\lst@Hook{Init}
+\lst@Hook{DeInit}
+%%%%%%%%%%%%
+% Keywords %
+%%%%%%%%%%%%
+\def\lst@install@kwd#1#2{\texdef\csname lstk@#2\endcsname{#1}}
+\def\lst@install@kwds#1#2{\lst@iter{\lst@install@kwd{#1}}{#2}}
+\lst@define@key{keywords}{\lst@install@kwds{\lst@kwd@style}}
+\lst@define@key{morekeywords}{\lst@install@kwds{\lst@kwd@style}}
+\lst@define@key{ndkeywords}{\lst@install@kwds{\lst@ndkwd@style}}
+\lst@define@key{rdkeywords}{\lst@install@kwds{\lst@rdkwd@style}}
+\lst@define@key{otherkeywords}{\lst@install@kwds{\lst@kwd@style}}
+%%%%%%%
+\define@key{lst}{keywordstyle}{\texdef\lst@kwd@style##1{#1{##1}}}
+\define@key{lst}{ndkeywordstyle}{\texdef\lst@ndkwd@style##1{#1{##1}}}
+\define@key{lst}{rdkeywordstyle}{\texdef\lst@rdkwd@style##1{#1{##1}}}
+\define@key{lst}{otherkeywordstyle}{\texdef\lst@kwd@style##1{#1{##1}}}
+\define@key{lst}{identifierstyle}{\texdef\lst@identifier@style##1{#1{##1}}}
+\define@key{lst}{nonkeywordstyle}{\texdef\lst@identifier@style##1{#1{##1}}}
+\define@key{lst}{basicstyle}{\texdef\lst@basic@style{#1}}
+\define@key{lst}{commentstyle}{\texdef\lst@comment@style{#1}}
+\define@key{lst}{stringstyle}{\texdef\lst@string@style{#1}}
+\lstset
+  {keywordstyle={},
+  ndkeywordstyle=\lst@kwd@style,
+  rdkeywordstyle=\lst@kwd@style,
+  identifierstyle={},
+  basicstyle={},
+  commentstyle={},
+  stringstyle={}}
+%%%%%% Language definitions
+\newcommand{\lst@mklang}[2][]
+  {\ifthenelse{\equal{#1}{}}
+    {lstlang@#2@\csname lstdd@#2\endcsname}
+    {lstlang@#2@#1}}
+\newcommand{\lst@language@key}[2][]
+  {\texdef\lst@language@init{\csname\lst@mklang[#1]{#2}\endcsname}}
+\lst@AddToHook{InitVar}{\lst@language@init}
+\lst@define@key@opt{language}{\lst@language@key}
+\newcommand{\lst@definelanguage@}[3]
+  {\texdef\csname\lst@mklang[#2]{#1}\endcsname{\lstset{#3}}}
+\newcommand{\lst@derivelanguage@}[5]
+  {\texdef\csname\lst@mklang[#2]{#1}\endcsname
+     {\csname\lst@mklang[#4]{#3}\endcsname%
+     \lstset{#5}}}
+\@primitives{listings}
+%%%%%%% Indentation
+\define@key{lst}{indent}[1]{\texdef\lst@doindent{\hspace{#1}}}
+\newcommand{\lst@doindent}{}
+%%%%%%% Lines
+\newcounter{lstlabel}
+\newcounter{lst@firstline}
+\newcommand{\lst@saved@lastline}
+  {\@ifundefined{thelst@saved@\lst@intname}
+    {0}
+    {\value{lst@saved@\lst@intname}}}
+\define@key{lst}{firstlabel}{\texdef\lst@firstline{#1}}
+\define@key{lst}{advancelabel}
+  {\texdef\lst@firstline{\lst@saved@lastline+#1+1}}
+\lst@AddToHook{Init}
+  {\@ifundefined{lst@firstline}
+    {\ifthenelse{\equal{\lst@intname}{}}
+      {\setcounter{lst@firstline}{0}}
+      {\setcounter{lst@firstline}{\lst@saved@lastline}}}
+    {\setcounter{lst@firstline}{\lst@firstline-1}}}
+\lst@AddToHook{DeInit}
+  {\@ifundefined{thelst@saved@\lst@intname}
+     {\newcounter{lst@saved@\lst@intname}}
+     {}%
+  \setcounter{lst@saved@\lst@intname}{\value{lstlabel}}}
+\lst@AddToHook{InitVar}{\setcounter{lstlabel}{\value{lst@firstline}}}
+\define@key{lst}{labelstyle}{\@forcecommand{\lst@label@style}[1]{#1{##1}}}
+\newcommand{\lst@label@style}[1]{#1}
+\define@key{lst}{labelstep}{\texdef{\lst@labelstep}{#1}}
+\newcommand{\lst@labelstep}{0}
+\define@key{lst}{labelsep}{\texdef{\lst@labelsep}{\hspace{#1}}}
+\newcommand{\lst@labelsep}{\hspace{1em}}
+\newcommand{\lst@pad}[1]{\@pad{ }{3}{#1}}
+\newcommand{\lst@linenumber@}[1]
+  {{\lst@label@style{\lst@pad{#1}}}\lst@labelsep}
+\newcommand{\lst@linenumber}
+  {\ifthenelse{\lst@labelstep=0}
+     {}
+     {\ifthenelse
+       {0=\value{lstlabel}-\(\value{lstlabel}/\lst@labelstep\)*\lst@labelstep}
+       {\lst@linenumber@{\thelstlabel}}
+       {\lst@linenumber@{}}}}
+\lst@AddToHook{InitVarEOL}{\stepcounter{lstlabel}}
+%%%%%% Ignore input
+\newcommand{\lst@gobble}{0}
+\define@key{lst}{gobble}{\texdef\lst@gobble{#1}}
+\newcommand{\lst@first}{0}
+\newcommand{\lst@last}{9999}
+\define@key{lst}{first}{\texdef\lst@first{#1}}
+\define@key{lst}{last}{\texdef\lst@last{#1}}
+\define@key{lst}{print}[true]{\setboolean{lst@print}{\lst@boolean{#1}}}
+%%%%%%% Output
+\def\lst@output#1{%
+%\lstinfo{Output: ``#1''}%
+\@ifundefined{lstk@#1}
+  {\lst@identifier@style{#1}}
+  {\csname lstk@#1\endcsname{#1}}}
+\def\lst@output@other#1{%
+%\lstinfo{Output other: ``#1''}%
+\@ifundefined{lstk@#1}
+  {#1}
+  {\csname lstk@#1\endcsname{#1}}}
+%%%%%%% User interface
+\newcommand{\lstinputlisting}[2][]{\bgroup\@lstinputlisting[#1]{#2}\egroup}
+\let\lstdefinelanguage\lst@definelanguage
+%%%%%% Driver files
+\lst@definelanguage[Objective]{Caml}[light]{Caml}
+  {deletekeywords={not,prefix,value,where},
+   morekeywords={assert,asr,class,closed,constraint,external,false,functor,include,inherit,land,lazy,lor,lsl,lsr,lxor,method,mod,module,new,open,parser,private,sig,struct,true,val,virtual,when}}
+\lst@definelanguage[light]{Caml}
+  {keywords={and,as,begin,do,done,downto,else,end,exception,for,fun,function,if,in,let,match,mutable,not,of,or,prefix,rec,then,to,try,type,value,where,while,with},
+   sensitive,
+   nestedcomment={(*}{*)},
+   stringizer=[b]",
+   directives={open,close,include}
+  }[keywords,comments,strings,directives]%
