@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: htmltext.ml,v 1.6 2001-05-29 09:23:32 maranget Exp $          *)
+(*  $Id: htmltext.ml,v 1.7 2001-06-05 13:18:41 maranget Exp $          *)
 (***********************************************************************)
 open Emisc
 open Lexeme
@@ -195,5 +195,5 @@ let add_style
         add {nat=Other ; txt=txt ; ctxt=ctxt} env
       
 let blanksNeutral s = match s.nat with
-| Size _ | Style (TT|CODE|SUB|SUP) | Other -> false
+| Size _ | Style (U|TT|CODE|SUB|SUP) | Other -> false
 | _ -> true

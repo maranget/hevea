@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: verb.mll,v 1.54 2001-05-29 17:05:21 maranget Exp $            *)
+(*  $Id: verb.mll,v 1.55 2001-06-05 13:18:41 maranget Exp $            *)
 (***********************************************************************)
 {
 exception VError of string
@@ -1252,6 +1252,8 @@ def_code "\\@scaninput"
     let {arg=post ; subst=post_subst} = save_arg lexbuf in
     try
       let true_name,chan = Myfiles.open_tex file in
+      if !verbose > 0 then
+        message ("Scan input file: "^true_name) ;
       let filebuff = Lexing.from_channel chan in
       start_lexstate () ;
       let old_input = !input_verb in
