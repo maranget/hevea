@@ -36,6 +36,8 @@ latexscan.cmo: auxx.cmo counter.cmi foot.cmi html.cmi image.cmi index.cmi \
 latexscan.cmx: auxx.cmx counter.cmx foot.cmx html.cmx image.cmx index.cmx \
     latexmacros.cmx location.cmx myfiles.cmx mylib.cmx out.cmx parse_opts.cmx \
     save.cmx subst.cmx symb.cmx latexscan.cmi 
+length.cmo: length.cmi 
+length.cmx: length.cmi 
 location.cmo: location.cmi 
 location.cmx: location.cmi 
 myfiles.cmo: mylib.cmi parse_opts.cmi myfiles.cmi 

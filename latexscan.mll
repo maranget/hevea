@@ -17,7 +17,7 @@ open Latexmacros
 open Html
 open Save
 
-let header = "$Id: latexscan.mll,v 1.36 1998-09-02 13:40:27 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.37 1998-09-02 15:47:44 maranget Exp $" 
 
 let push s e = s := e:: !s
 and pop s = match !s with
@@ -1740,6 +1740,29 @@ rule  main = parse
              prerr_endline ("Warning: "^what)
            end ;
            main lexbuf
+(* spacing *)
+         |  "\\hspace"|"\\vspace" ->
+           let vert = lxm = "\\vspace" in           
+           let arg = save_arg lexbuf in
+           begin try
+             let n = Length.main (Lexing.from_string arg) in
+             if vert then
+               for i=1 to n do
+                 Html.skip_line ()
+               done
+             else
+               for i=1 to n do
+                 Html.put "&nbsp;"
+               done
+           with Length.No ->
+             if not !silent then begin
+               Location.print_pos () ;
+               prerr_endline ("Warning: "^lxm^" with arg ``"^arg^"''")
+             end
+           end ;
+           main lexbuf
+          
+(* user macros *)
       | _ ->
       let rec exec = function
         [] -> ()
