@@ -17,3 +17,4 @@
 \let\latexsection\section
 \newcommand{\pdfsection}[1]{}
 \newcommand{\pdfpart}[2]{}
+\usepackage{makeidx}

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: index.ml,v 1.38 2000-02-22 16:22:45 maranget Exp $"
+let header = "$Id: index.ml,v 1.39 2000-06-28 20:48:35 maranget Exp $"
 open Misc
 open Parse_opts
 open Entry
@@ -380,6 +380,6 @@ let finalize check =
       itable ;
     if !top_changed then
       Misc.message
-        "HeVeA Warning: Index(es) may have changed. Rerun to get them right." ;
+        "HeVeA Warning: Index(es) may have changed. Rerun me to get them right." ;
     !top_changed
   end else false

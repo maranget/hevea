@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.181 2000-06-06 11:41:35 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.182 2000-06-28 20:48:40 maranget Exp $ *)
 
 
 {
@@ -770,7 +770,12 @@ let expand_command main skip_blanks name lexbuf =
         Stack.push stack_alltt !alltt ;
         alltt := false ;
         scan_this_may_cont main lexbuf cur_subst (string_to_arg body) ;
-        alltt := Stack.pop stack_alltt
+        if !alltt then
+          prerr_endline ("Alltt started by "^name) ;
+        alltt := 
+           if !alltt then not (Stack.pop stack_alltt)
+           else (Stack.pop stack_alltt)
+               
     | CamlCode f -> f lexbuf in
 
   let pat,body = Latexmacros.find name in
@@ -2525,12 +2530,14 @@ def_code "\\endgroup"
 def_code "\\alltt"
   (fun _ ->
     if !verbose > 1 then prerr_endline "begin alltt" ;
-    alltt := true ; Dest.close_block "" ; Dest.open_block "PRE" "") ;
+    alltt := true ;
+    fun_register (fun () -> alltt := false ; prerr_endline "End alltt") ;
+    Dest.close_block "" ; Dest.open_block "PRE" "") ;
 
 def_code "\\endalltt"
   (fun _ ->
     if !verbose > 1 then prerr_endline "end alltt" ;
-    alltt := false ; Dest.close_block "PRE" ; Dest.open_block "" "")
+    Dest.close_block "PRE" ; Dest.open_block "" "")
 ;;
 
 (* Multicolumn *)

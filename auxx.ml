@@ -11,7 +11,7 @@
 
 open Misc
 
-let header = "$Id: auxx.ml,v 1.10 2000-05-26 17:05:51 maranget Exp $" 
+let header = "$Id: auxx.ml,v 1.11 2000-06-28 20:48:34 maranget Exp $" 
 
 let rtable = Hashtbl.create 17
 ;;
@@ -83,7 +83,7 @@ and finalize check =
         end ;
         if !changed then
           Misc.message
-            "HeVeA Warning: Label(s) may have changed. Rerun to get cross-references right." ;
+            "HeVeA Warning: Label(s) may have changed. Rerun me to get cross-references right." ;
         !changed
       end else
         false
