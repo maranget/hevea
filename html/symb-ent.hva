@@ -15,7 +15,7 @@
 \newcommand{\beta}{\@entity{beta}}
 \newcommand{\gamma}{\@entity{gamma}}
 \newcommand{\delta}{\@entity{delta}}
-\newcommand{\epsilon}{\@print{&#1108;}}			% EVENTUALLY 1013
+\newcommand{\epsilon}{\@print{&#1108;}}			%EVENTUALLY 1013
 \newcommand{\varepsilon}{\@entity{epsilon}}
 \newcommand{\zeta}{\@entity{zeta}}
 \newcommand{\eta}{\@entity{eta}}
@@ -27,7 +27,7 @@
 \renewcommand{\mu}{\@entity{mu}}
 \newcommand{\nu}{\@entity{nu}}
 \newcommand{\xi}{\@entity{xi}}
-\newcommand{\pi}{\@print{&#982;}}
+\newcommand{\pi}{\@entity{pi}}
 \newcommand{\varpi}{\@print{&#982;}}
 \newcommand{\rho}{\@entity{rho}}
 \newcommand{\varrho}{\@print{&#1009;}}
@@ -40,6 +40,8 @@
 \newcommand{\chi}{\@entity{chi}}
 \newcommand{\psi}{\@entity{psi}}
 \newcommand{\omega}{\@entity{omega}}
+%
+\ifgoodbrowser\renewcommand{\epsilon}{\@print{&#1013;}}\fi
 %
 %% Capital Greek Letters
 %
@@ -171,7 +173,7 @@
 \newcommand{\swarrow}{\@print{&#8601;}}
 \newcommand{\nwarrow}{\@print{&#8598;}}
 %
-%% Eventually these commands would be activated
+%% Eventually these commands would be activated (currently with '-goodbrowser')
 %
 %\renewcommand{\longleftarrow}{\@print{&#10229;}}
 %\renewcommand{\Longleftarrow}{\@print{&#10232;}}
@@ -180,6 +182,16 @@
 %\renewcommand{\longleftrightarrow}{\@print{&#10231;}}
 %\renewcommand{\Longleftrightarrow}{\@print{&#10234;}}
 %\renewcommand{\longmapsto}{\@print{&#10236;}}
+%
+\ifgoodbrowser
+\renewcommand{\longleftarrow}{\@print{&#10229;}}%
+\renewcommand{\Longleftarrow}{\@print{&#10232;}}%
+\renewcommand{\longrightarrow}{\@print{&#10230;}}%
+\renewcommand{\Longrightarrow}{\@print{&#10233;}}%
+\renewcommand{\longleftrightarrow}{\@print{&#10231;}}%
+\renewcommand{\Longleftrightarrow}{\@print{&#10234;}}%
+\renewcommand{\longmapsto}{\@print{&#10236;}}%
+\else\fi
 %
 %% Miscellaneous symbols (Table 8.7 of 'Goos-Mitt-Sam')
 %
@@ -253,12 +265,16 @@
 %
 \newcommand{\dag}{\@print{&#8224;}}
 %
-\let\mathsf\@mathsf
-\let\mathbf\@mathbf
-\let\mathrm\@mathrm
-\let\mathcal\@mathcal
-\let\mathtt\@mathtt
 \newcommand{\mathit}[1]{\@open{I}{}#1\@close{I}}
+\let\mathrm\@mathrm%
+\let\mathtt\@mathtt%
+\ifgoodbrowser
+\let\mathcal\@mathcal%
+\let\mathsf\@mathsf%
+\let\mathbf\@mathbf%
+\fi
+%
+%% Definition for big left and right brackets
 %
 \def\bigl#1{\ifdisplay{\large #1}\else{\large #1}\fi}
 \def\bigr#1{\ifdisplay{\large #1}\else{\large #1}\fi}

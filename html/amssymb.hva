@@ -175,7 +175,7 @@
 \newcommand{\backepsilon}{\@print{&#1101;}}	   % EVENTUALLY 1014
 \newcommand{\because}{\@print{&#8757;}}
 %
-%% These will be activated eventually
+%% These will be activated eventually (currently only in 'goodbrowser' mode)
 %
 %\newcommand{\leqslant}{\@print{&#10877;}}
 %\newcommand{\geqslant}{\@print{&#10878;}}
@@ -189,6 +189,21 @@
 %\newcommand{\succcurlyeq}{\@print{&#8829;}}   
 %\newcommand{\subseteqq}{\@print{&#10949;}}
 %\newcommand{\supseteqq}{\@print{&#10950;}}
+%
+\ifgoodbrowser
+\renewcommand{\leqslant}{\@print{&#10877;}}
+\renewcommand{\geqslant}{\@print{&#10878;}}
+\renewcommand{\lesseqqgtr}{\@print{&#10891;}}
+\renewcommand{\gtreqqless}{\@print{&#10892;}}
+\renewcommand{\lessapprox}{\@print{&#10885;}}
+\renewcommand{\gtrapprox}{\@print{&#10886;}}
+\renewcommand{\precapprox}{\@print{&#10935;}}
+\renewcommand{\succapprox}{\@print{&#10936;}}
+\renewcommand{\preccurlyeq}{\@print{&#8828;}}   
+\renewcommand{\succcurlyeq}{\@print{&#8829;}}   
+\renewcommand{\subseteqq}{\@print{&#10949;}}
+\renewcommand{\supseteqq}{\@print{&#10950;}}
+\fi
 %
 %% AMSSYMB Negated Relational Symbols
 %
@@ -245,7 +260,7 @@
 \newcommand{\supsetneqq}{\@print{&#10966;}}
 \newcommand{\varsupsetneqq}{\supsetneqq} 	% not ideal (supsetneqq)
 %
-%% These will be activated eventually
+%% These will be activated eventually (currently only in 'goodbrowser' mode)
 %
 %\newcommand{\lneq}{\@print{&#10887;}}
 %\newcommand{\gneq}{\@print{&#10888;}}
@@ -257,6 +272,20 @@
 %\newcommand{\supsetneqq}{\@print{&#10966;}}
 %\newcommand{\varsubsetneqq}{\@print{&#10955;}} % not ideal (subsetneqq)
 %\newcommand{\varsupsetneqq}{\@print{&#10966;}} % not ideal (supsetneqq)
+%
+\ifgoodbrowser{
+\renewcommand{\lneq}{\@print{&#10887;}}
+\renewcommand{\gneq}{\@print{&#10888;}}
+\renewcommand{\precnapprox}{\@print{&#10937;}}
+\renewcommand{\succnapprox}{\@print{&#10938;}}
+\renewcommand{\lnapprox}{\@print{&#10889;}}
+\renewcommand{\gnapprox}{\@print{&#10890;}}
+\renewcommand{\subsetneqq}{\@print{&#10955;}}
+\renewcommand{\supsetneqq}{\@print{&#10966;}}
+\renewcommand{\varsubsetneqq}{\@print{&#10955;}} % not ideal (subsetneqq)
+\renewcommand{\varsupsetneqq}{\@print{&#10966;}} % not ideal (supsetneqq)
+}
+\else\fi
 %
 %% Miscellaneous Symbols under "amssymb"
 %
@@ -288,6 +317,9 @@
 \newcommand{\daleth}{\@print{&#1491;}}
 \newcommand{\gimel}{\@print{&#1490;}}
 %
+\ifgoodbrowser\renewcommand{\varkappa}{\@print{&#1008;}}
+\fi
+%
 %% AMSSYMB delimiters
 %
 \newcommand{\ulcorner}{\@print{&#8988;}}
@@ -295,6 +327,7 @@
 \newcommand{\llcorner}{\@print{&#8990;}}
 \newcommand{\lrcorner}{\@print{&#8991;}}
 %
+\ifgoodbrowser
 \let\mathbb\@mathbb
 \let\mathfrak\@mathfrak
-
+\else\fi

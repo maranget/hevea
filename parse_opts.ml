@@ -11,7 +11,7 @@
 
 open Misc
 
-let header = "$Id: parse_opts.ml,v 1.28 2004-06-21 08:55:46 thakur Exp $" 
+let header = "$Id: parse_opts.ml,v 1.29 2004-07-21 13:53:53 thakur Exp $" 
 
 type input = File of string | Prog of string
 
@@ -36,6 +36,10 @@ type destination = Html | Text | Info
 ;;
 let mathml = ref false
 and entities = ref true
+;;
+
+(*to activate advanced entities*) 
+let goodbrowser = ref false
 ;;
 
 (* NO NEED AFTER BABEL SUPPORT *)
@@ -93,6 +97,8 @@ let _ = Arg.parse
        "bibtex entry file to be read and processed for producing bibliography entries") ;
      ("-francais",Arg.Unit (fun () -> frenchwarning := true),
        "french mode") ;
+     ("-goodbrowser",Arg.Unit (fun () -> goodbrowser := true),
+       "advanced browser entity descriptions enabled") ;
      ("-nosymb",Arg.Unit (fun () -> symbols := false),
        "do not output symbol fonts") ;
      ("-noiso",Arg.Unit (fun () -> iso := false),

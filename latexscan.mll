@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.239 2004-07-20 13:49:50 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.240 2004-07-21 13:53:53 thakur Exp $ *)
 
 
 {
@@ -2383,6 +2383,7 @@ newif_ref "styleloaded" styleloaded;
 newif_ref "activebrace" activebrace;
 newif_ref "pedantic" pedantic ;
 newif_ref "fixpoint" fixpoint ;
+newif_ref "goodbrowser" goodbrowser;
 newif_ref "alltt@loaded" alltt_loaded ;
 newif_ref "filter" (ref filter) ;
 newif_ref "@sawdocument" sawdocument ;

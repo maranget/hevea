@@ -17,6 +17,8 @@ val iso : bool ref
 val language : language  ref*)
 type destination = Html | Text | Info
 val destination : destination ref
+(*to activate advanced entities*)
+val goodbrowser : bool ref
 val mathml : bool ref
 val entities : bool ref
 val pedantic : bool ref
