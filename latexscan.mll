@@ -17,7 +17,7 @@ open Latexmacros
 open Html
 open Save
 
-let header = "$Id: latexscan.mll,v 1.33 1998-08-17 13:21:57 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.34 1998-08-27 15:24:34 maranget Exp $" 
 
 let push s e = s := e:: !s
 and pop s = match !s with
@@ -1566,9 +1566,9 @@ rule  main = parse
         Html.open_group "CITE" ;
         let rec do_rec = function
           [] -> ()
-        | [x] -> Html.loc_ref (get_this main (Aux.bget x)) x
+        | [x] -> Html.loc_ref (get_this main (Auxx.bget x)) x
         | x::rest ->
-            Html.loc_ref (get_this main (Aux.bget x)) x ;
+            Html.loc_ref (get_this main (Auxx.bget x)) x ;
             put ", " ;
             do_rec rest in
         do_rec args ;

@@ -11,7 +11,7 @@
 
 {
 open Lexing
-let header = "$Id: aux.mll,v 1.3 1998-07-21 11:18:24 maranget Exp $" 
+let header = "$Id: auxx.mll,v 1.1 1998-08-27 15:24:31 maranget Exp $" 
 
 let rtable = Hashtbl.create 17
 ;;

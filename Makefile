@@ -15,7 +15,7 @@ OCAMLCI=ocamlc
 OCAMLOPT=ocamlopt
 OCAMLLEX=ocamllex
 INSTALL=cp
-OBJS=version.cmo parse_opts.cmo mylib.cmo myfiles.cmo location.cmo out.cmo counter.cmo symb.cmo image.cmo subst.cmo save.cmo  aux.cmo latexmacros.cmo  html.cmo section.cmo foot.cmo entry.cmo index.cmo latexscan.cmo latexmain.cmo
+OBJS=version.cmo parse_opts.cmo mylib.cmo myfiles.cmo location.cmo out.cmo counter.cmo symb.cmo image.cmo subst.cmo save.cmo  auxx.cmo latexmacros.cmo  html.cmo section.cmo foot.cmo entry.cmo index.cmo latexscan.cmo latexmain.cmo
 OBJSCUT=version.cmo location.cmo out.cmo thread.cmo cross.cmo mylib.cmo section.cmo save.cmo cut.cmo cutmain.cmo
 
 OPTS=$(OBJS:.cmo=.cmx)
@@ -96,12 +96,12 @@ cutfoot-eng.html: cutfoot.tex hevea.sty ${HEVEA}
 
 clean:
 	rm -f *.byte *.opt
-	rm -f subst.ml latexscan.ml aux.ml save.ml entry.ml cut.ml
+	rm -f subst.ml latexscan.ml auxx.ml save.ml entry.ml cut.ml
 	rm -f *.o *.cmi *.cmo *.cmix *.cmx *.o *.ppo *.ppi
 	rm -f *~ #*#
 	rm -f cutfoot-fra.html cutfoot-eng.html
 
-depend: latexscan.ml subst.ml save.ml aux.ml entry.ml cut.ml
+depend: latexscan.ml subst.ml save.ml auxx.ml entry.ml cut.ml
 	- cp .depend .depend.bak
 	ocamldep *.mli *.ml > .depend
 

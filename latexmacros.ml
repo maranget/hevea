@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmacros.ml,v 1.20 1998-07-28 09:32:26 maranget Exp $" 
+let header = "$Id: latexmacros.ml,v 1.21 1998-08-27 15:24:32 maranget Exp $" 
 open Parse_opts
 open Symb
 
@@ -201,10 +201,10 @@ def_macro "\\bgroup" 0 [Subst "{"] ;
 def_macro "\\egroup" 0 [Subst "}"] ;
 def_macro "\\ref" 1
   [Print "<A href=\"#"; Subst "\\@print{#1}" ; Print "\">" ;
-   Print_fun (Aux.rget,0) ; Print "</A>"];
+   Print_fun (Auxx.rget,0) ; Print "</A>"];
 def_macro "\\pageref" 1 [Print "<A href=\"#"; Print_arg 0; Print "\">X</A>"];
 
-def_macro "\\@bibref" 1  [Print_fun (Aux.bget,0)] ;
+def_macro "\\@bibref" 1  [Print_fun (Auxx.bget,0)] ;
 
 let check_in = function
   "\\in" -> "\\notin"

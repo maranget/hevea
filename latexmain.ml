@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmain.ml,v 1.17 1998-07-21 10:03:20 maranget Exp $" 
+let header = "$Id: latexmain.ml,v 1.18 1998-08-27 15:24:33 maranget Exp $" 
 
 open Parse_opts
 
@@ -85,7 +85,7 @@ let main () =
        try
          let _,auxchan = Myfiles.open_tex auxname in
          let buf = Lexing.from_channel auxchan in
-         Aux.main buf
+         Auxx.main buf
        with Myfiles.Error _ -> begin
          if !verbose > 0 then
            prerr_endline ("Cannot open aux file: "^auxname)
