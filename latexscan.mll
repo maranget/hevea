@@ -47,13 +47,14 @@ open Save
 open Tabular
 open Lexstate
 
-let header = "$Id: latexscan.mll,v 1.86 1999-05-10 14:06:33 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.87 1999-05-10 15:54:00 tessaud Exp $" 
 
 let sbool = function
   | false -> "false"
   | true  -> "true"
 
 module Index = Index.Make (Dest)
+module Foot = Foot.MakeFoot (Dest)
 
 (* Additional variables for videoc *)
 let withinLispComment = ref false;;
@@ -728,14 +729,14 @@ let check_this lexfun s =
     prerr_endline ("check_this: ``"^s^"''");
   start_normal display in_math ;
   let save_par = Dest.forget_par () in
-  Dest.open_block "" "";
+  Dest.open_block "TEMP" "";
   let r =
     try
       scan_this lexfun s ;
       true
     with
     |  x -> false in
-  Dest.erase_block "" ;
+  Dest.erase_block "TEMP" ;
   Dest.par save_par ;
   end_normal display in_math ;
   if !verbose > 1 then

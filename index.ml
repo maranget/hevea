@@ -20,10 +20,11 @@ module type T =
 module Make (Dest : OutManager.S) =
 struct
 
-let header = "$Id: index.ml,v 1.23 1999-05-07 17:45:13 maranget Exp $"
+let header = "$Id: index.ml,v 1.24 1999-05-10 15:53:53 tessaud Exp $"
 open Misc
 open Parse_opts
 open Entry
+
 
 exception Error of string
 
@@ -314,7 +315,8 @@ let start_change s1 s2 = match s1,s2 with
 
 let print_entry main bk k xs  =
   let rp,rt = common bk k in
-  close_prev rp ;
+  close_prev rp 
+;
   if fst rp = [] then
     Dest.open_block "UL" ""
   else begin

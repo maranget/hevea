@@ -9,5 +9,10 @@
 (*                                                                     *)
 (***********************************************************************)
 
-val register : int -> string -> string -> string -> unit
-val flush : (string -> unit)  -> string -> string -> unit
+module type T =
+  sig
+    val register : int -> string -> string -> string -> unit
+    val flush : (string -> unit)  -> string -> string -> unit
+  end
+
+module MakeFoot (Dest : OutManager.S) : T

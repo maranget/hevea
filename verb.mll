@@ -79,6 +79,7 @@ and rawhtml = parse
     {let lxm = lexeme lexbuf in
     let env = env_extract lxm in
     if env = !Scan.cur_env then begin
+(*      Dest.close_block "TEMP";*)
       Scan.close_env env
     end else begin
       Dest.put lxm ;
@@ -143,6 +144,7 @@ let open_verbenv lexbuf _ =
 let open_rawhtml lexbuf _ =
   Scan.top_close_block "" ;
   let lexbuf = previous_lexbuf () in
+ (* Dest.open_block "TEMP" "";*)
   rawhtml lexbuf 
 
 let open_verblatex lexbuf _ =

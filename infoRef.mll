@@ -1,6 +1,6 @@
 {
 open Lexing
-open Text
+(*open Text*)
 open Misc
 
 
@@ -29,12 +29,29 @@ type menu_t = {
 
 let menu_list = ref [];;
 
-let node_list = ref [];;
+let nodes = Hashtbl.create 17;;
+(*let node_list = ref [];;*)
 
+(*
 let current_node () = match !node_list with
 | [] -> None
 | n::r -> Some n
 ;;
+*)
+
+let current_node = ref None;;
+(*{
+  numero =0;
+  name = "Top";
+  comment="";
+  file = "";
+  previous = None;
+  next = None;
+  up = None;
+  pos = 0;
+  } 
+;;*)
+
 
 let menu_num = ref 0
 and node_num = ref 0
@@ -52,12 +69,12 @@ let infomenu arg =
   menu_list := { 
     num = !menu_num;
     nom = arg;
-    nod = current_node();
+    nod = !current_node;
     nodes = [];
   } ::!menu_list;
-  open_block "INFO" "";
-  put ("\n\\@menu"^string_of_int !menu_num^"\n");
-  close_block "INFO"
+  Text.open_block "INFO" "";
+  Text.put ("\n\\@menu"^string_of_int !menu_num^"\n");
+  Text.close_block "INFO"
 ;;
 
 let rec cherche_menu m = function
@@ -117,16 +134,18 @@ let infonode opt num arg =
   n.up <- (match opt with
     "" -> None
   | m ->  ajoute_node_dans_menu n m);
-  node_list := n::!node_list;
-  open_block "INFO" "";
-  put ("\n\\@node"^string_of_int !node_num^"\n");
-  close_block "INFO";
+  (*node_list := n::!node_list;*)
+  Hashtbl.add nodes !node_num n;
+  Text.open_block "INFO" "";
+  Text.put ("\n\\@node"^string_of_int !node_num^"\n");
+  Text.close_block "INFO";
+  current_node := Some n;
   if !verbose>1 then prerr_endline ("Node added :"^n.name^", "^n.comment);
 ;;
 
 let change_file() = 
   let changed = 
-    match current_node () with
+    match !current_node with
       Some n -> if n.file = !cur_file then begin
 	file_number := !file_number +1;
 	true;
@@ -140,45 +159,59 @@ let change_file() =
 ;;
 
 (* References *)
-type label_t = {
+(*type label_t = {
     mutable lab_name : string;
     mutable noeud : node_t option;
   } 
 type ref_t = {
     mutable number : int;
     mutable lab : string}
-
+*)
+(*
 let labels_list = ref [];;
 let refs_list = ref [];;
+*)
+let labels = Hashtbl.create 17;;
+let refs = Hashtbl.create 17;;
 
 let ref_count = ref 0 ;;
 
+(*
 let rec cherche_label s = function
   | [] -> None
   | l::r -> if l.lab_name=s then Some l else cherche_label s r
 ;;
-
 let rec cherche_ref_par_num n = function
   | [] -> None
   | r::reste -> if r.number = n then Some r else cherche_ref_par_num n reste
 ;;
+*)
 
 let loc_name s1 s2 = (* pose un label *)
-  (match cherche_label s1 !labels_list with
+  let _ = 
+    try 
+      Hashtbl.find labels s1;
+      raise (Error "Duplicate use of labels")
+    with Not_found -> ()
+  in
+(*(match cherche_label s1 !labels_list with
     None -> ()
   | Some _ -> raise (Error "Duplicate use of labels"););
   let l = {
     lab_name = s1;
-    noeud = current_node ();
-  } in
-  labels_list := l:: !labels_list;
-  (*Text.put s2*);
+    noeud = !current_node ;
+  } in*)
+  Hashtbl.add labels s1 !current_node;
+  (*labels_list := l:: !labels_list;*)
+  if !verbose > 1 then prerr_endline ("InfoRef.loc_name, label="^s1);
+  (*Text.put s2;*)
 ;;
 
 let loc_ref s1 s2 = (* fait la reference *)
   ref_count:=!ref_count +1;
-  let r = { number = !ref_count; lab = s2 } in
-  refs_list := r:: !refs_list;
+(*  let r = { number = !ref_count; lab = s2 } in
+  refs_list := r:: !refs_list;*)
+  Hashtbl.add refs !ref_count s2;
   Text.put ("\\@reference"^string_of_int !ref_count);
 ;;
 
@@ -248,6 +281,7 @@ let set_out_file s =
 ;;
 
 let files = ref [];;
+let top_node = ref false;;
 
 let put s = 
   if !verbose >3 then
@@ -327,7 +361,8 @@ let  affiche_tag_table_un out_file =
   in
       
   put "\n\nTag table:\n";
-  do_rec (List.rev !node_list);
+  Hashtbl.iter (fun num n -> put ("File: "^ out_file ^",\tNode: "^noeud_name n^""^string_of_int n.pos^"\n")) nodes;
+  (*do_rec (List.rev !node_list);*)
   put "\nEnd tag table\n";
 ;;
 
@@ -349,14 +384,24 @@ let affiche_tag_table ()=
   put "\n\nIndirect:\n";
   do_indirect (List.rev !files);
   put "\n\nTag table:\n(Indirect)\n";
-  do_rec (List.rev !node_list);
+  Hashtbl.iter (fun num n ->put ("File: "^n.file^",\tNode: "^noeud_name n^""^string_of_int n.pos^"\n")) nodes;
+(*  do_rec (List.rev !node_list);*)
   put "\nEnd tag table\n";
   Out.close !out_cur;
 ;;
 
 
 let affiche_node num =
-  let noeud = cherche_noeud_par_num num !node_list in
+
+(*  let noeud = cherche_noeud_par_num num !node_list in*)
+  if !top_node then begin
+    put_credits ();
+    top_node := false;
+  end;
+  let noeud = 
+    try Hashtbl.find nodes num
+    with Not_found ->  raise (Error ("Node not found"))
+  in
   if noeud.file <> !cur_file then begin
     Out.close !out_cur;
 (*    counter := 0;*)
@@ -377,19 +422,26 @@ let affiche_node num =
   | Some n -> put (",\tNext: "^noeud_name n));
   (match noeud.previous with
   | None -> ()
-  | Some n -> put (",\tPrevious: "^noeud_name n));
+  | Some n -> put (",\tPrev: "^noeud_name n));
   (match noeud.up with
   | None -> if noeud.name = "Top" then put ",\tUp: (dir)."
   | Some n -> put (",\tUp: "^noeud_name n));
   put_char '\n';
+  if noeud.name="Top" then top_node := true;
+
   if !verbose >1 then
     prerr_endline ("Node : "^noeud_name noeud);
 ;;
 
 let affiche_ref num =
+(*
   let r = match cherche_ref_par_num num !refs_list with
   | Some reference -> reference
   | None -> raise (Error "Reference not found.")
+  in*)
+  let r =
+    try Hashtbl.find refs num;
+    with Not_found -> raise (Error "Reference not found.")
   in
   let verifie_ref s =
     let t = String.copy s in
@@ -399,14 +451,21 @@ let affiche_ref num =
     done;
     t
   in
-
+  
+  let l = 
+    try Hashtbl.find labels r;
+    with Not_found ->  raise (Error "Reference to no label");
+  in
+  match l with
+    | None -> ()
+    | Some node -> put ("*Note "^noeud_name node^"::")
+(*
   match cherche_label r.lab !labels_list with
   | None -> raise (Error "Reference to no label")
   | Some l -> 
       (match l.noeud with 
       | None -> ()
-      |	Some node -> (*put ("*Note "^(verifie_ref l.lab_name)^": "^noeud_name node^"."))*)
-	  put ("*Note "^noeud_name node^"::"))
+      |	Some node -> put ("*Note "^noeud_name node^"::"))*)
 ;;
 
 } 

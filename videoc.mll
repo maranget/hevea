@@ -1,6 +1,6 @@
 (* <Christian.Queinnec@lip6.fr>
  The plugin for HeVeA that implements the VideoC style.
- $Id: videoc.mll,v 1.3 1999-04-15 15:05:51 maranget Exp $ 
+ $Id: videoc.mll,v 1.4 1999-05-10 15:54:06 tessaud Exp $ 
 *)
 
 {
@@ -9,17 +9,17 @@ module type T =
     val init : unit -> unit
   end;;
 
-module Makealso (Scan : Latexscan.S) =
+module Makealso (Dest : OutManager.S) (Scan : Latexscan.S) =
 struct
 open Misc
 open Parse_opts
 open Lexing
 open Myfiles
 open Latexmacros
-(* open Html *)
+(* open Dest *)
 
 let header = 
-  "$Id: videoc.mll,v 1.3 1999-04-15 15:05:51 maranget Exp $"
+  "$Id: videoc.mll,v 1.4 1999-05-10 15:54:06 tessaud Exp $"
 
 (* Re-link with these variables inserted in latexscan. *)
 
@@ -71,21 +71,22 @@ rule snippetenv = parse
     {let lxm = lexeme lexbuf in
      !handle_command lexbuf lxm}
 | '\n'
-    {Html.put "<BR>\n";
+    {Dest.put_tag "<BR>";
+      Dest.put_char '\n';
      snippetRunHook Scan.main "AfterLine";
      snippetRunHook Scan.main "BeforeLine";
      snippetenv lexbuf}
 | ' '
-    {Html.put "&nbsp;";
+    {Dest.put_nbsp ();
      snippetenv lexbuf}
 | '\t'
     {for i=1 to !Lexstate.tab_val do
-      Html.put "&nbsp;"
+      Dest.put_nbsp ()
      done;
      snippetenv lexbuf}
 | ';' + 
-    {Html.put (lexeme lexbuf);
-     Html.put_char ' ';
+    {Dest.put (lexeme lexbuf);
+     Dest.put_char ' ';
      if !enableLispComment
      then begin
         if !verbose > 1 then 
@@ -108,7 +109,7 @@ rule snippetenv = parse
      end;
      snippetenv lexbuf}
 | '#'
-    {Html.put_char '#';
+    {Dest.put_char '#';
      if !enableSchemeCharacters
      then begin
         if !verbose > 1 then 
@@ -117,7 +118,7 @@ rule snippetenv = parse
      end;
      snippetenv lexbuf}
 | _ 
-    {Html.put (Html.iso (lexeme_char lexbuf 0));
+    {Dest.put (Dest.iso (lexeme_char lexbuf 0));
      snippetenv lexbuf}
 
 (* Scheme characters are written as #\A or #\Newspace *)
@@ -125,7 +126,7 @@ rule snippetenv = parse
 and schemecharacterenv = parse
 | command_name
     {let csname = lexeme lexbuf in
-     Html.put csname}
+     Dest.put csname}
 | ""
     { () }
 
@@ -178,7 +179,7 @@ let rec do_handle_command lexbuf csname =
 
  (* Handle a backslash newline to let it appear as it is: *)
   end else if csname = "\\\n" then begin
-    Html.put csname;
+    Dest.put csname;
     Lexstate.scan_this snippetenv "\n";
     snippetenv lexbuf
 
@@ -211,7 +212,7 @@ let rec do_handle_command lexbuf csname =
    end inner modes. *)
 
 and do_four_backslashes lexbuf name = begin
-  Html.put "\\";
+  Dest.put "\\";
   ()
 end
 
@@ -219,12 +220,12 @@ end
 and do_reference_url lexbuf lxm =
   let txt = Save.arg lexbuf in
   let url = Save.arg_verbatim lexbuf in
-  Html.put ("<A href=\"" ^ url ^ "\">" ^ txt ^ "</A>");
+  Dest.put ("<A href=\"" ^ url ^ "\">" ^ txt ^ "</A>");
   ()
 
 and do_single_url lexbuf lxm =
   let url = Save.arg_verbatim lexbuf in
-  Html.put ("<A href=\"" ^ url ^ "\">" ^ url ^ "</A>");
+  Dest.put ("<A href=\"" ^ url ^ "\">" ^ url ^ "</A>");
   ()
 ***************************)
 
@@ -300,11 +301,11 @@ and do_snippet lexbuf lxm =
     let language = if language = "" then snippetDefaultLanguage
                                     else language in
     skip_blanks_till_eol_included lexbuf;
-    Html.put "\n";
+    Dest.put "\n";
     Scan.top_open_block "TT" "";
     Scan.top_open_block "DIV" snippetCSSstyle;
     Scan.top_open_block "SPAN" ("class=\"" ^ language ^ "\"");
-    Html.put "\n";
+    Dest.put "\n";
     Scan.new_env "snippet";
     (* Register local commands *)
     def_macro "\\endsnippet" 0 (CamlCode !handle_command);
@@ -367,7 +368,7 @@ and do_vicanchor lexbuf lxm = begin
     comma_separated_values (Lexing.from_string (nfn ^ ",")) in
   match fields with 
   | [number;filename;notename] -> begin
-      Html.put ("<script language=\"JavaScript\"><!-- 
+      Dest.put_tag ("<script language=\"JavaScript\"><!-- 
  last_links_length = document.links.length; // --></script><A href='#' class='mo
 usable'><SPAN style=\"" ^ style ^ "\"><!-- " 
   ^ nfn ^ " -->");
@@ -383,7 +384,7 @@ and do_vicendanchor lexbuf lxm = begin
     comma_separated_values (Lexing.from_string (nfn ^ ",")) in
   match fields with
   | [number;filename;notename] -> begin
-      Html.put ("</SPAN></A><script language=\"JavaScript\"><!-- \n hint_push("
+      Dest.put_tag ("</SPAN></A><script language=\"JavaScript\"><!-- \n hint_push("
                 ^ number ^ "); // --></script>");
       ()
   end
@@ -392,7 +393,7 @@ end
 
 and do_vicindex lexbuf lxm = begin
   let nfn = Lexstate.save_opt "0,filename,notename" lexbuf in
-  Html.put_char ' ';
+  Dest.put_char ' ';
   ()
 end
 ;;

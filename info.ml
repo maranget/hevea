@@ -108,7 +108,7 @@ let finalize check =
   InfoRef.set_out_file Parse_opts.name_out;
   InfoRef.main buf;
   (* deuxieme passe sur le fichier *)
-(*  if Parse_opts.name_out <> "" then Sys.remove (Parse_opts.name_out^".tmp");*)
+  if Parse_opts.name_out <> "" then Sys.remove (Parse_opts.name_out^".tmp");
 ;;
 
 let horizontal_line =Text.horizontal_line;;

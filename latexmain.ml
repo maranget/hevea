@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmain.ml,v 1.38 1999-05-10 14:06:29 maranget Exp $" 
+let header = "$Id: latexmain.ml,v 1.39 1999-05-10 15:53:56 tessaud Exp $" 
 
 open Misc
 open Parse_opts
@@ -22,7 +22,7 @@ let
   match !Parse_opts.destination with
   | Html ->
       let module Scan = Latexscan.Make ( Html) in
-      let module Otherscan = Videoc.Makealso (Scan) in
+      let module Otherscan = Videoc.Makealso (Html) (Scan) in
       let module Verbscan = Verb.MakeAlso  (Html) (Scan) in
       Otherscan.init () ; Verbscan.init () ;
       Scan.subst_this, Scan.subst,
@@ -30,16 +30,16 @@ let
       Html.finalize
   | Text ->
       let module Scan = Latexscan.Make (Text) in
-      let module Otherscan = Videoc.Makealso (Scan) in
-      let module Verbscan = Verb.MakeAlso  (Html) (Scan) in
+      let module Otherscan = Videoc.Makealso (Text) (Scan) in
+      let module Verbscan = Verb.MakeAlso  (Text) (Scan) in
       Otherscan.init () ; Verbscan.init () ;
       Scan.subst_this, Scan.subst,
       Scan.get_this, Scan.main, Scan.no_prelude, Scan.print_env_pos,
       Text.finalize
   | Info ->
       let module Scan = Latexscan.Make (Info) in
-      let module Otherscan = Videoc.Makealso (Scan) in
-      let module Verbscan = Verb.MakeAlso  (Html) (Scan) in
+      let module Otherscan = Videoc.Makealso (Info) (Scan) in
+      let module Verbscan = Verb.MakeAlso  (Info) (Scan) in
       Otherscan.init () ; Verbscan.init () ;
       Scan.subst_this, Scan.subst,
       Scan.get_this, Scan.main, Scan.no_prelude, Scan.print_env_pos,

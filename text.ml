@@ -428,7 +428,21 @@ let clearstyle () =
   !cur_out.pending<-[]
 ;;
 
-let open_mod m = ()
+let open_mod m =
+  if m=(Style "CODE") then begin 
+    do_put "`";
+  end;
+  !cur_out.active <- m::!cur_out.active
+;;
+
+let close_mod () = match !cur_out.active with
+  [] -> ()
+| Style "CODE"::reste ->
+    do_put "'";
+    !cur_out.active <- reste
+| Style ""::reste ->
+    !cur_out.active <- reste
+| _ -> ()
 ;;
 
 let erase_mods ml = ()
@@ -560,6 +574,8 @@ let try_open_block s args =
 	flags.hsize <- flags.x_end - flags.x_start+1;
       end
   | "PRE" ->
+      flags.first_line <-0;
+      do_put "\n<<";
       flags.first_line <-2;
   | "INFO" ->
       flags.first_line <-0;
@@ -599,6 +615,9 @@ let try_close_block s =
 	let u = pop "underline" underline_stack in
 	flags.underline <- u
       end
+  | "PRE" ->
+      flags.first_line <-0;
+      do_put ">>\n"
   | _ -> ()
 ;;
 
@@ -748,16 +767,20 @@ let item scan arg =
 let change_block s args = ()
 ;;
 
-let erase_block s = ()
+let erase_block s = close_block s
 ;;
 
-let open_group ss = ()
+let open_group ss =  
+  open_block "" "";
+  open_mod (Style ss);
 ;;
 
 let open_aftergroup f = ()
 ;;
 
-let close_group () = ()
+let close_group () =
+  close_mod ();
+  close_block "";
 ;;
 
 let put s =
@@ -794,6 +817,7 @@ let loc_ref s1 s2 =
 ;;
 
 let loc_name s1 s2 =
+  if !verbose >1 then prerr_endline "Text.loc_name";
   put s2
 ;;
 

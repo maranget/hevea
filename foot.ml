@@ -9,9 +9,18 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: foot.ml,v 1.7 1998-07-21 11:18:28 maranget Exp $" 
+module type T =
+  sig
+    val register : int -> string -> string -> string -> unit
+    val flush : (string -> unit)  -> string -> string -> unit
+  end
+      
+module MakeFoot ( Dest : OutManager.S )=
+struct
+
+let header = "$Id: foot.ml,v 1.8 1999-05-10 15:53:52 tessaud Exp $" 
 open Parse_opts
-open Html
+(*open Dest*)
 
 type ok = Some of int * string * string * string | None
 
@@ -44,26 +53,28 @@ let register i mark text anchor =
 let flush lexer sec_notes sec_here =
   if !some && Section.value sec_here <= Section.value sec_notes then begin
     some := false ;
-    Html.put "<!--BEGIN NOTES " ;
-    Html.put sec_notes ;
-    Html.put "-->\n" ;
+    Dest.put_tag "<!--BEGIN NOTES " ;
+    Dest.put_tag sec_notes ;
+    Dest.put_tag "-->\n" ;
     lexer "\\footnoterule" ;
-    Html.open_block "DL" "" ;
+    Dest.open_block "DL" "" ;
     let t = !table in
     for i = 0 to Array.length t - 1 do
       match t.(i) with
         None -> ()
       | Some (_,m,txt,anchor) ->
           t.(i) <- None ;
-          Html.item (fun s ->
+          Dest.item (fun s ->
              lexer ("\\@openanchor{text}{note}{"^anchor^"}") ;
-             Html.put s ;
+             Dest.put s ;
              lexer ("\\@closeanchor")) m;
-          Html.put txt ;
-          Html.put_char '\n'
+          Dest.put txt ;
+          Dest.put_char '\n'
     done ;
-    Html.force_block "DL" "" ;
-    Html.put "<!--END NOTES-->" ;
+    Dest.force_block "DL" "" ;
+    Dest.put_tag "<!--END NOTES-->" ;
     current := 0;
   end
 ;;
+
+end

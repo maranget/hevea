@@ -18,4 +18,4 @@ module type T =
     val print: (string -> unit) -> string -> unit
   end
 
-module Make (Html : OutManager.S) : T
+module Make (Dest : OutManager.S) : T
