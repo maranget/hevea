@@ -1,4 +1,5 @@
 version 1.06-7
+  - Added ``\hyperref'' with optional argument.
   - Added underscore package
   - Bug htmlfoot, <!--FOOTER--> MUST appear last in hevea output
   - small stuff in listings (showlines and continued line  numbering)

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.30 2001-02-12 10:05:39 maranget Exp $    *)
+(*  $Id: package.ml,v 1.31 2001-08-03 09:20:36 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -416,8 +416,9 @@ register_init "hyperref"
         let _ = save_arg lexbuf in
         scan_this main
           ("\\imgsrc{\\textalltt[]"^url^"}")) ;
-    def_code "\\hyperref"
+    def_code "\\@hyperref"
       (fun lexbuf ->
+        let _ = save_arg lexbuf in
         Save.start_echo () ;
         let url = save_arg lexbuf in
         let url = Save.get_echo () in

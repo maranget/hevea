@@ -1,9 +1,14 @@
 \usepackage{url}
 \@primitives{hyperref}
-\newcommand{\hyperlink}[2]{\ahref{\#{}#1}{#2}}
-\newcommand{\hypertarget}[2]{\aname{\#{}#1}{#2}}
+\newcommand{\hyperlink}[2]{\ahrefloc{#1}{#2}}
+\newcommand{\hypertarget}[2]{\aname{#1}{#2}}
 \newcommand{\hyperdef}[3]{\hypertarget{#1.#2}{#3}}
 \newcommand{\hyperbaseurl}[1]{}
+\newcommand{\@hyperreflabel}[2]{\ahrefloc{\@getprint{#1}}{{\let\ref\@auxread#2}}}
+\newcommand{\hyperref}[1][]
+{\ifoptarg\let\hyper@next\@hyperreflabel\else
+\let\hyper@next\@hyperref\fi
+\hyper@next{#1}}
 \def\url{\begingroup
 \def\UrlLeft##1\UrlRight{\ahrefurl{##1}}%
 \urlstyle{tt}%

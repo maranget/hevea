@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: htmltext.ml,v 1.9 2001-06-06 16:52:41 maranget Exp $          *)
+(*  $Id: htmltext.ml,v 1.10 2001-08-03 09:20:35 maranget Exp $          *)
 (***********************************************************************)
 open Emisc
 open Lexeme
@@ -72,6 +72,7 @@ let color_val s = match String.lowercase s with
 | "#008000" -> "green"
 | "#00ff00" -> "lime"
 | "#808000" -> "olive"
+| "#ffff00" -> "yellow"
 | "#000080" -> "navy"
 | "#0000ff" -> "blue"
 | "#008080" -> "teal"
