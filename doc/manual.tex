@@ -1272,8 +1272,10 @@ preambule. They command the cutting scheme of the whole document:
 \item[{\tt\char92 cuttingunit}]
 This is a macro that holds the document cutting unit. You can change
 the default (which is {\em section} in the \filename{article} style
-and {\em chapter} in the \filename{book} style)  by doing
+and {\em chapter} in the \filename{book} style)  by doing:
+\begin{flushleft}
 \verb+\renewcommand{\cuttingunit}{+{\it secname}\verb+}+.
+\end{flushleft}
 \item[{\tt cuttingdepth}]
 This is a counter that holds the document cutting depth.
 You can change the default value of 1 by doing
@@ -1323,8 +1325,12 @@ These comments act as instructions to {\hacha}.
    Note that \verb+\cutdef+ and \verb+\cutend+ must be properly balanced.
 \end{description}
 
-Default settings work as follows:
-\verb+\begin{document}+ performs \verb+\cutdef[\value{cuttingdepth}]{\cuttingunit}+ and \verb+\end{document}+
+\noindent Default settings work as follows:
+\verb+\begin{document}+ performs
+\begin{verbatim}
+\cutdef[\value{cuttingdepth}]{\cuttingunit}
+\end{verbatim}
+and \verb+\end{document}+
 performs \verb+\cutend+.
 All sectionning commands down to \verb+\subsubsection+ perform \verb+\cuthere+,
 with the sectional unit name as first argument and the (optional, if
@@ -1612,7 +1618,7 @@ The three ways to use math mode (\verb+$+\ldots\verb+$+,
 \verb+\begin{math}+\ldots\verb+\end{math}+ are supported.
 The three ways to use display math mode (\verb+$$+\ldots\verb+$$+,
 \verb+\[+\ldots\verb+\]+ and
-\verb+\begin{displaymath}+\ldots\verb+\end{displaymath}+ are also
+\verb+\begin{displaymath}+\ldots\ \verb+\end{displaymath}+ are also
 supported.
 Futhermore, \verb+\ensuremath+ behave as expected.
 
@@ -1856,6 +1862,8 @@ Some others are partly rendered:
 \begin{itemize}
 \item Spacing between columns is different. In particular, some space
 appears around \verb+@+ formatting specification.
+\item \verb+@+ formatting specifications in \verb+\multicolumn+
+argument are ignored.
 \item The \verb+p{+{\it wd}\verb+}+ column specification is equivalent
 to \verb+l+ with word wrap enabled. This is the only occasion where
 \hevea{} makes a distinction betwenen LR-mode and paragraph mode.

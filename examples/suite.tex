@@ -167,7 +167,11 @@ $$
 $$
 
 $$
-\left(\begin{array}{c} 1 \\ \begin{array}{ll}2 & 3\end{array}\end{array}\right)
+\left(\begin{array}{c} 1 \\
+\begin{array}{ll}
+2 & 3
+\end{array}
+\end{array}\right)
 $$
 
 \begin{tabular}{|*{10}{c}}
@@ -183,6 +187,19 @@ $$
 \multicolumn{1}{c}{zobi-1} & \multicolumn{1}{c}{zobi-2} 
 \end{tabular}
 
+\begin{center}
+\newcommand{\sep}{\quad}
+\begin{tabular}{l|@{\sep}r@{\sep}r@{\sep}r@{\sep}r@{\sep}r}
+& \texttt{fib} &
+\texttt{afib} &
+\texttt{pat} &
+\texttt{qsort} &
+\texttt{count}\\ \hline
+\texttt{join} &  32.0 & 14.5 & 37.2 & 9.9 & 16.4 \\
+\texttt{jocaml} & 5.7 &  3.5 & 5.4 & 1.4 & 4.2 \\
+\texttt{Bologna} & 11.9 & 6.2 &  9.4 & 16.8 & 5.3 \\
+\end{tabular}
+\end{center}
 
 \begin{center}
 \begin{tabular}{|r|rl|l|} \hline

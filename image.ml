@@ -40,8 +40,11 @@ let my_string_of_int n =
 
 let page () =
   let n = !count in
-  if !verbose > 0 then
-    Printf.fprintf stderr "dump image number %d\n" (n+1) ;
+  if !verbose > 0 then begin
+    Location.print_pos ();
+    Printf.fprintf stderr "dump image number %d" (n+1) ;
+    prerr_endline ""
+  end ;
   (if n = 0 then
     open_chan()) ;
   incr count ;

@@ -190,6 +190,9 @@ let empty = ref true
 and empty_stack = ref []
 ;;
 
+let is_empty () = !empty
+;;
+
 let pending_par = ref false
 and par_stack = ref []
 ;;

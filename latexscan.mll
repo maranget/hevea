@@ -232,7 +232,7 @@ let pretty_format = function
 ;;
 
 let pretty_formats f =
-  Array.iter (fun f -> prerr_string (pretty_format f) ; prerr_char '|') f
+  Array.iter (fun f -> prerr_string (pretty_format f) ; prerr_char ' ') f
 ;;
 
 
@@ -482,7 +482,40 @@ and cur_col = ref 0
 and stack_col = ref []
 and in_table = ref NoTable
 and stack_table = ref []
+and first_col = ref false
+and stack_first = ref []
 ;;
+
+let prerr_array_state () =
+  prerr_string "  format:";
+  pretty_formats !cur_format ;
+  prerr_endline "" ;
+  prerr_endline ("  cur_col="^string_of_int !cur_col) ;
+  prerr_endline ("  first_col="^
+      (if !first_col then "true" else "false"))
+;;
+
+let save_array_state () =
+  push stack_format !cur_format ;
+  push stack_col !cur_col ;
+  push stack_table !in_table ;
+  push stack_first !first_col ;
+  if !verbose > 1 then begin
+    prerr_endline "Save array state:" ;
+    prerr_array_state ()
+  end    
+
+and restore_array_state () =
+  in_table := pop stack_table ;
+  cur_col := pop stack_col ;
+  cur_format := pop stack_format ;
+  first_col  := pop stack_first ;
+  if !verbose > 1 then begin
+    prerr_endline "Restore array state:" ;
+    prerr_array_state ()
+  end  
+;;
+
 
 exception EndInside
 ;;
@@ -536,23 +569,40 @@ let get_col format i =
 ;;
 
 let show_inside main format i =
+(*
+  if !verbose > -1 then begin
+    prerr_string ("show_inside: "^string_of_int i)
+  end ;
+*)
   let t = ref i in
   begin try while true do
     begin match get_col format !t with
       Inside s ->
+        let s = get_this main s in
         Html.open_block "TD" "ALIGN=center";
-        scan_this main s ;
+        Html.put s ;
         Html.force_block "TD" ""
     | _ -> raise EndInside
     end ;
     t := !t+1
   done with EndInside -> ()
   end ;
+(*
+  if !verbose > -1 then
+    prerr_endline (" -> "^string_of_int !t) ;
+*)
   !t
 ;;
 
+let rec eat_inside format i =
+  if i >= Array.length format then i
+  else if is_inside (get_col format i) then
+    eat_inside format (i+1)
+  else i
+;;
+
 let rec eat_cols n format i = match n with
-  0 -> i
+  0 -> eat_inside format i
 | _ ->
    let f = get_col format i in
    if is_inside f then
@@ -575,13 +625,11 @@ let show_inside_multi main format i j =
   let rec show_rec i =
     if i >= j then ()
     else begin
-      scan_this main (as_inside (get_col format i)) ;
+      let s = get_this main (as_inside (get_col format i)) in
+      Html.put s ;
       show_rec (i+1)
     end in
   show_rec i
-;;
-
-let close_multi = ref []
 ;;
 
 let open_col main  =
@@ -592,8 +640,20 @@ let open_col main  =
   if not (is_display format) then begin
     push stack_in_math !in_math ;
     in_math := false;
-  end ;
-  push close_multi (0,[||])
+  end
+;;
+
+let open_first_col main =
+  first_col := true ;
+  Html.open_group "" ;
+  open_col main  
+;;
+
+let erase_col () =
+  close_pending_display () ;
+  Html.erase_block "TD" ;
+  if !first_col then
+    Html.erase_block ""
 ;;
 
 
@@ -611,8 +671,7 @@ let do_hline main =
     Printf.fprintf stderr "hline: %d %d" !cur_col (Array.length !cur_format) ;
     prerr_newline ()
   end ;
-    close_pending_display () ;
-    Html.erase_block "TD" ;
+    erase_col () ;
     Html.erase_block "TR" ;
     Html.open_block "TR" "" ;
     Html.open_block
@@ -622,9 +681,9 @@ let do_hline main =
     Html.close_mods () ;
     Html.put "<HR NOSHADE SIZE=2>" ;
     Html.close_block "TD" ;
-    close_row () ;
+    Html.close_block "TR" ;
     open_row () ;
-    open_col main
+    open_first_col main
 ;;
 
 let change_td_pending args =
@@ -634,14 +693,34 @@ let change_td_pending args =
 ;;
 
 let do_multi n format main =
+  if !verbose > 1 then begin
+    prerr_string
+      ("multicolumn: n="^string_of_int n^" format:") ;
+    pretty_formats format ;
+    prerr_endline ""
+  end ;
+
+  if !first_col then begin
+    close_display () ;
+    Html.close_block "TD" ;
+    Html.erase_block "" ;
+    Html.open_group "" ;
+    Html.open_block "TD" "" ;
+    open_display ()
+  end ;
+    
   let i = find_align format
-  and new_cur_col = eat_cols n !cur_format !cur_col in
+  and next_cur_col = eat_cols n !cur_format !cur_col in
   change_td_pending
     (as_align (get_col format i)^
-    as_colspan (new_cur_col - !cur_col)) ;
-  show_inside_multi main format 0 i ;
-  push close_multi (i+1,format) ;
-  cur_col := new_cur_col
+    as_colspan (next_cur_col - !cur_col)) ;
+  if !verbose > 1 then begin
+     prerr_string ("multi-end: cur="^string_of_int !cur_col^
+       " next="^string_of_int next_cur_col^" ") ;
+     pretty_formats !cur_format;
+     prerr_endline ""
+   end ;     
+  cur_col := next_cur_col-1
 ;;
 
 
@@ -651,18 +730,18 @@ let close_col main content =
     in_math := pop stack_in_math
   end ;
   close_display ();
-  begin match content with
-    "" when !cur_col = 0 ->
-     Html.close_block "TD" (* last col in array, may be empty *)
-  | _  ->
-     cur_col := !cur_col + 1;
-     Html.force_block "TD" content ;
-     let (i,format) = pop close_multi in
-     show_inside_multi main format i (Array.length format-1) ;
-     cur_col := show_inside main !cur_format !cur_col
-   end
+  Html.force_block "TD" content ;
+  if !first_col then begin
+    first_col := false ;
+    Html.close_group ()
+  end ;
+  cur_col := !cur_col + 1;
+  cur_col := show_inside main !cur_format !cur_col
 ;;
 
+let close_last_col main content =
+    close_col main content
+;;
 
       
 let new_env env =
@@ -1167,14 +1246,12 @@ rule  main = parse
 (* tables and array *)
 | "\\begin" ' '* ("{tabular}" | "{array}")
     {let lxm = lexeme lexbuf  in
+    save_array_state ();
     let env = env_extract lxm in
     border := false ;
     skip_opt lexbuf ;
     let format = save_arg lexbuf in
     let format = Array.of_list (scan_this tformat format) in
-    push stack_format !cur_format ;
-    push stack_col !cur_col ;
-    push stack_table !in_table ;
     cur_format := format ;
     in_table := (if !border then Border else Table);
     let lexfun lb =
@@ -1186,23 +1263,21 @@ rule  main = parse
       else
         Html.open_block "TABLE" "CELLSPACING=2 CELLPADDING=0" ;
       open_row() ;
-      open_col main ;
+      open_first_col main ;
       main lb in
     new_env env ;
     skip_blanks lexbuf ; lexfun lexbuf}
-  | "\\\\"? [' ' '\n']* "\\end" ' '* ("{tabular}" | "{array}")
+  |  [' ' '\n']* "\\\\"? [' ' '\n']* "\\end" ' '* ("{tabular}" | "{array}")
       {let lxm = lexeme lexbuf in
-      close_col main "" ;
+      close_last_col main "" ;
       close_row () ;
       let env = env_extract lxm in
       if env = !cur_env then begin
-       Html.close_block "TABLE" ;
-       in_table := pop stack_table ;
-       cur_col := pop stack_col ;
-       cur_format := pop stack_format ;
-       display := pop stack_display;
-       if !display then force_item_display () ;
-       close_env env
+        Html.close_block "TABLE" ;
+        restore_array_state () ;
+        display := pop stack_display;
+        if !display then force_item_display () ;
+        close_env env
       end else begin
         error_env env !cur_env ;
       end ;
@@ -1259,8 +1334,8 @@ rule  main = parse
   | ['\n'' ']* "\\\\"
       {let _ = parse_args_opt [""] lexbuf in
       if is_table !in_table  then begin
-         close_col main "&nbsp;" ; close_row () ;
-         open_row () ; open_col main
+         close_last_col main "&nbsp;" ; close_row () ;
+         open_row () ; open_first_col main
       end else if is_tabbing !in_table then begin
         Html.force_block "TD" "&nbsp;";
         Html.close_block "TR" ;

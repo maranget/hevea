@@ -179,6 +179,7 @@
 \newcommand{\nonumber}{\numberfalse}
 \newcommand{\lefteqn}[1]{\multicolumn{3}{r}{#1}}
 \newenvironment{eqnarray}{$$\begin{array}{@{\numbertrue}rcl@{\ifnumber\stepcounter{equation}\eqno{(\theequation)}\fi}}}{\end{array}$$}
+\def\star{\warning{Star -> *}*}
 \def\frac#1#2{{#1\over #2}}
 \def\ldots{...}
 \def\dots{...}
@@ -215,15 +216,16 @@
 %\@open{DISPLAY}{}%
 }{%
 %\@close{DISPLAY}%
-\par\begin{center}Figure \thefigure\iffrench~\fi:\usebox{\@caption}\end{center}
+\par\begin{center}Figure \thefigure\iffrench~\fi: \usebox{\@caption}\end{center}
 \@print{<HR>}\@close{BLOCKQUOTE}}
 \newenvironment{figure*}[1][]{\begin{figure}[#1]}{\end{figure}}
 \newenvironment{table}[1][]{%
-\@open{BLOCKQUOTE}{}\@print{<HR>}}{%
-\par
-\stepcounter{table}%
-\caption{}%
-\begin{center}Table \thetable\iffrench~\fi: \@caption\end{center}%
+\caption{}\refstepcounter{table}%
+\@open{BLOCKQUOTE}{}\@print{<HR>}%
+%\@open{DISPLAY}{}%
+}{%
+%\@close{DISPLAY}%
+\par\begin{center}Table \thetable\iffrench~\fi: \usebox{\@caption}\end{center}
 \@print{<HR>}\@close{BLOCKQUOTE}}
 \newenvironment{table*}[1][]{\begin{table}[#1]}{\end{table}}
 \newcommand{\suppressfloats}[1][]{}

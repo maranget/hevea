@@ -1,6 +1,7 @@
 val set_out : Out.t -> unit
 val last_closed : string ref
 
+val is_empty : unit -> bool
 val get_fontsize : unit -> int
 val nostyle : unit -> unit
 val clearstyle : unit -> unit
