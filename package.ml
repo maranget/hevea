@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.38 2002-06-07 12:17:54 maranget Exp $    *)
+(*  $Id: package.ml,v 1.39 2002-08-05 08:57:25 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -383,6 +383,18 @@ fallback name");
     )
 ;;
 
+(* Some strange arg scanning, needed for \DeclareGraphicsRule *)
+
+register_init "graphics"
+  (fun () ->
+    def_code "\\@verbimagearg"
+      (fun lexbuf ->
+       let {arg=arg} = save_arg lexbuf in
+       Image.put_char '{' ;
+       Image.put arg ;
+       Image.put_char '}'))
+;;
+
 (* url package *)
 let verb_arg lexbuf =
   let {arg=url} = save_verbatim lexbuf in
@@ -426,6 +438,7 @@ register_init "url"
     def_code "\\urldef" do_urldef ;
     ())
 ;;         
+
 
 (* hyperref (not implemented in fact) *)
 register_init "hyperref"

@@ -1,4 +1,6 @@
 version 1.06+1
+   - Special parsing (\@verbimagearg) for ``\DeclareGraphicsRule'' last
+     argument.
    - Allow multiples > and < in package array.
    - Better error message for undefined defaults in keyval.
    - Do not check comments before Save.arg_verbatim.
