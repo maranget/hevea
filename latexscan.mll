@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.208 2001-05-23 11:03:24 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.209 2001-05-23 11:13:53 maranget Exp $ *)
 
 
 {
@@ -2385,8 +2385,7 @@ def_code "\\@raise@enddocument"
     if not !sawdocument then
       fatal ("\\end{document} with no \\begin{document}")
     else if not (Stack.empty stack_env) then
-      let e,_,_ = pop stack_env in    
-      error_env e "document"
+      error_env "document" !cur_env
     else
       raise Misc.EndDocument)
 ;;
