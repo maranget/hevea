@@ -1,6 +1,6 @@
 (* <Christian.Queinnec@lip6.fr>
  The plugin for HeVeA that implements the VideoC style.
- $Id: videoc.mll,v 1.20 2000-05-30 19:00:22 maranget Exp $ 
+ $Id: videoc.mll,v 1.21 2000-06-05 08:07:36 maranget Exp $ 
 *)
 
 {
@@ -24,7 +24,7 @@ open Scan
 
 
 let header = 
-  "$Id: videoc.mll,v 1.20 2000-05-30 19:00:22 maranget Exp $"
+  "$Id: videoc.mll,v 1.21 2000-06-05 08:07:36 maranget Exp $"
 (* So I can synchronize my changes from Luc's ones *)
 let qnc_header = 
   "17 aout 99"
@@ -112,7 +112,7 @@ rule snippetenv = parse
             if !verbose > 2 then
               prerr_endline ("user macro in snippet: "^body) ;
             Lexstate.scan_this_may_cont Scan.main
-              lexbuf cur_subst (body,get_subst ())
+              lexbuf cur_subst (string_to_arg body)
         | CamlCode f -> f lexbuf in
       scan_body exec body args
     |  _ ->
@@ -396,9 +396,9 @@ and do_disableSchemeCharacters lexbuf =
    environment. So I code them by hand. *)
 
 and do_vicanchor lexbuf = begin
-  let style,_ = Lexstate.save_opt "" lexbuf in
+  let {arg=style} = Lexstate.save_opt "" lexbuf in
   if !verbose > 2 then prerr_endline ("\\vicanchor"^style);
-  let nfn,_   = Lexstate.save_opt "0,filename,notename" lexbuf in
+  let {arg=nfn}   = Lexstate.save_opt "0,filename,notename" lexbuf in
   if !verbose > 2 then prerr_endline ("\\vicanchor"^style^nfn);
   let fields =
     comma_separated_values (Lexing.from_string (nfn ^ ",")) in
@@ -419,7 +419,7 @@ and do_vicanchor lexbuf = begin
 end
 
 and do_vicendanchor lexbuf = begin
-  let nfn,_ = Lexstate.save_opt "0,filename,notename" lexbuf in
+  let {arg=nfn} = Lexstate.save_opt "0,filename,notename" lexbuf in
   if !verbose > 2 then prerr_endline ("\\vicendanchor"^nfn);
   let fields = 
     comma_separated_values (Lexing.from_string (nfn ^ ",")) in

@@ -9,12 +9,13 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.46 2000-06-02 15:23:43 maranget Exp $"
+let header = "$Id: text.ml,v 1.47 2000-06-05 08:07:34 maranget Exp $"
 
 
 open Misc
 open Parse_opts
 open Element
+open Lexstate
 open Latexmacros
 open Stack
 open Length
@@ -1908,7 +1909,7 @@ and close_vdisplay_row () =
 let insert_sup_sub () =
   let f,is_freeze = pop_freeze () in
   let ps,parg,pout = pop_out out_stack in
-  if ps <> "" then failclose ("sup_sub : "^ps^"closes \"\"");
+  if ps <> "" then failclose ("sup_sub : "^ps^" closes \"\"");
   let new_out = newstatus false [] [] true in
   push_out out_stack (ps,parg,new_out);
   close_block "";
@@ -1923,14 +1924,10 @@ let insert_sup_sub () =
 ;;  
 
 
-let format_sup_sub scanner s =  to_string (fun () -> scanner s)
-
 let standard_sup_sub scanner what sup sub display =
-  let fsup =  format_sup_sub scanner sup
-  and fsub = format_sup_sub scanner sub in
   if display then begin
     insert_sup_sub ();
-    let f,ff = match fsup,fsub with
+    let f,ff = match sup.arg,sub.arg with
     | "","" -> "cm","cm"
     |	"",_ -> change_format (formated "lt"); "lb","cm"
     |	_,"" -> change_format (formated "lm"); "lt","cmm"
@@ -1938,7 +1935,7 @@ let standard_sup_sub scanner what sup sub display =
     in
     let vide= flags.empty in
     item_display_format f ;
-    if fsup<>"" || fsub<>"" then begin
+    if sup.arg <>"" || sub.arg<>"" then begin
       open_vdisplay display;
       (*if sup<>"" || vide then*) begin
 	open_vdisplay_row "lt";
@@ -1948,7 +1945,7 @@ let standard_sup_sub scanner what sup sub display =
       open_vdisplay_row "lm";
       what ();
       close_vdisplay_row ();
-      if fsub<>"" || vide then begin
+      if sub.arg <>"" || vide then begin
 	open_vdisplay_row "lb";
 	scanner sub ;
 	close_vdisplay_row ();
@@ -1961,11 +1958,11 @@ let standard_sup_sub scanner what sup sub display =
     item_display ();
   end else begin
     what ();
-    if fsub <> "" then begin
+    if sub.arg <> "" then begin
       put "_";
       scanner sub;
     end;
-    if fsup <> "" then begin
+    if sup.arg <> "" then begin
       put "^";
       scanner sup;
     end;

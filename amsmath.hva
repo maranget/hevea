@@ -3,12 +3,13 @@
 %%AMS environments for displayed equations
 \newenvironment{equation*}{\[}{\]}%
 \newenvironment{align}
-{\[\begin{array}{@{\numbertrue}rl@{\ifnumber\stepcounter{equation}\eqno{(\theequation)}\fi}}}
+  {\[\def\@currentlabel\theequation%
+  \begin{array}{@{\numbertrue\stepcounter{equation}}rl@{\ifnumber\eqno{(\theequation)}\else\addtocounter{equation}{-1}\fi}}}
 {\end{array}\]}%
 \newenvironment{align*}{\[\begin{array}{rl}}{\end{array}\]}%
 \newenvironment{gather}
-{\[\begin{array}{@{\numbertrue}c@{\ifnumber\stepcounter{equation}\eqno{(\theequation)}\fi}}}
-{\end{array}\]}%
+  {\[\let\@currentlabel\theequation\begin{array}{@{\numbertrue\stepcounter{equation}}c@{\ifnumber\eqno{(\theequation)}\else\addtocounter{equation}{-1}\fi}}}
+  {\end{array}\]}
 \newenvironment{gather*}{\[\begin{array}{c}}{\end{array}\]}%
 \newenvironment{alignat*}[1]{\[\begin{array}{*{#1}{rl}}}{\end{array}\]}%
 \newenvironment{multline}{\begin{equation}\begin{array}{l}}{\end{array}\end{equation}}%

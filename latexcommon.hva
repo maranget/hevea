@@ -53,14 +53,14 @@
     {\stepcounter{@eqna@col}\@PAM}
     {\warning{Extra column in eqnarray}}}     
 \renewcommand{\\}[1][]{\@eqna@complete\@PAM\ifnumber\eqno{(\theequation)}\else\addtocounter{equation}{-1}\fi\setcounter{@eqna@col}{0}\numbertrue\stepcounter{equation}\@PBS}
-\@array{|rclr}}
+\@array{rclr}}
 {\\{}\end@array\]}
-\def\mathrm#1{{\rm{}#1}}
-\def\mathtt#1{{\tt{}#1}}
-\def\mathit#1{{\it{}#1}}
-\def\mathbf#1{{\bf{}#1}}
-\def\mathcal#1{{\cal{}#1}}
-\def\mathsf#1{{\sf{}#1}}
+\def\mathrm#1{{\rm#1}}
+\def\mathtt#1{{\tt#1}}
+\def\mathit#1{{\it#1}}
+\def\mathbf#1{{\bf#1}}
+\def\mathcal#1{{\cal#1}}
+\def\mathsf#1{{\sf#1}}
 \def\scriptstyle{\ifmathml{\scriptsize}\else\scriptsize\fi}
 \def\scriptscriptstyle{\ifmathml{\scriptsize\@incsize{-1}}\else\scriptsize\@incsize{-1}\fi}
 \def\textstyle{\ifmathml\@style{mtext}\fi}
@@ -127,7 +127,7 @@
 \newcommand{\@itemitemize}[1][!*!]
 {\@li\ifthenelse{\equal{#1}{!*!}}{}{\warning{Optional argument to \item in itemize environment}{#1}}}
 \newcommand{\@itemenumerate}[1][!*!]
-{\@linum\ifthenelse{\equal{#1}{!*!}}{}{\warning{Ignored optional argument to \item in enumerate enironment}}}
+{\stepcounter{\@itemcount}\@linum\ifthenelse{\equal{#1}{!*!}}{}{\warning{Ignored optional argument to \item in enumerate enironment}}}
 \newenvironment{itemize}
   {\@open{UL}{}\let\item\@itemitemize}
   {\@close{UL}}
@@ -137,8 +137,33 @@
 \ifthenelse{\value{enumcount}=1}{type=a}{}%
 \ifthenelse{\value{enumcount}=2}{type=i}{}%
 \ifthenelse{\value{enumcount}=3}{type=A}{}}
+\newcommand{\@enumcitem}
+{\ifthenelse{\value{enumcount}=0}{itemi}{}%
+\ifthenelse{\value{enumcount}=1}{itemii}{}%
+\ifthenelse{\value{enumcount}=2}{itemiii}{}%
+\ifthenelse{\value{enumcount}=3}{itemiiii}{}%
+\ifthenelse{\value{enumcount}>3}{itemv}{}}
+\newcounter{itemi}
+\newcounter{itemii}
+\renewcommand{\theitemii}{\theitemi(\alph{itemii})}
+\newcounter{itemiii}
+\renewcommand{\theitemiii}{\theitemii\roman{itemiii}}
+\newcounter{itemiiii}
+\renewcommand{\theitemiiii}{\theitemiii(\Alph{itemiiii})}
+\newcounter{itemv}
+\renewcommand{\theitemv}{\theitemiiii}
+\newcommand{\itemi}{itemi}
+\newcommand{\itemii}{itemii}
+\newcommand{\itemiii}{itemiii}
+\newcommand{\itemiiii}{itemiiii}
+\newcommand{\itemv}{itemv}
 \newenvironment{enumerate}
-  {\@open{OL}{\@enumstyle}\stepcounter{enumcount}\let\item\@itemenumerate}
+  {\@open{OL}{\@enumstyle}%
+  \let\item\@itemenumerate%
+  \let\@itemcount\csname\@enumcitem\endcsname%
+  \let\@currentlabel\csname the\@enumcitem\endcsname%
+  \setcounter{\@itemcount}{0}%
+  \stepcounter{enumcount}}
   {\addtocounter{enumcount}{-1}\@close{OL}}
 \newenvironment{list}[3][!*!]
   {\ifthenelse{\equal{#1}{!*!}}{\@open{DL}{COMPACT=compact}}{\@open{DL}{}}%open

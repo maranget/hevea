@@ -1,7 +1,7 @@
 %%%% Une précaution.
 \ifhtml\else\warning{html/hevea is for html mode !!!}\endinput\fi
 %%%% package used by all packages
-\newcommand{\relax}{}
+\input{plain.hva}
 \newif\ififthen\ifthenfalse
 \input{ifthen.hva}
 %% Packages

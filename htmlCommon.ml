@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlCommon.ml,v 1.23 2000-06-02 15:23:21 maranget Exp $" 
+let header = "$Id: htmlCommon.ml,v 1.24 2000-06-05 08:07:23 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -953,7 +953,7 @@ let rec try_close_block s =
     if s = "TABLE" then begin
       let p_vsize = pop stacks.s_vsize in
       flags.vsize <- max
-       (flags.table_vsize + (if flags.nrows > 0 then flags.nrows/3 else 0)) p_vsize ;
+       (flags.table_vsize + (flags.nrows)/3) p_vsize ;
       flags.nrows <- pop  stacks.s_nrows ;
       flags.table_vsize <- pop stacks.s_table_vsize
     end else if s = "TR" then begin

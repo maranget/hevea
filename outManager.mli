@@ -8,7 +8,7 @@
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
 (***********************************************************************)
-
+open Lexstate
 module type S =
   sig
     exception Error of string
@@ -45,12 +45,12 @@ module type S =
     val erase_display : unit -> unit
 
     val standard_sup_sub :
-        (Lexstate.arg -> unit) -> (unit -> unit) -> Lexstate.arg -> Lexstate.arg -> bool -> unit
+        (string arg -> unit) -> (unit -> unit) -> string arg -> string arg -> bool -> unit
     val limit_sup_sub :
-        (Lexstate.arg -> unit) -> (unit -> unit) -> Lexstate.arg -> Lexstate.arg -> bool -> unit
+        (string arg -> unit) -> (unit -> unit) -> string arg -> string arg -> bool -> unit
     val int_sup_sub :
         bool -> int ->
-          (Lexstate.arg -> unit) -> (unit -> unit) -> Lexstate.arg -> Lexstate.arg -> bool -> unit
+          (string arg -> unit) -> (unit -> unit) -> string arg -> string arg -> bool -> unit
 
     val over : bool -> Lexing.lexbuf -> unit
     val left : string -> (int -> unit) -> unit

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.179 2000-06-02 15:23:31 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.180 2000-06-05 08:07:25 maranget Exp $ *)
 
 
 {
@@ -333,7 +333,7 @@ let get_fun_result f lexbuf =
 
 
 let do_get_this start_lexstate restore_lexstate
-    make_style  lexfun (s,subst) =
+    make_style  lexfun {arg=s ; subst=subst} =
   let par_val = Dest.forget_par () in
   start_lexstate subst;
   if !verbose > 1 then
@@ -359,7 +359,7 @@ let get_this_arg =
 
 and get_this_string main s =
   do_get_this start_lexstate_subst restore_lexstate (fun () -> ())
-    main (s,get_subst())
+    main (string_to_arg s)
 
 let more_buff = Out.create_buff ()
 ;;
@@ -662,7 +662,7 @@ and close_last_row () =
 
 (* Compute functions *)
 
-let get_style lexfun (s,env) =
+let get_style lexfun {arg=s ; subst=env} =
   start_normal env ;
   let lexer = Lexing.from_string s in
   let r = Dest.to_style (fun () -> lexfun lexer) in
@@ -767,7 +767,10 @@ let expand_command main skip_blanks name lexbuf =
     | Subst body ->
         if !verbose > 2 then
           prerr_endline ("user macro: "^body) ;            
-        scan_this_may_cont main lexbuf cur_subst (body,get_subst ())
+        Stack.push stack_alltt !alltt ;
+        alltt := false ;
+        scan_this_may_cont main lexbuf cur_subst (string_to_arg body) ;
+        alltt := Stack.pop stack_alltt
     | CamlCode f -> f lexbuf in
 
   let pat,body = Latexmacros.find name in
@@ -891,7 +894,13 @@ rule  main = parse
         Dest.put lxm
       else
         let i = Char.code lxm.[1] - Char.code '1' in
-        scan_arg (scan_this main) i
+        scan_arg
+          (fun s ->
+            let old_alltt = !alltt in
+            alltt := Stack.pop stack_alltt ;
+            scan_this main s ;
+            alltt := old_alltt ;
+            Stack.push stack_alltt old_alltt) i
       end ;
       main lexbuf}
 (* Commands *)
@@ -966,7 +975,7 @@ and latexonly = parse
 |  '%'
      {latex_comment lexbuf ; latexonly lexbuf}
 |  "\\end"
-     {let arg,_ = save_arg lexbuf in
+     {let {arg=arg} = save_arg lexbuf in
      if arg = "latexonly" then begin
        top_close_block "" ;
        stop_other_scan false main lexbuf
@@ -976,7 +985,7 @@ and latexonly = parse
        begin match Latexmacros.find (end_env arg) with
          _,(Subst body) ->
            scan_this_may_cont latexonly lexbuf (get_subst ())
-             (body,get_subst ())
+             (string_to_arg body)
        |  _,_ ->
            raise (Misc.ScanError ("Bad closing macro in latexonly: ``"^arg^"''"))
        end
@@ -1016,7 +1025,7 @@ and image = parse
 |  "\\end"
      {let lxm = lexeme lexbuf in
      Save.start_echo () ;
-     let arg,_ = save_arg lexbuf in
+     let {arg=arg} = save_arg lexbuf in
      let true_arg = Save.get_echo () in
      if arg = "toimage" then begin
        top_close_block "" ;
@@ -1027,7 +1036,7 @@ and image = parse
        begin match Latexmacros.find (end_env arg) with
          _,(Subst body) ->
            scan_this_may_cont  image lexbuf (get_subst ())
-             (body,get_subst ())
+             (string_to_arg body)
        |  _,_ -> raise (Misc.ScanError ("Bad closing macro in image: ``"^arg^"''"))
        end
      end else begin
@@ -1218,12 +1227,15 @@ def "\\framebox" (latex_pat ["" ; ""] 3)
 ;;
 
 let check_alltt_skip lexbuf =
+  if not !alltt then skip_blanks lexbuf
+(*  
   if not (Stack.empty stack_alltt) && pop stack_alltt then begin
     push stack_alltt true
   end else begin
     push stack_alltt false ;
     skip_blanks lexbuf
   end
+*)
 and skip_pop lexbuf =
   save_lexstate () ;
   skip_blanks_pop lexbuf ;
@@ -1275,11 +1287,11 @@ let sub_sup lxm lexbuf =
       '^' ->
         let sup = save_arg lexbuf in
         let sub = save_sub lexbuf in
-        sup,sub
+        sup,unoption sub
     | '_'   ->
         let sub = save_arg lexbuf in
-        let sup = save_sub lexbuf in
-        sup,sub
+        let sup = save_sup lexbuf in
+        unoption sup,sub
     | _ -> assert false in
     Dest.standard_sup_sub (scan_this_arg main) (fun () -> ()) sup sub !display
   end
@@ -1402,7 +1414,7 @@ let get_prim_onarg arg =
   plain_back plain_dollar '$' ; plain_back plain_amper '&' ;
   r
 
-let get_prim s = get_prim_onarg (s,get_subst ())
+let get_prim s = get_prim_onarg (string_to_arg s)
 
 let get_prim_arg lexbuf =
   let arg = save_arg lexbuf in
@@ -1440,8 +1452,8 @@ def_code "\\par"
 (* Styles and packages *)
 let do_documentclass command lexbuf =
   Save.start_echo () ;
-  let opt_arg,_ = save_opt "" lexbuf in
-  let arg,_ =  save_arg lexbuf in
+  let {arg=opt_arg} = save_opt "" lexbuf in
+  let {arg=arg} =  save_arg lexbuf in
   let real_args = Save.get_echo () in
   begin try if not !styleloaded then
     input_file 0 main (arg^".hva")
@@ -1510,8 +1522,8 @@ let do_newcommand lxm lexbuf =
     [a1 ; a2] ->
       Get.get_int (from_ok a1),
       (match a2 with
-      | No s,env -> false,(s,env)
-      | Yes s,env -> true,(s,env))
+      | {arg=No s ; subst=env} -> false,mkarg s env
+      | {arg=Yes s ; subst=env} -> true,mkarg s env)
   | _ -> assert false in
   let pat =
     latex_pat (if def then [do_subst_this defval] else []) nargs in
@@ -1581,9 +1593,11 @@ let do_newenvironment lxm lexbuf =
       (start_env name)
       (latex_pat
          (match optdef with
-         | No _,_    -> []
-         | Yes s,env -> [do_subst_this (s,env)])
-         (match nargs with No _,_ -> 0 | Yes s,env -> Get.get_int (s,env)))
+         | {arg=No _}    -> []
+         | {arg=Yes s ; subst=env} -> [do_subst_this (mkarg s env)])
+         (match nargs with 
+         | {arg=No _} -> 0
+         | {arg=Yes s ; subst=env} -> Get.get_int (mkarg s env)))
       (Subst body1) ;
     Latexmacros.def (end_env name)  zero_pat (Subst body2) in
          
@@ -1632,13 +1646,13 @@ let do_newtheorem lxm lexbuf =
   if echo_toimage () then
     Image.put (lxm^Save.get_echo ()^"\n") ;
   let cname = match numbered_like,within with
-    (No _,_),(No _,_) ->
+    {arg=No _},{arg=No _} ->
       do_newcounter  name "" ; name
-  | _,(Yes within,env) ->
-      let within = get_prim_onarg (within,env) in
+  | _,{arg=Yes _} ->
+      let within = get_prim_onarg (from_ok within) in
       do_newcounter name within ; name
-  | (Yes numbered_like,env),_ ->
-      get_prim_onarg (numbered_like,env) in
+  | {arg=Yes _},_ ->
+      get_prim_onarg (from_ok numbered_like) in
   Latexmacros.global_def
     (start_env name) (latex_pat [""] 1)     
     (Subst
@@ -1662,14 +1676,14 @@ let do_def global lxm lexbuf =
   let name,args_pat,body =
     if top_level () then
       let args_pat = Save.defargs lexbuf in
-      let body,_ = save_arg lexbuf in
+      let {arg=body} = save_arg lexbuf in
       name,args_pat,body
     else
       let args_pat =
         Save.defargs
           (Lexing.from_string
              (subst_this (Save.get_defargs lexbuf))) in
-      let body = subst_arg lexbuf in
+      let body = subst_body lexbuf in
       name,args_pat,body in
   let real_args = Save.get_echo () in
   if echo_toimage () || (global && echo_global_toimage ()) then begin    
@@ -1762,7 +1776,7 @@ def_code "\\string"
 ;;
 
 let get_num_arg lexbuf =
-  Save.num_arg lexbuf (fun s -> Get.get_int (s,get_subst ()))
+  Save.num_arg lexbuf (fun s -> Get.get_int (string_to_arg s))
 ;;
 
 
@@ -1782,7 +1796,7 @@ and top_unplain c =
 def_code "\\catcode"
    (fun lexbuf ->
      let char = Char.chr
-         (Get.get_int (Save.with_delim "=" lexbuf,get_subst ()))in
+         (Get.get_int (save_arg_with_delim "=" lexbuf)) in
      let code = get_num_arg lexbuf in
      begin match char,code with
      | ('\\',0) | ('{',1) | ('}',2) | ('$',3) | ('&' ,4) |
@@ -1883,13 +1897,13 @@ def_code "\\@close"
 
 def_code "\\@print"
   (fun lexbuf ->
-          let arg,_ = save_arg lexbuf in
+          let {arg=arg} = save_arg lexbuf in
           Dest.put arg) ;
 ;;
 
 def_code "\\@printnostyle"
   (fun lexbuf ->
-    let arg,_ = save_arg lexbuf in
+    let {arg=arg} =  save_arg lexbuf in
     top_open_group () ;
     Dest.nostyle () ;
     Dest.put arg ;
@@ -1919,25 +1933,25 @@ def_code "\\@subst"
 
 def_code "\\@notags"
   (fun lexbuf ->
-          let arg = save_arg lexbuf in
-          let arg = get_this_arg main arg in
-          let r =
-            let buff = Lexing.from_string arg in
-            Save.tagout buff in
-          Dest.put r)
+    let arg = save_arg lexbuf in
+    let arg = get_this_arg main arg in
+    let r =
+      let buff = Lexing.from_string arg in
+      Save.tagout buff in
+    Dest.put r)
 ;;
 def_code "\\@anti"
   (fun lexbuf ->
-          let arg = save_arg lexbuf in
-          let envs = get_style main arg in
-          if !verbose > 2 then begin
-            prerr_string "Anti result: " ;
-            List.iter
-              (fun s ->
-                prerr_string (Element.pretty_text s^", ")) envs ;
-            prerr_endline ""
-          end ;
-          Dest.erase_mods envs)
+    let arg = save_arg lexbuf in
+    let envs = get_style main arg in
+    if !verbose > 2 then begin
+      prerr_string "Anti result: " ;
+      List.iter
+        (fun s ->
+          prerr_string (Element.pretty_text s^", ")) envs ;
+      prerr_endline ""
+    end ;
+    Dest.erase_mods envs)
 ;;
 def_code "\\@style"  
   (fun lexbuf ->
@@ -1971,9 +1985,10 @@ def_code "\\htmlcolor"
 
 def_code "\\usecounter"
   (fun lexbuf ->
-          let arg = get_prim_arg lexbuf in
-          Counter.set_counter arg 0 ;
-          Dest.set_dcount arg )
+    let arg = get_prim_arg lexbuf in
+    Counter.set_counter arg 0 ;
+    scan_this main ("\\let\\@currentlabel\\the"^arg) ;
+    Dest.set_dcount arg )
 ;;
 def_code "\\@fromlib"
   (fun lexbuf ->
@@ -2109,7 +2124,7 @@ def_code "\\cite"
           Dest.put ", " ;
           do_rec rest in
     do_rec args ;
-    if fst opt <> "" then begin
+    if opt.arg <> "" then begin
       Dest.put ", " ;
       scan_this_arg main opt ;
     end ;
@@ -2186,14 +2201,13 @@ def_code "\\begin"
       Dest.set_out (mk_out_file ())
     end ;
     new_env env ;
-    let macro = "\\csname "^env^"\\endcsname"  in
+    let macro = start_env env in
     if env <> "document" then
       top_open_block "" "" ;
     let old_envi = save stack_entry in
     push stack_entry env ;
     begin try
-      scan_this_may_cont
-        main lexbuf cur_subst (macro,get_subst ())
+      expand_command main skip_blanks macro lexbuf
     with
     | e ->
         restore stack_entry old_envi ;
@@ -2715,13 +2729,11 @@ def_code "\\@HEVEA@bsbs"  do_bsbs  ; ()
 
 def_code "\\latexonly"
   (fun lexbuf ->
-    let lexbuf = previous_lexbuf () in
     start_other_scan "latexonly" latexonly lexbuf)
 ;;
 
 def_code "\\toimage"
   (fun lexbuf ->
-    let lexbuf = previous_lexbuf () in
     start_image_scan "" image lexbuf)
 ;;
 

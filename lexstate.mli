@@ -24,8 +24,8 @@ val zero_pat : pat
 val one_pat : pat
 
 type subst
-type 'a arg = {arg : 'a ; subst : subst ; alltt : bool}
-val mkarg : 'a -> subst -> bool -> 'a arg
+type 'a arg = {arg : 'a ; subst : subst }
+val mkarg : 'a -> subst -> 'a arg
 val string_to_arg : 'a -> 'a arg
 
 val top_subst : subst
@@ -54,7 +54,7 @@ val afterLispCommentNewlines : int ref
 
 type closenv
 val top_level : unit -> bool
-
+val is_top : subst -> bool
 
 val prerr_args : unit -> unit
 val full_pretty_subst : subst -> unit
@@ -100,6 +100,7 @@ val end_normal : unit -> unit
     sub : string arg;
   } 
 
+val unoption : string arg option -> string arg
 val save_sup_sub : Lexing.lexbuf -> sup_sub
 val save_sup : Lexing.lexbuf -> string arg option
 val save_sub : Lexing.lexbuf -> string arg option

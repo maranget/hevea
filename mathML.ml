@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: mathML.ml,v 1.12 2000-06-02 15:23:37 maranget Exp $" 
+let header = "$Id: mathML.ml,v 1.13 2000-06-05 08:07:30 maranget Exp $" 
 
 
 open Misc
@@ -416,8 +416,8 @@ let insert_sub_sup tag s t =
 ;;
 
 let get_sup_sub
-    (scanner : Lexstate.arg -> unit)
-    (s : Lexstate.arg) =
+    (scanner : string Lexstate.arg -> unit)
+    (s : string Lexstate.arg) =
   to_string (fun () -> scanner s)
 
 let standard_sup_sub scanner what sup sub display =

@@ -583,8 +583,6 @@ and close_verbimage _ = ()
 def_code "\\verbatim"
     (fun lexbuf ->
       open_verbenv false ;
-      let first = Save.rest lexbuf in
-      scan_this Scan.main first ;
       noeof scan_byline lexbuf) ;
 def_code "\\endverbatim" close_verbenv ;
 
@@ -592,8 +590,6 @@ def_code "\\endverbatim" close_verbenv ;
 def_code "\\verbatim*"
     (fun lexbuf ->
       open_verbenv true ;
-      let first = Save.rest lexbuf in
-      scan_this Scan.main first ;
       noeof scan_byline lexbuf) ;        
 def_code "\\endverbatim*" close_verbenv ;
 
@@ -806,10 +802,10 @@ let init_double_comment mode process_B process_E =
 let open_lst keys lab =
   scan_this Scan.main ("\\lsthk@PreSet\\lstset{"^keys^"}") ;
 (* Ignoring output *)
-  lst_gobble := Get.get_int ("\\lst@gobble",get_subst ()) ;
+  lst_gobble := Get.get_int (string_to_arg "\\lst@gobble") ;
   lst_nchars := 0 ;
-  lst_first := Get.get_int ("\\lst@first",get_subst ()) ;
-  lst_last := Get.get_int ("\\lst@last",get_subst ()) ;
+  lst_first := Get.get_int (string_to_arg "\\lst@first") ;
+  lst_last := Get.get_int (string_to_arg "\\lst@last") ;
   lst_nlines := 0 ;
   if not !lst_print then begin
     lst_last := -2 ; lst_first := -1
@@ -930,9 +926,9 @@ register_init "listings" init_listings
 
 def_code "\\@scaninput"
   (fun lexbuf ->
-    let pre,pre_subst = save_arg lexbuf in
+    let pre = save_arg lexbuf in
     let file = get_prim_arg lexbuf in
-    let post,post_subst = save_arg lexbuf in
+    let {arg=post ; subst=post_subst} = save_arg lexbuf in
     try
       let true_name,chan = Myfiles.open_tex file in
       let filebuff = Lexing.from_channel chan in
@@ -941,7 +937,7 @@ def_code "\\@scaninput"
       begin try
         record_lexbuf (Lexing.from_string post) post_subst ;
         scan_this_may_cont Scan.main filebuff top_subst
-          (pre,pre_subst) ;
+          pre ;
       with e -> 
         restore_lexstate () ;
         Location.restore () ;

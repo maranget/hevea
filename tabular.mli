@@ -14,4 +14,4 @@ val pretty_format : format -> string
 val pretty_formats : format array -> unit
 
 
-val main : string  * Lexstate.subst -> format array
+val main : string  Lexstate.arg -> format array

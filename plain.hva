@@ -1,0 +1,14 @@
+\newcommand{\relax}{}
+\newcommand{\@empty}{}
+\def\@iter
+  #1#2#3{%
+  \def\@@iter##1#2{%
+    \def\@test{##1}%
+    \ifx\@test\@empty
+    \let\@next\relax\else
+    #1{##1}%
+    \let\@next\@@iter\fi
+    \@next}
+    \def\@test{#3}%   
+    \ifx\@test\@empty\else
+    \@funcall{\@@iter}{#3,,}}

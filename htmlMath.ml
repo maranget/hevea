@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlMath.ml,v 1.16 2000-06-02 15:23:22 maranget Exp $" 
+let header = "$Id: htmlMath.ml,v 1.17 2000-06-05 08:07:24 maranget Exp $" 
 
 
 open Misc
@@ -45,10 +45,8 @@ let flush x =
   let old_out = !cur_out in
   cur_out := pout ;
   let f = pop delay_stack in
-  let saved_flags = copy_flags flags in
   f x ;
   Out.copy old_out.out !cur_out.out ;
-  set_flags flags saved_flags ;
   flags.empty <- false ; flags.blank <- false ;
   free old_out ;
   !cur_out.pending <- mods ;
@@ -135,6 +133,8 @@ let close_display () =
   if not (flush_freeze ()) then begin
     close_flow "" ;
     let n = flags.ncols in
+    if !verbose > 2 then
+      Printf.fprintf stderr "=> close_display, ncols=%d\n" n ;
     if (n = 0 && not flags.blank) then begin
       if !verbose > 2 then begin
         prerr_string "No Display n=0" ;
@@ -326,7 +326,7 @@ let open_script_font () =
 ;;
 
 
-let put_sup_sub display scanner (arg : (string * Lexstate.subst)) =
+let put_sup_sub display scanner (arg : string Lexstate.arg) =
   if display then open_display () else open_group "" ;
   open_script_font () ;
   scanner arg ;
@@ -377,8 +377,7 @@ let standard_sup_sub scanner what sup sub display =
   end else begin
     what ();
     reput_sup_sub "SUB" sub ;
-    reput_sup_sub "SUP" sup ;
-    if display && flags.vsize <= 1 then flags.vsize <- 2
+    reput_sup_sub "SUP" sup
   end
 ;;
 
@@ -394,7 +393,7 @@ let limit_sup_sub scanner what sup sub display =
     open_vdisplay_row "ALIGN=center" ;
     put sup ;
     close_vdisplay_row () ;
-    open_vdisplay_row "ALIGN=center" ;
+    open_vdisplay_row "ALIGN=left" ;
     what () ;
     close_vdisplay_row () ;
     open_vdisplay_row "ALIGN=center" ;

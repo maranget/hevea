@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: tabular.mll,v 1.23 2000-05-30 12:28:53 maranget Exp $ *)
+(* $Id: tabular.mll,v 1.24 2000-06-05 08:07:33 maranget Exp $ *)
 {
 open Misc
 open Lexing
@@ -195,7 +195,7 @@ and lexformat = parse
 {
 open Parse_opts
 
-let main (s,env) =
+let main {arg=s ; subst=env} =
   if !verbose > 1 then prerr_endline ("Table format: "^s);
   start_normal env ;
   lexformat (Lexing.from_string s) ;

@@ -9,7 +9,9 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: out.ml,v 1.16 2000-05-31 12:22:03 maranget Exp $" 
+open Lexing
+
+let header = "$Id: out.ml,v 1.17 2000-06-05 08:07:30 maranget Exp $" 
 let verbose = ref 0
 ;;
 
@@ -60,6 +62,21 @@ let rec put out s = match out with
       put b s
     end
 | Chan chan -> output_string chan s
+| Null -> ()
+;;
+
+let rec blit out lexbuf = match out with
+  (Buff out) as b ->
+    let l = lexbuf.lex_curr_pos - lexbuf.lex_start_pos in
+    if out.bp + l < out.len then begin
+      String.blit lexbuf.lex_buffer lexbuf.lex_start_pos
+        out.buff out.bp l ;
+      out.bp <- out.bp + l
+    end else begin
+      realloc out ;
+      blit b lexbuf
+    end
+| Chan chan -> output_string chan (lexeme lexbuf)
 | Null -> ()
 ;;
 

@@ -1,7 +1,7 @@
 %%%% Une précaution.
 \ifhtml\warning{text/hevea is for text and info mode !!!}\endinput\fi
 %%%% package used by all packages
-\newcommand{\relax}{}
+\input{plain.hva}
 \newif\ififthen\ifthenfalse
 \input{ifthen.hva}
 %% Packages
@@ -90,9 +90,7 @@
 \ifdisplay\@itemdisplay{\@print{o
 }}=\@itemdisplay\else
 \textdoteq\fi}
-\def\sum{\ifdisplay{\@displaysum}\else\Sigma\fi}
-\def\prod{\ifdisplay{\@displayprod}\else\@prod\fi}
-\def\int{\ifdisplay\@displayint\else{\large\@int}\fi}
+\input{mathop.hva}
 %%%%%%%%%%%% Bibliography
 \newcommand{\@bibref}[2]{#2}
 \newcommand{\@biblabel}[1]{[\@bibread{#1}]}

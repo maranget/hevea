@@ -13,7 +13,7 @@
 open Lexing
 open Misc
 
-let header = "$Id: save.mll,v 1.54 2000-06-02 15:23:40 maranget Exp $" 
+let header = "$Id: save.mll,v 1.55 2000-06-05 08:07:32 maranget Exp $" 
 
 let verbose = ref 0 and silent = ref false
 ;;
@@ -71,11 +71,15 @@ let put_echo s =
   if !echo then Out.put echo_buff s
 and put_echo_char c =
   if !echo then Out.put_char echo_buff c
+and blit_echo lb =
+  if !echo then Out.blit echo_buff lb
 ;;
 
 let put_both s =
   put_echo s ; Out.put arg_buff s
 ;;
+let blit_both lexbuf =
+  blit_echo lexbuf ; Out.blit arg_buff lexbuf
 
 let put_both_char c =
   put_echo_char c ; Out.put_char arg_buff c
@@ -150,7 +154,7 @@ and arg = parse
      put_echo lxm ;
      lxm}
   | command_name
-     {put_both (lexeme lexbuf) ;
+     {blit_both lexbuf ;
      skip_blanks lexbuf}
   | '#' ['1'-'9']
      {let lxm = lexeme lexbuf in
@@ -210,25 +214,23 @@ and arg2 = parse
      end}
 | "\\{" | "\\}" | "\\\\"
       {let s = lexeme lexbuf in
-      put_both s ; arg2 lexbuf }
+      blit_both lexbuf ; arg2 lexbuf }
 | eof
     {error "End of file in argument"}
-(*
+
 | [^'\\''{''}']+
-      {let c = lexeme lexbuf in
-      put_both c ; arg2 lexbuf }
-*)
+      {blit_both lexbuf ; arg2 lexbuf }
+
 | _
     {let c = lexeme_char lexbuf 0 in
     put_both_char c ; arg2 lexbuf}
 and csname = parse
   [' ''\n']+
     {(fun get_prim subst ->
-      put_echo (lexeme lexbuf) ; csname lexbuf get_prim subst)}
+      blit_echo lexbuf ; csname lexbuf get_prim subst)}
 | '{'? "\\csname" ' '*
       {(fun get_prim subst_fun ->
-        let lxm = lexeme lexbuf in
-        put_echo lxm ;
+        blit_echo lexbuf ;
         let r = incsname lexbuf in
         "\\"^get_prim r)}
 | ""  {fun get_prim subst -> let r = arg lexbuf in subst r}
@@ -305,15 +307,15 @@ and get_limits = parse
 | ""            {None}
 
 and get_sup = parse
-| ' '* '^'  {try arg lexbuf with Eof -> error "End of file after ^"}
+| ' '* '^'  {try Some (arg lexbuf) with Eof -> error "End of file after ^"}
 | eof       {raise Eof}
-| ""        {""}
+| ""        {None}
 
 
 and get_sub = parse
-| ' '* '_'  {try arg lexbuf with Eof -> error "End of file after _"}
+| ' '* '_'  {try Some (arg lexbuf) with Eof -> error "End of file after _"}
 | eof       {raise Eof}
-| ""        {""}
+| ""        {None}
 
 and defargs = parse 
 |  '#' ['1'-'9']
@@ -321,13 +323,13 @@ and defargs = parse
     put_echo lxm ;
     lxm::defargs lexbuf}
 | [^'{'] | "\\{"
-    {put_both (lexeme lexbuf) ;
+    {blit_both lexbuf ;
     let r = in_defargs lexbuf in
     r :: defargs lexbuf}
 | "" {[]}
 
 and in_defargs = parse
-| "\\{" | "\\#" {put_both (lexeme lexbuf) ; in_defargs lexbuf}
+| "\\{" | "\\#" {blit_both lexbuf ; in_defargs lexbuf}
 | [^'{''#']     {put_both_char (lexeme_char lexbuf 0) ; in_defargs lexbuf}
 | ""            {Out.to_string arg_buff}
 
@@ -340,7 +342,7 @@ and tagout = parse
 | "&nbsp;" {Out.put tag_buff " " ; tagout lexbuf}
 | "&gt;" {Out.put tag_buff ">" ; tagout lexbuf}
 | "&lt;" {Out.put tag_buff "<" ; tagout lexbuf}
-| _    {Out.put tag_buff (lexeme lexbuf) ; tagout lexbuf}
+| _    {Out.blit tag_buff lexbuf ; tagout lexbuf}
 | eof  {Out.to_string tag_buff}
 
 and intag = parse

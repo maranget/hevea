@@ -22,8 +22,8 @@ val check_equal : Lexing.lexbuf -> bool
 val filename : Lexing.lexbuf -> string
 (* Superscript and subscripts *)
 val get_limits : Lexing.lexbuf -> Misc.limits option
-val get_sup : Lexing.lexbuf -> string
-val get_sub : Lexing.lexbuf -> string
+val get_sup : Lexing.lexbuf -> string option
+val get_sub : Lexing.lexbuf -> string option
 
 val defargs : Lexing.lexbuf -> string list
 val get_defargs : Lexing.lexbuf -> string

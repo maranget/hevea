@@ -21,6 +21,7 @@ val reset : t -> unit
 val is_empty: t -> bool
 
 val put : t -> string -> unit
+val blit : t -> Lexing.lexbuf -> unit
 val put_char : t -> char -> unit
 val flush: t -> unit
 

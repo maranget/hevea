@@ -163,11 +163,15 @@ coucou \begin{em}coucou\end{em} ha ??
 \begin{flushleft}
 \quad\verb+\begin{list}{+{\it default\_label}\verb+}{+{\it decls}\verb+}+
 \end{flushleft}
+\warning{Ligne 166}
 coucou
+\warning{VERBATIM}
 \begin{verbatim}
 coucou verbatim
 \end{verbatim}
 Coucou
+\warning{VERBATIM}
+\warning{VERBATIM}
 \begin{quote}
 Quotation coucou
 \end{quote}
@@ -218,6 +222,7 @@ Yet another
 \label{par}
 After label.
 
+\warning{Ligne 222}
 \subsection{Paragraphes dans les listes imbriquées (du à
 Ph. A. Vitton)}
 
@@ -729,7 +734,7 @@ $$
 
 \subsection{Les exposants terribles}\label{plushaut}
 $$
- 2^{\left(\begin{array}{@{}c@{}}
+ 2^{\left.\begin{array}{@{}c@{}}
 {\mbox{\scriptsize 2}^{\mbox{$\cdot^{\mbox{$\cdot^{\mbox{$\cdot^2$}}$}}$}}
 }\end{array}\right\} n}
 $$
@@ -823,21 +828,23 @@ $$
 \begingroup
 \begin{trivlist}
 \item Coucou
-\item Zobi
+\item Zobi\label{zob:triv}
 \end{trivlist}
 
 \newcounter{coucou}
 \renewcommand{\thecoucou}{\Alph{coucou}}
 \begin{list}{\thecoucou}{\renewcommand{\makelabel}[1]{\underline{#1}}\usecounter{coucou}}
 \item Coucou
-\item Zobi
+\item Zobi\label{zob:under}
 \end{list}
 
 À comparer avec~:
 \begin{list}{\thecoucou}{\usecounter{coucou}}
 \item Coucou
-\item Zobi
+\item Zobi\label{zob:compare}
 \end{list}
+Avec les références \ref{zob:triv}, \ref{zob:under}
+et~\ref{zob:compare}.
 
 \newenvironment{foo}{\begin{trivlist}\it\item[coucou]}{\end{trivlist}}
 \begin{foo}
@@ -1239,6 +1246,17 @@ Coucou & \Gamma_A \\
 ``\toi AAAC''
 \end{flushleft}%$
 
+\begingroup
+\def\ya
+  #1{\def\yb
+    ##1#1{\def\yc
+      ####1##1{\def\yd
+        ########1####1{########1 + ####1 + ##1 + #1}}}}%
+Ça doit faire : 4 + 3 + 2 + 1
+
+Ça fait : \ya{1}\yb21\yc32\yd43
+\endgroup
+
 \subsection{Test de \texttt{\char92csname}}
 Ce test réalise un tableau à affectation unique.
 
@@ -1272,9 +1290,8 @@ FOO: \zget{zob}
         ocamlc -use-runtime /home/me/ocamlunixrun -o myprog \char92
                 unix.cma threads.cma {\it{your .cmo and .cma files}}
 \end{alltt}
-
 \newcommand{\under}[1]{$_{\mbox{#1}}$}
-\newcommand{\rien}[1]{#1}
+\newcommand{\rien}[1]{~#1~}
 \begin{alltt}
 Et voici notre ami le ``#1'' et notre pote le ``_''.
 Et voici une macro qui fait des indices A\under{1}.
@@ -1287,8 +1304,9 @@ Bref ya des \verb+$$+ là dessous:
 \rien{\rien{\rien{$$}}}
 \end{alltt}
 
-\newenvironment{vicieux}{\begin{alltt}\Large}{\end{alltt}}
-\begin{vicieux}\rien{\rien{$$}}\end{vicieux}
+%\newenvironment{vicieux}{\begin{alltt}\Large}{\end{alltt}}
+%\begin{vicieux}\rien{\rien{$$}}\end{vicieux}
+
 \section{Les notes de bas de page en folie}
 I hate this footnote\footnote{this is the footnote}
 twice\footnotemark[\value{footnote}].

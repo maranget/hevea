@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.20 2000-05-31 12:22:03 maranget Exp $    *)
+(*  $Id: package.ml,v 1.21 2000-06-05 08:07:31 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -273,7 +273,7 @@ fallback name");
 
 (* url package *)
 let verb_arg lexbuf =
-  let url,_ = save_verbatim lexbuf in
+  let {arg=url} = save_verbatim lexbuf in
   for i = 0 to String.length url - 1 do
     Dest.put (Dest.iso url.[i])
   done
@@ -320,9 +320,9 @@ register_init "hyperref"
         Save.start_echo () ;
         let _ = save_arg lexbuf in
         let url = Save.get_echo () in
-        let arg,subst = save_arg lexbuf in
+        let {arg=arg ; subst=subst} = save_arg lexbuf in
         scan_this_arg main
-          (("\\ahref{\\textalltt[]"^url^"}{"^arg^"}"),subst)) ;
+          (mkarg ("\\ahref{\\textalltt[]"^url^"}{"^arg^"}") subst)) ;
     def_code "\\hyperimage"
       (fun lexbuf ->
         Save.start_echo () ;
@@ -338,10 +338,12 @@ register_init "hyperref"
         let url = Save.get_echo () in
         let category = get_prim_arg lexbuf in
         let name = get_prim_arg lexbuf in
-        let text,subst = save_arg lexbuf in
+        let {arg=text ; subst=subst} = save_arg lexbuf in
         scan_this_arg main
-          ("\\ahref{\\textalltt[]"^url^
-           "\\#"^category^"."^name^"}{"^text^"}",subst)))
+          (mkarg
+             ("\\ahref{\\textalltt[]"^url^
+              "\\#"^category^"."^name^"}{"^text^"}")
+             subst)))
 ;;
 
 (* (extended) keyval package *)
@@ -357,31 +359,32 @@ let do_definekey lexbuf =
   let opt = save_opts [""] lexbuf in
   let body = subst_body lexbuf in
   begin match argdef with
-  | (No _,_):: _ ->
+  | {arg=No _}:: _ ->
       begin match opt with
-      | [No _,_] ->
+      | [{arg=No _}] ->
           Latexmacros.def (keyval_name family key) one_pat (Subst body)
-      | [Yes opt,subst] ->
+      | [{arg=Yes opt ; subst=subst}] ->
           Latexmacros.def (keyval_name family key) one_pat (Subst body) ;
           Latexmacros.def
             (keyval_name family key^"@default") zero_pat
             (Subst
-               (keyval_name family key^"{"^do_subst_this (opt,subst)^"}"))
+               ((keyval_name family key^
+                "{"^do_subst_this (mkarg opt subst))^"}"))
       | _ -> assert false
       end
-  | [Yes nargs, subst ; opt] ->
-      let nargs = Get.get_int (nargs,subst) in
+  | [{arg=Yes nargs ; subst=subst} ; opt] ->
+      let nargs = Get.get_int (mkarg nargs subst) in
       let extra = keyval_extra key family in
       Latexmacros.def (keyval_name family key) one_pat
         (Subst
            ("\\@funcall{"^extra^"}{#1}")) ;
       begin match opt with
-      | No _,_ ->
+      | {arg=No _} ->
           Latexmacros.def extra (latex_pat [] nargs) (Subst body)
-      | Yes opt,o_subst ->
+      | {arg=Yes opt ; subst=o_subst} ->
           Latexmacros.def
             extra
-            (latex_pat [do_subst_this (opt,o_subst)] nargs)
+            (latex_pat [do_subst_this (mkarg opt o_subst)] nargs)
             (Subst body)
       end
   | _ -> assert false
@@ -406,12 +409,12 @@ let do_setkey lexbuf =
   let arg = subst_arg lexbuf^",," in
   let abuff = Lexing.from_string arg in
   let rec do_rec () =
-    let x,_ = save_arg_with_delim "," abuff in
+    let {arg=x} = save_arg_with_delim "," abuff in
     if x <>  "" then begin
       let xbuff = Lexing.from_string (x^"==") in
       check_alltt_skip xbuff ;
-      let key,_ = save_arg_with_delim "=" xbuff in
-      let value,_ = save_arg_with_delim "=" xbuff in
+      let {arg=key} = save_arg_with_delim "=" xbuff in
+      let {arg=value} = save_arg_with_delim "=" xbuff in
       let csname = keyval_name family key in
       if Latexmacros.exists csname then begin
         if value <> "" then

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: lexstate.ml,v 1.47 2000-06-02 15:23:36 maranget Exp $"
+let header = "$Id: lexstate.ml,v 1.48 2000-06-05 08:07:29 maranget Exp $"
 
 open Misc
 open Lexing
@@ -50,14 +50,17 @@ and one_pat  = latex_pat [] 1
 
 (* Environments *)
 type subst = Top | Env of string arg array
-and 'a arg = {arg : 'a ; subst : subst ; alltt : bool}
+and 'a arg = {arg : 'a ; subst : subst }
 
-let mkarg arg subst alltt = {arg=arg ; subst=subst ; alltt=alltt}
+let mkarg arg subst = {arg=arg ; subst=subst }
 
 
 
 let subst = ref Top
 and alltt = ref false
+
+let stack_subst = Stack.create "stack_subst"
+and stack_alltt = Stack.create "stack_alltt"
 
 let get_subst () = !subst
 let set_subst s = subst := s
@@ -122,7 +125,7 @@ and withinLispComment = ref false
 and afterLispCommentNewlines = ref 0
 ;;
 
-let string_to_arg arg = {arg=arg ; subst= !subst ; alltt= !alltt}
+let string_to_arg arg = {arg=arg ; subst= !subst }
 
 (* Stacks for flags *)
 let stack_closed = Stack.create "stack_closed"
@@ -212,7 +215,9 @@ and plain_back b c = plain.(plain_of_char c) <- b
 
 
 let top_level () = match !subst with Top -> true | _ -> false
-
+and is_top = function
+  | Top -> true
+  | _   -> false
 
 
 let prerr_args () = pretty_subst !subst
@@ -229,32 +234,26 @@ let scan_arg lexfun i =
     end ;
     raise (Error "Macro argument not found")
   end;
-  let {arg=arg ; subst=arg_subst ; alltt=arg_alltt} = args.(i) in
+  let {arg=arg ; subst=arg_subst } = args.(i) in
 
   if !verbose > 1 then begin
     prerr_string ("Subst arg #"^string_of_int (i+1)^" -> ``"^arg^"''")
   end ;
-  let old_subst = !subst
-  and old_alltt = !alltt in
+  let old_subst = !subst in
   subst := arg_subst ;
-  alltt := arg_alltt ;
   if !verbose > 2 then
     pretty_subst !subst ;
   let r = lexfun arg in
   subst := old_subst ;
-  alltt := old_alltt ;
   r
 
 and scan_body exec body args = match body with
 | CamlCode _ -> exec body
 | Subst _ -> 
     let old_subst = !subst in
-    let old_alltt = !alltt in
     subst := args ;
-    alltt := false ;
     let r = exec body in
     subst := old_subst ;
-    alltt := old_alltt ;
     r
 
 (* Recoding and restoring lexbufs *)
@@ -262,12 +261,10 @@ and scan_body exec body args = match body with
 let record_lexbuf lexbuf subst =
   Stack.push stack_subst subst ;
   Stack.push stack_lexbuf lexbuf ;
-  Stack.push stack_alltt !alltt
 
 and previous_lexbuf () =
   let lexbuf = Stack.pop stack_lexbuf in
   subst := Stack.pop stack_subst ;
-  alltt := Stack.pop stack_alltt ;
   lexbuf
 ;;
 
@@ -278,23 +275,18 @@ let stack_lexstate = Stack.create "stack_lexstate"
 let top_lexstate () = Stack.empty stack_lexstate
 
 let save_lexstate () =
-  let old_stack = Stack.save stack_subst
-  and old_alltt_stack = Stack.save stack_alltt in
+  let old_stack = Stack.save stack_subst in
   Stack.push stack_subst !subst ;
-  Stack.push stack_alltt !alltt ;
   push stack_lexstate
     (Stack.save stack_lexbuf,
-     Stack.save stack_subst,
-     Stack.save stack_alltt) ;
-  Stack.restore stack_subst old_stack ;
-  Stack.restore stack_alltt old_alltt_stack
+     Stack.save stack_subst) ;
+  Stack.restore stack_subst old_stack
 
 and restore_lexstate () =
   let lexbufs,substs = pop stack_lexstate in
   Stack.restore stack_lexbuf lexbufs ;
   Stack.restore stack_subst substs ;
-  subst := Stack.pop stack_subst ;
-  alltt := Stack.pop stack_alltt
+  subst := Stack.pop stack_subst
 
 (* Flags save and restore *)
 let save_flags () = 
@@ -308,7 +300,7 @@ and restore_flags () =
 (* Total ckeckpoint of lexstate *)
 type saved_lexstate = 
 (Lexing.lexbuf Stack.saved * subst Stack.saved) Stack.saved *
-bool Stack.saved * bool Stack.saved * bool Stack.saved
+bool Stack.saved * bool Stack.saved
 
 let check_lexstate () =
   save_lexstate () ;
@@ -321,7 +313,7 @@ let check_lexstate () =
   restore_flags () ;
   r
 
-and hot_lexstate (l,d,m,a) =
+and hot_lexstate (l,d,m) =
   Stack.restore stack_lexstate l ;
   Stack.restore stack_display d ;
   Stack.restore stack_in_math m ;
@@ -333,26 +325,23 @@ and hot_lexstate (l,d,m,a) =
 let start_lexstate () =
   save_lexstate () ;
   Stack.restore stack_lexbuf (Stack.empty_saved) ;
-  Stack.restore stack_subst (Stack.empty_saved) ;
-  Stack.restore stack_alltt Stack.empty_saved
+  Stack.restore stack_subst (Stack.empty_saved)
 
-let start_lexstate_subst this_subst this_alltt =
+let start_lexstate_subst this_subst =
   start_lexstate () ;
-  subst := this_subst ;
-  alltt := this_alltt
+  subst := this_subst
 ;;
 
 let flushing = ref false
 ;;
 
 
-let start_normal this_subst this_alltt =
+let start_normal this_subst =
   start_lexstate () ;
   save_flags () ;
   display := false ;
   in_math := false ;
-  subst := this_subst ;
-  alltt := this_alltt  
+  subst := this_subst
 
 and end_normal () =
   restore_flags () ;
@@ -363,7 +352,7 @@ let full_save_arg eoferror mkarg parg lexfun lexbuf =
   let rec save_rec lexbuf =
     try
       let arg = lexfun lexbuf in
-      mkarg arg !subst !alltt
+      mkarg arg !subst
     with Save.Eof -> begin
         if Stack.empty stack_lexbuf then
            eoferror () 
@@ -422,7 +411,7 @@ type sup_sub = {
   sub : string arg ;
 } 
 
-let mklimits x _ _ = x
+let mklimits x _ = x
 
 let plimits = function
   | Some Limits ->    "\\limits"
@@ -438,7 +427,7 @@ let save_limits lexbuf =
     try
       let r =
         full_save_arg eof_over mklimits plimits Save.get_limits lexbuf in
-      prerr_endline ("Full linit: "^plimits r) ;
+      prerr_endline ("Full limit: "^plimits r) ;
       match r with
       | None -> res
       | Some _ -> do_rec r
@@ -446,20 +435,28 @@ let save_limits lexbuf =
     | Over -> res in
   do_rec None
 
-and save_sup lexbuf =
+let mkoptionarg opt subst = match opt with
+| None -> None
+| Some s -> Some (mkarg s subst)
+
+and poptionarg = function
+| None -> "*None*"
+| Some a -> a.arg
+
+let save_sup lexbuf =
   try
-    Some (full_save_arg eof_over mkarg parg Save.get_sup lexbuf)
+   full_save_arg eof_over mkoptionarg poptionarg Save.get_sup lexbuf
   with
   | Over -> None
 
 and save_sub lexbuf =
   try
-    Some (full_save_arg eof_over mkarg parg Save.get_sub lexbuf)
+    full_save_arg eof_over mkoptionarg poptionarg Save.get_sub lexbuf
   with
   | Over -> None
 
 let unoption = function
-  | None   -> {arg="" ; subst=top_subst ; alltt=false}
+  | None   -> {arg="" ; subst=top_subst }
   | Some a -> a
 
 let save_sup_sub lexbuf =
@@ -475,11 +472,11 @@ let save_sup_sub lexbuf =
 
 let protect_save_string lexfun lexbuf =
   full_save_arg eof_arg
-    (fun s _ _ -> s)
+    (fun s _ -> s)
     (fun s -> s)
     lexfun lexbuf
 
-let eof_opt def () = {arg=No def ; subst=Top ; alltt=false}
+let eof_opt def () = {arg=No def ; subst=Top }
 
 let save_arg_opt def lexbuf =
   let r = 
@@ -493,7 +490,7 @@ let save_arg_opt def lexbuf =
       lexbuf in
   match r.arg with
   | Yes _ -> r
-  | No  _ -> mkarg (No def) !subst !alltt
+  | No  _ -> mkarg (No def) !subst
       
   
 ;;
@@ -502,10 +499,10 @@ let save_arg_opt def lexbuf =
 let from_ok okarg = match okarg.arg with
   | Yes s ->
       optarg := true ;
-      mkarg s okarg.subst okarg.alltt
+      mkarg s okarg.subst
   | No s  ->
       optarg := false ;
-      mkarg s okarg.subst okarg.alltt
+      mkarg s okarg.subst
 
 let pretty_ok = function
   Yes s -> "+"^s^"+"
@@ -604,10 +601,9 @@ let scan_this lexfun s =
   restore_lexstate ();
   r
 
-and scan_this_arg lexfun {arg=s ; subst=this_subst ; alltt=this_alltt} =
+and scan_this_arg lexfun {arg=s ; subst=this_subst } =
   start_lexstate () ;
   subst := this_subst ;
-  alltt := this_alltt ;
   if !verbose > 1 then begin
     Printf.fprintf stderr "scan_this_arg : [%s]" s ;
     prerr_endline ""  
@@ -623,7 +619,7 @@ and scan_this_arg lexfun {arg=s ; subst=this_subst ; alltt=this_alltt} =
 ;;
 
 let scan_this_may_cont lexfun lexbuf cur_subst
-    {arg=s ; subst=env ; alltt=a} =
+    {arg=s ; subst=env } =
   if !verbose > 1 then begin
     Printf.fprintf stderr "scan_this_may_cont : [%s]" s ;
     prerr_endline "" ;
@@ -636,7 +632,6 @@ let scan_this_may_cont lexfun lexbuf cur_subst
   save_lexstate ();
   record_lexbuf lexbuf cur_subst ;
   subst := env ;
-  alltt := a ;
   let lexer = Lexing.from_string s in
   let r = lexfun lexer in
 

@@ -58,9 +58,9 @@
 \newcommand{\Rightarrow}{\mbox{=>}}
 \newcommand{\Diamond}{\mbox{Diamond}}
 \newcommand{\langle}{\mbox{<}}
-\newcommand{\@displaysum}{\mbox{--\\\char92\\/\\--}}
+\newcommand{\@displaysum}{\mbox{--\@br\char92\@br/\@br--}}
 \newcommand{\rangle}{\mbox{>}}
-\newcommand{\@displayint}{\mbox{/\\|\\/}}
+\newcommand{\@displayint}{\mbox{/\@br|\@br|\@br/}}
 \newcommand{\sqcap}{\mbox{sqcap}}
 \newcommand{\sqcup}{\mbox{|_|}}
 \newcommand{\triangleleft}{\mbox{<|}}
@@ -69,7 +69,7 @@
 \newcommand{\longrightarrow}{\mbox{-->}}
 \newcommand{\longleftrightarrow}{\mbox{<--->}}
 \newcommand{\Longleftrightarrow}{\mbox{<===>}}
-\newcommand{\@displayprod}{\mbox{---\\| |\\| |}}
+\newcommand{\@displayprod}{\mbox{---\@br| |\@br| |}}
 
 \iffrench
 \input{html/symb-fra.hva}

@@ -18,15 +18,15 @@ rule subst = parse
     end else
       Out.put subst_buff lxm ;
     subst lexbuf}
-| '#' '#'+ ['1'-'9']?
+| '#' '#'
     {let lxm = lexeme lexbuf in    
     if is_plain '#' then
-      Out.put subst_buff (String.sub lxm 1 (String.length lxm-1))
+      Out.put_char subst_buff '#'
     else
       Out.put subst_buff lxm ;
     subst lexbuf}
 |  "\\#" | '\\' | [^'\\' '#']+
-    {Out.put subst_buff (lexeme lexbuf) ; subst lexbuf}
+    {Out.blit subst_buff lexbuf ; subst lexbuf}
 | "\\@print"
     {let lxm = lexeme lexbuf in
     Save.start_echo () ;
@@ -36,23 +36,22 @@ rule subst = parse
     Out.put subst_buff real_arg ;
     subst lexbuf}
 |  command_name
-    {let lxm = lexeme lexbuf in
-    Out.put subst_buff lxm ;
+    {Out.blit subst_buff lexbuf ;
     subst lexbuf}
 |  eof {()}
 | "" {raise (Error "Empty lexeme in subst")}
 
 {
 
-let do_subst_this {arg=arg ; subst=env} =
-  if not (top_level ()) then begin
+let do_subst_this ({arg=arg ; subst=env} as x) =
+  if not (is_top env) then begin
     try
       let _ = String.index arg '#' in
       if !verbose > 1 then begin
         Printf.fprintf stderr "subst_this : [%s]\n" arg ;
         prerr_args ()
       end ;
-      let _ = scan_this_arg subst (arg,env) in
+      let _ = scan_this_arg subst x in
       let r = Out.to_string subst_buff in
       if !verbose > 1 then
         prerr_endline ("subst_this ["^arg^"] = "^r);
@@ -62,15 +61,12 @@ let do_subst_this {arg=arg ; subst=env} =
     arg
 ;;
 
-let subst_this s = do_subst_this (mkarg s (get_subst ()) !alltt)
+let subst_this s = do_subst_this (mkarg s (get_subst ()))
 
 let subst_arg lexbuf = do_subst_this (save_arg lexbuf)  
 and subst_opt def lexbuf = do_subst_this (save_opt def lexbuf)  
 
 
-let subst_body lexbuf = 
- if Lexstate.top_level () then
-   (save_arg lexbuf).arg
- else
-   subst_arg lexbuf
+let subst_body = subst_arg
+
 } 

@@ -7,7 +7,7 @@
 \title{Test de primitives amstex}
 \date{}
 \numberwithin{equation}{section}
-\renewcommand{\theequation}{\thesection.\arabic{equation}}
+\renewcommand{\theequation}{\thesection.\alph{equation}}
 
 \begin{document}
 \maketitle
@@ -98,7 +98,7 @@ or one of the following (successive) refinements:
 \exp(e^U)\left[1-\frac{2e^{-U^{1/2}}}{U^{1/2}+4}
 +\frac{2e^{-2U^{1/2}}}{(U^{1/2}+4)^2}
 -\frac{4}{3}\frac{e^{-3U^{1/2}}}{(U^{1/2}+4)^3}+O(e^{-4U^{1/2}})\right],\\
-\exp(e^U)\exp[-\frac{2e^{-U^{1/2}}}{U^{1/2}+4}]\left[1+
+\exp(e^U)\exp\left[-\frac{2e^{-U^{1/2}}}{U^{1/2}+4}\right]\left[1+
 \frac{8-2U^{-1/2}-U^{-1}+U^{-3/2}}{(4+U^{-1/2})^3}
 e^{-U-2U^{1/2}}+O(e^{-2U})\right],\label{dessous}
 \end{gather}
