@@ -9,9 +9,12 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmain.ml,v 1.23 1998-12-09 19:38:04 maranget Exp $" 
+let header = "$Id: latexmain.ml,v 1.24 1999-02-04 16:17:57 maranget Exp $" 
 
 open Parse_opts
+
+module Scan = Latexscan.Make (Html)
+;;
 
 let finalize check =
   Image.finalize () ;
@@ -28,7 +31,7 @@ let read_style name =
     end ;
     let buf = Lexing.from_channel chan in
     Location.set name buf;
-    Latexscan.main buf ;
+    Scan.main buf ;
     Location.restore ()
   with Myfiles.Except-> ()  end ;
   verbose := oldverb
@@ -70,7 +73,7 @@ let main () =
 
     Location.set_base basename ;
 
-    Latexscan.out_file :=
+    Scan.out_file :=
       if !outname <> "" then
          Out.create_chan (open_out !outname)
       else begin match texfile with
@@ -80,7 +83,7 @@ let main () =
            (open_out (Filename.basename basename^".html")) end ;
         
     begin match texfile with
-      "" -> Latexscan.no_prelude ()
+      "" -> Scan.no_prelude ()
     | _  ->
        let auxname = Filename.basename basename^".aux" in
        try
@@ -96,7 +99,7 @@ let main () =
     let buf = Lexing.from_channel chan in
     Location.set texfile buf ;
     Save.set_verbose !silent !verbose ;
-    Latexscan.main buf ;
+    Scan.main buf ;
     Location.restore () ;
     finalize true
 ;;   
@@ -108,7 +111,7 @@ with
   Html.Close s ->
     Location.print_pos () ;
     prerr_endline s;
-    Latexscan.print_env_pos () ;
+    Scan.print_env_pos () ;
     failwith "Adios"
 |  x -> begin
     Location.print_pos () ;

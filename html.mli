@@ -10,6 +10,7 @@
 (***********************************************************************)
 
 exception Close of string
+val iso : char -> string
 
 val set_out : Out.t -> unit
 val get_last_closed : unit -> string

@@ -55,7 +55,7 @@ fi
 
 test -f  ${NAME}.tex ||\
 { echo "Failure: no ${NAME}.tex file!" 2>&1 ; exit 2 ; }
-${LATEX} ${BASE}.image.tex
+${LATEX} ${NAME}.tex
 
 mkdir ${TMP} || { echo "Failure: cannot create tmp dir $TMP" 2>&1 ; exit 2 ; }
 

@@ -10,13 +10,25 @@
 (***********************************************************************)
 
 {
+module type S =
+  sig
+    val out_file : Out.t ref
+
+    val no_prelude : unit -> unit
+
+    val print_env_pos : unit -> unit
+    val main : Lexing.lexbuf -> unit
+end
+
+module Make (Html : OutManager.S) =
+struct
 open Parse_opts
 open Lexing
 open Myfiles
 open Latexmacros
-open Html
+(* open Html *)
 
-let header = "$Id: latexscan.mll,v 1.58 1998-12-28 13:06:05 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.59 1999-02-04 16:18:00 maranget Exp $" 
 
 
 let prerr_args args =
@@ -1079,7 +1091,7 @@ let put_sup_sub tag main = function
 
 let standard_sup_sub main what sup sub =
   if !display && (complex sup || complex sub) then begin
-    force_item_display () ;
+    Html.force_item_display () ;
     open_vdisplay () ;
     if sup <> "" then begin
       open_vdisplay_row "NOWRAP" ;
@@ -1097,7 +1109,7 @@ let standard_sup_sub main what sup sub =
       close_vdisplay_row ()
     end ;
       close_vdisplay () ;
-      force_item_display ()
+      Html.force_item_display ()
   end else begin
      what ();
      put_sup_sub "SUB" main sub ;
@@ -1110,7 +1122,7 @@ let limit_sup_sub main what sup sub =
   if sup = "" && sub = "" then
     what ()
   else begin
-    force_item_display () ;
+    Html.force_item_display () ;
     open_vdisplay () ;
     open_vdisplay_row "ALIGN=center" ;
     open_script_font () ;
@@ -1124,15 +1136,15 @@ let limit_sup_sub main what sup sub =
     scan_this main sub ;
     close_vdisplay_row () ;
     close_vdisplay () ;
-    force_item_display ()
+    Html.force_item_display ()
   end
 ;;
 
 let int_sup_sub something vsize main what sup sub =
     if something then begin
-      force_item_display () ;
+      Html.force_item_display () ;
       what () ;
-      force_item_display ()
+      Html.force_item_display ()
     end ;
     open_vdisplay () ;
     open_vdisplay_row "ALIGN=left" ;
@@ -1149,7 +1161,7 @@ let int_sup_sub something vsize main what sup sub =
     scan_this main sub ;
     close_vdisplay_row () ;
     close_vdisplay () ;
-    force_item_display ()
+    Html.force_item_display ()
 ;;
 
 let includes_table = Hashtbl.create 17
@@ -1314,14 +1326,14 @@ rule  main = parse
        if !in_math then begin
          in_math := pop stack_in_math ;
          if dodo then begin
-           close_display () ;
+           Html.close_display () ;
            close_center ()
          end else begin
            Html.close_group ()
          end ;
          display := pop stack_display ;
          if !display then begin
-           item_display ()
+           Html.item_display ()
          end ;
          close_env math_env ;
          main lexbuf
@@ -1329,7 +1341,7 @@ rule  main = parse
        push stack_in_math !in_math ;
        in_math := true ;
        let lexfun lb =
-         if !display then  begin item_display () end ;
+         if !display then  Html.item_display () ;
          push stack_display !display ;
          if dodo then begin
            display  := true ;
@@ -1492,7 +1504,7 @@ rule  main = parse
         cur_format := format ;
         in_table := (if !Save.border then Border else Table);
         let lexfun lb =
-          if !display then item_display () ;
+          if !display then Html.item_display () ;
           push stack_display !display ;
           display := true ;
           if !Save.border then
@@ -1550,7 +1562,7 @@ rule  main = parse
           Html.close_block "TABLE" ;
           restore_array_state () ;
           display := pop stack_display;
-          if !display then item_display () ;
+          if !display then Html.item_display () ;
           close_env env
         end else begin
           error_env env !cur_env ;
@@ -1589,7 +1601,7 @@ rule  main = parse
     {if !alltt then begin
       let lxm = lexeme lexbuf in
       for i = 0 to String.length lxm -1 do
-        Html.put (Latexmacros.iso lxm.[i])
+        Html.put (Html.iso lxm.[i])
       done
     end else if is_table !in_table  then begin
       close_col main "&nbsp;"; 
@@ -1624,16 +1636,16 @@ rule  main = parse
         let delim = save_arg lexbuf in
         Html.delay (fun vsize ->
           put_delim delim vsize) ;
-        begin_item_display f is_freeze
+        Html.begin_item_display f is_freeze
       end ;     
       main lexbuf}
   | "\\right"
       {if !display then begin
         let delim = save_arg lexbuf in
-        let vsize,f,is_freeze = end_item_display () in
+        let vsize,f,is_freeze = Html.end_item_display () in
         put_delim delim vsize;
         Html.flush vsize ;
-        begin_item_display f is_freeze ;
+        Html.begin_item_display f is_freeze ;
         let sup,sub = Save.get_sup_sub lexbuf in
         if sup <> "" || sub <> "" then
           let do_what = (fun () -> ()) in
@@ -1823,22 +1835,22 @@ rule  main = parse
       | "\\cite" ->
           let opt = save_opt "" lexbuf in
           let args = Save.cite_arg lexbuf in
-          put_char '[' ;
+          Html.put_char '[' ;
           Html.open_group "CITE" ;
           let rec do_rec = function
               [] -> ()
             | [x] -> Html.loc_ref (get_this main (Auxx.bget x)) x
             | x::rest ->
                 Html.loc_ref (get_this main (Auxx.bget x)) x ;
-                put ", " ;
+                Html.put ", " ;
                 do_rec rest in
           do_rec args ;
           if opt <> "" then begin
             Html.put ", " ;
             scan_this main opt ;
           end ;
-          close_group () ;
-          put_char ']' ;
+          Html.close_group () ;
+          Html.put_char ']' ;
           main lexbuf
 (* Includes *)
       | "\\includeonly" ->
@@ -1894,7 +1906,7 @@ rule  main = parse
             Location.print_pos () ;
             prerr_endline ("Warning: \\char");
           end ;
-          Html.put (Latexmacros.iso (Char.chr arg)) ;
+          Html.put (Html.iso (Char.chr arg)) ;
           skip_blanks_pop lexbuf ; main lexbuf
       | "\\symbol" ->
           let arg = save_arg lexbuf in
@@ -2025,7 +2037,7 @@ rule  main = parse
                     if !verbose > 2 then
                       prerr_endline "Seen if as true"
               | SetTest (cell,b) -> cell := b
-              | ItemDisplay   -> force_item_display ()
+              | ItemDisplay   -> Html.force_item_display ()
               | Subst body ->
                   if !verbose > 2 then
                     prerr_endline ("user macro: "^body) ;            
@@ -2127,15 +2139,15 @@ rule  main = parse
 | '~'         { Html.put "&nbsp;"; main lexbuf }
 (* Spanish stuff *)
 | "?`"
-    {Html.put (Latexmacros.iso '¿') ;
+    {Html.put (Html.iso '¿') ;
     main lexbuf}
 | "!`"
-  {Html.put (Latexmacros.iso '¡') ;
+  {Html.put (Html.iso '¡') ;
   main lexbuf}
 (* One character *)
 | _ 
    {let lxm = lexeme_char lexbuf 0 in
-   Html.put (Latexmacros.iso lxm) ;
+   Html.put (Html.iso lxm) ;
    main lexbuf}
 
 and rawhtml = parse
@@ -2168,7 +2180,7 @@ and verbenv = parse
       done ;
       verbenv lexbuf}
 | eof {()}
-| _   { Html.put (Latexmacros.iso (lexeme_char lexbuf 0)) ; verbenv lexbuf}
+| _   { Html.put (Html.iso (lexeme_char lexbuf 0)) ; verbenv lexbuf}
 
 and inverb = parse
  _
@@ -2178,7 +2190,7 @@ and inverb = parse
     close_env "*verb" ;
     main lexbuf
   end else begin
-    Html.put (Latexmacros.iso c) ;
+    Html.put (Html.iso c) ;
     inverb lexbuf
   end}
 
@@ -2475,3 +2487,5 @@ and subst = parse
 |  "\\#" | '\\' | [^'\\' '#']+
     {Out.put subst_buff (lexeme lexbuf) ; subst lexbuf}
 |  eof {()}
+
+{end}

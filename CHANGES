@@ -1,4 +1,6 @@
 version 1.03-1
+  - Make main scanner a fonctor (add outManager.mli). This is a first
+    step toward having several output languages.
   - Added the -extra and -mag options to imagen
   - Started a FAQ
   - Cleaned up somehow the output of iso-latin1 special symbols by putting

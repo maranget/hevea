@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmacros.ml,v 1.33 1998-12-28 13:28:01 maranget Exp $" 
+let header = "$Id: latexmacros.ml,v 1.34 1999-02-04 16:17:56 maranget Exp $" 
 open Parse_opts
 open Symb
 
@@ -402,128 +402,6 @@ let fnsymbol_of_int = function
 | i -> alpha_of_int (i-9)
 ;;
 
-let r_quote = String.create 1
-;;
-
-let quote_char = function
-  '<' -> "&lt;"
-| '>' -> "&gt;"
-| '&' -> "&amp;"
-| c   -> (r_quote.[0] <- c ; r_quote)
-;;
-
-let r_translate = String.create 1
-;;
-
-let iso_translate = function
-  '<' -> "&lt;"
-| '>' -> "&gt;"
-| '&' -> "&amp;"
-| ' ' -> "&nbsp;"
-| '¡' -> "&iexcl;"
-| '¢' -> "&cent;"
-| '£' -> "&pound;"
-| '¤' -> "&curren;"
-| '¥' -> "&yen;"
-| '¦' -> "&brvbar;"
-| '§' -> "&sect;"
-| '¨' -> "&uml;"
-| '©' -> "&copy;"
-| 'ª' -> "&ordf;"
-| '«' -> "&laquo;"
-| '¬' -> "&not;"
-| '­' -> "&shy;"
-| '®' -> "&reg;"
-| '¯' -> "&macr;"
-| '°' -> "&deg;"
-| '±' -> "&plusmn;"
-| '²' -> "&sup2;"
-| '³' -> "&sup3;"
-| '´' -> "&acute;"
-| 'µ' -> "&micro;"
-| '¶' -> "&para;"
-| '·' -> "&middot;"
-| '¸' -> "&cedil;"
-| '¹' -> "&sup1;"
-| 'º' -> "&ordm;"
-| '»' -> "&raquo;"
-| '¼' -> "&frac14;"
-| '½' -> "&frac12;"
-| '¾' -> "&frac34;"
-| '¿' -> "&iquest;"
-| 'À' -> "&Agrave;"
-| 'Á' -> "&Aacute;"
-| 'Â' -> "&Acirc;"
-| 'Ã' -> "&Atilde;"
-| 'Ä' -> "&Auml;"
-| 'Å' -> "&Aring;"
-| 'Æ' -> "&AElig;"
-| 'Ç' -> "&Ccedil;"
-| 'È' -> "&Egrave;"
-| 'É' -> "&Eacute;"
-| 'Ê' -> "&Ecirc;"
-| 'Ë' -> "&Euml;"
-| 'Ì' -> "&Igrave;"
-| 'Í' -> "&Iacute;"
-| 'Î' -> "&Icirc;"
-| 'Ï' -> "&Iuml;"
-| 'Ð' -> "&ETH;"
-| 'Ñ' -> "&Ntilde;"
-| 'Ò' -> "&Ograve;"
-| 'Ó' -> "&Oacute;"
-| 'Ô' -> "&Ocirc;"
-| 'Õ' -> "&Otilde;"
-| 'Ö' -> "&Ouml;"
-| '×' -> "&times;"
-| 'Ø' -> "&Oslash;"
-| 'Ù' -> "&Ugrave;"
-| 'Ú' -> "&Uacute;"
-| 'Û' -> "&Ucirc;"
-| 'Ü' -> "&Uuml;"
-| 'Ý' -> "&Yacute;"
-| 'Þ' -> "&THORN;"
-| 'ß' -> "&szlig;"
-| 'à' -> "&agrave;"
-| 'á' -> "&aacute;"
-| 'â' -> "&acirc;"
-| 'ã' -> "&atilde;"
-| 'ä' -> "&auml;"
-| 'å' -> "&aring;"
-| 'æ' -> "&aelig;"
-| 'ç' -> "&ccedil;"
-| 'è' -> "&egrave;"
-| 'é' -> "&eacute;"
-| 'ê' -> "&ecirc;"
-| 'ë' -> "&euml;"
-| 'ì' -> "&igrave;"
-| 'í' -> "&iacute;"
-| 'î' -> "&icirc;"
-| 'ï' -> "&iuml;"
-| 'ð' -> "&eth;"
-| 'ñ' -> "&ntilde;"
-| 'ò' -> "&ograve;"
-| 'ó' -> "&oacute;"
-| 'ô' -> "&ocirc;"
-| 'õ' -> "&otilde;"
-| 'ö' -> "&ouml;"
-| '÷' -> "&divide;"
-| 'ø' -> "&oslash;"
-| 'ù' -> "&ugrave;"
-| 'ú' -> "&uacute;"
-| 'û' -> "&ucirc;"
-| 'ü' -> "&uuml;"
-| 'ý' -> "&yacute;"
-| 'þ' -> "&thorn;"
-| 'ÿ' -> "&yuml;"
-| c   -> (r_translate.[0] <- c ; r_translate)
-;;
-
-let iso c =
-  if !Parse_opts.iso then
-    quote_char c
-  else
-    iso_translate c
-;;
 
 let aigu = function
   "a" -> "á" | "e" -> "é" | "i" | "\\i" | "\\i " -> "í"

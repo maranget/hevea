@@ -9,10 +9,15 @@
 (*                                                                     *)
 (***********************************************************************)
 
-val out_file : Out.t ref
+module type S =
+  sig
+    val out_file : Out.t ref
 
-val no_prelude : unit -> unit
+    val no_prelude : unit -> unit
 
-val print_env_pos : unit -> unit
-val main : Lexing.lexbuf -> unit
+    val print_env_pos : unit -> unit
+    val main : Lexing.lexbuf -> unit
+end
+
+module Make (Html : OutManager.S) : S
 

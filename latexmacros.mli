@@ -53,8 +53,6 @@ val redef_env_pat: string -> pat -> action list -> action list -> unit
 val unregister : string -> unit
 val newif : string -> unit
 
-val iso : char -> string
-
 val display :  bool ref
 val in_math :  bool ref
 val alltt :  bool ref
