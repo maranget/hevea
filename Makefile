@@ -5,7 +5,7 @@ TARGET=opt
 LIBDIR=/usr/local/lib/hevea
 # Where to install programms
 BINDIR=/usr/local/bin
-# C preprocessor with proper options (don't ask)
+# C preprocessor with proper options
 #CPP=cpp -E -P
 #Some alternatives...
 #Old fashioned Unix
@@ -14,6 +14,9 @@ BINDIR=/usr/local/bin
 CPP=gcc -E -P -x c
 # reported to work on MacOsX by Georg
 #CPP=cc --traditional-cpp -E -P -x c
+# reported to work on Mac OS 10.3 (using gcc-3.3) by John T. Hale
+# <jthale @ msu.edu>
+#CPP=cc --traditional-cpp -E -P -xassembler-with-cpp
 ############### End of configuration parameters
 SUF=
 DIR=

@@ -130,5 +130,5 @@ IN CASE OF TROUBLE.
 
   - Most other reported trouble originate in the definition of CPP in
     the Makefile. The Makefile presents several alternatives.
-
+    Mac OS X is particularily strange in that aspect.
 
