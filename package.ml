@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.56 2004-07-02 13:07:31 thakur Exp $    *)
+(*  $Id: package.ml,v 1.57 2004-07-02 16:49:25 thakur Exp $    *)
 
 module type S = sig  end
 
@@ -1040,26 +1040,6 @@ register_init "bussproofs"
 
 (************************************************************
 *                                                           *
-*   Maintaining the information about thick/thin separators *
-*   in a stack. For each \infer or \infer= we shall push    *
-*   a tag into the stack, and see it when we have to	    *
-*                                                           *
-************************************************************)
-
-let taglist = ref [];;
-
-let tag_push x = (taglist := (x::(!taglist)))
-;;
-
-let tag_pop () = 
-	let s = !taglist
-	in match s with 
-	      [] -> false
-	    | (x::ls) -> (taglist := ls; x)
-;;
-
-(************************************************************
-*                                                           *
 *   Implementing the proof package "proof"		    *
 *                                                           *
 ************************************************************)
@@ -1069,7 +1049,7 @@ register_init "proof"
       def_code "\\infer"
 	(fun lexbuf ->
           let tag = if (Save.if_next_char '=' lexbuf) then 
-	                let arg1 = save_arg lexbuf 
+	                let _ = save_arg lexbuf 
 			in (tag_push true; true) 
                     else (tag_push false; false) in
           let optarg2 = save_opt "" lexbuf in

@@ -22,8 +22,8 @@
 
 \noindent(1)
 $$
-\infer={A}{
-        \infer[\imp E]{B}{
+\infer{A}{
+        \infer=[\imp E]{B}{
                 \frac{\Pi}{2}
                 &
                 \infer[\wedge E$_1$]{B21}{B21 \wedge B22} 
@@ -38,7 +38,7 @@ $$
 \noindent(2)
 $$
 \infer={A}{
-        \infer[\imp E]{B}{
+        \infer=[\imp E]{B}{
                 \frac{\Pi}{2}
                 &
                 \infer*[\wedge E$_1$]{B21}{B21 \wedge B22} 
@@ -52,14 +52,14 @@ $$
 
 \noindent (3)
 $$
-\infer*[RI]{A \imp B}{
-        \infer{B}{[A]}
+\infer=[RI]{A \imp B}{
+        \infer*{B}{[A]}
 }
 $$
 
 \noindent (4)
 $$
-\infer[(1)]{A}{
+\infer=[(1)]{A}{
         \infer{B}{
                 B11\land B12\land B13
                 &
