@@ -3348,6 +3348,10 @@ mode, it is \textit{true} in math-mode and \textit{false} otherwise.
 mode, it is \textit{true} in display-mode and \textit{false} otherwise.
 \item[\texttt{french}] \boolindex{french}This register value reflects the \verb+-french+
 command line option internally (see Section~\ref{heveaoptions}).
+\item[\texttt{footer}] Initial value is  \texttt{true}.
+When set false, \hevea{} does not insert its footer ``\emph{This
+document has been translated by \hevea}''.
+
 \end{description}
 
 Finally, note that \hevea{} also recognized à la \TeX{} conditional
@@ -3452,6 +3456,8 @@ By default, \hevea{} implements the \texttt{array} package
 (see \cite[Section~5.3]{latexbis} and section~\ref{arraypack} in this
 document), which significantly extends the
 \verb+array+ and \verb+tabular+ environments.
+
+\section{Moving Information Around}
 
 \subsection{Files}\label{files}
 In some situations,

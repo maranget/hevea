@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.167 2000-03-29 12:04:26 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.168 2000-04-17 09:32:43 maranget Exp $ *)
 
 
 {
@@ -870,18 +870,23 @@ rule  main = parse
 (* Math mode *)
 | "$" | "$$"
      {let lxm = lexeme lexbuf in
+     (* ``$'' has nothing special *)
+     let dodo = lxm <> "$" in
      if !alltt || not (is_plain '$') then begin
        Dest.put lxm ; main lexbuf
-     end else begin
-       let dodo = lxm <> "$" in
+     (* vicious case ``$x$$y$'' *)
+     end else if dodo && not !display && !in_math then begin
+       scan_this main "${}$" ;
+       main lexbuf
+     end else begin (* General case *)
        let math_env = if dodo then "*display" else "*math" in
        if !in_math then begin
          in_math := pop stack_in_math ;
          if dodo then begin
-	   Dest.close_maths dodo;
+	   Dest.close_maths dodo
          end else begin
            top_close_display () ;
-	   Dest.close_maths dodo;
+	   Dest.close_maths dodo
          end ;
          display := pop stack_display ;
          if !display then begin
@@ -889,23 +894,23 @@ rule  main = parse
          end ;
          close_env math_env ;
          main lexbuf
-     end else begin
-       push stack_in_math !in_math ;
-       in_math := true ;
-       let lexfun lb =
-         if !display then  Dest.item_display () ;
-         push stack_display !display ;
-         if dodo then begin
-           display  := true ;
-	   Dest.open_maths dodo;
-         end else begin
-	   Dest.open_maths dodo;
-           top_open_display () ;
-         end;
-         skip_blanks lb ; main lb in
-       new_env math_env ;
-       lexfun lexbuf
-     end end}
+       end else begin
+         push stack_in_math !in_math ;
+         in_math := true ;
+         let lexfun lb =
+           if !display then  Dest.item_display () ;
+           push stack_display !display ;
+           if dodo then begin
+             display  := true ;
+	     Dest.open_maths dodo;
+           end else begin
+	     Dest.open_maths dodo;
+             top_open_display () ;
+           end;
+           skip_blanks lb ; main lb in
+         new_env math_env ;
+         lexfun lexbuf
+       end end}
 
 (* Definitions of  simple macros *)
 (* inside tables and array *)
@@ -1477,7 +1482,7 @@ let do_newtheorem lxm lexbuf =
     
     def_env_pat name (Latexmacros.make_pat [""] 0)
       (Subst ("\\begin{flushleft}\\refstepcounter{"^cname^"}{\\bf "^caption^"~"^
-              "\\the"^cname^"}\\quad\\ifoptarg{\\purple[#1]\\quad}\\fi\\it"))
+              "\\the"^cname^"}\\quad\\ifoptarg{\\purple[#1]\\quad}\\fi\\em"))
       (Subst "\\end{flushleft}")
   with Latexmacros.Failed -> () end
 ;;

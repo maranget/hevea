@@ -1,4 +1,5 @@
 vesrion 1.05-7
+  - Some patches in array formats.
   - New ``cutflow'' feature in hacha.
   - Bad interaction beeteen new indexenv code and multiple indexes :
       code for  indexenv is now re-entrant.

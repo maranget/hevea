@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: tabular.mll,v 1.21 2000-03-29 12:04:30 maranget Exp $ *)
+(* $Id: tabular.mll,v 1.22 2000-04-17 09:32:47 maranget Exp $ *)
 {
 open Misc
 open Lexing
@@ -135,7 +135,7 @@ and tfmiddle = parse
     {let lxm = lexeme lexbuf in
     let i = Char.code (lxm.[1]) - Char.code '1' in
     Lexstate.scan_arg (scan_this tfmiddle) i}
-| ['a'-'z''A'-'Z''.']
+| [^'|' '@' '<' '>' '!' '#']
     {let lxm = lexeme lexbuf in
     let name = column_to_command lxm in
     let pat,body = Latexmacros.find_macro name in

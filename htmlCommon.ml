@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlCommon.ml,v 1.18 2000-01-26 17:08:41 maranget Exp $" 
+let header = "$Id: htmlCommon.ml,v 1.19 2000-04-17 09:32:39 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -755,7 +755,7 @@ let rec filter_pre = function
 
 let ok_mod e =
   (not flags.in_pre || ok_pre e) &&
-  not (already_here e)
+  (not (already_here e))
 ;;
 
 let get_fontsize () = cur_size !cur_out.pending !cur_out.active
@@ -822,13 +822,21 @@ let open_mod  m =
       prerr_string "active = " ; pretty_tmods !cur_out.active ;
       prerr_endline ""
     end ;
-    if ok_mod m then begin
-      match m with
-      | Style _ ->
+    begin match m with
+    | Style "EM" ->
+        if already_here m then
+          erase_mods [m]
+        else
           !cur_out.pending <- m :: !cur_out.pending
-      | _ ->
-          erase_mod_pred (same_env m) (same_constr m) ;
-          !cur_out.pending <- (m :: !cur_out.pending)
+    | _ ->
+        if ok_mod m then begin
+          match m with
+          | Style _ ->
+              !cur_out.pending <- m :: !cur_out.pending
+          | _ ->
+              erase_mod_pred (same_env m) (same_constr m) ;
+              !cur_out.pending <- (m :: !cur_out.pending)
+        end
     end
   end
 ;;

@@ -12,7 +12,7 @@
 {
 open Lexing
 open Stack
-let header = "$Id: cut.mll,v 1.27 2000-03-28 13:52:54 maranget Exp $" 
+let header = "$Id: cut.mll,v 1.28 2000-04-17 09:32:37 maranget Exp $" 
 
 let verbose = ref 0
 ;;
@@ -368,14 +368,19 @@ let restore_state () =
   out_prefix := oldprefix
 ;;
 
+let hevea_footer = ref false
+
 let close_top lxm =
-  Out.put !out "<!--FOOTER-->\n" ;
-  begin try
+  if !hevea_footer then begin
+    Out.put !out "<!--FOOTER-->\n" ;
+    begin try
       Mylib.put_from_lib ("cutfoot-"^ !language^".html") (Out.put !out)
-  with Mylib.Error s -> begin
-    Location.print_pos () ;
-    prerr_endline s
-  end end ;
+    with Mylib.Error s -> begin
+      Location.print_pos () ;
+      prerr_endline s
+    end
+    end
+  end ;
   Out.put !toc lxm ;
   if !tocname = "" then
     Out.flush !toc
@@ -524,6 +529,7 @@ and closeflow () =
 | "<!--FOOTER-->" '\n'?
     {close_all () ;
       if !phase > 0 then begin
+        hevea_footer := true ;
         Out.put !out !html_foot
       end ;
       footer lexbuf}
