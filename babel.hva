@@ -1,25 +1,110 @@
 \ProvidesPackage{babel}
+
+%%%% A simple command that takes language (say l) and 
+%%%%    a) checks for existence and includes l.hva 
+%%%%    b) calls the command \l@babel (in l.hva)
+%%%%    c) sets current language to l
+
+\newcommand{\InitiateOption}[1]{%
+	\@iffileexists{#1.hva}%
+            {\input{#1.hva}}%
+            {}%
+        \fi%
+	\#1@babel%
+	\let\current@language\#1@language%
+}
+
+%%%% Processing information for each optional argument
+
 \DeclareOption{english}{%
-	\english@babel%
-	\let\current@language\english@language%
+        \InitiateOption{english}%
 }
 \DeclareOption{french}{%
-	\french@babel%
-	\let\current@language\french@language%
+        \InitiateOption{french}% 
 }
 \DeclareOption{german}{%
-	\german@babel%
-	\let\current@language\german@language%
+        \InitiateOption{german}% 
 }
 \DeclareOption{austrian}{%
-	\austrian@babel%
-	\let\current@language\austrian@language%
+ 	\InitiateOption{austrian}% 
 }
 \DeclareOption{czech}{%
-	\czech@babel%
-	\let\current@language\czech@language%
+	\InitiateOption{czech}%
 }
+\DeclareOption{american}{%
+	\InitiateOption{american}% 
+}
+\DeclareOption{croatian}{%
+	\InitiateOption{croatian}% 
+}
+\DeclareOption{catalan}{%
+	\InitiateOption{catalan}%
+}
+\DeclareOption{brazil}{%
+	\InitiateOption{brazil}%
+}
+\DeclareOption{danish}{%
+	\InitiateOption{danish}%
+}
+\DeclareOption{dutch}{%
+	\InitiateOption{dutch}%
+}
+\DeclareOption{esperanto}{%
+	\InitiateOption{esperanto}%
+}
+\DeclareOption{finnish}{%
+	\InitiateOption{finnish}%	
+}
+\DeclareOption{galician}{%
+	\InitiateOption{galician}%
+}
+\DeclareOption{italian}{%
+	\InitiateOption{italian}%
+}
+\DeclareOption{magyar}{%
+	\InitiateOption{magyar}%
+}
+\DeclareOption{norsk}{%
+	\InitiateOption{norsk}%
+}
+\DeclareOption{nynorsk}{%
+	\InitiateOption{nynorsk}%
+}
+\DeclareOption{polish}{%
+	\InitiateOption{polish}%
+}
+\DeclareOption{portuges}{%
+	\InitiateOption{portuges}%
+}
+\DeclareOption{romanian}{%
+	\InitiateOption{romanian}%
+}
+\DeclareOption{russian}{%
+	\InitiateOption{russian}%
+}
+\DeclareOption{slovak}{%
+	\InitiateOption{slovak}%
+}
+\DeclareOption{slovene}{%
+	\InitiateOption{slovene}%
+}
+\DeclareOption{spanish}{%
+	\InitiateOption{spanish}%
+}
+\DeclareOption{swedish}{%
+	\InitiateOption{swedish}%
+}
+\DeclareOption{turkish}{%
+	\InitiateOption{turkish}%
+}
+
+%%%% Processing babel options postponed for later
+
 %\ProcessOptions*
+
+%%%% One variable for each supported language, to keep track of and to 
+%%%% change the current language. Might as well have used english itself 
+%%%% instead of \english@language!!! 
 
 \newcommand\english@language{english}
 \newcommand\french@language{french}
@@ -49,413 +134,78 @@
 \newcommand\swedish@language{swedish}
 \newcommand\turkish@language{turkish}
 
+%%%% Initializing \current@language before loading babel language packages.
+
 \let\current@language\english@language
 
-\newcommand{\english@babel}{
-  \renewcommand\english@day{
-        \ifthenelse{\value{day}=1 }{\theday st} {
-  	\ifthenelse{\value{day}=21}{\theday st} {
- 	\ifthenelse{\value{day}=31}{\theday st} {
- 	\ifthenelse{\value{day}=2 }{\theday nd} {
- 	\ifthenelse{\value{day}=22}{\theday nd} {
- 	\ifthenelse{\value{day}=3 }{\theday rd} {
- 	\ifthenelse{\value{day}=23}{\theday rd} {
-        \theday th
-  }}}}}}}}  
-  \renewcommand\english@month{ 
-  	\ifthenelse{\value{month}=1 }{January}  {
-  	\ifthenelse{\value{month}=2 }{February} {
- 	\ifthenelse{\value{month}=3 }{March}    {
- 	\ifthenelse{\value{month}=4 }{April}    {
- 	\ifthenelse{\value{month}=5 }{May}      {
- 	\ifthenelse{\value{month}=6 }{June}     {
- 	\ifthenelse{\value{month}=7 }{July}     {
- 	\ifthenelse{\value{month}=8 }{August}   {
- 	\ifthenelse{\value{month}=9 }{September}{
- 	\ifthenelse{\value{month}=10}{October}  {
- 	\ifthenelse{\value{month}=11}{November} {
- 	\ifthenelse{\value{month}=12}{December} {
-  }}}}}}}}}}}}}  
-  \renewcommand\today{\english@day\english@month,~\theyear}
-  \renewcommand\prefacename{Preface}
-  \renewcommand\refname{References}
-  \renewcommand\abstractname{Abstract}
-  \renewcommand\bibname{Bibliography}
-  \renewcommand\chaptername{Chapter}
-  \renewcommand\appendixname{Appendix}
-  \renewcommand\contentsname{Contents}
-  \renewcommand\listfigurename{List of Figures}
-  \renewcommand\listtablename{List of Tables}
-  \renewcommand\indexname{Index}
-  \renewcommand\figurename{Figure}
-  \renewcommand\tablename{Table}
-  \renewcommand\partname{Part}
-  \renewcommand\enclname{encl}
-  \renewcommand\ccname{cc}
-  \renewcommand\headtoname{To}
-  \renewcommand\pagename{Page}
-  \renewcommand\headpagename{Page}
-  \renewcommand\seename{see}
-  \renewcommand\alsoseename{see also}
+%%%% Support for the 'babel' command to select languages.
+
+\newcommand{\selectlanguage}[1]{%
+  \ifthenelse{\equal{#1}{german}} {%
+	\let\current@language\german@language    \german@babel    } {%
+  \ifthenelse{\equal{#1}{english}} {%
+ 	\let\current@language\english@language   \english@babel   } {%
+  \ifthenelse{\equal{#1}{french}} {%
+	\let\current@language\french@language    \french@babel    } {%
+  \ifthenelse{\equal{#1}{american}} {%
+	\let\current@language\american@language  \american@babel  } {%
+  \ifthenelse{\equal{#1}{austrian}} {%
+	\let\current@language\austrian@language  \austrian@babel  } {%
+  \ifthenelse{\equal{#1}{brazil}} {%
+	\let\current@language\brazil@language    \brazil@babel    } {%
+  \ifthenelse{\equal{#1}{catalan}} {%
+	\let\current@language\catalan@language   \catalan@babel   } {%
+  \ifthenelse{\equal{#1}{croatian}} {%
+	\let\current@language\croatian@language  \croatian@babel  } {%
+  \ifthenelse{\equal{#1}{czech}} {%
+	\let\current@language\czech@language     \czech@babel     } {%
+  \ifthenelse{\equal{#1}{danish}} {%
+	\let\current@language\danish@language    \danish@babel    } {%
+  \ifthenelse{\equal{#1}{dutch}} {%
+	\let\current@language\dutch@language     \dutch@babel     } {%
+  \ifthenelse{\equal{#1}{esperanto}} {%
+	\let\current@language\esperanto@language \esperanto@babel } {%
+  \ifthenelse{\equal{#1}{finnish}} {%
+	\let\current@language\finnish@language   \finnish@babel   } {%
+  \ifthenelse{\equal{#1}{galician}} {%
+	\let\current@language\galician@language  \galician@babel  } {%
+  \ifthenelse{\equal{#1}{italian}} {%
+	\let\current@language\italian@language   \italian@babel   } {%
+  \ifthenelse{\equal{#1}{magyar}} {%
+	\let\current@language\magyar@language    \magyar@babel    } {%
+  \ifthenelse{\equal{#1}{norsk}} {%
+	\let\current@language\norsk@language     \norsk@babel     } {%
+  \ifthenelse{\equal{#1}{nynorsk}} {%
+	\let\current@language\nynorsk@language   \nynorsk@babel   } {%
+  \ifthenelse{\equal{#1}{polish}} {%
+	\let\current@languagepolish\@language    \polish@babel    } {%
+  \ifthenelse{\equal{#1}{protuges}} {%
+	\let\current@language\portuges@language  \portuges@babel  } {%
+  \ifthenelse{\equal{#1}{romanian}} {%
+	\let\current@language\romanian@language  \romanian@babel  } {%
+  \ifthenelse{\equal{#1}{russian}} {%
+	\let\current@language\russian@language   \russian@babel   } {%
+  \ifthenelse{\equal{#1}{slovak}} {%
+	\let\current@language\slovak@language    \slovak@babel    } {%
+  \ifthenelse{\equal{#1}{slovene}} {%
+	\let\current@language\slovene@language   \slovene@babel   } {%
+  \ifthenelse{\equal{#1}{spanish}} {%
+	\let\current@language\spanish@language   \spanish@babel   } {%
+  \ifthenelse{\equal{#1}{swedish}} {%
+	\let\current@language\swedish@language   \swedish@babel   } {%
+  \ifthenelse{\equal{#1}{turkish}} {%
+	\let\current@language\turkish@language   \turkish@babel   } {%
+  }}}}}}}}}}}}}}}}}}}}}}}}}}}%
 }
 
-\newcommand{\french@babel}{
-  \renewcommand{\flqq}{\@print{&#0171;}}
-  \renewcommand{\frqq}{\@print{&#0187;}}
-  %\renewcommand{\'}[1]{
-  %      \ifthenelse{\equal{##1}{a}}{\@print{&#0225;}} {
-  %      \ifthenelse{\equal{##1}{e}}{\@print{&#0233;}} {
-  %	\ifthenelse{\equal{##1}{i}}{\@print{&#0237;}} {
-  %	\ifthenelse{\equal{##1}{o}}{\@print{&#0243;}} {
-  %	\ifthenelse{\equal{##1}{u}}{\@print{&#0250;}} {
-  %      ##1
-  %}}}}}}
-  %\renewcommand{\`}[1]{
-  %      \ifthenelse{\equal{##1}{a}}{\@print{&#0224;}} {
-  %      \ifthenelse{\equal{##1}{e}}{\@print{&#0232;}} {
-  %	\ifthenelse{\equal{##1}{i}}{\@print{&#0236;}} {
-  %	\ifthenelse{\equal{##1}{o}}{\@print{&#0242;}} {
-  %	\ifthenelse{\equal{##1}{u}}{\@print{&#0251;}} {
-  %      ##1
-  %}}}}}}
-  %\renewcommand{\^}[1]{
-  %      \ifthenelse{\equal{##1}{a}}{\@print{&#0226;}} {
-  %      \ifthenelse{\equal{##1}{e}}{\@print{&#0234;}} {
-  %      \ifthenelse{\equal{##1}{i}}{\@print{&#0238;}} {
-  %	\ifthenelse{\equal{##1}{o}}{\@print{&#0244;}} {
-  %	\ifthenelse{\equal{##1}{u}}{\@print{&#0252;}} {
-  %      ##1
-  %}}}}}}
-  \renewcommand\french@day{
-        \ifthenelse{\value{day}=1 }{\theday st} {
-  	\ifthenelse{\value{day}=21}{\theday st} {
- 	\ifthenelse{\value{day}=31}{\theday st} {
- 	\ifthenelse{\value{day}=2 }{\theday nd} {
- 	\ifthenelse{\value{day}=22}{\theday nd} {
- 	\ifthenelse{\value{day}=3 }{\theday rd} {
- 	\ifthenelse{\value{day}=23}{\theday rd} {
-        \theday th
-  }}}}}}}}  
-  \renewcommand\french@month{ 
-  	\ifthenelse{\value{month}=1}{Janvier}    {
-  	\ifthenelse{\value{month}=2}{F\'evrier}  {
- 	\ifthenelse{\value{month}=3}{Mars}       {
- 	\ifthenelse{\value{month}=4}{Avril}      {
- 	\ifthenelse{\value{month}=5}{Mai}        {
- 	\ifthenelse{\value{month}=6}{Juin}       {
- 	\ifthenelse{\value{month}=7}{Juillet}    {
- 	\ifthenelse{\value{month}=8}{Ao\^ut}     {
- 	\ifthenelse{\value{month}=9}{Septembre}  {
- 	\ifthenelse{\value{month}=10}{Octobre}    {
- 	\ifthenelse{\value{month}=11}{Novembre}   {
- 	\ifthenelse{\value{month}=12}{D\'ecembre} {
-  }}}}}}}}}}}}}  
-  \renewcommand\today{\theday.~\french@month~\theyear}
-  \renewcommand\prefacename{Pr\'eface}
-  \renewcommand\refname{R\'ef\'erences}
-  \renewcommand\abstractname{R\'esum\'e}
-  \renewcommand\bibname{Bibliographie}
-  \renewcommand\chaptername{Chapitre}
-  \renewcommand\appendixname{Annexe}
-  \renewcommand\contentsname{Table des mati\`eres}
-  \renewcommand\listfigurename{Liste des figures}
-  \renewcommand\listtablename{Liste des tableaux}
-  \renewcommand\indexname{Index}
-  \renewcommand\figurename{Figure}
-  \renewcommand\tablename{Tableau}
-  \renewcommand\partname{Partie}
-  \renewcommand\enclname{P.~J.}
-  \renewcommand\ccname{Copie \`a}
-  \renewcommand\headtoname{A}
-  \renewcommand\pagename{Page}
-  \renewcommand\headpagename{Page}
-  \renewcommand\seename{voir}
-  \renewcommand\alsoseename{voir aussi}
+%%%% Support for the 'babel' command for querying the current language.
+
+\newcommand{\iflanguage}[3]{%
+  \ifthenelse{\equal{#1}{\current@language}}{#2}{#3}%
 }
 
-\newcommand{\german@babel}{
-  \renewcommand{\glqq}{\@print{&#8222;}}
-  \renewcommand{\grqq}{\@print{&#8220;}}
-  \renewcommand{\glq} {\@print{&#8218;}}
-  \renewcommand{\grq} {\@print{&#8216;}}
-  \renewcommand{\flqq}{\@print{&#0171;}}
-  \renewcommand{\frqq}{\@print{&#0187;}}
-  \renewcommand{\flq} {\@print{&#8249;}}
-  \renewcommand{\frq} {\@print{&#8250;}}
-  %\renewcommand{\"}{<}{\flqq}
-  %\renewcommand{\"}[1]{
-  %      \ifthenelse{\equal{##1}{`}}{\glqq} {
-  %	\ifthenelse{\equal{##1}{'}}{\grqq} {
-  %	\ifthenelse{\equal{##1}{<}}{\flqq} {
-  %	\ifthenelse{\equal{##1}{>}}{\frqq} {
-  % 	\ifthenelse{\equal{##1}{s}}{\@print{&#0223;}} {
-  %      \ifthenelse{\equal{##1}{S}}{SS} 	      {
-  %      \ifthenelse{\equal{##1}{A}}{\@print{&#0196;}} {
-  %      \ifthenelse{\equal{##1}{a}}{\@print{&#0228;}} {
-  %      \ifthenelse{\equal{##1}{E}}{\@print{&#0203;}} {
-  %      \ifthenelse{\equal{##1}{e}}{\@print{&#0235;}} {
-  %      \ifthenelse{\equal{##1}{I}}{\@print{&#0207;}} {
-  %      \ifthenelse{\equal{##1}{i}}{\@print{&#0239;}} {
-  %      \ifthenelse{\equal{##1}{O}}{\@print{&#0214;}} {
-  %      \ifthenelse{\equal{##1}{o}}{\@print{&#0246;}} {
-  %      \ifthenelse{\equal{##1}{U}}{\@print{&#0220;}} {
-  %      \ifthenelse{\equal{##1}{u}}{\@print{&#0252;}} {
-  %      \ifthenelse{\equal{##1}{Y}}{\@print{&#0376;}} {
-  %      \ifthenelse{\equal{##1}{y}}{\@print{&#0255;}} {
-  %      ##1
-  %	}}}}}}}}}}}}}}}}}}
-  %}
-  %\renewcommand{"}[1]{\"{##1}}
-  \renewcommand{\german@month}{ 
-  	\ifthenelse{\value{month}=1}{Januar}   {
-  	\ifthenelse{\value{month}=2}{Februar}  {
- 	\ifthenelse{\value{month}=3}{M\"arz}   {
- 	\ifthenelse{\value{month}=4}{April}    {
- 	\ifthenelse{\value{month}=5}{Mai}      {
- 	\ifthenelse{\value{month}=6}{Juni}     {
- 	\ifthenelse{\value{month}=7}{Juli}     {
- 	\ifthenelse{\value{month}=8}{August}   {
- 	\ifthenelse{\value{month}=9}{September}{
- 	\ifthenelse{\value{month}=10}{Oktober}  {
- 	\ifthenelse{\value{month}=11}{November} {
- 	\ifthenelse{\value{month}=12}{Dezember} {
-  }}}}}}}}}}}}}
-  \renewcommand\today{\theday.~\german@month~\theyear}
-  \renewcommand\prefacename{Vorwort}
-  \renewcommand\refname{Literatur}
-  \renewcommand\abstractname{Zusammenfassung}
-  \renewcommand\bibname{Literaturverzeichnis}
-  \renewcommand\chaptername{Kapitel}
-  \renewcommand\appendixname{Anhang}
-  \renewcommand\contentsname{Inhaltsverzeichnis}
-  \renewcommand\listfigurename{Abbildungsverzeichnis}
-  \renewcommand\listtablename{Tabellenverzeichnis}
-  \renewcommand\indexname{Index}
-  \renewcommand\figurename{Abbildung}
-  \renewcommand\tablename{Tabelle}
-  \renewcommand\partname{Teil}
-  \renewcommand\enclname{Anlage(n)}
-  \renewcommand\ccname{Verteiler}
-  \renewcommand\headtoname{An}
-  \renewcommand\pagename{Seite}
-  \renewcommand\headpagename{Siete}
-  \renewcommand\seename{siehe}
-  \renewcommand\alsoseename{siehe auch}
-  \renewcommand\dq{\@print{"}}
-}
-
-\newcommand{\american@babel}{}
-
-\newcommand{\austrian@babel}{
-  \renewcommand{\glqq}{\@print{&#8222;}}
-  \renewcommand{\grqq}{\@print{&#8220;}}
-  \renewcommand{\glq}{\@print{&#8218;}}
-  \renewcommand{\grq}{\@print{&#8216;}}
-  \renewcommand{\flqq}{\@print{&#0171;}}
-  \renewcommand{\frqq}{\@print{&#0187;}}
-  \renewcommand{\flq}{\@print{&#8249;}}
-  \renewcommand{\frq}{\@print{&#8250;}}
-  %\renewcommand{\"}[1]{
-  %      \ifthenelse{\equal{##1}{`}}{\glqq} {
-  %	 \ifthenelse{\equal{##1}{'}}{\grqq} {
-  %	 \ifthenelse{\equal{##1}{<}}{\flqq} {
-  %	 \ifthenelse{\equal{##1}{>}}{\frqq} {
-  %        \ifthenelse{\equal{##1}{s}}{\@print{&#0223;}} {
-  %        \ifthenelse{\equal{##1}{S}}{SS} 	      {
-  %        \ifthenelse{\equal{##1}{A}}{\@print{&#0196;}} {
-  %        \ifthenelse{\equal{##1}{a}}{\@print{&#0228;}} {
-  %        \ifthenelse{\equal{##1}{E}}{\@print{&#0203;}} {
-  %        \ifthenelse{\equal{##1}{e}}{\@print{&#0235;}} {
-  %        \ifthenelse{\equal{##1}{I}}{\@print{&#0207;}} {
-  %        \ifthenelse{\equal{##1}{i}}{\@print{&#0239;}} {
-  %        \ifthenelse{\equal{##1}{O}}{\@print{&#0214;}} {
-  %        \ifthenelse{\equal{##1}{o}}{\@print{&#0246;}} {
-  %        \ifthenelse{\equal{##1}{U}}{\@print{&#0220;}} {
-  %        \ifthenelse{\equal{##1}{u}}{\@print{&#0252;}} {
-  %        \ifthenelse{\equal{##1}{Y}}{\@print{&#0376;}} {
-  %        \ifthenelse{\equal{##1}{y}}{\@print{&#0255;}} {
-  %        ##1
-  %	}}}}}}}}}}}}}}}}}}
-  %}
-  \renewcommand{\austrian@month}{ 
-  	\ifthenelse{\value{month}=1 }{J\"anner} {
-  	\ifthenelse{\value{month}=2 }{Februar}  {
- 	\ifthenelse{\value{month}=3 }{M\"arz}   {
- 	\ifthenelse{\value{month}=4 }{April}    {
- 	\ifthenelse{\value{month}=5 }{Mai}      {
- 	\ifthenelse{\value{month}=6 }{Juni}     {
- 	\ifthenelse{\value{month}=7 }{Juli}     {
- 	\ifthenelse{\value{month}=8 }{August}   {
- 	\ifthenelse{\value{month}=9 }{September}{
- 	\ifthenelse{\value{month}=10}{Oktober}  {
- 	\ifthenelse{\value{month}=11}{November} {
- 	\ifthenelse{\value{month}=12}{Dezember} {
-  }}}}}}}}}}}}}
-  \renewcommand\today{\theday.~\austrian@month~\theyear}
-  \renewcommand\prefacename{Vorwort}
-  \renewcommand\refname{Literatur}
-  \renewcommand\abstractname{Zusammenfassung}
-  \renewcommand\bibname{Literaturverzeichnis}
-  \renewcommand\chaptername{Kapitel}
-  \renewcommand\appendixname{Anhang}
-  \renewcommand\contentsname{Inhaltsverzeichnis}
-  \renewcommand\listfigurename{Abbildungsverzeichnis}
-  \renewcommand\listtablename{Tabellenverzeichnis}
-  \renewcommand\indexname{Index}
-  \renewcommand\figurename{Abbildung}
-  \renewcommand\tablename{Tabelle}
-  \renewcommand\partname{Teil}
-  \renewcommand\enclname{Anlage(n)}
-  \renewcommand\ccname{Verteiler}
-  \renewcommand\headtoname{An}
-  \renewcommand\pagename{Seite}
-  \renewcommand\headpagename{Siete}
-  \renewcommand\seename{siehe}
-  \renewcommand\alsoseename{siehe auch}
-  \renewcommand\dq{\@print{"}}
-}
-
-\newcommand{\brazil@babel}{}
-
-\newcommand{\catalan@babel}{}
-
-\newcommand{\croatian@babel}{}
-
-\newcommand{\czech@babel}{
-  \renewcommand{\czech@month}{ 
-  	\ifthenelse{\value{month}=1 }{Leden}    {
-  	\ifthenelse{\value{month}=2 }{\'Unor}   {
- 	\ifthenelse{\value{month}=3 }{Brezen}   {
- 	\ifthenelse{\value{month}=4 }{Duben}    {
- 	\ifthenelse{\value{month}=5 }{Kveten}   {
- 	\ifthenelse{\value{month}=6 }{Cerven}   {
- 	\ifthenelse{\value{month}=7 }{Cervenec} {
- 	\ifthenelse{\value{month}=8 }{Srpen}    {
- 	\ifthenelse{\value{month}=9 }{Z\'ar\'i} {
- 	\ifthenelse{\value{month}=10}{R\'ijen}  {
- 	\ifthenelse{\value{month}=11}{Listopad} {
- 	\ifthenelse{\value{month}=12}{Pronisec} {
-  }}}}}}}}}}}}}
-  \renewcommand\today{\theday.~\czech@month~\theyear}
-  \renewcommand\prefacename{Predmluva}
-  \renewcommand\refname{Reference}
-  \renewcommand\abstractname{Abstrakt}
-  \renewcommand\bibname{Literatura}
-  \renewcommand\chaptername{Kapitola}
-  \renewcommand\appendixname{Dodatek}
-  \renewcommand\contentsname{Obsah}
-  \renewcommand\listfigurename{Seznam Obr\'azku}
-  \renewcommand\listtablename{Seznam Tabulek}
-  \renewcommand\indexname{Index}
-  \renewcommand\figurename{Obrazek}
-  \renewcommand\tablename{Tabluka}
-  \renewcommand\partname{C\'ast}
-  \renewcommand\enclname{Pr\'iloha}
-  \renewcommand\ccname{cc}
-  \renewcommand\headtoname{Komu}
-  \renewcommand\pagename{Strana}
-  \renewcommand\headpagename{Strana}
-  \renewcommand\seename{viz}
-  \renewcommand\alsoseename{viz t\'ez}
-}
-
-\newcommand{\danish@babel}{}
-
-\newcommand{\dutch@babel}{}
-
-\newcommand{\esperanto@babel}{}
-
-\newcommand{\finnish@babel}{}
-
-\newcommand{\galician@babel}{}
-
-\newcommand{\italian@babel}{}
-
-\newcommand{\magyar@babel}{}
-
-\newcommand{\norsk@babel}{}
-
-\newcommand{\nynorsk@babel}{}
-
-\newcommand{\polish@babel}{}
-
-\newcommand{\portuges@babel}{}
-
-\newcommand{\romanian@babel}{}
-
-\newcommand{\russian@babel}{}
-
-\newcommand{\slovak@babel}{}
-
-\newcommand{\slovene@babel}{}
-
-\newcommand{\spanish@babel}{}
-
-\newcommand{\swedish@babel}{}
-
-\newcommand{\turkish@babel}{}
-
-\newcommand{\selectlanguage}[1]{
-  \ifthenelse{\equal{#1}{german}} {
-	\let\current@language\german@language    \german@babel    } {
-  \ifthenelse{\equal{#1}{english}} {
- 	\let\current@language\english@language   \english@babel   } {
-  \ifthenelse{\equal{#1}{french}} {
-	\let\current@language\french@language    \french@babel    } {
-  \ifthenelse{\equal{#1}{american}} {
-	\let\current@language\american@language  \american@babel  } {
-  \ifthenelse{\equal{#1}{austrian}} {
-	\let\current@language\austrian@language  \austrian@babel  } {
-  \ifthenelse{\equal{#1}{brazil}} {
-	\let\current@language\brazil@language    \brazil@babel    } {
-  \ifthenelse{\equal{#1}{catalan}} {
-	\let\current@language\catalan@language   \catalan@babel   } {
-  \ifthenelse{\equal{#1}{croatian}} {
-	\let\current@language\croatian@language  \croatian@babel  } {
-  \ifthenelse{\equal{#1}{czech}} {
-	\let\current@language\czech@language     \czech@babel     } {
-  \ifthenelse{\equal{#1}{danish}} {
-	\let\current@language\danish@language    \danish@babel    } {
-  \ifthenelse{\equal{#1}{dutch}} {
-	\let\current@language\dutch@language     \dutch@babel     } {
-  \ifthenelse{\equal{#1}{esperanto}} {
-	\let\current@language\esperanto@language \esperanto@babel } {
-  \ifthenelse{\equal{#1}{finnish}} {
-	\let\current@language\finnish@language   \finnish@babel   } {
-  \ifthenelse{\equal{#1}{galician}} {
-	\let\current@language\galician@language  \galician@babel  } {
-  \ifthenelse{\equal{#1}{italian}} {
-	\let\current@language\italian@language   \italian@babel   } {
-  \ifthenelse{\equal{#1}{magyar}} {
-	\let\current@language\magyar@language    \magyar@babel    } {
-  \ifthenelse{\equal{#1}{norsk}} {
-	\let\current@language\norsk@language     \norsk@babel     } {
-  \ifthenelse{\equal{#1}{nynorsk}} {
-	\let\current@language\nynorsk@language   \nynorsk@babel   } {
-  \ifthenelse{\equal{#1}{polish}} {
-	\let\current@languagepolish\@language    \polish@babel    } {
-  \ifthenelse{\equal{#1}{protuges}} {
-	\let\current@language\portuges@language  \portuges@babel  } {
-  \ifthenelse{\equal{#1}{romanian}} {
-	\let\current@language\romanian@language  \romanian@babel  } {
-  \ifthenelse{\equal{#1}{russian}} {
-	\let\current@language\russian@language   \russian@babel   } {
-  \ifthenelse{\equal{#1}{slovak}} {
-	\let\current@language\slovak@language    \slovak@babel    } {
-  \ifthenelse{\equal{#1}{slovene}} {
-	\let\current@language\slovene@language   \slovene@babel   } {
-  \ifthenelse{\equal{#1}{spanish}} {
-	\let\current@language\spanish@language   \spanish@babel   } {
-  \ifthenelse{\equal{#1}{swedish}} {
-	\let\current@language\swedish@language   \swedish@babel   } {
-  \ifthenelse{\equal{#1}{turkish}} {
-	\let\current@language\turkish@language   \turkish@babel   } {
-  }}}}}}}}}}}}}}}}}}}}}}}}}}}
-}
-
-\newcommand{\iflanguage}[3]{
-  \ifthenelse{\equal{#1}{\current@language}} {#2}{#3}
-}
+%%%% Processing the optional arguments of the '\usepackage{babel}' command
+%%%% For each option (language l), checks for l.hva and 'includes' it.
 
 \ProcessOptions*
 

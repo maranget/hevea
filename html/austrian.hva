@@ -1,0 +1,78 @@
+
+%%%% Hevea support for babel option 'austrian'.
+%%%% Note : identical to german except for month January.
+
+%%%% Support for
+%%%%    a) date
+%%%%    b) usual shorthands (\' \` \^ etc.)
+%%%%    c) names of various part descriptors (contentsname etc.)
+%%%%    d) quotations marks (\glqq etc.)
+
+\newcommand{\austrian@babel}{
+  \renewcommand{\glqq}{\@print{&#8222;}}
+  \renewcommand{\grqq}{\@print{&#8220;}}
+  \renewcommand{\glq}{\@print{&#8218;}}
+  \renewcommand{\grq}{\@print{&#8216;}}
+  \renewcommand{\flqq}{\@print{&#0171;}}
+  \renewcommand{\frqq}{\@print{&#0187;}}
+  \renewcommand{\flq}{\@print{&#8249;}}
+  \renewcommand{\frq}{\@print{&#8250;}}
+  %\renewcommand{\"}[1]{
+  %      \ifthenelse{\equal{##1}{`}}{\glqq} {
+  %	 \ifthenelse{\equal{##1}{'}}{\grqq} {
+  %	 \ifthenelse{\equal{##1}{<}}{\flqq} {
+  %	 \ifthenelse{\equal{##1}{>}}{\frqq} {
+  %        \ifthenelse{\equal{##1}{s}}{\@print{&#0223;}} {
+  %        \ifthenelse{\equal{##1}{S}}{SS} 	      {
+  %        \ifthenelse{\equal{##1}{A}}{\@print{&#0196;}} {
+  %        \ifthenelse{\equal{##1}{a}}{\@print{&#0228;}} {
+  %        \ifthenelse{\equal{##1}{E}}{\@print{&#0203;}} {
+  %        \ifthenelse{\equal{##1}{e}}{\@print{&#0235;}} {
+  %        \ifthenelse{\equal{##1}{I}}{\@print{&#0207;}} {
+  %        \ifthenelse{\equal{##1}{i}}{\@print{&#0239;}} {
+  %        \ifthenelse{\equal{##1}{O}}{\@print{&#0214;}} {
+  %        \ifthenelse{\equal{##1}{o}}{\@print{&#0246;}} {
+  %        \ifthenelse{\equal{##1}{U}}{\@print{&#0220;}} {
+  %        \ifthenelse{\equal{##1}{u}}{\@print{&#0252;}} {
+  %        \ifthenelse{\equal{##1}{Y}}{\@print{&#0376;}} {
+  %        \ifthenelse{\equal{##1}{y}}{\@print{&#0255;}} {
+  %        ##1
+  %	}}}}}}}}}}}}}}}}}}
+  %}
+  \renewcommand{\austrian@month}{ 
+  	\ifthenelse{\value{month}=1 }{J\"anner} {
+  	\ifthenelse{\value{month}=2 }{Februar}  {
+ 	\ifthenelse{\value{month}=3 }{M\"arz}   {
+ 	\ifthenelse{\value{month}=4 }{April}    {
+ 	\ifthenelse{\value{month}=5 }{Mai}      {
+ 	\ifthenelse{\value{month}=6 }{Juni}     {
+ 	\ifthenelse{\value{month}=7 }{Juli}     {
+ 	\ifthenelse{\value{month}=8 }{August}   {
+ 	\ifthenelse{\value{month}=9 }{September}{
+ 	\ifthenelse{\value{month}=10}{Oktober}  {
+ 	\ifthenelse{\value{month}=11}{November} {
+ 	\ifthenelse{\value{month}=12}{Dezember} {
+  }}}}}}}}}}}}}
+  \renewcommand\today{\theday.~\austrian@month~\theyear}
+  \renewcommand\prefacename{Vorwort}
+  \renewcommand\refname{Literatur}
+  \renewcommand\abstractname{Zusammenfassung}
+  \renewcommand\bibname{Literaturverzeichnis}
+  \renewcommand\chaptername{Kapitel}
+  \renewcommand\appendixname{Anhang}
+  \renewcommand\contentsname{Inhaltsverzeichnis}
+  \renewcommand\listfigurename{Abbildungsverzeichnis}
+  \renewcommand\listtablename{Tabellenverzeichnis}
+  \renewcommand\indexname{Index}
+  \renewcommand\figurename{Abbildung}
+  \renewcommand\tablename{Tabelle}
+  \renewcommand\partname{Teil}
+  \renewcommand\enclname{Anlage(n)}
+  \renewcommand\ccname{Verteiler}
+  \renewcommand\headtoname{An}
+  \renewcommand\pagename{Seite}
+  \renewcommand\headpagename{Siete}
+  \renewcommand\seename{siehe}
+  \renewcommand\alsoseename{siehe auch}
+  \renewcommand\dq{\@print{"}}
+}
