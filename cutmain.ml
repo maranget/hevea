@@ -9,7 +9,11 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: cutmain.ml,v 1.10 1999-03-12 13:17:55 maranget Exp $" 
+let header = "$Id: cutmain.ml,v 1.11 1999-06-02 16:29:45 maranget Exp $" 
+
+exception Error of string
+;;
+
 let filename = ref ""
 ;;
 
@@ -25,14 +29,14 @@ let main () =
      ("-v", Arg.Unit (fun () -> incr Cut.verbose),
         ", verbose flag")    ]
      (fun s -> filename := s) ("hacha "^Version.version);
-  Cut.name := Filename.chop_extension !filename ;
-  let chan = open_in !filename in
+  Cut.name := (try Filename.chop_extension !filename with Invalid_argument _ -> !filename) ;
+  let chan = try open_in !filename with Sys_error s -> raise (Error ("File error: "^s)) in
   let buf = Lexing.from_channel chan in
   Location.set !filename buf ;
   Cut.start_phase !outname ;
   Cut.main buf ;
   Location.restore () ;
-  let chan = open_in !filename in
+  let chan = try open_in !filename with Sys_error s -> raise (Error ("File error: "^s)) in
   let buf = Lexing.from_channel chan in
   Location.set !filename buf ;
   Cut.start_phase !outname ;
@@ -46,12 +50,16 @@ let _ = try
   Mylib.copy_from_lib "next_motif.gif" ;  
   Mylib.copy_from_lib "contents_motif.gif" 
 with
+| Error s  ->
+    prerr_endline s ;
+    prerr_endline "Adios" ;
+    exit 2
 | Cut.Error s ->
     Location.print_pos () ;
     prerr_endline ("Error while reading HTML: "^s) ;
     prerr_endline "Adios" ;
     exit 2
-|  Misc.Fatal s ->
+| Misc.Fatal s ->
     Location.print_pos () ;
     prerr_endline
       ("Fatal error: "^s^" (please report to Luc.Maranget@inria.fr") ;
