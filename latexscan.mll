@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.180 2000-06-05 08:07:25 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.181 2000-06-06 11:41:35 maranget Exp $ *)
 
 
 {
@@ -1628,7 +1628,7 @@ def_name_code  "\\renewenvironment" do_newenvironment
 let do_newcounter name within =
   try
     Counter.def_counter name within ;
-    Latexmacros.def
+    Latexmacros.global_def
       ("\\the"^name) zero_pat (Subst ("\\arabic{"^name^"}"))
   with
   | Failed -> ()
@@ -2068,7 +2068,15 @@ def_code "\\ifx"
       check_alltt_skip lexbuf
     else skip_false lexbuf)
 ;;
-    
+def_code "\\ifu"
+  (fun lexbuf ->
+    let arg1 = get_csname lexbuf in
+    try
+      let _ = Latexmacros.find_fail arg1 in      
+      skip_false lexbuf
+    with
+    | Failed -> check_alltt_skip lexbuf)
+;;    
     
 def_code "\\newif" newif 
 ;;

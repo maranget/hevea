@@ -115,9 +115,11 @@ let dest_string s =
 
 (* Keywords *)
 
-let def_print name s =
-  Latexmacros.def name zero_pat
-    (CamlCode (fun _ -> dest_string s))
+let def_print s =
+  Latexmacros.def "\\@tmp@lst" zero_pat
+    (CamlCode (fun _ ->  Dest.put s)) ;
+  Latexmacros.def "\\@tmp@lst@print" zero_pat
+    (CamlCode (fun _ ->  dest_string s))
 ;;
 
 let lst_output_other () =
@@ -125,9 +127,10 @@ let lst_output_other () =
     match !lst_top_mode with
     | Normal ->
         let arg = Out.to_string lst_buff in
-        def_print "\@tmp@lst" arg ;
-        scan_this Scan.main ("{\lst@output@other{\@tmp@lst}}")
+        def_print arg ;
+        scan_this Scan.main ("\\lst@output@other{\\@tmp@lst}{\\@tmp@lst@print}")
     | _ ->
+        scan_this main "\\@NewLine" ;
         dest_string (Out.to_string lst_buff)
   end
 
@@ -137,20 +140,27 @@ and lst_output_letter () =
     match !lst_top_mode with
     | Normal ->
         let arg = Out.to_string lst_buff in
-        def_print "\\@tmp@lst" arg ;
-        scan_this Scan.main ("{\lst@output{\@tmp@lst}}")
+        def_print arg ;
+        scan_this Scan.main ("\\lst@output{\\@tmp@lst}{\\@tmp@lst@print}")
     | _ ->
+        scan_this main "\\@NewLine" ;
         dest_string (Out.to_string lst_buff)
   end
 
-let lst_output_token () = match !lst_scan_mode with
-| Letter -> lst_output_letter ()
-| Other  -> lst_output_other ()
-| Empty  -> ()
+let lst_output_token () =
+  scan_this main "\\@NewLine" ;
+  match !lst_scan_mode with
+  | Letter -> lst_output_letter ()
+  | Other  -> lst_output_other ()
+  | Empty  -> ()
 
 
 let lst_finalize () =
-  lst_output_token () ;
+  begin match !lst_scan_mode with
+  | Letter -> lst_output_letter ()
+  | Other  -> lst_output_other ()
+  | Empty  -> ()
+  end ;
   Dest.put_char '\n'
 
 
@@ -169,13 +179,16 @@ let rec lst_process_newline lb c = match !lst_top_mode with
     lst_process_newline lb c
 | _    ->
     scan_this Scan.main "\\lsthk@InitVarEOL\\lsthk@EOL" ;
-    lst_output_token () ;
-    lst_scan_mode := Empty ;
-    Dest.put_char '\n' ;
+    begin match !lst_scan_mode with
+    | Empty -> ()
+    | _ ->
+        lst_output_token () ;
+        lst_scan_mode := Empty
+    end ;
     incr lst_nlines ;  
     if !lst_nlines <= !lst_last then begin
       scan_this Scan.main
-        "\\lsthk@InitVarBOL\\lsthk@EveryLine\\lst@doindent\\lst@linenumber"
+        "\\lsthk@InitVarBOL\\lsthk@EveryLine"
     end else
       lst_top_mode := Skip
 
@@ -221,15 +234,16 @@ let lst_process_space _ lxm =  match !lst_top_mode with
     | _ -> ()
     end ;
     lst_scan_mode := Empty ;
-    lst_direct_put lxm
+    scan_this main "\\lst@output@space"
 
   
 
 let lst_init_char_table () =
   lst_init_chars
+
     "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ@_$"
     lst_process_letter ;
-  lst_init_chars "!\"#%&'()*+,-./:;<=>?[\\]^{}|`" lst_process_other ;
+  lst_init_chars "!\"#%&'()*+,-./:;<=>?[\\]^{}|`~" lst_process_other ;
   lst_init_chars "0123456789" lst_process_digit ;
   lst_init_chars " \t" lst_process_space ;
   lst_init_char '\n' lst_process_newline
@@ -238,9 +252,17 @@ let lst_init_char_table () =
 (* Strings *)
 let lst_quote_bs = ref false
 
+let lst_avoid_bs_bs old_process lb lxm = match !lst_top_mode with
+| String c when !lst_last_char = '\\' ->
+    old_process lb lxm ;
+    lst_last_char := ' '
+| _ -> old_process lb lxm
+
+
 let lst_init_quote s =
   for i = 0 to String.length s-1 do
-    if s.[i] = 'b' then lst_quote_bs := true
+    if s.[i] = 'b' then lst_quote_bs := true ;
+    lst_init_save_char '\\' lst_avoid_bs_bs         
   done
 
 let lst_process_stringizer old_process lb lxm = match !lst_top_mode with
@@ -420,7 +442,7 @@ and scan_byline = parse
     end}
 
 and listings = parse
- '\n'* "\\end" [' ''\t']* '{' [^'}']+ '}'
+ "\\end" [' ''\t']* '{' [^'}']+ '}'
     {let lxm = lexeme lexbuf in
     let env = env_extract lxm in
     lst_finalize () ;
@@ -892,7 +914,7 @@ let init_listings () =
       let keys = Subst.subst_opt "" lexbuf in
       let lab = Scan.get_prim_arg lexbuf in
       let lab = if lab = " " then "" else lab in
-      def_print "\\lst@intname" lab ;
+      def "\\lst@intname" zero_pat (CamlCode (fun _ -> Dest.put lab)) ;
       open_lst keys lab ;
       (* Eat first line *)
       save_lexstate () ;

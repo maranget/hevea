@@ -13,7 +13,7 @@
 open Lexing
 open Misc
 
-let header = "$Id: save.mll,v 1.55 2000-06-05 08:07:32 maranget Exp $" 
+let header = "$Id: save.mll,v 1.56 2000-06-06 11:41:41 maranget Exp $" 
 
 let verbose = ref 0 and silent = ref false
 ;;
@@ -213,8 +213,7 @@ and arg2 = parse
        Out.to_string arg_buff
      end}
 | "\\{" | "\\}" | "\\\\"
-      {let s = lexeme lexbuf in
-      blit_both lexbuf ; arg2 lexbuf }
+      {blit_both lexbuf ; arg2 lexbuf }
 | eof
     {error "End of file in argument"}
 
@@ -224,6 +223,7 @@ and arg2 = parse
 | _
     {let c = lexeme_char lexbuf 0 in
     put_both_char c ; arg2 lexbuf}
+
 and csname = parse
   [' ''\n']+
     {(fun get_prim subst ->

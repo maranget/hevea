@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.21 2000-06-05 08:07:31 maranget Exp $    *)
+(*  $Id: package.ml,v 1.22 2000-06-06 11:41:40 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -63,6 +63,34 @@ def_code "\\addtokens"
     end)
 ;;
 
+let call_subst lexbuf =
+  let csname = get_csname lexbuf in
+  let arg = subst_arg lexbuf in
+  let exec = csname^" "^arg in
+  if !verbose > -1 then begin
+    prerr_string "\\@callsubst: " ;
+    prerr_endline exec ;
+  end ;
+  scan_this  main exec
+
+
+and call_prim lexbuf =
+  let csname = get_csname lexbuf in
+  let arg = get_prim_arg lexbuf in
+  let exec = csname^" "^arg in
+  if !verbose > -1 then begin
+    prerr_string "\\@callprim: " ;
+    prerr_endline exec ;
+  end ;
+  scan_this  main exec
+;;
+
+
+
+def_code "\\@funcall" call_subst ;
+def_code "\\@callsubst" call_subst ;
+def_code "\\@callprim" call_prim ;
+;;
 
 (* Aux files parsing *)
 def_code "\\@hauxinit"
@@ -78,21 +106,6 @@ def_code "\\@newlabel"
     Auxx.rset name arg)
 ;;
 
-let do_call lexbuf =
-  let csname = Scan.get_csname lexbuf in
-  let arg = subst_arg lexbuf in
-  let exec = csname^" "^arg in
-  if !verbose > 1 then begin
-    prerr_string "\\@funcall: " ;
-    prerr_endline exec ;
-  end ;
-  scan_this  main exec
-;;
-
-
-
-def_code "\\@funcall" do_call ;
-;;
 
 def_code "\\@auxwrite"
   (fun lexbuf ->

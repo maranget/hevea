@@ -44,14 +44,13 @@
 %%%%%%%%%%%%
 % Keywords %
 %%%%%%%%%%%%
-\newtokens{\lst@allkeywords}
-\def\lst@record@kwds#1{\addtokens{\lst@allkeywords}{#1,}}
-\newtokens{\lst@allotherkeywords}
-\def\lst@record@okwds#1{\addtokens{\lst@allotherkeywords}{#1,}}
+\newcommand{\lst@allkeywords}{}
+\def\lst@record@kwds#1{\lst@AddTo{\lst@allkeywords}{#1}}
+\newcommand{\lst@allotherkeywords}{}
+\def\lst@record@okwds#1{\lst@AddTo{\lst@allotherkeywords}{\@rawchars{#1}}}
 \lst@AddToHook{SetLanguage}
-  {\lstinfo{Deleting: \lst@allkeywords}%
-  \lst@funcall{\lst@delete@kwds}{\lst@allkeywords}%
-  \lst@delete@okwds\lst@allotherkeywords}
+  {\@callprim{\lst@delete@kwds}{\{\lst@allkeywords\}}%
+  \@callprim{\lst@delete@okwds}{\{\@rawchars{\lst@allotherkeywords}\}}}
 \def\lst@install@kwd#1#2{\def\csname lstk@\@rawchars{#2}\endcsname{#1}}
 \def\lst@install@kwds
   #1#2{%
@@ -60,7 +59,7 @@
 \def\lst@install@okwds
   #1#2{%
     \lst@record@okwds{#2}%
-    \lst@iter{\lst@install@kwd{#1}}{#2}}
+    \@rawchars{\lst@iter{\lst@install@kwd{#1}}{#2}}}
 \def\lst@delete@kwd
   #1{\lstinfo{DLT: #1}\def\csname lstk@\@rawchars{#1}\endcsname{\lst@identifier@style}}
 \def\lst@delete@okwds#1{\lst@iter{\lst@delete@okwd}{#1}}
@@ -134,7 +133,7 @@
      {}%
   \setcounter{lst@saved@\lst@intname}{\value{lstlabel}}}
 \lst@AddToHook{InitVar}{\setcounter{lstlabel}{\value{lst@firstline}}}
-\define@key{lst}{labelstyle}{\@forcecommand{\lst@label@style}[1]{#1{##1}}}
+\define@key{lst}{labelstyle}{\def\lst@label@style##1{#1{##1}}}
 \newcommand{\lst@label@style}[1]{#1}
 \define@key{lst}{labelstep}{\def{\lst@labelstep}{#1}}
 \newcommand{\lst@labelstep}{0}
@@ -151,6 +150,12 @@
        {\lst@linenumber@{\thelstlabel}}
        {\lst@linenumber@{}}}}
 \lst@AddToHook{InitVarEOL}{\stepcounter{lstlabel}}
+\newsavebox{\@wait}
+\newcommand{\@NewLine@}
+  {\usebox{\@wait}\sbox{\@wait}{}\global\let\@NewLine\@empty}
+\lst@AddToHook{EveryLine}{\sbox{\@wait}{\usebox{\@wait}\@print{
+}\@rawchars{\lst@doindent}\lst@linenumber}\global\let\@NewLine\@NewLine@}
+\lst@AddToHook{Init}{\sbox{\@wait}{}\global\let\@Newline\@empty}
 %%%%%% Ignore input
 \newcommand{\lst@gobble}{0}
 \define@key{lst}{gobble}{\def\lst@gobble{#1}}
@@ -205,19 +210,24 @@
 \lst@AddToHookExe{SetLanguage}{\def\lst@extendedchars{false}}
 \define@key{lst}{extendedchars}[true]{\def\lst@extendedchars{#1}}
 \lst@AddToHook{SelectCharTable}
-  {\lstinfo{Extended Chars: \lst@extendedchars}%
-  \setboolean{lst@extendedchars}{\lst@boolean{\lst@extendedchars}}}
+  {\setboolean{lst@extendedchars}{\lst@boolean{\lst@extendedchars}}}
+%%%%%%% Sensitive keywords (not implemented !)
+\define@key{lst}{sensitive}[true]
+  {\ifthenelse{\lst@boolean{#1}}{}
+  {\warning{case unsensitive keywords not implemented, they are obsolete anyway!}}}
 %%%%%%% Output
-\def\lst@output#1{%
-%\lstinfo{Output: ``#1''}%
-\@ifundefined{lstk@#1}
-  {\lst@identifier@style{#1}}
-  {\csname lstk@\@rawchars{#1}\endcsname{#1}}}
-\def\lst@output@other#1{%
-%\lstinfo{Output other: ``#1''}%
-\@ifundefined{lstk@#1}
-  {#1}
-  {\csname lstk@\@rawchars{#1}\endcsname{#1}}}
+\def\lst@output@space{\sbox{\@wait}{\usebox{\@wait}\@print{ }}\global\let\@NewLine\@NewLine@}
+\def\lst@output#1#2{%
+\@NewLine
+{\ifu\csname lstk@#1\endcsname
+  \lst@identifier@style{#2}\else
+  \csname lstk@#1\endcsname{#2}\fi}}
+\def\lst@output@other#1#2{%
+%\lstinfo{Output other: ``#1'' and ``#2''}%
+\@NewLine
+\ifu\csname lstk@#1\endcsname
+  #1\else
+  {{\csname lstk@#1\endcsname{#2}}}\fi}
 %%%%%%% User interface
 \newcommand{\lstinputlisting}[2][]
   {\@scaninput{\lstinfo{INPUT: ``#1'' ``#2''}\begin{lstlisting}[#1]{}

@@ -10,6 +10,6 @@
 \end{toimage}}
 {\begin{toimage}\usepackage[#1]{#2}
 \end{toimage}}%
-\@stopoutput\@stopimage\@funcall{\@iter}{\@usepackage,{#2,,}}\@restartimage\@restartoutput
+\@stopoutput\@stopimage\@funcall{\@iter}{\@usepackage,{#2}}\@restartimage\@restartoutput
 }
 
