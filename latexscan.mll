@@ -7,7 +7,7 @@
 (*  Copyright 1998 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*****************************2******************************************)
+(***********************************************************************)
 
 {
 open Parse_opts
@@ -17,7 +17,7 @@ open Latexmacros
 open Html
 open Save
 
-let header = "$Id: latexscan.mll,v 1.43 1998-09-29 17:30:36 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.44 1998-09-30 12:17:57 maranget Exp $" 
 
 let push s e = s := e:: !s
 and pop s = match !s with
@@ -59,9 +59,9 @@ and stack_stack = ref []
 let prerr_args args =
   prerr_endline "Arguments: " ;
   for i = 0 to Array.length args - 1 do
-    prerr_string "\t<" ;
+    prerr_string "\t``" ;
     prerr_string args.(i) ;
-    prerr_endline ">"
+    prerr_endline "''"
   done ;
   prerr_endline "End of arguments" ;
 ;;
@@ -86,7 +86,7 @@ let flushing = ref false
 
 let my_int_of_string s =
   try int_of_string s with
-  Failure m -> raise (Failure (m^": "^s))
+  Failure m -> raise (Failure (m^": ``"^s^"''"))
 ;;
 
 let env_extract s =
@@ -95,39 +95,10 @@ let env_extract s =
   String.sub s (i+1) (j-i-1)
 ;;
 
-let name_extract s =
-  if s = "\\ " then s
-  else
-    let j = String.rindex s '\\' in
-    let s = String.sub s j (String.length s - j) in
-    let j = try String.index s ' ' with Not_found -> String.length s in
-    String.sub s 0 j
-
-
-and spaces_extract s =
-  let i = ref 0 in
-  while String.get s !i = ' ' || String.get s !i = '\n' do
-    i := !i + 1
-  done ;
-  String.sub s 0 !i
-
-and last_letter name =
+let last_letter name =
   let c = String.get name (String.length name-1) in
   ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z')
 ;;
-
-(*
-let subst_arg arg = try
-  let _ = String.index arg '#' in
-  Subst.subst (Lexing.from_string arg) !stack
-with
-  Subst.BadArg -> begin
-    prerr_endline ("Bad var number in  ``"^arg^"''");
-    raise (Failure "subst")
-    end
-| Not_found -> arg
-;;
-*)
 
 let save_arg lexbuf =
 
@@ -145,7 +116,7 @@ let save_arg lexbuf =
   let old_stack = !stack_lexbuf in
   let arg = save_rec lexbuf in
   if !verbose > 2 then
-    prerr_endline ("Arg parsed: <"^arg^">") ;
+    prerr_endline ("Arg parsed: ``"^arg^"''") ;
   stack_lexbuf := old_stack ;
   arg
 ;;
@@ -323,25 +294,25 @@ let display_arg  verbose =
     "CELLSPACING=0 CELLPADDING=0"
 ;;
 
-let open_display () =
+let top_open_display () =
   if !display then begin
     if !verbose > 1 then
        prerr_endline "open display" ;
     Html.open_display (display_arg !verbose)
   end
 
-and item_display () =
+and top_item_display () =
   if !display then begin
     Html.item_display ()
   end
 ;;
 
-let close_display () =
+let top_close_display () =
   if !display then begin
     Html.close_display ()
   end
 
-and close_pending_display () =
+and top_erase_pending_display () =
   if !display then begin
     Html.erase_display ();
   end
@@ -363,12 +334,12 @@ and open_vdisplay_row s =
     prerr_endline "open_vdisplay_row";
   Html.open_block "TR" "" ;
   Html.open_block "TD" s ;
-  open_display ()
+  Html.open_display (display_arg !verbose)
 
 and close_vdisplay_row () =
   if !verbose > 1 then
     prerr_endline "close_vdisplay_row";
-  close_display () ;
+  Html.close_display () ;
   Html.force_block "TD" "&nbsp;" ;
   Html.close_block "TR"
 ;;
@@ -467,13 +438,12 @@ let get_this lexfun s =
   start_lexstate ();
   push stack_display !display;
   display := false;
-  if !verbose > 1 then begin
-    Printf.fprintf stderr "get_this : [%s] = " s ;
-  end ;
+  if !verbose > 1 then
+    prerr_endline ("get_this : ``"^s^"''") ;
   let lexer = Lexing.from_string ("\\mbox{"^s^"}") in
   let r = Html.to_string (fun () -> lexfun lexer) in
   if !verbose > 1 then begin
-    prerr_endline ("["^s^"] -> "^r^"]")
+    prerr_endline ("get_this ``"^s^"'' -> ``"^r^"''")
   end ;
   display := pop stack_display;
   restore_lexstate();
@@ -700,7 +670,7 @@ let open_col main  =
   cur_col :=  show_inside main !cur_format !cur_col ;
   let format = (get_col !cur_format !cur_col) in
   Html.open_block "TD" (as_align format) ;
-  open_display ();
+  top_open_display ();
   if not (is_display format) then begin
     push stack_in_math !in_math ;
     in_math := false;
@@ -714,7 +684,7 @@ let open_first_col main =
 ;;
 
 let erase_col () =
-  close_pending_display () ;
+  top_erase_pending_display () ;
   Html.erase_block "TD" ;
   if !first_col then
     Html.erase_block ""
@@ -751,9 +721,9 @@ let do_hline main =
 ;;
 
 let change_td_pending args =
-  close_pending_display () ;
+  top_erase_pending_display () ;
   Html.change_block "TD" args  ;
-  open_display ()
+  top_open_display ()
 ;;
 
 let do_multi n format main =
@@ -765,12 +735,12 @@ let do_multi n format main =
   end ;
 
   if !first_col then begin
-    close_display () ;
+    top_close_display () ;
     Html.close_block "TD" ;
     Html.erase_block "" ;
     Html.open_group "" ;
     Html.open_block "TD" "" ;
-    open_display ()
+    top_open_display ()
   end ;
     
   let i = find_align format
@@ -793,7 +763,7 @@ let close_col main content =
   if not (is_display old_format) then begin
     in_math := pop stack_in_math
   end ;
-  close_display ();
+  top_close_display ();
   Html.force_block "TD" content ;
   if !first_col then begin
     first_col := false ;
@@ -843,39 +813,43 @@ let top_par () =
   if not (!display || !in_math) then Html.par ();
 ;;
 
-let open_top_group () = 
-  if !verbose > 2 then prerr_endline "Open brace" ;
-    push stack_table !in_table ;
-    in_table := NoTable ;
-    if !display then begin
-      item_display () ; Html.open_group "" ; open_display ()
-    end else
-      Html.open_group "" ;
-    new_env " " 
+(* Top functions for blocks *)
+let no_display = function
+  "PRE" | "TABLE" | "TR" | "TD" | "DISPLAY" -> true
+|  _ -> false
+;;
 
-and close_top_group () =
-  if !verbose > 2 then prerr_endline "Close brace" ;
+let top_open_block block args =
+  if !verbose > 2 then prerr_endline ("Top open: "^block);
+  push stack_table !in_table ;
+  in_table := NoTable ;
+  if !display then begin
+    Html.item_display () ; Html.open_block block args ;
+    Html.open_display (display_arg !verbose)
+  end else
+    Html.open_block block args
+
+and top_close_block block =
+  if !verbose > 2 then prerr_endline ("Top close: "^block) ;
   in_table := pop stack_table ;
-  let env = " " in
-  if env = !cur_env then begin
-    if !display then begin
-      close_display () ; Html.close_group () ; item_display ()
-    end else
-      Html.close_group ();
-    close_env env
-  end else if !cur_env = "*mbox" then begin
-    in_math := pop stack_in_math ;
-    Html.close_group () ;
-    display := pop stack_display ;
-    if !display then item_display () ;
-    close_env !cur_env
-  end else if !cur_env = "*hbox" then begin
-    Html.close_group () ;
-    display := pop stack_display ;
-    if !display then item_display () ;
-    close_env !cur_env
+  if !display then begin
+    Html.close_display () ; Html.close_block block ; Html.item_display ()
+  end else
+    Html.close_block block
+;;
+
+let top_open_group () =
+  top_open_block "" "" ; new_env ""
+
+and top_close_group () =
+  if !cur_env = "*mbox" then begin
+    top_close_block "" ;
+    in_math := pop stack_in_math ; display := pop stack_display ;
+    if !display then Html.item_display () ;
+    close_env "*mbox"
   end else begin
-    error_env env !cur_env
+    top_close_block "" ;
+    close_env ""
   end
 ;;
 
@@ -1163,7 +1137,7 @@ rule  main = parse
          if dodo then begin
            display  := true ;
            open_center() ;
-           open_display ()
+           Html.open_display (display_arg !verbose)
          end else begin
            display := false ;
            Html.open_group ""
@@ -1189,8 +1163,7 @@ rule  main = parse
        def_macro_pat name ([],args_pat) [Subst body] ;
        if lxm = "\\def" then macro_register name
      with Latexmacros.Failed -> () end ;
-     main lexbuf
-    }
+     main lexbuf}
   | "\\renewcommand" | "\\newcommand" | "\\providecommand"
     {let lxm = lexeme lexbuf in
     let name = Save.csname lexbuf in
@@ -1292,31 +1265,105 @@ rule  main = parse
      end ;
      if lxm = "\\let" then macro_register name ;
      main lexbuf}
-(* Raw html, latex only *)
-| "\\begin" ' '* "{rawhtml}"
-     {rawhtml lexbuf; main lexbuf }
-| "\\begin" ' '* "{latexonly}"
-     { latexonly lexbuf; main lexbuf }
-| "\\begin" ' '* "{toimage}"
-     {Image.dump "" image lexbuf}
-(* tabbing *)
-| "\\begin" ' '* "{tabbing}"
-   {let lexfun lb =
-     Html.open_block "TABLE" "CELLSPACING=0 CELLPADDING=0" ;
-     Html.open_block "TR" "" ;
-     Html.open_block "TD" "" ;
-     main lb in
-   push stack_table !in_table ;
-   in_table := Tabbing ;
-   new_env "tabbing" ;
-   lexfun lexbuf}
-| "\\end" ' '* "{tabbing}"
-   {Html.close_block "TD" ;
-   Html.close_block "TR" ;
-   Html.close_block "TABLE" ;
-   in_table := pop stack_table ;
-   close_env "tabbing" ;
-   main lexbuf}
+(* opening and closing environments *)
+| "\\begin"
+   {let env = save_arg lexbuf in
+   begin match env with
+     "rawhtml" -> rawhtml lexbuf; main lexbuf
+   | "latexonly" -> latexonly lexbuf ; main lexbuf
+   | "toimage" -> Image.dump "" image lexbuf
+   | "tabbing" ->
+        let lexfun lb =
+          Html.open_block "TABLE" "CELLSPACING=0 CELLPADDING=0" ;
+          Html.open_block "TR" "" ;
+          Html.open_block "TD" "" ;
+          main lb in
+        push stack_table !in_table ;
+        in_table := Tabbing ;
+        new_env "tabbing" ;
+        lexfun lexbuf
+   |  "tabular" | "array" ->
+        save_array_state ();
+        border := false ;
+        skip_opt lexbuf ;
+        let format = save_arg lexbuf in
+        let format = Array.of_list (scan_this tformat format) in
+        cur_format := format ;
+        in_table := (if !border then Border else Table);
+        let lexfun lb =
+          if !display then force_item_display () ;
+          push stack_display !display ;
+          display := true ;
+          if !border then
+            Html.open_block
+              "TABLE" "BORDER=1 CELLSPACING=0 CELLPADDING=1"
+          else
+            Html.open_block "TABLE" "CELLSPACING=2 CELLPADDING=0" ;
+          open_row() ;
+          open_first_col main ;
+          main lb in
+        new_env env ;
+        skip_blanks lexbuf ;
+        lexfun lexbuf
+    |  _ ->
+        if env = "document" && !prelude then begin
+          Image.put "\\begin{document}\n";
+          prelude := false ;
+          Html.forget_par () ;
+          Html.set_out !out_file
+        end ;
+        let lexfun = match env with
+          "program" | "verbatim" ->
+            (fun lexbuf -> Html.open_block "PRE" "" ;
+              verbenv lexbuf)
+        | _ ->
+            let macro = "\\"^env in
+            (fun lb ->
+              if env = "alltt" then begin
+                alltt := true ;
+                Html.open_block "PRE" ""
+              end else if env <> "document" then
+                top_open_group () ;
+              save_lexstate ();
+              scan_this_may_cont true main lexbuf macro ;
+              restore_lexstate ();
+              main lb) in
+            new_env env ;
+            lexfun lexbuf
+    end}
+| "\\end"
+    {let env = save_arg lexbuf in
+    begin match env with
+      "tabbing" ->
+        Html.close_block "TD" ;
+        Html.close_block "TR" ;
+        Html.close_block "TABLE" ;
+        in_table := pop stack_table ;
+        close_env "tabbing" ;
+        main lexbuf
+    | "array" | "tabular" ->
+        close_last_col main "" ;
+        close_row () ;
+        if env = !cur_env then begin
+          Html.close_block "TABLE" ;
+          restore_array_state () ;
+          display := pop stack_display;
+          if !display then item_display () ;
+          close_env env
+        end else begin
+          error_env env !cur_env ;
+        end ;
+        main lexbuf
+    | _ ->
+        scan_this main ("\\end"^env) ;
+        if env = "alltt" then  begin
+          alltt := false ;
+          Html.close_block "PRE"
+        end else (if env <> "document" then top_close_group ()) ;
+        close_env env ;
+        if env <> "document" then main lexbuf
+    end}
+(* inside tabbing *)
  | [' ''\n']* ("\\>" | "\\=")  [' ''\n']*
     {if is_tabbing !in_table then begin
       Html.force_block "TD" "&nbsp;";
@@ -1331,44 +1378,38 @@ rule  main = parse
       Html.open_block "TD" ""
     end ;
     main lexbuf}
-(* tables and array *)
-| "\\begin" ' '* ("{tabular}" | "{array}")
-    {let lxm = lexeme lexbuf  in
-    save_array_state ();
-    let env = env_extract lxm in
-    border := false ;
-    skip_opt lexbuf ;
-    let format = save_arg lexbuf in
-    let format = Array.of_list (scan_this tformat format) in
-    cur_format := format ;
-    in_table := (if !border then Border else Table);
-    let lexfun lb =
-      if !display then force_item_display () ;
-      push stack_display !display ;
-      display := true ;
-      if !border then
-        Html.open_block "TABLE" "BORDER=1 CELLSPACING=0 CELLPADDING=1"
-      else
-        Html.open_block "TABLE" "CELLSPACING=2 CELLPADDING=0" ;
-      open_row() ;
-      open_first_col main ;
-      main lb in
-    new_env env ;
-    skip_blanks lexbuf ; lexfun lexbuf}
-  |  [' ' '\n']* "\\\\"? [' ' '\n']* "\\end" ' '* ("{tabular}" | "{array}")
-      {let lxm = lexeme lexbuf in
-      close_last_col main "" ;
-      close_row () ;
-      let env = env_extract lxm in
-      if env = !cur_env then begin
-        Html.close_block "TABLE" ;
-        restore_array_state () ;
-        display := pop stack_display;
-        if !display then force_item_display () ;
-        close_env env
+(* inside tables and array *)
+  |  [' ''\n']* "\\hline" [' ''\n']* ("\\\\"  [' ''\n']*)?
+     {if !in_table = Table then
+       do_hline main ;
+     main lexbuf}
+  | [' ''\n']* "&"  [' ''\n']*
+     {if is_table !in_table  then begin
+        close_col main "&nbsp;"; 
+        open_col main
+     end ;
+     main lexbuf}
+  | ['\n'' ']* "\\\\"
+      {let _ = parse_args_opt [""] lexbuf in
+      if is_table !in_table  then begin
+         close_last_col main "&nbsp;" ; close_row () ;
+         open_row () ; open_first_col main
+      end else if is_tabbing !in_table then begin
+        Html.force_block "TD" "&nbsp;";
+        Html.close_block "TR" ;
+        Html.open_block "TR" "" ;
+        Html.open_block "TD" ""
       end else begin
-        error_env env !cur_env ;
+        Html.skip_line ()
       end ;
+      skip_blanks lexbuf ; main lexbuf}
+  | ['\n'' ']* "\\multicolumn" 
+      {let n = Save.arg lexbuf in      
+      let format = scan_this tformat (Save.arg lexbuf) in
+      let n = try 
+        my_int_of_string n
+        with Failure _ -> raise (Failure "multicolumn") in
+      do_multi n (Array.of_list format) main ;
       main lexbuf}
   | "\\left"
       {if !display then begin
@@ -1411,93 +1452,20 @@ rule  main = parse
       end else begin
         Html.put "/" ;
         main lexbuf
-      end}
-  |  [' ''\n']* "\\hline" [' ''\n']* ("\\\\"  [' ''\n']*)?
-     {if !in_table = Table then
-       do_hline main ;
-     main lexbuf}
-  | [' ''\n']* "&"  [' ''\n']*
-     {if is_table !in_table  then begin
-        close_col main "&nbsp;"; 
-        open_col main
-     end ;
-     main lexbuf}
-  | ['\n'' ']* "\\\\"
-      {let _ = parse_args_opt [""] lexbuf in
-      if is_table !in_table  then begin
-         close_last_col main "&nbsp;" ; close_row () ;
-         open_row () ; open_first_col main
-      end else if is_tabbing !in_table then begin
-        Html.force_block "TD" "&nbsp;";
-        Html.close_block "TR" ;
-        Html.open_block "TR" "" ;
-        Html.open_block "TD" ""
-      end else begin
-        Html.skip_line ()
-      end ;
-      skip_blanks lexbuf ; main lexbuf}
-  | ['\n'' ']* "\\multicolumn" 
-      {let n = Save.arg lexbuf in      
-      let format = scan_this tformat (Save.arg lexbuf) in
-      let n = try 
-        my_int_of_string n
-        with Failure _ -> raise (Failure "multicolumn") in
-      do_multi n (Array.of_list format) main ;
-      main lexbuf}
-      
-      
-(* environments *)
-|   "\\begin" " "* "{" ['A'-'Z' 'a'-'z']+ '*'?"}"
-    {let lxm = lexeme lexbuf in
-    let env = env_extract lxm in
-    if env = "document" && !prelude then begin
-      Image.put "\\begin{document}\n";
-      prelude := false ;
-      Html.forget_par () ;
-      Html.set_out !out_file
-   end ;
-    let lexfun = match env with
-      "program" | "verbatim" ->
-         (fun lexbuf -> Html.open_block "PRE" "" ;
-         verbenv lexbuf)
-    | _ ->
-      let macro = "\\"^env in
-      (fun lb ->
-         if env = "alltt" then begin
-           alltt := true ;
-           Html.open_block "PRE" ""
-         end else if env <> "document" then
-           open_top_group () ;
-         save_lexstate ();
-         scan_this_may_cont true main lexbuf macro ;
-         restore_lexstate ();
-         main lb) in
-    new_env env ;
-    lexfun lexbuf}
-|  "\\end" " " * "{" ['A'-'Z' 'a'-'z']+ '*'? "}"
-    {let lxm = lexeme lexbuf in
-    let env = env_extract lxm in
-    scan_this main ("\\end"^env) ;
-    if env = "alltt" then  begin
-      alltt := false ;
-      Html.close_block "PRE"
-    end else (if env <> "document" then close_top_group ()) ;
-    close_env env ;
+      end}            
+(* list items *)
+| "\\item"
+    {let arg = save_opt "" lexbuf in
+    Html.item (scan_this main) arg ;
     main lexbuf}
+(* in-text verbatim *)
 | ("\\prog" | "\\verb" | "\\verb*") _
    {let lxm = lexeme lexbuf in
    verb_delim := String.get lxm (String.length lxm-1) ;
    Html.open_group "CODE" ;
    new_env "*verb" ;
    inverb lexbuf}
-| "\\item" ' '*
-    {let arg = save_opt "" lexbuf in
-    Html.item (scan_this main) arg ;
-    main lexbuf}
-(* Ignore font definitions ... *)
-  | "\\font" "\\" ['A'-'Z' 'a'-'z']+ ' '* '='? ' '* ['a'-'z' 'A'-'Z' '0'-'9']+
-      {main lexbuf}
-(* conditionals *)
+(* TeX conditionals *)
   | "\\newif"
       {let arg = Save.arg lexbuf in
       newif arg ;
@@ -1505,7 +1473,7 @@ rule  main = parse
   | "\\else"  {skip_false lexbuf}
   | "\\fi"    {skip_blanks lexbuf ; main lexbuf}
 
-(* General case for commands *)
+(* Substitution  *)
   | '#' ['1'-'9']
       {let lxm = lexeme lexbuf in
       let i = Char.code (lxm.[1]) - Char.code '1' in
@@ -1513,7 +1481,7 @@ rule  main = parse
         raise (Failure "Top level argument");
       let arg = !stack.(i) in
       if !verbose > 2 then
-        prerr_endline ("Subst arg: <"^arg^">");
+        prerr_endline ("Subst arg: ``"^arg^"''");
       let old_args = !stack in
       stack := pop stack_stack ;
       if !verbose > 2 then
@@ -1522,33 +1490,44 @@ rule  main = parse
       push stack_stack !stack ;
       stack := old_args ;
       main lexbuf}
+(* Commands *)
   | command_name
-      {let lxm = lexeme lexbuf in
-      begin match lxm with
+      {let name = lexeme lexbuf in
+      begin match name with
     (* Html primitives *)
        "\\@open" ->
          let tag = save_arg lexbuf in
          let arg = save_arg lexbuf in
-         if tag="DISPLAY" then begin
+         if no_display tag then begin
+           if tag="DISPLAY" then begin
            push stack_display !display;
            display := true ;
-           open_display ()
-         end else begin
-           item_display () ;
-           Html.open_block tag arg ;
-           open_display ()
-         end ;
+           Html.open_display (display_arg !verbose)
+           end else begin
+             if not !silent || !verbose > 0 then begin
+               Location.print_pos () ;
+               prerr_endline ("Warning: direct opening of "^tag)
+             end ;
+             top_open_block tag arg
+           end
+         end else
+           top_open_block tag arg ;
          main lexbuf
       | "\\@close" ->
          let tag = save_arg lexbuf in
-         if tag="DISPLAY" then begin
-           close_display ();
-           display := pop stack_display
-         end else begin
-           close_display () ;
-           Html.close_block tag;
-           item_display ()
-         end ;
+         if no_display tag then begin
+           if tag="DISPLAY" then begin
+             Html.close_display ();
+             display := pop stack_display
+           end else begin
+             if not !silent || !verbose > 0 then begin
+               Location.print_pos () ;
+               prerr_endline ("Warning: direct closing of "^tag)
+             end ;
+             top_close_block tag
+           end
+         end else
+           top_close_block tag ;
          main lexbuf
       | "\\@print" ->
          let arg = save_arg lexbuf in
@@ -1673,7 +1652,7 @@ rule  main = parse
             main lexbuf
         | "\\savebox" | "\\sbox" ->
             let name = save_arg lexbuf in
-            if lxm = "\\savebox" then begin
+            if name = "\\savebox" then begin
               if not !silent then begin
                 Location.print_pos () ;
                 prerr_endline "Warning: savebox"
@@ -1783,7 +1762,7 @@ rule  main = parse
            main lexbuf
 (* spacing *)
          |  "\\hspace"|"\\vspace" ->
-           let vert = lxm = "\\vspace" in           
+           let vert = name = "\\vspace" in           
            let arg = subst_arg subst lexbuf in
            begin try
              let n = Length.main (Lexing.from_string arg) in
@@ -1798,7 +1777,7 @@ rule  main = parse
            with Length.No ->
              if not !silent then begin
                Location.print_pos () ;
-               prerr_endline ("Warning: "^lxm^" with arg ``"^arg^"''")
+               prerr_endline ("Warning: "^name^" with arg ``"^arg^"''")
              end
            end ;
            main lexbuf
@@ -1845,7 +1824,6 @@ rule  main = parse
           end ;
         exec rest in
 
-        let name = name_extract lxm in
         let pat,body = find_macro name in
         let args = make_stack name pat lexbuf in
         push stack_stack !stack ;
@@ -1889,14 +1867,14 @@ rule  main = parse
           end
         end
      end}
-
+(* Html specials *)
 | '<'         { Html.put "&lt;"; main lexbuf }
 | '>'         { Html.put "&gt;"; main lexbuf }
 | '~'         { Html.put "&nbsp;"; main lexbuf }
 | '{'
-    {open_top_group () ;  main lexbuf}
+    {top_open_group () ;  main lexbuf}
 | '}'
-    {close_top_group () ; main lexbuf}
+    {top_close_group () ; main lexbuf}
 | eof
    {if !verbose > 1 then Printf.fprintf stderr "Eof\n" ; ()}
 | '\n'
@@ -2005,23 +1983,12 @@ and mbox_arg = parse
      mbox_arg lexbuf
    end else failwith "Eof in mbox_arg"}
 | '{' | ("\\bgroup" ' '* '\n'? ' '*)
-    {let open_fun  () =
-       if !display then begin
-         item_display () 
-       end ;
-       push stack_display !display ;
-       display := false ;
-       Html.open_group "" in
-    push stack_table !in_table ;
-    in_table := NoTable ;
-    if !in_math then begin
-       push stack_in_math !in_math ;
-       in_math := false ;
-       new_env "*mbox" ;
-    end else begin
-      new_env "*hbox" ;
-    end ;
-    open_fun() ;
+    {push stack_table !in_table ; in_table := NoTable ;
+    push stack_in_math !in_math ; in_math := false ;
+    if !display then Html.item_display () ;
+    push stack_display !display ; display := false ;
+    Html.open_block "" "" ;
+    new_env "*mbox" ;
     main lexbuf}
 
 and skip_blanks_pop = parse

@@ -3,40 +3,64 @@ HEVEA=hevea
 IMAGEGEN=imagen
 HTMLCUT=hacha
 EXDIR=$(HOME)/public_html/hevea/examples
-all: a.html testsccal.html patbis.html suite.html index.html
+HTML=a.html pat.html suite.html
+DVI=$(HTML:.html=.dvi)
+TEX=$(HTML:.html=.tex)
+# coucou
+
+all: dvi html images
+
+dvi: $(DVI)
+
+
+html: $(HTML) index.html
+
 install:
-	-mkdir $(EXDIR)
-	cp *.gif *.html hp.txt $(EXDIR)
-	cp Makefile a.tex suite.tex pat.tex pat.def pat.sty $(EXDIR)
-a.html: a.tex
+	/bin/rm -rf $(EXDIR)
+	mkdir $(EXDIR)
+	cp *.gif $(HTML) tmp*.html hp.txt $(EXDIR)
+	cp Makefile $(TEX) pat.def pat.sty $(EXDIR)
+	cp $(DVI) $(EXDIR)
+
+a.dvi: a.tex
 	$(LATEX) < /dev/null a.tex
+
+a.html: a.tex
 	$(HEVEA) -v -francais a.tex
 
-testsccal.html: mydefs.sty testsccal.tex
-	$(LATEX) < /dev/null testsccal.tex
-	$(HEVEA) mydefs.sty testsccal.tex
-
-pat.html: pat.tex pat.sty
+tmp.tex: pat.def pat.tex
 	gpic -t < pat.tex > tmp.tex
+
+tmp.aux tmp.bbl pat.dvi: tmp.tex
 	$(LATEX) tmp.tex < /dev/null
 	bibtex tmp ;
 	$(LATEX) tmp.tex < /dev/null
 	$(LATEX) tmp.tex < /dev/null
-	$(HEVEA) pat.sty -e pat.def -o pat.html tmp.tex
-	$(IMAGEGEN) pat
+	mv tmp.dvi pat.dvi
 
-patbis.html: pat.html
-	$(HTMLCUT) -o patbis.html pat.html
+tmp.html: tmp.tex pat.sty tmp.aux tmp.bbl 
+	$(HEVEA) pat.sty -e pat.def tmp.tex
 
-suite.html: suite.tex
+pat.html: tmp.html
+	$(HTMLCUT) -o pat.html tmp.html
+
+suite.dvi suite.aux: suite.tex
 	$(LATEX) < /dev/null suite.tex
 	makeindex suite
 	$(LATEX) < /dev/null suite.tex
 	$(LATEX) < /dev/null suite.tex
+
+suite.html: suite.tex suite.aux
 	$(HEVEA) suite.tex
 
 index.html: index.tex
 	$(HEVEA) index.tex
 
-clean cleanall:
-	rm -f *.aux *.log *.dvi *.html *~ *.gif *.bbl tmp.* *.ilg *.ind *.idx *.image.tex *.html
+cleanhtml:
+	rm -f $(HTML) tmp.html
+
+clean cleanall: cleanhtml
+	rm -f *.aux *.log *.dvi *~ *.gif *.bbl tmp.* *.ilg *.ind *.idx *.image.tex *.html
+
+images:
+	$(IMAGEGEN) tmp

@@ -559,7 +559,7 @@ internals.
 \renewcommand{\cal}{\em}
 \end{verbatim}
 (See sections~\ref{trouble} and~\ref{both} on how to make such
-changes while leaving your file process-able by \LaTeX{}).
+changes while leaving your file processable by \LaTeX{}).
 
 \begin{htmlonly}
 With such redefinitions, we get:
@@ -717,7 +717,7 @@ or \lowerbox{-.6ex}{\em lower} text.
 \end{htmlonly}
 \end{htmlout}
 
-Note that, for the document to remain \LaTeX{}-process-able,
+Note that, for the document to remain \LaTeX{}-processable,
 it should also contain the following definition for
 \verb+\lowerbox+:
 \begin{verbatim}
@@ -1029,9 +1029,9 @@ substitution, however style changes are ignored in the
 ``\verb+HREF+'' option argument of the \verb+<A ...>+ elements.
 As a consequence one can safely write something like:
 \begin{verbatim}
-\mailto{Luc.Maranget@\textsc{inria}.\textsc{fr}}
+\mailto{Luc.Maranget@\texit{inria}.\texttt{fr}}
 \end{verbatim}
-An one gets \mailto{Luc.Maranget@\textsc{inria}.\textsc{fr}}.
+And one gets \mailto{Luc.Maranget@\textit{inria}.\texttt{fr}}.
 That is, one gets the following correct link:
 \begin{verbatim}
 <A HREF="mailto:Luc.Maranget@inria.fr">...
@@ -1679,13 +1679,15 @@ follows:
 \newcounter{coucou}
 \begin{list}{\thecoucou}{%
 \usecounter{coucou}%
-\renewcommand{\makelabel}[1]{#1.}}
+\renewcommand{\makelabel}[1]{\textbf{#1}.}}
 ...
 \end{list}
 \end{verbatim}
 This yields:
 \newcounter{coucou}
-\begin{list}{\thecoucou}{\usecounter{coucou}\renewcommand{\makelabel}[1]{#1.}}
+\begin{list}
+  {\thecoucou}
+  {\usecounter{coucou}\renewcommand{\makelabel}[1]{\textbf{#1}.}}
 \item First item.
 \item Second item.
 \end{list}
@@ -1970,7 +1972,7 @@ argument are ignored.
 \item The \verb+p{+{\it wd}\verb+}+ column specification is equivalent
 to \verb+l+ with word wrap enabled. This is the only occasion where
 \hevea{} makes a distinction between LR-mode and paragraph mode.
-The length argument to \verb+p+ specifications are ignored.
+The length arguments to \verb+p+ specifications are ignored.
 \item If a \verb+|+ appears somewhere in the column formatting
 specification, then the array is shown with borders.
 \item The command \verb+\hline+ does nothing if the array has borders
@@ -2060,11 +2062,11 @@ nothing.
 
 \subsection{Splitting the Input}
 
-The \verb+\input+ and \verb+\include+ commands exist are they perform
+The \verb+\input+ and \verb+\include+ commands exist and they perform
 exactly the same operation of searching a file (see~\ref{files}).
-Let  \filename{filename} be the argument to \verb+\input+ or
-\verb+\include+.
-A file is searched following this scheme:
+Given \filename{filename}, an the argument to \verb+\input+ or
+\verb+\include+,
+a file is searched as follows:
 \begin{itemize}
 \item If \filename{filename} is an absolute path, then \hevea{}
 attempt to open a file with this name exactly.
@@ -2450,9 +2452,9 @@ The \texttt{imagen} script should then be run as:
 \begin{flushleft}
 \texttt{\# imagen} \textit{base}
 \end{flushleft}
-The \texttt{imagen} script calls the \texttt{latex},
+The \texttt{imagen} script calls \texttt{latex},
 \texttt{dvips}, \texttt{gs}, \texttt{pnmcrop} and
-\texttt{ppmtogif} commands.
+\texttt{ppmtogif}.
 
 
 Note that, for producing one \texttt{.gif} file per
@@ -2550,9 +2552,9 @@ file from the distribution.
 Basically, \hevea{} should be given a library
 directory. The installation procedure stores the \texttt{hevea.sty}
 and base style files in this directory.
-There are two compilation mode, the \texttt{opt} mode select the
-native code \texttt{ocamlopt} Ocaml compiler, while the \texttt{byte}
-mode selects the bytecode \texttt{ocamlc} Ocaml compiler.
+There are two compilation mode, the \texttt{opt} mode selects the
+native code  Ocaml compiler \texttt{ocamlopt}, while the \texttt{byte}
+mode selects the bytecode  Ocaml compiler \texttt{ocamlc}.
 In \hevea{} case, \texttt{ocamlopt} produces code that is up to three
 times as fast as the one produced by \texttt{ocamlc}.
 Thus, default compilation mode is \texttt{opt}, however it may be the
