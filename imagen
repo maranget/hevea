@@ -1,4 +1,3 @@
-case 
 #! /bin/sh
 LATEX=latex
 DVIPS=dvips
