@@ -1,5 +1,7 @@
 version 1.03-1
-  - Experimetal seminar mode
+  - More precise error message in case of unbalanced environments :
+        the opening line of the pending environment is shown.
+  - Experimental seminar mode
   - Substitute \input argument
   - \longrightarrow et \leftrightarrow were forgotten.
   - Bugs in altt (%, &).

@@ -13,7 +13,7 @@
 %%%%%%%%%%%%%%%%%%%%
 \newcommand{\commandname}[1]{{\tt #1}}
 \newcommand{\filename}[1]{{\em #1}}
-\newcommand{\urlex}[1]{\footurl{\docurl/examples/#1}{\filename{#1}}}
+\newcommand{\urlex}[1]{\footurl{\docurl/examples/#1}{\texttt{#1}}}
 \newcommand{\localurl}[1]{%
 %BEGIN LATEX
 \footurl{\docurl/doc/#1}{\texttt{#1}}%
@@ -214,12 +214,12 @@ typesetting or {\TeX}ish macros.
 Such macros need to be rewritten, using basic \LaTeX{}
 constructs (section~\ref{trouble} gives examples of macro-rewriting).
 The new definitions are best collected in a style file,
-\texttt{mymacros.sty} for instance.
+\texttt{macros.hva} for instance.
 Then, \texttt{mydoc.tex} is to be translated by issuing the command:
 \begin{verbatim}
-# hevea mymacros.sty mydoc.tex
+# hevea macros.hva mydoc.tex
 \end{verbatim}
-The file \texttt{mymacros.sty} is processed before
+The file \texttt{macros.hva} is processed before
 \texttt{mydoc.tex} (and thus before \texttt{macros.tex}).
 As a consequence, the macro definitions in \texttt{mymacros.tex}
 override the ones in  \texttt{macros.tex}, since the latter are made
@@ -232,9 +232,9 @@ file.
 Then, you should also instruct
 \hevea{} not to load the faulty file, by issuing the command:
 \begin{verbatim}
-# hevea mymacros.sty -e macros.tex mydoc.tex
+# hevea macros.hva -e macros.tex mydoc.tex
 \end{verbatim}
-Of course, \texttt{mymacros.sty} must now contain replacements for
+Of course, \texttt{macros.hva} must now contain replacements for
 all the useful macros of \texttt{macro.tex}.
 Note that another solution to instruct \LaTeX{} to load a file and
 \hevea{} not to load it is to use \verb+\usepackage+ or optional
@@ -624,10 +624,10 @@ Most of the problems that occur during the translation of a given
 the macro-level. That is, most problems induce a macro-related warning
 and can be solved by writing a few
 macros. The best place for these macros is an user-style file (say
-\verb+trouble.sty+) given as
+\texttt{trouble.hva}) given as
 argument to \hevea.
 \begin{verbatim}
-# hevea trouble.sty trouble.tex
+# hevea trouble.hva trouble.tex
 \end{verbatim}
 By doing so, the macros written specially for \hevea{} are not
 seen by \LaTeX. Even better, \verb+trouble.tex+ is not changed
@@ -672,7 +672,7 @@ To correct this, you should provide a macro that has more or less the effect of
 However, in this case, the effect
 of \verb+\raisebox+ is to raise the box {\em a little}.
 Thus, the first, numerical, argument to \verb+\raisebox+  can be
-ignored in a private \verb+\raisebox+ macro defined in \texttt{trouble.sty}:
+ignored in a private \verb+\raisebox+ macro defined in \texttt{trouble.hva}:
 \begin{verbatim}
 \newcommand{\raisebox}[2]{$^{\mbox{#2}}$}
 \end{verbatim}
@@ -705,7 +705,7 @@ or \raisebox{-.6ex}{\em lower} text.
 \end{htmlout}
 
 
-A solution is to add a new macro definition in the \verb+trouble.sty+ file:
+A solution is to add a new macro definition in the \verb+trouble.hva+ file:
 \begin{verbatim}
 \newcommand{\lowerbox}[2]{$_{\mbox{#2}}$}
 \end{verbatim}
@@ -774,7 +774,7 @@ There is not small square in the symbol font used by \hevea.
 However there are other small symbols that would perfectly do the job
 of \verb+\blob+, such as a bullet (\verb+\bullet+).
 Thus, you may choose to give \verb+\blob+ a definition in
-\verb+trouble.sty+:
+\verb+trouble.hva+:
 \begin{verbatim}
 \newcommand{\blob}{\bullet}
 \end{verbatim}
@@ -809,6 +809,13 @@ This is right-flushed quoted text.
 \end{quote}
 \end{verbatim}
 Such a source will make both \LaTeX{} and \hevea{} choke.
+\hevea{} issues the following error message that shows the \LaTeX{}
+environment that is not closed properly:
+\begin{verbatim}
+trouble.tex:7: hml: DIV closes BLOCKQUOTE
+trouble.tex:5: Latex environment ``quote'' is pending
+Fatal error: uncaught exception Failure("Adios")
+\end{verbatim}
 Thus, when \hevea{} crashes, it is a good idea to check that the
 input is correct by running \LaTeX{} on it.
 
@@ -827,7 +834,7 @@ This a right-flushed quotation
 \end{quoteright}
 \end{verbatim}
 
-The \verb+\flushright+ is intended to replace
+The \verb+\flushright+ construct is intended to replace
 \verb+\begin{flushright}+ and the closing \verb+\endflushright+
 is omitted, since it does nothing.
 \LaTeX{} accepts such an input and produces a  right-flushed quotation.
@@ -842,8 +849,9 @@ As a consequence, \verb+\quote+ translates to, \verb+<BLOCKQUOTE>+,
 At that point, \hevea{} refuses to generate obviously
 non-correct {\html} and it crashes:
 \begin{verbatim}
-trouble.tex:8: Adios
-Fatal error: uncaught exception Failure("html: BLOCKQUOTE closes DIV")
+trouble.tex:9: hml: BLOCKQUOTE closes DIV
+trouble.tex:7: Latex environment ``quoteright'' is pending
+Fatal error: uncaught exception Failure("Adios")
 \end{verbatim}
 
 In this case, the solution is easy: environments must be opened and
@@ -1094,9 +1102,9 @@ Additionally, the \verb+\imageflush+ macro that controls included images
 \verb+\cuthere+, etc. macros that
 control document cutting (see
 section~\ref{hacha})
-are defined as null macros.
+are defined as null macros in the \texttt{html.sty} file.
 
-\subsection{Comments}
+\subsection{Comments}\label{comments}
 \hevea{} processes all lines that start with \verb+%HEVEA+, while
 \LaTeX{} treats these lines as comments.
 Thus the ``purple rain'' example can be
@@ -1176,8 +1184,8 @@ send \textit{text} to the \filename{image} file:
 Additionally, the \verb+\documentclass+ command, \verb+\usepackage+
 commands, top-level or
 global macros definitions and environment definitions
-are automatically echoed to the image file. This enables using them
-in \textit{text} above.
+are automatically echoed to the image file. This enables using
+document-specific commands in \textit{text} above.
 
 
 Output to the image files builds up a current page, which is flushed
@@ -1269,9 +1277,10 @@ centered) \texttt{.gif} image by modifying source as follows:
 \end{center}
 \end{verbatim}
 (Note that the \texttt{round.tex} file
-still can be processed by \LaTeX, since
+still can be processed by \LaTeX, since comment equivalents
+of the \texttt{toimage} environment are used and that
 the \verb+\imageflush+ command is  inside
-a \verb+%HEVEA+ comment.)
+a \verb+%HEVEA+ comment --- see section~\ref{comments}.)
 
 Then, processing \texttt{round.tex} through \hevea{} and
 \texttt{imagen} yields:
@@ -1407,12 +1416,12 @@ own definition for the \verb+centergpic+ environment beforehand:
   {\begin{toimage}}
   {\box\graph\end{toimage}\begin{center}\imageflush\end{center}}
 \end{verbatim}
-Assuming the definition above is in a \urlex{smile.sty}{\texttt{smile.sty}} file,
+Assuming that the definition above is in a \urlex{smile.hva} file,
 the command sequence for translating
-\urlex{smile.tex}{\texttt{smile.tex}} \mbox{now is}:
+\urlex{smile.tex} \mbox{now is}:
 \begin{verbatim}
 # gpic -t < smile.tex > tmp.tex
-# hevea smile.sty tmp.tex -o smile.html
+# hevea smile.hva tmp.tex -o smile.html
 tmp.tex:5: Warning: ignoring definition of \centergpic
 tmp.tex:5: Warning: not defining environment centergpic
 # imagen smile

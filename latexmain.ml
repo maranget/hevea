@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmain.ml,v 1.22 1998-12-09 17:36:32 maranget Exp $" 
+let header = "$Id: latexmain.ml,v 1.23 1998-12-09 19:38:04 maranget Exp $" 
 
 open Parse_opts
 
@@ -107,7 +107,7 @@ begin try
 with
   Html.Close s ->
     Location.print_pos () ;
-    prerr_endline "Adios" ;
+    prerr_endline s;
     Latexscan.print_env_pos () ;
     failwith "Adios"
 |  x -> begin

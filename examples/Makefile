@@ -22,7 +22,7 @@ install:
 	/bin/rm -rf $(EXDIR)
 	mkdir $(EXDIR)
 	cp *.gif $(HTML) index.html tmp*.html hp.txt $(EXDIR)
-	cp Makefile $(TEX) pat.def pat.sty smile.sty $(EXDIR)
+	cp Makefile $(TEX) pat.def pat.sty smile.hva $(EXDIR)
 	cp $(DVI) $(EXDIR)
 
 a.dvi: a.tex
@@ -64,8 +64,8 @@ smile.dvi:tsmile.tex
 	$(LATEX) < /dev/null tsmile.tex
 	mv tsmile.dvi smile.dvi
 
-smile.html: smile.sty tsmile.tex
-	$(HEVEA) smile.sty -o smile.html tsmile.tex
+smile.html: smile.hva tsmile.tex
+	$(HEVEA) smile.hva -o smile.html tsmile.tex
 
 suite.dvi suite.aux: suite.tex
 	$(LATEX) < /dev/null suite.tex
