@@ -1,0 +1,92 @@
+\documentclass{article}
+\usepackage{listings}
+\usepackage{color}
+\let\underbar\underline
+\begin{document}%
+\lstset{language=Pascal}
+
+En ligne~: \lstinline!var i:integer!.
+
+\begin{lstlisting}
+    for i:=maxint to 0 do
+    begin
+        { do nothing }
+    end;
+
+    Write('Case insensitive ');
+    WritE('Pascal keywords.');
+\end{lstlisting}
+
+\begin{lstlisting}[firstline=2, lastline=5]
+    for i:=maxint to 0 do
+    begin
+        { do nothing }
+    end;
+
+    Write('Case insensitive ');
+    WritE('Pascal keywords.');
+\end{lstlisting}
+
+\lstinputlisting[lastline=4]{prog.p}
+
+\begin{flushleft}%
+\lstset{% general command to set parameter(s)
+        basicstyle=\small,          % print whole listing small
+        keywordstyle=\color{black}\bfseries\underbar,
+                                    % underlined bold black keywords
+        identifierstyle=,           % nothing happens
+        commentstyle=\color{white}, % white comments
+        stringstyle=\ttfamily,      % typewriter type for strings
+        showstringspaces=false}     % no special string spaces
+\begin{lstlisting}
+    for i:=maxint to 0 do
+    begin
+        { do nothing }
+    end;
+
+    Write('Case insensitive ');
+    WritE('Pascal keywords.');
+\end{lstlisting}
+\end{flushleft}
+
+\begin{flushleft}%
+\lstset{numbers=left, numberstyle=\tiny, stepnumber=2, numbersep=5pt}
+\begin{lstlisting}
+    for i:=maxint to 0 do
+    begin
+        { do nothing }
+    end;
+
+    Write('Case insensitive ');
+    WritE('Pascal keywords.');
+\end{lstlisting}
+\end{flushleft}
+
+\begin{lstlisting}[float,caption=A floating example]
+    for i:=maxint to 0 do
+    begin
+        { do nothing }
+    end;
+
+    Write('Case insensitive ');
+    WritE('Pascal keywords.');
+\end{lstlisting}
+
+\section*{Special Characters}
+\begin{lstlisting}[tabsize=2]
+123456789
+	{ one tabulator }
+		{ two tabulators }
+123		{ 123 + two tabs }
+\end{lstlisting}
+
+
+\begin{lstlisting}[showspaces=true, showtabs=true, tab=\rightarrowfill]
+    for i:=maxint to 0 do
+    begin
+	{ do nothing }
+    end;
+\end{lstlisting}
+
+\end{document}
+

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.39 2002-08-05 08:57:25 maranget Exp $    *)
+(*  $Id: package.ml,v 1.40 2002-10-04 17:27:27 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -116,12 +116,27 @@ and call_prim lexbuf =
     prerr_endline exec ;
   end ;
   scan_this  main exec
+
+and call_subst_opt lexbuf =
+  let csname = get_csname lexbuf in
+  let default = subst_arg lexbuf in
+  let arg = subst_arg lexbuf in
+  let lb = Lexing.from_string arg in
+  let opt = try Save.opt lb with Save.NoOpt -> default in
+  let rem = Save.remain lb in
+  let exec = csname ^ "{" ^ opt ^ "}"  ^ rem  in
+  if !verbose > -1 then begin
+    prerr_string "\\@callsubstopt: " ;
+    prerr_endline exec ;
+  end ;
+  scan_this  main exec
 ;;
 
 
 
 def_code "\\@funcall" call_subst ;
 def_code "\\@callsubst" call_subst ;
+def_code "\\@callsubstopt" call_subst_opt ;
 def_code "\\@callprim" call_prim ;
 ;;
 

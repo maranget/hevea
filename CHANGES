@@ -1,4 +1,7 @@
 version 1.06+1
+   - started adding an example for listings (exlst.tex)
+   - proper (?) implementation of emph classes in listings
+     (some debug print left)
    - key label in listings + ignore empty fst argument of env
      listing + patch on initial line numbers
    - An attempt to follow << listings >> pace of developement

@@ -13,7 +13,7 @@
 open Lexing
 open Misc
 
-let header = "$Id: save.mll,v 1.63 2002-06-07 12:17:54 maranget Exp $" 
+let header = "$Id: save.mll,v 1.64 2002-10-04 17:27:28 maranget Exp $" 
 
 let rec if_next_char  c lb =
   if lb.lex_eof_reached then
@@ -320,6 +320,9 @@ and filename = parse
   [' ''\n']+     {put_echo (lexeme lexbuf) ; filename lexbuf}
 | [^'\n''{'' ']+ {let lxm = lexeme lexbuf in put_echo lxm ; lxm}
 | ""             {arg lexbuf}  
+
+and remain = parse
+ _ * eof {Lexing.lexeme lexbuf}
 
 and get_limits = parse
   space+          {get_limits lexbuf}

@@ -13,6 +13,7 @@
   {}
 \def\lst@define@key@opt#1#2#3{\define@key{lst}{#1}[#3]
   {\@callopt{#2}{\begin{lst@protect}##1\end{lst@protect}}}}
+\def\ignore@key#1{\define@key{lst}{#1}{}}
 %%%%%%%%%%%
 % Helpers %
 %%%%%%%%%%%
@@ -25,6 +26,10 @@
 \def\lstset#1{\@setkeys{lst}{#1}}
 %%%%%%%% Def if not empty
 \newcommand{\lst@defne}[2]{\ifx#1\@empty\def#1{#2}\fi}
+%%%%%%%%%%%%%
+% Toks regs %
+%%%%%%%%%%%%%
+\newcommand{\lst@Empty}[1]{\let#1\@empty}
 %%%%%%%%%%%%
 % Hooks    %
 %%%%%%%%%%%%
@@ -118,9 +123,7 @@
 \define@key{lst}{rdkeywordstyle}{\def\lst@rdkwd@style##1{#1{##1}}}
 \define@key{lst}{otherkeywordstyle}{\def\lst@okwd@style##1{#1{##1}}}
 \define@key{lst}{directivestyle}{\def\lst@directive@style##1{#1{##1}}}
-\define@key{lst}{identifierstyle}{\def\lst@identifier@style##1{#1{##1}}}
-\define@key{lst}{Identifierstyle}{\def\lst@Identifier@style##1{#1{##1}}}
-\define@key{lst}{nonkeywordstyle}{\def\lst@identifier@style##1{#1{##1}}}
+\define@key{lst}{identifierstyle}[]{\def\lst@identifier@style##1{#1{##1}}}
 \define@key{lst}{basicstyle}{\def\lst@basic@style{#1}}
 \define@key{lst}{commentstyle}{\def\lst@comment@style{#1}}
 \define@key{lst}{stringstyle}{\def\lst@string@style{#1}}
@@ -134,29 +137,30 @@
 \lst@AddToHook{EmptyStyle}{\def\lst@okwd@style{\lst@kwd@style}}
 \lst@AddToHook{EmptyStyle}{\def\lst@directive@style{\lst@kwd@style}}
 \lst@AddToHook{EmptyStyle}{\def\lst@directive@style{\lst@kwd@style}}
-%%%%%% Emph identifiers
-\def\lst@defall#1#2\@empty{\def\csname #1\endcsname{#2}}
-\newcommand{\lst@emphstyle@key}[1][1]{\lst@defall{lst@emphstyle#1}}
+%%%%%% Emph identifiers, classes seems to be implemented properly
+\def\lst@defall#1#2{\def\csname #1\endcsname{#2}}
+\def\lst@emphstyle@key#1#2\@empty{\lst@defall{lst@emphstyle#1}{#2}}
 \lst@AddToHook{EmptyStyle}{\let\csname lst@emphstyle1\endcsname\@empty}
-\define@key{lst}{emphstyle}{\@callsubst{\lst@emphstyle@key}{#1\@empty}}
+\define@key{lst}{emphstyle}{\@callsubstopt{\lst@emphstyle@key}{1}{#1\@empty}}
 \def\lst@record@class#1#2{%
   \providecommand{\csname lst@allemph@#1\endcsname}{}%
   \lst@AddTo,{\csname lst@allemph@#1\endcsname}{\lst@normalize{#2}}}
 \def\lst@delete@class#1{%
   \ifu\csname lst@allemph@#1\endcsname\else
-  \@callprim{\lst@delete@kwds}{\{\csname lst@allemph@#1\endcsname\}}\fi}
-\newcommand{\lst@moreemph@key}[2][1]
-  {\lst@record@class{#1}{#2}%
-  \lst@iter{\lst@install@kwd{\csname lst@emphstyle#1\endcsname}}{#2}}
-\define@key{lst}{moreemph}{\@callsubst{\lst@moreemph@key}{#1}}
-\newcommand{\lst@deleteemph@key}[2][1]
-  {\lst@iter{\lst@delete@kwd}{#2}}
-\define@key{lst}{deleteemph}{\@callsubst{\lst@deleteemph@key}{#1}}
-\newcommand{\lst@emph@key}[2][1]
-  {\lst@delete@class{#1}%  
+  \@callprim{\lst@delete@kwds}{\{\csname lst@allemph@#1\endcsname\}}%
+  \lst@Empty{\csname lst@allemph@#1\endcsname}\fi}
+\def\lst@moreemph@key#1#2\@empty{%
   \lst@record@class{#1}{#2}%
   \lst@iter{\lst@install@kwd{\csname lst@emphstyle#1\endcsname}}{#2}}
-\define@key{lst}{emph}{\@callsubst{\lst@emph@key}{#1}}
+\define@key{lst}{moreemph}{\@callsubstopt{\lst@moreemph@key}{1}{#1\@empty}}
+%%%Class number is not checked...
+\def\lst@deleteemph@key#1#2\@empty{\lst@iter{\lst@delete@kwd}{#2}}
+\define@key{lst}{deleteemph}{\@callsubstopt{\lst@deleteemph@key}{1}{#1\@empty}}
+\def\lst@emph@key#1#2\@empty{%
+  \lst@delete@class{#1}%  
+  \lst@record@class{#1}{#2}%
+  \lst@iter{\lst@install@kwd{\csname lst@emphstyle#1\endcsname}}{#2}}
+\define@key{lst}{emph}{\@callsubstopt\lst@emph@key{1}{#1\@empty}}
 %%%%%% Style definitions
 \define@key{lst}{style}[{}]{\lsthk@SetStyle\csname lst@sty#1\endcsname}
 \newcommand{\lstdefinestyle}[2]
@@ -199,10 +203,17 @@
   \ifx\lst@tmp\@empty\let\lst@bgcolor\@empty
   \else\def\lst@bgcolor{\@getcolor[#1]{#2}}\fi}
 \lst@define@key@opt{backgroundcolor}{\lst@define@bgcolor}{}
-%%%%%%% Indentation
-\define@key{lst}{indent}[1]{\def\lst@doindent{\hspace{#1}}}
-\newcommand{\lst@doindent}{}
+%%%%%%% Margins and line shape
+\def\lst@doindent#1{}
+\define@key{lst}{indent}{\def\lst@doindent{\hspace{#1}}}
+\define@key{lst}{xleftmargin}{\def\lst@doindent{\hspace{#1}}}
+\lst@iter{\ignore@key}
+  {linewitdh,xrightmargin,resetmargin,breaklines,prebreak,postbreak,%
+breakindent,breakautoindent}
 %%%%%%% Lines
+%%% Those two I don't care
+\define@key{lst}{numbersep}{}
+\define@key{lst}{numberblanklines}{}
 \newcounter{lstlabel}
 \lst@AddToHook{InitVar}{\let\@currentlabel\thelstlabel}
 \newcommand{\lst@saved@lastline}
@@ -229,7 +240,6 @@
      \setcounter{lst@saved@\lst@intname}{\value{lstlabel}}}}
 \define@key{lst}{labelstyle}{\def\lst@label@style##1{{#1{##1}}}}
 \define@key{lst}{numberstyle}{\def\lst@label@style##1{{#1{##1}}}}
-\define@key{lst}{numbersep}{}
 \newcommand{\lst@label@style}[1]{#1}
 \define@key{lst}{labelstep}{\def\lst@labelstep{#1}}
 \define@key{lst}{stepnumber}{\def\lst@labelstep{#1}}
@@ -297,7 +307,9 @@
 \newcommand{\lst@first}{1}
 \newcommand{\lst@last}{9999}
 \define@key{lst}{first}{\def\lst@first{#1}}
+\define@key{lst}{firstline}{\def\lst@first{#1}}
 \define@key{lst}{last}{\def\lst@last{#1}}
+\define@key{lst}{lastline}{\def\lst@last{#1}}
 % print key
 \define@key{lst}{print}[true]{\def\lst@print{#1}}
 \setboolean{lst@print}{true}
@@ -327,6 +339,7 @@
 \lst@define@key@opt{deletestring}{\lst@stringizer@key@delete}{}
 % stringspaces
 \define@key{lst}{stringspaces}[true]{\def\lst@stringspaces{#1}}
+\define@key{lst}{showstringspaces}[false]{\def\lst@stringspaces{#1}}
 \setboolean{lst@stringspaces}{false}
 \lst@AddToHook{Init}
   {\@ifundefined{lst@stringspaces}{}
@@ -393,25 +406,31 @@
 \define@key{lst}{deletecomment}{\@callsubst{\lst@deletecomment@key}{#1\@empty}}
 \define@key{lst}{comment}{\@callsubst{\lst@comment@key}{#1\@empty\@empty\@empty}}
 \define@key{lst}{morecomment}{\@callsubst{\lst@morecomment@key}{#1\@empty\@empty\@empty}}
-%%%%%%% Extended chars
+%%%%%%% Extended chars and others
 \def\lst@extendedchars{false}
 \lst@AddToHook{DeInit}{\setboolean{lst@extendedchars}{false}}
 \lst@AddToHookExe{SetLanguage}{\setboolean{lst@extendedchars}{false}}
 \lst@AddToHook{SelectCharTable}
 {\setboolean{lst@extendedchars}{\lst@boolean{\lst@extendedchars}}}
 \define@key{lst}{extendedchars}[true]{\def\lst@extendedchars{#1}}
+\lst@iter{\ignore@key}{inputencoding,showspaces,formfeed}
+\newcommand{\lst@warnkey}[2]{\define@key{lst}{#2}{\warning{#1}}}
+\lst@iter{\lst@warnkey{No more tabulations in our century}}{tabsize,showtabs,tab}
 %%%%%%% Sensitive keywords
 \lst@AddToHookExe{DeInit}{\setboolean{lst@sensitive}{true}}
 \lst@AddToHook{SetLanguage}{\setboolean{lst@sensitive}{true}}
-\define@key{lst}{sensitive}[true]{\setboolean{lst@sensitive}{\lst@boolean{#1}}}
+\define@key{lst}{sensitive}[true]{\warning{sensitive=#1}\setboolean{lst@sensitive}{\lst@boolean{#1}}}
 %%%%%%% Output
 % Treating spaces with a counter (and not with boxes) enables
 % optimized style managment
 \newcounter{lst@spaces}
 \def\lst@output@space{\stepcounter{lst@spaces}}
 \lst@AddToHook{Init}{\setcounter{lst@spaces}{0}}
-\def\lst@normalize
-  #1{\iflst@sensitive\@rawchars{#1}\else\@rawchars{\lowercase{#1}}\fi}
+\newsavebox{\normalize@box}
+\def\lst@normalize#1{%
+  \sbox{\normalize@box}
+  {\iflst@sensitive\@rawchars{#1}\else\@rawchars{\MakeLowercase{#1}}\fi}%
+  \usebox{\normalize@box}}
 \def\lst@output#1#2{%
 \@NewLine%\lstinfo{OUT: ``#1'' ``#2''}%
 {\ifu\csname lstk@\lst@normalize{#1}\endcsname
@@ -439,6 +458,9 @@
 \let\lst@post\@empty
 \define@key{lst}{pre}{\def\lst@pre{#1}}
 \define@key{lst}{post}{\def\lst@post{#1}}
+%%%%% Column allignement None !
+\lst@iter{\ignore@key}
+  {columns,flexiblecolumns,keepspaces,basewidth,fontadjust}
 %%%%%%% User interface
 \newcommand{\lstinputlisting}[2][]
   {\@scaninput{\begin{lstlisting}[#1]{}
