@@ -9,8 +9,8 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: noimage.ml,v 1.1 1999-06-03 13:13:33 maranget Exp $" 
-let start _ = ()
+let header = "$Id: noimage.ml,v 1.2 1999-06-18 13:25:11 maranget Exp $" 
+let start () = ()
 ;;
 let put _ = ()
 and put_char _ = ()

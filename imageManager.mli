@@ -12,7 +12,7 @@
 module type S =
   sig
 
-    val start : int -> unit
+    val start : unit -> unit
 
     val put_char : char -> unit
 

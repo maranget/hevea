@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: location.ml,v 1.10 1999-06-03 13:13:32 maranget Exp $" 
+let header = "$Id: location.ml,v 1.11 1999-06-18 13:25:10 maranget Exp $" 
 
 
 type fileOption = No | Yes of in_channel
@@ -117,6 +117,7 @@ and print_top_pos () =
   | x::_ -> prerr_string (string_of_int x^": ")
 ;;
 
+(* Deprecated 
 let echo_from_start pos buff = match !curfile with
 | No -> prerr_endline "No echo"
 | Yes file ->
@@ -129,4 +130,4 @@ let echo_from_start pos buff = match !curfile with
      seek_in file save_pos
    with Sys_error _ -> prerr_endline "Echo failed"
 ;;
-
+*)

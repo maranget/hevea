@@ -44,7 +44,7 @@ open Tabular
 open Lexstate
 
 
-let header = "$Id: latexscan.mll,v 1.112 1999-06-16 08:31:24 tessaud Exp $" 
+let header = "$Id: latexscan.mll,v 1.113 1999-06-18 13:25:05 maranget Exp $" 
 
 
 let sbool = function
@@ -928,7 +928,7 @@ rule  main = parse
       close_col main "&nbsp;"; 
       open_col main
     end ;
-    skip_blanks_pop lexbuf ;
+    if not !alltt then skip_blanks_pop lexbuf ;
     main lexbuf}
 (* Substitution  *)
   | '#' ['1'-'9']
@@ -982,13 +982,18 @@ rule  main = parse
     Dest.put lxm;
     main lexbuf}
 (* Html specials *)
-| '~'         { Dest.put_nbsp () ; main lexbuf }
+| '~'
+  {if !alltt then Dest.put_char '~'
+  else Dest.put_nbsp () ;
+  main lexbuf }
 (* Spanish stuff *)
 | "?`"
-    {Dest.put (Dest.iso '¿') ;
+    {if !alltt then Dest.put "?`"
+    else Dest.put (Dest.iso '¿') ;
     main lexbuf}
 | "!`"
-  {Dest.put (Dest.iso '¡') ;
+  {if !alltt then Dest.put "!`"
+  else Dest.put (Dest.iso '¡') ;
   main lexbuf}
 (* One character *)
 | _ 
@@ -1273,14 +1278,20 @@ and def_name_code name f = def_code name (f name)
 
 (* Styles and packages *)
 let do_documentclass command lexbuf =
+  Save.start_echo () ;
   skip_opt lexbuf ;
   let arg =  save_arg lexbuf in
+  let real_args = Save.get_echo () in
   begin try if not !styleloaded then
     input_file 0 main (arg^".hva")
   with
     Myfiles.Except | Myfiles.Error _ ->
       raise (Misc.ScanError ("No base style"))
   end ;
+  Image.start () ;
+  Image.put command ;
+  Image.put real_args ;
+  Image.put_char '\n'  
 ;;
 
 def_name_code  "\\documentstyle" do_documentclass ;
@@ -1893,10 +1904,8 @@ def_code "\\@footnoteflush"
 
 def_code "\\begin"
   (fun lexbuf ->
-    let start_pos =  Lexing.lexeme_start lexbuf - 7 in
     let env = subst_arg subst lexbuf in
     if env = "document" && !prelude then begin
-      Image.start start_pos ;
       Image.put "\\pagestyle{empty}\n\\begin{document}\n";
       prelude := false ;
       let _ = Dest.forget_par () in () ;

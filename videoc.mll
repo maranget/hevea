@@ -1,6 +1,6 @@
 (* <Christian.Queinnec@lip6.fr>
  The plugin for HeVeA that implements the VideoC style.
- $Id: videoc.mll,v 1.8 1999-06-03 13:13:37 maranget Exp $ 
+ $Id: videoc.mll,v 1.9 1999-06-18 13:25:12 maranget Exp $ 
 *)
 
 {
@@ -21,7 +21,7 @@ open Latexmacros
 
 
 let header = 
-  "$Id: videoc.mll,v 1.8 1999-06-03 13:13:37 maranget Exp $"
+  "$Id: videoc.mll,v 1.9 1999-06-18 13:25:12 maranget Exp $"
 
 exception EndSnippet
 ;;
@@ -64,6 +64,32 @@ let snippetRunHook parsing name =
 let handle_command = ref
   ((function lexbuf -> function s -> ()) 
      : (Lexing.lexbuf -> string -> unit));;
+
+(* Convert a reference to a hint such as "3" "annote.ann" "premier indice"
+   into "3_annote_ann" *)
+
+let compute_hint_id number filename notename =
+  let result = number ^ "_" ^ filename in
+  let rec convert i = begin
+    if i<String.length(result)
+    then let c = String.get result i in
+         if true || ('a' <= c && c <= 'z') (* test *)
+            || ('A' <= c && c <= 'z') 
+            || ('0' <= c && c <= '9') 
+         then ()
+         else String.set result i '_';
+         convert (i+1);
+    end in
+  convert 0;
+  result;;
+
+let increment_internal_counter =
+  let counter = ref 99 in
+  function () -> 
+    begin
+      counter := !counter + 1;
+      !counter
+    end;;
 
 } 
 
@@ -355,14 +381,19 @@ and do_vicanchor lexbuf = begin
   if !verbose > 2 then prerr_endline ("\\vicanchor"^style^nfn);
   let fields =
     comma_separated_values (Lexing.from_string (nfn ^ ",")) in
-  match fields with 
-  | [number;filename;notename] -> begin
-      Dest.put_tag ("<script language=\"JavaScript\"><!-- 
- last_links_length = document.links.length; // --></script><A href='#' class='mo
-usable'><SPAN style=\"" ^ style ^ "\"><!-- " 
-  ^ nfn ^ " -->");
-      ()
-    end
+  match fields with
+  | [number;filename;notename] -> 
+      begin
+        let uniqueNumber = (* Would be better: truncate(Unix.gettimeofday()) *)
+          increment_internal_counter()
+        and hintId = compute_hint_id number filename notename in
+        Dest.put_tag ("<A id=\"a" ^ string_of_int(uniqueNumber)
+                      ^ "__" ^ hintId 
+                      ^ "\" href='javascript: void showMessage(\""
+                      ^ hintId ^ "\")' class='mousable'><SPAN style=\"" 
+                      ^ style ^ "\"><!-- " ^ nfn ^ " -->");
+        ()
+      end
   | _ -> failwith "Missing comma-separated arguments"
 end
 
@@ -373,18 +404,17 @@ and do_vicendanchor lexbuf = begin
     comma_separated_values (Lexing.from_string (nfn ^ ",")) in
   match fields with
   | [number;filename;notename] -> begin
-      Dest.put_tag ("</SPAN></A><script language=\"JavaScript\"><!-- \n hint_push("
-                ^ number ^ "); // --></script>");
+      Dest.put_tag ("</SPAN></A>");
       ()
   end
   | _ -> failwith "Missing comma-separated arguments"
-end  
+end
 
 and do_vicindex lexbuf = begin
   let nfn = Lexstate.save_opt "0,filename,notename" lexbuf in
   Dest.put_char ' ';
   ()
-end
+end  
 ;;
 
 
@@ -401,9 +431,9 @@ let init = function () ->
     def_name_code "\\@EDEF" do_edef;
     def_name_code "\\@MULEDEF" do_muledef;
     def_code "\\snippet" do_snippet;
-    def_code "\\ViCIndex" do_vicindex;
     def_code "\\ViCEndAnchor" do_vicendanchor;
     def_code "\\ViCAnchor" do_vicanchor;
+    def_code "\\ViCIndex" do_vicindex;
     def_code "\\enableLispComment" do_enableLispComment;
     def_code "\\disableLispComment" do_disableLispComment;
     def_code "\\enableSchemeCharacters" do_enableSchemeCharacters;

@@ -10,7 +10,7 @@
 (***********************************************************************)
 
 
-let header = "$Id: html.ml,v 1.58 1999-06-16 08:31:17 tessaud Exp $" 
+let header = "$Id: html.ml,v 1.59 1999-06-18 13:25:00 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -475,7 +475,7 @@ let open_table border htmlargs =
       "mtable","frame = \"solid\"",""
     else "TABLE","BORDER=1",htmlargs
   in
-  if border then open_block table (arg_b^arg)
+  if border then open_block table (arg_b^" "^arg)
   else open_block table arg
 ;;
 

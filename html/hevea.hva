@@ -129,12 +129,8 @@
 %% Packages and Page Styles
 \newcommand{\usepackage}[2][!*!]{%
 \ifthenelse{\equal{#1}{!*!}}
-{\begin{toimage}
-\usepackage{#2}
-\end{toimage}}
-{\begin{toimage}
-\usepackage[#1]{#2}
-\end{toimage}}}
+{\begin{toimage}\usepackage{#2}\end{toimage}}
+{\begin{toimage}\usepackage[#1]{#2}\end{toimage}}}
 \def\pagestyle#1{}
 \def\thispagestyle#1{}
 \newcommand{\markright}[1]{}

@@ -4,3 +4,6 @@
 \newcommand{\myrule}{\@print{<HR NOSHADE SIZE=1 ALIGN=center>}}
 \newenvironment{htmlout}{\begin{quote}\myrule}{\myrule\end{quote}}
 \newenvironment{multicols}[1]{}{}
+\renewcommand{\@meta}{%
+\begin{rawhtml}<META NAME="Author" CONTENT="Luc Maranget">
+\end{rawhtml}}

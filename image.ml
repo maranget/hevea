@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: image.ml,v 1.13 1999-06-03 13:13:20 maranget Exp $" 
+let header = "$Id: image.ml,v 1.14 1999-06-18 13:25:01 maranget Exp $" 
 open Misc
 
 let base = Parse_opts.base_out
@@ -21,9 +21,8 @@ let count = ref 0
 let buff = ref (Out.create_null ())
 ;;
 
-let start pos =
-  buff := Out.create_buff () ;
-  Location.echo_from_start pos !buff 
+let start () =
+  buff := Out.create_buff ()
 ;;
 
 
@@ -62,7 +61,7 @@ let page () =
     Printf.fprintf stderr "dump image number %d" (n+1) ;
     prerr_endline ""
   end ;
-  if n = 0 then open_chan() ;
+  if n = 0 then open_chan () ;
   incr count ;
   base^my_string_of_int !count^".gif"
 ;;
