@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: html.ml,v 1.26 1998-10-12 17:22:11 maranget Exp $" 
+let header = "$Id: html.ml,v 1.27 1998-10-13 16:57:00 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -231,7 +231,7 @@ let par_val last now =
   end else if
     is_header last || last = "PRE" || last = "BLOCKQUOTE"
   then 0
-  else if last = "DIV" then 1
+  else if last = "DIV" || last = "TABLE" then 1
   else 2
 ;;
 

@@ -12,12 +12,15 @@
 {
 open Lexing
 
-let header = "$Id: save.mll,v 1.20 1998-10-13 09:09:27 maranget Exp $" 
+let header = "$Id: save.mll,v 1.21 1998-10-13 16:57:03 maranget Exp $" 
 
 let verbose = ref 0 and silent = ref false
 ;;
 let set_verbose s v =
   silent := s ; verbose := v
+;;
+
+let seen_par = ref false
 ;;
 
 type formatopt = Wrap | NoMath
@@ -28,8 +31,16 @@ let border = ref false
 
 let brace_nesting = ref 0
 and arg_buff = Out.create_buff ()
+and echo_buff = Out.create_buff ()
 and delim_buff = Out.create_buff ()
 and tag_buff = Out.create_buff ()
+;;
+
+let echo = ref false
+;;
+
+let get_echo () = echo := false ; Out.to_string echo_buff
+and start_echo () = echo := true ; Out.reset echo_buff
 ;;
 
 
@@ -41,90 +52,132 @@ exception NoDelim
 ;;
 exception NoOpt
 ;;
+
+let put_echo s =
+  if !echo then Out.put echo_buff s
+and put_echo_char c =
+  if !echo then Out.put_char echo_buff c
+;;
+
+let put_both s =
+  put_echo s ; Out.put arg_buff s
+;;
+
+let put_both_char c =
+  put_echo_char c ; Out.put_char arg_buff c
+;;
+
 }
 
 rule opt = parse
    '['
-        {incr brace_nesting ; opt2 lexbuf}
-| ' '+  {opt lexbuf}
+        {incr brace_nesting ;
+        put_echo_char '[' ;
+        opt2 lexbuf}
+| ' '+  {put_echo (lexeme lexbuf) ; opt lexbuf}
 |  eof  {raise (BadParse "EOF")}
 |  ""   {raise NoOpt}
 
 
 and opt2 =  parse
-    '['         {  incr brace_nesting;
-                   if !brace_nesting > 1 then begin
-                     Out.put arg_buff "[" ; opt2 lexbuf
-                   end else opt2 lexbuf}
+    '['         {incr brace_nesting;
+                put_both_char '[' ; opt2 lexbuf}
   | ']'        { decr brace_nesting;
                  if !brace_nesting > 0 then begin
-                    Out.put arg_buff "]" ; opt2 lexbuf
-                 end else Out.to_string arg_buff}
+                    put_both_char ']' ; opt2 lexbuf
+                 end else begin
+                   put_echo_char ']' ;
+                   Out.to_string arg_buff
+                 end}
   | _
       {let s = lexeme_char lexbuf 0 in
-      Out.put_char arg_buff s ; opt2 lexbuf }
+      put_both_char s ; opt2 lexbuf }
 
 and arg = parse
-    ' '* '\n'? ' '* {arg lexbuf}
+    ' '* '\n'? ' '* {put_echo (lexeme lexbuf) ; arg lexbuf}
   | '{'
       {incr brace_nesting;
+      put_echo_char '{' ;
       arg2 lexbuf}
 (*  | '='?'-'?(['0'-'9']*'.')?(['0'-'9']+|'"'['A'-'E''0'-'9']+)
     ("pt"|"cm"|"in"|"em"|"ex")?
             {lexeme lexbuf}
 *)
   | '%' [^'\n']* '\n'
-            {arg lexbuf}
+     {put_echo (lexeme lexbuf) ; arg lexbuf}
   | "\\box" '\\' (['A'-'Z' 'a'-'z']+ '*'? | [^ 'A'-'Z' 'a'-'z'])
-            {lexeme lexbuf}
-  | "`\\" [^'A'-'Z' 'a'-'z']
-      {lexeme lexbuf}
-  | '\\' ((['A'-'Z' 'a'-'z']+ '*'?) | [^ 'A'-'Z' 'a'-'z'])
-        {let r = lexeme lexbuf in
-	skip_blanks lexbuf ; r}
-  | [^ '}'] {String.make 1 (lexeme_char lexbuf 0)}
+     {let lxm = lexeme lexbuf in
+     put_echo lxm ;
+     lxm}
+  | '\\' ( [^'A'-'Z' 'a'-'z'] |
+         (['A'-'Z' 'a'-'z']+ '*'?) | [^ 'A'-'Z' 'a'-'z'])
+     {put_both (lexeme lexbuf) ;
+     skip_blanks lexbuf}
+  | [^ '}']
+      {let c = lexeme_char lexbuf 0 in
+      put_both_char c ;
+      skip_blanks lexbuf}
   | eof    {raise (BadParse "EOF")}
   | ""     {raise (BadParse "Empty Arg")}
+
 and skip_blanks = parse
-  ' '+ {skip_blanks lexbuf}
-| '\n' {more_skip_blanks lexbuf}
-| ""   {()}
-and more_skip_blanks = parse
-  ' '* {()}
+  ' '+
+    {seen_par := false ;
+    put_echo (lexeme lexbuf) ;
+    skip_blanks lexbuf}
+| '\n'
+    {put_echo_char '\n' ; more_skip lexbuf}
+| ""
+    {Out.to_string arg_buff}
+
+
+and more_skip = parse
+  '\n'+
+   {seen_par := true ;
+   put_echo (lexeme lexbuf) ;
+   more_skip lexbuf}
+| ""
+  {Out.to_string arg_buff}
 
 and sarg = parse
   [^'{'] {lexeme lexbuf}
-| "\\"  ((['A'-'Z' 'a'-'z']+ '*'?) | [^ 'A'-'Z' 'a'-'z'])
-         {lexeme lexbuf}
 | ""     {arg lexbuf}
 
 and arg2 = parse
-    '{'         {  incr brace_nesting;
-                   if !brace_nesting > 1 then begin
-                     Out.put arg_buff "{" ; arg2 lexbuf
-                   end else arg2 lexbuf}
-  | '}'        { decr brace_nesting;
-                 if !brace_nesting > 0 then begin
-                    Out.put arg_buff "}" ; arg2 lexbuf
-                 end else Out.to_string arg_buff}
+  '{'         
+     {incr brace_nesting;
+     put_both_char '{' ;
+     arg2 lexbuf}
+| '}'
+     {decr brace_nesting;
+     if !brace_nesting > 0 then begin
+       put_both_char '}' ; arg2 lexbuf
+     end else begin
+       put_echo_char '}' ;
+       Out.to_string arg_buff
+     end}
   | "\\{" | "\\}" | "\\\\"
       {let s = lexeme lexbuf in
-      Out.put arg_buff s ; arg2 lexbuf }
+      put_both s ; arg2 lexbuf }
   | eof    {raise (BadParse "EOF")}
   | _
-      {let s = lexeme_char lexbuf 0 in
-      Out.put_char arg_buff s ; arg2 lexbuf }
+      {let c = lexeme_char lexbuf 0 in
+      put_both_char c ; arg2 lexbuf }
 
 and csname = parse
-  [' ''\n']+ {csname lexbuf}
+  [' ''\n']+ {put_echo (lexeme lexbuf) ; csname lexbuf}
 | '{'? "\\csname" ' '+
-    {Out.put_char arg_buff '\\' ; incsname lexbuf}
-| ""         {arg lexbuf}
+      {let lxm = lexeme lexbuf in
+      put_echo lxm ; Out.put_char arg_buff '\\' ;
+      incsname lexbuf}
+| ""  {arg lexbuf}
 
 and incsname = parse
-  "\\endcsname"  '}'? {Out.to_string arg_buff}
+  "\\endcsname"  '}'?
+    {let lxm = lexeme lexbuf in
+    put_echo lxm ; Out.to_string arg_buff}
 | _ 
-    {Out.put_char arg_buff (lexeme_char lexbuf 0) ;
+    {put_both_char (lexeme_char lexbuf 0) ;
     incsname lexbuf}
 | eof           {raise (BadParse "EOF (csname)")}
 
@@ -193,9 +246,9 @@ and num_arg = parse
 | "" {failwith "num_arg"}
 
 and input_arg = parse
-  [' ''\n'] {input_arg lexbuf}
-| [^'\n''{'' ']+ {lexeme lexbuf}
-| "" {arg lexbuf}  
+  [' ''\n']      {put_echo (lexeme lexbuf) ; input_arg lexbuf}
+| [^'\n''{'' ']+ {let lxm = lexeme lexbuf in put_echo lxm ; lxm}
+| ""             {arg lexbuf}  
 
 and tformat = parse
   'c' {Align ("center",[])::tformat lexbuf}
@@ -250,6 +303,7 @@ and get_sub = parse
 and defargs = parse 
   '#' ['1'-'9'] | [^'#' '{']+
     {let lxm = lexeme lexbuf in
+    put_echo lxm ;
     lxm::defargs lexbuf}
 | "" {[]}
 

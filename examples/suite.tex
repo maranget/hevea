@@ -107,7 +107,7 @@ $$
 
 Yet another
 
-\subsection{Paragraphes dans les listes imbriquées (dû à
+\subsection{Paragraphes dans les listes imbriquées (du à
 Ph. A. Vitton)}
 
 This is a test of nested lists.
@@ -126,6 +126,23 @@ This is a test of nested lists.
 \end{itemize}
 And here is the end of the test.
 
+\section{Arguments}
+Le i chapô sans espaces~: ``\^\i \^{\i }\^\i\^{\i}''
+
+Le i chapô avec espaces~: ``\^\i{} {\^{\i }} \^\i\ \^{\i}''
+
+Chaque tableau est un paragraphe
+\newcommand{\test}[2]{\begin{tabular}{rcl}arg$_1$ & = & ``#1'' \\ arg$_2$ &
+= & ``#2''\end{tabular}}
+\newcommand{\aaa}{$\alpha$}
+
+\test{a}{b}
+
+\test\aaa\aaa
+
+\test\aaa{\aaa}
+
+\test\i i
 \section{Math mode}
 
 \subsection{Italiques en mode math}
@@ -317,7 +334,7 @@ $$\begin{array}{lll}\hline \\ \hline \\
 38 & 47 &  7 &  9 & 18 & 27 & 29 \\
 30 & 39 & 48 &  1 & 10 & 19 &
 \left\{\begin{array}{ll} 0 & 0 \\ 0 & 0 \end{array}\right\}
-\end{array} \right) 
+\end{array}\right) 
 \end{array} $$
 
 \subsection{Un exemple très tordu}
@@ -697,8 +714,8 @@ $$
 1\\ \vdots \\ 2
 \end{array}\right\}
 \quad
-\left|\begin{array}{c}
-1\\ \ddots \\ 2
+\left|\begin{array}{ccc}
+1 & & \\ & \ddots & \\ & & 2
 \end{array}\right|
 $$
 

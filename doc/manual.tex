@@ -260,7 +260,8 @@ after a comment or macro definition can be deleted.
 
 
 Space after macros with no argument is skipped (as in \LaTeX{}) ---
-however this is not true in math mode, see below.
+however this is not true in math mode, as explained in
+section~\ref{spacemath} below.
 Consider the following example:
 \begin{verbatim}
 \newcommand{\open}{(}
@@ -277,29 +278,9 @@ We get:
 \end{htmlout}
 In the output above, the space after \verb+\open+ does not
 find its way to the output.
-
-
-
-By contrast with \LaTeX{}, spaces from the input are significant in
-math mode, this
-feature allows users to instruct \hevea{}
-on how to put space their formulas.
-For instance, \verb+\alpha\rightarrow\beta+ is typeset without spaces between
-symbols, whereas \verb+\alpha \rightarrow \beta+ produces these spaces.
-\begin{htmlonly}
-$$
-\begin{array}{l@{ : }l}
-\verb+\alpha\rightarrow\beta+ & \alpha\rightarrow\beta\\
-\verb+\alpha \rightarrow \beta+ & \alpha \rightarrow \beta\\
-\end{array}
-$$
-\end{htmlonly}
-Note that \LaTeX{} ignores spaces in math mode, so that users can
-freely adjust \hevea{} output without changing anything to \LaTeX{}
-output.
-
-
 \newcommand{\bfsymbol}{\mbox{\bf symbol}}
+
+More generally,
 \hevea{} tries to emulate \LaTeX{} behavior in all situations, but
 discrepancies probably exist.
 Thus, users are invited to make explicit what they want.
@@ -345,7 +326,30 @@ First, formulas contain symbols, such as Greek letters, second,
 even simple formulas do not follow the simple basic typesetting model of
 \html.
 
-The first difficulty is solved using a \html{} extension:
+
+\subsubsection{Spacing in math mode}\label{spacemath}
+
+By contrast with \LaTeX{}, spaces from the input are significant in
+math mode, this
+feature allows users to instruct \hevea{}
+on how to put space their formulas.
+For instance, \verb+\alpha\rightarrow\beta+ is typeset without spaces between
+symbols, whereas \verb+\alpha \rightarrow \beta+ produces these spaces.
+\begin{htmlonly}
+$$
+\begin{array}{l@{ : }l}
+\verb+\alpha\rightarrow\beta+ & \alpha\rightarrow\beta\\
+\verb+\alpha \rightarrow \beta+ & \alpha \rightarrow \beta\\
+\end{array}
+$$
+\end{htmlonly}
+Note that \LaTeX{} ignores spaces in math mode, so that users can
+freely adjust \hevea{} output without changing anything to \LaTeX{}
+output.
+
+
+\subsubsection{symbols}\label{symbols}
+Outputing symbols is performed using an \html{} extension:
 the non-standard \verb+FACE+ attribute to the \verb+FONT+
 element instruct the browser to switch to a symbol font.
 \hevea{} assumes this choice for the symbol font to be
@@ -381,15 +385,14 @@ This is far from being satisfactory, but degraded mode may be
 appropriate for documents than contain few symbols.
 
 
+\subsubsection{Displays}
 Apart from containing symbols, formulas specify strong typesetting
 constraints: sub-elements must be combined together following patterns
 that departs from normal text typesetting. For instance, fractions
 numerators and denominators must be placed one above the other.
-\hevea{} handles such constraints in display mode only, as explained in the
-next section.
+\hevea{} handles such constraints in display mode only.
 
 
-\subsection{Displays}
 \hevea{} typesetting model for text is much simplified with respect to
 \LaTeX{} LR and paragraph modes.
 This does not harm for standard text input, which is rendered as a
@@ -1500,7 +1503,7 @@ not echoed.  Spaces after invisible commands with arguments are not
 echoed either.
 
 
-See also section~\ref{spacemath} on spaces in math mode.
+See also section~\ref{spacemathref} on spaces in math mode.
 
 
 \subsection{Paragraphs}
@@ -1818,7 +1821,7 @@ console and echoes its argument in the output.
 Math accents (\verb+\hat+, \verb+\tilde+, etc.) are not handled at
 all.
 
-\subsection{Spacing}\label{spacemath}
+\subsection{Spacing}\label{spacemathref}
 By contrast with \LaTeX{}, space in the input matters in math mode.
 One or more spaces are translated to one space.
 Furthermore,
@@ -1826,6 +1829,7 @@ spaces after commands (such as \verb+\alpha+) are echoed
 except for invisible commands (such as \verb+\tt+).
 This allows users to control space in their formulas, output being
 near to what can be expected.
+
 
 Explicit spacing commands (\verb+\,+, \verb+\!+, \verb+\:+ and
 \verb+\;+) are recognized, the first two commands do nothing, while

@@ -12,7 +12,7 @@
 {
 open Lexing
 
-let header = "$Id: entry.mll,v 1.8 1998-10-09 16:32:56 maranget Exp $" 
+let header = "$Id: entry.mll,v 1.9 1998-10-13 16:56:59 maranget Exp $" 
 
 let buff = Out.create_buff ()
 ;;
@@ -62,7 +62,7 @@ rule entry = parse
 and idx = parse
   "\\indexentry"
      {let x = Save.arg lexbuf in
-     let _ = Save.arg lexbuf in
+     let _  = Save.arg lexbuf in
      x}
 | eof {raise Fini}
 | _   {idx lexbuf}
