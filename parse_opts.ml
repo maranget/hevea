@@ -11,7 +11,7 @@
 
 open Misc
 
-let header = "$Id: parse_opts.ml,v 1.29 2004-07-21 13:53:53 thakur Exp $" 
+let header = "$Id: parse_opts.ml,v 1.30 2004-11-10 15:12:44 maranget Exp $" 
 
 type input = File of string | Prog of string
 
@@ -209,4 +209,9 @@ end
 | x  -> x
 
 
+
+let _ =
+  if !frenchwarning then begin
+    warning "-francais option is deprecated, use babel instead"
+  end
 

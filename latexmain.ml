@@ -9,10 +9,11 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmain.ml,v 1.77 2004-07-29 15:12:29 maranget Exp $" 
+let header = "$Id: latexmain.ml,v 1.78 2004-11-10 15:12:44 maranget Exp $" 
 
 open Misc
 open Parse_opts
+
 
 
 let

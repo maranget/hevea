@@ -13,8 +13,6 @@ type input = File of string | Prog of string
 
 val symbols : bool ref
 val iso : bool ref
-(*type language = Francais | English
-val language : language  ref*)
 type destination = Html | Text | Info
 val destination : destination ref
 (*to activate advanced entities*)

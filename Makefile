@@ -115,8 +115,8 @@ mylib.cmo: mylib.ml mylib.cmi
 mylib.cmx: mylib.ml mylib.cmi
 	${OCAMLOPT} -pp '${CPP} -DLIBDIR=\"${LIBDIR}\"' -c mylib.ml
 
-cutfoot-fra.html: cutfoot.tex html/hevea.hva ${HEVEA}
-	HEVEADIR=. ; export HEVEADIR ; ${HEVEA} -francais < cutfoot.tex | ${ESPONJA}> $@
+cutfoot-fra.html: cutfoot-fra.tex html/hevea.hva ${HEVEA}
+	HEVEADIR=. ; export HEVEADIR ; ${HEVEA} < cutfoot-fra.tex | ${ESPONJA}> $@
 
 cutfoot-eng.html: cutfoot.tex html/hevea.hva ${HEVEA}
 	HEVEADIR=. ; export HEVEADIR ; ${HEVEA} < cutfoot.tex | ${ESPONJA}> $@
