@@ -250,5 +250,13 @@
 \renewcommand{#1*}[1]{%
 \cuthere{#3}{##1}%
 #4##1#6\@secend}}%
+%%%%%%%%%%%%%%
+% Images     %
+%%%%%%%%%%%%%%
+\newcounter{image}
+\newcommand{\extimage}{.gif}
+\renewcommand{\theimage}{\@arabic{image}}
+\newcommand{\imageflush}[1][]
+{\@imageflush\stepcounter{image}\imgsrc[#1]{\jobname\theimage\extimage}}
 %%%%%%%%%% Compatibility with old hevea \url
 \AtBeginDocument{\@ifundefined{url}{\input{compat.hva}}{}}

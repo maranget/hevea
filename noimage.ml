@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: noimage.ml,v 1.5 1999-11-05 19:02:17 maranget Exp $" 
+let header = "$Id: noimage.ml,v 1.6 1999-11-18 13:12:06 maranget Exp $" 
 let start () = ()
 and stop () = ()
 and restart () = ()
@@ -20,9 +20,7 @@ and put_char _ = ()
 ;;
 
 let dump _ image lexbuf  = image lexbuf
-let page () =
-  Misc.warning ("No image dumped") ;
-  "XXX"
+let page () = ()
 ;;
 let finalize _ = ()
 ;;

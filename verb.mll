@@ -212,6 +212,8 @@ def_code "\\endverbatim*" close_verbenv ;
 
 def_code "\\rawhtml" open_rawhtml ;
 def_code "\\endrawhtml" Scan.check_alltt_skip  ;
+def_code "\\verblatex" open_forget ; 
+def_code "\\endverblatex" Scan.check_alltt_skip ;
 def_code "\\verbimage" open_verbimage ; 
 def_code "\\endverbimage" Scan.check_alltt_skip ;
 ()

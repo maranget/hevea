@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: image.ml,v 1.19 1999-11-08 12:58:08 maranget Exp $" 
+let header = "$Id: image.ml,v 1.20 1999-11-18 13:11:55 maranget Exp $" 
 open Misc
 
 let base = Parse_opts.base_out
@@ -78,7 +78,7 @@ let page () =
   end ;
   if n = 0 then open_chan () ;
   incr count ;
-  base^my_string_of_int !count^".gif"
+  put ("\n\\clearpage% page: "^string_of_int n^"\n")
 ;;
 
 let dump s_open image  lexbuf =

@@ -26,7 +26,7 @@
 \newcommand{\footurl}[2]{#2\footnote{#1}}
 \newcommand{\mailto}[1]{\ahref{mailto:#1}{#1}}
 %%%% HTML constructs (no equivalents in html.sty)
-\newcommand{\imgsrc}[1]{}
+\newcommand{\imgsrc}[2][]{\warning{Image in text}*#2*}
 \newcommand{\anchor}[1]{}
 %% Hyper-text references inside the document:
 \newcommand{\@locref}[2]{#2}

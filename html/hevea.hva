@@ -29,9 +29,9 @@
 \let\footurl\ahref
 \newcommand{\mailto}[1]{\ahref{mailto:#1}{#1}}
 %%%% HTML constructs (no equivalents in html.sty)
-\newcommand{\imgsrc}[2][!*!]{%
-{\@nostyle\@print{<IMG SRC="}#2\ifpedantic\@print{" ALT="}#1\fi
-\ifthenelse{\equal{#1}{!*!}}{\@print{"}}{\@print{" }#1}\@print{>}}}
+\newcommand{\imgsrc}[2][]{%
+{\@nostyle\@print{<IMG SRC="}#2\ifpedantic\@print{" ALT="}#2\fi
+\ifthenelse{\equal{#1}{}}{\@print{"}}{\@print{" }#1}\@print{>}}}
 \newcommand{\anchor}[1]{\@saveclosed{\@nostyle\@print{<A NAME="}#1\@print{"></A>}}\@restoreclosed}
 %% Hyper-text references inside the document:
 \newcommand{\@locref}[2]{\ahref{\##1}{#2}}
@@ -270,9 +270,6 @@
 \def\textsl#1{\mbox{\slshape#1}}
 \def\textsc#1{\mbox{\scshape#1}}
 \newcommand{\emph}[1]{\mbox{\em#1}}
-%%%%%%%%%%%%%%
-% packages   %
-%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%
 % Extensions %
 %%%%%%%%%%%%%%

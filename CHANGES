@@ -1,5 +1,7 @@
 
 version 1.05-6
+  - \imageflush is now a hva macro that calls \imgsrc.
+    (internal is \@imageflush)
   - Bug in htmlMath : # now is a complex character.
   - new index scheme a` la latex, with external files
   - aux files read by \document

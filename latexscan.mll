@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.149 1999-11-16 12:35:24 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.150 1999-11-18 13:12:01 maranget Exp $ *)
 
 
 {
@@ -657,12 +657,8 @@ let get_style lexfun (s,env) =
 
 (* Image stuff *)
 
-let iput_newpage arg =
-  let n = Image.page () in
-  Image.put ("\n\\clearpage% page: "^n^"\n") ;
-  Dest.image arg n
+let iput_newpage () = Image.page ()
 ;;
-
 
 let stack_entry = Stack.create "stack_entry"
 and stack_out = Stack.create  "stack_out"
@@ -1805,10 +1801,10 @@ def_code "\\@fromlib"
           Mylib.put_from_lib arg Dest.put;
           restore_lexstate ())
 ;;
-def_code "\\imageflush"
+def_code "\\@imageflush"
   (fun lexbuf ->
-          let arg = get_prim_opt "" lexbuf in
-          iput_newpage arg)
+    iput_newpage () ;
+    check_alltt_skip lexbuf)
 ;;
 def_code "\\textalltt"
   (fun lexbuf ->
@@ -2166,6 +2162,7 @@ let def_printcount name f =
 ;;
 
 def_printcount "\\arabic" string_of_int ;
+def_printcount "\\@arabic" (fun i -> Printf.sprintf "%0.3d" i) ;
 def_printcount "\\alph"  alpha_of_int ;
 def_printcount "\\Alph"  upalpha_of_int ;
 def_printcount "\\roman" roman_of_int;
