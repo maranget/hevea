@@ -230,14 +230,15 @@
 \def\underline#1{\ifdisplay
 \begin{array}{c}~\\ #1\\ \hline\end{array}\else\textunderline{#1}\fi}
 %% Maths fonts
-\def\mathrm#1{\ifmathml{#1}\else{\rm #1}\fi}
-\def\mathtt#1{\ifmathml{#1}\else{\tt #1}\fi}
-\def\mathit#1{\ifmathml{#1}\else{\it #1}\fi}
-\def\mathbf#1{\ifmathml{#1}\else{\bf #1}\fi}
-\def\mathcal#1{\ifmathml{#1}\else{\cal #1}\fi}
-\def\mathsf#1{\ifmathml{#1}\else{\sf #1}\fi}
-\def\scriptstyle{\ifmathml{#1}\else\scriptsize\fi}
-\def\scriptscriptstyle{\ifmathml{#1}\else\scriptsize\@incsize{-1}\fi}
+\def\mathrm#1{\rm #1}
+\def\mathtt#1{\tt #1}
+\def\mathit#1{\it #1}
+\def\mathbf#1{\bf #1}
+\def\mathcal#1{\cal #1}
+\def\mathsf#1{\sf #1}
+%\ifmathml{\@style{font-family: sans-serif } #1}\else{\sf #1}\fi}
+\def\scriptstyle{\ifmathml{\scriptsize}\else\scriptsize\fi}
+\def\scriptscriptstyle{\ifmathml{\scriptsize\@incsize{-1}}\else\scriptsize\@incsize{-1}\fi}
 \def\textstyle{\ifmathml{\@style{mtext}#1}\else{#1}\fi}
 %%%%% Figures and tables
 \newsavebox{\@caption}
@@ -533,10 +534,14 @@
 \newenvironment{blue}{\@fontcolor{blue}}{}
 \newenvironment{teal}{\@fontcolor{teal}}{}
 \newenvironment{aqua}{\@fontcolor{aqua}}{}
-\def\cal{\red}
-\def\sf{\purple}
-\def\sc{\navy}
-\def\sl{\it\maroon}
+\def\cal{\ifmath\ifmathml\@style{font-family: cursive }%
+\else\red\fi\else\red\fi}
+\def\sf{\ifmath\ifmathml\@style{font-family: sans-serif }%
+\else\purple\fi\else\purple\fi}
+\def\sc{\ifmath\ifmathml\@style{font-family: monospace }%
+\else\navy\fi\else\navy\fi}
+\def\sl{\ifmath\ifmathml\@style{font-family: fantasy; font-style: italic }%
+\else\it\maroon\fi\else\it\maroon\fi}
 %%%% LaTeX2e verbose declarations
 \newenvironment{mdseries}{\@anti{\bf}}{}
 \newenvironment{bfseries}{\bf}{}

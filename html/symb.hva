@@ -113,8 +113,8 @@
 %%%210 -> c in circle in iso
 %%%211 -> c in circle in iso
 %%%212 -> TM, non-existent
-\newcommand{\@prod}{\@symb{213}}
-\newcommand{\@displayprod}{{\Huge\@symb{213}}}
+\newcommand{\@prod}{\@symb{\char213}}
+\newcommand{\@displayprod}{{\Huge\@symb{\char213}}}
 \newcommand{\surd}{\@symb{\char214}}
 %%%215 -> \cdot in iso
 %%%%%%%%%%%%%%% Logics and double arrows

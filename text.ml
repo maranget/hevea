@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.25 1999-06-16 08:31:32 tessaud Exp $"
+let header = "$Id: text.ml,v 1.26 1999-06-22 14:51:51 tessaud Exp $"
 
 
 open Misc
@@ -121,16 +121,6 @@ and see_top name s = match !s with
 ;;
 
 
-let pretty_stack s =
-  prerr_string "|" ;
-  List.iter
-   (function (s,args,_) ->
-     prerr_string ("["^s^"]-{"^args^"} ")) s ;
-  prerr_endline "|"
-;;
-
-(* Gestion des styles : pas de style en mode texte *)
-
 (* output globals *)
 type status = {
     mutable nostyle : bool ;
@@ -139,15 +129,41 @@ type status = {
     mutable temp : bool
   };;
 
+
+type stack_item =
+  Normal of string * string * status
+| Freeze of (unit -> unit)
+;;
+
+exception PopFreeze
+;;
+
+let push_out s (a,b,c) = push s (Normal (a,b,c))
+;;
+
+let pretty_stack s =
+  prerr_string "|" ;
+  List.iter
+   (function Normal (s,args,_) ->
+     prerr_string ("["^s^"]-{"^args^"} ")
+   | Freeze _   -> prerr_string "Freeze ") s ;
+  prerr_endline "|"
+;;
+
+let rec pop_out s = match pop "out" s with
+  Normal (a,b,c) -> a,b,c
+| Freeze f       -> raise PopFreeze
+;;
+
 let free_list = ref [];;
 
 let out_stack = ref [];;
 
 let pblock () = match !out_stack with
-  (s,_,_)::_ -> s
+  Normal (s,_,_)::_ -> s
 | _ -> ""
 and parg () = match !out_stack with
-  (_,a,_)::_ -> a
+  Normal (_,a,_)::_ -> a
 | _ -> ""
 ;;
 
@@ -157,6 +173,9 @@ let free out =
   Out.reset out.out;
   free_list := out :: !free_list
 ;;
+
+
+
 
 let cur_out = ref { nostyle = false;
                     active=[];
@@ -415,6 +434,7 @@ let do_put s =
 let get_last_closed () = flags.last_closed;;
 let set_last_closed s = flags.last_closed<-s;;
 
+(* Gestion des styles : pas de style en mode texte *)
 
 let is_list = function
   | "UL" | "DL" | "OL" -> true
@@ -646,7 +666,7 @@ let open_block s args =
       "ALIGN","CENTER"
     else s,args
   in
-  push out_stack (bloc,arg,!cur_out);
+  push_out out_stack (bloc,arg,!cur_out);
   try_flush_par ();
   (* Sauvegarde de l'etat courant *)
   
@@ -667,7 +687,7 @@ let force_block s content =
     prerr_endline ("   force_block ``"^s^"''");
   let old_out = !cur_out in
   try_close_block s;
-  let ps,pa,pout = pop "out_stack" out_stack in
+  let ps,pa,pout = pop_out out_stack in
   cur_out:=pout;
   if !cur_out.temp then
     Out.copy old_out.out !cur_out.out;
@@ -701,39 +721,6 @@ let insert_block tag arg =
   end;
 ;;
 
-
-(* Displays *)
-
-let open_maths display = ()
-and close_maths display = ()
-;;
-
-let open_display args = ()
-;;
-
-let close_display () = ()
-;;
-
-let item_display () = ()
-;;
-
-let force_item_display () = ()
-;;
-
-let erase_display () = ()
-;;
-
-let open_vdisplay display = ()
-and close_vdisplay () = ()
-and open_vdisplay_row s = ()
-and close_vdisplay_row () = ()
-and standard_sup_sub scanner what sup sub display = ()
-and limit_sup_sub scanner what sup sub display = ()
-and int_sup_sub something vsize scanner what sup sub display = ()
-and over display lexbuf = ()
-and left delim = ()
-and right delim = 3
-;;
 
 (* Autres *)
 
@@ -794,7 +781,7 @@ let erase_block s =
       prerr_newline ()
     end ;
     try_close_block s ;
-    let ts,_,tout = pop "out_stack" out_stack in
+    let ts,_,tout = pop_out out_stack in
     if ts <> s then
       failclose ("erase_block: "^s^" closes "^ts);
     free !cur_out ;
@@ -841,12 +828,6 @@ let loc_ref s1 s2 =
 let loc_name s1 s2 =
   if !verbose >1 then prerr_endline "Text.loc_name";
   put s2
-;;
-
-let insert_vdisplay open_fun =[]
-;;
-
-let freeze f= ()
 ;;
 
 let open_chan chan =
@@ -1258,7 +1239,7 @@ let center_format =
 
 
 let make_border s =
-  if !verbose>2 then prerr_endline ("Adding border after column "^string_of_int !table.col^" :'"^s^"'");
+  if !verbose> 2 then prerr_endline ("Adding border after column "^string_of_int !table.col^" :'"^s^"'");
   
   if (!table.col = -1) || not ( !table.in_cell) then
     !cell.pre <- !cell.pre ^ s
@@ -1519,3 +1500,237 @@ let horizontal_line s u t =
     close_block "INFO";
   end
 ;;
+
+
+(*------------*)
+(*---MATHS ---*)
+(*------------*)
+
+let cm_format =
+  Tabular.Align  {Tabular.hor="center" ; Tabular.vert = "middle" ;
+		   Tabular.wrap = false ; Tabular.pre = "" ; 
+		   Tabular.post = "" ; Tabular.width = None} 
+;;
+let lm_format =
+  Tabular.Align  {Tabular.hor="left" ; Tabular.vert = "middle" ;
+		   Tabular.wrap = false ; Tabular.pre = "" ; 
+		   Tabular.post = "" ; Tabular.width = None} 
+;;
+
+
+let freeze f=
+  push out_stack (Freeze f)
+;;
+
+
+let pop_freeze () =
+  match !out_stack with
+  | Freeze f::reste -> 
+      let _ = pop "out" out_stack in
+      f,true
+  | _ -> (fun ()-> ()),false
+;;
+
+let flush_freeze ()=
+  match !out_stack with
+  | Freeze f::reste -> 
+      let _ = pop "out" out_stack in
+      f(); true
+  | _ -> false
+;;
+
+(* Displays *)
+let open_display args =
+  open_table (!verbose>1) "";
+  new_row ();
+  if !verbose > 0 then make_border "{";
+  open_cell cm_format 1 0;
+  open_cell_group ();
+;;
+
+let close_display () =
+  if not (flush_freeze ()) then begin
+    if !verbose > 0 then make_border "}";
+    close_cell_group ();
+    close_cell ();
+    close_row ();
+    close_table ();
+  end;
+;;
+
+let item_display () = 
+  let f,is_freeze = pop_freeze () in
+  if !verbose > 0 then make_border "|";
+  close_cell ();
+  close_cell_group ();
+  open_cell cm_format 1 0;
+  open_cell_group ();
+  if is_freeze then freeze f;
+;;
+
+let force_item_display () = item_display ()
+;;
+
+let erase_display () = 
+  erase_cell ();
+  erase_cell_group ();
+  erase_row ();
+  close_table ();
+;;
+
+
+let open_maths display =
+  if !verbose >1 then
+    prerr_endline "open_maths";
+  if display then begin
+    open_block "ALIGN" "CENTER";
+    open_display ""
+  end else open_block "" "";
+
+and close_maths display =
+  if display then begin
+    close_display ();
+    close_block "ALIGN";
+  end else close_block "";
+  if !verbose>1 then
+    prerr_endline "close_maths";
+;;
+
+
+
+let open_vdisplay display = 
+  open_table (!verbose>1) "";
+
+and close_vdisplay () = 
+  close_table ();
+
+and open_vdisplay_row s =
+  new_row ();
+  let f = Tabular.Align  
+      { Tabular.hor=
+	(match s with
+	|	"cm" |"cb" | "ct" -> "center"
+	|       "lt" | "lb" | "lm" -> "left"
+	|	_ -> "left") ;
+	Tabular.vert = 
+	(match s with
+	| "cm" | "lm" ->"middle"
+	| "lt" | "ct" -> "top"
+	| "lb" | "cb" -> "bottom"
+	| _ -> "middle") ;
+	Tabular.wrap = false ; Tabular.pre = "" ; 
+	Tabular.post = "" ; Tabular.width = None} 
+  in
+  if !verbose > 0 then make_border "[";
+  open_cell f 1 0;
+  open_cell_group ();
+  open_display "";
+
+and close_vdisplay_row () = 
+  close_display ();
+  if !verbose > 0 then make_border "]";
+  close_cell ();
+  close_cell_group ();
+  close_row ();
+  if !verbose > 0 then make_hline 0 false;
+;;
+
+let standard_sup_sub scanner what sup sub display =
+  if display then begin
+    item_display ();
+    if sup<>"" || sub<>"" then begin
+      open_vdisplay display;
+      open_vdisplay_row "lt";
+      scanner sup ;
+      close_vdisplay_row ();
+      open_vdisplay_row "lm";
+      what ();
+      close_vdisplay_row ();
+      open_vdisplay_row "lb";
+      scanner sub ;
+      close_vdisplay_row ();
+      close_vdisplay ();
+    end else what ()
+  end else begin
+    what ();
+    if sub <> "" then begin
+      put "_";
+      scanner sub;
+    end;
+    if sup <> "" then begin
+      put "^";
+      scanner sup;
+    end;
+  end
+    
+and limit_sup_sub scanner what sup sub display =
+  item_display ();
+  open_vdisplay display;
+  open_vdisplay_row "cm";
+  scanner sup;
+  close_vdisplay_row ();
+  open_vdisplay_row "cm";
+  what ();
+  close_vdisplay_row ();
+  open_vdisplay_row "cm";
+  scanner sub;
+  close_vdisplay_row ();
+  close_vdisplay ();
+  item_display ();
+
+and int_sup_sub something vsize scanner what sup sub display =
+  if something then what ();
+  item_display ();
+  open_vdisplay display;
+  open_vdisplay_row "lm";
+  scanner sup;
+  close_vdisplay_row ();
+  open_vdisplay_row "lm";
+  put "";
+  close_vdisplay_row ();
+  open_vdisplay_row "lm";
+  scanner sub;
+  close_vdisplay_row ();
+  close_vdisplay ();
+  item_display ();
+;;
+
+
+let insert_vdisplay open_fun =
+  force_block "" "";
+  let s = Out.to_string !cur_out.out in (* FAUX : il faut intercepter le tableau entier ! *)
+  open_block "" "";
+  open_fun ();
+  put s;
+  []
+;;
+
+
+
+let over display lexbuf =
+  if !verbose>1 then
+    prerr_endline "over";
+  if display then begin
+    let _=insert_vdisplay 
+	( fun () -> 
+	  begin
+	    open_vdisplay display;
+	    open_vdisplay_row "cm";
+	  end) in
+    close_vdisplay_row ();
+    make_hline 0 false;
+    open_vdisplay_row "cm";
+    freeze (fun () ->
+      close_vdisplay_row ();
+      close_vdisplay ();
+      close_display (););
+  end else begin
+    put "/";
+  end
+and left delim = ()
+and right delim = 3
+;;
+
+
+
+

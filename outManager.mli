@@ -42,10 +42,6 @@ module type S =
     val item_display : unit -> unit
     val force_item_display : unit -> unit
     val erase_display : unit -> unit
-    val open_vdisplay : bool -> unit
-    val close_vdisplay : unit -> unit
-    val open_vdisplay_row : string -> unit
-    val close_vdisplay_row : unit -> unit
     val standard_sup_sub : (string -> unit) -> (unit -> unit) -> string -> string -> bool -> unit
     val limit_sup_sub : (string -> unit) -> (unit -> unit) -> string -> string -> bool -> unit
     val int_sup_sub : bool -> int -> (string -> unit) -> (unit -> unit) -> string -> string -> bool -> unit
@@ -68,9 +64,6 @@ module type S =
 
     val loc_ref : string -> string -> unit
     val loc_name : string -> string -> unit
-
-    val insert_vdisplay : (unit -> unit) -> Latexmacros.env list
-    val freeze : (unit -> unit) -> unit
 
     val open_chan : out_channel  -> unit
     val close_chan : unit -> unit

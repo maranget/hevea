@@ -69,6 +69,8 @@
 \newcommand{\longrightarrow}{\mbox{-->}}
 \newcommand{\longleftrightarrow}{\mbox{<--->}}
 \newcommand{\Longleftrightarrow}{\mbox{<===>}}
+\newcommand{\@displayprod}{\mbox{---\\| |\\| |}}
+
 \iffrench
 \input{html/symb-fra.hva}
 \else

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlCommon.ml,v 1.3 1999-06-16 08:31:19 tessaud Exp $" 
+let header = "$Id: htmlCommon.ml,v 1.4 1999-06-22 14:51:29 tessaud Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -381,15 +381,22 @@ and do_open_mod e =
   Style m ->  
     if flags.in_math && !Parse_opts.mathml then 
       if m="mtext" then do_put ("<"^m^">")
-      else do_put ("<mstyle style = \""^m^"\">")
+      else do_put ("<mstyle style = \""^
+		   (match m with
+		     "B" -> "font-weight: bold "
+		   | "I" -> "font-style: italic "
+		   | "TT" -> "font-family: courier "
+		   | "EM" -> "font-style: italic "
+		   | _ -> m)^
+		   "\">")
     else do_put ("<"^m^">")
 | Font i  ->
     if flags.in_math && !Parse_opts.mathml then 
-      do_put ("<mstyle style = \"size :"^string_of_int i^"\">")
+      do_put ("<mstyle style = \"font-size: "^string_of_int i^"\">")
     else do_put ("<FONT SIZE="^string_of_int i^">")
 | Color s ->
     if flags.in_math && !Parse_opts.mathml then 
-      do_put ("<mstyle style = \"color :"^s^"\">")
+      do_put ("<mstyle style = \"color: "^s^"\">")
     else do_put ("<FONT COLOR="^s^">")
 ;;
 

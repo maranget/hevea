@@ -329,8 +329,8 @@
 \ifdisplay\@itemdisplay{\@print{o
 }}=\@itemdisplay\else
 \textdoteq\fi}
-\def\sum{\ifdisplay{\Huge\Sigma}\else\Sigma\fi}
-\def\prod{\ifdisplay{\Huge\Pi}\else\Pi\fi}
+\def\sum{\ifdisplay{\@displaysum}\else\Sigma\fi}
+\def\prod{\ifdisplay{\@displayprod}\else\prod\fi}
 \def\int{\ifdisplay\@displayint\else{\large\@int}\fi}
 %% Arrays and tabular
 \newcommand{\extracolsep}[1]{}
@@ -521,6 +521,3 @@
 \def\newline{\\}
 %%% videoc
 \newcommand{\IfFileExists}[3]{\ifthenelse{\@fileexists{#1}}{#2}{#3}}
-
-
-\renewcommand{\over}{}

@@ -44,7 +44,7 @@ open Tabular
 open Lexstate
 
 
-let header = "$Id: latexscan.mll,v 1.114 1999-06-18 15:09:08 tessaud Exp $" 
+let header = "$Id: latexscan.mll,v 1.115 1999-06-22 14:51:40 tessaud Exp $" 
 
 
 let sbool = function
@@ -1585,10 +1585,12 @@ def_code "\\@open"
         push stack_display !display;
         display := true ;
         top_open_display ()
+(*
       end else if tag="VDISPLAY" then begin
         top_item_display () ;
         Dest.open_vdisplay !display ;
         Dest.open_vdisplay_row "NOWRAP ALIGN=center"
+*)
       end else begin
         warning ("direct opening of "^tag);
         top_open_block tag arg
@@ -1611,10 +1613,12 @@ def_code "\\@close"
       if tag="DISPLAY" then begin
         top_close_display ();
         display := pop stack_display
+(*
       end else if tag = "VDISPLAY" then begin
         Dest.close_vdisplay_row () ;
         Dest.close_vdisplay () ;
         top_item_display ()
+*)
       end else begin
         warning ("direct closing of "^tag);
         top_close_block tag

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: mathML.ml,v 1.4 1999-06-18 15:09:12 tessaud Exp $" 
+let header = "$Id: mathML.ml,v 1.5 1999-06-22 14:51:48 tessaud Exp $" 
 
 
 open Misc
@@ -282,42 +282,6 @@ let close_maths display =
 ;;
 
 
-(* vertical display *)
-
-let display_arg  verbose =
-  if verbose > 0 then
-    "BORDER=1 CELLSPACING=0 CELLPADDING=0"
-  else
-    "CELLSPACING=0 CELLPADDING=0"
-;;
-
-let open_vdisplay display 
-=  
-  if !verbose > 1 then
-    prerr_endline "open_vdisplay";
-  if not display then
-    raise (Misc.Fatal ("VDISPLAY in non-display mode"));
-  open_block "TABLE" (display_arg !verbose)
-
-and close_vdisplay () =
-  if !verbose > 1 then
-    prerr_endline "close_vdisplay";
-  close_block "TABLE"
-
-and open_vdisplay_row s =
-  if !verbose > 1 then
-    prerr_endline "open_vdisplay_row";
-  open_block "TR" "" ;
-  open_block "TD" s ;
-  open_display (display_arg !verbose)
-
-and close_vdisplay_row () =
-  if !verbose > 1 then
-    prerr_endline "close_vdisplay_row";
-  close_display () ;
-  force_block "TD" "&nbsp;" ;
-  close_block "TR"
-;;
 
 
 let insert_vdisplay open_fun =
@@ -452,47 +416,57 @@ let put s =
       r := !r && is_blank (String.get s i)
     done ;
     !r in
-  let s_op = is_op s
-  and s_number = is_number s in
-  let save_last_closed = flags.last_closed in
-  if is_open_delim s then open_delim ();
-  let s_text = if is_close_delim s then is_close () else false in
-  if s_op || s_number then force_item_display ();
-  do_pending () ;
-  flags.empty <- false;
-  flags.blank <- s_blank && flags.blank ;
-  if s_number then do_put ("<mn> "^s^" </mn>\n")
-  else if s_text then do_put ("<mtext>"^s^"</mtext>")
-  else if s_op then begin
-    do_put ("<mo> "^s^" </mo>\n");
-  end else begin
-    do_put s
-  end;
-  if s_blank then flags.last_closed <- save_last_closed;
-  if is_close_delim s then close_delim ();
+  let s_blanc =
+    let r = ref true in
+    for i = 0 to String.length s - 1 do
+      r := !r &&  ((String.get s i)=' ')
+    done ;
+    !r in
+  if not s_blanc then begin
+    let s_op = is_op s
+    and s_number = is_number s in
+    let save_last_closed = flags.last_closed in
+    if is_open_delim s then open_delim ();
+    let s_text = if is_close_delim s then is_close () else false in
+    if s_op || s_number then force_item_display ();
+    do_pending () ;
+    flags.empty <- false;
+    flags.blank <- s_blank && flags.blank ;
+    if s_number then do_put ("<mn> "^s^" </mn>\n")
+    else if s_text then do_put ("<mtext>"^s^"</mtext>")
+    else if s_op then begin
+      do_put ("<mo> "^s^" </mo>\n");
+    end else begin
+      do_put s
+    end;
+    if s_blank then flags.last_closed <- save_last_closed;
+    if is_close_delim s then close_delim ();
+  end
 ;;
 
 let put_char c =
   let save_last_closed = flags.last_closed in
   let c_blank = is_blank c in
-  let s = String.make 1 c in
-  let c_op = is_op s in
-  let c_digit = is_digit c in
-  if is_open_delim s then open_delim ();
-  let c_text = if is_close_delim s then is_close () else false in
-  if c_op || c_digit then force_item_display ();
-  do_pending () ;
-  flags.empty <- false;
-  flags.blank <- c_blank && flags.blank ;
-  if c_digit then do_put ("<mn> "^s^" </mn>\n")
-  else if c_text then do_put ("<mtext>"^s^"</mtext>")
-  else if c_op then begin
-    do_put ("<mo> "^s^" </mo>\n");
-  end else begin
-    do_put_char c;
-  end;
-  if c_blank then flags.last_closed <- save_last_closed;
-  if is_close_delim s then close_delim ();
+  if c <> ' ' then begin
+    let s = String.make 1 c in
+    let c_op = is_op s in
+    let c_digit = is_digit c in
+    if is_open_delim s then open_delim ();
+    let c_text = if is_close_delim s then is_close () else false in
+    if c_op || c_digit then force_item_display ();
+    do_pending () ;
+    flags.empty <- false;
+    flags.blank <- c_blank && flags.blank ;
+    if c_digit then do_put ("<mn> "^s^" </mn>\n")
+    else if c_text then do_put ("<mtext>"^s^"</mtext>")
+    else if c_op then begin
+      do_put ("<mo> "^s^" </mo>\n");
+    end else begin
+      do_put_char c;
+    end;
+    if c_blank then flags.last_closed <- save_last_closed;
+    if is_close_delim s then close_delim ();
+  end
 ;;
 
 let put_in_math s =
@@ -639,14 +613,13 @@ let int_sup_sub something vsize scanner what sup sub display =
 
 let over display lexbuf =
  if display then begin
+    force_item_display ();
     let mods = insert_vdisplay
         (fun () ->
           open_block "mfrac" "";
 	  open_display "") in
-    erase_mods mods;
     close_display () ;
     open_display "" ;
-    erase_mods mods;
     freeze
       (fun () ->
         close_display () ;

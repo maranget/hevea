@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlMath.ml,v 1.3 1999-06-16 08:31:20 tessaud Exp $" 
+let header = "$Id: htmlMath.ml,v 1.4 1999-06-22 14:51:30 tessaud Exp $" 
 
 
 open Misc
@@ -30,7 +30,7 @@ let freeze f =
 let flush_freeze () = match !out_stack with
   Freeze f::rest ->
     let _ = pop "out" out_stack in
-      if !verbose > 2 then begin
+    if !verbose > 2 then begin
       prerr_string "flush_freeze" ;
       pretty_stack !out_stack
     end ;
@@ -615,7 +615,7 @@ let over display lexbuf =
     freeze
       (fun () ->
         close_vdisplay_row () ;
-        close_vdisplay ())
+        close_vdisplay ();)
   end else begin
     put "/"
   end

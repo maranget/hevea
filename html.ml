@@ -10,7 +10,7 @@
 (***********************************************************************)
 
 
-let header = "$Id: html.ml,v 1.60 1999-06-18 15:09:02 tessaud Exp $" 
+let header = "$Id: html.ml,v 1.61 1999-06-22 14:51:25 tessaud Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -151,16 +151,11 @@ let iso c =
 
 (* Calls to other modules that are in the interface *)
 
-let freeze,
+let 
   over,
-  insert_vdisplay,
   int_sup_sub,
   limit_sup_sub,
   standard_sup_sub ,
-  close_vdisplay_row,
-  open_vdisplay_row,
-  close_vdisplay,
-  open_vdisplay,
   erase_display,
   begin_item_display,
   end_item_display,
@@ -181,16 +176,10 @@ let freeze,
   right
     =
   if !Parse_opts.mathml then begin
-    MathML.freeze,
     MathML.over,
-    MathML.insert_vdisplay,
     MathML.int_sup_sub,
     MathML.limit_sup_sub,
     MathML.standard_sup_sub,
-    MathML.close_vdisplay_row,
-    MathML.open_vdisplay_row,
-    MathML.close_vdisplay,
-    MathML.open_vdisplay,
     MathML.erase_display,
     MathML.begin_item_display,
     MathML.end_item_display,
@@ -210,16 +199,10 @@ let freeze,
     MathML.left,
     MathML.right
   end else begin
-    HtmlMath.freeze,
     HtmlMath.over,
-    HtmlMath.insert_vdisplay,
     HtmlMath.int_sup_sub,
     HtmlMath.limit_sup_sub,
     HtmlMath.standard_sup_sub,
-    HtmlMath.close_vdisplay_row,
-    HtmlMath.open_vdisplay_row,
-    HtmlMath.close_vdisplay,
-    HtmlMath.open_vdisplay,
     HtmlMath.erase_display,
     HtmlMath.begin_item_display,
     HtmlMath.end_item_display,
@@ -349,20 +332,36 @@ let ditem scan arg =
 
 
 let loc_ref s1 s2 =
-  put "<A HREF=\"#" ;
-  put s2 ;
-  put "\">" ;
-  put s1 ;
-  put "</A>"
+  if flags.in_math && !Parse_opts.mathml then begin
+    put "<mrow xml:link=\"simple\" href=\"";
+    put s2;
+    put "\">";
+    put s1;
+    put "</mrow>"
+  end else begin
+    put "<A HREF=\"#" ;
+    put s2 ;
+    put "\">" ;
+    put s1 ;
+    put "</A>"
+  end
 ;;
 
 let loc_name s1 s2 =
   let pval = forget_par () in
-  put "<A NAME=\"" ;
-  put s1 ;
-  put "\">" ;
-  put s2 ;
-  put "</A>" ;
+  if flags.in_math && !Parse_opts.mathml then begin
+    put "<mrow xml:link=\"simple\" id=\"";
+    put s1;
+    put "\">";
+    put s2;
+    put "</mrow>";
+  end else begin
+    put "<A NAME=\"" ;
+    put s1 ;
+    put "\">" ;
+    put s2 ;
+    put "</A>" ;
+  end;
   par pval
 ;;
 
