@@ -11,7 +11,7 @@
 
 open Misc
 
-let header = "$Id: parse_opts.ml,v 1.31 2005-02-11 17:14:12 maranget Exp $" 
+let header = "$Id: parse_opts.ml,v 1.32 2005-02-14 09:28:53 maranget Exp $" 
 
 type input = File of string | Prog of string
 
@@ -70,57 +70,59 @@ let outname = ref ""
 
 let _ = Arg.parse
     [
-      ("-version", Arg.Unit
-         (fun () ->
-           print_endline ("hevea "^Version.version) ;
-           print_endline ("library directory: "^Mylib.static_libdir) ;
-           exit 0),
-       "show hevea version and library directory") ;
-      ("-v", Arg.Unit (fun () -> readverb := !readverb + 1),
-       "verbose flag, can be repeated to increase verbosity") ;
-      ("-s", Arg.Unit (fun () -> silent := true),
-       "suppress warnings") ;
-      ("-e", Arg.String (fun s -> except := s :: !except),
-       "filename, prevent file ``filename'' from being read") ;
-      ("-fix", Arg.Unit (fun () -> fixpoint := true),
-       "iterate Hevea until fixpoint") ;
-      ("-O", Arg.Unit (fun () -> optimize := true),
-       "call esponja to optimize HTML output") ;
-     ("-exec", Arg.String add_program,
-       "prog , execute external program ``prog'', then read its result") ;
-     ("-gloss", Arg.String (fun s -> gloss := true ; glossfile := s),
-       "glossary definitions file to be read and processed for producing glossary entries, along with the glosstex package") ;
-     ("-bib", Arg.String (fun s -> bib := true ; bibfile := s),
-       "bibtex entry file to be read and processed for producing bibliography entries") ;
-     ("-francais",Arg.Unit (fun () -> frenchwarning := true),
-       "French mode (deprecated)") ;
-     ("-moreentities", Arg.Unit (fun () -> moreentities := true),
-       "Enable the output of some rare entities.") ;
-     ("-entities", Arg.Unit (fun () -> symbol_mode := Entity),
-        "Render symbols by using entities, this is the default") ;
-     ("-symbols", Arg.Unit (fun () -> symbol_mode := Symbol),
-        "Render symbols by using the symbol font, obsolete") ;
-     ("-textsymbols", Arg.Unit (fun () -> symbol_mode := SText),
-        "Render symbols by english text") ;
+  ("-version", Arg.Unit
+     (fun () ->
+       print_endline ("hevea "^Version.version) ;
+       print_endline ("library directory: "^Mylib.static_libdir) ;
+       exit 0),
+   "show hevea version and library directory") ;
+  ("-v", Arg.Unit (fun () -> readverb := !readverb + 1),
+   "verbose flag, can be repeated to increase verbosity") ;
+  ("-s", Arg.Unit (fun () -> silent := true),
+   "suppress warnings") ;
+  ("-I", Arg.String (fun s -> path := s :: !path),
+   "dir, add directory ``dir'' to search path") ;
+  ("-e", Arg.String (fun s -> except := s :: !except),
+   "filename, prevent file ``filename'' from being read") ;
+  ("-fix", Arg.Unit (fun () -> fixpoint := true),
+   "iterate Hevea until fixpoint") ;
+  ("-O", Arg.Unit (fun () -> optimize := true),
+   "call esponja to optimize HTML output") ;
+  ("-exec", Arg.String add_program,
+   "prog , execute external program ``prog'', then read its result") ;
+  ("-gloss", Arg.String (fun s -> gloss := true ; glossfile := s),
+   "glossary definitions file to be read and processed for producing glossary entries, along with the glosstex package") ;
+  ("-bib", Arg.String (fun s -> bib := true ; bibfile := s),
+   "bibtex entry file to be read and processed for producing bibliography entries") ;
+  ("-francais",Arg.Unit (fun () -> frenchwarning := true),
+   "French mode (deprecated)") ;
+  ("-moreentities", Arg.Unit (fun () -> moreentities := true),
+   "Enable the output of some rare entities.") ;
+  ("-entities", Arg.Unit (fun () -> symbol_mode := Entity),
+   "Render symbols by using entities, this is the default") ;
+  ("-symbols", Arg.Unit (fun () -> symbol_mode := Symbol),
+   "Render symbols by using the symbol font, obsolete") ;
+  ("-textsymbols", Arg.Unit (fun () -> symbol_mode := SText),
+   "Render symbols by english text") ;
 
-     ("-noiso",Arg.Unit (fun () -> iso := false),
-       "use HTML entities in place of isolatin1 non-ascii characters") ;
-     ("-pedantic",Arg.Unit (fun () -> pedantic := true),
-       "be pedantic in interpreting HTML 4.0 transitional definition") ;
-     ("-mathml",Arg.Unit (fun() -> mathml := true),
-       "produces MathML output for equations, very experimental");
+  ("-noiso",Arg.Unit (fun () -> iso := false),
+   "use HTML entities in place of isolatin1 non-ascii characters") ;
+  ("-pedantic",Arg.Unit (fun () -> pedantic := true),
+   "be pedantic in interpreting HTML 4.0 transitional definition") ;
+  ("-mathml",Arg.Unit (fun() -> mathml := true),
+   "produces MathML output for equations, very experimental");
 
-     ("-text",Arg.Unit (fun () -> symbol_mode :=  SText ; destination := Text),
-       "output plain text");
-     ("-info",Arg.Unit (fun () -> symbol_mode :=  SText ; destination := Info),
-       "output info file(s)");
-     ("-w", Arg.String (fun s -> width := int_of_string s),
-      "width, set the output width for text or info output");
-     ("-o", Arg.String (fun s -> outname := s),
-       "filename, make hevea output go into file ``filename''")
-    ]
+  ("-text",Arg.Unit (fun () -> symbol_mode :=  SText ; destination := Text),
+   "output plain text");
+  ("-info",Arg.Unit (fun () -> symbol_mode :=  SText ; destination := Info),
+   "output info file(s)");
+  ("-w", Arg.String (fun s -> width := int_of_string s),
+   "width, set the output width for text or info output");
+  ("-o", Arg.String (fun s -> outname := s),
+   "filename, make hevea output go into file ``filename''")
+]
     (add_input)
-   ("hevea "^Version.version)
+    ("hevea "^Version.version)
 ;;
 
 let warning s =

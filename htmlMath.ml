@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlMath.ml,v 1.30 2005-01-21 17:40:51 maranget Exp $" 
+let header = "$Id: htmlMath.ml,v 1.31 2005-02-14 09:28:53 maranget Exp $" 
 
 
 open Misc
@@ -140,7 +140,7 @@ let open_display_varg_harg varg harg =
   end
 ;;
 
-let open_display () = open_display_varg "VALIGN=center"
+let open_display () = open_display_varg "VALIGN=middle"
 
 let close_display () =
   if !verbose > 2 then begin

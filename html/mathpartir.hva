@@ -104,7 +104,7 @@
       \mpr@line{top}#2\endmpr@line%
     \fi\fi%
     \ifmpr@vdots%
-      \@open{TR}{valign=center}%
+      \@open{TR}{valign=middle}%
       \mpr@emptyL
       \@open{TD}{align=center}\mpr@output@vdots\@force{TD}%
       \mpr@emptyR
