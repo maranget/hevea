@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: index.ml,v 1.34 1999-12-13 16:18:42 maranget Exp $"
+let header = "$Id: index.ml,v 1.35 1999-12-22 10:45:59 maranget Exp $"
 open Misc
 open Parse_opts
 open Entry
@@ -70,16 +70,16 @@ let read_index_file name file =
       let arg1,arg2 = read_indexentry lexbuf in
       let k,see =
         try read_key (Lexing.from_string arg1) 
-        with NoGood _ -> raise (NoGood arg1) in
+        with Entry.NoGood -> raise (NoGood arg1) in
       Table.emit r {key=k ; see=see ; item = arg2} ;
       do_rec ()
     with
     | Entry.Fini -> Table.trim r
     | NoGood arg -> begin
         Misc.warning
-          ("bad index arg syntax in file: "^name^
-           " arg is "^arg) ;
-        Table.emit r bad_entry ; do_rec ()
+          ("Bad index arg syntax in file: "^name^
+           ", index entry is ``"^arg^"''") ;
+        do_rec ()
     end in
     
   let r = do_rec () in
@@ -118,9 +118,8 @@ let treat tag arg refvalue =
       let key,see = read_key lexbuf in
       Table.emit from_doc {key = key ; see = see ; item = item}
     with
-    | NoGood _ ->
-        Misc.warning ("Bad index syntax: "^arg) ;
-        Table.emit from_doc bad_entry
+    | Entry.NoGood ->
+        Misc.warning ("Bad index syntax: ``"^arg^"''")
     end ;
     lbl
   with
@@ -328,7 +327,12 @@ let print main tag =
     else begin
       let out = Out.create_buff () in
       output_index tag idx.name (Table.trim idx.from_doc) out ;
-      main (Out.to_string out)
+      let s = Out.to_string out in
+      if !verbose > 1 then begin
+        prerr_endline ("Formated index: "^tag^" is ") ;
+        prerr_endline s
+      end ;
+      main s
     end
   with
   | Not_found -> missing_index tag

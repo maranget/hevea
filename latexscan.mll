@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.155 1999-12-13 16:00:49 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.156 1999-12-22 10:46:04 maranget Exp $ *)
 
 
 {
@@ -1728,6 +1728,10 @@ def_code "\\@print"
   (fun lexbuf ->
           let arg,_ = save_arg lexbuf in
           Dest.put arg) ;
+def_code "\\@getprint"
+  (fun lexbuf ->
+    let arg = get_prim_arg lexbuf in
+    Dest.put arg) ;
 def_code "\\@subst"
   (fun lexbuf ->
     let arg = subst_arg lexbuf in
@@ -1923,9 +1927,9 @@ def_code "\\cite"
     Dest.open_group "CITE" ;
     let rec do_rec = function
         [] -> ()
-      | [x] -> bib_ref x (Auxx.bget x)
+      | [x] -> bib_ref x (Auxx.bget true x)
       | x::rest ->
-          bib_ref x (Auxx.bget x) ;
+          bib_ref x (Auxx.bget true x) ;
           Dest.put ", " ;
           do_rec rest in
     do_rec args ;
@@ -1937,7 +1941,7 @@ def_code "\\cite"
     Dest.put_char ']' )
 ;;
 
-def_fun "\\@bibread" Auxx.bget
+def_fun "\\@bibread" (Auxx.bget false)
 ;;
 
 def_code "\\@bibwrite"

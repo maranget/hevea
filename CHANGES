@@ -1,6 +1,7 @@
 
 version 1.05-6
   - New primitive \@getprint : get_prim_arg + Dest.put, for attributes
+  - Bug exception NoGood (entry.mll and index.tex)
   - Two bugs: \tabbing closed a group at startup and Sys.rename failure
     when target exists on windows.
   - keyval package.
