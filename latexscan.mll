@@ -45,7 +45,7 @@ open Tabular
 open Lexstate
 open Stack
 
-let header = "$Id: latexscan.mll,v 1.135 1999-09-14 19:49:50 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.136 1999-09-22 16:41:16 maranget Exp $" 
 
 
 let sbool = function
@@ -687,8 +687,7 @@ let check_this lexfun s =
 
 let iput_newpage arg =
   let n = Image.page () in
-  Image.put ("% page: "^n^"\n") ;
-  Image.put "\\clearpage\n\n" ;
+  Image.put ("\n\\clearpage% page: "^n^"\n") ;
   Dest.image arg n
 ;;
 
@@ -791,6 +790,19 @@ let expand_command main skip_blanks name lexbuf =
     | CamlCode f -> f lexbuf in
 
   let pat,body = find_macro name in
+  if
+    (!in_math && Latexmacros.invisible name) ||
+    (not !in_math && not !alltt &&
+     is_subst_noarg body pat && last_letter name)
+  then begin
+    if !verbose > 2 then
+      prerr_endline "skipping blanks";
+    skip_blanks lexbuf
+  end else begin
+    if !verbose > 2 then begin
+      prerr_endline "not skipping blanks"
+    end
+  end ;
   let args = make_stack name pat lexbuf in
   let saw_par = !Save.seen_par in
   let is_limit = checklimits lexbuf ||  Latexmacros.limit name in
@@ -816,19 +828,6 @@ let expand_command main skip_blanks name lexbuf =
       macro_depth := !macro_depth - 1
     end ;
     if saw_par then top_par (par_val !in_table)
-    else if
-      (!in_math && Latexmacros.invisible name) ||
-      (not !in_math && not !alltt &&
-       is_subst_noarg body pat && last_letter name)
-    then begin
-      if !verbose > 2 then
-        prerr_endline "skipping blanks";
-      skip_blanks lexbuf
-    end else begin
-      if !verbose > 2 then begin
-        prerr_endline "not skipping blanks"
-      end
-    end ;
   end
 ;;
 
@@ -1065,7 +1064,7 @@ and latex_comment = parse
 
 and image = parse
    '%'+ ' '* ("END"|"end") ' '+ ("IMAGE"|"image")  [^'\n']* '\n'
-     {Image.put_char '\n' ; stop_other_scan true main lexbuf}
+     {stop_other_scan true main lexbuf}
 |  '%'+ ' '* ("HEVEA"|"hevea") ' '*
      {image lexbuf}
 |  '%'
@@ -1085,7 +1084,6 @@ and image = parse
      let arg = save_arg lexbuf in
      let true_arg = Save.get_echo () in
      if arg = "toimage" then begin
-       Image.put_char '\n' ;
        stop_other_scan false main lexbuf
      end else if arg = top stack_entry then begin
        let _ = pop stack_entry in
@@ -1486,7 +1484,7 @@ let do_def realdef global lxm lexbuf =
              (subst_this subst (Save.get_defargs lexbuf))) in
       let body = subst_arg subst lexbuf in
       name,args_pat,body in
-  if !env_level = 0 || global then
+  if not realdef && (!env_level = 0 || global) then
     Image.put
       (lxm^name^
        (List.fold_right (fun s r -> s^r) args_pat ("{"^body^"}\n"))) ;
@@ -1513,7 +1511,7 @@ let do_let reallet global lxm lexbuf =
     if not global then macro_register name
   with Latexmacros.Failed -> ()
   end ;
-  if !env_level = 0 || global then begin
+  if not reallet && (!env_level = 0 || global) then begin
     Image.put lxm ;
     Image.put name ;
     Image.put "=" ;
@@ -1548,6 +1546,13 @@ def_code "\\noexpand"
      let arg = save_arg lexbuf in
      Dest.put arg)
 ;;
+
+def_code "\\execafter"
+  (fun lexbuf ->
+     let arg = save_arg lexbuf in
+     let next_arg = save_arg lexbuf in
+     scan_this_may_cont main lexbuf next_arg ;
+     scan_this_may_cont main lexbuf arg)
 
 let do_unskip () =
  let _ = Dest.forget_par () in

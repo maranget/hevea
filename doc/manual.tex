@@ -9,6 +9,7 @@
 \usepackage{ifthen}
 \usepackage{array}
 \usepackage{multicol}
+\usepackage{graphics}
 %HEVEA\usepackage{color}
 \makeindex
 
@@ -1304,7 +1305,7 @@ have \LaTeX{} process it, to produce a \texttt{.gif} image from
 output.
 \hevea{} provides a limited support for doing this.
 
-\subsection{The \textit{image} file}
+\subsection{The \textit{image} file}\label{image:file}
 
 While outputting \filename{mydoc}\texttt{.html}, \hevea{} echoes some
 of its input to the \filename{image} file,
@@ -1400,7 +1401,14 @@ Cost can be lowered using \verb+\savebox+, but the other problems remain.
 
 \subsection{Including Postscript images}\label{substimage}
 \index{image inclusion!in Postcript|defocc}
-Such images are easy to manage: it suffices to let \LaTeX{} do the
+In this section, a technique to transform included Postscript images
+into included GIF images is described.
+Note that this technique is used by \hevea{} implementation of the
+the \texttt{graphics} package (see section~\ref{graphics}),
+which provides a more standard manner to include Postcript images in
+\LaTeX{} documents.
+
+Included images are easy to manage: it suffices to let \LaTeX{} do the
 job.
 Let \texttt{round.ps} be a Postscript file, which is included as an
 image in the source file \texttt{round.tex} (which must load the
@@ -1451,7 +1459,7 @@ the image file and performs \verb+\imageflush+:
 \begin{verbatim}
  \newcommand{\epsfbox}[1]{%
  \begin{toimage}
- \epsfbox{#1}%
+ \epsfbox{#1}
  \end{toimage}
  \imageflush}
 \end{verbatim}
@@ -1469,10 +1477,6 @@ and not a redefinition (i.e., \verb+\newcommand+ is used and not
 because \hevea{} does not know about \verb+\epsfbox+ by default.
 Also observe that this not a recursive definition, since
 commands do not get expanded inside the \verb+toimage+ environment.
-
-Note that this technique also works for the
-\verb+\includegraphics+ command from the \texttt{graphics} package.
-
 
 Finally, if the Postscript image is produced from a bitmap, it is
 a pity to translate it back into a bitmap.
@@ -1864,9 +1868,7 @@ The \verb+\imgsrc+ command is more useful.
 It becomes handy when one has images both in Postscript and GIF format.
 As explained in section~\ref{substimage}, Postscript images can
 be included in \LaTeX{} documents by using the \verb+\epsfbox+
-command from the \texttt{epsf} package (or by using the
-\verb+\includegraphics+ command from the more standard
-\texttt{graphics} package).
+command from the \texttt{epsf} package.
 For instance, if \texttt{screenshot.ps} is an encapsulated  Postscript
 file, then a \texttt{doc.tex} document can include it by:
 \begin{verbatim}
@@ -2024,7 +2026,7 @@ defines the \LaTeX{} \verb+center+ environment:
 \newenvironment{center}{\@open{DIV}{ALIGN=center}}{\@close{DIV}}
 \end{verbatim}
 Another example is the definition of the \verb+\purple+ high-level
-color declaration (see section~\ref{htmlcolor}):
+color declaration (see section~\ref{color}):
 \begin{verbatim}
 \newcommand{\purple}{\@fontcolor{purple}}
 \end{verbatim}
@@ -2152,6 +2154,23 @@ One  solution to insert the following lines into \texttt{macros.hva}:
 The effect is to replace \verb+\title+ by a new command which
 calls \hevea{} \verb+\title+ with the appropriate argument.
 
+%\subsection{Checking the optional argument within a command}\label{fullepsfbox}
+%\index{image inclusion!in Postcript}
+%\hevea{} fully implements \LaTeXe{} \verb+\newcommand+.
+%That is, users can define commands with an optional argument.
+%Such a feature permits to write a \verb+\epsfbox+ command that
+%has the same interface as the \LaTeX{} command and
+%echoes itself as it is invoked to the \textit{image} file.
+%To do this, the \hevea{} \verb+\epsfbox+ command has to check
+%whether it is invoked with an optional argument or not.
+%This can be achieved as follows~:
+%\begin{verbatim}
+%\newcommand{\epsfbox}[2][!*!]{%
+%\ifthenelse{\equal{#1}{!*!}}{%No optional argument
+%\begin{toimage}\epsfbox{#2}\end{toimage}}{%With optional argument
+%\begin{toimage}\epsfbox[#1]{#2}\end{toimage}}%
+%\imageflush}
+%\end{verbatim}
 
 
 \section{Other output formats}\label{alternative}
@@ -3377,7 +3396,7 @@ the \texttt{picture} environment and the \texttt{graphics} package.
 However, it is possible to have pictures and graphics processed by
 \texttt{imagen} 
 and to include links to resulting \texttt{gif} images (see
-section~\ref{imagen}).
+section~\ref{image:file}).
 For instance consider the following picture:
 \begin{verbatim}
 \newcounter{cms}
@@ -3425,29 +3444,40 @@ by \hevea:
 %END IMAGE
 \imageflush
 
-\index{image inclusion!in Postcript}\envindex{toimage}\comindex{imageflush}
-\noindent
-By contrast with the case of the picture given above, simple usage of
-the \verb+\includegraphics+ command
-from the \texttt{graphics} package can be treated without altering the
-\LaTeX{} document at all.
-Basically it suffices to give \hevea{} its own definition for the
-\verb+\includegraphics+ command:
+\label{graphics}\index{image inclusion!in Postcript}
+All commands from the graphics package are implemented using the
+automatic image inclusion feature.
+More precisely, the outermost invocations of
+the \verb+\includegraphics+, \verb+\scalebox+,
+etc. commands are in fact replaced by links to GIF images, while
+they are replicated as one page in the \textit{image} file.
+Then, the content of the GIF images result
+from the processing of the \textit{image} file by
+the companion script \texttt{imagen}, which must be run explicitely.
+
+For instance, consider a document \texttt{doc.tex} that
+loads the \texttt{graphics} package and that includes some (scaled)
+image by:
 \begin{verbatim}
-\newcommand{\includegraphics}[1]{%
-\begin{toimage}\includegraphics{#1}\end{toimage}\imageflush}
+\begin{center}
+\scalebox{.5}{\includegraphics{round.ps}}
+\scalebox{.75}{\includegraphics{round.ps}}
+\includegraphics{round.ps}
+\end{center}
 \end{verbatim}
-This definition tells \hevea{} to echo the \verb+\includegraphics+
-command and its argument to the \textit{image} file and then to
-output an \verb+IMG+ tag,
-whose \verb+SRC+ attribute is a conventional GIF image name.
-The corresponding GIF image can be generated from the \LaTeX{} source
-echoed to the \textit{image} file by the companion script
-\texttt{imagen}.
-See section~\ref{substimage} and the whole section~\ref{imagen} for
-details. See also section~\ref{imgsrc} for another technique, which is
-more adequate when included Postscript images were bitmap images in the first
-place.
+Then, issuing the following two commands:
+\begin{verbatim}
+# hevea doc.tex
+# imagen doc
+\end{verbatim}
+yields the following result~:
+\begin{htmlout}
+\begin{center}
+\scalebox{.5}{\includegraphics{round.ps}}
+\scalebox{.75}{\includegraphics{round.ps}}
+\includegraphics{round.ps}
+\end{center}
+\end{htmlout}
 
 
 

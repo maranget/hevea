@@ -42,7 +42,7 @@ make install LIBDIR=/usr/lib/hevea BINDIR=/usr/bin
 /usr/lib/hevea/html/symb-eng.hva
 /usr/lib/hevea/html/symb-fra.hva
 /usr/lib/hevea/html/symb-mathml.hva
-/usr/lib/hevea/html/symb-ent.hva
+/usr/lib/hevea/html/graphics.hva
 /usr/lib/hevea/html/article.hva
 /usr/lib/hevea/html/book.hva
 /usr/lib/hevea/html/report.hva

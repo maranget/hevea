@@ -1,3 +1,5 @@
+%%%% Une précaution.
+\ifhtml\warning{text/hevea is for text and info mode !!!}\endinput\fi
 %%%%%% Spacing
 \def\@{}
 \def\ { }

@@ -1,0 +1,38 @@
+\documentclass{article}
+\usepackage{graphics}
+
+\begin{document}
+\section{Commande \texttt{\char92 includegraphics}}
+\begin{center}
+\includegraphics{flo.ps}
+\end{center}
+
+
+\includegraphics*[1cm,1cm]{flo.ps}
+
+
+\section{Commandes \texttt{\char92 scalebox} et \texttt{\char92 resizebox}}
+
+\begin{center}
+\scalebox{.5}{\includegraphics{flo.ps}}
+\end{center}
+
+Scaled .2 \scalebox{.2}[1]{\includegraphics{flo.ps}}
+Scaled .4 \scalebox{.4}[1]{\includegraphics{flo.ps}}
+Scaled .6 \scalebox{.6}[1]{\includegraphics{flo.ps}}
+
+\resizebox{1cm}{!}{\includegraphics{flo.ps}}
+\resizebox{2cm}{!}{\includegraphics{flo.ps}}
+\resizebox{4cm}{!}{\includegraphics{flo.ps}}
+\resizebox{8cm}{!}{\includegraphics{flo.ps}}
+
+\section{Transformations}
+\rotatebox{45}{\scalebox{.5}{\includegraphics{flo.ps}}}
+\rotatebox{135}{\scalebox{.5}{\includegraphics{flo.ps}}}
+
+
+
+\reflectbox{\includegraphics{flo.ps}}
+
+
+\end{document}

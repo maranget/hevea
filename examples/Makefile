@@ -4,7 +4,7 @@ HEVEAOPTS=
 IMAGEN=imagen
 HACHA=hacha
 EXDIR=$(HOME)/public_html/hevea/examples
-HTML=a.html pat.html suite.html env.html smile.html amstex.html
+HTML=a.html pat.html suite.html env.html smile.html amstex.html graphics.html
 DVI=$(HTML:.html=.dvi)
 TEX=$(HTML:.html=.tex)
 # coucou
@@ -98,6 +98,16 @@ amstex.dvi: amstex.tex
 
 amstex.html: amstex.tex
 	$(HEVEA) $(HEVEAOPTS) ams.hva amstex
+
+graphics.dvi: graphics.tex
+	latex < /dev/null graphics.tex
+
+graphics001.gif: graphics.image.tex
+	$(IMAGEN) graphics
+
+graphics.html: graphics.tex
+	$(HEVEA) $(HEVEAOPTS) graphics
+	$(MAKE) $(MFLAGS) IMAGEN=$(IMAGEN) graphics001.gif
 
 index.html: index.tex
 	$(HEVEA) $(HEVEAOPTS) index.tex
