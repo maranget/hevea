@@ -136,11 +136,11 @@ index.html: index.tex
 	$(HEVEA) $(HEVEAOPTS) index.tex
 
 cleanhtml:
-	rm -f $(HTML) tmp.html tmp*.html conclusion.html benchmarks.html
+	rm -f $(HTML) index.html tmp.html tmp*.html conclusion.html benchmarks.html
 cleantext:
 	rm -f $(TEXT)
 cleaninfo:
-	rm -f *.info
+	rm -f *.info *.info-*
 
 clean cleanall: cleanhtml cleantext cleaninfo
-	rm -f *.aux *.log *.dvi *~ *.gif *.bbl tmp.* tenv.* tsmile.* *.ilg *.ind *.idx *.image.tex  *.tid HF.ps *.haux *.hidx
+	rm -f *.aux *.log *.dvi *~ *.gif *.bbl tmp.* tenv.* tsmile.* *.ilg *.ind *.idx *.image.tex  *.tid HF.ps *.haux *.hidx *.hind

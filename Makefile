@@ -10,6 +10,7 @@ CPP=gcc -E -P -x c
 ############### End of configuration parameters
 HEVEA=./hevea.$(TARGET)
 OCAMLC=${DIR}ocamlc
+OCAMLFLAGS=
 OCAMLCI=$(OCAMLC)
 OCAMLOPT=${DIR}ocamlopt
 OCAMLLEX=${DIR}ocamllex
@@ -60,10 +61,10 @@ install-byte: install-lib
 
 
 hevea.byte: ${OBJS}
-	${OCAMLC} -o $@ ${OBJS} ${OBJMAIN}
+	${OCAMLC}  ${OCAMLFLAGS} -o $@ ${OBJS} ${OBJMAIN}
 
 hacha.byte: ${OBJSCUT}
-	${OCAMLC} -o $@ ${OBJSCUT}
+	${OCAMLC} ${OCAMLFLAGS} -o $@ ${OBJSCUT}
 
 hevea.opt: ${OPTS}
 	${OCAMLOPT} -o $@ ${OPTS}
@@ -93,7 +94,7 @@ cutfoot-eng.html: cutfoot.tex html/hevea.hva ${HEVEA}
 	${OCAMLOPT} -c $<
 
 .ml.cmo:
-	${OCAMLC} -c $<
+	${OCAMLC}  ${OCAMLFLAGS} -c $<
 
 .mli.cmi:
 	${OCAMLCI} -c $<
