@@ -11,8 +11,9 @@
 
 {
 open Lexing
-open Parse_opts
-let header = "$Id: auxx.mll,v 1.2 1998-10-09 16:32:55 maranget Exp $" 
+open Misc
+
+let header = "$Id: auxx.mll,v 1.3 1999-03-03 18:08:35 maranget Exp $" 
 
 let rtable = Hashtbl.create 17
 ;;

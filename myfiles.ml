@@ -9,8 +9,8 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: myfiles.ml,v 1.12 1998-07-21 11:18:38 maranget Exp $" 
-open Parse_opts
+let header = "$Id: myfiles.ml,v 1.13 1999-03-03 18:08:49 maranget Exp $" 
+open Misc
 
 exception Error of string
 ;;
@@ -21,14 +21,14 @@ let etable = Hashtbl.create 17
 ;;
 
 
-List.iter (fun name -> Hashtbl.add etable name ()) !except
+List.iter (fun name -> Hashtbl.add etable name ()) !Parse_opts.except
 ;;
 
 let is_except name =
   try Hashtbl.find etable name ; true with Not_found -> false
 ;;
 
-let tex_path = "." :: !path @ [Mylib.libdir]
+let tex_path = "." :: !Parse_opts.path @ [Mylib.libdir]
 ;;
 
 exception Found of (string * in_channel)

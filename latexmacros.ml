@@ -9,7 +9,8 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmacros.ml,v 1.36 1999-03-02 18:20:19 maranget Exp $" 
+let header = "$Id: latexmacros.ml,v 1.37 1999-03-03 18:08:40 maranget Exp $" 
+open Misc
 open Parse_opts
 open Symb
 
@@ -58,6 +59,21 @@ let pretty_macro n acs =
    match acs with
      [Subst s] -> Printf.fprintf stderr "{%s}\n" s
    | _         -> Printf.fprintf stderr "...\n"
+;;
+
+let def_coltype name pat action =
+  if !verbose > 1 then begin
+   Printf.fprintf stderr "def_coltype %s = " name;
+   pretty_macro pat action
+  end ;
+  let cname = Misc.column_to_command name in
+  try
+    let _ = Hashtbl.find cmdtable cname in () ;
+    warning ("Column "^name^" is already defined") ;
+    Hashtbl.add cmdtable cname (pat,action)
+  with
+    Not_found ->
+      Hashtbl.add cmdtable cname (pat,action)
 ;;
 
 let def_macro_pat name pat action =

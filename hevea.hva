@@ -57,7 +57,9 @@
 \newcommand{\@footnotemark}[2]{%
 \setcounter{savenote}{\value{footnote}}%
 \setcounter{footnote}{#2}%
-#1\thefootnote%
+\ifthenelse{\equal{#1}{text}}%
+{\@fnmarktext{\thefootnote}}%
+{\@fnmarknote{\thefootnote}}%
 \setcounter{footnote}{\value{savenote}}%
 }
 \newcommand{\@openanchor}[3]{%
@@ -72,7 +74,7 @@
 \setcounter{onemark}{#1}%
 \setcounter{anchornote}{\value{onemark}}%
 {\@clearstyle\@openanchor{note}{text}{\theanchornote}%
-\@footnotemark{\@fnmarktext}{\value{onemark}}%
+\@footnotemark{text}{\value{onemark}}%
 \@closeanchor}
 }
 
@@ -84,7 +86,7 @@
 \setcounter{onefoot}{#1}%
 \setcounter{anchornote}{\value{onefoot}}%
 {\@clearstyle\@openanchor{note}{text}{\theanchornote}%
-\@footnotemark{\@fnmarktext}{\value{onefoot}}%
+\@footnotemark{text}{\value{onefoot}}%
 \@closeanchor}%
 \@footnotetext{\value{onefoot}}{#2}{\theanchornote}%
 }

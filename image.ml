@@ -9,8 +9,8 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: image.ml,v 1.9 1998-10-23 15:40:23 maranget Exp $" 
-open Parse_opts
+let header = "$Id: image.ml,v 1.10 1999-03-03 18:08:38 maranget Exp $" 
+open Misc
 
 let base = ref "image"
 ;;

@@ -13,8 +13,6 @@ module type S =
   sig
     exception Error of string
 
-    val out_file : Out.t ref
-
     val no_prelude : unit -> unit
 
     val print_env_pos : unit -> unit

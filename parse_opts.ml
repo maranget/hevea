@@ -9,12 +9,10 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: parse_opts.ml,v 1.8 1998-12-28 13:06:08 maranget Exp $" 
-let verbose = ref 0
-and readverb = ref 0
-;;
-let silent = ref false
-;;
+open Misc
+
+let header = "$Id: parse_opts.ml,v 1.9 1999-03-03 18:08:49 maranget Exp $" 
+
 
 let files = ref []
 ;;

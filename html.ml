@@ -9,13 +9,14 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: html.ml,v 1.35 1999-03-02 18:20:18 maranget Exp $" 
+let header = "$Id: html.ml,v 1.36 1999-03-03 18:08:37 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
      - A new grouping construct is given (open_group () ; close_group ())
 *)
 
+open Misc
 open Parse_opts
 open Latexmacros
 

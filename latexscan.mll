@@ -13,7 +13,6 @@
 module type S =
   sig
     exception Error of string
-    val out_file : Out.t ref
     val no_prelude : unit -> unit
 
     val print_env_pos : unit -> unit
@@ -22,26 +21,19 @@ end
 
 module Make (Html : OutManager.S) =
 struct
+open Misc
 open Parse_opts
 open Lexing
 open Myfiles
 open Latexmacros
 open Save
-(* open Html *)
+open Tabular
+open Lexstate
 
-let header = "$Id: latexscan.mll,v 1.63 1999-03-02 18:20:23 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.64 1999-03-03 18:08:44 maranget Exp $" 
 
 exception Error of string
 
-let prerr_args args =
-  prerr_endline "Arguments: " ;
-  for i = 0 to Array.length args - 1 do
-    prerr_string "\t``" ;
-    prerr_string args.(i) ;
-    prerr_endline "''"
-  done ;
-  prerr_endline "End of arguments" ;
-;;
 
 let pretty_lexbuf lb =
   let  pos = lb.lex_curr_pos and len = String.length lb.lex_buffer in
@@ -50,102 +42,6 @@ let pretty_lexbuf lb =
   prerr_endline ("curr_pos="^string_of_int lb.lex_curr_pos);
   prerr_endline "End of buff"
 ;;
-
-let prerr_stack_string s l =
-  let rec do_rec = function
-    [] -> prerr_endline ">>"
-  | [s] -> prerr_string ("``"^s^"''") ; prerr_endline ">>"
-  | s::r ->
-      prerr_string "``" ;
-      prerr_string s ;
-      prerr_string "'' " ;
-      do_rec r in
-        
-  prerr_string s ;
-  prerr_string ": <<" ;
-  do_rec l
-;;
-
-let push s e = s := e:: !s
-and pop s = match !s with
-  [] -> raise (Misc.Fatal "Empty stack in Latexscan")
-| e::rs -> s := rs ; e
-and top s = match !s with
-  [] -> raise (Misc.Fatal "Empty stack in Latexscan (top)")
-| e::_ -> e
-;;
-
-(* stack for recoding lexbuf *)
-let stack_lexbuf = ref []
-;;
-
-(* arguments inside macros*)
-let stack = ref [||]
-and stack_stack = ref []
-and stack_stack_stack = ref []
-;;
-
-let eat_space = ref true
-and stack_eat = ref []
-;;
-
-(* Recoding and restoring lexbufs *)
-let record_lexbuf lexbuf eat =
-  push stack_eat !eat_space ;
-  push stack_stack_stack (!stack,!stack_stack) ;
-  push stack_lexbuf lexbuf ;
-  eat_space := eat
-
-and previous_lexbuf () =
-  let lexbuf = pop stack_lexbuf
-  and s,ss = pop stack_stack_stack in
-  eat_space := pop stack_eat ;
-  stack := s ; stack_stack := ss ;
-  lexbuf
-;;
-
-(* Saving and restoring lexing status *)
-let stack_stack_lexbuf = ref []
-;;
-
-let save_lexstate () =
-  let old_eat = !stack_eat
-  and old_stack = !stack_stack_stack in
-  push stack_eat !eat_space ;
-  push stack_stack_stack (!stack,!stack_stack) ;
-  push stack_stack_lexbuf (!stack_lexbuf,!stack_eat,!stack_stack_stack) ;
-  stack_eat := old_eat ; stack_stack_stack := old_stack
-
-and restore_lexstate () =
-  let l,s,args = pop stack_stack_lexbuf in
-  stack_lexbuf := l ;
-  stack_eat := s;
-  eat_space := pop stack_eat ;
-  stack_stack_stack := args ;
-  let s,ss = pop stack_stack_stack in
-  stack := s ;
-  stack_stack := ss
-  
-;;
-
-(* Blank lexing status *)
-let start_lexstate () =
-  save_lexstate () ;
-  stack_lexbuf := [] ;
-  eat_space := false
-;;
-
-
-
-let out_file = ref (Out.create_null ())
-;;
-
-let prelude = ref true
-;;
-
-let flushing = ref false
-;;
-
 
 let my_int_of_string s =
   try int_of_string s with
@@ -172,13 +68,13 @@ let save_arg lexbuf =
   let rec save_rec lexbuf =
     try Save.arg lexbuf
     with Save.Eof -> begin
-        if !stack_lexbuf = [] then
+        if Lexstate.empty stack_lexbuf then
           raise (Error "Eof while looking for argument");
         let lexbuf = previous_lexbuf () in
         if !verbose > 2 then begin
           prerr_endline "popping stack_lexbuf in save_arg";
           pretty_lexbuf lexbuf ;
-          prerr_args !stack
+          prerr_args ()
         end;
         save_rec lexbuf end in
 
@@ -211,7 +107,7 @@ let parse_quote_arg_opt def lexbuf =
     try Yes (Save.opt lexbuf) with
       Save.NoOpt -> No def
     | Save.Eof -> begin
-        if !stack_lexbuf = [] then No def
+        if Lexstate.empty stack_lexbuf  then No def
         else let lexbuf = previous_lexbuf () in
         if !verbose > 2 then begin
           prerr_endline "poping stack_lexbuf in parse_quote_arg_opt";
@@ -288,28 +184,15 @@ let make_stack name pat lexbuf =
     prerr_endline "";
     for i = 0 to Array.length args-1 do
       Printf.fprintf stderr "\t#%d = %s\n" (i+1) args.(i)
-    done ;
-    prerr_args !stack
+    done
   end ;
   args
 ;;
 
 
-let pretty_format = function
-  |   Save.Align {vert = v ; hor = h ; pre = pre ; post = post ; wrap = b}
-      ->
-        ">{"^pre^"}"^
-        "h="^h^" v="^v^
-        "<{"^post^"}"
-  | Save.Inside s -> "@{"^s^"}"
-;;
-
-let pretty_formats f =
-  Array.iter (fun f -> prerr_string (pretty_format f) ; prerr_char ',') f
-;;
-
 
 let bool_out = ref false
+and int_out = ref false
 ;;
 
 let if_level = ref 0
@@ -324,10 +207,8 @@ let tab_val = ref 8
 
 let cur_env = ref ""
 and macros = ref []
-and stack_env = ref []
+and stack_env = Lexstate.create ()
 and env_level = ref 0
-and stack_in_math = ref []
-and stack_display = ref []
 ;;
 
 
@@ -500,6 +381,7 @@ let scan_this_may_cont eat lexfun lexbuf s =
   r
 ;;
 
+(*
 let scan_this_arg old_stack lexfun lexbuf s =
   if !verbose > 1 then begin
     Printf.fprintf stderr "scan_this_arg : [%s]" s ;
@@ -526,6 +408,7 @@ let scan_this_arg old_stack lexfun lexbuf s =
   end ;
   r
 ;;
+*)
 
 let get_this lexfun s =
   start_lexstate ();
@@ -555,7 +438,11 @@ let get_bool lexfun expr =
   r
 
 and get_int lexfun expr =
-  my_int_of_string (get_this lexfun ("\\@nostyle "^expr))
+  let old_int = !int_out in
+  int_out := true ;
+  let r = my_int_of_string (get_this lexfun ("\\@nostyle "^expr)) in
+  int_out := old_int ;
+  r
 
 let subst_buff = Out.create_buff ()
 ;;
@@ -565,7 +452,7 @@ try
   let _ = String.index arg '#' in
   if !verbose > 1 then begin
     Printf.fprintf stderr "subst_this : [%s]\n" arg ;
-    prerr_args !stack
+    prerr_args ()
   end ;
   subst (Lexing.from_string arg) ;
   let r = Out.to_string subst_buff in
@@ -603,7 +490,7 @@ let put_delim delim i =
 ;;
 
 let default_format =
-  Save.Align
+  Tabular.Align
     {hor="left" ; vert = "" ; wrap = false ;
       pre = "" ; post = "" ; width = None}
 ;;
@@ -637,16 +524,16 @@ and math_table = function
 ;;
 
 let cur_format = ref [||]
-and stack_format = ref []
+and stack_format = Lexstate.create ()
 and cur_col = ref 0
-and stack_col = ref []
+and stack_col = Lexstate.create ()
 and in_table = ref NoTable
-and stack_table = ref []
+and stack_table = Lexstate.create ()
 and first_col = ref false
-and stack_first = ref []
+and stack_first = Lexstate.create ()
 and in_multi = ref false
-and stack_multi_flag = ref []
-and stack_multi = ref []
+and stack_multi_flag = Lexstate.create ()
+and stack_multi = Lexstate.create ()
 ;;
 
 let prerr_array_state () =
@@ -697,15 +584,15 @@ and as_colspan = function
   |  n -> " COLSPAN="^string_of_int n
 
 let is_inside = function
-  Save.Inside _ -> true
+  Tabular.Inside _ -> true
 | _ -> false
 
 and as_inside = function
-  Save.Inside s -> s
+  Tabular.Inside s -> s
 | _        -> ""
 
 and as_align f span = match f with
-  Save.Align {vert=v ; hor=h ; wrap=w ; width=size} ->
+  Tabular.Align {vert=v ; hor=h ; wrap=w ; width=size} ->
 (*    (match size with
     | Some (Length.Percent n) ->
         attribut "WIDTH" (string_of_int n^"%")
@@ -719,15 +606,15 @@ and as_align f span = match f with
 | _       ->  raise (Misc.Fatal ("as_align"))
 
 and as_wrap = function
-  | Save.Align {wrap = w} -> w
+  | Tabular.Align {wrap = w} -> w
   | _ -> false
 
 and as_pre = function
-  | Save.Align {pre=s} -> s
+  | Tabular.Align {pre=s} -> s
   | _ -> raise (Misc.Fatal "as_pre")
 
 and as_post = function
-  | Save.Align {post=s} -> s
+  | Tabular.Align {post=s} -> s
   | f -> raise (Misc.Fatal ("as_post "^pretty_format f))
 ;;
 
@@ -754,7 +641,7 @@ let show_inside main format i =
   let t = ref i in
   begin try while true do
     begin match get_col format !t with
-      Save.Inside s ->
+      Tabular.Inside s ->
         let s = get_this main s in
         Html.open_block "TD" "ALIGN=center";
         Html.put s ;
@@ -1003,20 +890,20 @@ let iput_newpage arg =
 ;;
 
 
-let stack_entry = ref []
-and stack_out = ref []
+let stack_entry = Lexstate.create ()
+and stack_out = Lexstate.create ()
 ;;
 
 let start_other_scan env lexfun lexbuf =
   if !verbose > 1 then begin
     prerr_stack_string ("Start other scan ("^env^"), env stack is")
-      (List.map (fun (x,_) -> x) !stack_env) ;
+      (fun (x,_) -> x) stack_env ;
     prerr_endline ("Current env is: ``"^ !cur_env^"''") ;
-    prerr_stack_string "Entry stack is" !stack_entry
+    prerr_stack_string "Entry stack is" (fun x -> x) stack_entry
   end;
   save_lexstate () ;
   push stack_entry env ;
-  stack_entry := List.rev !stack_entry ;
+  Lexstate.rev stack_entry ;
   lexfun lexbuf
 ;;
 
@@ -1030,7 +917,7 @@ let complete_scan main lexbuf =
   top_close_block "" ;
   if !verbose > 1 then begin
     prerr_stack_string "Complete scan: env stack is"
-      (List.map (fun (x,_) -> x) !stack_env) ;
+      (fun (x,_) -> x) stack_env ;
     prerr_endline ("Current env is: ``"^ !cur_env^"''")
   end
 ;;
@@ -1039,13 +926,13 @@ let complete_scan main lexbuf =
 let stop_other_scan main lexbuf =
   if !verbose > 1 then begin
     prerr_stack_string "Stop image: env stack is"
-      (List.map (fun (x,_) -> x) !stack_env) ;
+      (fun (x,_) -> x) stack_env ;
     prerr_endline ("Current env is: ``"^ !cur_env^"''")
   end;
   let _ = pop stack_entry in
-  if !stack_out <> []  then begin
+  if not (Lexstate.empty stack_out) then begin
     complete_scan main lexbuf ;
-    while !stack_out <> []  do
+    while not (Lexstate.empty stack_out) do
       let lexbuf = previous_lexbuf () in
       complete_scan main lexbuf
     done
@@ -1281,7 +1168,7 @@ rule  main = parse
   | "\n\n" '\n' *
     {if !alltt then
       Html.put (lexeme lexbuf)
-    else if !bool_out then ()
+    else if !bool_out || !int_out then ()
     else  top_par () ;
     main lexbuf }
 | "\\input" | "\\include" | "\\bibliography"
@@ -1305,7 +1192,7 @@ rule  main = parse
      main lexbuf}
 | "\\verbatiminput"
       {let lxm = lexeme lexbuf in
-      let tabs = my_int_of_string (save_opt "8" lexbuf) in      
+      let tabs = get_int main  (save_opt "8" lexbuf) in      
       let arg = save_arg lexbuf in
       let old_tabs = !tab_val in
       tab_val := tabs ;
@@ -1423,7 +1310,7 @@ rule  main = parse
         (lxm^Save.get_echo ()^"\n") ;
     let nargs,(def,defval) = match nargs with
       [a1 ; a2] ->
-        my_int_of_string (from_ok a1),
+        get_int main (from_ok a1),
         (match a2 with
            No s -> false,s
         | Yes s -> true,s)
@@ -1438,6 +1325,21 @@ rule  main = parse
       macro_register name
     with Latexmacros.Failed -> () end ;
     main lexbuf}
+  | "\\newcolumntype"
+     {let lxm = lexeme lexbuf in
+     Save.start_echo () ;
+     let name = subst_this subst (Save.csname lexbuf) in
+     let nargs = save_opt "0" lexbuf in
+     let body = save_arg lexbuf in
+     let rest = Save.get_echo () in
+     if !env_level = 0 then
+       Image.put (lxm^Save.get_echo ()^"\n") ;
+     def_coltype
+       name
+       (Latexmacros.make_pat [] (get_int main nargs))
+       [Subst body] ;
+     macro_register (Misc.column_to_command name) ;
+     main lexbuf}
   | "\\newenvironment" | "\\renewenvironment"
      {let lxm = lexeme lexbuf in
      Save.start_echo () ;
@@ -1454,7 +1356,7 @@ rule  main = parse
        |  _ -> redef_env_pat) name
          (Latexmacros.make_pat
            (match optdef with No _ -> [] | Yes s -> [s])
-           (match nargs with No _ -> 0 | Yes s -> my_int_of_string s))
+           (match nargs with No _ -> 0 | Yes s -> get_int main  s))
          [Subst body1] [Subst body2];
        macro_register ("\\"^name) ; 
        macro_register ("\\end"^name)
@@ -1536,21 +1438,22 @@ rule  main = parse
         lexfun lexbuf
    |  "tabular" | "array" ->       
         save_array_state ();
-        Save.border := false ;
+        Tabular.border := false ;
         skip_opt lexbuf ;
-        let format = subst_arg subst lexbuf in
-        let format = Array.of_list (scan_this Save.tformat format) in
+        let format = save_arg lexbuf in
+        let format = Tabular.main
+            (subst_this subst) (get_int main) format in
         cur_format := format ;
         push stack_in_math !in_math ;
         in_table := Table
              {math = (match env with "array" -> true | _ -> false) ;
-             border = !Save.border} ;
+             border = !Tabular.border} ;
         in_math := false ;
         let lexfun lb =
           if !display then Html.item_display () ;
           push stack_display !display ;
           display := true ;
-          if !Save.border then
+          if !Tabular.border then
             Html.open_block
               "TABLE" "BORDER=1 CELLSPACING=0 CELLPADDING=1"
           else
@@ -1580,10 +1483,10 @@ rule  main = parse
                 top_open_block "PRE" ""
               end else if env <> "document" then
                 top_open_block "" "" ;
-              let old_envi = !stack_entry in
+              let old_envi = save_stack stack_entry in
               push stack_entry env ;
               scan_this_may_cont true main lexbuf macro ;
-              stack_entry := old_envi ;
+              restore_stack stack_entry old_envi ;
               main lb) in
             new_env env ;
             lexfun lexbuf
@@ -1667,12 +1570,11 @@ rule  main = parse
       end ;
       skip_blanks lexbuf ; main lexbuf}
   | ['\n'' ']* "\\multicolumn" 
-      {let n = save_arg lexbuf in      
-      let format = scan_this Save.tformat (save_arg lexbuf) in
-      let n = try 
-        my_int_of_string n
-        with Error s -> raise (Error ("multicolumn: "^s)) in
-      do_multi n (Array.of_list format) main ;
+      {let n = get_int main (save_arg lexbuf) in      
+      let format =
+        Tabular.main
+          (subst_this subst) (get_int main) (save_arg lexbuf) in
+      do_multi n  format main ;
       main lexbuf}
   | "\\left"
       {if !display then begin
@@ -1749,19 +1651,8 @@ rule  main = parse
 (* Substitution  *)
   | '#' ['1'-'9']
       {let lxm = lexeme lexbuf in
-      let i = Char.code (lxm.[1]) - Char.code '1' in
-      if i >= Array.length !stack then
-        raise (Error "Macro argument not found");
-      let arg = !stack.(i) in
-      if !verbose > 2 then
-        prerr_endline ("Subst arg: ``"^arg^"''") ;
-      let old_args = !stack in
-      stack := pop stack_stack ;
-      if !verbose > 2 then
-        prerr_args !stack;
-      scan_this_arg old_args main lexbuf arg ;
-      push stack_stack !stack ;
-      stack := old_args ;
+      let i = Char.code lxm.[1] - Char.code '1' in
+      scan_arg (scan_this main) i ;
       main lexbuf}
 (* Commands *)
   | command_name
@@ -1976,8 +1867,8 @@ rule  main = parse
           let anchor = save_arg lexbuf in
           let anchor = get_this main anchor in
           Foot.register
-            (my_int_of_string mark)
-            (get_this main ("\\@footnotemark{\@fnmarknote}{"^mark^"}"))
+            (get_int main mark)
+            (get_this main ("\\@footnotemark{note}{"^mark^"}"))
             text anchor ;
           restore_lexstate ();
           main lexbuf
@@ -2121,26 +2012,20 @@ rule  main = parse
 (* user macros *)
       | _ ->
           let rec exec = function
-              [] -> ()
+            |  [] -> ()
             | i::rest -> begin match i with
-                Print str -> Html.put str
+              | Print str -> Html.put str
               | Print_arg i ->
-                  let arg = !stack.(i) in
-                  let old_stack = !stack in
-                  stack := pop stack_stack ;
-                  scan_this main arg ;
-                  push stack_stack !stack ;
-                  stack := old_stack
+                  scan_arg (scan_this main) i
               | Print_fun (f,i) -> 
-                  let arg = !stack.(i) in
-                  let old_stack = !stack in
-                  stack := pop stack_stack ;
-                  scan_this main (f (subst_this subst arg)) ;
-                  push stack_stack !stack ;
-                  stack := old_stack
+                  scan_arg 
+                    (fun s -> scan_this main (f (subst_this subst s)))
+                    i
               | Print_count (f,i) ->
-                  let c = Counter.value_counter !stack.(i) in
-                  Html.put (f c)
+                  scan_arg
+                   (fun s ->
+                     let c = Counter.value_counter s in
+                     Html.put (f c)) i
               | Test cell ->
                   if not !cell then raise IfFalse
                   else
@@ -2163,13 +2048,11 @@ rule  main = parse
           let pat,body = find_macro name in
           let args = make_stack name pat lexbuf in
           let saw_par = !Save.seen_par in
-          push stack_stack !stack ;
-          stack := args;
           let is_limit = checklimits lexbuf ||  Latexmacros.limit name in
           if is_limit || Latexmacros.big name then begin
             let sup,sub = Save.get_sup_sub lexbuf in
             let do_what =
-              (fun () -> exec body ; stack := pop stack_stack) in
+              (fun () -> scan_body exec body args) in
             if !display && is_limit then
               limit_sup_sub main do_what sup sub
             else if !display &&  Latexmacros.int name then
@@ -2179,8 +2062,7 @@ rule  main = parse
             main lexbuf
           end else begin
             try
-              exec body ;
-              stack := pop stack_stack ;
+              scan_body exec body args ;
               if (!verbose > 2) then
                 prerr_string ("Cont after macro "^name^": ") ;
               if saw_par then top_par () 
@@ -2199,7 +2081,6 @@ rule  main = parse
               main lexbuf
             with 
               IfFalse -> begin
-                stack := pop stack_stack ;
                 if (!verbose > 2) then
                   prerr_endline ("Cont after iffalse:"^name) ;
                 skip_false lexbuf
@@ -2223,14 +2104,15 @@ rule  main = parse
    {if !verbose > 1 then Printf.fprintf stderr "Eof\n" ; ()}
 (* Spaces in input *)
 | '\n'
-  {if not !bool_out then begin
+  {if not (!bool_out || !int_out) then begin
     Html.put_char '\n'
   end ;
   main lexbuf}
 | ' '+
-   {if !alltt && not !bool_out then
+   {if !bool_out || !int_out then ()   
+   else if !alltt then
      let lxm = lexeme lexbuf in Html.put lxm
-   else if not !bool_out then
+   else
      Html.put_char ' ';
    main lexbuf}
 (* Alphabetic characters *)
@@ -2360,7 +2242,7 @@ and latexonly = parse
        latexonly lexbuf}
 |  command_name  | _ {latexonly lexbuf}
 | eof
-    {if !stack_lexbuf = [] then ()
+    {if Lexstate.empty stack_lexbuf then ()
     else begin
       let lexbuf = previous_lexbuf () in
       latexonly lexbuf
@@ -2404,18 +2286,7 @@ and image = parse
 | '#' ['1'-'9']
     {let lxm = lexeme lexbuf in
     let i = Char.code (lxm.[1]) - Char.code '1' in
-    if i >= Array.length !stack then
-      raise (Error "Macro argument not found (in toimage)");
-    let arg = !stack.(i) in
-    if !verbose > 2 then
-      prerr_endline ("Subst arg: ``"^arg^"''");
-    let old_args = !stack in
-    stack := pop stack_stack ;
-    if !verbose > 2 then
-      prerr_args !stack;
-    scan_this image arg ;
-    push stack_stack !stack ;
-    stack := old_args ;
+    scan_arg (scan_this image) i ;
     image lexbuf}
 (* Definitions of  simple macros *)
 | "\\def" | "\\gdef"
@@ -2474,7 +2345,7 @@ and image = parse
      Image.put s ;
      image lexbuf}
 | eof
-    {if !stack_lexbuf = [] then ()
+    {if Lexstate.empty stack_lexbuf then ()
     else begin
       let lexbuf = previous_lexbuf () in
       image lexbuf
@@ -2492,7 +2363,7 @@ and image_comment = parse
 and mbox_arg = parse
   ' '+ {mbox_arg lexbuf}
 | eof
-     {if !stack_lexbuf <> [] then begin
+     {if not (Lexstate.empty stack_lexbuf) then begin
      let lexbuf = previous_lexbuf () in
      if !verbose > 2 then begin
        prerr_endline "Poping lexbuf in mbox_arg" ;
@@ -2514,7 +2385,7 @@ and skip_blanks_pop = parse
 | '\n' {more_skip_pop lexbuf}
 | ""   {()}
 | eof
-   {if !stack_lexbuf <> [] && !eat_space then begin
+   {if not (Lexstate.empty stack_lexbuf) && !eat_space then begin
      let lexbuf = previous_lexbuf () in
      if !verbose > 2 then begin
        prerr_endline "Poping lexbuf in skip_blanks" ;
@@ -2527,7 +2398,7 @@ and more_skip_pop = parse
   '\n'+ {top_par ()}
 | ""    {skip_blanks_pop lexbuf}
 | eof
-   {if !stack_lexbuf <> [] && !eat_space then begin
+   {if not (Lexstate.empty stack_lexbuf) && !eat_space then begin
      let lexbuf = previous_lexbuf () in
      if !verbose > 2 then begin
        prerr_endline "Poping lexbuf in skip_blanks" ;
@@ -2601,18 +2472,7 @@ and subst = parse
 '#' ['1'-'9']
     {let lxm = lexeme lexbuf in
     let i = Char.code (lxm.[1]) - Char.code '1' in
-    if i >= Array.length !stack then
-      raise (Error "Macro argument not found");
-    let arg = !stack.(i) in
-    if !verbose > 2 then
-      prerr_endline ("Subst arg in subst: "^lxm^" -> <"^arg^">");
-    let old_args = !stack in
-    stack := pop stack_stack ;
-    if !verbose > 2 then
-      prerr_args !stack;
-    subst (Lexing.from_string arg) ;
-    push stack_stack !stack ;
-    stack := old_args ;
+    scan_arg (fun arg -> subst (Lexing.from_string arg)) i ;
     subst lexbuf}
 |  "\\#" | '\\' | [^'\\' '#']+
     {Out.put subst_buff (lexeme lexbuf) ; subst lexbuf}

@@ -9,8 +9,9 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmain.ml,v 1.28 1999-03-02 18:20:21 maranget Exp $" 
+let header = "$Id: latexmain.ml,v 1.29 1999-03-03 18:08:41 maranget Exp $" 
 
+open Misc
 open Parse_opts
 
 module Scan = Latexscan.Make (Html)
@@ -79,7 +80,7 @@ let main () =
 
     Location.set_base basename ;
 
-    Scan.out_file :=
+    Lexstate.out_file :=
       if !outname <> "" then
          Out.create_chan (open_out !outname)
       else begin match texfile with
@@ -122,32 +123,37 @@ with
     exit 2
 | Html.Error s ->
     Location.print_pos () ;
-    prerr_endline ("Error while writing HTML: "^s) ;
+    prerr_endline ("Error while writing HTML:\n\t"^s) ;
     prerr_endline "Adios" ;
     exit 2
 | Scan.Error s ->
     Location.print_pos () ;
-    prerr_endline ("Error while reading LaTeX: "^s) ;
+    prerr_endline ("Error while reading LaTeX:\n\t"^s) ;
     prerr_endline "Adios" ;
     exit 2
 | Colscan.Error s ->
     Location.print_pos () ;
-    prerr_endline ("Error while reading LaTeX style colors: "^s) ;
+    prerr_endline ("Error while reading LaTeX style colors:\n\t"^s) ;
     prerr_endline "Adios" ;
     exit 2
 | Save.Error s ->
     Location.print_pos () ;
-    prerr_endline ("Error while reading LaTeX macros arguments: "^s) ;
+    prerr_endline ("Error while reading LaTeX macros arguments:\n\t"^s) ;
+    prerr_endline "Adios" ;
+    exit 2
+| Tabular.Error s ->
+    Location.print_pos () ;
+    prerr_endline ("Error while reading table format:\n\t"^s) ;
     prerr_endline "Adios" ;
     exit 2
 | Latexmacros.Error s ->
     Location.print_pos () ;
-    prerr_endline ("Error in macro definition: "^s) ;
+    prerr_endline ("Error in macro definition:\n\t"^s) ;
     prerr_endline "Adios" ;
     exit 2
 | Myfiles.Error s ->
     Location.print_pos () ;
-    prerr_endline ("File error: "^s) ;
+    prerr_endline ("File error:\n\t"^s) ;
     prerr_endline "Adios" ;
     exit 2
 |  Misc.Fatal s ->
@@ -159,7 +165,7 @@ with
 |  x ->
     Location.print_pos () ;
     prerr_endline
-      ("Fatal error, spurious exception: "^Printexc.to_string x^
+      ("Fatal error, spurious exception:\n\t"^Printexc.to_string x^
        "\n(if input is plain LaTeX, please report to Luc.Maranget@inria.fr)") ;
     prerr_endline "Adios" ;
     exit 2

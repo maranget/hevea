@@ -12,7 +12,7 @@
 {
 open Lexing
 
-let header = "$Id: save.mll,v 1.29 1999-03-02 18:20:28 maranget Exp $" 
+let header = "$Id: save.mll,v 1.30 1999-03-03 18:08:51 maranget Exp $" 
 
 let verbose = ref 0 and silent = ref false
 ;;
@@ -30,31 +30,8 @@ let seen_par = ref false
 let my_int_of_string s =
   try int_of_string s
   with Failure "int_of_string" ->
-    raise (Error "integer argument expected")
+    raise (Error ("Integer argument expected: ``"^s^"''"))
 
-type align =
-    {hor : string ; vert : string ; wrap : bool ;
-      mutable pre : string ; mutable post : string ; width : Length.t option}
-
-let make_hor = function
-    'c' -> "center"
-  | 'l' -> "left"
-  | 'r' -> "right"
-  | 'p'|'m'|'b' -> "left"
-  | _ -> raise (Misc.Fatal "make_hor")
-
-and make_vert = function
-  | 'c'|'l'|'r' -> ""
-  | 'p' -> "top"
-  | 'm' -> "middle"
-  | 'b' -> "bottom"
-  | _ -> raise (Misc.Fatal "make_vert")
-type format =
-  Align of align
-| Inside of string
-;;
-
-let border = ref false
 
 let brace_nesting = ref 0
 and arg_buff = Out.create_buff ()
@@ -153,7 +130,6 @@ and skip_blanks = parse
 | ""
     {Out.to_string arg_buff}
 
-
 and more_skip = parse
   '\n'+
    {seen_par := true ;
@@ -161,6 +137,9 @@ and more_skip = parse
    more_skip lexbuf}
 | ""
   {Out.to_string arg_buff}
+
+and skip_equal = parse
+    [' ']* '='? [' ']* {()}
 
 and arg2 = parse
   '{'         
@@ -241,62 +220,6 @@ and input_arg = parse
 | [^'\n''{'' ']+ {let lxm = lexeme lexbuf in put_echo lxm ; lxm}
 | ""             {arg lexbuf}  
 
-and tfone = parse
-  '>'
-    {let pre = arg lexbuf in
-    begin match tfmiddle lexbuf with
-    |  Align a as r -> a.pre <- pre ; r
-    | _ -> raise (Error "Bad syntax in array argument (>)")
-    end}
-| "" {tfmiddle lexbuf}
-
-and tfmiddle = parse
-  'c'|'l'|'r'
-  {let f = Lexing.lexeme_char lexbuf 0 in
-  let post = tfpostlude lexbuf in
-  Align {hor = make_hor f ; vert = make_vert f ; wrap = false ;
-        pre = "" ;   post = post ; width = None}}
-| 'p'|'m'|'b'
-  {let f = Lexing.lexeme_char lexbuf 0 in
-  let width = arg lexbuf in
-  let my_width =
-    try Some (Length.main (Lexing.from_string width))
-    with Length.No -> None in
-  let post = tfpostlude lexbuf in
-  Align {hor = make_hor f ; vert = make_vert f ; wrap = true ;
-          pre = "" ;   post = post ; width = my_width}}
-| 'X'
-    {let post = tfpostlude lexbuf in
-    Align {hor = make_hor 'p' ; vert = make_vert 'p' ; wrap=true ;
-           pre = "" ; post = post ; width = None}}
-| _ {raise (Error ("Syntax of array format: "^Lexing.lexeme lexbuf))}
-
-and tfpostlude = parse
-  '<' {arg lexbuf}
-| ""  {""}
-
-
-and tformat = parse
- '*'
-   {let ntimes = arg lexbuf in let what = arg lexbuf in
-   let rec do_rec = function
-     0 -> tformat lexbuf
-   | i ->
-      let sbuf = Lexing.from_string what in
-      tformat sbuf@do_rec (i-1) in
-   do_rec (my_int_of_string ntimes)}
-| '|' {border := true ; tformat lexbuf}
-| '@'|'!'
-    {let inside = arg lexbuf in
-    if inside = "" then tformat lexbuf
-    else Inside inside :: tformat lexbuf}
-| eof {[]}
-| "" {let f = tfone lexbuf in f :: tformat lexbuf}
-
-and skip_equal = parse
-  ' '* '=' ' '* {()}
-| ""            {()}
-
 and get_sup_sub = parse
   ' '* '^'
     {let sup = arg lexbuf in
@@ -326,7 +249,6 @@ and tagout = parse
 | "&nbsp;" {Out.put tag_buff " " ; tagout lexbuf}
 | "&gt;" {Out.put tag_buff ">" ; tagout lexbuf}
 | "&lt;" {Out.put tag_buff "<" ; tagout lexbuf}
-| "&nbsp;" {Out.put tag_buff " " ; tagout lexbuf}
 | _    {Out.put tag_buff (lexeme lexbuf) ; tagout lexbuf}
 | eof  {Out.to_string tag_buff}
 
@@ -341,4 +263,5 @@ and instring = parse
 | '\\' '"' {instring lexbuf}
 | _    {instring lexbuf}
 | eof  {Out.to_string tag_buff}
+
 

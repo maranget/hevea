@@ -9,9 +9,6 @@
 (*                                                                     *)
 (***********************************************************************)
 
-val verbose : int ref
-val readverb : int ref
-val silent : bool ref
 val symbols : bool ref
 val iso : bool ref
 type language = Francais | English

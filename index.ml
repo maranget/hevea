@@ -9,7 +9,8 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: index.ml,v 1.16 1999-03-01 19:13:31 maranget Exp $" 
+let header = "$Id: index.ml,v 1.17 1999-03-03 18:08:39 maranget Exp $" 
+open Misc
 open Parse_opts
 open Entry
 

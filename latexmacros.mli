@@ -43,6 +43,7 @@ val pretty_pat : pat -> unit
 val find_macro: string -> pat * action list
 
 val make_pat: string list -> int -> pat
+val def_coltype: string -> pat  -> action list -> unit
 val def_macro_pat: string -> pat  -> action list -> unit
 val redef_macro_pat: string -> pat  -> action list -> unit
 val provide_macro_pat: string -> pat  -> action list -> unit
