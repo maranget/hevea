@@ -1,4 +1,5 @@
 version 1.07+1
+   - Erase bussproof and proof, concentrate on Didier's mathparir
    - Change title/maketitle management -> typeset after document is
      opened in image file (allow \includegrahics in \title!)
    - Two listings bugs [backslash newline in strings & argument parsing for

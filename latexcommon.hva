@@ -168,9 +168,9 @@
 \newcommand{\thanks}[1]{\footnote{#1}}
 \newenvironment{titlepage}{}{}
 \newcommand{\and}{\quad}
-\newcommand{\@title}{\warning{No title given}}\newsavebox{\@@title}%
+\let\@title\relax\newsavebox{\@@title}%
 \newcommand{\title}[1]{\gdef{\@title}{#1}}
-\newcommand{\@author}{\warning{No author given}}\newsavebox{\@@author}%
+\let\@author\relax\newsavebox{\@@author}%
 \newcommand{\author}[1]{\gdef{\@author}{#1}}
 \let\@date\relax\newsavebox{\@@date}%
 \newcommand{\date}[1]{\gdef{\@date}{#1}}

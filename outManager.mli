@@ -44,9 +44,9 @@ module type S =
     val close_display : unit -> unit
     val item_display : unit -> unit
     val force_item_display : unit -> unit
-    (*val force_item_return : unit -> string*)
     val erase_display : unit -> unit
     val box_around_display : (string arg -> unit) -> string arg -> unit
+
     val standard_sup_sub :
         (string arg -> unit) -> (unit -> unit) -> string arg -> string arg -> bool -> unit
     val limit_sup_sub :

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlCommon.ml,v 1.44 2004-11-26 13:13:05 maranget Exp $" 
+let header = "$Id: htmlCommon.ml,v 1.45 2005-01-18 16:25:12 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -1473,7 +1473,7 @@ and close_block_loc pred s =
 
 and open_block s args =
  if !verbose > 2 then begin
-   prerr_endline ("=> open_block ``"^string_of_block s^"''");
+   prerr_endline ("=> open_block ``"^string_of_block s^"''"^" arg="^args);
    pretty_cur !cur_out ;
  end ;
  try_flush_par (Wait s);

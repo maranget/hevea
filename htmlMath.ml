@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlMath.ml,v 1.28 2004-12-08 16:51:54 maranget Exp $" 
+let header = "$Id: htmlMath.ml,v 1.29 2005-01-18 16:25:12 maranget Exp $" 
 
 
 open Misc
@@ -112,7 +112,7 @@ let open_display_varg varg =
   end ;
   try_open_display () ;
   open_block DISPLAY varg ;
-  open_block TD ("NOWRAP "^varg) ;
+  open_block TD "NOWRAP " ;
   open_block INTERN "" ;
   if !verbose > 2 then begin
     pretty_cur !cur_out ;
@@ -308,11 +308,11 @@ and close_vdisplay () =
     prerr_endline "close_vdisplay";
   close_block TABLE
 
-and open_vdisplay_row s =
+and open_vdisplay_row trarg tdarg  =
   if !verbose > 1 then
     prerr_endline "open_vdisplay_row";
-  open_block TR "" ;
-  open_block TD s ;
+  open_block TR trarg ;
+  open_block TD tdarg ;
   open_display ()
 
 and close_vdisplay_row () =
@@ -363,16 +363,16 @@ let standard_sup_sub scanner what sup sub display =
     force_item_display () ;
     open_vdisplay display ;
     if sup <> "" then begin
-      open_vdisplay_row "NOWRAP" ;
+      open_vdisplay_row "" "NOWRAP" ;
       clearstyle () ;
       put sup ;
       close_vdisplay_row ()
     end ;           
-    open_vdisplay_row "" ;
+    open_vdisplay_row "" "" ;
     what ();
     close_vdisplay_row () ;
     if sub <> "" then begin
-      open_vdisplay_row "NOWRAP" ;
+      open_vdisplay_row "" "NOWRAP" ;
       clearstyle () ;
       put sub ;
       close_vdisplay_row ()
@@ -395,13 +395,13 @@ let limit_sup_sub scanner what sup sub display =
   else begin
     force_item_display () ;
     open_vdisplay display ;
-    open_vdisplay_row "ALIGN=center" ;
+    open_vdisplay_row "" "ALIGN=center" ;
     put sup ;
     close_vdisplay_row () ;
-    open_vdisplay_row "ALIGN=left" ;
+    open_vdisplay_row "" "ALIGN=left" ;
     what () ;
     close_vdisplay_row () ;
-    open_vdisplay_row "ALIGN=center" ;
+    open_vdisplay_row "" "ALIGN=center" ;
     put sub ;
     close_vdisplay_row () ;
     close_vdisplay () ;
@@ -419,15 +419,15 @@ let int_sup_sub something vsize scanner what sup sub display =
   end ;
   if sup <> "" || sub <> "" then begin
     open_vdisplay display ;
-    open_vdisplay_row "ALIGN=left NOWRAP" ;
+    open_vdisplay_row "" "ALIGN=left NOWRAP" ;
     put sup ;
     close_vdisplay_row () ;
-    open_vdisplay_row "ALIGN=left" ;
+    open_vdisplay_row "" "ALIGN=left" ;
     for i = 2 to vsize do
       skip_line ()
     done ;
     close_vdisplay_row () ;
-    open_vdisplay_row "ALIGN=left NOWRAP" ;
+    open_vdisplay_row "" "ALIGN=left NOWRAP" ;
     put sub ;
     close_vdisplay_row () ;
     close_vdisplay () ;
@@ -487,11 +487,11 @@ let over display _lexbuf =
     close_mods () ;
     horizontal_line  "NOSHADE" Length.Default (Length.Pixel 2);
 *)
-    open_vdisplay_row "BGCOLOR=black" ;
+    open_vdisplay_row "" "BGCOLOR=black" ;
     close_mods () ;
     line_in_table 3 ;
     close_vdisplay_row () ;
-    open_vdisplay_row "NOWRAP ALIGN=center" ;
+    open_vdisplay_row "" "NOWRAP ALIGN=center" ;
     close_mods () ;
     open_mods mods ;
     freeze
@@ -515,15 +515,16 @@ let over_align align1 align2 display _lexbuf =
     let mods = insert_vdisplay
       (fun () ->
         open_vdisplay display ;
-        open_vdisplay_row ("NOWRAP STYLE=\"font-size:smaller\" ALIGN=center") ;
+        open_vdisplay_row
+          "" ("NOWRAP STYLE=\"font-size:smaller\" ALIGN=center") ;
         skip_column "STYLE=\"font-size:smaller\"") in
     skip_column "STYLE=\"font-size:smaller\"" ;
     close_vdisplay_row () ;
-    open_vdisplay_row "STYLE=\"font-size:smaller\"" ;
+    open_vdisplay_row "" "STYLE=\"font-size:smaller\"" ;
     close_mods () ;
     arrow_in_three_cols align2 ;
     close_vdisplay_row () ;
-    open_vdisplay_row ("NOWRAP STYLE=\"font-size:smaller\" ALIGN=center") ;
+    open_vdisplay_row "" ("NOWRAP STYLE=\"font-size:smaller\" ALIGN=center") ;
     skip_column "STYLE=\"font-size:smaller\"" ;
     close_mods () ;
     open_mods mods ;
@@ -541,11 +542,11 @@ let over_align align1 align2 display _lexbuf =
           open_vdisplay display ;
           open_vdisplay_row ("NOWRAP "^alignment)) in
       close_vdisplay_row () ;
-      open_vdisplay_row "BGCOLOR=black" ;
+      open_vdisplay_row "" "BGCOLOR=black" ;
       close_mods () ;
       line_in_table 3 ;
       close_vdisplay_row () ;
-      open_vdisplay_row ("NOWRAP "^alignment) ;
+      open_vdisplay_row "" ("NOWRAP "^alignment) ;
       close_mods () ;
       open_mods mods ;
       freeze
@@ -564,7 +565,7 @@ let box_around_display scanner arg =
     open_block TR "" ;
     open_block TD "NOWRAP" ;
     open_vdisplay true ;
-    open_vdisplay_row ("NOWRAP ALIGN=center") ;
+    open_vdisplay_row "" ("NOWRAP ALIGN=center") ;
     scanner arg ;
     close_vdisplay_row () ;
     close_vdisplay () ;

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.247 2004-12-07 16:52:06 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.248 2005-01-18 16:25:12 maranget Exp $ *)
 
 
 {
@@ -264,7 +264,7 @@ let top_open_block block args =
   | "DISPLAY" ->
       push stack_display !display ;
       display := true ;
-      Dest.open_display ()
+      Dest.open_display_varg args
   | "TABLE" ->
       save_array_state () ;
       in_table := NoTable ;
@@ -313,9 +313,10 @@ and top_close_block_aux close_fun block =
 
 let top_close_block block = top_close_block_aux Dest.close_block block
 and top_erase_block block = top_close_block_aux Dest.erase_block block
+and top_force_block block =
+  top_close_block_aux (fun name -> Dest.force_block name "") block
 
-let top_open_group () =
-  top_open_block "" "" ; new_env ""
+let top_open_group () = top_open_block "" "" ; new_env ""
 
 and top_close_group () =
   if !cur_env = "*mbox" then begin
@@ -2100,6 +2101,12 @@ def_code "\\@close"
     top_close_block tag)
 ;;
 
+def_code "\\@force"
+  (fun lexbuf ->
+    let tag = get_prim_arg  lexbuf in
+    top_force_block tag)
+;;
+
 def_code "\\@print"
   (fun lexbuf ->
           let {arg=arg} = save_arg lexbuf in
@@ -2353,6 +2360,8 @@ def_code "\\ifx"
             with Failed -> true
           end
       | Failed -> false in
+    if !verbose > 2 then
+      prerr_endline ("\\ifx -> "^(if r then "true" else "false")) ;
     if r then
       check_alltt_skip lexbuf
     else

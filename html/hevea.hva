@@ -149,16 +149,17 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 \newcommand{\maketitle}{%
-  \newcommand{\checkbox}[3]%
+  \bgroup\newcommand{\checkbox}[4]%
     {\ifthenelse{\equal{\usebox{##3}}{}}%
-      {}%
+      {\ifthenelse{\equal{##4}{}}{}{\warning{No ##4 given}}}%
       {\@open{##1}{ALIGN=center CLASS=##2}\usebox{##3}\@close{##1}}%
     }%
   \@open{TABLE}{CELLPADDING=1.5ex ALIGN=center}\@open{TR}{}\@open{TD}{CLASS=title}%
-  \checkbox{H1}{titlemain}{\@@title}%
-  \checkbox{H3}{titlerest}{\@@author}%
-  \checkbox{H3}{titlerest}{\@@date}%
+  \checkbox{H1}{titlemain}{\@@title}{title}%
+  \checkbox{H3}{titlerest}{\@@author}{author}%
+  \checkbox{H3}{titlerest}{\@@date}{}%
   \@close{TD}\@close{TR}\@close{TABLE}%
+  \egroup%
 \let\maketitle\relax\let\checkbox\relax}%
 %
 %%%%%%%%%
@@ -248,10 +249,11 @@
 }
 \@print{<HEAD>
 }
-\@print{<TITLE>}%
+\ifthenelse{\equal{\usebox{\@@title}}{}}{}
+{\@print{<TITLE>}%
 \@notags{\usebox{\@@title}}%
 \@print{</TITLE>
-}\@meta%
+}}\@meta%
 \ifmathml\@print{<STYLE type="text/css">
   math.centered { text-align: center}
 </STYLE>
