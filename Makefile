@@ -7,9 +7,10 @@ LIBDIR=/usr/local/lib/hevea
 BINDIR=/usr/local/bin
 # C preprocessor with proper options (don't ask)
 CPP=cpp -E -P
-#If cpp is not in system path try
-#CPP=/lib/cpp -E -P 
-#CPP=gcc -E -P -x c
+#Some alternatives...
+#CPP=/lib/cpp -E -P  (Old fashioned Unix)
+#CPP=gcc -E -P -x c  (If you have gcc)
+#CPP==cc --traditional-cpp -E -P -x c (repported to work on MacOsX by Georg)
 ############### End of configuration parameters
 SUF=
 #DIR=/usr/bin/
