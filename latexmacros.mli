@@ -45,6 +45,7 @@ val def_macro_pat: string -> pat  -> action -> unit
 val redef_macro_pat: string -> pat  -> action -> unit
 val provide_macro_pat: string -> pat  -> action -> unit
 val def_macro: string -> int -> action -> unit
+val def_code: string -> (Lexing.lexbuf -> string -> unit) -> unit
 val redef_macro: string -> int -> action -> unit
 val def_env_pat: string -> pat -> action -> action -> unit
 val redef_env_pat: string -> pat -> action -> action -> unit

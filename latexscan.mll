@@ -30,7 +30,6 @@ module type S =
     val macro_register : string -> unit
     val top_open_block : string -> string -> unit
     val top_close_block : string -> unit
-    val tab_val : int ref
     val get_this : (Lexing.lexbuf -> unit) -> string -> string
 
     val withinLispComment : bool ref
@@ -49,7 +48,7 @@ open Save
 open Tabular
 open Lexstate
 
-let header = "$Id: latexscan.mll,v 1.78 1999-04-14 09:50:43 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.79 1999-04-15 15:05:45 maranget Exp $" 
 
 let sbool = function
   | false -> "false"
@@ -70,12 +69,6 @@ let my_int_of_string s =
   Failure m -> raise (Error (m^": ``"^s^"''"))
 ;;
 
-let env_extract s =
-  let i = String.index s '{'
-  and j = String.rindex s '}' in
-  String.sub s (i+1) (j-i-1)
-;;
-
 let last_letter name =
   let c = String.get name (String.length name-1) in
   ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z')
@@ -89,10 +82,6 @@ let top_par n =
 
 
 let if_level = ref 0
-;;
-
-let verb_delim = ref (Char.chr 0)
-let tab_val = ref 8
 ;;
 
 let cur_env = ref ""
@@ -983,34 +972,6 @@ let check_include s =
   end
 ;;
 
-let input_file loc_verb main filename =
-  try
-    let filename,input = Myfiles.open_tex filename in
-    if !verbose > 0 then
-      prerr_endline ("Input file: "^filename) ;
-    let buf = Lexing.from_channel input in
-    Location.set filename buf ;
-    let old_verb = !verbose in
-    verbose := loc_verb ;
-    let enter_level = !env_level in
-    main buf ;
-    close_in input ;
-    verbose := old_verb ;
-    Location.restore ();
-    if !env_level <> enter_level then begin
-      print_env_pos ();
-      raise (Error ("In input file "^filename))
-    end
-  with Myfiles.Except -> begin
-    if !verbose > 0 then
-      prerr_endline ("Not opening file: "^filename) ;
-    raise  Myfiles.Except
-  end
- | Myfiles.Error m as x -> begin
-     warning m ;
-     raise x
- end
-;;
 
 let no_prelude () =
   flushing := true ;
@@ -1033,23 +994,7 @@ rule  main = parse
      main lexbuf
    end else
      comment lexbuf}
-(* Styles and packages *)
-| "\\documentstyle"  | "\\documentclass"
-    {let command = lexeme lexbuf in
-    Save.start_echo () ;
-    let opt = parse_quote_arg_opt "" lexbuf in
-    let arg =  save_arg lexbuf in
-    let echo_args = Save.get_echo () in
-    begin try if not !Latexmacros.styleloaded then
-      input_file 0 main (arg^".hva") with
-    Myfiles.Except | Myfiles.Error _ ->
-      raise (Error ("No base style"))
-    end ;
-    Image.start () ;
-    Image.put command ;
-    Image.put echo_args ;
-    Image.put "\n" ;
-    main lexbuf}
+
 (* Paragraphs *)
   | '\n' +
       {let nlnum = String.length (lexeme lexbuf) in
@@ -1065,49 +1010,6 @@ rule  main = parse
          else Html.put_char '\n';
          main lexbuf
        end}
-| "\\input" | "\\include" | "\\bibliography"
-     {let lxm = lexeme lexbuf in
-     Save.start_echo () ;
-     let arg = Save.input_arg lexbuf in
-     let echo_arg = Save.get_echo () in
-     let arg = subst_this subst arg in
-     if lxm <> "\\include" || check_include arg then begin
-       let filename =
-         if lxm = "\\bibliography" then Location.get_base ()^".bbl"
-         else arg in
-       begin try input_file !verbose main filename
-       with Myfiles.Except ->
-           Image.put lxm ;
-           Image.put echo_arg ;
-           Image.put "\n" ;
-       | Myfiles.Error _ -> ()           
-       end
-     end;
-     main lexbuf}
-| "\\verbatiminput"
-      {let lxm = lexeme lexbuf in
-      let tabs = Get.get_int (save_opt "8" lexbuf) in      
-      let arg = save_arg lexbuf in
-      let old_tabs = !tab_val in
-      tab_val := tabs ;
-      top_open_block "PRE" "" ;
-      begin try
-        input_file !verbose verbenv arg ;
-      with
-        Myfiles.Except | Myfiles.Error _ -> ()
-      end ;
-      top_close_block "PRE" ;
-      tab_val := old_tabs ;
-      main lexbuf}
-| "\\usepackage"
-      {let lxm = lexeme lexbuf in
-      Save.start_echo () ;
-      let _ = save_opt "" lexbuf in
-      let _ = save_arg lexbuf in
-      Image.put lxm ;
-      Image.put (Save.get_echo ()) ;
-      Image.put "\n" ;
-      main lexbuf}
 (* subscripts and superscripts *)
   | ('_' | '^')
      {let lxm = lexeme lexbuf in
@@ -1173,8 +1075,6 @@ rule  main = parse
        new_env math_env ;
        lexfun lexbuf
      end end}
-| "\\mbox"
-   {mbox_arg lexbuf}
 
 (* Definitions of  simple macros *)
   | "\\def" | "\\gdef" | "\\global\\def"
@@ -1373,11 +1273,7 @@ rule  main = parse
           let _ = Html.forget_par () in () ;
           Html.set_out out_file
         end ;
-        let lexfun = match env with
-          "program" | "verbatim" ->
-            (fun lexbuf -> top_open_block "PRE" "" ;
-              verbenv lexbuf)
-        | _ ->
+        let lexfun = 
             let macro = "\\"^env in
             (fun lb ->
               if env = "alltt" then begin
@@ -1428,16 +1324,6 @@ rule  main = parse
         close_env env ;
         if env <> "document" then main lexbuf
     end}
-(* Explicit groups *)
-| "\\begingroup"
-    {new_env "command-group";
-     main lexbuf}
-| "\\endgroup"
-    {if !cur_env = "command-group" then begin
-      close_env !cur_env;
-      main lexbuf
-     end else 
-      failwith "Dubious \\endgroup"}
 (* inside tabbing *)
  | [' ''\n']* ("\\>" | "\\=")  [' ''\n']*
     {if is_tabbing !in_table then begin
@@ -1499,77 +1385,7 @@ rule  main = parse
       let format =  Tabular.main (save_arg lexbuf) in
       do_multi n  format main ;
       main lexbuf}
-(* Complicated use of output blocks *)
-  | "\\left"
-      {if !display then begin
-        let _,f,is_freeze = Html.end_item_display () in
-        let delim = save_arg lexbuf in
-        Html.delay (fun vsize ->
-          put_delim delim vsize) ;
-        Html.begin_item_display f is_freeze
-      end ;     
-      main lexbuf}
-  | "\\right"
-      {if !display then begin
-        let delim = save_arg lexbuf in
-        let vsize,f,is_freeze = Html.end_item_display () in
-        put_delim delim vsize;
-        Html.flush vsize ;
-        Html.begin_item_display f is_freeze ;
-        let sup,sub = Save.get_sup_sub lexbuf in
-        let do_what = (fun () -> ()) in
-        int_sup_sub false vsize main do_what sup sub
-      end ;
-      skip_blanks lexbuf;
-      main lexbuf}
-  | "\\over"
-      {if !display then begin
-        let mods = Html.insert_vdisplay
-          (fun () ->
-             open_vdisplay () ;
-             open_vdisplay_row "NOWRAP ALIGN=center") in
-        close_vdisplay_row () ;
-        open_vdisplay_row "" ;
-        Html.close_mods () ;
-        Html.put "<HR NOSHADE SIZE=2>" ;
-        close_vdisplay_row () ;
-        open_vdisplay_row "NOWRAP ALIGN=center" ;
-        Html.close_mods () ;
-        Html.open_mods mods ;
-        Html.freeze
-          (fun () ->
-            close_vdisplay_row () ;
-            close_vdisplay ()) ;
-        main lexbuf        
-      end else begin
-        Html.put "/" ;
-        main lexbuf
-      end}            
-(* list items *)
-| "\\item"
-    {let arg = save_opt "" lexbuf in
-    Html.item (scan_this main) arg ;
-    main lexbuf}
-(* in-text verbatim *)
-| ("\\prog" | "\\verb" | "\\verb*") _
-   {let lxm = lexeme lexbuf in
-   verb_delim := String.get lxm (String.length lxm-1) ;
-   Html.open_group "CODE" ;
-   new_env "*verb" ;
-   inverb lexbuf}
-(* TeX conditionals *)
-  | "\\newif"
-      {let arg = save_arg lexbuf in
-      begin try
-        let name = newif arg  in
-        macro_register ("\\if"^name) ;
-        macro_register ("\\"^name^"true") ;
-        macro_register ("\\"^name^"false")
-      with Latexmacros.Failed -> ()
-      end ;
-      main lexbuf}
-  | "\\else"  {skip_false lexbuf}
-  | "\\fi"    {skip_blanks lexbuf ; main lexbuf}
+
 
 (* Substitution  *)
   | '#' ['1'-'9']
@@ -1580,420 +1396,69 @@ rule  main = parse
 (* Commands *)
   | command_name
       {let name = lexeme lexbuf in
-      begin match name with
-    (* Html primitives *)
-      | "\\@open" ->
-          let tag = save_arg lexbuf in
-          let arg = save_arg lexbuf in
-          if no_display tag then begin
-            if tag="DISPLAY" then begin
-              push stack_display !display;
-              display := true ;
-              top_open_display ()
-            end else if tag="VDISPLAY" then begin
-              top_item_display () ;
-              open_vdisplay () ;
-              open_vdisplay_row "NOWRAP ALIGN=center"
-            end else begin
-                warning ("direct opening of "^tag);
-              top_open_block tag arg
-            end
-          end else
-            top_open_block tag arg ;
-          main lexbuf
-      | "\\@insert" ->
-          let tag = save_arg lexbuf in
-          let arg = save_arg lexbuf in
-          Html.insert_block tag arg ;
-          main lexbuf
-      | "\\@close" ->
-          let tag = save_arg lexbuf in
-          if no_display tag then begin
-            if tag="DISPLAY" then begin
-              top_close_display ();
-              display := pop stack_display
-            end else if tag = "VDISPLAY" then begin
-              close_vdisplay_row () ;
-              close_vdisplay () ;
-              top_item_display ()
-            end else begin
-              warning ("direct closing of "^tag);
-              top_close_block tag
-            end
-          end else
-            top_close_block tag ;
-          main lexbuf
-      | "\\@print" ->
-          let arg = save_arg lexbuf in
-          Html.put arg ;
-          main lexbuf
-      | "\\@notags" ->
-          let arg = save_arg lexbuf in
-          let arg = get_this main arg in
-          let buff = Lexing.from_string arg in
-          Html.put (Save.tagout buff)  ;
-          main lexbuf
-      | "\\@anti" ->
-          let arg = save_arg lexbuf in
-          let envs = get_style main arg in
-          Html.erase_mods envs ;
-          main lexbuf
-      | "\\@style"   ->
-          let arg = save_arg lexbuf in
-          Html.open_mod (Style arg) ;
-          main lexbuf
-      | "\\@fontcolor"   ->
-          let arg = save_arg lexbuf in
-          Html.open_mod (Color arg) ;
-          main lexbuf
-      | "\\@fontsize"   ->
-          let arg = save_arg lexbuf in
-          Html.open_mod (Font (Get.get_int arg)) ;
-          main lexbuf
-      | "\\@nostyle" ->
-          Html.nostyle () ;
-          skip_blanks lexbuf ; main lexbuf
-      | "\\@clearstyle" ->
-          Html.clearstyle () ;
-          skip_blanks lexbuf ; main lexbuf
-      | "\\@incsize" ->
-          let arg = save_arg lexbuf in
-          inc_size (Get.get_int arg) ;
-          main lexbuf
-      | "\\htmlcolor" ->
-          let arg = save_arg lexbuf in
-          let arg = get_this main ("\\@nostyle "^arg) in
-          Html.open_mod (Color ("\"#"^arg^"\"")) ;
-          main lexbuf
-      | "\\@defaultdt" ->
-          let arg = subst_arg subst lexbuf in
-          Html.set_dt arg ;
-          main lexbuf
-      | "\\usecounter" ->
-          let arg = subst_arg subst lexbuf in
-          Counter.set_counter arg 0 ;
-          Html.set_dcount arg ;
-          main lexbuf
-      | "\\@fromlib" ->
-          let arg = save_arg lexbuf in
-          start_lexstate ();
-          Mylib.put_from_lib arg Html.put;
-          restore_lexstate ();
-          main lexbuf
-      | "\\imageflush" ->
-          let arg = save_opt "" lexbuf in
-          iput_newpage arg ;
-          skip_blanks lexbuf ; main lexbuf
-      | "\\textalltt" ->
-          let arg = save_arg lexbuf in
-          let old = !alltt in
-          scan_this main "\\mbox{" ;
-          alltt := true ;
-          Html.open_group "CODE" ;
-          scan_this main arg ;
-          Html.close_group () ;
-          scan_this main "}" ;
-          alltt := old ;
-          main lexbuf
-      | "\\@itemdisplay" ->
-          Html.force_item_display () ;
-          skip_blanks lexbuf ;
-          main lexbuf          
-      | "\\@br" ->
-          Html.skip_line () ;
-          skip_blanks lexbuf ;
-          main lexbuf
-(* Color package *)
-      |  "\\definecolor" ->
-          let clr = subst_arg subst lexbuf in
-          let mdl = subst_arg subst lexbuf in
-          let value = subst_arg subst lexbuf in
-          Color.define clr mdl value ;
-          main lexbuf
-      | "\\color" ->
-          let clr = subst_arg subst lexbuf in
-          let htmlval = Color.retrieve clr in
-          Html.open_mod (Color ("\""^htmlval^"\"")) ;
-          skip_blanks lexbuf ;
-          main lexbuf
-(* Ifthenelse package *)
-      | "\\ifthenelse" ->
-          let cond = save_arg lexbuf in
-          let arg_true = save_arg lexbuf in
-          let arg_false = save_arg lexbuf in
-          scan_this main
-            (if Get.get_bool cond then arg_true else arg_false) ;
-          main lexbuf
-      | "\\whiledo" ->
-          let test = save_arg lexbuf in
-          let body = save_arg lexbuf in
-          let btest = ref (Get.get_bool test) in
-          while !btest do
-            scan_this main body ;
-            btest := Get.get_bool test
-          done ;
-          main lexbuf
-      | "\\newboolean" ->
-          let name = subst_arg subst lexbuf in
-          scan_this main ("\\newif\\if"^name) ;
-          main lexbuf
-      | "\\setboolean" ->
-          let name = subst_arg subst lexbuf in
-          let arg = save_arg lexbuf in
-          let b = Get.get_bool arg in
-          scan_this main ("\\"^name^(if b then "true" else "false")) ;
-          main lexbuf
-(* Bibliographies *)
-      | "\\cite" ->
-          let opt = subst_opt "" subst lexbuf in
-          let args = List.map (subst_this subst) (Save.cite_arg lexbuf) in
-          Html.put_char '[' ;
-          Html.open_group "CITE" ;
-          let rec do_rec = function
-              [] -> ()
-            | [x] -> Html.loc_ref (get_this main (Auxx.bget x)) x
-            | x::rest ->
-                Html.loc_ref (get_this main (Auxx.bget x)) x ;
-                Html.put ", " ;
-                do_rec rest in
-          do_rec args ;
-          if opt <> "" then begin
-            Html.put ", " ;
-            scan_this main opt ;
-          end ;
-          Html.close_group () ;
-          Html.put_char ']' ;
-          main lexbuf
-(* Includes *)
-      | "\\includeonly" ->
-          let arg = Save.cite_arg lexbuf in
-          add_includes arg ;
-          main lexbuf
-(* Foot notes *)
-      | "\\@footnotetext" ->
-          start_lexstate () ; 
-          let mark = save_arg lexbuf in
-          let mark = Get.get_int mark in
-          let text = save_arg lexbuf in
-          let text = get_this main ("\\@clearstyle "^text) in
-          let anchor = save_arg lexbuf in
-          let anchor = get_this main anchor in
-          Foot.register
-            mark
-            (get_this main ("\\@footnotemark{note}{"^string_of_int mark^"}"))
-            text anchor ;
-          restore_lexstate ();
-          main lexbuf
-      | "\\@footnoteflush" ->
-          let sec_here = subst_arg subst lexbuf
-          and sec_notes = get_this main "\\@nostyle\\@footnotelevel" in
-          start_lexstate () ;
-          Foot.flush (scan_this main) sec_notes sec_here ;
-          restore_lexstate ();
-          main lexbuf
-(* Boxes *)
-      | "\\newsavebox" ->
-          let name = save_arg lexbuf in
-          begin try def_macro name 0 (Print "")
-          with Latexmacros.Failed -> () end ;
-          main lexbuf
-      | "\\savebox" | "\\sbox" ->
-          let name = subst_this subst (save_arg lexbuf) in
-          if name = "\\savebox" then begin
-            warning "savebox";
-            skip_opt lexbuf ;
-            skip_opt lexbuf
-          end ;
-          let body = save_arg lexbuf in
-          redef_macro name 0 (Print (get_this main body)) ;
-          macro_register name ;
-          main lexbuf
-      | "\\usebox" ->
-          let arg = save_arg lexbuf in
-          scan_this main arg ;
-          main lexbuf
-(* chars *)
-      | "\\char" ->
-          let arg = Save.num_arg lexbuf in
-          if not !silent && (arg < 32 || arg > 127) then begin
-            Location.print_pos () ;
-            prerr_endline ("Warning: \\char");
-          end ;
-          Html.put (Html.iso (Char.chr arg)) ;
-          skip_blanks_pop lexbuf ; main lexbuf
-      | "\\symbol" ->
-          let arg = save_arg lexbuf in
-          scan_this main ("\\char"^arg) ;
-          main lexbuf
-(* labels *)
-      | "\\label" ->
-          let save_last_closed = Html.get_last_closed () in
-          let lab = subst_arg subst lexbuf in
-          Html.loc_name lab "" ;
-          Html.set_last_closed save_last_closed ;
-          main lexbuf
-      |  "\\ref" ->
-          let lab = subst_arg subst lexbuf in 
-          Html.loc_ref (get_this main (Auxx.rget lab)) lab ;
-          main lexbuf
-      |  "\\pageref" ->
-          let lab = subst_arg subst lexbuf in
-          Html.loc_ref "X" lab ;
-          main lexbuf
-(* index *)
-      | "\\@index" ->
-          let save_last_closed = Html.get_last_closed () in
-          let tag = subst_opt "default" subst lexbuf in
-          let arg = subst_arg subst lexbuf in
-          begin try
-            Index.treat (check_this main) tag arg
-          with Index.Error s -> raise (Error s)
-          end ;
-          Html.set_last_closed save_last_closed ;
-          main lexbuf
-      | "\\@printindex" ->
-          start_lexstate () ;
-          let tag =  subst_opt "default" subst lexbuf in
-          begin try
-            Index.print (scan_this main) tag
-          with Index.Error s -> raise (Error s)
-          end ;
-          restore_lexstate ();
-          main lexbuf
-      | "\\newindex" |  "\\renewindex" ->
-          let tag = subst_arg subst lexbuf in
-          let suf = subst_arg subst lexbuf in
-          let _   = save_arg lexbuf in
-          let name = subst_arg subst lexbuf in
-          Index.newindex tag suf name ;
-          main lexbuf
-(* Counters *)
-      | "\\newcounter"  ->
-          let name = subst_arg subst lexbuf in
-          let within = save_opt "" lexbuf in
-          let within = get_this main within in
-          Counter.def_counter name within ;
-          scan_this main ("\\def\\the"^name^"{\\arabic{"^name^"}}") ;
-          main lexbuf
-      | "\\addtocounter" ->
-          let name = subst_arg subst lexbuf in
-          let arg = save_arg lexbuf in
-          Counter.add_counter name (Get.get_int arg) ;
-          main lexbuf
-      | "\\setcounter" ->
-          let name = subst_arg subst lexbuf in
-          let arg = save_arg lexbuf in
-          Counter.set_counter name (Get.get_int arg) ;
-          main lexbuf
-      | "\\stepcounter" ->
-          let name = subst_arg subst lexbuf in
-          Counter.step_counter name ;
-          main lexbuf
-      | "\\refstepcounter" ->
-          let name = subst_arg subst lexbuf in
-          Counter.step_counter name ;
-          Counter.setrefvalue (get_this main ("\\@nostyle\\the"^name)) ;
-          main lexbuf
-      | "\\numberwithin" ->
-          let name = get_this main (save_arg lexbuf) in
-          let within = get_this main (save_arg lexbuf) in
-          Counter.number_within name within ;
-          main lexbuf
-(* terminal output *)
-      | "\\typeout" ->
-          let what = save_arg lexbuf in
-          prerr_endline what ;
-          main lexbuf
-      | "\\warning" ->
-          let what = save_arg lexbuf in
-          warning what ;
-          main lexbuf
-(* spacing *)
-      |  "\\hspace"|"\\vspace" ->
-          let vert = name = "\\vspace" in           
-          let arg = subst_arg subst lexbuf in
-          begin try
-            let n = match Length.main (Lexing.from_string arg) with
-            | Length.Absolute n -> n
-            | _                 -> raise Length.No in
-            if vert then
-              for i=1 to n do
-                Html.skip_line ()
-              done
+      let exec = function
+        | Print str -> Html.put str
+        | Print_fun (f,i) -> 
+            scan_arg 
+              (fun s -> scan_this main (f (subst_this subst s)))
+              i
+        | Print_count (f,i) ->
+            scan_arg
+              (fun s ->
+                let c = Counter.value_counter s in
+                Html.put (f c)) i
+        | Test cell ->
+            if not !cell then raise IfFalse
             else
-              for i=1 to n do
-                Html.put "&nbsp;"
-              done
-          with Length.No ->
-            warning (name^" with arg ``"^arg^"''")
-          end ;
-          main lexbuf
-  (* user macros *)
-      | _ ->
-          let exec = function
-            | Print str -> Html.put str
-            | Print_fun (f,i) -> 
-                scan_arg 
-                  (fun s -> scan_this main (f (subst_this subst s)))
-                  i
-            | Print_count (f,i) ->
-                scan_arg
-                   (fun s ->
-                     let c = Counter.value_counter s in
-                     Html.put (f c)) i
-            | Test cell ->
-                if not !cell then raise IfFalse
-                else
-                  if !verbose > 2 then
-                    prerr_endline "Seen if as true"
-            | SetTest (cell,b) -> cell := b
-            | Subst body ->
-                if !verbose > 2 then
-                  prerr_endline ("user macro: "^body) ;            
-                scan_this_may_cont true main lexbuf body
-            | CamlCode (f) -> 
-                scan_fun f lexbuf name in
+              if !verbose > 2 then
+                prerr_endline "Seen if as true"
+        | SetTest (cell,b) -> cell := b
+        | Subst body ->
+            if !verbose > 2 then
+              prerr_endline ("user macro: "^body) ;            
+            scan_this_may_cont true main lexbuf body
+        | CamlCode (f) -> 
+            scan_fun f lexbuf name in
 
-          let pat,body = find_macro name in
-          let args = make_stack name pat lexbuf in
-          let saw_par = !Save.seen_par in
-          let is_limit = checklimits lexbuf ||  Latexmacros.limit name in
-          if is_limit || Latexmacros.big name then begin
-            let sup,sub = Save.get_sup_sub lexbuf in
-            let do_what =
-              (fun () -> scan_body exec body args) in
-            if !display && is_limit then
-              limit_sup_sub main do_what sup sub
-            else if !display &&  Latexmacros.int name then
-                int_sup_sub true 3 main do_what sup sub
-            else
-              standard_sup_sub main do_what sup sub ;
-            main lexbuf
+      let pat,body = find_macro name in
+      let args = make_stack name pat lexbuf in
+      let saw_par = !Save.seen_par in
+      let is_limit = checklimits lexbuf ||  Latexmacros.limit name in
+      if is_limit || Latexmacros.big name then begin
+        let sup,sub = Save.get_sup_sub lexbuf in
+        let do_what =
+          (fun () -> scan_body exec body args) in
+        if !display && is_limit then
+          limit_sup_sub main do_what sup sub
+        else if !display &&  Latexmacros.int name then
+          int_sup_sub true 3 main do_what sup sub
+        else
+          standard_sup_sub main do_what sup sub ;
+        main lexbuf
+      end else begin
+        try
+          scan_body exec body args ;
+          if (!verbose > 2) then
+            prerr_string ("Cont after macro "^name^": ") ;
+          if saw_par then top_par (par_val !in_table)
+          else if
+            Latexmacros.invisible name ||
+            (not !in_math && not !alltt &&
+             (pat = ([],[])) && last_letter name && !eat_space)
+          then begin
+            if !verbose > 2 then
+              prerr_endline "skipping blanks";
+            skip_blanks_pop lexbuf
           end else begin
-            try
-              scan_body exec body args ;
-              if (!verbose > 2) then
-                prerr_string ("Cont after macro "^name^": ") ;
-              if saw_par then top_par (par_val !in_table)
-              else if
-                Latexmacros.invisible name ||
-                (not !in_math && not !alltt &&
-                 (pat = ([],[])) && last_letter name && !eat_space)
-              then begin
-                 if !verbose > 2 then
-                   prerr_endline "skipping blanks";
-                 skip_blanks_pop lexbuf
-              end else begin
-                if !verbose > 2 then
-                  prerr_endline "not skipping blanks";
-              end ;
-              main lexbuf 
-            with 
-              IfFalse -> begin
-                if (!verbose > 2) then
-                  prerr_endline ("Cont after iffalse:"^name) ;
-                skip_false lexbuf
-              end
+            if !verbose > 2 then
+              prerr_endline "not skipping blanks";
+          end ;
+          main lexbuf 
+        with 
+          IfFalse -> begin
+            if (!verbose > 2) then
+              prerr_endline ("Cont after iffalse:"^name) ;
+            skip_false lexbuf
           end
       end}
 (* Groups *)
@@ -2004,11 +1469,16 @@ rule  main = parse
       Html.put_char '{';
     main lexbuf}
 | '}' 
-    {if !Latexmacros.activebrace then
-      top_close_group ()
-    else
+    {if !Latexmacros.activebrace then begin
+      let cenv = !cur_env in
+      top_close_group () ;
+      if cenv <> "*mbox" then
+        main lexbuf
+      else ()
+    end else begin
       Html.put_char '}' ;
-    main lexbuf}
+      main lexbuf
+    end}
 | eof
    {if !verbose > 1 then Printf.fprintf stderr "Eof\n" ; ()}
 | ' '+
@@ -2049,49 +1519,6 @@ rule  main = parse
 and rawhtml = parse
     "\\end{rawhtml}" { () }
   | _           { Html.put_char(lexeme_char lexbuf 0); rawhtml lexbuf }
-
-and verbenv = parse
-  "\\end" " " * "{" ['a'-'z'] + "}"
-    {let lxm = lexeme lexbuf in
-    let env = env_extract lxm in
-    if env = !cur_env then begin
-      top_close_block "PRE" ;
-      close_env env ;
-      skip_blanks lexbuf ; main lexbuf
-    end else begin
-      Html.put lxm ;
-      verbenv lexbuf
-    end}
-| "\\esc" ' '*
-    {if !cur_env <> "program" then begin
-      Html.put (lexeme lexbuf)
-    end else begin
-      let arg = save_arg lexbuf in
-      scan_this main ("{"^arg^"}")
-    end ;
-    verbenv lexbuf}
-| '\t'
-      {for i=1 to !tab_val do
-        Html.put_char ' '
-      done ;
-      verbenv lexbuf}
-| eof {()}
-| _   { Html.put (Html.iso (lexeme_char lexbuf 0)) ; verbenv lexbuf}
-
-and inverb = parse
-|  _
-  {let c = lexeme_char lexbuf 0 in
-  if c = !verb_delim then begin
-    Html.close_group () ;
-    close_env "*verb" ;
-    main lexbuf
-  end else begin
-    Html.put (Html.iso c) ;
-    inverb lexbuf
-  end}
-| eof {raise
-        (Error ("End of file inside ``\\verb"^
-                String.make 1 !verb_delim^"'' construct"))}
 
 and verblatex = parse
   "\\end"
@@ -2380,4 +1807,583 @@ and subst = parse
     {Out.put subst_buff (lexeme lexbuf) ; subst lexbuf}
 |  eof {()}
 
-{end}
+{
+(* Styles and packages *)
+let do_documentclass lexbuf command =
+  Save.start_echo () ;
+  let opt = parse_quote_arg_opt "" lexbuf in
+  let arg =  save_arg lexbuf in
+  let echo_args = Save.get_echo () in
+  begin try if not !Latexmacros.styleloaded then
+    input_file 0 main (arg^".hva")
+  with
+    Myfiles.Except | Myfiles.Error _ ->
+      raise (Error ("No base style"))
+  end ;
+  Image.start () ;
+  Image.put command ;
+  Image.put echo_args ;
+  Image.put "\n"
+;;
+
+def_code  "\\documentstyle" do_documentclass ;
+def_code  "\\documentclass" do_documentclass
+;;
+
+
+let do_input lexbuf lxm =
+  Save.start_echo () ;
+  let arg = Save.input_arg lexbuf in
+  let echo_arg = Save.get_echo () in
+  let arg = subst_this subst arg in
+  if lxm <> "\\include" || check_include arg then begin
+    let filename =
+      if lxm = "\\bibliography" then Location.get_base ()^".bbl"
+      else arg in
+    begin try input_file !verbose main filename
+    with Myfiles.Except ->
+      Image.put lxm ;
+      Image.put echo_arg ;
+      Image.put "\n" ;
+    | Myfiles.Error _ -> ()           
+    end
+  end
+;;
+
+def_code "\\input" do_input ;
+def_code "\\include" do_input ;
+def_code "\\bibliography" do_input
+;;
+
+
+(* Complicated use of output blocks *)
+def_code "\\left"
+  (fun lexbuf _ ->
+    if !display then begin
+      let _,f,is_freeze = Html.end_item_display () in
+      let delim = save_arg lexbuf in
+      Html.delay (fun vsize ->
+        put_delim delim vsize) ;
+      Html.begin_item_display f is_freeze
+    end)
+;;
+
+def_code "\\right"
+  (fun lexbuf _ ->
+    if !display then begin
+      let delim = save_arg lexbuf in
+      let vsize,f,is_freeze = Html.end_item_display () in
+      put_delim delim vsize;
+      Html.flush vsize ;
+      Html.begin_item_display f is_freeze ;
+      let sup,sub = Save.get_sup_sub lexbuf in
+      let do_what = (fun () -> ()) in
+      int_sup_sub false vsize main do_what sup sub
+    end ;
+    skip_blanks lexbuf)
+;;
+
+def_code "\\over"
+  (fun lexbuf _ ->
+    if !display then begin
+      let mods = Html.insert_vdisplay
+          (fun () ->
+            open_vdisplay () ;
+            open_vdisplay_row "NOWRAP ALIGN=center") in
+      close_vdisplay_row () ;
+      open_vdisplay_row "" ;
+      Html.close_mods () ;
+      Html.put "<HR NOSHADE SIZE=2>" ;
+      close_vdisplay_row () ;
+      open_vdisplay_row "NOWRAP ALIGN=center" ;
+      Html.close_mods () ;
+      Html.open_mods mods ;
+      Html.freeze
+        (fun () ->
+          close_vdisplay_row () ;
+          close_vdisplay ())
+      end else begin
+        Html.put "/"
+      end)
+;;
+   
+(* list items *)
+def_code "\\item"
+ (fun lexbuf _ ->
+    let arg = save_opt "" lexbuf in
+    Html.item (scan_this main) arg)
+;;
+
+(* Html primitives *)
+def_code "\\@open"
+  (fun lexbuf _ ->
+    let tag = save_arg lexbuf in
+    let arg = save_arg lexbuf in
+    if no_display tag then begin
+      if tag="DISPLAY" then begin
+        push stack_display !display;
+        display := true ;
+        top_open_display ()
+      end else if tag="VDISPLAY" then begin
+        top_item_display () ;
+        open_vdisplay () ;
+        open_vdisplay_row "NOWRAP ALIGN=center"
+      end else begin
+        warning ("direct opening of "^tag);
+        top_open_block tag arg
+      end
+    end else
+      top_open_block tag arg)
+;;
+
+def_code "\\@insert"
+  (fun lexbuf _ ->
+          let tag = save_arg lexbuf in
+          let arg = save_arg lexbuf in
+          Html.insert_block tag arg )
+;;
+
+def_code "\\@close"
+  (fun lexbuf _ ->
+    let tag = save_arg lexbuf in
+    if no_display tag then begin
+      if tag="DISPLAY" then begin
+        top_close_display ();
+        display := pop stack_display
+      end else if tag = "VDISPLAY" then begin
+        close_vdisplay_row () ;
+        close_vdisplay () ;
+        top_item_display ()
+      end else begin
+        warning ("direct closing of "^tag);
+        top_close_block tag
+      end
+    end else
+      top_close_block tag)
+;;
+
+def_code "\\@print"
+  (fun lexbuf _ ->
+          let arg = save_arg lexbuf in
+          Html.put arg )
+;;
+def_code "\\@notags"
+  (fun lexbuf _ ->
+          let arg = save_arg lexbuf in
+          let arg = get_this main arg in
+          let buff = Lexing.from_string arg in
+          Html.put (Save.tagout buff)  )
+;;
+def_code "\\@anti"
+  (fun lexbuf _ ->
+          let arg = save_arg lexbuf in
+          let envs = get_style main arg in
+          Html.erase_mods envs )
+;;
+def_code "\\@style"  
+  (fun lexbuf _ ->
+          let arg = save_arg lexbuf in
+          Html.open_mod (Style arg) )
+;;
+def_code "\\@fontcolor"  
+  (fun lexbuf _ ->
+          let arg = save_arg lexbuf in
+          Html.open_mod (Color arg) )
+;;
+def_code "\\@fontsize"  
+  (fun lexbuf _ ->
+          let arg = save_arg lexbuf in
+          Html.open_mod (Font (Get.get_int arg)) )
+;;
+def_code "\\@nostyle"
+  (fun lexbuf _ ->
+          Html.nostyle () )
+;;
+def_code "\\@clearstyle"
+  (fun lexbuf _ ->
+          Html.clearstyle () )
+;;
+def_code "\\@incsize"
+  (fun lexbuf _ ->
+          let arg = save_arg lexbuf in
+          inc_size (Get.get_int arg) )
+;;
+def_code "\\htmlcolor"
+  (fun lexbuf _ ->
+          let arg = save_arg lexbuf in
+          let arg = get_this main ("\\@nostyle "^arg) in
+          Html.open_mod (Color ("\"#"^arg^"\"")) )
+;;
+def_code "\\@defaultdt"
+  (fun lexbuf _ ->
+          let arg = subst_arg subst lexbuf in
+          Html.set_dt arg )
+;;
+def_code "\\usecounter"
+  (fun lexbuf _ ->
+          let arg = subst_arg subst lexbuf in
+          Counter.set_counter arg 0 ;
+          Html.set_dcount arg )
+;;
+def_code "\\@fromlib"
+  (fun lexbuf _ ->
+          let arg = save_arg lexbuf in
+          start_lexstate ();
+          Mylib.put_from_lib arg Html.put;
+          restore_lexstate ())
+;;
+def_code "\\imageflush"
+  (fun lexbuf _ ->
+          let arg = save_opt "" lexbuf in
+          iput_newpage arg )
+;;
+def_code "\\textalltt"
+  (fun lexbuf _ ->
+          let arg = save_arg lexbuf in
+          let old = !alltt in
+          scan_this main "\\mbox{" ;
+          alltt := true ;
+          Html.open_group "CODE" ;
+          scan_this main arg ;
+          Html.close_group () ;
+          scan_this main "}" ;
+          alltt := old )
+;;
+def_code "\\@itemdisplay"
+  (fun lexbuf _ -> Html.force_item_display ())
+;;
+def_code "\\@br"
+  (fun lexbuf _ -> Html.skip_line ())
+;;
+
+
+(* TeX conditionals *)
+def_code "\\newif"
+  (fun lexbuf _ ->
+    let arg = save_arg lexbuf in
+    try
+      let name = newif arg  in
+      macro_register ("\\if"^name) ;
+      macro_register ("\\"^name^"true") ;
+      macro_register ("\\"^name^"false")
+    with Latexmacros.Failed -> ())
+;;
+
+def_code "\\else" (fun lexbuf _ -> skip_false lexbuf)
+;;
+
+def_code "\\fi" (fun _ _ -> ())
+;;
+
+
+(* ifthen package *)
+def_code "\\ifthenelse"
+    (fun lexbuf _ ->
+      let cond = save_arg lexbuf in
+      let arg_true = save_arg lexbuf in
+      let arg_false = save_arg lexbuf in
+      scan_this main
+        (if Get.get_bool cond then arg_true else arg_false))
+;;
+
+def_code "\\whiledo"
+    (fun lexbuf _ ->
+      let test = save_arg lexbuf in
+      let body = save_arg lexbuf in
+      let btest = ref (Get.get_bool test) in
+      while !btest do
+        scan_this main body ;
+        btest := Get.get_bool test
+      done)
+;;
+
+def_code "\\newboolean"
+    (fun lexbuf _ ->
+      let name = subst_arg subst lexbuf in
+      scan_this main ("\\newif\\if"^name))
+;;
+
+def_code "\\setboolean"
+    (fun lexbuf _ ->
+      let name = subst_arg subst lexbuf in
+      let arg = save_arg lexbuf in
+      let b = Get.get_bool arg in
+      scan_this main ("\\"^name^(if b then "true" else "false")))
+;;
+
+(* Color package *)
+def_code "\\definecolor"
+  (fun lexbuf _ ->
+    let clr = subst_arg subst lexbuf in
+    let mdl = subst_arg subst lexbuf in
+    let value = subst_arg subst lexbuf in
+    Color.define clr mdl value )
+;;
+
+def_code "\\color"
+  (fun lexbuf _ ->
+    let clr = subst_arg subst lexbuf in
+    let htmlval = Color.retrieve clr in
+    Html.open_mod (Color ("\""^htmlval^"\"")) ;
+    skip_blanks lexbuf)
+;;
+
+(* Bibliographies *)
+def_code "\\cite"
+  (fun lexbuf _ ->
+    let opt = subst_opt "" subst lexbuf in
+    let args = List.map (subst_this subst) (Save.cite_arg lexbuf) in
+    Html.put_char '[' ;
+    Html.open_group "CITE" ;
+    let rec do_rec = function
+        [] -> ()
+      | [x] -> Html.loc_ref (get_this main (Auxx.bget x)) x
+      | x::rest ->
+          Html.loc_ref (get_this main (Auxx.bget x)) x ;
+          Html.put ", " ;
+          do_rec rest in
+    do_rec args ;
+    if opt <> "" then begin
+      Html.put ", " ;
+      scan_this main opt ;
+    end ;
+    Html.close_group () ;
+    Html.put_char ']' )
+;;
+
+(* Includes *)
+def_code "\\includeonly"
+  (fun lexbuf _ ->
+    let arg = Save.cite_arg lexbuf in
+    add_includes arg )
+;;
+
+(* Foot notes *)
+def_code "\\@footnotetext"
+  (fun lexbuf _ ->
+    start_lexstate () ; 
+    let mark = save_arg lexbuf in
+    let mark = Get.get_int mark in
+    let text = save_arg lexbuf in
+    let text = get_this main ("\\@clearstyle "^text) in
+    let anchor = save_arg lexbuf in
+    let anchor = get_this main anchor in
+    Foot.register
+      mark
+      (get_this main ("\\@footnotemark{note}{"^string_of_int mark^"}"))
+      text anchor ;
+    restore_lexstate ())
+;;
+
+def_code "\\@footnoteflush"
+  (fun lexbuf _ ->
+    let sec_here = subst_arg subst lexbuf
+    and sec_notes = get_this main "\\@nostyle\\@footnotelevel" in
+    start_lexstate () ;
+    Foot.flush (scan_this main) sec_notes sec_here ;
+    restore_lexstate ())
+;;
+
+(* Boxes *)
+
+def_code "\\mbox" (fun lexbuf _ -> mbox_arg lexbuf)
+;;
+
+def_code "\\newsavebox"
+  (fun lexbuf _ ->
+    let name = save_arg lexbuf in
+    begin try def_macro name 0 (Print "")
+    with Latexmacros.Failed -> () end )
+;;
+
+def_code "\\savebox" 
+  (fun lexbuf _ ->
+    let name = subst_this subst (save_arg lexbuf) in
+    warning "savebox";
+    skip_opt lexbuf ;
+    skip_opt lexbuf ;
+    let body = save_arg lexbuf in
+    redef_macro name 0 (Print (get_this main body)) ;
+    macro_register name)
+;;
+
+def_code "\\sbox"
+  (fun lexbuf _ ->
+    let name = subst_this subst (save_arg lexbuf) in
+    let body = save_arg lexbuf in
+    redef_macro name 0 (Print (get_this main body)) ;
+    macro_register name)
+;;
+
+def_code "\\usebox"
+  (fun lexbuf _ ->
+    let arg = save_arg lexbuf in
+    scan_this main arg )
+;;
+
+(* chars *)
+def_code "\\char"
+  (fun lexbuf _ ->
+    let arg = Save.num_arg lexbuf in
+    if not !silent && (arg < 32 || arg > 127) then begin
+      Location.print_pos () ;
+      prerr_endline ("Warning: \\char");
+    end ;
+    Html.put (Html.iso (Char.chr arg)) )
+;;
+
+def_code "\\symbol"
+  (fun lexbuf _ ->
+    let arg = save_arg lexbuf in
+    scan_this main ("\\char"^arg) )
+;;
+
+(* labels *)
+def_code "\\label"
+  (fun lexbuf _ ->
+    let save_last_closed = Html.get_last_closed () in
+    let lab = subst_arg subst lexbuf in
+    Html.loc_name lab "" ;
+    Html.set_last_closed save_last_closed)
+;;
+
+def_code "\\ref"
+  (fun lexbuf _ ->
+    let lab = subst_arg subst lexbuf in 
+    Html.loc_ref (get_this main (Auxx.rget lab)) lab)
+;;
+
+def_code "\\pageref"
+ (fun lexbuf _ ->
+    let lab = subst_arg subst lexbuf in
+    Html.loc_ref "X" lab )
+;;
+
+(* index *)
+def_code "\\@index"
+  (fun lexbuf _ ->
+    let save_last_closed = Html.get_last_closed () in
+    let tag = subst_opt "default" subst lexbuf in
+    let arg = subst_arg subst lexbuf in
+    begin try
+      Index.treat (check_this main) tag arg
+    with Index.Error s -> raise (Error s)
+    end ;
+    Html.set_last_closed save_last_closed)
+;;
+
+def_code "\\@printindex"
+  (fun lexbuf _ ->
+    start_lexstate () ;
+    let tag =  subst_opt "default" subst lexbuf in
+    begin try
+      Index.print (scan_this main) tag
+    with Index.Error s -> raise (Error s)
+    end ;
+    restore_lexstate ())
+;;
+
+let new_index lexbuf _ =
+  let tag = subst_arg subst lexbuf in
+  let suf = subst_arg subst lexbuf in
+  let _   = save_arg lexbuf in
+  let name = subst_arg subst lexbuf in
+  Index.newindex tag suf name
+;;
+
+def_code "\\newindex" new_index ;
+def_code "\\renewindex" new_index
+;;
+
+(* Counters *)
+def_code "\\newcounter"
+  (fun lexbuf _ ->
+          let name = subst_arg subst lexbuf in
+          let within = save_opt "" lexbuf in
+          let within = get_this main within in
+          Counter.def_counter name within ;
+          scan_this main ("\\def\\the"^name^"{\\arabic{"^name^"}}") )
+;;
+
+def_code "\\addtocounter"
+  (fun lexbuf _ ->
+    let name = subst_arg subst lexbuf in
+    let arg = save_arg lexbuf in
+    Counter.add_counter name (Get.get_int arg) )
+;;
+
+def_code "\\setcounter"
+  (fun lexbuf _ ->
+          let name = subst_arg subst lexbuf in
+          let arg = save_arg lexbuf in
+          Counter.set_counter name (Get.get_int arg) )
+;;
+
+def_code "\\stepcounter"
+  (fun lexbuf _ ->
+          let name = subst_arg subst lexbuf in
+          Counter.step_counter name )
+;;
+
+def_code "\\refstepcounter"
+  (fun lexbuf _ ->
+          let name = subst_arg subst lexbuf in
+          Counter.step_counter name ;
+          Counter.setrefvalue (get_this main ("\\@nostyle\\the"^name)) )
+;;
+
+def_code "\\numberwithin"
+  (fun lexbuf _ ->
+          let name = get_this main (save_arg lexbuf) in
+          let within = get_this main (save_arg lexbuf) in
+          Counter.number_within name within )
+;;
+
+(* terminal output *)
+def_code "\\typeout"
+  (fun lexbuf _ ->
+          let what = save_arg lexbuf in
+          prerr_endline what )
+;;
+
+def_code "\\warning"
+  (fun lexbuf _ ->
+          let what = save_arg lexbuf in
+          warning what )
+;;
+
+(* spacing *)
+
+let do_space vert lexbuf  = 
+  let arg = subst_arg subst lexbuf in
+  begin try
+    let n = match Length.main (Lexing.from_string arg) with
+    | Length.Absolute n -> n
+    | _                 -> raise Length.No in
+    if vert then
+      for i=1 to n do
+        Html.skip_line ()
+      done
+    else
+      for i=1 to n do
+        Html.put "&nbsp;"
+      done
+  with Length.No ->
+    warning ((if vert then "\\vspace" else "\\hspace")^
+             " with arg ``"^arg^"''")
+  end
+;;
+
+def_code "\\hspace"  (fun lexbuf _ -> do_space false lexbuf) ;
+def_code "\\vspace"  (fun lexbuf _ -> do_space true lexbuf)
+;;
+
+(* Explicit groups *)
+def_code "\\begingroup" (fun _ _ -> new_env "command-group")
+;;
+
+def_code "\\endgroup" (fun _ _ -> close_env !cur_env)
+;;
+
+
+end}

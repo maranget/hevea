@@ -1,6 +1,6 @@
 (* <Christian.Queinnec@lip6.fr>
  The plugin for HeVeA that implements the VideoC style.
- $Id: videoc.mll,v 1.2 1999-03-16 17:42:08 maranget Exp $ 
+ $Id: videoc.mll,v 1.3 1999-04-15 15:05:51 maranget Exp $ 
 *)
 
 {
@@ -19,7 +19,7 @@ open Latexmacros
 (* open Html *)
 
 let header = 
-  "$Id: videoc.mll,v 1.2 1999-03-16 17:42:08 maranget Exp $"
+  "$Id: videoc.mll,v 1.3 1999-04-15 15:05:51 maranget Exp $"
 
 (* Re-link with these variables inserted in latexscan. *)
 
@@ -79,7 +79,7 @@ rule snippetenv = parse
     {Html.put "&nbsp;";
      snippetenv lexbuf}
 | '\t'
-    {for i=1 to !Scan.tab_val do
+    {for i=1 to !Lexstate.tab_val do
       Html.put "&nbsp;"
      done;
      snippetenv lexbuf}

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmain.ml,v 1.34 1999-04-08 09:24:30 maranget Exp $" 
+let header = "$Id: latexmain.ml,v 1.35 1999-04-15 15:05:42 maranget Exp $" 
 
 open Misc
 open Parse_opts
@@ -20,6 +20,10 @@ module Scan = Latexscan.Make (Html)
 (* Additional modules *)
 module Otherscan = Videoc.Makealso (Scan);;
 Otherscan.init ();;
+
+module Verbscan = Verb.MakeAlso  (Html) (Scan);;
+Verbscan.init ();;
+
 
 Get.init (Scan.subst_this Scan.subst) (Scan.get_this Scan.main) ;
 Tabular.init (Scan.subst_this Scan.subst)

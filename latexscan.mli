@@ -29,7 +29,6 @@ module type S =
     val macro_register : string -> unit
     val top_open_block : string -> string -> unit
     val top_close_block : string -> unit
-    val tab_val : int ref
     val get_this : (Lexing.lexbuf -> unit) -> string -> string
 
     val withinLispComment : bool ref

@@ -1,4 +1,4 @@
-let header =  "$Id: lexstate.ml,v 1.6 1999-03-16 17:42:06 maranget Exp $"
+let header =  "$Id: lexstate.ml,v 1.7 1999-04-15 15:05:48 maranget Exp $"
 
 open Misc
 open Lexing
@@ -105,18 +105,15 @@ let scan_arg lexfun i =
   stack := old_args ;
   r
 
-and scan_fun f lexbuf name =
-  let old_args = !stack in
-  stack := pop stack_stack ;
-  let r = f lexbuf name in
-  push stack_stack !stack ;
-  stack := old_args ;
-  r
-
+and scan_fun f lexbuf name = f lexbuf name
 
 and scan_body exec body args =
-  push stack_stack !stack ;
-  stack := args ;
+  begin match body with
+  | Latexmacros.CamlCode _ -> ()
+  | _ ->
+      push stack_stack !stack ;
+      stack := args
+  end ;
   try
 (*
     prerr_string "scan_body :" ;
@@ -124,7 +121,10 @@ and scan_body exec body args =
     prerr_args () ;
 *)
     let r = exec body in
-    stack := pop stack_stack ;
+    begin match body with
+    | Latexmacros.CamlCode _ -> ()
+    | _ -> stack := pop stack_stack
+    end;
     r
   with IfFalse -> begin
     stack := pop stack_stack ;
@@ -133,7 +133,9 @@ and scan_body exec body args =
 
 let eat_space = ref true
 and stack_eat = ref []
-;;
+
+let tab_val = ref 8
+
 
 (* Recoding and restoring lexbufs *)
 let record_lexbuf lexbuf eat =
@@ -372,5 +374,28 @@ let scan_this_may_cont eat lexfun lexbuf s =
     prerr_endline ""
   end ;
   r
-;;
+
+let input_file loc_verb main filename =
+  try
+    let filename,input = Myfiles.open_tex filename in
+    if !verbose > 0 then
+      prerr_endline ("Input file: "^filename) ;
+    let buf = Lexing.from_channel input in
+    Location.set filename buf ;
+    let old_verb = !verbose in
+    verbose := loc_verb ;
+    main buf ;
+    close_in input ;
+    verbose := old_verb ;
+    Location.restore ()  
+  with Myfiles.Except -> begin
+    if !verbose > 0 then
+      prerr_endline ("Not opening file: "^filename) ;
+    raise  Myfiles.Except
+  end
+ | Myfiles.Error m as x -> begin
+     Parse_opts.warning m ;
+     raise x
+ end
+
 

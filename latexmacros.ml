@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmacros.ml,v 1.41 1999-04-12 17:15:48 maranget Exp $" 
+let header = "$Id: latexmacros.ml,v 1.42 1999-04-15 15:05:40 maranget Exp $" 
 open Misc
 open Parse_opts
 open Symb
@@ -47,7 +47,7 @@ let pretty_pat (_,args) =
 
 
 let cmdtable =
-  (Hashtbl.create 19 : (string, (pat * action)) Hashtbl.t)
+  (Hashtbl.create 97 : (string, (pat * action)) Hashtbl.t)
 ;;
 
 let pretty_action acs =
@@ -131,6 +131,8 @@ let def_macro name nargs body =
   def_macro_pat name (make_pat [] nargs) body
 and redef_macro name nargs body =
   redef_macro_pat name (make_pat [] nargs) body
+;;
+let def_code name f = def_macro name 0 (CamlCode f)
 ;;
      
 let def_env name body1 body2 =
@@ -220,9 +222,6 @@ let newif name =
 
 
 (* Base LaTeX macros *)
-def_env "program" (Subst "") (Subst "") ;
-def_env "alltt" (Subst "") (Subst "") ;
-;;
 
 let no_dot = function
   "." -> ""

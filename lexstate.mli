@@ -22,13 +22,15 @@ val prerr_stack_string : string -> ('a -> string) -> 'a t -> unit
 val pretty_lexbuf : Lexing.lexbuf -> unit
 
 val scan_arg : (string -> 'a) -> int -> 'a
-val scan_body : ('b -> 'a) -> 'b -> string array -> 'a
+val scan_body :
+  (Latexmacros.action -> 'a) -> Latexmacros.action -> string array -> 'a
 val scan_fun :
   (Lexing.lexbuf -> string -> 'a) -> Lexing.lexbuf -> string -> 'a
 
 val stack_lexbuf : Lexing.lexbuf t
 val eat_space : bool ref
 val stack_eat : bool t
+val tab_val : int ref
 
 val record_lexbuf : Lexing.lexbuf -> bool -> unit
 val previous_lexbuf : unit -> Lexing.lexbuf
@@ -64,3 +66,5 @@ val make_stack : string -> Latexmacros.pat -> Lexing.lexbuf -> string array
 val scan_this : (Lexing.lexbuf -> 'a ) -> string -> 'a
 val scan_this_may_cont :
     bool -> (Lexing.lexbuf -> 'a ) -> Lexing.lexbuf ->  string -> 'a
+
+val input_file : int -> (Lexing.lexbuf -> unit) -> string -> unit
