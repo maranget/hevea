@@ -505,6 +505,8 @@
 \newcommand{\lhead}[2][]{}
 \newcommand{\chaptermark}[1]{}
 \newcommand{\sectionmark}[1]{}
+\newcommand{\oddsidemargin}{}
+\newcommand{\evensidemargin}{}
 %%%%%%%% various commands
 \def\today{}
 \def\protect{}
