@@ -61,7 +61,7 @@ dorelease:
 	cd $(RELEASEDIR) ; mv $(RELEASENAME)-manual.ps.gz $(RELEASENAME)-manual.tar.gz  $(RELEASENAME).tar.gz $(RELEASENAME)/README $(FTPDIR)
 
 release:
-	$(MAKE) $(MFLAGS) dorelease RELEASEOPT="-t $(RELEASETAG)"
+	$(MAKE) $(MFLAGS) dorelease RELEASEOPT="-r $(RELEASETAG)"
 
 testrelease:
 	$(MAKE) $(MFLAGS) dorelease RELEASEOPT="-D now"
