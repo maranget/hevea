@@ -1,4 +1,5 @@
 version 1.07+2
+   - bug in text generation (safe_make_string in Text.put_line)
    - output named html colors when appropriate.
    - added \ifwhitepre to identify space-white=pre,
      this flags alters Html.put_nbsp behavoir. Should also apply to \@br.

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.64 2005-03-04 15:56:35 maranget Exp $"
+let header = "$Id: text.ml,v 1.65 2005-03-29 10:46:27 maranget Exp $"
 
 
 open Misc
@@ -1553,6 +1553,14 @@ let text_out j hauteur height align =
 ;;
 (* dis si oui ou non on affiche la ligne de cette cellule, etant donne l'alignement vertical.*)
 
+let safe_string_make n c =
+  if n >= 0 then
+    String.make n c
+  else begin
+    warning (Printf.sprintf "Text.put_line: negative line: %i '%c'\n" n c) ;
+    "" 
+  end
+
 let put_ligne texte pos align width taille wrap=
 (* envoie la ligne de texte apres pos, sur out, en alignant horizontalement et en completant pour avoir la bonne taille *)
   let pos_suiv = try 
@@ -1571,15 +1579,15 @@ let put_ligne texte pos align width taille wrap=
 
   let ligne = match align with
   | Left -> String.concat "" 
-	[s; String.make (taille-t+post) ' ']
+	[s; safe_string_make (taille-t+post) ' ']
   | Center -> String.concat ""
-	[String.make ((taille-t)/2) ' ';
+	[safe_string_make ((taille-t)/2) ' ';
 	  s;
-	  String.make (taille - t + post- (taille-t)/2) ' '] 
+	  safe_string_make (taille - t + post- (taille-t)/2) ' '] 
   | Right -> String.concat ""
-	[String.make (taille-t) ' ';
+	[safe_string_make (taille-t) ' ';
 	  s;
-	  String.make (post) ' ']
+	  safe_string_make (post) ' ']
    in
   if !verbose>2 then prerr_endline ("line sent :#"^ligne^"#");
   do_put ligne;
