@@ -2,24 +2,30 @@
 \usepackage{bussproofs}
 
 \begin{document}
-
+\EnableBpAbbreviations
 $$
-\AxiomC{}
+\solidLine
+\Axiom$dummy\fCenter\Gamma$
 \RightLabel{Ax}
 \UnaryInfC{$\Gamma, a \vdash b$}
 \RightLabel{$\to$I}
+\noLine
 \UnaryInfC{$\Gamma \vdash a \to b$}
+\singleLine
 \AxiomC{}
 \RightLabel{Ax}
 \UnaryInfC{$\Gamma \vdash c$}
-\AxiomC{}
+\AXC{}
+\dashedLine
 \RightLabel{Ax}
-\UnaryInfC{$\Gamma \vdash d$}
+\UnaryInf$\Gamma \fCenter \vdash d$
 \RightLabel{$\wedge$I}
+\doubleLine
 \BinaryInfC{$\Gamma \vdash c \wedge d$}
 \RightLabel{$\wedge$I}
+\dottedLine
 \BinaryInfC{$\Gamma \vdash (a \to b) \wedge (c \wedge d)$}
-\DisplayProof
+\DP
 $$
 
 \end{document}

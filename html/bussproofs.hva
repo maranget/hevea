@@ -1,1 +1,33 @@
 \@primitives{bussproofs}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Shorthands for basic proof-building commands.		%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\EnableBpAbbreviations}{
+\let\LL\LeftLabel
+\let\RL\RightLabel
+\let\DP\DisplayProof
+\let\AXC\AxiomC
+\let\UIC\UnaryInfC
+\let\BIC\BinaryInfC
+\let\TIC\TrinaryInfC
+\let\AX\Axiom
+\let\UI\UnaryInf
+\let\BI\BinaryInf
+\let\TI\TrinaryInf
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% An environment for centering and displaying proofs.         %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newenvironment{prooftree}%
+{\begin{center}}%
+{\DisplayProof\end{center}}%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Rewriting commands with explicit centering positions.	%
+%%% The \fCenter is ignored, and the entire argument is 	%
+%%% centered as with the \AxiomC, \UnaryInfC ... commands.      % 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\def\Axiom$#1\fCenter#2${\AxiomC{$#1#2$}}
+\def\UnaryInf$#1\fCenter#2${\UnaryInfC{$#1#2$}}
+\def\BinaryInf$#1\fCenter#2${\BinaryInfC{$#1#2$}}
+\def\TrinaryInf$#1\fCenter#2${\TrinaryInfC{$#1#2$}}
+

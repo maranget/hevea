@@ -2,17 +2,17 @@
 \usepackage{color}
 %%% Color section
 \newcommand{\colorsections}[1]{
-\definecolor{title}{hsv}{#1,1,1}
+\definecolor{title}{hsv}{#1,1,.7}
 \definecolor{part}{hsv}{#1, 1, .8}
 \ifthenelse{\equal{\@base}{article}}{%
-\definecolor{sectioncolor}{hsv}{#1, .8, .9}%
-\definecolor{subsectioncolor}{hsv}{#1, .6, 1}%
-\definecolor{subsubsectioncolor}{hsv}{#1, .4, 1}%
+\definecolor{section}{hsv}{#1, .8, .9}%
+\definecolor{subsection}{hsv}{#1, .6, 1}%
+\definecolor{subsubsection}{hsv}{#1, .4, 1}%
 }{%
-\definecolor{chaptercolor}{hsv}{#1, .8, .9}%
-\definecolor{sectioncolor}{hsv}{#1, .6, 1}%
-\definecolor{subsectioncolor}{hsv}{#1, .5, 1}%
-\definecolor{subsubsectioncolor}{hsv}{#1, .4, 1}%
+\definecolor{chapter}{hsv}{#1, .8, .9}%
+\definecolor{section}{hsv}{#1, .6, 1}%
+\definecolor{subsection}{hsv}{#1, .5, 1}%
+\definecolor{subsubsection}{hsv}{#1, .4, 1}%
 }}%
 \newcommand{\@color}{120}%
 \colorsections{\@color}%
@@ -20,29 +20,29 @@
 %% Define sectioning comands
 \ifthenelse{\equal{\@base}{article}}{%
 \setLATEXstyle{part}
-	{color:white;background:\@getstylecolor{part}}%
+	{padding:0.4ex;background:\@getstylecolor{part}}%
 \setLATEXstyle{section}
-	{color:white;background:\@getstylecolor{sectioncolor}}%
+	{padding:0.3ex;background:\@getstylecolor{section}}%
 \setLATEXstyle{subsection}
-	{color:white;background:\@getstylecolor{subsectioncolor}}%
+	{padding:0.3ex;background:\@getstylecolor{subsection}}%
 \setLATEXstyle{subsubsection}
-	{color:white;background:\@getstylecolor{subsubsectioncolor}}%
+	{padding:0.2ex;background:\@getstylecolor{subsubsection}}%
 }{%
 \ifthenelse{\equal{\@base}{book}}{%
 \setLATEXstyle{part}
-	{color:white;background:\@getstylecolor{part}}%
+	{padding:0.4ex;background:\@getstylecolor{part}}%
 \setLATEXstyle{chapter}
-	{color:white;background:\@getstylecolor{chaptercolor}}%
+	{padding:0.3ex;background:\@getstylecolor{chapter}}%
 \setLATEXstyle{section}
-	{color:white;background:\@getstylecolor{sectioncolor}}%
+	{padding:0.3ex;background:\@getstylecolor{section}}%
 \setLATEXstyle{subsection}
-	{color:white;background:\@getstylecolor{subsectioncolor}}%
+	{padding:0.3ex;background:\@getstylecolor{subsection}}%
 \setLATEXstyle{subsubsection}
-	{color:white;background:\@getstylecolor{subsubsectioncolor}}%
+	{padding:0.2ex;background:\@getstylecolor{subsubsection}}%
 }{%
 }}
 \setLATEXstyle{title}
-	{color:white;background:\@getstylecolor{title}}%
+	{padding:1.5ex;background:\@getstylecolor{title}}%
 
 
 

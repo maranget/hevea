@@ -126,14 +126,14 @@
   \newcommand{\checkbox}[2]%
     {\ifthenelse{\equal{\usebox{##2}}{}}%
       {}%
-      {\@open{##1}{ALIGN=center}\usebox{##2}\@close{##1}}%
+      {\@open{##1}{PADDING=0.5ex ALIGN=center}\usebox{##2}\@close{##1}}%
     }%
   \newcommand{\checktitlebox}[2]%
     {\ifthenelse{\equal{\usebox{##2}}{}}%
       {}%
-      {\@open{##1}{CLASS=title ALIGN=center}\usebox{##2}\@close{##1}}%
+      {\@open{##1}{ALIGN=center}\usebox{##2}\@close{##1}}%
     }%
-  \@open{TABLE}{ALIGN=center}\@open{TR}{}\@open{TD}{}%
+  \@open{TABLE}{ALIGN=center}\@open{TR}{}\@open{TD}{CLASS=title}%
   \checktitlebox{H1}{\@title}%
   \checkbox{H3}{\@author}%
   \checkbox{H3}{\@date}%

@@ -31,14 +31,14 @@ $$
                 D1 \wedge D2
         }
         &
-        \infer{C}{C11 \wedge C12}
+        \infer={C}{C11 \wedge C12}
 }
 $$
 
 \noindent(2)
 $$
-\infer{A}{
-        \infer*[\imp E]{B}{
+\infer={A}{
+        \infer[\imp E]{B}{
                 \frac{\Pi}{2}
                 &
                 \infer*[\wedge E$_1$]{B21}{B21 \wedge B22} 
@@ -60,7 +60,7 @@ $$
 \noindent (4)
 $$
 \infer[(1)]{A}{
-        \infer*{B}{
+        \infer{B}{
                 B11\land B12\land B13
                 &
                 B21\land B22\land B23
