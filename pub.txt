@@ -1,7 +1,5 @@
 
-It is my pleasure to anounce the new release of HEVEA.
-
-      This is HEVEA, version 1.04, a fast LaTeX to HTML translator.
+It is my pleasure to anounce the new, 1.05, release of HEVEA.
 
 
     HEVEA is a LaTeX to HTML translator.  The input language is a fairly
@@ -9,23 +7,29 @@ It is my pleasure to anounce the new release of HEVEA.
     output language is HTML that is (hopefully) correct with respect to
     version 4.0 (transitional)
 
-    With respect to previous version 1.03, the most salient changes
-    comcern the nature of output:
-       - Hevea now generates HTML 4.0- transitional. This does not
-       change much, essentially FACE=symbol is now standard...
+    With respect to previous version 1.04, there are numerous changes.
 
-       - There are two new output formats : plain text and info files.
-       Thus, one can generate plain text versions of software manuals
-       from LaTeX source code.
+      - New functionalities, such as multicolumn indexes, enhanced color
+        management.
 
-       - An experimental (very experimental) MathML mode is included
-         in the released version.
+      - \usepackage is implemented and a package system has been
+         designed. Some packages such as color, graphics, url,
+         moreverb etc. are supported.
 
-     A few bugs are corrected, the most important ones are:
-       - The alltt environment should now work properly
-       - Environment names now can includes figures (\begin{list1}
-       ... \end{list1} is now valid).
-         
+      - Hyperlink command names are changed, to avoid a long-standing
+        name clash on ``\url''. Backward compatibilty is ensured in
+        most of the cases.
+
+      - HeVeA no longer needs ``.aux'' files to compute
+        cross-referencing information and a new ``-fix'' makes HeVeA
+        iterate until fixpoint 
+
+      - HeVeA code is cleaner than before.
+
+
+
+       
+                 
     --------------------------------------------------------------------------
     Exotic symbols are translated into symbols
     pertaining to the symbol font of the HTML browser, using the

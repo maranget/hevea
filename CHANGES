@@ -1,4 +1,7 @@
-vesrion 1.05-7
+version 1.05
+
+version 1.05-7
+  - More customability for arrays and paragraphs
   - PDF manual
   - ``Environments'' toimage and verbimage do not define scope in latex
     anymore.

@@ -1,29 +1,30 @@
 J'ai la joie d'anoncer la nouvelle release d'HEVEA.
 
-      HEVEA, version 1.04 un traducteur rapide de LaTeX vers HTML.
+      HEVEA, version 1.05 un traducteur rapide de LaTeX vers HTML.
 
   HEVEA traduit un sous-ensemble quasi complet de LaTeX2e (il accepte aussi
   le vieux style LaTeX) vers HTML 4.0 transitionel.
 
 
-  Par rapport à la version précédente il y a de gros changements dans
-  la nature des sorties d'HEVEA:
-        - Le HTML généré est maintenant du 4.0 transitionel, ça ne change
-        en fait pas grand chose. Essentiellement <FONT FACE=symbol> est
-        maintenant conforme au standard, par changement du standard...
+  Par rapport à la version précédente il y a surtout des fonctionalités en
+  plus.
 
-        - HEVEA a désormais d'autres formats de sortie que HTML. On peut
-        produire des traduction en mode texte ou en mode info (pour lecture
-        sous emacs).
+     - Index sur plusieures colonnes, meilleure gestion des couleurs.
 
-        - Enfin, les expressions MathML peuvent maintenant être traduites
-        vers MathML. Ce mode est extrêmement expérimental.
+     - La commande ``\usepackage'' est reconnue. HeVeA possède un
+       système de package qui faciltera les extensions futures. Certains
+       packages (color, graphics, moreverb, url, ...) sont inclus.
 
-  En outre quelques bugs sont corrigés. Entre autres :
+     - Le nom des commandes pour les hyperliens a changé, en raison
+       d'un conflit sur le nom ``\url''. Toutefois, la compatibilité
+       en arrière est préservée dans la plupart des cas.
 
-       - L'environnement alltt est maintenant mieux testé et réalisé.
-       - Il devient possible de mettre des chiffres dans les noms des
-         environnements.
+     - HeVeA peut se passer des fichiers ``.aux'' pour calculer les
+       références croisées. Une nouvelle option ``-fix'' itère HeVeA jusqu'au
+       point fixe.
+
+     - Le code est plus clair qu'avant. 
+
 
   ----------------------------------------------------------------------------
   Les symboles exotiques sont traduits en utilisant une police de
