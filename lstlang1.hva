@@ -147,6 +147,7 @@
       short,static,super,switch,synchronized,this,throw,throws,%
       transient,try,void,volatile,while,true,false},%
    sensitive,%
+   extendedchars=true,%
    morecomment=[l]//,%
    morecomment=[s]{/*}{*/},%
    morestring=[b]",%

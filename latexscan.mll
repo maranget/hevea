@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.251 2005-02-14 16:29:28 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.252 2005-02-17 19:07:41 maranget Exp $ *)
 
 
 {
@@ -1829,6 +1829,14 @@ let do_def global lxm lexbuf =
 
 def_name_code "\\def" (do_def false) ;
 def_name_code "\\gdef" (do_def true)
+;;
+
+def_code "\\prim@def"
+  (fun lexbuf ->
+    let name = get_csname lexbuf in
+    Save.skip_blanks_init lexbuf ;
+    let body = get_prim_arg lexbuf in
+    def name ([],[]) (Subst body))
 ;;
 
 let do_let global lxm lexbuf =

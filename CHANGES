@@ -1,4 +1,6 @@
 version 1.07+1
+   - Add lineranges in listings + cleaning showlines
+   - Start using style-sheets
    - Integrate mathpartir
    - Small listings bugs (space forgotten in \lstinline"A A").
    - Erase bussproof and proof, concentrate on Didier's mathparir

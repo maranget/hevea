@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: verb.mll,v 1.66 2005-02-16 16:59:33 maranget Exp $            *)
+(*  $Id: verb.mll,v 1.67 2005-02-17 19:07:41 maranget Exp $            *)
 (***********************************************************************)
 {
 exception VError of string
@@ -18,6 +18,7 @@ module Make
   (Dest : OutManager.S) (Image : ImageManager.S)
   (Scan : Latexscan.S) : S =
 struct
+open Printf
 open Misc
 open Lexing
 open Save
@@ -28,7 +29,7 @@ open Scan
 open Subst
 
 exception Eof of string
-;;
+exception ParseError
 
 (* For file verbatim scanning *)
 let input_verb = ref false
@@ -83,13 +84,23 @@ let lst_init_save_chars s f =
     lst_init_save_char s.[i] f
   done
 
-(* Output functions *)
+    
+(* Parameters *)
+type line_limit =
+  | LineNumber of int
+  | Marker of string
+
+let pmark = function
+  | LineNumber x -> string_of_int x
+  | Marker tok -> "«"^tok^"»"
+
 let lst_gobble  = ref 0
 and lst_nlines  = ref 0
 and lst_first   = ref 1
-and lst_last    = ref 9999
-and lst_linegange = ref []
+and lst_last    = ref 99999 (* infinity *)
+and lst_linerange = ref []
 and lst_print   = ref true
+and lst_includerangemarker = ref true
 and lst_string_spaces = ref true
 and lst_texcl   = ref false
 and lst_extended = ref false
@@ -100,6 +111,9 @@ and lst_showlines = ref false
 
 let lst_effective_spaces = ref false (* false => spaces are spaces *)
 and lst_save_spaces  = ref false
+
+
+(* Output functions *)
 
 let lst_buff = Out.create_buff ()
 
@@ -127,20 +141,29 @@ type comment_type =
 
 type lst_top_mode =
   | Skip
+  | StartNextLine of (bool ref) | EndNextLine of lst_top_mode
   | String of (char * (char * (Lexing.lexbuf -> char -> unit)) list)
   | Normal | Comment of comment_type
   | Delim of int * (char * (Lexing.lexbuf -> char -> unit)) list
   | Gobble of lst_top_mode * int
   | Escape of lst_top_mode * char * bool (* bool flags mathescape *)
 
-let string_of_top_mode = function
+let rec string_of_top_mode = function
   | Delim (i,_) -> "Delim: "^string_of_int i
   | Skip -> "Skip"
+  | StartNextLine _ -> "StartNextLine"
+  | EndNextLine (mode) ->
+      sprintf "EndNextLine (%s)" (string_of_top_mode mode)
   | Comment (Balanced _) -> "Balanced"
   | Comment (Nested n)   -> "(Nested "^string_of_int n^")"
-  | _ -> "?"
+  | Comment (Line) -> "Line"
+  | String _  -> "String"
+  | Normal -> "Normal"
+  | Gobble (_,_) -> "Gobble"
+  | Escape (_,_,_) -> "Escape"
 
-let lst_top_mode = ref Skip
+
+let lst_top_mode = ref (Skip)
 
 
 let lst_ptok s =  prerr_endline (s^": "^Out.to_string lst_buff)
@@ -168,42 +191,29 @@ let def_print s =
     (CamlCode (fun _ ->  dest_string s))
 ;;
 
-let lst_output_other () =
-  if not (Out.is_empty lst_buff) then begin
-    let arg = Out.to_string lst_buff in
-    match !lst_top_mode with
-    | Normal ->
-        def_print arg ;
-        scan_this Scan.main
-          ("\\lst@output@other{\\@tmp@lst}{\\@tmp@lst@print}")
-    | _ ->
-        scan_this main "\\@NewLine" ;
-        dest_string arg
-  end
+let lst_output_com com =
+  let com = com^"{\\@tmp@lst}{\\@tmp@lst@print}" in
+  fun () ->
+    if not (Out.is_empty lst_buff) then begin
+      let arg = Out.to_string lst_buff in
+      match !lst_top_mode with
+      | Normal ->
+          def_print arg ;
+          scan_this Scan.main com
+      | Skip|StartNextLine _
+      | Gobble (_,_)
+      | Escape (_,_,_) ->
+          assert false
+      | Delim (_, _)
+      | Comment _|String _
+      | EndNextLine _ ->
+          scan_this main "\\@NewLine" ;
+          dest_string arg
+    end
 
-and lst_output_letter () =
-  if not (Out.is_empty lst_buff) then begin
-    match !lst_top_mode with
-    | Normal ->
-        let arg = Out.to_string lst_buff in
-        def_print arg ;
-        scan_this Scan.main ("\\lst@output{\\@tmp@lst}{\\@tmp@lst@print}")
-    | _ ->
-        scan_this main "\\@NewLine" ;
-        dest_string (Out.to_string lst_buff)
-  end
-
-and lst_output_directive () =
-  if not (Out.is_empty lst_buff) then begin
-    match !lst_top_mode with
-    | Normal ->
-        let arg = Out.to_string lst_buff in
-        def_print arg ;
-        scan_this Scan.main ("\\lst@output@directive{\\@tmp@lst}{\\@tmp@lst@print}")
-    | _ ->
-        scan_this main "\\@NewLine" ;
-        dest_string (Out.to_string lst_buff)
-  end
+let lst_output_other = lst_output_com "\\lst@output@other"
+and lst_output_letter = lst_output_com "\\lst@output"
+and lst_output_directive = lst_output_com "\\lst@output@directive"
 
 let lst_output_token () =
   match !lst_scan_mode with
@@ -219,6 +229,69 @@ let lst_finalize inline =
  end ;
  scan_this main "\\lst@forget@lastline"
 
+(*********************)
+(* Delay some action *)
+(*********************)
+
+let chars_string c s =
+  let rec do_rec r i =
+    if i < String.length s then
+      if List.mem s.[i] r then
+        do_rec r (i+1)
+      else
+        do_rec (s.[i]::r) (i+1)
+    else
+      r in
+  do_rec [c] 0
+
+let init_char_table_delim chars wrapper =
+  List.map
+    (fun c ->
+      let old_process = lst_char_table.(Char.code c) in
+      lst_init_save_char c wrapper ;
+      (c,old_process))
+  chars
+
+let rec restore_char_table to_restore =
+  let rec do_rec = function
+    | [] -> ()
+    | (c,f)::rest ->
+        lst_init_char c f ;
+        do_rec rest in
+  do_rec to_restore
+
+let eat_delim k new_mode old_process lb c s =
+  let chars = chars_string c s in
+  let wrapper old_process lb c = match !lst_top_mode with
+  | Delim (n,to_restore) ->
+      old_process lb c ;
+      if n = 1 then begin
+        lst_output_token () ;
+        lst_top_mode := new_mode ;
+        restore_char_table to_restore ;
+        k ()
+      end else
+        lst_top_mode := Delim (n-1,to_restore)
+  | _ -> assert false in
+  let to_restore = init_char_table_delim chars wrapper in
+  lst_top_mode := Delim (1+String.length s, to_restore) ;
+  wrapper old_process lb c 
+
+let delay_action  k mode old_process lb c s =
+  let chars = chars_string c s in
+  let wrapper old_process lb c = match !lst_top_mode with
+  | Delim (n,to_restore) ->
+      lst_top_mode := mode ;
+      old_process lb c ;
+      if n = 1 then begin
+        restore_char_table to_restore ;
+        k ()
+      end else
+        lst_top_mode := Delim (n-1,to_restore)
+  | _ -> assert false in
+  let to_restore = init_char_table_delim chars wrapper in
+  lst_top_mode := Delim (1+String.length s, to_restore) ;
+  wrapper old_process lb c
 
 
 (* Process functions *)
@@ -240,34 +313,73 @@ let lst_do_escape mode endchar math lb lxm =
     Out.put_char lst_buff lxm
 
 
+let debug_curline msg =
+  eprintf "%s: %s\n" msg (Scan.get_this_main "\\usebox{\\@curline}")
 
-let rec lst_process_newline lb c =
+
+(* We put those here since newlines may terminate comments *)
+let begin_comment () =
+  lst_output_token () ;
+  scan_this Scan.main "\\begingroup\\lst@comment@style"
+
+and end_comment () =
+  scan_this Scan.main "\\endgroup"
+
+(* Number of (printed) source blocks in  a listing *)
+let lst_nblocks = ref 0
+
+(* Note, at the moment lst_process_newline is the only
+   processor that can start/stop output,
+   1. Process_newline is fooled by using lst_first/lst_last variables
+   2. This process_newlines must sometime not increase line numbers,
+      ie, when there is in fact no eol *)
+
+      
+let rec lst_process_newline real_eol lb c =
 if !verbose > 1 then
-  Printf.fprintf stderr "lst_process_newline\n" ;
+  fprintf stderr "lst_process_newline: mode=%s first=%i last=%i nlines=%i\n"
+    (string_of_top_mode !lst_top_mode)
+    !lst_first !lst_last !lst_nlines ;
 match !lst_top_mode with
 | Skip ->
     if !lst_nlines = !lst_first - 1 then begin
       lst_top_mode := Normal ;
-      scan_this Scan.main "\\let\\old@br\\@br\\def\\@br{
-} " ;
-      lst_process_newline lb c ;
-      scan_this Scan.main "\\let\\@br\\old@br"
-    end else
-      incr lst_nlines
+      if !lst_nblocks = 0 then
+        scan_this Scan.main "\\let\\old@br\\@br\\def\\@br{\n}" ;
+      lst_process_newline real_eol lb c ;
+      if !lst_nblocks = 0 then
+        scan_this Scan.main "\\let\\@br\\old@br" ;
+    end else begin
+      if real_eol then begin
+        incr lst_nlines ;
+        scan_this Scan.main "\\lsthk@InitVarEOL"
+      end
+    end
+| StartNextLine to_activate ->
+    lst_first := !lst_nlines+1 ;
+    lst_top_mode := Skip ;
+    lst_process_newline real_eol lb c ;
+    to_activate := true
+| EndNextLine (mode) ->
+    lst_last := !lst_nlines ;
+    lst_top_mode := mode ;
+    lst_process_newline real_eol lb c
 | Gobble (mode,_) ->
     lst_top_mode := mode ;
-    lst_process_newline lb c
+    lst_process_newline real_eol lb c
 | Escape (mode,cc,math) ->
     lst_do_escape (Comment Line) cc math lb c ;
     if !lst_top_mode = Comment Line then
-      lst_process_newline lb c
+      lst_process_newline real_eol lb c
 | Comment Line ->
     lst_output_token () ;
-    scan_this Scan.main "\\endgroup" ;
+    end_comment () ;
     lst_top_mode := Normal ;
-    lst_process_newline lb c
-| mode  ->
-    scan_this Scan.main "\\lsthk@InitVarEOL\\lsthk@EOL" ;
+    lst_process_newline real_eol lb c
+| Delim (_, _) -> assert false
+| String _|Normal|Comment (Balanced _|Nested _) as mode ->
+    if real_eol then
+      scan_this Scan.main "\\lsthk@InitVarEOL\\lsthk@EOL" ;
     begin match !lst_scan_mode with
     | Empty -> lst_scan_mode := Start
     | Start -> ()
@@ -275,19 +387,106 @@ match !lst_top_mode with
         lst_output_token () ;
         lst_scan_mode := Start
     end ;
-    incr lst_nlines ;  
-    if !lst_nlines <= !lst_last then begin
+    let next_line = !lst_nlines+1 in
+    if next_line <= !lst_last then begin
       scan_this Scan.main
         "\\lsthk@InitVarBOL\\lsthk@EveryLine" ;
       if !lst_gobble > 0 then
         lst_top_mode := Gobble (mode,!lst_gobble)
-    end else
-      lst_top_mode := Skip
+    end else begin
+      incr lst_nblocks ;
+      begin match mode with
+      | Comment _ -> end_comment ()
+      | _ -> ()
+      end ;
+      scan_this Scan.main
+        "\\lsthk@InitVarBOL\\lsthk@LastLine" ;
+      set_next_linerange ()
+    end ;
+    if real_eol then lst_nlines := next_line
+
+
+(***************)
+(* Line ranges *)
+(***************)
+
+
+and process_EMark active rest_E old_process lb c =
+  if !active && if_next_string rest_E lb then begin
+    active := false ;
+    let zyva () =
+      lst_last := !lst_nlines-1 ;
+      lst_process_newline false lb c in
+    if !lst_includerangemarker then begin
+      delay_action zyva !lst_top_mode old_process lb c rest_E
+    end else begin
+      zyva () ;
+      old_process lb c
+    end
+  end else
+    old_process lb c
+
+and lst_process_BMark active to_activate mark_start old_process lb c =
+  if !active  then begin
+    match !lst_top_mode with
+    | Skip when if_next_string mark_start lb  ->
+        active := false ; lst_last := 99999 ;
+        if !lst_includerangemarker then begin
+          lst_first := !lst_nlines+1 ;
+          lst_process_newline false lb c ;
+          delay_action
+            (fun () -> to_activate := true)
+            !lst_top_mode old_process lb c mark_start
+        end else begin
+          lst_top_mode := StartNextLine to_activate ;
+          old_process lb c
+        end
+    | Escape (_, _, _)|Gobble (_, _)|Delim (_, _)|
+      Comment _|String _|EndNextLine _|
+      StartNextLine _|Skip|Normal ->
+        old_process lb c
+  end else
+     old_process lb c
+        
+and init_marker mark_start activate_end =
+  let head_S = mark_start.[0]
+  and rest_S = String.sub mark_start 1 (String.length mark_start-1) in
+  lst_init_save_char head_S 
+    (lst_process_BMark (ref true) activate_end rest_S)
+
+and set_next_linerange () = match !lst_linerange with
+| [] ->
+    lst_first := 99999 ;
+    lst_top_mode := Skip
+| (fst, lst)::rem ->
+    if !verbose > 1 then
+      eprintf "SET LINERANGE: %s %s\n" (pmark fst) (pmark lst) ;
+    lst_linerange := rem ;
+    let activate_end = ref false in
+    begin match lst with
+    | LineNumber x ->
+        lst_last := x
+    | Marker all_E ->
+        lst_last := 99999 ;
+        let head_E = all_E.[0]
+        and rest_E =
+          String.sub all_E 1 (String.length all_E-1) in
+        lst_init_save_char head_E (process_EMark activate_end rest_E)
+    end ;
+
+    begin match fst with
+    | LineNumber x ->
+        lst_first := x ; lst_top_mode := Skip
+    | Marker tok ->
+        lst_first := -1 ;
+        lst_top_mode := Skip ;
+        init_marker tok activate_end
+    end
 
 let lst_process_letter lb lxm =
-if !verbose > 1 then  Printf.fprintf stderr "lst_process_letter: %c\n" lxm ;
+if !verbose > 1 then  fprintf stderr "lst_process_letter: %c\n" lxm ;
 match !lst_top_mode with
-| Skip -> ()
+| Skip|StartNextLine _ -> ()
 | Gobble (mode,n) -> lst_do_gobble mode n
 | Escape (mode,c,math) -> lst_do_escape mode c math lb lxm
 | _ -> match !lst_scan_mode with
@@ -307,9 +506,9 @@ match !lst_top_mode with
 
 let lst_process_digit lb lxm =
 if !verbose > 1 then
- Printf.fprintf stderr "lst_process_digit: %c\n" lxm ;
+ fprintf stderr "lst_process_digit: %c\n" lxm ;
 match !lst_top_mode with
-| Skip -> ()
+| Skip|StartNextLine _ -> ()
 | Gobble (mode,n) -> lst_do_gobble mode n
 | Escape (mode,c,math) -> lst_do_escape mode c math lb lxm
 | _ ->  match !lst_scan_mode with
@@ -324,9 +523,9 @@ match !lst_top_mode with
 
 let lst_process_other lb lxm =
 if !verbose > 1 then
-  Printf.fprintf stderr "process_other: %c\n" lxm ;
+  fprintf stderr "process_other: %c\n" lxm ;
 match !lst_top_mode with
-| Skip -> ()
+| Skip|StartNextLine _ -> ()
 | Gobble (mode,n) -> lst_do_gobble mode n
 | Escape (mode,c,math) -> lst_do_escape mode c math lb lxm
 |  _ -> match !lst_scan_mode with
@@ -349,9 +548,9 @@ let lst_output_space () =
 
 let lst_process_space lb lxm =
 if !verbose > 1 then
- Printf.fprintf stderr "process_space: ``%c''\n" lxm ;
+ fprintf stderr "process_space: ``%c''\n" lxm ;
 match !lst_top_mode with
-| Skip -> ()
+| Skip|StartNextLine _ -> ()
 | Gobble (mode,n) -> lst_do_gobble mode n
 | Escape (mode,c,math) -> lst_do_escape mode c math lb lxm
 | _ ->
@@ -383,7 +582,7 @@ exception EndVerb
 
 let lst_process_end  endstring old_process lb lxm =
 if !verbose > 1 then
- Printf.fprintf stderr "process_end: «%c»\n" lxm ;
+ fprintf stderr "process_end: «%c»\n" lxm ;
   if
     (not !input_verb || Stack.empty stack_lexbuf)
       && if_next_string endstring lb then begin
@@ -402,7 +601,7 @@ let lst_init_char_table inline =
   if inline then
     lst_init_char '\n' lst_process_space
   else
-    lst_init_char '\n' lst_process_newline
+    lst_init_char '\n' (lst_process_newline true)
 ;;
 
 (* TeX escapes *)
@@ -412,26 +611,19 @@ let start_escape mode endchar math =
 
 let lst_process_escape math ec old_process lb lxm =
 if !verbose > 1 then
- Printf.fprintf stderr "lst_process_escape: %c\n" lxm ;
+ fprintf stderr "lst_process_escape: %c\n" lxm ;
 match !lst_top_mode with
-| Skip -> ()
+| Skip|StartNextLine _ -> ()
 | Gobble (mode,n) -> lst_do_gobble mode n
 | Escape _        -> old_process lb lxm
 | mode            -> start_escape mode ec math
 
   
 (* Strings *)
-let rec restore_char_table to_restore =
-  let rec do_rec = function
-    | [] -> ()
-    | (c,f)::rest ->
-        lst_init_char c f ;
-        do_rec rest in
-  do_rec to_restore
 
 let lst_bs_string process_c c old_process lb lxm =
   if !verbose > 1 then begin
-    Printf.eprintf "lst_bs_string: «%c»\n" lxm
+    eprintf "lst_bs_string: «%c»\n" lxm
   end ;
 
 (* Processs backslash, as usual *)
@@ -489,48 +681,7 @@ let lst_process_stringizer quote old_process lb lxm = match !lst_top_mode with
 
 
 (* Comment *)
-
-let chars_string c s =
-  let rec do_rec r i =
-    if i < String.length s then
-      if List.mem s.[i] r then
-        do_rec r (i+1)
-      else
-        do_rec (s.[i]::r) (i+1)
-    else
-      r in
-  do_rec [c] 0
-
-let init_char_table_delim chars wrapper =
-  List.map
-    (fun c ->
-      let old_process = lst_char_table.(Char.code c) in
-      lst_init_save_char c wrapper ;
-      (c,old_process))
-  chars
-
-
-let eat_delim k new_mode old_process lb c s =
-  let chars = chars_string c s in
-  let wrapper old_process lb c = match !lst_top_mode with
-  | Delim (n,to_restore) ->
-      old_process lb c ;
-      if n = 1 then begin
-        lst_output_token () ;
-        lst_top_mode := new_mode ;
-        restore_char_table to_restore ;
-        k ()
-      end else
-        lst_top_mode := Delim (n-1,to_restore)
-  | _ -> assert false in
-  let to_restore = init_char_table_delim chars wrapper in
-  lst_top_mode := Delim (1+String.length s, to_restore) ;
-  wrapper old_process lb c 
-
-let begin_comment () =
-  lst_output_token () ;
-  scan_this Scan.main "\\begingroup\\lst@comment@style"
-
+  
 let lst_process_BNC _ s old_process lb c =  match !lst_top_mode with
 | Normal when if_next_string s lb -> 
     begin_comment () ;
@@ -663,7 +814,7 @@ and eat_line = parse
         (Eof "eat_line")
     end}
 | [^'\n']  {eat_line lexbuf}
-| '\n'     {lst_process_newline lexbuf '\n'}
+| '\n'     {lst_process_newline true lexbuf '\n'}
 
 and get_line = parse
 |  eof
@@ -691,6 +842,19 @@ and do_escape = parse
 | _ as lxm
     {Dest.put (Dest.iso lxm) ;
     do_escape lexbuf}
+
+and lst_linearg = parse
+| '-'? (['0'-'9']+ as n)   {LineNumber (int_of_string n)}
+| '-'? ([^'-'',']+ as tok) {Marker tok}
+| "" {raise ParseError}
+
+and lst_parse_linerange = parse
+| eof {[]}
+| ","?
+    {let fst = lst_linearg lexbuf in
+    let lst = lst_linearg lexbuf in
+    (fst,lst)::lst_parse_linerange lexbuf}
+
 {
 let _ = ()
 ;;
@@ -960,7 +1124,7 @@ register_init "moreverb"
   def_code "\\listinglabel"
     (fun lexbuf ->
       let arg = Get.get_int (save_arg lexbuf) in
-      Dest.put (Printf.sprintf "%4d " arg)) ;
+      Dest.put (sprintf "%4d " arg)) ;
 
   def_code "\\listing"
     (fun lexbuf ->
@@ -1021,6 +1185,21 @@ register_init "comment" init_comment
   \def\lst@spaces
     {\whiledo{\value{lst@spaces}>0}{~\addtocounter{lst@spaces}{-1}}}
 *)
+
+let default_linerange = [LineNumber 1, LineNumber 99999]
+
+let parse_linerange s =
+  let r =
+    try
+      lst_parse_linerange (Lexing.from_string s)
+    with
+    | ParseError ->
+        warning ("lst: invalid linerange '"^s^"'") ;
+        default_linerange in
+  match r with
+  | [] -> default_linerange
+  | _ -> r
+
 
 let code_spaces lexbuf =
   let n = Counter.value_counter "lst@spaces" in
@@ -1126,20 +1305,18 @@ let open_lst_env name =
     Image.stop () ;
     scan_this Scan.main "\\lsthk@PreSet" ;
     expand_command_no_skip com_name lexbuf ;    
-(* Ignoring output *)
-    lst_gobble := Get.get_int (string_to_arg "\\lst@gobble") ;
-    lst_first := Get.get_int (string_to_arg "\\lst@first") ;
-    lst_last := Get.get_int (string_to_arg "\\lst@last") ;
-    let linerange = Scan.get_prim "\\lst@linerange" in
-    Printf.eprintf "%s\n" linerange ;
-    lst_nlines := 0 ;
     lst_init_char_table false ;
     scan_this Scan.main "\\lsthk@SelectCharTable" ;
     if !lst_extended then
       for i = 128 to 255 do
         lst_init_char (Char.chr i) lst_process_letter
       done ;
+(* Set and exploit command sequence *)
     scan_this Scan.main "\\lsthk@Init" ;
+    lst_gobble := Get.get_int (string_to_arg "\\lst@gobble") ;
+    let linerange = Scan.get_prim "\\lst@linerange" in
+    lst_linerange := parse_linerange linerange ;
+    lst_nlines := 0 ; lst_nblocks := 0 ;
 (* Directives *)
     if !lst_directives then begin
       lst_init_save_char '#' lst_process_start_directive
@@ -1159,7 +1336,7 @@ let open_lst_env name =
     end ;
     scan_this Scan.main "\\lsthk@InitVar" ;
     lst_scan_mode := Empty ;
-    lst_top_mode := Skip ;
+    set_next_linerange () ;
     scan_this Scan.main "\\lst@pre\\@lst@caption\\@open@lstbox" ;  
     scan_this Scan.main "\\lst@basic@style" ;
 (* Eat first line *)
@@ -1228,6 +1405,7 @@ def_code "\\@callopt"
 
 let init_listings () =
   Scan.newif_ref "lst@print" lst_print ;
+  Scan.newif_ref "lst@includerangemarker" lst_includerangemarker ;
   Scan.newif_ref "lst@extendedchars" lst_extended ;
   Scan.newif_ref "lst@texcl" lst_texcl ;
   Scan.newif_ref "lst@sensitive" lst_sensitive ;

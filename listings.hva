@@ -45,7 +45,7 @@
 \newcommand{\lst@AddToHookExe}[2]
   {\lst@AddToHook{#1}{#2}#2}
 \lst@Hook{EOL}\lst@Hook{InitVarEOL}
-\lst@Hook{InitVarBOL}\lst@Hook{EveryLine}
+\lst@Hook{InitVarBOL}\lst@Hook{EveryLine}\lst@Hook{LastLine}
 \lst@Hook{PreSet}
 \lst@Hook{InitVar}
 \lst@Hook{Init}
@@ -281,6 +281,10 @@ breakindent,breakautoindent}
 \sbox{\@prevlines}{\usebox{\@prevlines}\usebox{\@curline}}%
 \sbox{\@curline}{\@br\@rawchars{\lst@doindent}\lst@linenumber}%
 \global\let\@NewLine\@NewLine@}
+\lst@AddToHook{LastLine}{\setcounter{lst@spaces}{0}%
+\sbox{\@prevlines}{\usebox{\@prevlines}\usebox{\@curline}}%
+\iflst@showlines\else\sbox{\@prevlines}{}\fi\sbox{\@curline}{}%
+\global\let\@NewLine\@NewLine@}
 \lst@AddToHook{Init}{\sbox{\@prevlines}{}\sbox{\@curline}{}\global\let\@NewLine\lst@spaces}
 \def\lst@numbers@none{\setboolean{lst@numbers}{false}}
 \def\lst@numbers@left{\setboolean{lst@numbers}{true}}
@@ -313,27 +317,34 @@ breakindent,breakautoindent}
 %%%%%% Ignore input
 \newcommand{\lst@gobble}{0}
 \define@key{lst}{gobble}{\def\lst@gobble{#1}}
-\newcommand{\lst@first}{1}
-\newcommand{\lst@last}{9999}
 \define@key{lst}{first}{\def\lst@first{#1}}
 \define@key{lst}{firstline}{\def\lst@first{#1}}
 \define@key{lst}{last}{\def\lst@last{#1}}
 \define@key{lst}{lastline}{\def\lst@last{#1}}
-\define@key{lst}{linerange}{\warning{RANGE: #1}\def\lst@linerange{#1}}
-% print key
-\define@key{lst}{print}[true]{\def\lst@print{#1}}
-\setboolean{lst@print}{true}
+\define@key{lst}{linerange}{\def\lst@linerange{#1}}
+\lst@AddToHook{PreSet}
+{\newcommand{\lst@first}{1}\newcommand{\lst@last}{99999}%
+\let\lst@linerange\@empty}
 \lst@AddToHook{Init}
-  {\@ifundefined{lst@print}{}
+{\ifx\lst@linerange\@empty
+\prim@def\lst@linerange{{\lst@first}-{\lst@last}}\fi}
+% boolean includerangemarker key
+\define@key{lst}{includerangemarker}[true]{\def\lst@includerangemarker{#1}}
+\lst@AddToHook{Init}
+{\@ifundefined{lst@includerangemarker}
+  {\setboolean{lst@includerangemarker}{true}}
+  {\setboolean{lst@includerangemarker}{\lst@boolean{\lst@includerangemarker}}}}
+% boolean print key
+\define@key{lst}{print}[true]{\def\lst@print{#1}}
+\lst@AddToHook{Init}
+  {\@ifundefined{lst@print}{\setboolean{lst@print}{true}}
      {\setboolean{lst@print}{\lst@boolean{\lst@print}}}}
-\lst@AddToHook{DeInit}{\setboolean{lst@print}{true}}
 % showlines
 \define@key{lst}{showlines}[true]{\def\lst@showlines{#1}}
-\setboolean{lst@showlines}{false}
 \lst@AddToHook{Init}
-  {\@ifundefined{lst@showlines}{}
-     {\setboolean{lst@showlines}{\lst@boolean{\lst@showlines}}}}
-\lst@AddToHook{DeInit}{\setboolean{lst@showlines}{false}}
+{\@ifundefined{lst@showlines}
+  {\setboolean{lst@showlines}{false}}
+  {\setboolean{lst@showlines}{\lst@boolean{\lst@showlines}}}}
 %%%%%%% Strings
 \lst@Hook{String}
 \lst@AddToHook{Init}{\lst@UseHook{String}}
