@@ -2705,16 +2705,18 @@ defines before loading any user-specified file) must be performed
 using \verb+\renewcommand+. Such personal (re)-definition can be made
 in any user file.
 
+\comindex{def}
+\hevea{} also accepts \TeX{} style, using
+\verb+\def\+{\it name}\ldots with or without delimiting characters
+(see Section~\ref{delimiting}),
+with the same behavior as \verb+\newcommand+.  It is important to
+notice that \hevea{} semantics for \verb+\def+ departs significantly
+from \TeX{} semantics. In particular, defining a command that already
+exists with \verb+\def+ fails in \hevea{}, whereas it succeeds in
+\TeX{}.  Users are thus invited to use \LaTeX{} \verb+\renewcommand+
+for the purpose of redefining commands.
 
-\hevea{} also accepts simple {\TeX} style (using \verb+\def#1#2...+
-without delimiting 
-characters), with the same behavior as \verb+\newcommand+.
-It is important to notice that \hevea{} semantics for \verb+\def+
-departs significantly from \TeX{} semantics. In particular, defining a
-command that already exists with \verb+\def+ fails in \hevea{},
-whereas it succeeds in \TeX{}.
-Users are thus invited to use \LaTeX{} \verb+\renewcommand+ for the purpose
-of redefining commands.
+
 
 \comindex{let}\hevea{} also processes a
 limited version of \verb+\let+:
@@ -3342,6 +3344,47 @@ Normally, \hevea{} does not recognize constructs that are specific to
 However, some of the internal commands of \hevea{} are homonymous to
 \TeX{} macros, in order to enhance compatibility.
 Note that full compatibility with \TeX{} is not guaranteed.
+
+\subsubsection{À la \TeX{} macros definitions}\label{delimiting}
+
+\comindex{def}
+The \verb+\def+ construct for defining commands is supported, with the
+same behavior as the \verb+\newcommand+ with respect to command
+redefinition (see section~\ref{usermacro}).
+
+Delimiting characters in command definition are supported.
+Consider the following example from the \TeX{} Book:
+\begin{verbatim}
+\def\Look{Look}
+\def\x{x}
+\def\cs AB#1#2C$#3\$ {#3{ab#1}#1 c\x #2}
+\cs AB {\Look}{}C${And \$}{look}\$ 5.
+\end{verbatim}
+It yields:
+\begin{flushleft}
+\def\Look{\textsc{Look}}
+\def\x{\textsc{x}}
+\def\cs AB#1#2C$#3\$ {#3{ab#1}#1 c\x #2}
+\cs AB {\Look}{}C${And \$}{look}\$ 5.
+\end{flushleft}
+
+
+Please note that delimiting characters are supported as far as I
+could, problems are likely with delimiting characters which include
+sapces or command names, in particular the command name \verb+\{+.
+One can include \verb+\{+ in a command argument by using the grouping
+characters \verb+{+\ldots{} \verb+}+:
+\begin{verbatim}
+\def\frenchquote(#1){«~\emph{#1}~» (in French)}
+He said \frenchquote(Alors cette accolade ouvrante {``\{''}~?).
+\end{verbatim}
+Yields:
+\begin{flushleft}
+\def\frenchquote(#1){«~\emph{#1}~» (in French)}
+He said \frenchquote(Alors cette accolade ouvrante {``\{''}~?).
+\end{flushleft}
+
+
 
 \subsubsection{\TeX{} Conditional Macros}\label{texcond}
 \comindex{newif}\comindex{if}\comindex{else}\comindex{fi}

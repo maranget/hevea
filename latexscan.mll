@@ -44,7 +44,7 @@ open Tabular
 open Lexstate
 
 
-let header = "$Id: latexscan.mll,v 1.123 1999-08-17 13:26:39 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.124 1999-08-20 13:44:15 maranget Exp $" 
 
 
 let sbool = function
@@ -1093,6 +1093,7 @@ and image = parse
     | "\\def" | "\\gdef" ->
         Save.start_echo () ;
         let _ = Save.csname lexbuf in
+        skip_blanks lexbuf ;
         let _ = Save.defargs lexbuf in
         let _ = save_arg lexbuf in
         Image.put lxm ;
@@ -1449,9 +1450,20 @@ def_name_code "\\renewtheorem" do_newtheorem
 
 let do_def global lxm lexbuf =
   let name = Save.csname lexbuf in
-  let name = subst_this subst name in
-  let args_pat = Save.defargs lexbuf in
-  let body = save_arg lexbuf in
+  skip_blanks lexbuf ;
+  let name,args_pat,body =
+    if top_level () then
+      let args_pat = Save.defargs lexbuf in
+      let body = save_arg lexbuf in
+      name,args_pat,body
+    else
+      let name = subst_this subst name in
+      let args_pat =
+        Save.defargs
+          (Lexing.from_string
+             (subst_this subst (Save.get_defargs lexbuf))) in
+      let body = subst_arg subst lexbuf in
+      name,args_pat,body in
   if !env_level = 0 || global then
     Image.put
       (lxm^name^

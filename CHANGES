@@ -1,5 +1,6 @@
+version 1.05-3
+  - Delimited arguments
 version 1.05-2
-  - Delimited arguments!
   - synchro videoc
 version 1.05-1
   - Small bug in optional arg parsing ('\n' before arg)

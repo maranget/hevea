@@ -1037,6 +1037,35 @@ Coucou & \Gamma_A\\
 Coucou & \Gamma_A \\
 \end{tabular}
 
+\section{Macros \TeX}
+\begin{flushleft}
+\newcommand{\testone}[2][default]{\texttt{testone}(#1,#2)}
+\def\testtwo[#1]#2{\texttt{testtwo}(#1,#2)}
+\def\argument{argument}
+
+\noindent 
+\testone{argument}; \\
+\testone[bracketed argument]{argument}. \\
+\testtwo[bracketed {\bf argument]}]{argument}.
+
+\noindent 
+\testone{\argument}; \\
+\testone 
+     [bracketed \argument]
+     {\argument}. \\
+\testtwo[bracketed \argument]{\argument}.
+
+\def\Look{\textsc{Look}}
+\def\x{\textsc{x}}
+\def\cs AB#1#2C$#3\$ {#3{ab#1}#1 c\x #2}%$
+\cs AB {\Look}{}C${And \$}{look}\$ 5.
+
+\def\moi AVANT#1APRES{#1}
+\moi AVANTAPRAPRES
+\def\toi#1AAC{#1}
+``\toi AAAC''
+\end{flushleft}%$
+
 \section{Un peu de \texttt{alltt}}
 \newcommand{\nth}[2]{${#1}_{#2}$}
 \begin{alltt}

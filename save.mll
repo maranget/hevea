@@ -12,7 +12,7 @@
 {
 open Lexing
 
-let header = "$Id: save.mll,v 1.37 1999-08-19 17:54:08 maranget Exp $" 
+let header = "$Id: save.mll,v 1.38 1999-08-20 13:44:21 maranget Exp $" 
 
 let verbose = ref 0 and silent = ref false
 ;;
@@ -139,17 +139,15 @@ and in_arg_verbatim = parse
        in_arg_verbatim lexbuf}
 
 and skip_blanks = parse
-  ' '+
+| ' '* '\n'
     {seen_par := false ;
     put_echo (lexeme lexbuf) ;
-    skip_blanks lexbuf}
-| '\n'
-    {put_echo_char '\n' ; more_skip lexbuf}
-| ""
-    {Out.to_string arg_buff}
+    more_skip lexbuf}
+| ' '*
+    {put_echo (lexeme lexbuf) ; Out.to_string arg_buff}
 
 and more_skip = parse
-  '\n'+
+  (' '* '\n' ' '*)+
    {seen_par := true ;
    put_echo (lexeme lexbuf) ;
    more_skip lexbuf}
@@ -273,6 +271,9 @@ and in_defargs = parse
 | [^'{''#']     {put_both_char (lexeme_char lexbuf 0) ; in_defargs lexbuf}
 | ""            {Out.to_string arg_buff}
 
+and get_defargs = parse
+  [^'{']* {let r = lexeme lexbuf in r}
+
 and tagout = parse
   '<'  {intag lexbuf}
 | "&nbsp;" {Out.put tag_buff " " ; tagout lexbuf}
@@ -373,7 +374,6 @@ let init_kmp s =
 
 let with_delim delim lexbuf =
   let next = init_kmp delim  in
-  prerr_endline "" ;
   let r = eat_delim_init lexbuf delim next 0 in
   r
 

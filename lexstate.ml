@@ -1,4 +1,4 @@
-let header =  "$Id: lexstate.ml,v 1.21 1999-08-19 17:54:06 maranget Exp $"
+let header =  "$Id: lexstate.ml,v 1.22 1999-08-20 13:44:20 maranget Exp $"
 
 open Misc
 open Lexing
@@ -410,7 +410,7 @@ let make_stack name pat lexbuf =
   try
     let (opts,args) = parse_args pat lexbuf in
     let args = Array.of_list (List.map from_ok opts@args) in
-    if !verbose > 2 then begin
+    if !verbose > 1 then begin
       Printf.fprintf stderr "make_stack for macro: %s "  name ;
       pretty_pat pat ;
       prerr_endline "";
