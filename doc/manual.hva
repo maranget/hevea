@@ -1,15 +1,12 @@
+\input{article.hva}
+\input{fancysection.hva}
 \newcommand{\BibTeX}{Bib\TeX}
 \newenvironment{showlatex}{\begin{toimage}}{\end{toimage}\imageflush}
-\newcommand{\showcolor}[1]{\textcolor{#1}{\texttt{#1}}}
-\newcommand{\myrule}{\@print{<HR NOSHADE SIZE=1 ALIGN=center>}}
+\newcommand{\myrule}{\@hr[HR NOSHADE SIZE=1 ALIGN=center]{}{}}
 \newenvironment{htmlout}{\begin{quote}\myrule}{\myrule\end{quote}}
 \newenvironment{multicols}[1]{}{}
 \let\oldmeta=\@meta
 \renewcommand{\@meta}{\oldmeta
 \@print{<META name="Author" content="Luc Maranget">
 }}
-%\let\oldsection\section
-%\renewcommand{\section}[2][!*!]{%
-%\cutend[subsection]
-%\ifthenelse{\equal{#1}{!*!}}{\oldsection{#2}}{\oldsection[#1]{#2}}
-%\cutdef{subsection}}
+\newcommand{\showcolor}[1]{\textcolor{#1}{\tt#1}}

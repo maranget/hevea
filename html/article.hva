@@ -53,6 +53,7 @@
 \newcommand\abstractname{\iffrench Résumé~\else Abstract\fi}
 \newenvironment{abstract}{\begin{quote}{\bf \abstractname: }}{\end{quote}}
 \newcommand{\@indexsection}[1]{\section*{#1}}
-\let\@bibliosection\section*
+\newcommand{\@bibliosection}[1]{\section*{#1}}
 \styleloadedtrue
+\newcommand{\@base}{article}
 \fi

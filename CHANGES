@@ -1,5 +1,7 @@
+
 version 1.05-6
-  - new arcticle.hva style for the manual
+  - new panic mode, (old mode sometimes made hevea loop for ever)
+  - new fancyarticle.hva style for the manual
   - introduced \@hr -> <HR>  
   - started length management
   - all primitives should get their argument by get_prim_arg

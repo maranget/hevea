@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlCommon.ml,v 1.10 1999-10-01 16:15:21 maranget Exp $" 
+let header = "$Id: htmlCommon.ml,v 1.11 1999-10-04 08:00:58 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -31,17 +31,6 @@ let check_block_closed opentag closetag =
     failclose ("html: ``"^closetag^"'' closes ``"^opentag^"''") 
 ;;
 
-(*
-(* Saving mods accross blocks *)
-let push s e = s := e:: !s
-and pop name s = match !s with
-  [] -> raise (Misc.Fatal ("Empty stack: "^name^" in Html"))
-| e::rs -> s := rs ; e
-and see_top name s = match !s with
-  [] -> raise (Misc.Fatal ("Empty stack: "^name^" in Html (see)"))
-| e::_ -> e
-;;
-*)
 (* output globals *)
 
 type status = {
@@ -334,7 +323,7 @@ let par  = function
         prerr_endline
           ("par: last_close="^ flags.last_closed^
            " r="^string_of_int n)
-  | _ ->  flags.pending_par <- None
+  | _ ->  ()
 ;;
 
 let flush_par n =
@@ -628,7 +617,7 @@ let rec try_open_block s args =
 ;;
 
 let do_do_open_block s args =
-    if s = "TR" || s = "TABLE" || is_header s then
+    if s = "TR" || is_header s then
       do_put "\n";
     do_put_char '<' ;
     do_put s ;

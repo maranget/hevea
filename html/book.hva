@@ -68,4 +68,5 @@
 \newcommand{\@indexsection}[1]{\chapter*{#1}}
 \newcommand{\@bibliosection}[1]{\chapter*{#1}}
 \styleloadedtrue
+\newcommand{\@base}{book}
 \fi

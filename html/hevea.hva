@@ -146,7 +146,8 @@
   {\newcommand{#1}{\begin{toimage}#1\end{toimage}#2}}
 %% Packages and Page Styles
 \@imagecommand{\usepackage}
-  {\execafter\@imagearg\@imageopt}
+  {\execafter{\begin{toimage}
+\end{toimage}}\execafter\@imagearg\@imageopt}
 \def\pagestyle#1{}
 \def\thispagestyle#1{}
 \newcommand{\markright}[1]{}
@@ -165,11 +166,13 @@
 \@open{H1}{ALIGN=center}%
 \usebox{\@title}%
 \@close{H1}%
-\@open{H3}{ALIGN=center}%
-\usebox{\@author}\par
-\usebox{\@date}
-\@close{H3}%
-\@print{<BR><BR><BR>}%
+{\newcommand{\checkbox}[1]
+  {\ifthenelse{\equal{\usebox{##1}}{}}
+    {}
+    {\@open{H3}{ALIGN=center}\usebox{##1}\@close{H3}}}%
+\checkbox{\@author}
+\checkbox{\@date}}
+%\@print{<BR><BR><BR>}%
 }
 \newcommand{\thanks}[1]{\footnote{#1}}
 \newenvironment{titlepage}{}{}
@@ -528,6 +531,7 @@
 \newenvironment{LARGE}{\@fontsize{5}}{}
 \newenvironment{huge}{\@fontsize{6}}{}
 \newenvironment{Huge}{\@fontsize{7}}{}
+%%%%%% Colors
 \newenvironment{purple}{\@fontcolor{purple}}{}
 \newenvironment{black}{\@fontcolor{black}}{}
 \newenvironment{silver}{\@fontcolor{silver}}{}
@@ -575,8 +579,6 @@
 \def\textsl#1{\mbox{\slshape#1}}
 \def\textsc#1{\mbox{\scshape#1}}
 \newcommand{\emph}[1]{\mbox{\em#1}}
-%%% Colors
-\newcommand{\textcolor}[2]{{\color{#1}#2}}
 %%%%%%%%%%%%%%%%
 \def\makeatletter{}
 \def\makeatother{}
@@ -616,9 +618,18 @@
 \newcommand{#1*}[1]{%
 \cuthere{#3}{##1}%
 #4##1#6\@secend}}%
+\newcommand{\remakesection}[6]{%
+\renewcommand{#1}[2][]{%
+\checkdepth{#2}{\refstepcounter{#3}}%
+\ifoptarg\cuthere{#3}{##1}\else\cuthere{#3}{##2}\fi%
+#4\checkdepth{#2}{#5} ##2#6\@secend}%
+\renewcommand{#1*}[1]{%
+\cuthere{#3}{##1}%
+#4##1#6\@secend}}%
 %%%%%%%%%%%%%%
 % Packages   %
 %%%%%%%%%%%%%%
+\input{color.hva}
 \input{graphics.hva}
 %%%%%%%%%%%%%%
 % Extensions %

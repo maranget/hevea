@@ -10,7 +10,7 @@
 (***********************************************************************)
 
 
-let header = "$Id: html.ml,v 1.65 1999-10-01 16:15:18 maranget Exp $" 
+let header = "$Id: html.ml,v 1.66 1999-10-04 08:00:57 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -418,14 +418,19 @@ let finalize check =
     check_stack "dcount_stack" dcount_stack;
     check_stack "ncols_stack" ncols_stack ;
     check_stack "after_stack" after_stack
+  end else begin
+    (* Flush output in case of fatal error *)
+    let rec close_rec () =
+      if not (Stack.empty out_stack) then begin
+        match Stack.pop out_stack with
+        | Freeze _ -> close_rec ()
+        | Normal (_,_,pout) ->
+            Out.copy !cur_out.out pout.out ;
+            cur_out := pout ;
+            close_rec ()
+      end in
+    close_rec ()
   end ;
-(* Flush output *)
-  let rec close_rec () = 
-    if not (Stack.empty out_stack) then begin
-      begin try close_block (pblock ()) with _ -> () end ;
-      close_rec ()
-    end in
-  close_rec () ;
   Out.close !cur_out.out
 ;;
 

@@ -43,7 +43,7 @@ open Lexstate
 open Stack
 open Subst
 
-let header = "$Id: latexscan.mll,v 1.138 1999-10-01 16:15:28 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.139 1999-10-04 08:00:59 maranget Exp $" 
 
 
 let sbool = function
@@ -1236,8 +1236,7 @@ let check_alltt_skip lexbuf =
   end
 ;;
 
-let get_prim_arg lexbuf =
-  let arg = save_arg lexbuf in
+let get_prim arg =
   let plain_sub = is_plain '_'
   and plain_sup = is_plain '^'
   and plain_dollar = is_plain '$' in
@@ -1246,6 +1245,14 @@ let get_prim_arg lexbuf =
   plain_back plain_sub '_' ; plain_back plain_sup '^' ;
   plain_back plain_dollar '$' ;
   r
+
+let get_prim_arg lexbuf =
+  let arg = save_arg lexbuf in
+  get_prim arg
+
+and get_prim_opt lexbuf =
+  let arg = save_opt "!*!" lexbuf in
+  get_prim arg
 
 
 let def_fun name f =
@@ -1633,7 +1640,7 @@ def_code "\\@open"
 ;;
 
 def_code "\\@insert"
-  (fun lexbuf ->
+        (fun lexbuf ->
           let tag = get_prim_arg lexbuf in
           let arg = get_prim_arg lexbuf in
           Dest.insert_block tag arg )
@@ -1864,23 +1871,39 @@ def_code "\\setboolean"
 ;;
 
 (* Color package *)
+
 def_code "\\definecolor"
   (fun lexbuf ->
     Save.start_echo () ;
     let clr = get_prim_arg lexbuf in
     let mdl = get_prim_arg lexbuf in
-    let value = subst_arg lexbuf in
+    let value = get_prim_arg lexbuf in
     Image.put "\\definecolor" ;
     Image.put (Save.get_echo ()) ;
     Color.define clr mdl value )
 ;;
 
-def_code "\\color"
+def_code "\\DefineNamedColor"
   (fun lexbuf ->
+    let _ = get_prim_arg lexbuf in
     let clr = get_prim_arg lexbuf in
-    let htmlval = Color.retrieve clr in
-    Dest.open_mod (Color ("\""^htmlval^"\"")) ;
-    skip_blanks lexbuf)
+    let mdl = get_prim_arg lexbuf in
+    let value = get_prim_arg lexbuf in
+    Color.define clr mdl value ;
+    Color.define_named clr mdl value )
+;;
+
+def_code "\\@getcolor"
+  (fun lexbuf ->
+    let mdl = get_prim_opt lexbuf in    
+    let clr = get_prim_arg lexbuf in
+    let htmlval = match mdl with
+    | "!*!" -> Color.retrieve clr
+    | _     -> Color.compute mdl clr in
+    Dest.put_char '"' ;
+    Dest.put_char '#' ;
+    Dest.put htmlval ;
+    Dest.put_char '"')
 ;;
 
 (* Bibliographies *)
