@@ -29,4 +29,4 @@ clean:
 	rm -f *~ *.aux *.log *.toc
 
 cleanall: clean
-	rm -f manual.dvi *.html *motif.gif  manual*.gif tmp.tex manual.image.tex
+	rm -f manual.dvi *.html *_motif.gif  manual*.gif tmp.tex manual.image.tex

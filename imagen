@@ -17,7 +17,7 @@ esac
 NAME=${BASE}.image
 DVIPSOPTS="-t a3 -x1414"
 GSOPTS="-q -sPAPERSIZE=a3 -dNOPAUSE -dNO_PAUSE -sDEVICE=ppmraw"
-PPMTOGIFOPTS="-sort -transparent  #ffffff"
+PPMTOGIFOPTS="-transparent  #ffffff"
 
 NEWDVIPS=true
 if ${DVIPS} -i 2>&1 | grep -i 'bad option' 2> /dev/null 1> /dev/null

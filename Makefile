@@ -31,7 +31,7 @@ opt: hevea.opt hacha.opt cutfoot-fra.html cutfoot-eng.html
 byte:  hevea.byte hacha.byte cutfoot-fra.html cutfoot-eng.html
 
 install-lib:
-	-mkdir $(INSTALL)
+	-mkdir $(LIBDIR)
 	$(INSTALL) article.sty book.sty hevea.sty cutfoot-fra.html cutfoot-eng.html footer.tex ${LIBDIR}
 	- ln -s book.sty ${LIBDIR}/report.sty
 	$(INSTALL) contents_motif.gif next_motif.gif previous_motif.gif ${LIBDIR}
