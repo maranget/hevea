@@ -1,36 +1,36 @@
 J'ai la joie d'anoncer la nouvelle release d'HEVEA.
 
-      HEVEA, version 1.03 un traducteur rapide de LaTeX vers HTML.
+      HEVEA, version 1.04 un traducteur rapide de LaTeX vers HTML.
 
   HEVEA traduit un sous-ensemble quasi complet de LaTeX2e (il accepte aussi
-  le vieux style LaTeX) vers HTML 3.2.
+  le vieux style LaTeX) vers HTML 4.0 transitionel.
 
-  Par rapport a la version precédente (1.02) il y a quelques corrections
-  de bugs.
 
-  Une modification cosmétique induit une incompatibilité significative
-  avec les versions précédentes :
-    
-    Les fichiers de style d'HEVEA ont maintenant l'extension .hva (au lieu
-    de .sty). Et le fichier de compatibilité à charger par LaTeX se nome
-    désormais hevea.sty (au lieu de html.sty).
+  Par rapport à la version précédente il y a de gros changements dans
+  la nature des sorties d'HEVEA:
+        - Le HTML généré est maintenant du 4.0 transitionel, ça ne change
+        en fait pas grand chose. Essentiellement <FONT FACE=symbol> est
+        maintenant conforme au standard, par changement du standard...
 
-  En outre les fonctionnalités suivantes ont été ajoutées:
+        - HEVEA a désormais d'autres formats de sortie que HTML. On peu
+        produire des traduction en mode texte ou en mode info (pour lecture
+        sous emacs).
 
-        - Implémentation des packages, ifthen, calc, array et tabularx
-        - Implementation des ``snippet'' de Christian Queinnec
-          (Christian.Queinnec@lip6.fr) qui  facilite la présentation
-          de code source.
-          (cf http://www-spi.lip6.fr/~queinnec/VideoC/VideoC.html)
-        - Nouvelles options d'imagen qui permettent de modifier
-          la production des images.
-        - Documentation des certaines des commandes internes d'HEVEA.
+        - Enfin, les expressions MathML peuvent maintenant être traduites
+        vers MathML. Ce mode est extrêmement expérimental.
+
+  En outre quelques bugs sont corrigés. Entre autres :
+
+       - L'environnemenr alltt est maintenant mieux testé et réalisé.
+       - Il devient possible de mettre des chiffres dans les noms des
+         environnements.
 
   ----------------------------------------------------------------------------
-  Les symboles exotiques sont traduits en utilisant une police de charatctères
-  ``symbols'' que doit connaître le brouteur HTML.
-   Cette pratique n'est conforme à aucun standard HTML, mais HEVEA offre des
-   modes dégradés qui l'évitent.
+  Les symboles exotiques sont traduits en utilisant une police de
+  caractères ``symbol'' que doit connaître le brouteur HTML.
+  Cette pratique est conforme au standard HTML 4.0 de transition
+  (je me demande bien pourquoi, mais c'est comme ça). HEVEA offre des
+  modes dégradés qui l'évitent.
 
   HEVEA comprends les définitions de macros de LaTeX. Cela permet,
   d'une part  d'utiliser les fichiers de styles utilisateurs simples et,

@@ -13,7 +13,7 @@ URL: http://para.inria.fr/~maranget/hevea/
 HEVEA is a LaTeX to HTML translator.  The input language is a fairly
 complete subset of LaTeX2e (old LaTeX style is also accepted) and the
 output language is HTML that is (hopefully) correct with respect to
-version 3.2.
+version 4.0 (transitional)
 
 This package is a binary installation of the hevea system.
 
@@ -41,6 +41,7 @@ make install LIBDIR=/usr/lib/hevea BINDIR=/usr/bin
 /usr/lib/hevea/html/symb-text.hva
 /usr/lib/hevea/html/symb-eng.hva
 /usr/lib/hevea/html/symb-fra.hva
+/usr/lib/hevea/html/symb-mathml.hva
 /usr/lib/hevea/html/article.hva
 /usr/lib/hevea/html/book.hva
 /usr/lib/hevea/html/report.hva

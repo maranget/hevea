@@ -6,7 +6,23 @@
 
 %HEVEA\newenvironment{multicols}[1]{}{}
 \begin{document}
+\newsavebox{\foo}
+\newcounter{coucou}
+\newcommand{\test}[1]{%
+\begin{Huge}\begin{tabular}{|*{16}{l}}
+\setcounter{coucou}{#1}%
+\whiledo
+  {\value{coucou}<#1+256}
+  {\sbox{\foo}{\@nostyle\thecoucou}\@print{&#}\usebox{\foo}\@print{;}%
+  \addtocounter{coucou}{1}%
+  \ifthenelse{\(\value{coucou}/16\)*16=\value{coucou}}{\\}{&}}
+\end{tabular}\end{Huge}}
 
+\newcounter{zobi}
+\newcommand{\fulltest}[1]{%
+\setcounter{zobi}{#1}%
+\whiledo{\value{zobi}<#1+8}{\test{\value{zobi}*256}\stepcounter{zobi}\par}}
+\fulltest{16}
 \section{Points de détail}
 
 \verb+\ldots+: $\ldots$
@@ -141,7 +157,7 @@
 \end{multicols}
 
 \section{Flèches}
-\begin{multicols}{4}
+\begin{multicols}{4}\Huge
 \verb+\leftarrow+: $\leftarrow$\\
 \verb+\Leftarrow+: $\Leftarrow$\\
 \verb+\rightarrow+: $\rightarrow$\\

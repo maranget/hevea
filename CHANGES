@@ -1,6 +1,7 @@
-version 1.04-1
+version 1.04
+  - Experimental mathml mode, for equations.
+  - Choose html 4.0 transitional as default output language
   - html.ml split into html.ml, htmlCommon.ml and htmlMath.ml.
-  - The whole preamble gets echoed to the image file.
   - Better list-making environment and better documentation for them.
   - Suppressed ``Videoc'' when in text mode.
   - Added \csname ... \endcsname,

@@ -1,37 +1,21 @@
 
 It is my pleasure to anounce the new release of HEVEA.
 
-      This is HEVEA, version 1.03, a fast LaTeX to HTML translator.
+      This is HEVEA, version 1.04, a fast LaTeX to HTML translator.
 
 
     HEVEA is a LaTeX to HTML translator.  The input language is a fairly
     complete subset of LaTeX2e (old LaTeX style is also accepted) and the
     output language is HTML that is (hopefully) correct with respect to
-    version 3.2.
+    version 4.0 (transitional)
 
-    With respect to previous version 1.02, the most salient changes
-    are:
-       - Style files now have the ``.hva'' extension (instead of
-        ``.sty'').
-        The compatibility file for LaTeX gets renamed into
-       ``hevea.sty''
-
-       - Packages ifthen, calc, array and tabularx are implemented.
-
-       - The ``snippet'' construct by Christian Queinnec,
-         (Christian.Queinnec@lip6.fr) for typesetting source code is
-         implemented.
-         (cf http://www-spi.lip6.fr/~queinnec/VideoC/VideoC.html)
-
-       - The imagen scripts accepts a few options that enable
-         altering the default behavior of .GIF images generation.
-
-       - Some of HEVEA internal commands are documented.
+    With respect to previous version 1.03, the most salient changes
+    comcern the nature of output:
        
     --------------------------------------------------------------------------
     Exotic symbols are translated into symbols
     pertaining to the symbol font of the HTML browser, using the
-    non-standard FACE attribute of the FONT tag.
+    now standard FACE attribute of the FONT tag.
     This allows the translation to HTML of quite a lot of the symbols
     used in LaTeX.
 
