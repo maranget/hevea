@@ -60,7 +60,7 @@ This allows the translation to {\html} of quite a lot of the symbols used in
 \LaTeX.
 
 
-\hevea{} understands \LaTeX{} macro definitions. User style
+\hevea{} understands \LaTeX{} macro definitions. Simple user style
 files are understood with little or no modifications.
 Furthermore, \hevea{} customization is done by writing \LaTeX{} code.
 
@@ -82,7 +82,7 @@ smaller files, using the companion program \hacha.
 
 \section{How to get started}\label{getstarted}
 
-Assume that you have a file ``\texttt{a.tex}'' written in \LaTeX, using the
+Assume that you have a file, ``\texttt{a.tex}'' written in \LaTeX, using the
 \filename{article}, \filename{book} or \filename{report} style. Then,
 translation
 is achieved by issuing the command~:
@@ -120,16 +120,20 @@ documentation, including examples of \urlex{a.tex} and
 \noindent\hevea{} knows about two \LaTeX{} base style file,
 \filename{article} and \filename{book}.
 Additionally, the \filename{report} base style is recognized and
-considered equivalent to \filename{book}. In case your source file uses
-another base style, then you can instruct \hevea{} to load one of the
-style files it knows about before processing your source file.
+considered equivalent to \filename{book}.
+
+
+To translate documents that use other base style file,
+\hevea{} must be
+instructed to load one of the
+style files it knows in place of the unknown style file.
 This is done by giving the desired style file as an extra command line
 argument.
 
 Let us assume that \texttt{mydoc.tex} uses an exotic style
 file such as \verb+acmconf+. Then, typing
 \verb+hevea mydoc.tex+ may yield two kind of errors.
-Either \hevea{} finds the the \texttt{acmconf.sty} file (e.g. if
+Either \hevea{} finds the the \texttt{acmconf.sty} file (e.g., if
 \texttt{acmconf.sty} is in the current directory)
 and fails to process it~:
 \begin{verbatim}
@@ -151,8 +155,8 @@ mydoc.tex:9: Unknown counter: footnote
 \end{verbatim}
 
 
-Both situations are avoided by invoking \texttt{hevea} with a known
-base style file  as an extra argument:
+Both situations are avoided by invoking \hevea{} with the known
+base style file  \texttt{article.sty} as an extra argument:
 \begin{verbatim}
 hevea article.sty mydoc.tex
 \end{verbatim}
@@ -160,7 +164,18 @@ Such an extra argument instructs
 \hevea{} to load its \texttt{article.sty}
 style file before processing \texttt{mydoc.tex}
 It will then ignore the base style specified by
-\verb+\documentstyle+ or \verb+\documentclass+.
+\verb+\documentclass+ (or \verb+\documentstyle+).
+
+Observe that the fix above works because \texttt{article.sty} and
+\texttt{acmconf.sty} look the same to the document (i.e. they define
+the same macros).
+More generally, most  base styles which are neither
+\textit{article} nor \textit{book} are in fact variations
+on either two of them.
+However, such styles usually provides extra macros.
+If users documents use these macros, then users should also instruct
+\hevea{} about them (see section~\ref{dontknow}).
+
 
 \subsection{Other style files}
 
@@ -183,14 +198,14 @@ Such macros need to be rewritten, using more basic \LaTeX{}
 constructs (section~\ref{trouble} gives examples of macro-rewriting).
 The new definition are best collected in a style file,
 \texttt{mymacros.sty} for instance.
-Then, \texttt{mydoc.tex} is to be compiled by issuing the command:
+Then, \texttt{mydoc.tex} is to be translated by issuing the command:
 \begin{verbatim}
 # hevea mymacros.sty mydoc.tex
 \end{verbatim}
 The file \texttt{mymacros.sty} is processed before
 \texttt{mydoc.tex} (and thus before \texttt{macros.tex}).
 As a consequence, the macro definitions in \texttt{mymacros.tex}
-override the ones in  \texttt{macros.tex}, provided the latter are made
+override the ones in  \texttt{macros.tex}, since the latter are made
 using \verb+\newcommand+ or \verb+\def+ (section~\ref{usermacro}
 explains how \hevea{} handle macro definitions and redefinitions).
 
@@ -209,15 +224,6 @@ Note that another solution to instruct \LaTeX{} to load a file and
 arguments to \verb+\documentstyle+, which \hevea{}
 ignore.
 
-
-As to writing replacement macros,
-things get tricky for style files that
-significantly extends \LaTeX{} capabilities to typeset inference rules
-or categorical diagrams for instance.
-Then, the  solution depends both on {\html} capabilities and on your
-willingness to rewrite macros.
-However, it is still possible to have \LaTeX{} typeset some subparts of
-the document and to include them as images (see section~\ref{imagen}).
 
 \section{A note on style}
 
@@ -302,13 +308,17 @@ by \LaTeX{} (or \hevea).
 \begin{tabular}{l@{~:~}l}
 Some space & \tryspace{\bfsymbol}\\
 No space   & \bfsymbol XXX
-\end{tabular}
+\end{tabular}%
+%BEGIN LATEX
+\par ~\vspace{-1ex}
+%END LATEX
 \end{htmlout}
 Note that, if a space before ``XXX'' is wanted, then
 one should probably write:
 \begin{verbatim}
 \newcommand{\tryspace}[2]{#1{} XXX}
 \end{verbatim}
+
 
 \subsection{Math mode}
 
@@ -493,7 +503,7 @@ internal operation (such as changing font attributes, or arranging
 text items in a certain manner) are performed.
 
 This scheme favors easy extension of program capabilities
-by users. However predicting program behavior and correcting errors
+by users. However, predicting program behavior and correcting errors
 may prove difficult, since final output or errors
 may occur after several levels of macro expansion.
 As a consequence, users can tailor \hevea{} to their needs, but it
@@ -513,12 +523,13 @@ standard \LaTeX{} has not.
 
 As a consequence, there are many situations where \hevea{} just cannot
 render the visual effect of \LaTeX{} constructions. Here some choices
-have to be made. For instance, the calligraphic letters (\verb+\cal+)
+have to be made. For instance, the calligraphic letters (\verb+\mathcal+)
 are rendered in red (\verb+<FONT COLOR=red>+), and the small caps
-(\verb+\sc+) are rendered in bold font (\verb+<B>+).
+(\verb+\scshape+) are rendered in bold font (\verb+<B>+).
 
-If you are not satisfied with my choices, then you
-can make your own choices, by redefining the \verb+\cal+ and \verb+\sc+
+If you are not satisfied with \hevea{} rendering of text style
+declarations, then you
+can choose your own , by redefining the \verb+\cal+ and \verb+\sc+
 macros, using \verb+\renewcommand+, the macro redefinition operator of
 \LaTeX{}. The key point is that you need not worry with \hevea{}
 internals.
@@ -578,7 +589,7 @@ generic style, using macros.
 Note that this style is recommended anyway, since it eases the changing
 and tuning of documents.
 
-\subsection{\hevea{} does not know a macro}
+\subsection{\hevea{} does not know a macro}\label{dontknow}
 Consider the following \LaTeX{} source excerpt:
 \begin{verbatim}
 You can \raisebox{.6ex}{\em raise} text.
@@ -597,7 +608,7 @@ You can \raisebox{.6ex}{\em raise} text.
 \end{latexonly}
 \end{htmlout}
 
-Since \hevea{} does not know about \verb+raisebox+,
+Since \hevea{} does not know about \verb+\raisebox+,
 it incorrectly processes this input. More precisely,
 it first prints a warning message:
 \begin{verbatim}
@@ -633,7 +644,7 @@ You can \raisebox{.6ex}{\em raise} text a little.
 \end{htmlout}
 
 Of course, this will work only when all \verb+\raisebox+ commands in
-the document raise text a little. Consider, for instance, this
+the document raise text a little. Consider, the following
 example, where text
 is both raised a lowered a little:
 \begin{verbatim}
@@ -713,12 +724,12 @@ Which \LaTeX{} typesets as follows:
 \end{latexout}
 \hevea{} always translates \verb+\rule+ as \verb+<HR>+, ignoring size
 arguments.
-Hence, it here produces the following, wrong, output:
+Hence, it produces the following, wrong, output:
 \begin{htmlout}\newcommand{\blob}{\rule[.2ex]{1ex}{1ex}}
 \begin{htmlonly}
 \blob\ Blob \blob
 \end{htmlonly}
-\begin{latexonly}
+\begin{latexonly}\vspace*{.5ex}
 \epsfbox{blob.ps}%
 \end{latexonly}%
 \end{htmlout}
@@ -726,7 +737,7 @@ Hence, it here produces the following, wrong, output:
 There is not small square in the symbol font used by \hevea.
 However there are other small symbols that would perfectly do the job
 of \verb+\blob+, such as a bullet (\verb+\bullet+ in \LaTeX).
-Thus, you may choose to give \verb+\blob+ a shadowing definition in
+Thus, you may choose to give \verb+\blob+ a definition in
 \verb+trouble.sty+:
 \begin{verbatim}
 \newcommand{\blob}{\bullet}
@@ -736,7 +747,16 @@ This new definition yields the following, more satisfying output:
 \begin{htmlonly}%
 \blob\ Blob \blob
 \end{htmlonly}
+\begin{latexonly}\vspace*{.5ex}
+\epsfbox{blob2.ps}%
+\end{latexonly}%
 \end{htmlout}
+
+Now, if you insist on having a square ``blob'', you can.
+It suffices to have \LaTeX{} typeset some subparts of
+the document and then to include them as images, section~\ref{imagen}
+explain how to proceed.
+
 
 \subsection{\hevea{} crashes}
 
@@ -2229,6 +2249,7 @@ Some conditions are defined internally by \hevea{}, such as the
 the \texttt{display} and \texttt{math} condition that are set according
 to \hevea{} current operating mode.
 
+\setcounter{section}{0}
 \part{Practical information}
 
 \section{Usage}
