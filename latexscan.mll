@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.253 2005-02-22 17:45:02 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.254 2005-02-28 16:28:19 maranget Exp $ *)
 
 
 {
@@ -35,7 +35,7 @@ module type S =
     val top_close_block : string -> unit
     val check_alltt_skip : Lexing.lexbuf -> unit
     val skip_pop : Lexing.lexbuf -> unit
-(* ``def'' functions for initialisation only *)
+(* 'def' functions for initialisation only *)
     val def_code : string -> (Lexing.lexbuf -> unit) -> unit
     val def_name_code : string -> (string -> Lexing.lexbuf -> unit) -> unit
     val def_fun : string -> (string -> string) -> unit
@@ -1033,7 +1033,13 @@ rule  main = parse
 (* Html specials *)
 | '-'
   {do_expand_command main skip_blanks "\\@hevea@minus" lexbuf ;
-  main lexbuf }  
+  main lexbuf }
+| '`'
+  {do_expand_command main skip_blanks "\\@hevea@backquote" lexbuf ;
+  main lexbuf } 
+| '''
+  {do_expand_command main skip_blanks "\\@hevea@quote" lexbuf ;
+  main lexbuf } 
 | '~'
   {do_expand_command main skip_blanks "\\@hevea@tilde" lexbuf ;
   main lexbuf }
@@ -3211,8 +3217,31 @@ and do_minus lexbuf = match !symbol_mode with
     else
       Dest.put_char '-'
 |  _ -> Dest.put_char '-'
+
+and do_backquote lexbuf = match !symbol_mode with
+| Entity when not !in_math ->
+    if Save.if_next_char '`' lexbuf then begin
+      gobble_one_char lexbuf ;
+      warning "Backquote" ;
+      Dest.put "&#8220;"
+    end else
+      Dest.put_char '`'
+| _ ->  Dest.put_char '`'
+
+and do_quote lexbuf = match !symbol_mode with
+| Entity when not !in_math ->
+    if Save.if_next_char '\'' lexbuf then begin
+      gobble_one_char lexbuf ;
+      Dest.put "&#8221;"
+    end else
+      Dest.put_char '\''
+| _ ->  Dest.put_char '\''
 ;;
 
+
+
+let just_put c lb = Dest.put_char '-'
+;;
 
 def_code "\\@hevea@amper" do_amper ;
 def_code "\\\\"           do_bsbs  ;
@@ -3220,7 +3249,13 @@ def_code "\\@HEVEA@amper" do_amper ;
 def_code "\\@HEVEA@bsbs"  do_bsbs  ; 
 def_code "\\@hevea@minus"
   (if !entities then do_minus
-  else (fun lexbuf -> Dest.put_char '-')) ;
+  else just_put '-') ;
+def_code "\\@hevea@backquote"
+  (if !entities then do_backquote
+  else just_put '`') ;
+def_code "\\@hevea@quote"
+  (if !entities then do_quote
+  else just_put '\'') ;
 ()
 ;;
 
