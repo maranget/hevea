@@ -12,7 +12,7 @@
 {
 open Lexing
 open Stack
-let header = "$Id: cut.mll,v 1.38 2002-11-05 09:35:15 maranget Exp $" 
+let header = "$Id: cut.mll,v 1.39 2002-11-18 15:03:03 maranget Exp $" 
 
 let verbose = ref 0
 
@@ -415,6 +415,7 @@ let restore_state () =
 let hevea_footer = ref false
 
 let close_top lxm =
+  Out.put !toc !html_foot ;
   putlinks_end !toc !tocname ;
   if !hevea_footer then begin
     Out.put !out "<!--FOOTER-->\n" ;
@@ -514,7 +515,7 @@ let secname = ['a'-'z' 'A'-'Z']+
     {let name = tocline lexbuf in
     change_name !outname name ;
     main lexbuf} 
-|  "<!--" ("TOC"|"toc") ' '+ (secname as arg)
+|  "<!--" ("TOC"|"toc") ' '+ (secname as arg) ' '+
     {let sn = 
       if String.uppercase arg = "NOW" then !chapter
       else Section.value arg in
@@ -595,12 +596,9 @@ let secname = ['a'-'z' 'A'-'Z']+
     end ;
     main lexbuf}
 | "<!--FOOTER-->" '\n'?
-    {close_all () ;
-      if !phase > 0 then begin
-        hevea_footer := true ;
-        Out.put !out !html_foot
-      end ;
-      footer lexbuf}
+    {if !phase = 0 then hevea_footer := true ;
+     close_all () ;
+     footer lexbuf}
 | "<!DOCTYPE"  [^'>']* '>'
     {let lxm = lexeme lexbuf in
     if !phase = 0 then
@@ -631,7 +629,7 @@ let secname = ['a'-'z' 'A'-'Z']+
         collect_header lexbuf
       end else
         main lexbuf}
-| "</BODY>"
+| "</BODY>" _ * 
     {let lxm = lexeme lexbuf in
     close_all () ;
     if !phase > 0 then begin

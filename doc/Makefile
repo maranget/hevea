@@ -35,6 +35,9 @@ manual.dvi: manual.tex macros.tex version.tex tmp.tex
 	makeindex manual.idx &&\
 	$(LATEX) < /dev/null manual.tex
 
+manual.ps: manual.dvi
+	dvips -o manual.ps manual.dvi
+
 pdfmanual.pdf: pdfmanual.tex macros.tex version.tex tmp.tex
 	$(PDFLATEX) < /dev/null pdfmanual.tex &&\
 	$(PDFLATEX) < /dev/null pdfmanual.tex &&\

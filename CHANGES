@@ -1,4 +1,6 @@
 version 1.06+1
+   - Small hacha bug : replicate \htmlfoot argument in index.html file
+     even when hevea generated footer is absent.
    - New \@charset command and xxcharset.exe script, to control
      output document character set.
    - firstnumber=auto|last|nnn in listings.hva
