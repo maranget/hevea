@@ -13,7 +13,7 @@
 open Lexing
 open Misc
 
-let header = "$Id: save.mll,v 1.64 2002-10-04 17:27:28 maranget Exp $" 
+let header = "$Id: save.mll,v 1.65 2004-03-24 14:59:08 maranget Exp $" 
 
 let rec if_next_char  c lb =
   if lb.lex_eof_reached then
@@ -500,14 +500,17 @@ let skip_blanks_init lexbuf =
   let _ = skip_blanks lexbuf in
   ()
 
+let arg_verbatim2 c lexbuf =
+  let delim = String.make 1 c in
+  let next = init_kmp delim  in
+  eat_delim_init lexbuf delim next 0
+
 let arg_verbatim lexbuf = match first_char lexbuf with
   | '{' ->
        incr brace_nesting ;
        arg2 lexbuf
-  | c ->
-      let delim = String.make 1 c in
-      let next = init_kmp delim  in
-      eat_delim_init lexbuf delim next 0
+  | c -> arg_verbatim2 c lexbuf
+
 
 let xy_arg lexbuf = do_xyarg lexbuf
 } 
