@@ -11,12 +11,16 @@
 \stepcounter{slide}%
 \cuthere{section}{\slidename{} \theslide}%
 \@print{<HR>}%
-\@open{H2}{}\slidename{} \theslide\@close{H2}
+\@open{H2}{ALIGN=right}\slidename{} \theslide\@close{H2}
 \@print{<HR>}%
-}{\bigskip\bigskip}
+}{}
 \newenvironment{slide*}[1][]{\begin{slide}}{\end{slide}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% All seminar-specific commandes are null macros %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newcommand{\landscapeonly}{}
 \newcommand{\portraitonly}{}
+\newcommand{\twoup}{}
 %% Margins
 \newif\ifcenterslides
 \newcommand{\raggedslides}[1][]{}
@@ -32,5 +36,6 @@
 %% FRAMES
 \newcommand{\slideframe}[2][]{}
 \newcommand{\newslideframe}[1]{\slideframe}
+%%%% load the article style file
 \input{article.sty}
 \fi

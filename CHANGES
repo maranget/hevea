@@ -1,4 +1,6 @@
 version 1.03-1
+  - Added the -extra and -mag options to imagen
+  - Started a FAQ
   - Cleaned up somehow the output of iso-latin1 special symbols by putting
     all their definitions in hevea.sty.
   - Added a -noiso switch to output HTML entities such as &eacute; in place

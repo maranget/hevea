@@ -1,0 +1,56 @@
+\documentstyle{article}
+\usepackage{a4wide}
+
+\begin{document}
+
+\section*{Conventions}
+Throughout this document. We assume that your \LaTeX{} document is
+\texttt{doc.tex} and that you have a \hevea{}-targetted style file
+\texttt{doc.hva}. That is, you run \hevea{} by typing:
+\begin{verbatim}
+# hevea doc.hva doc.tex
+\end{verbatim}
+
+\section{How do I include Postscript images~?}\label{image}
+Images in web pages usually are in other formats than Postcript.
+For instance in GIF format.
+
+Assume that you have a Postscript file \texttt{image.ps},
+which is included in your document \texttt{doc.tex} by~:
+\begin{verbatim}
+\epsfbox{image.ps}
+\end{verbatim}
+
+A first solution is for you to translate the Postscript file by hand
+into a GIF file, say
+\texttt{image.ps.gif}.
+Then you will have to tell \hevea{} to include a link to the GIF file
+instead of the Postcript one.
+Just add this command to \texttt{doc.hva} file.
+\begin{verbatim}
+\newcommand{\epsfbox}[1]{\imgsrc{#1.gif}}
+\end{verbatim}
+Note that sometimes, the Postscript file has been produced by
+translating a GIF file. In this case, this simple method is the most
+adequate, since
+translating an image from GIF to Postcript and back to GIF will degrade it.
+
+
+However, the translation can be done automatically, usually at the
+price of a lower image quality, by using the \textit{image} file
+facility.
+Just put this definition into the \texttt{doc.hva} file~:
+\begin{verbatim}
+\newcommand{\epsfbox}[1]{%
+\begin{toimage}
+\epsfbox{#1}
+\end{toimage}%
+\imageflush}
+\end{verbatim}
+Then run \hevea{} and \texttt{imagen} as follows~:
+\begin{verbatim}
+# hevea doc.hva
+# imagen doc
+\end{verbatim}
+
+\end{document}

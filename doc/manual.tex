@@ -372,8 +372,8 @@ as shown by figure~\ref{xfd}.
 A browser  correctly displays \hevea{} symbols when
 figure~\ref{xfd} resembles the \html{} page located
 at \localurl{symbol.html}.
-Section~\ref{browser} explains how to configure Netscape on Unix
-systems to get the right symbols.
+Section~\ref{browser} explains how to configure a few browsers
+to get the right symbols.
 
 For authors that do not want to generate symbols that cannot be shown
 by any browser, \hevea{} offers a degraded mode that outputs text
@@ -382,7 +382,7 @@ in place of symbols.
 Replacement text is in English, unless
 \hevea{} is also given the \verb+-francais+ flag. In that case
 replacement text is in French.
-For instance. the $\in$ symbol is replace by ``in'' (or by ``appartient
+For instance. the ``$\in$'' symbol is replace by ``in'' (or by ``appartient
 à'' if French mode is selected).
 This is far from being satisfactory, but degraded mode may be
 appropriate for documents than contain few symbols.
@@ -580,7 +580,9 @@ declarations, then you
 can choose your own , by redefining the \verb+\cal+ and \verb+\sc+
 macros, using \verb+\renewcommand+, the macro redefinition operator of
 \LaTeX{}. The key point is that you need not worry with \hevea{}
-internals.
+internals~: just redefine the old-\LaTeX{} style text-style
+declarations (i.e. \verb+\it+, \verb+\sc+, etc.) and everything should
+get fine~:
 \begin{verbatim}
 \renewcommand{\sc}{\Huge}
 \renewcommand{\cal}{\em}
@@ -590,7 +592,7 @@ changes while leaving your file processable by \LaTeX{}).
 
 \begin{htmlonly}
 With such redefinitions, we get:
-\renewcommand{\sc}{\Huge}
+\renewcommand{\sc}{\blue}
 \renewcommand{\cal}{\em}
 \begin{htmlout}
 This is \textsc{small caps} and this is $\cal CALLIGRAPHIC LETTERS$
@@ -1188,7 +1190,7 @@ are automatically echoed to the image file. This enables using
 document-specific commands in \textit{text} above.
 
 
-Output to the image files builds up a current page, which is flushed
+Output to the image file builds up a current page, which is flushed
 by the \verb+\imageflush+ command.
 This command has the following effect:  it outputs a strict page break
 in the \filename{image} file, increments the image counter and
@@ -1472,8 +1474,8 @@ The name of the root  file can be changed using the
 
 \subsection{Advanced usage}
 
-\hacha{} behavior can be altered by using
-a counter and a few macros, directly in the document source.
+\hacha{} behavior can be altered from the document source, by using
+a counter and a few macros.
 
 A document that explicitly includes cutting macros still can be typeset by
 \LaTeX{}, provided it loads the
@@ -1525,9 +1527,9 @@ in the table of contents.
 \end{description}
 
 Other cutting instructions are to be used after
-\verb+\begin{document}+. They all generate comments in \hevea{}
+\verb+\begin{document}+. They all generate \html{} comments in \hevea{}
 output.
-These comments act as instructions to {\hacha}.
+These comments then act as instructions to {\hacha}.
 
 \begin{description}
 \item[{\tt\char92 cuthere\{}{\it secname}{\tt\}\{}{\it itemtitle}{\tt\}}]
@@ -1734,7 +1736,8 @@ not echoed.  Spaces after invisible commands with arguments are not
 echoed either.
 
 
-See also section~\ref{spacemathref} on spaces in math mode.
+However this is no longer true in math mode, see
+section~\ref{spacemathref} on spaces in math mode.
 
 
 \subsection{Paragraphs}
@@ -1783,13 +1786,6 @@ However, it is more simple to write the document using iso-latin1.
 \LaTeX{} can process such documents by loading the package
 \texttt{isolatin1}.
 
-Browsers may fail to display non-ascii characters in at least two
-manners.
-\begin{itemize}
-\item The first and more frequent case regards characters from the symbol
-fonts.
-\end{itemize}
-
 \section{Sectioning}
 
 \subsection{Sectioning commands}
@@ -1805,10 +1801,6 @@ does not exist.  However, given a sectional unit {\it secname}, the
 counter {\it secname} exists and the appearance of sectional units
 numbers can be changed by redefining \verb+\the+{\it secname}.
 
-Sectioning commands output \html{} comments targeted to \hacha, for
-cutting the document at various sectional units, see
-section~\ref{hacha} for details.
-
 
 \subsection{The Appendix}
 The \verb+\appendix+ command exists and should work as in \LaTeX.
@@ -1820,7 +1812,7 @@ related commands such as \verb+\tableofcontents+ or
 
 However, a later run of {\hacha} on \hevea{} output file splits it
 in smaller files organized in a tree whose nodes are tables of
-contents.
+links.
 By contrast with \LaTeX{}, starred sectioning commands generate
 entries in these tables of contents.
 Table of content entries hold the optional argument to sectioning
@@ -1838,15 +1830,15 @@ Both \LaTeXe{} \verb+\documentclass+ and old \LaTeX{}
 Their argument \filename{style} is interpreted by attempting to load a
 \filename{style}\texttt{.sty} file (see~\ref{files} to see where \hevea{}
 searches its files).
-Presently, only the style files \texttt{article.sty},
+Presently, only the style files \texttt{article.sty}, \texttt{seminar.sty},
 \texttt{book.sty} and \texttt{report.sty} exist, the latter two
 being the same file.
 
-If one of the three styles has already been loaded at the time when
+If one of the four styles has already been loaded at the time when
 \verb+\documentclass+ or
 \verb+\documentstyle+ is executed, then no attempt to load a style
 file is made. This allows to override the document style file by
-giving one of the three style files of \hevea{} as command line arguments.
+giving one of the four recognized style files of \hevea{} as command line arguments.
 
 \subsection{Packages and Page Styles}
 They are ignored. Related commands do nothing.
@@ -2177,6 +2169,11 @@ figure related counters (such as \verb+topnumber+) exist but are useless.
 
 Marginal notes are not handled and the \verb+\marginpar+ command does
 not exist.
+If their document holds \verb+\marginpar+ command, users should define
+it as a null command~:
+\begin{verbatim}
+\newcommand{\marginpar}[1]{}
+\end{verbatim}
 
 \section{Lining It Up in Columns}
 \subsection{The \protect\texttt{tabbing} Environment}
@@ -2193,7 +2190,7 @@ environments}
 
 These environments are partially supported, using \html{}
 \verb+<TABLE>+, however rendering is
-satisfactory in simple cases.
+satisfactory in most (simple) cases.
 Arrays can nest. By contrast with \LaTeX{}, arrays implicitly open
 display mode and array items are typeset in display mode.
 
@@ -2209,7 +2206,7 @@ Some \LaTeX{} array features are not supported at all:
 Some others are partly rendered:
 \begin{itemize}
 \item Spacing between columns is different. In particular, some space
-appears around \verb+@+ formatting specification.
+appears around \verb+@+~formatting specification.
 \item \verb+@+ formatting specifications in \verb+\multicolumn+
 argument are ignored.
 \item The \verb+p{+{\it wd}\verb+}+ column specification is equivalent
@@ -2385,7 +2382,7 @@ The advisory line breaking commands \verb+\linebreak+ and
 
 The \verb+\\+ and \verb+\\*+ commands output a \verb+<BR>+ element,
 except inside arrays where the close the current row.
-Their option argument is ignored.
+Their optional argument is ignored.
 The \verb+\newline+ command outputs a \verb+<BR>+ element.
 
 All other line breaking commands, declarations or environments are
@@ -2516,7 +2513,7 @@ the image to appear in \html{} output:
 \end{verbatim}
 This will result in normal processing by \LaTeX{} and image inclusion
 by \hevea~:
-\begin{center}
+
 %BEGIN IMAGE
 \newcounter{cms}
 \setlength{\unitlength}{1mm}
@@ -2532,7 +2529,7 @@ by \hevea~:
 \end{picture}
 %END IMAGE
 %HEVEA\imageflush
-\end{center}
+
 
 \subsection{The \texttt{color} Package}\label{color}
 \newcommand{\showcolor}[1]{\texttt{#1}}
@@ -2679,7 +2676,7 @@ file whose name is given as argument inside a \texttt{verbatim} environment.
 
 The \texttt{hevea} command interprets its arguments as the names of
 \LaTeX{} source
-files and attempt to process them.
+files and attempts to process them.
 If an argument \textit{filename} does not have an extension,
 then a first attempt is made to open \textit{filename};
 in case of failure, another attempt to open
@@ -2689,8 +2686,8 @@ searched along \texttt{hevea} search path.
 \texttt{hevea} search path consist in the current, directory ``\texttt{.}'',
 followed by directories specified by the user with the \texttt{-I}
 option, and by \texttt{hevea} library directory
-(normally \texttt{/usr/local/lib/hevea}).
-\texttt{Hevea} library directory compile-time value can be overridden by setting
+(normally \texttt{/usr/local/lib/hevea}). However,
+\texttt{hevea} library directory compile-time value can be overridden by setting
 the \texttt{HEVEADIR} shell environment variable.
 
 If the last argument has extension \texttt{.tex}, that is, if
@@ -2699,9 +2696,12 @@ the input base name and output normally goes into file
 \textit{name}\texttt{.html}.
 Otherwise, there is no input base name, the standard input is read and
 output normally goes to the standard output.
+Please note that this operating mode is just for translating a few
+constructs, the normal way to translate \textit{file}\verb+.tex+ being
+``\verb+hevea+ \textit{file}\verb+.tex+'' and not
+``\verb+hevea <+ \textit{file}\verb+.tex+''
 
-
-The \texttt{article.sty}, \texttt{book.sty} and \texttt{report.sty}
+The \texttt{article.sty}, \texttt{seminar.sty}, \texttt{book.sty} and \texttt{report.sty}
 base style files from \hevea{} library are special.
 Only the first base style file is loaded and the
 \verb+\documentclass+ command has no effect when a base style file is
@@ -2734,8 +2734,10 @@ This has three consequences:
 \item[{\tt -nosymb}] Avoid symbol font.
 In this mode, symbols are replaced by text-only equivalents. By
 default, these equivalent are in English.
-\item[{\tt -noiso}] Avoid (iso-latin1) chararacters whose code is above 127.
-These characters are replaced by \html{} entities.
+\item[{\tt -noiso}] Do not output (iso-latin1) chararacters whose code is above 127.
+These characters are replaced by \html{} entities. This option is
+mostly useful for generating \html{} that will be displayed properly
+by \emph{Netscape Communicator} on a Macintosh.
 \item[{\tt -I} {\it dirname}] Add {\it dirname} to the search path.
 \item[{\tt -o} {\it filename}] Make \texttt{hevea} output go into file {\it
 filename}. By default, \texttt{hevea} output goes into
@@ -2803,22 +2805,28 @@ not is
 comparing figure~\ref{xfd} and the web page located at
 \localurl{symbol.html}.
 
-By default, browsers do not show symbol fonts as intended by \hevea{}.
-For Netscape on an Unix system, the following procedure instructs the
-browser to do so:
+\emph{Microsoft Explorer} displays the symbol font by default.
+
+By default,  \emph{Netscape Communicator} does not display symbol fonts
+as intended by \hevea{}.
+On an Unix system, the following procedure instructs the
+\emph{Netscape Communicator} to do so:
 \begin{itemize}
 \item Add the following line to your \texttt{.Xdefaults} file:
 \begin{verbatim}
 Netscape*documentFonts.charset*adobe-fontspecific:   iso-8859-1
 \end{verbatim}
 \item Issue a \verb+xrdb .Xdefaults+ command.
-\item Restart Netscape.
+\item Restart \emph{Netscape}.
 \end{itemize}
 
-For Netscape on a Macintosh,
+On a Macintosh,
 choose  {\bf Western (Mac Roman)} in the item {\bf Document~Encoding}
 from the {\em Preferences} menu. This will work only if the document
-does not contain iso-latin1 characters above 127\ldots
+does not contain iso-latin1 characters above 127. That is, this will
+work only with documents that are generated by \hevea{} with the
+\texttt{-noiso} option enabled (see section~\ref{heveausage}).
+
 
 More details on browser configuration can be found at
 \oneurl{http://www.tex2html.com/unix/}.

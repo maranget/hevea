@@ -31,6 +31,15 @@
 \newcommand{\html}{HTML}
 \newif\ifhevea
 \heveatrue
+%%% HTML related stuff (TEX equivalents are in the html.sty file)
+\def\@url#1#2{{\@nostyle\@print{<A HREF="}#1\@print{">}}{#2}{\@nostyle\@print{</A>}}}
+\def\url#1#2{\@url{#1}{#2}}
+\def\footurl#1#2{\url{#1}{#2}}
+\def\home#1{\char126#1}
+\def\oneurl#1{\url{#1}{#1}}
+\newcommand{\docurl}{http://para.inria.fr/\home{maranget}/hevea}
+%%%% HTML constructs (no equivalents in html.sty)
+\newcommand{\imgsrc}[1]{\@print{<IMG SRC="}{\@nostyle#1}\@print{">}}
 %% Paragraphs
 \def\noindent{}
 \def\indent{}
@@ -367,12 +376,6 @@
 \textfbox{#1}\fi}
 \newcommand{\hbox}[1]{\warning{\hbox}\mbox{#1}}
 \newcommand{\displaystyle}{\ifdisplay\else\warning{\displaystyle ignored}\fi}
-%%% not so serious
-\def\url#1#2{{\@nostyle\@print{<A HREF="}#1\@print{">}}{#2}{\@nostyle\@print{</A>}}}
-\def\footurl#1#2{\url{#1}{#2}}
-\def\home#1{\char126#1}
-\def\oneurl#1{\url{#1}{#1}}
-\newcommand{\docurl}{http://para.inria.fr/\home{maranget}/hevea}
 \newcommand{\mailto}[1]{\url{mailto:#1}{#1}}
 %%% now serious
 \def\noprint#1{{\@nostyle\@print{#1}}}%
