@@ -327,7 +327,8 @@
 \newcommand{\llcorner}{\@print{&#8990;}}
 \newcommand{\lrcorner}{\@print{&#8991;}}
 %
-\ifgoodbrowser
-\let\mathbb\@mathbb
-\let\mathfrak\@mathfrak
-\else\fi
+%\ifgoodbrowser
+%\let\mathbb\@mathbb
+%\let\mathfrak\@mathfrak
+%\fi
+

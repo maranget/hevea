@@ -264,17 +264,19 @@
 %% Additional
 %
 \newcommand{\dag}{\@print{&#8224;}}
-%
-\newcommand{\mathit}[1]{\@open{I}{}#1\@close{I}}
-\let\mathrm\@mathrm%
-\let\mathtt\@mathtt%
-\ifgoodbrowser
-\let\mathcal\@mathcal%
-\let\mathsf\@mathsf%
-\let\mathbf\@mathbf%
-\fi
+
+%\newcommand{\mathit}[1]{\@open{I}{}#1\@close{I}}
+%\let\mathrm\@mathrm%
+%\let\mathtt\@mathtt%
+%\ifgoodbrowser
+%\let\mathcal\@mathcal%
+%\let\mathsf\@mathsf%
+%\let\mathbf\@mathbf%
+%\fi
+
 %
 %% Definition for big left and right brackets
+>>>>>>> 1.21
 %
 \def\bigl#1{\ifdisplay{\large #1}\else{\large #1}\fi}
 \def\bigr#1{\ifdisplay{\large #1}\else{\large #1}\fi}

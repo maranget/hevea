@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: symb.ml,v 1.21 2004-05-04 08:15:47 maranget Exp $" 
+let header = "$Id: symb.ml,v 1.22 2004-07-22 13:02:05 maranget Exp $" 
 open Parse_opts
 
 let tr = function
@@ -43,7 +43,7 @@ let put_delim skip put d n =
   if not !symbols || n=1 then
     let d = tr d in
     do_bis d n
-  else if false && !entities then begin
+  else if !entities then begin
     if d = "(" then begin
       put_skip "&#9115;" ;
       do_rec "&#9116;" (n-2) ;

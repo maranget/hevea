@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.62 2004-07-14 02:46:22 thakur Exp $    *)
+(*  $Id: package.ml,v 1.63 2004-07-22 13:02:05 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -680,8 +680,7 @@ def_code "\\@mathbb"
 
 def_code "\\@mathfrak"
   (fun lexbuf -> 
-    let arg1 = save_arg lexbuf in
-    let str = arg1.arg in
+    let str = subst_arg lexbuf in
     let str_list = get_elements str in
     let format x = Scan.get_this_main ("\\"^"one@mathfrak{"^x^"}") in
     let formatted_list = List.map format str_list in
@@ -692,8 +691,7 @@ def_code "\\@mathfrak"
 
 def_code "\\@mathsf"
   (fun lexbuf -> 
-    let arg1 = save_arg lexbuf in
-    let str = arg1.arg in
+    let str = subst_arg lexbuf in
     let str_list = get_elements str in
     let format x = Scan.get_this_main ("\\"^"one@mathsf{"^x^"}") in
     let formatted_list = List.map format str_list in
@@ -704,8 +702,7 @@ def_code "\\@mathsf"
 
 def_code "\\@mathbf"
   (fun lexbuf -> 
-    let arg1 = save_arg lexbuf in
-    let str = arg1.arg in
+    let str = subst_arg lexbuf in
     (*let str_list = get_elements str in
     let format x = Scan.get_this_main ("\\"^"one@mathbf{"^x^"}") in
     let formatted_list = List.map format str_list in
