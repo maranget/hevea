@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.20 1999-06-03 13:13:34 maranget Exp $"
+let header = "$Id: text.ml,v 1.21 1999-06-04 14:19:56 tessaud Exp $"
 
 
 open Misc
@@ -106,10 +106,8 @@ let iso c =
 ;;
 
 
-exception Close of string
-;;
 
-let failclose s = raise (Close s)
+let failclose s = raise (Misc.Close s)
 ;;
 
 
@@ -705,6 +703,10 @@ let insert_block tag arg =
 
 (* Displays *)
 
+let open_maths () = ()
+and close_maths () = ()
+;;
+
 let open_display args = ()
 ;;
 
@@ -724,6 +726,15 @@ let begin_item_display f is_freeze = ()
 ;;
 
 let erase_display () = ()
+;;
+
+let open_vdisplay display = ()
+and close_vdisplay () = ()
+and open_vdisplay_row s = ()
+and close_vdisplay_row () = ()
+and standard_sup_sub scanner what sup sub display = ()
+and limit_sup_sub scanner what sup sub display = ()
+and int_sup_sub something vsize scanner what sup sub display = ()
 ;;
 
 (* Autres *)
@@ -776,8 +787,6 @@ let ditem scan arg =
 ;;
 
 
-let change_block s args = ()
-;;
 
 let erase_block s = 
   if not !cur_out.temp then close_block s
@@ -1452,6 +1461,10 @@ let close_table () =
 	  put_border ligne.(k).post ligne.(k).post_inside j;
 	end;
       done;
+      if !col< Array.length !table.tailles -1 then begin
+	let len = !table.width - (somme 0 (!col-1)) in
+	do_put ( String.make len ' ');
+      end;
     done;
   done;
 

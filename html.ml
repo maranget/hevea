@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: html.ml,v 1.55 1999-06-03 13:13:19 maranget Exp $" 
+let header = "$Id: html.ml,v 1.56 1999-06-04 14:19:40 tessaud Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -19,9 +19,12 @@ let header = "$Id: html.ml,v 1.55 1999-06-03 13:13:19 maranget Exp $"
 open Misc
 open Parse_opts
 open Latexmacros
+open HtmlCommon
+open HtmlMath
 
 exception Error of string
 ;;
+
 
 let r_quote = String.create 1
 ;;
@@ -37,7 +40,7 @@ let r_translate = String.create 1
 ;;
 
 let iso_translate = function
-| '<' -> "&lt;"
+  '<' -> "&lt;"
 | '>' -> "&gt;"
 | '&' -> "&amp;"
 | ' ' -> "&nbsp;"
@@ -136,7 +139,7 @@ let iso_translate = function
 | 'ý' -> "&yacute;"
 | 'þ' -> "&thorn;"
 | 'ÿ' -> "&yuml;"
-| c   -> quote_char c
+| c   -> (r_translate.[0] <- c ; r_translate)
 ;;
 
 let iso c =
@@ -146,6 +149,52 @@ let iso c =
     iso_translate c
 ;;
 
+
+(* Calls to other modules that are in the interface *)
+
+let freeze = freeze
+and insert_vdisplay = insert_vdisplay
+and skip_line = skip_line
+and flush_out = flush_out
+and close_group = close_group
+and open_aftergroup = open_aftergroup
+and open_group = open_group
+and erase_block = erase_block
+and int_sup_sub = int_sup_sub
+and limit_sup_sub = limit_sup_sub
+and standard_sup_sub = standard_sup_sub
+and close_vdisplay_row = close_vdisplay_row
+and open_vdisplay_row = open_vdisplay_row
+and close_vdisplay = close_vdisplay
+and open_vdisplay = open_vdisplay
+and erase_display = erase_display
+and begin_item_display = begin_item_display
+and end_item_display = end_item_display
+and force_item_display = force_item_display
+and item_display = item_display
+and close_display = close_display
+and open_display = open_display
+and close_maths = close_maths
+and open_maths = open_maths
+and insert_block = insert_block
+and force_block = force_block
+and close_block = close_block
+and close_flow = close_flow
+and open_block = open_block
+and forget_par = forget_par
+and par = par
+and close_mods = close_mods
+and open_mods = open_mods
+and erase_mods = erase_mods
+and open_mod = open_mod
+and clearstyle = clearstyle
+and nostyle = nostyle
+and get_fontsize = get_fontsize
+and put_in_math = put_in_math
+;;
+
+
+(*
 exception Close of string
 ;;
 
@@ -155,11 +204,13 @@ let failclose s = raise (Close s)
 let check_block_closed opentag closetag =
   if opentag <> closetag && not (opentag = "AFTER" && closetag = "") then
     failclose ("hml: ``"^closetag^"'' closes ``"^opentag^"''") ;
-
+*)
+(*
 type 'a ok  = No | Yes of 'a
 ;;
-
+*)
 (* Saving mods accross blocks *)
+(*
 let push s e = s := e:: !s
 and pop name s = match !s with
   [] -> raise (Misc.Fatal ("Empty stack: "^name^" in Html"))
@@ -168,16 +219,18 @@ and see_top name s = match !s with
   [] -> raise (Misc.Fatal ("Empty stack: "^name^" in Html (see)"))
 | e::_ -> e
 ;;
-
+*)
 (* output globals *)
+(*
 type status = {
   mutable nostyle : bool ;
   mutable pending : env list ;
   mutable active : env list ;
   mutable out : Out.t}
 ;;
-
+*)
 (* free list for buffers *)
+(*
 let free_list = ref []
 ;;
 
@@ -207,7 +260,8 @@ let new_status nostyle pending active = match !free_list with
 let cur_out = ref {nostyle=false ;
 pending = [] ; active = [] ; out = Out.create_null ()}
 ;;
-
+*)
+(*
 let pretty_mods mods =
   let rec do_rec = function
     [x]  -> prerr_string (Latexmacros.pretty_env x)
@@ -227,11 +281,11 @@ let pretty_cur {pending = pending ; active = active} =
   prerr_string " active = " ;
   pretty_mods active
 ;;
-
+*)
 let set_out out =  !cur_out.out <- out
 ;;
 
-
+(*
 type stack_item =
   Normal of string * string * status
 | Freeze of (unit -> unit)
@@ -255,16 +309,10 @@ let pretty_stack s =
 let rec pop_out s = match pop "out" s with
   Normal (a,b,c) -> a,b,c
 | Freeze f       -> raise PopFreeze
-(* begin
-  if !verbose > 2 then begin
-     prerr_string "unfreeze in pop_out" ;
-     pretty_stack !s
-  end ;
-  f () ; pop_out s end
-*)
 ;;
 
-
+*)
+(*
 let out_stack = ref []
 ;;
 
@@ -272,7 +320,8 @@ let pblock () = match !out_stack with
   Normal (s,_,_)::_ -> s
 | _ -> ""
 ;;
-
+*)
+(*
 let freeze f =
   push out_stack (Freeze f) ;
   if !verbose > 2 then begin
@@ -291,8 +340,8 @@ let flush_freeze () = match !out_stack with
     f () ; true
 | _ -> false
 ;;
-
-
+*)
+(*
 let do_put_char c =
  if !verbose > 3 then
     prerr_endline ("put_char: |"^String.escaped (String.make 1 c)^"|");
@@ -303,10 +352,13 @@ and do_put s =
     prerr_endline ("put: |"^String.escaped s^"|");
   Out.put !cur_out.out s
 ;;
+*)
 
 (* Flags section *)
+(*
 type flags_t = {
     mutable table_inside:bool;
+    mutable in_math : bool;
     mutable ncols:int;
     mutable empty:bool;
     mutable blank:bool;
@@ -326,6 +378,7 @@ type flags_t = {
 let flags = {
   table_inside = false;
   ncols = 0;
+  in_math = false;
   empty = true;
   blank = true;
   pending_par = None;
@@ -343,6 +396,7 @@ let flags = {
 let copy_flags {
   table_inside = table_inside;
   ncols = ncols;
+  in_math = in_math;
   empty = empty;
   blank = blank;
   pending_par = pending_par;
@@ -358,6 +412,7 @@ let copy_flags {
 } = {
   table_inside = table_inside;
   ncols = ncols;
+  in_math = in_math;
   empty = empty;
   blank = blank;
   pending_par = pending_par;
@@ -374,6 +429,7 @@ let copy_flags {
 and set_flags f {
   table_inside = table_inside ;
   ncols = ncols;
+  in_math = in_math;
   empty = empty;
   blank = blank;
   pending_par = pending_par;
@@ -389,6 +445,7 @@ and set_flags f {
 } =
   f.table_inside <- table_inside;
   f.ncols <- ncols;
+  f.in_math <- in_math;
   f.empty <- empty;
   f.blank <- blank;
   f.pending_par <- pending_par;
@@ -403,7 +460,7 @@ and set_flags f {
   f.insert <- insert
 ;;
 
-
+*)
 (* acces to flags *)
 let is_empty () = flags.empty
 and get_last_closed () = flags.last_closed
@@ -412,6 +469,10 @@ and set_last_closed s = flags.last_closed <- s
 
     
 (* Independant stacks for flags *)  
+
+let delay_stack = ref []
+;;
+(*
 let inside_stack = ref []
 and saved_inside = ref []
 ;;
@@ -439,6 +500,7 @@ let dt_stack = ref []
 and dcount_stack = ref []
 
 let ncols_stack = ref []
+and in_math_stack = ref []
 ;;
 
 let insert_stack = ref []
@@ -455,8 +517,8 @@ and prerr_inside s =
   prerr_endline ("<"^string_of_int (List.length !inside_stack)^" "^string_of_int (List.length !saved_inside)^"> "^s^
     " table_inside="^sbool flags.table_inside)
 ;;
-
-
+*)
+(*
 let is_header s =
   String.length s = 2 && String.get s 0 = 'H'
 ;;
@@ -510,7 +572,7 @@ let forget_par () =
   flags.pending_par <- None ;
   r
 ;;
-
+*)
 
 let debug m =
   Printf.fprintf stderr "%s : table_vsize=%d vsize=%d" m flags.table_vsize flags.vsize ;
@@ -518,7 +580,7 @@ let debug m =
 ;;
 
 (* styles *)
-
+(*
 let do_close_mod = function
   Style m ->  do_put ("</"^m^">")
 | (Color _ | Font _)  ->  do_put "</FONT>"
@@ -569,8 +631,8 @@ let do_open_mods () =
   !cur_out.active <- !cur_out.pending @ !cur_out.active ;
   !cur_out.pending <- []
 ;;
-
-
+*)
+(*
 let do_pending () =  
   begin match flags.pending_par with
   | Some n -> flush_par n
@@ -694,9 +756,9 @@ let rec open_mods = function
   m::rest -> open_mods rest ; open_mod m
 | []      -> ()
 ;;
-
+*)
 (* Blocks *)
-
+(*
 let pstart = function
   "H1" | "H2" | "H3" | "H4" | "H5" | "H6" -> true
 | "PRE" -> true
@@ -745,7 +807,8 @@ let rec try_open_block s args =
   if !verbose > 2 then
     prerr_flags ("<= try open ``"^s^"''")
 ;;
-
+*)
+(*
 let try_open_display () =
   push ncols_stack flags.ncols ;
   push inside_stack flags.table_inside ;
@@ -758,7 +821,8 @@ and try_close_display () =
   flags.table_inside <- pop "saved_inside, close" saved_inside || flags.table_inside ;
   flags.table_inside <- pop "inside" inside_stack || flags.table_inside
 ;;
-
+*)
+(*
 let do_do_open_block s args =
     if s = "TR" || s = "TABLE" || is_header s then
       do_put "\n";
@@ -856,15 +920,16 @@ let rec do_close_block insert s = match s with
       end
   | _ -> do_do_close_block s
 end    
-
-
+*)
+(*
 let pop_freeze () = match !out_stack with
   Freeze f::rest ->
     let _ = pop "out" out_stack in
     f,true
 | _ -> (fun () -> ()),false
 ;;
-
+*)
+(*
 let check_empty () = flags.empty
 and make_empty () =
   flags.empty <- true ; flags.blank <- true ;
@@ -909,7 +974,7 @@ let rec force_block s content =
       Out.copy old_out.out !cur_out.out ;
     free old_out ;    
     !cur_out.pending <- mods
-  end else begin (* ps = "DELAY" *)
+  end else begin 
     raise (Misc.Fatal ("html: unflushed DELAY"))
   end ;
   if not was_empty && true_s <> "" && true_s <> "AFTER" then
@@ -928,7 +993,8 @@ and close_block_loc pred s =
     force_block "FORGET" "";
     false
   end
-
+*)
+(*
 and close_flow_loc s =
   if !verbose > 2 then
     prerr_endline ("close_flow_loc: "^s) ;
@@ -949,7 +1015,8 @@ and close_flow s =
   let _ = close_flow_loc s in
   if !verbose > 2 then
     prerr_flags ("<= close_flow ``"^s^"''")
-
+*)
+(*
 and open_block s args =
  if !verbose > 2 then begin
    prerr_flags ("=> open_block ``"^s^"''");
@@ -971,7 +1038,8 @@ and open_block s args =
 
 let insert_block tag arg =
   flags.insert <- Some (tag,arg)
-
+*)
+(*
 let get_block s args =
   if !verbose > 2 then begin
     prerr_flags "=> get_block";
@@ -1000,19 +1068,20 @@ let get_block s args =
     prerr_flags "<= get_block"
   end ;
   r
-
+*)
+(*
 let force_flow s content =
   let active = !cur_out.active and pending = !cur_out.pending in
   force_block s content ;
   !cur_out.pending <-  active @ pending
 ;;
-
-
+*)
+(*
 let close_block  s =
   let _ = close_block_loc check_empty s in
   ()
 ;;
-
+*)
 (* delaying output .... *)
 
 let delay f =
@@ -1048,6 +1117,7 @@ let flush x =
     prerr_flags "<= flush"
 ;;
 
+(*
 let erase_block s =
   if !verbose > 2 then begin
     Printf.fprintf stderr "erase_block: %s" s;
@@ -1077,10 +1147,22 @@ and open_aftergroup f =
 and close_group () = close_block ""
 ;;
 
-
+*)
 (*----------*)
 (* DISPLAYS *)
 (*----------*)
+
+(*
+let open_maths () =
+  push in_math_stack flags.in_math;
+  flags.in_math <- true;
+  if !Parse_opts.mathml then open_block "math" ""
+;;
+
+let close_maths () =
+  flags.in_math <- pop "in_math" in_math_stack;
+  if !Parse_opts.mathml then close_block "math"
+;;
 
 
 let begin_item_display f is_freeze =
@@ -1088,7 +1170,10 @@ let begin_item_display f is_freeze =
     Printf.fprintf stderr "begin_item_display: ncols=%d empty=%s" flags.ncols (sbool flags.empty) ;
     prerr_newline ()
   end ;
-  open_block "TD" "nowrap";
+  if !Parse_opts.mathml then 
+    open_block "mrow" ""
+  else
+    open_block "TD" "nowrap";
   open_block "" "" ;
   if is_freeze then push out_stack (Freeze f) ;
 
@@ -1096,8 +1181,13 @@ let begin_item_display f is_freeze =
 and end_item_display () =
   let f,is_freeze = pop_freeze () in
   let _ = close_flow_loc "" in
-  if close_flow_loc "TD" then
-    flags.ncols <- flags.ncols + 1;
+  if !Parse_opts.mathml then begin
+    if close_flow_loc "mrow" then
+      flags.ncols <- flags.ncols + 1;
+  end else begin
+    if close_flow_loc "TD" then
+      flags.ncols <- flags.ncols + 1;
+  end;
   if !verbose > 2 then begin
     Printf.fprintf stderr "end_item_display: ncols=%d stck: " flags.ncols;
     pretty_stack !out_stack
@@ -1110,8 +1200,12 @@ let open_display args =
     Printf.fprintf stderr "open_display: %s -> " args
   end ;
   try_open_display () ;
-  open_block "DISPLAY" args ;
-  open_block "TD" "NOWRAP" ;
+  if !Parse_opts.mathml then begin
+    open_block "mrow" "";
+  end else begin
+    open_block "DISPLAY" args ;
+    open_block "TD" "NOWRAP" ;
+  end;
   open_block "" "" ;
   if !verbose > 2 then begin
     pretty_cur !cur_out ;
@@ -1134,21 +1228,34 @@ let close_display () =
       end;
       let active = !cur_out.active and pending = !cur_out.pending in
       do_close_mods () ;
-      let ps,_,pout = pop_out out_stack in
-      if ps <> "TD" then
-        failclose ("close_display: "^ps^" closes TD") ;
-      do_close_mods () ;
-      try_close_block "TD" ;
-      let ps,_,ppout = pop_out out_stack in
-      if ps <> "DISPLAY" then
-        failclose ("close_display: "^ps^" closes DISPLAY") ;
-      try_close_block "DISPLAY" ;
-      let old_out = !cur_out in
-      cur_out := ppout ;
-      do_close_mods () ;
-      Out.copy old_out.out !cur_out.out ;
-      flags.empty <- false ; flags.blank <- false ;
-      free old_out ; free pout ;
+      if !Parse_opts.mathml then begin
+	let ps,_,ppout = pop_out out_stack in
+	if ps <> "mrow" then
+	  failclose ("close_display: "^ps^" closes mrow");
+	try_close_block "mrow";
+	let old_out = !cur_out in
+	cur_out := ppout ;
+	do_close_mods () ;
+	Out.copy old_out.out !cur_out.out ;
+	flags.empty <- false ; flags.blank <- false ;
+	free old_out ;
+      end else begin
+	let ps,_,pout = pop_out out_stack in
+	if ps <> "TD" then
+          failclose ("close_display: "^ps^" closes TD") ;
+	do_close_mods () ;
+	try_close_block "TD" ;
+	let ps,_,ppout = pop_out out_stack in
+	if ps <> "DISPLAY" then
+          failclose ("close_display: "^ps^" closes DISPLAY") ;
+	try_close_block "DISPLAY" ;
+	let old_out = !cur_out in
+	cur_out := ppout ;
+	do_close_mods () ;
+	Out.copy old_out.out !cur_out.out ;
+	flags.empty <- false ; flags.blank <- false ;
+	free old_out ; free pout ;     
+      end;
       !cur_out.pending <- active @ pending
     end else if (n=1 && flags.blank) then begin
       if !verbose > 2 then begin
@@ -1156,12 +1263,18 @@ let close_display () =
         (Out.debug stderr !cur_out.out);
         prerr_endline "" ;
       end;
-      close_flow "FORGET" ;
+      if not !Parse_opts.mathml then close_flow "FORGET" ;
       let active = !cur_out.active and pending = !cur_out.pending in
       let ps,_,pout = pop_out out_stack in
-      if ps <> "DISPLAY" then
-        failclose ("close_display: "^ps^" closes DISPLAY") ;
-      try_close_block "DISPLAY" ;
+      if !Parse_opts.mathml then begin
+	if ps<> "mrow" then
+	  failclose ("close_display: "^ps^" closes mrow");
+	try_close_block "mrow";
+      end else begin
+	if ps <> "DISPLAY" then
+          failclose ("close_display: "^ps^" closes DISPLAY") ;
+	try_close_block "DISPLAY" ;
+      end;
       let old_out = !cur_out in
       cur_out := pout ;
       do_close_mods () ;
@@ -1176,10 +1289,14 @@ let close_display () =
         prerr_endline ""
       end;
       flags.empty <- flags.blank ;
-      close_flow "TD" ;
-      close_flow "DISPLAY"
+      if !Parse_opts.mathml then
+	close_flow "mrow"
+      else begin
+	close_flow "TD" ;
+	close_flow "DISPLAY"
+      end;
     end ;
-  try_close_display ()
+    try_close_display ()
   end ;
   if !verbose > 2 then
     prerr_flags ("<= close_display")
@@ -1190,49 +1307,54 @@ let do_item_display force =
   if !verbose > 2 then begin
     prerr_endline ("Item Display ncols="^string_of_int flags.ncols^" table_inside="^sbool flags.table_inside)
   end ;
-  let f,is_freeze = pop_freeze () in
-  if (force && not flags.empty) || flags.table_inside then begin
-    push saved_inside (pop "saved_inside, item" saved_inside || flags.table_inside) ;
-    flags.table_inside <- false ;
-    let active  = !cur_out.active
-    and pending = !cur_out.pending in
-    flags.ncols <- flags.ncols + 1 ;
-    let save = get_block "TD" "NOWRAP" in
-    if !verbose > 2 then begin
-      Out.debug stderr !cur_out.out ;
-      prerr_endline "To be copied"
-    end;
-    if close_flow_loc "TD" then flags.ncols <- flags.ncols + 1; 
-    if !verbose > 2 then begin
-      Out.debug stderr !cur_out.out ;
-      prerr_endline "Was copied"
-    end;
-    Out.copy save.out !cur_out.out ;
-    flags.empty <- false ; flags.blank <- false ;
-    free save ;
-    !cur_out.pending <- active @ pending ;
-    !cur_out.active <- [] ;
-    if !verbose > 2 then begin
-      Out.debug stderr !cur_out.out ;
-      prerr_endline ("Some Item")
-    end;
+  if not !Parse_opts.mathml then begin
+    let f,is_freeze = pop_freeze () in
+    if (force && not flags.empty) || flags.table_inside then begin
+      push saved_inside (pop "saved_inside, item" saved_inside || flags.table_inside) ;
+      flags.table_inside <- false ;
+      let active  = !cur_out.active
+      and pending = !cur_out.pending in
+      flags.ncols <- flags.ncols + 1 ;
+      let save = get_block "TD" "NOWRAP" in
+      if !verbose > 2 then begin
+	Out.debug stderr !cur_out.out ;
+	prerr_endline "To be copied"
+      end;
+      if close_flow_loc "TD" then flags.ncols <- flags.ncols + 1; 
+      if !verbose > 2 then begin
+	Out.debug stderr !cur_out.out ;
+	prerr_endline "Was copied"
+      end;
+      Out.copy save.out !cur_out.out ;
+      flags.empty <- false ; flags.blank <- false ;
+      free save ;
+      !cur_out.pending <- active @ pending ;
+      !cur_out.active <- [] ;
+      if !verbose > 2 then begin
+	Out.debug stderr !cur_out.out ;
+	prerr_endline ("Some Item")
+      end;
     open_block "TD" "nowrap" ;
-    open_block "" ""
+      open_block "" ""
+    end else begin
+      if !verbose > 2 then begin
+	Out.debug stderr !cur_out.out ;
+	prerr_endline "No Item" ;
+	prerr_endline ("flags: empty="^sbool flags.empty^" blank="^sbool flags.blank)
+      end;
+      close_flow "" ;
+      if !verbose > 2 then begin
+	Out.debug stderr !cur_out.out ;
+	prerr_endline "No Item" ;
+	prerr_endline ("flags: empty="^sbool flags.empty^" blank="^sbool flags.blank)
+      end;
+      open_block "" ""
+    end ;
+    if is_freeze then push out_stack (Freeze f) ;
   end else begin
-    if !verbose > 2 then begin
-      Out.debug stderr !cur_out.out ;
-      prerr_endline "No Item" ;
-      prerr_endline ("flags: empty="^sbool flags.empty^" blank="^sbool flags.blank)
-    end;
-    close_flow "" ;
-    if !verbose > 2 then begin
-      Out.debug stderr !cur_out.out ;
-      prerr_endline "No Item" ;
-      prerr_endline ("flags: empty="^sbool flags.empty^" blank="^sbool flags.blank)
-    end;
-    open_block "" ""
-  end ;
-  if is_freeze then push out_stack (Freeze f) ;
+     if (force && not flags.empty) || flags.table_inside then
+       flags.ncols <- flags.ncols + 1 ;
+  end;
   if !verbose > 2 then begin
     prerr_string ("out item_display -> ncols="^string_of_int flags.ncols) ;
     pretty_stack !out_stack
@@ -1247,22 +1369,258 @@ and force_item_display () = do_item_display true
 
 let erase_display () =
   erase_block "" ;
-  erase_block "TD" ;
-  erase_block "DISPLAY" ;
+  if !Parse_opts.mathml then
+    erase_block "mrow"
+  else begin
+    erase_block "TD" ;
+    erase_block "DISPLAY" ;
+  end;
   try_close_display ()
+;;
+*)
+
+(* vertical display *)
+(*
+let display_arg  verbose =
+  if verbose > 0 then
+    "BORDER=1 CELLSPACING=0 CELLPADDING=0"
+  else
+    "CELLSPACING=0 CELLPADDING=0"
+;;
+
+let open_vdisplay display =  
+  if !verbose > 1 then
+    prerr_endline "open_vdisplay";
+  if not display then
+    raise (Misc.Fatal ("VDISPLAY in non-display mode"));
+  open_block "TABLE" (display_arg !verbose)
+
+and close_vdisplay () =
+  if !verbose > 1 then
+    prerr_endline "close_vdisplay";
+  close_block "TABLE"
+
+and open_vdisplay_row s =
+  if !verbose > 1 then
+    prerr_endline "open_vdisplay_row";
+  open_block "TR" "" ;
+  open_block "TD" s ;
+  open_display (display_arg !verbose)
+
+and close_vdisplay_row () =
+  if !verbose > 1 then
+    prerr_endline "close_vdisplay_row";
+  close_display () ;
+  force_block "TD" "&nbsp;" ;
+  close_block "TR"
+;;
+*)
+
+(* Sup/Sub stuff *)
+(*
+type ital = Ital | NoItal | Complex | Mixed
+;;
+
+let check_char = function
+  '{' | '}' | '$' | '^' | '_' | '\\' -> Complex
+| c ->
+   if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) then
+     Ital
+   else NoItal
+;;
+
+exception Over
+;;
+
+let check_ital s =
+  let rec check_rec = function
+    -1 -> raise (Misc.Fatal "Empty string in check_rec")
+  | 0  -> check_char (String.get s 0)
+  | i  ->
+     let t = check_char (String.get s i)
+     and tt = check_rec (i-1) in
+     match t,tt with
+       Ital,Ital -> Ital
+     | NoItal,NoItal -> NoItal
+     | Ital,NoItal   -> Mixed
+     | NoItal,Ital   -> Mixed
+     | Complex,_ -> raise Over
+     | _,Complex -> raise Over
+     | _,Mixed   -> Mixed
+     | Mixed,_   -> Mixed in
+
+  match s with "" -> NoItal
+  | _ ->
+     try check_rec (String.length s-1) with Over -> Complex
 ;;
 
 
+
+let get_script_font () =
+  let n = get_fontsize () in
+  if n >= 3 then n-1 else n
+;;
+
+let open_script_font () =
+  open_mod (Font (get_script_font ()))
+;;
+
+
+let complex s = match check_ital s with
+  Complex -> true
+| _       -> false
+;;
+
+let put_sup_sub tag scanner = function
+  "" -> ()
+| s  ->
+    open_group tag ;
+    open_script_font () ;
+    scanner s;
+    close_group ()
+;;
+
+
+
+let standard_sup_sub scanner what sup sub display =
+  if display && (complex sup || complex sub) then begin
+    force_item_display () ;
+    open_vdisplay display ;
+    if sup <> "" then begin
+      open_vdisplay_row "NOWRAP" ;
+      open_script_font () ;
+      scanner sup ;
+      close_vdisplay_row ()
+    end ;           
+    open_vdisplay_row "" ;
+    what ();
+    close_vdisplay_row () ;
+    if sub <> "" then begin
+      open_vdisplay_row "NOWRAP" ;
+      open_script_font () ;
+      scanner sub ;
+      close_vdisplay_row ()
+    end ;
+      close_vdisplay () ;
+      force_item_display ()
+  end else begin
+     what ();
+     put_sup_sub "SUB" scanner sub ;
+     put_sup_sub "SUP" scanner sup
+  end
+;;
+
+
+let limit_sup_sub scanner what sup sub display =
+  if !Parse_opts.mathml then begin
+    match sub,sup with
+    | "","" -> what ()
+    | a,b ->
+	open_block "munderover" "";
+	do_put_char '\n';
+	open_display "";
+	what ();
+	close_display ();
+	open_display "";
+	scanner a;
+	close_display ();
+	open_display "";
+	scanner b;
+	close_display ();
+	close_block "munderover";
+  end else begin
+    if sup = "" && sub = "" then
+      what ()
+    else begin
+      force_item_display () ;
+      open_vdisplay display ;
+      open_vdisplay_row "ALIGN=center" ;
+      open_script_font () ;
+      scanner sup ;
+      close_vdisplay_row () ;
+      open_vdisplay_row "ALIGN=center" ;
+      what () ;
+      close_vdisplay_row () ;
+      open_vdisplay_row "ALIGN=center" ;
+      open_script_font () ;
+      scanner sub ;
+      close_vdisplay_row () ;
+      close_vdisplay () ;
+      force_item_display ()
+    end
+  end
+;;
+
+let int_sup_sub something vsize scanner what sup sub display =
+  if !Parse_opts.mathml then begin
+    match sub,sup,something with
+    | "","",true -> what ()
+    | "","",false -> ()
+    | a,b,true -> 
+	open_block "msubsup" "";
+	what ();
+	scanner a;
+	scanner b;
+	close_block "msubsup";
+    | a,b,false ->
+	open_block "msubsup" "";
+	Html.put "&nbsp";
+	scanner a;
+	scanner b;
+	close_block "msubsup";
+  end else begin
+    if something then begin
+      force_item_display () ;
+      what () ;
+      force_item_display ()
+    end ;
+    if sup <> "" || sub <> "" then begin
+      open_vdisplay display ;
+      open_vdisplay_row "ALIGN=left NOWRAP" ;
+      open_script_font () ;
+      scanner sup ;
+      close_vdisplay_row () ;
+      open_vdisplay_row "ALIGN=left" ;
+      for i = 2 to vsize do
+	Html.skip_line ()
+      done ;
+      close_vdisplay_row () ;
+      open_vdisplay_row "ALIGN=left NOWRAP" ;
+      open_script_font () ;
+      scanner sub ;
+      close_vdisplay_row () ;
+      close_vdisplay () ;
+      force_item_display ()
+    end
+  end
+;;
+
+*)
+(*
 let change_block s args =
   erase_block s ;
   open_block s args
 ;;
-
+*)
 
 (* output requests  *)
+(*
 let is_blank = function
    ' ' | '\n' -> true
 | _ -> false
+;;
+
+let is_digit = function
+    '1'|'2'|'3'|'4'|'5'|'6'|'7'|'8'|'9'|'0'|'.'|',' -> true
+  | _ -> false
+;;
+
+let is_number s =
+  let r = ref true in
+  for i = 0 to String.length s -1 do
+    r := !r && is_digit s.[i]
+  done;
+  !r
 ;;
 
 let put s =
@@ -1276,7 +1634,12 @@ let put s =
   do_pending () ;
   flags.empty <- false;
   flags.blank <- s_blank && flags.blank ;
-  do_put s ;
+  if flags.in_math && !Parse_opts.mathml then begin
+    if is_number s then do_put ("<mn> "^s^" </mn>\n")
+    else do_put ("<mo> "^s^" </mo>\n");
+    flags.ncols <- flags.ncols +1;
+  end else
+    do_put s ;
   if s_blank then flags.last_closed <- save_last_closed
 ;;
 
@@ -1286,10 +1649,16 @@ let put_char c =
   do_pending () ;
   flags.empty <- false;
   flags.blank <- c_blank && flags.blank ;
-  do_put_char c ;
+  if flags.in_math && !Parse_opts.mathml then begin
+    prerr_endline ("caractere "^String.make 1 c);
+    if is_digit c then do_put ("<mn> "^String.make 1 c^" </mn>\n")
+	else do_put ("<mo> "^String.make 1 c^" </mo>\n");
+    flags.ncols <- flags.ncols +1;
+  end else do_put_char c ;
   if c_blank then flags.last_closed <- save_last_closed
 ;;
-
+*)
+(*
 let flush_out () = 
   Out.flush !cur_out.out
 ;;
@@ -1297,6 +1666,17 @@ let flush_out () =
 let skip_line () =
   flags.vsize <- flags.vsize + 1 ;
   put "<BR>"
+;;
+*)
+
+let put s = 
+  if flags.in_math then HtmlMath.put s
+  else HtmlCommon.put s
+;;
+
+let put_char c =
+  if flags.in_math then HtmlMath.put_char c
+  else HtmlCommon.put_char c
 ;;
 
 let set_dt s = flags.dt <- s
@@ -1379,7 +1759,7 @@ let loc_name s1 s2 =
   par pval
 ;;
 
-
+(*
 let insert_vdisplay open_fun =
   if !verbose > 2 then begin
     prerr_flags "=> insert_vdisplay" ;
@@ -1416,7 +1796,7 @@ let insert_vdisplay open_fun =
   with PopFreeze ->
     raise (Error "\\over should be properly parenthesized")
 ;;
-
+*)
   
 (* freeze everyting and change output file *)
 
@@ -1522,16 +1902,25 @@ let put_close_group () =
   put_char '}'
 ;;
 
+(*
 let put_in_math s =
   if flags.in_pre && !pedantic then
     put s
   else begin
-    put "<I>";
-    put s;
-    put "</I>"
+    if !Parse_opts.mathml then begin
+      do_put "<mi>";
+      do_put s;
+      do_put "</mi>\n";
+      flags.ncols <- flags.ncols +1;
+    end else begin
+      do_put "<I>";
+      do_put s;
+      do_put "</I>"
+    end;
+    flags.empty <- false; flags.blank <- false;
   end
 ;;
-
+*)
 
 let open_table border htmlargs =
   if border then open_block "TABLE" ("BORDER=1 "^htmlargs)

@@ -10,14 +10,13 @@
 (***********************************************************************)
 
 
-let header = "$Id: info.ml,v 1.11 1999-06-02 15:42:24 maranget Exp $"
+let header = "$Id: info.ml,v 1.12 1999-06-04 14:19:43 tessaud Exp $"
 
 open Misc
 open Text
 open InfoRef
 
 exception Error of string
-exception Close of string
 
 
 let iso =Text.iso;;
@@ -43,6 +42,8 @@ let close_block =Text.close_block;;
 let force_block =Text.force_block;;
 let insert_block =Text.insert_block;;
 
+let open_maths = Text.open_maths
+and close_maths = Text.close_maths ;;
 let open_display =Text.open_display;;
 let close_display =Text.close_display;;
 let item_display =Text.item_display;;
@@ -50,12 +51,19 @@ let force_item_display =Text.force_item_display;;
 let end_item_display =Text.end_item_display;;
 let begin_item_display =Text.begin_item_display;;
 let erase_display =Text.erase_display;;
+let open_vdisplay = Text.open_vdisplay
+and close_vdisplay = Text.close_vdisplay
+and open_vdisplay_row = Text.open_vdisplay_row
+and close_vdisplay_row = Text.close_vdisplay_row
+and standard_sup_sub = Text.standard_sup_sub
+and limit_sup_sub = Text.limit_sup_sub
+and int_sup_sub = Text.int_sup_sub
+;;
 
 let set_dcount =Text.set_dcount;;
 let item = Text.item;;
 let nitem = Text.nitem;;
 let ditem = Text.ditem;;
-let change_block =Text.change_block;;
 let erase_block =Text.erase_block;;
 let open_group =Text.open_group;;
 let open_aftergroup =Text.open_aftergroup;;

@@ -226,7 +226,7 @@
 \textstackrel{#1}{#2}\fi}
 \newcommand{\textoverline}[1]{\warning{Warning: overline in text}#1}
 \def\overline#1{\ifdisplay
-\begin{array}{c}\hline\\ #1 \\~\end{array}\else\textoverline{#1}\fi}
+\begin{array}{c}\hline #1 \\~\end{array}\else\textoverline{#1}\fi}
 \newcommand{\textunderline}[1]{{\@style{U}#1}}
 \def\underline#1{\ifdisplay
 \begin{array}{c}~\\ #1\\ \hline\end{array}\else\textunderline{#1}\fi}

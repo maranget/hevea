@@ -44,7 +44,7 @@ open Tabular
 open Lexstate
 
 
-let header = "$Id: latexscan.mll,v 1.109 1999-06-03 13:13:28 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.110 1999-06-04 14:19:48 tessaud Exp $" 
 
 
 let sbool = function
@@ -92,15 +92,6 @@ let macros_unregister () =
    (fun name -> Latexmacros.unregister name) !macros
 ;;
 
-let get_script_font () =
-  let n = Dest.get_fontsize () in
-  if n >= 3 then n-1 else n
-;;
-
-let open_script_font () =
-  Dest.open_mod (Font (get_script_font ()))
-;;
-
 let inc_size i =
   let n = Dest.get_fontsize () in
   let new_size =
@@ -140,6 +131,7 @@ let top_close_display () =
   end
 
 (* vertical display *)
+(*
 let open_vdisplay () =  
   if !verbose > 1 then
     prerr_endline "open_vdisplay";
@@ -166,7 +158,7 @@ and close_vdisplay_row () =
   Dest.force_block "TD" "&nbsp;" ;
   Dest.close_block "TR"
 ;;
-
+*)
 
 let open_center () =  Dest.open_block "DIV" "ALIGN=center"
 and close_center () = Dest.close_block "DIV"
@@ -193,7 +185,7 @@ let print_env_pos () =
 
 let error_env close_e open_e =
   raise
-    (Dest.Close
+    (Misc.Close
        ("Latex env error: ``"^close_e^"'' closes ``"^open_e^"''"))
 ;;
 
@@ -834,58 +826,8 @@ let stop_other_scan comment main lexbuf =
 
 
 (* maths *)
-type ital = Ital | NoItal | Complex | Mixed
-;;
 
-let check_char = function
-  '{' | '}' | '$' | '^' | '_' | '\\' -> Complex
-| c ->
-   if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) then
-     Ital
-   else NoItal
-;;
-
-exception Over
-;;
-
-let check_ital s =
-  let rec check_rec = function
-    -1 -> raise (Misc.Fatal "Empty string in check_rec")
-  | 0  -> check_char (String.get s 0)
-  | i  ->
-     let t = check_char (String.get s i)
-     and tt = check_rec (i-1) in
-     match t,tt with
-       Ital,Ital -> Ital
-     | NoItal,NoItal -> NoItal
-     | Ital,NoItal   -> Mixed
-     | NoItal,Ital   -> Mixed
-     | Complex,_ -> raise Over
-     | _,Complex -> raise Over
-     | _,Mixed   -> Mixed
-     | Mixed,_   -> Mixed in
-
-  match s with "" -> NoItal
-  | _ ->
-     try check_rec (String.length s-1) with Over -> Complex
-;;
-
-let complex s = match check_ital s with
-  Complex -> true
-| _       -> false
-;;
-
-let put_sup_sub tag main = function
-  "" -> ()
-| s  ->
-    Dest.open_group tag ;
-    open_script_font () ;
-    scan_this main s;
-    Dest.close_group ()
-;;
-
-
-
+(*
 let standard_sup_sub main what sup sub =
   if !display && (complex sup || complex sub) then begin
     Dest.force_item_display () ;
@@ -963,6 +905,8 @@ let int_sup_sub something vsize main what sup sub =
   end
 ;;
 
+*)
+
 let includes_table = Hashtbl.create 17
 and check_includes = ref false
 ;;
@@ -1010,11 +954,11 @@ let expand_command main skip_blanks name lexbuf =
     let do_what =
       (fun () -> scan_body exec body args) in
     if !display && is_limit then
-      limit_sup_sub main do_what sup sub
+      Dest.limit_sup_sub (scan_this main) do_what sup sub !display
     else if !display &&  Latexmacros.int name then
-      int_sup_sub true 3 main do_what sup sub
+      Dest.int_sup_sub true 3 (scan_this main) do_what sup sub !display
     else
-      standard_sup_sub main do_what sup sub
+      Dest.standard_sup_sub (scan_this main) do_what sup sub !display
   end else begin
     if (!verbose > 1) then begin
       prerr_endline
@@ -1097,7 +1041,7 @@ rule  main = parse
            let sub = Save.arg lexbuf in
            let sup = Save.get_sup lexbuf in
            sup,sub in
-       standard_sup_sub main (fun () -> ()) sup sub
+       Dest.standard_sup_sub (scan_this main) (fun () -> ()) sup sub !display
      end ;
      main lexbuf}
 (* Math mode *)
@@ -1112,10 +1056,12 @@ rule  main = parse
          in_math := pop stack_in_math ;
          if dodo then begin
            Dest.close_display () ;
+	   Dest.close_maths ();
            close_center ()
          end else begin
            top_close_display () ;
-           Dest.close_group ()
+           Dest.close_group ();
+	   Dest.close_maths ();
          end ;
          display := pop stack_display ;
          if !display then begin
@@ -1132,8 +1078,10 @@ rule  main = parse
          if dodo then begin
            display  := true ;
            open_center() ;
+	   Dest.open_maths ();
            Dest.open_display (display_arg !verbose)
          end else begin
+	   Dest.open_maths ();
            Dest.open_group "" ;
            top_open_display () ;
          end;
@@ -1757,7 +1705,7 @@ def_code "\\right"
       Dest.begin_item_display f is_freeze ;
       let sup,sub = Save.get_sup_sub lexbuf in
       let do_what = (fun () -> ()) in
-      int_sup_sub false vsize main do_what sup sub
+      Dest.int_sup_sub false vsize (scan_this main) do_what sup sub !display
     end ;
     check_alltt_skip lexbuf)
 ;;
@@ -1767,20 +1715,20 @@ def_code "\\over"
     if !display then begin
       let mods = Dest.insert_vdisplay
           (fun () ->
-            open_vdisplay () ;
-            open_vdisplay_row "NOWRAP ALIGN=center") in
-      close_vdisplay_row () ;
-      open_vdisplay_row "" ;
+            Dest.open_vdisplay !display ;
+            Dest.open_vdisplay_row "NOWRAP ALIGN=center") in
+      Dest.close_vdisplay_row () ;
+      Dest.open_vdisplay_row "" ;
       Dest.close_mods () ;
       Dest.horizontal_line  "NOSHADE" "2" "100";
-      close_vdisplay_row () ;
-      open_vdisplay_row "NOWRAP ALIGN=center" ;
+      Dest.close_vdisplay_row () ;
+      Dest.open_vdisplay_row "NOWRAP ALIGN=center" ;
       Dest.close_mods () ;
       Dest.open_mods mods ;
       Dest.freeze
         (fun () ->
-          close_vdisplay_row () ;
-          close_vdisplay ())
+          Dest.close_vdisplay_row () ;
+          Dest.close_vdisplay ())
     end else begin
       Dest.put "/"
     end)
@@ -1821,8 +1769,8 @@ def_code "\\@open"
         top_open_display ()
       end else if tag="VDISPLAY" then begin
         top_item_display () ;
-        open_vdisplay () ;
-        open_vdisplay_row "NOWRAP ALIGN=center"
+        Dest.open_vdisplay !display ;
+        Dest.open_vdisplay_row "NOWRAP ALIGN=center"
       end else begin
         warning ("direct opening of "^tag);
         top_open_block tag arg
@@ -1846,8 +1794,8 @@ def_code "\\@close"
         top_close_display ();
         display := pop stack_display
       end else if tag = "VDISPLAY" then begin
-        close_vdisplay_row () ;
-        close_vdisplay () ;
+        Dest.close_vdisplay_row () ;
+        Dest.close_vdisplay () ;
         top_item_display ()
       end else begin
         warning ("direct closing of "^tag);

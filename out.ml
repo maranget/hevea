@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: out.ml,v 1.12 1999-05-07 17:45:23 maranget Exp $" 
+let header = "$Id: out.ml,v 1.13 1999-06-04 14:19:53 tessaud Exp $" 
 let verbose = ref 0
 ;;
 
@@ -134,8 +134,10 @@ let copy_no_tag from_buff to_buff =
   match from_buff with
     Buff from -> begin
       try
-        let i = String.index from.buff '>'
-        and j = String.rindex_from from.buff (from.bp-1) '<' in
+        let i = String.index from.buff '>' in
+        let j = 
+	  if from.bp=0 then i+1
+	  else String.rindex_from from.buff (from.bp-1) '<' in
         hidden_copy from to_buff (i+1) (j-i-1) ;
         if !verbose > 2 then begin
           prerr_string "copy no tag to_buff";
