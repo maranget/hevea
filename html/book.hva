@@ -3,7 +3,7 @@
 \input{bookcommon.hva}
 \@makesection
   {\part}{-2}{part}
-  {\@opencell{CLASS="part"}{}{}\\@open{H1}{CLASS="part"}}%
+  {\@opencell{CLASS="center"}{}{}\@open{H1}{CLASS="part"}}%
   {\partname~\thepart}{\\}%
   {\@close{H1}\@closecell}
 \newstyle{.part}{margin:auto;text-align:center}

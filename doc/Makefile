@@ -62,6 +62,7 @@ install:
 	cp iso.html symbol.html index.html fddl.html manual[0-9][0-9][0-9].html *.gif $(DOCDIR)
 	cp browser.html cutname.html $(DOCDIR)
 	cp ../html/urlhref.hva $(DOCDIR)
+	cp manual.css $(DOCDIR)
 
 install-distri:
 	/bin/rm -rf $(DISTRIDIR)

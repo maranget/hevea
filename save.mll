@@ -13,7 +13,7 @@
 open Lexing
 open Misc
 
-let header = "$Id: save.mll,v 1.67 2004-11-26 13:13:05 maranget Exp $" 
+let header = "$Id: save.mll,v 1.68 2005-02-18 12:48:04 maranget Exp $" 
 
 let rec if_next_char  c lb =
   let pos = lb.lex_curr_pos
@@ -22,7 +22,6 @@ let rec if_next_char  c lb =
     if lb.lex_eof_reached then
       false
     else begin
-      warning "Refilling buffer" ;
       lb.refill_buff lb ;
       if_next_char c lb
     end
