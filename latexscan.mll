@@ -44,7 +44,7 @@ open Tabular
 open Lexstate
 open Stack
 
-let header = "$Id: latexscan.mll,v 1.130 1999-09-02 17:59:13 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.131 1999-09-06 17:48:59 maranget Exp $" 
 
 
 let sbool = function
@@ -283,18 +283,21 @@ let more_buff = Out.create_buff ()
 ;;
 
 let subst_this subst arg =
-try
-  let _ = String.index arg '#' in
-  if !verbose > 1 then begin
-    Printf.fprintf stderr "subst_this : [%s]\n" arg ;
-    prerr_args ()
-  end ;
-  subst (Lexing.from_string arg) ;
-  let r = Out.to_string subst_buff in
-  if !verbose > 1 then
-    prerr_endline ("subst_this ["^arg^"] = "^r);
-  r
-with Not_found -> arg
+  if not (top_level ()) then begin
+    try
+      let _ = String.index arg '#' in
+      if !verbose > 1 then begin
+        Printf.fprintf stderr "subst_this : [%s]\n" arg ;
+        prerr_args ()
+      end ;
+      subst (Lexing.from_string arg) ;
+      let r = Out.to_string subst_buff in
+      if !verbose > 1 then
+        prerr_endline ("subst_this ["^arg^"] = "^r);
+      r
+    with Not_found -> arg
+  end else
+    arg
 ;;
 
 let subst_arg subst lexbuf = subst_this subst (save_arg lexbuf)  
@@ -1093,7 +1096,7 @@ and image = parse
 (* Definitions of  simple macros, bodies are not substituted *)
     | "\\def" | "\\gdef" ->
         Save.start_echo () ;
-        let _ = Save.csname lexbuf in
+        skip_csname lexbuf ;
         skip_blanks lexbuf ;
         let _ = Save.defargs lexbuf in
         let _ = save_arg lexbuf in
@@ -1101,7 +1104,7 @@ and image = parse
         Image.put (Save.get_echo ())
     | "\\renewcommand" | "\\newcommand" | "\\providecommand" ->
         Save.start_echo () ;
-        let _ = Save.csname lexbuf in
+        skip_csname lexbuf ;
         let _ = parse_args_opt ["0" ; ""] lexbuf in
         let _ = save_arg lexbuf in
         Image.put lxm ;
@@ -1338,7 +1341,7 @@ let subst_body s = if top_level () then s else subst_this subst s
 
 let do_newcommand lxm lexbuf =
   Save.start_echo () ;
-  let name = subst_this subst (Save.csname lexbuf) in
+  let name = Save.csname lexbuf (subst_this subst) in
   let nargs = parse_args_opt ["0" ; ""] lexbuf in
   let body =
     if top_level () then save_arg lexbuf
@@ -1377,7 +1380,7 @@ def_name_code "\\@forcecommand" do_newcommand ;
 def_name_code "\\newcolumntype"
   (fun lxm lexbuf ->
     Save.start_echo () ;
-    let name = subst_this subst (Save.csname lexbuf) in
+    let name = Save.csname lexbuf (subst_this subst) in
     let nargs = save_opt "0" lexbuf in
     let body = save_arg lexbuf in
     let rest = Save.get_echo () in
@@ -1453,7 +1456,7 @@ def_name_code "\\renewtheorem" do_newtheorem
 (* Command definitions, TeX style *)
 
 let do_def realdef global lxm lexbuf =
-  let name = Save.csname lexbuf in
+  let name = Save.csname lexbuf (subst_this subst) in
   skip_blanks lexbuf ;
   let name,args_pat,body =
     if top_level () then
@@ -1461,7 +1464,6 @@ let do_def realdef global lxm lexbuf =
       let body = save_arg lexbuf in
       name,args_pat,body
     else
-      let name = subst_this subst name in
       let args_pat =
         Save.defargs
           (Lexing.from_string
@@ -1786,9 +1788,10 @@ let newif lexbuf =
 
 def_code "\\ifx"
   (fun lexbuf ->
-    let arg1 = subst_this subst (Save.csname lexbuf) in
-    let arg2 = subst_this subst  (Save.csname lexbuf) in
-    if silent_find_macro arg1 = silent_find_macro arg2 then check_alltt_skip lexbuf
+    let arg1 = Save.csname lexbuf (subst_this subst) in
+    let arg2 = Save.csname lexbuf (subst_this subst) in
+    if silent_find_macro arg1 = silent_find_macro arg2 then
+      check_alltt_skip lexbuf
     else skip_false lexbuf)
 ;;
     

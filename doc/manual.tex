@@ -131,9 +131,9 @@ $x \in {\cal E}$
 <I>x</I> <FONT FACE=symbol>Î</FONT> <FONT COLOR=red><I>E</I></FONT>
 \end{verbatim}
 
-You can find some \footurl{\docurl/examples/}{examples} in the on-line
-documentation, including examples of simple \urlex{a.tex} and
-\urlex{a.html} files.
+You can find some more elaborate
+\footurl{\docurl/examples/}{examples} in the on-line
+documentation.
 
 \section{Style files}
 \LaTeX{} style files are files that are not intended to produce output, but
@@ -239,10 +239,11 @@ Then, \texttt{mydoc.tex} is to be translated by issuing the command:
 \end{verbatim}
 The file \texttt{macros.hva} is processed before
 \texttt{mydoc.tex} (and thus before \texttt{macros.tex}).
-As a consequence, the macro definitions in \texttt{mymacros.tex}
-override the ones in  \texttt{macros.tex}, since the latter are made
-using \verb+\newcommand+ or \verb+\def+ (section~\ref{usermacro}
-explains how \hevea{} handle macro definitions and redefinitions).
+As a consequence of \hevea{} behavior with respect to
+definition and redefinition (see section~\ref{usermacro}),
+the macro definitions in \texttt{mymacros.tex}
+override the ones in  \texttt{macros.tex}.
+
 
 Another situation is when  \hevea{} fails to process a whole 
 style file. Usually, this means that \hevea{} crashes on that style
@@ -254,20 +255,6 @@ Then, you should also instruct
 \end{verbatim}
 Of course, \texttt{macros.hva} must now contain replacements for
 all the useful macros of \texttt{macro.tex}.
-Note that another solution to instruct \LaTeX{} to load a file and
-\hevea{} not to load it is to use \verb+\usepackage+ or optional
-arguments to \verb+\documentstyle+, which \hevea{}
-ignores.
-
-\subsection{The \texttt{hevea.hva} file}
-The \texttt{hevea.hva} file resides in \hevea{} library and is loaded
-before any other file specified by users.
-It contains the definitions 
-of most \LaTeX{} core commands and environments,
-\hevea{} can be customized by redefining these constructs
-using \verb+\renewcommand+
-or \verb+\renewenvironment+ (see section~\ref{stylechoice}).
-
 
 
 \section{A note on style}
@@ -297,19 +284,19 @@ Consider the following example:
 \begin{verbatim}
 \newcommand{\open}{(}
 \newcommand{\close}{)}
-\open text opened by ``open''
-and closed by ``close''\close.
+\open text opened by ``\verb+\open+''
+and closed by ``\verb+\close+''\close.
 \end{verbatim}
 We get:
 \begin{htmlout}
 \newcommand{\open}{(}
 \newcommand{\close}{)}
-\open text opened by ``open'' and closed by
-``close''\close.
+\open text opened by ``\verb+\open+'' and closed by
+``\verb+\close+''\close.
 \end{htmlout}
 In the output above, the space after \verb+\open+ does not
 find its way to the output.
-\newcommand{\bfsymbol}{\mbox{\bf symbol}}
+
 
 More generally,
 \hevea{} tries to emulate \LaTeX{} behavior in all situations, but
@@ -319,17 +306,18 @@ This is good practice anyway, because \LaTeX{} is mysterious
 here. Consider the following example, where the \verb+\tryspace+
 macro is first applied and then expansed by hand:
 \begin{verbatim}
-\newcommand{\bfsymbol}{\mbox{\bf symbol}}
+\newcommand{\bfsymbol}{\textbf{symbol}}
 \newcommand{\tryspace}[1]{#1 XXX}
 
 Some space: \tryspace{\bfsymbol}\\
 No space: \bfsymbol XXX
 \end{verbatim}
 Spacing is a bit chaotic here,
-the space after \bfsymbol{} remains when \verb+#1+ is substituted for it
+the space after \textbf{symbol} remains when \verb+#1+ is substituted for it
 by \LaTeX{} (or \hevea).
 
 \begin{htmlout}
+\newcommand{\bfsymbol}{\textbf{symbol}}
 \newcommand{\tryspace}[1]{#1 XXX}
 \begin{tabular}{l@{~:~}l}
 Some space & \tryspace{\bfsymbol}\\
@@ -392,7 +380,7 @@ output.
 \end{center}
 \end{figure}
 Outputting symbols is performed using an \html{} extension:
-the non-standard \verb+FACE+ attribute to the \verb+FONT+
+the now standard \verb+FACE+ attribute to the \verb+FONT+
 element instruct the browser to switch to a symbol font.
 \hevea{} assumes this choice for the symbol font to be
 as shown by figure~\ref{xfd}.
@@ -400,9 +388,12 @@ as shown by figure~\ref{xfd}.
 
 A browser  correctly displays \hevea{} symbols when
 figure~\ref{xfd} resembles the \html{} page located
-at \localurl{symbol.html}.
-Section~\ref{browser} explains how to configure a few browsers
-to get the right symbols.
+at \localurl{symbol.html} in \hevea{} on-line documentation
+directory.
+Some browsers
+do not know about symbol fonts by default and
+need to be configured (see section~\ref{browser}).
+
 
 For authors that do not want to generate symbols that cannot be shown
 by any browser, \hevea{} offers a degraded mode that outputs text
@@ -590,7 +581,7 @@ may prove difficult, since final output or errors
 may occur after several levels of macro expansion.
 As a consequence, users can tailor \hevea{} to their needs, but it
 remains a subtle task.
-However, happy \LaTeX{} users should enjoy customizing
+Nevertheless, happy \LaTeX{} users should enjoy customizing
 \hevea{}, since this is done by writing \LaTeX{} code.
 
 
@@ -600,10 +591,10 @@ However, happy \LaTeX{} users should enjoy customizing
 fine control over text placement, whereas
 {\html} does not.
 More symbols and font attributes are available in \LaTeX{} than in
-{\html}. However, {\html} has font attributes, such as color, which
+{\html}. Conversely, {\html} has font attributes, such as color, which
 standard \LaTeX{} has not.
 
-As a consequence, there are many situations where \hevea{} just cannot
+Therefore, there are many situations where \hevea{} just cannot
 render the visual effect of \LaTeX{} constructions. Here some choices
 have to be made. For instance, the calligraphic letters (\verb+\mathcal+)
 are rendered in red (\verb+<FONT COLOR=red>+), and the small caps
@@ -613,7 +604,7 @@ If you are not satisfied with \hevea{} rendering of text style
 declarations, then you
 can choose your own, by redefining the \verb+\cal+ and \verb+\sc+
 macros, using \verb+\renewcommand+, the macro redefinition operator of
-\LaTeX{}. The key point is that you need not worry with \hevea{}
+\LaTeX{}. The key point is that you need not worry about \hevea{}
 internals: just redefine the old-\LaTeX{} style text-style
 declarations (i.e. \verb+\it+, \verb+\sc+, etc.) and everything should
 get fine:
@@ -641,7 +632,7 @@ These constructs are written using \LaTeX{} source code, in the end they
 invoke \hevea{} internal commands.
 
 
-Other \LaTeX{} constructs, such as mathematical symbols,
+Other \LaTeX{} constructs, such as
 \LaTeX{} key constructs or \hevea{} internal commands (see section~\ref{internal}),
 that require special processing are defined
 in \hevea{} source code.
@@ -901,9 +892,9 @@ And we get:
 This is a right-flushed quotation
 \end{quoteright}
 \end{htmlonly}
-\begin{latexonly}\vspace*{.5ex}
+%BEGIN LATEX
 \epsfbox{rquote.ps}
-\end{latexonly}
+%END LATEX
 \end{htmlout}
 
 
@@ -1068,9 +1059,13 @@ purple rain, purple rain%
 \end{latexonly}%
 \ldots
 
-It is impossible to avoid the spurious space in the output above,
-because \verb+\end{htmlonly}+ must appear in a line of its own for
-\LaTeX{} to reconize it. However, better space control can be achieved
+It is impossible to avoid the spurious space in \hevea{} output
+for the source above.
+This extra spaces comes from the newline character that follows
+\verb+\end{htmlonly}+. Namely this
+construct must appear in a line of its own for
+\LaTeX{} to recognize it. Anyway, better control over spaces
+can be achieved
 by using the \texttt{hevea} boolean register
 or comments, see sections~\ref{heveabool}
 and~\ref{comments}.
@@ -1140,11 +1135,12 @@ actual arguments inside the \texttt{toimage} environment
 (see end of section~\ref{substimage} for an example of this feature).
 
 \subsubsection{Bonus macros}\label{bonus}
-By default, \hevea{} knows some macros to process a few \html-related
-constructs.
-The \texttt{hevea} package defines \LaTeX{} equivalents for them.
-This first concerns the \hevea{} and \hacha{} logos.
-Then, a few macros for URL management are provided
+By default, \hevea{} knows some macros,
+which can be of interest to users.
+The \texttt{hevea} package defines \LaTeX{} equivalents for these
+macros.
+
+First, a few macros for URL management are provided:
 
 \comindex{url}
 \comindex{oneurl}
@@ -1192,18 +1188,22 @@ That is, one gets the following correct link:
 <A HREF="mailto:Luc.Maranget@inria.fr">...
 \end{verbatim}
 
-Additionally,
-the \verb+\texdef+ and \verb+\texlet+ tokens (see
+Additionally, the \verb+\hevea+ and \verb+\hacha+ commands
+output \hevea{} and \hacha{} logos, while
+\verb+\texdef+ and \verb+\texlet+ commands (see
 section~\ref{texmacro})
-are defined as \verb+\def+ and \verb+\let+ in
-in the \texttt{hevea.sty} file,
-while
-the \verb+\imageflush+ macro that controls included images
-(see section~\ref{imagen}) and the \verb+\cuttingunit+,
-\verb+\cuthere+, etc. macros that
-control document cutting (see
-section~\ref{hacha})
-are defined as null macros.
+are defined as \verb+\def+ and \verb+\let+.
+
+Finally, the \texttt{hevea.sty} contains
+null definitions for all the macros that are specific to
+\html{} output.
+For instance the \verb+\cuthere+ macro for controlling
+document cutting  is defined
+as discarding its two arguments.
+Section~\ref{hacha} exaplains what
+\hevea{} does with this two arguments, but \LaTeX{} should certainly
+ignore them.
+
 
 \subsubsection{The \texttt{hevea} boolean register}\label{heveabool}
 
@@ -1477,7 +1477,7 @@ a pity to translate it back into a bitmap.
 A better idea is first to generate a GIF file from the bitmap source
 independantly
 and then to include a link to that GIF file in \html{} output, see
-section~\ref{imgsrc} for description of this more adequate technique.
+section~\ref{imgsrc} for a description of this more adequate technique.
 
 
 \subsection{Using filters}
@@ -1572,9 +1572,9 @@ own definition for the \verb+centergpic+ environment beforehand:
    {\begin{toimage}}
    {\box\graph\end{toimage}\begin{center}\imageflush\end{center}}
 \end{verbatim}
-Assuming that the definition above is in a \urlex{smile.hva} file,
+Assuming that the definition above is in a \url{\docurl/examples/smile.hva}{smile.hva} file,
 the command sequence for translating
-\urlex{smile.tex} \mbox{now is}:
+\url{\docurl/examples/smile.tex}{smile.tex} \mbox{now is}:
 \begin{verbatim}
  # gpic -t < smile.tex > tmp.tex
  # hevea smile.hva tmp.tex -o smile.html
@@ -1627,14 +1627,22 @@ The name of the root  file can be changed using the
 \end{flushleft}
 
 Some of \hevea{} output get replicated in all the files generated by
-\hacha{}.  This first concerns  meta-information from the \verb+<HEAD>+\ldots{}
-\verb+<\HEAD>+ block and the attributes of the \verb+<BODY ...>+ opening
-tag, see section~\ref{metadef} for details on how
-to control such output by redefining the \verb+\@meta+ and
-\verb+\@bodyargs+ internal commands.
+\hacha{}.
+Users can supply a header and a footer, which  will appear at the
+begining and end of every page generated by \hacha{}. It suffices to
+include the following commands in the document preamble:
 
-Additionnaly, the arguments to the \verb+\htmlhead+ and
-\verb+\htmlfoot+ commands and also replicated.
+\begin{flushleft}
+\quad\verb+\htmlhead{+\textit{header}\verb+}+\\
+\quad\verb+\htmlfoot{+\textit{footer}\verb+}+
+\end{flushleft}
+
+\hacha also makes every page it generates a clone of its input
+as regards attributes to the \verb+<BODY ...>+ opening
+tag and meta-information
+from the \verb+<HEAD>+\ldots{}
+\verb+<\HEAD>+ block.
+ see section~\ref{metadef} for examples of this replication feature.
 
 
 \subsection{Advanced usage}
@@ -1644,8 +1652,8 @@ a counter and a few macros.
 
 A document that explicitly includes cutting macros still can be typeset by
 \LaTeX{}, provided it loads the
-\texttt{hevea} package from the \hevea{} distribution.
-(See section~\ref{both} for details on the \texttt{hevea} package).
+\texttt{hevea.sty} style file from the \hevea{} distribution.
+(See section~\ref{both} for details on this style file).
 An alternative to loading the \texttt{hevea} package is to put
 all cutting instructions in comments starting with \verb+%HEVEA+.
 
@@ -2220,11 +2228,32 @@ occur  before \verb+\begin{document}+ are performed.
 and they remain
 valid during all the processing.
 
+\comindex{htmlhead}
+\comindex{htmlfoot}
+In particular one can define a \emph{header} and a \emph{footer}, by using the
+\verb+\htmlhead+ and \verb+\htmlfoot+ commands in the preamble.
+Those commands register their argument as the header and the footer of
+the final \html{} document. The header appears first while the footer
+appears last in (visible) \html{} output.
+This is mostly useful when \hevea{} output is later cut into pieces by
+\hacha{}, since both header and footer are replicated
+at the start and end of any file generated by \hacha.
+For instance, to append a copyright notice at the end of all the \html{}
+pages, it suffices to invoke the \verb+\htmlfoot+ command as follows
+in the document preamble:
+\begin{verbatim}
+\htmlfoot{\copyright to me}
+\end{verbatim}
+
+
 \index{color!of background|see{\texttt{\char92"@bodyargs}}}
 \index{"@bodyargs@\texttt{\char92"@bodyargs}}
 \index{"@meta@\texttt{\char92"@meta}}\label{metadef}
-In particular, it is possible to change \hevea{} default argument
-to the opening \verb+<BODY ...>+ tag by redefining
+The \verb+\htmlhead+ command cannot be used for changing anything outside of
+the \html{} document body, there are specific commands for doing this.
+One can
+change \hevea{} default (empty) atribute for
+the opening \verb+<BODY ...>+ tag by redefining
 \verb+\@bodyargs+.
 For instance, you get black text on a white background, when the
 following declaration occurs before \verb+\begin{document}+:
@@ -2254,23 +2283,6 @@ of your final document by:
 invoked in the new definition of \verb+\@meta+.
 Namely, simply overriding the old definition of \verb+\@meta+ would
 imply not outputting default meta-information.
-
-\comindex{htmlhead}
-\comindex{htmlfoot}
-One can also define a \emph{header} and a \emph{footer}, by using the
-\verb+\htmlhead+ and \verb+\htmlfoot+ commands in the preamble.
-Those commands register their argument as the header and the footer of
-the final \html{} document. The header appears first while the footer
-appears last in (visible) \html{} output.
-This is mostly useful when \hevea{} output is later cut into pieces by
-\hacha{}, since both header and footer are replicated
-at the start and end of any file generated by \hacha.
-For instance, to append a copyright notice at the end of all the \html{}
-pages, it suffices to invoke the \verb+\htmlfoot+ command as follows
-in the document preamble:
-\begin{verbatim}
-\htmlfoot{\copyright to me}
-\end{verbatim}
 
 
 
@@ -4133,7 +4145,7 @@ them has changed.
 
 
 \section{Browser configuration}\label{browser}
-By default, \hevea{} insert non-standard font changes in its output,
+By default, \hevea{} insert now standard font changes in its output,
 using the \verb+FACE=symbol+ attribute to the \verb+<FONT ...>+ tag.
 The symbol font is the one available on the Linux Red Hat
 distribution and seems to be present on many Unix installations.

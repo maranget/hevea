@@ -440,7 +440,7 @@
 \newcommand{\displaystyle}{\ifdisplay\else\warning{\displaystyle ignored}\fi}
 %%% now serious
 \def\noprint#1{{\@nostyle\@print{#1}}}%
-\newcommand{\@bodyargs}{BGCOLOR=silver TEXT=black}
+\newcommand{\@bodyargs}{}
 \newcommand{\@meta}{\@print{<META http-equiv="Content-Type" content="text/html; charset= ISO-8859-1">
 }}
 \newif\iffooter\footertrue

@@ -1,4 +1,4 @@
-let header =  "$Id: lexstate.ml,v 1.25 1999-09-02 17:59:19 maranget Exp $"
+let header =  "$Id: lexstate.ml,v 1.26 1999-09-06 17:49:04 maranget Exp $"
 
 open Misc
 open Lexing
@@ -279,6 +279,7 @@ and save_arg_with_delim delim lexbuf =
 and save_filename lexbuf = full_save_arg Save.filename lexbuf
 ;;
 
+
 type ok = No of string | Yes of string
 ;;
 
@@ -353,6 +354,9 @@ let rec parse_args_opt pat lexbuf = match pat with
    let r   = parse_args_opt rest lexbuf in
    arg :: r
 ;;
+
+let skip_csname lexbuf =
+  let _ = Save.csname lexbuf (fun x -> x) in ()
 
 
 let skip_opt lexbuf =

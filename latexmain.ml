@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmain.ml,v 1.47 1999-09-02 17:59:08 maranget Exp $" 
+let header = "$Id: latexmain.ml,v 1.48 1999-09-06 17:48:55 maranget Exp $" 
 
 open Misc
 open Parse_opts
@@ -105,9 +105,7 @@ let main () =
        do_rec rest ;
        read_style x in
 
-    let styles = match Parse_opts.styles with
-    | [] -> if base_in = "" then ["article.hva"] else []
-    | _  -> Parse_opts.styles in
+    let styles =  Parse_opts.styles in
 
     do_rec styles ;
 

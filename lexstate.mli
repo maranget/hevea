@@ -78,6 +78,7 @@ val parse_args_norm : string list -> Lexing.lexbuf -> string list
 val parse_arg_opt : string -> Lexing.lexbuf -> ok
 val parse_args_opt : string list -> Lexing.lexbuf -> ok list
 val skip_opt : Lexing.lexbuf -> unit
+val skip_csname : Lexing.lexbuf -> unit
 val check_opt : Lexing.lexbuf -> bool
 val save_opt : string -> Lexing.lexbuf -> string
 val parse_args :
