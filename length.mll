@@ -1,7 +1,7 @@
 
 {
 open Lexing
-let header = "$Id: length.mll,v 1.9 1999-10-01 16:15:32 maranget Exp $" 
+let header = "$Id: length.mll,v 1.10 2000-10-13 19:17:39 maranget Exp $" 
 
 exception Cannot
 ;;
@@ -36,8 +36,7 @@ let convert unit x = match unit with
     |  "cm"     -> mk_char ((x *. 28.47) /. font_float)
     |  "mm"     -> mk_char ((x *. 2.847) /. font_float)
     |  "pc"     -> mk_char ((x *. 12.0)  /. font_float)
-    | "\\linewidth" | "\\textwidth" | "\\hsize" ->
-        mk_percent (100.0 *. x)
+    |  "@percent" -> mk_percent (100.0 *. x)
     |  _ -> No unit
 ;;
 
@@ -48,9 +47,10 @@ rule main_rule = parse
 |  "" {let x,unit = positif lexbuf in convert unit x}
 
 and positif = parse
-  ['0'-'9']*'.'?['0'-'9']+
+| ['0'-'9']*'.'?['0'-'9']+
    {let lxm = lexeme lexbuf in
    float_of_string lxm,unit lexbuf}
+| "@percent"  {1.0, "@percent"}
 |  "" {raise Cannot}
 and unit = parse
   _ * {lexeme lexbuf}

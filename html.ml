@@ -10,7 +10,7 @@
 (***********************************************************************)
 
 
-let header = "$Id: html.ml,v 1.80 2000-09-28 10:34:30 maranget Exp $" 
+let header = "$Id: html.ml,v 1.81 2000-10-13 19:17:24 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -290,8 +290,8 @@ let item () =
     prerr_string "item: stack=" ;
     pretty_stack out_stack
   end ;
-  let mods = to_pending !cur_out.pending !cur_out.active in
-  do_close_mods () ;
+  let mods = all_to_pending !cur_out in
+  clearstyle () ;
   !cur_out.pending <- mods ;
   let saved =
     if flags.nitems = 0 then begin
@@ -312,8 +312,6 @@ let ditem scan arg =
     prerr_string "ditem: stack=" ;
     pretty_stack out_stack
   end ;
-  let mods = to_pending !cur_out.pending !cur_out.active in
-  do_close_mods () ;
   let true_scan =
     if flags.nitems = 0 then begin
       let _ = forget_par () in () ;
@@ -321,13 +319,15 @@ let ditem scan arg =
       (fun arg -> do_put saved ; scan arg)
     end else scan in
   try_flush_par ();
+  let mods = all_to_pending !cur_out in
+  clearstyle () ;
+  put "<DT>" ;
   !cur_out.pending <- mods ;
   flags.nitems <- flags.nitems+1;
-  do_put "\n<DT>" ;    
-  open_group "" ;
+  open_block INTERN "" ;
   if flags.dcount <> "" then scan ("\\refstepcounter{"^ flags.dcount^"}") ;
   true_scan ("\\makelabel{"^arg^"}") ;
-  close_group () ;
+  close_block INTERN ;
   do_put "<DD>"
 ;;
 
@@ -388,12 +388,11 @@ let close_chan () =
 let to_style f =
   let old_flags = copy_flags flags in
   let _ = forget_par () in
-  open_group "" ;
-  !cur_out.active  <- [] ;
-  !cur_out.pending <- [] ;
+  open_block INTERN "" ;
+  clearstyle () ;
   f () ;
   let r = to_pending !cur_out.pending !cur_out.active in
-  erase_block GROUP ;
+  erase_block INTERN ;
   set_flags flags old_flags ;
   r
 ;;
@@ -638,6 +637,5 @@ and clearstyle = clearstyle
 and nostyle = nostyle
 and get_fontsize = get_fontsize
 and horizontal_line = horizontal_line
-and close_flow s = close_flow (find_block s)
 and to_string = to_string
 ;;

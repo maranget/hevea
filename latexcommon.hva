@@ -426,3 +426,7 @@
 %%%%%%%%%%%%%%%%% Ignoring arguments
 \newcommand{\@skipopt}[1][!*!]{}
 \newcommand{\@skiparg}[1]{}
+%%%%%%%%%%%%%%%%% Length as percent
+\def\linewidth{@percent}
+\def\textwidth{@percent}
+\def\hsize{@percent}

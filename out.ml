@@ -11,7 +11,7 @@
 
 open Lexing
 
-let header = "$Id: out.ml,v 1.17 2000-06-05 08:07:30 maranget Exp $" 
+let header = "$Id: out.ml,v 1.18 2000-10-13 19:17:42 maranget Exp $" 
 let verbose = ref 0
 ;;
 
@@ -25,8 +25,31 @@ type buff = {
 type t = Buff of buff | Chan of out_channel | Null
 ;;
 
+let debug chan out = match out with
+  Buff out ->
+   output_char chan '*' ;
+   output chan out.buff 0 out.bp ;
+   output_char chan '*'
+| Chan _   ->
+   output_string chan "*CHAN*"
+| Null ->
+   output_string chan "*NULL*"
+;;
 
-let create_buff () = Buff {buff = String.create 128 ; bp = 0 ; len = 128}
+let free_list  = ref []
+
+let free = function
+  | Buff b -> b.bp <- 0 ; free_list := b :: !free_list
+  | _ -> ()
+
+let create_buff () =
+  Buff
+    (match !free_list with
+    | [] -> {buff = String.create 128 ; bp = 0 ; len = 128}
+    | b::rem ->
+        free_list := rem ;
+        b)
+
 and create_chan chan = Chan chan
 and create_null () = Null
 and is_null  = function
@@ -41,12 +64,23 @@ and is_empty = function
 let reset = function
   Buff b -> b.bp <- 0
 | _      -> raise (Misc.Fatal "Out.reset")
-;;
+
+let get_pos = function
+  | Buff b -> b.bp
+  | _      -> 0
+
+let erase_start n = function
+  | Buff b ->
+      Printf.fprintf stderr "erase %d\n" n ;
+      debug stderr (Buff b) ;
+      String.blit b.buff n b.buff 0 (b.bp-n) ;
+      b.bp <- b.bp-n
+  | _      ->  raise (Misc.Fatal "Out.erase_start")
 
 let realloc out =
   let new_len = 2 * out.len in
   let new_b = String.create new_len in
-  String.blit out.buff 0 new_b 0 out.bp ;
+  String.unsafe_blit out.buff 0 new_b 0 out.bp ;
   out.buff <- new_b ;
   out.len  <-  new_len
 ;;
@@ -120,16 +154,6 @@ let to_chan chan out = match out with
 | _  -> raise (Misc.Fatal "to_chan")
 ;;
 
-let debug chan out = match out with
-  Buff out ->
-   output_char chan '*' ;
-   output chan out.buff 0 out.bp ;
-   output_char chan '*'
-| Chan _   ->
-   output_string chan "*CHAN*"
-| Null ->
-   output_string chan "*NULL*"
-;;
 
 let hidden_copy from to_buf i l = match to_buf with
   Chan chan -> output chan from.buff i l

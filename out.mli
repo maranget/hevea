@@ -11,6 +11,7 @@
 
 type t
 
+val free : t -> unit
 val create_buff : unit -> t
 val create_chan : out_channel -> t
 val create_null : unit -> t
@@ -24,6 +25,8 @@ val put : t -> string -> unit
 val blit : t -> Lexing.lexbuf -> unit
 val put_char : t -> char -> unit
 val flush: t -> unit
+val get_pos : t -> int
+val erase_start : int -> t -> unit
 
 val iter : (char -> unit) -> t -> unit
 val to_string : t -> string

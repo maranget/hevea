@@ -15,5 +15,5 @@ val hot : saved -> unit
 
 val get_int : string arg -> int
 val get_bool : string arg -> bool
-val get_length : string arg  -> Length.t
+val get_length : string -> Length.t
 

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlCommon.ml,v 1.28 2000-09-28 10:34:33 maranget Exp $" 
+let header = "$Id: htmlCommon.ml,v 1.29 2000-10-13 19:17:26 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -34,6 +34,7 @@ type block =
   | DIV
   | UL | OL | DL
   | GROUP | AFTER | DELAY | FORGET
+  | INTERN
   | P
   | NADA
   | OTHER of string
@@ -63,6 +64,7 @@ let string_of_block = function
   | FORGET -> "FORGET"
   | P     -> "P"
   | NADA  -> "NADA"
+  | INTERN -> "INTERN"
   | OTHER s -> s
 
 let block_t = Hashtbl.create 17
@@ -114,13 +116,65 @@ let check_block_closed opentag closetag =
 ;;
 
 (* output globals *)
-
 type t_env = {here : bool ; env : text}
+
+type t_top = 
+    {top_pending : text list ; top_active : t_env list ;} 
+
+type style_info =
+  | Nothing of t_top
+  | Activate of t_top
+  | Closed of t_top * int 
+  | ActivateClosed of t_top
+  | NotMe
+  | Insert of bool * text list
+
+let get_top_lists = function
+  | Nothing x -> x | Activate x -> x
+  | _ -> raise Not_found
+
+let do_pretty_mods stderr f mods =
+  let rec do_rec stderr = function
+    [x]  -> f stderr x
+  | x::xs ->
+     Printf.fprintf stderr "%a; %a" f x do_rec xs
+  | [] -> () in
+  Printf.fprintf stderr "[%a]" do_rec mods
+
+
+let tbool = function
+  | true -> "+"
+  | false -> "-"
+
+let pretty_mods stderr = do_pretty_mods stderr
+    (fun stderr text -> Printf.fprintf stderr "%s" (pretty_text text))
+
+and pretty_tmods stderr = 
+  do_pretty_mods stderr
+    (fun stderr {here=here ; env = env} ->
+      Printf.fprintf stderr "%s%s" (tbool here) (pretty_text env))
+     
+let pretty_top_styles stderr {top_pending = pending ; top_active = active} =
+  Printf.fprintf stderr
+    "{top_pending=%a, top_active=%a}"
+    pretty_mods pending
+    pretty_tmods active
+
+
+let pretty_top stderr = function
+  | Nothing x -> Printf.fprintf stderr "Nothing %a"  pretty_top_styles x
+  | Activate x -> Printf.fprintf stderr "Activate %a" pretty_top_styles x
+  | Closed _ -> Printf.fprintf stderr "Closed"
+  | ActivateClosed _ -> Printf.fprintf stderr "ActivateClosed"
+  | NotMe -> Printf.fprintf stderr "NotMe"
+  | Insert (b,active) ->
+      Printf.fprintf stderr "Insert %b %a" b pretty_mods active
 
 type status = {
   mutable nostyle : bool ;
   mutable pending : text list ;
   mutable active : t_env list ;
+  mutable top : style_info ;
   mutable out : Out.t}
 ;;
 
@@ -130,65 +184,15 @@ let as_envs tenvs r  =
 
 let to_pending pending active = pending @ as_envs active []
 
-(* free list for buffers *)
-let free_list = ref []
-;;
+let with_new_out out =  {out with out = Out.create_buff ()}
 
-let free out =
-  out.nostyle <- false ;
-  out.pending <- [] ;
-  out.active <- [] ;
-  Out.reset out.out ;
-  free_list := out :: !free_list
-;;
-
-
-
-let new_status nostyle pending active = match !free_list with
-  [] ->
-   {nostyle=nostyle ;
-   pending = pending  ; active = active ; out = Out.create_buff ()}
-| x::rest ->
-   free_list := rest ;
-   x.nostyle <- nostyle ;
-   x.pending <- pending ;
-   x.active <- active ;
-   assert (Out.is_empty x.out) ;
-   x
-;;
-
+let free out = Out.free out.out
+  
 let cur_out =
   ref {nostyle=false ;
-        pending = [] ; active = [] ; out = Out.create_null ()}
-;;
-
-
-let do_pretty_mods f mods =
-  let rec do_rec = function
-    [x]  -> prerr_string (f x)
-  | x::xs ->
-     prerr_string (f x^"; ") ;
-     do_rec xs
-  | [] -> () in
-  prerr_string "[" ;
-  do_rec mods ;
-  prerr_string "]"
-
-let tbool = function
-  | true -> "+"
-  | false -> "-"
-
-let pretty_mods = do_pretty_mods pretty_text 
-and pretty_tmods = 
-  do_pretty_mods
-    (function {here=here ; env = env} ->
-      tbool here^pretty_text env)
-     
-let pretty_cur {pending = pending ; active = active} =
-  prerr_string "pending = " ;
-  pretty_mods pending ;
-  prerr_string " active = " ;
-  pretty_tmods active
+        pending = [] ; active = [] ;
+        top = NotMe ;
+        out = Out.create_null ()}
 ;;
 
 type stack_item =
@@ -262,6 +266,8 @@ and do_put s =
 
 
 (* Flags section *)
+(* Style information for caller *)
+
 type flags_t = {
     mutable table_inside:bool;
     mutable in_math : bool;
@@ -281,6 +287,25 @@ type flags_t = {
     mutable insert_attr: (block * string) option;
 } ;;
 
+let pretty_cur {pending = pending ; active = active ;
+               top = top} =
+  Printf.fprintf stderr "pending=%a, active=%a\n"
+    pretty_mods pending
+    pretty_tmods active ;
+  Printf.fprintf stderr "top = %a" pretty_top top ;
+  prerr_endline "" 
+  
+;;
+
+let activate_top out = match out.top with
+| Nothing x -> out.top <- Activate x
+|  _      -> ()
+
+and close_top n out = match  out.top with
+| Nothing top  -> out.top <- Closed (top, n+Out.get_pos out.out)
+| Activate top -> out.top <- ActivateClosed top
+|  _       -> ()
+
 let debug_attr stderr = function
   | None -> Printf.fprintf stderr "None"
   | Some (tag,attr) ->
@@ -288,7 +313,7 @@ let debug_attr stderr = function
         (string_of_block tag) attr
 
 let debug_flags f =
-  Printf.fprintf stderr "insert_attr=%a\n" debug_attr f.insert_attr ;
+  Printf.fprintf stderr "attr=%a\n" debug_attr f.insert_attr ;
   flush stderr
 
     
@@ -379,7 +404,7 @@ and set_flags f {
   f.last_closed <- last_closed;
   f.in_pre <- in_pre;
   f.insert <- insert ;
-  f.insert_attr <- insert_attr
+  f.insert_attr <- insert_attr ;
 ;;
 
 
@@ -549,7 +574,7 @@ let check_stacks () = match stacks with
   check_stack s_dcount ;
   check_stack s_insert ;
   check_stack s_insert_attr ;
-  check_stack s_active ;
+  check_stack s_active ;  
   check_stack s_after
 
 (*
@@ -642,6 +667,7 @@ let forget_par () =
 
 (* styles *)
 
+  
 let do_close_mod = function
   Style m ->  
     if flags.in_math && !Parse_opts.mathml then 
@@ -684,8 +710,10 @@ let do_close_tmod = function
   | {here = true ; env = env} -> do_close_mod env
   | _ -> ()
 
+let close_active_mods active = List.iter do_close_tmod active
+
 let do_close_mods () =
-   List.iter do_close_tmod !cur_out.active ;
+  close_active_mods !cur_out.active ;
   !cur_out.active <- [] ;
   !cur_out.pending <- []
 ;;
@@ -744,13 +772,28 @@ let do_close_mods_pred pred same_constr =
             List.iter do_close_tmod to_close_open ;
             as_envs to_close
               (as_envs to_close_open [env])
-        end)
+        end),
+  close
 
         
 let close_mods () = do_close_mods ()
 ;;
 
-let do_open_mods () =
+
+let is_style = function
+  Style _ -> true
+| _ -> false
+
+and is_font = function
+  Font _ -> true
+| _ -> false
+
+and is_color = function
+  Color _ -> true
+| _ -> false
+;;
+
+let do_open_these_mods do_open_mod pending =
   let rec do_rec color size = function
     |   [] -> []
     | Color _ as e :: rest  ->
@@ -774,19 +817,105 @@ let do_open_mods () =
         let rest = do_rec color size rest in
         do_open_mod e ;
         {here=true ; env=e} :: rest in
-  
-  let now_active = do_rec false false !cur_out.pending in
-  if !verbose > 2 && !cur_out.pending <> [] then begin
-    prerr_string "do_open_mods: " ;
-    pretty_mods !cur_out.pending ;
-    prerr_string " -> " ;
-    pretty_tmods now_active ;
+  do_rec
+    false
+    false
+    pending
+
+let activate caller pending =
+  let r = do_open_these_mods (fun _ -> ()) pending in
+  if !verbose > 2 then begin
+    prerr_string ("activate: ("^caller^")") ;
+    pretty_mods stderr pending ; prerr_string " -> " ;
+    pretty_tmods stderr r ;
     prerr_endline ""
   end ;
-  !cur_out.active <- now_active @ !cur_out.active ;
-  !cur_out.pending <- []
+  r
+
+let get_top_active = function
+  | Nothing {top_active = active} -> active
+  | Activate {top_pending = pending ; top_active = active} ->
+      activate "get_top_active" pending @ active
+  | _ -> []
+
+let all_to_pending out =
+  try
+    let top = get_top_lists out.top in
+    to_pending out.pending out.active @
+    to_pending top.top_pending top.top_active
+  with
+  | Not_found ->
+    to_pending out.pending out.active
+
+let all_to_active out = activate "all_to_active" (all_to_pending out)
+
+(* Clear styles *)
+let clearstyle () =
+  close_active_mods !cur_out.active ;
+  close_active_mods (get_top_active !cur_out.top) ;
+  close_top 0 !cur_out ;
+  !cur_out.pending <- [] ;
+  !cur_out.active <- []
 ;;
 
+(* Avoid styles *)
+let nostyle () =
+  clearstyle () ;
+  !cur_out.nostyle <- true
+;;
+
+(* Create new statuses, with appropriate pending lists *)
+
+let create_status_from_top out = match out.top with
+| NotMe|Closed _|ActivateClosed _|Insert (_,_) ->
+   {nostyle=out.nostyle ; pending = []  ; active = []  ;
+   top =
+     Nothing
+       {top_pending = out.pending ; top_active = out.active} ;
+   out = Out.create_buff ()}
+| Nothing {top_pending = top_pending ; top_active=top_active} ->
+    assert (out.active=[]) ;
+    {nostyle=out.nostyle ; pending = [] ; active = [] ;
+    top =
+      Nothing
+        {top_pending = out.pending @ top_pending ;
+        top_active = top_active} ;
+    out = Out.create_buff ()}
+| Activate {top_pending = top_pending ; top_active=top_active} ->
+    {nostyle=out.nostyle ; pending = [] ; active = [] ;
+    top=
+      Nothing
+        {top_pending = out.pending ;
+        top_active = out.active @ activate "top" top_pending @ top_active} ;
+    out=Out.create_buff ()}
+
+    
+let create_status_from_scratch nostyle pending =
+   {nostyle=nostyle ;
+   pending =pending  ; active = []  ;
+   top=NotMe ;
+   out = Out.create_buff ()}
+
+let do_open_mods () =
+  if !verbose > 2 then begin
+    prerr_string "=> do_open_mods: " ;
+    pretty_cur !cur_out
+  end ;
+
+  let now_active =
+    do_open_these_mods do_open_mod !cur_out.pending in
+  activate_top !cur_out ;
+  !cur_out.active <- now_active @ !cur_out.active ;
+  !cur_out.pending <- [] ;
+  
+  if !verbose > 2 then begin
+    prerr_string "<= do_open_mods: " ;
+    pretty_cur !cur_out
+  end
+
+
+
+  
 let do_pending () =  
   begin match flags.pending_par with
   | Some n -> flush_par n
@@ -796,23 +925,10 @@ let do_pending () =
   do_open_mods ()
 ;;
 
-let is_style = function
-  Style _ -> true
-| _ -> false
 
-and is_font = function
-  Font _ -> true
-| _ -> false
-
-and is_color = function
-  Color _ -> true
-| _ -> false
-;;
-
-
-let cur_size pending active =
+let one_cur_size pending active =
   let rec cur_size_active = function
-    | [] -> 3
+    | [] -> raise Not_found
     | {here=true ; env=Font i}::_ -> i
     | _::rest -> cur_size_active rest in
 
@@ -823,13 +939,21 @@ let cur_size pending active =
   cur_size_pending pending
 ;;
 
-let first_same x same_constr pending active =
+let cur_size out =
+  try one_cur_size out.pending out.active
+  with Not_found ->    
+    try
+      let top_out = get_top_lists out.top in
+      one_cur_size top_out.top_pending top_out.top_active
+    with Not_found -> 3
+
+let one_first_same x same_constr pending active =
   let rec same_active = function
     | {here=true ; env=y} :: rest ->
         if same_constr y then x=y
         else same_active rest
     | _::rest -> same_active rest
-    | [] -> false in
+    | [] -> raise Not_found in
   let rec same_pending = function
     | [] -> same_active active
     | y::rest ->
@@ -838,16 +962,26 @@ let first_same x same_constr pending active =
   same_pending pending
 ;;
 
+let first_same x same_constr out =
+  try
+    one_first_same x same_constr out.pending out.active
+  with Not_found ->
+    try
+      let top_out = get_top_lists out.top in
+      one_first_same x same_constr top_out.top_pending top_out.top_active
+    with
+    | Not_found -> false
+
 let already_here = function
-  Font i ->
-   i = cur_size  !cur_out.pending !cur_out.active  
+| Font i ->
+   i = cur_size !cur_out
 | x ->
   first_same x
    (match x with
      Style _ ->  is_style
    | Font _ -> is_font
    | Color _ -> is_color)
-   !cur_out.pending !cur_out.active
+   !cur_out
 ;;
 
 let ok_pre x = match x with
@@ -867,16 +1001,7 @@ let ok_mod e =
   (not (already_here e))
 ;;
 
-let get_fontsize () = cur_size !cur_out.pending !cur_out.active
-
-let nostyle () =
-  !cur_out.pending <- [] ;
-  !cur_out.nostyle <- true    
-;;
-
-let clearstyle () =
-  !cur_out.pending <- []
-;;
+let get_fontsize () = cur_size !cur_out
 
 
 let rec erase_rec pred = function
@@ -890,14 +1015,30 @@ let rec erase_rec pred = function
      | None -> None
 ;;
 
+
 let erase_mod_pred pred same_constr =
   if not !cur_out.nostyle then begin
     match erase_rec pred !cur_out.pending with
     | Some pending ->
         !cur_out.pending <- pending
     | None ->
-        let re_open = do_close_mods_pred pred same_constr in
-        !cur_out.pending <- !cur_out.pending @ re_open
+        let re_open,closed = do_close_mods_pred pred same_constr in
+        match closed with
+        | Some _ ->
+            !cur_out.pending <- !cur_out.pending @ re_open
+        | None ->
+            activate_top !cur_out ;
+            try
+              let tops = get_top_lists !cur_out.top in
+              !cur_out.active <- 
+                 !cur_out.active @
+                 activate "erase" tops.top_pending @
+                 tops.top_active ;
+              close_top 0 !cur_out ;
+              let re_open,_ = do_close_mods_pred pred same_constr in
+              !cur_out.pending <- !cur_out.pending @ re_open
+            with
+            | Not_found -> ()
   end
 ;;
 
@@ -925,11 +1066,8 @@ let erase_mods ms =
 let open_mod  m =
   if not !cur_out.nostyle then begin
     if !verbose > 3 then begin
-          prerr_endline ("open_mod: "^pretty_text m^" ok="^sbool (ok_mod m)) ;
-      prerr_string "pending = " ; pretty_mods !cur_out.pending ;
-      prerr_endline "" ;
-      prerr_string "active = " ; pretty_tmods !cur_out.active ;
-      prerr_endline ""
+      prerr_endline ("open_mod: "^pretty_text m^" ok="^sbool (ok_mod m)) ;
+      pretty_cur !cur_out
     end ;
     begin match m with
     | Style "EM" ->
@@ -939,12 +1077,7 @@ let open_mod  m =
           !cur_out.pending <- m :: !cur_out.pending
     | _ ->
         if ok_mod m then begin
-          match m with
-          | Style _ ->
-              !cur_out.pending <- m :: !cur_out.pending
-          | _ ->
-              erase_mod_pred (same_env m) (same_constr m) ;
-              !cur_out.pending <- (m :: !cur_out.pending)
+          !cur_out.pending <- m :: !cur_out.pending
         end
     end
   end
@@ -969,6 +1102,13 @@ let pstart = function
   | _ -> false
 ;;
 
+let is_group = function
+  | GROUP -> true
+  | _ -> false
+
+and is_pre = function
+  | PRE -> true
+  | _ -> false
 
 let rec do_try_open_block s args =
   if !verbose > 2 then
@@ -981,32 +1121,36 @@ let rec do_try_open_block s args =
     push stacks.s_insert flags.insert ;
     flags.empty <- true ; flags.blank <- true ;
     flags.insert <- None ;
-    if s = TABLE then begin
+    begin match s with
+    | PRE -> flags.in_pre <- true (* No stack, cannot nest *)
+    | TABLE ->
       push stacks.s_table_vsize flags.table_vsize ;
       push stacks.s_vsize flags.vsize ;
       push stacks.s_nrows flags.nrows ;
       flags.table_vsize <- 0 ;
       flags.vsize <- 0 ;
       flags.nrows <- 0
-    end else if s = TR  then begin
+    |  TR ->
       flags.vsize <- 1
-    end else if s = TD then begin
+    |  TD ->
       push stacks.s_vsize flags.vsize ;
       flags.vsize <- 1
-    end else if is_list s then begin
-      push stacks.s_nitems flags.nitems;
-      flags.nitems <- 0 ;
-      if s = DL then begin
-        push stacks.s_dt flags.dt ;
-        push stacks.s_dcount flags.dcount;
-        flags.dt <- "";
-        flags.dcount <- ""
-      end
+    | _ ->
+        if is_list s then begin
+          push stacks.s_nitems flags.nitems;
+          flags.nitems <- 0 ;
+          if s = DL then begin
+            push stacks.s_dt flags.dt ;
+            push stacks.s_dcount flags.dcount;
+            flags.dt <- "";
+            flags.dcount <- ""
+          end
+        end
     end
   end ;
   if !verbose > 2 then
     prerr_flags ("<= try open ``"^string_of_block s^"''")
-;;
+      ;;
 
 let try_open_block s args =
   push stacks.s_insert_attr flags.insert_attr ;
@@ -1017,18 +1161,18 @@ let try_open_block s args =
   do_try_open_block s args
 
 let do_do_open_block s args =
-    if s = TR || is_header s then
-      do_put "\n";
-    do_put_char '<' ;
-    do_put (string_of_block s) ;
-    if args <> "" then begin
-      if args.[0] <> ' ' then do_put_char ' ' ;
-      do_put args
-    end ;
-    do_put_char '>'
+  if s = TR || is_header s then
+    do_put "\n";
+  do_put_char '<' ;
+  do_put (string_of_block s) ;
+  if args <> "" then begin
+    if args.[0] <> ' ' then do_put_char ' ' ;
+    do_put args
+  end ;
+  do_put_char '>'
 
 let rec do_open_block insert s args = match s with
-| GROUP|DELAY|FORGET|AFTER ->
+| GROUP|DELAY|FORGET|AFTER|INTERN ->
    begin match insert with
    | Some (tag,iargs) -> do_do_open_block tag iargs
    | _ -> ()
@@ -1060,28 +1204,31 @@ let rec do_try_close_block s =
     let bhere = flags.blank and bthere = pop  stacks.s_blank in
     flags.blank <- (bhere && bthere) ;
     flags.insert <- pop  stacks.s_insert ;
-
-    if s = TABLE then begin
+    begin match s with 
+    | PRE   -> flags.in_pre <- false (* PRE cannot nest *)
+    | TABLE ->
       let p_vsize = pop stacks.s_vsize in
       flags.vsize <- max
        (flags.table_vsize + (flags.nrows)/3) p_vsize ;
       flags.nrows <- pop  stacks.s_nrows ;
       flags.table_vsize <- pop stacks.s_table_vsize
-    end else if s = TR then begin
-      if ehere then begin
-        flags.vsize <- 0
-      end ;
-      flags.table_vsize <- flags.table_vsize + flags.vsize;
-      if not ehere then flags.nrows <- flags.nrows + 1
-    end else if s = TD then begin
-      let p_vsize = pop stacks.s_vsize in
-      flags.vsize <- max p_vsize flags.vsize
-    end else if is_list s then begin
-      flags.nitems <- pop stacks.s_nitems ;
-      if s = DL then begin
-        flags.dt <- pop stacks.s_dt ;
-        flags.dcount <- pop  stacks.s_dcount
-      end
+    |  TR ->
+        if ehere then begin
+          flags.vsize <- 0
+        end ;
+        flags.table_vsize <- flags.table_vsize + flags.vsize;
+        if not ehere then flags.nrows <- flags.nrows + 1
+    | TD ->
+        let p_vsize = pop stacks.s_vsize in
+        flags.vsize <- max p_vsize flags.vsize
+    | _ ->
+        if is_list s then begin
+          flags.nitems <- pop stacks.s_nitems ;
+          if s = DL then begin
+            flags.dt <- pop stacks.s_dt ;
+            flags.dcount <- pop  stacks.s_dcount
+          end
+        end
     end
   end ;
   if !verbose > 2 then
@@ -1104,7 +1251,7 @@ let do_do_close_block s =
   match s with TD -> do_put_char '\n' | _ -> ()
 
 let rec do_close_block insert s = match s with
-|  GROUP|DELAY|FORGET|AFTER -> 
+|  GROUP|DELAY|FORGET|AFTER|INTERN -> 
    begin match insert with
    | Some (tag,_) -> do_do_close_block tag
    | _ -> ()
@@ -1125,17 +1272,59 @@ let rec do_close_block insert s = match s with
 end    
 
 let check_empty () = flags.empty
+
 and make_empty () =
   flags.empty <- true ; flags.blank <- true ;
+  !cur_out.top <- NotMe ;
   !cur_out.pending <-  to_pending !cur_out.pending !cur_out.active ;
-  !cur_out.active <- []
+  !cur_out.active <- []  
 ;;
+
+let rec open_top_styles = function
+  | NotMe|Insert (_,_) -> (* Real block, inserted block *)
+        begin match !cur_out.top with
+        | Nothing tops ->
+            let mods =
+              to_pending !cur_out.pending !cur_out.active @
+              to_pending tops.top_pending tops.top_active in
+            assert (!cur_out.active=[]) ;
+            close_active_mods tops.top_active ;
+           !cur_out.top <- Closed (tops,Out.get_pos !cur_out.out);
+            Some mods
+        | Activate tops ->
+            !cur_out.top <- ActivateClosed tops ;
+            let mods =
+              to_pending !cur_out.pending !cur_out.active @
+              to_pending tops.top_pending tops.top_active in
+            close_active_mods !cur_out.active ;
+            close_active_mods (activate "open_top_styles" tops.top_pending) ;
+            close_active_mods tops.top_active ;
+            Some mods
+        | _ ->
+            let mods = to_pending !cur_out.pending !cur_out.active in
+            close_active_mods !cur_out.active ;
+            Some mods
+        end
+  | Closed (_,n) -> (* Group that closed top_styles (all of them) *)
+      let out = !cur_out in
+      let mods = all_to_pending out in
+      close_top n out ;
+      Some mods
+  | Nothing _ -> (* Group with nothing to do *)
+      None
+  | Activate _ -> (* Just activate styles *)
+      do_open_mods () ;
+      None
+  | ActivateClosed tops ->
+      do_open_mods () ;
+      let r = open_top_styles (Closed (tops,Out.get_pos !cur_out.out)) in
+      r
+
 
 let rec force_block s content =
   if !verbose > 2 then begin
-    prerr_string ("force_block: ["^string_of_block s^"] stack: ");    
-    pretty_stack out_stack ;
-    debug_flags flags
+    prerr_endline ("=> force_block: ["^string_of_block s^"]");    
+    pretty_cur !cur_out
   end ;
   let was_empty = flags.empty in
   if s = FORGET then begin
@@ -1146,11 +1335,14 @@ let rec force_block s content =
     do_put content
   end ;
   if s = TABLE || s=DISPLAY then flags.table_inside <- true;
-  if s = PRE then flags.in_pre <- false ;
-  do_close_mods () ;
+(*  if s = PRE then flags.in_pre <- false ; *)
   let true_s = if s = FORGET then pblock() else s in
   let insert = flags.insert
-  and insert_attr = flags.insert_attr in
+  and insert_attr = flags.insert_attr
+  and was_nostyle = !cur_out.nostyle
+  and was_top = !cur_out.top in
+
+  do_close_mods () ;
   try_close_block true_s ;
   do_close_block insert true_s ;
   let ps,args,pout = pop_out out_stack in  
@@ -1159,25 +1351,46 @@ let rec force_block s content =
   cur_out := pout ;
   if s = FORGET then free old_out
   else if ps <> DELAY then begin
-    let mods = to_pending !cur_out.pending !cur_out.active in
-    do_close_mods () ;
+    let mods = open_top_styles was_top in
+    
     do_open_block insert s
       (match insert_attr with
       | Some (this_tag,attr) when this_tag = s -> args^" "^attr
       | _ -> args) ;
+
+    begin match was_top with
+    | Insert (_,mods) ->
+        ignore (do_open_these_mods do_open_mod mods)
+    | _ -> ()
+    end ;
+(*
+    prerr_endline "****** NOW *******" ;
+    pretty_cur !cur_out ;
+    prerr_endline "\n**********" ;
+*)
     if ps = AFTER then begin
       let f = pop stacks.s_after in
       Out.copy_fun f old_out.out !cur_out.out
     end else begin
-        Out.copy old_out.out !cur_out.out
+      Out.copy old_out.out !cur_out.out
     end ;
     free old_out ;    
-    !cur_out.pending <- mods
+    begin match mods with
+    | Some mods ->
+        !cur_out.active  <- [] ;
+        !cur_out.pending <- mods
+    | _ -> ()
+    end
   end else begin (* ps = DELAY *)
     raise (Misc.Fatal ("html: unflushed DELAY"))
   end ;
   if not was_empty && true_s <> GROUP && true_s <> AFTER then
-    flags.last_closed <- true_s
+    flags.last_closed <- true_s ;
+
+  if !verbose > 2 then begin
+    prerr_endline ("<= force_block: ["^string_of_block s^"]");    
+    pretty_cur !cur_out
+  end ;
 
     
 and close_block_loc pred s =
@@ -1195,24 +1408,51 @@ and close_block_loc pred s =
 
 and open_block s args =
  if !verbose > 2 then begin
-   prerr_flags ("=> open_block ``"^string_of_block s^"''");
+   prerr_endline ("=> open_block ``"^string_of_block s^"''");
+   pretty_cur !cur_out ;
  end ;
  try_flush_par ();
- if s = PRE then
-    flags.in_pre <- true;
- let cur_mods = to_pending !cur_out.pending !cur_out.active in
+
  push_out out_stack (s,args,!cur_out) ;
  cur_out :=
-   new_status
-   !cur_out.nostyle
-   (if flags.in_pre then filter_pre cur_mods else cur_mods)
-   [] ;
+    begin if is_group s then
+      create_status_from_top !cur_out
+    else
+      create_status_from_scratch
+        !cur_out.nostyle
+        (let cur_mods = all_to_pending !cur_out in
+        if flags.in_pre || is_pre s then filter_pre cur_mods else cur_mods)
+    end ;
  try_open_block s args ;
- if !verbose > 2 then
-   prerr_flags ("<= open_block ``"^string_of_block s^"''")
+ if !verbose > 2 then begin
+   prerr_endline ("<= open_block ``"^string_of_block s^"''");
+   pretty_cur !cur_out ;
+ end ;
 ;;
 
-let insert_block tag arg = flags.insert <- Some (tag,arg)
+  
+let insert_block tag arg =
+  begin match !cur_out.top with
+  | Nothing {top_pending=pending ; top_active=active} ->
+      !cur_out.pending <- !cur_out.pending @ to_pending pending active ;
+      assert (!cur_out.active = []) ;
+      !cur_out.top <- Insert (false,[])
+  | Activate {top_pending=pending ; top_active=active} ->
+      let add_active = activate "insert_block" pending @ active in
+      !cur_out.active <- !cur_out.active @ add_active ;
+      !cur_out.top <- Insert (true,to_pending [] add_active)
+  | Closed (_,n) ->
+      prerr_endline "coucou" ;
+      Out.debug stderr !cur_out.out ;
+      Out.erase_start n !cur_out.out ;
+      !cur_out.top <- Insert (false,[])
+  | ActivateClosed {top_active=active ; top_pending=pending}->
+      !cur_out.top <- Insert (false,to_pending pending active)
+  | NotMe -> ()
+  | Insert _ -> ()
+  end ;
+  flags.insert <- Some (tag,arg)
+
 let insert_attr tag attr =
   match tag,flags.insert_attr with
   | TD, Some (TR,_) -> ()
@@ -1238,18 +1478,21 @@ let erase_block s =
    
 
 let open_group ss =
-  open_block GROUP "" ;
   let e = Style ss in
-    !cur_out.pending <-
-       (!cur_out.pending @
-        (if ss = "" || (flags.in_pre && not (ok_pre e)) then []
-        else [e]))
-
+  if ss  <> "" && (not flags.in_pre || (ok_pre e)) then begin
+    open_block INTERN "" ;
+    !cur_out.pending <- !cur_out.pending @ [e]
+  end else
+    open_block GROUP ""
+    
 and open_aftergroup f =
   open_block AFTER "" ;
   push stacks.s_after f
 
-and close_group () = close_block GROUP
+and close_group () =
+  match pblock () with
+  | INTERN -> close_block INTERN
+  | _      -> close_block GROUP
 ;;
 
 
@@ -1261,28 +1504,36 @@ let is_blank = function
 ;;
 
 let put s =
-  let s_blank =
-    let r = ref true in
-    for i = 0 to String.length s - 1 do
-      r := !r && is_blank (String.unsafe_get s i)
-    done ;
-    !r in
-  let save_last_closed = flags.last_closed in
-  do_pending () ;
-  flags.empty <- false;
-  flags.blank <- s_blank && flags.blank ;
-  do_put s ;
-  if s_blank then flags.last_closed <- save_last_closed
+  let block = pblock () in
+  match block with
+  | TABLE|TR -> ()
+  | _ -> 
+      let s_blank =
+        let r = ref true in
+        for i = 0 to String.length s - 1 do
+          r := !r && is_blank (String.unsafe_get s i)
+        done ;
+        !r in
+      let save_last_closed = flags.last_closed in
+      do_pending () ;
+      flags.empty <- false;
+      flags.blank <- s_blank && flags.blank ;
+      do_put s ;
+      if s_blank then flags.last_closed <- save_last_closed
 ;;
 
 let put_char c =
-  let save_last_closed = flags.last_closed in
-  let c_blank = is_blank c in
-  do_pending () ;
-  flags.empty <- false;
-  flags.blank <- c_blank && flags.blank ;
-  do_put_char c ;
-  if c_blank then flags.last_closed <- save_last_closed
+  let s = pblock () in
+  match s with
+  | TABLE|TR -> ()
+  | _ -> 
+      let save_last_closed = flags.last_closed in
+      let c_blank = is_blank c in
+      do_pending () ;
+      flags.empty <- false;
+      flags.blank <- c_blank && flags.blank ;
+      do_put_char c ;
+      if c_blank then flags.last_closed <- save_last_closed
 ;;
 
 
@@ -1315,7 +1566,7 @@ let horizontal_line attr width height =
 
 let line_in_table h =
   let pad = (h-1)/2 in
-  put "<TABLE BORDER=0 WIDTH=\"100%\" CELLSPACING=0 CELLPADING=" ;
+  put "<TABLE BORDER=0 WIDTH=\"100%\" CELLSPACING=0 CELLPADDING=" ;
   put (string_of_int pad) ;
   put "><TR><TD></TD></TR></TABLE>"
 
@@ -1375,6 +1626,7 @@ let close_flow_loc s =
   end
 ;;
 let close_flow s =
+  assert (s <> GROUP) ;
   if !verbose > 2 then
     prerr_flags ("=> close_flow ``"^string_of_block s^"''");
   let _ = close_flow_loc s in
@@ -1396,7 +1648,7 @@ let get_block s args =
   do_close_block None s ;
   let _,_,pout = pop_out out_stack in  
   let old_out = !cur_out in  
-  cur_out := new_status pout.nostyle pout.pending pout.active;
+  cur_out := with_new_out pout ;
   let mods = as_envs !cur_out.active !cur_out.pending in
   do_close_mods () ;
   do_open_block None s args ;
@@ -1412,23 +1664,21 @@ let get_block s args =
   end ;
   r
 
-
-
 let hidden_to_string f =
 (*
   prerr_string "to_string: " ;
-  debug_empty flags ;
   Out.debug stderr !cur_out.out ;
   prerr_endline "" ;
 *)
   let old_flags = copy_flags flags in
   let _ = forget_par () in
-  open_group "" ;
+  open_block INTERN "" ;
   f () ;
+  do_close_mods () ;
   let flags_now = copy_flags flags in
   let r = Out.to_string !cur_out.out in
   flags.empty <- true ;
-  close_group () ;
+  close_block INTERN ;
   set_flags flags old_flags ;
   r,flags_now
 ;;

@@ -10,9 +10,9 @@ CPP=gcc -E -P -x c
 ############### End of configuration parameters
 
 HEVEA=./hevea.$(TARGET)
-OCAMLC=ocamlc
+OCAMLC=ocamlrun ${HOME}/Conti/csl/ocamlc -I ${HOME}/Conti/csl/stdlib
 OCAMLCI=$(OCAMLC)
-OCAMLOPT=ocamlopt
+OCAMLOPT=${HOME}/Conti/csl/ocamlopt.opt -I ${HOME}/Conti/csl/stdlib
 OCAMLLEX=ocamllex
 INSTALL=cp
 OBJS=version.cmo stack.cmo location.cmo misc.cmo element.cmo out.cmo table.cmo parse_opts.cmo mylib.cmo myfiles.cmo symb.cmo save.cmo auxx.cmo  lexstate.cmo subst.cmo latexmacros.cmo counter.cmo noimage.cmo image.cmo length.cmo  get.cmo tabular.cmo htmlCommon.cmo htmlMath.cmo mathML.cmo html.cmo  text.cmo infoRef.cmo info.cmo section.cmo foot.cmo entry.cmo index.cmo colscan.cmo color.cmo hot.cmo package.cmo videoc.cmo verb.cmo latexscan.cmo zyva.cmo latexmain.cmo

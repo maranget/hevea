@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: mathML.ml,v 1.14 2000-07-10 15:06:32 maranget Exp $" 
+let header = "$Id: mathML.ml,v 1.15 2000-10-13 19:17:41 maranget Exp $" 
 
 
 open Misc
@@ -54,7 +54,7 @@ and open_display () =
   do_put_char '\n';
   open_block GROUP "" ;
   if !verbose > 2 then begin
-    pretty_cur !cur_out ;
+    pretty_cur  !cur_out ;
     prerr_endline ""
   end     
 
@@ -191,7 +191,7 @@ let insert_vdisplay open_fun =
     let ps,pargs,pout = pop_out out_stack in
     if ps <> (OTHER "mrow") then
       failclose "insert_vdisplay" ps (OTHER "mrow");
-    let new_out = new_status false [] [] in
+    let new_out = create_status_from_scratch false [] in
     push_out out_stack (ps,pargs,new_out) ;
     push_out out_stack (bs,bargs,bout) ;    
     close_display () ;
@@ -202,7 +202,7 @@ let insert_vdisplay open_fun =
     free new_out ;    
     if !verbose > 2 then begin
       prerr_string "insert_vdisplay -> " ;
-      pretty_mods mods ;
+      pretty_mods stderr mods ;
       prerr_newline ()
     end ;
     if !verbose > 2 then
@@ -397,7 +397,7 @@ let insert_sub_sup tag s t =
   let f, is_freeze = pop_freeze () in
   let ps,pargs,pout = pop_out out_stack in
   if ps <> GROUP then failclose "sup_sub" ps GROUP ;
-  let new_out = new_status false [] [] in
+  let new_out = create_status_from_scratch false [] in
   push_out out_stack (ps,pargs,new_out);
   close_block GROUP;
   cur_out := pout;

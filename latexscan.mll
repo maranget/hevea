@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.195 2000-09-28 10:34:40 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.196 2000-10-13 19:17:34 maranget Exp $ *)
 
 
 {
@@ -2029,7 +2029,7 @@ def_code "\\@anti"
     let arg = save_arg lexbuf in
     let envs = get_style main arg in
     if !verbose > 2 then begin
-      prerr_string "Anti result: " ;
+      prerr_string ("Anti result: ") ;
       List.iter
         (fun s ->
           prerr_string (Element.pretty_text s^", ")) envs ;
@@ -2039,22 +2039,24 @@ def_code "\\@anti"
 ;;
 def_code "\\@style"  
   (fun lexbuf ->
-          let arg = get_prim_arg lexbuf in
-          Dest.open_mod (Style arg) )
+    let arg = get_prim_arg lexbuf in
+    Dest.open_mod (Style arg) )
 ;;
 def_code "\\@fontcolor"  
   (fun lexbuf ->
-          let arg = get_prim_arg lexbuf in
-          Dest.open_mod (Color arg) )
+    let arg = get_prim_arg lexbuf in
+    Dest.open_mod (Color arg))
 ;;
 def_code "\\@fontsize"  
   (fun lexbuf ->
-          let arg = save_arg lexbuf in
-          Dest.open_mod (Font (Get.get_int arg)) )
+    let arg = save_arg lexbuf in
+    Dest.open_mod (Font (Get.get_int arg)) )
 ;;
-def_code "\\@nostyle" (fun lexbuf -> Dest.nostyle () )
+def_code "\\@nostyle"
+        (fun lexbuf -> Dest.nostyle () ; check_alltt_skip lexbuf)
 ;;
-def_code "\\@clearstyle" (fun lexbuf -> Dest.clearstyle () )
+def_code "\\@clearstyle"
+        (fun lexbuf -> Dest.clearstyle ()  ; check_alltt_skip lexbuf)
 ;;
 def_code "\\@incsize"
   (fun lexbuf ->
@@ -2410,7 +2412,10 @@ def_code "\\gsbox"
 def_code "\\usebox"
   (fun lexbuf ->
     let name = get_csname lexbuf in
-    expand_command main skip_blanks name lexbuf)
+    top_open_group () ;
+    Dest.nostyle () ;
+    expand_command main skip_blanks name lexbuf ;
+    top_close_group ())
 ;;
 
 def_code "\\lrbox"
@@ -2579,7 +2584,7 @@ exception Cannot
 
 def_code "\\@getlength"
   (fun lexbuf ->
-    let arg = save_arg lexbuf in
+    let arg = get_prim_arg lexbuf in
     let pxls = 
       match Get.get_length arg with
       | Length.Pixel n -> n
@@ -2750,7 +2755,7 @@ let open_array env lexbuf =
   let len =  match env with
     | "tabular*"|"Tabular*" ->
         let arg = save_arg lexbuf in
-        begin match Get.get_length arg with
+        begin match Get.get_length (get_prim_onarg arg) with
         | Length.No s ->
             warning ("``tabular*'' with length argument: "^
                      do_subst_this arg) ;
@@ -2934,15 +2939,15 @@ let safe_len = function
 def_code "\\@printHR"
     (fun lexbuf ->
       let arg = get_prim_arg lexbuf in
-      let taille = safe_len (Get.get_length (save_arg lexbuf)) in
+      let taille = safe_len (Get.get_length (get_prim_arg lexbuf)) in
       Dest.horizontal_line arg taille (Length.Pixel 2))
 ;;
 
 def_code"\\@hr"
    (fun lexbuf ->
      let attr = subst_opt "" lexbuf in
-     let width = safe_len (Get.get_length (save_arg lexbuf)) in
-     let height = safe_len (Get.get_length (save_arg lexbuf)) in
+     let width = safe_len (Get.get_length (get_prim_arg lexbuf)) in
+     let height = safe_len (Get.get_length (get_prim_arg lexbuf)) in
      Dest.horizontal_line attr width height)
 ;;
 

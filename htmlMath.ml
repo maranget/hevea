@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlMath.ml,v 1.19 2000-07-10 15:06:20 maranget Exp $" 
+let header = "$Id: htmlMath.ml,v 1.20 2000-10-13 19:17:28 maranget Exp $" 
 
 
 open Misc
@@ -96,13 +96,13 @@ let begin_item_display f is_freeze =
     prerr_newline ()
   end ;
   open_block TD "NOWRAP";
-  open_block GROUP "" ;
+  open_block INTERN "" ;
   if is_freeze then(* push out_stack (Freeze f) ;*)freeze f;
 
 
 and end_item_display () =
   let f,is_freeze = pop_freeze () in
-  let _ = close_flow_loc GROUP in
+  let _ = close_flow_loc INTERN in
   if close_flow_loc TD then
     flags.ncols <- flags.ncols + 1;
   if !verbose > 2 then begin
@@ -119,7 +119,7 @@ let open_display () =
   try_open_display () ;
   open_block DISPLAY (display_arg !verbose) ;
   open_block TD "NOWRAP" ;
-  open_block GROUP "" ;
+  open_block INTERN "" ;
   if !verbose > 2 then begin
     pretty_cur !cur_out ;
     prerr_endline ""
@@ -131,7 +131,7 @@ let close_display () =
     prerr_flags "=> close_display"
   end ;
   if not (flush_freeze ()) then begin
-    close_flow GROUP ;
+    close_flow INTERN ;
     let n = flags.ncols in
     if !verbose > 2 then
       Printf.fprintf stderr "=> close_display, ncols=%d\n" n ;
@@ -227,20 +227,20 @@ let do_item_display force =
       prerr_endline ("Some Item")
     end;
     open_block TD "NOWRAP" ;
-    open_block GROUP ""
+    open_block INTERN ""
   end else begin
     if !verbose > 2 then begin
       Out.debug stderr !cur_out.out ;
       prerr_endline "No Item" ;
       prerr_endline ("flags: empty="^sbool flags.empty^" blank="^sbool flags.blank)
     end;
-    close_flow GROUP ;
+    close_flow INTERN ;
     if !verbose > 2 then begin
       Out.debug stderr !cur_out.out ;
       prerr_endline "No Item" ;
       prerr_endline ("flags: empty="^sbool flags.empty^" blank="^sbool flags.blank)
     end;
-    open_block GROUP ""
+    open_block INTERN ""
   end ;
   if is_freeze then push out_stack (Freeze f) ;
   if !verbose > 2 then begin
@@ -255,7 +255,7 @@ and force_item_display () = do_item_display true
 
 
 let erase_display () =
-  erase_block GROUP ;
+  erase_block INTERN ;
   erase_block TD ;
   erase_block DISPLAY ;
   try_close_display ()
@@ -327,22 +327,25 @@ let open_script_font () =
 
 
 let put_sup_sub display scanner (arg : string Lexstate.arg) =
-  if display then open_display () else open_group "" ;
+  if display then open_display () else open_block INTERN "" ;
   open_script_font () ;
   scanner arg ;
-  if display then close_display () else close_group () ;
+  if display then close_display () else close_block INTERN ;
 ;;
 
 let reput_sup_sub tag = function
   | "" -> ()
   | s  ->
+      open_block INTERN "" ;
+      clearstyle () ;
       put_char '<' ;
       put tag ;
       put_char '>' ;
       put s ;
       put "</" ;
       put tag ;
-      put_char '>'
+      put_char '>' ;
+      close_block INTERN
 
 
 let standard_sup_sub scanner what sup sub display =
@@ -357,6 +360,7 @@ let standard_sup_sub scanner what sup sub display =
     open_vdisplay display ;
     if sup <> "" then begin
       open_vdisplay_row "NOWRAP" ;
+      clearstyle () ;
       put sup ;
       close_vdisplay_row ()
     end ;           
@@ -365,11 +369,12 @@ let standard_sup_sub scanner what sup sub display =
     close_vdisplay_row () ;
     if sub <> "" then begin
       open_vdisplay_row "NOWRAP" ;
+      clearstyle () ;
       put sub ;
       close_vdisplay_row ()
     end ;
-      close_vdisplay () ;
-      force_item_display ()
+    close_vdisplay () ;
+    force_item_display ()
   end else begin
     what ();
     reput_sup_sub "SUB" sub ;
@@ -434,15 +439,15 @@ let insert_vdisplay open_fun =
   try
     let mods = to_pending !cur_out.pending !cur_out.active in
     let bs,bargs,bout = pop_out out_stack in
-    if bs <> GROUP then
-      failclose "insert_vdisplay" bs GROUP ;
+    if bs <> INTERN then
+      failclose "insert_vdisplay" bs INTERN ;
     let ps,pargs,pout = pop_out out_stack in
     if ps <> TD then
       failclose "insert_vdisplay" ps TD ;
     let pps,ppargs,ppout = pop_out out_stack  in
     if pps <> DISPLAY then
       failclose "insert_vdisplay" pps DISPLAY ;
-    let new_out = new_status false [] [] in
+    let new_out = create_status_from_scratch false [] in
     push_out out_stack (pps,ppargs,new_out) ;
     push_out out_stack (ps,pargs,pout) ;
     push_out out_stack (bs,bargs,bout) ;    
@@ -454,7 +459,7 @@ let insert_vdisplay open_fun =
     free new_out ;    
     if !verbose > 2 then begin
       prerr_string "insert_vdisplay -> " ;
-      pretty_mods mods ;
+      pretty_mods stderr mods ;
       prerr_newline ()
     end ;
     if !verbose > 2 then

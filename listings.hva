@@ -345,7 +345,7 @@
 \def\lst@output@other#1#2{%
 \@NewLine
 \ifu\csname lstk@#1\endcsname
-  #1\else
+  #2\else
   {{\csname lstk@#1\endcsname{#2}}}\fi}
 %%%%%% Pre and post (already obsolete)
 \let\lst@pre\@empty

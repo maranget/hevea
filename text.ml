@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.51 2000-09-28 10:34:55 maranget Exp $"
+let header = "$Id: text.ml,v 1.52 2000-10-13 19:17:44 maranget Exp $"
 
 
 open Misc
@@ -930,9 +930,6 @@ let force_block s content =
     if !cur_out.temp then
       free old_out;
   end else raise ( Misc.Fatal "text: unflushed DELAY")
-;;
-
-let close_flow s = ()
 ;;
 
 let close_block s =

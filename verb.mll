@@ -124,11 +124,13 @@ let lst_top_mode = ref Skip
 
 let lst_ptok s =  prerr_endline (s^": "^Out.to_string lst_buff)
 
+(* Final ouput, with transformations *)
 let dest_string s =
   for i = 0 to String.length s - 1 do
     Dest.put (Dest.iso s.[i])
   done
 
+(* Echo, with case change *)
 let dest_case s =
   Dest.put
     (match !case with
@@ -147,14 +149,15 @@ let def_print s =
 
 let lst_output_other () =
   if not (Out.is_empty lst_buff) then begin
+    let arg = Out.to_string lst_buff in
     match !lst_top_mode with
     | Normal ->
-        let arg = Out.to_string lst_buff in
         def_print arg ;
-        scan_this Scan.main ("\\lst@output@other{\\@tmp@lst}{\\@tmp@lst@print}")
+        scan_this Scan.main
+          ("\\lst@output@other{\\@tmp@lst}{\\@tmp@lst@print}")
     | _ ->
         scan_this main "\\@NewLine" ;
-        dest_string (Out.to_string lst_buff)
+        dest_string arg
   end
 
 
