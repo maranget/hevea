@@ -36,18 +36,19 @@
 \let\latexcr\\
 %%mathpar
 \def\open@mathpar@table
-{\@open{TABLE}{BORDER=0 CELLSPACING=4 CELLPADDING=0}}
-\def\mathpar@and{\mbox{\qquad}}%
-\def\mathpar@bsbs
+{\@open{TABLE}{BORDER=1 CELLSPACING=4 CELLPADDING=0}}
+\def\mathpar@bsbs{\mbox{\qquad}}%
+\def\mathpar@and
 {\@force{TD}\@close{TR}\@open{TR}{}\@open{TD}{align=center}}%
 \def\mathpar@hva#1{\mathpar@bsbs}%
 \newenvironment{mathpar}[1][]
   {$$%
-  \let\and\mathpar@and\let\\\mathpar@bsbs\let\hva\mathpar@hva%
+  \let\and\mathpar@and\let\par\mathpar@and\let\\\mathpar@bsbs\let\hva\mathpar@hva%
   \open@mathpar@table%
   \@open{TR}{}\@open{TD}{align=center}}
   {\@close{TD}\@close{TR}\@close{TABLE}$$}
 %%%% Type Inference Rules (TIR)
+\newsavebox{\mpr@save@arg}%
 \newcommand{\mpr@globle}[1]{}
 \newcommand {\@mpr@name}[1]{\@tir@name{#1}\let\mpr@name\mpr@globle}
 \def \@latexcr@char {\\}
@@ -56,8 +57,8 @@
    \else \error {hva in mathrule}\fi%
    \mpr@break@display}
 \def \mpr@break@display
-{\global\let\mpr@save@arg\mpr@line@arg
-\endmpr@line\mpr@line{\mpr@save@arg}}
+{\sbox{\mpr@save@arg}{\mpr@line@arg}%
+\endmpr@line\mpr@line{\usebox{\mpr@save@arg}}}
 %%% this may not be robust (if nextchar is special char)
 %%% also may not want this semantics
 \def \@latexcr #1{%
@@ -124,15 +125,6 @@
 \mpr@emptyR
 \@force{TR}}
 
-\def \hh@arrow {\@print
-   {</TD></TR><TR> 
-     <td><table cellpadding=0 cellspacing=0 WIDTH="100%"><tr>
-     <TD bgcolor=black>
-    <TABLE border=0 cellspacing=0 cellpadding=1 bgcolor=green width="100%">
-    <TR><TD></TD></TR></TABLE></TD>
-     </tr></table></td><td><TD><b><sup><code>-><code></sup></b></TD></td>
-    </TR><TR><TD align=center>}} 
-
 \newcommand {\inferrule*}[3][]{%
    \bgroup\let\@tir@name\RefTirName%
    \mpr@vdotsfalse\let\mpr@label\mpr@N\let\mpr@name\@mpr@name%Default
@@ -149,15 +141,13 @@
 \define@key {mprset}{center}[]{\mpr@centertrue}
 \define@key {mpr}{flushleft}[]{\mpr@centerfalse}
 \define@key {mpr}{center}[]{\mpr@centertrue}
-
-\define@key {mpr}{left}{[\mpr@name {#1}]}
 \define@key {mpr}{width}{}
 \define@key {mpr}{before}{#1}
 \define@key {mpr}{narrower}{}
 \define@key {mpr}{leftskip}{}
 \define@key {mpr}{rightskip}{}
 \def\mpr@N{N}\def\mpr@C{C}\def\mpr@R{R}\def\mpr@L{L}\let\mpr@label\mpr@N
-\def\mpr@set@name#1{\def \@rule@name {[\mpr@name {#1}]}}
+\def\mpr@set@name#1{\def \@rule@name {\mpr@name{#1}}}
 \define@key {mpr}{lab}{\let\mpr@label\mpr@C\mpr@set@name{#1}}
 \define@key {mpr}{Lab}{\let\mpr@label\mpr@C\mpr@set@name{#1}}
 \define@key {mpr}{left}{\let\mpr@label\mpr@L\mpr@set@name{#1}}
@@ -166,7 +156,6 @@
 \define@key {mpr}{right}{\let\mpr@label\mpr@R\mpr@set@name{#1}}
 \define@key {mpr}{vdots}{\mpr@vdotstrue\def\mpr@vdots{#1}}
 \define@key {mpr}{after}{}
-%\define@key {mpr}{reduce}[]{\let \hhline \hh@arrow}
 %%%%Synonyms
 \@ifundefined{infer}{\let\infer\inferrule}{}
 \@ifundefined{infer*}{\let\infer*\inferrule*}{}
