@@ -1,3 +1,6 @@
+version 1.07+1
+   - Additional entities for big delimiters.
+   
 version 1.07
    - Release, to follow ocaml evolution.
 
