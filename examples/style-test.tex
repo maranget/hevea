@@ -15,9 +15,16 @@
 \let \lst \verb
 
 \title {Didier's Mathpartir}
-
+\renewcommand{\setstyle}[2]
+{\newstyle{H1}{background:#1;color:#2}
+\newstyle{H2}{background:#1;color:#2}
+\newstyle{H3}{background:#1;color:#2}
+\newstyle{H4}{background:#1;color:#2}
+\newstyle{H5}{background:#1;color:#2}
+\newstyle{H6}{background:#1;color:#2}}
+\setstyle{blue}{white}
 \begin{document}
-%HEVEA \setstyle{blue}{white}
+
 \maketitle
 
 \section {The inferrule macro}

@@ -176,7 +176,15 @@
 {\begin{rawhtml}
 <META http-equiv="Content-Type" content="text/html; charset=\end{rawhtml}\@charset\begin{rawhtml}">
 <META name="GENERATOR" content="hevea \end{rawhtml}\usebox{\@heveaversion}\@print{">
-}}
+}
+\ife\hevea@css\else\@print{<STYLE type="text/css">}
+\hevea@css\@print{</STYLE>}\fi%
+}
+%%% Style sheet
+\newtokens{\hevea@css}
+\newcommand{\addstyle}[1]{\addtokens{\hevea@css}{#1}}
+\newcommand{\newstyle}[2]{\addstyle{\@getprint{#1  \char123#2\char125\@print{
+}}}}
 \newenvironment{document}{%
 \@end{document}
 \@restartoutput\unskip
@@ -210,6 +218,7 @@
 }%
 \usebox{\@toplinks}%
 \cutdef[\thecuttingdepth]{\cuttingunit}%
+\renewcommand{\addstyle}[1]{\warning{\addstyle{} must be used in document preamble}}
 \@atbegindocument%
 }{%
 \@clearstyle\@footnoteflush{document}%
