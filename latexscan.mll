@@ -47,7 +47,7 @@ open Save
 open Tabular
 open Lexstate
 
-let header = "$Id: latexscan.mll,v 1.87 1999-05-10 15:54:00 tessaud Exp $" 
+let header = "$Id: latexscan.mll,v 1.88 1999-05-10 17:47:47 maranget Exp $" 
 
 let sbool = function
   | false -> "false"
@@ -328,6 +328,7 @@ let scan_this_arg old_stack lexfun lexbuf s =
 *)
 
 let get_this lexfun s =
+  let par_val = Dest.forget_par () in
   start_normal display in_math ;
 
   if !verbose > 1 then
@@ -342,6 +343,7 @@ let get_this lexfun s =
     prerr_endline ("get_this ``"^s^"'' -> ``"^r^"''")
   end ;
   end_normal display in_math ;
+  Dest.par par_val ;
   r
 ;;
 

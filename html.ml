@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: html.ml,v 1.43 1999-05-07 17:45:10 maranget Exp $" 
+let header = "$Id: html.ml,v 1.44 1999-05-10 17:47:43 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -1356,11 +1356,13 @@ let loc_ref s1 s2 =
 ;;
 
 let loc_name s1 s2 =
+  let pval = forget_par () in
   put "<A NAME=\"" ;
   put s1 ;
   put "\">" ;
   put s2 ;
-  put "</A>"
+  put "</A>" ;
+  par pval
 ;;
 
 let insert_vdisplay open_fun =

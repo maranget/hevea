@@ -1,5 +1,6 @@
 version 1.04-1
-  - info and text output, important changes in lirbrary organization.
+  - Better paragraph managment across \label and \index.
+  - info and text output, important changes in library organization.
   - mutind.hva compatibility file (added a \indexname internal command).
   - Better looking indexes, index tags get expanded.
   - New behavior for ``_'' and ``^'' outside math mode: they are
