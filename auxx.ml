@@ -11,7 +11,7 @@
 
 open Misc
 
-let header = "$Id: auxx.ml,v 1.15 2001-10-19 18:35:44 maranget Exp $" 
+let header = "$Id: auxx.ml,v 1.16 2001-10-22 18:03:55 maranget Exp $" 
 
 let rtable = Hashtbl.create 17
 ;;
@@ -152,42 +152,46 @@ let toctable = Hashtbl.create 5
 ;;
 
 
-let rec addtoc suf anchor level number title = 
+let do_addtoc toc level what =
+  (* First adjust nesting of tocenv *)
+  if level > toc.level then begin
+    for i = toc.level to level-1 do
+      output_string toc.chan "\\begin{tocenv}\n"
+    done ;
+    toc.depth <- toc.depth + level - toc.level ;
+    toc.level <- level
+  end else if level < toc.level then begin
+    let nclose = min toc.depth (toc.level - level) in
+    for i = 1 to nclose do
+      output_string toc.chan "\\end{tocenv}\n"
+    done ;
+    toc.depth <- toc.depth - nclose ;
+    if toc.depth=0 then begin
+      output_string toc.chan "\\begin{tocenv}\n" ;
+      toc.depth <- 1 ;          
+    end ;
+    toc.level <- level
+  end ;
+
+ (* Then ouput toc item *)
+  Printf.fprintf toc.chan "\\tocitem %s\n" what
+
+
+
+let  addtoc suf level what = 
   try
     try
       let toc = Hashtbl.find toctable suf in
+      do_addtoc toc level what
 
-      (* First adjust nesting of tocenv *)
-      if level > toc.level then begin
-        for i = toc.level to level-1 do
-          output_string toc.chan "\\begin{tocenv}\n"
-        done ;
-        toc.depth <- toc.depth + level - toc.level ;
-        toc.level <- level
-      end else if level < toc.level then begin
-        let nclose = min toc.depth (toc.level - level) in
-        for i = 1 to nclose do
-          output_string toc.chan "\\end{tocenv}\n"
-        done ;
-        toc.depth <- toc.depth - nclose ;
-        if toc.depth=0 then begin
-          output_string toc.chan "\\begin{tocenv}\n" ;
-          toc.depth <- 1 ;          
-        end ;
-        toc.level <- level
-      end ;
-
-      (* Then ouput toc item *)
-      Printf.fprintf toc.chan
-        "\\tocitem \\@locref{%s%s}{\\begin{@norefs}%s%s\\end{@norefs}}\n"
-        suf anchor number title
-    with
+  with
     | Not_found ->
         let name = Parse_opts.base_out^"."^suf in
         let chan = open_out name in
         output_string chan "\\begin{tocenv}\n" ;
-        Hashtbl.add toctable suf {level=level ; depth=1 ; chan=chan} ;
-        addtoc suf anchor level number title
+        let toc = {level=level ; depth=1 ; chan=chan} in
+        Hashtbl.add toctable suf toc ;
+        do_addtoc toc level what
   with
   | Sys_error msg ->
       Misc.warning

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.215 2001-10-19 18:35:53 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.216 2001-10-22 18:04:03 maranget Exp $ *)
 
 
 {
@@ -2060,11 +2060,19 @@ def_code "\\@addtocsec"
      let suf = get_prim_arg lexbuf in
      let anchor = get_prim_arg lexbuf in
      let level = get_num_arg lexbuf in
-     let {arg=number} = save_arg lexbuf in
      let {arg=title} = save_arg lexbuf in
-     Auxx.addtoc suf anchor level number title)
+     Auxx.addtoc suf level
+       (Printf.sprintf "\\@locref{%s%s}{\\begin{@norefs}%s\\end{@norefs}}"
+          suf anchor title))
 ;;
 
+def_code "\\@addcontentsline"
+  (fun lexbuf ->
+     let suf = get_prim_arg lexbuf in
+     let level =  get_num_arg lexbuf in
+     let {arg=title} = save_arg lexbuf in
+     Auxx.addtoc suf level title)
+;;
 
 def_code "\\@notags"
   (fun lexbuf ->

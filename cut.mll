@@ -12,7 +12,7 @@
 {
 open Lexing
 open Stack
-let header = "$Id: cut.mll,v 1.33 2001-10-19 18:35:46 maranget Exp $" 
+let header = "$Id: cut.mll,v 1.34 2001-10-22 18:03:57 maranget Exp $" 
 
 let verbose = ref 0
 
@@ -81,6 +81,8 @@ let toc = ref !out
 and tocname = ref !outname
 and otherout = ref !out
 ;;
+
+let close_loc ctx name out =  Out.close out
 
 let change_name oldname name =
   if !phase <= 0 then begin
@@ -211,7 +213,7 @@ and closehtml withlinks name out =
   end ;
   Out.put out "</BODY>\n" ;
   Out.put out "</HTML>\n" ;
-  Out.close out
+  close_loc "closehtml" name out
 ;;
 
 let put_sec hd title hde out =
@@ -284,8 +286,7 @@ let close_chapter () =
       Out.to_chan real_out !out_prefix ;
       Out.to_chan real_out !out ;
       close_out real_out
-    end else
-      Out.close !out ;
+    end ;
     out := !toc
   end else begin
     lastclosed := !outname ;
@@ -342,7 +343,7 @@ let open_notes sec_notes =
 and close_notes () =
   if !otheroutname <> "" then begin
      Out.put !out "\n</BODY></HTML>\n" ;
-     Out.close !out ;
+     close_loc "notes" !outname !out ;
      outname := !otheroutname ;
      out := !otherout ;
      otheroutname := ""
@@ -407,7 +408,7 @@ let close_top lxm =
   if !tocname = "" then
     Out.flush !toc
   else
-   Out.close !toc
+   close_loc "top" !tocname !toc
 ;;
 
 let open_toc () = if !phase > 0 then openlist !toc
@@ -438,7 +439,6 @@ let openflow title =
 and closeflow () =
   if !phase > 0 then begin
     closehtml false !outname !out;
-    Out.close !out ;
     out := pop flow_stack
   end ;
   outname := pop flowname_stack

@@ -19,7 +19,7 @@ val bwrite : string -> string -> unit
 val rwrite : string -> string -> unit
 val swrite : string -> unit
 
-val addtoc : string -> string -> int -> string -> string -> unit
+val addtoc : string -> int -> string -> unit
 
 val hot_start : unit -> unit
 

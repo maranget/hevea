@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: cutmain.ml,v 1.16 2001-10-19 18:35:47 maranget Exp $" 
+let header = "$Id: cutmain.ml,v 1.17 2001-10-22 18:03:58 maranget Exp $" 
 
 exception Error of string
 ;;
@@ -81,6 +81,7 @@ with
       ("Fatal error: "^s^" (please report to Luc.Maranget@inria.fr") ;
     prerr_endline "Adios" ;
     exit 2
+(*
 |  x ->
     Location.print_pos () ;
     prerr_endline
@@ -88,6 +89,7 @@ with
        " (please report to Luc.Maranget@inria.fr") ;
     prerr_endline "Adios" ;
     exit 2
+*)
 ;;
 
 exit 0;;
