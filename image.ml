@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: image.ml,v 1.27 2001-10-02 12:32:32 maranget Exp $" 
+let header = "$Id: image.ml,v 1.28 2001-10-02 12:51:36 maranget Exp $" 
 open Misc
 
 let base = Parse_opts.base_out
@@ -90,7 +90,7 @@ let finalize check =
         Mysys.rename tmp_name true_name ;
         Misc.message
           ("HeVeA Warning: images may have changed, run ``imagen "^
-           !Misc.image_opt^" "^base^"''");
+           Misc.get_image_opt ()^" "^base^"''");
         true
       end else begin
         Mysys.remove tmp_name ;

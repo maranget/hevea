@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmain.ml,v 1.70 2001-10-02 12:32:32 maranget Exp $" 
+let header = "$Id: latexmain.ml,v 1.71 2001-10-02 12:51:36 maranget Exp $" 
 
 open Misc
 open Parse_opts
@@ -69,10 +69,13 @@ and prerr_not_supported msg =
 let finalize check =
   try
     begin match !Misc.image_opt with
-    | "" ->
+    | None ->
         let s = scan_get_prim "\\heveaimageext" in
         s.[0] <- '-' ;
-        Misc.image_opt := s
+        begin match s with
+        | "-gif" -> Misc.image_opt := Some ""
+        | _ -> Misc.image_opt := Some s
+        end
     | _ -> ()
     end ;
     let changed = Auxx.finalize check in
@@ -174,7 +177,7 @@ let main () =
           if !image_changed then begin
             Misc.message
               ("Now, I am running imagen for you") ;
-            let _ = Sys.command("imagen "^ !Misc.image_opt^ " "^base_out) in ()
+            let _ = Sys.command("imagen "^Misc.get_image_opt ()^" "^base_out) in ()
           end
         end in
       do_rec 1

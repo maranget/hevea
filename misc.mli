@@ -41,4 +41,5 @@ val end_env : string -> string
 
 type limits = Limits | NoLimits | IntLimits
 
-val image_opt : string ref
+val image_opt : string option ref
+val get_image_opt : unit -> string

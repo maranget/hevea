@@ -2548,7 +2548,7 @@ command, which calls the \verb+\imgsrc+ command~:
 \newcommand{\imageflush}[1][]
 {\@imageflush\stepcounter{image}\imgsrc[#1]{\jobname\theimage\heveaimageext}}
 \end{verbatim}
-That is, you may supply a \html-style attribute to the includes image,
+That is, you may supply a \html-style attribute to the included image,
 as an optional argument to the \verb+\imageflush+ command.
 
 
@@ -5227,8 +5227,10 @@ Output PNG images in place of GIF images.
 PNG is sometimes prefered for legal reasons.
 PNG image files have a ``\texttt{.png}'' extension.
 Note that \texttt{hevea} should have been previously run as
-\texttt{hevea png.hva\ldots} (so that the proper ``\texttt{.png}'' filename
-extension is given to image file references from within the \html{} document).
+\texttt{hevea png.hva} \textit{base}\texttt{.tex} (so that the proper
+``\texttt{.png}'' filename
+extension is given to image file references from within the \html{}
+document).
 \item[{\tt -pnm}] Output PPM images. This option mostly serves
 debugging purposes. Experimented users can also take advantage
 of it for performing additional image transformation or
@@ -5243,6 +5245,14 @@ be wrong and the images are too small. This can be cured by invoking
 \begin{flushleft}
 \texttt{\# imagen  -extra "pnmflip -ccw" -mag 2000} \textit{base}
 \end{flushleft}
+
+Sometimes \texttt{imagen} crashes because the PPM transformation chain
+does not cope with images with more than 256~colors by default. The
+solution is to re-issue the \texttt{imagen} command as:
+\begin{flushleft}
+\texttt{\# imagen  -quant 256} \textit{base}
+\end{flushleft}
+
 
 More information on producing images can be found in section~\ref{imagen}.
 
