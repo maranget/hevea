@@ -4,82 +4,44 @@
 \newcommand{\colorsections}[1]{
 \definecolor{part}{hsv}{#1, 1, .8}
 \ifthenelse{\equal{\@base}{article}}{%
-\definecolor{section}{hsv}{#1, .8, .9}
-\definecolor{subsection}{hsv}{#1, .6, 1}
-\definecolor{subsubsection}{hsv}{#1, .4, 1}}{%
-\definecolor{chapter}{hsv}{#1, .8, .9}
-\definecolor{section}{hsv}{#1, .6, 1}
-\definecolor{subsection}{hsv}{#1, .5, 1}
-\definecolor{subsubsection}{hsv}{#1, .4, 1}}
-}
-\newcommand{\@color}{120}
-\colorsections {\@color}
-%%%%%%%%%%%%%%%%% Command section
-\newcommand{\OPENTABLE}[2]
-  {\@open{TABLE}{#1}\@open{TR}{}\@open{TD}{#2}}
-\newcommand{\CLOSETABLE}
-  {\@close{TD}\@close{TR}\@close{TABLE}}
-\def\opencolor#1{\begin{bgcolor}[CELLPADDING=0 CELLSPACING=0 WIDTH="100\@print{%}"]{#1}\bf\centering}
-\def\closecolor{\end{bgcolor}}
+\definecolor{sectioncolor}{hsv}{#1, .8, .9}%
+\definecolor{subsectioncolor}{hsv}{#1, .6, 1}%
+\definecolor{subsubsectioncolor}{hsv}{#1, .4, 1}%
+}{%
+\definecolor{chaptercolor}{hsv}{#1, .8, .9}%
+\definecolor{sectioncolor}{hsv}{#1, .6, 1}%
+\definecolor{subsectioncolor}{hsv}{#1, .5, 1}%
+\definecolor{subsubsectioncolor}{hsv}{#1, .4, 1}%
+}}%
+\newcommand{\@color}{120}%
+\colorsections{\@color}%
 
-
-%% White background
-\renewcommand{\@bodyargs}{TEXT=black BGCOLOR=white}
-
-%% Useful macros
-\ifthenelse{\equal{\@base}{book}}
-{\def\openchapter{\opencolor{chapter}\huge\OPENTABLE{}{}}}
-{}
-\def\opensection{\opencolor{section}\Large\OPENTABLE{}{}}
-\def\opensubsection{\opencolor{subsection}\large\OPENTABLE{}{}}
-\def\opensubsubsection{\opencolor{subsubsection}\OPENTABLE{}{}}
-\def\closesection{\CLOSETABLE\closecolor}
-\def\sectitle{\@close{TD}\@open{TD}{WIDTH="100\%" ALIGN=center}}
 %% Define sectioning comands
 \ifthenelse{\equal{\@base}{article}}{%
-\remakesection
-  {\part}{-1}{part}
-  {\begin{center}\begin{bgcolor}{part}\centering\huge\bf}
-  {\partname~\thepart}{\\}
-  {\end{bgcolor}\end{center}}
-\remakesection
-  {\section}{0}{section}
-  {\opensection}{\thesection}{\sectitle}{\closesection}
-\remakesection
-  {\subsection}{1}{subsection}
-  {\opensubsection}{\thesubsection}{\sectitle}{\closesection}
-\remakesection
-  {\subsubsection}{2}{subsubsection}
-  {\opensubsubsection}{\thesubsubsection}{\sectitle}{\closesection}
+\setLATEXstyle{part}
+	{color:white;background:\@getstylecolor{part}}%
+\setLATEXstyle{section}
+	{color:white;background:\@getstylecolor{sectioncolor}}%
+\setLATEXstyle{subsection}
+	{color:white;background:\@getstylecolor{subsectioncolor}}%
+\setLATEXstyle{subsubsection}
+	{color:white;background:\@getstylecolor{subsubsectioncolor}}%
 }{%
 \ifthenelse{\equal{\@base}{book}}{%
-\remakesection
-  {\part}{-2}{part}
-  {\begin{center}\begin{bgcolor}{part}\centering\huge\bf}
-  {\partname~\thepart}{\\}
-  {\end{bgcolor}\end{center}}
-\remakesection
-  {\chapter}{-1}{chapter}
-  {\openchapter}{\chaptername~\thechapter}{\sectitle}{\closesection}
-\remakesection
-  {\section}{0}{section}
-  {\opensection}{\thesection}{\sectitle}{\closesection}
-\remakesection
-  {\subsection}{1}{subsection}
-  {\opensubsection}{\thesubsection}{\sectitle}{\closesection}
-\remakesection
-  {\subsubsection}{2}{subsubsection}
-  {\opensubsubsection}{\thesubsubsection}{\sectitle}{\closesection}
-}{}}
-\renewcommand{\maketitle}
-{\newcommand{\checkbox}[4]
-{\ifthenelse{\equal{\usebox{##2}}{}}
-    {}
-    {\vspace{##3}\@print{<FONT SIZE=}\@getprint{##1}\@print{><B>}
-    \usebox{##2}\@print{</B></FONT>}\vspace{##4}}}%
-\begin{center}\begin{bgcolor}{part}\begin{center}
-\checkbox{8}{\@title}{0ex}{1ex}%
-\checkbox{5}{\@author}{1ex}{0ex}%
-\checkbox{5}{\@date}{1ex}{0ex}%
-\end{center}\end{bgcolor}\end{center}\bigskip\bigskip}
+\setLATEXstyle{part}
+	{color:white;background:\@getstylecolor{part}}%
+\setLATEXstyle{chapter}
+	{color:white;background:\@getstylecolor{chaptercolor}}%
+\setLATEXstyle{section}
+	{color:white;background:\@getstylecolor{sectioncolor}}%
+\setLATEXstyle{subsection}
+	{color:white;background:\@getstylecolor{subsectioncolor}}%
+\setLATEXstyle{subsubsection}
+	{color:white;background:\@getstylecolor{subsubsectioncolor}}%
+}{%
+}}
+\setLATEXstyle{title}
+	{color:white;background:\@getstylecolor{part}}%
+
+
 

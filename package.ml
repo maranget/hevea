@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.54 2004-06-22 09:24:17 thakur Exp $    *)
+(*  $Id: package.ml,v 1.55 2004-06-30 13:16:19 thakur Exp $    *)
 
 module type S = sig  end
 
@@ -327,7 +327,16 @@ register_init "color"
         Dest.put_char '"' ;
         Dest.put_char '#' ;
         Dest.put htmlval ;
-        Dest.put_char '"'))
+        Dest.put_char '"');
+    def_code "\\@getstylecolor"
+      (fun lexbuf ->
+        let mdl = get_prim_opt "!*!" lexbuf in    
+        let clr = get_prim_arg lexbuf in
+        let htmlval = match mdl with
+        | "!*!"|"" -> Color.retrieve clr
+        | _     -> Color.compute mdl clr in
+        Dest.put_char '#' ;
+        Dest.put htmlval ))
 ;;
 
 register_init "colortbl"

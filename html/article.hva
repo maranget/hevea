@@ -6,18 +6,18 @@
   {\@open{H1}{CLASS=part ALIGN=center}}{\partname~\thepart}{\\}{\@close{H1}}
 \@makesection
   {\section}{0}{section}
-  {\@open{H2}{}}{\thesection}{\quad}{\@close{H2}}%
+  {\@open{H2}{CLASS=section}}{\thesection}{\quad}{\@close{H2}}%
 \@makesection
   {\subsection}{1}{subsection}
-  {\@open{H3}{}}{\thesubsection}{\quad}{\@close{H3}}%
+  {\@open{H3}{CLASS=subsection}}{\thesubsection}{\quad}{\@close{H3}}%
 \@makesection
   {\subsubsection}{2}{subsubsection}
-  {\@open{H4}{}}{\thesubsubsection}{\quad}{\@close{H4}}%
+  {\@open{H4}{CLASS=subsubsection}}{\thesubsubsection}{\quad}{\@close{H4}}%
 \@makesection
   {\paragraph}{3}{paragraph}
-  {\@open{H5}{}}{\theparagraph}{\quad}{\@close{H5}}%
+  {\@open{H5}{CLASS=paragraph}}{\theparagraph}{\quad}{\@close{H5}}%
 \@makesection
   {\subparagraph}{4}{subparagraph}
-  {\@open{H6}{}}{\thesubparagraph}{\quad}{\@close{H6}}%
+  {\@open{H6}{CLASS=subparagraph}}{\thesubparagraph}{\quad}{\@close{H6}}%
 \styleloadedtrue
 \fi
