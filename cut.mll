@@ -81,7 +81,7 @@ and in_chapter = ref false
 ;;
 
 let chapter = ref "CHAPTER"
-and part = ref "PART
+and part = ref "PART"
 ;;
 
 let close_chapter () =
@@ -115,6 +115,32 @@ and open_part () =
 let toc_buf = Out.create_buff ()
 ;;
 
+let stack = ref []
+;;
+
+let save_state newpart newchapter =
+  prerr_endline ("New state: "^newpart^" "^newchapter) ;
+  push stack (!part,!chapter,!toc,!tocname,!in_part,!in_chapter) ;
+  part := newpart ;
+  chapter := newchapter ;
+  tocname := !outname ;
+  toc := !out ;
+  in_part := false ;
+  in_chapter := false
+;;
+
+let restore_state () =
+  prerr_endline ("Restore") ;
+  let oldpart,oldchapter,oldtoc,oldtocname,oldinpart,oldinchapter =
+    pop stack in
+  chapter := oldchapter ;
+  part := oldpart ;
+  toc := oldtoc ;
+  tocname := oldtocname ;
+  in_part := oldinpart ;
+  in_chapter := oldinchapter
+;;
+
 }
 
 rule main = parse
@@ -131,7 +157,18 @@ rule main = parse
   end ;
   main lexbuf      
   }
-| "<!-->
+| "<!--CUT DEF" ' '+
+  {let part = String.uppercase (secname lexbuf) in
+  skip_blanks lexbuf ;
+  let chapter = String.uppercase (secname lexbuf) in
+  skip_endcom lexbuf ;
+  save_state part chapter ;
+  main lexbuf}
+| "<!--CUT END" ' '* "-->" '\n'?
+   {close_chapter () ;
+   close_part () ;
+   restore_state () ;
+   main lexbuf}
 | "<A" ' '* ("name"|"NAME") ' '* '=' ' '*
   {if !phase = 0 then begin
      let name = refname lexbuf in
@@ -172,9 +209,8 @@ rule main = parse
    {failwith "EOF"}
 
 and secname = parse
-  ['a'-'z' 'A'-'Z']+ ' '
-    {let r = lexeme lexbuf in
-    String.sub r 0 (String.length r-1)}
+  ['a'-'z' 'A'-'Z']+
+    {let r = lexeme lexbuf in r}
 
 and tocline = parse
   "-->" '\n' ? {Out.to_string toc_buf}
@@ -189,3 +225,8 @@ and refname = parse
 | ['a'-'z' '.' 'A'-'Z' '0'-'9']+
    {lexeme lexbuf}
 
+and skip_blanks = parse
+  ' '* {()}
+
+and skip_endcom  = parse
+  ' '* "-->" '\n'? {()}

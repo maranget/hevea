@@ -19,8 +19,9 @@ let fullname name =
       prerr_endline ("From "^name^" to "^newname) ;
     newname
   with Not_found -> begin
+    Location.print_pos () ;
     prerr_endline ("Cross.find, cannot find label: "^name) ;
-    raise Not_found
+    name
   end
 ;;
 

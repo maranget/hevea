@@ -35,8 +35,8 @@
 \newcommand{\part}[2][]{%
 \@footnoteflush
 \stepcounter{part}%
-\ifoptarg\@cut{part}{#1}%
-\else\@cut{part}{#2}\fi
+\ifoptarg\@cut{toc}{part}{#1}%
+\else\@cut{toc}{part}{#2}\fi
 \@open{H1}{ALIGN=center}%
 \partname:~\thepart\\%
 #2%
@@ -52,24 +52,25 @@
 \newcommand{\chapter}[2][]{%
 \@footnoteflush
 \stepcounter{chapter}%
-\ifoptarg\@cut{chapter}{#1}%
-\else\@cut{chapter}{#2}\fi
+\ifoptarg\@cut{toc}{chapter}{#1}%
+\else\@cut{toc}{chapter}{#2}\fi
 \@open{H1}{}%
 \chaptername~\thechapter: #2%
 \@close{H1}%
 }
 \newcommand{\chapter*}[1]{%
 \@footnoteflush
+\@cut{toc}{chapter}{#1}%
 \@open{H1}{}%
 #1%
 \@close{H1}%
 }
 
 \newcommand{\section}[2][]{%
-\ifoptarg\@cut{section}{#1}%
-\else\@cut{section}{#2}\fi
-\@open{H2}{}%
 \stepcounter{section}%
+\ifoptarg\@cut{toc}{section}{#1}%
+\else\@cut{toc}{section}{#2}\fi%
+\@open{H2}{}%
 \thesection\quad #2%
 \@close{H2}%
 }
@@ -80,10 +81,12 @@
 }
 
 
-\newcommand{\subsection}[1]{%
-\@open{H3}{}%
+\newcommand{\subsection}[2][]{%
 \stepcounter{subsection}%
-\thesubsection\quad #1%
+\ifoptarg\@cut{toc}{subsection}{#1}%
+\else\@cut{toc}{subsection}{#2}\fi%
+\@open{H3}{}%
+\thesubsection\quad #2%
 \@close{H3}%
 }
 \newcommand{\subsection*}[1]{%

@@ -6,7 +6,7 @@
 \@print{</TITLE></HEAD>}%
 \@print{<BODY>
 }%
-\@cutdef{part}{chapter}%
+\@cutdef{\@docpart}{\@docchapter}%
 }{%
 \@footnoteflush%
 \@print{</BODY>
@@ -294,17 +294,17 @@
 %% TO IMAGE
 }
 %%%%%%%%%%%%%%%%% Table of contents
-\newcommand{\@cutdef}[2]{*
+\newcommand{\@cutdef}[2]{%
 \@print{<!--CUT DEF #1 #2 -->
 }%
+}
 \newcommand{\@cutend}{%
 \@print{<!--CUT END -->
 }%
 }
-\newcommand{\@cut}[2]{%
-\@footnoteflush
-\@print{<!--TOC #1 }%
-{#2}\@print{-->
+\newcommand{\@cut}[3]{%
+\@print{<!--#1 #2 }%
+{#3}\@print{-->
 }%
 }
 \def\tableofcontents{}

@@ -5,7 +5,7 @@ OBJSCUT=location.cmo out.cmo cross.cmo cut.cmo cutmain.cmo
 
 OPTS=$(OBJS:.cmo=.cmx)
 
-all:  htmlgen
+all:  htmlgen htmlcut
 opt: htmlgen.opt
 
 htmlgen: ${OBJS}
