@@ -44,7 +44,7 @@ open Tabular
 open Lexstate
 
 
-let header = "$Id: latexscan.mll,v 1.107 1999-06-02 15:42:31 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.108 1999-06-02 17:10:53 maranget Exp $" 
 
 
 let sbool = function
@@ -2265,7 +2265,13 @@ def_code "\\label"
     let save_last_closed = Dest.get_last_closed () in
     let lab = subst_arg subst lexbuf in
     Dest.loc_name lab "" ;
-    Dest.set_last_closed save_last_closed)
+    Dest.set_last_closed save_last_closed) ;
+def_code "\\@expandlabel"
+  (fun lexbuf ->
+    let save_last_closed = Dest.get_last_closed () in
+    let lab = get_this_nostyle main (save_arg lexbuf) in
+    Dest.loc_name lab "" ;
+    Dest.set_last_closed save_last_closed) ;    
 ;;
 
 def_code "\\ref"

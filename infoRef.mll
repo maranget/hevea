@@ -10,7 +10,7 @@
 (***********************************************************************)
 
 {
-let header = "$Id: infoRef.mll,v 1.8 1999-05-27 15:38:10 tessaud Exp $"
+let header = "$Id: infoRef.mll,v 1.9 1999-06-02 17:10:49 maranget Exp $"
 ;;
 
 
@@ -168,8 +168,8 @@ let loc_name s1 s2 = (* pose un label *)
   let _ = 
     try 
       let _ = cherche_label s1 !labels_list in
-      raise (Error ("Duplicate use of labels :"^s1))
-    with Not_found -> None
+      Parse_opts.warning ("Duplicate use of labels: "^s1)
+    with Not_found -> ()
   in
 
   let l = {
