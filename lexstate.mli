@@ -83,14 +83,14 @@ type ok = | No of string | Yes of string
 val from_ok : ok -> string
 val pretty_ok : ok -> string
 val parse_quote_arg_opt : string -> Lexing.lexbuf -> ok
-val parse_args_norm : 'a list -> Lexing.lexbuf -> string list
+val parse_args_norm : string list -> Lexing.lexbuf -> string list
 val parse_arg_opt : string -> Lexing.lexbuf -> ok
 val parse_args_opt : string list -> Lexing.lexbuf -> ok list
 val skip_opt : Lexing.lexbuf -> unit
 val check_opt : Lexing.lexbuf -> bool
 val save_opt : string -> Lexing.lexbuf -> string
 val parse_args :
-  string list * 'a list -> Lexing.lexbuf -> ok list * string list
+  string list * string list -> Lexing.lexbuf -> ok list * string list
 val make_stack : string -> pat -> Lexing.lexbuf -> string array
 
 

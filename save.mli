@@ -22,4 +22,5 @@ val get_sub : Lexing.lexbuf -> string
 val defargs : Lexing.lexbuf -> string list
 val tagout : Lexing.lexbuf -> string
 val checklimits : Lexing.lexbuf -> bool
-
+val skip_delim : string -> Lexing.lexbuf -> unit
+val with_delim : string -> Lexing.lexbuf -> string

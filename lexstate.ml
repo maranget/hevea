@@ -1,4 +1,4 @@
-let header =  "$Id: lexstate.ml,v 1.19 1999-08-17 13:26:43 maranget Exp $"
+let header =  "$Id: lexstate.ml,v 1.20 1999-08-18 17:52:15 maranget Exp $"
 
 open Misc
 open Lexing
@@ -318,12 +318,26 @@ let parse_quote_arg_opt def lexbuf =
   r
 ;;
 
+let norm_arg s =
+  String.length s = 2 && s.[0] = '#' &&
+  ('0' <= s.[1] && s.[1] <= '9')
+
 let rec parse_args_norm pat lexbuf = match pat with
-  [] -> []
-| s :: pat ->
+|   [] -> []
+| s :: (ss :: _ as pat) when norm_arg s && norm_arg ss ->
     let arg = save_arg lexbuf in
     let r = parse_args_norm pat lexbuf in
      arg :: r
+| s :: ss :: pat when norm_arg s && not (norm_arg ss) ->
+    let arg = Save.with_delim ss lexbuf in
+    arg :: parse_args_norm pat lexbuf
+| s :: pat when not (norm_arg s) ->
+    Save.skip_delim s lexbuf ;
+    parse_args_norm pat lexbuf
+| s :: pat ->
+    let arg = save_arg lexbuf in
+    let r = parse_args_norm pat lexbuf in
+    arg :: r
 ;;
 
 

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmacros.ml,v 1.51 1999-06-02 15:42:25 maranget Exp $" 
+let header = "$Id: latexmacros.ml,v 1.52 1999-08-18 17:52:14 maranget Exp $" 
 open Misc
 open Parse_opts
 open Symb
@@ -37,6 +37,7 @@ let cmdtable =
 
 let pretty_macro n acs =
   pretty_pat n ;
+  prerr_string " -> " ;
   pretty_action acs
 
 let def_coltype name pat action =
