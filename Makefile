@@ -19,12 +19,10 @@ OBJS=version.cmo misc.cmo  out.cmo location.cmo table.cmo parse_opts.cmo mylib.c
 OBJSCUT=version.cmo misc.cmo  out.cmo location.cmo thread.cmo cross.cmo mylib.cmo section.cmo length.cmo save.cmo cut.cmo cutmain.cmo
 GENSRC=auxx.ml colscan.ml cut.ml entry.ml get.ml latexscan.ml length.ml save.ml tabular.ml videoc.ml verb.ml infoRef.ml
 
-OBJPLUGINS=videoc.cmo
-
 OPTS=$(OBJS:.cmo=.cmx) $(OBJMAIN:.cmo=.cmx)
 OPTSCUT=$(OBJSCUT:.cmo=.cmx)
 
-HTMLLIB=article.hva book.hva report.hva seminar.hva hevea.hva ams.hva mathaccents.hva multind.hva symb.hva symb-text.hva symb-eng.hva symb-fra.hva
+HTMLLIB=article.hva book.hva report.hva seminar.hva hevea.hva ams.hva mathaccents.hva multind.hva symb.hva symb-text.hva symb-eng.hva symb-fra.hva symb-mathml.hva
 TEXTLIB=article.hva book.hva report.hva seminar.hva hevea.hva symb.hva
 INFOLIB=article.hva book.hva report.hva seminar.hva hevea.hva
 
