@@ -284,7 +284,7 @@
 \newstyle{.flushright}{text-align:right;margin-left:auto;margin-right:0ex;}%
 \newstyle{DIV TABLE}{margin-left:inherit;margin-right:inherit;}
 \newstyle{PRE}{text-align:left;margin-left:0ex;margin-right:auto;}
-\newstyle{BLOCKQUOTE}{margin-left:4ex;margin-right:auto;text-align:left;}
+\newstyle{BLOCKQUOTE}{margin-left:4ex;margin-right:4ex;text-align:left;}
 \setenvclass{center}{center}%
 \newenvironment{center}{\@open{DIV}{\envclass@attr{center}}}{\@close{DIV}}
 \setenvclass{flushleft}{flushleft}
