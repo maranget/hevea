@@ -10,7 +10,7 @@
 (***********************************************************************)
 
 {
-let header = "$Id: infoRef.mll,v 1.21 2000-07-07 17:44:40 maranget Exp $"
+let header = "$Id: infoRef.mll,v 1.22 2001-05-25 09:07:15 maranget Exp $"
 ;;
 
 
@@ -493,7 +493,7 @@ let dump buff =
   main buff ;
   Out.close !out_cur ;
   if !file_number = 1 then
-    Myfiles.rename !cur_file Parse_opts.name_out
+    Mysys.rename !cur_file Parse_opts.name_out
 }
 
 

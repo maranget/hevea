@@ -12,7 +12,7 @@
 {
 open Lexing
 open Stack
-let header = "$Id: cut.mll,v 1.29 2000-05-22 12:18:54 maranget Exp $" 
+let header = "$Id: cut.mll,v 1.30 2001-05-25 09:07:07 maranget Exp $" 
 
 let verbose = ref 0
 ;;
@@ -397,8 +397,10 @@ let close_top lxm =
   if !hevea_footer then begin
     Out.put !out "<!--FOOTER-->\n" ;
     begin try
-      Mylib.put_from_lib ("cutfoot-"^ !language^".html") (Out.put !out)
-    with Mylib.Error s -> begin
+      Mysys.put_from_file
+        (Filename.concat Mylib.libdir ("cutfoot-"^ !language^".html"))
+        (Out.put !out)
+    with Mysys.Error s -> begin
       Location.print_pos () ;
       prerr_endline s
     end

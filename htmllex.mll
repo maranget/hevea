@@ -27,8 +27,7 @@ let is_textlevel name =
 exception Error of string
 ;;
 
-let error msg lb =
-  raise (Error (msg^" at char: "^string_of_int (lexeme_start lb)))
+let error msg lb =  raise (Error msg)
 ;;
 
 let get_value lb = function
@@ -95,7 +94,7 @@ and aputc c = Buff.put_char abuff c
 }
  
 
-let blank = [' ''\t''\n']
+let blank = [' ''\t''\n''\r']
 
 rule main = parse
 | (blank|"&nbsp;"|"<BR>")+

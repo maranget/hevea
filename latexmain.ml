@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmain.ml,v 1.67 2001-02-20 10:40:37 maranget Exp $" 
+let header = "$Id: latexmain.ml,v 1.68 2001-05-25 09:07:16 maranget Exp $" 
 
 open Misc
 open Parse_opts
@@ -113,7 +113,7 @@ let read_prog prog =
     | _ ->
         warning ("Could not exec program file: "^real_prog)
     end ;
-    Myfiles.remove name
+    Mysys.remove name
   with
   | Not_found ->
       warning ("Could not find program file: "^prog)

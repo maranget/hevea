@@ -2,29 +2,17 @@ open Lexeme
 open Htmltext
 open Tree
 
-let of_styles env r =
-  List.fold_left
-    (fun r ss -> match ss with
-    | [] -> r
-    | _  -> Node (ss,[r]))
-    r env
+let of_styles env r = match env with
+| [] -> r
+| _  -> Node (env,[r])
 
-let rec sep = function
-  | [] -> []
-  | {nat=Other} as s::rem ->
-      []::[s]::sep rem
-  | s::rem -> match sep rem with
-    | [] -> [[s]]
-    | ss::rem -> (s::ss)::rem
-
-      
-      
 
 let rec tree env t k = match t with
-| Text s -> of_styles (sep env) (Text s)::k
+| Text s ->
+    of_styles env (Text s)::k
 | Blanks s ->
     of_styles
-      (sep (List.filter (fun s -> not (Htmltext.blanksNeutral s)) env))
+      (List.filter (fun s -> not (Htmltext.blanksNeutral s)) env)
       (Blanks s)::
     k
 | Node (s,ts) ->
@@ -33,10 +21,22 @@ let rec tree env t k = match t with
         (s.Tree.txt, s.Tree.ctxt,
          List.fold_right (tree env) ts [])::k
     else
-      let new_env = Htmltext.add_style s env in
-      List.fold_right (tree new_env) ts k
-| ONode (so,sc,ts) ->
-    let ts = List.fold_right (tree env) ts [] in
-    ONode (so,sc,ts)::k
+      begin try
+        let new_env = Htmltext.add_style s env in
+        List.fold_right (tree new_env) ts k
+      with
+      | Split (s,env) ->
+          let ts = List.fold_right (tree []) ts [] in
+          let now =
+            if Util.is_blanks ts then
+              (List.filter (fun s -> not (Htmltext.blanksNeutral s)) env)
+            else
+              env in
+          match ts with
+          | [] -> k
+          | _ ->
+              of_styles now (Node ([s],ts))::k
+      end
+| ONode (so,sc,ts) -> assert false
 
 let trees ts =  List.fold_right (tree []) ts []

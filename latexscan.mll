@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.209 2001-05-23 11:13:53 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.210 2001-05-25 09:07:20 maranget Exp $ *)
 
 
 {
@@ -2107,7 +2107,7 @@ def_code "\\@fromlib"
   (fun lexbuf ->
           let arg = get_prim_arg lexbuf in
           start_lexstate ();
-          Mylib.put_from_lib arg Dest.put;
+          Mysys.put_from_file (Filename.concat Mylib.libdir arg) Dest.put;
           restore_lexstate ())
 ;;
 def_code "\\@imageflush"

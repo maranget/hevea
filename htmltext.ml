@@ -87,23 +87,56 @@ let is_font = function
 
 let font_props = [is_size ; is_face ; is_color]
 
+exception Same 
+
 let rec rem_prop p = function
   | s::rem ->
       if p s.nat then rem
-      else s::rem_prop p rem
-  | [] -> []
+      else
+        let rem = rem_prop p rem in
+        s::rem
+  | [] -> raise Same
 
 let rec rem_style s = function
   | os::rem ->
       if same_style s os then rem
-      else os::rem_style s rem
-  | [] -> []
+      else
+        let rem = rem_style s rem in
+        os::rem
+  | [] -> raise Same
 
-let add s env = match s.nat with
-  | Size _ -> s::rem_prop is_size env                    
-  | Face _ -> s::rem_prop is_face env
-  | Color _ -> s::rem_prop is_color env
-  | Style _|Other -> s::rem_style s env
+let there s env =  List.exists (fun t -> same_style s t) env
+
+type env = t_style list
+
+exception Split of t_style * env
+
+let add s env =
+  let new_env =
+    try
+      let p = get_prop s.nat in
+      try
+        s::rem_prop p env
+      with
+      |  Same ->
+          s::env
+    with
+    | NoProp ->
+        try
+          s::rem_style s env
+        with
+        | Same ->
+            s::env in
+  match s.nat with
+  | Other ->
+      begin match new_env with
+      | _::env -> raise (Split (s,env))
+      | _ -> assert false
+      end
+  | _ -> new_env
+
+
+  
 
 let add_fontattr txt ctxt a env =
   let nat = match a with

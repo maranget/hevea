@@ -1,5 +1,7 @@
+open Mysys
 
 let pess  = ref false
+and move  = ref true
 ;;
 
 let arg = ref []
@@ -7,44 +9,13 @@ let arg = ref []
 
 Arg.parse
   ["-u", Arg.Set pess, "pessimize" ;
-  "-v", Arg.Unit (fun () -> incr Ultra.verbose),"be verbose"]
+  "-v", Arg.Unit (fun () -> incr Ultra.verbose),"be verbose" ;
+  "-n", Arg.Unit (fun () -> move := false ; Ultra.verbose := 1),
+    "do not change files"]
   (fun s -> arg :=  s :: !arg)
   ("Usage: esponja [option*] < infile > outfile,\n or    esponja [option*] files+
 options are:")
 ;;
-
-
-let copy from_name to_name =
-  let size = 1024 in
-  let buff = String.create size in
-  let chan_in = open_in_bin from_name in
-  let  chan_out =
-    try open_out_bin to_name
-    with Sys_error _ as e ->
-      close_in chan_in ; raise e in
-  let rec do_rec () =
-    let i = input chan_in buff 0 size in
-    if i > 0 then begin
-      output chan_out buff 0 i ;
-      do_rec ()
-    end in
-  begin try
-    do_rec ()
-  with
-  | e ->
-      close_in chan_in ;
-      close_out chan_out ; raise e
-  end ;
-  close_in chan_in ;
-  close_out chan_out
-;;
-
-
-let remove name =
-  try
-    Sys.remove name
-  with
-  | Sys_error _ -> ()
 
 let length input  = in_channel_length input
 
@@ -67,33 +38,15 @@ let process in_name input output =
   | Htmllex.Error s ->
       if !Ultra.verbose > 0 then
         output_char stderr '\n' ;
-      Location.print_pos () ;
+      Location.print_fullpos () ;
       Printf.fprintf stderr "Lexer error: %s\n" s ;
       false
   | Htmlparse.Error s ->
       if !Ultra.verbose > 0 then
         output_char stderr '\n' ;
-      Location.print_pos () ;
+      Location.print_fullpos () ;
       Printf.fprintf stderr "Parser error: %s\n" s ;
       false
-        
-
-let rename from_name to_name =
- if Sys.file_exists to_name then
-    Sys.remove to_name ;
-  (* So long for atomicity ! *)
-  try
-    Sys.rename from_name to_name 
-  with
-  | Sys_error _ -> (* Well we need to copy... *)
-      try
-        let dir = Filename.dirname to_name in
-        let tmp_name = Filename.concat dir (".#"^Filename.basename to_name) in
-        copy from_name tmp_name ;
-        Sys.rename tmp_name to_name ;
-        remove from_name
-      with
-      | Sys_error _ -> remove from_name
 
 
 let main () =
@@ -108,7 +61,11 @@ let main () =
               Printf.fprintf stderr "Processing file: %s... " in_name ;
               flush stderr
             end ;
-            let out_name = Filename.temp_file "esponja" ".html" in
+            let out_name =
+              Filename.concat
+                (Filename.dirname in_name)
+                (Filename.basename in_name ^ ".esp")
+            in
             begin try
               let input = open_in in_name in
               let out =
@@ -122,7 +79,7 @@ let main () =
               close_in input ;
               close_out out ;
               if ok && size_in > size_out then
-                rename out_name in_name
+                begin if !move then rename out_name in_name end
               else
                 remove out_name ;
               if !Ultra.verbose > 0  && ok then begin

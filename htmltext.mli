@@ -19,5 +19,10 @@ val font_props : (nat -> bool) list
 val neutral_prop : (nat -> bool) -> bool
 val same_style : t_style -> t_style -> bool
 
-val add_style : Tree.style -> t_style list -> t_style list
+type env = t_style list
+exception Split of t_style * env
+
+val add_style : Tree.style -> env -> env
+
+
 val blanksNeutral : t_style -> bool

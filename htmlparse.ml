@@ -4,8 +4,7 @@ open Tree
 
 exception Error of string
 
-let error msg lb =
-  raise (Error (msg^" at char: "^string_of_int (Lexing.lexeme_start lb)))
+let error msg lb =  raise (Error msg)
 ;;
 
 let buff = ref None

@@ -20,5 +20,6 @@ val restore : unit -> unit
 type t
 val get_pos : unit -> t
 val print_pos : unit -> unit
+val print_fullpos : unit -> unit
 val print_this_pos : t -> unit 
 

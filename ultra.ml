@@ -92,7 +92,8 @@ let group_font ts fs =
   get_sames ts fonts@no_fonts
 
 let factorize low high ts =
-
+  if low >= high then []
+  else
   let extend_blanks_left i =
     let rec do_rec i =
       if i <= low then low
@@ -291,28 +292,29 @@ let extract_props ps s =
       List.exists (fun p -> p s.nat) ps)
     s
 
-
-let remove s = function
-  | Node (os,ts) -> node (sub os s) ts
-  | t -> assert (List.for_all Htmltext.blanksNeutral s && is_blank t) ;t
-
-
 let rec clean t k = match t with
   | Node ([],ts) -> ts@k
+  | _ -> t::k
+
+let check_node t = match t with
   | Node (s, (Node (si,args)::rem as ts)) when
     some_font s && font_trees ts ->
     begin match all_props (other_props s) ts with
-    | [] -> t::k
+    | [] -> t
     | ps ->
         let lift,keep = extract_props ps si in
-        Node (lift@s, clean (Node (keep,args)) rem)::k
+        Node (lift@s, clean (Node (keep,args)) rem)
     end
-  | _ -> t::k
+  | _ -> t
 
 let rec as_list i j ts k =
   if i > j then k
   else
     (clean ts.(i)) (as_list (i+1) j ts k)
+
+let remove s = function
+  | Node (os,ts) -> node (sub os s) ts
+  | t -> assert (List.for_all Htmltext.blanksNeutral s && is_blank t) ;t
 
 
 let is_text = function
@@ -321,6 +323,10 @@ let is_text = function
 
 and is_text_blank = function
   | Text _ | Blanks _ -> true
+  | _ -> false
+
+and is_node = function
+  | Node (_::_,_) -> true
   | _ -> false
     
 let rec cut_begin p ts l i =
@@ -342,24 +348,46 @@ let cut_end p ts l =
         i,r in
   do_rec [] (l-1)
 
-let rec trees i j ts k =
-  if i >= j then as_list i j ts k
+let is_other s = match s.nat with
+| Other -> true
+| _ -> false
+
+let rec deeper i j ts k =
+  let rec again r i =
+    if i > j then r
+    else match ts.(i) with    
+    | Node ([],args) ->
+        let b1 =  List.exists is_node args in
+        again (b1 || r) (i+1)
+    | Node (s,args) when List.exists is_other s ->
+        let r = again r (i+1) in
+        if not r then
+          ts.(i) <- Node (s,opt true (Array.of_list args) []) ;
+        r
+    | t -> again r (i+1) in
+  if again false i then begin
+    let ts = as_list i j ts [] in    
+    let rs = opt true  (Array.of_list ts) k in
+    rs
+  end else
+    as_list i j ts k
+          
+    
+and trees i j ts k =
+  if i > j then  k
   else
     match factorize i j ts with
-    | [] -> as_list i j ts k
+    | [] -> deeper i j ts k
     | fs ->
         let rec zyva cur fs k = match fs with
-        | [] -> as_list cur j ts k
+        | [] -> deeper cur j ts k
         | ((ii,jj),gs)::rem ->
             for k=ii to jj do
               ts.(k) <- remove gs ts.(k)
             done ;
-            let opt_args = trees ii jj ts [] in
-            let opt_args = match gs with
-            | [s] when s.nat = Other ->  opt false (Array.of_list opt_args)
-            | _ -> opt_args in
-            as_list cur (ii-1) ts
-              (clean (node gs opt_args) (zyva (jj+1) rem k)) in
+            deeper cur (ii-1) ts
+              (check_node (node gs (trees ii jj ts []))::
+               zyva (jj+1) rem k) in
         let fs = select_factors fs in
         if !verbose > 1 then begin
           prerr_endline "selected" ;
@@ -374,23 +402,23 @@ let rec trees i j ts k =
         end ;
         zyva i fs k
 
-and opt top ts =
+and opt top ts k =
   let l = Array.length ts in  
   for i = 0 to l-1 do
     match ts.(i) with
-    | ONode (s,c,args) -> begin match opt false (Array.of_list args) with
+    | ONode (s,c,args) -> begin match opt false (Array.of_list args) [] with
       | [Node (x,args)] ->
           ts.(i) <- Node (x,[ONode (s,c,args)])
-      | _ ->
-        ts.(i) <- ONode (s,c,opt false (Array.of_list args))
+      | t ->
+          ts.(i) <- ONode (s,c,t)
     end
     | _ -> ()
   done ;
   let p = if top then is_text_blank else is_text in
   let start,pre = cut_begin p ts l 0 in
-  if start >= l then pre
+  if start >= l then pre@k
   else
     let fin,post  = cut_end p ts l in
-    pre@trees start fin ts post
+    pre@trees start fin ts (post@k)
 
-let main ts = opt true (Array.of_list (Explode.trees ts))
+let main ts = opt true (Array.of_list (Explode.trees ts)) []

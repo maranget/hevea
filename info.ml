@@ -10,7 +10,7 @@
 (***********************************************************************)
 
 
-let header = "$Id: info.ml,v 1.28 2000-10-13 19:17:28 maranget Exp $"
+let header = "$Id: info.ml,v 1.29 2001-05-25 09:07:14 maranget Exp $"
 
 open Misc
 open Text
@@ -103,7 +103,7 @@ let finalize check =
         f,Lexing.from_channel  (open_in f)
     in
     InfoRef.dump buf ;
-    if not Parse_opts.filter && !verbose <= 0 then Myfiles.remove name
+    if not Parse_opts.filter && !verbose <= 0 then Mysys.remove name
   end else
     Text.finalize false
 ;;

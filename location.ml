@@ -10,7 +10,7 @@
 (***********************************************************************)
 open Stack
 
-let header = "$Id: location.ml,v 1.17 2000-05-26 17:06:08 maranget Exp $" 
+let header = "$Id: location.ml,v 1.18 2001-05-25 09:07:25 maranget Exp $" 
 
 type fileOption = No | Yes of in_channel
 ;;
@@ -80,18 +80,22 @@ let restore () =
 ;;
 
 
-let rec find_line file r = function
-  0 -> r
+let rec do_find_line file r c = function
+  0 -> r,c
 | n ->
-   find_line file
-    (match input_char file with '\n' -> r+1 | _ -> r)
+   let cur = input_char file in
+   do_find_line file
+    (match cur with '\n' -> r+1 | _ -> r)
+    (match cur with '\n' -> 1 | _ -> c+1)
     (n-1)
 ;;
 
-type t = string * int
+let find_line file nline nchars = do_find_line file nline 1 nchars
+
+type t = string * int * int
 
 let do_get_pos () =  match !curfile with
-  No -> -1
+  No -> -1,-1
 | Yes file ->
     try 
       let  char_pos = Lexing.lexeme_start !curlexbuf
@@ -100,44 +104,36 @@ let do_get_pos () =  match !curfile with
         if char_pos < last_pos then 0,1 else last_pos,last_line in
       seek_in file last_pos ;
 (*      prerr_endline ("char_pos="^string_of_int char_pos) ; *)
-      let nline =
+      let nline,nchar =
         find_line file last_line (char_pos-last_pos) in
       curline := (char_pos,nline);
-      nline
-    with Sys_error _ -> -1
+      nline,nchar
+    with Sys_error _ -> -1,-1
 ;;
 
 let get_pos () =
-  let nline = do_get_pos () in
-  !curlexname,nline
+  let nline,nchars = do_get_pos () in
+  !curlexname,nline,nchars
 ;;
 
-let do_print_pos (s,nline) =
+let do_print_pos full (s,nline,nchars) =
   if nline >= 0 then
-    prerr_string (s^":"^string_of_int nline^": ")
+    prerr_string
+      (s^":"^string_of_int nline^
+       (if full then ":"^string_of_int nchars^": " else ": "))
   else
     match s with
     | "" -> ()
     | _  ->  prerr_string (s^": ")
 
 let print_pos () =
-  do_print_pos (!curlexname,do_get_pos ())
+  let nlines,nchars = do_get_pos () in
+  do_print_pos false (!curlexname,nlines,nchars)
 
-and print_this_pos p = do_print_pos p
+and print_fullpos () =
+  let nlines,nchars = do_get_pos () in
+  do_print_pos true (!curlexname,nlines,nchars)
 
-let stack_pos = ref []
-;;
+and print_this_pos p = do_print_pos false p
 
-let push  x = stack_pos := x :: !stack_pos
-and pop () = match !stack_pos with
-  [] -> raise (Fatal "Empty stack_pos")
-| x::r -> stack_pos := r ; x
-;;
 
-let push_pos () = push (!curlexname, do_get_pos ())
-and pop_pos () = let _ = pop () in ()
-and print_top_pos () =
-  match !stack_pos with
-    [] -> ()
-  | x::_ -> do_print_pos x
-;;
