@@ -1,3 +1,5 @@
+\newcommand{\forall}{\mbox{pour tout}}
+\newcommand{\exists}{\mbox{il existe}}
 \newcommand{\clubsuit}{\mbox{trèfle}}
 \newcommand{\diamondsuit}{\mbox{carreau}}
 \newcommand{\heartsuit}{\mbox{c{\oe}ur}}

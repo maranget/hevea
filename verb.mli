@@ -1,4 +1,4 @@
-exception Error of string
+exception VError of string
 
 module type S = sig val init : unit -> unit end
 

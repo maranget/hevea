@@ -1,5 +1,5 @@
 {
-exception Error of string
+exception VError of string
 
 module type S = sig val init : unit -> unit end
 ;;
@@ -11,6 +11,7 @@ open Lexstate
 open Latexmacros
 
 exception EndAlltt
+exception Eof of string
 ;;
 
 let verb_delim = ref (Char.chr 0)
@@ -45,7 +46,7 @@ and start_inverb = parse
       let lexbuf = previous_lexbuf () in
       start_inverb lexbuf
     else
-      raise (Error ("End of file after \\verb"))}
+      raise (VError ("End of file after \\verb"))}
 
 and verbenv = parse
   "\\end" " " * "{" ['a'-'z'] + "}"
@@ -74,7 +75,7 @@ and verbenv = parse
 | _   { Dest.put (Dest.iso (lexeme_char lexbuf 0)) ; verbenv lexbuf}
 | eof
     {raise
-        (Error
+        (Eof
            ("End of file inside ``"^ !Scan.cur_env^"'' environment"))}
 
 and rawhtml = parse
@@ -89,7 +90,7 @@ and rawhtml = parse
       rawhtml lexbuf
     end}
 | _   {Dest.put_char(lexeme_char lexbuf 0); rawhtml lexbuf}
-| eof {raise (Error ("End of file inside ``rawhtml'' environment"))}
+| eof {raise (VError ("End of file inside ``rawhtml'' environment"))}
 
 and verblatex = parse
 | "\\end" " " * "{" ['a'-'z'] + "}"
@@ -101,7 +102,7 @@ and verblatex = parse
       verblatex lexbuf}
 |  _ 
     {verblatex lexbuf}
-|  eof {raise (Error ("End of file inside ``verblatex'' environment"))}
+|  eof {raise (VError ("End of file inside ``verblatex'' environment"))}
 
 and verbimage = parse
 |  "\\end"
@@ -121,7 +122,7 @@ and verbimage = parse
     {let lxm = lexeme_char lexbuf 0 in
     Image.put_char lxm ;
     verbimage lexbuf}
-|  eof {raise (Error "End of file in ``verbimage'' environment")}
+|  eof {raise (VError "End of file in ``verbimage'' environment")}
 
 and latex2html_latexonly = parse
 | '%' + [ ' ' '\t' ] * "\\end{latexonly}" [ ^ '\n' ] * '\n'
@@ -129,7 +130,7 @@ and latex2html_latexonly = parse
 | _ 
     {latex2html_latexonly lexbuf}
 | eof
-    {raise (Error ("End of file inside ``latexonly'' environment"))}
+    {raise (VError ("End of file inside ``latexonly'' environment"))}
 {
 
 let open_verb lexbuf =
@@ -141,7 +142,9 @@ let open_verbenv lexbuf =
   Scan.top_close_block "" ;
   Scan.top_open_block "PRE" "" ;
   let lexbuf = previous_lexbuf () in
-  verbenv lexbuf 
+  try verbenv lexbuf
+  with Eof s -> raise (VError s)
+  
 
 let open_rawhtml lexbuf =
   Scan.top_close_block "" ;
@@ -181,7 +184,8 @@ let init () =
       begin try
         input_file !verbose verbenv arg ;
       with
-        Myfiles.Except | Myfiles.Error _ -> ()
+      | Eof _ -> ()
+      | Myfiles.Except | Myfiles.Error _ -> ()
       end ;
       Scan.top_close_block "PRE" ;
       tab_val := old_tabs)

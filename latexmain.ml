@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmain.ml,v 1.40 1999-05-17 13:40:22 maranget Exp $" 
+let header = "$Id: latexmain.ml,v 1.41 1999-05-21 16:53:42 maranget Exp $" 
 
 open Misc
 open Parse_opts
@@ -164,7 +164,7 @@ with
     prerr_endline ("Error while reading LaTeX:\n\t"^s) ;
     prerr_endline "Adios" ;
     exit 2
-| Verb.Error s ->
+| Verb.VError s ->
     Location.print_pos () ;
     prerr_endline ("Error while reading verbatim LaTeX:\n\t"^s) ;
     prerr_endline "Adios" ;

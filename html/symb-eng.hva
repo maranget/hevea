@@ -1,3 +1,5 @@
+\newcommand{\forall}{\mbox{for all}}
+\newcommand{\exists}{\mbox{there exists}}
 \newcommand{\clubsuit}{\mbox{clubsuit}}
 \newcommand{\diamondsuit}{\mbox{diamondsuit}}
 \newcommand{\heartsuit}{\mbox{heartsuit}}
