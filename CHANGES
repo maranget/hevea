@@ -1,4 +1,7 @@
 version 1.06+1
+   - An attempt to follow << listings >> pace of developement
+     all '*label*' keys are now '*numbers*' keys, snif.
+   - Added bgcolor definition in hevea.sty, not very good
    - Spaces are irrelevant everywhere in array/tabular format
    - A new warning for \right and \left in non-display mode.
    - Special parsing (\@verbimagearg) for ``\DeclareGraphicsRule'' last

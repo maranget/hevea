@@ -215,6 +215,7 @@
   {\@ifundefined{thelst@saved@\lst@intname}{\def\lst@firstline{1}}
   {\def\lst@firstline{\csname thelst@saved@\lst@intname\endcsname+1}}}}
 \define@key{lst}{firstlabel}{\def\lst@firstline{#1}}
+\define@key{lst}{firstnumber}{\def\lst@firstline{#1}}
 \define@key{lst}{advancelabel}{\def\lst@firstline{\lst@saved@lastline+#1+1}}
 \lst@AddToHook{Init}{\setcounter{lstlabel}{\lst@firstline-1}}
 \lst@AddToHook{DeInit}
@@ -225,22 +226,28 @@
        {}%
      \setcounter{lst@saved@\lst@intname}{\value{lstlabel}}}}
 \define@key{lst}{labelstyle}{\def\lst@label@style##1{{#1{##1}}}}
+\define@key{lst}{numberstyle}{\def\lst@label@style##1{{#1{##1}}}}
+\define@key{lst}{numbersep}{}
 \newcommand{\lst@label@style}[1]{#1}
 \define@key{lst}{labelstep}{\def\lst@labelstep{#1}}
-\lst@AddToHook{InlineUnsave}{\def\lst@labelstep{0}}
-\lst@AddToHookExe{EmptyStyle}{\def\lst@labelstep{0}}
+\define@key{lst}{stepnumber}{\def\lst@labelstep{#1}}
+\lst@AddToHook{InlineUnsave}{\def\lst@labelstep{1}}
+\lst@AddToHookExe{EmptyStyle}{\def\lst@labelstep{1}}
 \define@key{lst}{labelsep}{\def{\lst@labelsep}{\hspace{#1}}}
 \newcommand{\lst@labelsep}{\hspace{1em}}
 \newcommand{\lst@pad}[1]{\@pad{~}{4}{#1}}
 \newcommand{\lst@linenumber@}[1]
   {\lst@label@style{\lst@pad{#1}}\lst@labelsep}
+\newboolean{lst@numbers}
 \newcommand{\lst@linenumber}
-  {\ifthenelse{\lst@labelstep=0}
-     {}
-     {\ifthenelse
-       {0=\value{lstlabel}-\(\value{lstlabel}/\lst@labelstep\)*\lst@labelstep}
-       {\lst@linenumber@{\thelstlabel}}
-       {\lst@linenumber@{}}}}
+  {\ifthenelse{\boolean{lst@numbers}}
+     {\ifthenelse{\lst@labelstep=0}
+       {}
+       {\ifthenelse
+         {0=\value{lstlabel}-\(\value{lstlabel}/\lst@labelstep\)*\lst@labelstep}
+         {\lst@linenumber@{\thelstlabel}}
+         {\lst@linenumber@{}}}}
+     {}}
 \lst@AddToHook{InitVarEOL}{\stepcounter{lstlabel}}
 \newsavebox{\@prevlines}
 \newsavebox{\@curline}
@@ -254,6 +261,12 @@
 \sbox{\@curline}{\@br\@rawchars{\lst@doindent}\lst@linenumber}%
 \global\let\@NewLine\@NewLine@}
 \lst@AddToHook{Init}{\sbox{\@prevlines}{}\sbox{\@curline}{}\global\let\@NewLine\lst@spaces}
+\def\lst@numbers@none{\setboolean{lst@numbers}{false}}
+\def\lst@numbers@left{\setboolean{lst@numbers}{true}}
+\let\lst@numbers@right\lst@numbers@left
+\def\lst@numbers#1{\csname lst@numbers@#1\endcsname}
+\define@key{lst}{numbers}{\lst@numbers{#1}}
+\lst@AddToHookExe{EmptyStyle}{\lst@numbers{none}}
 %%%%%% TeX escapes
 \define@key{lst}{texcl}[true]{\def\lst@texcl{#1}}
 \setboolean{lst@texcl}{false}

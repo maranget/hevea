@@ -66,4 +66,13 @@
 \def\verbimage{\endgroup}
 \def\endverbimage{\begingroup\def\@currenvir{verbimage}}
 \newcommand{\imageflush}[1][]{}
+%%% Bgcolor definition
+\newsavebox{\@bgcolorbin}
+\newenvironment{bgcolor}[2][]
+  {\newcommand{\@mycolor}{#2}\begin{lrbox}{\@bgcolorbin}\vbox\bgroup}
+  {\egroup\end{lrbox}%
+   \begin{flushleft}%
+   \colorbox{\@mycolor}{\usebox{\@bgcolorbin}}%
+   \end{flushleft}}
+%%% Postlude
 \makeatother
