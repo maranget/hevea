@@ -133,9 +133,11 @@
       {}%
       {\@open{##1}{CLASS=title ALIGN=center}\usebox{##2}\@close{##1}}%
     }%
+  \@open{TABLE}{ALIGN=center}\@open{TR}{}\@open{TD}{}%
   \checktitlebox{H1}{\@title}%
   \checkbox{H3}{\@author}%
   \checkbox{H3}{\@date}%
+  \@close{TD}\@close{TR}\@close{TABLE}
 }
 
 %%%%%%%%%
