@@ -51,12 +51,8 @@
 \setcounter{footnote}{\value{savenote}}%
 }
 \newcommand{\@openanchor}[3]{%
-\@print{<A NAME="}\@print{#2}%
-#3%
-\@print{"></A>}%
-\@print{<A HREF="}\#\@print{#1}%
-#3%
-\@print{">}%
+\@print{<A NAME="}#2#3\@print{"></A>}%
+\@print{<A HREF="}\#{}#1#3\@print{">}%
 }
 \newcommand{\@closeanchor}{\@print{</A>
 }%
@@ -162,10 +158,10 @@
   {\@open{DL}{}}
   {\@close{DL}}
 \newenvironment{list}[2]
-  {\@open{DL}{COMPACT=compact}\newcommand{\makelabel}[1]{#1}%
-  \@defaultdt{#1}%
-  #2}
-  {\@close{DL}}
+  {\@open{DL}{COMPACT=compact}\newcommand{\makelabel}[1]{#1}%open
+  \@defaultdt{#1}%default
+  #2%exec
+}{\@close{DL}}
 \newenvironment{trivlist}{\@open{DL}{}}{\@close{DL}}
 %%% Maths
 \newenvironment{math}{\(}{\)}
@@ -442,7 +438,7 @@
 \newenvironment{aqua}{\@fontcolor{aqua}}{}
 \def\cal{\red}
 \def\sf{\purple}
-\def\sc{\bf}
+\def\sc{\navy}
 \def\sl{\it\maroon}
 %%%% LaTeX2e verbose declarations
 \newenvironment{mdseries}{\@anti{\bf}}{}

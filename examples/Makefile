@@ -1,5 +1,5 @@
 LATEX=latex
-HTMLGEN=hevea
+HEVEA=hevea
 IMAGEGEN=imagen
 HTMLCUT=hacha
 EXDIR=$(HOME)/public_html/hevea/examples
@@ -10,11 +10,11 @@ install:
 	cp Makefile a.tex suite.tex pat.tex pat.def pat.sty $(EXDIR)
 a.html: a.tex
 	$(LATEX) < /dev/null a.tex
-	$(HTMLGEN) -v -francais a.tex
+	$(HEVEA) -v -francais a.tex
 
 testsccal.html: mydefs.sty testsccal.tex
 	$(LATEX) < /dev/null testsccal.tex
-	$(HTMLGEN) mydefs.sty testsccal.tex
+	$(HEVEA) mydefs.sty testsccal.tex
 
 pat.html: pat.tex pat.sty
 	gpic -t < pat.tex > tmp.tex
@@ -22,7 +22,7 @@ pat.html: pat.tex pat.sty
 	bibtex tmp ;
 	$(LATEX) tmp.tex < /dev/null
 	$(LATEX) tmp.tex < /dev/null
-	$(HTMLGEN) pat.sty -e pat.def -o pat.html tmp.tex
+	$(HEVEA) pat.sty -e pat.def -o pat.html tmp.tex
 	$(IMAGEGEN) pat
 
 patbis.html: pat.html
@@ -33,10 +33,10 @@ suite.html: suite.tex
 	makeindex suite
 	$(LATEX) < /dev/null suite.tex
 	$(LATEX) < /dev/null suite.tex
-	$(HTMLGEN) suite.tex
+	$(HEVEA) suite.tex
 
 index.html: index.tex
-	$(HTMLGEN) index.tex
+	$(HEVEA) index.tex
 
 clean cleanall:
-	rm -f *.aux *.log *.dvi *.html *~ *.gif *.bbl tmp.* *.ilg *.ind *.idx *.image.tex
+	rm -f *.aux *.log *.dvi *.html *~ *.gif *.bbl tmp.* *.ilg *.ind *.idx *.image.tex *.html

@@ -31,11 +31,11 @@ latexmain.cmo: auxx.cmo html.cmi image.cmi latexscan.cmi location.cmi \
 latexmain.cmx: auxx.cmx html.cmx image.cmx latexscan.cmx location.cmx \
     myfiles.cmx out.cmx parse_opts.cmx save.cmx 
 latexscan.cmo: auxx.cmo counter.cmi foot.cmi html.cmi image.cmi index.cmi \
-    latexmacros.cmi location.cmi myfiles.cmi mylib.cmi out.cmi parse_opts.cmi \
-    save.cmo subst.cmo symb.cmi latexscan.cmi 
+    latexmacros.cmi length.cmi location.cmi myfiles.cmi mylib.cmi out.cmi \
+    parse_opts.cmi save.cmo subst.cmo symb.cmi latexscan.cmi 
 latexscan.cmx: auxx.cmx counter.cmx foot.cmx html.cmx image.cmx index.cmx \
-    latexmacros.cmx location.cmx myfiles.cmx mylib.cmx out.cmx parse_opts.cmx \
-    save.cmx subst.cmx symb.cmx latexscan.cmi 
+    latexmacros.cmx length.cmx location.cmx myfiles.cmx mylib.cmx out.cmx \
+    parse_opts.cmx save.cmx subst.cmx symb.cmx latexscan.cmi 
 length.cmo: length.cmi 
 length.cmx: length.cmi 
 location.cmo: location.cmi 

@@ -17,7 +17,7 @@ open Latexmacros
 open Html
 open Save
 
-let header = "$Id: latexscan.mll,v 1.40 1998-09-04 09:46:08 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.41 1998-09-24 13:01:06 maranget Exp $" 
 
 let push s e = s := e:: !s
 and pop s = match !s with
@@ -54,6 +54,16 @@ let start_lexstate () =
 
 let stack = ref [||]
 and stack_stack = ref []
+;;
+
+let prerr_args args =
+  prerr_endline "Arguments: " ;
+  for i = 0 to Array.length args - 1 do
+    prerr_string "\t<" ;
+    prerr_string args.(i) ;
+    prerr_endline ">"
+  done ;
+  prerr_endline "End of arguments" ;
 ;;
 
 let pretty_lexbuf lb =
@@ -106,6 +116,7 @@ and last_letter name =
   ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z')
 ;;
 
+(*
 let subst_arg arg = try
   let _ = String.index arg '#' in
   Subst.subst (Lexing.from_string arg) !stack
@@ -116,6 +127,7 @@ with
     end
 | Not_found -> arg
 ;;
+*)
 
 let save_quote_arg lexbuf =
 
@@ -140,10 +152,12 @@ let save_quote_arg lexbuf =
 
 let save_arg lexbuf =
   let arg = save_quote_arg lexbuf in
-  let r = subst_arg arg in
+(*
+  let r =  subst_arg  arg in
    if !verbose > 2 then
     prerr_endline ("Arg subst: <"^arg^">") ;
-  r
+*)
+  arg
 ;;
 
 let rec parse_args_norm pat lexbuf = match pat with
@@ -190,8 +204,11 @@ let rec parse_quote_arg_opt def lexbuf =
 
 let parse_arg_opt def lexbuf =
   let arg = parse_quote_arg_opt def lexbuf in
+(*
    (match arg with Yes s -> Yes (subst_arg s)
            | No s -> No (subst_arg s))
+*)
+  arg
 ;;
 
 let rec parse_args_opt pat lexbuf = match pat with
@@ -227,16 +244,17 @@ let parse_args (popt,pat) lexbuf =
 
 let make_stack name pat lexbuf =
   let (opts,args) = parse_args pat lexbuf in
-  let stack = Array.of_list (List.map from_ok opts@args) in
+  let args = Array.of_list (List.map from_ok opts@args) in
   if !verbose > 2 then begin
     Printf.fprintf stderr "make_stack for macro: %s "  name ;
     Latexmacros.pretty_pat pat ;
     prerr_endline "";
-    for i = 0 to Array.length stack-1 do
-      Printf.fprintf stderr "\t#%d = %s\n" (i+1) stack.(i)
-    done
+    for i = 0 to Array.length args-1 do
+      Printf.fprintf stderr "\t#%d = %s\n" (i+1) args.(i)
+    done ;
+    prerr_args !stack
   end ;
-  stack
+  args
 ;;
 
 
@@ -464,13 +482,36 @@ let get_this lexfun s =
   let lexer = Lexing.from_string ("\\mbox{"^s^"}") in
   let r = Html.to_string (fun () -> lexfun lexer) in
   if !verbose > 1 then begin
-    prerr_endline r
+    prerr_endline ("["^s^"] -> "^r^"]")
   end ;
   display := pop stack_display;
   restore_lexstate();
   r
 ;;
 
+let subst_buff = Out.create_buff ()
+;;
+
+let subst_this subst arg =
+try
+  let _ = String.index arg '#' in
+  if !verbose > 1 then begin
+    Printf.fprintf stderr "subst_this : [%s]\n" arg ;
+    prerr_args !stack
+  end ;
+  subst (Lexing.from_string arg) ;
+  let r = Out.to_string subst_buff in
+  if !verbose > 1 then
+    prerr_endline ("subst_this ["^arg^"] = "^r);
+  r
+with Not_found -> arg
+;;
+
+let subst_arg subst lexbuf = subst_this subst (save_arg lexbuf)  
+and subst_opt def subst lexbuf = subst_this subst (save_opt def lexbuf)  
+;;
+
+  
 let get_style lexfun s =
   start_lexstate ();
   push stack_display !display;
@@ -1014,6 +1055,7 @@ let no_prelude () =
   Html.set_out !out_file
 ;;
 }
+let command_name = '\\' (('@' ? ['A'-'Z' 'a'-'z']+ '*'?) | [^ 'A'-'Z' 'a'-'z'])
 
 rule  main = parse
 (* comments *)
@@ -1472,12 +1514,22 @@ rule  main = parse
 
 (* General case for commands *)
   | '#' ['1'-'9']
-      {let arg = !stack.(Char.code (lexeme_char lexbuf 1) - Char.code '1') in
+      {let lxm = lexeme lexbuf in
+      let i = Char.code (lxm.[1]) - Char.code '1' in
+      if i >= Array.length !stack then
+        raise (Failure "Top level argument");
+      let arg = !stack.(i) in
       if !verbose > 2 then
         prerr_endline ("Subst arg: <"^arg^">");
+      let old_args = !stack in
+      stack := pop stack_stack ;
+      if !verbose > 2 then
+        prerr_args !stack;
       scan_this_may_cont false main lexbuf arg ;
+      push stack_stack !stack ;
+      stack := old_args ;
       main lexbuf}
-  | "\\" (('@' ? ['A'-'Z' 'a'-'z']+ '*'?) | [^ 'A'-'Z' 'a'-'z'])
+  | command_name
       {let lxm = lexeme lexbuf in
       begin match lxm with
     (* Html primitives *)
@@ -1555,11 +1607,11 @@ rule  main = parse
          Html.open_mod (Color ("\"#"^arg^"\"")) ;
          main lexbuf
       | "\\@defaultdt" ->
-         let arg = save_arg lexbuf in
+         let arg = subst_arg subst lexbuf in
          Html.set_dt arg ;
          main lexbuf
       | "\\usecounter" ->
-         let arg = save_arg lexbuf in
+         let arg = subst_arg subst lexbuf in
          Html.set_dcount arg ;
          main lexbuf
       | "\\@fromlib" ->
@@ -1665,29 +1717,37 @@ rule  main = parse
 (* labels *)
         | "\\label" ->
            let save_last_closed = !last_closed in
-           let lab = save_arg lexbuf in
+           let lab = subst_arg subst lexbuf in
            Html.loc_name lab "" ;
            last_closed := save_last_closed ;
+           main lexbuf
+        |  "\\ref" ->
+           let lab = subst_arg subst lexbuf in 
+           Html.loc_ref (Auxx.rget lab) lab ;
+           main lexbuf
+        |  "\\pageref" ->
+           let lab = subst_arg subst lexbuf in
+           Html.loc_ref "X" lab ;
            main lexbuf
 (* index *)
         | "\\@index" ->
            let save_last_closed = !last_closed in
-           let tag = save_opt "default" lexbuf in
-           let arg = save_arg lexbuf in
+           let tag = subst_opt "default" subst lexbuf in
+           let arg = subst_arg subst lexbuf in
            Index.treat tag arg ;
            last_closed := save_last_closed ;
            main lexbuf
         | "\\@printindex" ->
            start_lexstate () ;
-           let tag =  save_opt "default" lexbuf in
+           let tag =  subst_opt "default" subst lexbuf in
            Index.print (scan_this main) tag ;
            restore_lexstate ();
            main lexbuf
         | "\\newindex" |  "\\renewindex" ->
-           let tag = save_arg lexbuf in
-           let suf = save_arg lexbuf in
+           let tag = subst_arg subst lexbuf in
+           let suf = subst_arg subst lexbuf in
            let _   = save_arg lexbuf in
-           let name = save_arg lexbuf in
+           let name = subst_arg subst lexbuf in
            Index.newindex tag suf name ;
            main lexbuf
 (* Counters *)
@@ -1762,8 +1822,20 @@ rule  main = parse
         [] -> ()
       | i::rest -> begin match i with
             Print str -> Html.put str
-          | Print_arg i -> scan_this main (!stack.(i))
-          | Print_fun (f,i) -> scan_this main (f !stack.(i))
+          | Print_arg i ->
+              let arg = !stack.(i) in
+              let old_stack = !stack in
+              stack := pop stack_stack ;
+              scan_this main arg ;
+              push stack_stack !stack ;
+              stack := old_stack
+          | Print_fun (f,i) ->
+              let arg = !stack.(i) in
+              let old_stack = !stack in
+              stack := pop stack_stack ;
+              scan_this main (f (subst_this subst arg)) ;
+              push stack_stack !stack ;
+              stack := old_stack
           | Print_count (f,i) ->
               let c = Counter.value_counter !stack.(i) in
               Html.put (f c)
@@ -1788,11 +1860,7 @@ rule  main = parse
 
         let name = name_extract lxm in
         let pat,body = find_macro name in
-        let args = if name = "\\list" then
-          let arg1 = save_arg lexbuf in
-          let arg2 = save_quote_arg lexbuf in
-          [|arg1 ; arg2 |]
-          else make_stack name pat lexbuf in
+        let args = make_stack name pat lexbuf in
         push stack_stack !stack ;
         stack := args;
         let is_limit = checklimits lexbuf ||  Latexmacros.limit name in
@@ -2055,3 +2123,24 @@ and skip_comment = parse
      prerr_endline ("Comment:"^lexeme lexbuf) ;
    if !flushing then Html.flush_out () }
 | "" {failwith "Comment not terminated"}
+
+and subst = parse
+'#' ['1'-'9']
+    {let lxm = lexeme lexbuf in
+    let i = Char.code (lxm.[1]) - Char.code '1' in
+    if i >= Array.length !stack then
+      raise (Failure "Primitive argument");
+    let arg = !stack.(i) in
+    if !verbose > 2 then
+      prerr_endline ("Subst arg in subst: "^lxm^" -> <"^arg^">");
+    let old_args = !stack in
+    stack := pop stack_stack ;
+    if !verbose > 2 then
+      prerr_args !stack;
+    subst (Lexing.from_string arg) ;
+    push stack_stack !stack ;
+    stack := old_args ;
+    subst lexbuf}
+|  "\\#" | '\\' | [^'\\' '#']+
+    {Out.put subst_buff (lexeme lexbuf) ; subst lexbuf}
+|  eof {()}
