@@ -1,7 +1,11 @@
 {
 open Lexing
 
-type format = Align of string * bool | Inside of string
+let silent = ref false
+;;
+
+type formatopt = Wrap | NoMath
+type format = Align of string * formatopt list | Inside of string
 ;;
 
 let border = ref false
@@ -166,14 +170,16 @@ and input_arg = parse
 | "" {arg lexbuf}  
 
 and tformat = parse
-  'c' {Align ("center",false)::tformat lexbuf}
-| 'l' {Align ("left",false)::tformat lexbuf}
-| 'r' {Align ("right",false)::tformat lexbuf}
+  'c' {Align ("center",[])::tformat lexbuf}
+| 'l' {Align ("left",[])::tformat lexbuf}
+| 'r' {Align ("right",[])::tformat lexbuf}
 | 'p'
    {let _ = arg lexbuf in
-   Location.print_pos () ;
-   prerr_endline "Warning, p column specification replaced by c";
-   Align ("center",false):: tformat lexbuf}
+   if not !silent then begin
+     Location.print_pos () ;
+     prerr_endline "Warning, p column specification, argument ignored"
+   end ;
+   Align ("left",[Wrap]):: tformat lexbuf}
 | '*'
    {let ntimes = arg lexbuf in let what = arg lexbuf in
    let rec do_rec = function
@@ -182,9 +188,9 @@ and tformat = parse
       let sbuf = Lexing.from_string what in
       tformat sbuf@do_rec (i-1) in
    do_rec (int_of_string ntimes)}
-| "tc" {Align ("center",true)::tformat lexbuf}
-| "tl" {Align ("left",true)::tformat lexbuf}
-| "tr" {Align ("right",true)::tformat lexbuf}
+| "tc" {Align ("center",[NoMath])::tformat lexbuf}
+| "tl" {Align ("left",[NoMath])::tformat lexbuf}
+| "tr" {Align ("right",[NoMath])::tformat lexbuf}
 | '|' {border := true ; tformat lexbuf}
 | '@'
     {let inside = arg lexbuf in

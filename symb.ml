@@ -170,12 +170,13 @@ let tr = function
 | "\\}" -> "}"
 | s   -> s
 ;;
+let put_delim skip put d n =
 
-let put_delim  skip put d n =
+  let  put_skip s = put s ; skip () ; in
+
   let rec do_rec s i =
     if i >= 1 then begin
-      put s;
-      skip () ;
+      put_skip s;
       do_rec s (i-1)
     end in
   if not !symbols || n=1 then
@@ -184,49 +185,49 @@ let put_delim  skip put d n =
   else begin
     put "<FONT FACE=symbol>\n" ;
     if d = "(" then begin
-      put "&#230;" ; skip () ;
-      do_rec "&#231" (n-2) ;
-      put "&#232;"
+      put_skip "æ" ;
+      do_rec "ç" (n-2) ;
+      put_skip "è"
     end else if d=")" then begin
-      put "&#246;" ; skip () ;
-      do_rec "&#247" (n-2) ;
-      put "&#248;"
+      put_skip "ö" ;
+      do_rec "÷" (n-2) ;
+      put_skip "ø"
     end else if d = "[" then begin
-      put "&#233;" ; skip () ;
-      do_rec "&#234" (n-2) ;
-      put "&#235;"
+      put_skip "é" ; 
+      do_rec "ê" (n-2) ;
+      put_skip "ë"
     end else if d="]" then begin
-      put "&#249;" ; skip () ;
-      do_rec "&#250" (n-2) ;
-      put "&#251;"
+      put_skip "ù" ; 
+      do_rec "ú" (n-2) ;
+      put_skip "û"
    end else if d = "\\lfloor" then begin
-      do_rec "&#234" (n-1) ;
-      put "&#235;"
+      do_rec "ê" (n-1) ;
+      put_skip "ë"
     end else if d="\\rfloor" then begin
-      do_rec "&#250" (n-1) ;
-      put "&#251;"
+      do_rec "ú" (n-1) ;
+      put_skip "û"
     end else if d = "\\lceil" then begin
-      put "&#233;" ; skip () ;
-      do_rec "&#234" (n-1)
+      put_skip "é" ; 
+      do_rec "ê" (n-1)
     end else if d="\\rceil" then begin
-      put "&#249;" ; skip () ;
-      do_rec "&#250" (n-1)
+      put_skip "ù" ; 
+      do_rec "ú" (n-1)
     end else if d="|" then begin
-      do_rec "&#189;" n
+      do_rec "½" n
     end else if d="\\|" then begin
-      do_rec "&#231;&#231;" n
+      do_rec "½½" n
     end else if d = "\\{" then begin
-      put "&#236;" ; skip () ;
-      do_rec "&#239" ((n-3)/2) ;
-      put "&#237;" ; skip () ;
-      do_rec "&#239" ((n-3)/2) ;
-      put "&#238;"     
+      put_skip "ì" ; 
+      do_rec "ï" ((n-3)/2) ;
+      put_skip "í" ; 
+      do_rec "ï" ((n-3)/2) ;
+      put_skip "î"     
     end else if d = "\\}" then begin
-      put "&#252;" ; skip () ;
-      do_rec "&#239" ((n-3)/2) ;
-      put "&#253;" ; skip () ;
-      do_rec "&#239" ((n-3)/2) ;
-      put "&#254;"     
+      put_skip "ü" ; 
+      do_rec "ï" ((n-3)/2) ;
+      put_skip "ı" ; 
+      do_rec "ï" ((n-3)/2) ;
+      put_skip "ş"     
     end ;
     put "</FONT FACE=symbol>\n"
   end

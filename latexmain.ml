@@ -17,6 +17,8 @@ let read_style name =
  
 let main () = 
 
+    Save.silent := !Parse_opts.silent ;
+
     if !readverb > 0 then Parse_opts.verbose := 1;
     read_style "hevea.sty" ;
 
@@ -54,10 +56,11 @@ let main () =
     Latexscan.out_file :=
       if !outname <> "" then
          Out.create_chan (open_out !outname)
-      else begin match Filename.basename basename with
+      else begin match texfile with
         "" ->  Out.create_chan stdout
-      | s  -> Out.create_chan (open_out (s^".html")) end ;
-
+      | s  ->
+         Out.create_chan
+           (open_out (Filename.basename basename^".html")) end ;
         
     begin match texfile with
       "" -> Latexscan.no_prelude ()

@@ -18,7 +18,8 @@ val force_block : string -> string -> unit
 val open_display : string -> unit
 val close_display : unit -> unit
 val item_display : unit -> unit
-val end_item_display : unit -> unit
+val force_item_display : unit -> unit
+val end_item_display : unit -> int
 val begin_item_display : unit -> unit
 val erase_display : unit -> unit
 
@@ -36,7 +37,7 @@ val skip_line : unit -> unit
 
 
 val delay : (int -> unit) -> unit
-val flush : unit -> int
+val flush : int -> unit
 val forget : unit -> unit
 
 val loc_ref: string -> string -> unit

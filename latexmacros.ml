@@ -15,8 +15,6 @@ let pretty_env = function
 
 type action =
     Print of string
-  | Open of (string * string)
-  | Close of string
   | ItemDisplay
   | Print_arg of int
   | Print_fun of ((string -> string) * int)
@@ -56,8 +54,10 @@ let def_macro_pat name pat action =
   end ;
   try
     Hashtbl.find cmdtable name ;
-    Location.print_pos () ;
-    prerr_string "Ignoring definition of: "; prerr_endline name ;
+    if not !silent then begin
+      Location.print_pos () ;
+      prerr_string "Ignoring definition of: "; prerr_endline name
+    end
   with
     Not_found ->
       Hashtbl.add cmdtable name (pat,action)
@@ -73,8 +73,11 @@ let redef_macro_pat name pat action =
     Hashtbl.add cmdtable name (pat,action)
   with
     Not_found -> begin
-      Location.print_pos () ;
-      prerr_string "Defining a macro with \\renewcommand: "; prerr_endline name ;
+      if not !silent then begin
+        Location.print_pos () ;
+        prerr_string "Defining a macro with \\renewcommand: ";
+        prerr_endline name
+      end ;
       Hashtbl.add cmdtable name (pat,action)
   end
 ;;
@@ -127,8 +130,10 @@ let find_macro name =
   try
     Hashtbl.find cmdtable name
   with Not_found -> begin
-    Location.print_pos () ;
-    prerr_string "Unknown macro: "; prerr_endline name ;
+    if not !silent then begin
+      Location.print_pos () ;
+      prerr_string "Unknown macro: "; prerr_endline name
+    end ;
     (([],[]),[])
   end
 ;;
@@ -156,6 +161,7 @@ let newif_ref name cell =
   def_macro ("\\"^name^"false") 0 [SetTest (cell,false)]
 ;;
 
+newif_ref "silent" silent;
 newif_ref "math" in_math ;
 newif_ref "display" display ;
 newif_ref "french" french ;
@@ -254,13 +260,16 @@ let check_in = function
 | "\\subset" -> "\\notsubset"
 | s      -> "\\neg"^s in
 def_macro "\\not" 1 [Print_fun (check_in,0)];
-def_macro_pat "\\makebox" (["" ; ""],["#1"]) [Subst "\\hbox{#3}"] ;
-def_macro_pat "\\framebox" (["" ; ""],["#1"]) [Subst "\\fbox{#3}"] ;
+def_macro_pat "\\makebox" (["" ; ""],["#1"]) [Subst "\\warning{makebox}\\mbox{#3}"] ;
+def_macro_pat "\\framebox" (["" ; ""],["#1"]) [Subst "\\warning{framebox}\\fbox{#3}"] ;
 
+
+(*
 let spaces = function
   ".5ex" -> ""
 | _      -> "~" in
 def_macro "\\hspace" 1 [Print_fun (spaces,0)];
+*)
 (* Maths *)
 def_macro "\\alpha" 0 [Print alpha];
 def_macro "\\beta" 0 [Print beta];

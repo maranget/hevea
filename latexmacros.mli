@@ -8,8 +8,6 @@ val pretty_env : env -> string
 
 type action =
     Print of string
-  | Open of (string * string)
-  | Close of string
   | ItemDisplay
   | Print_arg of int
   | Print_fun of ((string -> string) * int)

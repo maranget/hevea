@@ -1,5 +1,6 @@
 val verbose : int ref
 val readverb : int ref
+val silent : bool ref
 val symbols : bool ref
 type language = Francais | English
 val language : language  ref

@@ -134,18 +134,18 @@
 \newcommand{\onecolumn}{}
 %%% Title stuff
 \newsavebox{\@title}
-\newcommand{\title}[1]{\savebox{\@title}{#1}}
+\newcommand{\title}[1]{\sbox{\@title}{#1}}
 \newsavebox{\@author}
-\newcommand{\author}[1]{\savebox{\@author}{#1}}
+\newcommand{\author}[1]{\sbox{\@author}{#1}}
 \newsavebox{\@date}
-\newcommand{\date}[1]{\savebox{\@date}{#1}}
+\newcommand{\date}[1]{\sbox{\@date}{#1}}
 \newcommand{\maketitle}{%
 \@open{H1}{ALIGN=center}%
-\@title%
+\usebox{\@title}%
 \@close{H1}%
 \@open{H3}{ALIGN=center}%
-\@author\par
-\@date
+\usebox{\@author}\par
+\usebox{\@date}
 \@close{H3}%
 \@print{<BR><BR><BR>}%
 }
@@ -180,17 +180,17 @@
 \def\ldots{...}
 \def\dots{...}
 \def\cdots{···}
-\def\cdot{{\Huge·}}
+\def\cdot{{\@incsize{2}·}}
 \def\vdots{\ifdisplay\mbox{·\\·\\·}\else:\fi}
 \def\ddots{\ifdisplay\mbox{·~~\\~·~\\~~·}\else%
-\typeout{\ddots in text}\mbox{ddots}\fi}
+\warning{\ddots in text}\mbox{ddots}\fi}
 \def\limits{}
 \def\nolimits{}
 \newcommand{\textstackrel}[2]{#2^{#1}}
 \newcommand{\stackrel}[2]{\ifdisplay
 \begin{array}{c}\scriptsize #1\\ #2\\ ~ \end{array}\else
 \textstackrel{#1}{#2}\fi}
-\newcommand{\textoverline}[1]{\typeout{Warning: overline in text}#1}
+\newcommand{\textoverline}[1]{\warning{Warning: overline in text}#1}
 \def\overline#1{\ifdisplay
 \begin{array}{c}\hline\\ #1 \\~\end{array}\else\textoverline{#1}\fi}
 \def\underline#1{\ifdisplay
@@ -205,12 +205,14 @@
 \def\scriptscriptstype{\scriptsize\@incsize{-1}}
 %%%%% Figures and tables
 \newsavebox{\@caption}
-\def\caption#1{\savebox{\@caption}{#1}}
+\def\caption#1{\sbox{\@caption}{#1}}
 \newenvironment{figure}[1][]{%
-\@open{BLOCKQUOTE}{}\@print{<HR>}}{%
-\stepcounter{figure}%
-\caption{}%
-\begin{center}Figure \thefigure\iffrench~\fi:\@caption\end{center}
+\caption{}\refstepcounter{figure}%
+\@open{BLOCKQUOTE}{}\@print{<HR>}%
+%\@open{DISPLAY}{}%
+}{%
+%\@close{DISPLAY}%
+\par\begin{center}Figure \thefigure\iffrench~\fi:\usebox{\@caption}\end{center}
 \@print{<HR>}\@close{BLOCKQUOTE}}
 \newenvironment{figure*}[1][]{\begin{figure}[#1]}{\end{figure}}
 \newenvironment{table}[1][]{%
@@ -287,9 +289,9 @@
 \def\models{|=}
 \def\|{||}
 %% Arrays and tabular
-\newenvironment{tabular*}[1]{\typeout{Warning, tabular* changed into tabular}\begin{tabular}}{\end{tabular}}
-\newcommand{\extracolsep}[1]{\typeout{Warning, \extracolsep ignored}}
-\newcommand{\cline}[1]{\typeout{Warning, \cline changed into \hline}\hline}
+\newenvironment{tabular*}[1]{\warning{Warning, tabular* changed into tabular}\begin{tabular}}{\end{tabular}}
+\newcommand{\extracolsep}[1]{\warning{Warning, \extracolsep ignored}}
+\newcommand{\cline}[1]{\warning{Warning, \cline changed into \hline}\hline}
 \def\cases#1{\left\{\begin{array}{ltl}#1\end{array}\right.}
 %%%%%%%%%%%% Bibliography
 \def\nocite#1{}
@@ -303,6 +305,29 @@
 }
 \def\makeindex{\newindex{default}{idx}{ind}{Index}}
 \newcommand{\index*}[1]{#1\index{#1}}
+\newcommand{\indexref}[2]{\url{\##2}{#1}}
+\newcommand{\@seename}{\iffrench voir\else see\fi}
+\newcommand{\see}[2]{\@seename\ \textit{#1}}
+%% Input...
+\newcommand{\includeonly}[1]{}
+\newcommand{\listfiles}{}
+%% Line breaking
+\newcommand{\linebreak}[1][]{}
+\newcommand{\nolinebreak}[1][]{}
+\def\sloppy{}
+\def\fussy{}
+\newenvironment{sloppypar}{}{}
+%%%%%%%%%%%% Ignore hyphenation
+\def\-{}
+\def\hyphenation#1{}
+%% Page Breaking
+\newcommand{\pagebreak}[1][]{}
+\newcommand{\nopagebreak}[1][]{}
+\newcommand{\enlargethispage}[1]{}
+\newcommand{\enlargethispage*}[1]{}
+\newcommand{\newpage}{}
+\newcommand{\clearpage}{}
+\newcommand{\cleardoublepage}{}
 %%Lengths are ignored
 \newcommand{\newlength}[1]{}
 \newcommand{\setlength}[2]{}
@@ -310,6 +335,27 @@
 \newcommand{\settowidth}[2]{}
 \newcommand{\settodepth}[2]{}
 \newcommand{\settoheight}[2]{}
+\newcommand{\fill}{}
+\newcommand{\stretch}[1]{}
+%%Space
+\newcommand{\hspace}[1]{\warning{\hspace}}
+\newcommand{\hspace*}[1]{\warning{\hspace*}}
+\newcommand{\vspace}[1]{\warning{\vspace}}
+\newcommand{\vspace*}[1]{\warning{\vspace*}}
+\newcommand{\addvspace}[1]{\warning{\addvspace}}
+\def\cr{\\}
+\def\smallskip{\\}
+\def\medskip{\\}
+\def\bigskip{\\ \\}
+\def\enspace{~}
+\def\quad{~~}
+\def\qquad{\quad\quad}
+%% Boxes
+\def\fbox#1{%
+\ifdisplay\begin{array}{|c|}\hline#1\end{array}\else
+\warning{\fbox in text}\mbox{#1}\fi}
+\newcommand{\hbox}[1]{\warning{\hbox}\mbox{#1}}
+\newcommand{\displaystyle}{\ifdisplay\else\warning{\displaystyle ignored}\fi}
 %%% not so serious
 \def\url#1#2{{\@nostyle\@print{<A HREF="}#1\@print{">}}{#2}{\@nostyle\@print{</A>}}}
 \def\home#1{\char126#1}
@@ -359,9 +405,6 @@
 }}%
 %%%%%% Symbols, spaces...
 \def\symbol#1{\char#1}
-\def\quad{~~~}
-\def\qquad{\quad\quad}
-\def\hfill{\qquad\qquad}
 \def\bibliographystyle#1{}
 %%%%%%%%%%%%%%%% Missing series and shapes
 \def\cal{\red}
@@ -381,22 +424,19 @@
 \newenvironment{scshape}{\@anti{\it,\sl}\sc}{}
 \newenvironment{normalfont}{\rm\mdseries\upshape}{}
 %%%%%%%%%%%%%%%%
-\def\textrm#1{\mbox{\rm #1}}
-\def\textup#1{\mbox{\upshape #1}}
-\def\textmd#1{\mbox{\mdseries #1}}
-\def\textnormal#1{\mbox{\normalfont #1}}
-\def\texttt#1{\mbox{\tt #1}}
-\def\textit#1{\mbox{\it #1}}
-\def\textbf#1{\mbox{\bf #1}}
-\def\textsf#1{\mbox{\sf #1}}
-\def\textsl#1{\mbox{\sl #1}}
-\def\textsc#1{\mbox{\sc #1}}
-\newcommand{\emph}[1]{\mbox{\em #1}}
+\def\textrm#1{\mbox{\rm#1}}
+\def\textup#1{\mbox{\upshape#1}}
+\def\textmd#1{\mbox{\mdseries#1}}
+\def\textnormal#1{\mbox{\normalfont#1}}
+\def\texttt#1{\mbox{\tt#1}}
+\def\textit#1{\mbox{\it#1}}
+\def\textbf#1{\mbox{\bf#1}}
+\def\textsf#1{\mbox{\sf#1}}
+\def\textsl#1{\mbox{\sl#1}}
+\def\textsc#1{\mbox{\sc#1}}
+\newcommand{\emph}[1]{\mbox{\em#1}}
 %%%%%%%%%%%%%%%%
 \def\makeatletter{}
-%%%%%%%%%%%% Ignore hyphenation
-\def\-{}
-\def\hyphenation#1{}
 %%%%%%%%%%%% Ignore length
 \def\cfoot{}
 \newcommand{\rfoot}[2][]{}
@@ -412,37 +452,10 @@
 \def\newblock{}
 \def\vec#1{vec(#1)}
 \def\nobreak{}
-\def\pagebreak{}
-\def\nopagebreak{}
-\def\newpage{}
 \def\newdimen#1{}
-\def\linebreak{\\}
-\def\newline{\\}
 \def\samepage{}
 \def\raggedbottom{}
 \def\emergencystretch#1{}
-%% Boxes
-%%% Boxes
-\def\newbox#1{}
-\def\fbox#1{\ifdisplay{\begin{array}{|c|}\hline#1\end{array}}\else{#1}\fi}
-\def\vbox#1{\hbox{#1}}
-\def\mbox#1{\hbox{#1}}
-\def\parbox#1#2{\hbox{#2}}
-%% Horizontal spacing
-\newcommand{\hspace*}[1]{\hspace{#1}}
-%% Vertical spacing
-\def\unskip{}
-\def\null{}
-\def\cr{\\}
-\def\smallskip{\\}
-\def\medskip{\\}
-\def\bigskip{\\ \\}
-\def\vspace#1{\\}
-\def\vspace*#1{\\}
-\def\vfill{\\ \\}
-
-
-
 %%%%%%%%%%%% Indexes a la index.cls
 \newcommand{\long}{}
 

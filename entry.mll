@@ -10,10 +10,8 @@ and put_char c =
   Out.put_char buff c
 ;;
 
-let nesting = ref 0
-;;
 
-type end = Bang of string | Arobas of string | Bar of string 
+type res = Bang of string | Arobas of string | Bar of string 
 | Eof of string
 ;;
 
@@ -42,7 +40,6 @@ and idx = parse
   "\\indexentry"
      {let x = Save.arg lexbuf in
      let _ = Save.arg lexbuf in
-     prerr_endline ("Index entry: "^x) ;
      x}
 | eof {raise Fini}
 | _   {idx lexbuf}

@@ -14,6 +14,8 @@ and pop s = match !s with
 ;;
 
 
+let cur_line = ref (0,1)
+;;
 
 let curlexbuf = ref (Lexing.from_string "")
 and curlexname = ref ""
@@ -23,15 +25,17 @@ let get () = !curlexname
 ;;
 
 let set name lexbuf =
-  push stack (!curlexname,!curlexbuf) ;
+  push stack (!curlexname,!curlexbuf,!cur_line) ;
   curlexname := name ;
-  curlexbuf := lexbuf
+  curlexbuf := lexbuf;
+  cur_line := (0,1)
 ;;
 
 let restore () =
-  let name,lexbuf = pop stack in
+  let name,lexbuf,line = pop stack in
   curlexname := name ;
-  curlexbuf := lexbuf
+  curlexbuf := lexbuf;
+  cur_line := line
 ;;
 
 
@@ -46,9 +50,16 @@ let rec find_line file r = function
    
 let print_pos () =
   try
-    let file = open_in !curlexname in
-    let nline = find_line file 1 (Lexing.lexeme_start !curlexbuf) in
+    let file = open_in !curlexname
+    and char_pos = Lexing.lexeme_start !curlexbuf
+    and last_pos,last_line = !cur_line in
+    let last_pos,last_line =
+      if char_pos < last_pos then 0,1 else last_pos,last_line in
+    seek_in file last_pos ;
+    let nline =
+       find_line file last_line (char_pos-last_pos) in
     close_in file ;
+    cur_line := (char_pos,nline);
     prerr_string (!curlexname^":"^string_of_int nline^": ")
   with Sys_error s -> ()
 ;;

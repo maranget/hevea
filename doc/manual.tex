@@ -212,13 +212,92 @@ the document and to include them as images (see section~\ref{imagegen}).
 
 \section{A note on style}
 
-\subsection{Spacing}
-Spacing in the {\html} document reflects the original source spacing.
-Space after macros with no argument is skipped (as in {\LaTeX}) except
-within math mode.
-This means that you formulas have to be spaced properly in the source
-file.
+\subsection{Spacing, Paragraphs}
+Spacing in the \html{} document reflects the original source spacing.
+More precisely, any non empty sequence of spaces is outputed as one
+space, whereas a single newline is replicated in the output.
+Howhever one  blank line  (i.e., two newlines in a row) or more
+intruduce a paragraph break.
 
+
+Space after macros with no argument is skipped (as in {\LaTeX}) ---
+however this is not true in math mode, see below.
+Consider the following example:
+\begin{verbatim}
+\newcommand{\openpar}{(}
+\newcommand{\closepar}{)}
+\openpar text opened by ``openpar''
+and closed by ``closepar''\closepar.
+\end{verbatim}
+We get:
+\begin{quote}
+\newcommand{\openpar}{(}
+\newcommand{\closepar}{)}
+\openpar text opened by ``openpar'' and closed by
+``closepar''\closepar.
+\end{quote}
+In the tpeset example above, the space after \verb+\openpar+ does not
+find its way to the output.
+
+
+
+By contrast with \LaTeX{}, spaces from the input are significant in
+math mode, this
+feature allows users to instruct \hevea{}
+on how to put space their formulas.
+For instance, \verb+\alpha\rightarrow\beta+ is typeset without spaces between
+symbols, whereas \verb+\alpha \rightarrow \beta+ produces these spaces:
+\begin{htmlonly}
+$$
+\begin{array}{l@{ : }l}
+\verb+\alpha\rightarrow\beta+ & \alpha\rightarrow\beta\\
+\verb+\alpha \rightarrow \beta+ & \alpha \rightarrow \beta\\
+\end{array}
+$$
+\end{htmlonly}
+Note that \LaTeX{} ignores spaces in math mode, so that users can
+freely adjust \hevea{} output without changing anything to \LaTeX{}
+output.
+
+
+\newcommand{\bfsymbol}{\mbox{\bf symbol}}
+\begin{htmlonly}
+Consider for instance the following command definition:
+\begin{verbatim}
+\newcommand{\bfsymbol}{\mbox{\bf symbol}}
+\end{verbatim}
+Using \verb+\bfsymbol+ in text mode, we 
+\end{htmlonly}
+
+Not even attempting to be rational about spacing,
+\hevea{} try to emulate \LaTeX{} behavior is all situations, but this
+discrepancies probably exist.
+Thus, users are invited to make explicit what they want.
+This is good practice anyway, because \LaTeX{} is mysterious
+here. Consider the following example, where the \verb+\tryspace+
+macro is first applied and then expansed by hand:
+\begin{verbatim}
+\newcommand{\tryspace}[1]{#1 XXX}
+
+Some space: \tryspace{\bfsymbol}\\
+No space: \bfsymbol XXX
+\end{verbatim}
+Spacing is a bit chaotic here,
+the space after \bfsymbol{} remains when \verb+#1+ is substituted for it
+by \LaTeX{} (or \hevea).
+
+\begin{htmlout}
+\newcommand{\tryspace}[1]{#1 XXX}
+\begin{tabular}{l@{~:~}l}
+Some space & \tryspace{\bfsymbol}\\
+No space   & \bfsymbol XXX
+\end{tabular}
+\end{htmlout}
+Note that if a space is wanted beetween \verb+XXX+ and whatever \verb+#1+
+expands to, one can write:
+\begin{verbatim}
+\newcommand{\tryspace}[2]{#1{} XXX}
+\end{verbatim}
 
 \subsection{Supported symbol}
 
@@ -767,10 +846,12 @@ manual~\cite[Appendix~C]{latex}.
 
 \subsection{Spacing}
 Generally speaking, spaces (and single newline characters) in the
-source are echoed in the output.
-Browser then manage with spaces and linebreaks.
-Following \LaTeX{} behavior, spaces after commands are not echoed.
-Spaces after invisible commands with arguments are not echoed either.
+source are echoed in the output.  Browser then manage with spaces and
+linebreaks.  Following \LaTeX{} behavior, spaces after commands are
+not echoed.  Spaces after invisible commands with arguments are not
+echoed either.
+
+
 See also section~\ref{spacemath} on spaces in math mode.
 
 
@@ -1193,7 +1274,7 @@ Some others are partly rendered:
 \item Spacing between columns is different. In particular, some space
 appears around \verb+@+ formatting specification.
 \item The \verb+p{+{\it wd}\verb+}+ column specification is equivalent
-to \verb+c+.
+to \verb+l+ with word wrap enabled.
 \item If a \verb+|+ appears somewhere in the column formatting
 specification, then the array is shown with borders.
 \item The command \verb+\hline+ does nothing if the array has borders
@@ -1210,7 +1291,7 @@ Its first argument is ignored.
 
 There is an additional feature: if ``\verb+t+'' appears before a
 column format (\verb+c+, \verb+l+ or \verb+r+), then the corresponding
-column is typeset inside a \verb+\mbox+.
+column is typeset after exiting math-mode.
 This additional feature enables the encoding of \TeX{} \verb+\cases+ using
 the \LaTeX{} arrays.
 The command \verb+\cases+ is defined in \filename{hevea.sty}.
@@ -1270,7 +1351,7 @@ correctly handled. Citation labels are extracted from the
 \texttt{.aux} file, if present. Otherwise the argument to
 \verb+cite+ is used.
 
-The \verb+\bibliography+ command
+The \verb+\bibliography+ command is
 recognized, it loads the \texttt{.bbl} file which should thus
 have been generated before, using the appropriate combination of
 \LaTeX{} and \BibTeX{} runs.
@@ -1280,12 +1361,39 @@ The \verb+thebibliography+ environment is recognized.
 The \verb+\nocite+ and \verb+\bibliographystyle+ macros exist and do
 nothing.
 
+\subsection{Splitting the Input}
+
+The \verb+\input+ and \verb+\include+ commands exist are they perform
+exactly the same operation of searching a file (see~\ref{files}).
+Let  \filename{filename} be the argument to \verb+\input+ or
+\verb+\include+.
+A file is searched following this scheme:
+\begin{itemize}
+\item If \filename{filename} is an absolute path, then \hevea{}
+attempt to open a file with this name exactly.
+\item Otherwise, \hevea{} searches a file with name
+\filename{filename} in all the directories in its search path. (See
+\ref{path} for the definition of \hevea{} search path).
+\end{itemize}
+Additionnaly, if \filename{filename}
+does not have an
+extension and that a first attempt to find it fails, then a second
+attempt is made, looking for file \filename{filename}\texttt{.tex}.
+
+
+The \verb+\includeonly+ and \verb+\lisfiles+ commands are null commands.
+
+\hevea has a search path, which is defined as, first, the current
+directory \verb+.+, followed by the directories given as
+arguments to the \verb+-I+ option, and last \hevea{} instalatio
+directory (e.g., \verb+/usr/local/lib/hevea+).
+
+
 \subsection{Index and Glossary}
-{\hevea} supports several simultaneaous indexes, following the scheme
+\hevea{} supports several simultaneaous indexes, following the scheme
 of the
 \url{ftp://theory.lcs.mit.edu//pub/tex/index/}{\filename{index}} style,
-which is present in the \verb+texmf+
-\LaTeX{} distribution.
+which is present in modern \LaTeX{} distributions.
 This scheme is backward compatible with the standard indexing scheme
 of \LaTeX.
 Observe that \hevea{} does its own index computation  and does not need
@@ -1316,11 +1424,178 @@ There also exists a stared-variant \verb+\index*+ that additionnaly
 typesets {\it arg}.
 \end{description}
 
-Gloassary is handled as follows:
-\verb+\makeglossary+ performs
-\begin{verbatim}
+Glossaries are not handled (who uses them ?) and the \verb+theindex+
+environment does not 
+exist (since \hevea{} computes its own indexes).
 
-\end{varbatim}
+\subsection{Terminal Input and Output}
+
+The \verb+\typeout+ command echos its argument verbatim on the
+terminal.
+The \verb+\typein+ command is not supported.
+
+\section{Line and Page Breaking}
+
+\subsection{Line Breaking}
+The advisory line breaking commands \verb+\linebreak+ and
+\verb+\nolinebreak+ are null commands.
+
+The \verb+\\+ and \verb+\\*+ commands output a \verb+<BR>+ element,
+except inside arrays where the close the current row.
+Their option argument is ignored.
+The \verb+\newline+ outputs a \verb+<BR>+ element.
+
+All other line breaking commands, declarations or environemnts are
+silently ignored.
+
+\subsection{Page Breaking}
+They are no pages in the physical sense in \html. Thus all these
+commands are ignored.
+
+\section{Lengths, Spaces and Boxes}
+\subsection{Length}
+All length are ignored, things go smoothly when \LaTeX{} syntax is
+used (using the \verb+\newlength+, \verb+\setlength+, etc. commands
+which are null macros).
+Of course, if length are really important to the document, rendering
+will be poor.
+
+Note that \TeX{} length syntax is not at all recognized. As a
+consequence, writting things like \verb+\textwidth=10cm+ will clobber
+the output.
+Users can correct such misbehavior by adopting \LaTeX{} syntax
+(\verb+\setlength{\textwidth}{10cm}+ here).
+
+
+\subsection{Space}
+The \verb+\hspace+, \verb+\vspace+ and \verb+\addvspace+ spacing
+commands and their
+starred versions do nothing but issuing a warning.
+
+It is so because \hevea{} cannot interpret length arguments.  When a
+document uses these commands once or always with similar arguments,
+users can redefine them to output the desired amount of non-breaking
+spaces or line-skips (which can be none of course). 
+
+
+However, spacing commands without arguments are recognized.
+The \verb+\enspace+, \verb+\quad+ and \verb+\qquad+ commands output
+one, two and four non-breaking spaces, while the \verb+\smallskip+,
+\verb+\medskip+ and \verb+\bigskip+ ouput one, one, and two line
+breaks.
+
+Strechable lengths do not exist, thus the \verb+\hfill+ and
+\verb+\vfill+ macros are undefined.
+
+\subsection{Boxes}
+
+Box contents in typeset in text mode (i.e., non-math and non-display
+mode).
+Both \LaTeX{} boxing commands \verb+\mbox+ and \verb+\makebox+
+commands exist.
+However  \verb+\makebox+ generates a specific warning, since \hevea{}
+ignore the length and positioning instructions given as optional
+argument.
+
+Similarily, the boxing with frame \verb+\fbox+ and \verb+\framebox+
+commands are recognized and
+\verb+\framebox+ issues a warning.
+Additionnally, \verb+\fbox+ reduces to \verb+\mbox+ in non-display
+mode and no frame is drawn.
+
+Boxes can be saved for latter usage by storing them in {\em bin}.
+New bins are defined by \verb+\newsavebox{+{\it cmd}\verb+}+.
+
+Then some text can be saved into {\it cmd} by
+\verb+\sbox{+{\it text}\verb+}{+{\it cmd}\verb+}+.
+The text is translated to \html{}, as if it was inside a \verb+\mbox+
+and the resulting output is stored.
+It is retrieved (and outputed) by the command
+\verb+\usebox{+{\it cmd}\verb+}+.
+The \verb+\savebox+ command reduces to \verb+\sbox+, ignoring its
+optional arguments.
+
+The \verb+\rule+ commands translate to a \html{} horizontal rule
+(\verb+<HR>+)  regardless of its arguemts.
+
+
+All other box-related  commands do not exist.
+
+\section{Font selection}
+
+\subsection{Changing the Type Style}
+All \LaTeX2e{} declarations and environments for changing type style
+are recognized. Aspect is rather like \LaTeX2e{} output, but there is
+no guarantee.
+Old style declarations are also recognized, they
+should yield the same
+appearence as corresponding new declarations.
+
+\hevea{} possesses an extra font attribute: color.
+Text color is changed by declarations whose names follows \html{}
+conventions for colors.
+There are sixteen predefined colors:
+\begin{center}
+\begin{tabular}{p{.7\linewidth}}
+%HEVEA\purple
+\verb+\purple+,
+%HEVEA\silver
+\verb+\silver+,
+%HEVEA\gray
+\verb+\gray+,
+%HEVEA\white
+\verb+\white+,
+%HEVEA\maroon
+\verb+\maroon+,
+%HEVEA\red
+\verb+\red+,
+%HEVEA\fuchsia
+\verb+\fuchsia+,
+%HEVEA\green
+\verb+\green+,
+%HEVEA\lime
+\verb+\lime+,
+%HEVEA\olive
+\verb+\olive+,
+%HEVEA\yellow
+\verb+\yellow+,
+%HEVEA\navy
+\verb+\navy+,
+%HEVEA\blue
+\verb+\blue+,
+%HEVEA\teal
+\verb+\teal+,
+%HEVEA\aqua
+\verb+\aqua+
+\end{tabular}
+\end{center}
+Additionaly, the current text color can be changed by the declaration
+\verb+\htmlcolor{+{\it number}\verb+}+, where {\it number} is a six
+digit hexdecimal number specyfing a color in the RGB space.
+For instance, the following declarations change font color to dark gray:
+%HEVEA{\htmlcolor{404040}%
+\begin{verbatim}
+  \htmlcolor{404040}
+\end{verbatim}
+%HEVEA}
+
+Colors should be used carefully. Two many colors
+hinders clarity and some of the colors may not be readable on the
+document backgroud color.
+
+\subsection{Changing the Type Size}
+All declarations, from \verb+\tiny+ to \verb+\Huge+ are recognized.
+Output is not satisfactory inside headers elements, as generated, for
+instance, 
+by sectionning commands.
+
+\subsection{Special Symbols}
+
+The \verb+\symbol{+{\it num}\verb+}+ outputs character number {\it num}.
+In practice, this is a way to output any character from the isolatin1
+character set.
+
+
 \part{Practical information}
 
 \section{Usage}

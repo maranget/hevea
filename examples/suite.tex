@@ -1,8 +1,10 @@
 \documentclass{article}
 \usepackage{isolatin1}
 \usepackage{html}
+\usepackage{index}
 
 \title{Test de \hevea\footnote{Une étoile}}
+\makeindex
 
 \begin{document}
 \maketitle
@@ -83,11 +85,11 @@ $$1 + a_{i+1} + \int^N_01/x dx + \frac{\partial x}{2}$$
 
 \subsection{Environnement définissant un tableau}
 
-\newenvironment{coucou}{\begin{tabular}{cc}}{\end{tabular}}
+\newenvironment{tabdeux}{\begin{tabular}{cc}}{\end{tabular}}
 
-\begin{coucou}
+\begin{tabdeux}
 1 & 2
-\end{coucou}
+\end{tabdeux}
 
 \subsection{Les modes dans les tableaux}
 
@@ -143,6 +145,15 @@ $$
 \end{array}\right\}
 $$
 
+$$
+\left|\left\{
+\left( 1 \right) =
+\left( 1 \right) =
+\left( 1 \right) =
+\left[\begin{array}{c}1\\2\\3\end{array}\right]
+\right\}\right\}
+$$
+
 $$\begin{array}{lll}\hline \\ \hline \\
 \left(\begin{array}{rrr}
 4 & 9 & 2 \\
@@ -173,7 +184,7 @@ $$\begin{array}{lll}\hline \\ \hline \\
 \begin{center}
 \begin{tabular}{lllllllllllll}
 % +
-\begin{tabular}{|@{\hspace{.5ex}}c@{\hspace{.5ex}}|}
+\begin{tabular}{|@{\enspace}c@{\enspace}|}
     \\
     \\
     \\
@@ -182,7 +193,7 @@ $$\begin{array}{lll}\hline \\ \hline \\
 $+$ \\ \hline
 \end{tabular} &
 % + *
-\begin{tabular}{|@{\hspace{.5ex}}c@{\hspace{.5ex}}|}
+\begin{tabular}{|@{\enspace}c@{\enspace}|}
     \\
     \\
     \\
@@ -191,7 +202,7 @@ $*$ \\
 $+$ \\ \hline
 \end{tabular} &
 % + * +
-\begin{tabular}{|@{\hspace{.5ex}}c@{\hspace{.5ex}}|}
+\begin{tabular}{|@{\enspace}c@{\enspace}|}
     \\
     \\
     \\
@@ -200,7 +211,7 @@ $*$ \\
 $+$ \\ \hline
 \end{tabular} &
 % + * + 35
-\begin{tabular}{|@{\hspace{.5ex}}c@{\hspace{.5ex}}|}
+\begin{tabular}{|@{\enspace}c@{\enspace}|}
     \\
     \\
 $35$ \\
@@ -209,7 +220,7 @@ $*$ \\
 $+$ \\ \hline
 \end{tabular} &
 % + * 71
-\begin{tabular}{|@{\hspace{.5ex}}c@{\hspace{.5ex}}|}
+\begin{tabular}{|@{\enspace}c@{\enspace}|}
     \\
    \\
     \\
@@ -218,7 +229,7 @@ $*$ \\
 $+$ \\ \hline
 \end{tabular} &
 % + * 71 +
-\begin{tabular}{|@{\hspace{.5ex}}c@{\hspace{.5ex}}|}
+\begin{tabular}{|@{\enspace}c@{\enspace}|}
     \\
     \\
 $+$    \\
@@ -227,7 +238,7 @@ $*$  \\
 $+$ \\ \hline
 \end{tabular} &
 % + * 71 + 5
-\begin{tabular}{|@{\hspace{.5ex}}c@{\hspace{.5ex}}|}
+\begin{tabular}{|@{\enspace}c@{\enspace}|}
      \\
  5   \\
 $+$    \\
@@ -236,7 +247,7 @@ $*$  \\
 $+$ \\ \hline   
 \end{tabular} &
 % + 781
-\begin{tabular}{|@{\hspace{.5ex}}c@{\hspace{.5ex}}|}
+\begin{tabular}{|@{\enspace}c@{\enspace}|}
     \\
     \\
     \\
@@ -245,7 +256,7 @@ $+$ \\ \hline
 $+$ \\ \hline
 \end{tabular} &
 % + 781 *
-\begin{tabular}{|@{\hspace{.5ex}}c@{\hspace{.5ex}}|}
+\begin{tabular}{|@{\enspace}c@{\enspace}|}
     \\
     \\
     \\
@@ -254,7 +265,7 @@ $*$    \\
 $+$ \\ \hline
 \end{tabular} & 
 % + 781 * +
-\begin{tabular}{|@{\hspace{.5ex}}c@{\hspace{.5ex}}|}
+\begin{tabular}{|@{\enspace}c@{\enspace}|}
     \\
   \\
 $+$ \\
@@ -263,7 +274,7 @@ $*$ \\
 $+$ \\ \hline
 \end{tabular} &
 % + 781 * + 7
-\begin{tabular}{|@{\hspace{.5ex}}c@{\hspace{.5ex}}|}
+\begin{tabular}{|@{\enspace}c@{\enspace}|}
     \\
  7   \\
  $+$ \\
@@ -272,7 +283,7 @@ $*$ \\
 $+$ \\ \hline
 \end{tabular} &
 % + 781 * 15
-\begin{tabular}{|@{\hspace{.5ex}}c@{\hspace{.5ex}}|}
+\begin{tabular}{|@{\enspace}c@{\enspace}|}
     \\
 $*$ \\
 15 \\
@@ -281,7 +292,7 @@ $*$ \\
 $+$ \\ \hline
 \end{tabular} &
 % + 781 * 15 * 9* 9
-\begin{tabular}{|@{\hspace{.5ex}}c@{\hspace{.5ex}}|}
+\begin{tabular}{|@{\enspace}c@{\enspace}|}
 9   \\
 $*$ \\
 15 \\
@@ -309,7 +320,7 @@ $$
 
 \subsection{Les exposants terribles}\label{plushaut}
 $$
- 2^{\left.\begin{array}{@{\hspace{0ex}}c@{\hspace{0ex}}}
+ 2^{\left.\begin{array}{@{}c@{}}
 {\mbox{\scriptsize 2}^{\mbox{$\cdot^{\mbox{$\cdot^{\mbox{$\cdot^2$}}$}}$}}
 }\end{array}\right\} n}
 $$
@@ -318,7 +329,8 @@ $$
 
 \newtheorem{theoreme}{Th\'eor\`eme}
 \newtheorem{ath}[theoreme]{Autre théorème}
-\newcommand{\Preuve}{\noindent{\bf Preuve} \hspace{1ex}}
+\newcommand{\Preuve}{\noindent{\bf Preuve} ~}
+
 \begin{theoreme}\label{un}
 Soit $M^p$ la puissance p-i\`eme de la matrice $M$, le co{e}fficient
 $M^{p}_{i,j}$ est \'egal au nombre de chemins de longueur $p$ de $G$
@@ -379,7 +391,7 @@ A_0 = \epsilon(\{e_0\}) \trans{\alpha_0} A_1 \trans{\alpha_1} \cdots \trans{\alp
 $$
 
 $$
-e_i \in \epsilon(A) ~ \hbox{et} ~ (e_i,e_{i+1},\epsilon) \in T  \Rightarrow
+e_i \in \epsilon(A) ~ \mbox{et} ~ (e_i,e_{i+1},\epsilon) \in T  \Rightarrow
 e_{i+1} \in \epsilon(A)
 $$
 
@@ -435,5 +447,145 @@ coucou
 coucou
 \end{flushright}
 
+
+\section{Test de l'index}
+\newcommand{\gros}[1]{{\Huge#1}}
+\index{a|gros}
+\index{a@$\alpha$}
+\index{b}
+\index{b!a}
+\index{b!a!a}
+\index{b!a!a}
+\index{b!a!a!a|gros}
+\index{b!a!a!a}
+\index{b!a!a!a!a!a!a|see{ailleurs}}
+\index{b!a!a!a!a!a!a|textit}
+\index{b!a!a!a@$\alpha_{\alpha}$}
+\index{b!a!a!b}
+\index{b!a!b}
+\index{b@$\beta$}
+\index{foo}
+
+Dans cet index les numéros doivent être croissants.
+\printindex
+\section{Macro substitution}
+
+\noindent X\enspace X\\
+X\quad X\\
+X\qquad X
+
+\newcommand{\app}[2]{#1{#2}}
+\app{\texttt}{coucou}
+
+\newcommand{\gensymbol}{{\rm\sl symbol}}
+\newcommand{\nelist}[2]{#1 {\tt #2} \ldots {\tt #2} #1}
+
+
+Un espace~: ``\nelist{\gensymbol}{sep}''
+
+Tout collé~: \gensymbol {\tt sep}
+
+Les arguments substitués sont lexés sans tenir compte de la suite
+\newcommand{\coucou}[2]{{#1#2}}
+\newcommand{\coucoubis}[2]{{#1 #2}}
+
+Ca marche~: \coucou{\it}{zobi}
+
+Il y a un espace avant ``zobi''~: [\coucoubis{\it}{zobi}]
+\subsection{un}
+
+Tout pareil:
+\begin{quote}
+$1+2^n$
+\(1+2^n\)
+\begin{math}1+2^n\end{math}
+\ensuremath{1+2^n}
+$\ensuremath{1+2^n}$
+\end{quote}
+
+Tout pareil en display:
+\begin{quote}
+$$ 1 + \sum_{i=0}^{2^n} i^i $$
+\begin{displaymath}
+1 + \sum_{i=0}^{2^n} i^i
+\end{displaymath}
+\end{quote}
+
+\begin{equation}
+\pi \sim 3.14159\ldots\label{uneq}
+\end{equation}
+
+\subsection{deux}
+\begin{equation}\label{deuxeq}
+e \sim 2.71\ldots
+\end{equation}
+
+J'ai fait deux équations~\ref{uneq} et~\ref{deuxeq}.
+J'en fais encore deux ci-dessous~\ref{troiseq} et~\ref{cinqeq}:
+\begin{eqnarray}
+e & = & \sum_{n=0}^{\infty} \frac{1}{n!}\label{troiseq}\\
+\nonumber\pi & \sim & 4 * \arctan(1)\label{quatreeq}\\
+\log(1+\epsilon) & = & 1 + \epsilon + O(\epsilon)\label{cinqeq}\\
+\nonumber\lefteqn{1 + 2 + 3 + \cdots + n}\\
+  & = & \frac{n*(n+1)}{2}\\
+\end{eqnarray}
+
+Les mêmes sans les numéros:
+\begin{eqnarray*}
+e & = & \sum_{n=0}^{\infty} \frac{1}{n!}\\
+\pi & \sim & 4 * \arctan(1)
+\end{eqnarray*}
+
+\subsection{Display dans les tableaux}
+Ici, \verb+array+ ouvre le mode ``display maths''. Comparons,
+$\left[\sum_{n=0}^{\infty} \frac{1}{n!} + \frac{1}{2}\right]$ et
+$
+\left[\begin{array}{c}
+ \sum_{n=0}^{\infty} \frac{1}{n!} + \frac{1}{2}
+\end{array}\right]
+$
+Et puis aussi
+$$
+\left[\begin{array}{c}
+ \sum_{n=0}^{\infty} \frac{1}{n!} + \frac{1}{2}
+\end{array}\right]
+$$
+\subsubsection{Ellipsis}
+$$
+1 + 2 + \cdots + n \quad
+\left\{\begin{array}{c}
+1\\ \vdots \\ 2
+\end{array}\right\}
+\quad
+\left|\begin{array}{c}
+1\\ \ddots \\ 2
+\end{array}\right|
+$$
+
+\subsubsection{Replacemebt symbol}
+$$\newcommand{\leadsto}{{\red\rightarrow}}
+A \leadsto B
+$$
+
+\subsubsection{Putting one thing above the other}
+$$
+\overline{A} \stackrel{B}{\rightarrow} \underline{C}
+$$
+Et pis en texte: $\overline{A} \stackrel{B}{\rightarrow}
+\underline{C}$
+
+
+\subsection{Arrays}
+\begin{tabular}{*{3}{l}}
+1 & 2 & 3\\
+\\
+3 & 2 & 1
+\end{tabular}
+
+\begin{tabular*}{10cm}{*{3}{l}}
+1 & 2 & 3\\
+\\
+3 & 2 & 1
+\end{tabular*}
 
 \end{document}

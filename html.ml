@@ -178,6 +178,10 @@ and do_put s =
   Out.put !cur_out.out s
 ;;
 
+let inside_stack = ref []
+and table_inside = ref false
+;;
+
 let table_vsize = ref 0
 and table_stack = ref []
 ;;
@@ -218,8 +222,12 @@ let no_par s =
   (match s with "PRE" -> true | _ -> false)
 ;;
 
-let par () =
-  if not (no_par !last_closed) then pending_par := true
+let par () =  
+  if not (no_par !last_closed) then pending_par := true ;
+  if !verbose > 2 then
+     prerr_endline
+       ("par: last_close="^ !last_closed^
+       " r="^(if !pending_par then "true" else "false"));
 ;;
 
 let debug m =
@@ -521,6 +529,7 @@ let rec force_block s content =
       do_put content
     end
   end ;
+  if s = "TABLE" then table_inside := true;
   let was_empty = !empty in
   if s = "PRE" then in_pre := false ;
   do_close_mods () ;
@@ -545,14 +554,7 @@ let rec force_block s content =
     free old_out ;    
     !cur_out.pending <- mods
   end else begin (* s = "DELAY" *)
-    let f = pop delay_stack in
-    let x = !vsize in
-    f x ; vsize := x ;    
-    let mods = !cur_out.active @ !cur_out.pending in
-    do_close_mods () ;
-    Out.copy old_out.out !cur_out.out ;
-    free old_out ;
-    !cur_out.pending <- mods
+    failwith ("html: unflushed DELAY")
   end ;
   if not was_empty && true_s <> ""  then last_closed := true_s
 
@@ -593,11 +595,11 @@ and open_block s args =
    prerr_string ("open_block: "^s^" "^args^" stack=") ;
    pretty_stack !out_stack
  end ;
- if !pending_par && s = "" then
+ if !pending_par && (s = "" || s = "DIV") then
    flush_par ();
  if s = "PRE" then
     in_pre := true;
- let cur_mods = !cur_out.active @ !cur_out.pending in
+ let cur_mods = !cur_out.pending @ !cur_out.active  in
  push_out out_stack (s,args,!cur_out) ;
  cur_out :=
    new_status
@@ -620,10 +622,61 @@ let close_block  s =
   ()
 ;;
 
+(* delaying output .... *)
+
+let delay f =
+  push vsize_stack !vsize ;
+  vsize := 0;
+  push delay_stack f ;
+  open_block "DELAY" ""
+;;
+
+let flush x =
+  let ps,_,pout = pop_out out_stack in
+  if ps <> "DELAY" then
+    failwith ("html: Flush attempt on: "^ps) ;
+  let mods = !cur_out.active @ !cur_out.pending in
+  do_close_mods () ;
+  let old_out = !cur_out in
+  cur_out := pout ;
+  let f = pop delay_stack in
+  f x ;
+  Out.copy old_out.out !cur_out.out ;
+  free old_out ;
+  !cur_out.pending <- mods ;
+  vsize := max (pop vsize_stack) !vsize
+;;
+
+let open_group ss =
+  open_block "" "" ;
+  !cur_out.pending <-
+    (!cur_out.pending @ (if ss = "" then [] else [Style ss]))
+
+and close_group () = close_block ""
+;;
 
 
 let ncols = ref 0
 and ncols_stack = ref []
+;;
+
+let begin_item_display () =
+  if !verbose > 2 then begin
+    Printf.fprintf stderr "begin_item_display: ncols=%d" !ncols;
+    prerr_newline ()
+  end ;
+  open_block "TD" "nowrap";
+  open_block "" ""
+
+and end_item_display () =
+  let _ = close_flow_loc "" in
+  if close_flow_loc "TD" then
+    ncols := !ncols + 1;
+  if !verbose > 2 then begin
+    Printf.fprintf stderr "end_item_display: ncols=%d stck: " !ncols;
+    pretty_stack !out_stack
+  end;
+  !vsize
 ;;
 
 let open_display args =
@@ -631,9 +684,11 @@ let open_display args =
     Printf.fprintf stderr "open_display: %s -> " args
   end ;
   push ncols_stack !ncols ;
+  table_inside := false ;
   ncols := 0;
   open_block "DISPLAY" args ;
-  open_block "TD" "nowrap" ;
+  open_block "TD" "VALIGN=middle nowrap" ;
+  open_block "" "" ;
   if !verbose > 2 then begin
     pretty_cur !cur_out ;
     prerr_endline ""
@@ -642,10 +697,12 @@ let open_display args =
 
 let close_display () =
   if !verbose > 2 then begin
-    Printf.fprintf stderr "close_display: ncols=%d stack=" !ncols;
+    Printf.fprintf stderr "close_display: ncols=%d table_inside=%s stack="
+    !ncols (if !table_inside then "true" else "false");
     pretty_stack !out_stack
   end ;
   if not (flush_freeze ()) then begin
+    close_flow "" ;
     let n = !ncols in
     ncols := pop ncols_stack ;
     if n = 0 && not !empty then begin
@@ -665,55 +722,46 @@ let close_display () =
       do_close_mods () ;
       Out.copy old_out.out !cur_out.out ;
       free old_out ; free pout ;
-      !cur_out.pending <- active @ pending
+      !cur_out.pending <- active @ pending;
+      table_inside := false
     end else begin
-      close_block "TD" ;
-      close_block "DISPLAY" 
+      close_flow "TD" ;
+      table_inside := close_flow_loc "DISPLAY"
     end
   end
 ;;
 
   
   
-let item_display () =
+let do_item_display force =
   if !verbose > 2 then begin
     Printf.fprintf stderr "item_display: ncols=%d cur: " !ncols;
     pretty_cur !cur_out ;
+    prerr_string " table_inside=" ;
+    prerr_string (if !table_inside then "true" else "false") ;
     prerr_string " stack=" ;
     pretty_stack !out_stack
   end ;
   let f,is_freeze = pop_freeze () in
-  if close_flow_loc "TD" then
+  if force || !table_inside then begin
+    close_flow "" ;
+    close_flow "TD" ;
     ncols := !ncols + 1;
-  open_block "TD" "nowrap" ;
+    open_block "TD" "nowrap" ;
+    open_block "" ""
+  end else begin
+    close_flow "" ;
+    open_block "" ""
+  end ;
   if is_freeze then push out_stack (Freeze f) ;
   if !verbose > 2 then begin
     prerr_string "item display -> stack=" ;
     pretty_stack !out_stack
   end ;
-
-and begin_item_display () =
-  if !verbose > 2 then begin
-    Printf.fprintf stderr "begin item_display: ncols=%d" !ncols;
-    prerr_newline ()
-  end ;
-  open_block "TD" "nowrap"
-
-and end_item_display () =
-  if close_flow_loc "TD" then
-    ncols := !ncols + 1;
-  if !verbose > 2 then begin
-    Printf.fprintf stderr "begin item_display: ncols=%d" !ncols;
-    prerr_newline ()
-  end
 ;;
 
-let open_group ss =
-  open_block "" "" ;
-  !cur_out.pending <-
-    (!cur_out.pending @ (if ss = "" then [] else [Style ss]))
-
-and close_group () = close_block ""
+let item_display () = do_item_display false
+and force_item_display () = do_item_display true
 ;;
 
 let erase_block s =
@@ -730,6 +778,7 @@ let erase_block s =
 ;;
        
 let erase_display () =
+  erase_block "" ;
   erase_block "TD" ;
   erase_block "DISPLAY"
 ;;
@@ -789,6 +838,9 @@ let item scan arg =
     prerr_string "Item stack=" ;
     pretty_stack !out_stack
   end ;
+  if not (is_list (pblock ())) then
+    failwith "Item not inside a list element";
+
   if !pending_par then
     if !nitems > 0 then 
       flush_par ()
@@ -820,17 +872,6 @@ let item scan arg =
 ;;
 
 
-(* delaying output .... *)
-
-let delay f =
-  push delay_stack f ;
-  open_block "DELAY" ""
-;;
-
-let flush () =
-  force_block "DELAY" "";
-  !vsize
-;;
 
 
 
@@ -865,6 +906,9 @@ let insert_vdisplay open_fun =
   end ;
   try
     let mods = !cur_out.pending @ !cur_out.active in
+    let bs,bargs,bout = pop_out out_stack in
+    if bs <> "" then
+      failwith ("insert_vdisplay: "^bs^" closes ``''");
     let ps,pargs,pout = pop_out out_stack in
     if ps <> "TD" then
       failwith ("insert_vdisplay: "^ps^" close TD");
@@ -874,6 +918,7 @@ let insert_vdisplay open_fun =
     let new_out = new_status false [] [] in
     push_out out_stack (pps,ppargs,new_out) ;
     push_out out_stack (ps,pargs,pout) ;
+    push_out out_stack (bs,bargs,bout) ;    
     close_display () ;
     cur_out := ppout ;
     open_fun () ;
@@ -917,6 +962,9 @@ let finalize () =
     pretty_stack !out_stack ;
     prerr_endline ""
   end ;
+  while !out_stack != [] do
+    close_block (pblock ())
+  done ;
   Out.close !cur_out.out
 ;;
 

@@ -16,6 +16,28 @@ let stack_lexbuf = ref []
 and stack_stack_lexbuf = ref []
 ;;
 
+let eat_space = ref true
+and stack_eat = ref []
+;;
+
+let save_lexstate () =
+  push stack_eat !eat_space ;
+  push stack_stack_lexbuf (!stack_lexbuf,!stack_eat)
+
+and restore_lexstate () =
+  let l,s = pop stack_stack_lexbuf in
+  stack_lexbuf := l ;
+  stack_eat := s;
+  eat_space := pop stack_eat
+;;
+
+let start_lexstate () =
+  save_lexstate () ;
+  stack_lexbuf := [] ;
+  eat_space := false
+;;
+
+
 let stack = ref [||]
 and stack_stack = ref []
 ;;
@@ -70,7 +92,13 @@ and last_letter name =
   ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z')
 ;;
 
-let subst_arg arg = Subst.subst (Lexing.from_string arg) !stack
+let subst_arg arg = try
+    Subst.subst (Lexing.from_string arg) !stack
+  with
+  Subst.BadArg -> begin
+    prerr_endline ("Bad var number in  ``"^arg^"''");
+    raise (Failure "subst")
+  end
 ;;
 
 
@@ -79,6 +107,7 @@ let save_quote_arg lexbuf =
   let rec save_rec lexbuf =
     try Save.arg lexbuf
     with Save.BadParse "EOF" -> begin
+        if !stack_lexbuf = [] then failwith "Eof while looking for arg";
         let lexbuf = pop stack_lexbuf in
         if !verbose > 2 then begin
           prerr_endline "popping stack_lexbuf in save_arg";
@@ -96,7 +125,10 @@ let save_quote_arg lexbuf =
 
 let save_arg lexbuf =
   let arg = save_quote_arg lexbuf in
-  subst_arg arg
+  let r = subst_arg arg in
+   if !verbose > 2 then
+    prerr_endline ("Arg subst: <"^arg^">") ;
+  r
 ;;
 
 let rec parse_args_norm pat lexbuf = match pat with
@@ -126,12 +158,13 @@ let rec parse_quote_arg_opt def lexbuf =
   let r = try Yes (Save.opt lexbuf) with
     Save.NoOpt -> No def
   | Save.BadParse "EOF" -> begin
-      let lexbuf = pop stack_lexbuf in
-      if !verbose > 2 then begin
-        prerr_endline "poping stack_lexbuf in parse_quote_arg_opt";
-        pretty_lexbuf lexbuf
-      end;
-      parse_quote_arg_opt def lexbuf end in
+      if !stack_lexbuf = [] then No def
+      else let lexbuf = pop stack_lexbuf in
+        if !verbose > 2 then begin
+          prerr_endline "poping stack_lexbuf in parse_quote_arg_opt";
+          pretty_lexbuf lexbuf
+        end;
+        parse_quote_arg_opt def lexbuf end in
   if !verbose > 2 then begin
      Printf.fprintf stderr "Parse opt : %s" (pretty_ok r) ;
      prerr_endline ""
@@ -187,8 +220,14 @@ let make_stack name pat lexbuf =
 ;;
 
 
+let rec pretty_opts = function
+  [] -> ""
+| NoMath::r -> "{NoMath}"^pretty_opts r
+| Wrap::r -> "{Wrap}"^pretty_opts r
+;;
+
 let pretty_format = function
-  Align (s,b) -> (if b then "t" else "")^s
+  Align (s,o) -> s^pretty_opts o
 | Inside s -> "@{"^s^"}"
 ;;
 
@@ -249,9 +288,9 @@ let big_size () =  Html.open_mod (Font 7)
 (* Horizontal display *)
 let display_arg  verbose =
   if verbose > 0 then
-    "VALIGN=middle BORDER=1 CELLSPACING=0 CELLPADDING=0"
+    "BORDER=1 CELLSPACING=0 CELLPADDING=0"
   else
-    "VALIGN=middle CELLSPACING=0 CELLPADDING=0"
+    "CELLSPACING=0 CELLPADDING=0"
 ;;
 
 let open_display () =
@@ -352,8 +391,7 @@ let unparse_args opts args =
 ;;
 
 let scan_this lexfun s =
-  push stack_stack_lexbuf !stack_lexbuf;
-  stack_lexbuf := [];
+  start_lexstate ();
   if !verbose > 1 then begin
     Printf.fprintf stderr "scan_this : [%s]" s ;
     prerr_endline ""  
@@ -364,12 +402,11 @@ let scan_this lexfun s =
     Printf.fprintf stderr "scan_this : over" ;
     prerr_endline ""
   end ;
-  stack_lexbuf :=  pop stack_stack_lexbuf;
+  restore_lexstate ();
   r
 ;;
 
-
-let scan_this_may_cont lexfun lexbuf s =
+let scan_this_may_cont eat lexfun lexbuf s =
   if !verbose > 1 then begin
     Printf.fprintf stderr "scan_this_may_cont : [%s]" s ;
     prerr_endline "" ;
@@ -379,6 +416,8 @@ let scan_this_may_cont lexfun lexbuf s =
     end
   end ;
 
+  push stack_eat !eat_space ;
+  eat_space := eat ;
   push stack_lexbuf lexbuf ;
   let n = List.length !stack_lexbuf in
 
@@ -388,7 +427,8 @@ let scan_this_may_cont lexfun lexbuf s =
   if List.length !stack_lexbuf = n then begin
     if !verbose > 2 then
       prerr_endline ("Popping lexbuf");
-    let _ = pop stack_lexbuf in ()
+    let _ = pop stack_lexbuf in
+    eat_space := pop stack_eat
     end;
   if !verbose > 1 then begin
     Printf.fprintf stderr "scan_this_may_cont : over" ;
@@ -398,16 +438,16 @@ let scan_this_may_cont lexfun lexbuf s =
 ;;
 
 let get_this lexfun s =
-  push stack_stack_lexbuf !stack_lexbuf ;
+  start_lexstate ();
   if !verbose > 1 then begin
     Printf.fprintf stderr "get_this : [%s] = " s ;
   end ;
-  let lexer = Lexing.from_string ("{"^s^"}") in
+  let lexer = Lexing.from_string ("\\mbox{"^s^"}") in
   let r = Html.to_string (fun () -> lexfun lexer) in
   if !verbose > 1 then begin
     prerr_endline r
   end ;
-  stack_lexbuf := pop stack_stack_lexbuf ;
+  restore_lexstate();
   r
 ;;
 
@@ -418,11 +458,11 @@ let put_delim delim i =
   if delim <> "." then begin
     Html.begin_item_display () ;
     Symb.put_delim Html.skip_line Html.put delim i ;
-    Html.end_item_display ()
+    let _ = Html.end_item_display () in ()
   end
 ;;
 
-let default_format = Align ("left",false)
+let default_format = Align ("left",[])
 ;;
 
 type in_table = Table | Border | NoTable | Tabbing
@@ -450,6 +490,17 @@ exception EndInside
 exception NoMulti
 ;;
 
+let rec keep_math = function
+ [] -> true
+| NoMath::_ -> false
+| _::r -> keep_math r
+
+let rec is_par = function
+  [] -> false
+| Wrap::_ -> true
+| _::r -> is_par r
+;;
+
 let is_inside = function
   Inside _ -> true
 | _ -> false
@@ -459,13 +510,12 @@ and as_inside = function
 | _        -> ""
 
 and as_align = function
-  Align (s,_) -> "ALIGN="^s
+  Align (s,o) -> if is_par o then "ALIGN="^s else "NOWRAP ALIGN="^s
 | _       -> failwith "as_align"
 
 and is_display = function
-    Align (_,true) -> false
-  | _              -> true
-
+    Align (_,o) -> keep_math o
+  | _           -> true
 
 and as_colspan = function
   1 -> ""
@@ -537,9 +587,12 @@ let close_multi = ref []
 let open_col main  =
   cur_col :=  show_inside main !cur_format !cur_col ;
   let format = (get_col !cur_format !cur_col) in
-  Html.open_block "TD" ("NOWRAP "^as_align format) ;
-  if is_display format then open_display ()
-  else scan_this main "\\hbox{" ;
+  Html.open_block "TD" (as_align format) ;
+  open_display ();
+  if not (is_display format) then begin
+    push stack_in_math !in_math ;
+    in_math := false;
+  end ;
   push close_multi (0,[||])
 ;;
 
@@ -594,10 +647,10 @@ let do_multi n format main =
 
 let close_col main content =
   let old_format = get_col !cur_format !cur_col in
-  if is_display old_format then
-    close_display ()
-  else
-    scan_this main "}" ;
+  if not (is_display old_format) then begin
+    in_math := pop stack_in_math
+  end ;
+  close_display ();
   begin match content with
     "" when !cur_col = 0 ->
      Html.close_block "TD" (* last col in array, may be empty *)
@@ -612,7 +665,7 @@ let close_col main content =
 
 
       
-let new_env env lexfun lexbuf =
+let new_env env =
   push stack_env (!cur_env,!macros)   ;
   cur_env := env ;
   macros := [] ;
@@ -622,7 +675,6 @@ let new_env env lexfun lexbuf =
     Printf.fprintf stderr "Begin : %s <%d>" env !env_level ;
     prerr_endline ""
   end ;
-  lexfun lexbuf
 ;;
 
 let error_env close_e open_e =
@@ -631,7 +683,7 @@ let error_env close_e open_e =
 
 let close_env env  =
   if !verbose > 1 then begin
-    Printf.fprintf stderr "End : %s <%d>" env !env_level ;
+    Printf.fprintf stderr "End: %s <%d>" env !env_level ;
     prerr_endline  ""
   end ;
   if env = !cur_env then begin  
@@ -642,6 +694,42 @@ let close_env env  =
     macros := m
   end else
     error_env env !cur_env
+;;
+
+let open_top_group () = 
+  if !verbose > 2 then prerr_endline "Open brace" ;
+    push stack_table !in_table ;
+    in_table := NoTable ;
+    if !display then begin
+      item_display () ; Html.open_group "" ; open_display ()
+    end else
+      Html.open_group "" ;
+    new_env " " 
+
+and close_top_group () =
+  if !verbose > 2 then prerr_endline "Close brace" ;
+  in_table := pop stack_table ;
+  let env = " " in
+  if env = !cur_env then begin
+    if !display then begin
+      close_display () ; Html.close_group () ; item_display ()
+    end else
+      Html.close_group ();
+    close_env env
+  end else if !cur_env = "*mbox" then begin
+    in_math := pop stack_in_math ;
+    Html.close_group () ;
+    display := pop stack_display ;
+    if !display then item_display () ;
+    close_env !cur_env
+  end else if !cur_env = "*hbox" then begin
+    Html.close_group () ;
+    display := pop stack_display ;
+    if !display then item_display () ;
+    close_env !cur_env
+  end else begin
+    error_env env !cur_env
+  end
 ;;
 
 type ital = Ital | NoItal | Complex | Mixed
@@ -712,7 +800,7 @@ let put_sup_sub tag main = function
 
 let standard_sup_sub main what sup sub =
   if !display && (complex sup || complex sub) then begin
-    item_display () ;
+    force_item_display () ;
     open_vdisplay () ;
     if sup <> "" then begin
       open_vdisplay_row "" ;
@@ -730,7 +818,7 @@ let standard_sup_sub main what sup sub =
       close_vdisplay_row ()
     end ;
       close_vdisplay () ;
-      item_display ()
+      force_item_display ()
   end else begin
      what ();
      put_sup_sub "SUB" main sub ;
@@ -743,7 +831,7 @@ let limit_sup_sub main what sup sub =
   if sup = "" && sub = "" then
     what ()
   else begin
-    item_display () ;
+    force_item_display () ;
     open_vdisplay () ;
     open_vdisplay_row "ALIGN=center" ;
     open_script_font () ;
@@ -757,17 +845,14 @@ let limit_sup_sub main what sup sub =
     scan_this main sub ;
     close_vdisplay_row () ;
     close_vdisplay () ;
-    item_display ()
+    force_item_display ()
   end
 ;;
 
 let int_sup_sub main what sup sub =
-  if sup = "" && sub = "" then
-    what ()
-  else begin
-    item_display () ;
+    force_item_display () ;
     what () ;
-    item_display () ;    
+    force_item_display () ;    
     open_vdisplay () ;
     open_vdisplay_row "ALIGN=left" ;
     open_script_font () ;
@@ -781,8 +866,7 @@ let int_sup_sub main what sup sub =
     scan_this main sub ;
     close_vdisplay_row () ;
     close_vdisplay () ;
-    item_display ()
-  end
+    force_item_display ()
 ;;
 
 let input_file main filename =
@@ -792,7 +876,8 @@ let input_file main filename =
       prerr_endline ("Input file: "^filename) ;
     let buf = Lexing.from_channel input in
     Location.set filename buf ;
-    new_env "*input" main buf ;
+    new_env "*input" ;
+    main buf ;
     Location.restore () ;
     close_env "*input"
   with Myfiles.Except -> begin
@@ -830,6 +915,8 @@ rule  main = parse
     {let command = lexeme lexbuf in
     let opt = parse_quote_arg_opt "" lexbuf in
     let arg =  Save.arg lexbuf in
+    let oldverb = !verbose in
+    verbose := 0;
     begin try if not !Latexmacros.styleloaded then
       input_file main (arg^".sty") with
     Not_found -> prerr_endline "Warning: cannot read style file" end ;
@@ -837,6 +924,7 @@ rule  main = parse
     Image.put command ;
     Image.put (unparse_args [opt] [arg]) ;
     Image.put "\n" ;
+    verbose := oldverb ;
     main lexbuf}
 (* Paragraphs *)
   | "\n\n" '\n' *
@@ -895,7 +983,7 @@ rule  main = parse
            close_display () ;
            close_center ()
          end else begin
-           close_group ()
+           Html.close_group ()
          end ;
          display := pop stack_display ;
          if !display then begin
@@ -915,31 +1003,15 @@ rule  main = parse
            open_display ()
          end else begin
            display := false ;
-           open_group ""
+           Html.open_group ""
          end;
          main lb in
-       new_env math_env lexfun lexbuf
+       new_env math_env ;
+       lexfun lexbuf
      end end}
-| "\\hbox" ' '* ('{' | "\\bgroup")
-    {let open_fun  () =
-       if !display then begin
-         item_display () 
-       end ;
-       push stack_display !display ;
-       display := false ;
-       open_group "" in
-    push stack_table !in_table ;
-    in_table := NoTable ;
-    if !in_math then begin
-       push stack_in_math !in_math ;
-       in_math := false ;
-       let lexfun lb =
-         open_fun () ;
-         main lb in
-       new_env "*mbox" lexfun lexbuf
-    end else begin
-      new_env "*hbox" (fun lb -> open_fun() ; main lb) lexbuf
-    end}
+| "\\mbox"
+   {mbox_arg lexbuf}
+
 (* Definitions of  simple macros *)
   | "\\def" | "\\gdef" | "\\global\\def"
      {let lxm = lexeme lexbuf in
@@ -1062,11 +1134,12 @@ rule  main = parse
      main lb in
    push stack_table !in_table ;
    in_table := Tabbing ;
-   new_env "tabbing" lexfun lexbuf}
+   new_env "tabbing" ;
+   lexfun lexbuf}
 | "\\end" ' '* "{tabbing}"
    {Html.close_block "TD" ;
    Html.close_block "TR" ;
-   let _ = Html.flush () in
+   let _ = Html.flush 0 in
    Html.close_block "TABLE" ;
    in_table := pop stack_table ;
    close_env "tabbing" ;
@@ -1101,7 +1174,7 @@ rule  main = parse
     cur_format := format ;
     in_table := (if !border then Border else Table);
     let lexfun lb =
-      if !display then item_display () ;
+      if !display then force_item_display () ;
       push stack_display !display ;
       display := true ;
       if !border then
@@ -1111,7 +1184,8 @@ rule  main = parse
       open_row() ;
       open_col main ;
       main lb in
-    new_env env lexfun lexbuf}
+    new_env env ;
+    lexfun lexbuf}
   | "\\\\"? [' ' '\n']* "\\end" ' '* ("{tabular}" | "{array}")
       {let lxm = lexeme lexbuf in
       close_col main "" ;
@@ -1123,7 +1197,7 @@ rule  main = parse
        cur_col := pop stack_col ;
        cur_format := pop stack_format ;
        display := pop stack_display;
-       if !display then item_display () ;
+       if !display then force_item_display () ;
        close_env env
       end else begin
         error_env env !cur_env ;
@@ -1131,20 +1205,19 @@ rule  main = parse
       main lexbuf}
   | "\\left"
       {if !display then begin
-        end_item_display () ;
+        let _ = end_item_display () in
         let delim = Save.arg lexbuf in
-        Html.delay (put_delim delim) ;
-        begin_item_display () ;
-        scan_this main "{"
+        Html.delay (fun vsize ->
+          put_delim delim vsize) ;
+        begin_item_display ()
       end ;     
       main lexbuf}
   | "\\right"
       {if !display then begin
         let delim = Save.arg lexbuf in
-        scan_this main "}" ;
-        end_item_display () ;
-        let vsize = Html.flush () in
+        let vsize = end_item_display () in
         put_delim delim vsize ;
+        Html.flush vsize ;
         begin_item_display ()
       end ;
       main lexbuf}
@@ -1186,7 +1259,7 @@ rule  main = parse
       end else if is_tabbing !in_table then begin
         Html.force_block "TD" "&nbsp;";
         Html.close_block "TR" ;
-        Html.flush () ;
+        Html.flush 0;
         Html.delay (fun _ -> ()) ;
         Html.open_block "TR" "" ;
         Html.open_block "TD" ""
@@ -1224,27 +1297,29 @@ rule  main = parse
            alltt := true ;
            Html.open_block "PRE" ""
          end else if env <> "document" then
-           Html.open_group "" ;
-         push stack_stack_lexbuf !stack_lexbuf ;
-         scan_this_may_cont main lexbuf macro ;
-         stack_lexbuf := pop stack_stack_lexbuf ;
+           open_top_group () ;
+         save_lexstate ();
+         scan_this_may_cont true main lexbuf macro ;
+         restore_lexstate ();
          main lb) in
-    new_env env lexfun lexbuf}
+    new_env env ;
+    lexfun lexbuf}
 |  "\\end" " " * "{" ['A'-'Z' 'a'-'z']+ '*'? "}"
     {let lxm = lexeme lexbuf in
     let env = env_extract lxm in
-    scan_this main ("\\end"^env^"{}") ;
+    scan_this main ("\\end"^env) ;
     if env = "alltt" then  begin
       alltt := false ;
       Html.close_block "PRE"
-    end else (if env <> "document" then Html.close_group ()) ;
+    end else (if env <> "document" then close_top_group ()) ;
     close_env env ;
     main lexbuf}
 | ("\\prog" | "\\verb" | "\\verb*") _
    {let lxm = lexeme lexbuf in
    verb_delim := String.get lxm (String.length lxm-1) ;
    Html.open_group "CODE" ;
-   new_env "*verb" inverb lexbuf}
+   new_env "*verb" ;
+   inverb lexbuf}
 | "\\item" ' '*
     {let arg = save_opt "" lexbuf in
     Html.item (scan_this main) arg ;
@@ -1265,7 +1340,7 @@ rule  main = parse
       {let arg = !stack.(Char.code (lexeme_char lexbuf 1) - Char.code '1') in
       if !verbose > 2 then
         prerr_endline ("Subst arg: <"^arg^">");
-      scan_this_may_cont main lexbuf arg ;
+      scan_this_may_cont false main lexbuf arg ;
       main lexbuf}
   | "\\" (('@' ? ['A'-'Z' 'a'-'z']+ '*'?) | [^ 'A'-'Z' 'a'-'z'])
       {let lxm = lexeme lexbuf in
@@ -1274,11 +1349,26 @@ rule  main = parse
        "\\@open" ->
          let tag = save_arg lexbuf in
          let arg = save_arg lexbuf in
-         Html.open_block tag arg ;
+         if tag="DISPLAY" then begin
+           push stack_display !display;
+           display := true ;
+           open_display ()
+         end else begin
+           item_display () ;
+           Html.open_block tag arg ;
+           open_display ()
+         end ;
          main lexbuf
       | "\\@close" ->
          let tag = save_arg lexbuf in
-         Html.close_block tag;
+         if tag="DISPLAY" then begin
+           close_display ();
+           display := pop stack_display
+         end else begin
+           close_display () ;
+           Html.close_block tag;
+           item_display ()
+         end ;
          main lexbuf
       | "\\@print" ->
          let arg = save_arg lexbuf in
@@ -1335,10 +1425,9 @@ rule  main = parse
          main lexbuf
       | "\\@fromlib" ->
          let arg = save_arg lexbuf in
-         push stack_stack_lexbuf !stack_lexbuf ;
-         stack_lexbuf := [] ;
+         start_lexstate ();
          Mylib.put_from_lib arg Html.put;
-         stack_lexbuf := pop stack_stack_lexbuf ;
+         restore_lexstate ();
          main lexbuf
       | "\\imageflush" ->
          let arg = save_opt "" lexbuf in
@@ -1347,7 +1436,7 @@ rule  main = parse
       | "\\textalltt" ->
          let arg = save_arg lexbuf in
          let old = !alltt in
-         scan_this main "\\hbox{" ;
+         scan_this main "\\mbox{" ;
          alltt := true ;
          Html.open_group "CODE" ;
          scan_this main arg ;
@@ -1360,7 +1449,7 @@ rule  main = parse
         let opt = save_opt "" lexbuf in
         let args = Save.cite_arg lexbuf in
         put_char '[' ;
-        open_group "CITE" ;
+        Html.open_group "CITE" ;
         let rec do_rec = function
           [] -> ()
         | [x] -> Html.loc_ref (get_this main (Aux.bget x)) x
@@ -1378,8 +1467,7 @@ rule  main = parse
         main lexbuf
 (* Foot notes *)
         | "\\@footnotetext" ->
-           push stack_stack_lexbuf !stack_lexbuf ;
-           stack_lexbuf := [];
+           start_lexstate () ; 
            let mark = save_arg lexbuf in
            let mark = get_this main ("\\@nostyle "^mark) in
            let text = save_arg lexbuf in
@@ -1390,27 +1478,36 @@ rule  main = parse
              (my_int_of_string mark)
              (get_this main ("\\@footnotemark{\@fnmarknote}{"^mark^"}"))
              text anchor ;
-           stack_lexbuf := pop stack_stack_lexbuf ;
+           restore_lexstate ();
            main lexbuf
         | "\\@footnoteflush" ->
            let sec_here = save_arg lexbuf
            and sec_notes = get_this main "\\@nostyle\\@footnotelevel" in
-           push stack_stack_lexbuf !stack_lexbuf ;
-           stack_lexbuf := [];
+           start_lexstate () ;
            Foot.flush (scan_this main) sec_notes sec_here ;
-           stack_lexbuf := pop stack_stack_lexbuf;           
+           restore_lexstate ();
            main lexbuf
 (* Boxes *)
         | "\\newsavebox" ->
             let name = save_arg lexbuf in
             def_macro name 0 [Print ""] ;
             main lexbuf
-        | "\\savebox" ->
+        | "\\savebox" | "\\sbox" ->
             let name = save_arg lexbuf in
-            skip_opt lexbuf ;
-            skip_opt lexbuf ;
+            if lxm = "\\savebox" then begin
+              if not !silent then begin
+                Location.print_pos () ;
+                prerr_endline "Warning: savebox"
+              end ;
+              skip_opt lexbuf ;
+              skip_opt lexbuf
+            end ;
             let body = save_arg lexbuf in
             redef_macro name 0 [Print (get_this main body)] ;
+            main lexbuf
+        | "\\usebox" ->
+            let arg = save_arg lexbuf in
+            scan_this main arg ;
             main lexbuf
 (* chars *)
         | "\\char" ->
@@ -1433,11 +1530,10 @@ rule  main = parse
            last_closed := save_last_closed ;
            main lexbuf
         | "\\@printindex" ->
-           push stack_stack_lexbuf !stack_lexbuf ;
-           stack_lexbuf := [] ;
+           start_lexstate () ;
            let tag =  save_opt "default" lexbuf in
            Index.print (scan_this main) tag ;
-           stack_lexbuf := pop stack_stack_lexbuf ;
+           restore_lexstate ();
            main lexbuf
         | "\\newindex" |  "\\renewindex" ->
            let tag = save_arg lexbuf in
@@ -1481,8 +1577,14 @@ rule  main = parse
 (* terminal output *)
         | "\\typeout" ->
            let what = save_arg lexbuf in
-           Location.print_pos () ;
-           prerr_endline ("Typeout: "^what) ;
+           prerr_endline what ;
+           main lexbuf
+         | "\\warning" ->
+           let what = save_arg lexbuf in
+           if  not !silent then begin
+             Location.print_pos () ;
+             prerr_endline ("Warning: "^what)
+           end ;
            main lexbuf
       | _ ->
       let rec exec = function
@@ -1501,13 +1603,11 @@ rule  main = parse
                   prerr_endline "Seen if as true"
           | SetTest (cell,b) -> cell := b
           | Env s -> Html.open_mod s
-          | Open (s,args) -> Html.open_block s args
-          | Close s       -> Html.close_block s
           | ItemDisplay   -> item_display ()
           | Subst body ->
               if !verbose > 2 then
                 prerr_endline ("user macro: "^body) ;            
-              scan_this_may_cont main lexbuf body
+              scan_this_may_cont true main lexbuf body
           | IfCond (b,t,f) ->
              if !verbose > 2 then
                prerr_endline ("IfCond: "^if !b then "true" else "false") ;
@@ -1545,7 +1645,7 @@ rule  main = parse
               prerr_string ("Cont after macro "^name^": ") ;
             if Latexmacros.invisible name ||
               (not !in_math && not !alltt &&
-              (pat = ([],[])) && last_letter name) then begin
+              (pat = ([],[])) && last_letter name && !eat_space) then begin
               if !verbose > 2 then
                 prerr_endline "skipping blanks";
               skip_blanks_pop lexbuf ;
@@ -1555,10 +1655,8 @@ rule  main = parse
                 prerr_endline "not skipping blanks";
               main lexbuf
             end
-          with Subst.BadArg ->
-              Printf.fprintf stderr "Bad arg in %s\n" name ;
-              raise (Failure "get_arg")
-          | IfFalse -> begin
+          with 
+           IfFalse -> begin
              stack := pop stack_stack ;
              if (!verbose > 2) then
                prerr_endline ("Cont after iffalse:"^name) ;
@@ -1567,54 +1665,24 @@ rule  main = parse
         end
      end}
 
-| "<"         { Html.put "&lt;"; main lexbuf }
-| ">"         { Html.put "&gt;"; main lexbuf }
-| "~"         { Html.put "&nbsp;"; main lexbuf }
-| "{"
-    {if !verbose > 2 then prerr_endline "Open brace" ;
-    push stack_table !in_table ;
-    in_table := NoTable ;
-    if !display then begin
-      item_display () ; open_group "" ; open_display ()
-    end else
-      open_group "" ;
-    new_env " " main lexbuf}
-| "}"
-    {if !verbose > 2 then prerr_endline "Close brace" ;
-    in_table := pop stack_table ;
-    let env = " " in
-    if env = !cur_env then begin
-      if !display then begin
-        close_display () ; close_group () ; item_display ()
-      end else
-        close_group ();
-      close_env env
-    end else if !cur_env = "*mbox" then begin
-      in_math := pop stack_in_math ;
-      close_group () ;
-      display := pop stack_display ;
-      if !display then item_display () ;
-      close_env !cur_env
-    end else if !cur_env = "*hbox" then begin
-      close_group () ;
-      display := pop stack_display ;
-      if !display then item_display () ;
-      close_env !cur_env
-    end else begin
-      error_env env !cur_env
-    end ;
-    main lexbuf}
+| '<'         { Html.put "&lt;"; main lexbuf }
+| '>'         { Html.put "&gt;"; main lexbuf }
+| '~'         { Html.put "&nbsp;"; main lexbuf }
+| '{'
+    {open_top_group () ;  main lexbuf}
+| '}'
+    {close_top_group () ; main lexbuf}
 | eof
    {if !verbose > 1 then Printf.fprintf stderr "Eof\n" ; ()}
 | '\n'
-  {if not (is_table  !in_table) then begin
+  {(* if not (is_table  !in_table) then *) begin
     Html.put_char '\n'
   end ;
   main lexbuf}
 | ' '+
-   {if !display || is_table !in_table then
+   {(* if !display || is_table !in_table then
       Html.put "&nbsp;"
-   else
+   else *)
       Html.put_char ' ';
    main lexbuf}
 | ['a'-'z' 'A'-'Z']+
@@ -1698,11 +1766,44 @@ and skip_blanks_main = parse
    ' ' * '\n'? ' '* {main lexbuf}
 | eof               {main lexbuf}
 
+and mbox_arg = parse
+  ' '+ {mbox_arg lexbuf}
+| eof
+     {if !stack_lexbuf <> [] then begin
+     let lexbuf = pop stack_lexbuf in
+     eat_space := pop stack_eat ;
+     if !verbose > 2 then begin
+       prerr_endline "Poping lexbuf in mbox_arg" ;
+       pretty_lexbuf lexbuf
+     end ;
+     mbox_arg lexbuf
+   end else failwith "Eof in mbox_arg"}
+| '{' | ("\\bgroup" ' '* '\n'? ' '*)
+    {let open_fun  () =
+       if !display then begin
+         item_display () 
+       end ;
+       push stack_display !display ;
+       display := false ;
+       Html.open_group "" in
+    push stack_table !in_table ;
+    in_table := NoTable ;
+    if !in_math then begin
+       push stack_in_math !in_math ;
+       in_math := false ;
+       new_env "*mbox" ;
+    end else begin
+      new_env "*hbox" ;
+    end ;
+    open_fun() ;
+    main lexbuf}
+
 and skip_blanks_pop = parse
   ' ' * '\n'? ' '* {()}
 | eof
-   {if !stack_lexbuf <> [] then begin
+   {if !stack_lexbuf <> [] && !eat_space then begin
      let lexbuf = pop stack_lexbuf in
+     eat_space := pop stack_eat ;
      if !verbose > 2 then begin
        prerr_endline "Poping lexbuf in skip_blanks" ;
        pretty_lexbuf lexbuf

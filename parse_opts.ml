@@ -1,6 +1,8 @@
 let verbose = ref 0
 and readverb = ref 0
 ;;
+let silent = ref false
+;;
 
 let files = ref []
 ;;
@@ -31,6 +33,8 @@ let outname = ref ""
 let _ = Arg.parse
     [("-v", Arg.Unit (fun () -> readverb := !readverb + 1),
        ", verbose flag, can be repeated to increase verbosity") ;
+     ("-s", Arg.Unit (fun () -> silent := true),
+       ", suppress warnings") ;
      ("-e", Arg.String (fun s -> except := s :: !except),
        "filename, prevent file ``filename'' from being read") ;
      ("-idx",Arg.Unit (fun () -> read_idx := true),

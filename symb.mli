@@ -122,4 +122,4 @@ val rceil : string
 val langle : string
 val rangle : string
 
-val put_delim : (unit -> 'a) -> (string -> unit) -> string -> int -> unit
+val put_delim : (unit -> unit) -> (string -> unit) -> string -> int -> unit
