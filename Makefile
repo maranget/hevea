@@ -8,6 +8,8 @@ CPP=gcc -E -P -x c
 BINDIR=/usr/local/bin
 DOCDIR=~maranget/public_html/hevea
 
+include version.make
+
 HEVEA=./hevea.$(TARGET)
 OCAMLC=ocamlc
 OCAMLCI=ocamlc
@@ -124,14 +126,13 @@ version:: $(VERSIONFILE)
 	sed -n -e 's/^let version = "\(.\)\.\(.*\)".*$$/RELEASETAG=release-\1-\2/p' $(VERSIONFILE) >> version.make
 
 RELEASEDIR=/usr/tmp
-.include version.make
+RELEASENAME=hevea-$(VERSION)
 
 release:
 	cd $(RELEASEDIR) ; rm -rf $(RELEASENAME)
 	cd $(RELEASEDIR); cvs export -r $(RELEASETAG) -l htmlgen
-	cd $(RELEASEDIR); mv jc $(RELEASENAME)
+	cd $(RELEASEDIR); mv htmlgen $(RELEASENAME)
 	cd $(RELEASEDIR); tar cfo $(RELEASE).tar ./$(RELEASENAME) 
 	gzip -best $(RELEASE).tar
 
 include .depend
-
