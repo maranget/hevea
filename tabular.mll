@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: tabular.mll,v 1.27 2002-08-01 13:46:00 maranget Exp $ *)
+(* $Id: tabular.mll,v 1.28 2002-09-05 13:15:14 maranget Exp $ *)
 {
 open Misc
 open Lexing
@@ -109,7 +109,8 @@ let concat_pre_post x y = match x, y with
 } 
 
 rule tfone = parse
-  '>'
+| [' ''\t''\n''\r'] {tfone lexbuf}
+| '>'
     {let pre = subst_arg lexbuf in
     tfone lexbuf ;
     try
@@ -169,10 +170,11 @@ and tfmiddle = parse
   {let rest =
     String.sub lexbuf.lex_buffer lexbuf.lex_curr_pos
       (lexbuf.lex_buffer_len - lexbuf.lex_curr_pos) in
-  raise (Error ("Syntax of array format near: "^rest))}
+  raise (Error ("Syntax bonga of array format near: "^rest))}
 
 and tfpostlude = parse
-  '<'
+| [' ''\t''\n''\r'] {tfpostlude lexbuf}
+| '<'
     {let one = subst_arg lexbuf in
     let rest = tfpostlude lexbuf in
     let r = concat_pre_post one rest in
@@ -187,7 +189,8 @@ and tfpostlude = parse
 
 
 and lexformat = parse
- '*'
+| [' ''\t''\n''\r'] {lexformat lexbuf}
+| '*'
    {let ntimes = save_arg lexbuf in
    let what = save_arg lexbuf in
    let rec do_rec = function
