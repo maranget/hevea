@@ -1,18 +1,37 @@
 \@primitives{amsmath}
 \let\text\mbox
-%%AMS environments for displayed equations
-\def\tag#1{\gdef\@number{\eqno{\text{(#1)}}}\def\@currentlabel{\text{#1}}\addtocounter{equation}{-1}}%
-\def\tag*#1{\gdef\@number{\eqno{\text{#1}}}\def\@currentlabel{\text{#1}}\addtocounter{equation}{-1}}%
-\def\notag{\@nonumber}%
-\newenvironment{equation*}{\[}{\]}%
+%% Equation tags
+\newif\ifams@star
+\newcommand{\ams@yesnumber}
+  {\@yesnumber\gdef\ams@currentlabel{\theequation}}
+\newcommand{\ams@nonumber}{\global\let\@number\@empty}
+\def\tag#1{\gdef\@number{\eqno{\text{(#1)}}}\gdef\ams@currentlabel{\text{#1}}%
+\ifams@star\else\addtocounter{equation}{-1}\fi}%
+\def\tag*#1{\gdef\@number{\eqno{\text{#1}}}\gdef\ams@currentlabel{\text{#1}}%
+\ifams@star\else\addtocounter{equation}{-1}\fi}%
+\def\notag
+  {\ams@nonumber
+  \ifams@star\else\addtocounter{equation}{-1}}%
+\let\nonumber\notag%
+%%%%% AMS equations
+\newenvironment{ams@equation}[1]
+  {\[\def\@currentlabel{\ams@currentlabel}#1}
+  {\@number\]}
+\newenvironment{equation*}
+  {\ams@startrue\begin{ams@equation}{\ams@nonumber}}
+  {\end{ams@equation}}
+\renewenvironment{equation}
+  {\ams@starfalse\begin{ams@equation}{\ams@yesnumber\stepcounter{equation}}}
+  {\end{ams@equation}}
+%%%%AMS align
 \newcounter{@align@col}
 \newcounter{@align@limit}
-\newenvironment{alignat}[1]
+\newenvironment{ams@alignat}[2]
 {\setcounter{@align@limit}{2*#1-1}%
 \@ifundefined{@align@inside}{\def\@align@inside{}}{\warning{Nested align}}%
-\[\@changelabel\def\@currentlabel{\theequation}%
-\setcounter{@align@col}{0}\stepcounter{equation}%
-\@yesnumber%
+\[\@changelabel\def\@currentlabel{\ams@currentlabel}%
+\setcounter{@align@col}{0}%
+#2%
 \def\@extra{\quad\quad}%
 \let\@PBS=\@HEVEA@bsbs
 \let\@PAM=\@HEVEA@amper
@@ -24,20 +43,53 @@
     \ifthenelse{\isodd{\value{@align@col}}}{}{\@extra}%
     \@PAM}
     {\warning{Extra column in eqnarray}}}     
-\renewcommand{\\}[1][]{\@eqna@complete\@PAM\@number\@yesnumber\setcounter{@align@col}{0}\stepcounter{equation}\@PBS}
+\renewcommand{\\}[1][]
+  {\@eqna@complete% End line
+  \@PAM\@number\@PBS% format equation number
+  #2%step equation number
+  \setcounter{@align@col}{0}}
 \@array{*{#1}{rl}r}}
-{\\{}\addtocounter{equation}{-1}\end@array\]}
+  {\\{}\end@array\]}
+\newenvironment{alignat}[1]
+  {\ams@starfalse\begin{ams@alignat}
+     {#1}
+     {\ams@yesnumber\stepcounter{equation}}}
+  {\end{ams@alignat}\addtocounter{equation}{-1}}
+\newenvironment{alignat*}[1]
+  {\ams@startrue\begin{ams@alignat}{#1}{\ams@nonumber}}
+  {\end{ams@alignat}}
 \newenvironment{align}{\begin{alignat}{5}}{\end{alignat}}
-\newenvironment{align*}{\[\begin{array}{*{5}rl}}{\end{array}\]}%
+\newenvironment{align*}{\begin{alignat*}{5}}{\end{alignat*}}
+%%%%%%%%AMS gather
+\newenvironment{ams@gather}[1]
+  {\[\@changelabel\def\@currentlabel{\ams@currentlabel}%
+  \@array{@{#1}c@{\@number}}}
+  {\end@array\]}
 \newenvironment{gather}
-  {\[\let\@currentlabel\theequation\begin{array}{@{\@yesnumber\stepcounter{equation}}c@{\@number\fi}}}
-  {\end{array}\]}
+  {\typeout{\theequation}\ams@starfalse\begin{ams@gather}{\ams@yesnumber\stepcounter{equation}}}
+  {\end{ams@gather}}
 \newenvironment{gather*}
-  {\[\let\@currentlabel\theequation\begin{array}{@{\@nonumber\stepcounter{equation}}c@{\@number\fi}}}
-  {\end{array}\]}
-\newenvironment{alignat*}[1]{\[\begin{array}{*{#1}{rl}}}{\end{array}\]}%
-\newenvironment{multline}{\begin{equation}\begin{array}{l}}{\end{array}\end{equation}}%
-\newenvironment{multline*}{\begin{equation*}\begin{array}{l}}{\end{array}\end{equation*}}%
+  {\ams@startrue\begin{ams@gather}{\ams@nonumber}}
+  {\end{ams@gather}}
+%%%%%%%AMS multline
+\newcounter{ams@line}
+\newenvironment{ams@multline}[1]
+  {\@changelabel\def\@currentlabel{\ams@currentlabel}%
+  #1%
+  \setcounter{ams@line}{0}%
+  \let\@PBS=\\%
+  \renewcommand{\\}[1][]
+     {\@close{DISPLAY}%
+     \ifthenelse{\value{ams@line}>0}{\centering}{\raggedright}\)\endgroup\stepcounter{ams@line}\begingroup\(\@open{DISPLAY}{}}%
+  \begingroup\(\@open{DISPLAY}{}}
+  {\@close{DISPLAY}\)\raggedleft\@number\endgroup}
+\newenvironment{multline}
+  {\ams@starfalse\begin{ams@multline}{\ams@yesnumber\stepcounter{equation}}}
+  {\end{ams@multline}}
+\newenvironment{multline*}
+  {\ams@startrue\begin{ams@multline}{\ams@nonumber}}
+  {\end{ams@multline}}
+%AMS split
 \newenvironment{split}{\begin{array}{r}}{\end{array}}%
 \renewenvironment{cases}{\left\{\begin{array}{ll}}{\end{array}\right.}%
 \newcommand{\intertext}[1]{\qquad\mbox{#1}\\}%
