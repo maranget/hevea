@@ -250,8 +250,8 @@
 %%%%%%% Extended chars
 \lst@AddToHook{DeInit}{\setboolean{lst@extendedchars}{false}}
 \lst@AddToHookExe{SetLanguage}{\setboolean{lst@extendedchars}{false}}
-\define@key{lst}{extendedchars}[true]{\setboolean{lst@extendedchars}{\lst@boolean{#1}}
-%%%%%%% Sensitive keywords (not implemented !)
+\define@key{lst}{extendedchars}[true]{\setboolean{lst@extendedchars}{\lst@boolean{#1}}}
+%%%%%%% Sensitive keywords
 \lst@AddToHookExe{DeInit}{\setboolean{lst@sensitive}{true}}
 \lst@AddToHook{SetLanguage}{\setboolean{lst@sensitive}{true}}
 \define@key{lst}{sensitive}[true]{\setboolean{lst@sensitive}{\lst@boolean{#1}}}
