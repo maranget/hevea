@@ -1,4 +1,7 @@
 version 1.06-1
+  - alltt implementation revised. Efficency concern
+  - listings package implementation
+  - \def and \let now have TeX semantics
   - \toplinks, for prev,up, next links on the root file.
   - Bug for paragraphs inside \@stopoutput.. \@restoreoutput.
   - Bug CamlCode in get.mll lexer. Correction is patchy.

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: lexstate.ml,v 1.53 2000-07-10 15:06:30 maranget Exp $"
+let header = "$Id: lexstate.ml,v 1.54 2000-07-12 11:39:13 maranget Exp $"
 
 open Misc
 open Lexing
@@ -36,7 +36,7 @@ let pretty_pat (_,args) =
 
 let is_subst_noarg body pat = match body with
 | CamlCode _ -> false
-| _ -> pat = ([],[])
+| _ -> match pat with [],[] -> true | _ -> false
 
 let latex_pat opts n =
   let n_opts = List.length opts in
