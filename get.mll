@@ -18,7 +18,7 @@ open Lexstate
 open Stack
 
 (* Compute functions *)
-let header = "$Id: get.mll,v 1.15 2000-01-26 17:08:40 maranget Exp $"
+let header = "$Id: get.mll,v 1.16 2000-01-28 15:40:02 maranget Exp $"
 
 exception Error of string
 
@@ -30,6 +30,7 @@ let get_this = ref (fun b s -> assert false)
 and register_this = ref (fun s -> ())
 and open_env = ref (fun _ -> ())
 and close_env = ref (fun _ -> ())
+and get_csname = ref (fun _ -> assert false)
 ;;
 
 let bool_out = ref false
@@ -113,7 +114,7 @@ rule result = parse
       (int_of_string ("0x"^String.sub lxm 1 (String.length lxm-1))) ;
     result lexbuf}
 | '`'
-    {let token = Subst.subst_csname lexbuf in
+    {let token = !get_csname lexbuf in
     after_quote (Lexing.from_string token) ;
     result lexbuf}
 |  "true"
@@ -237,11 +238,12 @@ and after_quote = parse
 | ""
     {Misc.fatal "Cannot understand `-like numerical argument"}
 {
-let init latexget latexregister latexopenenv latexcloseenv =
+let init latexget latexregister latexopenenv latexcloseenv latexcsname =
   get_this := latexget ;
   register_this := latexregister ;
   open_env := latexopenenv ;
-  close_env := latexcloseenv
+  close_env := latexcloseenv ;
+  get_csname := latexcsname
 ;;
 let def_loc name f =
   silent_def name 0 (CamlCode f) ;
@@ -252,7 +254,11 @@ let def_commands_int () =
   def_loc "\\value"
     (fun lexbuf ->
       let name = !get_this true (save_arg lexbuf) in
-      push_int (Counter.value_counter name))
+      push_int (Counter.value_counter name)) ;
+  def_loc "\\pushint"
+    (fun lexbuf ->
+      let s = !get_this true (save_arg lexbuf) in
+      scan_this result s)
 ;;
 
 
@@ -269,7 +275,7 @@ let def_commands_bool () =
         with Myfiles.Except | Myfiles.Error _ -> false)) ;
   def_loc "\\@commandexists"
     (fun lexbuf ->
-      let name = Subst.subst_csname lexbuf in
+      let name = !get_csname lexbuf in
       push bool_stack (Latexmacros.exists_macro name)) ;
   def_loc "\\equal"
     (fun lexbuf ->

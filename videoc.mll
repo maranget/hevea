@@ -1,6 +1,6 @@
 (* <Christian.Queinnec@lip6.fr>
  The plugin for HeVeA that implements the VideoC style.
- $Id: videoc.mll,v 1.17 1999-12-08 18:10:28 maranget Exp $ 
+ $Id: videoc.mll,v 1.18 2000-01-28 15:40:19 maranget Exp $ 
 *)
 
 {
@@ -24,7 +24,7 @@ open Scan
 
 
 let header = 
-  "$Id: videoc.mll,v 1.17 1999-12-08 18:10:28 maranget Exp $"
+  "$Id: videoc.mll,v 1.18 2000-01-28 15:40:19 maranget Exp $"
 (* So I can synchronize my changes from Luc's ones *)
 let qnc_header = 
   "17 aout 99"
@@ -271,7 +271,7 @@ and do_single_url lexbuf =
   ()
 
 and do_define_url lxm lexbuf =
-  let name = subst_csname lexbuf in
+  let name = Scan.get_csname lexbuf in
   let body = Save.arg_verbatim lexbuf in
   if !Scan.env_level = 0 then 
     Image.put (lxm^name^"{"^body^"}\n")

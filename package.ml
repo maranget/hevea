@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.13 2000-01-26 17:08:56 maranget Exp $    *)
+(*  $Id: package.ml,v 1.14 2000-01-28 15:40:15 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -40,7 +40,7 @@ def_print "\@hevealibdir" Mylib.libdir
 (* ``Token'' registers *)
 def_code "\\newtokens"
   (fun lexbuf ->
-    let toks = Subst.subst_csname lexbuf in
+    let toks = Scan.get_csname lexbuf in
     begin try
       def_macro toks 0 (Subst "")
     with Latexmacros.Failed ->
@@ -50,7 +50,7 @@ def_code "\\newtokens"
 
 def_code "\\addtokens"
   (fun lexbuf ->
-    let toks = Subst.subst_csname lexbuf in
+    let toks = Scan.get_csname lexbuf in
     let arg = Subst.subst_arg lexbuf in
     begin try match find_macro toks with
     | _,Subst s ->
@@ -84,7 +84,7 @@ def_code "\\@fst"
 ;;
 
 let do_call lexbuf =
-  let csname = subst_csname lexbuf in
+  let csname = Scan.get_csname lexbuf in
   let nargs = Get.get_int (save_arg lexbuf) in
   let arg = subst_arg lexbuf in
   scan_this  main (csname^" "^arg)
@@ -292,8 +292,8 @@ register_init "url"
 
     let do_urldef csname lexbuf =
         Save.start_echo () ;
-        let name = Subst.subst_csname lexbuf in
-        let url_macro = Subst.subst_csname lexbuf in
+        let name = Scan.get_csname lexbuf in
+        let url_macro = Scan.get_csname lexbuf in
         let true_args = Save.get_echo () in
         Save.start_echo () ;
         let _ = save_verbatim lexbuf in

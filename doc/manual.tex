@@ -1773,15 +1773,16 @@ source. However, \LaTeX{} still can process the document, since the
 
 \section{Generating \html{} constructs}
 \hevea{} output language being \html{}, it is normal for users to insert
-hypertext constructs such as hyperlinks in their documents.
+hypertext constructs their documents, or to control their colors.
 
-\hevea{} provides high-level commands for doing this (see next section).
+\subsection{High-Level Commands}
+\hevea{} provides high-level commands for doing this.
 Users are advised to use these macros in the first place,
 because it is easy to write incorrect \html{} and that writting
 \html{} directly may interfeer in nasty ways with \hevea{} internals.
 
 
-\subsection{High-level commands}\index{hyperlinks}\label{hyperlink}
+\subsubsection{Commands for Hyperlinks}\index{hyperlinks}\label{hyperlink}
 A few commands for hyperlink  management and included images
 are provided, all these
 commands have approriate equivalents defined by the \texttt{hevea}
@@ -1885,6 +1886,62 @@ ensuring
 some compatibility with older versions of \hevea.
 Note that this usage of \verb+\url+ is deprecated.
 
+\subsubsection{\html{} style colors}\label{color:high}
+Specifying colors both for \LaTeX{} and
+\hevea{} should be done using the \texttt{color} package (see
+section~\ref{color:package}).
+However,one can also specify text color using special type style declarations.
+The \texttt{hevea.sty} style file
+define no equivalent for these declarations, which therefore are for
+\hevea{} consumption only.
+
+Those declarations follow \html{} conventions for colors.
+There are sixteen predefined colors:
+\begin{center}
+\begin{tabular}{p{.7\linewidth}}
+%HEVEA\black
+\verb+\black+,
+%HEVEA\silver
+\verb+\silver+,
+%HEVEA\gray
+\verb+\gray+,
+%HEVEA\white
+\verb+\white+,
+%HEVEA\maroon
+\verb+\maroon+,
+%HEVEA\red
+\verb+\red+,
+%HEVEA\fuchsia
+\verb+\fuchsia+,
+%HEVEA\purple
+\verb+\purple+,
+%HEVEA\green
+\verb+\green+,
+%HEVEA\lime
+\verb+\lime+,
+%HEVEA\olive
+\verb+\olive+,
+%HEVEA\yellow
+\verb+\yellow+,
+%HEVEA\navy
+\verb+\navy+,
+%HEVEA\blue
+\verb+\blue+,
+%HEVEA\teal
+\verb+\teal+,
+%HEVEA\aqua
+\verb+\aqua+
+\end{tabular}
+\end{center}
+\comindex{htmlcolor}Additionally, the current text color can be
+changed by the declaration \verb+\htmlcolor{+{\it number}\verb+}+,
+where {\it number} is a six digit hexadecimal number specifying a
+color in the RGB space.  For instance, the following declarations
+change font color to dark gray:%HEVEA{\htmlcolor{404040}%
+\begin{verbatim}
+  \htmlcolor{404040}
+\end{verbatim}
+%HEVEA}
 
 \subsection{More on included images}\label{imgsrc}
 \index{image inclusion!in GIF}\comindex{imgsrc}
@@ -2054,8 +2111,8 @@ be a small integer in the range \texttt{1},\texttt{2}, \ldots{} , \texttt{7}.
 \item[{\tt\char92 @fontcolor\char123}{\it color}{\tt\char125}]
 Declare the text-level element \verb+FONT+ with attribute
 \verb+COLOR=+\textit{color} as active.
-Note that \textit{color} must be a color specification in the \html{}
-low-level style. That is either one of the sixteen conventional colors
+Note that \textit{color} must be a color attribute value in the \html{}
+style. That is either one of the sixteen conventional colors
 \verb+black+, \verb+silver+ etc, or a RGB hexadecimal color specification
 of the form
 \verb+"#+\textit{XXXXXX}\verb+"+.
@@ -3758,57 +3815,6 @@ will be typeset on a yellow background and without padding:
 \color{red}Red letters on a yellow backgroud
 \end{bgcolor}
 \end{htmlonly}
-
-
-\subsubsection{High-level \html{} style colors}\label{color:high}
-One can also specify text color using special type style declarations.
-Those declarations follow \html{} conventions for colors.
-There are sixteen predefined colors:
-\begin{center}
-\begin{tabular}{p{.7\linewidth}}
-%HEVEA\black
-\verb+\black+,
-%HEVEA\silver
-\verb+\silver+,
-%HEVEA\gray
-\verb+\gray+,
-%HEVEA\white
-\verb+\white+,
-%HEVEA\maroon
-\verb+\maroon+,
-%HEVEA\red
-\verb+\red+,
-%HEVEA\fuchsia
-\verb+\fuchsia+,
-%HEVEA\purple
-\verb+\purple+,
-%HEVEA\green
-\verb+\green+,
-%HEVEA\lime
-\verb+\lime+,
-%HEVEA\olive
-\verb+\olive+,
-%HEVEA\yellow
-\verb+\yellow+,
-%HEVEA\navy
-\verb+\navy+,
-%HEVEA\blue
-\verb+\blue+,
-%HEVEA\teal
-\verb+\teal+,
-%HEVEA\aqua
-\verb+\aqua+
-\end{tabular}
-\end{center}
-\comindex{htmlcolor}Additionally, the current text color can be
-changed by the declaration \verb+\htmlcolor{+{\it number}\verb+}+,
-where {\it number} is a six digit hexadecimal number specifying a
-color in the RGB space.  For instance, the following declarations
-change font color to dark gray:%HEVEA{\htmlcolor{404040}%
-\begin{verbatim}
-  \htmlcolor{404040}
-\end{verbatim}
-%HEVEA}
 
 
 \section{Font Selection}

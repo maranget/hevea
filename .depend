@@ -59,8 +59,10 @@ index.cmo: entry.cmi misc.cmi myfiles.cmi out.cmi parse_opts.cmi table.cmi \
     index.cmi 
 index.cmx: entry.cmx misc.cmx myfiles.cmx out.cmx parse_opts.cmx table.cmx \
     index.cmi 
-info.cmo: infoRef.cmo misc.cmi out.cmi parse_opts.cmi text.cmi info.cmi 
-info.cmx: infoRef.cmx misc.cmx out.cmx parse_opts.cmx text.cmx info.cmi 
+info.cmo: infoRef.cmo misc.cmi myfiles.cmi out.cmi parse_opts.cmi text.cmi \
+    info.cmi 
+info.cmx: infoRef.cmx misc.cmx myfiles.cmx out.cmx parse_opts.cmx text.cmx \
+    info.cmi 
 infoRef.cmo: misc.cmi myfiles.cmi out.cmi parse_opts.cmi text.cmi 
 infoRef.cmx: misc.cmx myfiles.cmx out.cmx parse_opts.cmx text.cmx 
 latexmacros.cmo: lexstate.cmi location.cmi misc.cmi parse_opts.cmi symb.cmi \

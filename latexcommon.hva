@@ -167,6 +167,7 @@
 \newcommand{\long}{}
 \def\relax{}
 \def\newline{\\}
+\def\expandafter{}
 %% Arrays and tabular
 \newcommand{\extracolsep}[1]{}
 \newcommand{\cline}[1]{\warning{Warning, \cline changed into \hline}\hline}

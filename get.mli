@@ -4,7 +4,8 @@ exception Error of string
 
 val init :
   (bool -> string * Lexstate.subst -> string) ->
-  (string -> unit) -> (string -> unit) -> (string -> unit) -> unit
+  (string -> unit) -> (string -> unit) -> (string -> unit) ->
+  (Lexing.lexbuf -> string) -> unit
 
 type saved
 val check : unit -> saved

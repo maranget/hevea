@@ -12,7 +12,7 @@
 {
 open Lexing
 
-let header = "$Id: save.mll,v 1.50 2000-01-19 20:11:20 maranget Exp $" 
+let header = "$Id: save.mll,v 1.51 2000-01-28 15:40:17 maranget Exp $" 
 
 let verbose = ref 0 and silent = ref false
 ;;
@@ -207,14 +207,16 @@ and arg2 = parse
       put_both_char c ; arg2 lexbuf }
 
 and csname = parse
-  [' ''\n']+ {(fun subst -> put_echo (lexeme lexbuf) ; csname lexbuf subst)}
+  [' ''\n']+
+    {(fun get_prim subst ->
+      put_echo (lexeme lexbuf) ; csname lexbuf get_prim subst)}
 | '{'? "\\csname" ' '*
-      {(fun subst_fun ->
+      {(fun get_prim subst_fun ->
         let lxm = lexeme lexbuf in
         put_echo lxm ;
         let r = incsname lexbuf in
-        "\\"^subst_fun r)}
-| ""  {fun subst -> let r = arg lexbuf in subst r}
+        "\\"^get_prim r)}
+| ""  {fun get_prim subst -> let r = arg lexbuf in subst r}
 
 and incsname = parse
   "\\endcsname"  '}'?

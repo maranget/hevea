@@ -35,6 +35,7 @@ module type S =
     val get_prim : string -> string
     val get_prim_arg : Lexing.lexbuf -> string
     val get_prim_opt : string -> Lexing.lexbuf -> string
+    val get_csname : Lexing.lexbuf -> string
 end
 
 module Make (Dest : OutManager.S) (Image : ImageManager.S) : S

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.162 2000-01-27 16:31:33 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.163 2000-01-28 15:40:08 maranget Exp $ *)
 
 
 {
@@ -36,6 +36,7 @@ module type S =
     val get_prim : string -> string
     val get_prim_arg : Lexing.lexbuf -> string
     val get_prim_opt : string -> Lexing.lexbuf -> string
+    val get_csname : Lexing.lexbuf -> string 
   end
 
 module Make
@@ -1299,6 +1300,9 @@ and get_prim_opt def lexbuf =
   let arg = save_opt def lexbuf in
   get_prim_onarg arg
 
+let get_csname lexbuf = Save.csname lexbuf get_prim Subst.subst_this
+
+
 let def_fun name f =
   def_code name
     (fun lexbuf ->
@@ -1366,7 +1370,7 @@ def_code "\\bibliography" (do_input "\\bibliography")
 
 let do_newcommand lxm lexbuf =
   Save.start_echo () ;
-  let name = subst_csname lexbuf in
+  let name = get_csname lexbuf in
   let nargs = save_opts ["0" ; ""] lexbuf in
   let body = subst_body lexbuf in
   if (!env_level = 0) && lxm <> "\\@forcecommand"  && top_level () then
@@ -1402,7 +1406,7 @@ def_name_code "\\@forcecommand" do_newcommand ;
 def_name_code "\\newcolumntype"
   (fun lxm lexbuf ->
     Save.start_echo () ;
-    let name = subst_csname lexbuf in
+    let name = get_csname lexbuf in
     let nargs = save_opt "0" lexbuf in
     let body = subst_body lexbuf in
     let rest = Save.get_echo () in
@@ -1446,7 +1450,7 @@ def_name_code  "\\renewenvironment" do_newenvironment
 
 let do_newtheorem lxm lexbuf =
   Save.start_echo () ;
-  let name = subst_csname lexbuf in
+  let name = get_csname lexbuf in
   let numbered_like = match save_opts [""] lexbuf with
   |  [x] -> x
   | _ -> assert false in
@@ -1485,7 +1489,7 @@ def_name_code "\\renewtheorem" do_newtheorem
 (* Command definitions, TeX style *)
 
 let do_def realdef global lxm lexbuf =
-  let name = subst_csname lexbuf in
+  let name = get_csname lexbuf in
   skip_blanks lexbuf ;
   let name,args_pat,body =
     if top_level () then
@@ -1516,9 +1520,9 @@ def_name_code "\\gdef" (do_def false true)
 ;;
 
 let do_let reallet global lxm lexbuf =
-  let name = subst_csname lexbuf in
+  let name = get_csname lexbuf in
   Save.skip_equal lexbuf ;
-  let alt = subst_csname lexbuf in
+  let alt = get_csname lexbuf in
   let nargs,body = find_macro alt in
   begin try
     (if reallet then silent_def_pat else def_macro_pat)
@@ -1633,7 +1637,7 @@ def_code "\\catcode"
 
 def_code "\\chardef"
   (fun lexbuf ->
-    let csname = Subst.subst_csname lexbuf in
+    let csname = get_csname lexbuf in
     Save.skip_equal lexbuf ;
     let i = get_num_arg lexbuf in
     macro_register csname ;
@@ -1875,8 +1879,8 @@ let newif lexbuf =
 
 def_code "\\ifx"
   (fun lexbuf ->
-    let arg1 = subst_csname lexbuf in
-    let arg2 = subst_csname lexbuf  in
+    let arg1 = get_csname lexbuf in
+    let arg2 = get_csname lexbuf  in
     if silent_find_macro arg1 = silent_find_macro arg2 then
       check_alltt_skip lexbuf
     else skip_false lexbuf)
@@ -2079,14 +2083,14 @@ and redef_print name s = redef_code name (fun _ -> Dest.put s)
 
 def_code "\\newsavebox"
   (fun lexbuf ->
-    let name = subst_csname lexbuf in
+    let name = get_csname lexbuf in
     begin try def_print name ""
     with Latexmacros.Failed -> () end )
 ;;
 
 def_code "\\savebox" 
   (fun lexbuf ->
-    let name = subst_csname lexbuf in
+    let name = get_csname lexbuf in
     warning "savebox";
     skip_opt lexbuf ;
     skip_opt lexbuf ;
@@ -2097,7 +2101,7 @@ def_code "\\savebox"
 
 def_code "\\sbox"
   (fun lexbuf ->
-    let name = subst_csname lexbuf in
+    let name = get_csname lexbuf in
     let body = save_arg lexbuf in
     redef_print name (get_this_arg main body) ;
     macro_register name)
@@ -2105,15 +2109,15 @@ def_code "\\sbox"
 
 def_code "\\usebox"
   (fun lexbuf ->
-    let arg = save_arg lexbuf in
-    scan_this_arg main arg)
+    let name = get_csname lexbuf in
+    expand_command main skip_blanks name lexbuf)
 ;;
 
 def_code "\\lrbox"
   (fun _ ->
     close_env "lrbox" ;
     let lexbuf = previous_lexbuf () in
-    let name = subst_csname lexbuf in
+    let name = get_csname lexbuf in
     Dest.open_aftergroup
       (fun s ->
         redef_print name s ;
@@ -2255,7 +2259,7 @@ def_code "\\numberwithin"
 (* terminal output *)
 def_code "\\typeout"
   (fun lexbuf ->
-    let what = subst_arg lexbuf in
+    let what = get_prim_arg lexbuf in
     prerr_endline what )
 ;;
 
@@ -2653,12 +2657,13 @@ def_fun "\\~"  tilde
 ;;
 
 Get.init
-      (fun nostyle s ->
-        if nostyle then
-          get_this_nostyle_arg main s
-	else
-          get_this_arg main s)
-      macro_register new_env close_env
+  (fun nostyle s ->
+    if nostyle then
+      get_this_nostyle_arg main s
+  else
+    get_this_arg main s)
+  macro_register new_env close_env
+  get_csname
 ;;
 
 def_code "\\@primitives"

@@ -11,7 +11,8 @@ val start_echo : unit -> unit
 val opt : Lexing.lexbuf -> string
 val arg : Lexing.lexbuf -> string
 val arg_verbatim : Lexing.lexbuf -> string
-val csname : Lexing.lexbuf -> (string -> string) -> string
+val csname : Lexing.lexbuf ->
+  (string -> string) -> (string -> string) -> string
 val incsname : Lexing.lexbuf -> string
 val cite_arg : Lexing.lexbuf -> string list
 val rest : Lexing.lexbuf -> string
