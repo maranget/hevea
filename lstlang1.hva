@@ -4,9 +4,9 @@
 %%
 %% The original source files were:
 %%
-%% lstdrvrs.dtx  (with options: `ada,c++,objective-c,c,csh,euphoria,fortran,html,idl,java,mathematica,mercury,ml,modula,pascal,perl,pov,python,sql,vhdl')
+%% lstdrvrs.dtx  (with options: `lang1')
 %% 
-%% (w)(c) 1996/1997/1998/1999 Carsten Heinz and/or any other author
+%% (w)(c) 1996/1997/1998/1999/2000 Carsten Heinz and/or any other author
 %% listed elsewhere in this file.
 %%
 %% This file is distributed under the terms of the LaTeX Project Public
@@ -28,16 +28,17 @@
 \lst@definelanguage[95]{Ada}[83]{Ada}%
   {morekeywords={abstract,aliased,protected,requeue,tagged,until}}%
 \lst@definelanguage[83]{Ada}%
-  {keywords={abort,abs,accept,access,all,and,array,at,begin,body,case,%
-      constant,declare,delay,delta,digits,do,else,elsif,end,entry,%
+  {morekeywords={abort,abs,accept,access,all,and,array,at,begin,body,%
+      case,constant,declare,delay,delta,digits,do,else,elsif,end,entry,%
       exception,exit,for,function,generic,goto,if,in,is,limited,loop,%
       mod,new,not,null,of,or,others,out,package,pragma,private,%
       procedure,raise,range,record,rem,renames,return,reverse,select,%
       separate,subtype,task,terminate,then,type,use,when,while,with,%
       xor},%
    sensitive=f,%
-   commentline=--,%
-   stringizer=[m]{"'}% percent not defined as stringizer so far
+   morecomment=[l]--,%
+   morestring=[m]",% percent not defined as stringizer so far
+   morestring=[m]'%
   }[keywords,comments,strings]%
 \lst@definelanguage[Visual]{C++}[ANSI]{C++}%
   {morekeywords={__asm,__based,__cdecl,__declspec,dllexport,%
@@ -51,7 +52,7 @@
       this,throw,true,try,type_info,typeid,using,virtual,xalloc,%
       __multiple_inheritance,__single_inheritance,%
       __virtual_inheritance},%
-   commentline=//%
+   morecomment=[l]//%
   }%
 %%
 %% Objective-C definition (c) 1997 Detlev Droege
@@ -61,51 +62,33 @@
   {morekeywords={bycopy,id,in,inout,oneway,out,self,super,%
       @class,@defs,@encode,@end,@implementation,@interface,@private,%
       @protected,@protocol,@public,@selector},%
-   commentline=//,%
-   directives={define,elif,else,endif,error,if,ifdef,ifndef,line,%
-      include,import,pragma,undef,warning}%
+   morecomment=[l]//,%
+   moredirectives={import}%
   }%
 \lst@definelanguage[ANSI]{C}%
-  {keywords={auto,break,case,char,const,continue,default,do,double,%
+  {morekeywords={auto,break,case,char,const,continue,default,do,double,%
       else,enum,extern,float,for,goto,if,int,long,register,return,%
       short,signed,sizeof,static,struct,switch,typedef,union,unsigned,%
       void,volatile,while},%
    sensitive,%
-   singlecomment={/*}{*/},%
-   stringizer=[b]",%
-   directives={define,elif,else,endif,error,if,ifdef,ifndef,line,%
+   morecomment=[s]{/*}{*/},%
+   morestring=[b]",%
+   morestring=[b]',%
+   moredirectives={define,elif,else,endif,error,if,ifdef,ifndef,line,%
       include,pragma,undef,warning}%
   }[keywords,comments,strings,directives]%
 %%
 %% csh definition (c) 1998 Kai Below <below@tu-harburg.de>
 %%
 \lst@definelanguage{csh}
-  {keywords={alias,awk,cat,echo,else,end,endif,endsw,exec,exit,%
+  {morekeywords={alias,awk,cat,echo,else,end,endif,endsw,exec,exit,%
       foreach,glob,goto,history,if,logout,nice,nohup,onintr,repeat,sed,%
       set,setenv,shift,source,switch,then,time,while,umask,unalias,%
       unset,wait,while,@,env,argv,child,home,ignoreeof,noclobber,%
       noglob,nomatch,path,prompt,shell,status,verbose,print,printf,%
       sqrt,BEGIN,END},%
-   commentline=\#,%
-   stringizer=[d]"%
-  }[keywords,comments,strings]%
-%%
-%% Euphoria definition (c) 1998 Detlef Reimers <dreimers@aol.com>
-%%
-\lst@definelanguage{Euphoria}%
-  {keywords={abort,and,and_bits,append,arctan,atom,by,call,call_proc,%
-      call_func,c_proc,c_func,clear_screen,close,command_line,compare,%
-      constant,cos,do,date,else,elsif,end,exit,find,floor,for,function,%
-      getc,getenv,get_key,gets,global,get_pixel,if,include,integer,%
-      length,log,match,machine_func,machine_proc,mem_copy,mem_set,not,%
-      not_bits,or,object,open,or_bits,procedure,puts,position,prepend,%
-      print,printf,power,peek,poke,pixel,poke4,peek4s,peek4u,return,%
-      rand,repeat,remainder,routine_id,sequence,sqrt,sin,system,%
-      sprintf,then,type,to,time,trace,tan,while,with,without,xor,%
-      xor_bits},%
-   sensitive,%
-   commentline=--,%
-   stringizer=[d]'"%
+   morecomment=[l]\#,%
+   morestring=[d]"%
   }[keywords,comments,strings]%
 \lst@definelanguage[90]{Fortran}[95]{Fortran}{}
 \lst@definelanguage[95]{Fortran}[77]{Fortran}%
@@ -119,25 +102,25 @@
       ENDBLOCKDATA,ENDDO,ENDFILE,ENDFUNCTION,ENDIF,ENDINTERFACE,%
       ENDMODULE,ENDPROGRAM,ENDSELECT,ENDSUBROUTINE,ENDTYPE,ENDWHERE,%
       GOTO,INOUT,SELECTCASE},%
-   commentline=!,%
-   fixedcommentline={},% no fixed comment line: 1998 Magne Rudshaug
+   morecomment=[l]!,%
+   deletecomment=[f]% no fixed comment line: 1998 Magne Rudshaug
   }%
 \lst@definelanguage[77]{Fortran}%
-  {keywords={ACCESS,ASSIGN,BACKSPACE,BLANK,BLOCK,CALL,CHARACTER,CLOSE,%
-      COMMON,COMPLEX,CONTINUE,DATA,DIMENSION,DIRECT,DO,DOUBLE,ELSE,END,%
-      ENTRY,EOF,EQUIVALENCE,ERR,EXIST,EXTERNAL,FILE,FMT,FORM,FORMAT,%
-      FORMATTED,FUNCTION,GO,TO,IF,IMPLICIT,INQUIRE,INTEGER,INTRINSIC,%
-      IOSTAT,LOGICAL,NAMED,NEXTREC,NUMBER,OPEN,OPENED,PARAMETER,PAUSE,%
-      PRECISION,PRINT,PROGRAM,READ,REAL,REC,RECL,RETURN,REWIND,%
-      SEQUENTIAL,STATUS,STOP,SUBROUTINE,THEN,TYPE,UNFORMATTED,UNIT,%
-      WRITE,SAVE},%
+  {morekeywords={ACCESS,ASSIGN,BACKSPACE,BLANK,BLOCK,CALL,CHARACTER,%
+      CLOSE,COMMON,COMPLEX,CONTINUE,DATA,DIMENSION,DIRECT,DO,DOUBLE,%
+      ELSE,END,ENTRY,EOF,EQUIVALENCE,ERR,EXIST,EXTERNAL,FILE,FMT,FORM,%
+      FORMAT,FORMATTED,FUNCTION,GO,TO,IF,IMPLICIT,INQUIRE,INTEGER,%
+      INTRINSIC,IOSTAT,LOGICAL,NAMED,NEXTREC,NUMBER,OPEN,OPENED,%
+      PARAMETER,PAUSE,PRECISION,PRINT,PROGRAM,READ,REAL,REC,RECL,%
+      RETURN,REWIND,SEQUENTIAL,STATUS,STOP,SUBROUTINE,THEN,TYPE,%
+      UNFORMATTED,UNIT,WRITE,SAVE},%
    sensitive=f,%% not Fortran standard %%
-   fixedcommentline=*Cc,%
-   stringizer=[d]"%
+   morecomment=[f]*Cc,%
+   morestring=[d]"%
   }[keywords,comments,strings]%
 \lst@definelanguage{HTML}%
-  {keywords={A,ADDRESS,APPLET,B,BASE,BASEFONT,BIG,BLOCKQUOTE,BODY,BR,%
-      CENTER,CITE,CODE,DFN,DIR,DIV,DOCTYPE,EM,FONT,FORM,HEAD,HR,%
+  {morekeywords={A,ADDRESS,APPLET,B,BASE,BASEFONT,BIG,BLOCKQUOTE,BODY,%
+      BR,CENTER,CITE,CODE,DFN,DIR,DIV,DOCTYPE,EM,FONT,FORM,HEAD,HR,%
       H1,H2,H3,H4,H5,H6,HTML,I,IMG,INPUT,ISINDEX,KBD,LI,LINK,LISTING,%
       MAP,META,MENU,P,PLAINTEXT,PRE,OL,SAMP,SCRIPT,SELECT,SMALL,STRIKE,%
       STRING,SUB,SUP,STYLE,TABLE,TEXTAREA,TITLE,TT,U,UL,VAR,XMP,%
@@ -148,38 +131,97 @@
       title,type,usemap,valign,value,vlink,vspace,width},%
    keywordsinside=<>,
    sensitive=f,%
-   stringizer=[d]",% ??? doubled
-   SelectCharTable=%
-      \lst@CArg{SC}--\relax\lst@CommentB\lst@SCmode{}{}%
+   morestring=[d]",% ??? doubled
+   MoreSelectCharTable=%
+      \lst@CArgX--\relax\lst@CommentB\lst@GPmode{}{}%
           {\ifnum\lst@mode=\lst@insidemode\else
                \expandafter\@gobblethree
-           \fi}\@empty
-      \lst@CArg{SC}--\relax\lst@CommentE\lst@SCmode{}{}{}%
+           \fi}\lst@commentstyle
+      \lst@CArgX--\relax\lst@CommentE\lst@GPmode{}{}{}%
   }[keywords,comments,strings,html]%
-%%
-%% IDL definition (c) 1998 Juergen Heim <heim@astro.uni-tuebingen.de>
-%%
-\lst@definelanguage{IDL}%
-  {keywords={and,begin,case,common,do,else,end,endcase,endelse,%
-      endfor,endif,endrep,endwhile,eq,for,function,ge,goto,gt,if,le,lt,%
-      mod,ne,not,of,on_ioerror,or,pro,repeat,return,then,until,while,%
-      xor,on_error,openw,openr,openu,print,printf,printu,plot,read,%
-      readf,readu,writeu,stop},%
-   sensitive=f,%
-   commentline=;,%
-   stringizer=[d]'%
-  }[keywords,comments,strings]%
 \lst@definelanguage{Java}%
-  {keywords={abstract,boolean,break,byte,case,catch,char,class,const,%
-      continue,default,do,double,else,extends,final,finally,float,for,%
-      goto,if,implements,import,instanceof,int,interface,long,native,%
-      new,null,package,private,protected,public,return,short,static,%
-      super,switch,synchronized,this,throw,throws,transient,try,void,%
-      volatile,while,true,false},%
+  {morekeywords={abstract,boolean,break,byte,case,catch,char,class,%
+      const,continue,default,do,double,else,extends,final,finally,%
+      float,for,goto,if,implements,import,instanceof,int,interface,%
+      long,native,new,null,package,private,protected,public,return,%
+      short,static,super,switch,synchronized,this,throw,throws,%
+      transient,try,void,volatile,while,true,false},%
    sensitive,%
-   commentline=//,%
-   singlecomment={/*}{*/},%
-   stringizer=[b]"%
+   morecomment=[l]//,%
+   morecomment=[s]{/*}{*/},%
+   morestring=[b]",%
+   morestring=[b]',%
+  }[keywords,comments,strings]%
+\lst@definelanguage{Matlab}%
+  {morekeywords={gt,lt,gt,lt,amp,abs,acos,acosh,acot,acoth,acsc,acsch,%
+      all,angle,ans,any,asec,asech,asin,asinh,atan,atan2,atanh,auread,%
+      auwrite,axes,axis,balance,bar,bessel,besselk,bessely,beta,%
+      betainc,betaln,blanks,bone,break,brighten,capture,cart2pol,%
+      cart2sph,caxis,cd,cdf2rdf,cedit,ceil,chol,cla,clabel,clc,clear,%
+      clf,clock,close,colmmd,Colon,colorbar,colormap,ColorSpec,colperm,%
+      comet,comet3,compan,compass,computer,cond,condest,conj,contour,%
+      contour3,contourc,contrast,conv,conv2,cool,copper,corrcoef,cos,%
+      cosh,cot,coth,cov,cplxpair,cputime,cross,csc,csch,csvread,%
+      csvwrite,cumprod,cumsum,cylinder,date,dbclear,dbcont,dbdown,%
+      dbquit,dbstack,dbstatus,dbstep,dbstop,dbtype,dbup,ddeadv,ddeexec,%
+      ddeinit,ddepoke,ddereq,ddeterm,ddeunadv,deblank,dec2hex,deconv,%
+      del2,delete,demo,det,diag,diary,diff,diffuse,dir,disp,dlmread,%
+      dlmwrite,dmperm,dot,drawnow,echo,eig,ellipj,ellipke,else,elseif,%
+      end,engClose,engEvalString,engGetFull,engGetMatrix,engOpen,%
+      engOutputBuffer,engPutFull,engPutMatrix,engSetEvalCallback,%
+      engSetEvalTimeout,engWinInit,eps,erf,erfc,erfcx,erfinv,error,%
+      errorbar,etime,etree,eval,exist,exp,expint,expm,expo,eye,fclose,%
+      feather,feof,ferror,feval,fft,fft2,fftshift,fgetl,fgets,figure,%
+      fill,fill3,filter,filter2,find,findstr,finite,fix,flag,fliplr,%
+      flipud,floor,flops,fmin,fmins,fopen,for,format,fplot,fprintf,%
+      fread,frewind,fscanf,fseek,ftell,full,function,funm,fwrite,fzero,%
+      gallery,gamma,gammainc,gammaln,gca,gcd,gcf,gco,get,getenv,%
+      getframe,ginput,global,gplot,gradient,gray,graymon,grid,griddata,%
+      gtext,hadamard,hankel,help,hess,hex2dec,hex2num,hidden,hilb,hist,%
+      hold,home,hostid,hot,hsv,hsv2rgb,if,ifft,ifft2,imag,image,%
+      imagesc,Inf,info,input,int2str,interp1,interp2,interpft,inv,%
+      invhilb,isempty,isglobal,ishold,isieee,isinf,isletter,isnan,%
+      isreal,isspace,issparse,isstr,jet,keyboard,kron,lasterr,lcm,%
+      legend,legendre,length,lin2mu,line,linspace,load,log,log10,log2,%
+      loglog,logm,logspace,lookfor,lower,ls,lscov,lu,magic,matClose,%
+      matDeleteMatrix,matGetDir,matGetFp,matGetFull,matGetMatrix,%
+      matGetNextMatrix,matGetString,matlabrc,matlabroot,matOpen,%
+      matPutFull,matPutMatrix,matPutString,max,mean,median,menu,mesh,%
+      meshc,meshgrid,meshz,mexAtExit,mexCallMATLAB,mexdebug,%
+      mexErrMsgTxt,mexEvalString,mexFunction,mexGetFull,mexGetMatrix,%
+      mexGetMatrixPtr,mexPrintf,mexPutFull,mexPutMatrix,mexSetTrapFlag,%
+      min,more,movie,moviein,mu2lin,mxCalloc,mxCopyCharacterToPtr,%
+      mxCopyComplex16ToPtr,mxCopyInteger4ToPtr,mxCopyPtrToCharacter,%
+      mxCopyPtrToComplex16,mxCopyPtrToInteger4,mxCopyPtrToReal8,%
+      mxCopyReal8ToPtr,mxCreateFull,mxCreateSparse,mxCreateString,%
+      mxFree,mxFreeMatrix,mxGetIr,mxGetJc,mxGetM,mxGetN,mxGetName,%
+      mxGetNzmax,mxGetPi,mxGetPr,mxGetScalar,mxGetString,mxIsComplex,%
+      mxIsFull,mxIsNumeric,mxIsSparse,mxIsString,mxIsTypeDouble,%
+      mxSetIr,mxSetJc,mxSetM,mxSetN,mxSetName,mxSetNzmax,mxSetPi,%
+      mxSetPr,NaN,nargchk,nargin,nargout,newplot,nextpow2,nnls,nnz,%
+      nonzeros,norm,normest,null,num2str,nzmax,ode23,ode45,orient,orth,%
+      pack,pascal,patch,path,pause,pcolor,pi,pink,pinv,plot,plot3,%
+      pol2cart,polar,poly,polyder,polyeig,polyfit,polyval,polyvalm,%
+      pow2,print,printopt,prism,prod,pwd,qr,qrdelete,qrinsert,quad,%
+      quad8,quit,quiver,qz,rand,randn,randperm,rank,rat,rats,rbbox,%
+      rcond,real,realmax,realmin,refresh,rem,reset,reshape,residue,%
+      return,rgb2hsv,rgbplot,rootobject,roots,rose,rosser,rot90,rotate,%
+      round,rref,rrefmovie,rsf2csf,save,saxis,schur,sec,sech,semilogx,%
+      semilogy,set,setstr,shading,sign,sin,sinh,size,slice,sort,sound,%
+      spalloc,sparse,spaugment,spconvert,spdiags,specular,speye,spfun,%
+      sph2cart,sphere,spinmap,spline,spones,spparms,sprandn,sprandsym,%
+      sprank,sprintf,spy,sqrt,sqrtm,sscanf,stairs,startup,std,stem,%
+      str2mat,str2num,strcmp,strings,strrep,strtok,subplot,subscribe,%
+      subspace,sum,surf,surface,surfc,surfl,surfnorm,svd,symbfact,%
+      symmmd,symrcm,tan,tanh,tempdir,tempname,terminal,text,tic,title,%
+      toc,toeplitz,trace,trapz,tril,triu,type,uicontrol,uigetfile,%
+      uimenu,uiputfile,unix,unwrap,upper,vander,ver,version,view,%
+      viewmtx,waitforbuttonpress,waterfall,wavread,wavwrite,what,%
+      whatsnew,which,while,white,whitebg,who,whos,wilkinson,wk1read,%
+      wk1write,xlabel,xor,ylabel,zeros,zlabel,zoom},%
+   sensitive,%
+   morecomment=[l]\%,%
+   morestring=[m]'%
   }[keywords,comments,strings]%
 %%
 %% Mathematica definitions (c) 1999 Michael Wiese <wiese@itwm.uni-kl.de>
@@ -246,7 +288,7 @@
       $VersionNumber}%
   }%
 \lst@definelanguage[1.0]{Mathematica}%
-  {keywords={Abs,Accuracy,AccurayGoal,AddTo,AiryAi,AlgebraicRules,%
+  {morekeywords={Abs,Accuracy,AccurayGoal,AddTo,AiryAi,AlgebraicRules,%
       AmbientLight,And,Apart,Append,AppendTo,Apply,ArcCos,ArcCosh,%
       ArcCot,ArcCoth,ArcCsc,ArcCsch,ArcSec,ArcSech,ArcSin,ArcSinh,%
       ArcTan,ArcTanh,Arg,ArithmeticGeometricMean,Array,AspectRatio,%
@@ -324,53 +366,17 @@
       ValueQ,Variables,VectorQ,ViewPoint,WeierstrassP,%
       WeierstrassPPrime,Which,While,WorkingPrecision,Write,WriteString,%
       Xor,ZeroTest,Zeta},%
-   ndkeywords={All,Automatic,Catalan,ComplexInfinity,Constant,Degree,E,%
-      EndOfFile,EulerGamma,False,Flat,GoldenRatio,HoldAll,HoldFirst,%
-      HoldRest,I,Indeterminate,Infinity,Listable,Locked,Modular,None,%
-      Null,OneIdentity,Orderless,Pi,Protected,ReadProtected,True,%
-      $CommandLine,$Context,$ContextPath,$Display,$DisplayFunction,%
-      $Echo,$Epilog,$IgnoreEOF,$Line,$Messages,$Output,$Path,$Post,%
-      $Pre,$PrePrint,$RecursionLimit,$System,$Urgent,$Version},%
+   morendkeywords={All,Automatic,Catalan,ComplexInfinity,Constant,%
+      Degree,E,EndOfFile,EulerGamma,False,Flat,GoldenRatio,HoldAll,%
+      HoldFirst,HoldRest,I,Indeterminate,Infinity,Listable,Locked,%
+      Modular,None,Null,OneIdentity,Orderless,Pi,Protected,%
+      ReadProtected,True,$CommandLine,$Context,$ContextPath,$Display,%
+      $DisplayFunction,$Echo,$Epilog,$IgnoreEOF,$Line,$Messages,%
+      $Output,$Path,$Post,$Pre,$PrePrint,$RecursionLimit,$System,%
+      $Urgent,$Version},%
    sensitive,%
-   singlecomment={(*}{*)},%
-   stringizer=[d]"%
-  }[keywords,comments,strings]%
-%%
-%% Mercury definition (c) 1997 Dominique de Waleffe <ddw@miscrit.be>
-%%
-\lst@definelanguage{Mercury}%
-  {otherkeywords={::,->,-->,--->,:-},%
-   keywords={pred,type,module,end_module,import_module,mode,%
-      pragma,func,lambda,det,semidet,erroneous,multi,true,fail,is,in,%
-      out,di,uo,ui,interface,implementation},%
-   sensitive=f,%
-   commentline=\%,%
-   singlecomment={/*}{*/},%
-   stringizer=[bd]"'%
-  }[keywords,comments,strings]%
-%%
-%% ML definition (c) 1999 Torben Hoffmann <toho@it.dtu.dk>
-%%
-\lst@definelanguage{ML}%
-  {keywords={abstype,and,andalso,as,case,do,datatype,else,end,eqtype,%
-       exception,fn,fun,functor,handle,if,in,include,infix,infixr,%
-       let,local,nonfix,of,op,open,orelse,raise,rec,sharing,sig,%
-       signature,struct,structure,then,type,val,with,withtype,while},%
-   sensitive,%
-   nestedcomment={(*}{*)},%
-   stringizer=[d]"%
-  }[keywords,comments,strings]%
-\lst@definelanguage{Modula-2}%
-  {keywords={AND,ARRAY,BEGIN,BY,CASE,CONST,DIV,DO,ELSE,ELSIF,END,EXIT,%
-      EXPORT,FOR,FROM,IF,IMPLEMENTATION,IMPORT,IN,MOD,MODULE,NOT,OF,%
-      OR,POINTER,PROCEDURE,QUALIFIED,RECORD,REPEAT,RETURN,SET,THEN,%
-      TYPE,UNTIL,VAR,WHILE,WITH,ABS,BITSET,BOOLEAN,CAP,CARDINAL,CHAR,%
-      CHR,DEC,EXCL,FALSE,FLOAT,HALT,HIGH,INC,INCL,INTEGER,LONGCARD,%
-      LONGINT,LONGREAL,MAX,MIN,NIL,ODD,ORD,PROC,REAL,SIZE,TRUE,TRUNC,%
-      VAL},%
-   sensitive,%
-   nestedcomment={(*}{*)},%
-   stringizer=[d]'"%
+   morecomment=[s]{(*}{*)},%
+   morestring=[d]"%
   }[keywords,comments,strings]%
 \lst@definelanguage[XSC]{Pascal}[Standard]{Pascal}
   {deletekeywords={alfa,byte,pack,unpack},% 1998 Andreas Stephan
@@ -384,7 +390,7 @@
 \lst@definelanguage[Borland6]{Pascal}[Standard]{Pascal}
   {morekeywords={asm,constructor,destructor,implementation,inline,%
       interface,nil,object,shl,shr,string,unit,uses,xor},%
-   ndkeywords={Abs,Addr,ArcTan,Chr,Concat,Copy,Cos,CSeg,DiskFree,%
+   morendkeywords={Abs,Addr,ArcTan,Chr,Concat,Copy,Cos,CSeg,DiskFree,%
       DiskSize,DosExitCode,DosVersion,DSeg,EnvCount,EnvStr,Eof,Eoln,%
       Exp,FExpand,FilePos,FileSize,Frac,FSearch,GetBkColor,GetColor,%
       GetDefaultPalette,GetDriverName,GetEnv,GetGraphMode,GetMaxMode,%
@@ -418,18 +424,19 @@
       UnpackTime,Val,Window}%
   }%
 \lst@definelanguage[Standard]{Pascal}%
-  {keywords={ALFA,and,array,begin,boolean,byte,case,char,const,div,do,%
-      downto,else,end,false,file,for,function,get,goto,if,in,integer,%
-      label,maxint,mod,new,not,of,or,pack,packed,page,program,put,%
-      procedure,read,readln,real,record,repeat,reset,rewrite,set,text,%
-      then,to,true,type,unpack,until,var,while,with,write,writeln},%
+  {morekeywords={alfa,and,array,begin,boolean,byte,case,char,const,div,%
+      do,downto,else,end,false,file,for,function,get,goto,if,in,%
+      integer,label,maxint,mod,new,not,of,or,pack,packed,page,program,%
+      put,procedure,read,readln,real,record,repeat,reset,rewrite,set,%
+      text,then,to,true,type,unpack,until,var,while,with,write,%
+      writeln},%
    sensitive=f,%
-   doublecomment={(*}{*)}{\{}{\}},%
-   stringizer=[d]'%
+   morecomment=[d]{(*}{*)}{\{}{\}},%
+   morestring=[d]'%
   }[keywords,comments,strings]%
 \lst@definelanguage{Perl}%
-  {keywords={abs,accept,alarm,atan2,bind,binmode,bless,caller,chdir,%
-      chmod,chomp,chop,chown,chr,chroot,close,closedir,connect,%
+  {morekeywords={abs,accept,alarm,atan2,bind,binmode,bless,caller,%
+      chdir,chmod,chomp,chop,chown,chr,chroot,close,closedir,connect,%
       continue,cos,crypt,dbmclose,dbmopen,defined,delete,die,do,dump,%
       each,else,elsif,endgrent,endhostent,endnetent,endprotoent,%
       endpwent,endservent,eof,eval,exec,exists,exit,exp,fcntl,fileno,%
@@ -454,16 +461,17 @@
       unless,unlink,unpack,unshift,untie,until,use,utime,values,vec,%
       wait,waitpid,wantarray,warn,while,write,y},%
    sensitive,%
-   commentline=\#,%
-   stringizer=[b]"',%
-   SelectCharTable=%
+   morecomment=[l]\#,%
+   morestring=[b]",%
+   morestring=[b]',%
+   MoreSelectCharTable=%
       \lst@ReplaceInput{\$\#}{\lst@ProcessOther\$\lst@ProcessOther\#}%
   }[keywords,comments,strings]%
 %%
-%% POV definition (c) 1999 Berthold H^^f6llmann <bhoel@starship.python.net>
+%% POV definition (c) 1999 Berthold Höllmann <bhoel@starship.python.net>
 %%
 \lst@definelanguage{POV}%
-  {keywords={abs,absorption,acos,acosh,adaptive,adc_bailout,agate,%
+  {morekeywords={abs,absorption,acos,acosh,adaptive,adc_bailout,agate,%
       agate_turb,all,alpha,ambient,ambient_light,angle,aperture,append,%
       arc_angle,area_light,array,asc,asin,asinh,assumed_gamma,atan,%
       atan2,atanh,average,background,bezier_spline,bicubic_patch,%
@@ -511,33 +519,34 @@
       u_steps,v,val,variance,vaxis_rotate,vcross,vdot,version,vlength,%
       vnormalize,vrotate,v_steps,warning,warp,water_level,waves,while,%
       width,wood,wrinkles,write,x,y,yes,z},%
-   directives={break,case,debug,declare,default,else,end,fclose,fopen,%
-      local,macro,read,render,statistics,switch,undef,version,warning,%
-      write},%
+   moredirectives={break,case,debug,declare,default,else,end,fclose,%
+      fopen,local,macro,read,render,statistics,switch,undef,version,%
+      warning,write},%
    sensitive,%
-   commentline=//,%
-   singlecomment={/*}{*/},%
-   stringizer=[d]",%
+   morecomment=[l]//,%
+   morecomment=[s]{/*}{*/},%
+   morestring=[d]",%
   }[keywords,directives,comments,strings]%
 %%
 %% Python definition (c) 1998 Michael Weber
 %%                            <mweber@informatik.hu-berlin.de>
 %%
 \lst@definelanguage{Python}%
-  {keywords={access,and,break,class,continue,def,del,elif,else,except,%
-      exec,finally,for,from,global,if,import,in,is,lambda,not,or,pass,%
-      print,raise,return,try,while},%
+  {morekeywords={access,and,break,class,continue,def,del,elif,else,%
+      except,exec,finally,for,from,global,if,import,in,is,lambda,not,%
+      or,pass,print,raise,return,try,while},%
    sensitive=true,%
-   commentline=\#,%
-   singlecomment={'''}{'''},% used for documentation text
-   stringizer={'"}%
+   morecomment=[l]\#,%
+   morecomment=[s]{'''}{'''},% used for documentation text
+   morestring=',%
+   morestring="%
   }%
 %%
 %% SQL definition (c) 1998 Christian Haul
 %%                         <haul@dvs1.informatik.tu-darmstadt.de>
 %%
-\lst@definelanguage{sql}%
-  {keywords={ABSOLUTE,ACTION,ADD,ALLOCATE,ALTER,ARE,ASSERTION,AT,%
+\lst@definelanguage{SQL}%
+  {morekeywords={ABSOLUTE,ACTION,ADD,ALLOCATE,ALTER,ARE,ASSERTION,AT,%
       BETWEEN,BIT,BIT_LENGTH,BOTH,BY,CASCADE,CASCADED,CASE,CAST,%
       CATALOG,CHAR,CHAR_LENGTH,CHARACTER_LENGTH,CLUSTER,COALESCE,%
       COLLATE,COLLATION,COLUMN,CONNECT,CONNECTION,CONSTRAINT,%
@@ -558,15 +567,16 @@
       TRANSLATE,TRANSLATION,TRIM,TRUE,UNIQUE,UNKNOWN,UPPER,USAGE,USING,%
       VALUE,VARCHAR,VARGRAPHIC,VARYING,WHEN,WHERE,WRITE,YEAR,ZONE},%
    sensitive,%
-   commentline=--,%
-   singlecomment={/*}{*/},%
-   stringizer=[d]'"%
+   morecomment=[l]--,%
+   morecomment=[s]{/*}{*/},%
+   morestring=[d]',%
+   morestring=[d]"%
   }[keywords,comments,strings]%
 %%
 %% VHDL definition (c) 1997 Kai Wollenweber <kai@ece.wpi.edu>
 %%
 \lst@definelanguage{VHDL}%
-  {keywords={ALL,ARCHITECTURE,ABS,AND,ASSERT,ARRAY,AFTER,ALIAS,%
+  {morekeywords={ALL,ARCHITECTURE,ABS,AND,ASSERT,ARRAY,AFTER,ALIAS,%
       ACCESS,ATTRIBUTE,BEGIN,BODY,BUS,BLOCK,BUFFER,CONSTANT,CASE,%
       COMPONENT,CONFIGURATION,DOWNTO,ELSE,ELSIF,END,ENTITY,EXIT,%
       FUNCTION,FOR,FILE,GENERIC,GENERATE,GUARDED,GROUP,IF,IN,INOUT,IS,%
@@ -577,8 +587,8 @@
       SELECT,THEN,TYPE,TRANSPORT,TO,USE,UNITS,UNTIL,VARIABLE,WHEN,WAIT,%
       WHILE,XOR,XNOR},%
    sensitive=f,% 1998 Gaurav Aggarwal
-   commentline=--,%
-   stringizer=[d]{"}%
+   morecomment=[l]--,%
+   morestring=[d]{"}%
   }[keywords,comments,strings]%
 \endinput
 %%

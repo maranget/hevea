@@ -18,7 +18,7 @@ val pretty_action : action -> unit
 
 type pat = string list * string list
 val pretty_pat : pat -> unit
-val is_subst_noarg : action -> pat -> bool
+val is_subst : action -> bool
 val latex_pat: string list -> int -> pat
 val zero_pat : pat
 val one_pat : pat
@@ -67,8 +67,7 @@ val prerr_args : unit -> unit
 val full_pretty_subst : subst -> unit
 
 val pretty_lexbuf : Lexing.lexbuf -> unit
-val if_next_char : char -> Lexing.lexbuf  -> bool
-val if_next_string : string -> Lexing.lexbuf -> bool
+
 
 val scan_arg : (string arg -> 'a) -> int -> 'a
 val scan_body :

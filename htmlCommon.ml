@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlCommon.ml,v 1.27 2000-09-09 16:03:43 maranget Exp $" 
+let header = "$Id: htmlCommon.ml,v 1.28 2000-09-28 10:34:33 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -278,10 +278,17 @@ type flags_t = {
     mutable last_closed:block;
     mutable in_pre:bool;
     mutable insert: (block * string) option;
+    mutable insert_attr: (block * string) option;
 } ;;
 
+let debug_attr stderr = function
+  | None -> Printf.fprintf stderr "None"
+  | Some (tag,attr) ->
+      Printf.fprintf stderr "``%s'' ``%s''"
+        (string_of_block tag) attr
+
 let debug_flags f =
-  Printf.fprintf stderr "table_inside=%b\n" f.table_inside ;
+  Printf.fprintf stderr "insert_attr=%a\n" debug_attr f.insert_attr ;
   flush stderr
 
     
@@ -301,6 +308,7 @@ let flags = {
   last_closed = NADA;
   in_pre = false;
   insert = None;
+  insert_attr = None;
 } ;;
 
 let copy_flags {
@@ -319,6 +327,7 @@ let copy_flags {
   last_closed = last_closed;
   in_pre = in_pre;
   insert = insert;
+  insert_attr = insert_attr;
 } = {
   table_inside = table_inside;
   ncols = ncols;
@@ -335,6 +344,7 @@ let copy_flags {
   last_closed = last_closed;
   in_pre = in_pre;
   insert = insert;
+  insert_attr = insert_attr;
 }
 and set_flags f {
   table_inside = table_inside ;
@@ -352,6 +362,7 @@ and set_flags f {
   last_closed = last_closed;
   in_pre = in_pre;
   insert = insert;
+  insert_attr = insert_attr;
 } =
   f.table_inside <- table_inside;
   f.ncols <- ncols;
@@ -367,7 +378,8 @@ and set_flags f {
   f.dcount <- dcount;
   f.last_closed <- last_closed;
   f.in_pre <- in_pre;
-  f.insert <- insert
+  f.insert <- insert ;
+  f.insert_attr <- insert_attr
 ;;
 
 
@@ -388,6 +400,7 @@ type stack_t = {
   s_dt : string Stack.t ;
   s_dcount : string Stack.t ;
   s_insert : (block * string) option Stack.t ;
+  s_insert_attr : (block * string) option Stack.t ;
 (* Other stacks, not corresponding to flags *)
   s_active : Out.t Stack.t ;
   s_after : (string -> string) Stack.t
@@ -408,6 +421,7 @@ let stacks = {
   s_dt = Stack.create_init "dt" "" ;
   s_dcount = Stack.create_init "dcount" "" ;
   s_insert = Stack.create_init "insert" None;
+  s_insert_attr = Stack.create_init "insert_attr" None;
   s_active = Stack.create "active" ;
   s_after = Stack.create "after"
 } 
@@ -427,6 +441,7 @@ type saved_stacks = {
   ss_dt : string Stack.saved ;
   ss_dcount : string Stack.saved ;
   ss_insert : (block * string) option Stack.saved ;
+  ss_insert_attr : (block * string) option Stack.saved ;
 (* Other stacks, not corresponding to flags *)
   ss_active : Out.t Stack.saved ;
   ss_after : (string -> string) Stack.saved
@@ -448,6 +463,7 @@ let save_stacks () =
   ss_dt = Stack.save stacks.s_dt ;
   ss_dcount = Stack.save stacks.s_dcount ;
   ss_insert = Stack.save stacks.s_insert ;
+  ss_insert_attr = Stack.save stacks.s_insert_attr ;
   ss_active = Stack.save stacks.s_active ;
   ss_after = Stack.save stacks.s_after
 }   
@@ -468,6 +484,7 @@ and restore_stacks
   ss_dt = saved_dt ;
   ss_dcount = saved_dcount ;
   ss_insert = saved_insert ;
+  ss_insert_attr = saved_insert_attr ;
   ss_active = saved_active ;
   ss_after = saved_after
 }   =
@@ -485,6 +502,7 @@ and restore_stacks
   Stack.restore stacks.s_dt saved_dt ;
   Stack.restore stacks.s_dcount saved_dcount ;
   Stack.restore stacks.s_insert saved_insert ;
+  Stack.restore stacks.s_insert_attr saved_insert_attr ;
   Stack.restore stacks.s_active saved_active ;
   Stack.restore stacks.s_after saved_after
 
@@ -512,6 +530,7 @@ let check_stacks () = match stacks with
   s_dt = s_dt ;
   s_dcount = s_dcount ;
   s_insert = s_insert ;
+  s_insert_attr = s_insert_attr ;
   s_active = s_active ;
   s_after = s_after
 }  ->  
@@ -529,6 +548,7 @@ let check_stacks () = match stacks with
   check_stack s_dt ;
   check_stack s_dcount ;
   check_stack s_insert ;
+  check_stack s_insert_attr ;
   check_stack s_active ;
   check_stack s_after
 
@@ -950,12 +970,12 @@ let pstart = function
 ;;
 
 
-let rec try_open_block s args =
+let rec do_try_open_block s args =
   if !verbose > 2 then
     prerr_flags ("=> try open ``"^string_of_block s^"''");  
   if s = DISPLAY then begin
-    try_open_block TABLE args ;
-    try_open_block TR "VALIGN=middle" ;
+    do_try_open_block TABLE args ;
+    do_try_open_block TR "VALIGN=middle" ;
   end else begin
     push stacks.s_empty flags.empty ; push stacks.s_blank flags.blank ;
     push stacks.s_insert flags.insert ;
@@ -987,6 +1007,14 @@ let rec try_open_block s args =
   if !verbose > 2 then
     prerr_flags ("<= try open ``"^string_of_block s^"''")
 ;;
+
+let try_open_block s args =
+  push stacks.s_insert_attr flags.insert_attr ;
+  begin match flags.insert_attr with
+  | Some (TR,_) when s <> TR -> ()
+  | _ -> flags.insert_attr <- None
+  end ;
+  do_try_open_block s args
 
 let do_do_open_block s args =
     if s = TR || is_header s then
@@ -1020,18 +1048,19 @@ let rec do_open_block insert s args = match s with
   | _ -> do_do_open_block s args
 end
 
-let rec try_close_block s =
+let rec do_try_close_block s =
   if !verbose > 2 then
     prerr_flags ("=> try close ``"^string_of_block s^"''") ;
   if s = DISPLAY then begin
-    try_close_block TR ;
-    try_close_block TABLE
+    do_try_close_block TR ;
+    do_try_close_block TABLE
   end else begin
     let ehere = flags.empty and ethere = pop  stacks.s_empty in
     flags.empty <- (ehere && ethere) ;
     let bhere = flags.blank and bthere = pop  stacks.s_blank in
     flags.blank <- (bhere && bthere) ;
     flags.insert <- pop  stacks.s_insert ;
+
     if s = TABLE then begin
       let p_vsize = pop stacks.s_vsize in
       flags.vsize <- max
@@ -1057,7 +1086,16 @@ let rec try_close_block s =
   end ;
   if !verbose > 2 then
     prerr_flags ("<= try close ``"^string_of_block s^"''")
-;;
+
+let try_close_block s =
+  begin match flags.insert_attr with
+  | Some (tag,_) when tag = s ->
+      flags.insert_attr <- pop stacks.s_insert_attr
+  | _ -> match pop stacks.s_insert_attr with
+    | None -> ()
+    | Some (_,_) as x -> flags.insert_attr <- x
+  end ;
+  do_try_close_block s
 
 let do_do_close_block s =
   do_put "</" ;
@@ -1095,8 +1133,9 @@ and make_empty () =
 
 let rec force_block s content =
   if !verbose > 2 then begin
-    prerr_string ("force_block: "^string_of_block s^" stack: ");
-    pretty_stack out_stack
+    prerr_string ("force_block: ["^string_of_block s^"] stack: ");    
+    pretty_stack out_stack ;
+    debug_flags flags
   end ;
   let was_empty = flags.empty in
   if s = FORGET then begin
@@ -1109,9 +1148,9 @@ let rec force_block s content =
   if s = TABLE || s=DISPLAY then flags.table_inside <- true;
   if s = PRE then flags.in_pre <- false ;
   do_close_mods () ;
-  let true_s =
-    if s = FORGET then pblock() else s in
-  let insert = flags.insert in
+  let true_s = if s = FORGET then pblock() else s in
+  let insert = flags.insert
+  and insert_attr = flags.insert_attr in
   try_close_block true_s ;
   do_close_block insert true_s ;
   let ps,args,pout = pop_out out_stack in  
@@ -1122,7 +1161,10 @@ let rec force_block s content =
   else if ps <> DELAY then begin
     let mods = to_pending !cur_out.pending !cur_out.active in
     do_close_mods () ;
-    do_open_block insert s args ;
+    do_open_block insert s
+      (match insert_attr with
+      | Some (this_tag,attr) when this_tag = s -> args^" "^attr
+      | _ -> args) ;
     if ps = AFTER then begin
       let f = pop stacks.s_after in
       Out.copy_fun f old_out.out !cur_out.out
@@ -1170,9 +1212,11 @@ and open_block s args =
    prerr_flags ("<= open_block ``"^string_of_block s^"''")
 ;;
 
-let insert_block tag arg =
-  flags.insert <- Some (tag,arg)
-
+let insert_block tag arg = flags.insert <- Some (tag,arg)
+let insert_attr tag attr =
+  match tag,flags.insert_attr with
+  | TD, Some (TR,_) -> ()
+  | _, _ -> flags.insert_attr <- Some (tag,attr)
 
 let close_block  s =
   let _ = close_block_loc check_empty s in

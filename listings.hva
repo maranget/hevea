@@ -11,13 +11,16 @@
    \def\_{\@print{\_}}%
    \def\&{\@print{\&}}}
   {}
-\def\lst@define@key@opt#1#2{\define@key{lst}{#1}
+\def\lst@define@key@opt#1#2#3{\define@key{lst}{#1}[#3]
   {\@callopt{#2}{\begin{lst@protect}##1\end{lst@protect}}}}
 %%%%%%%%%%%
 % Helpers %
 %%%%%%%%%%%
 \def\lstinfo#1{\typeout{LST, #1}}
-\def\lst@iter#1#2{\@iter#1,#2}
+\def\lst@iter#1#2{\@iter#1,{#2}}
+%For getting rid of two (optional) levels of braces
+\def\lst@eat@again#1XXX#2{\@callsubst{#2}{#1\@empty\@empty\@empty\@empty\@empty}}
+\def\lst@eat@key#1XXX#2{\@callsubst{\lst@eat@again}{#1XXX#2}}
 %%%%%%%% Interface with keyval
 \def\lstset#1{\@setkeys{lst}{#1}}
 %%%%%%%% Def if not empty
@@ -52,9 +55,9 @@
 % Keywords %
 %%%%%%%%%%%%
 \newcommand{\lst@allkeywords}{}
-\def\lst@record@kwds#1{\lst@AddTo{\lst@allkeywords}{\lst@normalize{#1}}}
+\def\lst@record@kwds#1{\lst@AddTo,{\lst@allkeywords}{\lst@normalize{#1}}}
 \newcommand{\lst@allotherkeywords}{}
-\def\lst@record@okwds#1{\lst@AddTo{\lst@allotherkeywords}{\lst@normalize{#1}}}
+\def\lst@record@okwds#1{\lst@AddTo,{\lst@allotherkeywords}{\lst@normalize{#1}}}
 \lst@AddToHook{SetLanguage}
   {\@callprim{\lst@delete@kwds}{\{\lst@allkeywords\}}%
   \@callprim{\lst@delete@okwds}{\{\@rawchars{\lst@allotherkeywords}\}}}
@@ -73,8 +76,8 @@
 \def\lst@delete@okwd
   #1{\def\csname lstk@\@rawchars{#1}\endcsname{}}
 \def\lst@delete@kwds#1{\lst@iter{\lst@delete@kwd}{#1}}
-\def\lst@delay@install#1#2{\lst@AddToHook{AfterSetLanguage}{\lst@install@kwds#1#2}}
-\def\lst@delay@delete#1{\lst@AddToHook{AfterSetLanguage}{\lst@delete@kwds#1}}
+\def\lst@delay@install#1#2{\lst@AddToHook{AfterSetLanguage}{\lst@install@kwds{#1}{#2}}}
+\def\lst@delay@delete#1{\lst@AddToHook{AfterSetLanguage}{\lst@delete@kwds{#1}}}
 \define@key{lst}{directives}{\lst@delay@install\lst@directive@style#1}
 \define@key{lst}{keywords}{\lst@delay@install\lst@kwd@style#1}
 \define@key{lst}{morekeywords}{\lst@delay@install\lst@kwd@style#1}
@@ -86,8 +89,8 @@
 \define@key{lst}{morerdkeywords}{\lst@delay@install\lst@rdkwd@style#1}
 \define@key{lst}{deleterdkeywords}{\lst@delay@delete#1}
 %%%%%%%% Other keywords
-\def\lst@delay@oinstall#1#2{\lst@AddToHook{AfterSetLanguage}{\lst@install@okwds#1#2}}
-\def\lst@delay@odelete#1{\lst@AddToHook{AfterSetLanguage}{\lst@delete@okwds#1}}
+\def\lst@delay@oinstall#1#2{\lst@AddToHook{AfterSetLanguage}{\lst@install@okwds{#1}{#2}}}
+\def\lst@delay@odelete#1{\lst@AddToHook{AfterSetLanguage}{\lst@delete@okwds{#1}}}
 \define@key{lst}{otherkeywords}{\lst@delay@oinstall\lst@okwd@style#1}
 \define@key{lst}{morekeothersywords}{\lst@delay@oinstall\lst@okwd@style#1}
 \define@key{lst}{deleteotherskeywords}{\lst@delay@odelete#1}
@@ -112,6 +115,29 @@
 \lst@AddToHook{EmptyStyle}{\def\lst@rdkwd@style{\lst@kwd@style}}
 \lst@AddToHook{EmptyStyle}{\def\lst@okwd@style{\lst@kwd@style}}
 \lst@AddToHook{EmptyStyle}{\def\lst@directive@style{\lst@kwd@style}}
+%%%%%% Emph identifiers
+\def\lst@defall#1#2\@empty{\def\csname #1\endcsname{#2}}
+\newcommand{\lst@emphstyle@key}[1][1]{\lst@defall{lst@emphstyle#1}}
+\lst@AddToHook{EmptyStyle}{\let\csname lst@emphstyle1\endcsname\@empty}
+\define@key{lst}{emphstyle}{\@callsubst{\lst@emphstyle@key}{#1\@empty}}
+\def\lst@record@class#1#2{%
+  \providecommand{\csname lst@allemph@#1\endcsname}{}%
+  \lst@AddTo,{\csname lst@allemph@#1\endcsname}{\lst@normalize{#2}}}
+\def\lst@delete@class#1{%
+  \ifu\csname lst@allemph@#1\endcsname\else
+  \@callprim{\lst@delete@kwds}{\{\csname lst@allemph@#1\endcsname\}}\fi}
+\newcommand{\lst@moreemph@key}[2][1]
+  {\lst@record@class{#1}{#2}%
+  \lst@iter{\lst@install@kwd{\csname lst@emphstyle#1\endcsname}}{#2}}
+\define@key{lst}{moreemph}{\@callsubst{\lst@moreemph@key}{#1}}
+\newcommand{\lst@deleteemph@key}[2][1]
+  {\lst@iter{\lst@delete@kwd}{#2}}
+\define@key{lst}{deleteemph}{\@callsubst{\lst@deleteemph@key}{#1}}
+\newcommand{\lst@emph@key}[2][1]
+  {\lst@delete@class{#1}%  
+  \lst@record@class{#1}{#2}%
+  \lst@iter{\lst@install@kwd{\csname lst@emphstyle#1\endcsname}}{#2}}
+\define@key{lst}{emph}{\@callsubst{\lst@emph@key}{#1}}
 %%%%%% Style definitions
 \define@key{lst}{style}[{}]{\lsthk@SetStyle\csname lst@sty#1\endcsname}
 \newcommand{\lstdefinestyle}[2]
@@ -124,7 +150,7 @@
     {lstlang@#2@#1}}
 \newcommand{\lst@language@key}[2][]
   {\lsthk@SetLanguage\csname\lst@mklang[#1]{#2}\endcsname\lsthk@AfterSetLanguage}
-\lst@define@key@opt{language}{\lst@language@key}
+\lst@define@key@opt{language}{\lst@language@key}{}
 \newcommand{\lst@checkdd}[2]
   {\@ifundefined{lstdd@#1}{\lst@define@dd[#2]{#1}}{}}
 \newcommand{\lst@definelanguage@}[3]
@@ -134,7 +160,24 @@
   \def\csname\lst@mklang[#2]{#1}\endcsname{\csname\lst@mklang[#4]{#3}\endcsname
     \lsthk@AfterSetLanguage\def\lsthk@AfterSetLanguage{}%
     \lstset{#5}}}
-\lst@define@key@opt{defaultdialect}{\lst@define@dd}
+\lst@define@key@opt{defaultdialect}{\lst@define@dd}{}
+%%%%%%% Frames
+\def\lst@bgcolor{}
+\lst@AddToHook{InitVar}
+  {\ifx\lst@bgcolor\@empty%
+   \def\@open@lstbox{\begin{flushleft}\ttfamily}\def\@close@lstbox{\end{flushleft}}%
+   \else
+   \def\@open@lstbox
+      {\begin{Tabular}[width="100\%" bgcolor=\lst@bgcolor]{l}\ttfamily}%
+   \def\@close@lstbox{\end{Tabular}}%
+   \fi
+   \ifhtml\else
+   \def\@open@lstbox{\begin{flushleft}\ttfamily}\def\@close@lstbox{\end{flushleft}}\fi}
+\newcommand{\lst@define@bgcolor}[2][!*!]
+  {\def\lst@tmp{#2}%
+  \ifx\lst@tmp\@empty\let\lst@bgcolor\@empty
+  \else\def\lst@bgcolor{\@getcolor[#1]{#2}}\fi}
+\lst@define@key@opt{backgroundcolor}{\lst@define@bgcolor}{}
 %%%%%%% Indentation
 \define@key{lst}{indent}[1]{\def\lst@doindent{\hspace{#1}}}
 \newcommand{\lst@doindent}{}
@@ -166,7 +209,7 @@
 \lst@AddToHookExe{EmptyStyle}{\def\lst@labelstep{0}}
 \define@key{lst}{labelsep}{\def{\lst@labelsep}{\hspace{#1}}}
 \newcommand{\lst@labelsep}{\hspace{1em}}
-\newcommand{\lst@pad}[1]{\@pad{a}{4}{#1}}
+\newcommand{\lst@pad}[1]{\@pad{~}{4}{#1}}
 \newcommand{\lst@linenumber@}[1]
   {{\@clearstyle\lst@basic@style\lst@label@style{\lst@pad{#1}}}\lst@labelsep}
 \newcommand{\lst@linenumber}
@@ -180,7 +223,7 @@
 \newsavebox{\@wait}
 \newcommand{\@NewLine@}
   {\usebox{\@wait}\sbox{\@wait}{}\global\let\@NewLine\@empty}
-\lst@AddToHook{EveryLine}{\sbox{\@wait}{\usebox{\@wait}\@br%
+\lst@AddToHook{EveryLine}{\sbox{\@wait}{\@clearstyle\usebox{\@wait}\@br%
 \@rawchars{\lst@doindent}\lst@linenumber}\global\let\@NewLine\@NewLine@}
 \lst@AddToHook{Init}{\sbox{\@wait}{}\global\let\@NewLine\@empty}
 %%%%%% TeX escapes
@@ -217,38 +260,71 @@
 \newcommand{\lst@stringizer@key}[2][]
   {\def\lst@quote@stringizers{\@rawchars{#1}}%
   \def\lst@stringizers{\@rawchars{#2}}}
-\lst@define@key@opt{stringizer}{\lst@stringizer@key}
-\lst@define@key@opt{string}{\lst@stringizer@key}
+\lst@define@key@opt{stringizer}{\lst@stringizer@key}{}
+\lst@define@key@opt{string}{\lst@stringizer@key}{}
 \lst@AddToHookExe{SetLanguage}
   {\def\lst@stringizers{}\def\lst@quote@stringizers{}}
 %%%%%% Comments
 % Line comments
 \newcommand{\lst@LC@key}[1]
-  {\lst@defne{\lst@LC}{\@rawchars{#1}}}
+  {\lst@lExtend\lst@DefineComments@LC
+    {\lst@line@comment{\@rawchars{#1}}}}
 \define@key{lst}{commentline}{\lst@LC@key{#1}}
-\lst@AddToHookExe{SetLanguage}{\def\lst@LC{}}
-% Balanced comments
+\lst@AddToHookExe{SetLanguage}{\let\lst@DefineComments@LC\@empty}
+\lst@AddToHook{SelectCharTable}{\lst@DefineComments@LC}
+% Nested comments
 \newcommand{\lst@NC@key}[2]
-  {\lst@defne\lst@BNC{\@rawchars{#1}}\lst@defne\lst@ENC{\@rawchars{#2}}}
+  {\lst@lExtend\lst@DefineComments@NC
+     {\lst@nested@comment{\@rawchars{#1}}{\@rawchars{#2}}}}
 \define@key[2]{lst}{nestedcomment}{\lst@NC@key{#1}{#2}}
-\lst@AddToHookExe{SetLanguage}
-  {\def\lst@BNC{}\def\lst@ENC{}}
+\lst@AddToHookExe{SetLanguage}{\let\lst@DefineComments@NC\@empty}
+\lst@AddToHook{SelectCharTable}{\lst@DefineComments@NC}
+% Balanced comments
 \newcommand{\lst@SC@key}[2]
-   {\lst@defne\lst@BBC@one{\@rawchars{#1}}\lst@defne\lst@EBC@one{\@rawchars{#2}}}
+   {\lst@lExtend\lst@DefineComments@SC
+     {\lst@balanced@comment{\@rawchars{#1}}{\@rawchars{#2}}}}
 \define@key[2]{lst}{singlecomment}{\lst@SC@key{#1}{#2}}
-\lst@AddToHookExe{SetLanguage}
-  {\def\lst@BBC@one{}\def\lst@EBC@one{}}
+\lst@AddToHookExe{SetLanguage}{\let\lst@DefineComments@SC\@empty}
+\lst@AddToHook{SelectCharTable}{\lst@DefineComments@SC}
 \newcommand{\lst@DC@key}[4]
-   {\lst@defne\lst@BBC@two{\@rawchars{#1}}%
-   \lst@defne\lst@EBC@two{\@rawchars{#2}}%
-   \lst@defne\lst@BBC@three{\@rawchars{#3}}%
-   \lst@defne\lst@EBC@three{\@rawchars{#4}}}
+   {\lst@lExtend\lst@DefineComments@DC
+      {\lst@balanced@comment{\@rawchars{#1}}{\@rawchars{#2}}}%
+   \lst@lExtend\lst@DefineComments@DC
+      {\lst@balanced@comment{\@rawchars{#1}}{\@rawchars{#2}}}}
 \define@key[4]{lst}{doublecomment}{\lst@DC@key{#1}{#2}{#3}{#4}}
-\lst@AddToHookExe{SetLanguage}
- {\def\lst@BBC@two{}%
-  \def\lst@EBC@two{}%
-  \def\lst@BBC@three{}%
-  \def\lst@EBC@three{}}
+\lst@AddToHookExe{SetLanguage}{\let\lst@DefineComments@DC\@empty}
+\lst@AddToHook{SelectCharTable}{\lst@DefineComments@DC}
+%%%%%% New interface for comments grr...
+\def\lst@morecomment@d#1#2{\lst@DC@key{#1}{#2}{#3}{#4}}
+\def\lst@morecomment@s#1#2{\lst@SC@key{#1}{#2}}
+\def\lst@morecomment@n#1#2{\lst@NC@key{#1}{#2}}
+\def\lst@morecomment@l#1#2#3#4\@empty{\lst@LC@key{#1#2#3#4}}
+\def\lst@deletecomment@d{\let\lst@DefineComments@DC\@empty}
+\def\lst@deletecomment@s{\let\lst@DefineComments@SC\@empty}
+\def\lst@deletecomment@n{\let\lst@DefineComments@NC\@empty}
+\def\lst@deletecomment@l{\let\lst@DefineComments@LC\@empty}
+\def\lst@till@empty#1\@empty{}
+\newcommand{\lst@morecomment@key}[1][]
+  {\ifu\csname lst@morecomment@#1\endcsname
+    \warning{Unkown comment type ``#1''}%
+    \let\lst@next\lst@till@empty\else
+    \let\lst@next\csname lst@morecomment@#1\endcsname\fi
+    \lst@next}
+\newcommand{\lst@deletecomment@key}[1][]
+  {\ifu\csname lst@deletecomment@#1\endcsname
+   \warning{Unkown comment type ``#1''}\else
+   \csname lst@deletecomment@#1\endcsname\fi
+   \lst@till@empty}
+\newcommand{\lst@comment@key}[1][]
+  {\ifu\csname lst@morecomment@#1\endcsname
+    \warning{Unkown comment type ``#1''}%
+    \let\lst@next\lst@till@empty\else
+    \csname lst@deletecomment@#1\endcsname
+    \let\lst@next\csname lst@morecomment@#1\endcsname\fi
+    \lst@next}
+\define@key{lst}{deletecomment}{\@callsubst{\lst@deletecomment@key}{#1\@empty}}
+\define@key{lst}{comment}{\@callsubst{\lst@comment@key}{#1\@empty\@empty\@empty}}
+\define@key{lst}{morecomment}{\@callsubst{\lst@morecomment@key}{#1\@empty\@empty\@empty}}
 %%%%%%% Extended chars
 \lst@AddToHook{DeInit}{\setboolean{lst@extendedchars}{false}}
 \lst@AddToHookExe{SetLanguage}{\setboolean{lst@extendedchars}{false}}
@@ -260,14 +336,13 @@
 %%%%%%% Output
 \def\lst@normalize
   #1{\iflst@sensitive\@rawchars{#1}\else\@rawchars{\lowercase{#1}}\fi}
-\def\lst@output@space{\sbox{\@wait}{\usebox{\@wait}\@print{&nbsp;}}\global\let\@NewLine\@NewLine@}
+\def\lst@output@space{\sbox{\@wait}{\@clearstyle\usebox{\@wait}~}\global\let\@NewLine\@NewLine@}
 \def\lst@output#1#2{%
 \@NewLine
 {\ifu\csname lstk@\lst@normalize{#1}\endcsname
   \lst@identifier@style{#2}\else
   \csname lstk@\lst@normalize{#1}\endcsname{#2}\fi}}
 \def\lst@output@other#1#2{%
-%\lstinfo{Output other: ``#1'' and ``#2''}%
 \@NewLine
 \ifu\csname lstk@#1\endcsname
   #1\else
@@ -297,6 +372,7 @@
         defaultdialect=[plain]TeX}
 \input{lstlang1.hva}
 \input{lstlang2.hva}
+\input{lstlang3.hva}
 %%%%%%%%%%% Inits
 \lst@UseHook{SetStyle}\lst@UseHook{EmptyStyle}
 \lst@UseHook{SetLanguage}\lst@UseHook{EmptyLanguage}

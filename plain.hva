@@ -1,5 +1,6 @@
 \newcommand{\relax}{}
 \newcommand{\@empty}{}
+%%%%%% Iter #1 on #3, a #2 separated list of non-empty elements
 \def\@iter
   #1#2#3{%
     \def\@test{#3}%   
@@ -11,4 +12,4 @@
         #1{##1}%
         \let\@next\@@iter\fi
         \@next}%
-    \@funcall{\@@iter}{#3,,}\fi}
+    \@callsubst{\@@iter}{#3#2#2}\fi}

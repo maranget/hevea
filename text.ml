@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.50 2000-07-27 17:29:57 maranget Exp $"
+let header = "$Id: text.ml,v 1.51 2000-09-28 10:34:55 maranget Exp $"
 
 
 open Misc
@@ -506,7 +506,7 @@ let do_put_line s =
       let sp = flags.hsize - length + flags.x_start in
       String.concat "" [ String.make sp ' '; s]
   in
-  if !verbose>3 then prerr_endline ("line :"^ligne);
+  if !verbose > 3 then prerr_endline ("line :"^ligne);
   do_do_put ligne;
 
 
@@ -545,8 +545,8 @@ let do_flush () =
 ;;
   
 let do_put_char_format c =
-  if !verbose >3 then
-    prerr_endline ("caracters read :"^Char.escaped c^", x="^string_of_int flags.x^", length ="^string_of_int (flags.hsize));
+  if !verbose > 3 then
+    prerr_endline ("caracters read : '"^Char.escaped c^"', x="^string_of_int flags.x^", length ="^string_of_int (flags.hsize));
 
   if c=' ' then  flags.last_space <- flags.x;
   if flags.x =(-1) then begin
@@ -560,8 +560,8 @@ let do_put_char_format c =
   line.[flags.x]<-c;
   if c='\n' then begin
 	(* Ligne prete *)
-    if !verbose>2 then
-      prerr_endline("line not cut :"^line);
+    if !verbose > 2 then
+      prerr_endline("line not cut :["^line^"]");
     do_put_line (String.sub line 0 (flags.x +1));
     flags.x <- -1;
   end else
@@ -569,7 +569,7 @@ let do_put_char_format c =
   if flags.x>(flags.x_end +1) then begin (* depassement de ligne *)
     if (flags.x - flags.last_space) >= flags.hsize then begin
 	  (* On coupe brutalement le mot trop long *)
-      if !verbose >2 then
+      if !verbose > 2 then
 	prerr_endline ("line cut :"^line);
       warning ("line too long");
       line.[flags.x-1]<-'\n';
@@ -955,6 +955,8 @@ let insert_block tag arg =
     | "RIGHT" -> flags.align <- Right
     | _ -> raise (Misc.ScanError "Invalid argument in ALIGN");
   end;
+
+and insert_attr _ _ = ()
 ;;
 
 
@@ -1050,11 +1052,15 @@ let close_group () =
 
 
 let put s =
+  if !verbose > 3 then
+    Printf.fprintf stderr "put: %s\n" s ;
   do_pending ();
   do_put s
 ;;
 
 let put_char c =
+  if !verbose > 3 then
+    Printf.fprintf stderr "put_char: %c\n" c ;
   do_pending ();
   do_put_char c
 ;;
@@ -1064,6 +1070,8 @@ let flush_out () =
 ;;
 
 let skip_line () =
+  if !verbose > 2 then
+    prerr_endline "skip_line" ;
   put_char '\n'
 ;;
 

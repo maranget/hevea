@@ -9,6 +9,7 @@ module Make
 struct
 open Misc
 open Lexing
+open Save
 open Lexstate
 open Latexmacros
 open Stack
@@ -63,8 +64,8 @@ let lst_init_chars s f =
   done
 
 let lst_init_save_char c f =
-    let old = lst_char_table.(Char.code c) in
-    lst_char_table.(Char.code c) <- f old
+  let old = lst_char_table.(Char.code c) in
+  lst_char_table.(Char.code c) <- f old
 
 let lst_init_save_chars s f =
   let last = String.length s - 1 in
@@ -110,6 +111,13 @@ type lst_top_mode =
   | Delim of int * (char * (Lexing.lexbuf -> char -> unit)) list
   | Gobble of lst_top_mode * int
   | Escape of lst_top_mode * char
+
+let string_of_top_mode = function
+  | Delim (i,_) -> "Delim: "^string_of_int i
+  | Skip -> "Skip"
+  | Comment (Balanced _) -> "Balanced"
+  | Comment (Nested n)   -> "(Nested "^string_of_int n^")"
+  | _ -> "?"
 
 let lst_top_mode = ref Skip
 
@@ -201,10 +209,10 @@ let rec lst_process_newline lb c = match !lst_top_mode with
 | Skip ->
     if !lst_nlines = !lst_first - 1 then begin
       lst_top_mode := Normal ;
-      scan_this Scan.main "\\begingroup\\def\\@br{\@print{
-}}" ;
+      scan_this Scan.main "\\let\\old@br\\@br\\def\\@br{
+} " ;
       lst_process_newline lb c ;
-      scan_this Scan.main "\\endgroup"
+      scan_this Scan.main "\\let\\@br\\old@br"
     end else
       incr lst_nlines
 | Gobble (mode,_) ->
@@ -408,7 +416,7 @@ let begin_comment () =
   lst_output_token () ;
   scan_this Scan.main "\\begingroup\\lst@comment@style"
 
-let lst_process_BNC _ s old_process lb c = match !lst_top_mode with
+let lst_process_BNC _ s old_process lb c =  match !lst_top_mode with
 | Normal when if_next_string s lb -> 
     begin_comment () ;
     eat_delim (fun () -> ()) (Comment (Nested 0)) old_process lb c s
@@ -430,7 +438,7 @@ and lst_process_ENC s old_process lb c = match !lst_top_mode with
       old_process lb c s
 | _ -> old_process lb c
 
-let lst_process_BBC check s old_process lb c = match !lst_top_mode with
+let lst_process_BBC check s old_process lb c =  match !lst_top_mode with
 | Normal when if_next_string s lb ->
     begin_comment () ;
     eat_delim
@@ -450,7 +458,7 @@ and lst_process_EBC s old_process lb c = match !lst_top_mode with
 | _ -> old_process lb c
 
 let lst_process_LC s old_process lb c = match !lst_top_mode with
-| Normal ->
+| Normal when if_next_string s lb ->
     begin_comment () ;
     eat_delim
       (fun () -> ())
@@ -889,9 +897,9 @@ register_init "comment" init_comment
 
 (* The listings package *)
 
-let init_double_comment mode process_B process_E =
-  let lxm_B = Scan.get_this_main ("\\@getprint{\\lst@B"^mode^"}")
-  and lxm_E = Scan.get_this_main ("\\@getprint{\\lst@E"^mode^"}") in
+let code_double_comment process_B process_E lexbuf =
+  let lxm_B = get_prim_arg lexbuf in
+  let lxm_E = get_prim_arg lexbuf in
   if lxm_B <> "" && lxm_E <> "" then begin
     let head_B = lxm_B.[0]
     and rest_B = String.sub lxm_B 1 (String.length lxm_B-1)
@@ -899,10 +907,20 @@ let init_double_comment mode process_B process_E =
     and rest_E = String.sub lxm_E 1 (String.length lxm_E-1) in
     lst_init_save_char head_B
       (process_B
-         (fun c s -> c = head_E && s = rest_E)
+         (fun c s ->
+           c = head_E && s = rest_E)
          rest_B) ;
     lst_init_save_char head_E (process_E rest_E)
   end
+
+let code_line_comment lexbuf =
+  let lxm_LC = get_prim_arg lexbuf in
+  if lxm_LC <> "" then begin
+    let head = lxm_LC.[0]
+    and rest = String.sub lxm_LC 1 (String.length lxm_LC-1) in
+    lst_init_save_char head (lst_process_LC rest)
+  end
+
 
 let open_lst inline keys lab =
   scan_this Scan.main ("\\lsthk@PreSet\\lstset{"^keys^"}") ;
@@ -933,29 +951,12 @@ let open_lst inline keys lab =
   let stringizers =
      Scan.get_this_main "\\@getprint{\\lst@stringizers}" in
   lst_init_save_chars stringizers lst_process_stringizer ;
-  Printf.fprintf stderr "quotemode=%s, stringizers=%s\n" quote_mode
-    stringizers ;
-(* Comments *)
-  (* nested *)
-  init_double_comment "NC" lst_process_BNC lst_process_ENC ;
-  (* Balanced *)
-  init_double_comment "BC@one" lst_process_BBC lst_process_EBC ;
-  init_double_comment "BC@two" lst_process_BBC lst_process_EBC ;
-  init_double_comment "BC@three" lst_process_BBC lst_process_EBC ;
-  (* line *)
-  let lxm_LC = Scan.get_this_main "\\@getprint{\\lst@LC}" in
-  if lxm_LC <> "" then begin
-    let head = lxm_LC.[0]
-    and rest = String.sub lxm_LC 1 (String.length lxm_LC-1) in
-    lst_init_save_char head (lst_process_LC rest)
-  end ;
 (* Escapes to TeX *)
   let begc = Scan.get_this_main "\\@getprint{\\lst@BET}"
   and endc = Scan.get_this_main "\\@getprint{\\lst@EET}" in
   if begc <> "" && endc <> "" then begin
     lst_init_save_char begc.[0] (lst_process_escape endc.[0])
   end ;
-
   scan_this Scan.main "\\lsthk@InitVar" ;
   lst_scan_mode := Empty ;
   if inline then
@@ -999,10 +1000,30 @@ let init_listings () =
   def_code "\\lst@boolean" lst_boolean ;
   def_code "\\lst@AddTo"
     (fun lexbuf ->
+      let sep = Scan.get_prim_arg lexbuf in
       let name = Scan.get_csname lexbuf in
-      let old = get_prim name in
+      let old =
+        try match Latexmacros.find_fail name with
+        | _, Subst s -> s
+        | _,_        -> ""
+        with
+        | Latexmacros.Failed -> "" in
       let toadd = get_prim_arg lexbuf in
-      Latexmacros.def name zero_pat (Subst (old^toadd))) ;      
+      Latexmacros.def name zero_pat
+        (Subst (if old="" then toadd else old^sep^toadd))) ;      
+  def_code "\\lst@lExtend"
+    (fun lexbuf ->
+      let name = Scan.get_csname lexbuf in
+      try
+        match Latexmacros.find_fail name with
+        | _, Subst body ->
+            let toadd = Subst.subst_arg lexbuf in
+            Latexmacros.def name zero_pat (Subst (body^"%\n"^toadd))
+        | _, _ ->
+            warning ("Cannot \\lst@lExtend ``"^name^"''")
+      with
+      | Latexmacros.Failed ->
+            warning ("Cannot \\lst@lExtend ``"^name^"''")) ;
   def_code "\\lstlisting"
     (fun lexbuf ->
       let keys = Subst.subst_opt "" lexbuf in
@@ -1010,20 +1031,28 @@ let init_listings () =
       let lab = if lab = " " then "" else lab in
       def "\\lst@intname" zero_pat (CamlCode (fun _ -> Dest.put lab)) ;
       open_lst false keys lab ;
+      scan_this Scan.main "\\lst@pre\\@open@lstbox" ;  
+      scan_this Scan.main "\\lst@basic@style" ;
       (* Eat first line *)
       save_lexstate () ;
       noeof eat_line lexbuf ;
       restore_lexstate () ;
-(* For detecting endstring, must be done last *)
+(* For detecting endstring, must be done after eat_line *)
       lst_init_save_char '\\' (lst_process_end "end{lstlisting}") ;
-      scan_this Scan.main "\\lst@pre\\begin{flushleft}" ;  
-      scan_this Scan.main "\\ttfamily\\lst@basic@style" ;
       noeof listings lexbuf ;
       close_lst false  ;
-      scan_this Scan.main "\\end{flushleft}\\lst@post" ;
+      scan_this Scan.main "\\@close@lstbox\\lst@post" ;
       Scan.top_close_block "" ;
       Scan.close_env !Scan.cur_env ;
       Scan.check_alltt_skip lexbuf) ;
+(* Init comments from .hva *)
+  def_code "\\lst@balanced@comment"
+    (fun lexbuf ->
+      code_double_comment lst_process_BBC lst_process_EBC lexbuf) ;
+  def_code "\\lst@nested@comment"
+    (fun lexbuf ->
+      code_double_comment lst_process_BNC lst_process_ENC lexbuf) ;
+  def_code "\\lst@line@comment" code_line_comment ;
 
   def_code "\\lstinline"
     (fun lexbuf ->

@@ -35,6 +35,7 @@ open Lexstate
     val close_block : string -> unit
     val force_block : string -> string -> unit
     val insert_block : string -> string -> unit
+    val insert_attr : string -> string -> unit
 
     val open_maths : bool -> unit
     val close_maths : bool -> unit

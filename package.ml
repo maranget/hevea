@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.27 2000-07-20 14:21:28 maranget Exp $    *)
+(*  $Id: package.ml,v 1.28 2000-09-28 10:34:52 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -231,13 +231,38 @@ register_init "color"
         let mdl = get_prim_opt "!*!" lexbuf in    
         let clr = get_prim_arg lexbuf in
         let htmlval = match mdl with
-        | "!*!" -> Color.retrieve clr
+        | "!*!"|"" -> Color.retrieve clr
         | _     -> Color.compute mdl clr in
         Dest.put_char '"' ;
         Dest.put_char '#' ;
         Dest.put htmlval ;
         Dest.put_char '"'))
 ;;
+
+register_init "colortbl"
+    (fun () ->
+      def_code "\\columncolor"
+        (fun lexbuf ->
+          let mdl = get_prim_opt "!*!" lexbuf in    
+          let clr = get_prim_arg lexbuf in
+          let htmlval = match mdl with
+          | "!*!" -> Color.retrieve clr
+          | _     -> Color.compute mdl clr in
+          skip_opt lexbuf ;
+          skip_opt lexbuf ;
+          Dest.insert_attr "TD" ("bgcolor=\"#"^htmlval^"\"")) ;
+      def_code "\\rowcolor"
+        (fun lexbuf ->
+          let mdl = get_prim_opt "!*!" lexbuf in    
+          let clr = get_prim_arg lexbuf in
+          let htmlval = match mdl with
+          | "!*!" -> Color.retrieve clr
+          | _     -> Color.compute mdl clr in
+          skip_opt lexbuf ;
+          skip_opt lexbuf ;
+          Dest.insert_attr "TR" ("bgcolor=\"#"^htmlval^"\"")))
+;;
+
 
 (* sword package *)
 register_init "sword"
@@ -437,7 +462,7 @@ let do_setkey lexbuf =
       check_alltt_skip xbuff ;
       let {arg=key} = save_arg_with_delim "=" xbuff in
       let {arg=value} = save_arg_with_delim "=" xbuff in
-      if !verbose > 0 then
+      if !verbose > 1 then
         Printf.fprintf stderr "SETKEY, key=%s, value=%s\n" key value ;
       let csname = keyval_name family key in
       if Latexmacros.exists csname then begin
@@ -470,5 +495,4 @@ register_init "amsmath"
 ;;
 
 
-  
 end

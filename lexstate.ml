@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: lexstate.ml,v 1.55 2000-07-19 16:39:29 maranget Exp $"
+let header = "$Id: lexstate.ml,v 1.56 2000-09-28 10:34:45 maranget Exp $"
 
 open Misc
 open Lexing
@@ -34,9 +34,9 @@ type pat = string list * string list
 let pretty_pat (_,args) =
   List.iter (fun s -> prerr_string s ; prerr_char ',') args
 
-let is_subst_noarg body pat = match body with
+let is_subst body = match body with
 | CamlCode _ -> false
-| _ -> match pat with [],[] -> true | _ -> false
+| _ -> true
 
 let latex_pat opts n =
   let n_opts = List.length opts in
@@ -163,36 +163,6 @@ let pretty_lexbuf lb =
   prerr_endline "End of buff"
 ;;
 
-let rec if_next_char  c lb =
-  if lb.lex_eof_reached then
-    false
-  else
-    let pos = lb.lex_curr_pos
-    and len = lb.lex_buffer_len in
-    if pos >= len then begin
-      warning "Refilling buffer" ;
-      lb.refill_buff lb ;
-      if_next_char c lb
-    end else
-      lb.lex_buffer.[pos] = c
-
-let rec if_next_string s lb =
-  if s = "" then
-    true
-  else
-    let pos = lb.lex_curr_pos
-    and len = lb.lex_buffer_len
-    and slen = String.length s in
-    if pos + slen - 1 >= len then begin
-      if lb.lex_eof_reached then begin
-          false
-      end else begin
-          lb.refill_buff lb ;
-        if_next_string s lb
-      end
-    end else
-      String.sub lb.lex_buffer pos slen = s
-  
   
 (* arguments inside macros*)
 type env = string array ref

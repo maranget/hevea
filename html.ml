@@ -10,7 +10,7 @@
 (***********************************************************************)
 
 
-let header = "$Id: html.ml,v 1.79 2000-07-10 15:06:16 maranget Exp $" 
+let header = "$Id: html.ml,v 1.80 2000-09-28 10:34:30 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -626,6 +626,7 @@ and open_aftergroup = open_aftergroup
 and open_group = open_group
 and erase_block s = erase_block (find_block s)
 and insert_block s = insert_block (find_block s)
+and insert_attr s = insert_attr (find_block s)
 and force_block s = force_block (find_block s)
 and close_block s = close_block (find_block s)
 and open_block s = open_block (find_block s)

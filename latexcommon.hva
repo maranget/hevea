@@ -30,6 +30,16 @@
 \newenvironment{tabular*}
   {\let\\=\@HEVEA@bsbs\let\@hevea@amper=\@HEVEA@amper\@tabular*}
   {\end@tabular*}
+%%%%% Arrays with attribute argument
+\newenvironment{Array}
+  {\let\\=\@HEVEA@bsbs\let\@hevea@amper=\@HEVEA@amper\@Array}
+  {\end@Array}
+\newenvironment{Tabular}
+  {\let\\=\@HEVEA@bsbs\let\@hevea@amper=\@HEVEA@amper\@Tabular}
+  {\end@Tabular}
+\newenvironment{Tabular*}
+  {\let\\=\@HEVEA@bsbs\let\@hevea@amper=\@HEVEA@amper\@Tabular*}
+  {\end@Tabular*}
 %%% Equations
 \newcommand{\eqno}[1]{\qquad#1}
 \newenvironment{equation}{\[\refstepcounter{equation}}{\eqno{(\theequation)}\]}
@@ -413,3 +423,6 @@
 \@restartimage}
 \newcommand{\@noiso}[1]{\ifiso\isofalse#1\isotrue\else#1\fi}
 \newcommand{\@rawchars}[1]{\ifraw#1\else\rawtrue#1\rawfalse\fi}
+%%%%%%%%%%%%%%%%% Ignoring arguments
+\newcommand{\@skipopt}[1][!*!]{}
+\newcommand{\@skiparg}[1]{}

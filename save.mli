@@ -1,3 +1,17 @@
+(***********************************************************************)
+(*                                                                     *)
+(*                          HEVEA                                      *)
+(*                                                                     *)
+(*  Luc Maranget, projet PARA, INRIA Rocquencourt                      *)
+(*                                                                     *)
+(*  Copyright 1998 Institut National de Recherche en Informatique et   *)
+(*  Automatique.  Distributed only by permission.                      *)
+(*                                                                     *)
+(***********************************************************************)
+
+val if_next_char : char -> Lexing.lexbuf  -> bool
+val if_next_string : string -> Lexing.lexbuf -> bool
+
 exception Error of string
 exception Delim of string
 val empty_buffs : unit -> unit

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.194 2000-09-09 16:03:48 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.195 2000-09-28 10:34:40 maranget Exp $ *)
 
 
 {
@@ -822,10 +822,10 @@ let expand_command main skip_blanks name lexbuf =
     (if !in_math then Latexmacros.invisible name
     else
       not (effective !alltt) &&
-      is_subst_noarg body pat && last_letter name)
+      is_subst body && last_letter name)
   then begin
     if !verbose > 2 then
-      prerr_endline "skipping blanks";
+      prerr_endline ("skipping blanks ("^name^")");
     skip_blanks lexbuf
   end else begin
     if !verbose > 2 then begin
@@ -1616,16 +1616,16 @@ let do_newcommand lxm lexbuf =
       else begin
         Latexmacros.def name pat (Subst body)
       end
-    | "\\renewcommand" ->
-        if not (Latexmacros.exists name) then begin
-          warning ("Defining ``"^name^"'' by \\renewcommand")
-        end else
-          echo () ;
-        Latexmacros.def name pat (Subst body)
-    | _                ->
+  | "\\renewcommand" ->
+      if not (Latexmacros.exists name) then begin
+        warning ("Defining ``"^name^"'' by \\renewcommand")
+      end else
         echo () ;
-        if not (Latexmacros.exists name) then
-          Latexmacros.def name pat (Subst body)
+      Latexmacros.def name pat (Subst body)
+  | _                ->
+      echo () ;
+      if not (Latexmacros.exists name) then
+        Latexmacros.def name pat (Subst body)
 ;;
 
 def_name_code "\\renewcommand" do_newcommand  ;
@@ -2748,7 +2748,7 @@ let open_array env lexbuf =
   save_array_state ();
   Tabular.border := false ;
   let len =  match env with
-    | "tabular*" ->
+    | "tabular*"|"Tabular*" ->
         let arg = save_arg lexbuf in
         begin match Get.get_length arg with
         | Length.No s ->
@@ -2758,7 +2758,9 @@ let open_array env lexbuf =
         | width -> width
         end
     | _ -> Length.Default in
-      
+  let attributes = match env with
+  | "Tabular*" | "Array" | "Tabular" -> get_prim_opt "" lexbuf
+  | _ -> skip_opt lexbuf ; "" in
   skip_opt lexbuf ;
   let format = save_arg lexbuf in
   let format = Tabular.main format in
@@ -2771,10 +2773,15 @@ let open_array env lexbuf =
   in_math := false ;
   push stack_display !display ;
   display := false ;
-  if !Tabular.border then
-    Dest.open_table true (get_table_attributes true len)
-  else
-    Dest.open_table false (get_table_attributes false len);
+  begin match attributes with
+  | "" ->
+      if !Tabular.border then
+        Dest.open_table true (get_table_attributes true len)
+      else
+        Dest.open_table false (get_table_attributes false len);
+  | _  ->
+       Dest.open_table !Tabular.border (attributes^check_width len)
+  end ;
   open_row() ;
   open_first_col main ;
   skip_blanks_pop lexbuf ;
@@ -2784,9 +2791,13 @@ def_code "\\@array" (open_array "array") ;
 def_code "\\@tabular" (open_array "tabular") ;
 def_code "\\@tabular*" (open_array "tabular*")
 ;;
+def_code "\\@Array" (open_array "Array") ;
+def_code "\\@Tabular" (open_array "Tabular") ;
+def_code "\\@Tabular*" (open_array "Tabular*")
+;;
 
 
-let close_array env _ =
+let close_array _ =
   do_unskip () ;
   close_last_col main "" ;
   close_last_row () ;
@@ -2797,9 +2808,12 @@ let close_array env _ =
   if !display then Dest.item_display () ;
 ;;
 
-def_code "\\end@array" (close_array "array") ;
-def_code "\\end@tabular" (close_array "tabular") ;
-def_code "\\end@tabular*" (close_array "tabular*")
+def_code "\\end@array" close_array  ;
+def_code "\\end@tabular" close_array ;
+def_code "\\end@tabular*" close_array ;
+def_code "\\end@Array" close_array  ;
+def_code "\\end@Tabular" close_array ;
+def_code "\\end@Tabular*" close_array ;
 ;;
   
 

@@ -5,7 +5,7 @@
 \usepackage{isolatin1}
 \usepackage{../hevea}
 \usepackage{makeidx}
-\usepackage{color}
+\usepackage{color,colortbl}
 \usepackage{ifthen,calc,array,alltt,comment}
 
 
@@ -531,6 +531,24 @@ argl   & \raggedleft
 \fi
 \end{center}
 
+\subsection{Package \texttt{colortbl}}
+\newcounter{damierbis}
+\newcolumntype{C}{>{\columncolor{cyan}}c}
+\newcolumntype{Y}{>{\columncolor{yellow}}c}
+\newenvironment{damier}[1]
+  {\ifhevea\renewcommand{\@table@attributes}{CELLSPACING=0 CELLPADDING=4 BORDER=0}\fi
+  \setcounter{damierbis}{#1}\begin{tabular}{YC}}
+  {\end{tabular}}
+\newcommand{\pair}[2]{#1 & #2}
+\newcommand{\impair}[2]{\multicolumn{1}{C}{#1} & \multicolumn{1}{Y}{#2}}
+\begin{damier}{4}
+\whiledo{\value{damierbis}>0}
+{\pair{coucou}{foo}\\
+\impair{foo}{coucou}\\
+\addtocounter{damierbis}{-1}}
+\pair{coucou}{foo}\\
+\impair{foo}{coucou}
+\end{damier}
 
 \subsection{Les délimiteurs}
 $$
