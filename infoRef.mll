@@ -1,4 +1,19 @@
+(***********************************************************************)
+(*                                                                     *)
+(*                          HEVEA                                      *)
+(*                                                                     *)
+(*  Luc Maranget, projet PARA, INRIA Rocquencourt                      *)
+(*                                                                     *)
+(*  Copyright 1998 Institut National de Recherche en Informatique et   *)
+(*  Automatique.  Distributed only by permission.                      *)
+(*                                                                     *)
+(***********************************************************************)
+
 {
+let header = "$Id: infoRef.mll,v 1.6 1999-05-20 16:11:44 tessaud Exp $"
+;;
+
+
 open Lexing
 (*open Text*)
 open Misc
@@ -308,7 +323,7 @@ let put_char c =
 ;;
 
 let put_credits () =
-  put "\nThis file has been translated from LaTeX by HeVeA.\n\n";
+  put "\n\n-------------------------------------\nThis file has been translated from LaTeX by HeVeA.\n\n";
 ;;
 
 let noeud_name n = n.name

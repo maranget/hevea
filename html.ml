@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: html.ml,v 1.49 1999-05-19 16:26:55 tessaud Exp $" 
+let header = "$Id: html.ml,v 1.50 1999-05-20 16:11:41 tessaud Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -1051,6 +1051,20 @@ let flush x =
     prerr_flags "<= flush"
 ;;
 
+let erase_block s =
+  if !verbose > 2 then begin
+    Printf.fprintf stderr "erase_block: %s" s;
+    prerr_newline ()
+  end ;
+  try_close_block s ;
+  let ts,_,tout = pop_out out_stack in
+  if ts <> s then
+    failclose ("erase_block: "^s^" closes "^ts);
+  free !cur_out ;
+  cur_out := tout
+;;
+   
+
 let open_group ss =
   open_block "" "" ;
   let e = Style ss in
@@ -1065,6 +1079,7 @@ and open_aftergroup f =
 
 and close_group () = close_block ""
 ;;
+
 
 (*----------*)
 (* DISPLAYS *)
@@ -1232,19 +1247,6 @@ and force_item_display () = do_item_display true
 ;;
 
 
-let erase_block s =
-  if !verbose > 2 then begin
-    Printf.fprintf stderr "erase_block: %s" s;
-    prerr_newline ()
-  end ;
-  try_close_block s ;
-  let ts,_,tout = pop_out out_stack in
-  if ts <> s then
-    failclose ("erase_block: "^s^" closes "^ts);
-  free !cur_out ;
-  cur_out := tout
-;;
-   
 
 let erase_display () =
   erase_block "" ;
@@ -1552,7 +1554,11 @@ let open_cell format span = open_block "TD" (as_align format span)
 let erase_cell () =  erase_block "TD"
 and close_cell content =  force_block "TD" content
 and do_close_cell () = close_block "TD"
+and open_cell_group () = open_group ""
+and close_cell_group () = close_group ()
+and erase_cell_group () = erase_block ""
 ;;
+
 
 let erase_row () = erase_block "TR"
 and close_row () = close_block "TR"
@@ -1560,7 +1566,7 @@ and close_row () = close_block "TR"
 
 let close_table () = close_block "TABLE"
 ;;
-let make_border c = raise Exit
+let make_border c = ()
 ;;
 
 let center_format =

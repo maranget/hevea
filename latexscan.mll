@@ -47,7 +47,7 @@ open Save
 open Tabular
 open Lexstate
 
-let header = "$Id: latexscan.mll,v 1.97 1999-05-19 16:27:03 tessaud Exp $" 
+let header = "$Id: latexscan.mll,v 1.98 1999-05-20 16:11:48 tessaud Exp $" 
 
 let sbool = function
   | false -> "false"
@@ -365,7 +365,7 @@ let default_format =
 
 and center_format =
   Tabular.Align
-    {hor="center" ; vert = "" ; wrap = false ;
+    {hor="center" ; vert = "top" ; wrap = false ;
       pre = "" ; post = "" ; width = None} 
 ;;
 
@@ -499,7 +499,7 @@ let get_col format i =
   r
 ;;
 
-let show_inside main format i =
+let show_inside main format i b =
 (*
   if !verbose > -1 then begin
     prerr_string ("show_inside: "^string_of_int i)
@@ -523,7 +523,7 @@ let show_inside main format i =
     | _ -> raise EndInside
     end ;
     t := !t+1
-  done with EndInside -> if !t = i then  Dest.make_border ' ';
+  done with EndInside -> if (!t = i) && (b || !first_col)  then  Dest.make_border ' ';
   end ;
 (*
   if !verbose > -1 then
@@ -532,21 +532,28 @@ let show_inside main format i =
   !t
 ;;
 
-let rec eat_inside format i =
-  if i >= Array.length format then i
-  else if is_inside (get_col format i) then
-    eat_inside format (i+1)
-  else i
+let rec eat_inside format i b =
+  if i >= Array.length format then (i ,b)
+  else begin
+    let f = get_col format i in
+    if is_inside f then
+      eat_inside format (i+1) b
+    else if is_border f then
+      eat_inside format (i+1) (b+1)
+    else i, b
+  end
 ;;
 
-let rec find_end n format i = match n with
-  0 -> eat_inside format i
+let rec find_end n format i b = match n with
+  0 -> eat_inside format i b
 | _ ->
    let f = get_col format i in
    if is_inside f then
-     find_end n format (i+1)
+     find_end n format (i+1) b
+   else if is_border f then
+     find_end n format (i+1) (b+1)
    else
-     find_end (n-1) format (i+1)
+     find_end (n-1) format (i+1) b
 ;;
 
 
@@ -557,6 +564,14 @@ let find_align format =
   while (is_inside (get_col format !t)) || (is_border (get_col format !t)) do
     t := !t+1
   done ;
+  !t
+;;
+
+let next_no_border format n =
+  let t = ref n in
+  while is_border (get_col format !t) do
+    t:= !t+1
+  done;
   !t
 ;;
 
@@ -586,8 +601,8 @@ let do_open_col main format span =
 
 let open_col main  =
   let _ = Dest.forget_par () in
-  Dest.open_group "" ;
-  cur_col :=  show_inside main !cur_format !cur_col ;
+  Dest.open_cell_group () ;
+  cur_col :=  show_inside main !cur_format !cur_col false;
   let format = (get_col !cur_format !cur_col) in
   do_open_col main format 1
 ;;
@@ -607,7 +622,7 @@ let erase_col main =
     display := false
   end ;
   Dest.erase_cell () ;
-  Dest.erase_block ""
+  Dest.erase_cell_group ()
 ;;
 
 
@@ -649,14 +664,15 @@ let do_multi n format main =
   end ;
 
   erase_col main ;
-  Dest.open_group "" ;
+  Dest.open_cell_group () ;
 
   let start_span = find_start !cur_col
-  and end_span = find_end n !cur_format !cur_col in
+  and k,b = find_end n !cur_format !cur_col 0 in
+  let end_span = k - b in
 
   let i = find_align format in
   do_open_col main (get_col format i) (end_span - start_span) ;      
-  push stack_multi (!cur_format,end_span) ;
+  push stack_multi (!cur_format,k) ;
   cur_format := format ;
   cur_col := i ;
   in_multi := true
@@ -679,15 +695,15 @@ let close_col_aux main content is_last =
       in_multi := false ;
       let f,n = pop stack_multi in
       cur_format := f ;
-      cur_col := n
+      cur_col := next_no_border f n;
     end else
       cur_col := !cur_col + 1;
-    cur_col := show_inside main !cur_format !cur_col ;
+    cur_col := show_inside main !cur_format !cur_col true;
     if !first_col then begin
       first_col := false
     end
   end ;
-  Dest.close_group ()
+  Dest.close_cell_group ()
 ;;
 
 let close_col main content = close_col_aux main content false
@@ -700,6 +716,7 @@ and close_last_row () =
     Dest.close_row ()
 ;;
 
+(*
 let rec open_ngroups = function
   | 0 -> ()
   | n -> Dest.open_group "" ; open_ngroups (n-1)
@@ -707,6 +724,7 @@ let rec open_ngroups = function
 let rec close_ngroups = function
   | 0 -> ()
   | n -> Dest.force_block "" "" ; close_ngroups (n-1)
+*)
 
 (* Compute functions *)
 

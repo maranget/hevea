@@ -10,7 +10,7 @@
 (***********************************************************************)
 
 
-let header = "$Id: info.ml,v 1.7 1999-05-19 16:26:58 tessaud Exp $"
+let header = "$Id: info.ml,v 1.8 1999-05-20 16:11:43 tessaud Exp $"
 
 open Misc
 open Text
@@ -148,6 +148,9 @@ let open_cell =Text.open_cell;;
 let erase_cell =Text.erase_cell;;
 let close_cell =Text.close_cell;;
 let do_close_cell = Text.do_close_cell;;
+let open_cell_group = Text.open_cell_group;;
+let close_cell_group = Text.close_cell_group;;
+let erase_cell_group = Text.erase_cell_group;;
 let close_row =Text.close_row;;
 let erase_row =Text.erase_row;;
 let close_table =Text.close_table;;

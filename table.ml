@@ -29,3 +29,8 @@ let trim t =
   let r = Array.sub t.data 0 t.next in
   reset t ;
   r
+
+let remove_last table =
+  table.next <- table.next -1;
+  if table.next < 0 then table.next <- 0 ;
+;;

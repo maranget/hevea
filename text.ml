@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.11 1999-05-19 16:27:08 tessaud Exp $"
+let header = "$Id: text.ml,v 1.12 1999-05-20 16:11:53 tessaud Exp $"
 
 
 open Misc
@@ -801,6 +801,7 @@ let close_group () =
   close_block "";
 ;;
 
+
 let put s =
   do_pending ();
   do_put s
@@ -952,6 +953,7 @@ type table_flags_t = {
     mutable table : row2 Table.t;
     mutable line : int;
     mutable col : int;
+    mutable emitted : bool;
   } 
 ;;
 
@@ -985,6 +987,7 @@ let table =  ref {
   table = Table.create {hauteur = 0; cellules = (Array.create 0 !cell)};
   line = 0;
   col = 0;
+  emitted = false;
 } 
 ;;
 
@@ -1031,6 +1034,7 @@ let open_table border htmlargs =
     table = Table.create {hauteur = 0; cellules = (Array.create 0 !cell)};
     line = -1;
     col = -1;
+    emitted = false;
   };
     
   row := {
@@ -1149,6 +1153,7 @@ let close_cell content =
 			  wrap = !cell.wrap;
 			  span = !cell.span;
 			  text = !cell.text};
+  !table.emitted <- true;
   (* on a la taille de la cellule, on met sa largeur au bon endroit, si necessaire.. *)
   (* Multicolonne : Il faut mettre des zeros dans le tableau pour avoir la taille minimale des colonnes atomiques. Puis on range start,end dans une liste que l'on regardera a la fin pour ajuster les tailles selon la loi : la taille de la multicolonne doit etre <= la somme des tailles minimales. Sinon, il faut agrandir les colonnes atomiques pour que ca rentre. *)
   if !cell.span = 1 then begin
@@ -1184,15 +1189,27 @@ let close_cell content =
 let do_close_cell () = close_cell ""
 ;;
 
+let open_cell_group () = !table.emitted <- false
+
+and close_cell_group () = ()
+
+and erase_cell_group () = if !table.emitted then begin
+  Table.remove_last !row.cells;
+  !table.col <- !table.col -1;
+end
+
+;;
+
+
 let erase_cell () =
   if !verbose>2 then prerr_endline "erase cell";
   if (!cell.wrap=True) then begin
     flags.in_align <- pop "in_align" in_align_stack;
     flags.align <- pop "align" align_stack;
   end;
-  close_block "";
+  erase_block "";
   let _ = Out.to_string !cur_out.out in
-  close_block "TEMP";
+  erase_block "TEMP";
   !table.col <- !table.col -1;
 ;;
 
@@ -1214,7 +1231,8 @@ let center_format =
 
 let make_border c =
   (* sauve le numero de la colonne courante. il faut mettre le caractere c a la fin de la colonne *)
-  if !verbose>2 then prerr_endline ("Adding border after column "^string_of_int !table.col^" :'"^String.make 1 c^"'");
+  if !verbose>2 then prerr_endline ("Adding border after column "^string_of_int !table.col^" :'"^String.make 1 c^"'")
+;
   try
     let d = Hashtbl.find !table.borders !table.col in
     if d <> c then begin
@@ -1289,6 +1307,7 @@ let put_border k =
 let rec somme debut fin = 
   if debut = fin 
   then !table.tailles.(debut)
+      + (if Hashtbl.mem !table.borders debut then 1 else 0)
   else !table.tailles.(debut)
       + (if Hashtbl.mem !table.borders debut then 1 else 0)
       + (somme (debut+1) fin)
@@ -1296,6 +1315,7 @@ let rec somme debut fin =
 
 
 let calculate_multi () = 
+  (* Finalisation des multi-colonnes : on les repasse toutes pour ajuster les tailles eventuellement *)
   let rec do_rec = function
       [] -> ()
     | (debut,fin,taille_mini) :: reste -> begin
@@ -1327,14 +1347,14 @@ let close_table () =
 
   calculate_multi ();
 (*
-  !table.width<-0 (*(Array.length !table.tailles) -1*);
+  !table.width<-0 
   for i = 0 to Array.length !table.tailles -1 do
     !table.width <- !table.width + !table.tailles.(i);
   done;
 *)
   !table.width <- somme 0 (Array.length !table.tailles -1)
-      + (if (Hashtbl.mem !table.borders (-1)) then 1 else 0)
-      + (if (Hashtbl.mem !table.borders (Array.length !table.tailles -1)) then 1 else 0);
+      + (if (Hashtbl.mem !table.borders (-1)) then 1 else 0);
+
 (*  if !table.border then begin
     !table.width <- !table.width + 2;
     do_put (String.make !table.width '-');
@@ -1350,13 +1370,17 @@ let close_table () =
     for j = 0 to tab.(i).hauteur -1 do
       if not ((* not !table.border &&*) i=0 && j=0) then do_put_char '\n';
 (*      if !table.border then do_put_char '|';*)
-      put_border (-1);
+      if ligne.(0).wrap <> Fill then put_border (-1);
       let col = ref 0 in
       for k = 0 to Array.length ligne -1 do
 	begin
 	  (* ligne j de la cellule k *)
 	  if ligne.(k).wrap = Fill then ligne.(k).span <- Array.length !table.tailles;
-	  let taille =  somme !col (!col + ligne.(k).span-1) in 
+	  let taille =
+	    (if ligne.(k).span > 1 then somme !col (!col + ligne.(k).span-1)
+	    else  !table.tailles.(!col))
+	      + if (ligne.(k).wrap = Fill) && (Hashtbl.mem !table.borders (k-1)) then 1 else 0
+	  in
 	  if !verbose>3 then prerr_endline ("cell to output:"^ligne.(k).text^", taille="^string_of_int taille);
 	  if (text_out j tab.(i).hauteur ligne.(k).h ligne.(k).ver) 
 	      && (ligne.(k).wrap <> Fill )then begin
@@ -1372,7 +1396,7 @@ let close_table () =
 (*	  if !table.border then do_put_char '|'
 	  else do_put_char ' ';*)
 	  col := !col + ligne.(k).span;
-	  put_border (!col - 1);
+	  if ligne.(k).span =1 then put_border (!col - 1);
 	end;
       done;
     done;
@@ -1388,7 +1412,8 @@ let close_table () =
   multi := pop "multi" multi_stack;
   flags.in_table <- pop "in_table" in_table_stack;
   close_block "";
- if !verbose>2 then prerr_endline "<= close_table"
+  if not (flags.in_table) then finit_ligne ();
+  if !verbose>2 then prerr_endline "<= close_table"
 ;;
 
 
@@ -1443,3 +1468,11 @@ let horizontal_line s u t =
     put_char '\n';
   end
 ;;
+
+
+
+
+
+
+
+
