@@ -57,6 +57,7 @@ CVSDIR=$(HOME)/CVS
 RELEASEDIR=/usr/tmp
 RELEASENAME=hevea-$(VERSION)
 FTPDIR=/home/tobago/para-ftp/hevea
+UNSTABLE=
 
 dorelease:
 # hevea relase
@@ -82,12 +83,24 @@ testrelease:
 
 devrelease:
 	/bin/rm -rf ${FTPDIR}/unstable ; mkdir ${FTPDIR}/unstable
-	$(MAKE) $(MFLAGS) dorelease RELEASENAME="hevea-`date +%Y-%m-%d`" RELEASEOPT="-D now" FTPDIR="${FTPDIR}/unstable"
+	$(MAKE) $(MFLAGS) dorelease VERSION=`date +%Y-%m-%d` RELEASENAME="hevea-`date +%Y-%m-%d`" RELEASEOPT="-D now" FTPDIR="${FTPDIR}/unstable"
 
 
+RPMDIR=/usr/src/redhat
+dorpm:
+	sed -e "s/VERSION/$(VERSION)/g" -e "s|/UNSTABLE|$(UNSTABLE)|g" hevea.spec > $(RPMDIR)/SPECS/$(RELEASENAME).spec
+	cp $(FTPDIR)/$(RELEASENAME).tar.gz $(RPMDIR)/SOURCES
+	cd $(RPMDIR)/SPECS ; rpm -bb --clean --rmsource $(RELEASENAME).spec
+	su $(USER) sh -c "cp $(RPMDIR)/RPMS/i386/$(RELEASENAME)-1.i386.rpm $(FTPDIR)"
+
+devrpm:
+	$(MAKE) $(MFLAGS) VERSION=`date +%Y-%m-%d` RELEASENAME="hevea-`date +%Y-%m-%d`"  FTPDIR="${FTPDIR}/unstable" UNSTABLE="/unstable" dorpm
+
+rpm:
+	$(MAKE) $(MFLAGS) dorpm
 clean:
 	rm -f *~ *.aux *.log *.toc
 
 cleanall: clean
 	rm -f manual.dvi manual[0-9][0-9][0-9].html *_motif.gif \
-	manual*.gif tmp.tex *.image.tex manual.html index.html
+	manual*.gif tmp.tex *.image.tex manual.html index.html faq.html
