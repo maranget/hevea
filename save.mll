@@ -25,8 +25,8 @@ exception NoOpt
 
 rule opt = parse
    '['
-      {incr brace_nesting ; opt2 lexbuf}
-|  ' '+ {opt lexbuf}
+        {incr brace_nesting ; opt2 lexbuf}
+| ' '+  {opt lexbuf}
 |  eof  {raise (BadParse "EOF")}
 |  ""   {raise NoOpt}
 
@@ -45,7 +45,7 @@ and opt2 =  parse
       Out.put_char arg_buff s ; opt2 lexbuf }
 
 and arg = parse
-    [' ''\n']+ {arg lexbuf}
+    ' '* '\n'? ' '* {arg lexbuf}
   | '{'
       {incr brace_nesting;
       arg2 lexbuf}
@@ -169,6 +169,19 @@ and tformat = parse
   'c' {Align ("center",false)::tformat lexbuf}
 | 'l' {Align ("left",false)::tformat lexbuf}
 | 'r' {Align ("right",false)::tformat lexbuf}
+| 'p'
+   {let _ = arg lexbuf in
+   Location.print_pos () ;
+   prerr_endline "Warning, p column specification replaced by c";
+   Align ("center",false):: tformat lexbuf}
+| '*'
+   {let ntimes = arg lexbuf in let what = arg lexbuf in
+   let rec do_rec = function
+     0 -> tformat lexbuf
+   | i ->
+      let sbuf = Lexing.from_string what in
+      tformat sbuf@do_rec (i-1) in
+   do_rec (int_of_string ntimes)}
 | "tc" {Align ("center",true)::tformat lexbuf}
 | "tl" {Align ("left",true)::tformat lexbuf}
 | "tr" {Align ("right",true)::tformat lexbuf}

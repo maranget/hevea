@@ -1,10 +1,10 @@
-HTMLGEN=hevea.opt
+HTMLGEN=hevea
 HTMLCUT=htmlcut
 
 all: manual.dvi index.html
 
-manual.html: manual.tex
-	${HTMLGEN} manual.tex
+manual.html: manual.sty manual.tex
+	${HTMLGEN} manual.sty manual.tex
 
 manual.dvi: manual.tex
 	latex < /dev/null manual.tex

@@ -43,10 +43,8 @@ val mp : string
 val times : string
 val div : string
 val ast : string
-val star : string
 val circ : string
 val bullet : string
-val cdot : string
 val cap : string
 val cup : string
 val sqcap : string
@@ -54,7 +52,6 @@ val sqcup : string
 val vee : string
 val wedge : string
 val setminus : string
-val wr : string
 val diamond : string
 val bigtriangleup : string
 val bigtriangledown : string
@@ -77,7 +74,6 @@ val display_sqsupset : string
 val ni : string
 val equiv : string
 val approx : string
-val cong : string
 val neq : string
 val propto : string
 val perp : string

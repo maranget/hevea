@@ -34,6 +34,8 @@
 \setcounter{chapter}{0}%
 \renewcommand{\thechapter}{\Alph{chapter}}%
 }
+\newcounter{equation}[chapter]
+\renewcommand{\theequation}{\thechapter.\arabic{equation}}
 \newcounter{figure}[chapter]
 \renewcommand{\thefigure}{\thechapter.\arabic{figure}}
 \newcounter{table}[chapter]

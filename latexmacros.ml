@@ -239,7 +239,7 @@ let no_dot = function
 | s   -> s in
 def_macro "\\bgroup" 0 [Subst "{"] ;
 def_macro "\\egroup" 0 [Subst "}"] ;
-def_macro "\\underline" 1
+def_macro "\\textunderline" 1
   [Subst "{" ; Env (Style "U") ; Print_arg 0 ; Subst "}"];
 def_macro "\\ref" 1
   [Print "<A href=\"#"; Subst "\\@print{#1}" ; Print "\">" ;
@@ -261,16 +261,7 @@ let spaces = function
   ".5ex" -> ""
 | _      -> "~" in
 def_macro "\\hspace" 1 [Print_fun (spaces,0)];
-def_macro "\\stackrel" 2
-  [IfCond (display,
-    [Subst "\\begin{array}{c}\\scriptsize #1\\\\ #2\\\\ ~ \\end{array}"],
-    [Subst "{#2}^{#1}"])];
 (* Maths *)
-def_macro "\\vdots" 0
-  [IfCond (display,
-     [ItemDisplay ; Subst "\\cdot" ; Br ;
-     Subst "\\cdot" ; Br ; Subst "\\cdot" ;ItemDisplay],
-     [Print ":"])];;
 def_macro "\\alpha" 0 [Print alpha];
 def_macro "\\beta" 0 [Print beta];
 def_macro "\\gamma" 0 [Print gamma];
@@ -319,10 +310,8 @@ def_macro "\\mp" 0 [Print mp];;
 def_macro "\\times" 0 [Print times];;
 def_macro "\\div" 0 [Print div];;
 def_macro "\\ast" 0 [Print ast];;
-def_macro "\\star" 0 [Print star];;
 def_macro "\\circ" 0 [Print circ];;
 def_macro "\\bullet" 0 [Subst "{\\@incsize{1}" ; Print bullet ; Subst "}"];;
-def_macro "\\cdot" 0 [Print cdot];;
 def_macro "\\cap" 0 [Print cap];;
 def_macro "\\cup" 0 [Print cup];;
 def_macro "\\sqcap" 0 [Print sqcap];;
@@ -330,7 +319,6 @@ def_macro "\\sqcup" 0 [Print sqcup];;
 def_macro "\\vee" 0 [Print vee];;
 def_macro "\\wedge" 0 [Print wedge];;
 def_macro "\\setminus" 0 [Print setminus];;
-def_macro "\\wr" 0 [Print wr];;
 def_macro "\\bigtriangleup" 0 [Print bigtriangleup];;
 def_macro "\\bigtriangledown" 0 [Print bigtriangledown];;
 def_macro "\\triangleleft" 0 [Print triangleleft];;
@@ -364,7 +352,6 @@ def_macro "\\simeq" 0
      [ItemDisplay ; Print "~<BR>-" ; ItemDisplay],
      [Print "simeq"])];;
 def_macro "\\approx" 0 [Print approx];;
-def_macro "\\cong" 0 [Print cong];;
 def_macro "\\neq" 0 [Print neq];;
 def_macro "\\doteq" 0
   [IfCond (display,
@@ -483,7 +470,7 @@ and circonflexe = function
 | "o" -> "ô" | "u" -> "û"  | "\\i" -> "î"
 | "A" -> "Â" | "E" -> "Ê"  | "I" -> "Î"
 | "O" -> "Ô" | "U" -> "Û"  | "\\I" -> "Î"
-| "" | " " -> "^"
+| "" | " " -> "\\@print{^}"
 | s -> s
 
 and trema = function
@@ -503,7 +490,7 @@ and tilde = function
   "a" -> "ã" | "A" -> "Ã"
 | "o" -> "õ" | "O" -> "Õ"
 | "n" -> "ñ" | "N" -> "Ñ"
-| "" | " " -> "~"
+| "" | " " -> "\\@print{~}"
 | s   -> s
 ;;
 
@@ -527,7 +514,8 @@ def_macro "\\uppercase" 1 [Print_fun (String.uppercase,0)];
 ();;
 
 let invisible = function
-  "\\pagebreak" | "\\nopagebreak" | "\linebreak"
+  "\\nofiles"
+| "\\pagebreak" | "\\nopagebreak" | "\linebreak"
 | "\\nolinebreak" | "\\label" | "\\index"
 | "\\vspace" | "\\glossary" | "\\marginpar"
 | "\\figure" | "\\table"

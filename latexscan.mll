@@ -13,6 +13,15 @@ and pop s = match !s with
 ;;
 
 let stack_lexbuf = ref []
+and stack_stack_lexbuf = ref []
+;;
+
+let pretty_lexbuf lb =
+  let  pos = lb.lex_curr_pos and len = String.length lb.lex_buffer in
+  prerr_endline "Buff contents:" ;
+  prerr_endline ("<<"^String.sub lb.lex_buffer pos (len-pos)^">>");
+  prerr_endline ("curr_pos="^string_of_int lb.lex_curr_pos);
+  prerr_endline "End of buff"
 ;;
 
 let out_file = ref (Out.create_null ())
@@ -62,15 +71,19 @@ let binds s = String.get s 0 = '#'
 ;;
 
 let rec save_arg lexbuf =
+  let old_stack = !stack_lexbuf in
   let lexbuf,arg =
     try lexbuf,Save.arg lexbuf
     with Save.BadParse "EOF" -> begin
-      if !verbose > 2 then
-        prerr_endline "popping stack_lexbuf in save_arg";
       let lexbuf = pop stack_lexbuf in
+      if !verbose > 2 then begin
+        prerr_endline "popping stack_lexbuf in save_arg";
+        pretty_lexbuf lexbuf
+      end;
       save_arg lexbuf end in
   if !verbose > 2 then
     prerr_endline ("Arg parsed: <"^arg^">") ;
+  stack_lexbuf := old_stack ;
   lexbuf,arg
 ;;
 
@@ -97,17 +110,21 @@ let pretty_ok = function
 ;;
 
 let rec parse_arg_opt def lexbuf =
+  let old_stack_lexbuf = !stack_lexbuf in
   let lexbuf,r = try lexbuf,Yes (Save.opt lexbuf) with
     Save.NoOpt -> lexbuf,No def
   | Save.BadParse "EOF" -> begin
-      if !verbose > 2 then
-        prerr_endline "poping stack_lexbuf in parse_arg_opt";
       let lexbuf = pop stack_lexbuf in
+      if !verbose > 2 then begin
+        prerr_endline "poping stack_lexbuf in parse_arg_opt";
+        pretty_lexbuf lexbuf
+      end;
       parse_arg_opt def lexbuf end in
   if !verbose > 2 then begin
      Printf.fprintf stderr "Parse opt : %s" (pretty_ok r) ;
      prerr_endline ""
   end ;
+  stack_lexbuf := old_stack_lexbuf ;
   lexbuf,r
 ;;
 
@@ -170,17 +187,8 @@ exception IfFalse
 let verb_delim = ref (Char.chr 0)
 ;;
 
-module OrderedString = struct
-  type t = string
-  let compare = Pervasives.compare
-end
-;;
-
-module StringSet =  Set.Make(OrderedString)
-;;
-
 let cur_env = ref ""
-and macros = ref StringSet.empty
+and macros = ref []
 and stack_env = ref []
 and env_level = ref 0
 and stack_in_math = ref []
@@ -189,11 +197,11 @@ and stack_display = ref []
 
 let macro_register name =
   if !env_level > 0 then
-   macros := StringSet.add name !macros
+   macros := name :: !macros
 ;;
 
 let macros_unregister () =
-  StringSet.iter
+  List.iter
    (fun name -> Latexmacros.unregister name) !macros
 ;;
 
@@ -324,6 +332,24 @@ let unparse_args opts args =
 ;;
 
 let scan_this lexfun s =
+  push stack_stack_lexbuf !stack_lexbuf;
+  stack_lexbuf := [];
+  if !verbose > 1 then begin
+    Printf.fprintf stderr "scan_this : [%s]" s ;
+    prerr_endline ""  
+  end ;
+  let lexer = Lexing.from_string s in
+  let r = lexfun lexer in
+  if !verbose > 1 then begin
+    Printf.fprintf stderr "scan_this : over" ;
+    prerr_endline ""
+  end ;
+  stack_lexbuf :=  pop stack_stack_lexbuf;
+  r
+;;
+
+
+let scan_this_may_cont lexfun s =
   if !verbose > 1 then begin
     Printf.fprintf stderr "scan_this : [%s]" s ;
     prerr_endline ""  
@@ -338,6 +364,7 @@ let scan_this lexfun s =
 ;;
 
 let get_this lexfun s =
+  push stack_stack_lexbuf !stack_lexbuf ;
   if !verbose > 1 then begin
     Printf.fprintf stderr "get_this : [%s] = " s ;
   end ;
@@ -346,6 +373,7 @@ let get_this lexfun s =
   if !verbose > 1 then begin
     prerr_endline r
   end ;
+  stack_lexbuf := pop stack_stack_lexbuf ;
   r
 ;;
 
@@ -537,7 +565,8 @@ let close_col main content =
   else
     scan_this main "}" ;
   begin match content with
-    "" -> Html.close_block "TD" (* last col in array, may be empty *)
+    "" when !cur_col = 0 ->
+     Html.close_block "TD" (* last col in array, may be empty *)
   | _  ->
      cur_col := !cur_col + 1;
      Html.force_block "TD" content ;
@@ -552,7 +581,7 @@ let close_col main content =
 let new_env env lexfun lexbuf =
   push stack_env (!cur_env,!macros)   ;
   cur_env := env ;
-  macros := StringSet.empty ;
+  macros := [] ;
   if env <> "document" && env <> "*input" then incr env_level ;
   if !verbose > 1 then begin
     Location.print_pos () ;
@@ -866,6 +895,8 @@ rule  main = parse
        push stack_display !display ;
        display := false ;
        open_group "" in
+    push stack_table !in_table ;
+    in_table := NoTable ;
     if !in_math then begin
        push stack_in_math !in_math ;
        in_math := false ;
@@ -1029,7 +1060,8 @@ rule  main = parse
     let env = env_extract lxm in
     border := false ;
     skip_opt lexbuf ;
-    let format = Array.of_list (scan_this tformat (Save.arg lexbuf)) in
+    let _,format = save_arg lexbuf in
+    let format = Array.of_list (scan_this tformat format) in
     push stack_format !cur_format ;
     push stack_col !cur_col ;
     push stack_table !in_table ;
@@ -1160,16 +1192,14 @@ rule  main = parse
            Html.open_block "PRE" ""
          end else if env <> "document" then
            Html.open_group "" ;
-         if !verbose > 2 then
+         push stack_stack_lexbuf !stack_lexbuf ;
+         if !verbose > 2 then begin
             prerr_endline "\\begin: pushing" ;
+            pretty_lexbuf lb
+         end ;
          push stack_lexbuf lb ;         
-         let n = List.length !stack_lexbuf in
-         scan_this main macro ;
-         if List.length !stack_lexbuf = n then begin
-           if !verbose > 2 then
-             prerr_endline "\\begin: poping" ;
-           let _ = pop stack_lexbuf in ()
-         end;
+         scan_this_may_cont main macro ;
+         stack_lexbuf := pop stack_stack_lexbuf ;
          main lb) in
     new_env env lexfun lexbuf}
 |  "\\end" " " * "{" ['A'-'Z' 'a'-'z']+ '*'? "}"
@@ -1179,7 +1209,7 @@ rule  main = parse
     if env = "alltt" then  begin
       alltt := false ;
       Html.close_block "PRE"
-    end else if env <> "document" then Html.close_group () ;
+    end else (if env <> "document" then Html.close_group ()) ;
     close_env env ;
     main lexbuf}
 | ("\\prog" | "\\verb" | "\\verb*") _
@@ -1256,13 +1286,25 @@ rule  main = parse
          let arg = my_int_of_string arg in
          inc_size arg ;
          main lexbuf
+      | "\\htmlcolor" ->
+         let lexbuf,arg = save_arg lexbuf in
+         let arg = get_this main ("\\@nostyle "^arg) in
+         Html.open_mod (Color ("\"#"^arg^"\"")) ;
+         main lexbuf
       | "\\@defaultdt" ->
          let lexbuf,arg = save_arg lexbuf in
          Html.set_dt arg ;
          main lexbuf
+      | "\\usecounter" ->
+         let lexbuf,arg = save_arg lexbuf in
+         Html.set_dcount arg ;
+         main lexbuf
       | "\\@fromlib" ->
          let lexbuf,arg = save_arg lexbuf in
+         push stack_stack_lexbuf !stack_lexbuf ;
+         stack_lexbuf := [] ;
          Mylib.put_from_lib arg Html.put;
+         stack_lexbuf := pop stack_stack_lexbuf ;
          main lexbuf
       | "\\imageflush" ->
          let lexbuf,arg = save_opt "" lexbuf in
@@ -1302,6 +1344,8 @@ rule  main = parse
         main lexbuf
 (* Foot notes *)
         | "\\@footnotetext" ->
+           push stack_stack_lexbuf !stack_lexbuf ;
+           stack_lexbuf := [];
            let lexbuf,mark = save_arg lexbuf in
            let mark = get_this main ("\\@nostyle "^mark) in
            let lexbuf,text = save_arg lexbuf in
@@ -1312,11 +1356,15 @@ rule  main = parse
              (my_int_of_string mark)
              (get_this main ("\\@footnotemark{\@fnmarknote}{"^mark^"}"))
              text anchor ;
+           stack_lexbuf := pop stack_stack_lexbuf ;
            main lexbuf
         | "\\@footnoteflush" ->
            let lexbuf,sec_here = save_arg lexbuf
            and sec_notes = get_this main "\\@nostyle\\@footnotelevel" in
+           push stack_stack_lexbuf !stack_lexbuf ;
+           stack_lexbuf := [];
            Foot.flush (scan_this main) sec_notes sec_here ;
+           stack_lexbuf := pop stack_stack_lexbuf;           
            main lexbuf
 (* Boxes *)
         | "\\newsavebox" ->
@@ -1350,8 +1398,11 @@ rule  main = parse
            last_closed := save_last_closed ;
            main lexbuf
         | "\\@printindex" ->
+           push stack_stack_lexbuf !stack_lexbuf ;
+           stack_lexbuf := [] ;
            let lexbuf,tag =  save_opt "default" lexbuf in
            Index.print (scan_this main) tag ;
+           stack_lexbuf := pop stack_stack_lexbuf ;
            main lexbuf
         | "\\newindex" |  "\\renewindex" ->
            let lexbuf,tag = save_arg lexbuf in
@@ -1403,8 +1454,8 @@ rule  main = parse
         [] -> ()
       | i::rest -> begin match i with
             Print str -> Html.put str
-          | Print_arg i -> scan_this main (stack.(i)^"{}")
-          | Print_fun (f,i) -> scan_this main (f stack.(i)^"{}")
+          | Print_arg i -> scan_this main (stack.(i))
+          | Print_fun (f,i) -> scan_this main (f stack.(i))
           | Print_count (f,i) ->
               let c = Counter.value_counter stack.(i) in
               Html.put (f c)
@@ -1423,11 +1474,13 @@ rule  main = parse
               prerr_endline ("user macro: "^body) ;            
             let lex_one = Lexing.from_string body in             
             let body_instance = Subst.subst lex_one stack in
-            if !verbose > 2 then
+            if !verbose > 2 then begin
               prerr_endline ("subst: "^body_instance^", pushing") ;
+              pretty_lexbuf lexbuf
+            end ;
             push stack_lexbuf lexbuf ;
             let n = List.length !stack_lexbuf in
-            scan_this main body_instance ;
+            scan_this_may_cont main body_instance ;
             if List.length !stack_lexbuf = n then begin
                if !verbose > 2 then
                  prerr_endline
@@ -1489,6 +1542,8 @@ rule  main = parse
 | "~"         { Html.put "&nbsp;"; main lexbuf }
 | "{"
     {if !verbose > 2 then prerr_endline "Open brace" ;
+    push stack_table !in_table ;
+    in_table := NoTable ;
     if !display then begin
       item_display () ; open_group "" ; open_display ()
     end else
@@ -1496,6 +1551,7 @@ rule  main = parse
     new_env " " main lexbuf}
 | "}"
     {if !verbose > 2 then prerr_endline "Close brace" ;
+    in_table := pop stack_table ;
     let env = " " in
     if env = !cur_env then begin
       if !display then begin
@@ -1525,6 +1581,12 @@ rule  main = parse
     Html.put_char '\n'
   end ;
   main lexbuf}
+| ' '+
+   {if !display || is_table !in_table then
+      Html.put "&nbsp;"
+   else
+      Html.put_char ' ';
+   main lexbuf}
 | ['a'-'z' 'A'-'Z']+
    {let lxm =  lexeme lexbuf in
    if !in_math then begin
@@ -1611,7 +1673,10 @@ and skip_blanks_pop_main = parse
 | eof
    {if !stack_lexbuf <> [] then begin
      let lexbuf = pop stack_lexbuf in
-     if !verbose > 2 then prerr_endline "Pop lexbuf" ;
+     if !verbose > 2 then begin
+       prerr_endline "Poping lexbuf in skip_blanks" ;
+       pretty_lexbuf lexbuf
+     end ;
      skip_blanks_pop_main lexbuf
    end else main lexbuf}
 

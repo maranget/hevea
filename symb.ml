@@ -60,10 +60,8 @@ let mp = get ("\177","\177","\177");;
 let times = get ("\215","\215","215");;
 let div = get  ("\247","\247","247");;
 let ast = get ("*","*","*");;
-let star = get ("","star","étoile");;
 let circ = get ("<FONT FACE=symbol>\176</FONT>","o","o");;
 let bullet = get ("<FONT FACE=symbol>\183</FONT>","o","o");;
-let cdot = get ("<FONT FACE=symbol>\215</FONT>",".",".");;
 let cap = get ("<FONT FACE=symbol>\199</FONT>","inter", "inter");;
 let cup = get ("<FONT FACE=symbol>\200</FONT>","U", "U");;
 let sqcap = get ("<FONT FACE=symbol>\250\095\189</FONT>","sqcap", "sqcap");;
@@ -71,7 +69,7 @@ let sqcup = get ("<FONT FACE=symbol>\250\096\189</FONT>","sqcup", "sqcup");;
 let vee = get ("<FONT FACE=symbol>\218</FONT>","\\/", "\\/");;
 let wedge = get ("<FONT FACE=symbol>\217</FONT>","/\\", "/\\");;
 let setminus = get ("\\","\\","\\");;
-let wr = get ("wr","wr","wr");;
+
 
 let bigtriangleup = get ("<FONT FACE=symbol>\068</FONT>","/_\\","/_\\");;
 let bigtriangledown = get ("<FONT FACE=symbol>\209</FONT>","\\/","\\/");;
@@ -100,7 +98,6 @@ let ni = get ("<FONT FACE=symbol>\039</FONT>","contains", "contient");;
 
 let equiv = get  ("<FONT FACE=symbol>\186</FONT>","equiv", "equiv");;
 let approx = get  ("<FONT FACE=symbol>\187</FONT>","aproximates", "à peu près");;
-let cong = get  ("","cong", "congru à");;
 let neq = get ("<FONT FACE=symbol>\185</FONT>","&lt;&gt;", "&lt;&gt;");;
   ("<FONT FACE=sget ymbol></FONT>","contains", "contient");;
 let propto  = get ("<FONT FACE=symbol>\181</FONT>","propto", "propto");;

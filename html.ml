@@ -100,7 +100,8 @@ let dt = ref ""
 and dt_stack = ref []
 ;;
 
-
+let dcount = ref ""
+and dcount_stack = ref []
 
 type stack_item =
   Normal of string * string * status
@@ -140,6 +141,9 @@ let out_stack = ref []
 
 let pblock () = match !out_stack with
   Normal (s,_,_)::_ -> s
+| _ -> ""
+and parg ()  = match !out_stack with
+  Normal (_,s,_)::_ -> s
 | _ -> ""
 ;;
 
@@ -423,7 +427,9 @@ let rec try_open_block s args =
       nitems := 0 ;
       if s = "DL" then begin
         push dt_stack !dt ;
-        dt := ""
+        push dcount_stack !dcount;
+        dt := "";
+        dcount := ""
       end
     end
   end
@@ -775,6 +781,7 @@ let skip_line () =
 ;;
 
 let set_dt s = dt := s
+and set_dcount s = dcount := s
 ;;
 
 let item scan arg =
@@ -796,9 +803,14 @@ let item scan arg =
   !cur_out.pending <- mods ;
   nitems := !nitems+1;
   if pblock() = "DL" then begin
-    do_put "\n<DT>" ;
+    let parg = parg() in
+    do_put "\n<DT>" ;    
     open_group "" ;
-    true_scan (if arg = "" then !dt else arg) ;
+    if !dcount <> "" then scan ("\\refstepcounter{"^ !dcount^"}") ;
+    if parg <> "" then
+      true_scan ("\\makelabel{"^(if arg = "" then !dt else arg)^"}")
+    else
+      true_scan (if arg = "" then !dt else arg) ;
     close_group () ;
     do_put "<DD>"
   end else begin

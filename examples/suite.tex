@@ -1,4 +1,6 @@
-\documentstyle[html,isolatin1]{article}
+\documentclass{article}
+\usepackage{isolatin1}
+\usepackage{html}
 
 \title{Test de \hevea\footnote{Une étoile}}
 
@@ -21,6 +23,28 @@ Roman
 
 \end{center}
 
+\begin{htmlonly}
+\subsection{Colors}
+{\Huge
+{\purple purple}
+{\silver silver}
+{\gray gray}
+{\white white}
+{\maroon maroon}
+{\red red}
+{\fuchsia fuchsia}
+{\green green}
+{\lime lime}
+{\olive olive}
+{\yellow yellow}
+{\navy navy}
+{\blue blue}
+{\teal teal}
+{\aqua aqua}
+{\htmlcolor{202020}et \c{c}a, c'est presque noir ?}
+{\htmlcolor{e0e0e0}et \c{c}a, c'est presque blanc ?}
+}
+\end{htmlonly}
 
 \section{Math mode}
 
@@ -29,6 +53,19 @@ Roman
 Alors j'y vais~: $1 + a_{i+1} + \int^N_01/x dx + \frac{\partial x}{2}$
 
 Et puis une petite mbox en exposant~: {\LARGE $\alpha^{\mbox{gros $\beta$}}$}.
+
+Et puis faut bien essayer les autres trucs:
+
+\begin{tabular}{ll}
+{\bf bold} & $\mathbf{1 + a_{i+1} + \int^N_01/x dx + \frac{\partial
+x}{2}}$\\
+{\sf sans sherif} &
+$\mathsf{1 + a_{i+1} + \int^N_01/x dx + \frac{\partial x}{2}}$\\
+{\it italique} &
+$\mathit{1 + a_{i+1} + \int^N_01/x dx + \frac{\partial x}{2}}$
+\end{tabular}
+
+\noindent Bon, on a connu pire~!
 
 
 \subsection{Test des exposants abusifs} $1^{2^{3^{4^5}}}$
@@ -52,6 +89,13 @@ $$1 + a_{i+1} + \int^N_01/x dx + \frac{\partial x}{2}$$
 1 & 2
 \end{coucou}
 
+\subsection{Les modes dans les tableaux}
+
+\begin{tabular}{c@{foo}c}
+\tt tt & \it it\\
+\sf sf & \sc sc\\
+\end{tabular}
+
 \subsection{Tableaux d'une ligne}
 $$
 \begin{array}{ll}
@@ -62,6 +106,11 @@ $$
 $$
 \left(\begin{array}{c} 1 \\ \begin{array}{ll}2 & 3\end{array}\end{array}\right)
 $$
+
+\begin{tabular}{|*{10}{c}}
+1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 \\
+3 & 4 & 5 & 6 & 7 & 8 & 10 & 9 & 1 & 2
+\end{tabular}
 
 \subsection{Multicolonnes}
 
@@ -267,15 +316,15 @@ $$
 
 \subsection{Newtheorm + cases}
 
-\newtheorem{th}{Th\'eor\`eme}
-\newtheorem{ath}[th]{Autre théorème}
+\newtheorem{theoreme}{Th\'eor\`eme}
+\newtheorem{ath}[theoreme]{Autre théorème}
 \newcommand{\Preuve}{\noindent{\bf Preuve} \hspace{1ex}}
-\begin{th}\label{un}
+\begin{theoreme}\label{un}
 Soit $M^p$ la puissance p-i\`eme de la matrice $M$, le co{e}fficient
 $M^{p}_{i,j}$ est \'egal au nombre de chemins de longueur $p$ de $G$
 dont l'origine est le sommet $x_i$ et dont l'extr\'emit\'e est le
 sommet $x_j$.
-\end{th}
+\end{theoreme}
 
 \begin{ath}[Pour voir]\label{deux}
 Ça devrait avoir le numéro 2.
@@ -292,6 +341,7 @@ $p-1$ joignant $x_i$ \`a $x_k$.
 
 $$L(i,j)=\cases{1 + L(i-1,j-1)            &si $a_i=b_j$ \cr
                 \max (L(i,j-1),L(i-1,j))  &sinon.}      \eqno{(*)}$$
+%$$
 
 \section{Quelques références}\label{ici}\label{allrefs}
 Alors ici je suis en~\ref{ici}. Ensuite je serai là-bas
@@ -320,5 +370,70 @@ Bref c'est fini.\\
 \end{flushleft}
 \caption{\label{t2}}
 \end{table*}
+
+\section{Encore un effort}
+
+\def\trans#1{\stackrel{#1}{\rightarrow}}
+$$
+A_0 = \epsilon(\{e_0\}) \trans{\alpha_0} A_1 \trans{\alpha_1} \cdots \trans{\alpha_{k-1}} A_k
+$$
+
+$$
+e_i \in \epsilon(A) ~ \hbox{et} ~ (e_i,e_{i+1},\epsilon) \in T  \Rightarrow
+e_{i+1} \in \epsilon(A)
+$$
+
+$$
+A^{3+k-1}_{j+8-i}
+$$
+
+$$\tt
+\alpha_j
+$$
+
+\begin{itemize}\label{coucou}
+\item Chouette r\'ef\'erence~\ref{coucou}, non ?
+\end{itemize}
+
+\section{Quelques listes}
+
+\begin{trivlist}
+\item Coucou
+\item Zobi
+\end{trivlist}
+
+\newcounter{coucou}
+\renewcommand{\thecoucou}{\Alph{coucou}}
+\begin{list}{\thecoucou}{\renewcommand{\makelabel}[1]{\underline{#1}}\usecounter{coucou}}
+\item Coucou
+\item Zobi
+\end{list}
+
+\newenvironment{foo}{\begin{trivlist}\it\item[coucou]}{\end{trivlist}}
+\begin{foo}
+Foo! foooooooooooooooooooo.
+\end{foo}
+
+
+\section{Beurk}
+
+{\centering coucou}
+
+{\raggedleft coucou}
+
+{\raggedright coucou}
+
+\begin{center}
+coucou
+\end{center}
+
+\begin{flushleft}
+coucou
+\end{flushleft}
+
+\begin{flushright}
+coucou
+\end{flushright}
+
 
 \end{document}
