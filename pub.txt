@@ -1,7 +1,7 @@
 
-It is my pleasure to anounce the first bug fix release of HEVEA.
+It is my pleasure to anounce the second major release of HEVEA.
 
-      This is HEVEA, version 1.01, a fast LaTeX to HTML translator.
+      This is HEVEA, version 1.02, a fast LaTeX to HTML translator.
 
 
     HEVEA is a LaTeX to HTML translator.  The input language is a fairly
@@ -9,6 +9,27 @@ It is my pleasure to anounce the first bug fix release of HEVEA.
     output language is HTML that is (hopefully) correct with respect to
     version 3.2.
 
+    With respect to previous version 1.01, the most salient changes
+    are:   
+        - imagen is less nfs intensive (pipes, temporary files in
+          /usr/tmp) and characters are anti-aliased.
+        - Color can now be specified in the style of the ``color''
+          package.
+        - The environments ``toimage'' and ``latexonly'' now provide
+          an extended fonctionality: they can be introduced by other
+          user-defined environments and paramater substitution occurs
+          inside ``toimage''.
+        - The new environments ``verbimage'' and ``verblatex'' provide
+          the old functionality of ``toimage'' and ``latexonly''.
+        - The implementation of macro expansion is more rigorous.
+        - Argument syntax is extended and more uniform.
+        - Simple lengths (such as 2ex or 3em) are recognized and
+          translated to line breaks and spaces.
+        - A few supplementary constructs are implemented :
+                \includeonly, \verbatiminput.
+        - A few simple bugs are corrected (e.g. \chi)
+        
+    --------------------------------------------------------------------------
     Exotic symbols are translated into symbols
     pertaining to the symbol font of the HTML browser, using the
     non-standard FACE attribute of the FONT tag.

@@ -1,4 +1,6 @@
 version 1.02
+  - imagen is less nfs intensive (pipes, temporary files in /usr/tmp) and
+    characters are anti-aliased.
   - Color in the ``color'' package style.
   - new verbimage and verblatex that implement the old behavior of
     latexonly and toimage.

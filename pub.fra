@@ -8,10 +8,25 @@ J'ai la joie d'anoncer la nouvelle release d'HEVEA.
   Par rapport a la version precédente (1.01) il y a de nombreuses corrections
   de bugs, notamment dans le rendu des formules qui contiennent des
   délimiteurs. En outre les fonctionnalité suivantes ont été ajoutées:
+
+        - imagen est plus efficace (pipes, fichiers temporaires dans
+          /usr/tmp) et l'anti-aliasing est appliqué aux caractères.
         - La couleur du texte peut être spécifiée dans le style du
           paquetage ``color''.
-        - Les environements ``toimage et 
-
+        - Les environements ``toimage'' et ``latexonly'' ont une fonctionalité
+          étendue: il peuvent être introduits par d'autres environnements et
+          la substition des paramêtres est réalisée à l'intérieur de
+          ``toimage''.
+        - Les nouveau environnements ``verblatex'' et ``verbimage''
+          fournissent l'ancienne fonctionalité de ``latexonly'' et ``toimage''.
+        - La réalisation de la macro expansion est plus rigoureuse.
+        - La syntaxe des arguments est étendue et uniformisée.
+        - Les longeurs simples (comme 2ex ou 3em) sont reconnues et traduites
+          en espaces insécables ou sauts de ligne.
+        - Quelques constructions supplémentaires sont reconnues:
+                \includeonly, \verbatiminput
+        - Quelques bugs simples sont corrigés (\chi par exemple).
+  ----------------------------------------------------------------------------
   Les symboles exotiques sont traduits en utilisant une police de charatctères
   ``symbols'' que doit connaître le brouteur HTML.
    Cette pratique n'est conforme à aucun standard HTML, mais HEVEA offre des
