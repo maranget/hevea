@@ -28,7 +28,7 @@
 \newcommand{\html}{\@print{HTML}}
 \newif\ifhevea
 \heveatrue
-%%% HTML related stuff (TEX equivalents are in the html.sty file)
+%%% HTML related stuff (TEX equivalents are in the hevea.sty file)
 \def\@url#1#2{#2 (#1)}
 \def\url#1#2{\@url{#1}{#2}}
 \def\footurl#1#2{\@url{#1}{#2}}
@@ -80,7 +80,7 @@
   {\footnotemark\footnotetext{#2}}
   {\footnotemark[#1]\footnotetext[#1]{#2}}}
 \newenvironment{thefootnotes}[1]
-  {\footnoterule\begin{list}[]{}{\renewcommand{\makelabel}[1]{\@subst{##1}}}}
+  {\footnoterule\begin{list}[]{}{\renewcommand{\makelabel}[1]{(##1)}}}
   {\end{list}}
 
 %%%% Accents and special symbols.
@@ -324,7 +324,7 @@
 }}=\@itemdisplay\else
 \textdoteq\fi}
 \def\sum{\ifdisplay{\@displaysum}\else\Sigma\fi}
-\def\prod{\ifdisplay{\@displayprod}\else\prod\fi}
+\def\prod{\ifdisplay{\@displayprod}\else\@prod\fi}
 \def\int{\ifdisplay\@displayint\else{\large\@int}\fi}
 %% Arrays and tabular
 \newcommand{\extracolsep}[1]{}
@@ -342,7 +342,7 @@
   \begin{list}{}
     {\renewcommand{\makelabel}[1]{[\@bibref{##1}]}}}
   {\end{list}}
-\newcommand{\bibitem}[2][]{\item[#2]}
+\newcommand{\bibitem}[2][!*!]{\@bibwrite{#1}{#2}\item[#2]}
 %% Indexes a` la index.cls
 \newcommand{\index}[2][default]{\@index[#1]{#2}}
 \newcommand{\printindex}[1][default]{%

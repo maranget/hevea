@@ -4044,12 +4044,19 @@ index.html: $(DOC).html
 
 $(DOC).html: macros.hva $(DOC).tex
         $(HEVEA) $(HEVEAOPTS) macros.hva $(DOC).tex
+        $(HEVEA) $(HEVEAOPTS) macros.hva $(DOC).tex
 clean:
-        rm -f $(DOC).html index.html $(DOC)[0-9][0-9][0-9].html
+        rm -f $(DOC).html index.html $(DOC)[0-9][0-9][0-9].html $(DOC).haux
 \end{verbatim}
 Note that the \texttt{clean} rule removes all the \texttt{doc001.html},
 \texttt{doc002.html}, etc. files produced by \texttt{hacha}.
-
+Also note that
+\texttt{make clean} also removes the \texttt{doc.haux} file and
+that \texttt{hevea} runs
+twice, in order to be sure that cross-references are correct.
+In the case where \texttt{doc.tex} is first processed by \LaTeX{}
+\emph{before} running \hevea{}, it is not necessary to run
+\texttt{hevea} twice (see section~\ref{cross}).
 
 When the \textit{image} file feature is used, one can use the
 following, extended, \texttt{Makefile}:
@@ -4065,13 +4072,14 @@ index.html: $(DOC).html
 
 $(DOC).html: macros.hva $(DOC).tex
         $(HEVEA) $(HEVEAOPTS) macros.hva $(DOC).tex
+        $(HEVEA) $(HEVEAOPTS) macros.hva $(DOC).tex
         $(MAKE) $(MFLAGS) $(DOC)001.gif
 
 $(DOC)001.gif: $(DOC).image.tex
         $(IMAGEN) $(DOC)
 
 clean:
-        rm -f $(DOC).html index.html $(DOC)[0-9][0-9][0-9].html
+        rm -f $(DOC).html index.html $(DOC)[0-9][0-9][0-9].html $(DOC).haux
         rm -f $(DOC).image.*
         rm -f $(DOC)[0-9][0-9][0-9].gif
 \end{verbatim}
