@@ -2,12 +2,16 @@
 
 \usepackage{alltt}
 \usepackage{html}
+\newcommand{\rbox}[2]{$^{\mbox{#2}}$}
+\newcommand{\lbox}[2]{$_{\mbox{#2}}$}
 \begin{latexonly}
 \gdef\myrule{\rule{10cm}{.05ex}\\[-.5ex]}
 \end{latexonly}
 \begin{htmlonly}
 \gdef\myrule{\@print{<HR NOSHADE SIZE=1 ALIGN=center WIDTH=75%>
-}}
+}}%
+\gdef\suite{\@print{<HR NOSHADE SIZE=1 ALIGN=center WIDTH=25%>
+}}%
 \end{htmlonly}
 \newenvironment{htmlout}{\begin{quote}\center\myrule}{~\\[-1ex]\myrule\endcenter\end{quote}}
 \title{How to spot and correct some trouble}
@@ -41,6 +45,9 @@ text.
 \end{latexonly}
 \begin{htmlonly}
 You can \raisebox{.6ex}{\em raise} or \raisebox{-.6ex}{\em lower}
+text.
+\suite
+You can \rbox{.6ex}{\em raise} or \lbox{-.6ex}{\em lower}
 text.
 \end{htmlonly}
 \end{htmlout}
