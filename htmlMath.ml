@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlMath.ml,v 1.27 2004-11-26 13:13:05 maranget Exp $" 
+let header = "$Id: htmlMath.ml,v 1.28 2004-12-08 16:51:54 maranget Exp $" 
 
 
 open Misc
@@ -327,22 +327,8 @@ and close_vdisplay_row () =
 
 (* Sup/Sub stuff *)
 
-let get_script_font () =
-  let n = get_fontsize () in
-  if n >= 3 then Some (n-1) else None
-;;
-
-let open_script_font () =
-  if not !pedantic then
-    match get_script_font () with
-    | Some m -> open_mod (Font m)
-    | _ -> ()
-;;
-
-
 let put_sup_sub display scanner (arg : string Lexstate.arg) =
   if display then open_display () else open_block INTERN "" ;
-  open_script_font () ;
   scanner arg ;
   if display then close_display () else close_block INTERN ;
 ;;
