@@ -478,4 +478,8 @@
 {\@auxdowrite{\@print{\@addcontentsline}{\{\@nostyle{}h#1\}\{\csname @#2@level\endcsname\}}\{\@subst{#3}\}\@print{
 }}}
 %%%%%%%%% Minipage
-\newenvironment{minipage}[2][]{\warning{minipage, output may be poor}}{}
+\newenvironment{minipage}[2][]{\warning{minipage, output may be
+poor}}{}
+%%%%% Extension des environnments hevea en lecture de fichier
+\newcommand{\rawhtmlinput}[1]
+{\@scaninput{\begin{rawhtml}}{#1}{\end{rawhtml}}}

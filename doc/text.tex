@@ -2202,9 +2202,12 @@ Postscript to bitmap format and will thus degrade it.
 
 
 \subsection{The \texttt{rawhtml} environment}\label{rawhtml}
-\envindex{rawhtml}
+\envindex{rawhtml}\comindex{rawhtmlinput}
 Any text enclosed between \verb+\begin{rawhtml}+ and
 \verb+\end{rawhtml}+ is echoed verbatim into the \html{} output file.
+Similarily, \verb+\rawhtmlinput{+\textit{file}\verb+}+ echoes the
+contents of file~\textit{file}.
+
 For avoiding to break \html~element nesting, the \texttt{rawhtml}
 environment should be used only at toplevel (i.e. not within another
 environment), and it should contain only \html~text that makes sense
@@ -2215,6 +2218,7 @@ dangerous, because \hevea{} is not informed about opening and closing
 the block-level element \texttt{TABLE}. In that case, one should use
 the internal macros \verb+\@open+ and \verb+\@close+ of the following
 section.
+
 
 When \hevea{} is given the command line option ``\texttt{-O}'',
 checking and optimization of text-level elements in the whole document
@@ -3014,7 +3018,6 @@ Have a try for this section~\ref{section:section}!
 The \verb+\appendix+ command exists and should work as in \LaTeX.
 
 \subsection{Table of Contents}
-\index{table of contents}%
 \comdefindex{tableofcontents}%
 \comdefindex{addcontentsline}%
 \hevea{} now generates a table of contents, using a procedure similar
@@ -3029,6 +3032,16 @@ in \textit{book} (or \textit{report}) style. To include more or less
 sectionning units in the
 table of contents, one sould increase or decrease the \verb+tocdepth+
 counter.
+It is important to notice that \hevea{} produces such a table of
+contents, only when it has total control over cross-references.
+More precisely, \hevea{} cannot produce the table of contents whem it
+reads \LaTeX{}-produced \texttt{.aux}~files.
+Instead, it should read its own \texttt{.haux}~files.
+This will naturally occur if no \texttt{.aux} files are present,
+otherwise these \texttt{.aux} files should be deleted, or \hevea{}
+should be instructed not to read them with the command-line option
+``\texttt{-fix}''
+(see Sections \ref{files} and ~\ref{heveaoptions}).
 
 One can also add extra entries in the table of contents by using
 the command \verb+\addcontentslines+, in a way similar
@@ -4491,7 +4504,7 @@ we have the following correspondences:
 \begin{tabular}{p{.3\linewidth}@{\quad}p{.4\linewidth}}
 \multicolumn{1}{c}{\TeX} & \multicolumn{1}{c}{\LaTeX}\\[.5em]
 \hline
-\verb+\newif+\textit{name} & \verb+\newboolean{+\textit{name}\verb+}+\\[.5em]
+\verb+\newif\if+\textit{name} & \verb+\newboolean{+\textit{name}\verb+}+\\[.5em]
 \verb+\+\textit{name}\verb+true+ &
 \verb+\setboolean{+\textit{name}\verb+}{true}+\\[.5em]
 \verb+\+\textit{name}\verb+false+ &
@@ -4555,9 +4568,9 @@ The \texttt{hevea} command, should be invoked as~:
 \end{verbatim}
 This will execute the script \texttt{xxdate.exe}, whose output is then
 read by \hevea{}.
-As a consequence, standard \TeX{} counters \verb+\year+,
-\verb+\month+, \verb+\day+  and
-\verb+\time+  are defined and
+As a consequence, standard \LaTeX{} counters \verb+year+,
+\verb+month+, \verb+day+  and
+\verb+\ime+  are defined and
 \LaTeX{} command \verb+\today+ works properly.
 \comindex{heveadate}
 Additionnally the following counters and commands are defined~:
@@ -4570,8 +4583,9 @@ Counter \texttt{Hour} & hour, 00\ldots{}11
 Counter \texttt{hour} & hour, 00\ldots{}23 \ifhevea(e.g. \thehour)\fi \\
 Counter \texttt{minute}  & minute, 00\ldots{}59
 \ifhevea(e.g. \theminute)\fi\\
-Counter \texttt{second}  & second, 00\ldots{}61\footnote{According to
-\texttt{date} man page.}
+Counter \texttt{second}  & second, 00\ldots{}61\ifhevea\footnote{According to
+\texttt{date} man page.}\else{} (According to
+\texttt{date} man page!)\fi
 \ifhevea(e.g. \thesecond)\fi\\ \hline
 Command \verb+\ampm+ & AM or PM
 \ifhevea(e.g. \ampm)\fi\\
@@ -5139,7 +5153,7 @@ files, including \texttt{hevea.hva} and base style files.
 \item[{\tt -fix}] Iterate \hevea{} until a fixpoint is found.
 Additionnaly, images get generated automatically.
 \item[{\tt -O}] Optimize \html{} by calling \esponja{} (see
-section~\ref{esponjausage}.
+section~\ref{esponjausage}).
 \item[{\tt -exec} {\it prog}] Execute file \textit{prog} and read the
 output. The file \textit{prog} must have execution permission and is
 searched by following the searching rules of~\texttt{hevea}.
@@ -5161,7 +5175,7 @@ is above 127 (i.e. output ascii only).
 These characters are replaced by \html{} entities. This option is
 mostly useful for generating \html{} that will be displayed properly
 by \emph{Netscape Communicator} on a Macintosh.
-\item[{\tt -pedantic}]  Be strict in interpreting \html
+\item[{\tt -pedantic}]  Be strict in interpreting \html{}
 definition. In particular, this option disable size and color changes inside
 \verb+<PRE>+\ldots{} \verb+</PRE>+, which are otherwise performed.
 \item[{\tt -I} {\it dirname}] Add {\it dirname} to the search path.
@@ -5460,7 +5474,7 @@ work only with documents that are generated by \hevea{} with the
 More details on browser configuration can be found at
 \ahrefurl{http://hutchinson.belmont.ma.us/tth/Xfonts.html}
 (A page from Ian Hutchinson's \texttt{tth} documentation).
-In particular the \emph{Sumple fix} of the \texttt{.Xdefaults} file
+In particular the \emph{Simple fix} of the \texttt{.Xdefaults} file
 above does not seem to work on \emph{Mozilla 4.78}, and you should
 rely on the more complicated fix described in the web page.
 Furthermore, be carefull to enable using document fonts
@@ -5507,7 +5521,8 @@ the
 
 The programs \commandname{hevea} and \commandname{hacha} are written in
 \footahref{http://caml.inria.fr/ocaml/}{Objective Caml}. Thus, you
-really need Objective Caml (version 2.00 or further) to compile them.
+really need Objective Caml (the more recent version, the better) to
+compile them.
 However, a Red~Hat 7.2
 \footahref{\ftpbase/hevea-\heveaversion-1.i386.rpm}{binary distribution}
 is also available, it does not require an Objective Caml installation
@@ -5610,6 +5625,9 @@ for documenting Objective Caml source code, forced me into debugging
 \hevea{} implementation of the \verb+alltt+ environment.
 \item Nicolas Tessaud implemented the \verb+-text+ and \verb+-info+
 output modes (see section~\ref{alternative}).
+\item Georges Mariano maintains the hevea mailing list, asked for
+many feature, and argued a lot to have them implemented.
+\item Many users contributed by sending bug reports.
 \end{itemize}
 
 \begin{thebibliography}{xxxxxxxxxx}
