@@ -20,7 +20,7 @@ module type T =
 module Make (Dest : OutManager.S) =
 struct
 
-let header = "$Id: index.ml,v 1.25 1999-05-14 17:54:51 maranget Exp $"
+let header = "$Id: index.ml,v 1.26 1999-05-17 15:52:46 tessaud Exp $"
 open Misc
 open Parse_opts
 open Entry
@@ -361,3 +361,6 @@ let print main tag =
 ;;
 
 end
+
+
+

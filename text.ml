@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.6 1999-05-11 14:05:53 tessaud Exp $"
+let header = "$Id: text.ml,v 1.7 1999-05-17 15:52:57 tessaud Exp $"
 
 
 open Misc
@@ -136,7 +136,7 @@ let pretty_stack s =
 (* output globals *)
 type status = {
     mutable nostyle : bool ;
-    mutable pending : env list ;
+(*    mutable pending : env list ;*)
     mutable active : env list ;
     mutable out : Out.t;
     mutable temp : bool
@@ -156,14 +156,14 @@ and parg () = match !out_stack with
 
 let free out =
   out.nostyle<-false;
-  out.pending<-[];
+(*  out.pending<-[];*)
   out.active<-[];
   Out.reset out.out;
   free_list := out :: !free_list
 ;;
 
 let cur_out = ref { nostyle = false;
-                    pending=[];
+                    (*pending=[];*)
                     active=[];
                     out=Out.create_null();
 		    temp=false
@@ -176,7 +176,7 @@ let set_out out =
 let newstatus nostyle p a t = match !free_list with
   [] ->
     { nostyle = nostyle;
-      pending = p;
+     (* pending = p;*)
       active = a;
       out = Out.create_buff ();
       temp = t;
@@ -184,7 +184,7 @@ let newstatus nostyle p a t = match !free_list with
 | e::reste ->
     free_list:=reste;
     e.nostyle <- nostyle;
-    e.pending <- p;
+(*    e.pending <- p;*)
     e.active <- a;
     e.temp <- t;
     assert (Out.is_empty e.out);
@@ -305,7 +305,7 @@ let do_put_line s =
 
 let do_flush () =
   if !verbose>3 then prerr_endline ("flush :"^line);
-  do_put_line (String.sub line 0 (flags.x +1)) ;
+  if flags.x >=0 then do_put_line (String.sub line 0 (flags.x)) ;
   flags.x <- -1;
 ;;
   
@@ -382,6 +382,11 @@ let do_put_char c =
   else do_put_char2 c
 ;;
 
+let finit_ligne () =
+  if !verbose>3 then prerr_endline "ending the line.";
+  if flags.x >0 then do_put_char '\n'
+;;
+
 let do_unskip () =
   if !cur_out.temp || (Out.is_null !cur_out.out) then
     Out.unskip !cur_out.out
@@ -422,38 +427,50 @@ let is_list = function
 let get_fontsize () = 3;;
 
 let nostyle () =
-  !cur_out.pending<-[];
+(*  !cur_out.pending<-[];*)
   !cur_out.nostyle<-true
 ;;
 
 let clearstyle () =
-  !cur_out.pending<-[]
+  !cur_out.active<-[]
 ;;
 
 let open_mod m =
   if m=(Style "CODE") then begin 
     do_put "`";
+    !cur_out.active <- m::!cur_out.active
   end;
-  !cur_out.active <- m::!cur_out.active
+;;
+
+let do_close_mod = function
+  |  Style "CODE" ->
+      do_put "'";
+  | _ -> ()
 ;;
 
 let close_mod () = match !cur_out.active with
   [] -> ()
-| Style "CODE"::reste ->
-    do_put "'";
+| (Style "CODE" as s)::reste ->
+    do_close_mod s;
     !cur_out.active <- reste
+(*
 | Style ""::reste ->
     !cur_out.active <- reste
+*)
 | _ -> ()
 ;;
 
 let erase_mods ml = ()
 ;;
 
-let open_mods ml = ()
+let rec open_mods = function
+  | [] -> ()
+  | s::reste -> open_mod s; open_mods reste
 ;;
 
-let close_mods ml = ()
+let close_mods () = 
+  List.iter do_close_mod !cur_out.active;
+  !cur_out.active <- []
 ;;
 
 let par = function (*Nombre de lignes a sauter avant le prochain put*)
@@ -535,7 +552,7 @@ let try_open_block s args =
   end else match s with
   | "ALIGN" ->
       begin
-	do_put_char '\n';
+	finit_ligne ();	
 	push align_stack flags.align;
 	push in_align_stack flags.in_align;
 	flags.in_align<-true;
@@ -548,7 +565,7 @@ let try_open_block s args =
       end
   |  "HEAD" ->
       begin
-	do_put_char '\n';
+	finit_ligne ();
 	flags.first_line <-0 ;
 	push underline_stack flags.underline;
 	flags.underline <- args;
@@ -640,7 +657,7 @@ let open_block s args =
     cur_out :=
       newstatus
 	!cur_out.nostyle
-	(!cur_out.pending @ !cur_out.active)
+	((*!cur_out.pending @*) !cur_out.active)
 	[] true;
   end;
 (*else begin
@@ -675,7 +692,7 @@ let close_block s =
     prerr_endline ("=> close_block ``"^s^"''");
   let bloc =  if s = "DIV" then "ALIGN" else s in
   if is_list bloc then do_put_char '\n'; (* revient a la ligne (et flushe) *)
-  if bloc= "ALIGN" || bloc="HEAD" then do_put_char '\n';
+  if bloc= "ALIGN" || bloc="HEAD" then finit_ligne ();
   force_block bloc "";
   if !verbose > 2 then
     prerr_endline ("<= close_block ``"^bloc^"''");
@@ -733,7 +750,7 @@ let item scan arg =
   if not (is_list (pblock())) then
     raise (Error "Item not inside a list element");
   
-  let mods = !cur_out.pending @ !cur_out.active in
+  let mods = (*!cur_out.pending @*) !cur_out.active in
 (*  do_close_mods ();*)
   let true_scan =
     if flags.nitems = 0 then begin
@@ -743,7 +760,7 @@ let item scan arg =
     end else scan in
   
   try_flush_par();
-  !cur_out.pending<-mods;
+  (*!cur_out.pending<-mods;*)
   flags.nitems<-flags.nitems+1;
   match pblock() with 
     "DL" -> begin (* description list *)
@@ -850,10 +867,12 @@ let to_string f =
 ;;
 
 let to_style f =
-  !cur_out.pending<-[];
+  (*!cur_out.pending<-[];*)
   !cur_out.active<-[];
+  open_block "TEMP" "";
   f ();
-  let r = !cur_out.active @ !cur_out.pending in
+  let r = !cur_out.active (*@ !cur_out.pending*) in
+  close_block "TEMP";
   r
 ;;
 
@@ -903,15 +922,11 @@ let put_close_group () =
 let put_in_math s =
   put s
 ;;
-(*
-let put_print_text s =
-  ()
-;;
 
-let put_print_html s =
-  ()
-;;
-*)
+
+(*--------------*)
+(*-- TABLEAUX --*)
+(*--------------*)
 
 type align = Top | Middle | Bottom
 ;;
@@ -947,7 +962,8 @@ type table_flags_t = {
     mutable taille : int Table.t;
     mutable tailles : int array;
     mutable table : row2 Table.t;
-    
+    mutable line : int;
+    mutable col : int;
   } 
 ;;
 
@@ -969,7 +985,7 @@ let row= ref {
 } 
 ;;
 
-let table = ref {
+let table =  ref {
   border = false;
   lines = 0;
   cols = 0;
@@ -977,7 +993,9 @@ let table = ref {
   height = 0;
   taille = Table.create 0;
   tailles = Array.create 0 0;
-  table = Table.create {hauteur = 0; cellules = (Array.create 0 !cell)}
+  table = Table.create {hauteur = 0; cellules = (Array.create 0 !cell)};
+  line = 0;
+  col = 0;
 } 
 ;;
 
@@ -988,9 +1006,6 @@ let cell_stack = ref [];;
 let multi = ref []
 and multi_stack = ref [];;
 
-let line = ref 0
-and col = ref 0
-;;
 
 let open_table border htmlargs =
   (* creation d'une table : on prepare les donnees : creation de l'environnement qvb, empilage du precedent. *)
@@ -1010,28 +1025,51 @@ let open_table border htmlargs =
   push multi_stack !multi;
 
   if !verbose>2 then prerr_endline "=> open_table";
+  
+  finit_ligne ();
+  open_block "" "";
+  flags.first_line <- 0;
 
-  if border then !table.border<-true
-  else !table.border<-false;
-  Table.reset !table.table;
-  !table.lines<-0;
-  !table.cols<-0;
-  !table.width<-0;
-  !table.height<-0;
-  line:=-1;
-  col:=-1;
+  table := {
+    border = border;
+    lines = 0;
+    cols = 0;
+    width = 0;
+    height = 0;
+    taille = Table.create 0;
+    tailles = Array.create 0 0;
+    table = Table.create {hauteur = 0; cellules = (Array.create 0 !cell)};
+    line = -1;
+    col = -1;
+  };
+    
+  row := {
+    haut = 0;
+    cells = Table.create  !cell
+  };
+
+  cell :=  {
+    ver = Middle;
+    hor = Left;
+    h = 0;
+    w = 0;
+    wrap = false;
+    span = 1;
+    text = ""
+  };
+
   multi := [];
   flags.in_table<-true;
 ;;
 
 let new_row () =
-  if !col> !table.cols then !table.cols<- !col;
-  col:=-1;
-  line:=!line+1;
-  if !line=1 then  !table.tailles<-Table.trim !table.taille;
+  if !table.col> !table.cols then !table.cols<- !table.col;
+  !table.col <- -1;
+  !table.line <- !table.line +1;
+  if !table.line = 1 then  !table.tailles<-Table.trim !table.taille;
   Table.reset !row.cells;
   !row.haut<-0;
-  if !verbose>2 then prerr_endline ("new_row, line ="^string_of_int !line)
+  if !verbose>2 then prerr_endline ("new_row, line ="^string_of_int !table.line)
 ;;
 
 
@@ -1042,8 +1080,8 @@ let open_cell format span =
       
 
    (* remplir les champs de formattage de cell *)
-  col:=!col+1;
-  if !verbose>2 then prerr_endline ("open_cell, col="^string_of_int !col);
+  !table.col <- !table.col+1;
+  if !verbose>2 then prerr_endline ("open_cell, col="^string_of_int !table.col);
   let _=match format with 
     Tabular.Align {Tabular.vert=v ; Tabular.hor=h ; Tabular.wrap=w ; Tabular.width=size} ->
       !cell.ver <- 
@@ -1075,7 +1113,7 @@ let open_cell format span =
     flags.x_end <- !cell.w;
     flags.hsize <- !cell.w;
     flags.first_line <- 0;
-    flags.x <- 0;
+    flags.x <- -1;
     flags.last_space <- 0;
   end;
   open_block "" "";
@@ -1098,8 +1136,8 @@ let close_cell content =
       !cell.h<- !cell.h+1;
       if not !cell.wrap && (!taille > !cell.w) then begin
 	!cell.w <- !taille;
-	taille:=0;
       end;
+      taille:=0;
     end else begin
       taille:=!taille+1;
     end;
@@ -1116,29 +1154,29 @@ let close_cell content =
   (* on a la taille de la cellule, on met sa largeur au bon endroit, si necessaire.. *)
   (* Multicolonne : Il faut mettre des zeros dans le tableau pour avoir la taille minimale des colonnes atomiques. Puis on range start,end dans une liste que l'on regardera a la fin pour ajuster les tailles selon la loi : la taille de la multicolonne doit etre <= la somme des tailles minimales. Sinon, il faut agrandir les colonnes atomiques pour que ca rentre. *)
   if !cell.span = 1 then begin
-    if !line=0 then
+    if !table.line = 0 then
       Table.emit !table.taille !cell.w
     else
       begin
-	if !col >= (Array.length !table.tailles) then 
+	if !table.col >= (Array.length !table.tailles) then 
 	  begin (* depassement du tableau : on l'agrandit.. *)
 	    let t = Array.create ((Array.length !table.tailles)+1) 0 in
 	    Array.blit !table.tailles 0 t 0 (Array.length !table.tailles) ;
 	    !table.tailles <- t
 	  end;
-	if (!cell.w > (!table.tailles.(!col))) then 
+	if (!cell.w > (!table.tailles.(!table.col))) then 
 	  begin
-	    !table.tailles.(!col)<- !cell.w;
+	    !table.tailles.(!table.col)<- !cell.w;
 	  end;
       end;
   end else begin
-    if !line=0 then
+    if !table.line=0 then
       for i = 1 to !cell.span do
 	Table.emit !table.taille 0
       done;
-    multi := (!col,!col + !cell.span -1,!cell.w) :: !multi;
+    multi := (!table.col,!table.col + !cell.span -1,!cell.w) :: !multi;
   end;
-  col := !col + !cell.span -1;
+  !table.col <- !table.col + !cell.span -1;
   if !cell.h> !row.haut then !row.haut<- !cell.h;
   if !verbose>2 then prerr_endline "<= force_cell";
 ;;
@@ -1151,7 +1189,7 @@ let erase_cell () =
   close_block "";
   let _ = Out.to_string !cur_out.out in
   close_block "TEMP";
-  col := !col -1;
+  !table.col <- !table.col -1;
 ;;
 
 let erase_row () = ()
@@ -1226,7 +1264,7 @@ let close_table () =
     prerr_endline "=> close_table";
     pretty_stack !out_stack
   end;
-  if !line=0 then  !table.tailles<-Table.trim !table.taille;
+  if !table.line=0 then  !table.tailles<-Table.trim !table.taille;
   let tab = Table.trim !table.table in
   (* il reste a formatter et a flusher dans la sortie principale.. *)
   !table.lines<-Array.length tab;
@@ -1238,11 +1276,10 @@ let close_table () =
   for i = 0 to Array.length !table.tailles -1 do
     !table.width <- !table.width + !table.tailles.(i);
   done;
-
+  
   if !table.border then begin
     !table.width <- !table.width + 2;
     do_put (String.make !table.width '-');
-    do_put_char '\n';
   end;
     
   for i = 0 to !table.lines - 1 do
@@ -1253,6 +1290,7 @@ let close_table () =
     let pos = Array.create (Array.length ligne) 0 in
     !row.haut <-0;
     for j = 0 to tab.(i).hauteur -1 do
+      if not ( not !table.border && i=0 && j=0) then do_put_char '\n';
       if !table.border then do_put_char '|';
       let col = ref 0 in
       for k = 0 to Array.length ligne -1 do
@@ -1273,19 +1311,21 @@ let close_table () =
 	  col := !col + ligne.(k).span;
 	end;
       done;
-      do_put_char '\n';
+(*      do_put_char '\n';*) (* Le retour chariot est mis dans Latexscan .. *)
     done;
     if !table.border then begin
-      do_put (String.make !table.width '-');
       do_put_char '\n';
+      do_put (String.make !table.width '-');
     end;
   done;
+
   table := pop "table" table_stack;
   row := pop "row" row_stack;
   cell := pop "cell" cell_stack;
   multi := pop "multi" multi_stack;
   flags.in_table <- pop "in_table" in_table_stack;
-
+  close_block "";
+ if !verbose>2 then prerr_endline "<= close_table"
 ;;
 
 

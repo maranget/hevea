@@ -10,7 +10,7 @@
 (***********************************************************************)
 
 
-let header = "$Id: info.ml,v 1.5 1999-05-11 14:05:45 tessaud Exp $"
+let header = "$Id: info.ml,v 1.6 1999-05-17 15:52:47 tessaud Exp $"
 
 open Misc
 open Text
@@ -89,7 +89,14 @@ let forget =Text.forget;;
 
 
 (* Gestion des references *)
+(*
 let loc_ref=InfoRef.loc_ref;;
+*)
+let loc_ref s1 s2 = (* fait la reference *)
+  put ("\\@reference{"^s2^"}");
+;;
+
+
 let loc_name=InfoRef.loc_name;;
 
 

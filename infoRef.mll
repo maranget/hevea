@@ -159,28 +159,33 @@ let change_file() =
 ;;
 
 (* References *)
-(*type label_t = {
+type label_t = {
     mutable lab_name : string;
     mutable noeud : node_t option;
-  } 
+  };;
+(* 
 type ref_t = {
     mutable number : int;
     mutable lab : string}
 *)
-(*
+
 let labels_list = ref [];;
+(*
 let refs_list = ref [];;
 *)
-let labels = Hashtbl.create 17;;
-let refs = Hashtbl.create 17;;
-
-let ref_count = ref 0 ;;
-
 (*
+let labels = Hashtbl.create 7;;
+*)
+(*let refs = Hashtbl.create 37;;
+
+let ref_count = ref 0 ;;*)
+
+
 let rec cherche_label s = function
-  | [] -> None
-  | l::r -> if l.lab_name=s then Some l else cherche_label s r
+  | [] -> raise Not_found
+  | l::r -> if l.lab_name=s then l.noeud else cherche_label s r
 ;;
+(*
 let rec cherche_ref_par_num n = function
   | [] -> None
   | r::reste -> if r.number = n then Some r else cherche_ref_par_num n reste
@@ -190,29 +195,34 @@ let rec cherche_ref_par_num n = function
 let loc_name s1 s2 = (* pose un label *)
   let _ = 
     try 
-      Hashtbl.find labels s1;
+(*      Hashtbl.find labels s1;*)
+      let _ = cherche_label s1 !labels_list in
       raise (Error "Duplicate use of labels")
-    with Not_found -> ()
+    with Not_found -> None
   in
 (*(match cherche_label s1 !labels_list with
     None -> ()
   | Some _ -> raise (Error "Duplicate use of labels"););
+*)
   let l = {
     lab_name = s1;
     noeud = !current_node ;
-  } in*)
-  Hashtbl.add labels s1 !current_node;
-  (*labels_list := l:: !labels_list;*)
+  } in
+(*  Hashtbl.add labels s1 !current_node;*)
+
+  labels_list := l:: !labels_list;
   if !verbose > 1 then prerr_endline ("InfoRef.loc_name, label="^s1);
   (*Text.put s2;*)
 ;;
 
 let loc_ref s1 s2 = (* fait la reference *)
-  ref_count:=!ref_count +1;
+ (* ref_count:=!ref_count +1;*)
 (*  let r = { number = !ref_count; lab = s2 } in
   refs_list := r:: !refs_list;*)
-  Hashtbl.add refs !ref_count s2;
-  Text.put ("\\@reference"^string_of_int !ref_count);
+(*  Hashtbl.add refs !ref_count s2;*)
+(*  prerr_endline ("reference a :"^s2);*)
+(*  Text.put ("\\@reference{"^s2^"}");*)
+  ()
 ;;
 
 
@@ -433,16 +443,16 @@ let affiche_node num =
     prerr_endline ("Node : "^noeud_name noeud);
 ;;
 
-let affiche_ref num =
+let affiche_ref key =
 (*
   let r = match cherche_ref_par_num num !refs_list with
   | Some reference -> reference
   | None -> raise (Error "Reference not found.")
   in*)
-  let r =
+(*  let r =
     try Hashtbl.find refs num;
     with Not_found -> raise (Error "Reference not found.")
-  in
+  in*)
   let verifie_ref s =
     let t = String.copy s in
     for i= 0 to String.length s -1 do begin
@@ -453,7 +463,8 @@ let affiche_ref num =
   in
   
   let l = 
-    try Hashtbl.find labels r;
+    try (*Hashtbl.find labels key;*)
+      cherche_label key !labels_list;
     with Not_found ->  raise (Error "Reference to no label");
   in
   match l with
@@ -482,10 +493,10 @@ rule main = parse
   let num = numero lexbuf in
   affiche_node num;
   main lexbuf}
-| "\\@reference"
+| "\\@reference{"
     {
-  let num = numero lexbuf in
-  affiche_ref num;
+  let key = arg lexbuf in
+  affiche_ref key;
   main lexbuf}
 | eof
     {
@@ -509,7 +520,12 @@ and numero = parse
     int_of_string lxm}
 | _ {raise (Error "Syntax error in info temp file")}
     
-
+and arg = parse
+    [^'}']+'}'
+    {let lxm= lexeme lexbuf in
+    String.sub lxm 0 ((String.length lxm) -1)}
+| _ {raise (Error "Syntax error in info temporary file: invalid reference.")}
+    
 
 
 {}

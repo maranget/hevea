@@ -8,6 +8,13 @@
 %      - environemnt htmlraw,  to include raw HTML in hevea output.
 %
 \makeatletter%
+
+\newif{\ifhtml}
+\newif{\iftext}
+\htmlfalse
+\textfalse
+
+
 \newcommand{\smup}[2]{%
 \raise #1\hbox{$\m@th$%
   \csname S@\f@size\endcsname

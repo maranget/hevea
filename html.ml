@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: html.ml,v 1.46 1999-05-11 17:20:14 maranget Exp $" 
+let header = "$Id: html.ml,v 1.47 1999-05-17 15:52:45 tessaud Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -1067,6 +1067,9 @@ and open_aftergroup f =
 and close_group () = close_block ""
 ;;
 
+(*----------*)
+(* DISPLAYS *)
+(*----------*)
 
 
 let begin_item_display f is_freeze =
@@ -1229,6 +1232,7 @@ let item_display () = do_item_display false
 and force_item_display () = do_item_display true
 ;;
 
+
 let erase_block s =
   if !verbose > 2 then begin
     Printf.fprintf stderr "erase_block: %s" s;
@@ -1241,14 +1245,15 @@ let erase_block s =
   free !cur_out ;
   cur_out := tout
 ;;
-       
+   
+
 let erase_display () =
   erase_block "" ;
   erase_block "TD" ;
   erase_block "DISPLAY" ;
   try_close_display ()
 ;;
-      
+
 
 let change_block s args =
   erase_block s ;
@@ -1365,6 +1370,7 @@ let loc_name s1 s2 =
   put "</A>" ;
   par pval
 ;;
+
 
 let insert_vdisplay open_fun =
   if !verbose > 2 then begin

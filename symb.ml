@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: symb.ml,v 1.15 1998-12-28 13:06:09 maranget Exp $" 
+let header = "$Id: symb.ml,v 1.16 1999-05-17 15:52:56 tessaud Exp $" 
 open Parse_opts
 
 exception No
@@ -80,12 +80,12 @@ let bigtriangleup = get ("<FONT FACE=symbol>\068</FONT>","/_\\","/_\\");;
 let bigtriangledown = get ("<FONT FACE=symbol>\209</FONT>","\\/","\\/");;
 let triangleleft = get ("<FONT FACE=symbol>\060\124</FONT>","<|","<|");;
 let triangleright = get ("<FONT FACE=symbol>\124\062</FONT>","|>","|>");;
-let unlhd = get ("<FONT FACE=symbol>\163\124</FONT>","&lt;=|","&lt;=|");;
-let unrhd = get  ("<FONT FACE=symbol>\124\179</FONT>","|&gt;=","|&gt>=");;
+let unlhd = get ("<FONT FACE=symbol>\163\124</FONT>","<=|","<=|");;
+let unrhd = get  ("<FONT FACE=symbol>\124\179</FONT>","|>=","|>=");;
 let oplus = get  ("<FONT FACE=symbol>\197</FONT>","oplus","plus-rond");;
 let otimes = get  ("<FONT FACE=symbol>\196</FONT>","otimes","mult-rond");;
 
-let leq = get ("<FONT FACE=symbol>\163</FONT>","&lt;=","&lt;=");;
+let leq = get ("<FONT FACE=symbol>\163</FONT>","<=","<=");;
 let subset = get ("<FONT FACE=symbol>\204</FONT>","included in","inclus dans");;
 let notsubset = get ("<FONT FACE=symbol>\203</FONT>","not included in","n'est pas inclus dans");;
 let subseteq =
@@ -93,7 +93,7 @@ get   ("<FONT FACE=symbol>\205</FONT>","included in or equal to","inclus dans ou
 let display_sqsubset =
 get  ("<FONT FACE=symbol>\190<BR>\234<BR>\190</FONT>","sqsubset", "sqsubset");;
 let elem = get ("<FONT FACE=symbol>\206</FONT>","in", "appartient à");;
-let geq = get ("<FONT FACE=symbol>\179</FONT>","&gt;=", "&gt;=");;
+let geq = get ("<FONT FACE=symbol>\179</FONT>",">=", ">=");;
 let supset = get  ("<FONT FACE=symbol>\201</FONT>","contains","contient");;
 let supseteq = get  ("<FONT FACE=symbol>\202</FONT>","contains or equal to","contient ou égal à");;
 let display_sqsupset = get ("<FONT FACE=symbol>\190<BR> \234<BR>\190</FONT>",
@@ -103,26 +103,26 @@ let ni = get ("<FONT FACE=symbol>\039</FONT>","contains", "contient");;
 
 let equiv = get  ("<FONT FACE=symbol>\186</FONT>","equiv", "equiv");;
 let approx = get  ("<FONT FACE=symbol>\187</FONT>","aproximates", "à peu près");;
-let neq = get ("<FONT FACE=symbol>\185</FONT>","&lt;&gt;", "&lt;&gt;");;
+let neq = get ("<FONT FACE=symbol>\185</FONT>","<>", "<>");;
   ("<FONT FACE=sget ymbol></FONT>","contains", "contient");;
 let propto  = get ("<FONT FACE=symbol>\181</FONT>","propto", "propto");;
 let perp = get  ("<FONT FACE=symbol>\094</FONT>","perp", "perp");;
-let join = get  ("<FONT FACE=symbol>\241\225</FONT>","&gt;&lt;", "&gt;&lt;");;
+let join = get  ("<FONT FACE=symbol>\241\225</FONT>","><", "><");;
 
-let leftarrow = get ("<FONT FACE=symbol>\172</FONT>","&lt;-", "&lt;-");;
-let upleftarrow = get ("<FONT FACE=symbol>\229</FONT>","&lt;=", "&lt;=");;
-let rightarrow = get ("<FONT FACE=symbol>\174</FONT>","-&gt;", "-&gt;");;
-let uprightarrow = get ("<FONT FACE=symbol>\222</FONT>","=&gt;", "=&gt;");;
-let leftrightarrow = get ("<FONT FACE=symbol>\171</FONT>","&lt;-&gt;", "&lt;-&gt;");;
-let upleftrightarrow = get ("<FONT FACE=symbol>\219</FONT>","&lt;=&gt;", "&lt;=&gt;");;
-let longleftarrow = get ("<FONT FACE=symbol>¬\190</FONT>","&lt;--", "&lt;--");;
-let longrightarrow = get ("<FONT FACE=symbol>\190\174</FONT>","--&gt;", "--&gt;");;
-let longleftrightarrow = get ("<FONT FACE=symbol>¬\190\174</FONT>","&lt;--&gt;", "&lt;--&gt;");;
+let leftarrow = get ("<FONT FACE=symbol>\172</FONT>","<-", "<-");;
+let upleftarrow = get ("<FONT FACE=symbol>\229</FONT>","<=", "<=");;
+let rightarrow = get ("<FONT FACE=symbol>\174</FONT>","->", "->");;
+let uprightarrow = get ("<FONT FACE=symbol>\222</FONT>","=>", "=>");;
+let leftrightarrow = get ("<FONT FACE=symbol>\171</FONT>","<->", "<->");;
+let upleftrightarrow = get ("<FONT FACE=symbol>\219</FONT>","<=>", "<=>");;
+let longleftarrow = get ("<FONT FACE=symbol>¬\190</FONT>","<--", "<--");;
+let longrightarrow = get ("<FONT FACE=symbol>\190\174</FONT>","-->", "-->");;
+let longleftrightarrow = get ("<FONT FACE=symbol>¬\190\174</FONT>","<-->", "<-->");;
 
 
 let int = get ("<FONT FACE=symbol>\242</FONT>","int", "integrale");;
 let display_int = get ("<FONT FACE=symbol>\243<BR>\245</FONT>",
-"/<BR>|<BR>/", "/<BR>|<BR>/");;
+"/\n|\n/", "/\n|\n/");;
 
 let aleph = get ("<FONT FACE=symbol>À</FONT>","aleph","aleph");;
 let wp =  get ("<FONT FACE=symbol>Ã</FONT>","wp","wp");;
@@ -135,7 +135,7 @@ let angle = get ("<FONT FACE=symbol>Ð</FONT>","angle","angle");;
 let exists = get ("<FONT FACE=symbol>\036</FONT>","exists", "il existe");;
 let forall = get ("<FONT FACE=symbol>\034</FONT>","for all", "pour tout");;
 let partial = get ("<FONT FACE=symbol>¶</FONT>","partial", "d rond");;
-let diamond = get ("<FONT FACE=symbol>à</FONT>","&lt;&gt;", "&lt;&gt;");;
+let diamond = get ("<FONT FACE=symbol>à</FONT>","<>", "<>");;
 let clubsuit = get ("<FONT FACE=symbol>§</FONT>","clubsuit", "trèfle");;
 let diamondsuit = get ("<FONT FACE=symbol>¨</FONT>","diamondsuit", "carreau");;
 let heartsuit = get ("<FONT FACE=symbol>©</FONT>","heartsuit", "coeur");;
@@ -168,13 +168,13 @@ let lfloor = get ("<FONT FACE=symbol>\235</FONT>","|_", "|_");;
 let rfloor = get ("<FONT FACE=symbol>\251</FONT>","_|", "_|");;
 let lceil = get ("<FONT FACE=symbol>\233</FONT>","|", "|");;
 let rceil = get ("<FONT FACE=symbol>\249</FONT>","|", "|");;
-let langle = get ("<FONT FACE=symbol>\225</FONT>","&lt;", "&lt;");;
-let rangle = get ("<FONT FACE=symbol>\241</FONT>","&gt;", "&gt;");;
+let langle = get ("<FONT FACE=symbol>\225</FONT>","<", "<");;
+let rangle = get ("<FONT FACE=symbol>\241</FONT>",">", ">");;
 
 
 let tr = function
-  "<" -> "&lt;"
-| ">" -> "&gt;"
+  "<" -> "<"
+| ">" -> ">"
 | "\\{" -> "{"
 | "\\}" -> "}"
 | s   -> s

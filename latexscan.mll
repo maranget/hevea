@@ -47,7 +47,7 @@ open Save
 open Tabular
 open Lexstate
 
-let header = "$Id: latexscan.mll,v 1.94 1999-05-17 13:40:26 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.95 1999-05-17 15:52:51 tessaud Exp $" 
 
 let sbool = function
   | false -> "false"
@@ -364,8 +364,7 @@ let default_format =
 and center_format =
   Tabular.Align
     {hor="center" ; vert = "" ; wrap = false ;
-      pre = "" ; post = "" ; width = None}
-
+      pre = "" ; post = "" ; width = None} 
 ;;
 
 

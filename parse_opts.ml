@@ -11,7 +11,7 @@
 
 open Misc
 
-let header = "$Id: parse_opts.ml,v 1.13 1999-05-11 17:20:22 maranget Exp $" 
+let header = "$Id: parse_opts.ml,v 1.14 1999-05-17 15:52:55 tessaud Exp $" 
 
 
 let files = ref []
@@ -68,9 +68,9 @@ let _ = Arg.parse
        ", be pedantic in interpreting HTML 3.2 definition") ;
      ("-I", Arg.String (fun s -> path := s :: !path),
        "dir, add directory ``dir'' to search path") ;
-     ("-text",Arg.Unit (fun () -> destination := Text),
+     ("-text",Arg.Unit (fun () -> symbols := false; destination := Text),
        ", output as plain text");
-     ("-info",Arg.Unit (fun () -> destination := Info),
+     ("-info",Arg.Unit (fun () -> symbols := false; destination := Info),
        ", output as an info file");
      ("-w", Arg.String (fun s -> width := int_of_string s),
       "width, set the output width for text or info output");
