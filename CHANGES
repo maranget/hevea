@@ -1,5 +1,7 @@
 
 version 1.05-6
+  - bug \@stopimage \@stopimage .. \@restartimage \@restartimage ->
+     a new stack for active in Image.
   - hevea.sty based uppon ``comment.sty''
   - Bug to image (top_close_block was done after stop_other_scan...)
   - new hevea.sty as a package.

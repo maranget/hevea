@@ -222,12 +222,14 @@ As a matter of fact, base style files are \TeX{} and not \LaTeX{} source and
 \subsection{Other style files}
 
 A \LaTeX{} document usually loads additional style files (using
-\verb+\input+ or \verb+\usepackage+, or by giving optional arguments to \verb+\documentstyle+).
-\hevea{} simply ignores \verb+\usepackage+ and optional arguments to
-\verb+\documentstyle+, but it attempts to load a file given as argument
+\verb+\input+ or \verb+\usepackage+, or by giving optional arguments
+to \verb+\documentstyle+).
+\hevea{} simply treats \verb+\usepackage+ and optional arguments to
+\verb+\documentstyle+ in its own way,
+but it attempts to load a file given as argument
 to \verb+\input+.
-(You can see what files \hevea{} loads or attempts to load by using
-the \verb+-v+ option.)
+As a consequence, \hevea{} may choke on personnal style files, which
+are read by using \verb+\input+.
 
 A simple situation is when \hevea{} is not happy  with just a few macros
 in a style file.
@@ -961,8 +963,8 @@ these instructions should not be seen by \LaTeX{}.
 Conversely, some source that \LaTeX{} needs should not be processed
 by \hevea{}.
 Basically, there are three ways to make input vary according to the
-processor, file loading, the \texttt{hevea.sty} style
-file and comments.
+processor, file loading, the \texttt{hevea} package
+and comments.
 
 
 \subsection{File loading}\label{fileloading}
@@ -971,27 +973,21 @@ file and comments.
 differences:
 
 \begin{itemize}
-  \item \LaTeX{} loads style files given as optional arguments to
-  \verb+\documentstyle+ and as arguments to \verb+\usepackage+. \hevea{}
-  does not.
   \item \LaTeX{} and \hevea{} both load files given as arguments to
   \verb+\input+, however when given the option \verb+-e+~\filename{filename},
   \hevea{} does not load \filename{filename}.
   \item \hevea{} loads all files given as command line arguments.
+  \item Both \LaTeX{} and \hevea{} load style files given as optional
+  arguments to 
+  \verb+\documentstyle+ and as arguments to \verb+\usepackage+,
+  but the files are searched by following different methods and
+  considering different file extensions.  
 \end{itemize}
 
+
 As a consequence, for having a file \filename{latexonly} loaded by
-\LaTeX{} only, it suffices either to load the file in the document
-source as:
-\begin{flushleft}
-\verb+\usepackage{+\filename{latexonly}\verb+}+
-\end{flushleft}
-Or, as
-\begin{flushleft}
-\verb+\documentstyle[+\ldots,
-\filename{latexonly},\ldots\verb+]{+\ldots\verb+}+
-\end{flushleft}
-Another solution is  to use \verb+\input{+\filename{latexonly}\verb+}+
+\LaTeX{} only, it suffices 
+o use \verb+\input{+\filename{latexonly}\verb+}+
 in the source and to invoke \hevea{} as follows:
 \begin{flushleft}
 \verb+# hevea+ \texttt{-e} \filename{latexonly}\ldots
@@ -1008,14 +1004,28 @@ to \hevea{} only. Users can then be sure that these definitions are
 not seen by \LaTeX{} and will not get echoed to the \textit{image}
 file (see section~\ref{imagen}).
 
+Finally, if one has an \hevea{} equivalent \textit{style}\texttt{.hva}
+for a \LaTeX{} style file \textit{style}\texttt{.sty},
+then one should load the file as follows:
+\begin{flushleft}
+\verb+\usepackage{+\textit{style}\verb+}+
+\end{flushleft}
+This will result in, \LaTeX{} loading \textit{style}\texttt{.sty},
+while \hevea{} loads \textit{style}\texttt{.hva}.
+As \hevea{} will not fail in case \textit{style}\texttt{.hva} does not
+exist, this is another method for having a style file loaded by
+\LaTeX{} only.
 
-\subsection{The \protect\texttt{hevea.sty} style file}\label{heveastyle}
+
+\subsection{The \protect\texttt{hevea} package}\label{heveastyle}
 The \texttt{hevea.sty} style file is intended to be loaded by \LaTeX{}
 and not by \hevea{}.
 It provides \LaTeX{} with means to ignore or process some parts of the
 document.
 Note that \hevea{} copes with the constructs defined in
 the \texttt{hevea.sty} file by default.
+It is important to notice that the \texttt{hevea.sty} style file from
+the distribution is not compatible with old \LaTeX{}.
 
 \subsubsection{Selecting a translator}
 \hevea{} and \LaTeX{} perform the following actions on source inside
@@ -1197,13 +1207,62 @@ That is, one gets the following correct link:
 <A HREF="mailto:Luc.Maranget@inria.fr">...
 \end{verbatim}
 
+
+\comindex{ahref}
+\comindex{aname}
+\comindex{ahrefurl}
+\comindex{footurl}
+\comindex{mailto}
+%BEGIN LATEX
+\bigskip
+%END LATEX
+\begin{tabular}{l<{\qquad}p{.3\linewidth}@{\qquad}p{.3\linewidth}}
+\multicolumn{1}{c}{Macro} & \multicolumn{1}{c}{\hevea} &
+\multicolumn{1}{c}{\LaTeX}\\
+\hline
+
+\verb+\ahref{+\textit{url}\verb+}{+\textit{text}\verb+}+ &
+make \textit{text} an hyper-link to \textit{url} &
+echo \textit{text}\\ \hline
+
+\verb+\aname{+\textit{label}\verb+}{+\textit{text}\verb+}+ &
+make \textit{text} an hyper-link target with label \textit{label} &
+echo \textit{text}\\ \hline
+
+\verb+\footurl{+\textit{url}\verb+}{+\textit{text}\verb+}+ &
+make \textit{text} an hyper-link to \textit{url} &
+make \textit{url} a footnote to \textit{text},
+\textit{url} is shown in typewriter font\\ \hline
+
+\verb+\ahrefurl{+\textit{url}\verb+}+ &
+make \textit{url} an hyper-link to \textit{url}.
+&
+typeset \textit{url} in typewriter font\\ \hline
+\verb+\mailto{+\textit{address}\verb+}+ &
+make \textit{address} a ``mailto'' link to \textit{address} &
+typeset \textit{address} in typewriter font
+\end{tabular}
+
+\medskip\noindent The \textit{url} and \textit{address} arguments undergo macro
+substitution, however style changes are ignored in the
+``\verb+HREF=...+'' attribute of the \verb+<A ...>+ opening tag.
+As a consequence one can safely write something like:
+\begin{verbatim}
+\mailto{Luc.Maranget@\textit{inria}.\texttt{fr}}
+\end{verbatim}
+And one gets \mailto{Luc.Maranget@\textit{inria}.\texttt{fr}}.
+That is, one gets the following correct link:
+\begin{verbatim}
+<A HREF="mailto:Luc.Maranget@inria.fr">...
+\end{verbatim}
+
 Additionally, the \verb+\hevea+ and \verb+\hacha+ commands
 output \hevea{} and \hacha{} logos, while
 \verb+\texdef+ and \verb+\texlet+ commands (see
 section~\ref{texmacro})
 are defined as \verb+\def+ and \verb+\let+.
 
-Finally, the \texttt{hevea.sty} contains
+Finally, the \texttt{hevea} package contains
 null definitions for all the macros that are specific to
 \html{} output.
 For instance the \verb+\cuthere+ macro for controlling
@@ -2632,11 +2691,36 @@ that the document cannot be processed.
 
 
 \subsection{Packages and Page Styles}
-They are ignored. Related commands do nothing.
-As a consequence, style files that are relevant to \hevea{} should be
-loaded using the \verb+\input+ command.
-Note, however, \verb+\usepackage+ commands are echoed to the \filename{image}
-file (see~\ref{imagen}).
+
+\hevea{} reacts to
+\verb+\usepackage[+\textit{options}\verb+]{+\textit{pkg}\verb+}+ in
+the following way:
+\begin{enumerate}
+\item \hevea{} attempt to load file \textit{pkg}\texttt{.hva},
+(see section~\ref{search:path} on where \hevea{} searches for files).
+\item Options \textit{options} are ignored.
+\item  The whole
+\verb+\usepackage+ command with its arguments gets echoed to the
+\filename{image} file (see~\ref{imagen}).
+\end{enumerate}
+Note that \hevea{} will not fail if it cannot load
+\textit{pkg}\texttt{.hva} and that no warning is issued in that case.
+
+The \hevea{} distribution contains implementations of some packages,
+such as \texttt{verbatim}, \texttt{colors}, \texttt{graphics}, etc.
+
+In some situations it may not hurt at all if \hevea{} does not
+implement a package, for instance \hevea{} does not provide an
+iplementation for the packages \textit{isolatin1} or
+\textit{fullpage}\ldots
+
+Users needing an implementation of a package that is widely used and
+available are encouraged to contact the
+\url{mailto:Luc.Maranget@inria.fr}{author}.
+Experienced users may find it fun to attempt to write package
+implementations by themselves.
+
+
 
 \subsection{The Title Page and Abstract}
 All title related commands exist, with the following peculiarities:
@@ -4335,6 +4419,7 @@ then a single attempt to open \textit{filename} is made.
 a first attempt to open \textit{filename}\texttt{.tex} is made.
 In case of failure, a second attempt to open  \textit{filename} is made.
 \end{itemize}
+\label{search:path}
 In all attempts, implicit filenames are
 searched along \texttt{hevea} search path, which consist in:
 \begin{enumerate}

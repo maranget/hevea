@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.144 1999-10-29 15:58:32 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.145 1999-11-01 15:58:41 maranget Exp $ *)
 
 
 {
@@ -1033,8 +1033,8 @@ and latexonly = parse
 |  "\\end"
      {let arg,_ = save_arg lexbuf in
      if arg = "latexonly" then begin
-       stop_other_scan false main lexbuf ;
-       top_close_block ""
+       top_close_block "" ;
+       stop_other_scan false main lexbuf
      end else if arg = top stack_entry then begin
        let _ = pop stack_entry in
        push stack_out arg ;
@@ -1084,8 +1084,8 @@ and image = parse
      let arg,_ = save_arg lexbuf in
      let true_arg = Save.get_echo () in
      if arg = "toimage" then begin
-       stop_other_scan false main lexbuf ;
        top_close_block "" ;
+       stop_other_scan false main lexbuf
      end else if arg = top stack_entry then begin
        let _ = pop stack_entry in
        push stack_out arg ;
