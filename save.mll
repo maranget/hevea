@@ -13,7 +13,7 @@
 open Lexing
 open Misc
 
-let header = "$Id: save.mll,v 1.60 2001-02-12 10:05:39 maranget Exp $" 
+let header = "$Id: save.mll,v 1.61 2002-04-29 14:31:03 maranget Exp $" 
 
 let rec if_next_char  c lb =
   if lb.lex_eof_reached then
@@ -280,9 +280,10 @@ and cite_arg = parse
 | ""         {error "No opening ``{'' in citation argument"}
 
 and cite_args_bis = parse
-  (space|[^'}''\n''%'','])* {let lxm = lexeme lexbuf in lxm::cite_args_bis lexbuf}
+  [^'}'' ''\t''\r''\n''%'',']+
+  {let lxm = lexeme lexbuf in lxm::cite_args_bis lexbuf}
 |  '%' [^'\n']* '\n' {cite_args_bis lexbuf}
-| ','         {cite_args_bis lexbuf}
+| ','           {cite_args_bis lexbuf}
 | (space|'\n')+ {cite_args_bis lexbuf}
 | '}'         {[]}
 | ""          {error "Bad syntax for \\cite argument"}

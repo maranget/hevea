@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.35 2002-01-04 18:41:21 maranget Exp $    *)
+(*  $Id: package.ml,v 1.36 2002-04-29 14:31:03 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -46,8 +46,8 @@ def_print "\\@heveacomline"
   (Array.fold_right
      (fun arg r -> arg^" "^r)
      Sys.argv "") ;
-def_print "\@heveaversion" Version.version ;
-def_print "\@hevealibdir" Mylib.libdir
+def_print "\\@heveaversion" Version.version ;
+def_print "\\@hevealibdir" Mylib.libdir
 ;;
 
 (* ``Token'' registers *)

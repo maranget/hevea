@@ -92,8 +92,8 @@
 \newcommand{\preceq}{\@print{&#8829;}}
 \newcommand{\subset}{\@entity{sub}}
 \newcommand{\subseteq}{\@entity{sube}}
-\renewcommand{\sqsubset}{\@print{&#8847;}}
-\renewcommand{\sqsubseteq}{\@print{&#8849;}}
+\newcommand{\sqsubset}{\@print{&#8847;}}
+\newcommand{\sqsubseteq}{\@print{&#8849;}}
 \newcommand{\in}{\@entity{isin}}
 \renewcommand{\vdash}{\@print{&#8866;}}
 \newcommand{\geq}{\@entity{ge}}
@@ -103,7 +103,7 @@
 \newcommand{\sqsupset}{\@print{&#8847;}}
 \newcommand{\sqsupseteq}{\@print{&#8849;}}
 \newcommand{\ni}{\@entity{ni}}
-\newcommand{\dashv}{\@print{&#8867;}}
+\renewcommand{\dashv}{\@print{&#8867;}}
 \newcommand{\equiv}{\@entity{equiv}}
 \renewcommand{\sim}{\@entity{sim}}
 \renewcommand{\simeq}{\@print{&#8771;}}
@@ -111,7 +111,7 @@
 \newcommand{\approx}{\@entity{asymp}}
 \newcommand{\cong}{\@entity{cong}}
 \newcommand{\neq}{\@print{&#8802;}}
-\renewcommand{\doteq}{\@print{#8784;}}
+\newcommand{\doteq}{\@print{#8784;}}
 \newcommand{\notin}{\@entity{notin}}
 \renewcommand{\models}{\@print{&#8872;}}
 \newcommand{\perp}{\bot}

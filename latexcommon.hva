@@ -328,7 +328,7 @@
 \newcommand{\@fnmarktext}[1]{%
   \setcounter{savenote}{\value{footnote}}%
   \setcounter{footnote}{#1}%
-  \@notetextstyle{\thefootnote}%
+  \thefootnote%
   \setcounter{footnote}{\value{savenote}}}
 \newcommand{\@fnmarknote}[1]{%
   \setcounter{savenote}{\value{footnote}}%
@@ -340,9 +340,9 @@
 \ifthenelse{\equal{#1}{!*!}}%
   {\stepcounter{footnote}\@stepanchor{\value{footnote}}\setcounter{onemark}{\value{footnote}}}%
   {\setcounter{onemark}{#1}}%
-\@noteref{note}{text}
+\@notetextstyle{\@noteref{note}{text}
   {\@anchorval{\value{onemark}}}
-  {\@fnmarktext{\value{onemark}}}}
+  {\@fnmarktext{\value{onemark}}}}}
 \newcommand{\footnotetext}[2][\value{footnote}]{\@footnotetext{#1}{#2}}
 \newcommand{\footnote}[2][!*!]{%
 \ifthenelse{\equal{#1}{!*!}}

@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: subst.mll,v 1.14 2001-05-25 12:37:29 maranget Exp $           *)
+(*  $Id: subst.mll,v 1.15 2002-04-29 14:31:03 maranget Exp $           *)
 (***********************************************************************)
 {
 open Misc
@@ -53,6 +53,26 @@ rule subst = parse
 |  eof {()}
 | "" {raise (Error "Empty lexeme in subst")}
 
+and do_translate = parse
+| "\\@print"
+    {fun f ->
+      let lxm = lexeme lexbuf in
+      Save.start_echo () ;
+      let _ = Save.arg lexbuf in
+      let real_arg = Save.get_echo () in
+      Out.put subst_buff lxm ;
+      Out.put subst_buff real_arg ;
+      do_translate lexbuf f}
+| command_name
+    {fun f ->
+      Out.blit subst_buff lexbuf ;
+      do_translate lexbuf f}
+| _
+    {fun f ->
+      Out.put_char subst_buff (f (Lexing.lexeme_char lexbuf 0)) ;
+      do_translate lexbuf f}
+| eof {fun _ -> Out.to_string subst_buff}
+
 {
 
 let do_subst_this ({arg=arg ; subst=env} as x) =
@@ -77,8 +97,13 @@ let subst_this s = do_subst_this (mkarg s (get_subst ()))
 
 let subst_arg lexbuf = do_subst_this (save_arg lexbuf)  
 and subst_opt def lexbuf = do_subst_this (save_opt def lexbuf)  
-
-
 let subst_body = subst_arg
+
+let translate f s =
+  let lexbuf = Lexing.from_string s in
+  do_translate lexbuf f
+
+let lowercase s = translate Char.lowercase s
+and uppercase s = translate Char.uppercase s
 
 } 

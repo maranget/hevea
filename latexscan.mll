@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.221 2002-02-15 15:47:09 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.222 2002-04-29 14:31:03 maranget Exp $ *)
 
 
 {
@@ -1970,20 +1970,23 @@ let check_not = function
 def_fun "\\not" check_not
 ;;
 
-def_code "\\uppercase"
+def_code "\\MakeUppercase"
   (fun lexbuf ->
     let arg = save_arg lexbuf in
     let old_case = !case in
     case := Upper ;
     scan_this_arg main arg ;
     case := old_case) ;
-def_code "\\lowercase"
+def_code "\\MakeLowercase"
   (fun lexbuf ->
     let arg = save_arg lexbuf in
     let old_case = !case in
     case := Lower ;
     scan_this_arg main arg ;
-    case := old_case)
+    case := old_case) ;
+
+def_fun "\\uppercase" Subst.uppercase ;
+def_fun "\\lowercase" Subst.lowercase ;
 ;;
 
 (* list items *)

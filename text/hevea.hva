@@ -21,6 +21,7 @@
 \newcommand{\hacha}{\@print{HaChA}}
 \newcommand{\html}{\@print{HTML}}
 %%% HTML related stuff (TEX equivalents are in the hevea.sty file)
+\newcommand{\@aelement}[2]{#2}
 \newcommand{\@footahref}[2]{#2\footnote{#1}}
 \newcommand{\ahref}[2]{\@footahref{#1}{#2}}
 \let\footahref\ahref

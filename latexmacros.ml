@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmacros.ml,v 1.65 2001-09-21 14:50:48 maranget Exp $" 
+let header = "$Id: latexmacros.ml,v 1.66 2002-04-29 14:31:03 maranget Exp $" 
 open Misc
 open Parse_opts
 open Lexstate
@@ -253,7 +253,7 @@ let replace name new_def =
 
 let invisible = function
   "\\nofiles"
-| "\\pagebreak" | "\\nopagebreak" | "\linebreak"
+| "\\pagebreak" | "\\nopagebreak" | "\\linebreak"
 | "\\nolinebreak" | "\\label" | "\\index"
 | "\\vspace" | "\\glossary" | "\\marginpar"
 | "\\figure" | "\\table"
