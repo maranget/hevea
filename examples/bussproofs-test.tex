@@ -1,0 +1,31 @@
+\documentclass{article}
+\usepackage{bussproofs}
+\usepackage{amssymb}
+\newtheorem{definition}{Definition}
+\newtheorem{lemma}{Lemma}
+\newtheorem{theorem}{Theorem}
+
+\begin{document}
+
+$$
+\AxiomC{}
+\RightLabel{Ax}
+\UnaryInfC{$\Gamma, a \vdash b$}
+\RightLabel{$\to$I}
+\UnaryInfC{$\Gamma \vdash a \to b$}
+\AxiomC{}
+\RightLabel{Ax}
+\UnaryInfC{$\Gamma \vdash c$}
+\AxiomC{}
+\RightLabel{Ax}
+\UnaryInfC{$\Gamma \vdash d$}
+\RightLabel{$\wedge$I}
+\BinaryInfC{$\Gamma \vdash c \wedge d$}
+\RightLabel{$\wedge$I}
+\BinaryInfC{$\Gamma \vdash (a \to b) \wedge (c \wedge d)$}
+\DisplayProof
+$$
+
+\end{document}
+
+

@@ -1,0 +1,122 @@
+\documentclass{article}
+\usepackage{bussproofs}
+\usepackage{amssymb}
+\newtheorem{definition}{Definition}
+\newtheorem{lemma}{Lemma}
+\newtheorem{theorem}{Theorem}
+
+\begin{document}
+\title{Simply Typed Lambda Calculus}
+\maketitle
+The simply typed $\lambda$-calculus is given by the rules\\ \\
+$
+\AxiomC{}
+\LeftLabel{(Ax)}
+\RightLabel{where $x : p \in \Gamma$}
+\UnaryInfC{$\Gamma \vdash x : p$}
+\DisplayProof
+$
+
+$
+\AxiomC{$\Gamma \vdash t : \bot$}
+\LeftLabel{($\neg$ E)}
+\RightLabel{where $p \not = \bot$}
+\UnaryInfC{$\Gamma \vdash \bigtriangledown_{p} (t) : p$}
+\DisplayProof
+$
+                                                                                
+$
+\AxiomC{$\Gamma, x : p_1 \vdash t : p_2$}
+\LeftLabel{($\to$ I)}
+\UnaryInfC{$\Gamma \vdash \lambda (x:p_1).t : p_1 \to p_2$}
+\DisplayProof
+$
+
+$
+\AxiomC{$\Gamma \vdash t_1 : p_1 \to p_2$}
+\AxiomC{$\Gamma \vdash t_2 : p_1$}
+\LeftLabel{($\to$ E)}
+\BinaryInfC{$\Gamma \vdash t_1 t_2 : p_2 $}
+\DisplayProof
+$
+
+$
+\AxiomC{$\Gamma \vdash t_1 : p_1$}
+\AxiomC{$\Gamma \vdash t_2 : p_2$} 
+\LeftLabel{($\wedge$ I)}
+\BinaryInfC{$\Gamma \vdash \langle t_1 t_2 \rangle : p_1 \wedge p_2 $}
+\DisplayProof
+$
+
+$
+\AxiomC{$\Gamma \vdash t : p_1 \wedge p_2$} 
+\LeftLabel{($\wedge$ E$_1$)}
+\UnaryInfC{$\Gamma \vdash proj_1 t : p_1$}
+\DisplayProof
+$
+
+$
+\AxiomC{$\Gamma \vdash t : p_1 \wedge p_2$} 
+\LeftLabel{($\wedge$ E$_2$)}
+\UnaryInfC{$\Gamma \vdash proj_2 t : p_2$}
+\DisplayProof
+$
+
+$
+\AxiomC{$\Gamma \vdash t : p_1$} 
+\LeftLabel{($\vee$ I$_1$)}
+\UnaryInfC{$\Gamma \vdash in_1 t : p_1 \vee p_2 $}
+\DisplayProof
+$
+
+$
+\AxiomC{$\Gamma \vdash t : p_2$} 
+\LeftLabel{($\vee$ I$_2$)}
+\UnaryInfC{$\Gamma \vdash in_2 t : p_1 \vee p_2 $}
+\DisplayProof
+$
+
+$
+\AxiomC{$\Gamma \vdash t : p_1 \vee p_2$}
+\AxiomC{$\Gamma, x_1 : p_1 \vdash u_1 : q$}
+\AxiomC{$\Gamma, x_2 : p_2 \vdash u_2 : q$}
+\LeftLabel{($\vee$ E)}
+\TrinaryInfC{$\Gamma \vdash case (t, \lambda (x_1:p_1).u_1, \lambda (x_2:p_2).u_2) : q$}
+\DisplayProof
+$
+
+In the next four rules, $i$ stands for the type of propositions\\ \\
+$
+\AxiomC{$\Gamma \vdash t : p[\tau/P]$}
+\LeftLabel{($\forall$ I)}
+\RightLabel{where$~\tau\not\in fv(\Gamma\cup\{\forall~P~p\})$}
+\UnaryInfC{$\Gamma \vdash \lambda (\tau:i).t : \forall P~p$}
+\DisplayProof
+$
+
+$
+\AxiomC{$\Gamma \vdash t : \forall P ~p$}
+\LeftLabel{($\forall$ E)}
+\UnaryInfC{$\Gamma \vdash t \tau : p[\tau/P]$}
+\DisplayProof
+$
+
+$
+\AxiomC{$\Gamma \vdash t : p[\tau/P]$}
+\LeftLabel{($\exists$ I)}
+\UnaryInfC{$\Gamma \vdash inx (\tau, t) : \exists P p$}
+\DisplayProof
+$
+
+$
+\AxiomC{$\Gamma \vdash t : \exists P ~p$}
+\AxiomC{$\Gamma, x : p[\tau/P] \vdash u$}
+\LeftLabel{($\exists$ E)}
+\RightLabel{where$~\tau\not\in fv(\Gamma\cup\{\forall~P~p\}\cup{q})$}
+\BinaryInfC{$\Gamma \vdash casex (t, \lambda (\tau:i).\lambda (x:p[\tau/P]).u) : q$}
+\DisplayProof
+$
+
+\end{document}
+
+

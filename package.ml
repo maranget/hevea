@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.47 2004-05-28 12:12:13 thakur Exp $    *)
+(*  $Id: package.ml,v 1.48 2004-05-28 17:06:30 thakur Exp $    *)
 
 module type S = sig  end
 
@@ -645,7 +645,9 @@ register_init "natbib"
 *   components of the proof.                                *
 *							    *
 *   It has been extended with LL, RL, DUMMY to also act     *
-*   as the type of elements in the "postorder-stack".       *
+*   as the type of elements in the "postorder-stack" used   *
+*   to construct the proof tree in a single left to right   *
+*   lexical pass.					    *
 *                                                           *
 ************************************************************)
 
@@ -767,6 +769,14 @@ let get_proof_col_row proof =
 	in
 	    (new_pr,new_wid,new_ht);;
    
+(************************************************************
+*                                                           *
+*   The function "get_text" obtains the html text for the   *
+*   argument of the particular proof judgement. 	    *
+*   These form the respective cell entries of the table.    *
+*                                                           *
+************************************************************)
+
 let get_text pf = match pf with
     		  (AXIOM (s, str1, str2)) -> s
       		| (UNARY_INF (p,s,w,h, str1, str2)) -> s
@@ -774,7 +784,15 @@ let get_text pf = match pf with
       		| (TRINARY_INF (p1,p2,p3,s,w,h, str1, str2)) -> s
 		| _ -> ""
 ;;
-   
+ 
+(************************************************************
+*                                                           *
+*   The function "get_text" obtains the number of rows and  *
+*   that the particular proof is to occupy.                 *
+*                                                           *
+************************************************************)
+
+
 let get_rinf pf = match pf with
     		  (AXIOM (s, str1, str2)) 			->  
     			(AXIOM (s, str1, str2), 1, 1)
@@ -786,27 +804,43 @@ let get_rinf pf = match pf with
       		 	(TRINARY_INF (p1,p2,p3,s,w,h, str1, str2), w, h)
 		| _ -> (pf,0,0)
 ;;
-   
+ 
+(************************************************************
+*                                                           *
+*   Function "gen_next_rinfo" takes as input the current row*
+*   information (as a list if what is to be printed in each *
+*   column of that row, and the dimension of the cell), and *
+*   produces the information for the row above.		    *
+*                                                           *
+************************************************************)
+ 
 let rec gen_next_rinfo l = match l with
         [] -> []
       | ((p,c,r)::rinfo) -> match c with
-      	    0 -> (p,0,0)::(gen_next_rinfo rinfo)
+      	    0 -> (p,0,r-1)::(gen_next_rinfo rinfo)
 	  | n -> match p with
 	     	  AXIOM (s, str1, str2) 		   -> 
-		  		(p,0,0)::(p,0,0)::(p,0,0)::
+		  		(p,0,r-1)::(p,0,r-1)::(p,0,r-1)::
 				(gen_next_rinfo rinfo)
 		| UNARY_INF (p1,s,w,h, str1, str2)         ->
-				(p1,0,0)::(get_rinf p1)::(p1,0,0)::
+				(p1,0,r-1)::(get_rinf p1)::(p1,0,r-1)::
 				(gen_next_rinfo rinfo)
 		| BINARY_INF (p1,p2,s,w,h, str1, str2)     ->
-				(p1,0,0)::(get_rinf p1)::(get_rinf p2)::
-				(p2,0,0)::(gen_next_rinfo rinfo)
+				(p1,0,r-1)::(get_rinf p1)::(get_rinf p2)::
+				(p2,0,r-1)::(gen_next_rinfo rinfo)
 		| TRINARY_INF (p1,p2,p3,s,w,h, str1, str2) ->
-				(p1,0,0)::(get_rinf p1)::(get_rinf p2)::
-				(get_rinf p3)::(p3,0,0)::
+				(p1,0,r-1)::(get_rinf p1)::(get_rinf p2)::
+				(get_rinf p3)::(p3,0,r-1)::
 				(gen_next_rinfo rinfo)
 		| _	-> (p,c,r)::(gen_next_rinfo rinfo)
 ;;
+
+(************************************************************
+*                                                           *
+*   Function "gen_row" takes the current row information    *
+*   and prints out the html for each column in the row.     *
+*                                                           *
+************************************************************)
 
 let rec gen_row l = match l with
         [] -> ""
@@ -817,8 +851,8 @@ let rec gen_row l = match l with
 	  in 
 	      match c with
       		  0 -> "      <td style=\"vertical-align: center;"^
-		       "text-align: center;\"><br>\n      </td>\n"^
-		       (gen_row rinfo)
+		       "text-align: center;\"><br>\n"^
+		       "      </td>\n"^(gen_row rinfo)
 		| n -> left^
 		       "      <td colspan=\""^(string_of_int(n-2))^"\""^
 		       "style=\"vertical-align: center;"^
@@ -828,6 +862,13 @@ let rec gen_row l = match l with
 		       right^
 		       (gen_row rinfo);;
 
+(************************************************************
+*                                                           *
+*   "get_labels" obtains the left and right labels for      *
+*   an inference rule.					    *
+*							    *
+************************************************************)
+
 let get_labels pf = match pf with
       	  (AXIOM (s,str1,str2)) -> (str1,str2)
       	| (UNARY_INF (p,s,w,h, str1, str2)) -> (str1,str2)
@@ -836,9 +877,19 @@ let get_labels pf = match pf with
 	| _ -> ("","")
 ;;
 
+(************************************************************
+*                                                           *
+*   "get_dash_row" is similar to "gen_row" above, except    *
+*   it that obtains the html text for the separator and the *
+*   labels to be placed in an additional row just above the *
+*   currently generated row .				    *
+*                                                           *
+************************************************************)
+
+
 let rec gen_dash_row pf = match pf with
     	  [] -> ""
-        | ((p,c,r)::rinfo) -> 
+        | ((p,c,r)::rinfo) -> if r = 1 then "" else
               let (left_label,right_label) = get_labels p
 	      in let left = "      <td style=\"vertical-align: center;"^
 	                 "text-align: center;\">"^
@@ -862,19 +913,39 @@ let rec gen_dash_row pf = match pf with
 		      right^
 	              (gen_dash_row rinfo);;
 
+(************************************************************
+*                                                           *
+*   "get_table" performs the table generation row by row    *
+*   It first generates the current row, then the row of     *
+*   separators ans labels, then generates information for   *
+*   and then creates a recursive call for the rows "above". *
+*                                                           *
+************************************************************)
+
 let rec gen_table r  rinfo  result_rows  = match r with
    	0 -> result_rows
       | rnow -> 
     	    let this_row = "    <tr>\n"^(gen_row rinfo)^"    </tr>\n"
-	    in let dash_row = "    <tr>\n"^(gen_dash_row rinfo)^"    </tr>\n"
+	    in let dash_row = if r=1 then "" 
+	    		      else "    <tr>\n"^(gen_dash_row rinfo)^
+			      	   "    </tr>\n"
 	    in let new_rinfo = gen_next_rinfo rinfo 
    	    in
-	     	gen_table (rnow-1) new_rinfo (dash_row^this_row^result_rows);;
+	     	gen_table (r-1) new_rinfo (dash_row^this_row^result_rows);;
+
+(************************************************************
+*                                                           *
+*   The function 					    *
+*   a) "start-table" returns the html text concerned with   *
+*       declaring the table in which the proof will reside. *
+*   b) "end_table" provides the text that closes the table. *
+*                                                           *
+************************************************************)
 
 let start_table () = 
 		"<table style=\"text-align: center;\" "^
 		"border=\"0\"\n"^
-		" cellspacing=\"1\" cellpadding=\"0\">\n"^
+		" cellspacing=\"1\" cellpadding=\"1\">\n"^
 		"  <tbody>\n";;
 
 let end_table () = "  </tbody>\n</table>\n";;
@@ -915,7 +986,13 @@ let get_labels_from_stack () =
 	              ("","")
 ;;
 
-register_init "bussproof"
+(************************************************************
+*                                                           *
+*   Implementing the package "bussproofs"		    *
+*                                                           *
+************************************************************)
+
+register_init "bussproofs"
     (fun () ->
       def_code "\\AxiomC"
         (fun lexbuf ->
@@ -923,10 +1000,7 @@ register_init "bussproof"
           let formatted = Scan.get_this_arg_mbox arg in
 	  let (left_label,right_label) = get_labels_from_stack () in
 	  let axiom = AXIOM (formatted,left_label,right_label) in
-	  stack_push axiom; 
-	  (*print_string (stringify (stack_top1 ())); 
-	  Dest.put formatted*)
-	  ());
+	  stack_push axiom);
       def_code "\\UnaryInfC"
         (fun lexbuf ->
 	  let arg = save_arg lexbuf in
@@ -935,8 +1009,7 @@ register_init "bussproof"
 	  let proof1 = stack_pop () in
 	  let un_inf = UNARY_INF (proof1,formatted,0,0,
 	  			  left_label,right_label) in 
-	  stack_push un_inf; 
-	  ());
+	  stack_push un_inf);
       def_code "\\BinaryInfC"
         (fun lexbuf ->
 	  let arg = save_arg lexbuf in
@@ -946,8 +1019,7 @@ register_init "bussproof"
 	  let proof1 = stack_pop () in
 	  let bi_inf = BINARY_INF (proof1,proof2,formatted,0,0,
 	  			   left_label,right_label) in
-	  stack_push bi_inf; 
-	  ());
+	  stack_push bi_inf);
       def_code "\\TrinaryInfC"
         (fun lexbuf ->
 	  let arg = save_arg lexbuf in
@@ -958,22 +1030,19 @@ register_init "bussproof"
 	  let proof1 = stack_pop () in
 	  let tri_inf = TRINARY_INF (proof1,proof2,proof3,formatted,0,0,
 	  			     left_label,right_label) in
-	  stack_push tri_inf;
-	  ());
+	  stack_push tri_inf);
       def_code "\\LeftLabel"
         (fun lexbuf ->
 	  let arg = save_arg lexbuf in
 	  let formatted = Scan.get_this_arg_mbox arg in
 	  let left_label = LL (formatted) in 
-	  stack_push left_label;
-	  ());
+	  stack_push left_label);
       def_code "\\RightLabel"
         (fun lexbuf ->
 	  let arg = save_arg lexbuf in
 	  let formatted = Scan.get_this_arg_mbox arg in
 	  let right_label = (RL formatted) in
-	  stack_push right_label;
-	  ());
+	  stack_push right_label);
       def_code "\\DisplayProof"
         (fun lexbuf ->
 	  let pf = stack_pop () in
