@@ -77,12 +77,13 @@ dorelease:
 	gzip -f -best  $(RELEASENAME).tar
 # Doc release
 	dvips -o$(RELEASEDIR)/$(RELEASENAME)-manual.ps manual.dvi
+	mv manual.dvi (RELEASEDIR)/$(RELEASENAME)-manual.dvi
 	rm -rf $(RELEASEDIR)/$(RELEASENAME)-manual
 	$(MAKE) $(MFLAGS) DOCDIR=$(RELEASEDIR)/$(RELEASENAME)-manual install
 	cd $(RELEASEDIR) ; tar cfo $(RELEASENAME)-manual.tar $(RELEASENAME)-manual ;\
-	 gzip -f -best $(RELEASENAME)-manual.ps  $(RELEASENAME)-manual.tar
+	 gzip -f -best  $(RELEASENAME)-manual.dvi $(RELEASENAME)-manual.ps  $(RELEASENAME)-manual.tar
 # Copy to FTPDIR
-	cd $(RELEASEDIR) ; mv $(RELEASENAME)-manual.ps.gz $(RELEASENAME)-manual.tar.gz  $(RELEASENAME).tar.gz $(RELEASENAME)/README $(RELEASENAME)/LICENSE $(RELEASENAME)/CHANGES $(FTPDIR)
+	cd $(RELEASEDIR) ; mv $(RELEASENAME)-manual.dvi.gz $(RELEASENAME)-manual.ps.gz $(RELEASENAME)-manual.tar.gz  $(RELEASENAME).tar.gz $(RELEASENAME)/README $(RELEASENAME)/LICENSE $(RELEASENAME)/CHANGES $(FTPDIR)
 
 release:
 	$(MAKE) $(MFLAGS) dorelease RELEASEOPT="-r $(RELEASETAG)"
