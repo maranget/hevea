@@ -165,7 +165,6 @@
 \newcommand{\searrow}{\@print{&#8600;}}
 \newcommand{\swarrow}{\@print{&#8601;}}
 \newcommand{\nwarrow}{\@print{&#8598;}}
-
 \renewcommand{\longleftarrow}{\@print{&#10229;}}
 \renewcommand{\Longleftarrow}{\@print{&#10232;}}
 \renewcommand{\longrightarrow}{\@print{&#10230;}}

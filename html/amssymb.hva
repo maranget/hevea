@@ -40,13 +40,14 @@
 \newcommand{\diagup}{\@print{&#0092;}}
 \newcommand{\lozenge}{\@print{&#9674;}}
 \newcommand{\nexists}{\@print{&#8708;}}
-%\newcommand{\sphericalangle}{\@print{&#;}}
 \renewcommand{\surd}{\@print{&#8730;}}
 \newcommand{\triangledown}{\@print{&#9661;}}
 \newcommand{\varnothing}{\@print{&#8709;}}	%not ideal (emptyset)
 
 %% Arrow Symbols under "amssymb"
 
+\newcommand{\dashleftarrow}{\@print{&#8672;}}
+\newcommand{\dashrightarrow}{\@print{&#8674;}}
 \newcommand{\leftrightharpoons}{\@print{&#8651;}}
 \newcommand{\Lleftarrow}{\@print{&#8666;}}
 \newcommand{\Rrightarrow}{\@print{&#8667;}}
@@ -73,18 +74,19 @@
 \newcommand{\Lsh}{\@print{&#8624;}}
 \newcommand{\Rsh}{\@print{&#8625;}}
 \newcommand{\leftrightsquigarrow}{\@print{&#8621;}}
+\newcommand{\rightsquigarrow}{\@print{&#10239;}}
 \newcommand{\nleftarrow}{\@print{&#8695;}}
 \newcommand{\nrightarrow}{\@print{&#8696;}}
 \newcommand{\nleftrightarrow}{\@print{&#8697;}}
 \newcommand{\circlearrowleft}{\@print{&#10226;}}
 \newcommand{\circlearrowright}{\@print{&#10227;}}
-
+\newcommand{\multimap}{\@print{&#8888;}}
 %% Simple Relational Symbols under "amssymb"
 
-%\newcommand{\shortmid}{\@print{&#;}}
-%\newcommand{\shortparallel}{\@print{&#;}}
-%\newcommand{\nshortparallel}{\@print{&#;}}
-%\newcommand{\nshortmid}{\@print{&#;}}
+%\newcommand{\shortmid}{\@print{&#;}}              % not ideal (\mid)
+%\newcommand{\shortparallel}{\@print{&#;}}         % not ideal (\parallel)
+\newcommand{\nshortparallel}{\@print{&#8742;}}     % not ideal (\nparallel)
+\newcommand{\nshortmid}{\@print{&#8740;}}          % not ideal (\nmid)
 \newcommand{\nmid}{\@print{&#8740;}}
 \newcommand{\nparallel}{\@print{&#8742;}}
 \newcommand{\lll}{\@print{&#8920;}}
@@ -149,10 +151,10 @@
 \newcommand{\triangleq}{\@print{&#8796;}}
 \newcommand{\npreceq}{\@print{&#8928;}}      % almost 
 \newcommand{\nsucceq}{\@print{&#8929;}}      % almost
-\newcommand{\nleqslant}{\@print{&#8816;}}    % not ideal (nleq)
-\newcommand{\ngeqslant}{\@print{&#8817;}}    % not ideal (ngeq)
-%\newcommand{\nleqq}{\@print{&#;}}
-%\newcommand{\ngeqq}{\@print{&#;}}
+\newcommand{\nleqslant}{\@print{&#8816;}}    % not ideal (\nleq)
+\newcommand{\ngeqslant}{\@print{&#8817;}}    % not ideal (\ngeq)
+\newcommand{\nleqq}{\nleq}        	     % not ideal (\nleq) 
+\newcommand{\ngeqq}{\ngeq}                   % not ideal (\ngeq)
 
 %% Set Relational Symbols under "amssymb"
 
@@ -181,18 +183,28 @@
 \newcommand{\ntrianglerighteq}{\@print{&#8941;}}
 \newcommand{\nsubseteq}{\@print{&#8840;}}
 \newcommand{\nsupseteq}{\@print{&#8841;}}
-%\newcommand{\nsubseteqq}{\@print{&#;}}
-%\newcommand{\nsupseteqq}{\@print{&#;}}
+\newcommand{\nsubseteqq}{\nsubseteq}	       % not ideal
+\newcommand{\nsupseteqq}{\nsupseteq}	       % not ideal
 
 %% Miscellaneous Symbols under "amssymb"
 
+\newcommand{\Game}{\@print{&#;}}
+\newcommand{\eth}{\@print{&#;}}
+\newcommand{\Finv}{\@print{&#8498;}}
+\newcommand{\mho}{\@print{&#;}}
 \newcommand{\hslash}{\@print{&#8463;}}
-%\newcommand{\backepsilon}{\@print{&#;}}
+\newcommand{\backepsilon}{\@print{&#;}}
+\newcommand{\circledS}{\@print{&#;}}
+\newcommand{\complement}{\@print{&#8405;}}
+\newcommand{\measuredangle}{\@print{&#10664;}}
+\newcommand{\sphericalangle}{\@print{&#;}}
 \newcommand{\because}{\@print{&#8957;}}
+\newcommand{\Bbbk}{\@print{&#120156;}}
 \newcommand{\therefore}{\@print{&#8956;}}
 \newcommand{\between}{\@print{&#8812;}}
 \newcommand{\blacktriangleright}{\@print{&#9664;}}
 \newcommand{\blacktriangleleft}{\@print{&#9654;}}
+\newcommand{\pitchfork}{\@print{&#10971;}}
 \newcommand{\smallsmile}{\@print{&#8995;}}
 \newcommand{\smallfrown}{\@print{&#8994;}}
 

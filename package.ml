@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.57 2004-07-02 16:49:25 thakur Exp $    *)
+(*  $Id: package.ml,v 1.58 2004-07-06 08:56:18 thakur Exp $    *)
 
 module type S = sig  end
 
@@ -1050,8 +1050,8 @@ register_init "proof"
 	(fun lexbuf ->
           let tag = if (Save.if_next_char '=' lexbuf) then 
 	                let _ = save_arg lexbuf 
-			in (tag_push true; true) 
-                    else (tag_push false; false) in
+			in (true) 
+                    else (false) in
           let optarg2 = save_opt "" lexbuf in
           let is_opt_arg = if ("" = optarg2.arg) then false else true in  
 	  let formatted2 = Scan.get_this_arg_mbox optarg2 in
@@ -1140,11 +1140,13 @@ register_init "proof"
     )
 ;;
 
+
 (************************************************************
 *                                                           *
 *   Implementing the proofs in package "mathpartir"	    *
 *                                                           *
 ************************************************************)
+
 (*
 register_init "mathpartir"
     (fun () ->
@@ -1173,38 +1175,8 @@ register_init "mathpartir"
           Dest.put formatted3;
           end_table ()
         ) ;
-      (*def_code "\\inferrule*"
-	(fun lexbuf ->
-          let optarg1 = save_opt "" lexbuf in
-          let is_opt_arg = if ("" = optarg1.arg) then false else true in  
-	  let formatted1 = Scan.get_this_arg_mbox optarg1 in
-	  let arg2 = save_arg lexbuf in
-	  let arg3 = save_arg lexbuf in
-	  let str2 = "\\"^"begin{mpr@line}"^(arg2.arg)^"\\"^"end{mpr@line}" in
-	  let str3 = "\\"^"begin{mpr@line}"^(arg3.arg)^"\\"^"end{mpr@line}" in
-	  let formatted2 = Scan.get_this_main str2 in
-	  let formatted3 = Scan.get_this_main str3 in
-	  start_table ();
-	  Dest.put formatted2;
-          next_row () ; 
-          Dest.put ("<HR COLOR=\"green\" NOSHADE SIZE=\"3\">\n") ;
-          next_row () ; 
-          Dest.put formatted3;
-          end_table ()
-        ) ;*)
     )
 ;;
 *)
-
-def_code "\\beginstyle" 
-    (fun lexbuf -> 
-        Dest.put "<STYLE TYPE=\"text/css\">"
-    );;
-
-def_code "\\endstyle" 
-    (fun lexbuf -> 
-        Dest.put "</STYLE>"
-    );;
-
 
 end
