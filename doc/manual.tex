@@ -13,6 +13,12 @@
 \newcommand{\commandname}[1]{{\tt #1}}
 \newcommand{\filename}[1]{{\em #1}}
 \newcommand{\urlex}[1]{\footurl{\docurl/examples/#1}{\filename{#1}}}
+\newcommand{\localurl}[1]{%
+%BEGIN LATEX
+\footurl{\docurl/doc/#1}{\texttt{#1}}%
+%END LATEX
+%HEVEA\url{#1}{\docurl/doc/#1}%
+}
 \begin{latexonly}
 \gdef\myrule{\rule{\linewidth}{.05ex}}
 \gdef\htmlout{\begingroup\linewidth=.8\linewidth\begin{quote}%
@@ -35,7 +41,6 @@
 Chesnay Cedex. {\tt \mailto{Luc.Maranget@inria.fr}}}}
 \date{}
 
-\setcounter{cuttingdepth}{2}
 \begin{document}
 
 \maketitle
@@ -335,7 +340,7 @@ as shown by figure~\ref{xfd}.
 
 A browser  correctly displays \hevea{} symbols when
 figure~\ref{xfd} resembles the html page located
-at \oneurl{\docurl/symbol.html}.
+at \localurl{symbol.html}.
 Section~\ref{browser} explains how to configure Netscape on an Unix
 systems to get the right symbols.
 
@@ -1440,9 +1445,11 @@ as follows:
 
 \subsection{Accents and special symbols}
 When there exist an equivalent to a given \LaTeX{} symbol, using
-the \footurl{\docurl/iso.html}{iso-latin1} and
-\footurl{\docurl/symbol.html}{symbol} character sets, then \hevea{}
+the iso-latin1 and symbol character sets, then \hevea{}
 outputs such an equivalent.
+\html{} pages that show these character sets can be found
+here in the directory \texttt{\docurl/doc}
+at \url{iso.html}{iso.html} and \url{symbol.html}{symbol.html}.
 Otherwise, \hevea{} usually issues a warning to draw user attention.
 Users can then choose their own equivalent for the symbol.
 
@@ -2219,7 +2226,7 @@ omitted.
 
 Some conditions are defined internally by \hevea{}, such as the
 \texttt{french} condition, which is \textit{true} in french mode, or
-the \texttt{display} and \textt{math} condition that are set according
+the \texttt{display} and \texttt{math} condition that are set according
 to \hevea{} current operating mode.
 
 \part{Practical information}
@@ -2310,7 +2317,7 @@ or\\
 \texttt{\# hevea}\ldots{} \texttt{-o} \textit{base}\texttt{.html}\ldots\\
 \end{flushleft}
 Then, \textit{base} is \hevea{} base output name and \hevea{} outputs
-a \textit{base}\textt{.image.tex} file.
+a \textit{base}\texttt{.image.tex} file.
 
 The \texttt{imagen} script should then be run as:
 \begin{flushleft}
@@ -2322,10 +2329,10 @@ The \texttt{imagen} script calls the \texttt{latex},
 
 
 Note that, for producing one \texttt{.gif} file per
-page in the \textit{base}\textt{.image.tex} file,
+page in the \textit{base}\texttt{.image.tex} file,
 \texttt{imagen} can cut \LaTeX{} output into pages at two different
 stages: when producing Postcript, or while interpreting Postcript.
-The choice is made by checking wether \texttt{dvips} accepts the
+The choice is made by checking whether \texttt{dvips} accepts the
 \texttt{-i} option or not.
 
 
@@ -2338,7 +2345,7 @@ distribution and seems to be present on many X instalations.
 A good way to know whether your browser can show \hevea{} symbols or
 not is
 comparing figure~\ref{xfd} and the web page located at
-\oneurl{\docurl/symbol.html}.
+\localurl{symbol.html}.
 
 By default, browsers do not show symbol fonts as intended by \hevea{}.
 For Netscape on an Unix system, the following procedure instructs the
@@ -2407,7 +2414,9 @@ calls \LaTeX{} when in trouble.
 As a consequence, LaTeX2html is powerful but it may fail on
 large documents, for speed and memory reasons.
 More information on LaTeX2html can be found at
+\begin{center}
 \oneurl{http://www-dsed.llnl.gov/files/programs/unix/latex2html/}
+\end{center}
 
 \item[TTH] The principle behind TTH is the main source of inspiration
 of \hevea{}: write a fast translator as a lexer, use symbol fonts and
@@ -2417,7 +2426,9 @@ tables. However, there are differences, TTH source is \TeX{} (and not
 Additionaly, TTH author insist on not using any kind of \LaTeX{}
 generated information, whereas \hevea{} rather try to make advantage
 of them. TTH can be found at
+\begin{center}
 \oneurl{http://hutchinson.belmont.ma.us/tth/tth.html}.
+\end{center}
 \end{description}
 
 \begin{thebibliography}{xxxxxxxxxx}

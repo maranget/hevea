@@ -41,13 +41,23 @@ include version.make
 
 RELEASEDIR=/usr/tmp
 RELEASENAME=hevea-$(VERSION)
+FTPDIR=/home/tobago/para-ftp/hevea
 
 dorelease:
+# hevea relase
 	cd $(RELEASEDIR) ; rm -rf $(RELEASENAME) ;\
 	cvs export  $(RELEASEOPT) -l htmlgen ;\
 	mv htmlgen $(RELEASENAME) ;\
-	tar cfo $(RELEASENAME).tar ./$(RELEASENAME) ;\
-	gzip -best $(RELEASENAME).tar
+	tar cfo $(RELEASENAME).tar $(RELEASENAME) ;\
+	gzip -f -best  $(RELEASENAME).tar
+# Doc release
+	dvips -o$(RELEASEDIR)/$(RELEASENAME)-manual.ps manual.dvi
+	rm -rf $(RELEASEDIR)/$(RELEASENAME)-manual
+	$(MAKE) $(MFLAGS) DOCDIR=$(RELEASEDIR)/$(RELEASENAME)-manual install
+	cd $(RELEASEDIR) ; tar cfo $(RELEASENAME)-manual.tar $(RELEASENAME)-manual ;\
+	 gzip -f -best $(RELEASENAME)-manual.ps  $(RELEASENAME)-manual.tar
+# Copy to FTPDIR
+	cd $(RELEASEDIR) ; mv $(RELEASENAME)-manual.ps.gz $(RELEASENAME)-manual.tar.gz  $(RELEASENAME).tar.gz $(FTPDIR)
 
 release:
 	$(MAKE) $(MFLAGS) dorelease RELEASEOPT="-t $(RELEASETAG)"
