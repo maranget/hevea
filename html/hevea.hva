@@ -189,10 +189,13 @@
 
 %%% Maths
 %%% Loading symbols
+\ifmathml
+\else
 \ifsymb
 \input{html/symb.hva}
 \else
 \input{html/symb-text.hva}
+\fi
 \fi
 \newenvironment{math}{$}{$}
 \newenvironment{displaymath}{$$}{$$}

@@ -1,4 +1,16 @@
 \newcommand{\@symb}[1]{\@print{<FONT FACE=symbol>}#1\@print{</FONT>}}
+
+\newcommand{\sqrt}[2][!*!]{\ifthenelse{\equal{#1}{!*!}}%
+{\@symb{\char214}\@print{(}%
+#2\@print{)}%
+}{#1%
+\@symb{\char214}%
+%\@print{(}%
+#2%
+%\@print{)}%
+}}
+
+
 \newcommand{\forall}{\@symb{\char34}}
 \newcommand{\exists}{\@symb{\char36}}
 \newcommand{\ni}{\@symb{\char39}}
