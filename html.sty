@@ -5,14 +5,14 @@
 %  Mostly :
 %     - environment latexonly, not processed by htmlgen, processed by latex.
 %     - environment htmlonly , the reverse
-%      - environemnt htmlraw,  to include raw HTML in the output of
-%      htmlgen
+%      - environemnt htmlraw,  to include raw HTML in hevea output.
 %
 \newcommand{\html}{\protect\makebox{\sc html}}
 \newcommand{\htmlbis}{\protect\makebox{\sc
 H\kern-.6ex\raisebox{.85ex}{t}\kern-.4ex\raisebox{.4ex}{ml}}}
-\newcommand{\hevea}{\protect\makebox{\sc
-H\kern-.3ex\protect\raisebox{.2ex}{e}\kern-.3exV\kern-.3ex\protect\raisebox{.2ex}{e}\kern-.3exA}}
+%\newcommand{\hevea}{\protect\makebox{\sc H\kern-.3ex\protect\raisebox{.2ex}{e}\kern-.3exV\kern-.3ex\protect\raisebox{.2ex}{e}\kern-.3exA}}
+\def\hevea{H\kern -.3ex\raise .2ex\hbox{\sc \uppercasesc e}\kern -.3ex
+V\raise .2ex\hbox{\textsc \uppercasesc e}\kern -.3ex A}
 \newcommand{\hacha}{\protect\makebox{\sc
 H\kern-.3ex\protect\raisebox{.2ex}{a}\kern-.3exC\kern-.3ex\protect\raisebox{.2ex}{h}\kern-.3exA}}
 %\newcommand{\htmlgen}{\protect\makebox{\protect\html\kern -.2ex\protect\makebox{\sc G\kern -.2ex\protect\raisebox{-.5ex}{e}\kern -.2exN}}}

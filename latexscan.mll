@@ -435,6 +435,8 @@ let scan_this_may_cont eat lexfun lexbuf s =
 
 let get_this lexfun s =
   start_lexstate ();
+  push stack_display !display;
+  display := false;
   if !verbose > 1 then begin
     Printf.fprintf stderr "get_this : [%s] = " s ;
   end ;
@@ -443,6 +445,7 @@ let get_this lexfun s =
   if !verbose > 1 then begin
     prerr_endline r
   end ;
+  display := pop stack_display;
   restore_lexstate();
   r
 ;;

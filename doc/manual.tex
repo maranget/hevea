@@ -1,4 +1,5 @@
 \documentclass[a4paper]{article}
+\usepackage{texnames}
 \usepackage{html}
 \usepackage{isolatin1}
 \usepackage{a4wide}
@@ -8,16 +9,13 @@
 \addtolength{\topmargin}{-1cm}
 \renewcommand{\numberline}[1]{#1\quad}
 
-\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
-    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
 \newcommand{\commandname}[1]{{\tt #1}}
 \newcommand{\filename}[1]{{\em #1}}
 \newcommand{\urlex}[1]{\footurl{\docurl/examples/#1}{\filename{#1}}}
-
 \begin{latexonly}
-\gdef\myrule{\rule{10cm}{.05ex}}
-\gdef\htmlout{\begingroup\parskip=0pt\parindent=0pt\begin{center}\begin{quote}\myrule\par}
-\gdef\endhtmlout{\par\myrule\end{quote}\end{center}\endgroup}
+\gdef\myrule{\rule{\linewidth}{.05ex}}
+\gdef\htmlout{\begingroup\linewidth=.8\linewidth\parskip=0pt\parindent=0pt\begin{quote}\myrule\par}
+\gdef\endhtmlout{\par\myrule\end{quote}\endgroup}
 \end{latexonly} 
 \begin{htmlonly}
 \gdef\myrule{\@print{<HR NOSHADE SIZE=1 ALIGN=center>
@@ -76,7 +74,7 @@ smaller files, using the companion program \hacha.
 
 \section{How to get started}\label{getstarted}
 
-Assume that you have a file \filename{a.tex} written in \LaTeX, using the
+Assume that you have a file \texttt{a.tex} written in \LaTeX, using the
 \filename{article}, \filename{book} or \filename{report} style. Then,
 translation
 is achieved by issuing the command~:
@@ -88,8 +86,8 @@ Probably, you will get some warnings about unknown macros. If
 (Section~\ref{trouble}  explains how to correct errors).
 
 If everything goes fine, this will produce a new file
-``\filename{a.html}'' that you can visualize using an {\html} brower.
-If \filename{a.tex} contains maths symbols you need to instruct your
+``\texttt{a.html}'' that you can visualize using an {\html} brower.
+If \texttt{a.tex} contains maths symbols you need to instruct your
 browser to use symbol fonts (see section~\ref{browser}).
 
 If you wish to experiment \hevea\ on small \LaTeX\ source fragments,
@@ -120,11 +118,11 @@ style files it knows about before processing your source file.
 This is done by giving the desired style file as an extra command line
 argument.
 
-Let us assume that \filename{mydoc.tex} uses an exotic style
+Let us assume that \texttt{mydoc.tex} uses an exotic style
 file such as \verb+acmconf+. Then, typing
 \verb+hevea mydoc.tex+ may yield two kind of errors.
-Either \hevea\ finds the the \filename{acmconf.sty} file (e.g. if
-\filename{acmconf.sty} is in the current directory)
+Either \hevea\ finds the the \texttt{acmconf.sty} file (e.g. if
+\texttt{acmconf.sty} is in the current directory)
 and fails to process it~:
 \begin{verbatim}
 # hevea mydoc.tex
@@ -133,7 +131,7 @@ Bugs to KT@MC.LCS.MIT.EDU
 ./acmconf.sty:87: Adios
 Fatal error: uncaught exception Failure("Bad newif: \if")
 \end{verbatim}
-Or,  \hevea{} cannot find the \filename{acmconf.sty} file and you get a
+Or,  \hevea{} cannot find the \texttt{acmconf.sty} file and you get a
 lot of warnings:
 \begin{verbatim}
 # hevea mydoc.tex
@@ -151,8 +149,8 @@ base style file  as an extra argument:
 hevea article.sty mydoc.tex
 \end{verbatim}
 Such an extra argument instructs
-\hevea\ to load its \filename{article.sty}
-style file before processing \filename{mydoc.tex}
+\hevea\ to load its \texttt{article.sty}
+style file before processing \texttt{mydoc.tex}
 It will then ignore the base style specified by
 \verb+\documentstyle+ or \verb+\documentclass+.
 
@@ -168,23 +166,23 @@ the \verb+-v+ option.)
 
 A simple situation is when \hevea{} is not happy  with just a few macros
 in a style file.
-As it is often the case, assume that the document \filename{mydoc.tex} has a
+As it is often the case, assume that the document \texttt{mydoc.tex} has a
 \verb+\input{macros.tex}+ instruction in its preambule, where
-\filename{macros.tex} gathers custom definitions.
+\texttt{macros.tex} gathers custom definitions.
 Hopefully, only a few macros give rise to trouble: macros that performs fine
 typesetting or {\TeX}ish macros.
 Such macros need to be rewritten, using more basic \LaTeX{}
 constructs (section~\ref{trouble} gives examples of macro-rewritting).
 The new definition are best collected in a style file,
-\filename{mymacros.sty} for instance.
-Then, \filename{mydoc.tex} is to be compiled by issuing the command:
+\texttt{mymacros.sty} for instance.
+Then, \texttt{mydoc.tex} is to be compiled by issuing the command:
 \begin{verbatim}
 # hevea mymacros.sty mydoc.tex
 \end{verbatim}
-The file \filename{mymacros.sty} is processed before
-\filename{mydoc.tex} (and thus before \filename{macros.tex}).
-As a consequence, the macro definitions in \filename{mymacros.tex}
-overide the ones in  \filename{macros.tex}, provided the latter are made
+The file \texttt{mymacros.sty} is processed before
+\texttt{mydoc.tex} (and thus before \texttt{macros.tex}).
+As a consequence, the macro definitions in \texttt{mymacros.tex}
+overide the ones in  \texttt{macros.tex}, provided the latter are made
 using \verb+\newcommand+ or \verb+\def+ (section~\ref{usermacro}
 explains how \hevea{} handle macro definitions and redefinitions).
 
@@ -196,8 +194,8 @@ Then, you should also instruct
 \begin{verbatim}
 # hevea mymacros.sty -e macros.tex mydoc.tex
 \end{verbatim}
-Of course, \filename{mymacros.sty} must now contain replacements for
-all the useful macros of \filename{macro.tex}.
+Of course, \texttt{mymacros.sty} must now contain replacements for
+all the useful macros of \texttt{macro.tex}.
 Note that another solution to instruct \LaTeX{} to load a file and
 \hevea{} not to load it is to use \verb+\usepackage+ or optional
 arguments to \verb+\documentstyle+, which \hevea{}
@@ -304,6 +302,146 @@ one sould probably write:
 \newcommand{\tryspace}[2]{#1{} XXX}
 \end{verbatim}
 
+\subsection{Math mode}
+
+\hevea{} math mode is not very far from normal text mode:
+all letters are shown in italics and spaces after macros
+are echoed.
+
+However, typesetting math formulas in \html{} rises two difficulties.
+First, formulas contain symbols, such as greek letters, second,
+even simple formulas do not follow the simple basic typesetting model of
+\html.
+
+The first difficulty is solved using a \html{} extension:
+the non-standard \verb+FACE+ attribute to the \verb+FONT+
+element instruct the brower to switch to a symbol font.
+\hevea{} assumes this choice for the symbol font to be
+as shown by figure~\ref{xfd}.
+\begin{figure}[ht]
+%BEGIN LATEX
+\begin{center}
+\rule{0ex}{1ex}\epsfbox{xfd.ps}\rule{0ex}{1ex}
+\end{center}
+%END LATEX
+\begin{rawhtml}
+<IMG SRC="xfd.gif" ALIGN=center>
+\end{rawhtml}
+\caption{\label{xfd} Symbol font in X}
+\end{figure}
+
+A browser  correctly displays \hevea{} symbols when
+figure~\ref{xfd} ressembles the html page located
+at~\oneurl{\docurl/symbol.html}.
+Section~\ref{browser} explains how to configure Netscape on an Unix
+systems to get the right symbols.
+
+For authors that do not want to generate symbols that cannot be shown
+by any browser, \hevea{} offers a degraded mode that ouputs text
+in place of symbols.
+\hevea{} operates in this mode when given the \verb+-nosymb+ flag.
+Replacement text is in english, unless
+\hevea{} is also given the \verb+-francais+ flag. In that case
+replacement text is in french.
+For instance. the $\in$ symbol is replace by ``in'' (or by ``appartient
+à'' if french mode is selected).
+This is far from being satisfactory, but degraded mode may be
+appropriate for documents than contain few symbols.
+
+
+Appart from containing symbols, formulas specify strong typesetting
+constraints: sub-elements must be combined together following patterns
+that departs from normal text typesetting. For instance, fractions
+numerators and denominators must be placed one above the other.
+\hevea handle such constraints in display mode only, as explained in the
+next section.
+
+
+\subsection{Displays}
+\hevea{} typesetting model for text is much simplified with respect to
+\LaTeX{} LR and paragraph modes.
+This does not harm for standard text input, which is rendered as a
+series of paragraph.
+However, this does not suffice for displayed math formulas and
+\hevea{} offers a special ``display'' mode for typesetting them.
+
+The main two operating modes of \hevea{} are \emph{text} mode and \emph{display}
+mode.
+Text mode is the mode for typesetting normal text,
+when in this mode, \hevea{} outputs text-level elements only,
+text items are echoed one following the other,
+paragraph breaks are just blank lines, both in input and output.
+
+Display mode allows more control on text placement, since
+entering display mode means opening
+a \html{} \verb+TABLE+ element.
+Displays come in two flavor, horizontal displays and vertical
+displays.
+An horizontal display is a one-row table, while a vertical display is
+a one-column table. These tables holds display elements, displays
+elements being centerd vertically in horizontal display mode and
+horizontally in vertical display mode.
+
+Display mode is first openend by a \verb+displaymath+ environment.
+Then, sub-displays are opened by \LaTeX{} constructs which require
+them.
+For instance, a fraction (\verb+\frac+) opens a vertical display.
+
+
+The distinction between text and display modes clearly appears while
+typesetting math formulas.
+An in-text formula such as
+\verb+$\int_1^2 xdx = \frac{3}{2}$+ appears as: $\int_1^2 xdx =
+\frac{3}{2}$,
+while the same formula has a better aspect in display mode:
+$$
+\int_1^2xdx = \frac{3}{2}
+$$
+
+As a consequence, \hevea{} is more powerful in display mode and
+formulas should be displayed as soon as they get a bit complicated.
+This rule is also true in \LaTeX{} but it is more strict in \hevea{},
+since \html{} capabilities to typeset formulas inside text are quite
+poor.
+In particular, all \html{} block-level elements start a new line.
+Thus, it is not possible to get in-text fractions or
+in-text limit-like subscripts.
+
+Similarily, \hevea{} cannot render in-text arrays.
+By contrast with formulas, which \hevea{} attempts to render with
+text-level elements only, arrays are always translated to the
+block-level element \verb+TABLE+, thereby introducing non-desired line
+breaks before and after in-text arrays.
+\begin{htmlonly}
+Consider the following source:
+\begin{verbatim}
+This is a small array:
+\begin{tabular}{|cc|}
+\hline item-1 & item-2 \\
+\hline\end{tabular}. Next sentence.
+\end{verbatim}
+We get:
+\begin{htmlout}
+This is a small array:
+\begin{tabular}{|cc|}\hline item-1 & item-2
+\\ \hline\end{tabular}. Next sentence.
+\end{htmlout}
+\end{htmlonly}
+
+Taking into account the display nature of \html{} tables,
+the \verb+array+ and \verb+tabular+ environments implicitly open
+display mode.
+As an immediate consequence, array elements are typeset in display
+mode, which is not the case in \LaTeX.
+This choice of displaying all arrays allows a correct aspect for
+arrays that are not \LaTeX{}
+displays but that make a single paragraph.
+In particular, this applies to \verb+tabular+ environments.
+
+Users can get an idea on how \hevea{} combine elements in display mode
+by giving the \verb+-v+ options, which instruct \hevea{} to show the
+\verb+TABLE+ elements introduced by displays with a border.
+
 \subsection{Warnings}
 When \hevea{} thinks it cannot translate a symbol or construct
 properly, it issues a warning. This draw user attention onto a
@@ -334,6 +472,10 @@ Before & After
 
 Note that all warnings can be suppressed with the \verb+-s+ (silent)
 option.
+When a warning reveals a real problem, it can often be cured by
+writing a specific macro. The next two sections introduce \hevea{}
+macros, then section~\ref{trouble} describes how to proceed with
+greater detail.
 
 \subsection{Macros}
 Just like \LaTeX{}, \hevea{} can be seen as a macro language, macros
@@ -390,10 +532,10 @@ This is \textsc{small caps} and this is $\cal CALLIGRAPHIC LETTERS$
 
 
 Note that many base macros and environments are defined in the 
-\filename{hevea.sty} file that \hevea{} loads before processing any
+\texttt{hevea.sty} file that \hevea{} loads before processing any
 input.
 These macros are written using \LaTeX{} source code.
-Having a look at the \filename{hevea.sty} file (or at the base style
+Having a look at the \texttt{hevea.sty} file (or at the base style
 files of \hevea) will help you in designing your own implementation
 of base macros.
 
@@ -423,7 +565,7 @@ By doing so, the macros written specially for \hevea\ are not
 seen by \LaTeX. Even better, \verb+trouble.tex+ is not changed
 at all.
 
-Of course, this will be easier if the \LaTeX\ source is written in a
+Of course, this will be easier if the \LaTeX{} source is written in a
 generic style, using macros.
 Note that this style is recommended anyway, since it eases the changing
 and tuning of documents.
@@ -471,7 +613,7 @@ To correct this, you should provide a macro that has more or less the effect of
 lengths. However, in this case, the effect
 of \verb+\raisebox+ is to raise the box {\em a little}.
 Thus, the first, numerical, argument to \verb+\raisebox+  can be
-ignored in a private \verb+\raisebox+ macro defined in \filename{trouble.sty}:
+ignored in a private \verb+\raisebox+ macro defined in \texttt{trouble.sty}:
 \begin{verbatim}
 \newcommand{\raisebox}[2]{$^{\mbox{#2}}$}
 \end{verbatim}
@@ -489,7 +631,7 @@ is both raised a lowered a little:
 \begin{verbatim}
 You can \raisebox{.6ex}{\em raise} or \raisebox{-.6ex}{\em lower} text.
 \end{verbatim}
-Which \LaTeX, renders as follows:
+Which \LaTeX{} renders as follows:
 \begin{htmlout}
 \begin{htmlonly}
 %% BEGIN IMAGE
@@ -553,14 +695,13 @@ black square.
 \newcommand{\blob}{\rule[.2ex]{1ex}{1ex}}
 \blob\ Blob \blob
 \end{verbatim}
-Which \LaTeX typesets as follows:
+Which \LaTeX{} typesets as follows:
 \begin{latexout}
-\begin{htmlonly}
-\begin{toimage}\newcommand{\blob}{\rule[.2ex]{1ex}{1ex}}
+%BEGIN IMAGE
+\newcommand{\blob}{\rule[.2ex]{1ex}{1ex}}
 \blob\ Blob \blob
-\end{toimage}
-\imageflush
-\end{htmlonly}
+%END IMAGE
+%HEVEA\imageflush%
 \end{latexout}
 \hevea\ always translates \verb+\rule+ as \verb+<HR>+, ignoring size
 arguments.
@@ -569,6 +710,9 @@ Hence, it here produces the following, wrong, output:
 \begin{htmlonly}
 \blob\ Blob \blob
 \end{htmlonly}
+\begin{latexonly}
+\epsfbox{blob.ps}%
+\end{latexonly}%
 \end{htmlout}
 
 There is not small square in the symbol font used by \hevea.
@@ -652,8 +796,6 @@ This is a right-flushed quotation
 \end{quoteright}
 \end{htmlout}
 
-\section{To have it all}
-
 
 \section{Making both \hevea{} and \LaTeX{} happy}\label{both}
 A satifactory translation from \LaTeX{} to \html{} often requires
@@ -663,7 +805,7 @@ these instructions should not be seen by \LaTeX{}.
 Conversely, some source which \LaTeX{} needs should not be processed
 by \hevea{}.
 Basically, there are three ways to make input vary according to the
-processor, file loading, comments and the \filename{html.sty} style
+processor, file loading, comments and the \texttt{html.sty} style
 file.
 
 \subsection{File loading}
@@ -712,15 +854,17 @@ As an examaple, this is how some text can be typset in purple by
 \begin{verbatim}
 We get
 %HEVEA{\purple
-purple rain, purple rain
-%HEVEA}
+purple rain, purple rain%
+%HEVEA}%
 \ldots
 \end{verbatim}
+(Note how comments are placed at the end of some lines to avoid spurious spaces
+in the final output).
 
 We get:
 %HEVEA{\purple
-purple rain, purple rain
-%HEVEA}
+purple rain, purple rain%
+%HEVEA}%
 \ldots
 
 Some source can also be processed by \LaTeX{} and not by \hevea{} by
@@ -728,8 +872,8 @@ enclosing it  between \verb+%BEGIN LATEX+
 and \verb+%END LATEX+ comments.
 
 
-\subsection{The \protect\filename{html.sty} style file}
-The \filename{html.sty} style file is intended to be loaded by \LaTeX{}.
+\subsection{The \protect\texttt{html.sty} style file}
+The \texttt{html.sty} style file is intended to be loaded by \LaTeX{}.
 It provides \LaTeX{} with means to ignore or process some parts of the
 document.
 
@@ -751,7 +895,7 @@ send to the \filename{image} file (see section~\ref{imagen})  & process\\
 \end{center}
 
 
-Thus, provided the \filename{html} package is loaded, the ``purple
+\noindent Thus, provided the \filename{html} package is loaded, the ``purple
 rain'' example from the previous section can also be written:
 \begin{verbatim}
 We get:
@@ -788,7 +932,7 @@ The \filename{html} package defines \LaTeX{} equivalents for them.
 This first concerns the \hevea{} and \hacha{} logos.
 Then, a few macros for URL management are provided
 
-\medskip
+\bigskip
 \begin{tabular}{l@{\qquad}p{.3\linewidth}@{\qquad}p{.3\linewidth}}
 Macro & \multicolumn{1}{c}{\hevea} &  \multicolumn{1}{c}{\LaTeX}\\
 \hline
@@ -925,7 +1069,10 @@ And we get:
 
 Observe that the trick can be used to replace missing symbols by small
 \texttt{.gif} images. However, the cost may be prohibitive, text rendering
-is generally bad and font style changes are problematic.
+is generally bad, fine placement is ignored and font style changes are
+problematic.
+For instance, the blob above is not raised a little above the current
+line level.
 Cost can be lowered using \verb+\savebox+, but the other problems remain.
 
 
@@ -960,7 +1107,7 @@ Then processing \texttt{trouble.tex} through \hevea{} and
 \begin{htmlout}
 \begin{center}
 %BEGIN IMAGE
-\epsfbox{round.ps}
+~\epsfbox{round.ps}~
 %END IMAGE
 %HEVEA\imageflush
 \end{center}
@@ -974,23 +1121,50 @@ file because it does not load the right packages or define the right macros.
 
 
 
-\subsection{A more serious example: using \protect\texttt{gpic}}
+\subsection{Using filters}
+
+Some programs extend \LaTeX{} capabilities, using a filter principle.
+The documents contains source fragments for the program.
+A first run of the program on \LaTeX{} source changes these frangments
+into constructs that \LaTeX{} (or a subsequent stage in the paper
+document production chain, such as \texttt{dvips}) can handle.
+Here again, the rule of the game is keeping \hevea{} away from the
+normal process: first applying the filter, then making \hevea{} send
+the filter output to the \filename{image} file, and then having
+\texttt{imagen} do the job.
+
+
+Consider the \texttt{gpic} filter, for making drawings.
+Source for \texttt{gpic} is enclosed in \verb+.PS+\ldots \verb+.PE+,
+then the result is available to subsequent \LaTeX{} source as a \TeX{}
+box \verb+\box\graph+.
+For instance the following source, draws a smiling face as a centered
+paragraph:
+\begin{verbatim}
+.PS
+
+.PE
+\begin{center}
+\box\graph
+\end{center}
+\end{verbatim}
+
 
 
 \section{Cutting your document into pieces with {\hacha}}\label{hacha}
-\hevea{} outputs a single \filename{.html} file. This file can be
+\hevea{} outputs a single \texttt{.html} file. This file can be
 cut into pieces at various sectionnal units by {\hacha}
 \subsection{Simple usage}
 First generate your {\html} document by applying \hevea{}:
-\begin{verbatim}
-# hevea mydoc.tex
-\end{verbatim}
-Then cut \filename{mydoc.html} into pieces by the command:
-\begin{verbatim}
-# hacha mydoc.html
-\end{verbatim}
+\begin{flushleft}
+\texttt{\# hevea }\filename{mydoc}\texttt{.tex}
+\end{flushleft}
+Then cut \filename{mydoc}\texttt{.html} into pieces by the command:
+\begin{flushleft}
+\texttt{\# hacha }\filename{mydoc}\texttt{.html}
+\end{flushleft}
 This will generate a simple root file
-\filename{index.html}.
+\texttt{index.html}.
 This root files holds document title, abstract and a simple table of
 contents.
 Every item in the table of contents contains a link to or into a file
@@ -1006,15 +1180,14 @@ as an entry in the table of contents.
 Sectional units above the cutting section (i.e. parts in both
 \filename{article} and \filename{book} styles) close the current table
 of contents and open a new one.
-
 Cross-references are properly handled, the local links generated by
-\hevea{} are changed into distant links.
+\hevea{} are changed into remote links.
 
 The name of the root  file can be changed using the
 \verb+-o+ option:
-\begin{verbatim}
-# hacha -o root.html mydoc.html
-\end{verbatim}
+\begin{flushleft}
+\texttt{\# hacha -o root.html }\filename{mydoc}\texttt{.html}
+\end{flushleft}
 
 \subsection{Advanced usage}
 
@@ -1024,7 +1197,7 @@ a counter and a few macros, directly in the document source.
 A document that explicitly includes cutting macros still can be typeset by
 \LaTeX{}, provided it loads the
 \filename{html} package from the \hevea{} distribution.
-(See section~\ref{both} for details on the \filename{html.sty} style file).
+(See section~\ref{both} for details on the \filename{html} package).
 An alternative to loading the \filename{html} package is to put
 all cutting instructions in comments starting with \verb+%HEVEA+.
 
@@ -1047,7 +1220,7 @@ cuttting unit and the cutting units plus the cutting depth add new
 entries in the table of contents.
 
 At document start, the root file and the output file are {\hacha}
-output file (i.e., \filename{index.html}).
+output file (i.e., \texttt{index.html}).
 The cutting unit and the cutting depth are set to default values that
 depend on the document style.
 
@@ -1277,17 +1450,18 @@ There is no list of figures nor list of tables.
 \subsection{Document Class}
 Both \LaTeX2e{} \verb+\documentclass+ and old \LaTeX{}
 \verb+\documentstyle+ are accepted.
-Their argument {\it style} is interpreted by attempting to load a
-\filename{style.sty} file (see~\ref{files} to see where \hevea{}
+Their argument \filename{style} is interpreted by attempting to load a
+\filename{style}\texttt{.sty} file (see~\ref{files} to see where \hevea{}
 searches its files).
-Presently, only the style files \filename{article.sty},
-\filename{book.sty} and \filename{report.sty} exist, the latter two
+Presently, only the style files \texttt{article.sty},
+\texttt{book.sty} and \texttt{report.sty} exist, the latter two
 being the same file.
 
 If one of the three styles has already been loaded at the time when
 \verb+\documentclass+ or
 \verb+\documentstyle+ is executed, then no attempt to load a style
-file is made.
+file is made. This allows to overide the documment style file by
+giving one of the three style files of \hevea{} as command line arguments.
 
 \subsection{Packages and Page Styles}
 They are ignored. Related commands do nothing.
@@ -1642,7 +1816,9 @@ Some others are partly rendered:
 \item Spacing between columns is different. In particular, some space
 appears around \verb+@+ formatting specification.
 \item The \verb+p{+{\it wd}\verb+}+ column specification is equivalent
-to \verb+l+ with word wrap enabled.
+to \verb+l+ with word wrap enabled. This is the only occasion where
+\hevea{} makes a distinction betwenen LR-mode and paragraph mode.
+The length argument to \verb+p+ specifications are ignored.
 \item If a \verb+|+ appears somewhere in the column formatting
 specification, then the array is shown with borders.
 \item The command \verb+\hline+ does nothing if the array has borders
@@ -1662,25 +1838,26 @@ column format (\verb+c+, \verb+l+ or \verb+r+), then the corresponding
 column is typeset after exiting math-mode.
 This additional feature enables the encoding of \TeX{} \verb+\cases+ using
 the \LaTeX{} arrays.
-The command \verb+\cases+ is defined in \filename{hevea.sty}.
+The command \verb+\cases+ is defined in \texttt{hevea.sty}.
 
 \section{Moving Information Around}
 \subsection{Files}
 \hevea{} can use some of the ancillary files generated by \LaTeX{} in
 order to output better looking cross-references.
-In practice, while processing file \filename{mydoc\texttt{\textup{.tex}}}, the following
+In practice, while processing file \filename{mydoc}\texttt{.tex}, the following
 files may be read:
 \begin{description}
-\item[.aux] The file \filename{mydo}\texttt{.aux} contains
+\item[\protect\texttt{.aux}] The file \filename{mydoc}\texttt{.aux} contains
 cross-referencing informations, such as figure or section numbers.
 If this file is present, \hevea{} reads it and put such numbers (or
 labels) inside
 the links generated by the \verb+\ref+ command. If the \texttt{.aux}
 file is not present, all such numbers are
 replaced by ``X''.
-\item[.bbl] The file \filename{mydoc}\texttt{.bbl} is generated by
+\item[\protect\texttt{.bbl}] The file \filename{mydoc}\texttt{.bbl} is generated by
 \BibTeX{}. It is read by the \verb+\bibliography+ command.
-\item[.idx] The file \filename{mydoc}\texttt{.idx} is normally not
+\item[\protect\texttt{.idx}] The file \filename{mydoc}\texttt{.idx} is
+normally not
 read by \hevea{}, which does its own index computations.
 Some user modify \filename{.idx} files before running
 \verb+makeindex+, for instance to sort index entries taking
@@ -1692,7 +1869,7 @@ Thus, if you follow such a scheme on \filename{mydoc}\texttt{.tex}, first run
 \verb+-idx+ option set.
 \end{description}
 
-\hevea{} does not fail when it cannot find an auxilary file.
+\noindent\hevea{} does not fail when it cannot find an auxilary file.
 
 \subsection{Cross-References}
 The \LaTeX{} \verb+\label+ and \verb+\ref+ are changed by \hevea{}
@@ -2030,6 +2207,30 @@ have to accept ``X'' labels and to manage to produce images by yourself.
 \subsection{Principles}
 The details are given in the \verb+README+ file in the distribution.
 
+\section{Other \LaTeX{} to \html{} translators}
+This very short section gives pointers to two other translators. I
+performed not extensive testing and make no thorough comparison.
+\begin{description}
+\item[LaTeX2html]
+LaTeX2html is a full system. It is written in perl and
+calls \LaTeX{} when in trouble.
+As a consequence, LaTeX2html is powerful but it may fail on
+large documents, for speed and memory reasons.
+More information on LaTeX2html can be found at
+\oneurl{http://www-dsed.llnl.gov/files/programs/unix/latex2html/}
+
+\item[TTH] The principle behind TTH is the main source of inspiration
+of \hevea{}: write a fast translator as a lexer, use symbol fonts and
+tables. However, there are differences, TTH source is \TeX{} (and not
+\LaTeX), TTH is written in C and the full source is not available
+(only \verb+lex+ output is available).
+Additionaly, TTH author insist on not using any kind of \LaTeX{}
+generated information, whereas \hevea{} rather try to make advantage
+of them. TTH can be found at
+\oneurl{http://hutchinson.belmont.ma.us/tth/tth.html}.
+\end{description}
+
+\section*{References}
 \begin{thebibliography}{xxxxxx}
 \bibitem[\LaTeX]{latex}
 L. Lamport.

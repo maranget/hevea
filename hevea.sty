@@ -417,8 +417,8 @@
 \newenvironment{mdseries}{\@anti{\bf}}{}
 \newenvironment{bfseries}{\bf}{}
 \newenvironment{rmfamily}{\rm}{}
-\newenvironment{sffamily}{\sf}{}
-\newenvironment{ttfamily}{\tt}{}
+\newenvironment{sffamily}{\@anti{\tt}\sf}{}
+\newenvironment{ttfamily}{\@anti{\sf}\tt}{}
 \newenvironment{upshape}{\@anti{\it,\sl,\sc}}{}
 \newenvironment{itshape}{\@anti{\sl,\sc}\it}{}
 \newenvironment{slshape}{\@anti{\it,\sc}\sl}{}
@@ -432,7 +432,7 @@
 \def\texttt#1{\mbox{\ttfamily#1}}
 \def\textit#1{\mbox{\itshape#1}}
 \def\textbf#1{\mbox{\bfseries#1}}
-\def\textsf#1{\mbox{\sfshape#1}}
+\def\textsf#1{\mbox{\sffamily#1}}
 \def\textsl#1{\mbox{\slshape#1}}
 \def\textsc#1{\mbox{\scshape#1}}
 \newcommand{\emph}[1]{\mbox{\em#1}}
