@@ -2,7 +2,8 @@
 \@stopimage
 \@primitives{ifthen}
 \newcommand{\@iffileexists}[3]{\ifthenelse{\@fileexists{#1}}{#2}{#3}}
-\newcommand{\@ifundefined}[3]{\ifthenelse{\@commandexists\csname #1\endcsname}{#3}{#2}}
+\newcommand{\@ifundefined}[3]
+{\ifthenelse{\@commandexists\csname #1\endcsname}{#3}{#2}}
 \ifthentrue
 \@restartimage
 

@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: verb.mll,v 1.53 2001-05-25 12:37:33 maranget Exp $            *)
+(*  $Id: verb.mll,v 1.54 2001-05-29 17:05:21 maranget Exp $            *)
 (***********************************************************************)
 {
 exception VError of string
@@ -96,6 +96,7 @@ and lst_extended = ref false
 and lst_sensitive = ref true
 and lst_mathescape = ref false
 and lst_directives = ref false
+and lst_showlines = ref false
 
 let lst_effective_spaces = ref false (* false => spaces are spaces *)
 and lst_save_spaces  = ref false
@@ -213,8 +214,10 @@ let lst_output_token () =
 
 
 let lst_finalize inline =
-  lst_output_token () ;
-  if not inline then Dest.put_char '\n'
+ scan_this main "\\lst@forget@lastline" ;
+ if inline || !lst_showlines then
+   lst_output_token ()
+
 
 
 (* Process functions *)
@@ -1119,6 +1122,7 @@ let init_listings () =
   Scan.newif_ref "lst@mathescape" lst_mathescape ;
   Scan.newif_ref "lst@directives" lst_directives ;
   Scan.newif_ref "lst@stringspaces" lst_string_spaces ;
+  Scan.newif_ref "lst@showlines" lst_showlines ;
   def_code "\\lst@spaces" code_spaces ;
   def_code "\\lst@boolean" lst_boolean ;
   def_code "\\lst@def@stringizer" code_stringizer ;
@@ -1154,7 +1158,8 @@ let init_listings () =
       let keys = Subst.subst_opt "" lexbuf in
       let lab = Scan.get_prim_arg lexbuf in
       let lab = if lab = " " then "" else lab in
-      def "\\lst@intname" zero_pat (CamlCode (fun _ -> Dest.put lab)) ;
+      if lab <> "" then
+        def "\\lst@intname" zero_pat (CamlCode (fun _ -> Dest.put lab)) ;
       open_lst false keys lab ;
       scan_this Scan.main "\\lst@pre\\@open@lstbox" ;  
       scan_this Scan.main "\\lst@basic@style" ;

@@ -212,7 +212,7 @@
       {\value{lst@saved@\lst@intname}}}}
 \lst@AddToHook{PreSet}
   {\@ifundefined{lst@intname}{\def\lst@firstline{1}}
-  {\@ifundefined{thelst@saved\lst@intname}{\def\lst@firstline{1}}
+  {\@ifundefined{thelst@saved@\lst@intname}{\def\lst@firstline{1}}
   {\def\lst@firstline{\csname thelst@saved@\lst@intname\endcsname+1}}}}
 \define@key{lst}{firstlabel}{\def\lst@firstline{#1}}
 \define@key{lst}{advancelabel}{\def\lst@firstline{\lst@saved@lastline+#1+1}}
@@ -220,7 +220,8 @@
 \lst@AddToHook{DeInit}
   {\@ifundefined{lst@intname}{}
      {\@ifundefined{thelst@saved@\lst@intname}
-       {\newcounter{lst@saved@\lst@intname}}
+       {\newcounter{lst@saved@\lst@intname}%
+       \gdef\csname thelst@saved@\lst@intname\endcsname{\arabic{lst@saved@\lst@intname}}}
        {}%
      \setcounter{lst@saved@\lst@intname}{\value{lstlabel}}}}
 \define@key{lst}{labelstyle}{\def\lst@label@style##1{{#1{##1}}}}
@@ -241,12 +242,18 @@
        {\lst@linenumber@{\thelstlabel}}
        {\lst@linenumber@{}}}}
 \lst@AddToHook{InitVarEOL}{\stepcounter{lstlabel}}
-\newsavebox{\@wait}
+\newsavebox{\@prevlines}
+\newsavebox{\@curline}
+\newcommand{\lst@forget@lastline}
+{\sbox{\@curline}{}\setcounter{lst@spaces}{0}\addtocounter{lstlabel}{-1}}
 \newcommand{\@NewLine@}
-  {\usebox{\@wait}\lst@spaces\sbox{\@wait}{}\global\let\@NewLine\lst@spaces}
-\lst@AddToHook{EveryLine}{\sbox{\@wait}{\usebox{\@wait}\lst@spaces\@br%
-\@rawchars{\lst@doindent}\lst@linenumber}\global\let\@NewLine\@NewLine@}
-\lst@AddToHook{Init}{\sbox{\@wait}{}\global\let\@NewLine\lst@spaces}
+{\usebox{\@prevlines}\usebox{\@curline}\lst@spaces%
+\sbox{\@prevlines}{}\sbox{\@curline}{}\global\let\@NewLine\lst@spaces}
+\lst@AddToHook{EveryLine}{\setcounter{lst@spaces}{0}%
+\sbox{\@prevlines}{\usebox{\@prevlines}\usebox{\@curline}}%
+\sbox{\@curline}{\@br\@rawchars{\lst@doindent}\lst@linenumber}%
+\global\let\@NewLine\@NewLine@}
+\lst@AddToHook{Init}{\sbox{\@prevlines}{}\sbox{\@curline}{}\global\let\@NewLine\lst@spaces}
 %%%%%% TeX escapes
 \define@key{lst}{texcl}[true]{\def\lst@texcl{#1}}
 \setboolean{lst@texcl}{false}
@@ -283,6 +290,13 @@
   {\@ifundefined{lst@print}{}
      {\setboolean{lst@print}{\lst@boolean{\lst@print}}}}
 \lst@AddToHook{DeInit}{\setboolean{lst@print}{true}}
+% showlines
+\define@key{lst}{showlines}[true]{\def\lst@showlines{#1}}
+\setboolean{lst@showlines}{false}
+\lst@AddToHook{Init}
+  {\@ifundefined{lst@showlines}{}
+     {\setboolean{lst@showlines}{\lst@boolean{\lst@showlines}}}}
+\lst@AddToHook{DeInit}{\setboolean{lst@showlines}{false}}
 %%%%%%% Strings
 \lst@Hook{String}
 \lst@AddToHook{Init}{\lst@UseHook{String}}
