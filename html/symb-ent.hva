@@ -56,7 +56,7 @@
 %\newcommand{\ast}{\@entity{lowast}}
 \renewcommand{\star}{\@print{&#8902;}}
 \newcommand{\circ}{\@print{&#8728;}}
-\newcommand{\@bullet}{\@entity{bull}}
+\newcommand{\@bullet}{\@print{&#8729;}}
 \renewcommand{\cdot}{\@entity{sdot}}
 \newcommand{\cap}{\@entity{cap}}
 \newcommand{\cup}{\@entity{cup}}
@@ -89,7 +89,7 @@
 % Relation Symbols
 \newcommand{\leq}{\@entity{le}}
 \newcommand{\prec}{\@print{&#8826;}}
-\newcommand{\preceq}{\@print{&#8829;}}
+\newcommand{\preceq}{\@print{&#8828;}}
 \newcommand{\subset}{\@entity{sub}}
 \newcommand{\subseteq}{\@entity{sube}}
 \newcommand{\sqsubset}{\@print{&#8847;}}
