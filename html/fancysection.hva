@@ -1,4 +1,4 @@
-\@ifundefined{@base}{\typeout{``fancysection.hva'' must be loaded after base style}\endinput}{}
+\@ifundefined{@base}{\typeout{'fancysection.hva' must be loaded after base style}\endinput}{}
 \usepackage{color}
 %%% Color section
 \newcommand{\colorsections}[1]{
@@ -16,9 +16,10 @@
 \definecolor{subsection}{hsv}{#1, .5, 1}%
 \definecolor{subsubsection}{hsv}{#1, .4, 1}%
 }}%
-%\newcommand{\@color}{120}%
 \colorsections{120}%
 %% Define sectioning comands
+\AtBeginDocument
+{\newstyle{BODY}{backgroundcolor:white}%
 \setLATEXstyle{title}
 	{padding:1ex;background:\@getstylecolor{title}}%
 \setLATEXstyle{titlemain}
@@ -35,7 +36,7 @@
 	{padding:0.5ex;background:\@getstylecolor{subsubsection}}%
 \ifthenelse{\equal{\@base}{book}}
 {\setLATEXstyle{chapter}{padding:0.5ex;background:\@getstylecolor{chapter}}}
-{}%
+{}}
 
 
 

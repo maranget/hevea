@@ -14,15 +14,15 @@ all: index.html
 
 opt:
 	export HEVEADIR=.. ;\
-	$(MAKE) $(MFLAGS) HEVEA="$(HEVEAOPTS)" HACHAOPTS="$(HACHAOPTS)" HEVEA=../hevea.opt HACHA=../hacha.opt IMAGEN=../imagen all
+	$(MAKE) $(MFLAGS) HEVEAOPTS="$(HEVEAOPTS)" HACHAOPTS="$(HACHAOPTS)" HEVEA=../hevea.opt HACHA=../hacha.opt IMAGEN=../imagen all
 
 infoopt:
 	export HEVEADIR=.. ;\
-	$(MAKE) $(MFLAGS) HEVEA="$(HEVEAOPTS)" HACHAOPTS="$(HACHAOPTS)" ../HEVEA=hevea.opt HACHA=../hacha.opt IMAGEN=imagen.opt info
+	$(MAKE) $(MFLAGS) HEVEAOPTS="$(HEVEAOPTS)" HACHAOPTS="$(HACHAOPTS)" ../HEVEA=hevea.opt HACHA=../hacha.opt IMAGEN=imagen.opt info
 
 byte:
 	export HEVEADIR=.. ;\
-	$(MAKE) $(MFLAGS) HEVEA="$(HEVEAOPTS)" HACHAOPTS="$(HACHAOPTS)" HEVEA="../hevea.byte -fix" HACHA=../hacha.byte IMAGEN=../imagen all
+	$(MAKE) $(MFLAGS) HEVEAOPTS="$(HEVEAOPTS)" HACHAOPTS="$(HACHAOPTS)" HEVEA="../hevea.byte -fix" HACHA=../hacha.byte IMAGEN=../imagen all
 
 tmp.tex: text.tex
 	$(GPIC) -t < text.tex > tmp.tex

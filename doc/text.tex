@@ -32,12 +32,10 @@ Chesnay Cedex. {\tt \mailto{Luc.Maranget@inria.fr}}}}
 \urldef{\ftpbase}{\url}{ftp://ftp.inria.fr/INRIA/moscova/hevea}
 \fi
 \urldef{\httpbase}{\url}{http://pauillac.inria.fr/~maranget/hevea}
-%HEVEA% \setstyles{padding:3;background:\#bbddff;border:solid blue;color:black}
-%HEVEA\setHTMLstyle{.ruled-table}{padding:5;background:\#eeddbb;border:solid black;color:white}
-%HEVEA% \setHTMLstyle{.part}{font-variant:small-caps;font-size:30pt}
-%HEVEA% \setHTMLstyle{.title}{background:\#99bbdd}
-%HEVEA% \setHTMLstyle{.titlemain}{font-size:26pt}
-%HEVEA% \setHTMLstyle{.titlerest}{font-size:16pt}
+\def\stylex{background:teal;padding:1ex;color:navy;border:solid navy}
+\newstyle{.subsectionex}{\stylex}
+\def\verbstyle{margin:2ex 1ex;backgroundcolor:\@getstylecolor{subsection}}
+\newstyle{.verbatim}{\verbstyle}
 \begin{document}
 
 \maketitle
@@ -118,8 +116,7 @@ Probably, you will get some warnings. If
 
 If everything goes fine, this will produce a new file,
 ``\texttt{a.html}'', which you can visualize through  a {\html} browser.
-If \texttt{a.tex} contains math symbols you need to instruct your
-browser to use symbol fonts (see section~\ref{browser}).
+
 
 If you wish to experiment \hevea{} on small \LaTeX{} source fragments,
 then launch \hevea{} without arguments. \hevea{} will read its
@@ -377,8 +374,7 @@ is echoed.
 
 However, typesetting math formulas in \html{} rises two difficulties.
 First, formulas contain symbols, such as Greek letters; second,
-even simple formulas do not follow the simple basic typesetting model of
-\html.
+even simple formulas do not follow the simple basic typesetting model of~\html.
 
 
 \subsubsection{Spacing in math mode}\label{spacemath}
@@ -404,36 +400,41 @@ output.
 
 \subsubsection{Symbols}\label{symbols}
 \begin{figure}[p]
-\caption{\label{xfd} Symbol font in X}
+\caption{\label{symbol:fig}Some symbols}
+\def\zyva#1{\texttt{\char92{}#1}:\quad & \Large $\csname#1\endcsname$}
 \begin{center}
-\image{xfd}
+\begin{tabular}{rl@{\qquad}rl}
+\zyva{in} & \zyva{notin}\\
+\zyva{int} & \zyva{prod}\\
+\zyva{preceq} & \zyva{prec}\\
+\zyva{leq}    & \zyva{geq}\\
+\zyva{cup} & \zyva{cap}\\
+\zyva{supset} & \zyva{subset}\\
+\zyva{supseteq} & \zyva{subseteq}\\
+\end{tabular}
 \end{center}
 \end{figure}
-Outputting symbols is performed using an \html{} extension:
-the now standard \verb+FACE+ attribute to the \verb+FONT+
-element instruct the browser to switch to a symbol font.
-\hevea{} assumes this choice for the symbol font to be
-as shown by figure~\ref{xfd}.
+With respect to previous versions of~\hevea{} since the begining, the
+treatment of symbols has significantly evolved.  Outputting symbols is
+now performed by using Unicode character references, an option that
+much more complies whith standards than the previous option of
+selecting a ``symbol'' font.  Observe that this choice is now
+possible, because more and more browsers correctly display such
+references.
 
 
-A browser  correctly displays \hevea{} symbols when
-figure~\ref{xfd} resembles the \html{} page located
-at \localurl{symbol.html} in \hevea{} on-line documentation
-directory.
-Some browsers
-do not know about symbol fonts by default and
-need to be configured (see section~\ref{browser}).
 
-
-For authors that do not want to generate symbols that cannot be shown
+However, this means that ancient or purposely limited browsers (such as
+text-oriented browsers) cannot display maths, as translated by \hevea.
+For authors that insist on avoiding symbols that cannot be shown
 by any browser, \hevea{} offers a degraded mode that outputs text
 in place of symbols.
-\hevea{} operates in this mode when given the \verb+-nosymb+ flag.
-Replacement text is in English, unless
+\hevea{} operates in this mode when given the \texttt{-textsymbols}
+command-line option.
+Replacement text is in English.
 \hevea{} is also given the \verb+-francais+ flag. In that case
 replacement text is in French.
-For instance. the ``$\in$'' symbol is replace by ``in'' (or by ``appartient
-à'' if French mode is selected).
+For instance. the ``$\in$'' symbol is replace by ``in''.
 This is far from being satisfactory, but degraded mode may be
 appropriate for documents than contain few symbols.
 
@@ -627,13 +628,12 @@ standard \LaTeX{} has not.
 
 Therefore, there are many situations where \hevea{} just cannot
 render the visual effect of \LaTeX{} constructions. Here some choices
-have to be made. For instance, the calligraphic letters (\verb+\mathcal+)
-are rendered in red (\verb+<FONT COLOR=red>+), and the small caps
-(\verb+\scshape+) are rendered in bold font (\verb+<B>+).
+have to be made. For instance, calligraphic letters (\verb+\mathcal+)
+are rendered in red (\verb+<FONT COLOR=red>+).
 
 If you are not satisfied with \hevea{} rendering of text style
 declarations, then you
-can choose your own, by redefining the \verb+\cal+ and \verb+\sc+
+can choose your own, by redefining the \verb+\cal+
 macros, using \verb+\renewcommand+, the macro redefinition operator of
 \LaTeX{}. The key point is that you need not worry about \hevea{}
 internals: just redefine the old-\LaTeX{} style text-style
@@ -2480,6 +2480,459 @@ Additionally,  \verb+\begin{bgcolor}+ takes \html{} attributes
 as an optional argument. These attributes are the ones of the
 \verb+TABLE+ element.
 
+\section{Support for Style \label{style-sheets}Sheets}
+\index{style-sheets}
+
+\subsection{Overview}
+Starting with version~1.08, \hevea{} offers support for stylesheets
+(of the CSS variant see~\cite{css}).
+
+Style sheets provide enhanced expressivity. For instance, it is now possible
+to get ``real'' (whatever real means here) small caps in {\html}, and in a
+relatively standard manner. There are others, discrete, maybe
+unnoticeable, similar enhancements.
+
+However, style sheet mostly provide \hevea{} users with an additional
+mecanism to customize their documents. To do so, users should probably
+get familiar with how \hevea{} uses style sheets in the first
+place.
+
+\hevea{} interest for style sheets is at the moment confined to
+block-level elements (\verb+DIV+, \verb+TABLE+, \verb+H+\textit{n},
+etc.).
+The general principle is as follows: when an command or an
+environment get translated into a block-level element,
+the opening tag of the block level element has a
+\texttt{CLASS="\textit{name}"} attribute, where \textit{name} is the
+command or environment name.
+
+As an example the \LaTeX{} command \verb+\subsection+
+ is implemented with the element~\verb+H3+, resulting in
+\html{} output of the form~:
+\begin{verbatim}
+    <H3 CLASS="subsection">
+    ...
+    </H3>
+\end{verbatim}
+By default, most styles are undefined, and default rendering of
+block-level elements apply. However, some package (such as, for
+instance~\texttt{fancysection}, see Section~\ref{fancysection}) may
+define them.
+
+Users themselves can append new definitions to the \emph{document style
+sheet}, using the command \verb+\newstyle+.
+For instance, here is a \verb+\newstyle+ to add style for subsections.
+\begin{alltt}
+  \char92newstyle\{.subsection\}\{\stylex\}
+\end{alltt}
+This declaration adds some style element to the class
+``\texttt{subsection}'' (notice the dot!):
+blocks that declare to belong to the class
+will appear on a light blue background, text will be dark blue, some padding
+(space inside the box) is added and a border will be drawn around the block.
+These specification will normally affect all subsections in the document.
+Notice that, to yield some effet, \verb+\newstyle+~commands \emph{must} appear
+in the document preamble, i.e. before \verb+\begin{document}+.
+\begin{htmlonly}
+Given the previous style definition, the sectioning command
+\begin{verbatim}
+\subsection*{A styled subsection heading}
+\end{verbatim}
+should yield~:
+\@open{H3}{CLASS="subsectionex"}
+A styled subsection heading
+\@close{H3}
+\end{htmlonly}
+
+
+For instance, let us consider \texttt{verbatim} environments.
+\begin{alltt}
+\begin{verbatim}
+Inside verbatim.
+\end{verbatim}
+\end{alltt}
+
+
+So far so good! But how are (style) classes (here \emph{subsection})
+defined?
+This is done by using special \hevea{} commands, in the preamble
+of the \LaTeX{} document. These are transferred to the \verb+HEAD+ of
+the \html{} document. It is possible to link to an external style sheet,
+and/or define one's own styles. As an example the command
+would result in the following entry in the style definitions in the
+preamble of the \html{} document.
+\begin{verbatim}
+    <STYLE TYPE="text/css">
+    ...
+    ...
+    .subsection {background:blue;padding:4;color:white;border:thin solid black}
+    ...
+    ...
+    </STYLE>
+\end{verbatim}
+We now describe the usage in more detail. 
+
+\begin{enumerate}
+\item We first describe how to link to external stylesheets and define
+styles explicitly.
+\item Then we describe the classes that affect different macros and
+environments.
+\item We finally describe how to enclose a particular fragment
+inside a \verb+DIV+ block-level element, opened with a class.
+This provides a way to specify
+styles for certain macros and environments which cannot be stylized by
+defining the appropriate class (e.g. \html{} tables are used extensively
+to set math, so a style for \verb+TABLE+ would leave its mark in
+undesired places).
+\end{enumerate}
+
+\subsection{Importing/Making Definitions}
+\subsubsection{Linking to External Style Sheets}
+\index{style-sheets!\verb+\loadcssfile+}
+The \hevea{} command \verb+\loadcssfile{+\ldots\verb+}+ allows the
+user to link to an external style sheet (like the LINK option for
+HTML). The command takes as argument, either the position of the file
+relative to the current directory (e.g {\tt ../abc.css}), or a url
+(e.g. {\tt http://www.styles.com/abc.css}), and emits the HTML text to
+\emph{link} to the file. As an example, the command
+\begin{verbatim}
+    %HEVEA \loadcssfile{../abc.css}
+\end{verbatim}
+produces the following \html{} text in the \verb+HEAD+ of the document.
+\begin{verbatim}
+    <LINK REL=STYLESHEET TYPE="text/css" HREF="../abc.css">
+\end{verbatim} 
+If used after the preamble, \hevea{} will ignore it after issuing a warning.
+
+\paragraph{Argument not verbose}
+As the argument is processed, it is not taken in verbose. Thus, if it
+contains special characters such as \# or \$, they must be specified
+as \verb+\#,\$+ respectively. A viable alternative would be to quote
+the argument using the \verb+\url+ command from the \texttt{url}
+package (see Section~\ref{urlpackage}).
+
+\paragraph{Limitations}
+This approach, however, has its limitations. The style-sheets linked to would probably need to be modified to be \hevea-compatible, which would involve removing many definitions which could cause unwanted effects (unless the user actually \emph{wants} the unwanted effects). As an example, a style definition for SPAN would change, among others, the style of \emph{overline}d text. This means almost all predefined style files cannot be used directly. The option has still been provided for the following reasons
+\begin{enumerate}
+\item{If the user can rename the classes to erase conflicts, the files will still work well.}\
+item{The option is particularly useful if a set of styles is to be used for multiple documents generated using \hevea.}
+\item{Future releases of \hevea{} are likely to allow more flexibility.}
+\end{enumerate}
+
+\subsubsection{Defining Your Own Styles}
+There are three commands using which styles may be defined. All of
+them create definitions in the \verb+HEAD+ of the \html{} document. The
+user may choose the one they want, depending on the degree of
+familiarity the user chooses to have with \hevea{}
+internals. Needless to say, more familiarity gives more power, but
+also calls for a more responsible use.
+
+\paragraph{A common theme for sectioning.}
+\index{style-sheets!\verb+\setstyles+}
+The \verb+\setstyles{+\ldots\verb+}+ command can be used to give a common theme for the various section headings in the document. Its advantage is that it requires no knowledge of \hevea{} internals. As an example the command
+\begin{verbatim}
+    %HEVEA \setstyles{padding:4; background:\#bbddee; color:black;font: sans-serif}
+\end{verbatim}
+sets a common style for each of sectioning elements by defining each class to have the same style, as shown below for the \emph{article} documentstyle
+\begin{verbatim}
+    <STYLE TYPE="text/css">
+    ..
+    .title {padding:4;background:#bbddee;color:black;font:sans-serif}
+    .titlemain {padding:4;background:#bbddee;color:black;font:sans-serif}
+    .titlerest {padding:4;background:#bbddee;color:black;font:sans-serif}
+    .part {padding:4;background:#bbddee;color:black;font:sans-serif}
+    .section {padding:4;background:#bbddee;color:black;font:sans-serif}
+    .subsection {padding:4;background:#bbddee;color:black;font:sans-serif}
+    .subsubsection {padding:4;background:#bbddee;color:black;font:sans-serif}
+    .paragraph {padding:4;background:#bbddee;color:black;font:sans-serif}
+    .subparagraph {padding:4;background:#bbddee;color:black;font:sans-serif}
+  ...
+  </STYLE>
+\end{verbatim} 
+These are the classes used by the title and the various sectioning macros. As an example the macro \verb+\part+ is implemented using \verb+H1 CLASS=part+. The details are given in section~\ref{whatclass}.
+ 
+Worth noting is the use of \verb+\#bbddee+ to generate \texttt{\#bbddff}. As with linking to style-sheets, the argument is not read in verbose. In fact, the same holds for all arguments for style-sheet commands, and we shall assume that user keeps this in mind hereon. 
+
+\paragraph{Each \LaTeX{} style separately}
+\index{style-sheets!\verb+\setLATEXstyle+}
+One may choose to define a separate style for each/some of the \LaTeX{} sectioning elements using \verb+\setLATEXstyle+. As an example the commands 
+\begin{verbatim}
+    %HEVEA \setLATEXstyle{section}{background:green;color:white;font:sans-serif}
+    %HEVEA \setLATEXstyle{titlemain}{background:\#aa9933;color:black;font:sans-serif}
+\end{verbatim}
+produce the class definitions
+\begin{verbatim}
+    .section {background:green;color:white;font:sans-serif}
+    .titlemain {background:#aa9933;color:black;font:sans-serif}
+\end{verbatim} 
+The general behaviour of the command is to add a .(dot) in front of
+its first argument to generate the class name.
+Not only does this allow users to specify the styles of various
+sectioning commands separately (as above), it
+also allows the user to specify styles for other macros and
+environments that can be stylized by \hevea{} (e.g
+\verb+itemize+).
+
+
+\paragraph{Each HTML style separately}
+\index{style-sheets!\verb+\setHTMLstyle+}
+
+Users may want to define basic HTML styles (hack straight into the
+HTML code produced by \hevea). They can do so using the command
+\verb+\setHTMLstyle+. This option involves more care, and more careful
+knowledge of what classes are used where, and what attributes may be
+inherited (transferred to inner blocks).
+
+As a simple example, \hevea{} uses classes H1, H2, H3, H4 to create part, section, subsection, and subsubsection headings, respectively. A user who chooses to know this, can specify the styles of each of these as
+\begin{verbatim}
+    %HEVEA \setHTMLstyle{H1.part} {background:green;color:white;font:helvetica}
+    %HEVEA \setHTMLstyle{.section}{background:green;color:black;font:sans-serif}
+    %HEVEA \setHTMLstyle{H3}      {background:green;color:black;font:sans-serif}
+    %HEVEA \setHTMLstyle{H4}      {background:green;color:black;font:sans-serif}
+\end{verbatim}
+and obtain the predictable
+\begin{verbatim}
+    H1.part  {background:green;color:white;font:helvetica}
+    .section {background:green;color:white;font:sans-serif}
+    H3       {background:green;color:black;font:sans-serif}
+    H4.x.y   {background:green;color:black;font:sans-serif}
+\end{verbatim}
+The main difference with \verb+\setLATEXstyle+ is that no .(dot) is
+added to the class name, and that definitions such as {\tt H4.x.y} can
+be created.
+
+As in HTML, the definition of {\tt H1.part} will take precedence over the
+definition of {\tt .part} (if there exists one) when \texttt{<H1
+CLASS=part>} is used. Similarly, So, the definition of {\tt H3} would
+have no effect when \texttt{<H3 CLASS=subsection>} is used, unless
+{\tt .subsection} is not defined.
+
+The use of this command is recommended only for users familiar with these semantics. For a first use, the previous two commands are usually sufficient. This, howver is useful for those willing to stretch the support offered by \hevea{} to its limits.  
+
+\subsubsection{Examples of Style Definitions}
+\index{style-sheets!examples}
+We now give two examples which combine the above commands.
+\textbf{Example~1}
+An input
+\begin{verbatim}
+    %HEVEA \loadcssfile{x.css}
+    %HEVEA \setHTMLstyle {H1.part}  {background:green;color:white;font:helvetica}
+    %HEVEA \setLATEXstyle{section}  {background:blue;color:white}
+    %HEVEA \setLATEXstyle{title}    {background:green;color:black;font:helvetica}
+    %HEVEA \setLATEXstyle{subsection}  {background:blue;color:white}
+    %HEVEA \setHTMLstyle {H5}          {background:cyan;color:black}
+    %HEVEA \setLATEXstyle{subparagraph}{background:magenta;color:white}
+\end{verbatim}
+in the preamble of the \LaTeX{} document will produce HTML code 
+\begin{verbatim}
+    <LINK REL=STYLESHEET type="text/css" HREF="x.css">
+
+    <STYLE type="text/css">
+      H1.part{background:green;color:white;font:helvetica}
+      H2{background:blue;color:white}
+      H1.title{background:green;color:black;font:helvetica}
+      H3{background:blue;color:white}
+      H5{background:cyan;color:black}
+      H6{background:magenta;color:white}
+    </STYLE>
+\end{verbatim}
+
+
+\textbf{Example~2}
+An adventurous input
+\begin{verbatim}
+    %HEVEA \loadcssfile{x.css}
+    %HEVEA \loadcssfile{y.css}
+    %HEVEA \setstyles              {background:green;color:white;font:sans-serif}
+    %HEVEA \setHTMLstyle {H1.part} {background:green;color:white;font:helvetica}
+    %HEVEA \setLATEXstyle{section} {background:blue;color:white}
+    %HEVEA \setHTMLstyle{H3}       {background:cyan;color:black}
+\end{verbatim}
+will produce the following HTML output
+\begin{verbatim}
+    <LINK REL=STYLESHEET type="text/css" HREF="x.css">
+    <LINK REL=STYLESHEET type="text/css" HREF="y.css">
+  
+    <STYLE type="text/css"> 
+      .title    {background:green;color:white;font:sans-serif}
+      .titlemain      {background:green;color:white;font:sans-serif}
+      .titlerest      {background:green;color:white;font:sans-serif}    
+      .part           {background:green;color:white;font:sans-serif}
+      .section        {background:green;color:white;font:sans-serif}
+      .subsection     {background:green;color:white;font:sans-serif}
+      .subsubsection  {background:green;color:white;font:sans-serif}
+      .paragraph      {background:green;color:white;font:sans-serif}
+      .subparagraph   {background:green;color:white;font:sans-serif}
+      H1.part         {background:green;color:white;font:helvetica}
+      .section        {background:blue;color:white}
+      H3              {background:cyan;color:black}
+    </STYLE>
+\end{verbatim}
+Here {\tt .section} is defined twice, and the last definition will be used by HTML. Similarly definitions in {\tt y.css} will override those in {\tt x.css}. Also, conflicts between {\tt H1.part} and {\tt .part} will be resolved as explained above. The order of definitions is the same as the order in the \LaTeX{} document. 
+
+
+\subsection{Which Class Affects\label{whatclass} What}
+We now specify which definitions have effects on what macros. The
+class names closely resemble the macro and environment names, and should
+be relatively easy to keep in mind.
+
+\paragraph{Itemize}\index{styles for!{\tt itemize} environment}
+Governed by classes \emph{itemize} and \emph{li-itemize}. Given input
+\begin{verbatim}
+    \begin{itemize}
+      \item{x}
+    \end{itemize}
+\end{verbatim}
+produces output
+\begin{verbatim}
+    <UL CLASS=itemize>
+      <LI CLASS=li-itemize>x
+    </UL>
+\end{verbatim}
+
+\paragraph{Enumerate}\index{styles for!{\tt enumerate} environment}
+Governed by classes \emph{enumerate} and \emph{li-enumerate}. Given input
+\begin{verbatim}
+    \begin{enumerate}
+      \item{x}
+    \end{enumerate}
+\end{verbatim}
+produces output
+\begin{verbatim}
+    <OL CLASS=enumerate>
+      <LI CLASS=li-enumerate>x
+    </OL>
+\end{verbatim}
+
+\paragraph{Description\index{styles for!{\tt
+description}}\index{styles for!{\tt list}} and list environments}
+The style of the \texttt{description} environment is
+governed by classes \verb+description+,
+\verb+dt-description+ and \verb+dd-description+. Given input
+\begin{verbatim}
+    \begin{description}
+      \item[x]{y}
+    \end{description}
+\end{verbatim}
+produces output
+\begin{verbatim}
+    <LIST CLASS=description>
+      <DT CLASS=dt-description>x
+      <DD CLASS=dd-description>y
+    </LIST>
+\end{verbatim}
+
+Styles for the \texttt{list} environment, which is implemented
+similarly, are managed in the same manner with
+style classes \verb+list+, \verb+dt-list+ and
+\verb+dd-list+ respectively.
+
+\paragraph{Sectioning Commands}\index{styles for!sectioning commands}
+The table below specifies the block level elements and respective classes.
+\begin{center}
+\begin{tabular}{|l|l|l|}
+\hline
+COMMAND&CLASS REQUIRED&HTML OUTPUT \\
+\hline
+$\setminus$part{...}         &part&$<$H1 CLASS=part$>$ ... $<$/H1$>$\\
+$\setminus$section{...}      &section&$<$H2 CLASS=section$>$ ... $<$/H2$>$\\
+$\setminus$subsection{...}   &subsection&$<$H3 CLASS=subsection$>$ ... $<$/H3$>$\\
+$\setminus$subsubsection{...}&subsubsection&$<$H4 CLASS=subsubsection$>$ ... $<$/H4$>$\\
+$\setminus$paragraph{...}    &paragraph&$<$H5 CLASS=paragraph$>$ ... $<$/H5$>$\\
+$\setminus$subparagraph{...} &subparagraph&$<$H6 CLASS=subparagraph$>$ ... $<$/H6$>$\\
+\hline
+\end{tabular}
+\end{center}
+
+\paragraph{The Title}\index{styles for!title}
+The command \verb+\maketitle+ uses a table with a single cell, with class \verb+title+, for display. The name of the title is displayed inside block H1, with class \verb+titlemain+, while all other information (author, date) are displayed inside block H3, with class \verb+titlerest+. As an example, if the title is to contain, the titlename, author, and the date, the HTML code will look like
+\begin{verbatim}
+    <TABLE ALIGN=center>
+     <TR>
+      <TD CLASS=title>
+       <H1 ALIGN=center CLASS=titlemain>..title here..</H1>
+       <H3 ALIGN=center CLASS=titlerest>..author here..</H3>
+       <H3 ALIGN=center CLASS=titlerest>..date here..</H3>
+      </TD>
+     </TR>
+    </TABLE>
+\end{verbatim}
+
+\subsection{Enclosing Things in a Styled DIV}\index{styles for!miscellaneous objexts}
+Due to internal use of certain environments by \hevea{}, they cannot be
+stylized by defining an appropriate class in the preamble. A typical
+example would be the \texttt{tabular} environment. Defining a class
+\emph{.tabular} and using it universaly would also effect math
+constructs, such as \verb+\over,\frac,\xleftarrow,etc.+, besides many
+other things.
+
+\index{style-sheets!\verb+\divstyle+}
+For such constructs, limited support for style-sheets is offered by
+the environment \verb+\divstyle+, which takes the name of a class as
+an argument, and encloses the part inside using \verb+<DIV CLASS=...>+
+and \verb+</DIV>+.
+
+The limitation is that the enclosed part may generate more HTML blocks, and only the inherited style attributes shall apply uniformly inside. However, it is pretty effective for some basic styling.
+
+As an example consider the class definition below.
+\begin{verbatim}
+    \setHTMLstyle{.ruled-table}{border:solid black; padding:5; background:\#eeddbb; color:white}
+\end{verbatim}   
+Enclosing a \emph{tabular} environment using \verb+divstyle+ with the class \verb+ruled-table+ as the argument, as shown below
+\begin{verbatim}
+    $$
+    \begin{divstyle}{ruled-table}
+     \begin{tabular}{|>{\tt}c|p{0.7\hsize}|}
+      ...
+     \end{tabular}
+    \end{divstyle}
+    $$
+\end{verbatim}
+will produce output of the form
+\begin{verbatim}
+    <DIV ALIGN=center>
+     <TABLE CELLSPACING=0 CELLPADDING=0>
+      <TR VALIGN=center>
+       <TD NOWRAP>
+        <DIV CLASS=ruled-table>
+         <TABLE CELLSPACING=0 CELLPADDING=0> 
+          ....
+         </TABLE>
+        </DIV>
+       </TD>
+      </TR>
+     </TABLE>
+    </DIV>
+\end{verbatim}
+where the outer DIV and TABLE are due to the fact that the display-math mode uses a DIV to center everything, and tables to set elements formulas inside. 
+\begin{htmlonly}
+It will look something like
+$$
+\def \val {{\em v}}
+\def \arraystretch {1.4}
+%HEVEA \begin{divstyle}{ruled-table}
+\begin{tabular}{|>{\tt}c|p{0.7\hsize}|}
+\hline
+\bf English & \bf French\\
+\hline\hline
+Good Morning & Bon Jour\\
+\hline
+Thank You & Merci\\
+\hline
+Good Bye & Au Revoir\\
+\hline
+\end{tabular}
+%HEVEA \end{divstyle}
+$$
+\end{htmlonly}
+If another \verb+divstyle+ environment were used before the
+display-math, the effect would be another DIV enclosing the entire
+text, and other elements inside also getting affected (see the test
+file \footahref{../examples/style-test.tex}{style-test.tex}, and its
+\hevea{} rendering
+\footahref{../examples/style-test.html}{\texttt{style-test.html}} for
+more details).
+
 \latexsection{Customizing \hevea}
 \pdfsection{Customizing HeVeA}
 \hevea{} can be controlled by writing \LaTeX{} code. In this section,
@@ -2531,12 +2984,10 @@ for the font shapes:
 \scshape small caps shape \upshape upright shape
 \end{verbatim}
 By default, \verb+\itshape+ is italics, \verb+\slshape+ is maroon
-italics, \verb+\scshape+ is navy blue color and \verb+\upshape+ is no
-style at all.
+italics, \verb+\scshape+ is small-caps (thanks to style sheets) and \verb+\upshape+ is no style at all.
 All shapes are mutually exclusive, this means that each shape
 declaration cancels the effect of other active shape declarations.
-For instance, in the example, small caps shapes is navy blue and not
-navy blue italics.
+For instance, in the example, small caps shapes is small caps (no italics here).
 \begin{htmlonly}
 \begin{htmlout}
 \itshape italic shape \slshape slanted shape
@@ -2588,7 +3039,7 @@ anyway).
 However, \hevea{} can process the document as it stands.
 One  solution to insert the following lines into \texttt{macros.hva}:
 \begin{verbatim}
-\input{article.hva}% Force document class ``article''
+\input{article.hva}% Force document class 'article'
 \let\oldtitle=\title
 \renewcommand{\title}[2][]{\oldtitle{#2}}
 \end{verbatim}
@@ -2672,7 +3123,7 @@ As usual, \texttt{hevea} will invoke \texttt{imagen} with the
 appropriate option, provided it is passed the \texttt{-fix} option.
 
 
-\subsection{Controling \texttt{imagen} from documment source}
+\subsection{Controling \texttt{imagen} from document source}
 \index{"@addimagenopt@\texttt{\char92"@addimagenopt}|defocc}
 The internal command
 \verb+\@addimagenopt{+\textit{option}\verb+}+ add
@@ -3327,403 +3778,6 @@ Similarly, \verb+\verb+ and \verb+\verb*+ translate to the \verb+CODE+
 text element.
 
 The \verb+alltt+ environment is supported.
-
-\section{Support for Style \label{style-sheets}Sheets}
-\index{style-sheets}
-\subsection{Overview}
-\hevea{} also offers support for stylesheets. The principle is that the block level elements in the HTML output corresponding to a macro or environment are opened with a particular \emph{class}. As an example the \LaTeX{} command \verb+\subsection+ is implementad in \hevea{} using the block \emph{H3}, resulting in HTML output of the form
-\begin{verbatim}
-    <H3 CLASS=subsection>
-    ...
-    </H3>
-\end{verbatim}
-The styles for various \LaTeX{} macros and environments can be defined
-by making appropriate class definitions. So, in the above case, a
-class definition for \emph{subsection} would amount to specifying a style
-for subsections. In the absence of a definition, the default style for
-\verb+H3+ would take effect.
-
-So far so good! But how are these classes (e.g. \emph{subsection})
-defined. This is done using special \hevea{} commands, in the preamble
-of the \LaTeX{} document. These are transferred to the \verb+HEAD+ of
-the \html{} document. It is possible to link to an external style sheet,
-and/or define one's own styles. As an example the command
-\begin{verbatim}
-    \setHTMLstyle{.subsection}{background:blue;padding:4;color:white;border:thin solid black}
-\end{verbatim}
-would result in the following entry in the style definitions in the
-preamble of the \html{} document.
-\begin{verbatim}
-    <STYLE TYPE="text/css">
-    ...
-    ...
-    .subsection {background:blue;padding:4;color:white;border:thin solid black}
-    ...
-    ...
-    </STYLE>
-\end{verbatim}
-We now describe the usage in more detail. 
-
-\begin{enumerate}
-\item We first describe how to link to external stylesheets and define
-styles explicitly.
-\item Then we describe the classes that affect different macros and
-environments.
-\item We finally describe how to enclose a particular fragment
-inside a \verb+DIV+ block-level element, opened with a class.
-This provides a way to specify
-styles for certain macros and environments which cannot be stylized by
-defining the appropriate class (e.g. \html{} tables are used extensively
-to set math, so a style for \verb+TABLE+ would leave its mark in
-undesired places).
-\end{enumerate}
-
-\subsection{Importing/Making Definitions}
-\subsubsection{Linking to External Style Sheets}
-\index{style-sheets!\verb+\loadcssfile+}
-The \hevea{} command \verb+\loadcssfile{+\ldots\verb+}+ allows the
-user to link to an external style sheet (like the LINK option for
-HTML). The command takes as argument, either the position of the file
-relative to the current directory (e.g {\tt ../abc.css}), or a url
-(e.g. {\tt http://www.styles.com/abc.css}), and emits the HTML text to
-\emph{link} to the file. As an example, the command
-\begin{verbatim}
-    %HEVEA \loadcssfile{../abc.css}
-\end{verbatim}
-produces the following \html{} text in the \verb+HEAD+ of the document.
-\begin{verbatim}
-    <LINK REL=STYLESHEET TYPE="text/css" HREF="../abc.css">
-\end{verbatim} 
-If used after the preamble, \hevea{} will ignore it after issuing a warning.
-
-\paragraph{Argument not verbose}
-As the argument is processed, it is not taken in verbose. Thus, if it
-contains special characters such as \# or \$, they must be specified
-as \verb+\#,\$+ respectively. A viable alternative would be to quote
-the argument using the \verb+\url+ command from the \texttt{url}
-package (see Section~\ref{urlpackage}).
-
-\paragraph{Limitations}
-This approach, however, has its limitations. The style-sheets linked to would probably need to be modified to be \hevea-compatible, which would involve removing many definitions which could cause unwanted effects (unless the user actually \emph{wants} the unwanted effects). As an example, a style definition for SPAN would change, among others, the style of \emph{overline}d text. This means almost all predefined style files cannot be used directly. The option has still been provided for the following reasons
-\begin{enumerate}
-\item{If the user can rename the classes to erase conflicts, the files will still work well.}
-\item{The option is particularly useful if a set of styles is to be used for multiple documents generated using \hevea.}
-\item{Future releases of \hevea{} are likely to allow more flexibility.}
-\end{enumerate}
-
-\subsubsection{Defining Your Own Styles}
-There are three commands using which styles may be defined. All of
-them create definitions in the \verb+HEAD+ of the \html{} document. The
-user may choose the one they want, depending on the degree of
-familiarity the user chooses to have with \hevea{}
-internals. Needless to say, more familiarity gives more power, but
-also calls for a more responsible use.
-
-\paragraph{A common theme for sectioning.}
-\index{style-sheets!\verb+\setstyles+}
-The \verb+\setstyles{+\ldots\verb+}+ command can be used to give a common theme for the various section headings in the document. Its advantage is that it requires no knowledge of \hevea{} internals. As an example the command
-\begin{verbatim}
-    %HEVEA \setstyles{padding:4; background:\#bbddee; color:black;font: sans-serif}
-\end{verbatim}
-sets a common style for each of sectioning elements by defining each class to have the same style, as shown below for the \emph{article} documentstyle
-\begin{verbatim}
-    <STYLE TYPE="text/css">
-    ..
-    .title {padding:4;background:#bbddee;color:black;font:sans-serif}
-    .titlemain {padding:4;background:#bbddee;color:black;font:sans-serif}
-    .titlerest {padding:4;background:#bbddee;color:black;font:sans-serif}
-    .part {padding:4;background:#bbddee;color:black;font:sans-serif}
-    .section {padding:4;background:#bbddee;color:black;font:sans-serif}
-    .subsection {padding:4;background:#bbddee;color:black;font:sans-serif}
-    .subsubsection {padding:4;background:#bbddee;color:black;font:sans-serif}
-    .paragraph {padding:4;background:#bbddee;color:black;font:sans-serif}
-    .subparagraph {padding:4;background:#bbddee;color:black;font:sans-serif}
-  ...
-  </STYLE>
-\end{verbatim} 
-These are the classes used by the title and the various sectioning macros. As an example the macro \verb+\part+ is implemented using \verb+H1 CLASS=part+. The details are given in section~\ref{whatclass}.
- 
-Worth noting is the use of \verb+\#bbddee+ to generate \texttt{\#bbddff}. As with linking to style-sheets, the argument is not read in verbose. In fact, the same holds for all arguments for style-sheet commands, and we shall assume that user keeps this in mind hereon. 
-
-\paragraph{Each \LaTeX{} style separately}
-\index{style-sheets!\verb+\setLATEXstyle+}
-One may choose to define a separate style for each/some of the \LaTeX{} sectioning elements using \verb+\setLATEXstyle+. As an example the commands 
-\begin{verbatim}
-    %HEVEA \setLATEXstyle{section}{background:green;color:white;font:sans-serif}
-    %HEVEA \setLATEXstyle{titlemain}{background:\#aa9933;color:black;font:sans-serif}
-\end{verbatim}
-produce the class definitions
-\begin{verbatim}
-    .section {background:green;color:white;font:sans-serif}
-    .titlemain {background:#aa9933;color:black;font:sans-serif}
-\end{verbatim} 
-The general behaviour of the command is to add a .(dot) in front of
-its first argument to generate the class name.
-Not only does this allow users to specify the styles of various
-sectioning commands separately (as above), it
-also allows the user to specify styles for other macros and
-environments that can be stylized by \hevea{} (e.g
-\verb+itemize+).
-
-
-\paragraph{Each HTML style separately}
-\index{style-sheets!\verb+\setHTMLstyle+}
-
-Users may want to define basic HTML styles (hack straight into the
-HTML code produced by \hevea). They can do so using the command
-\verb+\setHTMLstyle+. This option involves more care, and more careful
-knowledge of what classes are used where, and what attributes may be
-inherited (transferred to inner blocks).
-
-As a simple example, \hevea{} uses classes H1, H2, H3, H4 to create part, section, subsection, and subsubsection headings, respectively. A user who chooses to know this, can specify the styles of each of these as
-\begin{verbatim}
-    %HEVEA \setHTMLstyle{H1.part} {background:green;color:white;font:helvetica}
-    %HEVEA \setHTMLstyle{.section}{background:green;color:black;font:sans-serif}
-    %HEVEA \setHTMLstyle{H3}      {background:green;color:black;font:sans-serif}
-    %HEVEA \setHTMLstyle{H4}      {background:green;color:black;font:sans-serif}
-\end{verbatim}
-and obtain the predictable
-\begin{verbatim}
-    H1.part  {background:green;color:white;font:helvetica}
-    .section {background:green;color:white;font:sans-serif}
-    H3       {background:green;color:black;font:sans-serif}
-    H4.x.y   {background:green;color:black;font:sans-serif}
-\end{verbatim}
-The main difference with \verb+\setLATEXstyle+ is that no .(dot) is
-added to the class name, and that definitions such as {\tt H4.x.y} can
-be created.
-
-As in HTML, the definition of {\tt H1.part} will take precedence over the
-definition of {\tt .part} (if there exists one) when \texttt{<H1
-CLASS=part>} is used. Similarly, So, the definition of {\tt H3} would
-have no effect when \texttt{<H3 CLASS=subsection>} is used, unless
-{\tt .subsection} is not defined.
-
-The use of this command is recommended only for users familiar with these semantics. For a first use, the previous two commands are usually sufficient. This, howver is useful for those willing to stretch the support offered by \hevea{} to its limits.  
-
-\subsubsection{Examples of Style Definitions}
-\index{style-sheets!examples}
-We now give two examples which combine the above commands.
-\textbf{Example~1}
-An input
-\begin{verbatim}
-    %HEVEA \loadcssfile{x.css}
-    %HEVEA \setHTMLstyle {H1.part}  {background:green;color:white;font:helvetica}
-    %HEVEA \setLATEXstyle{section}  {background:blue;color:white}
-    %HEVEA \setLATEXstyle{title}    {background:green;color:black;font:helvetica}
-    %HEVEA \setLATEXstyle{subsection}  {background:blue;color:white}
-    %HEVEA \setHTMLstyle {H5}          {background:cyan;color:black}
-    %HEVEA \setLATEXstyle{subparagraph}{background:magenta;color:white}
-\end{verbatim}
-in the preamble of the \LaTeX{} document will produce HTML code 
-\begin{verbatim}
-    <LINK REL=STYLESHEET type="text/css" HREF="x.css">
-
-    <STYLE type="text/css">
-      H1.part{background:green;color:white;font:helvetica}
-      H2{background:blue;color:white}
-      H1.title{background:green;color:black;font:helvetica}
-      H3{background:blue;color:white}
-      H5{background:cyan;color:black}
-      H6{background:magenta;color:white}
-    </STYLE>
-\end{verbatim}
-
-
-\textbf{Example~2}
-An adventurous input
-\begin{verbatim}
-    %HEVEA \loadcssfile{x.css}
-    %HEVEA \loadcssfile{y.css}
-    %HEVEA \setstyles              {background:green;color:white;font:sans-serif}
-    %HEVEA \setHTMLstyle {H1.part} {background:green;color:white;font:helvetica}
-    %HEVEA \setLATEXstyle{section} {background:blue;color:white}
-    %HEVEA \setHTMLstyle{H3}       {background:cyan;color:black}
-\end{verbatim}
-will produce the following HTML output
-\begin{verbatim}
-    <LINK REL=STYLESHEET type="text/css" HREF="x.css">
-    <LINK REL=STYLESHEET type="text/css" HREF="y.css">
-  
-    <STYLE type="text/css"> 
-      .title    {background:green;color:white;font:sans-serif}
-      .titlemain      {background:green;color:white;font:sans-serif}
-      .titlerest      {background:green;color:white;font:sans-serif}    
-      .part           {background:green;color:white;font:sans-serif}
-      .section        {background:green;color:white;font:sans-serif}
-      .subsection     {background:green;color:white;font:sans-serif}
-      .subsubsection  {background:green;color:white;font:sans-serif}
-      .paragraph      {background:green;color:white;font:sans-serif}
-      .subparagraph   {background:green;color:white;font:sans-serif}
-      H1.part         {background:green;color:white;font:helvetica}
-      .section        {background:blue;color:white}
-      H3              {background:cyan;color:black}
-    </STYLE>
-\end{verbatim}
-Here {\tt .section} is defined twice, and the last definition will be used by HTML. Similarly definitions in {\tt y.css} will override those in {\tt x.css}. Also, conflicts between {\tt H1.part} and {\tt .part} will be resolved as explained above. The order of definitions is the same as the order in the \LaTeX{} document. 
-
-
-\subsection{Which Class Affects\label{whatclass} What}
-We now specify which definitions have effects on what macros. The
-class names closely resemble the macro and environment names, and should
-be relatively easy to keep in mind.
-
-\paragraph{Itemize}\index{styles for!{\tt itemize} environment}
-Governed by classes \emph{itemize} and \emph{li-itemize}. Given input
-\begin{verbatim}
-    \begin{itemize}
-      \item{x}
-    \end{itemize}
-\end{verbatim}
-produces output
-\begin{verbatim}
-    <UL CLASS=itemize>
-      <LI CLASS=li-itemize>x
-    </UL>
-\end{verbatim}
-
-\paragraph{Enumerate}\index{styles for!{\tt enumerate} environment}
-Governed by classes \emph{enumerate} and \emph{li-enumerate}. Given input
-\begin{verbatim}
-    \begin{enumerate}
-      \item{x}
-    \end{enumerate}
-\end{verbatim}
-produces output
-\begin{verbatim}
-    <OL CLASS=enumerate>
-      <LI CLASS=li-enumerate>x
-    </OL>
-\end{verbatim}
-
-\paragraph{Description\index{styles for!{\tt
-description}}\index{styles for!{\tt list}} and list environments}
-The style of the \texttt{description} environment is
-governed by classes \verb+description+,
-\verb+dt-description+ and \verb+dd-description+. Given input
-\begin{verbatim}
-    \begin{description}
-      \item[x]{y}
-    \end{description}
-\end{verbatim}
-produces output
-\begin{verbatim}
-    <LIST CLASS=description>
-      <DT CLASS=dt-description>x
-      <DD CLASS=dd-description>y
-    </LIST>
-\end{verbatim}
-
-Styles for the \texttt{list} environment, which is implemented
-similarly, are managed in the same manner with
-style classes \verb+list+, \verb+dt-list+ and
-\verb+dd-list+ respectively.
-
-\paragraph{Sectioning Commands}\index{styles for!sectioning commands}
-The table below specifies the block level elements and respective classes.
-\begin{center}
-\begin{tabular}{|l|l|l|}
-\hline
-COMMAND&CLASS REQUIRED&HTML OUTPUT \\
-\hline
-$\setminus$part{...}         &part&$<$H1 CLASS=part$>$ ... $<$/H1$>$\\
-$\setminus$section{...}      &section&$<$H2 CLASS=section$>$ ... $<$/H2$>$\\
-$\setminus$subsection{...}   &subsection&$<$H3 CLASS=subsection$>$ ... $<$/H3$>$\\
-$\setminus$subsubsection{...}&subsubsection&$<$H4 CLASS=subsubsection$>$ ... $<$/H4$>$\\
-$\setminus$paragraph{...}    &paragraph&$<$H5 CLASS=paragraph$>$ ... $<$/H5$>$\\
-$\setminus$subparagraph{...} &subparagraph&$<$H6 CLASS=subparagraph$>$ ... $<$/H6$>$\\
-\hline
-\end{tabular}
-\end{center}
-
-\paragraph{The Title}\index{styles for!title}
-The command \verb+\maketitle+ uses a table with a single cell, with class \verb+title+, for display. The name of the title is displayed inside block H1, with class \verb+titlemain+, while all other information (author, date) are displayed inside block H3, with class \verb+titlerest+. As an example, if the title is to contain, the titlename, author, and the date, the HTML code will look like
-\begin{verbatim}
-    <TABLE ALIGN=center>
-     <TR>
-      <TD CLASS=title>
-       <H1 ALIGN=center CLASS=titlemain>..title here..</H1>
-       <H3 ALIGN=center CLASS=titlerest>..author here..</H3>
-       <H3 ALIGN=center CLASS=titlerest>..date here..</H3>
-      </TD>
-     </TR>
-    </TABLE>
-\end{verbatim}
-
-\subsection{Enclosing Things in a Styled DIV}\index{styles for!miscellaneous objexts}
-Due to internal use of certain environments by \hevea{}, they cannot be
-stylized by defining an appropriate class in the preamble. A typical
-example would be the \texttt{tabular} environment. Defining a class
-\emph{.tabular} and using it universaly would also effect math
-constructs, such as \verb+\over,\frac,\xleftarrow,etc.+, besides many
-other things.
-
-\index{style-sheets!\verb+\divstyle+}
-For such constructs, limited support for style-sheets is offered by
-the environment \verb+\divstyle+, which takes the name of a class as
-an argument, and encloses the part inside using \verb+<DIV CLASS=...>+
-and \verb+</DIV>+.
-
-The limitation is that the enclosed part may generate more HTML blocks, and only the inherited style attributes shall apply uniformly inside. However, it is pretty effective for some basic styling.
-
-As an example consider the class definition below.
-\begin{verbatim}
-    \setHTMLstyle{.ruled-table}{border:solid black; padding:5; background:\#eeddbb; color:white}
-\end{verbatim}   
-Enclosing a \emph{tabular} environment using \verb+divstyle+ with the class \verb+ruled-table+ as the argument, as shown below
-\begin{verbatim}
-    $$
-    \begin{divstyle}{ruled-table}
-     \begin{tabular}{|>{\tt}c|p{0.7\hsize}|}
-      ...
-     \end{tabular}
-    \end{divstyle}
-    $$
-\end{verbatim}
-will produce output of the form
-\begin{verbatim}
-    <DIV ALIGN=center>
-     <TABLE CELLSPACING=0 CELLPADDING=0>
-      <TR VALIGN=center>
-       <TD NOWRAP>
-        <DIV CLASS=ruled-table>
-         <TABLE CELLSPACING=0 CELLPADDING=0> 
-          ....
-         </TABLE>
-        </DIV>
-       </TD>
-      </TR>
-     </TABLE>
-    </DIV>
-\end{verbatim}
-where the outer DIV and TABLE are due to the fact that the display-math mode uses a DIV to center everything, and tables to set elements formulas inside. 
-\begin{htmlonly}
-It will look something like
-$$
-\def \val {{\em v}}
-\def \arraystretch {1.4}
-%HEVEA \begin{divstyle}{ruled-table}
-\begin{tabular}{|>{\tt}c|p{0.7\hsize}|}
-\hline
-\bf English & \bf French\\
-\hline\hline
-Good Morning & Bon Jour\\
-\hline
-Thank You & Merci\\
-\hline
-Good Bye & Au Revoir\\
-\hline
-\end{tabular}
-%HEVEA \end{divstyle}
-$$
-\end{htmlonly}
-If another \verb+divstyle+ environment were used before the
-display-math, the effect would be another DIV enclosing the entire
-text, and other elements inside also getting affected (see the test
-file \footahref{../examples/style-test.tex}{style-test.tex}, and its
-\hevea{} rendering
-\footahref{../examples/style-test.html}{\texttt{style-test.html}} for
-more details).
 
 \section{Mathematical Formulae}
 
@@ -4773,7 +4827,7 @@ no guarantee.
 
 As \html{} does not provide the same variety of type styles as
 \LaTeX{}, some type style get rendered by using colors. For instance,
-the slanted shape yields maroon italics and small caps yields navy blue.
+the slanted shape yields maroon italics.
 \begin{htmlonly}
 Hence, the following source
 ``\verb+{\slshape slanted shape} {\scshape small caps shape}+'' yields:
@@ -4786,7 +4840,7 @@ Here is how \hevea{} implements text-style declarations by default:
 \begin{tabular}{l@{\quad}l} \hline
 \verb+\itshape+ &  \heveastyle{\itshape}{italics}\\
 \verb+\slshape+ &  \heveastyle{\slshape}{maroon italics}\\
-\verb+\scshape+ &  \heveastyle{\scshape}{navy blue}\\
+\verb+\scshape+ &  \heveastyle{\scshape}{small~caps}\\
 \verb+\upshape+ &  \heveastyle{\upshape}{no style}\\ \hline
 \end{tabular}
  &
@@ -4822,7 +4876,7 @@ For instance consider the following source, that exhibits shape changes:
 {\itshape italic shape \slshape slanted shape
 \scshape small caps shape \upshape upright shape}
 \end{verbatim}
-Then, in the rendering below, ``small caps shape'' apears in navy blue
+Then, in the rendering below, ``small caps shape'' apears in small caps shape
 only and not in italics:
 \begin{htmlout}
 {\itshape italic shape \slshape slanted shape
@@ -4834,8 +4888,8 @@ only and not in italics:
 Old style declarations are also recognized, they translate to
 text-level elements. However, no elements are canceled when using
 old style declaration. Thus, the source
-``\verb+{\sl\sc slanted and small caps}+'' yields navy blue
-italics\ifhevea: ``{\sl\sc slanted and small caps}''\fi.
+``\verb+{\sl\sc slanted and small caps}+'' yields maroon ``slanted'' small caps
+\ifhevea: ``{\sl\sc slanted and small caps}''\fi.
 Users need probably not worry about this. However this has an
 important practical consequence: to change the default rendering of
 type styles, one should redefine old style declaration in order to
@@ -5109,7 +5163,7 @@ Windows users should enjoy the same features with the version of
 \texttt{xxdate.exe} included in the Win32 distribution.   
 
 
-\subsection{Fancy sectioning commands}
+\subsection{Fancy \label{fancysection}sectioning commands}
 \index{color!of section headings}
 Loading the \texttt{fancysection.hva} file will radically change the
 style of sectional units headers: they appear over a green
@@ -6220,58 +6274,10 @@ when given the \verb+-fix+ option, \texttt{hevea} will itself run
 
 \section{Browser configuration}\label{browser}\cutname{browser.html}
 \index{browser configuration}
-By default, \hevea{} uses
-the \verb+FACE=symbol+ attribute to the \verb+<FONT ...>+ tag.
-This attribute is non-standard in HTML-3.2 and is now standard (and
-already deprecated) in HTML-4.0 
+By default, \hevea{} does not anymore use the \verb+FACE=symbol+ attribute to
+the \verb+<FONT ...>+ tag.
+As a consequence, browser configuration is no longer needed.
 
-The symbol font is the one available on the Linux Red Hat
-distribution and seems to be present on many Unix installations.
-A good way to know whether your browser can show \hevea{} symbols or
-not is
-comparing figure~\ref{xfd} and the web page located at
-\localurl{symbol.html}.
-
-\emph{Microsoft Explorer} displays the symbol font by default.
-
-By default,  \emph{Netscape Communicator} does not display symbol fonts
-as intended by \hevea{}.
-On an Unix system, the following procedure instructs
-\emph{Netscape Communicator} to do so:
-\begin{itemize}
-\item Add the following line to your \texttt{.Xdefaults} file:
-\begin{verbatim}
-Netscape*documentFonts.charset*adobe-fontspecific:   iso-8859-1
-\end{verbatim}
-\item Issue a \verb+xrdb .Xdefaults+ command.
-\item Restart \emph{Netscape}.
-\item Furthermore, be carefull to enable using document fonts
-while disabling dynamic fonts~: select the
-Edit/Preference/Appearance/Fonts menu, and then check the appropriate
-box, which should be something like "Use document-specified fonts".
-\end{itemize}
-
-On a Macintosh,
-choose  {\bf Western (Mac Roman)} in the item {\bf Document~Encoding}
-from the {\em Preferences} menu. This will work only if the document
-does not contain iso-latin1 characters above 127. That is, this will
-work only with documents that are generated by \hevea{} with the
-\texttt{-noiso} option enabled (see section~\ref{heveaoptions}).
-
-
-More details on browser configuration can be found at
-\ahrefurl{http://hutchinson.belmont.ma.us/tth/Xfonts.html}
-(A page from Ian Hutchinson's \texttt{tth} documentation).
-In particular the \emph{Simple fix} of the \texttt{.Xdefaults} file
-above does not seem to work on \emph{Mozilla 4.78}, and you should
-rely on the more complicated fix described in the web page.
-
-
-
-More details on symbol fonts can be found
-in section~\ref{symbols} of this manual.
-In particular, note that symbol fonts may be completely avoided with
-the \verb+-nosymb+ option.
 
 \section{Availability}
 
@@ -6446,7 +6452,7 @@ Bert Bos,  Håkon Wium Lie,
 Chris Lilley and Ian Jacobs.
 {\em Cascading Style Sheets, level 2 CSS2 Specification}. Available on
 the web at
-\ahref{\url{http://www.w3.org/TR/1998/REC-CSS2-19980512/}}, 1998.
+\ahrefurl{\url{http://www.w3.org/TR/1998/REC-CSS2-19980512/}}, 1998.
 
 \end{thebibliography}
 \printindex

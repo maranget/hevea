@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.255 2005-02-28 16:32:23 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.256 2005-03-03 09:59:14 maranget Exp $ *)
 
 
 {
@@ -1051,9 +1051,8 @@ rule  main = parse
   {do_expand_command main skip_blanks "\\@hevea@excl" lexbuf ;
   main lexbuf}
 (* One character *)
-| _ 
-   {let lxm = lexeme_char lexbuf 0 in
-   let lxm = check_case_char lxm in
+| _  as lxm
+   {let lxm = check_case_char lxm in
    Dest.put (Dest.iso lxm) ;
    main lexbuf}
 
@@ -1518,17 +1517,23 @@ let get_prim_onarg arg =
   let plain_sub = is_plain '_'
   and plain_sup = is_plain '^'
   and plain_dollar = is_plain '$'
-  and plain_amper = is_plain '&' in
+  and plain_amper = is_plain '&'
+  and plain_quote = is_plain '\''
+  and plain_backquote = is_plain '`'
+  and plain_minus = is_plain '-' in
   unset_plain '_' ; unset_plain '^' ; unset_plain '$' ; unset_plain '&' ;
+  unset_plain '\'' ; unset_plain '`' ; unset_plain  '-' ;
   let old_raw = !raw_chars in
   raw_chars := true ;
   let r = do_get_this
-      start_normal end_normal
-      Dest.nostyle
-      main arg in
+    start_normal end_normal
+    Dest.nostyle
+    main arg in
   raw_chars := old_raw ;
   plain_back plain_sub '_' ; plain_back plain_sup '^' ;
   plain_back plain_dollar '$' ; plain_back plain_amper '&' ;
+  plain_back plain_quote '\'' ; plain_back plain_backquote  '`' ;
+  plain_back plain_minus '-' ;
   r
 
 let get_prim s = get_prim_onarg (string_to_arg s)
@@ -3204,7 +3209,7 @@ and do_bsbs lexbuf =
   let _ = Dest.forget_par () in ()
 
 and do_minus lexbuf = match !symbol_mode with
-| Entity ->
+| Entity when is_plain '-' ->
     if Save.if_next_char '-' lexbuf then begin
       gobble_one_char lexbuf ;
       if  Save.if_next_char '-' lexbuf then begin
@@ -3219,7 +3224,7 @@ and do_minus lexbuf = match !symbol_mode with
 |  _ -> Dest.put_char '-'
 
 and do_backquote lexbuf = match !symbol_mode with
-| Entity when not !in_math ->
+| Entity when not !in_math && is_plain '`' ->
     if Save.if_next_char '`' lexbuf then begin
       gobble_one_char lexbuf ;
       Dest.put "&#8220;"
@@ -3228,7 +3233,7 @@ and do_backquote lexbuf = match !symbol_mode with
 | _ ->  Dest.put_char '`'
 
 and do_quote lexbuf = match !symbol_mode with
-| Entity when not !in_math ->
+| Entity when not !in_math && is_plain '\'' ->
     if Save.if_next_char '\'' lexbuf then begin
       gobble_one_char lexbuf ;
       Dest.put "&#8221;"
