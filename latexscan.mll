@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.202 2001-01-15 10:55:25 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.203 2001-01-30 10:08:44 maranget Exp $ *)
 
 
 {
@@ -1125,14 +1125,16 @@ and image = parse
         let _ = Save.defargs lexbuf in
         let _ = save_arg lexbuf in
         Image.put lxm ;
-        Image.put (Save.get_echo ())
+        let saved = Save.get_echo () in
+        Image.put saved
     | "\\renewcommand" | "\\newcommand" | "\\providecommand" ->
         Save.start_echo () ;
-        skip_csname lexbuf ;
+        let _ = save_arg lexbuf in
         let _ = save_opts ["0" ; ""] lexbuf in
         let _ = save_arg lexbuf in
         Image.put lxm ;
-        Image.put (Save.get_echo ())
+        let saved = Save.get_echo () in
+        Image.put saved
     | "\\newenvironment" | "\\renewenvironment" ->
         Save.start_echo () ;
         let _ = save_arg lexbuf in

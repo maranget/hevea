@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlCommon.ml,v 1.31 2001-01-15 10:55:20 maranget Exp $" 
+let header = "$Id: htmlCommon.ml,v 1.32 2001-01-30 10:08:41 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -69,7 +69,10 @@ let string_of_block = function
 
 let block_t = Hashtbl.create 17
 ;;
-let no_opt = true
+
+let no_opt = false
+;;
+
 
 let add b =
   Hashtbl.add block_t (string_of_block b) b
