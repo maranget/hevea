@@ -1,0 +1,483 @@
+%  Mathpartir --- Math Paragraph for Typesetting Inference Rules
+%
+%  Copyright (C) 2001, 2002, 2003 Didier Rémy
+%
+%  Author         : Didier Remy 
+%  Version        : 1.1.1
+%  Bug Reports    : to author
+%  Web Site       : http://pauillac.inria.fr/~remy/latex/
+% 
+%  WhizzyTeX is free software; you can redistribute it and/or modify
+%  it under the terms of the GNU General Public License as published by
+%  the Free Software Foundation; either version 2, or (at your option)
+%  any later version.
+%  
+%  Mathpartir is distributed in the hope that it will be useful,
+%  but WITHOUT ANY WARRANTY; without even the implied warranty of
+%  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+%  GNU General Public License for more details 
+%  (http://pauillac.inria.fr/~remy/license/GPL).
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  File mathpartir.tex (Documentation)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass {article}
+
+\usepackage {mathpartir}
+\usepackage {listings}
+\usepackage {array}
+\usepackage {url}
+\newif \ifhevea 
+%HEVEA \heveatrue
+\ifhevea 
+\usepackage {hevea}
+\fi
+
+\lstset {basicstyle=\tt}
+\let \lst \verb
+
+\title {Remy's Mathpartir}
+
+\begin{document}
+
+\begin{abstract}
+This package provides macros for displaying lists of formulas that are
+typeset in mixed horizontal and vertical modes. The package is two-folded.
+
+The first part is an environment \verb"mathpar" that generalizes the math
+display mode to allow several formulas on the same line, and several lines
+in the same display. The arrangement of the sequence of formulas into lines
+is automatic depending on the line width and on a minimum inter-formula
+space and line width alike words in a paragraphs (in centerline mode).  A
+typical application is  displaying a set of type inference rules.
+
+The second par is a macro \lst"inferrule" to typeset inference rules
+themselves.  Here again, both premises and conclusions are presented as list
+of formulas that should be displayed in almost the same way, except that the
+width is not fixed in advance; and the inference rule should use no more
+width than necessary so that other inference rules are given a chance to
+appear on the same line.
+
+Although \verb"mathpar" and \verb"inferrule" look similar in their
+specification, and are often used in combination, they are in fact
+completely different in their implementations.
+\end{abstract}
+
+\section {The mathpar environment}
+
+The mathpar environment is a ``paragraph mode for formulas''. 
+It  allows to typeset long list of formulas putting as
+many as possible on the same line: 
+$$
+\begin{tabular}{m{0.45\hsize}m{0.1\hsize}m{0.45\hsize}}
+\begin{lstlisting}{Ocaml}
+\begin{mathpar}
+A-Formula \and 
+Longer-Formula \and 
+And \and The-Last-One
+\end{mathpar}
+\end{lstlisting}
+&
+~~~
+&
+\begin{mathpar}
+A-Formula 
+\and
+Longer-Formula
+\and
+And 
+\and
+The-Last-One
+\end{mathpar}
+\end{tabular}
+$$
+Formulas are separated by \verb"\and" (or equivalently by a blank line). 
+To enforce a vertical break it sufficies to replace \verb"\and" by
+\verb"\\". 
+
+The implementation of \verb"mathpar" entirely relies on the paragraph mode
+for text. It starts  a new paragraph, and a math formula within a paragraph,
+after adjusting the spacing and penalties for breaks. Then, it simply binds
+\verb"\and" to something like \verb"\goodbreak". 
+\section {The inferrule macro}
+
+The inferrule macro is designed to typeset inference rules.  It should
+only\footnote {Even though the basic version may work in text mode,
+we discourage its use in text mode; the star-version cannot be used in
+text-mode} be used in math mode (or display math mode). 
+
+The basic use of the rule is 
+\begin{verbatim}
+\inferrule
+  {one \\ two \\ three \\ or \\ more \\ premisses}
+  {and \\ any \\ number \\ of \\ conclusions \\ as \\ well}
+\end{verbatim}
+This is the rendering on a large page
+\def \one {\inferrule
+  {one \\ two \\ three \\ or \\ more \\ premisses}
+  {and \\ any \\ number \\ of \\ conclusions \\ as \\ well}
+}
+$$
+\ifhevea \one
+\else
+\fbox {\vbox {\advance \hsize by -2\fboxsep \advance \hsize by -2\fboxrule
+       \linewidth\hsize
+        $$\one$$}}
+\fi
+$$
+
+However, the same formula on a narrower page will automatically be typsetted
+like that:
+\def \two {\inferrule
+  {one \\\\ two \\ three \\ or \\\\ more \\ premisses}
+  {and \\ any \\ number \\\\ of \\ conclusions \\\\ as \\ well}
+}
+$$
+\ifhevea \two
+\else
+\fbox {\hsize 0.33 \hsize \vbox {$$\two$$}}
+\fi
+$$
+An inference rule is mainly composed of a premisse and a conclusion. 
+The premisse and the conclusions are both list of formulas where the
+elements are separated by \verb"\\". 
+
+Note the dissymetry between typesetting of the premisses and of
+conclusions where lines closer to the center are fit first. 
+
+A newline can be forced by adding an empty line \verb"\\\\"
+
+\begin{tabular}{m{0.44\hsize}m{0.1\hsize}m{0.44\hsize}}
+\begin{lstlisting}{Ocaml}
+\inferrule 
+   {aa \\\\ bb}
+   {dd \\ ee \\ ff}
+\end{lstlisting}
+&
+~~~
+&
+$\inferrule {aa \\\\bb}{dd \\ ee \\ ff}$
+\\
+\end{tabular}
+
+\subsection {Single rules}
+
+Single rules are the default mode. 
+Rules are aligned on their fraction bar, as illustrated below:
+$$
+\inferrule {aa \\ bb}{ee} \hspace {4em} \inferrule {aa \\\\ bb \\ ee}{ee}
+$$
+If the premise or the conclusion is empty, then the fraction bar is not
+typeset and the premise or the conclusion is centered:
+$$
+\begin{tabular}{m{0.45\hsize}m{0.1\hsize}m{0.45\hsize}}
+\begin{lstlisting}{Ocaml}
+\inferrule {}{aa} + 
+\inferrule {aa \\\\ aa}{}
+\end{lstlisting}
+&
+~~~~~~~~
+&
+$
+\inferrule {}{aa} + 
+\inferrule {aa \\\\ aa}{}
+$
+\\
+\end{tabular}
+$$
+Use use \verb"{ }" instead of \verb"{}" to get an axiom for instance:
+$$
+\begin{tabular}{m{0.45\hsize}m{0.1\hsize}m{0.45\hsize}}
+\begin{lstlisting}{Ocaml}
+\inferrule { }{aa} + 
+\inferrule {aa}{ }
+\end{lstlisting}
+&
+~~~~~~
+&
+\mbox {$
+\inferrule { }{aa} + 
+\inferrule {aa}{ }
+$}
+\\
+\end{tabular}
+$$
+
+The macro \lst"\inferrule" acceps a label as optional argument, which will
+be typeset on the top left corner of the rule: 
+\par
+\begin{tabular}{m{0.45\hsize}m{0.1\hsize}m{0.45\hsize}}
+\begin{lstlisting}{Ocaml}
+\inferrule [yop]
+   {aa \\ bb}
+   {cc}
+\end{lstlisting}
+&
+$\inferrule [Yop]{aa \\ bb}{cc}$
+\\
+\end{tabular}
+\par\noindent
+See section~\ref {options} for changing typesetting of labels. 
+A label can also be placed next to the rule directly, since the rule is
+centered: 
+\par
+\begin{tabular}{m{0.45\hsize}m{0.1\hsize}m{0.45\hsize}}
+\begin{lstlisting}{Ocaml}
+\inferrule 
+   {aa \\ bb}
+   {cc}
+\quad (\textsc {Yop})
+\end{lstlisting}
+&
+~~~~~~
+&
+$\inferrule{aa \\ bb}{cc} \quad (\textsc {Yop})$
+\\
+\end{tabular}
+
+\subsection {Customizing}
+
+By default, lines are centerred in inference rules. 
+However, this can be changed by either \lst"\mprset{flushleft}"
+or \lst"\mprset{center}". For instance, 
+
+\begin{tabular}{m{0.44\hsize}m{0.12\hsize}m{0.44\hsize}}
+\begin{lstlisting}{Ocaml}
+$$\mprset{flushleft}
+  \inferrule 
+    {a \\ bbb \\\\ ccc \\ dddd}
+    {e \\ ff \\ gg}$$ 
+\end{lstlisting}
+&
+~~~~~
+&
+$$\mprset{flushleft} 
+\inferrule {a \\ bbb  \\\\ ccc \\ dddd}{e \\ ff \\ gg}$$
+\\
+\end{tabular}
+
+\noindent
+Note that lines are aligned independently in the premise and the
+conclusion, which are both themselves centered. In particular, 
+left alignment will not affect a single-line premisse or conclusion. 
+
+
+\subsection {Derivation trees}
+
+To help writing cascades of rules forming a derivation tree, inference rules
+can also be aligned on their bottom line. For this, we use the star-version:
+$$
+\begin{tabular}{m{0.45\hsize}m{0.1\hsize}m{0.45\hsize}}
+\begin{lstlisting}{Ocaml}
+\inferrule*
+   {\inferrule* {aa \\ bb}{cc}
+    \\ dd}
+   {ee}
+\end{lstlisting}
+&
+~~~~~~
+&
+$
+\inferrule*
+   {\inferrule* {aa \\ bb}{cc}
+    \\ dd}
+   {ee}
+$
+\\
+\end{tabular}
+$$
+The star version can also take an optional argument, 
+but with a different semantics. The optional argument is parsed by the 
+\verb"keyval" package, so as to offer a set of record-like options: 
+$$
+\def \val {{\em v}}
+\def \arraystretch {1.4}
+\begin{tabular}{|>{\tt}c|p{0.7\hsize}|}
+\hline
+\bf key & \bf Effect for value {\val}
+\\\hline\hline
+before & Execute {\val} before typesetting the rule.
+         Useful for instance to change the maximal width of the rule.
+\\\hline
+width &  Set the width of the rule to {\val}
+\\\hline
+narrower & Set the width of the rule to {\val} times \verb"\hsize".
+\\\hline
+left & Put a label {\val} on the left of the rule
+\\\hline
+Left & Idem, but as if the label had zero width. 
+\\\hline
+Right & As \verb"Left", but on  the right of the rule.
+\\\hline
+right & As \verb"left",  but on the right of the rule.
+\\\hline
+leftskip & Cheat by (skip negative space) {\val} on the left side.
+\\\hline
+rightskip & Cheat by {\val} on the right side of the rule.
+\\\hline
+vdots & Raise the rule by {\val} and insert vertical dots. 
+\\\hline
+\end{tabular}
+$$
+Here is an example of a complex derivation:
+$$
+\inferrule* [left=Total]
+  {\inferrule* [Left=Foo]
+     {\inferrule* [Right=Bar,
+                       leftskip=2em,rightskip=2em,vdots=1.5em]
+         {a \\ a \\\\ bb \\ cc \\ dd}
+         {ee}
+       \\ ff \\ gg}
+     {hh}
+  \\
+  \inferrule* [lab=XX]{uu \\ vv}{ww}}
+  {(1)}
+$$
+and its code
+\begin{lstlisting}{Ocaml}
+\inferrule* [left=Total]
+  {\inferrule* [Left=Foo]
+     {\inferrule* [Right=Bar,
+                       leftskip=2em,rightskip=2em,vdots=1.5em]
+         {a \\ a \\\\ bb \\ cc \\ dd}
+         {ee}
+       \\ ff \\ gg}
+     {hh}
+  \\
+  \inferrule* [lab=XX]{uu \\ vv}{ww}}
+  {(1)}
+\end{lstlisting}
+
+\def \L#1{\lower 0.4ex \hbox {#1}}
+\def \R#1{\raise 0.4ex \hbox {#1}}
+\def \hevea {H\L{E}\R{V}\L{E}A}
+\def \hevea {$\mbox {H}\!_{\mbox {E}}\!\mbox {V}\!_{\mbox {E}}\!\mbox {A}$}
+
+
+\subsection {Implementation}
+
+The main macro in the implementation of inference rules is the one that
+either premises and conclusions.  The macros uses two box-registers one
+\verb"hbox" for typesetting each line and one \verb"vbox" for collecting
+lines. The premise appears as a list with
+\verb"\\" as separator. Each element is considered in turn typeset in a
+\verb"hbox" in display math mode. Its width is compare to the space left on
+the current line. If the box would not fit, the current horizontal line is
+transferred to the vertical box and emptied. Then, the current formula can
+safely be added to the horizontal line (if it does not fit, nothing can be
+done). When moved to the vertical list, lines are aligned on their center
+(as if their left-part was a left overlapped). At the end the vbox is
+readjusted on the right. 
+
+This description works for conclusions. For premises, the elements must be
+processes in reverse order and the vertical list is simply built upside
+down. 
+
+
+\section {Other Options}
+
+\label {options}
+
+The package also defines \verb"\infer" as a shortcut for \verb"\inferrule"
+but only if it is not previously defined. 
+
+The package uses \verb"\TirName" and \verb"\RefTirName" to typeset labels,
+which can safely be redefined by the user. The former is used for defining
+occurrences ({\em ie.} in rule \lst"\inferrule") while the latter is used
+for referencing ({\em ie.} in the star-version). 
+
+The vertical space in \verb"mathpar" is adjusted by
+\verb"\MathparLineskip". To restore the normal paragraph parameters in mathpar
+mode (for instance for some inner paragraph), use the command
+\verb"\MathparNormalpar".  
+The environment uses \verb"\MathparBindings" to
+rebind \verb"\\", \verb"and", and \verb"\par". You can redefine thus command
+to change the default bindings or add your own. 
+
+\section {Examples}
+
+See the source of this documentation ---the file \lst"mathpartir.tex"---
+for full examples. 
+
+\section {{\hevea} compatibility}
+
+The package also redefines \verb"\hva" to do nothing in \lst"mathpar"
+environment and nor in inference rules. 
+
+In HeVeA, \verb"\and" will always produce a vertical break in mathpar
+environment; to obtain a horizontal break, use \verb"\hva \and" instead.
+Conversely, \verb"\\" will always produce a horizontal break in type
+inference rules; to obtain a vertical break, use \verb"\hva \\" instead.
+
+For instance, by default the following code,
+\begin{lstlisting}{Ocaml}
+\begin{mathpar}
+\inferrule* [Left=Foo]
+   {\inferrule* [Right=Bar,width=8em,
+                 leftskip=2em,rightskip=2em,vdots=1.5em]
+      {a \\ a \\ bb \\ cc \\ dd}
+      {ee}
+    \\ ff \\ gg}
+   {hh}
+\and
+\inferrule* [lab=XX]{uu \\ vv}{ww}
+\end{mathpar}
+\end{lstlisting}
+which typesets in {\TeX} as follows,
+\begin{mathpar}
+\inferrule* [Left=Foo]
+   {\inferrule* [Right=Bar,width=8em,
+                 leftskip=2em,rightskip=2em,vdots=1.5em]
+      {a \\ a \\ bb \\ cc \\ dd}
+      {ee}
+    \\ ff \\ gg}
+   {hh}
+\and
+\inferrule* [lab=XX]{uu \\ vv}{ww}
+\end{mathpar}
+would appear as follows with the compatible {\hevea} mode:
+\begin{mathpar}
+\inferrule* [left=Foo]
+   {\inferrule* [right=Bar]
+      {a \\ a \\ bb \\ cc \\ dd}
+      {ee}
+    \\ ff \\ gg}
+   {hh}
+\\
+\inferrule* [lab=XX]{uu \\ vv}{ww}
+\end{mathpar}
+To obtain (almost) the same rendering as in {\TeX}, it could be typed as 
+\begin{lstlisting}[escapechar=\%]{Ocaml}
+\begin{mathpar}
+\inferrule* [Left=Foo]
+   {\inferrule* [Right=Bar,width=8em,
+                 leftskip=2em,rightskip=2em,vdots=1.5em]
+      {a \\ a \hva \\ bb \\ cc \\ dd}
+      {ee}
+    \\ ff \\ gg}
+   {hh}
+\hva \and
+\inferrule* [lab=XX]{uu \\ vv}{ww}
+\end{mathpar}
+\end{lstlisting}
+Actually, it would be typeset and follows with the compatible {\hevea} mode:
+\begin{mathpar}
+\inferrule* [left=Foo]
+   {\inferrule* [right=Bar]
+      {a \\ a \\\\ bb \\ cc \\ dd}
+      {ee}
+    \\ ff \\ gg}
+   {hh}
+\and
+\inferrule* [lab=XX]{uu \\ vv}{ww}
+\end{mathpar}
+
+
+\end{document}
+
+\end{document}
+
+% LocalWords:  mathpar aa Yop bb dd ee ff cc Ocaml Foo leftskip rightskip vdots
+% LocalWords:  gg hh uu vv ww HeVeA escapechar
+ 
