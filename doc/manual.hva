@@ -20,4 +20,3 @@
 \addcontentsline{toc}{section}{\ahrefloc{#1}{#2}}}
 \renewcommand{\@indexsection}[1]{\namedsection{@index}{#1}}
 \renewcommand{\@bibliosection}[1]{\namedsection{@biblio}{#1}}
-\renewcommand{\heveaimagedir}{imgs}
