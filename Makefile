@@ -9,6 +9,7 @@ BINDIR=/usr/local/bin
 CPP=gcc -E -P -x c
 ############### End of configuration parameters
 HEVEA=./hevea.$(TARGET)
+ESPONJA=./esponja.$(TARGET)
 OCAMLC=${DIR}ocamlc
 OCAMLFLAGS=-g
 OCAMLCI=$(OCAMLC)
@@ -89,10 +90,10 @@ mylib.cmx: mylib.ml mylib.cmi
 	${OCAMLOPT} -pp '${CPP} -DLIBDIR=\"${LIBDIR}\"' -c mylib.ml
 
 cutfoot-fra.html: cutfoot.tex html/hevea.hva ${HEVEA}
-	HEVEADIR=. ; export HEVEADIR ; ${HEVEA} -francais < cutfoot.tex > $@
+	HEVEADIR=. ; export HEVEADIR ; ${HEVEA} -francais < cutfoot.tex | ${ESPONJA}> $@
 
 cutfoot-eng.html: cutfoot.tex html/hevea.hva ${HEVEA}
-	HEVEADIR=. ; export HEVEADIR ; ${HEVEA} < cutfoot.tex > $@
+	HEVEADIR=. ; export HEVEADIR ; ${HEVEA} < cutfoot.tex | ${ESPONJA}> $@
 
 .SUFFIXES:
 .SUFFIXES: .ml .cmo .mli .cmi .c .mll .cmx 

@@ -1,7 +1,7 @@
 explode.cmi: htmltext.cmi tree.cmi 
 get.cmi: length.cmi lexstate.cmi 
-htmllex.cmi: lexeme.cmi 
 html.cmi: element.cmi length.cmi lexstate.cmi out.cmi tabular.cmi 
+htmllex.cmi: lexeme.cmi 
 htmlparse.cmi: tree.cmi 
 htmltext.cmi: lexeme.cmi tree.cmi 
 info.cmi: element.cmi length.cmi lexstate.cmi out.cmi tabular.cmi 
@@ -32,18 +32,20 @@ counter.cmo: latexmacros.cmi misc.cmi counter.cmi
 counter.cmx: latexmacros.cmx misc.cmx counter.cmi 
 cross.cmo: location.cmi cross.cmi 
 cross.cmx: location.cmx cross.cmi 
-cutmain.cmo: cut.cmo location.cmi misc.cmi mylib.cmi version.cmi 
-cutmain.cmx: cut.cmx location.cmx misc.cmx mylib.cmx version.cmx 
 cut.cmo: cross.cmi location.cmi misc.cmi mylib.cmi out.cmi save.cmi \
     section.cmi stack.cmi thread.cmi 
 cut.cmx: cross.cmx location.cmx misc.cmx mylib.cmx out.cmx save.cmx \
     section.cmx stack.cmx thread.cmx 
+cutmain.cmo: cut.cmo location.cmi misc.cmi mylib.cmi version.cmi 
+cutmain.cmx: cut.cmx location.cmx misc.cmx mylib.cmx version.cmx 
 element.cmo: element.cmi 
 element.cmx: element.cmi 
 entry.cmo: out.cmi save.cmi entry.cmi 
 entry.cmx: out.cmx save.cmx entry.cmi 
-esponja.cmo: explode.cmi htmllex.cmi htmlparse.cmi pp.cmi ultra.cmi 
-esponja.cmx: explode.cmx htmllex.cmx htmlparse.cmx pp.cmx ultra.cmx 
+esponja.cmo: explode.cmi htmllex.cmi htmlparse.cmi location.cmi myfiles.cmi \
+    pp.cmi ultra.cmi 
+esponja.cmx: explode.cmx htmllex.cmx htmlparse.cmx location.cmx myfiles.cmx \
+    pp.cmx ultra.cmx 
 explode.cmo: htmltext.cmi lexeme.cmi tree.cmi explode.cmi 
 explode.cmx: htmltext.cmx lexeme.cmi tree.cmi explode.cmi 
 foot.cmo: misc.cmi parse_opts.cmi section.cmi foot.cmi 
@@ -56,20 +58,20 @@ hot.cmo: color.cmi counter.cmi foot.cmi infoRef.cmo latexmacros.cmi \
     lexstate.cmi misc.cmi parse_opts.cmi hot.cmi 
 hot.cmx: color.cmx counter.cmx foot.cmx infoRef.cmx latexmacros.cmx \
     lexstate.cmx misc.cmx parse_opts.cmx hot.cmi 
-htmlCommon.cmo: element.cmi latexmacros.cmi length.cmi misc.cmi out.cmi \
-    parse_opts.cmi stack.cmi 
-htmlCommon.cmx: element.cmx latexmacros.cmx length.cmx misc.cmx out.cmx \
-    parse_opts.cmx stack.cmx 
-htmllex.cmo: buff.cmi lexeme.cmi htmllex.cmi 
-htmllex.cmx: buff.cmx lexeme.cmi htmllex.cmi 
-htmlMath.cmo: element.cmi htmlCommon.cmo lexstate.cmi misc.cmi out.cmi \
-    parse_opts.cmi stack.cmi symb.cmi 
-htmlMath.cmx: element.cmx htmlCommon.cmx lexstate.cmx misc.cmx out.cmx \
-    parse_opts.cmx stack.cmx symb.cmx 
 html.cmo: htmlCommon.cmo htmlMath.cmo latexmacros.cmi length.cmi lexstate.cmi \
     mathML.cmo misc.cmi out.cmi parse_opts.cmi stack.cmi tabular.cmi html.cmi 
 html.cmx: htmlCommon.cmx htmlMath.cmx latexmacros.cmx length.cmx lexstate.cmx \
     mathML.cmx misc.cmx out.cmx parse_opts.cmx stack.cmx tabular.cmx html.cmi 
+htmlCommon.cmo: element.cmi latexmacros.cmi length.cmi misc.cmi out.cmi \
+    parse_opts.cmi stack.cmi 
+htmlCommon.cmx: element.cmx latexmacros.cmx length.cmx misc.cmx out.cmx \
+    parse_opts.cmx stack.cmx 
+htmlMath.cmo: element.cmi htmlCommon.cmo lexstate.cmi misc.cmi out.cmi \
+    parse_opts.cmi stack.cmi symb.cmi 
+htmlMath.cmx: element.cmx htmlCommon.cmx lexstate.cmx misc.cmx out.cmx \
+    parse_opts.cmx stack.cmx symb.cmx 
+htmllex.cmo: buff.cmi lexeme.cmi htmllex.cmi 
+htmllex.cmx: buff.cmx lexeme.cmi htmllex.cmi 
 htmlparse.cmo: htmllex.cmi lexeme.cmi tree.cmi htmlparse.cmi 
 htmlparse.cmx: htmllex.cmx lexeme.cmi tree.cmi htmlparse.cmi 
 htmltext.cmo: lexeme.cmi tree.cmi htmltext.cmi 

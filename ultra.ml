@@ -151,7 +151,7 @@ let factorize low high ts =
       r in
   let r = do_rec low [] [] in
   let r = group_font ts r in
-  if r <> [] && !verbose > 0 then begin
+  if r <> [] && !verbose > 1 then begin
     Printf.fprintf stderr "Factors in %d %d\n" low high ;
     for i=low to high do
       Pp.tree stderr ts.(i)
@@ -234,7 +234,7 @@ let select_factors fs =
   let fs1 = put_conflicts fs in
   let fs2 = biggest fs1 in
   let fs3 = Sort.list order_factors fs2 in
-  if !verbose > 0 then begin
+  if !verbose > 1 then begin
     prerr_string "fs1:" ; pfactorc stderr fs1 ;
     prerr_string "fs2:" ; pfactorc stderr fs2 ;
     prerr_string "fs3:" ; pfactorc stderr fs3
@@ -291,11 +291,16 @@ let extract_props ps s =
       List.exists (fun p -> p s.nat) ps)
     s
 
+
+let remove s = function
+  | Node (os,ts) -> node (sub os s) ts
+  | t -> assert (List.for_all Htmltext.blanksNeutral s && is_blank t) ;t
+
+
 let rec clean t k = match t with
   | Node ([],ts) -> ts@k
   | Node (s, (Node (si,args)::rem as ts)) when
     some_font s && font_trees ts ->
-      prerr_endline "coucou" ;
     begin match all_props (other_props s) ts with
     | [] -> t::k
     | ps ->
@@ -309,38 +314,6 @@ let rec as_list i j ts k =
   else
     (clean ts.(i)) (as_list (i+1) j ts k)
 
-let remove s = function
-  | Node (os,ts) -> node (sub os s) ts
-  | t -> assert (List.for_all Htmltext.blanksNeutral s && is_blank t) ;t
-
-
-let rec trees i j ts k =
-  if i >= j then as_list i j ts k
-  else
-    match factorize i j ts with
-    | [] -> as_list i j ts k
-    | fs ->
-        let rec zyva cur fs k = match fs with
-        | [] -> as_list cur j ts k
-        | ((ii,jj),gs)::rem ->
-            for k=ii to jj do
-              ts.(k) <- remove gs ts.(k)
-            done ;
-            as_list cur (ii-1) ts
-              (clean (node gs (trees ii jj ts [])) (zyva (jj+1) rem k)) in
-        let fs = select_factors fs in
-        if !verbose > 0 then begin
-          prerr_endline "selected" ;
-          List.iter
-            (fun ((i,j),fs) ->
-              Printf.fprintf stderr " %d,%d:" i j ;
-              List.iter
-                (fun f -> output_string stderr (" "^f.txt))
-                fs)
-            fs ;
-          prerr_endline ""
-        end ;
-        zyva i fs k
 
 let is_text = function
   | Text _ -> true
@@ -369,7 +342,39 @@ let cut_end p ts l =
         i,r in
   do_rec [] (l-1)
 
-let rec opt top ts =
+let rec trees i j ts k =
+  if i >= j then as_list i j ts k
+  else
+    match factorize i j ts with
+    | [] -> as_list i j ts k
+    | fs ->
+        let rec zyva cur fs k = match fs with
+        | [] -> as_list cur j ts k
+        | ((ii,jj),gs)::rem ->
+            for k=ii to jj do
+              ts.(k) <- remove gs ts.(k)
+            done ;
+            let opt_args = trees ii jj ts [] in
+            let opt_args = match gs with
+            | [s] when s.nat = Other ->  opt false (Array.of_list opt_args)
+            | _ -> opt_args in
+            as_list cur (ii-1) ts
+              (clean (node gs opt_args) (zyva (jj+1) rem k)) in
+        let fs = select_factors fs in
+        if !verbose > 1 then begin
+          prerr_endline "selected" ;
+          List.iter
+            (fun ((i,j),fs) ->
+              Printf.fprintf stderr " %d,%d:" i j ;
+              List.iter
+                (fun f -> output_string stderr (" "^f.txt))
+                fs)
+            fs ;
+          prerr_endline ""
+        end ;
+        zyva i fs k
+
+and opt top ts =
   let l = Array.length ts in  
   for i = 0 to l-1 do
     match ts.(i) with

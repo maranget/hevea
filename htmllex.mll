@@ -113,7 +113,6 @@ rule main = parse
     let tag = read_tag lexbuf in
     if is_textlevel tag then begin
       let attrs = read_attrs lexbuf in    
-      in_tag lexbuf ;
       ouvre lexbuf tag attrs (Buff.to_string buff)
     end else begin
       in_tag lexbuf ;
@@ -150,7 +149,8 @@ and read_attrs = parse
   let atxt = Buff.to_string abuff in
   put atxt ;
   (name,v,atxt)::read_attrs lexbuf}
-| "" {[]}
+| '>' {put_char buff '>' ; []}
+| ""  {error "Attribute syntax" lexbuf}
 
 and read_avalue = parse
 | blank* '=' blank*
