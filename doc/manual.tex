@@ -44,6 +44,7 @@
 Chesnay Cedex. {\tt \mailto{Luc.Maranget@inria.fr}}}}
 \date{}
 \setcounter{tocdepth}{2}
+
 \begin{document}
 
 \maketitle
@@ -99,10 +100,15 @@ Information on \hevea{} is available at \oneurl{\docurl}.
 
 \clearpage
 \tableofcontents
+\begin{htmlonly}
+This document consists in three parts, a tutorial introduction, a
+reference manual and some practical information. The latter part
+includes a small \url{\#index}{index}.
+\end{htmlonly}
 
 \clearpage
-\part{User manual}\label{usermanual}
-
+\part{Tutorial}\label{usermanual}
+\cutdef{section}
 \section{How to get started}\label{getstarted}
 
 Assume that you have a file, ``\texttt{a.tex}'', written in \LaTeX, using the
@@ -2281,8 +2287,11 @@ As a consequence all cross references lead to sectional unit headers.
 
 \setcounter{section}{0}
 \renewcommand{\thesection}{\thepart.\arabic{section}}
+\cutend
+
 \part{Reference manual}\label{referencemanual}
 
+\cutdef{section}
 
 This part follows the pattern of the \LaTeX{} reference
 manual~\cite[Appendix~C]{latex}.
@@ -3349,8 +3358,11 @@ The \verb+\typein+ command is not supported.
 \section{Line and Page Breaking}
 
 \subsection{Line Breaking}
-The advisory line breaking commands \verb+\linebreak+ and
-\verb+\nolinebreak+ are null commands.
+The advisory line breaking command \verb+\linebreak+
+will produce a line break if it has no argument or if its optional
+argument is~4.
+The \verb+\nolinebreak+ command is a null command.
+
 
 The \verb+\\+ and \verb+\\*+ commands output a \verb+<BR>+ tag,
 except inside arrays where the close the current row.
@@ -3559,7 +3571,7 @@ colors \showcolor{black}, \showcolor{white},
 pre-defined.
 
 As regards color models, \hevea{} implements the \texttt{rgb},
-\texttt{cmyk} and \texttt{named} color models.
+\texttt{cmyk}, \texttt{hsv}, \texttt{hls} and \texttt{named} color models.
 Named colors are the ones of \texttt{dvips}.
 \begin{flushleft}
 %%BEGIN LATEX
@@ -3655,11 +3667,16 @@ document background color.
 
 \subsubsection{The \texttt{bgcolor} environment}
 \envindex{bgcolor}
-\hevea{} features a
+Due to limitations in \html{} 3.2 (and 4.0 transitional viewed as
+3.2!), it is not possible to implement
+the \verb+\colorbox+ command for changing the background color inside
+a paragraph.
+
+However, \hevea{} features a
 \texttt{bgcolor} environment, for changing the backgroud color of some
 subparts of the document.
 The \texttt{bgcolor} environment is a displayed environment and it
-always start a new line.
+normally starts a new line.
 Simple usage is \verb+\begin{bgcolor}{+\textit{color}\verb+}+\ldots{}
 \verb+\end{bgcolor}+, where
 \textit{color} is a color defined with \verb+\definecolor+.
@@ -3682,20 +3699,17 @@ optional argument that is used as an attribute for this \verb+TABLE+
 element (default value is \verb+CELLPADDING=10+).
 For instance, the following source:
 \begin{verbatim}
-\begin{bgcolor}[CELLPADDING=0 ALIGN=center]{yellow}
+\begin{bgcolor}[CELLPADDING=0]{yellow}
 \color{\red}Red letters on a yellow backgroud
 \end{bgcolor}
 \end{verbatim}
-
-will be typeset on a yellow background, in the center of the page,
-and with no padding.
+will be typeset on a yellow background and without padding:
 \begin{htmlonly}
-\begin{bgcolor}[CELLPADDING=0 ALIGN=center]{yellow}
+\begin{bgcolor}[CELLPADDING=0]{yellow}
 \color{red}Red letters on a yellow backgroud
 \end{bgcolor}
 \end{htmlonly}
-Users are warned that browsers manage \verb+ALIGN+ attributes
-to tables in a sometime hard to predict manner.
+
 
 \subsubsection{High-level \html{} style colors}\label{color:high}
 One can also specify text color using special type style declarations.
@@ -4081,6 +4095,8 @@ Table~\ref{arraytable} gives a summary of the new column
 specifications and of how \hevea{}
 implements them.
 \begin{table}
+\caption{\label{arraytable} Column specifications from the
+\texttt{array} package}
 \begin{center}
 \begin{tabular*}{.7\linewidth}{l@{\quad}p{.5\linewidth}}\hline
 \verb+m{+\textit{width}\verb+}+ &
@@ -4107,8 +4123,6 @@ column. \\ \hline
 Equivalent to \verb+@{+\textit{decl}\verb+}+ \\ \hline
 \end{tabular*}
 \end{center}
-\caption{\label{arraytable} Column specifications from the
-\texttt{array} package}
 \end{table}
 
 Note that \emph{centered}, \emph{top-aligned} or \emph{bottom-aligned}
@@ -4263,14 +4277,35 @@ And then launch \texttt{hevea} as:
 \begin{verbatim}
 # hevea doc.hva doc.tex
 \end{verbatim}
+
 Sectionning command background colors can be changed by
-making a local copy of the \texttt{fancysection.hva} file and by
-editing the color section in this copy.
+redefining the corresponding colors (\texttt{part}, \texttt{chapter},
+\texttt{section},\ldots).
+For instance, you get various mixes of red and orange by:
+\begin{verbatim}
+\input{article.hva}
+\input{fancysection.hva}
+\definecolor{part}[named]{RedBrick}
+\definecolor{section}[named]{RedOrange}
+\definecolor{subsection}[named]{BurntOrange}
+\end{verbatim}
+(See section~\ref{color:package} for details on the \texttt{named}
+color model that is used above.)
 
-
-
+Another choice is to define \verb+\@color+
+to be a certain \emph{hue} value to be interpreted in the HSV model.
+This must be done \emph{before} loading \texttt{fancysection.hva}:
+\begin{verbatim}
+\input{article.hva}
+\newcommand{\@color}{20}
+\input{fancysection.hva}
+\end{verbatim}
+This will yield sectionnal headers on a red-orange background.
+\cutend
 \setcounter{section}{0}
+
 \part{Practical information}
+\cutdef{section}
 \label{practical}
 
 \section{Usage}
@@ -4438,9 +4473,9 @@ is \texttt{.info}.
 output, defaults to~72.
 \end{description}
 
-\hevea{} user manual is part~\ref{usermanual} of this document,
-whereas \hevea{} reference manual is part~\ref{referencemanual} of
-this document.
+Part~\ref{usermanual} of this document is
+a tutorial introduction to \hevea{},
+while \hevea{} reference manual is part~\ref{referencemanual}.
 
 
 \subsection{\hacha{} usage}
@@ -4797,4 +4832,5 @@ D.~Ragget, A.~Le~Hors and I.~Jacobs.
 
 \end{thebibliography}
 \printindex
+\cutend
 \end{document}

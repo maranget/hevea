@@ -405,8 +405,8 @@
 %% Input...
 \newcommand{\listfiles}{}
 %% Line breaking
-\newcommand{\linebreak}[1][]{}
-\newcommand{\nolinebreak}[1][]{}
+\newcommand{\linebreak}[1][4]{\ifthenelse{#1=4}{\\}{}}
+\newcommand{\nolinebreak}[1][4]{}
 \def\sloppy{}
 \def\fussy{}
 \newenvironment{sloppypar}{}{}
@@ -634,8 +634,9 @@
 %%%%%%%%%%%%%%
 % Extensions %
 %%%%%%%%%%%%%%
-%%% VIDEOC
+%%% A few if commands
 \newcommand{\IfFileExists}[3]{\ifthenelse{\@fileexists{#1}}{#2}{#3}}
+\newcommand{\@ifundefined}[3]{\ifthenelse{\@commandexists{#1}}{#3}{#2}}
 %%% Scientific Word
 \def\swEXT{.gif}  %graphics extension
 \def\swFRAME#1{\imgsrc{#1\swEXT}}

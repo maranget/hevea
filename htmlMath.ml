@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlMath.ml,v 1.8 1999-10-01 16:15:22 maranget Exp $" 
+let header = "$Id: htmlMath.ml,v 1.9 1999-10-05 17:02:26 maranget Exp $" 
 
 
 open Misc
@@ -42,7 +42,7 @@ let flush x =
   let ps,_,pout = pop_out out_stack in
   if ps <> "DELAY" then
     raise (Misc.Fatal ("html: Flush attempt on: "^ps)) ;
-  let mods = !cur_out.active @ !cur_out.pending in
+  let mods = as_envs !cur_out.active !cur_out.pending in
   do_close_mods () ;
   let old_out = !cur_out in
   cur_out := pout ;
@@ -158,7 +158,7 @@ let close_display () =
       Out.copy old_out.out !cur_out.out ;
       flags.empty <- false ; flags.blank <- false ;
       free old_out ; free pout ;     
-      !cur_out.pending <- active @ pending
+      !cur_out.pending <- as_envs active pending
     end else if (n=1 && flags.blank) then begin
       if !verbose > 2 then begin
         prerr_string "No display n=1";
@@ -177,7 +177,7 @@ let close_display () =
       Out.copy_no_tag old_out.out !cur_out.out ;
       flags.empty <- false ; flags.blank <- false ;
       free old_out ;
-      !cur_out.pending <- active @ pending
+      !cur_out.pending <- as_envs active pending
     end else begin
       if !verbose > 2 then begin
         prerr_string ("One Display n="^string_of_int n) ;
@@ -219,7 +219,7 @@ let do_item_display force =
     Out.copy save.out !cur_out.out ;
     flags.empty <- false ; flags.blank <- false ;
     free save ;
-    !cur_out.pending <- active @ pending ;
+    !cur_out.pending <- as_envs active pending ;
     !cur_out.active <- [] ;
     if !verbose > 2 then begin
       Out.debug stderr !cur_out.out ;
@@ -459,7 +459,7 @@ let insert_vdisplay open_fun =
     prerr_flags "=> insert_vdisplay" ;
   end ;
   try
-    let mods = !cur_out.pending @ !cur_out.active in
+    let mods = to_pending !cur_out.pending !cur_out.active in
     let bs,bargs,bout = pop_out out_stack in
     if bs <> "" then
       failclose ("insert_vdisplay: "^bs^" closes ``''");

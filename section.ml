@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: section.ml,v 1.2 1998-07-21 11:18:42 maranget Exp $" 
+let header = "$Id: section.ml,v 1.3 1999-10-05 17:02:31 maranget Exp $" 
 let value s = match String.uppercase s with
   "DOCUMENT"|"" -> 0
 | "PART" -> 1
@@ -17,5 +17,7 @@ let value s = match String.uppercase s with
 | "SECTION" -> 3
 | "SUBSECTION" -> 4
 | "SUBSUBSECTION" -> 5
-| _         -> 6
+| "PARAGRAPH" -> 6
+| "SUBPARAGRAPH" -> 7
+| _         -> 8
 ;;

@@ -34,29 +34,37 @@ Roman
 \end{center}
 
 \begin{htmlonly}
+\subsection{Mélange de couleurs et de familles}
+{\red red \purple purple \ttfamily en rouge et tt}
+
+{\purple purple \red red \ttfamily en rouge et tt}
+\end{htmlonly}
+
+\begin{htmlonly}
 \subsection{Couleurs à la \hevea{}}
 {\Huge
-{\purple purple}
-{\silver silver}
-{\gray gray}
-{\white white}
-{\maroon maroon}
-{\red red}
-{\fuchsia fuchsia}
-{\green green}
-{\lime lime}
-{\olive olive}
-{\yellow yellow}
-{\navy navy}
-{\blue blue}
-{\teal teal}
-{\aqua aqua}
-{\htmlcolor{202020}et \c{c}a, c'est presque noir~?}
-{\htmlcolor{e0e0e0}et \c{c}a, c'est presque blanc~?}
+\purple purple
+\silver silver
+\gray gray
+\white white
+\maroon maroon
+\red red
+\fuchsia fuchsia
+\green green
+\lime lime
+\olive olive
+\yellow yellow
+\navy navy
+\blue blue
+\teal teal
+\aqua aqua
+\htmlcolor{202020}et \c{c}a, c'est presque noir~?
+\htmlcolor{e0e0e0}et \c{c}a, c'est presque blanc~?
 }
 \end{htmlonly}
 
 \subsection{Couleurs à la \textit{color}}
+\subsubsection{Couleurs par défaut}
 \textcolor{black}{noir},
 \textcolor{white}{blanc},
 \textcolor{red}{rouge},
@@ -71,6 +79,84 @@ Roman
 
 \definecolor{otheryellow}{cmyk}{0, 0, 1, 0.5}
 \textcolor{otheryellow}{Un autre jaune}.
+\begin{htmlonly}
+\subsubsection{Modèle HSV}
+\newcounter{hue}
+\whiledo{\value{hue}<360}
+{\textcolor[hsv]{\thehue,1,1}{\thehue}
+\addtocounter{hue}{1}}
+
+\subsubsection{Modèle \texttt{named}}
+\newcommand{\testNamed}[1]{\textcolor[named]{#1}{#1}}
+\testNamed{GreenYellow}
+\testNamed{Yellow}
+\testNamed{Goldenrod}
+\testNamed{Dandelion}
+\testNamed{Apricot}
+\testNamed{Peach}
+\testNamed{Melon}
+\testNamed{YellowOrange}
+\testNamed{Orange}
+\testNamed{BurntOrange}
+\testNamed{Bittersweet}
+\testNamed{RedOrange}
+\testNamed{Mahogany}
+\testNamed{Maroon}
+\testNamed{BrickRed}
+\testNamed{Red}
+\testNamed{OrangeRed}
+\testNamed{RubineRed}
+\testNamed{WildStrawberry}
+\testNamed{Salmon}
+\testNamed{CarnationPink}
+\testNamed{Magenta}
+\testNamed{VioletRed}
+\testNamed{Rhodamine}
+\testNamed{Mulberry}
+\testNamed{RedViolet}
+\testNamed{Fuchsia}
+\testNamed{Lavender}
+\testNamed{Thistle}
+\testNamed{Orchid}
+\testNamed{DarkOrchid}
+\testNamed{Purple}
+\testNamed{Plum}
+\testNamed{Violet}
+\testNamed{RoyalPurple}
+\testNamed{BlueViolet}
+\testNamed{Periwinkle}
+\testNamed{CadetBlue}
+\testNamed{CornflowerBlue}
+\testNamed{MidnightBlue}
+\testNamed{NavyBlue}
+\testNamed{RoyalBlue}
+\testNamed{Blue}
+\testNamed{Cerulean}
+\testNamed{Cyan}
+\testNamed{ProcessBlue}
+\testNamed{SkyBlue}
+\testNamed{Turquoise}
+\testNamed{TealBlue}
+\testNamed{Aquamarine}
+\testNamed{BlueGreen}
+\testNamed{Emerald}
+\testNamed{JungleGreen}
+\testNamed{SeaGreen}
+\testNamed{Green}
+\testNamed{ForestGreen}
+\testNamed{PineGreen}
+\testNamed{LimeGreen}
+\testNamed{YellowGreen}
+\testNamed{SpringGreen}
+\testNamed{OliveGreen}
+\testNamed{RawSienna}
+\testNamed{Sepia}
+\testNamed{Brown}
+\testNamed{Tan}
+\testNamed{Gray}
+\testNamed{Black}
+\testNamed{White}
+\end{htmlonly}
 
 \section{Paragraphs}
 

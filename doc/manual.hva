@@ -9,4 +9,7 @@
 \renewcommand{\@meta}{\oldmeta
 \@print{<META name="Author" content="Luc Maranget">
 }}
-\newcommand{\showcolor}[1]{\textcolor{#1}{\tt#1}}
+\newcommand{\showcolor}[1]{\textcolor{#1}{\texttt{#1}}}
+\let\@isection=\@indexsection
+\renewcommand{\@indexsection}[1]{\@isection{#1}\label{index}}
+\renewcommand{\cuttingunit}{part}

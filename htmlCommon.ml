@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlCommon.ml,v 1.11 1999-10-04 08:00:58 maranget Exp $" 
+let header = "$Id: htmlCommon.ml,v 1.12 1999-10-05 17:02:25 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -33,12 +33,20 @@ let check_block_closed opentag closetag =
 
 (* output globals *)
 
+type t_env = {here : bool ; env : env}
+
 type status = {
   mutable nostyle : bool ;
   mutable pending : env list ;
-  mutable active : env list ;
+  mutable active : t_env list ;
   mutable out : Out.t}
 ;;
+
+let as_env  {env=env} =  env
+let as_envs tenvs r  =
+    List.fold_right (fun x r -> as_env x::r) tenvs r
+
+let to_pending pending active = pending @ as_envs active []
 
 (* free list for buffers *)
 let free_list = ref []
@@ -72,24 +80,32 @@ pending = [] ; active = [] ; out = Out.create_null ()}
 ;;
 
 
-let pretty_mods mods =
+let do_pretty_mods f mods =
   let rec do_rec = function
-    [x]  -> prerr_string (Latexmacros.pretty_env x)
+    [x]  -> prerr_string (f x)
   | x::xs ->
-     prerr_string (Latexmacros.pretty_env x^"; ") ;
+     prerr_string (f x^"; ") ;
      do_rec xs
   | [] -> () in
   prerr_string "[" ;
   do_rec mods ;
   prerr_string "]"
-;;
 
+let tbool = function
+  | true -> "+"
+  | false -> "-"
+
+let pretty_mods = do_pretty_mods Latexmacros.pretty_env 
+and pretty_tmods = 
+  do_pretty_mods
+    (function {here=here ; env = env} ->
+      tbool here^Latexmacros.pretty_env env)
      
 let pretty_cur {pending = pending ; active = active} =
   prerr_string "pending = " ;
   pretty_mods pending ;
   prerr_string " active = " ;
-  pretty_mods active
+  pretty_tmods active
 ;;
 
 type stack_item =
@@ -392,39 +408,110 @@ and do_open_mod e =
 ;;
 
 
+let do_close_tmod = function
+  | {here = true ; env = env} -> do_close_mod env
+  | _ -> ()
+
 let do_close_mods () =
-   List.iter do_close_mod !cur_out.active ;
+   List.iter do_close_tmod !cur_out.active ;
   !cur_out.active <- [] ;
   !cur_out.pending <- []
 ;;
 
-let do_close_mods_pred pred =
-  let rec split = function
-    | [] -> [],[]
+
+let do_close_mods_pred pred same_constr =
+  let tpred {env=env} = pred env in
+
+  let rec split_again = function
+    | [] -> [],None,[]
+    | {here = false ; env=env} :: rest
+      when same_constr env && not (pred env) ->
+        [],Some env,rest
     | m :: rest ->
-        let to_close,to_keep = split rest in
-        match to_close with
-        | [] -> if pred m then [m],to_keep else [], m::to_keep
-        | _  -> m::to_close,to_keep in
-  let to_close,to_keep = split !cur_out.active in
-  List.iter do_close_mod to_close ;
-  !cur_out.active <- to_keep ;
-  List.fold_right
-    (fun m r -> if pred m then r else m::r)
-    to_close []
-      
+        let to_close,to_open,to_keep = split_again rest in
+        match to_open with
+        | Some _ -> m::to_close,to_open,to_keep
+        | None   -> to_close,to_open,m::to_keep in
+        
+  let rec split = function
+    | [] -> [],None,[]
+    | m :: rest ->
+        let to_close,close,to_keep = split rest in
+        match close with
+        | None ->
+            if tpred m then
+              if m.here then [],Some m.env,to_keep
+              else
+                [],None,to_keep
+            else [], None, m::to_keep
+        | Some _ ->
+            m::to_close,close,to_keep in
+
+  let rec filter_pred = function
+    | [] -> []
+    | x :: rest ->
+        if pred x then filter_pred rest
+        else x::filter_pred rest in
+          
+  let to_close,close,to_keep = split !cur_out.active in
+
+  
+  filter_pred
+    (match close with
+    | None -> []
+    | Some env ->      
+        List.iter do_close_tmod to_close ;
+        do_close_mod env ;
+        let (to_close_open,to_open,to_keep) = split_again to_keep in
+        begin match to_open with
+        | None ->
+            !cur_out.active <- to_keep ;
+            as_envs to_close []
+        | Some env ->
+            !cur_out.active <- to_keep ;
+            List.iter do_close_tmod to_close_open ;
+            as_envs to_close
+              (as_envs to_close_open [env])
+        end)
+
         
 let close_mods () = do_close_mods ()
 ;;
 
 let do_open_mods () =
-  let rec do_rec = function
-    [] -> ()
-  | e :: rest ->
-     do_rec rest ;
-     do_open_mod e in
-  do_rec !cur_out.pending ;
-  !cur_out.active <- !cur_out.pending @ !cur_out.active ;
+  let rec do_rec color size = function
+    |   [] -> []
+    | Color _ as e :: rest  ->
+        if color then
+          let rest = do_rec true size rest in
+          {here=false ; env=e}::rest
+        else begin
+          let rest = do_rec true size rest in
+          do_open_mod e ;
+          {here=true ; env=e}::rest
+        end
+    | Font _ as e :: rest ->
+        if size then
+          let rest = do_rec color true rest in
+          {here=false ; env=e}::rest
+        else
+          let rest = do_rec color true rest in
+          do_open_mod e ;
+          {here=true ; env=e}::rest
+    | e :: rest ->
+        let rest = do_rec color size rest in
+        do_open_mod e ;
+        {here=true ; env=e} :: rest in
+  
+  let now_active = do_rec false false !cur_out.pending in
+  if !verbose > 3 && !cur_out.pending <> [] then begin
+    prerr_string "do_open_mods: " ;
+    pretty_mods !cur_out.pending ;
+    prerr_string " -> " ;
+    pretty_tmods now_active ;
+    prerr_endline ""
+  end ;
+  !cur_out.active <- now_active @ !cur_out.active ;
   !cur_out.pending <- []
 ;;
 
@@ -435,14 +522,6 @@ let do_pending () =
   end ;
   flags.last_closed <- "rien" ;
   do_open_mods ()
-;;
-
-let rec first_same x same_constr  = function
-  [] -> false
-| y::rest ->
-    if same_constr y then
-       x=y
-    else first_same x same_constr rest
 ;;
 
 let is_style = function
@@ -458,22 +537,45 @@ and is_color = function
 | _ -> false
 ;;
 
-let rec cur_size = function
-  [] -> 3
-| Font i::_ -> i
-| _::rest -> cur_size rest
+
+let cur_size pending active =
+  let rec cur_size_active = function
+    | [] -> 3
+    | {here=true ; env=Font i}::_ -> i
+    | _::rest -> cur_size_active rest in
+
+  let rec cur_size_pending = function
+    | [] -> cur_size_active active
+    | Font i::_ -> i
+    | _::rest -> cur_size_pending rest in
+  cur_size_pending pending
+;;
+
+let first_same x same_constr pending active =
+  let rec same_active = function
+    | {here=true ; env=y} :: rest ->
+        if same_constr y then x=y
+        else same_active rest
+    | _::rest -> same_active rest
+    | [] -> false in
+  let rec same_pending = function
+    | [] -> same_active active
+    | y::rest ->
+        if same_constr y then x=y
+        else same_pending rest in
+  same_pending pending
 ;;
 
 let already_here = function
   Font i ->
-   i = cur_size  ( !cur_out.pending @ !cur_out.active )
+   i = cur_size  !cur_out.pending !cur_out.active  
 | x ->
   first_same x
    (match x with
      Style _ ->  is_style
    | Font _ -> is_font
    | Color _ -> is_color)
-   ( !cur_out.pending @ !cur_out.active )
+   !cur_out.pending !cur_out.active
 ;;
 
 let ok_pre x = match x with
@@ -489,16 +591,11 @@ let rec filter_pre = function
 ;;
 
 let ok_mod e =
-  (not flags.in_pre || ok_pre e) && not (already_here e)
+  (not flags.in_pre || ok_pre e) &&
+  not (already_here e)
 ;;
 
-let get_fontsize () =
-  let rec do_rec = function
-    (Font n)::_ -> n
-  | _::rest -> do_rec rest
-  | []              -> 3 in
-  do_rec (!cur_out.pending @ !cur_out.active)
-;;
+let get_fontsize () = cur_size !cur_out.pending !cur_out.active
 
 let nostyle () =
   !cur_out.pending <- [] ;
@@ -511,49 +608,64 @@ let clearstyle () =
 
 
 let rec erase_rec pred = function
-  [] -> []
+  [] -> None
 | s::rest ->
-   if pred s then erase_rec pred rest else s::erase_rec pred rest
+   if pred s then
+     Some rest
+   else
+     match erase_rec pred rest with
+     | Some rest -> Some (s::rest)
+     | None -> None
 ;;
 
-let erase_mods_pred pred =
+let erase_mod_pred pred same_constr =
   if not !cur_out.nostyle then begin
-    let pending = erase_rec pred !cur_out.pending in
-    let re_open = do_close_mods_pred pred in
-    !cur_out.pending <- re_open @ pending
+    match erase_rec pred !cur_out.pending with
+    | Some pending ->
+        !cur_out.pending <- pending
+    | None ->
+        let re_open = do_close_mods_pred pred same_constr in
+        !cur_out.pending <- !cur_out.pending @ re_open
   end
 ;;
 
+let same_env = function
+  | Style s1 -> (function | Style s2 -> s1 = s2 | _ -> false)
+  | Font i1 ->
+      (function | Font i2 -> i1 = i2 | _ -> false)
+  | Color s1 ->
+      (function | Color s2 -> s1 = s2 | _ -> false)
 
-let is_color = function
-  Color _ -> true
-| _       -> false
-
-let is_size = function
-  | Font _ -> true
-  | _      -> false
+and same_constr = function
+  | Color _ -> is_color
+  | Font _ -> is_font
+  | Style _ -> is_style
 
 let erase_mods ms =
-  let pred =
-    if List.exists is_color ms then
-      (function
-        | Color _ -> true
-        | m       -> List.mem m ms)
-    else
-      (fun m -> List.mem m ms) in
-  erase_mods_pred pred
+  let rec erase_rec = function
+    | [] -> ()
+    | m :: ms ->
+        erase_mod_pred (same_env m) (same_constr m) ;
+        erase_rec ms in
+  erase_rec ms
 ;;
 
 let open_mod  m =
   if not !cur_out.nostyle then begin
-    if !verbose > 3 then
+    if !verbose > 3 then begin
           prerr_endline ("open_mod: "^Latexmacros.pretty_env m^" ok="^sbool (ok_mod m)) ;
+      prerr_string "pending = " ; pretty_mods !cur_out.pending ;
+      prerr_endline "" ;
+      prerr_string "active = " ; pretty_tmods !cur_out.active ;
+      prerr_endline ""
+    end ;
     if ok_mod m then begin
-      begin match m with
-        Color _ -> erase_mods_pred is_color
-      | Font _  -> erase_mods_pred is_size
-      | _ -> () end ;
-      !cur_out.pending <- m :: !cur_out.pending
+      match m with
+      | Style _ ->
+          !cur_out.pending <- m :: !cur_out.pending
+      | _ ->
+          erase_mod_pred (same_env m) (same_constr m) ;
+          !cur_out.pending <- (m :: !cur_out.pending)
     end
   end
 ;;
@@ -717,7 +829,7 @@ end
 let check_empty () = flags.empty
 and make_empty () =
   flags.empty <- true ; flags.blank <- true ;
-  !cur_out.pending <-  !cur_out.pending @ !cur_out.active ;
+  !cur_out.pending <-  to_pending !cur_out.pending !cur_out.active ;
   !cur_out.active <- []
 ;;
 
@@ -748,7 +860,7 @@ let rec force_block s content =
   cur_out := pout ;
   if s = "FORGET" then free old_out
   else if ps <> "DELAY" then begin
-    let mods = !cur_out.active @ !cur_out.pending in
+    let mods = to_pending !cur_out.pending !cur_out.active in
     do_close_mods () ;
     do_open_block insert s args ;
     if ps = "AFTER" then begin
@@ -786,7 +898,7 @@ and open_block s args =
  try_flush_par ();
  if s = "PRE" then
     flags.in_pre <- true;
- let cur_mods = !cur_out.pending @ !cur_out.active  in
+ let cur_mods = to_pending !cur_out.pending !cur_out.active in
  push_out out_stack (s,args,!cur_out) ;
  cur_out :=
    new_status
@@ -954,10 +1066,10 @@ let close_flow_loc s =
   let active  = !cur_out.active
   and pending = !cur_out.pending in
   if close_block_loc check_empty s then begin
-    !cur_out.pending <- active @ pending ;
+    !cur_out.pending <- to_pending pending active ;
     true
   end else begin
-    !cur_out.pending <- active @ pending ;
+    !cur_out.pending <- to_pending pending active ;
     false
   end
 ;;
@@ -983,7 +1095,7 @@ let get_block s args =
   let _,_,pout = pop_out out_stack in  
   let old_out = !cur_out in  
   cur_out := new_status pout.nostyle pout.pending pout.active;
-  let mods = !cur_out.active @ !cur_out.pending in
+  let mods = as_envs !cur_out.active !cur_out.pending in
   do_close_mods () ;
   do_open_block None s args ;
   Out.copy old_out.out !cur_out.out ;

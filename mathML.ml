@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: mathML.ml,v 1.7 1999-09-01 13:53:59 maranget Exp $" 
+let header = "$Id: mathML.ml,v 1.8 1999-10-05 17:02:28 maranget Exp $" 
 
 
 open Misc
@@ -83,7 +83,7 @@ and close_display () =
       Out.copy old_out.out !cur_out.out ;
       flags.empty <- false ; flags.blank <- false ;
       free old_out ;
-      !cur_out.pending <- active @ pending
+      !cur_out.pending <- to_pending pending active
     end else if (n=1 (*&& flags.blank*)) then begin
       if !verbose > 2 then begin
         prerr_string "No display n=1";
@@ -102,7 +102,7 @@ and close_display () =
       else Out.copy old_out.out !cur_out.out;
       flags.empty <- false ; flags.blank <- false ;
       free old_out ;
-      !cur_out.pending <- active @ pending
+      !cur_out.pending <- to_pending pending active
     end else begin
       if !verbose > 2 then begin
         prerr_string ("One Display n="^string_of_int n) ;
@@ -129,10 +129,9 @@ let do_item_display force =
     flags.ncols <- flags.ncols + 1 ;
   let active  = !cur_out.active
   and pending = !cur_out.pending in
-  if flags.empty then erase_mods active;
   close_flow "";
   open_block "" "";
-  !cur_out.pending <- active @ pending ;
+  !cur_out.pending <- to_pending pending active;
   !cur_out.active <- [] ;
   if is_freeze then freeze f;
   if !verbose > 2 then begin
@@ -184,7 +183,7 @@ let insert_vdisplay open_fun =
     prerr_flags "=> insert_vdisplay" ;
   end ;
   try
-    let mods = !cur_out.pending @ !cur_out.active in
+    let mods = to_pending !cur_out.pending !cur_out.active in
     let bs,bargs,bout = pop_out out_stack in
     if bs <> "" then
       failclose ("insert_vdisplay: "^bs^" closes ``''");

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: misc.ml,v 1.7 1999-08-17 13:26:45 maranget Exp $" 
+let header = "$Id: misc.ml,v 1.8 1999-10-05 17:02:29 maranget Exp $" 
 
 exception Fatal of string
 exception ScanError of string
@@ -31,3 +31,4 @@ let warning s =
     prerr_endline s
   end
 
+let fatal s = raise (Fatal s)

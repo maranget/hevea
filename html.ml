@@ -10,7 +10,7 @@
 (***********************************************************************)
 
 
-let header = "$Id: html.ml,v 1.66 1999-10-04 08:00:57 maranget Exp $" 
+let header = "$Id: html.ml,v 1.67 1999-10-05 17:02:23 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -225,8 +225,6 @@ and close_block = close_block
 and open_block = open_block
 and forget_par = forget_par
 and par = par
-and close_mods = close_mods
-and open_mods = open_mods
 and erase_mods = erase_mods
 and open_mod = open_mod
 and clearstyle = clearstyle
@@ -255,6 +253,11 @@ let debug m =
   prerr_newline ()
 ;;
 
+let debug_empty f =
+  prerr_string (if f.empty then "empty=true" else "empty=false")
+;;
+
+  
 
 
 
@@ -278,7 +281,7 @@ let item () =
     prerr_string "item: stack=" ;
     pretty_stack out_stack
   end ;
-  let mods = !cur_out.pending @ !cur_out.active in
+  let mods = to_pending !cur_out.pending !cur_out.active in
   do_close_mods () ;
   !cur_out.pending <- mods ;
   let saved =
@@ -300,7 +303,7 @@ let ditem scan arg =
     prerr_string "ditem: stack=" ;
     pretty_stack out_stack
   end ;
-  let mods = !cur_out.pending @ !cur_out.active in
+  let mods = to_pending !cur_out.pending !cur_out.active in
   do_close_mods () ;
   let true_scan =
     if flags.nitems = 0 then begin
@@ -371,11 +374,18 @@ let close_chan () =
 ;;
 
 let to_string f =
+(*
+  prerr_string "to_string: " ;
+  debug_empty flags ;
+  Out.debug stderr !cur_out.out ;
+  prerr_endline "" ;
+*)
   let old_flags = copy_flags flags in
   let _ = forget_par () in
   open_group "" ;
   f () ;
   let r = Out.to_string !cur_out.out in
+  flags.empty <- true ;
   close_group () ;
   set_flags flags old_flags ;
   r
@@ -388,7 +398,7 @@ let to_style f =
   !cur_out.active  <- [] ;
   !cur_out.pending <- [] ;
   f () ;
-  let r = !cur_out.active @ !cur_out.pending in
+  let r = to_pending !cur_out.pending !cur_out.active in
   erase_block "" ;
   set_flags flags old_flags ;
   r

@@ -5,6 +5,14 @@
   {\@close{TD}\@close{TR}\@close{TABLE}}
 
 
+\definecolor {blue} {rgb} {0, 0, 1}
+\definecolor {red} {rgb}  {1, 0, 0}
+\definecolor {green} {rgb} {0, 1, 0}
+\definecolor {white} {gray} {1}
+\definecolor {black} {gray} {0}
+\definecolor {cyan} {cmyk} {1, 0, 0 , 0}
+\definecolor {magenta} {cmyk} {0, 1, 0, 0}
+\definecolor {yellow} {cmyk} {0, 0, 1, 0}
 \DefineNamedColor{named}{GreenYellow}   {cmyk}{0.15,0,0.69,0}
 \DefineNamedColor{named}{Yellow}        {cmyk}{0,0,1,0}
 \DefineNamedColor{named}{Goldenrod}     {cmyk}{0,0.10,0.84,0}
@@ -15,15 +23,6 @@
 \DefineNamedColor{named}{YellowOrange}  {cmyk}{0,0.42,1,0}
 \DefineNamedColor{named}{Orange}        {cmyk}{0,0.61,0.87,0}
 \DefineNamedColor{named}{BurntOrange}   {cmyk}{0,0.51,1,0}
-\definecolor {blue} {rgb} {0, 0, 1}
-\definecolor {red} {rgb}  {1, 0, 0}
-\definecolor {green} {rgb} {0, 1, 0}
-\definecolor {white} {gray} {1}
-\definecolor {black} {gray} {0}
-\definecolor {cyan} {cmyk} {1, 0, 0 , 0}
-\definecolor {magenta} {cmyk} {0, 1, 0, 0}
-\definecolor {yellow} {cmyk} {0, 0, 1, 0}
-
 \DefineNamedColor{named}{Bittersweet}   {cmyk}{0,0.75,1,0.24}
 \DefineNamedColor{named}{RedOrange}     {cmyk}{0,0.77,0.87,0}
 \DefineNamedColor{named}{Mahogany}      {cmyk}{0,0.85,0.87,0.35}

@@ -117,8 +117,8 @@ devrpm:
 rpm:
 	$(MAKE) $(MFLAGS) dorpm
 clean:
-	rm -f *~ *.aux *.log *.toc *.idx *.ilg *.ind
+	rm -f *~ *.aux *.log *.toc *.idx *.ilg *.ind *.haux
 
 cleanall: clean
-	rm -f manual.dvi manual[0-9][0-9][0-9].html *_motif.gif \
+	rm -f manual.dvi manual.ps manual[0-9][0-9][0-9].html *_motif.gif \
 	manual*.gif tmp.tex *.image.tex manual.html index.html faq.html

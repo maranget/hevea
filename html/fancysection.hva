@@ -1,14 +1,15 @@
+\@ifundefined{\@base}{\typeout{``fancysection.hva'' must be loaded after base style}\endinput}{}
 %%% Color section
-%% green.
-\definecolor{part}{rgb}{.125,1,.125}
-\definecolor{section}{rgb}{.25,1,.25}
-\definecolor{subsection}{rgb}{.5,1,.25}
-\definecolor{subsubsection}{rgb}{.6,1,.6}
-%% gray
-%\definecolor{part}{gray}{.5}
-%\definecolor{section}{gray}{.6}
-%\definecolor{subsection}{gray}{.7}
-%\definecolor{subsubsection}{gray}{.8}
+\def\@color{120}%% green
+\definecolor{part}{hsv}{\@color, 1, .8}
+\ifthenelse{\equal{\@base}{article}}{%
+\definecolor{section}{hsv}{\@color, .8, .9}
+\definecolor{subsection}{hsv}{\@color, .6, 1}
+\definecolor{subsubsection}{hsv}{\@color, .4, 1}}{%
+\definecolor{chapter}{hsv}{\@color, .8, .9}
+\definecolor{section}{hsv}{\@color, .6, 1}
+\definecolor{subsection}{hsv}{\@color, .5, 1}
+\definecolor{subsubsection}{hsv}{\@color, .4, 1}}
 %%%%%%%%%%%%%%%%% Command section
 \newcommand{\OPENTABLE}[2]
   {\@open{TABLE}{#1}\@open{TR}{}\@open{TD}{#2}}
@@ -23,7 +24,7 @@
 
 %% Useful macros
 \ifthenelse{\equal{\@base}{book}}
-{\def\openchapter{\opencolor{part}\huge\OPENTABLE{}{}}}
+{\def\openchapter{\opencolor{chapter}\huge\OPENTABLE{}{}}}
 {}
 \def\opensection{\opencolor{section}\Large\OPENTABLE{}{}}
 \def\opensubsection{\opencolor{subsection}\large\OPENTABLE{}{}}
@@ -46,10 +47,8 @@
 \remakesection
   {\subsubsection}{2}{subsubsection}
   {\opensubsubsection}{\thesubsubsection\sectitle}{\closesection}
-\let\oldmaketitle=\maketitle
-\renewcommand{\maketitle}{\begin{center}\begin{bgcolor}{part}\oldmaketitle\end{bgcolor}\end{center}}
 }{%
-\ifthenelse{equal{\@base}{book}}{%
+\ifthenelse{\equal{\@base}{book}}{%
 \remakesection
   {\part}{-2}{part}
   {\begin{center}\begin{bgcolor}{part}\centering\huge\bf}
@@ -67,7 +66,7 @@
 \remakesection
   {\subsubsection}{2}{subsubsection}
   {\opensubsubsection}{\thesubsubsection\sectitle}{\closesection}
+}{}}
 \let\oldmaketitle=\maketitle
-\renewcommand{\maketitle}{\begin{center}\begin{bgcolor}{\@getcolor{part}}\oldmaketitle\end{bgcolor}\end{center}}}}
-{}
-\fi
+\renewcommand{\maketitle}{\begin{center}\begin{bgcolor}{part}\oldmaketitle\end{bgcolor}\end{center}\bigskip\bigskip}
+

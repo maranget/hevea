@@ -11,7 +11,7 @@
 
 {
 open Lexing
-let header = "$Id: cut.mll,v 1.22 1999-09-11 18:02:38 maranget Exp $" 
+let header = "$Id: cut.mll,v 1.23 1999-10-05 17:02:20 maranget Exp $" 
 
 let verbose = ref 0
 ;;
@@ -132,6 +132,8 @@ let putlink out name img alt =
 ;;
 
 let putlinks out name =
+  if !verbose > 0 then
+    prerr_endline ("putlinks: "^name) ;
   begin try
     putlink out (Thread.prev name) "previous_motif.gif" 
       (if !language = "fra" then "Précédent"
@@ -217,56 +219,66 @@ let anchor = ref 0
 ;;
 
 let open_section sec name =
-  if !cur_level > sec then do_close !cur_level sec
-  else if !cur_level < sec then do_open  !cur_level sec ;
-  incr anchor ;
-  let label = "toc"^string_of_int !anchor in
-  itemanchor !outname label name !toc ;
-  if !tocbis then itemanchor "" label name !out_prefix ;
-  putanchor label !out ;
-  cur_level := sec
+  if !phase > 0 then begin
+    if !cur_level > sec then do_close !cur_level sec
+    else if !cur_level < sec then do_open  !cur_level sec ;
+    incr anchor ;
+    let label = "toc"^string_of_int !anchor in
+    itemanchor !outname label name !toc ;
+    if !tocbis then itemanchor "" label name !out_prefix ;
+    putanchor label !out ;
+    cur_level := sec
+  end else
+    cur_level := sec
 
-and close_section sec =  do_close !cur_level sec
-;;
-
-let close_chapter0 () =
-  lastclosed := !outname ;
-  outname := !tocname
-
-and open_chapter0 name =
-  outname := new_filename () ;
-  Thread.setup !outname !tocname ;
-  Thread.setprevnext !lastclosed !outname
+and close_section sec =
+  if !phase > 0 then do_close !cur_level sec
+  else
+    cur_level := sec
 ;;
 
 let close_chapter () =
   if !verbose > 0 then
     prerr_endline ("Close chapter out="^ !outname^" toc="^ !tocname) ;
-  closehtml !outname !out ;
-  if !tocbis then begin
-    let real_out = open_out !outname in
-    Out.to_chan real_out !out_prefix ;
-    Out.to_chan real_out !out ;
-    close_out real_out
-  end else
-    Out.close !out ;
-  out := !toc ;
-  close_chapter0 ()
+  if !phase > 0 then begin
+    closehtml !outname !out ;
+    if !tocbis then begin
+      let real_out = open_out !outname in
+      Out.to_chan real_out !out_prefix ;
+      Out.to_chan real_out !out ;
+      close_out real_out
+    end else
+      Out.close !out ;
+    out := !toc
+  end else begin
+    lastclosed := !outname ;
+    outname := !tocname
+  end
 
 and open_chapter name =
   outname := new_filename () ;
   if !verbose > 0 then
-    prerr_endline ("Open chapter out="^ !outname^" toc="^ !tocname) ;
-  if !tocbis then begin
-    out_prefix := Out.create_buff () ;
-    out := !out_prefix ;
-    openhtml name !out_prefix !outname
+    prerr_endline
+      ("Open chapter out="^ !outname^" toc="^ !tocname^
+       " cur_level="^string_of_int !cur_level) ;
+  if !phase > 0 then begin
+    if !tocbis then begin
+      out_prefix := Out.create_buff () ;
+      out := !out_prefix ;
+      openhtml name !out_prefix !outname
+    end else begin
+      out := Out.create_chan (open_out !outname) ;
+      openhtml name !out !outname
+    end ;
+    itemref !outname name !toc ;
+    cur_level := !chapter
   end else begin
-    out := Out.create_chan (open_out !outname) ;
-    openhtml name !out !outname
-  end ;
-  itemref !outname name !toc ;
-  cur_level := !chapter
+    if !verbose > 0 then
+      prerr_endline ("link prev="^ !lastclosed^" next="^ !outname) ;
+    Thread.setup !outname !tocname ;
+    Thread.setprevnext !lastclosed !outname ;
+    cur_level := !chapter
+  end
 ;;
 
 let open_notes sec_notes =
@@ -306,7 +318,8 @@ let save_state newchapter newdepth =
   if !verbose > 0 then
     prerr_endline ("New state: "^string_of_int newchapter) ;
   push stack
-    (!chapter,!depth,!toc,!tocname,!cur_level,!lastclosed,!out_prefix) ;
+    (!outname,
+     !chapter,!depth,!toc,!tocname,!cur_level,!lastclosed,!out_prefix) ;
   chapter := newchapter ;
   depth := newdepth ;
   tocname := !outname ;
@@ -317,8 +330,10 @@ let save_state newchapter newdepth =
 let restore_state () =
   if !verbose > 0 then prerr_endline ("Restore") ;
   let
+    oldoutname,
     oldchapter,olddepth,oldtoc,oldtocname,
     oldlevel,oldlastclosed,oldprefix  = pop stack in
+  outname := oldoutname ;
   chapter := oldchapter ;
   depth := olddepth ;
   toc := oldtoc ;
@@ -343,65 +358,59 @@ let close_top lxm =
    Out.close !toc
 ;;
 
-let open_toc () = openlist !toc
-and close_toc () = closelist !toc
+let open_toc () = if !phase > 0 then openlist !toc
+and close_toc () = if !phase > 0 then closelist !toc
 ;;
 
 let close_all () =
-  if !phase > 0 then begin
-    if !cur_level > !chapter then begin
-      close_section !chapter ;
-      close_chapter () ;
-      close_toc ()
-    end else if !cur_level = !chapter then begin
-      close_chapter () ;
-      close_toc ()
-    end
-  end else begin
-    if !cur_level <= !chapter then
-      close_chapter0 ();
+  if !cur_level > !chapter then begin
+    close_section !chapter ;
+    close_chapter () ;
+    close_toc ()
+  end else if !cur_level = !chapter then begin
+    close_chapter () ;
+    close_toc ()
   end ;
   cur_level := (Section.value "DOCUMENT")
 }
 
-rule main = parse
+  rule main = parse
 | "<!--HEVEA" [^'>']* "-->" '\n'?
-  {let lxm = lexeme lexbuf in
-  if !phase > 0 then begin
-    put lxm ;
-    put ("<!--HACHA command line is: ") ;
-    for i = 0 to Array.length Sys.argv - 1 do
-      put Sys.argv.(i) ;
-      put_char ' '
-    done ;
-    put "-->\n"
-  end ;
-  main lexbuf}
+    {let lxm = lexeme lexbuf in
+    if !phase > 0 then begin
+      put lxm ;
+      put ("<!--HACHA command line is: ") ;
+      for i = 0 to Array.length Sys.argv - 1 do
+        put Sys.argv.(i) ;
+        put_char ' '
+      done ;
+      put "-->\n"
+    end ;
+    main lexbuf}
 |  "<!--" ("TOC"|"toc") ' '+
-  {let arg = secname lexbuf in
-  let sn = 
-    if String.uppercase arg = "NOW" then !chapter
-    else Section.value arg in
-  let name = tocline lexbuf in
-  if !verbose > 1 then begin
-    prerr_endline ("TOC "^arg^" "^name)
-  end;
-  if !phase > 0 then begin
+    {let arg = secname lexbuf in
+    let sn = 
+      if String.uppercase arg = "NOW" then !chapter
+      else Section.value arg in
+    let name = tocline lexbuf in
+    if !verbose > 1 then begin
+      prerr_endline ("TOC "^arg^" "^name)
+    end;
     if sn < !chapter then begin
-       if !cur_level >= !chapter then begin
-         close_section (!chapter) ;
-         close_chapter () ;
-         close_toc ()
-       end ;
-       cur_level := sn
+      if !cur_level >= !chapter then begin
+        close_section (!chapter) ;
+        close_chapter () ;
+        close_toc ()
+      end ;
+      cur_level := sn
     end else if sn = !chapter then begin
-        if !cur_level < sn then begin
-          open_toc () ;
-        end else begin
-          close_section !chapter ;
-          close_chapter  ()
-        end ;
-        open_chapter name
+      if !cur_level < sn then begin
+        open_toc () ;
+      end else begin
+        close_section !chapter ;
+        close_chapter  ()
+      end ;
+      open_chapter name
     end else if sn <= !chapter + !depth then begin (* sn > !chapter *)
       if !cur_level < !chapter then begin
         open_toc () ;
@@ -409,134 +418,118 @@ rule main = parse
       end ;
       close_section sn ;
       open_section sn name
-    end
-  end else begin (* !phase = 0 *)
-    if sn < !chapter then begin
-      if !cur_level >= !chapter then
-        close_chapter0 ();
-      cur_level := sn;
-    end else if sn = !chapter then begin
-      if !cur_level >= !chapter then
-        close_chapter0 () ;
-      open_chapter0 name ;
-      cur_level := sn
-    end else if sn <=  !chapter + !depth then begin
-       if !cur_level < !chapter then
-         open_chapter0 "";
-       cur_level :=  sn
-     end ;
-  end ;
-  main lexbuf}     
+    end ;
+    main lexbuf}     
 | "<!--CUT DEF" ' '+
-  {let chapter = Section.value (String.uppercase (secname lexbuf)) in
-  skip_blanks lexbuf;
-  let depth = intarg lexbuf in
-  skip_endcom lexbuf ;
-  save_state chapter depth ;
-  cur_level := Section.value "DOCUMENT" ;
-  main lexbuf}
-| "<!--SEC END" ' '* "-->" '\n'?
-   {if !phase > 0 then begin
-     if !tocbis && !out == !out_prefix then
-       out := Out.create_buff ()
-   end ;
-   main lexbuf}
-| "<!--CUT END" ' '* "-->" '\n'?
-   {close_all () ;
-   restore_state () ;
-   main lexbuf}
-| "<!--BEGIN" ' '+ "NOTES" ' '+
-   {let sec_notes = secname lexbuf in
-   skip_endcom lexbuf ;
-   open_notes (Section.value sec_notes) ;     
-   main lexbuf}
-| "<!--END" ' '+ "NOTES" ' '* "-->" '\n'?
-   {if !otheroutname <> "" then
-     close_notes ();
+    {let chapter = Section.value (String.uppercase (secname lexbuf)) in
+    skip_blanks lexbuf;
+    let depth = intarg lexbuf in
+    skip_endcom lexbuf ;
+    save_state chapter depth ;
+    cur_level := Section.value "DOCUMENT" ;
     main lexbuf}
+| "<!--SEC END" ' '* "-->" '\n'?
+    {if !phase > 0 then begin
+      if !tocbis && !out == !out_prefix then
+        out := Out.create_buff ()
+    end ;
+    main lexbuf}
+| "<!--CUT END" ' '* "-->" '\n'?
+    {close_all () ;
+      restore_state () ;
+      main lexbuf}
+| "<!--BEGIN" ' '+ "NOTES" ' '+
+    {let sec_notes = secname lexbuf in
+    skip_endcom lexbuf ;
+    open_notes (Section.value sec_notes) ;     
+    main lexbuf}
+| "<!--END" ' '+ "NOTES" ' '* "-->" '\n'?
+    {if !otheroutname <> "" then
+      close_notes ();
+      main lexbuf}
 | "<!--" ' '* "FRENCH" ' '* "-->"
-   {language := "fra" ;
-   main lexbuf}
+    {language := "fra" ;
+      main lexbuf}
 | "<A" ' '* ("name"|"NAME") ' '* '=' ' '*
-  {if !phase = 0 then begin
-     let name = refname lexbuf in
-     Cross.add name !outname
-  end else put (lexeme lexbuf) ;
-  main lexbuf}
+    {if !phase = 0 then begin
+      let name = refname lexbuf in
+      Cross.add name !outname
+    end else put (lexeme lexbuf) ;
+      main lexbuf}
 | "<A" ' '* ("HREF"|"href") ' '* '=' ' '*
-   {if !phase > 0 then begin
-     let lxm = lexeme lexbuf in
-     let name = refname lexbuf in
-     try
-       let newname =
-         if String.length name > 0 && String.get name 0 = '#' then
+    {if !phase > 0 then begin
+      let lxm = lexeme lexbuf in
+      let name = refname lexbuf in
+      try
+        let newname =
+          if String.length name > 0 && String.get name 0 = '#' then
             Cross.fullname (String.sub name 1 (String.length name-1))
-         else name in
-       put lxm ;
-       put "\"" ;
-       put newname ;
-       put "\""
-     with Not_found -> skip_aref lexbuf
-   end ;
-   main lexbuf}
+          else name in
+        put lxm ;
+        put "\"" ;
+        put newname ;
+        put "\""
+      with Not_found -> skip_aref lexbuf
+    end ;
+      main lexbuf}
 | "<!--HTML" ' '* "HEAD" ' '* "-->" '\n' ?
-   {let head = save_html lexbuf in
-   if !phase = 0 then
-     html_head := head
-   else
-     Out.put !out head;
-   main lexbuf}
+    {let head = save_html lexbuf in
+    if !phase = 0 then
+      html_head := head
+    else
+      Out.put !out head;
+    main lexbuf}
 | "<!--HTML" ' '* "FOOT" ' '* "-->" '\n' ?
-   {let foot =  save_html lexbuf in
-   if !phase = 0 then
-     html_foot := foot ;
-   main lexbuf}
+    {let foot =  save_html lexbuf in
+    if !phase = 0 then
+      html_foot := foot ;
+    main lexbuf}
 | "<!--FOOTER-->" '\n'?
-   {close_all () ;
-   if !phase > 0 then begin
-     Out.put !out !html_foot
-   end ;
-   footer lexbuf}
+    {close_all () ;
+      if !phase > 0 then begin
+        Out.put !out !html_foot
+      end ;
+      footer lexbuf}
 | "<!DOCTYPE"  [^'>']* '>'
-   {let lxm = lexeme lexbuf in
-   if !phase = 0 then
-     doctype := lxm
-   else
-     Out.put !out lxm;
-   main lexbuf}
+    {let lxm = lexeme lexbuf in
+    if !phase = 0 then
+      doctype := lxm
+    else
+      Out.put !out lxm;
+    main lexbuf}
 | "<HTML"  [^'>']* '>'
-   {let lxm = lexeme lexbuf in
-   if !phase = 0 then
-     html := lxm
-   else
-     Out.put !out lxm;
-   main lexbuf}
+    {let lxm = lexeme lexbuf in
+    if !phase = 0 then
+      html := lxm
+    else
+      Out.put !out lxm;
+    main lexbuf}
 | "<BODY" [^'>']* '>'
-   {let lxm = lexeme lexbuf in
-   if !phase = 0 then
-     body := lxm
-   else
-     Out.put !out lxm;
-   main lexbuf}
+    {let lxm = lexeme lexbuf in
+    if !phase = 0 then
+      body := lxm
+    else
+      Out.put !out lxm;
+    main lexbuf}
 | "<HEAD" [^'>']* '>'
     {put (lexeme lexbuf);
-     if !phase = 0 then begin
-       if !verbose > 0 then prerr_endline "Collect header" ;
-       collect_header lexbuf
-     end else
-       main lexbuf}
+      if !phase = 0 then begin
+        if !verbose > 0 then prerr_endline "Collect header" ;
+        collect_header lexbuf
+      end else
+        main lexbuf}
 | "</BODY>" _*
-   {let lxm = lexeme lexbuf in
-   close_all () ;
-   if !phase > 0 then begin
-     close_top lxm
-   end}
+    {let lxm = lexeme lexbuf in
+    close_all () ;
+    if !phase > 0 then begin
+      close_top lxm
+    end}
 |  _
-   {let lxm = lexeme_char lexbuf 0 in
-   if !phase > 0 then put_char lxm ;
-   main lexbuf}
+    {let lxm = lexeme_char lexbuf 0 in
+    if !phase > 0 then put_char lxm ;
+    main lexbuf}
 | eof
-   {raise (Error ("No </BODY> tag in input file"))}
+    {raise (Error ("No </BODY> tag in input file"))}
 
 and save_html = parse
 | "<!--END" ' '* ['A'-'Z']+ ' '* "-->" '\n'?
@@ -549,54 +542,54 @@ and save_html = parse
     Out.put_char html_buff lxm ;
     save_html lexbuf}
 | eof
-  {raise (Misc.Fatal ("End of file in save_html"))}
+    {raise (Misc.Fatal ("End of file in save_html"))}
 
 and collect_header = parse
 | "</HEAD>"
     {let lxm = lexeme lexbuf in
     finalize_header () ;
-     if !verbose > 0 then begin
-       prerr_string "Header is: ``" ;
-       prerr_string !common_headers ;
-       prerr_endline "''"
-     end ;
-     main lexbuf}
+    if !verbose > 0 then begin
+      prerr_string "Header is: ``" ;
+      prerr_string !common_headers ;
+      prerr_endline "''"
+    end ;
+    main lexbuf}
 
 | "<TITLE" [^'>']* '>'
     {skip_title lexbuf ;
-    collect_header lexbuf}
+      collect_header lexbuf}
 | _
     {let lxm = lexeme_char lexbuf 0 in
-     adjoin_to_header_char lxm;
-     collect_header lexbuf}
+    adjoin_to_header_char lxm;
+    collect_header lexbuf}
 
 and skip_title = parse
 |  "</TITLE>" '\n'? {()}
 |  _          {skip_title lexbuf}
- 
+    
 and footer = parse
-  "</BODY>" _*
-  {let lxm = lexeme lexbuf in
-  if !phase > 0 then begin
-     close_top lxm 
-  end}
+    "</BODY>" _*
+    {let lxm = lexeme lexbuf in
+    if !phase > 0 then begin
+      close_top lxm 
+    end}
 | _   {footer lexbuf}
 | eof {raise (Misc.Fatal ("End of file in footer (no </BODY> tag)"))}
 
 and secname = parse
-  ['a'-'z' 'A'-'Z']+
+    ['a'-'z' 'A'-'Z']+
     {let r = lexeme lexbuf in r}
 | "" {raise (Error "Bad section name syntax")}
 
 and intarg = parse
-  ['0'-'9']+ {int_of_string (lexeme lexbuf)}
+    ['0'-'9']+ {int_of_string (lexeme lexbuf)}
 | ""         {!depth}
 
 and tocline = parse
-  "-->" '\n' ? {Out.to_string toc_buf}
+    "-->" '\n' ? {Out.to_string toc_buf}
 | _
     {Out.put_char toc_buf (lexeme_char lexbuf 0) ;
-    tocline lexbuf}
+      tocline lexbuf}
 
 and refname = parse
 |  '"' [^'"']* '"'

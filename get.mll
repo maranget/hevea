@@ -18,7 +18,7 @@ open Lexstate
 open Stack
 
 (* Compute functions *)
-let header = "$Id: get.mll,v 1.11 1999-10-01 16:15:17 maranget Exp $"
+let header = "$Id: get.mll,v 1.12 1999-10-05 17:02:21 maranget Exp $"
 
 exception Error of string
 
@@ -244,6 +244,10 @@ let def_commands_bool () =
           let _ = Myfiles.open_tex name in
           true
         with Myfiles.Except | Myfiles.Error _ -> false)) ;
+  def_loc "\\@commandexists"
+    (fun lexbuf ->
+      let name = Subst.subst_csname lexbuf in
+      push bool_stack (Latexmacros.exists_macro name)) ;
   def_loc "\\equal"
     (fun lexbuf ->
         let arg1 = save_arg lexbuf in

@@ -25,8 +25,6 @@ module type S =
     val clearstyle : unit -> unit
     val open_mod : Latexmacros.env -> unit
     val erase_mods : Latexmacros.env list -> unit
-    val open_mods : Latexmacros.env list -> unit
-    val close_mods : unit -> unit
     val par : int option -> unit
     val forget_par : unit -> int option
     val open_block : string -> string -> unit
