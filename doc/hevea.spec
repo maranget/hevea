@@ -22,7 +22,7 @@ This package is a binary installation of the hevea system.
 %prep
 %setup
 %build
-make TARGET=opt LIBDIR=/usr/lib/hevea
+make TARGET=opt LIBDIR=/usr/lib/hevea depend all
 rm -rf /usr/lib/hevea
 make install LIBDIR=/usr/lib/hevea BINDIR=/usr/bin
 %files

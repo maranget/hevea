@@ -44,11 +44,11 @@ install-lib:
 	$(INSTALL) hevea.sty cutfoot-fra.html cutfoot-eng.html footer.tex ${LIBDIR}
 	$(INSTALL) contents_motif.gif next_motif.gif previous_motif.gif ${LIBDIR}
 	-mkdir $(LIBDIR)/html
-	$(INSTALL) $(HTMLLIB) $(LIBDIR)/html
+	cd html ; $(INSTALL) $(HTMLLIB) $(LIBDIR)/html
 	-mkdir $(LIBDIR)/text
-	$(INSTALL) $(TEXTLIB) $(LIBDIR)/text
+	cd text ; $(INSTALL) $(TEXTLIB) $(LIBDIR)/text
 	-mkdir $(LIBDIR)/info
-	$(INSTALL) $(INFOLIB) $(LIBDIR)/info
+	cd info ; $(INSTALL) $(INFOLIB) $(LIBDIR)/info
 
 
 
