@@ -9,9 +9,9 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: version.ml,v 1.92 2004-05-06 13:22:12 maranget Exp $" 
+let header = "$Id: version.ml,v 1.93 2004-09-07 17:25:59 maranget Exp $" 
 let real_version = "1.07"
-let release_date = "2004-05-06"
+let release_date = "2004-09-07"
 
 let version =
   try
