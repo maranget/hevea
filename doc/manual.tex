@@ -371,7 +371,7 @@ output.
 
 
 \subsubsection{symbols}\label{symbols}
-\begin{figure}[h]
+\begin{figure}[p]
 \begin{center}
 %BEGIN LATEX
 \rule{0ex}{1ex}\epsfbox{xfd.ps}\rule{0ex}{1ex}
@@ -407,7 +407,7 @@ For instance. the ``$\in$'' symbol is replace by ``in'' (or by ``appartient
 This is far from being satisfactory, but degraded mode may be
 appropriate for documents than contain few symbols.
 
-\clearpage
+
 \subsubsection{Displays}
 Apart from containing symbols, formulas specify strong typesetting
 constraints: sub-elements must be combined together following patterns
@@ -738,12 +738,10 @@ or \lowerbox{-.6ex}{\em lower} text.
 \end{verbatim}
 \hevea{} now produces a satisfying output:
 \begin{htmlout}
-\begin{showlatex}%
 \renewcommand{\raisebox}[2]{$^{\mbox{#2}}$}%
 \newcommand{\lowerbox}[2]{$_{\mbox{#2}}$}
 You can \raisebox{.6ex}{\em raise}
 or \lowerbox{-.6ex}{\em lower} text.
-\end{showlatex}
 \end{htmlout}
 
 Note that, for the document to remain \LaTeX{}-processable,
@@ -822,6 +820,7 @@ explain how to proceed.
 However, it may also stem from a wrong \LaTeX{} input.
 Thus, this section is to be read before reporting a bug\ldots
 
+\subsubsection{Simple cases~: \LaTeX{} also crashes}
 In  the following source, environments are not properly balanced:
 \begin{verbatim}
 \begin{flushright}
@@ -836,16 +835,17 @@ environment that is not closed properly:
 \begin{verbatim}
 trouble.tex:7: hml: DIV closes BLOCKQUOTE
 trouble.tex:5: Latex environment ``quote'' is pending
-Fatal error: uncaught exception Failure("Adios")
+Adios
 \end{verbatim}
 Thus, when \hevea{} crashes, it is a good idea to check that the
 input is correct by running \LaTeX{} on it.
 
+\subsubsection{Complicated cases}
 
 Unfortunately, \hevea{} may crash on input that does not affect
 \LaTeX.
-Such errors are likely to appear when processing \TeX-ish input,
-such as found in style files.
+Such errors usually relate to environment or group nesting.
+
 Consider for instance the following ``optimized'' version of a
 \verb+quoteright+  environment:
 \begin{verbatim}
@@ -856,16 +856,18 @@ This a right-flushed quotation
 \end{quoteright}
 \end{verbatim}
 
-The \verb+\flushright+ construct is intended to replace
-\verb+\begin{flushright}+ and the closing \verb+\endflushright+
+The \verb+\quote+ and \verb+\flushright+ constructs
+are intended to replace
+\verb+\begin{quote}+ and \verb+\begin{flushright}+,
+while \verb+\endquote+ stands for \verb+\end{quote}+.
+Note that the closing \verb+\endflushright+
 is omitted, since it does nothing.
 \LaTeX{} accepts such an input and produces a  right-flushed quotation.
 
-However, when \hevea{} translates an environment \textit{env}
-by a block-level element, it proceeds as follows:
-the \verb+\+\textit{env} macro opens the element, while the
-\verb+\end+\textit{env} macro closes it.
-As a consequence, \verb+\quote+ translates to, \verb+<BLOCKQUOTE>+,
+However,  \hevea{} usually translates \LaTeX{} environments  to \html{}
+block-level elements and it \emph{requires}
+those elements to be nested properly.
+Here, \verb+\quote+ translates to \verb+<BLOCKQUOTE>+,
 \verb+\flushright+ translates to \verb+<DIV ALIGN=right>+ and
 \verb+\endquote+ translates to \verb+</BLOCKQUOTE>+.
 At that point, \hevea{} refuses to generate obviously
@@ -873,7 +875,7 @@ non-correct {\html} and it crashes:
 \begin{verbatim}
 trouble.tex:9: hml: BLOCKQUOTE closes DIV
 trouble.tex:7: Latex environment ``quoteright'' is pending
-Fatal error: uncaught exception Failure("Adios")
+Adios
 \end{verbatim}
 
 In this case, the solution is easy: environments must be opened and
@@ -894,6 +896,52 @@ This is a right-flushed quotation
 \epsfbox{rquote.ps}
 \end{latexonly}
 \end{htmlout}
+
+
+Unclosed \LaTeX{} groups (\verb+{+\ldots{}) is another source
+of nuisance to \hevea{}.
+Consider the following \texttt{horreur.tex} file~:
+\begin{verbatim}
+\documentclass{article}
+
+\begin{document}
+In this sentence, a group is opened now {\em and never closed.
+\end{document}
+\end{verbatim}
+\LaTeX{} accepts this file, although it produces a warning~:
+\begin{verbatim}
+# latex horreur.tex 
+This is TeX, Version 3.14159 (Web2C 7.2)
+  ...
+(\end occurred inside a group at level 1)
+Output written on horreur.dvi (1 page, 280 bytes).
+
+\end{verbatim}
+
+By contrast, running \hevea{} on \texttt{horreur.tex} yields a fatal error~:
+\begin{verbatim}
+# hevea horreur.tex 
+horreur.tex:5: Latex env error: ``document'' closes ``''
+horreur.tex:4: Latex environment ``'' is pending
+Adios
+\end{verbatim}
+Thus, users should close opening braces where it belongs.
+Note that \hevea{} error message ``\texttt{Latex environment
+``}\textit{env}\texttt{'' is pending}'' helps a lot in locating
+the brace that hurts.
+
+\subsubsection{Desperate cases}
+
+If \hevea{} crashes on \LaTeX{} source (not on \TeX{} source),
+then you may have discovered a bug, or this manual is not as complete
+as it should.
+In any case, please report to \mailto{Luc.Maranget@inria.fr}.
+
+To be useful, your bug report should include \LaTeX{} code
+that triggers the bug (the shorter, the better) and mention
+\hevea{} version number.
+
+
 
 
 \section{Making \hevea{} and \LaTeX{} both happy}\label{both}
@@ -930,7 +978,7 @@ source as:
 \verb+\usepackage{+\filename{latexonly}\verb+}+
 \end{flushleft}
 Or, as
-1\begin{flushleft}
+\begin{flushleft}
 \verb+\documentstyle[+\ldots,
 \filename{latexonly},\ldots\verb+]{+\ldots\verb+}+
 \end{flushleft}
@@ -1371,8 +1419,8 @@ draws a ``Smile!'' logo as a centered
 paragraph:
 \begin{verbatim}
  .PS
-ellipse "{\Large\bf Smile!}"
-.PE
+ ellipse "{\Large\bf Smile!}"
+ .PE
 \begin{center}
 ~\box\graph~
 \end{center}
@@ -1383,17 +1431,17 @@ enclosed by \verb+%BEGIN IMAGE+\ldots\ \verb+%END IMAGE+ comments.
 Additionally, the image link is put where it belongs by an
 \verb+\imageflush+ command:
 \begin{verbatim}
-%BEGIN IMAGE
+ %BEGIN IMAGE
  .PS
-ellipse "{\Large\bf Smile!}"
-.PE
-%END IMAGE
-\begin{center}
-%BEGIN IMAGE
-~\box\graph~
-%END IMAGE
-%HEVEA\imageflush
-\end{center}
+ ellipse "{\Large\bf Smile!}"
+ .PE
+ %END IMAGE
+ \begin{center}
+ %BEGIN IMAGE
+ ~\box\graph~
+ %END IMAGE
+ %HEVEA\imageflush
+ \end{center}
 \end{verbatim}
 The \texttt{gpic} filter is applied first, then come \texttt{hevea}
 and \texttt{imagen}:
@@ -1427,13 +1475,13 @@ centered \texttt{gpic} pictures in \LaTeX{}~:
 \end{verbatim}
 Source code will now be as follows:
 \begin{verbatim}
-\begin{centergpic}
+ \begin{centergpic}
  .PS
-ellipse "{\Large\bf Smile!}"
-.PE
-\end{centergpic}
+ ellipse "{\Large\bf Smile!}"
+ .PE
+ \end{centergpic}
 \end{verbatim}
-\hevea will process this source correctly, provided it is given its
+\hevea{} will process this source correctly, provided it is given its
 own definition for the \verb+centergpic+ environment beforehand:
 \begin{verbatim}
 \newenvironment{centergpic}
@@ -1706,6 +1754,10 @@ Environment opening and closing is performed like in \LaTeX{}, with
 \verb+\begin{+\textit{env}\verb+}+ and
 \verb+\end{+\textit{env}\verb+}+.
 The \verb+*+-form of an environment is a plain environment.
+
+It is not advised to use \verb+\+\textit{env} and
+\verb+\end+\textit{env} in place of \verb+\begin{+\textit{env}\verb+}+ and
+\verb+\end{+\textit{env}\verb+}+.
 
 \subsection{Fragile Commands}
 Fragile commands are not relevant to \hevea{} and \verb+\protect+ is
@@ -2708,10 +2760,10 @@ In all cases, filenames that do not contain ``\texttt{/}'' are
 searched along \texttt{hevea} search path.
 \texttt{hevea} search path consist in the current, directory ``\texttt{.}'',
 followed by directories specified by the user with the \texttt{-I}
-option, and by \texttt{hevea} library directory
+command line option, and by \texttt{hevea} library directory
 (normally \texttt{/usr/local/lib/hevea}). However,
-\texttt{hevea} library directory compile-time value can be overridden by setting
-the \texttt{HEVEADIR} shell environment variable.
+\texttt{hevea} library directory compile-time value can be overridden
+by setting the \texttt{HEVEADIR} shell environment variable.
 
 If the last argument has extension \texttt{.tex}, that is, if
 this last argument is \textit{name}\texttt{.tex}, then \textit{name} is

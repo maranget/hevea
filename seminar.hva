@@ -37,5 +37,5 @@
 \newcommand{\slideframe}[2][]{}
 \newcommand{\newslideframe}[1]{\slideframe}
 %%%% load the article style file
-\input{article.sty}
+\input{article.hva}
 \fi

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmain.ml,v 1.25 1999-02-19 18:00:04 maranget Exp $" 
+let header = "$Id: latexmain.ml,v 1.26 1999-02-23 18:18:44 maranget Exp $" 
 
 open Parse_opts
 
@@ -33,10 +33,16 @@ let read_style name =
     Location.set name buf;
     Scan.main buf ;
     Location.restore ()
-  with Myfiles.Except-> ()  end ;
+  with
+  | Myfiles.Except-> ()
+  end ;
   verbose := oldverb
 ;;
- 
+
+let read_tex name =
+  try open_in name with
+  | Sys_error s -> raise (Myfiles.Error s)
+
 let main () = 
 
     verbose := !readverb ;
@@ -95,7 +101,7 @@ let main () =
            prerr_endline ("Cannot open aux file: "^auxname)
        end
     end ;
-    let chan = match texfile with "" -> stdin | _ -> open_in texfile in
+    let chan = match texfile with "" -> stdin | _ -> read_tex texfile in
     let buf = Lexing.from_channel chan in
     Location.set texfile buf ;
     Save.set_verbose !silent !verbose ;
@@ -134,16 +140,21 @@ with
     prerr_endline ("Error while reading LaTeX macros arguments: "^s) ;
     prerr_endline "Adios" ;
     exit 2
+| Myfiles.Error s ->
+    Location.print_pos () ;
+    prerr_endline ("File related error: "^s) ;
+    prerr_endline "Adios" ;
+    exit 2
 |  Misc.Fatal s ->
     Location.print_pos () ;
     prerr_endline
       ("Fatal error: "^s^" (please report to Luc.Maranget@inria.fr") ;
     prerr_endline "Adios" ;
-    exit 2    
+    exit 2 
 |  x ->
     Location.print_pos () ;
     prerr_endline
-      ("Fatal error: spurious exception "^Printexc.to_string x^
+      ("Fatal error, spurious exception: "^Printexc.to_string x^
        " (please report to Luc.Maranget@inria.fr") ;
     prerr_endline "Adios" ;
     exit 2

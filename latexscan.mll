@@ -28,7 +28,7 @@ open Myfiles
 open Latexmacros
 (* open Html *)
 
-let header = "$Id: latexscan.mll,v 1.60 1999-02-19 18:00:06 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.61 1999-02-23 18:18:46 maranget Exp $" 
 
 exception Error of string
 
@@ -170,7 +170,7 @@ let save_arg lexbuf =
 
   let rec save_rec lexbuf =
     try Save.arg lexbuf
-    with Save.BadParse "EOF" -> begin
+    with Save.Eof -> begin
         if !stack_lexbuf = [] then
           raise (Error "Eof while looking for argument");
         let lexbuf = previous_lexbuf () in
@@ -209,7 +209,7 @@ let parse_quote_arg_opt def lexbuf =
   let rec save_rec lexbuf = 
     try Yes (Save.opt lexbuf) with
       Save.NoOpt -> No def
-    | Save.BadParse "EOF" -> begin
+    | Save.Eof -> begin
         if !stack_lexbuf = [] then No def
         else let lexbuf = previous_lexbuf () in
         if !verbose > 2 then begin

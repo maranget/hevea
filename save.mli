@@ -5,9 +5,7 @@ val seen_par : bool ref
 type formatopt = | Wrap | NoMath
 and format = | Align of string * formatopt list | Inside of string
 val border : bool ref
-exception BadParse of string
-exception EofDelim of int
-exception NoDelim
+exception Eof
 exception NoOpt
 val get_echo : unit -> string
 val start_echo : unit -> unit

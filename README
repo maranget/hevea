@@ -94,5 +94,5 @@ MAKE
     Once configuration variables are set, type:
     make ; make install
 
-    Note that the html.sty file is simply copied to LIBDIR.
+    Note that the hevea.sty file,  is simply copied to LIBDIR.
     It remains users responsability to make it accessible to LaTeX.

@@ -12,7 +12,7 @@
 {
 open Lexing
 
-let header = "$Id: save.mll,v 1.26 1999-02-19 18:00:13 maranget Exp $" 
+let header = "$Id: save.mll,v 1.27 1999-02-23 18:18:49 maranget Exp $" 
 
 let verbose = ref 0 and silent = ref false
 ;;
@@ -36,7 +36,6 @@ let border = ref false
 let brace_nesting = ref 0
 and arg_buff = Out.create_buff ()
 and echo_buff = Out.create_buff ()
-and delim_buff = Out.create_buff ()
 and tag_buff = Out.create_buff ()
 ;;
 
@@ -48,11 +47,7 @@ and start_echo () = echo := true ; Out.reset echo_buff
 ;;
 
 
-exception BadParse of string
-;;
-exception EofDelim of int
-;;
-exception NoDelim
+exception Eof
 ;;
 exception NoOpt
 ;;
@@ -78,7 +73,7 @@ rule opt = parse
         {put_echo_char '[' ;
         opt2 lexbuf}
 | ' '+  {put_echo (lexeme lexbuf) ; opt lexbuf}
-|  eof  {raise (BadParse "EOF")}
+|  eof  {raise Eof}
 |  ""   {raise NoOpt}
 
 
@@ -122,8 +117,8 @@ and arg = parse
       {let c = lexeme_char lexbuf 0 in
       put_both_char c ;
       Out.to_string arg_buff}
-  | eof    {raise (BadParse "EOF")}
-  | ""     {raise (BadParse "Empty Arg")}
+  | eof    {raise Eof}
+  | ""     {raise (Error "Argument expected")}
 
 and skip_blanks = parse
   ' '+
@@ -160,7 +155,7 @@ and arg2 = parse
 | "\\{" | "\\}" | "\\\\"
       {let s = lexeme lexbuf in
       put_both s ; arg2 lexbuf }
-| eof    {raise (BadParse "EOF")}
+| eof    {raise Eof}
 | _
       {let c = lexeme_char lexbuf 0 in
       put_both_char c ; arg2 lexbuf }
@@ -180,35 +175,7 @@ and incsname = parse
 | _ 
     {put_both_char (lexeme_char lexbuf 0) ;
     incsname lexbuf}
-| eof           {raise (BadParse "EOF (csname)")}
-
-and eat_delim = parse
-  "" {fun delim ->
-    begin try
-      do_eat_delim lexbuf delim 0
-    with (NoDelim | EofDelim _) ->
-      raise (BadParse ("delim : "^delim))
-    end ;
-    let _ = Out.to_string delim_buff in
-    ()}
-
-and do_eat_delim = parse
-  _
-   {fun delim i ->
-     let lxm = lexeme_char lexbuf 0 in
-     let c = String.get delim i in
-     Out.put_char delim_buff lxm ;
-     if c = lxm then
-       if i+1 >= String.length delim then
-         ()
-       else
-         do_eat_delim lexbuf delim (i+1)
-     else
-         raise NoDelim
-   }
-| eof {fun delim i -> raise (EofDelim i)}
-
-and arg_delim = parse  "" {fun delim ->  raise (Misc.Fatal "Not implemented")}
+| eof           {raise (Error "End of file in command name")}
 
 and cite_arg = parse
   ' '* '{'   {cite_args_bis lexbuf}
