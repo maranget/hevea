@@ -32,7 +32,7 @@ module type S =
     val get_this : (Lexing.lexbuf -> unit) -> string -> string
   end
 
-module Make (Dest : OutManager.S) =
+module Make (Dest : OutManager.S) (Image : ImageManager.S) =
 struct
 open Misc
 open Parse_opts
@@ -44,7 +44,7 @@ open Tabular
 open Lexstate
 
 
-let header = "$Id: latexscan.mll,v 1.108 1999-06-02 17:10:53 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.109 1999-06-03 13:13:28 maranget Exp $" 
 
 
 let sbool = function
@@ -1203,11 +1203,7 @@ rule  main = parse
       Dest.put lxm ;
     main lexbuf}
 (* Html specials *)
-| '<'
-    {Dest.put (Dest.iso '<') (*"&lt;"*) ; main lexbuf}
-| '>'
-    {Dest.put (Dest.iso '>') (*"&gt;"*) ; main lexbuf}
-| '~'         { Dest.put_nbsp ()(*"&nbsp;"*); main lexbuf }
+| '~'         { Dest.put_nbsp () ; main lexbuf }
 (* Spanish stuff *)
 | "?`"
     {Dest.put (Dest.iso '¿') ;
@@ -1498,20 +1494,14 @@ and def_name_code name f = def_code name (f name)
 
 (* Styles and packages *)
 let do_documentclass command lexbuf =
-  Save.start_echo () ;
-  let opt = parse_quote_arg_opt "" lexbuf in
+  skip_opt lexbuf ;
   let arg =  save_arg lexbuf in
-  let echo_args = Save.get_echo () in
   begin try if not !styleloaded then
     input_file 0 main (arg^".hva")
   with
     Myfiles.Except | Myfiles.Error _ ->
       raise (Misc.ScanError ("No base style"))
   end ;
-  Image.start () ;
-  Image.put command ;
-  Image.put echo_args ;
-  Image.put "\n"
 ;;
 
 def_name_code  "\\documentstyle" do_documentclass ;
@@ -2008,6 +1998,7 @@ let newif_ref name cell =
 ;;
 
 newif_ref "symb" symbols ;
+newif_ref "iso" iso ;
 newif_ref "alltt" alltt ;
 newif_ref "silent" silent;
 newif_ref "math" in_math ;
@@ -2059,9 +2050,12 @@ def_code "\\setboolean"
 (* Color package *)
 def_code "\\definecolor"
   (fun lexbuf ->
+    Save.start_echo () ;
     let clr = subst_arg subst lexbuf in
     let mdl = subst_arg subst lexbuf in
     let value = subst_arg subst lexbuf in
+    Image.put "\\definecolor" ;
+    Image.put (Save.get_echo ()) ;
     Color.define clr mdl value )
 ;;
 
@@ -2143,8 +2137,10 @@ def_code "\\@footnoteflush"
 
 def_code "\\begin"
   (fun lexbuf ->
+    let start_pos =  Lexing.lexeme_start lexbuf - 7 in
     let env = subst_arg subst lexbuf in
     if env = "document" && !prelude then begin
+      Image.start start_pos ;
       Image.put "\\pagestyle{empty}\n\\begin{document}\n";
       prelude := false ;
       let _ = Dest.forget_par () in () ;

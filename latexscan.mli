@@ -30,5 +30,5 @@ module type S =
     val get_this : (Lexing.lexbuf -> unit) -> string -> string
 end
 
-module Make (Dest : OutManager.S) : S
+module Make (Dest : OutManager.S) (Image : ImageManager.S) : S
 

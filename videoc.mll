@@ -1,6 +1,6 @@
 (* <Christian.Queinnec@lip6.fr>
  The plugin for HeVeA that implements the VideoC style.
- $Id: videoc.mll,v 1.7 1999-05-21 14:47:01 maranget Exp $ 
+ $Id: videoc.mll,v 1.8 1999-06-03 13:13:37 maranget Exp $ 
 *)
 
 {
@@ -9,7 +9,8 @@ module type T =
     val init : unit -> unit
   end;;
 
-module Makealso (Dest : OutManager.S) (Scan : Latexscan.S) =
+module Makealso
+    (Dest : OutManager.S) (Image : ImageManager.S) (Scan : Latexscan.S) =
 struct
 open Misc
 open Parse_opts
@@ -20,7 +21,7 @@ open Latexmacros
 
 
 let header = 
-  "$Id: videoc.mll,v 1.7 1999-05-21 14:47:01 maranget Exp $"
+  "$Id: videoc.mll,v 1.8 1999-06-03 13:13:37 maranget Exp $"
 
 exception EndSnippet
 ;;

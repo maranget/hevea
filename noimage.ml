@@ -9,13 +9,17 @@
 (*                                                                     *)
 (***********************************************************************)
 
-val start : int -> unit
+let header = "$Id: noimage.ml,v 1.1 1999-06-03 13:13:33 maranget Exp $" 
+let start _ = ()
+;;
+let put _ = ()
+and put_char _ = ()
+;;
 
-val put_char : char -> unit
-
-val put : string -> unit
-
-val dump :  string -> (Lexing.lexbuf -> unit) -> Lexing.lexbuf -> unit
-val page : unit -> string
-
-val finalize : unit -> unit
+let dump _ image lexbuf  = image lexbuf
+let page () =
+  Parse_opts.warning ("No image dumped") ;
+  "XXX"
+;;
+let finalize () = ()
+;;

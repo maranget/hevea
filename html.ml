@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: html.ml,v 1.54 1999-06-02 15:42:21 maranget Exp $" 
+let header = "$Id: html.ml,v 1.55 1999-06-03 13:13:19 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -37,7 +37,7 @@ let r_translate = String.create 1
 ;;
 
 let iso_translate = function
-  '<' -> "&lt;"
+| '<' -> "&lt;"
 | '>' -> "&gt;"
 | '&' -> "&amp;"
 | ' ' -> "&nbsp;"
@@ -136,7 +136,7 @@ let iso_translate = function
 | 'ý' -> "&yacute;"
 | 'þ' -> "&thorn;"
 | 'ÿ' -> "&yuml;"
-| c   -> (r_translate.[0] <- c ; r_translate)
+| c   -> quote_char c
 ;;
 
 let iso c =

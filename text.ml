@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.19 1999-06-02 16:20:10 tessaud Exp $"
+let header = "$Id: text.ml,v 1.20 1999-06-03 13:13:34 maranget Exp $"
 
 
 open Misc
@@ -22,14 +22,14 @@ exception Error of string;;
 let r_quote = String.create 1
 ;;
 
+let quote c =
+  (r_quote.[0] <- c ; r_quote)
+;;
+
 let r_translate = String.create 1
 ;;
 
 let iso_translate = function
-  '<' -> "<"
-| '>' -> ">"
-| '&' -> "&"
-| ' ' -> " "
 | '¡' -> "!"
 | '¢' -> "cent"
 | '£' -> "pound"
@@ -100,7 +100,7 @@ let iso_translate = function
 
 let iso c =
   if !Parse_opts.iso then
-    (r_quote.[0]<-c; r_quote)
+    (r_translate.[0]<-c; r_translate)
   else
     iso_translate c
 ;;

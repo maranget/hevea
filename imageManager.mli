@@ -9,13 +9,17 @@
 (*                                                                     *)
 (***********************************************************************)
 
-val start : int -> unit
+module type S =
+  sig
 
-val put_char : char -> unit
+    val start : int -> unit
 
-val put : string -> unit
+    val put_char : char -> unit
 
-val dump :  string -> (Lexing.lexbuf -> unit) -> Lexing.lexbuf -> unit
-val page : unit -> string
+    val put : string -> unit
 
-val finalize : unit -> unit
+    val dump :  string -> (Lexing.lexbuf -> unit) -> Lexing.lexbuf -> unit
+    val page : unit -> string
+
+    val finalize : unit -> unit
+  end

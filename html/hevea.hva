@@ -15,7 +15,7 @@
 \def\%{\@print{%}}
 \def\${\@print{$}}%$
 \def\#{\@print{#}}
-\def\&{\@print{&amp;}}
+\def\&{\ifiso\@print{&}\else\@print{&amp;}\fi}
 \def\_{\@print{_}}
 \def\{{\char123}
 \def\}{\char125}

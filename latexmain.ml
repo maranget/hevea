@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmain.ml,v 1.42 1999-06-02 15:42:27 maranget Exp $" 
+let header = "$Id: latexmain.ml,v 1.43 1999-06-03 13:13:22 maranget Exp $" 
 
 open Misc
 open Parse_opts
@@ -17,35 +17,44 @@ open Parse_opts
 
 let
   subst_this,subst,get_this,scan_main,
-  no_prelude,print_env_pos, dest_finalize = 
+  no_prelude,print_env_pos,
+  dest_finalize,image_finalize = 
 
   match !Parse_opts.destination with
-  | Html ->
-      let module Scan = Latexscan.Make ( Html) in
-      let module Otherscan = Videoc.Makealso (Html) (Scan) in
-      let module Verbscan = Verb.MakeAlso  (Html) (Scan) in
+  | Html when name_in <> "" ->
+      let module Scan = Latexscan.Make (Html) (Image) in
+      let module Otherscan = Videoc.Makealso (Html) (Image) (Scan) in
+      let module Verbscan = Verb.MakeAlso  (Html) (Image) (Scan) in
       Otherscan.init () ; Verbscan.init () ;
       Scan.subst_this, Scan.subst,
       Scan.get_this, Scan.main, Scan.no_prelude, Scan.print_env_pos,
-      Html.finalize
+      Html.finalize, Image.finalize
+  | Html  ->
+      let module Scan = Latexscan.Make (Html) (Noimage) in
+      let module Otherscan = Videoc.Makealso (Html) (Noimage) (Scan) in
+      let module Verbscan = Verb.MakeAlso  (Html) (Noimage) (Scan) in
+      Otherscan.init () ; Verbscan.init () ;
+      Scan.subst_this, Scan.subst,
+      Scan.get_this, Scan.main, Scan.no_prelude, Scan.print_env_pos,
+      Html.finalize, Noimage.finalize
   | Text ->
-      let module Scan = Latexscan.Make (Text) in
-      let module Verbscan = Verb.MakeAlso  (Text) (Scan) in
+      let module Scan = Latexscan.Make (Text) (Noimage)  in
+      let module Verbscan = Verb.MakeAlso  (Text) (Noimage) (Scan) in
       Verbscan.init () ;
       Scan.subst_this, Scan.subst,
       Scan.get_this, Scan.main, Scan.no_prelude, Scan.print_env_pos,
-      Text.finalize
+      Text.finalize,Noimage.finalize
   | Info ->
-      let module Scan = Latexscan.Make (Info) in
-      let module Verbscan = Verb.MakeAlso  (Info) (Scan) in
+      let module Scan = Latexscan.Make (Info) (Noimage) in
+      let module Verbscan = Verb.MakeAlso  (Info) (Noimage) (Scan) in
       Verbscan.init () ;
       Scan.subst_this, Scan.subst,
       Scan.get_this, Scan.main, Scan.no_prelude, Scan.print_env_pos,
-      Info.finalize
+      Info.finalize, Noimage.finalize
 ;;
 
 let finalize check =
-  Image.finalize () ;
+  image_finalize () ;
   dest_finalize check
 ;;
 

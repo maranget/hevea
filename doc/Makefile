@@ -43,7 +43,7 @@ images: manual001.gif
 manual001.gif: manual.image.tex
 	${IMAGEN} manual
 
-info: manual.hva tmp.tex
+info: manual.inf tmp.tex
 	$(HEVEA) -info -v manual.inf tmp.tex -o hevea.info
 
 ############ Installation stuff

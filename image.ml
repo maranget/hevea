@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: image.ml,v 1.12 1999-03-12 13:17:56 maranget Exp $" 
+let header = "$Id: image.ml,v 1.13 1999-06-03 13:13:20 maranget Exp $" 
 open Misc
 
 let base = Parse_opts.base_out
@@ -21,8 +21,9 @@ let count = ref 0
 let buff = ref (Out.create_null ())
 ;;
 
-let start () =
-  buff := Out.create_buff ()
+let start pos =
+  buff := Out.create_buff () ;
+  Location.echo_from_start pos !buff 
 ;;
 
 
