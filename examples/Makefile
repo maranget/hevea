@@ -103,7 +103,7 @@ index.html: index.tex
 	$(HEVEA) $(HEVEAOPTS) index.tex
 
 cleanhtml:
-	rm -f $(HTML) tmp.html *.txt
+	rm -f $(HTML) tmp.html *.txt *.info
 
 clean cleanall: cleanhtml
 	rm -f *.aux *.log *.dvi *~ *.gif *.bbl tmp.* tenv.* tsmile.* *.ilg *.ind *.idx *.image.tex *.html *.tid

@@ -77,7 +77,7 @@ dorelease:
 	gzip -f -best  $(RELEASENAME).tar
 # Doc release
 	dvips -o$(RELEASEDIR)/$(RELEASENAME)-manual.ps manual.dvi
-	mv manual.dvi $(RELEASEDIR)/$(RELEASENAME)-manual.dvi
+	cp manual.dvi $(RELEASEDIR)/$(RELEASENAME)-manual.dvi
 	rm -rf $(RELEASEDIR)/$(RELEASENAME)-manual
 	$(MAKE) $(MFLAGS) DOCDIR=$(RELEASEDIR)/$(RELEASENAME)-manual install
 	cd $(RELEASEDIR) ; tar cfo $(RELEASENAME)-manual.tar $(RELEASENAME)-manual ;\
