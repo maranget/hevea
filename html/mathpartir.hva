@@ -51,11 +51,7 @@
 \newsavebox{\mpr@save@arg}%
 \newcommand{\mpr@globle}[1]{}
 \newcommand {\@mpr@name}[1]{\@tir@name{#1}\let\mpr@name\mpr@globle}
-\def \@latexcr@char {\\}
-\def \mpr@line@hva #1{%
-   \def \@testa {#1} \ifx \@testa \@latexcr@char
-   \else \error {hva in mathrule}\fi%
-   \mpr@break@display}
+\def \mpr@line@hva #1{\mpr@break@display}
 \def \mpr@break@display
 {\sbox{\mpr@save@arg}{\mpr@line@arg}%
 \endmpr@line\mpr@line{\usebox{\mpr@save@arg}}}
@@ -67,7 +63,7 @@
 \newcommand{\mpr@valign}[1]{\ifthenelse{\equal{#1}{}}{}{valign="#1"}}
 \newcommand{\mpr@line}[1]
 {\@open{TR}{\mpr@valign{#1}}%
-\ifx\mpr@label\mpr@L\@open{TD}{}\mpr@name{\@rule@name}\@force{TD}\fi
+\ifx\mpr@label\mpr@L\@open{TD}{}\mpr@name{\@rule@name}~\@force{TD}\fi
 \@open{TD}{NOWRAP ALIGN="\ifmpr@center{}center\else{}left\fi"}%
 \bgroup\def\mpr@line@arg{#1}%
 \@open{DISPLAY}{\mpr@valign{#1}}%
@@ -75,7 +71,7 @@
 \let\hva\mpr@line@hva}
 \newcommand{\endmpr@line}
 {\@close{DISPLAY}\egroup\@force{TD}%
-\ifx\mpr@label\mpr@R\@open{TD}{}\mpr@name{\@rule@name}\@force{TD}\fi
+\ifx\mpr@label\mpr@R\@open{TD}{}~\mpr@name{\@rule@name}\@force{TD}\fi
 \@close{TR}}
 \def \mpr@empty {}
 \newif \ifmpr@center \mpr@centertrue
@@ -117,11 +113,11 @@
     \@force{TABLE}%
     \egroup%
 }
-\def\hhline@color{green}
+\def\mpr@hhline@color{green}
 \def \@hhline
 {\@open{TR}{}%
 \mpr@emptyL
-\@open{TD}{height="3" bgcolor="\hhline@color"}\@force{TD}%
+\@open{TD}{height="3" bgcolor="\mpr@hhline@color"}\@force{TD}%
 \mpr@emptyR
 \@force{TR}}
 

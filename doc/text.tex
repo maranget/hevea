@@ -5341,7 +5341,7 @@ of the \textit{len} argument to the \verb+\setlength+ and
 implement length registers in the first place.
 
 \subsection{The \texttt{comment} Package}
-\LaTeX{} \footahref{\ctan/contrib/other/comment/}{source}.
+\LaTeX{} \footahref{\ctan/contrib/comment/}{source}.
 
 The implementation for this package provides two commands,
 \verb+\excludecomment+ and \verb+\includecomment+, for (re-)defining
@@ -5387,16 +5387,9 @@ defaults to \verb+default+.
 \end{description}
 
 
-The \footahref{\ctan/contrib/misc/multind.sty}{\texttt{multind}} package provides another scheme
-for multiple indexes.
-Note that the ``\texttt{multind}''
-style for indexes is not backward compatible with
-\LaTeX{} default indexing scheme. I would recommend using
-the ``\texttt{index}'' package.
-
 \subsection{Multiple Bibliographies with the \texttt{multibib} package}
-\ttindex{multibib}{package}\comindex{newcites}.
-\hevea{} provides a slighty uncomplete implementation of the
+\ttindex{multibib}{package}\comindex{newcites}
+\hevea{} provides a slighty incomplete implementation of the
 \texttt{multibib} package. The one non-implemented feature is the
 simultaneous definition of more than one bibliography.
 That is one cannot invoke \verb+\newcites+ as follows~:
@@ -5415,7 +5408,8 @@ Instead, one should perform to calls to the \verb+\newcites+ command~:
 \begin{verbatim}
   \usepackage[lang-list]{babel}
 \end{verbatim}
-it loads {\tt babel.hva}, and sends it the saved {\tt lang-list}. The file {\tt babel.hva} then looks at each language (say{\tt  x}) in it, and loads {\tt x.hva}, which offers support for the language {\tt x}. As in \LaTeX, the last language in the list is selected as default. As an example the command
+it loads {\tt babel.hva}, and sends it the saved {\tt lang-list}. The
+file {\tt babel.hva} then looks at each language (say {\tt{}x}) in it, and loads {\tt x.hva}, which offers support for the language {\tt x}. As in \LaTeX, the last language in the list is selected as default. As an example the command
 \begin{verbatim}
 \usepackage[english,french,german]{babel}
 \end{verbatim}
@@ -5428,7 +5422,11 @@ The following babel commands for changing and querying the language work as in \
 \item {\verb+\iflanguage+ : to branch after comparing with current language}
 \end{enumerate}  
 
-The language specific details are described in the corresponding \verb+.hva+ file, just as in the \verb+.sty+ file for \LaTeX. Users need to supply this file for their language, or modify/check the files if thay are already supplied with the distribution. The list of languages is given below.
+The language specific details are described in the corresponding
+\verb+.hva+ file, just as in the \verb+.sty+ file for \LaTeX. Users
+need to supply this file for their language, or modify/check the files
+if thay are already supplied with the distribution. The list of
+languages is given below.
 
 \begin{center}\index{babel!languages}
 \begin{tabular}{|l|l|l|l|}
@@ -5455,7 +5453,7 @@ They can be written/modified as simple \TeX{} files (see the section ~\ref{texma
 
 Note how all definitions are \emph{inside} the definition for \verb+\french@babel+, which is the command that \verb+\selectlanguage{french}+ would call. Similar commands need to be provided (i.e. \verb+\x@babel+ in \verb+\x.hva+ for language \verb+x+).
 
-Some definitions may involeve specifying unicode encodings. The map from characters to unicode can be found at \footahref{http://www.unicode.org/charts/}{http://www.unicode.org/charts/} . Most language specific unicode characters can be found in the first few files. 
+Some definitions may involve specifying unicode encodings. The map from characters to unicode can be found at \footahref{http://www.unicode.org/charts/}{http://www.unicode.org/charts/} . Most language specific unicode characters can be found in the first few files. 
 
 \subsection{Support for Math Package \texttt{amssymb}}\index{amssymb}
 \hevea{} provides support for the \texttt{amssymb} symbols using unicode character encodings. However, a few symbols did not have any encoding yet (e.g. \verb+\varsubsetneqq+, $\varsubsetneqq$), and were approximated to their nearest kin (e.g. \verb+\subsetneqq+, $\subsetneqq$ in this case).
@@ -5577,10 +5575,8 @@ We give a short description, focussing on \hevea{}-related details.
 Users are encouraged to refer to the
 \footahref{http://pauillac.inria.fr/\home{remy}/latex/index.html\#tir}{original
 documentation} of the package.
-
-The accustomed users may skip most of the following section, but are
-advised to look at \texttt{the change} that them might need to make if
-using the \verb+\inferrule+ macro.
+In the following, comments on rule typesetting apply to \hevea{} output
+and not to \LaTeX{} output.
 
 \subsubsection {The mathpar environment}\index{{\tt mathpartir} package!{\tt mathpar} environment}
 
@@ -5597,7 +5593,7 @@ And \and The-Last-One
 \end{mathpar}
 \end{lstlisting}
 &
-
+\qquad\qquad
 &
 \begin{mathpar}
 A-Formula 
@@ -5617,7 +5613,7 @@ to act as \verb+\and+. It also redefines the command \verb+\\+ as
 an explicit line-break in the flow of formulas.
 
 The \hevea{} version is simplistic: all separators
-(\emph{i,e,} \verb+\and+, \verb+\par+ and \verb+\\+) produce
+(\emph{i.e.} \verb+\and+, \verb+\par+ and \verb+\\+) produce
 line-breaks. However, when prefixed by \verb+\hva+ the separators
 produce horizontal space.
 Hence, we can typeset the previous example on two lines only:
@@ -5631,7 +5627,7 @@ And \hva\and The-Last-One
 \end{mathpar}
 \end{lstlisting}
 &
-
+\qquad\qquad
 &
 \begin{mathpar}
 A-Formula 
@@ -5651,7 +5647,12 @@ It is to be noticed that the \LaTeX{} version of the package defines
 
 \subsubsection {The inferrule macro}\index{{\tt mathpartir} package!\verb+\inferrule+}
 
-The \verb"\inferrule" macro is designed to typeset inference rules. It should only be used in math mode (or display math mode). It takes three arguments, the first being optional, specifying the label, premises, and conclusions respectively. The premises and the conclusions are both lists of formulas, and are separated by \verb"\\". 
+The \verb"\inferrule" macro is designed to typeset inference rules. It
+should only be used in math mode (or display math mode). It takes
+three arguments, the first being optional, specifying the label,
+premises, and conclusions respectively. The premises and the
+conclusions are both lists of formulas, and are separated by
+\verb"\\".
 
 A simple example of its use is 
 \begin{verbatim}
@@ -5660,7 +5661,7 @@ A simple example of its use is
   {one \\ two \\ three \\ or \\ more \\ premisses}
   {and \\ any \\ number \\ of \\ conclusions \\ as \\ well}
 \end{verbatim}
-which gives the following rendering on a large page
+which gives the following rendering:
 \def \one {\inferrule [label]
   {one \\ two \\ three \\ or \\ more \\ premisses}
   {and \\ any \\ number \\ of \\ conclusions \\ as \\ well}
@@ -5671,90 +5672,64 @@ $$
 \mbox{$$\one$$}
 \fi
 $$
-and automatically give something like this on a narrower one 
-like that:
-\def \two {\inferrule[label]
-  {one \\\\ two \\ three \\ or \\\\ more \\ premisses}
-  {and \\ any \\ number \\\\ of \\ conclusions \\\\ as \\ well}
-}
-$$
-\ifhevea \two
-\else
-\mbox{$$\two$$}
-\fi
-$$
-
-\noindent
-Note the dissymetry between typesetting of the premisses and of conclusions where lines closer to the center are fit first. A newline can be forced by adding an empty line \verb"\\\\", as shown below.
-
+Again, \hevea{} is simplistic. Where \LaTeX{} performs
+actual typesetting, interpreting \verb+\\+ as horizontal or
+vertical breaks, \hevea{} always interpret   \verb+\\+ as an
+horizontal break. In fact \hevea{} interpret all separators
+(\verb+\\+, \verb+\and+) as horizontal breaks, when
+they appear in the arguments of the \verb+\inferrule+ command.
+Nethertheless prefixing separators with \verb+\hva+ yields vertical
+breaks:
 \begin{tabular}{m{0.40\hsize}m{0.1\hsize}m{0.40\hsize}}
 \begin{lstlisting}{Ocaml}
 \inferrule 
-   {aa \\\\ bb}
+   {aa \hva\\ bb}
    {dd \\ ee \\ ff}
 \end{lstlisting}
 &
-~~~
+\qquad\qquad
 &
-$\inferrule {aa \\\\bb}{dd \\ ee \\ ff}$
-\\
+$\inferrule {aa \hva\\ bb}{dd \\ ee \\ ff}$
 \end{tabular}
 
-\noindent
+The color of the horizontal rule that separates the premises and
+conclusions can be changed by redefining the command
+\verb+\mpr@hhline@color+. This color must be specified as a low-level
+color (cf. Section~\ref{getcolor}).
+
 
 \subsubsection{Options}
-The horizontal bar separating the premises and conclusions is omitted if either the premises or the conclusions are empty. To obtain the bar, one must use \verb"{ }" instead of \verb"{}" when specifying the empty argument.\\
 
-\noindent
 By default, lines are centerred in inference rules. However, this can be changed either by using \verb"\mprset{flushleft}" or \verb"\mprset{center}", as shown below. 
 
 \begin{tabular}{m{0.40\hsize}m{0.12\hsize}m{0.40\hsize}}
 \begin{lstlisting}{Ocaml}
 $$\mprset{flushleft}
   \inferrule 
-    {a \\ bbb \\\\ ccc \\ dddd}
-    {e \\ ff \\\\ gg}
+    {a \\ bbb \hva\\ ccc \\ dddd}
+    {e \\ ff \hva\\ gg}
 $$ 
 \end{lstlisting}
 &
-
+\qquad\qquad
 &
 $$\mprset{flushleft} 
-\inferrule {a \\ bbb  \hva\\ ccc \\ dddd}{e \\ ff \\\\ gg}$$
+\inferrule {a \\ bbb  \hva\\ ccc \\ dddd}{e \\ ff \hva\\ gg}$$
 \\
 \end{tabular}  
 
 \subsubsection {Derivation trees}\index{{\tt mathpartir} package!derivation trees}
-
-To help writing cascades of rules forming a derivation tree, inference rules
-can also be aligned on their bottom line. For this, we use the star-version of \verb+\inferrule+.\\
-
-\noindent
-\textbf{NOTE : }However, there is one significant difference, that accustomed \verb+mathpartir+ users must take special note of. The premises and conclusions are now separated by \verb +\and+ instead of \verb+\\+ (used earlier). This change has no effect on the layout in \LaTeX, while allowing \hevea{} to get around a small limitation. Linebreaks are forced by \verb+\\\\+ as usual. A simple example is given below. 
+The \texttt{mathpartir} package provides a starred variant
+\verb+\inferrule*+. In \LaTeX{}, the boxes
+produced by \verb+\inferrule+ and \verb+\inferrule*+ differ as regards
+their baseline, the second being well adapted to derivation trees.
+All this is irrelevant to \hevea{}, 
+but \verb+\inferrule*+ remains of interest because of its interface:
+the optional argument to the \verb+\inferrule*+ command is a list of
+\textit{key}\texttt{=}\textit{value} pairs in the style of
+\texttt{keyval}.
+This makes the variant command much more flexible.
 $$
-\begin{tabular}{m{0.45\hsize}m{0.1\hsize}m{0.45\hsize}}
-\begin{lstlisting}{Ocaml}
-\inferrule*
-   {\inferrule* {aa \and bb}{cc}
-    \and dd}
-   {ee}
-\end{lstlisting}
-&
-~~~~~~
-&
-$
-\inferrule*
-   {\inferrule* {aa \and bb}{cc}
-    \and dd}
-   {ee}
-$
-\\
-\end{tabular}
-$$
- 
-\noindent
-The optional arguments here follow different semantics. They are parsed by the 
-\verb"keyval" package, so as to offer a set of record-like options, as described in the table below.$$
 \def \val {{\em v}}
 \def \arraystretch {1.4}
 \begin{tabular}{|>{\tt}c|p{0.7\hsize}|}
@@ -5764,26 +5739,30 @@ The optional arguments here follow different semantics. They are parsed by the
 before & Execute {\val} before typesetting the rule.
          Useful for instance to change the maximal width of the rule.
 \\\hline
-width &  Set the width of the rule to {\val}
-\\\hline
-narrower & Set the width of the rule to {\val} times \verb"\hsize".
-\\\hline
 left & Put a label {\val} on the left of the rule
 \\\hline
-Left & Idem, but as if the label had zero width. 
-\\\hline
-Right & As \verb"Left", but on  the right of the rule.
+Left & Idem.
 \\\hline
 right & As \verb"left",  but on the right of the rule.
 \\\hline
-leftskip & Cheat by (skip negative space) {\val} on the left side.
+Right & As \verb"Left", but on  the right of the rule.
 \\\hline
-rightskip & Cheat by {\val} on the right side of the rule.
+lab & Put a label {\val} above the inference rule, in the style
+of \verb+\inferrule+.
 \\\hline
-vdots & Raise the rule by {\val} and insert vertical dots. 
+Lab & Idem.
+\\\hline
+vdots & Raise the rule by {\val} and insert vertical dots, the length
+argument is translated to a number of line-skips.
 \\\hline
 \end{tabular}
 $$
+Additionally, the value-less key \verb"center" centers premises and
+conclusions (this is
+the default), while \verb"flushleft" commands left aligment of
+premises and conclusions (as \verb+\mprset{flushleft}+ does).
+Other keys defined by the \LaTeX{} package exist and are parsed, but
+they perform no operation.
 
 As an example, the code
 \begin{lstlisting}{Ocaml}
@@ -5791,7 +5770,7 @@ As an example, the code
 \inferrule* [Left=Foo]
    {\inferrule* [Right=Bar,width=8em,
                  leftskip=2em,rightskip=2em,vdots=1.5em]
-      {a \and a \and bb \\\\ cc \and dd}
+      {a \and a \and bb \hva\\ cc \and dd}
       {ee}
     \and ff \and gg}
    {hh}
@@ -5799,12 +5778,12 @@ As an example, the code
 \inferrule* [lab=XX]{uu \and vv}{ww}
 \end{mathpar}
 \end{lstlisting}
-produces output of the form
+produces the following output:
 \begin{mathpar}
 \inferrule* [Left=Foo]
    {\inferrule* [Right=Bar,width=8em,
                  leftskip=2em,rightskip=2em,vdots=1.5em]
-      {a \and a \and bb \\\\ cc \and dd}
+      {a \and a \and bb \hva\\ cc \and dd}
       {ee}
     \and ff \and gg}
    {hh}
