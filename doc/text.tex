@@ -836,8 +836,8 @@ Hence, it produces the following, wrong, output:
 \end{latexonly}%
 \end{htmlout}
 
-There is not small square in the symbol font used by \hevea.
-However there are other small symbols that would perfectly do the job
+We may not be particularily commited to a square blob.
+In that case, other small symbols would perfectly do the job
 of \verb+\blob+, such as a bullet (\verb+\bullet+).
 Thus, you may choose to give \verb+\blob+ a definition in
 \verb+trouble.hva+:
@@ -854,10 +854,28 @@ This new definition yields the following, more satisfying output:
 \end{latexonly}%
 \end{htmlout}
 
-Now, if you insist on having a square ``blob'', you can.
-It suffices to have \LaTeX{} typeset some subparts of
+\label{square:blob}
+In case we do want a square blob, there are two alternatives.
+We can have \LaTeX{} typeset some subparts of
 the document and then to include them as images, section~\ref{imagen}
 explain how to proceed.
+We can also find a square blob somewhere in the variety of Unicode I
+mean ISO~10646) characters,
+and define \verb+\blob+ as a (numerical or symbolic)
+character reference. Here, the character \texttt{U02588}
+seems ok.
+\begin{verbatim}
+\newcommand{\blob}{\@print{&#X2588;}
+\end{verbatim}
+\begin{htmlout}%
+\begin{htmlonly}\newcommand{\blob}{\@print{&#X2588;}}%
+\blob\ Blob \blob
+\end{htmlonly}
+\begin{latexonly}\vspace*{.5ex}
+\image{blob3}%
+\end{latexonly}%
+\end{htmlout}
+However, beware that not all browsers display all of Unicode\ldots
 
 
 \subsection{\hevea{} crashes}
@@ -1366,7 +1384,11 @@ file.
 
 The  usage of \verb+imagen+  is described at
 section~\ref{imagenusage}. Note that \texttt{imagen} is a simple shell
-script.
+script. Unix users can pass \texttt{hevea} the command line option
+``\texttt{-fix}''. Then \texttt{hevea} will
+itself call \texttt{imagen}, when appropriate.
+
+
 
 
 
@@ -2377,7 +2399,7 @@ opennig tag has attributes.
 This primitive may prove useful for introducing \texttt{SPAN} elements.
 Note that both argument are processed.
 \item[{{\tt\char92 @span\char123}{\it attr}{\tt\char125}}]
-A shorthand for \verb+\@styleattr{+\textit{attr}\verb+}+.
+A shorthand for \verb+\@styleattr{SPAN}{+\textit{attr}\verb+}+.
 \item[{\tt\char92 @fontsize\char123}{\it int}{\tt\char125}]
 Declare the text-level element \verb+FONT+ with attribute
 \verb+SIZE=+\textit{int} as active. Note that \textit{int} must
@@ -3284,7 +3306,7 @@ reduce all images by a factor of $\sqrt{2}$ it suffices to state~:
 \texttt{\%HEVEA}\verb+\@addimagenopt+\texttt{-mag 707}
 \end{flushleft}
 See section~\ref{imagenusage} for the list of command-line options
-accepter by \texttt{imagen}.
+accepted by \texttt{imagen}.
 
 \section{Other output formats}\label{alternative}
 It is possible to translate \LaTeX{} file into other formats than
@@ -3637,15 +3659,17 @@ as follows:
 \end{verbatim}
 
 \subsection{Accents and special symbols}
-When there exists an equivalent to a given \LaTeX{} symbol, using
-the iso-latin1 and symbol character sets, then \hevea{}
-outputs such an equivalent.
-\html{} pages that show these character sets can be found
-in the directory \texttt{\heveaurl/doc/}
-at \ahref{iso.html}{\texttt{iso.html}} and
-\ahref{symbol.html}{\texttt{symbol.html}}.
-Otherwise, \hevea{} usually issues a warning to draw user attention.
-Users can then choose their own equivalent for the symbol.
+Thanks to Unicode character references, \hevea{} can virtually output
+any symbol. Notice that \hevea{} is a bit iso-latin1 centric:
+by default, characters in the iso-latin1 charser are outputed as
+themselves (the command-line option ``\texttt{-noiso}'' prevent the
+production of such and change the output page charset to)
+It may happen that \hevea{} does not known about a particular symbol,
+that is, most of the time, \hevea{} does not known about a particular
+command. In that case a warning is issued to draw user attention.
+Users can then choose a particular symbol amongst the recognized ones,
+or as an explicit Unicode character reference (see
+Section~\ref{square:blob} for an example of this technique).
 
 Commands for making accents used in non-English languages, such as
 \verb+\'+, work when then produce letters from the iso-latin1 character set.
