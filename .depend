@@ -87,6 +87,10 @@ mathML.cmo: htmlCommon.cmo latexmacros.cmi misc.cmi out.cmi parse_opts.cmi
 mathML.cmx: htmlCommon.cmx latexmacros.cmx misc.cmx out.cmx parse_opts.cmx 
 misc.cmo: misc.cmi 
 misc.cmx: misc.cmi 
+mon_text.cmo: latexmacros.cmi length.cmi misc.cmi out.cmi parse_opts.cmi \
+    table.cmi tabular.cmi 
+mon_text.cmx: latexmacros.cmx length.cmx misc.cmx out.cmx parse_opts.cmx \
+    table.cmx tabular.cmx 
 myfiles.cmo: misc.cmi mylib.cmi parse_opts.cmi myfiles.cmi 
 myfiles.cmx: misc.cmx mylib.cmx parse_opts.cmx myfiles.cmi 
 mylib.cmo: mylib.cmi 
