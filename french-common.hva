@@ -45,5 +45,5 @@
   \def\headpagename{Page}%
   \def\seename{voir}%
   \def\alsoseename{voir aussi}%
-  \def\footertext{Ce document a \'et\'e traduit de \LaTeX{} par \hevea}%
+  \def\footertext{Ce document a \'et\'e traduit de \LaTeX{} par \ahref{\heveaurl}{\hevea}}%
 }%
