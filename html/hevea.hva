@@ -12,6 +12,8 @@
 \input{iso-symb.hva}
 \renewcommand{\&}{\ifraw\@print{&}\else\@print{&amp;}\fi}
 \input{latexcommon.hva}
+%%%Support for use of style-sheets
+\input{style-sheets.hva}
 %%% Logos
 \def\TeX{\@print{TeX}}
 \def\LaTeX{\@print{L<sup>A</sup>T<sub>E</sub>X}}

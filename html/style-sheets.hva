@@ -1,0 +1,10 @@
+\newcommand{\setstyle}[2]{%
+	\beginstyle
+	H1\{background:#1;color:#2\}%
+	H2\{background:#1;color:#2\}%
+	H3\{background:#1;color:#2\}%
+	H4\{background:#1;color:#2\}%
+	H5\{background:#1;color:#2\}%
+	H6\{background:#1;color:#2\}%
+	\endstyle
+}

@@ -31,7 +31,7 @@
 % break in mathrule.
 %
 % \hva is ignored in latex more.
-
+\@primitives{mathpartir}
 
 \usepackage {array}
 \usepackage {keyval}

@@ -1,26 +1,3 @@
-%  Mathpartir --- Math Paragraph for Typesetting Inference Rules
-%
-%  Copyright (C) 2001, 2002, 2003 Didier Rémy
-%
-%  Author         : Didier Remy 
-%  Version        : 1.1.1
-%  Bug Reports    : to author
-%  Web Site       : http://pauillac.inria.fr/~remy/latex/
-% 
-%  WhizzyTeX is free software; you can redistribute it and/or modify
-%  it under the terms of the GNU General Public License as published by
-%  the Free Software Foundation; either version 2, or (at your option)
-%  any later version.
-%  
-%  Mathpartir is distributed in the hope that it will be useful,
-%  but WITHOUT ANY WARRANTY; without even the implied warranty of
-%  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-%  GNU General Public License for more details 
-%  (http://pauillac.inria.fr/~remy/license/GPL).
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%  File mathpartir.tex (Documentation)
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \documentclass {article}
 
@@ -37,69 +14,12 @@
 \lstset {basicstyle=\tt}
 \let \lst \verb
 
-\title {Remy's Mathpartir}
+\title {Didier's Mathpartir}
 
 \begin{document}
+%HEVEA \setstyle{blue}{white}
+\maketitle
 
-\begin{abstract}
-This package provides macros for displaying lists of formulas that are
-typeset in mixed horizontal and vertical modes. The package is two-folded.
-
-The first part is an environment \verb"mathpar" that generalizes the math
-display mode to allow several formulas on the same line, and several lines
-in the same display. The arrangement of the sequence of formulas into lines
-is automatic depending on the line width and on a minimum inter-formula
-space and line width alike words in a paragraphs (in centerline mode).  A
-typical application is  displaying a set of type inference rules.
-
-The second par is a macro \lst"inferrule" to typeset inference rules
-themselves.  Here again, both premises and conclusions are presented as list
-of formulas that should be displayed in almost the same way, except that the
-width is not fixed in advance; and the inference rule should use no more
-width than necessary so that other inference rules are given a chance to
-appear on the same line.
-
-Although \verb"mathpar" and \verb"inferrule" look similar in their
-specification, and are often used in combination, they are in fact
-completely different in their implementations.
-\end{abstract}
-
-\section {The mathpar environment}
-
-The mathpar environment is a ``paragraph mode for formulas''. 
-It  allows to typeset long list of formulas putting as
-many as possible on the same line: 
-$$
-\begin{tabular}{m{0.45\hsize}m{0.1\hsize}m{0.45\hsize}}
-\begin{lstlisting}{Ocaml}
-\begin{mathpar}
-A-Formula \and 
-Longer-Formula \and 
-And \and The-Last-One
-\end{mathpar}
-\end{lstlisting}
-&
-~~~
-&
-\begin{mathpar}
-A-Formula 
-\and
-Longer-Formula
-\and
-And 
-\and
-The-Last-One
-\end{mathpar}
-\end{tabular}
-$$
-Formulas are separated by \verb"\and" (or equivalently by a blank line). 
-To enforce a vertical break it sufficies to replace \verb"\and" by
-\verb"\\". 
-
-The implementation of \verb"mathpar" entirely relies on the paragraph mode
-for text. It starts  a new paragraph, and a math formula within a paragraph,
-after adjusting the spacing and penalties for breaks. Then, it simply binds
-\verb"\and" to something like \verb"\goodbreak". 
 \section {The inferrule macro}
 
 The inferrule macro is designed to typeset inference rules.  It should
@@ -218,7 +138,7 @@ $\inferrule [Yop]{aa \\ bb}{cc}$
 \\
 \end{tabular}
 \par\noindent
-See section~\ref {options} for changing typesetting of labels. 
+See section~\ref{options} for changing typesetting of labels. 
 A label can also be placed next to the rule directly, since the rule is
 centered: 
 \par
@@ -330,9 +250,8 @@ $$
          {ee}
        \\ ff \\ gg}
      {hh}
-   \\
-   \inferrule* [lab=XX]{uu \\ vv}{ww}
-  }
+  \\
+  \inferrule* [lab=XX]{uu \\ vv}{ww}}
   {(1)}
 $$
 and its code
@@ -396,89 +315,5 @@ The environment uses \verb"\MathparBindings" to
 rebind \verb"\\", \verb"and", and \verb"\par". You can redefine thus command
 to change the default bindings or add your own. 
 
-\section {Examples}
-
-See the source of this documentation ---the file \lst"mathpartir.tex"---
-for full examples. 
-
-\section {{\hevea} compatibility}
-
-The package also redefines \verb"\hva" to do nothing in \lst"mathpar"
-environment and nor in inference rules. 
-
-In HeVeA, \verb"\and" will always produce a vertical break in mathpar
-environment; to obtain a horizontal break, use \verb"\hva \and" instead.
-Conversely, \verb"\\" will always produce a horizontal break in type
-inference rules; to obtain a vertical break, use \verb"\hva \\" instead.
-
-For instance, by default the following code,
-\begin{lstlisting}{Ocaml}
-\begin{mathpar}
-\inferrule* [Left=Foo]
-   {\inferrule* [Right=Bar,width=8em,
-                 leftskip=2em,rightskip=2em,vdots=1.5em]
-      {a \\ a \\ bb \\ cc \\ dd}
-      {ee}
-    \\ ff \\ gg}
-   {hh}
-\and
-\inferrule* [lab=XX]{uu \\ vv}{ww}
-\end{mathpar}
-\end{lstlisting}
-which typesets in {\TeX} as follows,
-\begin{mathpar}
-\inferrule* [Left=Foo]
-   {\inferrule* [Right=Bar,width=8em,
-                 leftskip=2em,rightskip=2em,vdots=1.5em]
-      {a \\ a \\ bb \\ cc \\ dd}
-      {ee}
-    \\ ff \\ gg}
-   {hh}
-\and
-\inferrule* [lab=XX]{uu \\ vv}{ww}
-\end{mathpar}
-would appear as follows with the compatible {\hevea} mode:
-\begin{mathpar}
-\inferrule* [left=Foo]
-   {\inferrule* [right=Bar]
-      {a \\ a \\ bb \\ cc \\ dd}
-      {ee}
-    \\ ff \\ gg}
-   {hh}
-\\
-\inferrule* [lab=XX]{uu \\ vv}{ww}
-\end{mathpar}
-To obtain (almost) the same rendering as in {\TeX}, it could be typed as 
-\begin{lstlisting}[escapechar=\%]{Ocaml}
-\begin{mathpar}
-\inferrule* [Left=Foo]
-   {\inferrule* [Right=Bar,width=8em,
-                 leftskip=2em,rightskip=2em,vdots=1.5em]
-      {a \\ a \hva \\ bb \\ cc \\ dd}
-      {ee}
-    \\ ff \\ gg}
-   {hh}
-\hva \and
-\inferrule* [lab=XX]{uu \\ vv}{ww}
-\end{mathpar}
-\end{lstlisting}
-Actually, it would be typeset and follows with the compatible {\hevea} mode:
-\begin{mathpar}
-\inferrule* [left=Foo]
-   {\inferrule* [right=Bar]
-      {a \\ a \\\\ bb \\ cc \\ dd}
-      {ee}
-    \\ ff \\ gg}
-   {hh}
-\and
-\inferrule* [lab=XX]{uu \\ vv}{ww}
-\end{mathpar}
-
 
 \end{document}
-
-\end{document}
-
-% LocalWords:  mathpar aa Yop bb dd ee ff cc Ocaml Foo leftskip rightskip vdots
-% LocalWords:  gg hh uu vv ww HeVeA escapechar
- 

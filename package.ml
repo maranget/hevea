@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.53 2004-06-11 13:35:33 thakur Exp $    *)
+(*  $Id: package.ml,v 1.54 2004-06-22 09:24:17 thakur Exp $    *)
 
 module type S = sig  end
 
@@ -1186,5 +1186,72 @@ register_init "proof"
         ) ;
     )
 ;;
+
+(************************************************************
+*                                                           *
+*   Implementing the proofs in package "mathpartir"	    *
+*                                                           *
+************************************************************)
+(*
+register_init "mathpartir"
+    (fun () ->
+      def_code "\\inferrule"
+	(fun lexbuf ->
+          let optarg1 = save_opt "" lexbuf in
+          let is_opt_arg = if ("" = optarg1.arg) then false else true in  
+	  let formatted1 = Scan.get_this_arg_mbox optarg1 in
+	  let arg2 = save_arg lexbuf in
+	  let arg3 = save_arg lexbuf in
+	  let str2 = "\\"^"begin{mpr@line}"^(arg2.arg)^"\\"^"end{mpr@line}" in
+	  let str3 = "\\"^"begin{mpr@line}"^(arg3.arg)^"\\"^"end{mpr@line}" in
+	  let formatted2 = Scan.get_this_main str2 in
+	  let formatted3 = Scan.get_this_main str3 in
+	  start_table ();
+	  def "\\@hevea@newline" zero_pat
+	    (CamlCode (fun _ ->  
+	      Dest.force_item_display (); 
+              Dest.put_nbsp () ; Dest.put_nbsp ();
+	      Dest.put_nbsp () ; Dest.put_nbsp ()) (*scan_this_main "~~" *)
+            ) ;
+	  scan_this_arg Scan.main arg2;
+          next_row () ; 
+          Dest.put ("<HR COLOR=\"green\" NOSHADE SIZE=\"3\">\n") ;
+          next_row () ; 
+          Dest.put formatted3;
+          end_table ()
+        ) ;
+      (*def_code "\\inferrule*"
+	(fun lexbuf ->
+          let optarg1 = save_opt "" lexbuf in
+          let is_opt_arg = if ("" = optarg1.arg) then false else true in  
+	  let formatted1 = Scan.get_this_arg_mbox optarg1 in
+	  let arg2 = save_arg lexbuf in
+	  let arg3 = save_arg lexbuf in
+	  let str2 = "\\"^"begin{mpr@line}"^(arg2.arg)^"\\"^"end{mpr@line}" in
+	  let str3 = "\\"^"begin{mpr@line}"^(arg3.arg)^"\\"^"end{mpr@line}" in
+	  let formatted2 = Scan.get_this_main str2 in
+	  let formatted3 = Scan.get_this_main str3 in
+	  start_table ();
+	  Dest.put formatted2;
+          next_row () ; 
+          Dest.put ("<HR COLOR=\"green\" NOSHADE SIZE=\"3\">\n") ;
+          next_row () ; 
+          Dest.put formatted3;
+          end_table ()
+        ) ;*)
+    )
+;;
+*)
+
+def_code "\\beginstyle" 
+    (fun lexbuf -> 
+        Dest.put "<STYLE TYPE=\"text/css\">"
+    );;
+
+def_code "\\endstyle" 
+    (fun lexbuf -> 
+        Dest.put "</STYLE>"
+    );;
+
 
 end
