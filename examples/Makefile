@@ -4,7 +4,7 @@ HEVEAOPTS=
 IMAGEN=imagen
 HACHA=hacha
 EXDIR=$(HOME)/public_html/hevea/examples
-HTML=a.html pat.html suite.html env.html smile.html amstex.html graphics.html
+HTML=a.html pat.html suite.html env.html smile.html amstex.html graphics.html graphicx.html
 DVI=$(HTML:.html=.dvi)
 TEX=$(HTML:.html=.tex)
 # coucou
@@ -109,6 +109,19 @@ graphics.html: graphics.tex
 	$(HEVEA) $(HEVEAOPTS) graphics
 	$(MAKE) $(MFLAGS) IMAGEN=$(IMAGEN) graphics001.gif
 
+HF.ps.gz: HF.ps
+	gzip -best -c < HF.ps > HF.ps.gz
+
+graphicx.dvi: HF.ps.gz graphicx.tex
+	latex < /dev/null graphicx.tex
+
+graphicx001.gif: HF.ps.gz graphicx.image.tex
+	$(IMAGEN) graphicx
+
+graphicx.html: graphicx.tex
+	$(HEVEA) $(HEVEAOPTS) graphicx
+	$(MAKE) $(MFLAGS) IMAGEN=$(IMAGEN) graphicx001.gif
+
 index.html: index.tex
 	$(HEVEA) $(HEVEAOPTS) index.tex
 
@@ -116,7 +129,7 @@ cleanhtml:
 	rm -f $(HTML) tmp.html *.txt *.info
 
 clean cleanall: cleanhtml
-	rm -f *.aux *.log *.dvi *~ *.gif *.bbl tmp.* tenv.* tsmile.* *.ilg *.ind *.idx *.image.tex *.html *.tid
+	rm -f *.aux *.log *.dvi *~ *.gif *.bbl tmp.* tenv.* tsmile.* *.ilg *.ind *.idx *.image.tex *.html *.tid HF.ps.gz
 
 images:
 	$(IMAGEN) tmp

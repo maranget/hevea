@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlMath.ml,v 1.9 1999-10-05 17:02:26 maranget Exp $" 
+let header = "$Id: htmlMath.ml,v 1.10 1999-11-04 23:11:53 maranget Exp $" 
 
 
 open Misc
@@ -316,7 +316,7 @@ type ital = Ital | NoItal | Complex | Mixed
 ;;
 
 let check_char = function
-  '{' | '}' | '$' | '^' | '_' | '\\' -> Complex
+  '{' | '}' | '$' | '^' | '_' | '\\' | '#' -> Complex
 | c ->
    if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) then
      Ital
@@ -361,7 +361,7 @@ let open_script_font () =
 
 
 let complex s = match check_ital s with
-  Complex -> true
+| Complex -> true
 | _       -> false
 ;;
 

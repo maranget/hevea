@@ -1,5 +1,9 @@
 
 version 1.05-6
+  - Bug in htmlMath : # now is a complex character.
+  - new index scheme a` la latex, with external files
+  - aux files read by \document
+  - added de \@stopoutput \@restartoutput
   - bug \@stopimage \@stopimage .. \@restartimage \@restartimage ->
      a new stack for active in Image.
   - hevea.sty based uppon ``comment.sty''

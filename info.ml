@@ -10,7 +10,7 @@
 (***********************************************************************)
 
 
-let header = "$Id: info.ml,v 1.17 1999-11-02 20:10:54 maranget Exp $"
+let header = "$Id: info.ml,v 1.18 1999-11-04 23:11:58 maranget Exp $"
 
 open Misc
 open Text
@@ -89,7 +89,6 @@ let flush_out =Text.flush_out;;
 let skip_line =Text.skip_line;;
 
 (* Gestion des references *)
-let loc_ref=InfoRef.loc_ref;;
 let loc_name=InfoRef.loc_name;;
 
 
@@ -102,25 +101,28 @@ let get_current_output =Text.get_current_output;;
 
 (* Finalisation du fichier info *)
 let finalize check =
-  if !verbose>1 then prerr_endline "Beginning of second phase.";
-  let buf, out_chan = match Parse_opts.name_out with
-  | "" -> 
-      let texte = get_current_output () in 
-      Text.finalize check;
-      Lexing.from_string texte, Out.create_chan stdout
-  | s ->  
-      Text.finalize check;
+  if check then begin
+    if !verbose>1 then prerr_endline "Beginning of second phase.";
+    let buf, out_chan = match Parse_opts.name_out with
+    | "" -> 
+        let texte = get_current_output () in 
+        Text.finalize check;
+        Lexing.from_string texte, Out.create_chan stdout
+    | s ->  
+        Text.finalize check;
       (* changer de nom de fichier (renommer ?) *)
-      let f = s^".tmp" in
-      if !verbose >1 then prerr_endline ("Out file:"^s);
-      Lexing.from_channel  (open_in f),Out.create_chan (open_out s)
-  in
-  InfoRef.finalize_nodes ();
-  InfoRef.set_out out_chan;
-  InfoRef.set_out_file Parse_opts.name_out;
-  InfoRef.main buf;
+        let f = s^".tmp" in
+        if !verbose >1 then prerr_endline ("Out file:"^s);
+        Lexing.from_channel  (open_in f),Out.create_chan (open_out s)
+    in
+    InfoRef.finalize_nodes ();
+    InfoRef.set_out out_chan;
+    InfoRef.set_out_file Parse_opts.name_out;
+    InfoRef.main buf;
   (* deuxieme passe sur le fichier *)
-  if Parse_opts.name_out <> "" then Sys.remove (Parse_opts.name_out^".tmp");
+    if Parse_opts.name_out <> "" then Sys.remove (Parse_opts.name_out^".tmp")
+  end else
+    Text.finalize check
 ;;
 
 let horizontal_line =Text.horizontal_line;;

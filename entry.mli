@@ -8,13 +8,10 @@
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
 (***********************************************************************)
-type res =
-  Bang of string * string
-| Bar of string * string
-| Eof of string * string
-;;
+type key = string list * string list
 
+exception NoGood
 exception Fini
 
-val entry : Lexing.lexbuf -> res
-val idx   : Lexing.lexbuf -> string
+val read_key : Lexing.lexbuf -> key * string option
+val read_indexentry : Lexing.lexbuf -> string * string

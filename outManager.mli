@@ -62,8 +62,7 @@ module type S =
     val flush_out : unit -> unit
     val skip_line : unit -> unit
 
-    val loc_ref : string -> string -> unit
-    val loc_name : string -> string -> unit
+    val loc_name : string -> unit
 
     val open_chan : out_channel  -> unit
     val close_chan : unit -> unit

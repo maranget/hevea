@@ -1,5 +1,6 @@
 \input{article.hva}
 \input{fancysection.hva}
+\newcommand{\heveaurl}{http://pauillac.inria.fr/\home{maranget}/hevea}
 \newcommand{\BibTeX}{Bib\TeX}
 \newenvironment{showlatex}{\begin{toimage}}{\end{toimage}\imageflush}
 \newcommand{\myrule}{\@hr[HR NOSHADE SIZE=1 ALIGN=center]{}{}}
@@ -11,5 +12,6 @@
 }}
 \newcommand{\showcolor}[1]{\textcolor{#1}{\texttt{#1}}}
 \let\@isection=\@indexsection
-\renewcommand{\@indexsection}[1]{\@isection{#1}\label{index}}
+\renewcommand{\@indexsection}[1]{\@isection{\@locname{@index}{#1}}}
 \renewcommand{\cuttingunit}{part}
+\renewcommand{\@footnotelevel}{section}

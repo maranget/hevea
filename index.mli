@@ -9,13 +9,8 @@
 (*                                                                     *)
 (***********************************************************************)
 
-module type T =
-  sig
-    exception Error of string
-    val newindex : string -> string -> string -> unit
-    val changename : string -> string -> unit
-    val treat: (string -> bool) -> string -> string -> string -> unit
-    val print: (string -> unit) -> string -> unit
-  end
-
-module Make (Dest : OutManager.S) : T
+val newindex : string -> string -> string -> string -> unit
+val changename : string -> string -> unit
+val treat:  string -> string -> string -> string
+val print: (string -> unit) -> string -> unit
+val finalize : unit -> unit

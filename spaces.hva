@@ -20,3 +20,9 @@
 \def\enspace{~}
 \def\quad{~~}
 \def\qquad{\quad\quad}
+%% Paragraphs
+\def\noindent{}
+\def\indent{}
+\def\par{
+
+}

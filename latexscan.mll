@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.146 1999-11-02 20:11:01 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.147 1999-11-04 23:12:14 maranget Exp $ *)
 
 
 {
@@ -82,7 +82,7 @@ and env_level = ref 0
 
 let macro_register name =
   if !env_level > 0 then begin
-    if !verbose > 1 then
+    if !verbose > 3 then
       prerr_endline ("Registering macro: "^name);
     macros := name :: !macros
   end
@@ -96,7 +96,7 @@ let fun_register f =
 let macros_unregister () =
   List.iter
    (fun name ->
-     if !verbose > 1 then
+     if !verbose > 3 then
        prerr_endline ("Unregistering macro: "^name) ;
      Latexmacros.unregister name) !macros ;
   let rec do_rec = function
@@ -279,10 +279,10 @@ let do_get_this make_style  lexfun (s,subst) =
     lexfun lexer ;
     top_close_group ()) in
 
+  verbose := !verbose + 1 ;
   if !verbose > 1 then begin
     prerr_endline ("get_this ``"^s^"'' -> ``"^r^"''")
   end ;
-  verbose := !verbose + 1 ;
   end_normal () ;
   Dest.par par_val ;
   r
@@ -1362,45 +1362,6 @@ def_code "\\include" (do_input "\\include") ;
 def_code "\\bibliography" (do_input "\\bibliography")
 ;;
 
-exception AuxFailed
-;;
-
-(*
-let read_aux auxname auxchan  =
-  if !verbose > 0 then
-          prerr_endline ("Input aux file: "^auxname) ;
-        let buf = Lexing.from_channel auxchan in
-        begin try Auxx.main buf with
-        | e ->
-            if !verbose > 0 then
-              prerr_endline ("Failed to read aux file: "^Printexc.to_string e);
-            close_in auxchan ;
-            raise AuxFailed
-        end ;
-        close_in auxchan         
-
-def_code "\\@inputaux"
-    (fun lexbuf ->
-      try         
-        let name,chan = Myfiles.open_tex (base_in^".aux") in
-        read_aux name chan
-      with
-        Myfiles.Error _ ->
-          try
-            let auxname =  base_out^".haux" in
-            let chan = open_in auxname in
-            if !verbose > 0 then
-              prerr_endline ("Input aux file: "^auxname) ;
-            let buf = Lexing.from_channel auxchan in
-            Auxx.main buf ;
-            close_in auxchan  ;
-            Auxx.init base_out ;
-          with Sys_error s -> begin
-            Auxx.init base_out ;
-            if !verbose > 0 then
-              prerr_endline ("I found no aux file, going on")
-          end)
-*)
 (* Command definitions *)
 
 let save_body lexbuf = 
@@ -1954,29 +1915,33 @@ def_code ("\\iffalse") (testif (ref false))
 
 
 (* Bibliographies *)
+let bib_ref s1 s2 =
+  scan_this main ("\\@bibref{"^s1^"}{"^s2^"}")
+;;
+
 def_code "\\cite"
   (fun lexbuf ->
-    let opt = subst_opt "" lexbuf in
+    let opt = save_opt "" lexbuf in
     let args = List.map subst_this (Save.cite_arg lexbuf) in
     Dest.put_char '[' ;
     Dest.open_group "CITE" ;
     let rec do_rec = function
         [] -> ()
-      | [x] -> Dest.loc_ref (get_this main (Auxx.bget x)) x
+      | [x] -> bib_ref x (Auxx.bget x)
       | x::rest ->
-          Dest.loc_ref (get_this main (Auxx.bget x)) x ;
+          bib_ref x (Auxx.bget x) ;
           Dest.put ", " ;
           do_rec rest in
     do_rec args ;
-    if opt <> "" then begin
+    if fst opt <> "" then begin
       Dest.put ", " ;
-      scan_this main opt ;
+      scan_this_arg main opt ;
     end ;
     Dest.close_group () ;
     Dest.put_char ']' )
 ;;
 
-def_fun "\\@bibref" Auxx.bget
+def_fun "\\@bibread" Auxx.bget
 ;;
 let bibcount = ref 0
 ;;
@@ -2153,28 +2118,6 @@ def_code "\\symbol"
 ;;
 
 (* labels *)
-def_code "\\label"
-  (fun lexbuf ->
-    let save_last_closed = Dest.get_last_closed () in
-    let lab = get_prim_arg lexbuf in
-    Dest.loc_name lab "" ;
-    let theref = get_this_nostyle main "\\@currentlabel" in
-    Dest.set_last_closed save_last_closed ;
-    Auxx.rwrite lab theref) ;
-;;
-
-def_code "\\ref"
-  (fun lexbuf ->
-    let lab = get_prim_arg lexbuf in 
-    Dest.loc_ref (get_this main (Auxx.rget lab)) lab)
-;;
-
-def_code "\\pageref"
- (fun lexbuf ->
-    let lab = get_prim_arg lexbuf in
-    Dest.loc_ref "X" lab )
-;;
-
 
 (* Counters *)
 let alpha_of_int i = String.make 1 (Char.chr (i-1+Char.code 'a'))
@@ -2583,6 +2526,12 @@ def_code  "\\@infonode"
     let num = get_this_arg main (save_arg lexbuf) in
     let nom = get_this_arg main (save_arg lexbuf) in
     Dest.infonode opt num nom)
+;;
+
+def_code "\\@infoname"
+  (fun lexbuf ->
+    let arg = get_prim_arg lexbuf in
+    Dest.loc_name arg)
 ;;
 
 def_code "\\@infoNoteFlush"

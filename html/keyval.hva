@@ -1,0 +1,4 @@
+\@beginpackage{keyval}
+\@imagecommand{\setkeys}
+  {\execafter\@imagearg\@imagearg}
+\@endpackage{keyval}

@@ -121,7 +121,7 @@ clean:
 
 cleanall: clean
 	rm -f manual.dvi manual.ps manual[0-9][0-9][0-9].html *_motif.gif \
-	manual*.gif tmp.tex *.image.tex manual.html index.html faq.html hevea.spec
+	manual*.gif tmp.* *.image.tex manual.html index.html faq.html hevea.spec
 
 include ../libs.def
 RPMLIB=/usr/lib/hevea

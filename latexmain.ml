@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmain.ml,v 1.55 1999-11-02 20:10:55 maranget Exp $" 
+let header = "$Id: latexmain.ml,v 1.56 1999-11-04 23:12:04 maranget Exp $" 
 
 open Misc
 open Parse_opts
@@ -65,6 +65,7 @@ let finalize check =
   try
     image_finalize () ;
     Auxx.finalize () ;
+    Index.finalize () ;
     dest_finalize check ;
     if !verbose > 0 && Parse_opts.name_out <> "" then begin
       prerr_endline ("Output is in file: "^Parse_opts.name_out)

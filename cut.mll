@@ -11,7 +11,7 @@
 
 {
 open Lexing
-let header = "$Id: cut.mll,v 1.23 1999-10-05 17:02:20 maranget Exp $" 
+let header = "$Id: cut.mll,v 1.24 1999-11-04 23:11:41 maranget Exp $" 
 
 let verbose = ref 0
 ;;
@@ -290,7 +290,9 @@ let open_notes sec_notes =
       out := Out.create_chan (open_out !outname) ;
       Out.put !out !doctype ; Out.put_char !out '\n' ;
       Out.put !out !html ; Out.put_char !out '\n' ;
-      Out.put !out "<HEAD><TITLE>Notes</TITLE></HEAD>\n" ;
+      Out.put !out "<HEAD><TITLE>Notes</TITLE>\n" ;
+      Out.put !out !common_headers ;
+      Out.put !out "</HEAD>\n" ;
       Out.put !out !body ;
       Out.put !out "\n"
     end
@@ -450,28 +452,9 @@ let close_all () =
 | "<!--" ' '* "FRENCH" ' '* "-->"
     {language := "fra" ;
       main lexbuf}
-| "<A" ' '* ("name"|"NAME") ' '* '=' ' '*
-    {if !phase = 0 then begin
-      let name = refname lexbuf in
-      Cross.add name !outname
-    end else put (lexeme lexbuf) ;
-      main lexbuf}
-| "<A" ' '* ("HREF"|"href") ' '* '=' ' '*
-    {if !phase > 0 then begin
-      let lxm = lexeme lexbuf in
-      let name = refname lexbuf in
-      try
-        let newname =
-          if String.length name > 0 && String.get name 0 = '#' then
-            Cross.fullname (String.sub name 1 (String.length name-1))
-          else name in
-        put lxm ;
-        put "\"" ;
-        put newname ;
-        put "\""
-      with Not_found -> skip_aref lexbuf
-    end ;
-      main lexbuf}
+| "<A" ' '+
+    {if !phase > 0 then put (lexeme lexbuf) ;
+    aargs lexbuf}
 | "<!--HTML" ' '* "HEAD" ' '* "-->" '\n' ?
     {let head = save_html lexbuf in
     if !phase = 0 then
@@ -591,11 +574,44 @@ and tocline = parse
     {Out.put_char toc_buf (lexeme_char lexbuf 0) ;
       tocline lexbuf}
 
+and aargs = parse
+| ("name"|"NAME") ' '* '=' ' '*
+  {if !phase = 0 then begin
+    let name = refname lexbuf in
+    Cross.add name !outname
+  end else
+    put (lexeme lexbuf) ;
+  aargs lexbuf}
+| ("href"|"HREF") ' '* '=' ' '*
+   {if !phase > 0 then begin
+      let lxm = lexeme lexbuf in
+      let name = refname lexbuf in
+      try
+        let newname =
+          if String.length name > 0 && String.get name 0 = '#' then
+            Cross.fullname (String.sub name 1 (String.length name-1))
+          else name in
+        put lxm ;
+        put "\"" ;
+        put newname ;
+        put "\""
+      with Not_found -> ()
+    end ;
+    aargs lexbuf}
+| '>'
+  {if !phase > 0 then put_char '>' ;
+  main lexbuf}
+| _
+  {if !phase > 0 then put_char (lexeme_char lexbuf 0) ;
+  aargs lexbuf}
+| eof
+  {raise (Error "Bad <A ...> tag")}
+
 and refname = parse
 |  '"' [^'"']* '"'
    {let lxm = lexeme lexbuf in
    String.sub lxm 1 (String.length lxm-2)}
-| [^' ''\n''>']+
+| ['a'-'z''A'-'Z''0'-'9']+
    {lexeme lexbuf}
 | "" {raise (Error "Bad reference name syntax")}
 

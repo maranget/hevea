@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.35 1999-11-02 20:11:09 maranget Exp $"
+let header = "$Id: text.ml,v 1.36 1999-11-04 23:12:27 maranget Exp $"
 
 
 open Misc
@@ -833,13 +833,7 @@ let skip_line () =
   put_char '\n'
 ;;
 
-let loc_ref s1 s2 =
-  put s1
-;;
-
-let loc_name s1 s2 =
-  if !verbose >1 then prerr_endline "Text.loc_name";
-  put s2
+let loc_name s1 = ()
 ;;
 
 let open_chan chan =

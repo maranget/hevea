@@ -14,7 +14,7 @@
 %%% Logos
 \def\TeX{\@print{TeX}}
 \def\LaTeX{\@print{L<sup>A</sup>T<sub>E</sub>X}}
-\def\LaTeXe{\@print{L<sup>A</sup>T<sub>E</sub>X2$_{\epsilon}$}}
+\def\LaTeXe{\mbox{\@print{L<sup>A</sup>T<sub>E</sub>X}~$2\epsilon$}}
 \newcommand{\hevea}{\@print{H}{\@incsize{-1}\@print{<sup>E</sup>}}\@print{V}%
 {\@incsize{-1}\@print{<sup>E</sup>}}\@print{A}}
 \newcommand{\hacha}{\@print{H}{\@incsize{-1}\@print{<sup>A</sup>}}\@print{C}%
@@ -24,7 +24,6 @@
 \newcommand{\@aelement}[2]
 {{\@nostyle\@print{<A }\@notags{#1}\@print{>}}{#2}{\@nostyle\@print{</A>}}}
 \newcommand{\ahref}[2]{\@aelement{HREF="#1"}{#2}}
-\newcommand{\@locref}[2]{\ahref{\##1}{#2}}
 \newcommand{\aname}[2]{\@aelement{NAME="#1"}{#2}}
 \def\ahrefurl#1{\ahref{#1}{\texttt{#1}}}
 \let\footurl\ahref
@@ -34,55 +33,27 @@
 {\@nostyle\@print{<IMG SRC="}#2\ifpedantic\@print{" ALT="}#1\fi
 \ifthenelse{\equal{#1}{!*!}}{\@print{"}}{\@print{" }#1}\@print{>}}}
 \newcommand{\anchor}[1]{\@saveclosed{\@nostyle\@print{<A NAME="}#1\@print{"></A>}}\@restoreclosed}
-%% Paragraphs
-\def\noindent{}
-\def\indent{}
-\def\par{
-
-}
+%% Hyper-text references inside the document:
+\newcommand{\@locref}[2]{\ahref{\##1}{#2}}
+\newcommand{\@locname}[2]{\aname{#1}{#2}}
+\newcommand{\@locnameref}[3]{\@aelement{NAME="#1" HREF="\##2"}{#3}}
 \newsavebox{\@htmlhead}
 \newsavebox{\@htmlfoot}
 \newcommand{\htmlhead}[1]{\sbox{\@htmlhead}{#1}}
 \newcommand{\htmlfoot}[1]{\sbox{\@htmlfoot}{#1}}
-%%%%%%%%%%% Footnotes
-\newcommand{\footnoterule}{{\@nostyle\@hr[ALIGN=left WIDTH="50%"]{}{}}}
-\newcommand{\footnotesep}[1]{}
-\newcounter{savenote}\newcounter{onemark}
-\newcommand{\@fnmarktext}[1]{%
-  \setcounter{savenote}{\value{footnote}}%
-  \setcounter{footnote}{#1}%
-  {\@clearstyle\normalfont $^{\mbox{\thefootnote}}$}%
-  \setcounter{footnote}{\value{savenote}}}
-\newcommand{\@fnmarknote}[1]{%
-  \setcounter{savenote}{\value{footnote}}%
-  \setcounter{footnote}{#1}%
-  {\@clearstyle\Large\thefootnote}%
-  \setcounter{footnote}{\value{savenote}}}
-\newcommand{\@openanchor}[3]{%
-{\@nostyle\@print{<A NAME="}#2#3\@print{"></A>}
-\@print{<A HREF="}\#{}#1#3\@print{">}}}
-\newcommand{\@closeanchor}{{\@nostyle\@print{</A>}}}
- \newcommand{\@noteref}[4]{\@aelement{NAME="#2#3" HREF="\##1#3"}{#4}}
-%%%%%%%%%%%%%%%%%%
-\newcommand{\footnotemark}[1][!*!]{%
-\ifthenelse{\equal{#1}{!*!}}%
-  {\stepcounter{footnote}\@stepanchor{\value{footnote}}\setcounter{onemark}{\value{footnote}}}%
-  {\setcounter{onemark}{#1}}%
-\@noteref{note}{text}
-  {\@anchorval{\value{onemark}}}
-  {\@fnmarktext{\value{onemark}}}}
-\newcommand{\footnotetext}[2][\value{footnote}]{\@footnotetext{#1}{#2}}
-\newcommand{\footnote}[2][!*!]{%
-\ifthenelse{\equal{#1}{!*!}}
-  {\footnotemark\footnotetext{#2}}
-  {\footnotemark[#1]\footnotetext[#1]{#2}}}
+%%%%% Footnotes, html dependant part
+\newcommand{\@noteref}[4]{\@locnameref{#2#3}{#1#3}{#4}}
+\newcommand{\@notetextstyle}[1]
+  {{\@clearstyle\normalfont$^{\mbox{#1}$}}}
+\newcommand{\@notenotestyle}[1]
+  {{\@clearstyle\Large{}#1}}
 \newenvironment{thefootnotes}[1]
   {{\@nostyle\@print{<!--BEGIN NOTES }#1\@print{-->
 }}\footnoterule\begin{list}[]{}{\renewcommand{\makelabel}[1]{##1}}}
   {\end{list}{\@nostyle\@print{
 <!--END NOTES-->
 }}}
-%%% for htmlcut
+%%% for HaChA
 \newcounter{cuttingdepth}
 \setcounter{cuttingdepth}{1}
 \newcommand{\cutdef}[2][]{%
@@ -170,18 +141,8 @@
 \input{html/symb-mathml.hva}
 \fi
 %%%%%%%%%%%% Bibliography
-\def\bibliographystyle#1{}
-\def\nocite#1{}
-\newcommand{\bibname}{\iffrench Références\else References\fi}
-\newenvironment{thebibliography}[1]
-  {\@bibliosection{\bibname}%
-  \begin{list}{}
-    {\renewcommand{\makelabel}[1]
-      {{\@nostyle\@print{<A NAME="}\@subst{##1}\@print{">}}%
-       {\purple[\@bibref{##1}]}%
-       {\@nostyle\@print{</A>}}}}}
-  {\end{list}}
-\newcommand{\bibitem}[2][!*!]{\@bibwrite{#1}{#2}\item[#2]}
+\newcommand{\@bibref}[2]{\@locref{#1}{#2}}
+\newcommand{\@biblabel}[1]{\@locname{#1}{\purple[\@bibread{#1}]}}
 %%% Environment document.
 \newcommand{\@bodyargs}{}
 \newcommand{\@meta}{\@print{<META http-equiv="Content-Type" content="text/html; charset= ISO-8859-1">
@@ -189,12 +150,7 @@
 \@print{<META name="GENERATOR" content="hevea }\usebox{\@heveaversion}\@print{">
 }}
 \newenvironment{document}{%
-\@stopoutput
-\@iffileexists{\@basein.aux}
-  {\input{\@basein.aux}}
-  {\input{\jobname.haux}\@hauxinit}
-\@ifundefined{url}{\input{compat.hva}}{}%
-\@restartoutput
+\@atbegindocument
 \@print{<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
             "http://www.w3.org/TR/REC-html40/loose.dtd">
 }\@print{<HTML>
@@ -314,53 +270,6 @@
 \def\textsl#1{\mbox{\slshape#1}}
 \def\textsc#1{\mbox{\scshape#1}}
 \newcommand{\emph}[1]{\mbox{\em#1}}
-%%%%%%%%%%%%%%%%
-\def\makeatletter{}
-\def\makeatother{}
-%%%%%%%%%%%% Ignore head and foot specifications
-\def\cfoot{}
-\def\chead{}
-\newcommand{\rfoot}[2][]{}
-\newcommand{\lfoot}[2][]{}
-\newcommand{\rhead}[2][]{}
-\newcommand{\lhead}[2][]{}
-\newcommand{\chaptermark}[1]{}
-\newcommand{\sectionmark}[1]{}
-\newcommand{\oddsidemargin}{}
-\newcommand{\evensidemargin}{}
-%%%%%%%% various commands
-\def\today{}
-\def\protect{}
-\def\fancyplain#1#2{}
-\def\newblock{}
-\def\nobreak{}
-\def\newdimen#1{}
-\def\samepage{}
-\def\raggedbottom{}
-\def\emergencystretch#1{}
-%%%%%%%%%%%% A few texisms
-\newcommand{\long}{}
-\def\relax{}
-\def\newline{\\}
-%%% For defining Sectioning commands
-\newcounter{secnumdepth}\setcounter{secnumdepth}{3}%
-\newcommand{\checkdepth}[2]{\ifthenelse{\value{secnumdepth} > #1}{#2}{}}%
-\newcommand{\@makesection}[6]{%
-\newcommand{#1}[2][]{%
-\checkdepth{#2}{\refstepcounter{#3}}%
-\ifoptarg\cuthere{#3}{##1}\else\cuthere{#3}{##2}\fi%
-#4\checkdepth{#2}{#5} ##2#6\@secend}%
-\newcommand{#1*}[1]{%
-\cuthere{#3}{##1}%
-#4##1#6\@secend}}%
-\newcommand{\remakesection}[6]{%
-\renewcommand{#1}[2][]{%
-\checkdepth{#2}{\refstepcounter{#3}}%
-\ifoptarg\cuthere{#3}{##1}\else\cuthere{#3}{##2}\fi%
-#4\checkdepth{#2}{#5} ##2#6\@secend}%
-\renewcommand{#1*}[1]{%
-\cuthere{#3}{##1}%
-#4##1#6\@secend}}%
 %%%%%%%%%%%%%%
 % packages   %
 %%%%%%%%%%%%%%

@@ -1,0 +1,23 @@
+\documentclass{article}
+\usepackage{graphicx}
+\setkeys{Gin}{width=4cm}
+\DeclareGraphicsExtensions{{.ps}}
+\DeclareGraphicsRule{.ps.gz}{eps}{.ps.bb}{}
+\begin{document}
+\section{Commande \texttt{\char92 includegraphics}}
+\begin{center}
+\includegraphics{HF}
+\end{center}
+\includegraphics{HF.ps.gz}
+
+\includegraphics*[draft, width=1cm]{HF.ps}
+
+
+\section{Rotations}
+\rotatebox[origin=c]{45}{\scalebox{.5}{\includegraphics{HF.ps}}}
+\newcommand{\monrot}[3][]{\rotatebox[#1]{#2}{#3}}
+\monrot[origin=b]{135}{\scalebox{.5}{\includegraphics{HF.ps}}}
+\monrot{135}{\scalebox{.5}{\includegraphics{HF.ps}}}
+
+
+\end{document}

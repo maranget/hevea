@@ -8,25 +8,126 @@
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
 (***********************************************************************)
-module type T =
-  sig
-    exception Error of string
-    val newindex : string -> string -> string -> unit
-    val changename : string -> string -> unit
-    val treat: (string -> bool) -> string -> string -> string -> unit
-    val print: (string -> unit) -> string -> unit
-  end
 
-module Make (Dest : OutManager.S) =
-struct
-
-let header = "$Id: index.ml,v 1.31 1999-11-02 20:10:53 maranget Exp $"
+let header = "$Id: index.ml,v 1.32 1999-11-04 23:11:55 maranget Exp $"
 open Misc
 open Parse_opts
 open Entry
 
 
-exception Error of string
+let missing_index tag =
+  Misc.warning
+    ("Index structure not found, missing "^
+    (match tag with
+    | "default" -> "\\makeindex"
+    | _  -> "\\newindex{"^tag^"}.."))
+;;
+
+
+type entry = {key : key ; see : string option ; item : string}
+;;
+
+let bad_entry = {key = [],[] ; see = None ; item = "??"}
+;;
+
+let first_key = function 
+  | (x::_),_ -> x
+  | _ -> raise (Misc.Fatal ("Empty key in first_key"))
+
+let pretty_key (l,p) =
+ let rec p_rec l p = match l,p with
+   [],[] -> ""
+ | [x],[""]-> x
+ | [x],[y]-> x^"@"^y
+ | x::xs,""::ys -> x^"!"^p_rec xs ys
+ | x::xs,y::ys -> x^"@"^y^"!"^p_rec xs ys
+ |  _,_ -> assert false in
+ p_rec l p
+;;
+
+let pretty_entry (k,_) = pretty_key k
+;;
+
+exception NoGood of string
+;;
+
+type t_index =
+  {mutable name : string ;
+  sufin : string ; sufout : string ;
+  from_file : entry array option ;
+  from_doc : entry Table.t ;
+  out : Out.t}
+
+let itable = Hashtbl.create 17
+;;
+
+
+let read_index_file name file =
+  let lexbuf = Lexing.from_channel file in
+  let r = Table.create bad_entry in
+  let rec do_rec () =
+    try
+      let arg1,arg2 = read_indexentry lexbuf in
+      let k,see =
+        try read_key (Lexing.from_string arg1) 
+        with NoGood _ -> raise (NoGood arg1) in
+      Table.emit r {key=k ; see=see ; item = arg2} ;
+      do_rec ()
+    with
+    | Entry.Fini -> Table.trim r
+    | NoGood arg -> begin
+        Misc.warning
+          ("bad index arg syntax in file: "^name^
+           " arg is "^arg) ;
+        Table.emit r bad_entry ; do_rec ()
+    end in
+    
+  let r = do_rec () in
+  if !verbose > 0 then
+    prerr_endline ("Index file: "^name^" succesfully read");
+  Some r
+
+let find_index tag = Hashtbl.find itable tag
+
+let changename tag name =
+  try
+    let idx = find_index  tag in
+    idx.name <- name
+  with Not_found -> missing_index tag
+
+let index_lbl tag i = "@"^tag^string_of_int i
+let index_filename suff = Parse_opts.base_out^".h"^suff
+
+
+let treat tag arg refvalue =
+  try
+    if !verbose > 2 then prerr_endline ("Index.treat with arg: "^arg) ;
+    let {from_doc = from_doc ; out = out} =  find_index tag in
+    let lbl = index_lbl tag (Table.get_size from_doc) in
+    let item = "\\@locref{"^lbl^"}{"^refvalue^"}" in
+    Out.put out "\\indexentry{" ;
+    Out.put out arg ;
+    Out.put out "}{" ;
+    Out.put out item ;
+    Out.put out "}\n" ;
+    
+    let lexbuf = Lexing.from_string arg in
+    begin try
+      let key,see = read_key lexbuf in
+      Table.emit from_doc {key = key ; see = see ; item = item}
+    with
+    | NoGood _ ->
+        Misc.warning ("Bad index syntax: "^arg) ;
+        Table.emit from_doc bad_entry
+    end ;
+    lbl
+  with
+  | Not_found -> missing_index tag ; ""
+;;
+
+
+(* Compare function for keys *)
+
 
 let is_alpha c =  ('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z')
 
@@ -82,60 +183,6 @@ let comp (l1,p1) (l2,p2) =
   c_rec l1 l2 p1 p2
 ;;
 
-type key = string list * string list
-;;
-
-type entry = key * string
-;;
-
-let first_key = function 
-  | (x::_),_ -> x
-  | _ -> raise (Misc.Fatal ("Empty key in first_key"))
-
-let pretty_key (l,p) =
- let rec p_rec l p = match l,p with
-   [],[] -> ""
- | [x],[""]-> x
- | [x],[y]-> x^"@"^y
- | x::xs,""::ys -> x^"!"^p_rec xs ys
- | x::xs,y::ys -> x^"@"^y^"!"^p_rec xs ys
- |  _,_ -> assert false in
- p_rec l p
-;;
-
-let pretty_entry (k,_) = pretty_key k
-;;
-
-exception NoGood of string
-;;
-
-let read_index lexbuf =
-    
-  let bar () = match entry lexbuf with
-    Eof (s,_) -> s
-  | _         ->  raise (NoGood "") in
-
-  let rec get_rec () = match entry  lexbuf with
-    Bang (i,p) ->
-      let l,see = get_rec () in
-      (i,p)::l,see
-  | Bar (i,p) ->
-      let see = bar () in
-      [i,p],see
-  | Eof (i,p) -> [i,p],"" in
-
-  let separe (l,see) =
-    let rec sep_rec = function
-      [] -> [],[]
-    | (x,y)::r ->
-        let xs,ys = sep_rec r in
-        x::xs,y::ys in
-    let xs,ys = sep_rec l in
-    ((xs,ys),see) in
-
-  separe (get_rec ())
-;;
-
 module OrderedKey = struct
   type t = key
   let compare = comp
@@ -146,41 +193,7 @@ module KeySet =  Set.Make(OrderedKey)
 ;;
 
 open KeySet
-
-
-type idx = No | Yes of entry array
-;;
-
-let (itable:
-   (string,
-   string * KeySet.t ref * (key, (string * string * string)) Hashtbl.t * int ref * idx * out_channel)
-   Hashtbl.t) = Hashtbl.create 17
-;;
-
-let bad_entry = (([],[]),"")
-;;
-
-let read_index_file name file =
-  let lexbuf = Lexing.from_channel file in
-  let rec do_rec () = try
-    let arg = Entry.idx lexbuf in
-    let k =
-      try read_index (Lexing.from_string arg) 
-      with NoGood _ -> raise (NoGood arg) in
-    k::do_rec ()
-  with
-  | Entry.Fini -> []
-  | NoGood arg -> begin
-      Misc.warning
-        ("bad index arg syntax in file: "^name^
-         " arg is "^arg) ;
-      bad_entry::do_rec ()
-  end in
-    
-  let r = do_rec () in
-  if !verbose > 0 then
-    prerr_endline ("Index file: "^name^" succesfully read");
-  Yes (Array.of_list r)
+      
 
 let rec common e1 e2 = match e1,e2 with
   ([],_),_        -> e1,e2
@@ -194,10 +207,11 @@ let rec common e1 e2 = match e1,e2 with
       e1,e2
 |  _ -> assert false
 ;;
+
 let rec close_prev out = function
   [],_ | [_],_ -> ()
 | _::r,_::p    ->
-    output_string out "\\end{itemize}\n" ;
+    Out.put out "\\end{itemize}\n" ;
     close_prev out (r,p)
 |  _ -> assert false
 ;;
@@ -205,12 +219,12 @@ let rec close_prev out = function
 let rec open_this out k = match k with
   [],_ -> ()
 | k::r,p::rp ->
-    output_string out "\\item" ;
+    Out.put out "\\item " ;
     let tag = if p <> "" then p else k in
-    output_string out tag  ;
+    Out.put out tag  ;
     begin match r with
       [] -> ()
-    | _  -> output_string out "\\begin{itemize}\n" ;
+    | _  -> Out.put out "\\begin{itemize}\n" ;
     end ;
     open_this out (r,rp)
 |  _ -> assert false
@@ -221,247 +235,132 @@ let start_change s1 s2 = match s1,s2 with
 | _,"" -> false
 | _,_  -> Char.uppercase s1.[0] <> Char.uppercase s2.[0]
 
-let print_entry out bk k xs  =
+let print_entry out tag entries bk k xs  =
   let rp,rt = common bk k in
   close_prev out rp ;
   if fst rp = [] then
-    output_string out "\\begin{itemize}\n"
+    Out.put out "\\begin{itemize}\n"
   else begin
     let top_prev = first_key bk
     and top_now = first_key k in
     if start_change top_prev top_now then
-      output_string out "\\par"
+      Out.put out "\\indexspace\n"
   end ;
   open_this out rt ;  
+
   let rec prints = function
-    [] -> ()
-  | (label,x,m)::r ->
-      let arg = match m with
-      |  "" -> begin match x with "" -> "*" | _ -> x end
-      | _  -> "\\"^m^"{"^x^"}" in
-      let no_ref = String.length m > 3 && String.sub m 0 3 = "see" in
-      output_string out (if no_ref then arg
-      else "\\indexref{"^arg^"}{"^label^"}") ;
-      if r <> [] then begin
-        output_string out ", " ;
-        prints r
-      end in
+    [] -> Out.put_char out '\n'
+  | i::r ->
+      Out.put out ", " ;
+      let e = entries.(i) in
+      begin match e.see with
+      | None     ->  Out.put out e.item
+      | Some see ->  Out.put out ("\\"^see^"{"^e.item^"}")
+      end ;
+      prints r in
+
    prints (List.rev xs)
 ;;
 
      
-    
-let output_index main tag =
+let make_index t =
+  let table = Hashtbl.create 17
+  and all = ref KeySet.empty in
+  for i = 0 to Array.length t - 1 do
+    let e = t.(i) in
+    all := KeySet.add e.key !all ;
+    Hashtbl.add table e.key i
+  done ;
+  !all,table
+
+
+let output_index tag name entries out =
   if !verbose > 1 then prerr_endline ("Print index ``"^tag^"''") ;
-  let name,all,table,_,_,outfile = find_index tag in
-  close_out outfile ;
-  let out = open_out "zorglub" ;
-  out_string out ("\\@indexsection{"^name^"}\n") ;
+  let all_keys,table = make_index entries in
   let prev = ref ([],[]) in
   KeySet.iter (fun k ->
     if !verbose > 2 then
       prerr_endline ("Print_entry: "^pretty_key k);
-    print_entry out !prev k (Hashtbl.find_all table k) ;
+    print_entry out tag entries !prev k (Hashtbl.find_all table k) ;
     prev := k)
- !all ;
- let pk,_ = !prev in
- List.iter (fun _ -> Dest.close_block "UL") pk ;
-;;
+    all_keys ;
+  let pk,_ = !prev in
+  List.iter (fun _ -> Out.put out "\\end{itemize}\n") pk
 
-let newindex tag suf name =  
-  let idxstruct =
-    if !read_idx then begin
-      try
-        let filename = Parse_opts.base_in^"."^suf in
-        let fullname,chan = Myfile.open_tex filename in
-        read_index_file fullname chan 
+
+let newindex tag sufin sufout name =  
+  let from_file =
+    try
+      let filename = index_filename sufin in
+      let file = open_in filename in
+      read_index_file filename file
+    with Sys_error _ -> None in
+  begin match from_file with
+  | None -> ()
+  | Some t ->
+      let outname = index_filename sufout in
+      try 
+        let chan = open_out outname in
+        output_index tag name t (Out.create_chan chan) ;
+        close_out chan
       with
-      | Myfiles.Error msg -> begin
-          Misc.warning
-            ("Cannot find LaTeX index file: "^msg^", I try to manage") ;
-          No end
-      | Myfiles.Except -> begin
-          if !verbose > 0 then
-            prerr_endline ("Not reading file: "^filename);
-          No end    
-      end else begin
-        try
-          let filename = Parse_opts.base_out^".h"^suf in
-          let file = open_in filename in
-          read_index_file filename file
-        with Sys_error _ -> No
-      end in
-  let outfile = open_out (Parse_opts.base_out^".h"^suf) in
-  let all = ref empty
-  and table = Hashtbl.create 17
-  and count = ref 0 in
-  Hashtbl.add itable tag (name,all,table,count,idxstruct,outfile)
-;;
-
-
-let check_key lexcheck ((l,p),_) =
-  let rec check_rec xs ys = match xs,ys with
-    | [],[] -> true
-    | x::xs,""::ys ->
-        lexcheck x &&
-        check_rec xs ys
-    | _::xs,y::ys ->
-        lexcheck y &&
-        check_rec xs ys
-    | _,_ -> assert false in
-  let r = check_rec l p in
-  if not r then begin
-    raise (Error ("Index key ``"^pretty_key (l,p)^"'' is incorrect")) ;
+      | Sys_error s ->
+        Misc.warning ("File error for "^outname^": "^s)
   end ;
-  r
+  Hashtbl.add itable tag
+    {name = name ;
+    sufin = sufin ; sufout = sufout ;
+    from_file = from_file ;
+    from_doc = Table.create bad_entry ;
+    out = Out.create_buff ()}
 
-let find_index tag =
-  try Hashtbl.find itable tag
-  with Not_found ->
-    raise (Error ("Missing \makeindex for index: "^tag))
-
-let changename tag name =
-  try
-    let _,r1,r2,r3,r4,r5 = Hashtbl.find itable tag in
-    Hashtbl.remove itable tag ;
-    Hashtbl.add itable tag (name,r1,r2,r3,r4,r5)        
-  with Not_found ->
-    Misc.warning ("Index.changename of "^tag^": no such index")
-
-
-let treat lexcheck tag arg refvalue =
-  try
-    if !verbose > 2 then prerr_endline ("Index.treat with arg: "^arg) ;
-    let name,all,table,count,idxstruct,outfile = find_index tag in
-    output_string outfile "\\indexentry{" ;
-    output_string outfile arg ;
-    output_string outfile "}{" ;
-    output_string outfile refvalue ;
-    output_string outfile "}\n" ;
-    let lexbuf = Lexing.from_string arg in
-    let key = 
-      let ((ka,_),_ as key_arg) =
-         try read_index lexbuf with
-         NoGood _ -> begin
-           bad_entry
-         end
-      and ((ki,_),_ as key_idx) = match idxstruct with
-        No    -> bad_entry
-      | Yes t ->
-       if !count >= Array.length t then bad_entry else t.(!count) in
-       if key_idx = bad_entry then key_arg
-       else key_idx in
-    if !verbose > 2 then
-      prerr_endline ("Finally arg is: "^pretty_entry key) ;
-    let label = ("@"^tag^string_of_int !count) in
-    if key <> bad_entry && check_key lexcheck key then begin
-      Dest.loc_name label "" ;
-      let key,macro = key in
-      Hashtbl.add table key (label,refvalue,macro) ;
-      all := add key !all
-    end else 
-      Misc.warning ("Warning, bad index arg syntax: "^arg) ;
-    count := !count + 1 ;
-    if !verbose > 2 then
-      prerr_endline ("Treat out: count="^string_of_int !count)
-  with Not_found -> begin
-    Misc.warning
-      ("Index: "^tag^" is undefined, makeindex or newindex is missing")
-  end
-;;
-
-      
-let rec common e1 e2 = match e1,e2 with
-  ([],_),_        -> e1,e2
-| _,([],_)        -> e1,e2
-| ([_],_),([_],_) -> e1,e2
-| (_::_,_),([_],_) -> e1,e2
-| (x1::r1,_::p1),(x2::r2,_::p2) ->
-    if x1=x2 then
-      common (r1,p1) (r2,p2)
-    else
-      e1,e2
-|  _ -> assert false
-;;
-let rec close_prev = function
-  [],_ | [_],_ -> ()
-| _::r,_::p    ->  Dest.close_block "UL" ; close_prev (r,p)
-|  _ -> assert false
-;;
-
-let rec open_this  main k = match k with
-  [],_ -> ()
-| k::r,p::rp ->
-    Dest.item () ;
-    let tag = if p <> "" then p else k in
-    begin try
-      main tag 
-    with x -> begin
-      prerr_endline ("Something wrong with index: "^tag) ;
-      raise x end
-    end ;
-    begin match r with
-      [] -> ()
-    | _  -> Dest.open_block "UL" "" 
-    end ;
-    open_this main (r,rp)
-|  _ -> assert false
-;;
-
-let start_change s1 s2 = match s1,s2 with
-| "",_ -> false
-| _,"" -> false
-| _,_  -> Char.uppercase s1.[0] <> Char.uppercase s2.[0]
-
-let print_entry main bk k xs  =
-  let rp,rt = common bk k in
-  close_prev rp ;
-  if fst rp = [] then
-    Dest.open_block "UL" ""
-  else begin
-    let top_prev = first_key bk
-    and top_now = first_key k in
-    if start_change top_prev top_now then
-      main "\\par"
-  end ;
-  open_this main rt ;  
-  let rec prints = function
-    [] -> ()
-  | (label,x,m)::r ->
-      let arg = match m with
-      |  "" -> begin match x with "" -> "*" | _ -> x end
-      | _  -> "\\"^m^"{"^x^"}" in
-      let no_ref = String.length m > 3 && String.sub m 0 3 = "see" in
-      main (if no_ref then arg
-      else "\\indexref{"^arg^"}{"^label^"}") ;
-      if r <> [] then begin
-        Dest.put ", " ;
-        prints r
-      end in
-   Dest.put_nbsp ();
-   Dest.put_nbsp ();
-   prints (List.rev xs)
-;;
-
-     
-    
 let print main tag =
-  if !verbose > 1 then prerr_endline ("Print index ``"^tag^"''") ;
-  let name,all,table,_,_,outfile = find_index tag in
-  close_out outfile ;
-  main ("\\@indexsection{"^name^"}") ;
-  let prev = ref ([],[]) in
-  KeySet.iter (fun k ->
-    if !verbose > 2 then
-      prerr_endline ("Print_entry: "^pretty_key k);
-    print_entry main !prev k (Hashtbl.find_all table k) ;
-    prev := k)
- !all ;
- let pk,_ = !prev in
- List.iter (fun _ -> Dest.close_block "UL") pk ;
-;;
+  try
+    let idx = find_index tag in
+    main ("\\@indexsection{"^idx.name^"}") ;
+    let indname = index_filename idx.sufout in
+    if Sys.file_exists indname then
+      main ("\\input{"^indname^"}")
+    else begin
+      let out = Out.create_buff () in
+      output_index tag idx.name (Table.trim idx.from_doc) out ;
+      main (Out.to_string out)
+    end
+  with
+  | Not_found -> missing_index tag
 
-end
+let diff_entries e1 e2 =
+  let l1 = Array.length e1 and l2 = Array.length e2 in
+  if l1 <> l2 then true
+  else
+    let rec diff_rec i =
+      if i >= l1 then false
+      else
+        e1.(i) <> e2.(i) || diff_rec (i+1) in
+    diff_rec 0
 
-
-
+let finalize () =
+  Hashtbl.iter
+    (fun tag idx ->
+      let entries = Table.trim idx.from_doc in
+      let changed =
+        match idx.from_file with
+        | Some t -> diff_entries t entries
+        | None   -> Array.length entries <> 0 in
+      if changed then begin
+        prerr_endline  "HeVeA Warning: Index(es) may have changed. Rerun to get them right." ;
+        let idxname = index_filename idx.sufin in
+        try
+          if Array.length entries = 0 then
+            Sys.remove idxname 
+          else begin
+            let chan = open_out idxname in
+            Out.to_chan chan idx.out ;
+            close_out chan
+          end
+        with
+        | Sys_error s ->
+            Misc.warning
+              ("File error on "^idxname^": "^s)
+      end)
+    itable

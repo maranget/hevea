@@ -1,6 +1,6 @@
 \@beginpackage{multind}
 \usepackage{index}
-\renewcommand{\makeindex}[1]{\newindex{#1}{#1}{}{Index}}
+\renewcommand{\makeindex}[1]{\newindex{#1}{#1}{#1.ind}{Index}}
 \let\oldprintindex=\printindex
 \renewcommand{\printindex}[2]{\@indexname[#1]{#2}\oldprintindex[#1]}
 \let\oldindex=\index

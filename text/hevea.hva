@@ -20,55 +20,26 @@
 \newcommand{\hacha}{\@print{HaChA}}
 \newcommand{\html}{\@print{HTML}}
 %%% HTML related stuff (TEX equivalents are in the hevea.sty file)
-\def\@url#1#2{#2 (#1)}
-\def\url#1#2{\@url{#1}{#2}}
-\def\footurl#1#2{\@url{#1}{#2}}
-\def\home#1{\char126#1}
-\def\oneurl#1{\texttt{#1}}
-\newcommand{\docurl}{http://para.inria.fr/\home{maranget}/hevea}
-\newcommand{\mailto}[1]{\@url{mailto:#1}{#1}}
+\newcommand{\ahref}[2]{\footurl{#1}{#2}}
+\newcommand{\aname}[2]{#2}
+\newcommand{\ahrefurl}[1]{#1}
+\newcommand{\footurl}[2]{#2\footnote{#1}}
+\newcommand{\mailto}[1]{\ahref{mailto:#1}{#1}}
 %%%% HTML constructs (no equivalents in html.sty)
 \newcommand{\imgsrc}[1]{}
 \newcommand{\anchor}[1]{}
-%% Paragraphs
-\def\noindent{}
-\def\indent{}
-\def\par{
-
-}
+%% Hyper-text references inside the document:
+\newcommand{\@locref}[2]{#2}
+\newcommand{\@locname}[2]{#2}
+\newcommand{\@locnameref}[3]{#3}
 \newsavebox{\@htmlhead}
 \newsavebox{\@htmlfoot}
 \newcommand{\htmlhead}[1]{\sbox{\@htmlhead}{#1}}
 \newcommand{\htmlfoot}[1]{\sbox{\@htmlfoot}{#1}}
-%%%%%%%%%%% Footnotes
-\newcommand{\footnoterule}{{\@nostyle\@printHR{}{50}}}
-\newcommand{\footnotesep}[1]{}
-\newcounter{savenote}\newcounter{onemark}
-\newcommand{\@fnmarktext}[1]{%
-  \setcounter{savenote}{\value{footnote}}%
-  \setcounter{footnote}{#1}%
-  {\@clearstyle\normalfont(\thefootnote)}%
-  \setcounter{footnote}{\value{savenote}}}
-\newcommand{\@fnmarknote}[1]{%
-  \setcounter{savenote}{\value{footnote}}%
-  \setcounter{footnote}{#1}%
-  {\@clearstyle\Large\thefootnote}%
-  \setcounter{footnote}{\value{savenote}}}
-\newcommand{\@openanchor}[3]{}
-\newcommand{\@closeanchor}{}
-%%%%%%%%%%%%%%%%%%
-\newcommand{\footnotemark}[1][!*!]{%
-\ifthenelse{\equal{#1}{!*!}}%
-  {\stepcounter{footnote}\@stepanchor{\value{footnote}}\setcounter{onemark}{\value{footnote}}}%
-  {\setcounter{onemark}{#1}}%
-\@openanchor{note}{text}{\@anchorval{\value{onemark}}}%
-\@fnmarktext{\value{onemark}}%
-\@closeanchor}
-\newcommand{\footnotetext}[2][\value{footnote}]{\@footnotetext{#1}{#2}}
-\newcommand{\footnote}[2][!*!]{%
-\ifthenelse{\equal{#1}{!*!}}
-  {\footnotemark\footnotetext{#2}}
-  {\footnotemark[#1]\footnotetext[#1]{#2}}}
+%%%%%%%%%%% Footnotes text dependant part
+\newcommand{\@noteref}[4]{#4}
+\newcommand{\@notetextstyle}[1]{~(#1)}
+\newcommand{\@notenotestyle}[1]{(#1)}
 \newenvironment{thefootnotes}[1]
   {\footnoterule\begin{list}[]{}{\renewcommand{\makelabel}[1]{(##1)}}}
   {\end{list}}
@@ -78,12 +49,8 @@
 \setcounter{cuttingdepth}{1}
 \newcommand{\cutdef}[2][]{}
 \newcommand{\cutend}{}
-\newcommand{\cuthere}[2]{%
-\@footnoteflush{#1}%
-{\@nostyle\@print{ }%\@notags{#1}\@print{ }%
-%#2
-}%
-}
+\newcommand{\cuthere}[2]{\@footnoteflush{#1}}
+\newcommand{\@secend}{}
 %%%%%%%%%%%%%
 % Maketitle %
 %%%%%%%%%%%%%
@@ -120,20 +87,13 @@
 \def\prod{\ifdisplay{\@displayprod}\else\@prod\fi}
 \def\int{\ifdisplay\@displayint\else{\large\@int}\fi}
 %%%%%%%%%%%% Bibliography
-\def\bibliographystyle#1{}
-\def\nocite#1{}
-\newcommand{\bibname}{\iffrench Références\else References\fi}
-\newenvironment{thebibliography}[1]
-  {\@bibliosection{\bibname}%
-  \begin{list}{}
-    {\renewcommand{\makelabel}[1]{[\@bibref{##1}]}}}
-  {\end{list}}
-\newcommand{\bibitem}[2][!*!]{\@bibwrite{#1}{#2}\item[#2]}
+\newcommand{\@bibref}[2]{#2}
+\newcommand{\@biblabel}[1]{[\@bibread{#1}]}
 %%%%%%%%%%%%%%%%%%%%%%%%
 % Document environment %
 %%%%%%%%%%%%%%%%%%%%%%%%
 \newenvironment{document}{%
-\@ifundefined{url}{\input{compat.hva}}{}%
+\@atbegindocument%
 \cutdef[\thecuttingdepth]{\cuttingunit}%
 \renewcommand{\thefootnote}{\arabic{footnote}}%
 \setcounter{footnote}{0}%
@@ -215,33 +175,4 @@
 \newcommand{\emph}[1]{\mbox{\em#1}}
 %%% Colors
 \newcommand{\textcolor}[2]{{\color{#1}#2}}
-%%%%%%%%%%%%%%%%
-\def\makeatletter{}
-\def\makeatother{}
-%%%%%%%%%%%% Ignore head and foot specifications
-\def\cfoot{}
-\def\chead{}
-\newcommand{\rfoot}[2][]{}
-\newcommand{\lfoot}[2][]{}
-\newcommand{\rhead}[2][]{}
-\newcommand{\lhead}[2][]{}
-\newcommand{\chaptermark}[1]{}
-\newcommand{\sectionmark}[1]{}
-\newcommand{\oddsidemargin}{}
-\newcommand{\evensidemargin}{}
-%%%%%%%% various commands
-\def\today{}
-\def\protect{}
-\def\fancyplain#1#2{}
-\def\newblock{}
-\def\nobreak{}
-\def\newdimen#1{}
-\def\samepage{}
-\def\raggedbottom{}
-\def\emergencystretch#1{}
-%%%%%%%%%%%% A few texisms
-\newcommand{\long}{}
-\def\relax{}
-\def\newline{\\}
-%%% videoc
-\newcommand{\IfFileExists}[3]{\ifthenelse{\@fileexists{#1}}{#2}{#3}}
+\def\csname hevea@loaded\endcsname{}

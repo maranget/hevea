@@ -11,7 +11,7 @@
 
 open Misc
 
-let header = "$Id: auxx.ml,v 1.1 1999-11-02 20:10:46 maranget Exp $" 
+let header = "$Id: auxx.ml,v 1.2 1999-11-04 23:11:37 maranget Exp $" 
 
 let rtable = Hashtbl.create 17
 ;;
@@ -28,7 +28,7 @@ let rget name =
 let btable = Hashtbl.create 17
 ;;
 
-let bset name value = Hashtbl.add btable name value
+let bset name value =  Hashtbl.add btable name value
 ;;
 
 let bget name =
@@ -70,13 +70,37 @@ let write table output_fun key pretty = match !auxfile with
     something := true ;
     changed :=
        !changed ||
-       (try let old = Hashtbl.find table key in old <> pretty
-         with Not_found -> true) ;
+       (try let olds = Hashtbl.find_all table key in
+       match olds with
+       | []    -> true
+       | [old] -> pretty <> old
+       | _     -> false (* In that case, can't tell *)
+       with Not_found -> true) ;
     output_fun file
 ;;
 
+let bseen = Hashtbl.create 17
+let bcheck key =
+  try
+    let _ = Hashtbl.find bseen key in
+    warning ("Multiple definitions for citation: "^key)
+  with
+  | Not_found ->
+      Hashtbl.add bseen key ()
+
+let rseen = Hashtbl.create 17
+let rcheck key =
+  try
+    let _ = Hashtbl.find rseen key in
+    warning ("Multiple definitions for label: "^key)
+  with
+  | Not_found ->
+      Hashtbl.add rseen key ()
+
+
 let bwrite key pretty =
-  write btable
+  bcheck key ;
+  write  btable
     (fun file ->
       output_string file "\\bibcite{" ;
       output_string file key ;
@@ -84,6 +108,7 @@ let bwrite key pretty =
       output_string file pretty ;
       output_string file "}\n") key pretty
 and rwrite key pretty =
+  rcheck key ;
   write rtable
     (fun file ->
       output_string file "\\newlabel{" ;

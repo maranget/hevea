@@ -133,7 +133,34 @@
 \newcommand{\settoheight}[2]{}
 \newcommand{\fill}{}
 \newcommand{\stretch}[1]{}
-%%
+%%%%%%%%%%%%%%%%
+\def\makeatletter{}
+\def\makeatother{}
+%%%%%%%%%%%% Ignore head and foot specifications
+\def\cfoot{}
+\def\chead{}
+\newcommand{\rfoot}[2][]{}
+\newcommand{\lfoot}[2][]{}
+\newcommand{\rhead}[2][]{}
+\newcommand{\lhead}[2][]{}
+\newcommand{\chaptermark}[1]{}
+\newcommand{\sectionmark}[1]{}
+\newcommand{\oddsidemargin}{}
+\newcommand{\evensidemargin}{}
+%%%%%%%% various commands
+\def\today{}
+\def\protect{}
+\def\fancyplain#1#2{}
+\def\newblock{}
+\def\nobreak{}
+\def\newdimen#1{}
+\def\samepage{}
+\def\raggedbottom{}
+\def\emergencystretch#1{}
+%%%%%%%%%%%% A few texisms
+\newcommand{\long}{}
+\def\relax{}
+\def\newline{\\}
 %% Arrays and tabular
 \newcommand{\extracolsep}[1]{}
 \newcommand{\cline}[1]{\warning{Warning, \cline changed into \hline}\hline}
@@ -157,3 +184,71 @@
 \newcommand{\citation}[1]{}
 \newcommand{\bibdata}[1]{}
 \newcommand{\bibstyle}[1]{}
+\newcommand{\label}[1]
+  {\@saveclosed\@locname{#1}{}\@auxwrite{#1}{\@currentlabel}\@restoreclosed}
+\newcommand{\ref}[1]{\@locref{#1}{\@auxread{#1}}}
+\newcommand{\pageref}[1]{\@locref{#1}{??}}
+\AtBeginDocument
+{\@stopoutput\@stopimage%
+\@iffileexists{\@basein.aux}
+  {\input{\@basein.aux}}
+  {\input{\jobname.haux}\@hauxinit}%
+\@restartoutput\@restartimage}
+%%%%%%%%%%% Bibliography
+\def\bibliographystyle#1{}
+\def\nocite#1{}
+\newcommand{\bibname}{\iffrench Références\else References\fi}
+\newenvironment{thebibliography}[1]
+  {\@bibliosection{\bibname}%
+  \begin{list}{}
+    {\renewcommand{\makelabel}[1]{\@biblabel{##1}}}}
+  {\end{list}}
+\newcommand{\bibitem}[2][!*!]{\@bibwrite{#1}{#2}\item[#2]}
+%%%%%%%%%%% Footnotes
+\newcommand{\footnoterule}{{\@nostyle\@hr[ALIGN=left WIDTH="50%"]{}{}}}
+\newcommand{\footnotesep}[1]{}
+\newcounter{savenote}\newcounter{onemark}
+\newcommand{\@fnmarktext}[1]{%
+  \setcounter{savenote}{\value{footnote}}%
+  \setcounter{footnote}{#1}%
+  \@notetextstyle{\thefootnote}%
+  \setcounter{footnote}{\value{savenote}}}
+\newcommand{\@fnmarknote}[1]{%
+  \setcounter{savenote}{\value{footnote}}%
+  \setcounter{footnote}{#1}%
+  \@notenotestyle{\thefootnote}%
+  \setcounter{footnote}{\value{savenote}}}
+%%%%%%%%%%%%%%%%%%
+\newcommand{\footnotemark}[1][!*!]{%
+\ifthenelse{\equal{#1}{!*!}}%
+  {\stepcounter{footnote}\@stepanchor{\value{footnote}}\setcounter{onemark}{\value{footnote}}}%
+  {\setcounter{onemark}{#1}}%
+\@noteref{note}{text}
+  {\@anchorval{\value{onemark}}}
+  {\@fnmarktext{\value{onemark}}}}
+\newcommand{\footnotetext}[2][\value{footnote}]{\@footnotetext{#1}{#2}}
+\newcommand{\footnote}[2][!*!]{%
+\ifthenelse{\equal{#1}{!*!}}
+  {\footnotemark\footnotetext{#2}}
+  {\footnotemark[#1]\footnotetext[#1]{#2}}}
+%%% For defining Sectioning commands
+\newcounter{secnumdepth}\setcounter{secnumdepth}{3}%
+\newcommand{\checkdepth}[2]{\ifthenelse{\value{secnumdepth} > #1}{#2}{}}%
+\newcommand{\@makesection}[6]{%
+\newcommand{#1}[2][]{%
+\checkdepth{#2}{\refstepcounter{#3}}%
+\ifoptarg\cuthere{#3}{##1}\else\cuthere{#3}{##2}\fi%
+#4\checkdepth{#2}{#5} ##2#6\@secend}%
+\newcommand{#1*}[1]{%
+\cuthere{#3}{##1}%
+#4##1#6\@secend}}%
+\newcommand{\remakesection}[6]{%
+\renewcommand{#1}[2][]{%
+\checkdepth{#2}{\refstepcounter{#3}}%
+\ifoptarg\cuthere{#3}{##1}\else\cuthere{#3}{##2}\fi%
+#4\checkdepth{#2}{#5} ##2#6\@secend}%
+\renewcommand{#1*}[1]{%
+\cuthere{#3}{##1}%
+#4##1#6\@secend}}%
+%%%%%%%%%% Compatibility with old hevea \url
+\AtBeginDocument{\@ifundefined{url}{\input{compat.hva}}{}}

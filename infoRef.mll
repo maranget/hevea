@@ -10,7 +10,7 @@
 (***********************************************************************)
 
 {
-let header = "$Id: infoRef.mll,v 1.12 1999-08-17 13:26:33 maranget Exp $"
+let header = "$Id: infoRef.mll,v 1.13 1999-11-04 23:12:00 maranget Exp $"
 ;;
 
 
@@ -74,7 +74,7 @@ let infomenu arg =
 ;;
 
 let rec cherche_menu m = function
-  | [] -> raise (Error ("Menu not found"))
+  | [] -> raise (Error ("Menu ``"^m^"'' not found"))
   | menu::r -> 
       if menu.nom = m then menu
       else cherche_menu m r
@@ -158,7 +158,7 @@ let rec cherche_label s = function
   | l::r -> if l.lab_name=s then l.noeud else cherche_label s r
 ;;
 
-let loc_name s1 s2 = (* pose un label *)
+let loc_name s1 = (* pose un label *)
   let _ = 
     try 
       let _ = cherche_label s1 !labels_list in
@@ -174,11 +174,6 @@ let loc_name s1 s2 = (* pose un label *)
   labels_list := l:: !labels_list;
   if !verbose > 1 then prerr_endline ("InfoRef.loc_name, label="^s1);
 ;;
-
-let loc_ref s1 s2 = (* fait la reference *)
-  Text.put ("\\@reference{"^s2^"}");
-;;
-
 
 
 (* finalisation des liens entre les noeuds *)
@@ -360,14 +355,13 @@ let affiche_node nom =
 ;;
 
 let affiche_ref key =
-  let l = 
-    try
-      cherche_label key !labels_list;
-    with Not_found ->  raise (Error ("Reference to no label :"^key));
-  in
-  match l with
+  try
+    let l =  cherche_label key !labels_list in
+    match l with
     | None -> ()
     | Some node -> put ("*Note "^noeud_name node^"::")
+  with
+  | Not_found -> () (* A warning has already been given *)
 ;;
 
 let footNote_label = ref ""
