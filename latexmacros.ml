@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmacros.ml,v 1.28 1998-10-26 16:23:16 maranget Exp $" 
+let header = "$Id: latexmacros.ml,v 1.29 1998-11-10 18:06:48 maranget Exp $" 
 open Parse_opts
 open Symb
 
@@ -161,6 +161,7 @@ and alltt = ref false
 and french = ref (match !language with Francais -> true | _ -> false)
 and optarg = ref false
 and styleloaded = ref false
+and activebrace = ref true
 ;;
 
 
@@ -183,6 +184,7 @@ newif_ref "display" display ;
 newif_ref "french" french ;
 newif_ref "optarg" optarg;
 newif_ref "styleloaded" styleloaded;
+newif_ref "activebrace" activebrace;
 def_macro ("\\iftrue") 0 [Test (ref true)];
 def_macro ("\\iffalse") 0 [Test (ref false)]
 ;;
@@ -327,7 +329,9 @@ def_macro "\\rightarrow" 0 [Print rightarrow];;
 def_macro "\\Rightarrow" 0 [Print uprightarrow];;
 def_macro "\\leftrightarrow" 0 [Print leftrightarrow];;
 def_macro "\\Leftrightarrow" 0 [Print upleftrightarrow];;
+def_macro "\\longleftarrow" 0 [Print longleftarrow];;
 def_macro "\\longrightarrow" 0 [Print longrightarrow];;
+def_macro "\\longleftrightarrow" 0 [Print longleftrightarrow];;
 
 def_macro "\\aleph" 0 [Print aleph];;
 def_macro "\\wp" 0 [Print wp];;

@@ -60,7 +60,7 @@ val in_math :  bool ref
 val alltt :  bool ref
 val optarg : bool ref
 val styleloaded : bool ref
-
+val activebrace : bool ref
 
 val invisible : string -> bool
 val limit : string -> bool

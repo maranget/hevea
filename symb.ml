@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: symb.ml,v 1.13 1998-10-22 09:45:24 maranget Exp $" 
+let header = "$Id: symb.ml,v 1.14 1998-11-10 18:06:52 maranget Exp $" 
 open Parse_opts
 
 exception No
@@ -121,7 +121,10 @@ let rightarrow = get ("<FONT FACE=symbol>\174</FONT>","-&gt;", "-&gt;");;
 let uprightarrow = get ("<FONT FACE=symbol>\222</FONT>","=&gt;", "=&gt;");;
 let leftrightarrow = get ("<FONT FACE=symbol>\171</FONT>","&lt;-&gt;", "&lt;-&gt;");;
 let upleftrightarrow = get ("<FONT FACE=symbol>\219</FONT>","&lt;=&gt;", "&lt;=&gt;");;
+let longleftarrow = get ("<FONT FACE=symbol>¬\190</FONT>","&lt;--", "&lt;--");;
 let longrightarrow = get ("<FONT FACE=symbol>\190\174</FONT>","--&gt;", "--&gt;");;
+let longleftrightarrow = get ("<FONT FACE=symbol>¬\190\174</FONT>","&lt;--&gt;", "&lt;--&gt;");;
+
 
 let int = get ("<FONT FACE=symbol>\242</FONT>","int", "integrale");;
 let display_int = get ("<FONT FACE=symbol>\243<BR>\245</FONT>",

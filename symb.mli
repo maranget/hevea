@@ -94,7 +94,9 @@ val rightarrow : string
 val uprightarrow : string
 val leftrightarrow : string
 val upleftrightarrow : string
+val longleftarrow : string
 val longrightarrow : string
+val longleftrightarrow : string
 
 val aleph : string
 val wp : string

@@ -16,7 +16,7 @@ open Myfiles
 open Latexmacros
 open Html
 
-let header = "$Id: latexscan.mll,v 1.54 1998-11-06 10:52:01 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.55 1998-11-10 18:06:50 maranget Exp $" 
 
 
 let prerr_args args =
@@ -1212,7 +1212,13 @@ let command_name = '\\' (('@' ? ['A'-'Z' 'a'-'z']+ '*'?) | [^ 'A'-'Z' 'a'-'z'])
 
 rule  main = parse
 (* comments *)
-   '%'+ {comment lexbuf}
+   '%'+
+   {if !alltt then begin
+     let lxm = lexeme lexbuf in
+     Html.put lxm ;
+     main lexbuf
+   end else
+     comment lexbuf}
 (* Styles and packages *)
 | "\\documentstyle"  | "\\documentclass"
     {let command = lexeme lexbuf in
@@ -1241,6 +1247,7 @@ rule  main = parse
      Save.start_echo () ;
      let arg = Save.input_arg lexbuf in
      let echo_arg = Save.get_echo () in
+     let arg = subst_this subst arg in
      if lxm <> "\\include" || check_include arg then begin
        let filename =
          if lxm = "\\bibliography" then Location.get_base ()^".bbl"
@@ -1582,11 +1589,16 @@ rule  main = parse
        do_hline main ;
      main lexbuf}
   | [' ''\n']* "&"  [' ''\n']*
-     {if is_table !in_table  then begin
-        close_col main "&nbsp;"; 
-        open_col main
-     end ;
-     main lexbuf}
+    {if !alltt then begin
+      let lxm = lexeme lexbuf in
+      for i = 0 to String.length lxm -1 do
+        Html.put (quote_char lxm.[i])
+      done
+    end else if is_table !in_table  then begin
+      close_col main "&nbsp;"; 
+      open_col main
+    end ;
+    main lexbuf}
   | ['\n'' ']* "\\\\"
       {let _ = parse_args_opt [""] lexbuf in
       if is_table !in_table  then begin
@@ -2080,9 +2092,17 @@ rule  main = parse
 | '>'         { Html.put "&gt;"; main lexbuf }
 | '~'         { Html.put "&nbsp;"; main lexbuf }
 | '{'
-    {top_open_group () ;  main lexbuf}
+    {if !Latexmacros.activebrace then
+      top_open_group ()
+    else
+      Html.put_char '{';
+    main lexbuf}
 | '}'
-    {top_close_group () ; main lexbuf}
+    {if !Latexmacros.activebrace then
+      top_close_group ()
+    else
+      Html.put_char '}' ;
+    main lexbuf}
 | eof
    {if !verbose > 1 then Printf.fprintf stderr "Eof\n" ; ()}
 | '\n'

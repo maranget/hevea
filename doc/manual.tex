@@ -213,7 +213,7 @@ Hopefully, only a few macros give rise to trouble: macros that performs fine
 typesetting or {\TeX}ish macros.
 Such macros need to be rewritten, using basic \LaTeX{}
 constructs (section~\ref{trouble} gives examples of macro-rewriting).
-The new definition are best collected in a style file,
+The new definitions are best collected in a style file,
 \texttt{mymacros.sty} for instance.
 Then, \texttt{mydoc.tex} is to be translated by issuing the command:
 \begin{verbatim}
@@ -2621,8 +2621,11 @@ omitted.
 
 Some conditions are defined internally by \hevea{}, such as the
 \texttt{french} condition, which is \textit{true} in French mode, or
-the \texttt{display} and \texttt{math} condition that are set according
+the \texttt{display} and \texttt{math} conditions that are set according
 to \hevea{} current operating mode.
+Another internal condition of interest is \texttt{optarg}, which is
+set to true just after the parsing of arguments, when an optional
+argument is indeed present.
 
 \subsection{The \protect{\texttt{\char92{}verbatiminput}} Command}
 
