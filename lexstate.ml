@@ -1,4 +1,4 @@
-let header =  "$Id: lexstate.ml,v 1.29 1999-09-11 18:02:50 maranget Exp $"
+let header =  "$Id: lexstate.ml,v 1.30 1999-09-14 19:49:55 maranget Exp $"
 
 open Misc
 open Lexing
@@ -489,8 +489,7 @@ let input_file loc_verb main filename =
     raise  Myfiles.Except
   end
  | Myfiles.Error m as x -> begin
-     Misc.warning m ;
-     raise x
+     Misc.warning m
  end
 
 

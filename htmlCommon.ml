@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlCommon.ml,v 1.8 1999-09-01 13:53:48 maranget Exp $" 
+let header = "$Id: htmlCommon.ml,v 1.9 1999-09-14 19:49:45 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -532,16 +532,25 @@ let erase_mods_pred pred =
   end
 ;;
 
-let erase_mods ms = erase_mods_pred (fun m -> List.mem m ms)
-;;
+
 let is_color = function
   Color _ -> true
 | _       -> false
-;;
 
 let is_size = function
   | Font _ -> true
   | _      -> false
+
+let erase_mods ms =
+  let pred =
+    if List.exists is_color ms then
+      (function
+        | Color _ -> true
+        | m       -> List.mem m ms)
+    else
+      (fun m -> List.mem m ms) in
+  erase_mods_pred pred
+;;
 
 let open_mod  m =
   if not !cur_out.nostyle then begin

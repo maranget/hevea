@@ -30,6 +30,7 @@ module type S =
     val top_open_block : string -> string -> unit
     val top_close_block : string -> unit
     val get_this : (Lexing.lexbuf -> unit) -> string -> string
+    val get_this_nostyle : (Lexing.lexbuf -> unit) -> string -> string
   end
 
 module Make (Dest : OutManager.S) (Image : ImageManager.S) = 
@@ -44,7 +45,7 @@ open Tabular
 open Lexstate
 open Stack
 
-let header = "$Id: latexscan.mll,v 1.134 1999-09-11 18:02:45 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.135 1999-09-14 19:49:50 maranget Exp $" 
 
 
 let sbool = function
@@ -80,13 +81,17 @@ and env_level = ref 0
 
 
 let macro_register name =
-  if !env_level > 0 then
-   macros := name :: !macros
+  if !verbose > 1 then
+    prerr_endline ("Registering macro: "^name);
+  if !env_level > 0 then macros := name :: !macros
 ;;
 
 let macros_unregister () =
   List.iter
-   (fun name -> Latexmacros.unregister name) !macros
+   (fun name ->
+     if !verbose > 1 then
+       prerr_endline ("Unregistering macro: "^name) ;
+     Latexmacros.unregister name) !macros
 ;;
 
 let inc_size i =
@@ -1501,22 +1506,20 @@ let do_let reallet global lxm lexbuf =
   let name = subst_arg subst lexbuf in
   Save.skip_equal lexbuf ;
   let alt = subst_arg subst lexbuf in
+  let nargs,body = find_macro alt in
   begin try
-    let nargs,body = find_macro alt in
-    begin try
-      (if reallet then silent_def_pat else def_macro_pat)
-        name nargs body ;
-      if not global then macro_register name
-    with Latexmacros.Failed -> () end
-  with Not_found -> () end ;
+    (if reallet then silent_def_pat else def_macro_pat)
+      name nargs body ;
+    if not global then macro_register name
+  with Latexmacros.Failed -> ()
+  end ;
   if !env_level = 0 || global then begin
     Image.put lxm ;
     Image.put name ;
     Image.put "=" ;
     Image.put alt ;
     Image.put "\n"
-  end ;
-  if not global then macro_register name
+  end
 ;;
 
 def_name_code "\\let" (do_let false false) ;
@@ -1713,6 +1716,13 @@ def_code "\\@anti"
   (fun lexbuf ->
           let arg = save_arg lexbuf in
           let envs = get_style main arg in
+          if !verbose > 2 then begin
+            prerr_string "Anti result: " ;
+            List.iter
+              (fun s ->
+                prerr_string (Latexmacros.pretty_env s^", ")) envs ;
+            prerr_endline ""
+          end ;
           Dest.erase_mods envs)
 ;;
 def_code "\\@style"  

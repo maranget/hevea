@@ -182,13 +182,18 @@ let init () =
     (fun lexbuf ->
       let tabs = Get.get_int (save_opt "8" lexbuf) in      
       let arg = save_arg lexbuf in
+      let arg = Scan.get_this_nostyle Scan.main arg in
       let old_tabs = !tab_val in
       tab_val := tabs ;
       Scan.top_open_block "PRE" "" ;
-      input_file !verbose
-        (fun lexbuf ->
-          try verbenv lexbuf with Eof _ -> raise Misc.EndInput)
-        arg ;
+      begin try
+        input_file !verbose
+          (fun lexbuf ->
+            try verbenv lexbuf with Eof _ -> raise Misc.EndInput)
+          arg 
+      with
+      | Myfiles.Except -> ()
+      end ;
       Scan.top_close_block "PRE" ;
       tab_val := old_tabs)
 ;;

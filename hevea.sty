@@ -9,10 +9,11 @@
 %
 \makeatletter%
 
-\newif{\ifhtml}
-\newif{\iftext}
-\htmlfalse
-\textfalse
+\newif\ifhtml\htmlfalse
+\newif\iftext\textfalse
+\newif\ifinfo\infofalse
+\newif\ifhevea\heveafalse
+
 
 
 \newcommand{\smup}[2]{%
@@ -32,7 +33,6 @@
 \newcommand{\home}[1]{\protect\raisebox{-.75ex}{\char126}#1}
 \newcommand{\docurl}{http://para.inria.fr/\home{maranget}/hevea}
 \newcommand{\mailto}[1]{\texttt{#1}}
-\newif\ifhevea\heveafalse
 %% Void cutting instructions
 \newcounter{cuttingdepth}
 \newcommand{\cuttingunit}{}

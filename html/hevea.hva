@@ -166,18 +166,15 @@
 \newcommand{\and}{\quad}
 %% Lists
 \newcommand{\item}[1][]{\warning{\item outside a list-making environment}}
+\newcommand{\@itemitemize}[1][!*!]
+{\@li\ifthenelse{\equal{#1}{!*!}}{}{\warning{Optional argument to \item in itemize environment}[#1]}}
+\newcommand{\@itemenumerate}[1][!*!]
+{\@linum\ifthenelse{\equal{#1}{!*!}}{}{\warning{Ignored optional argument to \item in enumerate enironment}}}
 \newenvironment{itemize}
-  {\@open{UL}{}%
-   \renewcommand{\item}[1][!*!]
-    {\@li\ifthenelse{\equal{##1}{!*!}}{}
-       {\warning{Optional argument to \item}##1}}}
+  {\@open{UL}{}\texlet\item\@itemitemize}
   {\@close{UL}}
 \newenvironment{enumerate}
-  {\@open{OL}{}
-  \renewcommand{\item}[1][!*!]
-    {\ifthenelse{\equal{##1}{!*!}}{}
-       {\warning{Optional argument to \item ignored}}%
-       \@linum}}
+  {\@open{OL}{}\texlet\item\@itemenumerate}
   {\@close{OL}}
 \newenvironment{list}[3][!*!]
   {\ifthenelse{\equal{#1}{!*!}}{\@open{DL}{COMPACT=compact}}{\@open{DL}{}}%open

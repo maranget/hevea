@@ -28,6 +28,7 @@ module type S =
     val top_open_block : string -> string -> unit
     val top_close_block : string -> unit
     val get_this : (Lexing.lexbuf -> unit) -> string -> string
+    val get_this_nostyle : (Lexing.lexbuf -> unit) -> string -> string
 end
 
 module Make (Dest : OutManager.S) (Image : ImageManager.S) : S
