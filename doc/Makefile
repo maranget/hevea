@@ -117,7 +117,7 @@ testrelease:
 devrelease:
 	$(MAKE) dateversion
 	/bin/rm -rf ${FTPDIR}/unstable ; mkdir ${FTPDIR}/unstable
-	$(MAKE) $(MFLAGS) dorelease VERSION=`date +%Y-%m-%d` RELEASENAME="hevea-`date +%Y-%m-%d`" RELEASEOPT="-D now" FTPDIR="${FTPDIR}/unstable"
+	$(MAKE) $(MFLAGS) dorelease VERSION=`date +%Y.%m.%d` RELEASENAME="hevea-`date +%Y.%m.%d`" RELEASEOPT="-D now" FTPDIR="${FTPDIR}/unstable"
 	$(MAKE) install DOCDIR=$(HOME)/public_html/hevea/newdoc
 
 RPMDIR=/usr/src/redhat
@@ -128,7 +128,7 @@ dorpm: hevea.spec
 	su $(USER) sh -c "cp $(RPMDIR)/RPMS/i386/$(RELEASENAME)-1.i386.rpm $(FTPDIR)"
 
 devrpm:
-	$(MAKE) $(MFLAGS) VERSION=`date +%Y.%m.%d` RELEASENAME="hevea.`date +%Y.%m.%d`"  FTPDIR="${FTPDIR}/unstable" UNSTABLE="/unstable" dorpm
+	$(MAKE) $(MFLAGS) VERSION=`date +%Y.%m.%d` RELEASENAME="hevea-`date +%Y.%m.%d`"  FTPDIR="${FTPDIR}/unstable" UNSTABLE="/unstable" dorpm
 
 rpm:
 	$(MAKE) $(MFLAGS) dorpm

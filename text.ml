@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.54 2001-10-19 18:36:01 maranget Exp $"
+let header = "$Id: text.ml,v 1.55 2001-11-15 17:06:40 maranget Exp $"
 
 
 open Misc
@@ -1181,6 +1181,14 @@ type table_t = {
   } 
 ;;
 
+let ptailles chan table =
+  let t = table.tailles in
+  Printf.fprintf chan  "[" ;
+  for i = 0 to Array.length t-1 do
+    Printf.fprintf chan "%d; " t.(i)
+  done ;
+  Printf.fprintf chan  "]"
+
 let cell = ref {
   ver = Middle;
   hor = Left;
@@ -1274,12 +1282,18 @@ let open_table border _ =
   flags.in_table<-true;
 ;;
 
+
 let new_row () =
+  if !verbose>2 then begin
+    Printf.eprintf "=> new_row, line =%d, tailles=%a\n"
+      !table.line ptailles !table
+  end ;
   if !table.col> !table.cols then !table.cols<- !table.col;
   !table.col <- -1;
   !table.line <- !table.line +1;
-  if !table.line = 1 && (( Array.length !table.tailles)=0) then
+  if !table.line = 1 && (( Array.length !table.tailles)=0) then begin
     !table.tailles<-Table.trim !table.taille;
+  end ;
   let _ =match !row.cells with
   | Tabl t -> Table.reset t
   | _-> raise (Error "invalid table type in array")
@@ -1287,7 +1301,7 @@ let new_row () =
   !cell.pre <- "";
   !cell.pre_inside <- [];
   !row.haut<-0;
-  if !verbose>2 then prerr_endline ("new_row, line ="^string_of_int !table.line)
+  if !verbose>2 then prerr_endline ("<= new_row, line ="^string_of_int !table.line)
 ;;
 
 let change_format format = match format with 
@@ -1407,7 +1421,7 @@ let close_cell content =
 		     span = !cell.span;
 		     text = !cell.text;
 		     pre  = !cell.pre;
-		     post = !cell.post;
+	     post = !cell.post;
 		     pre_inside  = !cell.pre_inside;
 		     post_inside = !cell.post_inside;
 		   }
@@ -1473,7 +1487,9 @@ let erase_cell () =
   !cell.pre_inside <- [];
 ;;
 
-let erase_row () = !table.line <- !table.line -1
+let erase_row () =
+  if !verbose > 2 then prerr_endline "erase_row" ;
+  !table.line <- !table.line -1
 and close_row erase =
   if !verbose>2 then prerr_endline "close_row";
   Table.emit !table.table
@@ -1588,8 +1604,7 @@ let put_border s inside j =
 let rec somme debut fin = 
   if debut = fin 
   then !table.tailles.(debut)
-  else !table.tailles.(debut)
-      + (somme (debut+1) fin)
+  else !table.tailles.(debut) + (somme (debut+1) fin)
 ;;
 
 
@@ -1630,7 +1645,8 @@ let close_table () =
     prerr_endline "=> close_table";
     pretty_stack out_stack
   end;
-  if !table.line=0 then  !table.tailles<-Table.trim !table.taille;
+  if !table.line=0 && (Array.length !table.tailles = 0) then
+    !table.tailles<-Table.trim !table.taille;
   let tab = Table.trim !table.table in
   (* il reste a formatter et a flusher dans la sortie principale.. *)
   !table.lines<-Array.length tab;
@@ -1866,6 +1882,7 @@ let force_item_display () = item_display ()
 ;;
 
 let erase_display () = 
+  if !verbose > 2 then prerr_endline "erase_display" ;
   erase_cell ();
   erase_cell_group ();
   erase_row ();
