@@ -12,7 +12,7 @@
 {
 open Lexing
 
-let header = "$Id: save.mll,v 1.31 1999-03-08 15:51:37 maranget Exp $" 
+let header = "$Id: save.mll,v 1.32 1999-03-08 18:37:38 maranget Exp $" 
 
 let verbose = ref 0 and silent = ref false
 ;;
@@ -119,6 +119,20 @@ and arg = parse
       Out.to_string arg_buff}
   | eof    {raise Eof}
   | ""     {raise (Error "Argument expected")}
+
+and arg_verbatim = parse
+  | '{'
+      {start_echo();
+       in_arg_verbatim lexbuf}
+  | ""
+      {raise (Error "Ill starting verbatim Arg")}
+
+and in_arg_verbatim = parse
+  | '}'
+      {get_echo()}
+  | _
+      {put_echo (lexeme lexbuf);
+       in_arg_verbatim lexbuf}
 
 and skip_blanks = parse
   ' '+

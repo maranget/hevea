@@ -524,3 +524,5 @@
 \newcommand{\long}{}
 \def\relax{}
 \def\newline{\\}
+%%% videoc
+\newcommand{\IfFileExists}[3]{\ifthenelse{\@fileexists{#1}}{#2}{#3}}

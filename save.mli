@@ -8,6 +8,7 @@ val get_echo : unit -> string
 val start_echo : unit -> unit
 val opt : Lexing.lexbuf -> string
 val arg : Lexing.lexbuf -> string
+val arg_verbatim : Lexing.lexbuf -> string
 val csname : Lexing.lexbuf -> string
 val cite_arg : Lexing.lexbuf -> string list
 val macro_names : Lexing.lexbuf -> string list

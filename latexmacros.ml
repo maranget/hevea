@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmacros.ml,v 1.38 1999-03-08 15:51:27 maranget Exp $" 
+let header = "$Id: latexmacros.ml,v 1.39 1999-03-08 18:37:29 maranget Exp $" 
 open Misc
 open Parse_opts
 open Symb
@@ -36,6 +36,7 @@ type action =
   | Print_count of ((int -> string)  * int)
   | Test of bool ref
   | SetTest of (bool ref * bool)
+  | CamlCode of (Lexing.lexbuf -> string -> unit)
 ;;
 
 type pat = string list * string list
@@ -49,7 +50,6 @@ let pretty_pat (_,args) =
 let cmdtable =
   (Hashtbl.create 19 : (string, (pat * action)) Hashtbl.t)
 ;;
-
 
 let pretty_action acs =
    match acs with
@@ -168,7 +168,14 @@ let find_macro name =
   with Not_found ->
     warning ("unknown macro: "^name) ;
     (([],[]),(Print ""))
-;;
+
+(* Does a user macro exist ? *)
+let exists_macro name = 
+  try
+    let _ = Hashtbl.find cmdtable name in
+    true
+  with Not_found ->
+    false
 
 (* for conditionals *)
 let display = ref false

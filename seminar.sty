@@ -1,0 +1,42 @@
+\ifstyleloaded\relax
+\else
+%%%% Landscape and portrait
+\iffrench
+\newcommand{\slidename}{Planche~:}
+\else
+\newcommand{\slidename}{Slide:}
+\fi
+\newcounter{slide}
+\newenvironment{slide}[1][]{%
+\stepcounter{slide}%
+\@print{<A name="slide}\theslide\@print{"></A>}%
+\cuthere{section}{\slidename{} \theslide}%
+\@print{<HR>}%
+\@open{H2}{ALIGN=right}\slidename{} \theslide\@close{H2}
+\@print{<HR>}%
+}{}
+\newenvironment{slide*}[1][]{\begin{slide}}{\end{slide}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% All seminar-specific commandes are null macros %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\landscapeonly}{}
+\newcommand{\portraitonly}{}
+\newcommand{\twoup}{}
+%% Margins
+\newif\ifcenterslides
+\newcommand{\raggedslides}[1][]{}
+%% Page breaking
+\newcommand{\extraslideheight}[1]{}
+\newcommand{\newslide}{}
+\newcommand{\slidefuzz}{}
+%% Magnification
+\newcommand{\slidemag}[1]{}
+\newcommand{\semin}{in}
+\newcommand{\semcm}{cm}
+\newcommand{\ptsize}[1]{}
+%% FRAMES
+\newcommand{\slideframe}[2][]{}
+\newcommand{\newslideframe}[1]{\slideframe}
+%%%% load the article style file
+\input{article.sty}
+\fi

@@ -3,10 +3,17 @@ open Misc
 open Lexing
 open Table
 
-let header = ""
+let header = "$Id"
 
 exception Error of string
 ;;
+
+let get_int = ref (fun s -> 0)
+and subst_this = ref (fun s -> s)
+
+let init latexsubst latexgetint =
+  subst_this := latexsubst ;
+  get_int := latexgetint
 
 type align =
     {hor : string ; vert : string ; wrap : bool ;
@@ -34,8 +41,6 @@ type format =
 let border = ref false
 
 
-and get_int = ref (fun _ -> 0)
-and subst_this = ref (fun s -> s)
 
 let push s e = s := e:: !s
 and pop s = match !s with
@@ -146,9 +151,7 @@ and lexformat = parse
 
 
 {
-let main latex_subst latex_get_int  s =
-  get_int := latex_get_int ;
-  subst_this := latex_subst ;
+let main   s =
   lexformat (Lexing.from_string s) ; trim out_table
 }
 

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: cutmain.ml,v 1.8 1999-02-19 17:59:59 maranget Exp $" 
+let header = "$Id: cutmain.ml,v 1.9 1999-03-08 18:37:28 maranget Exp $" 
 let filename = ref ""
 ;;
 
@@ -20,6 +20,8 @@ let main () =
   Arg.parse
     [("-o", Arg.String (fun s -> outname := s),
        "filename, make htmlcut output go into file ``filename'' (defaults to index.html)");
+     ("-francais", Arg.Unit (fun () -> Cut.language := "fra"),
+       ", French mode");
      ("-v", Arg.Unit (fun () -> incr Cut.verbose),
         ", verbose flag")    ]
      (fun s -> filename := s) ("hacha "^Version.version);

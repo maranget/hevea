@@ -26,10 +26,8 @@ type action =
   | Print_count of ((int -> string)  * int)
   | Test of bool ref
   | SetTest of (bool ref * bool)
+  | CamlCode of (Lexing.lexbuf -> string -> unit)
 ;;
-
-
-
 
 type pat =  string list * string list
 ;;
@@ -38,6 +36,8 @@ val pretty_pat : pat -> unit
 val pretty_action : action -> unit
 
 val find_macro: string -> pat * action
+val exists_macro: string -> bool
+
 
 val make_pat: string list -> int -> pat
 val def_coltype: string -> pat  -> action -> unit

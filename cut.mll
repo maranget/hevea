@@ -11,13 +11,23 @@
 
 {
 open Lexing
-let header = "$Id: cut.mll,v 1.12 1999-02-19 17:59:58 maranget Exp $" 
+let header = "$Id: cut.mll,v 1.13 1999-03-08 18:37:27 maranget Exp $" 
+
+let verbose = ref 0
+;;
+
+let language = ref "eng"
+;;
 
 exception Error of string
 
 
-let verbose = ref 0
-;;
+(* Accumulate all META, LINK and similar tags that appear in the preamble
+   in order to output them in the preamble of every generated page. *)
+let common_headers = ref "";;
+let adjoin_to_header s =
+  common_headers := !common_headers ^ s;
+  ();;
 
 let push s e = s := e:: !s
 and pop s = match !s with
@@ -106,13 +116,19 @@ let putlink out name img alt =
 
 let putlinks out name =
   begin try
-    putlink out (Thread.prev name) "previous_motif.gif" "Previous"
+    putlink out (Thread.prev name) "previous_motif.gif" 
+      (if !language = "fra" then "Précédent"
+       else "Previous")
   with Not_found -> () end ;
   begin try
-    putlink out (Thread.next name) "next_motif.gif" "Next"
+    putlink out (Thread.next name) "next_motif.gif" 
+      (if !language = "fra" then "Suivant"
+       else "Next")
   with Not_found -> () end ;
   begin try
-    putlink out (Thread.up name) "contents_motif.gif" "Contents"
+    putlink out (Thread.up name) "contents_motif.gif" 
+      (if !language = "fra" then "Index"
+       else "Contents")
   with Not_found -> () end
 
 ;;
@@ -121,6 +137,7 @@ let openhtml title out outname =
   Out.put out !doctype ; Out.put_char out '\n' ;
   Out.put out !html ; Out.put_char out '\n' ;
   Out.put out "<HEAD>\n" ;
+  Out.put out !common_headers;
   Out.put out "<TITLE>\n" ;
   let title = Save.tagout (Lexing.from_string title) in
   Out.put out title ;
@@ -271,9 +288,6 @@ let restore_state () =
   tocname := oldtocname ;
   lastclosed := !lastclosed ;
   cur_level := oldlevel
-;;
-
-let language = ref "eng"
 ;;
 
 let close_top lxm =
@@ -432,6 +446,11 @@ rule main = parse
    else
      Out.put !out lxm;
    main lexbuf}
+| "<HEAD" [^'>']* '>'
+    {put (lexeme lexbuf);
+     if !phase = 0 
+     then collect_header lexbuf
+     else main lexbuf}
 | "</BODY>" _*
    {let lxm = lexeme lexbuf in
    close_all () ;
@@ -444,6 +463,28 @@ rule main = parse
    main lexbuf}
 | eof
    {raise (Error ("No </BODY> tag in input file"))}
+
+and collect_header = parse
+| "</HEAD>"
+    {let lxm = lexeme lexbuf in
+     put lxm;
+     if !verbose > 1 then
+       prerr_endline ("Header was: " ^ !common_headers ^ ".\n");
+     main lexbuf}
+| "<TITLE" [^'>']* '>'_ * "</TITLE>"
+    {let title = lexeme lexbuf in
+     put title;
+     collect_header lexbuf}
+| [ ^ '<'] *
+    {let lxm = lexeme lexbuf in
+     put lxm;
+     adjoin_to_header lxm;
+     collect_header lexbuf}
+| _
+    {let lxm = lexeme lexbuf in
+     put lxm;
+     adjoin_to_header lxm;
+     collect_header lexbuf}
 
 and footer = parse
   "</BODY>" _*

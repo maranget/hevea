@@ -15,10 +15,13 @@ OCAMLCI=ocamlc
 OCAMLOPT=ocamlopt
 OCAMLLEX=ocamllex
 INSTALL=cp
-OBJS=version.cmo misc.cmo location.cmo table.cmo parse_opts.cmo mylib.cmo myfiles.cmo  out.cmo  lexstate.cmo counter.cmo symb.cmo image.cmo  length.cmo save.cmo  auxx.cmo latexmacros.cmo  html.cmo section.cmo foot.cmo entry.cmo index.cmo colscan.cmo color.cmo tabular.cmo latexscan.cmo latexmain.cmo
+OBJS=version.cmo misc.cmo location.cmo table.cmo parse_opts.cmo mylib.cmo myfiles.cmo  out.cmo  lexstate.cmo counter.cmo symb.cmo image.cmo  length.cmo save.cmo  auxx.cmo latexmacros.cmo  html.cmo section.cmo foot.cmo entry.cmo index.cmo colscan.cmo color.cmo tabular.cmo videoc.cmo latexscan.cmo latexmain.cmo
 OBJSCUT=version.cmo misc.cmo location.cmo out.cmo thread.cmo cross.cmo mylib.cmo section.cmo  length.cmo save.cmo cut.cmo cutmain.cmo
 
-OPTS=$(OBJS:.cmo=.cmx)
+
+OBJPLUGINS=videoc.cmo
+
+OPTS=$(OBJS:.cmo=.cmx) $(OBJMAIN:.cmo=.cmx)
 OPTSCUT=$(OBJSCUT:.cmo=.cmx)
 
 all: $(TARGET)
@@ -47,7 +50,7 @@ install-byte: install-lib
 
 
 hevea.byte: ${OBJS}
-	${OCAMLC} -o $@ ${OBJS}
+	${OCAMLC} -o $@ ${OBJS} ${OBJMAIN}
 
 hacha.byte: ${OBJSCUT}
 	${OCAMLC} -o $@ ${OBJSCUT}
@@ -95,9 +98,10 @@ clean:
 	rm -f *~ #*#
 	rm -f cutfoot-fra.html cutfoot-eng.html
 
-depend: colscan.ml length.ml latexscan.ml subst.ml save.ml auxx.ml entry.ml cut.ml tabular.ml
+depend: videoc.ml colscan.ml length.ml latexscan.ml subst.ml save.ml auxx.ml entry.ml cut.ml tabular.ml
 	- cp .depend .depend.bak
 	ocamldep *.mli *.ml > .depend
 
-
+videoc.cmi : latexscan.cmi
+videoc.cmo : videoc.cmi
 include .depend

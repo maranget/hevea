@@ -13,11 +13,34 @@
 module type S =
   sig
     exception Error of string
+
     val no_prelude : unit -> unit
 
     val print_env_pos : unit -> unit
     val main : Lexing.lexbuf -> unit
-end
+
+    (* additional resources needed for extension modules. *)
+    val save_arg : Lexing.lexbuf -> string
+    val save_opt : string -> Lexing.lexbuf -> string
+    val subst : Lexing.lexbuf -> unit
+    val subst_arg : (Lexing.lexbuf -> unit) -> Lexing.lexbuf -> string
+    val subst_this : (Lexing.lexbuf -> unit) -> string -> string
+    val cur_env : string ref
+    val new_env : string -> unit
+    val close_env : string -> unit
+    val env_level : int ref
+    val macro_register : string -> unit
+    val top_open_block : string -> string -> unit
+    val top_close_block : string -> unit
+    val scan_this : (Lexing.lexbuf -> 'a ) -> string -> 'a
+    val get_this : (Lexing.lexbuf -> unit) -> string -> string
+    val get_int : (Lexing.lexbuf -> unit) -> string -> int
+    val tab_val : int ref
+
+    val withinLispComment : bool ref
+    val afterLispCommentNewlines : int ref
+    val withinSnippet : bool ref        
+  end
 
 module Make (Html : OutManager.S) =
 struct
@@ -30,10 +53,14 @@ open Save
 open Tabular
 open Lexstate
 
-let header = "$Id: latexscan.mll,v 1.65 1999-03-08 15:51:31 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.66 1999-03-08 18:37:34 maranget Exp $" 
 
 exception Error of string
 
+(* Additional variables for videoc *)
+let withinLispComment = ref false;;
+let afterLispCommentNewlines = ref 0;;
+let withinSnippet = ref false;;
 
 let pretty_lexbuf lb =
   let  pos = lb.lex_curr_pos and len = String.length lb.lex_buffer in
@@ -1222,12 +1249,21 @@ rule  main = parse
     Image.put "\n" ;
     main lexbuf}
 (* Paragraphs *)
-  | "\n\n" '\n' *
-    {if !alltt then
-      Html.put (lexeme lexbuf)
-    else if !bool_out || !int_out then ()
-    else  top_par () ;
-    main lexbuf }
+  | '\n' +
+      {let nlnum = String.length (lexeme lexbuf) in
+       if !withinLispComment
+       then begin
+         afterLispCommentNewlines := nlnum;
+         if !verbose > 2 then prerr_endline "NL caught after LispComment";
+         ()
+       end else begin
+         if nlnum >= 2 then
+           if !alltt then Html.put (lexeme lexbuf)
+           else if !bool_out || !int_out then ()
+           else top_par ()
+         else Html.put_char '\n';
+         main lexbuf
+       end}
 | "\\input" | "\\include" | "\\bibliography"
      {let lxm = lexeme lexbuf in
      Save.start_echo () ;
@@ -1291,6 +1327,10 @@ rule  main = parse
 (* Math mode *)
 | "$" | "$$" | "\\(" | "\\)" | "\\[" | "\\]"
      {let lxm = lexeme lexbuf in
+     if !withinSnippet && lxm = "\\]" then begin
+       if !verbose > 2 then prerr_endline "\\] caught within TeX escape"; 
+       ()
+     end else begin
      if !alltt && (lxm = "$" || lxm = "$$") then
        begin Html.put lxm ; main lexbuf end
      else if !bool_out && lxm = "\\(" then begin
@@ -1338,14 +1378,14 @@ rule  main = parse
          skip_blanks lb ; main lb in
        new_env math_env ;
        lexfun lexbuf
-     end end}
+     end end end}
 | "\\mbox"
    {mbox_arg lexbuf}
 
 (* Definitions of  simple macros *)
   | "\\def" | "\\gdef" | "\\global\\def"
      {let lxm = lexeme lexbuf in
-     let name = Save.csname lexbuf in
+     let name = Save.csname lexbuf in   (* Pour Luc: devrait accepter #1 *)
      let args_pat = Save.defargs lexbuf in
      let body = save_arg lexbuf in
      if !env_level = 0 || lxm <> "\\def" then
@@ -1372,7 +1412,7 @@ rule  main = parse
       [a1 ; a2] ->
         get_int main (from_ok a1),
         (match a2 with
-           No s -> false,s
+        | No s -> false,s
         | Yes s -> true,s)
     | _ -> assert false in
     begin try
@@ -1501,8 +1541,7 @@ rule  main = parse
         Tabular.border := false ;
         skip_opt lexbuf ;
         let format = save_arg lexbuf in
-        let format = Tabular.main
-            (subst_this subst) (get_int main) format in
+        let format = Tabular.main format in
         cur_format := format ;
         push stack_in_math !in_math ;
         in_table := Table
@@ -1584,6 +1623,16 @@ rule  main = parse
         close_env env ;
         if env <> "document" then main lexbuf
     end}
+(* Explicit groups *)
+| "\\begingroup"
+    {new_env "command-group";
+     main lexbuf}
+| "\\endgroup"
+    {if !cur_env = "command-group" then begin
+      close_env !cur_env;
+      main lexbuf
+     end else 
+      failwith "Dubious \\endgroup"}
 (* inside tabbing *)
  | [' ''\n']* ("\\>" | "\\=")  [' ''\n']*
     {if is_tabbing !in_table then begin
@@ -1631,11 +1680,10 @@ rule  main = parse
       skip_blanks lexbuf ; main lexbuf}
   | ['\n'' ']* "\\multicolumn" 
       {let n = get_int main (save_arg lexbuf) in      
-      let format =
-        Tabular.main
-          (subst_this subst) (get_int main) (save_arg lexbuf) in
+      let format =  Tabular.main (save_arg lexbuf) in
       do_multi n  format main ;
       main lexbuf}
+(* Complicated use of output blocks *)
   | "\\left"
       {if !display then begin
         let _,f,is_freeze = Html.end_item_display () in
@@ -1863,6 +1911,14 @@ rule  main = parse
             scan_this main body ;
             btest := get_bool main test
           done ;
+          main lexbuf
+      | "\\@fileexists" when !bool_out ->
+          let name = subst_arg subst lexbuf in
+          push bool_stack
+            (try
+              let _ = Myfiles.open_tex name in
+              true
+            with Myfiles.Except | Myfiles.Error _ -> false) ;
           main lexbuf
       | "\\equal" when !bool_out ->
           Save.start_echo () ;
@@ -2115,8 +2171,7 @@ rule  main = parse
             warning (name^" with arg ``"^arg^"''")
           end ;
           main lexbuf
-            
-(* user macros *)
+  (* user macros *)
       | _ ->
           let exec = function
             | Print str -> Html.put str
@@ -2138,8 +2193,10 @@ rule  main = parse
             | Subst body ->
                 if !verbose > 2 then
                   prerr_endline ("user macro: "^body) ;            
-                scan_this_may_cont true main lexbuf body in
-          
+                scan_this_may_cont true main lexbuf body
+            | CamlCode (f) -> 
+                f lexbuf name in
+
           let pat,body = find_macro name in
           let args = make_stack name pat lexbuf in
           let saw_par = !Save.seen_par in
@@ -2173,7 +2230,7 @@ rule  main = parse
                 if !verbose > 2 then
                   prerr_endline "not skipping blanks";
               end ;
-              main lexbuf
+              main lexbuf 
             with 
               IfFalse -> begin
                 if (!verbose > 2) then
@@ -2183,13 +2240,13 @@ rule  main = parse
           end
       end}
 (* Groups *)
-| '{'
+| '{' 
     {if !Latexmacros.activebrace then
       top_open_group ()
     else
       Html.put_char '{';
     main lexbuf}
-| '}'
+| '}' 
     {if !Latexmacros.activebrace then
       top_close_group ()
     else
@@ -2197,12 +2254,6 @@ rule  main = parse
     main lexbuf}
 | eof
    {if !verbose > 1 then Printf.fprintf stderr "Eof\n" ; ()}
-(* Spaces in input *)
-| '\n'
-  {if not (!bool_out || !int_out) then begin
-    Html.put_char '\n'
-  end ;
-  main lexbuf}
 | ' '+
    {if !bool_out || !int_out then ()   
    else if !alltt then
@@ -2416,6 +2467,14 @@ and verblatex = parse
     {verblatex lexbuf}
 |  eof {raise (Error ("End of file inside ``verblatex'' environment"))}
 
+and latex2html_latexonly = parse
+| '%' + [ ' ' '\t' ] * "end{latexonly}" [ ^ '\n' ] * '\n'
+    { () }
+| _ 
+    {latex2html_latexonly lexbuf}
+| eof
+    {failwith "EOF in latexonly"}
+
 and latexonly = parse
    '%'+ ' '* ("END"|"end") ' '+ ("LATEX"|"latex")  [^'\n']* '\n'
      {stop_other_scan main lexbuf}
@@ -2486,36 +2545,6 @@ and image = parse
     let i = Char.code (lxm.[1]) - Char.code '1' in
     scan_arg (scan_this image) i ;
     image lexbuf}
-(* Definitions of  simple macros *)
-| "\\def" | "\\gdef"
-   {let lxm = lexeme lexbuf in
-   Save.start_echo () ;
-   let _ = Save.csname lexbuf in
-   let _ = Save.defargs lexbuf in
-   let _ = save_arg lexbuf in
-   Image.put lxm ;
-   Image.put (Save.get_echo ()) ;
-   image lexbuf}
-| "\\renewcommand" | "\\newcommand" | "\\providecommand"
-  {let lxm = lexeme lexbuf in
-  Save.start_echo () ;
-  let _ = Save.csname lexbuf in
-  let _ = parse_args_opt ["0" ; ""] lexbuf in
-  let _ = save_arg lexbuf in
-  Image.put lxm ;
-  Image.put (Save.get_echo ()) ;
-  image lexbuf}
-| "\\newenvironment" | "\\renewenvironment"
-   {let lxm = lexeme lexbuf in
-   Save.start_echo () ;
-   let _ = save_arg lexbuf in
-   let _ = parse_quote_arg_opt "0" lexbuf in
-   let _ = parse_quote_arg_opt "" lexbuf in
-   let _ = save_arg lexbuf in
-   let _ = save_arg lexbuf in
-   Image.put lxm ;
-   Image.put (Save.get_echo ()) ;
-   image lexbuf}
 |  "\\end"
      {let lxm = lexeme lexbuf in
      Save.start_echo () ;
@@ -2650,6 +2679,10 @@ and checklimits = parse
 and comment = parse
   ' '* ("BEGIN"|"begin") ' '+ ("IMAGE"|"image")
     {skip_comment lexbuf ; start_image_scan "" image lexbuf ; main lexbuf}
+(* Backward compatibility with latex2html *)
+| [ ' ' '\t' ] * "begin{latexonly}"
+    {latex2html_latexonly lexbuf;
+     main lexbuf}
 | ' '* ("HEVEA"|"hevea") ' '*
    {main lexbuf}
 | ' '* ("BEGIN"|"begin") ' '+ ("LATEX"|"latex")
