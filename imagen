@@ -5,7 +5,7 @@ GS=gs
 PNMCROP=pnmcrop
 PPMTOGIF=ppmtogif
 PNMMARGIN=pnmmargin
-
+RM="/bin/rm -f"
 case $1 in
   '')
    BASE=image
@@ -35,7 +35,7 @@ if ${NEWDVIPS}
 then
   DVIPSOPTS="${DVIPSOPTS} -S 1 -i"
   ${DVIPS} ${DVIPSOPTS} -o${BASE} ${NAME}.dvi
-  /bin/rm -f ${NAME}.log ${NAME}.aux ${NAME}.dvi
+  ${RM} ${NAME}.log ${NAME}.aux ${NAME}.dvi
 
   test -f ${BASE}001 || {  echo "Failure: no ps files!" 2>&1 ; exit 2 ; }
   for i in ${BASE}[0-9][0-9][0-9]
@@ -46,17 +46,17 @@ then
     ${PNMCROP} < $i.ppm  |\
     ${PNMMARGIN} ${PNMMARGINOPTS} |\
     ${PPMTOGIF} ${PPMTOGIFOPTS} > $i.gif
-    /bin/rm -f $i.ps $i.ppm
+    ${RM} $i.ps $i.ppm
   done
 else
   ${DVIPS} ${DVIPSOPTS} -o${BASE}.ps ${NAME}.dvi
-  /bin/rm -f ${NAME}.log ${NAME}.aux ${NAME}.dvi
+  ${RM} ${NAME}.log ${NAME}.aux ${NAME}.dvi
 
   test -f ${BASE}.ps || { echo "No ps file!" 2>&1 ; exit 2 ; }
 
   (echo "(${BASE}.ps) run" ; echo "quit") |\
   ${GS} ${GSOPTS} -sOutputFile=${BASE}%03d
-  /bin/rm -f ${BASE}.ps
+  ${RM} ${BASE}.ps
 
   test -f ${BASE}001 || { echo "No ppm files!"  2>&1 ; exit 2 ; }
   for i in ${BASE}[0-9][0-9][0-9]
@@ -64,6 +64,6 @@ else
     ${PNMCROP}  < $i |\
     ${PNMMARGIN} ${PNMMARGINOPTS} |\
     ${PPMTOGIF} ${PPMTOGIFOPTS}  > $i.gif
-    /bin/rm -f $i
+    ${RM} $i
   done
 fi

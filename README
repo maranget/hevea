@@ -1,72 +1,96 @@
-      This is hevea, version 1.0 , a fast Latex to HTML translator.
+      This is hevea, version 1.0, a fast Latex to HTML translator.
 
+
+ADVERTISMENT
+
+    HEVEA is a LaTeX to HTML translator.  The input language is a fairly
+    complete subset of LaTeX2e (old LaTeX style is also accepted) and the
+    output language is HTML that is (hopefully) correct with respect to
+    version 3.2.
+
+    Exotic symbols are translated into symbols
+    pertaining to the symbol font of the HTML browser, using the
+    non-standard FACE attribute of the FONT tag.
+    This allows the translation to HTML of quite a lot of the symbols used in
+    LaTeX.
+
+    HEVEA understands LaTeX macro definitions. Simple user style
+    files are understood with little or no modifications.
+    Furthermore, HEVEA customization is done by writing LaTeX code.
+    
+    HEVEA is written in Objective Caml, as many lexers. It is quite fast
+    and flexible. Using HEVEA it is possible to translate large documents
+    such as manuals, books, etc. very quickly. All documents are
+    translated as one single HTML file. Then, the output file can be cut
+    into smaller files, using the companion program HACHA.
 
 LAW
-        For legal matters see the LICENSE File.
+    For legal matters see the LICENSE File.
 
 CONTENTS
-        This distribution includes hevea sources.
+    This distribution includes hevea sources.
 
 CONTACTS
-        mail:           Luc.Maranget@inria.fr
-        distribution:   ftp://ftp.inria.fr/Project/hevea
+    mail:      Luc.Maranget@inria.fr
+    distribution:  ftp://ftp.inria.fr/INRIA/Project/para/hevea
 
 DOCUMENTATION
-        On-line documentation is available at
-        http://para.inria.fr/~maranget/hevea
-        The first sections explain how to use hevea.
+    On-line documentation is available at
+    http://para.inria.fr/~maranget/hevea
+    The first sections explain how to use hevea.
 
 
-        Postcript, DVI and HTML documentation can be found at in the
-        distribution directory:
-        ftp://ftp.inria.fr/Project/hevea
-        
+    Postcript and HTML documentation can be found at in the
+    distribution directory:
+    ftp://ftp.inria.fr/INRIA/Project/para/hevea
+
+    
 INSTALLATION
 
-  REQUIRMENTS
-          Hevea is written in Objective Caml (Ocaml). It compiles under
-        OCaml 1.07, which should thus be properly installed.  Ocaml is
-        available at
-          ftp://ftp.inria.fr/lang/caml-light/ocaml-1.07.tar.gz
+ REQUIRMENTS
+    HEVEA is written in Objective Caml (Ocaml). It compiles under
+    OCaml 1.07, which should thus be properly installed. Ocaml is
+    available at
+     ftp://ftp.inria.fr/lang/caml-light/ocaml-1.07.tar.gz
 
-        More information on OCaml can be found at
-          http://caml.inria.fr/ocaml/
+    More information on OCaml can be found at
+     http://caml.inria.fr/ocaml/
 
-        Hevea is fully functionnal when other software are installed
-          * A modern LaTeX installation including dvips.
-          * The ghoscript Postcript interpreter.
-          * the netpbm image processing package.
-             ftp://wuarchive.wustl.edu/graphics/graphics/packages/NetPBM
-        However, these softwares are optionnal and hevea runs without them.
-        ocaml-1.07.tar.gz
+    HEVEA is fully functionnal when other software are installed
+     * A modern LaTeX installation including dvips.
+     * The ghoscript Postcript interpreter.
+     * the netpbm image processing package.
+       ftp://wuarchive.wustl.edu/graphics/graphics/packages/NetPBM
+    However, these softwares are optionnal and hevea runs without them.
+    ocaml-1.07.tar.gz
 
 
 CONFIGURATION
-        There are a few configuration variables at the beginning of
-        the Makefile.
-          * TARGET
+    There are a few configuration variables at the beginning of
+    the Makefile.
+     * TARGET
 
-            TARGET= opt makes hevea compile under ocamlopt, the
-            Objective Caml compiler that produces native code. This is
-            the default.
+      TARGET= opt makes hevea compile under ocamlopt, the
+      Objective Caml compiler that produces native code. This is
+      the default.
 
-            TARGET=byte makes hevea compile under ocamc, the
-            Objective Caml compiler that produces bytecode.
+      TARGET=byte makes hevea compile under ocamc, the
+      Objective Caml compiler that produces bytecode.
 
-            Using opt, hevea is about three times as fast than
-            using byte. However, some OCaml installations may only
-            provide ocamlc.
+      Using opt, hevea is about three times as fast than
+      using byte. However, some OCaml installations may only
+      provide ocamlc.
 
-          * LIBDIR is the library  directory of hevea, that contains
-            hevea style files. It defaults to /usr/local/lib/hevea.
+     * LIBDIR is the library directory of hevea, that contains
+      hevea style files. It defaults to /usr/local/lib/hevea.
 
-          * BINDIR is the directory where to install, hevea, hacha and
-            imagen. It defaults to /usr/local/bin.
+     * BINDIR is the directory where to install, hevea, hacha and
+      imagen. It defaults to /usr/local/bin.
 
-          * CPP is cpp, it defaults to ``gcc -E -P -x c''.
-        
+     * CPP is cpp, it defaults to ``gcc -E -P -x c''.
+    
 
 MAKE
-        Once configuration variables are set, type:
-        make ; make install
+    Once configuration variables are set, type:
+    make ; make install
 

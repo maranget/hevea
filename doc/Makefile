@@ -57,7 +57,7 @@ dorelease:
 	cd $(RELEASEDIR) ; tar cfo $(RELEASENAME)-manual.tar $(RELEASENAME)-manual ;\
 	 gzip -f -best $(RELEASENAME)-manual.ps  $(RELEASENAME)-manual.tar
 # Copy to FTPDIR
-	cd $(RELEASEDIR) ; mv $(RELEASENAME)-manual.ps.gz $(RELEASENAME)-manual.tar.gz  $(RELEASENAME).tar.gz $(FTPDIR)
+	cd $(RELEASEDIR) ; mv $(RELEASENAME)-manual.ps.gz $(RELEASENAME)-manual.tar.gz  $(RELEASENAME).tar.gz $(RELASENAME}/README $(FTPDIR)
 
 release:
 	$(MAKE) $(MFLAGS) dorelease RELEASEOPT="-t $(RELEASETAG)"

@@ -7,7 +7,7 @@
 
 
 \renewcommand{\thepart}{\Alph{part}}
-\addtolength{\topmargin}{-1cm}
+\addtolength{\topmargin}{-2cm}
 \renewcommand{\numberline}[1]{#1\quad}
 %%%%%%%%%%%%%%%%%%%%
 \newcommand{\commandname}[1]{{\tt #1}}
@@ -45,6 +45,19 @@ Chesnay Cedex. {\tt \mailto{Luc.Maranget@inria.fr}}}}
 
 \maketitle
 
+\begin{htmlonly}
+\@print{
+<HR>
+}%
+\newcommand{\base}{ftp://ftp.inria.fr/INRIA/Projects/para/hevea}%
+This manual also exist in
+\url{\base/hevea-\heveaversion-manual.ps.gz}{Postcript} and and as
+a \url{\base/hevea-\heveaversion-manual.tar.gz}{bundle of HTML files}.
+\@print{
+<HR>
+}%
+\end{htmlonly}
+
 \begin{abstract}
 \hevea{} is a \LaTeX{} to
 {\html} translator.
@@ -53,7 +66,7 @@ The input language is a fairly complete subset of \LaTeXe{} (old
 output language is {\html} that is (hopefully) correct with respect to
 version 3.2.
 
-Mathematics and other exotic symbols are translated into symbols
+Exotic symbols are translated into symbols
 pertaining to the symbol font of the {\html} browser, using the
 non-standard \verb+FACE+ attribute of the \verb+FONT+ tag.
 This allows the translation to {\html} of quite a lot of the symbols used in
@@ -67,7 +80,7 @@ Furthermore, \hevea{} customization is done by writing \LaTeX{} code.
 
 \hevea{} is written in Objective Caml, as many lexers. It is
 quite fast and flexible.
-Using \hevea{} it is possible to translate  big documents such
+Using \hevea{} it is possible to translate  large documents such
 as manuals, books, etc. very quickly. All documents are
 translated as one single {\html} file. Then, the output file can be cut into
 smaller files, using the companion program \hacha.
@@ -78,7 +91,7 @@ smaller files, using the companion program \hacha.
 \tableofcontents
 
 \clearpage
-\part{User manual}
+\part{User manual}\label{usermanual}
 
 \section{How to get started}\label{getstarted}
 
@@ -320,7 +333,7 @@ one should probably write:
 \end{verbatim}
 
 
-\subsection{Math mode}
+\subsection{Math mode}\label{symbols}
 
 \hevea{} math mode is not very far from normal text mode:
 all letters are shown in italics and spaces after macros
@@ -371,7 +384,7 @@ Apart from containing symbols, formulas specify strong typesetting
 constraints: sub-elements must be combined together following patterns
 that departs from normal text typesetting. For instance, fractions
 numerators and denominators must be placed one above the other.
-\hevea handle such constraints in display mode only, as explained in the
+\hevea{} handles such constraints in display mode only, as explained in the
 next section.
 
 
@@ -456,8 +469,8 @@ arrays that are not \LaTeX{}
 displays but that make a single paragraph.
 In particular, this applies to \verb+tabular+ environments.
 
-Users can get an idea on how \hevea{} combine elements in display mode
-by giving the \verb+-v+ options, which instruct \hevea{} to show the
+Users can get an idea on how \hevea{} combines elements in display mode
+by giving the \verb+-v+ options, which instructs \hevea{} to show the
 \verb+TABLE+ elements introduced by displays with a border.
 
 \subsection{Warnings}
@@ -466,8 +479,8 @@ properly, it issues a warning. This draw user attention onto a
 potential problem. However, rendering may be correct.
 
 \begin{htmlonly}
-In the following example, \hevea{} get anxious because of explicit
-length:
+In the following example, \hevea{} gets nervous  because of the explicit
+length given as argument to \verb+\hspace+:
 \begin{verbatim}
 \begin{tabular}{c@{\hspace{2ex}}c}
 Before & After
@@ -2251,6 +2264,7 @@ to \hevea{} current operating mode.
 
 \setcounter{section}{0}
 \part{Practical information}
+\label{practical}
 
 \section{Usage}
 \subsection{\hevea{} usage}
@@ -2258,30 +2272,31 @@ to \hevea{} current operating mode.
 The \texttt{hevea} command interprets its arguments as the names of
 \LaTeX{} source
 files and attempt to process them.
-If an argument \textit{filename} does not have an extension, such as
-\texttt{.tex} or 
-\texttt{.sty}, then a first attempt is made to open \textit{filename};
+If an argument \textit{filename} does not have an extension,
+then a first attempt is made to open \textit{filename};
 in case of failure, another attempt to open
-\textit{filename}\texttt{.text} is made.
+\textit{filename}\texttt{.tex} is made.
 In all cases, filenames that do not containt ``\texttt{/}'' are
 searched along \texttt{hevea} search path.
 \texttt{hevea} search path consist in the current, directory ``\texttt{.}'',
 followed by directories specified by the user with the \texttt{-I}
-option, and by \texttt{hevea} library (normaly \texttt{/usr/local/lib/hevea}).
+option, and by \texttt{hevea} library directory
+(normaly \texttt{/usr/local/lib/hevea}).
 
-If the last argument has extension \texttt{.text}, i.e., if
+If the last argument has extension \texttt{.tex}, that is, if
 this last argument is \textit{name}\texttt{.tex}, then \textit{name} is
 the input base name and ouput normally goes into file
 \textit{name}\texttt{.html}.
 Otherwise, there is no input base name, the standard input is read and
-ouput goes to the standard output.
+ouput normally goes to the standard output.
 
 
 The \texttt{article.sty}, \texttt{book.sty} and \texttt{report.sty}
 base style files from \hevea{} library are special.
 Only the first base style file is loaded and the
 \verb+\documentclass+ command has no effect when a base style file is
-already loaded.
+already loaded. This feature allows to override a document base style
+whithout editing it.
 
 
 The \texttt{hevea} command recognizes the following options:
@@ -2316,6 +2331,7 @@ filename}. By default, \texttt{hevea} output goes into
 \item[{\tt -help}] Print version number and a short help message.
 \end{description}
 
+\hevea{} user manual is part~\ref{usermanual} of this document.
 
 \subsection{\hacha{} usage}
 The \texttt{hacha} command interprets its argument as the name of
@@ -2328,6 +2344,9 @@ It also recognizes the following options:
 \textit{filename} (defaults  to index.html).
 \item[{\tt -help}] Print version number and a short help message.
 \end{description}
+
+\noindent Section~\ref{hacha} of the user manual explains how to
+alter \hacha{} default behavior.
 
 \subsection{\texttt{imagen} usage}
 \texttt{imagen} is a simple shell script.
@@ -2356,6 +2375,7 @@ stages: when producing Postcript, or while interpreting Postcript.
 The choice is made by checking whether \texttt{dvips} accepts the
 \texttt{-i} option or not.
 
+More information on producing images can be found in section~\ref{imagen}.
 
 
 \section{Browser configuration}\label{browser}
@@ -2385,6 +2405,9 @@ choose  {\bf Western (MacRoman)} in the item {\bf Document~Encoding}
 from the {\em Preferences} menu. This will work only if the document
 does contain isolatin1 characters above 127\ldots
 
+More details can be found in section~\ref{symbols} of the user manual.
+In particular, note that symbol fonts may be completly avoided with
+\verb+-nosymb+ option.
 
 \section{Installation}
 
@@ -2404,11 +2427,10 @@ part of the input (see section~\ref{imagen}). Instead, this part is
 processed into a 
 \verb+.gif+ file and \hevea{} ouputs a  link to the image file.
 \LaTeX{} is changed into a \verb+.gif+ file by the the \verb+imagen+
-script, which basically calls, \LaTeX, ghostscript, a few tools from
+script, which basically calls, \LaTeX, ghostscript and a few tools from
 the image processing package
 \footurl{ftp://wuarchive.wustl.edu/graphics/graphics/packages/NetPBM}{netpbm}.
-and
-\footurl{ftp://ftp.rz.uni-karlsruhe.de/pub/net/www/tools/giftrans.c}{giftrans}.
+
 To benefit from the full functionnality of \hevea, you need all
 this software. However, \hevea{} runs without them, but then you will
 have to accept ``X'' labels and to manage to produce images by yourself.
@@ -2421,8 +2443,10 @@ and base style files in this directory.
 There are two compilation mode, the \texttt{opt} mode select the
 native code \texttt{ocamlopt} OCaml compiler, while the \texttt{byte}
 mode selects the bytecode \texttt{ocamlc} OCaml compiler.
-Default is \texttt{opt}, however it may be the case on some systems
-that only \texttt{ocamlc} is available.
+In \hevea{} case, \texttt{ocamlopt} produces code that is up to three
+times as fast as the one produced by \texttt{ocamlc}.
+Thus, default compilation mode is \texttt{opt}, however it may be the
+case on some systems that only \texttt{ocamlc} is available.
 
 
 \section{Other \LaTeX{} to \html{} translators}
