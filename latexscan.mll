@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.153 1999-12-01 19:04:42 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.154 1999-12-08 18:10:17 maranget Exp $ *)
 
 
 {
@@ -814,7 +814,7 @@ let count_newlines s =
 ;;
 } 
 
-let command_name = '\\' (('@' ? ['A'-'Z' 'a'-'z']+ '*'?) | [^ 'A'-'Z' 'a'-'z'])
+let command_name = '\\' (( ['@''A'-'Z' 'a'-'z']+ '*'?) | [^ 'A'-'Z' 'a'-'z'])
 
 rule  main = parse
 (* comments *)
@@ -1358,14 +1358,11 @@ def_code "\\bibliography" (do_input "\\bibliography")
 
 (* Command definitions *)
 
-let save_body lexbuf = 
- if top_level () then fst (save_arg lexbuf) else subst_arg lexbuf
-
 let do_newcommand lxm lexbuf =
   Save.start_echo () ;
   let name = subst_csname lexbuf in
   let nargs = save_opts ["0" ; ""] lexbuf in
-  let body = save_body lexbuf in
+  let body = subst_body lexbuf in
   if (!env_level = 0) && lxm <> "\\@forcecommand"  && top_level () then
     Image.put
       (lxm^Save.get_echo ()^"\n") ;
@@ -1401,7 +1398,7 @@ def_name_code "\\newcolumntype"
     Save.start_echo () ;
     let name = subst_csname lexbuf in
     let nargs = save_opt "0" lexbuf in
-    let body = save_body lexbuf in
+    let body = subst_body lexbuf in
     let rest = Save.get_echo () in
     if !env_level = 0 then
       Image.put (lxm^rest^"\n") ;
@@ -1418,8 +1415,8 @@ let do_newenvironment lxm lexbuf =
   let nargs,optdef = match save_opts ["0" ; ""] lexbuf with
   |  [x ; y ] -> x,y
   | _ -> assert false in
-  let body1 = save_body lexbuf in
-  let body2 = save_body lexbuf in
+  let body1 = subst_body lexbuf in
+  let body2 = subst_body lexbuf in
   if !env_level = 0 then
     Image.put (lxm^Save.get_echo ()^"\n") ;
   begin try

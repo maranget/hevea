@@ -7,7 +7,7 @@ open Lexing
 let subst_buff = Out.create_buff ()
 ;;
 } 
-let command_name = '\\' (('@' ? ['A'-'Z' 'a'-'z']+ '*'?) | [^ 'A'-'Z' 'a'-'z'])
+let command_name = '\\' ((['@''A'-'Z' 'a'-'z']+ '*'?) | [^ 'A'-'Z' 'a'-'z'])
 
 rule subst = parse
 | '#' ['1'-'9']
@@ -67,4 +67,10 @@ let subst_this lexbuf = do_subst_this (lexbuf,get_subst ())
 let subst_arg lexbuf = do_subst_this (save_arg lexbuf)  
 and subst_opt def lexbuf = do_subst_this (save_opt def lexbuf)  
 and subst_csname lexbuf = Save.csname lexbuf subst_this
+
+let subst_body lexbuf = 
+ if Lexstate.top_level () then
+   fst (save_arg lexbuf)
+ else
+   subst_arg lexbuf
 } 

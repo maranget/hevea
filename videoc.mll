@@ -1,6 +1,6 @@
 (* <Christian.Queinnec@lip6.fr>
  The plugin for HeVeA that implements the VideoC style.
- $Id: videoc.mll,v 1.16 1999-10-13 08:21:30 maranget Exp $ 
+ $Id: videoc.mll,v 1.17 1999-12-08 18:10:28 maranget Exp $ 
 *)
 
 {
@@ -24,7 +24,7 @@ open Scan
 
 
 let header = 
-  "$Id: videoc.mll,v 1.16 1999-10-13 08:21:30 maranget Exp $"
+  "$Id: videoc.mll,v 1.17 1999-12-08 18:10:28 maranget Exp $"
 (* So I can synchronize my changes from Luc's ones *)
 let qnc_header = 
   "17 aout 99"
@@ -96,7 +96,7 @@ let increment_internal_counter =
 
 } 
 
-let command_name = '\\' (('@' ? ['A'-'Z' 'a'-'z']+ '*'?) | [^ 'A'-'Z' 'a'-'z'])
+let command_name = '\\' ((['@''A'-'Z' 'a'-'z']+ '*'?) | [^ 'A'-'Z' 'a'-'z'])
 
 rule snippetenv = parse 
 | eof { () }

@@ -12,7 +12,7 @@
 {
 open Lexing
 
-let header = "$Id: save.mll,v 1.48 1999-11-24 19:01:08 maranget Exp $" 
+let header = "$Id: save.mll,v 1.49 1999-12-08 18:10:25 maranget Exp $" 
 
 let verbose = ref 0 and silent = ref false
 ;;
@@ -69,19 +69,35 @@ let put_both_char c =
   put_echo_char c ; Out.put_char arg_buff c
     ;;
 
+type kmp_t = Continue of int | Stop of string
+
+let rec kmp_char delim next i c =
+  if i < 0 then begin
+    Out.put_char arg_buff c ;
+    Continue 0
+  end else if c = delim.[i] then begin
+    if i >= String.length delim - 1 then
+      Stop (Out.to_string arg_buff)
+    else
+      Continue (i+1)
+  end else begin
+    if next.(i) >= 0 then
+      Out.put arg_buff (String.sub delim 0 (i-next.(i))) ;
+    kmp_char delim next next.(i) c
+  end
 }
 
   rule opt = parse
 | ' '* '\n'? ' '* '['
     {put_echo (lexeme lexbuf) ;
-      opt2 lexbuf}
+    opt2 lexbuf}
 |  eof  {raise Eof}
 |  ""   {raise NoOpt}
 
 
 and opt2 =  parse
-    '{'         {incr brace_nesting;
-                  put_both_char '{' ; opt2 lexbuf}
+| '{'         {incr brace_nesting;
+                 put_both_char '{' ; opt2 lexbuf}
 | '}'        { decr brace_nesting;
                if !brace_nesting >= 0 then begin
                  put_both_char '}' ; opt2 lexbuf
@@ -111,7 +127,7 @@ and arg = parse
      {let lxm = lexeme lexbuf in
      put_echo lxm ;
      lxm}
-  | '\\' ( [^'A'-'Z' 'a'-'z'] | ('@' ? ['A'-'Z' 'a'-'z']+ '*'?))
+  | '\\' ( [^'A'-'Z' 'a'-'z'] | (['@''A'-'Z' 'a'-'z']+ '*'?))
      {put_both (lexeme lexbuf) ;
      skip_blanks lexbuf}
   | '#' ['1'-'9']
@@ -212,7 +228,7 @@ and cite_args_bis = parse
 
 and macro_names = parse
   eof {[]}
-| '\\' (('@'? ['A'-'Z' 'a'-'z']+ '*'?) | [^ 'A'-'Z' 'a'-'z'])
+| '\\' ((['@''A'-'Z' 'a'-'z']+ '*'?) | [^ 'A'-'Z' 'a'-'z'])
   {let name = lexeme lexbuf in
   name :: macro_names lexbuf}
 | _   {macro_names lexbuf}
@@ -318,6 +334,16 @@ and eat_delim_init = parse
 | ""  {eat_delim_rec lexbuf}
 
 and eat_delim_rec = parse
+| "\\{"
+  {fun delim next i ->
+    put_echo "\\{" ;
+    match kmp_char delim next i '\\' with
+    | Stop _ ->
+        raise (Error "Delimitors cannot end with ``\\''")
+    | Continue i -> match  kmp_char delim next i '{' with
+      | Stop s -> s
+      | Continue i ->  eat_delim_rec lexbuf delim next i}
+      
 | '{'
   {fun delim next i ->
     put_echo_char '{' ;
@@ -329,25 +355,12 @@ and eat_delim_rec = parse
     Out.put_char arg_buff '}' ;
     eat_delim_rec lexbuf delim next 0}
 | _
-  {let c = lexeme_char lexbuf 0 in
-  put_echo_char c ;
-
-  let rec kmp_char delim next i =
-
-    if i < 0 then begin
-      Out.put_char arg_buff c ;
-      eat_delim_rec lexbuf delim next 0
-    end else if c = delim.[i] then begin
-      if i >= String.length delim - 1 then
-        Out.to_string arg_buff
-      else
-        eat_delim_rec lexbuf delim next (i+1)
-    end else begin
-      if next.(i) >= 0 then
-        Out.put arg_buff (String.sub delim 0 (i-next.(i))) ;
-      kmp_char delim next next.(i)
-    end in
-  kmp_char}
+  {fun delim next i ->
+    let c = lexeme_char lexbuf 0 in
+    put_echo_char c ;
+    match kmp_char delim next i c with
+    | Stop s -> s
+    | Continue i -> eat_delim_rec lexbuf delim next i}
 |  eof
     {raise (Error ("End of file in delimited argument, read:\n\t"^
             Out.to_string echo_buff))}
@@ -368,7 +381,9 @@ and skip_delim_rec = parse
 |  eof
     {fun delim i ->
       raise (Error ("End of file checking delimiter ``"^delim^"''"))}
-
+and check_equal = parse
+| '=' {true}
+| ""  {false}
 {
 
 let init_kmp s =
@@ -405,5 +420,4 @@ let arg_verbatim lexbuf = match first_char lexbuf with
   | c ->
       let delim = String.make 1 c in
       with_delim delim lexbuf
-        
 } 

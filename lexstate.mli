@@ -19,6 +19,7 @@ type pat = string list * string list
 val pretty_pat : pat -> unit
 
 type subst
+val top_subst : subst
 val get_subst : unit -> subst
 
 exception Error of string

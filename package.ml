@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.9 1999-12-07 16:12:19 maranget Exp $    *)
+(*  $Id: package.ml,v 1.10 1999-12-08 18:10:23 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -21,6 +21,7 @@ open Misc
 open Lexing
 open Lexstate
 open Latexmacros
+open Subst
 open Stack
 open Scan
 ;;
@@ -72,6 +73,16 @@ def_code "\\@fst"
     scan_this main fst_arg)
 ;;
 
+let do_call lexbuf =
+  let csname = subst_csname lexbuf in
+  let nargs = Get.get_int (save_arg lexbuf) in
+  let arg = subst_arg lexbuf in
+  scan_this  main (csname^" "^arg)
+;;
+
+def_code "\\@funcall" do_call
+;;
+
 def_code "\\@auxwrite"
   (fun lexbuf ->
     let lab = get_prim_arg lexbuf in
@@ -94,7 +105,6 @@ def_code "\\bibcite"
 ;;
     
 (* Index primitives *)
-(* index *)
 
 register_init "index"
   (fun () ->
@@ -125,7 +135,8 @@ register_init "index"
     def_code "\\newindex" new_index ;
     def_code "\\renewindex" new_index)    
 ;;
-    
+
+(* ifthen package *)    
 register_init "ifthen"
   (fun () ->
     def_code "\\ifthenelse"
@@ -158,7 +169,7 @@ register_init "ifthen"
 ;;
 
                           
-
+(* color package *)
 register_init "color"
   (fun () ->
     def_code "\\definecolor"
@@ -195,6 +206,7 @@ register_init "color"
         Dest.put_char '"'))
 ;;
 
+(* sword package *)
 register_init "sword"
 (fun () ->
       def_code "\\FRAME"
@@ -236,6 +248,7 @@ fallback name");
   )
 ;;
 
+(* url package *)
 let verb_arg lexbuf =
   let url,_ = save_verbatim lexbuf in
   for i = 0 to String.length url - 1 do
@@ -281,7 +294,7 @@ register_init "url"
     ())
 ;;         
 
-
+(* hyperref (not implemented in fact) *)
 register_init "hyperref"
   (fun () ->
     def_code "\\href"
@@ -313,4 +326,80 @@ register_init "hyperref"
            "\\#"^category^"."^name^"}{"^text^"}",subst)))
 ;;
 
+(* (extended) keyval package *)
+
+let keyval_name f k = "\\KV@"^f^"@"^k
+let keyval_extra f k = keyval_name f k^"@extra"
+
+
+let do_definekey lexbuf =
+  let argdef = save_opts ["1" ; ""] lexbuf in
+  let family = get_prim_arg lexbuf in
+  let key = get_prim_arg lexbuf in
+  let opt = save_opts [""] lexbuf in
+  let body = subst_body lexbuf in
+  begin match argdef with
+  | (No _,_):: _ ->
+      begin match opt with
+      | [No _,_] ->
+          silent_def (keyval_name family key) 1
+            (Subst body)
+      | [Yes opt,subst] ->
+          silent_def (keyval_name family key) 1
+            (Subst body) ;
+          silent_def
+            (keyval_name family key^"@default") 0
+            (Subst
+               (keyval_name family key^" "^do_subst_this (opt,subst)^"="))
+      | _ -> assert false
+      end
+  | [Yes nargs, subst ; opt] ->
+      let nargs = Get.get_int (nargs,subst) in
+      let extra = keyval_extra key family in
+      silent_def (keyval_name family key) 1
+        (Subst
+           ("\\@funcall{"^extra^"}{"^string_of_int nargs^"}{#1}")) ;
+      begin match opt with
+      | No _,_ ->
+          silent_def extra nargs (Subst body)
+      | Yes opt,o_subst ->
+          silent_def_pat
+            extra
+            (make_pat [do_subst_this (opt,o_subst)] nargs)
+            (Subst body)
+      end
+  | _ -> assert false
+  end
+;;
+
+let do_setkey lexbuf =
+  let family = get_prim_arg lexbuf in
+  let arg = subst_arg lexbuf^",," in
+  let abuff = Lexing.from_string arg in
+  let rec do_rec () =
+    let x,_ = save_arg_with_delim "," abuff in
+    if x <>  "" then begin
+      let xbuff = Lexing.from_string (x^"==") in
+      check_alltt_skip xbuff ;
+      let key,_ = save_arg_with_delim "=" xbuff in
+      let value,_ = save_arg_with_delim "=" xbuff in
+      let csname = keyval_name family key in
+      if exists_macro csname then begin
+        if value <> "" then
+          scan_this main (csname^"{"^value^"}")
+        else
+          scan_this main (csname^"@default")
+      end ;
+      do_rec ()
+    end in
+  do_rec ()
+;;
+
+register_init "keyval"
+  (fun () ->
+    def_code "\\define@key" do_definekey ;
+    def_code "\\@setkeys" do_setkey
+  )
+  
+  
 end

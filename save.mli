@@ -17,6 +17,7 @@ val rest : Lexing.lexbuf -> string
 val macro_names : Lexing.lexbuf -> string list
 val num_arg : Lexing.lexbuf -> (string -> int) -> int
 val skip_equal : Lexing.lexbuf -> unit
+val check_equal : Lexing.lexbuf -> bool
 val filename : Lexing.lexbuf -> string
 val get_sup_sub : Lexing.lexbuf -> string * string
 val get_sup : Lexing.lexbuf -> string

@@ -1,5 +1,6 @@
 
 version 1.05-6
+  - keyval package.
   - Bug range references in indexes (``|('' .. ``|)'' ignored)
   - xxdate.exe script and \today in latexcommon.hva.
   - -exec prog option for generating .hva files on the fly
