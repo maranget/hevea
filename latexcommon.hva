@@ -149,7 +149,6 @@
 \newcommand{\oddsidemargin}{}
 \newcommand{\evensidemargin}{}
 %%%%%%%% various commands
-\def\today{}
 \def\protect{}
 \def\fancyplain#1#2{}
 \def\newblock{}
@@ -268,3 +267,35 @@
 {\@imageflush\stepcounter{image}\imgsrc[#1]{\jobname\theimage\heveaimage}}
 %%%%%%%%%% Compatibility with old hevea \url
 \AtBeginDocument{\@ifundefined{url}{\input{compat.hva}}{}}
+%%%%%%%%% Time stuff
+\newcommand{\today}
+{\@ifundefined{theyear}{\warning{\today needs ``-exec xxdate.exe'' option}}
+{\ifthenelse{\boolean{french}}
+{\theday%
+\ifthenelse{\value{day}=1}{$^{\textrm{er}}$ }{ }%
+\ifthenelse{\value{month}=1}{janvier}{}%
+\ifthenelse{\value{month}=2}{février}{}%
+\ifthenelse{\value{month}=3}{mars}{}%
+\ifthenelse{\value{month}=4}{avril}{}%
+\ifthenelse{\value{month}=5}{mai}{}%
+\ifthenelse{\value{month}=6}{juin}{}%
+\ifthenelse{\value{month}=7}{juillet}{}%
+\ifthenelse{\value{month}=8}{août}{}%
+\ifthenelse{\value{month}=9}{septembre}{}%
+\ifthenelse{\value{month}=10}{octobre}{}%
+\ifthenelse{\value{month}=11}{novembre}{}%
+\ifthenelse{\value{month}=12}{décembre}{} \theyear}
+{%
+\ifthenelse{\value{month}=1}{January}{}%
+\ifthenelse{\value{month}=2}{February}{}%
+\ifthenelse{\value{month}=3}{March}{}%
+\ifthenelse{\value{month}=4}{April}{}%
+\ifthenelse{\value{month}=5}{May}{}%
+\ifthenelse{\value{month}=6}{June}{}%
+\ifthenelse{\value{month}=7}{July}{}%
+\ifthenelse{\value{month}=8}{August}{}%
+\ifthenelse{\value{month}=9}{September}{}%
+\ifthenelse{\value{month}=10}{October}{}%
+\ifthenelse{\value{month}=11}{November}{}%
+\ifthenelse{\value{month}=12}{December}{} \theday, \theyear}}}
+

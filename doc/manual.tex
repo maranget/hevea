@@ -44,7 +44,7 @@
 {\normalsize Version~\heveaversion}}
 \author{Luc Maranget\thanks{Inria Rocquencourt -- BP 105, 78153 Le
 Chesnay Cedex. {\tt \mailto{Luc.Maranget@inria.fr}}}}
-\date{}
+\date{\today}
 \setcounter{tocdepth}{2}
 
 \begin{document}
@@ -101,7 +101,7 @@ Information on \hevea{} is available at \ahrefurl{\heveaurl}.
 \begin{htmlonly}
 This document consists in three parts, a tutorial introduction, a
 reference manual and some practical information. The latter part
-includes a small \@locref{@index}{index}.
+includes a small \ahrefloc{@index}{index}.
 \end{htmlonly}
 
 \clearpage
@@ -1845,6 +1845,7 @@ this is annoying. Moreover, the immediate solution
 \verb+\ahref{\verb" ... /~maranget/..."}{his home page}+ does not
 work, since \LaTeX{} forbids verbatim formatting inside command arguments.
 
+\comindex{url}
 Fortunately, the \texttt{url} package provides a very convenient
 \verb+\url+ command that acts like \verb+\verb+ and can appear in
 other command arguments
@@ -1862,13 +1863,13 @@ Or even better~:
 It may seem complicated, but this is a safe way to have a
 document processed both by \LaTeX{} and \hevea{}.
 Drawing a line between url typesetting and hyperlinks is correct,
-because there is no standard way to express hyperlinks in \LaTeX{}.
-That way, \hevea{} (optionnaly) depends on only one third party package:
+because users may sometime want urls to be processed and some other
+times not.
+Moreover, \hevea{} (optionnaly) depends on only one third party package:
 \texttt{url}, which as correct as it can be and well-written.
 
 
 
-\comindex{url}
 \comindex{oneurl}
 \comindex{footurl}
 In case the \verb+\url+ command is undefined
@@ -2607,6 +2608,8 @@ chapters into alphabetic (uppercase) style:
 \renewcommand{\thechapter}{\Alph{chapter}}
 \end{verbatim}
 
+It is not advised to put anything else than a section title inside
+a sectioning command argument (no \verb+\label+, no \verb+\index+\ldots).
 
 \subsection{The Appendix}
 The \verb+\appendix+ command exists and should work as in \LaTeX.
@@ -2686,12 +2689,15 @@ implementations by themselves.
 
 
 \subsection{The Title Page and Abstract}
+\comindex{today}
 All title related commands exist, with the following peculiarities:
 \begin{itemize}
   \item The \verb+\title+ command must appear in the preamble for the title
 to appear in \html{} document header.
   \item When not present the date is left empty. The \verb+\today+
-command generates an empty date.
+command generates will work properly only if \texttt{hevea} is invoked
+with the \verb+-exec xxdate.exe+ option.
+Otherwise \verb+\today+ generates nothing and a warning is issued.
 \end{itemize}
 
 The \verb+abstract+ environment is present is all base styles,
@@ -4300,17 +4306,15 @@ equations (\verb+gather+,
 \subsection{The \texttt{multind} package}\label{multind}
 The \texttt{multind.hva} style files provides compatibility with the
 \texttt{multind} package for multiple indexes.
-When a document loads the \texttt{multind} package, \hevea{} should
-explicitly load the  \texttt{multind.hva} file.
-Loading this file redefines the \verb+\makeindex+, \verb+\printindex+
-and \verb+\index+ commands, so that they accept an extra (mandatory) first
-argument, which is interpreted as the tag of a particular index.
+\hevea{} provides a hopefully correct implementation of this package.
 
-Note that this style for indexes is not backward compatible with
-\LaTeX{} default indexing scheme.
+Note that the ``\texttt{multind}''
+style for indexes is not backward compatible with
+\LaTeX{} default indexing scheme. I would recommend using
+the ``\texttt{index}'' package.
 
 \subsection{The \texttt{url} package}\label{urlpackage}
-\comindex{url}\index{hyperlinks}
+\comindex{url}\index{hyperlinks}\ttindex{url}{package}
 This package in fact provides a enhanced  \verb+\verb+ command that
 can appear inside other command arguments.
 This command is named ``\verb+\url+'',
@@ -4376,14 +4380,60 @@ The \texttt{urlhref.hva}
 style file (which is an \hevea{} style file and not a \LaTeX{}
 style file) can be adequate for bibliographic references,
 which often use \verb+\url+ for its typesetting power.
-Of course, loading the \texttt{urlhref.hva} only makes sense when
+Of course, loading \texttt{urlhref.hva} only makes sense when
 all arguments to \verb+\url+ are urls\ldots
 
-\subsection{Fancy sectionning commands}
+\subsection{Date and time}
+\comindex{today}\ttindex{xxdate.exe}{script}
+Date and time support is not enabled by default, for portability and
+simplicity reasons.
+
+However, \hevea{} source distribution includes a simple (\texttt{sh})
+shell script
+\texttt{xxdate.exe} that activates date and time support.
+The \texttt{hevea} command, should be invoked as~:
+\begin{verbatim}
+# hevea -exec xxdate.exe ...
+\end{verbatim}
+This will execute the script \texttt{xxdate.exe}, whose output is then
+read by \hevea{}.
+As a consequence, standard \TeX{} counters \verb+\year+,
+\verb+\month+, \verb+\day+ and \verb+\time+ are defined and
+\LaTeX{} command \verb+\today+ works properly.
+\comindex{heveadate}
+Additionnally the following counters and commands are defined~:
+\begin{center}
+\begin{tabular}{l@{\quad}p{.5\textwidth}}\\ \hline
+Counter \texttt{Hour} & hour, 0\ldots{}11\\
+Counter \texttt{weekday} & day of week, 0\ldots{}6\\
+Counter \texttt{minute}  & minute, 0\ldots{}59\\
+Counter \texttt{second}  & second, 0\ldots{}59\\ \hline
+Command \verb+\ampm+ & AM or PM\\
+Command \verb+\timezone+ & Time zone\\
+Command \verb+\heveadate+ & Output of the ``\texttt{date}'' Unix
+command\ifhevea, (e.g. \heveadate)\fi\\ \hline
+\end{tabular}
+\end{center}
+
+Note that I choosed to add an extra option (and not an extra
+``\verb+\@exec+'' primitive) for security reasons. You certainly do
+not want to enable \hevea{} to execute silently an arbitrary program
+without being conscious of that fact.
+Moreover, the \texttt{hevea} program does not execute
+\texttt{xxdate.exe} by default since it is difficult to write such 
+a script in a portable manner.
+
+
+Windows users, once they have installed the
+\footahref{http://www.arch.ohio-state.edu/crp/faculty/pviton/support/htoday.html}{\texttt{xxdate.exe}}
+programm in \hevea{} directory, should enjoy the same features.
+
+
+\subsection{Fancy sectioning commands}
 \index{color!of section headings}
 Loading the \texttt{fancysection.hva} file will radically change the
 style of sectionnal units headers: they appear over a green
-backgroud, the backgrould color saturation decreases as the sectionning
+backgroud, the backgrould color saturation decreases as the sectioning
 commands themselves do\ifhevea{} (this is the style of this manual).\else.\fi{}
 Additionnaly, the document background color is white.
 
@@ -4404,7 +4454,7 @@ And then launch \texttt{hevea} as:
 # hevea doc.hva doc.tex
 \end{verbatim}
 
-Sectionning command background colors can be changed by
+Sectioning command background colors can be changed by
 redefining the corresponding colors (\texttt{part}, \texttt{chapter},
 \texttt{section},\ldots).
 For instance, you get various mixes of red and orange by:
@@ -4695,7 +4745,7 @@ Then, \texttt{hacha} cuts \texttt{doc.html} into several,
 table of links file \texttt{index.html}.
 \begin{verbatim}
 HEVEA=hevea
-HEVEAOPTS=
+HEVEAOPTS=-fix
 HACHA=hacha
 #document base name
 DOC=doc
@@ -4704,25 +4754,21 @@ index.html: $(DOC).html
 
 $(DOC).html: macros.hva $(DOC).tex
         $(HEVEA) $(HEVEAOPTS) macros.hva $(DOC).tex
-        $(HEVEA) $(HEVEAOPTS) macros.hva $(DOC).tex
 clean:
         rm -f $(DOC).html index.html $(DOC)[0-9][0-9][0-9].html $(DOC).haux
 \end{verbatim}
 Note that the \texttt{clean} rule removes all the \texttt{doc001.html},
 \texttt{doc002.html}, etc. files produced by \texttt{hacha}.
 Also note that
-\texttt{make clean} also removes the \texttt{doc.haux} file and
-that \texttt{hevea} runs
-twice, in order to be sure that cross-references are correct.
-In the case where \texttt{doc.tex} is first processed by \LaTeX{}
-\emph{before} running \hevea{}, it is not necessary to run
-\texttt{hevea} twice (see section~\ref{cross}).
+\texttt{make clean} also removes the \texttt{doc.haux} file.
+Thanks to the \verb+-fix+ options, \texttt{hevea} will run the appropriate
+number of times.
 
 When the \textit{image} file feature is used, one can use the
 following, extended, \texttt{Makefile}:
 \begin{verbatim}
 HEVEA=hevea
-HEVEAOPTS=
+HEVEAOPTS=-fix
 HACHA=hacha
 IMAGEN=imagen
 #document base name
@@ -4732,11 +4778,6 @@ index.html: $(DOC).html
 
 $(DOC).html: macros.hva $(DOC).tex
         $(HEVEA) $(HEVEAOPTS) macros.hva $(DOC).tex
-        $(HEVEA) $(HEVEAOPTS) macros.hva $(DOC).tex
-        $(MAKE) $(MFLAGS) $(DOC)001.gif
-
-$(DOC)001.gif: $(DOC).image.tex
-        $(IMAGEN) $(DOC)
 
 clean:
         rm -f $(DOC).html index.html $(DOC)[0-9][0-9][0-9].html $(DOC).haux
@@ -4747,17 +4788,9 @@ clean:
 Observe that the \texttt{clean} rule now also gets rid of
 \texttt{doc.image.tex} and of the various files produced by
 \texttt{imagen}.
-
-
-With respect to the \textit{image} file, \texttt{hevea} has the
-following behavior: when the content of \texttt{doc.image.tex}
-does not change from one run to the next,
-\texttt{hevea} does not replace the old file by a new one.
-As a consequence, the \texttt{Makefile} above will
-rebuild the images \texttt{doc001.gif}, \texttt{doc002.gif}, etc.
-only when the content of the \LaTeX{} source that is used to generate
-them has changed.
-
+Note the following, useful feature~:
+when given the \verb+-fix+ option, \texttt{hevea} will itself run
+\texttt{imagen}, if needed.
 
 
 \section{Browser configuration}\label{browser}

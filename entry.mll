@@ -12,7 +12,7 @@
 {
 open Lexing
 
-let header = "$Id: entry.mll,v 1.10 1999-11-04 23:11:44 maranget Exp $" 
+let header = "$Id: entry.mll,v 1.11 1999-12-07 16:12:15 maranget Exp $" 
 
 let buff = Out.create_buff ()
 ;;
@@ -25,13 +25,13 @@ and put_char c =
 
 
 type res =
-  Bang of string * string
+| Bang of string * string
 | Bar of string * string
 | Eof of string * string
 ;;
 
 let extend r i = match r with
-  Bang (p,_) -> Bang (i,p)
+| Bang (p,_) -> Bang (i,p)
 | Bar (p,_) -> Bar (i,p)
 | Eof (p,_) -> Eof (i,p)
 ;;
@@ -44,7 +44,7 @@ exception NoGood
 
 }
 rule entry = parse
-  "\\\""
+| "\\\""
     {put "\\\"" ; entry lexbuf}
 | "\"!"
     {put_char '!' ; entry lexbuf}
@@ -62,7 +62,7 @@ rule entry = parse
    {let lxm = lexeme_char lexbuf 0 in put_char lxm ; entry lexbuf}      
 
 and idx = parse
-  "\\indexentry"
+|  "\\indexentry"
      {let key = Save.arg lexbuf in
      let  value = Save.arg lexbuf in
      key,value}
@@ -75,7 +75,15 @@ and idx = parse
 let read_key lexbuf =
     
   let bar () = match entry lexbuf with
-    Eof (s,_) -> Some s
+  | Eof (s,_) ->
+      begin match s with
+      | ""|"("|")" -> None
+      | s ->
+          if s.[0] = '(' then
+            Some (String.sub s 1 (String.length s - 1))
+          else
+            Some s
+      end
   | _         -> raise NoGood in
 
   let rec get_rec () = match entry  lexbuf with

@@ -11,6 +11,6 @@
 }}
 \newcommand{\showcolor}[1]{\textcolor{#1}{\texttt{#1}}}
 \let\@isection=\@indexsection
-\renewcommand{\@indexsection}[1]{\@isection{\@locname{@index}{#1}}}
+\renewcommand{\@indexsection}[1]{\@isection{#1}\aname{@index}{}}
 \renewcommand{\cuttingunit}{part}
 \renewcommand{\@footnotelevel}{section}

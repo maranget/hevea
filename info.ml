@@ -10,7 +10,7 @@
 (***********************************************************************)
 
 
-let header = "$Id: info.ml,v 1.19 1999-11-16 12:35:17 maranget Exp $"
+let header = "$Id: info.ml,v 1.20 1999-12-07 16:12:16 maranget Exp $"
 
 open Misc
 open Text
@@ -103,6 +103,7 @@ let get_current_output =Text.get_current_output;;
 let finalize check =
   if check then begin
     if !verbose>1 then prerr_endline "Beginning of second phase.";
+    InfoRef.finalize_nodes ();
     let buf, out_chan = match Parse_opts.name_out with
     | "" -> 
         let texte = get_current_output () in 
@@ -115,7 +116,6 @@ let finalize check =
         if !verbose >1 then prerr_endline ("Out file:"^s);
         Lexing.from_channel  (open_in f),Out.create_chan (open_out s)
     in
-    InfoRef.finalize_nodes ();
     InfoRef.set_out out_chan;
     InfoRef.set_out_file Parse_opts.name_out;
     InfoRef.main buf;

@@ -1,10 +1,17 @@
 \rule{}{}
 \begin{quote}\em
-\texdef\heveaurl{http://pauillac.inria.fr/\~{}maranget/hevea}
-\iffrench
-Ce document a été traduit de \LaTeX{}  par \ahref{\heveaurl/index.html}{\hevea}.
+\texdef\heveaurl{http://pauillac.inria.fr/\~{}maranget/hevea}%
+\ifhtml
+\texdef\footerurl#1#2{\@aelement{HREF="#1"}{#2}}%
 \else
-This document was translated from \LaTeX{} by \ahref{\heveaurl/index.html}{\hevea}.
+\texdef\footerurl#1#2{#2 (#1)}%
+\fi
+\iffrench
+Ce document a été traduit de \LaTeX{}  par
+\footerurl{\heveaurl/index.html}{\hevea}.
+\else
+This document was translated from \LaTeX{} by
+\footerurl{\heveaurl/index.html}{\hevea}.
 \fi
 \end{quote}
 

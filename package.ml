@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.8 1999-12-01 19:04:51 maranget Exp $    *)
+(*  $Id: package.ml,v 1.9 1999-12-07 16:12:19 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -196,31 +196,44 @@ register_init "color"
 ;;
 
 register_init "sword"
-   (fun () ->
-    def_code "\\FRAME"
-      (fun lexbuf ->
-        let lxm = lexeme lexbuf in
-(* discard the first 7 arguments *)
-        let _ = save_arg lexbuf in  
-        let _ = save_arg lexbuf in
-        let _ = save_arg lexbuf in
-        let _ = save_arg lexbuf in
-        let _ = save_arg lexbuf in
-        let _ = save_arg lexbuf in
-        let _ = save_arg lexbuf in
-(* keep argument 8 *)
-        let t = Subst.subst_arg lexbuf in
-(* extract the filename, assumed to be the rightmost material in single
-   quotes *)
-        let i = String.rindex t '\'' in
-        let j = String.rindex_from t (i - 1) '\'' in
-        let s = String.sub t (j + 1) (i - j - 1) in
-        let t = Filename.basename (s) in
-        let s = Filename.chop_extension (t) in
-(* now form the macro swFRAME whose arg is just the base file name *)
-        let cmd = "\\swFRAME{"^s^"}" in
-(* put it back into the input stream *)
-        scan_this main cmd))
+(fun () ->
+      def_code "\\FRAME"
+        (fun lexbuf ->
+          let lxm = lexeme lexbuf in
+          (* discard the first 7 arguments *)
+          let _ = save_arg lexbuf in 
+          let _ = save_arg lexbuf in
+          let _ = save_arg lexbuf in
+          let _ = save_arg lexbuf in
+          let _ = save_arg lexbuf in
+          let _ = save_arg lexbuf in
+          let _ = save_arg lexbuf in
+          (* keep argument 8 *)
+          let t = Subst.subst_arg lexbuf in
+          (* try to find rightmost material in single quotes *)
+          let i = try String.rindex t '\'' with Not_found-> (-1) in
+          if i>=0 then begin
+            (* we found something, so extract the filename *)
+            let j = String.rindex_from t (i - 1) '\'' in
+            let s = String.sub t (j + 1) (i - j - 1) in
+            let t = Filename.basename (s) in
+            let s = Filename.chop_extension (t) in
+            (* now form the macro swFRAME whose arg is just the base file
+name *)
+            let cmd = "\\swFRAME{"^s^"}" in
+            (* put it back into the input stream *)
+            scan_this main cmd
+            end ;
+          if i<0 then begin
+           (* no filename found: we use a default name and give a warning *)
+           warning ("\\FRAME: no filename (missing snapshot?) - using
+fallback name");
+           let s = "FRAME-graphic-not-found" in
+           let cmd = "\\swFRAME{"^s^"}" in
+           scan_this main cmd
+          end
+  )
+  )
 ;;
 
 let verb_arg lexbuf =

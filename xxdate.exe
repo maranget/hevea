@@ -1,0 +1,16 @@
+#! /bin/sh
+cat <<EOF
+%% TeX counters
+\newcounter{year}\setcounter{year}{`date +"%Y"`}
+\newcounter{month}\setcounter{month}{`date +"%m"`}
+\newcounter{day}\setcounter{day}{`date +"%d"`}
+\newcounter{time}\setcounter{time}{60 * `date +"%H"` + `date +"%M"`}
+%% Extras
+\newcounter{Hour}\setcounter{Hour}{`date +"%I"`}
+\newcounter{weekday}\setcounter{weekday}{`date +"%w"`}
+\newcounter{minute}\setcounter{minute}{`date +"%M"`}
+\newcounter{second}\setcounter{second}{`date +"%S"`}
+\def\ampm{`date +"%p"`}
+\def\timezone{`date +"%Z"`}
+\def\heveadate{`date`}
+EOF

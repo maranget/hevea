@@ -1,7 +1,7 @@
 LATEX=latex
 GPIC=gpic
 HEVEA=hevea
-HEVEAOPTS=
+HEVEAOPTS=-exec xxdate.exe
 HACHA=hacha
 HACHAOPTS=-tocbis
 IMAGEN=imagen

@@ -10,7 +10,7 @@
 (***********************************************************************)
 
 {
-let header = "$Id: infoRef.mll,v 1.16 1999-11-16 12:35:19 maranget Exp $"
+let header = "$Id: infoRef.mll,v 1.17 1999-12-07 16:12:17 maranget Exp $"
 ;;
 
 
@@ -179,51 +179,6 @@ let loc_name s1 = (* pose un label *)
   Text.put "}" ;
   Text.close_block "INFO" ;
   if !verbose > 1 then prerr_endline ("InfoRef.loc_name, label="^s1);
-;;
-
-
-(* finalisation des liens entre les noeuds *)
-let rec do_finalize_nodes suivant = function
-  | [] -> ()
-  | n::reste -> 
-      if !verbose>2 then prerr_endline ("node :"^n.name);
-      n.next <- suivant;
-      (match  suivant with
-      |	None -> ()
-      |	Some suiv -> suiv.previous <- Some n );
-      do_finalize_nodes (Some n) reste
-;;
-
-let rec do_finalize_menus = function
-  | [] -> ()
-  | m::reste ->
-      if m.nodes <> [] then begin
-	do_finalize_nodes 
-	  (match m.nod with
-	    None -> None
-	  | Some n -> n.next)
-	  m.nodes;
-	(match m.nod with
-	  None -> ()
-	|	 Some n -> 
-	    let first_node = List.hd (List.rev m.nodes) in
-	    n.next <- Some first_node;
-	    first_node.previous <- Some n;
-	  (* On descend dans l'arborescence des menus *)
-	    let last_node = List.hd m.nodes in
-	    (match last_node.next with
-	    | None -> ()
-	    | Some suiv -> suiv.previous <- Some n);
-          (* On remonte les menus au meme niveau *)
-	  );
-	do_finalize_menus reste;
-      end
-;;
-
-let finalize_nodes () =
-  if !verbose>2 then prerr_endline "finalizing nodes";
-  do_finalize_menus (List.rev !menu_list);
-  if !verbose>2 then prerr_endline "finalizing done.";
 ;;
 
 
@@ -481,6 +436,53 @@ and flushextranodes () =
 let infonode opt num arg =
   flushextranodes () ;
   do_infonode opt num arg
+
+
+(* finalisation des liens entre les noeuds *)
+let rec do_finalize_nodes suivant = function
+  | [] -> ()
+  | n::reste -> 
+      if !verbose>2 then prerr_endline ("node :"^n.name);
+      n.next <- suivant;
+      (match  suivant with
+      |	None -> ()
+      |	Some suiv -> suiv.previous <- Some n );
+      do_finalize_nodes (Some n) reste
+;;
+
+let rec do_finalize_menus = function
+  | [] -> ()
+  | m::reste ->
+      if m.nodes <> [] then begin
+	do_finalize_nodes 
+	  (match m.nod with
+	    None -> None
+	  | Some n -> n.next)
+	  m.nodes;
+	(match m.nod with
+	  None -> ()
+	|	 Some n -> 
+	    let first_node = List.hd (List.rev m.nodes) in
+	    n.next <- Some first_node;
+	    first_node.previous <- Some n;
+	  (* On descend dans l'arborescence des menus *)
+	    let last_node = List.hd m.nodes in
+	    (match last_node.next with
+	    | None -> ()
+	    | Some suiv -> suiv.previous <- Some n);
+          (* On remonte les menus au meme niveau *)
+	  );
+	do_finalize_menus reste;
+      end
+;;
+
+let finalize_nodes () =
+  if !verbose>2 then prerr_endline "finalizing nodes";
+  flushextranodes () ;
+  do_finalize_menus (List.rev !menu_list);
+  if !verbose>2 then prerr_endline "finalizing done.";
+;;
+
 
 }
 
