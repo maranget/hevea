@@ -7,6 +7,7 @@ LIBDIR=/usr/local/lib/hevea
 BINDIR=/usr/local/bin
 # A replacement for /lib/cpp
 CPP=gcc -E -P -x c
+DIR=/usr/local/bin/
 ############### End of configuration parameters
 HEVEA=./hevea.$(TARGET)
 ESPONJA=./esponja.$(TARGET)

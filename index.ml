@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: index.ml,v 1.41 2001-10-19 18:35:48 maranget Exp $"
+let header = "$Id: index.ml,v 1.42 2001-11-14 12:57:04 maranget Exp $"
 open Misc
 open Parse_opts
 open Entry
@@ -97,12 +97,15 @@ let changename tag name =
 let index_lbl tag i = "@"^tag^string_of_int i
 let index_filename suff = Parse_opts.base_out^".h"^suff
 
-let treat tag arg refvalue =
+let do_treat tag arg refvalue anchor =
 (*  prerr_endline ("Index treat: "^tag^", "^arg^", "^refvalue) ; *)
   try
     if !verbose > 2 then prerr_endline ("Index.treat with arg: "^arg) ;
     let {from_doc = from_doc ; out = out} as idx =  find_index tag in
-    let lbl = index_lbl tag (Table.get_size from_doc) in    
+    let lbl =
+      match anchor with
+      | Some lbl -> lbl
+      | None     -> index_lbl tag (Table.get_size from_doc) in    
     let refvalue = match refvalue with "" -> "??" | s -> s in
     let item = "\\@locref{"^lbl^"}{"^refvalue^"}" in
     Out.put out "\\indexentry{" ;
@@ -127,6 +130,11 @@ let treat tag arg refvalue =
   | Not_found -> missing_index tag ; ""
 ;;
 
+let treat tag arg refvalue =
+  do_treat tag arg refvalue None
+
+and treat_anchor tag arg refvalue lbl =
+  ignore (do_treat tag arg refvalue (Some lbl))
 
 (* Compare function for keys *)
 

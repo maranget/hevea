@@ -5,6 +5,12 @@
 \sbox{\@indexbox}{\@indexwrite[default]{#1}{\@currentlabel}}%force evaluation
 \@locname{\usebox{\@indexbox}}{}%
 \@restoreclosed\fi}
+%%%% uncomment this to get index citations that point to section titles.
+%\renewcommand{\index}[1]
+%{\if@refs\@saveclosed%
+%\@@indexwrite[default]{#1}{\@currentlabel}{htoc\thetocanchor}%force evaluation
+%\@restoreclosed\fi}
+
 \newcommand{\printindex}{\@printindex[default]}
 \newcommand{\makeindex}{\newindex{default}{idx}{ind}{Index}}
 \newcommand{\@seename}{\iffrench voir\else see\fi}

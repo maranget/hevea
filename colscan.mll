@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: colscan.mll,v 1.5 2001-05-25 12:37:20 maranget Exp $          *)
+(*  $Id: colscan.mll,v 1.6 2001-11-14 12:57:04 maranget Exp $          *)
 (***********************************************************************)
 {
 open Lexing
@@ -19,9 +19,10 @@ let buf = Out.create_buff ()
 ;;
 } 
 rule one = parse
-  ' '*('0'|'1')?'.'?['0'-'9']*' '*
+| ' '+ {one lexbuf}
+| ('0'|'1')?'.'?['0'-'9']*
   {let lxm = lexeme lexbuf in
-  float_of_string lxm}
+  try float_of_string lxm with _ -> assert false}
 | "" {raise (Error "Syntax error in color argument")}
 
 and other = parse

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.32 2001-10-19 18:35:59 maranget Exp $    *)
+(*  $Id: package.ml,v 1.33 2001-11-14 12:57:04 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -187,6 +187,16 @@ register_init "index"
         let theref = get_prim_arg lexbuf in
         let lbl = Index.treat  tag arg theref in
         Dest.put lbl) ;
+
+   (* Special indexwrite that does not put an anchor.
+      Instead, the anchor is given as an extra argument *)
+   def_code "\\@@indexwrite"
+      (fun lexbuf ->
+        let tag = get_prim_opt "default" lexbuf in
+        let arg = Subst.subst_arg lexbuf in
+        let theref = get_prim_arg lexbuf in
+        let theanchor = get_prim_arg lexbuf in
+        Index.treat_anchor tag arg theref theanchor) ;
 
     def_code "\\@printindex"
       (fun lexbuf ->
