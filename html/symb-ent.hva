@@ -163,7 +163,7 @@
 \newcommand{\hbar}{\@entity{hbar}}
 \newcommand{\imath}{\@entity{imath}}
 \newcommand{\jmath}{\@entity{jmath}}
-\newcommand{\ell}{\@entity{ell}}
+\newcommand{\ell}{\@print{&#8467}}
 \newcommand{\wp}{\@entity{weierp}}
 \newcommand{\Re}{\@entity{real}}
 \newcommand{\Im}{\@entity{image}}
