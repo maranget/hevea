@@ -9,7 +9,10 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: out.ml,v 1.6 1998-10-22 09:45:22 maranget Exp $" 
+let header = "$Id: out.ml,v 1.7 1998-12-18 17:03:44 maranget Exp $" 
+let verbose = ref 3
+;;
+
 type buff = {
   mutable buff : string;
   mutable bp : int;
@@ -115,15 +118,26 @@ let copy from_buff to_buff = match from_buff with
 | _         -> failwith "Out.copy"  
 ;;
 
-let copy_no_tag from_buff to_buff = match from_buff with
-  Buff from -> begin
-    try
-      let i = String.index from.buff '>'
-      and j = String.rindex_from from.buff (from.bp-1) '<' in
-      hidden_copy from to_buff (i+1) (j-i-1)
-    with Not_found ->  failwith "Out.copy_no_tag, no tag found"
-  end
-| _         -> failwith "Out.copy_no_tag"
+let copy_no_tag from_buff to_buff =
+  if !verbose > 2 then begin
+    prerr_string "copy no tag from_buff";
+    debug stderr from_buff ;
+    prerr_endline ""
+  end ;
+  match from_buff with
+    Buff from -> begin
+      try
+        let i = String.index from.buff '>'
+        and j = String.rindex_from from.buff (from.bp-1) '<' in
+        hidden_copy from to_buff (i+1) (j-i-1) ;
+        if !verbose > 2 then begin
+          prerr_string "copy no tag to_buff";
+          debug stderr to_buff ;
+          prerr_endline ""            
+        end
+      with Not_found ->  failwith "Out.copy_no_tag, no tag found"
+    end
+  | _         -> failwith "Out.copy_no_tag"
 ;;
 
 let close = function

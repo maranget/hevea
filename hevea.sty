@@ -187,6 +187,8 @@
 \warning{\ddots in text}\mbox{ddots}\fi}
 \def\limits{}
 \def\nolimits{}
+\def\sim{\@print{~}}
+\def\simeq{\textunderline{\sim}}
 \newcommand{\textstackrel}[2]{#2^{#1}}
 \newcommand{\stackrel}[2]{\ifdisplay
 \begin{array}{c}\scriptsize #1\\ #2\\ ~ \end{array}\else

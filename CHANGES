@@ -1,4 +1,7 @@
 version 1.03-1
+  - Better macro for \simeq (-> defined in hevea.sty)
+  - Bug in displays : spurious </text-level> were introduced by get_block
+    and by "FORGET".
   - More precise error message in case of unbalanced environments :
         the opening line of the pending environment is shown.
   - Experimental seminar mode

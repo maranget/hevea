@@ -199,6 +199,12 @@ Comme au dessus mais en mode display:
 
 $$1 + a_{i+1} + \int^N_01/x dx + \frac{\partial x}{2}$$
 
+Mauvais espaceemnt en mode display~:
+$$
+{C_N \over C_{N-1}} + \frac{C_{N+1}}{C_N} + \begin{array}{c}C_{N-2} \\
+\hline C_{N-1}\end{array} + 4 + \cdots + 5
+$$
+
 \section{Les fractions}
 \[
 {x\over y} + f+ \frac{a}{b} + 1
@@ -210,6 +216,16 @@ $$
 \subsection{Exemples d'utilisateurs}
 
 Ce sont des mélanges de fractions et de délimiteurs.
+\subsection{Lévy}
+{\bfseries
+$\begin{array}{@{\hspace{0ex}}l@{\hspace{0.6ex}}l}
+ {C_N \over {N+1}} & = {C_{N-1} \over N} + {2 \over {N+1}} = {C_2 \over 3} +
+\sum_{3 \leq k \leq N} {2 \over {k+1}} \\[1.7ex]
+
+                  &\simeq 2 \sum_{1 \leq k \leq N} {1 \over k} \simeq
+2 \int_1^N {1 \over x} dx =  2 \ln N 
+\end{array}$
+}
 \subsection{Brisset}
 $$
 \left\{{b\over\left({c\over{}d}\right)}\right\}

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: html.ml,v 1.30 1998-12-09 17:36:29 maranget Exp $" 
+let header = "$Id: html.ml,v 1.31 1998-12-18 17:03:38 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -618,7 +618,7 @@ let rec do_open_block s args = match s with
 
 let rec try_close_block s =
   if !verbose > 2 then
-    prerr_flags ("=> coucou try close ``"^s^"''") ;
+    prerr_flags ("=> try close ``"^s^"''") ;
   if s = "DISPLAY" then begin
     try_close_block "TR" ;
     try_close_block "TABLE"
@@ -672,6 +672,10 @@ let pop_freeze () = match !out_stack with
 ;;
 
 let check_empty () = flags.empty
+and make_empty () =
+  flags.empty <- true ; flags.blank <- true ;
+  !cur_out.pending <-  !cur_out.pending @ !cur_out.active ;
+  !cur_out.active <- []
 ;;
 
 let rec force_block s content =
@@ -681,7 +685,7 @@ let rec force_block s content =
   end ;
   let was_empty = flags.empty in
   if s = "FORGET" then begin
-    flags.empty <- true ; flags.blank <- true
+    make_empty () ;
   end else if flags.empty then begin
     flags.empty <- false; flags.blank <- false ;
     do_open_mods () ;
@@ -716,7 +720,7 @@ let rec force_block s content =
 
 and close_block_loc pred s =
   if !verbose > 2 then
-    prerr_string ("close_block_loc: "^s^" = ");
+    prerr_string ("close_block_loc: ``"^s^"'' = ");
   if not (pred ()) then begin
     if !verbose > 2 then prerr_endline "do it" ;
     force_block s "";
@@ -779,7 +783,7 @@ let get_block s args =
   do_close_block s ;
   let _,_,pout = pop_out out_stack in  
   let old_out = !cur_out in  
-  cur_out := new_status pout.nostyle pout.active pout.pending ;
+  cur_out := new_status pout.nostyle pout.pending pout.active;
   let mods = !cur_out.active @ !cur_out.pending in
   do_close_mods () ;
   do_open_block s args ;
@@ -788,8 +792,11 @@ let get_block s args =
   !cur_out.pending <- mods ;
   let r = !cur_out in
   cur_out := pout ;
-  if !verbose > 2 then
-    prerr_flags "<= get_block";
+  if !verbose > 2 then begin
+    Out.debug stderr r.out ;
+    prerr_endline "";
+    prerr_flags "<= get_block"
+  end ;
   r
 
 let force_flow s content =

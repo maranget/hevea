@@ -1770,8 +1770,9 @@ When there exists an equivalent to a given \LaTeX{} symbol, using
 the iso-latin1 and symbol character sets, then \hevea{}
 outputs such an equivalent.
 \html{} pages that show these character sets can be found
-here in the directory \texttt{\docurl/doc}
-at \url{iso.html}{iso.html} and \url{symbol.html}{symbol.html}.
+here in the directory \texttt{\docurl/doc/}
+at \url{iso.html}{\texttt{iso.html}} and
+\url{symbol.html}{\texttt{symbol.html}}.
 Otherwise, \hevea{} usually issues a warning to draw user attention.
 Users can then choose their own equivalent for the symbol.
 
@@ -1806,7 +1807,7 @@ section~\ref{hacha} for details.
 The \verb+\appendix+ command exists and should work as in \LaTeX.
 
 \subsection{Table of Contents}
-\hevea does not generate a table of contents and all table of contents
+\hevea{} does not generate a table of contents and all table of contents
 related commands such as \verb+\tableofcontents+ or
 \verb+\addcontentsline+ do nothing.
 
@@ -2838,7 +2839,7 @@ See the \footurl{\ftpbase/LICENSE}{LICENSE} file for details.
 
 The programs \commandname{hevea} and \commandname{hacha} are written in
 \footurl{http://caml.inria.fr/ocaml/}{Objective Caml}. Thus, you
-really need Objective Caml (version 2.00) to compile them.
+really need Objective Caml (version 2.00 or further) to compile them.
 However, a Red~Hat 5.1
 \footurl{\ftpbase/hevea-\heveaversion-1.i386.rpm}{binary distribution}
 is also available, it does not require an Objective Caml installation

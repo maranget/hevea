@@ -16,7 +16,7 @@ open Myfiles
 open Latexmacros
 open Html
 
-let header = "$Id: latexscan.mll,v 1.56 1998-12-09 17:36:34 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.57 1998-12-18 17:03:41 maranget Exp $" 
 
 
 let prerr_args args =
@@ -2111,6 +2111,7 @@ rule  main = parse
     main lexbuf}
 | eof
    {if !verbose > 1 then Printf.fprintf stderr "Eof\n" ; ()}
+(* Spaces in input *)
 | '\n'
   {(* if not (is_table  !in_table) then *) begin
     Html.put_char '\n'
