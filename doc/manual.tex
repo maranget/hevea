@@ -51,7 +51,7 @@ Chesnay Cedex. {\tt \mailto{Luc.Maranget@inria.fr}}}}
 <HR>
 }%
 This manual also exists in
-\url{\ftpbase/hevea-\heveaversion-manual.ps.gz}{Postcript} and and as
+\url{\ftpbase/hevea-\heveaversion-manual.ps.gz}{Postscript} and and as
 a \url{\ftpbase/hevea-\heveaversion-manual.tar.gz}{bundle of HTML files}.
 \@print{
 <HR>
@@ -145,8 +145,8 @@ style files it knows in place of the unknown style file.
 This is done by giving the desired style file as an extra command line
 argument.
 
-Let us assume that \texttt{mydoc.tex} uses an exotic style
-file such as \verb+acmconf+. Then, typing
+Let us assume that \texttt{mydoc.tex} uses an exotic
+base style such as \filename{acmconf}. Then, typing
 \verb+hevea mydoc.tex+ may yield two kind of errors.
 Either \hevea{} finds the the \texttt{acmconf.sty} file (e.g., if
 \texttt{acmconf.sty} is in the current directory)
@@ -182,7 +182,7 @@ It will then ignore the base style specified by
 \verb+\documentclass+ (or \verb+\documentstyle+).
 
 Observe that the fix above works because \texttt{article.sty} and
-\texttt{acmconf.sty} look the same to the document (i.e. they define
+\texttt{acmconf.sty} look the same to the document (i.e., they define
 the same macros).
 More generally, most  base styles that are neither
 \textit{article} nor \textit{book} are in fact variations
@@ -209,7 +209,7 @@ As it is often the case, assume that the document \texttt{mydoc.tex} has a
 \texttt{macros.tex} gathers custom definitions.
 Hopefully, only a few macros give rise to trouble: macros that performs fine
 typesetting or {\TeX}ish macros.
-Such macros need to be rewritten, using more basic \LaTeX{}
+Such macros need to be rewritten, using basic \LaTeX{}
 constructs (section~\ref{trouble} gives examples of macro-rewriting).
 The new definition are best collected in a style file,
 \texttt{mymacros.sty} for instance.
@@ -250,6 +250,12 @@ However one  blank line  (i.e., two newlines in a row) or more
 introduce a paragraph break.
 Paragraphs are rendered by a blank line and there is no paragraph
 indentation.
+\hevea{} is a bit simplistic in breaking paragraphs and extra paragraph
+breaks may be present in the final \html{} documents.
+This can usually be corrected by modifying the source, without
+altering \LaTeX{} output. For instance, some blank line before or
+after a comment or macro definition can be deleted.
+
 
 
 
@@ -411,7 +417,7 @@ horizontally in vertical display mode.
 Display mode is first opened by a \verb+displaymath+ environment.
 Then, sub-displays are opened by \LaTeX{} constructs which require
 them.
-For instance, a fraction (\verb+\frac+) opens a vertical display.
+For instance, a displayed  fraction (\verb+\frac+) opens a vertical display.
 
 
 The distinction between text and display modes clearly appears while
@@ -479,10 +485,11 @@ properly, it issues a warning. This draws user attention onto a
 potential problem. However, rendering may be correct.
 
 \begin{htmlonly}
-In the following example, \hevea{} gets nervous  because of the explicit
-length given as argument to \verb+\hspace+:
+In the following (silly) example, \hevea{} gets nervous  because of
+the complicated length given as argument to \verb+\hspace+:
 \begin{verbatim}
-\begin{tabular}{c@{\hspace{2ex}}c}
+\setlength{\mylength}{5pt}
+\begin{tabular}{c@{\hspace{\mylength}}c}
 Before & After
 \end{tabular}
 \end{verbatim}
@@ -490,12 +497,13 @@ Running \hevea{} on this input produces a warning:
 \begin{verbatim}
 # hevea manual.tex
 ...
-manual.tex:327: Warning: \hspace
+manual.tex:507: Warning: \hspace with arg ``\mylength''
 ...
 \end{verbatim}
 However the final rendering is correct:
 \begin{htmlout}
-\begin{tabular}{c@{\hspace{2ex}}c}
+\setlength{\mylength}{5pt}
+\begin{tabular}{c@{\hspace{\mylength}}c}
 Before & After
 \end{tabular}
 \end{htmlout}
@@ -551,7 +559,7 @@ internals.
 \renewcommand{\cal}{\em}
 \end{verbatim}
 (See sections~\ref{trouble} and~\ref{both} on how to make such
-changes while leaving your file processable by \LaTeX{}).
+changes while leaving your file process-able by \LaTeX{}).
 
 \begin{htmlonly}
 With such redefinitions, we get:
@@ -642,8 +650,8 @@ You can \raisebox{.6ex}{\em raise} text.
 
 To correct this, you should provide a macro that has more or less the effect of
 \verb+\raisebox+. It is impossible to write a generic
-\verb+\raisebox+ macro for \hevea, because \hevea{} ignores
-lengths. However, in this case, the effect
+\verb+\raisebox+ macro for \hevea, because of \html{} limitations.
+However, in this case, the effect
 of \verb+\raisebox+ is to raise the box {\em a little}.
 Thus, the first, numerical, argument to \verb+\raisebox+  can be
 ignored in a private \verb+\raisebox+ macro defined in \texttt{trouble.sty}:
@@ -662,13 +670,15 @@ the document raise text a little. Consider, the following
 example, where text
 is both raised a lowered a little:
 \begin{verbatim}
-You can \raisebox{.6ex}{\em raise} or \raisebox{-.6ex}{\em lower} text.
+You can \raisebox{.6ex}{\em raise}
+or \raisebox{-.6ex}{\em lower} text.
 \end{verbatim}
 Which \LaTeX{} renders as follows:
 \begin{htmlout}
 \begin{htmlonly}
 %% BEGIN IMAGE
-You can \raisebox{.6ex}{\em raise} or \raisebox{-.6ex}{\em lower} text.
+You can \raisebox{.6ex}{\em raise}
+or \raisebox{-.6ex}{\em lower} text.
 %% END IMAGE
 \imageflush
 \end{htmlonly}
@@ -679,7 +689,8 @@ You can \raisebox{.6ex}{\em raise} or \raisebox{-.6ex}{\em lower} text.
 Whereas, with the above definition of \verb+\raisebox+, \hevea{} produces:
 \begin{htmlout}
 \renewcommand{\raisebox}[2]{$^{\mbox{#2}}$}%
-You can \raisebox{.6ex}{\em raise} or \raisebox{-.6ex}{\em lower} text.
+You can \raisebox{.6ex}{\em raise}
+or \raisebox{-.6ex}{\em lower} text.
 \end{htmlout}
 
 
@@ -689,21 +700,25 @@ A solution is to add a new macro definition in the \verb+trouble.sty+ file:
 \end{verbatim}
 Then, \verb+trouble.tex+ itself has to be modified a little.
 \begin{verbatim}
-You can \raisebox{.6ex}{\em raise} or \lowerbox{-.6ex}{\em lower} text.
+You can \raisebox{.6ex}{\em raise}
+or \lowerbox{-.6ex}{\em lower} text.
 \end{verbatim}
 \hevea{} now produces a satisfying output:
 \begin{htmlout}
 \begin{latexonly}\renewcommand{\raisebox}[2]{$^{\mbox{#2}}$}%
 \newcommand{\lowerbox}[2]{$_{\mbox{#2}}$}
-You can \raisebox{.6ex}{\em raise} or \lowerbox{-.6ex}{\em lower} text.
+You can \raisebox{.6ex}{\em raise}
+or \lowerbox{-.6ex}{\em lower} text.
 \end{latexonly}
 \begin{htmlonly}\newcommand{\raisebox}[2]{$^{\mbox{#2}}$}%
 \newcommand{\lowerbox}[2]{$_{\mbox{#2}}$}
-You can \raisebox{.6ex}{\em raise} or \lowerbox{-.6ex}{\em lower} text.
+You can \raisebox{.6ex}{\em raise}
+or \lowerbox{-.6ex}{\em lower} text.
 \end{htmlonly}
 \end{htmlout}
 
-Note that \LaTeX{} should also be given a definition for
+Note that, for the document to remain \LaTeX{}-process-able,
+it should also contain the following definition for
 \verb+\lowerbox+:
 \begin{verbatim}
 \newcommand{\lowerbox}[2]{\raisebox{#1}{#2}}
@@ -982,7 +997,9 @@ The \filename{html} package defines \LaTeX{} equivalents for them.
 This first concerns the \hevea{} and \hacha{} logos.
 Then, a few macros for URL management are provided
 
+%BEGIN LATEX
 \bigskip
+%END LATEX
 \begin{tabular}{l@{\qquad}p{.3\linewidth}@{\qquad}p{.3\linewidth}}
 Macro & \multicolumn{1}{c}{\hevea} &  \multicolumn{1}{c}{\LaTeX}\\
 \hline
@@ -1267,7 +1284,7 @@ Additionally, one level of sectioning below the cutting unit (i.e.,
 subsections in the \filename{article} style and sections in the
 \filename{book} style) is shown
 as an entry in the table of contents.
-Sectional units above the cutting section (i.e. parts in both
+Sectional units above the cutting section (i.e., parts in both
 \filename{article} and \filename{book} styles) close the current table
 of contents and open a new one.
 Cross-references are properly handled, the local links generated by
@@ -1363,7 +1380,7 @@ These comments act as instructions to {\hacha}.
    cutting unit {\em secname}. If the optional {\em depth} is absent,
    the cutting depth does not change.
    The output file becomes the root file.
-   Result is unspecified if whatever {\em secname} expands to is an
+   Result is unspecified if whatever {\em secname} expands to is
    a sectional unit name above
    the current cutting  unit, is not a valid sectional unit name or if
    {\em depth} does not expand to a small positive number.
@@ -1445,7 +1462,7 @@ source. However, \LaTeX{} still can process the document, since the
 
 \setcounter{section}{0}
 \renewcommand{\thesection}{\thepart.\arabic{section}}
-\part{Reference manual}
+\part{Reference manual}\label{referencemanual}
 
 
 This part follows the pattern of the \LaTeX{} reference
@@ -1467,7 +1484,7 @@ See also section~\ref{spacemath} on spaces in math mode.
 \subsection{Paragraphs}
 New paragraphs are introduced by one blank line or more.
 Paragraphs are not indented. Thus the macros \verb+\indent+ and
-\verb+noinent+ perform no action.
+\verb+\noinent+ perform no action.
 
 \subsection{Footnotes}
 The commands \verb+\footnote+,
@@ -1748,7 +1765,7 @@ $$
 \end{htmlonly}
 
 When given the \verb+-nosymb+ option, \hevea{} silently replaces
-symbols that cannot be rendered by isolatin1 only by text equivalents.
+symbols that cannot be rendered by iso-latin1 only by text equivalents.
 These equivalents are English words by default, or French words when the
 \verb+-francais+ option is set.
 
@@ -1825,7 +1842,7 @@ definition, provided the new definitions are processed before the
 document definitions.
 This is easily done by grouping the shadowing definition  in a
 specific style file given as an argument to \hevea{}.
-By contrast, changes of base macros (i.e. the ones that \hevea{}
+By contrast, changes of base macros (i.e., the ones that \hevea{}
 defines before loading any user-specified file) must be performed
 using \verb+\renewcommand+. Such personal (re)-definition can be made
 in any user file.
@@ -2100,7 +2117,7 @@ The advisory line breaking commands \verb+\linebreak+ and
 The \verb+\\+ and \verb+\\*+ commands output a \verb+<BR>+ element,
 except inside arrays where the close the current row.
 Their option argument is ignored.
-The \verb+\newline+ outputs a \verb+<BR>+ element.
+The \verb+\newline+ command outputs a \verb+<BR>+ element.
 
 All other line breaking commands, declarations or environments are
 silently ignored.
@@ -2261,7 +2278,7 @@ generated by sectioning commands.
 \subsection{Special Symbols}
 
 The \verb+\symbol{+{\it num}\verb+}+ outputs character number {\it num}
-from the isolatin1 character set.
+from the iso-latin1 character set.
 This departs from \LaTeX{}, which output symbol number \textit{num} in
 the current font.
 
@@ -2325,7 +2342,7 @@ searched along \texttt{hevea} search path.
 followed by directories specified by the user with the \texttt{-I}
 option, and by \texttt{hevea} library directory
 (normally \texttt{/usr/local/lib/hevea}).
-\texttt{Hevea} library directory compile-time value can be overriden by setting
+\texttt{Hevea} library directory compile-time value can be overridden by setting
 the \texttt{HEVEADIR} shell environment variable.
 
 If the last argument has extension \texttt{.tex}, that is, if
@@ -2376,7 +2393,10 @@ filename}. By default, \texttt{hevea} output goes into
 \item[{\tt -help}] Print version number and a short help message.
 \end{description}
 
-\hevea{} user manual is part~\ref{usermanual} of this document.
+\hevea{} user manual is part~\ref{usermanual} of this document,
+whereas \hevea{} reference manual is part~\ref{referencemanual} of
+this document.
+
 
 \subsection{\hacha{} usage}
 The \texttt{hacha} command interprets its argument as the name of
@@ -2448,11 +2468,14 @@ Netscape*documentFonts.charset*adobe-fontspecific:   iso-8859-1
 For Netscape on a Macintosh,
 choose  {\bf Western (Mac Roman)} in the item {\bf Document~Encoding}
 from the {\em Preferences} menu. This will work only if the document
-does not contain isolatin1 characters above 127\ldots
+does not contain iso-latin1 characters above 127\ldots
 
-More details can be found in section~\ref{symbols} of the user manual.
+More details on browser configuration can be found at
+\oneurl{http://www.tex2html.com/unix/}.
+More details on symbol fonts can be found
+in section~\ref{symbols} of this manual.
 In particular, note that symbol fonts may be completely avoided with
-\verb+-nosymb+ option.
+the \verb+-nosymb+ option.
 
 \section{Availability}
 
@@ -2489,7 +2512,7 @@ Additionally, the \hevea{} user may instruct the program not to process a
 part of the input (see section~\ref{imagen}). Instead, this part is
 processed into a 
 \verb+.gif+ file and \hevea{} outputs a  link to the image file.
-\LaTeX{} is changed into a \verb+.gif+ file by the the \verb+imagen+
+\LaTeX{} source is changed into \verb+.gif+ images by the the \verb+imagen+
 script, which basically calls, \LaTeX, \texttt{dvips},
 \footurl{http://www.cs.wisc.edu/\home{ghost}/index.html}{\texttt{ghostscript}}
 and a few tools from the image processing package
@@ -2518,7 +2541,7 @@ library directory. It remains users responsibility to
 make it accessible to \LaTeX.
 
 \section{Other \LaTeX{} to \html{} translators}
-This very short section gives pointers to two other translators. I
+This short section gives pointers to a few other translators. I
 performed not extensive testing and make no thorough comparison.
 \begin{description}
 \item[LaTeX2html]
@@ -2531,33 +2554,59 @@ More information on LaTeX2html can be found at
 \oneurl{http://www-dsed.llnl.gov/files/programs/unix/latex2html/}
 \end{center}
 
-\item[TTH] The principle behind TTH is the main source of inspiration
-of \hevea{}: write a fast translator as a lexer, use symbol fonts and
+\item[TTH] The principle behind TTH is the same as the one of
+\hevea{}: write a fast translator as a lexer, use symbol fonts and
 tables. However, there are differences, TTH accepts both \TeX{} and
 \LaTeX{} source, 
 TTH is written in C and the full source is not available
 (only \verb+lex+ output is available).
-Additionally, TTH author insist on not using any kind of \LaTeX{}
-generated information, whereas \hevea{} rather try to make advantage
-of them. TTH can be found at
+Additionally, TTH  insist on not using any kind of \LaTeX{}
+generated information and will show proper cross-reference labels,
+even when no \texttt{.aux} file is present.
+TTH output is a single document,
+whereas \hacha{} can cut the output of \hevea{} into several files.
+(however there exists a commercial
+version of TTH that provides this extra functionality).
+TTH can be found at
 \begin{center}
 \oneurl{http://hutchinson.belmont.ma.us/tth/tth.html}.
 \end{center}
+
+\item[\texttt{htmlgen}] The \texttt{htmlgen} translator is specialized
+for producing the Caml manuals. This is \hevea{} direct ancestor and I
+owe much to its author, X.~Leroy. See \cite{htmlgen} for a description
+of \texttt{htmlgen} and a (bit outdated) discussion on \LaTeX{} to
+\html{} translation.
 \end{description}
 
+A fairly complete list of \LaTeX{} to \html{} translators can be found
+at:
+\begin{center}
+\oneurl{http://www.loria.fr/services/tex/german/outils.html}
+\end{center}
+
 \begin{thebibliography}{xxxxxxxxxx}
-\bibitem[HTML]{html}
-D.~Ragget.
-{\em HTML 3.2 Reference Specification}. Available on the web at
-\oneurl{http://www.w3.org/TR/REC-html32}, 1997.
+\bibitem[\LaTeX-bis]{latexbis}
+M.~Gooseens, F.~Mittelbach, A.~Samarin.
+\newblock {\em The \LaTeX{} Companion}
+\newblock Addison-Websley, 1994.
 \bibitem[\LaTeX]{latex}
 L. Lamport.
 \newblock {\em A Document Preparation System System, \LaTeX{}, User's
 Guide and Reference Manual}.
 \newblock Addison-Websley, 1994.
-\bibitem[\LaTeX-bis]{latexbis}
-M.~Gooseens, F.~Mittelbach, A.~Samarin.
-\newblock {\em The \LaTeX{} Companion}
-\newblock Addison-Websley, 1994.
+\bibitem[htmlgen]{htmlgen}
+X. Leroy,
+\newblock {\em Lessons learned from the translation of documentation
+from \LaTeX{} to {\html}}.
+\newblock ERCIM/W4G Int. Workshop on WWW Authoring and Integration
+Tools, 1995.
+\newblock Available on the web at
+\oneurl{http://cristal.inria.fr/\home{xleroy}/w4g.html}
+
+\bibitem[HTML]{html}
+D.~Ragget.
+{\em HTML 3.2 Reference Specification}. Available on the web at
+\oneurl{http://www.w3.org/TR/REC-html32}, 1997.
 \end{thebibliography}
 \end{document}
