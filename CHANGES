@@ -1,4 +1,6 @@
 version 1.06-7
+  - Bug in ``\@displayint'' (introduced by the new ``\@getprint'')
+  - compatibility with ocaml 3.03 (do not close a file twice)
   - Table of contents a` la LaTeX.
   - new ``-hrf'' option for hacha
   - PNG managment in hevea/imagen

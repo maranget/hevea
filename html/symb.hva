@@ -133,7 +133,7 @@
 %%%240 unused
 \newcommand{\rangle}{\@symb{\char241}}
 \newcommand{\@int}{\@symb{\char242}}
-\newcommand{\@displayint}{\mbox{\@symb{\char243\\\char245}}}
+\newcommand{\@displayint}{\mbox{\@symb{\char243}\@br\@symb{\char245}}}
 %%%244  big integral middle
 %%%246 247 248  big right parenthesis
 \newcommand{\rceil}{\@symb{\char249}}
