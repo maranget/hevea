@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlMath.ml,v 1.10 1999-11-04 23:11:53 maranget Exp $" 
+let header = "$Id: htmlMath.ml,v 1.11 2000-01-21 18:48:43 maranget Exp $" 
 
 
 open Misc
@@ -27,7 +27,7 @@ let delay_stack = Stack.create "delay_stack"
 let delay f =
   if !verbose > 2 then
     prerr_flags "=> delay" ;
-  push vsize_stack flags.vsize ;
+  push stacks.s_vsize flags.vsize ;
   flags.vsize <- 0;
   push delay_stack f ;
   open_block "DELAY" "" ;
@@ -52,7 +52,7 @@ let flush x =
   flags.empty <- false ; flags.blank <- false ;
   free old_out ;
   !cur_out.pending <- mods ;
-  flags.vsize <- max (pop vsize_stack) flags.vsize ;
+  flags.vsize <- max (pop stacks.s_vsize) flags.vsize ;
   if !verbose > 2 then
     prerr_flags "<= flush"
 ;;
@@ -201,7 +201,8 @@ let do_item_display force =
   end ;
   let f,is_freeze = pop_freeze () in
   if (force && not flags.empty) || flags.table_inside then begin
-    push saved_inside (pop saved_inside || flags.table_inside) ;
+    push stacks.s_saved_inside
+      (pop stacks.s_saved_inside || flags.table_inside) ;
     flags.table_inside <- false ;
     let active  = !cur_out.active
     and pending = !cur_out.pending in
@@ -264,7 +265,7 @@ let erase_display () =
 
 let open_maths display =
   if display then open_center ();
-  push in_math_stack flags.in_math;
+  push stacks.s_in_math flags.in_math;
   flags.in_math <- true;
   if display then open_display (display_arg !verbose)
   else open_group "";
@@ -273,7 +274,7 @@ let open_maths display =
 let close_maths display =
   if display then close_display ()
   else close_group ();
-  flags.in_math <- pop in_math_stack;
+  flags.in_math <- pop stacks.s_in_math ;
   if display then close_center ()
 ;;
 

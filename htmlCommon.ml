@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlCommon.ml,v 1.15 1999-11-16 12:35:16 maranget Exp $" 
+let header = "$Id: htmlCommon.ml,v 1.16 2000-01-21 18:48:42 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -141,6 +141,20 @@ let rec pop_out s = match pop s with
 let out_stack = Stack.create "out_stack"
 ;;
 
+type saved_out = status * stack_item Stack.saved
+
+let save_out () = !cur_out, Stack.save out_stack
+and restore_out (a,b) =
+  if !cur_out != a then begin
+    free !cur_out ;
+    Stack.finalize out_stack b
+      (function
+        | Normal (_,_,out) -> free out
+        | _ -> ())
+  end ;  
+  cur_out := a ;
+  Stack.restore out_stack b
+
 let pblock () =
   if Stack.empty out_stack then ""
   else
@@ -269,46 +283,174 @@ and set_flags f {
 
     
 (* Independant stacks for flags *)
-let table_stack = Stack.create "table_stack"
+type stack_t = {
+  s_table_inside : bool Stack.t ;
+  s_saved_inside : bool Stack.t ;
+  s_in_math : bool Stack.t ;
+  s_ncols : int Stack.t ;
+  s_empty : bool Stack.t ;
+  s_blank : bool Stack.t ;
+  s_pending_par : int option Stack.t ;
+  s_vsize : int Stack.t ;
+  s_nrows : int Stack.t ;
+  s_table_vsize : int Stack.t ;
+  s_nitems : int Stack.t ;
+  s_dt : string Stack.t ;
+  s_dcount : string Stack.t ;
+  s_insert : (string * string) option Stack.t ;
+(* Other stacks, not corresponding to flags *)
+  s_active : Out.t Stack.t ;
+  s_after : (string -> string) Stack.t
+  } 
+
+let stacks = {
+  s_table_inside = Stack.create "inside" ;
+  s_saved_inside = Stack.create "saved_inside" ;
+  s_in_math = Stack.create "in_math" ;
+  s_ncols = Stack.create "ncols" ;
+  s_empty = Stack.create "empty" ;
+  s_blank = Stack.create "blank" ;
+  s_pending_par = Stack.create "pending_par" ;
+  s_vsize = Stack.create "vsize" ;
+  s_nrows = Stack.create "nrows" ;
+  s_table_vsize = Stack.create "table_vsize" ;
+  s_nitems = Stack.create "nitems" ;
+  s_dt = Stack.create "dt" ;
+  s_dcount = Stack.create "dcount" ;
+  s_insert = Stack.create "insert" ;
+  s_active = Stack.create "active" ;
+  s_after = Stack.create "after"
+} 
+
+type saved_stacks = {
+  ss_table_inside : bool Stack.saved ;
+  ss_saved_inside : bool Stack.saved ;
+  ss_in_math : bool Stack.saved ;
+  ss_ncols : int Stack.saved ;
+  ss_empty : bool Stack.saved ;
+  ss_blank : bool Stack.saved ;
+  ss_pending_par : int option Stack.saved ;
+  ss_vsize : int Stack.saved ;
+  ss_nrows : int Stack.saved ;
+  ss_table_vsize : int Stack.saved ;
+  ss_nitems : int Stack.saved ;
+  ss_dt : string Stack.saved ;
+  ss_dcount : string Stack.saved ;
+  ss_insert : (string * string) option Stack.saved ;
+(* Other stacks, not corresponding to flags *)
+  ss_active : Out.t Stack.saved ;
+  ss_after : (string -> string) Stack.saved
+  } 
+
+let save_stacks () =
+{
+  ss_table_inside = Stack.save stacks.s_table_inside ;
+  ss_saved_inside = Stack.save stacks.s_saved_inside ;
+  ss_in_math = Stack.save stacks.s_in_math ;
+  ss_ncols = Stack.save stacks.s_ncols ;
+  ss_empty = Stack.save stacks.s_empty ;
+  ss_blank = Stack.save stacks.s_blank ;
+  ss_pending_par = Stack.save stacks.s_pending_par ;
+  ss_vsize = Stack.save stacks.s_vsize ;
+  ss_nrows = Stack.save stacks.s_nrows ;
+  ss_table_vsize = Stack.save stacks.s_table_vsize ;
+  ss_nitems = Stack.save stacks.s_nitems ;
+  ss_dt = Stack.save stacks.s_dt ;
+  ss_dcount = Stack.save stacks.s_dcount ;
+  ss_insert = Stack.save stacks.s_insert ;
+  ss_active = Stack.save stacks.s_active ;
+  ss_after = Stack.save stacks.s_after
+}   
+
+and restore_stacks
+{
+  ss_table_inside = saved_table_inside ;
+  ss_saved_inside = saved_saved_inside ;
+  ss_in_math = saved_in_math ;
+  ss_ncols = saved_ncols ;
+  ss_empty = saved_empty ;
+  ss_blank = saved_blank ;
+  ss_pending_par = saved_pending_par ;
+  ss_vsize = saved_vsize ;
+  ss_nrows = saved_nrows ;
+  ss_table_vsize = saved_table_vsize ;
+  ss_nitems = saved_nitems ;
+  ss_dt = saved_dt ;
+  ss_dcount = saved_dcount ;
+  ss_insert = saved_insert ;
+  ss_active = saved_active ;
+  ss_after = saved_after
+}   =
+  Stack.restore stacks.s_table_inside saved_table_inside ;
+  Stack.restore stacks.s_saved_inside saved_saved_inside ;
+  Stack.restore stacks.s_in_math saved_in_math ;
+  Stack.restore stacks.s_ncols saved_ncols ;
+  Stack.restore stacks.s_empty saved_empty ;
+  Stack.restore stacks.s_blank saved_blank ;
+  Stack.restore stacks.s_pending_par saved_pending_par ;
+  Stack.restore stacks.s_vsize saved_vsize ;
+  Stack.restore stacks.s_nrows saved_nrows ;
+  Stack.restore stacks.s_table_vsize saved_table_vsize ;
+  Stack.restore stacks.s_nitems saved_nitems ;
+  Stack.restore stacks.s_dt saved_dt ;
+  Stack.restore stacks.s_dcount saved_dcount ;
+  Stack.restore stacks.s_insert saved_insert ;
+  Stack.restore stacks.s_active saved_active ;
+  Stack.restore stacks.s_after saved_after
+
+
+let check_stack what =
+  if not (Stack.empty what)  && not !silent then begin
+    prerr_endline
+      ("Warning: stack "^Stack.name what^" is non-empty in Html.finalize") ;
+  end
 ;;
 
-let blank_stack = Stack.create "blank_stack"
-and empty_stack = Stack.create "empty_stack"
-;;
+let check_stacks () =
+  check_stack stacks.s_table_inside ;
+  check_stack stacks.s_saved_inside ;
+  check_stack stacks.s_in_math ;
+  check_stack stacks.s_ncols ;
+  check_stack stacks.s_empty ;
+  check_stack stacks.s_blank ;
+  check_stack stacks.s_pending_par ;
+  check_stack stacks.s_vsize ;
+  check_stack stacks.s_nrows ;
+  check_stack stacks.s_table_vsize ;
+  check_stack stacks.s_nitems ;
+  check_stack stacks.s_dt ;
+  check_stack stacks.s_dcount ;
+  check_stack stacks.s_insert ;
+  check_stack stacks.s_active ;
+  check_stack stacks.s_after
 
+(*
+  Full state saving
+*)
 
-let vsize_stack = Stack.create "vsize_stack"
-and nrows_stack = Stack.create "nrows_stack"
-;;
+type saved = flags_t * saved_stacks * saved_out
 
-let after_stack = Stack.create "after_stack"
-;;
+let check () =
+  let saved_flags = copy_flags flags
+  and saved_stacks = save_stacks ()
+  and saved_out = save_out () in
+  saved_flags, saved_stacks, saved_out
 
-let nitems_stack = Stack.create "nitems_stack"
-;;
-
-let dt_stack = Stack.create "dt_stack"
-and dcount_stack = Stack.create "dcount_stack"
-
-
-let insert_stack = Stack.create "insert_stack"
-
-
-
+  
+and hot (f,s,o) =
+  set_flags flags f ;
+  restore_stacks s ;
+  restore_out o
+  
 
 let sbool = function true -> "true" | _ -> "false"
 ;;
 
 let prerr_flags s =
-  prerr_endline ("<"^string_of_int (Stack.length empty_stack)^"> "^s^
+  prerr_endline ("<"^string_of_int (Stack.length stacks.s_empty)^"> "^s^
     " empty="^sbool flags.empty^
     " blank="^sbool flags.blank)
-(*
-and prerr_inside s =
-  prerr_endline ("<"^string_of_int (Stack.length inside_stack)^" "^string_of_int (List.length !saved_inside)^"> "^s^
-    " table_inside="^sbool flags.table_inside)
-;;
-*)
+
 let is_header s =
   String.length s = 2 && String.get s 0 = 'H'
 ;;
@@ -697,28 +839,28 @@ let rec try_open_block s args =
     try_open_block "TABLE" args ;
     try_open_block "TR" "VALIGN=middle" ;
   end else begin
-    push empty_stack flags.empty ; push blank_stack flags.blank ;
-    push insert_stack flags.insert ;
+    push stacks.s_empty flags.empty ; push stacks.s_blank flags.blank ;
+    push stacks.s_insert flags.insert ;
     flags.empty <- true ; flags.blank <- true ;
     flags.insert <- None ;
     if s = "TABLE" then begin
-      push table_stack flags.table_vsize ;
-      push vsize_stack flags.vsize ;
-      push nrows_stack flags.nrows ;
+      push stacks.s_table_vsize flags.table_vsize ;
+      push stacks.s_vsize flags.vsize ;
+      push stacks.s_nrows flags.nrows ;
       flags.table_vsize <- 0 ;
       flags.vsize <- 0 ;
       flags.nrows <- 0
     end else if s = "TR"  then begin
       flags.vsize <- 1
     end else if s = "TD" then begin
-      push vsize_stack flags.vsize ;
+      push stacks.s_vsize flags.vsize ;
       flags.vsize <- 1
     end else if is_list s then begin
-      push nitems_stack flags.nitems;
+      push stacks.s_nitems flags.nitems;
       flags.nitems <- 0 ;
       if s = "DL" then begin
-        push dt_stack flags.dt ;
-        push dcount_stack flags.dcount;
+        push stacks.s_dt flags.dt ;
+        push stacks.s_dcount flags.dcount;
         flags.dt <- "";
         flags.dcount <- ""
       end
@@ -767,17 +909,17 @@ let rec try_close_block s =
     try_close_block "TR" ;
     try_close_block "TABLE"
   end else begin
-    let ehere = flags.empty and ethere = pop  empty_stack in
+    let ehere = flags.empty and ethere = pop  stacks.s_empty in
     flags.empty <- (ehere && ethere) ;
-    let bhere = flags.blank and bthere = pop  blank_stack in
+    let bhere = flags.blank and bthere = pop  stacks.s_blank in
     flags.blank <- (bhere && bthere) ;
-    flags.insert <- pop  insert_stack ;
+    flags.insert <- pop  stacks.s_insert ;
     if s = "TABLE" then begin
-      let p_vsize = pop vsize_stack in
+      let p_vsize = pop stacks.s_vsize in
       flags.vsize <- max
        (flags.table_vsize + (if flags.nrows > 0 then flags.nrows/3 else 0)) p_vsize ;
-      flags.nrows <- pop  nrows_stack ;
-      flags.table_vsize <- pop  table_stack
+      flags.nrows <- pop  stacks.s_nrows ;
+      flags.table_vsize <- pop stacks.s_table_vsize
     end else if s = "TR" then begin
       if ehere then begin
         flags.vsize <- 0
@@ -785,13 +927,13 @@ let rec try_close_block s =
       flags.table_vsize <- flags.table_vsize + flags.vsize;
       if not ehere then flags.nrows <- flags.nrows + 1
     end else if s = "TD" then begin
-      let p_vsize = pop vsize_stack in
+      let p_vsize = pop stacks.s_vsize in
       flags.vsize <- max p_vsize flags.vsize
     end else if is_list s then begin
-      flags.nitems <- pop nitems_stack;
+      flags.nitems <- pop stacks.s_nitems ;
       if s = "DL" then begin
-        flags.dt <- pop dt_stack ;
-        flags.dcount <- pop  dcount_stack
+        flags.dt <- pop stacks.s_dt ;
+        flags.dcount <- pop  stacks.s_dcount
       end
     end
   end ;
@@ -864,7 +1006,7 @@ let rec force_block s content =
     do_close_mods () ;
     do_open_block insert s args ;
     if ps = "AFTER" then begin
-      let f = pop after_stack in
+      let f = pop stacks.s_after in
       Out.copy_fun f old_out.out !cur_out.out
     end else begin
         Out.copy old_out.out !cur_out.out
@@ -943,7 +1085,7 @@ let open_group ss =
 
 and open_aftergroup f =
   open_block "AFTER" "" ;
-  push after_stack f
+  push stacks.s_after f
 
 and close_group () = close_block ""
 ;;
@@ -1036,26 +1178,17 @@ let pop_freeze () = match top  out_stack with
 ;;
 
 
-let inside_stack = Stack.create "inside_stack"
-;;
-let saved_inside = Stack.create "saved_inside"
-;;
-let ncols_stack = Stack.create "ncols_stack"
-;;
-let in_math_stack = (Stack.create "in_math_stack" : bool Stack.t)
-;;
-
 let try_open_display () =
-  push ncols_stack flags.ncols ;
-  push inside_stack flags.table_inside ;
-  push saved_inside false ;
+  push stacks.s_ncols flags.ncols ;
+  push stacks.s_table_inside flags.table_inside ;
+  push stacks.s_saved_inside false ;
   flags.table_inside <- false ;
   flags.ncols <- 0
 
 and try_close_display () =
-  flags.ncols <- pop ncols_stack ;
-  flags.table_inside <- pop saved_inside || flags.table_inside ;
-  flags.table_inside <- pop inside_stack || flags.table_inside
+  flags.ncols <- pop stacks.s_ncols ;
+  flags.table_inside <- pop stacks.s_saved_inside || flags.table_inside ;
+  flags.table_inside <- pop stacks.s_table_inside || flags.table_inside
 ;;
 
 
@@ -1086,9 +1219,9 @@ let get_block s args =
     prerr_flags "=> get_block";
   end ;
   do_close_mods () ;
-  let pempty = top empty_stack
-  and pblank = top blank_stack
-  and pinsert = top insert_stack in
+  let pempty = top stacks.s_empty
+  and pblank = top stacks.s_blank
+  and pinsert = top stacks.s_insert in
   try_close_block (pblock ()) ;
   flags.empty <- pempty ; flags.blank <- pblank ; flags.insert <- pinsert;
   do_close_block None s ;

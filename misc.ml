@@ -9,9 +9,10 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: misc.ml,v 1.10 1999-11-05 19:02:16 maranget Exp $" 
+let header = "$Id: misc.ml,v 1.11 2000-01-21 18:49:00 maranget Exp $" 
 
 exception Fatal of string
+exception Purposly of string
 exception ScanError of string
 exception EndInput
 exception EndDocument
@@ -29,6 +30,12 @@ let warning s =
   if not !silent || !verbose > 0 then begin
     Location.print_pos () ;
     prerr_string "Warning: " ;
+    prerr_endline s
+  end
+
+let print_verb level s =
+  if  !verbose > level then begin
+    Location.print_pos () ;
     prerr_endline s
   end
 

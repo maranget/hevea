@@ -8,22 +8,14 @@
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
 (***********************************************************************)
+open Stack
 
-let header = "$Id: location.ml,v 1.14 1999-11-05 19:02:15 maranget Exp $" 
-
-exception Fatal of string
-;;
+let header = "$Id: location.ml,v 1.15 2000-01-21 18:48:58 maranget Exp $" 
 
 type fileOption = No | Yes of in_channel
 ;;
 
-let stack = ref []
-;;
-
-let push s e = s := e:: !s
-and pop s = match !s with
-  [] -> raise (Fatal "Location : Empty stack")
-| e::rs -> s := rs ; e
+let stack = Stack.create "location"
 ;;
 
 
@@ -34,15 +26,41 @@ and curline = ref (0,1)
 and curfile = ref No
 ;;
 
-let close_curfile () = match !curfile with
-| Yes f -> close_in f
-| _ -> ()
+let save_state () =
+  push stack (!curlexname,!curlexbuf,!curline,!curfile)
+and restore_state () =
+  let name,lexbuf,line,file = pop stack in
+  curlexname := name ;
+  curlexbuf := lexbuf;
+  curline := line;
+  curfile := file
+
+type saved = (string * Lexing.lexbuf * (int * int)  * fileOption) Stack.saved
+
+let close_file = function
+  | Yes f -> close_in f
+  | _ -> ()
+
+let close_curfile () = close_file !curfile
+
+let check () =
+  save_state () ;
+  let r = Stack.save stack in
+  restore_state () ;
+  r
+
+and hot saved =
+  save_state () ;
+  Stack.finalize stack saved
+    (fun (_,_,_,file) -> close_file file) ;
+  Stack.restore stack saved ;  
+  restore_state ()
 
 let get () = !curlexname
 ;;
 
 let set name lexbuf =
-  push stack (!curlexname,!curlexbuf,!curline,!curfile) ;
+  save_state () ;
   curlexname := name ;
   curlexbuf := lexbuf;
   curfile :=
@@ -54,11 +72,7 @@ let set name lexbuf =
 
 let restore () =
   close_curfile () ;
-  let name,lexbuf,line,file = pop stack in
-  curlexname := name ;
-  curlexbuf := lexbuf;
-  curline := line;
-  curfile := file
+  restore_state ()
 ;;
 
 
@@ -69,6 +83,8 @@ let rec find_line file r = function
     (match input_char file with '\n' -> r+1 | _ -> r)
     (n-1)
 ;;
+
+type t = string * int
 
 let do_get_pos () =  match !curfile with
   No -> -1
@@ -86,15 +102,23 @@ let do_get_pos () =  match !curfile with
     with Sys_error _ -> -1
 ;;
 
-let print_pos () =
+let get_pos () =
   let nline = do_get_pos () in
-  if nline >= 0 then
-    prerr_string (!curlexname^":"^string_of_int nline^": ")
-  else
-    match !curlexname with
-    | "" -> ()
-    | s ->  prerr_string (s^": ")
+  !curlexname,nline
 ;;
+
+let do_print_pos (s,nline) =
+  if nline >= 0 then
+    prerr_string (s^":"^string_of_int nline^": ")
+  else
+    match s with
+    | "" -> ()
+    | _  ->  prerr_string (s^": ")
+
+let print_pos () =
+  do_print_pos (!curlexname,do_get_pos ())
+
+and print_this_pos p = do_print_pos p
 
 let stack_pos = ref []
 ;;
@@ -105,13 +129,12 @@ and pop () = match !stack_pos with
 | x::r -> stack_pos := r ; x
 ;;
 
-let push_pos () = push (do_get_pos ())
+let push_pos () = push (!curlexname, do_get_pos ())
 and pop_pos () = let _ = pop () in ()
 and print_top_pos () =
-  prerr_string (!curlexname^":") ;
   match !stack_pos with
-    [] -> prerr_string " "
-  | x::_ -> prerr_string (string_of_int x^": ")
+    [] -> ()
+  | x::_ -> do_print_pos x
 ;;
 
 (* Deprecated 

@@ -9,14 +9,14 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmain.ml,v 1.61 2000-01-19 20:11:06 maranget Exp $" 
+let header = "$Id: latexmain.ml,v 1.62 2000-01-21 18:48:46 maranget Exp $" 
 
 open Misc
 open Parse_opts
 
 
 let
-  scan_main, no_prelude,
+  scan_main, no_prelude, scan_print_env_pos,
   dest_finalize,image_finalize = 
 
   match !Parse_opts.destination with
@@ -26,26 +26,26 @@ let
       let module Rien = MakeIt (Videoc.Make) in
       let module RienBis  = MakeIt (Package.Make) in
       let module RienTer = MakeIt (Verb.Make) in
-      Scan.main, Scan.no_prelude,
+      Scan.main, Scan.no_prelude, Scan.print_env_pos,
       Html.finalize, Image.finalize
   | Html  ->
       let module Scan = Latexscan.Make (Html) (Noimage) in
       let module Otherscan = Videoc.Make (Html) (Noimage) (Scan) in
       let module Verbscan = Verb.Make  (Html) (Noimage) (Scan) in
       let module OptScan = Package.Make  (Html) (Image) (Scan) in
-      Scan.main, Scan.no_prelude,
+      Scan.main, Scan.no_prelude, Scan.print_env_pos,
       Html.finalize, Noimage.finalize
   | Text ->
       let module Scan = Latexscan.Make (Text) (Noimage) in
       let module Verbscan = Verb.Make  (Text) (Noimage) (Scan) in
       let module OptScan = Package.Make (Text) (Image) (Scan)  in
-      Scan.main, Scan.no_prelude,
+      Scan.main, Scan.no_prelude, Scan.print_env_pos,
       Text.finalize,Noimage.finalize
   | Info ->
       let module Scan = Latexscan.Make (Info) (Noimage) in
       let module Verbscan = Verb.Make  (Info) (Noimage) (Scan) in
       let module OptScan = Package.Make (Info) (Image) (Scan) in
-      Scan.main, Scan.no_prelude,
+      Scan.main, Scan.no_prelude, Scan.print_env_pos,
       Info.finalize, Noimage.finalize
 ;;
 
@@ -190,7 +190,9 @@ let _ =
     main ()
   with e -> begin
     match e with
-    | Misc.Close s -> prerr_error s
+    | Misc.Close s ->
+        prerr_error s ;
+        scan_print_env_pos ()
     | Html.Error s ->
         prerr_error ("Error while writing HTML:\n\t"^s)
     | Text.Error s ->
@@ -219,8 +221,8 @@ let _ =
         prerr_error ("File error:\n\t"^s)
     |  Misc.Fatal s ->
         prerr_bug ("Fatal error: "^s)
-    |  Location.Fatal s ->
-        prerr_bug ("Fatal location error: "^s)
+    |  Stack.Fatal s ->
+        prerr_bug ("Fatal stack error, "^s)
     |  x ->
         prerr_bug
           ("Fatal error, spurious exception:\n\t"^Printexc.to_string x)

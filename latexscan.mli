@@ -15,6 +15,7 @@ module type S =
     (* external entry points *)
     val no_prelude : unit -> unit
     val main : Lexing.lexbuf -> unit
+    val print_env_pos : unit -> unit
 
     (* additional resources needed for extension modules. *)
     val cur_env : string ref

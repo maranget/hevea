@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: mathML.ml,v 1.8 1999-10-05 17:02:28 maranget Exp $" 
+let header = "$Id: mathML.ml,v 1.9 2000-01-21 18:49:00 maranget Exp $" 
 
 
 open Misc
@@ -154,7 +154,7 @@ let erase_display () =
 
 let open_maths display =
   if !verbose > 1 then prerr_endline "=> open_maths";
-  push in_math_stack flags.in_math;
+  push stacks.s_in_math flags.in_math;
   if display then do_put "<BR>\n";
   if not flags.in_math then open_block "math" "align=\"center\""
   else erase_mods [Style "mtext"];
@@ -168,7 +168,7 @@ let close_maths display =
   if !verbose >1 then prerr_endline "=> close_maths";
   close_display ();
   close_display ();
-  flags.in_math <- pop in_math_stack;
+  flags.in_math <- pop stacks.s_in_math ;
   do_put_char '\n';
   if not flags.in_math then begin
     close_block "math" end

@@ -1,4 +1,4 @@
-let header =  "$Id: lexstate.ml,v 1.40 2000-01-19 20:11:15 maranget Exp $"
+let header =  "$Id: lexstate.ml,v 1.41 2000-01-21 18:48:57 maranget Exp $"
 
 open Misc
 open Lexing
@@ -27,7 +27,7 @@ type subst = Top | Env of (string * subst) array
 let subst = ref Top
 let get_subst () = !subst
 let top_subst = Top
-let stack_subst =  Stack.create "stack_subst"
+
 
 let pretty_subst = function
   | Top -> prerr_endline "Top level"
@@ -46,6 +46,7 @@ exception Error of string
 (* Status flags *)
 let display = ref false
 and in_math = ref false
+and alltt = ref false
 and french =
   ref
     (match !Parse_opts.language with
@@ -68,8 +69,16 @@ and withinLispComment = ref false
 and afterLispCommentNewlines = ref 0
 ;;
 
-(* stack for recoding lexbuf *)
+
+(* Stacks for flags *)
+let stack_alltt = Stack.create "stack_alltt"
+and stack_closed = Stack.create "stack_closed"
+and stack_in_math = Stack.create "stack_in_math"
+and stack_display = Stack.create "stack_display"
+
+(* Stacks for entry stream  *)
 let stack_lexbuf = Stack.create "stack_lexbuf"
+and stack_subst =  Stack.create "stack_subst"
 ;;
 
 let pretty_lexbuf lb =
@@ -119,10 +128,6 @@ and set_plain c = plain.(plain_of_char c) <- true
 and unset_plain c = plain.(plain_of_char c) <- false
 and plain_back b c = plain.(plain_of_char c) <- b
 
-let  alltt = ref false
-and stack_alltt = Stack.create "stack_alltt"
-and stack_closed = Stack.create "stack_closed"
-;;
 
 let top_level () = match !subst with Top -> true | _ -> false
 
@@ -213,20 +218,41 @@ and restore_lexstate () =
   Stack.restore stack_subst substs ;
   subst := Stack.pop stack_subst
 
+(* Flags save and restore *)
+let save_flags () = 
+  push stack_display !display ;
+  push stack_in_math !in_math ;
+  push stack_alltt !alltt ;
+
+and restore_flags () =
+  alltt   := pop stack_alltt ;
+  in_math := pop stack_in_math ;
+  display := pop stack_display
 
 (* Total ckeckpoint of lexstate *)
 type saved_lexstate = 
-(Lexing.lexbuf Stack.saved * subst Stack.saved) Stack.saved
+(Lexing.lexbuf Stack.saved * subst Stack.saved) Stack.saved *
+bool Stack.saved * bool Stack.saved * bool Stack.saved
 
 let check_lexstate () =
   save_lexstate () ;
-  let r = Stack.save stack_lexstate in
+  save_flags () ;
+  let r =
+    Stack.save stack_lexstate,
+    Stack.save stack_display,
+    Stack.save stack_in_math,
+    Stack.save stack_alltt in
   restore_lexstate () ;
+  restore_flags () ;
   r
 
-and hot_lexstate saved =
-  Stack.restore stack_lexstate saved ;
-  restore_lexstate () 
+and hot_lexstate (l,d,m,a) =
+  Stack.restore stack_lexstate l ;
+  Stack.restore stack_display d ;
+  Stack.restore stack_in_math m ;
+  Stack.restore stack_alltt a ;
+  restore_lexstate ()  ;
+  restore_flags ()
 ;;
 
 (* Blank lexing status *)
@@ -239,25 +265,18 @@ let start_lexstate () =
 let flushing = ref false
 ;;
 
-let stack_in_math = Stack.create "stack_in_math"
-and stack_display = Stack.create "stack_display"
-
 
 let start_normal this_subst =
   start_lexstate () ;
-  push stack_display !display ;
-  push stack_in_math !in_math ;
-  push stack_alltt !alltt ;
+  save_flags () ;
   display := false ;
   in_math := false ;
   alltt := false ;
   subst := this_subst
 
 and end_normal () =
-  alltt   := pop stack_alltt ;
-  in_math := pop stack_in_math ;
-  display := pop stack_display ;
-  restore_lexstate () ;
+  restore_flags () ;
+  restore_lexstate ()
 ;;
 
 let full_save_arg eoferror parg lexfun lexbuf =
@@ -279,13 +298,21 @@ let full_save_arg eoferror parg lexfun lexbuf =
         end
     end in
 
-  Save.seen_par := false ;
-  save_lexstate () ;
-  let arg,subst_arg = save_rec lexbuf in
-  restore_lexstate () ;
-  if !verbose > 2 then
-    prerr_endline ("Arg parsed: ``"^parg arg^"''") ;
-  arg,subst_arg
+  let start_pos = Location.get_pos () in
+  try 
+    Save.seen_par := false ;
+    save_lexstate () ;
+    let arg,subst_arg as r = save_rec lexbuf in
+    restore_lexstate () ;
+    if !verbose > 2 then
+      prerr_endline ("Arg parsed: ``"^parg arg^"''") ;
+    r
+  with
+  | (Save.Error _ | Error _) as e ->
+      Save.seen_par := false ;
+      Location.print_this_pos start_pos ;
+      prerr_endline "Parsing of argument failed" ;
+      raise e
 ;;
 
 
@@ -489,7 +516,6 @@ let real_input_file loc_verb main filename input =
       restore_lexstate ();
       close_in input ;
       verbose := old_verb ;
-      Location.restore ()  ;
       raise e
   end ;
   restore_lexstate ();

@@ -1,18 +1,22 @@
+exception Fatal of string
+
 type 'a t = {mutable l : 'a list ; name : string}
 
 
 let create name = {l = [] ; name=name}
 
+and name {name=name} = name
+
 and push s x = s.l <- x :: s.l
 
 and pop s = match s.l with
-| [] -> raise (Misc.Fatal ("Empty stack (pop): "^s.name))
+| [] -> raise (Fatal ("pop: "^s.name))
 | x :: r ->
     s.l <- r ;
     x
 
 and top s = match s.l with
-| [] -> raise (Misc.Fatal ("Empty stack (top): "^s.name))
+| [] -> raise (Fatal ("top: "^s.name))
 | x :: _ -> x
 
 and length s = List.length s.l
@@ -43,3 +47,21 @@ type 'a saved = 'a list
 let empty_saved = []
 and save {l=l} = l
 and restore s x = s.l <- x
+
+let finalize {l=now ;  name=name} to_restore f =
+  let rec f_rec n r = match n,r with
+  | [],[] -> ()
+  | [],_  ->
+      raise (Fatal ("finalize: "^name))
+  | nx::n, [] ->
+      f nx ;
+      f_rec r []
+  | nx::n, rx::r ->
+      if nx == rx then ()
+      else begin
+        f nx ;
+        f_rec n r
+      end  in
+  f_rec now to_restore
+
+  

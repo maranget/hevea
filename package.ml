@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.11 2000-01-19 20:11:18 maranget Exp $    *)
+(*  $Id: package.ml,v 1.12 2000-01-21 18:49:02 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -61,22 +61,6 @@ def_code "\\addtokens"
     end)
 ;;
 
-(* try e1 with _ -> e2 *)
-def_code "\\@try"
-  (fun lexbuf ->
-    let e1 = save_arg lexbuf in
-    let e2 = save_arg lexbuf in
-    let saved = Hot.checkpoint ()
-    and saved_lexstate = Lexstate.check_lexstate () in
-    try
-      scan_this_arg Scan.main e1
-    with e -> begin
-      Misc.warning ("\\@try caught exception : "^Printexc.to_string e) ;
-      Hot.start saved ;
-      Lexstate.hot_lexstate saved_lexstate ;
-      scan_this_arg Scan.main e2
-    end)
-;;
 
 (* Aux files parsing *)
 def_code "\\@hauxinit"

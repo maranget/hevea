@@ -9,16 +9,16 @@
 (*                                                                     *)
 (***********************************************************************)
 
-exception Fatal of string
-;;
-type fileOption = No | Yes of in_channel
-;;
+type saved
+val check : unit -> saved
+val hot : saved -> unit
 
 val get : unit -> string
 val set : string -> Lexing.lexbuf -> unit
 val restore : unit -> unit
 
+type t
+val get_pos : unit -> t
 val print_pos : unit -> unit
-val print_top_pos : unit -> unit
-val push_pos : unit -> unit
-val pop_pos : unit -> unit
+val print_this_pos : t -> unit 
+

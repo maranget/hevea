@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.37 1999-11-16 12:35:34 maranget Exp $"
+let header = "$Id: text.ml,v 1.38 2000-01-21 18:49:04 maranget Exp $"
 
 
 open Misc
@@ -1863,5 +1863,9 @@ let right delim =
 
 
 
+type saved = int
 
-
+let check () =
+  warning "Hot start not implemented yet in Text" ;
+  0
+and hot _ = ()

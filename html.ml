@@ -10,7 +10,7 @@
 (***********************************************************************)
 
 
-let header = "$Id: html.ml,v 1.70 1999-11-16 12:35:13 maranget Exp $" 
+let header = "$Id: html.ml,v 1.71 2000-01-21 18:48:39 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -235,15 +235,13 @@ and close_flow = close_flow
 ;;
 
 
-let active_stack = Stack.create "Html.active"
-
 let set_out out =  !cur_out.out <- out
 and stop () =
-  Stack.push active_stack !cur_out.out ;
+  Stack.push stacks.s_active !cur_out.out ;
   !cur_out.out <- Out.create_null ()
 
 and restart () =
-  !cur_out.out <- Stack.pop active_stack
+  !cur_out.out <- Stack.pop stacks.s_active
 ;;
 
 
@@ -415,28 +413,10 @@ let to_style f =
 
 let get_current_output () = Out.to_string !cur_out.out
 
-let check_stack s what =
-  if not (Stack.empty what)  && not !silent then begin
-    prerr_endline ("Warning: stack "^s^" is non-empty in Html.finalize") ;
-  end
-;;
 
 let finalize check =
   if check then begin
-    check_stack "out_stack" out_stack ;
-    check_stack "inside_stack" inside_stack;
-    check_stack "saved_inside" saved_inside;
-    check_stack "table_stack" table_stack;
-    check_stack "blank_stack" blank_stack;
-    check_stack "empty_stack" empty_stack;
-    check_stack "vsize_stack" vsize_stack;
-    check_stack "nrows_stack" nrows_stack;
-    check_stack "delay_stack" HtmlMath.delay_stack;
-    check_stack "nitems_stack" nitems_stack;
-    check_stack "dt_stack" dt_stack;
-    check_stack "dcount_stack" dcount_stack;
-    check_stack "ncols_stack" ncols_stack ;
-    check_stack "after_stack" after_stack
+    check_stacks ()
   end else begin
     (* Flush output in case of fatal error *)
     let rec close_rec () =
@@ -638,3 +618,7 @@ let image arg n =
   end
 ;;
 
+type saved = HtmlCommon.saved
+
+let check = HtmlCommon.check
+and hot = HtmlCommon.hot

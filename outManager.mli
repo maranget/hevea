@@ -103,4 +103,8 @@ module type S =
     val infoextranode : string -> string -> string -> unit
 
     val image : string -> string -> unit
+
+    type saved 
+    val check : unit -> saved
+    val hot : saved -> unit
 end

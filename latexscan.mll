@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.157 2000-01-19 20:11:10 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.158 2000-01-21 18:48:51 maranget Exp $ *)
 
 
 {
@@ -17,8 +17,8 @@ module type S =
   sig
     val no_prelude : unit -> unit
     val main : Lexing.lexbuf -> unit
+    val print_env_pos : unit -> unit 
 
-    (* additional resources needed for extension modules. *)
     val cur_env : string ref
     val new_env : string -> unit
     val close_env : string -> unit
@@ -76,6 +76,7 @@ and stack_env = Stack.create "stack_env"
 and env_level = ref 0
 ;;
 
+let stack_env_pretty () =  Stack.pretty (fun (x,_,_,_) -> x) stack_env
 
 let macro_register name =
   if !env_level > 0 then begin
@@ -90,16 +91,16 @@ let fun_register f =
     after := f :: !after
 ;;
 
-let macros_unregister () =
+let do_unregister macros after =
   List.iter
    (fun name ->
      if !verbose > 3 then
        prerr_endline ("Unregistering macro: "^name) ;
-     Latexmacros.unregister name) !macros ;
+     Latexmacros.unregister name) macros ;
   let rec do_rec = function
     | [] -> ()
     | f :: rest -> do_rec rest ; f () in
-  do_rec !after
+  do_rec after
 ;;
 
 let inc_size i =
@@ -142,9 +143,9 @@ let top_close_display () =
 
 
 (* Latex environment stuff *)
+
 let new_env env =
-  push stack_env (!cur_env,!macros, !after) ;
-  Location.push_pos () ;
+  push stack_env (!cur_env,!macros, !after, Location.get_pos ()) ;
   cur_env := env ;
   macros := [] ; after := [] ;
   if env <> "document" then incr env_level ;
@@ -156,7 +157,8 @@ let new_env env =
 ;;
 
 let print_env_pos () =
-  Location.print_top_pos () ;
+  let _,_,_,pos = Stack.pop stack_env in
+  Location.print_this_pos pos ;
   prerr_endline ("Latex environment ``"^ !cur_env^"'' is pending")
 ;;
 
@@ -173,17 +175,28 @@ let close_env env  =
   end ;
   if env = !cur_env then begin  
     if env <> "document" then decr env_level ;
-    let e,m,a = pop stack_env in    
+    let e,m,a,_ = pop stack_env in    
+    do_unregister !macros !after ;
     cur_env := e ;
-    macros_unregister () ;
     macros := m ;
-    after := a ;
-    Location.pop_pos ()
+    after := a
   end else
     error_env env !cur_env
 ;;
 
-      
+let env_check () = !cur_env, !macros, !after, Stack.save stack_env
+and env_hot (e,m,a,s) =
+  if !cur_env != e then begin
+    close_env !cur_env ;
+    Stack.finalize stack_env s
+      (fun (_,m,a,_) -> do_unregister m a)
+  end ;
+  cur_env := e ;
+  macros := m ;
+  after := a ;
+  Stack.restore stack_env s
+        
+
 (* Top functions for blocks *)
 let no_display = function
   "TABLE" | "TR" | "TD" | "DISPLAY" | "VDISPLAY" -> true
@@ -666,8 +679,7 @@ and stack_out = Stack.create  "stack_out"
 let start_other_scan env lexfun lexbuf =
   if !verbose > 1 then begin
     prerr_endline ("Start other scan ("^env^")") ;
-    Stack.pretty
-      (fun (x,_,_) -> x) stack_env ;
+    stack_env_pretty () ;
     prerr_endline ("Current env is: ``"^ !cur_env^"''") ;
     pretty (fun x -> x) stack_entry
   end;
@@ -687,7 +699,7 @@ let complete_scan main lexbuf =
   top_close_block "" ;
   if !verbose > 1 then begin
     prerr_endline "Complete scan" ;
-    Stack.pretty (fun (x,_,_) -> x) stack_env ;
+    stack_env_pretty () ;
     prerr_endline ("Current env is: ``"^ !cur_env^"''")
   end
 ;;
@@ -696,7 +708,7 @@ let complete_scan main lexbuf =
 let stop_other_scan comment main lexbuf =
   if !verbose > 1 then begin
     prerr_endline "Stop image: env stack is" ;
-    Stack.pretty  (fun (x,_,_) -> x) stack_env ;
+    stack_env_pretty () ;
     prerr_endline ("Current env is: ``"^ !cur_env^"''")
   end;
   let _ = pop stack_entry in
@@ -2167,6 +2179,7 @@ let def_printcount name f =
 
 def_printcount "\\arabic" string_of_int ;
 def_printcount "\\@arabic" (fun i -> Printf.sprintf "%0.3d" i) ;
+def_printcount "\\@twoarabic" (fun i -> Printf.sprintf "%0.2d" i) ;
 def_printcount "\\alph"  alpha_of_int ;
 def_printcount "\\Alph"  upalpha_of_int ;
 def_printcount "\\roman" roman_of_int;
@@ -2639,6 +2652,38 @@ def_code "\\@primitives"
     exec_init pkg)
 ;;
 
+(* try e1 with _ -> e2 *)
+
+def_code "\\@try"
+  (fun lexbuf ->
+    let saved_location = Location.check ()
+    and env_saved = env_check ()
+    and saved = Hot.checkpoint ()
+    and saved_lexstate = Lexstate.check_lexstate ()
+    and saved_out = Dest.check () in
+    let e1 = save_arg lexbuf in
+    let e2 = save_arg lexbuf in
+    try
+      top_open_block "" "" ;
+      scan_this_arg main e1 ;
+      top_close_block ""
+    with e -> begin
+      Location.hot saved_location ;
+      env_hot env_saved ;
+      Misc.print_verb 0
+        ("\\@try caught exception : "^Printexc.to_string e) ;
+      Lexstate.hot_lexstate saved_lexstate ;
+      Dest.hot saved_out ;
+      Hot.start saved ;
+      scan_this_arg main e2
+    end)
+;;
+
+def_code "\\@heveafail"
+  (fun lexbuf ->
+    let s = get_prim_arg lexbuf in
+    raise (Misc.Purposly s))
+;;
 
 (*
 (* A la TeX ouput (more or less...) *)

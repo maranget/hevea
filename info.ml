@@ -10,7 +10,7 @@
 (***********************************************************************)
 
 
-let header = "$Id: info.ml,v 1.21 1999-12-13 16:18:43 maranget Exp $"
+let header = "$Id: info.ml,v 1.22 2000-01-21 18:48:44 maranget Exp $"
 
 open Misc
 open Text
@@ -154,3 +154,9 @@ let infoextranode = InfoRef.infoextranode;;
 let infomenu = InfoRef.infomenu;;
 
 let image = Text.image;;
+
+type saved = Text.saved
+
+let check = Text.check
+and hot = Text.hot
+

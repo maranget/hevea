@@ -1,3 +1,4 @@
+\@beginpackage{amsmath}
 \def\text#1{\mbox{#1}}%
 %%AMS environments for displayed equations
 \newenvironment{equation*}{\[}{\]}%
@@ -27,4 +28,4 @@
 \setcounter{@hdots}{#2}%
 \whiledo{\value{@hdots}>1}{\ldots &\addtocounter{@hdots}{-1}}%
 \ldots}%
-
+\@endpackage{amsmath}

@@ -7,6 +7,7 @@ cat <<EOF
 \newcounter{time}\setcounter{time}{60 * `date +"%H"` + `date +"%M"`}
 %% Extras
 \newcounter{Hour}\setcounter{Hour}{`date +"%I"`}
+\newcounter{hour}\setcounter{hour}{`date +"%H"`}
 \newcounter{weekday}\setcounter{weekday}{`date +"%w"`}
 \newcounter{minute}\setcounter{minute}{`date +"%M"`}
 \newcounter{second}\setcounter{second}{`date +"%S"`}

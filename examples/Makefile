@@ -7,26 +7,31 @@ EXDIR=$(HOME)/public_html/hevea/examples
 HTML=a.html pat.html suite.html env.html smile.html amstex.html graphics.html graphicx.html
 DVI=$(HTML:.html=.dvi)
 TEX=$(HTML:.html=.tex)
+TEXT=$(HTML:.html=.txt)
+INFO=$(HTML:.html=.info)
 # coucou
 
-all: dvi html
+all: dvi html text info
 opt:
 	export HEVEADIR=.. ;\
 	$(MAKE) $(MFLAGS) HEVEAOPTS="$(HEVEAOPTS)" HEVEA=../hevea.opt HACHA=../hacha.opt IMAGEN=../imagen all
 
 byte:
 	export HEVEADIR=.. ;\
-	$(MAKE) $(MFLAGS)  HEVEAOPTS="$(HEVEAOPTS)" HEVEA=../hevea.byte HACHA=../hacha.byte IMAGEN=../imagen html
+	$(MAKE) $(MFLAGS)  HEVEAOPTS="$(HEVEAOPTS)" HEVEA=../hevea.byte HACHA=../hacha.byte IMAGEN=../imagen all
 
 dvi: $(DVI)
 
 
 html: $(HTML) index.html
+text: $(TEXT)
+info: $(INFO)
 
 install:
 	/bin/rm -rf $(EXDIR)
 	mkdir $(EXDIR)
 	cp *.gif $(HTML) index.html tmp*.html hp.c $(EXDIR)
+	cp $(TEXT) $(EXDIR)
 	cp Makefile $(TEX) pat.def env.hva pat.hva smile.hva $(EXDIR)
 	cp $(DVI) $(EXDIR)
 
@@ -35,6 +40,12 @@ a.dvi: a.tex
 
 a.html: a.tex
 	$(HEVEA) $(HEVEAOPTS) -francais a.tex
+
+a.txt : a.tex
+	$(HEVEA) $(HEVEAOPTS) -text -francais a.tex
+
+a.info : a.tex
+	$(HEVEA) $(HEVEAOPTS) -info -francais a.tex
 
 tmp.tex: pat.def pat.tex
 	gpic -t < pat.tex > tmp.tex
@@ -48,7 +59,10 @@ tmp.aux tmp.bbl pat.dvi: tmp.tex
 
 tmp.html: tmp.tex pat.hva tmp.bbl 
 	$(HEVEA) $(HEVEAOPTS) pat.hva -e pat.def tmp.tex
-
+pat.txt: tmp.tex pat.hva tmp.bbl 
+	$(HEVEA) $(HEVEAOPTS) -text pat.hva -e pat.def -o pat.txt tmp.tex
+pat.info: tmp.tex pat.hva tmp.bbl 
+	$(HEVEA) $(HEVEAOPTS) -info pat.hva -e pat.def -o pat.info tmp.tex
 
 pat.html: tmp.html
 	$(HACHA) -o pat.html tmp.html
@@ -62,6 +76,7 @@ env.dvi:tenv.tex
 
 env.html: env.hva tenv.tex
 	$(HEVEA) $(HEVEAOPTS) env.hva -o env.html tenv.tex
+env.txt env.info:
 
 
 tsmile.tex: smile.tex
@@ -73,6 +88,7 @@ smile.dvi:tsmile.tex
 
 smile.html: smile.hva tsmile.tex
 	$(HEVEA) $(HEVEAOPTS) smile.hva -o smile.html tsmile.tex
+smile.txt smile.info:
 
 suite.dvi suite.aux: suite.tex
 	$(LATEX) < /dev/null suite.tex
@@ -82,12 +98,21 @@ suite.dvi suite.aux: suite.tex
 
 suite.html: suite.tex
 	$(HEVEA) $(HEVEAOPTS) suite.tex
+suite.txt: suite.tex
+	$(HEVEA) $(HEVEAOPTS) -text suite.tex
+suite.info: suite.tex
+	$(HEVEA) $(HEVEAOPTS) -info suite.tex
 
 amstex.dvi: amstex.tex
 	latex < /dev/null amstex.tex
 
 amstex.html: amstex.tex
-	$(HEVEA) $(HEVEAOPTS) ams.hva amstex
+	$(HEVEA) $(HEVEAOPTS) amstex
+
+amstex.txt: amstex.tex
+	$(HEVEA) $(HEVEAOPTS) -text amstex
+amstex.info: amstex.tex
+	$(HEVEA) $(HEVEAOPTS) -info amstex
 
 HF.ps: HF.ps.gz
 	gunzip < HF.ps.gz > HF.ps
@@ -98,23 +123,24 @@ graphics.dvi: graphics.tex HF.ps
 
 graphics.html: graphics.tex HF.ps
 	$(HEVEA) $(HEVEAOPTS) graphics
+graphics.txt graphics.info:
 
 graphicx.dvi: HF.ps graphicx.tex
 	latex < /dev/null graphicx.tex
 
 graphicx.html: graphicx.tex HF.ps
 	$(HEVEA) $(HEVEAOPTS) graphicx
+graphicx.txt graphicx.info:
 
 index.html: index.tex
 	$(HEVEA) $(HEVEAOPTS) index.tex
 
 cleanhtml:
-	rm -f $(HTML) tmp.html *.txt *.info
+	rm -f $(HTML) tmp.html
+cleantext:
+	rm -f $(TEXT)
+cleaninfo:
+	rm -f *.info
 
-clean cleanall: cleanhtml
-	rm -f *.aux *.log *.dvi *~ *.gif *.bbl tmp.* tenv.* tsmile.* *.ilg *.ind *.idx *.image.tex *.html *.tid HF.ps.gz
-
-images:
-	$(IMAGEN) tmp
-	$(IMAGEN) env
-	$(IMAGEN) smile
+clean cleanall: cleanhtml cleantext cleaninfo
+	rm -f *.aux *.log *.dvi *~ *.gif *.bbl tmp.* tenv.* tsmile.* *.ilg *.ind *.idx *.image.tex  *.tid HF.ps *.haux *.hidx
