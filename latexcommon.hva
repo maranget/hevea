@@ -355,7 +355,7 @@
 %%% For defining Sectioning commands
 \newif\if@refs\@refstrue
 \newenvironment{@norefs}
-  {\@refsfalse\renewcommand{\aname}[2]{##2}\renewcommand{\label}[2][]{}\renewcommand{\ref}[1]{\@auxread{##1}}}
+  {\@refsfalse\renewcommand{\@aelement}[2]{##2}\renewcommand{\label}[2][]{}\renewcommand{\ref}[1]{\@auxread{##1}}}
   {}
 \newcounter{secnumdepth}\setcounter{secnumdepth}{3}%
 \newcounter{tocdepth}\setcounter{tocdepth}{2}%

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.219 2002-01-04 18:41:21 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.220 2002-02-04 19:32:35 maranget Exp $ *)
 
 
 {
@@ -2301,7 +2301,8 @@ newif_ref "@sawdocument" sawdocument ;
 newif_ref "@warnunder" warn_under ;
 newif_ref "@dumpindex" Misc.dump_index ;
 def_code "\\iftrue" (testif (ref true)) ;
-def_code "\\iffalse" (testif (ref false))
+def_code "\\iffalse" (testif (ref false)) ;
+def_code "\\ifimagen" (testif (ref false))
 ;;
 
 def_code "\\if@toplevel"

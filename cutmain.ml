@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: cutmain.ml,v 1.17 2001-10-22 18:03:58 maranget Exp $" 
+let header = "$Id: cutmain.ml,v 1.18 2002-02-04 19:32:35 maranget Exp $" 
 
 exception Error of string
 ;;
@@ -27,8 +27,10 @@ let main () =
        "filename, make htmlcut output go into file ``filename'' (defaults to index.html)");
      ("-francais", Arg.Unit (fun () -> Cut.language := "fra"),
        ", French mode");      
-     ("-tocbis", Arg.Unit (fun () -> Cut.tocbis := true),
-       ", Add small table of contents at the begining of files");      
+     ("-tocbis", Arg.Unit (fun () -> Cut.toc_style := Cut.Both),
+       ", duplicate table of contents at the begining of files");      
+     ("-tocter", Arg.Unit (fun () -> Cut.toc_style := Cut.Special),
+       ", Insert most of table of contents at the beginning of files");      
      ("-hrf", Arg.Unit (fun () -> log := true),
         ", output a log file showing the association from local anchors to files"); 
      ("-v", Arg.Unit (fun () -> incr Cut.verbose),

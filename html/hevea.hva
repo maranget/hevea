@@ -84,7 +84,7 @@
 \newcommand{\cuthere}[2]{%
 \@footnoteflush{#1}%
 {\@nostyle\@print{<!--TOC }\@getprint{#1}\@print{ }}%
-{#2}{\@nostyle\@print{-->
+\begin{@norefs}#2\end{@norefs}{\@nostyle\@print{-->
 }}}
 \newcommand{\@hacha@arg}[2]
   {{\@nostyle\@print{<ARG }\@getprint{#1}\@print{>}{#2}\@print{</ARG>}}}

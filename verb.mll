@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: verb.mll,v 1.55 2001-06-05 13:18:41 maranget Exp $            *)
+(*  $Id: verb.mll,v 1.56 2002-02-04 19:32:35 maranget Exp $            *)
 (***********************************************************************)
 {
 exception VError of string
@@ -1187,6 +1187,7 @@ let init_listings () =
 
   def_code "\\lstinline"
     (fun lexbuf ->
+      Image.stop () ;
       let keys = Subst.subst_opt "" lexbuf in
       let {arg=arg} = save_verbatim lexbuf in
       Scan.new_env "*lstinline*" ;
@@ -1201,7 +1202,8 @@ let init_listings () =
       close_lst true ;
       Dest.close_group () ;
       scan_this main "}" ;
-      Scan.close_env "*lstinline*") ;
+      Scan.close_env "*lstinline*" ;
+      Image.restart ()) ;
 
   def_code "\\lst@definelanguage"
     (fun lexbuf ->

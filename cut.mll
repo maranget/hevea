@@ -12,13 +12,15 @@
 {
 open Lexing
 open Stack
-let header = "$Id: cut.mll,v 1.36 2001-12-19 15:14:33 maranget Exp $" 
+let header = "$Id: cut.mll,v 1.37 2002-02-04 19:32:35 maranget Exp $" 
 
 let verbose = ref 0
 
 let language = ref "eng"
 
-let tocbis = ref false
+type toc_style = Normal | Both | Special
+
+let toc_style = ref Normal
 
 exception Error of string
 
@@ -245,7 +247,10 @@ and depth = ref 2
 let rec do_open l1 l2 =
   if l1 < l2 then begin
     openlist !toc ;
-    if !tocbis then openlist !out_prefix ;
+    begin match !toc_style with
+    | Both|Special -> openlist !out_prefix
+    | _ -> ()
+    end ;
     do_open (l1+1) l2
   end
 ;;
@@ -254,7 +259,10 @@ let rec do_open l1 l2 =
 let rec do_close l1 l2 =
   if l1 > l2 then begin
      closelist !toc ;
-     if !tocbis then closelist !out_prefix ;
+     begin match !toc_style with
+     | Both|Special -> closelist !out_prefix
+     | _  -> ()
+     end ;
      do_close (l1-1) l2
   end else
   cur_level := l1
@@ -269,8 +277,15 @@ let open_section sec name =
     else if !cur_level < sec then do_open  !cur_level sec ;
     incr anchor ;
     let label = "toc"^string_of_int !anchor in
-    itemanchor !outname label name !toc ;
-    if !tocbis then itemanchor !outname label name !out_prefix ;
+    begin match !toc_style with
+    | Normal ->
+        itemanchor !outname label name !toc ;
+    | Both ->
+        itemanchor !outname label name !toc ;
+        itemanchor !outname label name !out_prefix
+    | Special    ->
+        itemanchor !outname label name !out_prefix
+    end ;
     putanchor label !out ;
     cur_level := sec
   end else
@@ -287,11 +302,13 @@ let close_chapter () =
     prerr_endline ("Close chapter out="^ !outname^" toc="^ !tocname) ;
   if !phase > 0 then begin
     closehtml true !outname !out ;
-    if !tocbis then begin
+    begin match !toc_style with
+    | Both|Special ->
       let real_out = open_out !outname in
       Out.to_chan real_out !out_prefix ;
       Out.to_chan real_out !out ;
       close_out real_out
+    | Normal -> ()
     end ;
     out := !toc
   end else begin
@@ -306,13 +323,14 @@ and open_chapter name =
       ("Open chapter out="^ !outname^" toc="^ !tocname^
        " cur_level="^string_of_int !cur_level) ;
   if !phase > 0 then begin
-    if !tocbis then begin
-      out_prefix := Out.create_buff () ;
-      out := !out_prefix ;
-      openhtml true name !out_prefix !outname
-    end else begin
-      out := Out.create_chan (open_out !outname) ;
-      openhtml true name !out !outname
+    begin match !toc_style with
+    | Both|Special ->
+        out_prefix := Out.create_buff () ;
+        out := !out_prefix ;
+        openhtml true name !out_prefix !outname
+    | Normal ->
+        out := Out.create_chan (open_out !outname) ;
+        openhtml true name !out !outname
     end ;
     itemref !outname name !toc ;
     cur_level := !chapter
@@ -537,8 +555,10 @@ and closeflow () =
     main lexbuf}
 | "<!--SEC END" ' '* "-->" '\n'?
     {if !phase > 0 then begin
-      if !tocbis && !out == !out_prefix then
-        out := Out.create_buff ()
+      match !toc_style with
+      | Both|Special when !out == !out_prefix ->
+          out := Out.create_buff ()
+      | _ -> ()
     end ;
     main lexbuf}
 | "<!--CUT END" ' '* "-->" '\n'?

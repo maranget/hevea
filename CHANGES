@@ -1,4 +1,5 @@
 version 1.06-7
+  - Bug -> stopimage in lstinline.
   - Throw away index when some key field is empty (i.e. mimic makeindex)
   - Introduced \htmprefix
   - Bug in ``\@displayint'' (introduced by the new ``\@getprint'')
