@@ -9,12 +9,13 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.31 1999-07-06 16:02:51 maranget Exp $"
+let header = "$Id: text.ml,v 1.32 1999-09-01 14:30:44 maranget Exp $"
 
 
 open Misc
 open Parse_opts
 open Latexmacros
+open Stack
 
 exception Error of string;;
 
@@ -111,16 +112,6 @@ let failclose s = raise (Misc.Close s)
 ;;
 
 
-let push s e = s:=e::!s
-and pop name s = match !s with
-  [] -> raise ( Misc.Fatal ("Empty stack:"^name^" in Text"))
-| e::rs -> s:=rs; e
-and see_top name s = match !s with
-  [] -> raise ( Misc.Fatal ("Empty stack:"^name^" in Text (see)"))
-| e::_ -> e
-;;
-
-
 (* output globals *)
 type status = {
     mutable nostyle : bool ;
@@ -142,29 +133,31 @@ let push_out s (a,b,c) = push s (Normal (a,b,c))
 ;;
 
 let pretty_stack s =
-  prerr_string "|" ;
-  List.iter
-   (function Normal (s,args,_) ->
-     prerr_string ("["^s^"]-{"^args^"} ")
-   | Freeze _   -> prerr_string "Freeze ") s ;
-  prerr_endline "|"
+  Stack.pretty
+   (function
+     | Normal (s,args,_) -> "["^s^"]-{"^args^"} "
+     | Freeze _   -> "Freeze ") s
 ;;
 
-let rec pop_out s = match pop "out" s with
+let rec pop_out s = match pop s with
   Normal (a,b,c) -> a,b,c
 | Freeze f       -> raise PopFreeze
 ;;
 
 let free_list = ref [];;
 
-let out_stack = ref [];;
+let out_stack = Stack.create "out_stack";;
 
-let pblock () = match !out_stack with
-  Normal (s,_,_)::_ -> s
-| _ -> ""
-and parg () = match !out_stack with
-  Normal (_,a,_)::_ -> a
-| _ -> ""
+let pblock () =
+  if empty out_stack then "" else
+  match top out_stack with
+  | Normal (s,_,_) -> s
+  | _ -> ""
+and parg () =
+  if empty out_stack then "" else
+  match top out_stack with
+  | Normal (_,a,_) -> a
+  | _ -> ""
 ;;
 
 let free out =
@@ -255,18 +248,18 @@ let flags = {
 
 let line = String.create (!Parse_opts.width +2);;
 
-let nitems_stack = ref [];;
-let dt_stack = ref [];;
-let dcount_stack = ref [];;
-let x_stack = ref[];;
-let line_stack = ref [];;
-let align_stack = ref [];;
-let in_align_stack = ref [];;
-let underline_stack = ref [];;
-let in_table_stack = ref [];;
+let nitems_stack = Stack.create "nitems_stack";;
+let dt_stack = Stack.create "dt_stack";;
+let dcount_stack = Stack.create "dcount_stack";;
+let x_stack = Stack.create "x_stack";;
+let line_stack = Stack.create "line_stack";;
+let align_stack = Stack.create "align_stack";;
+let in_align_stack = Stack.create "in_align_stack";;
+let underline_stack = Stack.create "underline_stack";;
+let in_table_stack = Stack.create "in_table_stack";;
 
-let vsize_stack = ref [];;
-let delay_stack = ref [];;
+let vsize_stack = Stack.create "vsize_stack";;
+let delay_stack = Stack.create "delay_stack";;
 
 let do_do_put_char c =
   Out.put_char !cur_out.out c;;
@@ -624,7 +617,7 @@ let try_open_block s args =
 ;;
     
 let try_close_block s =
-  let (h,x,xs,xe,fl,lp) = pop "x" x_stack in
+  let (h,x,xs,xe,fl,lp) = pop x_stack in
   flags.hsize<-h; 
   flags.x_start<-xs;
   flags.x_end<-xe;
@@ -634,27 +627,27 @@ let try_close_block s =
   if (is_list s) then begin
     finit_ligne();
     if not flags.in_align then begin
-      let a = pop "align" align_stack in
+      let a = pop align_stack in
       flags.align <- a
     end;
-    flags.nitems <- pop "nitems" nitems_stack;
+    flags.nitems <- pop  nitems_stack;
     if s="DL" then begin
-      flags.dt <- pop "dt" dt_stack;
-      flags.dcount <- pop "dcount" dcount_stack;
+      flags.dt <- pop dt_stack;
+      flags.dcount <- pop dcount_stack;
     end;
   end else match s with
   | "ALIGN" | "QUOTE" | "QUOTATION" ->
       begin
 	finit_ligne ();
-	let a = pop "align" align_stack in
+	let a = pop align_stack in
 	flags.align <- a;
-	let ia = pop "in_align" in_align_stack in
+	let ia = pop  in_align_stack in
 	flags.in_align <- ia;
       end
   | "HEAD" ->
       begin
 	finit_ligne();
-	let u = pop "underline" underline_stack in
+	let u = pop underline_stack in
 	flags.underline <- u
       end
   | "PRE" ->
@@ -742,7 +735,7 @@ and set_dcount s = flags.dcount <- s
 let do_item isnum =
   if !verbose > 2 then begin
     prerr_string "do_item: stack=";
-    pretty_stack !out_stack
+    pretty_stack out_stack
   end;
   let mods = !cur_out.active in
   if flags.nitems = 0 then begin let _ = forget_par () in () end ;
@@ -762,7 +755,7 @@ and nitem () = do_item true
 let ditem scan arg =
   if !verbose > 2 then begin
     prerr_string "ditem: stack=";
-    pretty_stack !out_stack
+    pretty_stack out_stack
   end;
   
   let mods = !cur_out.active in
@@ -986,12 +979,12 @@ let table =  ref {
 } 
 ;;
 
-let table_stack = ref [];;
-let row_stack = ref [];;
-let cell_stack = ref [];;
+let table_stack = Stack.create "table_stack";;
+let row_stack = Stack.create "row_stack";;
+let cell_stack = Stack.create "cell_stack";;
 
 let multi = ref []
-and multi_stack = ref [];;
+and multi_stack = Stack.create "multi_stack";;
 
 
 let open_table border htmlargs =
@@ -1133,8 +1126,8 @@ let close_cell content =
   if !verbose>2 then prerr_endline "=> force_cell";
   if (!cell.wrap=True) then begin
     do_flush ();
-    flags.in_align <- pop "in_align" in_align_stack;
-    flags.align <- pop "align" align_stack;
+    flags.in_align <- pop in_align_stack;
+    flags.align <- pop align_stack;
   end;
   force_block "" content;
   !cell.text<-Out.to_string !cur_out.out;
@@ -1228,8 +1221,8 @@ and erase_cell_group () = !table.in_cell <- false;
 let erase_cell () =
   if !verbose>2 then prerr_endline "erase cell";
   if (!cell.wrap=True) then begin
-    flags.in_align <- pop "in_align" in_align_stack;
-    flags.align <- pop "align" align_stack;
+    flags.in_align <- pop in_align_stack;
+    flags.align <- pop align_stack;
   end;
   erase_block "";
   let _ = Out.to_string !cur_out.out in
@@ -1389,7 +1382,7 @@ let calculate_multi () =
 let close_table () =
   if !verbose>2 then begin
     prerr_endline "=> close_table";
-    pretty_stack !out_stack
+    pretty_stack out_stack
   end;
   if !table.line=0 then  !table.tailles<-Table.trim !table.taille;
   let tab = Table.trim !table.table in
@@ -1455,12 +1448,12 @@ let close_table () =
     done;
   done;
 
-  flags.align <- pop "align" align_stack;
-  table := pop "table" table_stack;
-  row := pop "row" row_stack;
-  cell := pop "cell" cell_stack;
-  multi := pop "multi" multi_stack;
-  flags.in_table <- pop "in_table" in_table_stack;
+  flags.align <- pop align_stack;
+  table := pop table_stack;
+  row := pop row_stack;
+  cell := pop cell_stack;
+  multi := pop multi_stack;
+  flags.in_table <- pop in_table_stack;
   close_block "";
   if not (flags.in_table) then finit_ligne ();
   if !verbose>2 then prerr_endline "<= close_table"
@@ -1555,25 +1548,31 @@ let formated s = Tabular.Align
 ;;
 
 
-let freeze f=
-  push out_stack (Freeze f)
+
+let freeze f =
+  push out_stack (Freeze f) ;
+  if !verbose > 2 then begin
+    prerr_string "freeze: stack=" ;
+    pretty_stack out_stack
+  end
 ;;
 
-
-let pop_freeze () =
-  match !out_stack with
-  | Freeze f::reste -> 
-      let _ = pop "out" out_stack in
-      f,true
-  | _ -> (fun ()-> ()),false
+let flush_freeze () = match top out_stack with
+  Freeze f ->
+    let _ = pop out_stack in
+    if !verbose > 2 then begin
+      prerr_string "flush_freeze" ;
+      pretty_stack out_stack
+    end ;
+    f () ; true
+| _ -> false
 ;;
 
-let flush_freeze ()=
-  match !out_stack with
-  | Freeze f::reste -> 
-      let _ = pop "out" out_stack in
-      f(); true
-  | _ -> false
+let pop_freeze () = match top  out_stack with
+  Freeze f -> 
+    let _ = pop out_stack in
+    f,true
+| _ -> (fun () -> ()),false
 ;;
 
 (* Displays *)

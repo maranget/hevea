@@ -1,5 +1,6 @@
 version 1.05-3
   - new ``Stack'' module.
+  - ``-tocbis'' option for hacha
   - Introduced \texlet \texdef and better documentation for TeX macros.
   - Computation of cross-referencing information using .haux files
   - Delimited arguments
