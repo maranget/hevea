@@ -20,3 +20,11 @@ and three = parse
   let snd = other lexbuf in
   let thrd = other lexbuf in
   fst,snd,thrd}
+and four = parse
+  ""
+  {let fst = one lexbuf in
+  let snd = other lexbuf in
+  let thrd = other lexbuf in
+  let fourth = other lexbuf in
+  fst,snd,thrd,fourth}
+

@@ -3,6 +3,7 @@
 \usepackage{isolatin1}
 \usepackage{../html}
 \usepackage{index}
+\usepackage{color}
 
 \title{Test de \hevea\footnote{Une étoile}}
 \makeindex
@@ -27,7 +28,7 @@ Roman
 \end{center}
 
 \begin{htmlonly}
-\subsection{Colors}
+\subsection{Couleurs à la \hevea{}}
 {\Huge
 {\purple purple}
 {\silver silver}
@@ -48,6 +49,23 @@ Roman
 {\htmlcolor{e0e0e0}et \c{c}a, c'est presque blanc~?}
 }
 \end{htmlonly}
+
+\subsection{Couleurs à la \textit{color}}
+\textcolor{black}{noir},
+\textcolor{white}{blanc},
+\textcolor{red}{rouge},
+\textcolor{green}{vert},
+\textcolor{blue}{bleu},
+\textcolor{cyan}{cyan},
+\textcolor{yellow}{jaune},
+\textcolor{magenta}{magenta}.
+
+\definecolor{medium}{gray}{0.5}
+\textcolor{medium}{gris moyen}.
+
+\definecolor{otheryellow}{cmyk}{0, 0, 1, 0.5}
+\textcolor{otheryellow}{Un autre jaune}.
+
 \section{Paragraphs}
 
 \subsection{No par skip}

@@ -6,14 +6,13 @@ IMAGEN=imagen
 HTMLDIR=$(HOME)/public_html/hevea
 DOCDIR=$(HTMLDIR)/doc
 
-all: manual.dvi index.html
+all: manual.dvi index.html images
 
 tmp.tex: manual.tex version.tex
 	$(GPIC) -t < manual.tex > tmp.tex
 
 manual.html: manual.sty tmp.tex
 	${HEVEA} manual.sty tmp.tex -o manual.html
-	${IMAGEN} manual
 
 manual.dvi: tmp.tex
 	$(LATEX) < /dev/null tmp.tex &&\
@@ -23,6 +22,9 @@ manual.dvi: tmp.tex
 
 index.html: manual.html
 	$(HACHA) manual.html
+
+images:
+	${IMAGEN} manual
 
 ############ Installation stuff
 install:

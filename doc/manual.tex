@@ -5,6 +5,7 @@
 \usepackage{../html}
 \usepackage{isolatin1}
 \usepackage{epsf}
+%HEVEA\usepackage{color}
 
 
 \renewcommand{\thepart}{\Alph{part}}
@@ -945,9 +946,8 @@ process\\
 \end{tabular}
 \end{center}
 
-
-\noindent Thus, provided the \filename{html} package is loaded, the ``purple
-rain'' example from the previous section can also be written:
+\noindent As an example, this is how some text can be typeset in purple by
+\hevea{} and left alone by \LaTeX{}:
 \begin{verbatim}
 We get:
 \begin{htmlonly}\purple purple rain, purple rain\end{htmlonly}%
@@ -963,9 +963,9 @@ purple rain, purple rain
 \end{latexonly}
 \ldots
 
-\noindent Note that environments define a scope and that declarations (and
-non-global macro definitions) are local to them. For instance, in the
-example above, ``\ldots'' does not appear in purple.
+Note that environments define a scope and that style changes
+(and non-global definitions) are local to them. For instance, in the
+example above, ``\ldots'' appears in black in \html{} output.
 
 
 Another choice is using the \TeX{} style conditional macros \verb+\ifhevea+,
@@ -976,10 +976,69 @@ We get:
 \end{verbatim}
 We get: {\ifhevea\purple\fi purple rain, purple rain}\ldots
 
+\subsubsection{Why is there a \texttt{verblatex} environment?}
+Some scanning and analysis of source is performed
+by \hevea{} inside the \texttt{latexonly} environment, in order to
+allow  \texttt{latexonly} to dynamically occur inside other environments.
+
+More specifically, \verb+\end{+\textit{env}\verb+}+ macros
+are recognized and their \textit{env} argument is tested against
+the name of the environment whose opening macro finally opened the
+\texttt{latexonly} environment.
+In that case, macro expansion of \verb+\end+\textit{env} is performed and
+any further occurrence of  \verb+\end{+\textit{env'}\verb+}+ is tested
+and may get expanded if it matches a pending
+\verb+\begin{+\textit{env'}\verb+}+
+construct.
+
+
+This enables playing tricks such as:
+\begin{verbatim}
+\newenvironment{latexhuge}
+  {\begin{latexonly}\huge}
+  {\end{latexonly}}
+
+\begin{latexhuge}
+This will appear in huge font in \LaTeX{} output only.
+\end{latexhuge}
+\end{verbatim}
+\LaTeX{} output will be:
+\begin{latexout}
+\begin{showlatex}
+\newenvironment{latexhuge}
+  {\begin{latexonly}\huge}
+  {\end{latexonly}}
+\begin{latexhuge}
+This  will appear in huge font in \LaTeX{} output only.
+\end{latexhuge}
+\end{showlatex}
+\end{latexout}
+\noindent While there is no \hevea{} output.
+
+Since \hevea{} somehow analyses input that is enclosed in the
+\texttt{latexonly} environment,
+it may choke.
+However, this environment is intended to select processing by
+\LaTeX{} only and might contain arbitrary source code.
+Fortunately, it remains possible to have input processed by \LaTeX{}
+only, regardless of what it is, by enclosing it in the
+\texttt{verblatex} environment.
+Inside this environment, \hevea{} performs no other action
+than looking for \verb+\end{verblatex}+. As a consequence,
+the \verb+\begin{verblatex}+ and \verb+\end{verblatex}+ constructs
+may only appear in the main flow of text or inside the same macro body,
+a bit like \LaTeX{} \texttt{verbatim} environment.
+
+
+Relations between \texttt{toimage} and \texttt{verbimage} are similar.
+Additionnaly, formal parameters \verb+#+\textit{i} are replaced by
+actual arguments inside the \texttt{toimage} environment
+(see end of section~\ref{substimage} for an example of this feature).
+
 \subsubsection{Bonus macros}
 By default, \hevea{} knows some macros to process a few \html-related
 constructs.
-The \filename{html} package defines \LaTeX{} equivalents for them.
+The \texttt{html} package defines \LaTeX{} equivalents for them.
 This first concerns the \hevea{} and \hacha{} logos.
 Then, a few macros for URL management are provided
 
@@ -1033,9 +1092,8 @@ are defined as null macros.
 \subsection{Comments}
 \hevea{} processes all lines that start with \verb+%HEVEA+, while
 \LaTeX{} treats these lines as comments.
-
-As an example, this is how some text can be typeset in purple by
-\hevea{} and left alone by \LaTeX.
+Thus the ``purple rain'' example can be
+rephrased as follows:
 \begin{verbatim}
 We get
 %HEVEA{\purple
@@ -1044,7 +1102,7 @@ purple rain, purple rain%
 \ldots
 \end{verbatim}
 (Note how comments are placed at the end of some lines to avoid spurious spaces
-in the final output).
+in the final output.)
 
 We get:
 %HEVEA{\purple
@@ -1052,34 +1110,9 @@ purple rain, purple rain%
 %HEVEA}%
 \ldots
 
-Moreover, comments provides an alternative to loading the
-\textit{html} package,
-since \LaTeX{} does not process comments by default.
-For instance, is some url is to appear only in
-the \html{} output, one can write:
-\begin{verbatim}
-Please, have a look at my home page%
-%HEVEA\ (\url{http://para.inria.fr/\home{maranget}/})
-.
-\end{verbatim}
-In \LaTeX{} one gets:
-\begin{latexout}
-\begin{showlatex}
-Please, have a look at my home page%
-%HEVEA\ (\oneurl{http://para.inria.fr/\home{maranget}/})
-.
-\end{showlatex}
-\end{latexout}
-\noindent While \html{} output is:
-\begin{htmlout}
-%HEVEA Please, have a look at my home page%
-%HEVEA~(\oneurl{http://para.inria.fr/\home{maranget}/}).
-%BEGIN LATEX
-\epsfbox{home.ps}
-%END LATEX
-\end{htmlout}
-Additionally, there are some comment equivalents for the
-\verb+latexonly+ and \verb+toimage+ environments.
+Comments thus provide an alternative to loading the
+\texttt{html} package. For user convenience, comment equivalents to
+the \verb+latexonly+ and \verb+toimage+ environment are also provided:
 \begin{center}
 \begin{tabular}{ll}\hline
 \multicolumn{1}{c}{environment} & \multicolumn{1}{c}{comment
@@ -1099,10 +1132,11 @@ equivalent}\\ \hline
 \end{tabular}
 \end{tabular}
 \end{center}
-
-\noindent Thus, the ``have a look at my home page'' examples can also
-be written as follows:
-\begin{verbatim}
+Note that \LaTeX{}, by ignoring comments, naturally performs the action
+of processing text between \verb+%BEGIN+\texttt{\ldots} and %
+\verb+%END+\texttt{\ldots} %
+comments. However, no environment is opened and closed and no scope is
+created while using comment equivalents.
 
 
 \section{With a little help from \LaTeX}\label{imagen}
@@ -1205,7 +1239,7 @@ line level.
 Cost can be lowered using \verb+\savebox+, but the other problems remain.
 
 
-\subsection{Including postscript images}
+\subsection{Including postscript images}\label{substimage}
 Such images are easy to manage: it suffices to let \LaTeX{} do the
 job.
 Let \texttt{round.ps} be a postscript file, which is included as an
@@ -1254,9 +1288,9 @@ command, so that \hevea{} echoes  \verb+\epsfbox+ and its argument to
 the image file and performs \verb+\imageflush+:
 \begin{verbatim}
 \newcommand{\epsfbox}[1]{%
-%BEGIN IMAGE
+\begin{toimage}
 \epsfbox{#1}%
-%END IMAGE
+\end{toimage}
 \imageflush}
 \end{verbatim}
 Such a definition must be seen by \hevea{} only. So, it is best put
@@ -1351,8 +1385,7 @@ ellipse "{\Large\bf Smile!}"
 .PE
 \end{centergpic}
 \end{verbatim}
-\hevea will process this source correctly (including the
-definition of \verb+centergpic+), provided it is given its
+\hevea will process this source correctly, provided it is given its
 own definition for the \verb+centergpic+ environment beforehand:
 \begin{verbatim}
 \newenvironment{centergpic}
@@ -1361,7 +1394,7 @@ own definition for the \verb+centergpic+ environment beforehand:
 \end{verbatim}
 Assuming the definition above is in a \url{../examples/smile.sty}{\texttt{smile.sty}} file,
 the command sequence for translating
-\url{../examples/smile.tex}{\texttt{smile.tex}} now is:
+\url{../examples/smile.tex}{\texttt{smile.tex}} \mbox{now is}:
 \begin{verbatim}
 # gpic -t < smile.tex > tmp.tex
 # hevea smile.sty tmp.tex -o smile.html
@@ -1416,9 +1449,9 @@ a counter and a few macros, directly in the document source.
 
 A document that explicitly includes cutting macros still can be typeset by
 \LaTeX{}, provided it loads the
-\filename{html} package from the \hevea{} distribution.
-(See section~\ref{both} for details on the \filename{html} package).
-An alternative to loading the \filename{html} package is to put
+\texttt{html} package from the \hevea{} distribution.
+(See section~\ref{both} for details on the \texttt{html} package).
+An alternative to loading the \texttt{html} package is to put
 all cutting instructions in comments starting with \verb+%HEVEA+.
 
 
@@ -1571,7 +1604,7 @@ unit by typing:
 \end{verbatim}
 (Note that, this time, cutting macros appear unprotected in the
 source. However, \LaTeX{} still can process the document, since the
-\filename{html} package is loaded).
+\texttt{html} package is loaded).
 
 \setcounter{section}{0}
 \renewcommand{\thesection}{\thepart.\arabic{section}}
@@ -1580,6 +1613,66 @@ source. However, \LaTeX{} still can process the document, since the
 
 This part follows the pattern of the \LaTeX{} reference
 manual~\cite[Appendix~C]{latex}.
+
+\section{Commands and Environments}
+
+\subsection{Command Names and Arguments}
+
+\LaTeX{} comments, that start with ``\verb+%+'' %
+and end at end of line are ignored and produce no output.
+
+Command names follow strict \LaTeX{} syntax. That is, appart from
+\verb+#+, \verb+$+, %$
+\verb+~+, \verb+_+ and \verb+^+, they either are
+``\verb+\+'' followed by a single non-letter character or
+``\verb+\+'' followed by a sequence of letters.
+Additionnaly, the letter sequence may either be preceded by ``\verb+@+''
+(and this is the case of many of \hevea{} internal commands), or
+terminated by ``\verb+*+'' (starred variants are implemented as plain
+commands).
+
+Users are strongly advised to follow strict \LaTeX{} syntax for
+arguments. That is, mandatory arguments are enclosed in curly braces
+\verb+{+\ldots{} \verb+}+ and braces inside arguments must be properly
+balanced.
+Optional arguments are enclosed in squares brackets \verb+[+\ldots{}
+\verb+]+.
+However, \hevea{} does its best to read arguments even when they are
+not enclosed in curly braces.
+Such arguments are a single, different from ``\verb+\+'', ``\verb+{+''
+and ``\verb+ +'', character or
+a command name.
+Thus, constructs such as \verb+\'ecole+, \verb+$a_1$+ or \verb+$a_\Gamma$+ are
+recognized and processed as ``\'ecole'' ``$a_1$'' and ``$a_\Gamma$''.
+Note that, by contrast with \LaTeX{}, comments are parsed during
+argument scanning, as an important consequence brace nesting is also
+checked inside comments.
+
+\subsection{Environments}
+
+Environment opening and closing is performed like in \LaTeX{}, with
+\verb+\begin{+\textit{env}\verb+}+ and
+\verb+\end{+\textit{env}\verb+}+.
+The \verb+*+-form of an environment is a plain environment.
+
+\subsection{Fragile Commands}
+Fragile commands are not relevant to \hevea{} and \verb+\protect+ is
+defined as a null command.
+
+\subsection{Declarations}
+Scope rules are the same as in \LaTeX.
+
+\subsection{Invisible Commands}
+I am a bit lost here. However spaces in the output should correspond
+to users expectations. Note that, to \hevea{} being
+invisible commands is a static property attached to command name.
+
+\subsection{The \texttt{\char92\char92} Command}
+
+The \verb+\\+ and \verb+\\*+ commands are the same, they perform a
+line break, except inside arrays where they end the current row.
+Optional arguments to \verb+\\+ and \verb+\\*+ are ignored.
+
 
 \section{The Structure of the Document}
 
@@ -1619,7 +1712,7 @@ See also section~\ref{spacemathref} on spaces in math mode.
 \subsection{Paragraphs}
 New paragraphs are introduced by one blank line or more.
 Paragraphs are not indented. Thus the macros \verb+\indent+ and
-\verb+\noinent+ perform no action.
+\verb+\noindent+ perform no action.
 
 \subsection{Footnotes}
 The commands \verb+\footnote+,
@@ -1659,7 +1752,7 @@ Commands for making accents used in non-english languages, such as
 Otherwise, the argument to the command is not modified (no warning here).
 However, it is more simple to write the document using iso-latin1.
 \LaTeX{} can process such documents by loading the package
-\filename{isolatin1}.
+\texttt{isolatin1}.
 
 \section{Sectioning}
 
@@ -2283,7 +2376,7 @@ Users can correct such misbehavior by adopting \LaTeX{} syntax
 (\verb+\setlength{\textwidth}{10cm}+ here).
 
 
-\subsection{Space}
+\subsection{Space}\label{spaces}
 
 The \verb+\hspace+, \verb+\vspace+ and \verb+\addvspace+ spacing
 commands and their starred versions recognize positive explicit length
@@ -2348,6 +2441,79 @@ The \verb+\rule+ commands translate to a \html{} horizontal rule
 
 All other box-related commands do not exist.
 
+\section{Pictures and Colors}
+
+\subsection{The \texttt{picture} environment and the \texttt{graphics}
+Package}
+At the moment (version~\heveaversion), \hevea{} knows nothing about
+the \texttt{picture} environment and the \texttt{graphics} package.
+However, it is possible to have pictures and graphics processed by
+\texttt{imagen} 
+and to include links to resulting \texttt{gif} images (see
+section~\ref{imagen}).
+For instance consider the following picture:
+\begin{verbatim}
+\newcounter{cms}
+\setlength{\unitlength}{1mm}
+\begin{picture}(50,10)
+\put(0,7){\makebox(0,0)[b]{cm}}
+\multiput(10,7)(10,0){5}{\addtocounter{cms}{1}\makebox(0,0)[b]{\arabic{cms}}}
+\multiput(1,0)(1,0){49}{\line(0,1){2.5}}
+\multiput(5,0)(10,0){5}{\line(0,1){5}}
+\thicklines
+\put(0,0){\line(1,0){50}}
+\multiput(0,0)(10,0){6}{\line(0,1){5}}
+\end{picture}
+\end{verbatim}
+Users should enclose {\em all} picture elements in a \verb+toimage+
+environment and insert an \verb+\imageflush+ command, where they want
+the image to appear in \html{} output:
+\begin{verbatim}
+%BEGIN IMAGE
+\newcounter{cms}
+\setlength{\unitlength}{1mm}
+\begin{picture}(50,10)
+  ...
+\end{picture}
+%END IMAGE
+%HEVEA\imageflush
+\end{verbatim}
+This will result in normal processing by \LaTeX{} and image inclusion
+by \hevea~:
+\begin{center}
+%BEGIN IMAGE
+\newcounter{cms}
+\setlength{\unitlength}{1mm}
+\begin{picture}(50,10)
+\put(0,7){\makebox(0,0)[b]{cm}}
+\multiput(10,7)(10,0){5}{\addtocounter
+  {cms}{1}\makebox(0,0)[b]{\arabic{cms}}}
+\multiput(1,0)(1,0){49}{\line(0,1){2.5}}
+\multiput(5,0)(10,0){5}{\line(0,1){5}}
+\thicklines
+\put(0,0){\line(1,0){50}}
+\multiput(0,0)(10,0){6}{\line(0,1){5}}
+\end{picture}
+%END IMAGE
+%HEVEA\imageflush
+\end{center}
+
+\subsection{The \texttt{color} Package}\label{color}
+\newcommand{\showcolor}[1]{\texttt{#1}}
+
+\hevea{} partly implements the \texttt{color} package.
+Implemented commands are \verb+\definecolor+, \verb+\color+ and
+\verb+\textcolor+. Other commands from the \texttt{color} package do
+not exist.
+At startup,
+colors \showcolor{black}, \showcolor{white},
+\showcolor{red}, \showcolor{green}, \showcolor{blue},
+\showcolor{cyan}, \showcolor{yellow} and \showcolor{magenta} are
+pre-defined.
+
+
+
+
 \section{Font Selection}
 
 \subsection{Changing the Type Style}
@@ -2406,6 +2572,9 @@ For instance, the following declarations change font color to dark gray:
 \end{verbatim}
 %HEVEA}
 
+Text colors can also be specified in a more \LaTeX{}-compliant manner
+by using commands from the \texttt{color} package, which \hevea{}
+partly implements (see section~\ref{color}).
 Colors should be used carefully. Too many colors
 hinders clarity and some of the colors may not be readable on the
 document background color.

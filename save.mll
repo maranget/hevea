@@ -12,7 +12,7 @@
 {
 open Lexing
 
-let header = "$Id: save.mll,v 1.22 1998-10-26 16:23:20 maranget Exp $" 
+let header = "$Id: save.mll,v 1.23 1998-10-27 16:22:43 maranget Exp $" 
 
 let verbose = ref 0 and silent = ref false
 ;;
@@ -71,8 +71,7 @@ let put_both_char c =
 
 rule opt = parse
    '['
-        {incr brace_nesting ;
-        put_echo_char '[' ;
+        {put_echo_char '[' ;
         opt2 lexbuf}
 | ' '+  {put_echo (lexeme lexbuf) ; opt lexbuf}
 |  eof  {raise (BadParse "EOF")}
@@ -80,15 +79,21 @@ rule opt = parse
 
 
 and opt2 =  parse
-    '['         {incr brace_nesting;
-                put_both_char '[' ; opt2 lexbuf}
-  | ']'        { decr brace_nesting;
-                 if !brace_nesting > 0 then begin
-                    put_both_char ']' ; opt2 lexbuf
+    '{'         {incr brace_nesting;
+                put_both_char '{' ; opt2 lexbuf}
+  | '}'        { decr brace_nesting;
+                 if !brace_nesting >= 0 then begin
+                    put_both_char '}' ; opt2 lexbuf
                  end else begin
-                   put_echo_char ']' ;
-                   Out.to_string arg_buff
+                   failwith "Bad brace nesting in optional argument"
                  end}
+  | ']'
+      {if !brace_nesting > 0 then begin
+        put_both_char ']' ; opt2 lexbuf
+      end else begin
+        put_echo_char ']' ;
+        Out.to_string arg_buff
+      end}
   | _
       {let s = lexeme_char lexbuf 0 in
       put_both_char s ; opt2 lexbuf }
@@ -136,10 +141,6 @@ and more_skip = parse
 | ""
   {Out.to_string arg_buff}
 
-and sarg = parse
-  [^'{'' '] {lexeme lexbuf}
-| ""        {arg lexbuf}
-
 and arg2 = parse
   '{'         
      {incr brace_nesting;
@@ -153,11 +154,11 @@ and arg2 = parse
        put_echo_char '}' ;
        Out.to_string arg_buff
      end}
-  | "\\{" | "\\}" | "\\\\"
+| "\\{" | "\\}" | "\\\\"
       {let s = lexeme lexbuf in
       put_both s ; arg2 lexbuf }
-  | eof    {raise (BadParse "EOF")}
-  | _
+| eof    {raise (BadParse "EOF")}
+| _
       {let c = lexeme_char lexbuf 0 in
       put_both_char c ; arg2 lexbuf }
 
@@ -281,20 +282,20 @@ and skip_equal = parse
 | ""            {()}
 
 and get_sup_sub = parse
-  '^'
-    {let sup = sarg lexbuf in
+  ' '* '^'
+    {let sup = arg lexbuf in
     sup,get_sub lexbuf}
-| '_'
-    {let sub = sarg lexbuf in
+| ' '* '_'
+    {let sub = arg lexbuf in
     get_sup lexbuf,sub}
 | "" {("","")}
 
 and get_sup = parse
-  '^'  {sarg lexbuf}
+  ' '* '^'  {arg lexbuf}
 | ""   {""}
 
 and get_sub = parse
-  '_'  {sarg lexbuf}
+  ' '* '_'  {arg lexbuf}
 | ""   {""}
 
 and defargs = parse 

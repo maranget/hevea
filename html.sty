@@ -201,8 +201,11 @@
 %\begin{latexonly} and \end{latexonly}
 %
 \newenvironment{latexonly}{}{}
+\newenvironment{verblatex}{}{}
 \def\toimage{\expandafter\ifx\csname graph\endcsname\relax \csname newbox\endcsname\graph\fi}
 \def\endtoimage{\global\setbox\graph=\box\graph}
+\def\verbimage{\expandafter\ifx\csname graph\endcsname\relax \csname newbox\endcsname\graph\fi}
+\def\endverbimage{\global\setbox\graph=\box\graph}
 %\newcommand{\imageflush}[1][]{}
 \newcommand{\imageflush}{}
 %%% HYPERREF 

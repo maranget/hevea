@@ -16,7 +16,7 @@ open Myfiles
 open Latexmacros
 open Html
 
-let header = "$Id: latexscan.mll,v 1.52 1998-10-26 16:23:18 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.53 1998-10-27 16:22:41 maranget Exp $" 
 
 
 let prerr_args args =
@@ -1213,13 +1213,6 @@ let command_name = '\\' (('@' ? ['A'-'Z' 'a'-'z']+ '*'?) | [^ 'A'-'Z' 'a'-'z'])
 rule  main = parse
 (* comments *)
    '%'+ {comment lexbuf}
-(* included images *)
-| ".PS\n" {start_image_scan  "\n.PS\n" image lexbuf ; main lexbuf}
-| "\\box\\graph" ' '*
-    {if !verbose > 2 then prerr_endline "Graph" ;
-    Image.put "\\box\\graph\n";
-    iput_newpage "" ;
-    main lexbuf}
 (* Styles and packages *)
 | "\\documentstyle"  | "\\documentclass"
     {let command = lexeme lexbuf in
@@ -1292,11 +1285,11 @@ rule  main = parse
      else begin
        let sup,sub = match lxm with
          "^" ->
-           let sup = Save.sarg lexbuf in
+           let sup = Save.arg lexbuf in
            let sub = Save.get_sub lexbuf in
            sup,sub
        | _   ->
-           let sub = Save.sarg lexbuf in
+           let sub = Save.arg lexbuf in
            let sup = Save.get_sup lexbuf in
            sup,sub in
        standard_sup_sub main (fun () -> ()) sup sub
@@ -1466,9 +1459,13 @@ rule  main = parse
    {let env = save_arg lexbuf in
    begin match env with
      "rawhtml" -> rawhtml lexbuf; main lexbuf
+   |  "verblatex" ->
+       verblatex lexbuf ; main lexbuf
    | "latexonly" ->
        start_other_scan "latexonly" latexonly lexbuf ;
        main lexbuf
+   | "verbimage" ->
+       verbimage lexbuf ; main lexbuf
    | "toimage" ->
        start_image_scan "" image lexbuf ;
        main lexbuf
@@ -1810,7 +1807,7 @@ rule  main = parse
       | "\\color" ->
           let clr = subst_arg subst lexbuf in
           let htmlval = Color.retrieve clr in
-          Html.open_mod (Color ("\"#"^htmlval^"\"")) ;
+          Html.open_mod (Color ("\""^htmlval^"\"")) ;
           skip_blanks lexbuf ;
           main lexbuf
 (* Bibliographies *)
@@ -2158,9 +2155,24 @@ and inverb = parse
     inverb lexbuf
   end}
 
+and verblatex = parse
+  "\\end"
+    {let lxm = lexeme lexbuf in
+    let env = save_arg lexbuf in
+    if env = "verblatex" then
+      Image.put_char '\n'
+    else begin
+      verblatex lexbuf
+    end}
+|  _ 
+    {verblatex lexbuf}
+|  eof {failwith "EOF in verblatex"}
+
 and latexonly = parse
    '%'+ ' '* ("END"|"end") ' '+ ("LATEX"|"latex")  [^'\n']* '\n'
      {stop_other_scan main lexbuf}
+|  '%'+ ' '* ("HEVEA"|"hevea") ' '*
+     {latexonly lexbuf}
 |  '%'
      {latex_comment lexbuf ; latexonly lexbuf}
 |  "\\end"
@@ -2190,10 +2202,30 @@ and latex_comment = parse
   '\n' | eof  {()}
 | [^'\n']+    {latex_comment lexbuf}
 
+and verbimage = parse
+  "\\end"
+    {let lxm = lexeme lexbuf in
+    Save.start_echo () ;
+    let env = save_arg lexbuf in
+    let true_env = Save.get_echo () in
+    if env = "verbimage" then
+      Image.put_char '\n'
+    else begin
+      Image.put lxm ;
+      Image.put true_env ;
+      verbimage lexbuf
+    end}
+|  _
+    {let lxm = lexeme_char lexbuf 0 in
+    Image.put_char lxm ;
+    verbimage lexbuf}
+|  eof {failwith "EOF in verbimage"}
 
 and image = parse
    '%'+ ' '* ("END"|"end") ' '+ ("IMAGE"|"image")  [^'\n']* '\n'
      {Image.put_char '\n' ; stop_other_scan main lexbuf}
+|  '%'+ ' '* ("HEVEA"|"hevea") ' '*
+     {image lexbuf}
 |  '%'
      {let lxm = lexeme lexbuf in
      Image.put lxm ;
@@ -2387,7 +2419,7 @@ and comment = parse
     start_other_scan "latexonly" latexonly lexbuf ;
     skip_spaces_main lexbuf}
 | ""
-    {skip_comment lexbuf ; skip_spaces_main lexbuf}
+    {skip_comment lexbuf ; more_skip lexbuf ; main lexbuf}
 
 and skip_comment = parse    
    [^ '\n']* '\n'
