@@ -1,10 +1,10 @@
 \@primitives{index}
 \newsavebox{\@indexbox}
 \newcommand{\index}[1]
-{\@saveclosed%
+{\if@refs\@saveclosed%
 \sbox{\@indexbox}{\@indexwrite[default]{#1}{\@currentlabel}}%force evaluation
 \@locname{\usebox{\@indexbox}}{}%
-\@restoreclosed}
+\@restoreclosed\fi}
 \newcommand{\printindex}{\@printindex[default]}
 \newcommand{\makeindex}{\newindex{default}{idx}{ind}{Index}}
 \newcommand{\@seename}{\iffrench voir\else see\fi}

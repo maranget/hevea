@@ -1,5 +1,6 @@
   
 version 1.06-5
+  - \index allowed in section titles (@norefs extension)
   - Big dynamic scoping bug in packages.hva
   - Two easy misfeature disappear
         . trailing -exec prog brougth back one step

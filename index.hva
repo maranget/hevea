@@ -1,13 +1,13 @@
 \@primitives{index}
 \newsavebox{\@indexbox}
 \newcommand{\index}[2][default]
-{\@saveclosed%
+{\if@refs\@saveclosed%
 \sbox{\@indexbox}{\@indexwrite[#1]{#2}{\@currentlabel}}% side effect
 \@locname{\usebox{\@indexbox}}{}%
-\@restoreclosed}
+\@restoreclosed\fi}
 \newcommand{\index*}[2][default]
-{\sbox{\@indexbox}{\@indexwrite[#1]{#2}{\@currentlabel}}% side effect
-\@locname{\usebox{\@indexbox}}{#2}}
+{\if@refs\sbox{\@indexbox}{\@indexwrite[#1]{#2}{\@currentlabel}}% side effect
+\@locname{\usebox{\@indexbox}}{#2}\fi}
 \newcommand{\printindex}[1][default]{\@printindex[#1]}
 \newcommand{\makeindex}{\newindex{default}{idx}{ind}{Index}}
 \newcommand{\@seename}{\iffrench voir\else see\fi}
