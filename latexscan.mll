@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.165 2000-02-29 14:27:24 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.166 2000-03-27 10:58:25 maranget Exp $ *)
 
 
 {
@@ -1738,12 +1738,23 @@ def_code "\\@print"
   (fun lexbuf ->
           let arg,_ = save_arg lexbuf in
           Dest.put arg) ;
+;;
+
+def_code "\\@printnostyle"
+  (fun lexbuf ->
+    let arg,_ = save_arg lexbuf in
+    top_open_group () ;
+    Dest.nostyle () ;
+    Dest.put arg ;
+    top_close_group ())
+;;
 
 def_code "\\@getprint"
   (fun lexbuf ->
     let arg = get_prim_arg lexbuf in
     let buff = Lexing.from_string arg in
     Dest.put (Save.tagout buff)) ;
+;;
 
 def_code "\\@subst"
   (fun lexbuf ->

@@ -11,7 +11,8 @@
 
 {
 open Lexing
-let header = "$Id: cut.mll,v 1.25 2000-01-26 17:08:38 maranget Exp $" 
+open Stack
+let header = "$Id: cut.mll,v 1.26 2000-03-27 10:58:18 maranget Exp $" 
 
 let verbose = ref 0
 ;;
@@ -42,12 +43,6 @@ let html_buff = Out.create_buff ()
 let html_head = ref ""
 and html_foot = ref ""
 
-let push s e = s := e:: !s
-and pop s = match !s with
-  [] -> raise (Misc.Fatal "Empty stack in Cut")
-| e::rs -> s := rs ; e
-;;
-
 let phase = ref (-1)
 ;;
 
@@ -70,6 +65,8 @@ and out_prefix = ref (Out.create_null ())
 and outname = ref ""
 and lastclosed = ref ""
 and otheroutname = ref ""
+and flowname_stack = (Stack.create "flowname" : string Stack.t)
+and flow_stack = (Stack.create "flow" : Out.t Stack.t)
 ;;
 
 let toc = ref !out
@@ -131,6 +128,15 @@ let putlink out name img alt =
   Out.put out "\"></A>\n"
 ;;
 
+let putflow out name title =
+  Out.put out "<A HREF=\"" ;
+  Out.put out name ;
+  Out.put out "\">" ;
+  Out.put out title ;
+  Out.put out "</A>\n"
+
+
+
 let putlinks out name =
   if !verbose > 0 then
     prerr_endline ("putlinks: "^name) ;
@@ -151,7 +157,7 @@ let putlinks out name =
   with Not_found -> () end
 ;;
 
-let openhtml title out outname =
+let openhtml withlinks title out outname =
   Out.put out !doctype ; Out.put_char out '\n' ;
   Out.put out !html ; Out.put_char out '\n' ;
   Out.put out "<HEAD>\n" ;
@@ -163,15 +169,19 @@ let openhtml title out outname =
   Out.put out "</HEAD>\n" ;
   Out.put out !body;
   Out.put out "\n" ;
-  putlinks out outname ;
-  Out.put out "<HR>\n" ;
+  if withlinks then begin
+    putlinks out outname ;
+    Out.put out "<HR>\n"
+  end ;
   Out.put out !html_head
 
 
-and closehtml name out =
+and closehtml withlinks name out =
   Out.put out !html_foot ;
-  Out.put out "<HR>\n" ;
-  putlinks out name ;
+  if withlinks then begin
+    Out.put out "<HR>\n" ;
+    putlinks out name
+  end ;
   Out.put out "</BODY>\n" ;
   Out.put out "</HTML>\n" ;
   Out.close out
@@ -241,7 +251,7 @@ let close_chapter () =
   if !verbose > 0 then
     prerr_endline ("Close chapter out="^ !outname^" toc="^ !tocname) ;
   if !phase > 0 then begin
-    closehtml !outname !out ;
+    closehtml true !outname !out ;
     if !tocbis then begin
       let real_out = open_out !outname in
       Out.to_chan real_out !out_prefix ;
@@ -265,10 +275,10 @@ and open_chapter name =
     if !tocbis then begin
       out_prefix := Out.create_buff () ;
       out := !out_prefix ;
-      openhtml name !out_prefix !outname
+      openhtml true name !out_prefix !outname
     end else begin
       out := Out.create_chan (open_out !outname) ;
-      openhtml name !out !outname
+      openhtml true name !out !outname
     end ;
     itemref !outname name !toc ;
     cur_level := !chapter
@@ -309,18 +319,17 @@ and close_notes () =
   end
 ;;
 
-
 let toc_buf = Out.create_buff ()
 ;;
 
-let stack = ref []
+let stack = Stack.create "main"
 ;;
 
 let save_state newchapter newdepth =
   if !verbose > 0 then
     prerr_endline ("New state: "^string_of_int newchapter) ;
   push stack
-    (!outname,
+    (!outname, Stack.save flowname_stack, Stack.save flow_stack,
      !chapter,!depth,!toc,!tocname,!cur_level,!lastclosed,!out_prefix) ;
   chapter := newchapter ;
   depth := newdepth ;
@@ -332,10 +341,12 @@ let save_state newchapter newdepth =
 let restore_state () =
   if !verbose > 0 then prerr_endline ("Restore") ;
   let
-    oldoutname,
+    oldoutname, oldflowname, oldflow,
     oldchapter,olddepth,oldtoc,oldtocname,
     oldlevel,oldlastclosed,oldprefix  = pop stack in
   outname := oldoutname ;
+  Stack.restore flowname_stack oldflowname ;
+  Stack.restore flow_stack oldflow ;
   chapter := oldchapter ;
   depth := olddepth ;
   toc := oldtoc ;
@@ -374,7 +385,29 @@ let close_all () =
     close_toc ()
   end ;
   cur_level := (Section.value "DOCUMENT")
-}
+
+let openflow title =
+  let new_outname = new_filename () in
+  push flowname_stack !outname ;
+  if !phase > 0 then begin
+    putflow !out new_outname title ;
+  end ;
+  outname := new_outname ;
+  if !phase > 0 then begin
+    push flow_stack !out ;
+    out := Out.create_chan (open_out !outname) ;
+    openhtml false title !out !outname
+  end
+
+and closeflow () =
+  if !phase > 0 then begin
+    closehtml false !outname !out;
+    Out.close !out ;
+    out := pop flow_stack
+  end ;
+  outname := pop flowname_stack
+
+} 
 
   rule main = parse
 | "<!--HEVEA" [^'>']* "-->" '\n'?
@@ -389,6 +422,13 @@ let close_all () =
       put "-->\n"
     end ;
     main lexbuf}
+|  "<!--" "FLOW"
+   {let title = tocline lexbuf in
+   openflow title ;
+   main lexbuf}
+| "<!--" "END" ' '+ "FLOW" ' '* "-->"
+   {closeflow () ;
+   main lexbuf}
 |  "<!--" ("TOC"|"toc") ' '+
     {let arg = secname lexbuf in
     let sn = 

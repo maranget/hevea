@@ -198,7 +198,7 @@ base style file  \texttt{article.hva} as an extra argument:
 \end{verbatim}
 The extra argument instructs
 \hevea{} to load its \texttt{article.hva}
-style file before processing \texttt{mydoc.tex}
+style file before processing \texttt{mydoc.tex}.
 It will then ignore the document base style specified by
 \verb+\documentclass+ (or \verb+\documentstyle+).
 
@@ -225,7 +225,7 @@ As a matter of fact, base style files are \TeX{} and not \LaTeX{} source and
 A \LaTeX{} document usually loads additional style files (using
 \verb+\input+ or \verb+\usepackage+, or by giving optional arguments
 to \verb+\documentstyle+).
-\hevea{} simply treats \verb+\usepackage+ and optional arguments to
+\hevea{} treats \verb+\usepackage+ and optional arguments to
 \verb+\documentstyle+ in its own way,
 but it attempts to load a file given as argument
 to \verb+\input+.
@@ -504,7 +504,8 @@ that always get centered in the vertical direction.
 Such a crude model cannot  faithfully emulate any \TeX{} box placement.
 
 Users can get an idea on how \hevea{} combines elements in display mode
-by specifying the \verb+-v+ option, which instructs \hevea{} to add a
+by giving the \verb+-v+ option comand line option twice, which
+instructs \hevea{} to add a
 border to the \verb+TABLE+ elements introduced by displays.
 
 \subsubsection{Arrays and display mode}
@@ -2011,6 +2012,14 @@ Postscript to bitmap format and thus degrade it.
 Any text enclosed between \verb+\begin{rawhtml}+ and
 \verb+\end{rawhtml}+ is echoed verbatim into the \html{} output file.
 No processing of any kind is performed on this text.
+For avoiding to break \html~element nesting, the \texttt{rawhtml}
+environment should be used only at toplevel (i.e. not within another
+environment), and it should contain only \html~text that makes sense
+alone
+(e.g. \verb+\begin{rawhtml}<TABLE><ALIGN=right>\end{rawhtml}+\ldots{}
+\verb+\begin{rawhtml}</TABLE>\end{rawhtml}+ is
+dangerous, use the internal macros \verb+\@open+ and \verb+\@close+ of
+the following section instead).
 
 For the document to remain processable by \LaTeX{}, it must load the
 \texttt{hevea.sty} style file (see section~\ref{heveastyle}).
@@ -2049,6 +2058,7 @@ get translated into \html{} \emph{groups}, which are shadow block-level
 elements with neither opening tag nor closing tag.
 
 \index{"@print@\texttt{\char92"@print}|defocc}
+\index{"@getprint@\texttt{\char92"@getprint}|defocc}
 \index{"@hr@\texttt{\char92"@hr}|defocc}
 \index{"@open@\texttt{\char92"@open}|defocc}
 \index{"@close@\texttt{\char92"@close}|defocc}
@@ -2063,6 +2073,10 @@ some characters cannot be given directly (e.g. \verb+#+ and
 \begin{description}
 \item[{\tt\char92 @print\char123}{\it text}{\tt\char125}]
 Echo \textit{text} verbatim.
+\item[{\tt\char92 @getprint\char123}{\it text}{\tt\char125}]
+Process \textit{text} using a special output mode that strips off
+\html~tags. This macro is the one to use for processed attributes of
+\html~tags.
 \item[{\tt\char92 @hr[}{\it attr}{\tt]\char123}{\it
 width}{\tt\char125\char123}{\it height}{\tt\char125}]
 Ouput an \html{} horizontal rule, \textit{attr} is attributes given
@@ -2156,16 +2170,23 @@ For instance this is how you can make all emphasized text blink:
 
 \comindex{imgsrc}
 \index{"@print@\texttt{\char92"@print}}
+\index{"@getprint@\texttt{\char92"@getprint}}
 \index{"@nostyle@\texttt{\char92"@nostyle}}
 Finally, here is the definition of a simplified \verb+\imgsrc+
 command, without optional argument:
 \begin{verbatim}
-\newcommand{\imgsrc}[1]{{\@nostyle\@print{<IMG SRC="}#1\@print{">}}}
+\newcommand{\imgsrc}[1]
+  {{\@nostyle\@print{<IMG SRC="}\@getprint{#1}\@print{">}}}
 \end{verbatim}
-Observe how a group \verb+{+\ldots{} \verb+}+ and the text-level
-declaration \verb+\@nostyle+ are combined in order to allow the
-expansion of the macro-argument \verb+#1+ without introducing
-untimely \html{} tags.
+This macro body is typeset inside
+a group \verb+{+\ldots{} \verb+}+, which starts
+by a \verb+\@nostyle+ declaration, so as to avoid nesting the
+block-level \verb+IMG+ inside text-level elements.
+Then \verb+\@print+ and \verb+\@getprint+ are used to output
+\html~text, depending upon wether this text requires processing or not.
+Finally, note that \verb+\@open{IMG}{SRC="#1"}+ is not correct,
+because the block-level element \verb+IMG+
+consists in a single tag.
 
 
 \section{Customizing \hevea}
@@ -2234,8 +2255,7 @@ caps), then one should redefine the old-style \verb+\sc+ declaration.
 For instance, to render small caps as bold fonts, one should
 redefine \verb+\sc+ by \verb+\renewcommand{\sc}{\@style{B}}+ in
 \texttt{macros.hva}.
-Redefining the old-style \verb+\sc+ is compatible with the cancelation
-mechanism, redfining \verb+\scshape+ is not.
+
 
 \begin{htmlonly}
 And now, the shape example above gets rendered as follows:
@@ -2243,7 +2263,10 @@ And now, the shape example above gets rendered as follows:
 {\itshape italic shape \slshape slanted shape
 \scshape small caps shape \upshape upright shape}
 \end{htmlout}
-While redefining directly \LaTeXe{} \verb+\scshape+ with
+
+Redefining the old-style \verb+\sc+ is compatible with the cancelation
+mechanism, redefining \verb+\scshape+ is not.
+Thus, redefining directly \LaTeXe{} \verb+\scshape+ with
 \verb+\renewcommand{\scshape}{\@style{B}}+ would yield:
 \begin{htmlout}\renewcommand{\scshape}{\@style{B}}
 {\itshape italic shape \slshape slanted shape
@@ -2289,9 +2312,9 @@ whether it is invoked with an optional argument or not.
 This can be achieved as follows~:
 \begin{verbatim}
 \newcommand{\epsfbox}[2][!*!]{%
-\ifthenelse{\equal{#1}{!*!}}{%No optional argument
-\begin{toimage}\epsfbox{#2}\end{toimage}}{%With optional argument
-\begin{toimage}\epsfbox[#1]{#2}\end{toimage}}%
+\ifthenelse{\equal{#1}{!*!}}
+{\begin{toimage}\epsfbox{#2}\end{toimage}}%No optional argument
+{\begin{toimage}\epsfbox[#1]{#2}\end{toimage}}}%With optional argument
 \imageflush}
 \end{verbatim}
 
@@ -2425,7 +2448,7 @@ text that follows ``\verb+%HEVEA+'' %
 and some other comments have a specific meaning to it (see
 section~\ref{comments}).
 
-\index{command!name syntax}
+\index{command!syntax}
 Command names follow strict \LaTeX{} syntax. That is, apart from
 \verb+#+, \verb+$+, %$
 \verb+~+, \verb+_+ and \verb+^+, they either are
@@ -2458,6 +2481,7 @@ argument scanning, as an important consequence brace nesting is also
 checked inside comments.
 
 \index{command!and arguments}
+\index{argument!of commands}
 With respect to previous versions,
 \hevea{} has been improved as regards emulation of complicated
 argument passing. That is,
@@ -3090,8 +3114,17 @@ default.
 Observe that this does not corresponds directly to how \LaTeX{} manage style
 in math mode and that, in fact, style cannot really change in math mode.
 
-Math style changing declarations \verb+\displaystyle+ and \verb+\textstyle+
-do not exist, while \verb+\scriptstyle+ and \verb+\scriptscriptstyle+
+Math style changing declarations \verb+\displaystyle+ and
+\verb+\textstyle+ do nothing when \hevea{} is already in the requested
+mode,
+otherwise they issue a warning.
+This is so because \hevea{} implements displayed maths as tables,
+which require to be both opened and closed and introduce line breaks
+in the output.
+As a consequence, warning on \verb+\displaystyle+ are to be taken seriously.
+
+
+The commands \verb+\scriptstyle+ and \verb+\scriptscriptstyle+
 perform type size changes.
 
 \section{Definitions, Numbering}
@@ -3319,12 +3352,12 @@ By default, \hevea{} implements the \texttt{array} package
 (see \cite[Section~5.3]{latexbis} and section~\ref{arraypack} in this
 document), which significantly extends the
 \verb+array+ and \verb+tabular+ environments.
-section{Moving Information Around}
+
 \subsection{Files}\label{files}
-\hevea{} can use some of the ancillary files generated by \LaTeX{} in
-order to output better looking cross-references.
-In practice, while processing file \filename{mydoc}\texttt{.tex}, the following
-files may be read:
+In some situations,
+\hevea{} uses some of the ancillary files generated by \LaTeX.
+More precisely, while processing file \filename{mydoc}\texttt{.tex},
+the following files may be read:
 \begin{description}
 \item[\protect\texttt{.aux}] The file \filename{mydoc}\texttt{.aux} contains
 cross-referencing information, such as figure or section numbers.
@@ -3385,8 +3418,9 @@ expect to find cross-referencing information in the file
 \end{itemize}
 When using its own \filename{mydoc}\texttt{.haux} file,
 \hevea{} will output a
-new \filename{mydoc}\texttt{.haux} file at the end of its processing,
-reflecting actual cross referencing information.
+new \filename{mydoc}\texttt{.haux} file at the end of its processing.
+This new  \filename{mydoc}\texttt{.haux} file contains actualized
+cross referencing information.
 Hence, in that case, \hevea{} may need to run twice to get
 cross-references right.
 Note that, just like \LaTeX,
@@ -3419,7 +3453,7 @@ The \verb+\nocite+ and \verb+\bibliographystyle+ macros exist and do
 nothing.
 
 \subsection{Splitting the Input}
-
+\comdefindex{input}
 The \verb+\input+ and \verb+\include+ commands exist and they perform
 exactly the same operation of searching (and then processing) a file,
 whose name is given as an argument.
@@ -3428,9 +3462,11 @@ However, in the case of the \verb+\include+ command, the file is
 searched only when previously given as an argument to
 the \verb+\includeonly+ command.
 
-
+\index{argument!of input@of \texttt{\char92 input}}
 Note the following features:
 \begin{itemize}
+\item \TeX{} syntax for \verb+\input+ is not supported. That is,
+one should write \verb+\input{+\textit{filename}\verb+}+.
 \item If \textit{filename} is excluded with the \verb+-e+ command line
 option (see section~\ref{heveaoptions}),
 then \hevea{} does not attempt to load \textit{filename}.
@@ -3593,8 +3629,9 @@ it remains users responsability to explicitly choose
 source chunks that will get rendered as GIF images.
 In the case of the commands from the \texttt{graphics} package,
 this choice is made by \hevea.
-In both cases, the \texttt{imagen} script has to be run by hand,
-or from a properly designed \texttt{Makefile} (see section~\ref{makefile}).
+In both cases, the \texttt{imagen} script has to be run by hand.
+(However, note that \hevea{} runs \texttt{imagen} when given the
+\verb+-fix+ command-line option.)
 
 For instance consider the following picture:
 \begin{verbatim}
@@ -3975,8 +4012,8 @@ section) still can be processed by
 Delimiting characters in command definition are supported.
 Consider the following example from the \TeX{} Book:
 \begin{verbatim}
-\def\Look{Look}
-\def\x{x}
+\def\Look{\textsc{Look}}
+\def\x{\textsc{x}}
 \def\cs AB#1#2C$#3\$ {#3{ab#1}#1 c\x #2}
 \cs AB {\Look}{}C${And \$}{look}\$ 5.
 \end{verbatim}
@@ -3990,7 +4027,7 @@ It yields:
 
 Please note that delimiting characters are supported as far as I
 could, problems are likely with delimiting characters which include
-sapces or command names, in particular the command name \verb+\{+.
+spaces or command names, in particular the command name \verb+\{+.
 One can include \verb+\{+ in a command argument by using the grouping
 characters \verb+{+\ldots{} \verb+}+:
 \begin{verbatim}

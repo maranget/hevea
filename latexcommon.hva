@@ -31,7 +31,7 @@
 \def\mathsf#1{{\sf #1}}
 \def\scriptstyle{\ifmathml{\scriptsize}\else\scriptsize\fi}
 \def\scriptscriptstyle{\ifmathml{\scriptsize\@incsize{-1}}\else\scriptsize\@incsize{-1}\fi}
-\def\textstyle{\ifmathml{\@style{mtext}#1}\else{#1}\fi}
+\def\textstyle{\ifmathml\@style{mtext}\fi}
 %%%%% Figures and tables
 \newcommand{\@figrule}{\begin{center}\@hr{.8\linewidth}{2pt}\end{center}}
 \newenvironment{figure}[1][]{%
