@@ -1,4 +1,6 @@
 version 1.07+1
+   - change '-o path' behavior for hacha, all generated files go into directory
+     'dirname path'
    - \@addimagenopt + looking for imagen in libdir (documentation pending)
    - supertabular package.
    - change rawhtml -> output in html mode only + new raw and rawtext envs

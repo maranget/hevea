@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: cutmain.ml,v 1.19 2003-02-13 14:51:00 maranget Exp $" 
+let header = "$Id: cutmain.ml,v 1.20 2004-09-03 12:31:16 maranget Exp $" 
 
 exception Error of string
 ;;
@@ -58,9 +58,9 @@ let main () =
 
 let copy_gifs () =
   try
-    Mysys.copy_from_lib Mylib.libdir "previous_motif.gif" ;  
-    Mysys.copy_from_lib Mylib.libdir "next_motif.gif" ;  
-    Mysys.copy_from_lib Mylib.libdir "contents_motif.gif"
+    Mysys.copy_from_lib_to_dir Mylib.libdir !Cut.base "previous_motif.gif" ;  
+    Mysys.copy_from_lib_to_dir Mylib.libdir !Cut.base "next_motif.gif" ;  
+    Mysys.copy_from_lib_to_dir Mylib.libdir !Cut.base "contents_motif.gif"
   with
   | Mysys.Error s ->
       Location.print_pos () ;

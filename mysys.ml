@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: mysys.ml,v 1.1 2001-05-25 09:07:26 maranget Exp $" 
+let header = "$Id: mysys.ml,v 1.2 2004-09-03 12:31:16 maranget Exp $" 
 
 exception Error of string
 
@@ -30,19 +30,22 @@ let put_from_file name put =
     raise (Error ("Cannot read file "^name))
 ;;
 
-let copy_from_lib dir name =
+let copy_from_lib dir name =  
   let chan_out =
     try open_out_bin name
     with Sys_error _ -> raise (Error ("Cannot open file: "^name)) in
   try
     put_from_file
-      (Filename.concat dir name)
+      (Filename.concat dir (Filename.basename name))
       (fun s -> output_string chan_out s) ;
     close_out chan_out
   with
   | e -> close_out chan_out ; raise e
 ;;
 
+let copy_from_lib_to_dir src dst name = match dst with
+| None ->  copy_from_lib src name
+| Some dst -> copy_from_lib src (Filename.concat dst name)
 
 (* handle windows/Unix dialectic => no error when s2 exists *)
 let rename s1 s2 =

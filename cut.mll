@@ -12,11 +12,18 @@
 {
 open Lexing
 open Stack
-let header = "$Id: cut.mll,v 1.40 2003-02-13 14:51:00 maranget Exp $" 
+let header = "$Id: cut.mll,v 1.41 2004-09-03 12:31:16 maranget Exp $" 
 
 let verbose = ref 0
 
 let language = ref "eng"
+let base = ref None
+
+let real_name name = match !base with
+| None -> name
+| Some dir -> Filename.concat dir name
+
+let real_open_out name = open_out (real_name name)
 
 type toc_style = Normal | Both | Special
 
@@ -110,6 +117,12 @@ let start_phase name =
   tocname := name ;
   otheroutname := "" ;
   count := 0 ;
+  if !phase = 0 then begin
+    let d = Filename.dirname name in
+    if d <> "." then begin
+      base := Some d 
+    end
+  end ;
   if !phase > 0 then begin
     out := (Out.create_chan (open_out name))
   end ;
@@ -313,7 +326,7 @@ let close_chapter () =
     closehtml true !outname !out ;
     begin match !toc_style with
     | Both|Special ->
-      let real_out = open_out !outname in
+      let real_out = real_open_out !outname in
       Out.to_chan real_out !out_prefix ;
       Out.to_chan real_out !out ;
       close_out real_out
@@ -338,7 +351,7 @@ and open_chapter name =
         out := !out_prefix ;
         openhtml true name !out_prefix !outname
     | Normal ->
-        out := Out.create_chan (open_out !outname) ;
+        out := Out.create_chan (real_open_out !outname) ;
         openhtml true name !out !outname
     end ;
     itemref !outname name !toc ;
@@ -361,7 +374,7 @@ let open_notes sec_notes =
     outname := new_filename "open_notes" ;
     if !phase > 0 then begin
       otherout := !out ;
-      out := Out.create_chan (open_out !outname) ;
+      out := Out.create_chan (real_open_out !outname) ;
       Out.put !out !doctype ; Out.put_char !out '\n' ;
       Out.put !out !html ; Out.put_char !out '\n' ;
       Out.put !out "<HEAD><TITLE>Notes</TITLE>\n" ;
@@ -466,7 +479,7 @@ let openflow title =
   outname := new_outname ;
   if !phase > 0 then begin
     push flow_stack !out ;
-    out := Out.create_chan (open_out !outname) ;
+    out := Out.create_chan (real_open_out !outname) ;
     openhtml false title !out !outname
   end
 
