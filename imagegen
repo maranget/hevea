@@ -1,0 +1,26 @@
+#! /bin/sh -x
+
+case $1 in
+  '')
+   BASE=image
+   ;;
+  *)
+   BASE=$1
+  ;;
+esac
+
+TMP=${BASE}.tmp
+
+gpic -t < ${BASE}.image.tex > ${TMP}.tex
+latex < /dev/null ${TMP}.tex
+dvips -t a3 -x1414 -S 1 -i -o${BASE} ${TMP}.dvi
+/bin/rm -f ${TMP}.log ${TMP}.aux ${TMP}.tex ${TMP}.dvi
+
+for i in ${BASE}[0-9][0-9][0-9]
+do
+  mv $i $i.ps
+  (echo "($i.ps) run" ; echo "quit") |\
+  gs -q -sPAPERSIZE=a3 -dNOPAUSE -dNO_PAUSE -sDEVICE=ppmraw -sOutputFile=$i.ppm
+  pnmcrop < $i.ppm | ppmtogif | giftrans -t '#ffffff' > $i.gif
+  /bin/rm $i.ps $i.ppm
+done
