@@ -7,8 +7,9 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: htmltext.ml,v 1.5 2001-05-28 17:28:56 maranget Exp $          *)
+(*  $Id: htmltext.ml,v 1.6 2001-05-29 09:23:32 maranget Exp $          *)
 (***********************************************************************)
+open Emisc
 open Lexeme
 
 type tsize = Int of int | Big | Small
@@ -30,8 +31,6 @@ let rec do_cost seen_font r1 r2 = function
   | _::rem -> do_cost seen_font (1+r1) r2 rem
 
 let cost ss = do_cost false 0 0 ss
-
-let basefont = ref 3
 
 exception No
 

@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: esponja.ml,v 1.7 2001-05-28 17:28:55 maranget Exp $           *)
+(*  $Id: esponja.ml,v 1.8 2001-05-29 09:23:31 maranget Exp $           *)
 (***********************************************************************)
 
 open Mysys
@@ -29,6 +29,7 @@ let process in_name input output =
   try
     let lexbuf = Lexing.from_channel input in
     Location.set in_name lexbuf ;
+    Emisc.reset () ;
     do_rec lexbuf ;
     Location.restore () ;
     true

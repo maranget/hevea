@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: htmllex.mll,v 1.7 2001-05-28 17:28:55 maranget Exp $          *)
+(*  $Id: htmllex.mll,v 1.8 2001-05-29 09:23:31 maranget Exp $          *)
 (***********************************************************************)
 {
 open Lexing
@@ -81,7 +81,19 @@ let is_textlevel name =
   | Not_found -> false
 
 let is_br name = "BR" = (String.uppercase name)
+let is_basefont name = "BASEFONT" = (String.uppercase name)
 
+let set_basefont attrs lb = 
+  List.iter
+    (fun (name,v,_) -> match String.uppercase name,v with
+    | "SIZE",Some s ->
+        begin try
+          Emisc.basefont := int_of_string s
+        with
+        | _ -> error "BASEFONT syntax" lb
+        end
+    | _ -> ())
+    attrs
 
 let get_value lb = function
   | Some s -> s
@@ -171,6 +183,10 @@ rule main = parse
     if is_textlevel tag then begin
       let attrs = read_attrs lexbuf in    
       ouvre lexbuf tag attrs (Buff.to_string buff)
+    end else if is_basefont tag then begin
+      let attrs = read_attrs lexbuf in    
+      set_basefont attrs lexbuf ;
+      Text (Buff.to_string buff)          
     end else begin
       check_nesting lexbuf tag ;
       in_tag lexbuf ;
