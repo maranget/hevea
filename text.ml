@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.18 1999-06-02 15:42:37 maranget Exp $"
+let header = "$Id: text.ml,v 1.19 1999-06-02 16:20:10 tessaud Exp $"
 
 
 open Misc
@@ -1115,7 +1115,8 @@ let open_cell format span insides =
 	  (match size with
 	    Some Length.Absolute l -> l
 	  | Some Length.Percent l -> l * !Parse_opts.width / 100
-	  | None -> !cell.wrap <- False; warning "cannot wrap column with no width"; 0);
+	  | None -> !cell.wrap <- False; warning "cannot wrap column with no width"; 0)
+      else !cell.w <- 0;
   | _       ->  raise (Misc.Fatal ("as_align")) in
   !cell.span <- span - insides;
   if !table.col > 0 && !cell.span=1 then begin
