@@ -3402,11 +3402,12 @@ For instance, the following source will give different results in
 \end{verbatim}
 \LaTeX{} output is ``coucou''A, while \hevea{} output is ``coucouA''.
 Here is \ifhevea\hevea\else\LaTeX\fi{} output:
-\begin{flushleft}
-\def\cs#1A{``#1''}
+{\def\cs#1A{``#1''}
 \def\othercs#1{\cs#1A}
 \othercs{coucouA}
-\end{flushleft}
+\end{flushleft}}
+Please note that in most situations this discrepancy will make
+\hevea{} crash. 
 
 
 

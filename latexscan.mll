@@ -44,7 +44,7 @@ open Tabular
 open Lexstate
 
 
-let header = "$Id: latexscan.mll,v 1.125 1999-08-30 07:30:33 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.126 1999-08-30 07:51:52 maranget Exp $" 
 
 
 let sbool = function
@@ -1252,16 +1252,19 @@ and skip_comment = parse
 | "" {raise (Misc.ScanError "Latex comment is not terminated")}
 
 and subst = parse
-'#' ['1'-'9']
+| '#' ['1'-'9']
     {let lxm = lexeme lexbuf in
     let i = Char.code (lxm.[1]) - Char.code '1' in
     scan_arg (fun arg -> subst (Lexing.from_string arg)) i ;
     subst lexbuf}
-| '#' '#'
-    {Out.put_char subst_buff '#' ; subst lexbuf}
-|  "\\#" | '#' | '\\' | [^'\\' '#']+
+| '#' '#'+ ['1'-'9']?
+    {let lxm = lexeme lexbuf in    
+    Out.put subst_buff (String.sub lxm 1 (String.length lxm-1)) ;
+    subst lexbuf}
+|  "\\#" | '\\' | [^'\\' '#']+
     {Out.put subst_buff (lexeme lexbuf) ; subst lexbuf}
 |  eof {()}
+| "" {raise (Error "Empty lexeme in subst")}
 
 {
 let check_alltt_skip lexbuf =
