@@ -1,4 +1,4 @@
-let header =  "$Id: lexstate.ml,v 1.35 1999-10-13 17:00:09 maranget Exp $"
+let header =  "$Id: lexstate.ml,v 1.36 1999-11-05 19:02:13 maranget Exp $"
 
 open Misc
 open Lexing
@@ -240,9 +240,6 @@ let start_lexstate () =
   save_lexstate () ;
   Stack.restore stack_lexbuf (Stack.empty_saved) ;
   Stack.restore stack_subst (Stack.empty_saved)
-;;
-
-let prelude = ref true
 ;;
 
 let flushing = ref false
@@ -516,4 +513,36 @@ let input_file loc_verb main filename =
      Misc.warning m
  end
 
+
+(* Hot start *)
+let registering = ref !Parse_opts.fixpoint
+;;
+
+let cell_list = ref []
+and value_list = ref []
+
+let checkpoint () =
+  if !registering then begin
+    value_list := List.map (fun (_,cell) -> !cell) !cell_list ;
+    registering := false
+  end
+
+and hot_start () =
+  let rec start_rec cells values = match cells, values with
+  | [],[] -> ()
+  | (name,cell)::rcells, value :: rvalues ->
+      if !verbose > 1 then begin
+      prerr_endline
+        ("Restoring "^name^" as "^if value then "true" else "false")
+      end ;
+      cell := value ;
+      start_rec rcells rvalues
+  | _,_ ->
+      Misc.fatal ("Trouble in Lexstate.hot_start") in
+  start_rec !cell_list !value_list
+  
+
+let register_cell name cell =
+  if !registering  then
+    cell_list :=  (name,cell) :: !cell_list
 

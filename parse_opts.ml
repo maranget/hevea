@@ -11,7 +11,7 @@
 
 open Misc
 
-let header = "$Id: parse_opts.ml,v 1.19 1999-09-24 16:25:38 maranget Exp $" 
+let header = "$Id: parse_opts.ml,v 1.20 1999-11-05 19:02:18 maranget Exp $" 
 
 
 let files = ref []
@@ -35,6 +35,7 @@ and symbols = ref true
 and iso = ref true
 and pedantic = ref false
 and destination = ref Html
+and fixpoint = ref false
 ;;
 
 let width = ref 72
@@ -55,10 +56,12 @@ let outname = ref ""
 let _ = Arg.parse
     [("-v", Arg.Unit (fun () -> readverb := !readverb + 1),
        ", verbose flag, can be repeated to increase verbosity") ;
-     ("-s", Arg.Unit (fun () -> silent := true),
+      ("-s", Arg.Unit (fun () -> silent := true),
        ", suppress warnings") ;
-     ("-e", Arg.String (fun s -> except := s :: !except),
+      ("-e", Arg.String (fun s -> except := s :: !except),
        "filename, prevent file ``filename'' from being read") ;
+      ("-fix", Arg.Unit (fun () -> fixpoint := true),
+       ", iterate Hevea until fixpoint") ;
      ("-idx",Arg.Unit (fun () -> read_idx := true),
        ", attempt to read .idx file (useful if indexing is non-standard)") ;
      ("-francais",Arg.Unit (fun () -> language := Francais),
@@ -112,6 +115,15 @@ let base_in,name_in,styles = match !files with
         base,x,rest
     with Invalid_argument _ -> base_file, x,rest
 
+let filter = match base_in with "" -> true | _ ->  false
+;;
+
+if filter then begin
+  if !fixpoint then
+    Misc.warning ("No fixpoint in filter mode");
+  fixpoint := false
+end
+;;
 
 let base_out = match !outname with
 | "" -> begin match base_in with

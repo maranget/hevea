@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmain.ml,v 1.56 1999-11-04 23:12:04 maranget Exp $" 
+let header = "$Id: latexmain.ml,v 1.57 1999-11-05 19:01:59 maranget Exp $" 
 
 open Misc
 open Parse_opts
@@ -63,17 +63,18 @@ let prerr_bug msg =
 
 let finalize check =
   try
-    image_finalize () ;
-    Auxx.finalize () ;
-    Index.finalize () ;
+    image_finalize check ;
+    let changed = Auxx.finalize check in
+    let changed = Index.finalize check || changed  in
     dest_finalize check ;
     if !verbose > 0 && Parse_opts.name_out <> "" then begin
       prerr_endline ("Output is in file: "^Parse_opts.name_out)
-    end
+    end ;
+    changed
   with e ->
     if check then raise e
     else begin
-      prerr_bug ("Uncaught exception in finalyze: "^Printexc.to_string e) ;
+      prerr_bug ("Uncaught exception in finalize: "^Printexc.to_string e) ;
       prerr_endline "Adios" ;
       exit 2
     end
@@ -129,13 +130,32 @@ let main () =
 
     do_rec styles ;
 
-    begin match base_in with
-      "" -> no_prelude ()
-    | _  -> ()
-    end ;
+    if Parse_opts.filter then  no_prelude () ;
 
-    read_tex name_in ;
-    finalize true
+    if !Parse_opts.fixpoint then begin
+      Lexstate.checkpoint () ;
+      Latexmacros.checkpoint () ;
+      Counter.checkpoint () ;
+      Color.checkpoint () ;
+      let rec do_rec i =
+        read_tex name_in ;
+        if finalize true then begin
+          Lexstate.hot_start () ;
+          Latexmacros.hot_start () ;
+          Counter.hot_start () ;
+          Color.hot_start () ;
+          Foot.hot_start () ;
+          Auxx.hot_start () ;
+          Misc.message ("Run, run, again...") ;
+          do_rec (i+1)
+        end else
+          Misc.message
+            ("Fixpoint reached in "^string_of_int i^" step(s)") in
+      do_rec 1
+    end else begin
+      read_tex name_in ;
+      let _ = finalize true in ()      
+    end
 ;;   
 (*
 let _ =
@@ -186,7 +206,7 @@ let _ =
         prerr_bug
           ("Fatal error, spurious exception:\n\t"^Printexc.to_string x)
   end ;
-    finalize false ;
+    let _ = finalize false in
     prerr_endline "Adios" ;
     exit 2
   end

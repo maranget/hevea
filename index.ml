@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: index.ml,v 1.32 1999-11-04 23:11:55 maranget Exp $"
+let header = "$Id: index.ml,v 1.33 1999-11-05 19:01:52 maranget Exp $"
 open Misc
 open Parse_opts
 open Entry
@@ -100,10 +100,12 @@ let index_filename suff = Parse_opts.base_out^".h"^suff
 
 
 let treat tag arg refvalue =
+(*  prerr_endline ("Index treat: "^tag^", "^arg^", "^refvalue) ; *)
   try
     if !verbose > 2 then prerr_endline ("Index.treat with arg: "^arg) ;
     let {from_doc = from_doc ; out = out} =  find_index tag in
-    let lbl = index_lbl tag (Table.get_size from_doc) in
+    let lbl = index_lbl tag (Table.get_size from_doc) in    
+    let refvalue = match refvalue with "" -> "??" | s -> s in
     let item = "\\@locref{"^lbl^"}{"^refvalue^"}" in
     Out.put out "\\indexentry{" ;
     Out.put out arg ;
@@ -289,6 +291,8 @@ let output_index tag name entries out =
 
 
 let newindex tag sufin sufout name =  
+(*  prerr_endline ("New index: "^tag) ; *)
+  Hashtbl.remove itable tag ;
   let from_file =
     try
       let filename = index_filename sufin in
@@ -339,28 +343,36 @@ let diff_entries e1 e2 =
         e1.(i) <> e2.(i) || diff_rec (i+1) in
     diff_rec 0
 
-let finalize () =
-  Hashtbl.iter
-    (fun tag idx ->
-      let entries = Table.trim idx.from_doc in
-      let changed =
-        match idx.from_file with
-        | Some t -> diff_entries t entries
-        | None   -> Array.length entries <> 0 in
-      if changed then begin
-        prerr_endline  "HeVeA Warning: Index(es) may have changed. Rerun to get them right." ;
-        let idxname = index_filename idx.sufin in
-        try
-          if Array.length entries = 0 then
-            Sys.remove idxname 
-          else begin
-            let chan = open_out idxname in
-            Out.to_chan chan idx.out ;
-            close_out chan
-          end
-        with
-        | Sys_error s ->
-            Misc.warning
-              ("File error on "^idxname^": "^s)
-      end)
-    itable
+let finalize check =
+  if check then begin
+    let top_changed = ref false in
+    Hashtbl.iter
+      (fun tag idx ->
+(*        prerr_endline ("Check index changed: "^tag) ; *)
+        let entries = Table.trim idx.from_doc in
+        let changed =
+          match idx.from_file with
+          | Some t -> diff_entries t entries
+          | None   -> Array.length entries <> 0 in
+        if changed then begin
+          top_changed := true ;
+          let idxname = index_filename idx.sufin in
+          try
+            if Array.length entries = 0 then
+              Sys.remove idxname 
+            else begin
+              let chan = open_out idxname in
+              Out.to_chan chan idx.out ;
+              close_out chan
+            end
+          with
+          | Sys_error s ->
+              Misc.warning
+                ("File error on "^idxname^": "^s)
+        end)
+      itable ;
+    if !top_changed then
+      Misc.message
+        "HeVeA Warning: Index(es) may have changed. Rerun to get them right." ;
+    !top_changed
+  end else false

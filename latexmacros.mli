@@ -13,12 +13,19 @@ open Lexstate
 exception Failed
 exception Error of string
 
+val checkpoint : unit -> unit
+val hot_start : unit -> unit
+
 type env =
   Style of string
 | Font of int
 | Color of string
 
 val pretty_env : env -> string
+
+val register_init : string -> (unit -> unit) -> unit
+val exec_init : string -> unit
+
 
 val find_macro: string -> pat * action
 val silent_find_macro: string -> pat * action

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: misc.ml,v 1.9 1999-10-13 17:00:11 maranget Exp $" 
+let header = "$Id: misc.ml,v 1.10 1999-11-05 19:02:16 maranget Exp $" 
 
 exception Fatal of string
 exception ScanError of string
@@ -32,4 +32,30 @@ let warning s =
     prerr_endline s
   end
 
+let message s =
+  if not !silent || !verbose > 0 then prerr_endline s
+
 let fatal s = raise (Fatal s)
+
+
+let copy_hashtbl from_table to_table =
+  Hashtbl.clear to_table ;
+  let module OString =
+    struct
+      type t = string
+      let compare = Pervasives.compare
+    end in
+  let module Strings = Set.Make (OString) in
+  let keys = ref Strings.empty in
+  Hashtbl.iter 
+    (fun key _ -> keys := Strings.add key !keys)
+    from_table ;
+  Strings.iter
+    (fun key ->
+      let vals = Hashtbl.find_all from_table key in
+      match vals with
+      | [] -> assert false
+      | value :: _ -> Hashtbl.add to_table key value)
+    !keys ;
+
+

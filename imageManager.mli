@@ -22,5 +22,5 @@ module type S =
     val dump :  string -> (Lexing.lexbuf -> unit) -> Lexing.lexbuf -> unit
     val page : unit -> string
 
-    val finalize : unit -> unit
+    val finalize : bool -> unit
   end

@@ -10,7 +10,7 @@
 (***********************************************************************)
 
 {
-let header = "$Id: infoRef.mll,v 1.13 1999-11-04 23:12:00 maranget Exp $"
+let header = "$Id: infoRef.mll,v 1.14 1999-11-05 19:01:54 maranget Exp $"
 ;;
 
 
@@ -118,7 +118,8 @@ let infonode opt num arg =
     up = None;
     pos = 0;
   } in
-  if compat_mem nodes n.name then raise (Error ("Duplicate node name :"^n.name));  
+  if compat_mem nodes n.name then
+    raise (Error ("Duplicate node name :"^n.name));  
   n.up <- (match opt with
     "" -> None
   | m ->  ajoute_node_dans_menu n m);
@@ -386,11 +387,13 @@ rule main = parse
   let key = arg lexbuf in
   affiche_ref key;
   main lexbuf}
+(*
 | "@@footNote{"
     {
   footNote_label := arg lexbuf;
   put "* Note ";
   foot lexbuf }
+*)
 | eof
     {
   if List.length !files = 1 then begin

@@ -14,3 +14,7 @@ val define : string -> string -> string -> unit
 val define_named : string -> string -> string -> unit
 val retrieve : string -> string
 val remove : string -> unit
+
+val checkpoint : unit -> unit
+val hot_start : unit -> unit
+

@@ -9,13 +9,10 @@
 (*                                                                     *)
 (***********************************************************************)
 
-module type T =
-  sig
-    val step_anchor : int -> unit
-    val get_anchor : int -> int
-    val register : int -> string -> string -> unit
-    val flush : (string -> unit)  -> string -> string -> unit
-    val some : bool ref
-  end
+val hot_start : unit -> unit
+val step_anchor : int -> unit
+val get_anchor : int -> int
+val register : int -> string -> string -> unit
+val flush : (string -> unit)  -> string -> string -> unit
+val some : bool ref
 
-module MakeFoot (Dest : OutManager.S) : T

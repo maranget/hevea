@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: location.ml,v 1.13 1999-10-13 17:00:10 maranget Exp $" 
+let header = "$Id: location.ml,v 1.14 1999-11-05 19:02:15 maranget Exp $" 
 
 exception Fatal of string
 ;;
@@ -91,7 +91,9 @@ let print_pos () =
   if nline >= 0 then
     prerr_string (!curlexname^":"^string_of_int nline^": ")
   else
-    prerr_string (!curlexname^": ")
+    match !curlexname with
+    | "" -> ()
+    | s ->  prerr_string (s^": ")
 ;;
 
 let stack_pos = ref []

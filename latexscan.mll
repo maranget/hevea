@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.147 1999-11-04 23:12:14 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.148 1999-11-05 19:02:07 maranget Exp $ *)
 
 
 {
@@ -35,7 +35,6 @@ module type S =
     val get_prim : string -> string
     val get_prim_arg : Lexing.lexbuf -> string
     val get_prim_opt : string -> Lexing.lexbuf -> string
-    val register_init : string ->  (unit -> unit) -> unit
   end
 
 module Make
@@ -57,7 +56,6 @@ let sbool = function
   | false -> "false"
   | true  -> "true"
 
-module Foot = Foot.MakeFoot (Dest)
 
 
 let last_letter name =
@@ -747,7 +745,6 @@ let mk_out_file () = match Parse_opts.name_out,!Parse_opts.destination with
 let no_prelude () =
   if !verbose > 1 then prerr_endline "Filter mode" ;
   flushing := true ;
-  prelude := false ;
   let _ = Dest.forget_par () in () ;
   Dest.set_out (mk_out_file ())
 ;;
@@ -1855,6 +1852,7 @@ let def_and_register name f =
   def_code name f ; macro_register name
 ;;
 
+
 let newif lexbuf =
   let arg = subst_arg lexbuf in
   try
@@ -1862,7 +1860,8 @@ let newif lexbuf =
     let cell = ref false in
     def_and_register ("\\if"^name) (testif cell) ;
     def_and_register ("\\"^name^"true") (setif cell true) ;
-    def_and_register ("\\"^name^"false") (setif cell false)
+    def_and_register ("\\"^name^"false") (setif cell false) ;
+    if !env_level > 0 then register_cell name cell
   with Latexmacros.Failed -> ()
 ;;
 
@@ -1889,7 +1888,8 @@ def_code "\\fi" (fun lexbuf -> check_alltt_skip lexbuf)
 let newif_ref name cell =
   def_code ("\\if"^name) (testif cell) ;
   def_code ("\\"^name^"true") (setif cell true) ;
-  def_code ("\\"^name^"false") (setif cell false)
+  def_code ("\\"^name^"false") (setif cell false) ;
+  register_cell name cell              
 ;;
 
 newif_ref "symb" symbols ;
@@ -1964,6 +1964,7 @@ def_code "\\includeonly"
 ;;
 
 (* Foot notes *)
+
 def_code "\\@stepanchor"
   (fun lexbuf ->
     let mark = Get.get_int (save_arg lexbuf) in
@@ -2003,9 +2004,8 @@ def_code "\\begin"
   (fun lexbuf ->
     let cur_subst = get_subst () in
     let env = get_prim_arg lexbuf in
-    if env = "document" && !prelude then begin
+    if env = "document" && not filter then begin
       Image.put "\\pagestyle{empty}\n\\begin{document}\n";
-      prelude := false ;
       let _ = Dest.forget_par () in () ;
       Dest.set_out (mk_out_file ())
     end ;
@@ -2174,11 +2174,14 @@ def_printcount "\\fnsymbol" fnsymbol_of_int
 
 def_code "\\newcounter"
   (fun lexbuf ->
-          let name = get_this_nostyle_arg main (save_arg lexbuf) in
-          let within = save_opt "" lexbuf in
-          let within = get_this_nostyle_arg main within in
-          Counter.def_counter name within ;
-          scan_this main ("\\def\\the"^name^"{\\arabic{"^name^"}}") )
+    let name = get_this_nostyle_arg main (save_arg lexbuf) in
+    let within = save_opt "" lexbuf in
+    let within = get_this_nostyle_arg main within in
+    try
+      Counter.def_counter name within ;
+      def_macro ("\\the"^name) 0 (Subst ("\\arabic{"^name^"}"))
+    with
+    | Latexmacros.Failed -> ())
 ;;
 
 def_code "\\addtocounter"
@@ -2620,8 +2623,6 @@ def_fun "\\c"  cedille ;
 def_fun "\\~"  tilde
 ;;
 
-
-
 Get.init
       (fun nostyle s ->
         if nostyle then
@@ -2630,31 +2631,6 @@ Get.init
           get_this_arg main s)
       macro_register new_env close_env
 ;;
-
-(* Registering external primitives *)
-let table = Hashtbl.create 5
-
-let register_init name f =
-  if !verbose > 1 then
-    prerr_endline ("Registering primitives for package: "^name);
-  try
-    let _ = Hashtbl.find table name in
-    fatal
-      ("Attempt to initlialize primitives for package "^name^" twice")
-  with
-  | Not_found ->  Hashtbl.add table name f
-
-and exec_init name =
-   if !verbose > 1 then
-     prerr_endline ("Initializing primitives for package: "^name) ;
-  try
-    let f = Hashtbl.find table name in
-    try f () with
-      Latexmacros.Failed ->
-        warning
-         ("Bad trip while initializing primitives for package: "^name)
-  with Not_found -> ()
-;;   
 
 def_code "\\@primitives"
   (fun lexbuf ->

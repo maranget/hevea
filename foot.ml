@@ -9,21 +9,8 @@
 (*                                                                     *)
 (***********************************************************************)
 
-module type T =
-  sig
-    val step_anchor : int -> unit
-    val get_anchor : int -> int
-    val register : int -> string -> string -> unit
-    val flush : (string -> unit)  -> string -> string -> unit
-    val some : bool ref
-  end
-      
-module MakeFoot ( Dest : OutManager.S )=
-struct
-
-let header = "$Id: foot.ml,v 1.15 1999-11-02 20:10:47 maranget Exp $" 
+let header = "$Id: foot.ml,v 1.16 1999-11-05 19:01:49 maranget Exp $" 
 open Parse_opts
-(*open Dest*)
 
 let some = ref false
 ;;
@@ -35,6 +22,11 @@ let anchor = ref 0
 let mark_to_anchor = Hashtbl.create 17
 and anchor_to_note = Hashtbl.create 17
 ;;
+
+let hot_start () =
+  anchor := 0 ;
+  Hashtbl.clear mark_to_anchor ;
+  Hashtbl.clear anchor_to_note
 
 let step_anchor mark =
   incr anchor ;
@@ -80,16 +72,16 @@ let flush lexer sec_notes sec_here =
            ((a1 = a2) && (m1 <= m2))) !all ;
     List.iter
       (fun ((_,anchor),(themark,text)) ->
-        Dest.ditem (fun s ->
-          lexer ("\\@noteref{text}{note}{"^string_of_int anchor^"}{"^s^"}"))
-          ("\@print{"^themark^"}") ;
-        Dest.put text)
+        lexer
+          ("\\item["^
+           "\\@noteref{text}{note}{"^
+           string_of_int anchor^
+           "}{\\@print{"^themark^"}}]") ;
+        lexer ("\\@print{"^text^"\n}"))
       !all ;
     lexer "\\end{thefootnotes}" ;
     Hashtbl.clear mark_to_anchor ;
     Hashtbl.clear anchor_to_note ;
   end
 ;;
-
-end
 

@@ -1,12 +1,15 @@
 \@beginpackage{index}
 %% Indexes a` la index.sty
 \@primitives{index}
+\newsavebox{\@indexbox}
 \newcommand{\index}[2][default]
 {\@saveclosed%
-\@locname{\@indexwrite[#1]{#2}{\@currentlabel}}{}%
+\sbox{\@indexbox}{\@indexwrite[#1]{#2}{\@currentlabel}}% side effect
+\@locname{\usebox{\@indexbox}}{}%
 \@restoreclosed}
 \newcommand{\index*}[2][default]
-{\@locname{\@indexwrite[#1]{#2}{\@currentlabel}}{#1}}
+{\sbox{\@indexbox}{\@indexwrite[#1]{#2}{\@currentlabel}}% side effect
+\@locname{\usebox{\@indexbox}}{#2}}
 \newcommand{\printindex}[1][default]{\@printindex[#1]}
 \newcommand{\makeindex}{\newindex{default}{idx}{ind}{Index}}
 \newcommand{\@seename}{\iffrench voir\else see\fi}

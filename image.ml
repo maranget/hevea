@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: image.ml,v 1.17 1999-11-01 15:52:54 maranget Exp $" 
+let header = "$Id: image.ml,v 1.18 1999-11-05 19:01:50 maranget Exp $" 
 open Misc
 
 let base = Parse_opts.base_out
@@ -26,6 +26,7 @@ let active = ref false
 
 let start () =
   active := true ;
+  count := 0 ;
   buff := Out.create_buff ()
 ;;
 
@@ -45,9 +46,8 @@ let put s = if !active then Out.put !buff s
 and put_char c = if !active then Out.put_char !buff c
 ;;
 
-let tmp_name = match base with
-| "" -> "image.tex.new"
-| _ -> base ^ ".image.tex.new"
+let tmp_name =
+  if Parse_opts.filter then "" else base ^ ".image.tex.new"
 
 let open_chan () =
   let chan = open_out tmp_name in
@@ -86,12 +86,16 @@ let dump s_open image  lexbuf =
   image lexbuf
 ;;
 
-let finalize () = 
+let finalize check = 
   if !count > 0 then begin
     close_chan() ;
-    let true_name = Filename.chop_suffix tmp_name ".new" in
-    if Myfiles.changed tmp_name true_name then
-      Sys.rename tmp_name true_name
-    else
-      Sys.remove tmp_name
+    if check then begin
+      let true_name = Filename.chop_suffix tmp_name ".new" in
+      if Myfiles.changed tmp_name true_name then begin
+        Misc.message
+          ("HeVeA Warning: images may have changed, run ``imagen "^base^"''");
+        Sys.rename tmp_name true_name
+      end else
+        Sys.remove tmp_name
+    end
   end

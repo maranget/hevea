@@ -80,10 +80,10 @@ latexscan.cmx: auxx.cmx counter.cmx foot.cmx get.cmx imageManager.cmi \
     stack.cmx subst.cmx tabular.cmx latexscan.cmi 
 length.cmo: length.cmi 
 length.cmx: length.cmi 
-lexstate.cmo: location.cmi misc.cmi myfiles.cmi parse_opts.cmi save.cmi \
-    stack.cmi lexstate.cmi 
-lexstate.cmx: location.cmx misc.cmx myfiles.cmx parse_opts.cmx save.cmx \
-    stack.cmx lexstate.cmi 
+lexstate.cmo: latexmacros.cmi location.cmi misc.cmi myfiles.cmi \
+    parse_opts.cmi save.cmi stack.cmi lexstate.cmi 
+lexstate.cmx: latexmacros.cmx location.cmx misc.cmx myfiles.cmx \
+    parse_opts.cmx save.cmx stack.cmx lexstate.cmi 
 location.cmo: location.cmi 
 location.cmx: location.cmi 
 mathML.cmo: htmlCommon.cmo latexmacros.cmi misc.cmi out.cmi parse_opts.cmi \

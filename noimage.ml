@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: noimage.ml,v 1.4 1999-10-08 17:58:15 maranget Exp $" 
+let header = "$Id: noimage.ml,v 1.5 1999-11-05 19:02:17 maranget Exp $" 
 let start () = ()
 and stop () = ()
 and restart () = ()
@@ -24,5 +24,5 @@ let page () =
   Misc.warning ("No image dumped") ;
   "XXX"
 ;;
-let finalize () = ()
+let finalize _ = ()
 ;;

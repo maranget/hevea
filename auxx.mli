@@ -14,6 +14,8 @@ val rget : string -> string
 val bset : string -> string -> unit
 val bget : string -> string
 val init : string -> unit
-val finalize : unit -> unit
+val finalize : bool -> bool
 val bwrite : string -> string -> unit
 val rwrite : string -> string -> unit
+
+val hot_start : unit -> unit

@@ -9,13 +9,17 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: color.ml,v 1.7 1999-10-29 15:58:27 maranget Exp $" 
+let header = "$Id: color.ml,v 1.8 1999-11-05 19:01:46 maranget Exp $" 
 
 let default_color = "#000000"
 ;;
 
 let table = Hashtbl.create 17
+and ctable = Hashtbl.create 17
 ;;
+
+let checkpoint () =  Misc.copy_hashtbl table ctable
+and hot_start () = Misc.copy_hashtbl ctable table
 
 let to_hex x =
   Printf.sprintf "%02x" (truncate (255.0 *. x))

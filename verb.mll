@@ -236,7 +236,7 @@ def_code "\\endcomment" Scan.check_alltt_skip ;
 ()
 ;;
 
-Scan.register_init "verbatim" init_verbatim 
+register_init "verbatim" init_verbatim 
 ;;
 
 let tab_val = ref 8
@@ -306,7 +306,7 @@ and close_listing lexbuf =
 ;;
 
 
-Scan.register_init "moreverb"
+register_init "moreverb"
 (fun () ->
   def_code "\\verbatimwrite"
     (fun lexbuf ->

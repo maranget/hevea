@@ -21,4 +21,6 @@ val readverb : int ref
 val silent : bool ref
 val column_to_command : string -> string
 val warning : string -> unit
+val message : string -> unit
 val fatal : string -> 'a
+val copy_hashtbl : (string, 'a) Hashtbl.t -> (string, 'a) Hashtbl.t -> unit

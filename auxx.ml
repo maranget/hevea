@@ -11,7 +11,7 @@
 
 open Misc
 
-let header = "$Id: auxx.ml,v 1.2 1999-11-04 23:11:37 maranget Exp $" 
+let header = "$Id: auxx.ml,v 1.3 1999-11-05 19:01:45 maranget Exp $" 
 
 let rtable = Hashtbl.create 17
 ;;
@@ -19,6 +19,7 @@ let rtable = Hashtbl.create 17
 let rset name value = Hashtbl.add rtable name value
 ;;
 
+  
 let rget name =
   try Hashtbl.find rtable name with Not_found -> begin
     warning ("Undefined label: "^name) ; "??"
@@ -53,15 +54,22 @@ let init base =
   with Sys_error s ->
     warning ("Cannot open out file: "^filename^" : "^s)
 
-and finalize () = match !auxfile with
-| None -> ()
-| Some file ->
-    close_out file ;
-    if not !something then
-      Sys.remove !auxname;
-    if !changed then
-        prerr_endline
-          "HeVeA Warning: Label(s) may have changed. Rerun to get cross-references right." ;
+(* result is true when another run is needed *)
+
+and finalize check =
+  match !auxfile with
+  | None -> false
+  | Some file ->
+      close_out file ;
+      if not !something then
+        Sys.remove !auxname;
+      if check then begin
+        if !changed then
+          Misc.message
+            "HeVeA Warning: Label(s) may have changed. Rerun to get cross-references right." ;
+        !changed
+      end else
+        false
 ;;
 
 let write table output_fun key pretty = match !auxfile with
@@ -79,41 +87,56 @@ let write table output_fun key pretty = match !auxfile with
     output_fun file
 ;;
 
-let bseen = Hashtbl.create 17
+
+let rseen = Hashtbl.create 17
+and bseen = Hashtbl.create 17
+
 let bcheck key =
   try
     let _ = Hashtbl.find bseen key in
-    warning ("Multiple definitions for citation: "^key)
+    warning ("Multiple definitions for citation: "^key) ;
+    false
   with
   | Not_found ->
-      Hashtbl.add bseen key ()
+      Hashtbl.add bseen key () ;
+      true
 
-let rseen = Hashtbl.create 17
 let rcheck key =
   try
     let _ = Hashtbl.find rseen key in
-    warning ("Multiple definitions for label: "^key)
+    warning ("Multiple definitions for label: "^key) ;
+    false
   with
   | Not_found ->
-      Hashtbl.add rseen key ()
+      Hashtbl.add rseen key () ;
+      true
 
 
 let bwrite key pretty =
-  bcheck key ;
-  write  btable
-    (fun file ->
-      output_string file "\\bibcite{" ;
-      output_string file key ;
-      output_string file "}{" ;
-      output_string file pretty ;
-      output_string file "}\n") key pretty
+  if bcheck key then
+    write  btable
+      (fun file ->
+        output_string file "\\bibcite{" ;
+        output_string file key ;
+        output_string file "}{" ;
+        output_string file pretty ;
+        output_string file "}\n") key pretty
+
 and rwrite key pretty =
-  rcheck key ;
-  write rtable
-    (fun file ->
-      output_string file "\\newlabel{" ;
-      output_string file key ;
-      output_string file "}{{" ;
-      output_string file pretty ;
-      output_string file "}{X}}\n") key pretty
+  if rcheck key then
+    write rtable
+      (fun file ->
+        output_string file "\\newlabel{" ;
+        output_string file key ;
+        output_string file "}{{" ;
+        output_string file pretty ;
+        output_string file "}{X}}\n") key pretty
 ;;
+
+let hot_start () =
+  Hashtbl.clear rtable ; Hashtbl.clear rseen ;
+  Hashtbl.clear btable ; Hashtbl.clear bseen ;
+  auxfile :=  None ;
+  auxname := "" ;
+  something := false ;
+  changed := false

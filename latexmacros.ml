@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmacros.ml,v 1.53 1999-09-02 17:59:06 maranget Exp $" 
+let header = "$Id: latexmacros.ml,v 1.54 1999-11-05 19:01:55 maranget Exp $" 
 open Misc
 open Parse_opts
 open Symb
@@ -34,6 +34,41 @@ let pretty_env = function
 let cmdtable =
   (Hashtbl.create 97 : (string, (pat * action)) Hashtbl.t)
 ;;
+let cmd_checked = Hashtbl.create 17
+;;
+
+let prim_table = Hashtbl.create 5
+and prim_checked = Hashtbl.create 5
+
+let checkpoint () =
+  Misc.copy_hashtbl prim_table prim_checked ;
+  Misc.copy_hashtbl cmdtable cmd_checked
+and hot_start () =
+  Misc.copy_hashtbl prim_checked prim_table ;
+  Misc.copy_hashtbl cmd_checked cmdtable
+  
+(* Primitives *)
+let register_init name f =
+  if !verbose > 1 then
+    prerr_endline ("Registering primitives for package: "^name);
+  try
+    let _ = Hashtbl.find prim_table name in
+    fatal
+      ("Attempt to initlialize primitives for package "^name^" twice")
+  with
+  | Not_found ->  Hashtbl.add prim_table name f
+
+and exec_init name =
+   if !verbose > 1 then
+     prerr_endline ("Initializing primitives for package: "^name) ;
+  try
+    let f = Hashtbl.find prim_table name in
+    try f () with
+      Failed ->
+        Misc.warning
+         ("Bad trip while initializing primitives for package: "^name)
+  with Not_found -> ()
+;;   
 
 let pretty_macro n acs =
   pretty_pat n ;

@@ -1,8 +1,10 @@
 \@beginpackage{makeidx}
 \@primitives{index}
+\newsavebox{\@indexbox}
 \newcommand{\index}[1]
 {\@saveclosed%
-\@locname{\@indexwrite[default]{#1}{\@currentlabel}}{}%
+\sbox{\@indexbox}{\@indexwrite[default]{#1}{\@currentlabel}}%force evaluation
+\@locname{\usebox{\@indexbox}}{}%
 \@restoreclosed}
 \newcommand{\printindex}{\@printindex[default]}
 \newcommand{\makeindex}{\newindex{default}{idx}{ind}{Index}}
