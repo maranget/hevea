@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: cutmain.ml,v 1.12 1999-09-01 13:53:44 maranget Exp $" 
+let header = "$Id: cutmain.ml,v 1.13 2000-03-28 13:52:55 maranget Exp $" 
 
 exception Error of string
 ;;
@@ -46,11 +46,19 @@ let main () =
 ;;
 
 
+let copy_gifs () =
+  try
+    Mylib.copy_from_lib "previous_motif.gif" ;  
+    Mylib.copy_from_lib "next_motif.gif" ;  
+    Mylib.copy_from_lib "contents_motif.gif"
+  with
+  | Mylib.Error s ->
+      Location.print_pos () ;
+      prerr_endline s
+
 let _ = try
   main () ;
-  Mylib.copy_from_lib "previous_motif.gif" ;  
-  Mylib.copy_from_lib "next_motif.gif" ;  
-  Mylib.copy_from_lib "contents_motif.gif" 
+  copy_gifs ()
 with
 | Error s  ->
     prerr_endline s ;

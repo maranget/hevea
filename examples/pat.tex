@@ -1182,7 +1182,7 @@ let S_2(y) = S(2,y);;
 (with $P[1,1] = P_1$, $P[1,2] = P_2$, $P[2,1] = P_3$ and $P[2,2] = P_4$)
 
 
-\section{Conclusion and future work}
+\section{Conclusion and future work}\cutname{conclusion.html}
 \label{conclusion}
 
 In join-calculus, a name definition, all receptors on that name and all
@@ -1199,8 +1199,26 @@ reception on a channel to statically known parts of the program.  The
 same argument applied to \`a la ML polymorphic typing
 in~\cite{join-typing-97}.
 
-
-Taking a few benchmarks as a set of sensible join programs, both the
+\begin{cutflow}{Benchmarks}\cutname{benchmarks.html}
+\begin{table}[ht]
+\begin{center}
+\begin{tabular}{l@{\quad}r@{\quad}r@{\quad}r@{\quad}r@{\quad}r}
+& \texttt{fib} &
+\texttt{afib} &
+\texttt{pat} &
+\texttt{qsort} &
+\texttt{count}\\ \hline
+\texttt{join} &  32.0 & 14.5 & 37.2 & 9.9 & 16.4 \\
+\texttt{jocaml} & 5.7 &  3.5 & 5.4 & 1.4 & 4.2 \\
+\texttt{Bologna} & 11.9 & 6.2 &  9.4 & 16.8 & 5.3 \\
+\end{tabular}
+\end{center}
+\caption{\label{perf}Some performance measures (wall-clock time, in seconds)}
+\end{table}
+Benckmarks sources are available on the \footahref{http://join.inria.fr/speed/}{web}
+\end{cutflow}
+Taking a few benchmarks (see table~\ref{perf})
+as a set of sensible join programs, both the
 {\tt join} and the {\tt jocaml} pattern matching compilation schemes
 prove adequate.  In particular, none of the two schemes falls into the
 pitfall associated to the compilation technique used.

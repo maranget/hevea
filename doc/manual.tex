@@ -1772,6 +1772,106 @@ unit by typing:
 source. However, \LaTeX{} still can process the document, since the
 \texttt{hevea} package is loaded).
 
+
+\subsection{Controlling output file names}\label{cutname}
+\cutname{cutname.html}
+\comdefindex{cutname}
+When invoked as \texttt{hacha \textit{doc}.html},
+\hacha{} produces a \texttt{index.html} table of links file that
+points into \textit{doc}\texttt{001.html},
+\textit{doc}\texttt{002.html}, etc. content files.
+This is not very convenient when one wishes to point inside the
+document from outside.
+However, the \verb+\cutname{+\textit{name}\verb+}+ command
+sets the name of  the current output file name as \textit{name}.
+
+Consider a document cut at the section level, which contains the
+following important section~:
+\begin{verbatim}
+\section{Important section}\label{important}
+...
+\end{verbatim}
+To make the important section goes into file \texttt{important.html},
+one writes~:
+\begin{verbatim}
+\section{Important section}\label{important}\cutname{important.html}
+...
+\end{verbatim}
+Then, section ``Important section'' can be referenced from
+an \hevea{} unaware \html{} page by~:
+\begin{verbatim}
+In this document, there is a very
+<A HREF="important#important.html">important section</A>.
+\end{verbatim}
+\ifhevea
+If you are reading the \html{} version of this manual, you may check
+that wou are now reading file ``\texttt{cutname.html}''.
+This particular file name has been specified from the source
+using \verb+\cutname{cutname.html}+.
+\fi
+
+\subsection{Cutting a document anywhere}
+\envdefindex{cutflow}
+Part of a document goes to a separate file whem enclosed in a
+\verb+cutflow+ environment~:
+\begin{flushleft}
+  \verb+\begin{cutflow}{+\textit{title}\verb+}+\ldots\verb+\end{cutflow}+
+\end{flushleft}
+
+\noindent The content ``\ldots'' will go into a file of its
+own, while
+the argument \textit{title} is used as the title of the introduced
+\html{} page.
+
+The \html{} page introduced here does not belong to the normal flow of
+text.
+Consequently, one needs an explicit reference from the normal flow of text
+into the content of the \verb+cutflow+ environment.
+This will occur naturally when the content of the \verb+cutflow+ environment.
+contains a \verb+\label+ construct.
+This look natural in the following quiz example:
+\begin{verbatim}
+\subsubsection{A small quiz}
+\begin{enumerate}
+\item What is black?
+\item What is white?
+\item What is Dylan?
+\end{enumerate}
+Answers in section~\ref{answers}.
+\begin{cutflow}{Answers}
+\subsubsection{Quiz answers}\label{answers}
+\begin{enumerate}
+\item Black is black.
+\item White is white.
+\item Dylan is Dylan.
+\end{enumerate}
+\end{cutflow}
+\end{verbatim}
+\ifhevea The example yields:
+\subsubsection{A small quiz}
+\begin{enumerate}
+\item What is black?
+\item What is white?
+\item What is Dylan?
+\end{enumerate}
+Answers in section~\ref{answers}.
+\begin{cutflow}{Answers}
+\subsubsection{Quiz answers}\label{answers}
+\begin{enumerate}
+\item Black is black.
+\item White is white.
+\item Dylan is Dylan.
+\end{enumerate}
+\end{cutflow}
+\fi
+
+\comindex{aname}\comindex{ahrefloc}
+However,introducing \html{} hyperlink targets and
+references with the \verb+\aname+ and \verb+\ahrefloc+ commands
+(see section~\ref{hyperlink})
+will be more practical most of the time.
+
+
 \section{Generating \html{} constructs}
 \hevea{} output language being \html{}, it is normal for users to insert
 hypertext constructs their documents, or to control their colors.
@@ -4920,7 +5020,8 @@ when given the \verb+-fix+ option, \texttt{hevea} will itself run
 \texttt{imagen}, if needed.
 
 
-\section{Browser configuration}\label{browser}
+\section{Browser configuration}\label{browser}\cutname{browser.html}
+\index{browser configuration}
 By default, \hevea{} insert now standard font changes in its output,
 using the \verb+FACE=symbol+ attribute to the \verb+<FONT ...>+ tag.
 The symbol font is the one available on the Linux Red Hat

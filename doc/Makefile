@@ -51,6 +51,7 @@ info: manual.inf tmp.tex
 install:
 	-mkdir $(DOCDIR)
 	cp iso.html symbol.html index.html manual[0-9][0-9][0-9].html *.gif $(DOCDIR)
+	cp browser.html cutname.html $(DOCDIR)
 	cp ../html/urlhref.hva $(DOCDIR)
 ############# Release stuff
 VERSIONFILE=../version.ml
@@ -127,7 +128,8 @@ clean:
 cleanall: clean
 	rm -f manual.dvi manual.ps manual[0-9][0-9][0-9].html *_motif.gif \
 	manual*.gif tmp.* *.image.tex manual.html index.html faq.html\
-	 hevea.spec manual.txt manual.info manual.info-[0-9]
+	 hevea.spec manual.txt manual.info manual.info-[0-9]\
+	browser.html cutname.html
 
 include ../libs.def
 RPMLIB=/usr/lib/hevea

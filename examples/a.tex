@@ -73,7 +73,7 @@ void push(int i)
 premier argument, (par exemple $i_1$), effectuer l'opération (par
  exemple $i_1-i_2$) et empiler le résultat.
 
-\begin{cutflow}{Précision}
+
 La calculatrice obéira à un programme contenu dans une chaîne de
 caractères et affichera, à chaque étape intermédiaire, le caractère lu
 (utiliser \verb+printf+ avec le format \verb+"%c"+)
@@ -97,8 +97,8 @@ Vous aurez donc à lire la chaîne-programme caractère par caractère
 lu. Les quatre opérations devront bien entendu utiliser les primitives de
 pile, {\tt push} et {\tt pop}. Attention au sens de la soustraction et
 de la division.
-\end{cutflow}
 \end{itemize}
+
 
 \subsection{Opérations avancées sur les piles}
 Les vraies calculatrices HP ont des touches spéciales qui permettent
@@ -148,6 +148,7 @@ Remarquez que les rotations reviennent, pour la rotation vers le haut,
 à mettre la cellule de tête en queue de liste et pour la rotation vers
 le bas, à mettre la cellule de queue en tête de liste. Vous aurez
 sans doute intérêt à faire de petits dessins pour vous guider.
+
 
 La solution de cet exercice apparaîtra \url{hp.c}{en hp.c}.
 

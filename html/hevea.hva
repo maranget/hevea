@@ -80,11 +80,18 @@
 {\@nostyle\@print{<!--TOC }\@getprint{#1}\@print{ }}%
 {#2}{\@nostyle\@print{-->
 }}}
+\newcommand{\@flowarg}[2]
+  {{\@nostyle\@print{<ARG }\@getprint{#1}\@print{>}{#2}\@print{</ARG>}}}
 \newenvironment{cutflow}[1]
-  {{\@nostyle\@print{<!--FLOW }\@getprint{#1}\@print{-->
-}}\@open{H1}{ALIGN=center}#1\@close{H1}}
+  {\@printnostyle{<!--FLOW }%
+  \@flowarg{TITLE}{#1}%
+  \@printnostyle{-->
+}}
 {\@printnostyle{<!--END FLOW-->
 }}
+\newcommand{\cutname}[1]
+  {{\@nostyle\@print{<!--NAME }\@getprint{#1}\@print{-->
+}}}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Echoing to the image file %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%

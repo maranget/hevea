@@ -30,7 +30,7 @@ info: $(INFO)
 install:
 	/bin/rm -rf $(EXDIR)
 	mkdir $(EXDIR)
-	cp *.gif $(HTML) index.html tmp*.html hp.c $(EXDIR)
+	cp *.gif $(HTML) index.html tmp*.html conclusion.html benchmarks.html hp.c $(EXDIR)
 	cp $(TEXT) $(EXDIR)
 	cp Makefile $(TEX) pat.def env.hva pat.hva smile.hva $(EXDIR)
 	cp $(DVI) $(EXDIR)
@@ -136,7 +136,7 @@ index.html: index.tex
 	$(HEVEA) $(HEVEAOPTS) index.tex
 
 cleanhtml:
-	rm -f $(HTML) tmp.html
+	rm -f $(HTML) tmp.html tmp*.html conclusion.html benchmarks.html
 cleantext:
 	rm -f $(TEXT)
 cleaninfo:

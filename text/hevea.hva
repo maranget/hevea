@@ -54,6 +54,8 @@
 \newcommand{\cutend}{}
 \newcommand{\cuthere}[2]{\@footnoteflush{#1}}
 \newcommand{\@secend}{}
+\newenvironment{cutflow}[1]{}{}
+\newcommand{\cutname}[1]{}
 %%%%%%%%%%%%%
 % Maketitle %
 %%%%%%%%%%%%%

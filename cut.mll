@@ -12,7 +12,7 @@
 {
 open Lexing
 open Stack
-let header = "$Id: cut.mll,v 1.26 2000-03-27 10:58:18 maranget Exp $" 
+let header = "$Id: cut.mll,v 1.27 2000-03-28 13:52:54 maranget Exp $" 
 
 let verbose = ref 0
 ;;
@@ -55,9 +55,20 @@ and doctype = ref ""
 and html = ref "<HTML>"
 ;;
 
+let changed_t = Hashtbl.create 17
+
+let rec check_changed name =
+  try
+    let r = Hashtbl.find changed_t name in
+    check_changed r
+  with
+  | Not_found -> name
+
 let new_filename () =
   incr count ;
-  Printf.sprintf "%s%0.3d.html" !name !count
+  let r1 = Printf.sprintf "%s%0.3d.html" !name !count in
+  let r2 = check_changed r1 in
+  r2
 ;;
 
 let out = ref (Out.create_null ())
@@ -73,6 +84,15 @@ let toc = ref !out
 and tocname = ref !outname
 and otherout = ref !out
 ;;
+
+let change_name oldname name =
+  if !phase <= 0 then begin
+    Thread.change oldname name ;
+    Cross.change oldname name ;
+    outname := name ;
+    Hashtbl.add changed_t oldname name
+  end
+    
 
 let start_phase name =
   incr phase ;
@@ -127,15 +147,6 @@ let putlink out name img alt =
   Out.put out alt ;
   Out.put out "\"></A>\n"
 ;;
-
-let putflow out name title =
-  Out.put out "<A HREF=\"" ;
-  Out.put out name ;
-  Out.put out "\">" ;
-  Out.put out title ;
-  Out.put out "</A>\n"
-
-
 
 let putlinks out name =
   if !verbose > 0 then
@@ -235,7 +246,7 @@ let open_section sec name =
     incr anchor ;
     let label = "toc"^string_of_int !anchor in
     itemanchor !outname label name !toc ;
-    if !tocbis then itemanchor "" label name !out_prefix ;
+    if !tocbis then itemanchor !outname label name !out_prefix ;
     putanchor label !out ;
     cur_level := sec
   end else
@@ -320,6 +331,7 @@ and close_notes () =
 ;;
 
 let toc_buf = Out.create_buff ()
+and arg_buf = Out.create_buff ()
 ;;
 
 let stack = Stack.create "main"
@@ -389,9 +401,6 @@ let close_all () =
 let openflow title =
   let new_outname = new_filename () in
   push flowname_stack !outname ;
-  if !phase > 0 then begin
-    putflow !out new_outname title ;
-  end ;
   outname := new_outname ;
   if !phase > 0 then begin
     push flow_stack !out ;
@@ -406,6 +415,7 @@ and closeflow () =
     out := pop flow_stack
   end ;
   outname := pop flowname_stack
+
 
 } 
 
@@ -422,13 +432,17 @@ and closeflow () =
       put "-->\n"
     end ;
     main lexbuf}
-|  "<!--" "FLOW"
-   {let title = tocline lexbuf in
+|  "<!--" "FLOW" ' '+
+   {let title = flowline lexbuf in
    openflow title ;
    main lexbuf}
-| "<!--" "END" ' '+ "FLOW" ' '* "-->"
+| "<!--" "END" ' '+ "FLOW" ' '* "-->" '\n'?
    {closeflow () ;
    main lexbuf}
+| "<!--" "NAME" ' '+
+    {let name = tocline lexbuf in
+    change_name !outname name ;
+    main lexbuf} 
 |  "<!--" ("TOC"|"toc") ' '+
     {let arg = secname lexbuf in
     let sn = 
@@ -614,6 +628,21 @@ and tocline = parse
     {Out.put_char toc_buf (lexeme_char lexbuf 0) ;
       tocline lexbuf}
 
+and arg = parse
+| "</ARG>" {Out.to_string arg_buf}
+| _         {Out.put_char arg_buf (Lexing.lexeme_char lexbuf 0) ; arg lexbuf}
+| eof       {raise (Misc.Fatal "Unclosed arg")}
+
+and flowline = parse
+| "<ARG TITLE>"
+    {let title = arg lexbuf in
+    let _ = flowline lexbuf in
+    title}
+| "-->" '\n'?
+    {""}
+| eof {raise (Misc.Fatal "Unclosed comment")}
+| _   {flowline lexbuf}
+
 and aargs = parse
 | ("name"|"NAME") ' '* '=' ' '*
   {if !phase = 0 then begin
@@ -651,7 +680,7 @@ and refname = parse
 |  '"' [^'"']* '"'
    {let lxm = lexeme lexbuf in
    String.sub lxm 1 (String.length lxm-2)}
-| ['a'-'z''A'-'Z''0'-'9']+
+| ['a'-'z''A'-'Z''0'-'9''.''_''-']+
    {lexeme lexbuf}
 | "" {raise (Error "Bad reference name syntax")}
 
