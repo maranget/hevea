@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlMath.ml,v 1.25 2004-07-14 02:46:19 thakur Exp $" 
+let header = "$Id: htmlMath.ml,v 1.26 2004-07-22 18:55:04 thakur Exp $" 
 
 
 open Misc
@@ -112,7 +112,7 @@ let open_display_varg varg =
   end ;
   try_open_display () ;
   open_block DISPLAY varg ;
-  open_block TD "NOWRAP" ;
+  open_block TD ("NOWRAP "^varg) ;
   open_block INTERN "" ;
   if !verbose > 2 then begin
     pretty_cur !cur_out ;
@@ -140,7 +140,7 @@ let open_display_varg_harg varg harg =
   end
 ;;
 
-let open_display () = open_display_varg "VALIGN=middle"
+let open_display () = open_display_varg "VALIGN=center"
 
 let close_display () =
   if !verbose > 2 then begin
@@ -293,8 +293,6 @@ let close_maths display =
 
   if display then close_center ()
 ;;
-
-
 
 (* vertical display *)
 
@@ -531,21 +529,21 @@ let over_align align1 align2 display lexbuf =
     let mods = insert_vdisplay
       (fun () ->
         open_vdisplay display ;
-        open_vdisplay_row ("NOWRAP ALIGN=center") ;
-        skip_column ()) in
-    skip_column () ;
+        open_vdisplay_row ("NOWRAP STYLE=\"font-size:smaller\" ALIGN=center") ;
+        skip_column "STYLE=\"font-size:smaller\"") in
+    skip_column "STYLE=\"font-size:smaller\"" ;
     close_vdisplay_row () ;
-    open_vdisplay_row "" ;
+    open_vdisplay_row "STYLE=\"font-size:smaller\"" ;
     close_mods () ;
     arrow_in_three_cols align2 ;
     close_vdisplay_row () ;
-    open_vdisplay_row ("NOWRAP ALIGN=center") ;
-    skip_column () ;
+    open_vdisplay_row ("NOWRAP STYLE=\"font-size:smaller\" ALIGN=center") ;
+    skip_column "STYLE=\"font-size:smaller\"" ;
     close_mods () ;
     open_mods mods ;
     freeze
       (fun () ->
-        skip_column () ;
+        skip_column "STYLE=\"font-size:smaller\"" ;
         close_vdisplay_row () ;
         close_vdisplay ();)
   end
@@ -575,15 +573,19 @@ let over_align align1 align2 display lexbuf =
   end
 ;;
 
-let box_around_display lexbuf = 
-  let mods = insert_vdisplay
-      (fun () ->
-        open_vdisplay true ;
-        open_vdisplay_row ("NOWRAP ALIGN=center")) in
-  close_vdisplay_row () ;
-  close_vdisplay () 
+let box_around_display scanner arg = 
+    open_block TABLE "border=\"2\" cellspacing=0 cellpadding=1" ;
+    open_block TR "" ;
+    open_block TD "NOWRAP" ;
+    open_vdisplay true ;
+    open_vdisplay_row ("NOWRAP ALIGN=center") ;
+    scanner arg ;
+    close_vdisplay_row () ;
+    close_vdisplay () ;
+    close_block TD ;
+    close_block TR ;
+    close_block TABLE
 ;;
-    
 
 (* Gestion of left and right delimiters *)
 

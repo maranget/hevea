@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlCommon.ml,v 1.42 2004-07-14 02:46:19 thakur Exp $" 
+let header = "$Id: htmlCommon.ml,v 1.43 2004-07-22 18:55:04 thakur Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -1631,8 +1631,8 @@ let horizontal_line attr width height =
   close_block GROUP
 ;;
 
-let skip_column () =
-    put "&nbsp;</TD><TD NOWRAP ALIGN=center>"
+let skip_column s =
+    put ("&nbsp;</TD><TD NOWRAP ALIGN=center "^s^">")
 ;;    
 
 let arrow_in_three_cols dir =
@@ -1642,7 +1642,7 @@ let arrow_in_three_cols dir =
     put "</TD><TD>" ;
     put "<TABLE BGCOLOR=black BORDER=0 WIDTH=\"100%\" CELLSPACING=0 " ;
     put ("CELLPADDING=1><TR><TD></TD></TR></TABLE>") ;
-    put "</TD><TD>&#9654;"
+    put "</TD><TD STYLE=\"font-size:smaller\">&#9654;"
   end
   else begin
     put "&#9664;</TD><TD>" ;

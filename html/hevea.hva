@@ -422,3 +422,56 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 \input{style-sheets.hva}%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   Redefining \textoverline of latexcommon.hva			%
+%   Here we can use HTML primitives				%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+\newcommand{\overlinedbox}[1]%
+     {\@print{<SPAN style="text-decoration:overline">}#1\@print{</SPAN>}}% 
+\renewcommand{\textoverline}[1]{\overlinedbox{#1}}%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   We can now define \sqrt using \overlinedbox                 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+\newcommand{\sqrt}[2][1]{\ifdisplay%
+ \ifthenelse{\equal{#1}{4}}{\@print{<BIG>&#8732;</BIG>}\overline{#2}}{%
+  \ifthenelse{\equal{#1}{3}}{\@print{<BIG>&#8731;</BIG>}\overline{#2}}{%
+   \ifthenelse{\equal{#1}{1}}{%
+    \@print{<BIG><BIG>}\surd\@print{</BIG></BIG>}\overline{#2}}{%
+    %\warning{opt argument to \sqrt not 3 or 4, ignored}%
+    %\@print{<BIG><BIG>}\surd\@print{</BIG></BIG>}\overline{#2}%
+    \left(#2\right)^{\frac{1}{#1}}%
+   }%
+  }%
+ }%
+\else
+ \ifthenelse{\equal{#1}{4}}{\@print{&#8732;}\overlinedbox{#2}}{%
+  \ifthenelse{\equal{#1}{3}}{\@print{&#8731;}\overlinedbox{#2}}{%
+   \ifthenelse{\equal{#1}{1}}{\surd\overlinedbox{#2}}{%
+   %\warning{opt argument to \sqrt (outside display mode) ignored}%
+   %\surd\overlinedbox{#2}%
+   (#2)^{\frac{1}{#1}}
+   }%
+  }%
+ }%
+\fi%
+}%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   \boxed is more complicated, though                          %
+%   1) outside display mode, we can use style-sheets            %
+%   2) in display mode, we need to maintain the display-like    %
+%      treatment of the argument, so the solution would be to   %
+%      create a virtual display-box inside the current box, and %
+%      then draw a box around it before continuing in display   %
+%      mode.							%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+\newcommand{\boxed}[1]{\ifdisplay%
+	{\@boxed{#1}}
+	\else\@print{<SPAN style="border:solid thin black">}#1\@print{</SPAN>}%
+	\fi%
+}%
+

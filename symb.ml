@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: symb.ml,v 1.22 2004-07-22 13:02:05 maranget Exp $" 
+let header = "$Id: symb.ml,v 1.23 2004-07-22 18:55:06 thakur Exp $" 
 open Parse_opts
 
 let tr = function
@@ -20,6 +20,19 @@ let tr = function
 | "\\rfloor" -> "<FONT FACE=symbol>û</FONT>"
 | "\\lceil"  -> "<FONT FACE=symbol>é</FONT>"
 | "\\rceil"  -> "<FONT FACE=symbol>ù</FONT>"
+| s   -> s
+;;
+
+let tr1 = function
+| "\\{" -> "{"
+| "\\}" -> "}"
+| "\\|" -> "<FONT FACE=symbol>½½</FONT>"
+| "\\lfloor" -> "<FONT FACE=symbol>ë</FONT>"   
+| "\\rfloor" -> "<FONT FACE=symbol>û</FONT>"
+| "\\lceil"  -> "<FONT FACE=symbol>é</FONT>"
+| "\\rceil"  -> "<FONT FACE=symbol>ù</FONT>"
+| "(" -> "<BIG><BIG>(</BIG></BIG>"
+| ")" -> "<BIG><BIG>)</BIG></BIG>"
 | s   -> s
 ;;
 
@@ -40,9 +53,23 @@ let put_delim skip put d n =
     end else
       put s in
 
-  if not !symbols || n=1 then
+(* Oops : another hack in a beautiful software that could make you unhappy, but it makes the display of sqrt on \right better to see. To revert original implementation :
+   a) uncomment the || n=1, and 
+   b) comment lines 63-72 *)
+
+  if not !symbols (*|| n=1 *)then
     let d = tr d in
     do_bis d n
+  else if n=1 then 
+    if d="(" then
+      (put_skip "&#9115;" ;
+      put "&#9117;")
+    else if d=")" then
+      (put_skip "&#9118;" ;
+      put "&#9120;")
+    else 
+      let d = tr d in
+      do_bis d n
   else if !entities then begin
     if d = "(" then begin
       put_skip "&#9115;" ;

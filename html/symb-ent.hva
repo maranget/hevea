@@ -96,7 +96,7 @@
 %
 %% Relation Symbols (Table 8.5 of 'Goos-Mitt-Sam')
 %
-\newcommand{\leq}{\@print{&#8804;}}     %{\@entity{le}} 
+\newcommand{\leq}{{\@print{&#8804;}}}     %{\@entity{le}} 
 \renewcommand{\le}{\@print{&#8804;}}
 \newcommand{\geq}{\@print{&#8805;}}	%entity{ge}}
 \renewcommand{\ge}{\@print{&#8805;}}

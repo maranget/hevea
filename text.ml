@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.60 2004-07-14 02:46:22 thakur Exp $"
+let header = "$Id: text.ml,v 1.61 2004-07-22 18:55:06 thakur Exp $"
 
 
 open Misc
@@ -1918,7 +1918,7 @@ and close_maths display =
     prerr_endline "close_maths";
 ;;
 
-let box_around_display lexbuf = ();;
+let box_around_display scanner arg = ();;
 
 let open_vdisplay display = 
   open_table (!verbose>1) "";

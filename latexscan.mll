@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.240 2004-07-21 13:53:53 thakur Exp $ *)
+(* $Id: latexscan.mll,v 1.241 2004-07-22 18:55:04 thakur Exp $ *)
 
 
 {
@@ -1986,6 +1986,14 @@ def_code "\\over"
    (fun lexbuf ->
      Dest.over !display lexbuf;
      skip_blanks lexbuf)
+;;
+
+def_code "\\@boxed"
+  (fun lexbuf -> 
+    skip_blanks lexbuf ;
+    let arg = save_arg lexbuf in
+    Dest.box_around_display (scan_this_arg main) arg
+  )
 ;;
 
 def_code "\\@lover"

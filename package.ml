@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.63 2004-07-22 13:02:05 maranget Exp $    *)
+(*  $Id: package.ml,v 1.64 2004-07-22 18:55:05 thakur Exp $    *)
 
 module type S = sig  end
 
@@ -1458,6 +1458,23 @@ register_init "proof"
             Dest.put formatted3);
           end_table ()
         )
+;;
+*)
+
+(*
+def_code "\\@boxed"
+  (fun lexbuf -> 
+    let arg = save_arg lexbuf in
+    Dest.open_block "TABLE" "ALIGN=center cellspacing=0 border=\"2\"" ;
+    Dest.open_block "TR" "" ;
+    Dest.open_block "TD" "" ;
+    Dest.open_display () ;
+    scan_this_arg Scan.main arg ;
+    Dest.close_display () ;
+    Dest.close_block "TD" ;
+    Dest.close_block "TR" ;
+    Dest.close_block "TABLE"    
+  )
 ;;
 *)
 
