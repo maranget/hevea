@@ -1,4 +1,5 @@
 version 1.03-1
+  - html.sty changed into hevea.sty
   - Better error messages by better exception handling
          (thanks to Pierre.Weis@inria.fr)
   - Hevea style files now have extension ``.hva''

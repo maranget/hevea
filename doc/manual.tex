@@ -2,7 +2,7 @@
 \usepackage{a4}
 \usepackage{fullpage}
 \usepackage{texnames}
-\usepackage{../html}
+\usepackage{../hevea}
 \usepackage{isolatin1}
 \usepackage{epsf}
 %HEVEA\usepackage{color}
@@ -904,7 +904,7 @@ these instructions should not be seen by \LaTeX{}.
 Conversely, some source that \LaTeX{} needs should not be processed
 by \hevea{}.
 Basically, there are three ways to make input vary according to the
-processor, file loading, the \texttt{html.sty} style
+processor, file loading, the \texttt{hevea.sty} style
 file and comments.
 
 
@@ -952,13 +952,13 @@ not seen by \LaTeX{} and will not get echoed to the \textit{image}
 file (see section~\ref{imagen}).
 
 
-\subsection{The \protect\texttt{html.sty} style file}
-The \texttt{html.sty} style file is intended to be loaded by \LaTeX{}
+\subsection{The \protect\texttt{hevea.sty} style file}
+The \texttt{hevea.sty} style file is intended to be loaded by \LaTeX{}
 and not by \hevea{}.
 It provides \LaTeX{} with means to ignore or process some parts of the
 document.
 Note that \hevea{} copes with the constructs defined in
-the \texttt{html.sty} file by default.
+the \texttt{hevea.sty} file by default.
 
 \subsubsection{Selecting a translator}
 \hevea{} and \LaTeX{} perform the following actions on source inside
@@ -1125,7 +1125,7 @@ Additionally, the \verb+\imageflush+ macro that controls included images
 \verb+\cuthere+, etc. macros that
 control document cutting (see
 section~\ref{hacha})
-are defined as null macros in the \texttt{html.sty} file.
+are defined as null macros in the \texttt{hevea.sty} file.
 
 \subsection{Comments}\label{comments}
 \hevea{} processes all lines that start with \verb+%HEVEA+, while
@@ -2952,7 +2952,7 @@ times as fast as the one produced by \texttt{ocamlc}.
 Thus, default compilation mode is \texttt{opt}, however it may be the
 case on some systems that only \texttt{ocamlc} is available.
 
-Note that the \texttt{html.sty} file is simply copied to \hevea{}
+Note that the \texttt{hevea.sty} file is simply copied to \hevea{}
 library directory. It remains users responsibility to
 make it accessible to \LaTeX.
 
