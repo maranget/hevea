@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmacros.ml,v 1.68 2005-01-13 17:19:26 maranget Exp $" 
+let header = "$Id: latexmacros.ml,v 1.69 2005-03-03 15:33:28 maranget Exp $" 
 open Misc
 open Parse_opts
 open Lexstate
@@ -210,6 +210,9 @@ and global_def name pat action =
   end ;
   hidden_global_def name (pat,action)
 
+and global_undef name =
+  Hashtbl.remove global_table name ;
+  Hashtbl.remove local_table name
 ;;
 
 let def_init name f =

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.256 2005-03-03 09:59:14 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.257 2005-03-03 15:33:28 maranget Exp $ *)
 
 
 {
@@ -1849,6 +1849,13 @@ def_code "\\prim@def"
     let body = get_prim_arg lexbuf in
     def name ([],[]) (Subst body))
 ;;
+
+def_code "\\undef"
+  (fun lexbuf ->
+    let name = get_csname lexbuf in
+    Latexmacros.global_undef name)
+;;
+
 
 let do_let global lxm lexbuf =
   Save.start_echo () ;

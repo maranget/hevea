@@ -26,7 +26,7 @@
 %% Ie the class of the BLOCK elt that translates environment 'env' is
 %%    \'env'@class
 \newcommand{\class@attr}[2]{\ife#1\else\@getprint{CLASS="#1"#2}\fi}
-\newcommand{\setenvclass}[2]{\def\csname{}#1@class\endcsname{#2}}
+\newcommand{\setenvclass}[2]{\warning{STYLE: #1}\def\csname{}#1@class\endcsname{#2}}
 \newcommand{\getenvclass}[1]{\csname{}#1@class\endcsname}
 \newcommand{\envclass@attr}[2][]{\class@attr{\getenvclass{#2}}{#1}}
 %% Packages
@@ -233,7 +233,7 @@
 \fi
 \ife\hevea@css\else\@print{<STYLE type="text/css">}
 \hevea@css\@print{</STYLE>
-}\fi}
+}\fi\undef\hevea@css\undef\newstyle}
 \newenvironment{document}{%
 \@end{document}
 \@restartoutput\unskip%

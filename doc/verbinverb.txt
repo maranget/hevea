@@ -1,0 +1,8 @@
+{\setenvclass{verbatim}{myverbatim}
+\begin{verbatim}
+This will be styled through class 'myverbatim', introduced by:
+\newstyle{.myverbatim}
+  {margin:1ex 3x;padding:1ex;
+   color:maroon;
+   background:\@getstylecolor[named]{Apricot}}
+\end{verbatim}}

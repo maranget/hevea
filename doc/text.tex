@@ -14,6 +14,7 @@
 \usepackage{graphics}
 \usepackage{mathpartir}
 \usepackage{alltt}
+\usepackage{moreverb}
 \input{macros.tex}
 \makeindex
 \input{version.tex}
@@ -32,10 +33,14 @@ Chesnay Cedex. {\tt \mailto{Luc.Maranget@inria.fr}}}}
 \urldef{\ftpbase}{\url}{ftp://ftp.inria.fr/INRIA/moscova/hevea}
 \fi
 \urldef{\httpbase}{\url}{http://pauillac.inria.fr/~maranget/hevea}
-\def\stylex{background:teal;padding:1ex;color:navy;border:solid navy}
+\def\stylex{padding:1ex;color:navy;border:solid navy}
 \newstyle{.subsectionex}{\stylex}
-\def\verbstyle{margin:2ex 1ex;backgroundcolor:\@getstylecolor{subsection}}
-\newstyle{.verbatim}{\verbstyle}
+\def\verbstyle{margin:1ex 1ex;padding:1ex;background:\@getstylecolor{paragraph};}%
+\newstyle{.verbatim}{\verbstyle}%
+\newstyle{.myverbatim}
+  {margin:1ex 3ex;padding:1ex;
+   color:maroon;
+   background:\@getstylecolor[named]{Apricot}}
 \begin{document}
 
 \maketitle
@@ -2482,6 +2487,7 @@ as an optional argument. These attributes are the ones of the
 
 \section{Support for Style \label{style-sheets}Sheets}
 \index{style-sheets}
+\comdefindex{newstyle}
 
 \subsection{Overview}
 Starting with version~1.08, \hevea{} offers support for stylesheets
@@ -2519,8 +2525,10 @@ block-level elements apply. However, some package (such as, for
 instance~\texttt{fancysection}, see Section~\ref{fancysection}) may
 define them.
 
-Users themselves can append new definitions to the \emph{document style
-sheet}, using the command \verb+\newstyle+.
+If you wish to change the style of section headers, loading the
+\texttt{fancysection} package is the most appropriate solution.
+However, one can also proceeed more directely, by appending new definitions to the \emph{document style
+sheet},with the command \verb+\newstyle+.
 For instance, here is a \verb+\newstyle+ to add style for subsections.
 \begin{alltt}
   \char92newstyle\{.subsection\}\{\stylex\}
@@ -2528,11 +2536,9 @@ For instance, here is a \verb+\newstyle+ to add style for subsections.
 This declaration adds some style element to the class
 ``\texttt{subsection}'' (notice the dot!):
 blocks that declare to belong to the class
-will appear on a light blue background, text will be dark blue, some padding
+will show dark-blue text, some padding
 (space inside the box) is added and a border will be drawn around the block.
 These specification will normally affect all subsections in the document.
-Notice that, to yield some effet, \verb+\newstyle+~commands \emph{must} appear
-in the document preamble, i.e. before \verb+\begin{document}+.
 \begin{htmlonly}
 Given the previous style definition, the sectioning command
 \begin{verbatim}
@@ -2544,47 +2550,195 @@ A styled subsection heading
 \@close{H3}
 \end{htmlonly}
 
+The following points are worth noticing:
+\begin{itemize}
+\item
+To yield some effet, \verb+\newstyle+~commands \emph{must} appear
+in the document preamble, i.e. before \verb+\begin{document}+.
+\item
+Arguments to \verb+\newstyle+~commands are processed.
+\item The \texttt{hevea} package defines all style~sheet related
+commands as no-ops. As a consequence, these command do not affect
+document processing by \LaTeX{}.
+\end{itemize}
 
-For instance, let us consider \texttt{verbatim} environments.
+
+
+\subsection{Changing the style of all instances of an environment}
+
+In this very document, all \texttt{verbatim} environements appear over
+a light green background, with small left and right margins.
+This has been performed by simply issuing the following command in
+the document preamble.
 \begin{alltt}
-\begin{verbatim}
-Inside verbatim.
-\end{verbatim}
+\char92newstyle\{.verbatim\}\{margin:1ex 1ex;padding:1ex;background:\char92#ccffcc;\}
 \end{alltt}
+Observe that, in the explicit numerical color argument above the
+hash character ``\texttt{\#}'' has to be escaped.
 
+\subsection{Changing the style of some instances of an environment}\
+\comdefindex{setenvclass}\comdefindex{getenvclass}%
+One can also change the style class  attached to a given environment
+and thus control styling of environments more precisely.
 
-So far so good! But how are (style) classes (here \emph{subsection})
-defined?
-This is done by using special \hevea{} commands, in the preamble
-of the \LaTeX{} document. These are transferred to the \verb+HEAD+ of
-the \html{} document. It is possible to link to an external style sheet,
-and/or define one's own styles. As an example the command
-would result in the following entry in the style definitions in the
-preamble of the \html{} document.
+As a matter of fact, the name of the class attribute of
+environment~\textit{env} is referred to through an indirection, by
+using the command \verb+\getenvclass{+\textit{env}\verb+}+.
+The class attribute can be changed with the command
+\verb+\setenvclass{+\textit{env}\verb+}{+\textit{class}\verb+}+.
+The~\verb+\setenvclass+ command internally defines a command
+\verb+\+\textit{env}\verb+@class+, whose content is read
+by the \verb+\getenvclass+ command. As a consequeuce, the class
+attribute of environments follow normal scoping rules.
+\label{getstylecolor:example}
+For instance, here is how to change the style of \emph{one} \texttt{verbatim}
+environnment.
+\bgroup\setenvclass{verbatim}{myverbatim}
+\verbatiminput{verbinverb.txt}
+\egroup
+Observe how the class of environment \texttt{verbatim} is changed from
+its default value to the
+new value ``\texttt{myverbatim}''. The change remains active until the
+end of the curent group (here, the ``\texttt{\}}'' at the end). Then, the class
+of environment \texttt{verbatim} is restored to its default value
+--- which happen to be ``\texttt{verbatim}''!
+
+\index{"@getstylecolor@\texttt{\char92"@getstylecolor}}
+This example also shows two new ways to specify colors in style
+definition, with a
+conventional \html~color name (here {\ifhevea\maroon\fi marron}) or as
+a high-level color (see Section~\ref{color:package}), given as an argument to
+the \verb+\@getstylecolor+ internal command.
+
+A good way of specifying style class changes probably is by defining
+new environments.
 \begin{verbatim}
-    <STYLE TYPE="text/css">
-    ...
-    ...
-    .subsection {background:blue;padding:4;color:white;border:thin solid black}
-    ...
-    ...
-    </STYLE>
+\newenvironment{flashyverbatim}
+  {\setenvclass{verbatim}{myverbatim}\verbatim}
+  {\endverbatim}
 \end{verbatim}
-We now describe the usage in more detail. 
+\newenvironment{flashyverbatim}
+  {\setenvclass{verbatim}{myverbatim}\verbatim}
+  {\endverbatim}%
+Then, we can use \verb+\begin{flashyverbatim}+\ldots{}
+\verb+\end{flashyverbatim}+ to get verbatim environments style with
+the intended ``\texttt{myverbatim}'' style class.
+\begin{htmlonly}\begin{flashyverbatim}
+This text is typeset inside the environment
+\emph{flashyverbatim}, and hence with the \emph{myverbatim}
+style.
+\end{flashyverbatim}\end{htmlonly}
 
-\begin{enumerate}
-\item We first describe how to link to external stylesheets and define
-styles explicitly.
-\item Then we describe the classes that affect different macros and
-environments.
-\item We finally describe how to enclose a particular fragment
-inside a \verb+DIV+ block-level element, opened with a class.
-This provides a way to specify
-styles for certain macros and environments which cannot be stylized by
-defining the appropriate class (e.g. \html{} tables are used extensively
-to set math, so a style for \verb+TABLE+ would leave its mark in
-undesired places).
-\end{enumerate}
+\subsection{Which Class Affects\label{whatclass} What}
+We now review the various style class defined by \hevea.
+
+\subsubsection{Simple environments}
+
+Generally, the syling of environment~\textit{env} is performed through
+the the
+\verb+\getclass{+\textit{env}\verb+}+/\verb+\setclass{+\textit{env}\verb+}{+\ldots\verb+}+
+mecanism, which \verb+\getclass{+\textit{env}\verb+}+ producing the
+default value of \textit{env}.
+
+Concretely, this means that most of the environments are styled with
+an homonymous style class. Here is a non-exhaustive list of such
+environments
+\begin{quote}
+figure, table, itemize, enumerate, list, description, 
+trivlist, center, flushleft, flushright, quote,
+quotation, verbatim, abstract, mathpar (cf
+Section~\ref{mathpartir:package}), lstlisting
+(cf. Section~\ref{listings:package}), etc.
+\end{quote}
+
+
+
+We now specify which definitions have effects on what macros. The
+class names closely resemble the macro and environment names, and should
+be relatively easy to keep in mind.
+
+\paragraph{Itemize}\index{styles for!{\tt itemize} environment}
+Governed by classes \emph{itemize} and \emph{li-itemize}. Given input
+\begin{verbatim}
+    \begin{itemize}
+      \item{x}
+    \end{itemize}
+\end{verbatim}
+produces output
+\begin{verbatim}
+    <UL CLASS=itemize>
+      <LI CLASS=li-itemize>x
+    </UL>
+\end{verbatim}
+
+\paragraph{Enumerate}\index{styles for!{\tt enumerate} environment}
+Governed by classes \emph{enumerate} and \emph{li-enumerate}. Given input
+\begin{verbatim}
+    \begin{enumerate}
+      \item{x}
+    \end{enumerate}
+\end{verbatim}
+produces output
+\begin{verbatim}
+    <OL CLASS=enumerate>
+      <LI CLASS=li-enumerate>x
+    </OL>
+\end{verbatim}
+
+\paragraph{Description\index{styles for!{\tt
+description}}\index{styles for!{\tt list}} and list environments}
+The style of the \texttt{description} environment is
+governed by classes \verb+description+,
+\verb+dt-description+ and \verb+dd-description+. Given input
+\begin{verbatim}
+    \begin{description}
+      \item[x]{y}
+    \end{description}
+\end{verbatim}
+produces output
+\begin{verbatim}
+    <LIST CLASS=description>
+      <DT CLASS=dt-description>x
+      <DD CLASS=dd-description>y
+    </LIST>
+\end{verbatim}
+
+Styles for the \texttt{list} environment, which is implemented
+similarly, are managed in the same manner with
+style classes \verb+list+, \verb+dt-list+ and
+\verb+dd-list+ respectively.
+
+\paragraph{Sectioning Commands}\index{styles for!sectioning commands}
+The table below specifies the block level elements and respective classes.
+\begin{center}
+\begin{tabular}{|l|l|l|}
+\hline
+COMMAND&CLASS REQUIRED&HTML OUTPUT \\
+\hline
+$\setminus$part{...}         &part&$<$H1 CLASS=part$>$ ... $<$/H1$>$\\
+$\setminus$section{...}      &section&$<$H2 CLASS=section$>$ ... $<$/H2$>$\\
+$\setminus$subsection{...}   &subsection&$<$H3 CLASS=subsection$>$ ... $<$/H3$>$\\
+$\setminus$subsubsection{...}&subsubsection&$<$H4 CLASS=subsubsection$>$ ... $<$/H4$>$\\
+$\setminus$paragraph{...}    &paragraph&$<$H5 CLASS=paragraph$>$ ... $<$/H5$>$\\
+$\setminus$subparagraph{...} &subparagraph&$<$H6 CLASS=subparagraph$>$ ... $<$/H6$>$\\
+\hline
+\end{tabular}
+\end{center}
+
+\paragraph{The Title}\index{styles for!title}
+The command \verb+\maketitle+ uses a table with a single cell, with class \verb+title+, for display. The name of the title is displayed inside block H1, with class \verb+titlemain+, while all other information (author, date) are displayed inside block H3, with class \verb+titlerest+. As an example, if the title is to contain, the titlename, author, and the date, the HTML code will look like
+\begin{verbatim}
+    <TABLE ALIGN=center>
+     <TR>
+      <TD CLASS=title>
+       <H1 ALIGN=center CLASS=titlemain>..title here..</H1>
+       <H3 ALIGN=center CLASS=titlerest>..author here..</H3>
+       <H3 ALIGN=center CLASS=titlerest>..date here..</H3>
+      </TD>
+     </TR>
+    </TABLE>
+\end{verbatim}
+
 
 \subsection{Importing/Making Definitions}
 \subsubsection{Linking to External Style Sheets}
@@ -2771,92 +2925,6 @@ will produce the following HTML output
 Here {\tt .section} is defined twice, and the last definition will be used by HTML. Similarly definitions in {\tt y.css} will override those in {\tt x.css}. Also, conflicts between {\tt H1.part} and {\tt .part} will be resolved as explained above. The order of definitions is the same as the order in the \LaTeX{} document. 
 
 
-\subsection{Which Class Affects\label{whatclass} What}
-We now specify which definitions have effects on what macros. The
-class names closely resemble the macro and environment names, and should
-be relatively easy to keep in mind.
-
-\paragraph{Itemize}\index{styles for!{\tt itemize} environment}
-Governed by classes \emph{itemize} and \emph{li-itemize}. Given input
-\begin{verbatim}
-    \begin{itemize}
-      \item{x}
-    \end{itemize}
-\end{verbatim}
-produces output
-\begin{verbatim}
-    <UL CLASS=itemize>
-      <LI CLASS=li-itemize>x
-    </UL>
-\end{verbatim}
-
-\paragraph{Enumerate}\index{styles for!{\tt enumerate} environment}
-Governed by classes \emph{enumerate} and \emph{li-enumerate}. Given input
-\begin{verbatim}
-    \begin{enumerate}
-      \item{x}
-    \end{enumerate}
-\end{verbatim}
-produces output
-\begin{verbatim}
-    <OL CLASS=enumerate>
-      <LI CLASS=li-enumerate>x
-    </OL>
-\end{verbatim}
-
-\paragraph{Description\index{styles for!{\tt
-description}}\index{styles for!{\tt list}} and list environments}
-The style of the \texttt{description} environment is
-governed by classes \verb+description+,
-\verb+dt-description+ and \verb+dd-description+. Given input
-\begin{verbatim}
-    \begin{description}
-      \item[x]{y}
-    \end{description}
-\end{verbatim}
-produces output
-\begin{verbatim}
-    <LIST CLASS=description>
-      <DT CLASS=dt-description>x
-      <DD CLASS=dd-description>y
-    </LIST>
-\end{verbatim}
-
-Styles for the \texttt{list} environment, which is implemented
-similarly, are managed in the same manner with
-style classes \verb+list+, \verb+dt-list+ and
-\verb+dd-list+ respectively.
-
-\paragraph{Sectioning Commands}\index{styles for!sectioning commands}
-The table below specifies the block level elements and respective classes.
-\begin{center}
-\begin{tabular}{|l|l|l|}
-\hline
-COMMAND&CLASS REQUIRED&HTML OUTPUT \\
-\hline
-$\setminus$part{...}         &part&$<$H1 CLASS=part$>$ ... $<$/H1$>$\\
-$\setminus$section{...}      &section&$<$H2 CLASS=section$>$ ... $<$/H2$>$\\
-$\setminus$subsection{...}   &subsection&$<$H3 CLASS=subsection$>$ ... $<$/H3$>$\\
-$\setminus$subsubsection{...}&subsubsection&$<$H4 CLASS=subsubsection$>$ ... $<$/H4$>$\\
-$\setminus$paragraph{...}    &paragraph&$<$H5 CLASS=paragraph$>$ ... $<$/H5$>$\\
-$\setminus$subparagraph{...} &subparagraph&$<$H6 CLASS=subparagraph$>$ ... $<$/H6$>$\\
-\hline
-\end{tabular}
-\end{center}
-
-\paragraph{The Title}\index{styles for!title}
-The command \verb+\maketitle+ uses a table with a single cell, with class \verb+title+, for display. The name of the title is displayed inside block H1, with class \verb+titlemain+, while all other information (author, date) are displayed inside block H3, with class \verb+titlerest+. As an example, if the title is to contain, the titlename, author, and the date, the HTML code will look like
-\begin{verbatim}
-    <TABLE ALIGN=center>
-     <TR>
-      <TD CLASS=title>
-       <H1 ALIGN=center CLASS=titlemain>..title here..</H1>
-       <H3 ALIGN=center CLASS=titlerest>..author here..</H3>
-       <H3 ALIGN=center CLASS=titlerest>..date here..</H3>
-      </TD>
-     </TR>
-    </TABLE>
-\end{verbatim}
 
 \subsection{Enclosing Things in a Styled DIV}\index{styles for!miscellaneous objexts}
 Due to internal use of certain environments by \hevea{}, they cannot be
@@ -4804,6 +4872,7 @@ will be typeset on a yellow background and without padding:
 
 \subsubsection{From High-Level Colors to Low-Level Colors}\label{getcolor}
 \index{"@getcolor@\texttt{\char92"@getcolor}|defocc}
+\index{"@getstylecolor@\texttt{\char92"@getstylecolor}|defocc}
 High-level colors are color names
 defined with \verb+\definecolor+.
 Low-level colors are \html-style colors.
@@ -4811,12 +4880,21 @@ That is, they are either one of the sixteen conventional colors black,
 silver etc., or a RGB hexadecimal color specification of the form
 \verb+"#XXXXXX"+.
 
+
 One changes the high-level \emph{high-color} into a low-level color by
 \verb+\@getcolor{+\emph{high-color}\verb+}+.
 Low-level colors are appropriate inside \html{} attributes and as
 arguments to the \verb+\@fontcolor+ internal macro.
 An example of \verb+\@getcolor+ usage can be found at the end of
 section~\ref{getcolor:usage}.
+
+There is also \verb+\@getstylecolor+ command that acts
+like\verb+\@getcolor+, except that it does not output the double
+quotes around RGB hexadecimal color specification.
+Such low-level colors are appropriate for style definitions in
+cascading style sheets~\cite{css}. See
+Section~\ref{getstylecolor:example} for an example.
+
 
 \section{Font Selection}
 
@@ -5591,18 +5669,16 @@ all arguments to \verb+\url+ are urls\ldots
 \texttt{verbatim} Packages}
 These two packages provide new commands and environments for
 processing verbatim text.
-
 I recommend using
-\footahref{\ctan/contrib/supported/moreverb/}{\texttt{moreverb}}
-rather than
-\footahref{\ctan/required/tools/verbatim.dtx}{\texttt{verbatim}},
-since the \LaTeX{} implementation of the former
-is much more compatible with \hevea{} than
-the implementation of the latter.
+\footahref{\ctan/contrib/moreverb/}{\texttt{moreverb}}
+rather than~\texttt{verbatim},
+since \hevea{}~implementation is more advanced for the former package.
+
+
 
 \subsection{Typesetting Computer Languages: the \texttt{listings} Package}
 I strongly recommend using the
-\footahref{\ctan/contrib/supported/listings}{\texttt{listings}} package.
+\footahref{\ctan/contrib/listings/}{\texttt{listings}} package.
 Learning the user interface requires a little effort, but it is worth
 it.
 

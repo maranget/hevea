@@ -15,7 +15,8 @@
 \definecolor{section}{hsv}{#1, .6, 1}%
 \definecolor{subsection}{hsv}{#1, .5, 1}%
 \definecolor{subsubsection}{hsv}{#1, .4, 1}%
-}}%
+}%
+\definecolor{paragraph}{hsv}{#1, .2, 1}}%
 \colorsections{120}%
 %% Define sectioning comands
 \AtBeginDocument

@@ -29,6 +29,8 @@ val find : string -> Lexstate.pat * Lexstate.action
 val pretty_macro : Lexstate.pat -> Lexstate.action -> unit
 val def : string -> Lexstate.pat -> Lexstate.action -> unit
 val global_def : string -> Lexstate.pat -> Lexstate.action -> unit
+(* Undefine a command *)
+val global_undef : string -> unit
 
 (******************)
 (* For inside use *)
