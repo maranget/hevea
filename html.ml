@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: html.ml,v 1.41 1999-05-07 11:33:43 maranget Exp $" 
+let header = "$Id: html.ml,v 1.42 1999-05-07 16:32:54 tessaud Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -1559,4 +1559,15 @@ let infomenu arg = ()
 ;;
 
 let infonode opt num arg = ()
+;;
+
+let image arg n = 
+  put "<IMG " ;
+  if arg <> "" then begin
+    put arg;
+    put_char ' '
+  end ;
+  put "SRC=\"" ;
+  put n ;
+  put "\">"
 ;;

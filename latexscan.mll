@@ -47,7 +47,7 @@ open Save
 open Tabular
 open Lexstate
 
-let header = "$Id: latexscan.mll,v 1.83 1999-05-07 11:33:51 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.84 1999-05-07 16:33:00 tessaud Exp $" 
 
 let sbool = function
   | false -> "false"
@@ -527,9 +527,9 @@ let show_inside main format i =
     begin match get_col format !t with
       Tabular.Inside s ->
         let s = get_this main s in
-        Dest.open_block "TD" "ALIGN=center";
+        Dest.open_cell center_format 1; (*block "TD" "ALIGN=center";*)
         Dest.put s ;
-        Dest.force_block "TD" ""
+        Dest.close_cell ""; (*force_block "TD" ""*)
     | _ -> raise EndInside
     end ;
     t := !t+1
@@ -678,9 +678,9 @@ let close_col_aux main content is_last =
     Dest.close_display () ;
     display := false
   end ;
-  if is_last && Dest.is_empty () then Dest.erase_block "TD"
+  if is_last && Dest.is_empty () then Dest.erase_cell ()
   else begin
-    Dest.force_block "TD" content ;
+    Dest.close_cell content;
     if !in_multi then begin
       in_multi := false ;
       let f,n = pop stack_multi in
@@ -701,9 +701,9 @@ and close_last_col main content = close_col_aux main content true
 
 and close_last_row () =
   if !first_col then
-    Dest.erase_block "TR"
+    Dest.erase_row ()
   else
-    Dest.close_block "TR"
+    Dest.close_row ()
 ;;
 
 let rec open_ngroups = function
@@ -749,14 +749,16 @@ let iput_newpage arg =
   let n = Image.page () in
   Image.put ("% page: "^n^"\n") ;
   Image.put "\\clearpage\n\n" ;
-  Dest.put "<IMG " ;
+  Dest.image arg n
+
+(*  Dest.put "<IMG " ;
   if arg <> "" then begin
     Dest.put arg;
     Dest.put_char ' '
   end ;
   Dest.put "SRC=\"" ;
   Dest.put n ;
-  Dest.put "\">"
+  Dest.put "\">"*)
 ;;
 
 
@@ -1172,6 +1174,7 @@ rule  main = parse
     | _ ->
         scan_this main ("\\end"^env) ;
         begin if env <> "document" then top_close_block "" end ;
+	Dest.put_char '\n';
         close_env env ;
         if env <> "document" then main lexbuf
     end}
@@ -1330,18 +1333,16 @@ rule  main = parse
 | ['a'-'z' 'A'-'Z']+
    {let lxm =  lexeme lexbuf in
    if !in_math then begin
-      Dest.put "<I>";      
-      Dest.put lxm;
-      Dest.put "</I>"
+      Dest.put_in_math lxm;
     end else
       Dest.put lxm ;
     main lexbuf}
 (* Html specials *)
 | '<'
-    {Dest.put "&lt;" ; main lexbuf}
+    {Dest.put (Dest.iso '<') (*"&lt;"*) ; main lexbuf}
 | '>'
-    {Dest.put "&gt;" ; main lexbuf}
-| '~'         { Dest.put "&nbsp;"; main lexbuf }
+    {Dest.put (Dest.iso '>') (*"&gt;"*) ; main lexbuf}
+| '~'         { Dest.put_nbsp ()(*"&nbsp;"*); main lexbuf }
 (* Spanish stuff *)
 | "?`"
     {Dest.put (Dest.iso '¿') ;
@@ -1876,7 +1877,7 @@ def_code "\\over"
       close_vdisplay_row () ;
       open_vdisplay_row "" ;
       Dest.close_mods () ;
-      Dest.put "<HR NOSHADE SIZE=2>" ;
+      Dest.horizontal_line  "NOSHADE" "2" "100";
       close_vdisplay_row () ;
       open_vdisplay_row "NOWRAP ALIGN=center" ;
       Dest.close_mods () ;
@@ -2357,7 +2358,7 @@ let do_space vert lexbuf  =
       done
     else
       for i=1 to n do
-        Dest.put "&nbsp;"
+        Dest.put_nbsp (); (* "&nbsp;"*)
       done
   with Length.No ->
     warning ((if vert then "\\vspace" else "\\hspace")^
@@ -2409,6 +2410,14 @@ def_code  "\\@infonode"
     let num = get_this main (save_arg lexbuf) in
     let nom = get_this main (save_arg lexbuf) in
     Dest.infonode opt num nom)
+;;
+
+
+def_code "\\@printHR"
+    (fun lexbuf _ ->
+      let arg = save_arg lexbuf in
+      let taille = save_arg lexbuf in
+      Dest.horizontal_line arg "2" taille)
 ;;
 
 end}

@@ -587,8 +587,12 @@ let open_block s args =
   (* Cree et se place dans le bloc de nom s et d'arguments args *)
   if !verbose > 2 then
     prerr_endline ("=> open_block ``"^s^"''");
-
-  push out_stack (s,args,!cur_out);
+  let bloc,arg =
+    if s="DIV" && args="ALIGN=center" then
+      "ALIGN","CENTER"
+    else s,args
+  in
+  push out_stack (bloc,arg,!cur_out);
   try_flush_par ();
   (* Sauvegarde de l'etat courant *)
   
@@ -602,9 +606,10 @@ let open_block s args =
 (*else begin
     if is_list s then do_put_char '\n'; (* revient a la ligne (et flushe) *)
   end;*)
-  try_open_block s args;
+
+  try_open_block bloc arg;
   if !verbose > 2 then
-    prerr_endline ("<= open_block ``"^s^"''")
+    prerr_endline ("<= open_block ``"^bloc^"''")
 ;;
 
 let force_block s content =  
@@ -626,11 +631,12 @@ let close_block s =
   (* Fermeture du bloc : recuperation de la pile *)
   if !verbose > 2 then
     prerr_endline ("=> close_block ``"^s^"''");
-  if is_list s then do_put_char '\n'; (* revient a la ligne (et flushe) *)
-  if s= "ALIGN" || s="HEAD" then do_put_char '\n';
-  force_block s "";
+  let bloc =  if s = "DIV" then "ALIGN" else s in
+  if is_list bloc then do_put_char '\n'; (* revient a la ligne (et flushe) *)
+  if bloc= "ALIGN" || bloc="HEAD" then do_put_char '\n';
+  force_block bloc "";
   if !verbose > 2 then
-    prerr_endline ("<= close_block ``"^s^"''");
+    prerr_endline ("<= close_block ``"^bloc^"''");
 ;;
 
 
@@ -828,16 +834,13 @@ let horizontal_line s u t =
   put_char '\n';
 ;;
 
-let put_separator () =
-  put " "
+let put_separator () = put " "
 ;;
 
-let put_tag tag =
-  ()
+let put_tag tag = ()
 ;;
 
-let put_nbsp () =
-  put " "
+let put_nbsp () =  put " "
 ;;
 
 let put_open_group () =
@@ -1239,3 +1242,9 @@ let is_blank s =
 let is_empty () =
   flags.in_table && (Out.is_empty !cur_out.out);;
 
+let image arg n = 
+    if arg <> "" then begin
+    put arg;
+    put_char ' '
+  end
+;;

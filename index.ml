@@ -20,7 +20,7 @@ module type T =
 module Make (Dest : OutManager.S) =
 struct
 
-let header = "$Id: index.ml,v 1.21 1999-05-07 11:33:44 maranget Exp $"
+let header = "$Id: index.ml,v 1.22 1999-05-07 16:32:55 tessaud Exp $"
 open Misc
 open Parse_opts
 open Entry
@@ -334,7 +334,8 @@ let print_entry main bk k xs  =
         Dest.put ", " ;
         prints r
       end in
-   Dest.put "&nbsp;&nbsp;" ;
+   Dest.put_nbsp ();
+   Dest.put_nbsp ();
    prints (List.rev xs)
 ;;
 

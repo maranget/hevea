@@ -243,6 +243,7 @@ let set_out chan =
 ;;
 
 let set_out_file s =
+  if !verbose >3 then prerr_endline ("Set_out_file :"^s);
   cur_file := s
 ;;
 
@@ -287,13 +288,13 @@ let affiche_menu num =
 	  affiche_items reste;
     in
     affiche_items (List.rev menu.nodes);
-    if !verbose >2 then
+    if !verbose >1 then
       prerr_endline ("Menu :"^menu.nom);
   end
 ;;
     
-let flags = [Open_wronly;Open_append;Open_text];;
 (*
+let flags = [Open_wronly;Open_append;Open_text];;
    let rec affiche_tag_table = function
    [] -> ()
    | f::reste -> begin
@@ -381,7 +382,7 @@ let affiche_node num =
   | None -> if noeud.name = "Top" then put ",\tUp: (dir)."
   | Some n -> put (",\tUp: "^noeud_name n));
   put_char '\n';
-  if !verbose >2 then
+  if !verbose >1 then
     prerr_endline ("Node : "^noeud_name noeud);
 ;;
 

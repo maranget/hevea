@@ -418,7 +418,7 @@
 \newcommand{\centering}{\@insert{ALIGN}{CENTER}}
 \newcommand{\raggedleft}{\@insert{ALIGN}{RIGHT}}
 \newcommand{\raggedright}{\@insert{ALIGN}{LEFT}}
-
+\newenvironment{alltt}{\alltttrue\@open{PRE}{}}{\@close{PRE}\allttfalse}
 
 %%%%%%%%%%% Figures
 

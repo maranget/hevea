@@ -3,7 +3,7 @@ exception Error of string
 
 module type S = sig val init : unit -> unit end
 ;;
-module MakeAlso (Html : OutManager.S) (Scan : Latexscan.S) : S =
+module MakeAlso (Dest : OutManager.S) (Scan : Latexscan.S) : S =
 struct
 open Misc
 open Lexing
@@ -22,10 +22,10 @@ rule inverb = parse
 |  _
   {let c = lexeme_char lexbuf 0 in
   if c = !verb_delim then begin
-    Html.close_group () ;
+    Dest.close_group () ;
     Scan.close_env "*verb"
   end else begin
-    Html.put (Html.iso c) ;
+    Dest.put (Dest.iso c) ;
     inverb lexbuf
   end}
 | eof {raise
@@ -52,12 +52,12 @@ and verbenv = parse
       Scan.top_close_block "PRE" ;
       Scan.close_env env
     end else begin
-      Html.put lxm ;
+      Dest.put lxm ;
       verbenv lexbuf
     end}
 | "\\esc" ' '*
     {if !Scan.cur_env <> "program" then begin
-      Html.put (lexeme lexbuf)
+      Dest.put (lexeme lexbuf)
     end else begin
       let arg = save_arg lexbuf in
       scan_this Scan.main ("{"^arg^"}")
@@ -65,10 +65,10 @@ and verbenv = parse
     verbenv lexbuf}
 | '\t'
       {for i=1 to !tab_val do
-        Html.put_char ' '
+        Dest.put_char ' '
       done ;
       verbenv lexbuf}
-| _   { Html.put (Html.iso (lexeme_char lexbuf 0)) ; verbenv lexbuf}
+| _   { Dest.put (Dest.iso (lexeme_char lexbuf 0)) ; verbenv lexbuf}
 | eof
     {raise
         (Error
@@ -81,10 +81,10 @@ and rawhtml = parse
     if env = !Scan.cur_env then begin
       Scan.close_env env
     end else begin
-      Html.put lxm ;
+      Dest.put lxm ;
       rawhtml lexbuf
     end}
-| _   {Html.put_char(lexeme_char lexbuf 0); rawhtml lexbuf}
+| _   {Dest.put_char(lexeme_char lexbuf 0); rawhtml lexbuf}
 | eof {raise (Error ("End of file inside ``rawhtml'' environment"))}
 
 and verblatex = parse
@@ -130,7 +130,7 @@ and latex2html_latexonly = parse
 {
 
 let open_verb lexbuf _ =
-  Html.open_group "CODE" ;
+  Dest.open_group "CODE" ;
   Scan.new_env "*verb" ;
   start_inverb lexbuf
 
