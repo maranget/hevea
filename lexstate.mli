@@ -53,8 +53,8 @@ val scan_body :
   (action -> 'a) -> action -> subst -> 'a
 
 val stack_lexbuf : Lexing.lexbuf Stack.t
-
 val previous_lexbuf : unit -> Lexing.lexbuf
+val top_lexstate : unit -> bool
 
 val save_lexstate : unit -> unit
 val restore_lexstate : unit -> unit

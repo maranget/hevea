@@ -1,4 +1,4 @@
-let header =  "$Id: lexstate.ml,v 1.37 1999-11-24 19:01:05 maranget Exp $"
+let header =  "$Id: lexstate.ml,v 1.38 1999-12-01 19:04:47 maranget Exp $"
 
 open Misc
 open Lexing
@@ -67,30 +67,6 @@ and withinLispComment = ref false
 and afterLispCommentNewlines = ref 0
 ;;
 
-(*
-type 'a t = 'a list ref
-
-let create () = ref []
-
-and push s e = s := e :: !s
-
-and pop s = match !s with
-  [] -> raise (Misc.Fatal "Empty stack")
-| e::rs -> s := rs ; e
-
-and top s = match !s with
-  [] -> raise (Misc.Fatal "Empty stack")
-| e::_ -> e
-
-and empty s = match !s with | [] -> true | _ -> false
-
-and rev s = s := List.rev !s
-
-type 'a r = 'a list
-
-let save_stack s = !s
-and restore_stack s old = s := old
-*)
 (* stack for recoding lexbuf *)
 let stack_lexbuf = Stack.create "stack_lexbuf"
 ;;
@@ -221,6 +197,7 @@ and previous_lexbuf () =
 (* Saving and restoring lexing status *)
 let stack_lexstate = Stack.create "stack_lexstate"
 ;;
+let top_lexstate () = Stack.empty stack_lexstate
 
 let save_lexstate () =
   let old_stack = Stack.save stack_subst in

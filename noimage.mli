@@ -20,4 +20,4 @@ val put : string -> unit
 val dump :  string -> (Lexing.lexbuf -> unit) -> Lexing.lexbuf -> unit
 val page : unit -> unit
 
-val finalize : bool -> unit
+val finalize : bool -> bool

@@ -147,7 +147,7 @@
 \newcommand{\@biblabel}[1]{\@locname{#1}{\purple[\@bibread{#1}]}}
 %%% Environment document.
 \newcommand{\@bodyargs}{}
-\newcommand{\@meta}{\@print{<META http-equiv="Content-Type" content="text/html; charset= ISO-8859-1">
+\newcommand{\@meta}{\@print{<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 }%
 \@print{<META name="GENERATOR" content="hevea }\usebox{\@heveaversion}\@print{">
 }}

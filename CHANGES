@@ -1,7 +1,8 @@
 
 version 1.05-6
-  - BUG \end{document} qui ferme \begin{toimage}
-  - RESTE UN BUG DANS LES NOTES info et footer mal traite'
+  - -exec prog option for generating .hva files on the fly + sysdep.exe
+  - New license (QPL).
+  - RESTE UN BUG DANS LES NOTES info et footer mal traite' dans texte et info
   - color (I mean no color!) for text
   - documentation for new hyperlinks and url package
   - bug argument de \cite

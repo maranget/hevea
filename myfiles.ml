@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: myfiles.ml,v 1.19 1999-10-13 08:21:25 maranget Exp $" 
+let header = "$Id: myfiles.ml,v 1.20 1999-12-01 19:04:49 maranget Exp $" 
 open Misc
 
 exception Error of string
@@ -81,6 +81,45 @@ let open_tex filename =
         try (filename^".tex"),open_in (filename^".tex") with
         Sys_error _ -> filename,open_in filename
     with Sys_error _ -> raise (Error ("Cannot open: "^filename))
+
+
+exception FoundBis of string
+
+let do_find name =
+  try
+    List.iter (fun dir ->
+      let full_name = Filename.concat dir name in
+      if Sys.file_exists full_name then
+        raise (FoundBis full_name))
+      tex_path ;
+    raise Not_found
+  with FoundBis r -> r
+;;
+
+let find_one name =
+  if Sys.file_exists name then
+    name
+  else
+    raise Not_found
+
+let find name =
+  if Filename.is_implicit name then
+    if
+      Filename.check_suffix name ".tex" ||
+      Filename.check_suffix name ".hva"
+    then do_find name
+      else
+        try
+            let name = name^".tex" in
+            do_find name
+        with Not_found -> do_find name
+   else
+    if Filename.check_suffix name ".tex" then
+      find_one name
+    else
+      try find_one (name^".tex")
+      with
+      | Not_found -> find_one name          
 
 
 exception Return of bool

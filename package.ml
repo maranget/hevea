@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.7 1999-11-04 23:12:23 maranget Exp $    *)
+(*  $Id: package.ml,v 1.8 1999-12-01 19:04:51 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -126,22 +126,6 @@ register_init "index"
     def_code "\\renewindex" new_index)    
 ;;
     
-(*
-let def_set name x =
-  Counter.def_counter name "" ;
-  Counter.set_counter name x
-;;
-open Unix
-;;
-
-let tm = Unix.localtime (Unix.time ()) in
-def_set "year" tm.tm_year ;
-def_set "month" tm.tm_mon ;
-def_set "day" tm.tm_wday ;
-def_set "time" (60 * tm.tm_hour + tm.tm_min)
-;;
-*)
-
 register_init "ifthen"
   (fun () ->
     def_code "\\ifthenelse"

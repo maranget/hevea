@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmain.ml,v 1.58 1999-11-08 12:58:11 maranget Exp $" 
+let header = "$Id: latexmain.ml,v 1.59 1999-12-01 19:04:37 maranget Exp $" 
 
 open Misc
 open Parse_opts
@@ -65,12 +65,12 @@ let finalize check =
   try
     let changed = Auxx.finalize check in
     let changed = Index.finalize check || changed  in
-    image_finalize check ;
+    let image_changed = image_finalize check in
     dest_finalize check ;
     if !verbose > 0 && Parse_opts.name_out <> "" then begin
       prerr_endline ("Output is in file: "^Parse_opts.name_out)
     end ;
-    changed
+    changed,image_changed
   with e ->
     if check then raise e
     else begin
@@ -100,6 +100,20 @@ let read_style name =
   verbose := oldverb
 ;;
 
+let read_prog prog =
+  try
+    let real_prog = Myfiles.find prog        
+    and name = Filename.temp_file "hevea" ".hva" in
+    begin match Sys.command (real_prog^" >"^name) with
+    | 0 -> read_style name
+    | _ ->
+        warning ("Could not exec program file: "^real_prog)
+    end ;
+    Sys.remove name
+  with
+  | Not_found ->
+      warning ("Could not find program file: "^prog)
+
 let open_tex name =
   let name,chan =  Myfiles.open_tex name in
   if !verbose > 0 then
@@ -122,9 +136,12 @@ let main () =
 
     let rec do_rec = function
       [] -> ()
-    | x::rest ->
+    | File x::rest ->
        do_rec rest ;
-       read_style x in
+       read_style x 
+    | Prog x::rest ->
+       do_rec rest ;
+       read_prog x in
 
     let styles =  Parse_opts.styles in
 
@@ -133,13 +150,16 @@ let main () =
     if Parse_opts.filter then  no_prelude () ;
 
     if !Parse_opts.fixpoint then begin
+      let image_changed = ref false in
       Lexstate.checkpoint () ;
       Latexmacros.checkpoint () ;
       Counter.checkpoint () ;
       Color.checkpoint () ;
       let rec do_rec i =
         read_tex name_in ;
-        if finalize true then begin
+        let changed,image_changed_now = finalize true in
+        image_changed := !image_changed || image_changed_now ;
+        if changed then begin
           Lexstate.hot_start () ;
           Latexmacros.hot_start () ;
           Counter.hot_start () ;
@@ -152,9 +172,15 @@ let main () =
           Auxx.hot_start () ;
           Misc.message ("Run, run, again...") ;
           do_rec (i+1)
-        end else
+        end else begin
           Misc.message
-            ("Fixpoint reached in "^string_of_int i^" step(s)") in
+            ("Fixpoint reached in "^string_of_int i^" step(s)") ;
+          if !image_changed then begin
+            Misc.message
+              ("Now, I am running imagen for you") ;            
+            let _ = Sys.command("imagen "^base_out) in ()
+          end
+        end in
       do_rec 1
     end else begin
       read_tex name_in ;

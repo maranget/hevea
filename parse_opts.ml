@@ -11,14 +11,17 @@
 
 open Misc
 
-let header = "$Id: parse_opts.ml,v 1.20 1999-11-05 19:02:18 maranget Exp $" 
+let header = "$Id: parse_opts.ml,v 1.21 1999-12-01 19:04:51 maranget Exp $" 
 
+type input = File of string | Prog of string
 
 let files = ref []
 ;;
 
 let add_input s =
-  files := s :: !files
+  files := File s :: !files
+and add_program s =
+  files := Prog s :: !files
 ;;
 
 type language = Francais | English
@@ -41,8 +44,6 @@ and fixpoint = ref false
 let width = ref 72
 ;;
 
-let read_idx = ref false
-;;
 
 let except = ref []
 ;;
@@ -62,8 +63,8 @@ let _ = Arg.parse
        "filename, prevent file ``filename'' from being read") ;
       ("-fix", Arg.Unit (fun () -> fixpoint := true),
        ", iterate Hevea until fixpoint") ;
-     ("-idx",Arg.Unit (fun () -> read_idx := true),
-       ", attempt to read .idx file (useful if indexing is non-standard)") ;
+     ("-exec", Arg.String add_program,
+       ", prog execute external program ``prog'', then read its result") ;
      ("-francais",Arg.Unit (fun () -> language := Francais),
        ", french mode") ;
      ("-nosymb",Arg.Unit (fun () -> symbols := false),
@@ -100,20 +101,21 @@ let warning s =
 ;;
 
 let base_in,name_in,styles = match !files with
-| [] -> "","",[]
-| x :: rest ->
+| File x :: rest ->
     if Filename.check_suffix x ".hva" then
       "","", !files
     else
       let base_file = Filename.basename x in
-      try
+      begin try
         let base =
           if Filename.check_suffix base_file ".tex" then
             Filename.chop_extension base_file
           else
             base_file in
         base,x,rest
-    with Invalid_argument _ -> base_file, x,rest
+      with Invalid_argument _ -> base_file, x,rest
+      end
+| _ -> "","",!files
 
 let filter = match base_in with "" -> true | _ ->  false
 ;;

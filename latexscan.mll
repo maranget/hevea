@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.152 1999-11-23 13:51:44 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.153 1999-12-01 19:04:42 maranget Exp $ *)
 
 
 {
@@ -50,7 +50,6 @@ open Tabular
 open Lexstate
 open Stack
 open Subst
-
 
 let sbool = function
   | false -> "false"
@@ -1108,8 +1107,10 @@ and image = parse
      Image.put s ;
      image lexbuf}
 | eof
-    {if empty stack_lexbuf then ()
-    else begin
+    {if empty stack_lexbuf then begin
+      if not filter && top_lexstate () then
+        raise (Misc.ScanError ("No \\end{document} found"))
+    end else begin
       let lexbuf = previous_lexbuf () in
       image lexbuf
     end}
