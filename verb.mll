@@ -217,6 +217,7 @@ def_code "\\verbatim"
       noeof lexbuf) ;
 def_code "\\endverbatim" close_verbenv ;
 
+
 def_code "\\verbatim*"
     (fun lexbuf ->
       open_verbenv true ;
@@ -402,26 +403,26 @@ register_init "moreverb"
   ())
 
 (* The comment package *)
+let env_stack = Stack.create "Verb.env_stack"
 
 let init_comment () =
   def_code "\\@excludecomment" open_forget ;
   def_code "\\end@excludecomment"  Scan.check_alltt_skip ;
+(*
   def_code "\\@includecomment" 
     (fun lexbuf ->
+      push env_stack !Scan.cur_env ;
       Scan.skip_pop lexbuf ;
-      let filename = Scan.get_prim "\\CommentCutFile" in      
-      let chan = open_out filename in
-      open_tofile chan lexbuf) ;
+      Scan.top_close_block "" ;
+      Scan.close_env !Scan.cur_env ;
+      Scan.main lexbuf) ;
   def_code "\\end@includecomment"
     (fun lexbuf ->
-      close_tofile lexbuf ;
-      let filename =  Scan.get_prim "\\CommentCutFile" in
-      let saved_env = !Scan.cur_env in
-      Scan.top_close_block "" ;
-      Scan.close_env saved_env ;
-      input_file !verbose Scan.main filename ;
-      Scan.new_env saved_env ;
-      Scan.top_open_block "" "")
+      let env = pop env_stack in
+      Scan.new_env env ;
+      Scan.top_open_block "" "" ;
+      Scan.skip_pop lexbuf)
+*)
 ;;
 
 register_init "comment" init_comment      

@@ -89,15 +89,21 @@
 %% Lists
 \newcommand{\item}[1][]{\warning{\item outside a list-making environment}}
 \newcommand{\@itemitemize}[1][!*!]
-{\@li\ifthenelse{\equal{#1}{!*!}}{}{\warning{Optional argument to \item in itemize environment}[#1]}}
+{\@li\ifthenelse{\equal{#1}{!*!}}{}{\warning{Optional argument to \item in itemize environment}{#1}}}
 \newcommand{\@itemenumerate}[1][!*!]
 {\@linum\ifthenelse{\equal{#1}{!*!}}{}{\warning{Ignored optional argument to \item in enumerate enironment}}}
 \newenvironment{itemize}
   {\@open{UL}{}\texlet\item\@itemitemize}
   {\@close{UL}}
+\newcounter{enumcount}
+\newcommand{\@enumstyle}
+{\ifthenelse{\value{enumcount}=0}{type=1}{}%
+\ifthenelse{\value{enumcount}=1}{type=a}{}%
+\ifthenelse{\value{enumcount}=2}{type=i}{}%
+\ifthenelse{\value{enumcount}=3}{type=A}{}}
 \newenvironment{enumerate}
-  {\@open{OL}{}\texlet\item\@itemenumerate}
-  {\@close{OL}}
+  {\@open{OL}{\@enumstyle}\stepcounter{enumcount}\texlet\item\@itemenumerate}
+  {\addtocounter{enumcount}{-1}\@close{OL}}
 \newenvironment{list}[3][!*!]
   {\ifthenelse{\equal{#1}{!*!}}{\@open{DL}{COMPACT=compact}}{\@open{DL}{}}%open
   \renewcommand{\item}[1][#2]{\@dt{##1}}%
@@ -251,12 +257,16 @@
 {\@stopimage\renewcommand{\thefootnote}{\arabic{footnote}}\@restartimage%
 \setcounter{footnote}{0}}
 %%% For defining Sectioning commands
+\newenvironment{@norefs}
+  {\renewcommand{\label}[1]{}\renewcommand{\ref}[1]{\@auxread{##1}}}
+  {}
 \newcounter{secnumdepth}\setcounter{secnumdepth}{3}%
 \newcommand{\checkdepth}[2]{\ifthenelse{\value{secnumdepth} > #1}{#2}{}}%
 \newcommand{\@makesection}[6]{%
 \newcommand{#1}[2][]{%
 \checkdepth{#2}{\refstepcounter{#3}}%
-\ifoptarg\cuthere{#3}{##1}\else\cuthere{#3}{##2}\fi%
+\ifoptarg\cuthere{#3}{##1}\else
+\cuthere{#3}{\begin{@norefs}##2\end{@norefs}}\fi%
 #4\checkdepth{#2}{#5} ##2#6\@secend}%
 \newcommand{#1*}[1]{%
 \cuthere{#3}{##1}%
@@ -267,7 +277,7 @@
 \ifoptarg\cuthere{#3}{##1}\else\cuthere{#3}{##2}\fi%
 #4\checkdepth{#2}{#5} ##2#6\@secend}%
 \renewcommand{#1*}[1]{%
-\cuthere{#3}{##1}%
+\cuthere{#3}{\begin{@norefs}##1\end{@norefs}}%
 #4##1#6\@secend}}%
 %%%%%%%%%%%%%%
 % Images     %
@@ -315,3 +325,8 @@
 \ifthenelse{\value{month}=10}{October}{}%
 \ifthenelse{\value{month}=11}{November}{}%
 \ifthenelse{\value{month}=12}{December}{} \theday, \theyear}}}
+%%%%%%%%%%%%%%% Une horreur qui peut etre utile
+\newcommand{\newverbenv}[1]
+{\@stopimage%
+\let{\csname #1\endcsname}\verbatim
+\let{\csname end#1\endcsname}\endverbatim}

@@ -6,6 +6,10 @@ val init :
   (bool -> string * Lexstate.subst -> string) ->
   (string -> unit) -> (string -> unit) -> (string -> unit) -> unit
 
+type saved
+val check : unit -> saved
+val hot : saved -> unit
+
 val get_int : string * subst -> int
 val get_bool : string * subst -> bool
 val get_length : string * subst  -> Length.t

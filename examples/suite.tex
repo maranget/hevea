@@ -10,6 +10,7 @@
 \usepackage{calc}
 \usepackage{array}
 \usepackage{alltt}
+\usepackage{comment}
 
 \title{Test\thanks{Une étoile} de \hevea\thanks{Autre chose}}
 \makeindex
@@ -239,6 +240,22 @@ This is a test of nested lists.
 \end{itemize}
 And here is the end of the test.
 
+\subsection{Labels des \texttt{enumerate}}
+\begin{enumerate}
+\item Pour la numérotation
+\begin{enumerate}
+\item Premier.
+\item Second.
+\begin{enumerate}
+\item Encore un.
+\begin{enumerate}
+\item \label{dernieritem}Et
+puis un autre, et là, pour \LaTeX{}, c'est le dernier.
+\end{enumerate}
+\end{enumerate}
+\end{enumerate}
+\end{enumerate}
+Le dernier item est~\ref{dernieritem}.
 \section{Arguments}
 Le i chapô sans espaces~: ``\^\i \^{\i }\^\i\^{\i}''
 
@@ -716,6 +733,10 @@ J'essaie aussi une figure~\ref{figure}
 \begin{center}Pan dans la figure\end{center}
 \caption{\label{figure}Je suis une figure}
 \end{figure}
+\subsection{Poussons le vice ici\label{vice}~\ref{vice}}
+Cette sous-section~\ref{vice} pousse le vice jusqu'à avoir à la
+fois un \verb+\label+ et un \verb+\ref+ dans son titre.
+
 
 \section{Quelques notes de bas de page}\label{labas}
 Coucou\footnote{coucou}
@@ -992,6 +1013,22 @@ Test du pgcd : \printgcd{54}{30}
 \section{The \texttt{calc} package}
 Aller voir~\cite{latexbis}
 
+\section{The \texttt{comment} package}
+\includecomment{inclus}
+\begin{comment}
+\typeout{BUG: je ne devrais pas apparaître~!!!!}
+\end{comment}
+
+\begin{inclus}
+\begin{itemize}
+\item Premier item.
+\end{inclus}
+\item Deuxième item.
+\begin{inclus}
+\item Troisi\`eme item.
+\end{itemize}
+\end{inclus}
+
 
 \subsection{Me suis-je planté~?}
 \newcounter{plante}
@@ -1204,6 +1241,7 @@ dernière}.
 M.~Gooseens, F.~Mittelbach, A.~Samarin.
 \newblock {\em The \LaTeX{} Companion}
 \newblock Addison-Websley, 1994.
+\bibitem{foo} Numéro un.
 \end{thebibliography}
 
 \end{document}

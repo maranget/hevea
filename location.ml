@@ -10,7 +10,7 @@
 (***********************************************************************)
 open Stack
 
-let header = "$Id: location.ml,v 1.15 2000-01-21 18:48:58 maranget Exp $" 
+let header = "$Id: location.ml,v 1.16 2000-01-26 17:08:55 maranget Exp $" 
 
 type fileOption = No | Yes of in_channel
 ;;
@@ -50,10 +50,12 @@ let check () =
   r
 
 and hot saved =
-  save_state () ;
-  Stack.finalize stack saved
-    (fun (_,_,_,file) -> close_file file) ;
+  let to_finalize = stack in
   Stack.restore stack saved ;  
+  let _,_,_,file_now = Stack.top stack in
+  Stack.finalize to_finalize
+    (fun (_,_,_,file) -> file == file_now)
+    (fun (_,_,_,file) -> close_file file) ;
   restore_state ()
 
 let get () = !curlexname
@@ -136,18 +138,3 @@ and print_top_pos () =
     [] -> ()
   | x::_ -> do_print_pos x
 ;;
-
-(* Deprecated 
-let echo_from_start pos buff = match !curfile with
-| No -> prerr_endline "No echo"
-| Yes file ->
-   try
-      let save_pos = pos_in file in
-      seek_in file 0 ;
-      for i = 0 to pos do
-        Out.put_char buff (input_char file)
-      done ;
-     seek_in file save_pos
-   with Sys_error _ -> prerr_endline "Echo failed"
-;;
-*)

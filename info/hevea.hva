@@ -45,9 +45,7 @@
 \renewcommand{\@makesection}[6]{%
 \newcommand{#1}[2][!*!]{%
 \checkdepth{#2}{\refstepcounter{#3}}%
-\@insertmenu{#3}{#2}{##2}%
-\ifthenelse{\not\equal{##1}{!*!}}{cuthere{#3}{##1}}{\cuthere{#3}{##2}}%
+\@insertmenu{#3}{#2}{\begin{@norefs}##2\end{@norefs}}%
 #4\checkdepth{#2}{#5} ##2#6\@secend}%
 \newcommand{#1*}[1]{%
-\cuthere{#3}{##1}%
 #4##1#6\@secend}}%

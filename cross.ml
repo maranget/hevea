@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: cross.ml,v 1.8 1999-11-08 12:58:07 maranget Exp $" 
+let header = "$Id: cross.ml,v 1.9 2000-01-26 17:08:37 maranget Exp $" 
 let verbose = ref 0
 ;;
 
@@ -29,10 +29,14 @@ let add name file =
 ;;
 
 
-let fullname name =
+let fullname myfilename name =
   try
     let filename = Hashtbl.find table name in
-    let newname = filename^"#"^name in
+    let newname =
+      if myfilename = filename  then
+      "#"^name
+      else
+        filename^"#"^name in
     if !verbose > 0 then
       prerr_endline ("From "^name^" to "^newname) ;
     newname

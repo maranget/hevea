@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.159 2000-01-25 20:54:04 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.160 2000-01-26 17:08:50 maranget Exp $ *)
 
 
 {
@@ -187,11 +187,6 @@ let close_env env  =
 
 let env_check () = !cur_env, !macros, !after, Stack.save stack_env
 and env_hot (e,m,a,s) =
-  if !cur_env != e then begin
-    close_env !cur_env ;
-    Stack.finalize stack_env s
-      (fun (_,m,a,_) -> do_unregister m a)
-  end ;
   cur_env := e ;
   macros := m ;
   after := a ;
@@ -2037,6 +2032,13 @@ def_code "\\begin"
     restore stack_entry old_envi)
 ;;
 
+def_code "\\@begin"
+  (fun lexbuf ->
+     let env = get_prim_arg lexbuf in
+     new_env env ;
+     top_open_block "" "")
+;;
+
 def_code "\\end"
   (fun lexbuf ->
     let env = get_prim_arg lexbuf in
@@ -2044,6 +2046,13 @@ def_code "\\end"
     if env <> "document" then top_close_block "" ;
     close_env env ;
     if env = "document" then raise Misc.EndDocument)
+;;
+
+def_code "\\@end"
+  (fun lexbuf ->
+    let env = get_prim_arg lexbuf in
+    top_close_block "" ;
+    close_env env)
 ;;
 
 let little_more lexbuf =
@@ -2665,13 +2674,14 @@ def_code "\\@try"
     and env_saved = env_check ()
     and saved = Hot.checkpoint ()
     and saved_lexstate = Lexstate.check_lexstate ()
-    and saved_out = Dest.check () in
+    and saved_out = Dest.check ()
+    and saved_get = Get.check () in
     let e1 = save_arg lexbuf in
     let e2 = save_arg lexbuf in
     try
-      top_open_block "" "" ;
+      top_open_block "TEMP" "" ;
       scan_this_arg main e1 ;
-      top_close_block ""
+      top_close_block "TEMP"
     with e -> begin
       Location.hot saved_location ;
       env_hot env_saved ;
@@ -2679,6 +2689,7 @@ def_code "\\@try"
         ("\\@try caught exception : "^Printexc.to_string e) ;
       Lexstate.hot_lexstate saved_lexstate ;
       Dest.hot saved_out ;
+      Get.hot saved_get ;
       Hot.start saved ;
       scan_this_arg main e2
     end)

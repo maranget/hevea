@@ -11,7 +11,7 @@
 
 {
 open Lexing
-let header = "$Id: cut.mll,v 1.24 1999-11-04 23:11:41 maranget Exp $" 
+let header = "$Id: cut.mll,v 1.25 2000-01-26 17:08:38 maranget Exp $" 
 
 let verbose = ref 0
 ;;
@@ -589,7 +589,7 @@ and aargs = parse
       try
         let newname =
           if String.length name > 0 && String.get name 0 = '#' then
-            Cross.fullname (String.sub name 1 (String.length name-1))
+            Cross.fullname !outname (String.sub name 1 (String.length name-1))
           else name in
         put lxm ;
         put "\"" ;

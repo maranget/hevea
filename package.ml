@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.12 2000-01-21 18:49:02 maranget Exp $    *)
+(*  $Id: package.ml,v 1.13 2000-01-26 17:08:56 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -253,9 +253,21 @@ fallback name");
            let s = "FRAME-graphic-not-found" in
            let cmd = "\\swFRAME{"^s^"}" in
            scan_this main cmd
-          end
-  )
-  )
+          end) ;
+  def_code "\\UNICODE"
+    (fun lexbuf ->
+      (* input: \UNICODE{arg} where arg is a hex number, eg 0x23ab *)
+      (* output: call to \swUNICODE{arg1}{arg2} where: *)
+      (*    arg1 = hex number w/o leading 0, eg x23ab *)
+      (*    arg2 = decimal equivalent, eg 9131 *)
+      (* it is up to \swUNICODE (in sword.hva) to do final formatting *) 
+      let lxm = lexeme lexbuf in
+      let t = Subst.subst_arg lexbuf in
+      let s = string_of_int (int_of_string (t)) in
+      let tt = String.sub t (String.index t 'x') (-1+String.length t) in
+      let cmd = "\\swUNICODE{" ^tt^"}{"^s^"}" in
+      scan_this main cmd)
+    )
 ;;
 
 (* url package *)

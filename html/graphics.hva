@@ -3,3 +3,5 @@
   {\execafter{\imageflush{}}\execafter\@imagearg\execafter\@imageopt\@imageopt}
 \@imagecommand{\includegraphics*}
   {\execafter{\imageflush{}}\execafter\@imagearg\execafter\@imageopt\@imageopt}
+\@imagecommand{\rotatebox}
+  {\execafter\imageflush\execafter\@imagearg\@imagearg}

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlCommon.ml,v 1.17 2000-01-25 20:53:56 maranget Exp $" 
+let header = "$Id: htmlCommon.ml,v 1.18 2000-01-26 17:08:41 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -146,12 +146,13 @@ type saved_out = status * stack_item Stack.saved
 let save_out () = !cur_out, Stack.save out_stack
 and restore_out (a,b) =
   if !cur_out != a then begin
-    Out.debug stderr !cur_out.out ;
     free !cur_out ;
     Stack.finalize out_stack
-      (fun x -> x == a)
       (function
-        | Normal (_,_,out) -> Out.debug stderr out.out ; free out
+        | Normal (_,_,x) -> x == a
+        | _ -> false)
+      (function
+        | Normal (_,_,out) -> free out
         | _ -> ())
   end ;  
   cur_out := a ;

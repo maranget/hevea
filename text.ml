@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.39 2000-01-25 20:54:16 maranget Exp $"
+let header = "$Id: text.ml,v 1.40 2000-01-26 17:08:57 maranget Exp $"
 
 
 open Misc
@@ -204,7 +204,10 @@ let save_out () = !cur_out, Stack.save out_stack
 and restore_out (a,b) =
   if !cur_out != a then begin
     free !cur_out ;
-    Stack.finalize out_stack b
+    Stack.finalize out_stack
+      (function
+        | Normal (_,_,out) -> out == a
+        | _ -> false)
       (function
         | Normal (_,_,out) -> if out.temp then free out
         | _ -> ())
@@ -212,7 +215,6 @@ and restore_out (a,b) =
   cur_out := a ;
   Stack.restore out_stack b
 
-let line = String.create (!Parse_opts.width +2);;
 
 type align_t = Left | Center | Right
 
@@ -235,7 +237,7 @@ type flags_t = {
     mutable last_space : int;
     mutable first_line : int;
     mutable underline : string;
-  
+    mutable nocount : bool ;
     mutable in_table : bool;
     
     (* Maths *)
@@ -259,6 +261,7 @@ let flags = {
   last_space = 0;
   first_line = 2;
   underline = "";
+  nocount = false ;
   in_table = false;
   vsize = 0;
 } ;;
@@ -281,6 +284,7 @@ and set_flags f {
   last_space = last_space ;
   first_line = first_line ;
   underline = underline ;
+  nocount = nocount ;
   in_table = in_table ;
   vsize = vsize
 }  =
@@ -299,6 +303,7 @@ and set_flags f {
   f.last_space <- last_space ;
   f.first_line <- first_line ;
   f.underline <- underline ;
+  f.nocount <- nocount ;
   f.in_table <- in_table ;
   f.vsize <- vsize
 
@@ -311,6 +316,7 @@ type stack_t = {
   s_align : align_t Stack.t ;
   s_in_align : bool Stack.t ;
   s_underline : string Stack.t ;
+  s_nocount : bool Stack.t ;
   s_in_table : bool Stack.t ;
   s_vsize : int Stack.t ;
   s_active : Out.t Stack.t ;
@@ -325,6 +331,7 @@ let stacks = {
   s_align = Stack.create "align" ;
   s_in_align = Stack.create "in_align" ;
   s_underline = Stack.create "underline" ;
+  s_nocount = Stack.create "nocount" ;
   s_in_table = Stack.create "in_table" ;
   s_vsize = Stack.create "vsize" ;
   s_active = Stack.create "active" ;
@@ -339,6 +346,7 @@ type saved_stacks = {
   ss_align : align_t Stack.saved ;
   ss_in_align : bool Stack.saved ;
   ss_underline : string Stack.saved ;
+  ss_nocount : bool Stack.saved ;
   ss_in_table : bool Stack.saved ;
   ss_vsize : int Stack.saved ;
   ss_active : Out.t Stack.saved ;
@@ -354,6 +362,7 @@ let save_stacks () =
   ss_align = Stack.save stacks.s_align ;
   ss_in_align = Stack.save stacks.s_in_align ;
   ss_underline = Stack.save stacks.s_underline ;
+  ss_nocount = Stack.save stacks.s_nocount ;
   ss_in_table = Stack.save stacks.s_in_table ;
   ss_vsize = Stack.save stacks.s_vsize ;
   ss_active = Stack.save stacks.s_active ;
@@ -369,6 +378,7 @@ and restore_stacks
   ss_align = saved_align ;
   ss_in_align = saved_in_align ;
   ss_underline = saved_underline ;
+  ss_nocount = saved_nocount ;
   ss_in_table = saved_in_table ;
   ss_vsize = saved_vsize ;
   ss_active = saved_active ;
@@ -381,6 +391,7 @@ and restore_stacks
   Stack.restore stacks.s_align saved_align ;
   Stack.restore stacks.s_in_align saved_in_align ;
   Stack.restore stacks.s_underline saved_underline ;
+  Stack.restore stacks.s_nocount saved_nocount ;
   Stack.restore stacks.s_in_table saved_in_table ;
   Stack.restore stacks.s_vsize saved_vsize ;
   Stack.restore stacks.s_active saved_active ;
@@ -402,6 +413,7 @@ let check_stacks () = match stacks with
   s_align = align ;
   s_in_align = in_align ;
   s_underline = underline ;
+  s_nocount = nocount ;
   s_in_table = in_table ;
   s_vsize = vsize ;
   s_active = active ;
@@ -414,21 +426,25 @@ let check_stacks () = match stacks with
   check_stack align ;
   check_stack in_align ;
   check_stack underline ;
+  check_stack nocount ;
   check_stack in_table ;
   check_stack vsize ;
   check_stack active ;
   check_stack after
 
-type saved = flags_t * saved_stacks * saved_out
+let line = String.create (!Parse_opts.width +2);;
+
+type saved = string * flags_t * saved_stacks * saved_out
 
 let check () =
   let saved_flags = copy_flags flags
   and saved_stacks = save_stacks ()
   and saved_out = save_out () in
-  saved_flags, saved_stacks, saved_out
+  String.copy line, saved_flags, saved_stacks, saved_out
 
   
-and hot (f,s,o) =
+and hot (l,f,s,o) =
+  String.blit  l 0 line 0 (String.length l) ;
   set_flags flags f ;
   restore_stacks s ;
   restore_out o
@@ -446,11 +462,12 @@ let do_do_put_char c =
 let do_do_put  s =
   Out.put !cur_out.out s;;
 
+
 let do_put_line s =
   (* Ligne a formatter selon flags.align, avec les parametres courants.*)
   (* soulignage eventuel *)
   let taille = String.length s in
-  let length = if s.[taille -1]='\n' then taille -1 else taille in
+  let length = if s.[taille-1]='\n' then taille-1 else taille in
   let soul = ref false in
   for i = 0 to length - 1 do
     soul := !soul || s.[i] <> ' ';
@@ -498,7 +515,8 @@ let do_put_line s =
 ;;
 
 let do_flush () =
-  if !verbose>3 && flags.x >0 then prerr_endline ("flush :#"^(String.sub line 0 (flags.x))^"#");
+  if !verbose>3 && flags.x >0 then
+    prerr_endline ("flush :#"^(String.sub line 0 (flags.x))^"#");
   if flags.x >0 then do_put_line (String.sub line 0 (flags.x)) ;
   flags.x <- -1;
 ;;
@@ -790,7 +808,9 @@ let try_open_block s args =
       do_put "<<";
       flags.first_line <-2;
   | "INFO" ->
-      flags.first_line <-0;
+      push stacks.s_nocount flags.nocount ;
+      flags.nocount <- true ;
+      flags.first_line <-0
   | _ -> ();
 
   if !verbose > 2 then
@@ -835,6 +855,8 @@ let try_close_block s =
       flags.first_line <-0;
       do_put ">>\n";
       flags.first_line <-fl;
+  | "INFO" ->
+      flags.nocount <- pop stacks.s_nocount
   | _ -> ()
 ;;
 
@@ -1044,9 +1066,8 @@ let get_current_output () =
 ;;
 
 let finalize check =
-  if check then begin
-    ();
-    end;
+  if check then
+    check_stacks () ;
   finit_ligne () ;
   Out.close !cur_out.out ;
   !cur_out.out <- Out.create_null ()

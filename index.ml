@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: index.ml,v 1.35 1999-12-22 10:45:59 maranget Exp $"
+let header = "$Id: index.ml,v 1.36 2000-01-26 17:08:42 maranget Exp $"
 open Misc
 open Parse_opts
 open Entry
@@ -24,11 +24,12 @@ let missing_index tag =
 ;;
 
 
-type entry = {key : key ; see : string option ; item : string}
+type entry_t = {key : key ; see : string option ; item : string}
 ;;
 
-let bad_entry = {key = [],[] ; see = None ; item = "??"}
-;;
+type entry =
+  | Good of entry_t
+  | Bad
 
 let first_key = function 
   | (x::_),_ -> x
@@ -48,11 +49,9 @@ let pretty_key (l,p) =
 let pretty_entry (k,_) = pretty_key k
 ;;
 
-exception NoGood of string
-;;
-
 type t_index =
   {mutable name : string ;
+  mutable onebad : bool ;
   sufin : string ; sufout : string ;
   from_file : entry array option ;
   from_doc : entry Table.t ;
@@ -64,24 +63,24 @@ let itable = Hashtbl.create 17
 
 let read_index_file name file =
   let lexbuf = Lexing.from_channel file in
-  let r = Table.create bad_entry in
+  let r = Table.create Bad in
   let rec do_rec () =
     try
       let arg1,arg2 = read_indexentry lexbuf in
-      let k,see =
-        try read_key (Lexing.from_string arg1) 
-        with Entry.NoGood -> raise (NoGood arg1) in
-      Table.emit r {key=k ; see=see ; item = arg2} ;
+      let entry =
+        try
+          let k,see = read_key (Lexing.from_string arg1) in
+          Good {key=k ; see=see ; item = arg2}
+        with Entry.NoGood ->
+          Misc.warning
+          ("Bad index arg syntax in file: "^name^
+           ", index entry is ``"^arg1^"''") ;
+          Bad in
+      Table.emit r entry ;
       do_rec ()
     with
-    | Entry.Fini -> Table.trim r
-    | NoGood arg -> begin
-        Misc.warning
-          ("Bad index arg syntax in file: "^name^
-           ", index entry is ``"^arg^"''") ;
-        do_rec ()
-    end in
-    
+    | Entry.Fini -> Table.trim r in
+
   let r = do_rec () in
   if !verbose > 0 then
     prerr_endline ("Index file: "^name^" succesfully read");
@@ -98,12 +97,11 @@ let changename tag name =
 let index_lbl tag i = "@"^tag^string_of_int i
 let index_filename suff = Parse_opts.base_out^".h"^suff
 
-
 let treat tag arg refvalue =
 (*  prerr_endline ("Index treat: "^tag^", "^arg^", "^refvalue) ; *)
   try
     if !verbose > 2 then prerr_endline ("Index.treat with arg: "^arg) ;
-    let {from_doc = from_doc ; out = out} =  find_index tag in
+    let {from_doc = from_doc ; out = out} as idx =  find_index tag in
     let lbl = index_lbl tag (Table.get_size from_doc) in    
     let refvalue = match refvalue with "" -> "??" | s -> s in
     let item = "\\@locref{"^lbl^"}{"^refvalue^"}" in
@@ -114,13 +112,16 @@ let treat tag arg refvalue =
     Out.put out "}\n" ;
     
     let lexbuf = Lexing.from_string arg in
-    begin try
-      let key,see = read_key lexbuf in
-      Table.emit from_doc {key = key ; see = see ; item = item}
-    with
-    | Entry.NoGood ->
-        Misc.warning ("Bad index syntax: ``"^arg^"''")
-    end ;
+    let entry =
+      try
+        let key,see = read_key lexbuf in
+        Good {key = key ; see = see ; item = item}
+      with
+      | Entry.NoGood ->
+          idx.onebad <- true ;
+          Misc.warning ("Bad index syntax: ``"^arg^"''") ;
+          Bad in
+    Table.emit from_doc entry ;
     lbl
   with
   | Not_found -> missing_index tag ; ""
@@ -253,10 +254,13 @@ let print_entry out tag entries bk k xs  =
     [] -> Out.put_char out '\n'
   | i::r ->
       Out.put out ", " ;
-      let e = entries.(i) in
-      begin match e.see with
-      | None     ->  Out.put out e.item
-      | Some see ->  Out.put out ("\\"^see^"{"^e.item^"}")
+      begin match entries.(i) with
+      | Good e ->
+          begin match e.see with
+          | None     ->  Out.put out e.item
+          | Some see ->  Out.put out ("\\"^see^"{"^e.item^"}")
+          end ;
+      | Bad -> ()
       end ;
       prints r in
 
@@ -268,9 +272,11 @@ let make_index t =
   let table = Hashtbl.create 17
   and all = ref KeySet.empty in
   for i = 0 to Array.length t - 1 do
-    let e = t.(i) in
-    all := KeySet.add e.key !all ;
-    Hashtbl.add table e.key i
+    match t.(i) with
+    | Good e ->
+        all := KeySet.add e.key !all ;
+        Hashtbl.add table e.key i
+    | Bad -> ()
   done ;
   !all,table
 
@@ -312,9 +318,10 @@ let newindex tag sufin sufout name =
   end ;
   Hashtbl.add itable tag
     {name = name ;
+    onebad = false ;
     sufin = sufin ; sufout = sufout ;
     from_file = from_file ;
-    from_doc = Table.create bad_entry ;
+    from_doc = Table.create Bad ;
     out = Out.create_buff ()}
 
 let print main tag =
@@ -358,11 +365,11 @@ let finalize check =
           match idx.from_file with
           | Some t -> diff_entries t entries
           | None   -> Array.length entries <> 0 in
-        if changed then begin
-          top_changed := true ;
+        if changed || idx.onebad then begin
+          top_changed := !top_changed || changed ;
           let idxname = index_filename idx.sufin in
           try
-            if Array.length entries = 0 then
+            if Array.length entries = 0 && not idx.onebad then
               Myfiles.remove idxname 
             else begin
               let chan = open_out idxname in

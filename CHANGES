@@ -1,5 +1,10 @@
 
 version 1.05-6
+  - Bad index entries are better treated
+  - nasty regression bug in \bibitem, example in suite.tex
+  - \label and \ref allowed in section headers (by a new @norefs environment)
+  - \@try{txt1}{txt2} as exception handler -> Generalized checkpoints and
+    hot starts.
   - New primitive \@getprint : get_prim_arg + \@notags + Dest.put,
     for HTML attributes
   - Bug exception NoGood (entry.mll and index.tex)

@@ -11,7 +11,7 @@
 
 open Misc
 
-let header = "$Id: auxx.ml,v 1.7 2000-01-19 20:10:56 maranget Exp $" 
+let header = "$Id: auxx.ml,v 1.8 2000-01-26 17:08:36 maranget Exp $" 
 
 let rtable = Hashtbl.create 17
 ;;
@@ -33,11 +33,14 @@ let bset name value =  Hashtbl.add btable name value
 ;;
 
 let bget warn name =
-  try Hashtbl.find btable name with Not_found ->
-  begin
-    if warn then warning ("Undefined citation: "^name) ;
-    "{"^name^"}"
-  end
+  let r =
+    try Hashtbl.find btable name with Not_found ->
+      begin
+        if warn then warning ("Undefined citation: "^name) ;
+        "{"^name^"}"
+      end in
+(*  prerr_endline ("bget "^name^" -> "^r) ; *)
+  r
 ;;
 
 let auxfile = ref None

@@ -18,7 +18,7 @@ open Lexstate
 open Stack
 
 (* Compute functions *)
-let header = "$Id: get.mll,v 1.14 1999-11-16 12:35:11 maranget Exp $"
+let header = "$Id: get.mll,v 1.15 2000-01-26 17:08:40 maranget Exp $"
 
 exception Error of string
 
@@ -34,12 +34,28 @@ and close_env = ref (fun _ -> ())
 
 let bool_out = ref false
 and int_out = ref false
-;;
 
 let int_stack = Stack.create "int_stack"
 and bool_stack = Stack.create "bool_stack"
 and group_stack = Stack.create "group_stack"
 and just_opened = ref false
+
+type saved =
+  bool * bool Stack.saved *
+  bool * int Stack.saved * 
+  (unit -> unit) Stack.saved * bool
+
+let check () =
+  !bool_out, Stack.save bool_stack,
+  !int_out, Stack.save int_stack,
+  Stack.save group_stack,
+  !just_opened
+
+and hot (b,bs,i,is,gs,j) =
+  bool_out := b ; Stack.restore bool_stack bs ;
+  int_out := i ; Stack.restore int_stack is ;
+  Stack.restore group_stack gs ;
+  just_opened := j
 
 let push_int x =
   if !verbose > 2 then
