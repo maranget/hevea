@@ -1,4 +1,4 @@
-let header =  "$Id: lexstate.ml,v 1.27 1999-09-07 18:47:58 maranget Exp $"
+let header =  "$Id: lexstate.ml,v 1.28 1999-09-08 20:26:44 maranget Exp $"
 
 open Misc
 open Lexing
@@ -80,7 +80,15 @@ let stack_lexbuf = Stack.create "stack_lexbuf"
 let pretty_lexbuf lb =
   let  pos = lb.lex_curr_pos and len = String.length lb.lex_buffer in
   prerr_endline "Buff contents:" ;
-  prerr_endline ("<<"^String.sub lb.lex_buffer pos (len-pos)^">>");
+  let size = if !verbose > 3 then len-pos else min (len-pos) 80 in
+  if size <> len-pos then begin
+    prerr_string "<<" ;
+    prerr_string (String.sub lb.lex_buffer pos (size/2)) ;
+    prerr_string "... (omitted) ..." ;
+    prerr_string (String.sub lb.lex_buffer (len-size/2-1) (size/2)) ;
+    prerr_endline ">>"
+  end else
+    prerr_endline ("<<"^String.sub lb.lex_buffer pos size^">>");
   prerr_endline ("curr_pos="^string_of_int lb.lex_curr_pos);
   prerr_endline "End of buff"
 ;;

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: myfiles.ml,v 1.17 1999-08-30 17:59:29 maranget Exp $" 
+let header = "$Id: myfiles.ml,v 1.18 1999-09-08 20:26:46 maranget Exp $" 
 open Misc
 
 exception Error of string
@@ -64,7 +64,10 @@ let open_tex filename =
     prerr_endline ("Searching file: "^filename) ;
   if is_except filename then raise Except ;
   if Filename.is_implicit filename then
-    if Filename.check_suffix filename ".tex" then do_open_tex filename
+    if
+      Filename.check_suffix filename ".tex" ||
+      Filename.check_suffix filename ".hva"
+    then do_open_tex filename
       else
         try
             let name = filename^".tex" in

@@ -450,7 +450,7 @@
 }\@print{<HTML>
 }%
 \@print{<HEAD><TITLE>}%
-\@notags{\@title}%
+\@notags{\usebox{\@title}}%
 \@print{</TITLE>
 }\@meta%
 \ifmathml\@print{<STYLE type="text/css">

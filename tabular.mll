@@ -2,8 +2,9 @@
 open Misc
 open Lexing
 open Table
+open Lexstate
 
-let header = "$Id: tabular.mll,v 1.14 1999-09-08 15:11:33 maranget Exp $"
+let header = "$Id: tabular.mll,v 1.15 1999-09-08 20:26:47 maranget Exp $"
 
 exception Error of string
 ;;
@@ -67,8 +68,6 @@ and pop s = match !s with
 
 let out_table = Table.create (Inside "")
 
-let scan_this lexfun s = lexfun (Lexing.from_string s)
-
 let pretty_format = function
   |   Align {vert = v ; hor = h ; pre = pre ; post = post ; wrap = b ; width = w}
       ->
@@ -98,11 +97,7 @@ rule tfone = parse
         | _ -> raise (Error "Bad syntax in array argument (>)"))
     with Failure "Table.apply" ->
       raise (Error "Bad syntax in array argument (>)")}
-| "" {let rest =
-    String.sub lexbuf.lex_buffer lexbuf.lex_curr_pos
-      (lexbuf.lex_buffer_len - lexbuf.lex_curr_pos) in
-  prerr_endline ("ONE -> "^rest) ;
-  tfmiddle lexbuf}
+| "" {tfmiddle lexbuf}
 
 and tfmiddle = parse
   'c'|'l'|'r'
@@ -128,7 +123,6 @@ and tfmiddle = parse
 
 | ['a'-'z''A'-'Z']
     {let lxm = lexeme lexbuf in
-    prerr_endline ("LXM: "^lxm) ;
     let name = column_to_command lxm in
     let pat,body = Latexmacros.find_macro name in
     let args = Lexstate.make_stack name pat lexbuf in
