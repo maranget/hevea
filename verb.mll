@@ -701,21 +701,6 @@ let noeof lexer lexbuf =
         (Misc.Close
            ("End of file in environment: ``"^ !Scan.cur_env^"'' ("^s^")"))
   | EndVerb -> ()
-(*
-and verb_input lexer file =
-  let save = !Scan.cur_env in
-  Scan.cur_env := "*verb-file*" ;
-  begin try
-    input_file !verbose
-      (fun lexbuf ->
-        try lexer lexbuf with Eof _ -> raise Misc.EndInput)
-      file
-  with
-  | Myfiles.Except -> ()
-  | Myfiles.Error _ -> ()
-  end ;
-   Scan.cur_env := save
-*)
 
 let open_verbenv star =
   Scan.top_open_block "PRE" "" ;

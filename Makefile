@@ -73,7 +73,7 @@ hacha.opt: ${OPTSCUT}
 	${OCAMLOPT} -o $@ ${OPTSCUT}
 
 mylib.cmo: mylib.ml mylib.cmi
-	${OCAMLCI} -pp '${CPP} -DLIBDIR=\"${LIBDIR}\"' -c mylib.ml
+	${OCAMLCI} ${OCAMLFLAGS} -pp '${CPP} -DLIBDIR=\"${LIBDIR}\"' -c mylib.ml
 
 mylib.cmx: mylib.ml mylib.cmi
 	${OCAMLOPT} -pp '${CPP} -DLIBDIR=\"${LIBDIR}\"' -c mylib.ml
@@ -102,10 +102,14 @@ cutfoot-eng.html: cutfoot.tex html/hevea.hva ${HEVEA}
 .c:
 	$(CC) $(CFLAGS) -o $@ $<
 
-clean:
+cleanbyte:
+	rm -f *.byte
+	rm -f *.cmo
+
+clean: cleanbyte
 	rm -f *.byte *.opt
 	rm -f $(GENSRC)
-	rm -f *.o *.cmi *.cmo *.cmix *.cmx *.o *.ppo *.ppi
+	rm -f *.o *.cmi *.cmo *.cmx *.o *.ppo *.ppi
 	rm -f *~ #*# html/*~ html/#*# text/*~ text/#*# info/*~ info/#*# 
 	rm -f cutfoot-fra.html cutfoot-eng.html
 

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: image.ml,v 1.24 2001-02-20 12:59:00 maranget Exp $" 
+let header = "$Id: image.ml,v 1.25 2001-02-20 14:10:09 maranget Exp $" 
 open Misc
 
 let base = Parse_opts.base_out
@@ -25,7 +25,6 @@ let active = ref false
 ;;
 
 let start () =
-  prerr_endline "Image.start" ;
   active := true ;
   count := 0 ;
   buff := Out.create_buff ()
