@@ -48,7 +48,7 @@ open Save
 open Tabular
 open Lexstate
 
-let header = "$Id: latexscan.mll,v 1.81 1999-05-03 14:22:13 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.82 1999-05-06 15:03:28 maranget Exp $" 
 
 let sbool = function
   | false -> "false"
@@ -347,6 +347,7 @@ let get_this lexfun s =
   r
 ;;
 
+let get_this_nostyle main s = get_this main ("\\@nostyle{}"^s)
 
 let subst_buff = Out.create_buff ()
 ;;
@@ -1014,7 +1015,10 @@ rule  main = parse
   | ('_' | '^')
      {let lxm = lexeme lexbuf in
      if !alltt then Html.put lxm
-     else begin
+     else if not !in_math then begin
+       warning ("``"^lxm^"''occuring outside math mode") ;
+       Html.put lxm
+     end else begin
        let sup,sub = match lxm with
          "^" ->
            let sup = Save.arg lexbuf in
@@ -1143,10 +1147,7 @@ rule  main = parse
         let lexfun = 
             let macro = "\\"^env in
             (fun lb ->
-              if env = "alltt" then begin
-                alltt := true ;
-                top_open_block "PRE" ""
-              end else if env <> "document" then
+              if env <> "document" then
                 top_open_block "" "" ;
               let old_envi = save_stack stack_entry in
               push stack_entry env ;
@@ -1184,10 +1185,7 @@ rule  main = parse
         scan_this main "}" ; Html.close_group () ; main lexbuf
     | _ ->
         scan_this main ("\\end"^env) ;
-        if env = "alltt" then  begin
-          alltt := false ;
-          top_close_block "PRE"
-        end else (if env <> "document" then top_close_block "") ;
+        begin if env <> "document" then top_close_block "" end ;
         close_env env ;
         if env <> "document" then main lexbuf
     end}
@@ -1233,7 +1231,7 @@ rule  main = parse
         Html.open_block "TD" ""
       end else begin
         if !display then
-          warning "\\ in display mode, ignored"
+          warning "\\\\ in display mode, ignored"
         else
           Html.skip_line ()
       end ;
@@ -1319,8 +1317,9 @@ rule  main = parse
 | '{' 
     {if !Latexmacros.activebrace then
       top_open_group ()
-    else
-      Html.put_char '{';
+    else begin
+      Html.put_char '{'
+    end ;
     main lexbuf}
 | '}' 
     {if !Latexmacros.activebrace then begin
@@ -2009,7 +2008,7 @@ def_code "\\@incsize"
 def_code "\\htmlcolor"
   (fun lexbuf _ ->
           let arg = save_arg lexbuf in
-          let arg = get_this main ("\\@nostyle "^arg) in
+          let arg = get_this_nostyle main arg in
           Html.open_mod (Color ("\"#"^arg^"\"")) )
 ;;
 def_code "\\@defaultdt"
@@ -2176,7 +2175,7 @@ def_code "\\@footnotetext"
 def_code "\\@footnoteflush"
   (fun lexbuf _ ->
     let sec_here = subst_arg subst lexbuf
-    and sec_notes = get_this main "\\@nostyle\\@footnotelevel" in
+    and sec_notes = get_this_nostyle main "\\@footnotelevel" in
     start_lexstate () ;
     Foot.flush (scan_this main) sec_notes sec_here ;
     restore_lexstate ())
@@ -2228,7 +2227,7 @@ def_code "\\char"
       prerr_endline ("Warning: \\char");
     end ;
     Html.put (Html.iso (Char.chr arg)) ;
-    skip_blanks lexbuf)
+    if not !alltt then skip_blanks lexbuf)
 ;;
 
 def_code "\\symbol"
@@ -2262,7 +2261,7 @@ def_code "\\pageref"
 def_code "\\@index"
   (fun lexbuf _ ->
     let save_last_closed = Html.get_last_closed () in
-    let tag = subst_opt "default" subst lexbuf in
+    let tag = get_this_nostyle main (save_opt "default" lexbuf) in
     let arg = subst_arg subst lexbuf in
     begin try
       Index.treat (check_this main) tag arg
@@ -2274,7 +2273,7 @@ def_code "\\@index"
 def_code "\\@printindex"
   (fun lexbuf _ ->
     start_lexstate () ;
-    let tag =  subst_opt "default" subst lexbuf in
+    let tag =  get_this_nostyle main (save_opt "default" lexbuf) in
     begin try
       Index.print (scan_this main) tag
     with Index.Error s -> raise (Error s)
@@ -2282,8 +2281,15 @@ def_code "\\@printindex"
     restore_lexstate ())
 ;;
 
+def_code "\\@indexname"
+  (fun lexbuf _ ->
+    let tag = get_this_nostyle main (save_opt "default" lexbuf) in
+    let name = subst_arg subst lexbuf in
+    Index.changename tag name)
+;;
+
 let new_index lexbuf _ =
-  let tag = subst_arg subst lexbuf in
+  let tag = get_this_nostyle main (save_arg lexbuf) in
   let suf = subst_arg subst lexbuf in
   let _   = save_arg lexbuf in
   let name = subst_arg subst lexbuf in
@@ -2328,7 +2334,7 @@ def_code "\\refstepcounter"
   (fun lexbuf _ ->
           let name = subst_arg subst lexbuf in
           Counter.step_counter name ;
-          Counter.setrefvalue (get_this main ("\\@nostyle\\the"^name)) )
+          Counter.setrefvalue (get_this_nostyle main ("\\the"^name)) )
 ;;
 
 def_code "\\numberwithin"

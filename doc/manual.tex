@@ -2373,6 +2373,10 @@ simple subscript and superscript are rendered using the \verb+<SUB>+
 and \verb+<SUP>+ text-level elements and their appearance should be correct
 both in in-text and displayed  formulas.
 
+When occuring outside math mode, characters \verb+_+ and \verb+^+ act as
+ordinary characters and get echoed to the output. However, a warning
+is issued.
+
 The n$^{\mbox{th}}$ root command \verb+\sqrt+ is not supported.
 The ``root'' symbol is not necessary, thanks
 to fractional exponents. For instance, the \verb+\sqrt+ command can be
@@ -2831,7 +2835,7 @@ The \verb+\includeonly+ command is supported, while the
 \subsection{Index and Glossary}\label{index}
 \hevea{} supports several simultaneous indexes, following the scheme
 of the
-\footurl{ftp://theory.lcs.mit.edu//pub/tex/index/}{\filename{index}} style,
+\footurl{ftp://theory.lcs.mit.edu//pub/tex/index/}{\texttt{index}} package,
 which is present in modern \LaTeX{} distributions.
 This scheme is backward compatible with the standard indexing scheme
 of \LaTeX.
@@ -2861,11 +2865,17 @@ standard \LaTeX{} behavior for the \verb+\index+ command without an
 optional argument.
 There also exists a stared-variant \verb+\index*+ that Additionally
 typesets {\it arg}.
+\item[{\tt\char92 printindex[}{\it tag}{\tt]}] Compute, format and
+output index whose tag is \textit{tag}. The {\it tag} argument defaults to \verb+default+.
 \end{description}
 
 Glossaries are not handled (who uses them ?) and the \verb+theindex+
 environment does not 
 exist (since \hevea{} computes its own indexes).
+
+The alternative \texttt{multind} package for multiple indexes is also
+supported, using a
+compatibility \texttt{multind.hva} file, see section~\ref{multind}.
 
 \subsection{Terminal Input and Output}
 
@@ -3358,11 +3368,15 @@ The \hevea{} distribution includes a few ``\texttt{.hva}'' files that
 are not loaded by default. Thus, these files are to be loaded
 explicitely either by giving them as command line arguments or as
 arguments to the \verb+\input+ command.
-\begin{description}
-\item[{\tt mathaccents.hva}] For typesetting the math accents commands
+
+\subsection{Accents in maths}
+Loading the \texttt{mathaccents.hva} style files enables
+default typesetting of the math
+accents commands
 (\verb+\hat+, \verb+\tilde+,\ldots), see Section~\ref{mathaccents}.
 
-\item[{\tt ams.hva}] This file defines some of the constructs of the
+\subsection{AMS compatibilty}
+This \texttt{ams.hva} style file defines some of the constructs of the
 \texttt{amstex} package.  At the moment, supported constructs are
 the \verb+cases+ environment and matrix
 environments~\cite[Section~8.4]{latexbis}, the
@@ -3370,7 +3384,19 @@ environments for multiline displayed
 equations (\verb+gather+,
 \verb+split+,\ldots)~\cite[Section~8.5]{latexbis} and the
 \verb+\numberwithin+ command~\cite[Section~8.6.2]{latexbis}.
-\end{description}
+
+\subsection{The \texttt{multind} package}\label{multind}
+
+The \texttt{multind.hva} style files provides compatibility with the
+\texttt{multind} package for multiple indexes.
+When a document loads the \texttt{multind} package, \hevea{} should
+explicitely load the  \texttt{multind.hva} file.
+Loading this file redefines the \verb+\makeindex+, \verb+\printindex+
+and \verb+\index+ commands, so that they accept an extra (mandatory) first
+argument, which is interpreted as the tag of a particular index.
+
+Note that this style for indexes is not backward compatible with
+\LaTeX{} default indexing scheme.
 
 \setcounter{section}{0}
 \part{Practical information}

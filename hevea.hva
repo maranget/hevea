@@ -459,7 +459,7 @@
 \newcommand{\centering}{\@insert{DIV}{ALIGN=center}}
 \newcommand{\raggedleft}{\@insert{DIV}{ALIGN=right}}
 \newcommand{\raggedright}{\@insert{DIV}{ALIGN=left}}
-
+\newenvironment{alltt}{\alltttrue\@open{PRE}{}}{\@close{PRE}\allttfalse}
 
 %%%%%%%%%%% Figures
 

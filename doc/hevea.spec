@@ -33,7 +33,6 @@ make install LIBDIR=/usr/lib/hevea BINDIR=/usr/bin
 /usr/lib/hevea/book.hva
 /usr/lib/hevea/report.hva
 /usr/lib/hevea/seminar.hva
-/usr/lib/hevea/contents_motif.gif
 /usr/lib/hevea/cutfoot-eng.html
 /usr/lib/hevea/cutfoot-fra.html
 /usr/lib/hevea/footer.tex
@@ -41,6 +40,8 @@ make install LIBDIR=/usr/lib/hevea BINDIR=/usr/bin
 /usr/lib/hevea/hevea.sty
 /usr/lib/hevea/ams.hva
 /usr/lib/hevea/mathaccents.hva
+/usr/lib/hevea/multind.hva
+/usr/lib/hevea/contents_motif.gif
 /usr/lib/hevea/next_motif.gif
 /usr/lib/hevea/previous_motif.gif
 

@@ -12,6 +12,7 @@ module type T =
   sig
     exception Error of string
     val newindex : string -> string -> string -> unit
+    val changename : string -> string -> unit
     val treat: (string -> bool) -> string -> string -> unit
     val print: (string -> unit) -> string -> unit
   end
@@ -19,23 +20,62 @@ module type T =
 module Make (Html : OutManager.S) =
 struct
 
-let header = "$Id: index.ml,v 1.19 1999-04-07 19:24:51 maranget Exp $"
+let header = "$Id: index.ml,v 1.20 1999-05-06 15:03:22 maranget Exp $"
 open Misc
 open Parse_opts
 open Entry
 
 exception Error of string
 
+let is_alpha c =  ('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z')
+
+let compare_char c1 c2 =
+  if is_alpha c1 && is_alpha c2 then compare c1 c2
+  else if is_alpha c1 then 1
+  else if is_alpha c2 then -1
+  else compare c1 c2
+
+exception Result of int
+
+let compare_string s1 s2 =
+  let i = ref 0
+  and l1 = String.length s1
+  and l2 = String.length s2 in
+  begin try
+    while true do
+      begin if !i >= l1 then
+        if !i >= l2 then raise (Result 0)
+        else raise (Result (-1))
+      else if !i >= l2 then raise (Result 1)
+      else
+        let c = compare_char s1.[!i] s2.[!i] in
+        if c <> 0 then raise (Result c)
+      end ;
+      i := !i + 1
+    done ;
+    0
+  with Result x -> x
+  end
+   
 let comp (l1,p1) (l2,p2) =
 
-  let rec c_rec k l1 l2 = match l1,l2 with
-  [],[] -> k p1 p2
-| [],_  -> -1
-| _,[]  -> 1
-| x1::r1,x2::r2 ->
-     let t = compare (String.capitalize x1) (String.capitalize x2) in
-     if t=0 then c_rec k r1 r2 else t in
-  c_rec (fun p1 p2 -> c_rec (fun _ _ -> 0) p1 p2) l1 l2
+  let rec c_rec l1 l2 p1 p2 = match l1,l2 with
+  | [],[] -> 0    
+  | [],_  -> -1
+  | _,[]  -> 1
+  | x1::r1,x2::r2 ->
+      let t = compare_string (String.capitalize x1) (String.capitalize x2) in
+      if t<> 0 then t
+      else begin
+        match p1,p2 with
+        | y1::p1, y2::p2 ->
+            let t = compare_string y1 y2 in
+            if t <> 0 then t
+            else
+              c_rec r1 r2 p1 p2
+        | _,_ -> assert false
+      end in
+  c_rec l1 l2 p1 p2
 ;;
 
 type key = string list * string list
@@ -43,6 +83,10 @@ type key = string list * string list
 
 type entry = key * string
 ;;
+
+let first_key = function 
+  | (x::_),_ -> x
+  | _ -> raise (Misc.Fatal ("Empty key in first_key"))
 
 let pretty_key (l,p) =
  let rec p_rec l p = match l,p with
@@ -177,6 +221,15 @@ let find_index tag =
   with Not_found ->
     raise (Error ("Missing \makeindex for index: "^tag))
 
+let changename tag name =
+  try
+    let _,r1,r2,r3,r4 = Hashtbl.find itable tag in
+    Hashtbl.remove itable tag ;
+    Hashtbl.add itable tag (name,r1,r2,r3,r4)        
+  with Not_found ->
+    Parse_opts.warning ("Index.changename of "^tag^": no such index")
+
+
 let treat lexcheck tag arg =
   try
     if !verbose > 2 then prerr_endline ("Index.treat with arg: "^arg) ;
@@ -251,11 +304,22 @@ let rec open_this  main k = match k with
 |  _ -> assert false
 ;;
 
+let start_change s1 s2 = match s1,s2 with
+| "",_ -> false
+| _,"" -> false
+| _,_  -> Char.uppercase s1.[0] <> Char.uppercase s2.[0]
 
 let print_entry main bk k xs  =
   let rp,rt = common bk k in
   close_prev rp ;
-  if fst rp = [] then Html.open_block "UL" "" ;
+  if fst rp = [] then
+    Html.open_block "UL" ""
+  else begin
+    let top_prev = first_key bk
+    and top_now = first_key k in
+    if start_change top_prev top_now then
+      main "\\par"
+  end ;
   open_this main rt ;  
   let rec prints = function
     [] -> ()
@@ -276,7 +340,7 @@ let print_entry main bk k xs  =
 
      
     
-let print main  tag =
+let print main tag =
   if !verbose > 1 then prerr_endline ("Print index ``"^tag^"''") ;
   let name,all,table,_,_ = find_index tag in
   main ("\\@indexsection{"^name^"}") ;
@@ -291,5 +355,4 @@ let print main  tag =
  List.iter (fun _ -> Html.close_block "UL") pk ;
 ;;
 
-  
 end

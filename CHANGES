@@ -1,4 +1,8 @@
 version 1.04-1
+  - mutind.hva compatibility file (added a \indexname internal command).
+  - Better looking indexes, index tags get expanded.
+  - New behavior for ``_'' and ``^'' outside math mode: they are
+    echoed and a warning is issued
   - Simplified ``space after macro'' managment.
   - Mathematical accents added, rendering is far from perfect.
   - \\ in display mode does not emit <BR> anymore

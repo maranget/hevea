@@ -11,7 +11,7 @@
 
 {
 open Lexing
-let header = "$Id: cut.mll,v 1.16 1999-04-02 17:08:32 maranget Exp $" 
+let header = "$Id: cut.mll,v 1.17 1999-05-06 15:03:20 maranget Exp $" 
 
 let verbose = ref 0
 ;;
@@ -560,10 +560,10 @@ and tocline = parse
     tocline lexbuf}
 
 and refname = parse
-  '"' [^'"']* '"'
+|  '"' [^'"']* '"'
    {let lxm = lexeme lexbuf in
    String.sub lxm 1 (String.length lxm-2)}
-| ['a'-'z' '.' 'A'-'Z' '0'-'9']+
+| [^' ''\n''>']+
    {lexeme lexbuf}
 | "" {raise (Error "Bad reference name syntax")}
 

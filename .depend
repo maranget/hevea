@@ -88,10 +88,10 @@ tabular.cmx: get.cmx latexmacros.cmx length.cmx lexstate.cmx misc.cmx \
     parse_opts.cmx save.cmx table.cmx tabular.cmi 
 thread.cmo: thread.cmi 
 thread.cmx: thread.cmi 
-verb.cmo: get.cmi latexmacros.cmi latexscan.cmi misc.cmi myfiles.cmi \
-    outManager.cmi verb.cmi 
-verb.cmx: get.cmx latexmacros.cmx latexscan.cmx misc.cmx myfiles.cmx \
-    outManager.cmi verb.cmi 
+verb.cmo: get.cmi image.cmi latexmacros.cmi latexscan.cmi lexstate.cmi \
+    misc.cmi myfiles.cmi outManager.cmi save.cmi verb.cmi 
+verb.cmx: get.cmx image.cmx latexmacros.cmx latexscan.cmx lexstate.cmx \
+    misc.cmx myfiles.cmx outManager.cmi save.cmx verb.cmi 
 version.cmo: version.cmi 
 version.cmx: version.cmi 
 videoc.cmo: html.cmi image.cmi latexmacros.cmi latexscan.cmi lexstate.cmi \

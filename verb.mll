@@ -92,8 +92,7 @@ and verblatex = parse
     {let lxm = lexeme lexbuf in
     let env = env_extract lxm in
     if env = !Scan.cur_env then begin
-      Scan.close_env env ;
-      Image.put_char '\n'
+      Scan.close_env env
     end else      
       verblatex lexbuf}
 |  _ 
@@ -101,14 +100,15 @@ and verblatex = parse
 |  eof {raise (Error ("End of file inside ``verblatex'' environment"))}
 
 and verbimage = parse
-  "\\end"
+|  "\\end"
     {let lxm = lexeme lexbuf in
     Save.start_echo () ;
     let env = save_arg lexbuf in
     let true_env = Save.get_echo () in
-    if env = "verbimage" then
+    if env = "verbimage" then begin
+      Scan.close_env env ;
       Image.put_char '\n'
-    else begin
+    end else begin
       Image.put lxm ;
       Image.put true_env ;
       verbimage lexbuf

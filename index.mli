@@ -13,6 +13,7 @@ module type T =
   sig
     exception Error of string
     val newindex : string -> string -> string -> unit
+    val changename : string -> string -> unit
     val treat: (string -> bool) -> string -> string -> unit
     val print: (string -> unit) -> string -> unit
   end
