@@ -89,6 +89,11 @@ and nrows_stack = ref []
 let delay_stack = ref []
 ;;
 
+let nitems = ref 0
+and nitems_stack = ref []
+;;
+
+
 
 
 type stack_item =
@@ -168,6 +173,32 @@ let empty = ref true
 and empty_stack = ref []
 ;;
 
+let pending_par = ref false
+and par_stack = ref []
+;;
+
+let is_header s =
+  String.length s = 2 && String.get s 0 = 'H'
+;;
+
+let is_list = function
+  "UL" | "DL" | "OL" -> true
+| _ -> false
+;;
+
+let last_closed = ref "rien"
+;;
+
+let flush_par () =
+  last_closed := "rien" ;
+  pending_par := false ;
+  do_put "<BR><BR>\n" ;
+  vsize := !vsize + 2
+;;
+
+let par () =
+  if not (is_header !last_closed) then pending_par := true
+;;
 
 let debug m =
   Printf.fprintf stderr "%s : table_vsize=%d vsize=%d" m !table_vsize !vsize ;
@@ -208,7 +239,12 @@ let do_open_mods () =
   !cur_out.pending <- []
 ;;
 
-let do_pending () =
+
+let do_pending () =  
+  if !pending_par then begin
+    flush_par ()
+  end ;
+  last_closed := "rien" ;
   do_open_mods ()
 ;;
 
@@ -319,15 +355,28 @@ let rec open_mods = function
 let sbool = function true -> "+" | _ -> "-"
 ;;
 
+let pstart = function
+  "H1" | "H2" | "H3" | "H4" | "H5" | "H6" -> true
+| "PRE" -> true
+| "DIV" -> true
+| "BLOCKQUOTE" -> true
+| "UL" | "OL" | "DL"-> true
+| _ -> false
+;;
+
+
 let rec try_open_block s args =
   if !verbose > 1 then
-    prerr_endline ("try in "^s^" : "^sbool !empty);
+    prerr_endline ("try in "^s^" : "^sbool !empty);  
   if s = "DISPLAY" then begin
     try_open_block "TABLE" args ;
     try_open_block "TR" ""
   end else begin
     push empty_stack !empty ;
+    if pstart s then pending_par := false ;
+    push par_stack !pending_par ;    
     empty := true ;
+    pending_par := false ;
     if s = "TABLE" then begin
       push table_stack !table_vsize ;
       push vsize_stack !vsize ;
@@ -340,12 +389,11 @@ let rec try_open_block s args =
     end else if s = "TD" then begin
       push vsize_stack !vsize ;
       vsize := 1
+    end else if is_list s then begin
+      push nitems_stack !nitems;
+      nitems := 0
     end
   end
-;;
-
-let is_header s =
-  String.length s = 2 && String.get s 0 = 'H'
 ;;
 
 let rec do_open_block s args = match s with
@@ -355,7 +403,7 @@ let rec do_open_block s args = match s with
    do_open_block "TR" ""
 | _  ->
     if s = "TR" || s = "TABLE" || is_header s then
-      do_put_char '\n';
+      do_put "\n\n";
     do_put_char '<' ;
     do_put s ;
     if args <> "" then begin
@@ -374,6 +422,7 @@ let rec try_close_block s =
   end else begin
     let here = !empty in
     empty := here && pop empty_stack ;
+    pending_par := pop par_stack ;
     if !verbose > 1 then
       prerr_string (" -> "^sbool !empty);
     if s = "TABLE" then begin
@@ -388,6 +437,8 @@ let rec try_close_block s =
     end else if s = "TD" then begin
       let p_vsize = pop vsize_stack in
       vsize := max p_vsize !vsize
+    end else if is_list s then begin
+      nitems := pop nitems_stack
     end
   end ;
   if !verbose > 1 then
@@ -405,7 +456,7 @@ let rec do_close_block s = match s with
   do_put s ;
   do_put_char '>' ;
   do_put_char '\n' ;
-  if s = "P" || s = "DIV" || s = "PRE" then
+  if s = "DIV" || s = "PRE" then
     do_put_char '\n' ;
 ;;
 
@@ -421,22 +472,12 @@ let pop_freeze () = match !out_stack with
 | _ -> (fun () -> ()),false
 ;;
 
-let pstart = function
-  "H1" | "H2" | "H3" | "H4" | "H5" | "H6" -> true
-| "PRE" -> true
-| "DIV" -> true
-| "BLOCKQUOTE" -> true
-| "UL" | "OL" | "DL"-> true
-| _ -> false
-;;
-
 
 let rec force_block s content =
   if !verbose > 1 then begin
     prerr_string ("force_block: "^s^" stack: ");
     pretty_stack !out_stack
   end ;
-  if pblock () = "P" && (s <> "P" && s <> "FORGET") then close_par () ;
   if !empty then begin
     if s <> "FORGET" then begin
       empty := false;
@@ -445,13 +486,15 @@ let rec force_block s content =
       do_put content
     end
   end ;
+  let was_empty = !empty in
   if s = "PRE" then in_pre := false ;
-  do_close_mods () ;  
-  try_close_block (if s = "FORGET" then pblock() else s) ;
-  do_close_block (if s = "FORGET" then pblock() else s) ;
+  do_close_mods () ;
+  let true_s = if s = "FORGET" then pblock() else s in
+  try_close_block true_s ;
+  do_close_block true_s ;
   let ps,args,pout = pop_out out_stack in  
-  if ps <> s && s <> "FORGET" then
-    failwith ("hml: "^s^" closes "^ps) ;
+  if ps <> true_s then
+    failwith ("hml: "^true_s^" closes "^ps) ;
   let old_out = !cur_out in  
   cur_out := pout ;
   if s = "FORGET" then free old_out
@@ -464,7 +507,7 @@ let rec force_block s content =
     prerr_endline ("Buff status: "^s) ;
     Out.debug stderr !cur_out.out ;
 *)
-    free old_out ;
+    free old_out ;    
     !cur_out.pending <- mods
   end else begin (* s = "DELAY" *)
     let f = pop delay_stack in
@@ -475,10 +518,8 @@ let rec force_block s content =
     Out.copy old_out.out !cur_out.out ;
     free old_out ;
     !cur_out.pending <- mods
-  end (* ;
-  if pstart s then
-    open_par ()
-*)
+  end ;
+  if not was_empty then last_closed := true_s
 
 and close_block_loc pred s =
   if !verbose > 1 then
@@ -517,7 +558,8 @@ and open_block s args =
    prerr_string ("open_block: "^s^" "^args^" stack=") ;
    pretty_stack !out_stack
  end ;
- if s <> "" then close_fullpar () ;
+ if !pending_par && s = "" then
+   flush_par ();
  if s = "PRE" then
     in_pre := true;
  let cur_mods = !cur_out.active @ !cur_out.pending in
@@ -528,28 +570,7 @@ and open_block s args =
    [] ;
  try_open_block s args
 
-
-and close_fullpar () =
-  let rec test = function
-    Normal ("",a,b)::rest -> begin match test rest with
-      Yes l -> Yes (("",a,b)::l)
-    | _ -> No end
-  | Normal ("P",a,b)::_   -> Yes ["P",a,b]
-  | _              -> No in
-
-  match test !out_stack with
-    No -> ()
-  | Yes [("P",_,_)] -> close_par ()
-  | _ -> ()
-
-and open_par () =
-  vsize := !vsize + 2 ;
-  do_put "\n<BR><BR>\n"
-
-and close_par () = ()
-
 ;;
-
 
 let force_flow s content =
   let active = !cur_out.active and pending = !cur_out.pending in
@@ -559,7 +580,6 @@ let force_flow s content =
 
 
 let close_block  s =
-  if pblock () = "P" then close_par () ;
   let _ = close_block_loc (fun () -> !empty) s in
   ()
 ;;
@@ -693,19 +713,27 @@ let is_blank = function
 ;;
 
 let put s =
+  let blank =
+    let r = ref true in
+    for i = 0 to String.length s - 1 do
+      r := !r && is_blank (String.get s i)
+    done ;
+    !r in
+  let save_last_closed = !last_closed in
   do_pending () ;
   let i = ref 0 in
-  while !empty && !i < String.length s do
-    empty := is_blank (String.get s !i) ;
-    i := !i + 1
-  done ;
-  do_put s
+  empty := !empty && blank ;
+  do_put s ;
+  if blank then last_closed := save_last_closed
 ;;
 
 let put_char c =
+  let save_last_closed = !last_closed in
+  let blank = is_blank c in
   do_pending () ;
   empty := !empty && is_blank c ;
-  do_put_char c
+  do_put_char c ;
+  if blank then last_closed := save_last_closed
 ;;
 
 let skip_line () =
@@ -713,17 +741,19 @@ let skip_line () =
   put "<BR>\n"
 ;;
 
-let par () =  close_par () ; open_par ()
-;;
-
 let item f =
   if !verbose > 1 then begin
     prerr_string "Item stack=" ;
     pretty_stack !out_stack
   end ;
+  if !pending_par then
+    if !nitems > 0 then 
+      flush_par ()
+    else pending_par := false;
   let mods = !cur_out.pending @ !cur_out.active in
   do_close_mods () ;
   !cur_out.pending <- mods ;
+  nitems := !nitems+1;
   if pblock() = "DL" then begin
     do_put "\n<DT>" ;
     f () ;

@@ -68,20 +68,20 @@ let main () =
       | _ -> Filename.chop_suffix texfile ".tex" in
 
     Location.set_base basename ;
-    Latexscan.out_file := begin match basename with
+    Latexscan.out_file := begin match Filename.basename basename with
       "" ->  Out.create_chan stdout
-    | _   -> Out.create_chan (open_out (basename^".html")) end ;
+    | s  -> Out.create_chan (open_out (s^".html")) end ;
 
         
     begin match texfile with
       "" -> ()
     | _  ->
-       let auxname = basename^".aux" in
+       let auxname = Filename.basename basename^".aux" in
        try
-         let auxchan = open_in auxname in
+         let _,auxchan = Myfiles.open_tex auxname in
          let buf = Lexing.from_channel auxchan in
          Aux.main buf
-       with Sys_error _ -> begin
+       with Failure _ -> begin
          if !verbose > 0 then
            prerr_endline ("Cannot open aux file: "^auxname)
        end

@@ -7,9 +7,11 @@ let ctable = (Hashtbl.create 19 : (string,t) Hashtbl.t);;
 let find_counter name =
   try
     Hashtbl.find ctable name
-  with Not_found ->
-    prerr_string "Unknown counter: "; prerr_endline name;
-    failwith "find_counter"
+  with Not_found -> begin
+    Location.print_pos () ;
+    prerr_string "Unknown counter: "; prerr_endline name ;
+    ref 0,ref []
+  end
 ;;
 
 let value_counter name =

@@ -1,13 +1,11 @@
 val verbose : int ref
 val set_out : Out.t -> unit
-
+val last_closed : string ref
 
 val get_fontsize : unit -> int
 val open_mod : Latexmacros.env -> unit
 val open_mods : Latexmacros.env list -> unit
 val par : unit -> unit
-val open_par : unit -> unit
-val close_par : unit -> unit
 val open_block : string -> string -> unit
 val close_flow : string -> unit
 val close_block : string -> unit

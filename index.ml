@@ -91,18 +91,23 @@ let newindex tag suf name =
 
 
 let treat tag lexbuf =
-  let name,all,table,count,idxstruct = Hashtbl.find itable tag in
-  let key = read_index lexbuf in
-  let key = match idxstruct with
-    No -> key
-  | Yes t -> t.(!count) in
-  if !verbose > 2 then
-    prerr_endline ("Treat index: "^pretty_key key) ;
-  let label = ("@"^tag^string_of_int !count) in
-  Html.loc_name label "" ;
-  Hashtbl.add table key (label,!count) ;
-  all := add key !all ;
-  count := !count + 1
+  try
+    let name,all,table,count,idxstruct = Hashtbl.find itable tag in
+    let key = read_index lexbuf in
+    let key = match idxstruct with
+      No -> key
+    | Yes t -> t.(!count) in
+    if !verbose > 2 then
+      prerr_endline ("Treat index: "^pretty_key key) ;
+    let label = ("@"^tag^string_of_int !count) in
+    Html.loc_name label "" ;
+    Hashtbl.add table key (label,!count) ;
+    all := add key !all ;
+    count := !count + 1
+  with Not_found -> begin
+    Location.print_pos () ;
+    prerr_endline ("Index: "^tag^" is undefined, makeindex or newindex is missing")
+  end
 ;;
 
       

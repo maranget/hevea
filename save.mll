@@ -106,7 +106,27 @@ and cite_args = parse
   [^'}'',']* {let lxm = lexeme lexbuf in lxm::cite_args lexbuf}
 | ','        {cite_args lexbuf}
 | '}'        {[]}
-(*
+
+and num_arg = parse
+   ['0'-'9']+ 
+    {let lxm = lexeme lexbuf in
+    int_of_string lxm}
+|  "'" ['0'-'7']+ 
+    {let lxm = lexeme  lexbuf in
+    int_of_string ("0o"^String.sub lxm 1 (String.length lxm-1))}
+|  '"' ['0'-'9' 'a'-'f' 'A'-'F']+ 
+    {let lxm = lexeme  lexbuf in
+    int_of_string ("0x"^String.sub lxm 1 (String.length lxm-1))}
+| '`' _
+    {let c = lexeme_char lexbuf 1 in
+    Char.code c}
+| "" {failwith "num_arg"}
+
+and input_arg = parse
+  [' ''\n'] {input_arg lexbuf}
+| ['0'-'9' '_' 'a'-'z' 'A'-'Z' '.']+ {lexeme lexbuf}
+| "" {arg lexbuf}  
+(*  
 and do_arg_delim = parse
   _
    {fun delim i inarg ->

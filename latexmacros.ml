@@ -46,6 +46,8 @@ let verbose = ref 0
 ;;
 
 let display = ref false
+and in_math = ref false
+and alltt = ref false
 ;;
 
 let pretty_macro n acs =
@@ -190,7 +192,8 @@ def_macro "\\document" 0
 
 def_macro "\\enddocument" 0 [Print "</BODY>\n</HTML>\n"];
 
-
+def_macro "\\alltt" 0 [];
+def_macro "\\endalltt" 0 [];
 
 let no_dot = function
   "." -> ""
@@ -213,8 +216,14 @@ def_macro "\\cdots" 0 [Print "..."];
 def_macro "\\underline" 1
   [Subst "{" ; Env (Style "U") ; Print_arg 0 ; Subst "}"];
 def_macro "\\ " 0 [Print " "];
-def_macro "\\{" 0 [Print "{"];
-def_macro "\\}" 0 [Print "}"];
+def_macro "\\{" 0
+  [IfCond (in_math,
+     [Open ("","") ; Env (Style "RM") ; Print "{" ; Close ""],
+     [Print "{"])];
+def_macro "\\}" 0
+  [IfCond (in_math,
+     [Open ("","") ; Env (Style "RM") ; Print "}" ; Close ""],
+     [Print "}"])] ;
 def_macro "\\%" 0 [Print "%"];
 def_macro "\\$" 0 [Print "$"];
 def_macro "\\#" 0 [Print "#"];
@@ -222,7 +231,6 @@ def_macro "\\/" 0 [];
 def_macro "\\newpage" 0 [];
 def_macro "\\pagestyle" 1 [];
 def_macro "\\thispagestyle" 1 [];
-def_macro "\\label" 1 [Print "<A name=\""; Print_arg 0; Print "\"></A>"];
 def_macro "\\ref" 1
   [Print "<A href=\"#"; Print_arg 0; Print "\">" ;
    Print_fun (Aux.rget,0) ; Print "</A>"];
@@ -237,7 +245,12 @@ def_macro "\\_" 0 [Print "_"];
 def_macro "\\\n" 0 [Print " "];
 def_macro "\\backslash" 0 [Print "\\"];
 def_macro "\\neg" 0 [Print "\172"];
-def_macro "\\not" 0 [Print "\172"];
+let check_in = function
+  "\\in" -> "\\notin"
+| "="    -> "\\neq"
+| "\\subset" -> "\\notsubset"
+| s      -> "\\neg"^s in
+def_macro "\\not" 1 [Print_fun (check_in,0)];
 def_macro "\\raise" 2 [Print_arg 1];
 def_macro "\\hbox" 0 [];
 def_macro "\\mbox" 0 [];
@@ -351,6 +364,7 @@ def_macro "\\lhd" 0 [Print (get triangleleft)];;
 def_macro "\\rhd" 0 [Print (get triangleright)];;
 def_macro "\\leq" 0 [Print (get leq)];;
 def_macro "\\subset" 0 [Print (get subset)];;
+def_macro "\\notsubset" 0 [Print (get notsubset)];;
 def_macro "\\subseteq" 0 [Print (get subseteq)];;
 def_macro "\\sqsubset" 0
   [IfCond (display,
@@ -439,6 +453,24 @@ let alpha_of_int i = String.make 1 (Char.chr (i-1+Char.code 'a'))
 and upalpha_of_int i = String.make 1 (Char.chr (i-1+Char.code 'A'))
 ;;
 
+let rec roman_of_int = function
+  0 -> ""
+| 1 -> "i"
+| 2 -> "ii"
+| 3 -> "iii"
+| 4 -> "iv"
+| 9 -> "ix"
+| i ->
+   if i < 9 then "v"^roman_of_int (i-5)
+   else
+     let d = i / 10 and u = i mod 10 in
+     String.make d 'x'^roman_of_int u
+;;
+
+let uproman_of_int i = String.uppercase (roman_of_int i)
+;;
+
+      
 
 let aigu = function
   "e" -> "é"
@@ -484,8 +516,6 @@ and tilde = function
 | s   -> s
 ;;
 
-let do_char s = s
-;;
 
 (* Accents *)
 def_macro "\\'" 1 [Print_fun (aigu,0)];
@@ -494,12 +524,14 @@ def_macro "\\^" 1 [Print_fun (circonflexe,0)];
 def_macro "\\\"" 1 [Print_fun (trema,0)];
 def_macro "\c" 1  [Print_fun (cedille,0)];
 def_macro "\\~" 1 [Print_fun (tilde,0)];
-(* Chars *)
-def_macro "\\char" 1 [Print_fun (do_char,0)];
+
 (* Counters *)
 def_macro "\\arabic" 1 [Print_count (string_of_int,0)] ;
 def_macro "\\alph" 1 [Print_count (alpha_of_int,0)] ;
 def_macro "\\Alph" 1 [Print_count (upalpha_of_int,0)] ;
+def_macro "\\roman" 1 [Print_count (roman_of_int,0)];
+def_macro "\\Roman" 1 [Print_count (uproman_of_int,0)];
+def_macro "\\uppercase" 1 [Print_fun (String.uppercase,0)];
 ();;
 
 (* Macros  specific to me *)
@@ -586,7 +618,8 @@ let invisible = function
 ;;
 
 let limit = function
-  "\\sum"
+  "\\underbrace"
+| "\\sum"
 | "\\prod"
 | "\\coprod"
 | "\\bigcap"

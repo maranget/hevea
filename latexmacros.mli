@@ -44,6 +44,8 @@ val newif : string -> unit
 val reg : string ref
 
 val display :  bool ref
+val in_math :  bool ref
+val alltt :  bool ref
 
 val invisible : string -> bool
 

@@ -81,6 +81,7 @@ let otimes =  ("<FONT FACE=symbol>\196</FONT>","otimes","mult-rond");;
 
 let leq = ("<FONT FACE=symbol>\163</FONT>","<=","<=");;
 let subset = ("<FONT FACE=symbol>\204</FONT>","included in","inclus dans");;
+let notsubset = ("<FONT FACE=symbol>\203</FONT>","not included in","n'est pas inclus dans");;
 let subseteq =
   ("<FONT FACE=symbol>\204</FONT>","included in or equal to","inclus dans ou égal à");;
 let display_sqsubset =

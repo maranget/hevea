@@ -81,6 +81,7 @@ let rec parse_nargs n lexbuf = match n with
    arg::parse_nargs (n-1) lexbuf
 ;;
 
+
 type ok = No of string | Yes of string
 ;;
 
@@ -126,6 +127,18 @@ let parse_args (popt,pat) lexbuf =
   opts,args
 ;;
 
+let make_stack name pat lexbuf =
+  let opts,args = parse_args pat lexbuf in
+  let stack = Array.of_list (List.map from_ok opts@args) in
+  if !verbose > 2 then begin
+    Printf.fprintf stderr "macro: %s\n"  name ;
+    for i = 0 to Array.length stack-1 do
+      Printf.fprintf stderr "\t#%d = %s\n" (i+1) stack.(i)
+    done
+  end ;
+  stack
+;;
+
 let to_image = ref true
 ;;
 
@@ -160,7 +173,6 @@ let verb_delim = ref (Char.chr 0)
 let cur_env = ref ""
 and stack_env = ref []
 and env_level = ref 0
-and in_math = ref false
 and stack_in_math = ref []
 ;;
 
@@ -660,11 +672,13 @@ rule  main = parse
     main lexbuf}
 (* Paragraphs *)
   | ("\\par" | "\n\n") '\n' *
-    {if not !display then Html.par () ;
+    {if !alltt then begin
+      Html.put (lexeme lexbuf)
+    end else if not !display then Html.par () ;
     main lexbuf }
 | "\\input" | "\\include" | "\\bibliography"
      {let lxm = lexeme lexbuf in
-     let filename = Save.arg lexbuf in
+     let filename = Save.input_arg lexbuf in
      if !verbose > 0 then
       prerr_endline ("input file: "^filename) ;
      if !prelude then Image.put (lxm^"{"^filename^"}\n") ;
@@ -692,33 +706,38 @@ rule  main = parse
 (* subscripts and superscripts *)
   | ('_' | '^')
      {let lxm = lexeme lexbuf in
-     let sup,sub = match lxm with
-       "^" ->
-         let sup = Save.arg lexbuf in
-         let sub = get_sub lexbuf in
-         sup,sub
-     | _   ->
-         let sub = Save.arg lexbuf in
-         let sup = get_sup lexbuf in
-         sup,sub in
-     standard_sup_sub main (fun () -> ()) sup sub ;
+     if !alltt then Html.put lxm
+     else begin
+       let sup,sub = match lxm with
+         "^" ->
+           let sup = Save.arg lexbuf in
+           let sub = get_sub lexbuf in
+           sup,sub
+       | _   ->
+           let sub = Save.arg lexbuf in
+           let sup = get_sup lexbuf in
+           sup,sub in
+       standard_sup_sub main (fun () -> ()) sup sub
+     end ;
      main lexbuf}
 (* Math mode *)
 | "$" | "$$"
      {let lxm = lexeme lexbuf in
-     let dodo = lxm <> "$" in
-     let math_env = if dodo then "*display" else "*math" in
-     if !in_math then begin
-       in_math := pop stack_in_math ;
-       close_env
-          math_env
-          (if dodo then
-             (fun () ->
-               close_display () ;
-               close_center () ;
-               display := false)
-           else if !display then close_display
-           else close_group)
+     if !alltt then begin Html.put lxm ; main lexbuf end
+     else begin
+       let dodo = lxm <> "$" in
+       let math_env = if dodo then "*display" else "*math" in
+       if !in_math then begin
+         in_math := pop stack_in_math ;
+         close_env
+            math_env
+            (if dodo then
+               (fun () ->
+                 close_display () ;
+                 close_center () ;
+                 display := false)
+             else if !display then close_display
+             else close_group)
           main lexbuf
      end else begin
        push stack_in_math !in_math ;
@@ -727,15 +746,15 @@ rule  main = parse
          if dodo then begin
            display  := true ;
            open_center() ;
-           open_display () ;
-           open_ital ()
+           open_display ()
          end else begin
-           if !display then open_display ()
-           else open_group "I"
+           if !display then  open_display ()
+           else open_group ""
          end;
+         open_ital () ;
          main lb in
        new_env math_env lexfun lexbuf
-     end}
+     end end}
 |   ("\\mbox" | "\\hbox" | "\\vbox" | "\\makebox") [^'{']* '{'
     {if !in_math then begin
        push stack_in_math !in_math ;
@@ -998,9 +1017,12 @@ rule  main = parse
       let opt,args = parse_args pat lexbuf in
       let buff = macro^unparse_args opt args in      
       (fun lb ->
-         if env <> "document" then Html.open_group "" ;
+         if env = "alltt" then begin
+           alltt := true ;
+           Html.open_block "PRE" ""
+         end else if env <> "document" then
+           Html.open_group "" ;
          scan_this main buff ;
-         if env = "document" then Html.open_par () ;
          main lb) in
     new_env env lexfun lexbuf}
 |  "\\end" " " * "{" ['A'-'Z' 'a'-'z']+ '*'? "}"
@@ -1009,9 +1031,11 @@ rule  main = parse
     close_env
       env
         (fun () ->
-          if env = "document" then Html.close_par () ;
           scan_this main ("\\end"^env) ;
-          if env <> "document" then Html.close_group ())
+          if env = "alltt" then  begin
+            alltt := false ;
+            Html.close_block "PRE"
+          end else if env <> "document" then Html.close_group ())
       main lexbuf}
 | ("\\prog" | "\\verb") _
    {let lxm = lexeme lexbuf in
@@ -1050,10 +1074,24 @@ rule  main = parse
   | "\\else"  {skip_false lexbuf}
   | "\\fi"    {main lexbuf}
 
+(* chars *)
+  | "\\char"
+     {let arg = Save.num_arg lexbuf in
+     Html.put_char (Char.chr arg) ;
+     main lexbuf}
+(* labels *)
+  | "\\label"
+     {let save_last_closed = !last_closed in
+     let lab = save_arg lexbuf in
+     Html.loc_name lab "" ;
+     last_closed := save_last_closed ;
+     main lexbuf}
 (* index *)
   | "\\index"
-     {let tag = save_opt "default" lexbuf in
+     {let save_last_closed = !last_closed in
+     let tag = save_opt "default" lexbuf in
      Index.treat tag lexbuf ;
+     last_closed := save_last_closed ;
      main lexbuf}
   | "\\printindex"
      {let tag =  save_opt "default" lexbuf in
@@ -1108,19 +1146,15 @@ rule  main = parse
      {let tag = save_arg lexbuf in
      let arg = save_arg lexbuf in
      Html.open_block tag arg ;
-     main lexbuf}
+     skip_blanks_main lexbuf}
   | "\\@close"
      {let tag = save_arg lexbuf in
      Html.close_block tag;
-     main lexbuf}
-  | "\\@close"
-     {let tag = save_arg lexbuf in
-     Html.close_block tag;
-     main lexbuf}
+     skip_blanks_main lexbuf}
   | "\\@print"
      {let arg = save_arg lexbuf in
      Html.put arg ;
-     main lexbuf}
+     skip_blanks_main lexbuf}
 (* General case for commands *)
   | "\\" '@'? ((['A'-'Z' 'a'-'z']+ '*'?) | [^ 'A'-'Z' 'a'-'z'])
       {let lxm = lexeme lexbuf in
@@ -1164,7 +1198,8 @@ rule  main = parse
         let name = name_extract lxm in
         let pat,body = find_macro name in
         if Latexmacros.limit name || Latexmacros.big name then begin
-           let do_what = (fun () -> exec [||] body) in
+           let stack = make_stack name pat lexbuf in
+           let do_what = (fun () -> exec stack body) in
            let sup,sub = get_sup_sub lexbuf in
            if !display && Latexmacros.limit name then
              limit_sup_sub main do_what sup sub
@@ -1174,18 +1209,11 @@ rule  main = parse
              standard_sup_sub main do_what sup sub ;
            main lexbuf
         end else begin
-          let opts,args = parse_args pat lexbuf in
-          let stack = Array.of_list (List.map from_ok opts@args) in
-          if !verbose > 2 then begin
-            Printf.fprintf stderr "macro: %s\n"  name ;
-            for i = 0 to Array.length stack-1 do
-              Printf.fprintf stderr "\t#%d = %s\n" (i+1) stack.(i)
-            done
-          end ;
+          let stack = make_stack name pat lexbuf in
           try
             exec stack body ;
             if (!verbose > 2) then prerr_endline ("Cont after macro"^name) ;
-            if not !in_math &&
+            if not !in_math && not !alltt &&
                ((pat = ([],[])) || Latexmacros.invisible name) then
               skip_blanks_main lexbuf
             else
@@ -1236,6 +1264,16 @@ rule  main = parse
   {if not !display then
     Html.put_char '\n' ;
   main lexbuf}
+| '|' | '[' | ']' |  '(' | ')' | ':' | ';' | ','
+   {let c =  lexeme_char lexbuf 0 in
+   if !in_math then begin
+      Html.open_group "" ;
+      Html.open_mod (Style "RM") ;
+      Html.put_char c;
+      Html.close_group ()
+    end else
+      Html.put_char c ;
+    main lexbuf}
 | _ 
    {let lxm = lexeme_char lexbuf 0 in
    Html.put_char lxm ; main lexbuf}

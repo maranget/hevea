@@ -11,20 +11,22 @@ let is_except name =
   try Hashtbl.find etable name ; true with Not_found -> false
 ;;
 
-let tex_path =  (* try
+let tex_path = try
   let r = ref []
   and j = ref 0 in
-  let s = Sys.getenv "TEXINPUTS" in
+  let s = Sys.getenv "HTMLINPUTS" in
   for i=0 to String.length s-1 do
     match String.get s i with
      ':' ->
-        r := String.sub s !j (i- !j) :: !r ;
+        let d = String.sub s !j (i- !j) in
+        r := d :: !r ;
         j := i+1
     | _  -> ()
   done ;
-  r := String.sub s !j (String.length s - !j -1) :: !r ;
+  let d = String.sub s !j (String.length s - !j) in
+  r :=  d :: !r ;
   List.rev !r
-with Not_found -> *) ["." ; "/usr/local/lib/htmlgen"]
+with Not_found -> ["." ; "/usr/local/lib/htmlgen"]
 ;;
 
 exception Found of (string * in_channel)
@@ -49,7 +51,7 @@ let open_tex filename =
   if Filename.is_implicit filename then
     try
       do_open_tex filename
-    with Failure _ as x ->
+    with Failure _ ->
       if Filename.check_suffix filename ".tex" then
         failwith ("Cannot find: "^filename)
       else
@@ -59,11 +61,9 @@ let open_tex filename =
     try filename,open_in filename
     with Sys_error _ ->
       if Filename.check_suffix filename ".tex" then
+        failwith ("Cannot open: "^filename)
+      else
         try (filename^".tex"),open_in (filename^".tex") with
         Sys_error _ -> failwith ("Cannot open: "^filename)
-      else
-        failwith ("Cannot open: "^filename)
-       
- 
 ;; 
 
