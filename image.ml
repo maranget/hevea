@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: image.ml,v 1.8 1998-10-22 09:45:16 maranget Exp $" 
+let header = "$Id: image.ml,v 1.9 1998-10-23 15:40:23 maranget Exp $" 
 open Parse_opts
 
 let base = ref "image"
@@ -33,8 +33,7 @@ and put_char c = Out.put_char !buff c
 let open_chan () =
   let chan = open_out (!base^".image.tex") in
   Out.to_chan chan !buff ;
-  buff := Out.create_chan chan ;
-  Out.put !buff "\\pagestyle{empty}\n";
+  buff := Out.create_chan chan
 
 and close_chan () =
   Out.put !buff "\\end{document}\n" ;

@@ -16,7 +16,7 @@ open Myfiles
 open Latexmacros
 open Html
 
-let header = "$Id: latexscan.mll,v 1.50 1998-10-22 14:57:10 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.51 1998-10-23 15:40:26 maranget Exp $" 
 
 
 let prerr_args args =
@@ -953,41 +953,51 @@ let iput_newpage arg =
 ;;
 
 
-let stack_envi = ref []
-and stack_outi = ref []
+let stack_entry = ref []
+and stack_out = ref []
+;;
+
+let start_other_scan env lexfun lexbuf =
+  if !verbose > 1 then begin
+    prerr_stack_string ("Start other scan ("^env^"), env stack is")
+      (List.map (fun (x,_) -> x) !stack_env) ;
+    prerr_endline ("Current env is: ``"^ !cur_env^"''") ;
+    prerr_stack_string "Entry stack is" !stack_entry
+  end;
+  save_lexstate () ;
+  push stack_entry env ;
+  stack_entry := List.rev !stack_entry ;
+  lexfun lexbuf
 ;;
 
 let start_image_scan s image lexbuf =
-  prerr_stack_string "Start image: env stack is"
-    (List.map (fun (x,_) -> x) !stack_env) ;
-  prerr_endline ("Current env is: ``"^ !cur_env^"''") ;
-  prerr_stack_string "Envi stack is" !stack_envi ;
+  start_other_scan "toimage" (fun b -> Image.dump s image b) lexbuf
+;;
 
-  save_lexstate () ;
-  push stack_envi "toimage" ;
-  stack_envi := List.rev !stack_envi ;
-  Image.dump s image lexbuf
+let complete_scan main lexbuf =
+  main lexbuf ;
+  close_env (pop stack_out) ;
+  top_close_block "" ;
+  if !verbose > 1 then begin
+    prerr_stack_string "Complete scan: env stack is"
+      (List.map (fun (x,_) -> x) !stack_env) ;
+    prerr_endline ("Current env is: ``"^ !cur_env^"''")
+  end
+;;
 
-let stop_image_scan main image lexbuf =
-  let _ = pop stack_envi in  
-  if !stack_outi <> []  then begin
+
+let stop_other_scan main lexbuf =
+  if !verbose > 1 then begin
     prerr_stack_string "Stop image: env stack is"
       (List.map (fun (x,_) -> x) !stack_env) ;
-    prerr_endline ("Current env is: ``"^ !cur_env^"''") ;
-    main lexbuf ;
-    close_env (pop stack_outi) ;
-    top_close_block "" ;
-    prerr_stack_string "Stop image: env stack is"
-      (List.map (fun (x,_) -> x) !stack_env) ;
-    prerr_endline ("Current env is: ``"^ !cur_env^"''") ;
-    while !stack_outi <> []  do
+    prerr_endline ("Current env is: ``"^ !cur_env^"''")
+  end;
+  let _ = pop stack_entry in
+  if !stack_out <> []  then begin
+    complete_scan main lexbuf ;
+    while !stack_out <> []  do
       let lexbuf = previous_lexbuf () in
-      main lexbuf ;
-      close_env (pop stack_outi) ;
-      top_close_block "" ;
-      prerr_stack_string "Stop image: env stack is"
-        (List.map (fun (x,_) -> x) !stack_env) ;
-      prerr_endline ("Current env is: ``"^ !cur_env^"''")
+      complete_scan main lexbuf
     done
   end ;
   restore_lexstate ()
@@ -1456,7 +1466,9 @@ rule  main = parse
    {let env = save_arg lexbuf in
    begin match env with
      "rawhtml" -> rawhtml lexbuf; main lexbuf
-   | "latexonly" -> latexonly lexbuf ; main lexbuf
+   | "latexonly" ->
+       start_other_scan "latexonly" latexonly lexbuf ;
+       main lexbuf
    | "toimage" ->
        start_image_scan "" image lexbuf ;
        main lexbuf
@@ -1495,7 +1507,7 @@ rule  main = parse
         lexfun lexbuf
     |  _ ->
         if env = "document" && !prelude then begin
-          Image.put "\\begin{document}\n";
+          Image.put "\\pagestyle{empty}\n\\begin{document}\n";
           prelude := false ;
           Html.forget_par () ;
           Html.set_out !out_file
@@ -1512,10 +1524,10 @@ rule  main = parse
                 top_open_block "PRE" ""
               end else if env <> "document" then
                 top_open_block "" "" ;
-              let old_envi = !stack_envi in
-              push stack_envi env ;
+              let old_envi = !stack_entry in
+              push stack_entry env ;
               scan_this_may_cont true main lexbuf macro ;
-              stack_envi := old_envi ;
+              stack_entry := old_envi ;
               main lb) in
             new_env env ;
             lexfun lexbuf
@@ -2069,10 +2081,10 @@ rule  main = parse
   end ;
   main lexbuf}
 | ' '+
-   {(* if !display || is_table !in_table then
-      Html.put "&nbsp;"
-   else *)
-      Html.put_char ' ';
+   {if !alltt then
+     let lxm = lexeme lexbuf in Html.put lxm
+   else
+     Html.put_char ' ';
    main lexbuf}
 | ['a'-'z' 'A'-'Z']+
    {let lxm =  lexeme lexbuf in
@@ -2092,11 +2104,6 @@ rule  main = parse
 and rawhtml = parse
     "\\end{rawhtml}" { () }
   | _           { Html.put_char(lexeme_char lexbuf 0); rawhtml lexbuf }
-
-and latexonly = parse
-    "\\end{latexonly}" { () }
-  | '%'+ ' '* ("END"|"end") ' '* ("LATEX"|"latex") [^'\n']* '\n' {()}
-  | _           { latexonly lexbuf }
 
 and verbenv = parse
   "\\end" " " * "{" ['a'-'z'] + "}"
@@ -2138,13 +2145,46 @@ and inverb = parse
     inverb lexbuf
   end}
 
+and latexonly = parse
+   '%'+ ' '* ("END"|"end") ' '+ ("LATEX"|"latexonly")  [^'\n']* '\n'
+     {stop_other_scan main lexbuf}
+|  '%'
+     {latex_comment lexbuf ; latexonly lexbuf}
+|  "\\end"
+     {let arg = save_arg lexbuf in
+     if arg = "latexonly" then begin
+       stop_other_scan main lexbuf
+     end else if arg = top stack_entry then begin
+       let _ = pop stack_entry in
+       push stack_out arg ;
+       begin match find_macro ("\\end"^arg) with
+         _,[Subst body] ->
+           scan_this_may_cont false latexonly lexbuf body
+       |  _,_ -> failwith ("Bad closing macro in latexonly: ``"^arg^"''")
+       end
+     end else
+       latexonly lexbuf}
+|  command_name  | _ {latexonly lexbuf}
+| eof
+    {if !stack_lexbuf = [] then ()
+    else begin
+      let lexbuf = previous_lexbuf () in
+      latexonly lexbuf
+    end}
+
+
+and latex_comment = parse
+  '\n' | eof  {()}
+| [^'\n']+    {latex_comment lexbuf}
+
+
 and image = parse
   ".PE\n"
-     {Image.put ".PE\n" ; stop_image_scan main image lexbuf}
+     {Image.put ".PE\n" ; stop_other_scan main lexbuf}
 |  '%'+ ' '* ("END"|"end") ' '+ ("IMAGE"|"image")  [^'\n']* '\n'
-     {Image.put_char '\n' ; stop_image_scan main image lexbuf}
-|  "\\end{toimage}"
-     {Image.put_char '\n' ; stop_image_scan main image lexbuf}
+     {Image.put_char '\n' ; stop_other_scan main lexbuf}
+|  '%'
+     {image_comment lexbuf ; image lexbuf}
 (* Substitution in image *)
 | '#' ['1'-'9']
     {let lxm = lexeme lexbuf in
@@ -2197,11 +2237,12 @@ and image = parse
      Save.start_echo () ;
      let arg = save_arg lexbuf in
      let true_arg = Save.get_echo () in
-     prerr_endline ("End: "^arg^" "^top stack_envi) ;
-     if arg = top stack_envi then begin
-       prerr_endline ("End of image: "^arg) ;
-       let _ = pop stack_envi in
-       push stack_outi arg ;
+     if arg = "toimage" then begin
+       Image.put_char '\n' ;
+       stop_other_scan main lexbuf
+     end else if arg = top stack_entry then begin
+       let _ = pop stack_entry in
+       push stack_out arg ;
        begin match find_macro ("\\end"^arg) with
          _,[Subst body] ->
            scan_this_may_cont false image lexbuf body
@@ -2223,6 +2264,15 @@ and image = parse
       let lexbuf = previous_lexbuf () in
       image lexbuf
     end}
+
+
+and image_comment = parse
+  '\n' {Image.put_char '\n'}
+| eof  {()}
+| [^'\n']+
+    {let lxm = lexeme lexbuf in
+    Image.put lxm ;
+    image_comment lexbuf}
 
 and mbox_arg = parse
   ' '+ {mbox_arg lexbuf}
@@ -2319,7 +2369,9 @@ and comment = parse
 | ' '* ("HEVEA"|"hevea") ' '*
    {main lexbuf}
 | ' '* ("BEGIN"|"begin") ' '+ ("LATEX"|"latex")
-    {skip_comment lexbuf ; latexonly lexbuf ; skip_spaces_main lexbuf}
+    {skip_comment lexbuf ;
+    start_other_scan "latexonly" latexonly lexbuf ;
+    skip_spaces_main lexbuf}
 | ""
     {skip_comment lexbuf ; skip_spaces_main lexbuf}
 

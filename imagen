@@ -1,5 +1,7 @@
 #! /bin/sh
-TMP=/usr/tmp
+TMPBASE=/usr/tmp
+TMP=${TMPBASE}/imagen$$
+mkdir ${TMP} || { echo "Failure: cannot create tmp dir $TMP" 2>&1 ; exit 2 ; }
 LATEX=latex
 DVIPS=dvips
 GS=gs
@@ -7,6 +9,7 @@ PNMCROP=pnmcrop
 PPMTOGIF=ppmtogif
 PNMMARGIN=pnmmargin
 RM="/bin/rm -f"
+
 case $1 in
   '')
    BASE=image
@@ -18,7 +21,7 @@ esac
 
 NAME=${BASE}.image
 DVIPSOPTS="-t a3 -x1414"
-GSOPTS="-q -sPAPERSIZE=a3 -dNOPAUSE -dNO_PAUSE -sDEVICE=ppmraw -dTextAlphaBits=2"
+GSOPTS="-q -sPAPERSIZE=a3 -dNOPAUSE -DNOPROMPT -sDEVICE=ppmraw -dTextAlphaBits=2"
 PPMTOGIFOPTS="-transparent  #ffffff"
 PNMMARGINOPTS="-white 1"
 
@@ -41,20 +44,19 @@ then
   test -f ${TMP}/${BASE}001 || {  echo "Failure: no ps files!" 2>&1 ; exit 2 ; }
   for i in ${TMP}/${BASE}[0-9][0-9][0-9]
   do
-    mv $i $i.ps
-    (echo "($i.ps) run" ; echo "quit") |\
-    ${GS} ${GSOPTS} -sOutputFile=$i.ppm
-    ${PNMCROP} < $i.ppm  |\
+    echo "Tranlating Postscript file: $i"
+    ${GS} ${GSOPTS} -sOutputFile=- $i -c quit |\
+    ${PNMCROP} |\
     ${PNMMARGIN} ${PNMMARGINOPTS} |\
     ${PPMTOGIF} ${PPMTOGIFOPTS} > `basename $i`.gif
-    ${RM} $i.ps $i.ppm
+    ${RM} $i
   done
 else
   ${DVIPS} ${DVIPSOPTS} -o${TMP}/${BASE}.ps ${NAME}.dvi
   ${RM} ${NAME}.log ${NAME}.aux ${NAME}.dvi
 
   test -f ${TMP}/${BASE}.ps || { echo "No ps file!" 2>&1 ; exit 2 ; }
-
+  echo "Translating (and cutting) Postscript file ${TMP}/${BASE}.ps into ppm"
   (echo "(${TMP}/${BASE}.ps) run" ; echo "quit") |\
   ${GS} ${GSOPTS} -sOutputFile=${TMP}/${BASE}%03d
   ${RM} ${TMP}/${BASE}.ps
@@ -62,9 +64,12 @@ else
   test -f ${TMP}/${BASE}001 || { echo "No ppm files!"  2>&1 ; exit 2 ; }
   for i in ${TMP}/${BASE}[0-9][0-9][0-9]
   do
+    echo "Translating ppm file: $i"
     ${PNMCROP}  < $i |\
     ${PNMMARGIN} ${PNMMARGINOPTS} |\
     ${PPMTOGIF} ${PPMTOGIFOPTS}  > `basename $i`.gif
     ${RM} $i
   done
 fi
+
+rmdir ${TMP}

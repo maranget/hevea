@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmacros.ml,v 1.26 1998-10-22 09:45:18 maranget Exp $" 
+let header = "$Id: latexmacros.ml,v 1.27 1998-10-23 15:40:24 maranget Exp $" 
 open Parse_opts
 open Symb
 
@@ -66,7 +66,7 @@ let def_macro_pat name pat action =
   end ;
   try
     Hashtbl.find cmdtable name ;
-    warning ("Ignoring definition of: "^name) ;
+    warning ("ignoring definition of "^name) ;
     raise Failed
   with
     Not_found ->
@@ -83,7 +83,7 @@ let redef_macro_pat name pat action =
     Hashtbl.add cmdtable name (pat,action)
   with
     Not_found -> begin
-      warning ("Defining a macro with \\renewcommand: "^name);
+      warning ("defining a macro with \\renewcommand, "^name);
       Hashtbl.add cmdtable name (pat,action)
   end
 ;;
@@ -99,7 +99,7 @@ let provide_macro_pat name pat action =
     Not_found -> begin
       if !verbose > 1 then begin
         Location.print_pos () ;
-        prerr_string "Providing non existing: "; prerr_endline name
+        prerr_string "providing non existing "; prerr_endline name
       end ;
       Hashtbl.add cmdtable name (pat,action)
   end
@@ -120,13 +120,24 @@ and redef_macro name nargs body =
 ;;
      
 let def_env name body1 body2 =
- def_macro ("\\"^name) 0 body1 ;
- def_macro ("\\end"^name) 0 body2
+  try
+    def_macro ("\\"^name) 0 body1 ;
+    def_macro ("\\end"^name) 0 body2
+  with Failed -> begin
+    warning ("not defining environment "^name);
+    raise Failed
+  end
 ;;
 
 let def_env_pat name pat b1 b2 =
-  def_macro_pat ("\\"^name) pat b1 ;
-  def_macro ("\\end"^name) 0 b2
+  try
+    def_macro_pat ("\\"^name) pat b1 ;
+    def_macro ("\\end"^name) 0 b2
+  with Failed -> begin
+    warning ("not defining environment "^name);
+    raise Failed
+  end
+
 and redef_env_pat name pat b1 b2 =
   redef_macro_pat ("\\"^name) pat b1 ;
   redef_macro ("\\end"^name) 0 b2

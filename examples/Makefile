@@ -1,9 +1,9 @@
 LATEX=latex
 HEVEA=hevea
-IMAGEGEN=imagen
+IMAGEN=imagen
 HTMLCUT=hacha
 EXDIR=$(HOME)/public_html/hevea/examples
-HTML=a.html pat.html suite.html
+HTML=a.html pat.html suite.html env.html smile.html
 DVI=$(HTML:.html=.dvi)
 TEX=$(HTML:.html=.tex)
 # coucou
@@ -44,6 +44,26 @@ tmp.html: tmp.tex pat.sty tmp.aux tmp.bbl
 pat.html: tmp.html
 	$(HTMLCUT) -o pat.html tmp.html
 
+tenv.tex: env.tex
+	gpic -t < env.tex > tenv.tex
+
+env.dvi:tenv.tex 
+	$(LATEX) < /dev/null tenv.tex
+	mv tenv.dvi env.dvi
+
+env.html: env.sty tenv.tex
+	$(HEVEA) env.sty -o env.html tenv.tex
+
+tsmile.tex: smile.tex
+	gpic -t < smile.tex > tsmile.tex
+
+smile.dvi:tsmile.tex 
+	$(LATEX) < /dev/null tsmile.tex
+	mv tsmile.dvi smile.dvi
+
+smile.html: smile.sty tsmile.tex
+	$(HEVEA) smile.sty -o smile.html tsmile.tex
+
 suite.dvi suite.aux: suite.tex
 	$(LATEX) < /dev/null suite.tex
 	makeindex suite
@@ -60,7 +80,9 @@ cleanhtml:
 	rm -f $(HTML) tmp.html
 
 clean cleanall: cleanhtml
-	rm -f *.aux *.log *.dvi *~ *.gif *.bbl tmp.* *.ilg *.ind *.idx *.image.tex *.html
+	rm -f *.aux *.log *.dvi *~ *.gif *.bbl tmp.* tenv.* tsmile.* *.ilg *.ind *.idx *.image.tex *.html *.tid
 
 images:
-	$(IMAGEGEN) tmp
+	$(IMAGEN) tmp
+	$(IMAGEN) env
+	$(IMAGEN) smile

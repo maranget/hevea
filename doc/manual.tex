@@ -32,6 +32,7 @@
 \gdef\endhtmlout{\myrule\end{quote}}
 \end{htmlonly}
 \newenvironment{latexout}{\begin{htmlout}}{\end{htmlout}}
+\newenvironment{showlatex}{}{}
 
 \input{version.tex}
 
@@ -642,15 +643,9 @@ You can \raisebox{.6ex}{\em raise} text.
 
 \LaTeX{} typesets this as follows:
 \begin{htmlout}
-\begin{htmlonly}
-\begin{toimage}
+\begin{showlatex}
 You can \raisebox{.6ex}{\em raise} text.
-\end{toimage}
-\imageflush
-\end{htmlonly}      
-\begin{latexonly}
-You can \raisebox{.6ex}{\em raise} text.
-\end{latexonly}
+\end{showlatex}
 \end{htmlout}
 
 Since \hevea{} does not know about \verb+\raisebox+,
@@ -663,12 +658,9 @@ Then, it goes on by translating the arguments of \verb+\raisebox+ as if
 they were normal text. As a
 consequence some \verb+.6ex+ is finally found in the {\html} output:
 \begin{htmlout}
-\begin{latexonly}
+\begin{showlatex}
 You can .6ex{\em raise} text.
-\end{latexonly}
-\begin{htmlonly}
-You can \raisebox{.6ex}{\em raise} text.
-\end{htmlonly}
+\end{showlatex}
 \end{htmlout}
 
 To correct this, you should provide a macro that has more or less the effect of
@@ -698,16 +690,9 @@ or \raisebox{-.6ex}{\em lower} text.
 \end{verbatim}
 Which \LaTeX{} renders as follows:
 \begin{htmlout}
-\begin{htmlonly}
-%% BEGIN IMAGE
-You can \raisebox{.6ex}{\em raise}
-or \raisebox{-.6ex}{\em lower} text.
-%% END IMAGE
-\imageflush
-\end{htmlonly}
-\begin{latexonly}
+\begin{showlatex}
 You can \raisebox{.6ex}{\em raise} or \raisebox{-.6ex}{\em lower} text.
-\end{latexonly}
+\end{showlatex}
 \end{htmlout}
 Whereas, with the above definition of \verb+\raisebox+, \hevea{} produces:
 \begin{htmlout}
@@ -728,16 +713,12 @@ or \lowerbox{-.6ex}{\em lower} text.
 \end{verbatim}
 \hevea{} now produces a satisfying output:
 \begin{htmlout}
-\begin{latexonly}\renewcommand{\raisebox}[2]{$^{\mbox{#2}}$}%
+\begin{showlatex}%
+\renewcommand{\raisebox}[2]{$^{\mbox{#2}}$}%
 \newcommand{\lowerbox}[2]{$_{\mbox{#2}}$}
 You can \raisebox{.6ex}{\em raise}
 or \lowerbox{-.6ex}{\em lower} text.
-\end{latexonly}
-\begin{htmlonly}\newcommand{\raisebox}[2]{$^{\mbox{#2}}$}%
-\newcommand{\lowerbox}[2]{$_{\mbox{#2}}$}
-You can \raisebox{.6ex}{\em raise}
-or \lowerbox{-.6ex}{\em lower} text.
-\end{htmlonly}
+\end{showlatex}
 \end{htmlout}
 
 Note that, for the document to remain \LaTeX{}-processable,
@@ -893,7 +874,7 @@ Basically, there are three ways to make input vary according to the
 processor, file loading, comments and the \texttt{html.sty} style
 file.
 
-\subsection{File loading}
+\subsection{File loading}\label{fileloading}
 
 \hevea{} and \LaTeX{} treat files differently. Here is a summary of the main
 differences:
@@ -1199,19 +1180,36 @@ Then, processing \texttt{round.tex} through \hevea{} and
 \begin{htmlout}
 \begin{center}
 %BEGIN IMAGE
-~\epsfbox{round.ps}~
+~\epsfbox{round.ps}~%
 %END IMAGE
 %HEVEA\imageflush
 \end{center}
 \end{htmlout}
-
 It is important to notice that things go smoothly
 because the \verb+\usepackage{epsf}+ command gets echoed to the
 \filename{image} file.
 In more complicated cases, \LaTeX{} may fail on the \filename{image}
 file because it does not load the right packages or define the right macros.
 
-
+However, the above solution implies modyfing the original \LaTeX{}
+source code.
+A better solution is to define the \verb+\epsfbox+
+command, so that \hevea{} echoes  \verb+\epsfbox+ and its argument to
+the image file and performs \verb+\imageflush+:
+\begin{verbatim}
+\newcommand{\epsfbox}[1]{%
+%BEGIN IMAGE
+\epsfbox{#1}%
+%END IMAGE
+\imageflush}
+\end{verbatim}
+Such a definition must be seen by \hevea{} only. So, it is best put
+in a separate file whose name is given as an extra argument on
+\hevea{} command line (see section~\ref{fileloading}).
+Observe that the definition is a definition and not a redefinition,
+because \hevea{} does not know about \verb+\epsfbox+ by default.
+Also observe that this not a recursive definition, since
+commands do not get expanded inside the \verb+toimage+ environment.
 
 \subsection{Using filters}
 
@@ -1231,7 +1229,7 @@ Source for \texttt{gpic} is enclosed in \verb+.PS+\ldots \verb+.PE+,
 then the result is available to subsequent \LaTeX{} source as a \TeX{}
 box \verb+\box\graph+.
 For instance the following source, from a \texttt{smile.tex} file,
-draws a smile! logo as a centered
+draws a ``Smile!'' logo as a centered
 paragraph:
 \begin{verbatim}
  .PS
@@ -1280,6 +1278,42 @@ ellipse "{\Large\bf Smile!}"
 \end{center}
 Observe how the \verb+-o+ argument to \hevea{} is used and that
 \texttt{imagen} argument is the output file base name.
+
+
+In the \texttt{gpic} example, modyfing user source cannot be totally avoided.
+However, writing in a generic style saves typing.
+For instance, users may define the following environment for
+centered \texttt{gpic} pictures in \LaTeX{}~:
+\begin{verbatim}
+\newenvironment{centergpic}{}{\begin{center}~\box\graph~\end{center}}
+\end{verbatim}
+Source code will now be as follows:
+\begin{verbatim}
+\begin{centergpic}
+ .PS
+ellipse "{\Large\bf Smile!}"
+.PE
+\end{centergpic}
+\end{verbatim}
+\hevea will process this source correctly (including the
+definition of \verb+centergpic+), provided it is given its
+own definition for the \verb+centergpic+ environment beforehand:
+\begin{verbatim}
+\newenvironment{centergpic}
+  {\begin{toimage}}
+  {\box\graph\end{toimage}\begin{center}\imageflush\end{center}}
+\end{verbatim}
+Assuming the definition above is in a \texttt{smile.sty} file,
+the command sequence for translating
+\url{../examples/smile.tex}{\textt{smile.tex}} now is:
+\begin{verbatim}
+# gpic -t < smile.tex > tmp.tex
+# hevea smile.sty tmp.tex -o smile.html
+tmp.tex:5: Warning: ignoring definition of \centergpic
+tmp.tex:5: Warning: not defining environment centergpic
+# imagen smile
+\end{verbatim}
+
 
 \section{Cutting your document into pieces with {\hacha}}\label{hacha}
 \hevea{} outputs a single \texttt{.html} file. This file can be
@@ -2108,7 +2142,9 @@ then come user specified directories and \hevea{} library (e.g.
 Users add directories in the search path using the \texttt{-I} command
 line option.
 
-The \verb+\includeonly+ and \verb+\listfiles+ commands are null commands.
+
+The \verb+\includeonly+ command is supported, while the
+\verb+\listfiles+ command is a null command.
 
 
 \subsection{Index and Glossary}\label{index}
