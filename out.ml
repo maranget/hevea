@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: out.ml,v 1.5 1998-08-17 13:22:00 maranget Exp $" 
+let header = "$Id: out.ml,v 1.6 1998-10-22 09:45:22 maranget Exp $" 
 type buff = {
   mutable buff : string;
   mutable bp : int;
@@ -99,27 +99,32 @@ let debug chan out = match out with
    output_string chan "*NULL*"
 ;;
 
-let copy from_buf to_buf =
-(*
-  prerr_string "Copy: ";
-  debug stderr from_buf ;
-  prerr_newline () ;
-*)
-match from_buf with
-  Buff from -> begin match to_buf with
-     Chan chan -> output chan from.buff 0 from.bp
-   | Buff out   ->
-        while out.bp + from.bp >= String.length out.buff do
-          realloc out
-        done ;
-        String.blit from.buff 0 out.buff out.bp from.bp ;
-        out.bp <- out.bp + from.bp        
-   | Null -> ()
-   end
-| _ -> failwith "copy"
+let hidden_copy from to_buf i l = match to_buf with
+  Chan chan -> output chan from.buff i l
+| Buff out   ->
+    while out.bp + l >= String.length out.buff do
+      realloc out
+    done ;
+    String.blit from.buff i out.buff out.bp l ;
+    out.bp <- out.bp + l
+| Null -> ()
 ;;
-          
-  
+
+let copy from_buff to_buff = match from_buff with
+  Buff from -> hidden_copy from to_buff 0 from.bp
+| _         -> failwith "Out.copy"  
+;;
+
+let copy_no_tag from_buff to_buff = match from_buff with
+  Buff from -> begin
+    try
+      let i = String.index from.buff '>'
+      and j = String.rindex_from from.buff (from.bp-1) '<' in
+      hidden_copy from to_buff (i+1) (j-i-1)
+    with Not_found ->  failwith "Out.copy_no_tag, no tag found"
+  end
+| _         -> failwith "Out.copy_no_tag"
+;;
 
 let close = function
 | Chan c -> close_out c

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: symb.ml,v 1.12 1998-10-12 17:22:15 maranget Exp $" 
+let header = "$Id: symb.ml,v 1.13 1998-10-22 09:45:24 maranget Exp $" 
 open Parse_opts
 
 exception No
@@ -30,7 +30,6 @@ let beta = get ("<FONT FACE=symbol>\098</FONT>","beta","beta");;
 let gamma = get ("<FONT FACE=symbol>\103</FONT>","gamma","gamma");;
 let delta = get ("<FONT FACE=symbol>\100</FONT>","delta","delta");;
 let epsilon = get ("<FONT FACE=symbol>\101</FONT>","epsilon","epsilon");;
-let varepsilon = get ("varepsilon","varepsilon","varepsilon");;
 let zeta = get ("<FONT FACE=symbol>\122</FONT>","zeta","zeta");;
 let eta = get ("<FONT FACE=symbol>\104</FONT>","eta","eta");;
 let theta = get ("<FONT FACE=symbol>\113</FONT>","theta","theta");;
@@ -191,58 +190,66 @@ let put_delim skip put d n =
     if i >= 1 then begin
       put_skip s;
       do_rec s (i-1)
-    end in
+    end
+
+  and do_bis s i =
+    if i>= 2 then begin
+      put_skip s ;
+      do_bis s (i-1)
+    end else
+      put s in
+
   if not !symbols || n=1 then
     let d = tr d in
-    do_rec d n
+    do_bis d n
   else begin
     put "<FONT FACE=symbol>\n" ;
     if d = "(" then begin
       put_skip "æ" ;
       do_rec "ç" (n-2) ;
-      put_skip "è"
+      put "è"
     end else if d=")" then begin
       put_skip "ö" ;
       do_rec "÷" (n-2) ;
-      put_skip "ø"
+      put "ø"
     end else if d = "[" then begin
       put_skip "é" ; 
       do_rec "ê" (n-2) ;
-      put_skip "ë"
+      put "ë"
     end else if d="]" then begin
       put_skip "ù" ; 
       do_rec "ú" (n-2) ;
-      put_skip "û"
+      put "û"
    end else if d = "\\lfloor" then begin
       do_rec "ê" (n-1) ;
-      put_skip "ë"
+      put "ë"
     end else if d="\\rfloor" then begin
       do_rec "ú" (n-1) ;
-      put_skip "û"
+      put "û"
     end else if d = "\\lceil" then begin
       put_skip "é" ; 
-      do_rec "ê" (n-1)
+      do_bis "ê" (n-1)
     end else if d="\\rceil" then begin
       put_skip "ù" ; 
-      do_rec "ú" (n-1)
+      do_bis "ú" (n-1)
     end else if d="|" then begin
-      do_rec "½" n
+      do_bis "½" n
     end else if d="\\|" then begin
-      do_rec "½½" n
+      do_bis "½½" n
     end else if d = "\\{" then begin
       put_skip "ì" ; 
       do_rec "ï" ((n-3)/2) ;
       put_skip "í" ; 
       do_rec "ï" ((n-3)/2) ;
-      put_skip "î"     
+      put "î"     
     end else if d = "\\}" then begin
       put_skip "ü" ; 
       do_rec "ï" ((n-3)/2) ;
       put_skip "ý" ; 
       do_rec "ï" ((n-3)/2) ;
-      put_skip "þ"     
+      put "þ"     
     end ;
-    put "</FONT>\n"
+    put "</FONT>"
   end
 ;;
 

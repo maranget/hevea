@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: parse_opts.ml,v 1.6 1998-07-21 11:18:40 maranget Exp $" 
+let header = "$Id: parse_opts.ml,v 1.7 1998-10-22 09:45:23 maranget Exp $" 
 let verbose = ref 0
 and readverb = ref 0
 ;;
@@ -64,3 +64,10 @@ let _ = Arg.parse
    ("hevea "^Version.version)
 ;;
 
+let warning s =
+  if not !silent || !verbose > 0 then begin
+    Location.print_pos () ;
+    prerr_string "Warning: " ;
+    prerr_endline s
+  end
+;;

@@ -14,7 +14,6 @@ val beta : string
 val gamma : string
 val delta : string
 val epsilon : string
-val varepsilon : string
 val zeta : string
 val eta : string
 val theta : string

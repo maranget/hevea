@@ -17,7 +17,7 @@ esac
 
 NAME=${BASE}.image
 DVIPSOPTS="-t a3 -x1414"
-GSOPTS="-q -sPAPERSIZE=a3 -dNOPAUSE -dNO_PAUSE -sDEVICE=ppmraw"
+GSOPTS="-q -sPAPERSIZE=a3 -dNOPAUSE -dNO_PAUSE -sDEVICE=ppmraw -dTextAlphaBits=2"
 PPMTOGIFOPTS="-transparent  #ffffff"
 PNMMARGINOPTS="-white 1"
 

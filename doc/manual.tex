@@ -315,7 +315,7 @@ one should probably write:
 \end{verbatim}
 
 
-\subsection{Math mode}\label{symbols}
+\subsection{Math mode}
 
 \hevea{} math mode is not very far from normal text mode, except that
 all letters are shown in italics and that space after macros
@@ -447,7 +447,27 @@ In particular, all \html{} block-level elements start a new line.
 Thus, it is not possible to get in-text ``real'' fractions or
 in-text limit-like subscripts.
 
-Similarly, \hevea{} cannot render in-text arrays.
+Users should remember that \hevea{} is not \TeX{} or \LaTeX{} and that
+\hevea{} author neither is D.~E.~Knuth nor L.~Lamport.
+Thus, some formulaes may be rendered poorly.
+For instance, two fractions with different denominator and numerator
+height look strange.
+\begin{htmlonly}
+$$
+\frac{1}{\sum_{i=0}^{N}U_i} = \frac{\sum_{i=0}^{N}U_i}{1}
+$$
+\end{htmlonly}
+%BEGIN LATEX
+\begin{center}
+~\epsfbox{cloche.ps}~
+\end{center}
+%END LATEX
+The reason is that vertical displays in an horizontal display are
+boxes (i.e. \html{} tables)
+that always get centered in the vertical direction.
+Such a crude model cannot  failthfully emulate any \TeX{} box placement.
+
+
 By contrast with formulas, which \hevea{} attempts to render with
 text-level elements only, arrays are always translated to the
 block-level element \verb+TABLE+, thereby introducing non-desired line
@@ -1785,7 +1805,7 @@ can be defined as a red arrow  by:
 \begin{verbatim}
 \newcommand{\leadsto}{{\red\rightarrow}}
 \end{verbatim}
-Then, \verb+A \leadsto B+ is rendered as follows:
+Then, \verb+$$A \leadsto B$$+ is rendered as follows:
 $$\newcommand{\leadsto}{{\red\rightarrow}}
 A \leadsto B
 $$

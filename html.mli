@@ -10,9 +10,10 @@
 (***********************************************************************)
 
 val set_out : Out.t -> unit
-val last_closed : string ref
-
+val get_last_closed : unit -> string
+val set_last_closed : string -> unit
 val is_empty : unit -> bool
+
 val get_fontsize : unit -> int
 val nostyle : unit -> unit
 val clearstyle : unit -> unit
@@ -56,7 +57,6 @@ val loc_ref: string -> string -> unit
 val loc_name: string -> string -> unit
 
 val insert_vdisplay: (unit -> unit) -> Latexmacros.env list
-val close_vdisplay: unit -> unit
 val freeze : (unit -> unit) -> unit
 
 val open_chan: out_channel  -> unit
@@ -64,4 +64,4 @@ val close_chan: unit -> unit
 val to_string: (unit -> unit) -> string
 val to_style: (unit -> unit) -> Latexmacros.env list
 
-val finalize : unit -> unit
+val finalize : bool -> unit

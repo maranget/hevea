@@ -20,3 +20,4 @@ val files : string list ref
 val except : string list ref
 val path : string list ref
 val outname : string ref
+val warning : string -> unit

@@ -48,8 +48,8 @@ mylib.cmo: mylib.cmi
 mylib.cmx: mylib.cmi 
 out.cmo: out.cmi 
 out.cmx: out.cmi 
-parse_opts.cmo: version.cmi parse_opts.cmi 
-parse_opts.cmx: version.cmx parse_opts.cmi 
+parse_opts.cmo: location.cmi version.cmi parse_opts.cmi 
+parse_opts.cmx: location.cmx version.cmx parse_opts.cmi 
 save.cmo: location.cmi out.cmi save.cmi 
 save.cmx: location.cmx out.cmx save.cmi 
 section.cmo: section.cmi 

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmacros.ml,v 1.25 1998-10-09 16:32:58 maranget Exp $" 
+let header = "$Id: latexmacros.ml,v 1.26 1998-10-22 09:45:18 maranget Exp $" 
 open Parse_opts
 open Symb
 
@@ -66,10 +66,7 @@ let def_macro_pat name pat action =
   end ;
   try
     Hashtbl.find cmdtable name ;
-    if not !silent then begin
-      Location.print_pos () ;
-      prerr_string "Ignoring definition of: "; prerr_endline name
-    end ;
+    warning ("Ignoring definition of: "^name) ;
     raise Failed
   with
     Not_found ->
@@ -86,11 +83,7 @@ let redef_macro_pat name pat action =
     Hashtbl.add cmdtable name (pat,action)
   with
     Not_found -> begin
-      if not !silent then begin
-        Location.print_pos () ;
-        prerr_string "Defining a macro with \\renewcommand: ";
-        prerr_endline name
-      end ;
+      warning ("Defining a macro with \\renewcommand: "^name);
       Hashtbl.add cmdtable name (pat,action)
   end
 ;;
@@ -145,13 +138,9 @@ let unregister name =  Hashtbl.remove cmdtable name
 let find_macro name =
   try
     Hashtbl.find cmdtable name
-  with Not_found -> begin
-    if not !silent then begin
-      Location.print_pos () ;
-      prerr_string "Unknown macro: "; prerr_endline name
-    end ;
+  with Not_found ->
+    warning ("unknown macro: "^name) ;
     (([],[]),[])
-  end
 ;;
 
 (* for conditionals *)
@@ -229,7 +218,6 @@ def_macro "\\beta" 0 [Print beta];
 def_macro "\\gamma" 0 [Print gamma];
 def_macro "\\delta" 0 [Print delta];
 def_macro "\\epsilon" 0 [Print epsilon];
-def_macro "\\varepsilon" 0 [Print varepsilon];
 def_macro "\\zeta" 0 [Print zeta];
 def_macro "\\eta" 0 [Print eta];
 def_macro "\\theta" 0 [Print theta];
@@ -368,6 +356,7 @@ def_macro "\\ominus" 0 [Print ominus];;
 
 
 def_macro "\\sum" 0 [IfCond (display,[Subst ("\\Huge")],[]) ; Print upsigma];
+def_macro "\\prod" 0 [IfCond (display,[Subst ("\\Huge")],[]) ; Print uppi];
 def_macro "\\int" 0
   [IfCond (display,
     [Print display_int],

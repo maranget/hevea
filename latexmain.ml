@@ -9,13 +9,13 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmain.ml,v 1.19 1998-10-12 17:22:12 maranget Exp $" 
+let header = "$Id: latexmain.ml,v 1.20 1998-10-22 09:45:18 maranget Exp $" 
 
 open Parse_opts
 
-let finalize () =
+let finalize check =
   Image.finalize () ;
-  Html.finalize ()
+  Html.finalize check
 ;;
 
 let read_style name =
@@ -98,13 +98,14 @@ let main () =
     Save.set_verbose !silent !verbose ;
     Latexscan.main buf ;
     Location.restore () ;
-    finalize ()
+    finalize true
 ;;   
 
 
 begin try
   main ()
 with x -> begin
+  finalize false;
   Location.print_pos () ;
   prerr_endline "Adios" ;
   raise x

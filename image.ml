@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: image.ml,v 1.7 1998-07-21 11:18:30 maranget Exp $" 
+let header = "$Id: image.ml,v 1.8 1998-10-22 09:45:16 maranget Exp $" 
 open Parse_opts
 
 let base = ref "image"
@@ -63,12 +63,7 @@ let page () =
   !base^my_string_of_int !count^".gif"
 ;;
 
-let open_image () = ()
-and close_image () = ()
-;;
-
 let dump s_open image  lexbuf =
-  open_image ();
   Out.put !buff s_open ;
   image lexbuf
 ;;
