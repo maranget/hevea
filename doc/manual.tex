@@ -387,7 +387,7 @@ For instance. the $\in$ symbol is replace by ``in'' (or by ``appartient
 This is far from being satisfactory, but degraded mode may be
 appropriate for documents than contain few symbols.
 
-
+\clearpage
 \subsubsection{Displays}
 Apart from containing symbols, formulas specify strong typesetting
 constraints: sub-elements must be combined together following patterns
@@ -472,7 +472,8 @@ Such a crude model cannot  faithfully emulate any \TeX{} box placement.
 
 
 By contrast with formulas, which \hevea{} attempts to render with
-text-level elements only, arrays are always translated to the
+text-level elements only when they appear inside paragraphs, arrays
+are always translated to the
 block-level element \verb+TABLE+, thereby introducing non-desired line
 breaks before and after in-text arrays.
 As a consequence, in-text arrays yield an acceptable output, only while
@@ -502,8 +503,8 @@ As an immediate consequence, array elements are typeset in display
 mode, which is not the case in \LaTeX.
 
 Users can get an idea on how \hevea{} combines elements in display mode
-by giving the \verb+-v+ options, which instructs \hevea{} to show the
-\verb+TABLE+ elements introduced by displays with a border.
+by specifying the \verb+-v+ option, which instructs \hevea{} to add a
+border to the \verb+TABLE+ elements introduced by displays.
 
 \subsection{Warnings}
 When \hevea{} thinks it cannot translate a symbol or construct
@@ -873,8 +874,9 @@ these instructions should not be seen by \LaTeX{}.
 Conversely, some source that \LaTeX{} needs should not be processed
 by \hevea{}.
 Basically, there are three ways to make input vary according to the
-processor, file loading, comments and the \texttt{html.sty} style
-file.
+processor, file loading, the \texttt{html.sty} style
+file and comments.
+
 
 \subsection{File loading}\label{fileloading}
 
@@ -912,6 +914,11 @@ simple: it  suffices to invoke \hevea{} as follows:
 \begin{flushleft}
 \verb+# hevea+ \filename{heveaonly}\ldots
 \end{flushleft}
+Using an \hevea{}-specific style file given as a command line argument
+is the method of choice for supplying command definitions
+to \hevea{} only. Users can then be sure that these definitions are
+not seen by \LaTeX{} and will not get echoed to the \textit{image}
+file (see section~\ref{imagen}).
 
 
 \subsection{The \protect\texttt{html.sty} style file}
@@ -930,8 +937,8 @@ the  \verb+latexonly+, \verb+verblatex+, \verb+htmlonly+, \verb+rawhtml+,
 \begin{tabular}{l@{~}p{.5\linewidth}@{\quad}l}\hline
 environment & \multicolumn{1}{c}{\hevea} &  \multicolumn{1}{c}{\LaTeX}
 \\ \hline
-\verb+latexonly+ & ignore, (\verb+\end{+\textit{env}\verb+}+
-constructs are processed)  & process \\
+\verb+latexonly+ & ignore, \verb+\end{+\textit{env}\verb+}+
+constructs are processed  & process \\
 \verb+verblatex+ & ignore & process \\
 \verb+htmlonly+ & process & ignore \\
 \verb+rawhtml+  & echo verbatim & ignore\\
@@ -983,8 +990,8 @@ allow  \texttt{latexonly} to dynamically occur inside other environments.
 
 More specifically, \verb+\end{+\textit{env}\verb+}+ macros
 are recognized and their \textit{env} argument is tested against
-the name of the environment whose opening macro finally opened the
-\texttt{latexonly} environment.
+the name of the environment whose opening macro \verb+\+\textit{env}
+opened the \texttt{latexonly} environment.
 In that case, macro expansion of \verb+\end+\textit{env} is performed and
 any further occurrence of  \verb+\end{+\textit{env'}\verb+}+ is tested
 and may get expanded if it matches a pending
@@ -1071,7 +1078,7 @@ typeset \textit{address} in typewriter font\\ \hline
 
 \medskip\noindent The \textit{url} and \textit{address} arguments undergo macro
 substitution, however style changes are ignored in the
-``\verb+HREF+'' option argument of the \verb+<A ...>+ elements.
+``\verb+HREF=...+'' attribute of the \verb+<A ...>+ element.
 As a consequence one can safely write something like:
 \begin{verbatim}
 \mailto{Luc.Maranget@\textit{inria}.\texttt{fr}}
@@ -1171,6 +1178,7 @@ commands, top-level or
 global macros definitions and environment definitions
 are automatically echoed to the image file. This enables using them
 in \textit{text} above.
+
 
 Output to the image files builds up a current page, which is flushed
 by the \verb+\imageflush+ command.
@@ -1296,15 +1304,22 @@ the image file and performs \verb+\imageflush+:
 Such a definition must be seen by \hevea{} only. So, it is best put
 in a separate file whose name is given as an extra argument on
 \hevea{} command line (see section~\ref{fileloading}).
-Observe that the definition is a definition and not a redefinition,
+Putting it in the document source
+protected inside an \verb+%HEVEA+ comment is a bad idea, %
+because it might then get echoed to the \textit{image} file
+and generate trouble when \LaTeX{} is later run by \texttt{imagen}.
+
+Observe that the above definition of \verb+\epsfbox+ is a definition
+and not a redefinition (i.e., \verb+\newcommand+ is used and not
+\verb+\renewcommand+),
 because \hevea{} does not know about \verb+\epsfbox+ by default.
 Also observe that this not a recursive definition, since
 commands do not get expanded inside the \verb+toimage+ environment.
 
 \subsection{Using filters}
 
-Some programs extend \LaTeX{} capabilities, using a filter principle.
-The documents contains source fragments for the program.
+Some programs extend \LaTeX{} capabilities using a filter principle.
+In such a scheme, the document contains source fragments for the program.
 A first run of the program on \LaTeX{} source changes these fragments
 into constructs that \LaTeX{} (or a subsequent stage in the paper
 document production chain, such as \texttt{dvips}) can handle.
@@ -1392,9 +1407,9 @@ own definition for the \verb+centergpic+ environment beforehand:
   {\begin{toimage}}
   {\box\graph\end{toimage}\begin{center}\imageflush\end{center}}
 \end{verbatim}
-Assuming the definition above is in a \url{../examples/smile.sty}{\texttt{smile.sty}} file,
+Assuming the definition above is in a \urlex{smile.sty}{\texttt{smile.sty}} file,
 the command sequence for translating
-\url{../examples/smile.tex}{\texttt{smile.tex}} \mbox{now is}:
+\urlex{smile.tex}{\texttt{smile.tex}} \mbox{now is}:
 \begin{verbatim}
 # gpic -t < smile.tex > tmp.tex
 # hevea smile.sty tmp.tex -o smile.html
@@ -1402,6 +1417,10 @@ tmp.tex:5: Warning: ignoring definition of \centergpic
 tmp.tex:5: Warning: not defining environment centergpic
 # imagen smile
 \end{verbatim}
+The warnings above are normal~: they are issued when \hevea{} runs
+across the \LaTeX{}-intended definition of the \verb+centergpic+
+environment and refuses to override its own definition for that
+environment.
 
 
 \section{Cutting your document into pieces with {\hacha}}\label{hacha}
@@ -1433,7 +1452,7 @@ as an entry in the table of contents.
 Sectional units above the cutting section (i.e., parts in both
 \filename{article} and \filename{book} styles) close the current table
 of contents and open a new one.
-Cross-references are properly handled, the local links generated by
+Cross-references are properly handled, that is the local links generated by
 \hevea{} are changed into remote links.
 
 The name of the root  file can be changed using the
@@ -1574,7 +1593,7 @@ The macro \verb+section+ already performs the appropriate
 \verb+\cuthere{section}{...}+ commands. As a consequence, the file
 that would otherwise contain the long chapter now contains the chapter
 title and a table of sections.
-(Also not that cutting macros are placed into \verb+%HEVEA+ comments,
+(Also note that cutting macros are placed inside \verb+%HEVEA+ comments,
 for \LaTeX{} not to be disturbed).
 
 The \verb+\cuthere+ macro can be used to put some document parts into
@@ -1919,10 +1938,10 @@ it has yet been performed. Surprises are likely.
 \subsection{Math Mode Environment}
 The three ways to use math mode (\verb+$+\ldots\verb+$+,
 \verb+\(+\ldots\verb+\)+ and
-\verb+\begin{math}+\ldots\verb+\end{math}+ are supported.
+\verb+\begin{math}+\ldots\verb+\end{math}+) are supported.
 The three ways to use display math mode (\verb+$$+\ldots\verb+$$+,
 \verb+\[+\ldots\verb+\]+ and
-\verb+\begin{displaymath}+\ldots\ \verb+\end{displaymath}+ are also
+\verb+\begin{displaymath}+\ldots\ \verb+\end{displaymath}+) are also
 supported.
 Furthermore, \verb+\ensuremath+ behaves as expected.
 
@@ -2811,7 +2830,7 @@ See the \footurl{\ftpbase/LICENSE}{LICENSE} file for details.
 The programs \commandname{hevea} and \commandname{hacha} are written in
 \footurl{http://caml.inria.fr/ocaml/}{Objective Caml}. Thus, you
 really need Objective Caml (version 2.00) to compile them.
-However, a Red~Hat 4.1
+However, a Red~Hat 5.1
 \footurl{\ftpbase/hevea-\heveaversion-1.i386.rpm}{binary distribution}
 is also available, it does not require an Objective Caml installation
 and can be installed on most Red~Hat Linux PC's.

@@ -9,6 +9,8 @@
 (*                                                                     *)
 (***********************************************************************)
 
+type fileOption = No | Yes of in_channel
+;;
 val get_base : unit -> string
 val set_base : string -> unit
 
@@ -17,3 +19,6 @@ val set : string -> Lexing.lexbuf -> unit
 val restore : unit -> unit
 
 val print_pos : unit -> unit
+val print_top_pos : unit -> unit
+val push_pos : unit -> unit
+val pop_pos : unit -> unit

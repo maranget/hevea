@@ -9,6 +9,8 @@
 (*                                                                     *)
 (***********************************************************************)
 
+exception Close of string
+
 val set_out : Out.t -> unit
 val get_last_closed : unit -> string
 val set_last_closed : string -> unit

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmain.ml,v 1.21 1998-10-26 16:23:17 maranget Exp $" 
+let header = "$Id: latexmain.ml,v 1.22 1998-12-09 17:36:32 maranget Exp $" 
 
 open Parse_opts
 
@@ -27,7 +27,7 @@ let read_style name =
        prerr_endline ("read_style: "^name)
     end ;
     let buf = Lexing.from_channel chan in
-    Location.set name buf ;
+    Location.set name buf;
     Latexscan.main buf ;
     Location.restore ()
   with Myfiles.Except-> ()  end ;
@@ -104,11 +104,17 @@ let main () =
 
 begin try
   main ()
-with x -> begin
-  Location.print_pos () ;
-  prerr_endline "Adios" ;
-  raise x
-  end
+with
+  Html.Close s ->
+    Location.print_pos () ;
+    prerr_endline "Adios" ;
+    Latexscan.print_env_pos () ;
+    failwith "Adios"
+|  x -> begin
+    Location.print_pos () ;
+    prerr_endline "Adios" ;
+    raise x
+end
 end ;
 exit 0;;
 

@@ -9,7 +9,12 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: location.ml,v 1.6 1998-07-21 11:18:37 maranget Exp $" 
+let header = "$Id: location.ml,v 1.7 1998-12-09 17:36:37 maranget Exp $" 
+
+
+type fileOption = No | Yes of in_channel
+;;
+
 let base = ref ""
 ;;
 
@@ -19,6 +24,7 @@ and get_base () = !base
 
 let stack = ref []
 ;;
+
 let push s e = s := e:: !s
 and pop s = match !s with
   [] -> failwith "Location : Empty stack"
@@ -26,28 +32,33 @@ and pop s = match !s with
 ;;
 
 
-let cur_line = ref (0,1)
-;;
 
 let curlexbuf = ref (Lexing.from_string "")
 and curlexname = ref ""
+and curline = ref (0,1)
+and curfile = ref No
 ;;
 
 let get () = !curlexname
 ;;
 
 let set name lexbuf =
-  push stack (!curlexname,!curlexbuf,!cur_line) ;
+  push stack (!curlexname,!curlexbuf,!curline,!curfile) ;
   curlexname := name ;
   curlexbuf := lexbuf;
-  cur_line := (0,1)
+  curfile :=
+     begin match name with "" -> No
+     | _ -> try Yes (open_in name) with Sys_error _ -> No
+     end ;
+  curline := (0,1)
 ;;
 
 let restore () =
-  let name,lexbuf,line = pop stack in
+  let name,lexbuf,line,file = pop stack in
   curlexname := name ;
   curlexbuf := lexbuf;
-  cur_line := line
+  curline := line;
+  curfile := file
 ;;
 
 
@@ -59,20 +70,45 @@ let rec find_line file r = function
     (n-1)
 ;;
 
-   
+let do_get_pos () =  match !curfile with
+  No -> -1
+| Yes file ->
+    try 
+      let  char_pos = Lexing.lexeme_start !curlexbuf
+      and last_pos,last_line = !curline in
+      let last_pos,last_line =
+        if char_pos < last_pos then 0,1 else last_pos,last_line in
+      seek_in file last_pos ;
+      let nline =
+        find_line file last_line (char_pos-last_pos) in
+      curline := (char_pos,nline);
+      nline
+    with Sys_error _ -> -1
+;;
+
 let print_pos () =
-  try
-    let file = open_in !curlexname
-    and char_pos = Lexing.lexeme_start !curlexbuf
-    and last_pos,last_line = !cur_line in
-    let last_pos,last_line =
-      if char_pos < last_pos then 0,1 else last_pos,last_line in
-    seek_in file last_pos ;
-    let nline =
-       find_line file last_line (char_pos-last_pos) in
-    close_in file ;
-    cur_line := (char_pos,nline);
+  let nline = do_get_pos () in
+  if nline >= 0 then
     prerr_string (!curlexname^":"^string_of_int nline^": ")
-  with Sys_error s -> ()
+  else
+    prerr_string (!curlexname^": ")
+;;
+
+let stack_pos = ref []
+;;
+
+let push  x = stack_pos := x :: !stack_pos
+and pop () = match !stack_pos with
+  [] -> failwith "Empty stack_pos"
+| x::r -> stack_pos := r ; x
+;;
+
+let push_pos () = push (do_get_pos ())
+and pop_pos () = let _ = pop () in ()
+and print_top_pos () =
+  prerr_string (!curlexname^":") ;
+  match !stack_pos with
+    [] -> prerr_string " "
+  | x::_ -> prerr_string (string_of_int x^": ")
 ;;
 

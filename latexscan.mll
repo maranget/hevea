@@ -16,7 +16,7 @@ open Myfiles
 open Latexmacros
 open Html
 
-let header = "$Id: latexscan.mll,v 1.55 1998-11-10 18:06:50 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.56 1998-12-09 17:36:34 maranget Exp $" 
 
 
 let prerr_args args =
@@ -412,7 +412,8 @@ and close_center () = Html.close_block "DIV"
 
 (* Latex environment stuff *)
 let new_env env =
-  push stack_env (!cur_env,!macros)   ;
+  push stack_env (!cur_env,!macros) ;
+  Location.push_pos () ;
   cur_env := env ;
   macros := [] ;
   if env <> "document" && env <> "*input" then incr env_level ;
@@ -423,11 +424,15 @@ let new_env env =
   end ;
 ;;
 
+let print_env_pos () =
+  Location.print_top_pos () ;
+  prerr_endline ("Latex environment ``"^ !cur_env^"'' is pending")
+;;
+
 let error_env close_e open_e =
-  prerr_endline ("Latex env error: ``"^close_e^"'' closes ``"^open_e^"''") ;
-  prerr_stack_string "Error: env stack is"
-    (List.map (fun (x,_) -> x) !stack_env) ;
-  raise (Failure "Unbalanced Latex env")
+  raise
+    (Html.Close
+       ("Latex env error: ``"^close_e^"'' closes ``"^open_e^"''"))
 ;;
 
 let close_env env  =
@@ -440,7 +445,8 @@ let close_env env  =
     let e,m = pop stack_env in    
     cur_env := e ;
     macros_unregister () ;
-    macros := m
+    macros := m ;
+    Location.pop_pos ()
   end else
     error_env env !cur_env
 ;;

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmacros.ml,v 1.29 1998-11-10 18:06:48 maranget Exp $" 
+let header = "$Id: latexmacros.ml,v 1.30 1998-12-09 17:36:31 maranget Exp $" 
 open Parse_opts
 open Symb
 
@@ -65,7 +65,7 @@ let def_macro_pat name pat action =
    pretty_macro pat action
   end ;
   try
-    Hashtbl.find cmdtable name ;
+    let _ = Hashtbl.find cmdtable name in () ;
     warning ("ignoring definition of "^name) ;
     raise Failed
   with

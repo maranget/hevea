@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: html.ml,v 1.29 1998-10-26 16:23:15 maranget Exp $" 
+let header = "$Id: html.ml,v 1.30 1998-12-09 17:36:29 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -18,6 +18,12 @@ let header = "$Id: html.ml,v 1.29 1998-10-26 16:23:15 maranget Exp $"
 
 open Parse_opts
 open Latexmacros
+
+exception Close of string
+;;
+
+let failclose s = raise (Close s)
+;;
 
 type 'a ok  = No | Yes of 'a
 ;;
@@ -692,7 +698,7 @@ let rec force_block s content =
   do_close_block true_s ;
   let ps,args,pout = pop_out out_stack in  
   if ps <> true_s then
-    failwith ("hml: "^true_s^" closes "^ps) ;
+    failclose ("hml: "^true_s^" closes "^ps) ;
   let old_out = !cur_out in  
   cur_out := pout ;
   if s = "FORGET" then free old_out
@@ -896,12 +902,12 @@ let close_display () =
       do_close_mods () ;
       let ps,_,pout = pop_out out_stack in
       if ps <> "TD" then
-        failwith ("close_display: "^ps^" closes TD") ;
+        failclose ("close_display: "^ps^" closes TD") ;
       do_close_mods () ;
       try_close_block "TD" ;
       let ps,_,ppout = pop_out out_stack in
       if ps <> "DISPLAY" then
-        failwith ("close_display: "^ps^" closes DISPLAY") ;
+        failclose ("close_display: "^ps^" closes DISPLAY") ;
       try_close_block "DISPLAY" ;
       let old_out = !cur_out in
       cur_out := ppout ;
@@ -920,7 +926,7 @@ let close_display () =
       let active = !cur_out.active and pending = !cur_out.pending in
       let ps,_,pout = pop_out out_stack in
       if ps <> "DISPLAY" then
-        failwith ("close_display: "^ps^" closes DISPLAY") ;
+        failclose ("close_display: "^ps^" closes DISPLAY") ;
       try_close_block "DISPLAY" ;
       let old_out = !cur_out in
       cur_out := pout ;
@@ -1011,7 +1017,7 @@ let erase_block s =
   try_close_block s ;
   let ts,_,tout = pop_out out_stack in
   if ts <> s then
-    failwith ("erase_block: "^s^" closes "^ts);
+    failclose ("erase_block: "^s^" closes "^ts);
   free !cur_out ;
   cur_out := tout
 ;;
@@ -1146,13 +1152,13 @@ let insert_vdisplay open_fun =
     let mods = !cur_out.pending @ !cur_out.active in
     let bs,bargs,bout = pop_out out_stack in
     if bs <> "" then
-      failwith ("insert_vdisplay: "^bs^" closes ``''");
+      failclose ("insert_vdisplay: "^bs^" closes ``''");
     let ps,pargs,pout = pop_out out_stack in
     if ps <> "TD" then
-      failwith ("insert_vdisplay: "^ps^" close TD");
+      failclose ("insert_vdisplay: "^ps^" close TD");
     let pps,ppargs,ppout = pop_out out_stack  in
     if pps <> "DISPLAY" then
-      failwith ("insert_vdisplay: "^pps^" close DISPLAY");
+      failclose ("insert_vdisplay: "^pps^" close DISPLAY");
     let new_out = new_status false [] [] in
     push_out out_stack (pps,ppargs,new_out) ;
     push_out out_stack (ps,pargs,pout) ;
