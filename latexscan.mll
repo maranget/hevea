@@ -49,7 +49,7 @@ open Save
 open Tabular
 open Lexstate
 
-let header = "$Id: latexscan.mll,v 1.73 1999-04-02 14:44:59 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.74 1999-04-05 11:01:37 maranget Exp $" 
 
 let sbool = function
   | false -> "false"
@@ -341,18 +341,20 @@ let scan_this_arg old_stack lexfun lexbuf s =
 *)
 
 let get_this lexfun s =
-  save_lexstate () ;
+  start_normal display in_math ;
+
   if !verbose > 1 then
     prerr_endline ("get_this : ``"^s^"''") ;  
   let lexer = Lexing.from_string s in
   let r = Html.to_string (fun () ->
-    top_open_block "" "" ;
+    top_open_group () ;
     lexfun lexer ;
-    top_close_block "") in
+    top_close_group ()) in
+
   if !verbose > 1 then begin
     prerr_endline ("get_this ``"^s^"'' -> ``"^r^"''")
   end ;
-  restore_lexstate () ;
+  end_normal display in_math ;
   r
 ;;
 
