@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.254 2005-02-28 16:28:19 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.255 2005-02-28 16:32:23 maranget Exp $ *)
 
 
 {
@@ -3222,7 +3222,6 @@ and do_backquote lexbuf = match !symbol_mode with
 | Entity when not !in_math ->
     if Save.if_next_char '`' lexbuf then begin
       gobble_one_char lexbuf ;
-      warning "Backquote" ;
       Dest.put "&#8220;"
     end else
       Dest.put_char '`'
