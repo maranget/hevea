@@ -1,7 +1,7 @@
 html.cmi: latexmacros.cmi out.cmi 
 latexscan.cmi: out.cmi 
-aux.cmo: save.cmo 
-aux.cmx: save.cmx 
+auxx.cmo: save.cmo 
+auxx.cmx: save.cmx 
 counter.cmo: location.cmi counter.cmi 
 counter.cmx: location.cmx counter.cmi 
 cross.cmo: location.cmi cross.cmi 
@@ -16,24 +16,24 @@ foot.cmo: html.cmi location.cmi parse_opts.cmi section.cmi foot.cmi
 foot.cmx: html.cmx location.cmx parse_opts.cmx section.cmx foot.cmi 
 html.cmo: latexmacros.cmi out.cmi parse_opts.cmi html.cmi 
 html.cmx: latexmacros.cmx out.cmx parse_opts.cmx html.cmi 
-image.cmo: out.cmi parse_opts.cmi image.cmi 
-image.cmx: out.cmx parse_opts.cmx image.cmi 
+image.cmo: location.cmi out.cmi parse_opts.cmi image.cmi 
+image.cmx: location.cmx out.cmx parse_opts.cmx image.cmi 
 index.cmo: entry.cmi html.cmi location.cmi myfiles.cmi parse_opts.cmi \
     index.cmi 
 index.cmx: entry.cmx html.cmx location.cmx myfiles.cmx parse_opts.cmx \
     index.cmi 
-latexmacros.cmo: aux.cmo location.cmi parse_opts.cmi save.cmo symb.cmi \
+latexmacros.cmo: auxx.cmo location.cmi parse_opts.cmi symb.cmi \
     latexmacros.cmi 
-latexmacros.cmx: aux.cmx location.cmx parse_opts.cmx save.cmx symb.cmx \
+latexmacros.cmx: auxx.cmx location.cmx parse_opts.cmx symb.cmx \
     latexmacros.cmi 
-latexmain.cmo: aux.cmo html.cmi image.cmi latexscan.cmi location.cmi \
+latexmain.cmo: auxx.cmo html.cmi image.cmi latexscan.cmi location.cmi \
     myfiles.cmi out.cmi parse_opts.cmi save.cmo 
-latexmain.cmx: aux.cmx html.cmx image.cmx latexscan.cmx location.cmx \
+latexmain.cmx: auxx.cmx html.cmx image.cmx latexscan.cmx location.cmx \
     myfiles.cmx out.cmx parse_opts.cmx save.cmx 
-latexscan.cmo: aux.cmo counter.cmi foot.cmi html.cmi image.cmi index.cmi \
+latexscan.cmo: auxx.cmo counter.cmi foot.cmi html.cmi image.cmi index.cmi \
     latexmacros.cmi location.cmi myfiles.cmi mylib.cmi out.cmi parse_opts.cmi \
     save.cmo subst.cmo symb.cmi latexscan.cmi 
-latexscan.cmx: aux.cmx counter.cmx foot.cmx html.cmx image.cmx index.cmx \
+latexscan.cmx: auxx.cmx counter.cmx foot.cmx html.cmx image.cmx index.cmx \
     latexmacros.cmx location.cmx myfiles.cmx mylib.cmx out.cmx parse_opts.cmx \
     save.cmx subst.cmx symb.cmx latexscan.cmi 
 location.cmo: location.cmi 

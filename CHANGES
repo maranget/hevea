@@ -1,3 +1,8 @@
+version 1.02-1
+  - Added support for verbatiminput, on an idea by Philippe Queinnec
+    (Philippe.Queinnec@enseeiht.fr)
+  - Changed module Aux into Auxx, to ease Philip A. Viton (pviton@magnus.acs.ohio-state.edu) Windows port.
+
 Version 1.01 Bug fixes.
   - Corrected a bug with \frac and \over: text before them appeared
     above fraction.

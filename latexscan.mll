@@ -17,7 +17,7 @@ open Latexmacros
 open Html
 open Save
 
-let header = "$Id: latexscan.mll,v 1.34 1998-08-27 15:24:34 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.35 1998-08-31 15:57:43 maranget Exp $" 
 
 let push s e = s := e:: !s
 and pop s = match !s with
@@ -207,6 +207,11 @@ let skip_opt lexbuf =
   let _ =  parse_quote_arg_opt "" lexbuf  in
   ()
 
+and check_opt lexbuf =
+  match parse_quote_arg_opt "" lexbuf  with
+    Yes _ -> true
+  | No  _ -> false
+
 and save_opt def lexbuf =
   match parse_arg_opt def  lexbuf with
     Yes s -> s
@@ -259,6 +264,7 @@ exception IfFalse
 ;;
 
 let verb_delim = ref (Char.chr 0)
+let tab_val = ref 8
 ;;
 
 let cur_env = ref ""
@@ -1052,6 +1058,21 @@ rule  main = parse
        Image.put (lxm^"{"^arg^"}\n")
      end ;
      main lexbuf}
+| "\\verbatiminput"
+      {let lxm = lexeme lexbuf in
+      let tabs = my_int_of_string (save_opt "8" lexbuf) in      
+      let arg = save_arg lexbuf in
+      let old_tabs = !tab_val in
+      tab_val := tabs ;
+      Html.open_block "PRE" "" ;
+      begin try
+        input_file !verbose verbenv arg ;
+      with Not_found ->
+       Image.put (lxm^"{"^arg^"}\n")
+      end ;
+      Html.close_block "PRE" ;
+      tab_val := old_tabs ;
+      main lexbuf}
 | "\\usepackage"
       {let lxm = lexeme lexbuf in
       let arg = save_arg lexbuf in
@@ -1852,8 +1873,13 @@ and verbenv = parse
     verbenv lexbuf}
 | "<"         { Html.put "&lt;"; verbenv lexbuf }
 | ">"         { Html.put "&gt;"; verbenv lexbuf }
-| eof  {failwith "End of file in verbatim"}
-| _  { Html.put_char (lexeme_char lexbuf 0) ; verbenv lexbuf}
+| '\t'
+      {for i=1 to !tab_val do
+        Html.put_char ' '
+      done ;
+      verbenv lexbuf}
+| eof {()}
+| _   { Html.put_char (lexeme_char lexbuf 0) ; verbenv lexbuf}
 
 and inverb = parse
   "<"         { Html.put "&lt;"; inverb lexbuf }
