@@ -1186,7 +1186,9 @@ rule  main = parse
        text anchor ;
      main lexbuf}
   | "\\@footnoteflush"
-     {Foot.flush (scan_this main) ;
+     {let sec_here = save_arg lexbuf
+     and sec_notes = get_this main "\\@footnotelevel" in
+     Foot.flush (scan_this main) sec_notes sec_here ;
      main lexbuf}
 (* Boxes *)
   | "\\newsavebox"
@@ -1216,6 +1218,10 @@ rule  main = parse
   | "\\@defaultdt"
      {let arg = save_arg lexbuf in
      Html.set_dt arg ;
+     skip_blanks_main lexbuf}
+  | "\\@fromlib"
+     {let arg = save_arg lexbuf in
+     Mylib.put_from_lib arg Html.put;
      skip_blanks_main lexbuf}
 (* General case for commands *)
   | "\\" '@'? ((['A'-'Z' 'a'-'z']+ '*'?) | [^ 'A'-'Z' 'a'-'z'])

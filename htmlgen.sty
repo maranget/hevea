@@ -1,3 +1,8 @@
+%%% not so serious
+\newcommand{\htmlgen}{{\sc\sf HtmlGen}}
+\newcommand{\htmlcut}{{\sc\sf HtmlCut}}
+\def\home#1{\char126#1}
+%%% now serious
 \newenvironment{document}{%
 \@print{<HTML>
 }%
@@ -6,9 +11,13 @@
 \@print{</TITLE></HEAD>}%
 \@print{<BODY>
 }%
-\@cutdef{\@docpart}{\@docchapter}%
+\cutdef{\@docpart}{\@docchapter}%
 }{%
-\@footnoteflush%
+\@footnoteflush{document}%
+\@print{
+<!--FOOTER-->
+}%
+\@fromlib{footer.html}%
 \@print{</BODY>
 </HTML>
 }
@@ -235,7 +244,7 @@
 \newcommand{\chaptermark}[1]{}
 \newcommand{\sectionmark}[1]{}
 \newcommand{\contentsname}{\iffrench Table des mati\`res\else Table of contents}
-
+\newcommand{\addcontentsline}[3]{}
 \def\today{}
 \def\protect{}
 \def\fancyplain#1#2{}
@@ -294,21 +303,18 @@
 %% TO IMAGE
 }
 %%%%%%%%%%%%%%%%% Table of contents
-\newcommand{\@cutdef}[2]{%
-\@print{<!--CUT DEF #1 #2 -->
+\newcommand{\cutdef}[2]{%
+\@print{<!--CUT DEF }#1\@print{ }#2\@print{ -->
 }%
 }
-\newcommand{\@cutend}{%
+\newcommand{\cutend}{%
 \@print{<!--CUT END -->
 }%
 }
-\newcommand{\@cut}[3]{%
-\@print{<!--#1 #2 }%
+\newcommand{\cut}[3]{%
+\@footnoteflush{#2}%
+\@print{<!--}#1\@print{ }#2\@print{ }%
 {#3}\@print{-->
 }%
 }
 \def\tableofcontents{}
-%%%%%%%%%%%%%%%%%% Images
-\newenvironment{image}{%%BEGIN IMAGE
-}{%% END IMAGE
-}

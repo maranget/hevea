@@ -24,9 +24,20 @@ let register i mark text anchor =
   !table.(i-1) <- Some (mark,text,anchor)
 ;;
 
-let flush lexer =
-  if !some then begin
+let sec_value s = match String.uppercase s with
+  "DOCUMENT"|"" -> 0
+| "PART" -> 1
+| "CHAPTER" -> 2
+| "SECTION" -> 3
+| _         -> 4
+;;
+
+let flush lexer sec_notes sec_here =
+  if !some && sec_value sec_here <= sec_value sec_notes then begin
     some := false ;
+    Html.put "<!--BEGIN NOTES " ;
+    Html.put sec_notes ;
+    Html.put "-->\n" ;
     lexer "\\footnoterule" ;
     Html.open_block "DL" "" ;
     let t = !table in
@@ -42,6 +53,7 @@ let flush lexer =
           Html.put txt ;
           Html.put_char '\n'
     done ;
-    Html.force_block "DL" ""
+    Html.force_block "DL" "" ;
+    Html.put "<!--END NOTES-->"
   end
 ;;

@@ -14,22 +14,7 @@ let is_except name =
   try Hashtbl.find etable name ; true with Not_found -> false
 ;;
 
-let tex_path = try
-  let r = ref []
-  and j = ref 0 in
-  let s = Sys.getenv "HTMLINPUTS" in
-  for i=0 to String.length s-1 do
-    match String.get s i with
-     ':' ->
-        let d = String.sub s !j (i- !j) in
-        r := d :: !r ;
-        j := i+1
-    | _  -> ()
-  done ;
-  let d = String.sub s !j (String.length s - !j) in
-  r :=  d :: !r ;
-  !path @ List.rev !r
-with Not_found -> "." :: !path @ [LIBDIR]
+let tex_path = "." :: !path @ [Mylib.libdir]
 ;;
 
 exception Found of (string * in_channel)

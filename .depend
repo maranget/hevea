@@ -4,12 +4,12 @@ aux.cmo: save.cmo
 aux.cmx: save.cmx 
 counter.cmo: location.cmi counter.cmi 
 counter.cmx: location.cmx counter.cmi 
-cross.cmo: cross.cmi 
-cross.cmx: cross.cmi 
-cut.cmo: cross.cmi out.cmi 
-cut.cmx: cross.cmx out.cmx 
-cutmain.cmo: cut.cmo location.cmi 
-cutmain.cmx: cut.cmx location.cmx 
+cross.cmo: location.cmi cross.cmi 
+cross.cmx: location.cmx cross.cmi 
+cut.cmo: cross.cmi mylib.cmi out.cmi thread.cmi 
+cut.cmx: cross.cmx mylib.cmx out.cmx thread.cmx 
+cutmain.cmo: cut.cmo location.cmi mylib.cmi 
+cutmain.cmx: cut.cmx location.cmx mylib.cmx 
 entry.cmo: out.cmi save.cmo 
 entry.cmx: out.cmx save.cmx 
 foot.cmo: html.cmi location.cmi parse_opts.cmi foot.cmi 
@@ -27,15 +27,17 @@ latexmain.cmo: aux.cmo html.cmi image.cmi latexscan.cmi location.cmi \
 latexmain.cmx: aux.cmx html.cmx image.cmx latexscan.cmx location.cmx \
     myfiles.cmx out.cmx parse_opts.cmx 
 latexscan.cmo: aux.cmo counter.cmi foot.cmi html.cmi image.cmi index.cmi \
-    latexmacros.cmi location.cmi myfiles.cmi out.cmi parse_opts.cmi save.cmo \
-    subst.cmo symb.cmi latexscan.cmi 
+    latexmacros.cmi location.cmi myfiles.cmi mylib.cmi out.cmi parse_opts.cmi \
+    save.cmo subst.cmo symb.cmi latexscan.cmi 
 latexscan.cmx: aux.cmx counter.cmx foot.cmx html.cmx image.cmx index.cmx \
-    latexmacros.cmx location.cmx myfiles.cmx out.cmx parse_opts.cmx save.cmx \
-    subst.cmx symb.cmx latexscan.cmi 
+    latexmacros.cmx location.cmx myfiles.cmx mylib.cmx out.cmx parse_opts.cmx \
+    save.cmx subst.cmx symb.cmx latexscan.cmi 
 location.cmo: location.cmi 
 location.cmx: location.cmi 
-myfiles.cmo: parse_opts.cmi myfiles.cmi 
-myfiles.cmx: parse_opts.cmx myfiles.cmi 
+myfiles.cmo: mylib.cmi parse_opts.cmi myfiles.cmi 
+myfiles.cmx: mylib.cmx parse_opts.cmx myfiles.cmi 
+mylib.cmo: mylib.cmi 
+mylib.cmx: mylib.cmi 
 out.cmo: out.cmi 
 out.cmx: out.cmi 
 parse_opts.cmo: parse_opts.cmi 
@@ -46,3 +48,5 @@ subst.cmo: out.cmi
 subst.cmx: out.cmx 
 symb.cmo: parse_opts.cmi symb.cmi 
 symb.cmx: parse_opts.cmx symb.cmi 
+thread.cmo: thread.cmi 
+thread.cmx: thread.cmi 

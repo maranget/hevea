@@ -21,7 +21,7 @@ let fullname name =
   with Not_found -> begin
     Location.print_pos () ;
     prerr_endline ("Cross.find, cannot find label: "^name) ;
-    name
+    raise Not_found
   end
 ;;
 
