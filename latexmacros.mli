@@ -37,7 +37,7 @@ val pretty_action : action -> unit
 
 val find_macro: string -> pat * action
 val exists_macro: string -> bool
-
+val is_subst_noarg : action -> pat -> bool
 
 val make_pat: string list -> int -> pat
 val def_coltype: string -> pat  -> action -> unit

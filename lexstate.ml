@@ -1,4 +1,4 @@
-let header =  "$Id: lexstate.ml,v 1.7 1999-04-15 15:05:48 maranget Exp $"
+let header =  "$Id: lexstate.ml,v 1.8 1999-05-03 14:22:16 maranget Exp $"
 
 open Misc
 open Lexing
@@ -131,23 +131,17 @@ and scan_body exec body args =
     raise IfFalse
   end
 
-let eat_space = ref true
-and stack_eat = ref []
-
 let tab_val = ref 8
 
 
 (* Recoding and restoring lexbufs *)
-let record_lexbuf lexbuf eat =
-  push stack_eat !eat_space ;
+let record_lexbuf lexbuf =
   push stack_stack_stack (!stack,!stack_stack) ;
-  push stack_lexbuf lexbuf ;
-  eat_space := eat
+  push stack_lexbuf lexbuf
 
 and previous_lexbuf () =
   let lexbuf = pop stack_lexbuf
   and s,ss = pop stack_stack_stack in
-  eat_space := pop stack_eat ;
   stack := s ; stack_stack := ss ;
   lexbuf
 ;;
@@ -157,18 +151,14 @@ let stack_stack_lexbuf = ref []
 ;;
 
 let save_lexstate () =
-  let old_eat = !stack_eat
-  and old_stack = !stack_stack_stack in
-  push stack_eat !eat_space ;
+  let old_stack = !stack_stack_stack in
   push stack_stack_stack (!stack,!stack_stack) ;
-  push stack_stack_lexbuf (!stack_lexbuf,!stack_eat,!stack_stack_stack) ;
-  stack_eat := old_eat ; stack_stack_stack := old_stack
+  push stack_stack_lexbuf (!stack_lexbuf,!stack_stack_stack) ;
+  stack_stack_stack := old_stack
 
 and restore_lexstate () =
-  let l,s,args = pop stack_stack_lexbuf in
+  let l,args = pop stack_stack_lexbuf in
   stack_lexbuf := l ;
-  stack_eat := s;
-  eat_space := pop stack_eat ;
   stack_stack_stack := args ;
   let s,ss = pop stack_stack_stack in
   stack := s ;
@@ -179,8 +169,7 @@ and restore_lexstate () =
 (* Blank lexing status *)
 let start_lexstate () =
   save_lexstate () ;
-  stack_lexbuf := [] ;
-  eat_space := false
+  stack_lexbuf := []
 ;;
 
 let out_file = match Parse_opts.name_out with
@@ -353,7 +342,7 @@ let scan_this lexfun s =
   r
 ;;
 
-let scan_this_may_cont eat lexfun lexbuf s =
+let scan_this_may_cont lexfun lexbuf s =
   if !verbose > 1 then begin
     Printf.fprintf stderr "scan_this_may_cont : [%s]" s ;
     prerr_endline "" ;
@@ -363,7 +352,7 @@ let scan_this_may_cont eat lexfun lexbuf s =
     end
   end ;
   save_lexstate ();
-  record_lexbuf lexbuf eat;
+  record_lexbuf lexbuf ;
 
   let lexer = Lexing.from_string s in
   let r = lexfun lexer in

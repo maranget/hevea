@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmacros.ml,v 1.43 1999-04-16 13:31:37 maranget Exp $" 
+let header = "$Id: latexmacros.ml,v 1.44 1999-05-03 14:22:09 maranget Exp $" 
 open Misc
 open Parse_opts
 open Symb
@@ -176,6 +176,10 @@ let exists_macro name =
     true
   with Not_found ->
     false
+
+let is_subst_noarg body pat = match body with
+| CamlCode _ -> false
+| _ -> pat = ([],[])
 
 (* for conditionals *)
 let display = ref false

@@ -1,4 +1,5 @@
 version 1.04-1
+  - Simplified ``space after macro'' managment.
   - Mathematical accents added, rendering is far from perfect.
   - \\ in display mode does not emit <BR> anymore
   - Small ams compatibility  mode : displayed equations (ams.hva)

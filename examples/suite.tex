@@ -158,7 +158,7 @@ Les caract\`eres accentu\'es sans peine~:
 ``bien \'elev\'e bien \'{e}lev\'{e} tr\`es bien.''
 
 Chaque tableau est un paragraphe
-\newcommand{\test}[2]{\begin{tabular}{rcl}arg$_1$ & = & ``#1'' \\ arg$_2$ &
+{\newcommand{\test}[2]{\begin{tabular}{rcl}arg$_1$ & = & ``#1'' \\ arg$_2$ &
 = & ``#2''\end{tabular}}
 \newcommand{\aaa}{$\alpha$}
 
@@ -168,21 +168,33 @@ Chaque tableau est un paragraphe
 
 \test\aaa{\aaa}
 
-\test\i i
+\test\i i}
 
-\subsection{Espaces et commandes}
-\let\boite=\textbf
-Avec espace ``\boite{avant} après''.
+\subsection{Espaces et commandes}\label{espace}
 
-\let\decl=\bf
-Sans espace  ``{avant\bf après}'', ``{avant\decl après}''.
+\begin{itemize}
+\item Sans espace~:
 
-\newcommand{\avant}{avant}
-Sans espace ``\avant après''
+{avant\bf après},
+{avant\let\decl=\bf avant\decl après},
+{\newcommand{\avant}{avant}\avant après},
+{\newcommand{\test}[1]{#1\bf }\test{avant}après},
+{avant\ref{espace}après},
+{\newcommand{\test}{\ref{espace}}avant\test après},
+{avan\char116 après}.
 
+\item Avec espace~:
 
-{\let\monverb\verb \monverb+coucou+}
-\monverb{Erreur}.
+{\let\boite=\textbf\boite{avant} après},
+\mbox{avant} après,
+{\newcommand{\test}[1]{#1\bf}\test{avant} après},
+{avant\newcommand{\apres}{après} \apres},
+avant\newsavebox{\testb}\sbox{\testb}{avant} {\usebox{\testb} après},
+{avant\ref{espace} après},
+{\newcommand{\test}[1]{\ref{#1}}avant\test{espace} après},
+{avant\label{ici} après},
+{avan\symbol{116} après}.
+\end{itemize}
 
 \section{Math mode}
 

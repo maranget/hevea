@@ -48,7 +48,7 @@ open Save
 open Tabular
 open Lexstate
 
-let header = "$Id: latexscan.mll,v 1.80 1999-04-16 13:31:44 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.81 1999-05-03 14:22:13 maranget Exp $" 
 
 let sbool = function
   | false -> "false"
@@ -1150,7 +1150,7 @@ rule  main = parse
                 top_open_block "" "" ;
               let old_envi = save_stack stack_entry in
               push stack_entry env ;
-              scan_this_may_cont true main lexbuf macro ;
+              scan_this_may_cont main lexbuf macro ;
               restore_stack stack_entry old_envi ;
               main lb) in
             new_env env ;
@@ -1237,10 +1237,8 @@ rule  main = parse
         else
           Html.skip_line ()
       end ;
-      eat_space := true ;
       skip_blanks_pop lexbuf ;
       let _ = Html.forget_par () in
-      eat_space := false ;
       main lexbuf}
 (* Substitution  *)
   | '#' ['1'-'9']
@@ -1271,7 +1269,7 @@ rule  main = parse
         | Subst body ->
             if !verbose > 2 then
               prerr_endline ("user macro: "^body) ;            
-            scan_this_may_cont true main lexbuf body
+            scan_this_may_cont main lexbuf body
         | CamlCode (f) -> 
             scan_fun f lexbuf name in
 
@@ -1297,13 +1295,13 @@ rule  main = parse
             prerr_string ("Cont after macro "^name^": ") ;
           if saw_par then top_par (par_val !in_table)
           else if
-            Latexmacros.invisible name ||
+            (!in_math && Latexmacros.invisible name) ||
             (not !in_math && not !alltt &&
-             (pat = ([],[])) && last_letter name && !eat_space)
+             is_subst_noarg body pat && last_letter name)
           then begin
             if !verbose > 2 then
               prerr_endline "skipping blanks";
-            skip_blanks_pop lexbuf
+            skip_blanks lexbuf
           end else begin
             if !verbose > 2 then begin
               prerr_endline "not skipping blanks"
@@ -1396,7 +1394,7 @@ and latexonly = parse
        push stack_out arg ;
        begin match find_macro ("\\end"^arg) with
          _,(Subst body) ->
-           scan_this_may_cont false latexonly lexbuf body
+           scan_this_may_cont latexonly lexbuf body
        |  _,_ ->
            raise (Error ("Bad closing macro in latexonly: ``"^arg^"''"))
        end
@@ -1446,7 +1444,7 @@ and image = parse
        push stack_out arg ;
        begin match find_macro ("\\end"^arg) with
          _,(Subst body) ->
-           scan_this_may_cont false image lexbuf body
+           scan_this_may_cont  image lexbuf body
        |  _,_ -> raise (Error ("Bad closing macro in image: ``"^arg^"''"))
        end
      end else begin
@@ -1527,7 +1525,7 @@ and skip_blanks_pop = parse
 | '\n' {more_skip_pop lexbuf}
 | ""   {()}
 | eof
-   {if not (Lexstate.empty stack_lexbuf) && !eat_space then begin
+   {if not (Lexstate.empty stack_lexbuf) then begin
      let lexbuf = previous_lexbuf () in
      if !verbose > 2 then begin
        prerr_endline "Poping lexbuf in skip_blanks" ;
@@ -1540,7 +1538,7 @@ and more_skip_pop = parse
   '\n'+ {top_par (par_val !in_table)}
 | ""    {skip_blanks_pop lexbuf}
 | eof
-   {if not (Lexstate.empty stack_lexbuf) && !eat_space then begin
+   {if not (Lexstate.empty stack_lexbuf) then begin
      let lexbuf = previous_lexbuf () in
      if !verbose > 2 then begin
        prerr_endline "Poping lexbuf in skip_blanks" ;
@@ -2186,7 +2184,7 @@ def_code "\\@footnoteflush"
 
 (* Boxes *)
 
-def_code "\\mbox" (fun lexbuf _ -> mbox_arg lexbuf ; eat_space := false)
+def_code "\\mbox" (fun lexbuf _ -> mbox_arg lexbuf)
 ;;
 
 def_code "\\newsavebox"
@@ -2229,7 +2227,8 @@ def_code "\\char"
       Location.print_pos () ;
       prerr_endline ("Warning: \\char");
     end ;
-    Html.put (Html.iso (Char.chr arg)) )
+    Html.put (Html.iso (Char.chr arg)) ;
+    skip_blanks lexbuf)
 ;;
 
 def_code "\\symbol"
@@ -2398,10 +2397,9 @@ def_code "\\hline"
   (fun lexbuf _ ->
      if is_noborder_table !in_table then
        do_hline main ;
-     eat_space := true ;
      skip_endrow lexbuf ;
      let _ = Html.forget_par () in
-     eat_space := false)
+     ())
 ;;
 
 

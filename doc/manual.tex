@@ -518,13 +518,12 @@ This is a small array:
 \end{htmlout}
 \end{htmlonly}
 
-However, since in some sense, all \html{} tables are displayed,
-the \verb+array+ and \verb+tabular+ environments implicitly open
-display mode, thus allowing a satisfactory typesetting of formulas in
-arrays.
-More precisely array elements whose column format specification is
-\verb+l+, \verb+c+ or \verb+r+ are typeset in display mode
-(see section~\ref{arraydef}).
+However, since in some sense, all \html{} tables are displayed, the
+\verb+array+ and \verb+tabular+ environments implicitly open display
+mode, thus allowing a satisfactory typesetting of formulas in
+arrays. More precisely, array elements whose column format
+specification is \verb+l+, \verb+c+ or \verb+r+ are typeset in display
+mode (see section~\ref{arraydef}).
 
 \subsection{Warnings}
 When \hevea{} thinks it cannot translate a symbol or construct
@@ -1019,7 +1018,7 @@ environment & \multicolumn{1}{c}{\hevea} &  \multicolumn{1}{c}{\LaTeX}
 constructs are processed (see section~\ref{why}) & process \\
 \verb+verblatex+ & ignore & process \\
 \verb+htmlonly+ & process & ignore \\
-\verb+rawhtml+  & echo verbatim & ignore\\
+\verb+rawhtml+  & echo verbatim (see section~\ref{rawhtml}) & ignore\\
 \verb+toimage+&
 send to the \filename{image} file, \verb+\end{+\textit{env}\verb+}+
 constructs and macro characters are processed (see section~\ref{imagen})  &
