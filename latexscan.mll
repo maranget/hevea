@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.166 2000-03-27 10:58:25 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.167 2000-03-29 12:04:26 maranget Exp $ *)
 
 
 {
@@ -993,12 +993,12 @@ rule  main = parse
    main lexbuf}
 
 and latex2html_latexonly = parse
-| '%' + [ ' ' '\t' ] * "end{latexonly}" [ ^ '\n' ] * '\n'
+| '%' + [ ' ' '\t' ] * "\\end{latexonly}" [ ^ '\n' ] * '\n'
     { () }
 | _ 
     {latex2html_latexonly lexbuf}
 | eof
-    {failwith "EOF in latexonly"}
+    {fatal "En of file in latex2html_latexonly"}
 
 and latexonly = parse
    '%'+ ' '* ("END"|"end") ' '+ ("LATEX"|"latex")  [^'\n']* '\n'

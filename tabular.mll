@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: tabular.mll,v 1.20 2000-02-24 14:04:20 maranget Exp $ *)
+(* $Id: tabular.mll,v 1.21 2000-03-29 12:04:30 maranget Exp $ *)
 {
 open Misc
 open Lexing
@@ -112,7 +112,7 @@ rule tfone = parse
       apply out_table (function
         |  Align a as r -> a.pre <- pre
         | _ -> raise (Error "Bad syntax in array argument (>)"))
-    with Failure "Table.apply" ->
+    with Table.Empty ->
       raise (Error "Bad syntax in array argument (>)")}
 | "" {tfmiddle lexbuf}
 
@@ -135,8 +135,7 @@ and tfmiddle = parse
     {let lxm = lexeme lexbuf in
     let i = Char.code (lxm.[1]) - Char.code '1' in
     Lexstate.scan_arg (scan_this tfmiddle) i}
-
-| ['a'-'z''A'-'Z']
+| ['a'-'z''A'-'Z''.']
     {let lxm = lexeme lexbuf in
     let name = column_to_command lxm in
     let pat,body = Latexmacros.find_macro name in
@@ -147,10 +146,15 @@ and tfmiddle = parse
         | _ -> assert false)
       body args ;
     let post = tfpostlude lexbuf in
-    Table.apply out_table
-      (function
-        | Align f -> f.post <- post
-        | _ -> Misc.warning ("``<'' after ``@'' in tabular arg scanning"))}
+    if post <> "" then
+      try
+        Table.apply out_table
+          (function
+            | Align f -> f.post <- post
+            | _ -> Misc.warning ("``<'' after ``@'' in tabular arg scanning"))
+      with
+      | Table.Empty ->
+          raise (Error ("``<'' cannot start tabular arg"))}
 | eof {()}
 | ""
   {let rest =

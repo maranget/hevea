@@ -1,3 +1,16 @@
+(***********************************************************************)
+(*                                                                     *)
+(*                          HEVEA                                      *)
+(*                                                                     *)
+(*  Luc Maranget, projet PARA, INRIA Rocquencourt                      *)
+(*                                                                     *)
+(*  Copyright 1999 Institut National de Recherche en Informatique et   *)
+(*  Automatique.  Distributed only by permission.                      *)
+(*                                                                     *)
+(***********************************************************************)
+
+exception Empty
+
 type 'a t = {mutable next : int ; mutable data : 'a array}
 
 let default_size = 32
@@ -22,7 +35,7 @@ let emit table i =
 
 let apply table f =
   if table.next = 0 then
-    raise (Failure "Table.apply") ;
+    raise Empty ;
   f table.data.(table.next - 1)
 
 let trim t =
