@@ -1,4 +1,6 @@
 version 1.06-1
+  - A la TeX \mathop
+  - patched bugs in info genearation
   - alltt implementation revised. Efficency concern
   - listings package implementation
   - \def and \let now have TeX semantics
