@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmain.ml,v 1.75 2004-05-27 14:25:43 maranget Exp $" 
+let header = "$Id: latexmain.ml,v 1.76 2004-07-28 09:14:08 maranget Exp $" 
 
 open Misc
 open Parse_opts
@@ -167,7 +167,9 @@ let main () =
           if !image_changed then begin
             Misc.message
               ("Now, I am running imagen for you") ;
-            let _ = Sys.command("imagen "^Misc.get_image_opt ()^" "^base_out) in ()
+            let _ = Sys.command
+                (Filename.concat Mylib.libdir "imagen"^
+                 " "^Misc.get_image_opt ()^" "^base_out) in ()
           end
         end in
       do_rec 1

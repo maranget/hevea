@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.243 2004-07-27 14:25:00 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.244 2004-07-28 09:14:08 maranget Exp $ *)
 
 
 {
@@ -2557,8 +2557,8 @@ def_code "\\@begin@document"
         else begin
           s.[0] <- '-' ;
           begin match s with
-          | "-gif" -> Misc.image_opt := Some ""
-          | _      -> Misc.image_opt := Some s
+          | "-gif" -> ()
+          | _      -> Misc.image_opt := append_to_opt !Misc.image_opt s
           end
         end
     | _ -> ()
@@ -2568,6 +2568,12 @@ def_code "\\@begin@document"
       Misc.image_opt := append_to_opt !Misc.image_opt ("-todir "^s)
     end ;
     check_alltt_skip lexbuf)
+;;
+
+def_code "\\@addimagenopt"
+  (fun lexbuf ->
+    let opt = get_prim_arg lexbuf in
+    Misc.image_opt := append_to_opt !Misc.image_opt opt)
 ;;
 
 def_code "\\@raise@enddocument"
