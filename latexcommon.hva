@@ -1,7 +1,6 @@
 \newif\ifhevea\heveatrue
 \let\ifimage\iffalse
 \newenvironment{htmlonly}{}{}
-\newif\iffooter\footertrue
 \newcommand{\home}[1]{\~{}#1}
 %%%%%%%%%%%%%%%% Maths environments and TeXisms
 \newcommand{\textright}[1]{#1}
@@ -165,7 +164,7 @@
 \def\underline#1{\ifdisplay
 \begin{@varray}#1\\ \hline\end{@varray}\else\textunderline{#1}\fi}
 %%%Miscleanous, title stiff
-\input{math.hva}
+\input{common-math.hva}
 \newcommand{\thanks}[1]{\footnote{#1}}
 \newenvironment{titlepage}{}{}
 \newcommand{\and}{\quad}
@@ -334,7 +333,7 @@
 \def\@final@footer{%
 \iffooter\ifhtml
 \@print{<!--FOOTER-->}
-\fi\input{footer.tex}\fi}
+\fi\@footer\fi}
 \AtEndDocument
 {\begin{toimage}
 \end{document}
@@ -562,18 +561,11 @@ poor}}{}
 {\@scaninput{\begin{rawtext}}{#1}{\end{rawtext}}}
 \newcommand{\rawinput}[1]
 {\@scaninput{\begin{raw}}{#1}{\end{raw}}}
-\newcommand{\glqq}{\@print{&#8222;}}
-\newcommand{\grqq}{\@print{&#8220;}}
-\newcommand{\glq}{\@print{&#8218;}}
-\newcommand{\grq}{\@print{&#8216;}}
-\newcommand{\flqq}{\@print{&#0171;}}
-\newcommand{\frqq}{\@print{&#0187;}}
-\newcommand{\flq}{\@print{&#8249;}}
-\newcommand{\frq}{\@print{&#8250;}}
+%%%Default definitions that can be redefined by babel
 \newcommand\prefacename{Preface}
-\newcommand\bibname{Binliography}
+\newcommand\bibname{Bibliography}
 \newcommand\chaptername{Chapter}
-\newcommand\listfigurename{List of Figured}
+\newcommand\listfigurename{List of Figures}
 \newcommand\listtablename{List of Tables}
 \newcommand\indexname{Index}
 \newcommand\figurename{Figure}
@@ -586,9 +578,11 @@ poor}}{}
 \newcommand\seename{see}
 \newcommand\alsoseename{see also}
 \newcommand\dq{No-dq}
-\newcommand\german@month{}
-\newcommand\austrian@month{}
-\newcommand\czech@month{}
-\newcommand\french@day{}
-\newcommand\french@month{}
-  
+%%% Footer
+\newif\iffooter\footertrue
+\def\heveaurl{http://pauillac.inria.fr/\home{maranget}/hevea}
+\newcommand{\footertext}
+{This document was translated from \LaTeX{} by
+\footahref{\heveaurl/index.html}{\hevea}.}
+\newcommand{\@footer}
+{\rule{}{}\begin{quote}\em\footertext\end{quote}}

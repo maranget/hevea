@@ -15,6 +15,9 @@
 \DeclareOption{english}{%
         \InitiateOption{english}%
 }%
+\DeclareOption{USenglish}{%
+        \InitiateOption{english}%
+}%
 \DeclareOption{french}{%
         \InitiateOption{french}% 
 }%

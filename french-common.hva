@@ -1,0 +1,49 @@
+%%%% Hevea support for babel option 'french'.
+%
+%%%% Support for
+%%%%    - date
+%%%%    - names of various part descriptors (contentsname etc.)
+%%%%    - special quotations (\glqq et.)
+%
+\newcommand{\common@french@babel}{%
+  \def\french@day{%
+        \ifthenelse{\value{day}=1}
+           {\theday\ensuremath{^{\mbox{er}}}}
+           {\theday}}%
+  \def\french@month{%
+  	\ifthenelse{\value{month}=1}{janvier}{%
+  	\ifthenelse{\value{month}=2}{f\'evrier}{%
+ 	\ifthenelse{\value{month}=3}{mars}{%
+ 	\ifthenelse{\value{month}=4}{avril}{%
+ 	\ifthenelse{\value{month}=5}{mai}{%
+ 	\ifthenelse{\value{month}=6}{juin}{%
+ 	\ifthenelse{\value{month}=7}{juillet}{%
+ 	\ifthenelse{\value{month}=8}{ao\^ut}{%
+ 	\ifthenelse{\value{month}=9}{septembre}{%
+ 	\ifthenelse{\value{month}=10}{octobre}{%
+ 	\ifthenelse{\value{month}=11}{novembre}{%
+ 	\ifthenelse{\value{month}=12}{d\'ecembre}{%
+  }}}}}}}}}}}}}%  
+  \def\today{\theday.~\french@month~\theyear}%
+  \def\prefacename{Pr\'eface}%
+  \def\refname{R\'ef\'erences}%
+  \def\abstractname{R\'esum\'e}%
+  \def\bibname{Bibliographie}%
+  \def\chaptername{Chapitre}%
+  \def\appendixname{Annexe}%
+  \def\contentsname{Table des mati\`eres}%
+  \def\listfigurename{Liste des figures}%
+  \def\listtablename{Liste des tableaux}%
+  \def\indexname{Index}%
+  \def\figurename{Figure}%
+  \def\tablename{Tableau}%
+  \def\partname{Partie}%
+  \def\enclname{P.~J.}%
+  \def\ccname{Copie \`a}%
+  \def\headtoname{A}%
+  \def\pagename{Page}%
+  \def\headpagename{Page}%
+  \def\seename{voir}%
+  \def\alsoseename{voir aussi}%
+  \def{\footertext}{Ce document a \'et\'e traduit de \LaTeX{} par \hevea}%
+}%

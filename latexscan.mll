@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.246 2004-11-26 13:13:05 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.247 2004-12-07 16:52:06 maranget Exp $ *)
 
 
 {
@@ -1612,13 +1612,14 @@ let do_input lxm lexbuf =
     let filename =
       if lxm = "\\bibliography" then Parse_opts.base_in^".bbl"
       else arg in
-    
-    begin try input_file !verbose main filename
-    with Myfiles.Except ->
-      Image.put lxm ;
-      Image.put echo_arg ;
-      Image.put "\n" ;
-    | Myfiles.Error _ -> ()
+    begin
+      try input_file !verbose main filename
+      with
+      | Myfiles.Except ->
+          Image.put lxm ;
+          Image.put echo_arg ;
+          Image.put "\n"
+      | Myfiles.Error _ -> ()
     end
   end
 ;;

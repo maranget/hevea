@@ -1,0 +1,2 @@
+\@ifundefined{common@austrian@babel}{\input{german-common.hva}}{}
+\newcommand{\austrian@babel}{\common@austrian@babel}
