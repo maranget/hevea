@@ -67,20 +67,26 @@ The input language is a fairly complete subset of \LaTeXe{} (old
 output language is {\html} that is (hopefully) correct with respect to
 version 4.0 transitional.
 
-Recent versions of most browsers offer support for unicode entities, albeit to different extents. \hevea{} exploits this fact to translate various math symbols used in \LaTeX. As a result almost the entire set of  math symbols, including the {\tt amssymb} ones, are correctly rendered. The use of the symbol font of the {\html} browsers is no longer used, although retained for the sake for backward compatibility. 
+Recent versions of most browsers offer support for unicode entities,
+albeit to different extents. \hevea{} exploits this fact to translate
+various math symbols used in \LaTeX. As a result, almost the entire set
+of math symbols, including the {\tt amssymb} ones, are correctly
+rendered. The use of the symbol font browsers is no
+longer the default.
 
 \hevea{} understands \LaTeX{} macro definitions. Simple user style
 files are understood with little or no modifications.
 Furthermore, \hevea{} customization is done by writing \LaTeX{} code.
 
-Among latest additions are support for style-sheets, babel, and some proof and math packages.
+%Among latest additions are support for style-sheets, babel, and some
+%proof and math packages.
 
 \hevea{} is written in Objective Caml, as many lexers. It is
-quite fast and flexible.
-Using \hevea{} it is possible to translate  large documents such
-as manuals, books, etc. very quickly. All documents are
-translated as one single {\html} file. Then, the output file can be cut into
-smaller files, using the companion program \hacha.
+quite fast and flexible.  Using \hevea{} it is possible to translate
+large documents such as manuals, books, etc. very quickly. All
+documents are translated as one single {\html} file. Then, the output
+file can be cut into smaller files, using the companion program
+\hacha.
 
 \hevea{} can also be instructed to output plain text or info files.
 
@@ -128,7 +134,7 @@ For instance:
 # hevea
 $x \in {\cal E}$
 ^D
-<I>x</I> <FONT FACE=symbol>Î</FONT> <FONT COLOR=red><I>E</I></FONT>
+<I>x</I> &isin; <FONT COLOR=red> <I>E</I></FONT>
 \end{verbatim}
 
 You can find some more elaborate \footahref{\heveaurl/examples/index.html}{examples} in the on-line
@@ -5926,6 +5932,10 @@ The \texttt{hevea} command recognizes the following options:
 \item[{\tt -v}] Verbose flag, can be repeated to increase
 verbosity. However, this is mostly for debug.
 \item[{\tt -s}] Suppress warnings.
+\item[{\tt -I} {\it dirname}] Add {\it dirname} to the search path.
+\item[{\tt -o} {\it name}] Make \textit{name} the output basename.
+However, if \textit{name} is \textit{base}\texttt{.html}, then
+the output basename is \textit{base}.
 \item[{\tt -e} {\it filename}] Prevent \texttt{hevea} from loading any file
 whose name is \textit{filename}. Note that this option applies to all
 files, including \texttt{hevea.hva} and base style files.
@@ -5936,20 +5946,28 @@ section~\ref{esponjausage}).
 \item[{\tt -exec} {\it prog}] Execute file \textit{prog} and read the
 output. The file \textit{prog} must have execution permission and is
 searched by following the searching rules of~\texttt{hevea}.
-\item[{\tt -francais}] Obsolete after support for {\tt babel}. Was used to set French mode. 
-\item[{\tt -entities}] Obsolete now as unicode entities are used by default to render symbols.
-\item[{\tt -symb}] To use symbol fonts to render symbols. 
-\item[{\tt -noent}] A logical option after the above extesion, used to turn off the use of unicode entities. 
-\item[{\tt -nosymb}] Obsolete now. Used to avoid symbol font earlier, but that is so by default as entities are used. In this mode, symbols were replaced by text-only equivalents.
-\item[{\tt -noiso}] Obsolete as with {\tt -nosymb}. Earlier used to not output (iso-latin1) characters whose code was above 127 (i.e. output ascii only).
+\item[{\tt -francais}] Deprecated by \texttt{babel} support. This
+option issues a warning message.
+\item[{\tt -help}] Print version number and a short help message.
+\end{description}
+
+The following options control the {\hml} code produced by
+\texttt{hevea}. By default, \texttt{hevea} outputs a page encoded in
+iso-latin1, with most symbols rendered as {\html} or numerical Unicode
+entities. To our knowledge, this behavior is satisfactory only if the
+input file is encoded in iso-latin1 or in plain ascii.
+\begin{description}
+\item[{\tt -entities}] Render symbols by using entities. This is the default.
+\item[{\tt -symbols}] Render symbols by using the symbol font. This
+mode is deprecated and is no more maintained.
+\item[{\tt -textsymbols}] Render symbols by english text.
+\item[{\tt -moreenties}] Enable the output of some rare entities. Use
+this option to target browsers with wide entities support.
+\item[{\tt -noiso}] Use us-ascii for encoding the output page.
+\item[{\tt -mathml}] Produces MathML output for equations, very experimental.
 \item[{\tt -pedantic}]  Be strict in interpreting \html{}
 definition. In particular, this option disable size and color changes inside
 \verb+<PRE>+\ldots{} \verb+</PRE>+, which are otherwise performed.
-\item[{\tt -I} {\it dirname}] Add {\it dirname} to the search path.
-\item[{\tt -o} {\it name}] Make \textit{name} the output basename.
-However, if \textit{name} is \textit{base}\texttt{.html}, then
-the output basename is \textit{base}.
-\item[{\tt -help}] Print version number and a short help message.
 \end{description}
 
 The following options select and control alternative output formats

@@ -43,5 +43,4 @@ type limits = Limits | NoLimits | IntLimits
 
 val image_opt : string option ref
 val get_image_opt : unit -> string
-
 val dump_index : bool ref

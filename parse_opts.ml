@@ -11,7 +11,7 @@
 
 open Misc
 
-let header = "$Id: parse_opts.ml,v 1.30 2004-11-10 15:12:44 maranget Exp $" 
+let header = "$Id: parse_opts.ml,v 1.31 2005-02-11 17:14:12 maranget Exp $" 
 
 type input = File of string | Prog of string
 
@@ -24,10 +24,6 @@ and add_program s =
   files := Prog s :: !files
 ;;
 
-(* NO NEED AFTER BABEL SUPPORT *)
-(*type language = Francais | English
-;;*)
-
 (* use this to create your warnings if you wish to *)
 let frenchwarning = ref false
 ;;
@@ -35,16 +31,17 @@ let frenchwarning = ref false
 type destination = Html | Text | Info
 ;;
 let mathml = ref false
-and entities = ref true
 ;;
 
 (*to activate advanced entities*) 
-let goodbrowser = ref false
+let moreentities = ref false
 ;;
 
 (* NO NEED AFTER BABEL SUPPORT *)
 (*let language = ref English*)
-let symbols = ref true
+type symbol_mode = SText | Symbol | Entity
+
+let symbol_mode = ref Entity
 and iso = ref true
 and pedantic = ref false
 and destination = ref Html
@@ -96,26 +93,26 @@ let _ = Arg.parse
      ("-bib", Arg.String (fun s -> bib := true ; bibfile := s),
        "bibtex entry file to be read and processed for producing bibliography entries") ;
      ("-francais",Arg.Unit (fun () -> frenchwarning := true),
-       "french mode") ;
-     ("-goodbrowser",Arg.Unit (fun () -> goodbrowser := true),
-       "advanced browser entity descriptions enabled") ;
-     ("-nosymb",Arg.Unit (fun () -> symbols := false),
-       "do not output symbol fonts") ;
+       "French mode (deprecated)") ;
+     ("-moreentities", Arg.Unit (fun () -> moreentities := true),
+       "Enable the output of some rare entities.") ;
+     ("-entities", Arg.Unit (fun () -> symbol_mode := Entity),
+        "Render symbols by using entities, this is the default") ;
+     ("-symbols", Arg.Unit (fun () -> symbol_mode := Symbol),
+        "Render symbols by using the symbol font, obsolete") ;
+     ("-textsymbols", Arg.Unit (fun () -> symbol_mode := SText),
+        "Render symbols by english text") ;
+
      ("-noiso",Arg.Unit (fun () -> iso := false),
        "use HTML entities in place of isolatin1 non-ascii characters") ;
      ("-pedantic",Arg.Unit (fun () -> pedantic := true),
        "be pedantic in interpreting HTML 4.0 transitional definition") ;
-     ("-I", Arg.String (fun s -> path := s :: !path),
-       "dir, add directory ``dir'' to search path") ;
      ("-mathml",Arg.Unit (fun() -> mathml := true),
        "produces MathML output for equations, very experimental");
-     ("-entities",Arg.Unit (fun() -> entities := true),
-       "produces HTML 4.0 entities and unicode characters references for symbols, default anyway");
-     ("-noent",Arg.Unit (fun() -> entities := true),
-       "refrains from producing HTML 4.0 entities and unicode characters references for symbols, very experimental");
-     ("-text",Arg.Unit (fun () -> symbols := false; destination := Text),
+
+     ("-text",Arg.Unit (fun () -> symbol_mode :=  SText ; destination := Text),
        "output plain text");
-     ("-info",Arg.Unit (fun () -> symbols := false; destination := Info),
+     ("-info",Arg.Unit (fun () -> symbol_mode :=  SText ; destination := Info),
        "output info file(s)");
      ("-w", Arg.String (fun s -> width := int_of_string s),
       "width, set the output width for text or info output");

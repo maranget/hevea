@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: symb.ml,v 1.23 2004-07-22 18:55:06 thakur Exp $" 
+let header = "$Id: symb.ml,v 1.24 2005-02-11 17:14:12 maranget Exp $" 
 open Parse_opts
 
 let tr = function
@@ -57,7 +57,8 @@ let put_delim skip put d n =
    a) uncomment the || n=1, and 
    b) comment lines 63-72 *)
 
-  if not !symbols (*|| n=1 *)then
+  match !symbol_mode with
+  | SText -> (*|| n=1 *)
     let d = tr d in
     do_bis d n
   else if n=1 then 

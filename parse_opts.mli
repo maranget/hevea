@@ -11,14 +11,15 @@
 
 type input = File of string | Prog of string
 
-val symbols : bool ref
-val iso : bool ref
+type symbol_mode = SText | Symbol | Entity
+val symbol_mode : symbol_mode ref
+
 type destination = Html | Text | Info
 val destination : destination ref
-(*to activate advanced entities*)
-val goodbrowser : bool ref
+
+val iso : bool ref
+val moreentities : bool ref
 val mathml : bool ref
-val entities : bool ref
 val pedantic : bool ref
 val fixpoint : bool ref
 val optimize : bool ref
