@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.238 2004-07-14 02:46:21 thakur Exp $ *)
+(* $Id: latexscan.mll,v 1.239 2004-07-20 13:49:50 maranget Exp $ *)
 
 
 {
@@ -2613,9 +2613,6 @@ let get_this_arg_mbox arg =
 let do_sbox global name body =
   if not (Latexmacros.exists name) then
     warning ("\\sbox on undefined bin ``"^name^"''") ;
-  start_mbox () ;
-  let to_print =  get_this_arg main body in
-  top_close_group () ;
   let to_print =  get_this_arg_mbox body in
   (if global then global_def else def) name zero_pat (caml_print to_print)
 ;;
