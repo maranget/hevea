@@ -83,6 +83,7 @@ and lst_print   = ref true
 and lst_texcl   = ref false
 and lst_extended = ref false
 and lst_sensitive = ref true
+and lst_mathescape = ref false
 
 let lst_buff = Out.create_buff ()
 
@@ -110,7 +111,7 @@ type lst_top_mode =
   | String of char | Normal | Comment of comment_type
   | Delim of int * (char * (Lexing.lexbuf -> char -> unit)) list
   | Gobble of lst_top_mode * int
-  | Escape of lst_top_mode * char
+  | Escape of lst_top_mode * char * bool (* bool flags mathescape *)
 
 let string_of_top_mode = function
   | Delim (i,_) -> "Delim: "^string_of_int i
@@ -191,16 +192,18 @@ let lst_finalize inline =
 
 
 (* Process functions *)
-let lst_process_gobble mode n =
+let lst_do_gobble mode n =
   if n > 1 then
     lst_top_mode := Gobble (mode,n-1)
   else
     lst_top_mode := mode
 
-let lst_process_escape mode endchar lb lxm =
+let lst_do_escape mode endchar math lb lxm =
   if lxm = endchar then begin
     scan_this main "\\begingroup\\lst@escapebegin" ;
+    if math then scan_this main "$" ;
     scan_this main (Out.to_string lst_buff) ;
+    if math then scan_this main "$" ;
     scan_this main "\\lst@escapeend\\endgroup" ;
     lst_top_mode := mode
   end else
@@ -208,7 +211,10 @@ let lst_process_escape mode endchar lb lxm =
 
 
 
-let rec lst_process_newline lb c = match !lst_top_mode with
+let rec lst_process_newline lb c =
+if !verbose > 1 then
+  Printf.fprintf stderr "lst_process_newline\n" ;
+match !lst_top_mode with
 | Skip ->
     if !lst_nlines = !lst_first - 1 then begin
       lst_top_mode := Normal ;
@@ -221,8 +227,8 @@ let rec lst_process_newline lb c = match !lst_top_mode with
 | Gobble (mode,_) ->
     lst_top_mode := mode ;
     lst_process_newline lb c
-| Escape (mode,cc) ->
-    lst_process_escape (Comment Line) cc lb c ;
+| Escape (mode,cc,math) ->
+    lst_do_escape (Comment Line) cc math lb c ;
     if !lst_top_mode = Comment Line then
       lst_process_newline lb c
 | Comment Line ->
@@ -248,10 +254,12 @@ let rec lst_process_newline lb c = match !lst_top_mode with
       lst_top_mode := Skip
 
 
-let lst_process_letter lb lxm = match !lst_top_mode with
+let lst_process_letter lb lxm =
+if !verbose > 1 then  Printf.fprintf stderr "lst_process_letter: %c\n" lxm ;
+match !lst_top_mode with
 | Skip -> ()
-| Gobble (mode,n) -> lst_process_gobble mode n
-| Escape (mode,c) -> lst_process_escape mode c lb lxm
+| Gobble (mode,n) -> lst_do_gobble mode n
+| Escape (mode,c,math) -> lst_do_escape mode c math lb lxm
 | _ -> match !lst_scan_mode with
   | Letter -> lst_put lxm
   | Empty ->
@@ -262,20 +270,26 @@ let lst_process_letter lb lxm = match !lst_top_mode with
       lst_scan_mode := Letter ;
       lst_put lxm
 
-let lst_process_digit lb lxm = match !lst_top_mode with
+let lst_process_digit lb lxm =
+if !verbose > 1 then
+ Printf.fprintf stderr "lst_process_digit: %c\n" lxm ;
+match !lst_top_mode with
 | Skip -> ()
-| Gobble (mode,n) -> lst_process_gobble mode n
-| Escape (mode,c) -> lst_process_escape mode c lb lxm
+| Gobble (mode,n) -> lst_do_gobble mode n
+| Escape (mode,c,math) -> lst_do_escape mode c math lb lxm
 | _ ->  match !lst_scan_mode with
   | Letter|Other -> lst_put lxm
   | Empty  ->
       lst_scan_mode := Other ;
       lst_put lxm
 
-let lst_process_other lb lxm = match !lst_top_mode with
+let lst_process_other lb lxm =
+if !verbose > 1 then
+  Printf.fprintf stderr "process_other: %c\n" lxm ;
+match !lst_top_mode with
 | Skip -> ()
-| Gobble (mode,n) -> lst_process_gobble mode n
-| Escape (mode,c) -> lst_process_escape mode c lb lxm
+| Gobble (mode,n) -> lst_do_gobble mode n
+| Escape (mode,c,math) -> lst_do_escape mode c math lb lxm
 |  _ -> match !lst_scan_mode with
     | Other -> lst_put lxm
     | Empty ->
@@ -286,10 +300,13 @@ let lst_process_other lb lxm = match !lst_top_mode with
         lst_scan_mode := Other ;
         lst_put lxm
 
-let lst_process_space lb lxm =  match !lst_top_mode with
+let lst_process_space lb lxm =
+if !verbose > 1 then
+ Printf.fprintf stderr "process_space: ``%c''\n" lxm ;
+match !lst_top_mode with
 | Skip -> ()
-| Gobble (mode,n) -> lst_process_gobble mode n
-| Escape (mode,c) -> lst_process_escape mode c lb lxm
+| Gobble (mode,n) -> lst_do_gobble mode n
+| Escape (mode,c,math) -> lst_do_escape mode c math lb lxm
 | _ ->
     begin match !lst_scan_mode with
     | Other -> lst_output_other ()
@@ -302,6 +319,8 @@ let lst_process_space lb lxm =  match !lst_top_mode with
 exception EndVerb
 
 let lst_process_end  endstring old_process lb lxm =
+if !verbose > 1 then
+ Printf.fprintf stderr "process_end: ``%c''\n" lxm ;
   if
     (not !input_verb || Stack.empty stack_lexbuf)
       && if_next_string endstring lb then begin
@@ -312,7 +331,6 @@ let lst_process_end  endstring old_process lb lxm =
 
 let lst_init_char_table inline =
   lst_init_chars
-
     "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ@_$"
     lst_process_letter ;
   lst_init_chars "!\"#%&'()*+,-./:;<=>?[\\]^{}|`~" lst_process_other ;
@@ -325,15 +343,18 @@ let lst_init_char_table inline =
 ;;
 
 (* TeX escapes *)
-let start_escape mode endchar =
+let start_escape mode endchar math =
   lst_output_token () ;
-  lst_top_mode := Escape (mode, endchar)
+  lst_top_mode := Escape (mode, endchar, math)
 
-let lst_process_escape ec old_process lb lxm = match !lst_top_mode with
+let lst_process_escape math ec old_process lb lxm =
+if !verbose > 1 then
+ Printf.fprintf stderr "lst_process_escape: %c\n" lxm ;
+match !lst_top_mode with
 | Skip -> ()
-| Gobble (mode,n) -> lst_process_gobble mode n
+| Gobble (mode,n) -> lst_do_gobble mode n
 | Escape _        -> old_process lb lxm
-| mode            -> start_escape mode ec
+| mode            -> start_escape mode ec math
 
   
 (* Strings *)
@@ -465,7 +486,7 @@ let lst_process_LC s old_process lb c = match !lst_top_mode with
     begin_comment () ;
     eat_delim
       (fun () -> ())
-      (if !lst_texcl then Escape (Normal,'\n') else Comment Line)
+      (if !lst_texcl then Escape (Normal,'\n', false) else Comment Line)
       old_process lb c s
 | _ -> old_process lb c
 
@@ -563,13 +584,14 @@ and do_escape = parse
 | eof {}
 | "\\esc"
     {let arg = save_arg lexbuf in
-    Scan.top_open_block "" "" ;
+    scan_this main "\\mbox{" ;
     scan_this_arg Scan.main arg ;
-    Scan.top_close_block "" ;
+    scan_this main "}" ;
     do_escape lexbuf}
 | _
     {let lxm = Lexing.lexeme_char lexbuf 0 in
-    Dest.put (Dest.iso lxm)}
+    Dest.put (Dest.iso lxm) ;
+    do_escape lexbuf}
 {
 let _ = ()
 ;;
@@ -949,16 +971,19 @@ let open_lst inline keys lab =
   end ;  
 (* Strings *)
   let quote_mode =
-     Scan.get_this_main "\\@getprint{\\lst@quote@stringizers}" in
+     Scan.get_this_main "\\@getprintnostyle{\\lst@quote@stringizers}" in
   lst_init_quote quote_mode ;
   let stringizers =
-     Scan.get_this_main "\\@getprint{\\lst@stringizers}" in
+     Scan.get_this_main "\\@getprintnostyle{\\lst@stringizers}" in
   lst_init_save_chars stringizers lst_process_stringizer ;
 (* Escapes to TeX *)
-  let begc = Scan.get_this_main "\\@getprint{\\lst@BET}"
-  and endc = Scan.get_this_main "\\@getprint{\\lst@EET}" in
+  if !lst_mathescape then begin
+    lst_init_save_char '$' (lst_process_escape true '$')
+  end ;
+  let begc = Scan.get_this_main "\\@getprintnostyle{\\lst@BET}"
+  and endc = Scan.get_this_main "\\@getprintnostyle{\\lst@EET}" in
   if begc <> "" && endc <> "" then begin
-    lst_init_save_char begc.[0] (lst_process_escape endc.[0])
+    lst_init_save_char begc.[0] (lst_process_escape false endc.[0])
   end ;
   scan_this Scan.main "\\lsthk@InitVar" ;
   lst_scan_mode := Empty ;
@@ -1000,6 +1025,7 @@ let init_listings () =
   Scan.newif_ref "lst@extendedchars" lst_extended ;
   Scan.newif_ref "lst@texcl" lst_texcl ;
   Scan.newif_ref "lst@sensitive" lst_sensitive ;
+  Scan.newif_ref "lst@mathescape" lst_mathescape ;
   def_code "\\lst@boolean" lst_boolean ;
   def_code "\\lst@AddTo"
     (fun lexbuf ->
@@ -1061,8 +1087,8 @@ let init_listings () =
     (fun lexbuf ->
       let keys = Subst.subst_opt "" lexbuf in
       let {arg=arg} = save_verbatim lexbuf in
-      prerr_endline ("INLINE : ``"^arg^"''") ;
       Scan.new_env "*lstinline*" ;
+      scan_this main "\\mbox{" ;
       open_lst true keys "" ;
       Dest.open_group "CODE" ;
       begin try
@@ -1072,6 +1098,7 @@ let init_listings () =
       end ;
       close_lst true ;
       Dest.close_group () ;
+      scan_this main "}" ;
       Scan.close_env "*lstinline*") ;
 
   def_code "\\lst@definelanguage"

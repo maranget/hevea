@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.198 2000-10-30 10:16:58 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.199 2000-11-01 13:22:27 maranget Exp $ *)
 
 
 {
@@ -317,6 +317,14 @@ and top_close_group () =
   end
 ;;
 
+let start_mbox () =
+  push stack_table !in_table ; in_table := NoTable ;
+  push stack_in_math !in_math ; in_math := false ;
+  if !display then Dest.item_display () ;
+  push stack_display !display ; display := false ;
+  Dest.open_block "" "" ;
+  new_env "*mbox"
+;;
 
 let get_fun_result f lexbuf =
    if !verbose > 1 then
@@ -1165,12 +1173,7 @@ and mbox_arg = parse
      mbox_arg lexbuf
    end else raise (Misc.ScanError "End of file in \\mbox argument")}
 | '{' | ("\\bgroup" ' '* '\n'? ' '*)
-    {push stack_table !in_table ; in_table := NoTable ;
-    push stack_in_math !in_math ; in_math := false ;
-    if !display then Dest.item_display () ;
-    push stack_display !display ; display := false ;
-    Dest.open_block "" "" ;
-    new_env "*mbox"}
+    {start_mbox ()}
 
 and no_skip = parse
 | "" {()}
@@ -1998,6 +2001,15 @@ def_code "\\@printnostyle"
     top_close_group ())
 ;;
 
+def_code "\\@getprintnostyle"
+  (fun lexbuf ->
+    top_open_group () ;
+    Dest.nostyle () ;
+    let arg = get_prim_arg lexbuf in
+    Dest.put arg ;
+    top_close_group ())
+;;
+
 def_code "\\@getprint"
   (fun lexbuf ->
 (*
@@ -2405,8 +2417,10 @@ let caml_print s = CamlCode (fun _ -> Dest.put s)
 let do_sbox global name body =
   if not (Latexmacros.exists name) then
     warning ("\\sbox on undefined bin ``"^name^"''") ;
-  (if global then global_def else def)
-    name zero_pat (caml_print (get_this_arg main body))
+  start_mbox () ;
+  let to_print =  get_this_arg main body in
+  top_close_group () ;
+  (if global then global_def else def) name zero_pat (caml_print to_print)
 ;;
 
 def_code "\\savebox" 
@@ -2424,6 +2438,7 @@ def_code "\\sbox"
     let name = get_csname lexbuf in
     let body = save_arg lexbuf in
     do_sbox false name body) ;
+
 def_code "\\gsbox"
   (fun lexbuf ->
     let name = get_csname lexbuf in
@@ -2443,17 +2458,22 @@ def_code "\\usebox"
 def_code "\\lrbox"
   (fun lexbuf ->
     close_env "lrbox" ;
+    push stack_display !display ;
+    display := false ;
     let name = get_csname lexbuf in
     Dest.open_aftergroup
       (fun s ->
         def name zero_pat (caml_print s) ;
         "") ;
-    scan_this main ("\\mbox{"))
+    start_mbox ())
 ;;
 
 def_code "\\endlrbox"
   (fun _ ->
-    top_close_group () ; Dest.force_block "" "" ; new_env "lrbox")
+    top_close_group () ;   (* close mbox *)
+    Dest.close_group () ;  (* close after group *)
+    display := pop stack_display ;
+    new_env "lrbox")
 ;;
 
 

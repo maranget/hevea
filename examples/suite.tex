@@ -781,6 +781,23 @@ $$L(i,j)=\cases{1 + L(i-1,j-1)            &si $a_i=b_j$ \cr
                 \max (L(i,j-1),L(i-1,j))  &sinon.}      \eqno{(*)}
 $$
 
+\section{Les boîtes}
+\newsavebox{\coucou}
+\begin{lrbox}{\coucou}
+Coucou!
+\end{lrbox}
+\usebox{\coucou}
+{\ttfamily
+$$
+\usebox{\coucou}
+\begin{lrbox}{\coucou}
+\(\int^1_0 \pi dx\)
+\end{lrbox}
+\usebox{\coucou}
+\sbox{\coucou}{}
+\mbox{C'est du tt vide: ``\usebox{\coucou}''}
+$$}
+
 \section{Quelques références}\label{ici}\label{allrefs}
 Alors ici je suis en~\ref{ici}. Ensuite je serai là-bas
 en~\ref{labas}.

@@ -3,7 +3,7 @@
 %%%%%%%%%%% interface keyval
 \def\lst@define@key#1#2{\define@key{lst}{#1}{\@funcall{#2}{##1}}}
 \newenvironment{lst@protect}
-  {\def\%{\@print{\%}}%
+  {\@clearstyle\def\%{\@print{\%}}%
    \def\#{\@print{\#}}%
    \def\${\@print{\$}}%
    \def\{{\@print{\{}}%
@@ -202,7 +202,7 @@
        {\newcounter{lst@saved@\lst@intname}}
        {}%
      \setcounter{lst@saved@\lst@intname}{\value{lstlabel}}}}
-\define@key{lst}{labelstyle}{\def\lst@label@style##1{#1{##1}}}
+\define@key{lst}{labelstyle}{\def\lst@label@style##1{{#1{##1}}}}
 \newcommand{\lst@label@style}[1]{#1}
 \define@key{lst}{labelstep}{\def\lst@labelstep{#1}}
 \lst@AddToHook{InlineUnsave}{\def\lst@labelstep{0}}
@@ -211,7 +211,7 @@
 \newcommand{\lst@labelsep}{\hspace{1em}}
 \newcommand{\lst@pad}[1]{\@pad{~}{4}{#1}}
 \newcommand{\lst@linenumber@}[1]
-  {{\@clearstyle\lst@basic@style\lst@label@style{\lst@pad{#1}}}\lst@labelsep}
+  {\lst@label@style{\lst@pad{#1}}\lst@labelsep}
 \newcommand{\lst@linenumber}
   {\ifthenelse{\lst@labelstep=0}
      {}
@@ -222,10 +222,10 @@
 \lst@AddToHook{InitVarEOL}{\stepcounter{lstlabel}}
 \newsavebox{\@wait}
 \newcommand{\@NewLine@}
-  {\usebox{\@wait}\sbox{\@wait}{}\global\let\@NewLine\@empty}
-\lst@AddToHook{EveryLine}{\sbox{\@wait}{\@clearstyle\usebox{\@wait}\@br%
+  {\usebox{\@wait}\lst@spaces\sbox{\@wait}{}\global\let\@NewLine\lst@spaces}
+\lst@AddToHook{EveryLine}{\sbox{\@wait}{\usebox{\@wait}\lst@spaces\@br%
 \@rawchars{\lst@doindent}\lst@linenumber}\global\let\@NewLine\@NewLine@}
-\lst@AddToHook{Init}{\sbox{\@wait}{}\global\let\@NewLine\@empty}
+\lst@AddToHook{Init}{\sbox{\@wait}{}\global\let\@NewLine\lst@spaces}
 %%%%%% TeX escapes
 \define@key{lst}{texcl}[true]{\def\lst@texcl{#1}}
 \setboolean{lst@texcl}{false}
@@ -233,6 +233,12 @@
   {\@ifundefined{lst@texcl}{}
      {\setboolean{lst@texcl}{\lst@boolean{\lst@texcl}}}}
 \lst@AddToHook{DeInit}{\setboolean{lst@texcl}{false}}
+\define@key{lst}{mathescape}[true]{\def\lst@mathescape{#1}}
+\setboolean{lst@mathescape}{false}
+\lst@AddToHook{Init}
+  {\@ifundefined{lst@mathescape}{}
+     {\setboolean{lst@mathescape}{\lst@boolean{\lst@mathescape}}}}
+\lst@AddToHook{DeInit}{\setboolean{lst@mathescape}{false}}
 \def\lst@BET{}\def\lst@EET{}
 \newcommand{\lst@Esc@key}[2]
   {\def\lst@BET{\@rawchars{#1}}\def\lst@EET{\@rawchars{#2}}}
@@ -334,16 +340,22 @@
 \lst@AddToHook{SetLanguage}{\setboolean{lst@sensitive}{true}}
 \define@key{lst}{sensitive}[true]{\setboolean{lst@sensitive}{\lst@boolean{#1}}}
 %%%%%%% Output
+% Treating spaces with a counter (and not with boxes) enables
+% optimized style managment
+\newcounter{lst@spaces}
+\def\lst@output@space{\stepcounter{lst@spaces}}
+\def\lst@spaces
+  {\whiledo{\value{lst@spaces}>0}{~\addtocounter{lst@spaces}{-1}}}
+\lst@AddToHook{Init}{\setcounter{lst@spaces}{0}}
 \def\lst@normalize
   #1{\iflst@sensitive\@rawchars{#1}\else\@rawchars{\lowercase{#1}}\fi}
-\def\lst@output@space{\sbox{\@wait}{\@clearstyle\usebox{\@wait}~}\global\let\@NewLine\@NewLine@}
 \def\lst@output#1#2{%
-\@NewLine
+\@NewLine%\lstinfo{OUT: ``#1'' ``#2''}%
 {\ifu\csname lstk@\lst@normalize{#1}\endcsname
   \lst@identifier@style{#2}\else
   \csname lstk@\lst@normalize{#1}\endcsname{#2}\fi}}
 \def\lst@output@other#1#2{%
-\@NewLine
+\@NewLine%\lstinfo{OTHER: ``#1'' ``#2''}
 \ifu\csname lstk@#1\endcsname
   #2\else
   {{\csname lstk@#1\endcsname{#2}}}\fi}

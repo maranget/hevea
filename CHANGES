@@ -1,6 +1,9 @@
   
-version 1.06-5  
+version 1.06-5
+  - \sbox lrbox finally ok ?
+  - New \@getprintnostyle primitive
   - Leading spaces in \usepackage{pkg1, pgk2}
+  - New optimized mode for styles.
   - Plein de bugs corrige's (arguments a` , notamment), listings et fancyverb
   
 version 1.06-4   

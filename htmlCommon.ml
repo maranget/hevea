@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlCommon.ml,v 1.29 2000-10-13 19:17:26 maranget Exp $" 
+let header = "$Id: htmlCommon.ml,v 1.30 2000-11-01 13:22:22 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -1487,11 +1487,13 @@ let open_group ss =
     
 and open_aftergroup f =
   open_block AFTER "" ;
+  flags.empty <- false ;
   push stacks.s_after f
 
 and close_group () =
   match pblock () with
   | INTERN -> close_block INTERN
+  | AFTER  -> force_block AFTER ""
   | _      -> close_block GROUP
 ;;
 
