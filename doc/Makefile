@@ -89,25 +89,26 @@ doversion:: $(VERSIONFILE)
 include version.make
 
 CVSDIR=$(HOME)/CVS
-RELEASEDIR=/usr/tmp
+RELEASEDIR=/var/tmp
 RELEASENAME=hevea-$(VERSION)
 FTPDIR=/home/beaune/moscova0/ftp/hevea
 UNSTABLE=
 
 dorelease: doversion
-	$(MAKE) $(MFLAGS) byte manual.dvi pdfmanual.pdf
+	$(MAKE) $(MFLAGS) byte manual.dvi
+#pdfmanual.pdf
 # hevea relase
 	cd $(RELEASEDIR) ; rm -rf $(RELEASENAME) ;\
 	cvs -d $(CVSDIR) export  $(RELEASEOPT) -l htmlgen htmlgen/html htmlgen/text htmlgen/info ;\
 	mv htmlgen $(RELEASENAME) ;\
 	tar cfo $(RELEASENAME).tar $(RELEASENAME) ;\
-	gzip -f -best  $(RELEASENAME).tar
+	gzip -f --best  $(RELEASENAME).tar
 # Doc release
 	dvips -o$(RELEASEDIR)/$(RELEASENAME)-manual.ps manual.dvi
 	rm -rf $(RELEASEDIR)/$(RELEASENAME)-manual-dvi
 	mkdir $(RELEASEDIR)/$(RELEASENAME)-manual-dvi
 	cp manual.dvi $(RELEASEDIR)/$(RELEASENAME)-manual-dvi
-	cp pdfmanual.pdf $(RELEASEDIR)/$(RELEASENAME)-manual.pdf
+#	cp pdfmanual.pdf $(RELEASEDIR)/$(RELEASENAME)-manual.pdf
 	cp blob.ps cloche.ps int.ps realblob.ps rquote.ps blob2.ps\
 home.ps intd.ps round.ps xfd.ps $(RELEASEDIR)/$(RELEASENAME)-manual-dvi
 	rm -rf $(RELEASEDIR)/$(RELEASENAME)-manual
@@ -115,9 +116,9 @@ home.ps intd.ps round.ps xfd.ps $(RELEASEDIR)/$(RELEASENAME)-manual-dvi
 	cd $(RELEASEDIR) ;\
 	tar cfo $(RELEASENAME)-manual.tar $(RELEASENAME)-manual ;\
 	tar cfo $(RELEASENAME)-manual-dvi.tar $(RELEASENAME)-manual-dvi ;\
-	gzip -f -best  $(RELEASENAME)-manual-dvi.tar $(RELEASENAME)-manual.ps  $(RELEASENAME)-manual.tar
+	gzip -f --best  $(RELEASENAME)-manual-dvi.tar $(RELEASENAME)-manual.ps  $(RELEASENAME)-manual.tar
 # Copy to FTPDIR
-	cd $(RELEASEDIR) ; mv $(RELEASENAME)-manual-dvi.tar.gz $(RELEASENAME)-manual.ps.gz  $(RELEASENAME)-manual.pdf $(RELEASENAME)-manual.tar.gz  $(RELEASENAME).tar.gz $(RELEASENAME)/README $(RELEASENAME)/LICENSE $(RELEASENAME)/CHANGES $(FTPDIR)
+	-cd $(RELEASEDIR) ; mv $(RELEASENAME)-manual-dvi.tar.gz $(RELEASENAME)-manual.ps.gz  $(RELEASENAME)-manual.pdf $(RELEASENAME)-manual.tar.gz  $(RELEASENAME).tar.gz $(RELEASENAME)/README $(RELEASENAME)/LICENSE $(RELEASENAME)/CHANGES $(FTPDIR)
 
 #Avant, e'diter README, CHANGES, version.ml, commettre, tagger, make doversion
 release:
