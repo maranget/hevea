@@ -24,27 +24,27 @@ applied to \verb+pat.tex+, yielding \verb+tmp.tex+; \LaTeX\ and
 \verb+tmp.bbl+ files; finally \hevea{}, \hacha{} and \texttt{imagen}
 are run as follows:
 \begin{verbatim}
-# hevea pat.sty -e pat.def tmp.tex
+# hevea pat.hva -e pat.def tmp.tex
 # hacha -o pat.html tmp.html
 # imagen tmp
 \end{verbatim}
 Notice that the \LaTeX{} style file \oneurl{pat.def} is not loaded and
-that a simplified \oneurl{pat.sty} is loaded.
+that a simplified \oneurl{pat.hva} is loaded.
 \item How to use the \verb+latexonly+ and \verb+toimage+ environments
-inside other environments (files \oneurl{env.sty}, \oneurl{env.tex}
+inside other environments (files \oneurl{env.hva}, \oneurl{env.tex}
 and \oneurl{env.html}). \texttt{gpic}, \hevea{} and \texttt{imagen}
 are run as follows:
 \begin{verbatim}
 # gpic -t < env.tex > tenv.tex
-# hevea env.sty tenv.tex -o env.html
+# hevea env.hva tenv.tex -o env.html
 # imagen env
 \end{verbatim}
 \item The ``\emph{Smile!}'' example, from the manual.
-Files are \oneurl{smile.sty}, \oneurl{smile.tex} and
+Files are \oneurl{smile.hva}, \oneurl{smile.tex} and
 \oneurl{smile.html}, command sequence is~:
 \begin{verbatim}
 # gpic -t < smile.tex > tsmile.tex
-# hevea smile.sty tsmile.tex -o smile.html
+# hevea smile.hva tsmile.tex -o smile.html
 # imagen smile
 \end{verbatim}
 \end{itemize}

@@ -1076,7 +1076,7 @@ actual arguments inside the \texttt{toimage} environment
 \subsubsection{Bonus macros}
 By default, \hevea{} knows some macros to process a few \html-related
 constructs.
-The \texttt{html} package defines \LaTeX{} equivalents for them.
+The \texttt{hevea} package defines \LaTeX{} equivalents for them.
 This first concerns the \hevea{} and \hacha{} logos.
 Then, a few macros for URL management are provided
 
@@ -1149,7 +1149,7 @@ purple rain, purple rain%
 \ldots
 
 Comments thus provide an alternative to loading the
-\texttt{html} package. For user convenience, comment equivalents to
+\texttt{hevea} package. For user convenience, comment equivalents to
 the \verb+latexonly+ and \verb+toimage+ environment are also provided:
 \begin{center}
 \begin{tabular}{ll}\hline
@@ -1501,9 +1501,9 @@ a counter and a few macros.
 
 A document that explicitly includes cutting macros still can be typeset by
 \LaTeX{}, provided it loads the
-\texttt{html} package from the \hevea{} distribution.
-(See section~\ref{both} for details on the \texttt{html} package).
-An alternative to loading the \texttt{html} package is to put
+\texttt{hevea} package from the \hevea{} distribution.
+(See section~\ref{both} for details on the \texttt{hevea} package).
+An alternative to loading the \texttt{hevea} package is to put
 all cutting instructions in comments starting with \verb+%HEVEA+.
 
 
@@ -1647,7 +1647,7 @@ Then, you make the abstract go to its own file as it was a cutting
 unit by typing:
 \begin{verbatim}
 \documentclass{article}
-\usepackage{html}
+\usepackage{hevea}
 
 \begin{document}
 \cuthere{\cuttingunit}{Abstract}
@@ -1656,7 +1656,7 @@ unit by typing:
 \end{verbatim}
 (Note that, this time, cutting macros appear unprotected in the
 source. However, \LaTeX{} still can process the document, since the
-\texttt{html} package is loaded).
+\texttt{hevea} package is loaded).
 
 \setcounter{section}{0}
 \renewcommand{\thesection}{\thepart.\arabic{section}}
