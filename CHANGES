@@ -1,6 +1,7 @@
 version 1.03-1
-  - Substituer l'argument de \input.
-  - Oubli de \longrightarrow et \leftrightarrow
+  - Experimetal seminar mode
+  - Substitute \input argument
+  - \longrightarrow et \leftrightarrow were forgotten.
   - Bugs in altt (%, &).
 version 1.02
   - imagen is less nfs intensive (pipes, temporary files in /usr/tmp) and
