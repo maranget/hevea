@@ -10,12 +10,16 @@
 (***********************************************************************)
 
 {
-let header = "$Id: infoRef.mll,v 1.10 1999-06-18 15:09:04 tessaud Exp $"
+let header = "$Id: infoRef.mll,v 1.11 1999-07-06 17:20:56 maranget Exp $"
 ;;
 
 
 open Lexing
 open Misc
+
+let compat_mem tbl key =
+  try let _ = Hashtbl.find tbl key in true with Not_found -> false
+;;
 
 
 exception Error of string
@@ -114,7 +118,7 @@ let infonode opt num arg =
     up = None;
     pos = 0;
   } in
-  if Hashtbl.mem nodes n.name then raise (Error ("Duplicate node name :"^n.name));  
+  if compat_mem nodes n.name then raise (Error ("Duplicate node name :"^n.name));  
   n.up <- (match opt with
     "" -> None
   | m ->  ajoute_node_dans_menu n m);

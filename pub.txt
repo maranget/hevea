@@ -11,7 +11,21 @@ It is my pleasure to anounce the new release of HEVEA.
 
     With respect to previous version 1.03, the most salient changes
     comcern the nature of output:
-       
+       - Hevea now generates HTML 4.0- transitional. This does not
+       change much, essentially FACE=symbol is now standard...
+
+       - There are two new output formats : plain text and info files.
+       Thus, one can generate plain text versions of software manuals
+       from LaTeX source code.
+
+       - An experimental (very experimental) MathML mode is included
+         in the released version.
+
+     A few bugs are corrected, the most important ones are:
+       - The alltt environment should now work properly
+       - Environment names now can includes figures (\begin{list1}
+       ... \end{list1} is now valid).
+         
     --------------------------------------------------------------------------
     Exotic symbols are translated into symbols
     pertaining to the symbol font of the HTML browser, using the

@@ -12,7 +12,7 @@ J'ai la joie d'anoncer la nouvelle release d'HEVEA.
         en fait pas grand chose. Essentiellement <FONT FACE=symbol> est
         maintenant conforme au standard, par changement du standard...
 
-        - HEVEA a désormais d'autres formats de sortie que HTML. On peu
+        - HEVEA a désormais d'autres formats de sortie que HTML. On peut
         produire des traduction en mode texte ou en mode info (pour lecture
         sous emacs).
 
@@ -21,7 +21,7 @@ J'ai la joie d'anoncer la nouvelle release d'HEVEA.
 
   En outre quelques bugs sont corrigés. Entre autres :
 
-       - L'environnemenr alltt est maintenant mieux testé et réalisé.
+       - L'environnement alltt est maintenant mieux testé et réalisé.
        - Il devient possible de mettre des chiffres dans les noms des
          environnements.
 
