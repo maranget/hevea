@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.224 2002-06-04 11:37:06 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.225 2002-08-28 08:02:08 maranget Exp $ *)
 
 
 {
@@ -1929,7 +1929,7 @@ def_code "\\chardef"
 ;;
 
 (* Complicated use of output blocks *)
-def_code "\\left"
+def_code "\\display@left"
   (fun lexbuf ->
     let dprev = !display in
     Stack.push stack_display dprev ;
@@ -1945,7 +1945,7 @@ def_code "\\left"
 ;;
 
 (* Display is true *)
-def_code "\\right"
+def_code "\\display@right"
   (fun lexbuf ->    
     let delim = subst_arg lexbuf in
     let vsize = Dest.right delim in

@@ -10,7 +10,7 @@
 (***********************************************************************)
 
 
-let header = "$Id: info.ml,v 1.30 2002-01-04 18:41:21 maranget Exp $"
+let header = "$Id: info.ml,v 1.31 2002-08-28 08:02:08 maranget Exp $"
 
 open Misc
 open Text
@@ -100,8 +100,11 @@ let finalize check =
         "",Lexing.from_string texte
       else
       (* changer de nom de fichier (renommer ?) *)
-        let f = Parse_opts.name_out^".tmp" in
-        f,Lexing.from_channel  (open_in f)
+        try
+          let f = Parse_opts.name_out^".tmp" in
+          f,Lexing.from_channel  (open_in f)
+        with Sys_error msg ->
+          Misc.fatal ("Cannot re-open info output file "^msg)
     in
     InfoRef.dump buf ;
     if not Parse_opts.filter && !verbose <= 0 then Mysys.remove name

@@ -80,7 +80,7 @@ include version.make
 CVSDIR=$(HOME)/CVS
 RELEASEDIR=/usr/tmp
 RELEASENAME=hevea-$(VERSION)
-FTPDIR=/home/tobago/para-ftp/hevea
+FTPDIR=/home/beaune/moscova0/ftp/hevea
 UNSTABLE=
 
 dorelease: doversion
