@@ -6,13 +6,9 @@
 %%%%    c) sets current language to l
 %
 \newcommand{\InitiateOption}[1]{%
-	\@iffileexists{#1.hva}%
-            {\input{#1.hva}}%
-            {}%
-        \fi%
-	\#1@babel%
-	\let\current@language\#1@language%
-}%
+\@iffileexists{#1.hva}
+  {\input{#1.hva}\def\bbl@main@language{#1}}
+  {\warning{Hevea babel '#1' not found}}}
 %
 %%%% Processing information for each optional argument
 %
@@ -20,6 +16,9 @@
         \InitiateOption{english}%
 }%
 \DeclareOption{french}{%
+        \InitiateOption{french}% 
+}%
+\DeclareOption{francais}{%
         \InitiateOption{french}% 
 }%
 \DeclareOption{german}{%
@@ -208,4 +207,4 @@
 %%%% For each option (language l), checks for l.hva and 'includes' it.
 %
 \ProcessOptions*%
- 
+\selectlanguage{\bbl@main@language}

@@ -56,15 +56,9 @@
   \renewcommand{\frq}{\@print{&#8250;}}%
   %\renewcommand{"}[1]{\"{##1}}
   \renewcommand\french@day{%
-        \ifthenelse{\value{day}=1}{\theday st}{%
-  	\ifthenelse{\value{day}=21}{\theday st}{%
- 	\ifthenelse{\value{day}=31}{\theday st}{%
- 	\ifthenelse{\value{day}=2}{\theday nd}{%
- 	\ifthenelse{\value{day}=22}{\theday nd}{%
- 	\ifthenelse{\value{day}=3}{\theday rd}{%
- 	\ifthenelse{\value{day}=23}{\theday rd}{%
+        \ifthenelse{\value{day}=1}{\theday\ensuremath{^{\mbox{er}}}}{%
         \theday th%
-  }}}}}}}}%  
+  }}
   \renewcommand\french@month{%
   	\ifthenelse{\value{month}=1}{Janvier}{%
   	\ifthenelse{\value{month}=2}{F\'evrier}{%
