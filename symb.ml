@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: symb.ml,v 1.10 1998-07-21 11:18:43 maranget Exp $" 
+let header = "$Id: symb.ml,v 1.11 1998-10-09 16:33:03 maranget Exp $" 
 open Parse_opts
 
 exception No
@@ -51,7 +51,7 @@ let tau = get ("<FONT FACE=symbol>\116</FONT>","tau","tau");;
 let upsilon = get ("<FONT FACE=symbol>\117</FONT>","upsilon","upsilon");;
 let phi = get ("<FONT FACE=symbol>\102</FONT>","phi","phi");;
 let varphi = get ("<FONT FACE=symbol>\106 </FONT>","varphi","varphi");;
-let chi = get ("<FONT FACE=symbol>\99</FONT>","chi","chi");;
+let chi = get ("<FONT FACE=symbol>\099</FONT>","chi","chi");;
 let psi = get ("<FONT FACE=symbol>\121</FONT>","psi","psi");;
 let omega = get ("<FONT FACE=symbol>\119</FONT>","omega","omega");;
 
@@ -145,6 +145,7 @@ let diamondsuit = get ("<FONT FACE=symbol>¨</FONT>","diamondsuit", "carreau");;
 let heartsuit = get ("<FONT FACE=symbol>©</FONT>","heartsuit", "coeur");;
 let spadesuit = get ("<FONT FACE=symbol>ª</FONT>","spadesuit", "pique");;
 let infty = get ("<FONT FACE=symbol>\165</FONT>","oo", "oo");;
+
 
 
 let notin  = get ("<FONT FACE=symbol>\207</FONT>","not in", "n'appartient pas à");;

@@ -17,7 +17,7 @@ open Latexmacros
 open Html
 open Save
 
-let header = "$Id: latexscan.mll,v 1.44 1998-09-30 12:17:57 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.45 1998-10-09 16:33:00 maranget Exp $" 
 
 let push s e = s := e:: !s
 and pop s = match !s with
@@ -990,6 +990,24 @@ let int_sup_sub main what sup sub =
     force_item_display ()
 ;;
 
+let includes_table = Hashtbl.create 17
+and check_includes = ref false
+;;
+
+let add_includes l =
+  check_includes := true ;
+  List.iter (fun x -> Hashtbl.add includes_table x ()) l
+;;
+
+
+let check_include s =
+  not !check_includes ||
+  begin  try
+    Hashtbl.find includes_table s ; true
+  with Not_found -> false
+  end
+;;
+
 let input_file verbose main filename =
   try
     let filename,input = Myfiles.open_tex filename in
@@ -1009,7 +1027,7 @@ let input_file verbose main filename =
      if not !silent || verbose > 0 then begin
        Location.print_pos () ;
        prerr_endline ("Warning: "^m) ;
-     end ;
+     end
    end
 ;;
 
@@ -1057,12 +1075,14 @@ rule  main = parse
 | "\\input" | "\\include" | "\\bibliography"
      {let lxm = lexeme lexbuf in
      let arg = Save.input_arg lexbuf in
-     let filename =
-       if lxm = "\\bibliography" then Location.get_base ()^".bbl"
-       else arg in
-     begin try input_file !verbose main filename
-     with Not_found ->
-       Image.put (lxm^"{"^arg^"}\n")
+     if lxm <> "\\include" || check_include arg then begin
+       let filename =
+         if lxm = "\\bibliography" then Location.get_base ()^".bbl"
+         else arg in
+       begin try input_file !verbose main filename
+       with Not_found ->
+         Image.put (lxm^"{"^arg^"}\n")
+       end
      end ;
      main lexbuf}
 | "\\verbatiminput"
@@ -1622,6 +1642,11 @@ rule  main = parse
         close_group () ;
         put_char ']' ;
         main lexbuf
+(* Includes *)
+      | "\\includeonly" ->
+           let arg = Save.cite_arg lexbuf in
+           add_includes arg ;
+           main lexbuf
 (* Foot notes *)
         | "\\@footnotetext" ->
            start_lexstate () ; 
@@ -1638,7 +1663,7 @@ rule  main = parse
            restore_lexstate ();
            main lexbuf
         | "\\@footnoteflush" ->
-           let sec_here = save_arg lexbuf
+           let sec_here = subst_arg subst lexbuf
            and sec_notes = get_this main "\\@nostyle\\@footnotelevel" in
            start_lexstate () ;
            Foot.flush (scan_this main) sec_notes sec_here ;
@@ -2036,7 +2061,9 @@ and skip_spaces_main = parse
 
 
 and skip_false = parse
-  "\\if" ['a'-'z' 'A'-'Z']+
+  '%' [^'\n']* '\n'
+     {skip_false lexbuf}
+|  "\\if" ['a'-'z' 'A'-'Z']+
      {if_level := !if_level + 1 ;
      skip_false lexbuf}
 | "\\else" ['a'-'z' 'A'-'Z']+
@@ -2047,8 +2074,9 @@ and skip_false = parse
 | "\\fi" ['a'-'z' 'A'-'Z']+
      {skip_false lexbuf}
 | "\\fi"
-     {if !if_level = 0 then (skip_blanks lexbuf ; main lexbuf)
-     else begin
+     {if !if_level = 0 then begin
+        skip_blanks lexbuf ; main lexbuf
+     end else begin
        if_level := !if_level -1 ;
        skip_false lexbuf
      end}

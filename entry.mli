@@ -8,10 +8,11 @@
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
 (***********************************************************************)
-
-type res = Bang of string | Arobas of string | Bar of string 
-| Eof of string
-
+type res =
+  Bang of string * string
+| Bar of string * string
+| Eof of string * string
+;;
 
 exception Fini
 

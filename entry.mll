@@ -12,7 +12,7 @@
 {
 open Lexing
 
-let header = "$Id: entry.mll,v 1.7 1998-07-21 11:18:28 maranget Exp $" 
+let header = "$Id: entry.mll,v 1.8 1998-10-09 16:32:56 maranget Exp $" 
 
 let buff = Out.create_buff ()
 ;;
@@ -24,8 +24,16 @@ and put_char c =
 ;;
 
 
-type res = Bang of string | Arobas of string | Bar of string 
-| Eof of string
+type res =
+  Bang of string * string
+| Bar of string * string
+| Eof of string * string
+;;
+
+let extend r i = match r with
+  Bang (p,_) -> Bang (i,p)
+| Bar (p,_) -> Bar (i,p)
+| Eof (p,_) -> Eof (i,p)
 ;;
 
 exception Fini
@@ -41,10 +49,12 @@ rule entry = parse
     {put_char '@' ; entry lexbuf}
 | "\"|"
     {put_char '|' ; entry lexbuf}
-| '!' {Bang   (Out.to_string buff)}
-| '@' {Arobas (Out.to_string buff)}
-| '|' {Bar (Out.to_string buff)}
-| eof {Eof (Out.to_string buff)}
+| '!' {Bang   (Out.to_string buff,"")}
+| '@' {let s = Out.to_string buff in
+      let r = entry lexbuf in
+      extend r s}
+| '|' {Bar (Out.to_string buff,"")}
+| eof {Eof (Out.to_string buff,"")}
 | _
    {let lxm = lexeme_char lexbuf 0 in put_char lxm ; entry lexbuf}      
 

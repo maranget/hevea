@@ -9,33 +9,37 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: index.ml,v 1.13 1998-08-20 12:36:18 maranget Exp $" 
+let header = "$Id: index.ml,v 1.14 1998-10-09 16:32:58 maranget Exp $" 
 open Parse_opts
 open Entry
 
 let comp (l1,p1) (l2,p2) =
-  let rec c_rec l1 l2 = match l1,l2 with
-  [],[] -> compare p1 p2
-| [],_  -> if p1 <> "" then 1 else -1
+
+  let rec c_rec k l1 l2 = match l1,l2 with
+  [],[] -> k p1 p2
+| [],_  -> -1
 | _,[]  -> 1
 | x1::r1,x2::r2 ->
-     let t = compare x1 x2 in
-     if t=0 then c_rec r1 r2 else t in
-  c_rec l1 l2
+     let t = compare (String.capitalize x1) (String.capitalize x2) in
+     if t=0 then c_rec k r1 r2 else t in
+  c_rec (fun p1 p2 -> c_rec (fun _ _ -> 0) p1 p2) l1 l2
 ;;
 
-type key = string list * string
+type key = string list * string list
 ;;
 
 type entry = key * string
 ;;
 
-let pretty_key (l,s1) =
- let rec p_rec = function
-   [] -> ""
- | [x] -> x
- | x::xs -> x^"!"^p_rec xs in
- p_rec l^"@"^s1
+let pretty_key (l,p) =
+ let rec p_rec l p = match l,p with
+   [],[] -> ""
+ | [x],[""]-> x
+ | [x],[y]-> x^"@"^y
+ | x::xs,""::ys -> x^"!"^p_rec xs ys
+ | x::xs,y::ys -> x^"@"^y^"!"^p_rec xs ys
+ |  _,_ -> failwith "Index.pretty_key" in
+ p_rec l p
 ;;
 
 let pretty_entry (k,_) = pretty_key k
@@ -47,27 +51,28 @@ exception NoGood of string
 let read_index lexbuf =
     
   let bar () = match entry lexbuf with
-    Eof s -> s
-  | _     ->  raise (NoGood "") in
-
-  let arobas () = match entry lexbuf with
-    Eof s -> s,""
-  | Bar s -> s,bar ()
-  | _     ->  raise (NoGood "") in
+    Eof (s,_) -> s
+  | _         ->  raise (NoGood "") in
 
   let rec get_rec () = match entry  lexbuf with
-    Bang s ->
-      let (l,s1),s2 = get_rec () in
-      (s::l,s1),s2
-  | Arobas s ->
-      let s1,s2 = arobas () in
-      ([s],s1),s2
-  | Bar s ->
-      let s2 = bar () in
-      ([s],""),s2
-  | Eof s ->
-      ([s],""),"" in
-  get_rec ()
+    Bang (i,p) ->
+      let l,see = get_rec () in
+      (i,p)::l,see
+  | Bar (i,p) ->
+      let see = bar () in
+      [i,p],see
+  | Eof (i,p) -> [i,p],"" in
+
+  let separe (l,see) =
+    let rec sep_rec = function
+      [] -> [],[]
+    | (x,y)::r ->
+        let xs,ys = sep_rec r in
+        x::xs,y::ys in
+    let xs,ys = sep_rec l in
+    ((xs,ys),see) in
+
+  separe (get_rec ())
 ;;
 
 module OrderedKey = struct
@@ -91,10 +96,10 @@ let (itable:
    Hashtbl.t) = Hashtbl.create 17
 ;;
 
-let bad_entry = (([],""),"")
+let bad_entry = (([],[]),"")
 ;;
 
-let newindex tag suf name =
+let newindex tag suf name =  
   let basename = Location.get_base () in
   let filename = basename^"."^suf in
   let idxstruct =
@@ -147,21 +152,14 @@ let treat tag arg =
       let ((ka,_),_ as key_arg) =
          try read_index lexbuf with
          NoGood _ -> begin
-           if not !silent then begin
-             Location.print_pos () ;
-             prerr_endline
-               ("Warning, bad index arg syntax: "^arg)
-           end ;
            bad_entry
          end
       and ((ki,_),_ as key_idx) = match idxstruct with
         No    -> bad_entry
       | Yes t ->
-       if !count >= Array.length t then bad_entry
-       else t.(!count) in
-       if ka = ki then key_idx
-       else if key_arg = bad_entry then key_idx
-       else key_arg in
+       if !count >= Array.length t then bad_entry else t.(!count) in
+       if key_idx = bad_entry then key_arg
+       else key_idx in
     if !verbose > 2 then
       prerr_endline ("Finally arg is: "^pretty_entry key) ;
     let label = ("@"^tag^string_of_int !count) in
@@ -170,8 +168,14 @@ let treat tag arg =
       let key,macro = key in
       Hashtbl.add table key (label,!count,macro) ;
       all := add key !all
+    end else if not !silent then begin
+      Location.print_pos () ;
+      prerr_endline
+        ("Warning, bad index arg syntax: "^arg)
     end ;
-    count := !count + 1
+    count := !count + 1 ;
+    if !verbose > 2 then
+      prerr_endline ("Treat out: count="^string_of_int !count)
   with Not_found -> begin
     if not !silent || !verbose > 0 then begin
       Location.print_pos () ;
@@ -181,25 +185,27 @@ let treat tag arg =
 ;;
 
       
-let rec common e1 e2 p1 p2 = match e1,e2 with
-  [],_  -> [],e2
-| _,[]  -> e1,[]
-| [x1],[x2] -> e1,e2
-| x1::r1,[x2] -> e1,e2
-| x1::r1,x2::r2 ->
+let rec common e1 e2 = match e1,e2 with
+  ([],_),_        -> e1,e2
+| _,([],_)        -> e1,e2
+| ([_],_),([_],_) -> e1,e2
+| (_::_,_),([_],_) -> e1,e2
+| (x1::r1,_::p1),(x2::r2,_::p2) ->
     if x1=x2 then
-      common r1 r2 p1 p2
+      common (r1,p1) (r2,p2)
     else
       e1,e2
+|  _ -> failwith "Index.common"
 ;;
 let rec close_prev = function
-  []| [_] -> ()
-| _::r    ->  Html.close_block "UL" ; close_prev r
+  [],_ | [_],_ -> ()
+| _::r,_::p    ->  Html.close_block "UL" ; close_prev (r,p)
+|  _ -> failwith "Index.close_prev"
 ;;
 
-let rec open_this  main k pk = match k with
-  [] -> ()
-| k::r ->
+let rec open_this  main k = match k with
+  [],_ -> ()
+| k::r,p::rp ->
     Html.item
       (fun tag ->
       try
@@ -207,20 +213,21 @@ let rec open_this  main k pk = match k with
       with x -> begin
           prerr_endline ("Something wrong with index: "^tag) ;
           raise x
-      end) (if r = [] && pk <> "" then pk else k) ;
+      end) (if p <> "" then p else k) ;
     begin match r with
       [] -> ()
     | _  -> Html.open_block "UL" "" 
     end ;
-    open_this main r pk
+    open_this main (r,rp)
+|  _ -> failwith "Index.open_this"
 ;;
 
 
-let print_entry main (bk,bpk) (k,pk) xs  =
-  let rp,rt = common bk k pk bpk in
+let print_entry main bk k xs  =
+  let rp,rt = common bk k in
   close_prev rp ;
-  if rp = [] then Html.open_block "UL" "" ;
-  open_this main rt pk ;  
+  if fst rp = [] then Html.open_block "UL" "" ;
+  open_this main rt ;  
   let rec prints = function
     [] -> ()
   | (label,x,m)::r ->
@@ -241,9 +248,10 @@ let print_entry main (bk,bpk) (k,pk) xs  =
      
     
 let print main  tag =
+  if !verbose > 1 then prerr_endline ("Print index ``"^tag^"''") ;
   let name,all,table,_,_ = Hashtbl.find itable tag in
   main ("\\@indexsection{"^name^"}") ;
-  let prev = ref ([],"") in
+  let prev = ref ([],[]) in
   KeySet.iter (fun k ->
     if !verbose > 2 then
       prerr_endline ("Print_entry: "^pretty_key k);

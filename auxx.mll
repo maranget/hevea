@@ -11,7 +11,8 @@
 
 {
 open Lexing
-let header = "$Id: auxx.mll,v 1.1 1998-08-27 15:24:31 maranget Exp $" 
+open Parse_opts
+let header = "$Id: auxx.mll,v 1.2 1998-10-09 16:32:55 maranget Exp $" 
 
 let rtable = Hashtbl.create 17
 ;;
@@ -48,8 +49,20 @@ rule main = parse
     main lexbuf}
 | "\\@input"
     {let filename = Save.arg lexbuf in
-    let newbuf = from_channel (open_in filename) in
-    main newbuf ;
+    begin try
+      let filename,chan = Myfiles.open_tex filename in
+      let newbuf = from_channel chan in
+      main newbuf
+    with Myfiles.Except -> begin
+      if !verbose > 0 then
+        prerr_endline ("Not opening file: "^filename) ;
+      end
+    | Myfiles.Error m ->
+        if not !silent || !verbose > 0 then begin
+          Location.print_pos () ;
+          prerr_endline ("Warning: "^m) ;
+        end
+    end ;
     main lexbuf}
 | _   {main lexbuf}
 | eof {()}

@@ -12,7 +12,7 @@
 {
 open Lexing
 
-let header = "$Id: save.mll,v 1.17 1998-09-03 14:24:47 maranget Exp $" 
+let header = "$Id: save.mll,v 1.18 1998-10-09 16:33:02 maranget Exp $" 
 
 let silent = ref false
 ;;
@@ -150,9 +150,11 @@ and cite_arg = parse
   ' '* '{'   {cite_args_bis lexbuf}
 
 and cite_args_bis = parse
-  [^'}'',']* {let lxm = lexeme lexbuf in lxm::cite_args_bis lexbuf}
-| ','        {cite_args_bis lexbuf}
-| '}'        {[]}
+  [^'}'' ''\n''%'',']* {let lxm = lexeme lexbuf in lxm::cite_args_bis lexbuf}
+|  '%' [^'\n']* '\n' {cite_args_bis lexbuf}
+| ','         {cite_args_bis lexbuf}
+| [' ''\n']+ {cite_args_bis lexbuf}
+| '}'         {[]}
 
 and macro_names = parse
   eof {[]}
@@ -265,38 +267,4 @@ and instring = parse
 | '\\' '"' {instring lexbuf}
 | _    {instring lexbuf}
 | eof  {Out.to_string tag_buff}
-(*  
-and do_arg_delim = parse
-  _
-   {fun delim i inarg ->
-     let lxm = lexeme_char 0 lexbuf
-     and c = String.get delim i in
-     if inarg then begin
-       if c <> lxm then begin
-         Out.put_char arg_buff c ;
-         do_arg_delim lexbuf delim i true
-       end else begin
-         if i+1 >= String.length delim then
-           Out.to_string arg_buff
-         else begin
-           begin try
-             do_arg_delim lexbuf delim (i+1) false
-           with NoDelim ->
-             let del = Out.to_string delim_buff in
-             Out.put_char arg_buff (String.get del 0) ;
-             let lexer =
-               Lexing.from_string
-                 (String.sub del 1 (String.length del-1) in
-             begin try
-               do_arg_delim delim 0 lexer
-             with
-               EofDelim i -> do_arg_delim delim i lexbuf
-             | NoDelim ->
-                
-      |  
-         
-       end
-     end}
-     
 
-*)
