@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.211 2001-05-25 17:23:15 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.212 2001-06-06 16:52:47 maranget Exp $ *)
 
 
 {
@@ -1191,6 +1191,8 @@ and mbox_arg = parse
    end else raise (Misc.ScanError "End of file in \\mbox argument")}
 | '{' | ("\\bgroup" ' '* '\n'? ' '*)
     {start_mbox ()}
+| ""
+    {raise (Misc.ScanError "Cannot find a \\mbox argument here, use braces")}
 
 and no_skip = parse
 | "" {()}

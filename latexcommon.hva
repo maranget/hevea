@@ -299,6 +299,7 @@
   {\@saveclosed\@locname{#2}{#1}\@auxwrite{#2}{\@currentlabel}\@restoreclosed}
 \newcommand{\ref}[1]{\@locref{#1}{\@auxread{#1}}}
 \newcommand{\pageref}[1]{\@locref{#1}{??}}
+\let\@input\input%appears inside aux files
 \newcommand{\@readhaux}
 {\@iffileexists{\jobname.haux}{\input{\jobname.haux}}{}\@hauxinit}
 \newcommand{\@readaux}{\input{\@basein.aux}}

@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: htmltext.ml,v 1.8 2001-06-06 15:20:34 maranget Exp $          *)
+(*  $Id: htmltext.ml,v 1.9 2001-06-06 16:52:41 maranget Exp $          *)
 (***********************************************************************)
 open Emisc
 open Lexeme
@@ -146,7 +146,9 @@ let add s env =
         s::rem_prop p env
       with
       |  Same ->
-          s::env
+          match s.nat with
+          | Size (Int x) when x = !basefont -> env
+          | _ -> s::env
     with
     | NoProp ->
         try

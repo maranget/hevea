@@ -7,12 +7,12 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: length.mll,v 1.12 2001-05-25 12:37:26 maranget Exp $          *)
+(*  $Id: length.mll,v 1.13 2001-06-06 16:52:52 maranget Exp $          *)
 (***********************************************************************)
 
 {
 open Lexing
-let header = "$Id: length.mll,v 1.12 2001-05-25 12:37:26 maranget Exp $" 
+let header = "$Id: length.mll,v 1.13 2001-06-06 16:52:52 maranget Exp $" 
 
 exception Cannot
 ;;
@@ -64,7 +64,8 @@ and positif = parse
 | "@percent"  {1.0, "@percent"}
 |  "" {raise Cannot}
 and unit = parse
-  _ * {lexeme lexbuf}
+| [' ''\n''\t''\r']+ {unit lexbuf}
+| [^' ''\n''\t''\r']* {lexeme lexbuf}
 
 {
 open Lexing
