@@ -1,0 +1,95 @@
+\documentclass{article}
+
+\usepackage[english,french,german]{babel}
+%\usepackage{babel}
+
+\usepackage{makeidx}
+
+\makeindex
+\title{Babel}
+\author{XYZ}
+
+%\newcommand{\DQ}[1]{\dq#1~~\"#1}
+
+\begin{document}
+The initial language is : 
+\iflanguage{english}{english}{bonga}
+\\
+\today\\
+\newcommand{\DQ}[1]{\dq#1~~\"#1}
+
+\maketitle
+
+\selectlanguage{french}
+This checks current language (?) : %\current@language
+\iflanguage{french}{french}{bonga}\\
+\today\\
+\tableofcontents
+
+\selectlanguage{german}
+This checks current language (?) : %\current@language
+\iflanguage{german}{german}{bonga}\\
+\today\\
+\begin{abstract}
+This is the abstract.
+\end{abstract}
+
+\section{Correspondences in German}
+\index{Correspondances in German}
+\DQ{s}\\
+\DQ{S}\\
+\DQ{a}\\
+\DQ{A}\\
+\DQ{e}\\
+\iflanguage{german}{german}{bonga}~before entering ``table''
+\begin{table}
+\selectlanguage{french}
+\caption{NOTABLE}
+\iflanguage{french}{french}{bonga}~declared for the ``table''
+\end{table}
+The language now is (german? french?) : \iflanguage{german}{german}{bonga}
+~when you get out outside the ``table''\\
+\DQ{E}\\
+\DQ{i}\\
+\DQ{I}\\
+\DQ{o}\\
+\DQ{O}\\
+\DQ{u}\\
+\DQ{U}\\
+\DQ{y}\\
+\DQ{Y}
+
+\section{Quotes}
+\index{Quotes}
+\noindent
+Trying out the quotation mark itself : \dq\\
+\glqq Trying out quotes \grqq\\
+\glq Trying out single quotes \grq\\
+\flqq Trying out French quotes \frqq\\
+\flq Trying out french single quotes \frq
+
+\selectlanguage{english}\\
+\today\\
+The language is : \iflanguage{english}{english}{bonga}
+
+\section{Correspondences in French}
+\index{Correspondences in French}
+\selectlanguage{french}\\
+The language is : \iflanguage{french}{french}{bonga}
+\today\\
+\newcommand{\LS}[1]{`#1~~\`#1}
+\newcommand{\RS}[1]{'#1~~\'#1}
+\newcommand{\HAT}[1]{$\wedge$#1~~\^#1}
+
+\LS{a}\\
+\RS{e}\\
+\HAT{u}\\
+
+\appendix
+
+\section{Bonga}
+ahh .. this works as well !!
+
+\printindex
+
+\end{document}
