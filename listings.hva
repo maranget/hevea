@@ -310,11 +310,11 @@
 \lst@define@key@opt{morestring}{\lst@stringizer@key@add}{}
 % stringspaces
 \define@key{lst}{stringspaces}[true]{\def\lst@stringspaces{#1}}
-\setboolean{lst@stringspaces}{true}
+\setboolean{lst@stringspaces}{false}
 \lst@AddToHook{Init}
   {\@ifundefined{lst@stringspaces}{}
      {\setboolean{lst@stringspaces}{\lst@boolean{\lst@stringspaces}}}}
-\lst@AddToHook{DeInit}{\setboolean{lst@stringspaces}{true}}
+\lst@AddToHook{DeInit}{\setboolean{lst@stringspaces}{false}}
 %%%%%% Comments
 % Line comments
 \newcommand{\lst@LC@key}[1]
@@ -341,12 +341,12 @@
    {\lst@lExtend\lst@DefineComments@DC
       {\lst@balanced@comment{\@rawchars{#1}}{\@rawchars{#2}}}%
    \lst@lExtend\lst@DefineComments@DC
-      {\lst@balanced@comment{\@rawchars{#1}}{\@rawchars{#2}}}}
+      {\lst@balanced@comment{\@rawchars{#3}}{\@rawchars{#4}}}}
 \define@key[4]{lst}{doublecomment}{\lst@DC@key{#1}{#2}{#3}{#4}}
 \lst@AddToHookExe{SetLanguage}{\let\lst@DefineComments@DC\@empty}
 \lst@AddToHook{SelectCharTable}{\lst@DefineComments@DC}
 %%%%%% New interface for comments grr...
-\def\lst@morecomment@d#1#2{\lst@DC@key{#1}{#2}{#3}{#4}}
+\def\lst@morecomment@d#1#2#3#4{\lst@DC@key{#1}{#2}{#3}{#4}}
 \def\lst@morecomment@s#1#2{\lst@SC@key{#1}{#2}}
 \def\lst@morecomment@n#1#2{\lst@NC@key{#1}{#2}}
 \def\lst@morecomment@l#1#2#3#4\@empty{\lst@LC@key{#1#2#3#4}}
