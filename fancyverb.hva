@@ -1,0 +1,21 @@
+\usepackage{keyval}
+%%%%%%%%% Font size
+\define@key{verb}{fontsize}{\def\verb@size{#1}}
+\def\verb@size{}
+%%%%%%% Framing
+\define@key{verb}{frame}{\def\verb@frame{#1}}
+\def\verb@frame{}
+\def\begin@frame@{\@open{TABLE}{BORDER=2 CELLSPACING=0 CELLPADDING=4}\@open{TR}{}\@open{TD}{}}
+\def\end@frame@{\@close{TD}\@close{TR}\@close{TABLE}}
+\def\check@frame
+  {\ifthenelse{\equal{\verb@frame}{lines}}
+     {\let\begin@frame\begin@frame@\let\end@frame\end@frame@}
+     {\def\begin@frame{}\def\end@frame{}}}
+%%%%%%%%%% User command
+\newenvironment{Verbatim}[1][]
+  {\@end{Verbatim}%
+  \@setkeys{verb}{#1}%
+  \newverbenv{Verbatim}%
+  \let\oldend\endVerbatim%
+  \def\endVerbatim{\oldend\@close{}\end@frame\endgroup\@open{}{}}%
+  \begingroup\check@frame\begin@frame\verb@size\begin{Verbatim}}{}

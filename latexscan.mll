@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.186 2000-07-10 15:06:25 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.187 2000-07-18 09:57:38 maranget Exp $ *)
 
 
 {
@@ -2282,7 +2282,7 @@ def_code "\\@begin"
 def_code "\\end"
   (fun lexbuf ->
     let env = get_prim_arg lexbuf in
-    scan_this main ("\\csname end"^env^"\\endcsname") ;
+    expand_command main skip_blanks ("\\end"^env) lexbuf ;
     close_env env ;
     if env <> "document" then top_close_block "" ;
     if env = "document" then raise Misc.EndDocument)
