@@ -172,50 +172,69 @@ let newif name =
 ;;
 
 
-let reg = ref "";;
+(* Base LaTeX macros *)
 
-(* General LaTeX macros *)
+let def_style name style =
+  def_env name [Env style] []
+;;
 
-def_env "nostyle" [Env (Style "NO")] [];
-def_env "rm" [Env (Style "RM")] [];
-def_env "tt" [Env (Style "TT")] [];
-def_env "bf" [Env (Style  "B")] [];
-def_env "em" [Env (Style "EM")] [];
-def_env "it" [Env (Style "I")] [];
-def_env "tiny" [Env (Font 1)][];
-def_env "footnotesize" [Env (Font 2)][];
-def_env "scriptsize" [Env (Font 2)][];
-def_env "small" [Env (Font 3)] [];
-def_env "normalsize" [Env (Font 3)][];
-def_env "large" [Env (Font 4)] [];
-def_env "Large" [Env (Font 5)] [];
-def_env "huge" [Env (Font 6)] [];
-def_env "Huge" [Env (Font 7)] [];
-def_env "sl" [] [];
-def_env "program" [] [];
+exception NotEnv
+;;
 
-def_env "purple" [Env (Color "purple")] [];
-def_env "silver" [Env (Color "silver")] [];
-def_env "gray" [Env (Color "gray")] [];
-def_env "white" [Env (Color "white")] [];
-def_env "maroon" [Env (Color "maroon")] [];
-def_env "red" [Env (Color "red")] [];
-def_env "fuchsia" [Env (Color "fuchsia")] [];
-def_env "green" [Env (Color "green")] [];
-def_env "lime" [Env (Color "lime")] [];
-def_env "olive" [Env (Color "olive")] [];
-def_env "yellow" [Env (Color "yellow")] [];
-def_env "navy" [Env (Color "navy")] [];
-def_env "blue" [Env (Color "blue")] [];
-def_env "teal" [Env (Color "teal")] [];
-def_env "aqua" [Env (Color "aqua")] [];
+let rec as_env_rec name r =
+  try match Hashtbl.find cmdtable name with
+    _,[Subst s] ->
+      List.fold_right as_env_rec
+        (Save.macro_names (Lexing.from_string s)) r
+  | _,[Env env] -> env :: r
+  | _,_         -> raise NotEnv
+  with Not_found -> raise NotEnv
+;;
+
+let as_env name = as_env_rec name []
+;;
+
+   
+
+def_style "tt" (Style "TT");
+def_style "bf" (Style  "B");
+def_style "em" (Style "EM");
+def_style "it" (Style "I");
+def_style "tiny" (Font 1);
+def_style "footnotesize" (Font 2);
+def_style "scriptsize" (Font 2);
+def_style "small" (Font 3);
+def_style "normalsize" (Font 3);
+def_style "large" (Font 4);
+def_style "Large" (Font 5);
+def_style "LARGE" (Font 5);
+def_style "huge" (Font 6);
+def_style "Huge" (Font 7);
+
+
+def_style "purple" (Color "purple");
+def_style "silver" (Color "silver");
+def_style "gray" (Color "gray");
+def_style "white" (Color "white");
+def_style "maroon" (Color "maroon");
+def_style "red" (Color "red");
+def_style "fuchsia" (Color "fuchsia");
+def_style "green" (Color "green");
+def_style "lime" (Color "lime");
+def_style "olive" (Color "olive");
+def_style "yellow" (Color "yellow");
+def_style "navy" (Color "navy");
+def_style "blue" (Color "blue");
+def_style "teal" (Color "teal");
+def_style "aqua" (Color "aqua");
 ();;
+
 
 let stylemacro = function
   "\\nostyle" | "\\rm" | "\\tt"
 | "\\bf" | "\\em" | "\\it" | "\\sl" 
 | "\\tiny" | "\\footnotesize" | "\\scriptsize"
-| "\\small" | "\\normalsize" | "\\large" | "\\Large"
+| "\\small" | "\\normalsize" | "\\large" | "\\Large" | "\\LARGE"
 | "\\huge" | "\\Huge"
 | "\\purple" | "\\silver" | "\\gray" | "\\white"
 | "\\maroon" | "\\red" | "\\fuchsia" | "\\green"
@@ -224,8 +243,9 @@ let stylemacro = function
 | _ -> false
 ;;
 
-def_macro "\\alltt" 0 [];
-def_macro "\\endalltt" 0 [];
+def_env "program" [] [];
+def_env "alltt" [] []
+;;
 
 let no_dot = function
   "." -> ""
@@ -416,18 +436,6 @@ def_macro "\\int" 0
   [IfCond (display,
     [Print display_int],
     [Print int])];
-def_macro "\\mathchardef" 2 [];
-def_macro "\\cite" 1 [];
-def_macro "\\Nat" 0 [Print "N"];
-def_macro "\\;" 0 [Subst "~"] ;
-def_macro "\\bar" 1
-  [Open ("TABLE","") ; 
-   Open ("TR","") ; Open ("TD","HEIGHT=2") ;
-   Print "<HR NOSHADE>" ;
-   Close "TD" ; Close "TR" ;
-   Open ("TR","") ; Open ("TD","ALIGN=center") ;
-   Print_arg 0 ;
-   Close "TD" ; Close "TR" ; Close "TABLE"] ;
 ();;
 
 let alpha_of_int i = String.make 1 (Char.chr (i-1+Char.code 'a'))

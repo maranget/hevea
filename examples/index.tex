@@ -1,0 +1,29 @@
+\documentclass{article}
+\usepackage{html}
+
+\begin{document}
+Here, you find some examples of using \htmlgen.
+\begin{itemize}
+\item The \oneurl{Makefile}
+\item A simple article,  \oneurl{a.tex} and \oneurl{a.html}. It is
+generated with the french option set:
+\begin{verbatim}
+# htmlgen -francais a.tex
+\end{verbatim}
+\item The test suite: \oneurl{suite.tex} and \oneurl{suite.html}
+\item A full article cut into pieces , with images (source is \oneurl{pat.tex}
+and output is \oneurl{patbis.html}). To yied this result, \verb+gpic+ is first
+applied to \verb+pat.tex+, yielding \verb+temp.tex+; \LaTeX\ and
+\BibTeX are then used to produce the appropriate \verb+tmp.aux+ and
+\verb+tmp.bbl+ files; finally \htmlgen\ and \htmlcut\ are run as
+follows:
+\begin{verbatim}
+# htmlgen pat.sty -e pat.def -o pat.html tmp.tex
+# imagegen
+# htmlcut -o patbis.html pat.html 
+\end{verbatim}
+Notice that the \LaTeX\ style file \oneurl{pat.def} is not loaded and
+that a simplified \oneurl{pat.sty} is loaded.
+
+\end{itemize}
+\end{document}

@@ -12,12 +12,12 @@ let read_style name =
     Location.set name buf ;
     Latexscan.main buf ;
     Location.restore ()
-  with Not_found -> ()
+  with Myfiles.Except-> ()
 ;;
  
 let main () = 
 
-    if !readverb > 0 then verbose := 1;
+    if !readverb > 0 then Parse_opts.verbose := 1;
     read_style "htmlgen.sty" ;
 
     begin match !files with

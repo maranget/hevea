@@ -4,6 +4,7 @@ open Lexing
 open Myfiles
 open Latexmacros
 open Html
+open Save
 
 let push s e = s := e:: !s
 and pop s = match !s with
@@ -159,8 +160,6 @@ let make_stack name pat lexbuf =
 let to_image = ref true
 ;;
 
-type format = Align of string * bool | Inside of string
-;;
 
 let pretty_format = function
   Align (s,b) -> (if b then "t" else "")^s
@@ -210,6 +209,7 @@ let macros_unregister () =
 ;;
 
 let open_ital () = Html.open_mod (Style "I")
+and no_ital () = Html.erase_mods [Style "I"]
 ;;
 
 let get_script_font () =
@@ -325,13 +325,13 @@ let unparse_args opts args =
 ;;
 
 let scan_this lexfun s =
-  if !verbose > 2 then begin
+  if !verbose > 1 then begin
     Printf.fprintf stderr "scan_this : [%s]" s ;
     prerr_endline ""  
   end ;
   let lexer = Lexing.from_string s in
   let r = lexfun lexer in
-  if !verbose > 2 then begin
+  if !verbose > 1 then begin
     Printf.fprintf stderr "scan_this : over" ;
     prerr_endline ""
   end ;
@@ -339,19 +339,19 @@ let scan_this lexfun s =
 ;;
 
 let get_this lexfun s =
-  if !verbose > 2 then begin
+  if !verbose > 1 then begin
     Printf.fprintf stderr "get_this : [%s] = " s ;
   end ;
   let lexer = Lexing.from_string ("{"^s^"}") in
   let r = Html.to_string (fun () -> lexfun lexer) in
-  if !verbose > 2 then begin
+  if !verbose > 1 then begin
     prerr_endline r
   end ;
   r
 ;;
 
 let put_delim delim i =
-  if !verbose > 2 then
+  if !verbose > 1 then
     prerr_endline
      ("put_delim: ``"^delim^"'' ("^string_of_int i^")") ;
   if delim <> "." then begin
@@ -381,7 +381,6 @@ and stack_format = ref []
 and cur_col = ref 0
 and stack_col = ref []
 and in_table = ref NoTable
-and border = ref false
 and stack_table = ref []
 ;;
 
@@ -583,35 +582,60 @@ let close_env env  =
     error_env env !cur_env
 ;;
 
-let complex s =
-  let rec c_rec i =
-   if i >= String.length s then false
-   else
-     let c = String.get s i in
-     not ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) ||
-     c_rec (i+1) in
-   c_rec 0
+type ital = Ital | NoItal | Complex
+;;
+
+(* must agree with the check for non-italic math chars at the end of main *)
+let check_char = function
+  '|' | '[' | ']' | '(' | ')' | ':' | ';' | ',' | '*' |
+  ' ' | '+' | '-' | '=' | '0' | '1' | '2' | '3' | '4' |
+  '5' | '6' | '7' | '8' | '9' -> NoItal
+| c ->
+   if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) then
+     Ital
+   else Complex
+;;
+
+exception Over
+;;
+
+let check_ital s =
+  let rec check_rec = function
+    -1 -> Complex
+  | 0  -> check_char (String.get s 0)
+  | i  ->
+     let t = check_char (String.get s i)
+     and tt = check_rec (i-1) in
+     if t = tt then t
+     else raise Over in
+  try check_rec (String.length s-1) with Over -> Complex
+;;
+
+let complex s = match check_ital s with
+  Complex -> true
+| _       -> false
 ;;
 
 let put_sup_sub tag main = function
   "" -> ()
-| s  ->
-   if not (complex s) then begin
-     Html.open_group tag ;
-     open_script_font () ;
-     scan_this main s;
-     Html.close_group ()
-   end else begin
-     Html.put_char '<' ;
-     Html.put tag ;
-     Html.put_char '>' ;
-     let sf = get_script_font () in
-     Html.put ("<FONT SIZE="^string_of_int sf^">") ;
-     scan_this main s ;
-     Html.put "</FONT>" ;
-     Html.put "</" ;
-     Html.put tag ;
-     Html.put_char '>'
+| s  -> begin
+   match check_ital s with
+     Complex|NoItal ->
+       Html.open_group tag ;
+       open_script_font () ;
+       scan_this main s;
+       Html.close_group ()
+   | Ital ->     
+       Html.put_char '<' ;
+       Html.put tag ;
+       Html.put_char '>' ;
+       let sf = get_script_font () in
+       Html.put ("<FONT SIZE="^string_of_int sf^">") ;
+       scan_this main s ;
+       Html.put "</FONT>" ;
+       Html.put "</" ;
+       Html.put tag ;
+       Html.put_char '>'
   end
 ;;
 
@@ -702,10 +726,9 @@ let input_file main filename =
     new_env "*input" main buf ;
     Location.restore () ;
     close_env "*input"
-  with Not_found -> begin
+  with Myfiles.Except -> begin
     if !verbose > 0 then
       prerr_endline ("Not opening file: "^filename) ;
-    raise Not_found
     end
  | Myfiles.Error m -> begin
      if !verbose > 0 then begin
@@ -726,9 +749,9 @@ let no_prelude () =
 rule  main = parse
    '%'+ ' '* ("BEGIN"|"begin") ' '+ ("IMAGE"|"image")  [^'\n']* '\n'
     {Image.dump "" image lexbuf}
-|  '%' [^ '\n']* '\n'
+|  '%'+ [^ '\n']* '\n'
    {if !verbose > 1 then
-     Printf.fprintf stderr "Comment : %s" (lexeme lexbuf) ;
+     prerr_endline ("Comment:"^lexeme lexbuf) ;
    if !flushing then Html.flush_out () ;
    skip_spaces_main lexbuf}
 (* included images *)
@@ -843,7 +866,7 @@ rule  main = parse
        in_math := false ;
        let lexfun lb =
          open_fun () ;
-         open_mod (Style "RM") ;
+         no_ital () ;
          main lb in
        new_env "*mbox" lexfun lexbuf
     end else begin
@@ -1138,7 +1161,18 @@ rule  main = parse
     end else if env <> "document" then Html.close_group () ;
     close_env env ;
     main lexbuf}
-| ("\\prog" | "\\verb") _
+| "\\textalltt"
+   {let arg = save_arg lexbuf in
+   let old = !alltt in
+   scan_this main "\\hbox{" ;
+   alltt := true ;
+   Html.open_group "CODE" ;
+   scan_this main arg ;
+   Html.close_group () ;
+   scan_this main "}" ;
+   alltt := old ;
+   main lexbuf}
+| ("\\prog" | "\\verb" | "\\verb*") _
    {let lxm = lexeme lexbuf in
    verb_delim := String.get lxm (String.length lxm-1) ;
    Html.open_group "CODE" ;
@@ -1147,23 +1181,6 @@ rule  main = parse
     {let arg = save_opt "" lexbuf in
     Html.item (scan_this main) arg ;
     main lexbuf}
-(* Bibliographies *)
-  | "\\cite{"
-    {let args = Save.cite_args lexbuf in
-    open_group "CITE" ;
-    put_char '[' ;
-    let rec do_rec = function
-      [] -> ()
-    | [x] -> Html.loc_ref (Aux.bget x) x
-    | x::rest ->
-        Html.loc_ref (Aux.bget x) x ;
-        put ", " ;
-        do_rec rest in
-    do_rec args ;
-    put_char ']' ;
-    close_group () ;
-    main lexbuf
-    }
 (* Ignore font definitions ... *)
   | "\\font" "\\" ['A'-'Z' 'a'-'z']+ ' '* '='? ' '* ['a'-'z' 'A'-'Z' '0'-'9']+
       {main lexbuf}
@@ -1175,118 +1192,162 @@ rule  main = parse
   | "\\else"  {skip_false lexbuf}
   | "\\fi"    {skip_blanks lexbuf ; main lexbuf}
 
-(* chars *)
-  | "\\char"
-     {let arg = Save.num_arg lexbuf in
-     Html.put_char (Char.chr arg) ;
-     skip_blanks lexbuf ; main lexbuf}
-(* labels *)
-  | "\\label"
-     {let save_last_closed = !last_closed in
-     let lab = save_arg lexbuf in
-     Html.loc_name lab "" ;
-     last_closed := save_last_closed ;
-     main lexbuf}
-(* index *)
-  | "\\@index"
-     {let save_last_closed = !last_closed in
-     let tag = save_opt "default" lexbuf in
-     Index.treat tag lexbuf ;
-     last_closed := save_last_closed ;
-     main lexbuf}
-  | "\\@printindex"
-     {let tag =  save_opt "default" lexbuf in
-     Index.print (scan_this main) tag ;
-     main lexbuf}
-  | "\\newindex" |  "\\renewindex"
-     {let tag = save_arg lexbuf in
-     let suf = save_arg lexbuf in
-     let _   = save_arg lexbuf in
-     let name = save_arg lexbuf in
-     Index.newindex tag suf name ;
-     main lexbuf}
-(* Counters *)
-  | "\\newcounter" 
-      {let name = save_arg lexbuf in
-      let within = save_opt "" lexbuf in
-      Counter.def_counter name within ;
-      scan_this main ("\\def\\the"^name^"{\\arabic{"^name^"}}") ;
-      main lexbuf}
-  | "\\addtocounter"
-     {let name = save_arg lexbuf in
-      let arg = save_arg lexbuf in
-      Counter.add_counter name (my_int_of_string arg) ;
-      main lexbuf}
-  | "\\setcounter"
-     {let name = save_arg lexbuf in
-      let arg = save_arg lexbuf in
-      let arg = get_this main ("\\nostyle "^arg) in
-      Counter.set_counter name (my_int_of_string arg) ;
-      main lexbuf}
-  | "\\stepcounter"
-     {let name = save_arg lexbuf in
-     Counter.step_counter name ;
-     main lexbuf}
-  | "\\refstepcounter"
-     {let name = save_arg lexbuf in
-     Counter.step_counter name ;
-     Counter.setrefvalue (get_this main ("\\nostyle\\the"^name)) ;
-     main lexbuf}
-  | "\\value"
-     {let name = save_arg lexbuf in
-     Html.put (string_of_int (Counter.value_counter name)) ;
-     main lexbuf}
-(* Foot notes *)
-  | "\\@footnotetext"
-     {let mark = get_this main (save_arg lexbuf) in
-     let text = get_this main (save_arg lexbuf) in
-     let anchor = get_this main (save_arg lexbuf) in
-     Foot.register
-       (my_int_of_string mark)
-       (get_this main ("\\@footnotemark{\@fnmarknote}{"^mark^"}"))
-       text anchor ;
-     main lexbuf}
-  | "\\@footnoteflush"
-     {let sec_here = save_arg lexbuf
-     and sec_notes = get_this main "\\nostyle\\@footnotelevel" in
-     Foot.flush (scan_this main) sec_notes sec_here ;
-     main lexbuf}
-(* Boxes *)
-  | "\\newsavebox"
-      {let name = save_arg lexbuf in
-      def_macro name 0 [Print ""] ;
-      main lexbuf}
-  | "\\savebox"
-      {let name = save_arg lexbuf in
-      skip_opt lexbuf ; skip_opt lexbuf ;
-      let body = "{"^save_arg lexbuf^"}" in
-      redef_macro name 0 [Print (get_this main body)] ;
-      main lexbuf}
-(* Html primitives *)
-  | "\\@open"
-     {let tag = save_arg lexbuf in
-     let arg = save_arg lexbuf in
-     Html.open_block tag arg ;
-     skip_blanks_main lexbuf}
-  | "\\@close"
-     {let tag = save_arg lexbuf in
-     Html.close_block tag;
-     skip_blanks_main lexbuf}
-  | "\\@print"
-     {let arg = save_arg lexbuf in
-     Html.put arg ;
-     skip_blanks_main lexbuf}
-  | "\\@defaultdt"
-     {let arg = save_arg lexbuf in
-     Html.set_dt arg ;
-     skip_blanks_main lexbuf}
-  | "\\@fromlib"
-     {let arg = save_arg lexbuf in
-     Mylib.put_from_lib arg Html.put;
-     skip_blanks_main lexbuf}
 (* General case for commands *)
-  | "\\" '@'? ((['A'-'Z' 'a'-'z']+ '*'?) | [^ 'A'-'Z' 'a'-'z'])
+  | "\\" (('@' ? ['A'-'Z' 'a'-'z']+ '*'?) | [^ 'A'-'Z' 'a'-'z'])
       {let lxm = lexeme lexbuf in
+      begin match lxm with
+    (* Html primitives *)
+       "\\@open" ->
+         let tag = save_arg lexbuf in
+         let arg = save_arg lexbuf in
+         Html.open_block tag arg ;
+         skip_blanks_main lexbuf
+      | "\\@close" ->
+         let tag = save_arg lexbuf in
+         Html.close_block tag;
+         skip_blanks_main lexbuf
+      | "\\@print" ->
+         let arg = save_arg lexbuf in
+         Html.put arg ;
+         skip_blanks_main lexbuf
+      | "\\@anti" ->
+         let args = Save.cite_arg lexbuf in
+         let rec do_rec = function
+           [] -> []
+         | arg::rest ->
+           let r = do_rec rest in
+           begin try
+             let env = Latexmacros.as_env arg in
+             env @ r
+           with Latexmacros.NotEnv ->
+             if true then begin
+               Location.print_pos () ;
+               prerr_endline ("Anti, not a style: "^arg)
+             end ;
+             r
+           end  in
+         let envs = do_rec args in
+         Html.erase_mods envs ;
+         skip_blanks_main lexbuf
+      | "\\@nostyle" ->
+         Html.nostyle () ;
+         skip_blanks_main lexbuf
+      | "\\@clearstyle" ->
+         Html.clearstyle () ;
+         skip_blanks_main lexbuf
+      | "\\@defaultdt" ->
+         let arg = save_arg lexbuf in
+         Html.set_dt arg ;
+         skip_blanks_main lexbuf
+      | "\\@fromlib" ->
+         let arg = save_arg lexbuf in
+         Mylib.put_from_lib arg Html.put;
+         skip_blanks_main lexbuf
+(* Bibliographies *)
+      | "\\cite" ->
+        let _ = save_opt "" lexbuf in
+        let args = Save.cite_arg lexbuf in
+        put_char '[' ;
+        open_group "CITE" ;
+        let rec do_rec = function
+          [] -> ()
+        | [x] -> Html.loc_ref (Aux.bget x) x
+        | x::rest ->
+            Html.loc_ref (Aux.bget x) x ;
+            put ", " ;
+            do_rec rest in
+        do_rec args ;
+        close_group () ;
+        put_char ']' ;
+        main lexbuf
+(* Foot notes *)
+        | "\\@footnotetext" ->
+           let mark = get_this main ("\\@nostyle "^save_arg lexbuf) in
+           let text = get_this main ("\\@clearstyle "^save_arg lexbuf) in
+           let anchor = get_this main (save_arg lexbuf) in
+           Foot.register
+             (my_int_of_string mark)
+             (get_this main ("\\@footnotemark{\@fnmarknote}{"^mark^"}"))
+             text anchor ;
+           main lexbuf
+        | "\\@footnoteflush" ->
+           let sec_here = save_arg lexbuf
+           and sec_notes = get_this main "\\@nostyle\\@footnotelevel" in
+           Foot.flush (scan_this main) sec_notes sec_here ;
+           main lexbuf
+(* Boxes *)
+        | "\\newsavebox" ->
+            let name = save_arg lexbuf in
+            def_macro name 0 [Print ""] ;
+            main lexbuf
+        | "\\savebox" ->
+            let name = save_arg lexbuf in
+            skip_opt lexbuf ; skip_opt lexbuf ;
+            let body = "{"^save_arg lexbuf^"}" in
+            redef_macro name 0 [Print (get_this main body)] ;
+            main lexbuf
+(* chars *)
+        | "\\char" ->
+           let arg = Save.num_arg lexbuf in
+           Html.put_char (Char.chr arg) ;
+           skip_blanks lexbuf ; main lexbuf
+(* labels *)
+        | "\\label" ->
+           let save_last_closed = !last_closed in
+           let lab = save_arg lexbuf in
+           Html.loc_name lab "" ;
+           last_closed := save_last_closed ;
+           main lexbuf
+(* index *)
+        | "\\@index" ->
+           let save_last_closed = !last_closed in
+           let tag = save_opt "default" lexbuf in
+           Index.treat tag lexbuf ;
+           last_closed := save_last_closed ;
+           main lexbuf
+        | "\\@printindex" ->
+           let tag =  save_opt "default" lexbuf in
+           Index.print (scan_this main) tag ;
+           main lexbuf
+        | "\\newindex" |  "\\renewindex" ->
+           let tag = save_arg lexbuf in
+           let suf = save_arg lexbuf in
+           let _   = save_arg lexbuf in
+           let name = save_arg lexbuf in
+           Index.newindex tag suf name ;
+           main lexbuf
+(* Counters *)
+        | "\\newcounter"  ->
+            let name = save_arg lexbuf in
+            let within = save_opt "" lexbuf in
+            Counter.def_counter name within ;
+            scan_this main ("\\def\\the"^name^"{\\arabic{"^name^"}}") ;
+            main lexbuf
+        | "\\addtocounter" ->
+           let name = save_arg lexbuf in
+            let arg = save_arg lexbuf in
+            Counter.add_counter name (my_int_of_string arg) ;
+            main lexbuf
+        | "\\setcounter" ->
+           let name = save_arg lexbuf in
+            let arg = save_arg lexbuf in
+            let arg = get_this main ("\\@nostyle "^arg) in
+            Counter.set_counter name (my_int_of_string arg) ;
+            main lexbuf
+        | "\\stepcounter" ->
+           let name = save_arg lexbuf in
+           Counter.step_counter name ;
+           main lexbuf
+        | "\\refstepcounter" ->
+           let name = save_arg lexbuf in
+           Counter.step_counter name ;
+           Counter.setrefvalue (get_this main ("\\@nostyle\\the"^name)) ;
+           main lexbuf
+        | "\\value" ->
+           let name = save_arg lexbuf in
+           Html.put (string_of_int (Counter.value_counter name)) ;
+           main lexbuf
+      | _ ->
       let rec exec stack = function
         [] -> ()
       | i::rest -> begin match i with
@@ -1308,11 +1369,11 @@ rule  main = parse
           | ItemDisplay   -> item_display ()
           | Subst body ->
             if !verbose > 2 then
-              Printf.fprintf stderr "user macro : %s\n" body ;            
+              prerr_endline ("user macro: "^body) ;            
             let lex_one = Lexing.from_string body in             
             let body_instance = Subst.subst lex_one stack in
             if !verbose > 2 then
-              Printf.fprintf stderr "subst: %s\n" body_instance ;
+              prerr_endline ("subst: "^body_instance) ;
             push stack_lexbuf lexbuf ;
             let n = List.length !stack_lexbuf in
             scan_this main body_instance ;
@@ -1346,9 +1407,9 @@ rule  main = parse
             exec stack body ;
             if (!verbose > 2) then prerr_endline ("Cont after macro"^name) ;
             if Latexmacros.stylemacro name || (not !in_math && not !alltt &&
-               ((pat = ([],[])) || Latexmacros.invisible name)) then
+               ((pat = ([],[])) || Latexmacros.invisible name)) then begin
               skip_blanks_main lexbuf
-            else
+            end else
               main lexbuf
           with Subst.BadArg ->
               Printf.fprintf stderr "Bad arg in %s\n" name ;
@@ -1358,7 +1419,8 @@ rule  main = parse
                prerr_endline ("Cont after iffalse:"^name) ;
              skip_false lexbuf
           end
-        end}
+        end
+     end}
 
 | "<"         { Html.put "&lt;"; main lexbuf }
 | ">"         { Html.put "&gt;"; main lexbuf }
@@ -1401,12 +1463,12 @@ rule  main = parse
     Html.put_char '\n' ;
   end ;
   main lexbuf}
-| '|' '[' ']' '(' | ')' | ':' | ';' | ',' | '*' |
+| '|' | '[' | ']' | '(' | ')' | ':' | ';' | ',' | '*' |
   ['0'-'9' ' ' '+' '-' '=']+
    {let lxm =  lexeme lexbuf in
    if !in_math then begin
       Html.open_group "" ;
-      Html.open_mod (Style "RM") ;
+      no_ital ();
       Html.put lxm;
       Html.close_group ()
     end else
@@ -1423,14 +1485,6 @@ and rawhtml = parse
 and latexonly = parse
     "\\end{latexonly}" { () }
   | _           { latexonly lexbuf }
-
-and defargs = parse 
-  '#' ['1'-'9'] | [^'#' '{']+
-    {let lxm = lexeme lexbuf in
-    lxm::defargs lexbuf}
-| "" {[]}
-
-and defbody = parse "" {Save.arg lexbuf}
 
 and verbenv = parse
   "\\end" " " * "{" ['a'-'z'] + "}"
@@ -1485,20 +1539,6 @@ and image = parse
      Image.put s ;
      image lexbuf}
 
-and tformat = parse
-  'c' {Align ("center",false)::tformat lexbuf}
-| 'l' {Align ("left",false)::tformat lexbuf}
-| 'r' {Align ("right",false)::tformat lexbuf}
-| "tc" {Align ("center",true)::tformat lexbuf}
-| "tl" {Align ("left",true)::tformat lexbuf}
-| "tr" {Align ("right",true)::tformat lexbuf}
-| '|' {border := true ; tformat lexbuf}
-| '@'
-    {let inside = Save.arg lexbuf in
-    Inside inside::tformat lexbuf}
-| _   {tformat lexbuf}
-| eof {[]}
-
 and skip_blanks_main = parse
    ' ' * '\n' '\n'  {Html.par () ; skip_blanks_main lexbuf}
 |  ' ' * '\n'? ' '* {main lexbuf}
@@ -1508,31 +1548,6 @@ and skip_spaces_main = parse
   ' ' * {if !display then Html.put (lexeme lexbuf) ; main lexbuf}
 | eof   {main lexbuf}
 
-
-and skip_blanks = parse 
-  [' ']* '\n'? [' ']* {()}
-| eof {()}
-
-and skip_equal = parse
-  ' '* '=' ' '* {()}
-| ""            {()}
-
-and get_sup_sub = parse
-  '^'
-    {let sup = Save.arg lexbuf in
-    sup,get_sub lexbuf}
-| '_'
-    {let sub = Save.arg lexbuf in
-    get_sup lexbuf,sub}
-| "" {("","")}
-
-and get_sup = parse
-  '^'  {Save.arg lexbuf}
-| ""   {""}
-
-and get_sub = parse
-  '_'  {Save.arg lexbuf}
-| ""   {""}
 
 and skip_false = parse
   "\\if" ['a'-'z' 'A'-'Z']+

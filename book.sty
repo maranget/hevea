@@ -9,7 +9,7 @@
 \newcounter {subparagraph}[paragraph]
 \newcounter {footnote}[chapter]
 \newcounter {anchornote}
-\renewcommand \theanchornote{\arabic{chapter}.\arabic{anchornote}}
+\renewcommand \theanchornote{{\@nostyle\arabic{chapter}.\arabic{anchornote}}}
 \renewcommand \thepart {\Roman{part}}
 \renewcommand \thesection {\thechapter.\arabic{section}}
 \renewcommand\thesubsection   {\thesection.\arabic{subsection}}

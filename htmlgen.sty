@@ -3,14 +3,14 @@
 \def\LaTeX{\@print{L<sup>A</sup>T<sub>E</sub>X}}
 \newcommand{\htmlgen}{\@print{H<sup>TML</sup>G<sub>E</sub>N}}
 \newcommand{\htmlcut}{\@print{H<sup>TML</sup>C<sub>U</sub>T}}
-\def\url#1#2{{\nostyle\@print{<A HREF="}#1\@print{">}}{#2}{\nostyle\@print{</A>}}}
+\def\url#1#2{{\@nostyle\@print{<A HREF="}#1\@print{">}}{#2}{\@nostyle\@print{</A>}}}
 \def\home#1{\char126#1}
 \def\oneurl#1{\url{#1}{#1}}
 \def\localurl#1{}
 \newcommand{\docurl}{http://para.inria.fr/\home{maranget}/htmlgen}
 \newcommand{\mail}[2]{\url{mailto:#1\char64 #2}{#1\char64 #2}}
 %%% now serious
-\def\noprint#1{{\nostyle\@print{#1}}}
+\def\noprint#1{{\@nostyle\@print{#1}}}
 \newenvironment{document}{%
 \@print{<HTML>
 }%
@@ -38,6 +38,7 @@
 \newenvironment{description}{\@open{DL}{}}{\@close{DL}}
 \newenvironment{trivlist}{\@open{DL}{}}{\@close{DL}}
 \newenvironment{list}[2]{\@open{DL}{COMPACT=compact}\@defaultdt{#1}#2}{\@close{DL}}
+\newcommand{\usecounter}[1]{}
 \newenvironment{center}{\@open{DIV}{ALIGN=center}}{\@close{DIV}}
 \newenvironment{flushleft}{\@open{DIV}{ALIGN=left}}{\@close{DIV}}
 \newenvironment{flushright}{\@open{DIV}{ALIGN=right}}{\@close{DIV}}
@@ -112,9 +113,9 @@
 \newcommand{\footnotemark}[1][\stepcounter{footnote}\value{footnote}]{%
 \setcounter{onemark}{#1}%
 \setcounter{anchornote}{\value{onemark}}%
-\@openanchor{note}{text}{\theanchornote}%
+{\@clearstyle\@openanchor{note}{text}{\theanchornote}%
 \@footnotemark{\@fnmarktext}{\value{onemark}}%
-\@closeanchor
+\@closeanchor}
 }
 
 \newcommand{\footnotetext}[2][\value{footnote}]{%
@@ -122,11 +123,11 @@
 \@footnotetext{#1}{#2}{\theanchornote}}
 \newcounter{onefoot}
 \newcommand{\footnote}[2][\stepcounter{footnote}\value{footnote}]{%
-\setcounter{onefoot}{#1}
-\setcounter{anchornote}{\value{onefoot}}
-\@openanchor{note}{text}{\theanchornote}%
+\setcounter{onefoot}{#1}%
+\setcounter{anchornote}{\value{onefoot}}%
+{\@clearstyle\@openanchor{note}{text}{\theanchornote}%
 \@footnotemark{\@fnmarktext}{\value{onefoot}}%
-\@closeanchor
+\@closeanchor}%
 \@footnotetext{\value{onefoot}}{#2}{\theanchornote}%
 }
 \newcommand{\thanks}[1]{\footnote{#1}}
@@ -137,17 +138,25 @@
 \def\hfill{\qquad\qquad}
 \def\limits{}
 \def\underbrace#1{\underline{#1}}
+\def\overline#1{%
+\ifdisplay
+\begin{array}{c}\hline\\
+#1\end{array}\else
+\hbox{overline}(#1)
+\fi}
 \def\@{}
 \def\ { }
 \def\:{ }
 \def\,{~}
 \def\!{}
+\def\;{~}
 \def\frac#1#2{{#1 \over #2}}
 \def\mathord#1{#1}
 \def\mathrel#1{#1}
 \def\mathop#1{#1}
 \def\mathopen#1{#1}
-\def\mathclosefoo1{#1}
+\def\mathclose#1{#1}
+\def\mathchardef#1#2{}
 \def\ldots{...}
 \def\dots{...}
 \def\cdots{...}
@@ -157,8 +166,8 @@
 \def\/{}
 \def\&{\@print{&amp}}
 \def\_{\@print{_}}
-\def\{{\ifmath{\rm\char123}\else\char123\fi}
-\def\}{\ifmath{\rm\char125}\else\char125\fi}
+\def\{{\ifmath{\@anti{\it}\char123}\else\char123\fi}
+\def\}{\ifmath{\@anti{\it}\char125}\else\char125\fi}
 \def\
 {\@print{
 }}
@@ -181,40 +190,40 @@
 \def\bigcup{{\Huge\cup}}
 \def\bigcap{{\Huge\cap}}
 
-\def\arccos{{\rm arccos}}
-\def\arcsin{{\rm arcsin}}
-\def\arctan{{\rm arctan}}
-\def\arg{{\rm arg}}
-\def\cos{{\rm cos}}
-\def\cosh{{\rm cosh}}
-\def\cot{{\rm cot}}
-\def\coth{{\rm coth}}
-\def\csc{{\rm csc}}
-\def\deg{{\rm deg}}
-\def\det{{\rm det}}
-\def\dim{{\rm dim}}
-\def\exp{{\rm exp}}
-\def\gcd{{\rm gcd}}
-\def\hom{{\rm hom}}
-\def\inf{{\rm inf}}
-\def\ker{{\rm ker}}
-\def\lg{{\rm lg}}
-\def\lim{{\rm lim}}
-\def\liminf{{\rm liminf}}
-\def\limsup{{\rm limsup}}
-\def\ln{{\rm ln}}
-\def\log{{\rm log}}
-\def\max{{\rm max}}
-\def\min{{\rm min}}
-\def\Pr{{\rm Pr}}
-\def\sec{{\rm sec}}
-\def\sin{{\rm sin}}
-\def\sinh{{\rm sinh}}
-\def\sup{{\rm sup}}
-\def\tan{{\rm tan}}
-\def\tanh{{\rm tanh}}
-\def\bmod{{\rm mod}}
-\def\pmod#1{{\rm (mod }#1{\rm )}}
+\def\arccos{{\@anti{\it} arccos}}
+\def\arcsin{{\@anti{\it} arcsin}}
+\def\arctan{{\@anti{\it} arctan}}
+\def\arg{{\@anti{\it} arg}}
+\def\cos{{\@anti{\it} cos}}
+\def\cosh{{\@anti{\it} cosh}}
+\def\cot{{\@anti{\it} cot}}
+\def\coth{{\@anti{\it} coth}}
+\def\csc{{\@anti{\it} csc}}
+\def\deg{{\@anti{\it} deg}}
+\def\det{{\@anti{\it} det}}
+\def\dim{{\@anti{\it} dim}}
+\def\exp{{\@anti{\it} exp}}
+\def\gcd{{\@anti{\it} gcd}}
+\def\hom{{\@anti{\it} hom}}
+\def\inf{{\@anti{\it} inf}}
+\def\ker{{\@anti{\it} ker}}
+\def\lg{{\@anti{\it} lg}}
+\def\lim{{\@anti{\it} lim}}
+\def\liminf{{\@anti{\it} liminf}}
+\def\limsup{{\@anti{\it} limsup}}
+\def\ln{{\@anti{\it} ln}}
+\def\log{{\@anti{\it} log}}
+\def\max{{\@anti{\it} max}}
+\def\min{{\@anti{\it} min}}
+\def\Pr{{\@anti{\it} Pr}}
+\def\sec{{\@anti{\it} sec}}
+\def\sin{{\@anti{\it} sin}}
+\def\sinh{{\@anti{\it} sinh}}
+\def\sup{{\@anti{\it} sup}}
+\def\tan{{\@anti{\it} tan}}
+\def\tanh{{\@anti{\it} tanh}}
+\def\bmod{{\@anti{\it} mod}}
+\def\pmod#1{{\@anti{\it} (mod }#1{\@anti{\it} )}}
 \def\bigcirc{{\Huge\circ}}
 \def\prec{prec}
 \def\preceq{preceq}
@@ -222,44 +231,58 @@
 \def\sqsubseteq{sqsubseteq}
 \def\gg{»}
 \def\sqsupseteq{sqsupseteq}
-\def\vdash{{\rm |-}}
-\def\dashv{{\rm -|}}
+\def\vdash{{\@anti{\it} |-}}
+\def\dashv{{\@anti{\it} -|}}
 \def\asymp{asymp}
-\def\mid{{\rm |}}
+\def\mid{{\@anti{\it} |}}
 \def\bowtie{><}
 \def\smile{smile}
 \def\frown{frown}
-\def\mapsto{{\rm |\leftarrow}}
-\def\tth{{\rm ||-}}
+\def\mapsto{{\@anti{\it} |\leftarrow}}
+\def\tth{{\@anti{\it} ||-}}
 \def\bot{\perp}
-\def\models{{\rm |=}}
+\def\models{{\@anti{\it} |=}}
 \def\|{||}
 \def\bibliographystyle#1{}
 %%%%%%%%%%%%%%%% Missing series and shapes
 \def\cal{\red}
-\def\sf{\it\purple}
+\def\sf{\purple}
 \def\sc{\bf}
-\def\mdseries{\rm}
-\def\upshape{\rm}
-%%%%%%%%%%%%%%%%
-\def\mathrm#1{{\rm #1}}
-\def\mathtt#1{{\tt #1}}
-\def\mathit#1{{\it #1}}
-\def\mathbf#1{{\bf #1}}
+\def\sl{\it\maroon}
+\newenvironment{rm}{\@anti{\sf,\tt}}{}
+%%%% LaTeX2e verbose declarations
+\newenvironment{mdseries}{\@anti{\bf}}{}
+\newenvironment{bfseries}{\bf}{}
+\newenvironment{rmfamily}{\rm}{}
+\newenvironment{sffamily}{\sf}{}
+\newenvironment{ttfamily}{\tt}{}
+\newenvironment{upshape}{\@anti{\it,\sl,\sc}}{}
+\newenvironment{itshape}{\@anti{\sl,\sc}\it}{}
+\newenvironment{slshape}{\@anti{\it,\sc}\sl}{}
+\newenvironment{scshape}{\@anti{\it,\sl}\sc}{}
+\newenvironment{normalfont}{\rm\mdseries\upshape}{}
 %%%%%%%%%%%%%%%%
 \def\textrm#1{{\rm #1}}
 \def\textup#1{{\upshape #1}}
-\def\textnormal#1{{\rm\black #1}}
+\def\textmd#1{{\mdseries #1}}
+\def\textnormal#1{{\normalfont #1}}
 \def\texttt#1{{\tt #1}}
 \def\textit#1{{\it #1}}
 \def\textbf#1{{\bf #1}}
 \def\textsf#1{{\sf #1}}
 \def\textsl#1{{\sl #1}}
 \def\textsc#1{{\sc #1}}
-\def\emph#1{{\em #1}}
+\newcommand{\emph}[1]{{\em #1}}
+%%%%%%%%%%%%%%%%
+\def\mathrm#1{{\rm #1}}
+\def\mathtt#1{{\tt #1}}
+\def\mathit#1{{\it #1}}
+\def\mathbf#1{{\bf #1}}
+\def\mathcal#1{{\cal #1}}
 \def\makeatletter{}
 %%%%%%%%%%%% Ignore hyphenation
 \def\-{}
+\def\hyphenation#1{}
 %%%%%%%%%%%% Ignore length
 \def\parskip#1{}
 \def\oddsidemargin#1{}
@@ -302,6 +325,7 @@
 \def\newblock{}
 \def\vec#1{vec(#1)}
 \def\nobreak{}
+\def\pagenumbering#1{}
 \def\pagebreak{}
 \def\nopagebreak{}
 \def\newpage{}
@@ -309,8 +333,9 @@
 \def\thispagestyle#1{}
 \def\newdimen#1{}
 \def\displaystyle{}
-\def\linebreak{}
-\newcommand{\sqrt}[1]{sqrt(#1)}
+\def\linebreak{\\}
+\def\newline{\\}
+\def\samepage{}
 \def\raggedbottom{}
 \def\emergencystretch#1{}
 %% Boxes
@@ -323,6 +348,7 @@
 %% Horizontal spacing
 \def\noindent{}
 \def\indent{}
+\newcommand{\hspace*}[1]{\hspace{#1}}
 %% Vertical spacing
 \def\unskip{}
 \def\null{}
@@ -368,7 +394,7 @@
 }
 \newcommand{\cuthere}[3]{%
 \@footnoteflush{#2}%
-{\nostyle\@print{<!--}#1\@print{ }#2\@print{ }%
+{\@nostyle\@print{<!--}#1\@print{ }#2\@print{ }%
 {#3}\@print{-->
 }}%
 }

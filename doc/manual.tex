@@ -123,9 +123,9 @@ main.tex:18: Unknown counter: footnote
 \end{verbatim}
 
 Both situations are avoided by issuing the command
-\verb+htmlgen article.sty -e acmconf.sty acmarticle.sty+ that instruct
-\htmlgen\ first to load its \verb+article.sty+ style file and then not to
-attempt to load \verb+acmconf.sty+.
+\verb+htmlgen article.sty acmarticle.sty+ that instruct
+\htmlgen\ to load its \verb+article.sty+
+style file in place of the document style file.
 
 \subsection{Macros}
 Just like \LaTeX, \htmlgen\ can be seen as a macro langaguage, macros
@@ -162,8 +162,8 @@ Then, you process a tex file \verb+testsccal.tex+ by the command:
 htmlgen mydefs.sty testsccal.tex
 \end{verbatim}
 You find the files
-\urlex{testcal.tex}
-\urlex{testcal.sty}
+\urlex{testsccal.tex}
+\urlex{testsccal.sty}
 and the result file \urlex{testsccal.html} in the on-line documentation.
 
 

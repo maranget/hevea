@@ -2,6 +2,8 @@ open Parse_opts
 
 exception Error of string
 ;;
+exception Except
+;;
 
 let etable = Hashtbl.create 17
 ;;
@@ -37,7 +39,7 @@ let do_open_tex filename =
 let open_tex filename =
   if !verbose > 1 then
     prerr_endline ("Searching file: "^filename) ;
-  if is_except filename then raise Not_found ;
+  if is_except filename then raise Except ;
   if Filename.is_implicit filename then
     try
       do_open_tex filename
@@ -46,7 +48,7 @@ let open_tex filename =
         raise (Error ("Cannot find: "^filename))
       else begin
         let name = filename^".tex" in
-        if is_except name then raise Not_found ;
+        if is_except name then raise Except ;
         try do_open_tex name
         with Error _ -> raise (Error ("Cannot find file: "^filename))
       end

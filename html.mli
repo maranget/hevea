@@ -2,7 +2,10 @@ val set_out : Out.t -> unit
 val last_closed : string ref
 
 val get_fontsize : unit -> int
+val nostyle : unit -> unit
+val clearstyle : unit -> unit
 val open_mod : Latexmacros.env -> unit
+val erase_mods : Latexmacros.env list -> unit
 val open_mods : Latexmacros.env list -> unit
 val close_mods : unit -> unit
 val par : unit -> unit

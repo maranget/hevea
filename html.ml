@@ -126,7 +126,7 @@ let rec pop_out s = match pop s with
   Normal (a,b,c) -> a,b,c
 | Freeze f       -> raise PopFreeze
 (* begin
-  if !verbose > 1 then begin
+  if !verbose > 2 then begin
      prerr_string "unfreeze in pop_out" ;
      pretty_stack !s
   end ;
@@ -145,7 +145,7 @@ let pblock () = match !out_stack with
 
 let freeze f =
   push out_stack (Freeze f) ;
-  if !verbose > 1 then begin
+  if !verbose > 2 then begin
     prerr_string "freeze: stack=" ;
     pretty_stack !out_stack
   end
@@ -154,7 +154,7 @@ let freeze f =
 let flush_freeze () = match !out_stack with
   Freeze f::rest ->
     let _ = pop out_stack in
-      if !verbose > 1 then begin
+      if !verbose > 2 then begin
       prerr_string "flush_freeze" ;
       pretty_stack !out_stack
     end ;
@@ -329,19 +329,6 @@ let ok_mod e =
   (not !in_pre || ok_pre e) && not (already_here e)
 ;;
 
-let rm_erases = function
- Style "I" | Style "B" | Style "TT"
-  | Style "EM" | Style "STRONG" | Style "CITE" -> true
-| _ -> false
-;;
-     
-let rec perform_rm = function
-  [] -> []
-| x::rest ->
-    if rm_erases x then perform_rm rest
-    else x::perform_rm rest
-;;
-
 let get_fontsize () =
   let rec do_rec = function
     (Font n)::_ -> n
@@ -349,25 +336,42 @@ let get_fontsize () =
   | []              -> 3 in
   do_rec (!cur_out.pending @ !cur_out.active)
 ;;
-     
+
+let nostyle () =
+  !cur_out.pending <- [] ;
+  !cur_out.nostyle <- true    
+;;
+
+let clearstyle () =
+  !cur_out.pending <- []
+;;
+
 let open_mod  m =
-  if not !cur_out.nostyle then match m with
-  Style "RM" ->
-    let pending = perform_rm !cur_out.pending in
-    if List.exists rm_erases  !cur_out.active then begin
-      let active = perform_rm !cur_out.active in
+  if not !cur_out.nostyle then begin
+    if !verbose > 3 then
+          prerr_endline ("open_mod: "^Latexmacros.pretty_env m) ;
+    if ok_mod m then
+      !cur_out.pending <- m :: !cur_out.pending
+  end
+;;
+
+
+let rec erase_rec ms = function
+  [] -> []
+| s::rest ->
+   if List.mem s ms then erase_rec ms rest else s::erase_rec ms rest
+;;
+
+let erase_mods ms =
+  if not !cur_out.nostyle then begin
+    let pending = erase_rec ms !cur_out.pending in
+    if List.exists (fun s -> List.mem s ms) !cur_out.active then begin
+      let active = erase_rec ms !cur_out.active in
       do_close_mods () ;
       !cur_out.pending <- active @ pending
     end else
       !cur_out.pending <- pending
-| Style "NO" ->
-  !cur_out.pending <- [] ;
-  !cur_out.nostyle <- true    
-| e ->
-    if !verbose > 3 then
-          prerr_endline ("open_mod: "^Latexmacros.pretty_env e) ;
-    if ok_mod e then
-      !cur_out.pending <- e :: !cur_out.pending
+  end
 ;;
 
 let rec open_mods = function
@@ -391,7 +395,7 @@ let pstart = function
 
 
 let rec try_open_block s args =
-  if !verbose > 1 then
+  if !verbose > 2 then
     prerr_endline ("try in "^s^" : "^sbool !empty);  
   if s = "DISPLAY" then begin
     try_open_block "TABLE" args ;
@@ -443,7 +447,7 @@ let rec do_open_block s args = match s with
 ;;
 
 let rec try_close_block s =
-  if !verbose > 1 then
+  if !verbose > 2 then
     prerr_string ("try out "^s^" : "^sbool !empty);
   if s = "DISPLAY" then begin
     try_close_block "TR" ;
@@ -452,7 +456,7 @@ let rec try_close_block s =
     let here = !empty in
     empty := here && pop empty_stack ;
     pending_par := pop par_stack ;
-    if !verbose > 1 then
+    if !verbose > 2 then
       prerr_string (" -> "^sbool !empty);
     if s = "TABLE" then begin
       let p_vsize = pop vsize_stack in
@@ -470,7 +474,7 @@ let rec try_close_block s =
       nitems := pop nitems_stack
     end
   end ;
-  if !verbose > 1 then
+  if !verbose > 2 then
     prerr_endline
       (" nrows="^string_of_int !nrows^" vsize="^string_of_int !vsize)
 ;;
@@ -499,7 +503,7 @@ let pop_freeze () = match !out_stack with
 
 
 let rec force_block s content =
-  if !verbose > 1 then begin
+  if !verbose > 2 then begin
     prerr_string ("force_block: "^s^" stack: ");
     pretty_stack !out_stack
   end ;
@@ -547,20 +551,20 @@ let rec force_block s content =
   if not was_empty && true_s <> ""  then last_closed := true_s
 
 and close_block_loc pred s =
-  if !verbose > 1 then
+  if !verbose > 2 then
     prerr_string ("close_block_loc: "^s^" = ");
   if not (pred ()) then begin
-    if !verbose > 1 then prerr_endline "+" ;
+    if !verbose > 2 then prerr_endline "+" ;
     force_block s "";
     true
   end else begin
-    if !verbose > 1 then prerr_endline "-" ;
+    if !verbose > 2 then prerr_endline "-" ;
     force_block "FORGET" "";
     false
   end
 
 and close_flow_loc s =
-  if !verbose > 1 then
+  if !verbose > 2 then
     prerr_endline ("close_flow_loc: "^s) ;
 
   let active  = !cur_out.active
@@ -574,12 +578,12 @@ and close_flow_loc s =
   end
 
 and close_flow s =
-  if !verbose > 1 then
+  if !verbose > 2 then
     prerr_endline ("close_flow: "^s) ;
   let _ = close_flow_loc s in ()
 
 and open_block s args =
- if !verbose > 1 then begin
+ if !verbose > 2 then begin
    prerr_string ("open_block: "^s^" "^args^" stack=") ;
    pretty_stack !out_stack
  end ;
@@ -617,21 +621,21 @@ and ncols_stack = ref []
 ;;
 
 let open_display args =
-  if !verbose > 1 then begin
+  if !verbose > 2 then begin
     Printf.fprintf stderr "open_display: %s -> " args
   end ;
   push ncols_stack !ncols ;
   ncols := 0;
   open_block "DISPLAY" args ;
   open_block "TD" "nowrap" ;
-  if !verbose > 1 then begin
+  if !verbose > 2 then begin
     pretty_cur !cur_out ;
     prerr_endline ""
   end     
 ;;
 
 let close_display () =
-  if !verbose > 1 then begin
+  if !verbose > 2 then begin
     Printf.fprintf stderr "close_display: ncols=%d stack=" !ncols;
     pretty_stack !out_stack
   end ;
@@ -666,7 +670,7 @@ let close_display () =
   
   
 let item_display () =
-  if !verbose > 1 then begin
+  if !verbose > 2 then begin
     Printf.fprintf stderr "item_display: ncols=%d cur: " !ncols;
     pretty_cur !cur_out ;
     prerr_string " stack=" ;
@@ -677,13 +681,13 @@ let item_display () =
     ncols := !ncols + 1;
   open_block "TD" "nowrap" ;
   if is_freeze then push out_stack (Freeze f) ;
-  if !verbose > 1 then begin
+  if !verbose > 2 then begin
     prerr_string "item display -> stack=" ;
     pretty_stack !out_stack
   end ;
 
 and begin_item_display () =
-  if !verbose > 1 then begin
+  if !verbose > 2 then begin
     Printf.fprintf stderr "begin item_display: ncols=%d" !ncols;
     prerr_newline ()
   end ;
@@ -692,7 +696,7 @@ and begin_item_display () =
 and end_item_display () =
   if close_flow_loc "TD" then
     ncols := !ncols + 1;
-  if !verbose > 1 then begin
+  if !verbose > 2 then begin
     Printf.fprintf stderr "begin item_display: ncols=%d" !ncols;
     prerr_newline ()
   end
@@ -707,7 +711,7 @@ and close_group () = close_block ""
 ;;
 
 let erase_block s =
-  if !verbose > 1 then begin
+  if !verbose > 2 then begin
     Printf.fprintf stderr "erase_block: %s" s;
     prerr_newline ()
   end ;
@@ -774,7 +778,7 @@ let set_dt s = dt := s
 ;;
 
 let item scan arg =
-  if !verbose > 1 then begin
+  if !verbose > 2 then begin
     prerr_string "Item stack=" ;
     pretty_stack !out_stack
   end ;
@@ -793,7 +797,7 @@ let item scan arg =
   nitems := !nitems+1;
   if pblock() = "DL" then begin
     do_put "\n<DT>" ;
-    scan (if arg = "" then !dt else arg) ;
+    scan (if arg = "" then "{"^ !dt^"}" else "{"^arg^"}") ;
     do_put "<DD>"
   end else begin
     do_put "\n<LI>" ;
@@ -841,7 +845,7 @@ let loc_name s1 s2 =
 ;;
 
 let insert_vdisplay open_fun =
-  if !verbose > 1 then begin
+  if !verbose > 2 then begin
     prerr_string "insert_vdisplay: stack=" ;
     pretty_stack !out_stack
   end ;
@@ -861,7 +865,7 @@ let insert_vdisplay open_fun =
     open_fun () ;
     do_put (Out.to_string new_out.out) ; empty := false ;
     free new_out ;    
-    if !verbose > 1 then begin
+    if !verbose > 2 then begin
       prerr_string "insert_vdisplay -> " ;
       pretty_mods mods ;
       prerr_newline ()

@@ -1,6 +1,11 @@
 {
 open Lexing
 
+type format = Align of string * bool | Inside of string
+;;
+
+let border = ref false
+
 let brace_nesting = ref 0
 and arg_buff = Out.create_buff ()
 and delim_buff = Out.create_buff ()
@@ -15,7 +20,6 @@ exception NoDelim
 ;;
 exception NoOpt
 ;;
-
 }
 
 rule opt = parse
@@ -115,10 +119,20 @@ and do_eat_delim = parse
 
 and arg_delim = parse  "" {fun delim ->  failwith "Hum"}
 
-and cite_args = parse
-  [^'}'',']* {let lxm = lexeme lexbuf in lxm::cite_args lexbuf}
-| ','        {cite_args lexbuf}
+and cite_arg = parse
+  ' '* '{'   {cite_args_bis lexbuf}
+
+and cite_args_bis = parse
+  [^'}'',']* {let lxm = lexeme lexbuf in lxm::cite_args_bis lexbuf}
+| ','        {cite_args_bis lexbuf}
 | '}'        {[]}
+
+and macro_names = parse
+  eof {[]}
+| '\\' ((['A'-'Z' 'a'-'z']+ '*'?) | [^ 'A'-'Z' 'a'-'z'])
+  {let name = lexeme lexbuf in
+  name :: macro_names lexbuf}
+| _   {macro_names lexbuf}
 
 and num_arg = parse
    ['0'-'9']+ 
@@ -142,6 +156,54 @@ and input_arg = parse
   [' ''\n'] {input_arg lexbuf}
 | [^'\n''{'' ']+ {lexeme lexbuf}
 | "" {arg lexbuf}  
+
+and tformat = parse
+  'c' {Align ("center",false)::tformat lexbuf}
+| 'l' {Align ("left",false)::tformat lexbuf}
+| 'r' {Align ("right",false)::tformat lexbuf}
+| "tc" {Align ("center",true)::tformat lexbuf}
+| "tl" {Align ("left",true)::tformat lexbuf}
+| "tr" {Align ("right",true)::tformat lexbuf}
+| '|' {border := true ; tformat lexbuf}
+| '@'
+    {let inside = arg lexbuf in
+    Inside inside::tformat lexbuf}
+| _   {tformat lexbuf}
+| eof {[]}
+
+and skip_blanks = parse 
+  [' ']* '\n'? [' ']* {()}
+| eof {()}
+
+and skip_equal = parse
+  ' '* '=' ' '* {()}
+| ""            {()}
+
+and get_sup_sub = parse
+  '^'
+    {let sup = arg lexbuf in
+    sup,get_sub lexbuf}
+| '_'
+    {let sub = arg lexbuf in
+    get_sup lexbuf,sub}
+| "" {("","")}
+
+and get_sup = parse
+  '^'  {arg lexbuf}
+| ""   {""}
+
+and get_sub = parse
+  '_'  {arg lexbuf}
+| ""   {""}
+
+and defargs = parse 
+  '#' ['1'-'9'] | [^'#' '{']+
+    {let lxm = lexeme lexbuf in
+    lxm::defargs lexbuf}
+| "" {[]}
+
+and defbody = parse "" {arg lexbuf}
+
 (*  
 and do_arg_delim = parse
   _

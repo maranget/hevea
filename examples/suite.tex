@@ -9,6 +9,10 @@ Test {\tt tt \it \Large tt it Large {\bf tt it Large bf } tt it Large
 
 {\Large Large rm}
 
+{\Large\textsc{\texttt{\textrm{Roman, small caps}}}}
+
+{\Large\textsf{\textit{Slanted familly, italic shape} Slanted familly}}
+
 Test des exposants abusifs $1^{2^{3^{4^5}}}$
 
 
@@ -36,7 +40,7 @@ $$
 $$
 
 $$
-\left(\begin{array}{c} 1 \\ \begin{array}{l}2 & 3\end{array}\end{array}\right)
+\left(\begin{array}{c} 1 \\ \begin{array}{ll}2 & 3\end{array}\end{array}\right)
 $$
 
 \subsection{Multicolonnes}
@@ -220,12 +224,11 @@ $+$ \\ \hline
 \end{tabular}
 \end{center}
 
-\subsection{Les exposants terribles}
+\subsection{Les exposants terribles}\label{plushaut}
 $$
  2^{\left.\begin{array}{@{\hspace{0ex}}c@{\hspace{0ex}}}
 {\mbox{\scriptsize 2}^{\mbox{$\cdot^{\mbox{$\cdot^{\mbox{$\cdot^2$}}$}}$}}
 }\end{array}\right\} n}
-
 $$
 
 \subsection{Newtheorm + cases}
@@ -233,14 +236,14 @@ $$
 \newtheorem{th}{Th\'eor\`eme}
 \newtheorem{ath}[th]{Autre théorème}
 \newcommand{\Preuve}{\noindent{\bf Preuve} \hspace{1ex}}
-\begin{th}
+\begin{th}\label{un}
 Soit $M^p$ la puissance p-i\`eme de la matrice $M$, le co{e}fficient
 $M^{p}_{i,j}$ est \'egal au nombre de chemins de longueur $p$ de $G$
 dont l'origine est le sommet $x_i$ et dont l'extr\'emit\'e est le
 sommet $x_j$.
 \end{th}
 
-\begin{ath}[Pour voir]
+\begin{ath}[Pour voir]\label{deux}
 Ça devrait avoir le numéro 2.
 \end{ath}
 \Preuve On effectue une r\'ecurrence sur $p$. Pour $p=1$ le
@@ -255,5 +258,21 @@ $p-1$ joignant $x_i$ \`a $x_k$.
 
 $$L(i,j)=\cases{1 + L(i-1,j-1)            &si $a_i=b_j$ \\
                 \max (L(i,j-1),L(i-1,j))  &sinon.}      \eqno{(*)}$$
+
+\section{Quelques références}\label{ici}
+Alors ici je suis en~\ref{ici}. Ensuite je serai là-bas
+en~\ref{labas}.
+Il y a déjà un petit moment j'étais plus haut avec plein de potes exposants~\ref{plushaut}.
+J'ai aussi écrit des théorèmes~\ref{un} et~\ref{deux}.
+
+J'essaie aussi une figure~\ref{figure}
+\begin{figure}[t]
+\begin{center}Pan dans la figure\end{center}
+\caption{\label{figure}Je suis une figure}
+\end{figure}
+
+\section{Quelques notes de bas de page}\label{labas}
+Coucou\footnote{coucou}
+\textsl{et là ??\footnote{Une autre}}.
 
 \end{document}

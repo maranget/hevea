@@ -22,6 +22,8 @@ type action =
   | Br
 ;;
 
+
+
 type pat =  string list * string list
 ;;
 
@@ -38,8 +40,10 @@ val redef_macro: string -> int -> action list -> unit
 val def_env_pat: string -> pat -> action list -> action list -> unit
 val unregister : string -> unit
 val newif : string -> unit
+exception NotEnv
+;;
+val as_env : string -> env list
 
-val reg : string ref
 
 val display :  bool ref
 val in_math :  bool ref
