@@ -1,5 +1,7 @@
 version 1.07+1
-   - addded html/style-sheets.hva in libs.def
+   - Get rid of cpp in Makefile (use sed instead)
+   - added all *.hva in libs.defs
+   - added html/style-sheets.hva in libs.def
    - caption/label keys in the listing package.
    - change '-o path' behavior for hacha, all generated files go into directory
      'dirname path'
