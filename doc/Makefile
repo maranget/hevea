@@ -78,13 +78,18 @@ dorelease:
 # Doc release
 	$(MAKE) $(MFLAGS) opt
 	dvips -o$(RELEASEDIR)/$(RELEASENAME)-manual.ps manual.dvi
-	cp manual.dvi $(RELEASEDIR)/$(RELEASENAME)-manual.dvi
+	mkdir $(RELEASEDIR)/dvi-manual
+	cp manual.dvi $(RELEASEDIR)/$(RELEASENAME)-manual-dvi
+	cp blob.ps cloche.ps int.ps realblob.ps rquote.ps blob2.ps\
+home.ps intd.ps round.ps xfd.ps $(RELEASEDIR)/$(RELEASENAME)-manual-dvi
 	rm -rf $(RELEASEDIR)/$(RELEASENAME)-manual
 	$(MAKE) $(MFLAGS) DOCDIR=$(RELEASEDIR)/$(RELEASENAME)-manual install
-	cd $(RELEASEDIR) ; tar cfo $(RELEASENAME)-manual.tar $(RELEASENAME)-manual ;\
-	 gzip -f -best  $(RELEASENAME)-manual.dvi $(RELEASENAME)-manual.ps  $(RELEASENAME)-manual.tar
+	cd $(RELEASEDIR) ;\
+	tar cfo $(RELEASENAME)-manual.tar $(RELEASENAME)-manual ;\
+	tar cfo $(RELEASENAME)-manual-dvi.tar $(RELEASENAME)-manual-dvi ;\
+	gzip -f -best  $(RELEASENAME)-manual-dvi.tar $(RELEASENAME)-manual.ps  $(RELEASENAME)-manual.tar
 # Copy to FTPDIR
-	cd $(RELEASEDIR) ; mv $(RELEASENAME)-manual.dvi.gz $(RELEASENAME)-manual.ps.gz $(RELEASENAME)-manual.tar.gz  $(RELEASENAME).tar.gz $(RELEASENAME)/README $(RELEASENAME)/LICENSE $(RELEASENAME)/CHANGES $(FTPDIR)
+	cd $(RELEASEDIR) ; mv $(RELEASENAME)-manual-dvi.tar.gz $(RELEASENAME)-manual.ps.gz $(RELEASENAME)-manual.tar.gz  $(RELEASENAME).tar.gz $(RELEASENAME)/README $(RELEASENAME)/LICENSE $(RELEASENAME)/CHANGES $(FTPDIR)
 
 release:
 	$(MAKE) $(MFLAGS) dorelease RELEASEOPT="-r $(RELEASETAG)"
