@@ -47,7 +47,7 @@ open Save
 open Tabular
 open Lexstate
 
-let header = "$Id: latexscan.mll,v 1.88 1999-05-10 17:47:47 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.89 1999-05-11 08:58:06 tessaud Exp $" 
 
 let sbool = function
   | false -> "false"
@@ -1942,6 +1942,9 @@ newif_ref "math" in_math ;
 newif_ref "mmode" in_math ;
 newif_ref "display" display ;
 newif_ref "french" french ;
+newif_ref "html" html;
+newif_ref "text" text;
+newif_ref "info" text;
 newif_ref "optarg" optarg;
 newif_ref "styleloaded" styleloaded;
 newif_ref "activebrace" activebrace;

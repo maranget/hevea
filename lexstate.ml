@@ -1,4 +1,4 @@
-let header =  "$Id: lexstate.ml,v 1.10 1999-05-10 14:06:37 maranget Exp $"
+let header =  "$Id: lexstate.ml,v 1.11 1999-05-11 08:58:10 tessaud Exp $"
 
 open Misc
 open Lexing
@@ -16,6 +16,16 @@ and french =
 and optarg = ref false
 and styleloaded = ref false
 and activebrace = ref true
+and html = 
+  ref
+    (match !Parse_opts.destination with
+    | Parse_opts.Html -> true
+    | Parse_opts.Info | Parse_opts.Text -> false)
+and text = 
+  ref
+    (match !Parse_opts.destination with
+    | Parse_opts.Html -> false
+    | Parse_opts.Info | Parse_opts.Text -> true)
 ;;
 
 

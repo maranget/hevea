@@ -7,6 +7,8 @@ val french : bool ref
 val optarg : bool ref
 val styleloaded : bool ref
 val activebrace : bool ref
+val html : bool ref
+val text : bool ref
 
 val out_file : Out.t
 type 'a t

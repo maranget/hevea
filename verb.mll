@@ -144,6 +144,7 @@ let open_verbenv lexbuf _ =
 let open_rawhtml lexbuf _ =
   Scan.top_close_block "" ;
   let lexbuf = previous_lexbuf () in
+  Parse_opts.warning "rawhtml detected..";
  (* Dest.open_block "TEMP" "";*)
   rawhtml lexbuf 
 
