@@ -13,8 +13,6 @@ open Lexstate
 module type S =
   sig
     (* external entry points *)
-    val same_next_char : char -> Lexing.lexbuf -> bool
-        (* same_next_char exports if_next char, just another name *)
     val no_prelude : unit -> unit
     val main : Lexing.lexbuf -> unit
     val expand_command : string -> Lexing.lexbuf -> unit

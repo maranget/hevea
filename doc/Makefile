@@ -149,7 +149,8 @@ clean:
 
 cleanall: clean
 	rm -f manual.dvi manual.ps manual[0-9][0-9][0-9].html *_motif.gif \
-	manual*.gif tmp.* *.image.tex manual.html index.html faq.html\
+	manual*.gif manual*.png\
+	tmp.* *.image.tex manual.html index.html faq.html\
 	 hevea.spec manual.txt manual.info manual.info-[0-9]\
 	browser.html cutname.html pdfmanual.pdf
 

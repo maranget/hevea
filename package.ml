@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.51 2004-06-04 08:05:37 thakur Exp $    *)
+(*  $Id: package.ml,v 1.52 2004-06-11 13:22:06 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -1096,7 +1096,7 @@ register_init "proof"
     (fun () ->
       def_code "\\infer"
 	(fun lexbuf ->
-          let tag = if (same_next_char '=' lexbuf) then 
+          let tag = if (Save.if_next_char '=' lexbuf) then 
 	                let arg1 = save_arg lexbuf in true 
                     else false in
           let optarg2 = save_opt "" lexbuf in
