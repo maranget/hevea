@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmain.ml,v 1.35 1999-04-15 15:05:42 maranget Exp $" 
+let header = "$Id: latexmain.ml,v 1.36 1999-04-16 13:31:39 maranget Exp $" 
 
 open Misc
 open Parse_opts
@@ -54,11 +54,21 @@ let read_style name =
   verbose := oldverb
 ;;
 
-let read_tex name =
+let open_tex name =
   let name,chan =  Myfiles.open_tex name in
   if !verbose > 0 then
     prerr_endline ("Main input_file: "^name) ;
   name,chan
+
+let read_tex name_in =
+    let input_name,chan =
+      match name_in with "" -> "",stdin | _ -> open_tex name_in in
+    let buf = Lexing.from_channel chan in
+    Location.set input_name buf ;
+    Save.set_verbose !silent !verbose ;
+    Scan.main buf ;
+    close_in chan ;
+    Location.restore ()
 
 let main () = 
 
@@ -93,14 +103,8 @@ let main () =
            prerr_endline ("Cannot open aux file: "^auxname)
        end
     end ;
-    let input_name,chan =
-      match name_in with "" -> "",stdin | _ -> read_tex name_in in
-    let buf = Lexing.from_channel chan in
-    Location.set input_name buf ;
-    Save.set_verbose !silent !verbose ;
-    Scan.main buf ;
-    close_in chan ;
-    Location.restore () ;
+
+    read_tex name_in ;
     finalize true
 ;;   
 
@@ -127,6 +131,11 @@ with
 | Lexstate.Error s ->
     Location.print_pos () ;
     prerr_endline ("Error while reading LaTeX:\n\t"^s) ;
+    prerr_endline "Adios" ;
+    exit 2
+| Verb.Error s ->
+    Location.print_pos () ;
+    prerr_endline ("Error while reading verbatim LaTeX:\n\t"^s) ;
     prerr_endline "Adios" ;
     exit 2
 | Colscan.Error s ->

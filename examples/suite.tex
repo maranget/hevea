@@ -169,6 +169,21 @@ Chaque tableau est un paragraphe
 \test\aaa{\aaa}
 
 \test\i i
+
+\subsection{Espaces et commandes}
+\let\boite=\textbf
+Avec espace ``\boite{avant} après''.
+
+\let\decl=\bf
+Sans espace  ``{avant\bf après}'', ``{avant\decl après}''.
+
+\newcommand{\avant}{avant}
+Sans espace ``\avant après''
+
+
+{\let\monverb\verb \monverb+coucou+}
+\monverb{Erreur}.
+
 \section{Math mode}
 
 \subsection{Italiques en mode math}
@@ -371,11 +386,11 @@ $$
 \right\}\right\}
 $$
 
-$$\begin{array}{lll}\hline \\ \hline \\
-\left(\begin{array}{rrr}
+$$\begin{array}{lll}\hline \hline \\
+\left(\begin{array}{rrr}\hline
 4 & 9 & 2 \\
 3 & 5 & 7 \\
-8 & 1 & 6
+8 & 1 & 6 \\ \hline
 \end{array} \right) &
 \left(\begin{array}{rrrrr}
 11 & 18 & 25 &  2 & 9 \\
@@ -393,7 +408,7 @@ $$\begin{array}{lll}\hline \\ \hline \\
 38 & 47 &  7 &  9 & 18 & 27 & 29 \\
 30 & 39 & 48 &  1 & 10 & 19 &
 \left\{\begin{array}{ll} 0 & 0 \\ 0 & 0 \end{array}\right\}
-\end{array}\right) 
+\end{array}\right) \\\hline \hline
 \end{array} $$
 
 \subsection{\texttt{array} et \texttt{tabular} en mode display math}

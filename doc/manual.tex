@@ -247,7 +247,7 @@ arguments to \verb+\documentstyle+, which \hevea{}
 ignores.
 
 \subsection{The \texttt{hevea.hva} file}
-The \texttt{hevea.hva} resides in \hevea{} library and is loaded
+The \texttt{hevea.hva} file resides in \hevea{} library and is loaded
 before any other file specified by users.
 It contains the definitions 
 of most \LaTeX{} core commands and environments,
@@ -627,17 +627,15 @@ These constructs are written using \LaTeX{} source code, in the end they
 invoke \hevea{} internal commands.
 
 
-Other \LaTeX{} constructs (such as mathematical symbols) that require
-special processing are defined
+Other \LaTeX{} constructs, such as mathematical symbols,
+\LaTeX{} key constructs or \hevea{} internal commands (see section~\ref{internal}),
+that require special processing are defined
 in \hevea{} source code.
-However, most of these macro definitions can be overridden by a
+However, the vast majority of these definitions can be overridden by a
 redefinition.
-There remains a small number of commands that cannot be changed.
-They are either \hevea{} internal commands that finally output {\html}
-(see section~\ref{internal}),
-or key \LaTeX{} commands and environments, such as \verb+\newcounter+
-or \verb+array+.
-If you attempt to define or redefine these macros, nothing should happen.
+This may prove useless, since there is little point in
+redefining core constructs such as \verb+\newcommand+ for instance.
+
 
 
 \section{How to detect and correct errors}\label{trouble}

@@ -48,7 +48,7 @@ open Save
 open Tabular
 open Lexstate
 
-let header = "$Id: latexscan.mll,v 1.79 1999-04-15 15:05:45 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.80 1999-04-16 13:31:44 maranget Exp $" 
 
 let sbool = function
   | false -> "false"
@@ -1077,146 +1077,13 @@ rule  main = parse
      end end}
 
 (* Definitions of  simple macros *)
-  | "\\def" | "\\gdef" | "\\global\\def"
-     {let lxm = lexeme lexbuf in
-     let name = Save.csname lexbuf in   (* Pour Luc: devrait accepter #1 *)
-     let args_pat = Save.defargs lexbuf in
-     let body = save_arg lexbuf in
-     if !env_level = 0 || lxm <> "\\def" then
-       Image.put
-         (lxm^name^
-         (List.fold_right (fun s r -> s^r) args_pat ("{"^body^"}\n"))) ;
-     begin try
-       def_macro_pat name ([],args_pat) (Subst body) ;
-       if lxm = "\\def" then macro_register name
-     with Latexmacros.Failed -> () end ;
-     main lexbuf}
-  | "\\renewcommand" | "\\newcommand" | "\\providecommand"
-    {let lxm = lexeme lexbuf in
-    Save.start_echo () ;
-    let name = subst_this subst (Save.csname lexbuf) in
-    let nargs = parse_args_opt ["0" ; ""] lexbuf in
-    let body =
-      if top_level () then save_arg lexbuf
-      else subst_arg subst lexbuf in    
-    if (!env_level = 0) then
-      Image.put
-        (lxm^Save.get_echo ()^"\n") ;
-    let nargs,(def,defval) = match nargs with
-      [a1 ; a2] ->
-        Get.get_int (from_ok a1),
-        (match a2 with
-        | No s -> false,s
-        | Yes s -> true,s)
-    | _ -> assert false in
-    begin try
-      (match lxm with
-        "\\newcommand"   -> def_macro_pat
-      | "\\renewcommand" -> redef_macro_pat
-      | _                -> provide_macro_pat) name
-        (Latexmacros.make_pat (if def then [defval] else []) nargs)
-        (Subst body) ;
-      macro_register name
-    with Latexmacros.Failed -> () end ;
-    main lexbuf}
-  | "\\newcolumntype"
-     {let lxm = lexeme lexbuf in
-     Save.start_echo () ;
-     let name = subst_this subst (Save.csname lexbuf) in
-     let nargs = save_opt "0" lexbuf in
-     let body = save_arg lexbuf in
-     let rest = Save.get_echo () in
-     if !env_level = 0 then
-       Image.put (lxm^rest^"\n") ;
-     def_coltype
-       name
-       (Latexmacros.make_pat [] (Get.get_int nargs))
-       (Subst body) ;
-     macro_register (Misc.column_to_command name) ;
-     main lexbuf}
-  | "\\newenvironment" | "\\renewenvironment"
-     {let lxm = lexeme lexbuf in
-     Save.start_echo () ;
-     let name = save_arg lexbuf in
-     let nargs = parse_quote_arg_opt "0" lexbuf in
-     let optdef = parse_quote_arg_opt "" lexbuf in
-     let body1 = save_arg lexbuf in
-     let body2 = save_arg lexbuf in
-     if !env_level = 0 then
-       Image.put (lxm^Save.get_echo ()^"\n") ;
-     begin try
-       (match lxm with
-          "\\newenvironment" -> def_env_pat
-       |  _ -> redef_env_pat) name
-         (Latexmacros.make_pat
-           (match optdef with No _ -> [] | Yes s -> [s])
-           (match nargs with No _ -> 0 | Yes s -> Get.get_int s))
-         (Subst body1) (Subst body2);
-       macro_register ("\\"^name) ; 
-       macro_register ("\\end"^name)
-     with Latexmacros.Failed -> () end ;
-     main lexbuf}
-  | "\\newtheorem" | "\\renewtheorem"
-      {let lxm = lexeme lexbuf in
-      Save.start_echo () ;
-      let name = save_arg lexbuf in
-      let numbered_like = parse_quote_arg_opt "" lexbuf in
-      let caption = save_arg lexbuf in
-      let within = parse_quote_arg_opt "" lexbuf in
-      if !env_level = 0 then
-        Image.put (lxm^Save.get_echo ()^"\n") ;
-      begin try
-        let cname = match numbered_like,within with
-          No _,No _ ->
-            Counter.def_counter name "" ;
-            def_macro ("\\the"^name) 0 (Subst ("\\arabic{"^name^"}")) ;
-            name
-        | _,Yes within ->
-            Counter.def_counter name within ;
-            def_macro ("\\the"^name) 0
-              (Subst ("\\the"^within^".\\arabic{"^name^"}")) ;
-           name
-        | Yes numbered_like,_ -> numbered_like in
-      
-        def_env_pat name (Latexmacros.make_pat [""] 0)
-          (Subst ("\\cr{\\bf\\stepcounter{"^cname^"}"^caption^"~"^
-            "\\the"^cname^"}\\quad\\ifoptarg{\\purple[#1]\\quad}\\fi\\it"))
-          (Subst "\\cr")
-      with Latexmacros.Failed -> () end ;
-      main lexbuf}
-  | "\\let" | "\\global\\let"
-     {let lxm = lexeme lexbuf in
-     let name = save_arg lexbuf in
-     Save.skip_equal lexbuf ;
-     let alt = save_arg lexbuf in
-     begin try
-       let nargs,body = find_macro alt in
-       begin try
-         def_macro_pat name nargs body ;
-         if lxm = "\\let" then macro_register name
-      with Latexmacros.Failed -> () end
-     with Not_found -> () end ;
-     if !env_level = 0 || lxm <> "\\let" then begin
-       Image.put lxm ;
-       Image.put name ;
-       Image.put "=" ;
-       Image.put alt ;
-       Image.put "\n"
-     end ;
-     if lxm = "\\let" then macro_register name ;
-     main lexbuf}
 (* opening and closing environments *)
 | "\\begin"
    {let env = save_arg lexbuf in
    begin match env with
-     "rawhtml" -> rawhtml lexbuf; main lexbuf
-   |  "verblatex" ->
-       verblatex lexbuf ; main lexbuf
    | "latexonly" ->
        start_other_scan "latexonly" latexonly lexbuf ;
        main lexbuf
-   | "verbimage" ->
-       verbimage lexbuf ; main lexbuf
    | "toimage" ->
        start_image_scan "" image lexbuf ;
        main lexbuf
@@ -1325,30 +1192,24 @@ rule  main = parse
         if env <> "document" then main lexbuf
     end}
 (* inside tabbing *)
- | [' ''\n']* ("\\>" | "\\=")  [' ''\n']*
+ | [' ''\n']* ("\\>" | "\\=")
     {if is_tabbing !in_table then begin
       Html.force_block "TD" "&nbsp;";
       Html.open_block "TD" ""
     end ;
+    skip_blanks_pop lexbuf ;
     main lexbuf}
- |  [' ''\n']* "\\kill"  [' ''\n']*
+ |  [' ''\n']* "\\kill"
     {if is_tabbing !in_table then begin
       Html.force_block "TD" "&nbsp;";
       Html.erase_block "TR" ;
       Html.open_block "TR" "" ;
       Html.open_block "TD" ""
     end ;
+    skip_blanks_pop lexbuf ;
     main lexbuf}
 (* inside tables and array *)
-  |  [' ''\n']* "\\hline" [' ''\n']* ("\\\\" ('[' [^']']* ']')? [' ''\n']*)?
-     {if is_noborder_table !in_table then
-       do_hline main ;
-     eat_space := true ;
-     skip_blanks_pop lexbuf ;
-     let _ = Html.forget_par () in
-     eat_space := false ;
-     main lexbuf}
-  | [' ''\n']* "&"  [' ''\n']*
+  | [' ''\n']* "&"
     {if !alltt then begin
       let lxm = lexeme lexbuf in
       for i = 0 to String.length lxm -1 do
@@ -1358,8 +1219,9 @@ rule  main = parse
       close_col main "&nbsp;"; 
       open_col main
     end ;
+    skip_blanks_pop lexbuf ;
     main lexbuf}
-  | ['\n'' ']* "\\\\" ['\n'' ']*
+  | ['\n'' ']* "\\\\"
       {let _ = parse_args_opt [""] lexbuf in
       if is_table !in_table  then begin
          close_col main "&nbsp;" ; close_row () ;
@@ -1380,13 +1242,6 @@ rule  main = parse
       let _ = Html.forget_par () in
       eat_space := false ;
       main lexbuf}
-  | ['\n'' ']* "\\multicolumn" 
-      {let n = Get.get_int (save_arg lexbuf) in      
-      let format =  Tabular.main (save_arg lexbuf) in
-      do_multi n  format main ;
-      main lexbuf}
-
-
 (* Substitution  *)
   | '#' ['1'-'9']
       {let lxm = lexeme lexbuf in
@@ -1450,8 +1305,9 @@ rule  main = parse
               prerr_endline "skipping blanks";
             skip_blanks_pop lexbuf
           end else begin
-            if !verbose > 2 then
-              prerr_endline "not skipping blanks";
+            if !verbose > 2 then begin
+              prerr_endline "not skipping blanks"
+            end
           end ;
           main lexbuf 
         with 
@@ -1516,23 +1372,6 @@ rule  main = parse
    Html.put (Html.iso lxm) ;
    main lexbuf}
 
-and rawhtml = parse
-    "\\end{rawhtml}" { () }
-  | _           { Html.put_char(lexeme_char lexbuf 0); rawhtml lexbuf }
-
-and verblatex = parse
-  "\\end"
-    {let lxm = lexeme lexbuf in
-    let env = save_arg lexbuf in
-    if env = "verblatex" then
-      Image.put_char '\n'
-    else begin
-      verblatex lexbuf
-    end}
-|  _ 
-    {verblatex lexbuf}
-|  eof {raise (Error ("End of file inside ``verblatex'' environment"))}
-
 and latex2html_latexonly = parse
 | '%' + [ ' ' '\t' ] * "end{latexonly}" [ ^ '\n' ] * '\n'
     { () }
@@ -1576,24 +1415,7 @@ and latex_comment = parse
   '\n' | eof  {()}
 | [^'\n']+    {latex_comment lexbuf}
 
-and verbimage = parse
-  "\\end"
-    {let lxm = lexeme lexbuf in
-    Save.start_echo () ;
-    let env = save_arg lexbuf in
-    let true_env = Save.get_echo () in
-    if env = "verbimage" then
-      Image.put_char '\n'
-    else begin
-      Image.put lxm ;
-      Image.put true_env ;
-      verbimage lexbuf
-    end}
-|  _
-    {let lxm = lexeme_char lexbuf 0 in
-    Image.put_char lxm ;
-    verbimage lexbuf}
-|  eof {raise (Error "End of file in ``verbimage'' environment")}
+
 
 and image = parse
    '%'+ ' '* ("END"|"end") ' '+ ("IMAGE"|"image")  [^'\n']* '\n'
@@ -1611,36 +1433,6 @@ and image = parse
     let i = Char.code (lxm.[1]) - Char.code '1' in
     scan_arg (scan_this image) i ;
     image lexbuf}
-(* Definitions of  simple macros, bodies are not substituted *)
-| "\\def" | "\\gdef"
-   {let lxm = lexeme lexbuf in
-   Save.start_echo () ;
-   let _ = Save.csname lexbuf in
-   let _ = Save.defargs lexbuf in
-   let _ = save_arg lexbuf in
-   Image.put lxm ;
-   Image.put (Save.get_echo ()) ;
-   image lexbuf}
-| "\\renewcommand" | "\\newcommand" | "\\providecommand"
-  {let lxm = lexeme lexbuf in
-  Save.start_echo () ;
-  let _ = Save.csname lexbuf in
-  let _ = parse_args_opt ["0" ; ""] lexbuf in
-  let _ = save_arg lexbuf in
-  Image.put lxm ;
-  Image.put (Save.get_echo ()) ;
-  image lexbuf}
-| "\\newenvironment" | "\\renewenvironment"
-   {let lxm = lexeme lexbuf in
-   Save.start_echo () ;
-   let _ = save_arg lexbuf in
-   let _ = parse_quote_arg_opt "0" lexbuf in
-   let _ = parse_quote_arg_opt "" lexbuf in
-   let _ = save_arg lexbuf in
-   let _ = save_arg lexbuf in
-   Image.put lxm ;
-   Image.put (Save.get_echo ()) ;
-   image lexbuf}
 |  "\\end"
      {let lxm = lexeme lexbuf in
      Save.start_echo () ;
@@ -1662,7 +1454,34 @@ and image = parse
        image lexbuf
      end}
 |  command_name
-    {Image.put (lexeme lexbuf) ; image lexbuf}
+    {let lxm = lexeme lexbuf in
+    begin match lxm with
+(* Definitions of  simple macros, bodies are not substituted *)
+    | "\\def" | "\\gdef" ->
+        Save.start_echo () ;
+        let _ = Save.csname lexbuf in
+        let _ = Save.defargs lexbuf in
+        let _ = save_arg lexbuf in
+        Image.put lxm ;
+        Image.put (Save.get_echo ())
+    | "\\renewcommand" | "\\newcommand" | "\\providecommand" ->
+        Save.start_echo () ;
+        let _ = Save.csname lexbuf in
+        let _ = parse_args_opt ["0" ; ""] lexbuf in
+        let _ = save_arg lexbuf in
+        Image.put lxm ;
+        Image.put (Save.get_echo ())
+    | "\\newenvironment" | "\\renewenvironment" ->
+        Save.start_echo () ;
+        let _ = save_arg lexbuf in
+        let _ = parse_quote_arg_opt "0" lexbuf in
+        let _ = parse_quote_arg_opt "" lexbuf in
+        let _ = save_arg lexbuf in
+        let _ = save_arg lexbuf in
+        Image.put lxm ;
+        Image.put (Save.get_echo ())
+    | _ -> Image.put lxm end ;
+    image lexbuf}
 | _
      {let s = lexeme lexbuf in
      Image.put s ;
@@ -1735,6 +1554,21 @@ and skip_blanks = parse
 | '\n' {more_skip lexbuf}
 | ""   {()}
 
+and skip_endrow = parse
+| [' ''\n']+ {skip_endrow lexbuf}
+| "\\\\"
+   {let _ = skip_opt lexbuf in
+   skip_blanks_pop lexbuf}
+| eof
+    {if not (Lexstate.empty stack_lexbuf) then begin
+     let lexbuf = previous_lexbuf () in
+     if !verbose > 2 then begin
+       prerr_endline "Poping lexbuf in skip_endrow" ;
+       pretty_lexbuf lexbuf
+     end ;
+     skip_endrow lexbuf
+   end else ()}
+| "" {()}
 
 and more_skip = parse
   '\n'+ {top_par (par_val !in_table)}
@@ -1831,7 +1665,7 @@ def_code  "\\documentclass" do_documentclass
 ;;
 
 
-let do_input lexbuf lxm =
+let do_input lxm lexbuf _ =
   Save.start_echo () ;
   let arg = Save.input_arg lexbuf in
   let echo_arg = Save.get_echo () in
@@ -1850,11 +1684,177 @@ let do_input lexbuf lxm =
   end
 ;;
 
-def_code "\\input" do_input ;
-def_code "\\include" do_input ;
-def_code "\\bibliography" do_input
+def_code "\\input" (do_input "\\input") ;
+def_code "\\include" (do_input "\\include") ;
+def_code "\\bibliography" (do_input "\\bibliography")
 ;;
 
+(* Command definitions *)
+let do_newcommand lxm lexbuf truelxm =
+  Save.start_echo () ;
+  let name = subst_this subst (Save.csname lexbuf) in
+  let nargs = parse_args_opt ["0" ; ""] lexbuf in
+  let body =
+    if top_level () then save_arg lexbuf
+    else subst_arg subst lexbuf in    
+  if (!env_level = 0) then
+    Image.put
+      (truelxm^Save.get_echo ()^"\n") ;
+  let nargs,(def,defval) = match nargs with
+    [a1 ; a2] ->
+      Get.get_int (from_ok a1),
+      (match a2 with
+      | No s -> false,s
+      | Yes s -> true,s)
+  | _ -> assert false in
+  begin try
+    (match lxm with
+      "\\newcommand"   -> def_macro_pat
+    | "\\renewcommand" -> redef_macro_pat
+    | _                -> provide_macro_pat) name
+      (Latexmacros.make_pat (if def then [defval] else []) nargs)
+      (Subst body) ;
+    macro_register name
+  with Latexmacros.Failed -> () end
+;;
+
+def_code "\\renewcommand" (do_newcommand "\\renewcommand") ;
+def_code "\\newcommand" (do_newcommand "\\newcommand") ;
+def_code "\\providecommand" (do_newcommand "\\providecommand")
+;;
+
+def_code "\\newcolumntype"
+  (fun lexbuf lxm ->
+    Save.start_echo () ;
+    let name = subst_this subst (Save.csname lexbuf) in
+    let nargs = save_opt "0" lexbuf in
+    let body = save_arg lexbuf in
+    let rest = Save.get_echo () in
+    if !env_level = 0 then
+      Image.put (lxm^rest^"\n") ;
+    def_coltype
+      name
+      (Latexmacros.make_pat [] (Get.get_int nargs))
+      (Subst body) ;
+    macro_register (Misc.column_to_command name))
+;;
+
+let do_newenvironment lexbuf lxm =
+  Save.start_echo () ;
+  let name = subst_arg subst lexbuf in
+  let nargs = parse_quote_arg_opt "0" lexbuf in
+  let optdef = parse_quote_arg_opt "" lexbuf in
+  let body1 = save_arg lexbuf in
+  let body2 = save_arg lexbuf in
+  if !env_level = 0 then
+    Image.put (lxm^Save.get_echo ()^"\n") ;
+  begin try
+    (match lxm with
+      "\\newenvironment" -> def_env_pat
+    |  _ -> redef_env_pat) name
+      (Latexmacros.make_pat
+         (match optdef with No _ -> [] | Yes s -> [s])
+         (match nargs with No _ -> 0 | Yes s -> Get.get_int s))
+      (Subst body1) (Subst body2);
+    macro_register ("\\"^name) ; 
+                      macro_register ("\\end"^name)
+  with Latexmacros.Failed -> () end
+;;
+
+def_code "\\newenvironment" do_newenvironment ;
+def_code  "\\renewenvironment" do_newenvironment
+;;
+
+let do_newtheorem lexbuf lxm =
+  Save.start_echo () ;
+  let name = save_arg lexbuf in
+  let numbered_like = parse_quote_arg_opt "" lexbuf in
+  let caption = save_arg lexbuf in
+  let within = parse_quote_arg_opt "" lexbuf in
+  if !env_level = 0 then
+    Image.put (lxm^Save.get_echo ()^"\n") ;
+  begin try
+    let cname = match numbered_like,within with
+      No _,No _ ->
+        Counter.def_counter name "" ;
+        def_macro ("\\the"^name) 0 (Subst ("\\arabic{"^name^"}")) ;
+        name
+    | _,Yes within ->
+        Counter.def_counter name within ;
+        def_macro ("\\the"^name) 0
+          (Subst ("\\the"^within^".\\arabic{"^name^"}")) ;
+        name
+    | Yes numbered_like,_ -> numbered_like in
+    
+    def_env_pat name (Latexmacros.make_pat [""] 0)
+      (Subst ("\\cr{\\bf\\stepcounter{"^cname^"}"^caption^"~"^
+              "\\the"^cname^"}\\quad\\ifoptarg{\\purple[#1]\\quad}\\fi\\it"))
+      (Subst "\\cr")
+  with Latexmacros.Failed -> () end
+;;
+
+def_code "\\newtheorem" do_newtheorem ;
+def_code "\\renewtheorem" do_newtheorem
+;;
+
+(* Command definitions, TeX style *)
+
+let do_def global lexbuf lxm =
+  let name = Save.csname lexbuf in
+  let name = subst_this subst name in
+  let args_pat = Save.defargs lexbuf in
+  let body = save_arg lexbuf in
+  if !env_level = 0 || global then
+    Image.put
+      (lxm^name^
+       (List.fold_right (fun s r -> s^r) args_pat ("{"^body^"}\n"))) ;
+  begin try
+    def_macro_pat name ([],args_pat) (Subst body) ;
+    if not global then macro_register name
+  with Latexmacros.Failed -> () end
+;;
+
+def_code "\\def" (do_def false) ;
+def_code "\\gdef" (do_def true)
+;;
+
+let do_let global lexbuf lxm =
+  let name = subst_arg subst lexbuf in
+  Save.skip_equal lexbuf ;
+  let alt = subst_arg subst lexbuf in
+  begin try
+    let nargs,body = find_macro alt in
+    begin try
+      def_macro_pat name nargs body ;
+      if not global then macro_register name
+    with Latexmacros.Failed -> () end
+  with Not_found -> () end ;
+  if !env_level = 0 || global then begin
+    Image.put lxm ;
+    Image.put name ;
+    Image.put "=" ;
+    Image.put alt ;
+    Image.put "\n"
+  end ;
+  if not global then macro_register name
+;;
+
+def_code "\\let" (do_let false)
+;;
+
+let do_global lexbuf lxm =
+  let next = save_arg lexbuf in
+  begin match next with
+  | "\\def" -> do_def true lexbuf (lxm^next)
+  | "\\let" -> do_let true lexbuf (lxm^next)
+  | _       -> warning "Ignored \\global"
+  end
+;;
+
+
+
+def_code "\\global" do_global
+;;
 
 (* Complicated use of output blocks *)
 def_code "\\left"
@@ -2186,7 +2186,7 @@ def_code "\\@footnoteflush"
 
 (* Boxes *)
 
-def_code "\\mbox" (fun lexbuf _ -> mbox_arg lexbuf)
+def_code "\\mbox" (fun lexbuf _ -> mbox_arg lexbuf ; eat_space := false)
 ;;
 
 def_code "\\newsavebox"
@@ -2383,6 +2383,25 @@ def_code "\\begingroup" (fun _ _ -> new_env "command-group")
 ;;
 
 def_code "\\endgroup" (fun _ _ -> close_env !cur_env)
+;;
+
+(* Multicolumn *)
+
+def_code "\\multicolumn"
+    (fun lexbuf _ ->
+      let n = Get.get_int (save_arg lexbuf) in      
+      let format =  Tabular.main (save_arg lexbuf) in
+      do_multi n  format main)
+;;
+
+def_code "\\hline"
+  (fun lexbuf _ ->
+     if is_noborder_table !in_table then
+       do_hline main ;
+     eat_space := true ;
+     skip_endrow lexbuf ;
+     let _ = Html.forget_par () in
+     eat_space := false)
 ;;
 
 

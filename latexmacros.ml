@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmacros.ml,v 1.42 1999-04-15 15:05:40 maranget Exp $" 
+let header = "$Id: latexmacros.ml,v 1.43 1999-04-16 13:31:37 maranget Exp $" 
 open Misc
 open Parse_opts
 open Symb
@@ -489,7 +489,8 @@ let invisible = function
 | "\\purple" | "\\silver" | "\\gray" | "\\white"
 | "\\maroon" | "\\red" | "\\fuchsia" | "\\green"
 | "\\lime" | "\\olive" | "\\yellow" | "\\navy"
-| "\\blue" | "\\teal" | "\\aqua" | "\\else" | "\\fi" -> true
+| "\\blue" | "\\teal" | "\\aqua" | "\\else" | "\\fi"
+| "\\char" -> true
 | name ->
     (String.length name >= 3 && String.sub name 0 3 = "\\if")
 ;;
