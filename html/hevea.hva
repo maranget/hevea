@@ -149,8 +149,11 @@
 % Using style CLASSES with DIV for local style-setting   %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-\newenvironment{divstyle}[1]%
-	{\@open{DIV}{CLASS=#1}}{\@close{DIV}}%
+\newenvironment{divstyle}[1]
+  {\@open{DIV}{\class@attr{#1}{}}}{\@close{DIV}}%
+\newenvironment{cellstyle}[2]
+  {\@open{TABLE}{\class@attr{#1}{}}\@open{TR}{}\@open{TD}{\class@attr{#2}{}}}
+  {\@close{TD}\@close{TR}\@close{TABLE}}
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Echoing to the image file %

@@ -4,18 +4,18 @@
 \usepackage{makeidx}
 \usepackage{texnames}
 \usepackage{url}
-\usepackage{hevea}
+\usepackage{../hevea}
 \usepackage{listings}
 \usepackage{isolatin1}
 \usepackage{amssymb}
 \usepackage{amsmath}
-\usepackage{ifthen}
-\usepackage{array}
+\usepackage{ifthen}\usepackage{array}
 \usepackage{graphics}
 \usepackage{mathpartir}
 \usepackage{alltt}
 \usepackage{moreverb}
-\usepackage{color}
+\usepackage[dvips]{color}
+\definecolor{abricot}{cmyk}{0,0.32,0.52,0}
 \input{macros.tex}
 \makeindex
 \input{version.tex}
@@ -76,7 +76,7 @@ The input language is a fairly complete subset of \LaTeXe{} (old
 output language is {\html} that is (hopefully) correct with respect to
 version 4.0 transitional.
 
-Recent versions of most browsers offer support for unicode entities,
+Recent versions of most browsers offer support for Unicode entities,
 albeit to different extents. \hevea{} exploits this fact to translate
 various math symbols used in \LaTeX. As a result, almost the entire set
 of math symbols, including the {\tt amssymb} ones, are correctly
@@ -1894,7 +1894,7 @@ source. However, \LaTeX{} still can process the document, since the
 \subsection{More Advanced Usage}
 In this section we show how to alter some details of \hacha{}
 behavior.
-This includes controling output file names and the title of generated
+This includes controlling output file names and the title of generated
 web pages and introducing arbitrary cuts.
 
 \subsubsection{Controlling output file names}\label{cutname}
@@ -1929,7 +1929,7 @@ In this document, there is a very
 \end{verbatim}
 \ifhevea
 If you are reading the \html{} version of this manual, you may check
-that wou are now reading file ``\texttt{cutname.html}''.
+that you are now reading file ``\texttt{cutname.html}''.
 This particular file name has been specified from the source
 using \verb+\cutname{cutname.html}+.
 \fi
@@ -1957,7 +1957,7 @@ The following points are worth noticing:
 \item The \verb+\toplink+ command must appear in the document preamble
 (i.e., before \verb+\begin{document}+).
 \item The arguments
-\textit{prev}, \textit{up} and \textit{next} should expand to url's,
+\textit{prev}, \textit{up} and \textit{next} should expand to urls,
 notice that these argument are processed (see section~\ref{urlareprocessed}).
 \item When one of the expected argument is left empty,
 the corresponding link is not generated.
@@ -1969,7 +1969,7 @@ relate documents that are generated independantly by
 
 \subsubsection{Cutting a document anywhere}
 \envdefindex{cutflow}
-Part of a document goes to a separate file whem enclosed in a
+Part of a document goes to a separate file when enclosed in a
 \verb+cutflow+ environment~:
 \begin{flushleft}
   \verb+\begin{cutflow}{+\textit{title}\verb+}+\ldots\verb+\end{cutflow}+
@@ -2039,14 +2039,14 @@ hypertext constructs their documents, or to control colors.
 \subsection{High-Level Commands}
 \hevea{} provides high-level commands for doing this.
 Users are advised to use these macros in the first place,
-because it is easy to write incorrect \html{} and that writting
-\html{} directly may interfeer in nasty ways with \hevea{} internals.
+because it is easy to write incorrect \html{} and that writing
+\html{} directly may interfere in nasty ways with \hevea{} internals.
 
 
 \subsubsection{Commands for Hyperlinks}\index{hyperlinks}\label{hyperlink}
 A few commands for hyperlink  management and included images
 are provided, all these
-commands have approriate equivalents defined by the \texttt{hevea}
+commands have appropriate equivalents defined by the \texttt{hevea}
 package (see section~\ref{heveastyle}).
 Hence, a document that relies on these high-level commands
 still can be typeset by \LaTeX{}, provided it loads the \texttt{hevea}
@@ -2133,7 +2133,7 @@ document processed both by \LaTeX{} and \hevea{}.
 Drawing a line between url typesetting and hyperlinks is correct,
 because users may sometime want urls to be processed and some other
 times not.
-Moreover, \hevea{} (optionnaly) depends on only one third party package:
+Moreover, \hevea{} (optionally) depends on only one third party package:
 \texttt{url}, which as correct as it can be and well-written.
 
 
@@ -2235,7 +2235,7 @@ Then \hevea{} has to be run as:
 Since it has its own definition of \verb+\epsfbox+, \hevea{} will
 silently include a link the GIF image and not to the Postscript image.
 
-If another naming scheme for image files is prefered, there are
+If another naming scheme for image files is preferred, there are
 alternatives.
 For instance, assume that Postscript files are of the kind
 \textit{name}\texttt{.ps}, while GIF files are of the kind
@@ -2262,7 +2262,7 @@ When the Postscript file has been produced by
 translating a bitmap file, this simple method of making a GIF image and
 using the \verb+\imgsrc+ command 
 is the most adequate.
-It should be prefered over using the more automated \textit{image} file
+It should be preferred over using the more automated \textit{image} file
 mechanism (see section~\ref{imagen}),
 which will translate the image back from
 Postscript to bitmap format and will thus degrade it.
@@ -2273,7 +2273,7 @@ Postscript to bitmap format and will thus degrade it.
 \envindex{rawhtml}\comindex{rawhtmlinput}
 Any text enclosed between \verb+\begin{rawhtml}+ and
 \verb+\end{rawhtml}+ is echoed verbatim into the \html{} output file.
-Similarily, \verb+\rawhtmlinput{+\textit{file}\verb+}+ echoes the
+Similarly, \verb+\rawhtmlinput{+\textit{file}\verb+}+ echoes the
 contents of file~\textit{file}.
 
 For avoiding to break \html~element nesting, the \texttt{rawhtml}
@@ -2299,7 +2299,7 @@ For the document to remain processable by \LaTeX{}, it must load the
 \envindex{rawtext}\comindex{rawtextinput}
 If \hevea{} is targetted to produce text or info files (see
 Section~\ref{alternative}).
-The text inside \texttt{rawhtml} environmnents is ignored.
+The text inside \texttt{rawhtml} environments is ignored.
 However there exists a \texttt{rawtext} environment (and a
 \verb+\rawtextinput+ command) to echo text verbatim in text or info
 output mode.
@@ -2369,7 +2369,7 @@ Process \textit{text} using a special output mode that strips off
 \html~tags.
 \item[{\tt\char92 @hr[}{\it attr}{\tt]\char123}{\it
 width}{\tt\char125\char123}{\it height}{\tt\char125}]
-Ouput an \html{} horizontal rule, \textit{attr} is attributes given
+Output an \html{} horizontal rule, \textit{attr} is attributes given
 directly (e.g. \verb+SIZE=3 HOSHADE+), while \textit{width} and
 \textit{height} are length arguments given in the \LaTeX{} style
 (e.g. \verb+2pt+ or~\verb+.5\linewidth+).
@@ -2390,7 +2390,7 @@ Note that \verb+\@open+ and \verb+\@close+ must be properly balanced.
 
 \index{text-level elements}
 Text-level elements are managed differently. They are not seen
-as blocks that must be closed explicitely and they are replaced by the
+as blocks that must be closed explicitly and they are replaced by the
 internal text-level declarations \verb+\@style+ (and
 \verb+\@styleattr+), \verb+\@fontsize+ and
 \verb+\@fontcolor+. Block-level elements (and \html{} groups)
@@ -2415,7 +2415,7 @@ attr}{\tt\char125}]\index{text-level elements!SPAN}
 Declare the text-level element \textit{NAME} with
 attribute~\textit{attr}
 active. This primitive behaves as \verb+\@style+, except that the
-opennig tag has attributes.
+opening tag has attributes.
 This primitive may prove useful for introducing \texttt{SPAN} elements.
 Note that both argument are processed.
 \item[{{\tt\char92 @span\char123}{\it attr}{\tt\char125}}]
@@ -2478,7 +2478,7 @@ command (see section~\ref{hyperlink}), without its optional argument:
   {\@print{<IMG SRC="}\@getprint{#1}\@print{">}}
 \end{verbatim}
 Here, \verb+\@print+ and \verb+\@getprint+ are used to output
-\html~text, depending upon wether this text requires processing or not.
+\html~text, depending upon whether this text requires processing or not.
 Note that \verb+\@open{IMG}{SRC="#1"}+ is not correct,
 because the element \verb+IMG+ consists in a single tag, without a
 closing tag.
@@ -2486,7 +2486,7 @@ closing tag.
 \index{"@nostyle@\texttt{\char92"@nostyle}}
 Another interesting example is the definition of the command
 \verb+\@doaelement+,
-which \hevea{} uses internaly to output \texttt{A} elements.
+which \hevea{} uses internally to output \texttt{A} elements.
 \begin{verbatim}
 \newcommand{\@doaelement}[2]
   {{\@nostyle\@print{<A }\@getprint{#1}\@print{>}}{#2}{\@nostyle\@print{</A>}}
@@ -2494,7 +2494,7 @@ which \hevea{} uses internaly to output \texttt{A} elements.
 The command \verb+\@doaelement+ takes two arguments: the first
 argument contains the opening tag attributes; while the second element is
 the textual content of the \verb+A+ element.
-By contrast with the \verb+\imgsrc+ exemple above,
+By contrast with the \verb+\imgsrc+ example above,
 tags are emitted inside groups where styles are canceled by using the
 \verb+\@nostyle+ declaration.
 Such a complication is needed, so as to avoid breaking proper nesting
@@ -2537,20 +2537,20 @@ Additionally,  \verb+\begin{bgcolor}+ takes \html{} attributes
 as an optional argument. These attributes are the ones of the
 \verb+TABLE+ element.
 
-\section{Support for Style \label{style-sheets}Sheets}
+\section{Support for style sheets}\label{style:sheets}
 \index{style-sheets}
 
 \subsection{Overview}
 Starting with version~1.08, \hevea{} offers support for style sheets
 (of the CSS variant see~\cite{css}).
 
-Style sheets provide enhanced expressivity. For instance, it is now possible
+Style sheets provide enhanced expressiveness. For instance, it is now possible
 to get ``real'' (whatever real means here) small caps in {\html}, and in a
 relatively standard manner. There are others, discrete, maybe
 unnoticeable, similar enhancements.
 
 However, style sheet mostly provides \hevea{} users with an additional
-mecanism to customize their documents. To do so, users should probably
+mechanism to customize their documents. To do so, users should probably
 get familiar with how \hevea{} uses style sheets in the first
 place.
 
@@ -2605,7 +2605,7 @@ A styled subsection heading
 The following points are worth noticing:
 \begin{itemize}
 \item
-To yield some effet, \verb+\newstyle+~commands \emph{must} appear
+To yield some effect, \verb+\newstyle+~commands \emph{must} appear
 in the document preamble, i.e. before \verb+\begin{document}+.
 \item
 Arguments to \verb+\newstyle+~commands are processed.
@@ -2618,7 +2618,7 @@ document processing by \LaTeX{}.
 
 \subsection{Changing the style of all instances of an environment}
 
-In this very document, all \texttt{verbatim} environements appear over
+In this very document, all \texttt{verbatim} environments appear over
 a light green background, with small left and right margins.
 This has been performed by simply issuing the following command in
 the document preamble.
@@ -2640,18 +2640,18 @@ The class attribute can be changed with the command
 \verb+\setenvclass{+\textit{env}\verb+}{+\textit{class}\verb+}+.
 The~\verb+\setenvclass+ command internally defines a command
 \verb+\+\textit{env}\verb+@class+, whose content is read
-by the \verb+\getenvclass+ command. As a consequeuce, the class
+by the \verb+\getenvclass+ command. As a consequence, the class
 attribute of environments follows normal scoping rules.
 \label{getstylecolor:example}
 For instance, here is how to change the style of \emph{one} \texttt{verbatim}
-environnment.
+environment.
 \bgroup\setenvclass{verbatim}{myverbatim}
 \verbatiminput{verbinverb.txt}
 \egroup
 Observe how the class of environment \texttt{verbatim} is changed from
 its default value to the
 new value ``\texttt{myverbatim}''. The change remains active until the
-end of the curent group (here, the ``\texttt{\}}'' at the end). Then, the class
+end of the current group (here, the ``\texttt{\}}'' at the end). Then, the class
 of environment \texttt{verbatim} is restored to its default value
 --- which happen to be ``\texttt{verbatim}''!
 
@@ -2661,7 +2661,7 @@ definition, with a
 conventional \html~color name (here {\ifhevea\maroon\fi maroon}) or as
 a high-level color (see Section~\ref{color:package}), given as an argument to
 the \verb+\@getstylecolor+ internal command
-(here \colorbox[named]{Apricot}{\texttt{Apricot}} from the \texttt{named} color model).
+(here \colorbox{abricot}{\texttt{Apricot}} from the \texttt{named} color model).
 
 A good way of specifying style class changes probably is by defining
 new environments.
@@ -2683,7 +2683,7 @@ style.
 \end{flashyverbatim}
 \end{htmlonly}
 
-\subsection{Which Class Affects\label{whatclass} What}
+\subsection{Which class affects\label{whatclass} what}
 
 Generally, the styling of environment~\textit{env} is performed through
 the commands
@@ -2703,14 +2703,14 @@ Section~\ref{mathpartir:package}), lstlisting
 (cf. Section~\ref{listings:package}), etc.
 \end{quote}
 
-All sectionning commands (\verb+\part+, \verb+\section+ etc.)
+All sectioning commands (\verb+\part+, \verb+\section+ etc.)
 output~\verb+H<+\textit{n}\verb+>+ block-level  elements, which are styled
 through style classes named \texttt{part}, \texttt{section}, etc.
 Users are advised not to alter those styles
 themselves, but rather to rely on the package~\texttt{fancysection}
 (Section~\ref{fancysection}).
 
-List making-environement introduce extra style classes for items.
+List making-environment introduce extra style classes for items.
 More specifically, for list-making environments
 \texttt{itemize} and \texttt{enumerate},
 \verb+LI+ elements are styled as follows:
@@ -2739,9 +2739,9 @@ styles through names \texttt{dt-}\textit{env} and
 \texttt{dd-}\textit{env} respectively.
 
 \subsection{A few examples}
-\subsubsection{The Title}\index{styles for!title}
+\subsubsection{The title of the document}\index{styles for!title}
 The command \verb+\maketitle+ formats the document
-title whithin a \verb+TABLE+ element, with
+title within a \verb+TABLE+ element, with
 class \texttt{title}, for display. The name of the title is displayed
 inside block \verb+H1+, with class \texttt{titlemain}, while all other
 information (author, date) are displayed inside block \verb+H3+, with class
@@ -2775,12 +2775,13 @@ author and date in small-caps.
 \@close{TD}\@close{TR}\@close{TABLE}
 \end{htmlonly}
 
-\subsubsection{Enclosing Things in a Styled \texttt{DIV}}\index{styles for!miscellaneous objects}
+\subsubsection{Enclosing things in a styled \texttt{DIV}}
+\index{styles for!miscellaneous objects}%
+\index{style-sheets!\verb+\divstyle+}\envdefindex{divstyle}%
 At the moment, due to the complexity of the task, environments
 \texttt{tabular} and \texttt{array} cannot be styled as others
 environments can be, 
 by defining an appropriate class in the preamble.
-\index{style-sheets!divstyle (environment)@divstyle}\envdefindex{divstyle}
 However, even for such constructs,
 limited styling can be performed, by using
 the \texttt{divstyle} environment.
@@ -2793,12 +2794,12 @@ The limitation is that the enclosed part may generate more {\html}
 blocks, and that not all style attribute defined in class class
 \textit{class} will apply to those inner blocks.
 
-As an example consider the class definition below.
+As an example consider the style class definition below.
 \begin{verbatim}
 \newstyle{.ruled}{border:solid black;padding:1ex;background:\#eeddbb;color:marron}
 \end{verbatim}
 The intended behavior is to add a black border around the inner block
-(whith some padding), and to have {\ifhevea\maroon maroon} text over
+(with some padding), and to have {\ifhevea\maroon maroon\else\fi} text over
 a light brown background.
 
 If we, for instance, enclose an \texttt{itemize} environment, the
@@ -2890,7 +2891,46 @@ Good Morning & Bonjour\\ Thank You & Merci\\ Good Bye & Au Revoir\\
 \end{htmlonly}
 But then, we do not use style sheets anymore.
 
-\subsubsection{List styling with environment~\texttt{itemize}}\index{styles for!lists}
+\subsubsection{Enclosing things in a styled cell}%
+\index{styles for!miscellaneous objects}%
+\index{style-sheets!\verb+\cellstyle+}\envdefindex{cellstyle}%
+Given the differences in styling \verb+DIV+ and table elements, \hevea
+provide a mean to issue a one-cell \verb+TABLE+ element with one cell,
+with style applied to the outer \verb+TABLE+ element and the inner
+\verb+TD+ element.
+For instance, the previous example can be styled as follows, thereby
+avoiding the outer \texttt{tabular} environment.
+\begin{verbatim}
+\begin{center}
+\begin{cellstyle}{ruled}{}
+\begin{tabular}{|c|c|}
+\hline \bf English & \bf French\\ \hline
+Good Morning & Bonjour\\ Thank You & Merci\\ Good Bye & Au Revoir\\
+\hline
+\end{tabular}
+\end{cellstyle}
+\end{center}
+\end{verbatim}
+\begin{htmlonly}
+\begin{center}
+\begin{cellstyle}{ruled}{}
+\begin{tabular}{|c|c|}
+\hline \bf English & \bf French\\ \hline
+Good Morning & Bonjour\\ Thank You & Merci\\ Good Bye & Au Revoir\\
+\hline
+\end{tabular}
+\end{cellstyle}
+\end{center}
+\end{htmlonly}
+\begin{latexonly}
+\begin{center}\image{table-good}\end{center}
+\end{latexonly}
+
+
+
+
+\subsubsection{Styling the \texttt{itemize} environment}\index{styles for!lists}
+
 \newcounter{toc}
 \newenvironment{toc}
 {\stepcounter{toc}\setenvclass{itemize}{toc\thetoc}\begin{itemize}}
@@ -2967,7 +3007,7 @@ redefined before \verb+\begin{itemize}+.
 {\stepcounter{toc}\setenvclass{itemize}{toc\thetoc}\begin{itemize}}
 {\addtocounter{toc}{-1}\end{itemize}}
 \end{verbatim}
-The outputed {\html} is:
+The outputted {\html} is:
 \begin{verbatim}
 <UL CLASS="toc1"><LI CLASS="li-itemize">
 Part&nbsp;A
@@ -2981,7 +3021,7 @@ Section&nbsp;I.1
 </UL>
 \end{verbatim}
 
-\subsection{Miscellaneaous}
+\subsection{Miscellaneous}
 \ifpdf
 \subsubsection{Hacha and style sheets}
 \else
@@ -2991,7 +3031,7 @@ Section&nbsp;I.1
 shared by all the~{\html} files produced by \hacha.
 Please refer to section~\ref{hacha:style} for details.
 
-\subsubsection{Linking to External Style Sheets}
+\subsubsection{Linking to external style sheets}
 \comdefindex{loadcssfile}%
 \index{style-sheets!\verb+\loadcssfile+}%
 The \hevea{} command \verb+\loadcssfile{+\textit{url}\verb+}+ allows the
@@ -3025,7 +3065,7 @@ in the \verb+STYLE+ element in the order they are given in the
 document source. There is no way to cancel the default class
 definitions performed by \hevea{} before it starts to process the
 user's document.
-Additionaly, external style sheets specified with \verb+\loadcssfile+
+Additionally, external style sheets specified with \verb+\loadcssfile+
 appear before style classes defined with \verb+\newstyle+.
 As a consequence (if I am right), styles
 declared by \verb+\newstyle+ take precedence over those contained in
@@ -3114,7 +3154,7 @@ And now, the shape example above gets rendered as follows:
 \scshape small caps shape \upshape upright shape}
 \end{htmlout}
 
-Redefining the old-style \verb+\sc+ is compatible with the cancelation
+Redefining the old-style \verb+\sc+ is compatible with the cancellation
 mechanism, redefining \verb+\scshape+ is not.
 Thus, redefining directly \LaTeXe{} \verb+\scshape+ with
 \verb+\renewcommand{\scshape}{\@style{B}}+ would yield:
@@ -3126,7 +3166,7 @@ Thus, redefining directly \LaTeXe{} \verb+\scshape+ with
 
 Hence, redefining old-style declarations using internal commands
 should yield satisfactory output.
-However, since cancelation is done at the \html{}
+However, since cancellation is done at the \html{}
 level, a declaration belonging to one component may sometimes cancel the
 effect of another that belongs to another component.
 Anyway, you might have not noticed it if I had not told you.
@@ -3151,7 +3191,7 @@ One  solution to insert the following lines into \texttt{macros.hva}:
 The effect is to replace \verb+\title+ by a new command which
 calls \hevea{} \verb+\title+ with the appropriate argument.
 \subsection{Checking the optional argument within a command}\label{fullepsfbox}
-\index{image inclusion!in Postcript}
+\index{image inclusion!in Postscript}
 \hevea{} fully implements \LaTeXe{} \verb+\newcommand+.
 That is, users can define commands with an optional argument.
 Such a feature permits to write a \verb+\epsfbox+ command that
@@ -3228,12 +3268,12 @@ As usual, \texttt{hevea} will invoke \texttt{imagen} with the
 appropriate option, provided it is passed the \texttt{-fix} option.
 
 
-\subsection{Controling \texttt{imagen} from document source}
+\subsection{Controlling \texttt{imagen} from document source}
 \index{"@addimagenopt@\texttt{\char92"@addimagenopt}|defocc}
 The internal command
 \verb+\@addimagenopt{+\textit{option}\verb+}+ add
 the text \textit{option} to \texttt{imagen} command-line options, when
-lauched atomatically by \texttt{hevea} (\emph{i.e.} when
+launched automatically by \texttt{hevea} (\emph{i.e.} when
 \texttt{hevea} is given the ``\texttt{-fix}'' command line option).
 
 For instance, as to instruct \texttt{hevea}/\texttt{imagen} to
@@ -3497,7 +3537,7 @@ The \verb+\htmlhead+ command cannot be used for changing anything outside of
 the \html{} document body, there are specific commands for doing this.
 Those command must be used in the document preamble.
 One can
-change \hevea{} default (empty) atribute for
+change \hevea{} default (empty) attribute for
 the opening \verb+<BODY ...>+ tag by redefining
 \verb+\@bodyargs+.
 For instance, you get black text on a white background, when the
@@ -3540,7 +3580,7 @@ To change this value, there are basically two techniques.
 \item You can set the charset by extracting its value from the current
 locale environment.
 This operation is performed by a companion script: \texttt{xxcharset.exe}.
-It thus suffices to lauch \hevea{} as:
+It thus suffices to launch \hevea{} as:
 \begin{flushleft}
 \texttt{\# hevea -exec xxcharset.exe}~\textit{other arguments} 
 \end{flushleft}
@@ -3603,7 +3643,7 @@ as follows:
 \subsection{Accents and special symbols}
 Thanks to Unicode character references, \hevea{} can virtually output
 any symbol. Notice that \hevea{} is a bit iso-latin1 centric:
-by default, characters in the iso-latin1 charser are outputed as
+by default, characters in the iso-latin1 charset are outputted as
 themselves (the command-line option ``\texttt{-noiso}'' prevent the
 production of such and change the output page charset to)
 It may happen that \hevea{} does not known about a particular symbol,
@@ -3654,7 +3694,7 @@ See Section~\ref{section:section}
 Clicking on the link produced by
 \verb"\ref{section:section}" will result in \emph{not} displaying the
 targeted section title.
-A fix is writting:
+A fix is writing:
 \begin{verbatim}
 \section{\label{section:section}A section}
  ...
@@ -3675,16 +3715,16 @@ to the one of \LaTeX
 (a ``\texttt{.htoc}'' file is involved).
 One inserts this table of contents in the main document by issuing
 the command \verb+\tableofcontents+.
-Table of contents is controled by the counter  \verb+tocdepth+.
-By default, the table of contents shows sectionning units down to the
+Table of contents is controlled by the counter  \verb+tocdepth+.
+By default, the table of contents shows sectioning units down to the
 subsubsection level in \textit{article} style and down to the subsection level
 in \textit{book} (or \textit{report}) style. To include more or less
-sectionning units in the
-table of contents, one sould increase or decrease the \verb+tocdepth+
+sectioning units in the
+table of contents, one should increase or decrease the \verb+tocdepth+
 counter.
 It is important to notice that \hevea{} produces such a table of
 contents, only when it has total control over cross-references.
-More precisely, \hevea{} cannot produce the table of contents whem it
+More precisely, \hevea{} cannot produce the table of contents when it
 reads \LaTeX{}-produced \texttt{.aux}~files.
 Instead, it should read its own \texttt{.haux}~files.
 This will naturally occur if no \texttt{.aux} files are present,
@@ -3696,9 +3736,9 @@ should be instructed not to read them with the command-line option
 One can also add extra entries in the table of contents by using
 the command \verb+\addcontentslines+, in a way similar
 to \LaTeX{} homonymous command.
-However, hyperlinks need to be introduced explicitely,
+However, hyperlinks need to be introduced explicitly,
 as in the following example, where
-an anchor is defined in the section title and refered to in the
+an anchor is defined in the section title and referred to in the
 argument to \verb+\addcontentsline+~:
 \begin{verbatim}
 \subsection*{\aname{no:number}{Use \hacha{}}}
@@ -3980,7 +4020,7 @@ The \LaTeX{} fragment
 \begin{verbatim}
 $$1+\cfrac[r]{\sqrt[5]{right-align}}{1 + right-align}$$
 \end{verbatim}
-would typeset in \hevea as follows
+would typeset in \hevea{} as follows
 \newcommand{\cfrac}[3][c]{%
 \ifthenelse{\equal{#1}{c}}{{#2\over #3}}{%
 \ifthenelse{\equal{#1}{l}}{{#2\@lover #3}}{%
@@ -5299,7 +5339,7 @@ backgroud, the backgrould color saturation decreases as the sectioning
 commands themselves do\ifhevea{} (this is the style of this manual).\else.\fi{}
 Additionnaly, the document background color is white.
 
-\textbf{Note : }Fancy section has been re-implemented using style-sheets. While it respects the old behavior, users are encouraged to try out style-sheets for more flexibility. See Section~\ref{style-sheets} for details.
+\textbf{Note : }Fancy section has been re-implemented using style-sheets. While it respects the old behavior, users are encouraged to try out style-sheets for more flexibility. See Section~\ref{style:sheets} for details.
 
 The \texttt{fancysection.hva} file is intended to be loaded after
 the document base style. Thus, to use fancy section style in
@@ -6117,7 +6157,7 @@ the output basename is \textit{base}.
 whose name is \textit{filename}. Note that this option applies to all
 files, including \texttt{hevea.hva} and base style files.
 \item[{\tt -fix}] Iterate \hevea{} until a fixpoint is found.
-Additionnaly, images get generated automatically.
+Additionally, images get generated automatically.
 \item[{\tt -O}] Optimize \html{} by calling \esponja{} (see
 section~\ref{esponjausage}).
 \item[{\tt -exec} {\it prog}] Execute file \textit{prog} and read the
@@ -6137,8 +6177,13 @@ input file is encoded in iso-latin1 or in plain ascii.
 \item[{\tt -entities}] Render symbols by using entities. This is the default.
 \item[{\tt -symbols}] Render symbols by using the symbol font. This
 mode is deprecated and is no more maintained.
+<<<<<<< text.tex
+\item[{\tt -textsymbols}] Render symbols by English text.
+\item[{\tt -moreenties}] Enable the output of some rare entities. Use
+=======
 \item[{\tt -textsymbols}] Render symbols by english text.
 \item[{\tt -moreentities}] Enable the output of some rare entities. Use
+>>>>>>> 1.76
 this option to target browsers with wide entities support.
 \item[{\tt -noiso}] Use us-ascii for encoding the output page.
 \item[{\tt -mathml}] Produces MathML output for equations, very experimental.
@@ -6174,10 +6219,10 @@ It also recognizes the following options:
 \item[{\tt -v}] Be a little verbose.
 \item[{\tt -o} {\it filename}] Make \hacha{} output go into file
 \textit{filename} (defaults  to index.html).
-Additionaly, if \textit{filename} is a composite filename,
-\textit{dir/base}, then all files outputed by \hacha{} will
+Additionally, if \textit{filename} is a composite filename,
+\textit{dir/base}, then all files outputted by \hacha{} will
 reside in directory \textit{dir}.
-\item[{\tt -tocbis}] Add a small table of contents at the begining of every file.
+\item[{\tt -tocbis}] Add a small table of contents at the beginning of every file.
 \item[{\tt -nolinks}] Do not insert Previous/Up/Next links in
 generated pages.
 \item[{\tt -hrf}] Output a \textit{base}\texttt{.hrf} file, showing
@@ -6241,7 +6286,7 @@ output for file \textit{input} goes to file
 \textit{input}\texttt{.esp}. Option \texttt{-n}
 implies option \texttt{-v}.
 \item[{\tt -u}]Output \texttt{esponja} intermediate version of \html.
-In most occasions, this amouts to pessimize instead of to optimize.
+In most occasions, this amounts to pessimize instead of to optimize.
 It may yield challenging input for other \html~optimizers.
 \end{description}
 
@@ -6306,7 +6351,7 @@ image production chain. It can also help in limiting image files size.
 \item[{\tt -gif}] Output GIF images. This is the default.
 \item[{\tt -png}]\index{PNG}
 Output PNG images in place of GIF images.
-PNG is sometimes prefered for legal reasons.
+PNG is sometimes preferred for legal reasons.
 PNG image files have a ``\texttt{.png}'' extension.
 Note that \texttt{hevea} should have been previously run as
 \texttt{hevea png.hva} \textit{base}\texttt{.tex} (so that the proper
@@ -6430,7 +6475,7 @@ runtime system, which is distributed under the Gnu Library General
 Public License (LGPL).
 See the \footahref{\ftpbase/LICENSE}{LICENSE} file for details.
 
-The manuel itself is distributed under the terms of
+The manual itself is distributed under the terms of
 the
 \ifhevea
 \ahref{fddl.html}{Free Document Dissemination Licence}.
@@ -6473,8 +6518,8 @@ Basically, \hevea{} should be given a library
 directory. The installation procedure stores the \texttt{hevea.hva}
 and base style files in this directory.
 There are two compilation modes, the \texttt{opt} mode selects the
-native code  Ocaml compiler \texttt{ocamlopt}, while the \texttt{byte}
-mode selects the bytecode  Ocaml compiler \texttt{ocamlc}.
+native code  OCaml compiler \texttt{ocamlopt}, while the \texttt{byte}
+mode selects the bytecode  OCaml compiler \texttt{ocamlc}.
 In \hevea{} case, \texttt{ocamlopt} produces code that is up to three
 times as fast as the one produced by \texttt{ocamlc}.
 Thus, default compilation mode is \texttt{opt}, however it may be the
@@ -6537,6 +6582,9 @@ The following people contributed to \hevea{} development:
 \item Philip~A.Viton, maintains a
 \ahref{http://www.arch.ohio-state.edu/crp/faculty/pviton/support/hevea.html}{window
 (win32) port} of \hevea.
+\item Abhishek Thakur implemented most of the new features if version
+1.08, including, translations of symbols to Unicode entities,
+the  \texttt{babel} package, and style sheet support.
 \item Christian Queinnec wrote an extra lexer to translate code
 snippets produced by its tool
 \ahref{http://www-spi.lip6.fr/\home{queinnec}/VideoC/VideoC.html}{VideoC}
