@@ -1,3 +1,16 @@
+(***********************************************************************)
+(*                                                                     *)
+(*                          HEVEA                                      *)
+(*                                                                     *)
+(*  Luc Maranget, projet PARA, INRIA Rocquencourt                      *)
+(*                                                                     *)
+(*  Copyright 1998 Institut National de Recherche en Informatique et   *)
+(*  Automatique.  Distributed only by permission.                      *)
+(*                                                                     *)
+(***********************************************************************)
+
+let header = "$Id: latexmain.ml,v 1.17 1998-07-21 10:03:20 maranget Exp $" 
+
 open Parse_opts
 
 let finalize () =
