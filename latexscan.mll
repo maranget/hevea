@@ -848,8 +848,7 @@ rule  main = parse
      {let lxm = lexeme lexbuf in
      let arg = Save.input_arg lexbuf in
      let filename =
-       if lxm = "\\bibliography" then
-         (Filename.chop_extension (Location.get ())^".bbl")
+       if lxm = "\\bibliography" then Location.get_base ()^".bbl"
        else arg in
      begin try input_file main filename
      with Not_found ->

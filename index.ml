@@ -9,7 +9,7 @@ let rec comp l1 l2 = match l1,l2 with
      if t=0 then comp r1 r2 else t
 ;;
 
-type key = (string * string) list
+type key = string list * string * string
 ;;
 
 let  pretty_one_key = function
@@ -31,7 +31,7 @@ let read_index lexbuf =
       let me = Entry.entry lexbuf in
       let s1,s2 = me in
       me::get_rec ()
-    with Entry.Over (a,b) ->  [a,b] in
+    with Entry.Over (a,b) ->  [a],b in
   get_rec ()
 ;;
 
@@ -62,20 +62,25 @@ let newindex tag suf name =
   let filename = basename^"."^suf in
   let idxstruct =
     if !read_idx then begin
-      if !verbose > 0 then
-        prerr_endline ("Attempting to open file: "^filename) ;
       try      
-        let chan = open_in filename in
+        let fullname,chan = Myfiles.open_tex filename in
         let lexbuf = Lexing.from_channel chan in
         let rec do_rec () = try
             let arg = Entry.idx lexbuf in
             let k = read_index (Lexing.from_string arg) in
             k::do_rec ()
           with Entry.Fini -> [] in
-        Yes (Array.of_list (do_rec ()))     
-      with  _ -> begin
-        prerr_endline ("Cannot read file: "^filename^", I try to manage") ;
+        let r = do_rec () in
+        if !verbose > 0 then
+          prerr_endline ("Index file: "^fullname^" succesfully read");
+        Yes (Array.of_list r)     
+      with  Myfiles.Error msg -> begin
+        prerr_endline ("Index: "^msg^", I try to manage") ;
         No end
+      | Myfiles.Except -> begin
+        if !verbose > 0 then
+          prerr_endline ("Not reading file: "^filename);
+        No end      
       end else No in
   let all = ref empty
   and table = Hashtbl.create 17
@@ -86,15 +91,19 @@ let newindex tag suf name =
 
 let treat tag arg =
   try
-    prerr_endline ("Index.treat: "^arg) ;
+    if !verbose > -1 then prerr_endline ("Index.treat with arg: "^arg) ;
     let name,all,table,count,idxstruct = Hashtbl.find itable tag in
     let lexbuf = Lexing.from_string arg in
     let key = read_index lexbuf in
     let key = match idxstruct with
       No -> key
-    | Yes t -> t.(!count) in
-    if !verbose > 2 then
-      prerr_endline ("Treat index: "^pretty_key key) ;
+    | Yes t ->
+       if !count >= Array.length t then key
+       else
+         let nkey = t.(!count) in
+         if fst nkey = fst key then nkey else key in
+    if !verbose > -1 then
+      prerr_endline ("Treat index with key : "^pretty_key key) ;
     let label = ("@"^tag^string_of_int !count) in
     Html.loc_name label "" ;
     Hashtbl.add table key (label,!count) ;

@@ -29,6 +29,7 @@ let do_open_tex filename =
         let full_name = Filename.concat dir filename in
         if !verbose > 1 then prerr_endline ("Trying: "^full_name) ;
         let r = open_in full_name in
+        if !verbose > 1 then prerr_endline ("Opening: "^full_name) ;
         raise (Found (full_name,r))
       with Sys_error _ -> ())
     tex_path ;

@@ -46,7 +46,7 @@ let main () =
 
     do_rec !files ;
 
-    let basename = match texfile with "" -> ""
+    let basename = match texfile with "" -> "zorglub"
       | _ -> Filename.chop_suffix texfile ".tex" in
 
     Location.set_base basename ;

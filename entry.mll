@@ -13,7 +13,8 @@ and put_char c =
 let nesting = ref 0
 ;;
 
-exception Over of string * string
+type end = Bang of string | Arobas of string | Bar of string 
+| Eof of string
 ;;
 
 exception Fini
@@ -27,15 +28,12 @@ rule entry = parse
     {put_char '!' ; entry lexbuf}
 | "\"@"
     {put_char '@' ; entry lexbuf}
-| eof {raise (Over (Out.to_string buff,""))}
-| '!'
-    {Out.to_string buff,""}
-| '@'
-    {let name = Out.to_string buff in
-    try
-      let pretty,_ = entry lexbuf in
-      name,pretty
-    with Over (s,_) -> raise (Over (name,s))}
+| "\"|"
+    {put_char '|' ; entry lexbuf}
+| '!' {Bang   (Out.to_string buff)}
+| '@' {Arobas (Out.to_string buff)}
+| '|' {Bar (Out.to_string buff)}
+| eof {Eof (Out.to_string buff)}
 | _
    {let lxm = lexeme_char lexbuf 0 in put_char lxm ; entry lexbuf}      
 
@@ -44,8 +42,9 @@ and idx = parse
   "\\indexentry"
      {let x = Save.arg lexbuf in
      let _ = Save.arg lexbuf in
+     prerr_endline ("Index entry: "^x) ;
      x}
 | eof {raise Fini}
-| _ {idx lexbuf}
+| _   {idx lexbuf}
 
 
