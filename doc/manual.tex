@@ -40,7 +40,6 @@
 \author{Luc Maranget\thanks{Inria Rocquencourt -- BP 105, 78153 Le
 Chesnay Cedex. {\tt \mailto{Luc.Maranget@inria.fr}}}}
 \date{}
-
 \begin{document}
 
 \maketitle
@@ -576,7 +575,7 @@ in \hevea{} source code.
 However, most of these macro definitions can be overridden by a
 redefinition.
 There remains a small number of macros that cannot be changed.
-They either are \hevea{} internal macros that finally output {\html}
+They are either \hevea{} internal macros that finally output {\html},
 or \LaTeX{} core macros and environments, such as \verb+\newcounter+
 or \verb+array+.
 If you attempt to define or redefine these macros, nothing should happen.
@@ -1402,15 +1401,17 @@ Then, you should insert a \verb+\cutdef+ at chapter start and a
 \verb+\cutend+ at chapter end:
 \begin{verbatim}
 \chapter{A long chapter}
-\cutdef[1]{section}
+%HEVEA\cutdef[1]{section}
 .....
-\cutend
+%HEVEA\cutend
 \chapter{The next chapter}
 \end{verbatim}
 The macro \verb+section+ already performs the appropriate
 \verb+\cuthere{section}{...}+ commands. As a consequence, the file
 that would otherwise contain the long chapter now contains the chapter
 title and a table of sections.
+(Also not that cutting macros are placed into \verb+%HEVEA+ comments,
+for \LaTeX{} not to be disturbed).
 
 The \verb+\cuthere+ macro can be used to put some document parts into
 their own file.
@@ -1437,6 +1438,9 @@ unit by typing:
 \begin{abstract} A big abstract \end{abstract}
 ...
 \end{verbatim}
+(Note that, this time, cutting macros appear unprotected in the
+source. However, \LaTeX{} still can process the document, since the
+\filename{html} package is loaded).
 
 \setcounter{section}{0}
 \renewcommand{\thesection}{\thepart.\arabic{section}}
@@ -2107,10 +2111,10 @@ commands are ignored.
 
 \section{Lengths, Spaces and Boxes}
 \subsection{Length}
-All length are ignored, things go smoothly when \LaTeX{} syntax is
+All lengths are ignored, things go smoothly when \LaTeX{} syntax is
 used (using the \verb+\newlength+, \verb+\setlength+, etc. commands
 which are null macros).
-Of course, if length are really important to the document, rendering
+Of course, if lengths are really important to the document, rendering
 will be poor.
 
 Note that \TeX{} length syntax is not at all recognized. As a
@@ -2125,10 +2129,10 @@ The \verb+\hspace+, \verb+\vspace+ and \verb+\addvspace+ spacing
 commands and their
 starred versions do nothing but issuing a warning.
 
-It is so because \hevea{} cannot interpret length arguments.  When a
+This is so because \hevea{} cannot interpret length arguments.  When a
 document uses these commands once or always with similar arguments,
 users can redefine them to output the desired amount of non-breaking
-spaces or line-skips (which can be none of course). 
+spaces or line-skips (which can be none, of course). 
 
 
 However, spacing commands without arguments are recognized.
@@ -2142,7 +2146,7 @@ Strechable lengths do not exist, thus the \verb+\hfill+ and
 
 \subsection{Boxes}
 
-Box contents in typeset in text mode (i.e., non-math and non-display
+Box contents is typeset in text mode (i.e., non-math and non-display
 mode).
 Both \LaTeX{} boxing commands \verb+\mbox+ and \verb+\makebox+
 commands exist.
