@@ -11,7 +11,7 @@
 
 open Misc
 
-let header = "$Id: auxx.ml,v 1.4 1999-11-08 12:58:05 maranget Exp $" 
+let header = "$Id: auxx.ml,v 1.5 1999-12-13 16:18:40 maranget Exp $" 
 
 let rtable = Hashtbl.create 17
 ;;
@@ -66,7 +66,7 @@ and finalize check =
   | Some file ->
       close_out file ;
       if not !something then
-        Sys.remove !auxname;
+        Myfiles.remove !auxname;
       if check then begin
         let check_disappear table seen =
           Hashtbl.iter

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: index.ml,v 1.33 1999-11-05 19:01:52 maranget Exp $"
+let header = "$Id: index.ml,v 1.34 1999-12-13 16:18:42 maranget Exp $"
 open Misc
 open Parse_opts
 open Entry
@@ -359,7 +359,7 @@ let finalize check =
           let idxname = index_filename idx.sufin in
           try
             if Array.length entries = 0 then
-              Sys.remove idxname 
+              Myfiles.remove idxname 
             else begin
               let chan = open_out idxname in
               Out.to_chan chan idx.out ;

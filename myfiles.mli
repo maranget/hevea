@@ -15,3 +15,5 @@ exception Except
 val open_tex : string -> string * in_channel
 val find : string -> string
 val changed : string -> string -> bool
+val rename : string -> string -> unit
+val remove : string -> unit

@@ -10,7 +10,7 @@
 (***********************************************************************)
 
 
-let header = "$Id: info.ml,v 1.20 1999-12-07 16:12:16 maranget Exp $"
+let header = "$Id: info.ml,v 1.21 1999-12-13 16:18:43 maranget Exp $"
 
 open Misc
 open Text
@@ -119,9 +119,6 @@ let finalize check =
     InfoRef.set_out out_chan;
     InfoRef.set_out_file Parse_opts.name_out;
     InfoRef.main buf;
-  (* deuxieme passe sur le fichier *)
-(*    if Parse_opts.name_out <> "" then Sys.remove (Parse_opts.name_out^".tmp")
-*)
   end else
     Text.finalize check
 ;;

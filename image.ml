@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: image.ml,v 1.21 1999-12-01 19:04:35 maranget Exp $" 
+let header = "$Id: image.ml,v 1.22 1999-12-13 16:18:40 maranget Exp $" 
 open Misc
 
 let base = Parse_opts.base_out
@@ -92,12 +92,12 @@ let finalize check =
     if check then begin
       let true_name = Filename.chop_suffix tmp_name ".new" in
       if Myfiles.changed tmp_name true_name then begin
-        Sys.rename tmp_name true_name ;
+        Myfiles.rename tmp_name true_name ;
         Misc.message
           ("HeVeA Warning: images may have changed, run ``imagen "^base^"''");
         true
       end else begin
-        Sys.remove tmp_name ;
+        Myfiles.remove tmp_name ;
         false
       end
     end else

@@ -10,7 +10,7 @@
 (***********************************************************************)
 
 {
-let header = "$Id: infoRef.mll,v 1.17 1999-12-07 16:12:17 maranget Exp $"
+let header = "$Id: infoRef.mll,v 1.18 1999-12-13 16:18:43 maranget Exp $"
 ;;
 
 
@@ -354,7 +354,7 @@ rule main = parse
   if List.length !files = 1 then begin
     affiche_tag_table_un Parse_opts.name_out;
     Out.close !out_cur;
-    Sys.rename !cur_file Parse_opts.name_out;
+    Myfiles.rename !cur_file Parse_opts.name_out;
   end else begin
     Out.close !out_cur;
     affiche_tag_table ();

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: myfiles.ml,v 1.20 1999-12-01 19:04:49 maranget Exp $" 
+let header = "$Id: myfiles.ml,v 1.21 1999-12-13 16:18:45 maranget Exp $" 
 open Misc
 
 exception Error of string
@@ -158,4 +158,14 @@ let changed tmp_name name =
     close_in tmp_chan ;
     r
   with Sys_error _ -> true
+
+(* handle windows/Unix dialectic => no error when s2 exists *)
+let rename s1 s2 =
+  if Sys.file_exists s2 then
+    Sys.remove s2 ;
+  Sys.rename s1 s2
+
+let remove s =
+  if Sys.file_exists s then
+    Sys.remove s
 
