@@ -1,7 +1,5 @@
-\@beginpackage{keyval}
 \@primitives{keyval}
 \newcommand{\setkeys}[2]
 {\begin{toimage}
 \setkeys{#1}{#2}
 \end{toimage}\@setkeys{#1}{#2}}
-\@endpackage{keyval}

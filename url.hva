@@ -1,4 +1,3 @@
-\@beginpackage{url}
 \@primitives{url}%
 \def\@urlttstyle{\texdef\UrlFont{\ttfamily}}%
 \def\@urlsfstyle{\texdef\UrlFont{\sffamily}}%
@@ -7,9 +6,4 @@
 \urlstyle{tt}%
 \def\url{\begingroup\urlstyle{tt}\Url}%
 \let\UrlLeft\relax\let\UrlRight\relax%
-\@endpackage{url}
-%%% Pour plus tard
-\texdef\url{\begingroup
-\texdef\UrlLeft##1\UrlRight{{\@nostyle\@print{<A HREF="}##1\@print{">}}##1{\@nostyle\@print{</A>}}}%
-\urlstyle{tt}%
-\Url}
+

@@ -1,4 +1,9 @@
-\@beginpackage{comment}
-\@initprimitives{comment}
+\@primitives{comment}
+\def\CommentCutFile{comment.cut}
+\newcommand{\includecomment}[1]
+{\typeout{Include comment '#1'}\texlet{\csname #1\endcsname}\@includecomment%
+\texlet{\csname end#1\endcsname}\end@includecomment}
+\newcommand{\excludecomment}[1]
+{\typeout{Exclude comment '#1'}\texlet{\csname #1\endcsname}\@excludecomment%
+\texlet{\csname end#1\endcsname}\end@excludecomment}
 \excludecomment{comment}
-\@endpackage{comment}

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlCommon.ml,v 1.16 2000-01-21 18:48:42 maranget Exp $" 
+let header = "$Id: htmlCommon.ml,v 1.17 2000-01-25 20:53:56 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -146,10 +146,12 @@ type saved_out = status * stack_item Stack.saved
 let save_out () = !cur_out, Stack.save out_stack
 and restore_out (a,b) =
   if !cur_out != a then begin
+    Out.debug stderr !cur_out.out ;
     free !cur_out ;
-    Stack.finalize out_stack b
+    Stack.finalize out_stack
+      (fun x -> x == a)
       (function
-        | Normal (_,_,out) -> free out
+        | Normal (_,_,out) -> Out.debug stderr out.out ; free out
         | _ -> ())
   end ;  
   cur_out := a ;
@@ -406,23 +408,41 @@ let check_stack what =
   end
 ;;
 
-let check_stacks () =
-  check_stack stacks.s_table_inside ;
-  check_stack stacks.s_saved_inside ;
-  check_stack stacks.s_in_math ;
-  check_stack stacks.s_ncols ;
-  check_stack stacks.s_empty ;
-  check_stack stacks.s_blank ;
-  check_stack stacks.s_pending_par ;
-  check_stack stacks.s_vsize ;
-  check_stack stacks.s_nrows ;
-  check_stack stacks.s_table_vsize ;
-  check_stack stacks.s_nitems ;
-  check_stack stacks.s_dt ;
-  check_stack stacks.s_dcount ;
-  check_stack stacks.s_insert ;
-  check_stack stacks.s_active ;
-  check_stack stacks.s_after
+let check_stacks () = match stacks with
+{
+  s_table_inside = s_table_inside ;
+  s_saved_inside = s_saved_inside ;
+  s_in_math = s_in_math ;
+  s_ncols = s_ncols ;
+  s_empty = s_empty ;
+  s_blank = s_blank ;
+  s_pending_par = s_pending_par ;
+  s_vsize = s_vsize ;
+  s_nrows = s_nrows ;
+  s_table_vsize = s_table_vsize ;
+  s_nitems = s_nitems ;
+  s_dt = s_dt ;
+  s_dcount = s_dcount ;
+  s_insert = s_insert ;
+  s_active = s_active ;
+  s_after = s_after
+}  ->  
+  check_stack s_table_inside ;
+  check_stack s_saved_inside ;
+  check_stack s_in_math ;
+  check_stack s_ncols ;
+  check_stack s_empty ;
+  check_stack s_blank ;
+  check_stack s_pending_par ;
+  check_stack s_vsize ;
+  check_stack s_nrows ;
+  check_stack s_table_vsize ;
+  check_stack s_nitems ;
+  check_stack s_dt ;
+  check_stack s_dcount ;
+  check_stack s_insert ;
+  check_stack s_active ;
+  check_stack s_after
 
 (*
   Full state saving

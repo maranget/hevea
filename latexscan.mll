@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.158 2000-01-21 18:48:51 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.159 2000-01-25 20:54:04 maranget Exp $ *)
 
 
 {
@@ -28,6 +28,7 @@ module type S =
     val top_open_block : string -> string -> unit
     val top_close_block : string -> unit
     val check_alltt_skip : Lexing.lexbuf -> unit
+    val skip_pop : Lexing.lexbuf -> unit
     val def_fun : string -> (string -> string) -> unit
     val def_print : string -> string -> unit
     val get_this_main : string -> string
@@ -1261,6 +1262,10 @@ let check_alltt_skip lexbuf =
     push stack_alltt false ;
     skip_blanks lexbuf
   end
+and skip_pop lexbuf =
+  save_lexstate () ;
+  skip_blanks_pop lexbuf ;
+  restore_lexstate ()
 ;;
 
 let get_this_main arg = get_this main arg

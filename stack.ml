@@ -48,20 +48,16 @@ let empty_saved = []
 and save {l=l} = l
 and restore s x = s.l <- x
 
-let finalize {l=now ;  name=name} to_restore f =
-  let rec f_rec n r = match n,r with
-  | [],[] -> ()
-  | [],_  ->
-      raise (Fatal ("finalize: "^name))
-  | nx::n, [] ->
-      f nx ;
-      f_rec r []
-  | nx::n, rx::r ->
-      if nx == rx then ()
+let finalize {l=now ;  name=name} p f =
+
+  let rec f_rec = function
+    | [] -> ()
+    | nx::n -> 
+      if p nx  then ()
       else begin
         f nx ;
-        f_rec n r
+        f_rec n
       end  in
-  f_rec now to_restore
+  f_rec now
 
   

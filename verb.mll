@@ -66,7 +66,8 @@ and scan_byline = parse
       !finish () ;
       scan_this Scan.main ("\\end"^env) ;
       Scan.top_close_block "" ;
-      Scan.close_env !Scan.cur_env
+      Scan.close_env !Scan.cur_env ;
+      Scan.check_alltt_skip lexbuf
     end else begin
       Out.put line_buff lxm ;
       scan_byline lexbuf
@@ -78,10 +79,10 @@ and scan_byline = parse
     Out.put_char line_buff lxm ;
     scan_byline lexbuf}
 | eof
-    {if not (Stack.empty stack_lexbuf) then
+    {if not (Stack.empty stack_lexbuf) then begin
       let lexbuf = previous_lexbuf () in
       scan_byline lexbuf
-    else
+    end else
       raise
         (Eof "scan_byline")}
 
@@ -173,6 +174,20 @@ let open_forget lexbuf =
 
 and close_forget _ = ()
 
+let open_tofile chan lexbuf =
+  process :=
+     (fun () ->
+       output_string chan (Out.to_string line_buff) ;
+       output_char chan '\n') ;
+  finish :=
+     (fun () ->
+       output_string chan (Out.to_string line_buff) ;
+       close_out chan) ;
+  noeof lexbuf
+
+and close_tofile lexbuf = ()
+
+
 let put_line_buff_image () =
   Out.iter (fun c -> Image.put_char c) line_buff ;
   Out.reset line_buff
@@ -211,7 +226,7 @@ def_code "\\verbatim*"
 def_code "\\endverbatim*" close_verbenv ;
 
 def_code "\\rawhtml" open_rawhtml ;
-def_code "\\endrawhtml" Scan.check_alltt_skip  ;
+def_code "\\endrawhtml" close_forget ;
 def_code "\\verblatex" open_forget ; 
 def_code "\\endverblatex" Scan.check_alltt_skip ;
 def_code "\\verbimage" open_verbimage ; 
@@ -233,14 +248,17 @@ def_code "\\verbatiminput*"
       open_verbenv true ;
       verb_input name ;
       close_verbenv lexbuf) ;
-def_code "\\comment"  open_forget ;
-def_code "\\endcomment" Scan.check_alltt_skip ;
+(* comment clashes with the ``comment'' package *)
+silent_def "\\comment"  0 (CamlCode open_forget) ;
+silent_def "\\endcomment" 0 (CamlCode Scan.check_alltt_skip) ;
 ()
 ;;
 
 register_init "verbatim" init_verbatim 
 ;;
 
+
+(* The moreverb package *)
 let tab_val = ref 8
 
 let put_verb_tabs () =
@@ -315,15 +333,8 @@ register_init "moreverb"
       let name = Scan.get_prim_arg lexbuf in
       Scan.check_alltt_skip lexbuf ;
       let chan = open_out name in
-      process :=
-         (fun () ->
-           output_string chan (Out.to_string line_buff) ;
-           output_char chan '\n') ;
-      finish :=
-         (fun () ->
-           output_string chan (Out.to_string line_buff) ;
-           close_out chan) ;
-      noeof lexbuf) ;
+      open_tofile chan lexbuf) ;
+
   def_code "\\endverbatimwrite" Scan.check_alltt_skip ;
     
   def_code "\\verbatimtab"
@@ -369,7 +380,6 @@ register_init "moreverb"
 
   def_code "\\listingcont"
     (fun lexbuf ->
-      Scan.check_alltt_skip lexbuf ;
       open_listing !line !interval false ;
       noeof lexbuf) ;
   def_code "\\endlistingcont" close_listing ;
@@ -391,12 +401,31 @@ register_init "moreverb"
   def_code "\\endlistingcont*" close_listing ;
   ())
 
+(* The comment package *)
+
+let init_comment () =
+  def_code "\\@excludecomment" open_forget ;
+  def_code "\\end@excludecomment"  Scan.check_alltt_skip ;
+  def_code "\\@includecomment" 
+    (fun lexbuf ->
+      Scan.skip_pop lexbuf ;
+      let filename = Scan.get_prim "\\CommentCutFile" in      
+      let chan = open_out filename in
+      open_tofile chan lexbuf) ;
+  def_code "\\end@includecomment"
+    (fun lexbuf ->
+      close_tofile lexbuf ;
+      let filename =  Scan.get_prim "\\CommentCutFile" in
+      let saved_env = !Scan.cur_env in
+      Scan.top_close_block "" ;
+      Scan.close_env saved_env ;
+      input_file !verbose Scan.main filename ;
+      Scan.new_env saved_env ;
+      Scan.top_open_block "" "")
+;;
+
+register_init "comment" init_comment      
+;;    
+
 end
 } 
-
-
-
-
-
-
-

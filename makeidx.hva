@@ -1,4 +1,3 @@
-\@beginpackage{makeidx}
 \@primitives{index}
 \newsavebox{\@indexbox}
 \newcommand{\index}[1]
@@ -11,4 +10,3 @@
 \newcommand{\@seename}{\iffrench voir\else see\fi}
 \newcommand{\see}[2]{\@seename\ \textit{#1}}
 \newcommand{\indexspace}{\par}
-\@endpackage{makeidx}

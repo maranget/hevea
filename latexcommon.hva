@@ -273,10 +273,10 @@
 % Images     %
 %%%%%%%%%%%%%%
 \newcounter{image}
-\newcommand{\heveaimage}{.gif}
+\newcommand{\heveaimageext}{.gif}
 \renewcommand{\theimage}{\@arabic{image}}
 \newcommand{\imageflush}[1][]
-{\@imageflush\stepcounter{image}\imgsrc[#1]{\jobname\theimage\heveaimage}}
+{\@imageflush\stepcounter{image}\imgsrc[#1]{\jobname\theimage\heveaimageext}}
 %%%%%%%%%% Compatibility with old hevea \url
 \AtBeginDocument{\@ifundefined{url}{\input{compat.hva}}{}}
 %%%%%%%%% Time stuff

@@ -1,4 +1,3 @@
-\@beginpackage{index}
 %% Indexes a` la index.sty
 \@primitives{index}
 \newsavebox{\@indexbox}
@@ -16,4 +15,3 @@
 \newcommand{\see}[2]{\@seename\ \textit{#1}}
 \newcommand{\indexspace}{\par}
 \newcommand{\@vwritefile}[2]{}
-\@endpackage{index}

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.38 2000-01-21 18:49:04 maranget Exp $"
+let header = "$Id: text.ml,v 1.39 2000-01-25 20:54:16 maranget Exp $"
 
 
 open Misc
@@ -197,8 +197,24 @@ let newstatus nostyle p a t = match !free_list with
     e
 ;;
 
-type align_t = Left | Center | Right ;;
+type saved_out = status * stack_item Stack.saved
 
+let save_out () = !cur_out, Stack.save out_stack
+
+and restore_out (a,b) =
+  if !cur_out != a then begin
+    free !cur_out ;
+    Stack.finalize out_stack b
+      (function
+        | Normal (_,_,out) -> if out.temp then free out
+        | _ -> ())
+  end ;  
+  cur_out := a ;
+  Stack.restore out_stack b
+
+let line = String.create (!Parse_opts.width +2);;
+
+type align_t = Left | Center | Right
 
 type flags_t = {
     mutable pending_par : int option;
@@ -247,30 +263,182 @@ let flags = {
   vsize = 0;
 } ;;
 
-let line = String.create (!Parse_opts.width +2);;
+let copy_flags f = {f with vsize = flags.vsize}
 
-let nitems_stack = Stack.create "nitems_stack";;
-let dt_stack = Stack.create "dt_stack";;
-let dcount_stack = Stack.create "dcount_stack";;
-let x_stack = Stack.create "x_stack";;
-let line_stack = Stack.create "line_stack";;
-let align_stack = Stack.create "align_stack";;
-let in_align_stack = Stack.create "in_align_stack";;
-let underline_stack = Stack.create "underline_stack";;
-let in_table_stack = Stack.create "in_table_stack";;
+and set_flags f {
+  pending_par = pending_par ;
+  empty = empty ;
+  nitems = nitems ;
+  dt = dt ;
+  dcount = dcount ;
+  last_closed = last_closed ;
+  align = align ;
+  in_align = in_align ;
+  hsize = hsize ;
+  x = x ;
+  x_start = x_start ;
+  x_end = x_end ;
+  last_space = last_space ;
+  first_line = first_line ;
+  underline = underline ;
+  in_table = in_table ;
+  vsize = vsize
+}  =
+  f.pending_par <- pending_par ;
+  f.empty <- empty ;
+  f.nitems <- nitems ;
+  f.dt <- dt ;
+  f.dcount <- dcount ;
+  f.last_closed <- last_closed ;
+  f.align <- align ;
+  f.in_align <- in_align ;
+  f.hsize <- hsize ;
+  f.x <- x ;
+  f.x_start <- x_start ;
+  f.x_end <- x_end ;
+  f.last_space <- last_space ;
+  f.first_line <- first_line ;
+  f.underline <- underline ;
+  f.in_table <- in_table ;
+  f.vsize <- vsize
 
-let vsize_stack = Stack.create "vsize_stack";;
-let delay_stack = Stack.create "delay_stack";;
-let after_stack = Stack.create "after_stack";;
 
-let active_stack = Stack.create "Html.active"
+type stack_t = {
+  s_nitems : int Stack.t ;
+  s_dt : string Stack.t ;
+  s_dcount : string Stack.t ;
+  s_x : (int * int * int * int * int * int) Stack.t ;
+  s_align : align_t Stack.t ;
+  s_in_align : bool Stack.t ;
+  s_underline : string Stack.t ;
+  s_in_table : bool Stack.t ;
+  s_vsize : int Stack.t ;
+  s_active : Out.t Stack.t ;
+  s_after : (string -> string) Stack.t
+} 
+
+let stacks = {
+  s_nitems = Stack.create "nitems" ;
+  s_dt = Stack.create "dt" ;
+  s_dcount = Stack.create "dcount" ;
+  s_x = Stack.create "x" ;
+  s_align = Stack.create "align" ;
+  s_in_align = Stack.create "in_align" ;
+  s_underline = Stack.create "underline" ;
+  s_in_table = Stack.create "in_table" ;
+  s_vsize = Stack.create "vsize" ;
+  s_active = Stack.create "active" ;
+  s_after = Stack.create "after"
+} 
+
+type saved_stacks = {
+  ss_nitems : int Stack.saved ;
+  ss_dt : string Stack.saved ;
+  ss_dcount : string Stack.saved ;
+  ss_x : (int * int * int * int * int * int) Stack.saved ;
+  ss_align : align_t Stack.saved ;
+  ss_in_align : bool Stack.saved ;
+  ss_underline : string Stack.saved ;
+  ss_in_table : bool Stack.saved ;
+  ss_vsize : int Stack.saved ;
+  ss_active : Out.t Stack.saved ;
+  ss_after : (string -> string) Stack.saved
+} 
+
+let save_stacks () =
+{
+  ss_nitems = Stack.save stacks.s_nitems ;
+  ss_dt = Stack.save stacks.s_dt ;
+  ss_dcount = Stack.save stacks.s_dcount ;
+  ss_x = Stack.save stacks.s_x ;
+  ss_align = Stack.save stacks.s_align ;
+  ss_in_align = Stack.save stacks.s_in_align ;
+  ss_underline = Stack.save stacks.s_underline ;
+  ss_in_table = Stack.save stacks.s_in_table ;
+  ss_vsize = Stack.save stacks.s_vsize ;
+  ss_active = Stack.save stacks.s_active ;
+  ss_after = Stack.save stacks.s_after
+}
+
+and restore_stacks 
+{
+  ss_nitems = saved_nitems ;
+  ss_dt = saved_dt ;
+  ss_dcount = saved_dcount ;
+  ss_x = saved_x ;
+  ss_align = saved_align ;
+  ss_in_align = saved_in_align ;
+  ss_underline = saved_underline ;
+  ss_in_table = saved_in_table ;
+  ss_vsize = saved_vsize ;
+  ss_active = saved_active ;
+  ss_after = saved_after
+} =
+  Stack.restore stacks.s_nitems saved_nitems ;
+  Stack.restore stacks.s_dt saved_dt ;
+  Stack.restore stacks.s_dcount saved_dcount ;
+  Stack.restore stacks.s_x saved_x ;
+  Stack.restore stacks.s_align saved_align ;
+  Stack.restore stacks.s_in_align saved_in_align ;
+  Stack.restore stacks.s_underline saved_underline ;
+  Stack.restore stacks.s_in_table saved_in_table ;
+  Stack.restore stacks.s_vsize saved_vsize ;
+  Stack.restore stacks.s_active saved_active ;
+  Stack.restore stacks.s_after saved_after
+
+let check_stack what =
+  if not (Stack.empty what)  && not !silent then begin
+    prerr_endline
+      ("Warning: stack "^Stack.name what^" is non-empty in Html.finalize") ;
+  end
+;;
+
+let check_stacks () = match stacks with
+{
+  s_nitems = nitems ;
+  s_dt = dt ;
+  s_dcount = dcount ;
+  s_x = x ;
+  s_align = align ;
+  s_in_align = in_align ;
+  s_underline = underline ;
+  s_in_table = in_table ;
+  s_vsize = vsize ;
+  s_active = active ;
+  s_after = after
+} ->
+  check_stack nitems ;
+  check_stack dt ;
+  check_stack dcount ;
+  check_stack x ;
+  check_stack align ;
+  check_stack in_align ;
+  check_stack underline ;
+  check_stack in_table ;
+  check_stack vsize ;
+  check_stack active ;
+  check_stack after
+
+type saved = flags_t * saved_stacks * saved_out
+
+let check () =
+  let saved_flags = copy_flags flags
+  and saved_stacks = save_stacks ()
+  and saved_out = save_out () in
+  saved_flags, saved_stacks, saved_out
+
+  
+and hot (f,s,o) =
+  set_flags flags f ;
+  restore_stacks s ;
+  restore_out o
 
 let stop () =
-  Stack.push active_stack !cur_out.out ;
+  Stack.push stacks.s_active !cur_out.out ;
   !cur_out.out <- Out.create_null ()
 
 and restart () =
-  !cur_out.out <- Stack.pop active_stack
+  !cur_out.out <- Stack.pop stacks.s_active
 
 let do_do_put_char c =
   Out.put_char !cur_out.out c;;
@@ -551,23 +719,25 @@ let try_open_block s args =
   if !verbose > 2 then
     prerr_endline ("=> try_open ``"^s^"''");
 
-  push x_stack (flags.hsize,flags.x,flags.x_start,flags.x_end,flags.first_line,flags.last_space);
+  push stacks.s_x
+    (flags.hsize,flags.x,flags.x_start,flags.x_end,
+    flags.first_line,flags.last_space);
 
   if is_list s then begin
     do_put_char '\n';
-    push nitems_stack flags.nitems;
+    push stacks.s_nitems flags.nitems;
     flags.nitems <- 0;
     flags.x_start <- flags.x_start + 3;
     flags.first_line <- -2;    
     flags.hsize <- flags.x_end - flags.x_start+1;
     
     if not flags.in_align then begin
-      push align_stack flags.align;
+      push stacks.s_align flags.align;
       flags.align <- Left
     end;
     if s="DL" then begin
-      push dt_stack flags.dt;
-      push dcount_stack flags.dcount;
+      push stacks.s_dt flags.dt;
+      push stacks.s_dcount flags.dcount;
       flags.dt <- "";
       flags.dcount <- "";
     end;
@@ -575,8 +745,8 @@ let try_open_block s args =
   | "ALIGN" ->
       begin
 	finit_ligne ();	
-	push align_stack flags.align;
-	push in_align_stack flags.in_align;
+	push stacks.s_align flags.align;
+	push stacks.s_in_align flags.in_align;
 	flags.in_align<-true;
 	flags.first_line <-2;
 	match args with
@@ -589,14 +759,14 @@ let try_open_block s args =
       begin
 	finit_ligne ();
 	flags.first_line <-0 ;
-	push underline_stack flags.underline;
+	push stacks.s_underline flags.underline;
 	flags.underline <- args;
       end
   | "QUOTE" ->
       begin
 	finit_ligne ();
-	push align_stack flags.align;
-	push in_align_stack flags.in_align;
+	push stacks.s_align flags.align;
+	push stacks.s_in_align flags.in_align;
 	flags.in_align<-true;
 	flags.align <- Left;
 	flags.first_line<-0;
@@ -606,8 +776,8 @@ let try_open_block s args =
   | "QUOTATION" ->
       begin
 	finit_ligne ();
-	push align_stack flags.align;
-	push in_align_stack flags.in_align;
+	push stacks.s_align flags.align;
+	push stacks.s_in_align flags.in_align;
 	flags.in_align<-true;
 	flags.align <- Left;
 	flags.first_line<-2;
@@ -628,7 +798,7 @@ let try_open_block s args =
 ;;
     
 let try_close_block s =
-  let (h,x,xs,xe,fl,lp) = pop x_stack in
+  let (h,x,xs,xe,fl,lp) = pop stacks.s_x in
   flags.hsize<-h; 
   flags.x_start<-xs;
   flags.x_end<-xe;
@@ -638,27 +808,27 @@ let try_close_block s =
   if (is_list s) then begin
     finit_ligne();
     if not flags.in_align then begin
-      let a = pop align_stack in
+      let a = pop stacks.s_align in
       flags.align <- a
     end;
-    flags.nitems <- pop  nitems_stack;
+    flags.nitems <- pop  stacks.s_nitems;
     if s="DL" then begin
-      flags.dt <- pop dt_stack;
-      flags.dcount <- pop dcount_stack;
+      flags.dt <- pop stacks.s_dt;
+      flags.dcount <- pop stacks.s_dcount;
     end;
   end else match s with
   | "ALIGN" | "QUOTE" | "QUOTATION" ->
       begin
 	finit_ligne ();
-	let a = pop align_stack in
+	let a = pop stacks.s_align in
 	flags.align <- a;
-	let ia = pop  in_align_stack in
+	let ia = pop  stacks.s_in_align in
 	flags.in_align <- ia;
       end
   | "HEAD" ->
       begin
 	finit_ligne();
-	let u = pop underline_stack in
+	let u = pop stacks.s_underline in
 	flags.underline <- u
       end
   | "PRE" ->
@@ -702,7 +872,7 @@ let force_block s content =
   if ps <>"DELAY" then begin
     cur_out:=pout;
     if ps = "AFTER" then begin
-        let f = pop after_stack in
+        let f = pop stacks.s_after in
         Out.copy_fun f old_out.out !cur_out.out          
     end else if !cur_out.temp then
       Out.copy old_out.out !cur_out.out;
@@ -812,7 +982,7 @@ let open_group ss =
 
 let open_aftergroup f =
   open_block "AFTER" "" ;
-  push after_stack f
+  push stacks.s_after f
 ;;
 
 let close_group () =
@@ -1003,9 +1173,9 @@ let open_table border htmlargs =
   push table_stack !table;
   push row_stack !row;
   push cell_stack !cell;
-  push in_table_stack flags.in_table;
+  push stacks.s_in_table flags.in_table;
   push multi_stack !multi;
-  push align_stack flags.align;
+  push stacks.s_align flags.align;
 
   if !verbose>2 then prerr_endline "=> open_table";
   
@@ -1128,8 +1298,8 @@ let open_cell format span insides =
     flags.first_line <- 0;
     flags.x <- -1;
     flags.last_space <- -1;
-    push align_stack flags.align;
-    push in_align_stack flags.in_align;
+    push stacks.s_align flags.align;
+    push stacks.s_in_align flags.in_align;
     flags.in_align <- true;
     flags.align <- Left;
   end;
@@ -1140,8 +1310,8 @@ let close_cell content =
   if !verbose>2 then prerr_endline "=> force_cell";
   if (!cell.wrap=True) then begin
     do_flush ();
-    flags.in_align <- pop in_align_stack;
-    flags.align <- pop align_stack;
+    flags.in_align <- pop stacks.s_in_align;
+    flags.align <- pop stacks.s_align;
   end;
   force_block "" content;
   !cell.text<-Out.to_string !cur_out.out;
@@ -1235,8 +1405,8 @@ and erase_cell_group () = !table.in_cell <- false;
 let erase_cell () =
   if !verbose>2 then prerr_endline "erase cell";
   if (!cell.wrap=True) then begin
-    flags.in_align <- pop in_align_stack;
-    flags.align <- pop align_stack;
+    flags.in_align <- pop stacks.s_in_align;
+    flags.align <- pop stacks.s_align;
   end;
   erase_block "";
   let _ = Out.to_string !cur_out.out in
@@ -1466,12 +1636,12 @@ let close_table () =
     done;
   done;
 
-  flags.align <- pop align_stack;
+  flags.align <- pop stacks.s_align;
   table := pop table_stack;
   row := pop row_stack;
   cell := pop cell_stack;
   multi := pop multi_stack;
-  flags.in_table <- pop in_table_stack;
+  flags.in_table <- pop stacks.s_in_table;
   close_block "";
   if not (flags.in_table) then finit_ligne ();
   if !verbose>2 then prerr_endline "<= close_table"
@@ -1861,11 +2031,3 @@ let right delim =
   vsize
 ;;
 
-
-
-type saved = int
-
-let check () =
-  warning "Hot start not implemented yet in Text" ;
-  0
-and hot _ = ()

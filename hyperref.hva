@@ -1,4 +1,3 @@
-\@beginpackage{hyperref}
 \usepackage{url}
 \@primitives{hyperref}
 \newcommand{\hyperlink}[2]{\ahref{\#{}#1}{#2}}
@@ -8,4 +7,3 @@
 \texdef\UrlLeft##1\UrlRight{\ahrefurl{##1}}%
 \urlstyle{tt}%
 \Url}
-\@endpackage{hyperref}

@@ -27,6 +27,7 @@ module type S =
     val top_open_block : string -> string -> unit
     val top_close_block : string -> unit
     val check_alltt_skip : Lexing.lexbuf -> unit
+    val skip_pop : Lexing.lexbuf -> unit
     val def_fun : string -> (string -> string) -> unit
     val def_print : string -> string -> unit
     val get_this_main : string -> string

@@ -15,9 +15,9 @@ type 'a saved
 val empty_saved : 'a saved
 val save : 'a t -> 'a saved
 val restore : 'a t -> 'a saved -> unit
-val finalize : 'a t -> 'a saved -> ('a -> unit) -> unit
+val finalize : 'a t -> ('a -> bool) -> ('a -> unit) -> unit
 (*
-  finalize now to_restore f
+  finalize now p f
     apply f to now elements until
-    to_restore top element is reached.    
+    now is empty or p  is true for one element
 *)

@@ -1,4 +1,3 @@
-\@beginpackage{color}
 \@primitives{color}
 \newcommand{\color}[2][!*!]{\@fontcolor{\@getcolor[#1]{#2}}}
 \newcommand{\textcolor}[3][!*!]{{\color[#1]{#2}#3}}
@@ -81,4 +80,3 @@
 \DefineNamedColor{named}{Gray}          {cmyk}{0,0,0,0.50}
 \DefineNamedColor{named}{Black}         {cmyk}{0,0,0,1}
 \DefineNamedColor{named}{White}         {cmyk}{0,0,0,0}
-\@endpackage{color}

@@ -1,0 +1,12 @@
+\@imagecommand{\graphicspath}{\@imagearg}
+\@imagecommand{\DeclareGraphicsExtensions}{\@imagearg}
+\@imagecommand{\DeclareGraphicsRule}
+  {\execafter\@imagearg\execafter\@imagearg\execafter\@imagearg\@imagearg}
+\@imagecommand{\scalebox}
+  {\execafter{\imageflush{}}\execafter\@imagearg\execafter\@imageopt\@imagearg}
+\@imagecommand{\resizebox}
+  {\execafter{\imageflush{}}\execafter\@imagearg\execafter\@imagearg\@imagearg}
+\@imagecommand{\resizebox*}
+  {\execafter{\imageflush{}}\execafter\@imagearg\execafter\@imagearg\@imagearg}
+\@imagecommand{\reflectbox}
+  {\execafter{\imageflush{}}\@imagearg}

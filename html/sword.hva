@@ -1,5 +1,3 @@
-\@beginpackage{sword}
 \@primitives{sword}
 \def\swEXT{.gif}  %graphics extension
 \def\swFRAME#1{\imgsrc{#1\swEXT}}
-\@endpackage{sword}

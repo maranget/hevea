@@ -271,12 +271,5 @@
 \def\textsl#1{\mbox{\slshape#1}}
 \def\textsc#1{\mbox{\scshape#1}}
 \newcommand{\emph}[1]{\mbox{\em#1}}
-%%%%%%%%%%%%%%
-% Extensions %
-%%%%%%%%%%%%%%
-%%% A few if commands
-%%% Scientific Word
-\def\swEXT{.gif}  %graphics extension
-\def\swFRAME#1{\imgsrc{#1\swEXT}}
-%%%
+%%%%%% Do not load hevea.hva again !
 \def\csname hevea@loaded\endcsname{}

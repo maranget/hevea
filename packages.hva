@@ -1,8 +1,3 @@
-\newcommand{\@beginpackage}[1]{%
-\@ifundefined{#1@loaded}{}{\endinput}
-\@stopoutput\@stopimage}
-\newcommand{\@endpackage}[1]
-{\def\csname#1@loaded\endcsname{}\@restartimage\@restartoutput\endinput}
 \newcommand{\usepackage}[2][!*!]{
 \ifthenelse{\equal{#1}{!*!}}
 {\begin{toimage}\usepackage{#2}
@@ -11,6 +6,8 @@
 \end{toimage}}%
 \@ifundefined{#2@loaded}
   {\@iffileexists{#2.hva}
-     {\input{#2.hva}}
+     {\@stopoutput\@stopimage%
+     \input{#2.hva}\def\csname#2@loaded\endcsname{}%
+     \@restartimage\@restartoutput}
      {}}
   {}}
