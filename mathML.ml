@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: mathML.ml,v 1.1 1999-06-07 17:42:52 tessaud Exp $" 
+let header = "$Id: mathML.ml,v 1.2 1999-06-09 16:25:40 tessaud Exp $" 
 
 
 open Misc
@@ -158,6 +158,7 @@ let open_display args =
   end ;
   try_open_display () ;
   open_block "mrow" "";
+  do_put_char '\n';
   open_block "" "" ;
   if !verbose > 2 then begin
     pretty_cur !cur_out ;
@@ -191,7 +192,7 @@ let close_display () =
       flags.empty <- false ; flags.blank <- false ;
       free old_out ;
       !cur_out.pending <- active @ pending
-    end else if (n=1 && flags.blank) then begin
+    end else if (n=1 (*&& flags.blank*)) then begin
       if !verbose > 2 then begin
         prerr_string "No display n=1";
         (Out.debug stderr !cur_out.out);
@@ -205,7 +206,8 @@ let close_display () =
       let old_out = !cur_out in
       cur_out := pout ;
       do_close_mods () ;
-      Out.copy_no_tag old_out.out !cur_out.out ;
+      if flags.blank then Out.copy_no_tag old_out.out !cur_out.out
+      else Out.copy old_out.out !cur_out.out;
       flags.empty <- false ; flags.blank <- false ;
       free old_out ;
       !cur_out.pending <- active @ pending
@@ -217,6 +219,7 @@ let close_display () =
       end;
       flags.empty <- flags.blank ;
       close_flow "mrow";
+      do_put_char '\n';
     end ;
     try_close_display ()
   end ;
@@ -259,15 +262,18 @@ let open_maths display =
   if !verbose > 1 then prerr_endline "=> open_maths";
   push in_math_stack flags.in_math;
   flags.in_math <- true;
+  if display then do_put "<BR>\n";
   open_block "math" "class=\"centered\"";
-  open_display ""
+  do_put_char '\n';
+  open_display "";
 ;;
 
 let close_maths display =
   if !verbose >1 then prerr_endline "=> close_maths";
   close_display ();
   flags.in_math <- pop "in_math" in_math_stack;
-  close_block "math"
+  close_block "math";
+  do_put_char '\n'
 ;;
 
 
@@ -381,9 +387,7 @@ let put s =
     do_put ("<mo> "^s^" </mo>\n");
   end else begin
     do_put s;
-    flags.ncols <- flags.ncols -1;
   end;
-  flags.ncols <- flags.ncols +1;
   if s_blank then flags.last_closed <- save_last_closed;
 ;;
 
@@ -401,9 +405,7 @@ let put_char c =
     do_put ("<mo> "^String.make 1 c^" </mo>\n");
   end else begin
     do_put_char c;
-    flags.ncols <- flags.ncols -1;
   end;
-  flags.ncols <- flags.ncols +1;
   if c_blank then flags.last_closed <- save_last_closed;
 ;;
 
@@ -413,10 +415,9 @@ let put_in_math s =
   else begin
     force_item_display ();
     do_pending () ;
-    do_put "<mi>";
+    do_put "<mi> ";
     do_put s;
-    do_put "</mi>\n";
-    flags.ncols <- flags.ncols +1;
+    do_put " </mi>\n";
     flags.empty <- false; flags.blank <- false;
   end
 ;;
@@ -460,7 +461,7 @@ let standard_sup_sub scanner what sup sub display =
       open_block "msub" "";
       open_display "";
       what ();
-      if flags.ncols = 0 then begin
+      if flags.empty then begin
 	erase_display ();
 	erase_block "msub";
 	insert_sub_sup "msub" scanner a "";
@@ -470,10 +471,10 @@ let standard_sup_sub scanner what sup sub display =
 	close_block "msub";
       end;
   | "",b ->
-   open_block "msup" "";
+      open_block "msup" "";
       open_display "";
       what ();
-      if flags.ncols = 0 then begin
+      if flags.empty then begin
 	erase_display ();
 	erase_block "msup";
 	insert_sub_sup "msup" scanner b "";
@@ -486,7 +487,7 @@ let standard_sup_sub scanner what sup sub display =
       open_block "msubsup" "";
       open_display "";
       what ();
-      if flags.ncols = 0 then begin
+      if flags.empty then begin
 	erase_display ();
 	erase_block "msubsup";
 	insert_sub_sup "msubsup" scanner a b;
@@ -515,20 +516,26 @@ let limit_sup_sub scanner what sup sub display =
 
 let int_sup_sub something vsize scanner what sup sub display =
   match sub,sup,something with
-  | "","",true -> what ()
+  | "","",true -> what (); force_item_display ();
   | "","",false -> ()
   | a,b,true -> 
       open_block "msubsup" "";
+      open_display "";
       what ();
+      close_display ();
       put_sub_sup scanner a;
       put_sub_sup scanner b;
       close_block "msubsup";
+      force_item_display ();
   | a,b,false ->
       open_block "msubsup" "";
+      open_display "";
       put "&InvisibleTimes;";
+      close_display ();
       put_sub_sup scanner a;
       put_sub_sup scanner b;
       close_block "msubsup";
+      force_item_display ();
 ;;
 
 

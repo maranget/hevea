@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.22 1999-06-07 17:42:54 tessaud Exp $"
+let header = "$Id: text.ml,v 1.23 1999-06-09 16:25:41 tessaud Exp $"
 
 
 open Misc
@@ -206,6 +206,7 @@ type flags_t = {
     mutable last_space : int;
     mutable first_line : int;
     mutable underline : string;
+  
     mutable in_table : bool
   }
 ;;
@@ -304,7 +305,7 @@ let do_flush () =
   flags.x <- -1;
 ;;
   
-let do_put_char2 c =
+let do_put_char_format c =
   if !verbose >3 then
     prerr_endline ("caracters read :"^Char.escaped c^", x="^string_of_int flags.x^", length ="^string_of_int (flags.hsize));
 
@@ -375,7 +376,7 @@ let do_put_char c =
     prerr_endline ("put_char:|"^String.escaped (String.make 1 c)^"|");
   if !cur_out.temp || (Out.is_null !cur_out.out) 
   then do_do_put_char c
-  else do_put_char2 c
+  else do_put_char_format c
 ;;
 
 let finit_ligne () =
