@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: htmltext.ml,v 1.7 2001-06-05 13:18:41 maranget Exp $          *)
+(*  $Id: htmltext.ml,v 1.8 2001-06-06 15:20:34 maranget Exp $          *)
 (***********************************************************************)
 open Emisc
 open Lexeme
@@ -60,6 +60,23 @@ let size_val = function
   | "7" -> 7
   | _   -> raise No
 
+let color_val s = match String.lowercase s with
+| "#000000" -> "black"
+| "#c0c0c0" -> "silver"
+| "#808080" -> "gray"
+| "#ffffff" -> "white"
+| "#800000" -> "maroon"
+| "#ff0000" -> "red"
+| "#800080" -> "purple"
+| "#ff00ff" -> "fuschia"
+| "#008000" -> "green"
+| "#00ff00" -> "lime"
+| "#808000" -> "olive"
+| "#000080" -> "navy"
+| "#0000ff" -> "blue"
+| "#008080" -> "teal"
+| "#00ffff" -> "aqua"
+| s -> s
 
 let same_style s1 s2 = match s1.nat, s2.nat with
 | Style t1, Style t2 -> t1=t2
@@ -151,7 +168,7 @@ let add s env =
 let add_fontattr txt ctxt a env =
   let nat = match a with
   | SIZE s  -> Size (Int (size_val s))
-  | COLOR s -> Color s
+  | COLOR s -> Color (color_val s)
   | FACE s  -> Face s
   | OTHER   -> raise No in
   add {nat=nat ; txt=txt ; ctxt=ctxt} env
