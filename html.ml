@@ -180,7 +180,16 @@ and is_color = function
 | _ -> false
 ;;
 
-let already_here x =
+let rec cur_size = function
+  [] -> 3
+| Font i::_ -> i
+| _::rest -> cur_size rest
+;;
+
+let already_here = function
+  Font i ->
+   i = cur_size  ( !cur_out.pending @ !cur_out.active )
+| x ->
   first_same x
    (match x with
      Style _ ->  is_style
@@ -301,7 +310,7 @@ let rec try_close_block s =
     let here = !empty in
     empty := here && pop empty_stack ;
     if !verbose > 1 then
-      prerr_endline (" -> "^sbool !empty);
+      prerr_string (" -> "^sbool !empty);
     if s = "TABLE" then begin
       let p_vsize = pop vsize_stack in
       vsize := max
@@ -315,7 +324,10 @@ let rec try_close_block s =
       let p_vsize = pop vsize_stack in
       vsize := max p_vsize !vsize
     end
-  end
+  end ;
+  if !verbose > 1 then
+    prerr_endline
+      (" nrows="^string_of_int !nrows^" vsize="^string_of_int !vsize)
 ;;
 
 let rec do_close_block s = match s with
@@ -362,7 +374,7 @@ let rec force_block s content =
   end ;
   if s = "PRE" then in_pre := false ;
   do_close_mods () ;  
-  try_close_block s ;
+  try_close_block (if s = "FORGET" then pblock() else s) ;
   do_close_block s ;
   let vsize = !vsize in
   let ps,args,pout = pop_out out_stack in  
@@ -487,6 +499,7 @@ let force_flow s content =
 
 
 let close_block  s =
+  if pblock () = "P" then close_par () ;
   let _ = close_block_loc (fun () -> !empty) s in
   ()
 ;;

@@ -3,20 +3,18 @@ html.cmo: latexmacros.cmi out.cmi html.cmi
 html.cmx: latexmacros.cmx out.cmx html.cmi 
 image.cmo: out.cmi image.cmi 
 image.cmx: out.cmx image.cmi 
-latexmacros.cmo: symb.cmo latexmacros.cmi 
-latexmacros.cmx: symb.cmx latexmacros.cmi 
+latexmacros.cmo: location.cmi symb.cmo latexmacros.cmi 
+latexmacros.cmx: location.cmx symb.cmx latexmacros.cmi 
 latexmain.cmo: html.cmi image.cmi latexmacros.cmi latexscan.cmo location.cmi \
     out.cmi 
 latexmain.cmx: html.cmx image.cmx latexmacros.cmx latexscan.cmx location.cmx \
     out.cmx 
 latexscan.cmo: counter.cmo html.cmi image.cmi latexmacros.cmi location.cmi \
-    out.cmi save.cmo subst.cmo 
+    out.cmi save.cmo subst.cmo symb.cmo 
 latexscan.cmx: counter.cmx html.cmx image.cmx latexmacros.cmx location.cmx \
-    out.cmx save.cmx subst.cmx 
+    out.cmx save.cmx subst.cmx symb.cmx 
 location.cmo: location.cmi 
 location.cmx: location.cmi 
-maintest.cmo: test.cmo 
-maintest.cmx: test.cmx 
 out.cmo: out.cmi 
 out.cmx: out.cmi 
 save.cmo: out.cmi 

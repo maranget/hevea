@@ -81,6 +81,7 @@ let find_macro name =
   try
     Hashtbl.find cmdtable name
   with Not_found -> begin
+    Location.print_pos () ;
     prerr_string "Unknown macro: "; prerr_endline name ;
     ([],[]),[]
   end
@@ -185,13 +186,11 @@ def_macro "\\endenumerate" 0 [Close "OL"];
 def_macro "\\description" 0 [Open ("DL","")];
 def_macro "\\enddescription" 0 [Close "DL"];
 def_macro "\\center" 0 [Open ("DIV","ALIGN=center")];
-def_macro "\\center" 0 [Open ("DIV","ALIGN=center")];
 def_macro "\\endcenter" 0 [Close "DIV"];
 let no_dot = function
   "." -> ""
 | s   -> s in
 def_macro "\\centerline" 1 [Subst "\\begin{center}#1\\end{center}"] ;
-def_macro "\\caption" 1 [Subst "\\par\\begin{center}Figure~: {#1}\\end{center}"] ;
 def_env "quote"  [Open ("BLOCKQUOTE","")] [Close "BLOCKQUOTE"];
 def_macro_pat
   "\\figure"  ([""],[]) [Open ("BLOCKQUOTE","") ; Print "<HR>\n"] ;

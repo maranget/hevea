@@ -38,6 +38,8 @@ let main () =
     "htmlgen 0.00" ;
 
     set_verbose ();
+    read_style "/usr/local/lib/htmlgen/htmlgen.sty" ;
+
     let texfile = match !files with
       [] -> ""
     | x::rest ->
@@ -55,6 +57,7 @@ let main () =
     | x::rest ->
        do_rec rest ;
        read_style x in
+
     do_rec !files ;
 
     Latexscan.out_file := begin match texfile with
@@ -68,7 +71,11 @@ let main () =
     Latexscan.main buf ;
     Location.restore () ;
     finalize ()
-  end with x -> finalize () ; raise x
+  end with x -> begin
+    Location.print_pos () ;
+    prerr_endline "Good bye" ;
+    finalize () ; raise x
+  end
 ;;   
 
 

@@ -25,7 +25,7 @@ let tex_path =  try
 with Not_found -> ["." ; "/usr/local/lib/tex"]
 ;;
 
-exception Found of in_channel
+exception Found of (string * in_channel)
 ;;
 
 let open_tex filename =
@@ -36,8 +36,9 @@ let open_tex filename =
   try
     List.iter (fun dir ->
       try
-        let r = open_in (Filename.concat dir filename) in
-        raise (Found r)
+        let full_name = Filename.concat dir filename in
+        let r = open_in full_name in
+        raise (Found (full_name,r))
       with Sys_error _ -> ())
     tex_path ;
     failwith ("File not found: "^filename)
@@ -294,13 +295,9 @@ let scan_this lexfun s =
 
 let put_delim lexfun delim i =
   if delim <> "." then begin
-    let rec do_rec i =
-      scan_this lexfun delim ;
-      if i > 1 then begin
-        Html.skip_line () ;
-        do_rec (i-1)
-      end in
-     Html.begin_item_display () ; do_rec i ; Html.end_item_display ()
+    Html.begin_item_display () ;
+    Symb.put_delim Html.skip_line Html.put delim i ;
+    Html.end_item_display ()
   end
 ;;
 
@@ -578,8 +575,7 @@ let limit_sup_sub main what sup sub =
 
 rule  main = parse
    "%" ' '* ("BEGIN"|"begin") ' '+ ("IMAGE"|"image")  [^'\n']* '\n'
-    {main lexbuf}
-|  "% End Image"
+    {Image.dump image lexbuf}
 |  '%' [^ '\n']* '\n'
    {if !verbose > 0 then
      Printf.fprintf stderr "Comment : %s" (lexeme lexbuf) ;
@@ -626,7 +622,7 @@ rule  main = parse
      {let filename = Save.arg lexbuf in
      if !verbose > 0 then
        Printf.fprintf stderr "input file : %s \n" filename ;
-     let input = open_tex filename in
+     let filename,input = open_tex filename in
      let buf = Lexing.from_channel input in
      Location.set filename buf ;
      new_env "*input" main buf ;
@@ -1128,6 +1124,10 @@ and inverb = parse
 and image = parse
   ".PE\n"
      {Image.put_char '\n' ; Image.close_image  () ; main lexbuf}
+|  "%" ' '* ("END"|"end") ' '+ ("IMAGE"|"image")  [^'\n']* '\n'
+     {Image.put_char '\n' ; Image.close_image  () ;
+     iput_newpage () ;
+     main lexbuf}
 | [^'\n']*'\n'
      {let s = lexeme lexbuf in
      Image.put s ;

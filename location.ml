@@ -25,11 +25,25 @@ let restore () =
 ;;
 
 
+let rec find_line file r = function
+  0 -> r
+| n ->
+   find_line file
+    (match input_char file with '\n' -> r+1 | _ -> r)
+    (n-1)
+;;
+
+   
 let print_pos () =
-  prerr_string ("Error in file: "^ !curlexname^" ") ;
-  Printf.fprintf stderr "%d -> %d"
-    (Lexing.lexeme_start !curlexbuf)
-    (Lexing.lexeme_end !curlexbuf) ;
-  prerr_endline ""
+  try
+    let file = open_in !curlexname in
+    let nline = find_line file 1 (Lexing.lexeme_start !curlexbuf) in
+    close_in file ;
+    prerr_string (!curlexname^":"^string_of_int nline^": ")
+  with Sys_error s ->
+     prerr_endline
+       ("Trouble in print_pos, file: "^ !curlexname^
+       ", "^s)
+         
 ;;
 
