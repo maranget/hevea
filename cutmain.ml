@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: cutmain.ml,v 1.11 1999-06-02 16:29:45 maranget Exp $" 
+let header = "$Id: cutmain.ml,v 1.12 1999-09-01 13:53:44 maranget Exp $" 
 
 exception Error of string
 ;;
@@ -25,7 +25,9 @@ let main () =
     [("-o", Arg.String (fun s -> outname := s),
        "filename, make htmlcut output go into file ``filename'' (defaults to index.html)");
      ("-francais", Arg.Unit (fun () -> Cut.language := "fra"),
-       ", French mode");
+       ", French mode");      
+     ("-tocbis", Arg.Unit (fun () -> Cut.tocbis := true),
+       ", Add small table of contents at the begining of files");      
      ("-v", Arg.Unit (fun () -> incr Cut.verbose),
         ", verbose flag")    ]
      (fun s -> filename := s) ("hacha "^Version.version);

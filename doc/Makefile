@@ -3,6 +3,7 @@ GPIC=gpic
 HEVEA=hevea
 HEVEAOPTS=
 HACHA=hacha
+HACHAOPTS=-tocbis
 IMAGEN=imagen
 HTMLDIR=$(HOME)/public_html/hevea
 DOCDIR=$(HTMLDIR)/doc
@@ -11,15 +12,15 @@ all: manual.dvi index.html
 
 opt:
 	export HEVEADIR=.. ;\
-	$(MAKE) $(MFLAGS) HEVEAOPTS="$(HEVEAOPTS)" HEVEA=../hevea.opt HACHA=../hacha.opt IMAGEN=../imagen all
+	$(MAKE) $(MFLAGS) HEVEA="$(HEVEAOPTS)" HACHAOPTS="$(HACHAOPTS)" HEVEA=../hevea.opt HACHA=../hacha.opt IMAGEN=../imagen all
 
 infoopt:
 	export HEVEADIR=.. ;\
-	$(MAKE) $(MFLAGS) HEVEAOPTS="$(HEVEAOPTS)" ../HEVEA=hevea.opt HACHA=../hacha.opt IMAGEN=imagen.opt info
+	$(MAKE) $(MFLAGS) HEVEA="$(HEVEAOPTS)" HACHAOPTS="$(HACHAOPTS)" ../HEVEA=hevea.opt HACHA=../hacha.opt IMAGEN=imagen.opt info
 
 byte:
 	export HEVEADIR=.. ;\
-	$(MAKE) $(MFLAGS) HEVEAOPTS="$(HEVEAOPTS)" HEVEA=../hevea.byte HACHA=../hacha.byte IMAGEN=../imagen all
+	$(MAKE) $(MFLAGS) HEVEA="$(HEVEAOPTS)" HACHAOPTS="$(HACHAOPTS)" HEVEA=../hevea.byte HACHA=../hacha.byte IMAGEN=../imagen all
 
 tmp.tex: manual.tex version.tex
 	$(GPIC) -t < manual.tex > tmp.tex
@@ -31,12 +32,12 @@ manual.html: manual.hva tmp.tex
 manual.dvi: tmp.tex
 	$(LATEX) < /dev/null tmp.tex &&\
 	$(LATEX) < /dev/null tmp.tex &&\
-	makeindex tmp &&\
+	makeindex tmp.idx &&\
 	$(LATEX) < /dev/null tmp.tex &&\
 	mv tmp.dvi manual.dvi
 
 index.html: manual.html
-	$(HACHA) manual.html
+	$(HACHA) $(HACHAOPTS) manual.html
 
 images: manual001.gif
 

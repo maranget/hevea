@@ -123,6 +123,10 @@
 {\@nostyle\@print{<!--CUT END }\@print{-->
 }}%
 }
+\newcommand{\@secend}{%
+\@saveclosed{\@nostyle\@print{<!--SEC END }\@print{-->
+}\@restoreclosed}%
+}
 \newcommand{\cuthere}[2]{%
 \@footnoteflush{#1}%
 {\@nostyle\@print{<!--TOC }\@notags{#1}\@print{ }}%
@@ -379,7 +383,7 @@
   {\end{list}}
 \newcommand{\bibitem}[2][!*!]{\@bibwrite{#1}{#2}\item[#2]}
 %% Indexes a` la index.cls
-\newcommand{\index}[2][default]{\@index[#1]{#2}}
+\newcommand{\index}[2][default]{\@saveclosed\@index[#1]{#2}\@restoreclosed}
 \newcommand{\printindex}[1][default]{%
 \@printindex[#1]%
 }
@@ -596,12 +600,11 @@
 \newcommand{\@makesection}[6]{%
 \newcommand{#1}[2][]{%
 \checkdepth{#2}{\refstepcounter{#3}}%
-\ifoptarg\cuthere{#3}{##1}%
-\else\cuthere{#3}{##2}\fi%
-#4\checkdepth{#2}{#5} ##2#6}%
+\ifoptarg\cuthere{#3}{##1}\else\cuthere{#3}{##2}\fi%
+#4\checkdepth{#2}{#5} ##2#6\@secend}%
 \newcommand{#1*}[1]{%
 \cuthere{#3}{##1}%
-#4##1#6}}%
+#4##1#6\@secend}}%
 %%%%%%%%%%%%%%
 % Extensions %
 %%%%%%%%%%%%%%

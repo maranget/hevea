@@ -1,7 +1,7 @@
 \documentclass{article}
 \usepackage{a4}
 \usepackage{fullpage}
-\usepackage{index}
+\usepackage{makeidx}
 \usepackage{texnames}
 \usepackage{../hevea}
 \usepackage{isolatin1}
@@ -3374,7 +3374,6 @@ Note that full compatibility with \TeX{} is not guaranteed.
 
 
 \subsubsection{À la \TeX{} macros definitions}
-
 \comindex{def}
 The \verb+\def+ construct for defining commands is supported, with the
 same behavior as \verb+\newcommand+ with respect to command
@@ -3955,6 +3954,7 @@ It also recognizes the following options:
 \item[{\tt -v}] Be a little verbose.
 \item[{\tt -o} {\it filename}] Make \hacha{} output go into file
 \textit{filename} (defaults  to index.html).
+\item[{\tt -tocbis}] Add a small table of contents at every file start.
 \item[{\tt -help}] Print version number and a short help message.
 \end{description}
 

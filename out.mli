@@ -15,6 +15,7 @@ val create_buff : unit -> t
 val create_chan : out_channel -> t
 val create_null : unit -> t
 val is_null : t -> bool
+val is_empty : t -> bool
 
 val reset : t -> unit
 val is_empty: t -> bool

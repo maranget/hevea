@@ -9,6 +9,7 @@ open Misc
 open Lexing
 open Lexstate
 open Latexmacros
+open Stack
 
 exception EndAlltt
 exception Eof of string

@@ -15,9 +15,10 @@ open Parse_opts
 open Lexing
 open Latexmacros
 open Lexstate
+open Stack
 
 (* Compute functions *)
-let header = "$Id: get.mll,v 1.8 1999-05-21 14:46:50 maranget Exp $"
+let header = "$Id: get.mll,v 1.9 1999-09-01 13:53:45 maranget Exp $"
 
 exception Error of string
 
@@ -35,9 +36,9 @@ let bool_out = ref false
 and int_out = ref false
 ;;
 
-let int_stack = Lexstate.create ()
-and bool_stack = Lexstate.create ()
-and group_stack = Lexstate.create ()
+let int_stack = Stack.create "int_stack"
+and bool_stack = Stack.create "bool_stack"
+and group_stack = Stack.create "group_stack"
 and just_opened = ref false
 
 let push_int x =
@@ -119,7 +120,7 @@ rule result = parse
         (fun () ->
           if !verbose > 2 then begin
             prerr_endline ("UNARY: "^String.make 1 lxm) ;
-            prerr_stack_string "int" string_of_int int_stack
+            Stack.pretty string_of_int int_stack
           end ;
           let x1 = pop int_stack in
           let r = match lxm with
@@ -133,7 +134,7 @@ rule result = parse
         (fun () ->
           if !verbose > 2 then begin
             prerr_endline ("OPPADD: "^String.make 1 lxm) ;
-            prerr_stack_string "int" string_of_int int_stack
+            Stack.pretty string_of_int int_stack
           end ;
           let x2 = pop int_stack in
           let x1 = pop int_stack in
@@ -152,7 +153,7 @@ rule result = parse
         (fun () ->
           if !verbose > 2 then begin
             prerr_endline ("MULTOP"^String.make 1 lxm) ;
-            prerr_stack_string "int" string_of_int int_stack
+            Stack.pretty string_of_int int_stack
           end ;
           let x2 = pop int_stack in
           let x1 = pop int_stack in
@@ -170,7 +171,7 @@ rule result = parse
       (fun () ->
         if !verbose > 2 then begin
           prerr_endline ("COMP: "^String.make 1 lxm) ;
-          prerr_stack_string "int" string_of_int int_stack
+          Stack.pretty string_of_int int_stack
         end ;
         let x2 = pop int_stack in
         let x1 = pop int_stack in              
@@ -181,7 +182,7 @@ rule result = parse
           | '=' -> x1 = x2
           | _   -> assert false) ;
           if !verbose > 2 then
-            prerr_stack_string "bool" sbool bool_stack) "COMP" ;
+            Stack.pretty sbool bool_stack) "COMP" ;
     open_ngroups 2 ;
     result lexbuf}
 
@@ -255,7 +256,7 @@ let def_commands_bool () =
         (fun () ->
           if !verbose > 2 then begin
             prerr_endline "OR" ;
-            prerr_stack_string "bool" sbool bool_stack
+            Stack.pretty sbool bool_stack
           end ;
           let b1 = pop bool_stack in
           let b2 = pop bool_stack in
@@ -268,7 +269,7 @@ let def_commands_bool () =
         (fun () ->
           if !verbose > 2 then begin
             prerr_endline "AND" ;
-            prerr_stack_string "bool" sbool bool_stack
+            Stack.pretty sbool bool_stack
           end ;
           let b1 = pop bool_stack in
           let b2 = pop bool_stack in
@@ -281,7 +282,7 @@ let def_commands_bool () =
         (fun () ->
           if !verbose > 2 then begin
             prerr_endline "NOT" ;
-            prerr_stack_string "bool" sbool bool_stack
+            Stack.pretty sbool bool_stack
           end ;
           let b1 = pop bool_stack in
           push bool_stack (not b1)) "NOT";
@@ -305,43 +306,59 @@ let def_commands_bool () =
         (fun () ->
           if !verbose > 2 then begin
             prerr_endline ("ISODD") ;
-            prerr_stack_string "int" string_of_int int_stack
+            Stack.pretty string_of_int int_stack
           end ;
           let x = pop int_stack in
           push bool_stack (x mod 2 = 1) ;
           if !verbose > 2 then
-            prerr_stack_string "bool" sbool bool_stack) "ISODD" ;
+            Stack.pretty sbool bool_stack) "ISODD" ;
       open_ngroups 2) ;
   def_commands_int ()
+;;
+
+let first_try s =
+  let l = String.length s in
+  if l <= 0 then raise (Failure "first_try") ;
+  let rec try_rec r i =
+    if i >= l then r
+    else match s.[i] with
+    | '0'|'1'|'2'|'3'|'4'|'5'|'6'|'7'|'8'|'9' ->
+        try_rec (10*r + Char.code s.[i] - Char.code '0') (i+1)
+    | _ -> raise (Failure ("first_try")) in
+  try_rec 0 0
 ;;
 
 let get_int expr =
   if !verbose > 1 then
     prerr_endline ("get_int : "^expr) ;
-  let old_int = !int_out in
-  int_out := true ;
-  start_normal display in_math ;
-  !open_env "*int*" ;
-  def_commands_int () ;
-  open_ngroups 2 ;
-  begin try scan_this result expr with
-  | x ->
-      begin
-        prerr_endline
-          ("Error while scanning ``"^expr^"'' for integer result");
-        raise x
-      end
-  end ;
-  close_ngroups 2 ;
-  !close_env "*int*" ;
-  end_normal display in_math ;
-  if Lexstate.empty int_stack then
-    raise (Error ("``"^expr^"'' has no value as an integer"));
-  let r = pop int_stack in
+  let r =
+    try first_try expr with Failure _ -> begin
+      let old_int = !int_out in
+      int_out := true ;
+      start_normal display in_math ;
+      !open_env "*int*" ;
+      def_commands_int () ;
+      open_ngroups 2 ;
+      begin try scan_this result expr with
+      | x ->
+          begin
+            prerr_endline
+              ("Error while scanning ``"^expr^"'' for integer result");
+            raise x
+          end
+      end ;
+      close_ngroups 2 ;
+      !close_env "*int*" ;
+      end_normal display in_math ;
+      if Stack.empty int_stack then
+        raise (Error ("``"^expr^"'' has no value as an integer"));
+      let r = pop int_stack in
+      int_out := old_int ;
+      r end in
   if !verbose > 1 then
     prerr_endline ("get_int: "^expr^" = "^string_of_int r) ;
-  int_out := old_int ;
   r
+  
 
 let get_bool expr =
   if !verbose > 1 then
@@ -363,7 +380,7 @@ let get_bool expr =
   close_ngroups 7 ;
   !close_env "*bool*" ;
   end_normal display in_math ;
-  if Lexstate.empty bool_stack then
+  if Stack.empty bool_stack then
     raise (Error ("``"^expr^"'' has no value as an integer"));
   let r = pop bool_stack in
   if !verbose > 1 then

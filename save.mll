@@ -12,7 +12,7 @@
 {
 open Lexing
 
-let header = "$Id: save.mll,v 1.39 1999-08-30 17:59:31 maranget Exp $" 
+let header = "$Id: save.mll,v 1.40 1999-09-01 13:54:02 maranget Exp $" 
 
 let verbose = ref 0 and silent = ref false
 ;;
@@ -216,7 +216,8 @@ and macro_names = parse
 | _   {macro_names lexbuf}
 
 and num_arg = parse
-  ['0'-'9']+ 
+| [' ''\n']+ {num_arg lexbuf}
+| ['0'-'9']+ 
     {let lxm = lexeme lexbuf in
     my_int_of_string lxm}
 |  "'" ['0'-'7']+ 

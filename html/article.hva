@@ -34,7 +34,7 @@
 }
 \@makesection
   {\part}{-1}{part}
-  {\@open{H1}{ALIGN=center}}{\partname:~\thepart\\}{\@close{H1}}
+  {\@open{H1}{ALIGN=center}}{\partname~\thepart\\}{\@close{H1}}
 \@makesection
   {\section}{0}{section}
   {\@open{H2}{}}{\thesection\quad}{\@close{H2}}%

@@ -37,30 +37,19 @@ val withinLispComment : bool ref
 val afterLispCommentNewlines : int ref
 
 val out_file : Out.t
-type 'a t
 
-val create : unit -> 'a t
-val push : 'a t -> 'a -> unit
-val pop : 'a t -> 'a
-val top : 'a t -> 'a
-val empty : 'a t -> bool
-val rev : 'a t -> unit
-
-type 'a r
 type closenv
 val top_level : unit -> bool
-val save_stack : 'a t -> 'a r
-val restore_stack : 'a t -> 'a r -> unit
+
 
 val prerr_args : unit -> unit
-val prerr_stack_string : string -> ('a -> string) -> 'a t -> unit
 val pretty_lexbuf : Lexing.lexbuf -> unit
 
 val scan_arg : (string -> 'a) -> int -> 'a
 val scan_body :
   (action -> 'a) -> action -> string array -> 'a
 
-val stack_lexbuf : Lexing.lexbuf t
+val stack_lexbuf : Lexing.lexbuf Stack.t
 val tab_val : int ref
 
 val record_lexbuf : Lexing.lexbuf  -> unit
@@ -71,9 +60,10 @@ val restore_lexstate : unit -> unit
 val start_lexstate : unit -> unit
 val prelude : bool ref
 val flushing : bool ref
-val stack_in_math : bool t
-val stack_display : bool t
-val stack_alltt : bool t
+val stack_in_math : bool Stack.t
+val stack_display : bool Stack.t
+val stack_alltt : bool Stack.t
+val stack_closed : string Stack.t
 
 val start_normal: bool ref -> bool ref -> unit
 val end_normal : bool ref -> bool ref  -> unit

@@ -9,122 +9,19 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlMath.ml,v 1.6 1999-08-10 09:22:38 maranget Exp $" 
+let header = "$Id: htmlMath.ml,v 1.7 1999-09-01 13:53:49 maranget Exp $" 
 
 
 open Misc
 open Parse_opts
 open HtmlCommon
 open Latexmacros
+open Stack
 
 
 
-let freeze f =
-  push out_stack (Freeze f) ;
-  if !verbose > 2 then begin
-    prerr_string "freeze: stack=" ;
-    pretty_stack !out_stack
-  end
+let delay_stack = Stack.create "delay_stack"
 ;;
-
-let flush_freeze () = match !out_stack with
-  Freeze f::rest ->
-    let _ = pop "out" out_stack in
-    if !verbose > 2 then begin
-      prerr_string "flush_freeze" ;
-      pretty_stack !out_stack
-    end ;
-    f () ; true
-| _ -> false
-;;
-
-let pop_freeze () = match !out_stack with
-  Freeze f::rest ->
-    let _ = pop "out" out_stack in
-    f,true
-| _ -> (fun () -> ()),false
-;;
-
-
-let inside_stack = ref []
-;;
-let saved_inside = ref []
-;;
-let ncols_stack = ref []
-;;
-let in_math_stack = ref []
-;;
-let delay_stack = ref []
-;;
-
-
-
-
-let try_open_display () =
-  push ncols_stack flags.ncols ;
-  push inside_stack flags.table_inside ;
-  push saved_inside false ;
-  flags.table_inside <- false ;
-  flags.ncols <- 0
-
-and try_close_display () =
-  flags.ncols <- pop "ncols, close" ncols_stack ;
-  flags.table_inside <- pop "saved_inside, close" saved_inside || flags.table_inside ;
-  flags.table_inside <- pop "inside" inside_stack || flags.table_inside
-;;
-
-
-let close_flow_loc s =
-  if !verbose > 2 then
-    prerr_endline ("close_flow_loc: "^s) ;
-
-  let active  = !cur_out.active
-  and pending = !cur_out.pending in
-  if close_block_loc check_empty s then begin
-    !cur_out.pending <- active @ pending ;
-    true
-  end else begin
-    !cur_out.pending <- active @ pending ;
-    false
-  end
-;;
-let close_flow s =
-  if !verbose > 2 then
-    prerr_flags ("=> close_flow ``"^s^"''");
-  let _ = close_flow_loc s in
-  if !verbose > 2 then
-    prerr_flags ("<= close_flow ``"^s^"''")
-;;
-
-let get_block s args =
-  if !verbose > 2 then begin
-    prerr_flags "=> get_block";
-  end ;
-  do_close_mods () ;
-  let pempty = see_top "empty" empty_stack
-  and pblank = see_top "blank" blank_stack
-  and pinsert = see_top "insert" insert_stack in
-  try_close_block (pblock ()) ;
-  flags.empty <- pempty ; flags.blank <- pblank ; flags.insert <- pinsert;
-  do_close_block None s ;
-  let _,_,pout = pop_out out_stack in  
-  let old_out = !cur_out in  
-  cur_out := new_status pout.nostyle pout.pending pout.active;
-  let mods = !cur_out.active @ !cur_out.pending in
-  do_close_mods () ;
-  do_open_block None s args ;
-  Out.copy old_out.out !cur_out.out ;
-  free old_out ;    
-  !cur_out.pending <- mods ;
-  let r = !cur_out in
-  cur_out := pout ;
-  if !verbose > 2 then begin
-    Out.debug stderr r.out ;
-    prerr_endline "";
-    prerr_flags "<= get_block"
-  end ;
-  r
-
 (* delaying output .... *)
 
 let delay f =
@@ -149,18 +46,16 @@ let flush x =
   do_close_mods () ;
   let old_out = !cur_out in
   cur_out := pout ;
-  let f = pop "delay" delay_stack in
+  let f = pop delay_stack in
   f x ;
   Out.copy old_out.out !cur_out.out ;
   flags.empty <- false ; flags.blank <- false ;
   free old_out ;
   !cur_out.pending <- mods ;
-  flags.vsize <- max (pop "vsive" vsize_stack) flags.vsize ;
+  flags.vsize <- max (pop vsize_stack) flags.vsize ;
   if !verbose > 2 then
     prerr_flags "<= flush"
 ;;
-
-
 
 (* put functions *)
 
@@ -214,7 +109,7 @@ and end_item_display () =
     flags.ncols <- flags.ncols + 1;
   if !verbose > 2 then begin
     Printf.fprintf stderr "end_item_display: ncols=%d stck: " flags.ncols;
-    pretty_stack !out_stack
+    pretty_stack out_stack
   end;
   flags.vsize,f,is_freeze
 ;;
@@ -306,7 +201,7 @@ let do_item_display force =
   end ;
   let f,is_freeze = pop_freeze () in
   if (force && not flags.empty) || flags.table_inside then begin
-    push saved_inside (pop "saved_inside, item" saved_inside || flags.table_inside) ;
+    push saved_inside (pop saved_inside || flags.table_inside) ;
     flags.table_inside <- false ;
     let active  = !cur_out.active
     and pending = !cur_out.pending in
@@ -349,7 +244,7 @@ let do_item_display force =
   if is_freeze then push out_stack (Freeze f) ;
   if !verbose > 2 then begin
     prerr_string ("out item_display -> ncols="^string_of_int flags.ncols) ;
-    pretty_stack !out_stack
+    pretty_stack out_stack
   end ;
 ;;
 
@@ -378,7 +273,7 @@ let open_maths display =
 let close_maths display =
   if display then close_display ()
   else close_group ();
-  flags.in_math <- pop "in_math" in_math_stack;
+  flags.in_math <- pop in_math_stack;
   if display then close_center ()
 ;;
 

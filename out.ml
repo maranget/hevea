@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: out.ml,v 1.13 1999-06-04 14:19:53 tessaud Exp $" 
+let header = "$Id: out.ml,v 1.14 1999-09-01 13:54:00 maranget Exp $" 
 let verbose = ref 0
 ;;
 
@@ -29,16 +29,15 @@ and create_null () = Null
 and is_null  = function
   | Null -> true
   | _ -> false
+
+and is_empty = function
+  | Buff {bp=0} -> true
+  | _ -> false
 ;;
 
 let reset = function
   Buff b -> b.bp <- 0
 | _      -> raise (Misc.Fatal "Out.reset")
-;;
-
-let is_empty = function
-  Buff b -> b.bp = 0
-| _      -> raise (Misc.Fatal "Out.is_empty")
 ;;
 
 let realloc out =

@@ -42,9 +42,9 @@ open Latexmacros
 open Save
 open Tabular
 open Lexstate
+open Stack
 
-
-let header = "$Id: latexscan.mll,v 1.128 1999-08-30 19:21:50 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.129 1999-09-01 13:53:54 maranget Exp $" 
 
 
 let sbool = function
@@ -77,7 +77,7 @@ let if_level = ref 0
 
 let cur_env = ref ""
 and macros = ref []
-and stack_env = Lexstate.create ()
+and stack_env = Stack.create "stack_env"
 and env_level = ref 0
 ;;
 
@@ -183,18 +183,18 @@ type in_table = Table of array_type | NoTable | Tabbing
 ;;
 
 let cur_format = ref [||]
-and stack_format = Lexstate.create ()
+and stack_format = Stack.create "stack_format"
 and cur_col = ref 0
-and stack_col = Lexstate.create ()
+and stack_col = Stack.create "stack_col"
 and in_table = ref NoTable
-and stack_table = Lexstate.create ()
+and stack_table = Stack.create "stack_table"
 and first_col = ref false
 and first_border = ref false
-and stack_first = Lexstate.create ()
-and stack_first_b = Lexstate.create ()
+and stack_first = Stack.create "stack_first"
+and stack_first_b = Stack.create "stack_first_b"
 and in_multi = ref false
-and stack_multi_flag = Lexstate.create ()
-and stack_multi = Lexstate.create ()
+and stack_multi_flag = Stack.create "stack_multi_flag"
+and stack_multi = Stack.create "stack_multi"
 ;;
 
 let top_open_block block args =
@@ -688,20 +688,21 @@ let iput_newpage arg =
 ;;
 
 
-let stack_entry = Lexstate.create ()
-and stack_out = Lexstate.create ()
+let stack_entry = Stack.create "stack_entry"
+and stack_out = Stack.create  "stack_out"
 ;;
 
 let start_other_scan env lexfun lexbuf =
   if !verbose > 1 then begin
-    prerr_stack_string ("Start other scan ("^env^"), env stack is")
+    prerr_endline ("Start other scan ("^env^")") ;
+    Stack.pretty
       (fun (x,_) -> x) stack_env ;
     prerr_endline ("Current env is: ``"^ !cur_env^"''") ;
-    prerr_stack_string "Entry stack is" (fun x -> x) stack_entry
+    pretty (fun x -> x) stack_entry
   end;
   save_lexstate () ;
   push stack_entry env ;
-  Lexstate.rev stack_entry ;
+  rev stack_entry ;
   lexfun lexbuf
 ;;
 
@@ -714,8 +715,8 @@ let complete_scan main lexbuf =
   close_env (pop stack_out) ;
   top_close_block "" ;
   if !verbose > 1 then begin
-    prerr_stack_string "Complete scan: env stack is"
-      (fun (x,_) -> x) stack_env ;
+    prerr_endline "Complete scan" ;
+    Stack.pretty (fun (x,_) -> x) stack_env ;
     prerr_endline ("Current env is: ``"^ !cur_env^"''")
   end
 ;;
@@ -723,15 +724,15 @@ let complete_scan main lexbuf =
 
 let stop_other_scan comment main lexbuf =
   if !verbose > 1 then begin
-    prerr_stack_string "Stop image: env stack is"
-      (fun (x,_) -> x) stack_env ;
+    prerr_endline "Stop image: env stack is" ;
+    Stack.pretty  (fun (x,_) -> x) stack_env ;
     prerr_endline ("Current env is: ``"^ !cur_env^"''")
   end;
   let _ = pop stack_entry in
   if not comment then close_env !cur_env ;
-  if not (Lexstate.empty stack_out) then begin
+  if not (Stack.empty stack_out) then begin
     complete_scan main lexbuf ;
-    while not (Lexstate.empty stack_out) do
+    while not (Stack.empty stack_out) do
       let lexbuf = previous_lexbuf () in
       complete_scan main lexbuf
     done
@@ -1037,7 +1038,7 @@ and latexonly = parse
        latexonly lexbuf}
 | command_name  | _ {latexonly lexbuf}
 | eof
-    {if Lexstate.empty stack_lexbuf then ()
+    {if empty stack_lexbuf then ()
     else begin
       let lexbuf = previous_lexbuf () in
       latexonly lexbuf
@@ -1121,7 +1122,7 @@ and image = parse
      Image.put s ;
      image lexbuf}
 | eof
-    {if Lexstate.empty stack_lexbuf then ()
+    {if empty stack_lexbuf then ()
     else begin
       let lexbuf = previous_lexbuf () in
       image lexbuf
@@ -1139,7 +1140,7 @@ and image_comment = parse
 and mbox_arg = parse
 | ' '+ | '\n' {mbox_arg lexbuf}
 | eof
-     {if not (Lexstate.empty stack_lexbuf) then begin
+     {if not (empty stack_lexbuf) then begin
      let lexbuf = previous_lexbuf () in
      if !verbose > 2 then begin
        prerr_endline "Poping lexbuf in mbox_arg" ;
@@ -1160,7 +1161,7 @@ and skip_blanks_pop = parse
 | '\n' {more_skip_pop lexbuf}
 | ""   {()}
 | eof
-   {if not (Lexstate.empty stack_lexbuf) then begin
+   {if not (empty stack_lexbuf) then begin
      let lexbuf = previous_lexbuf () in
      if !verbose > 2 then begin
        prerr_endline "Poping lexbuf in skip_blanks" ;
@@ -1173,7 +1174,7 @@ and more_skip_pop = parse
   '\n'+ {top_par (par_val !in_table)}
 | ""    {skip_blanks_pop lexbuf}
 | eof
-   {if not (Lexstate.empty stack_lexbuf) then begin
+   {if not (empty stack_lexbuf) then begin
      let lexbuf = previous_lexbuf () in
      if !verbose > 2 then begin
        prerr_endline "Poping lexbuf in skip_blanks" ;
@@ -1187,7 +1188,7 @@ and to_newline = parse
 | _     {Out.put_char more_buff (Lexing.lexeme_char lexbuf 0) ;
         to_newline lexbuf}
 | eof
-   {if not (Lexstate.empty stack_lexbuf) then
+   {if not (empty stack_lexbuf) then
      let lexbuf = previous_lexbuf () in
      to_newline lexbuf}
 
@@ -1268,7 +1269,7 @@ and subst = parse
 
 {
 let check_alltt_skip lexbuf =
-  if not (Lexstate.empty stack_alltt) && pop stack_alltt then begin
+  if not (Stack.empty stack_alltt) && pop stack_alltt then begin
     push stack_alltt true
   end else begin
     push stack_alltt false ;
@@ -1959,10 +1960,10 @@ def_code "\\begin"
     let macro = "\\csname "^env^"\\endcsname"  in
       if env <> "document" then
         top_open_block "" "" ;
-      let old_envi = save_stack stack_entry in
+      let old_envi = save stack_entry in
       push stack_entry env ;
       scan_this_may_cont main lexbuf macro ;
-      restore_stack stack_entry old_envi)
+      restore stack_entry old_envi)
 ;;
 
 def_code "\\end"
@@ -2064,7 +2065,7 @@ def_code "\\char"
 def_code "\\symbol"
   (fun lexbuf ->
     let arg = save_arg lexbuf in
-    scan_this main ("\\char"^arg) )
+    scan_this main ("\\char"^arg))
 ;;
 
 (* labels *)
@@ -2073,8 +2074,8 @@ def_code "\\label"
     let save_last_closed = Dest.get_last_closed () in
     let lab = subst_arg subst lexbuf in
     Dest.loc_name lab "" ;
-    Dest.set_last_closed save_last_closed ;
     let theref = get_this_nostyle main "\\@currentlabel" in
+    Dest.set_last_closed save_last_closed ;
     Auxx.rwrite lab theref) ;
 
 def_code "\\@expandlabel"
@@ -2100,15 +2101,13 @@ def_code "\\pageref"
 (* index *)
 def_code "\\@index"
   (fun lexbuf ->
-    let save_last_closed = Dest.get_last_closed () in
     let tag = get_this_nostyle main (save_opt "default" lexbuf) in
     let arg = subst_arg subst lexbuf in
     begin try
       Index.treat (check_this main)
         tag arg (get_this_nostyle main "\\@currentlabel")
     with Index.Error s -> raise (Misc.ScanError s)
-    end ;
-    Dest.set_last_closed save_last_closed)
+    end)
 ;;
 
 def_code "\\@printindex"
@@ -2257,6 +2256,19 @@ def_code "\\warning"
 ;;
 
 (* spacing *)
+
+def_code "\\@saveclosed"
+  (fun lexbuf ->
+    push stack_closed (Dest.get_last_closed ()) ;
+    check_alltt_skip lexbuf)
+;;
+
+def_code "\\@restoreclosed"
+  (fun lexbuf ->
+    Dest.set_last_closed (pop stack_closed) ;
+    check_alltt_skip lexbuf)
+;;
+    
 
 let do_space vert lexbuf  = 
   let arg = subst_arg subst lexbuf in

@@ -10,7 +10,7 @@
 (***********************************************************************)
 
 
-let header = "$Id: html.ml,v 1.63 1999-07-07 14:53:45 maranget Exp $" 
+let header = "$Id: html.ml,v 1.64 1999-09-01 13:53:47 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -166,10 +166,6 @@ let
   close_maths,
   open_maths, 
   put_in_math,
-  close_flow,
-  inside_stack,
-  saved_inside,
-  ncols_stack,
   math_put,
   math_put_char,
   left,
@@ -190,10 +186,6 @@ let
     MathML.close_maths,
     MathML.open_maths,
     MathML.put_in_math,
-    MathML.close_flow,
-    MathML.inside_stack,
-    MathML.saved_inside,
-    MathML.ncols_stack,
     MathML.put,
     MathML.put_char,
     MathML.left,
@@ -213,10 +205,6 @@ let
     HtmlMath.close_maths,
     HtmlMath.open_maths,
     HtmlMath.put_in_math,
-    HtmlMath.close_flow,
-    HtmlMath.inside_stack,
-    HtmlMath.saved_inside,
-    HtmlMath.ncols_stack,
     HtmlMath.put,
     HtmlMath.put_char,
     HtmlMath.left,
@@ -245,6 +233,7 @@ and clearstyle = clearstyle
 and nostyle = nostyle
 and get_fontsize = get_fontsize
 and horizontal_line = horizontal_line
+and close_flow = close_flow
 ;;
 
 
@@ -287,7 +276,7 @@ and set_dcount s = flags.dcount <- s
 let item () =
    if !verbose > 2 then begin
     prerr_string "item: stack=" ;
-    pretty_stack !out_stack
+    pretty_stack out_stack
   end ;
   let mods = !cur_out.pending @ !cur_out.active in
   do_close_mods () ;
@@ -309,7 +298,7 @@ let nitem = item
 let ditem scan arg =
   if !verbose > 2 then begin
     prerr_string "ditem: stack=" ;
-    pretty_stack !out_stack
+    pretty_stack out_stack
   end ;
   let mods = !cur_out.pending @ !cur_out.active in
   do_close_mods () ;
@@ -408,7 +397,7 @@ let to_style f =
 let get_current_output () = Out.to_string !cur_out.out
 
 let check_stack s what =
-  if !what <> [] && not !silent then begin
+  if not (Stack.empty what)  && not !silent then begin
     prerr_endline ("Warning: stack "^s^" is non-empty in Html.finalize") ;
   end
 ;;
@@ -430,9 +419,13 @@ let finalize check =
     check_stack "ncols_stack" ncols_stack ;
     check_stack "after_stack" after_stack
   end ;
-  while !out_stack != [] do
-    try close_block (pblock ()) with _ -> ()
-  done ;
+(* Flush output *)
+  let rec close_rec () = 
+    if not (Stack.empty out_stack) then begin
+      begin try close_block (pblock ()) with _ -> () end ;
+      close_rec ()
+    end in
+  close_rec () ;
   Out.close !cur_out.out
 ;;
 
