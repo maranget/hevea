@@ -242,7 +242,7 @@
 \newcommand{\bibdata}[1]{}
 \newcommand{\bibstyle}[1]{}
 \newcommand{\label}[1]
-  {\@saveclosed\typeout{LABEL: #1 is \@currentlabel}\@locname{#1}{}\@auxwrite{#1}{\@currentlabel}\@restoreclosed}
+  {\@saveclosed\@locname{#1}{}\@auxwrite{#1}{\@currentlabel}\@restoreclosed}
 \newcommand{\ref}[1]{\@locref{#1}{\@auxread{#1}}}
 \newcommand{\pageref}[1]{\@locref{#1}{??}}
 \newcommand{\@readhaux}

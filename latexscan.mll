@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.177 2000-05-31 13:17:21 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.178 2000-05-31 16:59:21 maranget Exp $ *)
 
 
 {
@@ -1194,12 +1194,12 @@ and skip_false = parse
 | "" {raise (Error "End of entry while skipping TeX conditional macro")}
 
 and comment = parse
-  ' '* ("BEGIN"|"begin") ' '+ ("IMAGE"|"image")
+|  ['%'' ']* ("BEGIN"|"begin") ' '+ ("IMAGE"|"image")
     {skip_comment lexbuf ; start_image_scan "" image lexbuf}
 (* Backward compatibility with latex2html *)
 | [ ' ' '\t' ] * "\\begin{latexonly}"
     {latex2html_latexonly lexbuf}
-| ' '* ("HEVEA"|"hevea") ' '*
+| ['%'' ']* ("HEVEA"|"hevea") ' '*
    {()}
 | ['%'' ']* ("BEGIN"|"begin") ' '+ ("LATEX"|"latex")
     {skip_to_end_latex lexbuf}
@@ -1630,7 +1630,7 @@ let do_newtheorem lxm lexbuf =
   | (Yes numbered_like,env),_ ->
       get_prim_onarg (numbered_like,env) in
   Latexmacros.global_def
-    (start_env name) zero_pat      
+    (start_env name) (latex_pat [""] 1)     
     (Subst
        ("\\begin{flushleft}\\refstepcounter{"^cname^"}{\\bf "^caption^"~"^
         "\\the"^cname^"}\\quad\\ifoptarg{\\purple[#1]\\quad}\\fi\\em")) ;

@@ -1,5 +1,5 @@
 \@primitives{amsmath}
-\def\text#1{\mbox{#1}}%
+\let\text\mbox
 %%AMS environments for displayed equations
 \newenvironment{equation*}{\[}{\]}%
 \newenvironment{align}

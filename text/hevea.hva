@@ -1,6 +1,7 @@
 %%%% Une précaution.
 \ifhtml\warning{text/hevea is for text and info mode !!!}\endinput\fi
 %%%% package used by all packages
+\newcommand{\relax}{}
 \newif\ififthen\ifthenfalse
 \input{ifthen.hva}
 %% Packages
