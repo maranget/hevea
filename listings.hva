@@ -9,7 +9,8 @@
    \def\{{\@print{\{}}%
    \def\}{\@print{\}}}%
    \def\_{\@print{\_}}%
-   \def\&{\@print{\&}}}
+   \def\&{\@print{\&}}%
+   \def\ref{\@print{\ref}}}
   {}
 \def\lst@define@key@opt#1#2#3{\define@key{lst}{#1}[#3]
   {\@callopt{#2}{\begin{lst@protect}##1\end{lst@protect}}}}
@@ -428,28 +429,29 @@ breakindent,breakautoindent}
 \lst@AddToHook{SetLanguage}{\setboolean{lst@sensitive}{true}}
 \define@key{lst}{sensitive}[true]{\setboolean{lst@sensitive}{\lst@boolean{#1}}}
 %%%%%%% Captions
-\lst@AddToHookExe{InlineUnsave}
-{\let\lst@caption\@empty%
-\let\lst@title\@empty\let\lst@label\@empty}
+%\lst@AddToHookExe{InlineUnsave}
+%{\let\lst@caption\@empty%
+%\let\lst@title\@empty\let\lst@label\@empty}
 %listing counter
 \@ifundefined{thechapter}
 {\newcounter{lstlisting}}
 {\newcounter{lstlisting}[chapter]
 \renewcommand\thelstlisting
 {\ifthenelse{\value{chapter} > 0}{\thechapter.}{}\arabic{lstlisting}}}
-\lst@AddToHook{InitVar}{\ife\lst@caption\else\refstepcounter{lstlisting}\fi}
+\lst@AddToHook{InitVar}{\ifu\lst@caption\else\refstepcounter{lstlisting}\fi}
 %%Keys
 \define@key{lst}{label}{\def\lst@label{#1}}
 \define@key{lst}{title}{\def\lst@title{#1}}
-\lst@define@key@opt{caption}{\lst@caption@key}{}
+%\lst@define@key@opt{caption}{\lst@caption@key}{}
+\define@key{lst}{caption}{\@calloptsimple{\lst@caption@key}{#1}}
 \newcommand{\lst@caption@key}[2][]{\def\lst@caption{#2}}
 %%% Output Caption
 \def\listingname{Listing}
 \def\@lst@caption
-{\ife\lst@caption%
-\ife\lst@title\else\begin{center}\lst@title\end{center}\fi\else
+{\ifu\lst@caption%
+\ifu\lst@title\else\begin{center}\lst@title\end{center}\fi\else
 \begin{center}\listingname~\thelstlisting: %
-\ife\lst@label\else\label{\lst@label}\fi\lst@caption\end{center}\\\fi}
+\ifu\lst@label\else\label{\lst@label}\fi\lst@caption\end{center}\\\fi}
 %%%%%%% Output
 % Treating spaces with a counter (and not with boxes) enables
 % optimized style managment

@@ -34,4 +34,4 @@
 \newcommand{\@tocsection}[1]{\section*{#1}}
 \newcommand{\@base}{article}
 \setcounter{tocdepth}{3}
-\let \doc@style \art@style
+\let\doc@style\art@style

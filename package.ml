@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.65 2004-07-27 16:14:31 thakur Exp $    *)
+(*  $Id: package.ml,v 1.66 2004-10-11 16:22:00 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -126,7 +126,7 @@ and call_prim lexbuf =
   scan_this  main exec
 
 and call_subst_opt lexbuf =
-  let csname = get_csname lexbuf in
+  let csname = get_csname lexbuf in  
   let default = subst_arg lexbuf in
   let arg = subst_arg lexbuf in
   let lb = Lexing.from_string arg in
@@ -145,6 +145,26 @@ def_code "\\@callsubst" call_subst ;
 def_code "\\@callsubstopt" call_subst_opt ;
 def_code "\\@callprim" call_prim ;
 ;;
+
+def_code "\\@calloptsimple"
+  (fun lexbuf ->
+    let csname = get_csname lexbuf in
+    let arg = subst_arg lexbuf in
+    let lb = Lexing.from_string arg in
+    let opt = try Some (Save.opt lb) with Save.NoOpt -> None in
+    let rem =  Save.remain lb in
+    let exec =
+       match opt with
+       | None ->  csname ^ "{" ^ rem ^ "}"
+       | Some opt -> csname ^ "[" ^ opt ^ "]{" ^ rem ^ "}" in
+    if !verbose > 1 then begin
+      prerr_string "\\@calloptsimple: " ;
+      prerr_endline exec ;
+    end ;
+    scan_this  main exec
+  )
+;;
+
 
 (* Haux files parsing hooks before and after reading the file *)
 def_code "\\@hauxinit"

@@ -41,4 +41,4 @@
 \newcommand{\@tocsection}[1]{\chapter*{#1}}
 \newcommand{\@base}{book}
 \setcounter{tocdepth}{2}
-\let doc@style \book@style
+\let\doc@style\book@style
