@@ -11,7 +11,7 @@
 
 {
 open Lexing
-let header = "$Id: cut.mll,v 1.14 1999-03-12 13:17:55 maranget Exp $" 
+let header = "$Id: cut.mll,v 1.15 1999-04-02 14:44:52 maranget Exp $" 
 
 let verbose = ref 0
 ;;
@@ -34,6 +34,10 @@ and adjoin_to_header_char c = Out.put_char header_buff c
 
 and finalize_header () =
   common_headers := Out.to_string header_buff
+
+let html_buff = Out.create_buff ()
+let html_head = ref ""
+and html_foot = ref ""
 
 let push s e = s := e:: !s
 and pop s = match !s with
@@ -155,9 +159,12 @@ let openhtml title out outname =
   Out.put out !body;
   Out.put out "\n" ;
   putlinks out outname ;
-  Out.put out "<HR>\n"
+  Out.put out "<HR>\n" ;
+  Out.put out !html_head
+
 
 and closehtml name out =
+  Out.put out !html_foot ;
   Out.put out "<HR>\n" ;
   putlinks out name ;
   Out.put out "</BODY>\n" ;
@@ -303,7 +310,8 @@ let restore_state () =
 let close_top lxm =
   Out.put !out "<!--FOOTER-->\n" ;
   begin try
-    Mylib.put_from_lib ("cutfoot-"^ !language^".html") (Out.put !out)
+    if !verbose > 0 then
+      Mylib.put_from_lib ("cutfoot-"^ !language^".html") (Out.put !out)
   with Mylib.Error s -> begin
     Location.print_pos () ;
     prerr_endline s
@@ -337,7 +345,7 @@ let close_all () =
 }
 
 rule main = parse
-  "<!--" ("TOC"|"toc") ' '
+  "<!--" ("TOC"|"toc") ' '+
   {let arg = secname lexbuf in
   let sn = 
     if String.uppercase arg = "NOW" then !chapter
@@ -399,7 +407,7 @@ rule main = parse
    {close_all () ;
    restore_state () ;
    main lexbuf}
-| "<!--BEGIN" ' '+ "NOTES "
+| "<!--BEGIN" ' '+ "NOTES" ' '+
    {let sec_notes = secname lexbuf in
    skip_endcom lexbuf ;
    open_notes (Section.value sec_notes) ;     
@@ -433,10 +441,25 @@ rule main = parse
      with Not_found -> skip_aref lexbuf
    end ;
    main lexbuf}
+| "<!--HTML" ' '* "HEAD" ' '* "-->" '\n' ?
+   {let head = save_html lexbuf in
+   if !phase = 0 then
+     html_head := head
+   else
+     Out.put !out head;
+   main lexbuf}
+| "<!--HTML" ' '* "FOOT" ' '* "-->" '\n' ?
+   {let foot =  save_html lexbuf in
+   if !phase = 0 then
+     html_foot := foot ;
+   main lexbuf}
 | "<!--FOOTER-->" '\n'?
    {let lxm = lexeme lexbuf in
    close_all () ;
-   if !phase > 0 then Out.put !out lxm ;
+   if !phase > 0 then begin
+     Out.put !out !html_foot ;     
+     Out.put !out lxm
+   end ;
    footer lexbuf}
 | "<!DOCTYPE"  [^'>']* '>'
    {let lxm = lexeme lexbuf in
@@ -478,6 +501,19 @@ rule main = parse
    main lexbuf}
 | eof
    {raise (Error ("No </BODY> tag in input file"))}
+
+and save_html = parse
+| "<!--END" ' '* ['A'-'Z']+ ' '* "-->" '\n'?
+    {let s = Out.to_string html_buff in
+    if !verbose > 0 then
+      prerr_endline ("save_html -> ``"^s^"''");
+    s}
+|  _
+    {let lxm = lexeme_char lexbuf 0 in    
+    Out.put_char html_buff lxm ;
+    save_html lexbuf}
+| eof
+  {raise (Misc.Fatal ("End of file in save_html"))}
 
 and collect_header = parse
 | "</HEAD>"

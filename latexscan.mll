@@ -49,7 +49,7 @@ open Save
 open Tabular
 open Lexstate
 
-let header = "$Id: latexscan.mll,v 1.72 1999-03-17 15:24:50 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.73 1999-04-02 14:44:59 maranget Exp $" 
 
 let sbool = function
   | false -> "false"
@@ -1351,6 +1351,15 @@ rule  main = parse
         new_env env ;
         skip_blanks lexbuf ;
         lexfun lexbuf
+    | "lrbox" ->
+        let name = subst_this subst (save_arg lexbuf) in
+        Html.open_aftergroup
+          (fun s ->
+            redef_macro name 0 (Print s) ;
+            macro_register name ;
+            "") ;
+        scan_this main ("\\mbox{") ;
+        main lexbuf
     |  _ ->
         if env = "document" && !prelude then begin
           Image.put "\\pagestyle{empty}\n\\begin{document}\n";
@@ -1402,6 +1411,8 @@ rule  main = parse
           error_env env !cur_env ;
         end ;
         main lexbuf
+    | "lrbox" ->
+        scan_this main "}" ; Html.close_group () ; main lexbuf
     | _ ->
         scan_this main ("\\end"^env) ;
         if env = "alltt" then  begin
@@ -1778,7 +1789,7 @@ rule  main = parse
           with Latexmacros.Failed -> () end ;
           main lexbuf
       | "\\savebox" | "\\sbox" ->
-          let name = save_arg lexbuf in
+          let name = subst_this subst (save_arg lexbuf) in
           if name = "\\savebox" then begin
             warning "savebox";
             skip_opt lexbuf ;
@@ -1786,6 +1797,7 @@ rule  main = parse
           end ;
           let body = save_arg lexbuf in
           redef_macro name 0 (Print (get_this main body)) ;
+          macro_register name ;
           main lexbuf
       | "\\usebox" ->
           let arg = save_arg lexbuf in

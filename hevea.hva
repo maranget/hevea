@@ -48,6 +48,10 @@
 \def\par{
 
 }
+\newsavebox{\@htmlhead}
+\newsavebox{\@htmlfoot}
+\newcommand{\htmlhead}[1]{\sbox{\@htmlhead}{#1}}
+\newcommand{\htmlfoot}[1]{\sbox{\@htmlfoot}{#1}}
 %%%%%%%%%%% Footnotes
 \newcommand{\footnoterule}{\@print{<HR ALIGN=left WIDTH=50%>
 }%
@@ -419,11 +423,21 @@
 }%
 \iffrench\@print{<!--FRENCH-->
 }\fi
+{\@nostyle\@print{<!--HTMLHEAD-->
+}}%
+\usebox{\@htmlhead}%
+{\@nostyle\@print{<!--ENDHTML-->
+}}%
 \cutdef[\thecuttingdepth]{\cuttingunit}%
 \renewcommand{\thefootnote}{\arabic{footnote}}%
 \setcounter{footnote}{0}%
 }{%
 \@footnoteflush{document}%
+{\@nostyle\@print{<!--HTMLFOOT-->
+}}%
+\usebox{\@htmlfoot}%
+{\@nostyle\@print{<!--ENDHTML-->
+}}%
 \iffooter\@print{
 <!--FOOTER-->
 }%

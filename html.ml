@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: html.ml,v 1.39 1999-03-12 16:29:27 maranget Exp $" 
+let header = "$Id: html.ml,v 1.40 1999-04-02 14:44:55 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -1464,7 +1464,8 @@ let finalize check =
     check_stack "nitems_stack" nitems_stack;
     check_stack "dt_stack" dt_stack;
     check_stack "dcount_stack" dcount_stack;
-    check_stack "ncols_stack" ncols_stack
+    check_stack "ncols_stack" ncols_stack ;
+    check_stack "after_stack" after_stack
   end ;
   while !out_stack != [] do
     try close_block (pblock ()) with _ -> ()
