@@ -1049,10 +1049,21 @@ Coucou & \Gamma_A \\
 \end{alltt}
 
 \newcommand{\under}[1]{$_{\mbox{#1}}$}
+\newcommand{\rien}[1]{#1}
 \begin{alltt}
 Et voici notre ami le ``#1'' et notre pote le ``_''.
 Et voici une macro qui fait des indices A\under{1}.
 \end{alltt}
+
+Bon y avait un problème avec les arguments dont le caractère alltt ou
+pas est à considérer là où il apparaîssent en tant qu'arguments.
+Bref ya des \verb+$$+ là dessous:
+\begin{alltt}
+\rien{\rien{\rien{$$}}}
+\end{alltt}
+
+\newenvironment{vicieux}{\begin{alltt}\Large}{\end{alltt}}
+\begin{vicieux}\rien{\rien{$$}}\end{vicieux}
 \section{Les notes de bas de page en folie}
 I hate this footnote\footnote{this is the footnote}
 twice\footnotemark[\value{footnote}].
