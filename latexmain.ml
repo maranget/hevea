@@ -95,7 +95,7 @@ let main () =
 
 
 begin try
-  Printexc.print main ()
+  main ()
 with x -> begin
   Location.print_pos () ;
   raise x

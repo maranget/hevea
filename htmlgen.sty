@@ -1,12 +1,24 @@
-\newcounter{eqno}
-\newcounter{figno}
-\newenvironment{equation}{$$}{\quad\quad\addtocounter{eqno}{1}(\arabic{eqno})$$}
+\newif\iffrench
+\frenchfalse
+\newcounter{part}
+\newcounter{chapter}
+\newcounter{section}
+\newcounter{subsection}
+\newcounter{subsubsection}
+\newcounter{paragraph}
+\newcounter{subparagraph}
+\newcounter{equation}
+\newcounter{figure}
+\renewcommand{\thesubsection}{\thesection.\arabic{subsection}}
+\renewcommand{\thepart}{\Alph{part}}
+
+\newenvironment{equation}{$$}{\quad\quad\addtocounter{equation}{1}(\theequation)$$}
 \newenvironment{eqnarray*}{$$\begin{array}{rtcl}}{\end{array}$$}
-\newenvironment{eqnarray}{$$\begin{array}{rtcl@{\quad\addtocounter{eqno}{1}(\arabic{eqno})}}}{\end{array}$$}
+\newenvironment{eqnarray}{$$\begin{array}{rtcl@{\quad\addtocounter{equation}{1}(\theequation)}}}{\end{array}$$}
 \newenvironment{displaymath}{$$}{$$}
 \def\cases#1{\mbox{\left\{\begin{tabular}{ltl}#1\end{tabular}\right.}}
-\def\caption#1{\par\begin{center}Figure \addtocounter{figno}{1}\arabic{figno}: {#1}\end{center}}
-\def\footnote#1{ (#1)}
+\def\caption#1{\par\begin{center}Figure \addtocounter{figure}{1}\thefigure: {#1}\end{center}}
+\newcommand{\footnote}[2][""]{{\small (#2)}}
 \def\quad{~~~}
 \def\qquad{\quad\quad}
 \def\underbrace#1{\underline{#1}}
@@ -69,8 +81,6 @@
 \def\preceq{preceq}
 \def\ll{«}
 \def\sqsubseteq{sqsubseteq}
-\def\prec{prec}
-\def\preqeq{preceq}
 \def\gg{»}
 \def\sqsupseteq{sqsupseteq}
 \def\vdash{|-}
@@ -92,26 +102,30 @@
 \def\texttt#1{{\tt #1}}
 \def\textit#1{{\it #1}}
 \def\textbf#1{{\bf #1}}
-\def\sf{}
-\def\textsf{{\sf #1}}
-\def\sl{\purple\it}
+\def\sf{\purple}
+\def\textsf#1{{\sf #1}}
 \def\textsl#1{{\sl #1}}
 \def\sc{\bf}
+\def\textsc#1{{\sc #1}}
 \def\emph#1{{\em #1}}
 \def\makeatletter{}
 \def\setlength#1#2{}
 \def\cfoot{}
-\def\rfoot{}
-\def\lfoot{}
+\newcommand{\rfoot}[2][]{}
+\newcommand{\lfoot}[2][]{}
+\newcommand{\rhead}[2][]{}
+\newcommand{\lhead}[2][]{}
+\newcommand{\chaptermark}[1]{}
+\newcommand{\sectionmark}[1]{}
+\newcommand{\contentsname}{Table of contents}
+\newcommand{\bibname}{\iffrench Référenceces\else References\fi}
+
+
 \def\today{}
 \def\protect{}
-\def\rhead#1{}
-\def\lhead#1{}
 \def\fancyplain#1#2{}
 \def\newblock{}
 \def\vec#1{vec(#1)}
-\def\newindex#1#2#3{}
-\def\renewindex#1#2#3{}
 \def\pagebreak{}
 \def\newbox#1{}
 \def\newdimen#1{}
@@ -119,4 +133,3 @@
 \def\linebreak{}
 \def\fbox#1{\begin{array}{|c|}\hline #1\end{array}}
 \def\nocite#1{}
-\def\printindex{}

@@ -79,12 +79,25 @@ let rec parse_nargs n lexbuf = match n with
    arg::parse_nargs (n-1) lexbuf
 ;;
 
+type ok = No of string | Yes of string
+;;
+
+let from_ok = function
+  Yes s -> s
+| No s  -> s
+;;
+
+let pretty_ok = function
+  Yes s -> "+"^s^"+"
+| No s  -> "-"^s^"-"
+;;
+
 let rec parse_args_opt pat lexbuf = match pat with
   [] -> []
 | def::rest ->
-   let arg = try Save.opt lexbuf with Save.NoOpt -> def in
+   let arg = try Yes (Save.opt lexbuf) with Save.NoOpt -> No def in
    if !verbose > 2 then begin
-     Printf.fprintf stderr "Parse opt : %s\n" arg
+     Printf.fprintf stderr "Parse opt : %s\n" (pretty_ok arg)
    end ;
    arg::parse_args_opt rest lexbuf
 ;;
@@ -242,10 +255,13 @@ let iput_newpage () =
 ;;
 
 let unparse_args opts args =
-  let rec do_rec op cl = function
+  let rec do_args = function
     [] -> ""
-  | s::rest -> op^s^cl^do_rec op cl rest in
-  do_rec "[" "]" opts^do_rec "{" "}" args
+  | s::rest -> "{"^s^"}"^do_args rest in
+  let rec do_opts = function
+    Yes s::rest -> "["^s^"]"^do_opts rest
+  | _ -> "" in
+  do_opts opts^do_args args
 ;;
 
 let scan_this lexfun s =
@@ -720,15 +736,25 @@ rule  main = parse
      def_macro_pat name ([],args_pat) [Subst body] ;
      main lexbuf
     }
-  | ("\\renewcommand" | "\\newcommand") ' '*
-    {let name = Save.arg lexbuf in
+  | ("\\renewcommand" | "\\newcommand")
+    {let lxm = lexeme lexbuf in
+    let name = Save.arg lexbuf in
     let nargs = parse_args_opt ["0" ; ""] lexbuf in
     let body = Save.arg lexbuf in
-    let nargs = Char.code (String.get (List.hd nargs) 0) - Char.code '0' in
-    let rec make_defargs = function
-      0 -> ""
-    | i -> make_defargs (i-1)^"#"^string_of_int i in
-    scan_this main ("\\def"^name^make_defargs nargs^unparse_args [] [body]) ;
+    Image.put
+      (lxm^"{"^name^"}"^unparse_args nargs [body]) ;
+    let nargs,(def,defval) = match nargs with
+      [a1 ; a2] ->
+        int_of_string (from_ok a1),
+        (match a2 with
+           No s -> false,s
+        | Yes s -> true,s)
+    | _ -> failwith "Opts args in newcomand" in
+    (match lxm with
+      "\\newcommand" -> def_macro_pat
+    | _ -> redef_macro_pat) name
+      (Latexmacros.make_pat (if def then [defval] else []) nargs)
+      [Subst body] ;
     main lexbuf}
   | "\\newenvironment" ' '*
      {let args = parse_nargs 3 lexbuf in
@@ -952,7 +978,7 @@ rule  main = parse
    Html.open_group "CODE" ;
    new_env "*verb" inverb lexbuf}
 | "\\item" ' '*
-    {let arg = List.hd (parse_args_opt [""] lexbuf) in
+    {let arg = save_opt "" lexbuf in
     Html.item (fun () -> scan_this main arg) ;
     main lexbuf}
 (* Bibliographies *)
@@ -984,9 +1010,21 @@ rule  main = parse
   | "\\fi"    {main lexbuf}
 
 (* index *)
-  | "\\index" [' ''\n']*
-     {Index.treat lexbuf ;
+  | "\\index"
+     {let tag = save_opt "default" lexbuf in
+     Index.treat tag lexbuf ;
      main lexbuf}
+  | "\\printindex"
+     {let tag =  save_opt "default" lexbuf in      
+     Index.print (scan_this main) tag ;
+     main lexbuf}
+  | "\\newindex" |  "\\renewindex"
+     {let tag = save_arg lexbuf in
+     let _ = save_arg lexbuf in
+     let _ = save_arg lexbuf in
+     let name = save_arg lexbuf in
+     Index.newindex tag name ;
+     main lexbuf}     
 (* General case for commands *)
   | "\\" '@'? ((['A'-'Z' 'a'-'z']+ '*'?) | [^ 'A'-'Z' 'a'-'z'])
       {let lxm = lexeme lexbuf in
@@ -998,7 +1036,12 @@ rule  main = parse
           | Print_fun (f,i) -> scan_this main (f stack.(i))
           | Print_saved -> scan_this main !reg
           | Save_arg i -> reg := stack.(i)
-          | New_count i -> Counter.def_counter stack.(i)
+          | New_count i -> begin
+              let name = stack.(i) in
+              Counter.def_counter name ;
+              scan_this main
+                ("\\newcommand\\the"^name^"{\\arabic{"^name^"}}")
+              end
           | Set_count (i,j) ->
               let x =
                 try int_of_string stack.(j)
@@ -1053,7 +1096,7 @@ rule  main = parse
            main lexbuf
         end else begin
           let opts,args = parse_args pat lexbuf in
-          let stack = Array.of_list (opts@args) in
+          let stack = Array.of_list (List.map from_ok opts@args) in
           if !verbose > 2 then begin
             Printf.fprintf stderr "macro: %s\n"  name ;
             for i = 0 to Array.length stack-1 do

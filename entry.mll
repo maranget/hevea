@@ -5,10 +5,8 @@ let buff = Out.create_buff ()
 ;;
 
 let put s =
-  prerr_endline (">"^s) ;
   Out.put buff s
 and put_char c =
-  prerr_endline (">"^String.make 1 c) ;
   Out.put_char buff c
 ;;
 
@@ -46,5 +44,6 @@ rule entry = parse
 | _
    {let lxm = lexeme_char lexbuf 0 in put_char lxm ; entry lexbuf}
 
-   
+and skip_par = parse [' ''\n']* '{' {nesting := 1}
+
 

@@ -36,7 +36,9 @@ val verbose: int ref
 
 val find_macro: string -> pat * action list
 
+val make_pat: string list -> int -> pat
 val def_macro_pat: string -> pat  -> action list -> unit
+val redef_macro_pat: string -> pat  -> action list -> unit
 val def_macro: string -> int -> action list -> unit
 val def_env: string -> action list -> action list -> unit
 val newif : string -> unit

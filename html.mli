@@ -35,6 +35,10 @@ val flush : unit -> int
 val forget : unit -> unit
 
 val loc_ref: string -> string -> unit
+val loc_name: string -> string -> unit
 
 val insert_vdisplay: (unit -> unit) -> Latexmacros.env list
 val freeze : (unit -> unit) -> unit
+
+val open_chan: out_channel  -> unit
+val close_chan: unit -> unit

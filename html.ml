@@ -423,6 +423,7 @@ let pstart = function
 | "PRE" -> true
 | "DIV" -> true
 | "BLOCKQUOTE" -> true
+| "UL" -> true
 | _ -> false
 ;;
 
@@ -523,6 +524,8 @@ and open_block s args =
    (if !in_pre then filter_pre cur_mods else cur_mods)
    [] ;
  try_open_block s args
+
+
 (*
 and close_fullpar () =
   let rec test = function
@@ -559,6 +562,7 @@ and close_par () =
   close_flow "P"
 ;;
 
+  
 let force_flow s content =
   let active = !cur_out.active and pending = !cur_out.pending in
   force_block s content ;
@@ -729,6 +733,10 @@ let par () =
 ;;
 
 let item f =
+  if !verbose > 1 then begin
+    prerr_string "Item stack=" ;
+    pretty_stack !out_stack
+  end ;
   let mods = !cur_out.pending @ !cur_out.active in
   do_close_mods () ;
   !cur_out.pending <- mods ;
@@ -772,6 +780,14 @@ let loc_ref s1 s2 =
   put "</A>"
 ;;
 
+let loc_name s1 s2 =
+  put "<A NAME=\"" ;
+  put s1 ;
+  put "\">" ;
+  put s2 ;
+  put "</A>"
+;;
+
 let insert_vdisplay open_fun =
   if !verbose > 1 then begin
     prerr_string "insert_vdisplay: stack=" ;
@@ -802,3 +818,18 @@ let insert_vdisplay open_fun =
   with PopFreeze ->
     failwith "\\over should be properly parenthesized"
 ;;
+
+(* freeze everyting and change output file *)
+
+let open_chan chan =
+  open_group "" ;
+  free !cur_out ;
+  !cur_out.out <- Out.create_chan chan ;
+;;
+
+let close_chan () =
+  Out.close !cur_out.out ;
+  !cur_out.out <- Out.create_buff () ;
+  close_group ()
+;;
+

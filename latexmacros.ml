@@ -62,15 +62,42 @@ let def_macro_pat name pat action =
   if !verbose > 1 then begin
    Printf.fprintf stderr "def_macro %s = " name;
    pretty_macro pat action
-  end ;    
-  Hashtbl.add cmdtable name (pat,action)
+  end ;
+  try
+    Hashtbl.find cmdtable name ;
+    Location.print_pos () ;
+    prerr_string "Ignoring redefinition of: "; prerr_endline name ;
+  with
+    Not_found ->
+      Hashtbl.add cmdtable name (pat,action)
+;;
+
+let redef_macro_pat name pat action =
+  if !verbose > 1 then begin
+   Printf.fprintf stderr "redef_macro %s = " name;
+   pretty_macro pat action
+  end ;
+  try
+    Hashtbl.find cmdtable name ;
+    Hashtbl.add cmdtable name (pat,action)
+  with
+    Not_found -> begin
+      Location.print_pos () ;
+      prerr_string "Redefining non existing: "; prerr_endline name ;
+      Hashtbl.add cmdtable name (pat,action)
+  end
+;;
+
+let make_pat opts n =
+  let n_opts = List.length opts in
+  let rec do_rec r i =
+    if i <=  n_opts  then r
+    else do_rec (("#"^string_of_int i)::r) (i-1) in
+  opts,do_rec [] n
 ;;
 
 let def_macro name nargs body =
-  let rec do_rec r = function
-    0 -> r
-  | i -> do_rec (("#"^string_of_int i)::r) (i-1) in
-  def_macro_pat name ([],do_rec [] nargs) body
+  def_macro_pat name (make_pat [] nargs) body
 ;;
      
 let def_env name body1 body2 =
@@ -153,17 +180,22 @@ def_macro "\\title"  1 [Save_arg 0];
 def_macro "\\maketitle" 0 [];
 
 def_macro "\\part" 1
-    [Open ("H1","ALIGN=center") ; Print_arg 0; Close "H1"];
+    [Open ("H1","ALIGN=center") ;
+     Subst "\\addtocounter{part}{1}Part \\thepart:~" ; Print_arg 0; Close "H1"];
 def_macro "\\chapter" 1
-    [Open ("H2","") ; Print_arg 0; Close "H2"];
+    [Open ("H1","") ; Subst "\\addtocounter{chapter}{1}\\setcounter{section}{0}\\setcounter{figure}{0}" ;
+     Print_arg 0; Close "H1"];
 def_macro "\\chapter*" 1
-    [Open ("H2","") ; Print_arg 0; Close "H2"];
+    [Open ("H2","") ; Subst "\\setcounter{section}{0}\\setcounter{figure}{0}" ;
+    Print_arg 0; Close "H2"];
 def_macro "\\section" 1
-    [Open ("H2","") ; Print_arg 0; Close "H2"];
+    [Open ("H2","") ; Subst "\\setcounter{subsection}{0}\\addtocounter{section}{1}\\thesection\\ " ;
+     Print_arg 0; Close "H2"];
 def_macro "\\section*" 1
     [Open ("H2","") ; Print_arg 0; Close "H2"];
 def_macro "\\subsection" 1
-    [Open ("H3","") ; Print_arg 0; Close "H3"];
+    [Open ("H3","") ; Subst "\\addtocounter{subsection}{1}\\thesubsection\\ " ;
+     Print_arg 0; Close "H3"];
 def_macro "\\subsection*" 1
     [Open ("H3","") ; Print_arg 0; Close "H3"];
 def_macro "\\subsubsection" 1
@@ -238,7 +270,7 @@ def_macro "\\camlref" 1
   [Print "<A href=\"caml:"; Print_arg 0; Print "\">X</A>"];
 def_macro "\\pageref" 1 [Print "<A href=\"#"; Print_arg 0; Print "\">X</A>"];
 def_macro "\\thebibliography" 1
-  [Open ("H2","") ; Print "References" ; Close "H2" ;
+  [Open ("H2","") ; Subst "\\bibname" ; Close "H2" ;
   Open ("DL","")];
 def_macro "\\endthebibliography" 0 [Close "DL"];
 def_macro "\\bibitem" 1
@@ -260,7 +292,6 @@ def_macro "\\parbox" 2 [Print_arg 1];
 def_macro "\\copyright" 0 [Print "\169"];
 def_macro "\\emptyset" 0 [Print "\216"];
 def_macro "\\noindent" 0 [];
-def_macro "\\cr" 0 [Subst "\\\\"];
 def_macro "\\kern" 1 [];
 def_macro "\\vspace" 1 [];
 def_macro "\\vspace*" 1 [];
@@ -439,7 +470,6 @@ def_macro "\\int" 0
 def_macro "\\mathchardef" 2 [];
 def_macro "\\cite" 1 [];
 def_macro "\\Nat" 0 [Print "N"];
-def_macro "\\ " 0 [Subst "~"] ;
 def_macro "\\;" 0 [Subst "~"] ;
 def_macro "\\bar" 1
   [Open ("TABLE","") ; 
@@ -452,6 +482,7 @@ def_macro "\\bar" 1
 ();;
 
 let alpha_of_int i = String.make 1 (Char.chr (i-1+Char.code 'a'))
+and upalpha_of_int i = String.make 1 (Char.chr (i-1+Char.code 'A'))
 ;;
 
 
@@ -517,6 +548,7 @@ def_macro "\\setcounter"  2 [Set_count (0,1)];
 def_macro "\\addtocounter" 2 [Add_count (0,1)];
 def_macro "\\arabic" 1 [Print_count (string_of_int,0)] ;
 def_macro "\\alph" 1 [Print_count (alpha_of_int,0)] ;
+def_macro "\\Alph" 1 [Print_count (upalpha_of_int,0)] ;
 ();;
 
 (* Macros  specific to me *)
