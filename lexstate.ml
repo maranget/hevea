@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: lexstate.ml,v 1.56 2000-09-28 10:34:45 maranget Exp $"
+let header = "$Id: lexstate.ml,v 1.57 2001-02-12 10:05:37 maranget Exp $"
 
 open Misc
 open Lexing
@@ -20,12 +20,17 @@ open Stack
 (* Commands nature *)
 type action =
   | Subst of string
+  | Toks of string list
   | CamlCode of (Lexing.lexbuf -> unit)
 
 
 let pretty_action acs =
    match acs with
    | Subst s    -> Printf.fprintf stderr "{%s}" s
+   | Toks l ->
+       List.iter
+         (fun s -> Printf.fprintf stderr "{%s}, " s)
+         l
    | CamlCode _ -> prerr_string "*code*"
 
 type pat = string list * string list
@@ -225,7 +230,7 @@ let scan_arg lexfun i =
   r
 
 and scan_body exec body args = match body with
-| CamlCode _ -> exec body
+| CamlCode _|Toks _ -> exec body
 | Subst _ -> 
     let old_subst = !subst in
     subst := args ;
@@ -350,7 +355,7 @@ let full_save_arg eoferror mkarg parg lexfun lexbuf =
     save_lexstate () ;
     let r = save_rec lexbuf in
     restore_lexstate () ;
-    if !verbose > 1 then
+    if !verbose > 2 then
       prerr_endline ("Arg parsed: ``"^parg r^"''") ;
     r
   with
@@ -378,7 +383,10 @@ let eof_arg () =
   Save.empty_buffs () ;
   raise (Error "Eof while looking for argument")
 
-let save_arg lexbuf = full_save_arg eof_arg mkarg parg Save.arg lexbuf
+let save_arg lexbuf =
+  let r = full_save_arg eof_arg mkarg parg Save.arg lexbuf in
+  r
+
 and save_arg_with_delim delim lexbuf =
   full_save_arg eof_arg mkarg parg (Save.with_delim delim) lexbuf
 and save_filename lexbuf =
@@ -534,6 +542,7 @@ let rec save_opts pat lexbuf = match pat with
 
 
 let parse_args (popt,pat) lexbuf =
+  Save.seen_par := false ;
   let opts =  save_opts popt lexbuf in
   begin match pat with
   | s :: ss :: _ when norm_arg s && not (norm_arg ss) ->

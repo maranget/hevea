@@ -13,7 +13,7 @@
 open Lexing
 open Misc
 
-let header = "$Id: save.mll,v 1.59 2000-09-28 10:34:54 maranget Exp $" 
+let header = "$Id: save.mll,v 1.60 2001-02-12 10:05:39 maranget Exp $" 
 
 let rec if_next_char  c lb =
   if lb.lex_eof_reached then
@@ -392,6 +392,7 @@ and eat_delim_init = parse
       put_echo_char '{' ;
       incr brace_nesting ;
       let r = arg2 lexbuf in
+      check_comment lexbuf ;
       if if_next_string delim lexbuf then begin
         skip_delim_rec lexbuf delim 0 ;
         r

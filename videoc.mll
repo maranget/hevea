@@ -1,6 +1,6 @@
 (* <Christian.Queinnec@lip6.fr>
  The plugin for HeVeA that implements the VideoC style.
- $Id: videoc.mll,v 1.23 2000-10-31 08:25:16 maranget Exp $ 
+ $Id: videoc.mll,v 1.24 2001-02-12 10:05:41 maranget Exp $ 
 *)
 
 {
@@ -24,7 +24,7 @@ open Scan
 
 
 let header = 
-  "$Id: videoc.mll,v 1.23 2000-10-31 08:25:16 maranget Exp $"
+  "$Id: videoc.mll,v 1.24 2001-02-12 10:05:41 maranget Exp $"
 (* So I can synchronize my changes from Luc's ones *)
 let qnc_header = 
   "30 oct 2000"
@@ -119,6 +119,10 @@ rule snippetenv = parse
               prerr_endline ("user macro in snippet: "^body) ;
             Lexstate.scan_this_may_cont Scan.main
               lexbuf cur_subst (string_to_arg body)
+        | Toks l ->
+            List.iter
+              (fun s -> scan_this Scan.main s)
+              (List.rev l)
         | CamlCode f -> f lexbuf in
       scan_body exec body args
     |  _ ->

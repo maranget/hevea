@@ -121,7 +121,7 @@
 \newcommand{\stackrel}[2]{\ifdisplay
 \begin{@varray}\scriptsize#1\\{}#2\\{}~\end{@varray}\else
 \textstackrel{#1}{#2}\fi}
-\newcommand{\textoverline}[1]{\warning{Warning: overline in text}#1}
+\newcommand{\textoverline}[1]{\warning{overline in text}#1}
 \def\overline#1{\ifdisplay
 \begin{@varray}\hline #1\end{@varray}\else\textoverline{#1}\fi}
 \newcommand{\textunderline}[1]{{\@style{U}#1}}
@@ -245,7 +245,7 @@
 \newcommand{\expandafter}{}
 %% Arrays and tabular
 \newcommand{\extracolsep}[1]{}
-\newcommand{\cline}[1]{\warning{Warning, \cline changed into \hline}\hline}
+\newcommand{\cline}[1]{\warning{\cline changed into \hline}\hline}
 \newcommand{\cases}[1]{\left\{\begin{array}{l>{$}l<{$}}#1\end{array}\right.}
 \newcommand{\endcases}{}
 %%% tabularx
@@ -297,7 +297,7 @@
 {\@iffileexists{\jobname.haux}{\input{\jobname.haux}}{}\@hauxinit}
 \newcommand{\@readaux}{\input{\@basein.aux}}
 \AtBeginDocument
-{\@stopoutput\@stopimage%
+{\@sawdocumenttrue\@stopoutput\@stopimage%
 \ifthenelse{\@fileexists{\@basein.aux} \and \not \boolean{fixpoint}}
   {\@try{\@readaux}{\warning{Failure while reading .aux, reading .haux}\@readhaux}}
   {\@readhaux}%

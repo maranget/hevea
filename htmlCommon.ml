@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlCommon.ml,v 1.32 2001-01-30 10:08:41 maranget Exp $" 
+let header = "$Id: htmlCommon.ml,v 1.33 2001-02-12 10:05:30 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -667,8 +667,17 @@ let try_flush_par () = match flags.pending_par with
 | Some n -> flush_par n
 | _      -> ()
 
+
+let string_of_into = function
+  | Some n -> "+"^string_of_int n
+  | None -> "-"
+
 let forget_par () =
   let r = flags.pending_par in
+  if !verbose > 2 then
+    prerr_endline
+      ("forget_par: last_close="^ string_of_block flags.last_closed^
+       " r="^string_of_into r) ;  
   flags.pending_par <- None ;
   r
 ;;

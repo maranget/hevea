@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.203 2001-01-30 10:08:44 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.204 2001-02-12 10:05:34 maranget Exp $ *)
 
 
 {
@@ -786,6 +786,12 @@ let debug = function
 ;;
 
 
+let rec expand_toks main = function
+  | [] -> ()
+  | s::rem ->
+      expand_toks main rem ;
+      scan_this main s
+
 let expand_command main skip_blanks name lexbuf =
   if !verbose > 2 then begin
     Printf.fprintf stderr "expand_command: %s\n" name
@@ -818,7 +824,7 @@ let expand_command main skip_blanks name lexbuf =
   Printf.fprintf stderr
   "After: %s, %s -> %s\n" name (debug old_alltt) (debug !alltt)
   *)
-                 
+        | Toks l -> expand_toks main l            
         | CamlCode f -> f lexbuf
     else
       function
@@ -826,6 +832,7 @@ let expand_command main skip_blanks name lexbuf =
             if !verbose > 2 then
               prerr_endline ("user macro: "^body) ;            
             scan_this_may_cont main lexbuf cur_subst (string_to_arg body)
+        | Toks l -> expand_toks main l            
         | CamlCode f -> f lexbuf in
 
   let pat,body = Latexmacros.find name in
@@ -859,7 +866,9 @@ let expand_command main skip_blanks name lexbuf =
     macro_depth := !macro_depth - 1
   end ;
   Dest.par par_after ;
-  if saw_par then top_par (par_val !in_table)
+  if saw_par then begin
+    top_par (par_val !in_table)
+  end
 ;;
 
 let count_newlines s =
@@ -1036,7 +1045,7 @@ and latex2html_latexonly = parse
 | _ 
     {latex2html_latexonly lexbuf}
 | eof
-    {fatal "En of file in latex2html_latexonly"}
+    {fatal "End of file in latex2html_latexonly"}
 
 and latexonly = parse
    '%'+ ' '* ("END"|"end") ' '+ ("LATEX"|"latex")  [^'\n']* '\n'
@@ -1402,6 +1411,7 @@ def_code "\\@hevea@obrace"
       else begin
         Dest.put_char '{'
       end) ;
+
 def_code "\\bgroup"
     (fun lexbuf ->
       top_open_group () ;
@@ -1493,10 +1503,6 @@ let get_prim_arg lexbuf =
 and get_prim_opt def lexbuf =
   let arg = save_opt def lexbuf in
   get_prim_onarg arg
-
-
-
-
 
 
 let get_csname lexbuf =
@@ -2129,6 +2135,8 @@ let testif cell lexbuf =
   else skip_false lexbuf
 
 let setif cell b lexbuf =
+  let old = !cell in
+  fun_register (fun () -> cell := old) ;
   cell := b ;
   check_alltt_skip lexbuf 
 ;;
@@ -2159,12 +2167,17 @@ let newif_ref name cell =
 ;;
 
 let newif lexbuf =
-  let arg = subst_arg lexbuf in
-  try
+  let arg = get_csname lexbuf in
+  let saw_par = !Save.seen_par  in
+  begin try
     let name = extract_if arg in
     let cell = ref false in
-    newif_ref name cell
+    newif_ref name cell ;
   with Latexmacros.Failed -> ()
+  end ;
+  if saw_par then begin
+    top_par (par_val !in_table)
+  end
 ;;
 
 exception FailedFirst
@@ -2213,6 +2226,9 @@ def_code "\\fi" (fun lexbuf -> check_alltt_skip lexbuf)
 ;;
 
 
+let sawdocument = ref false
+;;
+
 newif_ref "symb" symbols ;
 newif_ref "iso" iso ;
 newif_ref "raw" raw_chars ;
@@ -2233,6 +2249,7 @@ newif_ref "pedantic" pedantic ;
 newif_ref "fixpoint" fixpoint ;
 newif_ref "alltt@loaded" alltt_loaded ;
 newif_ref "filter" (ref filter) ;
+newif_ref "@sawdocument" sawdocument ;
 def_code ("\\iftrue") (testif (ref true)) ;
 def_code ("\\iffalse") (testif (ref false))
 ;;
@@ -2349,7 +2366,12 @@ def_code "\\end"
     top_close_block "")
 ;;
 
-def_code "\\@raise@enddocument" (fun _ -> raise Misc.EndDocument)
+def_code "\\@raise@enddocument"
+  (fun _ ->
+    if not !sawdocument then
+      fatal ("\\end{document} with no \\begin{document}")
+    else
+      raise Misc.EndDocument)
 ;;
 
 def_code "\\@end"

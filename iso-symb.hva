@@ -73,14 +73,14 @@
 \def\bigcirc{{\Huge\circ}}
 \def\ll{«}
 \def\gg{»}
-\def\vdash{|-}
-\def\dashv{-|}
-\def\mid{|}
-\def\mapsto{|\rightarrow}
-\def\tth{||-}
+\def\vdash{\textnormal{|-}}
+\def\dashv{\textnormal{-|}}
+\def\mid{\textnormal{|}}
+\def\mapsto{\textnormal{|}\rightarrow}
+\def\tth{\textnormal{||-}}
 \def\bot{\perp}
-\def\models{|=}
-\def\|{||}
+\def\models{\textnormal{|=}}
+\def\|{\textnormal{||}}
 \def\star{\warning{Star -> *}*}
 \def\frac#1#2{{#1\over #2}}
 \def\ldots{...}

@@ -75,15 +75,19 @@ let lst_init_save_chars s f =
 
 (* Output functions *)
 let lst_gobble  = ref 0
-and lst_nchars  = ref 0
 and lst_nlines  = ref 0
 and lst_first   = ref 1
 and lst_last    = ref 9999
 and lst_print   = ref true
+and lst_string_spaces = ref true
 and lst_texcl   = ref false
 and lst_extended = ref false
 and lst_sensitive = ref true
 and lst_mathescape = ref false
+and lst_directives = ref false
+
+let lst_effective_spaces = ref false (* false => spaces are spaces *)
+and lst_save_spaces  = ref false
 
 let lst_buff = Out.create_buff ()
 
@@ -98,7 +102,10 @@ and lst_direct_put c =
   lst_last_char := c ;
   Dest.put_char c
 
-type lst_scan_mode = Letter | Other | Empty
+type lst_scan_mode =
+  | Letter | Other | Empty | Start
+  | Directive of bool (* bool flags some letter read *)
+
 let lst_scan_mode = ref Empty
 
 type comment_type =
@@ -108,7 +115,8 @@ type comment_type =
 
 type lst_top_mode =
   | Skip
-  | String of char | Normal | Comment of comment_type
+  | String of (char * (char * (Lexing.lexbuf -> char -> unit)) list)
+  | Normal | Comment of comment_type
   | Delim of int * (char * (Lexing.lexbuf -> char -> unit)) list
   | Gobble of lst_top_mode * int
   | Escape of lst_top_mode * char * bool (* bool flags mathescape *)
@@ -161,7 +169,6 @@ let lst_output_other () =
         dest_string arg
   end
 
-
 and lst_output_letter () =
   if not (Out.is_empty lst_buff) then begin
     match !lst_top_mode with
@@ -174,20 +181,28 @@ and lst_output_letter () =
         dest_string (Out.to_string lst_buff)
   end
 
+and lst_output_directive () =
+  if not (Out.is_empty lst_buff) then begin
+    match !lst_top_mode with
+    | Normal ->
+        let arg = Out.to_string lst_buff in
+        def_print arg ;
+        scan_this Scan.main ("\\lst@output@directive{\\@tmp@lst}{\\@tmp@lst@print}")
+    | _ ->
+        scan_this main "\\@NewLine" ;
+        dest_string (Out.to_string lst_buff)
+  end
+
 let lst_output_token () =
-  scan_this main "\\@NewLine" ;
   match !lst_scan_mode with
   | Letter -> lst_output_letter ()
   | Other  -> lst_output_other ()
-  | Empty  -> ()
+  | Directive _ -> lst_output_directive ()
+  | Empty|Start  -> scan_this main "\\@NewLine"
 
 
 let lst_finalize inline =
-  begin match !lst_scan_mode with
-  | Letter -> lst_output_letter ()
-  | Other  -> lst_output_other ()
-  | Empty  -> ()
-  end ;
+  lst_output_token () ;
   if not inline then Dest.put_char '\n'
 
 
@@ -239,10 +254,11 @@ match !lst_top_mode with
 | mode  ->
     scan_this Scan.main "\\lsthk@InitVarEOL\\lsthk@EOL" ;
     begin match !lst_scan_mode with
-    | Empty -> ()
+    | Empty -> lst_scan_mode := Start
+    | Start -> ()
     | _ ->
         lst_output_token () ;
-        lst_scan_mode := Empty
+        lst_scan_mode := Start
     end ;
     incr lst_nlines ;  
     if !lst_nlines <= !lst_last then begin
@@ -253,7 +269,6 @@ match !lst_top_mode with
     end else
       lst_top_mode := Skip
 
-
 let lst_process_letter lb lxm =
 if !verbose > 1 then  Printf.fprintf stderr "lst_process_letter: %c\n" lxm ;
 match !lst_top_mode with
@@ -262,7 +277,12 @@ match !lst_top_mode with
 | Escape (mode,c,math) -> lst_do_escape mode c math lb lxm
 | _ -> match !lst_scan_mode with
   | Letter -> lst_put lxm
-  | Empty ->
+  | Directive true ->
+      lst_put lxm
+  | Directive false ->
+      lst_scan_mode := Directive true ;
+      lst_put lxm
+  | Empty|Start ->
       lst_scan_mode := Letter ;
       lst_put lxm
   | Other  ->
@@ -279,7 +299,11 @@ match !lst_top_mode with
 | Escape (mode,c,math) -> lst_do_escape mode c math lb lxm
 | _ ->  match !lst_scan_mode with
   | Letter|Other -> lst_put lxm
-  | Empty  ->
+  | Directive _ ->
+      lst_output_directive () ;
+      lst_scan_mode := Other ;
+      lst_put lxm
+  | Empty|Start  ->
       lst_scan_mode := Other ;
       lst_put lxm
 
@@ -292,13 +316,20 @@ match !lst_top_mode with
 | Escape (mode,c,math) -> lst_do_escape mode c math lb lxm
 |  _ -> match !lst_scan_mode with
     | Other -> lst_put lxm
-    | Empty ->
+    | Empty|Start ->
         lst_scan_mode := Other ;
         lst_put lxm        
+    | Directive _ ->
+        lst_output_directive () ;
+        lst_scan_mode := Other ;
+        lst_put lxm
     | Letter ->
         lst_output_letter () ;
         lst_scan_mode := Other ;
         lst_put lxm
+
+(*  Caml code for \stepcounter{lst@space}  *)
+let lst_output_space () = Counter.step_counter "lst@spaces"
 
 let lst_process_space lb lxm =
 if !verbose > 1 then
@@ -309,12 +340,28 @@ match !lst_top_mode with
 | Escape (mode,c,math) -> lst_do_escape mode c math lb lxm
 | _ ->
     begin match !lst_scan_mode with
-    | Other -> lst_output_other ()
-    | Letter -> lst_output_letter ()
-    | _ -> ()
+    | Other ->
+        lst_output_other ()  ;
+        lst_scan_mode := Empty
+    | Letter|Directive true ->
+        lst_output_token () ;
+        lst_scan_mode := Empty
+    | Empty|Directive false -> ()
+    | Start ->
+        lst_scan_mode := Empty
     end ;
-    lst_scan_mode := Empty ;
-    scan_this main "\\lst@output@space"
+    lst_output_space ()
+
+let lst_process_start_directive  old_process lb lxm =
+  match !lst_top_mode with
+  | Normal -> begin match !lst_scan_mode with
+    | Start ->
+        lst_scan_mode := Directive false
+    | _ -> old_process lb lxm
+  end
+  | _ ->  old_process lb lxm
+      
+  
 
 exception EndVerb
 
@@ -358,32 +405,48 @@ match !lst_top_mode with
 
   
 (* Strings *)
-let lst_quote_bs = ref false
+let rec restore_char_table to_restore =
+  let rec do_rec = function
+    | [] -> ()
+    | (c,f)::rest ->
+        lst_init_char c f ;
+        do_rec rest in
+  do_rec to_restore
 
-let lst_avoid_bs_bs old_process lb lxm = match !lst_top_mode with
-| String c when !lst_last_char = '\\' ->
-    old_process lb lxm ;
-    lst_last_char := ' '
-| _ -> old_process lb lxm
-
+let lst_bs_string old_process lb lxm =
+  old_process lb lxm ;
+  let saved = Array.copy lst_char_table in
+  let process_quoted _ lxm =
+    lst_put lxm ;
+    Array.blit saved 0 lst_char_table 0 (Array.length saved) in
+  Array.fill lst_char_table 0 (Array.length lst_char_table) process_quoted
+  
 
 let lst_init_quote s =
+  let r = ref [] in
   for i = 0 to String.length s-1 do
-    if s.[i] = 'b' then lst_quote_bs := true ;
-    lst_init_save_char '\\' lst_avoid_bs_bs         
-  done
+    if s.[i] = 'b' then begin
+      r := ('\\',lst_char_table.(Char.code '\\')) :: !r ;
+      lst_init_save_char '\\' lst_bs_string
+    end
+  done ;
+  !r 
 
-let lst_process_stringizer old_process lb lxm = match !lst_top_mode with
+let lst_process_stringizer quote old_process lb lxm = match !lst_top_mode with
   | Normal ->
       lst_output_token () ;
-      lst_top_mode := String lxm ;
+      let to_restore = lst_init_quote quote in
+      lst_top_mode := String (lxm, to_restore) ;
+      lst_save_spaces := !lst_effective_spaces ;
+      lst_effective_spaces := !lst_string_spaces ;
       scan_this Scan.main "\\begingroup\\lst@string@style" ;
       old_process lb lxm
-  | String c when lxm = c &&
-    (not !lst_quote_bs || !lst_last_char <> '\\') ->
+  | String (c,to_restore) when lxm = c ->
       old_process lb lxm ;
       lst_output_token () ;
       scan_this Scan.main "\\endgroup" ;
+      restore_char_table to_restore ;
+      lst_effective_spaces := !lst_save_spaces ;
       lst_top_mode := Normal
   | _ -> old_process lb lxm
 
@@ -410,14 +473,6 @@ let init_char_table_delim chars wrapper =
       (c,old_process))
   chars
 
-and restore_char_table_delim to_restore =
-  let rec do_rec = function
-    | [] -> ()
-    | (c,f)::rest ->
-        lst_init_char c f ;
-        do_rec rest in
-  do_rec to_restore
-          
 
 let eat_delim k new_mode old_process lb c s =
   let chars = chars_string c s in
@@ -427,7 +482,7 @@ let eat_delim k new_mode old_process lb c s =
       if n = 1 then begin
         lst_output_token () ;
         lst_top_mode := new_mode ;
-        restore_char_table_delim to_restore ;
+        restore_char_table to_restore ;
         k ()
       end else
         lst_top_mode := Delim (n-1,to_restore)
@@ -578,7 +633,7 @@ and eat_line = parse
         (Eof "eat_line")
     end}
 | [^'\n']  {eat_line lexbuf}
-| '\n'     {lst_nchars := 0 ; lst_process_newline lexbuf '\n'}
+| '\n'     {lst_process_newline lexbuf '\n'}
 
 and do_escape = parse
 | eof {}
@@ -922,6 +977,24 @@ register_init "comment" init_comment
 
 (* The listings package *)
 
+(* 
+  Caml code for
+  \def\lst@spaces
+    {\whiledo{\value{lst@spaces}>0}{~\addtocounter{lst@spaces}{-1}}}
+*)
+let code_spaces lexbuf =
+  let n = Counter.value_counter "lst@spaces" in
+  if !lst_effective_spaces then
+    for i = n-1 downto 0 do
+      Dest.put_char '_'
+    done
+  else
+    for i = n-1 downto 0 do
+      Dest.put_nbsp ()
+    done ;
+  Counter.set_counter "lst@spaces" 0
+;;
+
 let code_double_comment process_B process_E lexbuf =
   let lxm_B = get_prim_arg lexbuf in
   let lxm_E = get_prim_arg lexbuf in
@@ -946,6 +1019,11 @@ let code_line_comment lexbuf =
     lst_init_save_char head (lst_process_LC rest)
   end
 
+let code_stringizer lexbuf =
+  let mode = Scan.get_prim_arg lexbuf in
+  let schars = Scan.get_prim_arg lexbuf in
+  lst_init_save_chars schars (lst_process_stringizer mode)
+;;
 
 let open_lst inline keys lab =
   scan_this Scan.main ("\\lsthk@PreSet\\lstset{"^keys^"}") ;
@@ -954,7 +1032,6 @@ let open_lst inline keys lab =
     scan_this Scan.main "\\lsthk@InlineUnsave" ;
 (* Ignoring output *)
   lst_gobble := Get.get_int (string_to_arg "\\lst@gobble") ;
-  lst_nchars := 0 ;
   lst_first := Get.get_int (string_to_arg "\\lst@first") ;
   lst_last := Get.get_int (string_to_arg "\\lst@last") ;
   lst_nlines := 0 ;
@@ -965,17 +1042,15 @@ let open_lst inline keys lab =
       lst_init_char (Char.chr i) lst_process_letter
     done ;
   scan_this Scan.main "\\lsthk@Init" ;
+(* Directives *)
+  if !lst_directives then begin
+    lst_init_save_char '#' lst_process_start_directive
+  end ;
 (* Print key *)
   if not !lst_print then begin
     lst_last := -2 ; lst_first := -1
   end ;  
 (* Strings *)
-  let quote_mode =
-     Scan.get_this_main "\\@getprintnostyle{\\lst@quote@stringizers}" in
-  lst_init_quote quote_mode ;
-  let stringizers =
-     Scan.get_this_main "\\@getprintnostyle{\\lst@stringizers}" in
-  lst_init_save_chars stringizers lst_process_stringizer ;
 (* Escapes to TeX *)
   if !lst_mathescape then begin
     lst_init_save_char '$' (lst_process_escape true '$')
@@ -1026,7 +1101,11 @@ let init_listings () =
   Scan.newif_ref "lst@texcl" lst_texcl ;
   Scan.newif_ref "lst@sensitive" lst_sensitive ;
   Scan.newif_ref "lst@mathescape" lst_mathescape ;
+  Scan.newif_ref "lst@directives" lst_directives ;
+  Scan.newif_ref "lst@stringspaces" lst_string_spaces ;
+  def_code "\\lst@spaces" code_spaces ;
   def_code "\\lst@boolean" lst_boolean ;
+  def_code "\\lst@def@stringizer" code_stringizer ;
   def_code "\\lst@AddTo"
     (fun lexbuf ->
       let sep = Scan.get_prim_arg lexbuf in

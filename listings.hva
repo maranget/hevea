@@ -30,6 +30,8 @@
 %%%%%%%%%%%%
 \newcommand{\lst@Hook}[1]
   {\newtokens{\csname lsthk@#1\endcsname}}
+\newcommand{\lst@ResetHook}[1]
+  {\resettokens{\csname lsthk@#1\endcsname}}
 \newcommand{\lst@UseHook}[1]
   {\csname lsthk@#1\endcsname}
 \newcommand{\lst@AddToHook}[2]
@@ -45,7 +47,7 @@
 \lst@Hook{SelectCharTable}
 \lst@Hook{SetLanguage}
 \lst@Hook{AfterSetLanguage}
-\lst@AddToHook{SetLanguage}{\def\lsthk@AfterSetLanguage{}}
+\lst@AddToHook{SetLanguage}{\lst@ResetHook{AfterSetLanguage}}
 \lst@Hook{SetStyle}
 \def\lststy@{\lsthk@EmptyStyle}
 \lst@Hook{EmptyStyle}
@@ -58,27 +60,38 @@
 \def\lst@record@kwds#1{\lst@AddTo,{\lst@allkeywords}{\lst@normalize{#1}}}
 \newcommand{\lst@allotherkeywords}{}
 \def\lst@record@okwds#1{\lst@AddTo,{\lst@allotherkeywords}{\lst@normalize{#1}}}
+\newcommand{\lst@alldirectives}{}
+\def\lst@record@directives#1{\lst@AddTo,{\lst@alldirectives}{\lst@normalize{#1}}}
 \lst@AddToHook{SetLanguage}
   {\@callprim{\lst@delete@kwds}{\{\lst@allkeywords\}}%
-  \@callprim{\lst@delete@okwds}{\{\@rawchars{\lst@allotherkeywords}\}}}
+  \@callprim{\lst@delete@okwds}{\{\@rawchars{\lst@allotherkeywords}\}}%
+  \@callprim{\lst@delete@directives}{\{\lst@alldirectives\}}}
 \def\lst@install@kwd#1#2{\def\csname lstk@\lst@normalize{#2}\endcsname{#1}}
 \def\lst@install@kwds
   #1#2{%
     \lst@record@kwds{#2}%
     \lst@iter{\lst@install@kwd{#1}}{#2}}
+\def\lst@install@directive#1#2{\def\csname lstd@\lst@normalize{#2}\endcsname{#1}}
+\def\lst@install@directives
+  #1#2{%
+    \lst@directivestrue%
+    \lst@record@directives{#2}%
+    \lst@iter{\lst@install@directive{#1}}{#2}}
 \def\lst@install@okwds
   #1#2{%
     \lst@record@okwds{#2}%
     \lst@iter{\lst@install@kwd{#1}}{#2}}
 \def\lst@delete@kwd
   #1{\def\csname lstk@\@rawchars{#1}\endcsname{\lst@identifier@style}}
+\def\lst@delete@directive
+  #1{\def\csname lstd@\@rawchars{#1}\endcsname{}}
 \def\lst@delete@okwds#1{\lst@iter{\lst@delete@okwd}{#1}}
+\def\lst@delete@kwds#1{\lst@iter{\lst@delete@kwd}{#1}}
+\def\lst@delete@directives#1{\lst@iter{\lst@delete@directive}{#1}}
 \def\lst@delete@okwd
   #1{\def\csname lstk@\@rawchars{#1}\endcsname{}}
-\def\lst@delete@kwds#1{\lst@iter{\lst@delete@kwd}{#1}}
 \def\lst@delay@install#1#2{\lst@AddToHook{AfterSetLanguage}{\lst@install@kwds{#1}{#2}}}
 \def\lst@delay@delete#1{\lst@AddToHook{AfterSetLanguage}{\lst@delete@kwds{#1}}}
-\define@key{lst}{directives}{\lst@delay@install\lst@directive@style#1}
 \define@key{lst}{keywords}{\lst@delay@install\lst@kwd@style#1}
 \define@key{lst}{morekeywords}{\lst@delay@install\lst@kwd@style#1}
 \define@key{lst}{deletekeywords}{\lst@delay@delete#1}
@@ -89,17 +102,22 @@
 \define@key{lst}{morerdkeywords}{\lst@delay@install\lst@rdkwd@style#1}
 \define@key{lst}{deleterdkeywords}{\lst@delay@delete#1}
 %%%%%%%% Other keywords
-\def\lst@delay@oinstall#1#2{\lstinfo{DELAY: \lst@normalize{#2}}\lst@AddToHook{AfterSetLanguage}{\warning{COUCOU}\lst@install@okwds{#1}{#2}}}
+\def\lst@delay@oinstall#1#2{\lst@AddToHook{AfterSetLanguage}{\lst@install@okwds{#1}{#2}}}
 \def\lst@delay@odelete#1{\lst@AddToHook{AfterSetLanguage}{\lst@delete@okwds{#1}}}
 \define@key{lst}{otherkeywords}{\lst@delay@oinstall\lst@okwd@style#1}
 \define@key{lst}{morekeothersywords}{\lst@delay@oinstall\lst@okwd@style#1}
 \define@key{lst}{deleteotherskeywords}{\lst@delay@odelete#1}
-%%%%%%%
+%%% Directives
+\def\lst@delay@dinstall#1#2{\lst@AddToHook{AfterSetLanguage}{\lst@install@directives{#1}{#2}}}
+\def\lst@delay@ddelete#1{\lst@AddToHook{AfterSetLanguage}{\lst@delete@directives{#1}}}
+\define@key{lst}{directives}{\lst@delay@dinstall\lst@directive@style#1}
+\define@key{lst}{moredirectives}{\lst@delay@dinstall\lst@directive@style#1}
+%%%%%%% Styles applied to keywords, strings etc %%%%%%
 \define@key{lst}{keywordstyle}{\def\lst@kwd@style##1{#1{##1}}}
 \define@key{lst}{ndkeywordstyle}{\def\lst@ndkwd@style##1{#1{##1}}}
 \define@key{lst}{rdkeywordstyle}{\def\lst@rdkwd@style##1{#1{##1}}}
 \define@key{lst}{otherkeywordstyle}{\def\lst@okwd@style##1{#1{##1}}}
-\define@key{lst}{directivetyle}{\def\lst@directive@style##1{#1{##1}}}
+\define@key{lst}{directivestyle}{\def\lst@directive@style##1{#1{##1}}}
 \define@key{lst}{identifierstyle}{\def\lst@identifier@style##1{#1{##1}}}
 \define@key{lst}{Identifierstyle}{\def\lst@Identifier@style##1{#1{##1}}}
 \define@key{lst}{nonkeywordstyle}{\def\lst@identifier@style##1{#1{##1}}}
@@ -114,6 +132,7 @@
 \lst@AddToHook{EmptyStyle}{\def\lst@ndkwd@style{\lst@kwd@style}}
 \lst@AddToHook{EmptyStyle}{\def\lst@rdkwd@style{\lst@kwd@style}}
 \lst@AddToHook{EmptyStyle}{\def\lst@okwd@style{\lst@kwd@style}}
+\lst@AddToHook{EmptyStyle}{\def\lst@directive@style{\lst@kwd@style}}
 \lst@AddToHook{EmptyStyle}{\def\lst@directive@style{\lst@kwd@style}}
 %%%%%% Emph identifiers
 \def\lst@defall#1#2\@empty{\def\csname #1\endcsname{#2}}
@@ -149,7 +168,9 @@
     {lstlang@#2@\csname lstdd@#2\endcsname}
     {lstlang@#2@#1}}
 \newcommand{\lst@language@key}[2][]
-  {\lsthk@SetLanguage\csname\lst@mklang[#1]{#2}\endcsname\lsthk@AfterSetLanguage}
+  {\lst@UseHook{SetLanguage}%
+  \csname\lst@mklang[#1]{#2}\endcsname%
+  \lst@UseHook{AfterSetLanguage}}
 \lst@define@key@opt{language}{\lst@language@key}{}
 \newcommand{\lst@checkdd}[2]
   {\@ifundefined{lstdd@#1}{\lst@define@dd[#2]{#1}}{}}
@@ -158,7 +179,7 @@
 \newcommand{\lst@derivelanguage@}[5]
   {\lst@checkdd{#1}{#2}%
   \def\csname\lst@mklang[#2]{#1}\endcsname{\csname\lst@mklang[#4]{#3}\endcsname
-    \lsthk@AfterSetLanguage\def\lsthk@AfterSetLanguage{}%
+    \lst@UseHook{AfterSetLanguage}\lst@ResetHook{AfterSetLanguage}%
     \lstset{#5}}}
 \lst@define@key@opt{defaultdialect}{\lst@define@dd}{}
 %%%%%%% Frames
@@ -263,13 +284,23 @@
      {\setboolean{lst@print}{\lst@boolean{\lst@print}}}}
 \lst@AddToHook{DeInit}{\setboolean{lst@print}{true}}
 %%%%%%% Strings
+\lst@Hook{String}
+\lst@AddToHook{Init}{\lst@UseHook{String}}
+\lst@AddToHook{SetLanguage}{\lst@ResetHook{String}}
+\newcommand{\lst@stringizer@key@add}[2][]
+  {\lst@AddToHook{String}{\lst@def@stringizer{#1}{#2}}}
 \newcommand{\lst@stringizer@key}[2][]
-  {\def\lst@quote@stringizers{\@rawchars{#1}}%
-  \def\lst@stringizers{\@rawchars{#2}}}
+  {\lst@ResetHook{String}\lst@AddToHook{String}{\lst@def@stringizer{#1}{#2}}}
 \lst@define@key@opt{stringizer}{\lst@stringizer@key}{}
 \lst@define@key@opt{string}{\lst@stringizer@key}{}
-\lst@AddToHookExe{SetLanguage}
-  {\def\lst@stringizers{}\def\lst@quote@stringizers{}}
+\lst@define@key@opt{morestring}{\lst@stringizer@key@add}{}
+% stringspaces
+\define@key{lst}{stringspaces}[true]{\def\lst@stringspaces{#1}}
+\setboolean{lst@stringspaces}{true}
+\lst@AddToHook{Init}
+  {\@ifundefined{lst@stringspaces}{}
+     {\setboolean{lst@stringspaces}{\lst@boolean{\lst@stringspaces}}}}
+\lst@AddToHook{DeInit}{\setboolean{lst@stringspaces}{true}}
 %%%%%% Comments
 % Line comments
 \newcommand{\lst@LC@key}[1]
@@ -344,8 +375,6 @@
 % optimized style managment
 \newcounter{lst@spaces}
 \def\lst@output@space{\stepcounter{lst@spaces}}
-\def\lst@spaces
-  {\whiledo{\value{lst@spaces}>0}{~\addtocounter{lst@spaces}{-1}}}
 \lst@AddToHook{Init}{\setcounter{lst@spaces}{0}}
 \def\lst@normalize
   #1{\iflst@sensitive\@rawchars{#1}\else\@rawchars{\lowercase{#1}}\fi}
@@ -358,7 +387,19 @@
 \@NewLine%\lstinfo{OTHER: ``#1'' ``#2''}%
 \ifu\csname lstk@\lst@normalize{#1}\endcsname
   #2\else
-  {{\csname lstk@\lst@normalize{#1}\endcsname{#2}}}\fi}
+  {\csname lstk@\lst@normalize{#1}\endcsname{#2}}\fi}
+\newcounter{lst@save@spaces}
+\def\save@spaces
+  {\setcounter{lst@save@spaces}{\value{lst@spaces}}\setcounter{lst@spaces}{0}}
+\def\restore@spaces
+  {\setcounter{lst@spaces}{\value{lst@save@spaces}}}
+\def\lst@output@directive#1#2{%
+%\lstinfo{DIRECTIVE: ``#1'' ``#2'' ``\thelst@spaces''}%
+\save@spaces\@NewLine\restore@spaces%
+\ifu\csname lstd@\lst@normalize{#1}\endcsname
+  {\lst@directive@style{\@print{#}}}%
+  \lst@spaces\lst@output{#1}{#2}\else
+  {\csname lstd@\lst@normalize{#1}\endcsname{\@print{#}\lst@spaces#2}}\fi}
 %%%%%% Pre and post (already obsolete)
 \let\lst@pre\@empty
 \let\lst@post\@empty

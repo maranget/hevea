@@ -18,7 +18,7 @@ open Lexstate
 open Stack
 
 (* Compute functions *)
-let header = "$Id: get.mll,v 1.23 2000-10-13 19:17:22 maranget Exp $"
+let header = "$Id: get.mll,v 1.24 2001-02-12 10:05:29 maranget Exp $"
 
 exception Error of string
 
@@ -220,8 +220,11 @@ rule result = parse
     let args = make_stack lxm pat lexbuf in
     scan_body
       (function
-        | Subst body ->
-            scan_this result body
+        | Subst body -> scan_this result body
+        | Toks l ->
+            List.iter
+              (scan_this result)
+              (List.rev l)
         | CamlCode f ->
             let rs = !get_fun f lexbuf in
             scan_this result rs)

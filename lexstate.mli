@@ -12,6 +12,7 @@
 
 type action =
   | Subst of string
+  | Toks of string list
   | CamlCode of (Lexing.lexbuf -> unit)
 val pretty_action : action -> unit
 

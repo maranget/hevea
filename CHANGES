@@ -1,5 +1,7 @@
   
 version 1.06-5
+  - Bug paragraphe (remettre Save.seen_par a` false dans make_stack).
+  - Bug \iftest -> modifs locales (par fun_register)
   - Bug argument csname de \newcommand dans toimage -> save_arg
   - Licence du manuel.
   - Bug par, Dest.par None doit e^tre un nop (cf. appel dans expand_command,
