@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: index.ml,v 1.37 2000-01-27 16:31:25 maranget Exp $"
+let header = "$Id: index.ml,v 1.38 2000-02-22 16:22:45 maranget Exp $"
 open Misc
 open Parse_opts
 open Entry
@@ -281,7 +281,7 @@ let make_index t =
   !all,table
 
 
-let output_index tag name entries out =
+let output_index tag entries out =
   if !verbose > 1 then prerr_endline ("Print index ``"^tag^"''") ;
   let all_keys,table = make_index entries in
   let prev = ref ([],[]) in
@@ -295,6 +295,16 @@ let output_index tag name entries out =
   List.iter (fun _ -> Out.put out "\\end{indexenv}\n") pk
 
 
+let create_hind t tag sufout = 
+  let outname = index_filename sufout in
+  try 
+    let chan = open_out outname in
+    output_index tag t (Out.create_chan chan) ;
+    close_out chan
+  with
+  | Sys_error s ->
+      Misc.warning ("File error for "^outname^": "^s)
+
 let newindex tag sufin sufout name =  
 (*  prerr_endline ("New index: "^tag) ; *)
   Hashtbl.remove itable tag ;
@@ -306,15 +316,7 @@ let newindex tag sufin sufout name =
     with Sys_error _ -> None in
   begin match from_file with
   | None -> ()
-  | Some t ->
-      let outname = index_filename sufout in
-      try 
-        let chan = open_out outname in
-        output_index tag name t (Out.create_chan chan) ;
-        close_out chan
-      with
-      | Sys_error s ->
-        Misc.warning ("File error for "^outname^": "^s)
+  | Some t -> create_hind t tag sufout
   end ;
   Hashtbl.add itable tag
     {name = name ;
@@ -329,18 +331,12 @@ let print main tag =
     let idx = find_index tag in
     main ("\\@indexsection{"^idx.name^"}") ;
     let indname = index_filename idx.sufout in
-    if Sys.file_exists indname then
-      main ("\\input{"^indname^"}")
-    else begin
-      let out = Out.create_buff () in
-      output_index tag idx.name (Table.trim idx.from_doc) out ;
-      let s = Out.to_string out in
-      if !verbose > 1 then begin
-        prerr_endline ("Formated index: "^tag^" is ") ;
-        prerr_endline s
-      end ;
-      main s
-    end
+    begin match idx.from_file with
+    | None ->
+        create_hind  (Table.trim idx.from_doc) tag idx.sufout
+    | _ -> ()
+    end ;
+    main ("\\input{"^indname^"}")
   with
   | Not_found -> missing_index tag
 

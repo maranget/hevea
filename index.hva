@@ -13,7 +13,4 @@
 \newcommand{\@seename}{\iffrench voir\else see\fi}
 \newcommand{\see}[2]{\@seename\ \textit{#1}}
 \newcommand{\@vwritefile}[2]{}
-%%%%%% Formating
-\newcommand{\indexspace}{\par}
-\newenvironment{indexenv}{\begin{itemize}}{\end{itemize}}
-\newcommand{\indexitem}{\item}
+

@@ -5,7 +5,7 @@ open Table
 open Lexstate
 open Subst
 
-let header = "$Id: tabular.mll,v 1.18 1999-10-01 16:15:34 maranget Exp $"
+let header = "$Id: tabular.mll,v 1.19 2000-02-22 16:22:47 maranget Exp $"
 
 exception Error of string
 ;;
@@ -34,6 +34,7 @@ type format =
 | Border of string
 ;;
 
+(* Patch vertical alignment (for HTML) *)
 let check_vert f =
   try
     for i = 0 to Array.length f-1 do
@@ -52,6 +53,19 @@ let check_vert f =
     f
   end
 
+(* Compute missing length (for text) *)
+and check_length f =
+  for i = 0 to Array.length f - 1 do
+    match f.(i) with
+    | Align ({wrap=true ; width=Length.No _} as r) ->
+        f.(i) <-
+           Align
+             {r with
+              width =
+              Length.Percent
+                (truncate (100.0 /. float (Array.length f)))}
+    | _ -> ()
+  done
 
 let border = ref false
 
@@ -67,15 +81,15 @@ let out_table = Table.create (Inside "")
 let pretty_format = function
   |   Align {vert = v ; hor = h ; pre = pre ; post = post ; wrap = b ; width = w}
       ->
-        ">{"^pre^"}"^
-        "h="^h^" v="^v^
-        "<{"^post^"}"^(if b then " wrap" else "")^
-        "w="^Length.pretty w
+        "[>{"^pre^"}"^
+        ", h="^h^", v="^v^
+        ", <{"^post^"}"^(if b then ", wrap" else "")^
+        ", w="^Length.pretty w^"]"
   | Inside s -> "@{"^s^"}"
   | Border s -> s
 
 let pretty_formats f =
-  Array.iter (fun f -> prerr_string (pretty_format f) ; prerr_char ',') f
+  Array.iter (fun f -> prerr_string (pretty_format f) ; prerr_string "; ") f
 
 
 } 
@@ -165,6 +179,7 @@ and lexformat = parse
 
 
 {
+open Parse_opts
 
 let main (s,env) =
   if !verbose > 1 then prerr_endline ("Table format: "^s);
@@ -172,6 +187,10 @@ let main (s,env) =
   lexformat (Lexing.from_string s) ;
   end_normal () ;
   let r = check_vert (trim out_table) in
+  begin match !destination with
+  | (Text | Info) -> check_length r
+  | Html -> ()
+  end ;
   if !verbose > 1 then begin
     prerr_string "Format parsed: " ;
     pretty_formats r ;

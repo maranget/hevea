@@ -173,5 +173,9 @@
 \def\textsl#1{\mbox{\slshape#1}}
 \def\textsc#1{\mbox{\scshape#1}}
 \newcommand{\emph}[1]{\mbox{\em#1}}
+%%%%%%%%% Index formating
+\newenvironment{indexenv}{\begin{itemize}}{\end{itemize}}
+\newcommand{\indexitem}{\item}
+\newcommand{\indexspace}{\vspace*{1em}}
 %% Over
 \def\csname hevea@loaded\endcsname{}

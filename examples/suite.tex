@@ -776,7 +776,7 @@ $$
 \end{itemize}
 
 \section{Quelques listes}\label{listes}
-
+\begingroup
 \begin{trivlist}
 \item Coucou
 \item Zobi
@@ -837,7 +837,7 @@ coucou
 \begin{flushright}
 coucou
 \end{flushright}
-
+\endgroup
 
 \section{Test de l'index}
 \newcommand{\gros}[1]{{\Huge#1}}
@@ -1208,7 +1208,7 @@ cent: \zget{100}
 coucou: \zget{\thefoo}
 
 \stepcounter{foo}\zset{\thefoo}{encore}%
-encore: \zget{\thefoo}, encore: \zget{0}
+encore: \zget{\thefoo}, coucou: \zget{0}
 
 \def\zob{zob}\def\foo{\zob}\zset{\foo}{FOO}%
 FOO: \zget{zob}

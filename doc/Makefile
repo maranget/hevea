@@ -25,7 +25,7 @@ byte:
 tmp.tex: manual.tex version.tex
 	$(GPIC) -t < manual.tex > tmp.tex
 
-manual.html: manual.hva makeidx.hva tmp.tex
+manual.html: manual.hva tmp.tex
 	${HEVEA} $(HEVEAOPTS) manual.hva tmp.tex -o manual.html
 	$(MAKE) $(MFLAGS) images
 

@@ -270,5 +270,55 @@
 \def\textsl#1{\mbox{\slshape#1}}
 \def\textsc#1{\mbox{\scshape#1}}
 \newcommand{\emph}[1]{\mbox{\em#1}}
+%%%%%%%%%%%%%%% Multicolumns index formating
+\newcommand{\setindexpos}[2]
+{\newsavebox{\csname indexpos#1\endcsname}%
+\sbox{\csname indexpos#1\endcsname}{#2}}
+\newcommand{\getindexpos}[1]{\usebox{\csname indexpos#1\endcsname}}
+\newcounter{indexcols}\setcounter{indexcols}{2}
+\newcounter{indexcount}\newcounter{indexdepth}
+\newcounter{indexbox}
+\newcommand{\indexitem}
+{\stepcounter{indexcount}%
+\end{lrbox}%
+\setindexpos{\theindexbox}{\theindexcount}%
+\stepcounter{indexbox}%
+\newsavebox{\csname indexbox\theindexbox\endcsname}%
+\begin{lrbox}{\csname indexbox\theindexbox\endcsname}}
+\newcommand{\indexspace}{\indexitem}
+{\stepcounter{indexcount}}
+\newenvironment{indexenv}
+{\stepcounter{indexdepth}
+\ifthenelse{\value{indexdepth}>1}
+{\begin{itemize}%
+\renewcommand{\indexitem}{\stepcounter{indexcount}\item}%
+\renewcommand{\indexspace}{\stepcounter{indexcount}\vspace*{2ex}}}
+{\newsavebox{\csname indexbox0\endcsname}%
+\begin{lrbox}{\csname indexbox0\endcsname}}}
+{\ifthenelse{\value{indexdepth}>1}
+{\end{itemize}\addtocounter{indexdepth}{-1}}
+{\end{lrbox}%
+\setindexpos{\theindexbox}{\theindexcount}%
+\stepcounter{indexbox}%
+\addtocounter{indexdepth}{-1}\printindexboxes}}
+\newcounter{indexwork}\newcounter{indexlimit}
+\newcounter{indexlines}
+\newcommand{\printindexboxes}
+{\setcounter{indexwork}{1}%
+\setcounter{indexlimit}{(\value{indexcount}+\value{indexcols}-1)/\value{indexcols}}
+\newcounter{indexclines}\newcounter{indexprev}\newcounter{indexnow}%
+\begin{tabular}{*{\value{indexcols}}{X}}
+\begin{itemize}
+\whiledo{\value{indexwork}<\value{indexbox}}
+{\setcounter{indexnow}{\pushint{\getindexpos{\theindexwork}}}%
+\addtocounter{indexclines}{\value{indexnow}-\value{indexprev}}%
+\ifthenelse{\equal{\usebox{\csname indexbox\theindexwork\endcsname}}{}}
+{\vspace*{2ex}}{\item}%
+\usebox{\csname indexbox\theindexwork\endcsname}%
+\ifthenelse{\value{indexclines}>\value{indexlimit}}
+{\end{itemize}&\begin{itemize}%
+\setcounter{indexclines}{0}}{}%
+\stepcounter{indexwork}\setcounter{indexprev}{\value{indexnow}}}
+\end{itemize}\end{tabular}}
 %%%%%% Do not load hevea.hva again !
 \def\csname hevea@loaded\endcsname{}
