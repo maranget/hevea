@@ -54,6 +54,10 @@ val plain_back : bool -> char -> unit
 val withinLispComment : bool ref
 val afterLispCommentNewlines : int ref
 
+type case = Upper | Lower | Neutral
+
+val case : case ref
+
 type closenv
 val top_level : unit -> bool
 val is_top : subst -> bool

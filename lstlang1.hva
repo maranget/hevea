@@ -418,7 +418,7 @@
       UnpackTime,Val,Window}%
   }%
 \lst@definelanguage[Standard]{Pascal}%
-  {keywords={alfa,and,array,begin,boolean,byte,case,char,const,div,do,%
+  {keywords={ALFA,and,array,begin,boolean,byte,case,char,const,div,do,%
       downto,else,end,false,file,for,function,get,goto,if,in,integer,%
       label,maxint,mod,new,not,of,or,pack,packed,page,program,put,%
       procedure,read,readln,real,record,repeat,reset,rewrite,set,text,%

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.184 2000-07-06 16:48:43 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.185 2000-07-10 13:36:25 maranget Exp $ *)
 
 
 {
@@ -811,7 +811,7 @@ let expand_command main skip_blanks name lexbuf =
     skip_blanks lexbuf
   end else begin
     if !verbose > 2 then begin
-      prerr_endline "not skipping blanks"
+      prerr_endline ("not skipping blanks ("^name^")")
     end
   end ;
   let par_after = Dest.forget_par () in
@@ -841,6 +841,16 @@ let count_newlines s =
     | _     ->  c_rec (i+1) in
   c_rec 0
 ;;
+
+let check_case s = match !case with
+| Lower ->  String.lowercase s
+| Upper -> String.uppercase s
+| Neutral -> s
+
+and check_case_char c = match !case with
+| Lower -> Char.lowercase c
+| Upper -> Char.uppercase c
+| Neutral -> c
 } 
 
 let command_name = '\\' (( ['@''A'-'Z' 'a'-'z']+ '*'?) | [^ 'A'-'Z' 'a'-'z'])
@@ -949,7 +959,8 @@ rule  main = parse
    main lexbuf}
 (* Alphabetic characters *)
 | ['a'-'z' 'A'-'Z']+
-   {let lxm =  lexeme lexbuf in
+   {let lxm = lexeme lexbuf in
+   let lxm = check_case lxm in
    if !in_math then begin
       Dest.put_in_math lxm;
     end else
@@ -974,6 +985,7 @@ rule  main = parse
 (* One character *)
 | _ 
    {let lxm = lexeme_char lexbuf 0 in
+   let lxm = check_case_char lxm in
    Dest.put (Dest.iso lxm) ;
    main lexbuf}
 
@@ -1884,7 +1896,20 @@ let check_not = function
 def_fun "\\not" check_not
 ;;
 
-def_fun "\\uppercase" String.uppercase
+def_code "\\uppercase"
+  (fun lexbuf ->
+    let arg = save_arg lexbuf in
+    let old_case = !case in
+    case := Upper ;
+    scan_this_arg main arg ;
+    case := old_case) ;
+def_code "\\lowercase"
+  (fun lexbuf ->
+    let arg = save_arg lexbuf in
+    let old_case = !case in
+    case := Lower ;
+    scan_this_arg main arg ;
+    case := old_case)
 ;;
 
 (* list items *)

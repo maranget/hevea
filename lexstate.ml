@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: lexstate.ml,v 1.51 2000-07-07 17:44:41 maranget Exp $"
+let header = "$Id: lexstate.ml,v 1.52 2000-07-10 13:36:30 maranget Exp $"
 
 open Misc
 open Lexing
@@ -129,7 +129,12 @@ and text =
 (* Additional variables for videoc *)
 and withinLispComment = ref false
 and afterLispCommentNewlines = ref 0
+(* Additional flags for transformations *)
 ;;
+type case = Upper | Lower | Neutral
+let case = ref Neutral
+;;
+
 
 let string_to_arg arg = {arg=arg ; subst= !subst }
 

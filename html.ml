@@ -10,7 +10,7 @@
 (***********************************************************************)
 
 
-let header = "$Id: html.ml,v 1.77 2000-06-02 15:23:19 maranget Exp $" 
+let header = "$Id: html.ml,v 1.78 2000-07-10 13:36:19 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -40,7 +40,7 @@ let r_translate = String.create 1
 ;;
 
 let iso_translate = function
-  '<' -> "&lt;"
+| '<' -> "&lt;"
 | '>' -> "&gt;"
 | '&' -> "&amp;"
 | ' ' -> "&nbsp;"
@@ -141,6 +141,7 @@ let iso_translate = function
 | 'ÿ' -> "&yuml;"
 | c   -> (r_translate.[0] <- c ; r_translate)
 ;;
+
 
 let iso c =
   if !Lexstate.raw_chars then
