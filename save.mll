@@ -12,7 +12,7 @@
 {
 open Lexing
 
-let header = "$Id: save.mll,v 1.27 1999-02-23 18:18:49 maranget Exp $" 
+let header = "$Id: save.mll,v 1.28 1999-03-01 19:13:40 maranget Exp $" 
 
 let verbose = ref 0 and silent = ref false
 ;;
@@ -27,8 +27,31 @@ exception Error of string
 let seen_par = ref false
 ;;
 
-type formatopt = Wrap | NoMath
-type format = Align of string * formatopt list | Inside of string
+let my_int_of_string s =
+  try int_of_string s
+  with Failure "int_of_string" ->
+    raise (Error "integer argument expected")
+
+type align =
+    {hor : string ; vert : string ; wrap : bool ;
+      mutable pre : string ; mutable post : string}
+
+let make_hor = function
+    'c' -> "center"
+  | 'l' -> "left"
+  | 'r' -> "right"
+  | 'p'|'m'|'b' -> "left"
+  | _ -> raise (Misc.Fatal "make_hor")
+
+and make_vert = function
+  | 'c'|'l'|'r' -> ""
+  | 'p' -> "top"
+  | 'm' -> "middle"
+  | 'b' -> "bottom"
+  | _ -> raise (Misc.Fatal "make_vert")
+type format =
+  Align of align
+| Inside of string
 ;;
 
 let border = ref false
@@ -198,13 +221,13 @@ and num_arg = parse
    '#' ['1'-'9'] 
 |  ['0'-'9']+ 
     {let lxm = lexeme lexbuf in
-    int_of_string lxm}
+    my_int_of_string lxm}
 |  "'" ['0'-'7']+ 
     {let lxm = lexeme  lexbuf in
-    int_of_string ("0o"^String.sub lxm 1 (String.length lxm-1))}
+    my_int_of_string ("0o"^String.sub lxm 1 (String.length lxm-1))}
 |  '"' ['0'-'9' 'a'-'f' 'A'-'F']+ 
     {let lxm = lexeme  lexbuf in
-    int_of_string ("0x"^String.sub lxm 1 (String.length lxm-1))}
+    my_int_of_string ("0x"^String.sub lxm 1 (String.length lxm-1))}
 | '`' '\\' _
     {let c = lexeme_char lexbuf 2 in
     Char.code c}
@@ -218,34 +241,54 @@ and input_arg = parse
 | [^'\n''{'' ']+ {let lxm = lexeme lexbuf in put_echo lxm ; lxm}
 | ""             {arg lexbuf}  
 
+and tfone = parse
+  '>'
+    {let pre = arg lexbuf in
+    begin match tfmiddle lexbuf with
+    |  Align a as r -> a.pre <- pre ; r
+    | _ -> raise (Error "Bad syntax in array argument (>)")
+    end}
+| "" {tfmiddle lexbuf}
+
+and tfmiddle = parse
+  'c'|'l'|'r'
+  {let f = Lexing.lexeme_char lexbuf 0 in
+  let post = tfpostlude lexbuf in
+  Align {hor = make_hor f ; vert = make_vert f ; wrap = false ;
+        pre = "" ;   post = post}}
+| 'p'|'m'|'b'
+  {let f = Lexing.lexeme_char lexbuf 0 in
+  let _ = arg lexbuf in
+  let post = tfpostlude lexbuf in
+  Align {hor = make_hor f ; vert = make_vert f ; wrap = true ;
+          pre = "" ;   post = post}}
+| 'X'
+    {let post = tfpostlude lexbuf in
+    Align {hor = make_hor 'p' ; vert = make_vert 'p' ; wrap=true ;
+           pre = "" ; post = post}}
+| _ {raise (Error ("Syntax of array format: "^Lexing.lexeme lexbuf))}
+
+and tfpostlude = parse
+  '<' {arg lexbuf}
+| ""  {""}
+
+
 and tformat = parse
-  'c' {Align ("center",[])::tformat lexbuf}
-| 'l' {Align ("left",[])::tformat lexbuf}
-| 'r' {Align ("right",[])::tformat lexbuf}
-| 'p'
-   {let _ = arg lexbuf in
-   if !verbose > 0 then begin
-     Location.print_pos () ;
-     prerr_endline "Warning, p column specification, argument ignored"
-   end ;
-   Align ("left",[Wrap]):: tformat lexbuf}
-| '*'
+ '*'
    {let ntimes = arg lexbuf in let what = arg lexbuf in
    let rec do_rec = function
      0 -> tformat lexbuf
    | i ->
       let sbuf = Lexing.from_string what in
       tformat sbuf@do_rec (i-1) in
-   do_rec (int_of_string ntimes)}
-| "tc" {Align ("center",[NoMath])::tformat lexbuf}
-| "tl" {Align ("left",[NoMath])::tformat lexbuf}
-| "tr" {Align ("right",[NoMath])::tformat lexbuf}
+   do_rec (my_int_of_string ntimes)}
 | '|' {border := true ; tformat lexbuf}
-| '@'
+| '@'|'!'
     {let inside = arg lexbuf in
-    Inside inside::tformat lexbuf}
-| _   {tformat lexbuf}
+    if inside = "" then tformat lexbuf
+    else Inside inside :: tformat lexbuf}
 | eof {[]}
+| "" {let f = tfone lexbuf in f :: tformat lexbuf}
 
 and skip_equal = parse
   ' '* '=' ' '* {()}

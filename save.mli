@@ -2,8 +2,14 @@ exception Error of string
 val set_verbose : bool -> int -> unit
 val seen_par : bool ref
 
-type formatopt = | Wrap | NoMath
-and format = | Align of string * formatopt list | Inside of string
+type align =
+    {hor : string ; vert : string ; wrap : bool ;
+      mutable pre : string ; mutable post : string}
+type format =
+  Align of align
+| Inside of string
+
+
 val border : bool ref
 exception Eof
 exception NoOpt

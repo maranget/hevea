@@ -13,6 +13,10 @@ opt:
 	export HEVEADIR=.. ;\
 	$(MAKE) $(MFLAGS) HEVEA=../hevea.opt HACHA=../hacha.opt IMAGEN=../imagen all
 
+byte:
+	export HEVEADIR=.. ;\
+	$(MAKE) $(MFLAGS) HEVEA=../hevea.byte HACHA=../hacha.byte IMAGEN=../imagen all
+
 dvi: $(DVI)
 
 

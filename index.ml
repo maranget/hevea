@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: index.ml,v 1.15 1999-02-19 18:00:03 maranget Exp $" 
+let header = "$Id: index.ml,v 1.16 1999-03-01 19:13:31 maranget Exp $" 
 open Parse_opts
 open Entry
 
@@ -232,7 +232,7 @@ let print_entry main bk k xs  =
     [] -> ()
   | (label,x,m)::r ->
       let arg = match m with
-        "" -> string_of_int x
+      |  "" -> string_of_int x
       | _  -> "\\"^m^"{"^string_of_int x^"}" in
       let no_ref = String.length m > 3 && String.sub m 0 3 = "see" in
       main (if no_ref then arg

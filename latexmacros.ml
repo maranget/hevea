@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmacros.ml,v 1.34 1999-02-04 16:17:56 maranget Exp $" 
+let header = "$Id: latexmacros.ml,v 1.35 1999-03-01 19:13:32 maranget Exp $" 
 open Parse_opts
 open Symb
 
@@ -180,6 +180,7 @@ let newif_ref name cell =
 
 newif_ref "silent" silent;
 newif_ref "math" in_math ;
+newif_ref "mmode" in_math ;
 newif_ref "display" display ;
 newif_ref "french" french ;
 newif_ref "optarg" optarg;

@@ -1,4 +1,7 @@
 version 1.03-1
+  - space optimization of size changes
+  - commands \ifthenelse and \equal from the ifthenelse package
+  - compatibility with the ``array'' package
   - html.sty changed into hevea.sty
   - Better error messages by better exception handling
          (thanks to Pierre.Weis@inria.fr)

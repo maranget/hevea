@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmain.ml,v 1.26 1999-02-23 18:18:44 maranget Exp $" 
+let header = "$Id: latexmain.ml,v 1.27 1999-03-01 19:13:33 maranget Exp $" 
 
 open Parse_opts
 
@@ -142,20 +142,20 @@ with
     exit 2
 | Myfiles.Error s ->
     Location.print_pos () ;
-    prerr_endline ("File related error: "^s) ;
+    prerr_endline ("File error: "^s) ;
     prerr_endline "Adios" ;
     exit 2
 |  Misc.Fatal s ->
     Location.print_pos () ;
     prerr_endline
-      ("Fatal error: "^s^" (please report to Luc.Maranget@inria.fr") ;
+      ("Fatal error: "^s^"\n (if input is plain LaTeX, please report to Luc.Maranget@inria.fr)") ;
     prerr_endline "Adios" ;
     exit 2 
 |  x ->
     Location.print_pos () ;
     prerr_endline
       ("Fatal error, spurious exception: "^Printexc.to_string x^
-       " (please report to Luc.Maranget@inria.fr") ;
+       "\n(if input is plain LaTeX, please report to Luc.Maranget@inria.fr)") ;
     prerr_endline "Adios" ;
     exit 2
 end ;

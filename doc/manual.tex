@@ -130,7 +130,7 @@ You can find some \footurl{\docurl/examples/}{examples} in the on-line
 documentation, including examples of \urlex{a.tex} and
 \urlex{a.html} files.
 
-\section{Syle files}
+\section{Style files}
 \LaTeX style files are files that are not intended to produce output, but
 define document layout parameters, commands, environments, etc.
 
@@ -1036,20 +1036,27 @@ process\\
 \hevea{} and left alone by \LaTeX{}:
 \begin{verbatim}
 We get:
-\begin{htmlonly}\purple purple rain, purple rain\end{htmlonly}%
-\begin{latexonly}purple rain, purple rain\end{latexonly}%
+\begin{htmlonly}%
+\purple purple rain, purple rain%
+\end{htmlonly}
+\begin{latexonly}%
+purple rain, purple rain%
+\end{latexonly}%
 \ldots
 \end{verbatim}
 We get:
-\begin{htmlonly}
-\purple purple rain, purple rain
+\begin{htmlonly}%
+\purple purple rain, purple rain%
 \end{htmlonly}
-\begin{latexonly}
-purple rain, purple rain
-\end{latexonly}
+\begin{latexonly}%
+purple rain, purple rain%
+\end{latexonly}%
 \ldots
 
-Note that environments define a scope and that style changes
+It is impossible to avoid the spurious space in the output above,
+because \verb+\end{htmlonly}+ must appear in a line of its own for
+\LaTeX{} to reconize it.
+Also note that environments define a scope and that style changes
 (and non-global definitions) are local to them. For instance, in the
 example above, ``\ldots'' appears in black in \html{} output.
 
@@ -1288,23 +1295,23 @@ script.
 Consider the ``blob'' example from the section~\ref{blob}.
 Here is the active part of a \texttt{blob.tex} file:
 \begin{verbatim}
-\newcommand{\blob}{\rule[.2ex]{1ex}{1ex}}
-\blob\ Blob \blob
+ \newcommand{\blob}{\rule[.2ex]{1ex}{1ex}}
+ \blob\ Blob \blob
 \end{verbatim}
 This time, we would like \verb+\blob+ to produce a small black square, which
 \verb+\rule[.2ex]{1ex}{1ex}+ indeed does in \LaTeX{}.
 Thus we can write:
 \begin{verbatim}
-\newcommand{\blob}{%
-\begin{toimage}\rule[.2ex]{1ex}{1ex}%
-\end{toimage}%
-\imageflush}
-\blob\ Blob \blob
+ \newcommand{\blob}{%
+ \begin{toimage}\rule[.2ex]{1ex}{1ex}%
+ \end{toimage}%
+ \imageflush}
+ \blob\ Blob \blob
 \end{verbatim}
 Now we issue the following two commands:
 \begin{verbatim}
-# hevea blob.tex
-# imagen blob
+ # hevea blob.tex
+ # imagen blob
 \end{verbatim}
 And we get:
 \begin{htmlout}
@@ -1334,19 +1341,19 @@ Let \texttt{round.ps} be a Postscript file, which is included as an
 image in the source file \texttt{round.tex} (which must load the
 \filename{epsf} package):
 \begin{verbatim}
-\begin{center}
-\epsfbox{round.ps}
-\end{center}
+ \begin{center}
+ \epsfbox{round.ps}
+ \end{center}
 \end{verbatim}
 Then, \hevea{} can have this image translated into a inlined (and
 centered) \texttt{.gif} image by modifying source as follows:
 \begin{verbatim}
-\begin{center}
-%BEGIN IMAGE
-\epsfbox{round.ps}
-%END IMAGE
-%HEVEA\imageflush
-\end{center}
+ \begin{center}
+ %BEGIN IMAGE
+ \epsfbox{round.ps}
+ %END IMAGE
+ %HEVEA\imageflush
+ \end{center}
 \end{verbatim}
 (Note that the \texttt{round.tex} file
 still can be processed by \LaTeX, since comment equivalents
@@ -1376,11 +1383,11 @@ A better solution is to define the \verb+\epsfbox+
 command, so that \hevea{} echoes  \verb+\epsfbox+ and its argument to
 the image file and performs \verb+\imageflush+:
 \begin{verbatim}
-\newcommand{\epsfbox}[1]{%
-\begin{toimage}
-\epsfbox{#1}%
-\end{toimage}
-\imageflush}
+ \newcommand{\epsfbox}[1]{%
+ \begin{toimage}
+ \epsfbox{#1}%
+ \end{toimage}
+ \imageflush}
 \end{verbatim}
 Such a definition must be seen by \hevea{} only. So, it is best put
 in a separate file whose name is given as an extra argument on
@@ -1421,9 +1428,9 @@ paragraph:
  .PS
  ellipse "{\Large\bf Smile!}"
  .PE
-\begin{center}
-~\box\graph~
-\end{center}
+ \begin{center}
+ ~\box\graph~
+ \end{center}
 \end{verbatim}
 Both the image description (\verb+.PS+\ldots\ \verb+.PE+) and usage (\verb+\box\graph+)
 are for the \filename{image} file, and they should be
@@ -1446,9 +1453,9 @@ Additionally, the image link is put where it belongs by an
 The \texttt{gpic} filter is applied first, then come \texttt{hevea}
 and \texttt{imagen}:
 \begin{verbatim}
-# gpic -t < smile.tex > tmp.tex
-# hevea tmp.tex -o smile.html
-# imagen smile
+ # gpic -t < smile.tex > tmp.tex
+ # hevea tmp.tex -o smile.html
+ # imagen smile
 \end{verbatim}
 And we get:
 %BEGIN IMAGE
@@ -1471,7 +1478,7 @@ However, writing in a generic style saves typing.
 For instance, users may define the following environment for
 centered \texttt{gpic} pictures in \LaTeX{}~:
 \begin{verbatim}
-\newenvironment{centergpic}{}{\begin{center}~\box\graph~\end{center}}
+ \newenvironment{centergpic}{}{\begin{center}~\box\graph~\end{center}}
 \end{verbatim}
 Source code will now be as follows:
 \begin{verbatim}
@@ -1484,19 +1491,19 @@ Source code will now be as follows:
 \hevea{} will process this source correctly, provided it is given its
 own definition for the \verb+centergpic+ environment beforehand:
 \begin{verbatim}
-\newenvironment{centergpic}
-  {\begin{toimage}}
-  {\box\graph\end{toimage}\begin{center}\imageflush\end{center}}
+ \newenvironment{centergpic}
+   {\begin{toimage}}
+   {\box\graph\end{toimage}\begin{center}\imageflush\end{center}}
 \end{verbatim}
 Assuming that the definition above is in a \urlex{smile.hva} file,
 the command sequence for translating
 \urlex{smile.tex} \mbox{now is}:
 \begin{verbatim}
-# gpic -t < smile.tex > tmp.tex
-# hevea smile.hva tmp.tex -o smile.html
-tmp.tex:5: Warning: ignoring definition of \centergpic
-tmp.tex:5: Warning: not defining environment centergpic
-# imagen smile
+ # gpic -t < smile.tex > tmp.tex
+ # hevea smile.hva tmp.tex -o smile.html
+ tmp.tex:5: Warning: ignoring definition of \centergpic
+ tmp.tex:5: Warning: not defining environment centergpic
+ # imagen smile
 \end{verbatim}
 The warnings above are normal~: they are issued when \hevea{} runs
 across the \LaTeX{}-intended definition of the \verb+centergpic+

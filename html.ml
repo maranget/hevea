@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: html.ml,v 1.33 1999-02-19 18:00:02 maranget Exp $" 
+let header = "$Id: html.ml,v 1.34 1999-03-01 19:13:30 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -646,6 +646,10 @@ let is_color = function
 | _       -> false
 ;;
 
+let is_size = function
+  | Font _ -> true
+  | _      -> false
+
 let open_mod  m =
   if not !cur_out.nostyle then begin
     if !verbose > 3 then
@@ -653,6 +657,7 @@ let open_mod  m =
     if ok_mod m then
       begin match m with
         Color _ -> erase_mods_pred is_color
+      | Font _  -> erase_mods_pred is_size
       | _ -> () end ;
       !cur_out.pending <- m :: !cur_out.pending
   end

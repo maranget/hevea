@@ -309,10 +309,10 @@
 \def\models{|=}
 \def\|{||}
 %% Arrays and tabular
-\newenvironment{tabular*}[1]{\warning{Warning, tabular* changed into tabular}\begin{tabular}}{\end{tabular}}
+\newenvironment{tabular*}[2]{\warning{Warning, tabular* changed into tabular}\begin{tabular}{#2}}{\end{tabular}}
 \newcommand{\extracolsep}[1]{\warning{Warning, \extracolsep ignored}}
 \newcommand{\cline}[1]{\warning{Warning, \cline changed into \hline}\hline}
-\def\cases#1{\left\{\begin{array}{ltl}#1\end{array}\right.}
+\def\cases#1{\left\{\begin{array}{l>{$}l<{$}}#1\end{array}\right.}
 %%%%%%%%%%%% Bibliography
 \def\bibliographystyle#1{}
 \def\nocite#1{}

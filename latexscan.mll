@@ -26,9 +26,10 @@ open Parse_opts
 open Lexing
 open Myfiles
 open Latexmacros
+open Save
 (* open Html *)
 
-let header = "$Id: latexscan.mll,v 1.61 1999-02-23 18:18:46 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.62 1999-03-01 19:13:36 maranget Exp $" 
 
 exception Error of string
 
@@ -294,19 +295,17 @@ let make_stack name pat lexbuf =
 ;;
 
 
-let rec pretty_opts = function
-  [] -> ""
-| Save.NoMath::r -> "{NoMath}"^pretty_opts r
-| Save.Wrap::r -> "{Wrap}"^pretty_opts r
-;;
-
 let pretty_format = function
-  Save.Align (s,o) -> s^pretty_opts o
-| Save.Inside s -> "@{"^s^"}"
+  |   Save.Align {vert = v ; hor = h ; pre = pre ; post = post ; wrap = b}
+      ->
+        ">{"^pre^"}"^
+        "h="^h^" v="^v^
+        "<{"^post^"}"
+  | Save.Inside s -> "@{"^s^"}"
 ;;
 
 let pretty_formats f =
-  Array.iter (fun f -> prerr_string (pretty_format f) ; prerr_char ' ') f
+  Array.iter (fun f -> prerr_string (pretty_format f) ; prerr_char ',') f
 ;;
 
 
@@ -386,12 +385,6 @@ let top_close_display () =
   if !display then begin
     Html.close_display ()
   end
-
-and top_erase_pending_display () =
-  if !display then begin
-    Html.erase_display ();
-  end
-;;
 
 (* vertical display *)
 let open_vdisplay () =
@@ -593,19 +586,38 @@ let put_delim delim i =
   end
 ;;
 
-let default_format = Save.Align ("left",[])
+let default_format =
+  Save.Align
+    {hor="left" ; vert = "" ; wrap = false ;
+      pre = "" ; post = ""}
 ;;
 
-type in_table = Table | Border | NoTable | Tabbing
+type array_type = {math : bool ; border : bool}
+type in_table = Table of array_type | NoTable | Tabbing
 ;;
+
+let pretty_array_type = function
+  | Table {math = m ; border = b} ->
+      "Table math="^(if m then "+" else "-")^
+      " border="^(if b then "+" else "-")
+  | NoTable -> "NoTable"
+  | Tabbing -> "Tabbing"
 
 let is_table = function
-  (Table|Border) -> true
-| _       -> false
+  | Table _ -> true
+  | _       -> false
+
+and is_noborder_table = function
+  | Table {border = b} -> not b
+  | _                  -> false
 
 and is_tabbing = function
-  Tabbing -> true
-| _ -> false
+  | Tabbing -> true
+  | _ -> false
+
+and math_table = function
+  | Table {math = m} -> m
+  | _ -> raise (Misc.Fatal "math_table")
 ;;
 
 let cur_format = ref [||]
@@ -616,9 +628,13 @@ and in_table = ref NoTable
 and stack_table = ref []
 and first_col = ref false
 and stack_first = ref []
+and in_multi = ref false
+and stack_multi_flag = ref []
+and stack_multi = ref []
 ;;
 
 let prerr_array_state () =
+  prerr_endline (pretty_array_type !in_table) ;
   prerr_string "  format:";
   pretty_formats !cur_format ;
   prerr_endline "" ;
@@ -632,6 +648,8 @@ let save_array_state () =
   push stack_col !cur_col ;
   push stack_table !in_table ;
   push stack_first !first_col ;
+  push stack_multi_flag !in_multi ;
+  in_multi := false ;
   if !verbose > 1 then begin
     prerr_endline "Save array state:" ;
     prerr_array_state ()
@@ -642,6 +660,7 @@ and restore_array_state () =
   cur_col := pop stack_col ;
   cur_format := pop stack_format ;
   first_col  := pop stack_first ;
+  in_multi := pop stack_multi_flag ;
   if !verbose > 1 then begin
     prerr_endline "Restore array state:" ;
     prerr_array_state ()
@@ -654,16 +673,12 @@ exception EndInside
 exception NoMulti
 ;;
 
-let rec keep_math = function
- [] -> true
-| Save.NoMath::_ -> false
-| _::r -> keep_math r
-
-let rec is_par = function
-  [] -> false
-| Save.Wrap::_ -> true
-| _::r -> is_par r
-;;
+let attribut name = function
+  | "" -> ""
+  | s  -> " "^name^"="^s
+and as_colspan = function
+  |  1  -> ""
+  |  n -> " COLSPAN="^string_of_int n
 
 let is_inside = function
   Save.Inside _ -> true
@@ -673,18 +688,21 @@ and as_inside = function
   Save.Inside s -> s
 | _        -> ""
 
-and as_align = function
-  Save.Align (s,o) ->
-    if is_par o then "VALIGN=top ALIGN="^s else "NOWRAP ALIGN="^s
+and as_align f span = match f with
+  Save.Align {vert=v ; hor=h ; wrap=w} ->
+    attribut "VALIGN" v^
+    attribut "ALIGN" h^
+    (if w then "" else " NOWRAP")^
+    as_colspan span
 | _       ->  raise (Misc.Fatal ("as_align"))
 
-and is_display = function
-  Save.Align (_,o) -> keep_math o
-| _           -> true
+and as_pre = function
+  | Save.Align {pre=s} -> s
+  | _ -> raise (Misc.Fatal "as_pre")
 
-and as_colspan = function
-  1 -> ""
-| n -> " COLSPAN="^string_of_int n
+and as_post = function
+  | Save.Align {post=s} -> s
+  | f -> raise (Misc.Fatal ("as_post "^pretty_format f))
 ;;
 
 let get_col format i =
@@ -693,8 +711,8 @@ let get_col format i =
     else format.(i) in
   if !verbose > 2 then begin
    Printf.fprintf stderr "get_col : %d: " i ;
-   prerr_string (pretty_format r) ;
-   prerr_char '\t' ;
+   prerr_endline (pretty_format r) ;
+   prerr_string " <- " ;
    pretty_formats format ;
    prerr_newline ()
   end ;
@@ -734,17 +752,18 @@ let rec eat_inside format i =
   else i
 ;;
 
-let rec eat_cols n format i = match n with
+let rec find_end n format i = match n with
   0 -> eat_inside format i
 | _ ->
    let f = get_col format i in
    if is_inside f then
-     eat_cols n format (i+1)
+     find_end n format (i+1)
    else
-     eat_cols (n-1) format (i+1)
+     find_end (n-1) format (i+1)
 ;;
 
 
+let find_start i = if !first_col then 0 else i
 
 let find_align format =
   let t = ref 0 in
@@ -765,28 +784,35 @@ let show_inside_multi main format i j =
   show_rec i
 ;;
 
+let do_open_col main format span =
+  let save_table = !in_table in
+  Html.open_block "TD" (as_align format span) ;
+  top_open_display () ;
+  if math_table !in_table then begin
+    scan_this main "$"
+  end ;
+  scan_this main (as_pre format) ;
+  in_table := save_table 
+
 let open_col main  =
+  Html.open_group "" ;
   cur_col :=  show_inside main !cur_format !cur_col ;
   let format = (get_col !cur_format !cur_col) in
-  Html.open_block "TD" (as_align format) ;
-  top_open_display ();
-  if not (is_display format) then begin
-    push stack_in_math !in_math ;
-    in_math := false;
-  end
+  do_open_col main format 1
 ;;
 
 let open_first_col main =
   first_col := true ;
-  Html.open_group "" ;
   open_col main  
 ;;
 
-let erase_col () =
-  top_erase_pending_display () ;
-  Html.erase_block "TD" ;
-  if !first_col then
-    Html.erase_block ""
+let erase_col main =
+  let old_format = get_col !cur_format !cur_col in
+  scan_this main (as_post old_format) ;
+  if math_table !in_table then scan_this main "$" ;
+  top_close_display ();
+  Html.erase_block "TD";
+  Html.erase_block ""
 ;;
 
 
@@ -804,7 +830,7 @@ let do_hline main =
     Printf.fprintf stderr "hline: %d %d" !cur_col (Array.length !cur_format) ;
     prerr_newline ()
   end ;
-    erase_col () ;
+    erase_col main ;
     Html.erase_block "TR" ;
     Html.open_block "TR" "" ;
     Html.open_block
@@ -819,78 +845,54 @@ let do_hline main =
     open_first_col main
 ;;
 
-let change_td_pending args =
-  top_erase_pending_display () ;
-  Html.change_block "TD" args  ;
-  top_open_display ()
-;;
-
 let do_multi n format main =
-  if !verbose > 1 then begin
+  if !verbose > 2 then begin
     prerr_string
       ("multicolumn: n="^string_of_int n^" format:") ;
     pretty_formats format ;
     prerr_endline ""
   end ;
 
-  if !first_col then begin
-    top_close_display () ;
-    Html.close_block "TD" ;
-    Html.erase_block "" ;
-    Html.open_group "" ;
-    Html.open_block "TD" "" ;
-    top_open_display ()
-  end ;
-    
-  let i = find_align format
-  and next_cur_col = eat_cols n !cur_format !cur_col in
-  change_td_pending
-    (as_align (get_col format i)^
-    as_colspan (next_cur_col - !cur_col)) ;
-  if !verbose > 1 then begin
-     prerr_string ("multi-end: cur="^string_of_int !cur_col^
-       " next="^string_of_int next_cur_col^" ") ;
-     pretty_formats !cur_format;
-     prerr_endline ""
-   end ;     
-  cur_col := next_cur_col-1
+  erase_col main ;
+  Html.open_group "" ;
+
+  let start_span = find_start !cur_col
+  and end_span = find_end n !cur_format !cur_col in
+
+  let i = find_align format in
+  do_open_col main (get_col format i) (end_span - start_span) ;      
+  push stack_multi (!cur_format,end_span) ;
+  cur_format := format ;
+  cur_col := i ;
+  in_multi := true
 ;;
 
 
 let close_col main content =
   let old_format = get_col !cur_format !cur_col in
-  if not (is_display old_format) then begin
-    in_math := pop stack_in_math
-  end ;
+  scan_this main (as_post old_format) ;
+  if math_table !in_table then scan_this main "$" ;
   top_close_display ();
   Html.force_block "TD" content ;
+  if !in_multi then begin
+    in_multi := false ;
+    let f,n = pop stack_multi in
+    cur_format := f ;
+    cur_col := n
+  end else
+    cur_col := !cur_col + 1;
+  cur_col := show_inside main !cur_format !cur_col ;
   if !first_col then begin
-    first_col := false ;
-    Html.close_group ()
+    first_col := false
   end ;
-  cur_col := !cur_col + 1;
-  cur_col := show_inside main !cur_format !cur_col
+  Html.close_group ()
 ;;
 
 let close_last_col main content =
-  let old_format = get_col !cur_format !cur_col in
-  if not (is_display old_format) then begin
-    in_math := pop stack_in_math
-  end ;
-  top_close_display ();
   if !first_col && Html.is_empty () then begin
-    Html.erase_block "TD" ;
-    Html.close_group () ;    
-    cur_col := !cur_col + 1
-  end else begin
-    Html.force_block "TD" content ;
-    if !first_col then begin
-      first_col := false ;
-      Html.close_group ()
-    end ;
-    cur_col := !cur_col + 1;
-    cur_col := show_inside main !cur_format !cur_col
-  end
+    erase_col main
+  end else
+    close_col main content
 
 and close_last_row () =
   if !first_col then
@@ -1331,6 +1333,7 @@ rule  main = parse
            Html.close_display () ;
            close_center ()
          end else begin
+           top_close_display () ;
            Html.close_group ()
          end ;
          display := pop stack_display ;
@@ -1350,8 +1353,8 @@ rule  main = parse
            open_center() ;
            Html.open_display (display_arg !verbose)
          end else begin
-           display := false ;
-           Html.open_group ""
+           Html.open_group "" ;
+           top_open_display () ;
          end;
          skip_blanks lb ; main lb in
        new_env math_env ;
@@ -1378,7 +1381,7 @@ rule  main = parse
   | "\\renewcommand" | "\\newcommand" | "\\providecommand"
     {let lxm = lexeme lexbuf in
     Save.start_echo () ;
-    let name = Save.csname lexbuf in
+    let name = subst_this subst (Save.csname lexbuf) in
     let nargs = parse_args_opt ["0" ; ""] lexbuf in
     let body = save_arg lexbuf in
     if (!env_level = 0) then
@@ -1501,10 +1504,11 @@ rule  main = parse
         save_array_state ();
         Save.border := false ;
         skip_opt lexbuf ;
-        let format = save_arg lexbuf in
+        let format = subst_arg subst lexbuf in
         let format = Array.of_list (scan_this Save.tformat format) in
         cur_format := format ;
-        in_table := (if !Save.border then Border else Table);
+        in_table := Table {math = !in_math ; border = !Save.border} ;
+        in_math := false ;
         let lexfun lb =
           if !display then Html.item_display () ;
           push stack_display !display ;
@@ -1562,6 +1566,7 @@ rule  main = parse
         close_last_row () ;
         if env = !cur_env then begin
           Html.close_block "TABLE" ;
+          if math_table !in_table then in_math := true ;
           restore_array_state () ;
           display := pop stack_display;
           if !display then Html.item_display () ;
@@ -1596,7 +1601,7 @@ rule  main = parse
     main lexbuf}
 (* inside tables and array *)
   |  [' ''\n']* "\\hline" [' ''\n']* ("\\\\"  [' ''\n']*)?
-     {if !in_table = Table then
+     {if is_noborder_table !in_table then
        do_hline main ;
      main lexbuf}
   | [' ''\n']* "&"  [' ''\n']*
@@ -1832,6 +1837,27 @@ rule  main = parse
           let htmlval = Color.retrieve clr in
           Html.open_mod (Color ("\""^htmlval^"\"")) ;
           skip_blanks lexbuf ;
+          main lexbuf
+(* Ifthenelse package *)
+      | "\\ifthenelse" ->
+          let cond = save_arg lexbuf in
+          let arg_true = save_arg lexbuf in
+          let arg_false = save_arg lexbuf in
+          begin match get_this main ("\\@nostyle "^cond) with
+          | "true" -> scan_this main arg_true
+          | "false" -> scan_this main arg_false
+          | s      ->
+              raise
+                (Error ("Condition result in \\ifthenelse : ``"^s^"''"))
+          end ;
+          main lexbuf
+      | "\\equal" ->
+          let arg1 = save_arg lexbuf in
+          let arg2 = save_arg lexbuf in
+          if get_this main arg1 = get_this main arg2 then
+            Html.put "true"
+          else
+            Html.put "false" ;
           main lexbuf
 (* Bibliographies *)
       | "\\cite" ->
