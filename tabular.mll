@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: tabular.mll,v 1.25 2000-07-19 16:39:33 maranget Exp $ *)
+(* $Id: tabular.mll,v 1.26 2001-03-01 22:17:00 maranget Exp $ *)
 {
 open Misc
 open Lexing
@@ -117,13 +117,14 @@ rule tfone = parse
 | "" {tfmiddle lexbuf}
 
 and tfmiddle = parse
-  'c'|'l'|'r'
+| [' ''\t''\n''\r'] {tfmiddle lexbuf}
+| ['c''l''r']
   {let f = Lexing.lexeme_char lexbuf 0 in
   let post = tfpostlude lexbuf in
   emit out_table
     (Align {hor = make_hor f ; vert = make_vert f ; wrap = false ;
         pre = "" ;   post = post ; width = Length.Default})}
-| 'p'|'m'|'b'
+| ['p''m''b']
   {let f = Lexing.lexeme_char lexbuf 0 in
   let width = subst_arg lexbuf in
   let my_width = Length.main (Lexing.from_string width) in

@@ -1,5 +1,8 @@
   
 version 1.06-5
+  - Two easy misfeature disappear
+        . trailing -exec prog brougth back one step
+        . blanks allowed in array formats        
   - Option -version
   - Bug in image.ml, finalize -> active := false, to make module restartable
   - Bug moreverb, protect get_line by save_lexstate/restore_lexstate.

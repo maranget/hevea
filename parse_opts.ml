@@ -11,7 +11,7 @@
 
 open Misc
 
-let header = "$Id: parse_opts.ml,v 1.23 2001-02-20 15:29:37 maranget Exp $" 
+let header = "$Id: parse_opts.ml,v 1.24 2001-03-01 22:17:00 maranget Exp $" 
 
 type input = File of string | Prog of string
 
@@ -107,6 +107,23 @@ let warning s =
   end
 ;;
 
+(* For correcting strange user (-exec prog en dernier) *)
+let rec ffirst = function
+  | [] -> None,[]
+  | Prog _ as arg::rem ->
+      let file, rest = ffirst rem in
+      file, arg::rest
+  | File _ as arg::rem ->
+      Some arg,rem
+;;
+
+files :=
+   match ffirst !files with
+   | None,rem -> rem
+   | Some arg,rem -> arg::rem
+
+   
+      
 let base_in,name_in,styles = match !files with
 | File x :: rest ->
     if Filename.check_suffix x ".hva" then
