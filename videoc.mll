@@ -1,6 +1,6 @@
 (* <Christian.Queinnec@lip6.fr>
  The plugin for HeVeA that implements the VideoC style.
- $Id: videoc.mll,v 1.10 1999-08-16 08:10:15 maranget Exp $ 
+ $Id: videoc.mll,v 1.11 1999-08-16 16:07:22 maranget Exp $ 
 *)
 
 {
@@ -21,7 +21,7 @@ open Latexmacros
 open Scan
 
 let header = 
-  "$Id: videoc.mll,v 1.10 1999-08-16 08:10:15 maranget Exp $"
+  "$Id: videoc.mll,v 1.11 1999-08-16 16:07:22 maranget Exp $"
 (* So I can synchronize my changes from Luc's ones *)
 let qnc_header = 
   "14 aout 99"
@@ -108,7 +108,7 @@ rule snippetenv = parse
             if !verbose > 2 then
               prerr_endline ("user macro in snippet: "^body) ;
             (* Should be in the outer tex environment:                 FIXME *)
-            Lexstate.scan_this_may_cont Scan.main lexbuf body
+            Lexstate.scan_this_may_cont snippetenv lexbuf body
         | CamlCode f -> f lexbuf in
       scan_body exec body args
     |  _ ->

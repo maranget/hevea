@@ -8,3 +8,9 @@
 \renewcommand{\@meta}{\oldmeta
 \@print{<META NAME="Author" CONTENT="Luc Maranget">
 }}
+\let\oldsection\section
+%\renewcommand{\section}[2][!*!]{%
+%\cutend[subsection]
+%\ifthenelse{\equal{#1}{!*!}}{\oldsection{#2}}{\oldsection[#1]{#2}}
+%\cutdef{subsection}}
+\setcounter{\cutdepth}{10}

@@ -118,7 +118,7 @@
 {\@nostyle\@print{<!--CUT DEF }#2\@print{ }#1\@print{ -->
 }}}%
 \newcommand{\cutend}{%
-{\@nostyle\@print{<!--CUT END -->
+{\@nostyle\@print{<!--CUT END }\@print{-->
 }}%
 }
 \newcommand{\cuthere}[2]{%
@@ -616,5 +616,5 @@
 \newcommand{\IfFileExists}[3]{\ifthenelse{\@fileexists{#1}}{#2}{#3}}
 %%% Scientific Word
 \def\swEXT{.gif}  %graphics extension
-\def\swFRAME#1{\imgrsc{#1\swEXT}}
+\def\swFRAME#1{\imgsrc{#1\swEXT}}
 %%%
