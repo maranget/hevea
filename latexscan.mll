@@ -17,7 +17,7 @@ open Latexmacros
 open Html
 open Save
 
-let header = "$Id: latexscan.mll,v 1.38 1998-09-03 14:24:45 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.39 1998-09-03 15:26:36 maranget Exp $" 
 
 let push s e = s := e:: !s
 and pop s = match !s with
@@ -1268,7 +1268,6 @@ rule  main = parse
 | "\\begin" ' '* "{tabbing}"
    {let lexfun lb =
      Html.open_block "TABLE" "CELLSPACING=0 CELLPADDING=0" ;
-     Html.delay (fun _ -> ()) ;
      Html.open_block "TR" "" ;
      Html.open_block "TD" "" ;
      main lb in
@@ -1279,7 +1278,6 @@ rule  main = parse
 | "\\end" ' '* "{tabbing}"
    {Html.close_block "TD" ;
    Html.close_block "TR" ;
-   let _ = Html.flush 0 in
    Html.close_block "TABLE" ;
    in_table := pop stack_table ;
    close_env "tabbing" ;
@@ -1294,8 +1292,6 @@ rule  main = parse
     {if is_tabbing !in_table then begin
       Html.force_block "TD" "&nbsp;";
       Html.close_block "TR" ;
-      Html.forget () ;
-      Html.delay (fun _ -> ()) ;
       Html.open_block "TR" "" ;
       Html.open_block "TD" ""
     end ;
@@ -1399,8 +1395,6 @@ rule  main = parse
       end else if is_tabbing !in_table then begin
         Html.force_block "TD" "&nbsp;";
         Html.close_block "TR" ;
-        Html.flush 0;
-        Html.delay (fun _ -> ()) ;
         Html.open_block "TR" "" ;
         Html.open_block "TD" ""
       end else begin

@@ -1,5 +1,7 @@
 version 1.02-1
-  - \hspace and \vspace now interpret simple length arguments.
+  - small bug corrected: spaces after \begin{verbatim} were eaten.
+  - _\cmd and ^\cmd are now recognized
+  - \hspace and \vspace now interpret simple length arguments. (added a length.mll file)
   - Corrected a bug on the scope of definitions, when a definition fails.
   - Added support for verbatiminput, on an idea by Philippe Queinnec
     (Philippe.Queinnec@enseeiht.fr)
