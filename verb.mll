@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: verb.mll,v 1.70 2005-03-07 19:41:43 maranget Exp $            *)
+(*  $Id: verb.mll,v 1.71 2005-03-08 15:15:03 maranget Exp $            *)
 (***********************************************************************)
 {
 exception VError of string
@@ -1179,11 +1179,6 @@ register_init "comment" init_comment
 
 (* The listings package *)
 
-(* 
-  Caml code for
-  \def\lst@spaces
-    {\whiledo{\value{lst@spaces}>0}{~\addtocounter{lst@spaces}{-1}}}
-*)
 
 let default_linerange = [LineNumber 1, LineNumber 99999]
 
@@ -1200,6 +1195,12 @@ let parse_linerange s =
   | _ -> r
 
 
+(* 
+  Caml code for
+  \def\lst@spaces
+    {\whiledo{\value{lst@spaces}>0}{~\addtocounter{lst@spaces}{-1}}}
+*)
+
 let code_spaces lexbuf =
   let n = Counter.value_counter "lst@spaces" in
   if !lst_effective_spaces then
@@ -1208,7 +1209,7 @@ let code_spaces lexbuf =
     done
   else
     for i = n-1 downto 0 do
-      Dest.put_char ' '
+      Dest.put_nbsp ()
     done ;
   Counter.set_counter "lst@spaces" 0
 ;;
@@ -1263,7 +1264,6 @@ let open_lst_inline keys =
 (* Change char categories *)
   let alsoletter = Scan.get_prim "\\lst@alsoletter" in
   if alsoletter <> "" then begin
-    eprintf "ALSOLETTER: «%s»\n" alsoletter ;
     lst_init_chars alsoletter  lst_process_letter
   end ;
 (* Directives *)
@@ -1326,7 +1326,6 @@ let open_lst_env name =
 (* Change char categories *)
   let alsoletter = Scan.get_prim "\\lst@alsoletter" in
   if alsoletter <> "" then begin
-    eprintf "ALSOLETTER: «%s»\n" alsoletter ;
     lst_init_chars alsoletter  lst_process_letter
   end ;
 (* Directives *)

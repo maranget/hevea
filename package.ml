@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.68 2005-01-18 16:25:12 maranget Exp $    *)
+(*  $Id: package.ml,v 1.69 2005-03-08 15:15:03 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -335,35 +335,28 @@ register_init "color"
         Color.define clr mdl value ;
         Color.define_named clr mdl value) ;
 
-    def_code "\\@getcolor"
-      (fun lexbuf ->
-        let mdl = get_prim_opt "!*!" lexbuf in    
-        let clr = get_prim_arg lexbuf in
-        let htmlval = match mdl with
-        | "!*!"|"" -> Color.retrieve clr
-        | _     -> Color.compute mdl clr in
-        Dest.put_char '"' ;
-        Dest.put_char '#' ;
-        Dest.put htmlval ;
-        Dest.put_char '"');
-    (*******************************************************
-    *    A variant of \@getcolor above, except that it     *
-    *    returns the color in hexa minus the quotation     *
-    *    marks. e.g #00cc00 as opposed to "#00cc00".       *
-    *******************************************************)
-    def_code "\\@getstylecolor"
-      (fun lexbuf ->
-        let mdl = get_prim_opt "!*!" lexbuf in    
-        let clr = get_prim_arg lexbuf in
-        let htmlval = match mdl with
-        | "!*!"|"" -> Color.retrieve clr
-        | _     -> Color.compute mdl clr in
-        Dest.put_char '#' ;
-        Dest.put htmlval ))
+    let do_getcolor c lexbuf =
+      let mdl = get_prim_opt "!*!" lexbuf in    
+      let clr = get_prim_arg lexbuf in
+      let htmlval = match mdl with
+      | "!*!"|"" -> Color.retrieve clr
+      | _     -> Color.compute mdl clr in
+      Dest.put c ;
+      begin match htmlval with
+        | Color.Hex x -> Dest.put_char '#' ; Dest.put x
+        | Color.Name n -> Dest.put n
+      end ;
+      Dest.put c in
+    def_code "\\@getcolor" (do_getcolor "\"") ;
+    def_code "\\@getstylecolor" (do_getcolor "") ;
+    ())
 ;;
 
 register_init "colortbl"
     (fun () ->
+      let color_to_string = function
+        | Color.Hex x -> "#"^x
+        | Color.Name n -> n in
       def_code "\\columncolor"
         (fun lexbuf ->
           let mdl = get_prim_opt "!*!" lexbuf in    
@@ -373,7 +366,7 @@ register_init "colortbl"
           | _     -> Color.compute mdl clr in
           skip_opt lexbuf ;
           skip_opt lexbuf ;
-          Dest.insert_attr "TD" ("bgcolor=\"#"^htmlval^"\"")) ;
+          Dest.insert_attr "TD" ("bgcolor=\""^color_to_string htmlval^"\"")) ;
       def_code "\\rowcolor"
         (fun lexbuf ->
           let mdl = get_prim_opt "!*!" lexbuf in    
@@ -383,7 +376,7 @@ register_init "colortbl"
           | _     -> Color.compute mdl clr in
           skip_opt lexbuf ;
           skip_opt lexbuf ;
-          Dest.insert_attr "TR" ("bgcolor=\"#"^htmlval^"\"")))
+          Dest.insert_attr "TR" ("bgcolor=\""^color_to_string htmlval^"\"")))
 ;;
 
 

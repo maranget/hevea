@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: lexstate.ml,v 1.64 2005-03-03 09:59:14 maranget Exp $"
+let header = "$Id: lexstate.ml,v 1.65 2005-03-08 15:15:03 maranget Exp $"
 
 open Misc
 open Lexing
@@ -114,11 +114,7 @@ exception Error of string
 let display = ref false
 and raw_chars = ref false
 and in_math = ref false
-(* NO NEED AFTER BABEL SUPPORT *)
-(*and french =
-  ref
-    (match !Parse_opts.language with
-    | Parse_opts.Francais -> true | _ -> false)*)
+and whitepre = ref false
 and optarg = ref false
 and styleloaded = ref false
 and activebrace = ref true

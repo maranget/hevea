@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: html.ml,v 1.90 2005-03-04 15:56:35 maranget Exp $" 
+let header = "$Id: html.ml,v 1.91 2005-03-08 15:15:03 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -408,8 +408,8 @@ let put_tag tag =
 ;;
 
 let put_nbsp () =
-  if flags.in_math && !Parse_opts.mathml then
-    put " "
+  if !Lexstate.whitepre || (flags.in_math && !Parse_opts.mathml) then
+    put_char ' '
   else
     put "&nbsp;"
 ;;

@@ -199,13 +199,14 @@
 }
 \lst@AddToHook{InitVar}
   {\ifu\lst@bgcolor
-   \def\@open@lstbox{\@open{DIV}{\envclass@attr{lstlisting}}}%
+   \def\@@open@lstbox{\@open{DIV}{\envclass@attr{lstlisting}}}%
    \def\@close@lstbox{\@close{DIV}}%
    \else
    \lst@color@in@temp%
-   \def\@open@lstbox{\@opencell{STYLE="padding:1ex;background-color:\lst@temp"}{}{\envclass@attr{lstlisting}}}%
+   \def\@@open@lstbox{\@opencell{STYLE="padding:1ex;background-color:\lst@temp"}{}{\envclass@attr{lstlisting}}}%
    \def\@close@lstbox{\@closecell}%
-   \fi}
+   \fi
+   \def\@open@lstbox{\@@open@lstbox\whitepretrue}}
 %\newcommand{\lst@define@bgcolor}[2][!*!]
 %  {\def\lst@tmp{#2}%
 %  \ifx\lst@tmp\@empty\let\lst@bgcolor\@empty
@@ -491,7 +492,7 @@ century}}{tabsize,showtabs,tab}
   {\iflst@sensitive\@rawchars{#1}\else\@rawchars{\MakeLowercase{#1}}\fi}%
   \usebox{\normalize@box}}
 \def\lst@output#1#2{%
-\@NewLine\lstinfo{OUT: ``#1'' ``#2''}%
+\@NewLine%\lstinfo{OUT: ``#1'' ``#2''}%
 {\ifu\csname lstk@\lst@normalize{#1}\endcsname
   \lst@identifier@style{#2}\else
   \csname lstk@\lst@normalize{#1}\endcsname{#2}\fi}}

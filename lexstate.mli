@@ -40,8 +40,7 @@ val raw_chars : bool ref
 val display : bool ref
 val in_math : bool ref
 val alltt : alltt ref
-(* NO NEED AFTER BABEL SUPPORT *)
-(*val french : bool ref*)
+val whitepre: bool ref
 val optarg : bool ref
 val styleloaded : bool ref
 val activebrace : bool ref

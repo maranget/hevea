@@ -1,4 +1,7 @@
 version 1.07+2
+   - output named html colors when appropriate.
+   - added \ifwhitepre to identify space-white=pre,
+     this flags alters Html.put_nbsp behavoir. Should also apply to \@br.
    - worked on manual (style sheets)
    - Added interpretation of - -- --- `` and '' in main latexscan.mll
 version 1.07+1

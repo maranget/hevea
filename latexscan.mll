@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.258 2005-03-04 15:56:35 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.259 2005-03-08 15:15:03 maranget Exp $ *)
 
 
 {
@@ -2443,6 +2443,7 @@ newif_ref "iso" iso ;
 newif_ref "raw" raw_chars ;
 newif_ref "silent" silent;
 newif_ref "math" in_math ;
+newif_ref "whitepre" whitepre ;
 newif_ref "mmode" in_math ;
 newif_ref "display" display ;
 (* NO NEED AFTER BABEL SUPPORT *)

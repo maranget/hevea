@@ -9,14 +9,17 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: color.ml,v 1.9 2000-01-19 20:10:58 maranget Exp $" 
+let header = "$Id: color.ml,v 1.10 2005-03-08 15:15:03 maranget Exp $" 
 
-let default_color = "#000000"
+type t = Name of string | Hex of string
+
+let default_color = Name "black"
 ;;
 
-let table = Hashtbl.create 17
+let table = (Hashtbl.create 17 : (string, t) Hashtbl.t)
 ;;
-type saved = (string, string) Hashtbl.t
+
+type saved = (string, t) Hashtbl.t
 
 let checkpoint () = 
   let ctable = Hashtbl.create 17 in
@@ -26,7 +29,7 @@ let checkpoint () =
 and hot_start ctable = Misc.copy_hashtbl ctable table
 
 let to_hex x =
-  Printf.sprintf "%02x" (truncate (255.0 *. x))
+  Printf.sprintf "%02X" (truncate (255.0 *. x))
 ;;
 
 let cmyk_to_rgb c m y k = 
@@ -85,41 +88,70 @@ let hsv_to_rgb h s v =
 exception Failed
 ;;
 
-let do_compute mdl value = match mdl with
-| "gray" ->
-    let x = Colscan.one (Lexing.from_string value) in
-    let xx = to_hex x in
-    xx^xx^xx
-| "rgb" ->
-    let r,g,b =  Colscan.three(Lexing.from_string value) in
-    to_hex r^to_hex g^to_hex b
-| "cmyk" ->
-    let c,m,y,k = Colscan.four (Lexing.from_string value) in
-    let r,g,b = cmyk_to_rgb c m y k in
-    to_hex r^to_hex g^to_hex b
-| "hsv" ->
-    let h,s,v = Colscan.three (Lexing.from_string value) in
-    let r,g,b = hsv_to_rgb h s v in
-    to_hex r^to_hex g^to_hex b
-| "hls" ->
-    let h,l,s = Colscan.three (Lexing.from_string value) in
-    let r,g,b = hls_to_rgb h l s in
-    to_hex r^to_hex g^to_hex b
-| "named" -> begin
-    try Hashtbl.find table ("named@"^value) with
-    | Not_found -> begin
-        Misc.warning ("Unkown name in the named color model: "^value) ;
-        raise Failed
-    end
-end
-| _     ->
-    Misc.warning ("Color.compute, unknown color model: "^mdl);
-    raise Failed
+let names = Hashtbl.create 17
 
+let _ =
+  List.iter
+    (fun (xx,name) -> Hashtbl.add names xx name)
+  [ "000000", "black" ;
+  "C0C0C0", "silver" ;
+  "808080", "gray" ;
+  "FFFFFF", "white" ;
+  "800000", "maroon" ;
+  "FF0000", "red" ;
+  "800080", "purple" ;
+  "FF00FF", "fuchsia" ;
+  "008000", "green" ;
+  "00FF00", "lime" ;
+  "808000", "olive" ;
+  "FFFF00", "yellow" ;
+  "000080", "navy" ;
+  "0000FF", "blue" ;
+  "008080", "teal" ;
+  "00FFFF", "aqua" ;
+  ] 
+
+let do_compute mdl value =
+  match mdl with
+  | "named" ->
+      begin
+        try Hashtbl.find table ("named@"^value) with
+        | Not_found -> begin
+            Misc.warning ("Unkown name in the named color model: "^value) ;
+            raise Failed
+        end
+      end
+  | _ ->
+      let res = match mdl with
+      | "gray" ->
+          let x = Colscan.one (Lexing.from_string value) in
+          let xx = to_hex x in
+          xx^xx^xx
+      | "rgb" ->
+          let r,g,b =  Colscan.three(Lexing.from_string value) in
+          to_hex r^to_hex g^to_hex b
+      | "cmyk" ->
+          let c,m,y,k = Colscan.four (Lexing.from_string value) in
+          let r,g,b = cmyk_to_rgb c m y k in
+          to_hex r^to_hex g^to_hex b
+      | "hsv" ->
+          let h,s,v = Colscan.three (Lexing.from_string value) in
+          let r,g,b = hsv_to_rgb h s v in
+          to_hex r^to_hex g^to_hex b
+      | "hls" ->
+          let h,l,s = Colscan.three (Lexing.from_string value) in
+          let r,g,b = hls_to_rgb h l s in
+          to_hex r^to_hex g^to_hex b
+      | _     ->
+          Misc.warning ("Color.compute, unknown color model: "^mdl);
+          raise Failed in
+      try
+        Name (Hashtbl.find names res)
+      with Not_found -> Hex res
 
 
 let compute mdl value =
-  try do_compute mdl value with Failed -> ""
+  try do_compute mdl value with Failed -> default_color
 
 let define clr mdl value =
 try
