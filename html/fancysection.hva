@@ -71,6 +71,15 @@
   {\subsubsection}{2}{subsubsection}
   {\opensubsubsection}{\thesubsubsection\sectitle}{\closesection}
 }{}}
-\let\oldmaketitle=\maketitle
-\renewcommand{\maketitle}{\begin{center}\begin{bgcolor}{part}\oldmaketitle\end{bgcolor}\end{center}\bigskip\bigskip}
+\renewcommand{\maketitle}
+{\newcommand{\checkbox}[4]
+{\ifthenelse{\equal{\usebox{##2}}{}}
+    {}
+    {\vspace{##3}\@getprint{<FONT SIZE=##1><B>}
+    \usebox{##2}\@print{</B></FONT>}\vspace{##4}}}%
+\begin{center}\begin{bgcolor}{part}\begin{center}
+\checkbox{8}{\@title}{0ex}{1ex}%
+\checkbox{5}{\@author}{1ex}{0ex}%
+\checkbox{5}{\@date}{1ex}{0ex}%
+\end{center}\end{bgcolor}\end{center}\bigskip\bigskip}
 
