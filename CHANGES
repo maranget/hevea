@@ -1,4 +1,5 @@
 version 1.06-3  
+  - Paragraphs not ok, quick fix (in \\begin and \\end)
   - All document was typeset inside a Latexmacros group !
       -> change \document \enddocument commands
   - Corrected a bugs in argument parsing/scanning (save_sup/sub and

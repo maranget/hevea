@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.190 2000-07-20 14:21:23 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.191 2000-07-27 17:29:52 maranget Exp $ *)
 
 
 {
@@ -393,8 +393,6 @@ and math_table = function
   | _ -> raise (Misc.Fatal "Array construct outside an array")
 ;;
 
-let par_val t =
-  if is_table t then Some 0 else Some 1
 
 exception EndInside
 ;;
@@ -445,6 +443,15 @@ let get_col format i =
   end ;
   r
 ;;
+
+(* Paragraph breaks are different in tables *)
+let par_val t =
+  if is_table t then
+    match get_col !cur_format !cur_col with
+    | Tabular.Align {wrap=false} -> None
+    | _                          -> Some 0
+  else
+    Some 1
 
 let show_inside main format i closing =
 (*
@@ -1163,6 +1170,9 @@ and mbox_arg = parse
     Dest.open_block "" "" ;
     new_env "*mbox"}
 
+and no_skip = parse
+| "" {()}
+
 and skip_blanks_pop = parse
   ' '+ {skip_blanks_pop lexbuf}
 | '\n' {more_skip_pop lexbuf}
@@ -1492,10 +1502,27 @@ let def_fun name f =
 ;;
 
 (* Paragraphs *)
+let do_unskip () =
+ let _ = Dest.forget_par () in
+ Dest.unskip ()
+;;
+
+def_code "\\unskip"
+    (fun lexbuf ->
+      do_unskip () ;
+      check_alltt_skip lexbuf)
+;;
+
 def_code "\\par"
   (fun lexbuf ->
-    top_par (par_val !in_table) ;
-    check_alltt_skip lexbuf)
+    match par_val !in_table with
+    | None ->
+        Dest.put_char ' ' ;
+        check_alltt_skip lexbuf
+    | pval ->
+        top_par pval ;
+        check_alltt_skip lexbuf)
+
 ;;
 
 (* Styles and packages *)
@@ -1800,17 +1827,8 @@ def_code "\\execafter"
      let cur_subst = get_subst () in
      scan_this_may_cont main lexbuf cur_subst next_arg ;
      scan_this_may_cont main lexbuf cur_subst arg)
-
-let do_unskip () =
- let _ = Dest.forget_par () in
- Dest.unskip ()
 ;;
 
-def_code "\\unskip"
-    (fun lexbuf ->
-      do_unskip () ;
-      check_alltt_skip lexbuf)
-;;
 
 def_code "\\csname"
   (fun lexbuf ->
@@ -2275,7 +2293,7 @@ def_code "\\begin"
     let old_envi = save stack_entry in
     push stack_entry env ;
     begin try
-      expand_command main skip_blanks macro lexbuf
+      expand_command main no_skip macro lexbuf
     with
     | e ->
         restore stack_entry old_envi ;
@@ -2295,7 +2313,7 @@ def_code "\\@begin"
 def_code "\\end"
   (fun lexbuf ->
     let env = get_prim_arg lexbuf in
-    expand_command main skip_blanks ("\\end"^env) lexbuf ;
+    expand_command main no_skip ("\\end"^env) lexbuf ;
     close_env env ;
     top_close_block "")
 ;;
@@ -2747,7 +2765,7 @@ let open_array env lexbuf =
     Dest.open_table false (get_table_attributes false len);
   open_row() ;
   open_first_col main ;
-  skip_blanks_pop lexbuf
+  skip_blanks_pop lexbuf ;
 ;;
 
 def_code "\\@array" (open_array "array") ;

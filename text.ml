@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.49 2000-07-10 15:06:35 maranget Exp $"
+let header = "$Id: text.ml,v 1.50 2000-07-27 17:29:57 maranget Exp $"
 
 
 open Misc
@@ -1272,8 +1272,9 @@ let new_row () =
   if !table.col> !table.cols then !table.cols<- !table.col;
   !table.col <- -1;
   !table.line <- !table.line +1;
-  if !table.line = 1 && (( Array.length !table.tailles)=0) then  !table.tailles<-Table.trim !table.taille;
-  let _=match !row.cells with
+  if !table.line = 1 && (( Array.length !table.tailles)=0) then
+    !table.tailles<-Table.trim !table.taille;
+  let _ =match !row.cells with
   | Tabl t -> Table.reset t
   | _-> raise (Error "invalid table type in array")
   in
