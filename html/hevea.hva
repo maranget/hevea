@@ -1,5 +1,3 @@
-\newif\ifquatrezero
-\quatrezerofalse
 %%%%%% Spacing
 \def\@{}
 \def\ { }
@@ -190,7 +188,7 @@
 \ifmathml
 \else
 \ifsymb
-\ifquatrezero\input{html/symb-ent.hva}\else\input{html/symb.hva}\fi
+\input{html/symb.hva}
 \else
 \input{html/symb-text.hva}
 \fi
@@ -445,18 +443,13 @@
 %%% now serious
 \def\noprint#1{{\@nostyle\@print{#1}}}%
 \newcommand{\@bodyargs}{BGCOLOR=silver TEXT=black}
-\ifquatrezero
-  \newcommand{\@meta}{\@print{<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+\newcommand{\@meta}{\@print{<META http-equiv="Content-Type" content="text/html; charset= ISO-8859-1">
 }}
-\else
-  \newcommand{\@meta}{}
-\fi
 \newif\iffooter\footertrue
 \newenvironment{document}{%
-\ifquatrezero\@print{<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+\@print{<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
             "http://www.w3.org/TR/REC-html40/loose.dtd">
-}\else\@print{<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
-}\fi\@print{<HTML>
+}\@print{<HTML>
 }%
 \@print{<HEAD><TITLE>}%
 \@notags{\@title}%
