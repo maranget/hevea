@@ -12,6 +12,15 @@
 \input{iso-symb.hva}
 \renewcommand{\&}{\ifraw\@print{&}\else\@print{&amp;}\fi}
 \input{latexcommon.hva}
+%%%% A few srange
+\newcommand{\glqq}{\@print{&#8222;}}
+\newcommand{\grqq}{\@print{&#8220;}}
+\newcommand{\glq}{\@print{&#8218;}}
+\newcommand{\grq}{\@print{&#8216;}}
+\newcommand{\flqq}{\@print{&#0171;}}
+\newcommand{\frqq}{\@print{&#0187;}}
+\newcommand{\flq}{\@print{&#8249;}}
+\newcommand{\frq}{\@print{&#8250;}}
 %%% Logos
 \def\TeX{\@print{TeX}}
 \def\LaTeX{\@print{L<sup>A</sup>T<sub>E</sub>X}}
