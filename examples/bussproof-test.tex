@@ -1,0 +1,22 @@
+\documentclass{article}
+\usepackage{bussproof}
+
+\begin{document}
+$$
+\RightLabel{Ax}
+\AxiomC{$\Gamma$,a$\vdash$ b}
+\RightLabel{$\to$I}
+\UnaryInfC{$\Gamma \vdash$ a$\to$b}
+\RightLabel{Ax}
+\AxiomC{$\Gamma \vdash$ c}
+\RightLabel{Ax}
+\AxiomC{$\Gamma \vdash$ d}
+\RightLabel{$\wedge$I}
+\BinaryInfC{$\Gamma \vdash$ c$\wedge$d}
+\RightLabel{$\wedge$I}
+\BinaryInfC{$\Gamma \vdash$ (a$\to$b)$\wedge$ (c$\wedge$d)}
+\DisplayProof
+$$
+\end{document}
+
+

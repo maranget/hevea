@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.45 2004-05-27 15:57:35 thakur Exp $    *)
+(*  $Id: package.ml,v 1.46 2004-05-28 11:55:22 thakur Exp $    *)
 
 module type S = sig  end
 
@@ -639,13 +639,76 @@ register_init "natbib"
     ())
 ;;            
 
+(************************************************************
+*                                                           *
+*   The type "proof" is used to store the different         *
+*   components of the proof.                                *
+*							    *
+*   It has been extended with LL, RL, DUMMY to also act     *
+*   as the type of elements in the "postorder-stack".       *
+*                                                           *
+************************************************************)
+
 type proof  = AXIOM of string * string * string
             | UNARY_INF of proof * string * int * int *
 			string * string
             | BINARY_INF of proof * proof * string * int * int *
                         string * string
 	    | TRINARY_INF of proof * proof * proof * string *
-	                int * int * string * string;;
+	                int * int * string * string
+            | LL of string
+	    | RL of string
+	    | DUMMY
+;;
+
+let rec stringify pf = match pf with
+              DUMMY -> "DUMMY\n"
+	    | LL s  -> "LL "^s^"\n"
+	    | RL s  -> "RL "^s^"\n"
+	    | AXIOM (s,s1,s2) -> "AXIOM "^s^" "^s1^" "^s2^"\n"
+	    | UNARY_INF (p,s,i1,i2,s1,s2) ->
+	    	"UNARY_INF\n\n"^(stringify p)^"\n"^s^" "^s1^" "^s2^"\n"
+	    | BINARY_INF (p1,p2,s,i1,i2,s1,s2) ->
+	        "BINARY_INF\n\n"^(stringify p1)^"\n"^(stringify p2)^"\n"^
+			s^" "^s1^" "^s2^"\n"
+	    | TRINARY_INF (p1,p2,p3,s,i1,i2,s1,s2) ->
+	        "TRINARY_INF\n\n"^(stringify p1)^"\n"^(stringify p2)^"\n"^
+			(stringify p3)^"\n"^s^" "^s1^" "^s2^"\n"
+
+(************************************************************
+*                                                           *
+*   A "stack" along with push, pop, and view_top functions  *
+*                                                           *
+*   The stack is a list of "proof"s, to keep all operations *
+*   simple.						    *
+*							    *
+************************************************************)
+
+let stack = ref (DUMMY :: [DUMMY]);;
+
+let stack_push x = (stack := (x::(!stack)));;
+
+let stack_pop () = 
+	let s = !stack
+	in match s with 
+	      [] -> DUMMY
+	    | (x::ls) -> stack := ls; x
+;;
+
+let stack_top1 () = 
+        let s = !stack
+	in match s with
+	      [] -> DUMMY
+	    | (x::ls) -> x
+;;
+
+let stack_top2 () =
+        let s = !stack
+	in match s with
+	      [] -> DUMMY
+	    | (x::[]) -> DUMMY
+	    | (x::y::ls) -> y
+;;
 
 (************************************************************
 *                                                           *
@@ -673,7 +736,7 @@ let rec update_proof pf = match pf with
 		in
 		    (BINARY_INF (new_pr1, new_pr2, str, new_wid, new_ht, 
 			str1, str2), new_wid, new_ht)
-	 | TRINARY_INF (pr1,pr2,pr3,str,wid,ht, str1, str2) 	->
+	| TRINARY_INF (pr1,pr2,pr3,str,wid,ht, str1, str2) 	->
 	        let  (new_pr1, new_wid1, new_ht1) = update_proof pr1
 		in let (new_pr2, new_wid2, new_ht2) = update_proof pr2
 		in let (new_pr3, new_wid3, new_ht3) = update_proof pr3
@@ -685,8 +748,10 @@ let rec update_proof pf = match pf with
 				        else new_ht3) + 1
 		in
 		     (TRINARY_INF (new_pr1, new_pr2, new_pr3, str, 
-		      new_wid, new_ht, str1, str2), new_wid, new_ht);;
-   
+		      new_wid, new_ht, str1, str2), new_wid, new_ht)
+     	| _	-> (AXIOM ("","",""),0,0)
+;;
+
 (************************************************************
 *                                                           *
 *   "get_proof_col_row" obtains the number of rows and	    *
@@ -706,7 +771,9 @@ let get_text pf = match pf with
     		  (AXIOM (s, str1, str2)) -> s
       		| (UNARY_INF (p,s,w,h, str1, str2)) -> s
       		| (BINARY_INF (p1,p2,s,w,h, str1, str2)) -> s
-      		| (TRINARY_INF (p1,p2,p3,s,w,h, str1, str2)) -> s;;
+      		| (TRINARY_INF (p1,p2,p3,s,w,h, str1, str2)) -> s
+		| _ -> ""
+;;
    
 let get_rinf pf = match pf with
     		  (AXIOM (s, str1, str2)) 			->  
@@ -716,7 +783,9 @@ let get_rinf pf = match pf with
       		| (BINARY_INF (p1,p2,s,w,h, str1, str2)) 	-> 
       			(BINARY_INF (p1,p2,s,w,h, str1, str2), w, h)
       		| (TRINARY_INF (p1,p2,p3,s,w,h, str1, str2)) 	->
-      		 	(TRINARY_INF (p1,p2,p3,s,w,h, str1, str2), w, h);;
+      		 	(TRINARY_INF (p1,p2,p3,s,w,h, str1, str2), w, h)
+		| _ -> (pf,0,0)
+;;
    
 let rec gen_next_rinfo l = match l with
         [] -> []
@@ -735,8 +804,10 @@ let rec gen_next_rinfo l = match l with
 		| TRINARY_INF (p1,p2,p3,s,w,h, str1, str2) ->
 				(p1,0,0)::(get_rinf p1)::(get_rinf p2)::
 				(get_rinf p3)::(p3,0,0)::
-				(gen_next_rinfo rinfo);;
-   
+				(gen_next_rinfo rinfo)
+		| _	-> (p,c,r)::(gen_next_rinfo rinfo)
+;;
+
 let rec gen_row l = match l with
         [] -> ""
       | ((p,c,r)::rinfo) -> 
@@ -749,7 +820,7 @@ let rec gen_row l = match l with
 		       "text-align: center;\"><br>\n      </td>\n"^
 		       (gen_row rinfo)
 		| n -> left^
-		       "      <td colspan=\""^(int_to_string(n-2))^"\""^
+		       "      <td colspan=\""^(string_of_int(n-2))^"\""^
 		       "style=\"vertical-align: center;"^
 		       "text-align: center;\">\n        "^
 		       (get_text p)^
@@ -761,7 +832,9 @@ let get_labels pf = match pf with
       	  (AXIOM (s,str1,str2)) -> (str1,str2)
       	| (UNARY_INF (p,s,w,h, str1, str2)) -> (str1,str2)
       	| (BINARY_INF (p1,p2,s,w,h, str1, str2)) -> (str1,str2)
-      	| (TRINARY_INF (p1,p2,p3,s,w,h, str1, str2)) -> (str1,str2);;
+      	| (TRINARY_INF (p1,p2,p3,s,w,h, str1, str2)) -> (str1,str2)
+	| _ -> ("","")
+;;
 
 let rec gen_dash_row pf = match pf with
     	  [] -> ""
@@ -781,7 +854,7 @@ let rec gen_dash_row pf = match pf with
 	              "text-align: center;\"><br>\n      </td>\n"^
 	              (gen_dash_row rinfo)
 	          | n -> left^
-	              "      <td colspan=\""^(int_to_string (n-2))^"\""^
+	              "      <td colspan=\""^(string_of_int (n-2))^"\""^
 	              "style=\"vertical-align: center;"^
 	              "text-align: center;\">\n        "^
 	              "<HR>"^ (*(if r=1 then "<br>" else "<HR>")^*)
@@ -798,58 +871,116 @@ let rec gen_table r  rinfo  result_rows  = match r with
    	    in
 	     	gen_table (rnow-1) new_rinfo (dash_row^this_row^result_rows);;
 
-let start_table () = "<html>\n<head>\n"^
-		"  <meta content=\"text/html; charset=ISO-8859-1\"\n"^
-		"  http-equiv=\"content-type\">\n"^
-		"  <title>Proof Table</title>\n"^
-		"</head>\n<body>\n"^
+let start_table () = 
 		"<table style=\"text-align: center;\" "^
 		"border=\"0\"\n"^
 		" cellspacing=\"1\" cellpadding=\"0\">\n"^
 		"  <tbody>\n";;
 
-let end_table () = "  </tbody>\n</table>\n</body>\n</html>";;
-   
-let pf = BINARY_INF(
-    		    BINARY_INF(
-  			UNARY_INF(
-				AXIOM(
-					"G , a |-  b","","Ax"
-				),
-				"G |- a -> b",0,0,"","->I"
-				
-			),
-			BINARY_INF(
-				AXIOM(
-					"G |- c","","Ax"
-				),
-				AXIOM(
-				        "G |- d","","Ax"
-				),
-				"G |- c ^ d",0,0,"","^I"
-			),
-			"G |- (a -> b) ^ (c ^ d)",0,0,"","^I"
-		    ),
-		    AXIOM(
-			"G |- e","","Ax"
-		    ),
-		    "G |-  ((a -> b) ^ (c ^ d)) ^ e",0,0,"","^I"
-		);;
-let (new_pr,cols,rows) = get_proof_col_row pf;;
-let inner_text = gen_table rows [(new_pr,cols,rows)] "";;
-let text = start_table()^inner_text^end_table();;
-*)    
+let end_table () = "  </tbody>\n</table>\n";;
+
+(************************************************************
+*                                                           *
+*   "get_labels_from_stack" gets the left and right labels  *
+*   for a particular inference rule if they were specified. *
+*                                                           *
+*   There are four possibilities in general :		    *
+*   	a) Both specified, with right label first 	    *
+* 	    (deeper in the stack)			    *
+*   	b) Both specified, with left first		    *
+*       c) Either one specified				    *
+*       d) None specified				    *
+*                                                           *
+************************************************************)
+
+let get_labels_from_stack () =
+ 	let top1 = stack_top1 () in
+	let top2 = stack_top2 () in
+            match (top1,top2) with
+	        (LL s1, RL s2) -> 
+		      let ll = stack_pop() in
+		      let rl = stack_pop() in
+		          (s1,s2)
+	      | (RL s1, LL s2) -> 
+	              let rl = stack_pop() in
+		      let ll = stack_pop () in
+		          (s2,s1)
+	      | (LL s1, _    ) ->
+	              let ll = stack_pop() in
+		          (s1,"")
+	      | (RL s1, _    ) ->
+	              let rl = stack_pop() in
+		          ("",s1)
+	      | (_    , _    ) ->
+	              ("","")
+;;
+
 register_init "bussproof"
     (fun () ->
       def_code "\\AxiomC"
         (fun lexbuf ->
           let arg = save_arg lexbuf in
           let formatted = Scan.get_this_arg_mbox arg in
-          let branch = AXIOM(formatted,"","") in
-	  let (new_pr,cols,rows) = get_proof_col_row branch in
+	  let (left_label,right_label) = get_labels_from_stack () in
+	  let axiom = AXIOM (formatted,left_label,right_label) in
+	  stack_push axiom; 
+	  (*print_string (stringify (stack_top1 ())); 
+	  Dest.put formatted*)
+	  ());
+      def_code "\\UnaryInfC"
+        (fun lexbuf ->
+	  let arg = save_arg lexbuf in
+	  let formatted = Scan.get_this_arg_mbox arg in
+	  let (left_label,right_label) = get_labels_from_stack () in
+	  let proof1 = stack_pop () in
+	  let un_inf = UNARY_INF (proof1,formatted,0,0,
+	  			  left_label,right_label) in 
+	  stack_push un_inf; 
+	  ());
+      def_code "\\BinaryInfC"
+        (fun lexbuf ->
+	  let arg = save_arg lexbuf in
+	  let formatted = Scan.get_this_arg_mbox arg in
+	  let (left_label,right_label) = get_labels_from_stack () in
+	  let proof1 = stack_pop () in
+	  let proof2 = stack_pop () in
+	  let bi_inf = BINARY_INF (proof1,proof2,formatted,0,0,
+	  			   left_label,right_label) in
+	  stack_push bi_inf; 
+	  ());
+      def_code "\\TrinaryInfC"
+        (fun lexbuf ->
+	  let arg = save_arg lexbuf in
+	  let formatted = Scan.get_this_arg_mbox arg in
+	  let (left_label,right_label) = get_labels_from_stack () in
+	  let proof1 = stack_pop () in
+	  let proof2 = stack_pop () in
+	  let proof3 = stack_pop () in
+	  let tri_inf = TRINARY_INF (proof1,proof2,proof3,formatted,0,0,
+	  			     left_label,right_label) in
+	  stack_push tri_inf;
+	  ());
+      def_code "\\LeftLabel"
+        (fun lexbuf ->
+	  let arg = save_arg lexbuf in
+	  let formatted = Scan.get_this_arg_mbox arg in
+	  let left_label = LL (formatted) in 
+	  stack_push left_label;
+	  ());
+      def_code "\\RightLabel"
+        (fun lexbuf ->
+	  let arg = save_arg lexbuf in
+	  let formatted = Scan.get_this_arg_mbox arg in
+	  let right_label = (RL formatted) in
+	  stack_push right_label;
+	  ());
+      def_code "\\DisplayProof"
+        (fun lexbuf ->
+	  let pf = stack_pop () in
+	  let (new_pr,cols,rows) = get_proof_col_row pf in
 	  let inner_text = gen_table rows [(new_pr,cols,rows)] "" in
-	  let text = start_table()^inner_text^end_table() in
-	  Dest.put text)
+	  let text = ((start_table())^(inner_text)^(end_table())) in
+	  Dest.put text); 
     )
 ;;
 
