@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.226 2002-11-05 09:35:15 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.227 2002-12-12 09:46:39 maranget Exp $ *)
 
 
 {
@@ -1299,11 +1299,11 @@ and comment = parse
     {skip_comment lexbuf ; more_skip lexbuf}
 
 and skip_comment = parse    
-|  [^ '\n']* '\n'
+|  [^ '\n']* ('\n'|eof)
    {if !verbose > 1 then
      prerr_endline ("Comment:"^lexeme lexbuf) ;
    if !flushing then Dest.flush_out () }
-| "" {raise (Misc.ScanError "Latex comment is not terminated")}
+
 
 and skip_to_end_latex = parse
 | '%' ['%'' ']* ("END"|"end") ' '+ ("LATEX"|"latex")

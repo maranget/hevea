@@ -17,7 +17,7 @@ RM="/bin/rm -f"
 
 doconvert()
 {
-  pnmtopng -transparent '#000000'
+  pnmtopng -transparent '#ffffff'
 }
 
 donothing ()
@@ -79,8 +79,8 @@ case $0 in
 esac
 
 NAME=${BASE}.image
-DVIPSOPTS="-t a3 -x${DVIPSMAG}"
-GSOPTS="-q -sPAPERSIZE=a3 -dNOPAUSE -DNOPROMPT -sDEVICE=ppmraw -dTextAlphaBits=2"
+DVIPSOPTS="-t a0 -x${DVIPSMAG}"
+GSOPTS="-q -sPAPERSIZE=a0 -dNOPAUSE -DNOPROMPT -sDEVICE=ppmraw -dTextAlphaBits=2"
 PNMMARGINOPTS="-white 1"
 
 NEWDVIPS=true

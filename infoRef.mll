@@ -10,7 +10,7 @@
 (***********************************************************************)
 
 {
-let header = "$Id: infoRef.mll,v 1.22 2001-05-25 09:07:15 maranget Exp $"
+let header = "$Id: infoRef.mll,v 1.23 2002-12-12 09:46:39 maranget Exp $"
 ;;
 
 
@@ -308,7 +308,7 @@ let affiche_node nom =
   (match noeud.up with
   | None ->
       if noeud.name = "Top" then begin
-        put ",\tUp: (dir)." ;
+        put ",\tUp: (dir)" ;
         top_node := true
       end
   | Some n -> put (",\tUp: "^noeud_name n));
