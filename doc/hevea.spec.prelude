@@ -6,7 +6,7 @@ Source: ftp://ftp.inria.fr/INRIA/Projects/para/hevea/UNSTABLE/hevea-VERSION.tar.
 Copyright: freely redistributable
 Group: Development/Languages
 Vendor: INRIA Rocquencourt
-URL: http://para.inria.fr/~maranget/hevea/
+URL: http://pauillac.inria.fr/~maranget/hevea/
 
 %description
 
