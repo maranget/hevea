@@ -11,7 +11,7 @@ TEX=$(HTML:.html=.tex)
 all: dvi html images
 opt:
 	export HEVEADIR=.. ;\
-	$(MAKE) $(MFLAGS) HEVEA=hevea.opt HACHA=hacha.opt IMAGEN=imagen.opt all
+	$(MAKE) $(MFLAGS) HEVEA=../hevea.opt HACHA=../hacha.opt IMAGEN=../imagen all
 
 dvi: $(DVI)
 

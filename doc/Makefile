@@ -8,6 +8,10 @@ DOCDIR=$(HTMLDIR)/doc
 
 all: manual.dvi index.html images
 
+opt:
+	export HEVEADIR=.. ;\
+	$(MAKE) $(MFLAGS) HEVEA=hevea.opt HACHA=hacha.opt IMAGEN=imagen.opt all
+
 tmp.tex: manual.tex version.tex
 	$(GPIC) -t < manual.tex > tmp.tex
 
