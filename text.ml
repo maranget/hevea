@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.15 1999-05-25 15:52:16 tessaud Exp $"
+let header = "$Id: text.ml,v 1.16 1999-05-26 15:45:41 tessaud Exp $"
 
 
 open Misc
@@ -277,9 +277,10 @@ let do_put_line s =
     let souligne =
       let l = String.make taille ' ' in
       let len = String.length flags.underline in
-      if len = 0 then raise (Misc.Fatal ("cannot underline with nothing:#"^String.escaped flags.underline^"#"^(
-													       if  (flags.underline <> "") then "true" else "false"
-													       )));
+      if len = 0 then raise (Misc.Fatal ("cannot underline with nothing:#"
+					 ^String.escaped flags.underline^"#"^
+					 (if  (flags.underline <> "") then "true" else "false"
+					   )));
       for i = flags.x_start to length -1 do
 	l.[i]<-flags.underline.[(i-flags.x_start) mod len]
       done;
@@ -327,7 +328,7 @@ let do_put_char2 c =
     flags.x <- -1;
   end else
     flags.x<-flags.x + 1;
-  if flags.x>flags.x_end then begin (* depassement de ligne *)
+  if flags.x>(flags.x_end +1) then begin (* depassement de ligne *)
     if (flags.x - flags.last_space) >= flags.hsize then begin
 	  (* On coupe brutalement le mot trop long *)
       if !verbose >2 then
@@ -894,6 +895,7 @@ let finalize check =
 let unskip () = do_unskip ()
 
 let put_separator () = put " "
+;;
 
 let put_tag tag = ()
 ;;
@@ -918,7 +920,7 @@ let put_in_math s =
 (*-- TABLEAUX --*)
 (*--------------*)
 
-type align = Top | Middle | Bottom
+type align = Top | Middle | Bottom | Base of int
 and wrap_t = True | False | Fill
 ;;
 
@@ -950,10 +952,6 @@ type row2 = {
   } 
 
 type table_flags_t = {
-(*
-    mutable border : bool;
-    mutable borders : (int,char) Hashtbl.t;
-*)
     mutable lines : int;
     mutable cols : int;
     mutable width : int;
@@ -990,10 +988,6 @@ let row= ref {
 ;;
 
 let table =  ref {
-(*
-  border = false;
-  borders = Hashtbl.create 7;
-*)
   lines = 0;
   cols = 0;
   width = 0;
@@ -1040,10 +1034,6 @@ let open_table border htmlargs =
   flags.first_line <- 0;
 
   table := {
-(*
-    border = border;
-    borders = Hashtbl.create 7;
-*)
     lines = 0;
     cols = 0;
     width = 0;
@@ -1105,8 +1095,8 @@ let open_cell format span insides =
     Tabular.Align {Tabular.vert=v ; Tabular.hor=h ; Tabular.wrap=w ; Tabular.width=size} ->
       !cell.ver <- 
 	(match v with
-	| "" -> Middle
-	| "middle" -> Middle
+	| "" -> Base 50
+	| "middle" -> Base 50
 	| "top" -> Top
 	| "bottom" -> Bottom
 	| _-> raise (Misc.Fatal ("open_cell, invalid vertical format :"^v)));
@@ -1239,12 +1229,6 @@ let open_cell_group () = !table.in_cell <- true;
 and close_cell_group () = !table.in_cell <- false;
 
 and erase_cell_group () = !table.in_cell <- false;
-(*
-if !table.emitted then begin
-  Table.remove_last !row.cells;
-  !table.col <- !table.col -1;
-end
-*)
 ;;
 
 
@@ -1277,24 +1261,6 @@ let center_format =
 		   Tabular.post = "" ; Tabular.width = None} 
 ;;
 
-(*
-let make_border c =
-  (* sauve le numero de la colonne courante. il faut mettre le caractere c a la fin de la colonne *)
-  if !verbose>2 then prerr_endline ("Adding border after column "^string_of_int !table.col^" :'"^String.make 1 c^"'")
-;
-  try
-    let d = Hashtbl.find !table.borders !table.col in
-    if d <> c then begin
-      if d = ' ' then begin
-	Hashtbl.remove !table.borders !table.col;
-	raise Not_found
-      end else if c <> ' ' then raise (Error ("Invalid borders in table :'"^String.make 1 c^"' <> '"^String.make 1 d^"', column :"^string_of_int !table.col));
-    end;
-  with Not_found -> begin
-    Hashtbl.add !table.borders !table.col c;
-  end;
-;;
-*)
 
 let make_border s =
   if !verbose>2 then prerr_endline ("Adding border after column "^string_of_int !table.col^" :'"^s^"'");
@@ -1340,43 +1306,42 @@ let text_out j hauteur height align =
   | Top ->    (j < height)
   | Middle -> ((j >= (hauteur-height)/2) && (j <= ((hauteur-height)/2)+height-1))
   | Bottom -> (j >= hauteur - height)
+  | Base i -> 
+      if ( hauteur * i) >= 50 * ( 2*hauteur - height ) 
+      then (j >= hauteur - height) (* Bottom *)
+      else if ( hauteur * i) <= height * 50
+      then (j < height) (* Top *)
+      else ((100*j >= i*hauteur - 50*height) && (100*j < i*hauteur + 50*height)) (* Elsewhere *)
 ;;
 (* dis si oui ou non on affiche la ligne de cette cellule, etant donne l'alignement vertical.*)
 
-let put_ligne texte pos align taille =
+let put_ligne texte pos align width taille wrap=
 (* envoie la ligne de texte apres pos, sur out, en alignant horizontalement et en completant pour avoir la bonne taille *)
   let pos_suiv = try 
     String.index_from texte pos '\n'
   with Not_found -> String.length texte
   in
   let s = String.sub texte pos (pos_suiv - pos) in
-  let t= String.length s in
+  let t,post= 
+    if wrap=True then String.length s,0
+    else width,width - String.length s in
   let ligne = match align with
   | Left -> String.concat "" 
-	[s; String.make (taille-t) ' ']
+	[s; String.make (taille-t+post) ' ']
   | Center -> String.concat ""
 	[String.make ((taille-t)/2) ' ';
 	  s;
-	  String.make (taille - t - (taille-t)/2) ' '] 
+	  String.make (taille - t + post- (taille-t)/2) ' '] 
   | Right -> String.concat ""
 	[String.make (taille-t) ' ';
-	  s]
+	  s;
+	  String.make (post) ' ']
    in
   if !verbose>2 then prerr_endline ("line sent :#"^ligne^"#");
   do_put ligne;
   pos_suiv + 1
 ;;
 
-(*
-let put_border k =
-  let c =
-    try
-      String.make 1 (Hashtbl.find !table.borders k);
-    with Not_found -> ""
-  in
-  do_put c
-;;
-*)
 
 let put_border s inside j =
   for i = 0 to String.length s -1 do
@@ -1388,9 +1353,7 @@ let put_border s inside j =
 let rec somme debut fin = 
   if debut = fin 
   then !table.tailles.(debut)
-  (*    + (if Hashtbl.mem !table.borders debut then 1 else 0)*)
   else !table.tailles.(debut)
-(*      + (if Hashtbl.mem !table.borders debut then 1 else 0)*)
       + (somme (debut+1) fin)
 ;;
 
@@ -1424,6 +1387,7 @@ let calculate_multi () =
   do_rec !multi
 ;;
 
+
 let close_table () =
   if !verbose>2 then begin
     prerr_endline "=> close_table";
@@ -1438,8 +1402,8 @@ let close_table () =
   calculate_multi ();
 
   !table.width <- somme 0 (Array.length !table.tailles -1);
-(*      + (if (Hashtbl.mem !table.borders (-1)) then 1 else 0);*)
-  
+  finit_ligne();
+
   if !table.width > flags.hsize then warning ("overfull line in array : array too wide");
 
   for i = 0 to !table.lines - 1 do
@@ -1451,19 +1415,13 @@ let close_table () =
     !row.haut <-0;
     for j = 0 to tab.(i).hauteur -1 do
       if not ( i=0 && j=0) then do_put_char '\n';
-(*      if ligne.(0).wrap <> Fill then put_border (-1);*)
       let col = ref 0 in
       for k = 0 to Array.length ligne -1 do
 	begin
 	  (* ligne j de la cellule k *)
 	  if ligne.(k).wrap = Fill then ligne.(k).span <- Array.length !table.tailles;
-	  let taille = (somme !col (!col + ligne.(k).span-1))
-	      - (String.length ligne.(k).pre)
-	      - (String.length ligne.(k).post)
-(*	    (if ligne.(k).span > 1 then somme !col (!col + ligne.(k).span-1)
-	    else  !table.tailles.(!col))
-	      + if (ligne.(k).wrap = Fill) && (Hashtbl.mem !table.borders (k-1)) then 1 else 0*)
-	  in
+	  let taille_borders = (String.length ligne.(k).pre) + (String.length ligne.(k).post) in
+	  let taille = (somme !col (!col + ligne.(k).span-1)) - taille_borders in
 	  if !verbose>3 then prerr_endline ("cell to output:"^
 					    ligne.(k).pre^
 					    ligne.(k).text^
@@ -1479,13 +1437,14 @@ let close_table () =
 		ligne.(k).text 
 		pos.(k) 
 		ligne.(k).hor
+		(ligne.(k).w - taille_borders)
 		taille
+		ligne.(k).wrap
 	  end else 
 	    if ligne.(k).wrap = Fill then do_put (String.make taille ligne.(k).text.[0])
 	    else do_put (String.make taille ' ');
 	  col := !col + ligne.(k).span;
 	  put_border ligne.(k).post ligne.(k).post_inside j;
-	  (*if ligne.(k).span =1 then put_border (!col - 1);*)
 	end;
       done;
     done;
@@ -1523,7 +1482,7 @@ let is_blank s =
 ;;
 
 let is_empty () =
-  flags.in_table && (Out.is_empty !cur_out.out);;
+  flags.in_table && (Out.is_empty !cur_out.out) && (flags.x= -1);;
 
 let image arg n = 
     if arg <> "" then begin
@@ -1538,7 +1497,8 @@ let horizontal_line s u t =
     !cell.wrap <- Fill;
     put_char '-';
   end else begin
-    put_char '\n';
+    open_block "INFO" "";
+    finit_ligne ();
     let tint =
       try int_of_string t
       with Failure s -> raise (Misc.Fatal (s^": ``"^t^"''")) in
@@ -1551,7 +1511,8 @@ let horizontal_line s u t =
 	|	_ -> "");
 	  String.make taille '-'] in
     put ligne;
-    put_char '\n';
+    finit_ligne ();
+    close_block "INFO";
   end
 ;;
 

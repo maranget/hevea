@@ -18,7 +18,7 @@ module type T =
 module MakeFoot ( Dest : OutManager.S )=
 struct
 
-let header = "$Id: foot.ml,v 1.8 1999-05-10 15:53:52 tessaud Exp $" 
+let header = "$Id: foot.ml,v 1.9 1999-05-26 15:45:38 tessaud Exp $" 
 open Parse_opts
 (*open Dest*)
 
@@ -78,3 +78,4 @@ let flush lexer sec_notes sec_here =
 ;;
 
 end
+

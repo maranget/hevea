@@ -69,7 +69,7 @@
 \stepcounter{section}%
 %% If this is the first section, put on a menu. Anyway, put on a node tag..
 \sectionmenu%
-\@infonode[section]{\sectionname\  \thesection}{#2}%
+\@infonode[section]{\sectionname\ \thesection}{#2}%
 \@open{HEAD}{=}%%H2
 \thesection\quad #2\\%
 \@close{HEAD}%

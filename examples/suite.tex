@@ -937,14 +937,14 @@ Aller voir~\cite{latexbis}
 %HEVEA\newcommand{\PBS}[1]{#1}
 \newcolumntype{P}[1]{p{#1}}
 \newcommand{\pascal}[2]{%
-\setcounter{i}{2*#1-1}
+\setcounter{i}{2*#1-1}%
 \begin{tabular}{*{\value{i}}{@{}>{\PBS\centering}P{#2}}}
 \pascalcols{#1}
 \end{tabular}}
 
 \begin{tabular}{cc}\hline
 \pascal{8}{2ex} &
-\renewcommand{\theres}{\roman{res}}
+\renewcommand{\theres}{\roman{res}}%
 \pascal{8}{4ex}\\ \hline
 \end{tabular}
 
