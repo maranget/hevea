@@ -646,7 +646,7 @@ and verb_input lexer file =
 *)
 
 let open_verbenv star =
-  Scan.top_open_block "PRE" "" ;
+  Scan.top_open_block "PRE" "ALIGN=left" ;
   process :=
      if star then
        (fun () -> put_line_buff_verb_star () ; Dest.put_char '\n')
