@@ -15,6 +15,7 @@
 \usepackage{mathpartir}
 \usepackage{alltt}
 \usepackage{moreverb}
+\usepackage{color}
 \input{macros.tex}
 \makeindex
 \input{version.tex}
@@ -42,8 +43,7 @@ Chesnay Cedex. {\tt \mailto{Luc.Maranget@inria.fr}}}}
    color:maroon;
    background:\@getstylecolor[named]{Apricot}}
 \newcommand{\emitstyle}[2]
-{\newstyle{.toc#1}{list-style:none;border-left:1ex solid
-#2;padding:0ex 1ex;}}
+{\newstyle{.toc#1}{list-style:none;border-left:1ex solid #2;padding:0ex 1ex;}}
 \emitstyle{1}{\@getstylecolor{Sepia}}
 \emitstyle{2}{\@getstylecolor{Brown}}
 \emitstyle{3}{\@getstylecolor{Tan}}
@@ -2531,13 +2531,13 @@ As an example the \LaTeX{} command \verb+\subsection+
     </H3>
 \end{verbatim}
 By default, most styles are undefined, and default rendering of
-block-level elements apply. However, some package (such as, for
+block-level elements applies. However, some package (such as, for
 instance~\texttt{fancysection}, see Section~\ref{fancysection}) may
 define them.
 
 If you wish to change the style of section headers, loading the
 \texttt{fancysection} package is the most appropriate solution.
-However, one can also proceeed more directly, by appending new
+However, one can also proceed more directly, by appending new
 definitions to the \emph{document style
 sheet}, with the command \verb+\newstyle+.
 For instance, here is a \verb+\newstyle+ to add style for subsections.
@@ -2639,11 +2639,12 @@ the intended ``\texttt{myverbatim}'' style class.
 This text is typeset inside the environment
 \emph{flashyverbatim}, and hence with the \emph{myverbatim}
 style.
-\end{flashyverbatim}\end{htmlonly}
+\end{flashyverbatim}
+\end{htmlonly}
 
 \subsection{Which Class Affects\label{whatclass} What}
 
-Generally, the syling of environment~\textit{env} is performed through
+Generally, the styling of environment~\textit{env} is performed through
 the the
 \verb+\getenvclass{+\textit{env}\verb+}+/\verb+\setenvclass{+\textit{env}\verb+}{+\ldots\verb+}+
 mecanism, with \verb+\getenvclass{+\textit{env}\verb+}+ producing the
@@ -2701,20 +2702,21 @@ styles through names \texttt{dt-}\textit{env} and
 {\addtocounter{toc}{-1}\end{itemize}}
 Our idea is highlight lists with a left border whose color fades
 while lists are nested.
-Such a design may be appropriate for tables of content.
+Such a design may be appropriate for tables of content, as 
+the \ahrefloc{ftoc}{one of this document}.
 \begin{htmlonly}
 \begin{toc}
 \item Part~A
 \begin{toc}
 \item Chapter~I
 \begin{toc}
-\item Section I.1
-\item Section I.2
+\item Section~I.1
+\item Section~I.2
 \end{toc}
 \item Chapter~II
 \begin{toc}
-\item Section II.1
-\item Section II.2
+\item Section~II.1
+\item Section~II.2
 \end{toc}
 \item Chapter~III
 \end{toc}
@@ -2722,71 +2724,68 @@ Such a design may be appropriate for tables of content.
 \begin{toc}
 \item Chapter~IV
 \begin{toc}
-\item Section IV.1
+\item Section~IV.1
 \begin{toc}
-\item Section IV.1.a
-\item Section IV.1.b
+\item Section~IV.1.a
+\item Section~IV.1.b
 \end{toc}
-\item Section IV.2
+\item Section~IV.2
 \end{toc}
 \item Chapter~V
 \end{toc}
 \end{toc}
 \end{htmlonly}
-
-
-
-
-\paragraph{Itemize}\index{styles for!{\tt itemize} environment}
-Governed by classes \emph{itemize} and \emph{li-itemize}. Given input
+The text above is typeset from the following \LaTeX{} source.
 \begin{verbatim}
-    \begin{itemize}
-      \item{x}
-    \end{itemize}
+\begin{toc}
+\item Part~A
+\begin{toc}
+\item Chapter~I
+\begin{toc}
+\item Section~I.1
+\item Section~I.2
+\end{toc}
+  ...
+\end{toc}
+\end{toc}
 \end{verbatim}
-produces output
+For simplicity, we limit the nesting depth of \texttt{toc} environment to four.
+We first define four style classes \texttt{toc1}, \texttt{toc2},
+\texttt{toc3} and \texttt{toc4} in the document preamble.
+Since those classes are similar, a command \verb+\newtocstyle+ is
+designed.
 \begin{verbatim}
-    <UL CLASS=itemize>
-      <LI CLASS=li-itemize>x
-    </UL>
+\newcommand{\newtocstyle}[2]
+{\newstyle{.toc#1}{list-style:none;border-left:1ex solid #2;padding:0ex 1ex;}}
+\newtocstyle{1}{\@getstylecolor{Sepia}}
+\newtocstyle{2}{\@getstylecolor{Brown}}
+\newtocstyle{3}{\@getstylecolor{Tan}}
+\newtocstyle{4}{\@getstylecolor{Melon}}
+\end{verbatim}
+The \texttt{toc} environment uses a counter to record nesting depth.
+Notice how the style class of the \texttt{itemize} environment is
+redefined before \verb+\begin{itemize}+.
+\begin{verbatim}
+\newcounter{toc}
+\newenvironment{toc}
+{\stepcounter{toc}\setenvclass{itemize}{toc\thetoc}\begin{itemize}}
+{\addtocounter{toc}{-1}\end{itemize}}
+\end{verbatim}
+The outputed {\html} is:
+\begin{verbatim}
+<UL CLASS="toc1"><LI CLASS="li-itemize">
+Part&nbsp;A
+<UL CLASS="toc2"><LI CLASS="li-itemize">
+Chapter&nbsp;I
+<UL CLASS="toc3"><LI CLASS="li-itemize">
+Section&nbsp;I.1
+<LI CLASS="li-itemize">Section&nbsp;I.2
+  ...
+</UL>
+</UL>
 \end{verbatim}
 
-\paragraph{Enumerate}\index{styles for!{\tt enumerate} environment}
-Governed by classes \emph{enumerate} and \emph{li-enumerate}. Given input
-\begin{verbatim}
-    \begin{enumerate}
-      \item{x}
-    \end{enumerate}
-\end{verbatim}
-produces output
-\begin{verbatim}
-    <OL CLASS=enumerate>
-      <LI CLASS=li-enumerate>x
-    </OL>
-\end{verbatim}
 
-\paragraph{Description\index{styles for!{\tt
-description}}\index{styles for!{\tt list}} and list environments}
-The style of the \texttt{description} environment is
-governed by classes \verb+description+,
-\verb+dt-description+ and \verb+dd-description+. Given input
-\begin{verbatim}
-    \begin{description}
-      \item[x]{y}
-    \end{description}
-\end{verbatim}
-produces output
-\begin{verbatim}
-    <LIST CLASS=description>
-      <DT CLASS=dt-description>x
-      <DD CLASS=dd-description>y
-    </LIST>
-\end{verbatim}
-
-Styles for the \texttt{list} environment, which is implemented
-similarly, are managed in the same manner with
-style classes \verb+list+, \verb+dt-list+ and
-\verb+dd-list+ respectively.
 
 \paragraph{Sectioning Commands}\index{styles for!sectioning commands}
 The table below specifies the block level elements and respective classes.
@@ -4803,7 +4802,7 @@ specification are just names\ldots{}
 Named colors are the ones of \texttt{dvips}.
 \begin{flushleft}
 %%BEGIN LATEX
-\newcommand{\textcolor}[3][]{#3}
+\renewcommand{\textcolor}[3][]{#3}
 %%END LATEX
 \textcolor[named]{GreenYellow}{GreenYellow},
 \textcolor[named]{Yellow}{Yellow},
@@ -4967,7 +4966,7 @@ section~\ref{getcolor:usage}.
 
 There is also \verb+\@getstylecolor+ command that acts
 like\verb+\@getcolor+, except that it does not output the double
-quotes around RGB hexadecimal color specification.
+quotes around RGB hexadecimal color specifications.
 Such low-level colors are appropriate for style definitions in
 cascading style sheets~\cite{css}. See
 Section~\ref{getstylecolor:example} for an example.
