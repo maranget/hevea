@@ -2,6 +2,7 @@
 \usepackage{color}
 %%% Color section
 \newcommand{\colorsections}[1]{
+\definecolor{title}{hsv}{#1,1,1}
 \definecolor{part}{hsv}{#1, 1, .8}
 \ifthenelse{\equal{\@base}{article}}{%
 \definecolor{sectioncolor}{hsv}{#1, .8, .9}%
@@ -41,7 +42,7 @@
 }{%
 }}
 \setLATEXstyle{title}
-	{color:white;background:\@getstylecolor{part}}%
+	{color:white;background:\@getstylecolor{title}}%
 
 
 
