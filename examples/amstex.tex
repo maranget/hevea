@@ -1,0 +1,113 @@
+\documentclass{article}
+\usepackage{a4wide}
+\usepackage{amsmath}
+\usepackage{ifthen}
+\usepackage{calc}
+
+\title{Test de primitives amstex}
+\date{}
+\numberwithin{equation}{section}
+\renewcommand{\theequation}{\thesection.\arabic{equation}}
+
+\begin{document}
+\maketitle
+
+\section{Matrices}
+\section*{Toutes les r\'ef\'erences}
+Les num\'eros sont~:
+
+\begin{tabular}{*{5}{|c}|}\hline
+\ref{bigmat} & \ref{dessus} & \ref{dessous} & \ref{t_2_formula}\\ \hline
+\end{tabular}
+
+\subsection{Simple}
+\begin{gather}
+\begin{matrix} 1 & 0\\ 0 & 1\end{matrix}
+\quad
+\begin{pmatrix} 1 & 0\\ 0 & 1\end{pmatrix}
+\quad
+\begin{Vmatrix} 1 & 0\\ 0 & 1\\ 1 & 2\end{Vmatrix}
+\end{gather}
+
+\subsection{Compliqu\'e}
+\setcounter{MaxMatrixCols}{20}
+\newcounter{x}
+\newcommand{\row}[1]{%
+\hdotsfor{#1} &
+\setcounter{x}{#1}\addtocounter{x}{1}\thex
+\setcounter{x}{-\value{x}}\addtocounter{x}{20} &
+\hdotsfor{\value{x}}}
+\begin{equation}
+\begin{pmatrix}
+1 & \hdotsfor{19}\\
+\row{1}\\
+\row{2}\\
+\row{3}\\
+\row{4}\\
+\row{5}\\
+\row{6}\\
+\row{7}\\
+\row{8}\\
+\row{9}\\
+\row{10}\\
+\row{11}\\
+\row{12}\\
+\row{13}\\
+\row{14}\\
+\row{15}\\
+\row{16}\\
+\row{17}\\
+\row{18}\\
+\hdotsfor{19} & 20
+\end{pmatrix}\label{bigmat}
+\end{equation}
+
+\section{Environement \texttt{cases}}
+To summarize, we obtain the following exact representation for the
+inverse of~$x^2e^x+1$:
+\[\begin{cases}
+Y(x) = y(\log x),\quad&\text{$y_{\phantom{0}}$ inverse of~$2\log
+x+x+\log(1+e^{-x}/x^2)$},\\
+y[x+\log(1+y_0^{-2}(x)e^{-y_0(x)})] = y_0(x),\quad&\text{$y_0$
+inverse of~$x+2\log x$,}\\
+y_0(x) = y_1(\log x),\quad&\text{$y_1$ inverse of~$\log x+\log(1+2\log x/x)$},\\
+y_1(x) = \exp(y_2(x)),\quad&\text{$y_2$ inverse of~$x+\log(1+2xe^{-x})$},\\
+y_2[x+\log(1+2y_3(x)e^{-y_3(x)})] = y_3(x),&\text{$y_3$ inverse
+of~$x$.}
+  \end{cases}
+\]
+
+\section{Test d'alignement}
+Now the $\phi_i$s are very easy to compute:
+\begin{align*}
+\phi_1&  =  y_0 = 1/t_2,\\
+\phi_2&  = \phi_1(y_0(x+g))-\phi_1 = {t_3t_2^2\over(1+2t_2)}
+-{1+4t_2+2t_2^2\over2(1+2t_2)^3}t_2^4t_3^2+O(t_3^3),\\
+\phi_3&  = \phi_2(y_0(x+g))-\phi_2 = -{1+4t_2+2t_2^2\over(1+2t_2)^3}t_2^4t_3^2+O(t_3^3),
+\end{align*}
+
+A similar treatment applies to~(\ref{bigmat}), and leads to
+\begin{alignat*}{5}
+x+\log(1+2xe^{-x})&  =  1/t_1(y_3(x+g))&&  =  x+2xe^{-x}-2x^2e^{-2x}+O(x^3e^{-3x}),\\
+\exp[-x+\log(1+2xe^{-x})]&  =  t_2(y_3(x+g))&&  =  e^{-x}-2xe^{-2x}+4x^2e^{-3x}+O(x^3e^{-4x}).
+\end{alignat*}
+
+\subsection{\texttt{gather}, \texttt{multline}}
+or one of the following (successive) refinements:
+\begin{gather}\label{dessus}
+\exp(e^U)\left[1-\frac{2e^{-U^{1/2}}}{U^{1/2}+4}
++\frac{2e^{-2U^{1/2}}}{(U^{1/2}+4)^2}
+-\frac{4}{3}\frac{e^{-3U^{1/2}}}{(U^{1/2}+4)^3}+O(e^{-4U^{1/2}})\right],\\
+\exp(e^U)\exp[-\frac{2e^{-U^{1/2}}}{U^{1/2}+4}]\left[1+
+\frac{8-2U^{-1/2}-U^{-1}+U^{-3/2}}{(4+U^{-1/2})^3}
+e^{-U-2U^{1/2}}+O(e^{-2U})\right],\label{dessous}
+\end{gather}
+
+Cette \'equation a le num\'ero~\ref{t_2_formula}, celles d'au dessus les
+num\'ero~\ref{dessus} et~\ref{dessous}.
+\begin{multline}	\label{t_2_formula}
+1/t_2(y_0(x+g)) = y_0(x+\log(1+y_0^{-2}e^{-y_0}))\\
+ = y_0+{e^{-y_0}\over y_0^2(1+2/y_0)}
+-{1+4/y_0+2/y_0^2\over 2y_0^4(1+2/y_0)^3}e^{-2y_0}+O(e^{-3y_0}).
+\end{multline}
+\end{document}

@@ -3,7 +3,7 @@ HEVEA=hevea
 IMAGEN=imagen
 HACHA=hacha
 EXDIR=$(HOME)/public_html/hevea/examples
-HTML=a.html pat.html suite.html env.html smile.html
+HTML=a.html pat.html suite.html env.html smile.html amstex.html
 DVI=$(HTML:.html=.dvi)
 TEX=$(HTML:.html=.tex)
 # coucou
@@ -91,6 +91,12 @@ suite.dvi suite.aux: suite.tex
 
 suite.html: suite.tex suite.aux
 	$(HEVEA) suite.tex
+
+amstex.dvi: amstex.tex
+	latex < /dev/null amstex.tex
+
+amstex.html: amstex.tex
+	$(HEVEA) ams.hva amstex
 
 index.html: index.tex
 	$(HEVEA) index.tex

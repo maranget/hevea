@@ -2448,32 +2448,37 @@ changed by redefining them:
 console and echoes its argument in the output.
 \end{description}
 
-Math accents (\verb+\hat+, \verb+\tilde+, etc.) are handled,
-except the \verb+\check+ and \verb+\breve+ commands.
+Math accents (\verb+\hat+, \verb+\tilde+, etc.) are not
+handled\label{mathaccents} by default.
+However, the distribution includes a \texttt{mathaccents.hva} files
+that provides definitions for almost all math accents commands,
+except \verb+\check+ and \verb+\breve+.
 Rendering is far from perfect and changes from display to text mode.
 More precisely, the accent is put (too far) above the symbol in display mode,
 and as an ordinary superscript in text mode.
-\ifhevea For instance, given the formula
+\ifhevea{\input{mathaccents.hva}For instance, given the formula
 \verb+\tilde{v} \cdot \vec{U}+, we get
 ``$\tilde{v} \cdot \vec{U}$'' in text mode and
-$$\tilde{v} \cdot \vec{U}$$ in display mode.\fi
+$$\tilde{v} \cdot \vec{U}$$ in display mode.}\fi
 
-If such a rendering is considered to ugly,
-one can redefine the math accent commands so that they issue color changes.
-For instance, one can write:
+If such a rendering is considered too ugly,
+one should not load the \texttt{mathaccents.hva} file and write
+alternative definitions.
+For instance, the following custom definitions
+issue color changes:
 \begin{verbatim}
-\renewcommand{\tilde}[1]{{\blue#1}}
-\renewcommand{\vec}[1]{{\red#1}}
+\newcommand{\tilde}[1]{{\blue#1}}
+\newcommand{\vec}[1]{{\red#1}}
 \end{verbatim}
-\ifhevea With such redefinitions the previous example now appears as:
-{\renewcommand{\tilde}[1]{{\blue#1}}%
-\renewcommand{\vec}[1]{{\red#1}}%
+\ifhevea With such definitions the previous example now appears as:
+{\newcommand{\tilde}[1]{{\blue#1}}%
+\newcommand{\vec}[1]{{\red#1}}%
 we get
 ``$\tilde{v} \cdot \vec{U}$'' in text mode and
 $$\tilde{v} \cdot \vec{U}$$ in display mode.
 }\fi
-Of course, such a trick probably requires looking closely at the
-document to check wether it is still understandable or not.
+Of course, such a trick probably requires looking closely at \html{}
+output to check wether the document is still understandable or not.
 It may be better to stay with a poorly formatted document that remains
 closer to universally understood  notations for mathematics.
 
@@ -3148,6 +3153,7 @@ the current font.
 \section{Extra Features}
 This section describes \hevea{} functionalities that extends on plain \LaTeX{},
 as defined in \cite{latex}.
+The features described here are performed by default.
 
 \subsection{\TeX{} Conditional Macros}\label{texcond}
 Normally, \hevea{} does not recognize constructs that are specific to
@@ -3349,6 +3355,25 @@ typesetting source code or to annotate text in sophisticated ways.
 by VideoC. The rest of VideoC constructs are implemented by
 the \texttt{.hva} files from VideoC distribution.
 
+
+\section{Extra Style Files}
+The \hevea{} distribution includes a few ``\texttt{.hva}'' files that
+are not loaded by default. Thus, these files are to be loaded
+explicitely either by giving them as command line arguments or as
+arguments to the \verb+\input+ command.
+\begin{description}
+\item[{\tt mathaccents.hva}] For typesetting the math accents commands
+(\verb+\hat+, \verb+\tilde+,\ldots), see Section~\ref{mathaccents}.
+
+\item[{\tt ams.hva}] This file defines some of the constructs of the
+\texttt{amstex} package.  At the moment, supported constructs are
+the \verb+cases+ environment and matrix
+environments~\cite[Section~8.4]{latexbis}, the
+environments for multiline displayed
+equations (\verb+gather+,
+\verb+split+,\ldots)~\cite[Section~8.5]{latexbis} and the
+\verb+\numberwithin+ command~\cite[Section~8.6.2]{latexbis}.
+\end{description}
 
 \setcounter{section}{0}
 \part{Practical information}

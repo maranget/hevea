@@ -209,16 +209,6 @@
 \def\nolimits{}
 \def\sim{\@print{~}}
 \def\simeq{\textunderline{\sim}}
-%% Maths accents
-\newcommand{\@mathaccent}[2]{\newcommand{#1}[1]{\mathop{##1}\limits^{#2}}}
-\@mathaccent{\hat}{\^{}}
-\@mathaccent{\grave}{`}
-\@mathaccent{\acute}{'}
-\@mathaccent{\tilde}{\~{}}
-\@mathaccent{\dot}{.}
-\@mathaccent{\ddot}{..}
-\@mathaccent{\vec}{\rightarrow}
-\newcommand{\bar}[1]{\overline{#1}}
 \newcommand{\textstackrel}[2]{#2^{#1}}
 \newcommand{\stackrel}[2]{\ifdisplay
 \begin{array}{c}\scriptsize #1\\ #2\\ ~ \end{array}\else

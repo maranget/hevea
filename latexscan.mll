@@ -49,7 +49,7 @@ open Save
 open Tabular
 open Lexstate
 
-let header = "$Id: latexscan.mll,v 1.77 1999-04-09 13:38:36 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.78 1999-04-14 09:50:43 maranget Exp $" 
 
 let sbool = function
   | false -> "false"
@@ -114,7 +114,7 @@ let macros_unregister () =
 
 let get_script_font () =
   let n = Html.get_fontsize () in
-  if n >= 1 then n-1 else n
+  if n >= 3 then n-1 else n
 ;;
 
 let open_script_font () =
@@ -198,7 +198,7 @@ let new_env env =
   Location.push_pos () ;
   cur_env := env ;
   macros := [] ;
-  if env <> "document" && env <> "*input" then incr env_level ;
+  if env <> "document" then incr env_level ;
   if !verbose > 1 then begin
     Location.print_pos () ;
     Printf.fprintf stderr "Begin : %s <%d>" env !env_level ;
@@ -223,7 +223,7 @@ let close_env env  =
     prerr_endline  ""
   end ;
   if env = !cur_env then begin  
-    if env <> "document" && env <> "*input" then decr env_level ;
+    if env <> "document" then decr env_level ;
     let e,m = pop stack_env in    
     cur_env := e ;
     macros_unregister () ;
@@ -990,14 +990,17 @@ let input_file loc_verb main filename =
       prerr_endline ("Input file: "^filename) ;
     let buf = Lexing.from_channel input in
     Location.set filename buf ;
-    new_env "*input" ;
     let old_verb = !verbose in
     verbose := loc_verb ;
+    let enter_level = !env_level in
     main buf ;
     close_in input ;
     verbose := old_verb ;
-    Location.restore () ;
-    close_env "*input"
+    Location.restore ();
+    if !env_level <> enter_level then begin
+      print_env_pos ();
+      raise (Error ("In input file "^filename))
+    end
   with Myfiles.Except -> begin
     if !verbose > 0 then
       prerr_endline ("Not opening file: "^filename) ;
