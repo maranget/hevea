@@ -1,4 +1,4 @@
-version 1.03-1
+version 1.03
   - \htmlfoot and \htmlhead commands.
   - Independant lexers for getting booleans and integers (module Get)
   - Optimized the regexps for headers in hacha.
