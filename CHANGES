@@ -1,4 +1,6 @@
 version 1.06-7
+  - \ifmagen indroduced, \imagentrue at beginning of .image.tex,
+    \imagenfalse in hevea.sty, if \ifimagen undefined.
   - Bug -> stopimage in lstinline.
   - Throw away index when some key field is empty (i.e. mimic makeindex)
   - Introduced \htmprefix

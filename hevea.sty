@@ -13,7 +13,7 @@
 \ProvidesPackage{hevea}[2002/01/11]
 \RequirePackage{comment}
 \newif\ifhevea\heveafalse
-\newif\ifimagen\imagenfalse
+\@ifundefined{ifimagen}{\newif\ifimagen\imagenfalse}
 \makeatletter%
 \newcommand{\heveasmup}[2]{%
 \raise #1\hbox{$\m@th$%

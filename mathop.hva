@@ -14,3 +14,4 @@
 \def\bigoplus{\mathop{{\ifdisplay\Huge\fi\oplus}}}
 \def\biguplus{\mathop{{\ifdisplay\Huge\fi\uplus}}}
 \def\bigotimes{\mathop{{\ifdisplay\Huge\fi\otimes}}}
+\def\Updownarrow{\mathop{\ifdisplay\@displayUpdownarrow\else\@updownarrow\fi}}

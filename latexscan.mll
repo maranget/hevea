@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.220 2002-02-04 19:32:35 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.221 2002-02-15 15:47:09 maranget Exp $ *)
 
 
 {
@@ -1577,6 +1577,7 @@ let do_documentclass command lexbuf =
       (Save.cite_arg (Lexing.from_string ("{"^opt_arg^"}")))
   end ;
   Image.start () ;
+  Image.put "\\newif\\ifimagen\\imagentrue\n" ;
   Image.put command ;
   Image.put real_args ;
   Image.put_char '\n' ;
@@ -2302,7 +2303,6 @@ newif_ref "@warnunder" warn_under ;
 newif_ref "@dumpindex" Misc.dump_index ;
 def_code "\\iftrue" (testif (ref true)) ;
 def_code "\\iffalse" (testif (ref false)) ;
-def_code "\\ifimagen" (testif (ref false))
 ;;
 
 def_code "\\if@toplevel"

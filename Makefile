@@ -8,7 +8,7 @@ BINDIR=/usr/local/bin
 # A replacement for /lib/cpp
 CPP=gcc -E -P -x c
 ############### End of configuration parameters
-SUF=.opt
+SUF=
 #DIR=/usr/bin/
 DIR=
 HEVEA=./hevea.$(TARGET)

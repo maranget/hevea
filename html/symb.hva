@@ -116,6 +116,7 @@
 \newcommand{\Uparrow}{\@symb{\char221}}
 \newcommand{\Rightarrow}{\@symb{\char222}}
 \newcommand{\Downarrow}{\@symb{\char223}}
+\newcommand{\@displayUpdownarrow}{\mbox{\@symb{\char221}\@br\@symb{\char223}}}
 %%%%%%%%%%%%%%%%%%%
 \newcommand{\Diamond}{\@symb{\char224}}
 \newcommand{\langle}{\@symb{\char225}}
