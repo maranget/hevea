@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: verb.mll,v 1.62 2004-05-27 14:25:44 maranget Exp $            *)
+(*  $Id: verb.mll,v 1.63 2004-10-08 15:56:59 maranget Exp $            *)
 (***********************************************************************)
 {
 exception VError of string
@@ -1143,7 +1143,7 @@ let open_lst_env name =
     scan_this Scan.main "\\lsthk@InitVar" ;
     lst_scan_mode := Empty ;
     lst_top_mode := Skip ;
-    scan_this Scan.main "\\lst@pre\\@open@lstbox" ;  
+    scan_this Scan.main "\\lst@pre\\@lst@caption\\@open@lstbox" ;  
     scan_this Scan.main "\\lst@basic@style" ;
 (* Eat first line *)
     save_lexstate () ;
