@@ -44,7 +44,7 @@ open Tabular
 open Lexstate
 
 
-let header = "$Id: latexscan.mll,v 1.126 1999-08-30 07:51:52 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.127 1999-08-30 17:59:22 maranget Exp $" 
 
 
 let sbool = function
@@ -1309,7 +1309,7 @@ def_code  "\\documentclass" (do_documentclass "\\documentclass")
 
 let do_input lxm lexbuf =
   Save.start_echo () ;
-  let arg = Save.input_arg lexbuf in
+  let arg = Save.filename lexbuf in
   let echo_arg = Save.get_echo () in
   let arg = subst_this subst arg in
   if lxm <> "\\include" || check_include arg then begin
@@ -1451,7 +1451,7 @@ def_name_code "\\renewtheorem" do_newtheorem
 
 (* Command definitions, TeX style *)
 
-let do_def global lxm lexbuf =
+let do_def realdef global lxm lexbuf =
   let name = Save.csname lexbuf in
   skip_blanks lexbuf ;
   let name,args_pat,body =
@@ -1472,23 +1472,26 @@ let do_def global lxm lexbuf =
       (lxm^name^
        (List.fold_right (fun s r -> s^r) args_pat ("{"^body^"}\n"))) ;
   begin try
-    def_macro_pat name ([],args_pat) (Subst body) ;
+    (if realdef then silent_def_pat else def_macro_pat)
+      name ([],args_pat) (Subst body) ;
     if not global then macro_register name
   with Latexmacros.Failed -> () end
 ;;
 
-def_name_code "\\def" (do_def false) ;
-def_name_code "\\gdef" (do_def true)
+def_name_code "\\def" (do_def false false) ;
+def_name_code "\\@texdef" (do_def true false) ;
+def_name_code "\\gdef" (do_def false true)
 ;;
 
-let do_let global lxm lexbuf =
+let do_let reallet global lxm lexbuf =
   let name = subst_arg subst lexbuf in
   Save.skip_equal lexbuf ;
   let alt = subst_arg subst lexbuf in
   begin try
     let nargs,body = find_macro alt in
     begin try
-      def_macro_pat name nargs body ;
+      (if reallet then silent_def_pat else def_macro_pat)
+        name nargs body ;
       if not global then macro_register name
     with Latexmacros.Failed -> () end
   with Not_found -> () end ;
@@ -1502,14 +1505,16 @@ let do_let global lxm lexbuf =
   if not global then macro_register name
 ;;
 
-def_name_code "\\let" (do_let false)
+def_name_code "\\let" (do_let false false)
 ;;
 
 let do_global lxm lexbuf =
   let next = save_arg lexbuf in
   begin match next with
-  | "\\def" -> do_def true (lxm^next) lexbuf
-  | "\\let" -> do_let true (lxm^next) lexbuf
+  | "\\def" -> do_def false true (lxm^next) lexbuf
+  | "\\@texdef" -> do_def true true (lxm^next) lexbuf
+  | "\\let" -> do_let false true (lxm^next) lexbuf
+  | "\\@texlet" -> do_let true true (lxm^next) lexbuf
   | _       -> warning "Ignored \\global"
   end
 ;;
@@ -1885,6 +1890,18 @@ def_code "\\cite"
 
 def_fun "\\@bibref" Auxx.bget
 ;;
+let bibcount = ref 0
+;;
+def_code "\\@bibwrite"
+  (fun lexbuf ->
+    let pretty = match subst_this subst (save_arg lexbuf) with
+    | "!*!" ->
+        incr bibcount ;
+        string_of_int !bibcount
+    | s -> s in
+    let key = subst_this subst (save_arg lexbuf) in
+    Auxx.bwrite key pretty)
+;;
 
 (* Includes *)
 def_code "\\includeonly"
@@ -1976,6 +1993,9 @@ let def_print name s = def_code name (fun _ -> Dest.put s)
 and redef_print name s = redef_code name (fun _ -> Dest.put s)
 ;;
 
+def_print "\\jobname" Parse_opts.base_in
+;;
+
 def_code "\\newsavebox"
   (fun lexbuf ->
     let name = save_arg lexbuf in
@@ -2052,7 +2072,10 @@ def_code "\\label"
     let save_last_closed = Dest.get_last_closed () in
     let lab = subst_arg subst lexbuf in
     Dest.loc_name lab "" ;
-    Dest.set_last_closed save_last_closed) ;
+    Dest.set_last_closed save_last_closed ;
+    let theref = get_this_nostyle main "\\@currentlabel" in
+    Auxx.rwrite lab theref) ;
+
 def_code "\\@expandlabel"
   (fun lexbuf ->
     let save_last_closed = Dest.get_last_closed () in
@@ -2597,7 +2620,47 @@ Get.init
 	  main s)
       macro_register new_env close_env
 ;;
-      
+
+(*
+(* A la TeX ouput (more or less...) *)
+
+def_code "\\newwrite"
+  (fun lexbuf ->
+    let cmd = save_arg lexbuf in
+    let file = ref stderr in
+    def_code cmd
+      (fun lexbuf ->
+        let op = save_arg lexbuf in
+        try
+          match op with
+          |  "\\write" ->
+              let what = subst_arg subst lexbuf in
+              output_string !file what ;
+              output_char !file '\n'
+          | "\\closeout" ->
+              close_out !file
+          | "\\openout" ->
+              let name = get_this_nostyle main (save_filename lexbuf) in
+              file := open_out name
+          | _ ->
+              warning ("Unkown file operation: "^op)
+        with Sys_error s ->
+          warning ("TeX file error : "^s)))
+;;
+
+let def_fileop me =
+  def_code me
+   (fun lexbuf ->
+     let cmd = subst_arg subst lexbuf in
+     scan_this_may_cont main lexbuf (cmd^me))
+;;
+
+def_fileop "\\write" ;
+def_fileop "\\openout" ;
+def_fileop "\\closeout"
+;;
+*)
+
 Tabular.init (subst_this subst);;
 
 

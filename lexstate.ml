@@ -1,4 +1,4 @@
-let header =  "$Id: lexstate.ml,v 1.22 1999-08-20 13:44:20 maranget Exp $"
+let header =  "$Id: lexstate.ml,v 1.23 1999-08-30 17:59:28 maranget Exp $"
 
 open Misc
 open Lexing
@@ -255,16 +255,15 @@ and  end_normal display in_math =
   restore_lexstate () ;
 ;;
 
-let save_arg lexbuf =
-
+let full_save_arg lexfun lexbuf =
   let rec save_rec lexbuf =
-    try Save.arg lexbuf
+    try lexfun lexbuf
     with Save.Eof -> begin
         if empty stack_lexbuf then
           raise (Error "Eof while looking for argument");
         let lexbuf = previous_lexbuf () in
         if !verbose > 2 then begin
-          prerr_endline "popping stack_lexbuf in save_arg";
+          prerr_endline "popping stack_lexbuf in full_save_arg";
           pretty_lexbuf lexbuf ;
           prerr_args ()
         end;
@@ -279,28 +278,10 @@ let save_arg lexbuf =
   arg
 ;;
 
-let save_arg_with_delim delim lexbuf =
-
-  let rec save_rec lexbuf =
-    try Save.with_delim delim lexbuf
-    with Save.Eof -> begin
-        if empty stack_lexbuf then
-          raise (Error "Eof while looking for argument");
-        let lexbuf = previous_lexbuf () in
-        if !verbose > 2 then begin
-          prerr_endline "popping stack_lexbuf in save_arg";
-          pretty_lexbuf lexbuf ;
-          prerr_args ()
-        end;
-        save_rec lexbuf end in
-
-  Save.seen_par := false ;
-  save_lexstate () ;
-  let arg = save_rec lexbuf in
-  restore_lexstate () ;
-  if !verbose > 2 then
-    prerr_endline ("Arg parsed: ``"^arg^"''") ;
-  arg
+let save_arg lexbuf = full_save_arg Save.arg lexbuf
+and save_arg_with_delim delim lexbuf =
+  full_save_arg (Save.with_delim delim) lexbuf
+and save_filename lexbuf = full_save_arg Save.filename lexbuf
 ;;
 
 type ok = No of string | Yes of string

@@ -245,12 +245,12 @@
 \def\textstyle{\ifmathml{\@style{mtext}#1}\else{#1}\fi}
 %%%%% Figures and tables
 \newenvironment{figure}[1][]{%
-\@forcecommand{\caption}[1]{\par\begin{center}Figure \thefigure\iffrench~\fi: ##1\end{center}\par}\refstepcounter{figure}%
+\@forcecommand{\caption}[1]{\par\refstepcounter{figure}\begin{center}Figure \thefigure\iffrench~\fi: ##1\end{center}\par}%
 \@open{BLOCKQUOTE}{}\@printHR{}{}%
 }{\@printHR{}{}\@close{BLOCKQUOTE}}
 \newenvironment{figure*}[1][]{\begin{figure}[#1]}{\end{figure}}
 \newenvironment{table}[1][]{%
-\newcommand{\caption}[1]{\par\begin{center}Table \thetable\iffrench~\fi: ##1\end{center}\par}\refstepcounter{table}%
+\newcommand{\caption}[1]{\par\refstepcounter{table}\begin{center}Table \thetable\iffrench~\fi: ##1\end{center}\par}%
 \@open{BLOCKQUOTE}{}\@printHR{}{}%
 }{\@printHR{}{}\@close{BLOCKQUOTE}}
 \newenvironment{table*}[1][]{\begin{table}[#1]}{\end{table}}
@@ -377,7 +377,7 @@
        {\purple[\@bibref{##1}]}%
        {\@nostyle\@print{</A>}}}}}
   {\end{list}}
-\newcommand{\bibitem}[2][]{\item[#2]}
+\newcommand{\bibitem}[2][!*!]{\@bibwrite{#1}{#2}\item[#2]}
 %% Indexes a` la index.cls
 \newcommand{\index}[2][default]{\@index[#1]{#2}}
 \newcommand{\printindex}[1][default]{%

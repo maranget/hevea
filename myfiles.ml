@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: myfiles.ml,v 1.16 1999-05-07 11:33:57 maranget Exp $" 
+let header = "$Id: myfiles.ml,v 1.17 1999-08-30 17:59:29 maranget Exp $" 
 open Misc
 
 exception Error of string
@@ -78,3 +78,42 @@ let open_tex filename =
         try (filename^".tex"),open_in (filename^".tex") with
         Sys_error _ -> filename,open_in filename
     with Sys_error _ -> raise (Error ("Cannot open: "^filename))
+
+
+exception Return of bool
+
+let diff_chan chan1 chan2 =
+  try
+    while true do
+      let c1 =
+        try input_char chan1 with End_of_file -> begin
+          try
+            let _ = input_char chan2 in
+            raise (Return true)
+          with End_of_file -> raise (Return false)
+        end in
+      let c2 =
+        try input_char chan2 with End_of_file -> raise (Return true) in
+      if c1 <> c2 then
+        raise (Return true)
+    done ;
+    assert false
+  with Return r -> r
+
+let changed tmp_name name =
+  try
+    let true_chan = open_in name in
+    let tmp_chan =
+      try open_in tmp_name
+      with Sys_error _ -> begin
+        close_in true_chan ;
+        raise
+          (Misc.Fatal
+             ("Cannot reopen temporary image file: "^tmp_name))
+      end in
+    let r = diff_chan true_chan tmp_chan in
+    close_in true_chan ;
+    close_in tmp_chan ;
+    r
+  with Sys_error _ -> true
+

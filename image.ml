@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: image.ml,v 1.14 1999-06-18 13:25:01 maranget Exp $" 
+let header = "$Id: image.ml,v 1.15 1999-08-30 17:59:17 maranget Exp $" 
 open Misc
 
 let base = Parse_opts.base_out
@@ -71,50 +71,11 @@ let dump s_open image  lexbuf =
   image lexbuf
 ;;
 
-
-exception Return of bool
-
-let diff_chan chan1 chan2 =
-  try
-    while true do
-      let c1 =
-        try input_char chan1 with End_of_file -> begin
-          try
-            let _ = input_char chan2 in
-            raise (Return true)
-          with End_of_file -> raise (Return false)
-        end in
-      let c2 =
-        try input_char chan2 with End_of_file -> raise (Return true) in
-      if c1 <> c2 then
-        raise (Return true)
-    done ;
-    assert false
-  with Return r -> r
-
-let changed tmp_name name =
-  try
-    let true_chan = open_in name in
-    let tmp_chan =
-      try open_in tmp_name
-      with Sys_error _ -> begin
-        close_in true_chan ;
-        raise
-          (Misc.Fatal
-             ("Cannot reopen temporary image file: "^tmp_name))
-      end in
-    let r = diff_chan true_chan tmp_chan in
-    close_in true_chan ;
-    close_in tmp_chan ;
-    r
-  with Sys_error _ -> true
-
-
 let finalize () = 
   if !count > 0 then begin
     close_chan() ;
     let true_name = Filename.chop_suffix tmp_name ".new" in
-    if changed tmp_name true_name then
+    if Myfiles.changed tmp_name true_name then
       Sys.rename tmp_name true_name
     else
       Sys.remove tmp_name

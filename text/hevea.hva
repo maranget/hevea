@@ -223,19 +223,12 @@
 \def\scriptstype{\scriptsize}
 \def\scriptscriptstype{\scriptsize\@incsize{-1}}
 %%%%% Figures and tables
-\newsavebox{\@caption}
-\def\caption#1{\sbox{\@caption}{#1}}
 \newenvironment{figure}[1][]{%
-\caption{}\refstepcounter{figure}%
-\@open{BLOCKQUOTE}{}\@printHR{center}{80}%
-%\@open{DISPLAY}{}%
-}{%
-%\@close{DISPLAY}%
-\par\begin{center}Figure \thefigure\iffrench~\fi: \usebox{\@caption}\end{center}
-\@printHR{center}{80}\@close{BLOCKQUOTE}}
+\@forcecommand{\caption}[1]{\par\refstepcounter{figure}\begin{center}Figure \thefigure\iffrench~\fi: ##1\end{center}\par}%
+\@open{BLOCKQUOTE}{}\@printHR{center}{80}}{\@printHR{center}{80}\@close{BLOCKQUOTE}}
 \newenvironment{figure*}[1][]{\begin{figure}[#1]}{\end{figure}}
 \newenvironment{table}[1][]{%
-\caption{}\refstepcounter{table}%
+\newcommand{\caption}[1]{\par\refstepcounter{table}\begin{center}Table \thetable\iffrench~\fi: ##1\end{center}\par}%
 \@open{BLOCKQUOTE}{}\@printHR{center}{80}%
 %\@open{DISPLAY}{}%
 }{%
@@ -357,7 +350,7 @@
 }
 \def\makeindex{\newindex{default}{idx}{ind}{Index}}
 \newcommand{\index*}[1]{#1\index{#1}}
-\newcommand{\indexref}[2]{\url{\##2}{#1}}
+\newcommand{\indexref}[2]{#1}
 \newcommand{\@seename}{\iffrench voir\else see\fi}
 \newcommand{\see}[2]{\@seename\ \textit{#1}}
 %% Input...

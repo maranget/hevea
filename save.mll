@@ -12,7 +12,7 @@
 {
 open Lexing
 
-let header = "$Id: save.mll,v 1.38 1999-08-20 13:44:21 maranget Exp $" 
+let header = "$Id: save.mll,v 1.39 1999-08-30 17:59:31 maranget Exp $" 
 
 let verbose = ref 0 and silent = ref false
 ;;
@@ -233,8 +233,8 @@ and num_arg = parse
     Char.code c}
 | "" {raise (Error "Bad syntax in latex numerical argument")}
 
-and input_arg = parse
-  [' ''\n']      {put_echo (lexeme lexbuf) ; input_arg lexbuf}
+and filename = parse
+  [' ''\n']+     {put_echo (lexeme lexbuf) ; filename lexbuf}
 | [^'\n''{'' ']+ {let lxm = lexeme lexbuf in put_echo lxm ; lxm}
 | ""             {arg lexbuf}  
 

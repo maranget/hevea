@@ -79,6 +79,7 @@ val start_normal: bool ref -> bool ref -> unit
 val end_normal : bool ref -> bool ref  -> unit
 
 val save_arg : Lexing.lexbuf -> string
+val save_filename : Lexing.lexbuf -> string
 type ok = | No of string | Yes of string
 val from_ok : ok -> string
 val pretty_ok : ok -> string
