@@ -2707,11 +2707,12 @@ The behavior of \verb+\newcommand+ allows to shadow document
 definition, provided the new definitions are processed before the
 document definitions.
 This is easily done by grouping the shadowing definition  in a
-specific style file given as an argument to \hevea{}.
+specific style file given as an argument to \hevea{} (see section~\ref{heveaonly}).
 By contrast, changes of base macros (i.e., the ones that \hevea{}
 defines before loading any user-specified file) must be performed
-using \verb+\renewcommand+. Such personal (re)-definition can be made
-in any user file.
+using \verb+\renewcommand+.
+
+
 
 Scoping rules apply to macros, as they do in \LaTeX{}.
 Environments and groups define a scope and command definition
@@ -3405,12 +3406,11 @@ Consider the following example from the \TeX{} Book:
 \cs AB {\Look}{}C${And \$}{look}\$ 5.
 \end{verbatim}
 It yields:
-\begin{flushleft}
-\def\Look{\textsc{Look}}
+{\def\Look{\textsc{Look}}
 \def\x{\textsc{x}}
 \def\cs AB#1#2C$#3\$ {#3{ab#1}#1 c\x #2}
-\cs AB {\Look}{}C${And \$}{look}\$ 5.
-\end{flushleft}
+\cs AB {\Look}{}C${And \$}{look}\$ 5.}
+
 
 
 Please note that delimiting characters are supported as far as I
@@ -3459,9 +3459,30 @@ limited version of \verb+\let+:
 \verb+\let+ {\it macro-name1} = {\it macro-name2}
 \end{flushleft}
 The effect is to bind  {\it macro-name1} to whatever {\it macro-name2}
-is bound to at the time \verb+\let+ is processed. This construct is
-quite useful since most (if not all) active elements are commands in \hevea.
-See section~\ref{exlet} for an example of using \verb+\let+.
+is bound to at the time \verb+\let+ is processed. This construct may
+prove very useful in situations where
+the calling interface to basic commands is changed.
+
+Assume for instance a document whose base style is \textit{jsc} (the
+\emph{Journal of Symbolic Computation} style for articles).
+For running \hevea{}, the \textit{jsc} style can be replaced by
+\textit{article}
+style, but for a few commands whose calling interface is changed.
+In particular, the \verb+\title+ command
+takes an extra optional argument (which \hevea{} should ignore
+anyway).
+However, \hevea{} can process the document as it stands.
+One  solution is to create a \texttt{jsc.hva} file which should (at
+least, there are other problems) contain the following lines:
+\begin{verbatim}
+\input{article.hva}
+\let\oldtitle=\title
+\renewcommand{\title}[2][]{\oldtitle{#2}}
+\end{verbatim}
+The effect is to replace \verb+\title+ by a new command which
+calls \hevea{} \verb+\title+ with the appropriate argument.
+
+See also section~\ref{exlet} for another example of using \verb+\let+.
 
 
 \comindex{texlet}
