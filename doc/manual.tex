@@ -613,7 +613,9 @@ get fine:
 \renewcommand{\cal}{\em}
 \end{verbatim}
 (See sections~\ref{trouble} and~\ref{both} on how to make such
-changes while leaving your file processable by \LaTeX{}).
+changes while leaving your file processable by \LaTeX{}, and
+section~\ref{customize-style} for a more thourough descriton of
+customizing type styles).
 
 \begin{htmlonly}
 With such redefinitions, we get:
@@ -2040,6 +2042,118 @@ declaration \verb+\@nostyle+ are combined in order to allow the
 expansion of the macro-argument \verb+#1+ without introducing
 untimely \html{} tags.
 
+\section{Customizing \hevea}
+\hevea{} can be controlled by writing \LaTeX{} code. In this section,
+we examine how users can change \hevea{} default behavior or add
+functionalities. In all this section we assume that a document
+\texttt{mydoc.tex} is processed, using a private command file
+\texttt{macros.hva}. That is, \hevea{} is invoked as:
+\begin{verbatim}
+# hevea macros.hva mydoc.tex
+\end{verbatim}
+The general idea is as follows: one redefines \LaTeX{} constructs in
+\texttt{macros.hva}, using internal commands. This requires a good
+working knowledge of both \LaTeX{} and \html.
+Usually, one can avoid internal commands, but then, all command
+redefinitions interact, sometimes in very nasty ways.
+
+
+\subsection{Simple changes}
+Users can easily change the rendering of some constructs. For
+instance, assume that \emph{all} quotations in a text should be
+emphasized. Then, it suffices to put the following redeclaration in
+\texttt{macros.hva}:
+\begin{verbatim}
+\renewenvironment{quote}{\@open{BLOCKQUOTE}{}\@style{EM}}{\@close{BLOCKQUOTE}}
+\end{verbatim}
+
+The same effect can be achieved without using any of the internal
+commands:
+\begin{verbatim}
+\let\oldquote\quote
+\let\oldendquote\endquote
+\renewenvironment{quote}{\oldquote\em}{\oldendquote}
+\end{verbatim}
+In some sense, this second 
+solution is easier, when one already knows
+how to customize \LaTeX{}. However, this is less safe, since the definition of
+\verb+\em+ can be changed elsewhere.
+
+\subsection{Changing defaults for type-styles}\label{customize-style}
+
+\hevea{} default rendering of type style changes is described in
+section~\ref{type-style}.
+For instance, the following example shows the default rendering
+for the font shapes:
+\begin{verbatim}
+\itshape italic shape \slshape slanted shape
+\scshape small caps shape \upshape upright shape
+\end{verbatim}
+By default, \verb+\itshape+ is italics, \verb+\slshape+ is maroon
+italics, \verb+\scshape+ is navy blue color and \verb+\upshape+ is no
+style at all.
+All shapes are mutually exclusive, this means that each shape
+declaration cancels the effect of other active shape declarations.
+For instance, in the example, small caps shapes is navy blue and not
+navy blue italics.
+\begin{htmlonly}
+\begin{htmlout}
+\itshape italic shape \slshape slanted shape
+\scshape small caps shape \upshape upright shape
+\end{htmlout}
+\end{htmlonly}
+
+If one wishes to change the rendering of some of the shapes (say small
+caps), then one should redefine the old-style \verb+\sc+ declaration.
+For instance, to render small caps as bold fonts, one should
+redefine \verb+\sc+ by \verb+\renewcommand{\sc}{\@style{B}}+ in
+\texttt{macros.hva}.
+Redefining the old-style \verb+\sc+ is compatible with the cancelation
+mechanism, redfining \verb+\scshape+ is not.
+
+\begin{htmlonly}
+And now, the shape example above gets rendered as follows:
+\begin{htmlout}\renewcommand{\sc}{\@style{B}}
+{\itshape italic shape \slshape slanted shape
+\scshape small caps shape \upshape upright shape}
+\end{htmlout}
+While redefining directly \LaTeXe{} \verb+\scshape+ with
+\verb+\renewcommand{\scshape}{\@style{B}}+ would yield:
+\begin{htmlout}\renewcommand{\scshape}{\@style{B}}
+{\itshape italic shape \slshape slanted shape
+\scshape small caps shape \upshape upright shape}
+\end{htmlout}
+\end{htmlonly}
+
+Hence, redefining old-style declarations using internal commands
+should yield satisfactory output.
+However, since cancelation is done at the \html{}
+level, a declaration belonging to one component may sometimes cancel the
+effect of another that belongs to another component.
+Anyway, you might have not noticed it if I had not told you.
+
+\subsection{Changing the interface of a command}\label{customize-let}
+Assume for instance that the base style of \texttt{mydoc.tex} is
+\textit{jsc} (the
+\emph{Journal of Symbolic Computation} style for articles).
+For running \hevea{}, the \textit{jsc} style can be replaced by
+\textit{article}
+style, but for a few commands whose calling interface is changed.
+In particular, the \verb+\title+ command
+takes an extra optional argument (which \hevea{} should ignore
+anyway).
+However, \hevea{} can process the document as it stands.
+One  solution to insert the following lines into \texttt{macros.hva}:
+\begin{verbatim}
+\input{article.hva}% Force document class ``article''
+\let\oldtitle=\title
+\renewcommand{\title}[2][]{\oldtitle{#2}}
+\end{verbatim}
+The effect is to replace \verb+\title+ by a new command which
+calls \hevea{} \verb+\title+ with the appropriate argument.
+
+
+
 \section{Other output formats}\label{alternative}
 It is possible to translate \LaTeX{} file into other formats than
 \html. There are two such formats: plain text and info files.
@@ -2736,6 +2850,10 @@ The commands \verb+\boldmath+ and \verb+\unboldmath+ are not
 recognized. Whether symbols belonging to the symbol font are affected
 by style changes or not is browser dependent.
 
+The \verb+\cal+ declaration and the \verb+\mathcal+ commands (that
+yield calligraphic letters in \LaTeX) exist. They yield red letters by
+default.
+
 Observe that this does not corresponds directly to how \LaTeX{} manage style
 in math mode and that, in fact, style cannot really change in math mode.
 
@@ -3348,117 +3466,10 @@ colors \showcolor{black}, \showcolor{white},
 \showcolor{cyan}, \showcolor{yellow} and \showcolor{magenta} are
 pre-defined.
 
-
-
-
-\section{Font Selection}
-
-\subsection{Changing the Type Style}
-All \LaTeXe{} declarations and environments for changing type style
-are recognized. Aspect is rather like \LaTeXe{} output, but there is
-no guarantee.
-
-As \html{} does not provide the same variety of type styles as
-\LaTeX{}, some type style get rendered by using colors. For instance,
-the slanted shape yields maroon italics and small caps yields navy blue.
-\begin{htmlonly}
-Hence, the following source
-``\verb+{\slshape slanted shape} {\scshape small caps shape}+'' yields:
-``{\slshape slanted shape} {\scshape small caps shape}''
-\end{htmlonly}
-
-As in \LaTeX{}, type styles consists in three components:
-\emph{shape}, \emph{series} and \emph{family}.
-However this distinction does not exist in \html: one specifies a
-type style and that's all.
-\hevea{} implements the three components by making one declaration to
-cancel the effect of other declarations of the same kind.
-\begin{htmlonly}
-For instance consider the following source, that exhibits shape changes:
-\begin{verbatim}
-{\itshape italic shape \slshape slanted shape
-\scshape small caps shape \upshape upright shape}
-\end{verbatim}
-Then, in the rendering below, ``small caps shape'' apears in navy blue
-only and not in italics:
-\begin{htmlout}
-{\itshape italic shape \slshape slanted shape
-\scshape small caps shape \upshape upright shape}
-\end{htmlout}
-\end{htmlonly}
-
-
-Old style declarations are also recognized, they translate to
-text-level elements. However, no elements are canceled when using
-old style declaration. Thus, the source
-``\verb+{\sl\sc slanted and small caps}+'' yields navy blue
-italics\ifhevea: ``{\sl\sc slanted and small caps}''\fi.
-Users need probably not worry about this. However this has an
-important practical consequence: to change the default rendering of
-type styles, one should redefine old style declaration in order to
-benefit from the cancelation mechanism.
-For instance, to render small caps as bold fonts, one should first
-redefine \verb+\sc+ by \verb+\renewcommand{\sc}{\bf}+.
-\begin{htmlonly}
-And now, the shape example above gets rendered as follows:
-\begin{htmlout}\renewcommand{\sc}{\bf}
-{\itshape italic shape \slshape slanted shape
-\scshape small caps shape \upshape upright shape}
-\end{htmlout}
-While redifining \verb+\scshape+ with
-\verb+\renewcommand{\scshape}{\bfseries}+ would yield:
-\begin{htmlout}\renewcommand{\scshape}{\bfseries}
-{\itshape italic shape \slshape slanted shape
-\scshape small caps shape \upshape upright shape}
-\end{htmlout}
-\end{htmlonly}
-Actually, using old-style declaration in type styles redefinition is
-not bullet-proof. There remains two problems:
-\begin{enumerate}
-\item Several redefinitions may interact in nasty ways. For instance,
-the following source probably does not yield what you want:
-\begin{verbatim}
-\renewcommand{\sc}{\bf}
-\renewcommand{\bf}{\it}
-{\bfseries bold series} {\scshape small caps shape}
-\end{verbatim}
-As a consequence of \LaTeX{} and \hevea{} ``late binding semantics'',
-everything is in italics:
-\begin{htmlonly}
-\begin{htmlout}
-\renewcommand{\sc}{\bf}
-\renewcommand{\bf}{\it}
-{\bfseries bold series} {\scshape small caps shape}
-\end{htmlout}
-\end{htmlonly}
-The intended effect (\verb+\scshape+ is bold and \verb+\bfseries+ is italics),
-can be achieved by using internal text-style declarations
-(see section~\ref{internal}):
-\begin{verbatim}
-\renewcommand{\sc}{\@style{B}}
-\renewcommand{\bf}{\@style{I}}
-{\bfseries bold series} {\scshape small caps shape}
-\end{verbatim}
-\begin{htmlonly}
-\begin{htmlout}
-\renewcommand{\sc}{\@style{B}}
-\renewcommand{\bf}{\@style{I}}
-{\bfseries bold series} {\scshape small caps shape}
-\end{htmlout}
-\end{htmlonly}
-\item The other problem is that this is much too complicated (and this
-cannot be cured). In particular, since cancelation is done at the \html{}
-level, a declaration belonging to one component may sometimes cancel the
-effect of another that belongs to another component. However, you might
-have not noticed it if I had not told you.
-\end{enumerate}
-
-
-
-\label{htmlcolor}\index{color}
-\hevea{} possesses an extra font attribute: color.
-Text color is changed by declarations whose names follow \html{}
-conventions for colors.
+\index{color}
+One can also specify colors using special type style declarations (see
+next section).
+Those declarations follow \html{} conventions for colors.
 There are sixteen predefined colors:
 \begin{center}
 \begin{tabular}{p{.7\linewidth}}
@@ -3506,13 +3517,93 @@ change font color to dark gray:
   \htmlcolor{404040}
 \end{verbatim}
 %HEVEA}
-
-Text colors can also be specified in a more \LaTeX{}-compliant manner
-by using commands from the \texttt{color} package, which \hevea{}
-partly implements (see section~\ref{color}).
 Colors should be used carefully. Too many colors
 hinders clarity and some of the colors may not be readable on the
 document background color.
+
+
+\section{Font Selection}
+
+\subsection{Changing the Type Style}\label{type-style}
+All \LaTeXe{} declarations and environments for changing type style
+are recognized. Aspect is rather like \LaTeXe{} output, but there is
+no guarantee.
+
+As \html{} does not provide the same variety of type styles as
+\LaTeX{}, some type style get rendered by using colors. For instance,
+the slanted shape yields maroon italics and small caps yields navy blue.
+\begin{htmlonly}
+Hence, the following source
+``\verb+{\slshape slanted shape} {\scshape small caps shape}+'' yields:
+``{\slshape slanted shape} {\scshape small caps shape}''
+\end{htmlonly}
+Here is how \hevea{} implements text-style declarations by default:
+\begin{center}
+\newcommand{\heveastyle}[2]{{\ifhevea#1\fi#2}}
+\begin{tabular}{*{3}{p{.3\linewidth}}}
+\begin{tabular}{l@{\quad}l} \hline
+\verb+\itshape+ &  \heveastyle{\itshape}{italics}\\
+\verb+\slshape+ &  \heveastyle{\slshape}{maroon italics}\\
+\verb+\scshape+ &  \heveastyle{\scshape}{navy blue}\\
+\verb+\upshape+ &  \heveastyle{\upshape}{no style}\\ \hline
+\end{tabular}
+ &
+\begin{tabular}{l@{\quad}l} \hline
+\verb+\ttfamily+ & \heveastyle{\ttfamily}{typewriter font}\\
+\verb+\sffamily+ & \heveastyle{\sffamily}{purple}\\
+\verb+\rmfamily+ &  \heveastyle{\rmfamily}{no style}\\ \hline
+\end{tabular}
+
+&
+\begin{tabular}{l@{\quad}l} \hline
+\verb+\bfseries+ & \heveastyle{\bfseries}{bold}\\
+\verb+\mdseries+ & \heveastyle{\mdseries}{no style}\\ \hline
+\end{tabular}
+\end{tabular}
+\end{center}
+Text-style commands also exists, they are defined as
+\verb+\mbox{\+\textit{decl}\ldots\verb+}+. For instance,
+\verb+\texttt+ is defined as a command with one argument whose body is
+\verb+\mbox{\ttfamily#1}+.
+Finally, the \verb+\emph+ command for emphasized text also exists.
+
+
+As in \LaTeX{}, type styles consists in three components:
+\emph{shape}, \emph{series} and \emph{family}.
+However this distinction does not exist in \html: one specifies a
+type style and that's all.
+\hevea{} implements the three components by making one declaration to
+cancel the effect of other declarations of the same kind.
+\begin{htmlonly}
+For instance consider the following source, that exhibits shape changes:
+\begin{verbatim}
+{\itshape italic shape \slshape slanted shape
+\scshape small caps shape \upshape upright shape}
+\end{verbatim}
+Then, in the rendering below, ``small caps shape'' apears in navy blue
+only and not in italics:
+\begin{htmlout}
+{\itshape italic shape \slshape slanted shape
+\scshape small caps shape \upshape upright shape}
+\end{htmlout}
+\end{htmlonly}
+
+
+Old style declarations are also recognized, they translate to
+text-level elements. However, no elements are canceled when using
+old style declaration. Thus, the source
+``\verb+{\sl\sc slanted and small caps}+'' yields navy blue
+italics\ifhevea: ``{\sl\sc slanted and small caps}''\fi.
+Users need probably not worry about this. However this has an
+important practical consequence: to change the default rendering of
+type styles, one should redefine old style declaration in order to
+benefit from the cancelation mechanism. See
+section~\ref{customize-style} for a more thorough description.
+
+
+
+
+
 
 \subsection{Changing the Type Size}
 All declarations, from \verb+\tiny+ to \verb+\Huge+ are recognized.
@@ -3626,28 +3717,9 @@ limited version of \verb+\let+:
 The effect is to bind  {\it macro-name1} to whatever {\it macro-name2}
 is bound to at the time \verb+\let+ is processed. This construct may
 prove very useful in situations where
-the calling interface to basic commands is changed.
-
-Assume for instance a document whose base style is \textit{jsc} (the
-\emph{Journal of Symbolic Computation} style for articles).
-For running \hevea{}, the \textit{jsc} style can be replaced by
-\textit{article}
-style, but for a few commands whose calling interface is changed.
-In particular, the \verb+\title+ command
-takes an extra optional argument (which \hevea{} should ignore
-anyway).
-However, \hevea{} can process the document as it stands.
-One  solution is to create a \texttt{jsc.hva} file which should (at
-least, there are other problems) contain the following lines:
-\begin{verbatim}
-\input{article.hva}
-\let\oldtitle=\title
-\renewcommand{\title}[2][]{\oldtitle{#2}}
-\end{verbatim}
-The effect is to replace \verb+\title+ by a new command which
-calls \hevea{} \verb+\title+ with the appropriate argument.
-
-See also section~\ref{exlet} for another example of using \verb+\let+.
+one whishes to slightly modify basic commands.
+See sections~\ref{customize-let} and~\ref{exlet} for examples of using
+\verb+\let+ in such a situation.
 
 
 \comindex{texlet}
