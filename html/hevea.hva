@@ -185,7 +185,6 @@
 %%% Maths
 %%% Loading symbols
 \ifmathml
-\input{html/symb-mathml.hva}
 \else
 \ifsymb
 \ifentities\input{html/symb-ent.hva}

@@ -76,6 +76,7 @@ dorelease:
 	tar cfo $(RELEASENAME).tar $(RELEASENAME) ;\
 	gzip -f -best  $(RELEASENAME).tar
 # Doc release
+	$(MAKE) $(MFLAGS) opt
 	dvips -o$(RELEASEDIR)/$(RELEASENAME)-manual.ps manual.dvi
 	cp manual.dvi $(RELEASEDIR)/$(RELEASENAME)-manual.dvi
 	rm -rf $(RELEASEDIR)/$(RELEASENAME)-manual

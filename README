@@ -8,10 +8,9 @@ ADVERTISEMENT
     output language is HTML that is (hopefully) correct with respect to
     version 4.0 (transitional)
 
-    Exotic symbols are translated into symbols
-    pertaining to the symbol font of the HTML browser, using the
-    non-standard FACE attribute of the FONT tag.
-    This allows the translation to HTML of quite a lot of the symbols
+    Exotic symbols are translated into symbols pertaining to the
+    symbol font of the HTML browser, using the FACE attribute of the FONT
+    tag. This allows the translation to HTML of quite a lot of the symbols
     used in LaTeX.
 
     HEVEA understands LaTeX macro definitions. Simple user style
