@@ -189,7 +189,7 @@
    \def\@open@lstbox{\begin{flushleft}\ttfamily}\def\@close@lstbox{\end{flushleft}}%
    \else
    \def\@open@lstbox
-      {\begin{Tabular}[width="100\%" bgcolor=\lst@bgcolor]{l}\ttfamily}%
+      {\begin{Tabular}[bgcolor=\lst@bgcolor]{l}\ttfamily}%
    \def\@close@lstbox{\end{Tabular}}%
    \fi
    \ifhtml\else
@@ -377,9 +377,12 @@
 \define@key{lst}{comment}{\@callsubst{\lst@comment@key}{#1\@empty\@empty\@empty}}
 \define@key{lst}{morecomment}{\@callsubst{\lst@morecomment@key}{#1\@empty\@empty\@empty}}
 %%%%%%% Extended chars
+\def\lst@extendedchars{false}
 \lst@AddToHook{DeInit}{\setboolean{lst@extendedchars}{false}}
 \lst@AddToHookExe{SetLanguage}{\setboolean{lst@extendedchars}{false}}
-\define@key{lst}{extendedchars}[true]{\setboolean{lst@extendedchars}{\lst@boolean{#1}}}
+\lst@AddToHook{SelectCharTable}
+{\setboolean{lst@extendedchars}{\lst@boolean{\lst@extendedchars}}}
+\define@key{lst}{extendedchars}[true]{\def\lst@extendedchars{#1}}
 %%%%%%% Sensitive keywords
 \lst@AddToHookExe{DeInit}{\setboolean{lst@sensitive}{true}}
 \lst@AddToHook{SetLanguage}{\setboolean{lst@sensitive}{true}}
