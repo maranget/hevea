@@ -12,8 +12,6 @@
 \input{iso-symb.hva}
 \renewcommand{\&}{\ifraw\@print{&}\else\@print{&amp;}\fi}
 \input{latexcommon.hva}
-%%%Support for use of style-sheets
-\input{style-sheets.hva}
 %%% Logos
 \def\TeX{\@print{TeX}}
 \def\LaTeX{\@print{L<sup>A</sup>T<sub>E</sub>X}}
@@ -177,13 +175,19 @@
 <META http-equiv="Content-Type" content="text/html; charset=\end{rawhtml}\@charset\begin{rawhtml}">
 <META name="GENERATOR" content="hevea \end{rawhtml}\usebox{\@heveaversion}\@print{">
 }
+\ife\css@link\else
+\@print{<LINK REL=STYLESHEET type="text/css"}\css@link\@print{>}
+\@print{ }\@print{ }\fi%
 \ife\hevea@css\else\@print{<STYLE type="text/css">}
 \hevea@css\@print{</STYLE>}\fi%
 }
 %%% Style sheet
+\newtokens{\css@link}
+\newcommand{\addcssfile}[1]{\addtokens{\css@link}{#1}}
+\newcommand{\loadcssfile}[1]{\addcssfile{\@getprint{ HREF=\char34#1\char34}}}
 \newtokens{\hevea@css}
 \newcommand{\addstyle}[1]{\addtokens{\hevea@css}{#1}}
-\newcommand{\newstyle}[2]{\addstyle{\@getprint{#1  \char123#2\char125\@print{
+\newcommand{\newstyle}[2]{\addstyle{\@getprint{#1\char123#2\char125\@print{
 }}}}
 \newenvironment{document}{%
 \@end{document}
@@ -365,3 +369,5 @@
 \newcommand{\@table@attributes@border}{CELLSPACING=0 CELLPADDING=1}
 %%%%%% Do not load hevea.hva again !
 \def\csname hevea@loaded\endcsname{}
+%%%%%%Support for use of style-sheets
+\input{style-sheets.hva}

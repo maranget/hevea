@@ -15,14 +15,20 @@
 \let \lst \verb
 
 \title {Didier's Mathpartir}
-\renewcommand{\setstyle}[2]
-{\newstyle{H1}{background:#1;color:#2}
-\newstyle{H2}{background:#1;color:#2}
-\newstyle{H3}{background:#1;color:#2}
-\newstyle{H4}{background:#1;color:#2}
-\newstyle{H5}{background:#1;color:#2}
-\newstyle{H6}{background:#1;color:#2}}
-\setstyle{blue}{white}
+
+\loadcssfile{x}
+
+%HEVEA \setLATEXstyle{title}{background:green;color:black;font:helvetica}
+%HEVEA \setLATEXstyle{section}{background:blue;color:white}
+%HEVEA \setLATEXstyle{subsection}{background:blue;color:white}
+%HEVEA \setHTMLstyle{H5}{background:cyan;color:black}
+
+%\setHTMLstyle{H3}{background:blue;color:white;font:sans-serif}
+
+%\setstyles{background:blue;color:white;font:sans-serif}
+%\setstyles{backgound:green}
+
+
 \begin{document}
 
 \maketitle
@@ -113,6 +119,7 @@ $
 \\
 \end{tabular}
 $$
+\paragraph{OOOOOH}
 Use use \verb"{ }" instead of \verb"{}" to get an axiom for instance:
 $$
 \begin{tabular}{m{0.45\hsize}m{0.1\hsize}m{0.45\hsize}}
@@ -130,7 +137,7 @@ $}
 \\
 \end{tabular}
 $$
-
+\subparagraph{OOOOHOOOH}
 The macro \lst"\inferrule" acceps a label as optional argument, which will
 be typeset on the top left corner of the rule: 
 \par

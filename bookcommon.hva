@@ -18,7 +18,7 @@
 \renewcommand\thesubparagraph {\theparagraph.\arabic{subparagraph}}
 \newcommand{\@footnotelevel}{chapter}
 \newcommand{\partname}{Part}
-\newcommand{\chaptername}{Chapter}
+\renewcommand{\chaptername}{Chapter}
 \newcommand{\appendixname}{Appendix}
 %%%%%%%%%%% Initial cutting
 \newcommand{\cuttingunit}{chapter}
@@ -41,3 +41,4 @@
 \newcommand{\@tocsection}[1]{\chapter*{#1}}
 \newcommand{\@base}{book}
 \setcounter{tocdepth}{2}
+\let doc@style \book@style
