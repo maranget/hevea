@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.205 2001-03-06 12:11:20 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.206 2001-04-02 18:06:23 maranget Exp $ *)
 
 
 {
@@ -1136,7 +1136,8 @@ and image = parse
         Image.put lxm ;
         let saved = Save.get_echo () in
         Image.put saved
-    | "\\renewcommand" | "\\newcommand" | "\\providecommand" ->
+    | "\\renewcommand" | "\\newcommand" | "\\providecommand"
+    | "\\renewcommand*" | "\\newcommand*" | "\\providecommand*" ->
         Save.start_echo () ;
         let _ = save_arg lexbuf in
         let _ = save_opts ["0" ; ""] lexbuf in
@@ -1144,7 +1145,8 @@ and image = parse
         Image.put lxm ;
         let saved = Save.get_echo () in
         Image.put saved
-    | "\\newenvironment" | "\\renewenvironment" ->
+    | "\\newenvironment" | "\\renewenvironment"
+    | "\\newenvironment*" | "\\renewenvironment*" ->
         Save.start_echo () ;
         let _ = save_arg lexbuf in
         let _ = save_opts ["0" ; ""] lexbuf in
@@ -1624,14 +1626,14 @@ let do_newcommand lxm lexbuf =
     latex_pat (if def then [do_subst_this defval] else []) nargs in
   match lxm with
   | "\\@forcecommand" -> Latexmacros.def name pat (Subst body)
-  | "\\newcommand"    ->
+  | "\\newcommand"|"\\newcommand*"    ->
       echo () ;
       if Latexmacros.exists name then
         warning ("Ignoring (re-)definition of ``"^name^"'' by \\newcommand")
       else begin
         Latexmacros.def name pat (Subst body)
       end
-  | "\\renewcommand" ->
+  | "\\renewcommand"|"\\renewcommand*" ->
       if not (Latexmacros.exists name) then begin
         warning ("Defining ``"^name^"'' by \\renewcommand")
       end else
@@ -1644,9 +1646,12 @@ let do_newcommand lxm lexbuf =
 ;;
 
 def_name_code "\\renewcommand" do_newcommand  ;
+def_name_code "\\renewcommand*" do_newcommand  ;
 def_name_code "\\newcommand" do_newcommand ;
+def_name_code "\\newcommand*" do_newcommand ;
 def_name_code "\\providecommand" do_newcommand ;
-def_name_code "\\@forcecommand" do_newcommand ;
+def_name_code "\\providecommand*" do_newcommand ;
+def_name_code "\\@forcecommand" do_newcommand
 ;;
 
 def_name_code "\\newcolumntype"
@@ -1696,13 +1701,13 @@ let do_newenvironment lxm lexbuf =
       (Subst body1) ;
     Latexmacros.def (end_env name)  zero_pat (Subst body2) in
          
-  if lxm = "\\newenvironment" then
+  if lxm = "\\newenvironment" || lxm = "\\newenvironment*" then
     if
       Latexmacros.exists (start_env name) ||
       Latexmacros.exists (start_env name)
     then
       warning
-        ("Not (re)-defining environment ``"^name^"'' with \\newenvironment")
+        ("Not (re)-defining environment ``"^name^"'' with "^lxm)
     else
       do_defs ()
   else begin
@@ -1711,13 +1716,15 @@ let do_newenvironment lxm lexbuf =
            Latexmacros.exists (start_env name))
     then
       warning
-        ("Defining environment ``"^name^"'' with \\renewenvironment") ;
+        ("Defining environment ``"^name^"'' with "^lxm) ;
     do_defs ()
   end
 ;;
 
 def_name_code "\\newenvironment" do_newenvironment ;
-def_name_code  "\\renewenvironment" do_newenvironment
+def_name_code "\\newenvironment*" do_newenvironment ;
+def_name_code  "\\renewenvironment" do_newenvironment ;
+def_name_code  "\\renewenvironment*" do_newenvironment
 ;;
 
 let do_newcounter name within =
@@ -1738,7 +1745,7 @@ let do_newtheorem lxm lexbuf =
   let within =  match save_opts [""] lexbuf with
   | [x] -> x
   | _   -> assert false in
-  if echo_toimage () then
+  if echo_global_toimage () then
     Image.put (lxm^Save.get_echo ()^"\n") ;
   let cname = match numbered_like,within with
     {arg=No _},{arg=No _} ->
@@ -2575,28 +2582,56 @@ def_code "\\@pad"
 
 def_code "\\newcounter"
   (fun lexbuf ->
+    Save.start_echo () ;
     let name = get_prim_arg lexbuf in
     let within = get_prim_opt "" lexbuf in
+    let real_args = Save.get_echo () in
+    if echo_global_toimage () then begin
+      Image.put "\\newcounter" ;
+      Image.put real_args ;
+      Image.put_char '\n'
+    end ;
     do_newcounter name within)
 ;;
 
 def_code "\\addtocounter"
   (fun lexbuf ->
+    Save.start_echo () ;
     let name = get_prim_arg lexbuf in
     let arg = save_arg lexbuf in
+    let real_args = Save.get_echo () in
+    if echo_global_toimage () then begin
+      Image.put "\\addtocounter" ;
+      Image.put real_args ;
+      Image.put_char '\n'
+    end ;
     Counter.add_counter name (Get.get_int arg))
 ;;
 
 def_code "\\setcounter"
   (fun lexbuf ->
+    Save.start_echo () ;
     let name = get_prim_arg lexbuf in
     let arg = save_arg lexbuf in
+    let real_args = Save.get_echo () in
+    if echo_global_toimage () then begin
+      Image.put "\\setcounter" ;
+      Image.put real_args ;
+      Image.put_char '\n'
+    end ;
     Counter.set_counter name (Get.get_int arg) )
 ;;
 
 def_code "\\stepcounter"
   (fun lexbuf ->
+    Save.start_echo () ;    
     let name = get_prim_arg lexbuf in
+    let real_args = Save.get_echo () in
+    if echo_global_toimage () then begin
+      Image.put "\\stepcounter" ;
+      Image.put real_args ;
+      Image.put_char '\n'
+    end ;
     Counter.step_counter name)
 ;;
 

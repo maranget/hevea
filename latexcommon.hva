@@ -47,15 +47,18 @@
 \newcommand{\eqno}[1]{\qquad#1}
 \newenvironment{equation}{\[\@changelabel\refstepcounter{equation}}{\eqno{(\theequation)}\]}
 \newenvironment{eqnarray*}{$$\begin{array}{rcl}}{\end{array}$$}
-\newif\ifnumber\numbertrue
-\newcommand{\nonumber}{\numberfalse}
+\gdef\@yes@number{\eqno{(\theequation)}}
+\gdef\@no@number{\addtocounter{equation}{-1}}
+\newcommand{\@nonumber}{\global\let\@number\@no@number}
+\newcommand{\@yesnumber}{\global\let\@number\@yes@number}
+\let\nonumber\@nonumber
 \newcounter{@eqna@col}
 \newcommand{\lefteqn}[1]{\begin{ensuredisplaymath}\raggedright#1\end{ensuredisplaymath}}
 \let\@HEVEA@lefteqn\lefteqn
 \newenvironment{eqnarray}
 {\@ifundefined{@eqna@inside}{\def\@eqna@inside{}}{\warning{Nested eqnarray}}%
 \[\@changelabel\def\@currentlabel{\theequation}%
-\setcounter{@eqna@col}{0}\numbertrue\stepcounter{equation}
+\setcounter{@eqna@col}{0}\@yesnumber\stepcounter{equation}
 \let\@PBS=\@HEVEA@bsbs
 \let\@PAM=\@HEVEA@amper
 \renewcommand{\lefteqn}[1]{\let\lefteqn\@HEVEA@lefteqn\multicolumn{3-\value{@eqna@col}}{l}{\ifthenelse{\value{@eqna@col}=0}{\qquad}{}##1}\setcounter{@eqna@col}{2}}
@@ -65,9 +68,9 @@
   {\ifthenelse{\value{@eqna@col}<2}
     {\stepcounter{@eqna@col}\@PAM}
     {\warning{Extra column in eqnarray}}}     
-\renewcommand{\\}[1][]{\@eqna@complete\@PAM\ifnumber\eqno{(\theequation)}\else\addtocounter{equation}{-1}\fi\setcounter{@eqna@col}{0}\numbertrue\stepcounter{equation}\@PBS}
+\renewcommand{\\}[1][]{\@eqna@complete\@PAM\@number\setcounter{@eqna@col}{0}\@yesnumber\stepcounter{equation}\@PBS}
 \@array{rclr}}
-{\\{}\end@array\]}
+{\\{}\addtocounter{equation}{-1}\end@array\]}
 \def\mathrm#1{{\rm#1}}
 \def\mathtt#1{{\tt#1}}
 \def\mathit#1{{\it#1}}
@@ -208,9 +211,9 @@
 \newcommand{\clearpage}{}
 \newcommand{\cleardoublepage}{}
 %%Lengths are ignored
-\newcommand{\newlength}[1]{}
-\newcommand{\setlength}[2]{}
-\newcommand{\addtolength}[2]{}
+\newcommand{\newlength}[1]{\begin{toimage}\newlength{#1}\end{toimage}}
+\newcommand{\setlength}[2]{\begin{toimage}\setlength{#1}{#2}\end{toimage}}
+\newcommand{\addtolength}[2]{\begin{toimage}\addtolength{#1}{#2}\end{toimage}}
 \newcommand{\settowidth}[2]{}
 \newcommand{\settodepth}[2]{}
 \newcommand{\settoheight}[2]{}

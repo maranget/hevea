@@ -10,7 +10,7 @@
 (***********************************************************************)
 
 
-let header = "$Id: html.ml,v 1.83 2001-01-15 10:55:18 maranget Exp $" 
+let header = "$Id: html.ml,v 1.84 2001-04-02 18:06:15 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -299,8 +299,8 @@ let item () =
       Out.to_string !cur_out.out
     end else  "" in
   flags.nitems <- flags.nitems+1;
-  try_flush_par () ;
-  do_put "\n<LI>" ;
+  try_flush_par Now ;
+  do_put "<LI>" ;
   do_put saved
 ;;
 
@@ -321,7 +321,7 @@ let ditem scan arg =
       let saved = Out.to_string !cur_out.out in
       (fun arg -> do_put saved ; scan arg)
     end else scan in
-  try_flush_par () ;
+  try_flush_par Now ;
   do_put "<DT>" ;
   !cur_out.pending <- mods ;
   flags.nitems <- flags.nitems+1;

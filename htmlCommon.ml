@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlCommon.ml,v 1.33 2001-02-12 10:05:30 maranget Exp $" 
+let header = "$Id: htmlCommon.ml,v 1.34 2001-04-02 18:06:17 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -625,18 +625,28 @@ let is_list = function
 | _ -> false
 ;;
 
+let string_of_par = function
+  | Some i -> "+"^string_of_int i
+  | None   -> "-"
 
 let par_val last now n =
-  if is_list last then begin
-    if is_list now then 1 else 0
-  end
-  else if last = P then
-    0
-  else if
-    is_header last || last = PRE || last = BLOCKQUOTE
-  then n-1
-  else if last = DIV || last = TABLE then n
-  else n+1
+  let r = 
+    if is_list last then begin
+      if is_list now then 1 else 0
+    end
+    else if last = P then
+      0
+    else if
+      is_header last || last = PRE || last = BLOCKQUOTE
+    then n-1
+    else if last = DIV || last = TABLE then n
+    else n+1 in
+  if !verbose > 2 then
+    Printf.fprintf stderr
+      "par_val last=%s, now=%s, r=%d\n"
+      (string_of_block last) 
+      (string_of_block now) r ;
+  r
 ;;
 
 let par  = function
@@ -651,21 +661,32 @@ let par  = function
 
 let flush_par n =
   flags.pending_par <- None ;
-  let p = par_val flags.last_closed (pblock()) n in
-  for i = 1 to p do
+  for i = 1 to n do
     do_put "<BR>\n"
   done ;
+  if n <= 0 then do_put_char '\n' ;
   if !verbose > 2 then
      prerr_endline
        ("flush_par: last_closed="^ string_of_block flags.last_closed^
-       " p="^string_of_int p);
-  flags.vsize <- flags.vsize + p;
+       " p="^string_of_int n);
+  flags.vsize <- flags.vsize + n;
   flags.last_closed <- NADA
 ;;
 
-let try_flush_par () = match flags.pending_par with
-| Some n -> flush_par n
-| _      -> ()
+type t_try = Wait of block | Now
+let string_of_wait = function
+  | Wait b -> "(Wait "^string_of_block b^")"
+  | Now    -> "Now"
+
+let try_flush_par block = match block with
+| Wait GROUP -> ()
+| _ ->  match flags.pending_par with
+  | Some n ->
+      flush_par
+        (match block with
+        | Wait b -> par_val b NADA n
+        | _ -> par_val NADA NADA n)
+  | _      -> ()
 
 
 let string_of_into = function
@@ -937,7 +958,8 @@ let do_open_mods () =
   
 let do_pending () =  
   begin match flags.pending_par with
-  | Some n -> flush_par n
+  | Some n ->
+      flush_par (par_val flags.last_closed (pblock()) n)
   | _ -> ()
   end ;
   flags.last_closed <- NADA ;
@@ -1129,7 +1151,7 @@ and is_pre = function
   | PRE -> true
   | _ -> false
 
-let rec do_try_open_block s args =
+let rec do_try_open_block s args =  
   if !verbose > 2 then
     prerr_flags ("=> try open ``"^string_of_block s^"''");  
   if s = DISPLAY then begin
@@ -1430,7 +1452,7 @@ and open_block s args =
    prerr_endline ("=> open_block ``"^string_of_block s^"''");
    pretty_cur !cur_out ;
  end ;
- try_flush_par ();
+ try_flush_par (Wait s);
 
  push_out out_stack (s,args,!cur_out) ;
  cur_out :=
