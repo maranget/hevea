@@ -193,9 +193,10 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %   Hacking into '\@meta' to make style declarations      %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\ife\css@link\else
-\@print{<LINK REL=STYLESHEET type="text/css"}\css@link\@print{>
-}
+\ife\css@link\else%
+%\@print{LINK REL=STYLESHEET type="text/css"}
+\css@link\@print{
+}%
 \fi
 \ife\hevea@css\else\@print{<STYLE type="text/css">}
 \hevea@css\@print{</STYLE>
@@ -204,11 +205,11 @@
 }
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %   Support for linking to external style sheets          %
-%   (not robust)                                          %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newtokens{\css@link}%
 \newcommand{\addcssfile}[1]{\addtokens{\css@link}{#1}}%
-\newcommand{\loadcssfile}[1]{\addcssfile{\@getprint{ HREF=\char34#1\char34}}}%
+\newcommand{\loadcssfile}[1]{\addcssfile{\@print{<}\@getprint{LINK REL=STYLESHEET type=\char34 text/css\char34\@print{ }HREF=\char34#1\char34\char62\@print{
+}}}}%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %   Support for defining styles in the 'head'             %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
