@@ -166,18 +166,19 @@
 \newcommand{\lstdefinestyle}[2]
   {\def\csname lst@sty#1\endcsname{\lstset{#2}}}
 %%%%%% Language definitions
-\newcommand{\lst@define@dd}[2][]{\newcommand{\csname lstdd@#2\endcsname}{#1}}
+\newcommand{\lst@define@dd}[2][]
+  {\newcommand{\csname lstdd@\MakeLowercase{#2}\endcsname}{\MakeLowercase{#1}}}
 \newcommand{\lst@mklang}[2][]
   {\ifthenelse{\equal{#1}{}}
-    {lstlang@#2@\csname lstdd@#2\endcsname}
-    {lstlang@#2@#1}}
+    {lstlang@\MakeLowercase{#2}@\csname lstdd@\MakeLowercase{#2}\endcsname}
+    {lstlang@\MakeLowercase{#2}@\MakeLowercase{#1}}}
 \newcommand{\lst@language@key}[2][]
   {\lst@UseHook{SetLanguage}%
   \csname\lst@mklang[#1]{#2}\endcsname%
   \lst@UseHook{AfterSetLanguage}}
 \lst@define@key@opt{language}{\lst@language@key}{}
 \newcommand{\lst@checkdd}[2]
-  {\@ifundefined{lstdd@#1}{\lst@define@dd[#2]{#1}}{}}
+  {\@ifundefined{lstdd@\MakeLowercase{#1}}{\lst@define@dd[#2]{#1}}{}}
 \newcommand{\lst@definelanguage@}[3]
   {\lst@checkdd{#1}{#2}\def\csname\lst@mklang[#2]{#1}\endcsname{\lstset{#3}}}
 \newcommand{\lst@derivelanguage@}[5]

@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: verb.mll,v 1.57 2002-10-01 09:00:58 maranget Exp $            *)
+(*  $Id: verb.mll,v 1.58 2003-07-24 14:42:02 maranget Exp $            *)
 (***********************************************************************)
 {
 exception VError of string
@@ -672,9 +672,8 @@ and do_escape = parse
     scan_this_arg Scan.main arg ;
     scan_this main "}" ;
     do_escape lexbuf}
-| _
-    {let lxm = Lexing.lexeme_char lexbuf 0 in
-    Dest.put (Dest.iso lxm) ;
+| _ as lxm
+    {Dest.put (Dest.iso lxm) ;
     do_escape lexbuf}
 {
 let _ = ()
@@ -1044,19 +1043,17 @@ let code_stringizer lexbuf =
   lst_init_save_chars schars (lst_process_stringizer mode)
 ;;
 
-let open_lst inline keys lab =
-  if lab <> "" then
-    def "\\lst@intname" zero_pat (CamlCode (fun _ -> Dest.put lab)) ;
-  scan_this Scan.main ("\\lsthk@PreSet\\lstset{"^keys^"}") ;
+let open_lst_inline keys =
+
+  scan_this Scan.main ("\\lsthk@PreSet"^keys) ;
 (* For inline *)
-  if inline then
-    scan_this Scan.main "\\lsthk@InlineUnsave" ;
+  scan_this Scan.main "\\lsthk@InlineUnsave" ;
 (* Ignoring output *)
   lst_gobble := Get.get_int (string_to_arg "\\lst@gobble") ;
   lst_first := Get.get_int (string_to_arg "\\lst@first") ;
   lst_last := Get.get_int (string_to_arg "\\lst@last") ;
   lst_nlines := 0 ;
-  lst_init_char_table inline ;
+  lst_init_char_table true ;
   scan_this Scan.main "\\lsthk@SelectCharTable" ;
   if !lst_extended then
     for i = 128 to 255 do
@@ -1083,18 +1080,108 @@ let open_lst inline keys lab =
   end ;
   scan_this Scan.main "\\lsthk@InitVar" ;
   lst_scan_mode := Empty ;
-  if inline then
-    lst_top_mode := Normal
-  else
-    lst_top_mode := Skip
+  lst_top_mode := Normal
 
-and close_lst inline =
-  lst_finalize inline ;
+and close_lst_inline () =
+  lst_finalize true ;
   while !Scan.cur_env = "command-group" do
     scan_this Scan.main "\\endgroup"
   done ;
   scan_this Scan.main "\\lsthk@DeInit"
 ;;
+
+let lst_user_name name = name^"@lst@user"
+
+let close_lst_env name =
+   let com_name = (end_env (lst_user_name name)) in
+   lst_finalize false ;
+   scan_this Scan.main "\\lsthk@DeInit" ;
+   scan_this Scan.main com_name
+
+let open_lst_env name =
+  let com_name = (start_env (lst_user_name name)) in
+  (fun lexbuf ->
+    Image.stop () ;
+    scan_this Scan.main "\\lsthk@PreSet" ;
+    expand_command_no_skip com_name lexbuf ;    
+(* Ignoring output *)
+    lst_gobble := Get.get_int (string_to_arg "\\lst@gobble") ;
+    lst_first := Get.get_int (string_to_arg "\\lst@first") ;
+    lst_last := Get.get_int (string_to_arg "\\lst@last") ;
+    lst_nlines := 0 ;
+    lst_init_char_table false ;
+    scan_this Scan.main "\\lsthk@SelectCharTable" ;
+    if !lst_extended then
+      for i = 128 to 255 do
+        lst_init_char (Char.chr i) lst_process_letter
+      done ;
+    scan_this Scan.main "\\lsthk@Init" ;
+(* Directives *)
+    if !lst_directives then begin
+      lst_init_save_char '#' lst_process_start_directive
+    end ;
+(* Print key *)
+    if not !lst_print then begin
+      lst_last := -2 ; lst_first := -1
+    end ;  
+(* Escapes to TeX *)
+    if !lst_mathescape then begin
+      lst_init_save_char '$' (lst_process_escape true '$')
+    end ;
+    let begc = Scan.get_this_main "\\@getprintnostyle{\\lst@BET}"
+    and endc = Scan.get_this_main "\\@getprintnostyle{\\lst@EET}" in
+    if begc <> "" && endc <> "" then begin
+      lst_init_save_char begc.[0] (lst_process_escape false endc.[0])
+    end ;
+    scan_this Scan.main "\\lsthk@InitVar" ;
+    lst_scan_mode := Empty ;
+    lst_top_mode := Skip ;
+    scan_this Scan.main "\\lst@pre\\@open@lstbox" ;  
+    scan_this Scan.main "\\lst@basic@style" ;
+(* Eat first line *)
+    save_lexstate () ;
+    noeof eat_line lexbuf ;
+    restore_lexstate () ;
+(* For detecting endstring, must be done after eat_line *)
+    lst_init_save_char '\\' (lst_process_end ("end{"^name^"}")) ;
+    noeof listings lexbuf ;
+    close_lst_env name ;
+    scan_this Scan.main "\\@close@lstbox\\lst@post" ;
+    Scan.top_close_block "" ;
+    Scan.close_env !Scan.cur_env ;
+    Image.restart () ;
+    Scan.check_alltt_skip lexbuf)
+   
+    
+
+let do_newenvironment lexbuf =
+  let name = get_prim_arg lexbuf in
+  let nargs,optdef = match save_opts ["0" ; ""] lexbuf with
+  |  [x ; y ] -> x,y
+  | _ -> assert false in
+  let body1 = subst_body lexbuf in
+  let body2 = subst_body lexbuf in
+  if
+    Latexmacros.exists (start_env name) ||
+    Latexmacros.exists (end_env name)
+  then
+    warning
+      ("Not (re)-defining environment ``"^name^"'' with \\lstnewenvironment")
+  else begin
+    Latexmacros.def
+      (start_env (lst_user_name name))
+      (latex_pat
+         (match optdef with
+         | {arg=No _}    -> []
+         | {arg=Yes s ; subst=env} -> [do_subst_this (mkarg s env)])
+         (match nargs with 
+         | {arg=No _} -> 0
+         | {arg=Yes s ; subst=env} -> Get.get_int (mkarg s env)))
+      (Subst body1) ;
+    Latexmacros.def (end_env (lst_user_name name))  zero_pat (Subst body2) ;
+    def_code (start_env name) (open_lst_env name)
+  end
+
 
 let lst_boolean lexbuf =
   let b = get_prim_arg lexbuf in
@@ -1115,7 +1202,7 @@ def_code "\\@callopt"
       let arg = Save.rest lexarg in
       let exec = csname^"["^opt^"]{"^arg^"}" in
       scan_this  Scan.main exec)
-;;
+
 let init_listings () =
   Scan.newif_ref "lst@print" lst_print ;
   Scan.newif_ref "lst@extendedchars" lst_extended ;
@@ -1154,9 +1241,11 @@ let init_listings () =
       with
       | Latexmacros.Failed ->
             warning ("Cannot \\lst@lExtend ``"^name^"''")) ;
-  def_code "\\lstlisting"
+
+  def_code "\\lstnewenvironment" do_newenvironment ;
+(* Special arg parsing for lstlisting *)
+  def_code (start_env (lst_user_name "lstlisting"))
     (fun lexbuf ->
-      Image.stop () ;
       let keys = Subst.subst_opt "" lexbuf in
       let lab =
         if Save.if_next_char '\n' lexbuf then
@@ -1164,22 +1253,11 @@ let init_listings () =
         else
           Scan.get_prim_arg lexbuf in
       let lab = if lab = " " then "" else lab in
-      open_lst false keys lab ;
-      scan_this Scan.main "\\lst@pre\\@open@lstbox" ;  
-      scan_this Scan.main "\\lst@basic@style" ;
-      (* Eat first line *)
-      save_lexstate () ;
-      noeof eat_line lexbuf ;
-      restore_lexstate () ;
-(* For detecting endstring, must be done after eat_line *)
-      lst_init_save_char '\\' (lst_process_end "end{lstlisting}") ;
-      noeof listings lexbuf ;
-      close_lst false  ;
-      scan_this Scan.main "\\@close@lstbox\\lst@post" ;
-      Scan.top_close_block "" ;
-      Scan.close_env !Scan.cur_env ;
-      Image.restart () ;
-      Scan.check_alltt_skip lexbuf) ;
+      if lab <> "" then
+        def "\\lst@intname" zero_pat (CamlCode (fun _ -> Dest.put lab)) ;
+      scan_this Scan.main ("\\lstset{"^keys^"}")) ;
+  def_code (end_env (lst_user_name "lstlisting")) (fun _ -> ()) ;
+  def_code (start_env "lstlisting") (open_lst_env "lstlisting") ;
 (* Init comments from .hva *)
   def_code "\\lst@balanced@comment"
     (fun lexbuf ->
@@ -1196,14 +1274,14 @@ let init_listings () =
       let {arg=arg} = save_verbatim lexbuf in
       Scan.new_env "*lstinline*" ;
       scan_this main "\\mbox{" ;
-      open_lst true keys "" ;
+      open_lst_inline keys  ;
       Dest.open_group "CODE" ;
       begin try
         scan_this listings arg
       with
       | Eof _ -> ()
       end ;
-      close_lst true ;
+      close_lst_inline () ;
       Dest.close_group () ;
       scan_this main "}" ;
       Scan.close_env "*lstinline*" ;

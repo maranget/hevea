@@ -100,9 +100,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%
 \newenvironment{document}{%
 \@end{document}
-\@atbegindocument
 \@restartoutput\unskip
 \cutdef[\thecuttingdepth]{\cuttingunit}%
+\@atbegindocument%
 }{%
 \@footnoteflush{document}%
 \@atenddocument\@final@footer\@raise@enddocument}

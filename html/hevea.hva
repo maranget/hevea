@@ -178,7 +178,6 @@
 }}
 \newenvironment{document}{%
 \@end{document}
-\@atbegindocument
 \@restartoutput\unskip
 \@print{<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
             "http://www.w3.org/TR/REC-html40/loose.dtd">
@@ -212,6 +211,7 @@
 }%
 \usebox{\@toplinks}%
 \cutdef[\thecuttingdepth]{\cuttingunit}%
+\@atbegindocument%
 }{%
 \@clearstyle\@footnoteflush{document}%
 \@atenddocument%

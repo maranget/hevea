@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.229 2003-03-17 13:24:51 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.230 2003-07-24 14:42:02 maranget Exp $ *)
 
 
 {
@@ -18,6 +18,8 @@ module type S =
     (* external entry points *)
     val no_prelude : unit -> unit
     val main : Lexing.lexbuf -> unit
+    val expand_command : string -> Lexing.lexbuf -> unit
+    val expand_command_no_skip : string -> Lexing.lexbuf -> unit
     val print_env_pos : unit -> unit
 
     (* additional resources needed for extension modules. *)
@@ -804,7 +806,7 @@ let rec expand_toks main = function
       expand_toks main rem ;
       scan_this main s
 
-let expand_command main skip_blanks name lexbuf =
+let do_expand_command main skip_blanks name lexbuf =
   if !verbose > 2 then begin
     Printf.fprintf stderr "expand_command: %s\n" name
   end ;
@@ -909,19 +911,19 @@ let command_name = '\\' (( ['@''A'-'Z' 'a'-'z']+ '*'?) | [^ 'A'-'Z' 'a'-'z'])
 rule  main = parse
 (* comments *)
  | '%'
-   {expand_command main skip_blanks "\\@hevea@percent" lexbuf ;
+   {do_expand_command main skip_blanks "\\@hevea@percent" lexbuf ;
    main lexbuf}
 
 (* Paragraphs *)
   | '\n'
-      {expand_command main skip_blanks "\\@hevea@newline" lexbuf ;
+      {do_expand_command main skip_blanks "\\@hevea@newline" lexbuf ;
       main lexbuf}
 (* subscripts and superscripts *)
   | '_'
-      {expand_command main skip_blanks "\\@hevea@underscore" lexbuf ;
+      {do_expand_command main skip_blanks "\\@hevea@underscore" lexbuf ;
       main lexbuf}
   | '^'
-      {expand_command main skip_blanks "\\@hevea@circ" lexbuf ;
+      {do_expand_command main skip_blanks "\\@hevea@circ" lexbuf ;
       main lexbuf}
 (* Math mode *)
 | "$" | "$$"
@@ -971,7 +973,7 @@ rule  main = parse
 (* Definitions of  simple macros *)
 (* inside tables and array *)
   | [' ''\n']* "&"
-    {expand_command main skip_blanks "\\@hevea@amper" lexbuf ;
+    {do_expand_command main skip_blanks "\\@hevea@amper" lexbuf ;
     main lexbuf}
 (* Substitution  *)
   | '#' ['1'-'9']
@@ -996,14 +998,14 @@ rule  main = parse
 (* Commands *)
   | command_name
       {let name = lexeme lexbuf in
-      expand_command main skip_blanks name lexbuf ;
+      do_expand_command main skip_blanks name lexbuf ;
       main lexbuf}
 (* Groups *)
 | '{'
-    {expand_command main skip_blanks "\\@hevea@obrace" lexbuf ;
+    {do_expand_command main skip_blanks "\\@hevea@obrace" lexbuf ;
     main lexbuf} 
 | '}' 
-    {expand_command main skip_blanks "\\@hevea@cbrace" lexbuf ;
+    {do_expand_command main skip_blanks "\\@hevea@cbrace" lexbuf ;
     main lexbuf} 
 | eof {()}
 | ' '+
@@ -1028,14 +1030,14 @@ rule  main = parse
     main lexbuf}
 (* Html specials *)
 | '~'
-  {expand_command main skip_blanks "\\@hevea@tilde" lexbuf ;
+  {do_expand_command main skip_blanks "\\@hevea@tilde" lexbuf ;
   main lexbuf }
 (* Spanish stuff *)
 | '?'
-  {expand_command main skip_blanks "\\@hevea@question" lexbuf ;
+  {do_expand_command main skip_blanks "\\@hevea@question" lexbuf ;
   main lexbuf}
 | '!'
-  {expand_command main skip_blanks "\\@hevea@excl" lexbuf ;
+  {do_expand_command main skip_blanks "\\@hevea@excl" lexbuf ;
   main lexbuf}
 (* One character *)
 | _ 
@@ -1337,7 +1339,11 @@ and skip_pop lexbuf =
 
 let def_code name f = def_init name f
 let def_name_code name f = def_init name (f name)
+let expand_command name lexbuf = do_expand_command main skip_blanks name lexbuf
+and expand_command_no_skip name lexbuf = do_expand_command main no_skip name lexbuf
 ;;
+
+
 
 
 def_code "\\@hevea@percent"
@@ -1364,7 +1370,7 @@ def_code "\\@hevea@newline"
           Dest.put_char '\n' ;
           Dest.put lxm
         end else if nlnum >= 1 then
-          expand_command main skip_blanks "\\par" lexbuf
+          expand_command "\\par" lexbuf
         else
           Dest.put_separator ()
        end)
@@ -1723,7 +1729,7 @@ let do_newenvironment lxm lexbuf =
   if lxm = "\\newenvironment" || lxm = "\\newenvironment*" then
     if
       Latexmacros.exists (start_env name) ||
-      Latexmacros.exists (start_env name)
+      Latexmacros.exists (end_env name)
     then
       warning
         ("Not (re)-defining environment ``"^name^"'' with "^lxm)
@@ -1732,7 +1738,7 @@ let do_newenvironment lxm lexbuf =
   else begin
     if
       not (Latexmacros.exists (start_env name) &&
-           Latexmacros.exists (start_env name))
+           Latexmacros.exists (end_env name))
     then
       warning
         ("Defining environment ``"^name^"'' with "^lxm) ;
@@ -1878,7 +1884,7 @@ def_code "\\csname"
     skip_blanks lexbuf ;
     let name = "\\"^get_prim (Save.incsname lexbuf) in
     check_alltt_skip lexbuf ;
-    expand_command main skip_blanks name lexbuf)
+    expand_command name lexbuf)
 ;;
 
 def_code "\\string"
@@ -1965,13 +1971,13 @@ let displayright lexbuf =
 def_code "\\left"
   (fun lexbuf ->
     if !display then displayleft lexbuf
-    else expand_command main skip_blanks "\\textleft" lexbuf)
+    else expand_command "\\textleft" lexbuf)
 ;;
 
 def_code "\\right"
   (fun lexbuf ->
     if !display then displayright lexbuf
-    else expand_command main skip_blanks "\\textright" lexbuf)
+    else expand_command "\\textright" lexbuf)
 ;;
 
 
@@ -2434,7 +2440,7 @@ def_code "\\begin"
     let old_envi = save stack_entry in
     push stack_entry env ;
     begin try
-      expand_command main no_skip macro lexbuf
+      do_expand_command main no_skip macro lexbuf
     with
     | e ->
         restore stack_entry old_envi ;
@@ -2454,24 +2460,27 @@ def_code "\\@begin"
 def_code "\\end"
   (fun lexbuf ->
     let env = get_prim_arg lexbuf in
-    expand_command main no_skip ("\\end"^env) lexbuf ;
+    do_expand_command main no_skip (end_env env) lexbuf ;
     close_env env ;
     top_close_block "")
 ;;
 
 (* to be called by \document *)
-def_code "\\@begin@document"
-  (fun lexbuf -> begin match !Misc.image_opt with
+    def_code "\\@begin@document"
+    (fun lexbuf -> begin match !Misc.image_opt with
     | None ->
         let s = get_prim "\\heveaimageext" in
-        s.[0] <- '-' ;
-        begin match s with
-        | "-gif" -> Misc.image_opt := Some ""
-        | _ -> Misc.image_opt := Some s
+        if String.length s = 0 then  warning "Empty \\heveaimageext"
+        else begin
+          s.[0] <- '-' ;
+          begin match s with
+          | "-gif" -> Misc.image_opt := Some ""
+          | _ -> Misc.image_opt := Some s
+          end
         end
     | _ -> ()
     end ;
-    check_alltt_skip lexbuf)
+      check_alltt_skip lexbuf)
 ;;
 
 def_code "\\@raise@enddocument"
@@ -2569,7 +2578,7 @@ def_code "\\usebox"
     let name = get_csname lexbuf in
     top_open_group () ;
     Dest.nostyle () ;
-    expand_command main skip_blanks name lexbuf ;
+    expand_command name lexbuf ;
     top_close_group ())
 ;;
 

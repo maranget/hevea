@@ -13,12 +13,12 @@ CPP=cpp -E -P
 #CPP=cc --traditional-cpp -E -P -x c (repported to work on MacOsX by Georg)
 ############### End of configuration parameters
 SUF=
-#DIR=/usr/bin/
+DIR=
 HEVEA=./hevea.$(TARGET)
 ESPONJA=./esponja.$(TARGET)
 OCAMLC=${DIR}ocamlc$(SUF)
-OCAMLFLAGS=-w E
-OCAMLCI=${DIR}ocamlc$(SUF)
+OCAMLFLAGS=
+OCAMLCI=$(OCAMLC)
 OCAMLOPT=${DIR}ocamlopt$(SUF)
 OCAMLLEX=${DIR}ocamllex$(SUF)
 INSTALL=cp

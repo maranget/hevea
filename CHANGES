@@ -1,4 +1,5 @@
 version 1.06+1
+   - Added \lstnewenvironment  in package listings
    - Pb pour les delims de hauteur 1 : -> rescanner le delimiteur ! Pas le tps.
    - Bug in text manager : incorrect behavior \centering-like declarations.
      Solution make the align flags systematically stacked
