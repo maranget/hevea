@@ -11,8 +11,8 @@ ADVERTISMENT
     Exotic symbols are translated into symbols
     pertaining to the symbol font of the HTML browser, using the
     non-standard FACE attribute of the FONT tag.
-    This allows the translation to HTML of quite a lot of the symbols used in
-    LaTeX.
+    This allows the translation to HTML of quite a lot of the symbols
+    used in LaTeX.
 
     HEVEA understands LaTeX macro definitions. Simple user style
     files are understood with little or no modifications.
@@ -62,7 +62,7 @@ INSTALLATION
      * the netpbm image processing package.
        ftp://wuarchive.wustl.edu/graphics/graphics/packages/NetPBM
     However, these softwares are optionnal and hevea runs without them.
-    ocaml-1.07.tar.gz
+
 
 
 CONFIGURATION
