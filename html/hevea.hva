@@ -42,11 +42,13 @@
 \let\ahrefloc\@locref
 \let\aname\@locname
 \newcommand{\anchor}[1]{\@locname{#1}{}}
-%% Html footer and header
+%% Html footer, header and prefix for titles
 \newsavebox{\@htmlhead}
 \newsavebox{\@htmlfoot}
+\newsavebox{\@htmlprefix}
 \newcommand{\htmlhead}[1]{\sbox{\@htmlhead}{#1}}
 \newcommand{\htmlfoot}[1]{\sbox{\@htmlfoot}{#1}}
+\newcommand{\htmlprefix}[1]{\sbox{\@htmlprefix}{#1}}
 \AtEndDocument
 {{\@nostyle\@print{<!--HTMLFOOT-->
 }}%
@@ -205,6 +207,10 @@
 \usebox{\@htmlhead}%
 {\@nostyle\@print{<!--ENDHTML-->
 }}%
+\@printnostyle{<!--PREFIX }%
+\@hacha@arg{}{\usebox{\@htmlprefix}}%
+\@printnostyle{-->
+}%
 \usebox{\@toplinks}%
 \cutdef[\thecuttingdepth]{\cuttingunit}%
 }{%
