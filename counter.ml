@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: counter.ml,v 1.7 1999-05-21 15:54:15 maranget Exp $" 
+let header = "$Id: counter.ml,v 1.8 1999-08-17 13:26:31 maranget Exp $" 
 type t =
     {mutable count : int ;
     mutable within : t option ;
@@ -19,7 +19,7 @@ type t =
 let ctable = (Hashtbl.create 19 : (string,t) Hashtbl.t);;
 
 let unkown name where =
-  Parse_opts.warning ("Unknown counter: "^name^" in "^where)
+  Misc.warning ("Unknown counter: "^name^" in "^where)
 
 let find_counter name = Hashtbl.find ctable name
 

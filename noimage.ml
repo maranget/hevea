@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: noimage.ml,v 1.2 1999-06-18 13:25:11 maranget Exp $" 
+let header = "$Id: noimage.ml,v 1.3 1999-08-17 13:26:46 maranget Exp $" 
 let start () = ()
 ;;
 let put _ = ()
@@ -18,7 +18,7 @@ and put_char _ = ()
 
 let dump _ image lexbuf  = image lexbuf
 let page () =
-  Parse_opts.warning ("No image dumped") ;
+  Misc.warning ("No image dumped") ;
   "XXX"
 ;;
 let finalize () = ()

@@ -20,7 +20,7 @@ module type T =
 module Make (Dest : OutManager.S) =
 struct
 
-let header = "$Id: index.ml,v 1.28 1999-06-02 15:42:23 maranget Exp $"
+let header = "$Id: index.ml,v 1.29 1999-08-17 13:26:32 maranget Exp $"
 open Misc
 open Parse_opts
 open Entry
@@ -177,8 +177,8 @@ let newindex tag suf name =
         with
         | Entry.Fini -> []
         | NoGood arg -> begin
-             Parse_opts.warning
-              ("Warning, bad index arg syntax in file: "^filename^
+             Misc.warning
+              ("bad index arg syntax in file: "^filename^
                " arg is "^arg) ;
             bad_entry::do_rec ()
         end in
@@ -189,7 +189,7 @@ let newindex tag suf name =
         Yes (Array.of_list r)     
       with
       | Myfiles.Error msg -> begin
-          Parse_opts.warning
+          Misc.warning
             ("Index: "^msg^", I try to manage") ;
           No end
       | Myfiles.Except -> begin
@@ -231,7 +231,7 @@ let changename tag name =
     Hashtbl.remove itable tag ;
     Hashtbl.add itable tag (name,r1,r2,r3,r4)        
   with Not_found ->
-    Parse_opts.warning ("Index.changename of "^tag^": no such index")
+    Misc.warning ("Index.changename of "^tag^": no such index")
 
 
 let treat lexcheck tag arg refvalue =
@@ -260,12 +260,12 @@ let treat lexcheck tag arg refvalue =
       Hashtbl.add table key (label,refvalue,macro) ;
       all := add key !all
     end else 
-      Parse_opts.warning ("Warning, bad index arg syntax: "^arg) ;
+      Misc.warning ("Warning, bad index arg syntax: "^arg) ;
     count := !count + 1 ;
     if !verbose > 2 then
       prerr_endline ("Treat out: count="^string_of_int !count)
   with Not_found -> begin
-    Parse_opts.warning
+    Misc.warning
       ("Index: "^tag^" is undefined, makeindex or newindex is missing")
   end
 ;;

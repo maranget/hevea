@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: misc.ml,v 1.6 1999-08-16 08:10:14 maranget Exp $" 
+let header = "$Id: misc.ml,v 1.7 1999-08-17 13:26:45 maranget Exp $" 
 
 exception Fatal of string
 exception ScanError of string
@@ -23,3 +23,11 @@ and readverb = ref 0
 let silent = ref false
 
 let column_to_command s = "\\@"^s^"@"
+
+let warning s =
+  if not !silent || !verbose > 0 then begin
+    Location.print_pos () ;
+    prerr_string "Warning: " ;
+    prerr_endline s
+  end
+

@@ -9,6 +9,8 @@
 (*                                                                     *)
 (***********************************************************************)
 
+exception Fatal of string
+;;
 type fileOption = No | Yes of in_channel
 ;;
 val get_base : unit -> string

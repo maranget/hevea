@@ -44,7 +44,7 @@ open Tabular
 open Lexstate
 
 
-let header = "$Id: latexscan.mll,v 1.122 1999-08-16 08:10:10 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.123 1999-08-17 13:26:39 maranget Exp $" 
 
 
 let sbool = function
@@ -847,7 +847,7 @@ rule  main = parse
       {
        let lxm = lexeme lexbuf in
        let nlnum = count_newlines lxm in
-       if !withinLispComment
+       if !Lexstate.withinLispComment
        then begin
          if !verbose > 2 then prerr_endline "NL caught after LispComment" ;
          raise (Misc.EndOfLispComment nlnum) (* QNC *)

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmain.ml,v 1.44 1999-06-04 14:19:45 tessaud Exp $" 
+let header = "$Id: latexmain.ml,v 1.45 1999-08-17 13:26:34 maranget Exp $" 
 
 open Misc
 open Parse_opts
@@ -210,6 +210,11 @@ with
     Location.print_pos () ;
     prerr_endline
       ("Fatal error: "^s^"\n (if input is plain LaTeX, please report to Luc.Maranget@inria.fr)") ;
+    prerr_endline "Adios" ;
+    exit 2 
+|  Location.Fatal s ->
+    prerr_endline
+      ("Fatal location error: "^s^"\n (if input is plain LaTeX, please report to Luc.Maranget@inria.fr)") ;
     prerr_endline "Adios" ;
     exit 2 
 |  x ->

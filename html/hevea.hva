@@ -216,8 +216,8 @@
 \def\vdots{\ifdisplay\mbox{·\\·\\·}\else:\fi}
 \def\ddots{\ifdisplay\mbox{·~~\\~·~\\~~·}\else%
 \warning{\ddots in text}\mbox{ddots}\fi}
-\def\limits{}
-\def\nolimits{}
+\newcommand{\limits}{}
+\newcommand{\nolimits}{}
 \def\sim{\@print{~}}
 \def\simeq{\textunderline{\sim}}
 \newcommand{\textstackrel}[2]{#2^{#1}}

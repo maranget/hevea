@@ -21,7 +21,7 @@ module type T =
 module MakeFoot ( Dest : OutManager.S )=
 struct
 
-let header = "$Id: foot.ml,v 1.11 1999-06-02 15:42:20 maranget Exp $" 
+let header = "$Id: foot.ml,v 1.12 1999-08-17 13:26:31 maranget Exp $" 
 open Parse_opts
 (*open Dest*)
 
@@ -57,7 +57,7 @@ let register mark themark text =
   let anchor = get_anchor mark in
   begin try
     let _ = Hashtbl.find anchor_to_note anchor in    
-    Parse_opts.warning "erasing previous footnote" ;
+    Misc.warning "erasing previous footnote" ;
     Hashtbl.remove  anchor_to_note anchor
   with Not_found -> ()
   end ;

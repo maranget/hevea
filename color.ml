@@ -29,7 +29,7 @@ try
      let r,g,b = cmyk_to_rgb c m y k in
      "#"^to_hex r^to_hex g^to_hex b
  | _     ->
-     Parse_opts.warning ("Color.define, unknown color model "^mdl);
+     Misc.warning ("Color.define, unknown color model "^mdl);
      raise Failed in
   Hashtbl.add table clr htmlval
 with Failed -> ()
@@ -50,7 +50,7 @@ let retrieve clr =
   try
     Hashtbl.find table clr
   with Not_found ->
-    Parse_opts.warning ("Colors.retrieve, unknown color :"^clr);
+    Misc.warning ("Colors.retrieve, unknown color :"^clr);
     raise Failed
 ;;
 

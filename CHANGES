@@ -1,4 +1,6 @@
 version 1.05-1
+  - Small bug in optional arg parsing ('\n' before arg)
+  - Warning for \def with delimiting characters
   - Smal table of contents at file start (hacha modification).
   - Support for the \FRAME macro from Scientific Word.
   - For paragraph breaks -> empty lines may contain spaces.

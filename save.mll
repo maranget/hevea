@@ -12,7 +12,7 @@
 {
 open Lexing
 
-let header = "$Id: save.mll,v 1.34 1999-06-02 15:42:36 maranget Exp $" 
+let header = "$Id: save.mll,v 1.35 1999-08-17 13:26:47 maranget Exp $" 
 
 let verbose = ref 0 and silent = ref false
 ;;
@@ -72,7 +72,7 @@ rule opt = parse
    '['
         {put_echo_char '[' ;
         opt2 lexbuf}
-| ' '+  {put_echo (lexeme lexbuf) ; opt lexbuf}
+| ' '+ | '\n' + {put_echo (lexeme lexbuf) ; opt lexbuf}
 |  eof  {raise Eof}
 |  ""   {raise NoOpt}
 
@@ -98,8 +98,7 @@ and opt2 =  parse
       put_both_char s ; opt2 lexbuf }
 
 and arg = parse
-    ' '+   {put_echo (lexeme lexbuf) ; arg lexbuf}
-  | '\n'+  {put_echo (lexeme lexbuf) ; arg lexbuf}
+    ' '+ | '\n'+  {put_echo (lexeme lexbuf) ; arg lexbuf}
   | '{'
       {incr brace_nesting;
       put_echo_char '{' ;
@@ -254,10 +253,15 @@ and get_sub = parse
 | ""   {""}
 
 and defargs = parse 
-  '#' ['1'-'9'] | [^'#' '{']+
+  '#' ['1'-'9']
     {let lxm = lexeme lexbuf in
     put_echo lxm ;
     lxm::defargs lexbuf}
+| [^'#' '{']+
+    {Misc.warning
+        ("not implemented: \\def with delimiting characters: ``"
+         ^lexeme lexbuf^"''") ;
+    defargs lexbuf}
 | "" {[]}
 
 and tagout = parse

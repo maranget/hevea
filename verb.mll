@@ -152,7 +152,7 @@ let open_rawhtml lexbuf =
   begin match !Parse_opts.destination with
   | Parse_opts.Html -> rawhtml lexbuf 
   | _ -> begin
-      Parse_opts.warning "rawhtml detected";
+      Misc.warning "rawhtml detected";
       rawhtml lexbuf
   end;
   end

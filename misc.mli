@@ -19,3 +19,4 @@ val verbose : int ref
 val readverb : int ref
 val silent : bool ref
 val column_to_command : string -> string
+val warning : string -> unit

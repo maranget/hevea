@@ -3,7 +3,7 @@ open Misc
 open Lexing
 open Table
 
-let header = "$Id: tabular.mll,v 1.11 1999-05-25 15:52:15 tessaud Exp $"
+let header = "$Id: tabular.mll,v 1.12 1999-08-17 13:26:48 maranget Exp $"
 
 exception Error of string
 ;;
@@ -117,7 +117,7 @@ and tfmiddle = parse
     Table.apply out_table
       (function
         | Align f -> f.post <- post
-        | _ -> Parse_opts.warning ("``<'' after ``@'' in tabular arg scanning"))}
+        | _ -> Misc.warning ("``<'' after ``@'' in tabular arg scanning"))}
 | eof {()}
 | ""
   {let rest =

@@ -22,7 +22,6 @@ val width : int ref
 val read_idx : bool ref
 val except : string list ref
 val path : string list ref
-val warning : string -> unit
 
 val styles : string list
 val base_in : string
