@@ -12,7 +12,7 @@
 {
 open Lexing
 
-let header = "$Id: save.mll,v 1.19 1998-10-12 17:22:15 maranget Exp $" 
+let header = "$Id: save.mll,v 1.20 1998-10-13 09:09:27 maranget Exp $" 
 
 let verbose = ref 0 and silent = ref false
 ;;
@@ -80,10 +80,17 @@ and arg = parse
   | "`\\" [^'A'-'Z' 'a'-'z']
       {lexeme lexbuf}
   | '\\' ((['A'-'Z' 'a'-'z']+ '*'?) | [^ 'A'-'Z' 'a'-'z'])
-            {lexeme lexbuf}
+        {let r = lexeme lexbuf in
+	skip_blanks lexbuf ; r}
   | [^ '}'] {String.make 1 (lexeme_char lexbuf 0)}
   | eof    {raise (BadParse "EOF")}
   | ""     {raise (BadParse "Empty Arg")}
+and skip_blanks = parse
+  ' '+ {skip_blanks lexbuf}
+| '\n' {more_skip_blanks lexbuf}
+| ""   {()}
+and more_skip_blanks = parse
+  ' '* {()}
 
 and sarg = parse
   [^'{'] {lexeme lexbuf}
@@ -218,10 +225,6 @@ and tformat = parse
     Inside inside::tformat lexbuf}
 | _   {tformat lexbuf}
 | eof {[]}
-
-and skip_blanks = parse 
-  [' ']* '\n'? [' ']* {()}
-| eof {()}
 
 and skip_equal = parse
   ' '* '=' ' '* {()}

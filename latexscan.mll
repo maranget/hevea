@@ -17,7 +17,7 @@ open Latexmacros
 open Html
 open Save
 
-let header = "$Id: latexscan.mll,v 1.46 1998-10-12 17:22:13 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.47 1998-10-13 09:09:25 maranget Exp $" 
 
 let push s e = s := e:: !s
 and pop s = match !s with
@@ -2038,10 +2038,58 @@ and image = parse
 |  "\\end" ' '* "{toimage}"
      {Image.put_char '\n' ; Image.close_image  () ;
      skip_blanks lexbuf ; main lexbuf}
+(* Substitution in image *)
+| '#' ['1'-'9']
+    {let lxm = lexeme lexbuf in
+    let i = Char.code (lxm.[1]) - Char.code '1' in
+    if i >= Array.length !stack then
+      raise (Failure "Top level argument in image");
+    let arg = !stack.(i) in
+    if !verbose > 2 then
+      prerr_endline ("Subst arg: ``"^arg^"''");
+    let old_args = !stack in
+    stack := pop stack_stack ;
+    if !verbose > 2 then
+      prerr_args !stack;
+    scan_this image arg ;
+    push stack_stack !stack ;
+    stack := old_args ;
+    image lexbuf}
+(* Definitions of  simple macros *)
+| "\\def" | "\\gdef"
+   {let lxm = lexeme lexbuf in
+   let name = Save.csname lexbuf in
+   let args_pat = defargs lexbuf in
+   let body = save_arg lexbuf in
+   Image.put
+     (lxm^name^
+     (List.fold_right (fun s r -> s^r) args_pat ("{"^body^"}\n"))) ;
+   image lexbuf}
+| "\\renewcommand" | "\\newcommand" | "\\providecommand"
+  {let lxm = lexeme lexbuf in
+  let name = Save.csname lexbuf in
+  let nargs = parse_args_opt ["0" ; ""] lexbuf in
+  let body = Save.arg lexbuf in
+  Image.put
+    (lxm^"{"^name^"}"^unparse_args nargs [body]^"\n") ;
+  image lexbuf}
+| "\\newenvironment" | "\\renewenvironment"
+   {let lxm = lexeme lexbuf in
+   let name = save_arg lexbuf in
+   let nargs = parse_quote_arg_opt "0" lexbuf in
+   let optdef = parse_quote_arg_opt "" lexbuf in
+   let body1 = save_arg lexbuf in
+   let body2 = save_arg lexbuf in
+   Image.put
+     (lxm^
+     unparse_args [] [name]^
+     unparse_args [nargs;optdef] [body1;body2]) ;
+   image lexbuf}
 | _
      {let s = lexeme lexbuf in
      Image.put s ;
      image lexbuf}
+| eof {()}
 
 and mbox_arg = parse
   ' '+ {mbox_arg lexbuf}

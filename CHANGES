@@ -1,4 +1,5 @@
 version 1.02-1
+  - macros arguments are now substituted inside ``toimage'' environments
   - Small cosmetic changes in paragraph breaks inside nested lists.
   - Corrected bug in the onteraction of \left... \right and \over
   - added \includonly
