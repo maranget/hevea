@@ -1835,7 +1835,7 @@ should reduce to some kind of label.
 \end{description}
 
 The \verb+\anchor+ command is an alternative to the \verb+\label+ command for
-inserting hyperlinks targets.
+inserting hyper-links targets.
 
 The \verb+\imgsrc+ command is more useful.
 It becomes handy when one has images both in Postscript and GIF format.
@@ -2026,7 +2026,7 @@ To translate into text, invoke \hevea{} as follow:
 Then, \hevea{} produces \texttt{myfiles.txt} a plain text translation
 of \texttt{myfile.tex}.
 
-Additionnally, the optional argument \texttt{-w <number>} sets the
+Additionally, the optional argument \texttt{-w <number>} sets the
 width of the output for text formatting. By default, The text will be
 72~characters wide.
 
@@ -2045,7 +2045,7 @@ Thus for instance, it is possible to get vertical lines between some
 columns only.
 Table rendering can be poor in case of line overflow.
 The only way to correct this (apart from changing the tables
-themselves) is to ajust the formatting width, using the
+themselves) is to adjust the formatting width, using the
 the \texttt{-w} command line option.
 
 For now, maths are not supported at all in text mode. You can get very weird
@@ -2057,7 +2057,7 @@ yield something like : \verb+int01f(x)dx+.
 
 \subsection{Info}
 The file format info is also supported.
-Please note that \hevea{} translatex plain \LaTeX{} to info, and not
+Please note that \hevea{} translates plain \LaTeX{} to info, and not
 TeXinfo. This enables producing postscript,
 \html, and info manuals from one (\LaTeX) input file.
 
@@ -2068,7 +2068,7 @@ You can translate your \LaTeX{} files into info file(s) as follows:
 Then, \hevea{} produces the file \texttt{myfile.info}, an info
 translation of \texttt{myfile.tex}.
 However, if the resulting  file is too large, it is cut into pieces
-automatocally,
+automatically,
 and \texttt{myinfo.info} now contains references for all
 the nodes in the others files, which are named \texttt{myfile.info-1},
 \texttt{myfile.info-2},\ldots
@@ -2077,18 +2077,18 @@ You then can read your info files using emacs info mode or the
 info program.
 
 
-The optionnal argument \verb+-w+ has the same meaning as for text output.
+The optional argument \verb+-w+ has the same meaning as for text output.
 
 The text will be organized in nodes that follow
-the pattern of \LaTeX{} sectionning
+the pattern of \LaTeX{} sectioning
 commands. Menus are created to navigate through the sections easily
 
 A table of content is produced automatically.
 References, indexes and footnotes are supported, as they are in
 \html{}~mode.
 However, the info format only allows pointers to info nodes,
-i.e., in \hevea{} case, to sectionnal units.
-As a consequence all cross references lead to sectionnal unit headers.
+i.e., in \hevea{} case, to sectional units.
+As a consequence all cross references lead to sectional unit headers.
 
 
 \setcounter{section}{0}
@@ -2190,7 +2190,7 @@ Document structure is a bit simplified with respect to \LaTeX{}, since
 documents consist of only two parts.
 The \emph{preamble} starts as soon as \hevea{} starts to operate and
 ends with the \verb+\begin{document}+ construct.
-Then, any input occuring before
+Then, any input occurring before
 \verb+\end{document}+ is translated to \html{}.
 However, the preamble is processed
 and the preamble comprises the content of the files given as command line
@@ -2212,7 +2212,7 @@ following declaration occurs before \verb+\begin{document}+:
 \renewcommand{\@bodyargs}{TEXT=black BGCOLOR=white}
 \end{verbatim}
 
-\label{exlet}Similarily, some elements can be inserted into the output file
+\label{exlet}Similarly, some elements can be inserted into the output file
 \verb+HEAD+ element by redefining the \verb+\@meta+ command
 (Such elements typically are \verb+META+, \verb+LINK+, etc.).
 As such text is pure \html{}, it should be included in a
@@ -2331,7 +2331,7 @@ The non-starred sectioning commands from \verb+\part+ down to
 \verb+\subsubsection+ show section numbers in sectional unit headings,
 provided their \textit{level} is greater than or equal to the current
 value of the \verb+secnumdepth+ counter.
-Sectinal unit levels and the default value of the \verb+secnumdepth+ counter
+Sectional unit levels and the default value of the \verb+secnumdepth+ counter
 are the same as in \LaTeX{}.
 Furthermore, given a sectional unit {\it secname}, the
 counter {\it secname} exists and the appearance of sectional units
@@ -2417,10 +2417,10 @@ environments translate to the \verb+UL+, \verb+OL+, and
 \verb+DL+ elements and this is the whole story.
 
 As a consequence, no control is allowed on the appearances of these
-environments.  More precisely optional arguements to \verb+\item+ are
+environments.  More precisely optional arguments to \verb+\item+ are
 ignored inside \verb+itemize+ and \verb+enumerate+.  Moreover, item
 labels inside \verb+itemize+ or numbering style inside \verb+enumerate+
-are browser dependant.
+are browser dependent.
 
 However, customized lists can be produced by using the
 the \texttt{list} environment (see next section).
@@ -2538,7 +2538,7 @@ simple subscript and superscript are rendered using the \verb+SUB+
 and \verb+SUP+ text-level elements and their appearance should be correct
 both in in-text and displayed  formulas.
 
-When occuring outside math mode, characters \verb+_+ and \verb+^+ act as
+When occurring outside math mode, characters \verb+_+ and \verb+^+ act as
 ordinary characters and get echoed to the output. However, a warning
 is issued.
 
@@ -2646,7 +2646,7 @@ we get
 $$\tilde{v} \cdot \vec{U}$$ in display mode.
 }\fi
 Of course, such a trick probably requires looking closely at \html{}
-output to check wether the document is still understandable or not.
+output to check whether the document is still understandable or not.
 It may be better to stay with a poorly formatted document that remains
 closer to universally understood  notations for mathematics.
 
@@ -2898,7 +2898,7 @@ to \verb+\hline+.
 \item Similarly the command
 \verb+\extracolsep+ issues a warning and ignores its argument.
 \end{itemize}
-Additionnaly, the \verb+tabular*+ environment is
+Additionally, the \verb+tabular*+ environment is
 recognized and gets renderered as an \html{} table with an advisory
 width attribute.
 
@@ -3230,7 +3230,7 @@ echoed to the \textit{image} file by the companion script
 \texttt{imagen}.
 See section~\ref{substimage} and the whole section~\ref{imagen} for
 details. See also section~\ref{imgsrc} for another technique, which is
-more adequate when included Postcript images were bitmap images in the first
+more adequate when included Postscript images were bitmap images in the first
 place.
 
 
@@ -3391,7 +3391,7 @@ If one strictly follows the \LaTeX{} manual, only commands with no
 arguments can be defined inside other commands.
 Parameters (i.e., \verb+#+\textit{n}) occurring inside command bodies
 refer to the outer definition, even when they appear in nested
-command defitions.
+command definitions.
 That is, the following source:
 \begin{verbatim}
 \newcommand{\outercom}[1]{\newcommand{\insidecom}{#1}\insidecom}
@@ -3586,7 +3586,7 @@ the \texttt{.hva} files from VideoC distribution.
 \section{Extra Style Files}
 The \hevea{} distribution includes a few ``\texttt{.hva}'' files that
 are not loaded by default. Thus, these files are to be loaded
-explicitely either by giving them as command line arguments or as
+explicitly either by giving them as command line arguments or as
 arguments to the \verb+\input+ command.
 
 \subsection{Accents in maths}
@@ -3595,12 +3595,12 @@ default typesetting of the math
 accents commands
 (\verb+\hat+, \verb+\tilde+,\ldots), see Section~\ref{mathaccents}.
 
-\subsection{AMS compatibilty}
+\subsection{AMS compatibility}
 This \texttt{ams.hva} style file defines some of the constructs of the
 \texttt{amstex} package.  At the moment, supported constructs are
 the \verb+cases+ environment and matrix
 environments~\cite[Section~8.4]{latexbis}, the
-environments for multiline displayed
+environments for multi-line displayed
 equations (\verb+gather+,
 \verb+split+,\ldots)~\cite[Section~8.5]{latexbis} and the
 \verb+\numberwithin+ command~\cite[Section~8.6.2]{latexbis}.
@@ -3610,7 +3610,7 @@ equations (\verb+gather+,
 The \texttt{multind.hva} style files provides compatibility with the
 \texttt{multind} package for multiple indexes.
 When a document loads the \texttt{multind} package, \hevea{} should
-explicitely load the  \texttt{multind.hva} file.
+explicitly load the  \texttt{multind.hva} file.
 Loading this file redefines the \verb+\makeindex+, \verb+\printindex+
 and \verb+\index+ commands, so that they accept an extra (mandatory) first
 argument, which is interpreted as the tag of a particular index.
@@ -3734,7 +3734,7 @@ whose name is \textit{filename}. Note that this option applies to all
 files, including \texttt{hevea.hva} and base style files.
 \item[{\tt -idx}] Read the \textit{name}\texttt{.idx} file, where
 \textit{name} is the input base name. This is useful when this
-file is modified after beeing generated by \LaTeX{} (See,
+file is modified after being generated by \LaTeX{} (See,
 sections~\ref{files} and~\ref{index}).
 \item[{\tt -francais}] Set French mode.
 This has three consequences:
@@ -4077,7 +4077,7 @@ at:
 \end{center}
 
 \section{Acknowledgements}
-The following people contributed to \hevea{} developement:
+The following people contributed to \hevea{} development:
 \begin{itemize}
 \item Philip~A.Viton, maintains a
 \url{http://www.arch.ohio-state.edu/crp/faculty/pviton/support/hevea.html}{window
@@ -4093,6 +4093,8 @@ lexer with \hevea{} main lexer is now used extensively throughout
 \url{http://www.lifl.fr/\home{boulet}/softs/mldoc/index.html}{MlDoc}
 for documenting Objective Caml source code, forced me into debugging
 \hevea{} implementation of the \verb+alltt+ environment.
+\item Nicolas Tessaud implemented the \verb+-text+ and \verb+-info+
+output modes (see section~\ref{alternative}).
 \end{itemize}
 
 \begin{thebibliography}{xxxxxxxxxx}

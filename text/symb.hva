@@ -1,1 +1,10 @@
 \input{html/symb-text.hva}
+\newcommand{\sqrt}[2][!*!]{\ifthenelse{\equal{#1}{!*!}}%
+{\@symb{\char214}\@print{(}%
+#2\@print{)}%
+}{#1%
+\@symb{\char214}%
+%\@print{(}%
+#2%
+%\@print{)}%
+}}

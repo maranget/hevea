@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlMath.ml,v 1.4 1999-06-22 14:51:30 tessaud Exp $" 
+let header = "$Id: htmlMath.ml,v 1.5 1999-07-05 17:13:36 maranget Exp $" 
 
 
 open Misc
@@ -474,7 +474,7 @@ let put_sup_sub tag scanner = function
   "" -> ()
 | s  ->
     open_group tag ;
-    open_script_font () ;
+    if not !pedantic then open_script_font () ;
     scanner s;
     close_group ()
 ;;

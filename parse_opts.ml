@@ -11,7 +11,7 @@
 
 open Misc
 
-let header = "$Id: parse_opts.ml,v 1.15 1999-06-04 14:19:54 tessaud Exp $" 
+let header = "$Id: parse_opts.ml,v 1.16 1999-07-05 17:13:39 maranget Exp $" 
 
 
 let files = ref []
@@ -65,17 +65,17 @@ let _ = Arg.parse
      ("-nosymb",Arg.Unit (fun () -> symbols := false),
        ", do not output symbol fonts") ;
      ("-noiso",Arg.Unit (fun () -> iso := false),
-       ", do not output iso characters above 127") ;
+       ", use HTML entities in place of isolatin1 non-ascii characters") ;
      ("-pedantic",Arg.Unit (fun () -> pedantic := true),
-       ", be pedantic in interpreting HTML 3.2 definition") ;
+       ", be pedantic in interpreting HTML 4.0 transitional definition") ;
      ("-I", Arg.String (fun s -> path := s :: !path),
        "dir, add directory ``dir'' to search path") ;
      ("-mathml",Arg.Unit (fun() -> mathml := true),
-       ", produces MathML output for equations");
+       ", produces MathML output for equations, very experimental");
      ("-text",Arg.Unit (fun () -> symbols := false; destination := Text),
-       ", output as plain text");
+       ", output plain text");
      ("-info",Arg.Unit (fun () -> symbols := false; destination := Info),
-       ", output as an info file");
+       ", outputinfo file(s)");
      ("-w", Arg.String (fun s -> width := int_of_string s),
       "width, set the output width for text or info output");
      ("-o", Arg.String (fun s -> outname := s),
