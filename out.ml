@@ -9,13 +9,14 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: out.ml,v 1.15 1999-10-13 08:21:25 maranget Exp $" 
+let header = "$Id: out.ml,v 1.16 2000-05-31 12:22:03 maranget Exp $" 
 let verbose = ref 0
 ;;
 
 type buff = {
   mutable buff : string;
   mutable bp : int;
+  mutable len : int
 }
 ;;
 
@@ -23,7 +24,7 @@ type t = Buff of buff | Chan of out_channel | Null
 ;;
 
 
-let create_buff () = Buff {buff = String.create 128 ; bp = 0}
+let create_buff () = Buff {buff = String.create 128 ; bp = 0 ; len = 128}
 and create_chan chan = Chan chan
 and create_null () = Null
 and is_null  = function
@@ -41,16 +42,18 @@ let reset = function
 ;;
 
 let realloc out =
-  let new_b = String.create (2*String.length out.buff) in
+  let new_len = 2 * out.len in
+  let new_b = String.create new_len in
   String.blit out.buff 0 new_b 0 out.bp ;
-  out.buff <- new_b
+  out.buff <- new_b ;
+  out.len  <-  new_len
 ;;
 
 let rec put out s = match out with
   (Buff out) as b ->
     let l = String.length s in
-    if out.bp + l < String.length out.buff then begin
-      String.blit s 0 out.buff out.bp l ;
+    if out.bp + l < out.len then begin
+      String.unsafe_blit s 0 out.buff out.bp l ;
       out.bp <- out.bp + l
     end else begin
       realloc out ;
@@ -62,15 +65,14 @@ let rec put out s = match out with
 
 let rec put_char out c = match out with
   Buff out as b ->
-    if out.bp + 1 < String.length out.buff then begin
-      String.set out.buff out.bp c ;
+    if out.bp + 1 < out.len then begin
+      String.unsafe_set out.buff out.bp c ;
       out.bp <- out.bp + 1
     end else begin
       realloc out ;
       put_char b c
     end
-| Chan chan ->
-   output_char chan c
+| Chan chan -> Pervasives.output_char chan c
 | Null -> ()
 ;;
 
@@ -115,10 +117,10 @@ let debug chan out = match out with
 let hidden_copy from to_buf i l = match to_buf with
   Chan chan -> output chan from.buff i l
 | Buff out   ->
-    while out.bp + l >= String.length out.buff do
+    while out.bp + l >= out.len do
       realloc out
     done ;
-    String.blit from.buff i out.buff out.bp l ;
+    String.unsafe_blit from.buff i out.buff out.bp l ;
     out.bp <- out.bp + l
 | Null -> ()
 ;;

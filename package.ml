@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.19 2000-05-30 19:00:20 maranget Exp $    *)
+(*  $Id: package.ml,v 1.20 2000-05-31 12:22:03 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -76,13 +76,6 @@ def_code "\\@newlabel"
     let name = get_prim_arg lexbuf in
     let arg = get_prim_arg lexbuf in
     Auxx.rset name arg)
-;;
-
-def_code "\\@fst"
-  (fun lexbuf ->
-    let arg = Subst.subst_arg lexbuf in
-    let fst_arg = Save.arg (Lexing.from_string arg) in
-    scan_this main fst_arg)
 ;;
 
 let do_call lexbuf =

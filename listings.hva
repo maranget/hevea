@@ -87,9 +87,7 @@
 \newcommand{\lst@definelanguage@}[3]
   {\def\csname\lst@mklang[#2]{#1}\endcsname{\lstset{#3}}}
 \newcommand{\lst@derivelanguage@}[5]
-  {\def\csname\lst@mklang[#2]{#1}\endcsname
-     {\csname\lst@mklang[#4]{#3}\endcsname%
-     \lstset{#5}}}
+  {\def\csname\lst@mklang[#2]{#1}\endcsname{\csname\lst@mklang[#4]{#3}\endcsname\lstset{#5}}}
 %%%%%%% Indentation
 \define@key{lst}{indent}[1]{\def\lst@doindent{\hspace{#1}}}
 \newcommand{\lst@doindent}{}

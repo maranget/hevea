@@ -16,18 +16,46 @@
 \newcommand{\[}{$$}\newcommand{\]}{$$}
 \newcommand{\sp}[1]{^{#1}}\newcommand{\sb}[1]{_{#1}}
 \newcommand{\ensuremath}[1]{\ifmmode#1\else\(#1\)\fi}
-\newcommand{\eqno}[1]{\quad\quad#1}
+\newcommand{\@edm@act}{}
+\newenvironment{ensuredisplaymath}
+  {\ifdisplay\ifmmode\def\@edm@act{NO}\else\let\@edm@act\relax\fi\else\let\@edm@act\relax\fi%
+  \ifx\@edm@act\relax$$\fi}
+  {\ifx\@edm@act\relax$$\fi}
+%%% Arrays
+\newenvironment{array}
+  {\let\\=\@HEVEA@bsbs\let\@hevea@amper=\@HEVEA@amper\@array}
+  {\end@array}
+\newenvironment{tabular}
+  {\let\\=\@HEVEA@bsbs\let\@hevea@amper=\@HEVEA@amper\@tabular}
+  {\end@tabular}
+\newenvironment{tabular*}
+  {\let\\=\@HEVEA@bsbs\let\@hevea@amper=\@HEVEA@amper\@tabular*}
+  {\end@tabular*}
+%%% Equations
+\newcommand{\eqno}[1]{\qquad#1}
 \newenvironment{equation}{\[\refstepcounter{equation}}{\eqno{(\theequation)}\]}
 \newenvironment{eqnarray*}{$$\begin{array}{rcl}}{\end{array}$$}
 \newif\ifnumber\numbertrue
 \newcommand{\nonumber}{\numberfalse}
-\newcommand{\lefteqn}[1]{\multicolumn{3}{r}{#1~~\ifnumber\refstepcounter{equation}\eqno{(\theequation)}\else\eqno{~~~~~~~}\fi}}
+\newcounter{@eqna@col}
+\newcommand{\lefteqn}[1]{\begin{ensuredisplaymath}\raggedright#1\end{ensuredisplaymath}}
+\let\@HEVEA@lefteqn\lefteqn
 \newenvironment{eqnarray}
-{\[\def\@currentlabel{\theequation}%
-\warning{eqnarray}%
-\begin{array}
-{@{\numbertrue\stepcounter{equation}}rcl@{\ifnumber\eqno{(\theequation)}\else\addtocounter{equation}{-1}\fi}}}
-{\end{array}\]}
+{\@ifundefined{@eqna@inside}{\def\@eqna@inside{}}{\warning{Nested eqnarray}}%
+\[\def\@currentlabel{\theequation}%
+\setcounter{@eqna@col}{0}\numbertrue\stepcounter{equation}
+\let\@PBS=\@HEVEA@bsbs
+\let\@PAM=\@HEVEA@amper
+\renewcommand{\lefteqn}[1]{\let\lefteqn\@HEVEA@lefteqn\multicolumn{3-\value{@eqna@col}}{l}{\ifthenelse{\value{@eqna@col}=0}{\qquad}{}##1}\setcounter{@eqna@col}{2}}
+\newcommand{\@eqna@complete}
+  {\whiledo{\value{@eqna@col}<2}{&}}
+\renewcommand{\@hevea@amper}
+  {\ifthenelse{\value{@eqna@col}<2}
+    {\stepcounter{@eqna@col}\@PAM}
+    {\warning{Extra column in eqnarray}}}     
+\renewcommand{\\}[1][]{\@eqna@complete\@PAM\ifnumber\eqno{(\theequation)}\else\addtocounter{equation}{-1}\fi\setcounter{@eqna@col}{0}\numbertrue\stepcounter{equation}\@PBS}
+\@array{|rclr}}
+{\\{}\end@array\]}
 \def\mathrm#1{{\rm{}#1}}
 \def\mathtt#1{{\tt{}#1}}
 \def\mathit#1{{\it{}#1}}
@@ -39,13 +67,13 @@
 \def\textstyle{\ifmathml\@style{mtext}\fi}
 %%%%% Figures and tables
 \newcommand{\@figrule}{\begin{center}\@hr{.8\linewidth}{2pt}\end{center}}
-\newenvironment{figure}[1][]{%
-\@forcecommand{\caption}[1]{\par\refstepcounter{figure}\begin{center}Figure \thefigure\iffrench~\fi: ##1\end{center}\par}%
+\newenvironment{figure}[1][]
+{\@forcecommand{\caption}[1]{\par\refstepcounter{figure}\begin{center}Figure \thefigure\iffrench~\fi: ##1\end{center}\par}%
 \@open{BLOCKQUOTE}{}\@figrule}
 {\@figrule\@close{BLOCKQUOTE}}
 \newenvironment{figure*}[1][]{\begin{figure}[#1]}{\end{figure}}
-\newenvironment{table}[1][]{%
-\newcommand{\caption}[1]{\par\refstepcounter{table}\begin{center}Table \thetable\iffrench~\fi: ##1\end{center}\par}%
+\newenvironment{table}[1][]
+{\newcommand{\caption}[1]{\par\refstepcounter{table}\begin{center}Table \thetable\iffrench~\fi: ##1\end{center}\par}%
 \@open{BLOCKQUOTE}{}\@figrule%
 }{\@figrule\@close{BLOCKQUOTE}}
 \newenvironment{table*}[1][]{\begin{table}[#1]}{\end{table}}
@@ -204,9 +232,10 @@
 %%% References
 \newcommand{\@currentlabel}{}
 \newcommand{\refstepcounter}[1]
-  {\warning{refstep: #1}\let\@currentlabel\csname the#1\endcsname\stepcounter{#1}}
+  {\let\@currentlabel\csname the#1\endcsname\stepcounter{#1}}
 %%% Aux files
-\newcommand{\newlabel}[2]{\@newlabel{#1}{\@fst#2}}
+\newcommand{\@fst}[2]{#1}
+\newcommand{\newlabel}[2]{\@newlabel{#1}{\@funcall{\@fst}{#2}}}
 \newcommand{\@writefile}[2]{}
 \newcommand{\@setckpt}[2]{}
 \newcommand{\citation}[1]{}

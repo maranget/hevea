@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.175 2000-05-30 19:00:15 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.176 2000-05-31 12:21:58 maranget Exp $ *)
 
 
 {
@@ -895,16 +895,7 @@ rule  main = parse
 (* Definitions of  simple macros *)
 (* inside tables and array *)
   | [' ''\n']* "&"
-    {if !alltt || not (is_plain '&') then begin
-      let lxm = lexeme lexbuf in
-      for i = 0 to String.length lxm -1 do
-        Dest.put (Dest.iso lxm.[i])
-      done
-    end else if is_table !in_table  then begin
-      close_col main "&nbsp;"; 
-      open_col main
-    end ;
-    if not !alltt && is_plain '&' then skip_blanks_pop lexbuf ;
+    {expand_command main skip_blanks "\\@hevea@amper" lexbuf ;
     main lexbuf}
 (* Substitution  *)
   | '#' ['1'-'9']
@@ -1217,7 +1208,7 @@ and comment = parse
 
 and skip_comment = parse    
 |  [^ '\n']* '\n'
-   {if !verbose > 0 then
+   {if !verbose > 1 then
      prerr_endline ("Comment:"^lexeme lexbuf) ;
    if !flushing then Dest.flush_out () }
 | "" {raise (Misc.ScanError "Latex comment is not terminated")}
@@ -1365,8 +1356,6 @@ def_code "\\@hevea@excl"
      end else
        Dest.put_char '!')
 ;;
-
-
 
 let get_this_main arg = get_this_string main arg
 
@@ -1691,14 +1680,18 @@ let do_let global lxm lexbuf =
   Save.skip_equal lexbuf ;
   let alt = get_csname lexbuf in
   let real_args = Save.get_echo () in
-  let nargs,body = Latexmacros.find alt in
-  (if global then global_def else def)
+  try
+    let nargs,body = Latexmacros.find_fail alt in
+    (if global then global_def else def)
       name nargs body ;
-  if echo_toimage () || (global && echo_global_toimage ()) then begin
-    Image.put lxm ;
-    Image.put real_args ;
-    Image.put "\n"
-  end
+    if echo_toimage () || (global && echo_global_toimage ()) then begin
+      Image.put lxm ;
+      Image.put real_args ;
+      Image.put "\n"
+    end
+  with
+  | Failed ->
+      warning ("Not binding "^name^" with "^lxm^", command "^alt^" does not exist")
 ;;
 
 def_name_code "\\let" (do_let false) ;
@@ -2602,7 +2595,6 @@ def_code "\\endtabbing" close_tabbing
 ;;
 
 let open_array env lexbuf =
-
   save_array_state ();
   Tabular.border := false ;
   let len =  match env with
@@ -2638,9 +2630,9 @@ let open_array env lexbuf =
   skip_blanks_pop lexbuf
 ;;
 
-def_code "\\array" (open_array "array") ;
-def_code "\\tabular" (open_array "tabular") ;
-def_code "\\tabular*" (open_array "tabular*")
+def_code "\\@array" (open_array "array") ;
+def_code "\\@tabular" (open_array "tabular") ;
+def_code "\\@tabular*" (open_array "tabular*")
 ;;
 
 
@@ -2655,32 +2647,49 @@ let close_array env _ =
   if !display then Dest.item_display () ;
 ;;
 
-def_code "\\endarray" (close_array "array") ;
-def_code "\\endtabular" (close_array "tabular") ;
-def_code "\\endtabular*" (close_array "tabular*")
+def_code "\\end@array" (close_array "array") ;
+def_code "\\end@tabular" (close_array "tabular") ;
+def_code "\\end@tabular*" (close_array "tabular*")
 ;;
+  
 
+let do_amper lexbuf =
+  if !alltt || not (is_plain '&') then begin
+    let lxm = lexeme lexbuf in
+    for i = 0 to String.length lxm -1 do
+      Dest.put (Dest.iso lxm.[i])
+    done
+  end else if is_table !in_table  then begin
+    close_col main "&nbsp;"; 
+    open_col main
+  end ;
+  if not !alltt && is_plain '&' then skip_blanks_pop lexbuf
 
-def_code "\\\\"
- (fun lexbuf -> 
-   do_unskip () ;
-   skip_opt lexbuf ;
-   if is_table !in_table  then begin
-     close_col main "&nbsp;" ; close_row () ;
-     open_row () ; open_first_col main
-   end else if is_tabbing !in_table then begin
-     Dest.close_cell "";
-     Dest.close_row () ;
-     Dest.new_row () ;
-     Dest.open_cell default_format 1 0
-   end else begin
-     if !display then
-       warning "\\\\ in display mode, ignored"
-     else
-       Dest.skip_line ()
-   end ;
-   skip_blanks_pop lexbuf ;
-   let _ = Dest.forget_par () in ())
+and do_bsbs lexbuf =
+  do_unskip () ;
+  skip_opt lexbuf ;
+  if is_table !in_table  then begin
+    close_col main "&nbsp;" ; close_row () ;
+    open_row () ; open_first_col main
+  end else if is_tabbing !in_table then begin
+    Dest.close_cell "";
+    Dest.close_row () ;
+    Dest.new_row () ;
+    Dest.open_cell default_format 1 0
+  end else begin
+    if !display then
+      warning "\\\\ in display mode, ignored"
+    else
+      Dest.skip_line ()
+  end ;
+  skip_blanks_pop lexbuf ;
+  let _ = Dest.forget_par () in ()
+;;
+    
+def_code "\\@hevea@amper" do_amper ;
+def_code "\\\\"           do_bsbs  ;
+def_code "\\@HEVEA@amper" do_amper ;
+def_code "\\@HEVEA@bsbs"  do_bsbs  ; ()
 ;;
 
 

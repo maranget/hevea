@@ -125,7 +125,7 @@ let lst_output_other () =
     | Normal ->
         let arg = Out.to_string lst_buff in
         def_print "\@tmp@lst" arg ;
-        scan_this Scan.main ("{\lst@output@other{\@temp@lst}}")
+        scan_this Scan.main ("{\lst@output@other{\@tmp@lst}}")
     | _ ->
         dest_string (Out.to_string lst_buff)
   end
@@ -136,8 +136,8 @@ and lst_output_letter () =
     match !lst_top_mode with
     | Normal ->
         let arg = Out.to_string lst_buff in
-        def_print "\\@temp@lst" arg ;
-        scan_this Scan.main ("{\lst@output{\@temp@lst}}")
+        def_print "\\@tmp@lst" arg ;
+        scan_this Scan.main ("{\lst@output{\@tmp@lst}}")
     | _ ->
         dest_string (Out.to_string lst_buff)
   end

@@ -12,7 +12,7 @@
 {
 open Lexing
 
-let header = "$Id: save.mll,v 1.52 2000-05-23 18:00:55 maranget Exp $" 
+let header = "$Id: save.mll,v 1.53 2000-05-31 12:22:05 maranget Exp $" 
 
 let verbose = ref 0 and silent = ref false
 ;;
@@ -211,10 +211,14 @@ and arg2 = parse
       put_both s ; arg2 lexbuf }
 | eof
     {error "End of file in argument"}
+(*
+| [^'\\''{''}']+
+      {let c = lexeme lexbuf in
+      put_both c ; arg2 lexbuf }
+*)
 | _
-      {let c = lexeme_char lexbuf 0 in
-      put_both_char c ; arg2 lexbuf }
-
+    {let c = lexeme_char lexbuf 0 in
+    put_both_char c ; arg2 lexbuf}
 and csname = parse
   [' ''\n']+
     {(fun get_prim subst ->
