@@ -23,12 +23,6 @@ let prelude = ref true
 let flushing = ref false
 ;;
 
-let no_prelude () =
-  flushing := true ;
-  prelude := false ;
-  Html.forget_par () ;
-  Html.set_out !out_file
-;;
 
 let my_int_of_string s =
   try int_of_string s with
@@ -551,7 +545,7 @@ let error_env close_e open_e =
   raise (Failure (close_e^" closes : "^open_e))
 ;;
 
-let close_env env endaction lexfun lexbuf =
+let close_env env endaction  =
   endaction () ;
   if !verbose > 1 then begin
     Printf.fprintf stderr "End : %s <%d>" env !env_level ;
@@ -560,8 +554,7 @@ let close_env env endaction lexfun lexbuf =
   if env = !cur_env then begin  
     decr env_level ;
     if !verbose > 1 then prerr_endline "--" ;
-    cur_env := pop stack_env ;
-    lexfun lexbuf
+    cur_env := pop stack_env
   end else
     error_env env !cur_env
 ;;
@@ -670,6 +663,35 @@ let int_sup_sub main what sup sub =
   end
 ;;
 
+let input_file main filename =
+  try
+    let filename,input = Myfiles.open_tex filename in
+    if !verbose > 0 then
+      prerr_endline ("Input file: "^filename) ;
+    let buf = Lexing.from_channel input in
+    Location.set filename buf ;
+    new_env "*input" main buf ;
+    Location.restore () ;
+    close_env "*input" (fun () -> ())
+  with Not_found -> begin
+    if !verbose > 0 then
+      prerr_endline ("Not opening file: "^filename) ;
+    raise Not_found
+    end
+ | Myfiles.Error m -> begin
+     if !verbose > 0 then begin
+       Location.print_pos () ;
+       prerr_endline ("Warning: "^m) ;
+     end ;
+   end
+;;
+
+let no_prelude () =
+  flushing := true ;
+  prelude := false ;
+  Html.forget_par () ;
+  Html.set_out !out_file
+;;
 }
 
 rule  main = parse
@@ -692,6 +714,10 @@ rule  main = parse
     {let command = lexeme lexbuf in
     let opts = parse_args_opt [""] lexbuf in
     let arg =  Save.arg lexbuf in
+    begin try if not !Latexmacros.styleloaded then
+      input_file main (arg^".sty") with
+    Not_found -> prerr_endline "Warning: cannot read style file" end ;
+    Image.start () ;
     Image.put command ;
     Image.put (unparse_args opts [arg]) ;
     Image.put "\n" ;
@@ -704,38 +730,16 @@ rule  main = parse
     main lexbuf }
 | "\\input" | "\\include" | "\\bibliography"
      {let lxm = lexeme lexbuf in
-     let filename = Save.input_arg lexbuf in
-     if !verbose > 0 then
-      prerr_endline ("input file: "^filename) ;
+     let arg = Save.input_arg lexbuf in
      let filename =
        if lxm = "\\bibliography" then
          (Filename.chop_extension (Location.get ())^".bbl")
-       else filename in
-     try
-       let filename,input = Myfiles.open_tex filename in
-       let buf = Lexing.from_channel input in
-       Location.set filename buf ;
-       new_env "*input" main buf ;
-       Location.restore () ;
-       close_env "*input" (fun () -> ())
-         (fun b ->
-            if !verbose > 0 then
-              prerr_endline ("Closing file: "^filename) ;
-            main b)
-         lexbuf
-     with Not_found -> begin
-       if !verbose > 0 then
-         prerr_endline ("Not opening file: "^filename) ;
-         if !prelude then Image.put (lxm^"{"^filename^"}\n") ;
-         main lexbuf
-       end
-     | Myfiles.Error m -> begin
-         if !verbose > 0 then begin
-           Location.print_pos () ;
-           prerr_endline ("Warning: "^m) ;
-         end ;
-         main lexbuf
-     end}
+       else arg in
+     begin try input_file main filename
+     with Not_found ->
+       Image.put (lxm^"{"^arg^"}\n")
+     end ;
+     main lexbuf}   
 (* subscripts and superscripts *)
   | ('_' | '^')
      {let lxm = lexeme lexbuf in
@@ -775,8 +779,8 @@ rule  main = parse
                  close_center () ;
                  display := false)
              else if !display then close_display
-             else close_group)
-          main lexbuf
+             else close_group) ;
+         main lexbuf
      end else begin
        push stack_in_math !in_math ;
        in_math := true ;
@@ -906,7 +910,8 @@ rule  main = parse
    let _ = Html.flush () in
    Html.close_block "TABLE" ;
    in_table := pop stack_table ;
-   close_env "tabbing" (fun () -> ()) main lexbuf}
+   close_env "tabbing" (fun () -> ()) ;
+   main lexbuf}
  | [' ''\n']* ("\\>" | "\\=")  [' ''\n']*
     {if is_tabbing !in_table then begin
       Html.force_block "TD" "&nbsp;";
@@ -956,13 +961,11 @@ rule  main = parse
        in_table := pop stack_table ;
        cur_col := pop stack_col ;
        cur_format := pop stack_format ;
-       close_env env
-         item_display
-         main lexbuf
+       close_env env item_display
       end else begin
         error_env env !cur_env ;
-        main lexbuf
-      end}
+      end ;
+      main lexbuf}
   | "\\left"
       {if !display then begin
         end_item_display () ;
@@ -1075,8 +1078,8 @@ rule  main = parse
           if env = "alltt" then  begin
             alltt := false ;
             Html.close_block "PRE"
-          end else if env <> "document" then Html.close_group ())
-      main lexbuf}
+          end else if env <> "document" then Html.close_group ()) ;
+    main lexbuf}
 | ("\\prog" | "\\verb") _
    {let lxm = lexeme lexbuf in
    verb_delim := String.get lxm (String.length lxm-1) ;
@@ -1112,7 +1115,7 @@ rule  main = parse
       newif arg ;
       main lexbuf}
   | "\\else"  {skip_false lexbuf}
-  | "\\fi"    {main lexbuf}
+  | "\\fi"    {skip_blanks lexbuf ; main lexbuf}
 
 (* chars *)
   | "\\char"
@@ -1316,15 +1319,14 @@ rule  main = parse
       (fun () -> close_display () ; close_group () ; item_display ())
     else close_group in
     if env = !cur_env then
-      close_env env close_fun  main lexbuf
+      close_env env close_fun
     else if !cur_env = "*mbox" then begin
       in_math := pop stack_in_math ;
-      close_env
-        !cur_env close_fun main lexbuf
+      close_env !cur_env close_fun
     end else begin
-      error_env env !cur_env ;
-      main lexbuf
-    end}
+      error_env env !cur_env
+    end ;
+    main lexbuf}
 | eof
    {if !verbose > 1 then Printf.fprintf stderr "Eof\n" ; ()}
 | '\n'
@@ -1366,10 +1368,10 @@ and verbenv = parse
   "\\end" " " * "{" ['a'-'z'] + "}"
     {let lxm = lexeme lexbuf in
     let env = env_extract lxm in
-    if env = !cur_env then
-      close_env env (fun () -> Html.close_block "PRE")
-        main lexbuf
-    else begin
+    if env = !cur_env then begin
+      close_env env (fun () -> Html.close_block "PRE") ;
+      main lexbuf
+    end else begin
       Html.put lxm ;
       verbenv lexbuf
     end}
@@ -1393,7 +1395,8 @@ and inverb = parse
   {let c = lexeme_char lexbuf 0 in
   if c = !verb_delim then begin
     Html.close_group () ;
-    close_env "*verb" (fun () -> ())  main lexbuf
+    close_env "*verb" (fun () -> ()) ;
+    main lexbuf
   end else begin
     Html.put_char c ;
     inverb lexbuf
@@ -1467,14 +1470,14 @@ and skip_false = parse
 | "\\else" ['a'-'z' 'A'-'Z']+
      {skip_false lexbuf}
 | "\\else"
-     {if !if_level = 0 then main lexbuf
+     {if !if_level = 0 then (skip_blanks lexbuf ; main lexbuf)
      else skip_false lexbuf}
 | "\\fi" ['a'-'z' 'A'-'Z']+
      {skip_false lexbuf}
 | "\\fi"
-     {if !if_level = 0 then main lexbuf
+     {if !if_level = 0 then (skip_blanks lexbuf ; main lexbuf)
      else begin
        if_level := !if_level -1 ;
-       main lexbuf
+       skip_false lexbuf
      end}
 | _ {skip_false lexbuf}

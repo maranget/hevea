@@ -5,7 +5,7 @@ OBJSCUT=location.cmo out.cmo thread.cmo cross.cmo mylib.cmo cut.cmo cutmain.cmo
 
 OPTS=$(OBJS:.cmo=.cmx)
 
-all:  htmlgen htmlcut footer.html footer.bis.html
+all:  htmlgen htmlcut footer.bis.html
 opt: htmlgen.opt
 
 htmlgen: ${OBJS}

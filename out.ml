@@ -61,7 +61,7 @@ let to_string out = match out with
   Buff out ->
     let r = String.sub out.buff 0 out.bp in
     out.bp <- 0 ; r
-| _ -> failwith "to_string"
+| _ -> failwith "Out.to_string"
 ;;
 
 let to_chan chan out = match out with

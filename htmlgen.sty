@@ -1,7 +1,12 @@
 %%% not so serious
+\def\TeX{\@print{TeX}}
+\def\LaTeX{\@print{L<sup>a</sup>T<sub>e</sub>X}}
 \newcommand{\htmlgen}{{\sc\sf HtmlGen}}
 \newcommand{\htmlcut}{{\sc\sf HtmlCut}}
+\def\url#1#2{{\nostyle\@print{<A HREF="}#1\@print{">}}{#2}{\nostyle\@print{</A>}}}
 \def\home#1{\char126#1}
+\def\localurl#1{}
+\def\programindent#1{}
 %%% now serious
 \newenvironment{document}{%
 \@print{<HTML>
@@ -11,13 +16,15 @@
 \@print{</TITLE></HEAD>}%
 \@print{<BODY>
 }%
+\iffrench\@print{<!--FRENCH-->
+}\fi
 \cutdef{\@docpart}{\@docchapter}%
 }{%
 \@footnoteflush{document}%
 \@print{
 <!--FOOTER-->
 }%
-\@fromlib{footer.html}%
+\input{footer.tex}%
 \@print{</BODY>
 </HTML>
 }
@@ -70,6 +77,8 @@
   {rtcl@{\stepcounter{equation}\eqnno{(\theequation)}}}}{\end{array}$$}
 \newenvironment{displaymath}{$$}{$$}
 \def\hrule{\@print{<BR><HR><BR>}}
+\def\rule#1#2{\@print{<HR>
+}}%
 \def\cases#1{\left\{\begin{array}{ltl}#1\end{array}\right.}
 %%%%%%%%%%% Footnotes
 \newcommand{\footnoterule}{\@print{<HR ALIGN=left WIDTH=50%>
@@ -117,6 +126,7 @@
 \@footnotetext{\value{onefoot}}{#2}{\theanchornote}%
 }
 \newcommand{\thanks}[1]{\footnote{#1}}
+%%%%%% Symbols, spaces...
 \def\quad{~~~}
 \def\qquad{\quad\quad}
 \def\hfill{\qquad\qquad}
@@ -130,6 +140,17 @@
 \def\ldots{...}
 \def\dots{...}
 \def\cdots{...}
+\def\%{\@print{%}}
+\def\${\@print{$}}
+\def\#{\@print{#}}
+\def\/{}
+\def\&{\@print{&amp}}
+\def\_{\@print{_}}
+\def\
+{\@print{
+}}
+\def\backslash{\@print{\char92}}
+\def\neg{\@print{¬}}
 %%% A few additional symbol in iso-latin char set
 \def\P{¶}
 \def\copyright{©}
@@ -252,7 +273,9 @@
 \def\vec#1{vec(#1)}
 \def\pagebreak{}
 \def\nopagebreak{}
-\def\newbox#1{}
+\def\newpage{}
+\def\pagestyle#1{}
+\def\thispagestyle#1{}
 \def\newdimen#1{}
 \def\displaystyle{}
 \def\linebreak{}
@@ -261,6 +284,7 @@
 \def\emergencystretch#1{}
 %% Boxes
 %%% Boxes
+\def\newbox#1{}
 \def\fbox#1{\ifdisplay{\begin{array}{|c|}\hline#1\end{array}}\else{#1}\fi}
 \def\vbox#1{\hbox{#1}}
 \def\mbox#1{\hbox{#1}}

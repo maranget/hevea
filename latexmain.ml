@@ -69,7 +69,6 @@ let main () =
     let chan = match texfile with "" -> stdin | _ -> open_in texfile in
     let buf = Lexing.from_channel chan in
     Location.set texfile buf ;
-    Image.start () ;
     Latexscan.main buf ;
     Location.restore () ;
     finalize ()

@@ -25,7 +25,7 @@ let do_open_tex filename =
     List.iter (fun dir ->
       try
         let full_name = Filename.concat dir filename in
-        if !verbose > 0 then prerr_endline ("Trying: "^full_name) ;
+        if !verbose > 1 then prerr_endline ("Trying: "^full_name) ;
         let r = open_in full_name in
         raise (Found (full_name,r))
       with Sys_error _ -> ())
@@ -35,6 +35,8 @@ let do_open_tex filename =
 ;;
 
 let open_tex filename =
+  if !verbose > 1 then
+    prerr_endline ("Searching file: "^filename) ;
   if is_except filename then raise Not_found ;
   if Filename.is_implicit filename then
     try

@@ -22,6 +22,7 @@ and pop s = match !s with
 
 (* output globals *)
 type status = {
+  mutable nostyle : bool ;
   mutable pending : env list ;
   mutable active : env list ;
   mutable out : Out.t}
@@ -32,6 +33,7 @@ let free_list = ref []
 ;;
 
 let free out =
+  out.nostyle <- false ;
   out.pending <- [] ;
   out.active <- [] ;
   Out.reset out.out ;
@@ -40,17 +42,20 @@ let free out =
 
 
 
-let new_status pending active = match !free_list with
+let new_status nostyle pending active = match !free_list with
   [] ->
-   {pending = pending  ; active = active ; out = Out.create_buff ()}
+   {nostyle=nostyle ;
+   pending = pending  ; active = active ; out = Out.create_buff ()}
 | x::rest ->
    free_list := rest ;
+   x.nostyle <- nostyle ;
    x.pending <- pending ;
    x.active <- active ;
    x
 ;;
 
-let cur_out = ref {pending = [] ; active = [] ; out = Out.create_null ()}
+let cur_out = ref {nostyle=false ;
+pending = [] ; active = [] ; out = Out.create_null ()}
 ;;
 
 let pretty_mods mods =
@@ -345,7 +350,8 @@ let get_fontsize () =
   do_rec (!cur_out.pending @ !cur_out.active)
 ;;
      
-let open_mod  = function
+let open_mod  m =
+  if not !cur_out.nostyle then match m with
   Style "RM" ->
     let pending = perform_rm !cur_out.pending in
     if List.exists rm_erases  !cur_out.active then begin
@@ -354,6 +360,9 @@ let open_mod  = function
       !cur_out.pending <- active @ pending
     end else
       !cur_out.pending <- pending
+| Style "NO" ->
+  !cur_out.pending <- [] ;
+  !cur_out.nostyle <- true    
 | e ->
     if !verbose > 3 then
           prerr_endline ("open_mod: "^Latexmacros.pretty_env e) ;
@@ -582,6 +591,7 @@ and open_block s args =
  push_out out_stack (s,args,!cur_out) ;
  cur_out :=
    new_status
+   !cur_out.nostyle
    (if !in_pre then filter_pre cur_mods else cur_mods)
    [] ;
  try_open_block s args
@@ -696,7 +706,6 @@ let open_group ss =
 and close_group () = close_block ""
 ;;
 
-  
 let erase_block s =
   if !verbose > 1 then begin
     Printf.fprintf stderr "erase_block: %s" s;
@@ -844,7 +853,7 @@ let insert_vdisplay open_fun =
     let pps,ppargs,ppout = pop_out out_stack  in
     if pps <> "DISPLAY" then
       failwith ("insert_vdisplay: "^pps^" close DISPLAY");
-    let new_out = new_status [] [] in
+    let new_out = new_status false [] [] in
     push_out out_stack (pps,ppargs,new_out) ;
     push_out out_stack (ps,pargs,pout) ;
     close_display () ;

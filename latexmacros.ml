@@ -119,6 +119,7 @@ and in_math = ref false
 and alltt = ref false
 and french = ref (match !language with Francais -> true | _ -> false)
 and optarg = ref false
+and styleloaded = ref false
 ;;
 
 
@@ -138,6 +139,7 @@ let newif_ref name cell =
 newif_ref "display" display ;
 newif_ref "french" french ;
 newif_ref "optarg" optarg;
+newif_ref "styleloaded" styleloaded;
 def_macro ("\\iftrue") 0 [Test (ref true)];
 def_macro ("\\iffalse") 0 [Test (ref false)]
 ;;
@@ -153,6 +155,7 @@ let reg = ref "";;
 
 (* General LaTeX macros *)
 
+def_env "nostyle" [Env (Style "NO")] [];
 def_env "rm" [Env (Style "RM")] [];
 def_env "tt" [Env (Style "TT")] [];
 def_env "bf" [Env (Style  "B")] [];
@@ -204,13 +207,6 @@ def_macro "\\}" 0
   [IfCond (in_math,
      [Open ("","") ; Env (Style "RM") ; Print "}" ; Close ""],
      [Print "}"])] ;
-def_macro "\\%" 0 [Print "%"];
-def_macro "\\$" 0 [Print "$"];
-def_macro "\\#" 0 [Print "#"];
-def_macro "\\/" 0 [];
-def_macro "\\newpage" 0 [];
-def_macro "\\pagestyle" 1 [];
-def_macro "\\thispagestyle" 1 [];
 def_macro "\\ref" 1
   [Print "<A href=\"#"; Subst "\\@print{#1}" ; Print "\">" ;
    Print_fun (Aux.rget,0) ; Print "</A>"];
@@ -218,27 +214,19 @@ def_macro "\\pageref" 1 [Print "<A href=\"#"; Print_arg 0; Print "\">X</A>"];
 
 def_macro "\\@bibref" 1  [Print_fun (Aux.bget,0)] ;
 
-def_macro "\\&" 0 [Print "&amp;"];
-def_macro "\\_" 0 [Print "_"];
-def_macro "\\\n" 0 [Print " "];
-def_macro "\\backslash" 0 [Print "\\"];
-def_macro "\\neg" 0 [Print "\172"];
 let check_in = function
   "\\in" -> "\\notin"
 | "="    -> "\\neq"
 | "\\subset" -> "\\notsubset"
 | s      -> "\\neg"^s in
 def_macro "\\not" 1 [Print_fun (check_in,0)];
-def_macro_pat "\\makebox" (["" ; ""],[]) [Subst "\\hbox"] ;
-def_macro_pat "\\framebox" (["" ; ""],[]) [Subst "\\fbox"] ;
+def_macro_pat "\\makebox" (["" ; ""],["#1"]) [Subst "\\hbox{#1}"] ;
+def_macro_pat "\\framebox" (["" ; ""],["#1"]) [Subst "\\fbox{#1}"] ;
 
 let spaces = function
   ".5ex" -> ""
 | _      -> "~" in
 def_macro "\\hspace" 1 [Print_fun (spaces,0)];
-(* oddities *)
-def_macro "\\TeX" 0 [Print "TeX"] ;
-def_macro "\\LaTeX" 0 [Print "L<sup>a</sup>T<sub>e</sub>X"] ;
 def_macro "\\stackrel" 2
   [IfCond (display,
     [Subst "\\begin{array}{c}\\scriptsize #1\\\\ #2\\\\ ~ \\end{array}"],
@@ -249,8 +237,6 @@ def_macro "\\vdots" 0
      [ItemDisplay ; Subst "\\cdot" ; Br ;
      Subst "\\cdot" ; Br ; Subst "\\cdot" ;ItemDisplay],
      [Print ":"])];;
-def_macro "\\[" 0 [Subst "$$"];
-def_macro "\\]" 0 [Subst "$$"];
 def_macro "\\alpha" 0 [Print alpha];
 def_macro "\\beta" 0 [Print beta];
 def_macro "\\gamma" 0 [Print gamma];
@@ -436,7 +422,7 @@ let fnsymbol_of_int = function
 | 7 -> "**"
 | 8 -> "##"
 | 9 -> "%%"
-| i -> alpha_of_int i
+| i -> alpha_of_int (i-9)
 ;;
 
         
@@ -503,74 +489,6 @@ def_macro "\\Roman" 1 [Print_count (uproman_of_int,0)];
 def_macro "\\fnsymbol" 1 [Print_count (fnsymbol_of_int,0)];
 def_macro "\\uppercase" 1 [Print_fun (String.uppercase,0)];
 ();;
-
-(* Macros  specific to me *)
-def_macro "\\url" 2
-  [Print "<A HREF=\"" ; Print_arg 0 ; Print "\">" ;
-  Print_arg 1 ; Print "</A>"] ;
-def_macro "\\localurl" 1  [] ;
-def_macro "\\programindent" 1 [];
-def_macro "\\rule" 2 [Print "<HR>\n"] ;
-();;
-
-(* Macros specific to the Caml manual *)
-
-(*
-def_env "options" [Print "<p><dl>"] [Print "</dl>"];
-def_macro "\\var" 1 [Print "<i>"; Print_arg 0; Print "</i>"];
-def_macro "\\nth" 2 [Print "<i>"; Print_arg 0;
-                   Print "</i><sub>"; Print_arg 0; Print "</sub>"];
-def_macro "\\nmth" 1 [Print "<i>"; Print_arg 0; 
-                    Print "</i><sub>"; Print_arg 0;
-                    Print "</sub><sup>"; Print_arg 0;
-                    Print "</sup>"];
-def_env "unix" [Print "<dl><dt><b>Unix:</b><dd>"] [Print "</dl>"];
-def_macro "\\endmac" [Print "</dl>"];
-def_macro "windows" [Print "<dl><dt><b>Windows:</b><dd>"];
-def_macro "\\endwindows" [Print "</dl>"];
-def_macro "requirements" [Print "<dl><dt><b>Requirements:</b><dd>"];
-def_macro "\\endrequirements" [Print "</dl>"];
-def_macro "troubleshooting" [Print "<dl><dt><b>Troubleshooting:</b><dd>"];
-def_macro "\\endtroubleshooting" [Print "</dl>"];
-def_macro "installation" [Print "<dl><dt><b>Installation:</b><dd>"];
-def_macro "\\endinstallation" [Print "</dl>"];
-def_macro "\\index" [Skip_arg];
-def_macro "\\ikwd" [Skip_arg];
-def_macro "\\th" [Print "-th"];
-def_macro "library" [];
-def_macro "\\endlibrary" [];
-def_macro "comment" [Print "<dl><dd>"];
-def_macro "\\endcomment" [Print "</dl>"];
-def_macro "tableau"
-  [Skip_arg;
-   Print "<table border>\n<tr><th>";
-   Print_arg 0;
-   Print "</th><th>";
-   Print_arg 0;
-   Print "</th></tr>"];
-def_macro "\\entree"
-  [Print "<tr><td>"; Print_arg 0;
-   Print "</td><td>"; Print_arg 0; Print "</td></tr>"];
-def_macro "\\endtableau" [Print "</table>"];
-def_macro "gcrule" [Print "<dl><dt><b>Rule:</b><dd>"];
-def_macro "\\endgcrule" [Print "</dl>"];
-def_macro "tableauoperateurs"
-  [Print "<table border>\n<tr><th>Operator</th><th>Associated ident</th><th>Behavior in the default environment</th></tr>"];
-def_macro "\\endtableauoperateurs" [Print "</table>\n"];
-def_macro "\\entreeoperateur"
-  [Print "<tr><td>"; Print_arg 0; Print "</td><td>"; Print_arg 0;
-   Print "</td><td>"; Print_arg 0; Print "</td></tr>"];
-def_macro "\\fromoneto"
-  [Print "<i>"; Print_arg 0; Print "</i> = 1, ..., <i>";
-   Print_arg 0; Print "</i>"];
-def_macro "\\caml_example" 0 [Print "<pre>"];
-def_macro "\\endcaml_example"0 [Print "</pre>"];
-def_macro "\\rminalltt" 1 [Print_arg 0];
-()
-;;
-*)
-
-
 
 let invisible = function
   "\\pagebreak" -> true
