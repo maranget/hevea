@@ -1,0 +1,16 @@
+\def\sum{\mathop{\ifdisplay\@displaysum\else\@sum\fi}}
+\def\prod{\mathop{\ifdisplay\@displayprod\else\@prod\fi}}
+\def\coprod{\mathop{\ifdisplay\@displaycoprod\else\@coprod\fi}}
+\def\intop{\mathop{\ifdisplay\@displayint\else{\large\@int}\fi}}
+\def\int{\intop\intlimits}
+\def\ointop{\mathop{\ifdisplay\@displayoint\else{\large\@oint}\fi}}
+\def\oint{\ointop\intlimits}
+\def\bigcap{\mathop{{\ifdisplay\Huge\fi\cap}}}
+\def\bigcup{\mathop{{\ifdisplay\Huge\fi\cup}}}
+\def\bigvee{\mathop{{\ifdisplay\Huge\fi\vee}}}
+\def\bigwedge{\mathop{{\ifdisplay\Huge\fi\wedge}}}
+\def\bigsqcup{\mathop{{\ifdisplay\Huge\fi\sqcup}}}
+\def\bigodot{\mathop{{\ifdisplay\Huge\fi\odot}}}
+\def\bigoplus{\mathop{{\ifdisplay\Huge\fi\oplus}}}
+\def\biguplus{\mathop{{\ifdisplay\Huge\fi\uplus}}}
+\def\bigotimes{\mathop{{\ifdisplay\Huge\fi\otimes}}}
