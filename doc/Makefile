@@ -1,6 +1,6 @@
 LATEX=latex
 GPIC=gpic
-HEVEA=hevea.opt
+HEVEA=hevea
 HEVEAOPTS=
 HACHA=hacha
 IMAGEN=imagen
@@ -12,6 +12,10 @@ all: manual.dvi index.html
 opt:
 	export HEVEADIR=.. ;\
 	$(MAKE) $(MFLAGS) HEVEAOPTS="$(HEVEAOPTS)" HEVEA=hevea.opt HACHA=hacha.opt IMAGEN=imagen.opt all
+
+infoopt:
+	export HEVEADIR=.. ;\
+	$(MAKE) $(MFLAGS) HEVEAOPTS="$(HEVEAOPTS)" HEVEA=hevea.opt HACHA=hacha.opt IMAGEN=imagen.opt info
 
 byte:
 	export HEVEADIR=.. ;\

@@ -1,4 +1,4 @@
-let header =  "$Id: lexstate.ml,v 1.15 1999-05-21 14:47:00 maranget Exp $"
+let header =  "$Id: lexstate.ml,v 1.16 1999-05-25 15:52:13 tessaud Exp $"
 
 open Misc
 open Lexing
@@ -159,7 +159,7 @@ and scan_body exec body args =
     prerr_string "scan_body :" ;
     pretty_action body ;
     prerr_args () ;
-*)    
+*)
   let r = exec body in
   begin match body with
   | CamlCode _ -> ()

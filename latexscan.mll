@@ -44,7 +44,7 @@ open Tabular
 open Lexstate
 
 
-let header = "$Id: latexscan.mll,v 1.102 1999-05-21 18:12:02 tessaud Exp $" 
+let header = "$Id: latexscan.mll,v 1.103 1999-05-25 15:52:09 tessaud Exp $" 
 
 
 let sbool = function
@@ -2729,13 +2729,13 @@ def_fun "\\~"  tilde
 ;;
 
 Get.init
-   (fun nostyle s ->
-     do_get_this
-       (if nostyle then Dest.nostyle else (fun () -> ()))
-       main s)
-    macro_register new_env close_env ;
-Tabular.init (subst_this subst)
-;;
+      (fun nostyle s ->
+	do_get_this
+	  (if nostyle then Dest.nostyle else (fun () -> ()))
+	  main s)
+      macro_register new_env close_env;;
+      
+Tabular.init (subst_this subst);;
 
 
 end}

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.14 1999-05-24 13:27:28 maranget Exp $"
+let header = "$Id: text.ml,v 1.15 1999-05-25 15:52:16 tessaud Exp $"
 
 
 open Misc
@@ -252,19 +252,21 @@ let do_do_put  s =
 let do_put_line s =
   (* Ligne a formatter selon flags.align, avec les parametres courants.*)
   (* soulignage eventuel *)
+  let taille = String.length s in
+  let length = if s.[taille -1]='\n' then taille -1 else taille in
   let soul = ref false in
-  for i = 0 to String.length s - 2 do
-    soul :=!soul || s.[i] <> ' ';
+  for i = 0 to length - 1 do
+    soul := !soul || s.[i] <> ' ';
   done;
   soul := !soul && s<>"\n" && flags.underline <> "";
 
   let ligne = match flags.align with
   | Left -> s
   | Center ->
-      let sp = (flags.hsize - (String.length s -flags.x_start))/2 in
+      let sp = (flags.hsize - (length -flags.x_start))/2 in
       String.concat "" [String.make sp ' '; s]
   | Right ->
-      let sp = flags.hsize - String.length s + flags.x_start +1 in
+      let sp = flags.hsize - length + flags.x_start in
       String.concat "" [ String.make sp ' '; s]
   in
   if !verbose>3 then prerr_endline ("line :"^ligne);
@@ -273,22 +275,22 @@ let do_put_line s =
 
   if !soul then begin
     let souligne =
-      let l = String.make (String.length s) ' ' in
+      let l = String.make taille ' ' in
       let len = String.length flags.underline in
       if len = 0 then raise (Misc.Fatal ("cannot underline with nothing:#"^String.escaped flags.underline^"#"^(
 													       if  (flags.underline <> "") then "true" else "false"
 													       )));
-      for i = flags.x_start to String.length l -2 do
+      for i = flags.x_start to length -1 do
 	l.[i]<-flags.underline.[(i-flags.x_start) mod len]
       done;
-      l.[String.length l -1]<-'\n';
+      if taille <> length then l.[length]<-'\n';
       match flags.align with
       | Left -> l
       | Center ->
-	  let sp = (flags.hsize - String.length l)/2 -flags.x_start in
+	  let sp = (flags.hsize - length)/2 +flags.x_start/2 in
 	  String.concat "" [String.make sp ' '; l]
       | Right ->
-	  let sp = (flags.hsize - String.length l) - flags.x_start in
+	  let sp = (flags.hsize - length) + flags.x_start in
 	  String.concat "" [ String.make sp ' '; l]
     in
     if !verbose >3 then prerr_endline ("line underlined:"^souligne); 
@@ -298,8 +300,8 @@ let do_put_line s =
 ;;
 
 let do_flush () =
-  if !verbose>3 then prerr_endline ("flush :"^line);
-  if flags.x >=0 then do_put_line (String.sub line 0 (flags.x)) ;
+  if !verbose>3 && flags.x >0 then prerr_endline ("flush :#"^(String.sub line 0 (flags.x))^"#");
+  if flags.x >0 then do_put_line (String.sub line 0 (flags.x)) ;
   flags.x <- -1;
 ;;
   
@@ -1029,6 +1031,7 @@ let open_table border htmlargs =
   push cell_stack !cell;
   push in_table_stack flags.in_table;
   push multi_stack !multi;
+  push align_stack flags.align;
 
   if !verbose>2 then prerr_endline "=> open_table";
   
@@ -1120,7 +1123,7 @@ let open_cell format span insides =
 	  (match size with
 	    Some Length.Absolute l -> l
 	  | Some Length.Percent l -> l * !Parse_opts.width / 100
-	  | _-> !cell.wrap <- False; 0);
+	  | None -> !cell.wrap <- False; warning "cannot wrap column with no width"; 0);
   | _       ->  raise (Misc.Fatal ("as_align")) in
   !cell.span <- span - insides;
   if !table.col > 0 && !cell.span=1 then begin
@@ -1130,17 +1133,18 @@ let open_cell format span insides =
   !cell.post <- "";
   !cell.post_inside <- [];
   open_block "" "";
+  if !cell.w > String.length line then raise ( Error "Column too wide");
   if (!cell.wrap=True) then begin (* preparation de l'alignement *)
     !cur_out.temp <- false;
     flags.x_start <- 0;
-    flags.x_end <- !cell.w;
+    flags.x_end <- !cell.w-1;
     flags.hsize <- !cell.w;
     flags.first_line <- 0;
     flags.x <- -1;
-    flags.last_space <- 0;
+    flags.last_space <- -1;
     push align_stack flags.align;
     push in_align_stack flags.in_align;
-    flags.in_align <- false;
+    flags.in_align <- true;
     flags.align <- Left;
   end;
 ;;
@@ -1487,6 +1491,7 @@ let close_table () =
     done;
   done;
 
+  flags.align <- pop "align" align_stack;
   table := pop "table" table_stack;
   row := pop "row" row_stack;
   cell := pop "cell" cell_stack;

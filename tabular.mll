@@ -3,14 +3,14 @@ open Misc
 open Lexing
 open Table
 
-let header = "$Id: tabular.mll,v 1.10 1999-05-21 18:12:07 tessaud Exp $"
+let header = "$Id: tabular.mll,v 1.11 1999-05-25 15:52:15 tessaud Exp $"
 
 exception Error of string
 ;;
 
 let subst_this = ref (fun s -> s)
 
-let init latexsubst latexgetint =
+let init latexsubst (*latexgetint*) =
   subst_this := latexsubst ;
 
 type align =
@@ -51,11 +51,15 @@ let out_table = Table.create (Inside "")
 let scan_this lexfun s = lexfun (Lexing.from_string s)
 
 let pretty_format = function
-  |   Align {vert = v ; hor = h ; pre = pre ; post = post ; wrap = b}
+  |   Align {vert = v ; hor = h ; pre = pre ; post = post ; wrap = b ; width = w}
       ->
         ">{"^pre^"}"^
         "h="^h^" v="^v^
-        "<{"^post^"}"^(if b then " warp" else "")
+        "<{"^post^"}"^(if b then " wrap" else "")^
+	(match w with
+	| Some Length.Absolute l -> " w="^string_of_int l
+	| Some Length.Percent l -> " w="^string_of_int l^"%"
+	| None -> "")
   | Inside s -> "@{"^s^"}"
   | Border s -> s
 
@@ -86,7 +90,7 @@ and tfmiddle = parse
         pre = "" ;   post = post ; width = None})}
 | 'p'|'m'|'b'
   {let f = Lexing.lexeme_char lexbuf 0 in
-  let width = Save.arg lexbuf in
+  let width = !subst_this (Save.arg lexbuf) in
   let my_width =
     try Some (Length.main (Lexing.from_string width))
     with Length.No -> None in
