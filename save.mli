@@ -1,4 +1,5 @@
 exception Error of string
+exception Delim of string
 val set_verbose : bool -> int -> unit
 val seen_par : bool ref
 
@@ -24,3 +25,4 @@ val tagout : Lexing.lexbuf -> string
 val checklimits : Lexing.lexbuf -> bool
 val skip_delim : string -> Lexing.lexbuf -> unit
 val with_delim : string -> Lexing.lexbuf -> string
+val skip_blanks_init : Lexing.lexbuf -> unit

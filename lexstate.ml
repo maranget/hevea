@@ -1,4 +1,4 @@
-let header =  "$Id: lexstate.ml,v 1.20 1999-08-18 17:52:15 maranget Exp $"
+let header =  "$Id: lexstate.ml,v 1.21 1999-08-19 17:54:06 maranget Exp $"
 
 open Misc
 open Lexing
@@ -279,6 +279,30 @@ let save_arg lexbuf =
   arg
 ;;
 
+let save_arg_with_delim delim lexbuf =
+
+  let rec save_rec lexbuf =
+    try Save.with_delim delim lexbuf
+    with Save.Eof -> begin
+        if empty stack_lexbuf then
+          raise (Error "Eof while looking for argument");
+        let lexbuf = previous_lexbuf () in
+        if !verbose > 2 then begin
+          prerr_endline "popping stack_lexbuf in save_arg";
+          pretty_lexbuf lexbuf ;
+          prerr_args ()
+        end;
+        save_rec lexbuf end in
+
+  Save.seen_par := false ;
+  save_lexstate () ;
+  let arg = save_rec lexbuf in
+  restore_lexstate () ;
+  if !verbose > 2 then
+    prerr_endline ("Arg parsed: ``"^arg^"''") ;
+  arg
+;;
+
 type ok = No of string | Yes of string
 ;;
 
@@ -329,7 +353,7 @@ let rec parse_args_norm pat lexbuf = match pat with
     let r = parse_args_norm pat lexbuf in
      arg :: r
 | s :: ss :: pat when norm_arg s && not (norm_arg ss) ->
-    let arg = Save.with_delim ss lexbuf in
+    let arg = save_arg_with_delim ss lexbuf in
     arg :: parse_args_norm pat lexbuf
 | s :: pat when not (norm_arg s) ->
     Save.skip_delim s lexbuf ;
@@ -373,22 +397,34 @@ and save_opt def lexbuf =
 
 let parse_args (popt,pat) lexbuf =
   let opts =  parse_args_opt popt lexbuf in
+  begin match pat with
+  | s :: ss :: _ when norm_arg s && not (norm_arg ss) ->
+      Save.skip_blanks_init lexbuf
+  | _ -> ()
+  end ;
   let args =  parse_args_norm pat lexbuf in
   (opts,args)
 ;;
 
 let make_stack name pat lexbuf =
-  let (opts,args) = parse_args pat lexbuf in
-  let args = Array.of_list (List.map from_ok opts@args) in
-  if !verbose > 2 then begin
-    Printf.fprintf stderr "make_stack for macro: %s "  name ;
-    pretty_pat pat ;
-    prerr_endline "";
-    for i = 0 to Array.length args-1 do
-      Printf.fprintf stderr "\t#%d = %s\n" (i+1) args.(i)
-    done
-  end ;
-  args
+  try
+    let (opts,args) = parse_args pat lexbuf in
+    let args = Array.of_list (List.map from_ok opts@args) in
+    if !verbose > 2 then begin
+      Printf.fprintf stderr "make_stack for macro: %s "  name ;
+      pretty_pat pat ;
+      prerr_endline "";
+      for i = 0 to Array.length args-1 do
+        Printf.fprintf stderr "\t#%d = %s\n" (i+1) args.(i)
+      done
+    end ;
+    args
+  with Save.Delim delim ->
+    raise
+      (Error
+         ("Use of "^name^
+          " does not match its definition (delimiter: "^delim^")"))
+    
 ;;
 
 let scan_this lexfun s =

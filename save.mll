@@ -12,7 +12,7 @@
 {
 open Lexing
 
-let header = "$Id: save.mll,v 1.36 1999-08-18 17:52:17 maranget Exp $" 
+let header = "$Id: save.mll,v 1.37 1999-08-19 17:54:08 maranget Exp $" 
 
 let verbose = ref 0 and silent = ref false
 ;;
@@ -22,6 +22,8 @@ let set_verbose s v =
 ;;
 
 exception Error of string
+;;
+exception Delim of string
 ;;
 
 let seen_par = ref false
@@ -173,7 +175,8 @@ and arg2 = parse
 | "\\{" | "\\}" | "\\\\"
       {let s = lexeme lexbuf in
       put_both s ; arg2 lexbuf }
-| eof    {raise Eof}
+| eof
+    {raise (Error ("End of file in argument"))}
 | _
       {let c = lexeme_char lexbuf 0 in
       put_both_char c ; arg2 lexbuf }
@@ -197,6 +200,7 @@ and incsname = parse
 
 and cite_arg = parse
   ' '* '{'   {cite_args_bis lexbuf}
+| ""         {raise (Error ("No opening ``{''"))}
 
 and cite_args_bis = parse
   [^'}'' ''\n''%'',']* {let lxm = lexeme lexbuf in lxm::cite_args_bis lexbuf}
@@ -204,6 +208,7 @@ and cite_args_bis = parse
 | ','         {cite_args_bis lexbuf}
 | [' ''\n']+ {cite_args_bis lexbuf}
 | '}'         {[]}
+| ""          {raise (Error ("Bad syntax for \\cite argument"))}
 
 and macro_names = parse
   eof {[]}
@@ -253,17 +258,20 @@ and get_sub = parse
 | ""   {""}
 
 and defargs = parse 
-  '#' ['1'-'9']
+|  '#' ['1'-'9']
     {let lxm = lexeme lexbuf in
     put_echo lxm ;
     lxm::defargs lexbuf}
-| [^'#' '{']+
-    {let lxm = lexeme lexbuf in
-    Misc.warning
-        ("not implemented: \\def with delimiting characters: ``"
-         ^lexeme lexbuf^"''") ;
-    lxm :: defargs lexbuf}
+| [^'{'] | "\\{"
+    {put_both (lexeme lexbuf) ;
+    let r = in_defargs lexbuf in
+    r :: defargs lexbuf}
 | "" {[]}
+
+and in_defargs = parse
+| "\\{" | "\\#" {put_both (lexeme lexbuf) ; in_defargs lexbuf}
+| [^'{''#']     {put_both_char (lexeme_char lexbuf 0) ; in_defargs lexbuf}
+| ""            {Out.to_string arg_buff}
 
 and tagout = parse
   '<'  {intag lexbuf}
@@ -291,37 +299,43 @@ and checklimits = parse
 | "\\nolimits" {false}
 | ""           {false}
 
+and eat_delim_init = parse
+| eof {raise Eof}
+| ""  {eat_delim_rec lexbuf}
+
 and eat_delim_rec = parse
+| '{'
+  {fun delim next i ->
+    put_echo_char '{' ;
+    Out.put arg_buff (if i > 0 then String.sub delim 0 i else "") ;
+    Out.put_char arg_buff '{' ;
+    incr brace_nesting ;
+    let r = arg2 lexbuf in
+    Out.put arg_buff r ;
+    Out.put_char arg_buff '}' ;
+    eat_delim_rec lexbuf delim next 0}
 | _
   {let c = lexeme_char lexbuf 0 in
   put_echo_char c ;
+
   let rec kmp_char delim next i =
 
-    Printf.fprintf stderr "kmp_char %c %s %d" c delim i ;
-    prerr_endline "";
-
-    if c = delim.[i] then begin
-      if i+1 >= String.length delim then begin
-        Out.to_string arg_buff
-      end
-      else eat_delim_rec lexbuf delim next (i+1)
-    end else if i=0 then begin
+    if i < 0 then begin
       Out.put_char arg_buff c ;
-      if c = '{' then begin
-        incr brace_nesting ;
-        let r = arg2 lexbuf in
-        Out.put arg_buff r ;
-        Out.put_char arg_buff '}'
-      end ;
       eat_delim_rec lexbuf delim next 0
+    end else if c = delim.[i] then begin
+      if i >= String.length delim - 1 then
+        Out.to_string arg_buff
+      else
+        eat_delim_rec lexbuf delim next (i+1)
     end else begin
-      let j = next.(i) in
-      Out.put arg_buff (String.sub delim 0 (i-j)) ;
-      kmp_char delim next j
+      if next.(i) >= 0 then
+        Out.put arg_buff (String.sub delim 0 (i-next.(i))) ;
+      kmp_char delim next next.(i)
     end in
-  kmp_char} 
+  kmp_char}
 |  eof
-    {raise (Error "End of file while reading delimited argument")}
+    {raise (Error "End of file in delimited argument")}
 
 and skip_delim_init = parse
 | ' '|'\n' {skip_delim_init lexbuf}
@@ -333,7 +347,7 @@ and skip_delim_rec = parse
     let c = lexeme_char lexbuf 0 in
     put_echo_char c ;
     if c <> delim.[i] then
-      raise (Error ("Delimiter ``"^delim^"'' should be here")) ;
+      raise (Delim delim) ;
     if i+1 < String.length delim then
       skip_delim_rec lexbuf delim (i+1)}
 |  eof
@@ -343,34 +357,30 @@ and skip_delim_rec = parse
 {
 
 let init_kmp s =
-  let r = Array.create (String.length s) 0 in  
-  let rec init_rec i j k =
+  let l = String.length s in
+  let r = Array.create l (-1) in  
+  let rec init_rec i j =
 
-    Printf.fprintf stderr "init_rec \"%s\" %d %d %d" s i j k ;
-    prerr_endline "" ;
-
-    if j < String.length s then begin
-      if s.[i] = s.[j] then begin
-        r.(k) <- (i+1) ;
-        init_rec (i+1) (j+1) (k+1)
+    if i+1 < l then begin
+      if j = -1 || s.[i]=s.[j] then begin
+        r.(i+1) <- j+1 ;
+        init_rec (i+1) (j+1)
       end else
-        if i=0 then begin
-          r.(k) <- 0 ;
-          init_rec 0 (j+1) (k+1)
-        end else
-          init_rec r.(i-1) j k
+        init_rec i r.(j)
     end in
-  init_rec 0 1 1 ;
-  for i=0 to Array.length r-1 do
-    Printf.fprintf stderr "next[%d] = %d\n" i r.(i)
-  done ;
+  init_rec 0 (-1) ;
   r
 
 let with_delim delim lexbuf =
   let next = init_kmp delim  in
-  eat_delim_rec lexbuf delim next 0
+  prerr_endline "" ;
+  let r = eat_delim_init lexbuf delim next 0 in
+  r
 
 and skip_delim delim lexbuf =
   skip_delim_init lexbuf delim 0
 
+let skip_blanks_init lexbuf =
+  let _ = skip_blanks lexbuf in
+  ()
 } 
