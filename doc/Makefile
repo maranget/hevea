@@ -20,7 +20,7 @@ infoopt:
 
 byte:
 	export HEVEADIR=.. ;\
-	$(MAKE) $(MFLAGS) HEVEA="$(HEVEAOPTS)" HACHAOPTS="$(HACHAOPTS)" HEVEA=../hevea.byte HACHA=../hacha.byte IMAGEN=../imagen all
+	$(MAKE) $(MFLAGS) HEVEA="$(HEVEAOPTS)" HACHAOPTS="$(HACHAOPTS)" HEVEA="../hevea.byte -fix" HACHA=../hacha.byte IMAGEN=../imagen all
 
 tmp.tex: manual.tex version.tex
 	$(GPIC) -t < manual.tex > tmp.tex

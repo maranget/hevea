@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.150 1999-11-18 13:12:01 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.151 1999-11-18 13:56:47 maranget Exp $ *)
 
 
 {
@@ -1940,14 +1940,11 @@ def_code "\\cite"
 
 def_fun "\\@bibread" Auxx.bget
 ;;
-let bibcount = ref 0
-;;
+
 def_code "\\@bibwrite"
   (fun lexbuf ->
     let pretty = match Subst.subst_arg lexbuf with
-    | "!*!" ->
-        incr bibcount ;
-        string_of_int !bibcount
+    | "\\theheveabib" as s  -> get_prim s
     | s -> s in
     let key = get_prim_arg lexbuf in
     Auxx.bwrite key pretty)

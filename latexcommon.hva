@@ -203,7 +203,11 @@
   \begin{list}{}
     {\renewcommand{\makelabel}[1]{\@biblabel{##1}}}}
   {\end{list}}
-\newcommand{\bibitem}[2][!*!]{\@bibwrite{#1}{#2}\item[#2]}
+\newcounter{heveabib}
+\newcommand{\bibitem}[2][!*!]
+  {\ifthenelse{\equal{#1}{!*!}}
+    {\stepcounter{heveabib}\@bibwrite{\theheveabib}{#2}}
+    {\@bibwrite{#1}{#2}}\item[#2]}
 %%%%%%%%%%% Footnotes
 \newcommand{\footnoterule}{{\@nostyle\@hr{.5\textwidth}{1pt}}}
 \newcommand{\footnotesep}[1]{}
@@ -254,9 +258,9 @@
 % Images     %
 %%%%%%%%%%%%%%
 \newcounter{image}
-\newcommand{\extimage}{.gif}
+\newcommand{\heveaimage}{.gif}
 \renewcommand{\theimage}{\@arabic{image}}
 \newcommand{\imageflush}[1][]
-{\@imageflush\stepcounter{image}\imgsrc[#1]{\jobname\theimage\extimage}}
+{\@imageflush\stepcounter{image}\imgsrc[#1]{\jobname\theimage\heveaimage}}
 %%%%%%%%%% Compatibility with old hevea \url
 \AtBeginDocument{\@ifundefined{url}{\input{compat.hva}}{}}
