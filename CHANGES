@@ -1,4 +1,5 @@
 version 1.05-3
+  - Allow a few catcode changes on active characters
   - l,c,r cells get top-aligned when there are other cells with
     vertical alignement specified (such as p).
   - new ``Stack'' module.

@@ -1,4 +1,4 @@
-let header =  "$Id: lexstate.ml,v 1.26 1999-09-06 17:49:04 maranget Exp $"
+let header =  "$Id: lexstate.ml,v 1.27 1999-09-07 18:47:58 maranget Exp $"
 
 open Misc
 open Lexing
@@ -96,6 +96,28 @@ and stack_stack = Stack.create "stack_stack"
 let stack_stack_stack =
   Stack.create "stack_stack_stack"
 ;;
+
+
+(* catcodes *)
+
+let plain_of_char = function
+  | '{' -> 0
+  | '}' -> 1
+  | '$' -> 2
+  | '&' -> 3
+  | '#' -> 4
+  | '^' -> 5
+  | '_' -> 6
+  | '~' -> 7
+  | '\\' -> 8
+  | '%'  -> 9
+  | _   -> raise (Fatal "Catcode table is bad")
+
+and plain = Array.create 10 true
+
+let is_plain c = plain.(plain_of_char c)
+and set_plain c = plain.(plain_of_char c) <- true
+and unset_plain c = plain.(plain_of_char c) <- false
 
 let  alltt = ref false
 and stack_alltt = Stack.create "stack_alltt"

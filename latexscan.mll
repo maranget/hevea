@@ -44,7 +44,7 @@ open Tabular
 open Lexstate
 open Stack
 
-let header = "$Id: latexscan.mll,v 1.131 1999-09-06 17:48:59 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.132 1999-09-07 18:47:54 maranget Exp $" 
 
 
 let sbool = function
@@ -68,9 +68,6 @@ let last_letter name =
 let top_par n =
   if not (!display || !in_math) then Dest.par n
 ;;
-
-
-
 
 let if_level = ref 0
 ;;
@@ -839,7 +836,7 @@ let command_name = '\\' (('@' ? ['A'-'Z' 'a'-'z']+ '*'?) | [^ 'A'-'Z' 'a'-'z'])
 rule  main = parse
 (* comments *)
    '%'+
-   {if !alltt then begin
+   {if !alltt || not (is_plain '%') then begin
      let lxm = lexeme lexbuf in
      Dest.put lxm ;
      main lexbuf
@@ -867,7 +864,7 @@ rule  main = parse
 (* subscripts and superscripts *)
   | ('_' | '^')
      {let lxm = lexeme lexbuf in
-     if !alltt then Dest.put lxm
+     if !alltt || not (is_plain lxm.[0]) then Dest.put lxm
      else if not !in_math then begin
        warning ("``"^lxm^"''occuring outside math mode") ;
        Dest.put lxm
@@ -887,7 +884,7 @@ rule  main = parse
 (* Math mode *)
 | "$" | "$$"
      {let lxm = lexeme lexbuf in
-     if !alltt then begin
+     if !alltt || not (is_plain '$') then begin
        Dest.put lxm ; main lexbuf
      end else begin
        let dodo = lxm <> "$" in
@@ -927,7 +924,7 @@ rule  main = parse
 (* Definitions of  simple macros *)
 (* inside tables and array *)
   | [' ''\n']* "&"
-    {if !alltt then begin
+    {if !alltt || not (is_plain '&') then begin
       let lxm = lexeme lexbuf in
       for i = 0 to String.length lxm -1 do
         Dest.put (Dest.iso lxm.[i])
@@ -936,12 +933,12 @@ rule  main = parse
       close_col main "&nbsp;"; 
       open_col main
     end ;
-    if not !alltt then skip_blanks_pop lexbuf ;
+    if not !alltt && is_plain '&' then skip_blanks_pop lexbuf ;
     main lexbuf}
 (* Substitution  *)
   | '#' ['1'-'9']
       {let lxm = lexeme lexbuf in
-      begin if !alltt then
+      begin if !alltt || not (is_plain '#') then
         Dest.put lxm
       else
         let i = Char.code lxm.[1] - Char.code '1' in
@@ -955,14 +952,14 @@ rule  main = parse
       main lexbuf}
 (* Groups *)
 | '{' 
-    {if !activebrace then
+    {if !activebrace && is_plain '{' then
       top_open_group ()
     else begin
       Dest.put_char '{'
     end ;
     main lexbuf}
 | '}' 
-    {if !activebrace then begin
+    {if !activebrace && is_plain '}' then begin
       let cenv = !cur_env in
       top_close_group ()
     end else begin
@@ -991,7 +988,7 @@ rule  main = parse
     main lexbuf}
 (* Html specials *)
 | '~'
-  {if !alltt then Dest.put_char '~'
+  {if !alltt || not (is_plain '~') then Dest.put_char '~'
   else Dest.put_nbsp () ;
   main lexbuf }
 (* Spanish stuff *)
@@ -1210,8 +1207,9 @@ and skip_spaces_main = parse
 
 
 and skip_false = parse
-  '%' [^'\n']* '\n'
-     {skip_false lexbuf}
+|  '%'
+     {if is_plain '%' then skip_comment lexbuf ;
+       skip_false lexbuf}
 |  "\\if" ['a'-'z' 'A'-'Z']+
      {if_level := !if_level + 1 ;
      skip_false lexbuf}
@@ -1229,8 +1227,8 @@ and skip_false = parse
        if_level := !if_level -1 ;
        skip_false lexbuf
      end}
-| _ {skip_false lexbuf}
-
+| _  {skip_false lexbuf}
+| "" {raise (Error "End of entry while skipping TeX conditional macro")}
 
 and comment = parse
   ' '* ("BEGIN"|"begin") ' '+ ("IMAGE"|"image")
@@ -1258,12 +1256,18 @@ and skip_comment = parse
 and subst = parse
 | '#' ['1'-'9']
     {let lxm = lexeme lexbuf in
-    let i = Char.code (lxm.[1]) - Char.code '1' in
-    scan_arg (fun arg -> subst (Lexing.from_string arg)) i ;
+    if is_plain '#' then begin
+      let i = Char.code (lxm.[1]) - Char.code '1' in
+      scan_arg (fun arg -> subst (Lexing.from_string arg)) i
+    end else
+      Out.put subst_buff lxm ;
     subst lexbuf}
 | '#' '#'+ ['1'-'9']?
     {let lxm = lexeme lexbuf in    
-    Out.put subst_buff (String.sub lxm 1 (String.length lxm-1)) ;
+    if is_plain '#' then
+      Out.put subst_buff (String.sub lxm 1 (String.length lxm-1))
+    else
+      Out.put subst_buff lxm ;
     subst lexbuf}
 |  "\\#" | '\\' | [^'\\' '#']+
     {Out.put subst_buff (lexeme lexbuf) ; subst lexbuf}
@@ -1560,6 +1564,26 @@ def_code "\\string"
      Dest.put arg)
 ;;
 
+def_code "\\catcode"
+   (fun lexbuf ->
+     let char = Char.chr (Save.num_arg lexbuf) in
+     Save.skip_equal lexbuf ;
+     let code = Save.num_arg lexbuf in
+     begin match char,code with
+     | '\\',0  -> set_plain '\\'
+     | '\\',_  -> raise (Fatal "Suicide: changing escape char catcode!")
+     | ('{',1) | ('}',2) | ('$',3) | ('&' ,4) |
+       ('#',6) | ('^',7) | ('_',8) | ('~',13) |
+       ('%',14) -> set_plain char
+     | ('{',11) | ('}',11) | ('$',11) | ('&' ,11) |
+       ('#',11) | ('^',11) | ('_',11) | ('~',11) |
+       ('%',14) -> unset_plain char
+     | _ ->
+         warning "This \\catcode operation is not permitted"
+     end ;
+     main lexbuf)
+;;
+    
 (* Complicated use of output blocks *)
 def_code "\\left"
   (fun lexbuf ->

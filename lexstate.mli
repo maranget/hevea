@@ -33,6 +33,10 @@ val activebrace : bool ref
 val html : bool ref
 val text : bool ref
 
+val is_plain : char -> bool
+val set_plain : char -> unit
+val unset_plain : char -> unit
+
 val withinLispComment : bool ref
 val afterLispCommentNewlines : int ref
 
