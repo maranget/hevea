@@ -36,14 +36,14 @@
 \let\latexcr\\
 %%mathpar
 \def\open@mathpar@table
-{\@open{TABLE}{BORDER=1 CELLSPACING=4 CELLPADDING=0}}
-\def\mathpar@bsbs{\mbox{\qquad}}%
-\def\mathpar@and
+{\@open{TABLE}{CELLSPACING=0 CELLPADDING=8}}
+\def\mathpar@hspace{\mbox{\qquad}}%
+\def\mathpar@vspace
 {\@force{TD}\@close{TR}\@open{TR}{}\@open{TD}{align=center}}%
-\def\mathpar@hva#1{\mathpar@bsbs}%
+\def\mathpar@hva#1{\mathpar@hspace}%
 \newenvironment{mathpar}[1][]
   {$$%
-  \let\and\mathpar@and\let\par\mathpar@and\let\\\mathpar@bsbs\let\hva\mathpar@hva%
+  \let\and\mathpar@vspace\let\par\mathpar@vspace\let\\\mathpar@vspace\let\hva\mathpar@hva%
   \open@mathpar@table%
   \@open{TR}{}\@open{TD}{align=center}}
   {\@close{TD}\@close{TR}\@close{TABLE}$$}
