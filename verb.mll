@@ -18,6 +18,10 @@ open Subst
 exception Eof of string
 ;;
 
+(* For file verbatim scanning *)
+let input_verb = ref false
+;;
+
 (* For scanning by line *)
 let verb_delim = ref (Char.chr 0)
 and line_buff = Out.create_buff ()
@@ -284,7 +288,9 @@ let lst_process_space lb lxm =  match !lst_top_mode with
 exception EndVerb
 
 let lst_process_end  endstring old_process lb lxm =
-  if Stack.empty stack_lexbuf && if_next_string endstring lb then begin
+  if
+    (not !input_verb || Stack.empty stack_lexbuf)
+      && if_next_string endstring lb then begin
     Save.skip_delim endstring lb ;
     raise EndVerb
   end else
@@ -485,7 +491,9 @@ and scan_byline = parse
     "\\end" [' ''\t']* '{' [^'}']+ '}'
     {let lxm = lexeme lexbuf in
     let env = env_extract lxm in
-    if Stack.empty stack_lexbuf && env = !Scan.cur_env then begin
+    if
+      (not !input_verb || Stack.empty stack_lexbuf)
+        && env = !Scan.cur_env then begin
       !finish () ;
       scan_this Scan.main ("\\end"^env) ;
       Scan.top_close_block "" ;
@@ -677,23 +685,9 @@ def_code "\\endverbimage" Scan.check_alltt_skip ;
 ;;
 
 let init_verbatim () =
-(*
-def_code "\\verbatiminput"
-    (fun lexbuf ->
-      let name = Scan.get_prim_arg lexbuf in
-      open_verbenv false ;
-      verb_input scan_byline name ;
-      close_verbenv lexbuf) ;
-def_code "\\verbatiminput*"
-    (fun lexbuf ->
-      let name = Scan.get_prim_arg lexbuf in
-      open_verbenv true ;
-      verb_input scan_byline name ;
-      close_verbenv lexbuf) ;
-*)
 (* comment clashes with the ``comment'' package *)
-Latexmacros.def "\\comment"  zero_pat (CamlCode open_forget) ;
-Latexmacros.def "\\endcomment" zero_pat (CamlCode Scan.check_alltt_skip) ;
+  Latexmacros.def "\\comment"  zero_pat (CamlCode open_forget) ;
+  Latexmacros.def "\\endcomment" zero_pat (CamlCode Scan.check_alltt_skip) ;
 ()
 ;;
 
@@ -1062,6 +1056,9 @@ def_code "\\@scaninput"
       let true_name,chan = Myfiles.open_tex file in
       let filebuff = Lexing.from_channel chan in
       start_lexstate () ;
+      let old_input = !input_verb in
+      if old_input then warning "Nested \\@scaninput" ;
+      input_verb := true ;
       Location.set true_name filebuff ;
       begin try
         record_lexbuf (Lexing.from_string post) post_subst ;
@@ -1075,7 +1072,8 @@ def_code "\\@scaninput"
       end ;
       restore_lexstate () ;
       Location.restore () ;
-      close_in chan
+      close_in chan ;
+      input_verb := old_input
     with
     | Myfiles.Except ->
         warning ("Not opening file: "^file)
