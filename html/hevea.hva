@@ -31,7 +31,6 @@
 \newcommand{\imgsrc}[2][]{%
 {\@nostyle\@print{<IMG SRC="}\@getprint{#2}\ifpedantic\@print{" ALT="}\@getprint{#2}\fi
 \ifthenelse{\equal{#1}{}}{\@print{"}}{\@print{" }\@getprint{#1}}\@print{>}}}
-\newcommand{\anchor}[1]{\@saveclosed{\@nostyle\@print{<A NAME="}#1\@print{"></A>}}\@restoreclosed}
 %% Hyper-text references inside the document, internal usage
 \newcommand{\@locref}[2]{\@aelement{HREF="\@print{#}#1"}{#2}}
 \newcommand{\@locname}[2]{\@aelement{NAME="#1"}{#2}}
@@ -39,6 +38,7 @@
 %% Two exported commands
 \let\ahrefloc\@locref
 \let\aname\@locname
+\newcommand{\anchor}[1]{\@locname{#1}{}}
 %% Html footer and header
 \newsavebox{\@htmlhead}
 \newsavebox{\@htmlfoot}

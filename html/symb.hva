@@ -154,6 +154,7 @@
 \newcommand{\longrightarrow}{\@symb{\char190\char174}}
 \newcommand{\longleftrightarrow}{\@symb{\char172\char190\char174}}
 \newcommand{\Longleftrightarrow}{\@symb{\char220\char222}}
-
+\newcommand{\Longrightarrow}{\@symb{\char61\char222}}
+\newcommand{\Longlefttarrow}{\@symb{\char220\char61}}
 
 

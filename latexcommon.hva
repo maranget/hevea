@@ -41,8 +41,11 @@
   {\let\\=\@HEVEA@bsbs\let\@hevea@amper=\@HEVEA@amper\@Tabular*}
   {\end@Tabular*}
 %%% Equations
+\def\@changelabel
+  {\let\@oldlabel\label%
+  \renewcommand{\label}[1]{\@oldlabel[~]{##1}}}
 \newcommand{\eqno}[1]{\qquad#1}
-\newenvironment{equation}{\[\refstepcounter{equation}}{\eqno{(\theequation)}\]}
+\newenvironment{equation}{\[\@changelabel\refstepcounter{equation}}{\eqno{(\theequation)}\]}
 \newenvironment{eqnarray*}{$$\begin{array}{rcl}}{\end{array}$$}
 \newif\ifnumber\numbertrue
 \newcommand{\nonumber}{\numberfalse}
@@ -284,8 +287,8 @@
 \newcommand{\citation}[1]{}
 \newcommand{\bibdata}[1]{}
 \newcommand{\bibstyle}[1]{}
-\newcommand{\label}[1]
-  {\@saveclosed\@locname{#1}{}\@auxwrite{#1}{\@currentlabel}\@restoreclosed}
+\newcommand{\label}[2][]
+  {\@saveclosed\@locname{#2}{#1}\@auxwrite{#2}{\@currentlabel}\@restoreclosed}
 \newcommand{\ref}[1]{\@locref{#1}{\@auxread{#1}}}
 \newcommand{\pageref}[1]{\@locref{#1}{??}}
 \newcommand{\@readhaux}

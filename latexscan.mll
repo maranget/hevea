@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.196 2000-10-13 19:17:34 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.197 2000-10-23 07:34:35 maranget Exp $ *)
 
 
 {
@@ -1893,27 +1893,31 @@ def_code "\\chardef"
 (* Complicated use of output blocks *)
 def_code "\\left"
   (fun lexbuf ->
-    if !display then begin
-      let delim = subst_arg lexbuf in
-      let {sub=sub ; sup=sup} = save_sup_sub lexbuf in
-      Dest.left delim
-        (fun vsize ->
-          Dest.int_sup_sub false vsize
-            (scan_this_arg main) (fun () -> ())  sup sub true)
-    end)
+    let dprev = !display in
+    Stack.push stack_display dprev ;
+    display := true ;
+    if not dprev then
+      top_open_display () ;      
+    let delim = subst_arg lexbuf in
+    let {sub=sub ; sup=sup} = save_sup_sub lexbuf in
+    Dest.left delim
+      (fun vsize ->
+        Dest.int_sup_sub false vsize
+          (scan_this_arg main) (fun () -> ())  sup sub true))
 ;;
 
+(* Display is true *)
 def_code "\\right"
-  (fun lexbuf ->
-    if !display then begin
-      let delim = subst_arg lexbuf in
-      let vsize = Dest.right delim in
-      let {sup=sup ; sub=sub} = save_sup_sub lexbuf in
-      let do_what = (fun () -> ()) in
-      Dest.int_sup_sub false vsize
-        (scan_this_arg main) do_what sup sub !display
-    end ;
-    check_alltt_skip lexbuf)
+  (fun lexbuf ->    
+    let delim = subst_arg lexbuf in
+    let vsize = Dest.right delim in
+    let {sup=sup ; sub=sub} = save_sup_sub lexbuf in
+    let do_what = (fun () -> ()) in
+    Dest.int_sup_sub false vsize
+      (scan_this_arg main) do_what sup sub !display ;
+    let dprev = Stack.pop stack_display in
+    if not dprev then top_close_display () ;
+    display := dprev)
 ;;
 
 def_code "\\over"

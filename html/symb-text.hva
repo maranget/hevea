@@ -69,6 +69,8 @@
 \newcommand{\longrightarrow}{\mbox{-->}}
 \newcommand{\longleftrightarrow}{\mbox{<--->}}
 \newcommand{\Longleftrightarrow}{\mbox{<===>}}
+\newcommand{\Longrightarrow}{\mbox{==>}}
+\newcommand{\Longleftarrow}{\mbox{==>}}
 \newcommand{\@displayprod}{\mbox{---\@br| |\@br| |}}
 
 \iffrench
