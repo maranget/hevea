@@ -1,4 +1,4 @@
-\newcommand{\@symb}[1]{\@print{<FONT FACE=symbol>}#1\@print{</FONT>}}
+\newcommand{\@symb}[1]{\@print{<FONT FACE=symbol>}\@getprint{#1}\@print{</FONT>}}
 %%%%%%%% Symbols
 \newcommand{\forall}{\@symb{\char34}}
 \newcommand{\exists}{\@symb{\char36}}
@@ -73,6 +73,7 @@
 \newcommand{\@bullet}{\@symb{\char183}}
 %%184 -> \div as iso
 \newcommand{\neq}{\@symb{\char185}}
+\let\ne\neq
 \newcommand{\equiv}{\@symb{\char186}}
 \newcommand{\approx}{\@symb{\char187}}
 %%188 -> ... as iso

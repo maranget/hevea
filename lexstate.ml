@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: lexstate.ml,v 1.57 2001-02-12 10:05:37 maranget Exp $"
+let header = "$Id: lexstate.ml,v 1.58 2001-09-21 14:50:58 maranget Exp $"
 
 open Misc
 open Lexing
@@ -132,6 +132,7 @@ and text =
     | Parse_opts.Html -> false
     | Parse_opts.Info | Parse_opts.Text -> true)
 and alltt_loaded = ref false
+
 (* Additional variables for videoc *)
 and withinLispComment = ref false
 and afterLispCommentNewlines = ref 0

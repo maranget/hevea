@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.213 2001-07-13 07:43:09 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.214 2001-09-21 14:50:54 maranget Exp $ *)
 
 
 {
@@ -1488,10 +1488,13 @@ let get_prim_onarg arg =
   and plain_dollar = is_plain '$'
   and plain_amper = is_plain '&' in
   unset_plain '_' ; unset_plain '^' ; unset_plain '$' ; unset_plain '&' ;
+  let old_raw = !raw_chars in
+  raw_chars := true ;
   let r = do_get_this
       start_normal end_normal
       Dest.nostyle
       main arg in
+  raw_chars := old_raw ;
   plain_back plain_sub '_' ; plain_back plain_sup '^' ;
   plain_back plain_dollar '$' ; plain_back plain_amper '&' ;
   r

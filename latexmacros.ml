@@ -9,10 +9,9 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmacros.ml,v 1.64 2000-06-02 15:23:26 maranget Exp $" 
+let header = "$Id: latexmacros.ml,v 1.65 2001-09-21 14:50:48 maranget Exp $" 
 open Misc
 open Parse_opts
-open Symb
 open Lexstate
 
 exception Failed

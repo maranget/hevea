@@ -47,6 +47,7 @@
 \newcommand{\geq}{\mbox{>=}}
 \newcommand{\@bullet}{¤}
 \newcommand{\neq}{\mbox{!=}}
+\newcommand{\ne}{\mbox{<>}}
 \newcommand{\aleph}{\mbox{aleph}}
 \newcommand{\nabla}{\mbox{nabla}}
 \newcommand{\@prod}{\mbox{prod}}
