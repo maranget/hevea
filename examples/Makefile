@@ -21,7 +21,7 @@ html: $(HTML) index.html
 install:
 	/bin/rm -rf $(EXDIR)
 	mkdir $(EXDIR)
-	cp *.gif $(HTML) tmp*.html hp.txt $(EXDIR)
+	cp *.gif $(HTML) index.html tmp*.html hp.txt $(EXDIR)
 	cp Makefile $(TEX) pat.def pat.sty smile.sty $(EXDIR)
 	cp $(DVI) $(EXDIR)
 

@@ -64,12 +64,6 @@ mylib.cmo: mylib.ml mylib.cmi
 mylib.cmx: mylib.ml mylib.cmi
 	${OCAMLOPT} -pp '${CPP} -DLIBDIR=\"${LIBDIR}\"' -c mylib.ml
 
-cutmain.cmo: cutmain.ml
-	${OCAMLCI} -pp '${CPP} -DLIBDIR=\"${LIBDIR}\"' -c cutmain.ml
-
-cutmain.cmx: cutmain.ml
-	${OCAMLOPT} -pp '${CPP} -DLIBDIR=\"${LIBDIR}\"' -c cutmain.ml
-
 cutfoot-fra.html: cutfoot.tex hevea.sty ${HEVEA}
 	${HEVEA} -francais < cutfoot.tex > $@
 

@@ -16,7 +16,7 @@ open Myfiles
 open Latexmacros
 open Html
 
-let header = "$Id: latexscan.mll,v 1.53 1998-10-27 16:22:41 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.54 1998-11-06 10:52:01 maranget Exp $" 
 
 
 let prerr_args args =
@@ -2000,7 +2000,7 @@ rule  main = parse
                   scan_this main arg ;
                   push stack_stack !stack ;
                   stack := old_stack
-              | Print_fun (f,i) ->
+              | Print_fun (f,i) -> 
                   let arg = !stack.(i) in
                   let old_stack = !stack in
                   stack := pop stack_stack ;

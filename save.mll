@@ -12,7 +12,7 @@
 {
 open Lexing
 
-let header = "$Id: save.mll,v 1.23 1998-10-27 16:22:43 maranget Exp $" 
+let header = "$Id: save.mll,v 1.24 1998-11-06 10:52:03 maranget Exp $" 
 
 let verbose = ref 0 and silent = ref false
 ;;
@@ -118,7 +118,7 @@ and arg = parse
   | [^ '}']
       {let c = lexeme_char lexbuf 0 in
       put_both_char c ;
-      skip_blanks lexbuf}
+      Out.to_string arg_buff}
   | eof    {raise (BadParse "EOF")}
   | ""     {raise (BadParse "Empty Arg")}
 

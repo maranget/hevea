@@ -48,9 +48,9 @@ DOCUMENTATION
 INSTALLATION
 
  REQUIREMENTS
-    HEVEA is written in Objective Caml (Ocaml). It compiles under
-    Ocaml, which should thus be properly installed. Ocaml is
-    available at
+    HEVEA is written in Objective Caml version 2.00 (Ocaml).
+    It compiles under Ocaml, which should thus be properly installed.
+    Ocaml is  available at
      ftp://ftp.inria.fr/lang/caml-light/ocaml-2.00.tar.gz
 
     More information on Ocaml can be found at
