@@ -17,7 +17,7 @@ open Latexmacros
 open Html
 open Save
 
-let header = "$Id: latexscan.mll,v 1.41 1998-09-24 13:01:06 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.42 1998-09-25 17:48:53 maranget Exp $" 
 
 let push s e = s := e:: !s
 and pop s = match !s with
@@ -1568,14 +1568,8 @@ rule  main = parse
          Html.put (Save.tagout buff)  ;
          main lexbuf
       | "\\@anti" ->
-         let args = Save.cite_arg lexbuf in
-         let rec do_rec = function
-           [] -> []
-         | arg::rest ->
-           let r = do_rec rest in
-           let env = get_style main arg in
-           env @ r in
-         let envs = do_rec args in
+         let arg = Save.arg lexbuf in
+         let envs = get_style main arg in
          Html.erase_mods envs ;
          main lexbuf
       | "\\@style"   ->
