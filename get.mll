@@ -18,7 +18,7 @@ open Lexstate
 open Stack
 
 (* Compute functions *)
-let header = "$Id: get.mll,v 1.10 1999-09-24 16:25:24 maranget Exp $"
+let header = "$Id: get.mll,v 1.11 1999-10-01 16:15:17 maranget Exp $"
 
 exception Error of string
 
@@ -389,9 +389,13 @@ let get_bool (expr,subst) =
   bool_out := old_bool ;
   r
 
-let get_length (expr,_) =
+let get_length ((expr,_) as arg) =
   if !verbose > 1 then
     prerr_endline ("get_length : "^expr) ;
-  let r = Length.main (Lexing.from_string expr) in
+  let r = Length.main (Lexing.from_string (Subst.do_subst_this arg)) in
+  if !verbose > 2 then begin
+    prerr_string ("get_length : "^expr^" -> ") ;
+    prerr_endline (Length.pretty r)
+  end ;
   r
 } 

@@ -73,7 +73,7 @@ module type S =
 
     val finalize : bool -> unit
 
-    val horizontal_line : string -> string -> string -> unit
+    val horizontal_line : string -> Length.t -> Length.t -> unit
     val put_separator : unit -> unit
     val unskip : unit -> unit
     val put_tag : string -> unit

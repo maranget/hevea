@@ -1,3 +1,10 @@
+version 1.05-6
+  - new arcticle.hva style for the manual
+  - introduced \@hr -> <HR>  
+  - started length management
+  - all primitives should get their argument by get_prim_arg
+     -> primitive argument are substituted/processed
+        (except \@print of course)
   - new management of bindings, lexbuf is associated with a current
     environment.
   - new primitive \execafter -> graphics package implementation.

@@ -43,7 +43,7 @@ open Lexstate
 open Stack
 open Subst
 
-let header = "$Id: latexscan.mll,v 1.137 1999-09-24 16:25:30 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.138 1999-10-01 16:15:28 maranget Exp $" 
 
 
 let sbool = function
@@ -266,12 +266,12 @@ let more_buff = Out.create_buff ()
 let default_format =
   Tabular.Align
     {hor="left" ; vert = "" ; wrap = false ;
-      pre = "" ; post = "" ; width = None}
+      pre = "" ; post = "" ; width = Length.Default}
 
 and center_format =
   Tabular.Align
     {hor="center" ; vert = "top" ; wrap = false ;
-      pre = "" ; post = "" ; width = None} 
+      pre = "" ; post = "" ; width = Length.Default} 
 ;;
 
 
@@ -746,10 +746,12 @@ let expand_command main skip_blanks name lexbuf =
     | CamlCode f -> f lexbuf in
 
   let pat,body = find_macro name in
+  let par_before = Dest.forget_par () in
   if
-    (!in_math && Latexmacros.invisible name) ||
-    (not !in_math && not !alltt &&
-     is_subst_noarg body pat && last_letter name)
+    (if !in_math then Latexmacros.invisible name
+    else
+      not !alltt &&
+      is_subst_noarg body pat && last_letter name)
   then begin
     if !verbose > 2 then
       prerr_endline "skipping blanks";
@@ -759,6 +761,8 @@ let expand_command main skip_blanks name lexbuf =
       prerr_endline "not skipping blanks"
     end
   end ;
+  let par_after = Dest.forget_par () in
+  Dest.par par_before ;
   let args = make_stack name pat lexbuf in
   let saw_par = !Save.seen_par in
   let is_limit = checklimits lexbuf ||  Latexmacros.limit name in
@@ -783,6 +787,7 @@ let expand_command main skip_blanks name lexbuf =
       prerr_endline ("Cont after macro "^name^": ") ;
       macro_depth := !macro_depth - 1
     end ;
+    Dest.par par_after ;
     if saw_par then top_par (par_val !in_table)
   end
 ;;
@@ -1277,7 +1282,7 @@ def_code  "\\documentclass" (do_documentclass "\\documentclass")
 
 let do_input lxm lexbuf =
   Save.start_echo () ;
-  let arg = Save.filename lexbuf in
+  let arg = get_prim_arg lexbuf in
   let echo_arg = Save.get_echo () in
   let arg = get_this_nostyle main  arg in
   if lxm <> "\\include" || check_include arg then begin
@@ -1612,21 +1617,15 @@ def_code "\\@dt"
 (* Html primitives *)
 def_code "\\@open"
   (fun lexbuf ->
-    let tag = subst_arg lexbuf in
-    let arg = subst_arg lexbuf in
+    let tag = get_prim_arg lexbuf in
+    let arg = get_prim_arg lexbuf in
     if no_display tag then begin
       if tag="DISPLAY" then begin
         push stack_display !display;
         display := true ;
         top_open_display ()
-(*
-      end else if tag="VDISPLAY" then begin
-        top_item_display () ;
-        Dest.open_vdisplay !display ;
-        Dest.open_vdisplay_row "NOWRAP ALIGN=center"
-*)
       end else begin
-        warning ("direct opening of "^tag);
+        if !verbose > 2 then warning ("direct opening of "^tag);
         top_open_block tag arg
       end
     end else
@@ -1635,26 +1634,20 @@ def_code "\\@open"
 
 def_code "\\@insert"
   (fun lexbuf ->
-          let tag = subst_arg lexbuf in
-          let arg = subst_arg lexbuf in
+          let tag = get_prim_arg lexbuf in
+          let arg = get_prim_arg lexbuf in
           Dest.insert_block tag arg )
 ;;
 
 def_code "\\@close"
   (fun lexbuf ->
-    let tag = subst_arg lexbuf in
+    let tag = get_prim_arg  lexbuf in
     if no_display tag then begin
       if tag="DISPLAY" then begin
         top_close_display ();
         display := pop stack_display
-(*
-      end else if tag = "VDISPLAY" then begin
-        Dest.close_vdisplay_row () ;
-        Dest.close_vdisplay () ;
-        top_item_display ()
-*)
       end else begin
-        warning ("direct closing of "^tag);
+        if !verbose > 2 then warning ("direct closing of "^tag);
         top_close_block tag
       end
     end else
@@ -2292,13 +2285,16 @@ def_code "\\@restoreclosed"
     check_alltt_skip lexbuf)
 ;;
     
+exception Cannot
+;;
 
 let do_space vert lexbuf  = 
   let arg = subst_arg lexbuf in
   begin try
     let n = match Length.main (Lexing.from_string arg) with
-    | Length.Absolute n -> n
-    | _                 -> raise Length.No in
+    | Length.Char n -> n
+    | Length.Pixel n -> Length.pixel_to_char n
+    | _                 -> raise Cannot in
     if vert then
       for i=1 to n do
         Dest.skip_line ()
@@ -2307,7 +2303,7 @@ let do_space vert lexbuf  =
       for i=1 to n do
         Dest.put_nbsp (); (* "&nbsp;"*)
       done
-  with Length.No ->
+  with Cannot ->
     warning ((if vert then "\\vspace" else "\\hspace")^
              " with arg ``"^arg^"''")
   end
@@ -2405,11 +2401,13 @@ def_code "\\tabbing" open_tabbing
 ;;
 
 let check_width = function
-  | None -> ""
-  | Some (Length.Absolute x) ->
-      " WIDTH="^string_of_int (x * Length.font)
-  | Some (Length.Percent x) ->
+  | Length.Char x ->
+      " WIDTH="^string_of_int (Length.char_to_pixel x)
+  | Length.Pixel x ->
+      " WIDTH="^string_of_int x
+  | Length.Percent x ->
       " WIDTH=\""^string_of_int x^"%\""
+  | _ -> ""
 ;;
 
 let open_array env lexbuf =
@@ -2417,17 +2415,17 @@ let open_array env lexbuf =
 
   save_array_state ();
   Tabular.border := false ;
-  let len =
-    match env with
+  let len =  match env with
     | "tabular*" ->
         let arg = save_arg lexbuf in
-        begin try  Some (Get.get_length arg)
-        with Length.No -> begin
-          warning ("``tabular*'' with length argument: "^
-                   do_subst_this arg) ;
-          None end
+        begin match Get.get_length arg with
+        | Length.No s ->
+            warning ("``tabular*'' with length argument: "^
+                     do_subst_this arg) ;
+            Length.Default
+        | width -> width
         end
-    | _ -> None in
+    | _ -> Length.Default in
       
   skip_opt lexbuf ;
   let format = save_arg lexbuf in
@@ -2557,12 +2555,24 @@ def_code "\\@infoNoteFlush"
       end)
 ;;
 	
+let safe_len = function
+  | Length.No _ -> Length.Default
+  | l    -> l
+;;
 
 def_code "\\@printHR"
     (fun lexbuf ->
       let arg = get_prim_arg lexbuf in
-      let taille = get_prim_arg lexbuf in
-      Dest.horizontal_line arg "2" taille)
+      let taille = safe_len (Get.get_length (save_arg lexbuf)) in
+      Dest.horizontal_line arg taille (Length.Pixel 2))
+;;
+
+def_code"\\@hr"
+   (fun lexbuf ->
+     let attr = subst_opt "" lexbuf in
+     let width = safe_len (Get.get_length (save_arg lexbuf)) in
+     let height = safe_len (Get.get_length (save_arg lexbuf)) in
+     Dest.horizontal_line attr width height)
 ;;
 
 (* Accents *)

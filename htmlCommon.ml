@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlCommon.ml,v 1.9 1999-09-14 19:49:45 maranget Exp $" 
+let header = "$Id: htmlCommon.ml,v 1.10 1999-10-01 16:15:21 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -20,7 +20,7 @@ open Misc
 open Parse_opts
 open Latexmacros
 open Stack
-
+open Length
 
 
 let failclose s = raise (Misc.Close s)
@@ -317,7 +317,10 @@ let is_list = function
 let par_val last now n =
   if is_list last then begin
     if is_list now then 1 else 0
-  end else if
+  end
+  else if last = "P" then
+    0
+  else if
     is_header last || last = "PRE" || last = "BLOCKQUOTE"
   then n-1
   else if last = "DIV" || last = "TABLE" then n
@@ -887,12 +890,21 @@ let skip_line () =
   put "<BR>"
 ;;
 
-let horizontal_line s t u =
+let put_length which  = function
+  | Pixel x -> put (which^string_of_int x)
+  | Char x -> put (which^string_of_int (Length.font * x))
+  | Percent x  -> put (which^string_of_int x^"%")
+  | Default    -> ()
+  | No s       -> raise (Misc.Fatal ("No-length ``"^s^"'' in outManager"))
+
+let horizontal_line attr width height =
   open_block "" "" ;
   nostyle () ;
-  begin match t with
-  | "0" -> put ("<HR "^s^">")
-  | _ -> put ("<HR "^s^" SIZE="^t^">") end ;
+  put "<HR" ;
+  begin match attr with "" -> () | _ -> put_char ' ' ; put attr end ;
+  put_length " WIDTH=" width ;
+  put_length " SIZE=" height ;
+  put_char '>' ;
   close_block ""
 ;;
 

@@ -471,7 +471,7 @@
 }%
 \@print{<BODY }\@notags{\@bodyargs}\@print{>
 }%
-\@print{<!--HEVEA command line is: }\usebox{\@heveacomline}\@print{--->
+\@print{<!--HEVEA command line is: }\usebox{\@heveacomline}\@print{-->
 }%
 \iffrench\@print{<!--FRENCH-->
 }\fi

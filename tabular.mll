@@ -5,14 +5,14 @@ open Table
 open Lexstate
 open Subst
 
-let header = "$Id: tabular.mll,v 1.17 1999-09-24 16:25:40 maranget Exp $"
+let header = "$Id: tabular.mll,v 1.18 1999-10-01 16:15:34 maranget Exp $"
 
 exception Error of string
 ;;
 
 type align =
     {hor : string ; mutable vert : string ; wrap : bool ;
-      mutable pre : string ; mutable post : string ; width : Length.t option}
+      mutable pre : string ; mutable post : string ; width : Length.t}
 
 let make_hor = function
     'c' -> "center"
@@ -70,10 +70,7 @@ let pretty_format = function
         ">{"^pre^"}"^
         "h="^h^" v="^v^
         "<{"^post^"}"^(if b then " wrap" else "")^
-	(match w with
-	| Some Length.Absolute l -> " w="^string_of_int l
-	| Some Length.Percent l -> " w="^string_of_int l^"%"
-	| None -> "")
+        "w="^Length.pretty w
   | Inside s -> "@{"^s^"}"
   | Border s -> s
 
@@ -101,13 +98,11 @@ and tfmiddle = parse
   let post = tfpostlude lexbuf in
   emit out_table
     (Align {hor = make_hor f ; vert = make_vert f ; wrap = false ;
-        pre = "" ;   post = post ; width = None})}
+        pre = "" ;   post = post ; width = Length.Default})}
 | 'p'|'m'|'b'
   {let f = Lexing.lexeme_char lexbuf 0 in
   let width = subst_arg lexbuf in
-  let my_width =
-    try Some (Length.main (Lexing.from_string width))
-    with Length.No -> None in
+  let my_width = Length.main (Lexing.from_string width) in
   let post = tfpostlude lexbuf in
   emit out_table
     (Align {hor = make_hor f ; vert = make_vert f ; wrap = true ;

@@ -9,13 +9,14 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.33 1999-09-24 16:25:42 maranget Exp $"
+let header = "$Id: text.ml,v 1.34 1999-10-01 16:15:35 maranget Exp $"
 
 
 open Misc
 open Parse_opts
 open Latexmacros
 open Stack
+open Length
 
 exception Error of string;;
 
@@ -1079,9 +1080,12 @@ let change_format format = match format with
     if w then
       !cell.w <- 
 	(match size with
-	  Some Length.Absolute l -> l
-	| Some Length.Percent l -> l * !Parse_opts.width / 100
-	| None -> !cell.wrap <- False; warning "cannot wrap column with no width"; 0)
+	| Length.Char l -> l
+	| Length.Pixel l -> l / Length.font
+	| Length.Percent l -> l * !Parse_opts.width / 100              
+	| Length.Default -> !cell.wrap <- False; warning "cannot wrap column with no width"; 0
+        | Length.No s ->
+            raise (Misc.Fatal ("No-length ``"^s^"'' in out-manager")))
     else !cell.w <- 0;
 | _       ->  raise (Misc.Fatal ("as_align"))
 ;;
@@ -1247,7 +1251,7 @@ and close_row erase =
 let center_format =
   Tabular.Align  {Tabular.hor="center" ; Tabular.vert = "top" ;
 		   Tabular.wrap = false ; Tabular.pre = "" ; 
-		   Tabular.post = "" ; Tabular.width = None} 
+		   Tabular.post = "" ; Tabular.width = Length.Default} 
 ;;
 
 
@@ -1493,7 +1497,7 @@ let image arg n =
   end
 ;;
 
-let horizontal_line s u t =
+let horizontal_line s width height =
   if flags.in_table then begin
     !cell.w <- 0;
     !cell.wrap <- Fill;
@@ -1501,11 +1505,12 @@ let horizontal_line s u t =
   end else begin
     open_block "INFO" "";
     finit_ligne ();
-    let tint =
-      try int_of_string t
-      with Failure s -> raise (Misc.Fatal (s^": ``"^t^"''")) in
-    
-    let taille = (flags.hsize -1) * tint / 100 in
+    let taille = match width with
+    | Char x -> x
+    | Pixel x -> x / Length.font
+    | Percent x -> (flags.hsize -1) * x / 100
+    | Default   -> flags.hsize - 1
+    | No s      -> raise (Fatal ("No-length ``"^s^"'' in out-manager")) in
     let ligne = String.concat "" 
 	[(match s with
 	|	"right" -> String.make (flags.hsize - taille -1) ' '
@@ -1526,12 +1531,12 @@ let horizontal_line s u t =
 let cm_format =
   Tabular.Align  {Tabular.hor="center" ; Tabular.vert = "middle" ;
 		   Tabular.wrap = false ; Tabular.pre = "" ; 
-		   Tabular.post = "" ; Tabular.width = None} 
+		   Tabular.post = "" ; Tabular.width = Length.Default} 
 ;;
 let lm_format =
   Tabular.Align  {Tabular.hor="left" ; Tabular.vert = "middle" ;
 		   Tabular.wrap = false ; Tabular.pre = "" ; 
-		   Tabular.post = "" ; Tabular.width = None} 
+		   Tabular.post = "" ; Tabular.width = Length.Default} 
 ;;
 
 let formated s = Tabular.Align  
@@ -1548,7 +1553,7 @@ let formated s = Tabular.Align
       |	"cmm" -> "45"
       | _ -> "middle") ;
       Tabular.wrap = false ; Tabular.pre = "" ; 
-      Tabular.post = "" ; Tabular.width = None} 
+      Tabular.post = "" ; Tabular.width = Length.Default} 
 ;;
 
 

@@ -10,7 +10,7 @@
 (***********************************************************************)
 
 
-let header = "$Id: html.ml,v 1.64 1999-09-01 13:53:47 maranget Exp $" 
+let header = "$Id: html.ml,v 1.65 1999-10-01 16:15:18 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -555,7 +555,7 @@ let make_border s = ()
 let center_format =
   Tabular.Align  {Tabular.hor="center" ; Tabular.vert = "top" ;
 		   Tabular.wrap = false ; Tabular.pre = "" ; 
-		   Tabular.post = "" ; Tabular.width = None} 
+		   Tabular.post = "" ; Tabular.width = Length.Default} 
 ;;
 
 let make_inside s multi =
@@ -578,7 +578,7 @@ let make_hline w noborder =
     open_cell center_format w 0;
     close_mods () ;
     if not (flags.in_math && !Parse_opts.mathml) then
-      horizontal_line "NOSHADE" "2" "100" 
+      horizontal_line "NOSHADE" Length.Default (Length.Pixel 2)
     else begin
       put "<mo stretchy=\"true\" > &horbar; </mo>";
       force_item_display ();
