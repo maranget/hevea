@@ -22,7 +22,7 @@ install:
 	/bin/rm -rf $(EXDIR)
 	mkdir $(EXDIR)
 	cp *.gif $(HTML) tmp*.html hp.txt $(EXDIR)
-	cp Makefile $(TEX) pat.def pat.sty $(EXDIR)
+	cp Makefile $(TEX) pat.def pat.sty smile.sty $(EXDIR)
 	cp $(DVI) $(EXDIR)
 
 a.dvi: a.tex

@@ -1,9 +1,16 @@
 J'ai la joie d'anoncer la nouvelle release d'HEVEA.
 
-      HEVEA, version 1.01 (Bug fixes), un traducteur rapide de LaTeX vers HTML.
+      HEVEA, version 1.02 un traducteur rapide de LaTeX vers HTML.
 
   HEVEA traduit un sous-ensemble quasi complet de LaTeX2e (il accepte aussi
   le vieux style LaTeX) vers HTML 3.2.
+
+  Par rapport a la version precédente (1.01) il y a de nombreuses corrections
+  de bugs, notamment dans le rendu des formules qui contiennent des
+  délimiteurs. En outre les fonctionnalité suivantes ont été ajoutées:
+        - La couleur du texte peut être spécifiée dans le style du
+          paquetage ``color''.
+        - Les environements ``toimage et 
 
   Les symboles exotiques sont traduits en utilisant une police de charatctères
   ``symbols'' que doit connaître le brouteur HTML.
@@ -33,7 +40,7 @@ J'ai la joie d'anoncer la nouvelle release d'HEVEA.
     d'HEVEA.
 
   IMPORTANT
-    HEVEA est écrit en Objective Caml. Vous devez donc disposer de Ocaml 1.07.
+    HEVEA est écrit en Objective Caml. Vous devez donc disposer de Ocaml 2.00.
     http://caml.inria.fr/ocaml/
 
 

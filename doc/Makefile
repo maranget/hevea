@@ -83,4 +83,4 @@ clean:
 
 cleanall: clean
 	rm -f manual.dvi manual[0-9][0-9][0-9].html *_motif.gif \
-	manual*.gif tmp.tex manual.image.tex
+	manual*.gif tmp.tex *.image.tex manual.html index.html

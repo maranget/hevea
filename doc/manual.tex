@@ -362,7 +362,7 @@ output.
 \end{center}
 \caption{\label{xfd} Symbol font in X}
 \end{figure}
-Outputing symbols is performed using an \html{} extension:
+Outputting symbols is performed using an \html{} extension:
 the non-standard \verb+FACE+ attribute to the \verb+FONT+
 element instruct the browser to switch to a symbol font.
 \hevea{} assumes this choice for the symbol font to be
@@ -452,7 +452,7 @@ in-text limit-like subscripts.
 
 Users should remember that \hevea{} is not \TeX{} or \LaTeX{} and that
 \hevea{} author neither is D.~E.~Knuth nor L.~Lamport.
-Thus, some formulaes may be rendered poorly.
+Thus, some formulas may be rendered poorly.
 For instance, two fractions with different denominator and numerator
 height look strange.
 \begin{htmlonly}
@@ -468,7 +468,7 @@ $$
 The reason is that vertical displays in an horizontal display are
 boxes (i.e. \html{} tables)
 that always get centered in the vertical direction.
-Such a crude model cannot  failthfully emulate any \TeX{} box placement.
+Such a crude model cannot  faithfully emulate any \TeX{} box placement.
 
 
 By contrast with formulas, which \hevea{} attempts to render with
@@ -1031,7 +1031,7 @@ a bit like \LaTeX{} \texttt{verbatim} environment.
 
 
 Relations between \texttt{toimage} and \texttt{verbimage} are similar.
-Additionnaly, formal parameters \verb+#+\textit{i} are replaced by
+Additionally, formal parameters \verb+#+\textit{i} are replaced by
 actual arguments inside the \texttt{toimage} environment
 (see end of section~\ref{substimage} for an example of this feature).
 
@@ -1281,7 +1281,7 @@ because the \verb+\usepackage{epsf}+ command gets echoed to the
 In more complicated cases, \LaTeX{} may fail on the \filename{image}
 file because it does not load the right packages or define the right macros.
 
-However, the above solution implies modyfing the original \LaTeX{}
+However, the above solution implies modifying the original \LaTeX{}
 source code.
 A better solution is to define the \verb+\epsfbox+
 command, so that \hevea{} echoes  \verb+\epsfbox+ and its argument to
@@ -1370,7 +1370,7 @@ Observe how the \verb+-o+ argument to \hevea{} is used and that
 \texttt{imagen} argument is the output file base name.
 
 
-In the \texttt{gpic} example, modyfing user source cannot be totally avoided.
+In the \texttt{gpic} example, modifying user source cannot be totally avoided.
 However, writing in a generic style saves typing.
 For instance, users may define the following environment for
 centered \texttt{gpic} pictures in \LaTeX{}~:
@@ -1621,12 +1621,12 @@ manual~\cite[Appendix~C]{latex}.
 \LaTeX{} comments, that start with ``\verb+%+'' %
 and end at end of line are ignored and produce no output.
 
-Command names follow strict \LaTeX{} syntax. That is, appart from
+Command names follow strict \LaTeX{} syntax. That is, apart from
 \verb+#+, \verb+$+, %$
 \verb+~+, \verb+_+ and \verb+^+, they either are
 ``\verb+\+'' followed by a single non-letter character or
 ``\verb+\+'' followed by a sequence of letters.
-Additionnaly, the letter sequence may either be preceded by ``\verb+@+''
+Additionally, the letter sequence may either be preceded by ``\verb+@+''
 (and this is the case of many of \hevea{} internal commands), or
 terminated by ``\verb+*+'' (starred variants are implemented as plain
 commands).
@@ -1747,7 +1747,7 @@ at \url{iso.html}{iso.html} and \url{symbol.html}{symbol.html}.
 Otherwise, \hevea{} usually issues a warning to draw user attention.
 Users can then choose their own equivalent for the symbol.
 
-Commands for making accents used in non-english languages, such as
+Commands for making accents used in non-English languages, such as
 \verb+\'+, work when then produce letters from the iso-latin1 character set.
 Otherwise, the argument to the command is not modified (no warning here).
 However, it is more simple to write the document using iso-latin1.
@@ -2222,7 +2222,7 @@ normally not
 read by \hevea{}, which does its own index computations.
 Some user modify \filename{.idx} files before running
 \verb+makeindex+, for instance to sort index entries taking
-non-english diacritics into account.
+non-English diacritics into account.
 \hevea{} can read such files and use the index entry labels they define,
 provided it is given the \verb+-idx+ option.
 Thus, if you follow such a scheme on \filename{mydoc}\texttt{.tex}, first run

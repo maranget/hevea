@@ -1,7 +1,12 @@
-version 1.02-1
+version 1.02
+  - Color in the ``color'' package style.
+  - new verbimage and verblatex that implement the old behavior of
+    latexonly and toimage.
+  - new toimage and latexonlu environments that can appear inside
+    others environments dynamically.
   - macros arguments are now substituted inside ``toimage'' environments
   - Small cosmetic changes in paragraph breaks inside nested lists.
-  - Corrected bug in the onteraction of \left... \right and \over
+  - Corrected bug in the interaction of \left... \right and \over
   - added \includonly
   - added  \@bodyargs \@htmlargs macros to parametrize the <BODY> and <HTML>
 tags.
