@@ -1,11 +1,12 @@
+open Lexstate
+
 exception Error of string
 
 val init :
-      (bool -> string -> string) ->
-        (string -> unit) ->
-          (string -> unit) ->
-            (string -> unit) -> unit
+  (bool -> string * Lexstate.subst -> string) ->
+  (string -> unit) -> (string -> unit) -> (string -> unit) -> unit
 
-val get_int : string -> int
-val get_bool : string -> bool
-val get_length : string -> Length.t
+val get_int : string * subst -> int
+val get_bool : string * subst -> bool
+val get_length : string * subst  -> Length.t
+

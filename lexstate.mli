@@ -12,14 +12,14 @@
 type action =
   | Subst of string
   | CamlCode of (Lexing.lexbuf -> unit)
-
 val pretty_action : action -> unit
 
 
 type pat = string list * string list
-
 val pretty_pat : pat -> unit
 
+type subst
+val get_subst : unit -> subst
 
 exception Error of string
 
@@ -36,6 +36,7 @@ val text : bool ref
 val is_plain : char -> bool
 val set_plain : char -> unit
 val unset_plain : char -> unit
+val plain_back : bool -> char -> unit
 
 val withinLispComment : bool ref
 val afterLispCommentNewlines : int ref
@@ -49,12 +50,11 @@ val pretty_lexbuf : Lexing.lexbuf -> unit
 
 val scan_arg : (string -> 'a) -> int -> 'a
 val scan_body :
-  (action -> 'a) -> action -> string array -> 'a
+  (action -> 'a) -> action -> subst -> 'a
 
 val stack_lexbuf : Lexing.lexbuf Stack.t
 val tab_val : int ref
 
-val record_lexbuf : Lexing.lexbuf  -> unit
 val previous_lexbuf : unit -> Lexing.lexbuf
 
 val save_lexstate : unit -> unit
@@ -67,30 +67,32 @@ val stack_display : bool Stack.t
 val stack_alltt : bool Stack.t
 val stack_closed : string Stack.t
 
-val start_normal: bool ref -> bool ref -> unit
-val end_normal : bool ref -> bool ref  -> unit
+val start_normal: subst -> unit
+val end_normal : unit -> unit
 
-val save_arg : Lexing.lexbuf -> string
-val save_filename : Lexing.lexbuf -> string
+
 type ok = | No of string | Yes of string
-val from_ok : ok -> string
+
+val from_ok : ok * subst -> string * subst
+
+val save_arg : Lexing.lexbuf -> string * subst
+val save_filename : Lexing.lexbuf -> string * subst
+val save_opt : string -> Lexing.lexbuf -> string * subst
+val save_opts : string list -> Lexing.lexbuf -> (ok * subst) list
+
 val pretty_ok : ok -> string
-val parse_quote_arg_opt : string -> Lexing.lexbuf -> ok
-val parse_args_norm : string list -> Lexing.lexbuf -> string list
-val parse_arg_opt : string -> Lexing.lexbuf -> ok
-val parse_args_opt : string list -> Lexing.lexbuf -> ok list
 val skip_opt : Lexing.lexbuf -> unit
 val skip_csname : Lexing.lexbuf -> unit
-val check_opt : Lexing.lexbuf -> bool
-val save_opt : string -> Lexing.lexbuf -> string
-val parse_args :
+(* val parse_args :
   string list * string list -> Lexing.lexbuf -> ok list * string list
-val make_stack : string -> pat -> Lexing.lexbuf -> string array
+*)
+val make_stack : string -> pat -> Lexing.lexbuf -> subst
 
 
 
 val scan_this : (Lexing.lexbuf -> 'a ) -> string -> 'a
+val scan_this_arg : (Lexing.lexbuf -> 'a ) -> (string * subst) -> 'a
 val scan_this_may_cont :
-    (Lexing.lexbuf -> 'a ) -> Lexing.lexbuf ->  string -> 'a
+    (Lexing.lexbuf -> 'a ) -> Lexing.lexbuf -> subst ->  string * subst -> 'a
 
 val input_file : int -> (Lexing.lexbuf -> unit) -> string -> unit

@@ -11,7 +11,7 @@
 
 open Misc
 
-let header = "$Id: parse_opts.ml,v 1.18 1999-09-11 18:02:51 maranget Exp $" 
+let header = "$Id: parse_opts.ml,v 1.19 1999-09-24 16:25:38 maranget Exp $" 
 
 
 let files = ref []
@@ -78,7 +78,7 @@ let _ = Arg.parse
      ("-text",Arg.Unit (fun () -> symbols := false; destination := Text),
        ", output plain text");
      ("-info",Arg.Unit (fun () -> symbols := false; destination := Info),
-       ", outputinfo file(s)");
+       ", output info file(s)");
      ("-w", Arg.String (fun s -> width := int_of_string s),
       "width, set the output width for text or info output");
      ("-o", Arg.String (fun s -> outname := s),

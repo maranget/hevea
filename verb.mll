@@ -3,7 +3,9 @@ exception VError of string
 
 module type S = sig val init : unit -> unit end
 ;;
-module MakeAlso (Dest : OutManager.S) (Image : ImageManager.S) (Scan : Latexscan.S) : S =
+module MakeAlso
+  (Dest : OutManager.S) (Image : ImageManager.S)
+  (Scan : Latexscan.S) (Lexget : Lexget.S) : S =
 struct
 open Misc
 open Lexing
@@ -64,8 +66,8 @@ and verbenv = parse
     {if !Scan.cur_env <> "program" then begin
       Dest.put (lexeme lexbuf)
     end else begin
-      let arg = save_arg lexbuf in
-      scan_this Scan.main ("{"^arg^"}")
+      let arg,subst = save_arg lexbuf in
+      scan_this_arg Scan.main ("{"^arg^"}",subst)
     end ;
     verbenv lexbuf}
 | '\t'
@@ -109,7 +111,7 @@ and verbimage = parse
 |  "\\end"
     {let lxm = lexeme lexbuf in
     Save.start_echo () ;
-    let env = save_arg lexbuf in
+    let env,_ = save_arg lexbuf in
     let true_env = Save.get_echo () in
     if env = "verbimage" then begin
       Scan.close_env env ;
@@ -182,7 +184,7 @@ let init () =
     (fun lexbuf ->
       let tabs = Get.get_int (save_opt "8" lexbuf) in      
       let arg = save_arg lexbuf in
-      let arg = Scan.get_this_nostyle Scan.main arg in
+      let arg = Lexget.get_this_nostyle_arg Scan.main arg in
       let old_tabs = !tab_val in
       tab_val := tabs ;
       Scan.top_open_block "PRE" "" ;

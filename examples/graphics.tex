@@ -28,7 +28,8 @@ Scaled .6 \scalebox{.6}[1]{\includegraphics{flo.ps}}
 
 \section{Transformations}
 \rotatebox{45}{\scalebox{.5}{\includegraphics{flo.ps}}}
-\rotatebox{135}{\scalebox{.5}{\includegraphics{flo.ps}}}
+\newcommand{\monrot}[2]{\rotatebox{#1}{#2}}
+\monrot{135}{\scalebox{.5}{\includegraphics{flo.ps}}}
 
 
 

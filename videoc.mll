@@ -1,6 +1,6 @@
 (* <Christian.Queinnec@lip6.fr>
  The plugin for HeVeA that implements the VideoC style.
- $Id: videoc.mll,v 1.13 1999-09-06 17:49:07 maranget Exp $ 
+ $Id: videoc.mll,v 1.14 1999-09-24 16:25:45 maranget Exp $ 
 *)
 
 {
@@ -10,7 +10,10 @@ module type T =
   end;;
 
 module Makealso
-    (Dest : OutManager.S) (Image : ImageManager.S) (Scan : Latexscan.S) =
+    (Dest : OutManager.S)
+    (Image : ImageManager.S)
+    (Scan : Latexscan.S)
+    (Lexget : Lexget.S) =
 struct
 open Misc
 open Parse_opts
@@ -19,9 +22,11 @@ open Myfiles
 open Lexstate
 open Latexmacros
 open Scan
+open Lexget
+open Subst
 
 let header = 
-  "$Id: videoc.mll,v 1.13 1999-09-06 17:49:07 maranget Exp $"
+  "$Id: videoc.mll,v 1.14 1999-09-24 16:25:45 maranget Exp $"
 (* So I can synchronize my changes from Luc's ones *)
 let qnc_header = 
   "17 aout 99"
@@ -103,11 +108,13 @@ rule snippetenv = parse
     begin match pat with
     | [],[] ->
       let args =  make_stack csname pat lexbuf in
+      let cur_subst = get_subst () in
       let exec = function
         | Subst body ->
             if !verbose > 2 then
               prerr_endline ("user macro in snippet: "^body) ;
-            Lexstate.scan_this_may_cont Scan.main lexbuf body
+            Lexstate.scan_this_may_cont Scan.main
+              lexbuf cur_subst (body,get_subst ())
         | CamlCode f -> f lexbuf in
       scan_body exec body args
     |  _ ->
@@ -254,14 +261,14 @@ and do_four_backslashes _ = Dest.put "\\"
 
 and expand_url_macros lexbuf =
    let url = Save.arg_verbatim lexbuf in
-   let url = Scan.get_this Scan.main url in
+   let url = get_this Scan.main url in
    url
 
 and do_reference_url lexbuf  =
-  let txt = Scan.subst_arg Scan.subst lexbuf in
+  let txt = subst_arg lexbuf in
   let url = expand_url_macros lexbuf in
   Dest.put ("<A href=\"" ^ url ^ "\" class=\"referenceURL\">");
-  Dest.put (Scan.get_this Scan.main txt);
+  Dest.put (get_this Scan.main txt);
   Dest.put "</A>";
   ()
 
@@ -271,7 +278,7 @@ and do_single_url lexbuf =
   ()
 
 and do_define_url lxm lexbuf =
-  let name = Save.csname lexbuf (Scan.subst_this Scan.subst) in
+  let name = subst_csname lexbuf in
   let body = Save.arg_verbatim lexbuf in
   if !Scan.env_level = 0 then 
     Image.put (lxm^name^"{"^body^"}\n")
@@ -291,8 +298,8 @@ and make_do_defined_macro_url body lexbuf =
    Syntax:    \@EDEF\macroName{#2#1..}                                 *)
 
 and do_edef lxm lexbuf =
-  let name = Scan.subst_arg Scan.subst lexbuf in
-  let body = Scan.subst_arg Scan.subst lexbuf in
+  let name = subst_arg lexbuf in
+  let body = subst_arg lexbuf in
   if !Scan.env_level = 0 then 
     Image.put ("\\def"^name^"{"^body^"}\n")
   else 
@@ -309,8 +316,8 @@ and do_edef lxm lexbuf =
    should be a zero-ary macro. *)
 
 and do_muledef lxm lexbuf =
-  let names = Scan.subst_arg Scan.subst lexbuf in
-  let bodies = Scan.subst_arg Scan.subst lexbuf in
+  let names = subst_arg lexbuf in
+  let bodies = subst_arg lexbuf in
   let rec bind lasti lastj =
     try let i = String.index_from names lasti ',' in
     try let j = String.index_from bodies lastj ',' in
@@ -338,8 +345,11 @@ and do_snippet lexbuf =
   else begin
     (* Obtain the current TeX value of \snippetDefaultLanguage *)
     let snippetDefaultLanguage = 
-      Scan.get_this Scan.main "\\snippetDefaultLanguage" in
-    let language = Lexstate.save_opt snippetDefaultLanguage lexbuf in
+      get_this_nostyle Scan.main "\\snippetDefaultLanguage" in
+    let language =
+      get_this_nostyle_arg
+        Scan.main
+        (Lexstate.save_opt snippetDefaultLanguage lexbuf) in
     let language = if language = "" then snippetDefaultLanguage
                                     else language in
     skip_blanks_till_eol_included lexbuf;
@@ -407,9 +417,9 @@ and do_disableSchemeCharacters lexbuf =
    environment. So I code them by hand. *)
 
 and do_vicanchor lexbuf = begin
-  let style = Lexstate.save_opt "" lexbuf in
+  let style,_ = Lexstate.save_opt "" lexbuf in
   if !verbose > 2 then prerr_endline ("\\vicanchor"^style);
-  let nfn   = Lexstate.save_opt "0,filename,notename" lexbuf in
+  let nfn,_   = Lexstate.save_opt "0,filename,notename" lexbuf in
   if !verbose > 2 then prerr_endline ("\\vicanchor"^style^nfn);
   let fields =
     comma_separated_values (Lexing.from_string (nfn ^ ",")) in
@@ -430,7 +440,7 @@ and do_vicanchor lexbuf = begin
 end
 
 and do_vicendanchor lexbuf = begin
-  let nfn = Lexstate.save_opt "0,filename,notename" lexbuf in
+  let nfn,_ = Lexstate.save_opt "0,filename,notename" lexbuf in
   if !verbose > 2 then prerr_endline ("\\vicendanchor"^nfn);
   let fields = 
     comma_separated_values (Lexing.from_string (nfn ^ ",")) in

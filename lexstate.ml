@@ -1,4 +1,4 @@
-let header =  "$Id: lexstate.ml,v 1.30 1999-09-14 19:49:55 maranget Exp $"
+let header =  "$Id: lexstate.ml,v 1.31 1999-09-24 16:25:37 maranget Exp $"
 
 open Misc
 open Lexing
@@ -21,6 +21,24 @@ type pat = string list * string list
 let pretty_pat (_,args) =
   List.iter (fun s -> prerr_string s ; prerr_char ',') args
 
+(* Environments *)
+type subst = Top | Env of (string * subst) array
+
+let subst = ref Top
+let get_subst () = !subst
+let stack_subst =  Stack.create "stack_subst"
+
+let pretty_subst = function
+  | Top -> prerr_endline "Top level"
+  | Env args ->      
+      if Array.length args <> 0 then begin
+        prerr_endline "Env: " ;
+        for i = 0 to Array.length args - 1 do
+          prerr_string "\t``" ;
+          prerr_string (fst args.(i)) ;
+          prerr_endline "''"
+        done
+      end
 
 exception Error of string
 
@@ -97,13 +115,7 @@ let pretty_lexbuf lb =
 type env = string array ref
 type closenv = string array t
 
-let stack = ref [||]
-and stack_stack = Stack.create "stack_stack"
-;;
 
-let stack_stack_stack =
-  Stack.create "stack_stack_stack"
-;;
 
 
 (* catcodes *)
@@ -119,76 +131,65 @@ let plain_of_char = function
   | '~' -> 7
   | '\\' -> 8
   | '%'  -> 9
-  | _   -> raise (Fatal "Catcode table is bad")
+  | c   ->
+      raise
+        (Fatal ("Internal catcode table error: '"^String.make 1 c^"'"))
 
 and plain = Array.create 10 true
 
 let is_plain c = plain.(plain_of_char c)
 and set_plain c = plain.(plain_of_char c) <- true
 and unset_plain c = plain.(plain_of_char c) <- false
+and plain_back b c = plain.(plain_of_char c) <- b
 
 let  alltt = ref false
 and stack_alltt = Stack.create "stack_alltt"
 and stack_closed = Stack.create "stack_closed"
 ;;
 
-let top_level () = Stack.empty stack_stack
+let top_level () = match !subst with Top -> true | _ -> false
 
 
-let prerr_args_aux args =
-  if Array.length args <> 0 then begin
-    prerr_endline "Arguments: " ;
-    for i = 0 to Array.length args - 1 do
-      prerr_string "\t``" ;
-      prerr_string args.(i) ;
-      prerr_endline "''"
-    done
-  end
 
-let prerr_args () = prerr_args_aux !stack
-
-
+let prerr_args () = pretty_subst !subst
 
 
 let scan_arg lexfun i =
-  if i >= Array.length !stack then begin
+  let args = match !subst with
+  | Top -> [||]
+  | Env args -> args in
+  if i >= Array.length args then begin
     if !verbose > 1 then begin
       prerr_string ("Subst arg #"^string_of_int (i+1)^" -> not found") ;
-      prerr_args_aux !stack;
-      prerr_endline (" ("^string_of_int (Stack.length stack_stack)^")")
+      pretty_subst !subst
     end ;
     raise (Error "Macro argument not found")
   end;
-  let arg = !stack.(i) in
+  let arg,arg_subst = args.(i) in
   if !verbose > 1 then begin
-    prerr_string ("Subst arg #"^string_of_int (i+1)^" -> ``"^arg^"''") ;
-    prerr_endline (" ("^string_of_int (Stack.length stack_stack)^")")
+    prerr_string ("Subst arg #"^string_of_int (i+1)^" -> ``"^arg^"''")
   end ;
-  let old_args = !stack
+  let old_subst = !subst
   and old_alltt = !alltt in
-  stack := Stack.pop  stack_stack ;
+  subst := arg_subst ;
   alltt := pop  stack_alltt ;
   if !verbose > 2 then
-    prerr_args_aux !stack;
+    pretty_subst !subst ;
   let r = lexfun arg in
-  Stack.push stack_stack !stack ;
   push stack_alltt !alltt ;
-  stack := old_args ;
+  subst := old_subst ;
   alltt := old_alltt ;
   r
 
 and scan_body exec body args =
-  begin match body with
-  | CamlCode _ -> ()
-  | _ ->
-      Stack.push stack_stack !stack ;
-      stack := args
-  end ;
-(*
-    prerr_string "scan_body :" ;
-    pretty_action body ;
-    prerr_args () ;
-*)
+
+  let old_subst = match body with
+  | CamlCode _ -> !subst
+  | _          ->
+      let old_subst = !subst in
+      subst := args ;
+      old_subst in
+
   push stack_alltt !alltt ;
   let r =
     if !alltt then begin
@@ -199,52 +200,49 @@ and scan_body exec body args =
     end else
       exec body in
   let _ = pop stack_alltt in
+
   begin match body with
   | CamlCode _ -> ()
-  | _ -> stack := Stack.pop stack_stack
+  | _ -> subst := old_subst
   end;
   r
-    
+
 let tab_val = ref 8
 
 
 (* Recoding and restoring lexbufs *)
-let record_lexbuf lexbuf =
-  Stack.push stack_stack_stack (!stack, Stack.save stack_stack) ;
+let record_lexbuf lexbuf subst =
+  Stack.push stack_subst subst ;
   Stack.push stack_lexbuf lexbuf
 
 and previous_lexbuf () =
-  let lexbuf = Stack.pop stack_lexbuf
-  and s,ss = Stack.pop stack_stack_stack in
-  stack := s ; Stack.restore stack_stack ss ;
+  let lexbuf = Stack.pop stack_lexbuf in
+  subst := Stack.pop stack_subst ;
   lexbuf
 ;;
 
 (* Saving and restoring lexing status *)
-let stack_stack_lexbuf = Stack.create "stack_stack_lexbuf"
+let stack_lexstate = Stack.create "stack_lexstate"
 ;;
 
 let save_lexstate () =
-  let old_stack = Stack.save stack_stack_stack in
-  Stack.push stack_stack_stack (!stack,Stack.save stack_stack) ;
-  push stack_stack_lexbuf
-    (Stack.save stack_lexbuf, Stack.save stack_stack_stack) ;
-  Stack.restore stack_stack_stack old_stack
+  let old_stack = Stack.save stack_subst in
+  Stack.push stack_subst !subst ;
+  push stack_lexstate (Stack.save stack_lexbuf, Stack.save stack_subst) ;
+  Stack.restore stack_subst old_stack
 
 and restore_lexstate () =
-  let l,args = pop stack_stack_lexbuf in
-  Stack.restore stack_lexbuf  l ;
-  Stack.restore stack_stack_stack args ;
-  let s,ss = Stack.pop stack_stack_stack in
-  stack := s ;
-  Stack.restore stack_stack ss
-  
+  let lexbufs,substs = pop stack_lexstate in
+  Stack.restore stack_lexbuf lexbufs ;
+  Stack.restore stack_subst substs ;
+  subst := Stack.pop stack_subst
 ;;
 
 (* Blank lexing status *)
 let start_lexstate () =
   save_lexstate () ;
-  Stack.restore stack_lexbuf (Stack.empty_saved)
+  Stack.restore stack_lexbuf (Stack.empty_saved) ;
+  Stack.restore stack_subst (Stack.empty_saved)
 ;;
 
 let prelude = ref true
@@ -257,58 +255,90 @@ let stack_in_math = Stack.create "stack_in_math"
 and stack_display = Stack.create "stack_display"
 
 
-let start_normal display in_math =
+let start_normal this_subst =
   start_lexstate () ;
   push stack_display !display ;
   push stack_in_math !in_math ;
   push stack_alltt !alltt ;
   display := false ;
   in_math := false ;
-  alltt := false
+  alltt := false ;
+  subst := this_subst
 
-and  end_normal display in_math =
+and end_normal () =
   alltt   := pop stack_alltt ;
   in_math := pop stack_in_math ;
   display := pop stack_display ;
   restore_lexstate () ;
 ;;
 
-let full_save_arg lexfun lexbuf =
+let full_save_arg eoferror parg lexfun lexbuf =
   let rec save_rec lexbuf =
-    try lexfun lexbuf
+    try
+      let arg = lexfun lexbuf in
+      arg,(!subst)
     with Save.Eof -> begin
         if Stack.empty stack_lexbuf then
-          raise (Error "Eof while looking for argument");
-        let lexbuf = previous_lexbuf () in
-        if !verbose > 2 then begin
-          prerr_endline "popping stack_lexbuf in full_save_arg";
-          pretty_lexbuf lexbuf ;
-          prerr_args ()
-        end;
-        save_rec lexbuf end in
+           eoferror () 
+        else begin
+          let lexbuf = previous_lexbuf () in
+          if !verbose > 2 then begin
+            prerr_endline "popping stack_lexbuf in full_save_arg";
+            pretty_lexbuf lexbuf ;
+            prerr_args ()
+          end;
+          save_rec lexbuf
+        end
+    end in
 
   Save.seen_par := false ;
   save_lexstate () ;
-  let arg = save_rec lexbuf in
+  let arg,subst_arg = save_rec lexbuf in
   restore_lexstate () ;
   if !verbose > 2 then
-    prerr_endline ("Arg parsed: ``"^arg^"''") ;
-  arg
-;;
-
-let save_arg lexbuf = full_save_arg Save.arg lexbuf
-and save_arg_with_delim delim lexbuf =
-  full_save_arg (Save.with_delim delim) lexbuf
-and save_filename lexbuf = full_save_arg Save.filename lexbuf
+    prerr_endline ("Arg parsed: ``"^parg arg^"''") ;
+  arg,subst_arg
 ;;
 
 
 type ok = No of string | Yes of string
 ;;
 
+let pstring s = s
+and pok = function
+  | Yes s -> s
+  | No s  -> s
+
+
+let eof_arg () = raise (Error "Eof while looking for argument")
+
+let save_arg lexbuf = full_save_arg eof_arg pstring Save.arg lexbuf
+and save_arg_with_delim delim lexbuf =
+  full_save_arg eof_arg pstring (Save.with_delim delim) lexbuf
+and save_filename lexbuf = full_save_arg eof_arg pstring Save.filename lexbuf
+
+let eof_opt def () = No def,Top
+
+let save_arg_opt def lexbuf =
+  match
+    full_save_arg
+      (eof_opt def)
+      pok
+      (fun lexbuf ->
+        try Yes (Save.opt lexbuf) with          
+        | Save.NoOpt -> No def)
+      lexbuf with
+  | No def,_ -> No def,Top
+  | arg      -> arg    
+    
+      
+  
+;;
+
+
 let from_ok = function
-  Yes s -> (optarg := true ; s)
-| No s  -> (optarg := false ; s)
+  Yes s,env -> (optarg := true ; s,env)
+| No s,env  -> (optarg := false ; s,env)
 ;;
 
 let pretty_ok = function
@@ -316,31 +346,6 @@ let pretty_ok = function
 | No s  -> "-"^s^"-"
 ;;
 
-
-let parse_quote_arg_opt def lexbuf =
-
-  let rec save_rec lexbuf = 
-    try Yes (Save.opt lexbuf) with
-      Save.NoOpt -> No def
-    | Save.Eof -> begin
-        if Stack.empty stack_lexbuf  then No def
-        else let lexbuf = previous_lexbuf () in
-        if !verbose > 2 then begin
-          prerr_endline "poping stack_lexbuf in parse_quote_arg_opt";
-          pretty_lexbuf lexbuf
-        end;
-        save_rec lexbuf end in
-  
-  save_lexstate () ;
-  let r = save_rec lexbuf in
-  restore_lexstate () ;
-  if !verbose > 2 then begin
-     Printf.fprintf stderr "Parse opt : %s" (pretty_ok r) ;
-     prerr_endline ""
-  end ;
-  Save.seen_par := false ;
-  r
-;;
 
 let norm_arg s =
   String.length s = 2 && s.[0] = '#' &&
@@ -365,41 +370,28 @@ let rec parse_args_norm pat lexbuf = match pat with
 ;;
 
 
-let parse_arg_opt def lexbuf =
-  let arg = parse_quote_arg_opt def lexbuf in
-  arg
-;;
-
-let rec parse_args_opt pat lexbuf = match pat with
-  [] -> []
-| def::rest ->
-   let arg = parse_arg_opt def lexbuf in
-   let r   = parse_args_opt rest lexbuf in
-   arg :: r
-;;
-
 let skip_csname lexbuf =
   let _ = Save.csname lexbuf (fun x -> x) in ()
 
 
 let skip_opt lexbuf =
-  let _ =  parse_quote_arg_opt "" lexbuf  in
+  let _ =  save_arg_opt "" lexbuf  in
   ()
 
-and check_opt lexbuf =
-  match parse_quote_arg_opt "" lexbuf  with
-    Yes _ -> true
-  | No  _ -> false
+and save_opt def lexbuf = from_ok (save_arg_opt def  lexbuf)
+;;
 
-and save_opt def lexbuf =
-  match parse_arg_opt def  lexbuf with
-    Yes s -> s
-  | No s  -> s
+let rec save_opts pat lexbuf = match pat with
+  [] -> []
+| def::rest ->
+   let arg = save_arg_opt def lexbuf in
+   let r = save_opts rest lexbuf in
+   arg :: r
 ;;
 
 
 let parse_args (popt,pat) lexbuf =
-  let opts =  parse_args_opt popt lexbuf in
+  let opts =  save_opts popt lexbuf in
   begin match pat with
   | s :: ss :: _ when norm_arg s && not (norm_arg ss) ->
       Save.skip_blanks_init lexbuf
@@ -418,10 +410,11 @@ let make_stack name pat lexbuf =
       pretty_pat pat ;
       prerr_endline "";
       for i = 0 to Array.length args-1 do
-        Printf.fprintf stderr "\t#%d = %s\n" (i+1) args.(i)
+        Printf.fprintf stderr "\t#%d = %s\n" (i+1) (fst args.(i)) ;
+        pretty_subst (snd args.(i))
       done
     end ;
-    args
+    Env args
   with Save.Delim delim ->
     raise
       (Error
@@ -444,19 +437,36 @@ let scan_this lexfun s =
   end ;
   restore_lexstate ();
   r
+and scan_this_arg lexfun (s,this_subst) =
+  start_lexstate () ;
+  subst := this_subst ;
+  if !verbose > 1 then begin
+    Printf.fprintf stderr "scan_this_arg : [%s]" s ;
+    prerr_endline ""  
+  end ;
+  let lexer = Lexing.from_string s in
+  let r = lexfun lexer in
+  if !verbose > 1 then begin
+    Printf.fprintf stderr "scan_this_arg : over" ;
+    prerr_endline ""
+  end ;
+  restore_lexstate ();
+  r
 ;;
 
-let scan_this_may_cont lexfun lexbuf s =
+let scan_this_may_cont lexfun lexbuf cur_subst (s,env) =
   if !verbose > 1 then begin
     Printf.fprintf stderr "scan_this_may_cont : [%s]" s ;
     prerr_endline "" ;
-    if !verbose > 2 then begin
-      prerr_endline "Pushing lexbuf" ;
-      pretty_lexbuf lexbuf
+    if !verbose > 1 then begin
+      prerr_endline "Pushing lexbuf and env" ;
+      pretty_lexbuf lexbuf ;
+      pretty_subst !subst
     end
   end ;
   save_lexstate ();
-  record_lexbuf lexbuf ;
+  record_lexbuf lexbuf cur_subst ;
+  subst := env ;
 
   let lexer = Lexing.from_string s in
   let r = lexfun lexer in

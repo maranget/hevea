@@ -9,47 +9,47 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmain.ml,v 1.50 1999-09-11 18:02:39 maranget Exp $" 
+let header = "$Id: latexmain.ml,v 1.51 1999-09-24 16:25:25 maranget Exp $" 
 
 open Misc
 open Parse_opts
 
 
 let
-  subst_this,subst,get_this,scan_main,
+  scan_main,
   no_prelude,print_env_pos,
   dest_finalize,image_finalize = 
 
   match !Parse_opts.destination with
   | Html when name_in <> "" ->
-      let module Scan = Latexscan.Make (Html) (Image) in
-      let module Otherscan = Videoc.Makealso (Html) (Image) (Scan) in
-      let module Verbscan = Verb.MakeAlso  (Html) (Image) (Scan) in
+      let module Get = Lexget.Make (Html) in
+      let module Scan = Latexscan.Make (Html) (Image) (Get) in
+      let module Otherscan = Videoc.Makealso (Html) (Image) (Scan) (Get) in
+      let module Verbscan = Verb.MakeAlso  (Html) (Image) (Scan) (Get) in
       Otherscan.init () ; Verbscan.init () ;
-      Scan.subst_this, Scan.subst,
-      Scan.get_this, Scan.main, Scan.no_prelude, Scan.print_env_pos,
+      Scan.main, Scan.no_prelude, Scan.print_env_pos,
       Html.finalize, Image.finalize
   | Html  ->
-      let module Scan = Latexscan.Make (Html) (Noimage) in
-      let module Otherscan = Videoc.Makealso (Html) (Noimage) (Scan) in
-      let module Verbscan = Verb.MakeAlso  (Html) (Noimage) (Scan) in
+      let module Get = Lexget.Make (Html) in
+      let module Scan = Latexscan.Make (Html) (Noimage) (Get)in
+      let module Otherscan = Videoc.Makealso (Html) (Noimage) (Scan) (Get) in
+      let module Verbscan = Verb.MakeAlso  (Html) (Noimage) (Scan) (Get) in
       Otherscan.init () ; Verbscan.init () ;
-      Scan.subst_this, Scan.subst,
-      Scan.get_this, Scan.main, Scan.no_prelude, Scan.print_env_pos,
+      Scan.main, Scan.no_prelude, Scan.print_env_pos,
       Html.finalize, Noimage.finalize
   | Text ->
-      let module Scan = Latexscan.Make (Text) (Noimage)  in
-      let module Verbscan = Verb.MakeAlso  (Text) (Noimage) (Scan) in
+      let module Get = Lexget.Make (Info) in
+      let module Scan = Latexscan.Make (Text) (Noimage) (Get) in
+      let module Verbscan = Verb.MakeAlso  (Text) (Noimage) (Scan) (Get) in
       Verbscan.init () ;
-      Scan.subst_this, Scan.subst,
-      Scan.get_this, Scan.main, Scan.no_prelude, Scan.print_env_pos,
+      Scan.main, Scan.no_prelude, Scan.print_env_pos,
       Text.finalize,Noimage.finalize
   | Info ->
-      let module Scan = Latexscan.Make (Info) (Noimage) in
-      let module Verbscan = Verb.MakeAlso  (Info) (Noimage) (Scan) in
+      let module Get = Lexget.Make (Info) in
+      let module Scan = Latexscan.Make (Info) (Noimage) (Get) in
+      let module Verbscan = Verb.MakeAlso  (Info) (Noimage) (Scan) (Get) in
       Verbscan.init () ;
-      Scan.subst_this, Scan.subst,
-      Scan.get_this, Scan.main, Scan.no_prelude, Scan.print_env_pos,
+      Scan.main, Scan.no_prelude, Scan.print_env_pos,
       Info.finalize, Noimage.finalize
 ;;
 

@@ -8,6 +8,7 @@
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
 (***********************************************************************)
+open Lexstate
 
 module type S =
   sig
@@ -17,9 +18,6 @@ module type S =
     val main : Lexing.lexbuf -> unit
 
     (* additional resources needed for extension modules. *)
-    val subst : Lexing.lexbuf -> unit
-    val subst_arg : (Lexing.lexbuf -> unit) -> Lexing.lexbuf -> string
-    val subst_this : (Lexing.lexbuf -> unit) -> string -> string
     val cur_env : string ref
     val new_env : string -> unit
     val close_env : string -> unit
@@ -27,9 +25,8 @@ module type S =
     val macro_register : string -> unit
     val top_open_block : string -> string -> unit
     val top_close_block : string -> unit
-    val get_this : (Lexing.lexbuf -> unit) -> string -> string
-    val get_this_nostyle : (Lexing.lexbuf -> unit) -> string -> string
 end
 
-module Make (Dest : OutManager.S) (Image : ImageManager.S) : S
+module Make (Dest : OutManager.S) (Image : ImageManager.S)
+    (Lexget : Lexget.S): S
 

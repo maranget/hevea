@@ -18,7 +18,7 @@ open Lexstate
 open Stack
 
 (* Compute functions *)
-let header = "$Id: get.mll,v 1.9 1999-09-01 13:53:45 maranget Exp $"
+let header = "$Id: get.mll,v 1.10 1999-09-24 16:25:24 maranget Exp $"
 
 exception Error of string
 
@@ -26,7 +26,7 @@ let sbool = function
   | true -> "true"
   | false -> "false"
 
-let get_this = ref (fun b s -> s)
+let get_this = ref (fun b s -> assert false)
 and register_this = ref (fun s -> ())
 and open_env = ref (fun _ -> ())
 and close_env = ref (fun _ -> ())
@@ -228,7 +228,7 @@ let def_loc name f =
 let def_commands_int () =
   def_loc "\\value"
     (fun lexbuf ->
-      let name = !get_this true (Save.arg lexbuf) in
+      let name = !get_this true (save_arg lexbuf) in
       push_int (Counter.value_counter name))
 ;;
 
@@ -291,7 +291,8 @@ let def_commands_bool () =
     (fun lexbuf ->
       let name = !get_this true (save_arg lexbuf) in
       let b = try
-        let r = !get_this true ("\\if"^name^" true\\else false\\fi") in
+        let r = !get_this true
+            ("\\if"^name^" true\\else false\\fi",get_subst ()) in
         match r with
         | "true" -> true
         | "false" -> false
@@ -328,14 +329,14 @@ let first_try s =
   try_rec 0 0
 ;;
 
-let get_int expr =
+let get_int (expr, subst) =
   if !verbose > 1 then
     prerr_endline ("get_int : "^expr) ;
   let r =
     try first_try expr with Failure _ -> begin
       let old_int = !int_out in
       int_out := true ;
-      start_normal display in_math ;
+      start_normal subst ;
       !open_env "*int*" ;
       def_commands_int () ;
       open_ngroups 2 ;
@@ -349,7 +350,7 @@ let get_int expr =
       end ;
       close_ngroups 2 ;
       !close_env "*int*" ;
-      end_normal display in_math ;
+      end_normal () ;
       if Stack.empty int_stack then
         raise (Error ("``"^expr^"'' has no value as an integer"));
       let r = pop int_stack in
@@ -360,12 +361,12 @@ let get_int expr =
   r
   
 
-let get_bool expr =
+let get_bool (expr,subst) =
   if !verbose > 1 then
     prerr_endline ("get_bool : "^expr) ;
   let old_bool = !bool_out in
   bool_out := true ;
-  start_normal display in_math ;
+  start_normal subst ;
   !open_env "*bool*" ;
   def_commands_bool () ;
   open_ngroups 7 ;
@@ -379,7 +380,7 @@ let get_bool expr =
   end ;
   close_ngroups 7 ;
   !close_env "*bool*" ;
-  end_normal display in_math ;
+  end_normal () ;
   if Stack.empty bool_stack then
     raise (Error ("``"^expr^"'' has no value as an integer"));
   let r = pop bool_stack in
@@ -388,7 +389,7 @@ let get_bool expr =
   bool_out := old_bool ;
   r
 
-let get_length expr =
+let get_length (expr,_) =
   if !verbose > 1 then
     prerr_endline ("get_length : "^expr) ;
   let r = Length.main (Lexing.from_string expr) in

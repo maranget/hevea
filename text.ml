@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.32 1999-09-01 14:30:44 maranget Exp $"
+let header = "$Id: text.ml,v 1.33 1999-09-24 16:25:42 maranget Exp $"
 
 
 open Misc
@@ -1308,7 +1308,11 @@ let put_ligne texte pos align width taille wrap=
 (* envoie la ligne de texte apres pos, sur out, en alignant horizontalement et en completant pour avoir la bonne taille *)
   let pos_suiv = try 
     String.index_from texte pos '\n'
-  with Not_found -> String.length texte
+  with
+  | Not_found -> String.length texte
+  | Invalid_argument _ ->
+      assert (texte="" && pos=0) ;
+      0
   in
   let s = String.sub texte pos (pos_suiv - pos) in
   let t,post= 

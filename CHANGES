@@ -1,3 +1,6 @@
+  - new management of bindings, lexbuf is associated with a current
+    environment.
+  - new primitive \execafter -> graphics package implementation.
 version 1.05-5
   - Beta version anounced on user mailing list.
 version 1.05-4

@@ -21,7 +21,7 @@ module type T =
 module MakeFoot ( Dest : OutManager.S )=
 struct
 
-let header = "$Id: foot.ml,v 1.13 1999-08-30 07:30:33 maranget Exp $" 
+let header = "$Id: foot.ml,v 1.14 1999-09-24 16:25:23 maranget Exp $" 
 open Parse_opts
 (*open Dest*)
 
@@ -76,8 +76,8 @@ let flush lexer sec_notes sec_here =
       anchor_to_note ;
     all := Sort.list
          (fun ((m1,a1),_) ((m2,a2),_) ->
-           (m1 < m2) ||
-           ((m1 = m1) && (a1 <= a2))) !all ;
+           (a1 < a2) ||
+           ((a1 = a2) && (m1 <= m2))) !all ;
     List.iter
       (fun ((_,anchor),(themark,text)) ->
         Dest.ditem (fun s ->

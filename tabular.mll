@@ -3,16 +3,12 @@ open Misc
 open Lexing
 open Table
 open Lexstate
+open Subst
 
-let header = "$Id: tabular.mll,v 1.16 1999-09-11 18:02:53 maranget Exp $"
+let header = "$Id: tabular.mll,v 1.17 1999-09-24 16:25:40 maranget Exp $"
 
 exception Error of string
 ;;
-
-let subst_this = ref (fun s -> s)
-
-let init latexsubst (*latexgetint*) =
-  subst_this := latexsubst ;
 
 type align =
     {hor : string ; mutable vert : string ; wrap : bool ;
@@ -89,7 +85,7 @@ let pretty_formats f =
 
 rule tfone = parse
   '>'
-    {let pre = !subst_this (Save.arg lexbuf) in
+    {let pre = subst_arg lexbuf in
     tfmiddle lexbuf ;
     try
       apply out_table (function
@@ -108,7 +104,7 @@ and tfmiddle = parse
         pre = "" ;   post = post ; width = None})}
 | 'p'|'m'|'b'
   {let f = Lexing.lexeme_char lexbuf 0 in
-  let width = !subst_this (Save.arg lexbuf) in
+  let width = subst_arg lexbuf in
   let my_width =
     try Some (Length.main (Lexing.from_string width))
     with Length.No -> None in
@@ -144,24 +140,23 @@ and tfmiddle = parse
   raise (Error ("Syntax of array format near: "^rest))}
 
 and tfpostlude = parse
-  '<' {!subst_this (Save.arg lexbuf)}
+  '<' {subst_arg lexbuf}
 | ""  {""}
 
 
 and lexformat = parse
  '*'
-   {let ntimes = Save.arg lexbuf in
-   let what = Save.arg lexbuf in
+   {let ntimes = save_arg lexbuf in
+   let what = save_arg lexbuf in
    let rec do_rec = function
      0 -> lexformat lexbuf
    | i ->
-      let sbuf = Lexing.from_string what in
-      lexformat sbuf ; do_rec (i-1) in
+      scan_this_arg lexformat what ; do_rec (i-1) in
    do_rec (Get.get_int ntimes)}
 | '|' {border := true ; emit out_table (Border "|") ; lexformat lexbuf}
 | '@'|'!'
     {let lxm = Lexing.lexeme_char lexbuf 0 in
-    let inside = !subst_this (Save.arg lexbuf) in
+    let inside = subst_arg lexbuf in
     if lxm = '!' || inside <> "" then emit out_table (Inside inside) ;
     lexformat lexbuf}
 | '#' ['1'-'9']
@@ -176,9 +171,11 @@ and lexformat = parse
 
 {
 
-let main s =
+let main (s,env) =
   if !verbose > 1 then prerr_endline ("Table format: "^s);
+  start_normal env ;
   lexformat (Lexing.from_string s) ;
+  end_normal () ;
   let r = check_vert (trim out_table) in
   if !verbose > 1 then begin
     prerr_string "Format parsed: " ;

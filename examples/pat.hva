@@ -9,3 +9,4 @@
 \def\heat{\rightarrow}
 \def\cool{\leftarrow}
 \def\redsoupe{\Rightarrow}
+\let\name\relax
