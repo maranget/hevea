@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmain.ml,v 1.72 2001-11-02 09:54:04 maranget Exp $" 
+let header = "$Id: latexmain.ml,v 1.73 2002-04-30 08:32:14 maranget Exp $" 
 
 open Misc
 open Parse_opts
@@ -202,7 +202,7 @@ let _ =
     exit 0
   with
     | Misc.Close s ->
-        prerr_error s ;
+        prerr_error ("Environment nesting error: "^s) ;
         scan_print_env_pos ()
     | Html.Error s ->
         prerr_error ("Error while writing HTML:\n\t"^s)
@@ -236,11 +236,9 @@ let _ =
         prerr_bug ("Fatal error: "^s)
     |  Stack.Fatal s ->
         prerr_bug ("Fatal stack error, "^s)
-(*
     |  x ->
         prerr_bug
           ("Fatal error, spurious exception:\n\t"^Printexc.to_string x)
-*)
   end ;
   let _ = finalize false in
   prerr_endline "Adios" ;

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.222 2002-04-29 14:31:03 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.223 2002-04-30 08:32:14 maranget Exp $ *)
 
 
 {
@@ -134,9 +134,13 @@ let top_close_display () =
 (* Latex environment stuff *)
 
 let print_env_pos () =
-  let _,_,pos = Stack.pop stack_env in
-  Location.print_this_pos pos ;
-  prerr_endline ("Latex environment ``"^ !cur_env^"'' is pending")
+  if Stack.empty stack_env then begin
+    prerr_endline "No Latex environement is pending"
+  end else begin
+    let _,_,pos = Stack.pop stack_env in
+    Location.print_this_pos pos ;
+    prerr_endline ("Latex environment ``"^ !cur_env^"'' is pending")
+  end
 ;;
 
 let new_env env =
