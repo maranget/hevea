@@ -340,10 +340,10 @@
 \def\prod{\ifdisplay{\Huge\Pi}\else\Pi\fi}
 \def\int{\ifdisplay\@displayint\else{\large\@int}\fi}
 %% Arrays and tabular
-\newenvironment{tabular*}[2]{\begin{tabular}{#2}}{\end{tabular}}
-\newcommand{\extracolsep}[1]{\warning{Warning, \extracolsep ignored}}
+\newcommand{\extracolsep}[1]{}
 \newcommand{\cline}[1]{\warning{Warning, \cline changed into \hline}\hline}
 \def\cases#1{\left\{\begin{array}{l>{$}l<{$}}#1\end{array}\right.}
+\def\endcases{}
 %%% tabularx
 \newenvironment{tabularx}[2]{\begin{tabular}{#2}}{\end{tabular}}
 \newcolumntype{X}{p{}}

@@ -2783,12 +2783,13 @@ specification, then the array is shown with borders.
 (see above). Otherwise, an horizontal rule is outputed.
 \item The command \verb+\cline+ ignores its argument and is equivalent
 to \verb+\hline+.
-\item The \verb+tabular*+ environment is rendered as an ordinary
-\verb+tabular+.
-Its first mandatory argument is ignored and no optional argument is accepted.
 \item Similarly the command
 \verb+\extracolsep+ issues a warning and ignores its argument.
 \end{itemize}
+Additionnaly, the \verb+tabular*+ environment is
+recognized and gets renderered as an \html{} table with an advisory
+width attribute.
+
 
 By default, \hevea{} implement the \texttt{array} package
 (see \cite[Section~5.3]{latexbis} and section~\ref{arraypack} in this

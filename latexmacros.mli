@@ -36,6 +36,7 @@ val def_name_code: string -> (string -> Lexing.lexbuf -> unit) -> unit
 val redef_macro: string -> int -> action -> unit
 val def_env_pat: string -> pat -> action -> action -> unit
 val redef_env_pat: string -> pat -> action -> action -> unit
+val silent_def: string -> int -> action -> unit
 val unregister : string -> unit
 
 val invisible : string -> bool

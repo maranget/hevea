@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmacros.ml,v 1.47 1999-05-14 17:54:52 maranget Exp $" 
+let header = "$Id: latexmacros.ml,v 1.48 1999-05-17 13:40:21 maranget Exp $" 
 open Misc
 open Parse_opts
 open Symb
@@ -99,12 +99,18 @@ let provide_macro_pat name pat action =
   end
 ;;
 
+let silent_def_pat name pat action =  Hashtbl.add cmdtable name (pat,action)
+;;
+
 let make_pat opts n =
   let n_opts = List.length opts in
   let rec do_rec r i =
     if i <=  n_opts  then r
     else do_rec (("#"^string_of_int i)::r) (i-1) in
   opts,do_rec [] n
+;;
+
+let silent_def name n action =  silent_def_pat name (make_pat [] n) action
 ;;
 
 let def_macro name nargs body =
@@ -114,8 +120,7 @@ and redef_macro name nargs body =
 ;;
 let def_code name f = def_macro name 0 (CamlCode f)
 and redef_code name f = redef_macro name 0 (CamlCode f)
-and def_name_code name f =
-  def_macro name 0 (CamlCode (f name))
+and def_name_code name f = def_macro name 0 (CamlCode (f name))
 ;;
      
 let def_env name body1 body2 =

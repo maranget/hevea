@@ -47,7 +47,7 @@ open Save
 open Tabular
 open Lexstate
 
-let header = "$Id: latexscan.mll,v 1.93 1999-05-14 17:54:56 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.94 1999-05-17 13:40:26 maranget Exp $" 
 
 let sbool = function
   | false -> "false"
@@ -505,9 +505,9 @@ let show_inside main format i =
     begin match get_col format !t with
       Tabular.Inside s ->
         let s = get_this main s in
-        Dest.open_cell center_format 1; (*block "TD" "ALIGN=center";*)
+        Dest.open_cell center_format 1;
         Dest.put s ;
-        Dest.close_cell ""; (*force_block "TD" ""*)
+        Dest.close_cell "";
     | _ -> raise EndInside
     end ;
     t := !t+1
@@ -2446,11 +2446,31 @@ let open_tabbing lexbuf =
 def_code "\\tabbing" open_tabbing
 ;;
 
+let check_width = function
+  | None -> ""
+  | Some (Length.Absolute x) ->
+      " WIDTH="^string_of_int (x * Length.font)
+  | Some (Length.Percent x) ->
+      " WIDTH=\""^string_of_int x^"%\""
+;;
+
 let open_array env lexbuf =
   top_close_block "" ;
 
   save_array_state ();
   Tabular.border := false ;
+  let len =
+    match env with
+    | "tabular*" ->
+        let arg = save_arg lexbuf in
+        begin try  Some (Get.get_length arg)
+        with Length.No -> begin
+          warning ("``tabular*'' with length argument: "^
+                   subst_this subst arg) ;
+          None end
+        end
+    | _ -> None in
+      
   skip_opt lexbuf ;
   let format = save_arg lexbuf in
   let format = Tabular.main format in
@@ -2465,16 +2485,17 @@ let open_array env lexbuf =
   push stack_display !display ;
   display := false ;
   if !Tabular.border then
-    Dest.open_table true "CELLSPACING=0 CELLPADDING=1"
+    Dest.open_table true ("CELLSPACING=0 CELLPADDING=1"^check_width len)
   else
-    Dest.open_table false "CELLSPACING=2 CELLPADDING=0";
+    Dest.open_table false ("CELLSPACING=2 CELLPADDING=0"^check_width len);
   open_row() ;
   open_first_col main ;
   skip_blanks_pop lexbuf
 ;;
 
 def_code "\\array" (open_array "array") ;
-def_code "\\tabular" (open_array "tabular")
+def_code "\\tabular" (open_array "tabular") ;
+def_code "\\tabular*" (open_array "tabular*")
 ;;
 
 
@@ -2508,7 +2529,8 @@ let close_array env _ =
 ;;
 
 def_code "\\endarray" (close_array "array") ;
-def_code "\\endtabular" (close_array "tabular")
+def_code "\\endtabular" (close_array "tabular") ;
+def_code "\\endtabular*" (close_array "tabular*")
 ;;
 
 
@@ -2630,5 +2652,12 @@ def_fun "\\\"" trema ;
 def_fun "\\c"  cedille ;
 def_fun "\\~"  tilde
 ;;
+
+Get.init
+   (fun nostyle s -> do_get_this nostyle main s)
+     macro_register new_env close_env ;
+Tabular.init (subst_this subst)
+;;
+
 
 end}

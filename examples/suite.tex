@@ -190,8 +190,8 @@ Chaque tableau est un paragraphe
 {\newcommand{\test}[1]{#1\bf}\test{avant} après},
 {avant\newcommand{\apres}{après} \apres},
 avant\newsavebox{\testb}\sbox{\testb}{avant} {\usebox{\testb} après},
-{avant\ref{espace} après},
-{\newcommand{\test}[1]{\ref{#1}}avant\test{espace} après},
+{avant \ref{espace} après},
+{\newcommand{\test}[1]{\ref{#1}}avant \test{espace} après},
 {avant\label{ici} après},
 {avan\symbol{116} après}.
 \end{itemize}
@@ -851,9 +851,9 @@ Et pis en texte: $\overline{A} \stackrel{B}{\rightarrow}
 3 & 2 & 1
 \end{tabular}
 
-\begin{tabular*}{10cm}{*3{l}}
+\begin{tabular*}{10cm}{*3{|@{\extracolsep{\fill}}l}|}
 1 & 2 & 3\\
-\\
+  &   &  \\
 3 & 2 & 1
 \end{tabular*}
 

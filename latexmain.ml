@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmain.ml,v 1.39 1999-05-10 15:53:56 tessaud Exp $" 
+let header = "$Id: latexmain.ml,v 1.40 1999-05-17 13:40:22 maranget Exp $" 
 
 open Misc
 open Parse_opts
@@ -45,11 +45,6 @@ let
       Scan.get_this, Scan.main, Scan.no_prelude, Scan.print_env_pos,
       Info.finalize
 ;;
-
-Get.init (subst_this subst) (get_this scan_main) ;
-Tabular.init (subst_this subst)
-;;
-
 
 let finalize check =
   Image.finalize () ;

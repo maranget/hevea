@@ -17,7 +17,7 @@ open Latexmacros
 open Lexstate
 
 (* Compute functions *)
-let header = "$Id: get.mll,v 1.5 1999-05-14 17:54:50 maranget Exp $"
+let header = "$Id: get.mll,v 1.6 1999-05-17 13:40:20 maranget Exp $"
 
 exception Error of string
 
@@ -25,12 +25,12 @@ let sbool = function
   | true -> "true"
   | false -> "false"
 
-let subst_this = ref (fun s -> s)
-and get_this = ref (fun s -> s)
-let init latexsubst latexget =
-  subst_this := latexsubst ;
-  get_this := latexget
-       
+let get_this = ref (fun b s -> s)
+and register_this = ref (fun s -> ())
+and open_env = ref (fun _ -> ())
+and close_env = ref (fun _ -> ())
+;;
+
 let bool_out = ref false
 and int_out = ref false
 ;;
@@ -200,114 +200,130 @@ rule result = parse
     result lexbuf} 
 | command_name
     {let lxm = lexeme lexbuf in
-    match lxm with
-    | "\\(" when !bool_out ->
-        open_ngroups 7 ;
-        result lexbuf
-    | "\\)" when !bool_out ->
-        close_ngroups 7 ;
-        result lexbuf
-    | "\\@fileexists" when !bool_out ->
-        let name = !subst_this (save_arg lexbuf) in
-        push bool_stack
-          (try
-            let _ = Myfiles.open_tex name in
-            true
-          with Myfiles.Except | Myfiles.Error _ -> false) ;
-        result lexbuf
-    | "\\equal" when !bool_out ->
-        let arg1 = save_arg lexbuf in
-        let arg2 = save_arg lexbuf in
-        push bool_stack (!get_this arg1 = !get_this arg2) ;
-        result lexbuf
-    | "\\or" when !bool_out ->
-        close_ngroups 7 ;
-        open_aftergroup
-          (fun () ->
-            if !verbose > 2 then begin
-              prerr_endline "OR" ;
-              prerr_stack_string "bool" sbool bool_stack
-            end ;
-            let b1 = pop bool_stack in
-            let b2 = pop bool_stack in
-            push bool_stack (b1 || b2)) "OR";
-        open_ngroups 6 ;
-        result lexbuf
-    | "\\and" when !bool_out ->
-        close_ngroups 6 ;
-        open_aftergroup
-          (fun () ->
-            if !verbose > 2 then begin
-              prerr_endline "AND" ;
-              prerr_stack_string "bool" sbool bool_stack
-            end ;
-            let b1 = pop bool_stack in
-            let b2 = pop bool_stack in
-            push bool_stack (b1 && b2)) "AND";            
-        open_ngroups 5 ;
-        result lexbuf
-    | "\\not" when !bool_out ->
-        close_ngroups 4 ;
-        open_aftergroup
-          (fun () ->
-            if !verbose > 2 then begin
-              prerr_endline "NOT" ;
-              prerr_stack_string "bool" sbool bool_stack
-            end ;
-            let b1 = pop bool_stack in
-            push bool_stack (not b1)) "NOT";
-        open_ngroups 3;
-        result lexbuf
-    | "\\boolean" when !bool_out ->
-        let name = !subst_this (save_arg lexbuf) in
-        let b = try
-          let r = !get_this ("\\if"^name^" true\\else false\\fi") in
-          match r with
-          | "true" -> true
-          | "false" -> false
-          | _ -> assert false
-        with
-          Latexmacros.Failed -> true  in
-        push bool_stack b ;
-        result lexbuf
-    | "\\isodd" when !bool_out ->
-        close_ngroups 3 ;
-        open_aftergroup
-          (fun () ->
-            if !verbose > 2 then begin
-              prerr_endline ("ISODD") ;
-              prerr_stack_string "int" string_of_int int_stack
-            end ;
-        let x = pop int_stack in
-        push bool_stack (x mod 2 = 1) ;
-        if !verbose > 2 then
-            prerr_stack_string "bool" sbool bool_stack) "ISODD" ;
-        open_ngroups 2 ;
-        result lexbuf
-    | "\\value" ->
-        let name = !subst_this (Save.arg lexbuf) in
-        push_int (Counter.value_counter name) ;
-        result lexbuf
-    | _ ->
-        let pat,body = Latexmacros.find_macro lxm in
-        let args = make_stack lxm pat lexbuf in
-        scan_body
-          (function
-            | Subst body ->
-                scan_this result body
-            | _ -> raise (Error ("Special macro in Get.result")))
+    let pat,body = Latexmacros.find_macro lxm in
+    let args = make_stack lxm pat lexbuf in
+    scan_body
+      (function
+        | Subst body ->
+            scan_this result body
+        | CamlCode f -> f lexbuf
+        | _          -> warning "Strange macro in Get")
           body args ;
-        result lexbuf}
+    result lexbuf}
 | _   {raise (Error ("Bad character in Get.result: ``"^lexeme lexbuf^"''"))}
 | eof {()}
 
 {
+let init latexget latexregister latexopenenv latexcloseenv =
+  get_this := latexget ;
+  register_this := latexregister ;
+  open_env := latexopenenv ;
+  close_env := latexcloseenv
+;;
+let def_loc name f =
+  silent_def name 0 (CamlCode f) ;
+  !register_this name
+;;
+
+let def_commands_int () =
+  def_loc "\\value"
+    (fun lexbuf ->
+      let name = !get_this true (Save.arg lexbuf) in
+      push_int (Counter.value_counter name))
+;;
+
+
+let def_commands_bool () =
+  def_loc "\\(" (fun _ -> open_ngroups 7) ;
+  def_loc "\\)"  (fun _ -> close_ngroups 7) ;
+  def_loc "\\@fileexists"
+    (fun lexbuf ->
+      let name = !get_this true (save_arg lexbuf) in
+      push bool_stack
+        (try
+          let _ = Myfiles.open_tex name in
+          true
+        with Myfiles.Except | Myfiles.Error _ -> false)) ;
+  def_loc "\\equal"
+    (fun lexbuf ->
+        let arg1 = save_arg lexbuf in
+        let arg2 = save_arg lexbuf in
+        push bool_stack (!get_this false arg1 = !get_this false arg2)) ;
+  def_loc "\\or"
+    (fun _ ->
+      close_ngroups 7 ;
+      open_aftergroup
+        (fun () ->
+          if !verbose > 2 then begin
+            prerr_endline "OR" ;
+            prerr_stack_string "bool" sbool bool_stack
+          end ;
+          let b1 = pop bool_stack in
+          let b2 = pop bool_stack in
+          push bool_stack (b1 || b2)) "OR";
+      open_ngroups 6) ;
+  def_loc "\\and"
+    (fun _ ->
+      close_ngroups 6 ;
+      open_aftergroup
+        (fun () ->
+          if !verbose > 2 then begin
+            prerr_endline "AND" ;
+            prerr_stack_string "bool" sbool bool_stack
+          end ;
+          let b1 = pop bool_stack in
+          let b2 = pop bool_stack in
+          push bool_stack (b1 && b2)) "AND";            
+      open_ngroups 5) ;
+  def_loc "\\not"
+    (fun _ ->
+      close_ngroups 4 ;
+      open_aftergroup
+        (fun () ->
+          if !verbose > 2 then begin
+            prerr_endline "NOT" ;
+            prerr_stack_string "bool" sbool bool_stack
+          end ;
+          let b1 = pop bool_stack in
+          push bool_stack (not b1)) "NOT";
+      open_ngroups 3) ;
+  def_loc "\\boolean"
+    (fun lexbuf ->
+      let name = !get_this true (save_arg lexbuf) in
+      let b = try
+        let r = !get_this true ("\\if"^name^" true\\else false\\fi") in
+        match r with
+        | "true" -> true
+        | "false" -> false
+        | _ -> assert false
+      with
+        Latexmacros.Failed -> true  in
+      push bool_stack b) ;
+  def_loc "\\isodd"
+    (fun lexbuf ->
+      close_ngroups 3 ;
+      open_aftergroup
+        (fun () ->
+          if !verbose > 2 then begin
+            prerr_endline ("ISODD") ;
+            prerr_stack_string "int" string_of_int int_stack
+          end ;
+          let x = pop int_stack in
+          push bool_stack (x mod 2 = 1) ;
+          if !verbose > 2 then
+            prerr_stack_string "bool" sbool bool_stack) "ISODD" ;
+      open_ngroups 2) ;
+  def_commands_int ()
+;;
+
 let get_int expr =
   if !verbose > 1 then
     prerr_endline ("get_int : "^expr) ;
   let old_int = !int_out in
   int_out := true ;
   start_normal display in_math ;
+  !open_env "*int*" ;
+  def_commands_int () ;
   open_ngroups 2 ;
   begin try scan_this result expr with
   | x ->
@@ -318,6 +334,7 @@ let get_int expr =
       end
   end ;
   close_ngroups 2 ;
+  !close_env "*int*" ;
   end_normal display in_math ;
   if Lexstate.empty int_stack then
     raise (Error ("``"^expr^"'' has no value as an integer"));
@@ -333,6 +350,8 @@ let get_bool expr =
   let old_bool = !bool_out in
   bool_out := true ;
   start_normal display in_math ;
+  !open_env "*bool*" ;
+  def_commands_bool () ;
   open_ngroups 7 ;
   begin try scan_this result expr with
   | x ->
@@ -343,6 +362,7 @@ let get_bool expr =
       end
   end ;
   close_ngroups 7 ;
+  !close_env "*bool*" ;
   end_normal display in_math ;
   if Lexstate.empty bool_stack then
     raise (Error ("``"^expr^"'' has no value as an integer"));
@@ -352,4 +372,9 @@ let get_bool expr =
   bool_out := old_bool ;
   r
 
+let get_length expr =
+  if !verbose > 1 then
+    prerr_endline ("get_length : "^expr) ;
+  let r = Length.main (Lexing.from_string expr) in
+  r
 } 
