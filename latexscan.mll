@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.182 2000-06-28 20:48:40 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.183 2000-07-05 17:46:28 maranget Exp $ *)
 
 
 {
@@ -761,20 +761,40 @@ let no_prelude () =
 let macro_depth = ref 0
 ;;
 
+let debug = function
+  | Not -> "Not"
+  | Macro -> "Macro"
+  | Inside -> "Inside"
+;;
+
+
 let expand_command main skip_blanks name lexbuf =
   let cur_subst = get_subst () in
   let exec = function
     | Subst body ->
         if !verbose > 2 then
           prerr_endline ("user macro: "^body) ;            
-        Stack.push stack_alltt !alltt ;
-        alltt := false ;
+        let old_alltt = !alltt in
+        Stack.push stack_alltt old_alltt ;        
+        alltt :=
+           (match old_alltt with
+           | Not -> Not
+           | _   -> Macro) ;
+(*
+        Printf.fprintf stderr
+          "Enter: %s, %s -> %s\n" name (debug old_alltt) (debug !alltt) ;
+*)
         scan_this_may_cont main lexbuf cur_subst (string_to_arg body) ;
-        if !alltt then
-          prerr_endline ("Alltt started by "^name) ;
-        alltt := 
-           if !alltt then not (Stack.pop stack_alltt)
-           else (Stack.pop stack_alltt)
+        let _ =  Stack.pop stack_alltt in
+        alltt :=
+          (match old_alltt, !alltt with
+          | Not, Inside         -> Inside
+          | (Macro|Inside), Not -> Not
+          | _, _                -> old_alltt)
+(*
+        Printf.fprintf stderr
+          "After: %s, %s -> %s\n" name (debug old_alltt) (debug !alltt)
+*)
                
     | CamlCode f -> f lexbuf in
 
@@ -783,7 +803,7 @@ let expand_command main skip_blanks name lexbuf =
   if
     (if !in_math then Latexmacros.invisible name
     else
-      not !alltt &&
+      effective !alltt &&
       is_subst_noarg body pat && last_letter name)
   then begin
     if !verbose > 2 then
@@ -847,7 +867,7 @@ rule  main = parse
      {let lxm = lexeme lexbuf in
      (* ``$'' has nothing special *)
      let dodo = lxm <> "$" in
-     if !alltt || not (is_plain '$') then begin
+     if effective !alltt || not (is_plain '$') then begin
        Dest.put lxm ; main lexbuf
      (* vicious case ``$x$$y$'' *)
      end else if dodo && not !display && !in_math then begin
@@ -895,7 +915,7 @@ rule  main = parse
 (* Substitution  *)
   | '#' ['1'-'9']
       {let lxm = lexeme lexbuf in
-      begin if !alltt || not (is_plain '#') then
+      begin if effective !alltt || not (is_plain '#') then
         Dest.put lxm
       else
         let i = Char.code lxm.[1] - Char.code '1' in
@@ -922,7 +942,7 @@ rule  main = parse
     main lexbuf} 
 | eof {()}
 | ' '+
-   {if !alltt then
+   {if effective !alltt then
      let lxm = lexeme lexbuf in Dest.put lxm
    else
      Dest.put_char ' ';
@@ -1232,7 +1252,7 @@ def "\\framebox" (latex_pat ["" ; ""] 3)
 ;;
 
 let check_alltt_skip lexbuf =
-  if not !alltt then skip_blanks lexbuf
+  if not (effective !alltt) then skip_blanks lexbuf
 (*  
   if not (Stack.empty stack_alltt) && pop stack_alltt then begin
     push stack_alltt true
@@ -1254,7 +1274,7 @@ let def_name_code name f = def_init name (f name)
 
 def_code "\\@hevea@percent"
     (fun lexbuf ->
-      if !alltt || not (is_plain '%') then begin
+      if effective !alltt || not (is_plain '%') then begin
         let lxm = lexeme lexbuf in
         Dest.put lxm ;
         main lexbuf
@@ -1272,7 +1292,7 @@ def_code "\\@hevea@newline"
         if !verbose > 2 then prerr_endline "NL caught after LispComment" ;
         raise (Misc.EndOfLispComment nlnum) (* QNC *)
       end else begin
-        if !alltt then begin
+        if effective !alltt then begin
           Dest.put_char '\n' ;
           Dest.put lxm
         end else if nlnum >= 1 then
@@ -1283,7 +1303,7 @@ def_code "\\@hevea@newline"
 ;;
 
 let sub_sup lxm lexbuf =
-  if !alltt || not (is_plain lxm) then Dest.put_char lxm
+  if effective !alltt || not (is_plain lxm) then Dest.put_char lxm
   else if not !in_math then begin
     warning ("``"^Char.escaped lxm^"''occuring outside math mode") ;
     Dest.put_char lxm
@@ -1359,7 +1379,7 @@ def_code "\\egroup"
 
 def_code "\\@hevea@tilde"
   (fun lexbuf ->
-    if !alltt || not (is_plain '~') then
+    if effective !alltt || not (is_plain '~') then
       Dest.put_char '~'
     else Dest.put_nbsp ())
 ;;
@@ -1368,7 +1388,7 @@ def_code "\\@hevea@question"
   (fun lexbuf ->
     if if_next_char '`' lexbuf then begin
       gobble_one_char lexbuf ;
-      if !alltt then Dest.put "?`"
+      if effective !alltt then Dest.put "?`"
       else
         Dest.put (Dest.iso '¿')
     end else
@@ -1378,7 +1398,7 @@ def_code "\\@hevea@excl"
   (fun lexbuf ->
      if if_next_char '`' lexbuf then begin
        gobble_one_char lexbuf ;
-       if !alltt then Dest.put "!`"
+       if effective !alltt then Dest.put "!`"
        else Dest.put (Dest.iso '¡')
      end else
        Dest.put_char '!')
@@ -2013,7 +2033,7 @@ def_code "\\textalltt"
        let arg = save_arg lexbuf in
        let old = !alltt in
        scan_this main "\\mbox{" ;
-       alltt := true ;
+       alltt := Inside ;
        Dest.open_group opt ;
        scan_this_arg main arg ;
        Dest.close_group () ;
@@ -2096,7 +2116,6 @@ def_code "\\fi" (fun lexbuf -> check_alltt_skip lexbuf)
 newif_ref "symb" symbols ;
 newif_ref "iso" iso ;
 newif_ref "raw" raw_chars ;
-newif_ref "alltt" alltt ;
 newif_ref "silent" silent;
 newif_ref "math" in_math ;
 newif_ref "mmode" in_math ;
@@ -2349,7 +2368,7 @@ def_code "\\char"
       prerr_endline ("Warning: \\char, check output");
     end ;
     Dest.put (Dest.iso (Char.chr arg)) ;
-    if not !alltt then check_alltt_skip lexbuf)
+    if not (effective !alltt) then check_alltt_skip lexbuf)
 ;;
 
 def_code "\\symbol"
@@ -2530,8 +2549,8 @@ def_code "\\endgroup"
 def_code "\\alltt"
   (fun _ ->
     if !verbose > 1 then prerr_endline "begin alltt" ;
-    alltt := true ;
-    fun_register (fun () -> alltt := false ; prerr_endline "End alltt") ;
+    alltt := Inside ;
+    fun_register (fun () -> alltt := Not) ;
     Dest.close_block "" ; Dest.open_block "PRE" "") ;
 
 def_code "\\endalltt"
@@ -2701,7 +2720,7 @@ def_code "\\end@tabular*" (close_array "tabular*")
   
 
 let do_amper lexbuf =
-  if !alltt || not (is_plain '&') then begin
+  if effective !alltt || not (is_plain '&') then begin
     let lxm = lexeme lexbuf in
     for i = 0 to String.length lxm -1 do
       Dest.put (Dest.iso lxm.[i])
@@ -2710,7 +2729,7 @@ let do_amper lexbuf =
     close_col main "&nbsp;"; 
     open_col main
   end ;
-  if not !alltt && is_plain '&' then skip_blanks_pop lexbuf
+  if not (effective !alltt) && is_plain '&' then skip_blanks_pop lexbuf
 
 and do_bsbs lexbuf =
   do_unskip () ;

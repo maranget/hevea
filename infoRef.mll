@@ -10,7 +10,7 @@
 (***********************************************************************)
 
 {
-let header = "$Id: infoRef.mll,v 1.18 1999-12-13 16:18:43 maranget Exp $"
+let header = "$Id: infoRef.mll,v 1.19 2000-07-05 17:46:23 maranget Exp $"
 ;;
 
 
@@ -67,6 +67,9 @@ type label_t = {
 
 let labels_list = ref [];;
 
+let files = ref [];;
+let top_node = ref false;;
+
 let hot_start () =
   menu_list :=  [];
   Hashtbl.clear nodes ;
@@ -74,6 +77,8 @@ let hot_start () =
   menu_num := 0 ;
   counter := 0 ;
   cur_file := Parse_opts.name_out^"-1" ;
+  files := [] ;
+  top_node := false ;
   file_number :=  1 ;
   labels_list := []
 ;;
@@ -198,8 +203,6 @@ let set_out_file s =
   cur_file := s
 ;;
 
-let files = ref [];;
-let top_node = ref false;;
 
 let put s = 
   if !verbose >3 then
@@ -252,7 +255,7 @@ let  affiche_tag_table_un out_file =
     top_node := false;
   end;
 
-  put "\n\nTag table:\n";
+  put "\n\nTag table:\n";
   Hashtbl.iter (fun nom n -> put ("File: "^ out_file ^",\tNode: "^noeud_name n^""^string_of_int n.pos^"\n")) nodes;
   put "\nEnd tag table\n";
 ;;
@@ -262,14 +265,16 @@ let affiche_tag_table ()=
   set_out (Out.create_chan (open_out Parse_opts.name_out));
   set_out_file Parse_opts.name_out;
   put_credits ();
+
   let rec do_indirect = function
     | [] -> ()
-    | (f,p)::reste -> put (f^": "^string_of_int p^"\n");
+    | (f,p)::reste ->
+        put (f^": "^string_of_int p^"\n");
 	do_indirect reste
   in
   put "\n\nIndirect:\n";
   do_indirect (List.rev !files);
-  put "\n\nTag table:\n(Indirect)\n";
+  put "\n\nTag table:\n(Indirect)\n";
   Hashtbl.iter (fun nom n ->put ("File: "^n.file^",\tNode: "^noeud_name n^""^string_of_int n.pos^"\n")) nodes;
   put "\nEnd tag table\n";
   Out.close !out_cur;
@@ -289,13 +294,15 @@ let affiche_node nom =
     Out.close !out_cur;
     set_out_file noeud.file;
     set_out (Out.create_chan (open_out noeud.file));
-    files := (!cur_file,!counter) :: !files;
+    files := (!cur_file,!counter) :: !files
   end;
   noeud.pos <- !counter;
   put "\n";
+(*
   (match noeud.file with
     "" -> ()
   | f -> put ("File: "^f^",\t"));
+*)
   put ("Node: "^noeud_name noeud);
   (match noeud.next with
   | None -> ()

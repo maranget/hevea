@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: lexstate.ml,v 1.48 2000-06-05 08:07:29 maranget Exp $"
+let header = "$Id: lexstate.ml,v 1.49 2000-07-05 17:46:34 maranget Exp $"
 
 open Misc
 open Lexing
@@ -56,8 +56,14 @@ let mkarg arg subst = {arg=arg ; subst=subst }
 
 
 
+type alltt = Not | Inside | Macro
+
+let effective = function
+  | Inside -> true
+  | _      -> false
+
 let subst = ref Top
-and alltt = ref false
+and alltt = ref Not
 
 let stack_subst = Stack.create "stack_subst"
 and stack_alltt = Stack.create "stack_alltt"

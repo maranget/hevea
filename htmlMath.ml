@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlMath.ml,v 1.17 2000-06-05 08:07:24 maranget Exp $" 
+let header = "$Id: htmlMath.ml,v 1.18 2000-07-05 17:46:22 maranget Exp $" 
 
 
 open Misc
@@ -344,18 +344,14 @@ let reput_sup_sub tag = function
       put tag ;
       put_char '>'
 
-let debug s sub f =
-  prerr_endline  (s^": "^sub) ;
-  debug_flags f
 
 let standard_sup_sub scanner what sup sub display =
   let sup,fsup =
     hidden_to_string (fun () -> put_sup_sub display scanner sup)
   in
-  debug "SUP" sup fsup ;
   let sub,fsub =
     hidden_to_string (fun () -> put_sup_sub display scanner sub) in
-  debug "SUB" sub fsub ;
+
   if display && (fsub.table_inside || fsup.table_inside) then begin
     force_item_display () ;
     open_vdisplay display ;

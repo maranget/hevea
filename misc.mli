@@ -10,6 +10,7 @@
 (***********************************************************************)
 
 exception Fatal of string
+exception NoSupport of string
 exception Purposly of string
 exception ScanError of string
 exception UserError of string
@@ -27,6 +28,7 @@ val warning : string -> unit
 val print_verb : int -> string -> unit
 val message : string -> unit
 val fatal : string -> 'a
+val not_supported : string -> 'a
 val copy_hashtbl : (string, 'a) Hashtbl.t -> (string, 'a) Hashtbl.t -> unit
 val clone_hashtbl : (string, 'a) Hashtbl.t -> (string, 'a) Hashtbl.t
 

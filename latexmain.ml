@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmain.ml,v 1.64 2000-05-30 12:28:44 maranget Exp $" 
+let header = "$Id: latexmain.ml,v 1.65 2000-07-05 17:46:24 maranget Exp $" 
 
 open Misc
 open Parse_opts
@@ -58,6 +58,10 @@ let prerr_bug msg =
   prerr_error msg ;
   prerr_endline
   "    (if input is plain LaTeX, please report to Luc.Maranget@inria.fr)"
+
+and prerr_not_supported msg =
+  prerr_error msg ;
+  prerr_endline "You ran into hevea limitations, sorrry"
 ;;
 
 
@@ -214,6 +218,8 @@ let _ =
         prerr_error ("User error:\n\t"^s)
     | Myfiles.Error s ->
         prerr_error ("File error:\n\t"^s)
+    |  Misc.NoSupport s ->
+        prerr_not_supported s
     |  Misc.Fatal s ->
         prerr_bug ("Fatal error: "^s)
     |  Stack.Fatal s ->

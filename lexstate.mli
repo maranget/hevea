@@ -32,11 +32,13 @@ val top_subst : subst
 val get_subst : unit -> subst
 
 exception Error of string
+type alltt = Not | Inside | Macro
+val effective : alltt -> bool
 
 val raw_chars : bool ref
 val display : bool ref
 val in_math : bool ref
-val alltt : bool ref
+val alltt : alltt ref
 val french : bool ref
 val optarg : bool ref
 val styleloaded : bool ref
@@ -87,7 +89,7 @@ val hot_lexstate : saved_lexstate -> unit
 val flushing : bool ref
 val stack_in_math : bool Stack.t
 val stack_display : bool Stack.t
-val stack_alltt : bool Stack.t
+val stack_alltt : alltt Stack.t
 val stack_closed : string Stack.t
 
 val start_normal: subst -> unit

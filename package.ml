@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.22 2000-06-06 11:41:40 maranget Exp $    *)
+(*  $Id: package.ml,v 1.23 2000-07-05 17:46:36 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -67,7 +67,7 @@ let call_subst lexbuf =
   let csname = get_csname lexbuf in
   let arg = subst_arg lexbuf in
   let exec = csname^" "^arg in
-  if !verbose > -1 then begin
+  if !verbose > 1 then begin
     prerr_string "\\@callsubst: " ;
     prerr_endline exec ;
   end ;
@@ -78,7 +78,7 @@ and call_prim lexbuf =
   let csname = get_csname lexbuf in
   let arg = get_prim_arg lexbuf in
   let exec = csname^" "^arg in
-  if !verbose > -1 then begin
+  if !verbose > 1 then begin
     prerr_string "\\@callprim: " ;
     prerr_endline exec ;
   end ;

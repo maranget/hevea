@@ -9,9 +9,10 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: misc.ml,v 1.15 2000-06-02 15:23:38 maranget Exp $" 
+let header = "$Id: misc.ml,v 1.16 2000-07-05 17:46:35 maranget Exp $" 
 
 exception Fatal of string
+exception NoSupport of string
 exception Purposly of string
 exception ScanError of string
 exception UserError of string
@@ -47,6 +48,7 @@ let message s =
   if not !silent || !verbose > 0 then prerr_endline s
 
 let fatal s = raise (Fatal s)
+let not_supported s = raise (NoSupport s)
 
 
 let copy_hashtbl from_table to_table =
