@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.244 2004-07-28 09:14:08 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.245 2004-07-29 15:12:29 maranget Exp $ *)
 
 
 {
@@ -2573,7 +2573,7 @@ def_code "\\@begin@document"
 def_code "\\@addimagenopt"
   (fun lexbuf ->
     let opt = get_prim_arg lexbuf in
-    Misc.image_opt := append_to_opt !Misc.image_opt opt)
+    Misc.image_opt := append_to_opt !Misc.image_opt opt ;)
 ;;
 
 def_code "\\@raise@enddocument"

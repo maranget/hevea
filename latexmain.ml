@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmain.ml,v 1.76 2004-07-28 09:14:08 maranget Exp $" 
+let header = "$Id: latexmain.ml,v 1.77 2004-07-29 15:12:29 maranget Exp $" 
 
 open Misc
 open Parse_opts
@@ -189,15 +189,7 @@ let main () =
     end ;
     exit 0
 ;;   
-(*
-let _ =
-  Dynlink.init () ;
-  begin try
-    Dynlink.add_interfaces ["Pervasives"] ["/usr/local/lib/ocaml"] ;
-    Dynlink.loadfile "a.cmo" ;
-  with Dynlink.Error e -> prerr_endline (Dynlink.error_message e)
-  end
-*)
+
 let _ = 
   begin try
     main () ;
