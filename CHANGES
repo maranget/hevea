@@ -1,4 +1,5 @@
 version 1.03-1
+  - \htmlfoot and \htmlhead commands.
   - Independant lexers for getting booleans and integers (module Get)
   - Optimized the regexps for headers in hacha.
   - A new ``image'' file is generated only when its content changed

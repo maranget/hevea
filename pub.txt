@@ -1,7 +1,7 @@
 
-It is my pleasure to anounce the second major release of HEVEA.
+It is my pleasure to anounce the new release of HEVEA.
 
-      This is HEVEA, version 1.02, a fast LaTeX to HTML translator.
+      This is HEVEA, version 1.03, a fast LaTeX to HTML translator.
 
 
     HEVEA is a LaTeX to HTML translator.  The input language is a fairly
@@ -9,26 +9,25 @@ It is my pleasure to anounce the second major release of HEVEA.
     output language is HTML that is (hopefully) correct with respect to
     version 3.2.
 
-    With respect to previous version 1.01, the most salient changes
-    are:   
-        - imagen is less nfs intensive (pipes, temporary files in
-          /usr/tmp) and characters are anti-aliased.
-        - Color can now be specified in the style of the ``color''
-          package.
-        - The environments ``toimage'' and ``latexonly'' now provide
-          an extended fonctionality: they can be introduced by other
-          user-defined environments and paramater substitution occurs
-          inside ``toimage''.
-        - The new environments ``verbimage'' and ``verblatex'' provide
-          the old functionality of ``toimage'' and ``latexonly''.
-        - The implementation of macro expansion is more rigorous.
-        - Argument syntax is extended and more uniform.
-        - Simple lengths (such as 2ex or 3em) are recognized and
-          translated to line breaks and spaces.
-        - A few supplementary constructs are implemented :
-                \includeonly, \verbatiminput.
-        - A few simple bugs are corrected (e.g. \chi)
-        
+    With respect to previous version 1.02, the most salient changes
+    are:
+       - Style files now have the ``.hva'' extension (instead of
+        ``.sty'').
+        The compatibility file for LaTeX gets renamed into
+       ``hevea.sty''
+
+       - Packages ifthen, calc, array and tabularx are implemented.
+
+       - The ``snippet'' construct by Christian Queinnec,
+         (Christian.Queinnec@lip6.fr) for typesetting source code is
+         implemented.
+         (cf http://www-spi.lip6.fr/~queinnec/VideoC/VideoC.html)
+
+       - The imagen scripts accepts a few options that enable
+         altering the default behavior of .GIF images generation.
+
+       - Some of HEVEA internal commands are documented.
+       
     --------------------------------------------------------------------------
     Exotic symbols are translated into symbols
     pertaining to the symbol font of the HTML browser, using the
@@ -56,7 +55,8 @@ DOCUMENTATION
     The first sections explain how to use hevea.
 
 IMPORTANT REQUIREMENT
-    To compile HEVEA, you need Objective Caml, see
+    To compile HEVEA, you need Objective Caml (version 2.00 or more), see
     http://caml.inria.fr/ocaml/
+    However, there exists a Linux  PC Red-Hat 5.2 binary distribution.
 
 --Luc Maranget

@@ -11,7 +11,7 @@
 
 {
 open Lexing
-let header = "$Id: cut.mll,v 1.15 1999-04-02 14:44:52 maranget Exp $" 
+let header = "$Id: cut.mll,v 1.16 1999-04-02 17:08:32 maranget Exp $" 
 
 let verbose = ref 0
 ;;
@@ -310,7 +310,6 @@ let restore_state () =
 let close_top lxm =
   Out.put !out "<!--FOOTER-->\n" ;
   begin try
-    if !verbose > 0 then
       Mylib.put_from_lib ("cutfoot-"^ !language^".html") (Out.put !out)
   with Mylib.Error s -> begin
     Location.print_pos () ;
@@ -454,11 +453,9 @@ rule main = parse
      html_foot := foot ;
    main lexbuf}
 | "<!--FOOTER-->" '\n'?
-   {let lxm = lexeme lexbuf in
-   close_all () ;
+   {close_all () ;
    if !phase > 0 then begin
-     Out.put !out !html_foot ;     
-     Out.put !out lxm
+     Out.put !out !html_foot
    end ;
    footer lexbuf}
 | "<!DOCTYPE"  [^'>']* '>'
@@ -544,10 +541,8 @@ and footer = parse
   if !phase > 0 then begin
      close_top lxm 
   end}
-| _
-   {let lxm = lexeme lexbuf in
-   if !phase > 0 then put lxm ;
-   footer lexbuf}
+| _   {footer lexbuf}
+| eof {raise (Misc.Fatal ("End of file in footer (no </BODY> tag)"))}
 
 and secname = parse
   ['a'-'z' 'A'-'Z']+

@@ -1,31 +1,31 @@
 J'ai la joie d'anoncer la nouvelle release d'HEVEA.
 
-      HEVEA, version 1.02 un traducteur rapide de LaTeX vers HTML.
+      HEVEA, version 1.03 un traducteur rapide de LaTeX vers HTML.
 
   HEVEA traduit un sous-ensemble quasi complet de LaTeX2e (il accepte aussi
   le vieux style LaTeX) vers HTML 3.2.
 
-  Par rapport a la version precédente (1.01) il y a de nombreuses corrections
-  de bugs, notamment dans le rendu des formules qui contiennent des
-  délimiteurs. En outre les fonctionnalité suivantes ont été ajoutées:
+  Par rapport a la version precédente (1.02) il y a quelques corrections
+  de bugs.
 
-        - imagen est plus efficace (pipes, fichiers temporaires dans
-          /usr/tmp) et l'anti-aliasing est appliqué aux caractères.
-        - La couleur du texte peut être spécifiée dans le style du
-          paquetage ``color''.
-        - Les environements ``toimage'' et ``latexonly'' ont une fonctionalité
-          étendue: il peuvent être introduits par d'autres environnements et
-          la substition des paramêtres est réalisée à l'intérieur de
-          ``toimage''.
-        - Les nouveau environnements ``verblatex'' et ``verbimage''
-          fournissent l'ancienne fonctionalité de ``latexonly'' et ``toimage''.
-        - La réalisation de la macro expansion est plus rigoureuse.
-        - La syntaxe des arguments est étendue et uniformisée.
-        - Les longeurs simples (comme 2ex ou 3em) sont reconnues et traduites
-          en espaces insécables ou sauts de ligne.
-        - Quelques constructions supplémentaires sont reconnues:
-                \includeonly, \verbatiminput
-        - Quelques bugs simples sont corrigés (\chi par exemple).
+  Une modification cosmétique induit une incompatibilité significative
+  avec les versions précédentes :
+    
+    Les fichiers de style d'HEVEA ont maintenant l'extension .hva (au lieu
+    de .sty). Et le fichier de compatibilité à charger par LaTeX se nome
+    désormais hevea.sty (au lieu de html.sty).
+
+  En outre les fonctionnalités suivantes ont été ajoutées:
+
+        - Implémentation des packages, ifthen, calc, array et tabularx
+        - Implementation des ``snippet'' de Christian Queinnec
+          (Christian.Queinnec@lip6.fr) qui  facilite la présentation
+          de code source.
+          (cf http://www-spi.lip6.fr/~queinnec/VideoC/VideoC.html)
+        - Nouvelles options d'imagen qui permettent de modifier
+          la production des images.
+        - Documentation des certaines des commandes internes d'HEVEA.
+
   ----------------------------------------------------------------------------
   Les symboles exotiques sont traduits en utilisant une police de charatctères
   ``symbols'' que doit connaître le brouteur HTML.
@@ -55,8 +55,10 @@ J'ai la joie d'anoncer la nouvelle release d'HEVEA.
     d'HEVEA.
 
   IMPORTANT
-    HEVEA est écrit en Objective Caml. Vous devez donc disposer de Ocaml 2.00.
+    HEVEA est écrit en Objective Caml. Vous devez donc disposer de
+    Ocaml, a partir de la version 2.00.
     http://caml.inria.fr/ocaml/
+    Néammoins, une version binaire pour Linux RedHat 5.2 est disponible.
 
 
 --Luc Maranget

@@ -1,7 +1,7 @@
 LATEX=latex
 HEVEA=hevea
 IMAGEN=imagen
-HTMLCUT=hacha
+HACHA=hacha
 EXDIR=$(HOME)/public_html/hevea/examples
 HTML=a.html pat.html suite.html env.html smile.html
 DVI=$(HTML:.html=.dvi)
@@ -53,7 +53,7 @@ tmp001.gif: tmp.image.tex
 	$(IMAGEN) tmp
 
 pat.html: tmp.html
-	$(HTMLCUT) -o pat.html tmp.html
+	$(HACHA) -o pat.html tmp.html
 
 tenv.tex: env.tex
 	gpic -t < env.tex > tenv.tex

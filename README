@@ -1,4 +1,4 @@
-      This is HEVEA, version 1.02, a fast Latex to HTML translator.
+      This is HEVEA, version 1.03, a fast Latex to HTML translator.
 
 
 ADVERTISEMENT
@@ -32,7 +32,7 @@ CONTENTS
 
 CONTACTS
     mail:      Luc.Maranget@inria.fr
-    distribution:  ftp://ftp.inria.fr/INRIA/Projects/para/hevea
+    distribution:  ftp://ftp.inria.fr/INRIA/Projects/para/hevea/
 
 DOCUMENTATION
     On-line documentation is available at
@@ -48,13 +48,19 @@ DOCUMENTATION
 INSTALLATION
 
  REQUIREMENTS
-    HEVEA is written in Objective Caml version 2.00 (Ocaml).
-    It compiles under Ocaml, which should thus be properly installed.
-    Ocaml is  available at
-     ftp://ftp.inria.fr/lang/caml-light/ocaml-2.00.tar.gz
+     HEVEA is written in Objective Caml version 2.00 or later
+     (Ocaml). It compiles under Ocaml, which should thus be properly
+     installed. Ocaml is  available at
+       ftp://ftp.inria.fr/lang/caml-light/
 
-    More information on Ocaml can be found at
-     http://caml.inria.fr/ocaml/
+     More information on Ocaml can be found at
+       http://caml.inria.fr/ocaml/
+
+     However there exists binary distributions of HEVEA for PCs.
+        - A linux Red-Hat distribution, in
+           ftp://ftp.inria.fr/INRIA/Projects/para/hevea
+        - A Win-32 distribution, by Philip A. Viton, see
+           http://www.arch.ohio-state.edu/crp/faculty/pviton/support/hevea.html
 
     HEVEA is fully functional when other software are installed
      * A modern LaTeX installation including dvips.
@@ -63,7 +69,7 @@ INSTALLATION
        ftp://wuarchive.wustl.edu/graphics/graphics/packages/NetPBM
     However, these softwares are optional and hevea runs without them.
 
-
+     
 
 CONFIGURATION
     There are a few configuration variables at the beginning of

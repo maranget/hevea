@@ -41,7 +41,7 @@
 \newcommand{\mailto}[1]{\@url{mailto:#1}{#1}}
 %%%% HTML constructs (no equivalents in html.sty)
 \newcommand{\imgsrc}[1]{{\@nostyle\@print{<IMG SRC="}#1\@print{">}}}
-\newcommand{\anchor}[1]{{\@nostyle\@print{<A NAME="#}#1\@print{"></A>}}}
+\newcommand{\anchor}[1]{{\@nostyle\@print{<A NAME="}#1\@print{"></A>}}}
 %% Paragraphs
 \def\noindent{}
 \def\indent{}
