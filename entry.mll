@@ -12,7 +12,7 @@
 {
 open Lexing
 
-let header = "$Id: entry.mll,v 1.11 1999-12-07 16:12:15 maranget Exp $" 
+let header = "$Id: entry.mll,v 1.12 2001-12-19 15:14:33 maranget Exp $" 
 
 let buff = Out.create_buff ()
 ;;
@@ -99,6 +99,7 @@ let read_key lexbuf =
     let rec sep_rec = function
       [] -> [],[]
     | (x,y)::r ->
+        if x="" then raise NoGood ;          
         let xs,ys = sep_rec r in
         x::xs,y::ys in
     let xs,ys = sep_rec l in

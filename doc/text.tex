@@ -92,6 +92,7 @@ includes a small \ahrefloc{@index}{index}.
 \label{usermanual}
 \cutdef{section}
 \section{How to get started}\label{getstarted}
+\index{@}\index{!=}
 Assume that you have a file, ``\texttt{a.tex}'', written in \LaTeX, using the
 \filename{article}, \filename{book} or \filename{report} style. Then,
 translation
@@ -1824,8 +1825,13 @@ unit by typing:
 source. However, \LaTeX{} still can process the document, since the
 \texttt{hevea} package is loaded).
 
+\subsection{More Advanced Usage}
+In this section we show how to alter some details of \hacha{}
+behavior.
+This includes controling output file names and the title of generated
+web pages and introducing arbitrary cuts.
 
-\subsection{Controlling output file names}\label{cutname}
+\subsubsection{Controlling output file names}\label{cutname}
 \cutname{cutname.html}
 \comdefindex{cutname}
 When invoked as \texttt{hacha \textit{doc}.html},
@@ -1862,7 +1868,40 @@ This particular file name has been specified from the source
 using \verb+\cutname{cutname.html}+.
 \fi
 
-\subsection{Cutting a document anywhere}
+\subsubsection{Controlling page titles}
+\comdefindex{htmlprefix}
+When \hacha{} creates a web page from a given sectional unit,
+the title of this page normally is the name of the sectional unit.
+For instance, the title of this very page should be
+``Cutting your document into pieces with \hacha''.
+It is possible to insert some text at the beginning of all page
+titles, by using the \verb+\htmlprefix+ command.
+Hence, by writing
+\verb+\htmlprefix{\hevea{} Manual: }+ in the document,
+the title of this page would become~:
+``\hevea{} Manual: Cutting your document into pieces with \hacha''
+and the title of all other pages would show the same prefix.
+
+\subsubsection{Links for the root file}
+\comdefindex{toplinks}
+The command \verb+\toplinks{+\textit{prev}\verb+}{+\textit{up}\verb+}{+\textit{next}\verb+}+ instructs \hacha{}  to put links to a
+``previous'', ``up'' and ``next'' page in the root file.
+The following points are worth noticing:
+\begin{itemize}
+\item The \verb+\toplink+ command must appear in the document preamble
+(i.e., before \verb+\begin{document}+).
+\item The arguments
+\textit{prev}, \textit{up} and \textit{next} should expand to url's,
+notice that these argument are processed (see section~\ref{urlareprocessed}).
+\item When one of the expected argument is left empty,
+the corresponding link is not generated.
+\end{itemize}
+This feature can prove useful to
+relate documents that are generated independantly by
+\hevea{} and \hacha{}.
+
+
+\subsubsection{Cutting a document anywhere}
 \envdefindex{cutflow}
 Part of a document goes to a separate file whem enclosed in a
 \verb+cutflow+ environment~:
@@ -1883,7 +1922,7 @@ This will occur naturally when the content of the \verb+cutflow+ environment.
 contains a \verb+\label+ construct.
 This look natural in the following quiz example:
 \begin{verbatim}
-\subsubsection{A small quiz}
+\paragraph{A small quiz}
 \begin{enumerate}
 \item What is black?
 \item What is white?
@@ -1891,7 +1930,7 @@ This look natural in the following quiz example:
 \end{enumerate}
 Answers in section~\ref{answers}.
 \begin{cutflow}{Answers}
-\subsubsection{Quiz answers}\label{answers}
+\paragraph{Quiz answers}\label{answers}
 \begin{enumerate}
 \item Black is black.
 \item White is white.
@@ -1900,7 +1939,7 @@ Answers in section~\ref{answers}.
 \end{cutflow}
 \end{verbatim}
 \ifhevea The example yields:
-\subsubsection{A small quiz}
+\paragraph{A small quiz}
 \begin{enumerate}
 \item What is black?
 \item What is white?
@@ -1908,7 +1947,7 @@ Answers in section~\ref{answers}.
 \end{enumerate}
 Answers in section~\ref{answers}.
 \begin{cutflow}{Answers}
-\subsubsection{Quiz answers}\label{answers}
+\paragraph{Quiz answers}\label{answers}
 \begin{enumerate}
 \item Black is black.
 \item White is white.
@@ -1923,23 +1962,7 @@ references with the \verb+\aname+ and \verb+\ahrefloc+ commands
 (see section~\ref{hyperlink})
 will be more practical most of the time.
 
-\subsection{Links for the root file}
-\comdefindex{toplinks}
-The command \verb+\toplinks{+\textit{prev}\verb+}{+\textit{up}\verb+}{+\textit{next}\verb+}+ instructs \hacha{}  to put links to a
-``previous'', ``up'' and ``next'' page in the root file.
-The following points are worth noticing:
-\begin{itemize}
-\item The \verb+\toplink+ command must appear in the document preamble
-(i.e., before \verb+\begin{document}+).
-\item The arguments
-\textit{prev}, \textit{up} and \textit{next} should expand to url's,
-notice that these argument are processed (see section~\ref{urlareprocessed}).
-\item When one of the expected argument is left empty,
-the corresponding link is not generated.
-\end{itemize}
-This feature can prove useful to
-relate documents that are generated independantly by
-\hevea{} and \hacha{}.
+
 
 
 \latexsection{Generating \html{} constructs}
@@ -5407,6 +5430,7 @@ In particular the \emph{Sumple fix} of the \texttt{.Xdefaults} file
 above does not seem to work on \emph{Mozilla 4.78}, and you should
 rely on the more complicated fix described in the web page.
 Furthermore, be carefull to enable using document fonts
+while disabling dynamic fonts
 (Edit/Preference/Fonts, then check the appropriate box).
 
 

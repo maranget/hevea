@@ -12,7 +12,7 @@
 {
 open Lexing
 open Stack
-let header = "$Id: cut.mll,v 1.35 2001-11-27 09:58:46 maranget Exp $" 
+let header = "$Id: cut.mll,v 1.36 2001-12-19 15:14:33 maranget Exp $" 
 
 let verbose = ref 0
 
@@ -62,7 +62,7 @@ let rec check_changed name =
   with
   | Not_found -> name
 
-let new_filename () =
+let new_filename s =  
   incr count ;
   let r1 = Printf.sprintf "%s%0.3d.html" !name !count in
   let r2 = check_changed r1 in
@@ -86,12 +86,15 @@ and otherout = ref !out
 let close_loc ctx name out =  Out.close out
 
 let change_name oldname name =
+  if !verbose > 0 then
+    prerr_endline ("Change "^oldname^" into "^name) ;
   if !phase <= 0 then begin
     Thread.change oldname name ;
     Cross.change oldname name ;
-    outname := name ;
-    Hashtbl.add changed_t oldname name
+    Hashtbl.add changed_t oldname name ;
+    outname := name
   end
+
     
 
 let start_phase name =
@@ -159,7 +162,10 @@ let putlinks  name =
       (if !language = "fra" then "Précédent"
        else "Previous") ;
     links_there := true
-  with Not_found -> () end ;
+  with Not_found ->
+    if !verbose > 0 then
+      prerr_endline ("No prev link for "^name)
+  end ;
   begin try
     putlink link_buff (Thread.up name) "contents_motif.gif" 
       (if !language = "fra" then "Remonter"
@@ -294,7 +300,7 @@ let close_chapter () =
   end
 
 and open_chapter name =
-  outname := new_filename () ;
+  outname := new_filename ("open_chapter <<"^name^">>") ;
   if !verbose > 0 then
     prerr_endline
       ("Open chapter out="^ !outname^" toc="^ !tocname^
@@ -325,7 +331,7 @@ let setlink set target =
 let open_notes sec_notes =
   if sec_notes <> !chapter || !outname = !tocname then begin
     otheroutname := !outname ;
-    outname := new_filename () ;
+    outname := new_filename "open_notes" ;
     if !phase > 0 then begin
       otherout := !out ;
       out := Out.create_chan (open_out !outname) ;
@@ -427,7 +433,7 @@ let close_all () =
   cur_level := (Section.value "DOCUMENT")
 
 let openflow title =
-  let new_outname = new_filename () in
+  let new_outname = new_filename "openflow" in
   push flowname_stack !outname ;
   outname := new_outname ;
   if !phase > 0 then begin
@@ -474,10 +480,10 @@ and closeflow () =
      links ;
    main lexbuf}
 | "<!--" "PREFIX" ' '+
-   {let l = getargs lexbuf in
+   {let l = getargs lexbuf in   
    if !phase = 0 then begin
-     match getargs lexbuf with
-     | [] -> prerr_endline "????"
+     match l with
+     | [] -> ()
      | (_,v)::_ -> html_prefix := v
    end ;
    main lexbuf}
@@ -693,7 +699,6 @@ and getargs = parse
 | "<ARG" ' '* 
     {let name = argname lexbuf in
     let r = arg lexbuf in
-    prerr_endline (name^":"^r) ;
     (name,r)::getargs lexbuf}
 | eof {raise (Misc.Fatal "Unclosed comment")}
 | _   {getargs lexbuf}

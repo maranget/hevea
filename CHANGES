@@ -1,4 +1,6 @@
 version 1.06-7
+  - Throw away index when some key field is empty (i.e. mimic makeindex)
+  - Introduced \htmprefix
   - Bug in ``\@displayint'' (introduced by the new ``\@getprint'')
   - compatibility with ocaml 3.03 (do not close a file twice)
   - Table of contents a` la LaTeX.
