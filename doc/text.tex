@@ -2553,14 +2553,22 @@ as an optional argument to the \verb+\imageflush+ command.
 
 
 By default, images are GIF images, stored in ``\texttt{.gif}'' files.
-Provided you have modified the \texttt{imagen} script to generate
-images in an alternative format, for instance PNG, you can
-use the more appropriate file extension ``\texttt{.png}''.
-It suffices to redefine the command \verb+\heveaimageext+~:
-\begin{verbatim}
-\renewcommand{\heveaimageext}{.png}
-\end{verbatim}
+\hevea{} provides direct support for the alternative PNG image file
+format.
+It suffices to invoke \texttt{hevea} as:
+\begin{flushleft}
+\texttt{\#~hevea~png.hva}~\textit{mydoc.tex}
+\end{flushleft}
 
+Then imagen must be run as:
+\begin{flushleft}
+\texttt{\#~imagen~-png}~\textit{mydoc}
+\end{flushleft}
+
+Beware that transparent colors are not shown correctly by my browser
+for PNG images, while they work as advertised for GIF images.
+This does not harm as long as the final \html{} document has a white
+background color (see Section~\ref{metadef}).
 
 \section{Other output formats}\label{alternative}
 It is possible to translate \LaTeX{} file into other formats than
@@ -5208,9 +5216,26 @@ stage in \texttt{imagen} \texttt{ppm} to \texttt{gif} production chain.
 in its standard input and outputs a \texttt{ppm} image on its standard output.
 A sensible choice for \textit{command} is one command from the
 \texttt{netpbm} package or several such commands piped together.
+\item[{\tt -quant} {\it number}] Add an extra color quantization step
+in \texttt{imagen} \texttt{ppm} image production chain, where
+\textit{number} is the maximal number of colors in the produced
+images. This option may be needed in response of a failure in the
+image production chain. It can also help in limiting image files size.
+\item[{\tt -gif}] Output GIF images. This is the default.
+\item[{\tt -png}]\index{PNG}
+Output PNG images in place of GIF images.
+PNG is sometimes prefered for legal reasons.
+PNG image files have a ``\texttt{.png}'' extension.
+Note that \texttt{hevea} should have been previously run as
+\texttt{hevea png.hva\ldots} (so that the proper ``\texttt{.png}'' filename
+extension is given to image file references from within the \html{} document).
+\item[{\tt -pnm}] Output PPM images. This option mostly serves
+debugging purposes. Experimented users can also take advantage
+of it for performing additional image transformation or
+adopting exotic image formats.
 \end{description}
 
-These options enable users to correct some misbehaviors.
+The first three options enable users to correct some misbehaviors.
 For instance, when the document base style is \textit{seminar}, image
 orientation may
 be wrong and the images are too small. This can be cured by invoking
@@ -5218,7 +5243,6 @@ be wrong and the images are too small. This can be cured by invoking
 \begin{flushleft}
 \texttt{\# imagen  -extra "pnmflip -ccw" -mag 2000} \textit{base}
 \end{flushleft}
-
 
 More information on producing images can be found in section~\ref{imagen}.
 

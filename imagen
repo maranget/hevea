@@ -7,15 +7,44 @@ GS=gs
 PNMCROP=pnmcrop
 PNMEXTRA=""
 DVIPSMAG=1414
+EXT=gif
 PPMTOGIF=ppmtogif
-PPMQUANT=ppmquant
+PPMTOGIFOPTS="-transparent  #ffffff"
+PPMQUANT=cat
+PPMQUANTOPTS=""
 PNMMARGIN=pnmmargin
 RM="/bin/rm -f"
 
+doconvert()
+{
+  pnmtopng -transparent '#000000'
+}
+
+donothing ()
+{
+  cat
+}
 
 while true
 do
     case $1 in
+     -gif)
+       ;;
+     -png)
+        PPMTOGIF=doconvert
+        PPMTOGIFOPT=""
+        EXT=png
+        ;;
+     -pnm)
+        PPMTOGIF=donothing
+        PPMTOGIFOPT=""
+        EXT=pnm
+        ;;  
+     -quant)
+        shift
+        PNMQUANT=pnmquant
+        PNMQUANTOPTS=$1
+        ;;
     -extra)
         shift
         PNMEXTRA="$1"
@@ -44,7 +73,6 @@ esac
 NAME=${BASE}.image
 DVIPSOPTS="-t a3 -x${DVIPSMAG}"
 GSOPTS="-q -sPAPERSIZE=a3 -dNOPAUSE -DNOPROMPT -sDEVICE=ppmraw -dTextAlphaBits=2"
-PPMTOGIFOPTS="-transparent  #ffffff"
 PNMMARGINOPTS="-white 1"
 
 NEWDVIPS=true
@@ -81,8 +109,8 @@ then
        ;;
     esac |\
     ${PNMMARGIN} ${PNMMARGINOPTS} |\
-    ${PPMQUANT} 256 |\
-    ${PPMTOGIF} ${PPMTOGIFOPTS} > `basename $i`.gif
+    ${PPMQUANT} ${PPMQUANTOPTS} |\
+    ${PPMTOGIF} ${PPMTOGIFOPTS} > `basename $i`.${EXT}
     ${RM} $i
   done
 else
@@ -109,8 +137,8 @@ else
        ;;
     esac |\
     ${PNMMARGIN} ${PNMMARGINOPTS} |\
-    ${PPMQUANT} 256 |\
-    ${PPMTOGIF} ${PPMTOGIFOPTS}  > `basename $i`.gif
+    ${PPMQUANT} ${PPMQUANTOPTS} |\
+    ${PPMTOGIF} ${PPMTOGIFOPTS}  > `basename $i`.${EXT}
     ${RM} $i
   done
 fi

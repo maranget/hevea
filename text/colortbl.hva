@@ -1,3 +1,3 @@
 \usepackage{color}
 \def\columncolor
-  {\execafter\@skipopt\execafter\@skipopt\execafter\@skiparg\@skipopt}cd 
+  {\execafter\@skipopt\execafter\@skipopt\execafter\@skiparg\@skipopt}

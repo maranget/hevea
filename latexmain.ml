@@ -9,13 +9,14 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmain.ml,v 1.69 2001-05-25 12:37:25 maranget Exp $" 
+let header = "$Id: latexmain.ml,v 1.70 2001-10-02 12:32:32 maranget Exp $" 
 
 open Misc
 open Parse_opts
 
 
 let
+  scan_get_prim,
   scan_main, no_prelude, scan_print_env_pos,
   dest_finalize,image_finalize = 
 
@@ -26,26 +27,26 @@ let
       let module Rien = MakeIt (Videoc.Make) in
       let module RienBis  = MakeIt (Package.Make) in
       let module RienTer = MakeIt (Verb.Make) in
-      Scan.main, Scan.no_prelude, Scan.print_env_pos,
+      Scan.get_prim, Scan.main, Scan.no_prelude, Scan.print_env_pos,
       Html.finalize, Image.finalize
   | Html  ->
       let module Scan = Latexscan.Make (Html) (Noimage) in
       let module Otherscan = Videoc.Make (Html) (Noimage) (Scan) in
       let module Verbscan = Verb.Make  (Html) (Noimage) (Scan) in
       let module OptScan = Package.Make  (Html) (Image) (Scan) in
-      Scan.main, Scan.no_prelude, Scan.print_env_pos,
+      Scan.get_prim, Scan.main, Scan.no_prelude, Scan.print_env_pos,
       Html.finalize, Noimage.finalize
   | Text ->
       let module Scan = Latexscan.Make (Text) (Noimage) in
       let module Verbscan = Verb.Make  (Text) (Noimage) (Scan) in
       let module OptScan = Package.Make (Text) (Image) (Scan)  in
-      Scan.main, Scan.no_prelude, Scan.print_env_pos,
+      Scan.get_prim, Scan.main, Scan.no_prelude, Scan.print_env_pos,
       Text.finalize,Noimage.finalize
   | Info ->
       let module Scan = Latexscan.Make (Info) (Noimage) in
       let module Verbscan = Verb.Make  (Info) (Noimage) (Scan) in
       let module OptScan = Package.Make (Info) (Image) (Scan) in
-      Scan.main, Scan.no_prelude, Scan.print_env_pos,
+      Scan.get_prim, Scan.main, Scan.no_prelude, Scan.print_env_pos,
       Info.finalize, Noimage.finalize
 ;;
 
@@ -67,6 +68,13 @@ and prerr_not_supported msg =
 
 let finalize check =
   try
+    begin match !Misc.image_opt with
+    | "" ->
+        let s = scan_get_prim "\\heveaimageext" in
+        s.[0] <- '-' ;
+        Misc.image_opt := s
+    | _ -> ()
+    end ;
     let changed = Auxx.finalize check in
     let changed = Index.finalize check || changed  in
     let image_changed = image_finalize check in
@@ -165,8 +173,8 @@ let main () =
             ("Fixpoint reached in "^string_of_int i^" step(s)") ;
           if !image_changed then begin
             Misc.message
-              ("Now, I am running imagen for you") ;            
-            let _ = Sys.command("imagen "^base_out) in ()
+              ("Now, I am running imagen for you") ;
+            let _ = Sys.command("imagen "^ !Misc.image_opt^ " "^base_out) in ()
           end
         end in
       do_rec 1

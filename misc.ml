@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: misc.ml,v 1.19 2001-02-20 14:10:09 maranget Exp $" 
+let header = "$Id: misc.ml,v 1.20 2001-10-02 12:32:33 maranget Exp $" 
 
 exception Fatal of string
 exception NoSupport of string
@@ -106,3 +106,4 @@ and end_env env = "\\end"^env
 
 type limits = Limits | NoLimits | IntLimits
 
+let image_opt = ref ""
