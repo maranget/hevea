@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.151 1999-11-18 13:56:47 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.152 1999-11-23 13:51:44 maranget Exp $ *)
 
 
 {
@@ -1919,6 +1919,7 @@ let bib_ref s1 s2 =
 def_code "\\cite"
   (fun lexbuf ->
     let opt = save_opt "" lexbuf in
+    check_alltt_skip lexbuf ; 
     let args = List.map subst_this (Save.cite_arg lexbuf) in
     Dest.put_char '[' ;
     Dest.open_group "CITE" ;

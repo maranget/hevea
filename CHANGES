@@ -1,5 +1,6 @@
 
 version 1.05-6
+  - bug argument de \cite
   - \imageflush is now a hva macro that calls \imgsrc.
     (internal is \@imageflush)
   - Bug in htmlMath : # now is a complex character.
