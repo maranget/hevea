@@ -17,7 +17,7 @@ open Latexmacros
 open Html
 open Save
 
-let header = "$Id: latexscan.mll,v 1.35 1998-08-31 15:57:43 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.36 1998-09-02 13:40:27 maranget Exp $" 
 
 let push s e = s := e:: !s
 and pop s = match !s with
@@ -1152,8 +1152,10 @@ rule  main = parse
        Image.put
          (lxm^name^
          (List.fold_right (fun s r -> s^r) args_pat ("{"^body^"}\n"))) ;
-     def_macro_pat name ([],args_pat) [Subst body] ;
-     if lxm = "\\def" then macro_register name ;
+     begin try
+       def_macro_pat name ([],args_pat) [Subst body] ;
+       if lxm = "\\def" then macro_register name
+     with Latexmacros.Failed -> () end ;
      main lexbuf
     }
   | "\\renewcommand" | "\\newcommand" | "\\providecommand"
@@ -1171,13 +1173,15 @@ rule  main = parse
            No s -> false,s
         | Yes s -> true,s)
     | _ -> failwith "Opts args in newcomand" in
-    (match lxm with
-      "\\newcommand"   -> def_macro_pat
-    | "\\renewcommand" -> redef_macro_pat
-    | _                -> provide_macro_pat) name
-      (Latexmacros.make_pat (if def then [defval] else []) nargs)
-      [Subst body] ;
-    macro_register name ;
+    begin try
+      (match lxm with
+        "\\newcommand"   -> def_macro_pat
+      | "\\renewcommand" -> redef_macro_pat
+      | _                -> provide_macro_pat) name
+        (Latexmacros.make_pat (if def then [defval] else []) nargs)
+        [Subst body] ;
+      macro_register name
+    with Latexmacros.Failed -> () end ;
     main lexbuf}
   | "\\newenvironment" ' '*
      {let lxm = lexeme lexbuf in
@@ -1191,13 +1195,15 @@ rule  main = parse
          (lxm^
          unparse_args [] [name]^
          unparse_args [nargs;optdef] [body1;body2]) ;
-     def_env_pat name
-       (Latexmacros.make_pat
-         (match optdef with No _ -> [] | Yes s -> [s])
-         (match nargs with No _ -> 0 | Yes s -> my_int_of_string s))
-       [Subst body1] [Subst body2];
-     macro_register ("\\"^name) ; 
-     macro_register ("\\end"^name) ; 
+     begin try
+       def_env_pat name
+         (Latexmacros.make_pat
+           (match optdef with No _ -> [] | Yes s -> [s])
+           (match nargs with No _ -> 0 | Yes s -> my_int_of_string s))
+         [Subst body1] [Subst body2];
+       macro_register ("\\"^name) ; 
+       macro_register ("\\end"^name)
+     with Latexmacros.Failed -> () end ;
      main lexbuf}
   | "\\newtheorem" | "\\renewtheorem"
       {let lxm = lexeme lexbuf in
@@ -1211,22 +1217,24 @@ rule  main = parse
        unparse_args [numbered_like] [caption]^
        unparse_args  [within] []^"\n") ;
 
-      let cname = match numbered_like,within with
-        No _,No _ ->
-          Counter.def_counter name "" ;
-          def_macro ("\\the"^name) 0 [Subst ("\\arabic{"^name^"}")] ;
-          name
-      | _,Yes within ->
-          Counter.def_counter name within ;
-          def_macro ("\\the"^name) 0
-            [Subst ("\\the"^within^".\\arabic{"^name^"}")] ;
-          name
-      | Yes numbered_like,_ -> numbered_like in
+      begin try
+        let cname = match numbered_like,within with
+          No _,No _ ->
+            Counter.def_counter name "" ;
+            def_macro ("\\the"^name) 0 [Subst ("\\arabic{"^name^"}")] ;
+            name
+        | _,Yes within ->
+            Counter.def_counter name within ;
+            def_macro ("\\the"^name) 0
+              [Subst ("\\the"^within^".\\arabic{"^name^"}")] ;
+           name
+        | Yes numbered_like,_ -> numbered_like in
       
-      def_env_pat name (Latexmacros.make_pat [""] 0)
-        [Subst ("\\cr{\\bf\\stepcounter{"^cname^"}"^caption^"~"^
-          "\\the"^cname^"}\\quad\\ifoptarg{\\purple[#1]\\quad}\\fi\\it")]
-        [Subst "\\cr"] ;
+        def_env_pat name (Latexmacros.make_pat [""] 0)
+          [Subst ("\\cr{\\bf\\stepcounter{"^cname^"}"^caption^"~"^
+            "\\the"^cname^"}\\quad\\ifoptarg{\\purple[#1]\\quad}\\fi\\it")]
+          [Subst "\\cr"]
+      with Latexmacros.Failed -> () end ;
       main lexbuf}
   | "\\let" | "\\global\\let"
      {let lxm = lexeme lexbuf in
@@ -1235,8 +1243,10 @@ rule  main = parse
      let alt = save_arg lexbuf in
      begin try
        let nargs,body = find_macro alt in
-       def_macro_pat name nargs body ;
-       macro_register name
+       begin try
+         def_macro_pat name nargs body ;
+         if lxm = "\\let" then macro_register name
+      with Latexmacros.Failed -> () end
      with Not_found -> () end ;
      if !env_level = 0 || lxm <> "\\let" then begin
        Image.put lxm ;
@@ -1625,7 +1635,8 @@ rule  main = parse
 (* Boxes *)
         | "\\newsavebox" ->
             let name = save_arg lexbuf in
-            def_macro name 0 [Print ""] ;
+            begin try def_macro name 0 [Print ""]
+            with Latexmacros.Failed -> () end ;
             main lexbuf
         | "\\savebox" | "\\sbox" ->
             let name = save_arg lexbuf in

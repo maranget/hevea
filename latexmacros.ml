@@ -9,10 +9,11 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmacros.ml,v 1.21 1998-08-27 15:24:32 maranget Exp $" 
+let header = "$Id: latexmacros.ml,v 1.22 1998-09-02 13:40:25 maranget Exp $" 
 open Parse_opts
 open Symb
 
+exception Failed
 
 type env =
   Style of string
@@ -68,7 +69,8 @@ let def_macro_pat name pat action =
     if not !silent then begin
       Location.print_pos () ;
       prerr_string "Ignoring definition of: "; prerr_endline name
-    end
+    end ;
+    raise Failed
   with
     Not_found ->
       Hashtbl.add cmdtable name (pat,action)
@@ -99,7 +101,7 @@ let provide_macro_pat name pat action =
   end ;
   try
     let _ = Hashtbl.find cmdtable name in
-    Hashtbl.add cmdtable name (pat,action)
+    raise Failed
   with
     Not_found -> begin
       if !verbose > 1 then begin

@@ -1451,7 +1451,7 @@ source. However, \LaTeX{} still can process the document, since the
 This part follows the pattern of the \LaTeX{} reference
 manual~\cite[Appendix~C]{latex}.
 
-\section{Sentences and paragraph}
+\section{Sentences and Paragraphs}
 
 \subsection{Spacing}
 Generally speaking, spaces (and single newline characters) in the
@@ -1834,9 +1834,15 @@ in any user file.
 \hevea{} also accepts simple {\TeX} style (using \verb+\def#1#2...+
 without delimiting 
 characters), with the same behavior as \verb+\newcommand+.
-It also processes a
-limited version of \verb+\let+:
+It is important to notice that \hevea{} semantics for \verb+\def+
+departs significantly from \TeX{} semantics. In particular, defining a
+command that already exists with \verb+\def+ fails in \hevea{},
+whereas it succeeds in \TeX{}.
+Users are thus invited to use \LaTeX{} \verb+\renewcommand+ for the purpose
+of redefining commands.
 
+\hevea{} also processes a
+limited version of \verb+\let+:
 \begin{flushleft}
 \verb+\let+ {\it macro-name} \verb+=+ {\it macro-name}
 \end{flushleft}
@@ -1861,7 +1867,7 @@ while  theorem-like environment definitions  are global.
 \subsection{Numbering}
 \LaTeX{} counters are (fully ?) supported.
 In particular, defining a counter \textit{cmd} with
-\verb+\newcounter{+\textit{com}\verb+}+ creates a macro
+\verb+\newcounter{+\textit{cmd}\verb+}+ creates a macro
 \verb+\the+\textit{cmd} that outputs the counter value.
 Then the \verb+\the+\textit{cmd} command can be redefined.
 For instance, section numbering can be turned into alphabetic style by:

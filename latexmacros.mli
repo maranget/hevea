@@ -9,6 +9,9 @@
 (*                                                                     *)
 (***********************************************************************)
 
+exception Failed
+;;
+
 type env =
   Style of string
 | Font of int
