@@ -1,3 +1,14 @@
+(***********************************************************************)
+(*                                                                     *)
+(*                          HEVEA                                      *)
+(*                                                                     *)
+(*  Luc Maranget, projet Moscova, INRIA Rocquencourt                   *)
+(*                                                                     *)
+(*  Copyright 2001 Institut National de Recherche en Informatique et   *)
+(*  Automatique.  Distributed only by permission.                      *)
+(*                                                                     *)
+(*  $Id: subst.mll,v 1.13 2001-05-25 09:20:49 maranget Exp $"            *)
+(***********************************************************************)
 {
 open Misc
 open Lexstate

@@ -1,7 +1,18 @@
+(***********************************************************************)
+(*                                                                     *)
+(*                          HEVEA                                      *)
+(*                                                                     *)
+(*  Luc Maranget, projet Moscova, INRIA Rocquencourt                   *)
+(*                                                                     *)
+(*  Copyright 2001 Institut National de Recherche en Informatique et   *)
+(*  Automatique.  Distributed only by permission.                      *)
+(*                                                                     *)
+(*  $Id: length.mll,v 1.11 2001-05-25 09:20:47 maranget Exp $"            *)
+(***********************************************************************)
 
 {
 open Lexing
-let header = "$Id: length.mll,v 1.10 2000-10-13 19:17:39 maranget Exp $" 
+let header = "$Id: length.mll,v 1.11 2001-05-25 09:20:47 maranget Exp $" 
 
 exception Cannot
 ;;

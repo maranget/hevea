@@ -1,3 +1,14 @@
+(***********************************************************************)
+(*                                                                     *)
+(*                          HEVEA                                      *)
+(*                                                                     *)
+(*  Luc Maranget, projet Moscova, INRIA Rocquencourt                   *)
+(*                                                                     *)
+(*  Copyright 2001 Institut National de Recherche en Informatique et   *)
+(*  Automatique.  Distributed only by permission.                      *)
+(*                                                                     *)
+(*  $Id: stack.ml,v 1.6 2001-05-25 09:20:48 maranget Exp $"            *)
+(***********************************************************************)
 exception Fatal of string
 
 type 'a t = {mutable l : 'a list ; name : string ; bottom : 'a option}
