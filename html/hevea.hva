@@ -110,6 +110,11 @@
     \@link@arg{NEXT}{#3}%
     \@printnostyle{-->
 }}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Using style CLASSES with DIV for local style-setting   %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newenvironment{divstyle}[1]
+{\@open{DIV}{CLASS=#1}}{\@close{DIV}}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Echoing to the image file %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -318,8 +323,18 @@
 \def\textbf#1{\mbox{\bfseries#1}}
 \def\textsf#1{\mbox{\sffamily#1}}
 \def\textsl#1{\mbox{\slshape#1}}
-\def\textsc#1{\mbox{\scshape#1}}
+%\def\textsc#1{\mbox{\scshape#1}}
 \newcommand{\emph}[1]{\mbox{\em#1}}
+%%%
+%%% New implementation of \textsc using "small-caps" style. 
+%%%
+\newcommand{\textsc}[1]
+	{\@open{SPAN}{style="font-variant:small-caps"}#1\@close{SPAN}}
+%%%
+%%% Similar implementation of \sc using "small-caps" style. 
+%%%
+%\newenvironment{make@env}[1]{\@open{SPAN}{STYLE="#1"}...def_code}{}
+%\def\sc{\make@env{font-variant:small-caps}}
 %%%%%%%%%%%%%%% Multicolumns index formating
 \newcommand{\setindexpos}[2]
 {\providesavebox{\csname indexpos#1\endcsname}%

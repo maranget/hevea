@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.235 2004-07-08 08:41:52 thakur Exp $ *)
+(* $Id: latexscan.mll,v 1.236 2004-07-09 13:33:56 thakur Exp $ *)
 
 
 {
@@ -2154,11 +2154,19 @@ def_code "\\@fontcolor"
     let arg = get_prim_arg lexbuf in
     Dest.open_mod (Color arg))
 ;;
+(*
+def_code "\\@styleset
+  (fun lexbuf -> 
+    let arg = get_prim_arg lexbuf in
+    Dest.open_mod (...))
+;;
+*)
 def_code "\\@fontsize"  
   (fun lexbuf ->
     let arg = save_arg lexbuf in
     Dest.open_mod (Font (Get.get_int arg)) )
 ;;
+
 def_code "\\@nostyle"
         (fun lexbuf -> Dest.nostyle () ; check_alltt_skip lexbuf)
 ;;

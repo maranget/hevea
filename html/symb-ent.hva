@@ -233,3 +233,7 @@
 
 \let\mathsf\@mathsf
 \let\mathbf\@mathbf
+\let\mathrm\@mathrm
+\let\mathcal\@mathcal
+\let\mathtt\@mathtt
+\newcommand{\mathit}[1]{\@open{I}{}#1\@close{I}}

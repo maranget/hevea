@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.59 2004-07-08 08:41:53 thakur Exp $    *)
+(*  $Id: package.ml,v 1.60 2004-07-09 13:33:57 thakur Exp $    *)
 
 module type S = sig  end
 
@@ -714,16 +714,43 @@ def_code "\\@mathbf"
   )
 ;;
 
-(*
-def_code "\\@mathbb"
+def_code "\\@mathrm"
   (fun lexbuf -> 
     let arg1 = save_arg lexbuf in
     let str = arg1.arg in
-    let formatted = Scan.get_this_main ("\\"^"one@mathbb{"^str^"}") in
-    print_string ("<-"^str^"->"^"<<"^formatted^">>") ;Dest.put formatted
+    (*let str_list = get_elements str in
+    let format x = Scan.get_this_main ("\\"^"one@mathbf{"^x^"}") in
+    let formatted_list = List.map format str_list in
+    let formatted_text = List.fold_left str_cat "" formatted_list in*)
+    Dest.put (str)
   )
 ;;
-*)
+
+def_code "\\@mathcal"
+  (fun lexbuf -> 
+    let arg1 = save_arg lexbuf in
+    let str = arg1.arg in
+    let str_list = get_elements str in
+    let format x = Scan.get_this_main ("\\"^"one@mathcal{"^x^"}") in
+    let formatted_list = List.map format str_list in
+    let formatted_text = List.fold_left str_cat "" formatted_list in
+    Dest.put formatted_text
+  )
+;;
+
+def_code "\\@mathtt"
+  (fun lexbuf -> 
+    let arg1 = save_arg lexbuf in
+    let str = arg1.arg in
+    let str_list = get_elements str in
+    let format x = Scan.get_this_main ("\\"^"one@mathtt{"^x^"}") in
+    let formatted_list = List.map format str_list in
+    let formatted_text = List.fold_left str_cat "" formatted_list in
+    Dest.put formatted_text
+  )
+;;
+
+
 (*
 def_code "\\xrightarrow"
   (fun lexbuf ->
