@@ -5,10 +5,11 @@
 \usepackage{a4wide}
 \usepackage{epsf}
 
+
 \renewcommand{\thepart}{\Alph{part}}
 \addtolength{\topmargin}{-1cm}
 \renewcommand{\numberline}[1]{#1\quad}
-
+%%%%%%%%%%%%%%%%%%%%
 \newcommand{\commandname}[1]{{\tt #1}}
 \newcommand{\filename}[1]{{\em #1}}
 \newcommand{\urlex}[1]{\footurl{\docurl/examples/#1}{\filename{#1}}}
@@ -40,7 +41,7 @@ Chesnay Cedex. {\tt \mailto{Luc.Maranget@inria.fr}}}}
 \begin{abstract}
 \hevea{} is a \LaTeX{} to
 {\html} translator.
-The input language is a fairly complete subset of \LaTeX2e\ (old
+The input language is a fairly complete subset of \LaTeXe{} (old
 \LaTeX\ style is also accepted) and the
 output langaguage is {\html} that is (hopefullly) correct with respect to
 version 3.2.
@@ -74,24 +75,24 @@ smaller files, using the companion program \hacha.
 
 \section{How to get started}\label{getstarted}
 
-Assume that you have a file \texttt{a.tex} written in \LaTeX, using the
+Assume that you have a file ``\texttt{a.tex}'' written in \LaTeX, using the
 \filename{article}, \filename{book} or \filename{report} style. Then,
 translation
 is achieved by issuing the command~:
 \begin{verbatim}
-     hevea a.tex
+# hevea a.tex
 \end{verbatim}
 Probably, you will get some warnings about unknown macros. If
 \hevea\ does not crash, just ignore them for the moment
 (Section~\ref{trouble}  explains how to correct errors).
 
-If everything goes fine, this will produce a new file
+If everything goes fine, this will produce a new file,
 ``\texttt{a.html}'' that you can visualize using an {\html} brower.
 If \texttt{a.tex} contains maths symbols you need to instruct your
 browser to use symbol fonts (see section~\ref{browser}).
 
-If you wish to experiment \hevea\ on small \LaTeX\ source fragments,
-then lauch \hevea\ without arguments. \hevea\ will read its
+If you wish to experiment \hevea{} on small \LaTeX\ source fragments,
+then lauch \hevea{} without arguments. \hevea{} will read its
 standard input and print the translation on its standard output.
 For instance:
 \begin{verbatim}
@@ -109,7 +110,7 @@ documentation, including examples of \urlex{a.tex} and
 
 \subsection{Base style files}
 
-\noindent\hevea\ knows about two \LaTeX{} base style file,
+\noindent\hevea{} knows about two \LaTeX{} base style file,
 \filename{article} and \filename{book}.
 Additionnaly, the \filename{report} base style is recognized and
 considerd equivalent to \filename{book}. In case your source file uses
@@ -121,7 +122,7 @@ argument.
 Let us assume that \texttt{mydoc.tex} uses an exotic style
 file such as \verb+acmconf+. Then, typing
 \verb+hevea mydoc.tex+ may yield two kind of errors.
-Either \hevea\ finds the the \texttt{acmconf.sty} file (e.g. if
+Either \hevea{} finds the the \texttt{acmconf.sty} file (e.g. if
 \texttt{acmconf.sty} is in the current directory)
 and fails to process it~:
 \begin{verbatim}
@@ -149,7 +150,7 @@ base style file  as an extra argument:
 hevea article.sty mydoc.tex
 \end{verbatim}
 Such an extra argument instructs
-\hevea\ to load its \texttt{article.sty}
+\hevea{} to load its \texttt{article.sty}
 style file before processing \texttt{mydoc.tex}
 It will then ignore the base style specified by
 \verb+\documentstyle+ or \verb+\documentclass+.
@@ -158,7 +159,7 @@ It will then ignore the base style specified by
 
 A \LaTeX\ document usually loads additional style files (using
 \verb+\input+ or \verb+\usepackage+, or by giving optional arguments to \verb+\documentstyle+).
-\hevea\ simply ignores \verb+\usepackage+ and optional arguments to
+\hevea{} simply ignores \verb+\usepackage+ and optional arguments to
 \verb+\documentstyle+, but it attempts to load a file given as argument
 to \verb+\input+.
 (You can see what files \hevea{} loads or attempts to load by using
@@ -561,7 +562,7 @@ argument to \hevea.
 \begin{verbatim}
 # hevea trouble.sty trouble.tex
 \end{verbatim}
-By doing so, the macros written specially for \hevea\ are not
+By doing so, the macros written specially for \hevea{} are not
 seen by \LaTeX. Even better, \verb+trouble.tex+ is not changed
 at all.
 
@@ -570,7 +571,7 @@ generic style, using macros.
 Note that this style is recommended anyway, since it eases the changing
 and tuning of documents.
 
-\subsection{\hevea\ does not know a macro}
+\subsection{\hevea{} does not know a macro}
 Consider the following \LaTeX\ source excerpt:
 \begin{verbatim}
 You can \raisebox{.6ex}{\em raise} text.
@@ -589,7 +590,7 @@ You can \raisebox{.6ex}{\em raise} text.
 \end{latexonly}
 \end{htmlout}
 
-Since \hevea\ does not know about \verb+raisebox+,
+Since \hevea{} does not know about \verb+raisebox+,
 it uncorrectly processes this input. More precisely,
 it first prints a warning message:
 \begin{verbatim}
@@ -643,7 +644,7 @@ You can \raisebox{.6ex}{\em raise} or \raisebox{-.6ex}{\em lower} text.
 You can \raisebox{.6ex}{\em raise} or \raisebox{-.6ex}{\em lower} text.
 \end{latexonly}
 \end{htmlout}
-Whereas, with the above definition of \verb+\raisebox+, \hevea\ produces:
+Whereas, with the above definition of \verb+\raisebox+, \hevea{} produces:
 \begin{htmlout}
 \renewcommand{\raisebox}[2]{$^{\mbox{#2}}$}%
 You can \raisebox{.6ex}{\em raise} or \raisebox{-.6ex}{\em lower} text.
@@ -680,7 +681,7 @@ sice by \hevea{} semantics for \verb+\newcommand+ (see
 section~\ref{usermacro})
 the new definition will not overwrite the old one.
 
-\subsection{\hevea\ uncorrectly interprets a macro}\label{blob}
+\subsection{\hevea{} uncorrectly interprets a macro}\label{blob}
 
 Sometimes \hevea{} knows about a macro, but the produced \html{}
 does not look good when seen through a browser.
@@ -703,7 +704,7 @@ Which \LaTeX{} typesets as follows:
 %END IMAGE
 %HEVEA\imageflush%
 \end{latexout}
-\hevea\ always translates \verb+\rule+ as \verb+<HR>+, ignoring size
+\hevea{} always translates \verb+\rule+ as \verb+<HR>+, ignoring size
 arguments.
 Hence, it here produces the following, wrong, output:
 \begin{htmlout}\newcommand{\blob}{\rule[.2ex]{1ex}{1ex}}
@@ -992,7 +993,7 @@ under user control.
 
 \subsection{The \filename{image} file}
 
-While processing \filename{mydoc}\texttt{.tex}, \hevea{} echoes some
+While outputing \filename{mydoc}\texttt{.html}, \hevea{} echoes some
 of its input to the \filename{image} file,
 \filename{mydoc}\texttt{.image.tex}.
 
@@ -1138,18 +1139,56 @@ Consider the \texttt{gpic} filter, for making drawings.
 Source for \texttt{gpic} is enclosed in \verb+.PS+\ldots \verb+.PE+,
 then the result is available to subsequent \LaTeX{} source as a \TeX{}
 box \verb+\box\graph+.
-For instance the following source, draws a smiling face as a centered
+For instance the following source, from a \texttt{smile.tex} file,
+draws a smile! logo as a centered
 paragraph:
 \begin{verbatim}
-.PS
-
+ .PS
+ellipse "{\Large\bf Smile!}"
 .PE
 \begin{center}
-\box\graph
+~\box\graph~
 \end{center}
 \end{verbatim}
-
-
+Both the image description (\verb+.PS+\ldots\ \verb+.PE+) and usage (\verb+\box\graph+)
+are for the \filename{image} file, and they should be
+enclosed by \verb+%BEGIN IMAGE+\ldots\ \verb+%END IMAGE+ comments.
+Additionaly, the immage is put where it belongs by an
+\verb+\imageflush+ command:
+\begin{verbatim}
+%BEGIN IMAGE
+ .PS
+ellipse "{\Large\bf Smile!}"
+.PE
+%END IMAGE
+\begin{center}
+%BEGIN IMAGE
+~\box\graph~
+%END IMAGE
+%HEVEA\imageflush
+\end{center}
+\end{verbatim}
+The \texttt{gpic} filter is applied first, then come \texttt{hevea}
+and \texttt{imagen}:
+\begin{verbatim}
+# gpic -t < smile.tex > tmp.tex
+# hevea tmp.tex -o smile.hml
+# imagen smile
+\end{verbatim}
+And we get:
+%BEGIN IMAGE
+.PS
+ellipse "{\Large\bf Smile!}"
+.PE
+%END IMAGE
+\begin{center}
+%BEGIN IMAGE
+~\box\graph~
+%END IMAGE
+%HEVEA\imageflush
+\end{center}
+Observe how the \verb+-o+ argument to \hevea{} is used and that
+\texttt{imagen} argument is the output file base name.
 
 \section{Cutting your document into pieces with {\hacha}}\label{hacha}
 \hevea{} outputs a single \texttt{.html} file. This file can be
@@ -1448,7 +1487,7 @@ There is no list of figures nor list of tables.
 \section{Classes, Packages and Page Styles}
 
 \subsection{Document Class}
-Both \LaTeX2e{} \verb+\documentclass+ and old \LaTeX{}
+Both \LaTeXe{} \verb+\documentclass+ and old \LaTeX{}
 \verb+\documentstyle+ are accepted.
 Their argument \filename{style} is interpreted by attempting to load a
 \filename{style}\texttt{.sty} file (see~\ref{files} to see where \hevea{}
@@ -1691,7 +1730,7 @@ the two others output one space.
 Letters are always italicized inside math mode and this cannot be
 changed. The appearence of
 other symbols can be changed using
-\LaTeX2e{} style changing commands (\verb+\mathrm+, etc.).
+\LaTeXe{} style changing commands (\verb+\mathrm+, etc.).
 The commands \verb+\boldmath+ and \verb+\unboldmath+ are not
 recognized. Whether symbols belonging to the symbol font are affected
 by these changes or not is browser dependant.
@@ -1841,7 +1880,7 @@ the \LaTeX{} arrays.
 The command \verb+\cases+ is defined in \texttt{hevea.sty}.
 
 \section{Moving Information Around}
-\subsection{Files}
+\subsection{Files}\label{files}
 \hevea{} can use some of the ancillary files generated by \LaTeX{} in
 order to output better looking cross-references.
 In practice, while processing file \filename{mydoc}\texttt{.tex}, the following
@@ -1917,14 +1956,18 @@ A file is searched following this scheme:
 \item If \filename{filename} is an absolute path, then \hevea{}
 attempt to open a file with this name exactly.
 \item Otherwise, \hevea{} searches a file with name
-\filename{filename} in all the directories in its search path. (See
-\ref{path} for the definition of \hevea{} search path).
+\filename{filename} in all the directories in its search path.
 \end{itemize}
 Additionnaly, if \filename{filename}
 does not have an
 extension and that a first attempt to find it fails, then a second
 attempt is made, looking for file \filename{filename}\texttt{.tex}.
 
+\hevea{} search path starts by the current directory ``\texttt{.}'',
+then come user specified directories and \hevea{} library (e.g.
+\texttt{/usr/local/lib/hevea}).
+Users add directories in the search path using the \texttt{-I} command
+line option.
 
 The \verb+\includeonly+ and \verb+\lisfiles+ commands are null commands.
 
@@ -1934,7 +1977,7 @@ arguments to the \verb+-I+ option, and last \hevea{} instalatio
 directory (e.g., \verb+/usr/local/lib/hevea+).
 
 
-\subsection{Index and Glossary}
+\subsection{Index and Glossary}\label{index}
 \hevea{} supports several simultaneaous indexes, following the scheme
 of the
 \footurl{ftp://theory.lcs.mit.edu//pub/tex/index/}{\filename{index}} style,
@@ -1950,8 +1993,8 @@ More precisely, \hevea{} knows the following commands:
 ext}{\tt\}\{}{\it ignored}{\tt\}\{}{\it indexname}{\tt\}}]
 Declare an index.
 The first argument {\it tag} is a tag to select this index in other
-commands; {\it ext} is the extenstion of the index information file
-generated by \LaTeX{} (e.g., \verb+idx+); {\it ignored} is ignored by
+commands; {\it ext} is the extension of the index information file
+generated by \LaTeX{} (e.g., \texttt{idx}); {\it ignored} is ignored by
 \hevea{}; and {\it indexname} is the title of the index.
 If given the \verb+idx+ option. \hevea{} attempts to read file
 \filename{mydoc}\texttt{.}{\it ext}. There also exists a
@@ -2066,11 +2109,11 @@ The \verb+\rule+ commands translate to a \html{} horizontal rule
 
 All other box-related commands do not exist.
 
-\section{Font selection}
+\section{Font Selection}
 
 \subsection{Changing the Type Style}
-All \LaTeX2e{} declarations and environments for changing type style
-are recognized. Aspect is rather like \LaTeX2e{} output, but there is
+All \LaTeXe{} declarations and environments for changing type style
+are recognized. Aspect is rather like \LaTeXe{} output, but there is
 no guarantee.
 Old style declarations are also recognized, they
 should yield the same
@@ -2144,40 +2187,111 @@ the current font.
 \part{Practical information}
 
 \section{Usage}
-\begin{verbatim}
-# hevea -help
-hevea 0.0
-  -v , verbose flag, can be repeated to increase verbosity
-  -e filename, prevent file ``filename'' from being read
-  -idx , attempt to read .idx file (useful if indexing is non-standard)
-  -francais , french mode
-  -nosymb , do not output symbol fonts
-  -I dir, add directory ``dir'' to search path
-  -o filename, make hevea output go into file ``filename''
-\end{verbatim}
+\subsection{\hevea{} usage}
 
-\begin{verbatim}
-# hacha 0.0
-  -o filename, make hacha output go into file ``filename'' (defaults to index.html)
-\end{verbatim}
+The \texttt{hevea} command interprets its arguments as the names of
+\LaTeX{} source
+files and attempt to process them.
+If an argument \textit{filename} does not have an extension, such as
+\texttt{.tex} or 
+\texttt{.sty}, then a first attempt is made to open \textit{filename};
+in case of failure, another attempt to open
+\textit{filename}\texttt{.text} is made.
+In all cases, filenames that do not containt ``\texttt{/}'' are
+searched along \hevea{} search path.
+\hevea{} search path consist in the current, directory ``\texttt{.}'',
+followed by directories specified by the user with the \texttt{-I}
+option, and by \hevea{} library (normaly \texttt{/usr/local/lib/hevea}).
+
+If the last argument has extension \texttt{.text}, i.e., if
+this last argument is \textit{name}\texttt{.tex}, then \textit{name} is
+the input base name and ouput normally goes into file
+\textit{name}\texttt{.html}.
+Otherwise, there is no input base name, the standard input is read and
+ouput goes to the standard output.
+
+
+The \texttt{article.sty}, \texttt{book.sty} and \texttt{report.sty}
+base style files from \hevea{} library are special.
+Only the first base style file is loaded and the
+\verb+\documentclass+ command has no effect when a base style file is
+already loaded.
+
+
+The \texttt{hevea} command recognizes the following options:
+\begin{description}
+\item[{\tt -v}] Verbose flag, can be repeated to increase
+verbosity. However, this is mostly for debug.
+\item[{\tt -s}] Suppress warnings.
+\item[{\tt -e} {\it filename}] Prevent \hevea{} from loading any file
+whose name is \textit{filename}. Note that this option applies to all
+files, including \texttt{hevea.sty} and style files.
+\item[{\tt -idx}] Read the \textit{name}\texttt{.idx} file, where
+\textit{name} is the input base name. This is useful when this
+file is customized after it has been generated by \LaTeX{} (See,
+sections~\ref{files} and~\ref{index}).
+\item[{\tt -francais}] Set french mode.
+This has three consequences:
+\begin{itemize}
+\item Some words inserted by \LaTeX{} (such as ``Chapter'',
+``Biblography'', \ldots)
+are replaced by french word.
+\item Text replacement for symbols are  in french (see the
+\texttt{-nosymb} option below).
+\item \hevea{} executes the \TeX{} conditionnal macro
+\verb+\frenchtrue+.
+\end{itemize}
+\item[{\tt -nosymb}] Avoid symbol font.
+In this mode, symbols are replaced by text-only equivalents. By
+default, these equivalent are in english.
+\item[{\tt -I} {\it dirname}] Add {\it dirname} to the search path.
+\item[{\tt -o} {\it filename}] Make \hevea{} output go into file {\it
+filename}. By default, \hevea{} output goes into
+\textit{name}\texttt{.html}, where \textit{name} is the input base name.
+\item[{\tt -help}] Print version number and a short help message.
+\end{description}
+
+
+\subsection{\hacha{} usage}
+The \texttt{hacha} command interprets its argument as the name of
+a \html{} source file to cut into pieces.
+
+It also recognizes the following options:
+\begin{description}
+\item[{\tt -v}] Be a little verbose.
+\item[{\tt -o} {\it filename}] Make \hacha{} output go into file
+\textit{filename} (defaults  to index.html).
+\item[{\tt -help}] Print version number and a short help message.
+\end{description}
 
 
 \section{Browser configuration}\label{browser}
+By default, \hevea{} insert non-standard font changes in its output,
+using the \verb+FACE=symbol+ attribute to the \verb+<FONT>+ element.
+The symbol font is the one available on the Linux RedHat X
+distribution and seems to be present on many X instalations.
+A good way to know whether your browser can show \hevea{} symbols or
+not is
+comparing figure~\ref{xfd} and the web page located at
+\oneurl{\docurl/symbol.html}.
 
-\subsection{Netscape}
-\begin{description}
-\item[Unix]
-For Netscape, add the following line to
-your \filename{.Xdefaults} file 
+By default, browsers do not show symbol fonts as intended by \hevea{}.
+For Netscape on an Unix system, the following procedure instructs the
+browser to do so:
+\begin{itemize}
+\item Add the following line to your \texttt{.Xdefaults} file:
 \begin{verbatim}
 Netscape*documentFonts.charset*adobe-fontspecific:   iso-8859-1
 \end{verbatim}
-(Then, you probably need something like a \commandname{xrdb} command before
-you start Netscape.)
-\item[Macintosh]
-Choose  {\bf Roman-Encodings} in the item {\bf Document~Encoding}
-from {\em Preferences} menu.
-\end{description}
+\item Issue a \verb+xrdb .Xdefaults+ command.
+\item Restart Nestscape.
+\end{itemize}
+
+For Netscape on a Macintosh,
+choose  {\bf Western (MacRoman)} in the item {\bf Document~Encoding}
+from the {\em Preferences} menu. This will work only if the document
+does contain isolatin1 characters above 127\ldots
+
 
 \section{Installation}
 
@@ -2231,13 +2345,13 @@ of them. TTH can be found at
 \end{description}
 
 \section*{References}
-\begin{thebibliography}{xxxxxx}
+\begin{thebibliography}{xxxxxxxxxx}
 \bibitem[\LaTeX]{latex}
 L. Lamport.
 \newblock {\em A Document Preparation System System, \LaTeX{}, User's
 Guide and Reference Manual}.
 \newblock Addison-Websley, 1994.
-\bibitem[\LaTeX]{latex}
+\bibitem[\LaTeX-bis]{latexbis}
 
 \end{thebibliography}
 

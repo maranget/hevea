@@ -1,12 +1,12 @@
 # Compile using ocamlopt, to use ocamlc set TARGET=byte
-TARGET=byte
+TARGET=opt
 # Library directory of hevea
 LIBDIR=/usr/local/lib/hevea
 # A replacement for /lib/cpp
 CPP=gcc -E -P -x c 
 # Where to install programms
 BINDIR=/usr/local/bin
-DOCDIR=~maranget/public_html/hevea
+HTMLDIR=$(HOME)/public_html/hevea
 
 include version.make
 
@@ -51,9 +51,10 @@ docu:
 	cd examples ; $(MAKE) $(MFLAGS)
 
 install-doc:
-	cd doc ; $(MAKE) $(MFLAGS) INSTALDIR=$(HTMLDIR) install
+	$(INSTALL) iso.html symbol.html $(HTMLDIR) 
+	cd doc ; $(MAKE) $(MFLAGS) DOCDIR=$(HTMLDIR)/doc install
 	-mkdir $(DOCDIR)/examples
-	cd examples ; $(MAKE) $(MFLAGS) INSTALLDIR=$(HTMLDIR)/examples install
+	cd examples ; $(MAKE) $(MFLAGS) EXDIR=$(HTMLDIR)/examples install
 
 hevea.byte: ${OBJS}
 	${OCAMLC} -o $@ ${OBJS}

@@ -14,13 +14,13 @@ generated with the french option set:
 \item A full article cut into pieces , with images (source is \oneurl{pat.tex}
 and output is \oneurl{patbis.html}). To yied this result, \verb+gpic+ is first
 applied to \verb+pat.tex+, yielding \verb+temp.tex+; \LaTeX\ and
-\BibTeX are then used to produce the appropriate \verb+tmp.aux+ and
-\verb+tmp.bbl+ files; finally \hevea\ and \htmlcut\ are run as
+\texttt{bibtex} are then used to produce the appropriate \verb+tmp.aux+ and
+\verb+tmp.bbl+ files; finally \hevea\ and \hacha\ are run as
 follows:
 \begin{verbatim}
 # htmlgen pat.sty -e pat.def -o pat.html tmp.tex
-# imagegen
-# htmlcut -o patbis.html pat.html 
+# imagen pat
+# hacha -o patbis.html pat.html 
 \end{verbatim}
 Notice that the \LaTeX\ style file \oneurl{pat.def} is not loaded and
 that a simplified \oneurl{pat.sty} is loaded.

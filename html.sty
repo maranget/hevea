@@ -7,16 +7,18 @@
 %     - environment htmlonly , the reverse
 %      - environemnt htmlraw,  to include raw HTML in hevea output.
 %
-\newcommand{\html}{\protect\makebox{\sc html}}
-\newcommand{\htmlbis}{\protect\makebox{\sc
-H\kern-.6ex\raisebox{.85ex}{t}\kern-.4ex\raisebox{.4ex}{ml}}}
-%\newcommand{\hevea}{\protect\makebox{\sc H\kern-.3ex\protect\raisebox{.2ex}{e}\kern-.3exV\kern-.3ex\protect\raisebox{.2ex}{e}\kern-.3exA}}
-\def\hevea{H\kern -.3ex\raise .2ex\hbox{\sc \uppercasesc e}\kern -.3ex
-V\raise .2ex\hbox{\textsc \uppercasesc e}\kern -.3ex A}
-\newcommand{\hacha}{\protect\makebox{\sc
-H\kern-.3ex\protect\raisebox{.2ex}{a}\kern-.3exC\kern-.3ex\protect\raisebox{.2ex}{h}\kern-.3exA}}
-%\newcommand{\htmlgen}{\protect\makebox{\protect\html\kern -.2ex\protect\makebox{\sc G\kern -.2ex\protect\raisebox{-.5ex}{e}\kern -.2exN}}}
-%\newcommand{\htmlcut}{\protect\htmlbis\kern -.2ex\protect\makebox{\sc C\kern -.2ex\protect\raisebox{.5ex}{u}\kern -.4exT}}
+\makeatletter%
+\newcommand{\smup}[2]{%
+\raise #1\hbox{$\m@th$%
+  \csname S@\f@size\endcsname
+  \fontsize\sf@size 0%
+  \math@fontsfalse\selectfont
+#2%
+}}%
+\newcommand{\hevea}{H\kern-.15em\protect\smup{.2ex}{E}\kern-.15emV\kern-.15em\protect\smup{.2ex}{E}\kern-.15emA}%
+\newcommand{\hacha}{H\kern-.15em\protect\smup{.2ex}{A}\kern-.15emC\kern-.1em\protect\smup{.2ex}{H}\kern-.15emA}%
+\newcommand{\html}{\protect\smup{0.ex}{HTML}}
+\makeatother%
 \newcommand{\footurl}[2]{#2\footnote{\texttt{#1}}}
 \newcommand{\url}[2]{#2}
 \newcommand{\oneurl}[1]{{\tt #1}}

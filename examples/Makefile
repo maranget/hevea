@@ -1,9 +1,12 @@
 HTMLGEN=hevea
 IMAGEGEN=imagen
 HTMLCUT=hacha
-
+EXDIR=$(HOME)/public_html/hevea/examples
 all: a.html testsccal.html patbis.html suite.html index.html
-
+install:
+	-mkdir $(EXDIR)
+	cp *.gif *.html $(EXDIR)
+	cp Makefile a.tex suite.tex pat.tex pat.def pat.sty $(EXDIR)
 a.html: a.tex
 	latex < /dev/null a.tex
 	$(HTMLGEN) -v -francais a.tex
