@@ -12,7 +12,7 @@
 {
 open Lexing
 
-let header = "$Id: save.mll,v 1.28 1999-03-01 19:13:40 maranget Exp $" 
+let header = "$Id: save.mll,v 1.29 1999-03-02 18:20:28 maranget Exp $" 
 
 let verbose = ref 0 and silent = ref false
 ;;
@@ -34,7 +34,7 @@ let my_int_of_string s =
 
 type align =
     {hor : string ; vert : string ; wrap : bool ;
-      mutable pre : string ; mutable post : string}
+      mutable pre : string ; mutable post : string ; width : Length.t option}
 
 let make_hor = function
     'c' -> "center"
@@ -255,17 +255,20 @@ and tfmiddle = parse
   {let f = Lexing.lexeme_char lexbuf 0 in
   let post = tfpostlude lexbuf in
   Align {hor = make_hor f ; vert = make_vert f ; wrap = false ;
-        pre = "" ;   post = post}}
+        pre = "" ;   post = post ; width = None}}
 | 'p'|'m'|'b'
   {let f = Lexing.lexeme_char lexbuf 0 in
-  let _ = arg lexbuf in
+  let width = arg lexbuf in
+  let my_width =
+    try Some (Length.main (Lexing.from_string width))
+    with Length.No -> None in
   let post = tfpostlude lexbuf in
   Align {hor = make_hor f ; vert = make_vert f ; wrap = true ;
-          pre = "" ;   post = post}}
+          pre = "" ;   post = post ; width = my_width}}
 | 'X'
     {let post = tfpostlude lexbuf in
     Align {hor = make_hor 'p' ; vert = make_vert 'p' ; wrap=true ;
-           pre = "" ; post = post}}
+           pre = "" ; post = post ; width = None}}
 | _ {raise (Error ("Syntax of array format: "^Lexing.lexeme lexbuf))}
 
 and tfpostlude = parse

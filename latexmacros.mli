@@ -10,7 +10,7 @@
 (***********************************************************************)
 
 exception Failed
-;;
+exception Error of string
 
 type env =
   Style of string
@@ -51,7 +51,7 @@ val redef_macro: string -> int -> action list -> unit
 val def_env_pat: string -> pat -> action list -> action list -> unit
 val redef_env_pat: string -> pat -> action list -> action list -> unit
 val unregister : string -> unit
-val newif : string -> unit
+val newif : string -> string
 
 val display :  bool ref
 val in_math :  bool ref

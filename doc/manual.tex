@@ -5,6 +5,7 @@
 \usepackage{../hevea}
 \usepackage{isolatin1}
 \usepackage{epsf}
+\usepackage{ifthen}
 %HEVEA\usepackage{color}
 
 
@@ -1013,7 +1014,7 @@ the \texttt{hevea.sty} file by default.
 the  \verb+latexonly+, \verb+verblatex+, \verb+htmlonly+, \verb+rawhtml+,
 \verb+toimage+ and \verb+verbimage+ environments:
 \begin{center}
-\begin{tabular}{l@{~}p{.5\linewidth}@{\quad}l}\hline
+\begin{tabular}{l@{~}p{.5\hsize}@{\quad}l}\hline
 environment & \multicolumn{1}{c}{\hevea} &  \multicolumn{1}{c}{\LaTeX}
 \\ \hline
 \verb+latexonly+ & ignore, \verb+\end{+\textit{env}\verb+}+
@@ -1055,19 +1056,13 @@ purple rain, purple rain%
 
 It is impossible to avoid the spurious space in the output above,
 because \verb+\end{htmlonly}+ must appear in a line of its own for
-\LaTeX{} to reconize it.
+\LaTeX{} to reconize it. However, better space control can be achieved
+by using the \texttt{hevea} boolean register
+or comments, see sections~\ref{heveabool}
+and~\ref{comments}.
 Also note that environments define a scope and that style changes
 (and non-global definitions) are local to them. For instance, in the
 example above, ``\ldots'' appears in black in \html{} output.
-
-
-Another choice is using the \TeX{} style conditional macros \verb+\ifhevea+,
-which \hevea{} sees as true and \LaTeX{} as false:
-\begin{verbatim}
-We get:
-{\ifhevea\purple\fi purple rain, purple rain}\ldots
-\end{verbatim}
-We get: {\ifhevea\purple\fi purple rain, purple rain}\ldots
 
 \subsubsection{Why is there a \texttt{verblatex} environment?}
 Some scanning and analysis of source is performed
@@ -1182,11 +1177,45 @@ control document cutting (see
 section~\ref{hacha})
 are defined as null macros in the \texttt{hevea.sty} file.
 
+\subsubsection{The \texttt{hevea} boolean register}\label{heveabool}
+
+Boolean registers are provided by the \texttt{ifthen} package
+(see~\cite[Section~C.8.5]{latex} and section~\ref{ifthen} in this
+document).
+Both the \texttt{hevea.sty} style file
+and \hevea{} define the boolean register \texttt{hevea}.
+However, this register initial value is \textit{false} for \LaTeX{}
+and \textit{true} for \hevea{}.
+
+
+
+Thus, provided, both the \texttt{hevea.sty} style file and the
+\texttt{ifthen} packages are loaded, the ``purple rain'' example can
+be rephrased as follows:
+\begin{verbatim}
+We get:
+{\ifthenelse{\boolean{hevea}}{\purple}{}purple rain, purple rain}\ldots
+\end{verbatim}
+We get:
+{\ifthenelse{\boolean{hevea}}{\purple}{}purple rain, purple rain}\ldots
+
+%BEGIN LATEX
+\medskip
+%END LATEX
+
+
+Another choice is using the \TeX{}-style conditional macro \verb+\ifhevea+:
+\begin{verbatim}
+We get:
+{\ifhevea\purple\fi purple rain, purple rain}\ldots
+\end{verbatim}
+We get: {\ifhevea\purple\fi purple rain, purple rain}\ldots
+
+
 \subsection{Comments}\label{comments}
 \hevea{} processes all lines that start with \verb+%HEVEA+, while
 \LaTeX{} treats these lines as comments.
-Thus the ``purple rain'' example can be
-rephrased as follows:
+Thus, this is a last variation on  the ``purple rain'' example:
 \begin{verbatim}
 We get
 %HEVEA{\purple
@@ -2213,14 +2242,20 @@ You can escape them by using the {\TeX} constructs
 \subsection{Defining Environments}
 \hevea{} accepts environment definitions and redefinitions
 by \verb+\newenvironment+ and \verb+\renewenvironment+.
+The support is complete and should conform
+to~\cite[Sections~C.8.2]{latex}.
+In particular, environment names must contain letters only.
+
+Environments define a scope both for commands and environment
+definitions.
+
+
+\subsection{Theorem-like Environments}
 New theorem-like environments can also be introduced and redefined,
 using \verb+\newtheorem+ and \verb+\renewtheorem+.
-The support is complete and should conform
-to~\cite[Sections~C.8.2 and~C.8.3]{latex}.
 
-Note that environments are local to the block
-they are defined into,
-while  theorem-like environment definitions  are global.
+Note that, by contrast with plain environments definitions,
+theorem-like environment definitions are global definitions.
 
 \subsection{Numbering}
 \LaTeX{} counters are (fully ?) supported.
@@ -2236,6 +2271,78 @@ For instance, section numbering can be turned into alphabetic style by:
 Note that \TeX{} style for counters is not supported at all and that using
 this style
 will clobber the output.
+
+\subsection{The \texttt{ifthen} Package}\label{ifthen}
+
+The \texttt{ifthen} package is partially supported.
+Unsupported constructs are the
+\verb+\lengthtest+ and \verb+\isodd+ test expressions, which are
+undefined.
+
+As a consequence, \hevea{} accepts the following example from the
+\LaTeX{} manual:
+\begin{verbatim}
+\newcounter{ca}\newcounter{cb}%
+\newcommand{\printgcd}[2]{%
+  \setcounter{ca}{#1}\setcounter{cb}{#2}%
+  Gcd(#1,#2) =
+  \whiledo{\not\(\value{ca}= \value{cb}\)}%
+    {\ifthenelse{\value{ca}>\value{cb}}%
+      {\addtocounter{ca}{-\value{cb}}}%
+      {\addtocounter{cb}{-\value{ca}}}%
+    gcd(\arabic{ca}, \arabic{cb}) = }%
+  \arabic{ca}.}%
+For example: \printgcd{54}{30}
+\end{verbatim}
+\newcounter{ca}\newcounter{cb}%
+\newcommand{\printgcd}[2]{%
+  \setcounter{ca}{#1}\setcounter{cb}{#2}%
+  Gcd(#1,#2) =
+  \whiledo{\not\(\value{ca}= \value{cb}\)}%
+    {\ifthenelse{\value{ca}>\value{cb}}%
+      {\addtocounter{ca}{-\value{cb}}}%
+      {\addtocounter{cb}{-\value{ca}}}%
+    gcd(\arabic{ca}, \arabic{cb}) = }%
+  \arabic{ca}.}%
+For example: \printgcd{54}{30}
+
+Additionnaly, a few boolean registers are defined by \hevea{}.
+Some of them are of interest to users.
+\begin{description}
+\item[\texttt{hevea}] Initial value is \texttt{true}.
+The \texttt{hevea.sty} style file also defines this register with
+initial value \textit{false}.
+\item[\texttt{mmode}] This register value reflects \hevea{} operating
+mode, it is \textit{true} in math-mode and \textit{false} otherwise.
+\item[\texttt{display}]  This register value reflects \hevea{} operating
+mode, it is \textit{true} in display-mode and \textit{false} otherwise.
+\item[\texttt{french}] This register value reflects the \verb+-french+
+command line option internally (see Section~\ref{heveausage}).
+\end{description}
+
+Finally, note that boolean registers are compatible with simple \TeX-style
+conditional macros (which \hevea{} implements). Thus, the following
+source will yield twice the
+word ``hevea'' in \hevea{} and twice the word ``latex'' in \LaTeX{}:
+\begin{verbatim}
+We get:
+\begin{center}
+\begin{tabular}{cc}
+\ifthenelse{\boolean{hevea}}{hevea}{latex}
+&
+\ifhevea hevea\else latex\fi
+\end{tabular}
+\end{center}
+\end{verbatim}
+We get:
+\begin{center}
+\begin{tabular}{cc}
+\ifthenelse{\boolean{hevea}}{hevea}{latex}
+&
+\ifhevea hevea\else latex\fi
+\end{tabular}
+\end{center}
+
 
 \section{Figures and Other Floating Bodies}
 
@@ -2724,9 +2831,9 @@ The latter two set the \textit{name} condition to \textit{true} and
 The \verb+\if+\textit{name} command tests the condition \textit{name}:
 \begin{flushleft}
 \verb+\if+\textit{name}\\
-\ldots\textit{text$_1$}\\
+\textit{text$_1$}\\
 \verb+\else+\\
-\ldots\textit{text$_2$}\\
+\textit{text$_2$}\\
 \verb+\fi+\\
 \end{flushleft}
 Text \textit{text$_1$} is processed when \textit{name} is
@@ -2738,9 +2845,18 @@ Some conditions are defined internally by \hevea{}, such as the
 \texttt{french} condition, which is \textit{true} in French mode, or
 the \texttt{display} and \texttt{math} conditions that are set according
 to \hevea{} current operating mode.
-Another internal condition of interest is \texttt{optarg}, which is
-set to true just after the parsing of arguments, when an optional
-argument is indeed present.
+
+Note that \hevea{} also implements \LaTeX{} \texttt{ifthen} package
+and that \TeX{} simple conditional macros are fully compatible with
+\LaTeX{} boolean registers. More precisely,
+we have the following correspondances~:
+\begin{tabular}{p{.4\linewidth}p{.4\linewidth}}
+\verb+\if+\textit{name} \textit{text$_1$}\verb+\else+
+\textit{text$_2$}\verb+\fi+ &
+\verb+\ifthenelse{\boolean{+\textit{name}\verb+}}{+\textit{text$_1$}\verb+}{+\textit{text$_2$}\verb+}+\\
+\end{tabular}
+
+
 
 \subsection{The \protect{\texttt{\char92{}verbatiminput}} Command}
 
@@ -2810,7 +2926,8 @@ This has three consequences:
 ``Bibliography'', \ldots) are replaced by French word.
 \item Text replacement for symbols are  in French (see the
 \texttt{-nosymb} option below).
-\item \texttt{hevea} executes the \TeX{} conditional macro
+\item \texttt{hevea} sets the boolean register \texttt{french} to
+\textit{true}.
 \verb+\frenchtrue+.
 \end{itemize}
 \item[{\tt -nosymb}] Avoid symbol font.

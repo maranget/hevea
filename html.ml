@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: html.ml,v 1.34 1999-03-01 19:13:30 maranget Exp $" 
+let header = "$Id: html.ml,v 1.35 1999-03-02 18:20:18 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -523,6 +523,22 @@ let do_close_mods () =
   !cur_out.pending <- []
 ;;
 
+let do_close_mods_pred pred =
+  let rec split = function
+    | [] -> [],[]
+    | m :: rest ->
+        let to_close,to_keep = split rest in
+        match to_close with
+        | [] -> if pred m then [m],to_keep else [], m::to_keep
+        | _  -> m::to_close,to_keep in
+  let to_close,to_keep = split !cur_out.active in
+  List.iter do_close_mod to_close ;
+  !cur_out.active <- to_keep ;
+  List.fold_right
+    (fun m r -> if pred m then r else m::r)
+    to_close []
+      
+        
 let close_mods () = do_close_mods ()
 ;;
 
@@ -630,12 +646,8 @@ let rec erase_rec pred = function
 let erase_mods_pred pred =
   if not !cur_out.nostyle then begin
     let pending = erase_rec pred !cur_out.pending in
-    if List.exists pred !cur_out.active then begin
-      let active = erase_rec pred !cur_out.active in
-      do_close_mods () ;
-      !cur_out.pending <- active @ pending
-    end else
-      !cur_out.pending <- pending
+    let re_open = do_close_mods_pred pred in
+    !cur_out.pending <- re_open @ pending
   end
 ;;
 
@@ -765,8 +777,11 @@ let rec try_close_block s =
       flags.nrows <- pop "nrows" nrows_stack ;
       flags.table_vsize <- pop "table" table_stack
     end else if s = "TR" then begin
+      if ehere then begin
+        flags.vsize <- 0
+      end ;
       flags.table_vsize <- flags.table_vsize + flags.vsize;
-      flags.nrows <- flags.nrows + 1
+      if not ehere then flags.nrows <- flags.nrows + 1
     end else if s = "TD" then begin
       let p_vsize = pop "vskip" vsize_stack in
       flags.vsize <- max p_vsize flags.vsize
@@ -1336,6 +1351,7 @@ let close_chan () =
 
 let to_string f =
   let old_flags = copy_flags flags in
+  flags.pending_par <- false ;
   open_group "" ;
   f () ;
   let r = Out.to_string !cur_out.out in
@@ -1353,6 +1369,8 @@ let to_style f =
   erase_block "" ;
   r
 ;;
+
+let get_current_output () = Out.to_string !cur_out.out
 
 let check_stack s what =
   if !what <> [] && not !silent then begin

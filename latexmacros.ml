@@ -9,11 +9,12 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmacros.ml,v 1.35 1999-03-01 19:13:32 maranget Exp $" 
+let header = "$Id: latexmacros.ml,v 1.36 1999-03-02 18:20:19 maranget Exp $" 
 open Parse_opts
 open Symb
 
 exception Failed
+exception Error of string
 
 type env =
   Style of string
@@ -168,7 +169,7 @@ and activebrace = ref true
 let extract_if name =
   let l = String.length name in
   if l <= 3 || String.sub name 0 3 <> "\\if" then
-    raise (Failure ("Bad newif: "^name)) ;
+    raise (Error ("Bad newif: "^name)) ;
   String.sub name 3 (l-3)
 ;;
 
@@ -193,7 +194,8 @@ def_macro ("\\iffalse") 0 [Test (ref false)]
 let newif name = 
   let name = extract_if name in
   let cell = ref false in
-  newif_ref name cell
+  newif_ref name cell ;
+  name
 ;;
 
 

@@ -67,5 +67,6 @@ val open_chan: out_channel  -> unit
 val close_chan: unit -> unit
 val to_string: (unit -> unit) -> string
 val to_style: (unit -> unit) -> Latexmacros.env list
+val get_current_output : unit -> string
 
 val finalize : bool -> unit

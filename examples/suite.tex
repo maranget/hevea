@@ -1,9 +1,13 @@
 \documentclass{article}
+\usepackage{a4wide}
+
 \usepackage{latexsym}
 \usepackage{isolatin1}
 \usepackage{../hevea}
 \usepackage{index}
 \usepackage{color}
+\usepackage{ifthen}
+\usepackage{array}
 
 \title{Test de \hevea\footnote{Une étoile}}
 \makeindex
@@ -14,7 +18,7 @@
 \section{Test des polices}
 
 Test {\tt tt \it \Large tt it Large {\bf tt it Large bf } tt it Large
-{\rm Large rm } et encore }
+{\rm Large rm } et encore \normalsize normalsize}
 
 \begin{center}\Large
 Roman
@@ -391,6 +395,20 @@ $$\begin{array}{lll}\hline \\ \hline \\
 \end{array}\right) 
 \end{array} $$
 
+\subsection{\texttt{array} et \texttt{tabular} en mode display math}
+$$
+\left(\begin{tabular}{c}
+$\Gamma$\\
+$\Delta$\\
+\end{tabular}\right)
+$$
+
+$$
+\left(\begin{array}{c}
+\Gamma\\
+\Delta
+\end{array}\right)
+$$
 \subsection{Un exemple très tordu}
 
 \begin{center}
@@ -794,10 +812,108 @@ Et pis en texte: $\overline{A} \stackrel{B}{\rightarrow}
 3 & 2 & 1
 \end{tabular}
 
-\begin{tabular*}{10cm}{*{3}{l}}
+\begin{tabular*}{10cm}{*3{l}}
 1 & 2 & 3\\
 \\
 3 & 2 & 1
 \end{tabular*}
+
+\section{The \texttt{ifthen} Package}
+\subsection{Des ok partout}
+\newboolean{coucou}
+\newboolean{zob}
+\ifthenelse{\not\boolean{coucou}}{\setboolean{zob}{true}}{\setboolean{zob}{false}}
+\ifthenelse{\boolean{coucou}}{malaise}{ok}
+\ifthenelse{\boolean{coucou} \or \boolean{zob}}{ok}{malaise}
+
+\newcommand{\vrai}{true}%
+\ifthenelse{\equal{\vrai}{true} \and \not\(\equal{\vrai}{}\)}{ok}{malaise}
+
+\subsection{La totale}
+{\newcounter{ca}\newcounter{cb}}%
+\newcommand{\printgcd}[2]{%
+  \setcounter{ca}{#1}\setcounter{cb}{#2}%
+  Gcd(#1, #2) =
+  \whiledo{\not\(\value{ca}= \value{cb}\)}%
+    {\ifthenelse{\value{ca}>\value{cb}}%
+      {\addtocounter{ca}{-\value{cb}}}%
+      {\addtocounter{cb}{-\value{ca}}}%
+    gcd(\arabic{ca}, \arabic{cb}) = }%
+  \arabic{ca}.}%
+Test du pgcd : \printgcd{54}{30}
+
+\section{The \texttt{array} package}
+
+\subsection{Trucs simples}
+
+\noindent Aligné en bas~:\\
+\begin{tabular}{b{.30\linewidth}b{.30\linewidth}b{.30\linewidth}}
+\raggedright Ceci est un texte assez long pour faire plusieures lignes,
+enfin j'espère. En effet les lignes HTML sont plus longues que les
+lignes de \LaTeX{}, surtout avec le format de ce document de test.  &
+Là aussi il faut bosser un peu pour avoir plus d'une ligne &
+Là, c'est court exprès
+\end{tabular}
+
+\bigskip
+
+\noindent Aligné au centre~:\\
+\begin{tabular}{m{.30\linewidth}m{.30\linewidth}m{.30\linewidth}}
+\raggedright Ceci est un texte assez long pour faire plusieures lignes,
+enfin j'espère. En effet les lignes HTML sont plus longues que les
+lignes de \LaTeX{}, surtout avec le format de ce document de test.  &
+Là aussi il faut bosser un peu pour avoir plus d'une ligne &
+Là, c'est court exprès
+\end{tabular}
+
+\bigskip
+
+\noindent Aligné en haut~:\\
+\begin{tabular}{p{.30\linewidth}p{.30\linewidth}p{.30\linewidth}}
+\raggedright Ceci est un texte assez long pour faire plusieures lignes,
+enfin j'espère. En effet les lignes HTML sont plus longues que les
+lignes de \LaTeX{}, surtout avec le format de ce document de test.  &
+Là aussi il faut bosser un peu pour avoir plus d'une ligne &
+Là, c'est court exprès
+\end{tabular}
+
+\bigskip
+
+\noindent Mais si on mélange, alors ça n'a plus rien à voir~:\\
+\begin{tabular}{b{.30\linewidth}p{.30\linewidth}b{.30\linewidth}}
+\raggedright Ceci est un texte assez long pour faire plusieures lignes,
+enfin j'espère. En effet les lignes HTML sont plus longues que les
+lignes de \LaTeX{}, surtout avec le format de ce document de test.  &
+Là aussi il faut bosser un peu pour avoir plus d'une ligne &
+Là, c'est court exprès
+\end{tabular}
+
+\subsection{Horreurs diverses}
+$$
+\begin{array}{c@{=}>{$n }c<{ n$}}
+\Gamma_A & Coucou \\ \hline
+\multicolumn{2}{>{m }b{2cm}<{ m}}{coucou}\\ \hline
+\Gamma_A & Coucou \\
+\end{array}
+$$
+
+$$
+\begin{array}{c@{=}c}
+\Gamma_A & Coucou \\ \hline
+\multicolumn{2}{>{m }b{2cm}<{ m}}{coucou coucou}\\ \hline
+\Gamma_A & Coucou \\
+\end{array}
+$$
+
+
+\begin{tabular}{>{\bf}c|>{\it}r}
+Coucou & Zob\\
+Foo & Foobis\\
+\end{tabular}
+
+\begin{tabular}{c>{$}c<{$}}
+Coucou & \Gamma_A\\
+Coucou & \Gamma_A \\
+\end{tabular}
 
 \end{document}

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmain.ml,v 1.27 1999-03-01 19:13:33 maranget Exp $" 
+let header = "$Id: latexmain.ml,v 1.28 1999-03-02 18:20:21 maranget Exp $" 
 
 open Parse_opts
 
@@ -138,6 +138,11 @@ with
 | Save.Error s ->
     Location.print_pos () ;
     prerr_endline ("Error while reading LaTeX macros arguments: "^s) ;
+    prerr_endline "Adios" ;
+    exit 2
+| Latexmacros.Error s ->
+    Location.print_pos () ;
+    prerr_endline ("Error in macro definition: "^s) ;
     prerr_endline "Adios" ;
     exit 2
 | Myfiles.Error s ->

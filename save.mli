@@ -4,7 +4,7 @@ val seen_par : bool ref
 
 type align =
     {hor : string ; vert : string ; wrap : bool ;
-      mutable pre : string ; mutable post : string}
+      mutable pre : string ; mutable post : string ; width : Length.t option}
 type format =
   Align of align
 | Inside of string

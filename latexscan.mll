@@ -29,7 +29,7 @@ open Latexmacros
 open Save
 (* open Html *)
 
-let header = "$Id: latexscan.mll,v 1.62 1999-03-01 19:13:36 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.63 1999-03-02 18:20:23 maranget Exp $" 
 
 exception Error of string
 
@@ -309,6 +309,8 @@ let pretty_formats f =
 ;;
 
 
+let bool_out = ref false
+;;
 
 let if_level = ref 0
 ;;
@@ -541,6 +543,20 @@ let get_this lexfun s =
   r
 ;;
 
+let get_bool lexfun expr =
+  let old_bool = !bool_out in
+  bool_out := true ;
+  let r = match get_this lexfun ("\\@nostyle "^expr) with
+  | "true" -> true
+  | "false" -> false
+  | s       ->
+      raise (Error ("boolean expected: "^s)) in
+  bool_out := old_bool ;
+  r
+
+and get_int lexfun expr =
+  my_int_of_string (get_this lexfun ("\\@nostyle "^expr))
+
 let subst_buff = Out.create_buff ()
 ;;
 
@@ -589,7 +605,7 @@ let put_delim delim i =
 let default_format =
   Save.Align
     {hor="left" ; vert = "" ; wrap = false ;
-      pre = "" ; post = ""}
+      pre = "" ; post = "" ; width = None}
 ;;
 
 type array_type = {math : bool ; border : bool}
@@ -689,12 +705,22 @@ and as_inside = function
 | _        -> ""
 
 and as_align f span = match f with
-  Save.Align {vert=v ; hor=h ; wrap=w} ->
+  Save.Align {vert=v ; hor=h ; wrap=w ; width=size} ->
+(*    (match size with
+    | Some (Length.Percent n) ->
+        attribut "WIDTH" (string_of_int n^"%")
+    | Some (Length.Absolute n) ->
+        attribut "WIDTH" (string_of_int (n * Length.font))
+    | _ -> "")^ *)
     attribut "VALIGN" v^
     attribut "ALIGN" h^
     (if w then "" else " NOWRAP")^
     as_colspan span
 | _       ->  raise (Misc.Fatal ("as_align"))
+
+and as_wrap = function
+  | Save.Align {wrap = w} -> w
+  | _ -> false
 
 and as_pre = function
   | Save.Align {pre=s} -> s
@@ -788,7 +814,7 @@ let do_open_col main format span =
   let save_table = !in_table in
   Html.open_block "TD" (as_align format span) ;
   top_open_display () ;
-  if math_table !in_table then begin
+  if math_table !in_table && not (as_wrap format) then begin
     scan_this main "$"
   end ;
   scan_this main (as_pre format) ;
@@ -809,7 +835,8 @@ let open_first_col main =
 let erase_col main =
   let old_format = get_col !cur_format !cur_col in
   scan_this main (as_post old_format) ;
-  if math_table !in_table then scan_this main "$" ;
+  if math_table !in_table  && not (as_wrap old_format) then
+    scan_this main "$" ;
   top_close_display ();
   Html.erase_block "TD";
   Html.erase_block ""
@@ -871,7 +898,8 @@ let do_multi n format main =
 let close_col main content =
   let old_format = get_col !cur_format !cur_col in
   scan_this main (as_post old_format) ;
-  if math_table !in_table then scan_this main "$" ;
+  if math_table !in_table && not (as_wrap old_format) then
+    scan_this main "$" ;
   top_close_display ();
   Html.force_block "TD" content ;
   if !in_multi then begin
@@ -1251,9 +1279,10 @@ rule  main = parse
     main lexbuf}
 (* Paragraphs *)
   | "\n\n" '\n' *
-    {if !alltt then begin
+    {if !alltt then
       Html.put (lexeme lexbuf)
-    end else  top_par () ;
+    else if !bool_out then ()
+    else  top_par () ;
     main lexbuf }
 | "\\input" | "\\include" | "\\bibliography"
      {let lxm = lexeme lexbuf in
@@ -1320,7 +1349,12 @@ rule  main = parse
      {let lxm = lexeme lexbuf in
      if !alltt && (lxm = "$" || lxm = "$$") then
        begin Html.put lxm ; main lexbuf end
-     else begin
+     else if !bool_out && lxm = "\\(" then begin
+       Html.open_group "" ;
+       main lexbuf
+     end else if !bool_out && lxm = "\\)" then begin
+       Html.close_group ()
+     end else begin
        let lxm = match lxm with
          "\\(" | "\\)" -> "$"
        | "\\[" | "\\]" -> "$$"
@@ -1500,14 +1534,17 @@ rule  main = parse
         in_table := Tabbing ;
         new_env "tabbing" ;
         lexfun lexbuf
-   |  "tabular" | "array" ->
+   |  "tabular" | "array" ->       
         save_array_state ();
         Save.border := false ;
         skip_opt lexbuf ;
         let format = subst_arg subst lexbuf in
         let format = Array.of_list (scan_this Save.tformat format) in
         cur_format := format ;
-        in_table := Table {math = !in_math ; border = !Save.border} ;
+        push stack_in_math !in_math ;
+        in_table := Table
+             {math = (match env with "array" -> true | _ -> false) ;
+             border = !Save.border} ;
         in_math := false ;
         let lexfun lb =
           if !display then Html.item_display () ;
@@ -1566,8 +1603,8 @@ rule  main = parse
         close_last_row () ;
         if env = !cur_env then begin
           Html.close_block "TABLE" ;
-          if math_table !in_table then in_math := true ;
           restore_array_state () ;
+          in_math := pop stack_in_math ;
           display := pop stack_display;
           if !display then Html.item_display () ;
           close_env env
@@ -1698,7 +1735,13 @@ rule  main = parse
 (* TeX conditionals *)
   | "\\newif"
       {let arg = save_arg lexbuf in
-      newif arg ;
+      begin try
+        let name = newif arg  in
+        macro_register ("\\if"^name) ;
+        macro_register ("\\"^name^"true") ;
+        macro_register ("\\"^name^"false")
+      with Latexmacros.Failed -> ()
+      end ;
       main lexbuf}
   | "\\else"  {skip_false lexbuf}
   | "\\fi"    {skip_blanks lexbuf ; main lexbuf}
@@ -1843,21 +1886,59 @@ rule  main = parse
           let cond = save_arg lexbuf in
           let arg_true = save_arg lexbuf in
           let arg_false = save_arg lexbuf in
-          begin match get_this main ("\\@nostyle "^cond) with
-          | "true" -> scan_this main arg_true
-          | "false" -> scan_this main arg_false
-          | s      ->
-              raise
-                (Error ("Condition result in \\ifthenelse : ``"^s^"''"))
-          end ;
+          scan_this main
+            (if get_bool main cond then arg_true else arg_false) ;
           main lexbuf
-      | "\\equal" ->
+      | "\\whiledo" ->
+          let test = save_arg lexbuf in
+          let body = save_arg lexbuf in
+          let btest = ref (get_bool main test) in
+          while !btest do
+            scan_this main body ;
+            btest := get_bool main test
+          done ;
+          main lexbuf
+      | "\\equal" when !bool_out ->
           let arg1 = save_arg lexbuf in
           let arg2 = save_arg lexbuf in
           if get_this main arg1 = get_this main arg2 then
             Html.put "true"
           else
             Html.put "false" ;
+          main lexbuf
+      | ("\\or" | "\\and") when !bool_out ->
+          let arg1 = Html.get_current_output () in
+          let arg2 = Html.to_string (fun () -> main lexbuf) in
+          if name = "\\or" then
+            match arg1,arg2 with
+            | "true",_ -> Html.put "true"
+            | _,_      -> Html.put arg2
+          else begin
+            match arg1,arg2 with
+            | "false",_ -> Html.put "false"
+            | _,_       -> Html.put arg2
+          end ;
+          main lexbuf
+      | "\\not" when !bool_out ->
+          let arg =  Html.to_string (fun () -> main lexbuf) in
+          begin match arg with
+          | "true" -> Html.put "false"
+          | _      -> Html.put "true"
+          end ;
+          main lexbuf
+      | "\\newboolean" ->
+          let name = subst_arg subst lexbuf in
+          scan_this main ("\\newif\\if"^name) ;
+          main lexbuf
+      | "\\boolean" ->
+          let name = subst_arg subst lexbuf in
+          scan_this main ("\\if"^name^" true\else false\fi") ;
+          main lexbuf
+      | "\\setboolean" ->
+          let name = subst_arg subst lexbuf in
+          let arg = save_arg lexbuf in
+          let b = get_bool main arg in
+          scan_this main ("\\"^name^(if b then "true" else "false")) ;
           main lexbuf
 (* Bibliographies *)
       | "\\cite" ->
@@ -1987,13 +2068,12 @@ rule  main = parse
       | "\\addtocounter" ->
           let name = save_arg lexbuf in
           let arg = save_arg lexbuf in
-          Counter.add_counter name (my_int_of_string arg) ;
+          Counter.add_counter name (get_int main arg) ;
           main lexbuf
       | "\\setcounter" ->
           let name = save_arg lexbuf in
           let arg = save_arg lexbuf in
-          let arg = get_this main ("\\@nostyle "^arg) in
-          Counter.set_counter name (my_int_of_string arg) ;
+          Counter.set_counter name (get_int main arg) ;
           main lexbuf
       | "\\stepcounter" ->
           let name = save_arg lexbuf in
@@ -2022,7 +2102,9 @@ rule  main = parse
           let vert = name = "\\vspace" in           
           let arg = subst_arg subst lexbuf in
           begin try
-            let n = Length.main (Lexing.from_string arg) in
+            let n = match Length.main (Lexing.from_string arg) with
+            | Length.Absolute n -> n
+            | _                 -> raise Length.No in
             if vert then
               for i=1 to n do
                 Html.skip_line ()
@@ -2141,14 +2223,14 @@ rule  main = parse
    {if !verbose > 1 then Printf.fprintf stderr "Eof\n" ; ()}
 (* Spaces in input *)
 | '\n'
-  {(* if not (is_table  !in_table) then *) begin
+  {if not !bool_out then begin
     Html.put_char '\n'
   end ;
   main lexbuf}
 | ' '+
-   {if !alltt then
+   {if !alltt && not !bool_out then
      let lxm = lexeme lexbuf in Html.put lxm
-   else
+   else if not !bool_out then
      Html.put_char ' ';
    main lexbuf}
 (* Alphabetic characters *)
@@ -2162,8 +2244,27 @@ rule  main = parse
       Html.put lxm ;
     main lexbuf}
 (* Html specials *)
-| '<'         { Html.put "&lt;"; main lexbuf }
-| '>'         { Html.put "&gt;"; main lexbuf }
+| '<' | '>' | '=' 
+    {let lxm = Lexing.lexeme_char lexbuf 0 in
+    if !bool_out then begin
+      let arg1 = my_int_of_string (Html.get_current_output ()) in
+      let arg2 =
+        my_int_of_string (Html.to_string (fun () -> main lexbuf)) in
+      let r =
+        match lxm with
+        | '<' -> arg1 < arg2
+        | '>' -> arg1 > arg2
+        | '=' -> arg1 = arg2
+        | _   -> assert false in
+      Html.put (if r then "true" else "false")
+    end else begin
+      match lxm with
+      | '<' -> Html.put "&lt;"
+      | '>' -> Html.put "&gt;"
+      | '=' -> Html.put_char '='
+      | _   -> assert false
+    end ;
+    main lexbuf}
 | '~'         { Html.put "&nbsp;"; main lexbuf }
 (* Spanish stuff *)
 | "?`"

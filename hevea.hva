@@ -183,7 +183,7 @@
 \newenvironment{eqnarray*}{$$\begin{array}{rcl}}{\end{array}$$}
 \newif\ifnumber
 \newcommand{\nonumber}{\numberfalse}
-\newcommand{\lefteqn}[1]{\multicolumn{3}{r}{#1}}
+\newcommand{\lefteqn}[1]{\multicolumn{3}{r}{#1~~\ifnumber\stepcounter{equation}\eqno{(\theequation)}\else\eqno{~~~~~~~}\fi}}
 \newenvironment{eqnarray}{$$\begin{array}{@{\numbertrue}rcl@{\ifnumber\stepcounter{equation}\eqno{(\theequation)}\fi}}}{\end{array}$$}
 \def\star{\warning{Star -> *}*}
 \def\frac#1#2{{#1\over #2}}
@@ -505,3 +505,4 @@
 %%%%%%%%%%%% A few texisms
 \newcommand{\long}{}
 \def\relax{}
+\def\newline{\\}
