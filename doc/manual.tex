@@ -3345,6 +3345,7 @@ However, some of the internal commands of \hevea{} are homonymous to
 \TeX{} macros, in order to enhance compatibility.
 Note that full compatibility with \TeX{} is not guaranteed.
 
+
 \subsubsection{À la \TeX{} macros definitions}\label{delimiting}
 
 \comindex{def}
@@ -3382,6 +3383,29 @@ Yields:
 \begin{flushleft}
 \def\frenchquote(#1){«~\emph{#1}~» (in French)}
 He said \frenchquote(Alors cette accolade ouvrante {``\{''}~?).
+\end{flushleft}
+
+
+Another source of incompatibilty with \TeX{} is that  substitution of
+macros parametres is not performed at the same moment by \hevea{} and
+\TeX{}.
+However, things should go smoothly at the first level of macro
+expansion, that is when the delimiters
+appear in source code at the same level than the macro that is to
+parse them.
+For instance, the following source will give different results in
+\LaTeX{} and in \hevea:
+\begin{verbatim}
+\def\cs#1A{``#1''}
+\def\othercs#1{\cs#1A}
+\othercs{coucouA}
+\end{verbatim}
+\LaTeX{} output is ``coucou''A, while \hevea{} output is ``coucouA''.
+Here is \ifhevea\hevea\else\LaTeX\fi{} output:
+\begin{flushleft}
+\def\cs#1A{``#1''}
+\def\othercs#1{\cs#1A}
+\othercs{coucouA}
 \end{flushleft}
 
 
