@@ -1,4 +1,4 @@
-let header =  "$Id: lexstate.ml,v 1.32 1999-10-06 17:18:56 maranget Exp $"
+let header =  "$Id: lexstate.ml,v 1.33 1999-10-08 17:58:14 maranget Exp $"
 
 open Misc
 open Lexing
@@ -489,7 +489,12 @@ let input_file loc_verb main filename =
     let old_verb = !verbose in
     verbose := loc_verb ;
     if !verbose > 1 then prerr_endline ("scanning: "^filename) ;
-    begin try main buf with Misc.EndInput -> () end ;
+    start_lexstate () ;
+    let old_lexstate = Stack.save stack_lexstate in
+    subst := Top ;
+    begin try  main buf with
+    | Misc.EndInput -> Stack.restore  stack_lexstate old_lexstate end ;
+    restore_lexstate ();
     if !verbose > 1 then prerr_endline ("scanning over: "^filename) ;    
     close_in input ;
     verbose := old_verb ;

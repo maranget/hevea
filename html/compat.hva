@@ -1,0 +1,7 @@
+\@stopimage% Avoid echo to image file
+\let\@url\ahref%
+\def\url#1#2{\@url{#1}{#2}}%
+\def\oneurl#1{\@url{#1}{#1}}%
+\def\home#1{\char126#1}%
+\def\heveaurl{http://pauillac.inria.fr/\home{maranget}/hevea}%
+\@restartimage%

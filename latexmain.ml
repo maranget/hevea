@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmain.ml,v 1.51 1999-09-24 16:25:25 maranget Exp $" 
+let header = "$Id: latexmain.ml,v 1.52 1999-10-08 17:58:03 maranget Exp $" 
 
 open Misc
 open Parse_opts
@@ -26,7 +26,8 @@ let
       let module Scan = Latexscan.Make (Html) (Image) (Get) in
       let module Otherscan = Videoc.Makealso (Html) (Image) (Scan) (Get) in
       let module Verbscan = Verb.MakeAlso  (Html) (Image) (Scan) (Get) in
-      Otherscan.init () ; Verbscan.init () ;
+      let module OptScan = Package.MakeAlso  (Html) (Image) (Scan) (Get) in
+      Verbscan.init () ;
       Scan.main, Scan.no_prelude, Scan.print_env_pos,
       Html.finalize, Image.finalize
   | Html  ->
@@ -34,6 +35,7 @@ let
       let module Scan = Latexscan.Make (Html) (Noimage) (Get)in
       let module Otherscan = Videoc.Makealso (Html) (Noimage) (Scan) (Get) in
       let module Verbscan = Verb.MakeAlso  (Html) (Noimage) (Scan) (Get) in
+      let module OptScan = Package.MakeAlso  (Html) (Image) (Scan) (Get) in
       Otherscan.init () ; Verbscan.init () ;
       Scan.main, Scan.no_prelude, Scan.print_env_pos,
       Html.finalize, Noimage.finalize
@@ -41,6 +43,7 @@ let
       let module Get = Lexget.Make (Info) in
       let module Scan = Latexscan.Make (Text) (Noimage) (Get) in
       let module Verbscan = Verb.MakeAlso  (Text) (Noimage) (Scan) (Get) in
+      let module OptScan = Package.MakeAlso (Text) (Image) (Scan) (Get) in
       Verbscan.init () ;
       Scan.main, Scan.no_prelude, Scan.print_env_pos,
       Text.finalize,Noimage.finalize
@@ -48,6 +51,7 @@ let
       let module Get = Lexget.Make (Info) in
       let module Scan = Latexscan.Make (Info) (Noimage) (Get) in
       let module Verbscan = Verb.MakeAlso  (Info) (Noimage) (Scan) (Get) in
+      let module OptScan = Package.MakeAlso (Info) (Image) (Scan) (Get) in
       Verbscan.init () ;
       Scan.main, Scan.no_prelude, Scan.print_env_pos,
       Info.finalize, Noimage.finalize

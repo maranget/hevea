@@ -9,10 +9,12 @@
 (*                                                                     *)
 (***********************************************************************)
 
+(* $Id: latexscan.mll,v 1.141 1999-10-08 17:58:10 maranget Exp $ *)
+
+
 {
 module type S =
   sig
-
     val no_prelude : unit -> unit
 
     val print_env_pos : unit -> unit
@@ -24,8 +26,15 @@ module type S =
     val close_env : string -> unit
     val env_level : int ref
     val macro_register : string -> unit
+    val fun_register : (unit -> unit) -> unit
     val top_open_block : string -> string -> unit
     val top_close_block : string -> unit
+    val def_fun : string -> (string -> string) -> unit
+    val def_print : string -> string -> unit
+    val get_prim_arg : Lexing.lexbuf -> string
+    val get_prim_opt : Lexing.lexbuf -> string
+    val get_this : (Lexing.lexbuf -> unit) -> string -> string
+    val register_init : string ->  (unit -> unit) -> unit
   end
 
 module Make
@@ -42,8 +51,6 @@ open Tabular
 open Lexstate
 open Stack
 open Subst
-
-let header = "$Id: latexscan.mll,v 1.140 1999-10-06 17:18:51 maranget Exp $" 
 
 
 let sbool = function
@@ -1267,28 +1274,11 @@ and get_prim_opt lexbuf =
   let arg = save_opt "!*!" lexbuf in
   get_prim arg
 
-let def_code name f =
-  try
-    Latexmacros.def_code name f ;
-    macro_register name
-  with
-  | Failed -> ()
-
-and redef_code name f =
-  try
-    Latexmacros.redef_code name f ;
-    macro_register name
-  with
-  | Failed -> ()
-;;
-
 let def_fun name f =
   def_code name
     (fun lexbuf ->
       let arg = subst_arg lexbuf in
       scan_this main (f arg))
-
-and def_name_code name f = def_code name (f name)
 ;;
 
 (* Styles and packages *)
@@ -1310,7 +1300,7 @@ let do_documentclass command lexbuf =
 ;;
 
 def_name_code  "\\documentstyle" do_documentclass ;
-def_code  "\\documentclass" (do_documentclass "\\documentclass")
+def_name_code  "\\documentclass" do_documentclass
 ;;
 
 
@@ -1318,11 +1308,11 @@ let do_input lxm lexbuf =
   Save.start_echo () ;
   let arg = get_prim_arg lexbuf in
   let echo_arg = Save.get_echo () in
-  let arg = get_this_nostyle main  arg in
   if lxm <> "\\include" || check_include arg then begin
     let filename =
       if lxm = "\\bibliography" then Location.get_base ()^".bbl"
       else arg in
+    
     begin try input_file !verbose main filename
     with Myfiles.Except ->
       Image.put lxm ;
@@ -1348,7 +1338,7 @@ let do_newcommand lxm lexbuf =
   let name = subst_csname lexbuf in
   let nargs = save_opts ["0" ; ""] lexbuf in
   let body = save_body lexbuf in
-  if (!env_level = 0) && lxm <> "\\@forcecommand"  then
+  if (!env_level = 0) && lxm <> "\\@forcecommand"  && top_level () then
     Image.put
       (lxm^Save.get_echo ()^"\n") ;
   let nargs,(def,defval) = match nargs with
@@ -1723,11 +1713,9 @@ def_code "\\@notags"
   (fun lexbuf ->
           let arg = save_arg lexbuf in
           let arg = get_this_arg main arg in
-          prerr_endline arg ;
           let r =
             let buff = Lexing.from_string arg in
             Save.tagout buff in
-          prerr_endline r ;
           Dest.put r)
 ;;
 def_code "\\@anti"
@@ -1890,75 +1878,6 @@ def_code ("\\iftrue") (testif (ref true)) ;
 def_code ("\\iffalse") (testif (ref false))
 ;;
 
-(* ifthen package *)
-def_code "\\ifthenelse"
-    (fun lexbuf ->
-      let cond = save_arg lexbuf in
-      let arg_true = save_arg lexbuf in
-      let arg_false = save_arg lexbuf in
-      scan_this_arg main
-        (if Get.get_bool cond then arg_true else arg_false))
-;;
-
-def_code "\\whiledo"
-    (fun lexbuf ->
-      let test = save_arg lexbuf in
-      let body = save_arg lexbuf in
-      let btest = ref (Get.get_bool test) in
-      while !btest do
-        scan_this_arg main body ;
-        btest := Get.get_bool test
-      done)
-;;
-
-def_fun "\\newboolean" (fun s -> "\\newif\\if"^s)
-;;
-
-def_code "\\setboolean"
-    (fun lexbuf ->
-      let name = get_prim_arg lexbuf in
-      let arg = save_arg lexbuf in
-      let b = Get.get_bool arg in
-      scan_this main ("\\"^name^(if b then "true" else "false")))
-;;
-
-(* Color package *)
-
-def_code "\\definecolor"
-  (fun lexbuf ->
-    Save.start_echo () ;
-    let clr = get_prim_arg lexbuf in
-    let mdl = get_prim_arg lexbuf in
-    let value = get_prim_arg lexbuf in
-    Image.put "\\definecolor" ;
-    Image.put (Save.get_echo ()) ;
-    fun_register (fun () -> Color.remove clr) ;
-    Color.define clr mdl value )
-;;
-
-def_code "\\DefineNamedColor"
-  (fun lexbuf ->
-    let _ = get_prim_arg lexbuf in
-    let clr = get_prim_arg lexbuf in
-    let mdl = get_prim_arg lexbuf in
-    let value = get_prim_arg lexbuf in
-    fun_register (fun () -> Color.remove clr) ;
-    Color.define clr mdl value ;
-    Color.define_named clr mdl value)
-;;
-
-def_code "\\@getcolor"
-  (fun lexbuf ->
-    let mdl = get_prim_opt lexbuf in    
-    let clr = get_prim_arg lexbuf in
-    let htmlval = match mdl with
-    | "!*!" -> Color.retrieve clr
-    | _     -> Color.compute mdl clr in
-    Dest.put_char '"' ;
-    Dest.put_char '#' ;
-    Dest.put htmlval ;
-    Dest.put_char '"')
-;;
 
 (* Bibliographies *)
 def_code "\\cite"
@@ -2612,6 +2531,19 @@ def_code "\\toimage"
     start_image_scan "" image lexbuf)
 ;;
 
+def_code "\\@stopimage"
+    (fun lexbuf  ->
+      Image.stop () ;
+      check_alltt_skip lexbuf)
+;;
+
+def_code "\\@restartimage"
+    (fun lexbuf  ->
+      Image.restart () ;
+      check_alltt_skip lexbuf)
+;;
+
+
 (* Info  format specific *)
 
 def_code "\\@infomenu"
@@ -2714,68 +2646,6 @@ def_fun "\\c"  cedille ;
 def_fun "\\~"  tilde
 ;;
 
-(* support for the Scientific Word FRAME macro *)
-
-def_code "\\FRAME"
-  (fun lexbuf ->
-    let lxm = lexeme lexbuf in
-(* discard the first 7 arguments *)
-    let _ = save_arg lexbuf in  
-    let _ = save_arg lexbuf in
-    let _ = save_arg lexbuf in
-    let _ = save_arg lexbuf in
-    let _ = save_arg lexbuf in
-    let _ = save_arg lexbuf in
-    let _ = save_arg lexbuf in
-(* keep argument 8 *)
-    let t = subst_arg lexbuf in
-(* extract the filename, assumed to be the rightmost material in single
-quotes *)
-     let i = String.rindex t '\'' in
-     let j = String.rindex_from t (i - 1) '\'' in
-     let s = String.sub t (j + 1) (i - j - 1) in
-     let t = Filename.basename (s) in
-     let s = Filename.chop_extension (t) in
-(* now form the macro swFRAME whose arg is just the base file name *)
-     let cmd = "\\swFRAME{"^s^"}" in
-(* put it back into the input stream *)
-     scan_this main cmd)
-;;
-
-def_code "\\@Url"
-  (fun lexbuf ->
-    let url,_ = save_verbatim lexbuf in
-    for i = 0 to String.length url - 1 do
-      Dest.put (Dest.iso url.[i])
-    done)
-;;
-def_code "\\Url"
-  (fun lexbuf ->
-    Save.start_echo () ;
-    let _ = save_verbatim lexbuf in
-    let arg = Save.get_echo () in
-    scan_this main ("\\UrlFont\\UrlLeft\\@Url"^arg^"\\UrlRight\\endgroup"))
-;;
-
-        
-def_code "\\urldef"
-   (fun lexbuf ->
-     Save.start_echo () ;
-     let name = subst_csname lexbuf in
-     let url_macro = subst_csname lexbuf in
-     let true_args = Save.get_echo () in
-     Save.start_echo () ;
-     let _ = save_verbatim lexbuf in
-     let arg = Save.get_echo () in
-     if !env_level > 0 then begin
-       Image.put "\\urldef" ;
-       Image.put true_args ;
-       Image.put arg
-     end ;
-     let what = get_this main (url_macro^arg) in
-     def_print name what)
-;;
-         
 
 
 Get.init
@@ -2786,6 +2656,47 @@ Get.init
           get_this_arg main s)
       macro_register new_env close_env
 ;;
+
+(* Registering external primitives *)
+let table = Hashtbl.create 5
+
+let register_init name f =
+  if !verbose > 1 then
+    prerr_endline ("Registering primitives for package: "^name);
+  try
+    let _ = Hashtbl.find table name in
+    fatal
+      ("Attempt to initlialize primitives for package "^name^" twice")
+  with
+  | Not_found ->  Hashtbl.add table name f
+
+and exec_init name =
+   if !verbose > 1 then
+     prerr_endline ("Initializing primitives for package: "^name) ;
+  try
+    let f = Hashtbl.find table name in
+    Hashtbl.remove table name ;
+    try f () with
+      Latexmacros.Failed ->
+        warning
+         ("Bad trip while initializing primitives for package: "^name)
+  with Not_found -> ()
+;;   
+let seen = Hashtbl.create 17
+;;
+
+def_code "\\@primitives"
+  (fun lexbuf ->
+    let pkg = get_prim_arg lexbuf in
+    begin try
+      Hashtbl.find seen pkg ;
+      warning ("Attempt to initialize primitives "^pkg^" twice (ignored)")
+    with Not_found ->
+      Hashtbl.add seen pkg ()
+    end ;
+    exec_init pkg)
+;;
+
 
 (*
 (* A la TeX ouput (more or less...) *)

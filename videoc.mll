@@ -1,6 +1,6 @@
 (* <Christian.Queinnec@lip6.fr>
  The plugin for HeVeA that implements the VideoC style.
- $Id: videoc.mll,v 1.14 1999-09-24 16:25:45 maranget Exp $ 
+ $Id: videoc.mll,v 1.15 1999-10-08 17:58:17 maranget Exp $ 
 *)
 
 {
@@ -26,7 +26,7 @@ open Lexget
 open Subst
 
 let header = 
-  "$Id: videoc.mll,v 1.14 1999-09-24 16:25:45 maranget Exp $"
+  "$Id: videoc.mll,v 1.15 1999-10-08 17:58:17 maranget Exp $"
 (* So I can synchronize my changes from Luc's ones *)
 let qnc_header = 
   "17 aout 99"
@@ -481,6 +481,9 @@ let init = function () ->
     def_code "\\enableSomeBackslashedChars" do_enable_some_backslashed_chars;
     ()
   end;;
+
+register_init "videoc" init
+;;
 
 end}
 

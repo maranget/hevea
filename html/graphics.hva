@@ -1,3 +1,4 @@
+\@beginpackage{graphics}
 \@imagecommand{\scalebox}
   {\execafter{\imageflush{}}\execafter\@imagearg\execafter\@imageopt\@imagearg}
 \@imagecommand{\resizebox}
@@ -12,3 +13,4 @@
   {\execafter{\imageflush{}}\execafter\@imagearg\execafter\@imageopt\@imageopt}
 \@imagecommand{\includegraphics*}
   {\execafter{\imageflush{}}\execafter\@imagearg\execafter\@imageopt\@imageopt}
+\@endpackage{graphics}

@@ -13,9 +13,10 @@ module type S =
   sig
 
     val start : unit -> unit
+    val stop : unit -> unit
+    val restart : unit -> unit
 
     val put_char : char -> unit
-
     val put : string -> unit
 
     val dump :  string -> (Lexing.lexbuf -> unit) -> Lexing.lexbuf -> unit

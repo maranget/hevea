@@ -1,11 +1,16 @@
-\def\@urlttstyle{\texdef\UrlFont{\ttfamily}}
-\def\@urlsfstyle{\texdef\UrlFont{\sffamily}}
-\def\@urlrmstyle{\texdef\UrlFont{\rmfamily}}
-\def\urlstyle#1{\csname @url#1style\endcsname}
-\urlstyle{tt}
-\texdef\url{\begingroup \urlstyle{tt}\Url}
-\let\UrlLeft\relax
-\let\UrlRight\relax
+\@beginpackage{url}
+\@primitives{url}%
+\def\@urlttstyle{\texdef\UrlFont{\ttfamily}}%
+\def\@urlsfstyle{\texdef\UrlFont{\sffamily}}%
+\def\@urlrmstyle{\texdef\UrlFont{\rmfamily}}%
+\def\urlstyle#1{\csname @url#1style\endcsname}%
+\urlstyle{tt}%
+\def\url{\begingroup \urlstyle{tt}\Url}%
+\let\UrlLeft\relax\let\UrlRight\relax%
+\urldef{\heveaurl}{\url}{http://pauillac.inria.fr/~maranget/hevea}%
+\@endpackage{url}
+
+%%% Pour plus tard
 \texdef\ahref{\begingroup
 \texdef\UrlLeft##1\UrlRight{{\@nostyle\@print{<A HREF="}##1\@print{">}}##1{\@nostyle\@print{</A>}}}%
 \urlstyle{tt}%

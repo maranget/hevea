@@ -23,8 +23,15 @@ module type S =
     val close_env : string -> unit
     val env_level : int ref
     val macro_register : string -> unit
+    val fun_register : (unit -> unit) -> unit
     val top_open_block : string -> string -> unit
     val top_close_block : string -> unit
+    val def_fun : string -> (string -> string) -> unit
+    val def_print : string -> string -> unit
+    val get_prim_arg : Lexing.lexbuf -> string
+    val get_prim_opt : Lexing.lexbuf -> string
+    val get_this : (Lexing.lexbuf -> unit) -> string -> string
+    val register_init : string -> (unit -> unit) -> unit
 end
 
 module Make (Dest : OutManager.S) (Image : ImageManager.S)

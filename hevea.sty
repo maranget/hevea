@@ -7,15 +7,8 @@
 %     - environment htmlonly , the reverse
 %      - environemnt htmlraw,  to include raw HTML in hevea output.
 %
-\makeatletter%
-
-\newif\ifhtml\htmlfalse
-\newif\iftext\textfalse
-\newif\ifinfo\infofalse
 \newif\ifhevea\heveafalse
-
-
-
+\makeatletter%
 \newcommand{\smup}[2]{%
 \raise #1\hbox{$\m@th$%
   \csname S@\f@size\endcsname
@@ -26,13 +19,19 @@
 \newcommand{\hevea}{H\kern-.15em\protect\smup{.2ex}{E}\kern-.15emV\kern-.15em\protect\smup{.2ex}{E}\kern-.15emA}%
 \newcommand{\hacha}{H\kern-.15em\protect\smup{.2ex}{A}\kern-.15emC\kern-.1em\protect\smup{.2ex}{H}\kern-.15emA}%
 \newcommand{\html}{\protect\smup{0.ex}{HTML}}
-\makeatother%
-\newcommand{\footurl}[2]{#2\footnote{\texttt{#1}}}
-\newcommand{\url}[2]{#2}
+\@ifundefined{url}
+{\newcommand{\url}[2]{#2}
 \newcommand{\oneurl}[1]{\texttt{#1}}
 \newcommand{\home}[1]{\protect\raisebox{-.75ex}{\char126}#1}
-\newcommand{\docurl}{http://para.inria.fr/\home{maranget}/hevea}
+\newcommand{\heveaurl}{http://pauillac.inria.fr/\home{maranget}/hevea}}
+{%Let us assume the url package is loaded
+\newcommand{\ahref}[2]{#2}
+\newcommand{\aname}[2]{#1}
+\newcommand{\ahrefurl}[1]{\texttt{#1}}
+\urldef{\heveaurl}{\url}{http://pauillac.inria.fr/~maranget/hevea}}
+\newcommand{\footurl}[2]{#2\footnote{\texttt{#1}}}
 \newcommand{\mailto}[1]{\texttt{#1}}
+\makeatother
 %% Void cutting instructions
 \newcounter{cuttingdepth}
 \newcommand{\cuttingunit}{}

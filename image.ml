@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: image.ml,v 1.15 1999-08-30 17:59:17 maranget Exp $" 
+let header = "$Id: image.ml,v 1.16 1999-10-08 17:58:01 maranget Exp $" 
 open Misc
 
 let base = Parse_opts.base_out
@@ -21,13 +21,19 @@ let count = ref 0
 let buff = ref (Out.create_null ())
 ;;
 
+let active = ref false
+;;
+
 let start () =
+  active := true ;
   buff := Out.create_buff ()
 ;;
 
+let stop () = active := false
+and restart () = active := true
 
-let put s = Out.put !buff s
-and put_char c = Out.put_char !buff c
+let put s = if !active then Out.put !buff s
+and put_char c = if !active then Out.put_char !buff c
 ;;
 
 let tmp_name = match base with

@@ -18,8 +18,8 @@
 %%%%%%%%%%%%%%%%%%%%
 \newcommand{\commandname}[1]{{\tt #1}}
 \newcommand{\filename}[1]{{\em #1}}
-\newcommand{\urlex}[1]{\footurl{\docurl/examples/#1}{\texttt{#1}}}
-\newcommand{\localurl}[1]{\footurl{\docurl/doc/#1}{\texttt{#1}}}
+\newcommand{\urlex}[1]{\footurl{\heveaurl/examples/#1}{\texttt{#1}}}
+\newcommand{\localurl}[1]{\footurl{\heveaurl/doc/#1}{\texttt{#1}}}
 \newcommand{\myrule}{\rule{\linewidth}{.05ex}}
 \newenvironment{htmlout}
 {\begingroup\linewidth=.8\linewidth\begin{quote}%
@@ -94,7 +94,7 @@ smaller files, using the companion program \hacha.
 
 \hevea{} can also be instructed to output plain text or info files.
 
-Information on \hevea{} is available at \oneurl{\docurl}.
+Information on \hevea{} is available at \oneurl{\heveaurl}.
 \end{abstract}
 
 
@@ -139,7 +139,7 @@ $x \in {\cal E}$
 \end{verbatim}
 
 You can find some more elaborate
-\footurl{\docurl/examples/}{examples} in the on-line
+\footurl{\heveaurl/examples/}{examples} in the on-line
 documentation.
 
 \section{Style files}
@@ -1584,9 +1584,9 @@ own definition for the \verb+centergpic+ environment beforehand:
    {\begin{toimage}}
    {\box\graph\end{toimage}\begin{center}\imageflush\end{center}}
 \end{verbatim}
-Assuming that the definition above is in a \url{\docurl/examples/smile.hva}{smile.hva} file,
+Assuming that the definition above is in a \url{\heveaurl/examples/smile.hva}{smile.hva} file,
 the command sequence for translating
-\url{\docurl/examples/smile.tex}{smile.tex} \mbox{now is}:
+\url{\heveaurl/examples/smile.tex}{smile.tex} \mbox{now is}:
 \begin{verbatim}
  # gpic -t < smile.tex > tmp.tex
  # hevea smile.hva tmp.tex -o smile.html
@@ -2541,7 +2541,7 @@ When there exists an equivalent to a given \LaTeX{} symbol, using
 the iso-latin1 and symbol character sets, then \hevea{}
 outputs such an equivalent.
 \html{} pages that show these character sets can be found
-in the directory \texttt{\docurl/doc/}
+in the directory \texttt{\heveaurl/doc/}
 at \url{iso.html}{\texttt{iso.html}} and
 \url{symbol.html}{\texttt{symbol.html}}.
 Otherwise, \hevea{} usually issues a warning to draw user attention.
@@ -3984,7 +3984,7 @@ Also note that \verb+\gdef+ is equivalent to \verb+\global\def+.
 
 \subsubsection{\TeX{} Conditional Macros}\label{texcond}
 \comindex{newif}\comindex{if}\comindex{else}\comindex{fi}
-The \verb+\newif+\textit{name}, where \textit{name} is made of letters
+The \verb+\newif\if+\textit{name}, where \textit{name} is made of letters
 only, creates three macros:
 \verb+\if+\textit{name}, \verb+\+\textit{name}\verb+true+ and
 \verb+\+\textit{name}\verb+false+.

@@ -1,5 +1,24 @@
 %%%% Une précaution.
 \ifhtml\else\warning{html/hevea is for html mode !!!}\endinput\fi
+%%%%%% package used by all packages
+\newif\ififthen\ifthenfalse
+\input{ifthen.hva}
+%% Packages
+\newcommand{\@beginpackage}[1]{%
+\@ifundefined{#1@loaded}{}{\endinput}
+\@stopimage}
+\newcommand{\@endpackage}[1]
+{\def\csname#1@loaded\endcsname{}\@restartimage\endinput}
+\newcommand{\usepackage}[2][!*!]{
+\ifthenelse{\equal{#1}{!*!}}
+{\begin{toimage}\usepackage{#2}
+\end{toimage}}
+{\begin{toimage}\usepackage[#1]{#2}
+\end{toimage}}%
+\@iffileexists{#2.hva}
+   {\input{#2.hva}}
+   {}}
+
 %%%%%% Spacing
 \def\@{}
 \def\ { }
@@ -25,7 +44,7 @@
 %%% Logos
 \def\TeX{\@print{TeX}}
 \def\LaTeX{\@print{L<sup>A</sup>T<sub>E</sub>X}}
-\def\LaTeXe{\@print{L<sup>A</sup>T<sub>E</sub>X2e}}
+\def\LaTeXe{\@print{L<sup>A</sup>T<sub>E</sub>X2$_{\epsilon}$}}
 \newcommand{\hevea}{\@print{H}{\@incsize{-1}\@print{<sup>E</sup>}}\@print{V}%
 {\@incsize{-1}\@print{<sup>E</sup>}}\@print{A}}
 \newcommand{\hacha}{\@print{H}{\@incsize{-1}\@print{<sup>A</sup>}}\@print{C}%
@@ -34,13 +53,13 @@
 \newif\ifhevea
 \heveatrue
 %%% HTML related stuff (TEX equivalents are in the hevea.sty file)
-\def\@url#1#2{{\@nostyle\@print{<A HREF="}\@notags{#1}\@print{">}}{#2}{\@nostyle\@print{</A>}}}
-\def\url#1#2{\@url{#1}{#2}}
-\def\footurl#1#2{\@url{#1}{#2}}
-\def\home#1{\char126#1}
-\def\oneurl#1{\@url{#1}{#1}}
-\newcommand{\docurl}{http://para.inria.fr/\home{maranget}/hevea}
-\newcommand{\mailto}[1]{\@url{mailto:#1}{#1}}
+\newcommand{\@aelement}[2]
+{{\@nostyle\@print{<A }\@notags{#1}\@print{>}}{#2}{\@nostyle\@print{</A>}}}
+\newcommand{\ahref}[2]{\@aelement{HREF="#1"}{#2}}
+\newcommand{\aname}[2]{\@aelement{NAME="#1"}{#2}}
+\def\ahrefurl#1{\ahref{#1}{\texttt{#1}}}
+\let\footurl\ahref
+\newcommand{\mailto}[1]{\ahref{mailto:#1}{#1}}
 %%%% HTML constructs (no equivalents in html.sty)
 \newcommand{\imgsrc}[2][!*!]{%
 {\@nostyle\@print{<IMG SRC="}#2\ifpedantic\@print{" ALT="}#1\fi
@@ -144,10 +163,7 @@
   {\begin{toimage}{#1}\end{toimage}}
 \newcommand{\@imagecommand}[2]
   {\newcommand{#1}{\begin{toimage}#1\end{toimage}#2}}
-%% Packages and Page Styles
-\@imagecommand{\usepackage}
-  {\execafter{\begin{toimage}
-\end{toimage}}\execafter\@imagearg\@imageopt}
+%% Page Styles
 \def\pagestyle#1{}
 \def\thispagestyle#1{}
 \newcommand{\markright}[1]{}
@@ -457,6 +473,7 @@
 }}
 \newif\iffooter\footertrue
 \newenvironment{document}{%
+\@ifundefined{url}{\input{compat.hva}}{}%
 \@print{<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
             "http://www.w3.org/TR/REC-html40/loose.dtd">
 }\@print{<HTML>
@@ -484,7 +501,7 @@
 {\@nostyle\@print{<!--ENDHTML-->
 }}%
 \cutdef[\thecuttingdepth]{\cuttingunit}%
-\texdef\thefootnote{\arabic{footnote}}%
+\@stopimage\renewcommand{\thefootnote}{\arabic{footnote}}\@restartimage%
 \setcounter{footnote}{0}%
 }{%
 \@clearstyle\@footnoteflush{document}%
@@ -627,17 +644,14 @@
 \cuthere{#3}{##1}%
 #4##1#6\@secend}}%
 %%%%%%%%%%%%%%
-% Packages   %
+% packages   %
 %%%%%%%%%%%%%%
-\input{color.hva}
-\input{graphics.hva}
 %%%%%%%%%%%%%%
 % Extensions %
 %%%%%%%%%%%%%%
 %%% A few if commands
-\newcommand{\IfFileExists}[3]{\ifthenelse{\@fileexists{#1}}{#2}{#3}}
-\newcommand{\@ifundefined}[3]{\ifthenelse{\@commandexists\csname#1\endcsname}{#3}{#2}}
 %%% Scientific Word
 \def\swEXT{.gif}  %graphics extension
 \def\swFRAME#1{\imgsrc{#1\swEXT}}
 %%%
+\def\csname hevea@loaded\endcsname{}
