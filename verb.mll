@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: verb.mll,v 1.69 2005-03-01 12:56:36 maranget Exp $            *)
+(*  $Id: verb.mll,v 1.70 2005-03-07 19:41:43 maranget Exp $            *)
 (***********************************************************************)
 {
 exception VError of string
@@ -1245,7 +1245,7 @@ let code_stringizer lexbuf =
 
 let open_lst_inline keys =
   scan_this Scan.main "\\lsthk@PreSet" ;
-  scan_this Scan.main ("\\lstset{"^keys^"}") ;
+  scan_this Scan.main ("\\lstset{"^keys^"}\\lsthk@AfterSetLanguage") ;
 (* For inline *)
   scan_this Scan.main "\\lsthk@InlineUnsave" ;
 (* Ignoring output *)
@@ -1260,6 +1260,12 @@ let open_lst_inline keys =
       lst_init_char (Char.chr i) lst_process_letter
     done ;
   scan_this Scan.main "\\lsthk@Init" ;
+(* Change char categories *)
+  let alsoletter = Scan.get_prim "\\lst@alsoletter" in
+  if alsoletter <> "" then begin
+    eprintf "ALSOLETTER: «%s»\n" alsoletter ;
+    lst_init_chars alsoletter  lst_process_letter
+  end ;
 (* Directives *)
   if !lst_directives then begin
     lst_init_save_char '#' lst_process_start_directive
@@ -1303,7 +1309,8 @@ let open_lst_env name =
   (fun lexbuf ->
     Image.stop () ;
     scan_this Scan.main "\\lsthk@PreSet" ;
-    expand_command_no_skip com_name lexbuf ;    
+    expand_command_no_skip com_name lexbuf ;
+    scan_this Scan.main "\\lsthk@AfterSetLanguage" ;
     lst_init_char_table false ;
     scan_this Scan.main "\\lsthk@SelectCharTable" ;
     if !lst_extended then
@@ -1316,6 +1323,12 @@ let open_lst_env name =
     let linerange = Scan.get_prim "\\lst@linerange" in
     lst_linerange := parse_linerange linerange ;
     lst_nlines := 0 ; lst_nblocks := 0 ;
+(* Change char categories *)
+  let alsoletter = Scan.get_prim "\\lst@alsoletter" in
+  if alsoletter <> "" then begin
+    eprintf "ALSOLETTER: «%s»\n" alsoletter ;
+    lst_init_chars alsoletter  lst_process_letter
+  end ;
 (* Directives *)
     if !lst_directives then begin
       lst_init_save_char '#' lst_process_start_directive

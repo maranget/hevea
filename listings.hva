@@ -175,8 +175,8 @@
     {lstlang@\MakeLowercase{#2}@\MakeLowercase{#1}}}
 \newcommand{\lst@language@key}[2][]
   {\lst@UseHook{SetLanguage}%
-  \csname\lst@mklang[#1]{#2}\endcsname%
-  \lst@UseHook{AfterSetLanguage}}
+  \csname\lst@mklang[#1]{#2}\endcsname}
+%  \lst@UseHook{AfterSetLanguage}}
 \lst@define@key@opt{language}{\lst@language@key}{}
 \newcommand{\lst@checkdd}[2]
   {\@ifundefined{lstdd@\MakeLowercase{#1}}{\lst@define@dd[#2]{#1}}{}}
@@ -446,7 +446,11 @@ breakindent,breakautoindent}
 \define@key{lst}{extendedchars}[true]{\def\lst@extendedchars{#1}}
 \lst@iter{\ignore@key}{inputencoding,showspaces,formfeed}
 \newcommand{\lst@warnkey}[2]{\define@key{lst}{#2}{\warning{#1}}}
-\lst@iter{\lst@warnkey{No more tabulations in our century}}{tabsize,showtabs,tab}
+\lst@iter{\lst@warnkey{No more tabulations in our
+century}}{tabsize,showtabs,tab}
+%%%%%%% Alter char categories
+\def\lst@alsoletter{}
+\define@key{lst}{alsoletter}{\def\lst@alsoletter{#1}}
 %%%%%%% Sensitive keywords
 \lst@AddToHookExe{DeInit}{\setboolean{lst@sensitive}{true}}
 \lst@AddToHook{SetLanguage}{\setboolean{lst@sensitive}{true}}
@@ -487,7 +491,7 @@ breakindent,breakautoindent}
   {\iflst@sensitive\@rawchars{#1}\else\@rawchars{\MakeLowercase{#1}}\fi}%
   \usebox{\normalize@box}}
 \def\lst@output#1#2{%
-\@NewLine%\lstinfo{OUT: ``#1'' ``#2''}%
+\@NewLine\lstinfo{OUT: ``#1'' ``#2''}%
 {\ifu\csname lstk@\lst@normalize{#1}\endcsname
   \lst@identifier@style{#2}\else
   \csname lstk@\lst@normalize{#1}\endcsname{#2}\fi}}
