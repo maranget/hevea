@@ -7,7 +7,7 @@ PREFIX=/usr/local
 LIBDIR=$(PREFIX)/lib/hevea
 # Where to install programms
 BINDIR=$(PREFIX)/bin
-# Install prefix prefix (cf. DESTDIR below)
+# Install prefix prefix
 DESTDIR=
 #Where to install hevea.sty
 LATEXLIBDIR=$(PREFIX)/lib/hevea
@@ -54,7 +54,6 @@ install-lib:
 	- $(MKDIR) $(DESTDIR)/$(LATEXLIBDIR)
 	$(INSTALL)  hevea.sty $(DESTDIR)/$(LATEXLIBDIR)
 	- $(MKDIR) $(DESTDIR)/$(LIBDIR)
-	$(INSTALL) $(DESTDIR)/$(LIBDIR)
 	$(INSTALL) contents_motif.gif next_motif.gif previous_motif.gif $(DESTDIR)/$(LIBDIR)
 	$(INSTALL) $(ALLLIB) $(DESTDIR)/$(LIBDIR)
 	- $(MKDIR)  $(DESTDIR)/$(LIBDIR)/html
