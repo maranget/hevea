@@ -17,7 +17,7 @@ open Latexmacros
 open Lexstate
 
 (* Compute functions *)
-let header = "$Id: get.mll,v 1.4 1999-05-10 14:06:26 maranget Exp $"
+let header = "$Id: get.mll,v 1.5 1999-05-14 17:54:50 maranget Exp $"
 
 exception Error of string
 
@@ -293,7 +293,7 @@ rule result = parse
         let args = make_stack lxm pat lexbuf in
         scan_body
           (function
-            | Latexmacros.Subst body ->
+            | Subst body ->
                 scan_this result body
             | _ -> raise (Error ("Special macro in Get.result")))
           body args ;

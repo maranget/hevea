@@ -26,6 +26,7 @@ manual.html: manual.hva tmp.tex
 manual.dvi: tmp.tex
 	$(LATEX) < /dev/null tmp.tex &&\
 	$(LATEX) < /dev/null tmp.tex &&\
+	makeindex tmp &&\
 	$(LATEX) < /dev/null tmp.tex &&\
 	mv tmp.dvi manual.dvi
 

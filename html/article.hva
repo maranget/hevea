@@ -1,5 +1,6 @@
 \ifstyleloaded\relax
 \else
+\setcounter {secnumdepth}{3}
 \newcounter {part}
 \newcounter {section}
 \newcounter {subsection}[section]
@@ -31,84 +32,24 @@
 \setcounter{section}{0}%
 \renewcommand{\thesection}{\Alph{section}}%
 }
-\newcommand{\part}[2][]{%
-\stepcounter{part}%
-\ifoptarg\cuthere{part}{#1}%
-\else\cuthere{part}{#2}\fi
-\@open{H1}{ALIGN=center}%
-\partname:~\thepart\\%
-#2%
-\@close{H1}%
-}
-\newcommand{\part*}[1]{%
-\@open{H1}{ALIGN=center}%
-#1%
-\@close{H1}%
-}
-\newcommand{\section}[2][]{%
-\stepcounter{section}%
-\ifoptarg\cuthere{section}{#1}%
-\else\cuthere{section}{#2}\fi%
-\@open{H2}{}%
-\thesection\quad #2%
-\@close{H2}%
-}
-\newcommand{\section*}[1]{%
-\cuthere{section}{#1}%
-\@open{H2}{}%
-#1%
-\@close{H2}%
-}
-
-
-\newcommand{\subsection}[2][]{%
-\stepcounter{subsection}%
-\ifoptarg\cuthere{subsection}{#1}%
-\else\cuthere{subsection}{#2}\fi%
-\@open{H3}{}%
-\thesubsection\quad #2%
-\@close{H3}%
-}
-\newcommand{\subsection*}[1]{%
-\cuthere{subsection}{#1}%
-\@open{H3}{}%
-#1%
-\@close{H3}%
-}
-\newcommand{\subsubsection}[2][]{%
-\stepcounter{subsubsection}%
-\ifoptarg\cuthere{subsubsection}{#1}%
-\else\cuthere{subsubsection}{#2}\fi%
-\@open{H4}{}%
-\thesubsubsection\quad #2%
-\@close{H4}%
-}
-\newcommand{\subsubsection*}[1]{%
-\cuthere{subsubsection}{#1}%
-\@open{H4}{}%
-#1%
-\@close{H4}%
-}
-\newcommand{\paragraph}[2][]{%
-\@open{H5}{}%
-#2%
-\@close{H5}%
-}
-\newcommand{\paragraph*}[1]{%
-\@open{H5}{}%
-#1%
-\@close{H5}%
-}
-\newcommand{\subparagraph}[2][]{%
-\@open{H5}{}%
-#2%
-\@close{H5}%
-}
-\newcommand{\subparagraph*}[1]{%
-\@open{H5}{}%
-#1%
-\@close{H5}%
-}
+\@makesection
+  {\part}{-1}{part}
+  {\@open{H1}{ALIGN=center}}{\partname:~\thepart\\}{\@close{H1}}
+\@makesection
+  {\section}{0}{section}
+  {\@open{H2}{}}{\thesection\quad}{\@close{H2}}%
+\@makesection
+  {\subsection}{1}{subsection}
+  {\@open{H3}{}}{\thesubsection\quad}{\@close{H3}}%
+\@makesection
+  {\subsubsection}{2}{subsubsection}
+  {\@open{H4}{}}{\thesubsubsection\quad}{\@close{H4}}%
+\@makesection
+  {\paragraph}{3}{paragraph}
+  {\@open{H5}{}}{\theparagraph\quad}{\@close{H5}}%
+\@makesection
+  {\subparagraph}{4}{subparagraph}
+  {\@open{H5}{}}{\theparagraph\quad}{\@close{H5}}%
 \newcommand\abstractname{\iffrench Résumé~\else Abstract\fi}
 \newenvironment{abstract}{\begin{quote}{\bf \abstractname: }}{\end{quote}}
 \newcommand{\@indexsection}[1]{\section*{#1}}

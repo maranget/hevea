@@ -20,7 +20,7 @@ module type T =
 module Make (Dest : OutManager.S) =
 struct
 
-let header = "$Id: index.ml,v 1.24 1999-05-10 15:53:53 tessaud Exp $"
+let header = "$Id: index.ml,v 1.25 1999-05-14 17:54:51 maranget Exp $"
 open Misc
 open Parse_opts
 open Entry
@@ -153,7 +153,7 @@ type idx = No | Yes of entry array
 
 let (itable:
    (string,
-   string * KeySet.t ref * (key, (string * int * string)) Hashtbl.t * int ref * idx)
+   string * KeySet.t ref * (key, (string * string * string)) Hashtbl.t * int ref * idx)
    Hashtbl.t) = Hashtbl.create 17
 ;;
 
@@ -257,7 +257,7 @@ let treat lexcheck tag arg =
     if key <> bad_entry && check_key lexcheck key then begin
       Dest.loc_name label "" ;
       let key,macro = key in
-      Hashtbl.add table key (label,!count,macro) ;
+      Hashtbl.add table key (label,Counter.getrefvalue (),macro) ;
       all := add key !all
     end else 
       Parse_opts.warning ("Warning, bad index arg syntax: "^arg) ;
@@ -315,8 +315,7 @@ let start_change s1 s2 = match s1,s2 with
 
 let print_entry main bk k xs  =
   let rp,rt = common bk k in
-  close_prev rp 
-;
+  close_prev rp ;
   if fst rp = [] then
     Dest.open_block "UL" ""
   else begin
@@ -330,11 +329,11 @@ let print_entry main bk k xs  =
     [] -> ()
   | (label,x,m)::r ->
       let arg = match m with
-      |  "" -> string_of_int x
-      | _  -> "\\"^m^"{"^string_of_int x^"}" in
+      |  "" -> begin match x with "" -> "*" | _ -> x end
+      | _  -> "\\"^m^"{"^x^"}" in
       let no_ref = String.length m > 3 && String.sub m 0 3 = "see" in
       main (if no_ref then arg
-           else "\\indexref{"^arg^"}{"^label^"}") ;
+      else "\\indexref{"^arg^"}{"^label^"}") ;
       if r <> [] then begin
         Dest.put ", " ;
         prints r

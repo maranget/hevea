@@ -1,6 +1,6 @@
 (* <Christian.Queinnec@lip6.fr>
  The plugin for HeVeA that implements the VideoC style.
- $Id: videoc.mll,v 1.4 1999-05-10 15:54:06 tessaud Exp $ 
+ $Id: videoc.mll,v 1.5 1999-05-14 17:55:02 maranget Exp $ 
 *)
 
 {
@@ -15,12 +15,15 @@ open Misc
 open Parse_opts
 open Lexing
 open Myfiles
+open Lexstate
 open Latexmacros
-(* open Dest *)
+
 
 let header = 
-  "$Id: videoc.mll,v 1.4 1999-05-10 15:54:06 tessaud Exp $"
+  "$Id: videoc.mll,v 1.5 1999-05-14 17:55:02 maranget Exp $"
 
+exception EndSnippet
+;;
 (* Re-link with these variables inserted in latexscan. *)
 
 let withinSnippet = Scan.withinSnippet;;
@@ -68,8 +71,23 @@ let command_name = '\\' (('@' ? ['A'-'Z' 'a'-'z']+ '*'?) | [^ 'A'-'Z' 'a'-'z'])
 rule snippetenv = parse 
 | eof { () }
 | command_name
-    {let lxm = lexeme lexbuf in
-     !handle_command lexbuf lxm}
+    {let csname = lexeme lexbuf in
+    let pat,body = find_macro csname in
+    begin match pat with
+    | [],[] ->
+      let args =  make_stack csname pat lexbuf in
+      let exec = function
+        | Print str -> Dest.put str
+        | Subst body ->
+            if !verbose > 2 then
+              prerr_endline ("user macro in snippet: "^body) ;            
+            scan_this snippetenv body
+        | CamlCode f -> f lexbuf in
+      scan_body exec body args
+    |  _ ->
+      raise (Misc.ScanError ("Command with arguments inside snippet"))
+    end ;
+    snippetenv lexbuf}
 | '\n'
     {Dest.put_tag "<BR>";
       Dest.put_char '\n';
@@ -156,80 +174,44 @@ and comma_separated_values = parse
 
 {
 
-let rec do_handle_command lexbuf csname =
-  if !verbose > 1 then
-    prerr_endline ("Within snippet: found csname:" ^ csname ^ ".");
-
-  (* End the snippet environment and return back to the previous mode: *)
-  if csname = "\\endsnippet" then begin
-    if !Scan.cur_env = "snippet" then () else 
+let rec do_endsnippet _ =
+  if !Scan.cur_env = "snippet" then
+    raise EndSnippet
+  else 
     failwith "\\endsnippet without matching \\snippet"
-  (* Start a TeX inclusion within a snippet: *)
-  end else if csname = "\\[" then begin
-    Scan.top_open_block "SPAN" snippetCSStexInclusion;
-    Scan.top_open_block "SPAN" 
-      ("class=\"" ^ !snippetLanguage ^ "Inclusion\"");
-    snippetRunHook Scan.main "BeforeTeX";
-    Scan.main lexbuf; (* Until a \] is read *)
-    snippetRunHook Scan.main "AfterTeX";
-    Scan.top_close_block "SPAN";
-    Scan.top_close_block "SPAN";
-    snippetRunHook Scan.main "Restart";
-    snippetenv lexbuf
+    
+and do_texinclusion lexbuf =
+  Scan.top_open_block "SPAN" snippetCSStexInclusion;
+  Scan.top_open_block "SPAN" 
+    ("class=\"" ^ !snippetLanguage ^ "Inclusion\"");
+  snippetRunHook Scan.main "BeforeTeX";
+  Scan.main lexbuf; (* Until a \] is read *)
+  snippetRunHook Scan.main "AfterTeX";
+  Scan.top_close_block "SPAN";
+  Scan.top_close_block "SPAN";
+  snippetRunHook Scan.main "Restart"
 
- (* Handle a backslash newline to let it appear as it is: *)
-  end else if csname = "\\\n" then begin
-    Dest.put csname;
-    Lexstate.scan_this snippetenv "\n";
-    snippetenv lexbuf
+and do_backslash_newline  _ =
+  Dest.put "\\\n";
+  Lexstate.scan_this snippetenv "\n";
 
-  end else if csname = "\\ViCIndex" then begin
-    let lxm = lexeme lexbuf in
-    do_vicindex lexbuf lxm;
-    snippetenv lexbuf
-  end else if csname = "\\ViCAnchor" then begin
-    let lxm = lexeme lexbuf in
-    do_vicanchor lexbuf lxm;
-    snippetenv lexbuf
-  end else if csname = "\\ViCEndAnchor" then begin
-    let lxm = lexeme lexbuf in
-    do_vicendanchor lexbuf lxm;
-    snippetenv lexbuf
+and do_four_backslashes _ = Dest.put "\\"
 
-  end else if csname = "\\\\" then begin
-      let lxm = lexeme lexbuf in
-      do_four_backslashes lexbuf lxm;
-      snippetenv lexbuf
-
-  (* Execute the nullary macro with Scan.main then return to the snippetenv: *)
-  end else begin
-    Lexstate.scan_this Scan.main csname;
-    snippetenv lexbuf
-  end
-
-(* These are individual functions associated to TeX macros.
-   They process the macro and return nil. They do not start or 
-   end inner modes. *)
-
-and do_four_backslashes lexbuf name = begin
-  Dest.put "\\";
-  ()
-end
 
 (*************************
-and do_reference_url lexbuf lxm =
+and do_reference_url lexbuf  =
   let txt = Save.arg lexbuf in
   let url = Save.arg_verbatim lexbuf in
   Dest.put ("<A href=\"" ^ url ^ "\">" ^ txt ^ "</A>");
   ()
 
-and do_single_url lexbuf lxm =
+and do_single_url lexbuf =
   let url = Save.arg_verbatim lexbuf in
   Dest.put ("<A href=\"" ^ url ^ "\">" ^ url ^ "</A>");
   ()
 ***************************)
 
-and do_define_url lexbuf lxm =
+and do_define_url lxm lexbuf =
   let name = Save.csname lexbuf in
   let body = Save.arg_verbatim lexbuf in
   if !Scan.env_level = 0 then 
@@ -245,7 +227,7 @@ and do_define_url lexbuf lxm =
    This is a kind of restricted \edef as in TeX.
    Syntax:    \@EDEF\macroName{#2#1..}                                 *)
 
-and do_edef lexbuf lxm =
+and do_edef lxm lexbuf =
   let name = Scan.subst_arg Scan.subst lexbuf in
   let body = Scan.subst_arg Scan.subst lexbuf in
   if !Scan.env_level = 0 then 
@@ -263,7 +245,7 @@ and do_edef lexbuf lxm =
    (comma-separated) expansion of second argument. All \macronames
    should be a zero-ary macro. *)
 
-and do_muledef lexbuf lxm =
+and do_muledef lxm lexbuf =
   let names = Scan.subst_arg Scan.subst lexbuf in
   let bodies = Scan.subst_arg Scan.subst lexbuf in
   let rec bind lasti lastj =
@@ -291,9 +273,9 @@ and do_muledef lexbuf lxm =
 
 (* The command that starts the \snippet inner environment: *)
 
-and do_snippet lexbuf lxm =
+and do_snippet lexbuf =
   if !withinSnippet
-  then failwith "No snippet within snippet."
+  then raise (Misc.ScanError "No snippet within snippet.")
   else begin
     let snippetDefaultLanguage = 
       Scan.get_this Scan.main "\\snippetDefaultLanguage" in
@@ -302,36 +284,35 @@ and do_snippet lexbuf lxm =
                                     else language in
     skip_blanks_till_eol_included lexbuf;
     Dest.put "\n";
-    Scan.top_open_block "TT" "";
     Scan.top_open_block "DIV" snippetCSSstyle;
+    Dest.open_mod (Latexmacros.Style "TT") ;
     Scan.top_open_block "SPAN" ("class=\"" ^ language ^ "\"");
     Dest.put "\n";
     Scan.new_env "snippet";
     (* Register local commands *)
-    def_macro "\\endsnippet" 0 (CamlCode !handle_command);
+    def_code "\\endsnippet" do_endsnippet;
     Scan.macro_register "\\endsnippet";
-    def_macro "\\[" 0 (CamlCode !handle_command);
+    def_code "\\[" do_texinclusion ;
     Scan.macro_register "\\[";
-    def_macro "\\\\" 0 (CamlCode do_four_backslashes);
+    redef_code "\\\\" do_four_backslashes;
     Scan.macro_register "\\\\";
-    redef_macro "\\\n" 0 (CamlCode !handle_command);
+    redef_code "\\\n" do_backslash_newline ;
     Scan.macro_register "\\n";
     snippetLanguage := language;
     enableLispComment := false;
     enableSchemeCharacters := false;
     withinSnippet := true;
     snippetRunHook Scan.main "Before";
-    snippetenv lexbuf;
+    begin try snippetenv lexbuf with EndSnippet -> () end ;
     snippetRunHook Scan.main "AfterLine";
     snippetRunHook Scan.main "After";
     withinSnippet := false;
     Scan.close_env !Scan.cur_env;
     Scan.top_close_block "SPAN";
     Scan.top_close_block "DIV";
-    Scan.top_close_block "TT";
   end
 
-and do_enable_some_backslashed_chars lexbuf lxm =
+and do_enable_some_backslashed_chars lexbuf =
   def_macro "\\n" 0 (Print "\\n"); Scan.macro_register "\\n";
   def_macro "\\r" 0 (Print "\\r"); Scan.macro_register "\\r";
   def_macro "\\0" 0 (Print "\\0"); Scan.macro_register "\\0";
@@ -339,19 +320,19 @@ and do_enable_some_backslashed_chars lexbuf lxm =
   def_macro "\\f" 0 (Print "\\f"); Scan.macro_register "\\f";
   ()  
 
-and do_enableLispComment lexbuf lxm =
+and do_enableLispComment lexbuf =
   enableLispComment := true;
   ()
 
-and do_disableLispComment lexbuf lxm =
+and do_disableLispComment lexbuf =
   enableLispComment := false;
   ()
 
-and do_enableSchemeCharacters lexbuf lxm =
+and do_enableSchemeCharacters lexbuf =
   enableSchemeCharacters := true;
   ()
 
-and do_disableSchemeCharacters lexbuf lxm =
+and do_disableSchemeCharacters lexbuf =
   enableSchemeCharacters := false;
   ()
 
@@ -359,7 +340,7 @@ and do_disableSchemeCharacters lexbuf lxm =
    They require some arguments but they cannot get them in the snippet
    environment. So I code them by hand. *)
 
-and do_vicanchor lexbuf lxm = begin
+and do_vicanchor lexbuf = begin
   let style = Lexstate.save_opt "" lexbuf in
   if !verbose > 2 then prerr_endline ("\\vicanchor"^style);
   let nfn   = Lexstate.save_opt "0,filename,notename" lexbuf in
@@ -377,7 +358,7 @@ usable'><SPAN style=\"" ^ style ^ "\"><!-- "
   | _ -> failwith "Missing comma-separated arguments"
 end
 
-and do_vicendanchor lexbuf lxm = begin
+and do_vicendanchor lexbuf = begin
   let nfn = Lexstate.save_opt "0,filename,notename" lexbuf in
   if !verbose > 2 then prerr_endline ("\\vicendanchor"^nfn);
   let fields = 
@@ -391,39 +372,36 @@ and do_vicendanchor lexbuf lxm = begin
   | _ -> failwith "Missing comma-separated arguments"
 end  
 
-and do_vicindex lexbuf lxm = begin
+and do_vicindex lexbuf = begin
   let nfn = Lexstate.save_opt "0,filename,notename" lexbuf in
   Dest.put_char ' ';
   ()
 end
 ;;
 
-handle_command := do_handle_command;;
 
 (* This is the initialization function of the plugin: *)
 
 let init = function () -> 
   begin
     (* Register global TeX macros: *)
-    def_macro "\\defineURL" 0 (CamlCode do_define_url);
+    def_name_code "\\defineURL" do_define_url;
     (********
-    def_macro "\\referenceURL" 0 (CamlCode do_reference_url);
-    def_macro "\\singleURL" 0 (CamlCode do_single_url);
+    def_code "\\referenceURL" do_reference_url ;
+    def_code "\\singleURL" do_single_url;
     **********)
-    def_macro "\\@EDEF" 0 (CamlCode do_edef);
-    def_macro "\\@MULEDEF" 0 (CamlCode do_muledef);
-    def_macro "\\snippet" 0 (CamlCode do_snippet);
-    def_macro "\\ViCIndex" 0 (CamlCode do_vicindex);
-    def_macro "\\ViCEndAnchor" 0 (CamlCode do_vicendanchor);
-    def_macro "\\ViCAnchor" 0 (CamlCode do_vicanchor);
-    def_macro "\\enableLispComment" 0 (CamlCode do_enableLispComment);
-    def_macro "\\disableLispComment" 0 (CamlCode do_disableLispComment);
-    def_macro "\\enableSchemeCharacters" 0 
-      (CamlCode do_enableSchemeCharacters);
-    def_macro "\\disableSchemeCharacters" 0 
-      (CamlCode do_disableSchemeCharacters);
-    def_macro "\\enableSomeBackslashedChars" 0
-      (CamlCode do_enable_some_backslashed_chars);
+    def_name_code "\\@EDEF" do_edef;
+    def_name_code "\\@MULEDEF" do_muledef;
+    def_code "\\snippet" do_snippet;
+    def_code "\\ViCIndex" do_vicindex;
+    def_code "\\ViCEndAnchor" do_vicendanchor;
+    def_code "\\ViCAnchor" do_vicanchor;
+    def_code "\\enableLispComment" do_enableLispComment;
+    def_code "\\disableLispComment" do_disableLispComment;
+    def_code "\\enableSchemeCharacters" do_enableSchemeCharacters;
+    def_code "\\disableSchemeCharacters" do_disableSchemeCharacters;
+    def_code "\\enableSomeBackslashedChars"
+      do_enable_some_backslashed_chars;
     ()
   end;;
 

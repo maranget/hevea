@@ -42,7 +42,7 @@
 \renewcommand{\thetable}{\thechapter.\arabic{table}}
 
 \newcommand{\part}[2][]{%
-\stepcounter{part}%
+\refstepcounter{part}%
 \ifoptarg\cuthere{part}{#1}%
 \else\cuthere{part}{#2}\fi
 \@open{ALIGN}{CENTER}%
@@ -64,7 +64,7 @@
 }
 
 \newcommand{\chapter}[2][]{%
-\stepcounter{chapter}%
+\refstepcounter{chapter}%
 \ifoptarg\cuthere{chapter}{#1}%
 \else\cuthere{chapter}{#2}\fi
 \@open{HEAD}{*}%H1
@@ -79,7 +79,7 @@
 }
 
 \newcommand{\section}[2][]{%
-\stepcounter{section}%
+\refstepcounter{section}%
 \ifoptarg\cuthere{section}{#1}%
 \else\cuthere{section}{#2}\fi%
 \@open{HEAD}{=}%H2
@@ -94,7 +94,7 @@
 
 
 \newcommand{\subsection}[2][]{%
-\stepcounter{subsection}%
+\refstepcounter{subsection}%
 \ifoptarg\cuthere{subsection}{#1}%
 \else\cuthere{subsection}{#2}\fi%
 \@open{HEAD}{=-}%H3

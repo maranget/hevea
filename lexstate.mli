@@ -1,3 +1,16 @@
+type action =
+  | Print of string
+  | Subst of string
+  | CamlCode of (Lexing.lexbuf -> unit)
+
+val pretty_action : action -> unit
+
+
+type pat = string list * string list
+
+val pretty_pat : pat -> unit
+
+
 exception Error of string
 
 val display : bool ref
@@ -32,9 +45,7 @@ val pretty_lexbuf : Lexing.lexbuf -> unit
 
 val scan_arg : (string -> 'a) -> int -> 'a
 val scan_body :
-  (Latexmacros.action -> 'a) -> Latexmacros.action -> string array -> 'a
-val scan_fun :
-  (Lexing.lexbuf -> string -> 'a) -> Lexing.lexbuf -> string -> 'a
+  (action -> 'a) -> action -> string array -> 'a
 
 val stack_lexbuf : Lexing.lexbuf t
 val tab_val : int ref
@@ -66,7 +77,7 @@ val check_opt : Lexing.lexbuf -> bool
 val save_opt : string -> Lexing.lexbuf -> string
 val parse_args :
   string list * 'a list -> Lexing.lexbuf -> ok list * string list
-val make_stack : string -> Latexmacros.pat -> Lexing.lexbuf -> string array
+val make_stack : string -> pat -> Lexing.lexbuf -> string array
 
 
 

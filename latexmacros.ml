@@ -9,10 +9,11 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmacros.ml,v 1.46 1999-05-10 14:06:27 maranget Exp $" 
+let header = "$Id: latexmacros.ml,v 1.47 1999-05-14 17:54:52 maranget Exp $" 
 open Misc
 open Parse_opts
 open Symb
+open Lexstate
 
 exception Failed
 exception Error of string
@@ -28,31 +29,11 @@ let pretty_env = function
 | Color s  -> "Font color: "^s
 ;;
 
-type action =
-    Print of string
-  | Print_fun of ((string -> string) * int)
-  | Subst of string
-  | Print_count of ((int -> string)  * int)
-  | CamlCode of (Lexing.lexbuf -> string -> unit)
-;;
-
-type pat = string list * string list
-;;
-
-let pretty_pat (_,args) =
-  List.iter (fun s -> prerr_string s ; prerr_char ',') args
-;;
 
 
 let cmdtable =
   (Hashtbl.create 97 : (string, (pat * action)) Hashtbl.t)
 ;;
-
-let pretty_action acs =
-   match acs with
-   | Subst s    -> Printf.fprintf stderr "{%s}\n" s
-   | CamlCode _ -> prerr_endline "*code*"
-   | _          -> Printf.fprintf stderr "...\n"
 
 let pretty_macro n acs =
   pretty_pat n ;
@@ -132,6 +113,9 @@ and redef_macro name nargs body =
   redef_macro_pat name (make_pat [] nargs) body
 ;;
 let def_code name f = def_macro name 0 (CamlCode f)
+and redef_code name f = redef_macro name 0 (CamlCode f)
+and def_name_code name f =
+  def_macro name 0 (CamlCode (f name))
 ;;
      
 let def_env name body1 body2 =
@@ -190,25 +174,12 @@ let no_dot = function
 def_macro "\\bgroup" 0 (Subst "{") ;
 def_macro "\\egroup" 0 (Subst "}") ;
 
-def_macro "\\@bibref" 1  (Print_fun (Auxx.bget,0));
-
-let check_in = function
-  "\\in" -> "\\notin"
-| "="    -> "\\neq"
-| "\\subset" -> "\\notsubset"
-| s      -> "\\neg"^s in
-def_macro "\\not" 1 (Print_fun (check_in,0));
 
 def_macro_pat "\\makebox" (["" ; ""],["#1"]) (Subst "\\warning{makebox}\\mbox{#3}") ;
 def_macro_pat "\\framebox" (["" ; ""],["#1"]) (Subst "\\warning{framebox}\\fbox{#3}") ;
 
 
-(*
-let spaces = function
-  ".5ex" -> ""
-| _      -> "~" in
-def_macro "\\hspace" 1 [Print_fun (spaces,0)];
-*)
+
 (* Maths *)
 def_macro "\\alpha" 0 (Print alpha);
 def_macro "\\beta" 0 (Print beta);
@@ -336,105 +307,8 @@ def_macro "\\@int" 0 (Print int);;
 def_macro "\\@displayint" 0 (Print display_int);;
 ();;
 
-let alpha_of_int i = String.make 1 (Char.chr (i-1+Char.code 'a'))
-and upalpha_of_int i = String.make 1 (Char.chr (i-1+Char.code 'A'))
-;;
-
-let rec roman_of_int = function
-  0 -> ""
-| 1 -> "i"
-| 2 -> "ii"
-| 3 -> "iii"
-| 4 -> "iv"
-| 9 -> "ix"
-| i ->
-   if i < 9 then "v"^roman_of_int (i-5)
-   else
-     let d = i / 10 and u = i mod 10 in
-     String.make d 'x'^roman_of_int u
-;;
-
-let uproman_of_int i = String.uppercase (roman_of_int i)
-;;
-
-let fnsymbol_of_int = function
-  0 -> " "
-| 1 -> "*"
-| 2 -> "#"
-| 3 -> "%"
-| 4 -> "\167"
-| 5 -> "\182"
-| 6 -> "||"
-| 7 -> "**"
-| 8 -> "##"
-| 9 -> "%%"
-| i -> alpha_of_int (i-9)
-;;
 
 
-let aigu = function
-  "a" -> "á" | "e" -> "é" | "i" | "\\i" | "\\i " -> "í"
-| "o" -> "ó" | "u" -> "ú"
-| "A" -> "Á" | "E" -> "É" | "I" | "\\I" | "\\I " -> "Í"
-| "O" -> "Ó" | "U" -> "Ú"
-| "y" -> "ý" | "Y" -> "Ý"
-| "" | " " -> "'"
-| s   -> s
-
-and grave = function
-  "a" -> "à" | "e" -> "è"  | "i" -> "ì"
-| "o" -> "ò" | "u" -> "ù"  | "\\i" | "\\i " -> "í"
-| "A" -> "À" | "E" -> "È"  | "I" -> "Ì"
-| "O" -> "Ò" | "U" -> "Ù"  | "\\I" | "\\I " -> "Ì"
-| "" | " " -> "`"
-| s -> s
-and circonflexe = function
-  "a" -> "â" | "e" -> "ê"  | "i" -> "î"
-| "o" -> "ô" | "u" -> "û"  | "\\i" | "\\i " -> "î"
-| "A" -> "Â" | "E" -> "Ê"  | "I" -> "Î"
-| "O" -> "Ô" | "U" -> "Û"  | "\\I" | "\\I " -> "Î"
-| "" | " " -> "\\@print{^}"
-| s -> s
-
-and trema = function
-  "a" -> "ä" | "e" -> "ë"  | "i" -> "ï"
-| "o" -> "ö" | "u" -> "ü"  | "\\i" | "\\i " -> "ï"
-| "A" -> "Ä" | "E" -> "Ë"  | "I" -> "Ï"
-| "O" -> "Ö" | "U" -> "Ü"  | "\\I" | "\\I " -> "Ï"
-| "" | " " -> "¨"
-| s -> s
-
-and cedille = function
-  "c" -> "ç"
-| "C" -> "Ç"
-| s   -> s
-
-and tilde = function
-  "a" -> "ã" | "A" -> "Ã"
-| "o" -> "õ" | "O" -> "Õ"
-| "n" -> "ñ" | "N" -> "Ñ"
-| "" | " " -> "\\@print{~}"
-| s   -> s
-;;
-
-
-(* Accents *)
-def_macro "\\'" 1 (Print_fun (aigu,0));
-def_macro "\\`" 1 (Print_fun (grave,0));
-def_macro "\\^" 1 (Print_fun (circonflexe,0));
-def_macro "\\\"" 1 (Print_fun (trema,0));
-def_macro "\\c" 1  (Print_fun (cedille,0));
-def_macro "\\~" 1 (Print_fun (tilde,0));
-
-(* Counters *)
-def_macro "\\arabic" 1 (Print_count (string_of_int,0)) ;
-def_macro "\\alph" 1 (Print_count (alpha_of_int,0)) ;
-def_macro "\\Alph" 1 (Print_count (upalpha_of_int,0)) ;
-def_macro "\\roman" 1 (Print_count (roman_of_int,0));
-def_macro "\\Roman" 1 (Print_count (uproman_of_int,0));
-def_macro "\\fnsymbol" 1 (Print_count (fnsymbol_of_int,0));
-def_macro "\\uppercase" 1 (Print_fun (String.uppercase,0));
-();;
 
 let invisible = function
   "\\nofiles"

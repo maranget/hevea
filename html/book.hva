@@ -1,5 +1,6 @@
 \ifstyleloaded
 \else
+\setcounter {secnumdepth}{2}
 \newcounter {part}
 \newcounter {chapter}
 \newcounter {section}[chapter]
@@ -40,99 +41,28 @@
 \renewcommand{\thefigure}{\thechapter.\arabic{figure}}
 \newcounter{table}[chapter]
 \renewcommand{\thetable}{\thechapter.\arabic{table}}
-
-\newcommand{\part}[2][]{%
-\stepcounter{part}%
-\ifoptarg\cuthere{part}{#1}%
-\else\cuthere{part}{#2}\fi
-\@open{H1}{ALIGN=center}%
-\par
-\partname:~\thepart\\%
-#2%
-\@close{H1}%
-}
-\newcommand{\part*}[1]{%
-\cuthere{part}{#1}%
-\@open{H1}{ALIGN=center}%
-\par
-#1%
-\@close{H1}%
-}
-
-\newcommand{\chapter}[2][]{%
-\stepcounter{chapter}%
-\ifoptarg\cuthere{chapter}{#1}%
-\else\cuthere{chapter}{#2}\fi
-\@open{H1}{}%
-\chaptername~\thechapter\qquad #2%
-\@close{H1}%
-}
-\newcommand{\chapter*}[1]{%
-\cuthere{chapter}{#1}%
-\@open{H1}{}%
-#1%
-\@close{H1}%
-}
-
-\newcommand{\section}[2][]{%
-\stepcounter{section}%
-\ifoptarg\cuthere{section}{#1}%
-\else\cuthere{section}{#2}\fi%
-\@open{H2}{}%
-\thesection\quad #2%
-\@close{H2}%
-}
-\newcommand{\section*}[1]{%
-\@open{H2}{}%
-#1%
-\@close{H2}%
-}
-
-
-\newcommand{\subsection}[2][]{%
-\stepcounter{subsection}%
-\ifoptarg\cuthere{subsection}{#1}%
-\else\cuthere{subsection}{#2}\fi%
-\@open{H3}{}%
-\thesubsection\quad #2%
-\@close{H3}%
-}
-\newcommand{\subsection*}[1]{%
-\@open{H3}{}%
-#1%
-\@close{H3}%
-}
-\newcommand{\subsubsection}[2][]{%
-\@open{H4}{}%
-#2%
-\@close{H4}%
-}
-\newcommand{\subsubsection*}[1]{%
-\@open{H4}{}%
-#1%
-\@close{H4}%
-}
-
-\newcommand{\paragraph}[2][]{%
-\@open{H5}{}%
-#2%
-\@close{H5}%
-}
-\newcommand{\paragraph*}[1]{%
-\@open{H5}{}%
-#1%
-\@close{H5}%
-}
-\newcommand{\subparagraph}[2][]{%
-\@open{H5}{}%
-#2%
-\@close{H5}%
-}
-\newcommand{\subparagraph*}[1]{%
-\@open{H5}{}%
-#1%
-\@close{H5}%
-}
+%%%%%%%% Define sectioning commands
+\@makesection
+  {\part}{-2}{part}
+  {\@open{H1}{ALIGN=center}}{\partname:~\thepart\\}{\@close{H1}}
+\@makesection
+  {\chapter}{-1}{chapter}
+   {\@open{H1}{}}{\chaptername~\thechapter\iffrench~\fi:\quad}{\@close{H1}}
+\@makesection
+  {\section}{0}{section}
+  {\@open{H2}{}}{\thesection\quad}{\@close{H2}}%
+\@makesection
+  {\subsection}{1}{subsection}
+  {\@open{H3}{}}{\thesubsection\quad}{\@close{H3}}%
+\@makesection
+  {\subsubsection}{2}{subsubsection}
+  {\@open{H4}{}}{\thesubsubsection\quad}{\@close{H4}}%
+\@makesection
+  {\paragraph}{3}{paragraph}
+  {\@open{H5}{}}{\theparagraph\quad}{\@close{H5}}%
+\@makesection
+  {\subparagraph}{4}{subparagraph}
+  {\@open{H5}{}}{\theparagraph\quad}{\@close{H5}}%
 \newcommand\abstractname{\iffrench Résumé~\else Abstract\fi}
 \newenvironment{abstract}{\begin{quote}{\bf \abstractname: }}{\end{quote}}
 \newcommand{\@indexsection}[1]{\chapter*{#1}}

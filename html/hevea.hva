@@ -483,6 +483,7 @@
 \newenvironment{huge}{\@fontsize{6}}{}
 \newenvironment{Huge}{\@fontsize{7}}{}
 \newenvironment{purple}{\@fontcolor{purple}}{}
+\newenvironment{black}{\@fontcolor{black}}{}
 \newenvironment{silver}{\@fontcolor{silver}}{}
 \newenvironment{gray}{\@fontcolor{gray}}{}
 \newenvironment{white}{\@fontcolor{white}}{}
@@ -554,3 +555,15 @@
 \def\newline{\\}
 %%% videoc
 \newcommand{\IfFileExists}[3]{\ifthenelse{\@fileexists{#1}}{#2}{#3}}
+%%% For defining Sectioning commands
+\newcounter{secnumdepth}\setcounter{secnumdepth}{3}%
+\newcommand{\checkdepth}[2]{\ifthenelse{\value{secnumdepth} > #1}{#2}{}}%
+\newcommand{\@makesection}[6]{%
+\newcommand{#1}[2][]{%
+\checkdepth{#2}{\refstepcounter{#3}}%
+\ifoptarg\cuthere{#3}{##1}%
+\else\cuthere{#3}{##2}\fi%
+#4\checkdepth{#2}{#5} ##2#6}%
+\newcommand{#1*}[1]{%
+\cuthere{#3}{##1}%
+#4##1#6}}%

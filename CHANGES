@@ -1,4 +1,9 @@
 version 1.04-1
+  - Simplified macro values (-> 3 constructor only, and CamlCode arg is
+      lexbuf -> unit)
+  - Added an index in the manual (only extensions on LaTeX are indexed).
+  - Added a secnumdepth counter and make high order defitions for sectional
+    units.
   - Better paragraph managment across \label and \index.
   - info and text output, important changes in library organization.
   - mutind.hva compatibility file (added a \indexname internal command).

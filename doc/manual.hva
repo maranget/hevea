@@ -3,3 +3,4 @@
 \newcommand{\showcolor}[1]{\textcolor{#1}{\texttt{#1}}}
 \newcommand{\myrule}{\@print{<HR NOSHADE SIZE=1 ALIGN=center>}}
 \newenvironment{htmlout}{\begin{quote}\myrule}{\myrule\end{quote}}
+\newenvironment{multicols}[1]{}{}

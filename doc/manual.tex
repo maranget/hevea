@@ -1,14 +1,16 @@
 \documentclass{article}
 \usepackage{a4}
 \usepackage{fullpage}
+\usepackage{index}
 \usepackage{texnames}
 \usepackage{../hevea}
 \usepackage{isolatin1}
 \usepackage{epsf}
 \usepackage{ifthen}
 \usepackage{array}
+\usepackage{multicol}
 %HEVEA\usepackage{color}
-
+\makeindex
 
 \renewcommand{\thepart}{\Alph{part}}
 \renewcommand{\numberline}[1]{#1\quad}
@@ -22,10 +24,13 @@
 {\begingroup\linewidth=.8\linewidth\begin{quote}%
 \parskip=0pt\parindent=0pt\myrule\par}
 {\par\vspace*{-.5\baselineskip}\myrule\end{quote}\endgroup}
-
 \newenvironment{latexout}{\begin{htmlout}}{\end{htmlout}}
 \newenvironment{showlatex}{}{}
-
+\newcommand{\comindex}[1]{\index{#1@\texttt{\char92#1}}}
+\newcommand{\ttindex}[2]{\index{#1@\texttt{#1} #2}}
+\newcommand{\envindex}[1]{\ttindex{#1}{environment}}
+\newcommand{\countindex}[1]{\ttindex{#1}{counter}}
+\newcommand{\boolindex}[1]{\ttindex{#1}{boolean register}}
 \input{version.tex}
 
 \title{\hevea{} User Documentation\\
@@ -276,6 +281,7 @@ after a comment or macro definition can be deleted.
 
 
 
+%\index{ @`` '' (space)!after macro}
 Space after macros with no argument is skipped (as in \LaTeX{}) ---
 however this is not true in math mode, as explained in
 section~\ref{spacemath} below.
@@ -346,6 +352,7 @@ even simple formulas do not follow the simple basic typesetting model of
 
 \subsubsection{Spacing in math mode}\label{spacemath}
 
+%\index{ @`` '' (space)!significant in math mode}
 By contrast with \LaTeX{}, spaces from the input are significant in
 math mode, this
 feature allows users to instruct \hevea{}
@@ -681,9 +688,7 @@ Then, it goes on by translating the arguments of \verb+\raisebox+ as if
 they were normal text. As a
 consequence some \verb+.6ex+ is finally found in the {\html} output:
 \begin{htmlout}
-\begin{showlatex}
 You can .6ex{\em raise} text.
-\end{showlatex}
 \end{htmlout}
 
 To correct this, you should provide a macro that has more or less the effect of
@@ -1010,6 +1015,12 @@ the \texttt{hevea.sty} file by default.
 \hevea{} and \LaTeX{} perform the following actions on source inside
 the  \verb+latexonly+, \verb+verblatex+, \verb+htmlonly+, \verb+rawhtml+,
 \verb+toimage+ and \verb+verbimage+ environments:
+\envindex{latexonly}
+\envindex{htmlonly}
+\envindex{rawhtml}
+\envindex{toimage}
+\envindex{verbimage}
+\envindex{verblatex}
 \begin{center}
 \begin{tabular}{l@{~}p{.5\hsize}@{\quad}l}\hline
 environment & \multicolumn{1}{c}{\hevea} &  \multicolumn{1}{c}{\LaTeX}
@@ -1062,6 +1073,8 @@ Also note that environments define a scope and that style changes
 example above, ``\ldots'' appears in black in \html{} output.
 
 \subsubsection{Why are there two environments for ignoring input?}\label{why}
+\envindex{verblatex}\envindex{latexonly}
+\envindex{verbimage}\envindex{toimage}
 Some scanning and analysis of source is performed
 by \hevea{} inside the \texttt{latexonly} environment, in order to
 allow  \texttt{latexonly} to dynamically occur inside other environments.
@@ -1127,11 +1140,17 @@ The \texttt{hevea} package defines \LaTeX{} equivalents for them.
 This first concerns the \hevea{} and \hacha{} logos.
 Then, a few macros for URL management are provided
 
+\comindex{url}
+\comindex{oneurl}
+\comindex{footurl}
+\comindex{mailto}
+\comindex{home}
 %BEGIN LATEX
 \bigskip
 %END LATEX
-\begin{tabular}{l@{\qquad}p{.3\linewidth}@{\qquad}p{.3\linewidth}}
-Macro & \multicolumn{1}{c}{\hevea} &  \multicolumn{1}{c}{\LaTeX}\\
+\begin{tabular}{l<{\qquad}p{.3\linewidth}@{\qquad}p{.3\linewidth}}
+\multicolumn{1}{c}{Macro} & \multicolumn{1}{c}{\hevea} &
+\multicolumn{1}{c}{\LaTeX}\\
 \hline
 
 \verb+\url{+\textit{url}\verb+}{+\textit{text}\verb+}+ &
@@ -1179,7 +1198,7 @@ are defined as null macros in the \texttt{hevea.sty} file.
 Boolean registers are provided by the \texttt{ifthen} package
 (see~\cite[Section~C.8.5]{latex} and section~\ref{ifthen} in this
 document).
-Both the \texttt{hevea.sty} style file
+\boolindex{hevea}Both the \texttt{hevea.sty} style file
 and \hevea{} define the boolean register \texttt{hevea}.
 However, this register initial value is \textit{false} for \LaTeX{}
 and \textit{true} for \hevea{}.
@@ -1209,7 +1228,7 @@ We get:
 \end{verbatim}
 We get: {\ifhevea\purple\fi purple rain, purple rain}\ldots
 
-
+\index{comment!hevea@\texttt{\%HEVEA}}
 \subsection{Comments}\label{comments}
 \hevea{} processes all lines that start with \verb+%HEVEA+, while
 \LaTeX{} treats these lines as comments.
@@ -1233,6 +1252,10 @@ purple rain, purple rain%
 Comments thus provide an alternative to loading the
 \texttt{hevea} package. For user convenience, comment equivalents to
 the \verb+latexonly+ and \verb+toimage+ environment are also provided:
+\index{comment!begin latex@\texttt{\%BEGIN LATEX}}
+\index{comment!begin image@\texttt{\%BEGIN IMAGE}}
+\index{comment!end latex@\texttt{\%END LATEX}}
+\index{comment!end image@\texttt{\%END IMAGE}}
 \begin{center}
 \begin{tabular}{ll}\hline
 \multicolumn{1}{c}{environment} & \multicolumn{1}{c}{comment
@@ -1273,6 +1296,7 @@ While outputting \filename{mydoc}\texttt{.html}, \hevea{} echoes some
 of its input to the \filename{image} file,
 \filename{mydoc}\texttt{.image.tex}.
 
+\envindex{toimage}
 Part of this process is done at the user's request.
 More precisely, the following two constructs
 send \textit{text} to the \filename{image} file:
@@ -1292,6 +1316,7 @@ are automatically echoed to the image file. This enables using
 document-specific commands in \textit{text} above.
 
 
+\comindex{imageflush}
 Output to the image file builds up a current page, which is flushed
 by the \verb+\imageflush+ command.
 This command has the following effect:  it outputs a strict page break
@@ -1592,7 +1617,9 @@ Some of \hevea{} output get replicated in all the files generated by
 \hacha{}.
 This includes the content of the \verb+<HEAD>+\ldots{} \verb+<\HEAD>+
 block (except the \verb+<TITLE>+\ldots{} \verb+<\TITLE>+ block),
-and the argument to the \verb+\@bodyargs+, \verb+\@htmlargs+,
+the attributes of the
+\verb+HTML+ and \verb+BODY+ opening tags (cf. \verb+\@bodyargs+,
+\verb+\@htmlargs+), and the arguments to the
 \verb+\htmlhead+ and \verb+\htmlfoot+ commands (see
 section~\ref{structure}).
 
@@ -1634,6 +1661,8 @@ depend on the document style.
 \subsubsection{Cutting macros}
 The following cutting instructions are for use in the document
 preamble. They command the cutting scheme of the whole document:
+\comindex{cuttingunit}
+\countindex{cuttingdepth}
 \begin{description}
 \item[{\tt\char92 cuttingunit}]
 This is a macro that holds the document cutting unit. You can change
@@ -1654,7 +1683,9 @@ Other cutting instructions are to be used after
 \verb+\begin{document}+. They all generate \html{} comments in \hevea{}
 output.
 These comments then act as instructions to {\hacha}.
-
+\comindex{cuthere}
+\comindex{cutdef}
+\comindex{cutend}
 \begin{description}
 \item[{\tt\char92 cuthere\{}{\it secname}{\tt\}\{}{\it itemtitle}{\tt\}}]
    Attempt a cut.
@@ -1715,6 +1746,7 @@ that you want to cut at the section level, showing subsections:
 
 \chapter{The next chapter}
 \end{verbatim}
+\comindex{cutdef}\comindex{cutend}
 Then, you should insert a \verb+\cutdef+ at chapter start and a
 \verb+\cutend+ at chapter end:
 \begin{verbatim}
@@ -1731,6 +1763,8 @@ title and a table of sections.
 (Also note that cutting macros are placed inside \verb+%HEVEA+ comments,
 for \LaTeX{} not to be disturbed).
 
+\comindex{cuthere}
+\comindex{cuttingunit}
 The \verb+\cuthere+ macro can be used to put some document parts into
 their own file.
 This may prove appropriate for long cover pages or abstracts that would
@@ -1766,6 +1800,7 @@ generate \html{} directly.
 
 
 \subsection{The \texttt{rawhtml} environment}\label{rawhtml}
+\envindex{rawhtml}
 Any text enclosed between \verb+\begin{rawhtml}+ and
 \verb+\end{rawhtml}+ is echoed verbatim into the \html{} output file.
 Normally, no processing of any kind is performed on this text.
@@ -1785,6 +1820,8 @@ A few ``\emph{high-level}'' macros are provided. These are first the
 All these macros have \LaTeX{} equivalents defined in the
 \texttt{hevea.sty} style file.
 
+\comindex{imgsrc}
+\comindex{anchor}
 The following macros can be used to output specific \html{}
 constructs. They have no \LaTeX{} equivalents and should be seen by
 \hevea{} only.
@@ -1865,9 +1902,8 @@ Postscript to bitmap format and thus degrade it.
 \subsection{Internal macros}\label{internal}
 In this short section a few of \hevea{} internal macros are
 described.
-Internal macros occur at the last expansion stage of \hevea{}, they are
-interpreted by \hevea{} main lexical analyzer and cannot
-be redefined.
+Internal macros occur at the final expansion stage of \hevea{} and
+invoke Objective Caml code.
 
 Normally, user source code should not use them, since
 their behavior may change from one version of \hevea{} to another and
@@ -1901,12 +1937,19 @@ internal text-level declarations \verb+\@style+, \verb+\@fontsize+ and
 \verb+\@fontcolor+. Block-level elements delimit the effect of such
 declarations.
 
+\index{"@print@\texttt{\char92"@print}}
+\index{"@open@\texttt{\char92"@open}}
+\index{"@close@\texttt{\char92"@close}}
+\index{"@style@\texttt{\char92"@style}}
+\index{"@nostyle@\texttt{\char92"@nostyle}}
+\index{"@fontsize@\texttt{\char92"@fontsize}}
+\index{"@fontcolor@\texttt{\char92"@fontcolor}}
 \begin{description}
 \item[{\tt\char92 @print\char123}{\it text}{\tt\char125}]
 Echo \textit{text} verbatim. The word ``verbatim'' means that (almost,
 see section~\ref{rawhtml})
 no processing of \textit{text} occurs.
-\item[{\tt\char92 @print\char123}{\it BLOCK}{\tt\char125\char123}{\it
+\item[{\tt\char92 @open\char123}{\it BLOCK}{\tt\char125\char123}{\it
 attributes}{\tt\char125}]
 Open \html{} block-level elements \textit{BLOCK} with attributes
 \textit{attributes}. The block name \textit{BLOCK} \emph{must} be
@@ -2078,7 +2121,8 @@ and they remain
 valid during all the processing.
 
 
-
+\index{"@bodyargs@\texttt{\char92"@bodyargs}}
+\index{"@htmlargs@\texttt{\char92"@htmlargs}}
 In particular, it is possible to change \hevea{} default argument
 to the opening \verb+<HTML>+ and \verb+<BODY>+ tags by redefining
 \verb+\@htmlargs+ and \verb+\@bodyargs+.
@@ -2088,6 +2132,8 @@ following declaration occurs before \verb+\begin{document}+:
 \renewcommand{\@bodyargs}{TEXT=black BGCOLOR=white}
 \end{verbatim}
 
+\comindex{htmlhead}
+\comindex{htmlfoot}
 One can also define a \emph{header} and a \emph{footer}, by using the
 \verb+\htmlhead+ and \verb+\htmlfoot+ commands in the preamble.
 Those commands register their argument as the header and the footer of
@@ -2096,7 +2142,7 @@ appears last in (visible) \html{} output.
 This is mostly useful when \hevea{} output is later cut into pieces by
 \hacha{}, since both header and footer are replicated
 at the start and end of any file generated by \hacha.
-For instance, to have a copyright notice at the end of all the \html{}
+For instance, to append a copyright notice at the end of all the \html{}
 pages, it suffices to invoke the \verb+\htmlfoot+ command as follows
 in the document preamble:
 \begin{verbatim}
@@ -2109,6 +2155,7 @@ in the document preamble:
 \section{Sentences and Paragraphs}
 
 \subsection{Spacing}
+%\index{ @`` '' (space)}\index{spacing|see{`` ''}}
 Generally speaking, spaces (and single newline characters) in the
 source are echoed in the output.  Browser then manage with spaces and
 line-breaks.  Following \LaTeX{} behavior, spaces after commands are
@@ -2175,11 +2222,19 @@ They accept an optional argument and have starred versions.
 
 
 The non-starred sectioning commands from \verb+\part+ down to
-\verb+\subsubsection+ show section numbers in sectional unit headings.
-This behavior cannot be changed and the \verb+secnumdepth+ counter
-does not exist.  However, given a sectional unit {\it secname}, the
+\verb+\subsubsection+ show section numbers in sectional unit headings,
+provided their \textit{level} is greater then or equal to the current
+value of the \verb+secnumdepth+ counter.
+Sectinal unit levels and the default value of the \verb+secnumdepth+ counter
+are the same as in \LaTeX{}.
+Furthermore, given a sectional unit {\it secname}, the
 counter {\it secname} exists and the appearance of sectional units
 numbers can be changed by redefining \verb+\the+{\it secname}.
+For instance, the following redefinition turn the numbering of
+chapters into alphabetic (uppercase) style:
+\begin{verbatim}
+\renewcommand{\thechapter}{\Alph{chapter}}
+\end{verbatim}
 
 
 \subsection{The Appendix}
@@ -2434,6 +2489,7 @@ Subscript and superscript placement can be changed using the
 Big delimiters are also handled.
 
 \subsection{Putting one thing above the other}
+\comindex{textstackrel}\comindex{textunderline}\comindex{textoverline}
 The commands \verb+\stackrel+,  \verb+\underline+ and \verb+\overline+
 are recognized.
 They produce sensible output in display mode.
@@ -2485,6 +2541,7 @@ closer to universally understood  notations for mathematics.
 
 
 \subsection{Spacing}\label{spacemathref}
+%\index{ @`` '' (space)!significant in math mode}
 By contrast with \LaTeX{}, space in the input matters in math mode.
 One or more spaces are translated to one space.
 Furthermore,
@@ -2638,7 +2695,7 @@ initial value \textit{false}.
 mode, it is \textit{true} in math-mode and \textit{false} otherwise.
 \item[\texttt{display}]  This register value reflects \hevea{} operating
 mode, it is \textit{true} in display-mode and \textit{false} otherwise.
-\item[\texttt{french}] This register value reflects the \verb+-french+
+\item[\texttt{french}] \boolindex{french}This register value reflects the \verb+-french+
 command line option internally (see Section~\ref{heveausage}).
 \end{description}
 
@@ -3096,42 +3153,45 @@ conventions for colors.
 There are sixteen predefined colors:
 \begin{center}
 \begin{tabular}{p{.7\linewidth}}
-%HEVEA\purple
-\verb+\purple+,
+%HEVEA\black
+\comindex{black}\verb+\black+,
 %HEVEA\silver
-\verb+\silver+,
+\comindex{silver}\verb+\silver+,
 %HEVEA\gray
-\verb+\gray+,
+\comindex{gray}\verb+\gray+,
 %HEVEA\white
-\verb+\white+,
+\comindex{white}\verb+\white+,
 %HEVEA\maroon
-\verb+\maroon+,
+\comindex{maroon}\verb+\maroon+,
 %HEVEA\red
-\verb+\red+,
+\comindex{red}\verb+\red+,
 %HEVEA\fuchsia
-\verb+\fuchsia+,
+\comindex{fuchsia}\verb+\fuchsia+,
+%HEVEA\purple
+\comindex{purple}\verb+\purple+,
 %HEVEA\green
-\verb+\green+,
+\comindex{green}\verb+\green+,
 %HEVEA\lime
-\verb+\lime+,
+\comindex{lime}\verb+\lime+,
 %HEVEA\olive
-\verb+\olive+,
+\comindex{olive}\verb+\olive+,
 %HEVEA\yellow
-\verb+\yellow+,
+\comindex{yellow}\verb+\yellow+,
 %HEVEA\navy
-\verb+\navy+,
+\comindex{navy}\verb+\navy+,
 %HEVEA\blue
-\verb+\blue+,
+\comindex{blue}\verb+\blue+,
 %HEVEA\teal
-\verb+\teal+,
+\comindex{teal}\verb+\teal+,
 %HEVEA\aqua
-\verb+\aqua+
+\comindex{aqua}\verb+\aqua+
 \end{tabular}
 \end{center}
-Additionally, the current text color can be changed by the declaration
-\verb+\htmlcolor{+{\it number}\verb+}+, where {\it number} is a six
-digit hexadecimal number specifying a color in the RGB space.
-For instance, the following declarations change font color to dark gray:
+\comindex{htmlcolor}Additionally, the current text color can be
+changed by the declaration \verb+\htmlcolor{+{\it number}\verb+}+,
+where {\it number} is a six digit hexadecimal number specifying a
+color in the RGB space.  For instance, the following declarations
+change font color to dark gray:
 %HEVEA{\htmlcolor{404040}%
 \begin{verbatim}
   \htmlcolor{404040}
@@ -3415,12 +3475,12 @@ files and attempts to process them.
 Given an argument \textit{filename} there are two cases:
 \begin{itemize}
 \item If \textit{filename} is \textit{base}\texttt{.tex}, then a single
-attempt is made to open \textit{filename}.
+attempt to open \textit{filename} is made.
 \item If \textit{filename} does not have the extension \texttt{.tex},
-then a first attempt is made to open \textit{filename}\texttt{.tex}.
+then a first attempt to open \textit{filename}\texttt{.tex} is made.
 In case of failure, a second attempt to open  \textit{filename} is made.
 \end{itemize}
-In all cases, implicit filenames are
+In all attempts, implicit filenames are
 searched along \texttt{hevea} search path.
 \texttt{hevea} search path consist in the current directory ``\texttt{.}'',
 followed by directories specified by the user with the \texttt{-I}
@@ -3459,7 +3519,7 @@ as:
 # hevea file.tex
 \end{verbatim}
 The input basename is \texttt{file} and the output basename also is
-\texttt{file}. The main input file is searched along \texttt{hevea}
+\texttt{file}. The main input file is searched once along \texttt{hevea}
 search path as \texttt{file.tex}.
 \html{} output goes into file
 \texttt{file.html}, in the current directory.
@@ -3514,7 +3574,7 @@ whose name is \textit{filename}. Note that this option applies to all
 files, including \texttt{hevea.hva} and base style files.
 \item[{\tt -idx}] Read the \textit{name}\texttt{.idx} file, where
 \textit{name} is the input base name. This is useful when this
-file is customized after it has been generated by \LaTeX{} (See,
+file is modified after beeing generated by \LaTeX{} (See,
 sections~\ref{files} and~\ref{index}).
 \item[{\tt -francais}] Set French mode.
 This has three consequences:
@@ -3596,7 +3656,7 @@ Then, \texttt{dvips} translates this file into one single Postscript file that
 contains all 
 the images, or into one  Postscript file per image,
 depending upon your version of \texttt{dvips}.
-Postscript files are interpreted by \texttt{gs} that
+Postscript files are interpreted by ghostscript (\texttt{gs}) that
 outputs \texttt{ppm} images, which are then fed into a series of
 transformations that change them into \texttt{.gif} files.
 
@@ -3623,7 +3683,7 @@ orientation may
 be wrong and the images are too small. This can be cured by invoking
 \texttt{imagen} as:
 \begin{flushleft}
-\texttt{\# imagen -mag 2000 -extra "pnmflip -ccw"} \textit{base}
+\texttt{\# imagen  -extra "pnmflip -ccw" -mag 2000} \textit{base}
 \end{flushleft}
 
 
@@ -3846,6 +3906,7 @@ at:
 \oneurl{http://www.loria.fr/services/tex/english/outils.html}
 \end{center}
 
+
 \begin{thebibliography}{xxxxxxxxxx}
 \bibitem[\LaTeX-bis]{latexbis}
 M.~Gooseens, F.~Mittelbach, A.~Samarin.
@@ -3870,4 +3931,5 @@ D.~Ragget.
 {\em HTML 3.2 Reference Specification}. Available on the web at
 \oneurl{http://www.w3.org/TR/REC-html32}, 1997.
 \end{thebibliography}
+\printindex
 \end{document}

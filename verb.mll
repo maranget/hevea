@@ -130,18 +130,18 @@ and latex2html_latexonly = parse
 
 {
 
-let open_verb lexbuf _ =
+let open_verb lexbuf =
   Dest.open_group "CODE" ;
   Scan.new_env "*verb" ;
   start_inverb lexbuf
 
-let open_verbenv lexbuf _ =
+let open_verbenv lexbuf =
   Scan.top_close_block "" ;
   Scan.top_open_block "PRE" "" ;
   let lexbuf = previous_lexbuf () in
   verbenv lexbuf 
 
-let open_rawhtml lexbuf _ =
+let open_rawhtml lexbuf =
   Scan.top_close_block "" ;
   let lexbuf = previous_lexbuf () in
   begin match !Parse_opts.destination with
@@ -150,12 +150,12 @@ let open_rawhtml lexbuf _ =
  (* Dest.open_block "TEMP" "";*)
   rawhtml lexbuf 
 
-let open_verblatex lexbuf _ =
+let open_verblatex lexbuf =
   Scan.top_close_block "" ;
   let lexbuf = previous_lexbuf () in
   verblatex lexbuf 
 
-let open_verbimage lexbuf _ =
+let open_verbimage lexbuf =
   Scan.top_close_block "" ;
   let lexbuf = previous_lexbuf () in
   verbimage lexbuf 
@@ -170,7 +170,7 @@ let init () =
   def_code "\\verblatex" open_verblatex ;
   def_code "\\verbimage" open_verbimage ;
   def_code "\\verbatiminput"
-    (fun lexbuf lxm ->
+    (fun lexbuf ->
       let tabs = Get.get_int (save_opt "8" lexbuf) in      
       let arg = save_arg lexbuf in
       let old_tabs = !tab_val in

@@ -1,7 +1,27 @@
-let header =  "$Id: lexstate.ml,v 1.12 1999-05-14 08:53:04 maranget Exp $"
+let header =  "$Id: lexstate.ml,v 1.13 1999-05-14 17:55:00 maranget Exp $"
 
 open Misc
 open Lexing
+
+(* Commands nature *)
+type action =
+  | Print of string
+  | Subst of string
+  | CamlCode of (Lexing.lexbuf -> unit)
+
+
+let pretty_action acs =
+   match acs with
+   | Subst s    -> Printf.fprintf stderr "{%s}\n" s
+   | CamlCode _ -> prerr_endline "*code*"
+   | Print s    -> prerr_endline ("Raw print ``"^String.escaped s^"''")
+
+type pat = string list * string list
+
+
+let pretty_pat (_,args) =
+  List.iter (fun s -> prerr_string s ; prerr_char ',') args
+
 
 exception Error of string
 
@@ -127,23 +147,21 @@ let scan_arg lexfun i =
   stack := old_args ;
   r
 
-and scan_fun f lexbuf name =  f lexbuf name
-
 and scan_body exec body args =
   begin match body with
-  | Latexmacros.CamlCode _ -> ()
+  | CamlCode _ -> ()
   | _ ->
       push stack_stack !stack ;
       stack := args
   end ;
 (*
     prerr_string "scan_body :" ;
-    Latexmacros.pretty_action body ;
+    pretty_action body ;
     prerr_args () ;
 *)    
   let r = exec body in
   begin match body with
-  | Latexmacros.CamlCode _ -> ()
+  | CamlCode _ -> ()
   | _ -> stack := pop stack_stack
   end;
   r
@@ -336,7 +354,7 @@ let make_stack name pat lexbuf =
   let args = Array.of_list (List.map from_ok opts@args) in
   if !verbose > 2 then begin
     Printf.fprintf stderr "make_stack for macro: %s "  name ;
-    Latexmacros.pretty_pat pat ;
+    pretty_pat pat ;
     prerr_endline "";
     for i = 0 to Array.length args-1 do
       Printf.fprintf stderr "\t#%d = %s\n" (i+1) args.(i)

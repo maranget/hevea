@@ -3,7 +3,7 @@ open Misc
 open Lexing
 open Table
 
-let header = "$Id: tabular.mll,v 1.7 1999-05-14 08:53:05 maranget Exp $"
+let header = "$Id: tabular.mll,v 1.8 1999-05-14 17:55:01 maranget Exp $"
 
 exception Error of string
 ;;
@@ -105,8 +105,7 @@ and tfmiddle = parse
     let args = Lexstate.make_stack name pat lexbuf in
     Lexstate.scan_body
       (function
-        | (Latexmacros.Subst body) ->
-            scan_this lexformat body ;            
+        | Lexstate.Subst body -> scan_this lexformat body ;            
         | _ -> assert false)
       body args ;
     let post = tfpostlude lexbuf in
