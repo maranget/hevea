@@ -3,10 +3,11 @@
 \input{bookcommon.hva}
 \@makesection
   {\part}{-2}{part}
-  {\@open{TABLE}{ALIGN=center}\@open{TR}{}\@open{TD}{}\@open{H1}
-	{CLASS=part ALIGN=center}}%
+  {\@open{TABLE}{}\@open{TR}{}\@open{TD}{}%
+  \@open{H1}{CLASS="part"}}%
   {\partname~\thepart}{\\}%
   {\@close{H1}\@close{TD}\@close{TR}\@close{TABLE}}
+\newstyle{.part}{text-align: center}
 \@makesection
   {\chapter}{-1}{chapter}
    {\@open{H1}{CLASS=chapter}}{\chaptername~\thechapter}{\quad}{\@close{H1}}

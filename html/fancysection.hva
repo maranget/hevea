@@ -21,41 +21,40 @@
 %% Define sectioning comands
 \ifthenelse{\equal{\@base}{article}}{%
 \setLATEXstyle{title}
-	{padding:0.4ex;background:\@getstylecolor{title}}%
+	{padding:1ex;background:\@getstylecolor{title}}%
 \setLATEXstyle{titlemain}
-	{padding:0.3ex;background:\@getstylecolor{titlemain}}%
+	{padding:1ex;background:\@getstylecolor{titlemain}}%
 \setLATEXstyle{titlerest}
-	{padding:0.3ex;background:\@getstylecolor{titlerest}}%
+	{padding:1ex;background:\@getstylecolor{titlerest}}%
 \setLATEXstyle{part}
-	{padding:0.4ex;background:\@getstylecolor{part}}%
+	{padding:1ex;background:\@getstylecolor{part}}%
 \setLATEXstyle{section}
-	{padding:0.3ex;background:\@getstylecolor{section}}%
+	{padding:.5ex;background:\@getstylecolor{section}}%
 \setLATEXstyle{subsection}
 	{padding:0.3ex;background:\@getstylecolor{subsection}}%
 \setLATEXstyle{subsubsection}
-	{padding:0.2ex;background:\@getstylecolor{subsubsection}}%
+	{padding:0.5ex;background:\@getstylecolor{subsubsection}}%
 }{%
 \ifthenelse{\equal{\@base}{book}}{%
 \setLATEXstyle{title}
-	{padding:0.4ex;background:\@getstylecolor{title}}%
+	{padding:1ex;background:\@getstylecolor{title}}%
 \setLATEXstyle{titlemain}
-	{padding:0.3ex;background:\@getstylecolor{titlemain}}%
+	{padding:1ex;background:\@getstylecolor{titlemain}}%
 \setLATEXstyle{titlerest}
-	{padding:0.3ex;background:\@getstylecolor{titlerest}}%
+	{padding:1ex;background:\@getstylecolor{titlerest}}%
 \setLATEXstyle{part}
-	{padding:0.4ex;background:\@getstylecolor{part}}%
+	{padding:1ex;background:\@getstylecolor{part}}%
 \setLATEXstyle{chapter}
-	{padding:0.3ex;background:\@getstylecolor{chapter}}%
+	{padding:0.5ex;background:\@getstylecolor{chapter}}%
 \setLATEXstyle{section}
-	{padding:0.3ex;background:\@getstylecolor{section}}%
+	{padding:0.5ex;background:\@getstylecolor{section}}%
 \setLATEXstyle{subsection}
-	{padding:0.3ex;background:\@getstylecolor{subsection}}%
+	{padding:0.5ex;background:\@getstylecolor{subsection}}%
 \setLATEXstyle{subsubsection}
-	{padding:0.2ex;background:\@getstylecolor{subsubsection}}%
+	{padding:0.5ex;background:\@getstylecolor{subsubsection}}%
 }{%
 }}
-%\setLATEXstyle{title}
-%	{padding:1.5ex;background:\@getstylecolor{title}}%
+
 
 
 

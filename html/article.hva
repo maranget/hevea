@@ -3,10 +3,10 @@
 \input{articlecommon.hva}
 \@makesection
   {\part}{-1}{part}
-  {\@open{H1}{CLASS=part}}
+  {\@open{TABLE}{}\@open{TR}{}\@open{TD}\@open{H1}{CLASS=part}}
   {\partname~\thepart}{\\}
-  {\@close{H1}}
-\newstyle{.part}{ text-align: center  }
+  {\@close{H1}\@close{TD}\@close{TR}\@close{TABLE}}
+\newstyle{.part}{text-align: center}
 \@makesection
   {\section}{0}{section}
   {\@open{H2}{CLASS=section}}{\thesection}{\quad}{\@close{H2}}%

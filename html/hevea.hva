@@ -18,7 +18,7 @@
 % Styles definition in the <HEAD> element
 \newtokens{\hevea@css}%
 \newcommand{\addstyle}[1]{\addtokens{\hevea@css}{#1}}%
-\newcommand{\newstyle}[2]{\addstyle{\@getprint{\@print{ }\@print{ }\@print{ }\@print{ }#1\char123#2\char125\@print{
+\newcommand{\newstyle}[2]{\addstyle{\@getprint{#1\char123#2\char125\@print{
 }}}}%
 \input{style-sheets.hva}
 %
@@ -181,7 +181,7 @@
       {\ifthenelse{\equal{##4}{}}{}{\warning{No ##4 given}}}%
       {\@open{##1}{\class@attr{##2}{}}\usebox{##3}\@close{##1}}%
     }%
-  \@open{TABLE}{CELLPADDING=1.5ex ALIGN=center}\@open{TR}{}\@open{TD}{CLASS=title}%
+  \@open{TABLE}{}\@open{TR}{}\@open{TD}{CLASS=title}%
   \checkbox{H1}{titlemain}{\@@title}{title}%
   \checkbox{H3}{titlerest}{\@@author}{author}%
   \checkbox{H3}{titlerest}{\@@date}{}%
