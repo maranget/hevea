@@ -8,6 +8,7 @@
 \newcounter {paragraph}[subsubsection]
 \newcounter {subparagraph}[paragraph]
 \newcounter {footnote}[chapter]
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
 \newcounter {anchornote}
 \renewcommand \theanchornote{{\@nostyle\arabic{chapter}.\arabic{anchornote}}}
 \renewcommand \thepart {\Roman{part}}
@@ -16,7 +17,6 @@
 \renewcommand\thesubsubsection{\thesubsection .\arabic{subsubsection}}
 \renewcommand\theparagraph    {\thesubsubsection.\arabic{paragraph}}
 \renewcommand\thesubparagraph {\theparagraph.\arabic{subparagraph}}
-\renewcommand\thefootnote     {\fnsymbol{footnote}}
 \newcommand{\@footnotelevel}{chapter}
 \newcommand{\partname}{Part}
 \newcommand{\chaptername}{Chapter}
@@ -39,6 +39,8 @@
 }
 \newcounter{figure}[chapter]
 \renewcommand{\thefigure}{\thechapter.\arabic{figure}}
+\newcounter{table}[chapter]
+\renewcommand{\thetable}{\thechapter.\arabic{table}}
 
 \newcommand{\part}[2][]{%
 \stepcounter{part}%
@@ -103,7 +105,7 @@
 }
 \newcommand{\subsubsection}[2][]{%
 \@open{H4}{}%
-#1%
+#2%
 \@close{H4}%
 }
 \newcommand{\subsubsection*}[1]{%
@@ -114,7 +116,7 @@
 
 \newcommand{\paragraph}[2][]{%
 \@open{H5}{}%
-#1%
+#2%
 \@close{H5}%
 }
 \newcommand{\paragraph*}[1]{%

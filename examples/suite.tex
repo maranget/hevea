@@ -1,19 +1,37 @@
-\documentstyle{article}
+\documentstyle[html,isolatin1]{article}
+
+\title{Test de \htmlgen\footnote{Une étoile}}
 
 \begin{document}
+\maketitle
 
-\section{Test de base\ldots}
+\section{Test des polices}
 
 Test {\tt tt \it \Large tt it Large {\bf tt it Large bf } tt it Large
 {\rm Large rm } et encore }
 
-{\Large Large rm}
+\begin{center}\Large
+Roman
 
-{\Large\textsc{\texttt{\textrm{Roman, small caps}}}}
+\textsc{\texttt{\textrm{Roman, small caps}}}
 
-{\Large\textsf{\textit{Slanted familly, italic shape} Slanted familly}}
+\textsf{\textit{Sans Sherif family, italic shape} Sans Sherif family}
 
-Test des exposants abusifs $1^{2^{3^{4^5}}}$
+\texttt{\textsl{TT family, slanted shape}}
+
+\end{center}
+
+
+\section{Math mode}
+
+\subsection{Italiques en mode math}
+
+Alors j'y vais~: $1+a_{i+1} + \int^N_0 1/x dx + \partial x/2$
+
+Et puis une petite mbox en exposant~: {\LARGE $\alpha^{\mbox{gros $\beta$}}$}.
+
+
+\subsection{Test des exposants abusifs} $1^{2^{3^{4^5}}}$
 
 
 
@@ -224,6 +242,20 @@ $+$ \\ \hline
 \end{tabular}
 \end{center}
 
+
+
+\subsubsection{Quelques délimiteurs imbriqués}
+
+\begin{table}[h]
+$$
+\left[\left(\begin{array}{cc} 1 & 2 \\ \alpha & a_i^k
+\end{array}\right)
++ \sum_{j=0}^{\kappa(j) < \Delta(k)} \left|\begin{array}{cc} {\cal A}  & \aleph \\ \gamma & \partial
+x\over y \end{array}\right|\right]
+$$
+\caption{\label{t1}Les délimiteurs dans une table (voir section~\ref{allrefs})}
+\end{table}
+
 \subsection{Les exposants terribles}\label{plushaut}
 $$
  2^{\left.\begin{array}{@{\hspace{0ex}}c@{\hspace{0ex}}}
@@ -256,14 +288,17 @@ Le r\'esultat d\'ecoule alors de l' hypoth\`ese de r\'ecurrence
 suivant laquelle $M^{p-1}_{i,k}$ est le nombre de chemins de longueur
 $p-1$ joignant $x_i$ \`a $x_k$.
 
-$$L(i,j)=\cases{1 + L(i-1,j-1)            &si $a_i=b_j$ \\
+$$L(i,j)=\cases{1 + L(i-1,j-1)            &si $a_i=b_j$ \cr
                 \max (L(i,j-1),L(i-1,j))  &sinon.}      \eqno{(*)}$$
 
-\section{Quelques références}\label{ici}
+\section{Quelques références}\label{ici}\label{allrefs}
 Alors ici je suis en~\ref{ici}. Ensuite je serai là-bas
 en~\ref{labas}.
 Il y a déjà un petit moment j'étais plus haut avec plein de potes exposants~\ref{plushaut}.
 J'ai aussi écrit des théorèmes~\ref{un} et~\ref{deux}.
+
+J'ai déjà fait une table~: la table~\ref{t1}. J'en ai une autre à la
+fin, la table~\ref{t2}.
 
 J'essaie aussi une figure~\ref{figure}
 \begin{figure}[t]
@@ -274,5 +309,14 @@ J'essaie aussi une figure~\ref{figure}
 \section{Quelques notes de bas de page}\label{labas}
 Coucou\footnote{coucou}
 \textsl{et là ??\footnote{Une autre}}.
+Une note recomposée\footnotemark\footnotetext{Numéro trois}.
+
+\begin{table*}
+\begin{flushleft}
+Ceci est la table de la fin.\\
+Bref c'est fini.\\
+\end{flushleft}
+\caption{\label{t2}}
+\end{table*}
 
 \end{document}

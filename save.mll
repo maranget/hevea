@@ -9,6 +9,7 @@ let border = ref false
 let brace_nesting = ref 0
 and arg_buff = Out.create_buff ()
 and delim_buff = Out.create_buff ()
+and tag_buff = Out.create_buff ()
 ;;
 
 
@@ -204,6 +205,25 @@ and defargs = parse
 
 and defbody = parse "" {arg lexbuf}
 
+and tagout = parse
+  '<'  {intag lexbuf}
+| "&nbsp;" {Out.put tag_buff " " ; tagout lexbuf}
+| "&gt;" {Out.put tag_buff ">" ; tagout lexbuf}
+| "&lt;" {Out.put tag_buff "<" ; tagout lexbuf}
+| "&nbsp;" {Out.put tag_buff " " ; tagout lexbuf}
+| _    {Out.put tag_buff (lexeme lexbuf) ; tagout lexbuf}
+| eof  {Out.to_string tag_buff}
+
+and intag = parse
+  '>'  {tagout lexbuf}
+| '"'  {instring lexbuf}
+| _    {intag lexbuf}
+| eof  {Out.to_string tag_buff}
+
+and instring = parse
+  '"'  {intag lexbuf}
+| _    {instring lexbuf}
+| eof  {Out.to_string tag_buff}
 (*  
 and do_arg_delim = parse
   _

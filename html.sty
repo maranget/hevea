@@ -8,10 +8,9 @@
 %      - environemnt htmlraw,  to include raw HTML in the output of
 %      htmlgen
 %
-\newcommand{\html}{\hbox{\sc H\kern -.6ex\raise .85ex\hbox{t}\kern-.4ex\raise .4ex\hbox{ml}}}
-\newcommand{\htmlgen}{\hbox{\html\kern -.2ex\hbox{\sc G\kern -.2ex\lower .5ex\hbox{e}\kern -.2exN}}}
-\newcommand{\htmlcut}{\html\kern -.2ex\hbox{\sc C\kern -.2ex\lower
-.5ex\hbox{u}\kern -.4exT}}
+\newcommand{\html}{\protect\makebox{\sc H\kern -.6ex\raisebox{.85ex}{t}\kern-.4ex\raisebox{.4ex}{ml}}}
+\newcommand{\htmlgen}{\protect\makebox{\protect\html\kern -.2ex\protect\makebox{\sc G\kern -.2ex\protect\raisebox{-.5ex}{e}\kern -.2exN}}}
+\newcommand{\htmlcut}{\protect\html\kern -.2ex\protect\makebox{\sc C\kern -.2ex\protect\raisebox{.5ex}{u}\kern -.4exT}}
 \newcommand{\url}[2]{#2\footnote{\tt #1}}
 \newcommand{\oneurl}[1]{{\tt #1}}
 \newcommand{\home}[1]{\char126#1}

@@ -25,6 +25,7 @@ patbis.html: pat.html
 	$(HTMLCUT) -o patbis.html pat.html
 
 suite.html: suite.tex
+	latex < /dev/null suite.tex
 	$(HTMLGEN) suite.tex
 
 index.html: index.tex

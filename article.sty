@@ -7,15 +7,15 @@
 \newcounter {paragraph}[subsubsection]
 \newcounter {subparagraph}[paragraph]
 \newcounter {footnote}
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
 \newcounter {anchornote}
 \renewcommand \theanchornote{{\@nostyle\arabic{anchornote}}}
 \renewcommand \thepart {\Roman{part}}
 \renewcommand\thesubsection   {\thesection.\arabic{subsection}}
 \renewcommand\thesubsubsection{\thesubsection .\arabic{subsubsection}}
 \renewcommand\theparagraph    {\thesubsubsection.\arabic{paragraph}}
-\renewcommand\thesubparagraph {\theparagraph.\arabic{subparagraph}}
-\renewcommand\thefootnote     {\fnsymbol{footnote}}
 \newcounter{figure}
+\newcounter{table}
 \newcommand{\@footnotelevel}{document}
 \newcommand{\partname}{Part}
 \newcommand{\appendixname}{Appendix}
@@ -66,23 +66,28 @@
 \@close{H3}%
 }
 \newcommand{\subsection*}[1]{%
+\cuthere{toc}{subsection}{#1}%
 \@open{H3}{}%
 #1%
 \@close{H3}%
 }
 \newcommand{\subsubsection}[2][]{%
+\stepcounter{subsubsection}%
+\ifoptarg\cuthere{toc}{subsubsection}{#1}%
+\else\cuthere{toc}{subsubsection}{#2}\fi%
 \@open{H4}{}%
-#1%
+\thesubsubsection\quad #2%
 \@close{H4}%
 }
 \newcommand{\subsubsection*}[1]{%
+\cuthere{toc}{subsubsection}{#1}%
 \@open{H4}{}%
 #1%
 \@close{H4}%
 }
 \newcommand{\paragraph}[2][]{%
 \@open{H5}{}%
-#1%
+#2%
 \@close{H5}%
 }
 \newcommand{\paragraph*}[1]{%

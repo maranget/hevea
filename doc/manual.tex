@@ -41,6 +41,7 @@ translated as one single html file. Then, the output file can be cut into
 smaller file, using the companion program \htmlcut.
 \end{abstract}
 
+
 \newpage
 
 \part{Tutorial}
@@ -205,20 +206,28 @@ and \urlex{suite.html}.
 given both in \LaTeX\ style
 (using \verb+\newcommand+, \verb+\renewcommand+ and
 \verb+\providecommand+) and in simple
-\TeX\ style (using \verb+\def#1#2...+ without delimiting
-characters). 
+\TeX\ style (using \verb+\[g]def#1#2...+ without delimiting
+characters).
+It also processes the \verb+\[re]newenvironment+ constructs and a
+limited version of \verb+\let+.
+
+
 In good cases, when the macros does not perform subtle typesetting or
 overuse \TeX\ constructs, everything goes fine.
 However it may happen that the visual effect obtained is not
 satisfactory, even worse some spurious output such as arguments of
 unknown macros may get their way into the final html output.
 
-Consider another example, \urlex{trouble.tex}
+Consider another example, \urlex{trouble.tex}, which includes the
+following macro definition and usage:
+\begin{verbatim}
+\newcommand\blob{\hrule height 1ex length 1ex}
+\end{verbatim}
 
 
 \section{Other style files}
 
-A latex document usually loads additional style files (using
+A \LaTeX\ document usually loads additional style files (using
 \verb+\input+ or \verb+\usepackage+).
 \htmlgen\ simply ignores \verb+\usepackage+ but attempt to load
 input files.
@@ -227,13 +236,29 @@ files it loads by using the \verb+-v+ option.
 
 Consider again a simple \verb+article.tex+ article whose header is as follows
 
+\part{Reference manual}
 
+\section{Usage}
+\begin{verbatim}
+# htmlgen -help
+htmlgen 0.0
+  -v , verbose flag, can be repeated to increase verbosity
+  -e filename, prevent file ``filename'' from being read
+  -idx , attempt to read .idx file (useful if indexing is non-standard)
+  -francais , french mode
+  -nosymb , do not output symbol fonts
+  -I dir, add directory ``dir'' to search path
+  -o filename, make htmlgen output go into file ``filename''
+\end{verbatim}
 
+\begin{verbatim}
+# htmlcut 0.0
+  -o filename, make htmlcut output go into file ``filename'' (defaults to index.html)
+\end{verbatim}
 
 \part{Installation}
-\section{Instalation}
 
-\subsection{Requirements}
+\section{Requirements}
 
 This package is mainly written in
 \url{http://caml.inria.fr/ocaml/}{Objective Caml}. Thus, you

@@ -1,27 +1,31 @@
 open Parse_opts
 open Html
 
-type ok = Some of string * string * string | None
+type ok = Some of int * string * string * string | None
 
-let table = ref (Array.make 12 None)
+let table = ref (Array.make 2 None)
 and some = ref false
 ;;
 
+let current = ref 0
+;;
 let register i mark text anchor =
   some := true ;
-  if Array.length !table < i then begin
-    let t = Array.make ((i+1)*2) None in
+  let b =  Array.length !table < !current in
+  if Array.length !table <= !current then begin
+    let t = Array.make (2* !current) None in
     Array.blit !table 0 t 0 (Array.length !table) ;
     table := t
   end ;
-  begin match !table.(i) with
+  begin match !table.(!current) with
     None -> ()
-  | Some (_,_,_) -> begin
+  | Some (_,_,_,_) -> begin
       Location.print_pos () ;
       prerr_endline "Warning: erasing previous footnote"
     end
   end ;
-  !table.(i) <- Some (mark,text,anchor)
+  !table.(!current) <- Some (i,mark,text,anchor) ;
+  incr current
 ;;
 
 let sec_value s = match String.uppercase s with
@@ -44,7 +48,7 @@ let flush lexer sec_notes sec_here =
     for i = 0 to Array.length t - 1 do
       match t.(i) with
         None -> ()
-      | Some (m,txt,anchor) ->
+      | Some (_,m,txt,anchor) ->
           t.(i) <- None ;
           Html.item (fun s ->
              lexer ("\\@openanchor{text}{note}{"^anchor^"}") ;
@@ -54,6 +58,7 @@ let flush lexer sec_notes sec_here =
           Html.put_char '\n'
     done ;
     Html.force_block "DL" "" ;
-    Html.put "<!--END NOTES-->"
+    Html.put "<!--END NOTES-->" ;
+    current := 0;
   end
 ;;

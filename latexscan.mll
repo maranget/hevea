@@ -853,7 +853,7 @@ rule  main = parse
          main lb in
        new_env math_env lexfun lexbuf
      end end}
-| "\\hbox" [^'{']* '{'
+| "\\hbox" ' '* ('{' | "\\bgroup")
     {let open_fun  () =
        if !display then begin
          item_display () 
@@ -1210,6 +1210,11 @@ rule  main = parse
          let arg = save_arg lexbuf in
          Html.put arg ;
          skip_blanks_main lexbuf
+      | "\\@notags" ->
+         let arg = get_this main (save_arg lexbuf) in
+         let buff = Lexing.from_string arg in
+         Html.put (Save.tagout buff)  ;
+         skip_blanks_main lexbuf
       | "\\@anti" ->
          let args = Save.cite_arg lexbuf in
          let rec do_rec = function
@@ -1319,7 +1324,7 @@ rule  main = parse
 (* Counters *)
         | "\\newcounter"  ->
             let name = save_arg lexbuf in
-            let within = save_opt "" lexbuf in
+            let within = get_this main (save_opt "" lexbuf) in
             Counter.def_counter name within ;
             scan_this main ("\\def\\the"^name^"{\\arabic{"^name^"}}") ;
             main lexbuf

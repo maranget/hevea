@@ -788,7 +788,7 @@ let item scan arg =
     else pending_par := false;
   let mods = !cur_out.pending @ !cur_out.active in
   do_close_mods () ;
-  let scan =
+  let true_scan =
     if !nitems = 0 then
       let saved = Out.to_string !cur_out.out in
       (fun arg -> do_put saved ; scan arg)
@@ -797,7 +797,9 @@ let item scan arg =
   nitems := !nitems+1;
   if pblock() = "DL" then begin
     do_put "\n<DT>" ;
-    scan (if arg = "" then "{"^ !dt^"}" else "{"^arg^"}") ;
+    open_group "" ;
+    true_scan (if arg = "" then !dt else arg) ;
+    close_group () ;
     do_put "<DD>"
   end else begin
     do_put "\n<LI>" ;

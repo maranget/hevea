@@ -15,13 +15,15 @@
 \@print{<HTML>
 }%
 \@print{<HEAD><TITLE>}%
-\@title%
+\@notags{\@title}%
 \@print{</TITLE></HEAD>}%
 \@print{<BODY>
 }%
 \iffrench\@print{<!--FRENCH-->
 }\fi
 \cutdef{\@docpart}{\@docchapter}%
+\renewcommand{\thefootnote}{\arabic{footnote}}%
+\setcounter{footnote}{0}%
 }{%
 \@footnoteflush{document}%
 \@print{
@@ -59,7 +61,7 @@
 \@open{H3}{ALIGN=center}%
 \@author%
 \@close{H3}%
-\@print{<BR><BR><BR>}
+\@print{<BR><BR><BR>}%
 }
 
 
@@ -70,9 +72,19 @@
 \@open{BLOCKQUOTE}{}\@print{<HR>}}{%
 \par
 \stepcounter{figure}%
-\begin{center}Figure \thefigure:\@caption\end{center}
+\caption{}%
+\begin{center}Figure \thefigure\iffrench~\fi:\@caption\end{center}
 \@print{<HR>}\@close{BLOCKQUOTE}}
 \newenvironment{figure*}[1][]{\begin{figure}[#1]}{\end{figure}}
+\newenvironment{table}[1][]{%
+\@open{BLOCKQUOTE}{}\@print{<HR>}}{%
+\par
+\stepcounter{table}%
+\caption{}%
+\begin{center}Table \thetable\iffrench~\fi: \@caption\end{center}
+\@print{<HR>}\@close{BLOCKQUOTE}}
+\newenvironment{table*}[1][]{\begin{table}[#1]}{\end{table}}
+%% Equations
 \newcommand{\eqno}[1]{\quad\quad#1}
 \newenvironment{equation}{$$}
   {\stepcounter{equation}\eqno{(\theequation)}$$}
@@ -80,8 +92,7 @@
 \newenvironment{eqnarray}{$$\begin{array}
   {rtcl@{\stepcounter{equation}\eqnno{(\theequation)}}}}{\end{array}$$}
 \newenvironment{displaymath}{$$}{$$}
-\def\hrule{\@print{<BR><HR><BR>}}
-\def\rule#1#2{\@print{<HR>
+\newcommand{\rule}[3][]{\@print{<HR>
 }}%
 \def\cases#1{\left\{\begin{array}{ltl}#1\end{array}\right.}
 %%%%%%%%%%% Footnotes
@@ -90,7 +101,7 @@
 }
 \newcommand{\footnotesep}[1]{}
 \newcommand{\@fnmarktext}[1]{$^{\hbox{#1}}$}
-\newcommand{\@fnmarknote}[1]{{\Large #1}}
+\newcommand{\@fnmarknote}[1]{\Large #1}
 \newcounter{savenote}
 \newcommand{\@footnotemark}[2]{%
 \setcounter{savenote}{\value{footnote}}%
