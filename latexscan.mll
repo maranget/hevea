@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.145 1999-11-01 15:58:41 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.146 1999-11-02 20:11:01 maranget Exp $ *)
 
 
 {
@@ -31,6 +31,7 @@ module type S =
     val def_fun : string -> (string -> string) -> unit
     val def_print : string -> string -> unit
     val get_this_main : string -> string
+    val check_this_main : string -> bool
     val get_prim : string -> string
     val get_prim_arg : Lexing.lexbuf -> string
     val get_prim_opt : string -> Lexing.lexbuf -> string
@@ -56,7 +57,6 @@ let sbool = function
   | false -> "false"
   | true  -> "true"
 
-module Index = Index.Make (Dest)
 module Foot = Foot.MakeFoot (Dest)
 
 
@@ -271,6 +271,7 @@ let do_get_this make_style  lexfun (s,subst) =
 
   if !verbose > 1 then
     prerr_endline ("get_this : ``"^s^"''") ;  
+  verbose := !verbose - 1;
   let lexer = Lexing.from_string s in
   let r = Dest.to_string (fun () ->
     top_open_group () ;
@@ -281,6 +282,7 @@ let do_get_this make_style  lexfun (s,subst) =
   if !verbose > 1 then begin
     prerr_endline ("get_this ``"^s^"'' -> ``"^r^"''")
   end ;
+  verbose := !verbose + 1 ;
   end_normal () ;
   Dest.par par_val ;
   r
@@ -654,26 +656,6 @@ let get_style lexfun (s,env) =
   let r = Dest.to_style (fun () -> lexfun lexer) in
   end_normal () ;
   r
-
-let check_this lexfun s =
-  if !verbose > 1 then
-    prerr_endline ("check_this: ``"^s^"''");
-  start_normal (get_subst ()) ;
-  let save_par = Dest.forget_par () in
-  Dest.open_block "TEMP" "";
-  let r =
-    try
-      scan_this lexfun s ;
-      true
-    with
-    |  x -> false in
-  Dest.erase_block "TEMP" ;
-  Dest.par save_par ;
-  end_normal () ;
-  if !verbose > 1 then
-    prerr_endline ("check_this: ``"^s^"'' = "^sbool r);
-  r
-  
 
 (* Image stuff *)
 
@@ -1276,6 +1258,26 @@ let check_alltt_skip lexbuf =
 ;;
 
 let get_this_main arg = get_this main arg
+let check_this_main s =
+  if !verbose > 1 then
+    prerr_endline ("check_this: ``"^s^"''");
+  start_normal (get_subst ()) ;
+  let save_par = Dest.forget_par () in
+  Dest.open_block "TEMP" "";
+  let r =
+    try
+      scan_this main s ;
+      true
+    with
+    |  x -> false in
+  Dest.erase_block "TEMP" ;
+  Dest.par save_par ;
+  end_normal () ;
+  if !verbose > 1 then
+    prerr_endline ("check_this: ``"^s^"'' = "^sbool r);
+  r
+  
+
 
 let get_prim_onarg arg =
   let plain_sub = is_plain '_'
@@ -1307,7 +1309,7 @@ let def_fun name f =
 (* Styles and packages *)
 let do_documentclass command lexbuf =
   Save.start_echo () ;
-  skip_opt lexbuf ;
+  let opt_arg,_ = save_opt "" lexbuf in
   let arg,_ =  save_arg lexbuf in
   let real_args = Save.get_echo () in
   begin try if not !styleloaded then
@@ -1315,6 +1317,15 @@ let do_documentclass command lexbuf =
   with
     Myfiles.Except | Myfiles.Error _ ->
       raise (Misc.ScanError ("No base style"))
+  end ;
+  if command = "\\documentstyle" then begin
+    let rec read_packages = function
+      | [] -> ()
+      | pack :: rest ->
+          scan_this main ("\\usepackage{"^pack^"}") ;
+          read_packages rest in
+    read_packages
+      (Save.cite_arg (Lexing.from_string ("{"^opt_arg^"}")))
   end ;
   Image.start () ;
   Image.put command ;
@@ -1351,6 +1362,45 @@ def_code "\\include" (do_input "\\include") ;
 def_code "\\bibliography" (do_input "\\bibliography")
 ;;
 
+exception AuxFailed
+;;
+
+(*
+let read_aux auxname auxchan  =
+  if !verbose > 0 then
+          prerr_endline ("Input aux file: "^auxname) ;
+        let buf = Lexing.from_channel auxchan in
+        begin try Auxx.main buf with
+        | e ->
+            if !verbose > 0 then
+              prerr_endline ("Failed to read aux file: "^Printexc.to_string e);
+            close_in auxchan ;
+            raise AuxFailed
+        end ;
+        close_in auxchan         
+
+def_code "\\@inputaux"
+    (fun lexbuf ->
+      try         
+        let name,chan = Myfiles.open_tex (base_in^".aux") in
+        read_aux name chan
+      with
+        Myfiles.Error _ ->
+          try
+            let auxname =  base_out^".haux" in
+            let chan = open_in auxname in
+            if !verbose > 0 then
+              prerr_endline ("Input aux file: "^auxname) ;
+            let buf = Lexing.from_channel auxchan in
+            Auxx.main buf ;
+            close_in auxchan  ;
+            Auxx.init base_out ;
+          with Sys_error s -> begin
+            Auxx.init base_out ;
+            if !verbose > 0 then
+              prerr_endline ("I found no aux file, going on")
+          end)
+*)
 (* Command definitions *)
 
 let save_body lexbuf = 
@@ -1932,7 +1982,7 @@ let bibcount = ref 0
 ;;
 def_code "\\@bibwrite"
   (fun lexbuf ->
-    let pretty = match get_prim_arg lexbuf with
+    let pretty = match Subst.subst_arg lexbuf with
     | "!*!" ->
         incr bibcount ;
         string_of_int !bibcount
@@ -2125,50 +2175,6 @@ def_code "\\pageref"
     Dest.loc_ref "X" lab )
 ;;
 
-(* index *)
-def_code "\\@index"
-  (fun lexbuf ->
-    let tag = get_this_nostyle_arg main (save_opt "default" lexbuf) in
-    let arg = subst_arg lexbuf in
-    begin try
-      Index.treat (check_this main)
-        tag arg (get_this_nostyle main "\\@currentlabel")
-    with Index.Error s -> raise (Misc.ScanError s)
-    end)
-;;
-
-def_code "\\@printindex"
-  (fun lexbuf ->
-    start_lexstate () ;
-    let tag =  get_this_nostyle_arg main (save_opt "default" lexbuf) in
-    new_env "*index*" ;
-    scan_this main "\\@forcecommand{\\makelabel}[1]{#1}" ;
-    begin try
-      Index.print (scan_this main) tag
-    with Index.Error s -> raise (Misc.ScanError s)
-    end ;
-    close_env "*index*" ;
-    restore_lexstate ())
-;;
-
-def_code "\\@indexname"
-  (fun lexbuf ->
-    let tag = get_this_nostyle_arg main (save_opt "default" lexbuf) in
-    let name = get_prim_arg lexbuf in
-    Index.changename tag name)
-;;
-
-let new_index lexbuf =
-  let tag = get_this_nostyle_arg main (save_arg lexbuf) in
-  let suf = get_prim_arg lexbuf in
-  let _   = save_arg lexbuf in
-  let name = get_prim_arg lexbuf in
-  Index.newindex tag suf name
-;;
-
-def_code "\\newindex" new_index ;
-def_code "\\renewindex" new_index
-;;
 
 (* Counters *)
 let alpha_of_int i = String.make 1 (Char.chr (i-1+Char.code 'a'))
@@ -2547,6 +2553,18 @@ def_code "\\@stopimage"
 def_code "\\@restartimage"
     (fun lexbuf  ->
       Image.restart () ;
+      check_alltt_skip lexbuf)
+;;
+
+def_code "\\@stopoutput"
+    (fun lexbuf  ->
+      Dest.stop () ;
+      check_alltt_skip lexbuf)
+;;
+
+def_code "\\@restartoutput"
+    (fun lexbuf  ->
+      Dest.restart () ;
       check_alltt_skip lexbuf)
 ;;
 

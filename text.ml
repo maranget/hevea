@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.34 1999-10-01 16:15:35 maranget Exp $"
+let header = "$Id: text.ml,v 1.35 1999-11-02 20:11:09 maranget Exp $"
 
 
 open Misc
@@ -261,6 +261,15 @@ let in_table_stack = Stack.create "in_table_stack";;
 
 let vsize_stack = Stack.create "vsize_stack";;
 let delay_stack = Stack.create "delay_stack";;
+
+let active_stack = Stack.create "Html.active"
+
+let stop () =
+  Stack.push active_stack !cur_out.out ;
+  !cur_out.out <- Out.create_null ()
+
+and restart () =
+  !cur_out.out <- Stack.pop active_stack
 
 let do_do_put_char c =
   Out.put_char !cur_out.out c;;

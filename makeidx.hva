@@ -1,0 +1,9 @@
+\@beginpackage{makeidx}
+\@primitives{index}
+\newcommand{\index}[1]{\@saveclosed\@index[default]{#1}\@restoreclosed}
+\newcommand{\printindex}{\@printindex[default]}
+\newcommand{\makeindex}{\newindex{default}{idx}{ind}{Index}}
+\newcommand{\indexref}[2]{\@locref{#2}{#1}}
+\newcommand{\@seename}{\iffrench voir\else see\fi}
+\newcommand{\see}[2]{\@seename\ \textit{#1}}
+\@endpackage{makeidx}

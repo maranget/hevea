@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.5 1999-10-19 15:45:23 maranget Exp $    *)
+(*  $Id: package.ml,v 1.6 1999-11-02 20:11:07 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -25,6 +25,8 @@ open Stack
 open Scan
 ;;
 
+(* Various outworld information *)
+def_print "\\@basein" Parse_opts.base_in ;
 def_print "\\jobname" Parse_opts.base_out ;
 def_print "\\@heveacomline"
   (Array.fold_right
@@ -34,6 +36,77 @@ def_print "\@heveaversion" Version.version ;
 def_print "\@hevealibdir" Mylib.libdir
 ;;
 
+(* Aux files parsing *)
+def_code "\\@hauxinit"
+  (fun lexbuf ->
+    Auxx.init Parse_opts.base_out ;
+    check_alltt_skip lexbuf)
+;;
+
+def_code "\\@newlabel"
+  (fun lexbuf ->
+    let name = get_prim_arg lexbuf in
+    let arg = get_prim_arg lexbuf in
+    Auxx.rset name arg)
+;;
+
+def_code "\\@fst"
+  (fun lexbuf ->
+    let arg = Subst.subst_arg lexbuf in
+    let fst_arg = Save.arg (Lexing.from_string arg) in
+    scan_this main fst_arg)
+;;
+
+def_code "\\bibcite"
+  (fun lexbuf ->
+    let name = get_prim_arg lexbuf in
+    let arg = Subst.subst_arg lexbuf in
+    Auxx.bset name arg)
+;;
+    
+(* Index primitives *)
+(* index *)
+
+register_init "index"
+  (fun () ->
+   let module Index = Index.Make (Dest) in
+   def_code "\\@index"
+      (fun lexbuf ->
+        let tag = get_prim_opt "default" lexbuf in
+        let arg = Subst.subst_arg lexbuf in
+        begin try
+          Index.treat check_this_main
+            tag arg (get_this_main "{\\@nostyle\\@currentlabel}")
+        with Index.Error s -> raise (Misc.ScanError s)
+        end) ;
+
+    def_code "\\@printindex"
+      (fun lexbuf ->
+        start_lexstate () ;
+        let tag =  get_prim_opt "default" lexbuf in
+        new_env "*index*" ;
+        scan_this main "\\@forcecommand{\\makelabel}[1]{##1}" ;
+        begin try
+          Index.print (scan_this main) tag
+        with Index.Error s -> raise (Misc.ScanError s)
+        end ;
+        close_env "*index*" ;
+        restore_lexstate ()) ;
+    def_code "\\@indexname"
+      (fun lexbuf ->
+        let tag = get_prim_opt "default" lexbuf in
+        let name = get_prim_arg lexbuf in
+        Index.changename tag name) ;
+    let new_index lexbuf =
+      let tag = get_prim_arg lexbuf in
+      let suf = get_prim_arg lexbuf in
+      let _   = save_arg lexbuf in
+      let name = get_prim_arg lexbuf in
+      Index.newindex tag suf name in
+    def_code "\\newindex" new_index ;
+    def_code "\\renewindex" new_index)
+;;
+    
 (*
 let def_set name x =
   Counter.def_counter name "" ;

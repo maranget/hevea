@@ -129,16 +129,6 @@
     {\renewcommand{\makelabel}[1]{[\@bibref{##1}]}}}
   {\end{list}}
 \newcommand{\bibitem}[2][!*!]{\@bibwrite{#1}{#2}\item[#2]}
-%% Indexes a` la index.cls
-\newcommand{\index}[2][default]{\@index[#1]{#2}}
-\newcommand{\printindex}[1][default]{%
-\@printindex[#1]%
-}
-\def\makeindex{\newindex{default}{idx}{ind}{Index}}
-\newcommand{\index*}[1]{#1\index{#1}}
-\newcommand{\indexref}[2]{#1}
-\newcommand{\@seename}{\iffrench voir\else see\fi}
-\newcommand{\see}[2]{\@seename\ \textit{#1}}
 %%%%%%%%%%%%%%%%%%%%%%%%
 % Document environment %
 %%%%%%%%%%%%%%%%%%%%%%%%

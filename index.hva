@@ -1,0 +1,12 @@
+\@beginpackage{index}
+%% Indexes a` la index.sty
+\@primitives{index}
+\newcommand{\index}[2][default]{\@saveclosed\@index[#1]{#2}\@restoreclosed}
+\newcommand{\printindex}[1][default]{\@printindex[#1]}
+\def\makeindex{\newindex{default}{idx}{ind}{Index}}
+\newcommand{\index*}[1]{#1\index{#1}}
+\newcommand{\indexref}[2]{\@locref{#2}{#1}}
+\newcommand{\@seename}{\iffrench voir\else see\fi}
+\newcommand{\see}[2]{\@seename\ \textit{#1}}
+\newcommand{\@vwritefile}[2]{}
+\@endpackage{index}

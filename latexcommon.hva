@@ -150,3 +150,10 @@
 \textfbox{#1}\fi}
 \newcommand{\hbox}[1]{\warning{\hbox}\mbox{#1}}
 \newcommand{\displaystyle}{\ifdisplay\else\warning{\displaystyle ignored}\fi}
+%%% Aux files
+\newcommand{\newlabel}[2]{\@newlabel{#1}{\@fst#2}}
+\newcommand{\@writefile}[2]{}
+\newcommand{\@setckpt}[2]{}
+\newcommand{\citation}[1]{}
+\newcommand{\bibdata}[1]{}
+\newcommand{\bibstyle}[1]{}

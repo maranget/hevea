@@ -24,6 +24,7 @@
 \newcommand{\@aelement}[2]
 {{\@nostyle\@print{<A }\@notags{#1}\@print{>}}{#2}{\@nostyle\@print{</A>}}}
 \newcommand{\ahref}[2]{\@aelement{HREF="#1"}{#2}}
+\newcommand{\@locref}[2]{\ahref{\##1}{#2}}
 \newcommand{\aname}[2]{\@aelement{NAME="#1"}{#2}}
 \def\ahrefurl#1{\ahref{#1}{\texttt{#1}}}
 \let\footurl\ahref
@@ -61,7 +62,7 @@
 {\@nostyle\@print{<A NAME="}#2#3\@print{"></A>}
 \@print{<A HREF="}\#{}#1#3\@print{">}}}
 \newcommand{\@closeanchor}{{\@nostyle\@print{</A>}}}
-\newcommand{\@noteref}[4]{\@aelement{NAME="#2#3" HREF="#1#3"}{#4}}
+ \newcommand{\@noteref}[4]{\@aelement{NAME="#2#3" HREF="\##1#3"}{#4}}
 %%%%%%%%%%%%%%%%%%
 \newcommand{\footnotemark}[1][!*!]{%
 \ifthenelse{\equal{#1}{!*!}}%
@@ -181,16 +182,6 @@
        {\@nostyle\@print{</A>}}}}}
   {\end{list}}
 \newcommand{\bibitem}[2][!*!]{\@bibwrite{#1}{#2}\item[#2]}
-%% Indexes a` la index.cls
-\newcommand{\index}[2][default]{\@saveclosed\@index[#1]{#2}\@restoreclosed}
-\newcommand{\printindex}[1][default]{%
-\@printindex[#1]%
-}
-\def\makeindex{\newindex{default}{idx}{ind}{Index}}
-\newcommand{\index*}[1]{#1\index{#1}}
-\newcommand{\indexref}[2]{\ahref{\##2}{#1}}
-\newcommand{\@seename}{\iffrench voir\else see\fi}
-\newcommand{\see}[2]{\@seename\ \textit{#1}}
 %%% Environment document.
 \newcommand{\@bodyargs}{}
 \newcommand{\@meta}{\@print{<META http-equiv="Content-Type" content="text/html; charset= ISO-8859-1">
@@ -198,7 +189,12 @@
 \@print{<META name="GENERATOR" content="hevea }\usebox{\@heveaversion}\@print{">
 }}
 \newenvironment{document}{%
+\@stopoutput
+\@iffileexists{\@basein.aux}
+  {\input{\@basein.aux}}
+  {\input{\jobname.haux}\@hauxinit}
 \@ifundefined{url}{\input{compat.hva}}{}%
+\@restartoutput
 \@print{<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
             "http://www.w3.org/TR/REC-html40/loose.dtd">
 }\@print{<HTML>

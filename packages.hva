@@ -1,8 +1,8 @@
 \newcommand{\@beginpackage}[1]{%
 \@ifundefined{#1@loaded}{}{\endinput}
-\@stopimage}
+\@stopoutput\@stopimage}
 \newcommand{\@endpackage}[1]
-{\def\csname#1@loaded\endcsname{}\@restartimage\endinput}
+{\def\csname#1@loaded\endcsname{}\@restartimage\@restartoutput\endinput}
 \newcommand{\usepackage}[2][!*!]{
 \ifthenelse{\equal{#1}{!*!}}
 {\begin{toimage}\usepackage{#2}

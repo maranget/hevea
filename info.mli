@@ -14,6 +14,8 @@
     val iso : char -> string
 
     val set_out : Out.t -> unit
+    val stop : unit -> unit
+    val restart : unit -> unit
     val get_last_closed : unit -> string
     val set_last_closed : string -> unit
     val is_empty : unit -> bool

@@ -4,10 +4,10 @@
 %% HTML 4.0 symbol entities
 %% classes dans le meme ordre que
 %% dans le livre LaTeX, de Leslie Lamport.
-\newcommand{\ldots}{\ifmath\@entity{hellip}\else{...}\fi}
-\newcommand{\cdots}{\@print{&#8943;}}
-\newcommand{\ddots}{\@print{&#8944;}}
-\newcommand{\vdots}{\@print{&#8942;}}
+\renewcommand{\ldots}{\ifmath\@entity{hellip}\else{...}\fi}
+\renewcommand{\cdots}{\@print{&#8943;}}
+\renewcommand{\ddots}{\@print{&#8944;}}
+\renewcommand{\vdots}{\@print{&#8942;}}
 %% Greek Letters
 \newcommand{\alpha}{\@print{&#945;}}
 \newcommand{\beta}{\@entity{beta}}
@@ -54,10 +54,10 @@
 %% Binary Operation Symbols
 \newcommand{\mp}{\@print{&#8723;}}
 %\newcommand{\ast}{\@entity{lowast}}
-\newcommand{\star}{\@print{&#8902;}}
+\renewcommand{\star}{\@print{&#8902;}}
 \newcommand{\circ}{\@print{&#8728;}}
 \newcommand{\bullet}{\@entity{bull}}
-\newcommand{\cdot}{\@entity{sdot}}
+\renewcommand{\cdot}{\@entity{sdot}}
 \newcommand{\cap}{\@entity{cap}}
 \newcommand{\cup}{\@entity{cup}}
 \newcommand{\uplus}{\@print{&#8844;}}
@@ -81,7 +81,7 @@
 \newcommand{\otimes}{\@entity{otimes}}
 %\newcommand{\oslash}{\@entity{oslash}}
 \newcommand{\odot}{\@entity{circ}}
-\newcommand{\bigcirc}{\@entity{bigcirc}}
+\renewcommand{\bigcirc}{\@entity{bigcirc}}
 \newcommand{\dagger}{\@entity{dagger}}
 \newcommand{\ddagger}{\@entity{Dagger}}
 %\newcommand{\amalg}{\@entity{amalg}}
@@ -90,13 +90,12 @@
 \newcommand{\leq}{\@entity{le}}
 \newcommand{\prec}{\@print{&#8826;}}
 \newcommand{\preceq}{\@print{&#8829;}}
-\newcommand{\ll}{«}
 \newcommand{\subset}{\@entity{sub}}
 \newcommand{\subseteq}{\@entity{sube}}
-\newcommand{\sqsubset}{\@print{&#8847;}}
-\newcommand{\sqsubseteq}{\@print{&#8849;}}
+\renewcommand{\sqsubset}{\@print{&#8847;}}
+\renewcommand{\sqsubseteq}{\@print{&#8849;}}
 \newcommand{\in}{\@entity{isin}}
-\newcommand{\vdash}{\@print{&#8866;}}
+\renewcommand{\vdash}{\@print{&#8866;}}
 \newcommand{\geq}{\@entity{ge}}
 \newcommand{\succ}{\@print{&#8827;}}
 \newcommand{\supset}{\@entity{sup}}
@@ -106,17 +105,17 @@
 \newcommand{\ni}{\@entity{ni}}
 \newcommand{\dashv}{\@print{&#8867;}}
 \newcommand{\equiv}{\@entity{equiv}}
-\newcommand{\sim}{\@entity{sim}}
-\newcommand{\simeq}{\@print{&#8771;}}
+\renewcommand{\sim}{\@entity{sim}}
+\renewcommand{\simeq}{\@print{&#8771;}}
 \newcommand{\asymp}{\@print{&#8781;}}
 \newcommand{\approx}{\@entity{asymp}}
 \newcommand{\cong}{\@entity{cong}}
 \newcommand{\neq}{\@print{&#8802;}}
-\newcommand{\doteq}{\@entity{8784}}
+\renewcommand{\doteq}{\@print{#8784;}}
 \newcommand{\notin}{\@entity{notin}}
-\newcommand{\models}{\@print{&#8872;}}
+\renewcommand{\models}{\@print{&#8872;}}
 \newcommand{\perp}{\bot}
-\newcommand{\mid}{\@entity{VerticalBar}}
+\renewcommand{\mid}{\@entity{VerticalBar}}
 \newcommand{\parallel}{\@entity{parallel}}
 \newcommand{\bowtie}{\@entity{bowtie}}
 %\newcommand{\Join}{\@entity{}}
@@ -131,7 +130,7 @@
 \newcommand{\Rightarrow}{\@entity{rArr}}
 \newcommand{\leftrightarrow}{\@print{&#8596;}}
 \newcommand{\Leftrightarrow}{\@print{&#8660;}}
-\newcommand{\mapsto}{\@print{&#8614;}}
+\renewcommand{\mapsto}{\@print{&#8614;}}
 \newcommand{\hookleftarrow}{\@print{&#8618;}}
 \newcommand{\leftharpoonup}{\@print{&#8636;}}
 \newcommand{\leftharpoondown}{\@print{&#8637;}}
@@ -172,7 +171,7 @@
 \newcommand{\nabla}{\@entity{nabla}}
 \newcommand{\surd}{\@entity{radic}}
 \newcommand{\top}{\@entity{top}}
-\newcommand{\bot}{\@entity{perp}}
+\renewcommand{\bot}{\@entity{perp}}
 %\newcommand{\|}{\@entity{DoubleVerticalBar}}
 \newcommand{\angle}{\@entity{lang}}
 \newcommand{\forall}{\@entity{forall}}
@@ -198,4 +197,5 @@
 \newcommand{\@coprod}{\@entity{coproduct}}
 \newcommand{\@int}{\@entity{int}}
 \newcommand{\@displayint}{\mbox{\Huge\@entity{int}}}
+\newcommand{\@displaysum}{\mbox{\Huge\@entity{sum}}}
 \newcommand{\@oint}{\@entity{oint}}

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmain.ml,v 1.54 1999-10-13 16:59:59 maranget Exp $" 
+let header = "$Id: latexmain.ml,v 1.55 1999-11-02 20:10:55 maranget Exp $" 
 
 open Misc
 open Parse_opts
@@ -130,31 +130,7 @@ let main () =
 
     begin match base_in with
       "" -> no_prelude ()
-    | _  ->
-       try
-         let is_haux,auxchan =
-           try
-             let name,chan = Myfiles.open_tex (base_in^".aux") in
-             if !verbose > 0 then
-               prerr_endline ("Input aux file: "^name) ;
-             false,chan
-           with
-             Myfiles.Error _ ->
-               let auxname =  base_out^".haux" in
-               let chan = open_in auxname in
-               if !verbose > 0 then
-                 prerr_endline ("Input aux file: "^auxname) ;
-               true,chan in
-         let buf = Lexing.from_channel auxchan in
-         Auxx.main buf ;
-         close_in auxchan ;
-         if is_haux then
-           Auxx.init base_out
-       with Sys_error s -> begin
-         Auxx.init base_out ;
-         if !verbose > 0 then
-           prerr_endline ("I found no aux file, going on")
-       end
+    | _  -> ()
     end ;
 
     read_tex name_in ;

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlCommon.ml,v 1.13 1999-11-01 15:52:53 maranget Exp $" 
+let header = "$Id: htmlCommon.ml,v 1.14 1999-11-02 20:10:51 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -148,11 +148,10 @@ let pblock () =
     | _ -> ""
 ;;
 
-
 let do_put_char c =
  if !verbose > 3 then
     prerr_endline ("put_char: |"^String.escaped (String.make 1 c)^"|");
- Out.put_char !cur_out.out c
+  Out.put_char !cur_out.out c
 
 and do_put s =
  if !verbose > 3 then
