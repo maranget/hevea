@@ -11,7 +11,7 @@
 
 {
 open Lexing
-let header = "$Id: cut.mll,v 1.17 1999-05-06 15:03:20 maranget Exp $" 
+let header = "$Id: cut.mll,v 1.18 1999-07-01 15:23:45 maranget Exp $" 
 
 let verbose = ref 0
 ;;
@@ -532,7 +532,7 @@ and collect_header = parse
      collect_header lexbuf}
 
 and skip_title = parse
-|  "</TITLE>" {()}
+|  "</TITLE>" '\n'? {()}
 |  _          {skip_title lexbuf}
  
 and footer = parse

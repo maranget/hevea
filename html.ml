@@ -10,7 +10,7 @@
 (***********************************************************************)
 
 
-let header = "$Id: html.ml,v 1.61 1999-06-22 14:51:25 tessaud Exp $" 
+let header = "$Id: html.ml,v 1.62 1999-07-01 15:23:48 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -608,6 +608,10 @@ let image arg n =
   end ;
   put "SRC=\"" ;
   put n ;
+  if !Parse_opts.pedantic then begin
+    put "\" ALT=\"" ;
+    put n
+  end ;
   put "\">"
 ;;
 

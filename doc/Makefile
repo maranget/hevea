@@ -1,7 +1,7 @@
 LATEX=latex
 GPIC=gpic
 HEVEA=hevea
-HEVEAOPTS=
+HEVEAOPTS=-pedantic
 HACHA=hacha
 IMAGEN=imagen
 HTMLDIR=$(HOME)/public_html/hevea

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlCommon.ml,v 1.4 1999-06-22 14:51:29 tessaud Exp $" 
+let header = "$Id: htmlCommon.ml,v 1.5 1999-07-01 15:23:49 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -485,7 +485,7 @@ let already_here = function
    ( !cur_out.pending @ !cur_out.active )
 ;;
 
-let ok_pre = function _ ->  not !pedantic
+let ok_pre = function _ ->  not !Parse_opts.pedantic
 ;;
 
 let rec filter_pre = function

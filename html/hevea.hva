@@ -1,3 +1,5 @@
+\newif\ifquatrezero
+\quatrezerofalse
 %%%%%% Spacing
 \def\@{}
 \def\ { }
@@ -40,7 +42,7 @@
 \newcommand{\docurl}{http://para.inria.fr/\home{maranget}/hevea}
 \newcommand{\mailto}[1]{\@url{mailto:#1}{#1}}
 %%%% HTML constructs (no equivalents in html.sty)
-\newcommand{\imgsrc}[1]{{\@nostyle\@print{<IMG SRC="}#1\@print{">}}}
+\newcommand{\imgsrc}[1]{{\@nostyle\@print{<IMG SRC="}#1\ifpedantic\@print{" ALT="}#1\fi\@print{">}}}
 \newcommand{\anchor}[1]{{\@nostyle\@print{<A NAME="}#1\@print{"></A>}}}
 %% Paragraphs
 \def\noindent{}
@@ -188,7 +190,7 @@
 \ifmathml
 \else
 \ifsymb
-\input{html/symb.hva}
+\ifquatrezero\input{html/symb-ent.hva}\else\input{html/symb.hva}\fi
 \else
 \input{html/symb-text.hva}
 \fi
@@ -279,7 +281,6 @@
 \def\neg{¬}
 \def\mu{µ}
 \def\pm{±}
-\def\mp{\pm}
 \def\times{×}
 \def\div{÷}
 \def\ast{*}
@@ -346,6 +347,7 @@
 \textdoteq\fi}
 \def\sum{\ifdisplay\@displaysum\else\@sum\fi}
 \def\prod{\ifdisplay\@displayprod\else\@prod\fi}
+\def\coprod{\ifdisplay\@displaycoprod\else\@coprod\fi}
 \def\int{\ifdisplay\@displayint\else{\large\@int}\fi}
 \def\bigcap{{\ifdisplay\Huge\fi\cap}}
 \def\bigcup{{\ifdisplay\Huge\fi\cup}}
@@ -443,12 +445,18 @@
 %%% now serious
 \def\noprint#1{{\@nostyle\@print{#1}}}%
 \newcommand{\@bodyargs}{BGCOLOR=silver TEXT=black}
-\newcommand{\@htmlargs}{}
-\newcommand{\@meta}{}
+\ifquatrezero
+  \newcommand{\@meta}{\@print{<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+}}
+\else
+  \newcommand{\@meta}{}
+\fi
 \newif\iffooter\footertrue
 \newenvironment{document}{%
-\@print{<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
-<HTML}\@notags{\@htmlargs}\@print{>
+\ifquatrezero\@print{<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+            "http://www.w3.org/TR/REC-html40/loose.dtd">
+}\else\@print{<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+}\fi\@print{<HTML>
 }%
 \@print{<HEAD><TITLE>}%
 \@notags{\@title}%
