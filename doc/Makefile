@@ -78,7 +78,7 @@ dorelease:
 # Doc release
 	$(MAKE) $(MFLAGS) opt
 	dvips -o$(RELEASEDIR)/$(RELEASENAME)-manual.ps manual.dvi
-	mkdir $(RELEASEDIR)/dvi-manual
+	mkdir $(RELEASEDIR)/$(RELEASENAME)-manual-dvi
 	cp manual.dvi $(RELEASEDIR)/$(RELEASENAME)-manual-dvi
 	cp blob.ps cloche.ps int.ps realblob.ps rquote.ps blob2.ps\
 home.ps intd.ps round.ps xfd.ps $(RELEASEDIR)/$(RELEASENAME)-manual-dvi
