@@ -270,7 +270,7 @@ Hopefully, you are only using a few commands from package
 them yourself.
 Then, it suffices to put your definitions in file~\texttt{zorglub.hva}
 and \hevea{} will react to \verb+\usepackage{zorglub}+ by loading
-\texttt{zorglob.hva}.
+\texttt{zorglub.hva}.
 
 See section~\ref{usepackage} for the full story on \verb+\usepackage+.
 
@@ -1639,7 +1639,7 @@ include the following commands in the document preamble:
 \quad\verb+\htmlhead{+\textit{header}\verb+}+\\
 \quad\verb+\htmlfoot{+\textit{footer}\verb+}+
 \end{flushleft}
-\hacha also makes every page it generates a clone of its input as
+\hacha{} also makes every page it generates a clone of its input as
 regards attributes to the \verb+<BODY ...>+ opening tag and
 meta-information from the \verb+<HEAD>+\ldots{} \verb+<\HEAD>+
 block. See section~\ref{metadef} for examples of this replication
@@ -5491,7 +5491,7 @@ the
 The programs \commandname{hevea} and \commandname{hacha} are written in
 \footahref{http://caml.inria.fr/ocaml/}{Objective Caml}. Thus, you
 really need Objective Caml (version 2.00 or further) to compile them.
-However, a Red~Hat 5.2
+However, a Red~Hat 7.2
 \footahref{\ftpbase/hevea-\heveaversion-1.i386.rpm}{binary distribution}
 is also available, it does not require an Objective Caml installation
 and can be installed on most Red~Hat Linux PC's.

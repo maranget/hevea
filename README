@@ -103,7 +103,10 @@ CONFIGURATION
      * BINDIR is the directory where to install, hevea, hacha and
       imagen. It defaults to /usr/local/bin.
 
-     * CPP is cpp, it defaults to ``gcc -E -P -x c''.
+     * CPP is the C preprocessor cpp, it defaults to ``cpp -E -P''.
+       If this does not work, you can try ``/lib/cpp -E -P''
+       or``gcc -E -P -x c''.
+
     
 
 MAKE

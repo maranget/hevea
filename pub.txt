@@ -1,64 +1,30 @@
-
-It is my pleasure to anounce the new, 1.05, release of HEVEA.
-
+It is my pleasure to anounce the new, 1.06, release of HEVEA.
 
     HEVEA is a LaTeX to HTML translator.  The input language is a fairly
     complete subset of LaTeX2e (old LaTeX style is also accepted) and the
     output language is HTML that is (hopefully) correct with respect to
     version 4.0 (transitional)
 
-    With respect to previous version 1.04, there are numerous changes.
-
-      - New functionalities, such as multicolumn indexes, enhanced color
-        management.
-
-      - \usepackage is implemented and a package system has been
-         designed. Some packages such as color, graphics, url,
-         moreverb etc. are supported.
-
-      - Hyperlink command names are changed, to avoid a long-standing
-        name clash on ``\url''. Backward compatibilty is ensured in
-        most of the cases.
-
-      - HeVeA no longer needs ``.aux'' files to compute
-        cross-referencing information and a new ``-fix'' makes HeVeA
-        iterate until fixpoint 
-
-      - HeVeA code is cleaner than before.
+    HEVEA web page is
+    http://pauillac.inria.fr/~maranget/hevea/
 
 
+With respect to previous version 1.05, there are numerous changes,
+including :
+      - Hevea now includes a simple-minded HTML optimizer, and a new
+        command line option ``-O'' to invoke it.
+        The optimizer is also available as a standalone program
+       ``esponja''.
 
-       
-                 
-    --------------------------------------------------------------------------
-    Exotic symbols are translated into symbols
-    pertaining to the symbol font of the HTML browser, using the
-    now standard FACE attribute of the FONT tag.
-    This allows the translation to HTML of quite a lot of the symbols
-    used in LaTeX.
+      - New (latex2e style) packages are provided, including the
+        listings package for typesetting programs.
 
-    HEVEA understands LaTeX macro definitions. Simple user style
-    files are understood with little or no modifications.
-    Furthermore, HEVEA customization is done by writing LaTeX code.
-    
-    HEVEA is written in Objective Caml, as many lexers. It is quite fast
-    and flexible. Using HEVEA it is possible to translate large documents
-    such as manuals, books, etc. very quickly. All documents are
-    translated as one single HTML file. Then, the output file can be cut
-    into smaller files, using the companion program HACHA.
+      - Image genearation in PNG format is provided.
 
-CONTACTS
-    mail:      Luc.Maranget@inria.fr
-    distribution:  ftp://ftp.inria.fr/INRIA/Projects/para/hevea
+WARNING
+  To compile hevea 1.06, you need ocaml 3.04. However, three binary
+  packages are available from hevea home page (Linux/RedHat, Windows and
+  Solaris).
 
-DOCUMENTATION
-    On-line documentation is available at
-    http://para.inria.fr/~maranget/hevea
-    The first sections explain how to use hevea.
-
-IMPORTANT REQUIREMENT
-    To compile HEVEA, you need Objective Caml (version 2.00 or more), see
-    http://caml.inria.fr/ocaml/
-    However, there exists a Linux  PC Red-Hat 5.2 binary distribution.
 
 --Luc Maranget

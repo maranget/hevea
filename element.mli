@@ -10,8 +10,9 @@
 (***********************************************************************)
 
 type text =
-  Style of string
-| Font of int
-| Color of string
+  | Style of string
+  | Font of int
+  | Color of string
+  | StyleAttr of string * string
 
 val pretty_text : text -> string

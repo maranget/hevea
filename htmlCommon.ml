@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlCommon.ml,v 1.37 2002-03-19 10:51:38 maranget Exp $" 
+let header = "$Id: htmlCommon.ml,v 1.38 2002-06-04 11:37:06 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -711,11 +711,16 @@ let forget_par () =
 
   
 let do_close_mod = function
-  Style m ->  
+| Style m ->
     if flags.in_math && !Parse_opts.mathml then 
       if m="mtext" then do_put ("</"^m^">")
       else do_put "</mstyle>"
     else do_put ("</"^m^">")
+| StyleAttr (t,_) -> 
+    if flags.in_math && !Parse_opts.mathml then 
+      ()
+    else
+      do_put ("</"^t^">")
 | (Color _ | Font _)  -> 
     if flags.in_math && !Parse_opts.mathml then 
       do_put "</mstyle>"
@@ -725,7 +730,7 @@ and do_open_mod e =
   if !verbose > 3 then
       prerr_endline ("do_open_mod: "^pretty_text e) ;
   match e with
-  Style m ->  
+  | Style m ->  
     if flags.in_math && !Parse_opts.mathml then 
       if m="mtext" then do_put ("<"^m^">")
       else do_put ("<mstyle style = \""^
@@ -737,6 +742,10 @@ and do_open_mod e =
 		   | _ -> m)^
 		   "\">")
     else do_put ("<"^m^">")
+  | StyleAttr (t,a) ->
+      if flags.in_math && !Parse_opts.mathml then ()
+      else
+        do_put ("<"^t^" "^a^">")
 | Font i  ->
     if flags.in_math && !Parse_opts.mathml then 
       do_put ("<mstyle style = \"font-size: "^string_of_int i^"\">")
@@ -823,8 +832,8 @@ let close_mods () = do_close_mods ()
 
 
 let is_style = function
-  Style _ -> true
-| _ -> false
+  |  Style _|StyleAttr (_,_) -> true
+  | _ -> false
 
 and is_font = function
   Font _ -> true
@@ -833,6 +842,7 @@ and is_font = function
 and is_color = function
   Color _ -> true
 | _ -> false
+
 ;;
 
 let do_open_these_mods do_open_mod pending =
@@ -1021,7 +1031,7 @@ let already_here = function
 | x ->
   first_same x
    (match x with
-     Style _ ->  is_style
+     Style _|StyleAttr (_,_) ->  is_style
    | Font _ -> is_font
    | Color _ -> is_color)
    !cur_out
@@ -1087,6 +1097,8 @@ let erase_mod_pred pred same_constr =
 
 let same_env = function
   | Style s1 -> (function | Style s2 -> s1 = s2 | _ -> false)
+  | StyleAttr (t1,a1) ->
+      (function | StyleAttr (t2,a2)-> t1 = t2 && a1=a2 | _ -> false)
   | Font i1 ->
       (function | Font i2 -> i1 = i2 | _ -> false)
   | Color s1 ->
@@ -1095,7 +1107,7 @@ let same_env = function
 and same_constr = function
   | Color _ -> is_color
   | Font _ -> is_font
-  | Style _ -> is_style
+  | Style _|StyleAttr (_,_) -> is_style
 
 let erase_mods ms =
   let rec erase_rec = function

@@ -5,8 +5,11 @@ TARGET=opt
 LIBDIR=/usr/local/lib/hevea
 # Where to install programms
 BINDIR=/usr/local/bin
-# A replacement for /lib/cpp
-CPP=gcc -E -P -x c
+# C preprocessor with proper options (don't ask)
+CPP=cpp -E -P
+#If cpp is not in system path try
+#CPP=/lib/cpp -E -P 
+#CPP=gcc -E -P -x c
 ############### End of configuration parameters
 SUF=
 #DIR=/usr/bin/

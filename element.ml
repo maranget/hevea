@@ -9,15 +9,16 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header =  "$Id: element.ml,v 1.1 2000-05-30 12:30:14 maranget Exp $"
+let header =  "$Id: element.ml,v 1.2 2002-06-04 11:37:05 maranget Exp $"
 (* For text-level elements *)
 type text =
   Style of string
 | Font of int
 | Color of string
-
+| StyleAttr of string * string
 let pretty_text = function
   Style s -> "Style: "^s
 | Font i  -> "Font size: "^string_of_int i
 | Color s  -> "Font color: "^s
+| StyleAttr (t,a) -> "Style with attributes: "^t^" ["^a^"]"
 ;;
