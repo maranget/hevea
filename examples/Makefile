@@ -4,7 +4,7 @@ HEVEAOPTS=-fix -O -v
 IMAGEN=imagen
 HACHA=hacha
 EXDIR=$(HOME)/public_html/hevea/examples
-HTML=a.html pat.html suite.html env.html smile.html amstex.html graphics.html graphicx.html
+HTML=a.html pat.html suite.html env.html smile.html amstex.html graphics.html graphicx.html verbs.html
 DVI=$(HTML:.html=.dvi)
 TEX=$(HTML:.html=.tex)
 TEXT=$(HTML:.html=.txt)
@@ -131,6 +131,14 @@ graphicx.dvi: HF.ps graphicx.tex
 graphicx.html: graphicx.tex HF.ps
 	$(HEVEA) $(HEVEAOPTS) graphicx
 graphicx.txt graphicx.info:
+
+verbs.dvi: verbs.tex
+	latex < /dev/null verbs.tex
+
+verbs.html: verbs.tex
+	$(HEVEA) $(HEVEAOPTS) verbs
+
+verbs.txt verbs.info:
 
 index.html: index.tex
 	$(HEVEA) $(HEVEAOPTS) index.tex

@@ -36,3 +36,4 @@
 \newcommand{\@bibliosection}[1]{\section*{#1}}
 \newcommand{\@tocsection}[1]{\section*{#1}}
 \newcommand{\@base}{article}
+\setcounter{tocdepth}{3}

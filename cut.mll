@@ -12,7 +12,7 @@
 {
 open Lexing
 open Stack
-let header = "$Id: cut.mll,v 1.34 2001-10-22 18:03:57 maranget Exp $" 
+let header = "$Id: cut.mll,v 1.35 2001-11-27 09:58:46 maranget Exp $" 
 
 let verbose = ref 0
 
@@ -39,6 +39,7 @@ and finalize_header () =
 let html_buff = Out.create_buff ()
 let html_head = ref ""
 and html_foot = ref ""
+and html_prefix = ref ""
 
 let phase = ref (-1)
 ;;
@@ -161,8 +162,8 @@ let putlinks  name =
   with Not_found -> () end ;
   begin try
     putlink link_buff (Thread.up name) "contents_motif.gif" 
-      (if !language = "fra" then "Index"
-       else "Contents") ;
+      (if !language = "fra" then "Remonter"
+       else "Up") ;
     links_there := true
   with Not_found -> () end ;
   begin try
@@ -195,14 +196,13 @@ let openhtml withlinks title out outname =
   Out.put out "<HEAD>\n" ;
   Out.put out !common_headers;
   Out.put out "<TITLE>\n" ;
-  let title = Save.tagout (Lexing.from_string title) in
+  let title = Save.tagout (Lexing.from_string (!html_prefix^title)) in
   Out.put out title ;
   Out.put out "\n</TITLE>\n" ;
   Out.put out "</HEAD>\n" ;
   Out.put out !body;
   Out.put out "\n" ;
-  if withlinks then
-    putlinks_start out outname ;
+  if withlinks then putlinks_start out outname ;
   Out.put out !html_head
 
 
@@ -464,7 +464,22 @@ and closeflow () =
    openflow title ;
    main lexbuf}
 | "<!--" "LINKS" ' '+
-   {linkline lexbuf ;
+   {let links = getargs lexbuf in
+   List.iter
+     (fun (name,v) -> match name with
+     | "UP" -> setlink Thread.setup v
+     | "PREV" -> setlink Thread.setprev v
+     | "NEXT" -> setlink Thread.setnext v
+     | _ -> ())
+     links ;
+   main lexbuf}
+| "<!--" "PREFIX" ' '+
+   {let l = getargs lexbuf in
+   if !phase = 0 then begin
+     match getargs lexbuf with
+     | [] -> prerr_endline "????"
+     | (_,v)::_ -> html_prefix := v
+   end ;
    main lexbuf}
 | "<!--" "END" ' '+ "FLOW" ' '* "-->" '\n'?
    {closeflow () ;
@@ -662,10 +677,6 @@ and tocline = parse
     {Out.put_char toc_buf (lexeme_char lexbuf 0) ;
       tocline lexbuf}
 
-and arg = parse
-| "</ARG>" {Out.to_string arg_buf}
-| _         {Out.put_char arg_buf (Lexing.lexeme_char lexbuf 0) ; arg lexbuf}
-| eof       {raise (Misc.Fatal "Unclosed arg")}
 
 and flowline = parse
 | "<ARG TITLE>"
@@ -677,23 +688,27 @@ and flowline = parse
 | eof {raise (Misc.Fatal "Unclosed comment")}
 | _   {flowline lexbuf}
 
-and linkline = parse
-| "<ARG" ' '+ "PREV>"
-  {let link = arg lexbuf in
-  setlink Thread.setprev link ;
-  linkline lexbuf}
-| "<ARG" ' '+ "NEXT>"
-  {let link = arg lexbuf in
-  setlink Thread.setnext link ;
-  linkline lexbuf}
-| "<ARG" ' '+ "UP>"
-  {let link = arg lexbuf in
-  setlink Thread.setup link ;
-  linkline lexbuf}
-| "-->" '\n'?
-  {()}
+and getargs = parse
+| "-->" '\n'? {[]}
+| "<ARG" ' '* 
+    {let name = argname lexbuf in
+    let r = arg lexbuf in
+    prerr_endline (name^":"^r) ;
+    (name,r)::getargs lexbuf}
 | eof {raise (Misc.Fatal "Unclosed comment")}
-| _   {linkline lexbuf}
+| _   {getargs lexbuf}
+
+and argname = parse
+| ['a'-'z''A'-'Z']* '>'
+    {let lxm = lexeme lexbuf in
+    String.sub lxm 0 (String.length lxm-1)}
+| "" {raise (Misc.Fatal "ARG title")}
+
+and arg = parse
+| "</ARG>"  {Out.to_string arg_buf}
+| _         {Out.put_char arg_buf (Lexing.lexeme_char lexbuf 0) ; arg lexbuf}
+| eof       {raise (Misc.Fatal "Unclosed arg")}
+
 
 and aargs = parse
 | ("name"|"NAME") ' '* '=' ' '*

@@ -10,12 +10,13 @@
 \@print{<META name="Author" content="Luc Maranget">
 }}
 \newcommand{\showcolor}[1]{\textcolor{#1}{\texttt{#1}}}
-\let\@isection=\@indexsection
-\renewcommand{\@indexsection}[1]{\@isection{#1}\aname{@index}{}}
 \renewcommand{\cuttingunit}{part}
 \renewcommand{\@footnotelevel}{section}
 \let\latexsection\section
 \newcommand{\pdfsection}[1]{}
 \newcommand{\pdfpart}[2]{}
-\usepackage{makeidx}
-\@dumpindextrue
+\newcommand{\namedsection}[2]
+{\section*{\aname{#1}{#2}}%
+\addcontentsline{toc}{section}{\ahrefloc{#1}{#2}}}
+\renewcommand{\@indexsection}[1]{\namedsection{@index}{#1}}
+\renewcommand{\@bibliosection}[1]{\namedsection{@biblio}{#1}}

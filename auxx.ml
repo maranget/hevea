@@ -11,7 +11,7 @@
 
 open Misc
 
-let header = "$Id: auxx.ml,v 1.16 2001-10-22 18:03:55 maranget Exp $" 
+let header = "$Id: auxx.ml,v 1.17 2001-11-27 09:58:46 maranget Exp $" 
 
 let rtable = Hashtbl.create 17
 ;;
@@ -46,8 +46,14 @@ let bget warn name =
 let auxfile = ref None
 and auxname = ref ""
 and something = ref false
-and changed = ref false
+and digest = ref None
 ;;
+
+let read_digest name =
+  try
+    Some (Digest.file name)
+  with
+  | Sys_error _ -> None
 
 let rseen = Hashtbl.create 17
 and bseen = Hashtbl.create 17
@@ -60,25 +66,13 @@ let finalize check =
   | None -> false
   | Some file ->
       close_out file ;
-      if not !something then
-        Mysys.remove !auxname;
+      if not !something then Mysys.remove !auxname;
       if check then begin
-        let check_disappear table seen =
-          Hashtbl.iter
-            (fun key _ ->
-              try Hashtbl.find seen key
-              with Not_found ->
-                Misc.warning ("Disappear: "^key) ;
-                changed := true)
-            table in
-        if not !changed then begin
-          check_disappear rtable rseen ;
-          check_disappear btable bseen
-        end ;
-        if !changed then
+        let changed = !digest <> read_digest !auxname in          
+        if changed then
           Misc.message
             "HeVeA Warning: Label(s) may have changed. Rerun me to get cross-references right." ;
-        !changed
+        changed
       end else
         false
 ;;
@@ -87,14 +81,6 @@ let write table output_fun key pretty = match !auxfile with
 | None -> ()
 | Some file ->
     something := true ;
-    changed :=
-       !changed ||
-       (try let olds = Hashtbl.find_all table key in
-       match olds with
-       | []    -> true
-       | [old] -> pretty <> old
-       | _     -> false (* In that case, can't tell *)
-       with Not_found -> true) ;
     output_fun file
 ;;
 
@@ -146,11 +132,13 @@ and rwrite key pretty =
         output_string file "}{X}}\n") key pretty
 ;;
 
-type toc_t = {mutable level : int ; mutable depth : int ; chan : out_channel}
+type toc_t =
+    {mutable level : int ; mutable depth : int ; chan : out_channel }
 
 let toctable = Hashtbl.create 5
 ;;
 
+let tocfilename suf = Parse_opts.base_out^"."^suf
 
 let do_addtoc toc level what =
   (* First adjust nesting of tocenv *)
@@ -176,26 +164,28 @@ let do_addtoc toc level what =
  (* Then ouput toc item *)
   Printf.fprintf toc.chan "\\tocitem %s\n" what
 
-
-
-let  addtoc suf level what = 
+let addtoc suf level what = 
   try
     try
       let toc = Hashtbl.find toctable suf in
       do_addtoc toc level what
-
   with
     | Not_found ->
         let name = Parse_opts.base_out^"."^suf in
         let chan = open_out name in
         output_string chan "\\begin{tocenv}\n" ;
-        let toc = {level=level ; depth=1 ; chan=chan} in
+        let toc = {level=level ; depth=1 ; chan=chan } in
         Hashtbl.add toctable suf toc ;
         do_addtoc toc level what
   with
   | Sys_error msg ->
       Misc.warning
-        ("Problem with toc file "^Parse_opts.base_out^"."^suf^": "^msg)
+        ("Problem with toc file "^tocfilename suf^": "^msg)
+
+
+(* To be performed aroound haux file reading *)
+let init base =
+  digest := read_digest (base^".haux")
 
 let final base =
   Hashtbl.iter
@@ -218,22 +208,22 @@ let final base =
 type saved =
 (string, string) Hashtbl.t * (string, unit) Hashtbl.t *
   (string, string) Hashtbl.t * (string, unit) Hashtbl.t *
-  out_channel option * string * bool * bool
+  out_channel option * string * bool * Digest.t option
 
 let check () =
   Misc.clone_hashtbl rtable,  Misc.clone_hashtbl rseen,
   Misc.clone_hashtbl btable,  Misc.clone_hashtbl  bseen,
-  !auxfile, !auxname, !something, !changed
+  !auxfile, !auxname, !something, !digest
 
 let hot
  (srtable, srseen, sbtable, sbseen,
-  sauxfile, sauxname, ssomething, schanged) =
+  sauxfile, sauxname, ssomething, sdigest) =
   Misc.copy_hashtbl srtable rtable ; Misc.copy_hashtbl srseen rseen ;
   Misc.copy_hashtbl sbtable btable ; Misc.copy_hashtbl sbseen bseen ;
   auxfile := sauxfile ;
   auxname := sauxname ;
   something := ssomething ;
-  changed := schanged
+  digest := sdigest
 
 (* Valid only juste before reading main input file *)
 let hot_start () =
@@ -242,4 +232,4 @@ let hot_start () =
   auxfile :=  None ;
   auxname := "" ;
   something := false ;
-  changed := false
+  digest := None

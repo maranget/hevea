@@ -45,4 +45,4 @@
 \newcommand{\@bibliosection}[1]{\chapter*{#1}}
 \newcommand{\@tocsection}[1]{\chapter*{#1}}
 \newcommand{\@base}{book}
-
+\setcounter{tocdepth}{2}
