@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.7 1999-05-17 15:52:57 tessaud Exp $"
+let header = "$Id: text.ml,v 1.8 1999-05-17 16:22:34 tessaud Exp $"
 
 
 open Misc
@@ -1115,6 +1115,10 @@ let open_cell format span =
     flags.first_line <- 0;
     flags.x <- -1;
     flags.last_space <- 0;
+    push align_stack flags.align;
+    push in_align_stack flags.in_align;
+    flags.in_align <- false;
+    flags.align <- Left;
   end;
   open_block "" "";
 ;;
@@ -1123,7 +1127,11 @@ let open_cell format span =
 let close_cell content =
   if !verbose>2 then prerr_endline "=> force_cell";
   force_block "" content;
-  if !cell.wrap then do_flush ();
+  if !cell.wrap then begin
+    do_flush ();
+    flags.in_align <- pop "in_align" in_align_stack;
+    flags.align <- pop "align" align_stack;
+  end;
   !cell.text<-Out.to_string !cur_out.out;
   close_block "TEMP";
   if !verbose>2 then prerr_endline ("cell :"^ !cell.text);
@@ -1186,6 +1194,10 @@ let do_close_cell () = close_cell ""
 
 let erase_cell () =
   if !verbose>2 then prerr_endline "erase cell";
+  if !cell.wrap then begin
+    flags.in_align <- pop "in_align" in_align_stack;
+    flags.align <- pop "align" align_stack;
+  end;
   close_block "";
   let _ = Out.to_string !cur_out.out in
   close_block "TEMP";
