@@ -223,8 +223,6 @@ and defargs = parse
     lxm::defargs lexbuf}
 | "" {[]}
 
-and defbody = parse "" {arg lexbuf}
-
 and tagout = parse
   '<'  {intag lexbuf}
 | "&nbsp;" {Out.put tag_buff " " ; tagout lexbuf}

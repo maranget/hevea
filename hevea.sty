@@ -159,7 +159,7 @@
   {\@open{DL}{}}
   {\@close{DL}}
 \newenvironment{list}[2]
-  {\@open{DL}{COMPACT=compact}\newcommand{\makelabel}[1]{\expandafter#1}%
+  {\@open{DL}{COMPACT=compact}\newcommand{\makelabel}[1]{#1}%
   \@defaultdt{#1}%
   #2}
   {\@close{DL}}
@@ -381,17 +381,17 @@
 \newenvironment{scshape}{\@anti{\it,\sl}\sc}{}
 \newenvironment{normalfont}{\rm\mdseries\upshape}{}
 %%%%%%%%%%%%%%%%
-\def\textrm#1{{\rm #1}}
-\def\textup#1{{\upshape #1}}
-\def\textmd#1{{\mdseries #1}}
-\def\textnormal#1{{\normalfont #1}}
-\def\texttt#1{{\tt #1}}
-\def\textit#1{{\it #1}}
-\def\textbf#1{{\bf #1}}
-\def\textsf#1{{\sf #1}}
-\def\textsl#1{{\sl #1}}
-\def\textsc#1{{\sc #1}}
-\newcommand{\emph}[1]{{\em #1}}
+\def\textrm#1{\mbox{\rm #1}}
+\def\textup#1{\mbox{\upshape #1}}
+\def\textmd#1{\mbox{\mdseries #1}}
+\def\textnormal#1{\mbox{\normalfont #1}}
+\def\texttt#1{\mbox{\tt #1}}
+\def\textit#1{\mbox{\it #1}}
+\def\textbf#1{\mbox{\bf #1}}
+\def\textsf#1{\mbox{\sf #1}}
+\def\textsl#1{\mbox{\sl #1}}
+\def\textsc#1{\mbox{\sc #1}}
+\newcommand{\emph}[1]{\mbox{\em #1}}
 %%%%%%%%%%%%%%%%
 \def\makeatletter{}
 %%%%%%%%%%%% Ignore hyphenation
@@ -435,7 +435,6 @@
 \def\null{}
 \def\cr{\\}
 \def\smallskip{\\}
-\def\vskip#1{\\}
 \def\medskip{\\}
 \def\bigskip{\\ \\}
 \def\vspace#1{\\}

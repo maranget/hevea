@@ -32,7 +32,6 @@ let read_index lexbuf =
       let s1,s2 = me in
       me::get_rec ()
     with Entry.Over (a,b) ->  [a,b] in
-  Entry.skip_par lexbuf ;
   get_rec ()
 ;;
 
@@ -70,7 +69,7 @@ let newindex tag suf name =
         let lexbuf = Lexing.from_channel chan in
         let rec do_rec () = try
             let arg = Entry.idx lexbuf in
-            let k = read_index (Lexing.from_string ("{"^arg^"}")) in
+            let k = read_index (Lexing.from_string arg) in
             k::do_rec ()
           with Entry.Fini -> [] in
         Yes (Array.of_list (do_rec ()))     
@@ -85,9 +84,11 @@ let newindex tag suf name =
 ;;
 
 
-let treat tag lexbuf =
+let treat tag arg =
   try
+    prerr_endline ("Index.treat: "^arg) ;
     let name,all,table,count,idxstruct = Hashtbl.find itable tag in
+    let lexbuf = Lexing.from_string arg in
     let key = read_index lexbuf in
     let key = match idxstruct with
       No -> key
@@ -101,8 +102,7 @@ let treat tag lexbuf =
     count := !count + 1
   with Not_found -> begin
     Location.print_pos () ;
-    prerr_endline ("Index: "^tag^" is undefined, makeindex or newindex is missing") ;
-    let _ = read_index lexbuf in ()
+    prerr_endline ("Index: "^tag^" is undefined, makeindex or newindex is missing")
   end
 ;;
 

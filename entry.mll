@@ -27,15 +27,7 @@ rule entry = parse
     {put_char '!' ; entry lexbuf}
 | "\"@"
     {put_char '@' ; entry lexbuf}
-| '{'
-    {put_char '{' ; nesting := !nesting + 1 ; entry lexbuf}
-| '}'
-    {if !nesting > 1 then begin
-      nesting := !nesting-1 ; put_char '}' ; entry lexbuf
-    end else begin
-      nesting  := 0 ;
-      raise (Over (Out.to_string buff,""))
-    end}
+| eof {raise (Over (Out.to_string buff,""))}
 | '!'
     {Out.to_string buff,""}
 | '@'
@@ -45,9 +37,8 @@ rule entry = parse
       name,pretty
     with Over (s,_) -> raise (Over (name,s))}
 | _
-   {let lxm = lexeme_char lexbuf 0 in put_char lxm ; entry lexbuf}
+   {let lxm = lexeme_char lexbuf 0 in put_char lxm ; entry lexbuf}      
 
-and skip_par = parse [' ''\n']* '{' {nesting := 1}
 
 and idx = parse
   "\\indexentry"
