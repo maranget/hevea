@@ -2448,8 +2448,35 @@ changed by redefining them:
 console and echoes its argument in the output.
 \end{description}
 
-Math accents (\verb+\hat+, \verb+\tilde+, etc.) are not handled at
-all.
+Math accents (\verb+\hat+, \verb+\tilde+, etc.) are handled,
+except the \verb+\check+ and \verb+\breve+ commands.
+Rendering is far from perfect and changes from display to text mode.
+More precisely, the accent is put (too far) above the symbol in display mode,
+and as an ordinary superscript in text mode.
+\ifhevea For instance, given the formula
+\verb+\tilde{v} \cdot \vec{U}+, we get
+``$\tilde{v} \cdot \vec{U}$'' in text mode and
+$$\tilde{v} \cdot \vec{U}$$ in display mode.\fi
+
+If such a rendering is considered to ugly,
+one can redefine the math accent commands so that they issue color changes.
+For instance, one can write:
+\begin{verbatim}
+\renewcommand{\tilde}[1]{{\blue#1}}
+\renewcommand{\vec}[1]{{\red#1}}
+\end{verbatim}
+\ifhevea With such redefinitions the previous example now appears as:
+{\renewcommand{\tilde}[1]{{\blue#1}}%
+\renewcommand{\vec}[1]{{\red#1}}%
+we get
+``$\tilde{v} \cdot \vec{U}$'' in text mode and
+$$\tilde{v} \cdot \vec{U}$$ in display mode.
+}\fi
+Of course, such a trick probably requires looking closely at the
+document to check wether it is still understandable or not.
+It may be better to stay with a poorly formatted document that remains
+closer to universally understood  notations for mathematics.
+
 
 \subsection{Spacing}\label{spacemathref}
 By contrast with \LaTeX{}, space in the input matters in math mode.

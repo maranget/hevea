@@ -1,7 +1,8 @@
 version 1.04-1
+  - Mathematical accents added, rendering is far from perfect.
   - \\ in display mode does not emit <BR> anymore
   - Small ams compatibility  mode : displayed equations (ams.hva)
-    and \numberwithin
+    and \numberwithin (modified Counter.ml for that).
   - Silly bug : opened files where never closed.
   - Better error message for missing \makeindex.
   - Eat \\ optional argument after \hline.

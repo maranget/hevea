@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: counter.ml,v 1.5 1999-04-09 13:38:32 maranget Exp $" 
+let header = "$Id: counter.ml,v 1.6 1999-04-12 17:15:46 maranget Exp $" 
 type t =
     {mutable count : int ;
     mutable within : t option ;
@@ -65,7 +65,7 @@ let number_within name within =
 let add_counter name i =
   try
    let c = find_counter name in
-   c.count <- c.count + 1
+   c.count <- c.count + i
   with Not_found -> unkown name "\\addtocounter"
     
 let set_counter name x =

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmacros.ml,v 1.40 1999-03-16 17:41:57 maranget Exp $" 
+let header = "$Id: latexmacros.ml,v 1.41 1999-04-12 17:15:48 maranget Exp $" 
 open Misc
 open Parse_opts
 open Symb
@@ -508,7 +508,7 @@ let limit = function
 | "\\bigodot"
 | "\\bigdotplus"
 | "\\biguplus"
-| "\\det" | "\\gcd" | "\\inf" | "\\liminf" |
+| "\\det" | "\\gcd" | "\\inf" | "\\liminf" | "\\lim" |
    "\\limsup" | "\\max" | "\\min" | "\\Pr" | "\\sup" -> true
 | _ -> false
 ;;
