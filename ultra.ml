@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: ultra.ml,v 1.8 2001-06-05 17:57:41 maranget Exp $             *)
+(*  $Id: ultra.ml,v 1.9 2005-01-13 15:00:41 maranget Exp $             *)
 (***********************************************************************)
 
 open Tree
@@ -148,18 +148,7 @@ let extend_neutrals ts fs =
 let factorize low high ts =
   if low >= high then []
   else
-  let extend_blanks_left i =
-    let rec do_rec i =
-      if i <= low then low
-      else begin
-        if is_blank ts.(i-1) then
-          do_rec (i-1)
-        else
-          i
-      end in
-    do_rec i
-
-  and limit_blanks_right i =
+    let limit_blanks_right i =
     let rec do_rec i =
       if i <= low then low
       else begin

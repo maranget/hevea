@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmain.ml,v 1.78 2004-11-10 15:12:44 maranget Exp $" 
+let header = "$Id: latexmain.ml,v 1.79 2005-01-13 15:00:41 maranget Exp $" 
 
 open Misc
 open Parse_opts
@@ -187,8 +187,7 @@ let main () =
           if not (Esponja.file name_out) then
             warning "Esponja failed, optimisation not performed"
       | _ -> ()        
-    end ;
-    exit 0
+    end
 ;;   
 
 let _ = 
