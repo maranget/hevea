@@ -1,17 +1,14 @@
 %%%% Une précaution.
 \ifhtml\warning{text/hevea is for text and info mode !!!}\endinput\fi
+%%%% package used by all packages
+\newif\ififthen\ifthenfalse
+\input{ifthen.hva}
+%% Packages
+\input{packages.hva}
 %%%%%% Spacing
-\def\@{}
-\def\ { }
-\def\:{ }
-\def\,{~}
-\def\!{}
-\def\;{~}
-\def\
-{\@print{ }}
-\def\frenchspacing{}
-\def\nonfrenchspacing{}
-\def\/{}
+\input{spaces.hva}
+\renewcommand{\
+}{ }
 %%% Special characters
 \def\%{\@print{%}}
 \def\${\@print{$}}%$

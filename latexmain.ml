@@ -9,51 +9,43 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmain.ml,v 1.52 1999-10-08 17:58:03 maranget Exp $" 
+let header = "$Id: latexmain.ml,v 1.53 1999-10-13 08:21:15 maranget Exp $" 
 
 open Misc
 open Parse_opts
 
 
 let
-  scan_main,
-  no_prelude,print_env_pos,
+  scan_main, no_prelude,
   dest_finalize,image_finalize = 
 
   match !Parse_opts.destination with
   | Html when name_in <> "" ->
-      let module Get = Lexget.Make (Html) in
-      let module Scan = Latexscan.Make (Html) (Image) (Get) in
-      let module Otherscan = Videoc.Makealso (Html) (Image) (Scan) (Get) in
-      let module Verbscan = Verb.MakeAlso  (Html) (Image) (Scan) (Get) in
-      let module OptScan = Package.MakeAlso  (Html) (Image) (Scan) (Get) in
-      Verbscan.init () ;
-      Scan.main, Scan.no_prelude, Scan.print_env_pos,
+      let module Scan = Latexscan.Make (Html) (Image) in
+      let module MakeIt = Zyva.Make (Html) (Image) (Scan) in
+      let module Rien = MakeIt (Videoc.Make) in
+      let module RienBis  = MakeIt (Package.Make) in
+      let module RienTer = MakeIt (Verb.Make) in
+      Scan.main, Scan.no_prelude,
       Html.finalize, Image.finalize
   | Html  ->
-      let module Get = Lexget.Make (Html) in
-      let module Scan = Latexscan.Make (Html) (Noimage) (Get)in
-      let module Otherscan = Videoc.Makealso (Html) (Noimage) (Scan) (Get) in
-      let module Verbscan = Verb.MakeAlso  (Html) (Noimage) (Scan) (Get) in
-      let module OptScan = Package.MakeAlso  (Html) (Image) (Scan) (Get) in
-      Otherscan.init () ; Verbscan.init () ;
-      Scan.main, Scan.no_prelude, Scan.print_env_pos,
+      let module Scan = Latexscan.Make (Html) (Noimage) in
+      let module Otherscan = Videoc.Make (Html) (Noimage) (Scan) in
+      let module Verbscan = Verb.Make  (Html) (Noimage) (Scan) in
+      let module OptScan = Package.Make  (Html) (Image) (Scan) in
+      Scan.main, Scan.no_prelude,
       Html.finalize, Noimage.finalize
   | Text ->
-      let module Get = Lexget.Make (Info) in
-      let module Scan = Latexscan.Make (Text) (Noimage) (Get) in
-      let module Verbscan = Verb.MakeAlso  (Text) (Noimage) (Scan) (Get) in
-      let module OptScan = Package.MakeAlso (Text) (Image) (Scan) (Get) in
-      Verbscan.init () ;
-      Scan.main, Scan.no_prelude, Scan.print_env_pos,
+      let module Scan = Latexscan.Make (Text) (Noimage) in
+      let module Verbscan = Verb.Make  (Text) (Noimage) (Scan) in
+      let module OptScan = Package.Make (Text) (Image) (Scan)  in
+      Scan.main, Scan.no_prelude,
       Text.finalize,Noimage.finalize
   | Info ->
-      let module Get = Lexget.Make (Info) in
-      let module Scan = Latexscan.Make (Info) (Noimage) (Get) in
-      let module Verbscan = Verb.MakeAlso  (Info) (Noimage) (Scan) (Get) in
-      let module OptScan = Package.MakeAlso (Info) (Image) (Scan) (Get) in
-      Verbscan.init () ;
-      Scan.main, Scan.no_prelude, Scan.print_env_pos,
+      let module Scan = Latexscan.Make (Info) (Noimage) in
+      let module Verbscan = Verb.Make  (Info) (Noimage) (Scan) in
+      let module OptScan = Package.Make (Info) (Image) (Scan) in
+      Scan.main, Scan.no_prelude,
       Info.finalize, Noimage.finalize
 ;;
 
@@ -171,8 +163,15 @@ let main () =
     read_tex name_in ;
     finalize true
 ;;   
-
-
+(*
+let _ =
+  Dynlink.init () ;
+  begin try
+    Dynlink.add_interfaces ["Pervasives"] ["/usr/local/lib/ocaml"] ;
+    Dynlink.loadfile "a.cmo" ;
+  with Dynlink.Error e -> prerr_endline (Dynlink.error_message e)
+  end
+*)
 let _ = 
   begin try
     main ()

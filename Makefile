@@ -15,7 +15,7 @@ OCAMLCI=ocamlc
 OCAMLOPT=ocamlopt
 OCAMLLEX=ocamllex
 INSTALL=cp
-OBJS=version.cmo location.cmo misc.cmo stack.cmo out.cmo table.cmo parse_opts.cmo mylib.cmo myfiles.cmo symb.cmo save.cmo auxx.cmo  lexstate.cmo lexget.cmo subst.cmo latexmacros.cmo counter.cmo noimage.cmo image.cmo length.cmo  get.cmo tabular.cmo htmlCommon.cmo htmlMath.cmo mathML.cmo html.cmo  text.cmo infoRef.cmo info.cmo section.cmo foot.cmo entry.cmo index.cmo colscan.cmo color.cmo package.cmo videoc.cmo verb.cmo latexscan.cmo latexmain.cmo
+OBJS=version.cmo location.cmo misc.cmo stack.cmo out.cmo table.cmo parse_opts.cmo mylib.cmo myfiles.cmo symb.cmo save.cmo auxx.cmo  lexstate.cmo subst.cmo latexmacros.cmo counter.cmo noimage.cmo image.cmo length.cmo  get.cmo tabular.cmo htmlCommon.cmo htmlMath.cmo mathML.cmo html.cmo  text.cmo infoRef.cmo info.cmo section.cmo foot.cmo entry.cmo index.cmo colscan.cmo color.cmo package.cmo videoc.cmo verb.cmo latexscan.cmo zyva.cmo latexmain.cmo
 OBJSCUT=version.cmo location.cmo misc.cmo  out.cmo thread.cmo cross.cmo mylib.cmo section.cmo length.cmo save.cmo cut.cmo cutmain.cmo
 GENSRC=auxx.ml colscan.ml cut.ml entry.ml get.ml latexscan.ml length.ml save.ml tabular.ml videoc.ml verb.ml infoRef.ml subst.ml
 
@@ -62,7 +62,7 @@ install-byte: install-lib
 
 
 hevea.byte: ${OBJS}
-	${OCAMLC} -o $@ ${OBJS} ${OBJMAIN}
+	${OCAMLC} -o $@ dynlink.cma ${OBJS} ${OBJMAIN}
 
 hacha.byte: ${OBJSCUT}
 	${OCAMLC} -o $@ ${OBJSCUT}

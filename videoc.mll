@@ -1,19 +1,17 @@
 (* <Christian.Queinnec@lip6.fr>
  The plugin for HeVeA that implements the VideoC style.
- $Id: videoc.mll,v 1.15 1999-10-08 17:58:17 maranget Exp $ 
+ $Id: videoc.mll,v 1.16 1999-10-13 08:21:30 maranget Exp $ 
 *)
 
 {
 module type T =
   sig
-    val init : unit -> unit
   end;;
 
-module Makealso
+module Make
     (Dest : OutManager.S)
     (Image : ImageManager.S)
-    (Scan : Latexscan.S)
-    (Lexget : Lexget.S) =
+    (Scan : Latexscan.S) =
 struct
 open Misc
 open Parse_opts
@@ -21,12 +19,12 @@ open Lexing
 open Myfiles
 open Lexstate
 open Latexmacros
-open Scan
-open Lexget
 open Subst
+open Scan
+
 
 let header = 
-  "$Id: videoc.mll,v 1.15 1999-10-08 17:58:17 maranget Exp $"
+  "$Id: videoc.mll,v 1.16 1999-10-13 08:21:30 maranget Exp $"
 (* So I can synchronize my changes from Luc's ones *)
 let qnc_header = 
   "17 aout 99"
@@ -127,13 +125,8 @@ rule snippetenv = parse
      snippetRunHook Scan.main "AfterLine";
      snippetRunHook Scan.main "BeforeLine";
      snippetenv lexbuf}
-| ' '
+| ' '|'\t'
     {Dest.put_nbsp ();
-     snippetenv lexbuf}
-| '\t'
-    {for i=1 to !Lexstate.tab_val do
-      Dest.put_nbsp ()
-     done;
      snippetenv lexbuf}
 | ';' + 
     {Dest.put (lexeme lexbuf);
@@ -261,14 +254,14 @@ and do_four_backslashes _ = Dest.put "\\"
 
 and expand_url_macros lexbuf =
    let url = Save.arg_verbatim lexbuf in
-   let url = get_this Scan.main url in
+   let url = get_this_main url in
    url
 
 and do_reference_url lexbuf  =
-  let txt = subst_arg lexbuf in
+  let txt = save_arg lexbuf in
   let url = expand_url_macros lexbuf in
   Dest.put ("<A href=\"" ^ url ^ "\" class=\"referenceURL\">");
-  Dest.put (get_this Scan.main txt);
+  scan_this_arg main txt;
   Dest.put "</A>";
   ()
 
@@ -344,12 +337,8 @@ and do_snippet lexbuf =
   then raise (Misc.ScanError "No snippet within snippet.")
   else begin
     (* Obtain the current TeX value of \snippetDefaultLanguage *)
-    let snippetDefaultLanguage = 
-      get_this_nostyle Scan.main "\\snippetDefaultLanguage" in
-    let language =
-      get_this_nostyle_arg
-        Scan.main
-        (Lexstate.save_opt snippetDefaultLanguage lexbuf) in
+    let snippetDefaultLanguage =   "\\snippetDefaultLanguage" in
+    let language = get_prim_opt snippetDefaultLanguage lexbuf in
     let language = if language = "" then snippetDefaultLanguage
                                     else language in
     skip_blanks_till_eol_included lexbuf;

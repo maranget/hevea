@@ -24,6 +24,7 @@ val put : t -> string -> unit
 val put_char : t -> char -> unit
 val flush: t -> unit
 
+val iter : (char -> unit) -> t -> unit
 val to_string : t -> string
 val to_chan : out_channel -> t -> unit
 val copy : t -> t -> unit

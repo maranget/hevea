@@ -53,7 +53,6 @@ val scan_body :
   (action -> 'a) -> action -> subst -> 'a
 
 val stack_lexbuf : Lexing.lexbuf Stack.t
-val tab_val : int ref
 
 val previous_lexbuf : unit -> Lexing.lexbuf
 
@@ -80,7 +79,7 @@ val save_filename : Lexing.lexbuf -> string * subst
 val save_verbatim : Lexing.lexbuf -> string * subst
 val save_opt : string -> Lexing.lexbuf -> string * subst
 val save_opts : string list -> Lexing.lexbuf -> (ok * subst) list
-
+val save_arg_with_delim : string -> Lexing.lexbuf -> string * subst
 val pretty_ok : ok -> string
 val skip_opt : Lexing.lexbuf -> unit
 val skip_csname : Lexing.lexbuf -> unit

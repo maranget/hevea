@@ -1,0 +1,8 @@
+\@beginpackage{moreverb}
+\usepackage{verbatim}
+\@primitives{moreverb}
+\newcommand{\verbatimtabsize}{8}
+\newenvironment{boxedverbatim}
+{\tabular{|c}\verbatim}
+{\endverbatim\endtabular}
+\@endpackage{moreverb}

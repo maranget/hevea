@@ -1,4 +1,4 @@
-let header =  "$Id: lexstate.ml,v 1.33 1999-10-08 17:58:14 maranget Exp $"
+let header =  "$Id: lexstate.ml,v 1.34 1999-10-13 08:21:22 maranget Exp $"
 
 open Misc
 open Lexing
@@ -206,9 +206,6 @@ and scan_body exec body args =
   | _ -> subst := old_subst
   end;
   r
-
-let tab_val = ref 8
-
 
 (* Recoding and restoring lexbufs *)
 let record_lexbuf lexbuf subst =

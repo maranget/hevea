@@ -1,46 +1,15 @@
 %%%% Une précaution.
 \ifhtml\else\warning{html/hevea is for html mode !!!}\endinput\fi
-%%%%%% package used by all packages
+%%%% package used by all packages
 \newif\ififthen\ifthenfalse
 \input{ifthen.hva}
 %% Packages
-\newcommand{\@beginpackage}[1]{%
-\@ifundefined{#1@loaded}{}{\endinput}
-\@stopimage}
-\newcommand{\@endpackage}[1]
-{\def\csname#1@loaded\endcsname{}\@restartimage\endinput}
-\newcommand{\usepackage}[2][!*!]{
-\ifthenelse{\equal{#1}{!*!}}
-{\begin{toimage}\usepackage{#2}
-\end{toimage}}
-{\begin{toimage}\usepackage[#1]{#2}
-\end{toimage}}%
-\@iffileexists{#2.hva}
-   {\input{#2.hva}}
-   {}}
-
+\input{packages.hva}
 %%%%%% Spacing
-\def\@{}
-\def\ { }
-\def\:{ }
-\def\,{~}
-\def\!{}
-\def\;{~}
-\def\
-{\@print{
-}}
-\def\frenchspacing{}
-\def\nonfrenchspacing{}
-\def\/{}
-%%% Special characters
-\def\%{\@print{%}}
-\def\${\@print{$}}%$
-\def\#{\@print{#}}
-\def\&{\@print{&amp;}}
-\def\_{\@print{_}}
-\def\{{\char123}
-\def\}{\char125}
-\def\i{i}
+\input{spaces.hva}
+%%% \... symbols renderered with iso-latin1
+\input{iso-symb.hva}
+\input{latexcommon.hva}
 %%% Logos
 \def\TeX{\@print{TeX}}
 \def\LaTeX{\@print{L<sup>A</sup>T<sub>E</sub>X}}
@@ -113,27 +82,7 @@
 <!--END NOTES-->
 }}}
 %%%% Accents and special symbols.
-\def\oe{oe}
-\def\OE{OE}
-\def\ae{æ}
-\def\AE{Æ}
-\def\aa{å}
-\def\AA{Å}
-\def\o{ø}
-\def\O{Ø}
-\def\ss{ß}
-\def\P{¶}
-\def\copyright{©}
-\def\pounds{£}
-\def\S{§}
-%%% No table of contents
-\def\tableofcontents{}
-\def\listoffigures{}
-\def\listoftables{}
-\def\contentsname{}
-\newcommand{\addcontentsline}[3]{}
-\newcommand{\numberline}[2]{}
-\newcommand{\addtocontents}[2]{}
+
 %%% for htmlcut
 \newcounter{cuttingdepth}
 \setcounter{cuttingdepth}{1}
@@ -163,14 +112,6 @@
   {\begin{toimage}{#1}\end{toimage}}
 \newcommand{\@imagecommand}[2]
   {\newcommand{#1}{\begin{toimage}#1\end{toimage}#2}}
-%% Page Styles
-\def\pagestyle#1{}
-\def\thispagestyle#1{}
-\newcommand{\markright}[1]{}
-\newcommand{\markboth}[2]{}
-\newcommand{\pagenumbering}[1]{}
-\newcommand{\twocolumn}[1][]{}
-\newcommand{\onecolumn}{}
 %%% Title stuff
 \newsavebox{\@title}
 \newcommand{\title}[1]{\sbox{\@title}{#1}}
@@ -190,30 +131,6 @@
 \checkbox{\@date}}
 %\@print{<BR><BR><BR>}%
 }
-\newcommand{\thanks}[1]{\footnote{#1}}
-\newenvironment{titlepage}{}{}
-\newcommand{\and}{\quad}
-%% Lists
-\newcommand{\item}[1][]{\warning{\item outside a list-making environment}}
-\newcommand{\@itemitemize}[1][!*!]
-{\@li\ifthenelse{\equal{#1}{!*!}}{}{\warning{Optional argument to \item in itemize environment}[#1]}}
-\newcommand{\@itemenumerate}[1][!*!]
-{\@linum\ifthenelse{\equal{#1}{!*!}}{}{\warning{Ignored optional argument to \item in enumerate enironment}}}
-\newenvironment{itemize}
-  {\@open{UL}{}\texlet\item\@itemitemize}
-  {\@close{UL}}
-\newenvironment{enumerate}
-  {\@open{OL}{}\texlet\item\@itemenumerate}
-  {\@close{OL}}
-\newenvironment{list}[3][!*!]
-  {\ifthenelse{\equal{#1}{!*!}}{\@open{DL}{COMPACT=compact}}{\@open{DL}{}}%open
-  \renewcommand{\item}[1][#2]{\@dt{##1}}%
-  \@forcecommand{\makelabel}[1]{##1}%
-  #3%exec
-}{\@close{DL}}
-\newenvironment{description}{\begin{list}{}{}}{\end{list}}
-\newenvironment{trivlist}{\begin{list}{}{}}{\end{list}}
-
 %%% Maths
 %%% Loading symbols
 \ifmathml
@@ -226,42 +143,6 @@
 \input{html/symb-text.hva}
 \fi
 \fi
-\newenvironment{math}{$}{$}
-\newenvironment{displaymath}{$$}{$$}
-\newcommand{\(}{$}\newcommand{\)}{$}
-\newcommand{\[}{$$}\newcommand{\]}{$$}
-\newcommand{\sp}[1]{^{#1}}\newcommand{\sb}[1]{_{#1}}
-\newcommand{\ensuremath}[1]{\ifmmode#1\else\(#1\)\fi}
-\newcommand{\eqno}[1]{\quad\quad#1}
-\newenvironment{equation}{\[}{\stepcounter{equation}\eqno{(\theequation)}\]}
-\newenvironment{eqnarray*}{$$\begin{array}{rcl}}{\end{array}$$}
-\newif\ifnumber
-\newcommand{\nonumber}{\numberfalse}
-\newcommand{\lefteqn}[1]{\multicolumn{3}{r}{#1~~\ifnumber\stepcounter{equation}\eqno{(\theequation)}\else\eqno{~~~~~~~}\fi}}
-\newenvironment{eqnarray}{$$\begin{array}{@{\numbertrue}rcl@{\ifnumber\stepcounter{equation}\eqno{(\theequation)}\fi}}}{\end{array}$$}
-\def\star{\warning{Star -> *}*}
-\def\frac#1#2{{#1\over #2}}
-\def\ldots{...}
-\def\dots{...}
-\def\cdots{···}
-\def\cdot{{\@incsize{2}·}}
-\def\vdots{\ifdisplay\mbox{·\\·\\·}\else:\fi}
-\def\ddots{\ifdisplay\mbox{·~~\\~·~\\~~·}\else%
-\warning{\ddots in text}\mbox{ddots}\fi}
-\newcommand{\limits}{}
-\newcommand{\nolimits}{}
-\def\sim{\@print{~}}
-\def\simeq{\textunderline{\sim}}
-\newcommand{\textstackrel}[2]{#2^{#1}}
-\newcommand{\stackrel}[2]{\ifdisplay
-\begin{array}{c}\scriptsize #1\\ #2\\ ~ \end{array}\else
-\textstackrel{#1}{#2}\fi}
-\newcommand{\textoverline}[1]{\warning{Warning: overline in text}#1}
-\def\overline#1{\ifdisplay
-\begin{array}{c}\hline #1 \\~\end{array}\else\textoverline{#1}\fi}
-\newcommand{\textunderline}[1]{{\@style{U}#1}}
-\def\underline#1{\ifdisplay
-\begin{array}{c}~\\ #1\\ \hline\end{array}\else\textunderline{#1}\fi}
 %% Maths fonts
 \def\mathrm#1{\rm #1}
 \def\mathtt#1{\tt #1}
@@ -290,70 +171,6 @@
 \newcounter{totalnumber}
 \newcounter{dbltopnumber}
 %%%%%%%%%%%
-\def\mathord#1{#1}
-\def\mathrel#1{#1}
-\def\mathbin#1{#1}
-\def\mathop#1{#1}
-\def\mathopen#1{#1}
-\def\mathclose#1{#1}
-\def\mathchardef#1#2{}
-%% Some math symbols
-\def\backslash{\char92}
-\def\setminus{\char92}
-\def\neg{¬}
-\def\mu{µ}
-\def\pm{±}
-\def\times{×}
-\def\div{÷}
-\def\ast{*}
-\def\emptyset{Ø}
-\def\le{\leq}
-\def\ge{\geq}
-\def\arccos{\mbox{arccos}}
-\def\arcsin{\mbox{arcsin}}
-\def\arctan{\mbox{arctan}}
-\def\arg{\mbox{arg}}
-\def\cos{\mbox{cos}}
-\def\cosh{\mbox{cosh}}
-\def\cot{\mbox{cot}}
-\def\coth{\mbox{coth}}
-\def\csc{\mbox{csc}}
-\def\deg{\mbox{deg}}
-\def\det{\mbox{det}}
-\def\dim{\mbox{dim}}
-\def\exp{\mbox{exp}}
-\def\gcd{\mbox{gcd}}
-\def\hom{\mbox{hom}}
-\def\inf{\mbox{inf}}
-\def\ker{\mbox{ker}}
-\def\lg{\mbox{lg}}
-\def\lim{\mbox{lim}}
-\def\liminf{\mbox{liminf}}
-\def\limsup{\mbox{limsup}}
-\def\ln{\mbox{ln}}
-\def\log{\mbox{log}}
-\def\max{\mbox{max}}
-\def\min{\mbox{min}}
-\def\Pr{\mbox{Pr}}
-\def\sec{\mbox{sec}}
-\def\sin{\mbox{sin}}
-\def\sinh{\mbox{sinh}}
-\def\sup{\mbox{sup}}
-\def\tan{\mbox{tan}}
-\def\tanh{\mbox{tanh}}
-\def\bmod{\mbox{mod}}
-\def\pmod#1{\mbox{(mod }#1{\@anti{\it} )}}
-\def\bigcirc{{\Huge\circ}}
-\def\ll{«}
-\def\gg{»}
-\def\vdash{|-}
-\def\dashv{-|}
-\def\mid{|}
-\def\mapsto{|\rightarrow}
-\def\tth{||-}
-\def\bot{\perp}
-\def\models{|=}
-\def\|{||}
 \def\bullet{{\@incsize{1}\@bullet}}
 \def\textsqsubset{\mbox{sqsubset}}
 \def\sqsubset{%
@@ -418,45 +235,6 @@
 \newcommand{\indexref}[2]{\url{\##2}{#1}}
 \newcommand{\@seename}{\iffrench voir\else see\fi}
 \newcommand{\see}[2]{\@seename\ \textit{#1}}
-%% Input...
-\newcommand{\listfiles}{}
-%% Line breaking
-\newcommand{\linebreak}[1][4]{\ifthenelse{#1=4}{\\}{}}
-\newcommand{\nolinebreak}[1][4]{}
-\def\sloppy{}
-\def\fussy{}
-\newenvironment{sloppypar}{}{}
-%%%%%%%%%%%% Ignore hyphenation
-\def\-{}
-\def\hyphenation#1{}
-%% Page Breaking
-\newcommand{\pagebreak}[1][]{}
-\newcommand{\nopagebreak}[1][]{}
-\newcommand{\enlargethispage}[1]{}
-\newcommand{\enlargethispage*}[1]{}
-\newcommand{\newpage}{}
-\newcommand{\clearpage}{}
-\newcommand{\cleardoublepage}{}
-%%Lengths are ignored
-\newcommand{\newlength}[1]{}
-\newcommand{\setlength}[2]{}
-\newcommand{\addtolength}[2]{}
-\newcommand{\settowidth}[2]{}
-\newcommand{\settodepth}[2]{}
-\newcommand{\settoheight}[2]{}
-\newcommand{\fill}{}
-\newcommand{\stretch}[1]{}
-%%Space
-\newcommand{\hspace*}[1]{\hspace{#1}}
-\newcommand{\vspace*}[1]{\vspace{#1}}
-\newcommand{\addvspace}[1]{\vspace{#1}}
-\def\cr{\\}
-\def\smallskip{\\}
-\def\medskip{\\}
-\def\bigskip{\\ \\}
-\def\enspace{~}
-\def\quad{~~}
-\def\qquad{\quad\quad}
 %% Boxes
 \newcommand{\textfbox}[1]{\warning{\fbox in text}\mbox{#1}}
 \def\fbox#1{%

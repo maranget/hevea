@@ -1,0 +1,14 @@
+\newcommand{\@beginpackage}[1]{%
+\@ifundefined{#1@loaded}{}{\endinput}
+\@stopimage}
+\newcommand{\@endpackage}[1]
+{\def\csname#1@loaded\endcsname{}\@restartimage\endinput}
+\newcommand{\usepackage}[2][!*!]{
+\ifthenelse{\equal{#1}{!*!}}
+{\begin{toimage}\usepackage{#2}
+\end{toimage}}
+{\begin{toimage}\usepackage[#1]{#2}
+\end{toimage}}%
+\@iffileexists{#2.hva}
+   {\input{#2.hva}}
+   {}}

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: myfiles.ml,v 1.18 1999-09-08 20:26:46 maranget Exp $" 
+let header = "$Id: myfiles.ml,v 1.19 1999-10-13 08:21:25 maranget Exp $" 
 open Misc
 
 exception Error of string
@@ -29,13 +29,13 @@ let is_except name =
 ;;
 
 let tex_path = "." :: !Parse_opts.path @
-  [Filename.concat
+  [Mylib.libdir ;
+  Filename.concat
     Mylib.libdir 
      (match !Parse_opts.destination with
      | Parse_opts.Html -> "html"
      | Parse_opts.Text -> "text"
-     | Parse_opts.Info -> "info") ;
-    Mylib.libdir]
+     | Parse_opts.Info -> "info")]
 ;;
 
 exception Found of (string * in_channel)

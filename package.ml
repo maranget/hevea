@@ -9,13 +9,13 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.2 1999-10-08 17:58:16 maranget Exp $    *)
+(*  $Id: package.ml,v 1.3 1999-10-13 08:21:26 maranget Exp $    *)
 
 module type S = sig  end
 
-module MakeAlso
+module Make
   (Dest : OutManager.S)  (Image : ImageManager.S)
-  (Scan : Latexscan.S) (Lexget : Lexget.S) : S =
+  (Scan : Latexscan.S)  : S =
 struct
 open Misc
 open Lexing
@@ -25,6 +25,14 @@ open Stack
 open Scan
 ;;
 
+def_print "\\jobname" Parse_opts.base_out ;
+def_print "\\@heveacomline"
+  (Array.fold_right
+     (fun arg r -> arg^" "^r)
+     Sys.argv "") ;
+def_print "\@heveaversion" Version.version ;
+def_print "\@hevealibdir" Mylib.libdir
+;;
 
 register_init "ifthen"
   (fun () ->
@@ -84,7 +92,7 @@ register_init "color"
 
     def_code "\\@getcolor"
       (fun lexbuf ->
-        let mdl = get_prim_opt lexbuf in    
+        let mdl = get_prim_opt "!*!" lexbuf in    
         let clr = get_prim_arg lexbuf in
         let htmlval = match mdl with
         | "!*!" -> Color.retrieve clr
@@ -148,7 +156,7 @@ register_init "url"
         Save.start_echo () ;
         let _ = save_verbatim lexbuf in
         let arg = Save.get_echo () in
-        let what = get_this main (url_macro^arg) in
+        let what = get_this_main (url_macro^arg) in
         if csname = "\\urldef" then begin
           if !env_level > 0 then begin
             Image.put "\\urldef" ;

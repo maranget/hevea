@@ -1,11 +1,11 @@
 {
 exception VError of string
 
-module type S = sig val init : unit -> unit end
+module type S = sig  end
 ;;
-module MakeAlso
+module Make
   (Dest : OutManager.S) (Image : ImageManager.S)
-  (Scan : Latexscan.S) (Lexget : Lexget.S) : S =
+  (Scan : Latexscan.S) : S =
 struct
 open Misc
 open Lexing
@@ -13,11 +13,15 @@ open Lexstate
 open Latexmacros
 open Stack
 
-exception EndAlltt
 exception Eof of string
 ;;
 
 let verb_delim = ref (Char.chr 0)
+and line_buff = Out.create_buff ()
+and process = ref (fun () -> ())
+and finish = ref (fun () -> ())
+;;
+
 let env_extract s =
   let i = String.index s '{'
   and j = String.rindex s '}' in
@@ -27,183 +31,363 @@ let env_extract s =
 
 rule inverb = parse
 |  _
-  {let c = lexeme_char lexbuf 0 in
-  if c = !verb_delim then begin
-    Dest.close_group () ;
-    Scan.close_env "*verb"
-  end else begin
-    Dest.put (Dest.iso c) ;
-    inverb lexbuf
-  end}
+    {(fun put -> let c = lexeme_char lexbuf 0 in
+    if c = !verb_delim then begin
+      Dest.close_group () ;
+    end else begin
+      put c ;
+      inverb lexbuf put
+    end)}
 | eof
-    {if not (empty stack_lexbuf) then
+    {(fun put -> if not (empty stack_lexbuf) then
       let lexbuf = previous_lexbuf () in
-      inverb lexbuf
+      inverb lexbuf put
     else
-      raise (VError ("End of file after \\verb"))}
+      raise (VError ("End of file after \\verb")))}
 
 and start_inverb = parse
 | _
-  {let c = lexeme_char lexbuf 0 in
-  verb_delim := c ;
-  inverb lexbuf}
+    {(fun put -> let c = lexeme_char lexbuf 0 in
+    verb_delim := c ;
+    inverb lexbuf put)}
 | eof
-    {if not (empty stack_lexbuf) then
-      let lexbuf = previous_lexbuf () in
-      start_inverb lexbuf
-    else
-      raise (VError ("End of file after \\verb"))}
+    {(fun put ->
+      if not (empty stack_lexbuf) then
+        let lexbuf = previous_lexbuf () in
+        start_inverb lexbuf put
+      else
+        raise (VError ("End of file after \\verb")))}
 
-and verbenv = parse
-  "\\end" " " * "{" ['a'-'z'] + "}"
+and scan_byline = parse
+    "\\end" [' ''\t']* '{' [^'}']+ '}'
     {let lxm = lexeme lexbuf in
     let env = env_extract lxm in
     if env = !Scan.cur_env then begin
-      Scan.top_close_block "PRE" ;
-      Scan.close_env env
+      !finish () ;
+      scan_this Scan.main ("\\end"^env) ;
+      Scan.top_close_block "" ;
+      Scan.close_env !Scan.cur_env
     end else begin
-      Dest.put lxm ;
-      verbenv lexbuf
+      Out.put line_buff lxm ;
+      scan_byline lexbuf
     end}
-| "\\esc" ' '*
-    {if !Scan.cur_env <> "program" then begin
-      Dest.put (lexeme lexbuf)
-    end else begin
-      let arg,subst = save_arg lexbuf in
-      scan_this_arg Scan.main ("{"^arg^"}",subst)
-    end ;
-    verbenv lexbuf}
-| '\t'
-      {for i=1 to !tab_val do
-        Dest.put_char ' '
-      done ;
-      verbenv lexbuf}
-| _   { Dest.put (Dest.iso (lexeme_char lexbuf 0)) ; verbenv lexbuf}
-| eof
-    {raise
-        (Eof
-           ("End of file inside ``"^ !Scan.cur_env^"'' environment"))}
-
-and rawhtml = parse
-|   "\\end" " " * "{" ['a'-'z'] + "}"
-    {let lxm = lexeme lexbuf in
-    let env = env_extract lxm in
-    if env = !Scan.cur_env then begin
-(*      Dest.close_block "TEMP";*)
-      Scan.close_env env
-    end else begin
-      Dest.put lxm ;
-      rawhtml lexbuf
-    end}
-| _   {Dest.put_char(lexeme_char lexbuf 0); rawhtml lexbuf}
-| eof {raise (VError ("End of file inside ``rawhtml'' environment"))}
-
-and verblatex = parse
-| "\\end" " " * "{" ['a'-'z'] + "}"
-    {let lxm = lexeme lexbuf in
-    let env = env_extract lxm in
-    if env = !Scan.cur_env then begin
-      Scan.close_env env
-    end else      
-      verblatex lexbuf}
-|  _ 
-    {verblatex lexbuf}
-|  eof {raise (VError ("End of file inside ``verblatex'' environment"))}
-
-and verbimage = parse
-|  "\\end"
-    {let lxm = lexeme lexbuf in
-    Save.start_echo () ;
-    let env,_ = save_arg lexbuf in
-    let true_env = Save.get_echo () in
-    if env = "verbimage" then begin
-      Scan.close_env env ;
-      Image.put_char '\n'
-    end else begin
-      Image.put lxm ;
-      Image.put true_env ;
-      verbimage lexbuf
-    end}
-|  _
-    {let lxm = lexeme_char lexbuf 0 in
-    Image.put_char lxm ;
-    verbimage lexbuf}
-|  eof {raise (VError "End of file in ``verbimage'' environment")}
-
-and latex2html_latexonly = parse
-| '%' + [ ' ' '\t' ] * "\\end{latexonly}" [ ^ '\n' ] * '\n'
-    { () }
+| '\n'
+    {!process () ; scan_byline lexbuf}
 | _ 
-    {latex2html_latexonly lexbuf}
+    {let lxm = lexeme_char lexbuf 0 in
+    Out.put_char line_buff lxm ;
+    scan_byline lexbuf}
 | eof
-    {raise (VError ("End of file inside ``latexonly'' environment"))}
+    {if not (Stack.empty stack_lexbuf) then
+      let lexbuf = previous_lexbuf () in
+      scan_byline lexbuf
+    else
+      raise
+        (Eof "scan_byline")}
+
+
 {
+let _ = ()
+;;
+let put_char_star = function
+  | ' '|'\t' -> Dest.put_char '_' ;
+  | c ->  Dest.put (Dest.iso c)
+and put_char = function
+  |  '\t' -> Dest.put_char ' '
+  | c -> Dest.put (Dest.iso c)
+;;
 
-let open_verb lexbuf =
+
+let open_verb put lexbuf =
   Dest.open_group "CODE" ;
-  Scan.new_env "*verb" ;
-  try start_inverb lexbuf with
-  | Eof s -> raise (VError s)
-
-
-let open_verbenv lexbuf =
-  Scan.top_close_block "" ;
-  Scan.top_open_block "PRE" "" ;
-  let lexbuf = previous_lexbuf () in
-  try verbenv lexbuf
-  with Eof s -> raise (VError s)
+  start_inverb lexbuf put
+;;
   
+def_code "\\verb" (open_verb (fun c -> Dest.put (Dest.iso c)));
+def_code "\\verb*" (open_verb put_char_star);
+();;
+
+let put_line_buff_verb () =
+  Out.iter put_char line_buff ;
+  Out.reset line_buff
+
+and put_line_buff_verb_star () =
+  Out.iter put_char_star line_buff ;
+  Out.reset line_buff  
+;;
+
+let noeof lexbuf =
+  try scan_byline lexbuf
+  with Eof s ->
+    raise (VError ("End of file in environment: ``"^ !Scan.cur_env^"''"))
+
+and verb_input file =
+  let save = !Scan.cur_env in
+  Scan.cur_env := "*verb-file*" ;
+  begin try
+    input_file !verbose
+      (fun lexbuf ->
+        try scan_byline lexbuf with Eof _ -> raise Misc.EndInput)
+      file
+  with
+  | Myfiles.Except -> ()
+  end ;
+  !finish () ;
+   Scan.cur_env := save
+
+let open_verbenv star =
+  Scan.top_open_block "PRE" "" ;
+  process :=
+     if star then
+       (fun () -> put_line_buff_verb_star () ; Dest.put_char '\n')
+     else
+       (fun () -> put_line_buff_verb () ; Dest.put_char '\n') ;
+  finish :=
+     if star then
+       put_line_buff_verb_star
+     else put_line_buff_verb
+
+and close_verbenv _ = Scan.top_close_block "PRE"
+
+let put_html () =
+  Out.iter (fun c -> Dest.put_char c) line_buff ;
+  Out.reset line_buff
+;;
 
 let open_rawhtml lexbuf =
-  Scan.top_close_block "" ;
-  let lexbuf = previous_lexbuf () in
   begin match !Parse_opts.destination with
-  | Parse_opts.Html -> rawhtml lexbuf 
-  | _ -> begin
-      Misc.warning "rawhtml detected";
-      rawhtml lexbuf
-  end;
-  end
- (* Dest.open_block "TEMP" "";*)
+    | Parse_opts.Html -> ()
+    | _ ->  Misc.warning "rawhtml detected"
+  end ;
+  process :=
+     (fun () -> put_html () ; Dest.put_char '\n') ;
+  finish := put_html ;
+  noeof lexbuf
 
-let open_verblatex lexbuf =
-  Scan.top_close_block "" ;
-  let lexbuf = previous_lexbuf () in
-  verblatex lexbuf 
+and close_rawhtml _ = ()
+
+let open_forget lexbuf =
+  process := (fun () -> Out.reset line_buff) ;
+  finish := (fun () -> Out.reset line_buff) ;
+  noeof lexbuf
+
+and close_forget _ = ()
+
+let put_line_buff_image () =
+  Out.iter (fun c -> Image.put_char c) line_buff ;
+  Out.reset line_buff
 
 let open_verbimage lexbuf =
-  Scan.top_close_block "" ;
-  let lexbuf = previous_lexbuf () in
-  verbimage lexbuf 
-  
-let init () =
-  def_code "\\verb" open_verb ;
-  def_code "\\verb*" open_verb ;
-  def_code "\\prog" open_verb ;
-  def_code "\\verbatim" open_verbenv ;
-  def_code "\\program" open_verbenv ;
-  def_code "\\rawhtml" open_rawhtml ;
-  def_code "\\verblatex" open_verblatex ;
-  def_code "\\verbimage" open_verbimage ;
-  def_code "\\verbatiminput"
-    (fun lexbuf ->
-      let tabs = Get.get_int (save_opt "8" lexbuf) in      
-      let arg = save_arg lexbuf in
-      let arg = Lexget.get_this_nostyle_arg Scan.main arg in
-      let old_tabs = !tab_val in
-      tab_val := tabs ;
-      Scan.top_open_block "PRE" "" ;
-      begin try
-        input_file !verbose
-          (fun lexbuf ->
-            try verbenv lexbuf with Eof _ -> raise Misc.EndInput)
-          arg 
-      with
-      | Myfiles.Except -> ()
-      end ;
-      Scan.top_close_block "PRE" ;
-      tab_val := old_tabs)
+  process := (fun () -> put_line_buff_image () ; Image.put_char '\n') ;
+  finish := put_line_buff_image ;
+  noeof lexbuf
+
+and close_verbimage _ = ()
 ;;
+
+let def_code name f =
+  Latexmacros.def_code name f ;
+  Scan.macro_register name
+
+and redef_code name f =
+  Latexmacros.redef_code name f ;
+  Scan.macro_register name
+;;
+
+def_code "\\verbatim"
+    (fun lexbuf ->
+      open_verbenv false ;
+      let first = Save.rest lexbuf in
+      scan_this Scan.main first ;
+      noeof lexbuf) ;
+def_code "\\endverbatim" close_verbenv ;
+
+def_code "\\verbatim*"
+    (fun lexbuf ->
+      open_verbenv true ;
+      let first = Save.rest lexbuf in
+      scan_this Scan.main first ;
+      noeof lexbuf) ;        
+def_code "\\endverbatim*" close_verbenv ;
+
+def_code "\\rawhtml" open_rawhtml ;
+def_code "\\endrawhtml" Scan.check_alltt_skip  ;
+def_code "\\verbimage" open_verbimage ; 
+def_code "\\endverbimage" Scan.check_alltt_skip ;
+()
+;;
+
+let init_verbatim () =
+
+def_code "\\verbatiminput"
+    (fun lexbuf ->
+      let name = Scan.get_prim_arg lexbuf in
+      open_verbenv false ;
+      verb_input name ;
+      close_verbenv lexbuf) ;
+def_code "\\verbatiminput*"
+    (fun lexbuf ->
+      let name = Scan.get_prim_arg lexbuf in
+      open_verbenv true ;
+      verb_input name ;
+      close_verbenv lexbuf) ;
+def_code "\\comment"  open_forget ;
+def_code "\\endcomment" Scan.check_alltt_skip ;
+()
+;;
+
+Scan.register_init "verbatim" init_verbatim 
+;;
+
+let tab_val = ref 8
+
+let put_verb_tabs () =
+  let char = ref 0 in
+  Out.iter
+    (fun c -> match c with
+| '\t' ->
+  let limit = !tab_val - !char mod !tab_val in
+  for j = 1 to limit do
+    Dest.put_char ' ' ; incr char
+  done ;  
+  | c -> Dest.put (Dest.iso c) ; incr char)
+  line_buff ;
+  Out.reset line_buff
+
+let open_verbenv_tabs () =
+  Scan.top_open_block "PRE" "" ;
+  process := (fun () -> put_verb_tabs () ; Dest.put_char '\n') ;
+  finish := put_verb_tabs 
+
+and close_verbenv_tabs lexbuf =
+  Scan.top_close_block "PRE" ;
+  Scan.check_alltt_skip lexbuf
+;;
+
+let line = ref 0
+and interval = ref 1
+;;
+
+
+let output_line inter_arg star =
+  if !line = 1 || !line mod inter_arg = 0 then
+    scan_this Scan.main ("\\listinglabel{"^string_of_int !line^"}")
+  else
+    Dest.put "     " ;
+  if star then
+    put_line_buff_verb_star ()
+  else
+    put_verb_tabs () ;
+  incr line
+
+
+let open_listing start_arg inter_arg star =
+  Scan.top_open_block "PRE" "" ;
+  line := start_arg ;
+  let first_line = ref true in
+  let inter = if inter_arg <= 0 then 1 else inter_arg in
+  process := 
+    (fun () ->
+      if !first_line then begin
+        first_line := false ;
+        if not (Out.is_empty line_buff) then
+          output_line inter_arg star ;        
+      end else
+        output_line inter_arg star  ;
+      Dest.put_char '\n') ;
+  finish :=
+     (fun () ->
+       if not (Out.is_empty line_buff) then
+         output_line inter_arg star)
+
+and close_listing lexbuf =
+  Scan.top_close_block "PRE" ;
+  Scan.check_alltt_skip lexbuf
+;;
+
+
+Scan.register_init "moreverb"
+(fun () ->
+  def_code "\\verbatimwrite"
+    (fun lexbuf ->
+      let name = Scan.get_prim_arg lexbuf in
+      Scan.check_alltt_skip lexbuf ;
+      let chan = open_out name in
+      process :=
+         (fun () ->
+           output_string chan (Out.to_string line_buff) ;
+           output_char chan '\n') ;
+      finish :=
+         (fun () ->
+           output_string chan (Out.to_string line_buff) ;
+           close_out chan) ;
+      noeof lexbuf) ;
+  def_code "\\endverbatimwrite" Scan.check_alltt_skip ;
+    
+  def_code "\\verbatimtab"
+    (fun lexbuf ->
+      let opt = Get.get_int (save_opt "\\verbatimtabsize" lexbuf) in
+      tab_val := opt ;
+      open_verbenv_tabs () ;
+      let first = Save.rest lexbuf in
+      scan_this Scan.main first ;
+      noeof lexbuf) ;
+  def_code "\\endverbatimtab" close_verbenv_tabs ;
+  def_code "\\verbatimtabinput"
+    (fun lexbuf ->
+      let opt = Get.get_int (save_opt "\\verbatimtabsize" lexbuf) in
+      tab_val := opt ;
+      let name = Scan.get_prim_arg lexbuf in
+      open_verbenv_tabs () ;
+      verb_input name ;
+      close_verbenv_tabs lexbuf) ;
+  def_code "\\listinglabel"
+    (fun lexbuf ->
+      let arg = Get.get_int (save_arg lexbuf) in
+      Dest.put (Printf.sprintf "%4d " arg)) ;
+
+  def_code "\\listing"
+    (fun lexbuf ->
+      let inter = Get.get_int (save_opt "1" lexbuf) in
+      let start = Get.get_int (save_arg lexbuf) in
+      interval := inter ;
+      open_listing start inter false ;
+      noeof lexbuf) ;
+  def_code "\\endlisting" close_listing ;
+
+  def_code "\\listinginput"
+    (fun lexbuf ->
+      let inter = Get.get_int (save_opt "1" lexbuf) in
+      let start = Get.get_int (save_arg lexbuf) in
+      let name = Scan.get_prim_arg lexbuf in
+      interval := inter  ;
+      open_listing start inter false ;
+      verb_input name ;
+      close_listing lexbuf) ;
+
+  def_code "\\listingcont"
+    (fun lexbuf ->
+      Scan.check_alltt_skip lexbuf ;
+      open_listing !line !interval false ;
+      noeof lexbuf) ;
+  def_code "\\endlistingcont" close_listing ;
+
+  def_code "\\listing*"
+    (fun lexbuf ->
+      let inter = Get.get_int (save_opt "1" lexbuf) in
+      let start = Get.get_int (save_arg lexbuf) in
+      interval := inter ;
+      open_listing start inter true ;
+      noeof lexbuf) ;
+  def_code "\\endlisting*" close_listing ;
+
+  def_code "\\listingcont*"
+    (fun lexbuf ->
+      Scan.check_alltt_skip lexbuf ;
+      open_listing !line !interval false ;
+      noeof lexbuf) ;
+  def_code "\\endlistingcont*" close_listing ;
+  ())
 
 end
 } 

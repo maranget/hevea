@@ -9,15 +9,13 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.141 1999-10-08 17:58:10 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.142 1999-10-13 08:21:16 maranget Exp $ *)
 
 
 {
 module type S =
   sig
     val no_prelude : unit -> unit
-
-    val print_env_pos : unit -> unit
     val main : Lexing.lexbuf -> unit
 
     (* additional resources needed for extension modules. *)
@@ -29,17 +27,18 @@ module type S =
     val fun_register : (unit -> unit) -> unit
     val top_open_block : string -> string -> unit
     val top_close_block : string -> unit
+    val check_alltt_skip : Lexing.lexbuf -> unit
     val def_fun : string -> (string -> string) -> unit
     val def_print : string -> string -> unit
+    val get_this_main : string -> string
+    val get_prim : string -> string
     val get_prim_arg : Lexing.lexbuf -> string
-    val get_prim_opt : Lexing.lexbuf -> string
-    val get_this : (Lexing.lexbuf -> unit) -> string -> string
+    val get_prim_opt : string -> Lexing.lexbuf -> string
     val register_init : string ->  (unit -> unit) -> unit
   end
 
 module Make
-  (Dest : OutManager.S) (Image : ImageManager.S)
-  (Lexget : Lexget.S) =
+  (Dest : OutManager.S) (Image : ImageManager.S) =
 struct
 open Misc
 open Parse_opts
@@ -266,19 +265,37 @@ and top_close_group () =
   end
 ;;
 
-let ingroup lexfun lexbuf =
-  top_open_group () ;
-  lexfun lexbuf ;
-  top_close_group ()
+let do_get_this make_style  lexfun (s,subst) =
+  let par_val = Dest.forget_par () in
+  start_normal subst ;
 
-let get_ingroup getfun lexfun = getfun (ingroup lexfun)
+  if !verbose > 1 then
+    prerr_endline ("get_this : ``"^s^"''") ;  
+  let lexer = Lexing.from_string s in
+  let r = Dest.to_string (fun () ->
+    top_open_group () ;
+    make_style () ;
+    lexfun lexer ;
+    top_close_group ()) in
+
+  if !verbose > 1 then begin
+    prerr_endline ("get_this ``"^s^"'' -> ``"^r^"''")
+  end ;
+  end_normal () ;
+  Dest.par par_val ;
+  r
+
+
   
-let get_this =  get_ingroup Lexget.get_this
-and get_this_nostyle = get_ingroup Lexget.get_this_nostyle
-and get_this_clearstyle = get_ingroup Lexget.get_this_clearstyle
+let get_this lexfun s = do_get_this (fun () -> ()) lexfun (s,get_subst ())
+and get_this_nostyle lexfun s =
+  do_get_this Dest.nostyle lexfun (s,get_subst ())
+and get_this_clearstyle lexfun s =
+  do_get_this Dest.clearstyle lexfun (s,get_subst ())
 
-let get_this_arg =  get_ingroup Lexget.get_this_arg
-and get_this_nostyle_arg = get_ingroup Lexget.get_this_nostyle_arg
+
+let get_this_arg = do_get_this (fun () -> ())
+and get_this_nostyle_arg = do_get_this Dest.nostyle
 
 let more_buff = Out.create_buff ()
 ;;
@@ -1016,7 +1033,8 @@ and latexonly = parse
 |  "\\end"
      {let arg,_ = save_arg lexbuf in
      if arg = "latexonly" then begin
-       stop_other_scan false main lexbuf
+       stop_other_scan false main lexbuf ;
+       top_close_block ""
      end else if arg = top stack_entry then begin
        let _ = pop stack_entry in
        push stack_out arg ;
@@ -1066,7 +1084,8 @@ and image = parse
      let arg,_ = save_arg lexbuf in
      let true_arg = Save.get_echo () in
      if arg = "toimage" then begin
-       stop_other_scan false main lexbuf
+       stop_other_scan false main lexbuf ;
+       top_close_block "" ;
      end else if arg = top stack_entry then begin
        let _ = pop stack_entry in
        push stack_out arg ;
@@ -1256,7 +1275,9 @@ let check_alltt_skip lexbuf =
   end
 ;;
 
-let get_prim arg =
+let get_this_main arg = get_this main arg
+
+let get_prim_onarg arg =
   let plain_sub = is_plain '_'
   and plain_sup = is_plain '^'
   and plain_dollar = is_plain '$' in
@@ -1266,13 +1287,15 @@ let get_prim arg =
   plain_back plain_dollar '$' ;
   r
 
+let get_prim s = get_prim_onarg (s,get_subst ())
+
 let get_prim_arg lexbuf =
   let arg = save_arg lexbuf in
-  get_prim arg
+  get_prim_onarg arg
 
-and get_prim_opt lexbuf =
-  let arg = save_opt "!*!" lexbuf in
-  get_prim arg
+and get_prim_opt def lexbuf =
+  let arg = save_opt def lexbuf in
+  get_prim_onarg arg
 
 let def_fun name f =
   def_code name
@@ -1972,12 +1995,12 @@ def_code "\\begin"
     end ;
     new_env env ;
     let macro = "\\csname "^env^"\\endcsname"  in
-      if env <> "document" then
-        top_open_block "" "" ;
-      let old_envi = save stack_entry in
-      push stack_entry env ;
-      scan_this_may_cont main lexbuf cur_subst (macro,get_subst ()) ;
-      restore stack_entry old_envi)
+    if env <> "document" then
+      top_open_block "" "" ;
+    let old_envi = save stack_entry in
+    push stack_entry env ;
+    scan_this_may_cont main lexbuf cur_subst (macro,get_subst ()) ;
+    restore stack_entry old_envi)
 ;;
 
 def_code "\\end"
@@ -2009,13 +2032,6 @@ let def_print name s = def_code name (fun _ -> Dest.put s)
 and redef_print name s = redef_code name (fun _ -> Dest.put s)
 ;;
 
-def_print "\\jobname" Parse_opts.base_out ;
-def_print "\\@heveacomline"
-  (Array.fold_right
-     (fun arg r -> arg^" "^r)
-     Sys.argv "") ;
-def_print "\@heveaversion" Version.version
-;;
 
 def_code "\\newsavebox"
   (fun lexbuf ->
@@ -2051,7 +2067,6 @@ def_code "\\usebox"
 
 def_code "\\lrbox"
   (fun _ ->
-    top_close_block "" ;
     let lexbuf = previous_lexbuf () in
     let name = subst_csname lexbuf in
     Dest.open_aftergroup
@@ -2064,8 +2079,7 @@ def_code "\\lrbox"
 
 def_code "\\endlrbox"
   (fun _ ->
-    scan_this main "}" ; Dest.close_group () ;
-    top_open_block "" "")
+    scan_this main "}" ; Dest.close_group ())
 ;;
 
 
@@ -2413,7 +2427,6 @@ let check_width = function
 ;;
 
 let open_array env lexbuf =
-  top_close_block "" ;
 
   save_array_state ();
   Tabular.border := false ;
@@ -2439,7 +2452,6 @@ let open_array env lexbuf =
          border = !Tabular.border} ;
   if !display then Dest.item_display () ;
   in_math := false ;
-  new_env env ;
   push stack_display !display ;
   display := false ;
   if !Tabular.border then
@@ -2463,7 +2475,6 @@ let close_tabbing _ =
   Dest.close_table ();
   in_table := pop stack_table ;
   close_env "tabbing" ;
-  top_open_block "" ""
 ;;
 
 def_code "\\endtabbing" close_tabbing
@@ -2473,17 +2484,11 @@ let close_array env _ =
   do_unskip () ;
   close_last_col main "" ;
   close_last_row () ;
-  if env = !cur_env then begin
-    Dest.close_table () ;
-    restore_array_state () ;
-    in_math := pop stack_in_math ;
-    display := pop stack_display;
-    if !display then Dest.item_display () ;
-    close_env env
-  end else begin
-    error_env env !cur_env ;
-  end ;
-  top_open_block "" ""
+  Dest.close_table () ;
+  restore_array_state () ;
+  in_math := pop stack_in_math ;
+  display := pop stack_display;
+  if !display then Dest.item_display () ;
 ;;
 
 def_code "\\endarray" (close_array "array") ;
@@ -2519,14 +2524,12 @@ def_code "\\\\"
 
 def_code "\\latexonly"
   (fun lexbuf ->
-    top_close_block "" ;
     let lexbuf = previous_lexbuf () in
     start_other_scan "latexonly" latexonly lexbuf)
 ;;
 
 def_code "\\toimage"
   (fun lexbuf ->
-    top_close_block "" ;
     let lexbuf = previous_lexbuf () in
     start_image_scan "" image lexbuf)
 ;;
@@ -2675,25 +2678,16 @@ and exec_init name =
      prerr_endline ("Initializing primitives for package: "^name) ;
   try
     let f = Hashtbl.find table name in
-    Hashtbl.remove table name ;
     try f () with
       Latexmacros.Failed ->
         warning
          ("Bad trip while initializing primitives for package: "^name)
   with Not_found -> ()
 ;;   
-let seen = Hashtbl.create 17
-;;
 
 def_code "\\@primitives"
   (fun lexbuf ->
     let pkg = get_prim_arg lexbuf in
-    begin try
-      Hashtbl.find seen pkg ;
-      warning ("Attempt to initialize primitives "^pkg^" twice (ignored)")
-    with Not_found ->
-      Hashtbl.add seen pkg ()
-    end ;
     exec_init pkg)
 ;;
 

@@ -1,0 +1,14 @@
+\def\@{}
+\def\ { }
+\def\:{ }
+\def\,{~}
+\def\!{}
+\def\;{~}
+\def\
+{\@print{
+}}
+\def\frenchspacing{}
+\def\nonfrenchspacing{}
+\def\/{}
+
+

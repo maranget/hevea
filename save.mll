@@ -12,7 +12,7 @@
 {
 open Lexing
 
-let header = "$Id: save.mll,v 1.45 1999-10-06 17:18:57 maranget Exp $" 
+let header = "$Id: save.mll,v 1.46 1999-10-13 08:21:27 maranget Exp $" 
 
 let verbose = ref 0 and silent = ref false
 ;;
@@ -131,7 +131,12 @@ and first_char = parse
       lxm}
   | eof {raise Eof}
 
-
+and rest = parse
+  |   _ * eof
+      {let lxm = lexeme lexbuf in
+      put_echo lxm ;
+      lxm}
+  
 and skip_blanks = parse
 | ' '* '\n'
     {seen_par := false ;
@@ -343,7 +348,8 @@ and eat_delim_rec = parse
     end in
   kmp_char}
 |  eof
-    {raise (Error "End of file in delimited argument")}
+    {raise (Error ("End of file in delimited argument, read:\n\t"^
+            Out.to_string echo_buff))}
 
 and skip_delim_init = parse
 | ' '|'\n' {skip_delim_init lexbuf}

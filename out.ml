@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: out.ml,v 1.14 1999-09-01 13:54:00 maranget Exp $" 
+let header = "$Id: out.ml,v 1.15 1999-10-13 08:21:25 maranget Exp $" 
 let verbose = ref 0
 ;;
 
@@ -78,6 +78,14 @@ let flush = function
   Chan chan -> flush chan
 | _         -> ()
 ;;
+
+let iter f = function
+  | Buff {buff=buff ; bp=bp} ->
+      for i = 0 to bp-1 do
+        f (buff.[i])
+      done
+  | Null -> ()
+  | _ -> Misc.fatal "Out.iter"
 
 let to_string out = match out with
   Buff out ->

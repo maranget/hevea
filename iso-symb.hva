@@ -1,0 +1,102 @@
+%% Some non-math symbols
+\def\%{\@print{%}}
+\def\${\@print{$}}%$
+\def\#{\@print{#}}
+\def\&{\@print{&amp;}}
+\def\_{\@print{_}}
+\def\{{\char123}
+\def\}{\char125}
+\def\i{i}
+\def\oe{oe}
+\def\OE{OE}
+\def\ae{æ}
+\def\AE{Æ}
+\def\aa{å}
+\def\AA{Å}
+\def\o{ø}
+\def\O{Ø}
+\def\ss{ß}
+\def\P{¶}
+\def\copyright{©}
+\def\pounds{£}
+\def\S{§}
+%% Some math symbols
+\def\backslash{\char92}
+\def\setminus{\char92}
+\def\neg{¬}
+\def\mu{µ}
+\def\pm{±}
+\def\times{×}
+\def\div{÷}
+\def\ast{*}
+\def\emptyset{Ø}
+\def\le{\leq}
+\def\ge{\geq}
+\def\arccos{\mbox{arccos}}
+\def\arcsin{\mbox{arcsin}}
+\def\arctan{\mbox{arctan}}
+\def\arg{\mbox{arg}}
+\def\cos{\mbox{cos}}
+\def\cosh{\mbox{cosh}}
+\def\cot{\mbox{cot}}
+\def\coth{\mbox{coth}}
+\def\csc{\mbox{csc}}
+\def\deg{\mbox{deg}}
+\def\det{\mbox{det}}
+\def\dim{\mbox{dim}}
+\def\exp{\mbox{exp}}
+\def\gcd{\mbox{gcd}}
+\def\hom{\mbox{hom}}
+\def\inf{\mbox{inf}}
+\def\ker{\mbox{ker}}
+\def\lg{\mbox{lg}}
+\def\lim{\mbox{lim}}
+\def\liminf{\mbox{liminf}}
+\def\limsup{\mbox{limsup}}
+\def\ln{\mbox{ln}}
+\def\log{\mbox{log}}
+\def\max{\mbox{max}}
+\def\min{\mbox{min}}
+\def\Pr{\mbox{Pr}}
+\def\sec{\mbox{sec}}
+\def\sin{\mbox{sin}}
+\def\sinh{\mbox{sinh}}
+\def\sup{\mbox{sup}}
+\def\tan{\mbox{tan}}
+\def\tanh{\mbox{tanh}}
+\def\bmod{\mbox{mod}}
+\def\pmod#1{\mbox{(mod }#1{\@anti{\it} )}}
+\def\bigcirc{{\Huge\circ}}
+\def\ll{«}
+\def\gg{»}
+\def\vdash{|-}
+\def\dashv{-|}
+\def\mid{|}
+\def\mapsto{|\rightarrow}
+\def\tth{||-}
+\def\bot{\perp}
+\def\models{|=}
+\def\|{||}
+\def\star{\warning{Star -> *}*}
+\def\frac#1#2{{#1\over #2}}
+\def\ldots{...}
+\def\dots{...}
+\def\cdots{···}
+\def\cdot{{\@incsize{2}·}}
+\def\vdots{\ifdisplay\mbox{·\\·\\·}\else:\fi}
+\def\ddots{\ifdisplay\mbox{·~~\\~·~\\~~·}\else%
+\warning{\ddots in text}\mbox{ddots}\fi}
+\newcommand{\limits}{}
+\newcommand{\nolimits}{}
+\def\sim{\@print{~}}
+\def\simeq{\textunderline{\sim}}
+\newcommand{\textstackrel}[2]{#2^{#1}}
+\newcommand{\stackrel}[2]{\ifdisplay
+\begin{array}{c}\scriptsize #1\\ #2\\ ~ \end{array}\else
+\textstackrel{#1}{#2}\fi}
+\newcommand{\textoverline}[1]{\warning{Warning: overline in text}#1}
+\def\overline#1{\ifdisplay
+\begin{array}{c}\hline #1 \\~\end{array}\else\textoverline{#1}\fi}
+\newcommand{\textunderline}[1]{{\@style{U}#1}}
+\def\underline#1{\ifdisplay
+\begin{array}{c}~\\ #1\\ \hline\end{array}\else\textunderline{#1}\fi}
