@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: mylib.ml,v 1.3 1998-07-21 11:18:39 maranget Exp $" 
+let header = "$Id: mylib.ml,v 1.4 1998-09-29 17:30:38 maranget Exp $" 
 exception Error of string
 ;;
 
@@ -32,7 +32,7 @@ let put_from_lib name put =
     do_rec () ;
     close_in chan_in
   with Sys_error _ ->
-    raise (Error ("Cannot find file"^name^" from the library"))
+    raise (Error ("Cannot find file "^name^" from the library"))
 ;;
 
 let copy_from_lib name =
@@ -51,5 +51,5 @@ let copy_from_lib name =
   close_in chan_in ;
   close_out chan_out
   with Sys_error _ ->
-    raise (Error ("Cannot copy file"^name^" from the library"))
+    raise (Error ("Cannot copy file "^name^" from the library"))
 ;;

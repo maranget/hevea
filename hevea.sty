@@ -366,14 +366,17 @@
 \newcommand{\docurl}{http://para.inria.fr/\home{maranget}/hevea}
 \newcommand{\mailto}[1]{\url{mailto:#1}{#1}}
 %%% now serious
-\def\noprint#1{{\@nostyle\@print{#1}}}
+\def\noprint#1{{\@nostyle\@print{#1}}}%
+\newcommand{\@bodyargs}{BGCOLOR=silver TEXT=black}
+\newcommand{\@htmlargs}{}
 \newenvironment{document}{%
-\@print{<HTML>
+\@print{<HTML}\@notags{\@htmlargs}\@print{>
 }%
 \@print{<HEAD><TITLE>}%
 \@notags{\@title}%
-\@print{</TITLE></HEAD>}%
-\@print{<BODY BGCOLOR=silver TEXT=black>
+\@print{</TITLE></HEAD>
+}%
+\@print{<BODY }\@notags{\@bodyargs}\@print{>
 }%
 \iffrench\@print{<!--FRENCH-->
 }\fi

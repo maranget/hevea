@@ -1468,6 +1468,28 @@ source. However, \LaTeX{} still can process the document, since the
 This part follows the pattern of the \LaTeX{} reference
 manual~\cite[Appendix~C]{latex}.
 
+\section{The Structure of the Document}
+
+Only text after \verb+\begin{document}+ and before
+\verb+\end{document}+ is translated to \html{}.
+However, source that occurs before \verb+\begin{document}+ is
+processed
+(this comprises the content of the files given as command line
+arguments to \hevea{}, see section~\ref{heveausage}).
+As a consequence, command and environment  definitions that
+occur  before \verb+\begin{document}+ are performed.
+
+
+In particular, it is possible to change \hevea{} default argument
+to the opening \verb+<HTML>+ and \verb+<BODY>+ tags by redefining
+\verb+\@htmlargs+ and \verb+\@bodyargs+.
+For instance, you get black text on a white background, when the
+following declaration occurs before \verb+\begin{document}+:
+\begin{verbatim}
+\renewcommand{\@bodyargs}{TEXT=black BGCOLOR=white}
+\end{verbatim}
+
+
 \section{Sentences and Paragraphs}
 
 \subsection{Spacing}
@@ -2327,7 +2349,7 @@ file whose name is given as argument inside a \texttt{verbatim} environment.
 \label{practical}
 
 \section{Usage}
-\subsection{\hevea{} usage}
+\subsection{\hevea{} usage}\label{heveausage}
 
 The \texttt{hevea} command interprets its arguments as the names of
 \LaTeX{} source

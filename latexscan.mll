@@ -17,7 +17,7 @@ open Latexmacros
 open Html
 open Save
 
-let header = "$Id: latexscan.mll,v 1.42 1998-09-25 17:48:53 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.43 1998-09-29 17:30:36 maranget Exp $" 
 
 let push s e = s := e:: !s
 and pop s = match !s with
@@ -129,7 +129,7 @@ with
 ;;
 *)
 
-let save_quote_arg lexbuf =
+let save_arg lexbuf =
 
   let rec save_rec lexbuf =
     try Save.arg lexbuf
@@ -150,15 +150,6 @@ let save_quote_arg lexbuf =
   arg
 ;;
 
-let save_arg lexbuf =
-  let arg = save_quote_arg lexbuf in
-(*
-  let r =  subst_arg  arg in
-   if !verbose > 2 then
-    prerr_endline ("Arg subst: <"^arg^">") ;
-*)
-  arg
-;;
 
 let rec parse_args_norm pat lexbuf = match pat with
   [] -> []
@@ -1225,20 +1216,22 @@ rule  main = parse
       macro_register name
     with Latexmacros.Failed -> () end ;
     main lexbuf}
-  | "\\newenvironment" ' '*
+  | "\\newenvironment" | "\\renewenvironment"
      {let lxm = lexeme lexbuf in
-     let name = save_quote_arg lexbuf in
+     let name = save_arg lexbuf in
      let nargs = parse_quote_arg_opt "0" lexbuf in
      let optdef = parse_quote_arg_opt "" lexbuf in
-     let body1 = save_quote_arg lexbuf in
-     let body2 = save_quote_arg lexbuf in
+     let body1 = save_arg lexbuf in
+     let body2 = save_arg lexbuf in
      if !env_level = 0 then
        Image.put
          (lxm^
          unparse_args [] [name]^
          unparse_args [nargs;optdef] [body1;body2]) ;
      begin try
-       def_env_pat name
+       (match lxm with
+          "\\newenvironment" -> def_env_pat
+       |  _ -> redef_env_pat) name
          (Latexmacros.make_pat
            (match optdef with No _ -> [] | Yes s -> [s])
            (match nargs with No _ -> 0 | Yes s -> my_int_of_string s))
@@ -1249,7 +1242,7 @@ rule  main = parse
      main lexbuf}
   | "\\newtheorem" | "\\renewtheorem"
       {let lxm = lexeme lexbuf in
-      let name = save_quote_arg lexbuf in
+      let name = save_arg lexbuf in
       let numbered_like = parse_quote_arg_opt "" lexbuf in
       let caption = save_arg lexbuf in
       let within = parse_quote_arg_opt "" lexbuf in
@@ -1791,7 +1784,7 @@ rule  main = parse
 (* spacing *)
          |  "\\hspace"|"\\vspace" ->
            let vert = lxm = "\\vspace" in           
-           let arg = save_arg lexbuf in
+           let arg = subst_arg subst lexbuf in
            begin try
              let n = Length.main (Lexing.from_string arg) in
              if vert then

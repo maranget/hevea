@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmacros.ml,v 1.23 1998-09-24 13:01:05 maranget Exp $" 
+let header = "$Id: latexmacros.ml,v 1.24 1998-09-29 17:30:34 maranget Exp $" 
 open Parse_opts
 open Symb
 
@@ -134,6 +134,9 @@ let def_env name body1 body2 =
 let def_env_pat name pat b1 b2 =
   def_macro_pat ("\\"^name) pat b1 ;
   def_macro ("\\end"^name) 0 b2
+and redef_env_pat name pat b1 b2 =
+  redef_macro_pat ("\\"^name) pat b1 ;
+  redef_macro ("\\end"^name) 0 b2
 ;;
 
 let unregister name =  Hashtbl.remove cmdtable name

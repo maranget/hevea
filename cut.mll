@@ -11,7 +11,7 @@
 
 {
 open Lexing
-let header = "$Id: cut.mll,v 1.8 1998-08-17 13:21:52 maranget Exp $" 
+let header = "$Id: cut.mll,v 1.9 1998-09-29 17:30:33 maranget Exp $" 
 
 let verbose = ref 0
 ;;
@@ -270,7 +270,12 @@ let language = ref "eng"
 
 let close_top lxm =
   Out.put !out "<!--FOOTER-->\n" ;
-  Mylib.put_from_lib ("cutfoot-"^ !language^".html") (Out.put !out) ;
+  try
+    Mylib.put_from_lib ("cutfoot-"^ !language^".html") (Out.put !out)
+  with Mylib.Error s -> begin
+    Location.print_pos () ;
+    prerr_endline s
+  end ;
   Out.put !toc lxm ;
   if !tocname = "" then
     Out.flush !toc

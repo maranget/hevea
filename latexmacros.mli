@@ -49,6 +49,7 @@ val provide_macro_pat: string -> pat  -> action list -> unit
 val def_macro: string -> int -> action list -> unit
 val redef_macro: string -> int -> action list -> unit
 val def_env_pat: string -> pat -> action list -> action list -> unit
+val redef_env_pat: string -> pat -> action list -> action list -> unit
 val unregister : string -> unit
 val newif : string -> unit
 

@@ -1,4 +1,8 @@
 version 1.02-1
+  - added  \@bodyargs \@htmlargs macros to parametrize the <BODY> and <HTML>
+tags.
+  - implemented \renewenvironment.
+  - correctly implemented call-by-name.
   - the tabbing environment now works as specified.
   - small bug corrected: spaces after \begin{verbatim} were eaten.
   - _\cmd and ^\cmd are now recognized
