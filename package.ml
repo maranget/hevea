@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.24 2000-07-10 13:36:33 maranget Exp $    *)
+(*  $Id: package.ml,v 1.25 2000-07-18 10:02:13 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -428,7 +428,8 @@ let do_setkey lexbuf =
       check_alltt_skip xbuff ;
       let {arg=key} = save_arg_with_delim "=" xbuff in
       let {arg=value} = save_arg_with_delim "=" xbuff in
-      Printf.fprintf stderr "key=%s, value=%s\n" key value ;
+      if !verbose > 0 then
+        Printf.fprintf stderr "SETKEY, key=%s, value=%s\n" key value ;
       let csname = keyval_name family key in
       if Latexmacros.exists csname then begin
         if value <> "" then
