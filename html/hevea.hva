@@ -155,11 +155,11 @@
       {\@open{##1}{ALIGN=center CLASS=##2}\usebox{##3}\@close{##1}}%
     }%
   \@open{TABLE}{CELLPADDING=1.5ex ALIGN=center}\@open{TR}{}\@open{TD}{CLASS=title}%
-  \checkbox{H1}{titlemain}{\@title}%
-  \checkbox{H3}{titlerest}{\@author}%
-  \checkbox{H3}{titlerest}{\@date}%
+  \checkbox{H1}{titlemain}{\@@title}%
+  \checkbox{H3}{titlerest}{\@@author}%
+  \checkbox{H3}{titlerest}{\@@date}%
   \@close{TD}\@close{TR}\@close{TABLE}%
-}%
+\let\maketitle\relax\let\checkbox\relax}%
 %
 %%%%%%%%%
 % Maths %
@@ -240,7 +240,8 @@
 %
 \newenvironment{document}{%
 \@end{document}
-\@restartoutput\unskip
+\@restartoutput\unskip%
+\@atbegindocument%
 \@print{<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
             "http://www.w3.org/TR/REC-html40/loose.dtd">
 }\@print{<HTML>
@@ -248,7 +249,7 @@
 \@print{<HEAD>
 }
 \@print{<TITLE>}%
-\@notags{\usebox{\@title}}%
+\@notags{\usebox{\@@title}}%
 \@print{</TITLE>
 }\@meta%
 \ifmathml\@print{<STYLE type="text/css">
@@ -273,7 +274,6 @@
 \usebox{\@toplinks}%
 \cutdef[\thecuttingdepth]{\cuttingunit}%
 \renewcommand{\addstyle}[1]{\warning{\addstyle{} must be used in document preamble}}
-\@atbegindocument%
 }{%
 \@clearstyle\@footnoteflush{document}%
 \@atenddocument%

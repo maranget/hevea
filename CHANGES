@@ -1,4 +1,6 @@
 version 1.07+1
+   - Change title/maketitle management -> typeset after document is
+     opened in image file (allow \includegrahics in \title!)
    - Two listings bugs [backslash newline in strings & argument parsing for
      lstinline].
    - Get rid of cpp in Makefile (use sed instead, hope this will work for everybody!)

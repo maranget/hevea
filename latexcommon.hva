@@ -163,17 +163,17 @@
 \newcommand{\textunderline}[1]{{\@style{U}#1}}
 \def\underline#1{\ifdisplay
 \begin{@varray}#1\\ \hline\end{@varray}\else\textunderline{#1}\fi}
-%%%Miscleanous, title stiff
+%%%Miscleanous, title stuff
 \input{common-math.hva}
 \newcommand{\thanks}[1]{\footnote{#1}}
 \newenvironment{titlepage}{}{}
 \newcommand{\and}{\quad}
-\newsavebox{\@title}
-\newcommand{\title}[1]{\sbox{\@title}{#1}}
-\newsavebox{\@author}
-\newcommand{\author}[1]{\sbox{\@author}{#1}}
-\newsavebox{\@date}
-\newcommand{\date}[1]{\sbox{\@date}{#1}}
+\newcommand{\@title}{\warning{No title given}}\newsavebox{\@@title}%
+\newcommand{\title}[1]{\gdef{\@title}{#1}}
+\newcommand{\@author}{\warning{No author given}}\newsavebox{\@@author}%
+\newcommand{\author}[1]{\gdef{\@author}{#1}}
+\let\@date\relax\newsavebox{\@@date}%
+\newcommand{\date}[1]{\gdef{\@date}{#1}}
 %% Lists
 \newcommand{\item}[1][]{\warning{\item outside a list-making environment}}
 \newcommand{\@itemitemize}[1][!*!]
@@ -328,6 +328,8 @@
 \thispagestyle{empty}
 \begin{document}
 \end{toimage}}
+\AtBeginDocument
+{\sbox{\@@title}{\@title}\sbox{\@@author}{\@author}\sbox{\@@date}{\@date}}
 \newtokens{\@atenddocument}
 \newcommand{\AtEndDocument}[1]{\addtokens{\@atenddocument}{#1}}
 \def\@final@footer{%

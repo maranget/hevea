@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmacros.ml,v 1.67 2005-01-13 14:37:38 maranget Exp $" 
+let header = "$Id: latexmacros.ml,v 1.68 2005-01-13 17:19:26 maranget Exp $" 
 open Misc
 open Parse_opts
 open Lexstate
@@ -170,7 +170,8 @@ and exec_init name =
       Failed ->
         Misc.warning
          ("Bad trip while initializing primitives for package: "^name)
-  with Not_found -> ()
+  with Not_found ->
+    Misc.warning ("Cannot find primitives for package: "^name)
 ;;   
 
 

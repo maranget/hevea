@@ -65,14 +65,14 @@
 \newcommand{\maketitle}{%
 \@open{ALIGN}{CENTER}
 \@open{HEAD}{*}%
-\usebox{\@title}\\%
+\usebox{\@@title}\\%
 \@close{HEAD}%
 \@open{HEAD}{=}%H3
-\usebox{\@author}\par
-\usebox{\@date}
+\usebox{\@@author}\par
+\usebox{\@@date}
 \@close{HEAD}%
 \@close{ALIGN}%
-}
+\global\let\maketitle\relax}
 %%%%%%%%%
 % Maths %
 %%%%%%%%%
@@ -100,9 +100,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%
 \newenvironment{document}{%
 \@end{document}
-\@restartoutput\unskip
-\cutdef[\thecuttingdepth]{\cuttingunit}%
+\@restartoutput\unskip%
 \@atbegindocument%
+\cutdef[\thecuttingdepth]{\cuttingunit}%
 }{%
 \@footnoteflush{document}%
 \@atenddocument\@final@footer\@raise@enddocument}
