@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.58 2004-07-06 08:56:18 thakur Exp $    *)
+(*  $Id: package.ml,v 1.59 2004-07-08 08:41:53 thakur Exp $    *)
 
 module type S = sig  end
 
@@ -139,8 +139,6 @@ and call_subst_opt lexbuf =
   end ;
   scan_this  main exec
 ;;
-
-
 
 def_code "\\@funcall" call_subst ;
 def_code "\\@callsubst" call_subst ;
@@ -653,6 +651,136 @@ register_init "natbib"
     ())
 ;;            
 
+let get_elements str = 
+    let len = String.length str in
+    let rec all_elements l = match l with
+      0 -> []
+    | n -> (all_elements (n-1))@[(String.sub str (n-1) 1)] in
+    all_elements len
+;;   
+
+let str_cat x y = x^y
+;;
+
+def_code "\\@mathbb"
+  (fun lexbuf -> 
+    let arg1 = save_arg lexbuf in
+    let str = arg1.arg in
+    (*let dummy = print_string str in*)
+    let str_list = get_elements str in
+    (*let h = List.hd str_list in
+    let dummy = print_string h in*)
+    let format x = Scan.get_this_main ("\\"^"one@mathbb{"^x^"}") in
+    let formatted_list = List.map format str_list in
+    let formatted_text = List.fold_left str_cat "" formatted_list in
+    (*print_string ("<<"^formatted_text^">>\n") ;*) 
+    Dest.put formatted_text
+  )
+;;
+
+def_code "\\@mathfrak"
+  (fun lexbuf -> 
+    let arg1 = save_arg lexbuf in
+    let str = arg1.arg in
+    let str_list = get_elements str in
+    let format x = Scan.get_this_main ("\\"^"one@mathfrak{"^x^"}") in
+    let formatted_list = List.map format str_list in
+    let formatted_text = List.fold_left str_cat "" formatted_list in
+    Dest.put formatted_text
+  )
+;;
+
+def_code "\\@mathsf"
+  (fun lexbuf -> 
+    let arg1 = save_arg lexbuf in
+    let str = arg1.arg in
+    let str_list = get_elements str in
+    let format x = Scan.get_this_main ("\\"^"one@mathsf{"^x^"}") in
+    let formatted_list = List.map format str_list in
+    let formatted_text = List.fold_left str_cat "" formatted_list in
+    Dest.put formatted_text
+  )
+;;
+
+def_code "\\@mathbf"
+  (fun lexbuf -> 
+    let arg1 = save_arg lexbuf in
+    let str = arg1.arg in
+    (*let str_list = get_elements str in
+    let format x = Scan.get_this_main ("\\"^"one@mathbf{"^x^"}") in
+    let formatted_list = List.map format str_list in
+    let formatted_text = List.fold_left str_cat "" formatted_list in*)
+    Dest.put ("<B>"^str^"</B>")
+  )
+;;
+
+(*
+def_code "\\@mathbb"
+  (fun lexbuf -> 
+    let arg1 = save_arg lexbuf in
+    let str = arg1.arg in
+    let formatted = Scan.get_this_main ("\\"^"one@mathbb{"^str^"}") in
+    print_string ("<-"^str^"->"^"<<"^formatted^">>") ;Dest.put formatted
+  )
+;;
+*)
+(*
+def_code "\\xrightarrow"
+  (fun lexbuf ->
+    let optarg = save_opt "" lexbuf in
+    let arg = save_arg lexbuf in
+    Dest.open_block "TABLE" "border=0 cellpadding=0 cellspacing=0";
+    Dest.open_block "SMALL" "" ;
+    
+    Dest.open_block "TR" "" ;
+    Dest.open_block "TD" "align=center valign=bottom" ;
+    scan_this_arg Scan.main arg;
+    Dest.close_block "TD" ;
+    Dest.close_block "TR" ;
+
+    Dest.open_block "TR" "" ;
+    Dest.open_block "TD" "align=center style=\"font-size:7pt;\"" ;
+    Dest.put "&mdash;&mdash;&mdash;&mdash;&rarr" ;
+    Dest.close_block "TD" ; 
+    Dest.close_block "TR" ;
+
+    Dest.open_block "TR" "" ;
+    Dest.open_block "TD" "align=center valign=top" ;
+    scan_this_arg Scan.main optarg;
+    Dest.close_block "TD" ;
+    Dest.close_block "TR" ;
+    Dest.close_block "SMALL" ;
+    Dest.close_block "TABLE")
+;;
+
+def_code "\\xleftarrow"
+  (fun lexbuf ->
+    let optarg = save_opt "" lexbuf in
+    let arg = save_arg lexbuf in
+    Dest.open_block "TABLE" "border=0 cellpadding=0 cellspacing=0";
+    Dest.open_block "SMALL" "" ;
+    
+    Dest.open_block "TR" "" ;
+    Dest.open_block "TD" "align=center valign=bottom" ;
+    scan_this_arg Scan.main arg;
+    Dest.close_block "TD" ;
+    Dest.close_block "TR" ;
+
+    Dest.open_block "TR" "" ;
+    Dest.open_block "TD" "align=center style=\"font-size:7pt;\"" ;
+    Dest.put "&larr;&mdash;&mdash;&mdash;&mdash;" ;
+    Dest.close_block "TD" ; 
+    Dest.close_block "TR" ;
+
+    Dest.open_block "TR" "" ;
+    Dest.open_block "TD" "align=center valign=top" ;
+    scan_this_arg Scan.main optarg;
+    Dest.close_block "TD" ;
+    Dest.close_block "TR" ;
+    Dest.close_block "SMALL" ;
+    Dest.close_block "TABLE")
+;;
+*)
 (************************************************************
 *                                                           *
 *   Package : "bussproofs"                                  *
@@ -885,12 +1013,12 @@ let rec gen_tables pf = match pf with
 *                                                           *
 ************************************************************)
 
-let start_table () =
+let start_table s =
   Dest.open_block "TABLE"
     "style = \"text-align: center;\" border=\"0\" 
      cellspacing=\"2\" cellpadding=\"1\"" ;
   Dest.open_block "TR" "" ;
-  Dest.open_block "TD" "ALIGN=center"
+  Dest.open_block "TD" s
 ;;
 
 let next_row () =
@@ -1057,7 +1185,7 @@ register_init "proof"
 	  let formatted2 = Scan.get_this_arg_mbox optarg2 in
 	  let arg3 = save_arg lexbuf in
 	  let arg4 = save_arg lexbuf in
-	  start_table () ;
+	  start_table "ALIGN=center" ;
           def "\\@hevea@amper" zero_pat
 	    (CamlCode (fun _ ->  
 	      Dest.force_item_display (); 
@@ -1086,7 +1214,7 @@ register_init "proof"
 	  let formatted1 = Scan.get_this_arg_mbox optarg1 in
           let arg2 = save_arg lexbuf in
 	  let arg3 = save_arg lexbuf in
-	  start_table ();
+	  start_table "ALIGN=center";
           def "\\@hevea@amper" zero_pat
 	    (CamlCode (fun _ ->  
 	      Dest.force_item_display (); 
@@ -1114,7 +1242,7 @@ register_init "proof"
 	  let formatted1 = Scan.get_this_arg_mbox optarg1 in
           let arg2 = save_arg lexbuf in
 	  let arg3 = save_arg lexbuf in
-	  start_table ();
+	  start_table "ALIGN=center";
           def "\\@hevea@amper" zero_pat
 	    (CamlCode (fun _ ->  
 	      Dest.force_item_display (); 
@@ -1146,36 +1274,76 @@ register_init "proof"
 *   Implementing the proofs in package "mathpartir"	    *
 *                                                           *
 ************************************************************)
-
 (*
-register_init "mathpartir"
-    (fun () ->
       def_code "\\inferrule"
 	(fun lexbuf ->
           let optarg1 = save_opt "" lexbuf in
           let is_opt_arg = if ("" = optarg1.arg) then false else true in  
-	  let formatted1 = Scan.get_this_arg_mbox optarg1 in
+	  let label = Scan.get_this_main ("\\"^"textsc{"^optarg1.arg^"}") in
 	  let arg2 = save_arg lexbuf in
 	  let arg3 = save_arg lexbuf in
+          let empty2 = ("" = arg2.arg) in
+          let empty3 = ("" = arg3.arg) in
+          (*print_string ("<<e2:"^arg2.arg^">><<e3:"^arg3.arg^">>\n");
+          print_string (if empty2 then "TRUE" else "FALSE"); 
+	  print_string (if empty3 then "TRUE" else "FALSE"); 
+	  print_string "<--\n";*)
 	  let str2 = "\\"^"begin{mpr@line}"^(arg2.arg)^"\\"^"end{mpr@line}" in
 	  let str3 = "\\"^"begin{mpr@line}"^(arg3.arg)^"\\"^"end{mpr@line}" in
 	  let formatted2 = Scan.get_this_main str2 in
 	  let formatted3 = Scan.get_this_main str3 in
-	  start_table ();
-	  def "\\@hevea@newline" zero_pat
-	    (CamlCode (fun _ ->  
-	      Dest.force_item_display (); 
-              Dest.put_nbsp () ; Dest.put_nbsp ();
-	      Dest.put_nbsp () ; Dest.put_nbsp ()) (*scan_this_main "~~" *)
-            ) ;
-	  scan_this_arg Scan.main arg2;
-          next_row () ; 
-          Dest.put ("<HR COLOR=\"green\" NOSHADE SIZE=\"3\">\n") ;
-          next_row () ; 
-          Dest.put formatted3;
+	  (if is_opt_arg then 
+	    (start_table "ALIGN=left";
+            Dest.put label ;
+	    next_row ()) 
+          else start_table "ALIGN=center" );
+	  if empty2 then (Dest.put formatted3(*; print_string "O3\n"*))
+          else if empty3 then (Dest.put formatted2(*; print_string "O2\n"*))
+	  else
+	    (Dest.put formatted2;
+            next_row () ; 
+            Dest.put ("<TABLE cellspacing=0 cellpadding=1 bgcolor=green"^
+		    " width=\"100%\"><TR><TD> </TD></TR></TABLE>\n") ;
+            next_row () ; 
+            Dest.put formatted3);
           end_table ()
-        ) ;
-    )
+        )
+;;
+
+      def_code "\\inferrules"
+	(fun lexbuf ->
+          let optarg1 = save_opt "" lexbuf in
+          let is_opt_arg = if ("" = optarg1.arg) then false else true in  
+	  let label = Scan.get_this_main ("\\"^"textsc{"^optarg1.arg^"}") in
+	  let arg2 = save_arg lexbuf in
+	  let arg3 = save_arg lexbuf in
+          let empty2 = ("" = arg2.arg) in
+          let empty3 = ("" = arg3.arg) in
+          (*print_string ("<<e2:"^arg2.arg^">><<e3:"^arg3.arg^">>\n");
+          print_string (if empty2 then "TRUE" else "FALSE"); 
+	  print_string (if empty3 then "TRUE" else "FALSE"); 
+	  print_string "<--\n";*)
+	  let str2 = "\\"^"begin{mpr@line}"^(arg2.arg)^"\\"^"end{mpr@line}" in
+	  let str3 = "\\"^"begin{mpr@line}"^(arg3.arg)^"\\"^"end{mpr@line}" in
+	  let formatted2 = Scan.get_this_main str2 in
+	  let formatted3 = Scan.get_this_main str3 in
+	  (if is_opt_arg then 
+	    (start_table "ALIGN=left";
+            Dest.put label ;
+	    next_row ()) 
+          else start_table "ALIGN=center" );
+	  if empty2 then (Dest.put formatted3(*; print_string "O3\n"*))
+          else if empty3 then (Dest.put formatted2(*; print_string "O2\n"*))
+	  else
+	    (Dest.put formatted2;
+            next_row () ; 
+            Dest.put "<HR NOSHADE SIZE=\"2\" COLOR=green >" ;
+	    next_column ();
+            Dest.put label;
+            next_row () ; 
+            Dest.put formatted3);
+          end_table ()
+        )
 ;;
 *)
 

@@ -230,3 +230,6 @@
 %%%Additional
 
 \newcommand{\dag}{\@print{&#8224;}}
+
+\let\mathsf\@mathsf
+\let\mathbf\@mathbf

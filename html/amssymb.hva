@@ -208,8 +208,6 @@
 \newcommand{\smallsmile}{\@print{&#8995;}}
 \newcommand{\smallfrown}{\@print{&#8994;}}
 
-
-
-
-
+\let\mathbb\@mathbb
+\let\mathfrak\@mathfrak
 

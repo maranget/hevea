@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.234 2004-06-11 13:35:32 thakur Exp $ *)
+(* $Id: latexscan.mll,v 1.235 2004-07-08 08:41:52 thakur Exp $ *)
 
 
 {
@@ -3081,7 +3081,8 @@ and do_bsbs lexbuf =
     Dest.open_cell default_format 1 0
   end else begin
     if !display then
-      warning "\\\\ in display mode, ignored"
+      (Dest.put_nbsp ();Dest.put_nbsp ();Dest.put_nbsp ();Dest.put_nbsp ())
+      (*warning "\\\\ in display mode, ignored"*)
     else
       Dest.skip_line ()
   end ;
@@ -3089,11 +3090,21 @@ and do_bsbs lexbuf =
   let _ = Dest.forget_par () in ()
 ;;
     
+let do_bsbsbsbs lexbuf = 
+  do_unskip ();
+  skip_opt lexbuf ;
+  Dest.skip_line () ;
+  skip_blanks_pop lexbuf;
+  let _ = Dest.forget_par () in ()
+;;  
+
 def_code "\\@hevea@amper" do_amper ;
 def_code "\\\\"           do_bsbs  ;
 def_code "\\@HEVEA@amper" do_amper ;
-def_code "\\@HEVEA@bsbs"  do_bsbs  ; ()
+def_code "\\@HEVEA@bsbs"  do_bsbs  ; 
+def_code "\\\\\\\\"       do_bsbsbsbs ;()
 ;;
+
 
 
 (* Other scanners *)
