@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.21 1999-06-04 14:19:56 tessaud Exp $"
+let header = "$Id: text.ml,v 1.22 1999-06-07 17:42:54 tessaud Exp $"
 
 
 open Misc
@@ -703,8 +703,8 @@ let insert_block tag arg =
 
 (* Displays *)
 
-let open_maths () = ()
-and close_maths () = ()
+let open_maths display = ()
+and close_maths display = ()
 ;;
 
 let open_display args = ()
@@ -735,6 +735,7 @@ and close_vdisplay_row () = ()
 and standard_sup_sub scanner what sup sub display = ()
 and limit_sup_sub scanner what sup sub display = ()
 and int_sup_sub something vsize scanner what sup sub display = ()
+and over display lexbuf = ()
 ;;
 
 (* Autres *)
@@ -1533,11 +1534,3 @@ let horizontal_line s u t =
     close_block "INFO";
   end
 ;;
-
-
-
-
-
-
-
-

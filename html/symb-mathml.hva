@@ -1,0 +1,17 @@
+\let\oldint=\int
+\renewcommand{\int}{\ifmath%
+\@print{<mo>&int;</mo>}%
+\else%
+\oldint%
+\fi}
+
+\let\oldsum=\sum
+\renewcommand{\sum}{\ifmath%
+\@print{<mo>&sum;</mo>}%
+\else\oldsum\fi}
+
+
+\renewcommand{\@symb}[1]{\@print{<mo>}#1\@print{</mo>}}
+
+
+

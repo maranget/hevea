@@ -36,10 +36,10 @@ get.cmo: counter.cmi latexmacros.cmi length.cmi lexstate.cmi misc.cmi \
     myfiles.cmi parse_opts.cmi save.cmi get.cmi 
 get.cmx: counter.cmx latexmacros.cmx length.cmx lexstate.cmx misc.cmx \
     myfiles.cmx parse_opts.cmx save.cmx get.cmi 
-html.cmo: htmlCommon.cmo htmlMath.cmo latexmacros.cmi misc.cmi out.cmi \
-    parse_opts.cmi tabular.cmi html.cmi 
-html.cmx: htmlCommon.cmx htmlMath.cmx latexmacros.cmx misc.cmx out.cmx \
-    parse_opts.cmx tabular.cmx html.cmi 
+html.cmo: htmlCommon.cmo htmlMath.cmo latexmacros.cmi mathML.cmo misc.cmi \
+    out.cmi parse_opts.cmi tabular.cmi html.cmi 
+html.cmx: htmlCommon.cmx htmlMath.cmx latexmacros.cmx mathML.cmx misc.cmx \
+    out.cmx parse_opts.cmx tabular.cmx html.cmi 
 htmlCommon.cmo: latexmacros.cmi misc.cmi out.cmi parse_opts.cmi 
 htmlCommon.cmx: latexmacros.cmx misc.cmx out.cmx parse_opts.cmx 
 htmlMath.cmo: htmlCommon.cmo latexmacros.cmi misc.cmi out.cmi parse_opts.cmi 
@@ -82,6 +82,8 @@ lexstate.cmx: location.cmx misc.cmx myfiles.cmx out.cmx parse_opts.cmx \
     save.cmx lexstate.cmi 
 location.cmo: misc.cmi out.cmi location.cmi 
 location.cmx: misc.cmx out.cmx location.cmi 
+mathML.cmo: htmlCommon.cmo latexmacros.cmi misc.cmi out.cmi parse_opts.cmi 
+mathML.cmx: htmlCommon.cmx latexmacros.cmx misc.cmx out.cmx parse_opts.cmx 
 misc.cmo: misc.cmi 
 misc.cmx: misc.cmi 
 myfiles.cmo: misc.cmi mylib.cmi parse_opts.cmi myfiles.cmi 

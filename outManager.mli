@@ -35,8 +35,8 @@ module type S =
     val force_block : string -> string -> unit
     val insert_block : string -> string -> unit
 
-    val open_maths : unit -> unit
-    val close_maths : unit -> unit
+    val open_maths : bool -> unit
+    val close_maths : bool -> unit
     val open_display : string -> unit
     val close_display : unit -> unit
     val item_display : unit -> unit
@@ -51,6 +51,7 @@ module type S =
     val standard_sup_sub : (string -> unit) -> (unit -> unit) -> string -> string -> bool -> unit
     val limit_sup_sub : (string -> unit) -> (unit -> unit) -> string -> string -> bool -> unit
     val int_sup_sub : bool -> int -> (string -> unit) -> (unit -> unit) -> string -> string -> bool -> unit
+    val over : bool -> Lexing.lexbuf -> unit
 
     val set_dcount : string -> unit
     val item  : unit -> unit

@@ -355,6 +355,13 @@
 \def\bigoplus{{\ifdisplay\Huge\fi\oplus}}
 \def\biguplus{{\ifdisplay\Huge\fi\uplus}}
 \def\bigotimes{{\ifdisplay\Huge\fi\otimes}}
+
+\ifmathml
+\input{html/symb-mathml.hva}
+\fi
+
+
+
 %% Arrays and tabular
 \newcommand{\extracolsep}[1]{}
 \newcommand{\cline}[1]{\warning{Warning, \cline changed into \hline}\hline}
@@ -445,7 +452,12 @@
 \@print{<HEAD><TITLE>}%
 \@notags{\@title}%
 \@print{</TITLE>
-}\@meta
+}\@meta%
+\ifmathml\@print{<STYLE type="text/css">
+  math.centered { text-align: center}
+</STYLE>
+}%
+\fi
 \@print{</HEAD>
 }%
 \@print{<BODY }\@notags{\@bodyargs}\@print{>

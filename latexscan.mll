@@ -32,7 +32,7 @@ module type S =
     val get_this : (Lexing.lexbuf -> unit) -> string -> string
   end
 
-module Make (Dest : OutManager.S) (Image : ImageManager.S) =
+module Make (Dest : OutManager.S) (Image : ImageManager.S) = 
 struct
 open Misc
 open Parse_opts
@@ -44,7 +44,7 @@ open Tabular
 open Lexstate
 
 
-let header = "$Id: latexscan.mll,v 1.110 1999-06-04 14:19:48 tessaud Exp $" 
+let header = "$Id: latexscan.mll,v 1.111 1999-06-07 17:42:48 tessaud Exp $" 
 
 
 let sbool = function
@@ -160,9 +160,7 @@ and close_vdisplay_row () =
 ;;
 *)
 
-let open_center () =  Dest.open_block "DIV" "ALIGN=center"
-and close_center () = Dest.close_block "DIV"
-;;
+
 
 (* Latex environment stuff *)
 let new_env env =
@@ -1055,13 +1053,13 @@ rule  main = parse
        if !in_math then begin
          in_math := pop stack_in_math ;
          if dodo then begin
-           Dest.close_display () ;
-	   Dest.close_maths ();
-           close_center ()
+(*           Dest.close_display () ;*)
+	   Dest.close_maths dodo;
+(*           close_center ()*)
          end else begin
            top_close_display () ;
-           Dest.close_group ();
-	   Dest.close_maths ();
+(*           Dest.close_group ();*)
+	   Dest.close_maths dodo;
          end ;
          display := pop stack_display ;
          if !display then begin
@@ -1077,12 +1075,12 @@ rule  main = parse
          push stack_display !display ;
          if dodo then begin
            display  := true ;
-           open_center() ;
-	   Dest.open_maths ();
-           Dest.open_display (display_arg !verbose)
+(*           open_center() ;*)
+	   Dest.open_maths dodo;
+(*           Dest.open_display (display_arg !verbose)*)
          end else begin
-	   Dest.open_maths ();
-           Dest.open_group "" ;
+	   Dest.open_maths dodo;
+(*           Dest.open_group "" ;*)
            top_open_display () ;
          end;
          skip_blanks lb ; main lb in
@@ -1711,7 +1709,11 @@ def_code "\\right"
 ;;
 
 def_code "\\over"
-  (fun lexbuf ->
+   (fun lexbuf ->
+     Dest.over !display lexbuf)
+;;
+(*  
+(fun lexbuf ->
     if !display then begin
       let mods = Dest.insert_vdisplay
           (fun () ->
@@ -1733,7 +1735,7 @@ def_code "\\over"
       Dest.put "/"
     end)
 ;;
-
+*)
 let check_not = function
   | "\\in" -> "\\notin"
   | "="    -> "\\neq"
@@ -1956,6 +1958,7 @@ newif_ref "french" french ;
 newif_ref "html" html;
 newif_ref "text" text;
 newif_ref "info" text;
+newif_ref "mathml" Parse_opts.mathml;
 newif_ref "optarg" optarg;
 newif_ref "styleloaded" styleloaded;
 newif_ref "activebrace" activebrace;

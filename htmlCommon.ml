@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$$" 
+let header = "$Id: htmlCommon.ml,v 1.2 1999-06-07 17:42:42 tessaud Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -849,4 +849,13 @@ let flush_out () =
 let skip_line () =
   flags.vsize <- flags.vsize + 1 ;
   put "<BR>"
+;;
+
+let horizontal_line s t u =
+  open_block "" "" ;
+  nostyle () ;
+  begin match t with
+  | "0" -> put ("<HR "^s^">")
+  | _ -> put ("<HR "^s^" SIZE="^t^">") end ;
+  close_block ""
 ;;
