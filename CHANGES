@@ -7,8 +7,9 @@ version 1.04
   - Added \csname ... \endcsname,
     environement names such as ``list1'' are supported
   - Symbols defined as .hva source files.
-  - Simplified macro values (-> 3 constructor only, and CamlCode arg is
-      lexbuf -> unit)
+  - All internal macros can now be redefined.
+  - Simplified internal macro values (-> 2 constructor only,
+    and CamlCode arg is  lexbuf -> unit)
   - Added an index in the manual (only extensions on LaTeX are indexed).
   - Added a secnumdepth counter and make high order defitions for sectional
     units.
@@ -26,7 +27,8 @@ version 1.04
   - Silly bug : opened files where never closed.
   - Better error message for missing \makeindex.
   - Eat \\ optional argument after \hline.
-  - Bug in book.hva : \section* down to \sussubsection* should ``\cuthere''
+  - Bug in book.hva : \section* down to \susubsection* should ``\cuthere''
+
 version 1.03
   - \htmlfoot and \htmlhead commands.
   - Independant lexers for getting booleans and integers (module Get)

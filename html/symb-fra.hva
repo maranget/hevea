@@ -1,7 +1,3 @@
-\newcommand{\sqrt}[2][!*!]{\ifthenelse{\equal{#1}{!*!}}%
-{\mbox{racine(#2)}%
-}{\mbox{racine #2 eme (#1)}}}
-
 \newcommand{\forall}{\mbox{pour tout}}
 \newcommand{\exists}{\mbox{il existe}}
 \newcommand{\clubsuit}{\mbox{trèfle}}

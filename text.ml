@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.30 1999-07-05 15:23:02 tessaud Exp $"
+let header = "$Id: text.ml,v 1.31 1999-07-06 16:02:51 maranget Exp $"
 
 
 open Misc
@@ -874,6 +874,7 @@ let finalize check =
   if check then begin
     ();
     end;
+  finit_ligne () ;
   Out.close !cur_out.out
 ;;
 

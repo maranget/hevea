@@ -44,7 +44,7 @@ open Tabular
 open Lexstate
 
 
-let header = "$Id: latexscan.mll,v 1.117 1999-07-05 16:35:09 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.118 1999-07-06 16:02:46 maranget Exp $" 
 
 
 let sbool = function
@@ -2312,6 +2312,13 @@ let open_tabbing lexbuf =
   push stack_table !in_table ;
   in_table := Tabbing ;
   new_env "tabbing" ;
+  silent_def "\\a" 0
+    (CamlCode
+       (fun lexbuf ->
+         let acc = save_arg lexbuf in
+         let arg = save_arg lexbuf in
+         scan_this main ("\\"^acc^arg))) ;
+  macro_register "\\a" ;
   lexfun lexbuf
 ;;
 

@@ -15,7 +15,7 @@
 \def\%{\@print{%}}
 \def\${\@print{$}}%$
 \def\#{\@print{#}}
-\def\&{\ifiso\@print{&}\else\@print{&amp;}\fi}
+\def\&{\@print{&amp;}}
 \def\_{\@print{_}}
 \def\{{\char123}
 \def\}{\char125}
@@ -31,7 +31,7 @@
 \newcommand{\html}{HTML}
 \newif\ifhevea
 \heveatrue
-%%% HTML related stuff (TEX equivalents are in the html.sty file)
+%%% HTML related stuff (TEX equivalents are in the hevea.sty file)
 \def\@url#1#2{{\@nostyle\@print{<A HREF="}#1\@print{">}}{#2}{\@nostyle\@print{</A>}}}
 \def\url#1#2{\@url{#1}{#2}}
 \def\footurl#1#2{\@url{#1}{#2}}
@@ -163,9 +163,8 @@
 \newenvironment{itemize}
   {\@open{UL}{}%
    \renewcommand{\item}[1][!*!]
-    {\ifthenelse{\equal{##1}{!*!}}{}
-       {\warning{Optional argument to \item ignored}}%
-       \@li}}
+    {\@li\ifthenelse{\equal{##1}{!*!}}{}
+       {\warning{Optional argument to \item}##1}}}
   {\@close{UL}}
 \newenvironment{enumerate}
   {\@open{OL}{}

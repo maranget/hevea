@@ -1,7 +1,3 @@
-\newcommand{\sqrt}[2][!*!]{\ifthenelse{\equal{#1}{!*!}}%
-{\mbox{root(#2)}}{\mbox{#2nth root(#1)}}}
-
-
 \newcommand{\forall}{\mbox{for all}}
 \newcommand{\exists}{\mbox{there exists}}
 \newcommand{\clubsuit}{\mbox{clubsuit}}
