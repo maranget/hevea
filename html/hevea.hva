@@ -278,15 +278,19 @@
 \@print{</BODY>
 </HTML>
 }\@raise@enddocument}
+\newstyle{.center}{text-align:center;margin-left:auto;margin-right:auto;}%
+\newstyle{.flushleft}{text-align:left;margin-left:0ex;margin-right:auto;}%
+\newstyle{.flushright}{text-align:right;margin-left:auto;margin-right:0ex;}%
+\newstyle{DIV TABLE}{margin-left:inherit;margin-right:inherit;}
+\newstyle{PRE}{text-align:left;margin-left:0ex;margin-right:auto;}
+\newstyle{BLOCKQUOTE}{margin-left:4ex;margin-right:auto;text-align:left;}
 \setenvclass{center}{center}%
-\newstyle{.center}{text-align: center}%
 \newenvironment{center}{\@open{DIV}{\envclass@attr{center}}}{\@close{DIV}}
 \setenvclass{flushleft}{flushleft}
-\newstyle{.flushleft}{text-align: left}%
 \newenvironment{flushleft}
-{\@open{DIV}{\envclass@attr{flushleft}}}{\@close{DIV}}
+  {\@open{DIV}{\envclass@attr{flushleft}}}
+  {\@close{DIV}}
 \setenvclass{flushright}{flushright}%
-\newstyle{.flushright}{text-align: right}
 \newenvironment{flushright}
   {\@open{DIV}{\envclass@attr{flushright}}}
   {\@close{DIV}}%
@@ -301,7 +305,6 @@
 \newcommand{\centering}{\@insert{DIV}{\envclass@attr{center}}}
 \newcommand{\raggedleft}{\@insert{DIV}{\envclass@attr{flushright}}}
 \newcommand{\raggedright}{\@insert{DIV}{\envclass@attr{flushleft}}}
-
 \newcommand{\rule}[3][]{\@printHR{}{}}%
 %%%%%%%%%%%%%%%% LaTeX 2.09 style declarations
 \newenvironment{tt}{\@style{TT}}{}
