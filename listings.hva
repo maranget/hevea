@@ -1,7 +1,18 @@
 \usepackage{keyval}
+\@primitives{listings}
 %%%%%%%%%%% interface keyval
 \def\lst@define@key#1#2{\define@key{lst}{#1}{\@funcall{#2}{##1}}}
-\def\lst@define@key@opt#1#2{\define@key{lst}{#1}{\lst@funcall{#2}{##1}}}
+\newenvironment{lst@protect}
+  {\texdef\%{\@print{\%}}%
+   \texdef\#{\@print{\#}}%
+   \texdef\${\@print{\$}}%
+   \texdef\{{\@print{\{}}%
+   \texdef\}{\@print{\}}}%
+   \texdef\_{\@print{\_}}%
+   \texdef\&{\@print{\&}}}
+  {}
+\def\lst@define@key@opt#1#2{\define@key{lst}{#1}
+  {\lst@funcall{#2}{\begin{lst@protect}##1\end{lst@protect}}}}
 %%%%%%%%%%%
 % Helpers %
 %%%%%%%%%%%
@@ -17,6 +28,8 @@
   \@funcall{\lst@iter@}{#2,\@}}}
 %%%%%%%% Interface with keyval
 \def\lstset#1{\@setkeys{lst}{#1}}
+%%%%%%%% Def if not empty
+\newcommand{\lst@defne}[2]{\ifx#1\empty\texdef#1{#2}\fi}
 %%%%%%%%%%%%
 % Hooks    %
 %%%%%%%%%%%%
@@ -26,8 +39,11 @@
   {\csname lsthk@#1\endcsname}
 \newcommand{\lst@AddToHook}[2]
   {\addtokens{\csname lsthk@#1\endcsname}{#2}}
+\newcommand{\lst@AddToHookExe}[2]
+  {\lst@AddToHook{#1}{#2}#2}
 \lst@Hook{EOL}\lst@Hook{InitVarEOL}
 \lst@Hook{InitVarBOL}\lst@Hook{EveryLine}
+\lst@Hook{PreSet}
 \lst@Hook{InitVar}
 \lst@Hook{Init}
 \lst@Hook{DeInit}
@@ -66,7 +82,7 @@
     {lstlang@#2@#1}}
 \newcommand{\lst@language@key}[2][]
   {\texdef\lst@language@init{\csname\lst@mklang[#1]{#2}\endcsname}}
-\lst@AddToHook{InitVar}{\lst@language@init}
+\lst@AddToHook{Init}{\lst@language@init}
 \lst@define@key@opt{language}{\lst@language@key}
 \newcommand{\lst@definelanguage@}[3]
   {\texdef\csname\lst@mklang[#2]{#1}\endcsname{\lstset{#3}}}
@@ -74,7 +90,6 @@
   {\texdef\csname\lst@mklang[#2]{#1}\endcsname
      {\csname\lst@mklang[#4]{#3}\endcsname%
      \lstset{#5}}}
-\@primitives{listings}
 %%%%%%% Indentation
 \define@key{lst}{indent}[1]{\texdef\lst@doindent{\hspace{#1}}}
 \newcommand{\lst@doindent}{}
@@ -108,7 +123,7 @@
 \newcommand{\lst@labelsep}{\hspace{1em}}
 \newcommand{\lst@pad}[1]{\@pad{ }{3}{#1}}
 \newcommand{\lst@linenumber@}[1]
-  {{\lst@label@style{\lst@pad{#1}}}\lst@labelsep}
+  {{\@clearstyle\lst@basic@style\lst@label@style{\lst@pad{#1}}}\lst@labelsep}
 \newcommand{\lst@linenumber}
   {\ifthenelse{\lst@labelstep=0}
      {}
@@ -120,11 +135,54 @@
 %%%%%% Ignore input
 \newcommand{\lst@gobble}{0}
 \define@key{lst}{gobble}{\texdef\lst@gobble{#1}}
-\newcommand{\lst@first}{0}
+\newcommand{\lst@first}{1}
 \newcommand{\lst@last}{9999}
 \define@key{lst}{first}{\texdef\lst@first{#1}}
 \define@key{lst}{last}{\texdef\lst@last{#1}}
-\define@key{lst}{print}[true]{\setboolean{lst@print}{\lst@boolean{#1}}}
+
+\define@key{lst}{print}[true]{\texdef\lst@print{#1}}
+\setboolean{lst@print}{true}
+\lst@AddToHook{Init}
+  {\@ifundefined{lst@print}{}
+     {\setboolean{lst@print}{\lst@boolean{\lst@print}}}}
+\lst@AddToHook{DeInit}{\setboolean{lst@print}{true}}
+%%%%%%% Strings
+\newcommand{\lst@stringizers}{}
+\newcommand{\lst@quote@stringizers}{}
+\newcommand{\lst@stringizer@key}[2][]
+  {\lst@defne\lst@quote@stringizers{\@rawchars{#1}}%
+  \lst@defne\lst@stringizers{\@rawchars{#2}}}
+\lst@define@key@opt{stringizer}{\lst@stringizer@key}
+\lst@AddToHook{PreSet}
+  {\texdef\lst@stringizers{}\texdef\lst@quote@stringizers{}}
+%%%%%% Comments
+% Line comments
+\newcommand{\lst@LC@key}[1]
+  {\lst@defne{\lst@LC}{\@rawchars{#1}}}
+\define@key{lst}{commentline}{\lst@LC@key{#1}}
+\lst@AddToHookExe{PreSet}{\texdef\lst@LC{}}
+% Balanced comments
+\newcommand{\lst@NC@key}[2]
+  {\lst@defne\lst@BNC{\@rawchars{#1}}\lst@defne\lst@ENC{\@rawchars{#2}}}
+\define@key[2]{lst}{nestedcomment}{\lst@NC@key{#1}{#2}}
+\lst@AddToHookExe{PreSet}
+  {\texdef\lst@BNC{}\texdef\lst@ENC{}}
+\newcommand{\lst@SC@key}[2]
+   {\lst@defne\lst@BBC@one{\@rawchars{#1}}\lst@defne\lst@EBC@one{\@rawchars{#2}}}
+\define@key[2]{lst}{singlecomment}{\lst@SC@key{#1}{#2}}
+\lst@AddToHookExe{PreSet}
+  {\texdef\lst@BBC@one{}\texdef\lst@EBC@one{}}
+\newcommand{\lst@DC@key}[4]
+   {\lst@defne\lst@BBC@two{\@rawchars{#1}}%
+   \lst@defne\lst@EBC@two{\@rawchars{#2}}%
+   \lst@defne\lst@BBC@three{\@rawchars{#3}}%
+   \lst@defne\lst@EBC@three{\@rawchars{#4}}}
+\define@key[4]{lst}{doublecomment}{\lst@DC@key{#1}{#2}{#3}{#4}}
+\lst@AddToHookExe{PreSet}
+ {\texdef\lst@BBC@two{}%
+  \texdef\lst@EBC@two{}%
+  \texdef\lst@BBC@three{}%
+  \texdef\lst@EBC@three{}}
 %%%%%%% Output
 \def\lst@output#1{%
 %\lstinfo{Output: ``#1''}%
@@ -137,7 +195,9 @@
   {#1}
   {\csname lstk@#1\endcsname{#1}}}
 %%%%%%% User interface
-\newcommand{\lstinputlisting}[2][]{\bgroup\@lstinputlisting[#1]{#2}\egroup}
+\newcommand{\lstinputlisting}[2][]
+  {\@scaninput{\lstinfo{INPUT: ``#1'' ``#2''}\begin{lstlisting}[#1]{}
+}{#2}{\end{lstlisting}}}
 \let\lstdefinelanguage\lst@definelanguage
 %%%%%% Driver files
 \lst@definelanguage[Objective]{Caml}[light]{Caml}
@@ -150,3 +210,15 @@
    stringizer=[b]",
    directives={open,close,include}
   }[keywords,comments,strings,directives]%
+\lst@definelanguage{Java}%
+  {keywords={abstract,boolean,break,byte,case,catch,char,class,const,%
+      continue,default,do,double,else,extends,final,finally,float,for,%
+      goto,if,implements,import,instanceof,int,interface,long,native,%
+      new,null,package,private,protected,public,return,short,static,%
+      super,switch,synchronized,this,throw,throws,transient,try,void,%
+      volatile,while,true,false},%
+   sensitive,%
+   commentline=//,%
+   singlecomment={/*}{*/},%
+   stringizer=[b]"%
+  }[keywords,comments,strings]%

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmain.ml,v 1.62 2000-01-21 18:48:46 maranget Exp $" 
+let header = "$Id: latexmain.ml,v 1.63 2000-05-26 17:05:56 maranget Exp $" 
 
 open Misc
 open Parse_opts
@@ -114,20 +114,16 @@ let read_prog prog =
   | Not_found ->
       warning ("Could not find program file: "^prog)
 
-let open_tex name =
-  let name,chan =  Myfiles.open_tex name in
-  if !verbose > 0 then
-    prerr_endline ("Main input_file: "^name) ;
-  name,chan
-
 let read_tex name_in =
   Save.set_verbose !silent !verbose ;
-  try
+  begin try
     match name_in with
     | "" -> Lexstate.real_input_file !verbose scan_main "" stdin
     | _  -> Lexstate.input_file !verbose scan_main name_in
   with
-  | Misc.EndDocument -> ()
+  | Misc.EndDocument -> () 
+  end ;
+  Latexmacros.pretty_table ()
 
 let main () = 
 

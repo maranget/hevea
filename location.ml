@@ -10,7 +10,7 @@
 (***********************************************************************)
 open Stack
 
-let header = "$Id: location.ml,v 1.16 2000-01-26 17:08:55 maranget Exp $" 
+let header = "$Id: location.ml,v 1.17 2000-05-26 17:06:08 maranget Exp $" 
 
 type fileOption = No | Yes of in_channel
 ;;
@@ -28,6 +28,7 @@ and curfile = ref No
 
 let save_state () =
   push stack (!curlexname,!curlexbuf,!curline,!curfile)
+
 and restore_state () =
   let name,lexbuf,line,file = pop stack in
   curlexname := name ;
@@ -67,7 +68,8 @@ let set name lexbuf =
   curlexbuf := lexbuf;
   curfile :=
      begin match name with "" -> No
-     | _ -> try Yes (open_in name) with Sys_error _ -> No
+     | _ ->
+         try Yes (open_in name) with Sys_error _ -> No
      end ;
   curline := (0,1)
 ;;
@@ -97,6 +99,7 @@ let do_get_pos () =  match !curfile with
       let last_pos,last_line =
         if char_pos < last_pos then 0,1 else last_pos,last_line in
       seek_in file last_pos ;
+(*      prerr_endline ("char_pos="^string_of_int char_pos) ; *)
       let nline =
         find_line file last_line (char_pos-last_pos) in
       curline := (char_pos,nline);

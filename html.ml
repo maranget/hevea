@@ -10,7 +10,7 @@
 (***********************************************************************)
 
 
-let header = "$Id: html.ml,v 1.75 2000-05-23 18:00:38 maranget Exp $" 
+let header = "$Id: html.ml,v 1.76 2000-05-26 17:05:52 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -30,7 +30,7 @@ let r_quote = String.create 1
 ;;
 
 let quote_char = function
-  '<' -> "&lt;"
+| '<' -> "&lt;"
 | '>' -> "&gt;"
 | '&' -> "&amp;"
 | c   -> (r_quote.[0] <- c ; r_quote)
@@ -143,7 +143,9 @@ let iso_translate = function
 ;;
 
 let iso c =
-  if !Parse_opts.iso then
+  if !Lexstate.raw_chars then
+    (r_translate.[0] <- c ; r_translate)
+  else if !Parse_opts.iso then
     quote_char c
   else
     iso_translate c
@@ -152,7 +154,7 @@ let iso c =
 let iso_buff = Out.create_buff ()
 
 let iso_string s =
-  if !Parse_opts.iso then begin
+  if not !Parse_opts.iso then begin
     for i = 0 to String.length s - 1 do
       Out.put iso_buff (iso_translate s.[i])
     done ;

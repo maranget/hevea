@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.16 2000-05-23 18:00:54 maranget Exp $    *)
+(*  $Id: package.ml,v 1.17 2000-05-26 17:06:10 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -54,7 +54,7 @@ def_code "\\addtokens"
     let arg = Subst.subst_arg lexbuf in
     begin try match find_macro toks with
     | _,Subst s ->
-        redef_macro toks 0 (Subst (arg^"%\n"^s))
+        redef_macro_once toks 0 (Subst (arg^"%\n"^s))
     | _ -> raise Failed
     with Failed ->
       Misc.warning ("\\addtokens for "^toks^" failed")

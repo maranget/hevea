@@ -1,4 +1,4 @@
-let header =  "$Id: lexstate.ml,v 1.43 2000-05-23 18:00:51 maranget Exp $"
+let header =  "$Id: lexstate.ml,v 1.44 2000-05-26 17:06:05 maranget Exp $"
 
 open Misc
 open Lexing
@@ -42,10 +42,28 @@ let pretty_subst = function
         done
       end
 
+let rec pretty_subst_rec indent = function
+  | Top -> prerr_string indent ; prerr_endline "Top level"
+  | Env args ->      
+      if Array.length args <> 0 then begin
+        prerr_string indent ;
+        prerr_endline "Env: " ;
+        for i = 0 to Array.length args - 1 do
+          prerr_string indent ;
+          prerr_string ("  #"^string_of_int (i+1)^" ``");
+          prerr_string (fst args.(i)) ;
+          prerr_endline "''" ;
+          pretty_subst_rec ("  "^indent) (snd (args.(i)))
+        done
+      end
+
+let full_pretty_subst s = pretty_subst_rec "  " s
+
 exception Error of string
 
 (* Status flags *)
 let display = ref false
+and raw_chars = ref false
 and in_math = ref false
 and alltt = ref false
 and french =
@@ -98,6 +116,36 @@ let pretty_lexbuf lb =
   prerr_endline "End of buff"
 ;;
 
+let rec if_next_char  c lb =
+  if lb.lex_eof_reached then
+    false
+  else
+    let pos = lb.lex_curr_pos
+    and len = lb.lex_buffer_len in
+    if pos >= len then begin
+      warning "Refilling buffer" ;
+      lb.refill_buff lb ;
+      if_next_char c lb
+    end else
+      lb.lex_buffer.[pos] = c
+
+let rec if_next_string s lb =
+  if s = "" then
+    true
+  else if lb.lex_eof_reached then
+    false
+  else
+    let pos = lb.lex_curr_pos
+    and len = lb.lex_buffer_len
+    and slen = String.length s in
+    if pos + slen - 1 >= len then begin
+      warning "Refilling buffer" ;
+      lb.refill_buff lb ;
+      if_next_string s lb
+    end else
+      String.sub lb.lex_buffer pos slen = s
+  
+  
 (* arguments inside macros*)
 type env = string array ref
 type closenv = string array t
@@ -517,6 +565,7 @@ let real_input_file loc_verb main filename input =
       restore_lexstate ();
       close_in input ;
       verbose := old_verb ;
+      Location.restore () ;
       raise e
   end ;
   restore_lexstate ();

@@ -332,10 +332,12 @@
 \ifthenelse{\value{month}=12}{December}{} \theday, \theyear}}}
 %%%%%%%%%%%%%% Defined counter printing functions
 \newcommand{\@arabic}[1]{\@pad{0}{3}{\arabic{#1}}}
-\newcommand{\@twoarabic}[1]{\@pad{\arabic}{0}{2}{\arabic{#1}}}
+\newcommand{\@twoarabic}[1]{\@pad{0}{2}{\arabic{#1}}}
 %%%%%%%%%%%%%%% Une horreur qui peut etre utile
 \newcommand{\newverbenv}[1]
 {\@stopimage%
 \let{\csname #1\endcsname}\verbatim
 \let{\csname end#1\endcsname}\endverbatim
 \@restartimage}
+\newcommand{\@noiso}[1]{\ifiso\isofalse#1\isotrue\else#1\fi}
+\newcommand{\@rawchars}[1]{\ifraw#1\else\rawtrue#1\rawfalse\fi}

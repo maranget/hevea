@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmacros.ml,v 1.57 2000-05-22 12:19:00 maranget Exp $" 
+let header = "$Id: latexmacros.ml,v 1.58 2000-05-26 17:05:55 maranget Exp $" 
 open Misc
 open Parse_opts
 open Symb
@@ -35,6 +35,28 @@ let cmdtable =
   (Hashtbl.create 97 : (string, (pat * action)) Hashtbl.t)
 and prim_table = Hashtbl.create 5
 
+let pretty_table () =
+  let t = Hashtbl.create 97
+  and count = ref 0 in
+  let incr k =
+    incr count ;
+    let r =
+      try Hashtbl.find t k with
+      | Not_found ->
+          let r = ref 0 in
+          Hashtbl.add t k r ;
+          r in
+    incr r in
+  Hashtbl.iter (fun k _ -> incr k) cmdtable ;
+  Printf.fprintf stderr
+      "Table size: %d\n" !count ;
+  Hashtbl.iter
+    (fun k r ->
+      if !r > 1 then
+        Printf.fprintf stderr "%s: %d\n" k !r)
+    t ;
+  flush stderr
+    
 type saved =  (string, (pat * action)) Hashtbl.t *
  (string, (unit -> unit)) Hashtbl.t
 
@@ -118,7 +140,22 @@ let redef_macro_pat name pat action =
       warning ("defining a macro with \\renewcommand, "^name);
       Hashtbl.add cmdtable name (pat,action)
   end
-;;
+
+let redef_macro_pat_once name pat action =
+  if !verbose > 1 then begin
+   Printf.fprintf stderr "redef_macro_once %s = " name;
+   pretty_macro pat action
+  end ;
+  try
+    let _ = Hashtbl.find cmdtable name in
+    Hashtbl.remove cmdtable name ;
+    Hashtbl.add cmdtable name (pat,action)
+  with
+    Not_found -> begin
+      warning ("defining a macro with \\renewcommand, "^name);
+      Hashtbl.add cmdtable name (pat,action)
+  end
+
 let provide_macro_pat name pat action =
   if !verbose > 1 then begin
    Printf.fprintf stderr "provide_macro %s = " name;
@@ -143,6 +180,14 @@ let silent_def_pat name pat action =
     Printf.fprintf stderr "texdef_macro %s = " name;
     pretty_macro pat action
   end
+
+let silent_def_pat_once name pat action = 
+  Hashtbl.remove cmdtable name ;
+  Hashtbl.add cmdtable name (pat,action) ;
+  if !verbose > 1 then begin
+    Printf.fprintf stderr "texdef_macro %s = " name;
+    pretty_macro pat action
+  end
 ;;
 
 let make_pat opts n =
@@ -154,12 +199,16 @@ let make_pat opts n =
 ;;
 
 let silent_def name n action =  silent_def_pat name (make_pat [] n) action
+and silent_def_once name n action =
+  silent_def_pat_once name (make_pat [] n) action
 ;;
 
 let def_macro name nargs body =
   def_macro_pat name (make_pat [] nargs) body
 and redef_macro name nargs body =
   redef_macro_pat name (make_pat [] nargs) body
+and redef_macro_once name nargs body =
+  redef_macro_pat_once name (make_pat [] nargs) body
 ;;
 let def_code name f = def_macro name 0 (CamlCode f)
 and redef_code name f = redef_macro name 0 (CamlCode f)

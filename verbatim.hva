@@ -1,1 +1,7 @@
 \@primitives{verbatim}
+\newcommand{\verbatiminput}[1]
+  {\@scaninput{\begin{verbatim}
+}{#1}{\end{verbatim}}}
+\newcommand{\verbatiminput*}[1]
+  {\@scaninput{\begin{verbatim*}
+}{#1}{\end{verbatim*}}}

@@ -9,7 +9,7 @@
 \input{spaces.hva}
 %%% \... symbols renderered with iso-latin1
 \input{iso-symb.hva}
-\renewcommand{\&}{\@print{&amp;}}
+\renewcommand{\&}{\ifraw\@print{&}\else\@print{&amp;}\fi}
 \input{latexcommon.hva}
 %%% Logos
 \def\TeX{\@print{TeX}}
@@ -32,9 +32,9 @@
 \ifthenelse{\equal{#1}{}}{\@print{"}}{\@print{" }\@getprint{#1}}\@print{>}}}
 \newcommand{\anchor}[1]{\@saveclosed{\@nostyle\@print{<A NAME="}#1\@print{"></A>}}\@restoreclosed}
 %% Hyper-text references inside the document, internal usage
-\newcommand{\@locref}[2]{\@aelement{HREF="\##1"}{#2}}
+\newcommand{\@locref}[2]{\@aelement{HREF="\@print{#}#1"}{#2}}
 \newcommand{\@locname}[2]{\@aelement{NAME="#1"}{#2}}
-\newcommand{\@locnameref}[3]{\@aelement{NAME="#1" HREF="\##2"}{#3}}
+\newcommand{\@locnameref}[3]{\@aelement{NAME="#1" HREF="\@print{#}#2"}{#3}}
 %% Two exported commands
 \let\ahrefloc\@locref
 \let\aname\@locname
@@ -215,10 +215,10 @@
 }{%
 \@clearstyle\@footnoteflush{document}%
 \@atenddocument%
-\@clearstyle\@print{</BODY>
+\@clearstyle%
+\@print{</BODY>
 </HTML>
-}
-}
+}}
 \newenvironment{center}{\@open{DIV}{ALIGN=center}}{\@close{DIV}}
 \newenvironment{flushleft}{\@open{DIV}{ALIGN=left}}{\@close{DIV}}
 \newenvironment{flushright}{\@open{DIV}{ALIGN=right}}{\@close{DIV}}

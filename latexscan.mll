@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.172 2000-05-23 18:00:47 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.173 2000-05-26 17:06:00 maranget Exp $ *)
 
 
 {
@@ -95,6 +95,13 @@ let fun_register f =
 ;;
 
 let do_unregister macros after =
+(*
+begin match macros with
+| [] -> ()
+| l ->
+    Printf.fprintf stderr "Unregistering %d macros\n" (List.length l)
+end ;
+*)
   List.iter
    (fun name ->
      if !verbose > 3 then
@@ -840,52 +847,21 @@ let command_name = '\\' (( ['@''A'-'Z' 'a'-'z']+ '*'?) | [^ 'A'-'Z' 'a'-'z'])
 
 rule  main = parse
 (* comments *)
-   '%'+
-   {if !alltt || not (is_plain '%') then begin
-     let lxm = lexeme lexbuf in
-     Dest.put lxm ;
-     main lexbuf
-   end else
-     comment lexbuf}
+   '%'
+   {expand_command main skip_blanks "\\@hevea@percent" lexbuf ;
+   main lexbuf}
 
 (* Paragraphs *)
-  | '\n' (' '* '\n')*
-      {
-       let lxm = lexeme lexbuf in
-       let nlnum = count_newlines lxm in
-       if !Lexstate.withinLispComment
-       then begin
-         if !verbose > 2 then prerr_endline "NL caught after LispComment" ;
-         raise (Misc.EndOfLispComment nlnum) (* QNC *)
-       end else begin
-         if !alltt then
-           Dest.put lxm
-         else if nlnum >= 2 then
-           scan_this main "\\par"
-         else
-           Dest.put_separator () ;
-         main lexbuf
-       end}
+  | '\n'
+      {expand_command main skip_blanks "\\@hevea@newline" lexbuf ;
+      main lexbuf}
 (* subscripts and superscripts *)
-  | ('_' | '^')
-     {let lxm = lexeme lexbuf in
-     if !alltt || not (is_plain lxm.[0]) then Dest.put lxm
-     else if not !in_math then begin
-       warning ("``"^lxm^"''occuring outside math mode") ;
-       Dest.put lxm
-     end else begin
-       let sup,sub = match lxm with
-         "^" ->
-           let sup = Save.arg lexbuf in
-           let sub = Save.get_sub lexbuf in
-           sup,sub
-       | _   ->
-           let sub = Save.arg lexbuf in
-           let sup = Save.get_sup lexbuf in
-           sup,sub in
-       Dest.standard_sup_sub (scan_this main) (fun () -> ()) sup sub !display
-     end ;
-     main lexbuf}
+  | '_'
+      {expand_command main skip_blanks "\\@hevea@underscore" lexbuf ;
+      main lexbuf}
+  | '^'
+      {expand_command main skip_blanks "\\@hevea@circ" lexbuf ;
+      main lexbuf}
 (* Math mode *)
 | "$" | "$$"
      {let lxm = lexeme lexbuf in
@@ -961,21 +937,12 @@ rule  main = parse
       expand_command main skip_blanks name lexbuf ;
       main lexbuf}
 (* Groups *)
-| '{' 
-    {if !activebrace && is_plain '{' then
-      top_open_group ()
-    else begin
-      Dest.put_char '{'
-    end ;
-    main lexbuf}
+| '{'
+    {expand_command main skip_blanks "\\@hevea@obrace" lexbuf ;
+    main lexbuf} 
 | '}' 
-    {if !activebrace && is_plain '}' then begin
-      let cenv = !cur_env in
-      top_close_group ()
-    end else begin
-      Dest.put_char '}'
-    end ;
-    main lexbuf}
+    {expand_command main skip_blanks "\\@hevea@cbrace" lexbuf ;
+    main lexbuf} 
 | eof {()}
 | ' '+
    {if !alltt then
@@ -998,23 +965,27 @@ rule  main = parse
     main lexbuf}
 (* Html specials *)
 | '~'
-  {if !alltt || not (is_plain '~') then Dest.put_char '~'
-  else Dest.put_nbsp () ;
+  {expand_command main skip_blanks "\\@hevea@tilde" lexbuf ;
   main lexbuf }
 (* Spanish stuff *)
-| "?`"
-    {if !alltt then Dest.put "?`"
-    else Dest.put (Dest.iso '¿') ;
-    main lexbuf}
-| "!`"
-  {if !alltt then Dest.put "!`"
-  else Dest.put (Dest.iso '¡') ;
+| '?'
+  {expand_command main skip_blanks "\\@hevea@question" lexbuf ;
+  main lexbuf}
+| '!'
+  {expand_command main skip_blanks "\\@hevea@excl" lexbuf ;
   main lexbuf}
 (* One character *)
 | _ 
    {let lxm = lexeme_char lexbuf 0 in
    Dest.put (Dest.iso lxm) ;
    main lexbuf}
+
+and gobble_one_char = parse 
+| _   {()}
+| ""  {fatal ("Gobble at end of file")}
+
+and complete_newline = parse
+|  (' '* '\n')* {lexeme lexbuf}
 
 and latex2html_latexonly = parse
 | '%' + [ ' ' '\t' ] * "\\end{latexonly}" [ ^ '\n' ] * '\n'
@@ -1215,19 +1186,21 @@ and more_skip = parse
   '\n'+ {top_par (par_val !in_table)}
 | ""    {skip_blanks lexbuf}
 
-and skip_spaces_main = parse
-  ' ' * {main lexbuf}
-| eof   {main lexbuf}
+and skip_spaces = parse
+  ' ' * {()}
+| eof   {()}
 
 
 and skip_false = parse
 |  '%'
      {if is_plain '%' then skip_comment lexbuf ;
        skip_false lexbuf}
-|  "\\if" ['a'-'z' 'A'-'Z']+
+|  "\\ifthenelse"
+     {skip_false lexbuf}
+|  "\\if" ['a'-'z' 'A'-'Z''@']+
      {if_level := !if_level + 1 ;
      skip_false lexbuf}
-| "\\else" ['a'-'z' 'A'-'Z']+
+| "\\else" ['a'-'z' 'A'-'Z''@']+
      {skip_false lexbuf}
 | "\\else"
      {if !if_level = 0 then skip_blanks lexbuf
@@ -1246,22 +1219,21 @@ and skip_false = parse
 
 and comment = parse
   ' '* ("BEGIN"|"begin") ' '+ ("IMAGE"|"image")
-    {skip_comment lexbuf ; start_image_scan "" image lexbuf ; main lexbuf}
+    {skip_comment lexbuf ; start_image_scan "" image lexbuf}
 (* Backward compatibility with latex2html *)
 | [ ' ' '\t' ] * "\\begin{latexonly}"
-    {latex2html_latexonly lexbuf;
-     main lexbuf}
+    {latex2html_latexonly lexbuf}
 | ' '* ("HEVEA"|"hevea") ' '*
-   {main lexbuf}
+   {()}
 | ' '* ("BEGIN"|"begin") ' '+ ("LATEX"|"latex")
     {skip_comment lexbuf ;
     start_other_scan "latexonly" latexonly lexbuf ;
-    skip_spaces_main lexbuf}
+    skip_spaces lexbuf}
 | ""
-    {skip_comment lexbuf ; more_skip lexbuf ; main lexbuf}
+    {skip_comment lexbuf ; more_skip lexbuf}
 
 and skip_comment = parse    
-   [^ '\n']* '\n'
+|  [^ '\n']* '\n'
    {if !verbose > 1 then
      prerr_endline ("Comment:"^lexeme lexbuf) ;
    if !flushing then Dest.flush_out () }
@@ -1269,6 +1241,106 @@ and skip_comment = parse
 
 
 {
+def_code "\\@hevea@percent"
+    (fun lexbuf ->
+      if !alltt || not (is_plain '%') then begin
+        let lxm = lexeme lexbuf in
+        Dest.put lxm ;
+        main lexbuf
+      end else
+        comment lexbuf)
+;;
+
+def_code "\\@hevea@newline"
+    (fun lexbuf ->
+      let lxm = complete_newline lexbuf in
+      let nlnum = count_newlines lxm in
+      if !Lexstate.withinLispComment
+      then begin
+        if !verbose > 2 then prerr_endline "NL caught after LispComment" ;
+        raise (Misc.EndOfLispComment nlnum) (* QNC *)
+      end else begin
+        if !alltt then begin
+          Dest.put_char '\n' ;
+          Dest.put lxm
+        end else if nlnum >= 1 then
+          expand_command main skip_blanks "\\par" lexbuf
+        else
+          Dest.put_separator ()
+       end)
+;;
+
+let sub_sup lxm lexbuf =
+  if !alltt || not (is_plain lxm) then Dest.put_char lxm
+  else if not !in_math then begin
+    warning ("``"^Char.escaped lxm^"''occuring outside math mode") ;
+    Dest.put_char lxm
+  end else begin
+    let sup,sub = match lxm with
+      '^' ->
+        let sup = Save.arg lexbuf in
+        let sub = Save.get_sub lexbuf in
+        sup,sub
+    | '_'   ->
+        let sub = Save.arg lexbuf in
+        let sup = Save.get_sup lexbuf in
+        sup,sub
+    | _ -> assert false in
+    Dest.standard_sup_sub (scan_this main) (fun () -> ()) sup sub !display
+  end
+;;
+
+def_code "\\@hevea@underscore" (fun lexbuf -> sub_sup '_' lexbuf) ;
+def_code "\\@hevea@circ" (fun lexbuf -> sub_sup '^' lexbuf)
+;;
+
+
+def_code "\\@hevea@obrace"
+    (fun _ ->
+      if !activebrace && is_plain '{' then
+        top_open_group ()
+      else begin
+        Dest.put_char '{'
+      end)
+;;
+
+def_code "\\@hevea@cbrace"
+    (fun lexbuf ->
+      if !activebrace && is_plain '}' then begin
+        top_close_group ()
+      end else begin
+        Dest.put_char '}'
+      end)
+;;
+
+def_code "\\@hevea@tilde"
+  (fun lexbuf ->
+    if !alltt || not (is_plain '~') then
+      Dest.put_char '~'
+    else Dest.put_nbsp ())
+;;
+
+def_code "\\@hevea@question"
+  (fun lexbuf ->
+    if if_next_char '`' lexbuf then begin
+      gobble_one_char lexbuf ;
+      if !alltt then Dest.put "?`"
+      else
+        Dest.put (Dest.iso '¿')
+    end else
+      Dest.put_char  '?')
+;;
+def_code "\\@hevea@excl"
+  (fun lexbuf ->
+     if if_next_char '`' lexbuf then begin
+       gobble_one_char lexbuf ;
+       if !alltt then Dest.put "!`"
+       else Dest.put (Dest.iso '¡')
+     end else
+       Dest.put_char '!')
+;;
+
+
 let check_alltt_skip lexbuf =
   if not (Stack.empty stack_alltt) && pop stack_alltt then begin
     push stack_alltt true
@@ -1307,11 +1379,12 @@ let check_this_main s =
 let get_prim_onarg arg =
   let plain_sub = is_plain '_'
   and plain_sup = is_plain '^'
-  and plain_dollar = is_plain '$' in
-  unset_plain '_' ; unset_plain '^' ; unset_plain '$' ;
+  and plain_dollar = is_plain '$'
+  and plain_amper = is_plain '&' in
+  unset_plain '_' ; unset_plain '^' ; unset_plain '$' ; unset_plain '&' ;
   let r = get_this_nostyle_arg main arg in
   plain_back plain_sub '_' ; plain_back plain_sup '^' ;
-  plain_back plain_dollar '$' ;
+  plain_back plain_dollar '$' ; plain_back plain_amper '&' ;
   r
 
 let get_prim s = get_prim_onarg (s,get_subst ())
@@ -1763,7 +1836,15 @@ def_code "\\@printnostyle"
 
 def_code "\\@getprint"
   (fun lexbuf ->
+(*
+    prerr_endline "GETPRINT:" ;
+    pretty_lexbuf lexbuf ;
+    full_pretty_subst (get_subst ()) ;
+*)
     let arg = get_prim_arg lexbuf in
+(*
+    prerr_endline arg ;
+*)
     let buff = Lexing.from_string arg in
     Dest.put (Save.tagout buff)) ;
 ;;
@@ -1925,6 +2006,7 @@ def_code "\\fi" (fun lexbuf -> check_alltt_skip lexbuf)
 
 newif_ref "symb" symbols ;
 newif_ref "iso" iso ;
+newif_ref "raw" raw_chars ;
 newif_ref "alltt" alltt ;
 newif_ref "silent" silent;
 newif_ref "math" in_math ;

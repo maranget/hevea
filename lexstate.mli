@@ -24,6 +24,7 @@ val get_subst : unit -> subst
 
 exception Error of string
 
+val raw_chars : bool ref
 val display : bool ref
 val in_math : bool ref
 val alltt : bool ref
@@ -47,7 +48,11 @@ val top_level : unit -> bool
 
 
 val prerr_args : unit -> unit
+val full_pretty_subst : subst -> unit
+
 val pretty_lexbuf : Lexing.lexbuf -> unit
+val if_next_char : char -> Lexing.lexbuf  -> bool
+val if_next_string : string -> Lexing.lexbuf -> bool
 
 val scan_arg : (string -> 'a) -> int -> 'a
 val scan_body :

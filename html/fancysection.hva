@@ -16,7 +16,7 @@
   {\@open{TABLE}{#1}\@open{TR}{}\@open{TD}{#2}}
 \newcommand{\CLOSETABLE}
   {\@close{TD}\@close{TR}\@close{TABLE}}
-\def\opencolor#1{\begin{bgcolor}[CELLPADDING=0 CELLSPACING=0 WIDTH="100\%"]{#1}\bf\centering}
+\def\opencolor#1{\begin{bgcolor}[CELLPADDING=0 CELLSPACING=0 WIDTH="100\@print{%}"]{#1}\bf\centering}
 \def\closecolor{\end{bgcolor}}
 
 

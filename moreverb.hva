@@ -4,3 +4,8 @@
 \newenvironment{boxedverbatim}
 {\tabular{|c}\verbatim}
 {\endverbatim\endtabular}
+\newcommand{\verbatimtabinput}[2][\verbatimtabsize]
+  {\@scaninput{\begin{verbatimtab}[#1]
+}{#2}{\end{verbatimtab}}}
+\newcommand{\listinginput}[3][1]
+  {\@scaninput{\begin{listing}[#1]{#2}}{#3}{\end{listing}}}

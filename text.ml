@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.43 2000-05-23 18:00:57 maranget Exp $"
+let header = "$Id: text.ml,v 1.44 2000-05-26 17:06:11 maranget Exp $"
 
 
 open Misc
@@ -101,7 +101,7 @@ let iso_translate = function
 ;;
 
 let iso c =
-  if !Parse_opts.iso then
+  if !Parse_opts.iso || !Lexstate.raw_chars then
     (r_translate.[0]<-c; r_translate)
   else
     iso_translate c
@@ -2072,4 +2072,8 @@ let right delim =
   close_display ();
   vsize
 ;;
+
+(*
+  C'est fini, élegamment
+*)
 

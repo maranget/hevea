@@ -30,50 +30,81 @@ let env_extract s =
   and j = String.rindex s '}' in
   String.sub s (i+1) (j-i-1)
 
+and newlines_extract s =
+  let rec do_rec i =
+    if i < String.length s then begin
+      if s.[i] = '\n' then
+        1+do_rec (i+1)
+      else
+        0
+    end else
+      0 in
+  do_rec 0
+
 (* For scanning the ``listings'' way *)
-let lst_print = ref false
+
+let lst_process_error _ lxm =
+   warning ("listings, unknown character: ``"^Char.escaped lxm^"''")
+
+let lst_char_table = Array.create 256 lst_process_error
+;;
+
+let lst_init_char c f =
+  lst_char_table.(Char.code c) <- f
+
+let lst_init_chars s f =
+  let last = String.length s - 1 in
+  for i = 0 to last do
+    lst_char_table.(Char.code s.[i]) <- f
+  done
+
+let lst_init_save_char c f =
+    let old = lst_char_table.(Char.code c) in
+    lst_char_table.(Char.code c) <- f old
+
+let lst_init_save_chars s f =
+  let last = String.length s - 1 in
+  for i = 0 to last do
+    lst_init_save_char s.[i] f
+  done
+
+(* Output functions *)
 let lst_gobble  = ref 0
 and lst_nchars  = ref 0
 and lst_nlines  = ref 0
 and lst_first   = ref 1
 and lst_last    = ref 9999
-
-let lst_good_line () =
-  !lst_print &&
-  (!lst_first <= !lst_nlines && !lst_nlines <= !lst_last)
-let lst_line_zero () =
-  !lst_print &&
-  !lst_nlines = !lst_first-1
-
-let lst_do_output () =
-  !lst_print &&
-  lst_good_line () && !lst_nchars > !lst_gobble
+and lst_print   = ref true
 
 let lst_buff = Out.create_buff ()
+
+let lst_last_char = ref ' '
+and lst_finish_comment = ref 0
+
 let lst_put c =
-  incr lst_nchars ;
-  if lst_do_output () then
-    Out.put_char lst_buff c
+  lst_last_char := c ;
+  Out.put_char lst_buff c
 
 and lst_direct_put c =
-  incr lst_nchars ;
-  if lst_do_output () then
-    Dest.put_char c
-
-let lst_output_newline () =
-  lst_nchars := 0 ;
-  if lst_good_line () || lst_line_zero () then begin
-    scan_this Scan.main "\\lsthk@EOL\\lsthk@InitVarEOL" ;
-    Dest.put_char '\n'
-  end ;
-  incr lst_nlines ;  
-  if lst_good_line () then begin
-    scan_this Scan.main
-      "\\lsthk@InitVarBOL\\lsthk@EveryLine\\lst@doindent\\lst@linenumber"
-  end
+  lst_last_char := c ;
+  Dest.put_char c
 
 type lst_scan_mode = Letter | Other | Empty
-let lst_scan_mode = ref Other
+let lst_scan_mode = ref Empty
+
+type comment_type =
+  | Nested of int
+  | Balanced of (char -> string -> bool)
+  | Line
+
+type lst_top_mode =
+  | Skip
+  | String of char | Escape | Normal | Comment of comment_type
+  | Delim of int * (char * (Lexing.lexbuf -> char -> unit)) list
+
+let lst_top_mode = ref Skip
+
+
 let lst_ptok s =  prerr_endline (s^": "^Out.to_string lst_buff)
 
 let dest_string s =
@@ -84,39 +115,249 @@ let dest_string s =
 (* Keywords *)
 
 let def_print s =
-  silent_def "\@temp@lst" 0
+  silent_def_once "\@temp@lst" 0
     (CamlCode (fun _ -> dest_string s))
 ;;
 
 let lst_output_other () =
-  let arg = Out.to_string lst_buff in
-  def_print arg ;
-  scan_this Scan.main ("{\lst@output@other{\@temp@lst}}")
+  if not (Out.is_empty lst_buff) then begin
+    match !lst_top_mode with
+    | Normal ->
+        let arg = Out.to_string lst_buff in
+        def_print arg ;
+        scan_this Scan.main ("{\lst@output@other{\@temp@lst}}")
+    | _ ->
+        dest_string (Out.to_string lst_buff)
+  end
+
 
 and lst_output_letter () =
-  let arg = Out.to_string lst_buff in
-  def_print arg ;
-  scan_this Scan.main ("{\lst@output{\@temp@lst}}")
-    
-and lst_output_space s = match s with
-| '\n' -> lst_output_newline ()
-| _    -> lst_direct_put s
-;;
+  if not (Out.is_empty lst_buff) then begin
+    match !lst_top_mode with
+    | Normal ->
+        let arg = Out.to_string lst_buff in
+        def_print arg ;
+        scan_this Scan.main ("{\lst@output{\@temp@lst}}")
+    | _ ->
+        dest_string (Out.to_string lst_buff)
+  end
+
+let lst_output_token () = match !lst_scan_mode with
+| Letter -> lst_output_letter ()
+| Other  -> lst_output_other ()
+| Empty  -> ()
+
 
 let lst_finalize () =
-  begin match !lst_scan_mode with
-  | Letter -> lst_output_letter ()
-  | Other  -> lst_output_other ()
-  | _ -> ()
-  end ;
+  lst_output_token () ;
   Dest.put_char '\n'
+
+
+(* Process functions *)
+let rec lst_process_newline lb c = match !lst_top_mode with
+| Skip ->
+    if !lst_nlines = !lst_first - 1 then begin
+      lst_top_mode := Normal ;
+      lst_process_newline lb c
+    end else
+      incr lst_nlines
+| Comment Line ->
+    lst_output_token () ;
+    scan_this Scan.main "}" ;
+    lst_top_mode := Normal ;
+    lst_process_newline lb c
+| _    ->
+    scan_this Scan.main "\\lsthk@InitVarEOL\\lsthk@EOL" ;
+    lst_output_token () ;
+    lst_scan_mode := Empty ;
+    Dest.put_char '\n' ;
+    incr lst_nlines ;  
+    if !lst_nlines <= !lst_last then begin
+      scan_this Scan.main
+        "\\lsthk@InitVarBOL\\lsthk@EveryLine\\lst@doindent\\lst@linenumber"
+    end else
+      lst_top_mode := Skip
+
+
+let lst_process_letter _ lxm = match !lst_top_mode with
+| Skip -> ()
+| _ -> match !lst_scan_mode with
+  | Letter -> lst_put lxm
+  | Empty ->
+      lst_scan_mode := Letter ;
+      lst_put lxm
+  | Other  ->
+      lst_output_other () ;
+      lst_scan_mode := Letter ;
+      lst_put lxm
+
+let lst_process_digit _ lxm = match !lst_top_mode with
+| Skip -> ()
+| _ ->  match !lst_scan_mode with
+  | Letter|Other -> lst_put lxm
+  | Empty  ->
+      lst_scan_mode := Other ;
+      lst_put lxm
+
+let lst_process_other _ lxm = match !lst_top_mode with
+|  Skip -> ()
+|  _ -> match !lst_scan_mode with
+    | Other -> lst_put lxm
+    | Empty ->
+        lst_scan_mode := Other ;
+        lst_put lxm        
+    | Letter ->
+        lst_output_letter () ;
+        lst_scan_mode := Other ;
+        lst_put lxm
+
+let lst_process_space _ lxm =  match !lst_top_mode with
+| Skip -> ()
+| _ ->
+    begin match !lst_scan_mode with
+    | Other -> lst_output_other ()
+    | Letter -> lst_output_letter ()
+    | _ -> ()
+    end ;
+    lst_scan_mode := Empty ;
+    lst_direct_put lxm
+
+  
+
+let lst_init_char_table () =
+  lst_init_chars
+    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ@_$"
+    lst_process_letter ;
+  lst_init_chars "!\"#%&'()*+,-./:;<=>?[\\]^{}|`" lst_process_other ;
+  lst_init_chars "0123456789" lst_process_digit ;
+  lst_init_chars " \t" lst_process_space ;
+  lst_init_char '\n' lst_process_newline
+;;
+
+(* Strings *)
+let lst_quote_bs = ref false
+
+let lst_init_quote s =
+  for i = 0 to String.length s-1 do
+    if s.[i] = 'b' then lst_quote_bs := true
+  done
+
+let lst_process_stringizer old_process lb lxm = match !lst_top_mode with
+  | Normal ->
+      lst_output_token () ;
+      lst_top_mode := String lxm ;
+      scan_this Scan.main "{\\lst@string@style" ;
+      old_process lb lxm
+  | String c when lxm = c &&
+    (not !lst_quote_bs || !lst_last_char <> '\\') ->
+      old_process lb lxm ;
+      lst_output_token () ;
+      scan_this Scan.main "}" ;
+      lst_top_mode := Normal
+  | _ -> old_process lb lxm
+
+(* Comment *)
+
+let chars_string c s =
+  let rec do_rec r i =
+    if i < String.length s then
+      if List.mem s.[i] r then
+        do_rec r (i+1)
+      else
+        do_rec (s.[i]::r) (i+1)
+    else
+      r in
+  do_rec [c] 0
+
+let init_char_table_delim chars wrapper =
+  List.map
+    (fun c ->
+      let old_process = lst_char_table.(Char.code c) in
+      lst_init_save_char c wrapper ;
+      (c,old_process))
+  chars
+
+and restore_char_table_delim to_restore =
+  let rec do_rec = function
+    | [] -> ()
+    | (c,f)::rest ->
+        lst_init_char c f ;
+        do_rec rest in
+  do_rec to_restore
+          
+
+let eat_delim k new_mode old_process lb c s =
+  let chars = chars_string c s in
+  let wrapper old_process lb c = match !lst_top_mode with
+  | Delim (n,to_restore) ->
+      old_process lb c ;
+      if n = 1 then begin
+        lst_output_token () ;
+        lst_top_mode := new_mode ;
+        restore_char_table_delim to_restore ;
+        k ()
+      end else
+        lst_top_mode := Delim (n-1,to_restore)
+  | _ -> assert false in
+  let to_restore = init_char_table_delim chars wrapper in
+  lst_top_mode := Delim (1+String.length s, to_restore) ;
+  wrapper old_process lb c 
+
+let begin_comment () =
+  lst_output_token () ;
+  scan_this Scan.main "{\\lst@comment@style"
+
+let lst_process_BNC _ s old_process lb c = match !lst_top_mode with
+| Normal when if_next_string s lb -> 
+    begin_comment () ;
+    eat_delim (fun () -> ()) (Comment (Nested 0)) old_process lb c s
+| Comment (Nested n) when if_next_string s lb ->
+    eat_delim (fun () -> ()) (Comment (Nested (n+1))) old_process lb c s
+| _ -> old_process lb c
+
+and lst_process_ENC s old_process lb c = match !lst_top_mode with
+| Comment (Nested 0) when if_next_string s lb ->
+    eat_delim
+      (fun () -> scan_this Scan.main "}")
+      Normal
+      old_process
+      lb c s
+|  Comment (Nested n) when if_next_string s lb ->
+    eat_delim
+      (fun () -> ())
+      (Comment (Nested (n-1)))
+      old_process lb c s
+| _ -> old_process lb c
+
+let lst_process_BBC check s old_process lb c = match !lst_top_mode with
+| Normal when if_next_string s lb ->
+    begin_comment () ;
+    eat_delim
+      (fun () -> ())
+      (Comment (Balanced check))
+      old_process lb c s
+| _ -> old_process lb c
+
+and lst_process_EBC s old_process lb c = match !lst_top_mode with
+| Comment (Balanced check) when
+  check c s && if_next_string  s lb ->
+     eat_delim
+      (fun () -> scan_this Scan.main "}")
+      Normal
+      old_process
+      lb c s
+| _ -> old_process lb c
+
+let lst_process_LC s old_process lb c = match !lst_top_mode with
+| Normal ->
+    begin_comment () ;
+    eat_delim
+      (fun () -> ())
+      (Comment Line)
+      old_process lb c s
+| _ -> old_process lb c
 } 
 
-let letter = ['a'-'z''A'-'Z''@' '$' '_']
-let other = ['!' '"' '#' '%' '&' ''' '(' ')' '*' '+' ',' '-' '.' '/'
-':' ';' '<' '=' '>' '?' '[' '\\' ']' '^' '{' '}' '|' '|']
-let digit = ['0'-'9']
-let space = [' ''\t''\n']
 
 rule inverb = parse
 |  _
@@ -181,62 +422,17 @@ and listings = parse
  '\n'* "\\end" [' ''\t']* '{' [^'}']+ '}'
     {let lxm = lexeme lexbuf in
     let env = env_extract lxm in
+    lst_finalize () ;
+    while !Scan.cur_env = "" do
+      scan_this Scan.main "}"
+    done ;
     if env = !Scan.cur_env then begin
-      lst_finalize () ;
       scan_this Scan.main ("\\end"^env) ;
       Scan.top_close_block "" ;
       Scan.close_env !Scan.cur_env ;
       Scan.check_alltt_skip lexbuf
     end else
       Misc.fatal "listings"}
-| letter
-    {let lxm = lexeme_char lexbuf 0 in
-    begin match !lst_scan_mode with
-    | Letter -> lst_put lxm
-    | Empty ->
-        lst_scan_mode := Letter ;
-        lst_put lxm
-    | Other  ->
-        lst_output_other () ;
-        lst_scan_mode := Letter ;
-        lst_put lxm
-    end ;
-    listings lexbuf}
-| digit
- {let lxm = lexeme_char lexbuf 0 in
-    begin match !lst_scan_mode with
-    | Letter|Other -> lst_put lxm
-    | Empty  ->
-        lst_scan_mode := Other ;
-        lst_put lxm
-    end ;
-    listings lexbuf}
-| other
-    {let lxm = lexeme_char lexbuf 0 in
-    begin match !lst_scan_mode with
-    | Other -> lst_put lxm
-    | Empty ->
-        lst_scan_mode := Other ;
-        lst_put lxm        
-    | Letter ->
-        lst_output_letter () ;
-        lst_scan_mode := Other ;
-        lst_put lxm
-    end ;
-    listings lexbuf}
-| space
-    {let lxm =  Lexing.lexeme_char lexbuf 0 in
-    begin match !lst_scan_mode with
-    | Other -> lst_output_other ()
-    | Letter -> lst_output_letter ()
-    | _ -> ()
-    end ;
-    lst_output_space lxm ;
-    listings lexbuf}
-| _
-   {let lxm =  Lexing.lexeme_char lexbuf 0 in
-   warning ("listings, unknown character: ``"^Char.escaped lxm^"''") ;
-   listings lexbuf}
 |  eof
     {if not (Stack.empty stack_lexbuf) then begin
       let lexbuf = previous_lexbuf () in
@@ -245,9 +441,19 @@ and listings = parse
       raise
         (Eof "listings")
     end}
+| '\n'
+    {lst_nchars := 0 ;
+    lst_process_newline lexbuf '\n' ;
+    listings lexbuf}
+| _
+    {incr lst_nchars ;
+    if !lst_nchars > !lst_gobble then begin
+      let lxm = lexeme_char lexbuf 0 in
+      lst_char_table.(Char.code lxm) lexbuf lxm
+    end ;
+    listings lexbuf}
 
 and eat_line = parse
-| '\n' {()}
 | eof
     {if not (Stack.empty stack_lexbuf) then begin
       let lexbuf = previous_lexbuf () in
@@ -256,7 +462,8 @@ and eat_line = parse
       raise
         (Eof "eat_line")
     end}
-| _  {eat_line lexbuf}
+| [^'\n']  {eat_line lexbuf}
+| '\n'     {lst_nchars := 0 ; lst_process_newline lexbuf '\n'}
 {
 let _ = ()
 ;;
@@ -292,6 +499,7 @@ let noeof lexer lexbuf =
   with Eof s ->
     raise (VError ("End of file in environment: ``"^ !Scan.cur_env^"''"))
 
+(*
 and verb_input lexer file =
   let save = !Scan.cur_env in
   Scan.cur_env := "*verb-file*" ;
@@ -305,6 +513,7 @@ and verb_input lexer file =
   | Myfiles.Error _ -> ()
   end ;
    Scan.cur_env := save
+*)
 
 let open_verbenv star =
   Scan.top_open_block "PRE" "" ;
@@ -406,7 +615,7 @@ def_code "\\endverbimage" Scan.check_alltt_skip ;
 ;;
 
 let init_verbatim () =
-
+(*
 def_code "\\verbatiminput"
     (fun lexbuf ->
       let name = Scan.get_prim_arg lexbuf in
@@ -419,6 +628,7 @@ def_code "\\verbatiminput*"
       open_verbenv true ;
       verb_input scan_byline name ;
       close_verbenv lexbuf) ;
+*)
 (* comment clashes with the ``comment'' package *)
 silent_def "\\comment"  0 (CamlCode open_forget) ;
 silent_def "\\endcomment" 0 (CamlCode Scan.check_alltt_skip) ;
@@ -517,6 +727,7 @@ register_init "moreverb"
       scan_this Scan.main first ;
       noeof scan_byline lexbuf) ;
   def_code "\\endverbatimtab" close_verbenv_tabs ;
+(*
   def_code "\\verbatimtabinput"
     (fun lexbuf ->
       let opt = Get.get_int (save_opt "\\verbatimtabsize" lexbuf) in
@@ -525,6 +736,7 @@ register_init "moreverb"
       open_verbenv_tabs () ;
       verb_input scan_byline name ;
       close_verbenv_tabs lexbuf) ;
+*)
   def_code "\\listinglabel"
     (fun lexbuf ->
       let arg = Get.get_int (save_arg lexbuf) in
@@ -538,7 +750,7 @@ register_init "moreverb"
       open_listing start inter false ;
       noeof scan_byline lexbuf) ;
   def_code "\\endlisting" close_listing ;
-
+(*
   def_code "\\listinginput"
     (fun lexbuf ->
       let inter = Get.get_int (save_opt "1" lexbuf) in
@@ -548,7 +760,7 @@ register_init "moreverb"
       open_listing start inter false ;
       verb_input scan_byline name ;
       close_listing lexbuf) ;
-
+*)
   def_code "\\listingcont"
     (fun lexbuf ->
       open_listing !line !interval false ;
@@ -583,22 +795,66 @@ register_init "comment" init_comment
 ;;    
 
 (* The listings package *)
+
+let init_double_comment mode process_B process_E =
+  let lxm_B = Scan.get_this_main ("\\@getprint{\\lst@B"^mode^"}")
+  and lxm_E = Scan.get_this_main ("\\@getprint{\\lst@E"^mode^"}") in
+  if lxm_B <> "" && lxm_E <> "" then begin
+    let head_B = lxm_B.[0]
+    and rest_B = String.sub lxm_B 1 (String.length lxm_B-1)
+    and head_E = lxm_E.[0]
+    and rest_E = String.sub lxm_E 1 (String.length lxm_E-1) in
+    lst_init_save_char head_B
+      (process_B
+         (fun c s -> c = head_E && s = rest_E)
+         rest_B) ;
+    lst_init_save_char head_E (process_E rest_E)
+  end
+
 let open_lst keys lab =
-  Scan.top_open_block "PRE" "" ;
-  scan_this Scan.main ("\\lstset{"^keys^"}") ;
+  scan_this Scan.main ("\\lsthk@PreSet\\lstset{"^keys^"}") ;
+(* Ignoring output *)
   lst_gobble := Get.get_int ("\\lst@gobble",get_subst ()) ;
   lst_nchars := 0 ;
   lst_first := Get.get_int ("\\lst@first",get_subst ()) ;
   lst_last := Get.get_int ("\\lst@last",get_subst ()) ;
   lst_nlines := 0 ;
+  if not !lst_print then begin
+    lst_last := -2 ; lst_first := -1
+  end ;
   Printf.fprintf stderr "first=%d, last=%d\nprint=%b\n"
     !lst_first !lst_last !lst_print ;
+  lst_init_char_table () ;
   scan_this Scan.main "\\lsthk@Init" ;
+(* Strings *)
+  let quote_mode =
+     Scan.get_this_main "\\@getprint{\\lst@quote@stringizers}" in
+  lst_init_quote quote_mode ;
+  let stringizers =
+     Scan.get_this_main "\\@getprint{\\lst@stringizers}" in
+  lst_init_save_chars stringizers lst_process_stringizer ;
+  Printf.fprintf stderr "quotemode=%s, stringizers=%s\n" quote_mode
+    stringizers ;
+(* Comments *)
+  (* nested *)
+  init_double_comment "NC" lst_process_BNC lst_process_ENC ;
+  (* Balanced *)
+  init_double_comment "BC@one" lst_process_BBC lst_process_EBC ;
+  init_double_comment "BC@two" lst_process_BBC lst_process_EBC ;
+  init_double_comment "BC@three" lst_process_BBC lst_process_EBC ;
+  (* line *)
+  let lxm_LC = Scan.get_this_main "\\@getprint{\\lst@LC}" in
+  if lxm_LC <> "" then begin
+    let head = lxm_LC.[0]
+    and rest = String.sub lxm_LC 1 (String.length lxm_LC-1) in
+    lst_init_save_char head (lst_process_LC rest)
+  end ;
+    
   scan_this Scan.main "\\lsthk@InitVar" ;
+  Scan.top_open_block "PRE" "" ;  
   scan_this Scan.main "\\lst@basic@style" ;
   lst_scan_mode := Empty ;
-  lst_output_newline ()
-
+  lst_top_mode := Skip ;
 
 and close_lst lexbuf =
   scan_this Scan.main "\\lsthk@DeInit" ;
@@ -622,7 +878,8 @@ let init_listings () =
   def_code "\\lst@funcall"
     (fun lexbuf ->
       let csname = Scan.get_csname lexbuf in
-      let all_arg = Subst.subst_arg lexbuf in
+      let old_raw = !raw_chars in
+      let all_arg = get_prim_arg lexbuf in
       let lexarg = Lexing.from_string all_arg in
       let opt = Subst.subst_opt "" lexarg in
       let arg = Save.filename lexarg in
@@ -641,15 +898,10 @@ let init_listings () =
       save_lexstate () ;
       noeof eat_line lexbuf ;
       restore_lexstate () ;
+      (* Go ! *)
       noeof listings lexbuf) ;
   def_code "\\endlstlisting" close_lst ;
-  def_code "\\@lstinputlisting" 
-    (fun lexbuf ->
-      let keys = Subst.subst_opt "" lexbuf in
-      let name = Scan.get_prim_arg lexbuf in
-      open_lst keys name ;
-      verb_input listings name ;
-      close_lst lexbuf) ;
+
   def_code "\\lst@definelanguage"
     (fun lexbuf ->
       let dialect = get_prim_opt "" lexbuf in
@@ -683,17 +935,34 @@ let init_listings () =
 register_init "listings" init_listings
 ;;
 
-(* Va pas, ca casse les locations... *)
+
 def_code "\\@scaninput"
   (fun lexbuf ->
     let pre,pre_subst = save_arg lexbuf in
     let file = get_prim_arg lexbuf in
     let post,post_subst = save_arg lexbuf in
-    let _,chan = Myfiles.open_tex file in
-    start_lexstate () ;
-    record_lexbuf (Lexing.from_string post) post_subst ;
-    scan_this_may_cont Scan.main (Lexing.from_channel chan) top_subst
-      (pre,pre_subst) ;
-    restore_lexstate ())
+    try
+      let true_name,chan = Myfiles.open_tex file in
+      let filebuff = Lexing.from_channel chan in
+      start_lexstate () ;
+      Location.set true_name filebuff ;
+      begin try
+        record_lexbuf (Lexing.from_string post) post_subst ;
+        scan_this_may_cont Scan.main filebuff top_subst
+          (pre,pre_subst) ;
+      with e -> 
+        restore_lexstate () ;
+        Location.restore () ;
+        close_in chan ;
+        raise e
+      end ;
+      restore_lexstate () ;
+      Location.restore () ;
+      close_in chan
+    with
+    | Myfiles.Except ->
+        warning ("Not opening file: "^file)
+    | Myfiles.Error s ->
+        warning s)
 end
 } 
