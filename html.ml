@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: html.ml,v 1.37 1999-03-08 15:51:25 maranget Exp $" 
+let header = "$Id: html.ml,v 1.38 1999-03-10 10:46:55 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -322,6 +322,7 @@ type flags_t = {
     mutable dcount:string;
     mutable last_closed:string;
     mutable in_pre:bool;
+    mutable insert: (string * string) option;
 } ;;
 
 
@@ -339,6 +340,7 @@ let flags = {
   dcount = "";
   last_closed = "rien";
   in_pre = false;
+  insert = None;
 } ;;
 
 let copy_flags {
@@ -355,6 +357,7 @@ let copy_flags {
   dcount = dcount;
   last_closed = last_closed;
   in_pre = in_pre;
+  insert = insert;
 } = {
   table_inside = table_inside;
   ncols = ncols;
@@ -369,6 +372,7 @@ let copy_flags {
   dcount = dcount;
   last_closed = last_closed;
   in_pre = in_pre;
+  insert = insert;
 }
 and set_flags f {
   table_inside = table_inside ;
@@ -384,6 +388,7 @@ and set_flags f {
   dcount = dcount;
   last_closed = last_closed;
   in_pre = in_pre;
+  insert = insert;
 } =
   f.table_inside <- table_inside;
   f.ncols <- ncols;
@@ -397,7 +402,8 @@ and set_flags f {
   f.dt <- dt;
   f.dcount <- dcount;
   f.last_closed <- last_closed;
-  f.in_pre <- in_pre
+  f.in_pre <- in_pre;
+  f.insert <- insert
 ;;
 
 
@@ -439,6 +445,8 @@ and dcount_stack = ref []
 
 let ncols_stack = ref []
 ;;
+
+let insert_stack = ref []
 
 
 let sbool = function true -> "true" | _ -> "false"
@@ -709,7 +717,9 @@ let rec try_open_block s args =
     try_open_block "TR" "VALIGN=middle" ;
   end else begin
     push empty_stack flags.empty ; push blank_stack flags.blank ;
+    push insert_stack flags.insert ;
     flags.empty <- true ; flags.blank <- true ;
+    flags.insert <- None ;
     if s = "TABLE" then begin
       push table_stack flags.table_vsize ;
       push vsize_stack flags.vsize ;
@@ -750,12 +760,7 @@ and try_close_display () =
   flags.table_inside <- pop "inside" inside_stack || flags.table_inside
 ;;
 
-let rec do_open_block s args = match s with
-  ""|"DELAY"|"FORGET"|"AFTER" -> ()
-| "DISPLAY" ->
-   do_open_block "TABLE" args ;
-   do_open_block "TR" "VALIGN=middle"
-| _  ->
+let do_do_open_block s args =
     if s = "TR" || s = "TABLE" || is_header s then
       do_put "\n";
     do_put_char '<' ;
@@ -765,7 +770,27 @@ let rec do_open_block s args = match s with
       do_put args
     end ;
     do_put_char '>'
-;;
+
+let rec do_open_block insert s args = match s with
+|  ""|"DELAY"|"FORGET"|"AFTER" ->
+   begin match insert with
+   | Some (tag,iargs) -> do_do_open_block tag iargs
+   | _ -> ()
+   end
+| "DISPLAY" ->
+   do_open_block insert "TABLE" args ;
+   do_open_block None "TR" "VALIGN=middle"
+| _  -> begin match insert with
+  | Some (tag,iargs) ->
+      if is_list s || s = "TABLE" then begin
+        do_do_open_block tag iargs ;
+        do_do_open_block s args
+      end else begin
+        do_do_open_block s args ;
+        do_do_open_block tag iargs
+      end
+  | _ -> do_do_open_block s args
+end
 
 let rec try_close_block s =
   if !verbose > 2 then
@@ -778,6 +803,7 @@ let rec try_close_block s =
     flags.empty <- (ehere && ethere) ;
     let bhere = flags.blank and bthere = pop "blank" blank_stack in
     flags.blank <- (bhere && bthere) ;
+    flags.insert <- pop "insert" insert_stack ;
     if s = "TABLE" then begin
       let p_vsize = pop "vsize" vsize_stack in
       flags.vsize <- max
@@ -805,17 +831,32 @@ let rec try_close_block s =
     prerr_flags ("<= try close ``"^s^"''")
 ;;
 
-let rec do_close_block s = match s with
-  ""|"DELAY"|"FORGET"|"AFTER" -> ()
-| "DISPLAY" ->
-    do_close_block "TR" ;
-    do_close_block "TABLE"
-| s  ->
+let do_do_close_block s =
   do_put "</" ;
   do_put s ;
   do_put_char '>' ;
   match s with "TD" -> do_put_char '\n' | _ -> ()
-;;
+
+let rec do_close_block insert s = match s with
+|  ""|"DELAY"|"FORGET"|"AFTER" -> 
+   begin match insert with
+   | Some (tag,_) -> do_do_close_block tag
+   | _ -> ()
+   end
+| "DISPLAY" ->
+    do_close_block None "TR" ;
+    do_close_block insert "TABLE"
+| s  -> begin match insert with
+  | Some (tag,_) ->
+      if is_list s || s = "TABLE" then begin
+        do_do_close_block s;
+        do_do_close_block tag
+      end else begin
+        do_do_close_block tag;
+        do_do_close_block s
+      end
+  | _ -> do_do_close_block s
+end    
 
 
 let pop_freeze () = match !out_stack with
@@ -850,8 +891,9 @@ let rec force_block s content =
   do_close_mods () ;
   let true_s =
     if s = "FORGET" then pblock() else s in
+  let insert = flags.insert in
   try_close_block true_s ;
-  do_close_block true_s ;
+  do_close_block insert true_s ;
   let ps,args,pout = pop_out out_stack in  
   check_block_closed ps true_s ;
   let old_out = !cur_out in  
@@ -860,7 +902,7 @@ let rec force_block s content =
   else if ps <> "DELAY" then begin
     let mods = !cur_out.active @ !cur_out.pending in
     do_close_mods () ;
-    do_open_block s args ;
+    do_open_block insert s args ;
     if ps = "AFTER" then begin
       let f = pop "after" after_stack in
       Out.copy_fun f old_out.out !cur_out.out
@@ -928,22 +970,26 @@ and open_block s args =
    prerr_flags ("<= open_block ``"^s^"''")
 ;;
 
+let insert_block tag arg =
+  flags.insert <- Some (tag,arg)
+
 let get_block s args =
   if !verbose > 2 then begin
     prerr_flags "=> get_block";
   end ;
   do_close_mods () ;
   let pempty = see_top "empty" empty_stack
-  and pblank = see_top "blank" blank_stack in
+  and pblank = see_top "blank" blank_stack
+  and pinsert = see_top "insert" insert_stack in
   try_close_block (pblock ()) ;
-  flags.empty <- pempty ; flags.blank <- pblank ;
-  do_close_block s ;
+  flags.empty <- pempty ; flags.blank <- pblank ; flags.insert <- pinsert;
+  do_close_block None s ;
   let _,_,pout = pop_out out_stack in  
   let old_out = !cur_out in  
   cur_out := new_status pout.nostyle pout.pending pout.active;
   let mods = !cur_out.active @ !cur_out.pending in
   do_close_mods () ;
-  do_open_block s args ;
+  do_open_block None s args ;
   Out.copy old_out.out !cur_out.out ;
   free old_out ;    
   !cur_out.pending <- mods ;

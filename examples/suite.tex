@@ -666,9 +666,13 @@ Foo! foooooooooooooooooooo.
 
 {\centering coucou}
 
-{\raggedleft coucou}
+\begin{itemize}
+\raggedleft
+\item coucou
+\end{itemize}
 
 {\raggedright coucou}
+
 
 \begin{center}
 coucou
@@ -856,10 +860,10 @@ Aller voir~\cite{latexbis}
 \section{The \texttt{array} package}
 
 \subsection{Trucs simples}
-
-\noindent Aligné en bas~:\\
-\begin{tabular}{b{.30\linewidth}b{.30\linewidth}b{.30\linewidth}}
-\raggedright Ceci est un texte assez long pour faire plusieures lignes,
+\newcolumntype{B}[1]{>{\raggedleft}b{#1}}
+\noindent Aligné en bas (et à droite)~:\\
+\begin{tabular}{B{.30\linewidth}B{.30\linewidth}B{.30\linewidth}}
+Ceci est un texte assez long pour faire plusieures lignes,
 enfin j'espère. En effet les lignes HTML sont plus longues que les
 lignes de \LaTeX{}, surtout avec le format de ce document de test.  &
 Là aussi il faut bosser un peu pour avoir plus d'une ligne &
@@ -868,9 +872,10 @@ Là, c'est court exprès
 
 \bigskip
 
+\newcolumntype{M}[1]{>{\centering}m{#1}}
 \noindent Aligné au centre~:\\
-\begin{tabular}{m{.30\linewidth}m{.30\linewidth}m{.30\linewidth}}
-\raggedright Ceci est un texte assez long pour faire plusieures lignes,
+\begin{tabular}{M{.30\linewidth}M{.30\linewidth}M{.30\linewidth}}
+Ceci est un texte assez long pour faire plusieures lignes,
 enfin j'espère. En effet les lignes HTML sont plus longues que les
 lignes de \LaTeX{}, surtout avec le format de ce document de test.  &
 Là aussi il faut bosser un peu pour avoir plus d'une ligne &

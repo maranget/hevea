@@ -109,9 +109,15 @@ and tfmiddle = parse
     done ;
     Lexstate.scan_body
       (function
-        | (Latexmacros.Subst body) -> scan_this lexformat body
+        | (Latexmacros.Subst body) ->
+            scan_this lexformat body ;            
         | _ -> assert false)
-      body (trim arg_t)}
+      body (trim arg_t) ;
+    let post = tfpostlude lexbuf in
+    Table.apply out_table
+      (function
+        | Align f -> f.post <- post
+        | _ -> Parse_opts.warning ("``<'' after ``@'' in tabular arg scanning"))}
 | eof {()}
 | ""
   {let rest =

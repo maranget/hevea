@@ -8,7 +8,7 @@ DVI=$(HTML:.html=.dvi)
 TEX=$(HTML:.html=.tex)
 # coucou
 
-all: dvi html images
+all: dvi html
 opt:
 	export HEVEADIR=.. ;\
 	$(MAKE) $(MFLAGS) HEVEA=../hevea.opt HACHA=../hacha.opt IMAGEN=../imagen all
@@ -47,6 +47,10 @@ tmp.aux tmp.bbl pat.dvi: tmp.tex
 
 tmp.html: tmp.tex pat.hva tmp.aux tmp.bbl 
 	$(HEVEA) pat.hva -e pat.def tmp.tex
+	$(MAKE) $(MFLAGS) IMAGEN=$(IMAGEN) tmp001.gif
+
+tmp001.gif: tmp.image.tex
+	$(IMAGEN) tmp
 
 pat.html: tmp.html
 	$(HTMLCUT) -o pat.html tmp.html
@@ -60,6 +64,10 @@ env.dvi:tenv.tex
 
 env.html: env.hva tenv.tex
 	$(HEVEA) env.hva -o env.html tenv.tex
+	$(MAKE) $(MFLAGS) IMAGEN=$(IMAGEN) env001.gif
+
+env001.gif: env.image.tex
+	$(IMAGEN) env
 
 tsmile.tex: smile.tex
 	gpic -t < smile.tex > tsmile.tex
@@ -70,6 +78,10 @@ smile.dvi:tsmile.tex
 
 smile.html: smile.hva tsmile.tex
 	$(HEVEA) smile.hva -o smile.html tsmile.tex
+	$(MAKE) $(MFLAGS) IMAGEN=$(IMAGEN) smile001.gif
+
+smile001.gif: smile.image.tex
+	$(IMAGEN) smile
 
 suite.dvi suite.aux: suite.tex
 	$(LATEX) < /dev/null suite.tex

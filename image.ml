@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: image.ml,v 1.10 1999-03-03 18:08:38 maranget Exp $" 
+let header = "$Id: image.ml,v 1.11 1999-03-10 10:46:57 maranget Exp $" 
 open Misc
 
 let base = ref "image"
@@ -30,8 +30,12 @@ let put s = Out.put !buff s
 and put_char c = Out.put_char !buff c
 ;;
 
+let tmp_name = ref ""
+
+
 let open_chan () =
-  let chan = open_out (!base^".image.tex") in
+  tmp_name := !base ^ ".image.tex.new" ;
+  let chan = open_out !tmp_name in
   Out.to_chan chan !buff ;
   buff := Out.create_chan chan
 
@@ -67,5 +71,52 @@ let dump s_open image  lexbuf =
   image lexbuf
 ;;
 
-let finalize () =  close_chan()
+
+exception Return of bool
+
+let diff_chan chan1 chan2 =
+  try
+    while true do
+      let c1 =
+        try input_char chan1 with End_of_file -> begin
+          try
+            let _ = input_char chan2 in
+            raise (Return true)
+          with End_of_file -> raise (Return false)
+        end in
+      let c2 =
+        try input_char chan2 with End_of_file -> raise (Return true) in
+      if c1 <> c2 then
+        raise (Return true)
+    done ;
+    assert false
+  with Return r -> r
+
+let changed tmp_name name =
+  try
+    let true_chan = open_in name in
+    let tmp_chan =
+      try open_in tmp_name
+      with Sys_error _ -> begin
+        close_in true_chan ;
+        raise
+          (Misc.Fatal
+             ("Cannot reopen temporary image file: "^tmp_name))
+      end in
+    let r = diff_chan true_chan tmp_chan in
+    close_in true_chan ;
+    close_in tmp_chan ;
+    r
+  with Sys_error _ -> true
+
+
+let finalize () = 
+  close_chan() ;
+  if !tmp_name <> "" then begin
+    let true_name = !base ^ ".image.tex" in
+    if changed !tmp_name true_name then
+      Sys.rename !tmp_name true_name
+    else
+      Sys.remove !tmp_name
+  end
 ;;

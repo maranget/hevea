@@ -34,6 +34,7 @@ module type S =
     val close_flow : string -> unit
     val close_block : string -> unit
     val force_block : string -> string -> unit
+    val insert_block : string -> string -> unit
 
     val open_display : string -> unit
     val close_display : unit -> unit

@@ -53,7 +53,7 @@ open Save
 open Tabular
 open Lexstate
 
-let header = "$Id: latexscan.mll,v 1.67 1999-03-09 08:57:01 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.68 1999-03-10 10:47:01 maranget Exp $" 
 
 exception Error of string
 
@@ -1766,7 +1766,7 @@ rule  main = parse
       {let name = lexeme lexbuf in
       begin match name with
     (* Html primitives *)
-        "\\@open" ->
+      | "\\@open" ->
           let tag = save_arg lexbuf in
           let arg = save_arg lexbuf in
           if no_display tag then begin
@@ -1784,6 +1784,11 @@ rule  main = parse
             end
           end else
             top_open_block tag arg ;
+          main lexbuf
+      | "\\@insert" ->
+          let tag = save_arg lexbuf in
+          let arg = save_arg lexbuf in
+          Html.insert_block tag arg ;
           main lexbuf
       | "\\@close" ->
           let tag = save_arg lexbuf in
@@ -1881,7 +1886,7 @@ rule  main = parse
       | "\\@br" ->
           Html.skip_line () ;
           skip_blanks lexbuf ;
-          main lexbuf          
+          main lexbuf
 (* Color package *)
       |  "\\definecolor" ->
           let clr = subst_arg subst lexbuf in

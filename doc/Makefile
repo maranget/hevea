@@ -6,7 +6,7 @@ IMAGEN=imagen
 HTMLDIR=$(HOME)/public_html/hevea
 DOCDIR=$(HTMLDIR)/doc
 
-all: manual.dvi index.html images
+all: manual.dvi index.html
 
 opt:
 	export HEVEADIR=.. ;\
@@ -21,6 +21,7 @@ tmp.tex: manual.tex version.tex
 
 manual.html: manual.sty tmp.tex
 	${HEVEA} manual.sty tmp.tex -o manual.html
+	$(MAKE) $(MFLAGS) images
 
 manual.dvi: tmp.tex
 	$(LATEX) < /dev/null tmp.tex &&\
@@ -31,7 +32,9 @@ manual.dvi: tmp.tex
 index.html: manual.html
 	$(HACHA) manual.html
 
-images:
+images: manual001.gif
+
+manual001.gif: manual.image.tex
 	${IMAGEN} manual
 
 ############ Installation stuff

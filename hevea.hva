@@ -328,10 +328,13 @@
 \def\prod{\ifdisplay{\Huge\Pi}\else\Pi\fi}
 \def\int{\ifdisplay\@displayint\else{\large\@int}\fi}
 %% Arrays and tabular
-\newenvironment{tabular*}[2]{\warning{Warning, tabular* changed into tabular}\begin{tabular}{#2}}{\end{tabular}}
+\newenvironment{tabular*}[2]{\begin{tabular}{#2}}{\end{tabular}}
 \newcommand{\extracolsep}[1]{\warning{Warning, \extracolsep ignored}}
 \newcommand{\cline}[1]{\warning{Warning, \cline changed into \hline}\hline}
 \def\cases#1{\left\{\begin{array}{l>{$}l<{$}}#1\end{array}\right.}
+%%% tabularx
+\newenvironment{tabularx}[2]{\begin{tabular}{#2}}{\end{tabular}}
+\newcolumntype{X}{p{}}
 %%%%%%%%%%%% Bibliography
 \def\bibliographystyle#1{}
 \def\nocite#1{}
@@ -431,7 +434,9 @@
 \newcommand{\centerline}[1]{\begin{center}#1\end{center}}
 \newenvironment{quote}{\@open{BLOCKQUOTE}{}}{\@close{BLOCKQUOTE}}
 \newenvironment{quotation}{\@open{BLOCKQUOTE}{}}{\@close{BLOCKQUOTE}}
-
+\newcommand{\centering}{\@insert{DIV}{ALIGN=center}}
+\newcommand{\raggedleft}{\@insert{DIV}{ALIGN=right}}
+\newcommand{\raggedright}{\@insert{DIV}{ALIGN=left}}
 
 
 %%%%%%%%%%% Figures
@@ -504,6 +509,7 @@
 \def\makeatother{}
 %%%%%%%%%%%% Ignore head and foot specifications
 \def\cfoot{}
+\def\chead{}
 \newcommand{\rfoot}[2][]{}
 \newcommand{\lfoot}[2][]{}
 \newcommand{\rhead}[2][]{}

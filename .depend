@@ -41,15 +41,15 @@ latexmain.cmo: auxx.cmo colscan.cmi html.cmi image.cmi latexmacros.cmi \
     parse_opts.cmi save.cmi tabular.cmi videoc.cmi 
 latexmain.cmx: auxx.cmx colscan.cmx html.cmx image.cmx latexmacros.cmx \
     latexscan.cmx lexstate.cmx location.cmx misc.cmx myfiles.cmx out.cmx \
-    parse_opts.cmx save.cmx tabular.cmx videoc.cmi 
-latexscan.cmo: auxx.cmo color.cmi counter.cmi foot.cmi html.cmi image.cmi \
-    index.cmi latexmacros.cmi length.cmi lexstate.cmi location.cmi misc.cmi \
-    myfiles.cmi mylib.cmi out.cmi outManager.cmi parse_opts.cmi save.cmi \
-    symb.cmi tabular.cmi latexscan.cmi 
-latexscan.cmx: auxx.cmx color.cmx counter.cmx foot.cmx html.cmx image.cmx \
-    index.cmx latexmacros.cmx length.cmx lexstate.cmx location.cmx misc.cmx \
-    myfiles.cmx mylib.cmx out.cmx outManager.cmi parse_opts.cmx save.cmx \
-    symb.cmx tabular.cmx latexscan.cmi 
+    parse_opts.cmx save.cmx tabular.cmx videoc.cmx 
+latexscan.cmo: auxx.cmo color.cmi counter.cmi foot.cmi image.cmi index.cmi \
+    latexmacros.cmi length.cmi lexstate.cmi location.cmi misc.cmi myfiles.cmi \
+    mylib.cmi out.cmi outManager.cmi parse_opts.cmi save.cmi symb.cmi \
+    tabular.cmi latexscan.cmi 
+latexscan.cmx: auxx.cmx color.cmx counter.cmx foot.cmx image.cmx index.cmx \
+    latexmacros.cmx length.cmx lexstate.cmx location.cmx misc.cmx myfiles.cmx \
+    mylib.cmx out.cmx outManager.cmi parse_opts.cmx save.cmx symb.cmx \
+    tabular.cmx latexscan.cmi 
 length.cmo: length.cmi 
 length.cmx: length.cmi 
 lexstate.cmo: misc.cmi out.cmi lexstate.cmi 
@@ -76,11 +76,15 @@ symb.cmo: parse_opts.cmi symb.cmi
 symb.cmx: parse_opts.cmx symb.cmi 
 table.cmo: table.cmi 
 table.cmx: table.cmi 
-tabular.cmo: latexmacros.cmi length.cmi lexstate.cmi misc.cmi save.cmi \
-    table.cmi tabular.cmi 
-tabular.cmx: latexmacros.cmx length.cmx lexstate.cmx misc.cmx save.cmx \
-    table.cmx tabular.cmi 
+tabular.cmo: latexmacros.cmi length.cmi lexstate.cmi misc.cmi parse_opts.cmi \
+    save.cmi table.cmi tabular.cmi 
+tabular.cmx: latexmacros.cmx length.cmx lexstate.cmx misc.cmx parse_opts.cmx \
+    save.cmx table.cmx tabular.cmi 
 thread.cmo: thread.cmi 
 thread.cmx: thread.cmi 
 version.cmo: version.cmi 
 version.cmx: version.cmi 
+videoc.cmo: html.cmi image.cmi latexmacros.cmi latexscan.cmi misc.cmi \
+    myfiles.cmi parse_opts.cmi save.cmi videoc.cmi 
+videoc.cmx: html.cmx image.cmx latexmacros.cmx latexscan.cmx misc.cmx \
+    myfiles.cmx parse_opts.cmx save.cmx videoc.cmi 

@@ -1205,7 +1205,8 @@ We get:
 %END LATEX
 
 
-Another choice is using the \TeX{}-style conditional macro \verb+\ifhevea+:
+Another choice is using the \TeX{}-style conditional macro
+\verb+\ifhevea+ (see Section~\ref{texcond}):
 \begin{verbatim}
 We get:
 {\ifhevea\purple\fi purple rain, purple rain}\ldots
@@ -2321,28 +2322,10 @@ mode, it is \textit{true} in display-mode and \textit{false} otherwise.
 command line option internally (see Section~\ref{heveausage}).
 \end{description}
 
-Finally, note that boolean registers are compatible with simple \TeX-style
-conditional macros (which \hevea{} implements). Thus, the following
-source will yield twice the
-word ``hevea'' in \hevea{} and twice the word ``latex'' in \LaTeX{}:
-\begin{verbatim}
-We get:
-\begin{center}
-\begin{tabular}{cc}
-\ifthenelse{\boolean{hevea}}{hevea}{latex}
-&
-\ifhevea hevea\else latex\fi
-\end{tabular}
-\end{center}
-\end{verbatim}
-We get:
-\begin{center}
-\begin{tabular}{cc}
-\ifthenelse{\boolean{hevea}}{hevea}{latex}
-&
-\ifhevea hevea\else latex\fi
-\end{tabular}
-\end{center}
+Finally, note that \hevea{} also recognized à la \TeX{} conditional
+macros (see section~\ref{texcond}). Such macros are fully compatible
+with the boolean registers of the \texttt{ifthen} package, as it is
+the case in \LaTeX.
 
 
 \section{Figures and Other Floating Bodies}
@@ -2818,11 +2801,11 @@ the current font.
 This section describes \hevea{} functionalities that extends on plain \LaTeX{},
 as defined in \cite{latex}.
 
-\subsection{\TeX{} Conditional Macros}
+\subsection{\TeX{} Conditional Macros}\label{texcond}
 Normally, \hevea{} does not recognize constructs that are specific to
 \TeX{}, in the sense that they are not described in the \LaTeX{}
 manual.
-However \hevea{} recognizes \`a la \TeX{} conditional macros.
+However \hevea{} recognizes à la \TeX{} conditional macros.
 The \verb+\newif+\textit{name}, where \textit{name} is made of letters
 only, creates three macros:
 \verb+\if+\textit{name}, \verb+\+\textit{name}\texttt{true} and
@@ -2842,21 +2825,24 @@ Text \textit{text$_1$} is processed when \textit{name} is
 If \textit{text$_2$}  is empty, then the \verb+\else+ keyword can be
 omitted.
 
-Some conditions are defined internally by \hevea{}, such as the
-\texttt{french} condition, which is \textit{true} in French mode, or
-the \texttt{display} and \texttt{math} conditions that are set according
-to \hevea{} current operating mode.
-
 Note that \hevea{} also implements \LaTeX{} \texttt{ifthen} package
 and that \TeX{} simple conditional macros are fully compatible with
 \LaTeX{} boolean registers. More precisely,
 we have the following correspondances~:
-\begin{tabular}{p{.4\linewidth}p{.4\linewidth}}
+\begin{center}
+\begin{tabular}{p{.3\linewidth}@{\quad}p{.4\linewidth}}
+\multicolumn{1}{c}{\TeX} & \multicolumn{1}{c}{\LaTeX}\\[1em]
+\hline
+\verb+\newif+\textit{name} & \verb+\newboolean{+\textit{name}\verb+}+\\[.5em]
+\verb+\+\textit{name}\verb+true+ &
+\verb+\setboolean{+\textit{name}\verb+}{true}+\\[.5em]
+\verb+\+\textit{name}\verb+false+ &
+\verb+\setboolean{+\textit{name}\verb+}{false}+\\[.5em]
 \verb+\if+\textit{name} \textit{text$_1$}\verb+\else+
 \textit{text$_2$}\verb+\fi+ &
-\verb+\ifthenelse{\boolean{+\textit{name}\verb+}}{+\textit{text$_1$}\verb+}{+\textit{text$_2$}\verb+}+\\
+\verb+\ifthenelse{\boolean{+\textit{name}\verb+}}{+\textit{text$_1$}\verb+}{+\textit{text$_2$}\verb+}+\\[.5em]
 \end{tabular}
-
+\end{center}
 
 
 \subsection{The \protect{\texttt{\char92{}verbatiminput}} Command}
@@ -2864,6 +2850,10 @@ we have the following correspondances~:
 The \verb+\verbatiminput+ command (cf. \cite[Page 66]{latexbis}) is
 fully supported. Basically, this command typesets the content of a
 file whose name is given as argument inside a \texttt{verbatim} environment.
+
+\subsection{The \texttt{calc} Package}
+
+\subsection{The \texttt{array} and \texttt{tabularx} Packages}
 
 
 \setcounter{section}{0}
