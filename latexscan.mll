@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.236 2004-07-09 13:33:56 thakur Exp $ *)
+(* $Id: latexscan.mll,v 1.237 2004-07-10 19:39:40 thakur Exp $ *)
 
 
 {
@@ -2136,6 +2136,7 @@ def_code "\\@anti"
     end ;
     Dest.erase_mods envs)
 ;;
+
 def_code "\\@style"  
   (fun lexbuf ->
     let arg = get_prim_arg lexbuf in
@@ -2155,7 +2156,7 @@ def_code "\\@fontcolor"
     Dest.open_mod (Color arg))
 ;;
 (*
-def_code "\\@styleset
+def_code "\\@styleset"
   (fun lexbuf -> 
     let arg = get_prim_arg lexbuf in
     Dest.open_mod (...))
@@ -3089,28 +3090,34 @@ and do_bsbs lexbuf =
     Dest.open_cell default_format 1 0
   end else begin
     if !display then
-      (Dest.put_nbsp ();Dest.put_nbsp ();Dest.put_nbsp ();Dest.put_nbsp ())
-      (*warning "\\\\ in display mode, ignored"*)
+      (*(Dest.put_nbsp ();Dest.put_nbsp ();Dest.put_nbsp ();Dest.put_nbsp ())*)
+      warning "\\\\ in display mode, ignored"
     else
       Dest.skip_line ()
   end ;
   skip_blanks_pop lexbuf ;
   let _ = Dest.forget_par () in ()
 ;;
-    
+(*    
 let do_bsbsbsbs lexbuf = 
   do_unskip ();
   skip_opt lexbuf ;
-  Dest.skip_line () ;
+  if !display then begin
+    Dest.put "<BR>"
+  end
+  else begin
+    Dest.skip_line () ;Dest.skip_line() 
+  end;
   skip_blanks_pop lexbuf;
   let _ = Dest.forget_par () in ()
 ;;  
-
+*)
+(*def_code "\\\\\\\\"       do_bsbsbsbs ;*)
 def_code "\\@hevea@amper" do_amper ;
 def_code "\\\\"           do_bsbs  ;
 def_code "\\@HEVEA@amper" do_amper ;
 def_code "\\@HEVEA@bsbs"  do_bsbs  ; 
-def_code "\\\\\\\\"       do_bsbsbsbs ;()
+(*def_code "\\@HEVEA@bsbsbsbs" do_bsbsbsbs ; ()*)
 ;;
 
 

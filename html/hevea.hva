@@ -124,27 +124,28 @@
 \newcommand{\@imagearg}[1]{\begin{toimage}{#1}\end{toimage}}
 \newcommand{\@imagecommand}[2]
   {\newcommand{#1}{\begin{toimage}#1\end{toimage}#2}}
-%%%%%%%%%%%%%
-% Maketitle %
-%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   maketitle (is no longer redefined by fancysection)		%
+%   Thus defining different styles explicitly will have to 	%
+%     be done using the respective classes :			%
+%     .titlecommon : table containing the title and supplements %
+%     .titlename : H1 containing title name		        %
+%     .titlerest : H3 containing other fields (author,date,etc.)%
+%   'checkbox' now takes two instead of three arguments,        %
+%     one for the class.					%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newcommand{\maketitle}{%
-  \newcommand{\checkbox}[2]%
-    {\ifthenelse{\equal{\usebox{##2}}{}}%
+  \newcommand{\checkbox}[3]%
+    {\ifthenelse{\equal{\usebox{##3}}{}}%
       {}%
-      {\@open{##1}{PADDING=0.5ex ALIGN=center}\usebox{##2}\@close{##1}}%
+      {\@open{##1}{ALIGN=center CLASS=##2}\usebox{##3}\@close{##1}}%
     }%
-  \newcommand{\checktitlebox}[2]%
-    {\ifthenelse{\equal{\usebox{##2}}{}}%
-      {}%
-      {\@open{##1}{ALIGN=center}\usebox{##2}\@close{##1}}%
-    }%
-  \@open{TABLE}{ALIGN=center}\@open{TR}{}\@open{TD}{CLASS=title}%
-  \checktitlebox{H1}{\@title}%
-  \checkbox{H3}{\@author}%
-  \checkbox{H3}{\@date}%
-  \@close{TD}\@close{TR}\@close{TABLE}
+  \@open{TABLE}{CELLPADDING=1.5ex ALIGN=center}\@open{TR}{}\@open{TD}{CLASS=titlecommon}%
+  \checkbox{H1}{titlename}{\@title}%
+  \checkbox{H3}{titlerest}{\@author}%
+  \checkbox{H3}{titlerest}{\@date}%
+  \@close{TD}\@close{TR}\@close{TABLE}%
 }
-
 %%%%%%%%%
 % Maths %
 %%%%%%%%%
@@ -189,6 +190,9 @@
 <META http-equiv="Content-Type" content="text/html; charset=\end{rawhtml}\@charset\begin{rawhtml}">
 <META name="GENERATOR" content="hevea \end{rawhtml}\usebox{\@heveaversion}\@print{">
 }
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   Hacking into '\@meta' to make style declarations      %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \ife\css@link\else
 \@print{<LINK REL=STYLESHEET type="text/css"}\css@link\@print{>
 }
@@ -198,14 +202,21 @@
 }
 \fi
 }
-%%% Style sheet
-\newtokens{\css@link}
-\newcommand{\addcssfile}[1]{\addtokens{\css@link}{#1}}
-\newcommand{\loadcssfile}[1]{\addcssfile{\@getprint{ HREF=\char34#1\char34}}}
-\newtokens{\hevea@css}
-\newcommand{\addstyle}[1]{\addtokens{\hevea@css}{#1}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   Support for linking to external style sheets          %
+%   (not robust)                                          %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newtokens{\css@link}%
+\newcommand{\addcssfile}[1]{\addtokens{\css@link}{#1}}%
+\newcommand{\loadcssfile}[1]{\addcssfile{\@getprint{ HREF=\char34#1\char34}}}%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   Support for defining styles in the 'head'             %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newtokens{\hevea@css}%
+\newcommand{\addstyle}[1]{\addtokens{\hevea@css}{#1}}%
 \newcommand{\newstyle}[2]{\addstyle{\@getprint{\@print{ }\@print{ }\@print{ }\@print{ }#1\char123#2\char125\@print{
-}}}}
+}}}}%
+
 \newenvironment{document}{%
 \@end{document}
 \@restartoutput\unskip
@@ -298,8 +309,8 @@
 \else\red\fi\else\red\fi}
 \def\sf{\ifmath\ifmathml\@style{font-family: sans-serif }%
 \else\purple\fi\else\purple\fi}
-\def\sc{\ifmath\ifmathml\@style{font-family: monospace }%
-\else\navy\fi\else\navy\fi}
+%\def\sc{\ifmath\ifmathml\@style{font-family: monospace }%
+%\else\navy\fi\else\navy\fi}
 \def\sl{\ifmath\ifmathml\@style{font-family: fantasy; font-style: italic }%
 \else\it\maroon\fi\else\it\maroon\fi}
 %%%% LaTeX2e verbose declarations
@@ -323,18 +334,12 @@
 \def\textbf#1{\mbox{\bfseries#1}}
 \def\textsf#1{\mbox{\sffamily#1}}
 \def\textsl#1{\mbox{\slshape#1}}
-%\def\textsc#1{\mbox{\scshape#1}}
+\def\textsc#1{\mbox{\scshape#1}}
 \newcommand{\emph}[1]{\mbox{\em#1}}
-%%%
-%%% New implementation of \textsc using "small-caps" style. 
-%%%
-\newcommand{\textsc}[1]
-	{\@open{SPAN}{style="font-variant:small-caps"}#1\@close{SPAN}}
-%%%
-%%% Similar implementation of \sc using "small-caps" style. 
-%%%
-%\newenvironment{make@env}[1]{\@open{SPAN}{STYLE="#1"}...def_code}{}
-%\def\sc{\make@env{font-variant:small-caps}}
+%%%%%%
+%%%%%% New implementation of \sc & \textsc using "small-caps" style. 
+%%%%%%
+\def\sc{\@styleattr{SPAN}{STYLE="font-variant:small-caps"}}
 %%%%%%%%%%%%%%% Multicolumns index formating
 \newcommand{\setindexpos}[2]
 {\providesavebox{\csname indexpos#1\endcsname}%
@@ -397,5 +402,7 @@
 \newcommand{\@table@attributes@border}{CELLSPACING=0 CELLPADDING=1}
 %%%%%% Do not load hevea.hva again !
 \def\csname hevea@loaded\endcsname{}
-%%%%%%Support for use of style-sheets
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   Support for use of style-sheets				%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \input{style-sheets.hva}

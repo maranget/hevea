@@ -1,9 +1,11 @@
 \documentclass{article}
 \usepackage{bussproofs}
-%HEVEA \setHTMLstyle{.fancy}{background:blue;color:white}
+%HEVEA \setHTMLstyle{.fancy}{background:\#00cb00;color:white}
+%HEVEA \setHTMLstyle{.fancy2}{background:\#00bb00}
 \begin{document}
 \EnableBpAbbreviations
 $$
+%HEVEA\begin{divstyle}{fancy}
 \solidLine
 \AxiomC{}
 \RightLabel{Ax}
@@ -26,8 +28,8 @@ $$
 \dottedLine
 \BinaryInfC{$\Gamma \vdash (a \to b) \wedge (c \wedge d)$}
 \DP
+%HEVEA\end{divstyle}
 $$
-
 \end{document}
 
 

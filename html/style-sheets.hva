@@ -4,7 +4,7 @@
 \newcommand{\book@style}{book}%
 \newcommand{\art@style}{article}%
 
-%%% Map from LATEX to HTML sectioning for book style
+%%% Map from LATEX to HTML sectioning for book style (redundant)
 %%%
 \newcommand{\bookHTMLequiv}[1]{%
 \ifthenelse{\equal{#1}{title}}{H1.title}{%
@@ -17,7 +17,7 @@
 }}}}}}}%	
 }%
 
-%%% Map from LATEX to HTML sectioning for book style
+%%% Map from LATEX to HTML sectioning for book style (redundant)
 %%%
 \newcommand{\articleHTMLequiv}[1]{%
 \ifthenelse{\equal{#1}{title}}{H1.title}{%
@@ -31,7 +31,7 @@
 }	
 %	
 
-%%% Mapping LATEX sectioning to HTML sectioning
+%%% Mapping LATEX sectioning to HTML sectioning (redundant)
 %%%
 \newcommand{\getHTMLequiv}[1]{%
 \ifthenelse{\equal{\doc@style}{\book@style}}{\bookHTMLequiv{#1}}{%
@@ -43,7 +43,9 @@
 %%% e.g. \setstyles{background:blue;color:white;font:sans-serif}
 %%%
 \newcommand{\setstyles}[1]{%
-\newstyle{.title}{#1}%
+\newstyle{.titlecommon}{#1}%
+\newstyle{.titlemain}{#1}%
+\newstyle{.titlerest}{#1}%
 \newstyle{.part}{#1}%
 \newstyle{.section}{#1}%
 \newstyle{.subsection}{#1}%
@@ -52,9 +54,11 @@
 \newstyle{.subparagraph}{#1}%
 }%
 
-%%% Specify a style for (the rewrite into HTML of) a sectioning macro.
+%%% Make style declarations directly in HTML
 %%% e.g. \setHTMLstyle{H2}{background:blue;font:large sans-serif}
-%%% (knowing that \section{..} is rewritten using H2)
+%%%      \setHTMLstyle{H3.titlename}{background:blue;font:large sans-serif}
+%%% (knowing that \section{..} is rewritten using H2, and
+%%%               \maketitle uses H3.titlerest for author etc.)
 %%%
 \newcommand{\setHTMLstyle}[2]{%
 	\newstyle{#1}{#2}%

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.60 2004-07-09 13:33:57 thakur Exp $    *)
+(*  $Id: package.ml,v 1.61 2004-07-10 19:39:41 thakur Exp $    *)
 
 module type S = sig  end
 
@@ -1306,6 +1306,34 @@ register_init "proof"
 	(fun lexbuf ->
           let optarg1 = save_opt "" lexbuf in
           let is_opt_arg = if ("" = optarg1.arg) then false else true in  
+	  let arg2 = save_arg lexbuf in
+	  let arg3 = save_arg lexbuf in
+          let empty2 = ("" = arg2.arg) in
+          let empty3 = ("" = arg3.arg) in
+	  start_table "ALIGN=left";
+          (if is_opt_arg then 
+	    (scan_this_arg Scan.main optarg1 ;
+	    next_row ()) 
+          else next_row ());
+	  if empty2 then 
+	    scan_this_arg Scan.main arg3
+          else if empty3 then 
+	    scan_this_arg Scan.main arg2
+	  else
+	    (scan_this_arg Scan.main arg2;
+	    next_row () ; 
+            Dest.put ("<TABLE cellspacing=0 cellpadding=1 bgcolor=green"^
+		    " width=\"100%\"><TR><TD> </TD></TR></TABLE>\n") ;
+            next_row () ; 
+            scan_this_arg Scan.main arg3);
+          end_table ()
+        )
+      ;;
+
+      def_code "\\inferrule"
+	(fun lexbuf ->
+          let optarg1 = save_opt "" lexbuf in
+          let is_opt_arg = if ("" = optarg1.arg) then false else true in  
 	  let label = Scan.get_this_main ("\\"^"textsc{"^optarg1.arg^"}") in
 	  let arg2 = save_arg lexbuf in
 	  let arg3 = save_arg lexbuf in
@@ -1335,7 +1363,8 @@ register_init "proof"
             Dest.put formatted3);
           end_table ()
         )
-;;
+      ;;
+
 
       def_code "\\inferrules"
 	(fun lexbuf ->
