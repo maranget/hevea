@@ -18,7 +18,7 @@ open Lexstate
 open Stack
 
 (* Compute functions *)
-let header = "$Id: get.mll,v 1.19 2000-05-23 18:00:36 maranget Exp $"
+let header = "$Id: get.mll,v 1.20 2000-05-30 12:28:40 maranget Exp $"
 
 exception Error of string
 
@@ -26,9 +26,8 @@ let sbool = function
   | true -> "true"
   | false -> "false"
 
-let get_this = ref (fun b s -> assert false)
+let get_this = ref (fun s -> assert false)
 and get_fun = ref (fun f lexbuf -> assert false)
-and register_this = ref (fun s -> ())
 and open_env = ref (fun _ -> ())
 and close_env = ref (fun _ -> ())
 and get_csname = ref (fun _ -> assert false)
@@ -217,7 +216,7 @@ rule result = parse
     result lexbuf} 
 | command_name
     {let lxm = lexeme lexbuf in
-    let pat,body = Latexmacros.find_macro lxm in
+    let pat,body = Latexmacros.find lxm in
     let args = make_stack lxm pat lexbuf in
     scan_body
       (function
@@ -243,140 +242,136 @@ and after_quote = parse
 | ""
     {Misc.fatal "Cannot understand `-like numerical argument"}
 {
-let init latexget latexgetfun latexregister latexopenenv latexcloseenv latexcsname
+let init latexget latexgetfun latexopenenv latexcloseenv latexcsname
     latexmain =
   get_this := latexget ;
   get_fun := latexgetfun ;
-  register_this := latexregister ;
   open_env := latexopenenv ;
   close_env := latexcloseenv ;
   get_csname := latexcsname ;
   main := latexmain
 ;;
 
-let def_loc  name f =
-  silent_def name 0 (CamlCode f) ;
-  !register_this name
-
-and def_noloc name f =
-  silent_def name 0 (CamlCode f) ;
-
-and undef name = Latexmacros.unregister name
+let def_loc  name f = 
+  Latexmacros.def name zero_pat (CamlCode f) ;
 ;;
 
-let def_commands_int def_loc =
-  def_loc "\\value"
-    (fun lexbuf ->
-      let name = !get_this true (save_arg lexbuf) in
-      push_int (Counter.value_counter name)) ;
-  def_loc "\\pushint"
-    (fun lexbuf ->
-      let s = !get_this true (save_arg lexbuf) in
-      scan_this result s)
+let def_commands l =
+  List.map
+    (fun (name,f) ->
+      name,Latexmacros.replace name (Some (zero_pat,CamlCode f)))
+    l
 
-and undef_commands_int () =
-  undef "\\value" ; undef "\\pushint"
-;;
+let def_commands_int () =
+  def_commands
+    ["\\value",
+      (fun lexbuf ->
+        let name = !get_this (save_arg lexbuf) in
+        push_int (Counter.value_counter name)) ;
+      "\\pushint",
+        (fun lexbuf ->
+          let s = !get_this (save_arg lexbuf) in
+          scan_this result s)]
 
-
-let rec def_commands_bool def_loc =
-  def_loc "\\(" (fun _ -> open_ngroups 7) ;
-  def_loc "\\)"  (fun _ -> close_ngroups 7) ;
-  def_loc "\\@fileexists"
-    (fun lexbuf ->
-      let name = !get_this true (save_arg lexbuf) in
-      push bool_stack
-        (try
-          let _ = Myfiles.open_tex name in
-          true
-        with Myfiles.Except | Myfiles.Error _ -> false)) ;
-  def_loc "\\@commandexists"
-    (fun lexbuf ->
-      let name = !get_csname lexbuf in
-      push bool_stack (Latexmacros.exists_macro name)) ;
+let def_commands_bool () =  
+  let old_ints = def_commands_int () in
+  let old_commands =
+    def_commands
+      ["\\(", (fun _ -> open_ngroups 7) ;
+        "\\)",  (fun _ -> close_ngroups 7) ;
+        "\\@fileexists",
+        (fun lexbuf ->
+          let name = !get_this (save_arg lexbuf) in
+          push bool_stack
+            (try
+              let _ = Myfiles.open_tex name in
+              true
+            with Myfiles.Except | Myfiles.Error _ -> false)) ;
+        "\\@commandexists",
+        (fun lexbuf ->
+          let name = !get_csname lexbuf in
+          push bool_stack (Latexmacros.exists name)) ;
+        "\\or",
+        (fun _ ->
+          close_ngroups 7 ;
+          open_aftergroup
+            (fun () ->
+              if !verbose > 2 then begin
+                prerr_endline "OR" ;
+                Stack.pretty sbool bool_stack
+              end ;
+              let b1 = pop bool_stack in
+              let b2 = pop bool_stack in
+              push bool_stack (b1 || b2)) "OR";
+          open_ngroups 6) ;
+        "\\and",
+        (fun _ ->
+          close_ngroups 6 ;
+          open_aftergroup
+            (fun () ->
+              if !verbose > 2 then begin
+                prerr_endline "AND" ;
+                Stack.pretty sbool bool_stack
+              end ;
+              let b1 = pop bool_stack in
+              let b2 = pop bool_stack in
+              push bool_stack (b1 && b2)) "AND";            
+          open_ngroups 5) ;
+        "\\not",
+        (fun _ ->
+          close_ngroups 4 ;
+          open_aftergroup
+            (fun () ->
+              if !verbose > 2 then begin
+                prerr_endline "NOT" ;
+                Stack.pretty sbool bool_stack
+              end ;
+              let b1 = pop bool_stack in
+              push bool_stack (not b1)) "NOT";
+          open_ngroups 3) ;
+        "\\boolean",
+          (fun lexbuf ->
+            let name = !get_this (save_arg lexbuf) in
+            let b = try
+              let r = !get_this
+                  ("\\if"^name^" true\\else false\\fi",get_subst ()) in
+              match r with
+              | "true" -> true
+              | "false" -> false
+              | _ -> raise (Misc.Fatal ("boolean value: "^r))
+            with
+              Latexmacros.Failed -> true  in
+            push bool_stack b) ;
+        "\\isodd",
+        (fun lexbuf ->
+          close_ngroups 3 ;
+          open_aftergroup
+            (fun () ->
+              if !verbose > 2 then begin
+                prerr_endline ("ISODD") ;
+                Stack.pretty string_of_int int_stack
+              end ;
+              let x = pop int_stack in
+              push bool_stack (x mod 2 = 1) ;
+              if !verbose > 2 then
+                Stack.pretty sbool bool_stack) "ISODD" ;
+          open_ngroups 2) ] in
+  let old_equal =
+    try Some (Latexmacros.find_fail "\\equal") with Failed -> None in
+  
   def_loc "\\equal"
     (fun lexbuf ->
-        let arg1 = save_arg lexbuf in
-        let arg2 = save_arg lexbuf in
-        scan_this !main "\\begin{@norefs}" ;
-        undef_commands_bool () ;
-        push bool_stack (!get_this false arg1 = !get_this false arg2) ;
-        def_commands_bool def_noloc ;
-        scan_this !main "\\end{@norefs}") ;
-  def_loc "\\or"
-    (fun _ ->
-      close_ngroups 7 ;
-      open_aftergroup
-        (fun () ->
-          if !verbose > 2 then begin
-            prerr_endline "OR" ;
-            Stack.pretty sbool bool_stack
-          end ;
-          let b1 = pop bool_stack in
-          let b2 = pop bool_stack in
-          push bool_stack (b1 || b2)) "OR";
-      open_ngroups 6) ;
-  def_loc "\\and"
-    (fun _ ->
-      close_ngroups 6 ;
-      open_aftergroup
-        (fun () ->
-          if !verbose > 2 then begin
-            prerr_endline "AND" ;
-            Stack.pretty sbool bool_stack
-          end ;
-          let b1 = pop bool_stack in
-          let b2 = pop bool_stack in
-          push bool_stack (b1 && b2)) "AND";            
-      open_ngroups 5) ;
-  def_loc "\\not"
-    (fun _ ->
-      close_ngroups 4 ;
-      open_aftergroup
-        (fun () ->
-          if !verbose > 2 then begin
-            prerr_endline "NOT" ;
-            Stack.pretty sbool bool_stack
-          end ;
-          let b1 = pop bool_stack in
-          push bool_stack (not b1)) "NOT";
-      open_ngroups 3) ;
-  def_loc "\\boolean"
-    (fun lexbuf ->
-      let name = !get_this true (save_arg lexbuf) in
-      let b = try
-        let r = !get_this true
-            ("\\if"^name^" true\\else false\\fi",get_subst ()) in
-        match r with
-        | "true" -> true
-        | "false" -> false
-        | _ -> raise (Misc.Fatal ("boolean value: "^r))
-      with
-        Latexmacros.Failed -> true  in
-      push bool_stack b) ;
-  def_loc "\\isodd"
-    (fun lexbuf ->
-      close_ngroups 3 ;
-      open_aftergroup
-        (fun () ->
-          if !verbose > 2 then begin
-            prerr_endline ("ISODD") ;
-            Stack.pretty string_of_int int_stack
-          end ;
-          let x = pop int_stack in
-          push bool_stack (x mod 2 = 1) ;
-          if !verbose > 2 then
-            Stack.pretty sbool bool_stack) "ISODD" ;
-      open_ngroups 2) ;
-  def_commands_int def_loc
+      let arg1 = save_arg lexbuf in
+      let arg2 = save_arg lexbuf in
+      scan_this !main "\\begin{@norefs}" ;
+      let again = List.map (fun (name,x) -> name,Latexmacros.replace name x)
+          ((("\\equal",old_equal)::old_ints)@old_commands) in
+      push bool_stack (!get_this arg1 = !get_this arg2) ;
+      let _ =
+        List.map (fun (name,x) -> Latexmacros.replace name x) again in
+      scan_this !main "\\end{@norefs}")
 
-and undef_commands_bool () =
-  undef "\\(" ; undef "\\)" ;
-  undef "\\@commandexists" ; undef "\\@fileexists" ;
-  undef "\\equal" ;
-  undef "\\or" ; undef "\\and" ; undef "\\not" ;
-  undef "\\boolean" ; undef "\\isodd"
-;;
+
 
 let first_try s =
   let l = String.length s in
@@ -399,7 +394,7 @@ let get_int (expr, subst) =
       int_out := true ;
       start_normal subst ;
       !open_env "*int*" ;
-      def_commands_int def_loc ;
+      let _ = def_commands_int () in
       open_ngroups 2 ;
       begin try scan_this result expr with
       | x ->
@@ -429,7 +424,7 @@ let get_bool (expr,subst) =
   bool_out := true ;
   start_normal subst ;
   !open_env "*bool*" ;
-  def_commands_bool def_loc ;
+  def_commands_bool () ;
   open_ngroups 7 ;
   begin try scan_this result expr with
   | x ->

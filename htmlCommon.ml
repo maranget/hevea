@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlCommon.ml,v 1.20 2000-05-03 17:50:27 maranget Exp $" 
+let header = "$Id: htmlCommon.ml,v 1.21 2000-05-30 12:28:41 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -17,6 +17,7 @@ let header = "$Id: htmlCommon.ml,v 1.20 2000-05-03 17:50:27 maranget Exp $"
 *)
 
 open Misc
+open Element
 open Parse_opts
 open Latexmacros
 open Stack
@@ -33,11 +34,11 @@ let check_block_closed opentag closetag =
 
 (* output globals *)
 
-type t_env = {here : bool ; env : env}
+type t_env = {here : bool ; env : text}
 
 type status = {
   mutable nostyle : bool ;
-  mutable pending : env list ;
+  mutable pending : text list ;
   mutable active : t_env list ;
   mutable out : Out.t}
 ;;
@@ -96,11 +97,11 @@ let tbool = function
   | true -> "+"
   | false -> "-"
 
-let pretty_mods = do_pretty_mods Latexmacros.pretty_env 
+let pretty_mods = do_pretty_mods pretty_text 
 and pretty_tmods = 
   do_pretty_mods
     (function {here=here ; env = env} ->
-      tbool here^Latexmacros.pretty_env env)
+      tbool here^pretty_text env)
      
 let pretty_cur {pending = pending ; active = active} =
   prerr_string "pending = " ;
@@ -546,7 +547,7 @@ let do_close_mod = function
 
 and do_open_mod e =
   if !verbose > 3 then
-      prerr_endline ("do_open_mod: "^Latexmacros.pretty_env e) ;
+      prerr_endline ("do_open_mod: "^pretty_text e) ;
   match e with
   Style m ->  
     if flags.in_math && !Parse_opts.mathml then 
@@ -816,7 +817,7 @@ let erase_mods ms =
 let open_mod  m =
   if not !cur_out.nostyle then begin
     if !verbose > 3 then begin
-          prerr_endline ("open_mod: "^Latexmacros.pretty_env m^" ok="^sbool (ok_mod m)) ;
+          prerr_endline ("open_mod: "^pretty_text m^" ok="^sbool (ok_mod m)) ;
       prerr_string "pending = " ; pretty_mods !cur_out.pending ;
       prerr_endline "" ;
       prerr_string "active = " ; pretty_tmods !cur_out.active ;

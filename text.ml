@@ -9,11 +9,12 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.44 2000-05-26 17:06:11 maranget Exp $"
+let header = "$Id: text.ml,v 1.45 2000-05-30 12:28:53 maranget Exp $"
 
 
 open Misc
 open Parse_opts
+open Element
 open Latexmacros
 open Stack
 open Length
@@ -126,7 +127,7 @@ let failclose s = raise (Misc.Close s)
 (* output globals *)
 type status = {
     mutable nostyle : bool ;
-    mutable active : env list ;
+    mutable active : text list ;
     mutable out : Out.t;
     mutable temp : bool
   };;

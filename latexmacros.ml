@@ -9,33 +9,44 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmacros.ml,v 1.58 2000-05-26 17:05:55 maranget Exp $" 
+let header = "$Id: latexmacros.ml,v 1.59 2000-05-30 12:28:43 maranget Exp $" 
 open Misc
 open Parse_opts
 open Symb
 open Lexstate
 
 exception Failed
-exception Error of string
 
-type env =
-  Style of string
-| Font of int
-| Color of string
+module OString = struct
+  type t = string
+  let compare = Pervasives.compare
+end
 
-let pretty_env = function
-  Style s -> "Style: "^s
-| Font i  -> "Font size: "^string_of_int i
-| Color s  -> "Font color: "^s
-;;
+module Strings = Set.Make (OString)
 
-
-
-let cmdtable =
-  (Hashtbl.create 97 : (string, (pat * action)) Hashtbl.t)
+(* Data structures for TeX macro  model *)
+let local_table = Hashtbl.create 97
+and global_table = Hashtbl.create 97
 and prim_table = Hashtbl.create 5
 
-let pretty_table () =
+let purge = ref Strings.empty
+and purge_stack = Stack.create "purge"
+and group_level = ref 0
+
+(* Hot start *)
+type ctable = (string, pat * action) Hashtbl.t
+type ptable = (string, (unit -> unit)) Hashtbl.t
+type saved = 
+    int * Strings.t * Strings.t Stack.saved *
+    ptable * ctable * ctable
+
+
+let pretty_macro n acs =
+  pretty_pat n ;
+  prerr_string " -> " ;
+  pretty_action acs
+
+let hidden_pretty_table cmdtable =
   let t = Hashtbl.create 97
   and count = ref 0 in
   let incr k =
@@ -47,7 +58,11 @@ let pretty_table () =
           Hashtbl.add t k r ;
           r in
     incr r in
-  Hashtbl.iter (fun k _ -> incr k) cmdtable ;
+  Hashtbl.iter (fun k (n,acc) ->
+    Printf.fprintf stderr "%s -> " k ;
+    pretty_macro n acc ;
+    prerr_endline "" ;
+    incr k) cmdtable ;
   Printf.fprintf stderr
       "Table size: %d\n" !count ;
   Hashtbl.iter
@@ -56,21 +71,83 @@ let pretty_table () =
         Printf.fprintf stderr "%s: %d\n" k !r)
     t ;
   flush stderr
-    
-type saved =  (string, (pat * action)) Hashtbl.t *
- (string, (unit -> unit)) Hashtbl.t
+
+let pretty_table () =
+  Printf.fprintf stderr "Macro tables, level=%d\n" !group_level ;
+  prerr_endline "Global table" ;
+  hidden_pretty_table global_table ;
+  prerr_endline "Local table" ;
+  hidden_pretty_table local_table
 
 let checkpoint () =
-  let prim_checked = Hashtbl.create 5
-  and cmd_checked = Hashtbl.create 17 in
-  Misc.copy_hashtbl prim_table prim_checked ;
-  Misc.copy_hashtbl cmdtable cmd_checked ;
-  cmd_checked, prim_checked
+  !group_level, !purge, Stack.save purge_stack,
+  clone_hashtbl prim_table,
+  clone_hashtbl global_table, clone_hashtbl local_table
 
-and hot_start (cmd_checked, prim_checked) = 
+and hot_start (level_checked, purge_checked, purge_stack_checked,
+               prim_checked,
+               global_checked, local_checked) = 
+  group_level := level_checked ;
+  purge := purge_checked ;
+  Stack.restore purge_stack purge_stack_checked ;
   Misc.copy_hashtbl prim_checked prim_table ;
-  Misc.copy_hashtbl cmd_checked cmdtable
-  
+  Misc.copy_hashtbl global_checked global_table ;
+  Misc.copy_hashtbl local_checked local_table
+
+(* Controlling scope *)
+let open_group () =
+  incr group_level ;
+  Stack.push purge_stack !purge ;
+  purge := Strings.empty
+
+and close_group () =
+  if !group_level > 0 then (* Undo bindings created at the closed level *)
+    Strings.iter
+      (fun name -> Hashtbl.remove local_table name)
+      !purge ;
+  decr group_level ;
+  purge := Stack.pop purge_stack
+
+(* Remove one local definition in advance ... *)
+let pre_purge name purge =
+  if Strings.mem name purge then begin
+    Hashtbl.remove local_table name ;
+    Strings.remove name purge
+  end else
+    purge
+
+(* Definitions *)
+let hidden_global_def name x =
+  if !group_level > 0 && Hashtbl.mem local_table name then begin
+    (*
+      global definition of a localy defined macro,
+      undo all local bindings
+    *)
+    purge := pre_purge name !purge ;
+    Stack.map purge_stack (fun purge -> pre_purge name purge)
+  end ;
+  Hashtbl.remove global_table name ;
+  Hashtbl.add global_table name x
+
+let hidden_local_def name x =
+  if !group_level > 0 then begin (* indeed local *)
+    if Strings.mem name !purge then (* redefinition *)
+      Hashtbl.remove local_table name
+    else (* creation (at the current level) *)
+      purge := Strings.add name !purge ;
+    Hashtbl.add local_table name x
+  end else begin (* same as global *)
+    Hashtbl.remove global_table name ;
+    Hashtbl.add global_table name x
+  end
+
+let hidden_find name =
+  if !group_level > 0 then begin
+    try Hashtbl.find local_table name with
+    | Not_found -> Hashtbl.find global_table name
+  end else
+    Hashtbl.find global_table name
+
 (* Primitives *)
 let register_init name f =
   if !verbose > 1 then
@@ -94,196 +171,82 @@ and exec_init name =
   with Not_found -> ()
 ;;   
 
-let pretty_macro n acs =
-  pretty_pat n ;
-  prerr_string " -> " ;
-  pretty_action acs
 
-let def_coltype name pat action =
-  if !verbose > 1 then begin
-   Printf.fprintf stderr "def_coltype %s = " name;
-   pretty_macro pat action
-  end ;
-  let cname = Misc.column_to_command name in
+(* Interface *)
+
+let exists name = 
   try
-    let _ = Hashtbl.find cmdtable cname in () ;
-    warning ("Column "^name^" is already defined, not redefining it")
+    let _ = hidden_find name in true
   with
-    Not_found ->
-      Hashtbl.add cmdtable cname (pat,action)
-;;
+  | Not_found -> false
 
-let def_macro_pat name pat action =
+
+let find name =
+  try hidden_find name with
+  | Not_found ->
+      warning ("Command not found: "^name) ;
+      ([],[]),Subst ""
+
+and find_fail name =
+  try hidden_find name with
+  | Not_found -> raise Failed
+
+let def name pat action =
   if !verbose > 1 then begin
-   Printf.fprintf stderr "def_macro %s = " name;
-   pretty_macro pat action
+    Printf.fprintf stderr "def %s = " name;
+    pretty_macro pat action ;
+    prerr_endline ""
   end ;
-  try
-    let _ = Hashtbl.find cmdtable name in () ;
-    warning ("ignoring definition of "^name) ;
-    raise Failed
-  with
-    Not_found ->
-      Hashtbl.add cmdtable name (pat,action)
-;;
+  hidden_local_def name (pat,action)
 
-let redef_macro_pat name pat action =
+and global_def name pat action =
   if !verbose > 1 then begin
-   Printf.fprintf stderr "redef_macro %s = " name;
-   pretty_macro pat action
+    Printf.fprintf stderr "global def %s = " name;
+    pretty_macro pat action ;
+    prerr_endline ""
   end ;
-  try
-    let _ = Hashtbl.find cmdtable name in
-    Hashtbl.add cmdtable name (pat,action)
-  with
-    Not_found -> begin
-      warning ("defining a macro with \\renewcommand, "^name);
-      Hashtbl.add cmdtable name (pat,action)
-  end
+  hidden_global_def name (pat,action)
 
-let redef_macro_pat_once name pat action =
-  if !verbose > 1 then begin
-   Printf.fprintf stderr "redef_macro_once %s = " name;
-   pretty_macro pat action
+;;
+
+let def_init name f =
+  if exists name then
+    fatal ("Command: "^name^" defined at initialisation") ;
+  def name zero_pat (CamlCode f)
+
+let pretty_arg = function
+  | None -> prerr_string "<None>"
+  | Some (n,acc) -> pretty_macro n acc
+
+let pretty_replace s name old new_def =
+  Printf.fprintf stderr "%s: %s\n\told=" s name ;
+  pretty_arg old ;
+  Printf.fprintf stderr "\n\tnew=" ;
+  pretty_arg new_def ;
+  prerr_endline ""
+    
+let replace name new_def =
+  let old_def =
+    try Some (hidden_find name) with
+    | Not_found -> None in
+(*
+  pretty_replace "replace" name old_def new_def ;
+  Printf.fprintf stderr "level=%d\n" !group_level ;
+*)
+  begin match new_def with
+  | Some d -> hidden_local_def name d
+  | None -> match old_def with
+    | None -> ()
+    | Some _ -> (* what will happen if binging was global ??? *)
+        if !group_level > 0 then
+          purge := pre_purge name !purge
+        else
+          Hashtbl.remove global_table name 
   end ;
-  try
-    let _ = Hashtbl.find cmdtable name in
-    Hashtbl.remove cmdtable name ;
-    Hashtbl.add cmdtable name (pat,action)
-  with
-    Not_found -> begin
-      warning ("defining a macro with \\renewcommand, "^name);
-      Hashtbl.add cmdtable name (pat,action)
-  end
-
-let provide_macro_pat name pat action =
-  if !verbose > 1 then begin
-   Printf.fprintf stderr "provide_macro %s = " name;
-   pretty_macro pat action
-  end ;
-  try
-    let _ = Hashtbl.find cmdtable name in
-    raise Failed
-  with
-    Not_found -> begin
-      if !verbose > 1 then begin
-        Location.print_pos () ;
-        prerr_string "providing non existing "; prerr_endline name
-      end ;
-      Hashtbl.add cmdtable name (pat,action)
-  end
-;;
-
-let silent_def_pat name pat action = 
-  Hashtbl.add cmdtable name (pat,action) ;
-  if !verbose > 1 then begin
-    Printf.fprintf stderr "texdef_macro %s = " name;
-    pretty_macro pat action
-  end
-
-let silent_def_pat_once name pat action = 
-  Hashtbl.remove cmdtable name ;
-  Hashtbl.add cmdtable name (pat,action) ;
-  if !verbose > 1 then begin
-    Printf.fprintf stderr "texdef_macro %s = " name;
-    pretty_macro pat action
-  end
-;;
-
-let make_pat opts n =
-  let n_opts = List.length opts in
-  let rec do_rec r i =
-    if i <=  n_opts  then r
-    else do_rec (("#"^string_of_int i)::r) (i-1) in
-  opts,do_rec [] n
-;;
-
-let silent_def name n action =  silent_def_pat name (make_pat [] n) action
-and silent_def_once name n action =
-  silent_def_pat_once name (make_pat [] n) action
-;;
-
-let def_macro name nargs body =
-  def_macro_pat name (make_pat [] nargs) body
-and redef_macro name nargs body =
-  redef_macro_pat name (make_pat [] nargs) body
-and redef_macro_once name nargs body =
-  redef_macro_pat_once name (make_pat [] nargs) body
-;;
-let def_code name f = def_macro name 0 (CamlCode f)
-and redef_code name f = redef_macro name 0 (CamlCode f)
-and def_name_code name f = def_macro name 0 (CamlCode (f name))
-;;
-
-let start_env env = "\\"^ env
-and end_env env = "\\end"^env
-;;
-
-let def_env name body1 body2 =
-  try
-    def_macro (start_env name) 0 body1 ;
-    def_macro (end_env name) 0 body2
-  with Failed -> begin
-    warning ("not defining environment "^name);
-    raise Failed
-  end
-;;
-
-let def_env_pat name pat b1 b2 =
-  try
-    def_macro_pat (start_env name) pat b1 ;
-    def_macro (end_env name) 0 b2
-  with Failed -> begin
-    warning ("not defining environment "^name);
-    raise Failed
-  end
-
-and redef_env_pat name pat b1 b2 =
-  redef_macro_pat (start_env name) pat b1 ;
-  redef_macro (end_env name) 0 b2
-;;
-
-let unregister name =  Hashtbl.remove cmdtable name
-;;
-
-let find_macro name =
-  try
-    Hashtbl.find cmdtable name
-  with Not_found ->
-    warning ("unknown macro: "^name) ;
-    (([],[]),(Subst ""))
-
-and silent_find_macro name =
-  try
-    Hashtbl.find cmdtable name
-  with Not_found ->
-    (([],[]),(Subst ""))
-
-
-
-(* Does a user macro exist ? *)
-let exists_macro name = 
-  try
-    let _ = Hashtbl.find cmdtable name in
-    true
-  with Not_found ->
-    false
-
-let is_subst_noarg body pat = match body with
-| CamlCode _ -> false
-| _ -> pat = ([],[])
-;;
-
-
-(* Base LaTeX macros *)
-
-def_macro "\\bgroup" 0 (Subst "{") ;
-def_macro "\\egroup" 0 (Subst "}") ;
-
-
-def_macro_pat "\\makebox" (["" ; ""],["#1"]) (Subst "\\warning{makebox}\\mbox{#3}") ;
-def_macro_pat "\\framebox" (["" ; ""],["#1"]) (Subst "\\warning{framebox}\\fbox{#3}")
-;;
+  old_def
+          
+        
+      
 
 (* macro static properties *)
 

@@ -1,8 +1,21 @@
-let header =  "$Id: lexstate.ml,v 1.44 2000-05-26 17:06:05 maranget Exp $"
+(***********************************************************************)
+(*                                                                     *)
+(*                          HEVEA                                      *)
+(*                                                                     *)
+(*  Luc Maranget, projet PARA, INRIA Rocquencourt                      *)
+(*                                                                     *)
+(*  Copyright 1998 Institut National de Recherche en Informatique et   *)
+(*  Automatique.  Distributed only by permission.                      *)
+(*                                                                     *)
+(***********************************************************************)
+
+let header = "$Id: lexstate.ml,v 1.45 2000-05-30 12:28:48 maranget Exp $"
 
 open Misc
 open Lexing
 open Stack
+
+
 
 (* Commands nature *)
 type action =
@@ -12,14 +25,28 @@ type action =
 
 let pretty_action acs =
    match acs with
-   | Subst s    -> Printf.fprintf stderr "{%s}\n" s
-   | CamlCode _ -> prerr_endline "*code*"
+   | Subst s    -> Printf.fprintf stderr "{%s}" s
+   | CamlCode _ -> prerr_string "*code*"
 
 type pat = string list * string list
 
 
 let pretty_pat (_,args) =
   List.iter (fun s -> prerr_string s ; prerr_char ',') args
+
+let is_subst_noarg body pat = match body with
+| CamlCode _ -> false
+| _ -> pat = ([],[])
+
+let latex_pat opts n =
+  let n_opts = List.length opts in
+  let rec do_rec r i =
+    if i <=  n_opts  then r
+    else do_rec (("#"^string_of_int i)::r) (i-1) in
+  opts,do_rec [] n
+
+let zero_pat = latex_pat [] 0
+and one_pat  = latex_pat [] 1
 
 (* Environments *)
 type subst = Top | Env of (string * subst) array
@@ -309,6 +336,10 @@ let start_lexstate () =
   save_lexstate () ;
   Stack.restore stack_lexbuf (Stack.empty_saved) ;
   Stack.restore stack_subst (Stack.empty_saved)
+
+let start_lexstate_subst this_subst =
+  start_lexstate () ;
+  subst := this_subst
 ;;
 
 let flushing = ref false
@@ -384,6 +415,42 @@ and save_arg_with_delim delim lexbuf =
 and save_filename lexbuf = full_save_arg eof_arg pstring Save.filename lexbuf
 and save_verbatim lexbuf =
   full_save_arg eof_arg pstring Save.arg_verbatim lexbuf
+
+let protect_save_string lexfun lexbuf =
+  let rec save_rec lexbuf =
+    try
+      let arg = lexfun lexbuf in
+      arg
+    with Save.Eof -> begin
+        if Stack.empty stack_lexbuf then
+           eof_arg () 
+        else begin
+          let lexbuf = previous_lexbuf () in
+          if !verbose > 2 then begin
+            prerr_endline "popping stack_lexbuf in full_save_arg";
+            pretty_lexbuf lexbuf ;
+            prerr_args ()
+          end;
+          save_rec lexbuf
+        end
+    end in
+
+  let start_pos = Location.get_pos () in
+  try 
+    Save.seen_par := false ;
+    save_lexstate () ;
+    let r = save_rec lexbuf in
+    restore_lexstate () ;
+    if !verbose > 2 then
+      prerr_endline ("Arg parsed: ``"^r^"''") ;
+    r
+  with
+  | (Save.Error _ | Error _) as e ->
+      Save.seen_par := false ;
+      Location.print_this_pos start_pos ;
+      prerr_endline "Parsing of argument failed" ;
+      raise e
+;;
 
 let eof_opt def () = No def,Top
 

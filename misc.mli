@@ -12,6 +12,7 @@
 exception Fatal of string
 exception Purposly of string
 exception ScanError of string
+exception UserError of string
 exception EndInput
 exception EndDocument
 exception Close of string
@@ -28,3 +29,7 @@ val message : string -> unit
 val fatal : string -> 'a
 val copy_hashtbl : (string, 'a) Hashtbl.t -> (string, 'a) Hashtbl.t -> unit
 val clone_hashtbl : (string, 'a) Hashtbl.t -> (string, 'a) Hashtbl.t
+
+val start_env : string -> string
+val end_env : string -> string
+

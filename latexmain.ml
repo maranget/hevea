@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmain.ml,v 1.63 2000-05-26 17:05:56 maranget Exp $" 
+let header = "$Id: latexmain.ml,v 1.64 2000-05-30 12:28:44 maranget Exp $" 
 
 open Misc
 open Parse_opts
@@ -122,8 +122,7 @@ let read_tex name_in =
     | _  -> Lexstate.input_file !verbose scan_main name_in
   with
   | Misc.EndDocument -> () 
-  end ;
-  Latexmacros.pretty_table ()
+  end
 
 let main () = 
 
@@ -211,8 +210,8 @@ let _ =
         prerr_error ("Error while reading table format:\n\t"^s)
     | Get.Error s ->
         prerr_error ("Error while getting a value:\n\t"^s)
-    | Latexmacros.Error s ->
-        prerr_error ("Error in macro definition:\n\t"^s)
+    | Misc.UserError s ->
+        prerr_error ("User error:\n\t"^s)
     | Myfiles.Error s ->
         prerr_error ("File error:\n\t"^s)
     |  Misc.Fatal s ->

@@ -22,15 +22,17 @@ module type S =
     val new_env : string -> unit
     val close_env : string -> unit
     val env_level : int ref
-    val macro_register : string -> unit
+
     val fun_register : (unit -> unit) -> unit
     val newif_ref : string -> bool ref -> unit
     val top_open_block : string -> string -> unit
     val top_close_block : string -> unit
     val check_alltt_skip : Lexing.lexbuf -> unit
     val skip_pop : Lexing.lexbuf -> unit
+(* ``def'' functions for initialisation only *)
+    val def_code : string -> (Lexing.lexbuf -> unit) -> unit
+    val def_name_code : string -> (string -> Lexing.lexbuf -> unit) -> unit
     val def_fun : string -> (string -> string) -> unit
-    val def_print : string -> string -> unit
     val get_this_main : string -> string
     val check_this_main : string -> bool
     val get_prim : string -> string

@@ -114,8 +114,8 @@ let dest_string s =
 
 (* Keywords *)
 
-let def_print s =
-  silent_def_once "\@temp@lst" 0
+let def_print name s =
+  Latexmacros.def name zero_pat
     (CamlCode (fun _ -> dest_string s))
 ;;
 
@@ -124,7 +124,7 @@ let lst_output_other () =
     match !lst_top_mode with
     | Normal ->
         let arg = Out.to_string lst_buff in
-        def_print arg ;
+        def_print "\@tmp@lst" arg ;
         scan_this Scan.main ("{\lst@output@other{\@temp@lst}}")
     | _ ->
         dest_string (Out.to_string lst_buff)
@@ -136,7 +136,7 @@ and lst_output_letter () =
     match !lst_top_mode with
     | Normal ->
         let arg = Out.to_string lst_buff in
-        def_print arg ;
+        def_print "\\@temp@lst" arg ;
         scan_this Scan.main ("{\lst@output{\@temp@lst}}")
     | _ ->
         dest_string (Out.to_string lst_buff)
@@ -579,14 +579,6 @@ let open_verbimage lexbuf =
 and close_verbimage _ = ()
 ;;
 
-let def_code name f =
-  Latexmacros.def_code name f ;
-  Scan.macro_register name
-
-and redef_code name f =
-  Latexmacros.redef_code name f ;
-  Scan.macro_register name
-;;
 
 def_code "\\verbatim"
     (fun lexbuf ->
@@ -630,8 +622,8 @@ def_code "\\verbatiminput*"
       close_verbenv lexbuf) ;
 *)
 (* comment clashes with the ``comment'' package *)
-silent_def "\\comment"  0 (CamlCode open_forget) ;
-silent_def "\\endcomment" 0 (CamlCode Scan.check_alltt_skip) ;
+Latexmacros.def "\\comment"  zero_pat (CamlCode open_forget) ;
+Latexmacros.def "\\endcomment" zero_pat (CamlCode Scan.check_alltt_skip) ;
 ()
 ;;
 
@@ -892,7 +884,7 @@ let init_listings () =
       let keys = Subst.subst_opt "" lexbuf in
       let lab = Scan.get_prim_arg lexbuf in
       let lab = if lab = " " then "" else lab in
-      silent_def "\\lst@intname" 0 (Subst lab) ;
+      def_print "\\lst@intname" lab ;
       open_lst keys lab ;
       (* Eat first line *)
       save_lexstate () ;

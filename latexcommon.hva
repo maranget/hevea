@@ -97,7 +97,7 @@
 \newcommand{\@itemenumerate}[1][!*!]
 {\@linum\ifthenelse{\equal{#1}{!*!}}{}{\warning{Ignored optional argument to \item in enumerate enironment}}}
 \newenvironment{itemize}
-  {\@open{UL}{}\texlet\item\@itemitemize}
+  {\@open{UL}{}\let\item\@itemitemize}
   {\@close{UL}}
 \newcounter{enumcount}
 \newcommand{\@enumstyle}
@@ -106,7 +106,7 @@
 \ifthenelse{\value{enumcount}=2}{type=i}{}%
 \ifthenelse{\value{enumcount}=3}{type=A}{}}
 \newenvironment{enumerate}
-  {\@open{OL}{\@enumstyle}\stepcounter{enumcount}\texlet\item\@itemenumerate}
+  {\@open{OL}{\@enumstyle}\stepcounter{enumcount}\let\item\@itemenumerate}
   {\addtocounter{enumcount}{-1}\@close{OL}}
 \newenvironment{list}[3][!*!]
   {\ifthenelse{\equal{#1}{!*!}}{\@open{DL}{COMPACT=compact}}{\@open{DL}{}}%open
@@ -191,13 +191,16 @@
 }\fi%
 \input{footer.tex}\fi}
 %%% Boxes
-%% Boxes
 \newcommand{\textfbox}[1]{\warning{\fbox in text}\mbox{#1}}
 \def\fbox#1{%
 \ifdisplay\begin{array}{|c|}\hline#1\end{array}\else
 \textfbox{#1}\fi}
 \newcommand{\hbox}[1]{\warning{\hbox}\mbox{#1}}
 \newcommand{\displaystyle}{\ifdisplay\else\warning{\displaystyle ignored}\fi}
+%%% References
+\newcommand{\@currentlabel}{}
+\newcommand{\refstepcounter}[1]
+  {\let\@currentlabel\csname the#1\endcsname\stepcounter{#1}}
 %%% Aux files
 \newcommand{\newlabel}[2]{\@newlabel{#1}{\@fst#2}}
 \newcommand{\@writefile}[2]{}

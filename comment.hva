@@ -4,14 +4,14 @@
 {\begin{toimage}\includecomment{#1}\end{toimage}%
 \typeout{Include comment '#1'}%
 \@stopimage%
-\texdef{\csname #1\endcsname}{\@end{#1}}%
-\texdef{\csname end#1\endcsname}{\@begin{#1}}%
+\def{\csname #1\endcsname}{\@end{#1}}%
+\def{\csname end#1\endcsname}{\@begin{#1}}%
 \@restartimage}
 \newcommand{\excludecomment}[1]
 {\begin{toimage}\excludecomment{#1}\end{toimage}%
 \typeout{Exclude comment '#1'}%
 \@stopimage%
-\texlet{\csname #1\endcsname}\@excludecomment%
-\texlet{\csname end#1\endcsname}\end@excludecomment%
+\let{\csname #1\endcsname}\@excludecomment%
+\let{\csname end#1\endcsname}\end@excludecomment%
 \@restartimage}
 \excludecomment{comment}

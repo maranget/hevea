@@ -9,11 +9,12 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: mathML.ml,v 1.10 2000-01-27 16:31:38 maranget Exp $" 
+let header = "$Id: mathML.ml,v 1.11 2000-05-30 12:28:50 maranget Exp $" 
 
 
 open Misc
 open Parse_opts
+open Element
 open HtmlCommon
 open Latexmacros
 open Stack
@@ -208,7 +209,7 @@ let insert_vdisplay open_fun =
       prerr_flags "<= insert_vdisplay" ;
     mods
   with PopFreeze ->
-    raise (Error "wrong parenthesization");
+    raise (UserError "wrong parenthesization");
 ;;
 
 
@@ -581,7 +582,7 @@ let right delim =
 	push_out out_stack (ps,parg,pout);
 	close_display ();
       end;
-    with PopFreeze -> raise (Error ("Bad placement of right delimitor"));
+    with PopFreeze -> raise (UserError ("Bad placement of right delimitor"));
   end;
   3
 ;;

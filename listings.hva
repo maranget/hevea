@@ -3,13 +3,13 @@
 %%%%%%%%%%% interface keyval
 \def\lst@define@key#1#2{\define@key{lst}{#1}{\@funcall{#2}{##1}}}
 \newenvironment{lst@protect}
-  {\texdef\%{\@print{\%}}%
-   \texdef\#{\@print{\#}}%
-   \texdef\${\@print{\$}}%
-   \texdef\{{\@print{\{}}%
-   \texdef\}{\@print{\}}}%
-   \texdef\_{\@print{\_}}%
-   \texdef\&{\@print{\&}}}
+  {\def\%{\@print{\%}}%
+   \def\#{\@print{\#}}%
+   \def\${\@print{\$}}%
+   \def\{{\@print{\{}}%
+   \def\}{\@print{\}}}%
+   \def\_{\@print{\_}}%
+   \def\&{\@print{\&}}}
   {}
 \def\lst@define@key@opt#1#2{\define@key{lst}{#1}
   {\lst@funcall{#2}{\begin{lst@protect}##1\end{lst@protect}}}}
@@ -24,12 +24,12 @@
   {\@funcall{\lst@iter@}{#2\@}}}
 \def\lst@iter#1#2{%
 \ifthenelse{\equal{#2}{}}{}
-  {\texdef\lst@do##1{#1##1}%
+  {\def\lst@do##1{#1##1}%
   \@funcall{\lst@iter@}{#2,\@}}}
 %%%%%%%% Interface with keyval
 \def\lstset#1{\@setkeys{lst}{#1}}
 %%%%%%%% Def if not empty
-\newcommand{\lst@defne}[2]{\ifx#1\empty\texdef#1{#2}\fi}
+\newcommand{\lst@defne}[2]{\ifx#1\empty\def#1{#2}\fi}
 %%%%%%%%%%%%
 % Hooks    %
 %%%%%%%%%%%%
@@ -50,7 +50,7 @@
 %%%%%%%%%%%%
 % Keywords %
 %%%%%%%%%%%%
-\def\lst@install@kwd#1#2{\texdef\csname lstk@#2\endcsname{#1}}
+\def\lst@install@kwd#1#2{\def\csname lstk@\@rawchars{#2}\endcsname{#1}}
 \def\lst@install@kwds#1#2{\lst@iter{\lst@install@kwd{#1}}{#2}}
 \lst@define@key{keywords}{\lst@install@kwds{\lst@kwd@style}}
 \lst@define@key{morekeywords}{\lst@install@kwds{\lst@kwd@style}}
@@ -58,15 +58,15 @@
 \lst@define@key{rdkeywords}{\lst@install@kwds{\lst@rdkwd@style}}
 \lst@define@key{otherkeywords}{\lst@install@kwds{\lst@kwd@style}}
 %%%%%%%
-\define@key{lst}{keywordstyle}{\texdef\lst@kwd@style##1{#1{##1}}}
-\define@key{lst}{ndkeywordstyle}{\texdef\lst@ndkwd@style##1{#1{##1}}}
-\define@key{lst}{rdkeywordstyle}{\texdef\lst@rdkwd@style##1{#1{##1}}}
-\define@key{lst}{otherkeywordstyle}{\texdef\lst@kwd@style##1{#1{##1}}}
-\define@key{lst}{identifierstyle}{\texdef\lst@identifier@style##1{#1{##1}}}
-\define@key{lst}{nonkeywordstyle}{\texdef\lst@identifier@style##1{#1{##1}}}
-\define@key{lst}{basicstyle}{\texdef\lst@basic@style{#1}}
-\define@key{lst}{commentstyle}{\texdef\lst@comment@style{#1}}
-\define@key{lst}{stringstyle}{\texdef\lst@string@style{#1}}
+\define@key{lst}{keywordstyle}{\def\lst@kwd@style##1{#1{##1}}}
+\define@key{lst}{ndkeywordstyle}{\def\lst@ndkwd@style##1{#1{##1}}}
+\define@key{lst}{rdkeywordstyle}{\def\lst@rdkwd@style##1{#1{##1}}}
+\define@key{lst}{otherkeywordstyle}{\def\lst@kwd@style##1{#1{##1}}}
+\define@key{lst}{identifierstyle}{\def\lst@identifier@style##1{#1{##1}}}
+\define@key{lst}{nonkeywordstyle}{\def\lst@identifier@style##1{#1{##1}}}
+\define@key{lst}{basicstyle}{\def\lst@basic@style{#1}}
+\define@key{lst}{commentstyle}{\def\lst@comment@style{#1}}
+\define@key{lst}{stringstyle}{\def\lst@string@style{#1}}
 \lstset
   {keywordstyle={},
   ndkeywordstyle=\lst@kwd@style,
@@ -81,17 +81,17 @@
     {lstlang@#2@\csname lstdd@#2\endcsname}
     {lstlang@#2@#1}}
 \newcommand{\lst@language@key}[2][]
-  {\texdef\lst@language@init{\csname\lst@mklang[#1]{#2}\endcsname}}
+  {\def\lst@language@init{\csname\lst@mklang[#1]{#2}\endcsname}}
 \lst@AddToHook{Init}{\lst@language@init}
 \lst@define@key@opt{language}{\lst@language@key}
 \newcommand{\lst@definelanguage@}[3]
-  {\texdef\csname\lst@mklang[#2]{#1}\endcsname{\lstset{#3}}}
+  {\def\csname\lst@mklang[#2]{#1}\endcsname{\lstset{#3}}}
 \newcommand{\lst@derivelanguage@}[5]
-  {\texdef\csname\lst@mklang[#2]{#1}\endcsname
+  {\def\csname\lst@mklang[#2]{#1}\endcsname
      {\csname\lst@mklang[#4]{#3}\endcsname%
      \lstset{#5}}}
 %%%%%%% Indentation
-\define@key{lst}{indent}[1]{\texdef\lst@doindent{\hspace{#1}}}
+\define@key{lst}{indent}[1]{\def\lst@doindent{\hspace{#1}}}
 \newcommand{\lst@doindent}{}
 %%%%%%% Lines
 \newcounter{lstlabel}
@@ -100,9 +100,9 @@
   {\@ifundefined{thelst@saved@\lst@intname}
     {0}
     {\value{lst@saved@\lst@intname}}}
-\define@key{lst}{firstlabel}{\texdef\lst@firstline{#1}}
+\define@key{lst}{firstlabel}{\def\lst@firstline{#1}}
 \define@key{lst}{advancelabel}
-  {\texdef\lst@firstline{\lst@saved@lastline+#1+1}}
+  {\def\lst@firstline{\lst@saved@lastline+#1+1}}
 \lst@AddToHook{Init}
   {\@ifundefined{lst@firstline}
     {\ifthenelse{\equal{\lst@intname}{}}
@@ -117,9 +117,9 @@
 \lst@AddToHook{InitVar}{\setcounter{lstlabel}{\value{lst@firstline}}}
 \define@key{lst}{labelstyle}{\@forcecommand{\lst@label@style}[1]{#1{##1}}}
 \newcommand{\lst@label@style}[1]{#1}
-\define@key{lst}{labelstep}{\texdef{\lst@labelstep}{#1}}
+\define@key{lst}{labelstep}{\def{\lst@labelstep}{#1}}
 \newcommand{\lst@labelstep}{0}
-\define@key{lst}{labelsep}{\texdef{\lst@labelsep}{\hspace{#1}}}
+\define@key{lst}{labelsep}{\def{\lst@labelsep}{\hspace{#1}}}
 \newcommand{\lst@labelsep}{\hspace{1em}}
 \newcommand{\lst@pad}[1]{\@pad{ }{3}{#1}}
 \newcommand{\lst@linenumber@}[1]
@@ -134,13 +134,13 @@
 \lst@AddToHook{InitVarEOL}{\stepcounter{lstlabel}}
 %%%%%% Ignore input
 \newcommand{\lst@gobble}{0}
-\define@key{lst}{gobble}{\texdef\lst@gobble{#1}}
+\define@key{lst}{gobble}{\def\lst@gobble{#1}}
 \newcommand{\lst@first}{1}
 \newcommand{\lst@last}{9999}
-\define@key{lst}{first}{\texdef\lst@first{#1}}
-\define@key{lst}{last}{\texdef\lst@last{#1}}
+\define@key{lst}{first}{\def\lst@first{#1}}
+\define@key{lst}{last}{\def\lst@last{#1}}
 
-\define@key{lst}{print}[true]{\texdef\lst@print{#1}}
+\define@key{lst}{print}[true]{\def\lst@print{#1}}
 \setboolean{lst@print}{true}
 \lst@AddToHook{Init}
   {\@ifundefined{lst@print}{}
@@ -154,24 +154,24 @@
   \lst@defne\lst@stringizers{\@rawchars{#2}}}
 \lst@define@key@opt{stringizer}{\lst@stringizer@key}
 \lst@AddToHook{PreSet}
-  {\texdef\lst@stringizers{}\texdef\lst@quote@stringizers{}}
+  {\def\lst@stringizers{}\def\lst@quote@stringizers{}}
 %%%%%% Comments
 % Line comments
 \newcommand{\lst@LC@key}[1]
   {\lst@defne{\lst@LC}{\@rawchars{#1}}}
 \define@key{lst}{commentline}{\lst@LC@key{#1}}
-\lst@AddToHookExe{PreSet}{\texdef\lst@LC{}}
+\lst@AddToHookExe{PreSet}{\def\lst@LC{}}
 % Balanced comments
 \newcommand{\lst@NC@key}[2]
   {\lst@defne\lst@BNC{\@rawchars{#1}}\lst@defne\lst@ENC{\@rawchars{#2}}}
 \define@key[2]{lst}{nestedcomment}{\lst@NC@key{#1}{#2}}
 \lst@AddToHookExe{PreSet}
-  {\texdef\lst@BNC{}\texdef\lst@ENC{}}
+  {\def\lst@BNC{}\def\lst@ENC{}}
 \newcommand{\lst@SC@key}[2]
    {\lst@defne\lst@BBC@one{\@rawchars{#1}}\lst@defne\lst@EBC@one{\@rawchars{#2}}}
 \define@key[2]{lst}{singlecomment}{\lst@SC@key{#1}{#2}}
 \lst@AddToHookExe{PreSet}
-  {\texdef\lst@BBC@one{}\texdef\lst@EBC@one{}}
+  {\def\lst@BBC@one{}\def\lst@EBC@one{}}
 \newcommand{\lst@DC@key}[4]
    {\lst@defne\lst@BBC@two{\@rawchars{#1}}%
    \lst@defne\lst@EBC@two{\@rawchars{#2}}%
@@ -179,21 +179,21 @@
    \lst@defne\lst@EBC@three{\@rawchars{#4}}}
 \define@key[4]{lst}{doublecomment}{\lst@DC@key{#1}{#2}{#3}{#4}}
 \lst@AddToHookExe{PreSet}
- {\texdef\lst@BBC@two{}%
-  \texdef\lst@EBC@two{}%
-  \texdef\lst@BBC@three{}%
-  \texdef\lst@EBC@three{}}
+ {\def\lst@BBC@two{}%
+  \def\lst@EBC@two{}%
+  \def\lst@BBC@three{}%
+  \def\lst@EBC@three{}}
 %%%%%%% Output
 \def\lst@output#1{%
 %\lstinfo{Output: ``#1''}%
 \@ifundefined{lstk@#1}
   {\lst@identifier@style{#1}}
-  {\csname lstk@#1\endcsname{#1}}}
+  {\csname lstk@\@rawchars{#1}\endcsname{#1}}}
 \def\lst@output@other#1{%
 %\lstinfo{Output other: ``#1''}%
 \@ifundefined{lstk@#1}
   {#1}
-  {\csname lstk@#1\endcsname{#1}}}
+  {\csname lstk@\@rawchars{#1}\endcsname{#1}}}
 %%%%%%% User interface
 \newcommand{\lstinputlisting}[2][]
   {\@scaninput{\lstinfo{INPUT: ``#1'' ``#2''}\begin{lstlisting}[#1]{}

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: tabular.mll,v 1.22 2000-04-17 09:32:47 maranget Exp $ *)
+(* $Id: tabular.mll,v 1.23 2000-05-30 12:28:53 maranget Exp $ *)
 {
 open Misc
 open Lexing
@@ -138,7 +138,7 @@ and tfmiddle = parse
 | [^'|' '@' '<' '>' '!' '#']
     {let lxm = lexeme lexbuf in
     let name = column_to_command lxm in
-    let pat,body = Latexmacros.find_macro name in
+    let pat,body = Latexmacros.find name in
     let args = Lexstate.make_stack name pat lexbuf in
     Lexstate.scan_body
       (function

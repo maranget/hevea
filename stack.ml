@@ -41,6 +41,7 @@ let pretty f stack =
   do_rec stack.l
 
 let rev s = s.l <- List.rev s.l
+let map s f =  s.l <- List.map f s.l
 
 type 'a saved = 'a list
 
@@ -49,7 +50,6 @@ and save {l=l} = l
 and restore s x = s.l <- x
 
 let finalize {l=now ;  name=name} p f =
-
   let rec f_rec = function
     | [] -> ()
     | nx::n -> 
@@ -61,3 +61,4 @@ let finalize {l=now ;  name=name} p f =
   f_rec now
 
   
+

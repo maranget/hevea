@@ -9,35 +9,39 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.173 2000-05-26 17:06:00 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.174 2000-05-30 12:28:44 maranget Exp $ *)
 
 
 {
 module type S =
   sig
+    (* external entry points *)
     val no_prelude : unit -> unit
     val main : Lexing.lexbuf -> unit
-    val print_env_pos : unit -> unit 
+    val print_env_pos : unit -> unit
 
+    (* additional resources needed for extension modules. *)
     val cur_env : string ref
     val new_env : string -> unit
     val close_env : string -> unit
     val env_level : int ref
-    val macro_register : string -> unit
+
     val fun_register : (unit -> unit) -> unit
     val newif_ref : string -> bool ref -> unit
     val top_open_block : string -> string -> unit
     val top_close_block : string -> unit
     val check_alltt_skip : Lexing.lexbuf -> unit
     val skip_pop : Lexing.lexbuf -> unit
+(* ``def'' functions for initialisation only *)
+    val def_code : string -> (Lexing.lexbuf -> unit) -> unit
+    val def_name_code : string -> (string -> Lexing.lexbuf -> unit) -> unit
     val def_fun : string -> (string -> string) -> unit
-    val def_print : string -> string -> unit
     val get_this_main : string -> string
     val check_this_main : string -> bool
     val get_prim : string -> string
     val get_prim_arg : Lexing.lexbuf -> string
     val get_prim_opt : string -> Lexing.lexbuf -> string
-    val get_csname : Lexing.lexbuf -> string 
+    val get_csname : Lexing.lexbuf -> string
   end
 
 module Make
@@ -45,6 +49,7 @@ module Make
 struct
 open Misc
 open Parse_opts
+open Element
 open Lexing
 open Myfiles
 open Latexmacros
@@ -73,45 +78,20 @@ let if_level = ref 0
 ;;
 
 let cur_env = ref ""
-and macros = ref []
 and after = ref [] 
 and stack_env = Stack.create "stack_env"
 and env_level = ref 0
 ;;
 
-let stack_env_pretty () =  Stack.pretty (fun (x,_,_,_) -> x) stack_env
+let echo_toimage () =  !env_level = 0 && top_level ()
+and echo_global_toimage () = top_level ()
 
-let macro_register name =
-  if !env_level > 0 then begin
-    if !verbose > 3 then
-      prerr_endline ("Registering macro: "^name);
-    macros := name :: !macros
-  end
-;;
+let stack_env_pretty () =  Stack.pretty (fun (x,_,_) -> x) stack_env
 
 let fun_register f =
-  if !env_level > 0 then
-    after := f :: !after
+  if !env_level > 0 then after := f :: !after
 ;;
 
-let do_unregister macros after =
-(*
-begin match macros with
-| [] -> ()
-| l ->
-    Printf.fprintf stderr "Unregistering %d macros\n" (List.length l)
-end ;
-*)
-  List.iter
-   (fun name ->
-     if !verbose > 3 then
-       prerr_endline ("Unregistering macro: "^name) ;
-     Latexmacros.unregister name) macros ;
-  let rec do_rec = function
-    | [] -> ()
-    | f :: rest -> do_rec rest ; f () in
-  do_rec after
-;;
 
 let inc_size i =
   let n = Dest.get_fontsize () in
@@ -148,29 +128,27 @@ let top_close_display () =
 
 (* Latex environment stuff *)
 
+let print_env_pos () =
+  let _,_,pos = Stack.pop stack_env in
+  Location.print_this_pos pos ;
+  prerr_endline ("Latex environment ``"^ !cur_env^"'' is pending")
+;;
+
 let new_env env =
-  push stack_env (!cur_env,!macros, !after, Location.get_pos ()) ;
+  Latexmacros.open_group () ;
+  push stack_env (!cur_env, !after, Location.get_pos ()) ;
   cur_env := env ;
-  macros := [] ; after := [] ;
-  if env <> "document" then incr env_level ;
+  after := [] ;
   if !verbose > 1 then begin
     Location.print_pos () ;
     Printf.fprintf stderr "Begin : %s <%d>" env !env_level ;
     prerr_endline ""
-  end ;
-;;
-
-let print_env_pos () =
-  let _,_,_,pos = Stack.pop stack_env in
-  Location.print_this_pos pos ;
-  prerr_endline ("Latex environment ``"^ !cur_env^"'' is pending")
-;;
+  end
 
 let error_env close_e open_e =
   raise
     (Misc.Close
        ("Latex env error: ``"^close_e^"'' closes ``"^open_e^"''"))
-;;
 
 let close_env env  =
   if !verbose > 1 then begin
@@ -178,20 +156,18 @@ let close_env env  =
     prerr_endline  ""
   end ;
   if env = !cur_env then begin  
-    if env <> "document" then decr env_level ;
-    let e,m,a,_ = pop stack_env in    
-    do_unregister !macros !after ;
+    let e,a,_ = pop stack_env in    
+    List.iter (fun f -> f ()) !after ;
     cur_env := e ;
-    macros := m ;
-    after := a
+    after := a ;
+    Latexmacros.close_group ()
   end else
     error_env env !cur_env
 ;;
 
-let env_check () = !cur_env, !macros, !after, Stack.save stack_env
-and env_hot (e,m,a,s) =
+let env_check () = !cur_env, !after, Stack.save stack_env
+and env_hot (e,a,s) =
   cur_env := e ;
-  macros := m ;
   after := a ;
   Stack.restore stack_env s
         
@@ -356,10 +332,10 @@ let get_fun_result f lexbuf =
   r
 
 
-let do_get_this make_style  lexfun (s,subst) =
+let do_get_this start_lexstate restore_lexstate
+    make_style  lexfun (s,subst) =
   let par_val = Dest.forget_par () in
-  start_normal subst ;
-
+  start_lexstate subst;
   if !verbose > 1 then
     prerr_endline ("get_this : ``"^s^"''") ;  
   verbose := !verbose - 1;
@@ -374,21 +350,16 @@ let do_get_this make_style  lexfun (s,subst) =
   if !verbose > 1 then begin
     prerr_endline ("get_this ``"^s^"'' -> ``"^r^"''")
   end ;
-  end_normal () ;
+  restore_lexstate () ;
   Dest.par par_val ;
   r
 
+let get_this_arg =
+  do_get_this start_lexstate_subst restore_lexstate (fun () -> ())
 
-  
-let get_this lexfun s = do_get_this (fun () -> ()) lexfun (s,get_subst ())
-and get_this_nostyle lexfun s =
-  do_get_this Dest.nostyle lexfun (s,get_subst ())
-and get_this_clearstyle lexfun s =
-  do_get_this Dest.clearstyle lexfun (s,get_subst ())
-
-
-let get_this_arg = do_get_this (fun () -> ())
-and get_this_nostyle_arg = do_get_this Dest.nostyle
+and get_this_string main s =
+  do_get_this start_lexstate_subst restore_lexstate (fun () -> ())
+    main (s,get_subst())
 
 let more_buff = Out.create_buff ()
 ;;
@@ -485,7 +456,9 @@ let show_inside main format i closing =
   begin try while true do
     begin match get_col format !t with
       Tabular.Inside s ->
-        let s = get_this main s in
+        if math_table !in_table then scan_this main "$" ;
+        let s = get_this_string main s in
+        if math_table !in_table then scan_this main "$" ;
 	Dest.make_inside s !in_multi;
     | Tabular.Border s -> 
 	Dest.make_border s;
@@ -785,7 +758,7 @@ let expand_command main skip_blanks name lexbuf =
         scan_this_may_cont main lexbuf cur_subst (body,get_subst ())
     | CamlCode f -> f lexbuf in
 
-  let pat,body = find_macro name in
+  let pat,body = Latexmacros.find name in
   let par_before = Dest.forget_par () in
   if
     (if !in_math then Latexmacros.invisible name
@@ -1010,7 +983,7 @@ and latexonly = parse
      end else if arg = top stack_entry then begin
        let _ = pop stack_entry in
        push stack_out arg ;
-       begin match find_macro (end_env arg) with
+       begin match Latexmacros.find (end_env arg) with
          _,(Subst body) ->
            scan_this_may_cont latexonly lexbuf (get_subst ())
              (body,get_subst ())
@@ -1061,7 +1034,7 @@ and image = parse
      end else if arg = top stack_entry then begin
        let _ = pop stack_entry in
        push stack_out arg ;
-       begin match find_macro (end_env arg) with
+       begin match Latexmacros.find (end_env arg) with
          _,(Subst body) ->
            scan_this_may_cont  image lexbuf (get_subst ())
              (body,get_subst ())
@@ -1241,6 +1214,34 @@ and skip_comment = parse
 
 
 {
+;;
+
+(* A few subst definitions, with 2 optional arguments *)
+
+def "\\makebox" (latex_pat ["" ; ""] 3)
+    (Subst "\\warning{makebox}\\mbox{#3}") ;
+def "\\framebox" (latex_pat ["" ; ""] 3)
+    (Subst "\\warning{framebox}\\fbox{#3}")
+;;
+
+let check_alltt_skip lexbuf =
+  if not (Stack.empty stack_alltt) && pop stack_alltt then begin
+    push stack_alltt true
+  end else begin
+    push stack_alltt false ;
+    skip_blanks lexbuf
+  end
+and skip_pop lexbuf =
+  save_lexstate () ;
+  skip_blanks_pop lexbuf ;
+  restore_lexstate ()
+;;
+
+let def_code name f = def_init name f
+let def_name_code name f = def_init name (f name)
+;;
+
+
 def_code "\\@hevea@percent"
     (fun lexbuf ->
       if !alltt || not (is_plain '%') then begin
@@ -1301,17 +1302,26 @@ def_code "\\@hevea@obrace"
         top_open_group ()
       else begin
         Dest.put_char '{'
-      end)
+      end) ;
+def_code "\\bgroup"
+    (fun lexbuf ->
+      top_open_group () ;
+      check_alltt_skip lexbuf)
 ;;
 
 def_code "\\@hevea@cbrace"
-    (fun lexbuf ->
+    (fun _ ->
       if !activebrace && is_plain '}' then begin
         top_close_group ()
       end else begin
         Dest.put_char '}'
-      end)
+      end) ;
+def_code "\\egroup"
+    (fun lexbuf ->
+      top_close_group () ;
+      check_alltt_skip lexbuf)
 ;;
+
 
 def_code "\\@hevea@tilde"
   (fun lexbuf ->
@@ -1341,20 +1351,9 @@ def_code "\\@hevea@excl"
 ;;
 
 
-let check_alltt_skip lexbuf =
-  if not (Stack.empty stack_alltt) && pop stack_alltt then begin
-    push stack_alltt true
-  end else begin
-    push stack_alltt false ;
-    skip_blanks lexbuf
-  end
-and skip_pop lexbuf =
-  save_lexstate () ;
-  skip_blanks_pop lexbuf ;
-  restore_lexstate ()
-;;
 
-let get_this_main arg = get_this main arg
+let get_this_main arg = get_this_string main arg
+
 let check_this_main s =
   if !verbose > 1 then
     prerr_endline ("check_this: ``"^s^"''");
@@ -1374,15 +1373,16 @@ let check_this_main s =
     prerr_endline ("check_this: ``"^s^"'' = "^sbool r);
   r
   
-
-
 let get_prim_onarg arg =
   let plain_sub = is_plain '_'
   and plain_sup = is_plain '^'
   and plain_dollar = is_plain '$'
   and plain_amper = is_plain '&' in
   unset_plain '_' ; unset_plain '^' ; unset_plain '$' ; unset_plain '&' ;
-  let r = get_this_nostyle_arg main arg in
+  let r = do_get_this
+      start_normal end_normal
+      Dest.nostyle
+      main arg in
   plain_back plain_sub '_' ; plain_back plain_sup '^' ;
   plain_back plain_dollar '$' ; plain_back plain_amper '&' ;
   r
@@ -1397,7 +1397,15 @@ and get_prim_opt def lexbuf =
   let arg = save_opt def lexbuf in
   get_prim_onarg arg
 
-let get_csname lexbuf = Save.csname lexbuf get_prim Subst.subst_this
+
+
+
+
+
+let get_csname lexbuf =
+  protect_save_string
+    (fun lexbuf -> Save.csname lexbuf get_prim Subst.subst_this)
+    lexbuf
 
 
 let def_fun name f =
@@ -1477,7 +1485,7 @@ let do_newcommand lxm lexbuf =
   let name = get_csname lexbuf in
   let nargs = save_opts ["0" ; ""] lexbuf in
   let body = subst_body lexbuf in
-  if (!env_level = 0) && lxm <> "\\@forcecommand"  && top_level () then
+  if echo_toimage () && lxm <> "\\@forcecommand"  && top_level () then
     Image.put
       (lxm^Save.get_echo ()^"\n") ;
   let nargs,(def,defval) = match nargs with
@@ -1487,18 +1495,23 @@ let do_newcommand lxm lexbuf =
       | No s,env -> false,(s,env)
       | Yes s,env -> true,(s,env))
   | _ -> assert false in
-  begin try
-    (match lxm with
-      "\\newcommand"   -> def_macro_pat
-    | "\\renewcommand" -> redef_macro_pat
-    | "\\@forcecommand" -> silent_def_pat        
-    | _                -> provide_macro_pat) name
-      (Latexmacros.make_pat
-         (if def then [do_subst_this defval]
-         else []) nargs)
-      (Subst body) ;
-    macro_register name
-  with Latexmacros.Failed -> () end
+  let pat =
+    latex_pat (if def then [do_subst_this defval] else []) nargs in
+  match lxm with
+  | "\\@forcecommand" -> Latexmacros.def name pat (Subst body)
+  | "\\newcommand"    ->
+      if Latexmacros.exists name then
+        warning ("Ignoring (re-)definition of ``"^name^"'' by \\newcommand")
+      else
+        Latexmacros.def name pat (Subst body)
+    | "\\renewcommand" ->
+      if Latexmacros.exists name then
+        Latexmacros.def name pat (Subst body)
+      else
+        warning ("Defining ``"^name^"'' by \\renewcommand")
+    | _                ->
+      if not (Latexmacros.exists name) then
+        Latexmacros.def name pat (Subst body)
 ;;
 
 def_name_code "\\renewcommand" do_newcommand  ;
@@ -1510,17 +1523,24 @@ def_name_code "\\@forcecommand" do_newcommand ;
 def_name_code "\\newcolumntype"
   (fun lxm lexbuf ->
     Save.start_echo () ;
-    let name = get_csname lexbuf in
+    let old_raw = !raw_chars in
+    raw_chars := true ;
+    let name = get_prim_arg lexbuf in
+    raw_chars := old_raw ;
     let nargs = save_opt "0" lexbuf in
     let body = subst_body lexbuf in
     let rest = Save.get_echo () in
-    if !env_level = 0 then
+    if echo_toimage () then
       Image.put (lxm^rest^"\n") ;
-    def_coltype
-      name
-      (Latexmacros.make_pat [] (Get.get_int nargs))
-      (Subst body) ;
-    macro_register (Misc.column_to_command name))
+    let col_cmd = Misc.column_to_command name in
+    if Latexmacros.exists col_cmd then
+      warning
+        ("Not (re)-defining column type ``"^name^"'' with \\newcolumntype")
+    else
+      Latexmacros.def
+        col_cmd
+        (latex_pat [] (Get.get_int nargs))
+        (Subst body))
 ;;
 
 let do_newenvironment lxm lexbuf =
@@ -1531,30 +1551,55 @@ let do_newenvironment lxm lexbuf =
   | _ -> assert false in
   let body1 = subst_body lexbuf in
   let body2 = subst_body lexbuf in
-  if !env_level = 0 then
+  if echo_toimage () then
     Image.put (lxm^Save.get_echo ()^"\n") ;
-  begin try
-    (match lxm with
-      "\\newenvironment" -> def_env_pat
-    |  _ -> redef_env_pat) name
-      (Latexmacros.make_pat
+
+  let do_defs () =
+    Latexmacros.def
+      (start_env name)
+      (latex_pat
          (match optdef with
          | No _,_    -> []
          | Yes s,env -> [do_subst_this (s,env)])
          (match nargs with No _,_ -> 0 | Yes s,env -> Get.get_int (s,env)))
-      (Subst body1) (Subst body2);
-    macro_register (start_env name) ; 
-    macro_register (end_env name)
-  with Latexmacros.Failed -> () end
+      (Subst body1) ;
+    Latexmacros.def (end_env name)  zero_pat (Subst body2) in
+         
+  if lxm = "\\newenvironment" then
+    if
+      Latexmacros.exists (start_env name) ||
+      Latexmacros.exists (start_env name)
+    then
+      warning
+        ("Not (re)-defining environment ``"^name^"'' with \\newenvironment")
+    else
+      do_defs ()
+  else begin
+    if
+      not (Latexmacros.exists (start_env name) &&
+           Latexmacros.exists (start_env name))
+    then
+      warning
+        ("Defining environment ``"^name^"'' with \\renewenvironment") ;
+    do_defs ()
+  end
 ;;
 
 def_name_code "\\newenvironment" do_newenvironment ;
 def_name_code  "\\renewenvironment" do_newenvironment
 ;;
 
+let do_newcounter name within =
+  try
+    Counter.def_counter name within ;
+    Latexmacros.def
+      ("\\the"^name) zero_pat (Subst ("\\arabic{"^name^"}"))
+  with
+  | Failed -> ()
+
 let do_newtheorem lxm lexbuf =
   Save.start_echo () ;
-  let name = get_csname lexbuf in
+  let name = get_prim_arg lexbuf in
   let numbered_like = match save_opts [""] lexbuf with
   |  [x] -> x
   | _ -> assert false in
@@ -1562,28 +1607,24 @@ let do_newtheorem lxm lexbuf =
   let within =  match save_opts [""] lexbuf with
   | [x] -> x
   | _   -> assert false in
-  if !env_level = 0 then
+  if echo_toimage () then
     Image.put (lxm^Save.get_echo ()^"\n") ;
-  begin try
-    let cname = match numbered_like,within with
-      (No _,_),(No _,_) ->
-        Counter.def_counter name "" ;
-        def_macro ("\\the"^name) 0 (Subst ("\\arabic{"^name^"}")) ;
-        name
-    | _,(Yes within,env) ->
-        let within = do_subst_this (within,env) in
-        Counter.def_counter name within ;
-        def_macro ("\\the"^name) 0
-          (Subst ("\\the"^within^".\\arabic{"^name^"}")) ;
-        name
-    | (Yes numbered_like,env),_ ->
-        do_subst_this (numbered_like,env) in
-    
-    def_env_pat name (Latexmacros.make_pat [""] 0)
-      (Subst ("\\begin{flushleft}\\refstepcounter{"^cname^"}{\\bf "^caption^"~"^
-              "\\the"^cname^"}\\quad\\ifoptarg{\\purple[#1]\\quad}\\fi\\em"))
-      (Subst "\\end{flushleft}")
-  with Latexmacros.Failed -> () end
+  let cname = match numbered_like,within with
+    (No _,_),(No _,_) ->
+      do_newcounter  name "" ; name
+  | _,(Yes within,env) ->
+      let within = get_prim_onarg (within,env) in
+      do_newcounter name within ; name
+  | (Yes numbered_like,env),_ ->
+      get_prim_onarg (numbered_like,env) in
+  Latexmacros.global_def
+    (start_env name) zero_pat      
+    (Subst
+       ("\\begin{flushleft}\\refstepcounter{"^cname^"}{\\bf "^caption^"~"^
+        "\\the"^cname^"}\\quad\\ifoptarg{\\purple[#1]\\quad}\\fi\\em")) ;
+  Latexmacros.global_def
+    (end_env name) zero_pat
+    (Subst "\\end{flushleft}")
 ;;
 
 def_name_code "\\newtheorem" do_newtheorem ;
@@ -1592,9 +1633,10 @@ def_name_code "\\renewtheorem" do_newtheorem
 
 (* Command definitions, TeX style *)
 
-let do_def realdef global lxm lexbuf =
+let do_def global lxm lexbuf =
+  Save.start_echo () ;
   let name = get_csname lexbuf in
-  skip_blanks lexbuf ;
+  Save.skip_blanks_init lexbuf ;
   let name,args_pat,body =
     if top_level () then
       let args_pat = Save.defargs lexbuf in
@@ -1607,53 +1649,43 @@ let do_def realdef global lxm lexbuf =
              (subst_this (Save.get_defargs lexbuf))) in
       let body = subst_arg lexbuf in
       name,args_pat,body in
-  if not realdef && (!env_level = 0 || global) then
-    Image.put
-      (lxm^name^
-       (List.fold_right (fun s r -> s^r) args_pat ("{"^body^"}\n"))) ;
-  begin try
-    (if realdef then silent_def_pat else def_macro_pat)
-      name ([],args_pat) (Subst body) ;
-    if not global then macro_register name
-  with Latexmacros.Failed -> () end
+  let real_args = Save.get_echo () in
+  if echo_toimage () || (global && echo_global_toimage ()) then begin    
+    Image.put  (lxm^real_args) ;
+    Image.put_char '\n'
+  end ;
+  (if global then global_def else def)
+    name ([],args_pat) (Subst body)
 ;;
 
-def_name_code "\\def" (do_def false false) ;
-def_name_code "\\texdef" (do_def true false) ;
-def_name_code "\\gdef" (do_def false true)
+def_name_code "\\def" (do_def false) ;
+def_name_code "\\gdef" (do_def true)
 ;;
 
-let do_let reallet global lxm lexbuf =
+let do_let global lxm lexbuf =
+  Save.start_echo () ;
   let name = get_csname lexbuf in
   Save.skip_equal lexbuf ;
   let alt = get_csname lexbuf in
-  let nargs,body = find_macro alt in
-  begin try
-    (if reallet then silent_def_pat else def_macro_pat)
+  let real_args = Save.get_echo () in
+  let nargs,body = Latexmacros.find alt in
+  (if global then global_def else def)
       name nargs body ;
-    if not global then macro_register name
-  with Latexmacros.Failed -> ()
-  end ;
-  if not reallet && (!env_level = 0 || global) then begin
+  if echo_toimage () || (global && echo_global_toimage ()) then begin
     Image.put lxm ;
-    Image.put name ;
-    Image.put "=" ;
-    Image.put alt ;
+    Image.put real_args ;
     Image.put "\n"
   end
 ;;
 
-def_name_code "\\let" (do_let false false) ;
-def_name_code "\\texlet" (do_let true false)
+def_name_code "\\let" (do_let false) ;
 ;;
 
 let do_global lxm lexbuf =
   let next = subst_arg lexbuf in
   begin match next with
-  | "\\def" -> do_def false true (lxm^next) lexbuf
-  | "\\texdef" -> do_def true true (lxm^next) lexbuf
-  | "\\let" -> do_let false true (lxm^next) lexbuf
-  | "\\texlet" -> do_let true true (lxm^next) lexbuf
+  | "\\def" -> do_def true (lxm^next) lexbuf
+  | "\\let" -> do_let true (lxm^next) lexbuf
   | _       -> warning "Ignored \\global"
   end
 ;;
@@ -1744,8 +1776,7 @@ def_code "\\chardef"
     let csname = get_csname lexbuf in
     Save.skip_equal lexbuf ;
     let i = get_num_arg lexbuf in
-    macro_register csname ;
-    Latexmacros.silent_def csname 0 (Subst (string_of_int i)))
+    Latexmacros.def csname zero_pat (Subst (string_of_int i)))
 ;;
 
 (* Complicated use of output blocks *)
@@ -1872,7 +1903,7 @@ def_code "\\@anti"
             prerr_string "Anti result: " ;
             List.iter
               (fun s ->
-                prerr_string (Latexmacros.pretty_env s^", ")) envs ;
+                prerr_string (Element.pretty_text s^", ")) envs ;
             prerr_endline ""
           end ;
           Dest.erase_mods envs)
@@ -1963,8 +1994,7 @@ let extract_if name =
   String.sub name 3 (l-3)
 ;;
 
-let def_and_register name f =
-  def_code name f ; macro_register name
+let def_and_register name f = def name zero_pat (CamlCode f)
 ;;
 
 let newif_ref name cell =  
@@ -1988,7 +2018,7 @@ def_code "\\ifx"
   (fun lexbuf ->
     let arg1 = get_csname lexbuf in
     let arg2 = get_csname lexbuf  in
-    if silent_find_macro arg1 = silent_find_macro arg2 then
+    if Latexmacros.find arg1 = Latexmacros.find arg2 then
       check_alltt_skip lexbuf
     else skip_false lexbuf)
 ;;
@@ -2091,11 +2121,14 @@ def_code "\\@footnotetext"
   (fun lexbuf ->
     start_lexstate () ; 
     let mark = Get.get_int (save_arg lexbuf) in
-    let text,env = save_arg lexbuf in
-    let text = get_this_arg main ("\\@clearstyle "^text,env) in
+    let text = save_arg lexbuf in
+    let text =
+      do_get_this
+        start_normal end_normal Dest.clearstyle
+        main text in
     Foot.register
       mark
-      (get_this main ("\\@fnmarknote{"^string_of_int mark^"}"))
+      (get_this_string main ("\\@fnmarknote{"^string_of_int mark^"}"))
       text ;
     restore_lexstate ())
 ;;
@@ -2103,7 +2136,7 @@ def_code "\\@footnotetext"
 def_code "\\@footnoteflush"
   (fun lexbuf ->
     let sec_here = get_prim_arg lexbuf
-    and sec_notes = get_this_nostyle main "\\@footnotelevel" in
+    and sec_notes = get_prim "\\@footnotelevel" in
     start_lexstate () ;
     Foot.flush (scan_this main) sec_notes sec_here ;
     restore_lexstate ())
@@ -2137,6 +2170,7 @@ def_code "\\begin"
     end ;
     restore stack_entry old_envi)
 ;;
+
 
 def_code "\\@begin"
   (fun lexbuf ->
@@ -2177,22 +2211,35 @@ def_code "\\endinput" (fun lexbuf ->
 def_code "\\mbox" (fun lexbuf -> mbox_arg lexbuf)
 ;;
 
-let def_print name s = def_code name (fun _ -> Dest.put s)
-and redef_print name s = redef_code name (fun _ -> Dest.put s)
-;;
 
 
 def_code "\\newsavebox"
   (fun lexbuf ->
     let name = get_csname lexbuf in
-    begin try def_print name ""
-    with Latexmacros.Failed -> () end )
+    try
+      let _ = find_fail name in
+      warning ("Not (re-)defining ``"^name^"'' with \\newsavebox")
+    with
+    | Failed ->
+        global_def name zero_pat (CamlCode (fun _ -> ())))
 ;;
 
 def_code "\\providesavebox"
   (fun lexbuf ->
     let name = get_csname lexbuf in
-    silent_def name 0 (CamlCode (fun _ -> ())))
+    try
+      let _ = find_fail name in ()
+    with
+    | Failed ->
+        global_def name zero_pat (CamlCode (fun _ -> ())))
+;;
+
+let caml_print s = CamlCode (fun _ -> Dest.put s)
+
+let do_sbox name body =
+  if not (Latexmacros.exists name) then
+    warning ("\\sbox on undefined bin ``"^name^"''") ;
+  def name zero_pat (caml_print (get_this_arg main body))
 ;;
 
 def_code "\\savebox" 
@@ -2202,16 +2249,14 @@ def_code "\\savebox"
     skip_opt lexbuf ;
     skip_opt lexbuf ;
     let body = save_arg lexbuf in
-    redef_print name (get_this_arg main body) ;
-    macro_register name)
+    do_sbox name body)
 ;;
 
 def_code "\\sbox"
   (fun lexbuf ->
     let name = get_csname lexbuf in
     let body = save_arg lexbuf in
-    redef_print name (get_this_arg main body) ;
-    macro_register name)
+    do_sbox name body)
 ;;
 
 def_code "\\usebox"
@@ -2221,21 +2266,19 @@ def_code "\\usebox"
 ;;
 
 def_code "\\lrbox"
-  (fun _ ->
+  (fun lexbuf ->
     close_env "lrbox" ;
-    let lexbuf = previous_lexbuf () in
     let name = get_csname lexbuf in
     Dest.open_aftergroup
       (fun s ->
-        redef_print name s ;
-        macro_register name ;
+        def name zero_pat (caml_print s) ;
         "") ;
     scan_this main ("\\mbox{"))
 ;;
 
 def_code "\\endlrbox"
   (fun _ ->
-    scan_this main "}" ; Dest.force_block "" "" ; new_env "lrbox")
+    top_close_group () ; Dest.force_block "" "" ; new_env "lrbox")
 ;;
 
 
@@ -2329,16 +2372,11 @@ def_code "\\@pad"
     Dest.put (Dest.iso_string (pad p l arg)))
 ;;
 
-    
 def_code "\\newcounter"
   (fun lexbuf ->
     let name = get_prim_arg lexbuf in
     let within = get_prim_opt "" lexbuf in
-    try
-      Counter.def_counter name within ;
-      def_macro ("\\the"^name) 0 (Subst ("\\arabic{"^name^"}"))
-    with
-    | Latexmacros.Failed -> ())
+    do_newcounter name within)
 ;;
 
 def_code "\\addtocounter"
@@ -2359,16 +2397,6 @@ def_code "\\stepcounter"
   (fun lexbuf ->
     let name = get_prim_arg lexbuf in
     Counter.step_counter name)
-;;
-
-def_print "\\@currentlabel" "" ;
-def_code "\\refstepcounter"
-  (fun lexbuf ->
-    let name = get_prim_arg lexbuf in
-    Counter.step_counter name ;
-    redef_print "\\@currentlabel"
-      (get_this_clearstyle main ("\\the"^name)) ;
-    macro_register "\\@currentlabel")
 ;;
 
 (* terminal output *)
@@ -2527,13 +2555,12 @@ let open_tabbing lexbuf =
   push stack_table !in_table ;
   in_table := Tabbing ;
   new_env "tabbing" ;
-  silent_def "\\a" 0
+  def "\\a" zero_pat
     (CamlCode
        (fun lexbuf ->
          let acc = subst_arg lexbuf in
          let arg = subst_arg lexbuf in
          scan_this main ("\\"^acc^arg))) ;
-  macro_register "\\a" ;
   lexfun lexbuf
 ;;
 
@@ -2679,23 +2706,23 @@ def_code "\\@restartoutput"
 
 def_code "\\@infomenu"
   (fun lexbuf ->
-    let arg = get_this_arg main (save_arg lexbuf) in
+    let arg = get_prim_arg lexbuf in
     Dest.infomenu arg)
 ;;
 
 def_code  "\\@infonode"
   (fun lexbuf ->
-    let opt = subst_opt "" lexbuf in
-    let num = get_this_arg main (save_arg lexbuf) in
-    let nom = get_this_arg main (save_arg lexbuf) in
+    let opt = get_prim_opt "" lexbuf in
+    let num = get_prim_arg lexbuf in
+    let nom = get_prim_arg lexbuf in
     Dest.infonode opt num nom)
 ;;
 
 def_code "\\@infoextranode"
   (fun lexbuf ->
-   let num = get_this_arg main (save_arg lexbuf) in
-   let nom = get_this_arg main (save_arg lexbuf) in
-   let text = get_this_arg main (save_arg lexbuf) in
+   let num = get_prim_arg lexbuf in
+   let nom = get_prim_arg lexbuf in
+   let text = get_prim_arg lexbuf in
    Dest.infoextranode num nom text)
 ;;
 
@@ -2782,13 +2809,9 @@ def_fun "\\~"  tilde
 ;;
 
 Get.init
-  (fun nostyle s ->
-    if nostyle then
-      get_this_nostyle_arg main s
-  else
-    get_this_arg main s)
+  get_prim_onarg
   get_fun_result
-  macro_register new_env close_env
+  new_env close_env
   get_csname
   main
 ;;

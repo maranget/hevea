@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.17 2000-05-26 17:06:10 maranget Exp $    *)
+(*  $Id: package.ml,v 1.18 2000-05-30 12:28:51 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -27,6 +27,10 @@ open Scan
 ;;
 
 (* Various outworld information *)
+let def_print name s =
+  def_code name  (fun _ -> Dest.put (Dest.iso_string s))
+;;
+
 def_print "\\@basein" Parse_opts.base_in ;
 def_print "\\jobname" Parse_opts.base_out ;
 def_print "\\@heveacomline"
@@ -41,20 +45,18 @@ def_print "\@hevealibdir" Mylib.libdir
 def_code "\\newtokens"
   (fun lexbuf ->
     let toks = Scan.get_csname lexbuf in
-    begin try
-      def_macro toks 0 (Subst "")
-    with Latexmacros.Failed ->
-      Misc.warning ("\\newtokens for "^toks^" failed")
-    end)
+    if Latexmacros.exists toks then
+      Misc.warning ("\\newtokens redefines command ``"^toks^"''") ;      
+    Latexmacros.def toks zero_pat (Subst ""))
 ;;
 
 def_code "\\addtokens"
   (fun lexbuf ->
     let toks = Scan.get_csname lexbuf in
     let arg = Subst.subst_arg lexbuf in
-    begin try match find_macro toks with
+    begin try match Latexmacros.find_fail toks with
     | _,Subst s ->
-        redef_macro_once toks 0 (Subst (arg^"%\n"^s))
+        Latexmacros.def toks zero_pat (Subst (arg^"%\n"^s))
     | _ -> raise Failed
     with Failed ->
       Misc.warning ("\\addtokens for "^toks^" failed")
@@ -296,7 +298,7 @@ register_init "url"
         scan_this main
           ("\\UrlFont\\UrlLeft\\@Url"^arg^"\\UrlRight\\endgroup")) ;
 
-    let do_urldef csname lexbuf =
+    let do_urldef lexbuf =
         Save.start_echo () ;
         let name = Scan.get_csname lexbuf in
         let url_macro = Scan.get_csname lexbuf in
@@ -305,20 +307,15 @@ register_init "url"
         let _ = save_verbatim lexbuf in
         let arg = Save.get_echo () in
         let what = get_this_main (url_macro^arg) in
-        if csname = "\\urldef" then begin
-          if !env_level > 0  then begin
-            Image.put "\\urldef" ;
-            Image.put true_args ;
-            Image.put arg
-          end ;
-          try def_print name what ; macro_register name with
-          | Latexmacros.Failed -> ()
-        end else begin
-          silent_def csname 0 (CamlCode (fun _ -> Dest.put what)) ;
-          macro_register name
-        end in
-    def_name_code "\\urldef" do_urldef ;
-    def_name_code "\\urltexdef" do_urldef ;
+        if !env_level > 0  then begin
+          Image.put "\\urldef" ;
+          Image.put true_args ;
+          Image.put arg
+        end ;
+        Latexmacros.def name zero_pat
+          (CamlCode (fun _ -> Dest.put what)) in
+
+    def_code "\\urldef" do_urldef ;
     ())
 ;;         
 
@@ -370,13 +367,11 @@ let do_definekey lexbuf =
   | (No _,_):: _ ->
       begin match opt with
       | [No _,_] ->
-          silent_def (keyval_name family key) 1
-            (Subst body)
+          Latexmacros.def (keyval_name family key) one_pat (Subst body)
       | [Yes opt,subst] ->
-          silent_def (keyval_name family key) 1
-            (Subst body) ;
-          silent_def
-            (keyval_name family key^"@default") 0
+          Latexmacros.def (keyval_name family key) one_pat (Subst body) ;
+          Latexmacros.def
+            (keyval_name family key^"@default") zero_pat
             (Subst
                (keyval_name family key^"{"^do_subst_this (opt,subst)^"}"))
       | _ -> assert false
@@ -384,16 +379,16 @@ let do_definekey lexbuf =
   | [Yes nargs, subst ; opt] ->
       let nargs = Get.get_int (nargs,subst) in
       let extra = keyval_extra key family in
-      silent_def (keyval_name family key) 1
+      Latexmacros.def (keyval_name family key) one_pat
         (Subst
            ("\\@funcall{"^extra^"}{#1}")) ;
       begin match opt with
       | No _,_ ->
-          silent_def extra nargs (Subst body)
+          Latexmacros.def extra (latex_pat [] nargs) (Subst body)
       | Yes opt,o_subst ->
-          silent_def_pat
+          Latexmacros.def
             extra
-            (make_pat [do_subst_this (opt,o_subst)] nargs)
+            (latex_pat [do_subst_this (opt,o_subst)] nargs)
             (Subst body)
       end
   | _ -> assert false
@@ -407,13 +402,10 @@ let do_definekeyopt lexbuf =
   let body = subst_body lexbuf in
   let name = keyval_name familly key in
   let extra = keyval_extra key familly in
-  silent_def name 1
+  Latexmacros.def name one_pat
     (Subst
        ("\\@funcall{"^extra^"}{"^opt^"}")) ;
-  silent_def_pat
-    extra
-    (make_pat [] 1)
-    (Subst body)
+  Latexmacros.def extra one_pat (Subst body)
      
   
 let do_setkey lexbuf =
@@ -428,7 +420,7 @@ let do_setkey lexbuf =
       let key,_ = save_arg_with_delim "=" xbuff in
       let value,_ = save_arg_with_delim "=" xbuff in
       let csname = keyval_name family key in
-      if exists_macro csname then begin
+      if Latexmacros.exists csname then begin
         if value <> "" then
           scan_this main (csname^"{"^value^"}")
         else
@@ -443,7 +435,6 @@ let do_setkey lexbuf =
 register_init "keyval"
   (fun () ->
     def_code "\\define@key" do_definekey ;
-    def_code "\\define@keyopt" do_definekeyopt ;
     def_code "\\@setkeys" do_setkey
   )
 ;;

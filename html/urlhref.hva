@@ -1,7 +1,7 @@
 \@stopimage\@stopoutput%
 \usepackage{url}
-\texdef\url{\begingroup%
-\texdef\UrlLeft##1\UrlRight{\ahrefurl{##1}}%
+\def\url{\begingroup%
+\def\UrlLeft##1\UrlRight{\ahrefurl{##1}}%
 \urlstyle{tt}%
 \Url}
 \@restartoutput\@restartimage%

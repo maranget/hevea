@@ -10,6 +10,7 @@ val pretty : ('a -> string) -> 'a t -> unit
 val length : 'a t -> int
 val empty : 'a t -> bool
 val rev : 'a t -> unit
+val map : 'a t -> ('a -> 'a) -> unit
 
 type 'a saved
 val empty_saved : 'a saved

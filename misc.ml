@@ -9,11 +9,12 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: misc.ml,v 1.13 2000-05-22 12:19:10 maranget Exp $" 
+let header = "$Id: misc.ml,v 1.14 2000-05-30 12:28:51 maranget Exp $" 
 
 exception Fatal of string
 exception Purposly of string
 exception ScanError of string
+exception UserError of string
 exception EndInput
 exception EndDocument
 exception Close of string
@@ -26,33 +27,14 @@ let silent = ref false
 
 let column_to_command s = "\\@"^s^"@"
 
-let warn_max = 100
-let n_warns = ref warn_max
 
-let w_table = Hashtbl.create 37
-let hot_start () =
-  Hashtbl.clear w_table ;
-  n_warns := warn_max
+let hot_start () = ()
 
-let new_warn s =
-  try
-    Hashtbl.find w_table s ; false
-  with
-  | Not_found ->
-      n_warns := !n_warns - 1 ;
-      if !n_warns <= 0 then
-        hot_start () ;
-      Hashtbl.add w_table s () ;
-      true
-
-        
 let warning s =
   if not !silent || !verbose > 0 then begin
-    if (* !verbose > 0 || new_warn s *) true then begin
-      Location.print_pos () ;
-      prerr_string "Warning: " ;
-      prerr_endline s
-    end
+    Location.print_pos () ;
+    prerr_string "Warning: " ;
+    prerr_endline s
   end
 
 let print_verb level s =
@@ -91,3 +73,7 @@ let clone_hashtbl from_table =
   let to_table = Hashtbl.create 17 in
   copy_hashtbl from_table to_table ;
   to_table 
+
+let start_env env = "\\"^ env
+and end_env env = "\\end"^env
+

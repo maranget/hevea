@@ -14,12 +14,12 @@
 \newcommand{\vspace*}[1]{\vspace{#1}}
 \newcommand{\addvspace}[1]{\vspace{#1}}
 \def\cr{\\}
-\def\smallskip{\\}
-\def\medskip{\\}
-\def\bigskip{\\ \\}
-\def\enspace{~}
-\def\quad{~~}
-\def\qquad{\quad\quad}
+\def\smallskip{\vspace*{1em}}
+\def\medskip{\vspace*{1em}}
+\def\bigskip{\vspace*{2em}}
+\def\enspace{\hspace*{1em}}
+\def\quad{\hspace*{2em}}
+\def\qquad{\hspace*{4em}}
 %% Paragraphs
 \def\noindent{}
 \def\indent{}

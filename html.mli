@@ -24,8 +24,8 @@
     val get_fontsize : unit -> int
     val nostyle : unit -> unit
     val clearstyle : unit -> unit
-    val open_mod : Latexmacros.env -> unit
-    val erase_mods : Latexmacros.env list -> unit
+    val open_mod : Element.text -> unit
+    val erase_mods : Element.text list -> unit
     val par : int option -> unit
     val forget_par : unit -> int option
     val open_block : string -> string -> unit
@@ -66,7 +66,7 @@
     val open_chan : out_channel  -> unit
     val close_chan : unit -> unit
     val to_string : (unit -> unit) -> string
-    val to_style : (unit -> unit) -> Latexmacros.env list
+    val to_style : (unit -> unit) -> Element.text list
     val get_current_output : unit -> string
 
     val finalize : bool -> unit

@@ -1,7 +1,7 @@
 \@primitives{url}%
-\def\@urlttstyle{\texdef\UrlFont{\ttfamily}}%
-\def\@urlsfstyle{\texdef\UrlFont{\sffamily}}%
-\def\@urlrmstyle{\texdef\UrlFont{\rmfamily}}%
+\def\@urlttstyle{\def\UrlFont{\ttfamily}}%
+\def\@urlsfstyle{\def\UrlFont{\sffamily}}%
+\def\@urlrmstyle{\def\UrlFont{\rmfamily}}%
 \def\urlstyle#1{\csname @url#1style\endcsname}%
 \urlstyle{tt}%
 \def\url{\begingroup\urlstyle{tt}\Url}%

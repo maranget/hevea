@@ -9,6 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
+
 type action =
   | Subst of string
   | CamlCode of (Lexing.lexbuf -> unit)
@@ -17,6 +18,10 @@ val pretty_action : action -> unit
 
 type pat = string list * string list
 val pretty_pat : pat -> unit
+val is_subst_noarg : action -> pat -> bool
+val latex_pat: string list -> int -> pat
+val zero_pat : pat
+val one_pat : pat
 
 type subst
 val top_subst : subst
@@ -64,9 +69,11 @@ val record_lexbuf : Lexing.lexbuf -> subst -> unit
 val top_lexstate : unit -> bool
 
 (* Saving and restoring lexstates on a stack *)
+val protect_save_string : (Lexing.lexbuf -> string) -> Lexing.lexbuf -> string
 val save_lexstate : unit -> unit
 val restore_lexstate : unit -> unit
 val start_lexstate : unit -> unit
+val start_lexstate_subst : subst -> unit
 
 (* Total checkpoint of lexstate *)
 type saved_lexstate

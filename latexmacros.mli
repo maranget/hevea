@@ -11,49 +11,45 @@
 open Lexstate
 
 exception Failed
-exception Error of string
 
 type saved
 val checkpoint : unit -> saved
 val hot_start : saved -> unit
 val pretty_table : unit -> unit
 
-type env =
-  Style of string
-| Font of int
-| Color of string
-
-val pretty_env : env -> string
-
 val register_init : string -> (unit -> unit) -> unit
 val exec_init : string -> unit
 
+val open_group : unit -> unit
+val close_group : unit -> unit
 
-val find_macro: string -> pat * action
-val silent_find_macro: string -> pat * action
-val exists_macro: string -> bool
-val is_subst_noarg : action -> pat -> bool
-val start_env : string -> string
-val end_env : string -> string
+val exists : string -> bool
+val find : string -> Lexstate.pat * Lexstate.action
+val pretty_macro : Lexstate.pat -> Lexstate.action -> unit
+val def : string -> Lexstate.pat -> Lexstate.action -> unit
+val global_def : string -> Lexstate.pat -> Lexstate.action -> unit
 
-val make_pat: string list -> int -> pat
-val def_coltype: string -> pat  -> action -> unit
-val def_macro_pat: string -> pat  -> action -> unit
-val redef_macro_pat: string -> pat  -> action -> unit
-val provide_macro_pat: string -> pat  -> action -> unit
-val silent_def_pat: string -> pat  -> action -> unit
-val def_macro: string -> int -> action -> unit
-val def_code: string -> (Lexing.lexbuf -> unit) -> unit
-val redef_code: string -> (Lexing.lexbuf -> unit) -> unit
-val def_name_code: string -> (string -> Lexing.lexbuf -> unit) -> unit
+(******************)
+(* For inside use *)
+(******************)
 
-val redef_macro: string -> int -> action -> unit
-val redef_macro_once: string -> int -> action -> unit
-val def_env_pat: string -> pat -> action -> action -> unit
-val redef_env_pat: string -> pat -> action -> action -> unit
-val silent_def: string -> int -> action -> unit
-val silent_def_once: string -> int -> action -> unit
-val unregister : string -> unit
+(* raises Failed if already defined *)
+val def_init : string -> (Lexing.lexbuf -> unit) -> unit
+(* raises Failed if not defined *)
+val find_fail : string -> Lexstate.pat * Lexstate.action
+
+(* 
+  replace name new,
+     Send back the Some (old definition for name) or None
+
+  - if new is Some (def)
+        then def replaces the old definition, or a definition is created
+  - if new is None, then undefine the last local binding for name.
+*)
+val replace : string -> (Lexstate.pat * Lexstate.action) option ->
+  (Lexstate.pat * Lexstate.action) option
+
+
 
 val invisible : string -> bool
 val limit : string -> bool

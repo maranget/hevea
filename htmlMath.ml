@@ -9,13 +9,13 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlMath.ml,v 1.14 2000-05-05 07:13:57 maranget Exp $" 
+let header = "$Id: htmlMath.ml,v 1.15 2000-05-30 12:28:42 maranget Exp $" 
 
 
 open Misc
 open Parse_opts
+open Element
 open HtmlCommon
-open Latexmacros
 open Stack
 
 
@@ -489,7 +489,7 @@ let insert_vdisplay open_fun =
       prerr_flags "<= insert_vdisplay" ;
     mods
   with PopFreeze ->
-    raise (Error "\\over should be properly parenthesized")
+    raise (UserError "\\over should be properly parenthesized")
 ;;
 
 

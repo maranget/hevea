@@ -1,6 +1,6 @@
 (* <Christian.Queinnec@lip6.fr>
  The plugin for HeVeA that implements the VideoC style.
- $Id: videoc.mll,v 1.18 2000-01-28 15:40:19 maranget Exp $ 
+ $Id: videoc.mll,v 1.19 2000-05-30 12:28:55 maranget Exp $ 
 *)
 
 {
@@ -24,7 +24,7 @@ open Scan
 
 
 let header = 
-  "$Id: videoc.mll,v 1.18 2000-01-28 15:40:19 maranget Exp $"
+  "$Id: videoc.mll,v 1.19 2000-05-30 12:28:55 maranget Exp $"
 (* So I can synchronize my changes from Luc's ones *)
 let qnc_header = 
   "17 aout 99"
@@ -52,7 +52,7 @@ let enableSchemeCharacters = ref false;;
 let snippetRunHook parsing name =
   let run name = begin
     if !verbose > 2 then prerr_endline ("Trying to run hook " ^ name);
-    if exists_macro name 
+    if Latexmacros.exists name 
     then begin Lexstate.scan_this parsing name; () end
   end in
   let rec iterate name suffix =
@@ -102,7 +102,7 @@ rule snippetenv = parse
 | eof { () }
 | command_name
    {let csname = lexeme lexbuf in
-    let pat,body = find_macro csname in
+    let pat,body = Latexmacros.find csname in
     begin match pat with
     | [],[] ->
       let args =  make_stack csname pat lexbuf in
@@ -206,6 +206,7 @@ and comma_separated_values = parse
 
 {
 let caml_print s = CamlCode (fun _ -> Dest.put s)
+let snippet_def name d = Latexmacros.def name zero_pat (CamlCode d)
 
 let rec do_endsnippet _ =
   if !Lexstate.withinLispComment then begin
@@ -271,35 +272,30 @@ and do_single_url lexbuf =
   ()
 
 and do_define_url lxm lexbuf =
+  Save.start_echo () ;
   let name = Scan.get_csname lexbuf in
   let body = Save.arg_verbatim lexbuf in
-  if !Scan.env_level = 0 then 
-    Image.put (lxm^name^"{"^body^"}\n")
-  else 
-    Scan.macro_register name;
-  begin try
-    def_code name (make_do_defined_macro_url body);
-  with Latexmacros.Failed -> () end ;
-  ()
+  let real_arg = Save.get_echo () in
+  if !Scan.env_level = 0 then begin
+    Image.put lxm ;
+    Image.put real_arg
+  end ;
+  snippet_def name (make_do_defined_macro_url body)
+
 
 and make_do_defined_macro_url body lexbuf =
-  Dest.put body;
-  () 
+  Dest.put body
 
 (* HACK: Define a macro with a body that is obtained via substitution.
    This is a kind of restricted \edef as in TeX.
    Syntax:    \@EDEF\macroName{#2#1..}                                 *)
 
 and do_edef lxm lexbuf =
-  let name = subst_arg lexbuf in
+  let name = Scan.get_csname lexbuf in
   let body = subst_arg lexbuf in
   if !Scan.env_level = 0 then 
-    Image.put ("\\def"^name^"{"^body^"}\n")
-  else 
-    Scan.macro_register name;
-  begin try
-    def_macro name 0 (caml_print body);
-  with Latexmacros.Failed -> () end ;
+    Image.put ("\\def"^name^"{"^body^"}\n") ;
+  Latexmacros.def name zero_pat (caml_print body);
   ()
 
 (* Syntax:  \@MULEDEF{\macroName,\macroName,...}{#1#3...} 
@@ -317,18 +313,17 @@ and do_muledef lxm lexbuf =
     let name = String.sub names lasti (i - lasti) in
     let body = String.sub bodies lastj (j - lastj) in
     if !verbose > 2 then prerr_endline (lxm ^ name ^ ";" ^ body);
-    silent_def name 0 (caml_print body);
-    Scan.macro_register name;
+    Latexmacros.def name zero_pat (caml_print body);
       bind (i+1) (j+1)
     with Not_found -> failwith "Missing bodies for \\@MULEDEF"
     with Not_found ->
       let name = String.sub names lasti (String.length names - lasti) in
       let body = String.sub bodies lastj (String.length bodies - lastj) in
       if !verbose > 2 then prerr_endline (lxm ^ name ^ ";" ^ body);
-      silent_def name 0 (caml_print body) ;
-      Scan.macro_register name ;
+      Latexmacros.def name zero_pat (caml_print body) ;
   in bind 0 0;
   ()
+
 
 (* The command that starts the \snippet inner environment: *)
 
@@ -346,19 +341,13 @@ and do_snippet lexbuf =
     Scan.top_open_block "DIV" ("class=\"" ^ language ^ "\"");
     Dest.put "\n";
     Scan.new_env "snippet";
-    (* Register commands local to \snippet *)
-    def_code "\\endsnippet" do_endsnippet;
-    Scan.macro_register "\\endsnippet";
-    (* Use silent_def since I don't whether they are defined in the outer
-       LaTeX environment. *)
-    silent_def "\\[" 0 (CamlCode do_texinclusion);
-    Scan.macro_register "\\["; 
-    silent_def "\\]" 0 (CamlCode do_texexclusion);
-    Scan.macro_register "\\[";
-    silent_def "\\\\" 0 (CamlCode do_four_backslashes);
-    Scan.macro_register "\\\\";
-    silent_def "\\\n" 0 (CamlCode do_backslash_newline);
-    Scan.macro_register "\\n";
+    (* Define commands local to \snippet *)
+    snippet_def "\\endsnippet"  do_endsnippet;
+    snippet_def "\\[" do_texinclusion ;
+    snippet_def "\\]" do_texexclusion ;
+    snippet_def "\\\\" do_four_backslashes ;
+    snippet_def "\\\n" do_backslash_newline ;
+
     snippetLanguage := language;
     enableLispComment := false;
     enableSchemeCharacters := false;
@@ -378,11 +367,11 @@ and do_snippet lexbuf =
   end
 
 and do_enable_some_backslashed_chars lexbuf =
-  def_macro "\\n" 0 (caml_print "\\n"); Scan.macro_register "\\n";
-  def_macro "\\r" 0 (caml_print "\\r"); Scan.macro_register "\\r";
-  def_macro "\\0" 0 (caml_print "\\0"); Scan.macro_register "\\0";
-  def_macro "\\t" 0 (caml_print "\\t"); Scan.macro_register "\\t";
-  def_macro "\\f" 0 (caml_print "\\f"); Scan.macro_register "\\f";
+  let def_echo s = snippet_def s (fun _ -> Dest.put s) in
+  def_echo "\\n" ;
+  def_echo "\\0" ;
+  def_echo "\\t" ;
+  def_echo "\\f" ;
   ()  
 
 and do_enableLispComment lexbuf =
