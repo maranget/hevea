@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.8 1999-05-17 16:22:34 tessaud Exp $"
+let header = "$Id: text.ml,v 1.9 1999-05-18 12:47:25 tessaud Exp $"
 
 
 open Misc
@@ -136,7 +136,6 @@ let pretty_stack s =
 (* output globals *)
 type status = {
     mutable nostyle : bool ;
-(*    mutable pending : env list ;*)
     mutable active : env list ;
     mutable out : Out.t;
     mutable temp : bool
@@ -156,14 +155,12 @@ and parg () = match !out_stack with
 
 let free out =
   out.nostyle<-false;
-(*  out.pending<-[];*)
   out.active<-[];
   Out.reset out.out;
   free_list := out :: !free_list
 ;;
 
 let cur_out = ref { nostyle = false;
-                    (*pending=[];*)
                     active=[];
                     out=Out.create_null();
 		    temp=false
@@ -176,7 +173,6 @@ let set_out out =
 let newstatus nostyle p a t = match !free_list with
   [] ->
     { nostyle = nostyle;
-     (* pending = p;*)
       active = a;
       out = Out.create_buff ();
       temp = t;
@@ -184,7 +180,6 @@ let newstatus nostyle p a t = match !free_list with
 | e::reste ->
     free_list:=reste;
     e.nostyle <- nostyle;
-(*    e.pending <- p;*)
     e.active <- a;
     e.temp <- t;
     assert (Out.is_empty e.out);
@@ -195,14 +190,15 @@ type align_t = Left | Center | Right ;;
 
 
 type flags_t = {
-(*    mutable ncols : int;*)
     mutable pending_par : int option;
     mutable empty : bool;
-(*    mutable vsize : int;*)
+    (* Listes *)
     mutable nitems : int;
     mutable dt : string;
     mutable dcount : string;
+    
     mutable last_closed : string;
+    (* Alignement et formattage *)
     mutable align : align_t;
     mutable in_align : bool;
     mutable hsize : int;
@@ -217,10 +213,8 @@ type flags_t = {
 ;;
 
 let flags = {
-(*  ncols = 0;*)
   pending_par = None;
   empty = true;
-(*  vsize = 0;*)
   nitems = 0;
   dt = "";
   dcount = "";
@@ -270,7 +264,7 @@ let do_put_line s =
       let sp = (flags.hsize - (String.length s -flags.x_start))/2 in
       String.concat "" [String.make sp ' '; s]
   | Right ->
-      let sp = flags.hsize - String.length s + flags.x_start in
+      let sp = flags.hsize - String.length s + flags.x_start +1 in
       String.concat "" [ String.make sp ' '; s]
   in
   if !verbose>3 then prerr_endline ("line :"^ligne);
@@ -336,9 +330,9 @@ let do_put_char2 c =
 	  (* On coupe brutalement le mot trop long *)
       if !verbose >2 then
 	prerr_endline ("line cut :"^line);
-      line.[flags.x+1]<-'\n';
+      line.[flags.x-1]<-'\n';
 	  (* La ligne est prete et complete*)
-      do_put_line (String.sub line 0 (flags.hsize+1));
+      do_put_line (String.sub line 0 (flags.x));
       for i = 0 to flags.x_start-1 do line.[i]<-' ' done;
       line.[flags.x_start]<-c;
       flags.x<-flags.x_start + 1;
@@ -427,7 +421,6 @@ let is_list = function
 let get_fontsize () = 3;;
 
 let nostyle () =
-(*  !cur_out.pending<-[];*)
   !cur_out.nostyle<-true
 ;;
 
@@ -453,10 +446,6 @@ let close_mod () = match !cur_out.active with
 | (Style "CODE" as s)::reste ->
     do_close_mod s;
     !cur_out.active <- reste
-(*
-| Style ""::reste ->
-    !cur_out.active <- reste
-*)
 | _ -> ()
 ;;
 
@@ -519,7 +508,6 @@ let do_pending () =
   | _ -> ()
   end;
   flags.last_closed <- "rien";
-  (*do_open_mods*) (*ouvre les modes a l'ecriture du bloc *)
 ;;
 
 (* Blocs *)
@@ -657,13 +645,9 @@ let open_block s args =
     cur_out :=
       newstatus
 	!cur_out.nostyle
-	((*!cur_out.pending @*) !cur_out.active)
+	!cur_out.active
 	[] true;
   end;
-(*else begin
-    if is_list s then do_put_char '\n'; (* revient a la ligne (et flushe) *)
-  end;*)
-
   try_open_block bloc arg;
   if !verbose > 2 then
     prerr_endline ("<= open_block ``"^bloc^"''")
@@ -750,17 +734,14 @@ let item scan arg =
   if not (is_list (pblock())) then
     raise (Error "Item not inside a list element");
   
-  let mods = (*!cur_out.pending @*) !cur_out.active in
-(*  do_close_mods ();*)
+  let mods = !cur_out.active in
   let true_scan =
     if flags.nitems = 0 then begin
       let _ = forget_par() in ();
-      (*let saved = Out.to_string !cur_out.out in*)
-      ( fun arg -> (*do_put saved false;*) scan arg)
+      ( fun arg -> scan arg)
     end else scan in
   
   try_flush_par();
-  (*!cur_out.pending<-mods;*)
   flags.nitems<-flags.nitems+1;
   match pblock() with 
     "DL" -> begin (* description list *)
@@ -867,11 +848,10 @@ let to_string f =
 ;;
 
 let to_style f =
-  (*!cur_out.pending<-[];*)
   !cur_out.active<-[];
   open_block "TEMP" "";
   f ();
-  let r = !cur_out.active (*@ !cur_out.pending*) in
+  let r = !cur_out.active in
   close_block "TEMP";
   r
 ;;
@@ -1107,6 +1087,7 @@ let open_cell format span =
 	  | _-> !cell.wrap <- false; 0);
   | _       ->  raise (Misc.Fatal ("as_align")) in
   !cell.span <- span;
+  open_block "" "";
   if !cell.wrap then begin (* preparation de l'alignement *)
     !cur_out.temp <- false;
     flags.x_start <- 0;
@@ -1120,18 +1101,17 @@ let open_cell format span =
     flags.in_align <- false;
     flags.align <- Left;
   end;
-  open_block "" "";
 ;;
 
 
 let close_cell content =
   if !verbose>2 then prerr_endline "=> force_cell";
-  force_block "" content;
   if !cell.wrap then begin
     do_flush ();
     flags.in_align <- pop "in_align" in_align_stack;
     flags.align <- pop "align" align_stack;
   end;
+  force_block "" content;
   !cell.text<-Out.to_string !cur_out.out;
   close_block "TEMP";
   if !verbose>2 then prerr_endline ("cell :"^ !cell.text);
@@ -1323,7 +1303,6 @@ let close_table () =
 	  col := !col + ligne.(k).span;
 	end;
       done;
-(*      do_put_char '\n';*) (* Le retour chariot est mis dans Latexscan .. *)
     done;
     if !table.border then begin
       do_put_char '\n';

@@ -1,6 +1,6 @@
 LATEX=latex
 GPIC=gpic
-HEVEA=hevea
+HEVEA=hevea.opt
 HACHA=hacha
 IMAGEN=imagen
 HTMLDIR=$(HOME)/public_html/hevea
@@ -37,6 +37,9 @@ images: manual001.gif
 
 manual001.gif: manual.image.tex
 	${IMAGEN} manual
+
+info: manual.hva tmp.tex
+	$(HEVEA) -info manual.inf tmp.tex -o hevea.info
 
 ############ Installation stuff
 install:
