@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: myfiles.ml,v 1.14 1999-03-12 13:18:07 maranget Exp $" 
+let header = "$Id: myfiles.ml,v 1.15 1999-04-08 09:24:36 maranget Exp $" 
 open Misc
 
 exception Error of string
@@ -43,7 +43,8 @@ let do_open_tex filename =
         let r = open_in full_name in
         if !verbose > 1 then prerr_endline ("Opening: "^full_name) ;
         raise (Found (full_name,r))
-      with Sys_error _ -> ())
+      with Sys_error s ->
+        if !verbose > 1 then prerr_endline ("Failed: "^s))
     tex_path ;
     raise (Error ("Cannot open file: "^filename))
   with Found r -> r

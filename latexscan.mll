@@ -49,7 +49,7 @@ open Save
 open Tabular
 open Lexstate
 
-let header = "$Id: latexscan.mll,v 1.75 1999-04-07 19:24:54 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.76 1999-04-08 09:24:33 maranget Exp $" 
 
 let sbool = function
   | false -> "false"
@@ -994,6 +994,7 @@ let input_file loc_verb main filename =
     let old_verb = !verbose in
     verbose := loc_verb ;
     main buf ;
+    close_in input ;
     verbose := old_verb ;
     Location.restore () ;
     close_env "*input"

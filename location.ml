@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: location.ml,v 1.8 1999-02-19 18:00:09 maranget Exp $" 
+let header = "$Id: location.ml,v 1.9 1999-04-08 09:24:35 maranget Exp $" 
 
 
 type fileOption = No | Yes of in_channel
@@ -39,6 +39,10 @@ and curline = ref (0,1)
 and curfile = ref No
 ;;
 
+let close_curfile () = match !curfile with
+| Yes f -> close_in f
+| _ -> ()
+
 let get () = !curlexname
 ;;
 
@@ -54,6 +58,7 @@ let set name lexbuf =
 ;;
 
 let restore () =
+  close_curfile () ;
   let name,lexbuf,line,file = pop stack in
   curlexname := name ;
   curlexbuf := lexbuf;
