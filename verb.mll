@@ -635,6 +635,21 @@ and eat_line = parse
 | [^'\n']  {eat_line lexbuf}
 | '\n'     {lst_process_newline lexbuf '\n'}
 
+and get_line = parse
+|  eof
+    {if not (Stack.empty stack_lexbuf) then begin
+      let lexbuf = previous_lexbuf () in
+      get_line lexbuf
+    end else begin
+      raise
+        (Eof "get_line")
+    end}
+| [^'\n']
+    {let lxm = lexeme_char lexbuf 0 in
+    Out.put_char line_buff lxm ;
+    get_line lexbuf}
+| '\n'     {Out.to_string line_buff}
+
 and do_escape = parse
 | eof {}
 | "\\esc"
@@ -682,7 +697,9 @@ let noeof lexer lexbuf =
   try lexer lexbuf
   with
   | Eof s ->
-    raise (Misc.Close ("End of file in environment: ``"^ !Scan.cur_env^"''"))
+    raise
+        (Misc.Close
+           ("End of file in environment: ``"^ !Scan.cur_env^"'' ("^s^")"))
   | EndVerb -> ()
 (*
 and verb_input lexer file =
@@ -827,13 +844,13 @@ let put_verb_tabs () =
   let char = ref 0 in
   Out.iter
     (fun c -> match c with
-| '\t' ->
-  let limit = !tab_val - !char mod !tab_val in
-  for j = 1 to limit do
-    Dest.put_char ' ' ; incr char
-  done ;  
-  | c -> Dest.put (Dest.iso c) ; incr char)
-  line_buff ;
+      | '\t' ->
+          let limit = !tab_val - !char mod !tab_val in
+          for j = 1 to limit do
+            Dest.put_char ' ' ; incr char
+          done ;  
+      | c -> Dest.put (Dest.iso c) ; incr char)
+    line_buff ;
   Out.reset line_buff
 
 let open_verbenv_tabs () =
@@ -904,8 +921,11 @@ register_init "moreverb"
       let opt = Get.get_int (save_opt "\\verbatimtabsize" lexbuf) in
       tab_val := opt ;
       open_verbenv_tabs () ;
-      let first = Save.rest lexbuf in
+      Lexstate.save_lexstate () ;
+      let first = get_line lexbuf in
+      Lexstate.restore_lexstate () ;
       scan_this Scan.main first ;
+      Dest.put_char '\n' ;
       noeof scan_byline lexbuf) ;
   def_code "\\endverbatimtab" close_verbenv_tabs ;
 (*

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmain.ml,v 1.66 2000-09-05 12:34:02 maranget Exp $" 
+let header = "$Id: latexmain.ml,v 1.67 2001-02-20 10:40:37 maranget Exp $" 
 
 open Misc
 open Parse_opts
@@ -187,9 +187,9 @@ let _ =
 *)
 let _ = 
   begin try
-    main ()
-  with e -> begin
-    match e with
+    main () ;
+    exit 0
+  with
     | Misc.Close s ->
         prerr_error s ;
         scan_print_env_pos ()
@@ -225,14 +225,15 @@ let _ =
         prerr_bug ("Fatal error: "^s)
     |  Stack.Fatal s ->
         prerr_bug ("Fatal stack error, "^s)
+(*
     |  x ->
         prerr_bug
           ("Fatal error, spurious exception:\n\t"^Printexc.to_string x)
+*)
   end ;
-    let _ = finalize false in
-    prerr_endline "Adios" ;
-    exit 2
-  end
+  let _ = finalize false in
+  prerr_endline "Adios" ;
+  exit 2
 ;;
 
 
