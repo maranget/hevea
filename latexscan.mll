@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.176 2000-05-31 12:21:58 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.177 2000-05-31 13:17:21 maranget Exp $ *)
 
 
 {
@@ -832,7 +832,7 @@ let command_name = '\\' (( ['@''A'-'Z' 'a'-'z']+ '*'?) | [^ 'A'-'Z' 'a'-'z'])
 
 rule  main = parse
 (* comments *)
-   '%'
+ | '%'
    {expand_command main skip_blanks "\\@hevea@percent" lexbuf ;
    main lexbuf}
 

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmacros.ml,v 1.60 2000-05-30 19:00:10 maranget Exp $" 
+let header = "$Id: latexmacros.ml,v 1.61 2000-05-31 13:17:17 maranget Exp $" 
 open Misc
 open Parse_opts
 open Symb
@@ -283,22 +283,36 @@ let invisible = function
     (String.length name >= 3 && String.sub name 0 3 = "\\if")
 ;;
 
-let limit = function
-  "\\limits"
-| "\\underbrace"
-| "\\sum"
-| "\\prod"
-| "\\coprod"
-| "\\bigcap"
-| "\\bigcup"
-| "\\bigsqcap"
-| "\\bigsqcup"
-| "\\bigodot"
-| "\\bigdotplus"
-| "\\biguplus"
-| "\\det" | "\\gcd" | "\\inf" | "\\liminf" | "\\lim" |
-   "\\limsup" | "\\max" | "\\min" | "\\Pr" | "\\sup" -> true
-| _ -> false
+let limit_t = Hashtbl.create 37
+;;
+Hashtbl.add limit_t  "\\limits" () ;
+Hashtbl.add limit_t "\\underbrace" () ;
+Hashtbl.add limit_t "\\sum" () ;
+Hashtbl.add limit_t "\\prod" () ;
+Hashtbl.add limit_t "\\coprod" () ;
+Hashtbl.add limit_t "\\bigcap" () ;
+Hashtbl.add limit_t "\\bigcup" () ;
+Hashtbl.add limit_t "\\bigsqcap" () ;
+Hashtbl.add limit_t "\\bigsqcup" () ;
+Hashtbl.add limit_t "\\bigodot" () ;
+Hashtbl.add limit_t "\\bigdotplus" () ;
+Hashtbl.add limit_t "\\biguplus" () ;
+Hashtbl.add limit_t "\\det" () ;
+Hashtbl.add limit_t "\\gcd" () ;
+Hashtbl.add limit_t "\\inf" () ;
+Hashtbl.add limit_t "\\liminf" () ;
+Hashtbl.add limit_t "\\lim" () ;
+Hashtbl.add limit_t "\\limsup" () ;
+Hashtbl.add limit_t "\\max" () ;
+Hashtbl.add limit_t "\\min" () ;
+Hashtbl.add limit_t "\\Pr" () ;
+Hashtbl.add limit_t "\\sup" () ;
+()
+;;
+ 
+let limit s =
+  try Hashtbl.find limit_t s ; true with
+  | Not_found -> false
 ;;
 
 let int = function
