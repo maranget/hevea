@@ -236,10 +236,14 @@
 \newcommand{\@int}{\@entity{int}}
 \newcommand{\@oint}{\@print{&#8750;}}
 \newcommand{\@displayint}{\mbox{\large\@entity{int}}}
+\newcommand{\@displayiint}{\mbox{\large\@print{&#8748;}}}
+\newcommand{\@displayiiint}{\mbox{\large\@print{&#8749;}}}
 \newcommand{\@displaysum}{\mbox{\large\@entity{Sigma}}}
 \newcommand{\@displayprod}{\mbox{\large\@entity{Pi}}}
 \newcommand{\@displaycoprod}{\mbox{\large\@print{&#1062;}}}
 \newcommand{\@displayoint}{\mbox{\large\@print{&#8750;}}}
+\newcommand{\@displayoiint}{\mbox{\large\@print{&#8751;}}}
+\newcommand{\@displayoiiint}{\mbox{\large\@print{&#8752;}}}
 %
 %% Additional
 %

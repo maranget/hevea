@@ -44,7 +44,7 @@
 \newenvironment{mathpar}[1][]
   {\begin{center}%
   \renewcommand{\@table@attributes}{WIDTH="100\%" %BORDER=0 BGCOLOR=yellow
- CELLSPACING=0 CELLPADING=0}%
+ CELLSPACING=0 CELLPADDING=0}%
   \let \hva \mathpar@hva \let \par \mathpar@par #1%
   \begin{tabular}{*{20}{>{\centering$$}p{}<{$$}}}}
   {\end{tabular}\end{center}}
@@ -81,7 +81,7 @@
     \else \multicolumn {1}{l}{\mpr@name{#1}}\\\fi
     \def \@@arg{#2}\ifx \@@arg \mpr@empty \begin{mpr@line}#3\end{mpr@line}\else
     \def \@@arg{#3}\ifx \@@arg \mpr@empty \begin{mpr@line}#2\end{mpr@line}\else
-    \begin{mpr@line}#2\end{mpr@line}\hhline
+    \begin{mpr@line}#2\end{mpr@line}\@hhline 
     \begin{mpr@line}#3\end{mpr@line}\fi \fi    
     \end{tabular}%
     \egroup}
@@ -90,6 +90,11 @@
    {</TD></TR><TR> <TD bgcolor=black>
     <TABLE border=0 cellspacing=0 cellpadding=1 bgcolor=green width="100%">
     <TR><TD></TD></TR></TABLE></TD></TR><TR><TD align=center>}} 
+
+\def \@hhline {\@print
+   {<TABLE border=0 cellspacing=0 cellpadding=1 bgcolor=green width="100%">
+    <TR><TD></TD></TR></TABLE>}}
+
 \def \hh@arrow {\@print
    {</TD></TR><TR> 
      <td><table cellpadding=0 cellspacing=0 WIDTH="100%"><tr>

@@ -3,8 +3,16 @@
 \def\coprod{\mathop{\ifdisplay\@displaycoprod\else{\@coprod}\fi}}
 \def\intop{\mathop{\ifdisplay\@displayint\else{\@int}\fi}}
 \def\int{\intop\intlimits}
+\def\iintop{\mathop{\ifdisplay\@displayiint\else{\@iint}\fi}}
+\def\iint{\iintop\intlimits}
+\def\iiintop{\mathop{\ifdisplay\@displayiiint\else{\@iiint}\fi}}
+\def\iiint{\iiintop\intlimits}
 \def\ointop{\mathop{\ifdisplay\@displayoint\else{\@oint}\fi}}
 \def\oint{\ointop\intlimits}
+\def\oiintop{\mathop{\ifdisplay\@displayoiint\else{\@oiint}\fi}}
+\def\oiint{\oiintop\intlimits}
+\def\oiiintop{\mathop{\ifdisplay\@displayoiiint\else{\@oiiint}\fi}}
+\def\oiiint{\oiiintop\intlimits}
 \def\bigcap{\mathop{{\ifdisplay\Large\fi\cap}}}
 \def\bigcup{\mathop{{\ifdisplay\Large\fi\cup}}}
 \def\bigvee{\mathop{{\ifdisplay\Large\fi\vee}}}
