@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: myfiles.ml,v 1.15 1999-04-08 09:24:36 maranget Exp $" 
+let header = "$Id: myfiles.ml,v 1.16 1999-05-07 11:33:57 maranget Exp $" 
 open Misc
 
 exception Error of string
@@ -28,7 +28,14 @@ let is_except name =
   try Hashtbl.find etable name ; true with Not_found -> false
 ;;
 
-let tex_path = "." :: !Parse_opts.path @ [Mylib.libdir]
+let tex_path = "." :: !Parse_opts.path @
+  [Filename.concat
+    Mylib.libdir 
+     (match !Parse_opts.destination with
+     | Parse_opts.Html -> "html"
+     | Parse_opts.Text -> "text"
+     | Parse_opts.Info -> "info") ;
+    Mylib.libdir]
 ;;
 
 exception Found of (string * in_channel)

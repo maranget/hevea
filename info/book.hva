@@ -1,0 +1,175 @@
+\ifstyleloaded
+\else
+\newcounter {part}
+\newcounter {chapter}
+\newcounter {section}[chapter]
+\newcounter {subsection}[section]
+\newcounter {subsubsection}[subsection]
+\newcounter {paragraph}[subsubsection]
+\newcounter {subparagraph}[paragraph]
+\newcounter {footnote}[chapter]
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+\newcounter {anchornote}
+\renewcommand \theanchornote{{\@nostyle\arabic{chapter}.\arabic{anchornote}}}
+\renewcommand \thepart {\Roman{part}}
+\renewcommand \thesection {\thechapter.\arabic{section}}
+\renewcommand\thesubsection   {\thesection.\arabic{subsection}}
+\renewcommand\thesubsubsection{\thesubsection .\arabic{subsubsection}}
+\renewcommand\theparagraph    {\thesubsubsection.\arabic{paragraph}}
+\renewcommand\thesubparagraph {\theparagraph.\arabic{subparagraph}}
+\newcommand{\@footnotelevel}{chapter}
+\newcommand{\partname}{Part}
+\newcommand{\chaptername}{Chapter}
+\newcommand{\sectionname}{Section}
+\newcommand{\subsectionname}{Subsection}
+\newcommand{\appendixname}{Appendix}
+\iffrench
+\renewcommand{\partname}{Partie}
+\renewcommand{\chaptername}{Chapitre}
+\renewcommand{\appendixname}{Annexe}
+\fi
+
+\newcommand{\partmenu}{\ifthenelse{\value{part}=1}%
+{\@infomenu{part}}%
+{}}%
+\newcommand{\chaptermenu}{\ifthenelse{\value{chapter}=1}%
+{\@infomenu{chapter}}%
+{}}%
+\newcommand{\sectionmenu}{\ifthenelse{\value{section}=1}%
+{\@infomenu{section}}%
+{}}%
+\newcommand{\subsectionmenu}{\ifthenelse{\value{subsection}=1}%
+{\@infomenu{subsection}}%
+{}}%
+
+%%%%%%%%%%% Initial cutting
+\newcommand{\cuttingunit}{chapter}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\appendix}{%
+\renewcommand{\chaptername}{\appendixname}%
+\setcounter{chapter}{0}%
+\renewcommand{\chaptermenu}{}
+\renewcommand{\thechapter}{\Alph{chapter}}%
+}
+\newcounter{equation}[chapter]
+\renewcommand{\theequation}{\thechapter.\arabic{equation}}
+\newcounter{figure}[chapter]
+\renewcommand{\thefigure}{\thechapter.\arabic{figure}}
+\newcounter{table}[chapter]
+\renewcommand{\thetable}{\thechapter.\arabic{table}}
+
+\newcommand{\part}[2][]{%
+\stepcounter{part}%
+\ifoptarg\cuthere{part}{#1}%
+\else\cuthere{part}{#2}\fi
+\partmenu%
+\@infonode[part]{\partname\ \thepart}{#2}%
+\@open{ALIGN}{CENTER}%
+\@open{HEAD}{#}%H1
+\par
+\partname:~\thepart\\%
+#2%
+\@close{HEAD}%
+\@close{ALIGN}%
+%%Il faut poser un menu eventuel de chapitres ici..
+\ifthenelse{\value{chapter}=0}%
+{}%
+{\@infomenu{chapter}}%
+}
+
+\newcommand{\part*}[1]{%
+\cuthere{part}{#1}%
+\@open{ALIGN}{CENTER}%
+\@open{HEAD}{#}%H1
+\par
+#1%
+\@close{HEAD}%
+\@close{ALIGN}%
+}
+
+\newcommand{\chapter}[2][]{%
+\stepcounter{chapter}%
+\ifoptarg\cuthere{chapter}{#1}%
+\else\cuthere{chapter}{#2}\fi
+\chaptermenu%
+\@infonode[chapter]{\chaptername\ \thechapter}{#2}%
+\@open{HEAD}{*}%H1
+\chaptername~\thechapter\qquad #2%
+\@close{HEAD}%
+}
+\newcommand{\chapter*}[1]{%
+\cuthere{chapter}{#1}%
+\@open{HEAD}{*}%H1
+#1%
+\@close{HEAD}%
+}
+
+\newcommand{\section}[2][]{%
+\stepcounter{section}%
+\ifoptarg\cuthere{section}{#1}%
+\else\cuthere{section}{#2}\fi%
+\sectionmenu%
+\@infonode[section]{\sectionname\ \thesection}{#2}%
+\@open{HEAD}{=}%H2
+\thesection\quad #2%
+\@close{HEAD}%
+}
+\newcommand{\section*}[1]{%
+\@open{HEAD}{=}%H2
+#1%
+\@close{HEAD}%
+}
+
+
+\newcommand{\subsection}[2][]{%
+\stepcounter{subsection}%
+\ifoptarg\cuthere{subsection}{#1}%
+\else\cuthere{subsection}{#2}\fi%
+\subsectionmenu%
+\@infonode[subsection]{\subsectionname\ \thesubsection}{#2}%
+\@open{HEAD}{=-}%H3
+\thesubsection\quad #2%
+\@close{HEAD}%
+}
+\newcommand{\subsection*}[1]{%
+\@open{HEAD}{=-}%H3
+#1%
+\@close{HEAD}%
+}
+\newcommand{\subsubsection}[2][]{%
+\@open{HEAD}{-}%H4
+#2%
+\@close{HEAD}%
+}
+\newcommand{\subsubsection*}[1]{%
+\@open{HEAD}{-}%H4
+#1%
+\@close{HEAD}%
+}
+
+\newcommand{\paragraph}[2][]{%
+\@open{HEAD}{}%H5
+#2%
+\@close{HEAD}%
+}
+\newcommand{\paragraph*}[1]{%
+\@open{HEAD}{}%H5
+#1%
+\@close{HEAD}%
+}
+\newcommand{\subparagraph}[2][]{%
+\@open{HEAD}{}%H5
+#2%
+\@close{HEAD}%
+}
+\newcommand{\subparagraph*}[1]{%
+\@open{HEAD}{}%H5
+#1%
+\@close{HEAD}%
+}
+\newcommand\abstractname{\iffrench Résumé~\else Abstract\fi}
+\newenvironment{abstract}{\begin{quote}{\bf \abstractname: }}{\end{quote}}
+\newcommand{\@indexsection}[1]{\chapter*{#1}}
+\newcommand{\@bibliosection}[1]{\chapter*{#1}}
+\styleloadedtrue
+\fi

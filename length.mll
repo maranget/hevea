@@ -1,14 +1,13 @@
 {
 open Lexing
-let header = "$Id: length.mll,v 1.5 1999-03-12 16:29:34 maranget Exp $" 
+let header = "$Id: length.mll,v 1.6 1999-05-07 11:33:54 maranget Exp $" 
 
 exception No
 ;;
 
 let font = 10
 ;;
-let chars_per_line = 80
-;;
+
 let font_float = float font
 ;;
 

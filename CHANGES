@@ -1,4 +1,5 @@
 version 1.04-1
+  - info and text output, important changes in lirbrary organization.
   - mutind.hva compatibility file (added a \indexname internal command).
   - Better looking indexes, index tags get expanded.
   - New behavior for ``_'' and ``^'' outside math mode: they are

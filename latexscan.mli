@@ -11,8 +11,6 @@
 
 module type S =
   sig
-    exception Error of string
-
     val no_prelude : unit -> unit
 
     val print_env_pos : unit -> unit
@@ -36,5 +34,5 @@ module type S =
     val withinSnippet : bool ref
 end
 
-module Make (Html : OutManager.S) : S
+module Make (Dest : OutManager.S) : S
 

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: html.ml,v 1.40 1999-04-02 14:44:55 maranget Exp $" 
+let header = "$Id: html.ml,v 1.41 1999-05-07 11:33:43 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -426,8 +426,6 @@ let blank_stack = ref []
 and empty_stack = ref []
 ;;
 
-let par_stack = ref []
-;;
 
 let vsize_stack = ref []
 and nrows_stack = ref []
@@ -1457,7 +1455,6 @@ let finalize check =
     check_stack "table_stack" table_stack;
     check_stack "blank_stack" blank_stack;
     check_stack "empty_stack" empty_stack;
-    check_stack "par_stack" par_stack;
     check_stack "vsize_stack" vsize_stack;
     check_stack "nrows_stack" nrows_stack;
     check_stack "delay_stack" delay_stack;
@@ -1473,3 +1470,93 @@ let finalize check =
   Out.close !cur_out.out
 ;;
 
+let horizontal_line s  t u =
+  match t with
+  | "0" -> put ("<HR "^s^">")
+  | _ -> put ("<HR "^s^" SIZE="^t^">")
+;;
+
+let put_separator () =
+  put "\n"
+;;
+
+let put_tag tag =
+  put tag
+;;
+
+let put_nbsp () =
+  put "&nbsp;"
+;;
+
+let put_open_group () =
+  put_char '{'
+;;
+
+let put_close_group () =
+  put_char '}'
+;;
+
+let put_in_math s =
+  put "<I>";
+  put s;
+  put "<\I>"
+;;
+
+(*
+let put_print_text s =
+  ()
+;;
+
+let put_print_html s =
+  put s
+;;
+*)
+
+
+let open_table border htmlargs =
+  if border then open_block "TABLE" ("BORDER=1 "^htmlargs)
+  else open_block "TABLE" htmlargs
+;;
+
+let new_row () =
+  open_block "TR" ""
+;;
+
+
+let attribut name = function
+  | "" -> ""
+  | s  -> " "^name^"="^s
+and as_colspan = function
+  |  1  -> ""
+  |  n -> " COLSPAN="^string_of_int n
+
+let as_align f span = match f with
+  Tabular.Align {Tabular.vert=v ; Tabular.hor=h ; Tabular.wrap=w ; Tabular.width=size} ->
+    attribut "VALIGN" v^
+    attribut "ALIGN" h^
+    (if w then "" else " NOWRAP")^
+    as_colspan span
+| _       ->  raise (Misc.Fatal ("as_align"))
+;;
+
+let open_cell format span = open_block "TD" (as_align format span)
+;;
+
+let erase_cell () =  erase_block "TD"
+;;
+
+let close_cell content =  force_block "TD" content
+;;
+
+let erase_row () = erase_block "TR"
+and close_row () = close_block "TR"
+;;
+
+let close_table () = close_block "TABLE"
+;;
+
+let infomenu arg = ()
+;;
+
+let infonode opt num arg = ()
+;;

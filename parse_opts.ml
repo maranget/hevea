@@ -11,7 +11,7 @@
 
 open Misc
 
-let header = "$Id: parse_opts.ml,v 1.11 1999-03-26 18:59:33 maranget Exp $" 
+let header = "$Id: parse_opts.ml,v 1.12 1999-05-07 11:33:59 maranget Exp $" 
 
 
 let files = ref []
@@ -24,9 +24,16 @@ let add_input s =
 type language = Francais | English
 ;;
 
+type destination = Html | Text | Info
+;;
+
 let language = ref English
 and symbols = ref true
 and iso = ref true
+and destination = ref Html
+;;
+
+let width = ref 72
 ;;
 
 let read_idx = ref false
@@ -58,6 +65,12 @@ let _ = Arg.parse
        ", do not output iso characters above 127") ;
      ("-I", Arg.String (fun s -> path := s :: !path),
        "dir, add directory ``dir'' to search path") ;
+     ("-text",Arg.Unit (fun () -> destination := Text),
+       ", output as plain text");
+     ("-info",Arg.Unit (fun () -> destination := Info),
+       ", output as an info file");
+     ("-w", Arg.String (fun s -> width := int_of_string s),
+      "width, set the output width for text or info output");
      ("-o", Arg.String (fun s -> outname := s),
        "filename, make hevea output go into file ``filename''")
     ]
@@ -85,14 +98,20 @@ let base_in,name_in,styles = match !files with
         base,x,rest
     with Invalid_argument _ -> base_file, x,rest
 
+
 let base_out = match !outname with
 | "" -> begin match base_in with
   | "" -> ""
   | _  -> Filename.basename base_in
 end      
 | name ->
-    if Filename.check_suffix name ".html" then
-      Filename.chop_suffix name ".html"
+    let suff = match !destination with
+    | Html -> ".html"
+    | Text -> ".txt"
+    | Info -> ".info"
+    in
+    if Filename.check_suffix name suff then
+      Filename.chop_suffix name suff
     else
       try
         Filename.chop_extension name
@@ -101,6 +120,12 @@ end
 let name_out = match !outname with
 | "" -> begin match base_in with
   | "" -> ""
-  | x  -> x^".html"
+  | x  -> begin
+      match !destination with
+      |	Html ->x^".html"
+      |	Text ->x^".txt"
+      |	Info ->x^".info"
+  end
 end    
 | x  -> x
+

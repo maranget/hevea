@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: out.ml,v 1.10 1999-03-08 15:51:36 maranget Exp $" 
+let header = "$Id: out.ml,v 1.11 1999-05-07 11:33:58 maranget Exp $" 
 let verbose = ref 0
 ;;
 
@@ -26,6 +26,9 @@ type t = Buff of buff | Chan of out_channel | Null
 let create_buff () = Buff {buff = String.create 128 ; bp = 0}
 and create_chan chan = Chan chan
 and create_null () = Null
+and is_null  = function
+  | Null -> true
+  | _ -> false
 ;;
 
 let reset = function
@@ -148,3 +151,4 @@ let close = function
 | Chan c -> close_out c
 | _ -> ()
 ;;
+

@@ -1,0 +1,121 @@
+\ifstyleloaded\relax
+\else
+\newcounter {part}
+\newcounter {section}
+\newcounter {subsection}[section]
+\newcounter {subsubsection}[subsection]
+\newcounter {paragraph}[subsubsection]
+\newcounter {subparagraph}[paragraph]
+\newcounter {footnote}
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+\newcounter {anchornote}
+\renewcommand \theanchornote{{\@nostyle\arabic{anchornote}}}
+\renewcommand \thepart {\Roman{part}}
+\renewcommand\thesubsection   {\thesection.\arabic{subsection}}
+\renewcommand\thesubsubsection{\thesubsection .\arabic{subsubsection}}
+\renewcommand\theparagraph    {\thesubsubsection.\arabic{paragraph}}
+\newcounter{equation}
+\newcounter{figure}
+\newcounter{table}
+\newcommand{\@footnotelevel}{document}
+\newcommand{\partname}{Part}
+\newcommand{\appendixname}{Appendix}
+\iffrench
+\renewcommand{\partname}{Partie}
+\renewcommand{\appendixname}{Annexe}
+\fi
+%%%%%%%%%%% Initial cutting
+\newcommand{\cuttingunit}{section}
+%%%%%%%%%%%%%%%%
+\newcommand{\appendix}{%
+\setcounter{section}{0}%
+\renewcommand{\thesection}{\Alph{section}}%
+}
+\newcommand{\part}[2][]{%
+\stepcounter{part}%
+\ifoptarg\cuthere{part}{#1}%
+\else\cuthere{part}{#2}\fi
+\@open{ALIGN}{CENTER}%
+\@open{HEAD}{*}%%H1
+\partname:~\thepart\\%
+#2%
+\@close{HEAD}%
+\@close{ALIGN}%
+}
+\newcommand{\part*}[1]{%
+\@open{ALIGN}{CENTER}%
+\@open{HEAD}{*}%%H1
+#1%
+\@close{HEAD}%
+\@close{ALIGN}%
+}
+\newcommand{\section}[2][]{%
+\stepcounter{section}%
+\@open{HEAD}{*=}%%H2
+
+\thesection\quad #2\\%
+
+\@close{HEAD}%
+}
+\newcommand{\section*}[1]{%
+\cuthere{section}{#1}%
+\@open{HEAD}{*=}%%H2
+#1%
+\@close{HEAD}%
+}
+
+
+\newcommand{\subsection}[2][]{%
+\stepcounter{subsection}%
+\ifoptarg\cuthere{subsection}{#1}%
+\else\cuthere{subsection}{#2}\fi%
+\@open{HEAD}{=}%%H3
+\thesubsection\quad #2%
+\@close{HEAD}%
+}
+\newcommand{\subsection*}[1]{%
+\cuthere{subsection}{#1}%
+\@open{HEAD}{=}%H3
+#1%
+\@close{HEAD}%
+}
+\newcommand{\subsubsection}[2][]{%
+\stepcounter{subsubsection}%
+\ifoptarg\cuthere{subsubsection}{#1}%
+\else\cuthere{subsubsection}{#2}\fi%
+\@open{HEAD}{-}%H4
+\thesubsubsection\quad #2%
+\@close{HEAD}%
+}
+\newcommand{\subsubsection*}[1]{%
+\cuthere{subsubsection}{#1}%
+\@open{HEAD}{-}%H4
+#1%
+\@close{HEAD}%
+}
+\newcommand{\paragraph}[2][]{%
+\@open{HEAD}{}%H5
+#2%
+\@close{HEAD}%
+}
+\newcommand{\paragraph*}[1]{%
+\@open{HEAD}{}%H5
+#1%
+\@close{HEAD}%
+}
+\newcommand{\subparagraph}[2][]{%
+\@open{HEAD}{}%H5
+#2%
+\@close{HEAD}%
+}
+\newcommand{\subparagraph*}[1]{%
+\@open{HEAD}{}%H5
+#1%
+\@close{HEAD}%
+}
+\newcommand\abstractname{\iffrench Résumé~\else Abstract\fi}
+\newenvironment{abstract}{\begin{quote}{\bf \abstractname: }}{\end{quote}}
+\newcommand{\@indexsection}[1]{\section*{#1}}
+\newcommand{\@bibliosection}[1]{\section*{#1}}
+\styleloadedtrue
+\fi

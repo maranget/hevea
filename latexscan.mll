@@ -12,7 +12,6 @@
 {
 module type S =
   sig
-    exception Error of string
 
     val no_prelude : unit -> unit
 
@@ -37,7 +36,7 @@ module type S =
     val withinSnippet : bool ref        
   end
 
-module Make (Html : OutManager.S) =
+module Make (Dest : OutManager.S) =
 struct
 open Misc
 open Parse_opts
@@ -48,15 +47,13 @@ open Save
 open Tabular
 open Lexstate
 
-let header = "$Id: latexscan.mll,v 1.82 1999-05-06 15:03:28 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.83 1999-05-07 11:33:51 maranget Exp $" 
 
 let sbool = function
   | false -> "false"
   | true  -> "true"
 
-module Index = Index.Make (Html)
-
-exception Error of string
+module Index = Index.Make (Dest)
 
 (* Additional variables for videoc *)
 let withinLispComment = ref false;;
@@ -66,7 +63,7 @@ let withinSnippet = ref false;;
 
 let my_int_of_string s =
   try int_of_string s with
-  Failure m -> raise (Error (m^": ``"^s^"''"))
+  Failure m -> raise (Misc.ScanError (m^": ``"^s^"''"))
 ;;
 
 let last_letter name =
@@ -75,7 +72,7 @@ let last_letter name =
 ;;
 
 let top_par n =
-  if not (!display || !in_math) then Html.par n
+  if not (!display || !in_math) then Dest.par n
 ;;
 
 
@@ -102,24 +99,24 @@ let macros_unregister () =
 ;;
 
 let get_script_font () =
-  let n = Html.get_fontsize () in
+  let n = Dest.get_fontsize () in
   if n >= 3 then n-1 else n
 ;;
 
 let open_script_font () =
-  Html.open_mod (Font (get_script_font ()))
+  Dest.open_mod (Font (get_script_font ()))
 ;;
 
 let inc_size i =
-  let n = Html.get_fontsize () in
+  let n = Dest.get_fontsize () in
   let new_size =
     if n+i <= 1 then 1
     else if n+i >= 7 then 7
     else n+i in
-  Html.open_mod (Font new_size)
+  Dest.open_mod (Font new_size)
 ;;
 
-let big_size () =  Html.open_mod (Font 7)
+let big_size () =  Dest.open_mod (Font 7)
 ;;
 
 (* Horizontal display *)
@@ -134,18 +131,18 @@ let top_open_display () =
   if !display then begin
     if !verbose > 1 then
        prerr_endline "open display" ;
-    Html.open_display (display_arg !verbose)
+    Dest.open_display (display_arg !verbose)
   end
 
 and top_item_display () =
   if !display then begin
-    Html.item_display ()
+    Dest.item_display ()
   end
 ;;
 
 let top_close_display () =
   if !display then begin
-    Html.close_display ()
+    Dest.close_display ()
   end
 
 (* vertical display *)
@@ -154,31 +151,31 @@ let open_vdisplay () =
     prerr_endline "open_vdisplay";
   if not !display then
     raise (Misc.Fatal ("VDISPLAY in non-display mode"));
-  Html.open_block "TABLE" (display_arg !verbose)
+  Dest.open_block "TABLE" (display_arg !verbose)
 
 and close_vdisplay () =
   if !verbose > 1 then
     prerr_endline "close_vdisplay";
-  Html.close_block "TABLE"
+  Dest.close_block "TABLE"
 
 and open_vdisplay_row s =
   if !verbose > 1 then
     prerr_endline "open_vdisplay_row";
-  Html.open_block "TR" "" ;
-  Html.open_block "TD" s ;
-  Html.open_display (display_arg !verbose)
+  Dest.open_block "TR" "" ;
+  Dest.open_block "TD" s ;
+  Dest.open_display (display_arg !verbose)
 
 and close_vdisplay_row () =
   if !verbose > 1 then
     prerr_endline "close_vdisplay_row";
-  Html.close_display () ;
-  Html.force_block "TD" "&nbsp;" ;
-  Html.close_block "TR"
+  Dest.close_display () ;
+  Dest.force_block "TD" "&nbsp;" ;
+  Dest.close_block "TR"
 ;;
 
 
-let open_center () =  Html.open_block "DIV" "ALIGN=center"
-and close_center () = Html.close_block "DIV"
+let open_center () =  Dest.open_block "DIV" "ALIGN=center"
+and close_center () = Dest.close_block "DIV"
 ;;
 
 (* Latex environment stuff *)
@@ -202,7 +199,7 @@ let print_env_pos () =
 
 let error_env close_e open_e =
   raise
-    (Html.Close
+    (Dest.Close
        ("Latex env error: ``"^close_e^"'' closes ``"^open_e^"''"))
 ;;
 
@@ -253,16 +250,16 @@ let top_open_block block args =
     "PRE" ->
       push stack_display !display ;
       if !display then begin
-        Html.item_display () ;
+        Dest.item_display () ;
         display := false
       end ;
-      Html.open_block "PRE" args
+      Dest.open_block "PRE" args
   | _ ->
       if !display then begin
-        Html.item_display () ; Html.open_block block args ;
-        Html.open_display (display_arg !verbose)
+        Dest.item_display () ; Dest.open_block block args ;
+        Dest.open_display (display_arg !verbose)
       end else
-        Html.open_block block args
+        Dest.open_block block args
   end
 
 and top_close_block_aux close_fun block =
@@ -272,17 +269,17 @@ and top_close_block_aux close_fun block =
     "PRE" ->
       display := pop stack_display ;
       close_fun block ;
-      if !display then Html.item_display ()
+      if !display then Dest.item_display ()
   | _ ->
       if !display then begin
-        Html.close_display () ; close_fun block ; Html.item_display ()
+        Dest.close_display () ; close_fun block ; Dest.item_display ()
       end else
         close_fun block
   end
 ;;
 
-let top_close_block block = top_close_block_aux Html.close_block block
-and top_erase_block block = top_close_block_aux Html.erase_block block
+let top_close_block block = top_close_block_aux Dest.close_block block
+and top_erase_block block = top_close_block_aux Dest.erase_block block
 
 let top_open_group () =
   top_open_block "" "" ; new_env ""
@@ -291,7 +288,7 @@ and top_close_group () =
   if !cur_env = "*mbox" then begin
     top_close_block "" ;
     in_math := pop stack_in_math ; display := pop stack_display ;
-    if !display then Html.item_display () ;
+    if !display then Dest.item_display () ;
     close_env "*mbox"
   end else begin
     top_close_block "" ;
@@ -335,7 +332,7 @@ let get_this lexfun s =
   if !verbose > 1 then
     prerr_endline ("get_this : ``"^s^"''") ;  
   let lexer = Lexing.from_string s in
-  let r = Html.to_string (fun () ->
+  let r = Dest.to_string (fun () ->
     top_open_group () ;
     lexfun lexer ;
     top_close_group ()) in
@@ -377,9 +374,9 @@ let put_delim delim i =
     prerr_endline
      ("put_delim: ``"^delim^"'' ("^string_of_int i^")") ;
   if delim <> "." then begin
-    Html.begin_item_display (fun () -> ()) false ;
-    Symb.put_delim Html.skip_line Html.put delim i ;
-    let _ = Html.end_item_display () in ()
+    Dest.begin_item_display (fun () -> ()) false ;
+    Symb.put_delim Dest.skip_line Dest.put delim i ;
+    let _ = Dest.end_item_display () in ()
   end
 ;;
 
@@ -387,6 +384,12 @@ let default_format =
   Tabular.Align
     {hor="left" ; vert = "" ; wrap = false ;
       pre = "" ; post = "" ; width = None}
+
+and center_format =
+  Tabular.Align
+    {hor="center" ; vert = "" ; wrap = false ;
+      pre = "" ; post = "" ; width = None}
+
 ;;
 
 
@@ -459,6 +462,7 @@ exception NoMulti
 let attribut name = function
   | "" -> ""
   | s  -> " "^name^"="^s
+
 and as_colspan = function
   |  1  -> ""
   |  n -> " COLSPAN="^string_of_int n
@@ -523,9 +527,9 @@ let show_inside main format i =
     begin match get_col format !t with
       Tabular.Inside s ->
         let s = get_this main s in
-        Html.open_block "TD" "ALIGN=center";
-        Html.put s ;
-        Html.force_block "TD" ""
+        Dest.open_block "TD" "ALIGN=center";
+        Dest.put s ;
+        Dest.force_block "TD" ""
     | _ -> raise EndInside
     end ;
     t := !t+1
@@ -571,7 +575,7 @@ let show_inside_multi main format i j =
     if i >= j then ()
     else begin
       let s = get_this main (as_inside (get_col format i)) in
-      Html.put s ;
+      Dest.put s ;
       show_rec (i+1)
     end in
   show_rec i
@@ -579,10 +583,10 @@ let show_inside_multi main format i j =
 
 let do_open_col main format span =
   let save_table = !in_table in
-  Html.open_block "TD" (as_align format span) ;
+   Dest.open_cell format span ;
   if not (as_wrap format) then begin
     display  := true ;
-    Html.open_display (display_arg !verbose)
+    Dest.open_display (display_arg !verbose)
   end ;
   if math_table !in_table && not (as_wrap format) then begin
     scan_this main "$"
@@ -591,8 +595,8 @@ let do_open_col main format span =
   in_table := save_table 
 
 let open_col main  =
-  let _ = Html.forget_par () in
-  Html.open_group "" ;
+  let _ = Dest.forget_par () in
+  Dest.open_group "" ;
   cur_col :=  show_inside main !cur_format !cur_col ;
   let format = (get_col !cur_format !cur_col) in
   do_open_col main format 1
@@ -609,20 +613,19 @@ let erase_col main =
   if math_table !in_table  && not (as_wrap old_format) then
     scan_this main "$" ;
   if !display then begin
-    Html.close_display () ;
+    Dest.close_display () ;
     display := false
   end ;
-  Html.erase_block "TD";
-  Html.erase_block ""
+  Dest.erase_cell () ;
+  Dest.erase_block ""
 ;;
 
 
 let open_row () =
   cur_col := 0 ;
-  Html.open_block "TR" ""
+  Dest.new_row ()
 
-and close_row () =
-  Html.close_block "TR"
+and close_row () = Dest.close_row ()
 ;;
 
 
@@ -632,16 +635,13 @@ let do_hline main =
     prerr_newline ()
   end ;
     erase_col main ;
-    Html.erase_block "TR" ;
-    Html.open_block "TR" "" ;
-    Html.open_block
-      "TD"
-      ("ALIGN=center HEIGHT=2"^
-      as_colspan (Array.length !cur_format)) ;
-    Html.close_mods () ;
-    Html.put "<HR NOSHADE SIZE=2>" ;
-    Html.close_block "TD" ;
-    Html.close_block "TR" ;
+    Dest.erase_row () ;
+    Dest.new_row () ;
+    Dest.open_cell center_format (Array.length !cur_format) ;
+    Dest.close_mods () ;
+    Dest.horizontal_line "NOSHADE" "2" "100" ;
+    Dest.close_cell "" ;
+    Dest.close_row () ;
     open_row () ;
     open_first_col main
 ;;
@@ -655,7 +655,7 @@ let do_multi n format main =
   end ;
 
   erase_col main ;
-  Html.open_group "" ;
+  Dest.open_group "" ;
 
   let start_span = find_start !cur_col
   and end_span = find_end n !cur_format !cur_col in
@@ -675,12 +675,12 @@ let close_col_aux main content is_last =
   if math_table !in_table && not (as_wrap old_format) then
     scan_this main "$" ;
   if !display then begin
-    Html.close_display () ;
+    Dest.close_display () ;
     display := false
   end ;
-  if is_last && Html.is_empty () then Html.erase_block "TD"
+  if is_last && Dest.is_empty () then Dest.erase_block "TD"
   else begin
-    Html.force_block "TD" content ;
+    Dest.force_block "TD" content ;
     if !in_multi then begin
       in_multi := false ;
       let f,n = pop stack_multi in
@@ -693,7 +693,7 @@ let close_col_aux main content is_last =
       first_col := false
     end
   end ;
-  Html.close_group ()
+  Dest.close_group ()
 ;;
 
 let close_col main content = close_col_aux main content false
@@ -701,25 +701,25 @@ and close_last_col main content = close_col_aux main content true
 
 and close_last_row () =
   if !first_col then
-    Html.erase_block "TR"
+    Dest.erase_block "TR"
   else
-    Html.close_block "TR"
+    Dest.close_block "TR"
 ;;
 
 let rec open_ngroups = function
   | 0 -> ()
-  | n -> Html.open_group "" ; open_ngroups (n-1)
+  | n -> Dest.open_group "" ; open_ngroups (n-1)
 
 let rec close_ngroups = function
   | 0 -> ()
-  | n -> Html.force_block "" "" ; close_ngroups (n-1)
+  | n -> Dest.force_block "" "" ; close_ngroups (n-1)
 
 (* Compute functions *)
 
 let get_style lexfun s =
   start_normal display in_math ;
   let lexer = Lexing.from_string s in
-  let r = Html.to_style (fun () -> lexfun lexer) in
+  let r = Dest.to_style (fun () -> lexfun lexer) in
   end_normal display in_math ;
   r
 
@@ -727,16 +727,16 @@ let check_this lexfun s =
   if !verbose > 1 then
     prerr_endline ("check_this: ``"^s^"''");
   start_normal display in_math ;
-  let save_par = Html.forget_par () in
-  Html.open_block "" "";
+  let save_par = Dest.forget_par () in
+  Dest.open_block "" "";
   let r =
     try
       scan_this lexfun s ;
       true
     with
     |  x -> false in
-  Html.erase_block "" ;
-  Html.par save_par ;
+  Dest.erase_block "" ;
+  Dest.par save_par ;
   end_normal display in_math ;
   if !verbose > 1 then
     prerr_endline ("check_this: ``"^s^"'' = "^sbool r);
@@ -749,14 +749,14 @@ let iput_newpage arg =
   let n = Image.page () in
   Image.put ("% page: "^n^"\n") ;
   Image.put "\\clearpage\n\n" ;
-  Html.put "<IMG " ;
+  Dest.put "<IMG " ;
   if arg <> "" then begin
-    Html.put arg;
-    Html.put_char ' '
+    Dest.put arg;
+    Dest.put_char ' '
   end ;
-  Html.put "SRC=\"" ;
-  Html.put n ;
-  Html.put "\">"
+  Dest.put "SRC=\"" ;
+  Dest.put n ;
+  Dest.put "\">"
 ;;
 
 
@@ -855,32 +855,18 @@ let complex s = match check_ital s with
 
 let put_sup_sub tag main = function
   "" -> ()
-| s  -> begin
-   match check_ital s with
-     Complex ->
-       Html.open_group tag ;
-       open_script_font () ;
-       scan_this main s;
-       Html.close_group ()
-   | _ ->     
-       Html.put_char '<' ;
-       Html.put tag ;
-       Html.put_char '>' ;
-       let sf = get_script_font () in
-       Html.put ("<FONT SIZE="^string_of_int sf^">") ;
-       scan_this main s ;
-       Html.put "</FONT>" ;
-       Html.put "</" ;
-       Html.put tag ;
-       Html.put_char '>'
-  end
+| s  ->
+    Dest.open_group tag ;
+    open_script_font () ;
+    scan_this main s;
+    Dest.close_group ()
 ;;
 
 
 
 let standard_sup_sub main what sup sub =
   if !display && (complex sup || complex sub) then begin
-    Html.force_item_display () ;
+    Dest.force_item_display () ;
     open_vdisplay () ;
     if sup <> "" then begin
       open_vdisplay_row "NOWRAP" ;
@@ -898,7 +884,7 @@ let standard_sup_sub main what sup sub =
       close_vdisplay_row ()
     end ;
       close_vdisplay () ;
-      Html.force_item_display ()
+      Dest.force_item_display ()
   end else begin
      what ();
      put_sup_sub "SUB" main sub ;
@@ -911,7 +897,7 @@ let limit_sup_sub main what sup sub =
   if sup = "" && sub = "" then
     what ()
   else begin
-    Html.force_item_display () ;
+    Dest.force_item_display () ;
     open_vdisplay () ;
     open_vdisplay_row "ALIGN=center" ;
     open_script_font () ;
@@ -925,15 +911,15 @@ let limit_sup_sub main what sup sub =
     scan_this main sub ;
     close_vdisplay_row () ;
     close_vdisplay () ;
-    Html.force_item_display ()
+    Dest.force_item_display ()
   end
 ;;
 
 let int_sup_sub something vsize main what sup sub =
   if something then begin
-    Html.force_item_display () ;
+    Dest.force_item_display () ;
     what () ;
-    Html.force_item_display ()
+    Dest.force_item_display ()
   end ;
   if sup <> "" || sub <> "" then begin
     open_vdisplay () ;
@@ -943,7 +929,7 @@ let int_sup_sub something vsize main what sup sub =
     close_vdisplay_row () ;
     open_vdisplay_row "ALIGN=left" ;
     for i = 2 to vsize do
-      Html.skip_line ()
+      Dest.skip_line ()
     done ;
     close_vdisplay_row () ;
     open_vdisplay_row "ALIGN=left NOWRAP" ;
@@ -951,7 +937,7 @@ let int_sup_sub something vsize main what sup sub =
     scan_this main sub ;
     close_vdisplay_row () ;
     close_vdisplay () ;
-    Html.force_item_display ()
+    Dest.force_item_display ()
   end
 ;;
 
@@ -977,8 +963,8 @@ let check_include s =
 let no_prelude () =
   flushing := true ;
   prelude := false ;
-  let _ = Html.forget_par () in () ;
-  Html.set_out out_file
+  let _ = Dest.forget_par () in () ;
+  Dest.set_out out_file
 ;;
 
 
@@ -991,7 +977,7 @@ rule  main = parse
    '%'+
    {if !alltt then begin
      let lxm = lexeme lexbuf in
-     Html.put lxm ;
+     Dest.put lxm ;
      main lexbuf
    end else
      comment lexbuf}
@@ -1002,22 +988,23 @@ rule  main = parse
        if !withinLispComment
        then begin
          afterLispCommentNewlines := nlnum;
-         if !verbose > 2 then prerr_endline "NL caught after LispComment";
-         ()
+         if !verbose > 2 then prerr_endline "NL caught after LispComment"
        end else begin
-         if nlnum >= 2 then
-           if !alltt then Html.put (lexeme lexbuf)
-           else top_par (par_val !in_table)
-         else Html.put_char '\n';
+         if !alltt then
+           Dest.put (lexeme lexbuf)
+         else if nlnum >= 2 then
+           top_par (par_val !in_table)
+         else
+           Dest.put_separator () ;
          main lexbuf
        end}
 (* subscripts and superscripts *)
   | ('_' | '^')
      {let lxm = lexeme lexbuf in
-     if !alltt then Html.put lxm
+     if !alltt then Dest.put lxm
      else if not !in_math then begin
        warning ("``"^lxm^"''occuring outside math mode") ;
-       Html.put lxm
+       Dest.put lxm
      end else begin
        let sup,sub = match lxm with
          "^" ->
@@ -1038,7 +1025,7 @@ rule  main = parse
        if !verbose > 2 then prerr_endline "\\] caught within TeX escape"; 
        ()
      end else if !alltt && (lxm = "$" || lxm = "$$") then begin
-       Html.put lxm ; main lexbuf
+       Dest.put lxm ; main lexbuf
      end else begin
        let lxm = match lxm with
          "\\(" | "\\)" -> "$"
@@ -1049,15 +1036,15 @@ rule  main = parse
        if !in_math then begin
          in_math := pop stack_in_math ;
          if dodo then begin
-           Html.close_display () ;
+           Dest.close_display () ;
            close_center ()
          end else begin
            top_close_display () ;
-           Html.close_group ()
+           Dest.close_group ()
          end ;
          display := pop stack_display ;
          if !display then begin
-           Html.item_display ()
+           Dest.item_display ()
          end ;
          close_env math_env ;
          main lexbuf
@@ -1065,14 +1052,14 @@ rule  main = parse
        push stack_in_math !in_math ;
        in_math := true ;
        let lexfun lb =
-         if !display then  Html.item_display () ;
+         if !display then  Dest.item_display () ;
          push stack_display !display ;
          if dodo then begin
            display  := true ;
            open_center() ;
-           Html.open_display (display_arg !verbose)
+           Dest.open_display (display_arg !verbose)
          end else begin
-           Html.open_group "" ;
+           Dest.open_group "" ;
            top_open_display () ;
          end;
          skip_blanks lb ; main lb in
@@ -1093,9 +1080,9 @@ rule  main = parse
        main lexbuf
    | "tabbing" ->
         let lexfun lb =
-          Html.open_block "TABLE" "CELLSPACING=0 CELLPADDING=0" ;
-          Html.open_block "TR" "" ;
-          Html.open_block "TD" "" ;
+          Dest.open_block "TABLE" "CELLSPACING=0 CELLPADDING=0" ;
+          Dest.open_block "TR" "" ;
+          Dest.open_block "TD" "" ;
           main lb in
         push stack_table !in_table ;
         in_table := Tabbing ;
@@ -1114,14 +1101,13 @@ rule  main = parse
              border = !Tabular.border} ;
         in_math := false ;
         let lexfun lb =
-          if !display then Html.item_display () ;
+          if !display then Dest.item_display () ;
           push stack_display !display ;
           display := false ;
           if !Tabular.border then
-            Html.open_block
-              "TABLE" "BORDER=1 CELLSPACING=0 CELLPADDING=1"
+            Dest.open_table true "CELLSPACING=0 CELLPADDING=1"
           else
-            Html.open_block "TABLE" "CELLSPACING=2 CELLPADDING=0" ;
+            Dest.open_table false "CELLSPACING=2 CELLPADDING=0";
           open_row() ;
           open_first_col main ;
           main lb in
@@ -1130,7 +1116,7 @@ rule  main = parse
         lexfun lexbuf
     | "lrbox" ->
         let name = subst_arg subst lexbuf in
-        Html.open_aftergroup
+        Dest.open_aftergroup
           (fun s ->
             redef_macro name 0 (Print s) ;
             macro_register name ;
@@ -1141,8 +1127,8 @@ rule  main = parse
         if env = "document" && !prelude then begin
           Image.put "\\pagestyle{empty}\n\\begin{document}\n";
           prelude := false ;
-          let _ = Html.forget_par () in () ;
-          Html.set_out out_file
+          let _ = Dest.forget_par () in () ;
+          Dest.set_out out_file
         end ;
         let lexfun = 
             let macro = "\\"^env in
@@ -1161,9 +1147,9 @@ rule  main = parse
     {let env = save_arg lexbuf in
     begin match env with
       "tabbing" ->
-        Html.close_block "TD" ;
-        Html.close_block "TR" ;
-        Html.close_block "TABLE" ;
+        Dest.close_block "TD" ;
+        Dest.close_block "TR" ;
+        Dest.close_block "TABLE" ;
         in_table := pop stack_table ;
         close_env "tabbing" ;
         main lexbuf
@@ -1171,18 +1157,18 @@ rule  main = parse
         close_last_col main "" ;
         close_last_row () ;
         if env = !cur_env then begin
-          Html.close_block "TABLE" ;
+          Dest.close_table () ;
           restore_array_state () ;
           in_math := pop stack_in_math ;
           display := pop stack_display;
-          if !display then Html.item_display () ;
+          if !display then Dest.item_display () ;
           close_env env
         end else begin
           error_env env !cur_env ;
         end ;
         main lexbuf
     | "lrbox" ->
-        scan_this main "}" ; Html.close_group () ; main lexbuf
+        scan_this main "}" ; Dest.close_group () ; main lexbuf
     | _ ->
         scan_this main ("\\end"^env) ;
         begin if env <> "document" then top_close_block "" end ;
@@ -1192,17 +1178,17 @@ rule  main = parse
 (* inside tabbing *)
  | [' ''\n']* ("\\>" | "\\=")
     {if is_tabbing !in_table then begin
-      Html.force_block "TD" "&nbsp;";
-      Html.open_block "TD" ""
+      Dest.force_block "TD" "&nbsp;";
+      Dest.open_block "TD" ""
     end ;
     skip_blanks_pop lexbuf ;
     main lexbuf}
  |  [' ''\n']* "\\kill"
     {if is_tabbing !in_table then begin
-      Html.force_block "TD" "&nbsp;";
-      Html.erase_block "TR" ;
-      Html.open_block "TR" "" ;
-      Html.open_block "TD" ""
+      Dest.force_block "TD" "&nbsp;";
+      Dest.erase_block "TR" ;
+      Dest.open_block "TR" "" ;
+      Dest.open_block "TD" ""
     end ;
     skip_blanks_pop lexbuf ;
     main lexbuf}
@@ -1211,7 +1197,7 @@ rule  main = parse
     {if !alltt then begin
       let lxm = lexeme lexbuf in
       for i = 0 to String.length lxm -1 do
-        Html.put (Html.iso lxm.[i])
+        Dest.put (Dest.iso lxm.[i])
       done
     end else if is_table !in_table  then begin
       close_col main "&nbsp;"; 
@@ -1225,18 +1211,18 @@ rule  main = parse
          close_col main "&nbsp;" ; close_row () ;
          open_row () ; open_first_col main
       end else if is_tabbing !in_table then begin
-        Html.force_block "TD" "&nbsp;";
-        Html.close_block "TR" ;
-        Html.open_block "TR" "" ;
-        Html.open_block "TD" ""
+        Dest.force_block "TD" "&nbsp;";
+        Dest.close_block "TR" ;
+        Dest.open_block "TR" "" ;
+        Dest.open_block "TD" ""
       end else begin
         if !display then
           warning "\\\\ in display mode, ignored"
         else
-          Html.skip_line ()
+          Dest.skip_line ()
       end ;
       skip_blanks_pop lexbuf ;
-      let _ = Html.forget_par () in
+      let _ = Dest.forget_par () in
       main lexbuf}
 (* Substitution  *)
   | '#' ['1'-'9']
@@ -1248,7 +1234,7 @@ rule  main = parse
   | command_name
       {let name = lexeme lexbuf in
       let exec = function
-        | Print str -> Html.put str
+        | Print str -> Dest.put str
         | Print_fun (f,i) -> 
             scan_arg 
               (fun s -> scan_this main (f (subst_this subst s)))
@@ -1257,7 +1243,7 @@ rule  main = parse
             scan_arg
               (fun s ->
                 let c = Counter.value_counter s in
-                Html.put (f c)) i
+                Dest.put (f c)) i
         | Test cell ->
             if not !cell then raise IfFalse
             else
@@ -1318,7 +1304,7 @@ rule  main = parse
     {if !Latexmacros.activebrace then
       top_open_group ()
     else begin
-      Html.put_char '{'
+      Dest.put_char '{'
     end ;
     main lexbuf}
 | '}' 
@@ -1329,44 +1315,44 @@ rule  main = parse
         main lexbuf
       else ()
     end else begin
-      Html.put_char '}' ;
+      Dest.put_char '}' ;
       main lexbuf
     end}
 | eof
    {if !verbose > 1 then Printf.fprintf stderr "Eof\n" ; ()}
 | ' '+
    {if !alltt then
-     let lxm = lexeme lexbuf in Html.put lxm
+     let lxm = lexeme lexbuf in Dest.put lxm
    else
-     Html.put_char ' ';
+     Dest.put_char ' ';
    main lexbuf}
 (* Alphabetic characters *)
 | ['a'-'z' 'A'-'Z']+
    {let lxm =  lexeme lexbuf in
    if !in_math then begin
-      Html.put "<I>";      
-      Html.put lxm;
-      Html.put "</I>"
+      Dest.put "<I>";      
+      Dest.put lxm;
+      Dest.put "</I>"
     end else
-      Html.put lxm ;
+      Dest.put lxm ;
     main lexbuf}
 (* Html specials *)
 | '<'
-    {Html.put "&lt;" ; main lexbuf}
+    {Dest.put "&lt;" ; main lexbuf}
 | '>'
-    {Html.put "&gt;" ; main lexbuf}
-| '~'         { Html.put "&nbsp;"; main lexbuf }
+    {Dest.put "&gt;" ; main lexbuf}
+| '~'         { Dest.put "&nbsp;"; main lexbuf }
 (* Spanish stuff *)
 | "?`"
-    {Html.put (Html.iso '¿') ;
+    {Dest.put (Dest.iso '¿') ;
     main lexbuf}
 | "!`"
-  {Html.put (Html.iso '¡') ;
+  {Dest.put (Dest.iso '¡') ;
   main lexbuf}
 (* One character *)
 | _ 
    {let lxm = lexeme_char lexbuf 0 in
-   Html.put (Html.iso lxm) ;
+   Dest.put (Dest.iso lxm) ;
    main lexbuf}
 
 and latex2html_latexonly = parse
@@ -1395,7 +1381,7 @@ and latexonly = parse
          _,(Subst body) ->
            scan_this_may_cont latexonly lexbuf body
        |  _,_ ->
-           raise (Error ("Bad closing macro in latexonly: ``"^arg^"''"))
+           raise (Misc.ScanError ("Bad closing macro in latexonly: ``"^arg^"''"))
        end
      end else
        latexonly lexbuf}
@@ -1444,7 +1430,7 @@ and image = parse
        begin match find_macro ("\\end"^arg) with
          _,(Subst body) ->
            scan_this_may_cont  image lexbuf body
-       |  _,_ -> raise (Error ("Bad closing macro in image: ``"^arg^"''"))
+       |  _,_ -> raise (Misc.ScanError ("Bad closing macro in image: ``"^arg^"''"))
        end
      end else begin
        Image.put lxm ; Image.put true_arg ;
@@ -1509,13 +1495,13 @@ and mbox_arg = parse
        pretty_lexbuf lexbuf
      end ;
      mbox_arg lexbuf
-   end else raise (Error "End of file in \\mbox argument")}
+   end else raise (Misc.ScanError "End of file in \\mbox argument")}
 | '{' | ("\\bgroup" ' '* '\n'? ' '*)
     {push stack_table !in_table ; in_table := NoTable ;
     push stack_in_math !in_math ; in_math := false ;
-    if !display then Html.item_display () ;
+    if !display then Dest.item_display () ;
     push stack_display !display ; display := false ;
-    Html.open_block "" "" ;
+    Dest.open_block "" "" ;
     new_env "*mbox" ;
     main lexbuf}
 
@@ -1623,8 +1609,8 @@ and skip_comment = parse
    [^ '\n']* '\n'
    {if !verbose > 1 then
      prerr_endline ("Comment:"^lexeme lexbuf) ;
-   if !flushing then Html.flush_out () }
-| "" {raise (Error "Latex comment is not terminated")}
+   if !flushing then Dest.flush_out () }
+| "" {raise (Misc.ScanError "Latex comment is not terminated")}
 
 and subst = parse
 '#' ['1'-'9']
@@ -1649,7 +1635,7 @@ let do_documentclass lexbuf command =
     input_file 0 main (arg^".hva")
   with
     Myfiles.Except | Myfiles.Error _ ->
-      raise (Error ("No base style"))
+      raise (Misc.ScanError ("No base style"))
   end ;
   Image.start () ;
   Image.put command ;
@@ -1857,11 +1843,11 @@ def_code "\\global" do_global
 def_code "\\left"
   (fun lexbuf _ ->
     if !display then begin
-      let _,f,is_freeze = Html.end_item_display () in
+      let _,f,is_freeze = Dest.end_item_display () in
       let delim = save_arg lexbuf in
-      Html.delay (fun vsize ->
+      Dest.delay (fun vsize ->
         put_delim delim vsize) ;
-      Html.begin_item_display f is_freeze
+      Dest.begin_item_display f is_freeze
     end)
 ;;
 
@@ -1869,10 +1855,10 @@ def_code "\\right"
   (fun lexbuf _ ->
     if !display then begin
       let delim = save_arg lexbuf in
-      let vsize,f,is_freeze = Html.end_item_display () in
+      let vsize,f,is_freeze = Dest.end_item_display () in
       put_delim delim vsize;
-      Html.flush vsize ;
-      Html.begin_item_display f is_freeze ;
+      Dest.flush vsize ;
+      Dest.begin_item_display f is_freeze ;
       let sup,sub = Save.get_sup_sub lexbuf in
       let do_what = (fun () -> ()) in
       int_sup_sub false vsize main do_what sup sub
@@ -1883,24 +1869,24 @@ def_code "\\right"
 def_code "\\over"
   (fun lexbuf _ ->
     if !display then begin
-      let mods = Html.insert_vdisplay
+      let mods = Dest.insert_vdisplay
           (fun () ->
             open_vdisplay () ;
             open_vdisplay_row "NOWRAP ALIGN=center") in
       close_vdisplay_row () ;
       open_vdisplay_row "" ;
-      Html.close_mods () ;
-      Html.put "<HR NOSHADE SIZE=2>" ;
+      Dest.close_mods () ;
+      Dest.put "<HR NOSHADE SIZE=2>" ;
       close_vdisplay_row () ;
       open_vdisplay_row "NOWRAP ALIGN=center" ;
-      Html.close_mods () ;
-      Html.open_mods mods ;
-      Html.freeze
+      Dest.close_mods () ;
+      Dest.open_mods mods ;
+      Dest.freeze
         (fun () ->
           close_vdisplay_row () ;
           close_vdisplay ())
       end else begin
-        Html.put "/"
+        Dest.put "/"
       end)
 ;;
    
@@ -1908,7 +1894,7 @@ def_code "\\over"
 def_code "\\item"
  (fun lexbuf _ ->
     let arg = save_opt "" lexbuf in
-    Html.item (scan_this main) arg)
+    Dest.item (scan_this main) arg)
 ;;
 
 (* Html primitives *)
@@ -1937,7 +1923,7 @@ def_code "\\@insert"
   (fun lexbuf _ ->
           let tag = save_arg lexbuf in
           let arg = save_arg lexbuf in
-          Html.insert_block tag arg )
+          Dest.insert_block tag arg )
 ;;
 
 def_code "\\@close"
@@ -1962,43 +1948,43 @@ def_code "\\@close"
 def_code "\\@print"
   (fun lexbuf _ ->
           let arg = save_arg lexbuf in
-          Html.put arg )
+          Dest.put arg )
 ;;
 def_code "\\@notags"
   (fun lexbuf _ ->
           let arg = save_arg lexbuf in
           let arg = get_this main arg in
           let buff = Lexing.from_string arg in
-          Html.put (Save.tagout buff)  )
+          Dest.put (Save.tagout buff)  )
 ;;
 def_code "\\@anti"
   (fun lexbuf _ ->
           let arg = save_arg lexbuf in
           let envs = get_style main arg in
-          Html.erase_mods envs )
+          Dest.erase_mods envs )
 ;;
 def_code "\\@style"  
   (fun lexbuf _ ->
           let arg = save_arg lexbuf in
-          Html.open_mod (Style arg) )
+          Dest.open_mod (Style arg) )
 ;;
 def_code "\\@fontcolor"  
   (fun lexbuf _ ->
           let arg = save_arg lexbuf in
-          Html.open_mod (Color arg) )
+          Dest.open_mod (Color arg) )
 ;;
 def_code "\\@fontsize"  
   (fun lexbuf _ ->
           let arg = save_arg lexbuf in
-          Html.open_mod (Font (Get.get_int arg)) )
+          Dest.open_mod (Font (Get.get_int arg)) )
 ;;
 def_code "\\@nostyle"
   (fun lexbuf _ ->
-          Html.nostyle () )
+          Dest.nostyle () )
 ;;
 def_code "\\@clearstyle"
   (fun lexbuf _ ->
-          Html.clearstyle () )
+          Dest.clearstyle () )
 ;;
 def_code "\\@incsize"
   (fun lexbuf _ ->
@@ -2009,24 +1995,24 @@ def_code "\\htmlcolor"
   (fun lexbuf _ ->
           let arg = save_arg lexbuf in
           let arg = get_this_nostyle main arg in
-          Html.open_mod (Color ("\"#"^arg^"\"")) )
+          Dest.open_mod (Color ("\"#"^arg^"\"")) )
 ;;
 def_code "\\@defaultdt"
   (fun lexbuf _ ->
           let arg = subst_arg subst lexbuf in
-          Html.set_dt arg )
+          Dest.set_dt arg )
 ;;
 def_code "\\usecounter"
   (fun lexbuf _ ->
           let arg = subst_arg subst lexbuf in
           Counter.set_counter arg 0 ;
-          Html.set_dcount arg )
+          Dest.set_dcount arg )
 ;;
 def_code "\\@fromlib"
   (fun lexbuf _ ->
           let arg = save_arg lexbuf in
           start_lexstate ();
-          Mylib.put_from_lib arg Html.put;
+          Mylib.put_from_lib arg Dest.put;
           restore_lexstate ())
 ;;
 def_code "\\imageflush"
@@ -2040,17 +2026,17 @@ def_code "\\textalltt"
           let old = !alltt in
           scan_this main "\\mbox{" ;
           alltt := true ;
-          Html.open_group "CODE" ;
+          Dest.open_group "CODE" ;
           scan_this main arg ;
-          Html.close_group () ;
+          Dest.close_group () ;
           scan_this main "}" ;
           alltt := old )
 ;;
 def_code "\\@itemdisplay"
-  (fun lexbuf _ -> Html.force_item_display ())
+  (fun lexbuf _ -> Dest.force_item_display ())
 ;;
 def_code "\\@br"
-  (fun lexbuf _ -> Html.skip_line ())
+  (fun lexbuf _ -> Dest.skip_line ())
 ;;
 
 
@@ -2121,7 +2107,7 @@ def_code "\\color"
   (fun lexbuf _ ->
     let clr = subst_arg subst lexbuf in
     let htmlval = Color.retrieve clr in
-    Html.open_mod (Color ("\""^htmlval^"\"")) ;
+    Dest.open_mod (Color ("\""^htmlval^"\"")) ;
     skip_blanks lexbuf)
 ;;
 
@@ -2130,22 +2116,22 @@ def_code "\\cite"
   (fun lexbuf _ ->
     let opt = subst_opt "" subst lexbuf in
     let args = List.map (subst_this subst) (Save.cite_arg lexbuf) in
-    Html.put_char '[' ;
-    Html.open_group "CITE" ;
+    Dest.put_char '[' ;
+    Dest.open_group "CITE" ;
     let rec do_rec = function
         [] -> ()
-      | [x] -> Html.loc_ref (get_this main (Auxx.bget x)) x
+      | [x] -> Dest.loc_ref (get_this main (Auxx.bget x)) x
       | x::rest ->
-          Html.loc_ref (get_this main (Auxx.bget x)) x ;
-          Html.put ", " ;
+          Dest.loc_ref (get_this main (Auxx.bget x)) x ;
+          Dest.put ", " ;
           do_rec rest in
     do_rec args ;
     if opt <> "" then begin
-      Html.put ", " ;
+      Dest.put ", " ;
       scan_this main opt ;
     end ;
-    Html.close_group () ;
-    Html.put_char ']' )
+    Dest.close_group () ;
+    Dest.put_char ']' )
 ;;
 
 (* Includes *)
@@ -2226,7 +2212,7 @@ def_code "\\char"
       Location.print_pos () ;
       prerr_endline ("Warning: \\char");
     end ;
-    Html.put (Html.iso (Char.chr arg)) ;
+    Dest.put (Dest.iso (Char.chr arg)) ;
     if not !alltt then skip_blanks lexbuf)
 ;;
 
@@ -2239,35 +2225,35 @@ def_code "\\symbol"
 (* labels *)
 def_code "\\label"
   (fun lexbuf _ ->
-    let save_last_closed = Html.get_last_closed () in
+    let save_last_closed = Dest.get_last_closed () in
     let lab = subst_arg subst lexbuf in
-    Html.loc_name lab "" ;
-    Html.set_last_closed save_last_closed)
+    Dest.loc_name lab "" ;
+    Dest.set_last_closed save_last_closed)
 ;;
 
 def_code "\\ref"
   (fun lexbuf _ ->
     let lab = subst_arg subst lexbuf in 
-    Html.loc_ref (get_this main (Auxx.rget lab)) lab)
+    Dest.loc_ref (get_this main (Auxx.rget lab)) lab)
 ;;
 
 def_code "\\pageref"
  (fun lexbuf _ ->
     let lab = subst_arg subst lexbuf in
-    Html.loc_ref "X" lab )
+    Dest.loc_ref "X" lab )
 ;;
 
 (* index *)
 def_code "\\@index"
   (fun lexbuf _ ->
-    let save_last_closed = Html.get_last_closed () in
+    let save_last_closed = Dest.get_last_closed () in
     let tag = get_this_nostyle main (save_opt "default" lexbuf) in
     let arg = subst_arg subst lexbuf in
     begin try
       Index.treat (check_this main) tag arg
-    with Index.Error s -> raise (Error s)
+    with Index.Error s -> raise (Misc.ScanError s)
     end ;
-    Html.set_last_closed save_last_closed)
+    Dest.set_last_closed save_last_closed)
 ;;
 
 def_code "\\@printindex"
@@ -2276,7 +2262,7 @@ def_code "\\@printindex"
     let tag =  get_this_nostyle main (save_opt "default" lexbuf) in
     begin try
       Index.print (scan_this main) tag
-    with Index.Error s -> raise (Error s)
+    with Index.Error s -> raise (Misc.ScanError s)
     end ;
     restore_lexstate ())
 ;;
@@ -2367,11 +2353,11 @@ let do_space vert lexbuf  =
     | _                 -> raise Length.No in
     if vert then
       for i=1 to n do
-        Html.skip_line ()
+        Dest.skip_line ()
       done
     else
       for i=1 to n do
-        Html.put "&nbsp;"
+        Dest.put "&nbsp;"
       done
   with Length.No ->
     warning ((if vert then "\\vspace" else "\\hspace")^
@@ -2404,9 +2390,25 @@ def_code "\\hline"
      if is_noborder_table !in_table then
        do_hline main ;
      skip_endrow lexbuf ;
-     let _ = Html.forget_par () in
+     let _ = Dest.forget_par () in
      ())
 ;;
 
+
+(* Info  format specific *)
+
+def_code "\\@infomenu"
+  (fun lexbuf _ ->
+    let arg = get_this main (save_arg lexbuf) in
+    Dest.infomenu arg)
+;;
+
+def_code  "\\@infonode"
+  (fun lexbuf _ ->
+    let opt = save_opt "" lexbuf in
+    let num = get_this main (save_arg lexbuf) in
+    let nom = get_this main (save_arg lexbuf) in
+    Dest.infonode opt num nom)
+;;
 
 end}

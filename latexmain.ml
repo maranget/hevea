@@ -9,30 +9,51 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmain.ml,v 1.36 1999-04-16 13:31:39 maranget Exp $" 
+let header = "$Id: latexmain.ml,v 1.37 1999-05-07 11:33:47 maranget Exp $" 
 
 open Misc
 open Parse_opts
 
-module Scan = Latexscan.Make (Html)
+
+let
+  subst_this,subst,get_this,scan_main,
+  no_prelude,print_env_pos, dest_finalize = 
+
+  match !Parse_opts.destination with
+  | Html ->
+      let module Scan = Latexscan.Make ( Html) in
+      let module Otherscan = Videoc.Makealso (Scan) in
+      let module Verbscan = Verb.MakeAlso  (Html) (Scan) in
+      Otherscan.init () ; Verbscan.init () ;
+      Scan.subst_this, Scan.subst,
+      Scan.get_this, Scan.main, Scan.no_prelude, Scan.print_env_pos,
+      Html.finalize
+  | Text ->
+      let module Scan = Latexscan.Make (Text) in
+      let module Otherscan = Videoc.Makealso (Scan) in
+      let module Verbscan = Verb.MakeAlso  (Html) (Scan) in
+      Otherscan.init () ; Verbscan.init () ;
+      Scan.subst_this, Scan.subst,
+      Scan.get_this, Scan.main, Scan.no_prelude, Scan.print_env_pos,
+      Text.finalize
+  | Info ->
+      let module Scan = Latexscan.Make (Info) in
+      let module Otherscan = Videoc.Makealso (Scan) in
+      let module Verbscan = Verb.MakeAlso  (Html) (Scan) in
+      Otherscan.init () ; Verbscan.init () ;
+      Scan.subst_this, Scan.subst,
+      Scan.get_this, Scan.main, Scan.no_prelude, Scan.print_env_pos,
+      Info.finalize
 ;;
 
-(* Additional modules *)
-module Otherscan = Videoc.Makealso (Scan);;
-Otherscan.init ();;
-
-module Verbscan = Verb.MakeAlso  (Html) (Scan);;
-Verbscan.init ();;
-
-
-Get.init (Scan.subst_this Scan.subst) (Scan.get_this Scan.main) ;
-Tabular.init (Scan.subst_this Scan.subst)
+Get.init (subst_this subst) (get_this scan_main) ;
+Tabular.init (subst_this subst)
 ;;
 
 
 let finalize check =
   Image.finalize () ;
-  Html.finalize check
+  dest_finalize check
 ;;
 
 let read_style name =
@@ -45,7 +66,7 @@ let read_style name =
     end ;
     let buf = Lexing.from_channel chan in
     Location.set name buf;
-    Scan.main buf ;
+    scan_main buf ;
     close_in chan ;
     Location.restore ()
   with
@@ -66,7 +87,7 @@ let read_tex name_in =
     let buf = Lexing.from_channel chan in
     Location.set input_name buf ;
     Save.set_verbose !silent !verbose ;
-    Scan.main buf ;
+    scan_main buf ;
     close_in chan ;
     Location.restore ()
 
@@ -90,7 +111,7 @@ let main () =
     Location.set_base base_in ;
 
     begin match base_in with
-      "" -> Scan.no_prelude ()
+      "" -> no_prelude ()
     | _  ->
        let auxname = base_in^".aux" in
        try
@@ -115,7 +136,7 @@ with
 | Html.Close s ->
     Location.print_pos () ;
     prerr_endline s;
-    Scan.print_env_pos () ;
+    print_env_pos () ;
     prerr_endline "Adios" ;
     exit 2
 | Html.Error s ->
@@ -123,7 +144,22 @@ with
     prerr_endline ("Error while writing HTML:\n\t"^s) ;
     prerr_endline "Adios" ;
     exit 2
-| Scan.Error s ->
+| Text.Error s ->
+    Location.print_pos () ;
+    prerr_endline ("Error while writing Text:\n\t"^s) ;
+    prerr_endline "Adios" ;
+    exit 2
+| Info.Error s ->
+    Location.print_pos () ;
+    prerr_endline ("Error while writing Info:\n\t"^s) ;
+    prerr_endline "Adios" ;
+    exit 2
+| InfoRef.Error s ->
+    Location.print_pos () ;
+    prerr_endline ("Error while writing Info:\n\t"^s) ;
+    prerr_endline "Adios" ;
+    exit 2
+| Misc.ScanError s ->
     Location.print_pos () ;
     prerr_endline ("Error while reading LaTeX:\n\t"^s) ;
     prerr_endline "Adios" ;

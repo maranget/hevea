@@ -15,28 +15,42 @@ OCAMLCI=ocamlc
 OCAMLOPT=ocamlopt
 OCAMLLEX=ocamllex
 INSTALL=cp
-OBJS=version.cmo misc.cmo location.cmo table.cmo parse_opts.cmo mylib.cmo myfiles.cmo out.cmo symb.cmo save.cmo auxx.cmo latexmacros.cmo lexstate.cmo counter.cmo image.cmo length.cmo html.cmo section.cmo foot.cmo entry.cmo index.cmo colscan.cmo color.cmo get.cmo tabular.cmo videoc.cmo verb.cmo latexscan.cmo latexmain.cmo
+OBJS=version.cmo misc.cmo location.cmo table.cmo parse_opts.cmo mylib.cmo myfiles.cmo out.cmo symb.cmo save.cmo auxx.cmo latexmacros.cmo lexstate.cmo counter.cmo image.cmo length.cmo html.cmo  text.cmo infoRef.cmo info.cmo section.cmo foot.cmo entry.cmo index.cmo colscan.cmo color.cmo get.cmo tabular.cmo videoc.cmo verb.cmo latexscan.cmo latexmain.cmo
 OBJSCUT=version.cmo misc.cmo location.cmo out.cmo thread.cmo cross.cmo mylib.cmo section.cmo length.cmo save.cmo cut.cmo cutmain.cmo
-GENSRC=auxx.ml colscan.ml cut.ml entry.ml get.ml latexscan.ml length.ml save.ml tabular.ml videoc.ml verb.ml
+GENSRC=auxx.ml colscan.ml cut.ml entry.ml get.ml latexscan.ml length.ml save.ml tabular.ml videoc.ml verb.ml infoRef.ml
 
 OBJPLUGINS=videoc.cmo
 
 OPTS=$(OBJS:.cmo=.cmx) $(OBJMAIN:.cmo=.cmx)
 OPTSCUT=$(OBJSCUT:.cmo=.cmx)
 
+HTMLLIB=article.hva book.hva report.hva seminar.hva hevea.hva ams.hva mathaccents.hva multind.hva
+TEXTLIB=article.hva book.hva report.hva seminar.hva hevea.hva
+INFOLIB=article.hva book.hva report.hva seminar.hva hevea.hva
+
 all: $(TARGET)
 everything: byte opt
 
 install: install-$(TARGET)
 
-opt: hevea.opt hacha.opt cutfoot-fra.html cutfoot-eng.html
-byte: hevea.byte hacha.byte cutfoot-fra.html cutfoot-eng.html
+opt:
+	$(MAKE) $(MFLAGS) TARGET=opt hevea.opt hacha.opt cutfoot-fra.html cutfoot-eng.html
+
+byte:
+	$(MAKE) $(MFLAGS) TARGET=byte hevea.byte hacha.byte cutfoot-fra.html cutfoot-eng.html
 
 install-lib:
 	-mkdir $(LIBDIR)
-	$(INSTALL) hevea.sty article.hva book.hva seminar.hva hevea.hva ams.hva mathaccents.hva multind.hva cutfoot-fra.html cutfoot-eng.html footer.tex ${LIBDIR}
-	- ln -s book.hva ${LIBDIR}/report.hva
+	$(INSTALL) hevea.sty cutfoot-fra.html cutfoot-eng.html footer.tex ${LIBDIR}
 	$(INSTALL) contents_motif.gif next_motif.gif previous_motif.gif ${LIBDIR}
+	-mkdir $(LIBDIR)/html
+	$(INSTALL) $(HTMLLIB) $(LIBDIR)/html
+	-mkdir $(LIBDIR)/text
+	$(INSTALL) $(TEXTLIB) $(LIBDIR)/text
+	-mkdir $(LIBDIR)/info
+	$(INSTALL) $(INFOLIB) $(LIBDIR)/info
+
+
 
 install-opt: install-lib
 	$(INSTALL) hevea.opt $(BINDIR)/hevea
@@ -67,11 +81,11 @@ mylib.cmo: mylib.ml mylib.cmi
 mylib.cmx: mylib.ml mylib.cmi
 	${OCAMLOPT} -pp '${CPP} -DLIBDIR=\"${LIBDIR}\"' -c mylib.ml
 
-cutfoot-fra.html: cutfoot.tex hevea.hva ${HEVEA}
-	${HEVEA} -francais < cutfoot.tex > $@
+cutfoot-fra.html: cutfoot.tex html/hevea.hva ${HEVEA}
+	export HEVEADIR=. ; ${HEVEA} -francais < cutfoot.tex > $@
 
-cutfoot-eng.html: cutfoot.tex hevea.hva ${HEVEA}
-	${HEVEA} < cutfoot.tex > $@
+cutfoot-eng.html: cutfoot.tex html/hevea.hva ${HEVEA}
+	export HEVEADIR=. ; ${HEVEA} < cutfoot.tex > $@
 
 .SUFFIXES:
 .SUFFIXES: .ml .cmo .mli .cmi .c .mll .cmx 
@@ -95,7 +109,7 @@ clean:
 	rm -f *.byte *.opt
 	rm -f $(GENSRC)
 	rm -f *.o *.cmi *.cmo *.cmix *.cmx *.o *.ppo *.ppi
-	rm -f *~ #*#
+	rm -f *~ #*# html/*~ html/#*# text/*~ text/#*# info/*~ info/#*# 
 	rm -f cutfoot-fra.html cutfoot-eng.html
 
 depend: $(GENSRC)

@@ -9,8 +9,6 @@
 (*                                                                     *)
 (***********************************************************************)
 
-module type S =
-  sig
     exception Error of string
     exception Close of string
 
@@ -96,4 +94,4 @@ module type S =
 
     val infomenu : string -> unit
     val infonode : string -> string -> string -> unit
-end
+

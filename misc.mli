@@ -10,6 +10,7 @@
 (***********************************************************************)
 
 exception Fatal of string
+exception ScanError of string
 
 val verbose : int ref
 val readverb : int ref

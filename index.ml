@@ -17,10 +17,10 @@ module type T =
     val print: (string -> unit) -> string -> unit
   end
 
-module Make (Html : OutManager.S) =
+module Make (Dest : OutManager.S) =
 struct
 
-let header = "$Id: index.ml,v 1.20 1999-05-06 15:03:22 maranget Exp $"
+let header = "$Id: index.ml,v 1.21 1999-05-07 11:33:44 maranget Exp $"
 open Misc
 open Parse_opts
 open Entry
@@ -251,7 +251,7 @@ let treat lexcheck tag arg =
       prerr_endline ("Finally arg is: "^pretty_entry key) ;
     let label = ("@"^tag^string_of_int !count) in
     if key <> bad_entry && check_key lexcheck key then begin
-      Html.loc_name label "" ;
+      Dest.loc_name label "" ;
       let key,macro = key in
       Hashtbl.add table key (label,!count,macro) ;
       all := add key !all
@@ -281,14 +281,14 @@ let rec common e1 e2 = match e1,e2 with
 ;;
 let rec close_prev = function
   [],_ | [_],_ -> ()
-| _::r,_::p    ->  Html.close_block "UL" ; close_prev (r,p)
+| _::r,_::p    ->  Dest.close_block "UL" ; close_prev (r,p)
 |  _ -> assert false
 ;;
 
 let rec open_this  main k = match k with
   [],_ -> ()
 | k::r,p::rp ->
-    Html.item
+    Dest.item
       (fun tag ->
       try
         main tag
@@ -298,7 +298,7 @@ let rec open_this  main k = match k with
       end) (if p <> "" then p else k) ;
     begin match r with
       [] -> ()
-    | _  -> Html.open_block "UL" "" 
+    | _  -> Dest.open_block "UL" "" 
     end ;
     open_this main (r,rp)
 |  _ -> assert false
@@ -313,7 +313,7 @@ let print_entry main bk k xs  =
   let rp,rt = common bk k in
   close_prev rp ;
   if fst rp = [] then
-    Html.open_block "UL" ""
+    Dest.open_block "UL" ""
   else begin
     let top_prev = first_key bk
     and top_now = first_key k in
@@ -331,10 +331,10 @@ let print_entry main bk k xs  =
       main (if no_ref then arg
            else "\\indexref{"^arg^"}{"^label^"}") ;
       if r <> [] then begin
-        Html.put ", " ;
+        Dest.put ", " ;
         prints r
       end in
-   Html.put "&nbsp;&nbsp;" ;
+   Dest.put "&nbsp;&nbsp;" ;
    prints (List.rev xs)
 ;;
 
@@ -352,7 +352,7 @@ let print main tag =
     prev := k)
  !all ;
  let pk,_ = !prev in
- List.iter (fun _ -> Html.close_block "UL") pk ;
+ List.iter (fun _ -> Dest.close_block "UL") pk ;
 ;;
 
 end

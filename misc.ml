@@ -9,9 +9,10 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: misc.ml,v 1.2 1999-03-03 18:08:48 maranget Exp $" 
+let header = "$Id: misc.ml,v 1.3 1999-05-07 11:33:56 maranget Exp $" 
 
 exception Fatal of string
+exception ScanError of string
 
 let verbose = ref 0
 and readverb = ref 0
