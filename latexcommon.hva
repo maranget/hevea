@@ -492,7 +492,7 @@
 \renewcommand{\theminute}{\@twoarabic{minute}}
 \renewcommand{\thesecond}{\@twoarabic{second}}}%
 %Format date after \today is defined
-{\sbox{\@@title}{\@title}\sbox{\@@author}{\@author}\sbox{\@@date}{\@date}}}
+\sbox{\@@title}{\@title}\sbox{\@@author}{\@author}\sbox{\@@date}{\@date}}
 
 %%%%%%%% Corrected format for the day  
 \newcommand\english@day{%

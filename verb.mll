@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: verb.mll,v 1.64 2004-11-26 13:13:05 maranget Exp $            *)
+(*  $Id: verb.mll,v 1.65 2005-01-19 18:13:57 maranget Exp $            *)
 (***********************************************************************)
 {
 exception VError of string
@@ -213,9 +213,10 @@ let lst_output_token () =
 
 
 let lst_finalize inline =
- scan_this main "\\lst@forget@lastline" ;
- if inline || !lst_showlines then
+ if inline || !lst_showlines then begin
    lst_output_token ()
+ end ;
+ scan_this main "\\lst@forget@lastline"
 
 
 
@@ -342,7 +343,8 @@ match !lst_top_mode with
         lst_put lxm
 
 (*  Caml code for \stepcounter{lst@space}  *)
-let lst_output_space () = Counter.step_counter "lst@spaces"
+let lst_output_space () =
+  Counter.step_counter "lst@spaces"
 
 let lst_process_space lb lxm =
 if !verbose > 1 then
@@ -1018,6 +1020,7 @@ register_init "comment" init_comment
   \def\lst@spaces
     {\whiledo{\value{lst@spaces}>0}{~\addtocounter{lst@spaces}{-1}}}
 *)
+
 let code_spaces lexbuf =
   let n = Counter.value_counter "lst@spaces" in
   if !lst_effective_spaces then

@@ -52,28 +52,34 @@
 \newcommand {\smaller}[1]{\@open{font}{size="-1"}#1\@close{font}}
 \newcommand {\mpr@name}[1]{\textsc{\smaller {#1}}}
 
-\def \mpr@line@hva #1{%
-   \def \@testa {#1}\def \@testb{\\}\ifx \@testa\@testb%
-   \else \error {hva in mathrule}\fi%
-   \latexcr}
-
 \def \@latexcr@char {\\}
+\def \mpr@line@hva #1{%
+   \def \@testa {#1} \ifx \@testa \@latexcr@char
+   \else \error {hva in mathrule}\fi%
+   \mpr@break@display}
+\def \mpr@break@display
+{\global\let\mpr@save@arg\mpr@line@arg
+\endmpr@line\mpr@line{\mpr@save@arg}}
+
 %%% this may not be robust (if nextchar is special char)
 %%% also may not want this semantics
-\def \@latexcr #1{\def \@test {#1}\ifx \@test \@latexcr@char \latexcr \else
+\def \@latexcr #1{%
+\def \@test {#1}\ifx \@test \@latexcr@char \latexcr \else
 \qquad #1\fi}
 
 \newcommand{\mpr@line}[1]
 {\@open{TR}{}%
 \@open{TD}{ALIGN="\ifmpr@center{}center\else{}left\fi"}%
-\bgroup\@open{DISPLAY}{valign="#1"}%
-\def\\{\@latexcr{\qquad}}\let\hva\mpr@line@hva}
+\bgroup\def\mpr@line@arg{#1}%
+\@open{DISPLAY}{\ifthenelse{\equal{#1}{}}{}{valign="#1"}}%
+\def\\{\@latexcr{\qquad}}
+\let\hva\mpr@line@hva}
 \newcommand{\endmpr@line}{\@close{DISPLAY}\egroup\@force{TD}\@close{TR}}
 
 \def \mpr@empty {}
 \newif \ifmpr@center \mpr@centertrue
-
-\newcommand{\@mpr@table}{\@open{TABLE}{border=0 cellspacing=1 cellpadding=0}}
+\newif \ifmpr@vdots \mpr@vdotsfalse
+\newcommand{\@mpr@table}{\@open{TABLE}{border=2 cellspacing=1 cellpadding=0}}
 \newcommand {\inferrule}[3][]
    {\bgroup
     \let \\ \latexcr%
@@ -84,18 +90,22 @@
     \else
       \@open{TR}{}\@open{TD}{align=left}%
       \mpr@name{#1}%
-      \@close{TD}\@close{TR}
+      \@close{TD}\@close{TR}%
     \fi
     \def \@@arg{#2}\ifx \@@arg \mpr@empty%
       \mpr@line{center}#3\endmpr@line%
     \else
       \def \@@arg{#3}\ifx \@@arg \mpr@empty%
-      \mpr@line{center}#2\endmpr@line%
+      \mpr@line{}#2\endmpr@line%
     \else
       \mpr@line{bottom}#2\endmpr@line%
       \@hhline%
       \mpr@line{top}#3\endmpr@line%
     \fi\fi%
+    \ifmpr@vdots
+      \@open{TR}{valign=center}\@open{TD}{align=center}%
+      \vdots\@br\vdots
+      \@close{TD}\@close{TR}\fi
     \@force{TABLE}%
     \egroup%
 }
@@ -147,7 +157,7 @@
 \define@key {mpr}{Left}{[\mpr@name {#1}]}
 \define@key {mpr}{Right}{[\mpr@name {#1}]}
 \define@key {mpr}{right}{[\mpr@name {#1}]}
-\define@key {mpr}{vdots}{}
+\define@key {mpr}{vdots}{\mpr@vdotstrue}
 \define@key {mpr}{after}{}
 \define@key {mpr}{Lab}{\def \@@rulename {\mpr@name {#1}}}
 \define@key {mpr}{reduce}[]{\let \hhline \hh@arrow}
