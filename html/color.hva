@@ -9,7 +9,7 @@
 \definecolor {green} {rgb} {0, 1, 0}
 \definecolor {white} {gray} {1}
 \definecolor {black} {gray} {0}
-\definecolor {cyan} {cmyk} {1, 0, 0 , 0}
+\definecolor {cyan} {cmyk} {1, 0, 0, 0}
 \definecolor {magenta} {cmyk} {0, 1, 0, 0}
 \definecolor {yellow} {cmyk} {0, 0, 1, 0}
 \DefineNamedColor{named}{GreenYellow}   {cmyk}{0.15,0,0.69,0}

@@ -114,7 +114,7 @@
 
 %% Binary Operation Symbols
 \renewcommand{\pm}{\@mop{PlusMinus}}
-\renewcommand{\mp}{\@mop{mp}}
+\newcommand{\mp}{\@mop{mp}}
 \renewcommand{\times}{\@mop{times}}
 \renewcommand{\div}{\@mop{div}}
 \renewcommand{\ast}{\@mop{ast}}
@@ -259,20 +259,20 @@
 \newcommand{\spadesuit}{\@mop{spades}}
 
 % Variable-sized Symbols
-\renewcommand{\sum}{\@mopop{sum}}
-\renewcommand{\prod}{\@mopop{PI}}
+\newcommand{\sum}{\@mopop{sum}}
+\newcommand{\prod}{\@mopop{PI}}
 \newcommand{\coprod}{\@mopop{Coproduct}}
-\renewcommand{\int}{\@mopop{int}}
+\newcommand{\int}{\@mopop{int}}
 \newcommand{\oint}{\@mopop{oint}}
-\renewcommand{\bigcap}{\@mopop{bigcap}}
-\renewcommand{\bigcup}{\@mopop{bigcup}}
-\renewcommand{\bigsqcup}{\@mopop{bigsqcup}}
-\renewcommand{\bigvee}{\@mopop{bigvee}}
-\renewcommand{\bigwedge}{\@mopop{bigwedge}}
-\renewcommand{\bigodot}{\@mopop{bigodot}}
-\renewcommand{\bigotimes}{\@mopop{bigotimes}}
-\renewcommand{\bigoplus}{\@mopop{bigoplus}}
-\renewcommand{\biguplus}{\@mopop{biguplus}}
+\newcommand{\bigcap}{\@mopop{bigcap}}
+\newcommand{\bigcup}{\@mopop{bigcup}}
+\newcommand{\bigsqcup}{\@mopop{bigsqcup}}
+\newcommand{\bigvee}{\@mopop{bigvee}}
+\newcommand{\bigwedge}{\@mopop{bigwedge}}
+\newcommand{\bigodot}{\@mopop{bigodot}}
+\newcommand{\bigotimes}{\@mopop{bigotimes}}
+\newcommand{\bigoplus}{\@mopop{bigoplus}}
+\newcommand{\biguplus}{\@mopop{biguplus}}
 
 
 

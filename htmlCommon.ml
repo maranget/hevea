@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlCommon.ml,v 1.36 2002-01-04 18:41:21 maranget Exp $" 
+let header = "$Id: htmlCommon.ml,v 1.37 2002-03-19 10:51:38 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -1669,7 +1669,8 @@ let close_flow_loc s =
     !cur_out.pending <- to_pending pending active ;
     false
   end
-;;
+
+
 let close_flow s =
   assert (s <> GROUP) ;
   if !verbose > 2 then
@@ -1677,7 +1678,7 @@ let close_flow s =
   let _ = close_flow_loc s in
   if !verbose > 2 then
     prerr_flags ("<= close_flow ``"^string_of_block s^"''")
-;;
+
 
 
 let get_block s args =

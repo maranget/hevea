@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: mathML.ml,v 1.16 2002-01-04 18:41:21 maranget Exp $" 
+let header = "$Id: mathML.ml,v 1.17 2002-03-19 10:51:38 maranget Exp $" 
 
 
 open Misc
@@ -29,13 +29,13 @@ let begin_item_display f is_freeze =
     prerr_newline ()
   end ;
   open_block (OTHER "mrow") "";
-  open_block GROUP "" ;
+  open_block INTERN "" ;
   if is_freeze then(* push out_stack (Freeze f) ;*)freeze f;
 
 
 and end_item_display () =
   let f,is_freeze = pop_freeze () in
-  let _ = close_flow_loc GROUP in
+  let _ = close_flow_loc INTERN in
   if close_flow_loc (OTHER "mrow") then
     flags.ncols <- flags.ncols + 1;
   if !verbose > 2 then begin
@@ -52,7 +52,7 @@ and open_display () =
   try_open_display () ;
   open_block (OTHER "mrow") "";
   do_put_char '\n';
-  open_block GROUP "" ;
+  open_block INTERN "" ;
   if !verbose > 2 then begin
     pretty_cur  !cur_out ;
     prerr_endline ""
@@ -64,7 +64,7 @@ and close_display () =
     prerr_flags "=> close_display"
   end ;
   if not (flush_freeze ()) then begin
-    close_flow GROUP ;
+    close_flow INTERN ;
     let n = flags.ncols in
     if (n = 0 && not flags.blank) then begin
       if !verbose > 2 then begin
@@ -132,8 +132,8 @@ let do_item_display force =
     flags.ncols <- flags.ncols + 1 ;
   let active  = !cur_out.active
   and pending = !cur_out.pending in
-  close_flow GROUP ;
-  open_block GROUP "";
+  close_flow INTERN ;
+  open_block INTERN "";
   !cur_out.pending <- to_pending pending active;
   !cur_out.active <- [] ;
   if is_freeze then freeze f;
@@ -150,7 +150,7 @@ and force_item_display () = do_item_display true
 
 
 let erase_display () =
-  erase_block GROUP ;
+  erase_block INTERN ;
   erase_block (OTHER "mrow");
   try_close_display ()
 ;;
@@ -188,8 +188,8 @@ let insert_vdisplay open_fun =
   try
     let mods = to_pending !cur_out.pending !cur_out.active in
     let bs,bargs,bout = pop_out out_stack in
-    if bs <> GROUP then
-      failclose "insert_vdisplay" bs GROUP ;
+    if bs <> INTERN then
+      failclose "insert_vdisplay" bs INTERN ;
     let ps,pargs,pout = pop_out out_stack in
     if ps <> (OTHER "mrow") then
       failclose "insert_vdisplay" ps (OTHER "mrow");
@@ -398,10 +398,10 @@ let put_sub_sup  s =
 let insert_sub_sup tag s t =
   let f, is_freeze = pop_freeze () in
   let ps,pargs,pout = pop_out out_stack in
-  if ps <> GROUP then failclose "sup_sub" ps GROUP ;
+  if ps <> INTERN then failclose "sup_sub" ps INTERN ;
   let new_out = create_status_from_scratch false [] in
   push_out out_stack (ps,pargs,new_out);
-  close_block GROUP;
+  close_block INTERN;
   cur_out := pout;
   open_block tag "";
   open_display ();
@@ -413,7 +413,7 @@ let insert_sub_sup tag s t =
   put_sub_sup s;
   if t<>"" then put_sub_sup t;
   close_block tag;
-  open_block GROUP "";
+  open_block INTERN "";
   if is_freeze then freeze f
 ;;
 

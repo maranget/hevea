@@ -5390,8 +5390,11 @@ when given the \verb+-fix+ option, \texttt{hevea} will itself run
 
 \section{Browser configuration}\label{browser}\cutname{browser.html}
 \index{browser configuration}
-By default, \hevea{} insert now standard font changes in its output,
-using the \verb+FACE=symbol+ attribute to the \verb+<FONT ...>+ tag.
+By default, \hevea{} uses
+the \verb+FACE=symbol+ attribute to the \verb+<FONT ...>+ tag.
+This attribute is non-standard in HTML-3.2 and is now standard (and
+already deprecated) in HTML-4.0 
+
 The symbol font is the one available on the Linux Red Hat
 distribution and seems to be present on many Unix installations.
 A good way to know whether your browser can show \hevea{} symbols or
