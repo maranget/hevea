@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.242 2004-07-27 01:24:49 thakur Exp $ *)
+(* $Id: latexscan.mll,v 1.243 2004-07-27 14:25:00 maranget Exp $ *)
 
 
 {
@@ -2062,10 +2062,19 @@ def_code "\\@dt"
     Dest.ditem (scan_this main) arg ;
     check_alltt_skip lexbuf)
 ;;
+
 def_code "\\@list@dtdd"
   (fun lexbuf ->
     let arg = subst_arg lexbuf in
     Dest.ditem_with_class (scan_this main) arg " CLASS=dt-list " " CLASS=dd-list ";
+    check_alltt_skip lexbuf)
+;;
+
+def_code "\\@description@dtdd"
+  (fun lexbuf ->
+    let arg = subst_arg lexbuf in
+    Dest.ditem_with_class (scan_this main) arg " CLASS=dt-description "
+      " CLASS=dd-description ";
     check_alltt_skip lexbuf)
 ;;
     

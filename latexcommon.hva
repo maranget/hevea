@@ -91,12 +91,12 @@
 %%%%% Figures and tables
 \newcommand{\@figrule}{\begin{center}\@hr{.8\linewidth}{2pt}\end{center}}
 \newenvironment{figure}[1][]
-{\@forcecommand{\caption}[1]{\par\refstepcounter{figure}\begin{center}Figure \thefigure: ##1\end{center}\par}%
+{\@forcecommand{\caption}[1]{\par\refstepcounter{figure}\begin{center}\figurename \thefigure: ##1\end{center}\par}%
 \@open{BLOCKQUOTE}{}\@figrule}
 {\@figrule\@close{BLOCKQUOTE}}
 \newenvironment{figure*}[1][]{\begin{figure}[#1]}{\end{figure}}
 \newenvironment{table}[1][]
-{\newcommand{\caption}[1]{\par\refstepcounter{table}\begin{center}Table \thetable: ##1\end{center}\par}%
+{\newcommand{\caption}[1]{\par\refstepcounter{table}\begin{center}\tablename \thetable: ##1\end{center}\par}%
 \@open{BLOCKQUOTE}{}\@figrule%
 }{\@figrule\@close{BLOCKQUOTE}}
 \newenvironment{table*}[1][]{\begin{table}[#1]}{\end{table}}
@@ -244,7 +244,13 @@
   \@forcecommand{\makelabel}[1]{##1}%
   #3%exec
 }{\@close{DL}}
-\newenvironment{description}{\begin{list}{}{\renewcommand{\makelabel}[1]{\textbf{##1}}}}{\end{list}}
+\newenvironment{@list@description}[3][!*!]
+  {\ifthenelse{\equal{#1}{!*!}}{\@open{DL}{CLASS=description COMPACT=compact}}{\@open{DL}{CLASS=description}}%open
+  \renewcommand{\item}[1][#2]{\@description@dtdd{##1}}%
+  \@forcecommand{\makelabel}[1]{##1}%
+  #3%exec
+}{\@close{DL}}
+\newenvironment{description}{\begin{@list@description}{}{\renewcommand{\makelabel}[1]{\textbf{##1}}}}{\end{@list@description}}
 \newenvironment{trivlist}{\begin{list}{}{}}{\end{list}}
 %% Input...
 \newcommand{\listfiles}{}

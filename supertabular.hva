@@ -1,3 +1,4 @@
+%%% supertabular package, partial implementation %%%%
 %%% Headers and trailers
 \newcommand{\tablehead}[1]{\def\@tablehead{#1}}
 \newcommand{\tablefirsthead}[1]{\def\@firsttablehead{#1}}
