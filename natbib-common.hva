@@ -1,0 +1,15 @@
+\@primitives{natbib}
+\newcommand{\NAT@format@year}[1]{\ifx#1\@empty\else\quad(#1)\fi}
+\newcommand{\NAT@format@item}[4]{\ifx#3\@empty[#2]\else#3\NAT@format@year#4\fi}
+\newcommand{\@NAT@format@cite}[3]{\ifx#2\@empty#1\else#2\NAT@format@year{#3}\fi}
+\newcommand{\NAT@format@cite}[1]
+{\@callsubst\NAT@args#1\@NAT@format@cite{\NAT@num}{\NAT@auth}{\NAT@year}}
+\newcommand{\NAT@args}[4]
+{\def\NAT@num{#1}\def\NAT@auth{#2}\def\NAT@year{#3}\def\NAT@long{#4}}
+\def\NAT@bibitem#1(#2)#3(@)#4(@){%
+\NAT@write{{#4}}{\theheveabib}{#1}{#2}{#3}%
+\item[#4]}
+\renewcommand{\bibitem}[2][!*!]
+  {\stepcounter{heveabib}\ifthenelse{\equal{#1}{!*!}}
+    {\@callsubst{\NAT@bibitem}{()(@)#2(@)}}
+    {\@callsubst{\NAT@bibitem}{#1(@)#2(@)}}}

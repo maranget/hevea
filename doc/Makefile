@@ -8,6 +8,7 @@ HACHAOPTS=-tocbis
 IMAGEN=imagen
 HTMLDIR=$(HOME)/public_html/hevea
 DOCDIR=$(HTMLDIR)/doc
+DISTRIDIR=$(HTMLDIR)/distri
 
 all: index.html
 
@@ -61,6 +62,13 @@ install:
 	cp iso.html symbol.html index.html fddl.html manual[0-9][0-9][0-9].html *.gif $(DOCDIR)
 	cp browser.html cutname.html $(DOCDIR)
 	cp ../html/urlhref.hva $(DOCDIR)
+
+install-distri:
+	/bin/rm -rf $(DISTRIDIR)
+	mkdir $(DISTRIDIR)
+	cp $(FTPDIR)/INDEX  $(FTPDIR)/README $(FTPDIR)/LICENSE $(FTPDIR)/*$(VERSION)* $(DISTRIDIR)
+	cp ../hevea.sty $(DISTRIDIR)
+
 ############# Release stuff
 VERSIONFILE=../version.ml
 dateversion::
