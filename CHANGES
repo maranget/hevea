@@ -1,4 +1,6 @@
 version 1.06-7
+  - Added a ``ppmquant 256'' step in imagen filters
+  - Changed ``\@getprint'' to interpret characters Cleaned a few bad usages of ``\@getprint''
   - Added ``\hyperref'' with optional argument.
   - Added underscore package
   - Bug htmlfoot, <!--FOOTER--> MUST appear last in hevea output

@@ -75,7 +75,7 @@
 {\newcommand{\checkbox}[4]
 {\ifthenelse{\equal{\usebox{##2}}{}}
     {}
-    {\vspace{##3}\@getprint{<FONT SIZE=##1><B>}
+    {\vspace{##3}\@print{<FONT SIZE=}\@getprint{##1}\@print{><B>}
     \usebox{##2}\@print{</B></FONT>}\vspace{##4}}}%
 \begin{center}\begin{bgcolor}{part}\begin{center}
 \checkbox{8}{\@title}{0ex}{1ex}%

@@ -8,6 +8,7 @@ PNMCROP=pnmcrop
 PNMEXTRA=""
 DVIPSMAG=1414
 PPMTOGIF=ppmtogif
+PPMQUANT=ppmquant
 PNMMARGIN=pnmmargin
 RM="/bin/rm -f"
 
@@ -80,6 +81,7 @@ then
        ;;
     esac |\
     ${PNMMARGIN} ${PNMMARGINOPTS} |\
+    ${PPMQUANT} 256 |\
     ${PPMTOGIF} ${PPMTOGIFOPTS} > `basename $i`.gif
     ${RM} $i
   done
@@ -107,6 +109,7 @@ else
        ;;
     esac |\
     ${PNMMARGIN} ${PNMMARGINOPTS} |\
+    ${PPMQUANT} 256 |\
     ${PPMTOGIF} ${PPMTOGIFOPTS}  > `basename $i`.gif
     ${RM} $i
   done
