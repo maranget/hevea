@@ -10,7 +10,7 @@
 (***********************************************************************)
 
 
-let header = "$Id: info.ml,v 1.18 1999-11-04 23:11:58 maranget Exp $"
+let header = "$Id: info.ml,v 1.19 1999-11-16 12:35:17 maranget Exp $"
 
 open Misc
 open Text
@@ -120,7 +120,8 @@ let finalize check =
     InfoRef.set_out_file Parse_opts.name_out;
     InfoRef.main buf;
   (* deuxieme passe sur le fichier *)
-    if Parse_opts.name_out <> "" then Sys.remove (Parse_opts.name_out^".tmp")
+(*    if Parse_opts.name_out <> "" then Sys.remove (Parse_opts.name_out^".tmp")
+*)
   end else
     Text.finalize check
 ;;
@@ -152,6 +153,7 @@ let make_inside = Text.make_inside;;
 let make_hline = Text.make_hline;;
 
 let infonode = InfoRef.infonode;;
+let infoextranode = InfoRef.infoextranode;;
 let infomenu = InfoRef.infomenu;;
 
 let image = Text.image;;

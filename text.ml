@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.36 1999-11-04 23:12:27 maranget Exp $"
+let header = "$Id: text.ml,v 1.37 1999-11-16 12:35:34 maranget Exp $"
 
 
 open Misc
@@ -261,6 +261,7 @@ let in_table_stack = Stack.create "in_table_stack";;
 
 let vsize_stack = Stack.create "vsize_stack";;
 let delay_stack = Stack.create "delay_stack";;
+let after_stack = Stack.create "after_stack";;
 
 let active_stack = Stack.create "Html.active"
 
@@ -680,7 +681,7 @@ let open_block s args =
   try_flush_par ();
   (* Sauvegarde de l'etat courant *)
   
-  if !cur_out.temp || s="TEMP" then begin
+  if !cur_out.temp || s="TEMP" || s="AFTER" then begin
     cur_out :=
       newstatus
 	!cur_out.nostyle
@@ -700,7 +701,10 @@ let force_block s content =
   let ps,pa,pout = pop_out out_stack in
   if ps <>"DELAY" then begin
     cur_out:=pout;
-    if !cur_out.temp then
+    if ps = "AFTER" then begin
+        let f = pop after_stack in
+        Out.copy_fun f old_out.out !cur_out.out          
+    end else if !cur_out.temp then
       Out.copy old_out.out !cur_out.out;
     flags.last_closed<- s;
     if !cur_out.temp then
@@ -806,7 +810,9 @@ let open_group ss =
   open_mod (Style ss);
 ;;
 
-let open_aftergroup f = ()
+let open_aftergroup f =
+  open_block "AFTER" "" ;
+  push after_stack f
 ;;
 
 let close_group () =
@@ -872,7 +878,8 @@ let finalize check =
     ();
     end;
   finit_ligne () ;
-  Out.close !cur_out.out
+  Out.close !cur_out.out ;
+  !cur_out.out <- Out.create_null ()
 ;;
 
 
@@ -1478,6 +1485,7 @@ let infomenu arg = ()
 ;;
 
 let infonode opt num arg = ()
+and infoextranode num arg text = ()
 ;;
 
 (* Divers *)

@@ -18,7 +18,7 @@ open Lexstate
 open Stack
 
 (* Compute functions *)
-let header = "$Id: get.mll,v 1.13 1999-10-06 17:18:46 maranget Exp $"
+let header = "$Id: get.mll,v 1.14 1999-11-16 12:35:11 maranget Exp $"
 
 exception Error of string
 
@@ -393,7 +393,7 @@ let get_bool (expr,subst) =
   !close_env "*bool*" ;
   end_normal () ;
   if Stack.empty bool_stack then
-    raise (Error ("``"^expr^"'' has no value as an integer"));
+    raise (Error ("``"^expr^"'' has no value as a boolean"));
   let r = pop bool_stack in
   if !verbose > 1 then
     prerr_endline ("get_bool: "^expr^" = "^sbool r);

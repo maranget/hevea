@@ -190,7 +190,7 @@
 \newcommand{\pageref}[1]{\@locref{#1}{??}}
 \AtBeginDocument
 {\@stopoutput\@stopimage%
-\@iffileexists{\@basein.aux}
+\ifthenelse{\@fileexists{\@basein.aux} \and \not \boolean{fixpoint}}
   {\input{\@basein.aux}}
   {\@iffileexists{\jobname.haux}{\input{\jobname.haux}}{}\@hauxinit}%
 \@restartoutput\@restartimage}
@@ -205,7 +205,7 @@
   {\end{list}}
 \newcommand{\bibitem}[2][!*!]{\@bibwrite{#1}{#2}\item[#2]}
 %%%%%%%%%%% Footnotes
-\newcommand{\footnoterule}{{\@nostyle\@hr[ALIGN=left WIDTH="50%"]{}{}}}
+\newcommand{\footnoterule}{{\@nostyle\@hr{.5\textwidth}{1pt}}}
 \newcommand{\footnotesep}[1]{}
 \newcounter{savenote}\newcounter{onemark}
 \newcommand{\@fnmarktext}[1]{%

@@ -98,5 +98,6 @@
 
     val infomenu : string -> unit
     val infonode : string -> string -> string -> unit
+    val infoextranode : string -> string -> string -> unit
 
     val image : string -> string -> unit

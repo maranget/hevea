@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlCommon.ml,v 1.14 1999-11-02 20:10:51 maranget Exp $" 
+let header = "$Id: htmlCommon.ml,v 1.15 1999-11-16 12:35:16 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -75,8 +75,9 @@ let new_status nostyle pending active = match !free_list with
    x
 ;;
 
-let cur_out = ref {nostyle=false ;
-pending = [] ; active = [] ; out = Out.create_null ()}
+let cur_out =
+  ref {nostyle=false ;
+        pending = [] ; active = [] ; out = Out.create_null ()}
 ;;
 
 

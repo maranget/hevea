@@ -10,7 +10,7 @@
 (***********************************************************************)
 
 {
-let header = "$Id: infoRef.mll,v 1.15 1999-11-08 12:58:09 maranget Exp $"
+let header = "$Id: infoRef.mll,v 1.16 1999-11-16 12:35:19 maranget Exp $"
 ;;
 
 
@@ -47,7 +47,7 @@ type menu_t = {
 let menu_list = ref [];;
 
 let nodes = Hashtbl.create 17;;
-
+let delayed  = ref [];;
 let current_node = ref None;;
 
 let menu_num = ref 0
@@ -106,9 +106,11 @@ let rec cherche_menu_par_num n = function
 ;; 
 
 let ajoute_node_dans_menu n m =
+  try
   let menu = cherche_menu m !menu_list in
   menu.nodes <- n :: menu.nodes;
   menu.nod
+  with _ -> None
 ;;
 
 
@@ -125,29 +127,7 @@ let verifie name =
   nom
 ;;
 
-let infonode opt num arg = 
 
-  let n = {
-    name = verifie num;
-    comment = arg;
-    file = !cur_file;
-    previous = None;
-    next = None;
-    up = None;
-    pos = 0;
-  } in
-  if compat_mem nodes n.name then
-    raise (Error ("Duplicate node name :"^n.name));  
-  n.up <- (match opt with
-    "" -> None
-  | m ->  ajoute_node_dans_menu n m);
-  Hashtbl.add nodes n.name n;
-  Text.open_block "INFO" "";
-  Text.put ("\n\\@node"^n.name^"\n");
-  Text.close_block "INFO";
-  current_node := Some n;
-  if !verbose>1 then prerr_endline ("Node added :"^n.name^", "^n.comment);
-;;
 
 let change_file() = 
   let changed = 
@@ -171,6 +151,14 @@ let rec cherche_label s = function
   | l::r -> if l.lab_name=s then l.noeud else cherche_label s r
 ;;
 
+let rec change_label s = function
+  |  [] -> Misc.warning ("Cannot change label: ``"^s^"''")
+  | l::r ->
+      if l.lab_name = s then
+        l.noeud <- !current_node 
+      else
+        change_label s r
+
 let loc_name s1 = (* pose un label *)
   let _ = 
     try 
@@ -185,6 +173,11 @@ let loc_name s1 = (* pose un label *)
   } in
 
   labels_list := l:: !labels_list;
+  Text.open_block "INFO" "" ;
+  Text.put "\\@name{" ;
+  Text.put s1 ;
+  Text.put "}" ;
+  Text.close_block "INFO" ;
   if !verbose > 1 then prerr_endline ("InfoRef.loc_name, label="^s1);
 ;;
 
@@ -341,8 +334,6 @@ let affiche_node nom =
     Out.close !out_cur;
     set_out_file noeud.file;
     set_out (Out.create_chan (open_out noeud.file));
-    put_credits ();
-    put_char '\n';
     files := (!cur_file,!counter) :: !files;
   end;
   noeud.pos <- !counter;
@@ -365,6 +356,7 @@ let affiche_node nom =
 
   if !verbose >1 then
     prerr_endline ("Node : "^noeud_name noeud);
+  
 ;;
 
 let affiche_ref key =
@@ -399,13 +391,9 @@ rule main = parse
   let key = arg lexbuf in
   affiche_ref key;
   main lexbuf}
-(*
-| "@@footNote{"
-    {
-  footNote_label := arg lexbuf;
-  put "* Note ";
-  foot lexbuf }
-*)
+| "\\@name{"
+  {let _ = arg lexbuf in
+  main lexbuf}
 | eof
     {
   if List.length !files = 1 then begin
@@ -440,31 +428,61 @@ and arg = parse
     String.sub lxm 0 ((String.length lxm) -1)}
 | _ {raise (Error "Syntax error in info temporary file: invalid reference.")}
     
-and foot = parse
-    "@@footNoteEnd"
-    {
-  put ":";
-  let l = 
-    try
-      cherche_label !footNote_label !labels_list;
-    with Not_found ->  raise (Error ("Reference to no label :"^ !footNote_label));
-  in
-  (
-  match l with
-  | None -> ()
-  | Some node -> put (noeud_name node^".")
-	);  
-  main lexbuf
-} 
-| eof
-    { raise (Error "End of file in footnote declaration")}
-| _ 
-    {
-  let lxm = lexeme lexbuf in
-  put lxm;
-  foot lexbuf}
+and labels = parse
+| "\\@name{"
+    {let key = arg lexbuf in
+    key::labels lexbuf}
+| _ {labels lexbuf}
+| eof {[]}
 
-{}
+
+{
+let do_infonode opt num arg = 
+
+  let n = {
+    name = verifie num;
+    comment = arg;
+    file = !cur_file;
+    previous = None;
+    next = None;
+    up = None;
+    pos = 0;
+  } in
+  if compat_mem nodes n.name then
+    raise (Error ("Duplicate node name: "^n.name));  
+  n.up <- (match opt with
+    "" -> None
+  | m ->  ajoute_node_dans_menu n m);
+  Hashtbl.add nodes n.name n;
+  Text.open_block "INFO" "";
+  Text.put ("\n\\@node"^n.name^"\n");
+  Text.close_block "INFO";
+  current_node := Some n;
+  if !verbose>1 then prerr_endline ("Node added :"^n.name^", "^n.comment)
+
+let infoextranode num nom text =
+  delayed := (num,nom,text) :: !delayed
+
+and flushextranodes () =
+  let rec flush_rec = function
+    | [] -> ()
+    | (num,nom,text) :: rest ->
+        do_infonode "" num nom ;
+        Text.open_block "INFO" "" ;
+        Text.put text ;
+        Text.close_block "INFO" ;
+        let labs = labels (Lexing.from_string text) in
+        List.iter (fun lab -> change_label lab !labels_list) labs ;
+        flush_rec rest in
+  flush_rec !delayed ;
+  delayed := [] 
+;;
+
+let infonode opt num arg =
+  flushextranodes () ;
+  do_infonode opt num arg
+
+}
 
 
 

@@ -10,7 +10,7 @@
 (***********************************************************************)
 
 
-let header = "$Id: html.ml,v 1.69 1999-11-04 23:11:48 maranget Exp $" 
+let header = "$Id: html.ml,v 1.70 1999-11-16 12:35:13 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -450,7 +450,8 @@ let finalize check =
       end in
     close_rec ()
   end ;
-  Out.close !cur_out.out
+  Out.close !cur_out.out ;
+  !cur_out.out <- Out.create_null ()
 ;;
 
 
@@ -614,6 +615,7 @@ let make_hline w noborder =
 
 let infomenu arg = ()
 and infonode opt num arg = ()
+and infoextranode num arg text = ()
 ;;
 
 

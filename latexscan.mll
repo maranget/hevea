@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.148 1999-11-05 19:02:07 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.149 1999-11-16 12:35:24 maranget Exp $ *)
 
 
 {
@@ -1909,6 +1909,7 @@ newif_ref "optarg" optarg;
 newif_ref "styleloaded" styleloaded;
 newif_ref "activebrace" activebrace;
 newif_ref "pedantic" pedantic ;
+newif_ref "fixpoint" fixpoint ;
 def_code ("\\iftrue") (testif (ref true)) ;
 def_code ("\\iffalse") (testif (ref false))
 ;;
@@ -2083,6 +2084,7 @@ def_code "\\usebox"
 
 def_code "\\lrbox"
   (fun _ ->
+    close_env "lrbox" ;
     let lexbuf = previous_lexbuf () in
     let name = subst_csname lexbuf in
     Dest.open_aftergroup
@@ -2095,7 +2097,7 @@ def_code "\\lrbox"
 
 def_code "\\endlrbox"
   (fun _ ->
-    scan_this main "}" ; Dest.close_group ())
+    scan_this main "}" ; Dest.force_block "" "" ; new_env "lrbox")
 ;;
 
 
@@ -2531,22 +2533,20 @@ def_code  "\\@infonode"
     Dest.infonode opt num nom)
 ;;
 
+def_code "\\@infoextranode"
+  (fun lexbuf ->
+   let num = get_this_arg main (save_arg lexbuf) in
+   let nom = get_this_arg main (save_arg lexbuf) in
+   let text = get_this_arg main (save_arg lexbuf) in
+   Dest.infoextranode num nom text)
+;;
+
 def_code "\\@infoname"
   (fun lexbuf ->
     let arg = get_prim_arg lexbuf in
     Dest.loc_name arg)
 ;;
 
-def_code "\\@infoNoteFlush"
-    (fun lexbuf ->
-      let sec_here = get_prim_arg lexbuf
-      and theflush = get_prim_arg lexbuf
-      and sec_notes = get_this_nostyle main "\\@footnotelevel" in
-      if !Foot.some && Section.value sec_here <= Section.value sec_notes then begin
-	scan_this main ("\stepcounter{footnotesflush}%\n\@infonode{"^theflush^"}{Notes}");
-      end)
-;;
-	
 let safe_len = function
   | Length.No _ -> Length.Default
   | l    -> l
