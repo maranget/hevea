@@ -53,7 +53,7 @@ open Save
 open Tabular
 open Lexstate
 
-let header = "$Id: latexscan.mll,v 1.69 1999-03-12 13:18:02 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.70 1999-03-12 16:29:31 maranget Exp $" 
 
 module Index = Index.Make (Html)
 
@@ -88,9 +88,10 @@ let last_letter name =
   ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z')
 ;;
 
-let top_par () =
-  if not (!display || !in_math) then Html.par ();
+let top_par n =
+  if not (!display || !in_math) then Html.par n
 ;;
+
 
 let save_arg lexbuf =
 
@@ -592,6 +593,9 @@ and math_table = function
   | _ -> raise (Misc.Fatal "math_table")
 ;;
 
+let par_val t =
+  if is_table t then Some 0 else Some 1
+
 let prerr_array_state () =
   prerr_endline (pretty_array_type !in_table) ;
   prerr_string "  format:";
@@ -766,6 +770,7 @@ let do_open_col main format span =
   in_table := save_table 
 
 let open_col main  =
+  let _ = Html.forget_par () in
   Html.open_group "" ;
   cur_col :=  show_inside main !cur_format !cur_col ;
   let format = (get_col !cur_format !cur_col) in
@@ -915,7 +920,7 @@ let get_bool lexfun expr =
   scan_this lexfun expr ;
   close_ngroups 7 ;
   top_erase_block "" ;
-  if save_par then Html.par () ;
+  Html.par save_par ;
   if Lexstate.empty bool_stack then
     raise (Error ("``"^expr^"'' has no value as a boolean"));
   let r = pop bool_stack in
@@ -938,7 +943,7 @@ let get_int lexfun expr =
   scan_this lexfun expr ;
   close_ngroups 2 ;
   top_erase_block "" ;
-  if save_par then Html.par () ;
+  Html.par save_par ;
   if Lexstate.empty int_stack then
     raise (Error ("``"^expr^"'' has no value as an integer"));
   let r = pop int_stack in
@@ -968,6 +973,7 @@ let check_this lexfun s =
     with
     |  x -> false in
   Html.erase_block "" ;
+  Html.par save_par ;
   end_normal display in_math ;
   if !verbose > 1 then
     prerr_endline ("check_this: ``"^s^"'' = "^sbool r);
@@ -1279,7 +1285,7 @@ rule  main = parse
          if nlnum >= 2 then
            if !alltt then Html.put (lexeme lexbuf)
            else if !bool_out || !int_out then ()
-           else top_par ()
+           else top_par (par_val !in_table)
          else Html.put_char '\n';
          main lexbuf
        end}
@@ -1671,6 +1677,10 @@ rule  main = parse
   |  [' ''\n']* "\\hline" [' ''\n']* ("\\\\"  [' ''\n']*)?
      {if is_noborder_table !in_table then
        do_hline main ;
+     eat_space := true ;
+     skip_blanks_pop lexbuf ;
+     let _ = Html.forget_par () in
+     eat_space := false ;
      main lexbuf}
   | [' ''\n']* "&"  [' ''\n']*
     {if !alltt then begin
@@ -1683,7 +1693,7 @@ rule  main = parse
       open_col main
     end ;
     main lexbuf}
-  | ['\n'' ']* "\\\\"
+  | ['\n'' ']* "\\\\" ['\n'' ']*
       {let _ = parse_args_opt [""] lexbuf in
       if is_table !in_table  then begin
          close_col main "&nbsp;" ; close_row () ;
@@ -1696,7 +1706,11 @@ rule  main = parse
       end else begin
         Html.skip_line ()
       end ;
-      skip_blanks lexbuf ; main lexbuf}
+      eat_space := true ;
+      skip_blanks_pop lexbuf ;
+      let _ = Html.forget_par () in
+      eat_space := false ;
+      main lexbuf}
   | ['\n'' ']* "\\multicolumn" 
       {let n = get_int main (save_arg lexbuf) in      
       let format =  Tabular.main (save_arg lexbuf) in
@@ -2244,7 +2258,7 @@ rule  main = parse
               scan_body exec body args ;
               if (!verbose > 2) then
                 prerr_string ("Cont after macro "^name^": ") ;
-              if saw_par then top_par () 
+              if saw_par then top_par (par_val !in_table)
               else if
                 Latexmacros.invisible name ||
                 (not !in_math && not !alltt &&
@@ -2682,7 +2696,7 @@ and skip_blanks_pop = parse
    end else ()}
 
 and more_skip_pop = parse
-  '\n'+ {top_par ()}
+  '\n'+ {top_par (par_val !in_table)}
 | ""    {skip_blanks_pop lexbuf}
 | eof
    {if not (Lexstate.empty stack_lexbuf) && !eat_space then begin
@@ -2701,7 +2715,7 @@ and skip_blanks = parse
 
 
 and more_skip = parse
-  '\n'+ {top_par ()}
+  '\n'+ {top_par (par_val !in_table)}
 | ""    {skip_blanks lexbuf}
 
 and skip_spaces_main = parse

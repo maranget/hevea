@@ -28,8 +28,8 @@ module type S =
     val erase_mods : Latexmacros.env list -> unit
     val open_mods : Latexmacros.env list -> unit
     val close_mods : unit -> unit
-    val par : unit -> unit
-    val forget_par : unit -> bool
+    val par : int option -> unit
+    val forget_par : unit -> int option
     val open_block : string -> string -> unit
     val close_flow : string -> unit
     val close_block : string -> unit

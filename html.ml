@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: html.ml,v 1.38 1999-03-10 10:46:55 maranget Exp $" 
+let header = "$Id: html.ml,v 1.39 1999-03-12 16:29:27 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -313,7 +313,7 @@ type flags_t = {
     mutable ncols:int;
     mutable empty:bool;
     mutable blank:bool;
-    mutable pending_par:bool;
+    mutable pending_par: int option;
     mutable vsize:int;
     mutable nrows:int;
     mutable table_vsize:int;
@@ -331,7 +331,7 @@ let flags = {
   ncols = 0;
   empty = true;
   blank = true;
-  pending_par = false;
+  pending_par = None;
   vsize = 0;
   nrows = 0;
   table_vsize = 0;
@@ -472,27 +472,29 @@ let is_list = function
 ;;
 
 
-let par_val last now =
+let par_val last now n =
   if is_list last then begin
     if is_list now then 1 else 0
   end else if
     is_header last || last = "PRE" || last = "BLOCKQUOTE"
-  then 0
-  else if last = "DIV" || last = "TABLE" then 1
-  else 2
+  then n-1
+  else if last = "DIV" || last = "TABLE" then n
+  else n+1
 ;;
 
-let par () =  
-  flags.pending_par <- true ;
-  if !verbose > 2 then
-     prerr_endline
-       ("par: last_close="^ flags.last_closed^
-       " r="^(if flags.pending_par then "true" else "false"));
+let par  = function
+  | Some n as p ->
+      flags.pending_par <- p ;
+      if !verbose > 2 then
+        prerr_endline
+          ("par: last_close="^ flags.last_closed^
+           " r="^string_of_int n)
+  | _ ->  flags.pending_par <- None
 ;;
 
-let flush_par () =
-  flags.pending_par <- false ;
-  let p = par_val flags.last_closed (pblock()) in
+let flush_par n =
+  flags.pending_par <- None ;
+  let p = par_val flags.last_closed (pblock()) n in
   for i = 1 to p do
     do_put "<BR>\n"
   done ;
@@ -504,9 +506,13 @@ let flush_par () =
   flags.last_closed <- "rien"
 ;;
 
+let try_flush_par () = match flags.pending_par with
+| Some n -> flush_par n
+| _      -> ()
+
 let forget_par () =
   let r = flags.pending_par in
-  flags.pending_par <- false ;
+  flags.pending_par <- None ;
   r
 ;;
 
@@ -571,8 +577,9 @@ let do_open_mods () =
 
 
 let do_pending () =  
-  if flags.pending_par then begin
-    flush_par ()
+  begin match flags.pending_par with
+  | Some n -> flush_par n
+  | _ -> ()
   end ;
   flags.last_closed <- "rien" ;
   do_open_mods ()
@@ -955,7 +962,7 @@ and open_block s args =
  if !verbose > 2 then begin
    prerr_flags ("=> open_block ``"^s^"''");
  end ;
- if flags.pending_par then flush_par ();
+ try_flush_par ();
  if s = "PRE" then
     flags.in_pre <- true;
  let cur_mods = !cur_out.pending @ !cur_out.active  in
@@ -1310,7 +1317,7 @@ let item scan arg =
       let saved = Out.to_string !cur_out.out in
       (fun arg -> do_put saved ; scan arg)
     end else scan in
-  if flags.pending_par then flush_par ();
+  try_flush_par ();
   !cur_out.pending <- mods ;
   flags.nitems <- flags.nitems+1;
   if pblock() = "DL" then begin
@@ -1412,7 +1419,7 @@ let close_chan () =
 
 let to_string f =
   let old_flags = copy_flags flags in
-  flags.pending_par <- false ;
+  let _ = forget_par () in
   open_group "" ;
   f () ;
   let r = Out.to_string !cur_out.out in
@@ -1423,7 +1430,7 @@ let to_string f =
 
 let to_style f =
   let old_flags = copy_flags flags in
-  flags.pending_par <- false ;
+  let _ = forget_par () in
   open_group "" ;
   !cur_out.active  <- [] ;
   !cur_out.pending <- [] ;

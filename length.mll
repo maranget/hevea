@@ -1,11 +1,9 @@
 {
 open Lexing
-let header = "$Id: length.mll,v 1.4 1999-03-12 13:18:06 maranget Exp $" 
+let header = "$Id: length.mll,v 1.5 1999-03-12 16:29:34 maranget Exp $" 
 
 exception No
 ;;
-
-type t = Absolute of int | Percent of int
 
 let font = 10
 ;;
@@ -14,8 +12,10 @@ let chars_per_line = 80
 let font_float = float font
 ;;
 
+type t = Absolute of int | Percent of int
+
 let mk_absolute x = Absolute (truncate (0.5 +. x))
-and mk_percent x = Percent (truncate (0.5 +. x))
+and mk_percent x = Percent (truncate x)
 
 let convert unit x = match unit with
       "ex"|"em" -> mk_absolute x
