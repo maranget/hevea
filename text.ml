@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.27 1999-06-25 08:07:41 tessaud Exp $"
+let header = "$Id: text.ml,v 1.28 1999-06-28 13:01:32 tessaud Exp $"
 
 
 open Misc
@@ -226,7 +226,10 @@ type flags_t = {
     mutable first_line : int;
     mutable underline : string;
   
-    mutable in_table : bool
+    mutable in_table : bool;
+    
+    (* Maths *)
+    mutable vsize : int;
   }
 ;;
 
@@ -246,7 +249,8 @@ let flags = {
   last_space = 0;
   first_line = 2;
   underline = "";
-  in_table = false
+  in_table = false;
+  vsize = 0;
 } ;;
 
 let line = String.create (!Parse_opts.width +2);;
@@ -260,6 +264,9 @@ let align_stack = ref [];;
 let in_align_stack = ref [];;
 let underline_stack = ref [];;
 let in_table_stack = ref [];;
+
+let vsize_stack = ref [];;
+let delay_stack = ref [];;
 
 let do_do_put_char c =
   Out.put_char !cur_out.out c;;
@@ -688,12 +695,14 @@ let force_block s content =
   let old_out = !cur_out in
   try_close_block s;
   let ps,pa,pout = pop_out out_stack in
-  cur_out:=pout;
-  if !cur_out.temp then
-    Out.copy old_out.out !cur_out.out;
-  flags.last_closed<- s;
-  if !cur_out.temp then
-    free old_out;
+  if ps <>"DELAY" then begin
+    cur_out:=pout;
+    if !cur_out.temp then
+      Out.copy old_out.out !cur_out.out;
+    flags.last_closed<- s;
+    if !cur_out.temp then
+      free old_out;
+  end else raise ( Misc.Fatal "text: unflushed DELAY")
 ;;
 
 let close_flow s = ()
@@ -1057,7 +1066,14 @@ let change_format format = match format with
       | "middle" -> Base 50
       | "top" -> Top
       | "bottom" -> Bottom
-      | _-> raise (Misc.Fatal ("open_cell, invalid vertical format :"^v)));
+      |	s -> 
+	  let n =
+	    try
+	      int_of_string s
+	    with (Failure fail) -> raise (Misc.Fatal ("open_cell, invalid vertical format :"^v));
+	  in
+	  if n>100 || n<0 then raise (Misc.Fatal ("open_cell, invalid vertical format :"^v));
+	  Base n);
     !cell.hor <-
       (match h with
       | "" -> Left
@@ -1523,7 +1539,7 @@ let lm_format =
 let formated s = Tabular.Align  
     { Tabular.hor=
       (match s with
-      |	"cm" |"cb" | "ct" -> "center"
+      |	"cm" | "cmm" | "cb" | "ct" -> "center"
       |       "lt" | "lb" | "lm" -> "left"
       |	_ -> "left") ;
       Tabular.vert = 
@@ -1531,6 +1547,7 @@ let formated s = Tabular.Align
       | "cm" | "lm" ->"middle"
       | "lt" | "ct" -> "top"
       | "lb" | "cb" -> "bottom"
+      |	"cmm" -> "45"
       | _ -> "middle") ;
       Tabular.wrap = false ; Tabular.pre = "" ; 
       Tabular.post = "" ; Tabular.width = None} 
@@ -1654,8 +1671,26 @@ and close_vdisplay_row () =
   if !verbose > 0 then make_hline 0 false;
 ;;
 
+let insert_sup_sub () =
+  let f,is_freeze = pop_freeze () in
+  let ps,parg,pout = pop_out out_stack in
+  if ps <> "" then failclose ("sup_sub : "^ps^"closes \"\"");
+  let new_out = newstatus false [] [] true in
+  push_out out_stack (ps,parg,new_out);
+  close_block "";
+  cur_out := pout;
+  open_block "" "";
+  if is_freeze then freeze f;
+  open_display "";
+  do_put (Out.to_string new_out.out);
+  flags.empty <- false;
+  free new_out;
+;;  
+
+
 let standard_sup_sub scanner what sup sub display =
   if display then begin
+    insert_sup_sub ();
     let f = match sup,sub with
     | "","" -> "cm"
     |	"",_ -> change_format (formated "lt"); "lb"
@@ -1680,7 +1715,10 @@ let standard_sup_sub scanner what sup sub display =
       end;
       close_vdisplay ();
       item_display ();
-    end else what ()
+    end else what ();
+    close_display ();
+(*    change_format (formated f);*)
+    item_display ();
   end else begin
     what ();
     if sub <> "" then begin
@@ -1777,10 +1815,30 @@ let over display lexbuf =
     put "/";
   end
 
-
-and left delim = ()
-and right delim = 3
+let translate = function
+  "<" -> "<"
+| ">" -> ">"
+| "\\{" -> "{"
+| "\\}" -> "}"
+| s   -> s
 ;;
+
+let left delim =
+  item_display ();
+  open_display "";
+  close_cell_group ();
+  if delim<>"." then make_border (translate delim);
+  open_cell_group ();
+;;
+
+let right delim =
+  let vsize = 3 in
+  if delim<>"." then make_border (translate delim);
+  item_display ();
+  close_display ();
+  vsize
+;;
+
 
 
 
