@@ -50,7 +50,7 @@ Chesnay Cedex. {\tt \mailto{Luc.Maranget@inria.fr}}}}
 \@print{
 <HR>
 }%
-This manual also exist in
+This manual also exists in
 \url{\ftpbase/hevea-\heveaversion-manual.ps.gz}{Postcript} and and as
 a \url{\ftpbase/hevea-\heveaversion-manual.tar.gz}{bundle of HTML files}.
 \@print{
@@ -417,20 +417,25 @@ For instance, a fraction (\verb+\frac+) opens a vertical display.
 The distinction between text and display modes clearly appears while
 typesetting math formulas.
 An in-text formula such as
-\verb+$\int_1^2 xdx = \frac{3}{2}$+ appears as: $\int_1^2 xdx =
-\frac{3}{2}$,
+\verb+$\int_1^2 xdx = \frac{3}{2}$+ appears as:
+%HEVEA$\int_1^2 xdx =\frac{3}{2}$,
+%BEGIN LATEX
+\raisebox{1ex}{\epsfbox{int.ps}},
+%END LATEX
 while the same formula has a better aspect in display mode:
-$$
-\int_1^2xdx = \frac{3}{2}
-$$
-
+%HEVEA$$\int_1^2xdx = \frac{3}{2}$$
+%BEGIN LATEX
+\begin{center}
+~\epsfbox{intd.ps}~
+\end{center}
+%END LATEX
 As a consequence, \hevea{} is more powerful in display mode and
 formulas should be displayed as soon as they get a bit complicated.
 This rule is also true in \LaTeX{} but it is more strict in \hevea{},
 since \html{} capabilities to typeset formulas inside text are quite
 poor.
 In particular, all \html{} block-level elements start a new line.
-Thus, it is not possible to get in-text fractions or
+Thus, it is not possible to get in-text ``real'' fractions or
 in-text limit-like subscripts.
 
 Similarly, \hevea{} cannot render in-text arrays.
@@ -839,7 +844,7 @@ A satisfactory translation from \LaTeX{} to \html{} often requires
 giving instructions to \hevea{}.
 Typically, these instructions are macro definitions and
 these instructions should not be seen by \LaTeX{}.
-Conversely, some source which \LaTeX{} needs should not be processed
+Conversely, some source that \LaTeX{} needs should not be processed
 by \hevea{}.
 Basically, there are three ways to make input vary according to the
 processor, file loading, comments and the \texttt{html.sty} style
@@ -1094,11 +1099,16 @@ Now we issue the following two commands:
 \end{verbatim}
 And we get:
 \begin{htmlout}
+\begin{htmlonly}
 \newcommand{\blob}{%
 \begin{toimage}\rule[.2ex]{1ex}{1ex}%
 \end{toimage}%
 \imageflush}\newsavebox{\blobbox}\sbox{\blobbox}{\blob}
 \usebox{\blobbox}\ Blob \usebox{\blobbox}
+\end{htmlonly}
+\begin{latexonly}%
+\epsfbox{realblob.ps}
+\end{latexonly}%
 \end{htmlout}
 
 Observe that the trick can be used to replace missing symbols by small
@@ -1237,7 +1247,7 @@ Then cut \filename{mydoc}\texttt{.html} into pieces by the command:
 \end{flushleft}
 This will generate a simple root file
 \texttt{index.html}.
-This root files holds document title, abstract and a simple table of
+This root file holds document title, abstract and a simple table of
 contents.
 Every item in the table of contents contains a link to or into a file
 that holds a ``cutting'' sectional unit.
