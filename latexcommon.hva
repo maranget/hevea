@@ -66,16 +66,20 @@
 \newcommand{\twocolumn}[1][]{}
 \newcommand{\onecolumn}{}
 %%% Stackrel et compagine
+\newenvironment{@varray}
+  {\renewcommand{\@table@attributes}{border=0 cellspacing=0 cellpadding=0}%
+  \begin{array}{c}}
+  {\end{array}}
 \newcommand{\textstackrel}[2]{#2^{#1}}
 \newcommand{\stackrel}[2]{\ifdisplay
-\begin{array}{c}\scriptsize #1\\ #2\\ ~ \end{array}\else
+\begin{@varray}\scriptsize#1\\{}#2\\{}~\end{@varray}\else
 \textstackrel{#1}{#2}\fi}
 \newcommand{\textoverline}[1]{\warning{Warning: overline in text}#1}
 \def\overline#1{\ifdisplay
-\begin{array}{c}\hline #1 \\~\end{array}\else\textoverline{#1}\fi}
+\begin{@varray}\hline #1\end{@varray}\else\textoverline{#1}\fi}
 \newcommand{\textunderline}[1]{{\@style{U}#1}}
 \def\underline#1{\ifdisplay
-\begin{array}{c}~\\ #1\\ \hline\end{array}\else\textunderline{#1}\fi}
+\begin{@varray}#1\\ \hline\end{@varray}\else\textunderline{#1}\fi}
 %%%Miscleanous, title stiff
 \newcommand{\thanks}[1]{\footnote{#1}}
 \newenvironment{titlepage}{}{}
@@ -115,7 +119,7 @@
 %% Input...
 \newcommand{\listfiles}{}
 %% Line breaking
-\newcommand{\linebreak}[1][4]{\ifthenelse{#1=4}{\\}{}}
+\newcommand{\linebreak}[1][4]{\ifthenelse{#1=4}{\vspace{1em}}{}}
 \newcommand{\nolinebreak}[1][4]{}
 \def\sloppy{}
 \def\fussy{}

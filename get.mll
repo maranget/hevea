@@ -18,7 +18,7 @@ open Lexstate
 open Stack
 
 (* Compute functions *)
-let header = "$Id: get.mll,v 1.16 2000-01-28 15:40:02 maranget Exp $"
+let header = "$Id: get.mll,v 1.17 2000-05-05 07:13:56 maranget Exp $"
 
 exception Error of string
 
@@ -31,6 +31,7 @@ and register_this = ref (fun s -> ())
 and open_env = ref (fun _ -> ())
 and close_env = ref (fun _ -> ())
 and get_csname = ref (fun _ -> assert false)
+and main = ref (fun _ -> assert false)
 ;;
 
 let bool_out = ref false
@@ -238,19 +239,27 @@ and after_quote = parse
 | ""
     {Misc.fatal "Cannot understand `-like numerical argument"}
 {
-let init latexget latexregister latexopenenv latexcloseenv latexcsname =
+let init latexget latexregister latexopenenv latexcloseenv latexcsname
+    latexmain =
   get_this := latexget ;
   register_this := latexregister ;
   open_env := latexopenenv ;
   close_env := latexcloseenv ;
-  get_csname := latexcsname
-;;
-let def_loc name f =
-  silent_def name 0 (CamlCode f) ;
-  !register_this name
+  get_csname := latexcsname ;
+  main := latexmain
 ;;
 
-let def_commands_int () =
+let def_loc  name f =
+  silent_def name 0 (CamlCode f) ;
+  !register_this name
+
+and def_noloc name f =
+  silent_def name 0 (CamlCode f) ;
+
+and undef name = Latexmacros.unregister name
+;;
+
+let def_commands_int def_loc =
   def_loc "\\value"
     (fun lexbuf ->
       let name = !get_this true (save_arg lexbuf) in
@@ -259,10 +268,13 @@ let def_commands_int () =
     (fun lexbuf ->
       let s = !get_this true (save_arg lexbuf) in
       scan_this result s)
+
+and undef_commands_int () =
+  undef "\\value" ; undef "\\pushint"
 ;;
 
 
-let def_commands_bool () =
+let rec def_commands_bool def_loc =
   def_loc "\\(" (fun _ -> open_ngroups 7) ;
   def_loc "\\)"  (fun _ -> close_ngroups 7) ;
   def_loc "\\@fileexists"
@@ -281,7 +293,11 @@ let def_commands_bool () =
     (fun lexbuf ->
         let arg1 = save_arg lexbuf in
         let arg2 = save_arg lexbuf in
-        push bool_stack (!get_this false arg1 = !get_this false arg2)) ;
+        scan_this !main "\\begin{@norefs}" ;
+        undef_commands_bool () ;
+        push bool_stack (!get_this false arg1 = !get_this false arg2) ;
+        def_commands_bool def_noloc ;
+        scan_this !main "\\end{@norefs}") ;
   def_loc "\\or"
     (fun _ ->
       close_ngroups 7 ;
@@ -347,7 +363,14 @@ let def_commands_bool () =
           if !verbose > 2 then
             Stack.pretty sbool bool_stack) "ISODD" ;
       open_ngroups 2) ;
-  def_commands_int ()
+  def_commands_int def_loc
+
+and undef_commands_bool () =
+  undef "\\(" ; undef "\\)" ;
+  undef "\\@commandexists" ; undef "\\@fileexists" ;
+  undef "\\equal" ;
+  undef "\\or" ; undef "\\and" ; undef "\\not" ;
+  undef "\\boolean" ; undef "\\isodd"
 ;;
 
 let first_try s =
@@ -371,7 +394,7 @@ let get_int (expr, subst) =
       int_out := true ;
       start_normal subst ;
       !open_env "*int*" ;
-      def_commands_int () ;
+      def_commands_int def_loc ;
       open_ngroups 2 ;
       begin try scan_this result expr with
       | x ->
@@ -401,7 +424,7 @@ let get_bool (expr,subst) =
   bool_out := true ;
   start_normal subst ;
   !open_env "*bool*" ;
-  def_commands_bool () ;
+  def_commands_bool def_loc ;
   open_ngroups 7 ;
   begin try scan_this result expr with
   | x ->

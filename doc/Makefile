@@ -9,7 +9,7 @@ IMAGEN=imagen
 HTMLDIR=$(HOME)/public_html/hevea
 DOCDIR=$(HTMLDIR)/doc
 
-all: manual.dvi index.html
+all: index.html
 
 opt:
 	export HEVEADIR=.. ;\
@@ -84,7 +84,7 @@ FTPDIR=/home/tobago/para-ftp/hevea
 UNSTABLE=
 
 dorelease: doversion
-	$(MAKE) $(MFLAGS) byte pdfmanual.pdf
+	$(MAKE) $(MFLAGS) byte manual.dvi pdfmanual.pdf
 # hevea relase
 	cd $(RELEASEDIR) ; rm -rf $(RELEASENAME) ;\
 	cvs -d $(CVSDIR) export  $(RELEASEOPT) -l htmlgen htmlgen/html htmlgen/text htmlgen/info ;\

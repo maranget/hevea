@@ -41,6 +41,9 @@
 \newcommand{\slideleftmargin}{}
 \newcommand{\sliderightmargin}{}
 \newcommand{\slidesmag}[1]{}
+\newcommand{\slidepagestyle}[1]{}
+\newcommand{\addtoslidelist}[1]{}
+\newcommand{\newpagestyle}[2]{}
 %%%% load the article style file
 \input{article.hva}
 \fi

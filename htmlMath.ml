@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlMath.ml,v 1.13 2000-05-03 17:50:28 maranget Exp $" 
+let header = "$Id: htmlMath.ml,v 1.14 2000-05-05 07:13:57 maranget Exp $" 
 
 
 open Misc
@@ -254,7 +254,6 @@ and force_item_display () = do_item_display true
 ;;
 
 
-
 let erase_display () =
   erase_block "" ;
   erase_block "TD" ;
@@ -275,6 +274,7 @@ let close_maths display =
   if display then close_display ()
   else close_group ();
   flags.in_math <- pop stacks.s_in_math ;
+
   if display then close_center ()
 ;;
 

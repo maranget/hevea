@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.169 2000-05-03 17:50:32 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.170 2000-05-05 07:14:01 maranget Exp $ *)
 
 
 {
@@ -189,10 +189,7 @@ and env_hot (e,m,a,s) =
         
 
 (* Top functions for blocks *)
-let no_display = function
-  "TABLE" | "TR" | "TD" | "DISPLAY" | "VDISPLAY" -> true
-|  _ -> false
-;;
+
 type array_type = {math : bool ; border : bool}
 type in_table = Table of array_type | NoTable | Tabbing
 ;;
@@ -212,18 +209,76 @@ and stack_multi_flag = Stack.create "stack_multi_flag"
 and stack_multi = Stack.create "stack_multi"
 ;;
 
+
+let pretty_array_type = function
+  | Table {math = m ; border = b} ->
+      "Table math="^(if m then "+" else "-")^
+      " border="^(if b then "+" else "-")
+  | NoTable -> "NoTable"
+  | Tabbing -> "Tabbing"
+
+let prerr_array_state () =
+  prerr_endline (pretty_array_type !in_table) ;
+  prerr_string "  format:";
+  pretty_formats !cur_format ;
+  prerr_endline "" ;
+  prerr_endline ("  cur_col="^string_of_int !cur_col) ;
+  prerr_endline ("  first_col="^
+      (if !first_col then "true" else "false"))
+;;
+
+let save_array_state () =
+  push stack_format !cur_format ;
+  push stack_col !cur_col ;
+  push stack_table !in_table ;
+  push stack_first !first_col;
+  push stack_first_b !first_border;
+  push stack_multi_flag !in_multi ;
+  in_multi := false ;
+  if !verbose > 1 then begin
+    prerr_endline "Save array state:" ;
+    prerr_array_state ()
+  end    
+
+and restore_array_state () =
+  in_table := pop stack_table ;
+  cur_col := pop stack_col ;
+  cur_format := pop stack_format ;
+  first_col := pop stack_first ;
+  first_border := pop stack_first_b;
+  in_multi := pop stack_multi_flag ;
+  if !verbose > 1 then begin
+    prerr_endline "Restore array state:" ;
+    prerr_array_state ()
+  end  
+;;
+
 let top_open_block block args =
   if !verbose > 2 then prerr_endline ("Top open: "^block);
   push stack_table !in_table ;
   in_table := NoTable ;
   begin match block with
-    "PRE" ->
+  | "PRE" ->
       push stack_display !display ;
       if !display then begin
         Dest.item_display () ;
         display := false
       end ;
       Dest.open_block "PRE" args
+  | "DISPLAY" ->
+      push stack_display !display ;
+      display := true ;
+      Dest.open_display ()
+  | "TABLE" ->
+      save_array_state () ;
+      in_table := NoTable ;
+      top_item_display () ;
+      Dest.open_block "TABLE" args
+  | "TR" ->
+      Dest.open_block "TR" args      
+  | "TD" ->
+      Dest.open_block "TD" args ;
+      top_open_display ()
   | _ ->
       if !display then begin
         Dest.item_display () ; Dest.open_block block args ;
@@ -236,10 +291,22 @@ and top_close_block_aux close_fun block =
   if !verbose > 2 then prerr_endline ("Top close: "^block) ;
   in_table := pop stack_table ;
   begin match block with
-    "PRE" ->
+  | "PRE" ->
       display := pop stack_display ;
       close_fun block ;
-      if !display then Dest.item_display ()
+      top_item_display ()
+  | "DISPLAY" ->
+      Dest.close_display () ;
+      display := pop stack_display
+  | "TABLE" ->
+      close_fun "TABLE" ;
+      top_item_display () ;
+      restore_array_state ()
+  | "TR" ->
+      close_fun "TR"
+  | "TD" ->
+      top_close_display () ;
+      close_fun "TD"
   | _ ->
       if !display then begin
         Dest.close_display () ; close_fun block ; Dest.item_display ()
@@ -315,13 +382,6 @@ and center_format =
 ;;
 
 
-let pretty_array_type = function
-  | Table {math = m ; border = b} ->
-      "Table math="^(if m then "+" else "-")^
-      " border="^(if b then "+" else "-")
-  | NoTable -> "NoTable"
-  | Tabbing -> "Tabbing"
-
 let is_table = function
   | Table _ -> true
   | _       -> false
@@ -341,42 +401,6 @@ and math_table = function
 
 let par_val t =
   if is_table t then Some 0 else Some 1
-
-let prerr_array_state () =
-  prerr_endline (pretty_array_type !in_table) ;
-  prerr_string "  format:";
-  pretty_formats !cur_format ;
-  prerr_endline "" ;
-  prerr_endline ("  cur_col="^string_of_int !cur_col) ;
-  prerr_endline ("  first_col="^
-      (if !first_col then "true" else "false"))
-;;
-
-let save_array_state () =
-  push stack_format !cur_format ;
-  push stack_col !cur_col ;
-  push stack_table !in_table ;
-  push stack_first !first_col;
-  push stack_first_b !first_border;
-  push stack_multi_flag !in_multi ;
-  in_multi := false ;
-  if !verbose > 1 then begin
-    prerr_endline "Save array state:" ;
-    prerr_array_state ()
-  end    
-
-and restore_array_state () =
-  in_table := pop stack_table ;
-  cur_col := pop stack_col ;
-  cur_format := pop stack_format ;
-  first_col := pop stack_first ;
-  first_border := pop stack_first_b;
-  in_multi := pop stack_multi_flag ;
-  if !verbose > 1 then begin
-    prerr_endline "Restore array state:" ;
-    prerr_array_state ()
-  end  
-;;
 
 exception EndInside
 ;;
@@ -398,16 +422,7 @@ let is_inside = function
 let is_border = function
   | Tabular.Border _ -> true
   | _ -> false
-(*
-and as_inside = function
-    Tabular.Inside s -> s
-  | _        -> ""
-    attribut "VALIGN" v^
-    attribut "ALIGN" h^
-    (if w then "" else " NOWRAP")^
-    as_colspan span
-| _       ->  raise (Misc.Fatal ("as_align"))
-*)
+
 and as_wrap = function
   | Tabular.Align {wrap = w} -> w
   | _ -> false
@@ -508,18 +523,7 @@ let next_no_border format n =
   done;
   !t
 ;;
-(*
-let show_inside_multi main format i j =
-  let rec show_rec i =
-    if i >= j then ()
-    else begin
-      let s = get_this main (as_inside (get_col format i)) in
-      Dest.put s ;
-      show_rec (i+1)
-    end in
-  show_rec i
-;;
-*)
+
 let do_open_col main format span insides =
   let save_table = !in_table in
   Dest.open_cell format span insides;
@@ -841,7 +845,7 @@ rule  main = parse
          if !alltt then
            Dest.put lxm
          else if nlnum >= 2 then
-           top_par (par_val !in_table)
+           scan_this main "\\par"
          else
            Dest.put_separator () ;
          main lexbuf
@@ -1314,6 +1318,13 @@ let def_fun name f =
       scan_this main (f arg))
 ;;
 
+(* Paragraphs *)
+def_code "\\par"
+  (fun lexbuf ->
+    top_par (par_val !in_table) ;
+    check_alltt_skip lexbuf)
+;;
+
 (* Styles and packages *)
 let do_documentclass command lexbuf =
   Save.start_echo () ;
@@ -1703,39 +1714,20 @@ def_code "\\@open"
   (fun lexbuf ->
     let tag = get_prim_arg lexbuf in
     let arg = get_prim_arg lexbuf in
-    if no_display tag then begin
-      if tag="DISPLAY" then begin
-        push stack_display !display;
-        display := true ;
-        top_open_display ()
-      end else begin
-        if !verbose > 2 then warning ("direct opening of "^tag);
-        top_open_block tag arg
-      end
-    end else
-      top_open_block tag arg)
+    top_open_block tag arg)
 ;;
 
 def_code "\\@insert"
-        (fun lexbuf ->
-          let tag = get_prim_arg lexbuf in
-          let arg = get_prim_arg lexbuf in
-          Dest.insert_block tag arg )
+  (fun lexbuf ->
+    let tag = get_prim_arg lexbuf in
+    let arg = get_prim_arg lexbuf in
+    Dest.insert_block tag arg )
 ;;
 
 def_code "\\@close"
   (fun lexbuf ->
     let tag = get_prim_arg  lexbuf in
-    if no_display tag then begin
-      if tag="DISPLAY" then begin
-        top_close_display ();
-        display := pop stack_display
-      end else begin
-        if !verbose > 2 then warning ("direct closing of "^tag);
-        top_close_block tag
-      end
-    end else
-      top_close_block tag)
+    top_close_block tag)
 ;;
 
 def_code "\\@print"
@@ -2693,6 +2685,7 @@ Get.init
     get_this_arg main s)
   macro_register new_env close_env
   get_csname
+  main
 ;;
 
 def_code "\\@primitives"

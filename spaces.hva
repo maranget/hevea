@@ -23,6 +23,4 @@
 %% Paragraphs
 \def\noindent{}
 \def\indent{}
-\def\par{
 
-}
