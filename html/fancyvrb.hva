@@ -85,10 +85,9 @@
 %%%%%%%%%% User command
 \newcommand{\fvset}[1]{\@setkeys{fancyvrb}{#1}}
 \newenvironment{Verbatim}[1][]
-  {\@end{Verbatim}\begingroup%
-  \@setkeys{fancyvrb}{#1}%
-  \let\Verbatim\@Verbatim%
-  \def\endVerbatim{\@endVerbatim\@close{}\end@frame\endgroup\@open{}{}}%
-  \check@frame\begin@frame\verb@shape\verb@size\begin{Verbatim}}{}
+  {\@setkeys{fancyvrb}{#1}%
+  \def\endVerbatim{\@endVerbatim\end@frame}%
+  \check@frame\begin@frame\verb@shape\verb@size\@Verbatim}
+  {}
 \newcommand{\VerbatimInput}[1]
   {\@scaninput{\begin{Verbatim}}{#1}{\end{Verbatim}}}

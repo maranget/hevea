@@ -525,7 +525,6 @@ and start_inverb = parse
 and scan_byline = parse
     "\\end" [' ''\t']* '{' [^'}']+ '}'
     {let lxm = lexeme lexbuf in
-    prerr_endline ("BYLINE: "^ !Scan.cur_env^" scanned="^lxm) ;
     let env = env_extract lxm in
     if
       (not !input_verb || Stack.empty stack_lexbuf)

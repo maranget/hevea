@@ -1,5 +1,6 @@
   
 version 1.06-5
+  - small simplification fancyvrb
   - \sbox lrbox finally ok ?
   - New \@getprintnostyle primitive
   - Leading spaces in \usepackage{pkg1, pgk2}

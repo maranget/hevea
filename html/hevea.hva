@@ -167,9 +167,10 @@
 {\@locname{#1}{\purple[\@bibread{#1}]}}
 %%% Environment document.
 \newcommand{\@bodyargs}{}
-\newcommand{\@meta}{\@print{<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-}%
-\@print{<META name="GENERATOR" content="hevea }\usebox{\@heveaversion}\@print{">
+\newcommand{\@meta}
+{\begin{rawhtml}
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<META name="GENERATOR" content="hevea \end{rawhtml}\usebox{\@heveaversion}\@print{">
 }}
 \newenvironment{document}{%
 \@end{document}
