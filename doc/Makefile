@@ -1,4 +1,5 @@
 LATEX=latex
+PDFLATEX=pdflatex
 GPIC=gpic
 HEVEA=hevea
 HEVEAOPTS=-fix -exec xxdate.exe
@@ -22,19 +23,23 @@ byte:
 	export HEVEADIR=.. ;\
 	$(MAKE) $(MFLAGS) HEVEA="$(HEVEAOPTS)" HACHAOPTS="$(HACHAOPTS)" HEVEA="../hevea.byte -fix" HACHA=../hacha.byte IMAGEN=../imagen all
 
-tmp.tex: manual.tex version.tex
-	$(GPIC) -t < manual.tex > tmp.tex
+tmp.tex: text.tex
+	$(GPIC) -t < text.tex > tmp.tex
 
-manual.html: manual.hva tmp.tex
-	${HEVEA} $(HEVEAOPTS) manual.hva tmp.tex -o manual.html
-	$(MAKE) $(MFLAGS) images
+manual.html: manual.hva  macros.tex version.tex tmp.tex
+	${HEVEA} $(HEVEAOPTS) manual.hva manual.tex
 
-manual.dvi: tmp.tex
-	$(LATEX) < /dev/null tmp.tex &&\
-	$(LATEX) < /dev/null tmp.tex &&\
-	makeindex tmp.idx &&\
-	$(LATEX) < /dev/null tmp.tex &&\
-	mv tmp.dvi manual.dvi
+manual.dvi: manual.tex macros.tex version.tex tmp.tex
+	$(LATEX) < /dev/null manual.tex &&\
+	$(LATEX) < /dev/null manual.tex &&\
+	makeindex manual.idx &&\
+	$(LATEX) < /dev/null manual.tex
+
+pdfmanual.pdf: pdfmanual.tex macros.tex version.tex tmp.tex
+	$(PDFLATEX) < /dev/null pdfmanual.tex &&\
+	$(PDFLATEX) < /dev/null pdfmanual.tex &&\
+	makeindex pdfmanual.idx &&\
+	$(PDFLATEX) < /dev/null pdfmanual.tex
 
 index.html: manual.html
 	$(HACHA) $(HACHAOPTS) manual.html
@@ -75,7 +80,7 @@ RELEASENAME=hevea-$(VERSION)
 FTPDIR=/home/tobago/para-ftp/hevea
 UNSTABLE=
 
-dorelease: byte doversion
+dorelease: byte pdfmanual.pdf doversion
 # hevea relase
 	cd $(RELEASEDIR) ; rm -rf $(RELEASENAME) ;\
 	cvs -d $(CVSDIR) export  $(RELEASEOPT) -l htmlgen htmlgen/html htmlgen/text htmlgen/info ;\
@@ -87,6 +92,7 @@ dorelease: byte doversion
 	rm -rf $(RELEASEDIR)/$(RELEASENAME)-manual-dvi
 	mkdir $(RELEASEDIR)/$(RELEASENAME)-manual-dvi
 	cp manual.dvi $(RELEASEDIR)/$(RELEASENAME)-manual-dvi
+	cp pdfmanual.pdf $(RELEASEDIR)/$(RELEASENAME)-manual.pdf
 	cp blob.ps cloche.ps int.ps realblob.ps rquote.ps blob2.ps\
 home.ps intd.ps round.ps xfd.ps $(RELEASEDIR)/$(RELEASENAME)-manual-dvi
 	rm -rf $(RELEASEDIR)/$(RELEASENAME)-manual
@@ -129,7 +135,7 @@ cleanall: clean
 	rm -f manual.dvi manual.ps manual[0-9][0-9][0-9].html *_motif.gif \
 	manual*.gif tmp.* *.image.tex manual.html index.html faq.html\
 	 hevea.spec manual.txt manual.info manual.info-[0-9]\
-	browser.html cutname.html
+	browser.html cutname.html pdfmanual.pdf
 
 include ../libs.def
 RPMLIB=/usr/lib/hevea

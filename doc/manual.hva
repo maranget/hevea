@@ -14,3 +14,6 @@
 \renewcommand{\@indexsection}[1]{\@isection{#1}\aname{@index}{}}
 \renewcommand{\cuttingunit}{part}
 \renewcommand{\@footnotelevel}{section}
+\let\latexsection\section
+\newcommand{\pdfsection}[1]{}
+\newcommand{\pdfpart}[2]{}

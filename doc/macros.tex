@@ -1,0 +1,60 @@
+%%%%%%%%%%% PDF stuff
+%%BEGIN LATEX
+\ifpdf
+\newcount\pdflabel
+\pdflabel=1
+\def\pdfpart#1#2{
+\pdfdest num \pdflabel fit
+\pdfoutline goto num \pdflabel count #1 {\Alph{part}. #2}
+\global\advance\pdflabel by 1
+}
+\def\pdfsection#1{
+\typeout{Coucou: \thesection. #1}
+\pdfdest num \pdflabel fit
+\pdfoutline goto num \pdflabel {\thesection. #1}
+\global\advance\pdflabel by 1
+}
+\let\latexsection\section
+\renewcommand{\section}[2][!*!]
+  {\ifthenelse{\equal{#2}{*}}{\latexsection#2}
+  {\ifthenelse{\equal{#1}{!*!}}{\latexsection{#2}}{\latexsection[#1]{#2}}
+  \pdfsection{#2}}}
+\else
+\let\latexsection\section
+\newcommand{\pdfsection}[1]{}
+\newcommand{\pdfpart}[2]{}
+\fi
+%%END LATEX
+%%%%%% Numbering
+\renewcommand{\thepart}{\Alph{part}}
+\renewcommand{\numberline}[1]{#1\quad}
+%%%%%%%%%%%%%%%%%%%%
+\newcommand{\commandname}[1]{{\tt #1}}
+\newcommand{\filename}[1]{{\em #1}}
+\urldef{\heveaurl}{\url}{http://pauillac.inria.fr/~maranget/hevea/}
+\newcommand{\urlex}[1]{\footahref{\heveaurl/examples/#1}{\texttt{#1}}}
+\newcommand{\localurl}[1]{\footahref{\heveaurl/doc/#1}{\texttt{#1}}}
+\newcommand{\myrule}{\rule{\linewidth}{.05ex}}
+\newenvironment{htmlout}
+{\begingroup\linewidth=.8\linewidth\begin{quote}%
+\parskip=0pt\parindent=0pt\myrule\par}
+{\par\vspace*{-.5\baselineskip}\myrule\end{quote}\endgroup}
+\newenvironment{latexout}{\begin{htmlout}}{\end{htmlout}}
+\newenvironment{showlatex}{}{}
+\newcommand{\defocc}[1]{\textit{#1}}
+\newcommand{\comindex}[1]{\index{#1@\texttt{\char92#1}}}
+\newcommand{\comdefindex}[1]{\index{#1@\texttt{\char92#1}|defocc}}
+\newcommand{\ttindex}[2]{\index{#1@\texttt{#1} #2}}
+\newcommand{\ttdefindex}[2]{\index{#1@\texttt{#1} #2|defocc}}
+\newcommand{\envindex}[1]{\ttindex{#1}{environment}}
+\newcommand{\envdefindex}[1]{\ttdefindex{#1}{environment}}
+\newcommand{\countindex}[1]{\ttindex{#1}{counter}}
+\newcommand{\boolindex}[1]{\ttindex{#1}{boolean register}}
+%%%%%%
+\urldef{\ctan}{\url}{ftp://ftp.tex.ac.uk/tex-archive/macros/latex}
+\urldef{\ctanold}{\url}{ftp://ftp.tex.ac.uk/tex-archive/macros/latex209}
+%%%%%%
+\newcommand{\image}[1]
+{\ifhevea\imgsrc{#1.gif}\else
+\ifpdf\includegraphics{#1.png}\else
+\includegraphics{#1.ps}\fi\fi}

@@ -60,7 +60,7 @@
 \let \oldspecials \dospecials 
 \def \dospecials {\oldspecials \do\:\do\!\do \?\do\;}
 
-\scrollmode
+%\scrollmode
 
 \makeatletter
 %===========================================================================

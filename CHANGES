@@ -1,4 +1,7 @@
 vesrion 1.05-7
+  - PDF manual
+  - ``Environments'' toimage and verbimage do not define scope in latex
+    anymore.
   - Some patches in array formats.
   - New ``cutflow'' feature in hacha.
   - Bad interaction beeteen new indexenv code and multiple indexes :

@@ -21,9 +21,9 @@
   \math@fontsfalse\selectfont
 #2%
 }}%
-\newcommand{\hevea}{H\kern-.15em\protect\heveasmup{.2ex}{E}\kern-.15emV\kern-.15em\protect\heveasmup{.2ex}{E}\kern-.15emA}%
-\newcommand{\hacha}{H\kern-.15em\protect\heveasmup{.2ex}{A}\kern-.15emC\kern-.1em\protect\heveasmup{.2ex}{H}\kern-.15emA}%
-\newcommand{\html}{\protect\heveasmup{0.ex}{HTML}}
+\DeclareRobustCommand{\hevea}{H\kern-.15em\heveasmup{.2ex}{E}\kern-.15emV\kern-.15em\heveasmup{.2ex}{E}\kern-.15emA}%
+\DeclareRobustCommand{\hacha}{H\kern-.15em\heveasmup{.2ex}{A}\kern-.15emC\kern-.1em\heveasmup{.2ex}{H}\kern-.15emA}%
+\DeclareRobustCommand{\html}{\protect\heveasmup{0.ex}{HTML}}
 %%%%%%%%% Hyperlinks hevea style
 \newcommand{\ahref}[2]{{#2}}
 \newcommand{\ahrefloc}[2]{{#2}}
@@ -38,7 +38,6 @@
 {%url package is not loaded
 \let\url\ahref\let\oneurl\ahrefurl\let\footurl\footahref}
 {}}
-\makeatother
 %% Void cutting instructions
 \newcounter{cuttingdepth}
 \newcommand{\cuttingunit}{}
@@ -59,9 +58,9 @@
 \newenvironment{latexonly}{}{}
 \newenvironment{verblatex}{}{}
 %%%% Image file stuff
-\def\toimage{\expandafter\ifx\csname graph\endcsname\relax \csname newbox\endcsname\graph\fi}
-\def\endtoimage{\global\setbox\graph=\box\graph}
-\def\verbimage{\expandafter\ifx\csname graph\endcsname\relax \csname newbox\endcsname\graph\fi}
-\def\endverbimage{\global\setbox\graph=\box\graph}
+\def\toimage{\endgroup}
+\def\endtoimage{\begingroup\def\@currenvir{toimage}}
+\def\verbimage{\endgroup}
+\def\endverbimage{\begingroup\def\@currenvir{verbimage}}
 \newcommand{\imageflush}[1][]{}
-
+\makeatother
