@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.63 2004-11-26 13:13:05 maranget Exp $"
+let header = "$Id: text.ml,v 1.64 2005-03-04 15:56:35 maranget Exp $"
 
 
 open Misc
@@ -966,14 +966,11 @@ let do_item isnum =
     do_put "\n- "
 ;;
 
-let item () = do_item false
-and nitem () = do_item true
+let item _ = do_item false
+and nitem _ = do_item true
 ;;
 
-let item_with_class s = do_item false
-;;
-    
-let ditem scan arg =
+let ditem scan arg _ _ =
   if !verbose > 2 then begin
     prerr_string "ditem: stack=";
     pretty_stack out_stack
@@ -991,9 +988,6 @@ let ditem scan arg =
   if flags.dcount <> "" then scan("\\refstepcounter{"^flags.dcount^"}");
   true_scan ("\\makelabel{"^arg^"}") ;
   do_put_char ' '
-;;
-
-let ditem_with_class scan arg s1 s2 = ditem scan arg
 ;;
 
 let erase_block s = 

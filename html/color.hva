@@ -1,6 +1,8 @@
 \@primitives{color}
 \newcommand{\color}[2][!*!]{\@fontcolor{\@getcolor[#1]{#2}}}
 \newcommand{\textcolor}[3][!*!]{{\color[#1]{#2}#3}}
+\newcommand{\colorbox}[3][!*!]
+{{\@span{STYLE="background-color:\@getstylecolor[#1]{#2}"}#3}}
 \newenvironment{bgcolor}[2][CELLPADDING=10]
   {\@open{TABLE}{#1}\@open{TR}{}\@open{TD}{BGCOLOR=\@getcolor{#2}}}
   {\@close{TD}\@close{TR}\@close{TABLE}}

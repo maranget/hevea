@@ -177,11 +177,13 @@
 \let\@date\relax\newsavebox{\@@date}%
 \newcommand{\date}[1]{\gdef{\@date}{#1}}
 %% Lists
+\setenvclass{li-itemize}{li-itemize}
 \newcommand{\item}[1][]{\warning{\item outside a list-making environment}}
 \newcommand{\@itemitemize}[1][!*!]
-{\@itemize@li\ifthenelse{\equal{#1}{!*!}}{}{\warning{Optional argument to \item in itemize environment}{#1}}}
+{\@itemize@li{\envclass@attr{li-itemize}}\ifthenelse{\equal{#1}{!*!}}{}{\warning{Optional argument to \item in itemize environment}{#1}}}
+\setenvclass{li-enumerate}{li-enumerate}
 \newcommand{\@itemenumerate}[1][!*!]
-{\stepcounter{\@itemcount}\@enumerate@linum\ifthenelse{\equal{#1}{!*!}}{}{\warning{Ignored optional argument to \item in enumerate enironment}}}
+{\stepcounter{\@itemcount}\@enumerate@linum{\envclass@attr{li-enumerate}}\ifthenelse{\equal{#1}{!*!}}{}{\warning{Ignored optional argument to \item in enumerate enironment}}}
 %environement itemize
 \setenvclass{itemize}{itemize}
 \newenvironment{itemize}
@@ -232,24 +234,34 @@
 %% Remove these to get original behaviour
 %
 \setenvclass{list}{list}
+\setenvclass{dt-list}{dt-list}
+\setenvclass{dd-list}{dd-list}
 \newenvironment{list}[3][!*!]
-  {\ifthenelse{\equal{#1}{!*!}}{\@open{DL}{\envclass@attr[ ]{list}COMPACT=compact}}{\@open{DL}{\envclass@attr{list}}}%
-  \renewcommand{\item}[1][#2]{\@list@dtdd{##1}}%
+  {\ifthenelse{\equal{#1}{!*!}}{\@open{DL}{\envclass@attr[ ]{list}COMPACT="compact"}}{\@open{DL}{\envclass@attr{list}}}%
+  \renewcommand{\item}[1][#2]{\@dtdd{##1}{\envclass@attr{dt-list}}{\envclass@attr{dd-list}}}%
   \@forcecommand{\makelabel}[1]{##1}%
   #3%exec
 }{\@close{DL}}
 \setenvclass{description}{description}
+\setenvclass{dt-description}{dt-description}
+\setenvclass{dd-description}{dd-description}
 \newenvironment{@list@description}[3][!*!]
   {\ifoptarg
    \@open{DL}{\envclass@attr{description}}\else
    \@open{DL}{\envclass@attr[ ]{description}COMPACT=compact}\fi
-  \renewcommand{\item}[1][#2]{\@description@dtdd{##1}}%
+  \renewcommand{\item}[1][#2]{\@dtdd{##1}{\envclass@attr{dt-description}}{\envclass@attr{dd-description}}}%
   \@forcecommand{\makelabel}[1]{##1}%
   #3%exec
 }{\@close{DL}}
 \newenvironment{description}{\begin{@list@description}{}{\renewcommand{\makelabel}[1]{\textbf{##1}}}}{\end{@list@description}}
 \setenvclass{trivlist}{trivlist}
-\newenvironment{trivlist}{\setenvclass{list}{\getenvclass{trivlist}}\begin{list}{}{}}{\end{list}}
+\setenvclass{dt-trivlist}{dt-trivlist}
+\setenvclass{dd-trivlist}{dd-trivlist}
+\newenvironment{trivlist}
+{\setenvclass{list}{\getenvclass{trivlist}}%
+\setenvclass{dt-list}{\getenvclass{dt-trivlist}}%
+\setenvclass{dd-list}{\getenvclass{dd-trivlist}}%
+\begin{list}{}{}}{\end{list}}
 %% Input...
 \newcommand{\listfiles}{}
 %% Line breaking
@@ -542,7 +554,13 @@
 \def\hsize{@percent}
 \def\baselineskip{1ex}
 %%%%%%%%%%%%%%%%% Toc
-\newenvironment{tocenv}{\begin{itemize}}{\end{itemize}}
+\newstyle{.toc}{list-style:none;}
+\setenvclass{toc}{toc}
+\setenvclass{li-toc}{li-toc}
+\newenvironment{tocenv}
+{\setenvclass{itemize}{\getenvclass{toc}}%
+\setenvclass{li-itemize}{\getenvclass{li-toc}}%
+\begin{itemize}}{\end{itemize}}
 \newcommand{\tocitem}[1][]{\ifoptarg\item[#1]\else\item\fi}
 %%%%%%%%tocname changed to contentsname (standard)
 \newcommand{\contentsname}{Contents}

@@ -21,22 +21,22 @@
 %% Define sectioning comands
 \AtBeginDocument
 {\newstyle{BODY}{backgroundcolor:white}%
-\setLATEXstyle{title}
+\newstyle{.title}
 	{padding:1ex;background:\@getstylecolor{title}}%
-\setLATEXstyle{titlemain}
+\newstyle{.titlemain}
 	{padding:1ex;background:\@getstylecolor{titlemain}}%
-\setLATEXstyle{titlerest}
+\newstyle{.titlerest}
 	{padding:1ex;background:\@getstylecolor{titlerest}}%
-\setLATEXstyle{part}
+\newstyle{.part}
 	{padding:1ex;background:\@getstylecolor{part}}%
-\setLATEXstyle{section}
+\newstyle{.section}
 	{padding:.5ex;background:\@getstylecolor{section}}%
-\setLATEXstyle{subsection}
+\newstyle{.subsection}
 	{padding:0.3ex;background:\@getstylecolor{subsection}}%
-\setLATEXstyle{subsubsection}
+\newstyle{.subsubsection}
 	{padding:0.5ex;background:\@getstylecolor{subsubsection}}%
 \ifthenelse{\equal{\@base}{book}}
-{\setLATEXstyle{chapter}{padding:0.5ex;background:\@getstylecolor{chapter}}}
+{\newstyle{.chapter}{padding:0.5ex;background:\@getstylecolor{chapter}}}
 {}}
 
 

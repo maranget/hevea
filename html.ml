@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: html.ml,v 1.89 2005-02-25 17:49:18 maranget Exp $" 
+let header = "$Id: html.ml,v 1.90 2005-03-04 15:56:35 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -147,7 +147,7 @@ let iso_translate = function
 
 let iso c =
   if !Lexstate.raw_chars then
-    (r_translate.[0] <- c ; r_translate)
+    (String.unsafe_set r_translate 0 c ; r_translate)
   else if !Parse_opts.iso then
     quote_char c
   else
@@ -289,33 +289,11 @@ let set_dt s = flags.dt <- s
 and set_dcount s = flags.dcount <- s
 ;;
 
-let item () =
-  if !verbose > 2 then begin
-    prerr_string "item: stack=" ;
-    pretty_stack out_stack
-  end ;
-  let mods = all_to_pending !cur_out in
-  clearstyle () ;
-  !cur_out.pending <- mods ;
-  let saved =
-    if flags.nitems = 0 then begin
-      let _ = forget_par () in () ;
-      Out.to_string !cur_out.out
-    end else  "" in
-  flags.nitems <- flags.nitems+1;
-  try_flush_par Now ;
-  do_put "<LI>" ;
-  do_put saved
-;;
-
-let nitem = item
-;;
-
 (*********************************************
 *  Allows things like <LI CLASS=li-itemize>  *
 *********************************************)
 
-let item_with_class s =
+let item s =
   if !verbose > 2 then begin
     prerr_string "item: stack=" ;
     pretty_stack out_stack
@@ -332,10 +310,12 @@ let item_with_class s =
   try_flush_par Now ;
   do_put ("<LI "^s^">") ;
   do_put saved
-;;
 
-let ditem scan arg =
+let nitem = item
+
+let ditem scan arg s1 s2 =
   if !verbose > 2 then begin
+    Printf.eprintf "DITEM: «%s» «%s» «%s»\n" arg s1 s2 ;
     prerr_string "ditem: stack=" ;
     pretty_stack out_stack
   end ;
@@ -349,39 +329,14 @@ let ditem scan arg =
       (fun arg -> do_put saved ; scan arg)
     end else scan in
   try_flush_par Now ;
-  do_put "<DT>" ;
+  do_put ("<DT "^s1^">") ;
   !cur_out.pending <- mods ;
   flags.nitems <- flags.nitems+1;
   open_block INTERN "" ;
   if flags.dcount <> "" then scan ("\\refstepcounter{"^ flags.dcount^"}") ;
   true_scan ("\\makelabel{"^arg^"}") ;
   close_block INTERN ;
-  do_put "<DD>"
-;;
-
-let ditem_with_class scan arg s1 s2 =
-  if !verbose > 2 then begin
-    prerr_string "ditem: stack=" ;
-    pretty_stack out_stack
-  end ;
-  let mods = all_to_pending !cur_out in
-  clearstyle () ;
-  !cur_out.pending <- mods ;
-  let true_scan =
-    if flags.nitems = 0 then begin
-      let _ = forget_par () in () ;
-      let saved = Out.to_string !cur_out.out in
-      (fun arg -> do_put saved ; scan arg)
-    end else scan in
-  try_flush_par Now ;
-  do_put ("<DT"^s1^">") ;
-  !cur_out.pending <- mods ;
-  flags.nitems <- flags.nitems+1;
-  open_block INTERN "" ;
-  if flags.dcount <> "" then scan ("\\refstepcounter{"^ flags.dcount^"}") ;
-  true_scan ("\\makelabel{"^arg^"}") ;
-  close_block INTERN ;
-  do_put ("<DD"^s2^">")
+  do_put ("<DD "^s2^">")
 ;;
 
 let loc_name _ = ()

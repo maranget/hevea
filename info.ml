@@ -10,7 +10,7 @@
 (***********************************************************************)
 
 
-let header = "$Id: info.ml,v 1.33 2004-07-27 01:24:48 thakur Exp $"
+let header = "$Id: info.ml,v 1.34 2005-03-04 15:56:35 maranget Exp $"
 
 open Misc
 open Text
@@ -64,9 +64,7 @@ let box_around_display = Text.box_around_display;;
 let set_dcount =Text.set_dcount;;
 let item = Text.item;;
 let nitem = Text.nitem;;
-let item_with_class = Text.item_with_class;;
 let ditem = Text.ditem;;
-let ditem_with_class = Text.ditem_with_class;;
 let erase_block =Text.erase_block;;
 let open_group =Text.open_group;;
 let open_aftergroup =Text.open_aftergroup;;

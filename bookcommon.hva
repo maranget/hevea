@@ -7,6 +7,13 @@
 \newcounter {paragraph}[subsubsection]
 \newcounter {subparagraph}[paragraph]
 \newcounter {footnote}[chapter]
+\setenvclass{part}{part}
+\setenvclass{chapter}{chapter}
+\setenvclass{section}{section}
+\setenvclass{subsection}{subsection}
+\setenvclass{subsubsection}{subsubsection}
+\setenvclass{paragraph}{paragraph}
+\setenvclass{subparagraph}{subparagraph}
 \renewcommand{\thefootnote}{\fnsymbol{footnote}}
 \newcounter {anchornote}
 \renewcommand \theanchornote{{\@nostyle\arabic{chapter}.\arabic{anchornote}}}
@@ -26,8 +33,7 @@
 \newcommand{\appendix}{%
 \renewcommand{\chaptername}{\appendixname}%
 \setcounter{chapter}{0}%
-\renewcommand{\thechapter}{\Alph{chapter}}%
-}
+\renewcommand{\thechapter}{\Alph{chapter}}}
 \newcounter{equation}[chapter]
 \renewcommand{\theequation}{\thechapter.\arabic{equation}}
 \newcounter{figure}[chapter]

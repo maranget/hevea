@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.257 2005-03-03 15:33:28 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.258 2005-03-04 15:56:35 maranget Exp $ *)
 
 
 {
@@ -2081,33 +2081,30 @@ def_fun "\\lowercase" Subst.lowercase ;
 ;;
 
 (* list items *)
-def_code "\\@li" (fun _ -> Dest.item ()) ;
+(*
 def_code "\\@linum" (fun _ -> Dest.nitem ()) ;
-def_code "\\@itemize@li" 
-  (fun _ -> Dest.item_with_class " CLASS=li-itemize ") ;
-def_code "\\@enumerate@linum" 
-  (fun _ -> Dest.item_with_class " CLASS=li-enumerate ") ;
+def_code "\\@li" (fun _ -> Dest.item ()) ;
 def_code "\\@dt"
   (fun lexbuf ->
     let arg = subst_arg lexbuf in
     Dest.ditem (scan_this main) arg ;
     check_alltt_skip lexbuf)
 ;;
+*)
 
-def_code "\\@list@dtdd"
+def_code "\\@itemize@li" 
+  (fun lexbuf -> Dest.item (get_prim_arg lexbuf)) ;
+def_code "\\@enumerate@linum" 
+  (fun lexbuf -> Dest.nitem (get_prim_arg lexbuf)) ;
+def_code "\\@dtdd"
   (fun lexbuf ->
     let arg = subst_arg lexbuf in
-    Dest.ditem_with_class (scan_this main) arg " CLASS=dt-list " " CLASS=dd-list ";
+    let dtclass = get_prim_arg lexbuf in
+    let ddclass = get_prim_arg lexbuf in
+    Dest.ditem (scan_this main) arg dtclass ddclass ;
     check_alltt_skip lexbuf)
 ;;
 
-def_code "\\@description@dtdd"
-  (fun lexbuf ->
-    let arg = subst_arg lexbuf in
-    Dest.ditem_with_class (scan_this main) arg " CLASS=dt-description "
-      " CLASS=dd-description ";
-    check_alltt_skip lexbuf)
-;;
     
 (* Html primitives *)
 def_code "\\@open"
@@ -2234,7 +2231,11 @@ def_code "\\@styleattr"
  (fun lexbuf ->
     let tag = get_prim_arg lexbuf in
     let attr = get_prim_arg lexbuf in
-    Dest.open_mod (StyleAttr (tag, attr)))
+    Dest.open_mod (StyleAttr (tag, attr))) ;
+def_code "\\@span"
+ (fun lexbuf ->
+    let attr = get_prim_arg lexbuf in
+    Dest.open_mod (StyleAttr ("SPAN", attr)))
 ;;
 
 def_code "\\@fontcolor"  

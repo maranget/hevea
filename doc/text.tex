@@ -41,6 +41,13 @@ Chesnay Cedex. {\tt \mailto{Luc.Maranget@inria.fr}}}}
   {margin:1ex 3ex;padding:1ex;
    color:maroon;
    background:\@getstylecolor[named]{Apricot}}
+\newcommand{\emitstyle}[2]
+{\newstyle{.toc#1}{list-style:none;border-left:1ex solid
+#2;padding:0ex 1ex;}}
+\emitstyle{1}{\@getstylecolor{Sepia}}
+\emitstyle{2}{\@getstylecolor{Brown}}
+\emitstyle{3}{\@getstylecolor{Tan}}
+\emitstyle{4}{\@getstylecolor{Melon}}
 \begin{document}
 
 \maketitle
@@ -2301,6 +2308,7 @@ elements with neither opening tag nor closing tag.
 \index{"@close@\texttt{\char92"@close}|defocc}
 \index{"@style@\texttt{\char92"@style}|defocc}
 \index{"@styleattr@\texttt{\char92"@styleattr}|defocc}
+\index{"@span@\texttt{\char92"@span}|defocc}
 \index{"@nostyle@\texttt{\char92"@nostyle}|defocc}
 \index{"@clearstyle@\texttt{\char92"@clearstyle}|defocc}
 \index{"@fontsize@\texttt{\char92"@fontsize}|defocc}
@@ -2367,7 +2375,9 @@ attribute~\textit{attr}
 active. This primitive behaves as \verb+\@style+, except that the
 opennig tag has attributes.
 This primitive may prove useful for introducing \texttt{SPAN} elements.
-Note that neither argument is processed.
+Note that both argument are processed.
+\item[{{\tt\char92 @span\char123}{\it attr}{\tt\char125}}]
+A shorthand for \verb+\@styleattr{+\textit{attr}\verb+}+.
 \item[{\tt\char92 @fontsize\char123}{\it int}{\tt\char125}]
 Declare the text-level element \verb+FONT+ with attribute
 \verb+SIZE=+\textit{int} as active. Note that \textit{int} must
@@ -2490,7 +2500,7 @@ as an optional argument. These attributes are the ones of the
 \comdefindex{newstyle}
 
 \subsection{Overview}
-Starting with version~1.08, \hevea{} offers support for stylesheets
+Starting with version~1.08, \hevea{} offers support for style sheets
 (of the CSS variant see~\cite{css}).
 
 Style sheets provide enhanced expressivity. For instance, it is now possible
@@ -2498,7 +2508,7 @@ to get ``real'' (whatever real means here) small caps in {\html}, and in a
 relatively standard manner. There are others, discrete, maybe
 unnoticeable, similar enhancements.
 
-However, style sheet mostly provide \hevea{} users with an additional
+However, style sheet mostly provides \hevea{} users with an additional
 mecanism to customize their documents. To do so, users should probably
 get familiar with how \hevea{} uses style sheets in the first
 place.
@@ -2527,8 +2537,9 @@ define them.
 
 If you wish to change the style of section headers, loading the
 \texttt{fancysection} package is the most appropriate solution.
-However, one can also proceeed more directely, by appending new definitions to the \emph{document style
-sheet},with the command \verb+\newstyle+.
+However, one can also proceeed more directly, by appending new
+definitions to the \emph{document style
+sheet}, with the command \verb+\newstyle+.
 For instance, here is a \verb+\newstyle+ to add style for subsections.
 \begin{alltt}
   \char92newstyle\{.subsection\}\{\stylex\}
@@ -2573,13 +2584,13 @@ the document preamble.
 \begin{alltt}
 \char92newstyle\{.verbatim\}\{margin:1ex 1ex;padding:1ex;background:\char92#ccffcc;\}
 \end{alltt}
-Observe that, in the explicit numerical color argument above the
+Observe that, in the explicit numerical color argument above, the
 hash character ``\texttt{\#}'' has to be escaped.
 
 \subsection{Changing the style of some instances of an environment}\
 \comdefindex{setenvclass}\comdefindex{getenvclass}%
-One can also change the style class  attached to a given environment
-and thus control styling of environments more precisely.
+One can also change the style class  attached to a given instance of
+an environment and thus control styling of environments more precisely.
 
 As a matter of fact, the name of the class attribute of
 environment~\textit{env} is referred to through an indirection, by
@@ -2589,7 +2600,7 @@ The class attribute can be changed with the command
 The~\verb+\setenvclass+ command internally defines a command
 \verb+\+\textit{env}\verb+@class+, whose content is read
 by the \verb+\getenvclass+ command. As a consequeuce, the class
-attribute of environments follow normal scoping rules.
+attribute of environments follows normal scoping rules.
 \label{getstylecolor:example}
 For instance, here is how to change the style of \emph{one} \texttt{verbatim}
 environnment.
@@ -2606,9 +2617,10 @@ of environment \texttt{verbatim} is restored to its default value
 \index{"@getstylecolor@\texttt{\char92"@getstylecolor}}
 This example also shows two new ways to specify colors in style
 definition, with a
-conventional \html~color name (here {\ifhevea\maroon\fi marron}) or as
+conventional \html~color name (here {\ifhevea\maroon\fi maroon}) or as
 a high-level color (see Section~\ref{color:package}), given as an argument to
-the \verb+\@getstylecolor+ internal command.
+the \verb+\@getstylecolor+ internal command
+(here \colorbox[named]{Apricot}{\texttt{Apricot}} from the \texttt{named} color model).
 
 A good way of specifying style class changes probably is by defining
 new environments.
@@ -2630,17 +2642,14 @@ style.
 \end{flashyverbatim}\end{htmlonly}
 
 \subsection{Which Class Affects\label{whatclass} What}
-We now review the various style class defined by \hevea.
-
-\subsubsection{Simple environments}
 
 Generally, the syling of environment~\textit{env} is performed through
 the the
-\verb+\getclass{+\textit{env}\verb+}+/\verb+\setclass{+\textit{env}\verb+}{+\ldots\verb+}+
-mecanism, which \verb+\getclass{+\textit{env}\verb+}+ producing the
+\verb+\getenvclass{+\textit{env}\verb+}+/\verb+\setenvclass{+\textit{env}\verb+}{+\ldots\verb+}+
+mecanism, with \verb+\getenvclass{+\textit{env}\verb+}+ producing the
 default value of \textit{env}.
 
-Concretely, this means that most of the environments are styled with
+Concretely, this means that most of the environments are styled through
 an homonymous style class. Here is a non-exhaustive list of such
 environments
 \begin{quote}
@@ -2651,11 +2660,82 @@ Section~\ref{mathpartir:package}), lstlisting
 (cf. Section~\ref{listings:package}), etc.
 \end{quote}
 
+All sectionning commands (\verb+\part+, \verb+\section+ etc.)
+output~\texttt{H}\textit{n} block-level  elements, which are styled
+through style classes named \texttt{part}, \texttt{section}, etc.
+
+List making-environement introduce extra style classes for items.
+More specifically, for list-making environments
+\texttt{itemize} and \texttt{enumerate},
+\texttt{LI} elements are styled as follows:
+\begin{center}
+\begin{tabular}{p{.4\linewidth}p{\linewidth}}
+\begin{verbatim}
+<UL CLASS="itemize">
+<LI CLASS="li-itemize"> ...
+</UL>
+\end{verbatim}
+&
+\begin{verbatim}
+<OL CLASS="enumerate">
+<LI CLASS="li-enumerate"> ...
+</OL>
+\end{verbatim}
+\end{tabular}
+\end{center}
+That is, \verb+LI+ elements are styled as environments, the key name
+being \texttt{li-}\textit{env}.
 
 
-We now specify which definitions have effects on what macros. The
-class names closely resemble the macro and environment names, and should
-be relatively easy to keep in mind.
+The \texttt{description}, \texttt{trivlist} and \texttt{list} environments
+(which all get translated into \texttt{DL} elements) are styled in
+a similar way, internal \texttt{DT} and \texttt{DD} elements being
+styles through names \texttt{dt-}\textit{env} and
+\texttt{dd-}\textit{env} respectively.
+
+\subsection{A few examples}
+\subsubsection{List styling, with itemize}
+\newcounter{toc}
+\newenvironment{toc}
+{\stepcounter{toc}\setenvclass{itemize}{toc\thetoc}\begin{itemize}}
+{\addtocounter{toc}{-1}\end{itemize}}
+Our idea is highlight lists with a left border whose color fades
+while lists are nested.
+Such a design may be appropriate for tables of content.
+\begin{htmlonly}
+\begin{toc}
+\item Part~A
+\begin{toc}
+\item Chapter~I
+\begin{toc}
+\item Section I.1
+\item Section I.2
+\end{toc}
+\item Chapter~II
+\begin{toc}
+\item Section II.1
+\item Section II.2
+\end{toc}
+\item Chapter~III
+\end{toc}
+\item Part~B
+\begin{toc}
+\item Chapter~IV
+\begin{toc}
+\item Section IV.1
+\begin{toc}
+\item Section IV.1.a
+\item Section IV.1.b
+\end{toc}
+\item Section IV.2
+\end{toc}
+\item Chapter~V
+\end{toc}
+\end{toc}
+\end{htmlonly}
+
+
+
 
 \paragraph{Itemize}\index{styles for!{\tt itemize} environment}
 Governed by classes \emph{itemize} and \emph{li-itemize}. Given input
@@ -4683,7 +4763,8 @@ the images being generated by \texttt{imagen}.
 \newcommand{\showcolor}[1]{\texttt{#1}}
 %END LATEX
 \hevea{} partly implements the \texttt{color} package.
-Implemented commands are \verb+\definecolor+, \verb+\color+ and
+Implemented commands are \verb+\definecolor+, \verb+\color+,
+\verb+\colorbox+ and
 \verb+\textcolor+. Other commands from the \texttt{color} package do
 not exist.
 At startup,
@@ -4826,12 +4907,8 @@ document background color.
 
 \subsubsection{The \texttt{bgcolor} environment}
 \envdefindex{bgcolor}\label{bgcolor}
-Due to limitations in \html{} 3.2 (and 4.0 transitional viewed as
-3.2!), it is not possible to implement
-the \verb+\colorbox+ command for changing the background color inside
-a paragraph.
-
-However, \hevea{} features a
+With respect to the \LaTeX{} \texttt{color} package, \hevea{} features
+an additional
 \texttt{bgcolor} environment, for changing the backgroud color of some
 subparts of the document.
 The \texttt{bgcolor} environment is a displayed environment and it
@@ -5676,7 +5753,7 @@ since \hevea{}~implementation is more advanced for the former package.
 
 
 
-\subsection{Typesetting Computer Languages: the \texttt{listings} Package}
+\subsection{Typesetting \label{listings:package}Computer Languages: the \texttt{listings} Package}
 I strongly recommend using the
 \footahref{\ctan/contrib/listings/}{\texttt{listings}} package.
 Learning the user interface requires a little effort, but it is worth
@@ -5692,7 +5769,7 @@ giving \texttt{hevea} the command line option ``\texttt{-O}''
 (see Section~\ref{heveaoptions}).
 
 
-\subsection{The \texttt{mathpartir} package}\index{{\tt mathpartir} package}
+\subsection{The \label{mathpartir:package} \texttt{mathpartir} package}\index{{\tt mathpartir} package}
 
 The \texttt{mathpartir} package, authored by D.~R\'emy, essentially
 provides two features:

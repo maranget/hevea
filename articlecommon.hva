@@ -5,6 +5,12 @@
 \newcounter {subsubsection}[subsection]
 \newcounter {paragraph}[subsubsection]
 \newcounter {subparagraph}[paragraph]
+\setenvclass{part}{part}
+\setenvclass{section}{section}
+\setenvclass{subsection}{subsection}
+\setenvclass{subsubsection}{subsubsection}
+\setenvclass{paragraph}{paragraph}
+\setenvclass{subparagraph}{subparagraph}
 \newcounter {footnote}
 \renewcommand{\thefootnote}{\fnsymbol{footnote}}
 \newcounter {anchornote}
