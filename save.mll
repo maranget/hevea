@@ -13,7 +13,7 @@
 open Lexing
 open Misc
 
-let header = "$Id: save.mll,v 1.62 2002-05-21 13:38:54 maranget Exp $" 
+let header = "$Id: save.mll,v 1.63 2002-06-07 12:17:54 maranget Exp $" 
 
 let rec if_next_char  c lb =
   if lb.lex_eof_reached then
@@ -503,7 +503,8 @@ let arg_verbatim lexbuf = match first_char lexbuf with
        arg2 lexbuf
   | c ->
       let delim = String.make 1 c in
-      with_delim delim lexbuf
+      let next = init_kmp delim  in
+      eat_delim_init lexbuf delim next 0
 
 let xy_arg lexbuf = do_xyarg lexbuf
 } 

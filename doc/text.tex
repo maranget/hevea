@@ -2246,6 +2246,7 @@ output (cf. the examples in the next section).
 \end{itemize}
 
 
+\index{block-level elements}
 The general principle of \hevea{} is that \LaTeX{} environments
 \verb+\begin{+\textit{env}\verb+}+\ldots{}
 \verb+\end{+\textit{env}\verb+}+ get
@@ -2264,11 +2265,13 @@ elements with neither opening tag nor closing tag.
 \index{"@open@\texttt{\char92"@open}|defocc}
 \index{"@close@\texttt{\char92"@close}|defocc}
 \index{"@style@\texttt{\char92"@style}|defocc}
+\index{"@styleattr@\texttt{\char92"@style}|defocc}
 \index{"@nostyle@\texttt{\char92"@nostyle}|defocc}
 \index{"@fontsize@\texttt{\char92"@fontsize}|defocc}
 \index{"@fontcolor@\texttt{\char92"@fontcolor}|defocc}
 It is important to notice that primitive arguments \emph{are}
-processed (except for the \verb+\@print+ primitive). Thus,
+processed (except for the \verb+\@print+ primitive, and for some of
+the basic style primitives). Thus,
 some characters cannot be given directly (e.g. \verb+#+ and
 \verb+%+ must be given as \verb+\#+ and \verb+\%+).
 \begin{description}
@@ -2299,9 +2302,11 @@ Close \html{} block-level element \textit{BLOCK}.
 Note that \verb+\@open+ and \verb+\@close+ must be properly balanced.
 \end{description}
 
+\index{text-level elements}
 Text-level elements are managed differently. They are not seen
 as blocks that must be closed explicitely and they are replaced by the
-internal text-level declarations \verb+\@style+, \verb+\@fontsize+ and
+internal text-level declarations \verb+\@style+ (and
+\verb+\@styleattr+), \verb+\@fontsize+ and
 \verb+\@fontcolor+. Block-level elements (and \html{} groups)
 delimit the effect of such declarations.
 \begin{description}
@@ -2319,6 +2324,14 @@ Enclosed block-level elements are treated properly by closing {\it
 SHAPE} before them, and re-opening {\it SHAPE} inside them.
 The next text-level constructs exhibit similar behavior with respect
 to block-level elements.
+\item[{\tt\char92 @styleattr\char123}{\it NAME}{\tt\char125\char123}{\it
+attr}{\tt\char125}]\index{text-level elements!SPAN}
+Declare the text-level element \textit{NAME} with
+attribute~\textit{attr}
+active. This primitive behaves as \verb+\@style+, except that the
+opennig tag has attributes.
+This primitive may prove useful for introducing \texttt{SPAN} elements.
+Note that neither argument is processed.
 \item[{\tt\char92 @fontsize\char123}{\it int}{\tt\char125}]
 Declare the text-level element \verb+FONT+ with attribute
 \verb+SIZE=+\textit{int} as active. Note that \textit{int} must
@@ -2336,7 +2349,7 @@ numerical color arguments should be given as \verb+"\#+\textit{XXXXXX}\verb+"+.
 
 \item[{\tt\char92 @nostyle}]
 Close active text-level declarations and ignore further text-level
-declarations (such as \verb+\@style+, etc).
+declarations.
 The effect stops when the enclosing block-level element is closed.
 \end{description}
 

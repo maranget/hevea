@@ -1,4 +1,6 @@
 version 1.06+1
+   - Better error message for undefined defaults in keyval.
+   - Do not check comments before Save.arg_verbatim.
    - Added a new primitive \@styleattr
    - Almost complete multibib package.
    - Small bit of xypic (-> all \xymatrix are images).

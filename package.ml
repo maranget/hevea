@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.37 2002-05-21 13:38:54 maranget Exp $    *)
+(*  $Id: package.ml,v 1.38 2002-06-07 12:17:54 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -538,7 +538,11 @@ let do_setkey lexbuf =
         if value <> "" then
           scan_this main (csname^"{"^value^"}")
         else
-          scan_this main (csname^"@default")
+          let defname = csname^"@default" in
+          if Latexmacros.exists defname then
+            scan_this main defname
+          else
+            warning ("keyval, no default value for key: ``"^key^"''")
       end else
         warning ("keyval, uknown key: ``"^key^"''") ;
       do_rec ()
