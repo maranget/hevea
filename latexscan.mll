@@ -5,6 +5,15 @@ open Myfiles
 open Latexmacros
 open Html
 
+let push s e = s := e:: !s
+and pop s = match !s with
+  [] -> failwith "Empty stack"
+| e::rs -> s := rs ; e
+;;
+
+let stack_lexbuf = ref []
+;;
+
 let out_file = ref (Out.create_null ())
 ;;
 
@@ -57,8 +66,12 @@ and spaces_extract s =
 let binds s = String.get s 0 = '#'
 ;;
 
-let save_arg lexbuf =
-  let arg =  Save.arg lexbuf in
+let rec save_arg lexbuf =
+  let arg =
+    try Save.arg lexbuf
+    with Save.BadParse "EOF" ->
+      let lexbuf = pop stack_lexbuf in
+      save_arg lexbuf in
   if !verbose > 2 then
     prerr_endline ("Arg parsed: <"^arg^">") ;
   arg
@@ -87,20 +100,13 @@ let rec parse_args_norm pat lexbuf = match pat with
     end
 ;;
 
-let rec parse_nargs n lexbuf = match n with
-  0 -> []
-| _ ->
-   let arg = Save.arg lexbuf in
-   arg::parse_nargs (n-1) lexbuf
-;;
-
 
 type ok = No of string | Yes of string
 ;;
 
 let from_ok = function
-  Yes s -> s
-| No s  -> s
+  Yes s -> (Latexmacros.optarg := true ; s)
+| No s  -> (Latexmacros.optarg := false ; s)
 ;;
 
 let pretty_ok = function
@@ -108,8 +114,12 @@ let pretty_ok = function
 | No s  -> "-"^s^"-"
 ;;
 
-let parse_arg_opt def lexbuf =
-  let r = try Yes (Save.opt lexbuf) with Save.NoOpt -> No def in
+let rec parse_arg_opt def lexbuf =
+  let r = try Yes (Save.opt lexbuf) with
+    Save.NoOpt -> No def
+  | Save.BadParse "EOF" ->
+      let lexbuf = pop stack_lexbuf in
+      parse_arg_opt def lexbuf in
   if !verbose > 2 then begin
      Printf.fprintf stderr "Parse opt : %s" (pretty_ok r) ;
      prerr_endline ""
@@ -168,12 +178,6 @@ let pretty_formats f =
 ;;
 
 
-
-let push s e = s := e:: !s
-and pop s = match !s with
-  [] -> failwith "Empty stack"
-| e::rs -> s := rs ; e
-;;
 
 let if_level = ref 0
 ;;
@@ -683,26 +687,7 @@ rule  main = parse
     Image.put "\\box\\graph\n";
     iput_newpage () ;
     main lexbuf}
-| "\\epsf" ' '*
-    {let lxm = lexeme lexbuf in
-    let arg = Save.arg lexbuf in
-    let opt1 = save_opt "" lexbuf in
-    let opt2 = save_opt "" lexbuf in
-    Image.put lxm ;
-    iput_arg arg ;
-    iput_opt "" opt1 ;
-    iput_opt "" opt2 ;
-    Image.put_char '\n' ;
-    iput_newpage () ;
-    main lexbuf}
-| "\\special"
-   {let lxm = lexeme lexbuf in
-   let arg = save_arg lexbuf in
-   Image.put lxm ;
-   iput_arg arg ;
-   Image.put_char '\n' ;
-   iput_newpage () ;
-   main lexbuf}
+(* Styles and packages *)
 | "\\documentstyle"  | "\\documentclass"
     {let command = lexeme lexbuf in
     let opts = parse_args_opt [""] lexbuf in
@@ -722,7 +707,6 @@ rule  main = parse
      let filename = Save.input_arg lexbuf in
      if !verbose > 0 then
       prerr_endline ("input file: "^filename) ;
-     if !prelude then Image.put (lxm^"{"^filename^"}\n") ;
      let filename =
        if lxm = "\\bibliography" then
          (Filename.chop_extension (Location.get ())^".bbl")
@@ -739,11 +723,13 @@ rule  main = parse
               prerr_endline ("Closing file: "^filename) ;
             main b)
          lexbuf
-     with Not_found ->
+     with Not_found -> begin
        if !verbose > 0 then
          prerr_endline ("Not opening file: "^filename) ;
-       main lexbuf
-     | Failure m -> begin
+         if !prelude then Image.put (lxm^"{"^filename^"}\n") ;
+         main lexbuf
+       end
+     | Myfiles.Error m -> begin
          if !verbose > 0 then begin
            Location.print_pos () ;
            prerr_endline ("Warning: "^m) ;
@@ -807,7 +793,7 @@ rule  main = parse
          main lb in
        new_env math_env lexfun lexbuf
      end end}
-|   ("\\mbox" | "\\hbox" | "\\vbox" | "\\makebox") [^'{']* '{'
+| "\\hbox" [^'{']* '{'
     {if !in_math then begin
        push stack_in_math !in_math ;
        in_math := false ;
@@ -1057,6 +1043,7 @@ rule  main = parse
     {let lxm = lexeme lexbuf in
     let env = env_extract lxm in
     if env = "document" && !prelude then begin
+      Image.put "\\begin{document}\n";
       prelude := false ;
       Html.forget_par () ;
       Html.set_out !out_file
@@ -1239,8 +1226,6 @@ rule  main = parse
             Print str -> Html.put str
           | Print_arg i -> scan_this main stack.(i)
           | Print_fun (f,i) -> scan_this main (f stack.(i))
-          | Print_saved -> scan_this main !reg
-          | Save_arg i -> reg := stack.(i)
           | Print_count (f,i) ->
               let c = Counter.value_counter stack.(i) in
               Html.put (f c)
@@ -1256,12 +1241,17 @@ rule  main = parse
           | ItemDisplay   -> item_display ()
           | Subst body ->
             if !verbose > 2 then
-              Printf.fprintf stderr "user macro : %s\n" body ;
-            let lex_one = Lexing.from_string body in
+              Printf.fprintf stderr "user macro : %s\n" body ;            
+            let lex_one = Lexing.from_string body in             
             let body_instance = Subst.subst lex_one stack in
             if !verbose > 2 then
               Printf.fprintf stderr "subst: %s\n" body_instance ;
-            scan_this main body_instance
+            push stack_lexbuf lexbuf ;
+            let n = List.length !stack_lexbuf in
+            scan_this main body_instance ;
+            if List.length !stack_lexbuf = n then
+               let _ = pop stack_lexbuf in () ;
+            ()
           | IfCond (b,t,f) ->
              if !verbose > 2 then
                prerr_endline ("IfCond: "^if !b then "true" else "false") ;

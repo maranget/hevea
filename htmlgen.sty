@@ -6,13 +6,14 @@
 \@print{</TITLE></HEAD>}%
 \@print{<BODY>
 }%
+\@cutdef{part}{chapter}%
 }{%
 \@footnoteflush%
 \@print{</BODY>
 </HTML>
 }
 }
-
+\newenvironment{htmlonly}{}{}
 \newenvironment{itemize}{\@open{UL}{}}{\@close{UL}}
 \newenvironment{enumerate}{\@open{OL}{}}{\@close{OL}}
 \newenvironment{description}{\@open{DL}{}}{\@close{DL}}
@@ -62,6 +63,9 @@
 \def\hrule{\@print{<BR><HR><BR>}}
 \def\cases#1{\left\{\begin{array}{ltl}#1\end{array}\right.}
 %%%%%%%%%%% Footnotes
+\newcommand{\footnoterule}{\@print{<HR ALIGN=left WIDTH=50%>
+}%
+}
 \newcommand{\@fnmarktext}[1]{$^{\hbox{#1}}$}
 \newcommand{\@fnmarknote}[1]{{\Large #1}}
 \newcounter{savenote}
@@ -117,8 +121,13 @@
 \def\ldots{...}
 \def\dots{...}
 \def\cdots{...}
+%%% A few additional symbol in iso-latin char set
+\def\P{¶}
+\def\copyright{©}
+\def\pounds{£}
+\def\S{§}
+\def\emptyset{Ø}
 %index
-\def\tableofcontents{}
 \def\manual#1{\maroon #1}
 \def\cal{\red}
 
@@ -238,21 +247,34 @@
 \def\newdimen#1{}
 \def\displaystyle{}
 \def\linebreak{}
-\def\fbox#1{\begin{array}{|c|}\hline #1\end{array}}
-\def\nocite#1{}
 \newcommand{\sqrt}[1]{sqrt(#1)}
 \def\raggedbottom{}
 \def\emergencystretch#1{}
+%% Boxes
+%%% Boxes
+\def\fbox#1{\ifdisplay{\begin{array}{|c|}\hline#1\end{array}}\else{#1}\fi}
+\def\vbox#1{\hbox{#1}}
+\def\mbox#1{\hbox{#1}}
+\def\parbox#1#2{\hbox{#2}}
+%% Horizontal spacing
+\def\raise#1#2{#2}
+\def\kern#1{}
+\def\noindent{}
+%% Vertical spacing
 \def\null{}
 \def\cr{\\}
 \def\smallskip{\\}
 \def\vskip#1{\\}
 \def\medskip{\\}
 \def\bigskip{\\ \\}
+\def\vspace#1{\\}
+\def\vspace*#1{\\}
+\def\vfill{\\ \\}
 \def\par{
 
 }
 %%%%%%%%%%%% Bibliography
+\def\nocite#1{}
 \newcommand{\bibname}{\iffrench Référenceces\else References\fi}
 \newenvironment{thebibliography}[1]{\@bibliosection{\bibname}\@open{DL}{}}{\@close{DL}}
 \newcommand{\bibitem}[1]{\item[{\purple[\@bibref{#1}]\label{#1}}]}
@@ -261,14 +283,32 @@
 %%%%%%%%%%%% Indexes a la index.cls
 \newcommand{\index}[2][default]{\@index[#1]{#2}}
 \newcommand{\printindex}[1][default]{%
-\@print{
-<!-- CUT BEGIN INDEX -->
-}
 \@printindex[#1]%
-\@print{
-<!-- CUT END INDEX -->
-}}
+}
 \def\makeindex{\newindex{default}{idx}{ind}{Index}}
 \newcommand{\index*}[1]{#1\index{#1}}
 \newcommand{\long}{}
-\newcommand{\usepackage}[2][""]{\input{#2}}
+\newcommand{\usepackage}[2][]{%
+%%BEGIN IMAGE
+\usepackage[#1]{#2}
+%% TO IMAGE
+}
+%%%%%%%%%%%%%%%%% Table of contents
+\newcommand{\@cutdef}[2]{*
+\@print{<!--CUT DEF #1 #2 -->
+}%
+\newcommand{\@cutend}{%
+\@print{<!--CUT END -->
+}%
+}
+\newcommand{\@cut}[2]{%
+\@footnoteflush
+\@print{<!--TOC #1 }%
+{#2}\@print{-->
+}%
+}
+\def\tableofcontents{}
+%%%%%%%%%%%%%%%%%% Images
+\newenvironment{image}{%%BEGIN IMAGE
+}{%% END IMAGE
+}

@@ -1,5 +1,8 @@
 open Parse_opts
 
+exception Error of string
+;;
+
 let etable = Hashtbl.create 17
 ;;
 
@@ -42,7 +45,7 @@ let do_open_tex filename =
         raise (Found (full_name,r))
       with Sys_error _ -> ())
     tex_path ;
-    failwith ("Cannot open file: "^filename)
+    raise (Error ("Cannot open file: "^filename))
   with Found r -> r
 ;;
 
@@ -51,19 +54,19 @@ let open_tex filename =
   if Filename.is_implicit filename then
     try
       do_open_tex filename
-    with Failure _ ->
+    with Error _ ->
       if Filename.check_suffix filename ".tex" then
-        failwith ("Cannot find: "^filename)
+        raise (Error ("Cannot find: "^filename))
       else
         try do_open_tex (filename^".tex")
-        with Failure _ -> failwith ("Cannot find file: "^filename)
+        with Error _ -> raise (Error ("Cannot find file: "^filename))
   else
     try filename,open_in filename
     with Sys_error _ ->
       if Filename.check_suffix filename ".tex" then
-        failwith ("Cannot open: "^filename)
+        raise (Error ("Cannot open: "^filename))
       else
         try (filename^".tex"),open_in (filename^".tex") with
-        Sys_error _ -> failwith ("Cannot open: "^filename)
+        Sys_error _ -> raise (Error ("Cannot open: "^filename))
 ;; 
 

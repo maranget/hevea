@@ -16,7 +16,6 @@ let read_style name =
 ;;
  
 let main () =
-  try begin
 
     read_style "htmlgen.sty" ;
 
@@ -62,7 +61,7 @@ let main () =
          let _,auxchan = Myfiles.open_tex auxname in
          let buf = Lexing.from_channel auxchan in
          Aux.main buf
-       with Failure _ -> begin
+       with Myfiles.Error _ -> begin
          if !verbose > 0 then
            prerr_endline ("Cannot open aux file: "^auxname)
        end
@@ -74,11 +73,6 @@ let main () =
     Latexscan.main buf ;
     Location.restore () ;
     finalize ()
-  end with x -> begin
-    Location.print_pos () ;
-    prerr_endline "Good bye" ;
-    finalize () ; raise x
-  end
 ;;   
 
 
@@ -86,6 +80,7 @@ begin try
   main ()
 with x -> begin
   Location.print_pos () ;
+  prerr_endline "Adios" ;
   raise x
   end
 end ;

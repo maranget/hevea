@@ -4,6 +4,12 @@ aux.cmo: save.cmo
 aux.cmx: save.cmx 
 counter.cmo: location.cmi counter.cmi 
 counter.cmx: location.cmx counter.cmi 
+cross.cmo: cross.cmi 
+cross.cmx: cross.cmi 
+cut.cmo: cross.cmi out.cmi 
+cut.cmx: cross.cmx out.cmx 
+cutmain.cmo: cut.cmo location.cmi 
+cutmain.cmx: cut.cmx location.cmx 
 entry.cmo: out.cmi save.cmo 
 entry.cmx: out.cmx save.cmx 
 foot.cmo: html.cmi location.cmi parse_opts.cmi foot.cmi 

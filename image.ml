@@ -23,7 +23,6 @@ let open_chan () =
   Out.to_chan chan !buff ;
   buff := Out.create_chan chan ;
   Out.put !buff "\\pagestyle{empty}\n";
-  Out.put !buff "\\begin{document}\n"
 
 and close_chan () =
   Out.put !buff "\\end{document}\n" ;
@@ -39,22 +38,17 @@ let my_string_of_int n =
 ;;
 
 
-let lastpage = ref 0
-;;
-
 let page () =
-  incr lastpage ;
-  !base^my_string_of_int !lastpage^".gif"
-;;
-
-let open_image () =
   let n = !count in
   if !verbose > 0 then
     Printf.fprintf stderr "dump image number %d\n" (n+1) ;
   (if n = 0 then
     open_chan()) ;
-  count := !count + 1
+  incr count ;
+  !base^my_string_of_int !count^".gif"
+;;
 
+let open_image () = ()
 and close_image () = ()
 ;;
 

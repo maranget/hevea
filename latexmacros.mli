@@ -13,8 +13,6 @@ type action =
   | ItemDisplay
   | Print_arg of int
   | Print_fun of ((string -> string) * int)
-  | Save_arg of int
-  | Print_saved
   | Subst of string
   | Print_count of ((int -> string)  * int)
   | Env of env
@@ -44,6 +42,7 @@ val reg : string ref
 val display :  bool ref
 val in_math :  bool ref
 val alltt :  bool ref
+val optarg : bool ref
 
 val invisible : string -> bool
 

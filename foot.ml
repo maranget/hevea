@@ -27,7 +27,7 @@ let register i mark text anchor =
 let flush lexer =
   if !some then begin
     some := false ;
-    Html.put "<HR>\n" ;
+    lexer "\\footnoterule" ;
     Html.open_block "DL" "" ;
     let t = !table in
     for i = 0 to Array.length t - 1 do
@@ -36,7 +36,7 @@ let flush lexer =
       | Some (m,txt,anchor) ->
           t.(i) <- None ;
           Html.item (fun s ->
-             lexer ("\\@openanchor{texte}{note}{"^anchor^"}") ;
+             lexer ("\\@openanchor{text}{note}{"^anchor^"}") ;
              Html.put s ;
              lexer ("\\@closeanchor")) m;
           Html.put txt ;

@@ -20,8 +20,6 @@ type action =
   | ItemDisplay
   | Print_arg of int
   | Print_fun of ((string -> string) * int)
-  | Save_arg of int
-  | Print_saved
   | Subst of string
   | Print_count of ((int -> string)  * int)
   | Env of env
@@ -120,6 +118,7 @@ let display = ref false
 and in_math = ref false
 and alltt = ref false
 and french = ref (match !language with Francais -> true | _ -> false)
+and optarg = ref false
 ;;
 
 
@@ -137,19 +136,16 @@ let newif_ref name cell =
 ;;
 
 newif_ref "display" display ;
-newif_ref "french" french
+newif_ref "french" french ;
+newif_ref "optarg" optarg;
+def_macro ("\\iftrue") 0 [Test (ref true)];
+def_macro ("\\iffalse") 0 [Test (ref false)]
 ;;
 
 let newif name = 
   let name = extract_if name in
   let cell = ref false in
   newif_ref name cell
-;;
-
-
-let true_true = ref true and false_false = ref false in
-def_macro "\\iftrue" 0 [Test true_true] ;
-def_macro "\\iffalse" 0 [Test false_false]
 ;;
 
 
@@ -216,10 +212,8 @@ def_macro "\\newpage" 0 [];
 def_macro "\\pagestyle" 1 [];
 def_macro "\\thispagestyle" 1 [];
 def_macro "\\ref" 1
-  [Print "<A href=\"#"; Print_arg 0; Print "\">" ;
+  [Print "<A href=\"#"; Subst "\\@print{#1}" ; Print "\">" ;
    Print_fun (Aux.rget,0) ; Print "</A>"];
-def_macro "\\camlref" 1
-  [Print "<A href=\"caml:"; Print_arg 0; Print "\">X</A>"];
 def_macro "\\pageref" 1 [Print "<A href=\"#"; Print_arg 0; Print "\">X</A>"];
 
 def_macro "\\@bibref" 1  [Print_fun (Aux.bget,0)] ;
@@ -235,18 +229,9 @@ let check_in = function
 | "\\subset" -> "\\notsubset"
 | s      -> "\\neg"^s in
 def_macro "\\not" 1 [Print_fun (check_in,0)];
-def_macro "\\raise" 2 [Print_arg 1];
-def_macro "\\hbox" 0 [];
-def_macro "\\mbox" 0 [];
-def_macro "\\vbox" 0 [];
-def_macro "\\parbox" 2 [Print_arg 1];
-def_macro "\\copyright" 0 [Print "\169"];
-def_macro "\\emptyset" 0 [Print "\216"];
-def_macro "\\noindent" 0 [];
-def_macro "\\kern" 1 [];
-def_macro "\\vspace" 1 [];
-def_macro "\\vspace*" 1 [];
-def_macro "\\vfill" 0 [Print "<BR><BR>"];
+def_macro_pat "\\makebox" (["" ; ""],[]) [Subst "\\hbox"] ;
+def_macro_pat "\\framebox" (["" ; ""],[]) [Subst "\\fbox"] ;
+
 let spaces = function
   ".5ex" -> ""
 | _      -> "~" in
@@ -254,7 +239,6 @@ def_macro "\\hspace" 1 [Print_fun (spaces,0)];
 (* oddities *)
 def_macro "\\TeX" 0 [Print "TeX"] ;
 def_macro "\\LaTeX" 0 [Print "L<sup>a</sup>T<sub>e</sub>X"] ;
-def_macro "\\addcontentsline" 3 [];
 def_macro "\\stackrel" 2
   [IfCond (display,
     [Subst "\\begin{array}{c}\\scriptsize #1\\\\ #2\\\\ ~ \\end{array}"],

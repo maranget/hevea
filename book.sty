@@ -32,48 +32,48 @@
 \newcounter{figure}[chapter]
 \renewcommand{\thefigure}{\thechapter.\arabic{figure}}
 
-\newcommand{\part}[1]{%
+\newcommand{\part}[2][]{%
 \@footnoteflush
-\@print{<!--CUT PART-->}%
-\@open{H1}{ALIGN=center}%
 \stepcounter{part}%
+\ifoptarg\@cut{part}{#1}%
+\else\@cut{part}{#2}\fi
+\@open{H1}{ALIGN=center}%
 \partname:~\thepart\\%
-#1%
+#2%
 \@close{H1}%
 }
 \newcommand{\part*}[1]{%
 \@footnoteflush
-\@print{<!--CUT PART-->}%
 \@open{H1}{ALIGN=center}%
 #1%
 \@close{H1}%
 }
 
-\newcommand{\chapter}[1]{%
+\newcommand{\chapter}[2][]{%
 \@footnoteflush
-\@print{<!--CUT CHAPTER-->}%
-\@open{H1}{}%
 \stepcounter{chapter}%
-\chaptername~\thechapter: #1%
+\ifoptarg\@cut{chapter}{#1}%
+\else\@cut{chapter}{#2}\fi
+\@open{H1}{}%
+\chaptername~\thechapter: #2%
 \@close{H1}%
 }
 \newcommand{\chapter*}[1]{%
 \@footnoteflush
-\@print{<!--CUT CHAPTER-->}%
 \@open{H1}{}%
 #1%
 \@close{H1}%
 }
 
-\newcommand{\section}[1]{%
-\@print{<!--CUT SECTION-->}%
+\newcommand{\section}[2][]{%
+\ifoptarg\@cut{section}{#1}%
+\else\@cut{section}{#2}\fi
 \@open{H2}{}%
 \stepcounter{section}%
-\thesection\quad #1%
+\thesection\quad #2%
 \@close{H2}%
 }
 \newcommand{\section*}[1]{%
-\@print{<!--CUT SECTION-->}%
 \@open{H2}{}%
 #1%
 \@close{H2}%
