@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: tabular.mll,v 1.26 2001-03-01 22:17:00 maranget Exp $ *)
+(* $Id: tabular.mll,v 1.27 2002-08-01 13:46:00 maranget Exp $ *)
 {
 open Misc
 open Lexing
@@ -101,16 +101,21 @@ let pretty_format = function
 let pretty_formats f =
   Array.iter (fun f -> prerr_string (pretty_format f) ; prerr_string "; ") f
 
-
+(* For some reason pre/post-ludes are executed right to left *)
+let concat_pre_post x y = match x, y with
+| "", _ -> y
+| _, "" -> x
+| _,_   -> y ^ "{}" ^ x
 } 
 
 rule tfone = parse
   '>'
     {let pre = subst_arg lexbuf in
-    tfmiddle lexbuf ;
+    tfone lexbuf ;
     try
       apply out_table (function
-        |  Align a as r -> a.pre <- pre
+        |  Align a as r ->
+            a.pre <- concat_pre_post pre a.pre ;
         | _ -> raise (Error "Bad syntax in array argument (>)"))
     with Table.Empty ->
       raise (Error "Bad syntax in array argument (>)")}
@@ -141,9 +146,12 @@ and tfmiddle = parse
     let name = column_to_command lxm in
     let pat,body = Latexmacros.find name in
     let args = Lexstate.make_stack name pat lexbuf in
+    let cur_subst = get_subst () in
     Lexstate.scan_body
       (function
-        | Lexstate.Subst body -> scan_this lexformat body ;            
+        | Lexstate.Subst body ->
+            scan_this_may_cont
+              lexformat lexbuf  cur_subst (string_to_arg body) ;            
         | _ -> assert false)
       body args ;
     let post = tfpostlude lexbuf in
@@ -164,7 +172,17 @@ and tfmiddle = parse
   raise (Error ("Syntax of array format near: "^rest))}
 
 and tfpostlude = parse
-  '<' {subst_arg lexbuf}
+  '<'
+    {let one = subst_arg lexbuf in
+    let rest = tfpostlude lexbuf in
+    let r = concat_pre_post one rest in
+    r}
+| eof
+    {if Stack.empty stack_lexbuf then
+      ""
+    else
+      let lexbuf = previous_lexbuf () in
+      tfpostlude lexbuf}
 | ""  {""}
 
 
@@ -188,7 +206,12 @@ and lexformat = parse
     let i = Char.code (lxm.[1]) - Char.code '1' in
     Lexstate.scan_arg (scan_this_arg lexformat) i ;
     lexformat lexbuf}
-| eof {()}
+| eof
+    {if Stack.empty stack_lexbuf then
+      ()
+    else
+      let lexbuf = previous_lexbuf () in
+      lexformat lexbuf}
 | "" {tfone lexbuf ; lexformat lexbuf}
 
 

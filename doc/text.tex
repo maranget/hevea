@@ -5461,6 +5461,10 @@ Netscape*documentFonts.charset*adobe-fontspecific:   iso-8859-1
 \end{verbatim}
 \item Issue a \verb+xrdb .Xdefaults+ command.
 \item Restart \emph{Netscape}.
+\item Furthermore, be carefull to enable using document fonts
+while disabling dynamic fonts~: select the
+Edit/Preference/Appearance/Fonts menu, and then check the appropriate
+box, which should be something like "Use document-specified fonts".
 \end{itemize}
 
 On a Macintosh,
@@ -5477,9 +5481,7 @@ More details on browser configuration can be found at
 In particular the \emph{Simple fix} of the \texttt{.Xdefaults} file
 above does not seem to work on \emph{Mozilla 4.78}, and you should
 rely on the more complicated fix described in the web page.
-Furthermore, be carefull to enable using document fonts
-while disabling dynamic fonts
-(Edit/Preference/Fonts, then check the appropriate box).
+
 
 
 More details on symbol fonts can be found
