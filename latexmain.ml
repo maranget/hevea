@@ -21,7 +21,7 @@ let finalize () =
 ;;
 
 let read_style name =
-  let chan =  open_in name in
+  let name,chan =  Myfiles.open_tex name in
   let buf = Lexing.from_channel chan in
   Location.set name buf ;
   Latexscan.main buf ;
@@ -39,7 +39,7 @@ let main () =
     "htmlgen 0.00" ;
 
     set_verbose ();
-    read_style "/usr/local/lib/htmlgen/htmlgen.sty" ;
+    read_style "htmlgen.sty" ;
 
     let texfile = match !files with
       [] -> ""

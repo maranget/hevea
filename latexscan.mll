@@ -92,15 +92,22 @@ let pretty_ok = function
 | No s  -> "-"^s^"-"
 ;;
 
+let parse_arg_opt def lexbuf =
+  let r = try Yes (Save.opt lexbuf) with Save.NoOpt -> No def in
+  if !verbose > 2 then begin
+     Printf.fprintf stderr "Parse opt : %s" (pretty_ok r) ;
+     prerr_endline ""
+  end ;
+  r
+;;
+
 let rec parse_args_opt pat lexbuf = match pat with
   [] -> []
 | def::rest ->
-   let arg = try Yes (Save.opt lexbuf) with Save.NoOpt -> No def in
-   if !verbose > 2 then begin
-     Printf.fprintf stderr "Parse opt : %s\n" (pretty_ok arg)
-   end ;
+   let arg = parse_arg_opt def lexbuf in
    arg::parse_args_opt rest lexbuf
 ;;
+
 
 let skip_opt lexbuf =
   let _ = try Save.opt lexbuf with Save.NoOpt -> "" in
@@ -274,6 +281,18 @@ let scan_this lexfun s =
   if !verbose > 2 then begin
     Printf.fprintf stderr "scan_this : over" ;
     prerr_endline ""
+  end ;
+  r
+;;
+
+let get_this lexfun s =
+  if !verbose > 2 then begin
+    Printf.fprintf stderr "get_this : [%s] = " s ;
+  end ;
+  let lexer = Lexing.from_string s in
+  let r = Html.to_string (fun () -> lexfun lexer) in
+  if !verbose > 2 then begin
+    prerr_endline r
   end ;
   r
 ;;
@@ -650,7 +669,7 @@ rule  main = parse
      if !verbose > 0 then
        Printf.fprintf stderr "input file : %s \n" filename ;
      try
-       let filename,input = open_tex filename in
+       let filename,input = Myfiles.open_tex filename in
        let buf = Lexing.from_channel input in
        Location.set filename buf ;
        new_env "*input" main buf ;
@@ -757,23 +776,36 @@ rule  main = parse
       [Subst body] ;
     main lexbuf}
   | "\\newenvironment" ' '*
-     {let args = parse_nargs 3 lexbuf in
-     let name,body1,body2 = match args with
-       [n ; b1 ; b2 ] -> n,b1,b2
-     | _              -> failwith "Newenvironment" in
-     def_env name [Subst body1] [Subst body2];     
+     {let name = save_arg lexbuf in
+     let nargs = parse_arg_opt "0" lexbuf in
+     let optdef = parse_arg_opt "" lexbuf in
+     let body1 = save_arg lexbuf in
+     let body2 = save_arg lexbuf in
+     def_env_pat name
+       (Latexmacros.make_pat
+         (match optdef with No _ -> [] | Yes s -> [s])
+         (match nargs with No _ -> 0 | Yes s -> int_of_string s))
+       [Subst body1] [Subst body2];     
      main lexbuf}
   | "\\newtheorem" | "\\renewtheorem"
       {let lxm = lexeme lexbuf in
-      let name = Save.arg lexbuf in
-      skip_opt lexbuf ;
-      let caption = Save.arg lexbuf in
-      skip_opt lexbuf ;
+      let name = save_arg lexbuf in
+      let numbered_like = parse_arg_opt "" lexbuf in
+      let caption = save_arg lexbuf in
+      let within = parse_arg_opt "" lexbuf in
       Image.put (lxm^unparse_args [] [name; caption]^"\n") ;
-      to_image := false ;
-      scan_this main ("\\def\\"^name^"{\\par{\\bf "^caption^"}}") ;
-      scan_this main ("\\def\\end"^name^"{}") ;
-      to_image := true ;
+      Counter.def_counter name (from_ok within) ;
+      begin match within with
+        No _ ->
+          def_macro ("\\the"^name) 0 [Subst ("\\arabic{"^name^"}")]
+      | Yes s ->
+          def_macro ("\\the"^name) 0
+            [Subst ("\\the"^s^".\\arabic{"^name^"}")]
+      end ;
+      def_env_pat name (Latexmacros.make_pat [] 0)
+        [Subst ("\\par\\bgroup{\\bf\\stepcounter{"^name^"}"^caption^"~"^
+          "\\the"^name^"}\\quad\\it")]
+        [Subst "\\egroup"] ;
       main lexbuf}
   | "\\let\\" (['A'-'Z' 'a'-'z']+ '*'? | [^ 'A'-'Z' 'a'-'z']) '='
      {let lxm = lexeme lexbuf in
@@ -1024,7 +1056,58 @@ rule  main = parse
      let _ = save_arg lexbuf in
      let name = save_arg lexbuf in
      Index.newindex tag name ;
-     main lexbuf}     
+     main lexbuf}
+(* Counters *)
+  | "\\newcounter" 
+      {let name = save_arg lexbuf in
+      let within = save_opt "" lexbuf in
+      Counter.def_counter name within ;
+      scan_this main ("\\def\\the"^name^"{\\arabic{"^name^"}}") ;
+      main lexbuf}
+  | "\\addtocounter"
+     {let name = save_arg lexbuf in
+      let arg = save_arg lexbuf in
+      Counter.add_counter name (int_of_string arg) ;
+      main lexbuf}
+  | "\\setcounter"
+     {let name = save_arg lexbuf in
+      let arg = save_arg lexbuf in
+      Counter.set_counter name (int_of_string arg) ;
+      main lexbuf}
+  | "\\stepcounter"
+     {let name = save_arg lexbuf in
+     Counter.step_counter name ;
+     main lexbuf}
+  | "\\refstepcounter"
+     {let name = save_arg lexbuf in
+     Counter.step_counter name ;
+     Counter.setrefvalue (get_this main ("\\the"^name)) ;
+     main lexbuf}
+(* Boxes *)
+  | "\\newsavebox"
+      {let name = save_arg lexbuf in
+      def_macro name 0 [Print ""] ;
+      main lexbuf}
+  | "\\savebox"
+      {let name = save_arg lexbuf in
+      skip_opt lexbuf ; skip_opt lexbuf ;
+      let body = save_arg lexbuf in
+      redef_macro name 0 [Print (get_this main body)] ;
+      main lexbuf}
+(* Html primitives *)
+  | "\\@open"
+     {let tag = save_arg lexbuf in
+     let arg = save_arg lexbuf in
+     Html.open_block tag arg ;
+     main lexbuf}
+  | "\\@close"
+     {let tag = save_arg lexbuf in
+     Html.close_block tag;
+     main lexbuf}
+  | "\\@print"
+     {let arg = save_arg lexbuf in
+     Html.put arg ;
+     main lexbuf}
 (* General case for commands *)
   | "\\" '@'? ((['A'-'Z' 'a'-'z']+ '*'?) | [^ 'A'-'Z' 'a'-'z'])
       {let lxm = lexeme lexbuf in
@@ -1036,26 +1119,9 @@ rule  main = parse
           | Print_fun (f,i) -> scan_this main (f stack.(i))
           | Print_saved -> scan_this main !reg
           | Save_arg i -> reg := stack.(i)
-          | New_count i -> begin
-              let name = stack.(i) in
-              Counter.def_counter name ;
-              scan_this main
-                ("\\newcommand\\the"^name^"{\\arabic{"^name^"}}")
-              end
-          | Set_count (i,j) ->
-              let x =
-                try int_of_string stack.(j)
-                with Failure _ -> 0 in
-              Counter.set_counter stack.(i) x
-          | Add_count (i,j) ->
-              let x =
-                try int_of_string stack.(j)
-                with Failure _ -> 0
-              and c = Counter.find_counter stack.(i) in
-              c := !c + x
           | Print_count (f,i) ->
-              let c = Counter.find_counter stack.(i) in
-              Html.put (f !c)
+              let c = Counter.value_counter stack.(i) in
+              Html.put (f c)
           | Test cell ->
               if not !cell then raise IfFalse
               else

@@ -22,9 +22,6 @@ type action =
   | Save_arg of int
   | Print_saved
   | Subst of string
-  | New_count of int
-  | Set_count of (int * int)
-  | Add_count of (int * int)
   | Print_count of ((int -> string)  * int)
   | Env of env
   | Test of bool ref
@@ -98,6 +95,8 @@ let make_pat opts n =
 
 let def_macro name nargs body =
   def_macro_pat name (make_pat [] nargs) body
+and redef_macro name nargs body =
+  redef_macro_pat name (make_pat [] nargs) body
 ;;
      
 let def_env name body1 body2 =
@@ -105,6 +104,10 @@ let def_env name body1 body2 =
  def_macro ("\\end"^name) 0 body2
 ;;
 
+let def_env_pat name pat b1 b2 =
+  def_macro_pat ("\\"^name) pat b1 ;
+  def_macro ("\\end"^name) 0 b2
+;;
 
 let find_macro name =
   try
@@ -179,32 +182,6 @@ def_env "aqua" [Env (Color "aqua")] [];
 def_macro "\\title"  1 [Save_arg 0];
 def_macro "\\maketitle" 0 [];
 
-def_macro "\\part" 1
-    [Open ("H1","ALIGN=center") ;
-     Subst "\\addtocounter{part}{1}Part \\thepart:~" ; Print_arg 0; Close "H1"];
-def_macro "\\chapter" 1
-    [Open ("H1","") ; Subst "\\addtocounter{chapter}{1}\\setcounter{section}{0}\\setcounter{figure}{0}" ;
-     Print_arg 0; Close "H1"];
-def_macro "\\chapter*" 1
-    [Open ("H2","") ; Subst "\\setcounter{section}{0}\\setcounter{figure}{0}" ;
-    Print_arg 0; Close "H2"];
-def_macro "\\section" 1
-    [Open ("H2","") ; Subst "\\setcounter{subsection}{0}\\addtocounter{section}{1}\\thesection\\ " ;
-     Print_arg 0; Close "H2"];
-def_macro "\\section*" 1
-    [Open ("H2","") ; Print_arg 0; Close "H2"];
-def_macro "\\subsection" 1
-    [Open ("H3","") ; Subst "\\addtocounter{subsection}{1}\\thesubsection\\ " ;
-     Print_arg 0; Close "H3"];
-def_macro "\\subsection*" 1
-    [Open ("H3","") ; Print_arg 0; Close "H3"];
-def_macro "\\subsubsection" 1
-    [Open ("H4","") ; Print_arg 0; Close "H4"];
-def_macro "\\subsubsection*" 1
-    [Open ("H4","") ; Print_arg 0; Close "H4"];
-def_macro "\\paragraph" 1
-    [Open ("H5","") ; Print_arg 0; Close "H5"];
-
 def_macro "\\document" 0
   [Print "<HTML>\n" ; Print "<HEAD><TITLE>\n" ;
    Print_saved; Print "</TITLE></HEAD>" ;
@@ -213,28 +190,11 @@ def_macro "\\document" 0
 
 def_macro "\\enddocument" 0 [Print "</BODY>\n</HTML>\n"];
 
-def_macro "\\itemize" 0 [Open ("UL","")];
-def_macro "\\enditemize" 0 [Close "UL"];
-def_macro "\\enumerate" 0 [Open ("OL","")];
-def_macro "\\endenumerate" 0 [Close "OL"];
-def_macro "\\description" 0 [Open ("DL","")];
-def_macro "\\enddescription" 0 [Close "DL"];
-def_macro "\\center" 0 [Open ("DIV","ALIGN=center")];
-def_macro "\\endcenter" 0 [Close "DIV"];
-def_macro "\\flushleft" 0 [Open ("DIV","ALIGN=left")];
-def_macro "\\endflushleft" 0 [Close "DIV"];
-def_macro "\\flushright" 0 [Open ("DIV","ALIGN=right")];
-def_macro "\\endflushright" 0 [Close "DIV"];
+
 
 let no_dot = function
   "." -> ""
 | s   -> s in
-def_macro "\\centerline" 1 [Subst "\\begin{center}#1\\end{center}"] ;
-def_env "quote"  [Open ("BLOCKQUOTE","")] [Close "BLOCKQUOTE"];
-def_env "quotation"  [Open ("BLOCKQUOTE","")] [Close "BLOCKQUOTE"];
-def_macro_pat
-  "\\figure"  ([""],[]) [Open ("BLOCKQUOTE","") ; Print "<HR>\n"] ;
-def_macro "\\endfigure" 0 [Print "<HR>\n" ; Close "BLOCKQUOTE"];
 def_env "titlepage" [] [] ;
 def_macro "\\cr" 0 [Subst "\\\\"] ;
 def_macro "\\bgroup" 0 [Subst "{"] ;
@@ -269,15 +229,9 @@ def_macro "\\ref" 1
 def_macro "\\camlref" 1
   [Print "<A href=\"caml:"; Print_arg 0; Print "\">X</A>"];
 def_macro "\\pageref" 1 [Print "<A href=\"#"; Print_arg 0; Print "\">X</A>"];
-def_macro "\\thebibliography" 1
-  [Open ("H2","") ; Subst "\\bibname" ; Close "H2" ;
-  Open ("DL","")];
-def_macro "\\endthebibliography" 0 [Close "DL"];
-def_macro "\\bibitem" 1
-  [Subst "\\item[{\\purple [\\@bibref{#1}]}]\\label{#1}"] ;
+
 def_macro "\\@bibref" 1  [Print_fun (Aux.bget,0)] ;
-def_macro_pat "\\index" ([""],["#1"]) [];
-def_macro "\\index*" 1 [];
+
 def_macro "\\&" 0 [Print "&amp;"];
 def_macro "\\_" 0 [Print "_"];
 def_macro "\\\n" 0 [Print " "];
@@ -543,9 +497,6 @@ def_macro "\\~" 1 [Print_fun (tilde,0)];
 (* Chars *)
 def_macro "\\char" 1 [Print_fun (do_char,0)];
 (* Counters *)
-def_macro "\\newcounter"  1 [New_count 0] ;
-def_macro "\\setcounter"  2 [Set_count (0,1)];
-def_macro "\\addtocounter" 2 [Add_count (0,1)];
 def_macro "\\arabic" 1 [Print_count (string_of_int,0)] ;
 def_macro "\\alph" 1 [Print_count (alpha_of_int,0)] ;
 def_macro "\\Alph" 1 [Print_count (upalpha_of_int,0)] ;

@@ -1,23 +1,33 @@
 \newif\iffrench
 \frenchfalse
-\newcounter{part}
-\newcounter{chapter}
-\newcounter{section}
-\newcounter{subsection}
-\newcounter{subsubsection}
-\newcounter{paragraph}
-\newcounter{subparagraph}
-\newcounter{equation}
-\newcounter{figure}
-\renewcommand{\thesubsection}{\thesection.\arabic{subsection}}
-\renewcommand{\thepart}{\Alph{part}}
+\newenvironment{itemize}{\@open{UL}{}}{\@close{UL}}
+\newenvironment{enumerate}{\@open{OL}{}}{\@close{OL}}
+\newenvironment{description}{\@open{DL}{}}{\@close{DL}}
+\newenvironment{center}{\@open{DIV}{ALIGN=center}}{\@close{DIV}}
+\newenvironment{flushleft}{\@open{DIV}{ALIGN=left}}{\@close{DIV}}
+\newenvironment{flushright}{\@open{DIV}{ALIGN=right}}{\@close{DIV}}
+\newcommand{\centerline}[1]{\begin{center}#1\end{center}}
+\newenvironment{quote}{\@open{BLOCKQUOTE}{}}{\@close{BLOCKQUOTE}}
+\newenvironment{quotation}{\@open{BLOCKQUOTE}{}}{\@close{BLOCKQUOTE}}
+%%%%%%%%%%% Figures
+\newsavebox{\@caption}
+\def\caption#1{\savebox{\@caption}{#1}}
+\newenvironment{figure}[1][]{%
+\@open{BLOCKQUOTE}{}\@print{<HR>}}{%
+\par
+\stepcounter{figure}%
+\begin{center}Figure \thefigure:\@caption\end{center}
+\@print{<HR>}\@close{BLOCKQUOTE}}
 
-\newenvironment{equation}{$$}{\quad\quad\addtocounter{equation}{1}(\theequation)$$}
+
+\newenvironment{equation}{$$}
+  {\quad\quad\stepcounter{equation}(\theequation)$$}
 \newenvironment{eqnarray*}{$$\begin{array}{rtcl}}{\end{array}$$}
-\newenvironment{eqnarray}{$$\begin{array}{rtcl@{\quad\addtocounter{equation}{1}(\theequation)}}}{\end{array}$$}
+\newenvironment{eqnarray}{$$\begin{array}
+  {rtcl@{\quad\stepcounter{equation}(\theequation)}}}{\end{array}$$}
 \newenvironment{displaymath}{$$}{$$}
+
 \def\cases#1{\mbox{\left\{\begin{tabular}{ltl}#1\end{tabular}\right.}}
-\def\caption#1{\par\begin{center}Figure \addtocounter{figure}{1}\thefigure: {#1}\end{center}}
 \newcommand{\footnote}[2][""]{{\small (#2)}}
 \def\quad{~~~}
 \def\qquad{\quad\quad}
@@ -28,7 +38,9 @@
 \def\frac#1#2{{#1 \over #2}}
 \def\mathord{}
 \def\mathrel{}
-\def\makeindex{}
+%index
+\def\makeindex{\newindex{default}{idx}{ind}{Index}}
+\newcommand{\index*}[1]{#1\index{#1}}
 \def\tableofcontents{}
 \def\manual#1{\maroon #1}
 \def\cal{\red}

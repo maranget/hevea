@@ -1,6 +1,8 @@
 html.cmi: latexmacros.cmi out.cmi 
 aux.cmo: save.cmo 
 aux.cmx: save.cmx 
+counter.cmo: counter.cmi 
+counter.cmx: counter.cmi 
 entry.cmo: out.cmi 
 entry.cmx: out.cmx 
 html.cmo: latexmacros.cmi out.cmi html.cmi 
@@ -15,7 +17,7 @@ latexmain.cmo: aux.cmo html.cmi image.cmi latexmacros.cmi latexscan.cmo \
     location.cmi myfiles.cmi out.cmi 
 latexmain.cmx: aux.cmx html.cmx image.cmx latexmacros.cmx latexscan.cmx \
     location.cmx myfiles.cmx out.cmx 
-latexscan.cmo: aux.cmo counter.cmo html.cmi image.cmi index.cmi \
+latexscan.cmo: aux.cmo counter.cmi html.cmi image.cmi index.cmi \
     latexmacros.cmi location.cmi myfiles.cmi out.cmi save.cmo subst.cmo \
     symb.cmo 
 latexscan.cmx: aux.cmx counter.cmx html.cmx image.cmx index.cmx \

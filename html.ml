@@ -833,3 +833,11 @@ let close_chan () =
   close_group ()
 ;;
 
+let to_string f =
+  open_group "" ;
+  f () ;
+  let r = Out.to_string !cur_out.out in
+  close_group () ;
+  r
+;;
+

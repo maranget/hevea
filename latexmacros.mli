@@ -16,9 +16,6 @@ type action =
   | Save_arg of int
   | Print_saved
   | Subst of string
-  | New_count of int
-  | Set_count of (int * int)
-  | Add_count of (int * int)
   | Print_count of ((int -> string)  * int)
   | Env of env
   | Test of bool ref
@@ -40,7 +37,8 @@ val make_pat: string list -> int -> pat
 val def_macro_pat: string -> pat  -> action list -> unit
 val redef_macro_pat: string -> pat  -> action list -> unit
 val def_macro: string -> int -> action list -> unit
-val def_env: string -> action list -> action list -> unit
+val redef_macro: string -> int -> action list -> unit
+val def_env_pat: string -> pat -> action list -> action list -> unit
 val newif : string -> unit
 
 val reg : string ref

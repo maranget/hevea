@@ -1,0 +1,100 @@
+\newcounter {part}
+\newcounter {chapter}
+\newcounter {section}[chapter]
+\newcounter {subsection}[section]
+\newcounter {subsubsection}[subsection]
+\newcounter {paragraph}[subsubsection]
+\newcounter {subparagraph}[paragraph]
+\renewcommand \thepart {\Alph{part}}
+\renewcommand \thesection {\thechapter.\arabic{section}}
+\renewcommand\thesubsection   {\thesection.\arabic{subsection}}
+\renewcommand\thesubsubsection{\thesubsection .\arabic{subsubsection}}
+\renewcommand\theparagraph    {\thesubsubsection.\arabic{paragraph}}
+\renewcommand\thesubparagraph {\theparagraph.\arabic{subparagraph}}
+
+\newcounter{figure}[chapter]
+
+\newcommand{\partname}{Part}
+\newcommand{\chaptername}{Chapter}
+\newcommand{\part}[1]{%
+  \@open{H1}{ALIGN=center}
+  \stepcounter{part}
+  \partname:~\thepart\\
+  #1
+  \@close{H1}
+}
+\newcommand{\part*}[1]{%
+  \@open{H1}{ALIGN=center}
+  #1
+  \@close{H1}
+}
+
+\newcommand{\chapter}[1]{%
+  \@open{H1}{}
+  \stepcounter{chapter}
+  \chaptername~\thechapter:
+  #1
+  \@close{H1}
+}
+\newcommand{\chapter*}[1]{%
+  \@open{H1}{}
+  #1
+  \@close{H1}
+}
+
+\newcommand{\section}[1]{%
+  \@open{H2}{}
+  \stepcounter{section}
+  \thesection~
+  #1
+  \@close{H2}
+}
+\newcommand{\section*}[1]{%
+  \@open{H2}{}
+  #1
+  \@close{H2}
+}
+
+
+\newcommand{\subsection}[1]{%
+  \@open{H3}{}
+  \stepcounter{subsection}
+  \thesubsection~
+  #1
+  \@close{H3}
+}
+\newcommand{\subsection*}[1]{%
+  \@open{H3}{}
+  #1
+  \@close{H3}
+}
+
+
+\newcommand{\subsubsection}[1]{%
+  \@open{H4}{}
+%  \stepcounter{subsubsection}
+%  \thesubsubsection~
+  #1
+  \@close{H4}
+}
+\newcommand{\subsubsection*}[1]{%
+  \@open{H4}{}
+  #1
+  \@close{H4}
+}
+
+\newcommand{\paragraph}[1]{%
+  \@open{H5}{}
+%  \stepcounter{paragraph}
+%  \theparagraph~
+  #1
+  \@close{H5}
+}
+\newcommand{\paragraph*}[1]{%
+  \@open{H5}{}
+  #1
+  \@close{H5}
+}
+
+\newenvironment{thebibliography}{\chapter*{\bibname}\@open{DL}{}}{\@close{DL}}
+\newcommand{\bibitem}[1]{\item[{\purple[\@bibref{#1}]\label{#1}}]}
