@@ -193,7 +193,7 @@ Chaque tableau est un paragraphe
 avant\newsavebox{\testb}\sbox{\testb}{avant} {\usebox{\testb} après},
 {avant \ref{espace} après},
 {\newcommand{\test}[1]{\ref{#1}}avant \test{espace} après},
-{avant\label{ici} après},
+{avant\label{zorglub} après},
 {avan\symbol{116} après}.
 \end{itemize}
 
@@ -665,7 +665,7 @@ $$
 \item Chouette r\'ef\'erence~\ref{coucou}, non ?
 \end{itemize}
 
-\section{Quelques listes}
+\section{Quelques listes}\label{listes}
 
 \begin{trivlist}
 \item Coucou
@@ -689,7 +689,7 @@ $$
 \begin{foo}
 Foo! foooooooooooooooooooo.
 \end{foo}
-
+\index{autre@L'index \hevea{} doit être~\ref{listes}}
 
 \section{Beurk}
 
@@ -735,7 +735,7 @@ coucou
 \index{foo}
 \index{z@\textbf{Pour z}}
 
-Dans cet index les numéros doivent être croissants.
+Dans cet index les numéros sont ceux de cette section, sauf un.
 \printindex
 \section{Macro substitution}
 

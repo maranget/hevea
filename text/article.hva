@@ -32,7 +32,7 @@
 \renewcommand{\thesection}{\Alph{section}}%
 }
 \newcommand{\part}[2][]{%
-\stepcounter{part}%
+\refstepcounter{part}%
 \ifoptarg\cuthere{part}{#1}%
 \else\cuthere{part}{#2}\fi
 \@open{ALIGN}{CENTER}%
@@ -50,7 +50,7 @@
 \@close{ALIGN}%
 }
 \newcommand{\section}[2][]{%
-\stepcounter{section}%
+\refstepcounter{section}%
 \@open{HEAD}{*=}%%H2
 
 \thesection\quad #2\\%
@@ -66,7 +66,7 @@
 
 
 \newcommand{\subsection}[2][]{%
-\stepcounter{subsection}%
+\refstepcounter{subsection}%
 \ifoptarg\cuthere{subsection}{#1}%
 \else\cuthere{subsection}{#2}\fi%
 \@open{HEAD}{=}%%H3
@@ -80,7 +80,7 @@
 \@close{HEAD}%
 }
 \newcommand{\subsubsection}[2][]{%
-\stepcounter{subsubsection}%
+\refstepcounter{subsubsection}%
 \ifoptarg\cuthere{subsubsection}{#1}%
 \else\cuthere{subsubsection}{#2}\fi%
 \@open{HEAD}{-}%H4

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: counter.ml,v 1.6 1999-04-12 17:15:46 maranget Exp $" 
+let header = "$Id: counter.ml,v 1.7 1999-05-21 15:54:15 maranget Exp $" 
 type t =
     {mutable count : int ;
     mutable within : t option ;
@@ -83,14 +83,6 @@ let step_counter name =
   with Not_found ->
     unkown name ("\\stepcounter")
 ;;
-
-let refvalue = ref ""
-;;
-
-let setrefvalue  s = refvalue := s
-and getrefvalue () = !refvalue
-;;
-
 
 
 

@@ -13,14 +13,14 @@ module type T =
     exception Error of string
     val newindex : string -> string -> string -> unit
     val changename : string -> string -> unit
-    val treat: (string -> bool) -> string -> string -> unit
+    val treat: (string -> bool) -> string -> string -> string -> unit
     val print: (string -> unit) -> string -> unit
   end
 
 module Make (Dest : OutManager.S) =
 struct
 
-let header = "$Id: index.ml,v 1.26 1999-05-17 15:52:46 tessaud Exp $"
+let header = "$Id: index.ml,v 1.27 1999-05-21 15:54:16 maranget Exp $"
 open Misc
 open Parse_opts
 open Entry
@@ -234,7 +234,7 @@ let changename tag name =
     Parse_opts.warning ("Index.changename of "^tag^": no such index")
 
 
-let treat lexcheck tag arg =
+let treat lexcheck tag arg refvalue =
   try
     if !verbose > 2 then prerr_endline ("Index.treat with arg: "^arg) ;
     let name,all,table,count,idxstruct = find_index tag in
@@ -257,7 +257,7 @@ let treat lexcheck tag arg =
     if key <> bad_entry && check_key lexcheck key then begin
       Dest.loc_name label "" ;
       let key,macro = key in
-      Hashtbl.add table key (label,Counter.getrefvalue (),macro) ;
+      Hashtbl.add table key (label,refvalue,macro) ;
       all := add key !all
     end else 
       Parse_opts.warning ("Warning, bad index arg syntax: "^arg) ;

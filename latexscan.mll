@@ -43,7 +43,7 @@ open Save
 open Tabular
 open Lexstate
 
-let header = "$Id: latexscan.mll,v 1.100 1999-05-21 14:46:56 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.101 1999-05-21 15:54:21 maranget Exp $" 
 
 let sbool = function
   | false -> "false"
@@ -289,7 +289,7 @@ and top_close_group () =
 ;;
 
 
-let do_get_this nostyle lexfun s =
+let do_get_this make_style  lexfun s =
   let par_val = Dest.forget_par () in
   start_normal display in_math ;
 
@@ -298,7 +298,7 @@ let do_get_this nostyle lexfun s =
   let lexer = Lexing.from_string s in
   let r = Dest.to_string (fun () ->
     top_open_group () ;
-    if nostyle then Dest.nostyle () ;
+    make_style () ;
     lexfun lexer ;
     top_close_group ()) in
 
@@ -310,8 +310,9 @@ let do_get_this nostyle lexfun s =
   r
 
 
-let get_this lexfun s = do_get_this false lexfun s
-and get_this_nostyle lexfun s = do_get_this true lexfun s
+let get_this lexfun s = do_get_this (fun () -> ()) lexfun s
+and get_this_nostyle lexfun s = do_get_this Dest.nostyle lexfun s
+and get_this_clearstyle lexfun s = do_get_this Dest.clearstyle lexfun s
 
 let subst_buff = Out.create_buff ()
 ;;
@@ -2256,7 +2257,8 @@ def_code "\\@index"
     let tag = get_this_nostyle main (save_opt "default" lexbuf) in
     let arg = subst_arg subst lexbuf in
     begin try
-      Index.treat (check_this main) tag arg
+      Index.treat (check_this main)
+        tag arg (get_this_nostyle main "\\@currentlabel")
     with Index.Error s -> raise (Misc.ScanError s)
     end ;
     Dest.set_last_closed save_last_closed)
@@ -2374,11 +2376,14 @@ def_code "\\stepcounter"
           Counter.step_counter name )
 ;;
 
+def_print "\\@currentlabel" "" ;
 def_code "\\refstepcounter"
   (fun lexbuf ->
           let name = get_this_nostyle main (save_arg lexbuf) in
           Counter.step_counter name ;
-          Counter.setrefvalue (get_this_nostyle main ("\\the"^name)) )
+          redef_print "\\@currentlabel"
+            (get_this_clearstyle main ("\\the"^name)) ;
+          macro_register "\\@currentlabel")
 ;;
 
 def_code "\\numberwithin"
@@ -2715,8 +2720,11 @@ def_fun "\\~"  tilde
 ;;
 
 Get.init
-   (fun nostyle s -> do_get_this nostyle main s)
-     macro_register new_env close_env ;
+   (fun nostyle s ->
+     do_get_this
+       (if nostyle then Dest.nostyle else (fun () -> ()))
+       main s)
+    macro_register new_env close_env ;
 Tabular.init (subst_this subst)
 ;;
 

@@ -15,6 +15,3 @@ val set_counter: string -> int -> unit
 val add_counter:string -> int -> unit
 val step_counter: string -> unit
 val number_within: string -> string -> unit
-
-val setrefvalue: string -> unit
-val getrefvalue: unit -> string
