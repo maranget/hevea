@@ -11,15 +11,15 @@ all: manual.dvi index.html
 
 opt:
 	export HEVEADIR=.. ;\
-	$(MAKE) $(MFLAGS) HEVEAOPTS="$(HEVEAOPTS)" HEVEA=hevea.opt HACHA=hacha.opt IMAGEN=imagen.opt all
+	$(MAKE) $(MFLAGS) HEVEAOPTS="$(HEVEAOPTS)" HEVEA=../hevea.opt HACHA=../hacha.opt IMAGEN=../imagen all
 
 infoopt:
 	export HEVEADIR=.. ;\
-	$(MAKE) $(MFLAGS) HEVEAOPTS="$(HEVEAOPTS)" HEVEA=hevea.opt HACHA=hacha.opt IMAGEN=imagen.opt info
+	$(MAKE) $(MFLAGS) HEVEAOPTS="$(HEVEAOPTS)" ../HEVEA=hevea.opt HACHA=../hacha.opt IMAGEN=imagen.opt info
 
 byte:
 	export HEVEADIR=.. ;\
-	$(MAKE) $(MFLAGS) HEVEAOPTS="$(HEVEAOPTS)" HEVEA=hevea.byte HACHA=hacha.byte IMAGEN=imagen.byte all
+	$(MAKE) $(MFLAGS) HEVEAOPTS="$(HEVEAOPTS)" HEVEA=../hevea.byte HACHA=../hacha.byte IMAGEN=../imagen all
 
 tmp.tex: manual.tex version.tex
 	$(GPIC) -t < manual.tex > tmp.tex
