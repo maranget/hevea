@@ -2220,16 +2220,27 @@ the block-level element \texttt{TABLE}. In that case, one should use
 the internal macros \verb+\@open+ and \verb+\@close+ of the following
 section.
 
-
 When \hevea{} is given the command line option ``\texttt{-O}'',
 checking and optimization of text-level elements in the whole document
 takes place.  As a consequence, incorrect \html{} introduced by using
 the \texttt{rawhtml} environment may be detected at a later stage.
 
-
-
 For the document to remain processable by \LaTeX{}, it must load the
 \texttt{hevea.sty} style file (see section~\ref{heveastyle}).
+
+\envindex{raw}\comindex{rawinput}
+\envindex{rawtext}\comindex{rawtextinput}
+If \hevea{} is targetted to produce text or info files (see
+Section~\ref{alternative}).
+The text inside \texttt{rawhtml} environmnents is ignored.
+However there exists a \texttt{rawtext} environment (and a
+\verb+\rawtextinput+ command) to echo text verbatim in text or info
+output mode.
+Additionally, the \texttt{raw} environment and a \verb+\rawinput+
+command echo their contents verbatim, regardless of \hevea{} output
+mode.
+
+
 
 \subsection{Internal macros}\label{internal}
 In this section a few of \hevea{} internal macros are
@@ -2649,7 +2660,7 @@ appropriate option, provided it is passed the \texttt{-fix} option.
 
 
 
-\section{Other output formats}\label{alternative}
+\section{Other \label{alternative}output formats}
 It is possible to translate \LaTeX{} file into other formats than
 \html. There are two such formats: plain text and info files.
 This enables producing postscript,

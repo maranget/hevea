@@ -502,3 +502,7 @@ poor}}{}
 %%%%% Extension des environnments hevea en lecture de fichier
 \newcommand{\rawhtmlinput}[1]
 {\@scaninput{\begin{rawhtml}}{#1}{\end{rawhtml}}}
+\newcommand{\rawtextinput}[1]
+{\@scaninput{\begin{rawtext}}{#1}{\end{rawtext}}}
+\newcommand{\rawinput}[1]
+{\@scaninput{\begin{raw}}{#1}{\end{raw}}}
