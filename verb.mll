@@ -877,11 +877,16 @@ let init_listings () =
       let all_arg = get_prim_arg lexbuf in
       let lexarg = Lexing.from_string all_arg in
       let opt = Subst.subst_opt "" lexarg in
-      let arg = Save.filename lexarg in
+      let arg = Save.rest lexarg in
       let exec = csname^"["^opt^"]{"^arg^"}" in
       prerr_endline exec ;
       scan_this  Scan.main exec) ;
-
+  def_code "\\lst@AddTo"
+    (fun lexbuf ->
+      let name = Scan.get_csname lexbuf in
+      let old = get_prim name in
+      let toadd = get_prim_arg lexbuf in
+      Latexmacros.def name zero_pat (Subst (old^to_add))) ;      
   def_code "\\lstlisting"
     (fun lexbuf ->
       let keys = Subst.subst_opt "" lexbuf in

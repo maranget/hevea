@@ -48,9 +48,9 @@
 \def\lst@record@kwds#1{\addtokens{\lst@allkeywords}{#1,}}
 \newtokens{\lst@allotherkeywords}
 \def\lst@record@okwds#1{\addtokens{\lst@allotherkeywords}{#1,}}
-\lst@AddToHook{InitVar}{\lstinfo{Keywords: \lst@allkeywords}}
-\lst@addToHook{SelectLanguage}
-  {\lst@delete@kwds\lst@allkeywords%
+\lst@AddToHook{SetLanguage}
+  {\lstinfo{Deleting: \lst@allkeywords}%
+  \lst@funcall{\lst@delete@kwds}{\lst@allkeywords}%
   \lst@delete@okwds\lst@allotherkeywords}
 \def\lst@install@kwd#1#2{\def\csname lstk@\@rawchars{#2}\endcsname{#1}}
 \def\lst@install@kwds
@@ -62,7 +62,7 @@
     \lst@record@okwds{#2}%
     \lst@iter{\lst@install@kwd{#1}}{#2}}
 \def\lst@delete@kwd
-  #1{\def\csname lstk@\@rawchars{#1}\endcsname{\lst@identifier@style}}
+  #1{\lstinfo{DLT: #1}\def\csname lstk@\@rawchars{#1}\endcsname{\lst@identifier@style}}
 \def\lst@delete@okwds#1{\lst@iter{\lst@delete@okwd}{#1}}
 \def\lst@delete@okwd
   #1{\def\csname lstk@\@rawchars{#1}\endcsname{}}
@@ -103,7 +103,7 @@
     {lstlang@#2@\csname lstdd@#2\endcsname}
     {lstlang@#2@#1}}
 \newcommand{\lst@language@key}[2][]
-  {\lsthk@SetLanguage\csname\lst@mklang[#1]{#2}\endcsname}
+  {\lstinfo{SetLanguage: #2}\lsthk@SetLanguage\csname\lst@mklang[#1]{#2}\endcsname}
 \lst@define@key@opt{language}{\lst@language@key}
 \newcommand{\lst@definelanguage@}[3]
   {\def\csname\lst@mklang[#2]{#1}\endcsname{\lstset{#3}}}
