@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: lexstate.ml,v 1.59 2002-01-04 18:41:21 maranget Exp $"
+let header = "$Id: lexstate.ml,v 1.60 2002-05-21 13:38:54 maranget Exp $"
 
 open Misc
 open Lexing
@@ -394,6 +394,9 @@ and save_filename lexbuf =
   full_save_arg eof_arg mkarg parg Save.filename lexbuf
 and save_verbatim lexbuf =
   full_save_arg eof_arg mkarg parg Save.arg_verbatim lexbuf
+
+and save_xy_arg lexbuf =
+  full_save_arg eof_arg mkarg parg Save.xy_arg lexbuf
 
 type sup_sub = {
   limits : Misc.limits option ;

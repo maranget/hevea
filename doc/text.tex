@@ -4841,7 +4841,7 @@ If given the \verb+idx+ option. \hevea{} attempts to read file
 used to redefine previously declared indexes.
 \item[{\tt\char92 makeindex}] Perform
 \verb+\newindex{default}{idx}{ind}{Index}+.
-\item[{\tt\char92 index[}{\it tag}{\tt]\{}{\it arg}{\tt\}}]
+z\item[{\tt\char92 index[}{\it tag}{\tt]\{}{\it arg}{\tt\}}]
 Act as the \LaTeX{} \verb+\index+ command except that the information
 extracted from {\it arg} goes to the {\it tag} index.
 The {\it tag} argument defaults to \verb+default+, thereby yielding
@@ -4865,6 +4865,21 @@ Note that the ``\texttt{multind}''
 style for indexes is not backward compatible with
 \LaTeX{} default indexing scheme. I would recommend using
 the ``\texttt{index}'' package.
+
+\subsection{Multiple Bibliographies with the \texttt{multibib} package}
+\ttindex{multibib}{package}\comindex{newcites}.
+\hevea{} provides a slighty uncomplete implementation of the
+\texttt{multibib} package. The one non-implemented feature is the
+simultaneous definition of more than one bibliography.
+That is one cannot invoke \verb+\newcites+ as follows~:
+\begin{verbatim}
+\newcites{suf1, suf2}{Title1, Title2}
+\end{verbatim}
+Instead, one should perform to calls to the \verb+\newcites+ command~:
+\begin{verbatim}
+\newcites{suf1}{Title1}
+\newcites{suf2}{Title2}
+\end{verbatim}
 
 \subsection{The \texttt{url} package}\label{urlpackage}
 \comindex{url}\index{hyperlinks}\ttindex{url}{package}

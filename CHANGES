@@ -1,3 +1,6 @@
+version 1.06+1
+   - Almost complete multibib package.
+   - Small bit of xypic (-> all \xymatrix are images).
 version 1.06
 version 1.06-7
   - \ifmagen indroduced, \imagentrue at beginning of .image.tex,

@@ -9,13 +9,13 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: version.ml,v 1.78 2002-05-17 07:46:20 maranget Exp $" 
-let real_version = "1.06"
+let header = "$Id: version.ml,v 1.79 2002-05-21 13:38:54 maranget Exp $" 
+let real_version = "1.06+1"
 let release_date = "2002-05-17"
 
 let version =
   try
-   let _ = String.index real_version '-' in
+   let _ = String.index real_version '+' in
    real_version^" of "^release_date
   with
   | Not_found -> real_version

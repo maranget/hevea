@@ -120,7 +120,6 @@
   {\begin{toimage}{#1}\end{toimage}}
 \newcommand{\@imagecommand}[2]
   {\newcommand{#1}{\begin{toimage}#1\end{toimage}#2}}
-
 %%%%%%%%%%%%%
 % Maketitle %
 %%%%%%%%%%%%%

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.36 2002-04-29 14:31:03 maranget Exp $    *)
+(*  $Id: package.ml,v 1.37 2002-05-21 13:38:54 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -563,5 +563,18 @@ register_init "amsmath"
   )
 ;;
 
+register_init "xypic"
+  (fun () -> def_code "\\@xyarg" 
+      (fun lexbuf ->
+        Save.start_echo () ;
+        let _ = Lexstate.save_xy_arg lexbuf in
+        let r = Save.get_echo () in
+        Image.put r
+       )
+  )
+;;
 
+
+            
+        
 end

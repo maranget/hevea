@@ -119,6 +119,7 @@ val save_verbatim : Lexing.lexbuf -> string arg
 val save_opt : string -> Lexing.lexbuf -> string arg
 val save_opts : string list -> Lexing.lexbuf -> ok arg list
 val save_arg_with_delim : string -> Lexing.lexbuf -> string arg
+val save_xy_arg : Lexing.lexbuf -> string arg
 val pretty_ok : ok -> string
 val skip_opt : Lexing.lexbuf -> unit
 val skip_csname : Lexing.lexbuf -> unit

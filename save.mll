@@ -13,7 +13,7 @@
 open Lexing
 open Misc
 
-let header = "$Id: save.mll,v 1.61 2002-04-29 14:31:03 maranget Exp $" 
+let header = "$Id: save.mll,v 1.62 2002-05-21 13:38:54 maranget Exp $" 
 
 let rec if_next_char  c lb =
   if lb.lex_eof_reached then
@@ -458,6 +458,14 @@ and check_equal = parse
 | '=' {true}
 | ""  {false}
 
+and do_xyarg = parse
+| [^'{']
+    {let lxm = Lexing.lexeme_char lexbuf 0 in
+    put_both_char lxm ;
+    do_xyarg lexbuf}
+| eof {raise Eof}
+| ""  {Out.to_string arg_buff}
+
 {
 
 let init_kmp s =
@@ -496,4 +504,6 @@ let arg_verbatim lexbuf = match first_char lexbuf with
   | c ->
       let delim = String.make 1 c in
       with_delim delim lexbuf
+
+let xy_arg lexbuf = do_xyarg lexbuf
 } 

@@ -7,6 +7,7 @@ htmltext.cmi: lexeme.cmi
 info.cmi: element.cmi length.cmi lexstate.cmi out.cmi tabular.cmi 
 latexmacros.cmi: lexstate.cmi 
 latexscan.cmi: imageManager.cmi lexstate.cmi outManager.cmi 
+lexstate.cmi: misc.cmi stack.cmi 
 outManager.cmi: element.cmi length.cmi lexstate.cmi out.cmi tabular.cmi 
 package.cmi: imageManager.cmi latexscan.cmi outManager.cmi 
 pp.cmi: htmltext.cmi lexeme.cmi tree.cmi 
@@ -117,10 +118,10 @@ latexscan.cmx: auxx.cmx counter.cmx element.cmx foot.cmx get.cmx hot.cmx \
     parse_opts.cmx save.cmx stack.cmx subst.cmx tabular.cmx latexscan.cmi 
 length.cmo: length.cmi 
 length.cmx: length.cmi 
-lexstate.cmo: location.cmi misc.cmi myfiles.cmi parse_opts.cmi save.cmi \
-    stack.cmi lexstate.cmi 
-lexstate.cmx: location.cmx misc.cmx myfiles.cmx parse_opts.cmx save.cmx \
-    stack.cmx lexstate.cmi 
+lexstate.cmo: location.cmi misc.cmi myfiles.cmi out.cmi parse_opts.cmi \
+    save.cmi stack.cmi lexstate.cmi 
+lexstate.cmx: location.cmx misc.cmx myfiles.cmx out.cmx parse_opts.cmx \
+    save.cmx stack.cmx lexstate.cmi 
 location.cmo: stack.cmi location.cmi 
 location.cmx: stack.cmx location.cmi 
 mathML.cmo: element.cmi htmlCommon.cmo latexmacros.cmi lexstate.cmi misc.cmi \

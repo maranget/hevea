@@ -55,7 +55,7 @@ info: manual.inf tmp.tex
 ############ Installation stuff
 install:
 	-mkdir $(DOCDIR)
-	cp iso.html symbol.html index.html manual[0-9][0-9][0-9].html *.gif $(DOCDIR)
+	cp iso.html symbol.html index.html fddl.html manual[0-9][0-9][0-9].html *.gif $(DOCDIR)
 	cp browser.html cutname.html $(DOCDIR)
 	cp ../html/urlhref.hva $(DOCDIR)
 ############# Release stuff
@@ -108,6 +108,7 @@ home.ps intd.ps round.ps xfd.ps $(RELEASEDIR)/$(RELEASENAME)-manual-dvi
 # Copy to FTPDIR
 	cd $(RELEASEDIR) ; mv $(RELEASENAME)-manual-dvi.tar.gz $(RELEASENAME)-manual.ps.gz  $(RELEASENAME)-manual.pdf $(RELEASENAME)-manual.tar.gz  $(RELEASENAME).tar.gz $(RELEASENAME)/README $(RELEASENAME)/LICENSE $(RELEASENAME)/CHANGES $(FTPDIR)
 
+#Avant, e'diter README, CHANGES, version.ml, commettre, tagger, make doversion
 release:
 	$(MAKE) $(MFLAGS) dorelease RELEASEOPT="-r $(RELEASETAG)"
 

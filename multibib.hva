@@ -1,0 +1,14 @@
+\newcommand{\@readmultbib}[1]
+{\@stopoutput\@stopimage%
+\ifthenelse{\@fileexists{#1.aux} \and \not \boolean{fixpoint}}
+  {\@try{\@readaux{#1}}{\warning{Failure while reading #1.aux}}}
+  {}%
+\@restartoutput\@restartimage}
+\newcommand{\newcites}[2]{%
+\let{\csname cite#1\endcsname}\cite%
+\let{\csname nocite#1\endcsname}\nocite%
+\let{\csname bibliographystyle#1\endcsname}\bibliographystyle%
+\def\csname refname#1\endcsname{#2}%
+\def\csname bibliography#1\endcsname##1{{\def\refname{\csname refname#1\endcsname}\input{#1.bbl}}}%
+\AtBeginDocument{\@readmultbib{#1}}%
+}

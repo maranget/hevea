@@ -46,3 +46,5 @@ val checklimits : Lexing.lexbuf -> bool
 val skip_delim : string -> Lexing.lexbuf -> unit
 val with_delim : string -> Lexing.lexbuf -> string
 val skip_blanks_init : Lexing.lexbuf -> unit
+
+val xy_arg : Lexing.lexbuf -> string

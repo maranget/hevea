@@ -293,26 +293,29 @@
 \newcommand{\citation}[1]{}
 \newcommand{\bibdata}[1]{}
 \newcommand{\bibstyle}[1]{}
+\newcommand{\bibliographystyle}[1]{}
 \newcommand{\label}[2][]
   {\@saveclosed\@locname{#2}{#1}\@auxwrite{#2}{\@currentlabel}\@restoreclosed}
 \newcommand{\ref}[1]{\@locref{#1}{\@auxread{#1}}}
 \newcommand{\pageref}[1]{\@locref{#1}{??}}
 \let\@input\input%appears inside aux files
-\newcommand{\@readhaux}
-{\@hauxinit\@iffileexists{\jobname.haux}{\input{\jobname.haux}}{}\@hauxfinal}
-\newcommand{\@readaux}{\input{\@basein.aux}}
-\AtBeginDocument
-{\@sawdocumenttrue\@stopoutput\@stopimage%
-\ifthenelse{\@fileexists{\@basein.aux} \and \not \boolean{fixpoint}}
-  {\@try{\@readaux}{\warning{Failure while reading .aux, reading .haux}\@readhaux}}
-  {\@readhaux}%
+\newcommand{\@readhaux}[1]
+{\@hauxinit\@iffileexists{#1.haux}{\input{#1.haux}}{}\@hauxfinal}
+\newcommand{\@readaux}[1]{\input{#1.aux}}
+\newcommand{\@readauxorhaux}[2]
+{\@stopoutput\@stopimage%
+\ifthenelse{\@fileexists{#1.aux} \and \not \boolean{fixpoint}}
+  {\@try{\@readaux{#1}}{\warning{Failure while reading .aux, reading .haux}\@readhaux{#2}}}
+  {\@readhaux{#2}}%
 \@restartoutput\@restartimage}
+\AtBeginDocument
+{\@sawdocumenttrue\@readauxorhaux{\@basein}{\jobname}}
 %%%%%%%%%%% Bibliography
 \def\bibliographystyle#1{}
 \def\nocite#1{}
-\newcommand{\bibname}{\iffrench Références\else References\fi}
+\newcommand{\refname}{\iffrench Références\else References\fi}
 \newenvironment{thebibliography}[1]
-  {\@bibliosection{\bibname}%
+  {\@bibliosection{\refname}%
   \begin{list}{\stepcounter{heveabib}\theheveabib}
     {\let\makelabel\@biblabel}}
   {\end{list}}
