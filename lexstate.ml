@@ -1,4 +1,4 @@
-let header =  "$Id: lexstate.ml,v 1.16 1999-05-25 15:52:13 tessaud Exp $"
+let header =  "$Id: lexstate.ml,v 1.17 1999-07-07 14:53:54 maranget Exp $"
 
 open Misc
 open Lexing
@@ -26,7 +26,6 @@ exception Error of string
 (* Status flags *)
 let display = ref false
 and in_math = ref false
-and alltt = ref false
 and french =
   ref
     (match !Parse_opts.language with
@@ -92,6 +91,8 @@ type closenv = string array t
 let stack = ref [||]
 and stack_stack = ref []
 and stack_stack_stack = ref []
+and alltt = ref false
+and stack_alltt = ref []
 ;;
 
 let top_level () = empty stack_stack
@@ -139,13 +140,17 @@ let scan_arg lexfun i =
     prerr_string ("Subst arg #"^string_of_int (i+1)^" -> ``"^arg^"''") ;
     prerr_endline (" ("^string_of_int (List.length !stack_stack)^")")
   end ;
-  let old_args = !stack in
+  let old_args = !stack
+  and old_alltt = !alltt in
   stack := pop stack_stack ;
+  alltt := pop stack_alltt ;
   if !verbose > 1 then
     prerr_args_aux !stack;
   let r = lexfun arg in
   push stack_stack !stack ;
+  push stack_alltt !alltt ;
   stack := old_args ;
+  alltt := old_alltt ;
   r
 
 and scan_body exec body args =
@@ -160,7 +165,16 @@ and scan_body exec body args =
     pretty_action body ;
     prerr_args () ;
 *)
-  let r = exec body in
+  push stack_alltt !alltt ;
+  let r =
+    if !alltt then begin
+      alltt := false ;
+      let r = exec body in
+      alltt := not !alltt ;
+      r
+    end else
+      exec body in
+  let _ = pop stack_alltt in
   begin match body with
   | CamlCode _ -> ()
   | _ -> stack := pop stack_stack
@@ -223,7 +237,6 @@ let flushing = ref false
 
 let stack_in_math = ref []
 and stack_display = ref []
-and stack_alltt = ref []
 
 
 let start_normal display in_math =

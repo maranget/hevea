@@ -44,7 +44,7 @@ open Tabular
 open Lexstate
 
 
-let header = "$Id: latexscan.mll,v 1.118 1999-07-06 16:02:46 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.119 1999-07-07 14:53:50 maranget Exp $" 
 
 
 let sbool = function
@@ -797,14 +797,7 @@ let expand_command main skip_blanks name lexbuf =
         ("Expanding macro "^name^" {"^(string_of_int !macro_depth)^"}") ;
       macro_depth := !macro_depth + 1
     end ;
-    push stack_alltt !alltt ;
-    if !alltt then begin
-      alltt := false ;
-      scan_body exec body args ;
-      alltt := not !alltt
-    end else
-      scan_body exec body args ;
-    let _ = pop stack_alltt in
+    scan_body exec body args ;
     if (!verbose > 1) then begin
       prerr_endline ("Cont after macro "^name^": ") ;
       macro_depth := !macro_depth - 1

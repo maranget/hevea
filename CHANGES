@@ -1,3 +1,6 @@
+version 1.05-1
+  - Refine the -pedantic option wrt to 4.0 transitional
+
 version 1.04
   - Experimental mathml mode, for equations.
   - Choose html 4.0 transitional as default output language

@@ -10,7 +10,7 @@
 (***********************************************************************)
 
 
-let header = "$Id: html.ml,v 1.62 1999-07-01 15:23:48 maranget Exp $" 
+let header = "$Id: html.ml,v 1.63 1999-07-07 14:53:45 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -601,17 +601,21 @@ and infonode opt num arg = ()
 
 
 let image arg n = 
-  put "<IMG " ;
-  if arg <> "" then begin
-    put arg;
-    put_char ' '
-  end ;
-  put "SRC=\"" ;
-  put n ;
-  if !Parse_opts.pedantic then begin
-    put "\" ALT=\"" ;
-    put n
-  end ;
-  put "\">"
+  if flags.in_pre && !Parse_opts.pedantic then begin
+    warning "Image tag inside preformatted block, ignored"
+  end else begin
+    put "<IMG " ;
+    if arg <> "" then begin
+      put arg;
+      put_char ' '
+    end ;
+    put "SRC=\"" ;
+    put n ;
+    if !Parse_opts.pedantic then begin
+      put "\" ALT=\"" ;
+      put n
+    end ;
+    put "\">"
+  end
 ;;
 
