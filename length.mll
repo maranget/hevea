@@ -7,12 +7,12 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: length.mll,v 1.14 2004-05-27 14:25:43 maranget Exp $          *)
+(*  $Id: length.mll,v 1.15 2005-01-21 17:40:51 maranget Exp $          *)
 (***********************************************************************)
 
 {
 open Lexing
-let header = "$Id: length.mll,v 1.14 2004-05-27 14:25:43 maranget Exp $" 
+let header = "$Id: length.mll,v 1.15 2005-01-21 17:40:51 maranget Exp $" 
 
 exception Cannot
 ;;
@@ -79,4 +79,5 @@ let main lexbuf =
   | Cannot ->
       let sbuf = lexbuf.lex_buffer in
       No (String.sub sbuf 0 lexbuf.lex_buffer_len)
+
 } 

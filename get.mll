@@ -16,9 +16,10 @@ open Lexing
 open Latexmacros
 open Lexstate
 open Stack
+open Length
 
 (* Compute functions *)
-let header = "$Id: get.mll,v 1.25 2004-11-26 13:13:05 maranget Exp $"
+let header = "$Id: get.mll,v 1.26 2005-01-21 17:40:51 maranget Exp $"
 
 exception Error of string
 
@@ -271,10 +272,21 @@ let def_commands_int () =
       (fun lexbuf ->
         let name = !get_this (save_arg lexbuf) in
         push_int (Counter.value_counter name)) ;
+      "\\@lengthtonchar",
+      (fun lexbuf ->
+        let length =
+          Length.main
+            (Lexing.from_string
+               (!get_this (save_arg lexbuf))) in        
+        let r = match length with
+        | Length.Char x -> x
+        | Length.Pixel x -> pixel_to_char x
+        | _ -> 2 in
+        push_int r) ;
       "\\pushint",
-        (fun lexbuf ->
-          let s = !get_this (save_arg lexbuf) in
-          scan_this result s)]
+      (fun lexbuf ->
+        let s = !get_this (save_arg lexbuf) in
+        scan_this result s)]
 
 let def_commands_bool () =  
   let old_ints = def_commands_int () in

@@ -1,4 +1,6 @@
 version 1.07+1
+   - Integrate mathpartir
+   - Small listings bugs (space forgotten in \lstinline"A A").
    - Erase bussproof and proof, concentrate on Didier's mathparir
    - Change title/maketitle management -> typeset after document is
      opened in image file (allow \includegrahics in \title!)

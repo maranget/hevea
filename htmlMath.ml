@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlMath.ml,v 1.29 2005-01-18 16:25:12 maranget Exp $" 
+let header = "$Id: htmlMath.ml,v 1.30 2005-01-21 17:40:51 maranget Exp $" 
 
 
 open Misc
@@ -457,7 +457,7 @@ let insert_vdisplay open_fun =
     push_out out_stack (bs,bargs,bout) ;    
     close_display () ;
     cur_out := ppout ;
-    open_fun () ;
+    let () = open_fun () in (* force 'unit -> unit' type  *)
     do_put (Out.to_string new_out.out) ;
     flags.empty <- false ; flags.blank <- false ;
     free new_out ;    
@@ -480,7 +480,7 @@ let over display _lexbuf =
     let mods = insert_vdisplay
         (fun () ->
           open_vdisplay display ;
-          open_vdisplay_row "NOWRAP ALIGN=center") in
+          open_vdisplay_row "" "NOWRAP ALIGN=center") in
     close_vdisplay_row () ;
 (*
     open_vdisplay_row "" ;
@@ -540,7 +540,7 @@ let over_align align1 align2 display _lexbuf =
       let mods = insert_vdisplay
         (fun () ->
           open_vdisplay display ;
-          open_vdisplay_row ("NOWRAP "^alignment)) in
+          open_vdisplay_row "" ("NOWRAP "^alignment)) in
       close_vdisplay_row () ;
       open_vdisplay_row "" "BGCOLOR=black" ;
       close_mods () ;

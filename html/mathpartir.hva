@@ -49,9 +49,9 @@
   \begin{tabular}{*{20}{>{\centering$$}p{}<{$$}}}}
   {\end{tabular}\end{center}}
 
+\newcommand{\mpr@globle}[1]{}
 \newcommand {\smaller}[1]{\@open{font}{size="-1"}#1\@close{font}}
-\newcommand {\mpr@name}[1]{\textsc{\smaller {#1}}}
-
+\newcommand {\@mpr@name}[1]{\textsc{\smaller {#1}}\let\mpr@name\mpr@globle}
 \def \@latexcr@char {\\}
 \def \mpr@line@hva #1{%
    \def \@testa {#1} \ifx \@testa \@latexcr@char
@@ -66,46 +66,56 @@
 \def \@latexcr #1{%
 \def \@test {#1}\ifx \@test \@latexcr@char \latexcr \else
 \qquad #1\fi}
-
+\newcommand{\mpr@valign}[1]{\ifthenelse{\equal{#1}{}}{}{valign="#1"}}
 \newcommand{\mpr@line}[1]
-{\@open{TR}{}%
+{\@open{TR}{\mpr@valign{#1}}%
+\ifx\mpr@label\mpr@L\@open{TD}{}\mpr@name{\@rule@name}\@force{TD}\fi
 \@open{TD}{ALIGN="\ifmpr@center{}center\else{}left\fi"}%
 \bgroup\def\mpr@line@arg{#1}%
-\@open{DISPLAY}{\ifthenelse{\equal{#1}{}}{}{valign="#1"}}%
+\@open{DISPLAY}{\mpr@valign{#1}}%
 \def\\{\@latexcr{\qquad}}
 \let\hva\mpr@line@hva}
-\newcommand{\endmpr@line}{\@close{DISPLAY}\egroup\@force{TD}\@close{TR}}
-
+\newcommand{\endmpr@line}
+{\@close{DISPLAY}\egroup\@force{TD}%
+\ifx\mpr@label\mpr@R\@open{TD}{}\mpr@name{\@rule@name}\@force{TD}\fi
+\@close{TR}}
 \def \mpr@empty {}
 \newif \ifmpr@center \mpr@centertrue
 \newif \ifmpr@vdots \mpr@vdotsfalse
+\newcounter{mpr@count}
+\newcommand{\mpr@output@vdots}
+{\vdots%
+\setcounter{mpr@count}{\@lengthtonchar{\mpr@vdots}}%
+\whiledo{\value{mpr@count}>1}{\@br\vdots\addtocounter{mpr@count}{-1}}}
+\def\mpr@emptyL{\ifx\mpr@label\mpr@L\@open{TD}{}\@force{TD}\fi}
+\def\mpr@emptyR{\ifx\mpr@label\mpr@R\@open{TD}{}\@force{TD}\fi}
 \newcommand{\@mpr@table}{\@open{TABLE}{border=2 cellspacing=1 cellpadding=0}}
-\newcommand {\inferrule}[3][]
+\newcommand {\@inferrule}[2]
    {\bgroup
     \let \\ \latexcr%
-%    \renewcommand{\@table@attributes}{border=0 cellspacing=1 cellpadding=0}%
-%    \begin{tabular}{>{\centering}b{}}%
     \@mpr@table%
-    \def \@arg{#1}\ifx \@arg \mpr@empty
-    \else
+    \ifx\mpr@label\mpr@C
       \@open{TR}{}\@open{TD}{align=left}%
-      \mpr@name{#1}%
+      \mpr@name{\@rule@name}%
       \@close{TD}\@close{TR}%
     \fi
-    \def \@@arg{#2}\ifx \@@arg \mpr@empty%
-      \mpr@line{center}#3\endmpr@line%
+    \def \@@arg{#1}\ifx \@@arg \mpr@empty%
+      \mpr@line{center}#2\endmpr@line%
     \else
-      \def \@@arg{#3}\ifx \@@arg \mpr@empty%
-      \mpr@line{}#2\endmpr@line%
+      \def \@@arg{#2}\ifx \@@arg \mpr@empty%
+      \mpr@line{}#1\endmpr@line%
     \else
-      \mpr@line{bottom}#2\endmpr@line%
+      \mpr@line{bottom}#1\endmpr@line%
       \@hhline%
-      \mpr@line{top}#3\endmpr@line%
+      \mpr@line{top}#2\endmpr@line%
     \fi\fi%
-    \ifmpr@vdots
-      \@open{TR}{valign=center}\@open{TD}{align=center}%
-      \vdots\@br\vdots
-      \@close{TD}\@close{TR}\fi
+    \ifmpr@vdots%
+      \@open{TR}{valign=center}%
+      \mpr@emptyL
+      \@open{TD}{align=center}\mpr@output@vdots\@force{TD}%
+      \mpr@emptyR
+      \@close{TR}%
+    \fi
     \@force{TABLE}%
     \egroup%
 }
@@ -119,8 +129,11 @@
    {<TABLE border=0 cellspacing=0 cellpadding=1 bgcolor=green width="100%">
     <TR><TD></TD></TR></TABLE>}}
 \def \@hhline
-{\@open{TR}{bgcolor=green}\@open{TD}{width="100\%" height="3"}%
-\@force{TD}\@force{TR}}
+{\@open{TR}{}%
+\mpr@emptyL
+\@open{TD}{height="3" bgcolor=green}\@force{TD}%
+\mpr@emptyR
+\@force{TR}}
 \def \hh@arrow {\@print
    {</TD></TR><TR> 
      <td><table cellpadding=0 cellspacing=0 WIDTH="100%"><tr>
@@ -135,11 +148,16 @@
 \def \@single@mathrule #1]{\inferrule [#1]}
 
 \newcommand {\inferrule*}[3][]{%
-   \def \@@rulename {}%
+   \bgroup
+   \mpr@vdotsfalse\let\mpr@label\mpr@N\let\mpr@name\@mpr@name%Default
    \setkeys {mpr}{#1}%
-   \ifx \@@rulename \mpr@empty \inferrule{#2}{#3}\else
-      \inferrule[\@@rulename]{#2}{#3}\fi}
-   
+   \@inferrule{#2}{#3}%
+   \egroup}
+\newcommand {\inferrule}[3][]{%
+   \def\mpr@arg{#1}\ifx\mpr@arg\mpr@empty
+   \inferrule*{#2}{#3}\else
+   \inferrule*[lab=#1,center]{#2}{#3}\fi}
+
 \def \mprset {\setkeys{mprset}}
 \define@key {mprset}{flushleft}[]{\mpr@centerfalse}
 \define@key {mprset}{center}[]{\mpr@centertrue}
@@ -149,17 +167,20 @@
 \define@key {mpr}{left}{[\mpr@name {#1}]}
 \define@key {mpr}{width}{}
 \define@key {mpr}{before}{}
-\define@key {mpr}{lab}{\def \@@rulename {[\mpr@name {#1}]}}
+
 \define@key {mpr}{narrower}{}
 \define@key {mpr}{leftskip}{}
 \define@key {mpr}{rightskip}{}
-\define@key {mpr}{left}{[\mpr@name {#1}]}
-\define@key {mpr}{Left}{[\mpr@name {#1}]}
-\define@key {mpr}{Right}{[\mpr@name {#1}]}
-\define@key {mpr}{right}{[\mpr@name {#1}]}
-\define@key {mpr}{vdots}{\mpr@vdotstrue}
+\def\mpr@N{N}\def\mpr@C{C}\def\mpr@R{R}\def\mpr@L{L}\let\mpr@label\mpr@N
+\def\mpr@set@name#1{\def \@rule@name {[\mpr@name {#1}]}}
+\define@key {mpr}{lab}{\let\mpr@label\mpr@C\mpr@set@name{#1}}
+\define@key {mpr}{Lab}{\let\mpr@label\mpr@C\mpr@set@name{#1}}
+\define@key {mpr}{left}{\let\mpr@label\mpr@L\mpr@set@name{#1}}
+\define@key {mpr}{Left}{\let\mpr@label\mpr@L\mpr@set@name{#1}}
+\define@key {mpr}{Right}{\let\mpr@label\mpr@R\mpr@set@name{#1}}
+\define@key {mpr}{right}{\let\mpr@label\mpr@R\mpr@set@name{#1}}
+\define@key {mpr}{vdots}{\mpr@vdotstrue\def\mpr@vdots{#1}}
 \define@key {mpr}{after}{}
-\define@key {mpr}{Lab}{\def \@@rulename {\mpr@name {#1}}}
 \define@key {mpr}{reduce}[]{\let \hhline \hh@arrow}
 
 %\let \infer \inferrule

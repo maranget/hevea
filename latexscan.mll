@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.248 2005-01-18 16:25:12 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.249 2005-01-21 17:40:51 maranget Exp $ *)
 
 
 {
@@ -2899,29 +2899,43 @@ def_code "\\@getlength"
     Dest.put (string_of_int (pxls/2)))
 ;;
 
-let do_space vert lexbuf  = 
+
+let do_space 
+    (warn:string -> unit)
+    (doit:unit -> unit) lexbuf  = 
   let arg = subst_arg lexbuf in
-  begin try
+  try
     let n = match Length.main (Lexing.from_string arg) with
     | Length.Char n -> n
     | Length.Pixel n -> Length.pixel_to_char n
     | _                 -> raise Cannot in
-    if vert then
-      for i=1 to n do
-        Dest.skip_line ()
-      done
-    else
-      for i=1 to n do
-        Dest.put_nbsp (); (* "&nbsp;"*)
-      done
-  with Cannot ->
-    warning ((if vert then "\\vspace" else "\\hspace")^
-             " with arg ``"^arg^"''")
-  end
+    for i=1 to n do
+      doit ()
+    done
+  with Cannot -> warn arg
 ;;
 
-def_code "\\hspace"  (fun lexbuf -> do_space false lexbuf) ;
-def_code "\\vspace"  (fun lexbuf -> do_space true lexbuf)
+let warn_space name arg = warning (name^" with arg ``"^arg^"''")
+;;
+
+let warn_hspace = warn_space "\\hspace"
+and warn_vspace = warn_space "\\vspace"
+;;
+
+def_code "\\hspace"
+    (fun lexbuf -> do_space warn_hspace Dest.put_nbsp lexbuf) ;
+def_code "\\vspace" 
+    (fun lexbuf -> do_space warn_vspace Dest.skip_line lexbuf) ;
+def_code "\\@vdotsfill"
+  (fun lexbuf ->
+    do_space
+      (fun arg  -> warning ("vertical length: "^arg) ; scan_this main "\\vdots")
+      (let fst = ref true in
+      (fun () ->
+        if not !fst then Dest.skip_line ()
+        else fst := false ;
+        scan_this main "\\vdots"))
+        lexbuf)
 ;;
 
 (* Explicit groups *)

@@ -1,137 +1,139 @@
-explode.cmi: htmltext.cmi lexeme.cmi tree.cmi 
-get.cmi: length.cmi lexstate.cmi 
+explode.cmi: tree.cmi lexeme.cmi htmltext.cmi 
+get.cmi: lexstate.cmi length.cmi 
 htmllex.cmi: lexeme.cmi 
-html.cmi: element.cmi length.cmi lexstate.cmi out.cmi tabular.cmi 
-htmlparse.cmi: lexeme.cmi tree.cmi 
+html.cmi: tabular.cmi out.cmi lexstate.cmi length.cmi element.cmi 
+htmlparse.cmi: tree.cmi lexeme.cmi 
 htmltext.cmi: lexeme.cmi 
-info.cmi: element.cmi length.cmi lexstate.cmi out.cmi tabular.cmi 
+info.cmi: tabular.cmi out.cmi lexstate.cmi length.cmi element.cmi 
 latexmacros.cmi: lexstate.cmi 
-latexscan.cmi: imageManager.cmi lexstate.cmi outManager.cmi 
-lexstate.cmi: misc.cmi stack.cmi 
-outManager.cmi: element.cmi length.cmi lexstate.cmi out.cmi tabular.cmi 
-package.cmi: imageManager.cmi latexscan.cmi outManager.cmi 
-pp.cmi: htmltext.cmi lexeme.cmi tree.cmi 
+latexscan.cmi: outManager.cmi lexstate.cmi imageManager.cmi 
+lexstate.cmi: stack.cmi misc.cmi 
+outManager.cmi: tabular.cmi out.cmi lexstate.cmi length.cmi element.cmi 
+package.cmi: outManager.cmi latexscan.cmi imageManager.cmi 
+pp.cmi: tree.cmi lexeme.cmi htmltext.cmi 
 save.cmi: misc.cmi 
 subst.cmi: lexstate.cmi 
-tabular.cmi: length.cmi lexstate.cmi 
-text.cmi: element.cmi length.cmi lexstate.cmi out.cmi tabular.cmi 
+tabular.cmi: lexstate.cmi length.cmi 
+text.cmi: tabular.cmi out.cmi lexstate.cmi length.cmi element.cmi 
 tree.cmi: lexeme.cmi 
-ultra.cmi: lexeme.cmi tree.cmi 
-util.cmi: htmltext.cmi tree.cmi 
-verb.cmi: imageManager.cmi latexscan.cmi outManager.cmi 
-videoc.cmi: imageManager.cmi latexscan.cmi outManager.cmi 
-auxx.cmo: misc.cmi mysys.cmi parse_opts.cmi auxx.cmi 
-auxx.cmx: misc.cmx mysys.cmx parse_opts.cmx auxx.cmi 
+ultra.cmi: tree.cmi lexeme.cmi 
+util.cmi: tree.cmi htmltext.cmi 
+verb.cmi: outManager.cmi latexscan.cmi imageManager.cmi 
+videoc.cmi: outManager.cmi latexscan.cmi imageManager.cmi 
+auxx.cmo: parse_opts.cmi mysys.cmi misc.cmi auxx.cmi 
+auxx.cmx: parse_opts.cmx mysys.cmx misc.cmx auxx.cmi 
 buff.cmo: buff.cmi 
 buff.cmx: buff.cmi 
-color.cmo: colscan.cmi misc.cmi color.cmi 
-color.cmx: colscan.cmx misc.cmx color.cmi 
+color.cmo: misc.cmi colscan.cmi color.cmi 
+color.cmx: misc.cmx colscan.cmx color.cmi 
 colscan.cmo: out.cmi colscan.cmi 
 colscan.cmx: out.cmx colscan.cmi 
-counter.cmo: latexmacros.cmi misc.cmi counter.cmi 
-counter.cmx: latexmacros.cmx misc.cmx counter.cmi 
+counter.cmo: misc.cmi latexmacros.cmi counter.cmi 
+counter.cmx: misc.cmx latexmacros.cmx counter.cmi 
 cross.cmo: location.cmi cross.cmi 
 cross.cmx: location.cmx cross.cmi 
-cutmain.cmo: cross.cmi cut.cmi location.cmi misc.cmi mylib.cmi mysys.cmi \
-    version.cmi 
-cutmain.cmx: cross.cmx cut.cmx location.cmx misc.cmx mylib.cmx mysys.cmx \
-    version.cmx 
-cut.cmo: cross.cmi location.cmi misc.cmi mylib.cmi mysys.cmi out.cmi save.cmi \
-    section.cmi stack.cmi thread.cmi cut.cmi 
-cut.cmx: cross.cmx location.cmx misc.cmx mylib.cmx mysys.cmx out.cmx save.cmx \
-    section.cmx stack.cmx thread.cmx cut.cmi 
+cutmain.cmo: version.cmi mysys.cmi mylib.cmi misc.cmi location.cmi cut.cmi \
+    cross.cmi 
+cutmain.cmx: version.cmx mysys.cmx mylib.cmx misc.cmx location.cmx cut.cmx \
+    cross.cmx 
+cut.cmo: thread.cmi stack.cmi section.cmi save.cmi out.cmi misc.cmi cross.cmi \
+    cut.cmi 
+cut.cmx: thread.cmx stack.cmx section.cmx save.cmx out.cmx misc.cmx cross.cmx \
+    cut.cmi 
 element.cmo: element.cmi 
 element.cmx: element.cmi 
 emisc.cmo: emisc.cmi 
 emisc.cmx: emisc.cmi 
-entry.cmo: out.cmi save.cmi entry.cmi 
-entry.cmx: out.cmx save.cmx entry.cmi 
-esponjamain.cmo: esponja.cmi mysys.cmi ultra.cmi 
-esponjamain.cmx: esponja.cmx mysys.cmx ultra.cmx 
-esponja.cmo: emisc.cmi explode.cmi htmllex.cmi htmlparse.cmi location.cmi \
-    mysys.cmi pp.cmi ultra.cmi esponja.cmi 
-esponja.cmx: emisc.cmx explode.cmx htmllex.cmx htmlparse.cmx location.cmx \
-    mysys.cmx pp.cmx ultra.cmx esponja.cmi 
-explode.cmo: htmltext.cmi lexeme.cmi tree.cmi util.cmi explode.cmi 
-explode.cmx: htmltext.cmx lexeme.cmi tree.cmi util.cmx explode.cmi 
-foot.cmo: misc.cmi parse_opts.cmi section.cmi foot.cmi 
-foot.cmx: misc.cmx parse_opts.cmx section.cmx foot.cmi 
-get.cmo: counter.cmi latexmacros.cmi length.cmi lexstate.cmi misc.cmi \
-    myfiles.cmi parse_opts.cmi stack.cmi get.cmi 
-get.cmx: counter.cmx latexmacros.cmx length.cmx lexstate.cmx misc.cmx \
-    myfiles.cmx parse_opts.cmx stack.cmx get.cmi 
-hot.cmo: color.cmi counter.cmi foot.cmi infoRef.cmo latexmacros.cmi \
-    lexstate.cmi misc.cmi parse_opts.cmi hot.cmi 
-hot.cmx: color.cmx counter.cmx foot.cmx infoRef.cmx latexmacros.cmx \
-    lexstate.cmx misc.cmx parse_opts.cmx hot.cmi 
-htmlCommon.cmo: element.cmi latexmacros.cmi length.cmi misc.cmi out.cmi \
-    parse_opts.cmi stack.cmi 
-htmlCommon.cmx: element.cmx latexmacros.cmx length.cmx misc.cmx out.cmx \
-    parse_opts.cmx stack.cmx 
-htmllex.cmo: buff.cmi emisc.cmi lexeme.cmi location.cmi stack.cmi htmllex.cmi 
-htmllex.cmx: buff.cmx emisc.cmx lexeme.cmi location.cmx stack.cmx htmllex.cmi 
-htmlMath.cmo: element.cmi htmlCommon.cmo lexstate.cmi misc.cmi out.cmi \
-    parse_opts.cmi stack.cmi symb.cmi 
-htmlMath.cmx: element.cmx htmlCommon.cmx lexstate.cmx misc.cmx out.cmx \
-    parse_opts.cmx stack.cmx symb.cmx 
-html.cmo: htmlCommon.cmo htmlMath.cmo latexmacros.cmi length.cmi lexstate.cmi \
-    mathML.cmo misc.cmi out.cmi parse_opts.cmi stack.cmi tabular.cmi html.cmi 
-html.cmx: htmlCommon.cmx htmlMath.cmx latexmacros.cmx length.cmx lexstate.cmx \
-    mathML.cmx misc.cmx out.cmx parse_opts.cmx stack.cmx tabular.cmx html.cmi 
-htmlparse.cmo: buff.cmi htmllex.cmi lexeme.cmi tree.cmi htmlparse.cmi 
-htmlparse.cmx: buff.cmx htmllex.cmx lexeme.cmi tree.cmi htmlparse.cmi 
-htmltext.cmo: emisc.cmi lexeme.cmi htmltext.cmi 
-htmltext.cmx: emisc.cmx lexeme.cmi htmltext.cmi 
-image.cmo: location.cmi misc.cmi myfiles.cmi mysys.cmi out.cmi parse_opts.cmi \
-    stack.cmi image.cmi 
-image.cmx: location.cmx misc.cmx myfiles.cmx mysys.cmx out.cmx parse_opts.cmx \
-    stack.cmx image.cmi 
-index.cmo: entry.cmi misc.cmi mysys.cmi out.cmi parse_opts.cmi table.cmi \
+entry.cmo: save.cmi out.cmi entry.cmi 
+entry.cmx: save.cmx out.cmx entry.cmi 
+esponjamain.cmo: ultra.cmi mysys.cmi esponja.cmi 
+esponjamain.cmx: ultra.cmx mysys.cmx esponja.cmx 
+esponja.cmo: ultra.cmi pp.cmi mysys.cmi location.cmi htmlparse.cmi \
+    htmllex.cmi explode.cmi emisc.cmi esponja.cmi 
+esponja.cmx: ultra.cmx pp.cmx mysys.cmx location.cmx htmlparse.cmx \
+    htmllex.cmx explode.cmx emisc.cmx esponja.cmi 
+explode.cmo: util.cmi tree.cmi lexeme.cmi htmltext.cmi explode.cmi 
+explode.cmx: util.cmx tree.cmi lexeme.cmi htmltext.cmx explode.cmi 
+foot.cmo: section.cmi parse_opts.cmi misc.cmi foot.cmi 
+foot.cmx: section.cmx parse_opts.cmx misc.cmx foot.cmi 
+get.cmo: stack.cmi parse_opts.cmi myfiles.cmi misc.cmi lexstate.cmi \
+    length.cmi latexmacros.cmi counter.cmi get.cmi 
+get.cmx: stack.cmx parse_opts.cmx myfiles.cmx misc.cmx lexstate.cmx \
+    length.cmx latexmacros.cmx counter.cmx get.cmi 
+hot.cmo: parse_opts.cmi misc.cmi lexstate.cmi latexmacros.cmi infoRef.cmo \
+    foot.cmi counter.cmi color.cmi hot.cmi 
+hot.cmx: parse_opts.cmx misc.cmx lexstate.cmx latexmacros.cmx infoRef.cmx \
+    foot.cmx counter.cmx color.cmx hot.cmi 
+htmlCommon.cmo: stack.cmi parse_opts.cmi out.cmi misc.cmi length.cmi \
+    latexmacros.cmi element.cmi 
+htmlCommon.cmx: stack.cmx parse_opts.cmx out.cmx misc.cmx length.cmx \
+    latexmacros.cmx element.cmx 
+htmllex.cmo: stack.cmi location.cmi lexeme.cmi emisc.cmi buff.cmi htmllex.cmi 
+htmllex.cmx: stack.cmx location.cmx lexeme.cmi emisc.cmx buff.cmx htmllex.cmi 
+htmlMath.cmo: symb.cmi stack.cmi parse_opts.cmi out.cmi misc.cmi lexstate.cmi \
+    htmlCommon.cmo element.cmi 
+htmlMath.cmx: symb.cmx stack.cmx parse_opts.cmx out.cmx misc.cmx lexstate.cmx \
+    htmlCommon.cmx element.cmx 
+html.cmo: tabular.cmi stack.cmi parse_opts.cmi out.cmi misc.cmi mathML.cmo \
+    lexstate.cmi length.cmi latexmacros.cmi htmlMath.cmo htmlCommon.cmo \
+    html.cmi 
+html.cmx: tabular.cmx stack.cmx parse_opts.cmx out.cmx misc.cmx mathML.cmx \
+    lexstate.cmx length.cmx latexmacros.cmx htmlMath.cmx htmlCommon.cmx \
+    html.cmi 
+htmlparse.cmo: tree.cmi lexeme.cmi htmllex.cmi buff.cmi htmlparse.cmi 
+htmlparse.cmx: tree.cmi lexeme.cmi htmllex.cmx buff.cmx htmlparse.cmi 
+htmltext.cmo: lexeme.cmi emisc.cmi htmltext.cmi 
+htmltext.cmx: lexeme.cmi emisc.cmx htmltext.cmi 
+image.cmo: stack.cmi parse_opts.cmi out.cmi mysys.cmi myfiles.cmi misc.cmi \
+    location.cmi image.cmi 
+image.cmx: stack.cmx parse_opts.cmx out.cmx mysys.cmx myfiles.cmx misc.cmx \
+    location.cmx image.cmi 
+index.cmo: table.cmi parse_opts.cmi out.cmi mysys.cmi misc.cmi entry.cmi \
     index.cmi 
-index.cmx: entry.cmx misc.cmx mysys.cmx out.cmx parse_opts.cmx table.cmx \
+index.cmx: table.cmx parse_opts.cmx out.cmx mysys.cmx misc.cmx entry.cmx \
     index.cmi 
-info.cmo: infoRef.cmo misc.cmi mysys.cmi parse_opts.cmi text.cmi info.cmi 
-info.cmx: infoRef.cmx misc.cmx mysys.cmx parse_opts.cmx text.cmx info.cmi 
-infoRef.cmo: misc.cmi mysys.cmi out.cmi parse_opts.cmi text.cmi 
-infoRef.cmx: misc.cmx mysys.cmx out.cmx parse_opts.cmx text.cmx 
-latexmacros.cmo: lexstate.cmi misc.cmi parse_opts.cmi stack.cmi \
+info.cmo: text.cmi parse_opts.cmi mysys.cmi misc.cmi infoRef.cmo info.cmi 
+info.cmx: text.cmx parse_opts.cmx mysys.cmx misc.cmx infoRef.cmx info.cmi 
+infoRef.cmo: text.cmi parse_opts.cmi out.cmi mysys.cmi misc.cmi 
+infoRef.cmx: text.cmx parse_opts.cmx out.cmx mysys.cmx misc.cmx 
+latexmacros.cmo: stack.cmi parse_opts.cmi misc.cmi lexstate.cmi \
     latexmacros.cmi 
-latexmacros.cmx: lexstate.cmx misc.cmx parse_opts.cmx stack.cmx \
+latexmacros.cmx: stack.cmx parse_opts.cmx misc.cmx lexstate.cmx \
     latexmacros.cmi 
-latexmain.cmo: auxx.cmi colscan.cmi esponja.cmi get.cmi hot.cmi html.cmi \
-    image.cmi index.cmi info.cmi infoRef.cmo latexscan.cmi lexstate.cmi \
-    location.cmi misc.cmi myfiles.cmi mylib.cmi mysys.cmi noimage.cmi \
-    package.cmi parse_opts.cmi save.cmi stack.cmi tabular.cmi text.cmi \
-    ultra.cmi verb.cmi videoc.cmi zyva.cmo 
-latexmain.cmx: auxx.cmx colscan.cmx esponja.cmx get.cmx hot.cmx html.cmx \
-    image.cmx index.cmx info.cmx infoRef.cmx latexscan.cmx lexstate.cmx \
-    location.cmx misc.cmx myfiles.cmx mylib.cmx mysys.cmx noimage.cmx \
-    package.cmx parse_opts.cmx save.cmx stack.cmx tabular.cmx text.cmx \
-    ultra.cmx verb.cmx videoc.cmx zyva.cmx 
-latexscan.cmo: auxx.cmi counter.cmi element.cmi foot.cmi get.cmi hot.cmi \
-    imageManager.cmi latexmacros.cmi length.cmi lexstate.cmi location.cmi \
-    misc.cmi myfiles.cmi mylib.cmi mysys.cmi out.cmi outManager.cmi \
-    parse_opts.cmi save.cmi stack.cmi subst.cmi tabular.cmi latexscan.cmi 
-latexscan.cmx: auxx.cmx counter.cmx element.cmx foot.cmx get.cmx hot.cmx \
-    imageManager.cmi latexmacros.cmx length.cmx lexstate.cmx location.cmx \
-    misc.cmx myfiles.cmx mylib.cmx mysys.cmx out.cmx outManager.cmi \
-    parse_opts.cmx save.cmx stack.cmx subst.cmx tabular.cmx latexscan.cmi 
+latexmain.cmo: zyva.cmo videoc.cmi verb.cmi ultra.cmi text.cmi tabular.cmi \
+    stack.cmi save.cmi parse_opts.cmi package.cmi noimage.cmi mysys.cmi \
+    mylib.cmi myfiles.cmi misc.cmi location.cmi lexstate.cmi latexscan.cmi \
+    infoRef.cmo info.cmi index.cmi image.cmi html.cmi hot.cmi get.cmi \
+    esponja.cmi colscan.cmi auxx.cmi 
+latexmain.cmx: zyva.cmx videoc.cmx verb.cmx ultra.cmx text.cmx tabular.cmx \
+    stack.cmx save.cmx parse_opts.cmx package.cmx noimage.cmx mysys.cmx \
+    mylib.cmx myfiles.cmx misc.cmx location.cmx lexstate.cmx latexscan.cmx \
+    infoRef.cmx info.cmx index.cmx image.cmx html.cmx hot.cmx get.cmx \
+    esponja.cmx colscan.cmx auxx.cmx 
+latexscan.cmo: tabular.cmi subst.cmi stack.cmi save.cmi parse_opts.cmi \
+    outManager.cmi out.cmi mysys.cmi mylib.cmi myfiles.cmi misc.cmi \
+    location.cmi lexstate.cmi length.cmi latexmacros.cmi imageManager.cmi \
+    hot.cmi get.cmi foot.cmi element.cmi counter.cmi auxx.cmi latexscan.cmi 
+latexscan.cmx: tabular.cmx subst.cmx stack.cmx save.cmx parse_opts.cmx \
+    outManager.cmi out.cmx mysys.cmx mylib.cmx myfiles.cmx misc.cmx \
+    location.cmx lexstate.cmx length.cmx latexmacros.cmx imageManager.cmi \
+    hot.cmx get.cmx foot.cmx element.cmx counter.cmx auxx.cmx latexscan.cmi 
 length.cmo: length.cmi 
 length.cmx: length.cmi 
-lexstate.cmo: location.cmi misc.cmi myfiles.cmi parse_opts.cmi save.cmi \
-    stack.cmi lexstate.cmi 
-lexstate.cmx: location.cmx misc.cmx myfiles.cmx parse_opts.cmx save.cmx \
-    stack.cmx lexstate.cmi 
+lexstate.cmo: stack.cmi save.cmi parse_opts.cmi myfiles.cmi misc.cmi \
+    location.cmi lexstate.cmi 
+lexstate.cmx: stack.cmx save.cmx parse_opts.cmx myfiles.cmx misc.cmx \
+    location.cmx lexstate.cmi 
 location.cmo: stack.cmi location.cmi 
 location.cmx: stack.cmx location.cmi 
-mathML.cmo: element.cmi htmlCommon.cmo latexmacros.cmi lexstate.cmi misc.cmi \
-    out.cmi parse_opts.cmi stack.cmi 
-mathML.cmx: element.cmx htmlCommon.cmx latexmacros.cmx lexstate.cmx misc.cmx \
-    out.cmx parse_opts.cmx stack.cmx 
+mathML.cmo: stack.cmi parse_opts.cmi out.cmi misc.cmi lexstate.cmi \
+    latexmacros.cmi htmlCommon.cmo element.cmi 
+mathML.cmx: stack.cmx parse_opts.cmx out.cmx misc.cmx lexstate.cmx \
+    latexmacros.cmx htmlCommon.cmx element.cmx 
 misc.cmo: location.cmi misc.cmi 
 misc.cmx: location.cmx misc.cmi 
-myfiles.cmo: misc.cmi mylib.cmi parse_opts.cmi myfiles.cmi 
-myfiles.cmx: misc.cmx mylib.cmx parse_opts.cmx myfiles.cmi 
+myfiles.cmo: parse_opts.cmi mylib.cmi misc.cmi myfiles.cmi 
+myfiles.cmx: parse_opts.cmx mylib.cmx misc.cmx myfiles.cmi 
 mylib.cmo: mylib.cmi 
 mylib.cmx: mylib.cmi 
 mysys.cmo: mysys.cmi 
@@ -140,57 +142,57 @@ noimage.cmo: noimage.cmi
 noimage.cmx: noimage.cmi 
 out.cmo: misc.cmi out.cmi 
 out.cmx: misc.cmx out.cmi 
-package.cmo: auxx.cmi color.cmi counter.cmi get.cmi imageManager.cmi \
-    index.cmi latexmacros.cmi latexscan.cmi lexstate.cmi misc.cmi mylib.cmi \
-    outManager.cmi parse_opts.cmi save.cmi stack.cmi subst.cmi version.cmi \
-    package.cmi 
-package.cmx: auxx.cmx color.cmx counter.cmx get.cmx imageManager.cmi \
-    index.cmx latexmacros.cmx latexscan.cmx lexstate.cmx misc.cmx mylib.cmx \
-    outManager.cmi parse_opts.cmx save.cmx stack.cmx subst.cmx version.cmx \
-    package.cmi 
-parse_opts.cmo: location.cmi misc.cmi mylib.cmi version.cmi parse_opts.cmi 
-parse_opts.cmx: location.cmx misc.cmx mylib.cmx version.cmx parse_opts.cmi 
-pp.cmo: htmltext.cmi lexeme.cmi tree.cmi pp.cmi 
-pp.cmx: htmltext.cmx lexeme.cmi tree.cmi pp.cmi 
-save.cmo: misc.cmi out.cmi save.cmi 
-save.cmx: misc.cmx out.cmx save.cmi 
+package.cmo: version.cmi subst.cmi stack.cmi save.cmi parse_opts.cmi \
+    outManager.cmi mylib.cmi misc.cmi lexstate.cmi latexscan.cmi \
+    latexmacros.cmi index.cmi imageManager.cmi get.cmi counter.cmi color.cmi \
+    auxx.cmi package.cmi 
+package.cmx: version.cmx subst.cmx stack.cmx save.cmx parse_opts.cmx \
+    outManager.cmi mylib.cmx misc.cmx lexstate.cmx latexscan.cmx \
+    latexmacros.cmx index.cmx imageManager.cmi get.cmx counter.cmx color.cmx \
+    auxx.cmx package.cmi 
+parse_opts.cmo: version.cmi mylib.cmi misc.cmi location.cmi parse_opts.cmi 
+parse_opts.cmx: version.cmx mylib.cmx misc.cmx location.cmx parse_opts.cmi 
+pp.cmo: tree.cmi lexeme.cmi htmltext.cmi pp.cmi 
+pp.cmx: tree.cmi lexeme.cmi htmltext.cmx pp.cmi 
+save.cmo: out.cmi misc.cmi save.cmi 
+save.cmx: out.cmx misc.cmx save.cmi 
 section.cmo: section.cmi 
 section.cmx: section.cmi 
 stack.cmo: stack.cmi 
 stack.cmx: stack.cmi 
-subst.cmo: lexstate.cmi misc.cmi out.cmi save.cmi subst.cmi 
-subst.cmx: lexstate.cmx misc.cmx out.cmx save.cmx subst.cmi 
+subst.cmo: save.cmi out.cmi misc.cmi lexstate.cmi subst.cmi 
+subst.cmx: save.cmx out.cmx misc.cmx lexstate.cmx subst.cmi 
 symb.cmo: parse_opts.cmi symb.cmi 
 symb.cmx: parse_opts.cmx symb.cmi 
 table.cmo: table.cmi 
 table.cmx: table.cmi 
-tabular.cmo: get.cmi latexmacros.cmi length.cmi lexstate.cmi misc.cmi \
-    parse_opts.cmi stack.cmi subst.cmi table.cmi tabular.cmi 
-tabular.cmx: get.cmx latexmacros.cmx length.cmx lexstate.cmx misc.cmx \
-    parse_opts.cmx stack.cmx subst.cmx table.cmx tabular.cmi 
-text.cmo: element.cmi latexmacros.cmi length.cmi lexstate.cmi misc.cmi \
-    out.cmi parse_opts.cmi stack.cmi table.cmi tabular.cmi text.cmi 
-text.cmx: element.cmx latexmacros.cmx length.cmx lexstate.cmx misc.cmx \
-    out.cmx parse_opts.cmx stack.cmx table.cmx tabular.cmx text.cmi 
+tabular.cmo: table.cmi subst.cmi stack.cmi parse_opts.cmi misc.cmi \
+    lexstate.cmi length.cmi latexmacros.cmi get.cmi tabular.cmi 
+tabular.cmx: table.cmx subst.cmx stack.cmx parse_opts.cmx misc.cmx \
+    lexstate.cmx length.cmx latexmacros.cmx get.cmx tabular.cmi 
+text.cmo: tabular.cmi table.cmi stack.cmi parse_opts.cmi out.cmi misc.cmi \
+    lexstate.cmi length.cmi latexmacros.cmi element.cmi text.cmi 
+text.cmx: tabular.cmx table.cmx stack.cmx parse_opts.cmx out.cmx misc.cmx \
+    lexstate.cmx length.cmx latexmacros.cmx element.cmx text.cmi 
 thread.cmo: thread.cmi 
 thread.cmx: thread.cmi 
-ultra.cmo: explode.cmi htmllex.cmi htmltext.cmi pp.cmi tree.cmi util.cmi \
+ultra.cmo: util.cmi tree.cmi pp.cmi htmltext.cmi htmllex.cmi explode.cmi \
     ultra.cmi 
-ultra.cmx: explode.cmx htmllex.cmx htmltext.cmx pp.cmx tree.cmi util.cmx \
+ultra.cmx: util.cmx tree.cmi pp.cmx htmltext.cmx htmllex.cmx explode.cmx \
     ultra.cmi 
-util.cmo: htmltext.cmi tree.cmi util.cmi 
-util.cmx: htmltext.cmx tree.cmi util.cmi 
-verb.cmo: counter.cmi get.cmi imageManager.cmi latexmacros.cmi latexscan.cmi \
-    lexstate.cmi location.cmi misc.cmi myfiles.cmi out.cmi outManager.cmi \
-    parse_opts.cmi save.cmi stack.cmi subst.cmi verb.cmi 
-verb.cmx: counter.cmx get.cmx imageManager.cmi latexmacros.cmx latexscan.cmx \
-    lexstate.cmx location.cmx misc.cmx myfiles.cmx out.cmx outManager.cmi \
-    parse_opts.cmx save.cmx stack.cmx subst.cmx verb.cmi 
+util.cmo: tree.cmi htmltext.cmi util.cmi 
+util.cmx: tree.cmi htmltext.cmx util.cmi 
+verb.cmo: subst.cmi stack.cmi save.cmi parse_opts.cmi outManager.cmi out.cmi \
+    myfiles.cmi misc.cmi location.cmi lexstate.cmi latexscan.cmi \
+    latexmacros.cmi imageManager.cmi get.cmi counter.cmi verb.cmi 
+verb.cmx: subst.cmx stack.cmx save.cmx parse_opts.cmx outManager.cmi out.cmx \
+    myfiles.cmx misc.cmx location.cmx lexstate.cmx latexscan.cmx \
+    latexmacros.cmx imageManager.cmi get.cmx counter.cmx verb.cmi 
 version.cmo: version.cmi 
 version.cmx: version.cmi 
-videoc.cmo: imageManager.cmi latexmacros.cmi latexscan.cmi lexstate.cmi \
-    misc.cmi myfiles.cmi outManager.cmi parse_opts.cmi subst.cmi videoc.cmi 
-videoc.cmx: imageManager.cmi latexmacros.cmx latexscan.cmx lexstate.cmx \
-    misc.cmx myfiles.cmx outManager.cmi parse_opts.cmx subst.cmx videoc.cmi 
-zyva.cmo: imageManager.cmi latexscan.cmi outManager.cmi 
-zyva.cmx: imageManager.cmi latexscan.cmx outManager.cmi 
+videoc.cmo: subst.cmi parse_opts.cmi outManager.cmi myfiles.cmi misc.cmi \
+    lexstate.cmi latexscan.cmi latexmacros.cmi imageManager.cmi videoc.cmi 
+videoc.cmx: subst.cmx parse_opts.cmx outManager.cmi myfiles.cmx misc.cmx \
+    lexstate.cmx latexscan.cmx latexmacros.cmx imageManager.cmi videoc.cmi 
+zyva.cmo: outManager.cmi latexscan.cmi imageManager.cmi 
+zyva.cmx: outManager.cmi latexscan.cmx imageManager.cmi 
