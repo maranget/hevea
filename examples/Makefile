@@ -6,7 +6,7 @@ EXDIR=$(HOME)/public_html/hevea/examples
 all: a.html testsccal.html patbis.html suite.html index.html
 install:
 	-mkdir $(EXDIR)
-	cp *.gif *.html $(EXDIR)
+	cp *.gif *.html hp.txt $(EXDIR)
 	cp Makefile a.tex suite.tex pat.tex pat.def pat.sty $(EXDIR)
 a.html: a.tex
 	$(LATEX) < /dev/null a.tex

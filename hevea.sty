@@ -358,9 +358,10 @@
 \def\quad{~~}
 \def\qquad{\quad\quad}
 %% Boxes
+\newcommand{\textfbox}[1]{\warning{\fbox in text}\mbox{#1}}
 \def\fbox#1{%
 \ifdisplay\begin{array}{|c|}\hline#1\end{array}\else
-\warning{\fbox in text}\mbox{#1}\fi}
+\textfbox{#1}\fi}
 \newcommand{\hbox}[1]{\warning{\hbox}\mbox{#1}}
 \newcommand{\displaystyle}{\ifdisplay\else\warning{\displaystyle ignored}\fi}
 %%% not so serious

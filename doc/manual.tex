@@ -45,6 +45,7 @@ Chesnay Cedex. {\tt \mailto{Luc.Maranget@inria.fr}}}}
 \maketitle
 
 \newcommand{\ftpbase}{ftp://ftp.inria.fr/INRIA/Projects/para/hevea}%
+\newcommand{\httpbase}{http://para.inria.fr/\home{maranget}/hevea}%
 \begin{htmlonly}
 \@print{
 <HR>
@@ -96,7 +97,7 @@ Information on \hevea{} is available at \oneurl{\docurl}.
 
 \section{How to get started}\label{getstarted}
 
-Assume that you have a file, ``\texttt{a.tex}'' written in \LaTeX, using the
+Assume that you have a file, ``\texttt{a.tex}'', written in \LaTeX, using the
 \filename{article}, \filename{book} or \filename{report} style. Then,
 translation
 is achieved by issuing the command~:
@@ -108,7 +109,7 @@ Probably, you will get some warnings. If
 (Section~\ref{trouble}  explains how to correct errors).
 
 If everything goes fine, this will produce a new file,
-``\texttt{a.html}'' that you can visualize using an {\html} browser.
+``\texttt{a.html}'', that you can visualize using an {\html} browser.
 If \texttt{a.tex} contains math symbols you need to instruct your
 browser to use symbol fonts (see section~\ref{browser}).
 
@@ -323,7 +324,7 @@ No space   & \bfsymbol XXX
 Note that, if a space before ``XXX'' is wanted, then
 one should probably write:
 \begin{verbatim}
-\newcommand{\tryspace}[2]{#1{} XXX}
+\newcommand{\tryspace}[1]{#1{} XXX}
 \end{verbatim}
 
 
@@ -334,7 +335,7 @@ all letters are shown in italics and that space after macros
 is echoed.
 
 However, typesetting math formulas in \html{} rises two difficulties.
-First, formulas contain symbols, such as greek letters, second,
+First, formulas contain symbols, such as Greek letters, second,
 even simple formulas do not follow the simple basic typesetting model of
 \html.
 
@@ -369,7 +370,7 @@ Replacement text is in English, unless
 \hevea{} is also given the \verb+-francais+ flag. In that case
 replacement text is in French.
 For instance. the $\in$ symbol is replace by ``in'' (or by ``appartient
-à'' if french mode is selected).
+à'' if French mode is selected).
 This is far from being satisfactory, but degraded mode may be
 appropriate for documents than contain few symbols.
 
@@ -474,7 +475,7 @@ by giving the \verb+-v+ options, which instructs \hevea{} to show the
 
 \subsection{Warnings}
 When \hevea{} thinks it cannot translate a symbol or construct
-properly, it issues a warning. This draw user attention onto a
+properly, it issues a warning. This draws user attention onto a
 potential problem. However, rendering may be correct.
 
 \begin{htmlonly}
@@ -1038,7 +1039,7 @@ under user control.
 
 \subsection{The \filename{image} file}
 
-While outputing \filename{mydoc}\texttt{.html}, \hevea{} echoes some
+While outputting \filename{mydoc}\texttt{.html}, \hevea{} echoes some
 of its input to the \filename{image} file,
 \filename{mydoc}\texttt{.image.tex}.
 
@@ -1062,7 +1063,7 @@ in \textit{text} above.
 
 Output to the image files builds up a current page, which is flushed
 by the \verb+\imageflush+ command.
-This command has the following effect:  it ouputs a strict page break
+This command has the following effect:  it outputs a strict page break
 in the \filename{image} file, increments the image counter and
 output a \verb+<IMG SRC="+\textit{pagename}\verb+.gif">+ element in \hevea{}
 output file, where \textit{pagename} is build from the image counter
@@ -1127,10 +1128,10 @@ line level.
 Cost can be lowered using \verb+\savebox+, but the other problems remain.
 
 
-\subsection{Including postcript images}
+\subsection{Including postscript images}
 Such images are easy to manage: it suffices to let \LaTeX{} do the
 job.
-Let \texttt{round.ps} be a postcript file, which is included as an
+Let \texttt{round.ps} be a postscript file, which is included as an
 image in the source file \texttt{round.tex} (which must load the
 \filename{epsf} package):
 \begin{verbatim}
@@ -1242,7 +1243,7 @@ Observe how the \verb+-o+ argument to \hevea{} is used and that
 
 \section{Cutting your document into pieces with {\hacha}}\label{hacha}
 \hevea{} outputs a single \texttt{.html} file. This file can be
-cut into pieces at various sectionnal units by {\hacha}
+cut into pieces at various sectional units by {\hacha}
 \subsection{Simple usage}
 First generate your {\html} document by applying \hevea{}:
 \begin{flushleft}
@@ -1262,7 +1263,7 @@ By default, the cutting sectional unit is {\em section} in the
 \filename{article} style and {\em chapter} in the \filename{book}
 style.
 
-Additionaly, one level of sectionning below the cutting unit (i.e.,
+Additionally, one level of sectioning below the cutting unit (i.e.,
 subsections in the \filename{article} style and sections in the
 \filename{book} style) is shown
 as an entry in the table of contents.
@@ -1305,7 +1306,7 @@ a current cutting depth, a root file and an output file.
 Table of contents output goes to the root file, normal output goes to
 the output file.
 Cutting units start a new output file, whereas units comprised between the
-cuttting unit and the cutting units plus the cutting depth add new
+cutting unit and the cutting units plus the cutting depth add new
 entries in the table of contents.
 
 At document start, the root file and the output file are {\hacha}
@@ -1315,7 +1316,7 @@ depend on the document style.
 
 \subsubsection{Cutting macros}
 The following cutting instructions are for use in the document
-preambule. They command the cutting scheme of the whole document:
+preamble. They command the cutting scheme of the whole document:
 \begin{description}
 \item[{\tt\char92 cuttingunit}]
 This is a macro that holds the document cutting unit. You can change
@@ -1380,7 +1381,7 @@ These comments act as instructions to {\hacha}.
 \end{verbatim}
 and \verb+\end{document}+
 performs \verb+\cutend+.
-All sectionning commands down to \verb+\subsubsection+ perform \verb+\cuthere+,
+All sectioning commands down to \verb+\subsubsection+ perform \verb+\cuthere+,
 with the sectional unit name as first argument and the (optional, if
 present) sectioning
 command argument (i.e., the section title) as second argument.
@@ -1455,7 +1456,7 @@ manual~\cite[Appendix~C]{latex}.
 \subsection{Spacing}
 Generally speaking, spaces (and single newline characters) in the
 source are echoed in the output.  Browser then manage with spaces and
-linebreaks.  Following \LaTeX{} behavior, spaces after commands are
+line-breaks.  Following \LaTeX{} behavior, spaces after commands are
 not echoed.  Spaces after invisible commands with arguments are not
 echoed either.
 
@@ -1492,7 +1493,7 @@ as follows:
 \end{verbatim}
 
 \subsection{Accents and special symbols}
-When there exist an equivalent to a given \LaTeX{} symbol, using
+When there exists an equivalent to a given \LaTeX{} symbol, using
 the iso-latin1 and symbol character sets, then \hevea{}
 outputs such an equivalent.
 \html{} pages that show these character sets can be found
@@ -1516,18 +1517,15 @@ Sectioning commands from \verb+\part+ down to
 They accept an optional argument and have starred versions.
 
 
-The non-starred sectionning commands show a section numbers in sectional
-unit headings,
-from \verb+\part+ down to \verb+\subsubsection+.
-This behavior cannot be changed and
-the \verb+secnumdepth+ counter does not exist.
-However, given a sectionnal unit {\it secname}, the counter
-{\it secname} exists and
-the appearance of sectional units numbers can be changed
-by redefining \verb+\the+{\it secname}.
+The non-starred sectioning commands from \verb+\part+ down to
+\verb+\subsubsection+ show section numbers in sectional unit headings.
+This behavior cannot be changed and the \verb+secnumdepth+ counter
+does not exist.  However, given a sectional unit {\it secname}, the
+counter {\it secname} exists and the appearance of sectional units
+numbers can be changed by redefining \verb+\the+{\it secname}.
 
-Sectionning commands output \html{} comments targeted to \hacha, for
-cutting the document at various sectionnal units, see
+Sectioning commands output \html{} comments targeted to \hacha, for
+cutting the document at various sectional units, see
 section~\ref{hacha} for details.
 
 
@@ -1566,12 +1564,12 @@ being the same file.
 If one of the three styles has already been loaded at the time when
 \verb+\documentclass+ or
 \verb+\documentstyle+ is executed, then no attempt to load a style
-file is made. This allows to overide the documment style file by
+file is made. This allows to override the document style file by
 giving one of the three style files of \hevea{} as command line arguments.
 
 \subsection{Packages and Page Styles}
 They are ignored. Related commands do nothing.
-As a consequence, style files that are relevant to \hevea{} sould be
+As a consequence, style files that are relevant to \hevea{} should be
 loaded using the \verb+\input+ command.
 Note, however, \verb+\usepackage+ commands are echoed to the \filename{image}
 file (see~\ref{imagen}).
@@ -1579,7 +1577,7 @@ file (see~\ref{imagen}).
 \subsection{The Title Page and Abstract}
 All title related commands exist, with the following peculiarities:
 \begin{itemize}
-  \item The \verb+\title+ command must appear in the preambule for the title
+  \item The \verb+\title+ command must appear in the preamble for the title
 to appear in \html{} document header.
   \item When not present the date is left empty. The \verb+\today+
 command generates an empty date.
@@ -1636,7 +1634,7 @@ The default defining of \verb+\makelabel+ simply processes {\it
 label}.
 \end{list}
 
-As an example, lists with user-defined conter can be defined as
+As an example, lists with user-defined counter can be defined as
 follows:
 \begin{verbatim}
 \newcounter{coucou}
@@ -1663,7 +1661,7 @@ The \verb+verbatim+ and \verb+verbatim*+ environments translate to
 the \verb+<PRE>+ element. There is no difference between
 \verb+verbatim+ and \verb+verbatim*+.
 
-Similarily, \verb+\verb+ and \verb+\verb*+ are the same and they
+Similarly, \verb+\verb+ and \verb+\verb*+ are the same and they
 translate to the \verb+<CODE>+ text element.
 
 The \verb+alltt+ environment is supported, but no extensive testing of
@@ -1679,14 +1677,14 @@ The three ways to use display math mode (\verb+$$+\ldots\verb+$$+,
 \verb+\[+\ldots\verb+\]+ and
 \verb+\begin{displaymath}+\ldots\ \verb+\end{displaymath}+ are also
 supported.
-Futhermore, \verb+\ensuremath+ behave as expected.
+Furthermore, \verb+\ensuremath+ behaves as expected.
 
 
-The \verb+equation+, \verb+eqnarray+, \verb+eqnarray*+ environements
+The \verb+equation+, \verb+eqnarray+, \verb+eqnarray*+ environments
 are supported.
 Equation labeling and numbering is performed in the first two
 environments, using the \verb+equation+ counter.
-Additionnally, numbering can be suppressed in one row of an
+Additionally, numbering can be suppressed in one row of an
 \verb+eqnarray+, using the \verb+\nonumber+ command.
 
 
@@ -1714,7 +1712,7 @@ $$\frac{1}{\sum_{i=1}^{\infty} i^i}$$
 \hevea{} admits, subscript (\verb+_+), superscripts (\verb+^+) and
 fractions (\verb+\frac{+{\it numer}\verb+}{+{\it denom}\verb+}+).
 The best effect is obtained in display mode, where \html{}
-\verb+<TABLE>+ element is extensiveley used. However, in-text
+\verb+<TABLE>+ element is extensively used. However, in-text
 simple subscript and superscript are rendered using the \verb+<SUB>+
 and \verb+<SUP>+ text-level elements and their appearance should be correct
 both in in-text and displayed  formulas.
@@ -1738,7 +1736,7 @@ given as a command line argument to \hevea{}.
 A suggested replacement is a mix of colors and available
 symbols.
 \begin{htmlonly}
-For instance, \hevea{} cannot render the \verb+\leadsto+ symbol, it
+For instance, \hevea{} cannot render the \verb+\leadsto+ symbol, but it
 can be defined as a red arrow  by:
 \begin{verbatim}
 \newcommand{\leadsto}{{\red\rightarrow}}
@@ -1751,7 +1749,7 @@ $$
 
 When given the \verb+-nosymb+ option, \hevea{} silently replaces
 symbols that cannot be rendered by isolatin1 only by text equivalents.
-These equivalents are english words by default, or french words when the
+These equivalents are English words by default, or French words when the
 \verb+-francais+ option is set.
 
 Log-like functions and variable sized-symbols are recognized and their
@@ -1782,7 +1780,7 @@ all.
 \subsection{Spacing}\label{spacemath}
 By contrast with \LaTeX{}, space in the input matters in math mode.
 One or more spaces are translated to one space.
-Futhermore,
+Furthermore,
 spaces after commands (such as \verb+\alpha+) are echoed
 except for invisible commands (such as \verb+\tt+).
 This allows users to control space in their formulas, output being
@@ -1790,17 +1788,17 @@ near to what can be expected.
 
 Explicit spacing commands (\verb+\,+, \verb+\!+, \verb+\:+ and
 \verb+\;+) are recognized, the first two commands do nothing, while
-the two others output one space.
+the others two output one space.
 
 \subsection{Changing Style}
 
 Letters are always italicized inside math mode and this cannot be
-changed. The appearence of
+changed. The appearance of
 other symbols can be changed using
 \LaTeXe{} style changing commands (\verb+\mathrm+, etc.).
 The commands \verb+\boldmath+ and \verb+\unboldmath+ are not
 recognized. Whether symbols belonging to the symbol font are affected
-by these changes or not is browser dependant.
+by these changes or not is browser dependent.
 
 Observe that this does not corresponds directly to how \LaTeX{} manage style
 in maths.
@@ -1854,7 +1852,7 @@ by \verb+\newenvironment+ and \verb+\renewenvironment+.
 New theorem-like environments can also be introduced and redefined,
 using \verb+\newtheorem+ and \verb+\renewtheorem+.
 The support is complete and should conform
-to~\cite[section~C.8.2 and~C.8.3]{latex}.
+to~\cite[Sections~C.8.2 and~C.8.3]{latex}.
 
 Note that environments are local to the block
 they are defined into,
@@ -1863,16 +1861,17 @@ while  theorem-like environment definitions  are global.
 \subsection{Numbering}
 \LaTeX{} counters are (fully ?) supported.
 In particular, defining a counter \textit{cmd} with
-\verb+\newcounter{+\textit{com}\verb+}+ create a macro
-\verb+\the+\textit{cmd}+ that ouputs the counter value.
+\verb+\newcounter{+\textit{com}\verb+}+ creates a macro
+\verb+\the+\textit{cmd} that outputs the counter value.
 Then the \verb+\the+\textit{cmd} command can be redefined.
 For instance, section numbering can be turned into alphabetic style by:
 \begin{verbatim}
 \renewcommand{\thesection}{\alph{section}}
 \end{verbatim}
 
-Note that \TeX{} style for counters is not supported at all and that
-it will clobber the output.
+Note that \TeX{} style for counters is not supported at all and that using
+this style
+will clobber the output.
 
 \section{Figures and Other Floating Bodies}
 
@@ -1902,10 +1901,10 @@ All other tabbing commands do not even exist.
 \subsection{The \protect\texttt{array} and \protect\texttt{tabular}
 environments}
 
-This environemnts are partially supported, using \html{}
+These environments are partially supported, using \html{}
 \verb+<TABLE>+, however rendering is
-satifactory in simple cases.
-Arrays can nest. By contrast with \LaTeX{}, arrays implictely open
+satisfactory in simple cases.
+Arrays can nest. By contrast with \LaTeX{}, arrays implicitly open
 display mode and array items are typeset in display mode.
 
 
@@ -1925,7 +1924,7 @@ appears around \verb+@+ formatting specification.
 argument are ignored.
 \item The \verb+p{+{\it wd}\verb+}+ column specification is equivalent
 to \verb+l+ with word wrap enabled. This is the only occasion where
-\hevea{} makes a distinction betwenen LR-mode and paragraph mode.
+\hevea{} makes a distinction between LR-mode and paragraph mode.
 The length argument to \verb+p+ specifications are ignored.
 \item If a \verb+|+ appears somewhere in the column formatting
 specification, then the array is shown with borders.
@@ -1937,7 +1936,7 @@ to \verb+\hline+.
 \verb+tabular+.
 (A warning is issued).
 Its first argument is ignored.
-\item Similarily the command
+\item Similarly the command
 \verb+\extracolsep+ issues a warning and ignores its argument.
 \end{itemize}
 
@@ -1977,7 +1976,7 @@ Thus, if you follow such a scheme on \filename{mydoc}\texttt{.tex}, first run
 \verb+-idx+ option set.
 \end{description}
 
-\noindent\hevea{} does not fail when it cannot find an auxilary file.
+\noindent\hevea{} does not fail when it cannot find an auxiliary file.
 
 \subsection{Cross-References}
 The \LaTeX{} \verb+\label+ and \verb+\ref+ are changed by \hevea{}
@@ -2042,7 +2041,7 @@ The \verb+\includeonly+ and \verb+\listfiles+ commands are null commands.
 
 
 \subsection{Index and Glossary}\label{index}
-\hevea{} supports several simultaneaous indexes, following the scheme
+\hevea{} supports several simultaneous indexes, following the scheme
 of the
 \footurl{ftp://theory.lcs.mit.edu//pub/tex/index/}{\filename{index}} style,
 which is present in modern \LaTeX{} distributions.
@@ -2097,23 +2096,23 @@ except inside arrays where the close the current row.
 Their option argument is ignored.
 The \verb+\newline+ outputs a \verb+<BR>+ element.
 
-All other line breaking commands, declarations or environemnts are
+All other line breaking commands, declarations or environments are
 silently ignored.
 
 \subsection{Page Breaking}
-They are no pages in the physical sense in \html. Thus all these
+They are no pages in the physical sense in \html. Thus, all these
 commands are ignored.
 
 \section{Lengths, Spaces and Boxes}
 \subsection{Length}
 All lengths are ignored, things go smoothly when \LaTeX{} syntax is
-used (using the \verb+\newlength+, \verb+\setlength+, etc. commands
+used (using the \verb+\newlength+, \verb+\setlength+, etc. commands,
 which are null macros).
 Of course, if lengths are really important to the document, rendering
 will be poor.
 
 Note that \TeX{} length syntax is not at all recognized. As a
-consequence, writting things like \verb+\textwidth=10cm+ will clobber
+consequence, writing things like \verb+\textwidth=10cm+ will clobber
 the output.
 Users can correct such misbehavior by adopting \LaTeX{} syntax
 (\verb+\setlength{\textwidth}{10cm}+ here).
@@ -2133,10 +2132,10 @@ spaces or line-skips (which can be none, of course).
 However, spacing commands without arguments are recognized.
 The \verb+\enspace+, \verb+\quad+ and \verb+\qquad+ commands output
 one, two and four non-breaking spaces, while the \verb+\smallskip+,
-\verb+\medskip+ and \verb+\bigskip+ ouput one, one, and two line
+\verb+\medskip+ and \verb+\bigskip+ output one, one, and two line
 breaks.
 
-Strechable lengths do not exist, thus the \verb+\hfill+ and
+Stretchable lengths do not exist, thus the \verb+\hfill+ and
 \verb+\vfill+ macros are undefined.
 
 \subsection{Boxes}
@@ -2149,11 +2148,17 @@ However  \verb+\makebox+ generates a specific warning, since \hevea{}
 ignore the length and positioning instructions given as optional
 argument.
 
-Similarily, the boxing with frame \verb+\fbox+ and \verb+\framebox+
+Similarly, the boxing with frame \verb+\fbox+ and \verb+\framebox+
 commands are recognized and
 \verb+\framebox+ issues a warning.
-Additionnally, \verb+\fbox+ reduces to \verb+\mbox+ in non-display
-mode and no frame is drawn.
+When in display mode, \verb+\fbox+ frames its argument by
+enclosing it in a
+table with borders. Otherwise, \verb+\fbox+ calls the \verb+\textfbox+
+command, which issues a warning and typesets its argument
+inside a \verb+\mbox+ (and thus no frame is drawn).
+Users can alter the behavior of \verb+\fbox+ in non-display mode by
+redefining \verb+\textfbox+.
+
 
 Boxes can be saved for latter usage by storing them in {\em bin}.
 New bins are defined by \verb+\newsavebox{+{\it cmd}\verb+}+.
@@ -2168,7 +2173,7 @@ The \verb+\savebox+ command reduces to \verb+\sbox+, ignoring its
 optional arguments.
 
 The \verb+\rule+ commands translate to a \html{} horizontal rule
-(\verb+<HR>+)  regardless of its arguemts.
+(\verb+<HR>+)  regardless of its arguments.
 
 
 All other box-related commands do not exist.
@@ -2181,7 +2186,7 @@ are recognized. Aspect is rather like \LaTeXe{} output, but there is
 no guarantee.
 Old style declarations are also recognized, they
 should yield the same
-appearence as corresponding new declarations.
+appearance as corresponding new declarations.
 
 \hevea{} possesses an extra font attribute: color.
 Text color is changed by declarations whose names follows \html{}
@@ -2221,9 +2226,9 @@ There are sixteen predefined colors:
 \verb+\aqua+
 \end{tabular}
 \end{center}
-Additionaly, the current text color can be changed by the declaration
+Additionally, the current text color can be changed by the declaration
 \verb+\htmlcolor{+{\it number}\verb+}+, where {\it number} is a six
-digit hexdecimal number specyfing a color in the RGB space.
+digit hexadecimal number specifying a color in the RGB space.
 For instance, the following declarations change font color to dark gray:
 %HEVEA{\htmlcolor{404040}%
 \begin{verbatim}
@@ -2233,12 +2238,12 @@ For instance, the following declarations change font color to dark gray:
 
 Colors should be used carefully. Too many colors
 hinders clarity and some of the colors may not be readable on the
-document backgroud color.
+document background color.
 
 \subsection{Changing the Type Size}
 All declarations, from \verb+\tiny+ to \verb+\Huge+ are recognized.
 Output is not satisfactory inside headers elements
-generated by sectionning commands.
+generated by sectioning commands.
 
 \subsection{Special Symbols}
 
@@ -2272,7 +2277,7 @@ If \textit{text$_2$}  is empty, then the \verb+\else+ keyword can be
 omitted.
 
 Some conditions are defined internally by \hevea{}, such as the
-\texttt{french} condition, which is \textit{true} in french mode, or
+\texttt{french} condition, which is \textit{true} in French mode, or
 the \texttt{display} and \texttt{math} condition that are set according
 to \hevea{} current operating mode.
 
@@ -2290,19 +2295,21 @@ If an argument \textit{filename} does not have an extension,
 then a first attempt is made to open \textit{filename};
 in case of failure, another attempt to open
 \textit{filename}\texttt{.tex} is made.
-In all cases, filenames that do not containt ``\texttt{/}'' are
+In all cases, filenames that do not contain ``\texttt{/}'' are
 searched along \texttt{hevea} search path.
 \texttt{hevea} search path consist in the current, directory ``\texttt{.}'',
 followed by directories specified by the user with the \texttt{-I}
 option, and by \texttt{hevea} library directory
-(normaly \texttt{/usr/local/lib/hevea}).
+(normally \texttt{/usr/local/lib/hevea}).
+\texttt{Hevea} library directory compile-time value can be overriden by setting
+the \texttt{HEVEADIR} shell environment variable.
 
 If the last argument has extension \texttt{.tex}, that is, if
 this last argument is \textit{name}\texttt{.tex}, then \textit{name} is
-the input base name and ouput normally goes into file
+the input base name and output normally goes into file
 \textit{name}\texttt{.html}.
 Otherwise, there is no input base name, the standard input is read and
-ouput normally goes to the standard output.
+output normally goes to the standard output.
 
 
 The \texttt{article.sty}, \texttt{book.sty} and \texttt{report.sty}
@@ -2310,7 +2317,7 @@ base style files from \hevea{} library are special.
 Only the first base style file is loaded and the
 \verb+\documentclass+ command has no effect when a base style file is
 already loaded. This feature allows to override a document base style
-whithout editing it.
+without editing it.
 
 
 The \texttt{hevea} command recognizes the following options:
@@ -2325,19 +2332,19 @@ files, including \texttt{hevea.sty} and style files.
 \textit{name} is the input base name. This is useful when this
 file is customized after it has been generated by \LaTeX{} (See,
 sections~\ref{files} and~\ref{index}).
-\item[{\tt -francais}] Set french mode.
+\item[{\tt -francais}] Set French mode.
 This has three consequences:
 \begin{itemize}
 \item Some words inserted by \LaTeX{} (such as ``Chapter'',
-``Bibliography'', \ldots) are replaced by french word.
-\item Text replacement for symbols are  in french (see the
+``Bibliography'', \ldots) are replaced by French word.
+\item Text replacement for symbols are  in French (see the
 \texttt{-nosymb} option below).
-\item \texttt{hevea} executes the \TeX{} conditionnal macro
+\item \texttt{hevea} executes the \TeX{} conditional macro
 \verb+\frenchtrue+.
 \end{itemize}
 \item[{\tt -nosymb}] Avoid symbol font.
 In this mode, symbols are replaced by text-only equivalents. By
-default, these equivalent are in english.
+default, these equivalent are in English.
 \item[{\tt -I} {\it dirname}] Add {\it dirname} to the search path.
 \item[{\tt -o} {\it filename}] Make \texttt{hevea} output go into file {\it
 filename}. By default, \texttt{hevea} output goes into
@@ -2385,7 +2392,7 @@ The \texttt{imagen} script calls the \texttt{latex},
 Note that, for producing one \texttt{.gif} file per
 page in the \textit{base}\texttt{.image.tex} file,
 \texttt{imagen} can cut \LaTeX{} output into pages at two different
-stages: when producing Postcript, or while interpreting Postcript.
+stages: when producing Postscript, or while interpreting Postscript.
 The choice is made by checking whether \texttt{dvips} accepts the
 \texttt{-i} option or not.
 
@@ -2395,8 +2402,8 @@ More information on producing images can be found in section~\ref{imagen}.
 \section{Browser configuration}\label{browser}
 By default, \hevea{} insert non-standard font changes in its output,
 using the \verb+FACE=symbol+ attribute to the \verb+<FONT>+ element.
-The symbol font is the one available on the Linux RedHat
-distribution and seems to be present on many Unix instalations.
+The symbol font is the one available on the Linux Red Hat
+distribution and seems to be present on many Unix installations.
 A good way to know whether your browser can show \hevea{} symbols or
 not is
 comparing figure~\ref{xfd} and the web page located at
@@ -2411,26 +2418,44 @@ browser to do so:
 Netscape*documentFonts.charset*adobe-fontspecific:   iso-8859-1
 \end{verbatim}
 \item Issue a \verb+xrdb .Xdefaults+ command.
-\item Restart Nestscape.
+\item Restart Netscape.
 \end{itemize}
 
 For Netscape on a Macintosh,
-choose  {\bf Western (MacRoman)} in the item {\bf Document~Encoding}
+choose  {\bf Western (Mac Roman)} in the item {\bf Document~Encoding}
 from the {\em Preferences} menu. This will work only if the document
-does contain isolatin1 characters above 127\ldots
+does not contain isolatin1 characters above 127\ldots
 
 More details can be found in section~\ref{symbols} of the user manual.
-In particular, note that symbol fonts may be completly avoided with
+In particular, note that symbol fonts may be completely avoided with
 \verb+-nosymb+ option.
 
-\section{Installation}
+\section{Availability}
 
+\subsection{Internet stuff}
+
+\hevea{} home page is \oneurl{\httpbase}. It contains links to the
+\footurl{\httpbase/doc/}{on-line manual}
+and to the \footurl{\ftpbase}{distribution}.
+
+The author can be contacted at \mailto{Luc.Maranget@inria.fr}.
+
+\subsection{Law}
+\hevea{} can be freely used and redistributed without modifications.
+Modifying and redistributing \hevea{} requires a permission from INRIA.
+See the \footurl{\ftpbase/LICENSE}{LICENSE} file for details.
+
+\section{Installation}
 
 \subsection{Requirements}\label{requirements}
 
 The programs \commandname{hevea} and \commandname{hacha} are written in
 \footurl{http://caml.inria.fr/ocaml/}{Objective Caml}. Thus, you
 really need Objective Caml to compile them.
+(However, a Red~Hat 4.1
+\footurl{\ftpbase/hevea-\heveaversion-1.i386.rpm}{binary distribution}
+is also available, it does not require an Objective Caml installation
+and can be installed on most Red~Hat Linux PC's).
 
 \hevea{} extracts referencing information from \texttt{.aux} files,
 and bibliographic information from \texttt{.bbl} files.
@@ -2439,14 +2464,14 @@ cross reference labels in \hevea{} output.
 Additionally, the \hevea{} user may instruct the program not to process a
 part of the input (see section~\ref{imagen}). Instead, this part is
 processed into a 
-\verb+.gif+ file and \hevea{} ouputs a  link to the image file.
+\verb+.gif+ file and \hevea{} outputs a  link to the image file.
 \LaTeX{} is changed into a \verb+.gif+ file by the the \verb+imagen+
 script, which basically calls, \LaTeX, \texttt{dvips},
 \footurl{http://www.cs.wisc.edu/\home{ghost}/index.html}{\texttt{ghostscript}}
 and a few tools from the image processing package
 \footurl{ftp://wuarchive.wustl.edu/graphics/graphics/packages/NetPBM}{netpbm}.
 
-To benefit from the full functionnality of \hevea, you need all
+To benefit from the full functionality of \hevea, you need all
 this software. However, \hevea{} runs without them, but then you will
 have to accept ``X'' labels and to manage to produce images by yourself.
 
@@ -2457,15 +2482,15 @@ Basically, \hevea{} should be given a library
 directory. The installation procedure stores the \texttt{hevea.sty}
 and base style files in this directory.
 There are two compilation mode, the \texttt{opt} mode select the
-native code \texttt{ocamlopt} OCaml compiler, while the \texttt{byte}
-mode selects the bytecode \texttt{ocamlc} OCaml compiler.
+native code \texttt{ocamlopt} Ocaml compiler, while the \texttt{byte}
+mode selects the bytecode \texttt{ocamlc} Ocaml compiler.
 In \hevea{} case, \texttt{ocamlopt} produces code that is up to three
 times as fast as the one produced by \texttt{ocamlc}.
 Thus, default compilation mode is \texttt{opt}, however it may be the
 case on some systems that only \texttt{ocamlc} is available.
 
 Note that the \texttt{html.sty} file is simply copied to \hevea{}
-library directory. It remains users responsability to
+library directory. It remains users responsibility to
 make it accessible to \LaTeX.
 
 \section{Other \LaTeX{} to \html{} translators}
@@ -2488,7 +2513,7 @@ tables. However, there are differences, TTH accepts both \TeX{} and
 \LaTeX{} source, 
 TTH is written in C and the full source is not available
 (only \verb+lex+ output is available).
-Additionaly, TTH author insist on not using any kind of \LaTeX{}
+Additionally, TTH author insist on not using any kind of \LaTeX{}
 generated information, whereas \hevea{} rather try to make advantage
 of them. TTH can be found at
 \begin{center}
