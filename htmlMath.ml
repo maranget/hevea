@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlMath.ml,v 1.23 2003-03-07 17:25:33 maranget Exp $" 
+let header = "$Id: htmlMath.ml,v 1.24 2004-06-03 17:16:07 thakur Exp $" 
 
 
 open Misc
@@ -118,6 +118,26 @@ let open_display_varg varg =
     pretty_cur !cur_out ;
     prerr_endline ""
   end     
+;;
+
+(************************************************************************
+*									*
+*    To open display with vertical and horizontal alignment arguments   *
+*                                                                       *
+************************************************************************)
+
+let open_display_varg_harg varg harg = 
+  if !verbose > 2 then begin
+    Printf.fprintf stderr "open_display: "
+  end ;
+  try_open_display () ;
+  open_block DISPLAY (varg^harg);
+  open_block TD "NOWRAP" ;
+  open_block INTERN "" ;
+  if !verbose > 2 then begin
+    pretty_cur !cur_out ;
+    prerr_endline ""
+  end
 ;;
 
 let open_display () = open_display_varg "VALIGN=middle"

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: lexstate.ml,v 1.60 2002-05-21 13:38:54 maranget Exp $"
+let header = "$Id: lexstate.ml,v 1.61 2004-06-03 17:16:07 thakur Exp $"
 
 open Misc
 open Lexing
@@ -585,8 +585,8 @@ let scan_this lexfun s =
     Printf.fprintf stderr "scan_this : [%s]" s ;
     prerr_endline ""  
   end ;
-  let lexer = Lexing.from_string s in
-  let r = lexfun lexer in
+  let lexbuf = Lexing.from_string s in
+  let r = lexfun lexbuf in
   if !verbose > 1 then begin
     Printf.fprintf stderr "scan_this : over" ;
     prerr_endline ""
@@ -601,8 +601,8 @@ and scan_this_arg lexfun {arg=s ; subst=this_subst } =
     Printf.fprintf stderr "scan_this_arg : [%s]" s ;
     prerr_endline ""  
   end ;
-  let lexer = Lexing.from_string s in
-  let r = lexfun lexer in
+  let lexbuf = Lexing.from_string s in
+  let r = lexfun lexbuf in
   if !verbose > 1 then begin
     Printf.fprintf stderr "scan_this_arg : over" ;
     prerr_endline ""

@@ -1,0 +1,42 @@
+%	proofeg.tex	(An example file for proof.sty)
+%
+%		Mar 6, 1997
+%		Makoto Tatsuta
+%
+%	I hope you can learn how to use proof figure macros easily
+%	by these examples.
+
+\def\imp{\to}
+\def\land{\mathbin\&}
+
+\documentstyle[proof]{article}
+
+% for LaTeX 2e naitive mode.
+%\documentclass[]{article}
+%\usepackage{proof}
+
+\begin{document}
+\section*{Examples of proof.sty}
+
+\verb|\infer| draws beautiful proof figures easily:
+
+\noindent (1)
+$$
+\infer{A}{
+	\infer{B}{
+		B11\land B12
+		&
+		B21\land B22
+	}
+	&
+	C
+}
+$$
+
+\noindent (2)
+$$
+\infer{A \imp B}{
+	\infer{B}{[A]}
+}
+$$
+\end{document}

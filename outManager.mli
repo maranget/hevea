@@ -44,6 +44,7 @@ module type S =
     val close_display : unit -> unit
     val item_display : unit -> unit
     val force_item_display : unit -> unit
+    (*val force_item_return : unit -> string*)
     val erase_display : unit -> unit
 
     val standard_sup_sub :
@@ -89,7 +90,6 @@ module type S =
     val put_open_group : unit -> unit
     val put_close_group : unit -> unit
     val put_in_math : string -> unit
-
 
     val open_table : bool -> string -> unit
     val new_row : unit -> unit

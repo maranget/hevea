@@ -1,1 +1,138 @@
-\@primitives{mathpartir}
+%  Mathpartir --- Math Paragraph for Typesetting Inference Rules
+%
+%  Copyright (C) 2001, 2002, 2003 Didier Rémy
+%
+%  Author         : Didier Remy 
+%  Version        : 1.1.1
+%  Bug Reports    : to author
+%  Web Site       : http://pauillac.inria.fr/~remy/latex/
+% 
+%  WhizzyTeX is free software; you can redistribute it and/or modify
+%  it under the terms of the GNU General Public License as published by
+%  the Free Software Foundation; either version 2, or (at your option)
+%  any later version.
+%  
+%  Mathpartir is distributed in the hope that it will be useful,
+%  but WITHOUT ANY WARRANTY; without even the implied warranty of
+%  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+%  GNU General Public License for more details 
+%  (http://pauillac.inria.fr/~remy/license/GPL).
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  File mathpartir.hva (LaTeX macros)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+% See the interface of mathpartir.sty
+% However, by default \\ does a vertical break in mathpar and a horizontal cut
+% in mathrule
+% 
+% Preceeding \\ by \hva \\ does a horizontal break in mathpar and a vertical
+% break in mathrule.
+%
+% \hva is ignored in latex more.
+
+
+\usepackage {array}
+\usepackage {keyval}
+
+\let \latexcr \\
+\let\latexpar\par
+\def \mathpar@hva #1{&}%
+\def \mathpar@par
+  {\end{tabular}\vspace*{1ex}\begin{tabular}{*{20}{>{\centering$$}p{}<{$$}}}}
+\newenvironment{mathpar}[1][]
+  {\begin{center}%
+  \renewcommand{\@table@attributes}{WIDTH="100\%" %BORDER=0 BGCOLOR=yellow
+ CELLSPACING=0 CELLPADING=0}%
+  \let \hva \mathpar@hva \let \par \mathpar@par #1%
+  \begin{tabular}{*{20}{>{\centering$$}p{}<{$$}}}}
+  {\end{tabular}\end{center}}
+
+\newcommand {\smaller}[1]{\@open{font}{size="-1"}#1\@close{font}}
+\newcommand {\mpr@name}[1]{\textsc{\smaller {#1}}}
+
+\def \mpr@line@hva #1{%
+   \def \@testa {#1}\def \@testb{\\}\ifx \@testa\@testb%
+   \else \error {hva in mathrule}\fi%
+   \latexcr}
+
+\def \@latexcr@char {\\}
+%%% this may not be robust (if nextchar is special char)
+%%% also may not want this semantics
+\def \@latexcr #1{\def \@test {#1}\ifx \@test \@latexcr@char \latexcr \else
+\qquad #1\fi}
+
+\newenvironment{mpr@line}
+  {\let \@HEVEA@bsbs \@latexcr % \qquad 
+   \let \hva \mpr@line@hva
+  \begin{tabular}
+    {>{\ifmpr@center\else \@print{<!--DIVLEFT-->}\fi $$}b{}<{$$}}}
+  {\end{tabular}}
+
+\def \mpr@empty {}
+\newif \ifmpr@center \mpr@centertrue
+\newcommand {\inferrule}[3][]
+   {\bgroup
+    \let \\ \latexcr%
+    \renewcommand{\@table@attributes}{border=0 cellspacing=1 cellpadding=0}%
+    \begin{tabular}{>{\centering}b{}}%
+    \def \@arg{#1}\ifx \@arg \mpr@empty
+    \else \multicolumn {1}{l}{\mpr@name{#1}}\\\fi
+    \def \@@arg{#2}\ifx \@@arg \mpr@empty \begin{mpr@line}#3\end{mpr@line}\else
+    \def \@@arg{#3}\ifx \@@arg \mpr@empty \begin{mpr@line}#2\end{mpr@line}\else
+    \begin{mpr@line}#2\end{mpr@line}\hhline
+    \begin{mpr@line}#3\end{mpr@line}\fi \fi    
+    \end{tabular}%
+    \egroup}
+
+\def \hh@line {\@print
+   {</TD></TR><TR> <TD bgcolor=black>
+    <TABLE border=0 cellspacing=0 cellpadding=1 bgcolor=green width="100%">
+    <TR><TD></TD></TR></TABLE></TD></TR><TR><TD align=center>}} 
+\def \hh@arrow {\@print
+   {</TD></TR><TR> 
+     <td><table cellpadding=0 cellspacing=0 WIDTH="100%"><tr>
+     <TD bgcolor=black>
+    <TABLE border=0 cellspacing=0 cellpadding=1 bgcolor=green width="100%">
+    <TR><TD></TD></TR></TABLE></TD>
+     </tr></table></td><td><TD><b><sup><code>-><code></sup></b></TD></td>
+    </TR><TR><TD align=center>}} 
+\let \hhline \hh@line
+\def \hharrow {\hh@arrow}
+
+\def \@single@mathrule #1]{\inferrule [#1]}
+
+\newcommand {\inferrule*}[3][]{%
+   \def \@@rulename {}%
+   \setkeys {mpr}{#1}%
+   \ifx \@@rulename \mpr@empty \inferrule{#2}{#3}\else
+      \inferrule[\@@rulename]{#2}{#3}\fi}
+   
+\def \mprset {\setkeys{mprset}}
+\define@key {mprset}{flushleft}[]{\mpr@centerfalse}
+\define@key {mprset}{center}[]{\mpr@centertrue}
+\define@key {mpr}{flushleft}[]{\mpr@centerfalse}
+\define@key {mpr}{center}[]{\mpr@centertrue}
+
+\define@key {mpr}{left}{[\mpr@name {#1}]}
+\define@key {mpr}{width}{}
+\define@key {mpr}{before}{}
+\define@key {mpr}{lab}{\def \@@rulename {[\mpr@name {#1}]}}
+\define@key {mpr}{narrower}{}
+\define@key {mpr}{leftskip}{}
+\define@key {mpr}{rightskip}{}
+\define@key {mpr}{left}{[\mpr@name {#1}]}
+\define@key {mpr}{Left}{[\mpr@name {#1}]}
+\define@key {mpr}{Right}{[\mpr@name {#1}]}
+\define@key {mpr}{right}{[\mpr@name {#1}]}
+\define@key {mpr}{vdots}{}
+\define@key {mpr}{after}{}
+\define@key {mpr}{Lab}{\def \@@rulename {\mpr@name {#1}}}
+\define@key {mpr}{reduce}[]{\let \hhline \hh@arrow}
+
+\let \infer \inferrule
+\let \infer* \inferrule*
+
+\endinput
+

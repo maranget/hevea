@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.48 2004-05-28 17:06:30 thakur Exp $    *)
+(*  $Id: package.ml,v 1.49 2004-06-03 17:16:08 thakur Exp $    *)
 
 module type S = sig  end
 
@@ -936,19 +936,47 @@ let rec gen_table r  rinfo  result_rows  = match r with
 (************************************************************
 *                                                           *
 *   The function 					    *
-*   a) "start-table" returns the html text concerned with   *
+*   a) "start-table1" returns the html text concerned with  *
 *       declaring the table in which the proof will reside. *
-*   b) "end_table" provides the text that closes the table. *
+*   b) "end_table1" provides the text that closes the table.*
 *                                                           *
 ************************************************************)
 
-let start_table () = 
-		"<table style=\"text-align: center;\" "^
-		"border=\"0\"\n"^
-		" cellspacing=\"1\" cellpadding=\"1\">\n"^
-		"  <tbody>\n";;
+let start_table1 () =
+  Dest.open_block "TABLE"
+    "style = \"text-align: center;\" border=\"1\" 
+     cellspacing=\"2\" cellpadding=\"1\"" ;
+;;
+  
+let end_table1 () =
+  Dest.close_block "TABLE"
+;;
 
-let end_table () = "  </tbody>\n</table>\n";;
+let start_table () =
+  Dest.open_block "TABLE"
+    "style = \"text-align: center;\" border=\"1\" 
+     cellspacing=\"2\" cellpadding=\"1\"" ;
+  Dest.open_block "TR" "" ;
+  Dest.open_block "TD" "ALIGN=center"
+;;
+
+let next_row () =
+  Dest.close_block "TD" ; 
+  Dest.close_block "TR" ; 
+  Dest.open_block "TR" "" ;
+  Dest.open_block "TD" "ALIGN=center"
+;;
+
+let next_column () =
+  Dest.close_block "TD" ; 
+  Dest.open_block "TD" "ALIGN=center"
+;;
+
+let end_table () =
+  Dest.close_block "TD" ; 
+  Dest.close_block "TR" ; 
+  Dest.close_block "TABLE"
+;;
 
 (************************************************************
 *                                                           *
@@ -988,7 +1016,7 @@ let get_labels_from_stack () =
 
 (************************************************************
 *                                                           *
-*   Implementing the package "bussproofs"		    *
+*   Implementing the proof package "bussproofs"		    *
 *                                                           *
 ************************************************************)
 
@@ -1048,8 +1076,102 @@ register_init "bussproofs"
 	  let pf = stack_pop () in
 	  let (new_pr,cols,rows) = get_proof_col_row pf in
 	  let inner_text = gen_table rows [(new_pr,cols,rows)] "" in
-	  let text = ((start_table())^(inner_text)^(end_table())) in
-	  Dest.put text); 
+	  start_table1 () ;
+	  Dest.put inner_text ;
+	  end_table1 ()) ;
+    )
+;;
+
+(************************************************************
+*                                                           *
+*   Implementing the proof package "proof"		    *
+*                                                           *
+************************************************************)
+
+register_init "proof"
+    (fun () ->
+      def_code "\\infer"
+	(fun lexbuf ->
+          let tag = if (same_next_char '=' lexbuf) then 
+	                let arg1 = save_arg lexbuf in true 
+                    else false in
+          let optarg2 = save_opt "" lexbuf in
+          let is_opt_arg = if ("" = optarg2.arg) then false else true in  
+	  let formatted2 = Scan.get_this_arg_mbox optarg2 in
+	  let arg3 = save_arg lexbuf in
+	  let formatted3 = Scan.get_this_arg_mbox arg3 in
+	  let arg4 = save_arg lexbuf in
+	  start_table () ;
+          def "\\@hevea@amper" zero_pat
+	    (CamlCode (fun _ ->  
+	      Dest.force_item_display (); 
+              Dest.put "&nbsp; &nbsp;")
+            ) ;
+	  Dest.open_display_varg "VALIGN=bottom";	  
+	  scan_this_arg Scan.main arg4;
+	  Dest.close_display();
+          next_column () ; Dest.put "&nbsp;"; 
+          next_row () ; 
+          if (tag=true) then Dest.put "<HR NOSHADE SIZE=\"4\">\n" 
+             else Dest.put "<HR>\n" ;
+          next_column () ; Dest.put (formatted2^"&nbsp;&nbsp;");
+          next_row () ;
+	  Dest.put formatted3; (*scan_this_arg Scan.main arg3 ;*)
+          next_column () ; Dest.put "&nbsp;";
+	  end_table ()
+        ) ;
+      def_code "\\infer*"
+	(fun lexbuf ->
+          let optarg1 = save_opt "" lexbuf in
+          let is_opt_arg = if ("" = optarg1.arg) then false else true in  
+	  let formatted1 = Scan.get_this_arg_mbox optarg1 in
+          let arg2 = save_arg lexbuf in
+	  let formatted2 = Scan.get_this_arg_mbox arg2 in
+	  let arg3 = save_arg lexbuf in
+	  start_table ();
+          def "\\@hevea@amper" zero_pat
+	    (CamlCode (fun _ ->  
+	      Dest.force_item_display (); 
+              Dest.put "&nbsp; &nbsp;")
+            ) ;
+	  Dest.open_display_varg "VALIGN=bottom";	  
+	  scan_this_arg Scan.main arg3;
+	  Dest.close_display();
+          next_column() ; Dest.put "&nbsp;";
+          next_row () ;
+          Dest.put "&#8942\n" ; 
+          next_column() ; Dest.put (formatted1^"&nbsp;&nbsp;");
+          next_row () ;
+	  scan_this_arg Scan.main arg2 ;
+          next_column() ; Dest.put "&nbsp;";
+	  end_table ()
+        ) ;
+      def_code "\\deduce"
+	(fun lexbuf ->
+          let optarg1 = save_opt "" lexbuf in
+          let is_opt_arg = if ("" = optarg1.arg) then false else true in  
+	  let formatted1 = Scan.get_this_arg_mbox optarg1 in
+          let arg2 = save_arg lexbuf in
+	  let formatted2 = Scan.get_this_arg_mbox arg2 in
+	  let arg3 = save_arg lexbuf in
+	  start_table ();
+          def "\\@hevea@amper" zero_pat
+	    (CamlCode (fun _ ->  
+	      Dest.force_item_display (); 
+              Dest.put "&nbsp;&nbsp;")
+            ) ;
+	  Dest.open_display_varg "VALIGN=bottom";	  
+	  scan_this_arg Scan.main arg3;
+	  Dest.close_display();
+          next_column () ; Dest.put "&nbsp;";
+          next_row () ;
+          Dest.put "&nbsp;\n" ; 
+          next_column () ; Dest.put (formatted1^"&nbsp;&nbsp;");
+          next_row () ;
+	  scan_this_arg Scan.main arg2 ;
+          next_column () ; Dest.put "&nbsp;";
+	  end_table ()
+        ) ;
     )
 ;;
 
