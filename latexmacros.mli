@@ -29,8 +29,6 @@ type pat =  string list * string list
 
 val pretty_pat : pat -> unit
 
-val verbose: int ref
-
 val find_macro: string -> pat * action list
 
 val make_pat: string list -> int -> pat

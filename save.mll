@@ -74,6 +74,19 @@ and arg2 = parse
       {let s = lexeme_char lexbuf 0 in
       Out.put_char arg_buff s ; arg2 lexbuf }
 
+and csname = parse
+  [' ''\n']+ {csname lexbuf}
+| '{'? "\\csname" ' '+
+    {Out.put_char arg_buff '\\' ; incsname lexbuf}
+| ""         {arg lexbuf}
+
+and incsname = parse
+  "\\endcsname"  '}'? {Out.to_string arg_buff}
+| _ 
+    {Out.put_char arg_buff (lexeme_char lexbuf 0) ;
+    incsname lexbuf}
+| eof           {raise (BadParse "EOF (csname)")}
+
 and eat_delim = parse
   "" {fun delim ->
     begin try

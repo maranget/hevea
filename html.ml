@@ -7,14 +7,12 @@
    over.
 *)
 
+open Parse_opts
 open Latexmacros
-;;
 
 type 'a ok  = No | Yes of 'a
 ;;
 
-let verbose = ref 0
-;;
 (* Saving mods accross blocks *)
 let push s e = s := e:: !s
 and pop s = match !s with
@@ -749,6 +747,10 @@ let put_char c =
   if blank then last_closed := save_last_closed
 ;;
 
+let flush_out () = 
+  Out.flush !cur_out.out
+;;
+
 let skip_line () =
   vsize := !vsize + 1 ;
   put "<BR>\n"
@@ -875,5 +877,14 @@ let to_string f =
   let r = Out.to_string !cur_out.out in
   close_group () ;
   r
+;;
+
+let finalize () =
+  if !out_stack != [] then begin
+    prerr_string "Non empty stack in Html.finalize" ;
+    pretty_stack !out_stack ;
+    prerr_endline ""
+  end ;
+  Out.close !cur_out.out
 ;;
 

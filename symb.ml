@@ -1,151 +1,154 @@
-type t = Symbol | Francais | English
+open Parse_opts
+
+exception No
 ;;
 
-let now = ref Symbol
+let get (a,b,c) =
+  try
+    if !Parse_opts.symbols then begin
+      match a with "" -> raise No | _ -> a
+    end else raise No
+  with No ->  match !language with
+    Francais -> c
+  | English -> b
 ;;
 
-let get (a,b,c) = match !now with
-  Symbol -> a
-| Francais -> b
-| English -> c
-;;
+let alpha = get ("<FONT FACE=symbol>\097</FONT>","alpha","alpha");;
+let beta = get ("<FONT FACE=symbol>\098</FONT>","beta","beta");;
+let gamma = get ("<FONT FACE=symbol>\103</FONT>","gamma","gamma");;
+let delta = get ("<FONT FACE=symbol>\100</FONT>","delta","delta");;
+let epsilon = get ("<FONT FACE=symbol>\101</FONT>","epsilon","epsilon");;
+let varepsilon = get ("varepsilon","varepsilon","varepsilon");;
+let zeta = get ("<FONT FACE=symbol>\122</FONT>","zeta","zeta");;
+let eta = get ("<FONT FACE=symbol>\104</FONT>","eta","eta");;
+let theta = get ("<FONT FACE=symbol>\113</FONT>","theta","theta");;
+let vartheta = get ("<FONT FACE=symbol>\074</FONT>","vartheta","vartheta");;
+let iota = get ("<FONT FACE=symbol>\105</FONT>","iota","iota");;
+let kappa = get ("<FONT FACE=symbol>\107</FONT>","kappa","kappa");;
+let lambda = get ("<FONT FACE=symbol>\108</FONT>","lambda","lambda");;
+let mu = get ("\181","\181","\181");;
+let nu = get ("<FONT FACE=symbol>\110</FONT>","nu","nu");;
+let xi = get ("<FONT FACE=symbol>\120</FONT>","xi","xi");;
+let pi = get ("<FONT FACE=symbol>\112</FONT>","pi","pi");;
+let varpi = get ("<FONT FACE=symbol>\118</FONT>","varpi","varpi");;
+let rho = get ("<FONT FACE=symbol>\114</FONT>","rho","rho");;
+let varrho = get ("varrho","varrho","varrho");;
+let sigma = get ("<FONT FACE=symbol>\115</FONT>","sigma","sigma");;
+let varsigma = get ("<FONT FACE=symbol>\086</FONT>","varsigma","varsigma");;
+let tau = get ("<FONT FACE=symbol>\116</FONT>","tau","tau");;
+let upsilon = get ("<FONT FACE=symbol>\117</FONT>","upsilon","upsilon");;
+let phi = get ("<FONT FACE=symbol>\102</FONT>","phi","phi");;
+let varphi = get ("<FONT FACE=symbol>\106 </FONT>","varphi","varphi");;
+let chi = get ("<FONT FACE=symbol>\99</FONT>","chi","chi");;
+let psi = get ("<FONT FACE=symbol>\121</FONT>","psi","psi");;
+let omega = get ("<FONT FACE=symbol>\119</FONT>","omega","omega");;
 
-let alpha = ("<FONT FACE=symbol>\097</FONT>","alpha","alpha");;
-let beta = ("<FONT FACE=symbol>\098</FONT>","beta","beta");;
-let gamma = ("<FONT FACE=symbol>\103</FONT>","gamma","gamma");;
-let delta = ("<FONT FACE=symbol>\100</FONT>","delta","delta");;
-let epsilon = ("<FONT FACE=symbol>\101</FONT>","epsilon","epsilon");;
-let varepsilon = ("varepsilon","varepsilon","varepsilon");;
-let zeta = ("<FONT FACE=symbol>\122</FONT>","zeta","zeta");;
-let eta = ("<FONT FACE=symbol>\104</FONT>","eta","eta");;
-let theta = ("<FONT FACE=symbol>\113</FONT>","theta","theta");;
-let vartheta = ("<FONT FACE=symbol>\074</FONT>","vartheta","vartheta");;
-let iota = ("<FONT FACE=symbol>\105</FONT>","iota","iota");;
-let kappa = ("<FONT FACE=symbol>\107</FONT>","kappa","kappa");;
-let lambda = ("<FONT FACE=symbol>\108</FONT>","lambda","lambda");;
-let mu = ("\181","\181","\181");;
-let nu = ("<FONT FACE=symbol>\110</FONT>","nu","nu");;
-let xi = ("<FONT FACE=symbol>\120</FONT>","xi","xi");;
-let pi = ("<FONT FACE=symbol>\112</FONT>","pi","pi");;
-let varpi = ("<FONT FACE=symbol>\118</FONT>","varpi","varpi");;
-let rho = ("<FONT FACE=symbol>\114</FONT>","rho","rho");;
-let varrho = ("varrho","varrho","varrho");;
-let sigma = ("<FONT FACE=symbol>\115</FONT>","sigma","sigma");;
-let varsigma = ("<FONT FACE=symbol>\086</FONT>","varsigma","varsigma");;
-let tau = ("<FONT FACE=symbol>\116</FONT>","tau","tau");;
-let upsilon = ("<FONT FACE=symbol>\117</FONT>","upsilon","upsilon");;
-let phi = ("<FONT FACE=symbol>\102</FONT>","phi","phi");;
-let varphi = ("<FONT FACE=symbol>\106 </FONT>","varphi","varphi");;
-let chi = ("<FONT FACE=symbol>\99</FONT>","chi","chi");;
-let psi = ("<FONT FACE=symbol>\121</FONT>","psi","psi");;
-let omega = ("<FONT FACE=symbol>\119</FONT>","omega","omega");;
+let upgamma = get ("<FONT FACE=symbol>\071</FONT>","Gamma","Gamma");;
+let updelta = get ("<FONT FACE=symbol>\068</FONT>","Delta","Delta");;
+let uptheta = get ("<FONT FACE=symbol>\081</FONT>","Theta","Theta");;
+let uplambda = get ("<FONT FACE=symbol>\076</FONT>","Lambda","Lambda");;
+let upxi = get ("<FONT FACE=symbol>\088</FONT>","Xi","Xi");;
+let uppi = get ("<FONT FACE=symbol>\080</FONT>","Pi","Pi");;
+let upsigma = get ("<FONT FACE=symbol>\083</FONT>","Sigma","Sigma");;
+let upupsilon = get ("<FONT FACE=symbol>\085</FONT>","Upsilon","Upsilon");;
+let upphi = get ("<FONT FACE=symbol>\070</FONT>","Phi","Phi");;
+let uppsi = get ("<FONT FACE=symbol>\089</FONT>","Psi","Psi");;
+let upomega = get ("<FONT FACE=symbol>\087</FONT>","Omega","Omega");;
 
-let upgamma = ("<FONT FACE=symbol>\071</FONT>","Gamma","Gamma");;
-let updelta = ("<FONT FACE=symbol>\068</FONT>","Delta","Delta");;
-let uptheta = ("<FONT FACE=symbol>\081</FONT>","Theta","Theta");;
-let uplambda = ("<FONT FACE=symbol>\076</FONT>","Lambda","Lambda");;
-let upxi = ("<FONT FACE=symbol>\088</FONT>","Xi","Xi");;
-let uppi = ("<FONT FACE=symbol>\080</FONT>","Pi","Pi");;
-let upsigma = ("<FONT FACE=symbol>\083</FONT>","Sigma","Sigma");;
-let upupsilon = ("<FONT FACE=symbol>\085</FONT>","Upsilon","Upsilon");;
-let upphi = ("<FONT FACE=symbol>\070</FONT>","Phi","Phi");;
-let uppsi = ("<FONT FACE=symbol>\089</FONT>","Psi","Psi");;
-let upomega = ("<FONT FACE=symbol>\087</FONT>","Omega","Omega");;
+let pm = get ("\177","\177","\177");;
+let mp = get ("\177","\177","\177");;
+let times = get ("\215","\215","215");;
+let div = get  ("\247","\247","247");;
+let ast = get ("*","*","*");;
+let star = get ("","star","étoile");;
+let circ = get ("<FONT FACE=symbol>\176</FONT>","o","o");;
+let bullet = get ("<FONT FACE=symbol>\183</FONT>","o","o");;
+let cdot = get ("<FONT FACE=symbol>\215</FONT>",".",".");;
+let cap = get ("<FONT FACE=symbol>\199</FONT>","inter", "inter");;
+let cup = get ("<FONT FACE=symbol>\200</FONT>","U", "U");;
+let sqcap = get ("<FONT FACE=symbol>\250\095\189</FONT>","sqcap", "sqcap");;
+let sqcup = get ("<FONT FACE=symbol>\250\096\189</FONT>","sqcup", "sqcup");;
+let vee = get ("<FONT FACE=symbol>\218</FONT>","\\/", "\\/");;
+let wedge = get ("<FONT FACE=symbol>\217</FONT>","/\\", "/\\");;
+let setminus = get ("\\","\\","\\");;
+let wr = get ("wr","wr","wr");;
+let diamond = get ("<FONT FACE=symbol>\224</FONT>","<>","<>");;
+let bigtriangleup = get ("<FONT FACE=symbol>\068</FONT>","/_\\","/_\\");;
+let bigtriangledown = get ("<FONT FACE=symbol>\209</FONT>","\\/","\\/");;
+let triangleleft = get ("<FONT FACE=symbol>\060\124</FONT>","<|","<|");;
+let triangleright = get ("<FONT FACE=symbol>\124\062</FONT>","|>","|>");;
+let unlhd = get ("<FONT FACE=symbol>\163\124</FONT>","<=|","<=|");;
+let unrhd = get  ("<FONT FACE=symbol>\124\179</FONT>","|>=","|>=");;
+let oplus = get  ("<FONT FACE=symbol>\197</FONT>","oplus","plus-rond");;
+let otimes = get  ("<FONT FACE=symbol>\196</FONT>","otimes","mult-rond");;
 
-let pm = ("\177","\177","\177");;
-let mp = ("\177","\177","\177");;
-let times = ("\215","\215","215");;
-let div =  ("\247","\247","247");;
-let ast = ("*","*","*");;
-let star = ("star","star","étoile");;
-let circ = ("<FONT FACE=symbol>\176</FONT>","o","o");;
-let bullet = ("<FONT FACE=symbol>\183</FONT>","o","o");;
-let cdot = ("<FONT FACE=symbol>\215</FONT>",".",".");;
-let cap = ("<FONT FACE=symbol>\199</FONT>","inter", "inter");;
-let cup = ("<FONT FACE=symbol>\200</FONT>","U", "U");;
-let sqcap = ("<FONT FACE=symbol>\250\095\189</FONT>","sqcap", "sqcap");;
-let sqcup = ("<FONT FACE=symbol>\250\096\189</FONT>","sqcup", "sqcup");;
-let vee = ("<FONT FACE=symbol>\218</FONT>","\\/", "\\/");;
-let wedge = ("<FONT FACE=symbol>\217</FONT>","/\\", "/\\");;
-let setminus = ("\\","\\","\\");;
-let wr = ("wr","wr","wr");;
-let diamond = ("<FONT FACE=symbol>\224</FONT>","<>","<>");;
-let bigtriangleup = ("<FONT FACE=symbol>\068</FONT>","/_\\","/_\\");;
-let bigtriangledown = ("<FONT FACE=symbol>\209</FONT>","\\/","\\/");;
-let triangleleft = ("<FONT FACE=symbol>\060\124</FONT>","<|","<|");;
-let triangleright = ("<FONT FACE=symbol>\124\062</FONT>","|>","|>");;
-let unlhd = ("<FONT FACE=symbol>\163\124</FONT>","<=|","<=|");;
-let unrhd =  ("<FONT FACE=symbol>\124\179</FONT>","|>=","|>=");;
-let oplus =  ("<FONT FACE=symbol>\197</FONT>","oplus","plus-rond");;
-let otimes =  ("<FONT FACE=symbol>\196</FONT>","otimes","mult-rond");;
-
-let leq = ("<FONT FACE=symbol>\163</FONT>","<=","<=");;
-let subset = ("<FONT FACE=symbol>\204</FONT>","included in","inclus dans");;
-let notsubset = ("<FONT FACE=symbol>\203</FONT>","not included in","n'est pas inclus dans");;
+let leq = get ("<FONT FACE=symbol>\163</FONT>","<=","<=");;
+let subset = get ("<FONT FACE=symbol>\204</FONT>","included in","inclus dans");;
+let notsubset = get ("<FONT FACE=symbol>\203</FONT>","not included in","n'est pas inclus dans");;
 let subseteq =
-  ("<FONT FACE=symbol>\204</FONT>","included in or equal to","inclus dans ou égal à");;
+get   ("<FONT FACE=symbol>\204</FONT>","included in or equal to","inclus dans ou égal à");;
 let display_sqsubset =
- ("<FONT FACE=symbol>\190<BR>\234<BR>\190</FONT>","sqsubset", "sqsubset");;
-let elem = ("<FONT FACE=symbol>\206</FONT>","in", "appartient à");;
-let geq = ("<FONT FACE=symbol>\179</FONT>",">=", ">=");;
-let supset =  ("<FONT FACE=symbol>\201</FONT>","contains","contient");;
-let supseteq =  ("<FONT FACE=symbol>\202</FONT>","contains or equal to","contient ou égal à");;
-let display_sqsupset = ("<FONT FACE=symbol>\190<BR> \234<BR>\190</FONT>",
+get  ("<FONT FACE=symbol>\190<BR>\234<BR>\190</FONT>","sqsubset", "sqsubset");;
+let elem = get ("<FONT FACE=symbol>\206</FONT>","in", "appartient à");;
+let geq = get ("<FONT FACE=symbol>\179</FONT>",">=", ">=");;
+let supset = get  ("<FONT FACE=symbol>\201</FONT>","contains","contient");;
+let supseteq = get  ("<FONT FACE=symbol>\202</FONT>","contains or equal to","contient ou égal à");;
+let display_sqsupset = get ("<FONT FACE=symbol>\190<BR> \234<BR>\190</FONT>",
 "sqsupset", "sqsupset");;
-let ni = ("<FONT FACE=symbol>\039</FONT>","contains", "contient");;
+let ni = get ("<FONT FACE=symbol>\039</FONT>","contains", "contient");;
 
 
-let equiv =  ("<FONT FACE=symbol>\186</FONT>","equiv", "equiv");;
-let approx =  ("<FONT FACE=symbol>\187</FONT>","aproximates", "à peu près");;
-let cong =  ("cong","cong", "congru à");;
-let neq = ("<FONT FACE=symbol>\185</FONT>","&lt;&gt;", "&lt;&gt;");;
-  ("<FONT FACE=symbol></FONT>","contains", "contient");;
-let propto  = ("<FONT FACE=symbol>\181</FONT>","propto", "propto");;
-let perp =  ("<FONT FACE=symbol>\094</FONT>","perp", "perp");;
-let join =  ("<FONT FACE=symbol>\241\225</FONT>","&gt;&lt;", "&gt;&lt;");;
+let equiv = get  ("<FONT FACE=symbol>\186</FONT>","equiv", "equiv");;
+let approx = get  ("<FONT FACE=symbol>\187</FONT>","aproximates", "à peu près");;
+let cong = get  ("","cong", "congru à");;
+let neq = get ("<FONT FACE=symbol>\185</FONT>","&lt;&gt;", "&lt;&gt;");;
+  ("<FONT FACE=sget ymbol></FONT>","contains", "contient");;
+let propto  = get ("<FONT FACE=symbol>\181</FONT>","propto", "propto");;
+let perp = get  ("<FONT FACE=symbol>\094</FONT>","perp", "perp");;
+let join = get  ("<FONT FACE=symbol>\241\225</FONT>","&gt;&lt;", "&gt;&lt;");;
 
-let leftarrow = ("<FONT FACE=symbol>\172</FONT>","&lt;-", "&lt;-");;
-let upleftarrow = ("<FONT FACE=symbol>\229</FONT>","&lt;=", "&lt;=");;
-let rightarrow = ("<FONT FACE=symbol>\174</FONT>","-&gt;", "-&gt;");;
-let uprightarrow = ("<FONT FACE=symbol>\222</FONT>","=&gt;", "=&gt;");;
-let leftrightarrow = ("<FONT FACE=symbol>\171</FONT>","&lt;-&gt;", "&lt;-&gt;");;
-let upleftrightarrow = ("<FONT FACE=symbol>\219</FONT>","&lt;=&gt;", "&lt;=&gt;");;
-let longrightarrow = ("<FONT FACE=symbol>\190\174</FONT>","--&gt;", "--&gt;");;
+let leftarrow = get ("<FONT FACE=symbol>\172</FONT>","&lt;-", "&lt;-");;
+let upleftarrow = get ("<FONT FACE=symbol>\229</FONT>","&lt;=", "&lt;=");;
+let rightarrow = get ("<FONT FACE=symbol>\174</FONT>","-&gt;", "-&gt;");;
+let uprightarrow = get ("<FONT FACE=symbol>\222</FONT>","=&gt;", "=&gt;");;
+let leftrightarrow = get ("<FONT FACE=symbol>\171</FONT>","&lt;-&gt;", "&lt;-&gt;");;
+let upleftrightarrow = get ("<FONT FACE=symbol>\219</FONT>","&lt;=&gt;", "&lt;=&gt;");;
+let longrightarrow = get ("<FONT FACE=symbol>\190\174</FONT>","--&gt;", "--&gt;");;
 
-let infty = ("<FONT FACE=symbol>\165</FONT>","oo", "oo");;
-let int = ("<FONT FACE=symbol>\242</FONT>","int", "integrale");;
-let display_int = ("<FONT FACE=symbol>\243<BR>\245</FONT>",
+let infty = get ("<FONT FACE=symbol>\165</FONT>","oo", "oo");;
+let int = get ("<FONT FACE=symbol>\242</FONT>","int", "integrale");;
+let display_int = get ("<FONT FACE=symbol>\243<BR>\245</FONT>",
 "/<BR>|<BR>/", "/<BR>|<BR>/");;
 
-let exists = ("<FONT FACE=symbol>\036</FONT>","exists", "il existe");;
-let forall = ("<FONT FACE=symbol>\034</FONT>","for all", "pour tout");;
+let exists = get ("<FONT FACE=symbol>\036</FONT>","exists", "il existe");;
+let forall = get ("<FONT FACE=symbol>\034</FONT>","for all", "pour tout");;
 
-let notin  = ("<FONT FACE=symbol>\207</FONT>","not in", "n'appartient pas à");;
+let notin  = get ("<FONT FACE=symbol>\207</FONT>","not in", "n'appartient pas à");;
 
 let uparrow =
-  ("<FONT FACE=symbol>\173</FONT>","uparrow","flèche en haut")
+get   ("<FONT FACE=symbol>\173</FONT>","uparrow","flèche en haut")
 and upuparrow =
- ("<FONT FACE=symbol>\221</FONT>","Uparrow","double flèche en haut")
+get  ("<FONT FACE=symbol>\221</FONT>","Uparrow","double flèche en haut")
 and downarrow =
- ("<FONT FACE=symbol>\175</FONT>","downarrow","flèche en bas")
+get  ("<FONT FACE=symbol>\175</FONT>","downarrow","flèche en bas")
 and updownarrow =
- ("<FONT FACE=symbol>\223</FONT>","Downarrow","double flèche en bas")
+get  ("<FONT FACE=symbol>\223</FONT>","Downarrow","double flèche en bas")
 ;;
 
 let oplus =
-  ("<FONT FACE=symbol>\197</FONT>","oplus","oplus")
+get   ("<FONT FACE=symbol>\197</FONT>","oplus","oplus")
 and otimes =
- ("<FONT FACE=symbol>\196</FONT>","otimes","otimes")
+get  ("<FONT FACE=symbol>\196</FONT>","otimes","otimes")
 and ominus =
- ("<FONT FACE=symbol>\081</FONT>","ominus","ominus")
+get  ("<FONT FACE=symbol>\081</FONT>","ominus","ominus")
 ;;
 
-let lfloor = ("<FONT FACE=symbol>\235</FONT>","|_", "|_");;
-let rfloor = ("<FONT FACE=symbol>\251</FONT>","_|", "_|");;
-let lceil = ("<FONT FACE=symbol>\233</FONT>","|", "|");;
-let rceil = ("<FONT FACE=symbol>\249</FONT>","|", "|");;
-let langle = ("<FONT FACE=symbol>\225</FONT>","&lt;", "&lt;");;
-let rangle = ("<FONT FACE=symbol>\241</FONT>","&gt;", "&gt;");;
+let lfloor = get ("<FONT FACE=symbol>\235</FONT>","|_", "|_");;
+let rfloor = get ("<FONT FACE=symbol>\251</FONT>","_|", "_|");;
+let lceil = get ("<FONT FACE=symbol>\233</FONT>","|", "|");;
+let rceil = get ("<FONT FACE=symbol>\249</FONT>","|", "|");;
+let langle = get ("<FONT FACE=symbol>\225</FONT>","&lt;", "&lt;");;
+let rangle = get ("<FONT FACE=symbol>\241</FONT>","&gt;", "&gt;");;
 
 
 let tr = function
@@ -163,7 +166,7 @@ let put_delim  skip put d n =
       skip () ;
       do_rec s (i-1)
     end in
-  if !now <> Symbol || n=1 then
+  if not !symbols || n=1 then
     let d = tr d in
     do_rec d n
   else begin

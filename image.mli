@@ -1,4 +1,3 @@
-val verbose : int ref
 val base : string ref
 
 val start : unit -> unit

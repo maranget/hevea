@@ -1,0 +1,81 @@
+\documentclass[a4paper]{article}
+\usepackage{isolatin1}
+
+\newcommand{\htmlgen}{{\sf h\raise .2ex\hbox{T}mlg\lower .1ex\hbox{e}n}}
+\begin{document}
+
+\section{Introduction}
+The programm \htmlgen\ is a \LaTeX\ to html translator.
+The input language is an almost complete subset of latex2e and the
+output langaguage is html that is (hopefullly) correct with respect to
+version 3.2.
+
+Mathematics and other exotic symbols are translated into symbols
+pertening to the symbol font of the html browser, using the
+non-standard \verb+FACE+ atribute of the \verb+FONT+ tag.
+This allows the translation to html of most of the symbols used in
+\LaTeX. If necessary this behavior can altered and \htmlgen\ will
+produde english of french text equivalents of these symboles (For
+instance $\in$ will be translated into {\em in} or {\em appartient
+\`a}).
+
+
+\htmlgen\ understands user \LaTeX macros, given both in \LaTeX\ style
+(using \verb+\newcommand+ and \verb+\renewcommand+) and in sensible
+\TeX\ style (using \verb+\def#1#2...+ without delimiting
+characters). This allows to use user style
+files with little or no modifications, provided these style files are
+not written in \TeX\ and are not too tricky.
+
+\htmlgen is written in Objective Caml, as many lexers, it is
+quite fast and flexible.
+Using \htmlgen\ is is possible to translate  big documents such
+as manuals, books, etc. very quickly. All documents are
+translated as one single html file. Then, the output file can be cut into
+smaller files (one file per chapter) using the companion program \htmlcut.
+
+
+
+\section{How to get started}
+
+Assume that you have a file \verb+a.tex+ written in \LaTeX, using the
+\verb+article+ style. Then, translation is achieved by issuing the
+command~:
+\begin{verbatim}
+     htmlgen article.sty a.tex
+\end{verbatim}
+
+If everything goes fine, this will produce a new file
+``\verb+a.html+'' that you can visualize using an html brower.
+If \verb+a.tex+ contains maths symbols you need to instruct your
+browser to use symbol fonts. For Netscape, add the following line to
+your \verb+.Xdefaults+ file 
+\begin{verbatim}
+Netscape*documentFonts.charset*adobe-fontspecific:   iso-8859-1
+\end{verbatim}
+(Then, you probably need something like a \verb+xrdb+ command before
+you start Netscape.)
+
+
+If you wish to experiment \htmlgen\ on small \LaTeX\ source fragments,
+then lauch \htmlgen without arguments. \htmlgen\ will read its
+standard input and print the translation on its standard output.
+For instance:
+\begin{verbatim}
+% htmlgen
+$$ 
+x \in {\cal E}
+$$
+% (this latex comment is here for flushing pending output)
+<DIV ALIGN=center>
+<TABLE VALIGN=middle CELLSPACING=0 CELLPADDING=0>
+<TR><TD nowrap><I> x <FONT FACE=symbol>Î</FONT> </I></TD>
+<TD nowrap><I><FONT COLOR=red> E</FONT></I></TD>
+</TR>
+</TABLE>
+</DIV>
+\end{verbatim}
+
+
+
+\end{document}

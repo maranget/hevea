@@ -47,8 +47,14 @@ let rec put_char out c = match out with
       realloc out ;
       put_char b c
     end
-| Chan chan -> output_char chan c
+| Chan chan ->
+   output_char chan c
 | Null -> ()
+;;
+
+let flush = function
+  Chan chan -> flush chan
+| _         -> ()
 ;;
 
 let to_string out = match out with

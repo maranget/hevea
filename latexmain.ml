@@ -1,48 +1,28 @@
-let verbose = ref 0
-;;
-
-let set_verbose () =
-  Index.verbose := !verbose ;
-  Image.verbose := !verbose ;
-  Html.verbose := !verbose ;
-  Latexscan.verbose := !verbose;
-  Latexmacros.verbose := !verbose
-;;
-
-let files = ref []
-;;
-
-let add_input s =
-  files := s :: !files
-;;
+open Parse_opts
 
 let finalize () =
   Image.finalize () ;
-  Out.close !Latexscan.out_file
+  Html.finalize ()
 ;;
 
 let read_style name =
-  let name,chan =  Myfiles.open_tex name in
-  let buf = Lexing.from_channel chan in
-  Location.set name buf ;
-  Latexscan.main buf ;
-  Location.restore ()
+  try
+    let name,chan =  Myfiles.open_tex name in
+    let buf = Lexing.from_channel chan in
+    Location.set name buf ;
+    Latexscan.main buf ;
+    Location.restore ()
+  with Not_found -> ()
 ;;
  
 let main () =
-  try begin  Arg.parse
-    [("-v", Arg.Unit (fun () -> verbose := !verbose + 1),
-       "verbose flag, can be repeated to increase verbosity") ;
-     ("-e", Arg.String Myfiles.erecord,
-       "-e filename, prevents filename from being read") ;
-     ("-idx",Arg.Unit (fun () -> Index.set_idx ()),
-       "Attempt to read .idx file (useful if indexing is non-standard)")
-    ]
-    (add_input)
-    "htmlgen 0.00" ;
+  try begin
 
-    set_verbose ();
     read_style "htmlgen.sty" ;
+
+    begin match !files with
+     [] -> files := ["article.sty"]
+    | _ -> () end;
 
     let texfile = match !files with
       [] -> ""
@@ -68,13 +48,14 @@ let main () =
       | _ -> Filename.chop_suffix texfile ".tex" in
 
     Location.set_base basename ;
+
     Latexscan.out_file := begin match Filename.basename basename with
       "" ->  Out.create_chan stdout
     | s  -> Out.create_chan (open_out (s^".html")) end ;
 
         
     begin match texfile with
-      "" -> ()
+      "" -> Latexscan.no_prelude ()
     | _  ->
        let auxname = Filename.basename basename^".aux" in
        try

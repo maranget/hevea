@@ -1,5 +1,4 @@
-let verbose = ref 0
-;;
+open Parse_opts
 
 let base = ref "image"
 ;;

@@ -1,5 +1,4 @@
-let verbose = ref 0
-;;
+open Parse_opts
 
 let rec comp l1 l2 = match l1,l2 with
   [],[] -> 0
@@ -58,10 +57,6 @@ let (itable:
    Hashtbl.t) = Hashtbl.create 17
 ;;
 
-let read_idx = ref false
-;;
-let set_idx () = read_idx := true
-;;
 
 let newindex tag suf name =
   let basename = Location.get_base () in
@@ -162,9 +157,7 @@ let print_entry main prev this xs  =
     
 let print main  tag =
   let name,all,table,_,_ = Hashtbl.find itable tag in
-  Html.open_block "H2" "" ;
-  main name ;
-  Html.close_block "H2" ;
+  main ("\\@indexsection{"^name^"}") ;
   let prev = ref [] in
   KeySet.iter (fun k ->
       print_entry main !prev k (Hashtbl.find_all table k) ;

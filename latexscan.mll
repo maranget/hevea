@@ -1,16 +1,24 @@
 {
+open Parse_opts
 open Lexing
 open Myfiles
 open Latexmacros
 open Html
 
-let verbose = ref 0
-;;
-
 let out_file = ref (Out.create_null ())
 ;;
 
 let prelude = ref true
+;;
+
+let flushing = ref false
+;;
+
+let no_prelude () =
+  flushing := true ;
+  prelude := false ;
+  Html.forget_par () ;
+  Html.set_out !out_file
 ;;
 
 let env_extract s =
@@ -659,7 +667,8 @@ rule  main = parse
 |  '%' [^ '\n']* '\n'
    {if !verbose > 1 then
      Printf.fprintf stderr "Comment : %s" (lexeme lexbuf) ;
-   main lexbuf}
+   if !flushing then Html.flush_out () ;
+   skip_spaces_main lexbuf}
 (* included images *)
 | ".PS\n" {Image.dump  "\n.PS\n" image lexbuf}
 | "\\box\\graph" ' '*
@@ -695,7 +704,7 @@ rule  main = parse
     Image.put "\n" ;
     main lexbuf}
 (* Paragraphs *)
-  | ("\\par" | "\n\n") '\n' *
+  | "\n\n" '\n' *
     {if !alltt then begin
       Html.put (lexeme lexbuf)
     end else if not !display then Html.par () ;
@@ -745,10 +754,15 @@ rule  main = parse
      end ;
      main lexbuf}
 (* Math mode *)
-| "$" | "$$"
+| "$" | "$$" | "\\(" | "\\)" | "\\[" | "\\]"
      {let lxm = lexeme lexbuf in
-     if !alltt then begin Html.put lxm ; main lexbuf end
+     if !alltt && (lxm = "$" || lxm = "$$") then
+       begin Html.put lxm ; main lexbuf end
      else begin
+       let lxm = match lxm with
+         "\\(" | "\\)" -> "$"
+       | "\\[" | "\\]" -> "$$"
+       | _ -> lxm in
        let dodo = lxm <> "$" in
        let math_env = if dodo then "*display" else "*math" in
        if !in_math then begin
@@ -795,9 +809,8 @@ rule  main = parse
       new_env " " (fun lb -> open_group "" ; main lb) lexbuf
     end}
 (* Definitions of  simple macros *)
-  | "\\def" [' ''\n']* '\\' (['A'-'Z' 'a'-'z']+ | [^ 'A'-'Z' 'a'-'z']) ' '*
-     {let lxm = lexeme lexbuf in
-     let name = name_extract lxm in
+  | "\\def"
+     {let name = Save.csname lexbuf in
      let args_pat = defargs lexbuf in
      let body = defbody lexbuf in
      if (!to_image) then
@@ -809,7 +822,7 @@ rule  main = parse
     }
   | ("\\renewcommand" | "\\newcommand")
     {let lxm = lexeme lexbuf in
-    let name = Save.arg lexbuf in
+    let name = Save.csname lexbuf in
     let nargs = parse_args_opt ["0" ; ""] lexbuf in
     let body = Save.arg lexbuf in
     Image.put
@@ -1029,7 +1042,7 @@ rule  main = parse
 |   "\\begin" " "* "{" ['A'-'Z' 'a'-'z']+ '*'?"}"
     {let lxm = lexeme lexbuf in
     let env = env_extract lxm in
-    if env = "document" then begin
+    if env = "document" && !prelude then begin
       prelude := false ;
       Html.forget_par () ;
       Html.set_out !out_file
@@ -1258,13 +1271,9 @@ rule  main = parse
           end
         end}
 
-| "`\\" [^'a'-'z' 'A'-'Z' '0'-'9']
-    {Html.put_char (lexeme_char lexbuf 2) ; main lexbuf}
 | "<"         { Html.put "&lt;"; main lexbuf }
 | ">"         { Html.put "&gt;"; main lexbuf }
 | "~"         { Html.put "&nbsp;"; main lexbuf }
-| "\\{" {Html.put_char '{' ; main lexbuf}
-| "\\}" {Html.put_char '}' ; main lexbuf}
 | "{"
     {if !verbose > 2 then prerr_endline "Open brace" ;
     if !display then begin
@@ -1291,8 +1300,9 @@ rule  main = parse
 | eof
    {if !verbose > 1 then Printf.fprintf stderr "Eof\n" ; ()}
 | '\n'
-  {if not !display then
+  {if not !display then begin
     Html.put_char '\n' ;
+  end ;
   main lexbuf}
 | '|' | '[' | ']' |  '(' | ')' | ':' | ';' | ','
    {let c =  lexeme_char lexbuf 0 in
@@ -1394,6 +1404,11 @@ and skip_blanks_main = parse
    ' ' * '\n' '\n'  {Html.par () ; skip_blanks_main lexbuf}
 |  ' ' * '\n'? ' '* {main lexbuf}
 | eof               {main lexbuf}
+
+and skip_spaces_main = parse
+  ' ' * {if !display then Html.put (lexeme lexbuf) ; main lexbuf}
+| eof   {main lexbuf}
+
 
 and skip_blanks = parse 
   [' ']* '\n'? [' ']* {()}

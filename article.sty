@@ -13,73 +13,77 @@
 \newcounter{figure}
 
 \newcommand{\partname}{Part}
-\newcommand{\chaptername}{Chapter}
+\newcommand{\appendixname}{Appendix}
+\iffrench
+\renewcommand{\partname}{Partie}
+\renewcommand{\appendixname}{Annexe}
+\fi
 \newcommand{\part}[1]{%
-  \@open{H1}{ALIGN=center}
-  \stepcounter{part}
+  \@print{<!--CUT PART-->}%
+  \@open{H1}{ALIGN=center}%
+  \stepcounter{part}%
   \partname:~\thepart\\
-  #1
-  \@close{H1}
+  #1%
+  \@close{H1}%
 }
 \newcommand{\part*}[1]{%
-  \@open{H1}{ALIGN=center}
-  #1
-  \@close{H1}
+  \@print{<!--CUT PART-->}%
+  \@open{H1}{ALIGN=center}%
+  #1%
+  \@close{H1}%
 }
 
 \newcommand{\section}[1]{%
-  \@open{H2}{}
-  \stepcounter{section}
-  \thesection~
-  #1
-  \@close{H2}
+\@print{<!--CUT SECTION-->}%
+  \@open{H2}{}%
+  \stepcounter{section}%
+  \thesection~%
+  #1%
+  \@close{H2}%
 }
 \newcommand{\section*}[1]{%
-  \@open{H2}{}
-  #1
-  \@close{H2}
+\@print{<!--CUT SECTION-->}%
+  \@open{H2}{}%
+  #1%
+  \@close{H2}%
 }
-
 
 \newcommand{\subsection}[1]{%
-  \@open{H3}{}
-  \stepcounter{subsection}
-  \thesubsection~
-  #1
-  \@close{H3}
+  \@open{H3}{}%
+  \stepcounter{subsection}%
+  \thesubsection~%
+  #1%
+  \@close{H3}%
 }
 \newcommand{\subsection*}[1]{%
-  \@open{H3}{}
-  #1
-  \@close{H3}
+  \@open{H3}{}%
+  #1%
+  \@close{H3}%
 }
 
 
 \newcommand{\subsubsection}[1]{%
-  \@open{H4}{}
-%  \stepcounter{subsubsection}
-%  \thesubsubsection~
-  #1
-  \@close{H4}
+  \@open{H4}{}%
+  #1%
+  \@close{H4}%
 }
 \newcommand{\subsubsection*}[1]{%
-  \@open{H4}{}
-  #1
-  \@close{H4}
+  \@open{H4}{}%
+  #1%
+  \@close{H4}%
 }
 
 \newcommand{\paragraph}[1]{%
-  \@open{H5}{}
-%  \stepcounter{paragraph}
-%  \theparagraph~
-  #1
-  \@close{H5}
+  \@open{H5}{}%
+  #1%
+  \@close{H5}%
 }
 \newcommand{\paragraph*}[1]{%
-  \@open{H5}{}
-  #1
-  \@close{H5}
+  \@open{H5}{}%
+  #1%
+  \@close{H5}%
 }
-
-\newenvironment{thebibliography}[1]{\section*{\bibname}\@open{DL}{}}{\@close{DL}}
-\newcommand{\bibitem}[1]{\item[{\purple[\@bibref{#1}]\label{#1}}]}
+\newcommand\abstractname{\iffrench Résumé~\else Abstract}
+\newenvironment{abstract}{\begin{quote}{\bf \abstractname:}}{\end{quote}}
+\newcommand{\@indexsection}[1]{\section*{#1}}
+\newcommand{\@bibliosection}[1]{\section*{#1}}

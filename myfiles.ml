@@ -1,10 +1,10 @@
-let verbose = ref 0
-;;
+open Parse_opts
 
 let etable = Hashtbl.create 17
 ;;
 
-let erecord name = Hashtbl.add etable name ()
+
+List.iter (fun name -> Hashtbl.add etable name ()) !except
 ;;
 
 let is_except name =
@@ -25,8 +25,8 @@ let tex_path = try
   done ;
   let d = String.sub s !j (String.length s - !j) in
   r :=  d :: !r ;
-  List.rev !r
-with Not_found -> ["." ; "/usr/local/lib/htmlgen"]
+  !path @ List.rev !r
+with Not_found -> "." :: !path @ [LIBDIR]
 ;;
 
 exception Found of (string * in_channel)

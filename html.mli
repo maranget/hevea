@@ -1,4 +1,3 @@
-val verbose : int ref
 val set_out : Out.t -> unit
 val last_closed : string ref
 
@@ -28,6 +27,7 @@ val open_group : string -> unit
 val close_group : unit -> unit
 val put : string -> unit
 val put_char : char -> unit
+val flush_out : unit -> unit
 val skip_line : unit -> unit
 
 
@@ -44,3 +44,5 @@ val freeze : (unit -> unit) -> unit
 val open_chan: out_channel  -> unit
 val close_chan: unit -> unit
 val to_string: (unit -> unit) -> string
+
+val finalize : unit -> unit

@@ -1,4 +1,6 @@
-OBJS=myfiles.cmo location.cmo out.cmo counter.cmo symb.cmo image.cmo subst.cmo save.cmo  aux.cmo latexmacros.cmo  html.cmo entry.cmo index.cmo latexscan.cmo latexmain.cmo
+LIBDIR=/usr/local/lib/htmlgen
+CPP=gcc -E -P -x c
+OBJS=parse_opts.cmo myfiles.cmo location.cmo out.cmo counter.cmo symb.cmo image.cmo subst.cmo save.cmo  aux.cmo latexmacros.cmo  html.cmo entry.cmo index.cmo latexscan.cmo latexmain.cmo
 
 OPTS=$(OBJS:.cmo=.cmx)
 
@@ -10,6 +12,12 @@ htmlgen: ${OBJS}
 
 htmlgen.opt: ${OPTS}
 	ocamlopt -o htmlgen.opt ${OPTS}
+
+myfiles.cmo: myfiles.ml myfiles.cmi
+	ocamlc -pp '${CPP} -DLIBDIR=\"${LIBDIR}\"' -c myfiles.ml
+
+myfiles.cmx: myfiles.ml myfiles.cmi
+	ocamlopt -pp '${CPP} -DLIBDIR=\"${LIBDIR}\"' -c myfiles.ml
 
 .SUFFIXES:
 .SUFFIXES: .ml .cmo .mli .cmi .c .mll .cmx
