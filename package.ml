@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.50 2004-06-03 17:28:55 thakur Exp $    *)
+(*  $Id: package.ml,v 1.51 2004-06-04 08:05:37 thakur Exp $    *)
 
 module type S = sig  end
 
@@ -942,15 +942,21 @@ let rec gen_table r  rinfo  result_rows  = match r with
 *                                                           *
 ************************************************************)
 
-let start_table1 () =
-  Dest.open_block "TABLE"
-    "style = \"text-align: center;\" border=\"1\" 
-     cellspacing=\"2\" cellpadding=\"1\"" ;
+let start_table1 () = "<table style=\"text-align: center;\" "^
+                      "border=\"0\"\n"^ 
+                      "cellspacing=\"1\" cellpadding=\"0\"\n"^
+                      "  <tbody>\n"
 ;;
   
-let end_table1 () =
-  Dest.close_block "TABLE"
+let end_table1 () = "  </tbody>\n</table>\n"
 ;;
+
+(************************************************************
+*                                                           *
+*   The functions to start and end tables, and change rows  *
+*   and columns using "open_block" and "close_block".       *
+*                                                           *
+************************************************************)
 
 let start_table () =
   Dest.open_block "TABLE"
@@ -1076,9 +1082,7 @@ register_init "bussproofs"
 	  let pf = stack_pop () in
 	  let (new_pr,cols,rows) = get_proof_col_row pf in
 	  let inner_text = gen_table rows [(new_pr,cols,rows)] "" in
-	  start_table1 () ;
-	  Dest.put inner_text ;
-	  end_table1 ()) ;
+	  Dest.put ((start_table1 ())^inner_text^(end_table1 ())));
     )
 ;;
 

@@ -1,10 +1,10 @@
-%	proofeg.tex	(An example file for proof.sty)
+%       proofeg.tex     (An example file for proof.sty)
 %
-%		Mar 6, 1997
-%		Makoto Tatsuta
+%               Mar 6, 1997
+%               Makoto Tatsuta
 %
-%	I hope you can learn how to use proof figure macros easily
-%	by these examples.
+%       I hope you can learn how to use proof figure macros easily
+%       by these examples.
 
 \def\imp{\to}
 \def\land{\mathbin\&}
@@ -16,27 +16,68 @@
 %\usepackage{proof}
 
 \begin{document}
-\section*{Examples of proof.sty}
+\section{Examples of proof.sty}
 
 \verb|\infer| draws beautiful proof figures easily:
 
-\noindent (1)
+\noindent(1)
 $$
-\infer{A}{
-	\infer{B}{
-		B11\land B12
-		&
-		B21\land B22
-	}
-	&
-	C
+\infer={A}{
+        \infer[\imp E]{B}{
+                \frac{\Pi}{2}
+                &
+                \infer[\wedge E$_1$]{B21}{B21 \wedge B22} 
+                & 
+                D1 \wedge D2
+        }
+        &
+        \infer{C}{C11 \wedge C12}
 }
 $$
 
-\noindent (2)
+\noindent(2)
 $$
-\infer{A \imp B}{
-	\infer{B}{[A]}
+\infer{A}{
+        \infer*[\imp E]{B}{
+                \frac{\Pi}{2}
+                &
+                \infer*[\wedge E$_1$]{B21}{B21 \wedge B22} 
+                & 
+                D1 \wedge D2
+        }
+        &
+        \deduce{C}{C11 \wedge C12}
 }
 $$
+
+\noindent (3)
+$$
+\infer[RI]{A \imp B}{
+        \infer*{B}{[A]}
+}
+$$
+
+\noindent (4)
+$$
+\infer[(1)]{A}{
+        \infer*{B}{
+                B11\land B12\land B13
+                &
+                B21\land B22\land B23
+        }
+        &
+        C
+}
+$$
+
+\noindent (5)
+$$
+\infer[(\land I)]{A \land B}{A & B}
+\qquad
+\infer[(\land E$_l$)]{A}{A\land B}
+\qquad
+\infer[(\land E$_r$)]{B}{A\land B}
+$$
+
+
 \end{document}

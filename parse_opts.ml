@@ -11,7 +11,7 @@
 
 open Misc
 
-let header = "$Id: parse_opts.ml,v 1.25 2001-05-25 12:37:27 maranget Exp $" 
+let header = "$Id: parse_opts.ml,v 1.26 2004-06-04 08:05:37 thakur Exp $" 
 
 type input = File of string | Prog of string
 
@@ -30,7 +30,7 @@ type language = Francais | English
 type destination = Html | Text | Info
 ;;
 let mathml = ref false
-and entities = ref false
+and entities = ref true
 ;;
 
 let language = ref English
@@ -89,6 +89,8 @@ let _ = Arg.parse
        "produces MathML output for equations, very experimental");
      ("-entities",Arg.Unit (fun() -> entities := true),
        "produces HTML 4.0 entities and unicode characters references for symbols, very experimental");
+     ("-noent",Arg.Unit (fun() -> entities := true),
+       "refrains from producing HTML 4.0 entities and unicode characters references for symbols, very experimental");
      ("-text",Arg.Unit (fun () -> symbols := false; destination := Text),
        "output plain text");
      ("-info",Arg.Unit (fun () -> symbols := false; destination := Info),
