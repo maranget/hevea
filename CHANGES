@@ -1,3 +1,6 @@
+version 1.05-4
+  - Bug basein, file extension is stripped only if it is ``.tex''
+  - Bug verbatiminput (end of file now raises Misc.EndInput).
 version 1.05-3
   - Allow a few catcode changes on active characters
   - l,c,r cells get top-aligned when there are other cells with
