@@ -3535,6 +3535,9 @@ is above 127 (i.e. output ascii only).
 These characters are replaced by \html{} entities. This option is
 mostly useful for generating \html{} that will be displayed properly
 by \emph{Netscape Communicator} on a Macintosh.
+\item[{\tt -pedantic}]  Be strict in interpreting \html-3.2
+definition. In particular, this option disable color changes inside
+\verb+<PRE>+\ldots{} \verb+</PRE>+, which are otherwise performed.
 \item[{\tt -I} {\it dirname}] Add {\it dirname} to the search path.
 \item[{\tt -o} {\it name}] Make \textit{name} the output basename.
 However, if \textit{name} is \textit{base}\texttt{.html}, then

@@ -15,6 +15,7 @@ type language = Francais | English
 val language : language  ref
 type destination = Html | Text | Info
 val destination : destination ref
+val pedantic : bool ref
 val width : int ref
 val read_idx : bool ref
 val except : string list ref

@@ -53,7 +53,7 @@
 \newcommand{\htmlhead}[1]{\sbox{\@htmlhead}{#1}}
 \newcommand{\htmlfoot}[1]{\sbox{\@htmlfoot}{#1}}
 %%%%%%%%%%% Footnotes
-\newcommand{\footnoterule}{\@print{<HR ALIGN=left WIDTH=50%>
+\newcommand{\footnoterule}{\@print{<HR ALIGN=left WIDTH="50%">
 }%
 }
 \newcommand{\footnotesep}[1]{}

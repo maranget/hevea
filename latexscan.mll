@@ -47,7 +47,7 @@ open Save
 open Tabular
 open Lexstate
 
-let header = "$Id: latexscan.mll,v 1.90 1999-05-11 14:05:49 tessaud Exp $" 
+let header = "$Id: latexscan.mll,v 1.91 1999-05-11 17:20:18 maranget Exp $" 
 
 let sbool = function
   | false -> "false"
@@ -327,7 +327,7 @@ let scan_this_arg old_stack lexfun lexbuf s =
 ;;
 *)
 
-let get_this lexfun s =
+let do_get_this nostyle lexfun s =
   let par_val = Dest.forget_par () in
   start_normal display in_math ;
 
@@ -336,6 +336,7 @@ let get_this lexfun s =
   let lexer = Lexing.from_string s in
   let r = Dest.to_string (fun () ->
     top_open_group () ;
+    if nostyle then Dest.nostyle () ;
     lexfun lexer ;
     top_close_group ()) in
 
@@ -345,9 +346,10 @@ let get_this lexfun s =
   end_normal display in_math ;
   Dest.par par_val ;
   r
-;;
 
-let get_this_nostyle main s = get_this main ("\\@nostyle{}"^s)
+
+let get_this lexfun s = do_get_this false lexfun s
+and get_this_nostyle lexfun s = do_get_this true lexfun s
 
 let subst_buff = Out.create_buff ()
 ;;

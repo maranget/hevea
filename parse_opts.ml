@@ -11,7 +11,7 @@
 
 open Misc
 
-let header = "$Id: parse_opts.ml,v 1.12 1999-05-07 11:33:59 maranget Exp $" 
+let header = "$Id: parse_opts.ml,v 1.13 1999-05-11 17:20:22 maranget Exp $" 
 
 
 let files = ref []
@@ -30,6 +30,7 @@ type destination = Html | Text | Info
 let language = ref English
 and symbols = ref true
 and iso = ref true
+and pedantic = ref false
 and destination = ref Html
 ;;
 
@@ -63,6 +64,8 @@ let _ = Arg.parse
        ", do not output symbol fonts") ;
      ("-noiso",Arg.Unit (fun () -> iso := false),
        ", do not output iso characters above 127") ;
+     ("-pedantic",Arg.Unit (fun () -> pedantic := true),
+       ", be pedantic in interpreting HTML 3.2 definition") ;
      ("-I", Arg.String (fun s -> path := s :: !path),
        "dir, add directory ``dir'' to search path") ;
      ("-text",Arg.Unit (fun () -> destination := Text),

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: html.ml,v 1.45 1999-05-11 14:05:43 tessaud Exp $" 
+let header = "$Id: html.ml,v 1.46 1999-05-11 17:20:14 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -626,7 +626,7 @@ let ok_pre = function
   Style "BIG"| Style "SMALL"| Style "SUP"| Style "SUB" -> false
 | Style _ -> false
 | Font _ -> false
-| _      -> true
+| _      -> not !pedantic
 ;;
 
 let rec filter_pre = function
@@ -686,13 +686,14 @@ let is_size = function
 let open_mod  m =
   if not !cur_out.nostyle then begin
     if !verbose > 3 then
-          prerr_endline ("open_mod: "^Latexmacros.pretty_env m) ;
-    if ok_mod m then
+          prerr_endline ("open_mod: "^Latexmacros.pretty_env m^" ok="^sbool (ok_mod m)) ;
+    if ok_mod m then begin
       begin match m with
         Color _ -> erase_mods_pred is_color
       | Font _  -> erase_mods_pred is_size
       | _ -> () end ;
       !cur_out.pending <- m :: !cur_out.pending
+    end
   end
 ;;
 
