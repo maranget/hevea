@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: verb.mll,v 1.65 2005-01-19 18:13:57 maranget Exp $            *)
+(*  $Id: verb.mll,v 1.66 2005-02-16 16:59:33 maranget Exp $            *)
 (***********************************************************************)
 {
 exception VError of string
@@ -88,6 +88,7 @@ let lst_gobble  = ref 0
 and lst_nlines  = ref 0
 and lst_first   = ref 1
 and lst_last    = ref 9999
+and lst_linegange = ref []
 and lst_print   = ref true
 and lst_string_spaces = ref true
 and lst_texcl   = ref false
@@ -1065,7 +1066,6 @@ let code_stringizer lexbuf =
 ;;
 
 let open_lst_inline keys =
-
   scan_this Scan.main "\\lsthk@PreSet" ;
   scan_this Scan.main ("\\lstset{"^keys^"}") ;
 (* For inline *)
@@ -1130,6 +1130,8 @@ let open_lst_env name =
     lst_gobble := Get.get_int (string_to_arg "\\lst@gobble") ;
     lst_first := Get.get_int (string_to_arg "\\lst@first") ;
     lst_last := Get.get_int (string_to_arg "\\lst@last") ;
+    let linerange = Scan.get_prim "\\lst@linerange" in
+    Printf.eprintf "%s\n" linerange ;
     lst_nlines := 0 ;
     lst_init_char_table false ;
     scan_this Scan.main "\\lsthk@SelectCharTable" ;

@@ -3,9 +3,9 @@
 \input{bookcommon.hva}
 \@makesection
   {\part}{-2}{part}
-  {\@open{H1}{CLASS="part"}}%
+  {\@opencell{CLASS="part"}{}{}\\@open{H1}{CLASS="part"}}%
   {\partname~\thepart}{\\}%
-  {\@close{H1}}
+  {\@close{H1}\@closecell}
 \newstyle{.part}{margin:auto;text-align:center}
 \@makesection
   {\chapter}{-1}{chapter}

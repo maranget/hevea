@@ -19,7 +19,6 @@
 %\newcommand{\@color}{120}%
 \colorsections{120}%
 %% Define sectioning comands
-\ifthenelse{\equal{\@base}{article}}{%
 \setLATEXstyle{title}
 	{padding:1ex;background:\@getstylecolor{title}}%
 \setLATEXstyle{titlemain}
@@ -34,26 +33,9 @@
 	{padding:0.3ex;background:\@getstylecolor{subsection}}%
 \setLATEXstyle{subsubsection}
 	{padding:0.5ex;background:\@getstylecolor{subsubsection}}%
-}{%
-\ifthenelse{\equal{\@base}{book}}{%
-\setLATEXstyle{title}
-	{padding:1ex;background:\@getstylecolor{title}}%
-\setLATEXstyle{titlemain}
-	{padding:1ex;background:\@getstylecolor{titlemain}}%
-\setLATEXstyle{titlerest}
-	{padding:1ex;background:\@getstylecolor{titlerest}}%
-\setLATEXstyle{part}
-	{padding:1ex;background:\@getstylecolor{part}}%
-\setLATEXstyle{chapter}
-	{padding:0.5ex;background:\@getstylecolor{chapter}}%
-\setLATEXstyle{section}
-	{padding:0.5ex;background:\@getstylecolor{section}}%
-\setLATEXstyle{subsection}
-	{padding:0.5ex;background:\@getstylecolor{subsection}}%
-\setLATEXstyle{subsubsection}
-	{padding:0.5ex;background:\@getstylecolor{subsubsection}}%
-}{%
-}}
+\ifthenelse{\equal{\@base}{book}}
+{\setLATEXstyle{chapter}{padding:0.5ex;background:\@getstylecolor{chapter}}}
+{}%
 
 
 

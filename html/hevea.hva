@@ -182,11 +182,11 @@
       {\ifthenelse{\equal{##4}{}}{}{\warning{No ##4 given}}}%
       {\@open{##1}{\class@attr{##2}{}}\usebox{##3}\@close{##1}}%
     }%
-  \@open{TABLE}{CLASS="title"}\@open{TR}{}\@open{TD}{}%
+  \@opencell{CLASS="title"}{}{}%
   \checkbox{H1}{titlemain}{\@@title}{title}%
   \checkbox{H3}{titlerest}{\@@author}{author}%
   \checkbox{H3}{titlerest}{\@@date}{}%
-  \@close{TD}\@close{TR}\@close{TABLE}%
+  \@closecell%
   \egroup%
 \let\maketitle\relax\let\checkbox\relax}%
 %
@@ -437,6 +437,9 @@
 %%%%%% Default TABLE attribute for array and tabular
 \newcommand{\@table@attributes}{CELLSPACING=2 CELLPADDING=0}
 \newcommand{\@table@attributes@border}{CELLSPACING=0 CELLPADDING=1}
+%%%%
+\newcommand{\@opencell}[3]{\@open{TABLE}{#1}\@open{TR}{#2}\@open{TD}{#3}}
+\newcommand{\@closecell}{\@force{TD}\@close{TR}\@close{TABLE}}
 %%%%%% Do not load hevea.hva again !
 \def\csname hevea@loaded\endcsname{}
 %
@@ -446,7 +449,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 \newcommand{\overlinedbox}[1]%
-     {\@print{<SPAN style="text-decoration:overline">}#1\@print{</SPAN>}}% 
+     {{\@styleattr{SPAN}{style="text-decoration:overline"}#1}}% 
 \renewcommand{\textoverline}[1]{\overlinedbox{#1}}%
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -487,8 +490,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 \newcommand{\boxed}[1]{\ifdisplay%
-	{\@boxed{#1}}
-	\else\@print{<SPAN style="border:solid thin black">}#1\@print{</SPAN>}%
+	{\@boxed{#1}}%
+	\else{\@styleattr{SPAN}{STYLE="border:solid thin black"}#1}%
 	\fi%
 }%
+%%%%%%%%
 

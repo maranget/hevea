@@ -319,6 +319,7 @@ breakindent,breakautoindent}
 \define@key{lst}{firstline}{\def\lst@first{#1}}
 \define@key{lst}{last}{\def\lst@last{#1}}
 \define@key{lst}{lastline}{\def\lst@last{#1}}
+\define@key{lst}{linerange}{\warning{RANGE: #1}\def\lst@linerange{#1}}
 % print key
 \define@key{lst}{print}[true]{\def\lst@print{#1}}
 \setboolean{lst@print}{true}

@@ -3,9 +3,9 @@
 \input{articlecommon.hva}
 \@makesection
   {\part}{-1}{part}
-  {\@open{H1}{CLASS="part"}}
+  {\@opencell{CLASS="part"}{}{}\@open{H1}{CLASS="part"}}
   {\partname~\thepart}{\\}
-  {\@close{H1}}
+  {\@close{H1}\@closecell}
 \newstyle{.part}{margin:auto;text-align:center}
 \@makesection
   {\section}{0}{section}
