@@ -1,5 +1,5 @@
 Name: hevea
-Version: VERSION
+Version: beta
 Release: 1
 Summary: Hevea, a fast LaTeX to HTML translator
 Source: ftp://ftp.inria.fr/INRIA/Projects/para/hevea/UNSTABLE/hevea-VERSION.tar.gz

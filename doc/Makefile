@@ -128,7 +128,7 @@ dorpm: hevea.spec
 	su $(USER) sh -c "cp $(RPMDIR)/RPMS/i386/$(RELEASENAME)-1.i386.rpm $(FTPDIR)"
 
 devrpm:
-	$(MAKE) $(MFLAGS) VERSION=`date +%Y-%m-%d` RELEASENAME="hevea-`date +%Y-%m-%d`"  FTPDIR="${FTPDIR}/unstable" UNSTABLE="/unstable" dorpm
+	$(MAKE) $(MFLAGS) VERSION=`date +%Y.%m.%d` RELEASENAME="hevea.`date +%Y.%m.%d`"  FTPDIR="${FTPDIR}/unstable" UNSTABLE="/unstable" dorpm
 
 rpm:
 	$(MAKE) $(MFLAGS) dorpm
