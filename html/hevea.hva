@@ -166,18 +166,14 @@
 % Maths %
 %%%%%%%%%
 \ifmathml
+\input{html/symb-mathml.hva}
 \else
-\ifsymb
-\ifentities\input{html/symb-ent.hva}
-\else\input{html/symb.hva}
-\fi
-\else
-\input{html/symb-text.hva}
-\fi
+\ifentities\input{html/symb-ent.hva}\fi
+\ifsymb\input{html/symb.hva}\fi
+\ifsymbtext\input{html/symb-text.hva}\fi
 \fi
 %% Maths fonts
 %%%%%%%%%%%
-%\def\bullet{{\@incsize{1}\@bullet}}
 \def\textsqsubset{\mbox{sqsubset}}
 %\def\sqsubset{%
 %\ifdisplay\@itemdisplay\@sqsubset\@itemdisplay\else
@@ -190,9 +186,6 @@
 %\def\doteq{%
 %\ifdisplay\@itemdisplay\@print{<FONT SIZE=7>·</FONT><BR>}=\@itemdisplay\else
 %\textdoteq\fi}
-\ifmathml
-\input{html/symb-mathml.hva}
-\fi
 \input{mathop.hva}
 %%%%%%%%%%%% Bibliography
 \newcommand{\@bibref}[2]{\@locref{#1}{\ifx#2\@empty\@verbarg{#1}\else#2\fi}}

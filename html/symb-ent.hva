@@ -41,7 +41,7 @@
 \newcommand{\psi}{\@entity{psi}}
 \newcommand{\omega}{\@entity{omega}}
 %
-\ifgoodbrowser\renewcommand{\epsilon}{\@print{&#1013;}}\fi
+\ifmoreentities\renewcommand{\epsilon}{\@print{&#1013;}}\fi
 %
 %% Capital Greek Letters
 %
@@ -173,7 +173,7 @@
 \newcommand{\swarrow}{\@print{&#8601;}}
 \newcommand{\nwarrow}{\@print{&#8598;}}
 %
-%% Eventually these commands would be activated (currently with '-goodbrowser')
+%% Eventually these commands would be activated (currently with '-moreentities')
 %
 %\renewcommand{\longleftarrow}{\@print{&#10229;}}
 %\renewcommand{\Longleftarrow}{\@print{&#10232;}}
@@ -183,7 +183,7 @@
 %\renewcommand{\Longleftrightarrow}{\@print{&#10234;}}
 %\renewcommand{\longmapsto}{\@print{&#10236;}}
 %
-\ifgoodbrowser
+\ifmoreentities
 \renewcommand{\longleftarrow}{\@print{&#10229;}}%
 \renewcommand{\Longleftarrow}{\@print{&#10232;}}%
 \renewcommand{\longrightarrow}{\@print{&#10230;}}%
@@ -268,7 +268,7 @@
 %\newcommand{\mathit}[1]{\@open{I}{}#1\@close{I}}
 %\let\mathrm\@mathrm%
 %\let\mathtt\@mathtt%
-%\ifgoodbrowser
+%\ifmoreentities
 %\let\mathcal\@mathcal%
 %\let\mathsf\@mathsf%
 %\let\mathbf\@mathbf%
@@ -276,7 +276,6 @@
 
 %
 %% Definition for big left and right brackets
->>>>>>> 1.21
 %
 \def\bigl#1{\ifdisplay{\large #1}\else{\large #1}\fi}
 \def\bigr#1{\ifdisplay{\large #1}\else{\large #1}\fi}

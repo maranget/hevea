@@ -175,7 +175,7 @@
 \newcommand{\backepsilon}{\@print{&#1101;}}	   % EVENTUALLY 1014
 \newcommand{\because}{\@print{&#8757;}}
 %
-%% These will be activated eventually (currently only in 'goodbrowser' mode)
+%% These will be activated eventually (currently only in 'moreentities' mode)
 %
 %\newcommand{\leqslant}{\@print{&#10877;}}
 %\newcommand{\geqslant}{\@print{&#10878;}}
@@ -190,7 +190,7 @@
 %\newcommand{\subseteqq}{\@print{&#10949;}}
 %\newcommand{\supseteqq}{\@print{&#10950;}}
 %
-\ifgoodbrowser
+\ifmoreentities
 \renewcommand{\leqslant}{\@print{&#10877;}}
 \renewcommand{\geqslant}{\@print{&#10878;}}
 \renewcommand{\lesseqqgtr}{\@print{&#10891;}}
@@ -260,7 +260,7 @@
 \newcommand{\supsetneqq}{\@print{&#10966;}}
 \newcommand{\varsupsetneqq}{\supsetneqq} 	% not ideal (supsetneqq)
 %
-%% These will be activated eventually (currently only in 'goodbrowser' mode)
+%% These will be activated eventually (currently only in 'moreentities' mode)
 %
 %\newcommand{\lneq}{\@print{&#10887;}}
 %\newcommand{\gneq}{\@print{&#10888;}}
@@ -273,7 +273,7 @@
 %\newcommand{\varsubsetneqq}{\@print{&#10955;}} % not ideal (subsetneqq)
 %\newcommand{\varsupsetneqq}{\@print{&#10966;}} % not ideal (supsetneqq)
 %
-\ifgoodbrowser{
+\ifmoreentities{
 \renewcommand{\lneq}{\@print{&#10887;}}
 \renewcommand{\gneq}{\@print{&#10888;}}
 \renewcommand{\precnapprox}{\@print{&#10937;}}
@@ -317,7 +317,7 @@
 \newcommand{\daleth}{\@print{&#1491;}}
 \newcommand{\gimel}{\@print{&#1490;}}
 %
-\ifgoodbrowser\renewcommand{\varkappa}{\@print{&#1008;}}
+\ifmoreentities\renewcommand{\varkappa}{\@print{&#1008;}}
 \fi
 %
 %% AMSSYMB delimiters
@@ -327,7 +327,7 @@
 \newcommand{\llcorner}{\@print{&#8990;}}
 \newcommand{\lrcorner}{\@print{&#8991;}}
 %
-%\ifgoodbrowser
+%\ifmoreentities
 %\let\mathbb\@mathbb
 %\let\mathfrak\@mathfrak
 %\fi

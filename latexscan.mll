@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.249 2005-01-21 17:40:51 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.250 2005-02-14 09:04:55 maranget Exp $ *)
 
 
 {
@@ -2400,7 +2400,11 @@ def_code "\\fi" (fun lexbuf -> check_alltt_skip lexbuf)
 let sawdocument = ref false
 ;;
 
-newif_ref "symb" symbols ;
+newif_ref "symb" (ref (match !symbol_mode with Symbol -> true | _ -> false)) ;
+newif_ref "entities"
+    (ref (match !symbol_mode with Entity -> true | _ -> false)) ;
+newif_ref "symbtext"
+    (ref (match !symbol_mode with SText -> true | _ -> false)) ;
 newif_ref "iso" iso ;
 newif_ref "raw" raw_chars ;
 newif_ref "silent" silent;
@@ -2413,13 +2417,12 @@ newif_ref "html" html;
 newif_ref "text" text;
 newif_ref "info" text;
 newif_ref "mathml" Parse_opts.mathml;
-newif_ref "entities" Parse_opts.entities;
 newif_ref "optarg" optarg;
 newif_ref "styleloaded" styleloaded;
 newif_ref "activebrace" activebrace;
 newif_ref "pedantic" pedantic ;
 newif_ref "fixpoint" fixpoint ;
-newif_ref "goodbrowser" goodbrowser;
+newif_ref "moreentities" moreentities;
 newif_ref "alltt@loaded" alltt_loaded ;
 newif_ref "filter" (ref filter) ;
 newif_ref "@sawdocument" sawdocument ;
