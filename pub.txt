@@ -1,7 +1,7 @@
 
-It is my pleasure to anounce the first release of HEVEA.
+It is my pleasure to anounce the first bug fix release of HEVEA.
 
-      This is HEVEA, version 1.0, a fast LaTeX to HTML translator.
+      This is HEVEA, version 1.01, a fast LaTeX to HTML translator.
 
 
     HEVEA is a LaTeX to HTML translator.  The input language is a fairly
@@ -35,7 +35,7 @@ DOCUMENTATION
     The first sections explain how to use hevea.
 
 IMPORTANT REQUIREMENT
-    To compile HEVEA, you need Objective Caml 1.07, see
+    To compile HEVEA, you need Objective Caml, see
     http://caml.inria.fr/ocaml/
 
 --Luc Maranget

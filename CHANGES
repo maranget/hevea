@@ -1,4 +1,4 @@
-Development version.
+Version 1.01 Bug fixes.
   - Corrected a bug with \frac and \over: text before them appeared
     above fraction.
   - Corrected a HACHA bug: a spurious </UL> was introduced before footer.

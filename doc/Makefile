@@ -40,6 +40,7 @@ version:: $(VERSIONFILE)
 
 include version.make
 
+CVSDIR=$(HOME)/CVS
 RELEASEDIR=/usr/tmp
 RELEASENAME=hevea-$(VERSION)
 FTPDIR=/home/tobago/para-ftp/hevea
@@ -47,7 +48,7 @@ FTPDIR=/home/tobago/para-ftp/hevea
 dorelease:
 # hevea relase
 	cd $(RELEASEDIR) ; rm -rf $(RELEASENAME) ;\
-	cvs export  $(RELEASEOPT) -l htmlgen ;\
+	cvs -d $(CVSDIR) export  $(RELEASEOPT) -l htmlgen ;\
 	mv htmlgen $(RELEASENAME) ;\
 	tar cfo $(RELEASENAME).tar $(RELEASENAME) ;\
 	gzip -f -best  $(RELEASENAME).tar
@@ -58,7 +59,7 @@ dorelease:
 	cd $(RELEASEDIR) ; tar cfo $(RELEASENAME)-manual.tar $(RELEASENAME)-manual ;\
 	 gzip -f -best $(RELEASENAME)-manual.ps  $(RELEASENAME)-manual.tar
 # Copy to FTPDIR
-	cd $(RELEASEDIR) ; mv $(RELEASENAME)-manual.ps.gz $(RELEASENAME)-manual.tar.gz  $(RELEASENAME).tar.gz $(RELEASENAME)/README $(FTPDIR)
+	cd $(RELEASEDIR) ; mv $(RELEASENAME)-manual.ps.gz $(RELEASENAME)-manual.tar.gz  $(RELEASENAME).tar.gz $(RELEASENAME)/README $(RELEASENAME)/LICENSE $(RELEASENAME)/CHANGES $(FTPDIR)
 
 release:
 	$(MAKE) $(MFLAGS) dorelease RELEASEOPT="-r $(RELEASETAG)"
@@ -67,7 +68,8 @@ testrelease:
 	$(MAKE) $(MFLAGS) dorelease RELEASEOPT="-D now"
 
 devrelease:
-	$(MAKE) $(MFLAGS) dorelease RELEASEOPT="-D now" FTPDIR="${FTPDIR}/unstable"
+	/bin/rm -rf ${FTPDIR}/unstable ; mkdir ${FTPDIR}/unstable
+	$(MAKE) $(MFLAGS) dorelease RELEASENAME="hevea-`date +%Y-%m-%d`" RELEASEOPT="-D now" FTPDIR="${FTPDIR}/unstable"
 
 
 clean:
