@@ -11,7 +11,7 @@
 
 open Misc
 
-let header = "$Id: parse_opts.ml,v 1.22 2000-09-09 16:03:54 maranget Exp $" 
+let header = "$Id: parse_opts.ml,v 1.23 2001-02-20 15:29:37 maranget Exp $" 
 
 type input = File of string | Prog of string
 
@@ -55,7 +55,14 @@ let outname = ref ""
 ;;
 
 let _ = Arg.parse
-    [("-v", Arg.Unit (fun () -> readverb := !readverb + 1),
+    [
+      ("-version", Arg.Unit
+         (fun () ->
+           print_endline ("hevea "^Version.version) ;
+           print_endline ("library directory: "^Mylib.static_libdir) ;
+           exit 0),
+       ", show hevea version and library directory") ;
+      ("-v", Arg.Unit (fun () -> readverb := !readverb + 1),
        ", verbose flag, can be repeated to increase verbosity") ;
       ("-s", Arg.Unit (fun () -> silent := true),
        ", suppress warnings") ;
