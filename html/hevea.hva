@@ -123,13 +123,20 @@
 % Maketitle %
 %%%%%%%%%%%%%
 \newcommand{\maketitle}{%
-{\newcommand{\checkbox}[2]
-  {\ifthenelse{\equal{\usebox{##2}}{}}
-    {}
-    {\@open{##1}{ALIGN=center}\usebox{##2}\@close{##1}}}%
-\checkbox{H1}{\@title}
-\checkbox{H3}{\@author}
-\checkbox{H3}{\@date}}}
+  \newcommand{\checkbox}[2]%
+    {\ifthenelse{\equal{\usebox{##2}}{}}%
+      {}%
+      {\@open{##1}{ALIGN=center}\usebox{##2}\@close{##1}}%
+    }%
+  \newcommand{\checktitlebox}[2]%
+    {\ifthenelse{\equal{\usebox{##2}}{}}%
+      {}%
+      {\@open{##1}{CLASS=title ALIGN=center}\usebox{##2}\@close{##1}}%
+    }%
+  \checktitlebox{H1}{\@title}%
+  \checkbox{H3}{\@author}%
+  \checkbox{H3}{\@date}%
+}
 
 %%%%%%%%%
 % Maths %
@@ -176,10 +183,13 @@
 <META name="GENERATOR" content="hevea \end{rawhtml}\usebox{\@heveaversion}\@print{">
 }
 \ife\css@link\else
-\@print{<LINK REL=STYLESHEET type="text/css"}\css@link\@print{>}
-\@print{ }\@print{ }\fi%
+\@print{<LINK REL=STYLESHEET type="text/css"}\css@link\@print{>
+}
+\fi
 \ife\hevea@css\else\@print{<STYLE type="text/css">}
-\hevea@css\@print{</STYLE>}\fi%
+\hevea@css\@print{</STYLE>
+}
+\fi
 }
 %%% Style sheet
 \newtokens{\css@link}
@@ -187,7 +197,7 @@
 \newcommand{\loadcssfile}[1]{\addcssfile{\@getprint{ HREF=\char34#1\char34}}}
 \newtokens{\hevea@css}
 \newcommand{\addstyle}[1]{\addtokens{\hevea@css}{#1}}
-\newcommand{\newstyle}[2]{\addstyle{\@getprint{#1\char123#2\char125\@print{
+\newcommand{\newstyle}[2]{\addstyle{\@getprint{\@print{ }\@print{ }\@print{ }\@print{ }#1\char123#2\char125\@print{
 }}}}
 \newenvironment{document}{%
 \@end{document}
@@ -195,18 +205,19 @@
 \@print{<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
             "http://www.w3.org/TR/REC-html40/loose.dtd">
 }\@print{<HTML>
-}%
-\@print{<HEAD><TITLE>}%
+}
+\@print{<HEAD>
+}
+\@print{<TITLE>}%
 \@notags{\usebox{\@title}}%
 \@print{</TITLE>
 }\@meta%
 \ifmathml\@print{<STYLE type="text/css">
   math.centered { text-align: center}
 </STYLE>
-}%
-\fi
+}\fi
 \@print{</HEAD>
-}%
+}
 \@print{<BODY }\@notags{\@bodyargs}\@print{>
 }%
 \@print{<!--HEVEA command line is: }\usebox{\@heveacomline}\@print{-->

@@ -1,54 +1,56 @@
 %%% Keeps track of which style is being used for document preparation.
 %%% Used to map LATEXstyle to HTMLstyle
 %%%
-\newcommand{\book@style}{book}
-\newcommand{\art@style}{article}
+\newcommand{\book@style}{book}%
+\newcommand{\art@style}{article}%
 
 %%% Map from LATEX to HTML sectioning for book style
 %%%
-\newcommand{\bookHTMLequiv}[1]{
-	\ifthenelse{\equal{#1}{title}}{H1}{
-	\ifthenelse{\equal{#1}{chapter}}{H1}{
-	\ifthenelse{\equal{#1}{section}}{H2}{
-	\ifthenelse{\equal{#1}{subsection}}{H2}{
-	\ifthenelse{\equal{#1}{subsubsection}}{H4}{
-	\ifthenelse{\equal{#1}{abc}}{H5}{
-	\ifthenelse{\equal{#1}{subparagraph}}{H6}{
-	}}}}}}}	
-}
+\newcommand{\bookHTMLequiv}[1]{%
+\ifthenelse{\equal{#1}{title}}{H1.title}{%
+\ifthenelse{\equal{#1}{chapter}}{H1.chapter}{%
+\ifthenelse{\equal{#1}{section}}{H2}{%
+\ifthenelse{\equal{#1}{subsection}}{H3}{%
+\ifthenelse{\equal{#1}{subsubsection}}{H4}{%
+\ifthenelse{\equal{#1}{paragraph}}{H5}{%
+\ifthenelse{\equal{#1}{subparagraph}}{H6}{%
+}}}}}}}%	
+}%
 
 %%% Map from LATEX to HTML sectioning for book style
 %%%
-\newcommand{\articleHTMLequiv}[1]{
-	\ifthenelse{\equal{#1}{title}}{H1}{
-	\ifthenelse{\equal{#1}{part}}{H1}{
-	\ifthenelse{\equal{#1}{section}}{H2}{
-	\ifthenelse{\equal{#1}{subsection}}{H3}{
-	\ifthenelse{\equal{#1}{subsubsection}}{H4}{
-	\ifthenelse{\equal{#1}{paragraph}}{H5}{
-	\ifthenelse{\equal{#1}{subparagraph}}{H6}{
-	}}}}}}}
+\newcommand{\articleHTMLequiv}[1]{%
+\ifthenelse{\equal{#1}{title}}{H1.title}{%
+\ifthenelse{\equal{#1}{part}}{H1.part}{%
+\ifthenelse{\equal{#1}{section}}{H2}{%
+\ifthenelse{\equal{#1}{subsection}}{H3}{%
+\ifthenelse{\equal{#1}{subsubsection}}{H4}{%
+\ifthenelse{\equal{#1}{paragraph}}{H5}{%
+\ifthenelse{\equal{#1}{subparagraph}}{H6}{%
+}}}}}}}%
 }	
+%	
 
 %%% Mapping LATEX sectioning to HTML sectioning
 %%%
 \newcommand{\getHTMLequiv}[1]{%
-	\ifthenelse{\equal{\doc@style}{\book@style}}{%
-		\bookHTMLequiv{#1}}{%
-	\ifthenelse{\equal{\doc@style}{\art@style}}{%
-		\articleHTMLequiv{#1}}{%
-	}}}%
+\ifthenelse{\equal{\doc@style}{\book@style}}{\bookHTMLequiv{#1}}{%
+\ifthenelse{\equal{\doc@style}{\art@style}}{\articleHTMLequiv{#1}}{%
+}}%
+}%
 
 %%% Specify a common theme for all sectioning displays.
 %%% e.g. \setstyles{background:blue;color:white;font:sans-serif}
 %%%
 \newcommand{\setstyles}[1]{%
-	\newstyle{H1}{#1}%
-	\newstyle{H2}{#1}%
-	\newstyle{H3}{#1}%
-	\newstyle{H4}{#1}%
-	\newstyle{H5}{#1}%
-	\newstyle{H6}{#1}%
+\newstyle{H1.title}{#1}%
+\newstyle{H1.part}{#1}%
+%\newstyle{H1}{#1}%	
+\newstyle{H2}{#1}%
+\newstyle{H3}{#1}%
+\newstyle{H4}{#1}%
+\newstyle{H5}{#1}%
+\newstyle{H6}{#1}%
 }%
 
 %%% Specify a style for (the rewrite into HTML of) a sectioning macro.
@@ -63,8 +65,6 @@
 %%% it to its HTML rewrite).
 %%% e.g. \setLATEXstyle{subsection}{background:blue;font:small sans-serif}
 %%%
-\newcommand{\setLATEXstyle}[2]{%
-	\newstyle{\getHTMLequiv{#1}}{#2}%
-}
+\newcommand{\setLATEXstyle}[2]{\newstyle{\getHTMLequiv{#1}}{#2}}%
 
 

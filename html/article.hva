@@ -3,7 +3,7 @@
 \input{articlecommon.hva}
 \@makesection
   {\part}{-1}{part}
-  {\@open{H1}{ALIGN=center}}{\partname~\thepart}{\\}{\@close{H1}}
+  {\@open{H1}{CLASS=part ALIGN=center}}{\partname~\thepart}{\\}{\@close{H1}}
 \@makesection
   {\section}{0}{section}
   {\@open{H2}{}}{\thesection}{\quad}{\@close{H2}}%
@@ -18,6 +18,6 @@
   {\@open{H5}{}}{\theparagraph}{\quad}{\@close{H5}}%
 \@makesection
   {\subparagraph}{4}{subparagraph}
-  {\@open{H5}{}}{\thesubparagraph}{\quad}{\@close{H5}}%
+  {\@open{H6}{}}{\thesubparagraph}{\quad}{\@close{H6}}%
 \styleloadedtrue
 \fi
