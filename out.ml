@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: out.ml,v 1.11 1999-05-07 11:33:58 maranget Exp $" 
+let header = "$Id: out.ml,v 1.12 1999-05-07 17:45:23 maranget Exp $" 
 let verbose = ref 0
 ;;
 
@@ -152,3 +152,13 @@ let close = function
 | _ -> ()
 ;;
 
+let is_space = function
+  | ' ' | '\n' -> true
+  | _ -> false
+
+let unskip = function
+| Buff b ->
+    while b.bp > 0 && is_space b.buff.[b.bp-1] do
+      b.bp <- b.bp - 1
+    done
+| _      -> ()

@@ -31,3 +31,4 @@ val copy_no_tag : t -> t -> unit
 val close : t -> unit
 
 val debug : out_channel -> t -> unit
+val unskip : t -> unit

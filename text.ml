@@ -379,7 +379,26 @@ let do_put_char c =
   then do_do_put_char c
   else do_put_char2 c
 ;;
-	    
+
+let do_unskip () =
+  if !cur_out.temp || (Out.is_null !cur_out.out) then
+    Out.unskip !cur_out.out
+  else begin
+    while flags.x > flags.x_start && line.[flags.x-1] = ' ' do
+      flags.x <- flags.x - 1
+    done ;
+    flags.last_space <-  flags.x ;
+    while
+      flags.last_space >=  flags.x_start &&
+      line.[flags.last_space] <> ' '
+    do
+      flags.last_space <- flags.last_space - 1
+    done;
+    if flags.x = flags.x_start && !cur_out.temp then
+      Out.unskip !cur_out.out    
+  end
+
+
 let do_put s =
   if !verbose>3 then
     prerr_endline ("put:|"^String.escaped s^"|");
@@ -834,8 +853,10 @@ let horizontal_line s u t =
   put_char '\n';
 ;;
 
+
+let unskip () = do_unskip ()
+
 let put_separator () = put " "
-;;
 
 let put_tag tag = ()
 ;;

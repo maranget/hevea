@@ -47,7 +47,7 @@ open Save
 open Tabular
 open Lexstate
 
-let header = "$Id: latexscan.mll,v 1.84 1999-05-07 16:33:00 tessaud Exp $" 
+let header = "$Id: latexscan.mll,v 1.85 1999-05-07 17:45:19 maranget Exp $" 
 
 let sbool = function
   | false -> "false"
@@ -795,13 +795,14 @@ let complete_scan main lexbuf =
 ;;
 
 
-let stop_other_scan main lexbuf =
+let stop_other_scan comment main lexbuf =
   if !verbose > 1 then begin
     prerr_stack_string "Stop image: env stack is"
       (fun (x,_) -> x) stack_env ;
     prerr_endline ("Current env is: ``"^ !cur_env^"''")
   end;
   let _ = pop stack_entry in
+  if not comment then close_env !cur_env ;
   if not (Lexstate.empty stack_out) then begin
     complete_scan main lexbuf ;
     while not (Lexstate.empty stack_out) do
@@ -1074,12 +1075,6 @@ rule  main = parse
 | "\\begin"
    {let env = save_arg lexbuf in
    begin match env with
-   | "latexonly" ->
-       start_other_scan "latexonly" latexonly lexbuf ;
-       main lexbuf
-   | "toimage" ->
-       start_image_scan "" image lexbuf ;
-       main lexbuf
    | "tabbing" ->
         let lexfun lb =
           Dest.open_block "TABLE" "CELLSPACING=0 CELLPADDING=0" ;
@@ -1178,23 +1173,6 @@ rule  main = parse
         close_env env ;
         if env <> "document" then main lexbuf
     end}
-(* inside tabbing *)
- | [' ''\n']* ("\\>" | "\\=")
-    {if is_tabbing !in_table then begin
-      Dest.force_block "TD" "&nbsp;";
-      Dest.open_block "TD" ""
-    end ;
-    skip_blanks_pop lexbuf ;
-    main lexbuf}
- |  [' ''\n']* "\\kill"
-    {if is_tabbing !in_table then begin
-      Dest.force_block "TD" "&nbsp;";
-      Dest.erase_block "TR" ;
-      Dest.open_block "TR" "" ;
-      Dest.open_block "TD" ""
-    end ;
-    skip_blanks_pop lexbuf ;
-    main lexbuf}
 (* inside tables and array *)
   | [' ''\n']* "&"
     {if !alltt then begin
@@ -1208,25 +1186,6 @@ rule  main = parse
     end ;
     skip_blanks_pop lexbuf ;
     main lexbuf}
-  | ['\n'' ']* "\\\\"
-      {let _ = parse_args_opt [""] lexbuf in
-      if is_table !in_table  then begin
-         close_col main "&nbsp;" ; close_row () ;
-         open_row () ; open_first_col main
-      end else if is_tabbing !in_table then begin
-        Dest.force_block "TD" "&nbsp;";
-        Dest.close_block "TR" ;
-        Dest.open_block "TR" "" ;
-        Dest.open_block "TD" ""
-      end else begin
-        if !display then
-          warning "\\\\ in display mode, ignored"
-        else
-          Dest.skip_line ()
-      end ;
-      skip_blanks_pop lexbuf ;
-      let _ = Dest.forget_par () in
-      main lexbuf}
 (* Substitution  *)
   | '#' ['1'-'9']
       {let lxm = lexeme lexbuf in
@@ -1366,7 +1325,7 @@ and latex2html_latexonly = parse
 
 and latexonly = parse
    '%'+ ' '* ("END"|"end") ' '+ ("LATEX"|"latex")  [^'\n']* '\n'
-     {stop_other_scan main lexbuf}
+     {stop_other_scan true main lexbuf}
 |  '%'+ ' '* ("HEVEA"|"hevea") ' '*
      {latexonly lexbuf}
 |  '%'
@@ -1374,7 +1333,7 @@ and latexonly = parse
 |  "\\end"
      {let arg = save_arg lexbuf in
      if arg = "latexonly" then begin
-       stop_other_scan main lexbuf
+       stop_other_scan false main lexbuf
      end else if arg = top stack_entry then begin
        let _ = pop stack_entry in
        push stack_out arg ;
@@ -1386,7 +1345,7 @@ and latexonly = parse
        end
      end else
        latexonly lexbuf}
-|  command_name  | _ {latexonly lexbuf}
+| command_name  | _ {latexonly lexbuf}
 | eof
     {if Lexstate.empty stack_lexbuf then ()
     else begin
@@ -1403,7 +1362,7 @@ and latex_comment = parse
 
 and image = parse
    '%'+ ' '* ("END"|"end") ' '+ ("IMAGE"|"image")  [^'\n']* '\n'
-     {Image.put_char '\n' ; stop_other_scan main lexbuf}
+     {Image.put_char '\n' ; stop_other_scan true main lexbuf}
 |  '%'+ ' '* ("HEVEA"|"hevea") ' '*
      {image lexbuf}
 |  '%'
@@ -1424,7 +1383,7 @@ and image = parse
      let true_arg = Save.get_echo () in
      if arg = "toimage" then begin
        Image.put_char '\n' ;
-       stop_other_scan main lexbuf
+       stop_other_scan false main lexbuf
      end else if arg = top stack_entry then begin
        let _ = pop stack_entry in
        push stack_out arg ;
@@ -2370,6 +2329,17 @@ def_code "\\hspace"  (fun lexbuf _ -> do_space false lexbuf) ;
 def_code "\\vspace"  (fun lexbuf _ -> do_space true lexbuf)
 ;;
 
+let do_unskip () =
+ let _ = Dest.forget_par () in
+ Dest.unskip ()
+;;
+
+def_code "\\unskip"
+    (fun lexbuf _ ->
+      do_unskip () ;
+      skip_blanks lexbuf)
+;;
+
 (* Explicit groups *)
 def_code "\\begingroup" (fun _ _ -> new_env "command-group")
 ;;
@@ -2395,6 +2365,71 @@ def_code "\\hline"
      ())
 ;;
 
+(* inside tabbing *)
+let do_tabul lexbuf _ =
+  if is_tabbing !in_table then begin
+    do_unskip () ;
+    Dest.close_cell ""; Dest.open_cell default_format 1
+  end ;
+  skip_blanks_pop lexbuf
+;;
+
+def_code "\\>" do_tabul ;
+def_code "\\=" do_tabul
+;;
+
+def_code "\\kill"
+  (fun lexbuf _ ->
+    if is_tabbing !in_table then begin
+      do_unskip () ;
+      Dest.close_cell "";
+      Dest.erase_row () ;
+      Dest.new_row () ;
+      Dest.open_cell default_format 1
+    end ;
+    skip_blanks_pop lexbuf)
+;;
+
+
+(* Tabular and arrays *)
+def_code "\\\\"
+ (fun lexbuf _ -> 
+   do_unskip () ;
+   let _ = parse_args_opt [""] lexbuf in
+   if is_table !in_table  then begin
+     close_col main "&nbsp;" ; close_row () ;
+     open_row () ; open_first_col main
+   end else if is_tabbing !in_table then begin
+     Dest.close_cell "";
+     Dest.close_row () ;
+     Dest.new_row () ;
+     Dest.open_cell default_format 1
+   end else begin
+     if !display then
+       warning "\\\\ in display mode, ignored"
+     else
+       Dest.skip_line ()
+   end ;
+   skip_blanks_pop lexbuf ;
+   let _ = Dest.forget_par () in ())
+;;
+
+
+(* Other scanners *)
+
+def_code "\\latexonly"
+  (fun lexbuf _ ->
+    top_close_block "" ;
+    let lexbuf = previous_lexbuf () in
+    start_other_scan "latexonly" latexonly lexbuf)
+;;
+
+def_code "\\toimage"
+  (fun lexbuf _ ->
+    top_close_block "" ;
+    let lexbuf = previous_lexbuf () in
+    start_image_scan "" image lexbuf)
+;;
 
 (* Info  format specific *)
 

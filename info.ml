@@ -113,6 +113,7 @@ let finalize check =
 
 let horizontal_line =Text.horizontal_line;;
 let put_separator =Text.put_separator;;
+let unskip = Text.unskip;;
 let put_tag =Text.put_tag;;
 let put_nbsp =Text.put_nbsp;;
 let put_open_group =Text.put_open_group;;

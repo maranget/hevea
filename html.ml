@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: html.ml,v 1.42 1999-05-07 16:32:54 tessaud Exp $" 
+let header = "$Id: html.ml,v 1.43 1999-05-07 17:45:10 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -1480,6 +1480,8 @@ let put_separator () =
   put "\n"
 ;;
 
+let unskip () = Out.unskip !cur_out.out
+  
 let put_tag tag =
   put tag
 ;;
@@ -1499,18 +1501,8 @@ let put_close_group () =
 let put_in_math s =
   put "<I>";
   put s;
-  put "<\I>"
+  put "</I>"
 ;;
-
-(*
-let put_print_text s =
-  ()
-;;
-
-let put_print_html s =
-  put s
-;;
-*)
 
 
 let open_table border htmlargs =

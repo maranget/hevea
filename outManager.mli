@@ -78,6 +78,7 @@ module type S =
 
     val horizontal_line : string -> string -> string -> unit
     val put_separator : unit -> unit
+    val unskip : unit -> unit
     val put_tag : string -> unit
     val put_nbsp : unit -> unit
     val put_open_group : unit -> unit

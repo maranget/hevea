@@ -20,7 +20,7 @@ module type T =
 module Make (Dest : OutManager.S) =
 struct
 
-let header = "$Id: index.ml,v 1.22 1999-05-07 16:32:55 tessaud Exp $"
+let header = "$Id: index.ml,v 1.23 1999-05-07 17:45:13 maranget Exp $"
 open Misc
 open Parse_opts
 open Entry
@@ -30,7 +30,10 @@ exception Error of string
 let is_alpha c =  ('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z')
 
 let compare_char c1 c2 =
-  if is_alpha c1 && is_alpha c2 then compare c1 c2
+  if is_alpha c1 && is_alpha c2 then
+    let r = compare (Char.uppercase c1) (Char.uppercase c2) in
+    if r <> 0 then r
+    else compare c1 c2
   else if is_alpha c1 then 1
   else if is_alpha c2 then -1
   else compare c1 c2
@@ -64,7 +67,7 @@ let comp (l1,p1) (l2,p2) =
   | [],_  -> -1
   | _,[]  -> 1
   | x1::r1,x2::r2 ->
-      let t = compare_string (String.capitalize x1) (String.capitalize x2) in
+      let t = compare_string x1 x2 in
       if t<> 0 then t
       else begin
         match p1,p2 with
