@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.16 1999-05-26 15:45:41 tessaud Exp $"
+let header = "$Id: text.ml,v 1.17 1999-06-02 12:07:25 tessaud Exp $"
 
 
 open Misc
@@ -472,7 +472,7 @@ let par = function (*Nombre de lignes a sauter avant le prochain put*)
 	flags.pending_par <-
 	  (match pblock() with
 	  | "QUOTE" | "QUOTATION" -> Some (n-1)
-	  | _ -> Some(n-1));
+	  | _ -> Some n);
 	if !verbose>2 then
 	  prerr_endline
 	    ("par: last_close="^flags.last_closed^
@@ -489,7 +489,7 @@ let forget_par () =
 
 let flush_par n =
   flags.pending_par <- None;
-  let p = n+1 in
+  let p = n in
   for i=1 to p do
     do_put_char '\n'
   done;
@@ -1364,11 +1364,12 @@ let calculate_multi () =
       [] -> ()
     | (debut,fin,taille_mini) :: reste -> begin
 	let taille = somme debut fin in
+	if !verbose>3 then prerr_endline ("from "^string_of_int debut^
+					  " to "^string_of_int fin^
+					  ", size was "^string_of_int taille^
+					  " and should be at least "^string_of_int taille_mini);
 	if taille < taille_mini then begin (* il faut agrandir *)
-	  if !verbose>3 then prerr_endline ("from "^string_of_int debut^
-					    " to "^string_of_int fin^
-					    ", size was "^string_of_int taille^
-					    " and should be at least "^string_of_int taille_mini^", ajusting..");
+	  if !verbose>3 then prerr_endline ("ajusting..");
 	  for i = debut to fin do
 	    if taille = 0
 	    then
@@ -1384,7 +1385,8 @@ let calculate_multi () =
     end
   in
   if !verbose>2 then prerr_endline "Finalizing multi-columns.";
-  do_rec !multi
+  do_rec !multi;
+  if !verbose>2 then prerr_endline "Finalized multi-columns.";
 ;;
 
 

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: html.ml,v 1.52 1999-06-01 12:25:44 tessaud Exp $" 
+let header = "$Id: html.ml,v 1.53 1999-06-02 12:07:16 tessaud Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -1493,7 +1493,11 @@ let put_separator () =
   put "\n"
 ;;
 
-let unskip () = Out.unskip !cur_out.out
+let unskip () = 
+  Out.unskip !cur_out.out;
+  if flags.blank then
+    flags.empty <- true;
+;;
   
 let put_tag tag =
   put tag
@@ -1552,7 +1556,7 @@ let open_cell format span i= open_block "TD" (as_align format span)
 ;;
 
 let erase_cell () =  erase_block "TD"
-and close_cell content =  force_block "TD" content
+and close_cell content = force_block "TD" content
 and do_close_cell () = close_block "TD"
 and open_cell_group () = open_group ""
 and close_cell_group () = close_group ()
@@ -1579,13 +1583,13 @@ let center_format =
 let make_inside s multi =
   if not (multi) then begin
     if pblock ()="TD" then begin
-      close_cell "";
+      close_cell "&nbsp";
       open_cell center_format 1 0;
       put s;
     end else begin
       open_cell center_format 1 0;
       put s;
-      close_cell ""
+      close_cell "&nbsp"
     end;
   end
 ;;

@@ -44,7 +44,7 @@ open Tabular
 open Lexstate
 
 
-let header = "$Id: latexscan.mll,v 1.105 1999-06-01 12:25:48 tessaud Exp $" 
+let header = "$Id: latexscan.mll,v 1.106 1999-06-02 12:07:21 tessaud Exp $" 
 
 
 let sbool = function
@@ -556,7 +556,7 @@ let rec find_end n format i b insides = match n with
 ;;
 
 
-let find_start i = if !first_col then 0 else i
+let find_start i = if !first_border then 0 else i
 
 let find_align format =
   let t = ref 0 in
