@@ -2110,8 +2110,10 @@ They are no pages in the physical sense in \html. Thus, all these
 commands are ignored.
 
 \section{Lengths, Spaces and Boxes}
+
 \subsection{Length}
-All lengths are ignored, things go smoothly when \LaTeX{} syntax is
+
+All length commands are ignored, things go smoothly when \LaTeX{} syntax is
 used (using the \verb+\newlength+, \verb+\setlength+, etc. commands,
 which are null macros).
 Of course, if lengths are really important to the document, rendering
@@ -2125,17 +2127,21 @@ Users can correct such misbehavior by adopting \LaTeX{} syntax
 
 
 \subsection{Space}
+
 The \verb+\hspace+, \verb+\vspace+ and \verb+\addvspace+ spacing
-commands and their
-starred versions do nothing but issuing a warning.
+commands and their starred versions recognize positive explicit length
+arguments.  Such arguments get converted to a number of non-breaking
+spaces or line breaks.
+Basically, the value of \verb+1em+ or \verb+1ex+ is one space or one
+line-break. For other length units, a simple conversion based upon a
+12pt font is used.
 
-This is so because \hevea{} cannot interpret length arguments.  When a
-document uses these commands once or always with similar arguments,
-users can redefine them to output the desired amount of non-breaking
-spaces or line-skips (which can be none, of course). 
 
+\hevea{} cannot interpret more complicated length arguments
+or perform negative spacing.
+In these situations, a warning is issued and no output is done.
 
-However, spacing commands without arguments are recognized.
+Spacing commands without arguments are recognized.
 The \verb+\enspace+, \verb+\quad+ and \verb+\qquad+ commands output
 one, two and four non-breaking spaces, while the \verb+\smallskip+,
 \verb+\medskip+ and \verb+\bigskip+ output one, one, and two line
@@ -2166,7 +2172,8 @@ Users can alter the behavior of \verb+\fbox+ in non-display mode by
 redefining \verb+\textfbox+.
 
 
-Boxes can be saved for latter usage by storing them in {\em bin}.
+
+Boxes can be saved for latter usage by storing them in {\em bins}.
 New bins are defined by \verb+\newsavebox{+{\it cmd}\verb+}+.
 
 Then some text can be saved into {\it cmd} by
