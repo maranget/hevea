@@ -115,7 +115,7 @@
 \newcommand{\notin}{\@entity{notin}}
 \renewcommand{\models}{\@print{&#8872;}}
 \newcommand{\perp}{\bot}
-\renewcommand{\mid}{\@entity{VerticalBar}}
+\renewcommand{\mid}{\@print{&#8739;}}
 \newcommand{\parallel}{\@entity{parallel}}
 \newcommand{\bowtie}{\@entity{bowtie}}
 %\newcommand{\Join}{\@entity{}}
@@ -198,7 +198,7 @@
 \newcommand{\rceil}{\@entity{rceil}}
 \newcommand{\langle}{\@entity{lang}}
 \newcommand{\rangle}{\@entity{rang}}
- Variable-sized Symbols
+%% Variable-sized Symbols
 \newcommand{\@sum}{\@entity{sum}}
 \newcommand{\@prod}{\@entity{prod}}
 \newcommand{\@coprod}{\@entity{coproduct}}

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlCommon.ml,v 1.40 2003-03-07 17:25:33 maranget Exp $" 
+let header = "$Id: htmlCommon.ml,v 1.41 2004-03-24 14:57:17 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -651,7 +651,7 @@ let par_val last now n =
     else if
       is_header last || last = PRE || last = BLOCKQUOTE
     then n-1
-    else if last = DIV || last = TABLE then n
+    else if last = TABLE then n
     else n+1 in
   if !verbose > 2 then
     Printf.fprintf stderr

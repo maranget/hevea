@@ -247,7 +247,7 @@
 \def\newblock{}
 \def\nobreak{}
 \def\newdimen#1{}
-\def\samepage{}
+\newenvironment{samepage}{}{}
 \def\raggedbottom{}
 \def\emergencystretch#1{}
 %%%%%%%%%%%% A few texisms
@@ -308,12 +308,18 @@
 \newcommand{\pageref}[1]{\@locref{#1}{??}}
 \let\@input\input%appears inside aux files
 \newcommand{\@readhaux}[1]
-{\@hauxinit\@iffileexists{#1.haux}{\input{#1.haux}}{}\@hauxfinal}
+{\@hauxinit%
+\@iffileexists{#1.haux}
+  {\@try{\input{#1.haux}}{\warning{Failure while reading .haux}}}
+  {}%
+\@hauxfinal}
 \newcommand{\@readaux}[1]{\input{#1.aux}}
 \newcommand{\@readauxorhaux}[2]
 {\@stopoutput\@stopimage%
 \ifthenelse{\@fileexists{#1.aux} \and \not \boolean{fixpoint}}
-  {\@try{\@readaux{#1}}{\warning{Failure while reading .aux, reading .haux}\@readhaux{#2}}}
+  {\@try
+     {\@readaux{#1}}
+     {\warning{Failure while reading .aux, reading .haux}\@readhaux{#2}}}
   {\@readhaux{#2}}%
 \@restartoutput\@restartimage}
 \AtBeginDocument

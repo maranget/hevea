@@ -12,7 +12,7 @@
 {
 open Lexing
 
-let header = "$Id: entry.mll,v 1.12 2001-12-19 15:14:33 maranget Exp $" 
+let header = "$Id: entry.mll,v 1.13 2004-03-24 14:56:48 maranget Exp $" 
 
 let buff = Out.create_buff ()
 ;;
@@ -53,9 +53,10 @@ rule entry = parse
 | "\"|"
     {put_char '|' ; entry lexbuf}
 | '!' {Bang   (Out.to_string buff,"")}
-| '@' {let s = Out.to_string buff in
-      let r = entry lexbuf in
-      extend r s}
+| '@'|'?'
+    {let s = Out.to_string buff in
+    let r = entry lexbuf in
+    extend r s}
 | '|' {Bar (Out.to_string buff,"")}
 | eof {Eof (Out.to_string buff,"")}
 | _
