@@ -1,7 +1,7 @@
 version 1.07+1
    - Two listings bugs [backslash newline in strings & argument parsing for
      lstinline].
-   - Get rid of cpp in Makefile (use sed instead)
+   - Get rid of cpp in Makefile (use sed instead, hope this will work for everybody!)
    - added all *.hva in libs.defs
    - added html/style-sheets.hva in libs.def
    - caption/label keys in the listing package.

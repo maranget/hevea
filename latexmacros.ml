@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmacros.ml,v 1.66 2002-04-29 14:31:03 maranget Exp $" 
+let header = "$Id: latexmacros.ml,v 1.67 2005-01-13 14:37:38 maranget Exp $" 
 open Misc
 open Parse_opts
 open Lexstate
@@ -165,6 +165,7 @@ and exec_init name =
      prerr_endline ("Initializing primitives for package: "^name) ;
   try
     let f = Hashtbl.find prim_table name in
+    Hashtbl.remove prim_table name ; (* accidental double is possible... *)
     try f () with
       Failed ->
         Misc.warning
