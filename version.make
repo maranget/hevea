@@ -1,0 +1,2 @@
+VERSION=0.0
+RELEASETAG=release-0-0

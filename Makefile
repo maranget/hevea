@@ -6,6 +6,7 @@ LIBDIR=/usr/local/lib/hevea
 CPP=gcc -E -P -x c 
 # Where to install programms
 BINDIR=/usr/local/bin
+DOCDIR=~maranget/public_html/hevea
 
 HEVEA=./hevea.$(TARGET)
 OCAMLC=ocamlc
@@ -13,8 +14,8 @@ OCAMLCI=ocamlc
 OCAMLOPT=ocamlopt
 OCAMLLEX=ocamllex
 INSTALL=cp
-OBJS=parse_opts.cmo mylib.cmo myfiles.cmo location.cmo out.cmo counter.cmo symb.cmo image.cmo subst.cmo save.cmo  aux.cmo latexmacros.cmo  html.cmo section.cmo foot.cmo entry.cmo index.cmo latexscan.cmo latexmain.cmo
-OBJSCUT=location.cmo out.cmo thread.cmo cross.cmo mylib.cmo section.cmo save.cmo cut.cmo cutmain.cmo
+OBJS=version.cmo parse_opts.cmo mylib.cmo myfiles.cmo location.cmo out.cmo counter.cmo symb.cmo image.cmo subst.cmo save.cmo  aux.cmo latexmacros.cmo  html.cmo section.cmo foot.cmo entry.cmo index.cmo latexscan.cmo latexmain.cmo
+OBJSCUT=version.cmo location.cmo out.cmo thread.cmo cross.cmo mylib.cmo section.cmo save.cmo cut.cmo cutmain.cmo
 
 OPTS=$(OBJS:.cmo=.cmx)
 OPTSCUT=$(OBJSCUT:.cmo=.cmx)
@@ -24,8 +25,8 @@ everything: byte opt
 
 install: install-$(TARGET)
 
-opt: hevea.opt htmlcut.opt cutfoot-fra.html cutfoot-eng.html
-byte:  hevea.byte htmlcut.byte cutfoot-fra.html cutfoot-eng.html
+opt: hevea.opt hacha.opt cutfoot-fra.html cutfoot-eng.html
+byte:  hevea.byte hacha.byte cutfoot-fra.html cutfoot-eng.html
 
 install-lib:
 	$(INSTALL) article.sty book.sty hevea.sty cutfoot-fra.html cutfoot-eng.html footer.tex ${LIBDIR}
@@ -34,24 +35,33 @@ install-lib:
 
 install-opt: install-lib
 	$(INSTALL) hevea.opt $(BINDIR)/hevea
-	$(INSTALL) htmlcut.opt $(BINDIR)/htmlcut
+	$(INSTALL) hacha.opt $(BINDIR)/hacha
 	$(INSTALL) imagegen $(BINDIR)
 
 install-byte: install-lib
 	$(INSTALL) hevea.byte $(BINDIR)/hevea
-	$(INSTALL) htmlcut.byte $(BINDIR)/htmlcut
+	$(INSTALL) hacha.byte $(BINDIR)/hacha
 	$(INSTALL) imagegen $(BINDIR)
+
+docu:
+	cd doc ; $(MAKE) $(MFLAGS)
+	cd examples ; $(MAKE) $(MFLAGS)
+
+install-doc:
+	cd doc ; $(MAKE) $(MFLAGS) INSTALDIR=$(HTMLDIR) install
+	-mkdir $(DOCDIR)/examples
+	cd examples ; $(MAKE) $(MFLAGS) INSTALLDIR=$(HTMLDIR)/examples install
 
 hevea.byte: ${OBJS}
 	${OCAMLC} -o $@ ${OBJS}
 
-htmlcut.byte: ${OBJSCUT}
+hacha.byte: ${OBJSCUT}
 	${OCAMLC} -o $@ ${OBJSCUT}
 
 hevea.opt: ${OPTS}
 	${OCAMLOPT} -o $@ ${OPTS}
 
-htmlcut.opt: ${OPTSCUT}
+hacha.opt: ${OPTSCUT}
 	${OCAMLOPT} -o $@ ${OPTSCUT}
 
 mylib.cmo: mylib.ml mylib.cmi
@@ -97,10 +107,31 @@ clean:
 	rm -f *~ #*#
 	rm -f cutfoot-fra.html cutfoot-eng.html
 
+cleanall: clean
+	cd doc ; $(MAKE) $(MFLAGS) cleanall
+	cd examples ; $(MAKE) $(MFLAGS) cleanall
+
 depend: latexscan.ml subst.ml save.ml aux.ml entry.ml cut.ml
 	- cp .depend .depend.bak
 	ocamldep *.mli *.ml > .depend
 
+
+VERSIONFILE=version.ml
+version:: $(VERSIONFILE)
+	- rm -f version.make version.tex
+	sed -n -e 's/^let version = "\(.*\)".*$$/\\def\\heveaversion{\1}/p' $(VERSIONFILE) > version.tex
+	sed -n -e 's/^let version = "\(.*\)".*$$/VERSION=\1/p' $(VERSIONFILE) > version.make
+	sed -n -e 's/^let version = "\(.\)\.\(.*\)".*$$/RELEASETAG=release-\1-\2/p' $(VERSIONFILE) >> version.make
+
+RELEASEDIR=/usr/tmp
+.include version.make
+
+release:
+	cd $(RELEASEDIR) ; rm -rf $(RELEASENAME)
+	cd $(RELEASEDIR); cvs export -r $(RELEASETAG) -l htmlgen
+	cd $(RELEASEDIR); mv jc $(RELEASENAME)
+	cd $(RELEASEDIR); tar cfo $(RELEASE).tar ./$(RELEASENAME) 
+	gzip -best $(RELEASE).tar
 
 include .depend
 

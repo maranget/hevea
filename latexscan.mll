@@ -18,6 +18,7 @@ and stack_stack_lexbuf = ref []
 
 let eat_space = ref true
 and stack_eat = ref []
+and stack_stack_eat = ref []
 ;;
 
 let save_lexstate () =
@@ -416,20 +417,16 @@ let scan_this_may_cont eat lexfun lexbuf s =
     end
   end ;
 
+  save_lexstate ();
   push stack_eat !eat_space ;
   eat_space := eat ;
   push stack_lexbuf lexbuf ;
-  let n = List.length !stack_lexbuf in
 
   let lexer = Lexing.from_string s in
   let r = lexfun lexer in
 
-  if List.length !stack_lexbuf = n then begin
-    if !verbose > 2 then
-      prerr_endline ("Popping lexbuf");
-    let _ = pop stack_lexbuf in
-    eat_space := pop stack_eat
-    end;
+  restore_lexstate ();
+
   if !verbose > 1 then begin
     Printf.fprintf stderr "scan_this_may_cont : over" ;
     prerr_endline ""
@@ -555,7 +552,9 @@ let show_inside main format i =
 let rec eat_cols n format i = match n with
   0 -> i
 | _ ->
-   if is_inside (get_col format i) then
+   let f = get_col format i in
+   prerr_endline ("eat: "^pretty_format f^"i="^string_of_int i) ;
+   if is_inside f then
      eat_cols n format (i+1)
    else
      eat_cols (n-1) format (i+1)
@@ -635,10 +634,10 @@ let change_td_pending args =
 
 let do_multi n format main =
   let i = find_align format
-  and new_cur_col = eat_cols (n-1) !cur_format !cur_col in
+  and new_cur_col = eat_cols n !cur_format !cur_col in
   change_td_pending
     (as_align (get_col format i)^
-    as_colspan (new_cur_col - !cur_col+1)) ;
+    as_colspan (new_cur_col - !cur_col)) ;
   show_inside_multi main format 0 i ;
   push close_multi (i+1,format) ;
   cur_col := new_cur_col
@@ -694,6 +693,10 @@ let close_env env  =
     macros := m
   end else
     error_env env !cur_env
+;;
+
+let top_par () =
+  if not (!display || !in_math) then Html.par ();
 ;;
 
 let open_top_group () = 
@@ -930,7 +933,7 @@ rule  main = parse
   | "\n\n" '\n' *
     {if !alltt then begin
       Html.put (lexeme lexbuf)
-    end else if not !display then Html.par () ;
+    end else  top_par () ;
     main lexbuf }
 | "\\input" | "\\include" | "\\bibliography"
      {let lxm = lexeme lexbuf in
@@ -1005,7 +1008,7 @@ rule  main = parse
            display := false ;
            Html.open_group ""
          end;
-         main lb in
+         skip_blanks lb ; main lb in
        new_env math_env ;
        lexfun lexbuf
      end end}
@@ -1185,7 +1188,7 @@ rule  main = parse
       open_col main ;
       main lb in
     new_env env ;
-    lexfun lexbuf}
+    skip_blanks lexbuf ; lexfun lexbuf}
   | "\\\\"? [' ' '\n']* "\\end" ' '* ("{tabular}" | "{array}")
       {let lxm = lexeme lexbuf in
       close_col main "" ;
@@ -1220,6 +1223,7 @@ rule  main = parse
         Html.flush vsize ;
         begin_item_display ()
       end ;
+      skip_blanks lexbuf;
       main lexbuf}
   | "\\over"
       {if !display then begin
@@ -1289,7 +1293,8 @@ rule  main = parse
    end ;
     let lexfun = match env with
       "program" | "verbatim" ->
-         (fun lexbuf -> Html.open_block "PRE" "" ; verbenv lexbuf)
+         (fun lexbuf -> Html.open_block "PRE" "" ;
+         skip_blanks lexbuf ; verbenv lexbuf)
     | _ ->
       let macro = "\\"^env in
       (fun lb ->
@@ -1401,10 +1406,10 @@ rule  main = parse
          main lexbuf
       | "\\@nostyle" ->
          Html.nostyle () ;
-         skip_blanks_main lexbuf
+         skip_blanks lexbuf ; main lexbuf
       | "\\@clearstyle" ->
          Html.clearstyle () ;
-         skip_blanks_main lexbuf
+         skip_blanks lexbuf ; main lexbuf
       | "\\@incsize" ->
          let arg = save_arg lexbuf in
          let arg = my_int_of_string arg in
@@ -1432,7 +1437,7 @@ rule  main = parse
       | "\\imageflush" ->
          let arg = save_opt "" lexbuf in
          iput_newpage arg ;
-         skip_blanks_main lexbuf
+         skip_blanks lexbuf ; main lexbuf
       | "\\textalltt" ->
          let arg = save_arg lexbuf in
          let old = !alltt in
@@ -1716,7 +1721,7 @@ and verbenv = parse
     if env = !cur_env then begin
       Html.close_block "PRE" ;
       close_env env ;
-      main lexbuf
+      skip_blanks lexbuf ; main lexbuf
     end else begin
       Html.put lxm ;
       verbenv lexbuf
@@ -1756,15 +1761,11 @@ and image = parse
      main lexbuf}
 |  "\\end" ' '* "{toimage}"
      {Image.put_char '\n' ; Image.close_image  () ;
-     skip_blanks_main lexbuf}
+     skip_blanks lexbuf ; main lexbuf}
 | _
      {let s = lexeme lexbuf in
      Image.put s ;
      image lexbuf}
-
-and skip_blanks_main = parse
-   ' ' * '\n'? ' '* {main lexbuf}
-| eof               {main lexbuf}
 
 and mbox_arg = parse
   ' '+ {mbox_arg lexbuf}
@@ -1799,7 +1800,9 @@ and mbox_arg = parse
     main lexbuf}
 
 and skip_blanks_pop = parse
-  ' ' * '\n'? ' '* {()}
+  ' '+ {skip_blanks_pop lexbuf}
+| '\n' {more_skip_pop lexbuf}
+| ""   {()}
 | eof
    {if !stack_lexbuf <> [] && !eat_space then begin
      let lexbuf = pop stack_lexbuf in
@@ -1810,6 +1813,30 @@ and skip_blanks_pop = parse
      end ;
      skip_blanks_pop lexbuf
    end else ()}
+
+and more_skip_pop = parse
+  '\n'+ {top_par ()}
+| ""    {skip_blanks_pop lexbuf}
+| eof
+   {if !stack_lexbuf <> [] && !eat_space then begin
+     let lexbuf = pop stack_lexbuf in
+     eat_space := pop stack_eat ;
+     if !verbose > 2 then begin
+       prerr_endline "Poping lexbuf in skip_blanks" ;
+       pretty_lexbuf lexbuf
+     end ;
+     more_skip_pop lexbuf
+   end else ()}
+
+and skip_blanks = parse
+  ' '+ {skip_blanks lexbuf}
+| '\n' {more_skip lexbuf}
+| ""   {()}
+
+
+and more_skip = parse
+  '\n'+ {top_par ()}
+| ""    {skip_blanks lexbuf}
 
 and skip_spaces_main = parse
   ' ' * {main lexbuf}

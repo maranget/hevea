@@ -1,4 +1,5 @@
 \documentclass{article}
+\usepackage{latexsym}
 \usepackage{isolatin1}
 \usepackage{html}
 \usepackage{index}
@@ -43,10 +44,68 @@ Roman
 {\blue blue}
 {\teal teal}
 {\aqua aqua}
-{\htmlcolor{202020}et \c{c}a, c'est presque noir ?}
-{\htmlcolor{e0e0e0}et \c{c}a, c'est presque blanc ?}
+{\htmlcolor{202020}et \c{c}a, c'est presque noir~?}
+{\htmlcolor{e0e0e0}et \c{c}a, c'est presque blanc~?}
 }
 \end{htmlonly}
+\section{Paragraphs}
+
+\subsection{No par skip}
+coucou \begin{em}coucou\end{em} ha ??
+\begin{flushleft}
+\quad\verb+\begin{list}{+{\it default\_label}\verb+}{+{\it decls}\verb+}+
+\end{flushleft}
+coucou
+\begin{verbatim}
+coucou
+\end{verbatim}
+Coucou
+\begin{quote}
+Quotation
+\end{quote}
+Coucou
+$$
+\left(\begin{array}{ll}
+1 & 2
+\end{array}\right)
+\qquad
+\begin{array}{ll}
+1 & 2
+\end{array}
+$$
+Yet another
+\subsection{Par skip}
+coucou \begin{em}coucou\end{em} ha ??
+
+\begin{flushleft}
+\quad\verb+\begin{list}{+{\it default\_label}\verb+}{+{\it decls}\verb+}+
+\end{flushleft}
+
+coucou
+
+\begin{verbatim}
+coucou
+\end{verbatim}
+
+Coucou
+
+\begin{quote}
+Quotation.
+\end{quote}
+
+Coucou
+
+$$
+\left(\begin{array}{ll}
+1 & 2
+\end{array}\right)
+\qquad
+\begin{array}{ll}
+1 & 2
+\end{array}
+$$
+
+Yet another
 
 \section{Math mode}
 
@@ -80,7 +139,9 @@ $$
 $$
 
 Comme au dessus mais en mode display:
+
 $$1 + a_{i+1} + \int^N_01/x dx + \frac{\partial x}{2}$$
+
 \section{Les tableaux}
 
 \subsection{Environnement définissant un tableau}
@@ -136,6 +197,34 @@ $$
 \hline
 \end{tabular}
 \end{center}
+
+
+\begin{tabular}{l@{\qquad}p{.3\linewidth}@{\qquad}p{.3\linewidth}}
+Macro & \multicolumn{1}{c}{\hevea} &  \multicolumn{1}{c}{\LaTeX}\\
+\hline
+
+\verb+\url{+\textit{url}\verb+}{+\textit{text}\verb+}+ &
+make \textit{text} an hyperlink to \textit{url} &
+echo \textit{text}\\ \hline
+
+\verb+\footurl{+\textit{url}\verb+}{+\textit{text}\verb+}+ &
+make \textit{text} an hyperlink to \textit{url} &
+make \textit{url} a footnote to \textit{text},
+\textit{url} is shown in typewriter font\\ \hline
+
+\verb+\oneurl{+\textit{url}\verb+}+ &
+make \textit{url} an hyperlink to \textit{url}.
+&
+typeset \textit{url} in typewriter font\\ \hline
+\verb\\
+
+\verb+\mailto{+address\verb+}+ &
+make \textit{address} a ``mailto'' link to \textit{address} &
+typeset \textit{address} in typewriter font\\ \hline
+
+\verb+\home{+\textit{text}\verb+}+ &
+\multicolumn{2}{p{.6\linewidth}}{produce a home-dir url both for output and links, output aspect is: ``\home{\textit{text}}''}
+\end{tabular}
 
 \subsection{Les délimiteurs}
 $$
@@ -337,7 +426,6 @@ $M^{p}_{i,j}$ est \'egal au nombre de chemins de longueur $p$ de $G$
 dont l'origine est le sommet $x_i$ et dont l'extr\'emit\'e est le
 sommet $x_j$.
 \end{theoreme}
-
 \begin{ath}[Pour voir]\label{deux}
 Ça devrait avoir le numéro 2.
 \end{ath}
@@ -563,7 +651,8 @@ $$
 $$
 
 \subsubsection{Replacemebt symbol}
-$$\newcommand{\leadsto}{{\red\rightarrow}}
+$$
+%HEVEA\newcommand{\leadsto}{{\red\rightarrow}}
 A \leadsto B
 $$
 

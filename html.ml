@@ -206,29 +206,41 @@ let is_list = function
 let last_closed = ref "rien"
 ;;
 
+let par_val s =
+  if
+    is_header s || is_list s ||
+    s = "PRE" || s = "BLOCKQUOTE"
+  then 0
+  else if s = "DIV" then 1
+  else 2
+;;
+
+let par () =  
+  pending_par := true ;
+  if !verbose > 2 then
+     prerr_endline
+       ("par: last_close="^ !last_closed^
+       " r="^(if !pending_par then "true" else "false"));
+;;
+
 let flush_par () =
-  last_closed := "rien" ;
   pending_par := false ;
-  do_put "<BR><BR>\n" ;
-  vsize := !vsize + 2
+  let p = par_val !last_closed in
+  for i = 1 to p do
+    do_put "<BR>\n"
+  done ;
+  if !verbose > 2 then
+     prerr_endline
+       ("flush_par: last_closed="^ !last_closed^
+       " p="^string_of_int p);
+  vsize := !vsize + p;
+  last_closed := "rien"
 ;;
 
 let forget_par () =
   pending_par := false
 ;;
 
-let no_par s =
-  is_header s || is_list s ||
-  (match s with "PRE" -> true | _ -> false)
-;;
-
-let par () =  
-  if not (no_par !last_closed) then pending_par := true ;
-  if !verbose > 2 then
-     prerr_endline
-       ("par: last_close="^ !last_closed^
-       " r="^(if !pending_par then "true" else "false"));
-;;
 
 let debug m =
   Printf.fprintf stderr "%s : table_vsize=%d vsize=%d" m !table_vsize !vsize ;
@@ -358,31 +370,41 @@ let clearstyle () =
   !cur_out.pending <- []
 ;;
 
+
+let rec erase_rec pred = function
+  [] -> []
+| s::rest ->
+   if pred s then erase_rec pred rest else s::erase_rec pred rest
+;;
+
+let erase_mods_pred pred =
+  if not !cur_out.nostyle then begin
+    let pending = erase_rec pred !cur_out.pending in
+    if List.exists pred !cur_out.active then begin
+      let active = erase_rec pred !cur_out.active in
+      do_close_mods () ;
+      !cur_out.pending <- active @ pending
+    end else
+      !cur_out.pending <- pending
+  end
+;;
+
+let erase_mods ms = erase_mods_pred (fun m -> List.mem m ms)
+;;
+let is_color = function
+  Color _ -> true
+| _       -> false
+;;
+
 let open_mod  m =
   if not !cur_out.nostyle then begin
     if !verbose > 3 then
           prerr_endline ("open_mod: "^Latexmacros.pretty_env m) ;
     if ok_mod m then
+      begin match m with
+        Color _ -> erase_mods_pred is_color
+      | _ -> () end ;
       !cur_out.pending <- m :: !cur_out.pending
-  end
-;;
-
-
-let rec erase_rec ms = function
-  [] -> []
-| s::rest ->
-   if List.mem s ms then erase_rec ms rest else s::erase_rec ms rest
-;;
-
-let erase_mods ms =
-  if not !cur_out.nostyle then begin
-    let pending = erase_rec ms !cur_out.pending in
-    if List.exists (fun s -> List.mem s ms) !cur_out.active then begin
-      let active = erase_rec ms !cur_out.active in
-      do_close_mods () ;
-      !cur_out.pending <- active @ pending
-    end else
-      !cur_out.pending <- pending
   end
 ;;
 
@@ -393,7 +415,7 @@ let rec open_mods = function
 
 (* Blocks *)
 
-let sbool = function true -> "+" | _ -> "-"
+let sbool = function true -> "true" | _ -> "false"
 ;;
 
 let pstart = function
@@ -402,6 +424,7 @@ let pstart = function
 | "DIV" -> true
 | "BLOCKQUOTE" -> true
 | "UL" | "OL" | "DL"-> true
+| "TABLE" -> true
 | _ -> false
 ;;
 
@@ -414,10 +437,7 @@ let rec try_open_block s args =
     try_open_block "TR" ""
   end else begin
     push empty_stack !empty ;
-    if pstart s then pending_par := false ;
-    push par_stack !pending_par ;    
     empty := true ;
-    pending_par := false ;
     if s = "TABLE" then begin
       push table_stack !table_vsize ;
       push vsize_stack !vsize ;
@@ -469,7 +489,6 @@ let rec try_close_block s =
   end else begin
     let here = !empty in
     empty := here && pop empty_stack ;
-    pending_par := pop par_stack ;
     if !verbose > 2 then
       prerr_string (" -> "^sbool !empty);
     if s = "TABLE" then begin
@@ -501,10 +520,7 @@ let rec do_close_block s = match s with
 | s  ->
   do_put "</" ;
   do_put s ;
-  do_put_char '>' ;
-  do_put_char '\n' ;
-  if s = "DIV" || s = "PRE" then
-    do_put_char '\n' ;
+  do_put_char '>'
 ;;
 
 
@@ -595,8 +611,7 @@ and open_block s args =
    prerr_string ("open_block: "^s^" "^args^" stack=") ;
    pretty_stack !out_stack
  end ;
- if !pending_par && (s = "" || s = "DIV") then
-   flush_par ();
+ if !pending_par then flush_par ();
  if s = "PRE" then
     in_pre := true;
  let cur_mods = !cur_out.pending @ !cur_out.active  in
@@ -805,8 +820,7 @@ let put s =
     !r in
   let save_last_closed = !last_closed in
   do_pending () ;
-  let i = ref 0 in
-  empty := !empty && blank ;
+  empty := false;
   do_put s ;
   if blank then last_closed := save_last_closed
 ;;
@@ -815,7 +829,7 @@ let put_char c =
   let save_last_closed = !last_closed in
   let blank = is_blank c in
   do_pending () ;
-  empty := !empty && is_blank c ;
+  empty := false;
   do_put_char c ;
   if blank then last_closed := save_last_closed
 ;;
@@ -841,10 +855,6 @@ let item scan arg =
   if not (is_list (pblock ())) then
     failwith "Item not inside a list element";
 
-  if !pending_par then
-    if !nitems > 0 then 
-      flush_par ()
-    else pending_par := false;
   let mods = !cur_out.pending @ !cur_out.active in
   do_close_mods () ;
   let true_scan =

@@ -1,0 +1,828 @@
+\makeatletter
+
+\typeout{``page''}
+
+% cedric: removed for llncs
+
+%page layout
+%\oddsidemargin 0cm
+%\evensidemargin 0cm
+%\topmargin 10pt
+
+%\headheight 0pt	
+%\headsep 0pt	
+%\footheight 0pt
+%\footskip 24pt	
+%\textheight 24cm
+%\textwidth 15.5cm
+%\footnotesep 1cm
+
+%\baselineskip = 24pt plus 4pt minus 3pt
+%\voffset=-0.5cm
+%\hoffset=0.5cm
+
+\makeatother
+
+\makeatletter
+
+% on  active  et  desactive  le  mode  frtypo  par \frtypotrue et frtypofalse
+% quelquesoit le mode les caract\`eres :  ; ?   !   sont actifs. 
+% En  particulier  ces  caract\`eres  ne  peuvent  plus \^etre  mis  dans des
+% \'etiquettes.
+
+\def\halfspace{\kern .166em}
+
+\def\space@pv{\ifmmode ;\else \halfspace;\fi}
+\def\space@dc{\ifmmode :\else \halfspace:\fi}
+\def\space@pi{\ifmmode ?\else \halfspace?\fi}
+\def\space@pe{\ifmmode !\else \halfspace!\fi}
+
+\let\nospace@pv=;
+\let\nospace@dc=:
+\let\nospace@pi=?
+\let\nospace@pe=!
+
+\catcode`;=\active \catcode`:=\active \catcode`?=\active \catcode`!=\active
+
+\def \frtypo
+    {\let;=\space@pv\let:=\space@dc\let!=\space@pe\let?=\space@pi}
+\def \entypo 
+    {\let;=\nospace@pv\let:=\nospace@dc\let!=\nospace@pe\let?=\nospace@pi}
+
+\frtypo
+
+\def\@sanitize
+ {\@makeother\ \@makeother\\\@makeother\$\@makeother\&%
+\@makeother\#\@makeother\^\@makeother\^^K\@makeother\_\@makeother\^^A%
+\@makeother\%\@makeother\~\@makeother\;\@makeother\?\@makeother%
+\:\@makeother\!}
+
+\let \oldspecials \dospecials 
+\def \dospecials {\oldspecials \do\:\do\!\do \?\do\;}
+
+\scrollmode
+
+\makeatletter
+%===========================================================================
+% Personals macros (They might have strange latex side effects
+%-----------------
+
+\def\noparindent{\everypar={\hskip -\parindent\everypar={}}}
+\def \para {\medskip\noparindent}
+\def \pari {\medskip\noparindent}
+\def \parii {\smallskip\noparindent}
+\let\paro=\noparindent
+
+
+%===========================================================================
+% Definitions Theorems 
+%---------------------
+
+\newif \iffrench 
+\if \csname french\endcsname \relax  \frenchfalse \else  \frenchtrue\fi
+
+\if \csname definition\endcsname\relax
+\newtheorem{definition}{D\iffrench \'e\else e\fi  finition}\fi
+\def\bdf{\begin{definition}\begin{em}}
+\def\edf{\ifvmode\vskip-\lastskip\nopagebreak\else
+         \penalty 100\fi\end{em}\end{definition}}
+
+\if \csname theorem\endcsname\relax
+\newtheorem{theorem}{\iffrench Théorème\else Theorem\fi}\fi
+\def\bthm{\begin{theorem}}
+\def\ethm{\end{theorem}}
+
+\newtheorem{algorithm}{Algorithm\if\french e\else\fi}
+\def\balgo{\begin{algorithm}}
+\def\ealgo{\end{algorithm}}
+
+\if \csname proposition\endcsname\relax
+\newtheorem{proposition}{Proposition}\fi
+\def\bprop{\begin{proposition}}
+\def\eprop{\end{proposition}}
+
+\if \csname lemma\endcsname\relax 
+\newtheorem{lemma}[proposition]{Lemm\iffrench e\else a\fi}\fi
+\def\blem{\begin{lemma}}
+\def\elem{\end{lemma}}
+
+\if \csname corollary\endcsname\relax
+\newtheorem{corollary}[proposition]{Corollary}\fi
+\def\bcor{\begin{corollary}}
+\def\ecor{\end{corollary}}
+
+\def\brmk{\trivlist \item[\hskip \labelsep {\bf {Note}}]}
+\def\ermk{\endtrivlist}
+
+\newtheorem{Note}{Note}
+\def\bnote{\begin{note}\begin{em}}
+\def\enote{\end{em}\end{note}}
+
+\if \csname example\endcsname\relax
+%\newtheorem{example}[remark]{Ex\iffrench a\else e\fi mple}\fi
+\newtheorem{example}{Ex\iffrench a\else e\fi mple}\fi
+\def\bxple{\trivlist \item[\hskip \labelsep {\bf {Example}}]}
+%{\begin{example}\begin{em}}
+\def\exple{\endtrivlist}
+%{\end{em}\end{example}}
+
+\def\@begintheorem#1#2{\it \trivlist \item[\hskip \labelsep{\bf #1\ #2}]}
+\def\@opargbegintheorem#1#2#3{\it \trivlist
+      \item[\hskip \labelsep{\bf #1\ #2\ (#3)}]}
+\def\@endtheorem{\endtrivlist}
+
+\newcount \indemo
+\def \makeno #1{\global \advance \indemo by 1\global
+      \expandafter \edef \csname demo/\the\cdemo/#1\endcsname{\the\indemo}}
+\def \refno #1{\if \relax\csname demo/\the\cdemo/#1\endcsname \relax
+  \write0 {Demo counter #1 undefined}??\else
+   \csname demo/\the\cdemo/#1\endcsname\fi}
+\def \labno #1{\makeno {#1}\refno {#1}}
+
+\newif \ifdemo \demotrue
+\newcount \cdemo
+\newenvironment{demo}{\bdemo}{\edemo}
+\def\bdemotrue{\trivlist \item[\hskip \labelsep
+  {\underline
+        {\iffrench Preuve\else Proof\fi}:}]\advance\cdemo by 1\indemo 0}
+\def\edemo{\penalty 100\hfill\rule{2mm}{2mm} \endtrivlist\@doendpe}
+\long \def \bdemofalse #1\edemo{\relax}
+\outer \def \bdemo 
+  {\ifdemo \bdemotrue \else \expandafter \bdemofalse \fi\indent}
+
+\newif \ifhint \hintfalse
+\newtheorem{hint}{\rm \underline {Hint}}
+\def\bhintiftrue{\trivlist \item[\hskip \labelsep {\underline {Hint}:}]}
+\def\ehint{\penalty 100\hfill\noindent\rule{2mm}{2mm}\endtrivlist}
+\long \def \bhintiffalse #1\ehint{\relax}
+\outer \def \bhint
+  {\ifhint \bhintiftrue \else \expandafter \bhintiffalse \fi}
+
+\newif \ifexpert \expertfalse
+\newtheorem{expert}{Remark}
+\def\bexpertiftrue{\trivlist \item[\hskip \labelsep {\underline {Hint}:}]}
+\def\eexpert{\penalty 100\hfill\noindent\rule{2mm}{2mm}\endtrivlist}
+\long \def \bexpertiffalse #1\eexpert{\relax}
+\outer \def \bexpert 
+  {\ifexpert \bexpertiftrue \else  \expandafter \bexpertiffalse \fi}
+
+
+
+\def\notitle{\hskip\hsize minus\hsize\nobreak\hbox{}}
+
+\def\notation{\paragraph*{Notation}}
+\def\hypothesis{\paragraph*{Assumption}}
+
+
+\def \caseparagraph{\@startsection
+ {case}{6}{\z@}{1.5ex plus .3ex minus .2ex}{-1em}{\normalsize\bf}}
+\def \subcaseparagraph{\@startsection
+% {subcase}{7}{\parindent}{1.5ex plus .3ex minus .2ex}{-1em}{\normalsize\bf}}
+ {subcase}{7}{\z@}{1.5ex plus .3ex minus .2ex}{-1em}{\normalsize\bf}}
+
+
+\if \csname datefrench\endcsname\relax
+\def \langcase {Case}
+\def \langsubcase {Subcase}
+\else
+\def \langcase {Cas}
+\def \langsubcase {Sous-cas}
+\fi
+
+\def\case#1{\caseparagraph*{\langcase\space #1:}}
+\def\othercase#1{\caseparagraph*{#1:}}
+\def\mathcase#1{\caseparagraph*{\langcase\space $#1$:}}
+\def\subcase#1{\subcaseparagraph*{\langsubcase\space #1:}}
+
+% Send a warning when running latex
+\def\warning#1{\immediate\write0{Warning: #1}}
+
+\newenvironment{care}{\bwarning}{\ewarning}
+\def\bcare{\trivlist \item[\hskip \labelsep {\bf Warning!}]}
+\def\ecare{\endtrivlist}
+
+\def\subst#1#2{^{#1} \!/\! _{#2}}
+
+\def \comment #1{{\em #1}}
+%\def \comment #1{}
+\makeatother
+
+
+\makeatletter
+%%% To change size in math mode
+
+\let\Ts=\textstyle
+\let\Ds=\displaystyle
+\let\Ss=\scriptstyle
+
+%%% Abrevs
+
+\let \comp \circ
+\let \wild \_
+
+
+%%% To put text between two formulas on the same line
+
+\def\text#1{\qquad\hbox{#1}\qquad}
+
+%%%  Macros for mathematics
+
+%% Special symbols
+
+\def \nat {{\mathord{I\kern -.33em N}}}
+\def \natb {{\mathord{I\kern -.33em\overline{N}}}}
+
+\def\Vdash {\mathrel{\hbox{\vrule\kern .1ex$\vdash$}}}
+\def\VVdash {\mathrel{\hbox{\vrule\kern .2ex\vrule\kern .1ex $\vdash$}}}
+
+% An open box to end demonstrations with
+
+\def\Box{\hbox
+  {\vbox
+    {\hrule height .033em
+     \hbox to .5em
+       {\vrule width .033em
+        \hbox{\vbox to .5em{\vss}\hss}
+        \vrule width .033em}
+     \hrule height .033em
+    }}}
+
+
+%% Balanced symbols
+
+\def\absolute#1{\mathopen\mid#1\mathclose\mid}
+
+%% Operators
+
+\def \domain {\dv}
+%\def \domain {\dvmathop{\sl dom\,}}
+\def \image {\mathop{\sl im\,}}
+\def \modulo {\mathbin{\rm modulo}}
+\def \inverse{{}^{-1}}
+\def \cardinal {{\sl Card\,}}
+%\def \restrict #1{\mathbin{\mid}_{#1}}
+\def \restrict
+   {\mathbin{\hbox{$\mid$\kern-.24em\lower.09em\hbox{\rm\char'22}$\!$}}}
+\let \arity = \varrho
+
+
+%% Quantifiers
+
+\def \fall #1,{\forall #1,\;}
+\def \exist #1,{\exists #1,\;}
+\def \qt #1.{\forall\,#1.\,}
+\def \ex #1.{\exists\,#1.\,}
+
+%% Arrows
+
+\let\ar=\rightarrow
+\let\dar=\Rightarrow
+\def\imply{\Longrightarrow}
+
+
+\def \rewrite {\mathrel{-}\joinrel\leadsto}
+
+
+%% Equalities
+
+%\def \axiom {\mathrel {\mathop =^!}}
+\def \axiom {=}
+\def \eqdef {\mathrel {\mathop {=\joinrel=}\limits^{def}}}
+
+%% Sizes
+
+\def\({\left(}
+\def\){\right)}
+
+\def\Mid{\mathrel{\Big|}}
+
+%% Indices  see also indices.def
+
+\def \ind #1#2{_{#1\in[1,#2]}}
+
+%%
+
+%% names 
+
+\let \th \vdash
+\let \tth \Vdash
+\let \ttth \VVdash
+\let \thh \models
+
+\def\Cal#1{{\cal #1}}
+
+\let \eset = \emptyset
+
+
+
+%% Aligned constructions in math mode
+
+% For internal use only
+
+\def\noskip{\lineskiplimit=\the\lineskiplimit
+                \lineskip=\the\lineskip}
+\def\moreskip{\lineskiplimit=0.4em\lineskip=0.4em plus 0.2em}
+\def\moremoreskip{\lineskiplimit=1.2em\lineskip=1.2em plus 0.2em}
+
+\def\vatrix#1{\null\,\vcenter{\normalbaselines\moreskip\m@th
+    \let \and \cr
+    \ialign{$\displaystyle##$\hfil
+      &\quad$\displaystyle##$\hfil&\quad##\hfil\crcr
+      \mathstrut\crcr\noalign{\kern-\baselineskip}
+      #1\crcr\mathstrut\crcr\noalign{\kern-\baselineskip}}}\,}
+
+% A sequence of expressions is writen on separate lines to form one expression
+
+\def \band #1{\left\{\vatrix{#1}\right.}          % brace and
+\def \wand #1{\wedge\band{#1}}                    % wedge  and
+\def \vand #1{\vee\band{#1}}                      % vee  and
+\def \vor  #1{\vee\left[\vatrix{#1}\right.}       % vee and or
+\def \Wand #1{\bigwedge\band{#1}}                 % big wedge and
+\def \Vand #1{\bigvee\band{#1}}                   % big vee and
+\def \Wor  #1{\bigvee\left[\vatrix{#1}\right.}    % big vee and
+
+
+
+% A general usage tabulation in math mode.
+%     Indentation is alternatively left and right, so that good place for
+%     tabs will produce many different
+
+% \dalign { & blabla :& blabla    \cr 
+%           &    bla :& blablabla \cr
+%         }
+ 
+% \dalign {  blabla :&& blabla    \cr 
+%            bla :   && blablabla \cr
+%         }
+ 
+% \dalign { & blabla :&    blabla \cr 
+%           &    bla :& blablabla \cr
+%         }
+
+% Internal and personal use
+\def\Dalign#1#2{\vcenter
+ \bgroup
+   \let\>=\qquad
+   \def\title##1{\crcr\noalign{\medskip}\multispan#1{\hfil\bf##1\hfil}}
+%   \halign{$##$\hfil\qquad&&\hfil$##{}$&${}##$\hfil\qquad\cr#2\crcr}
+%   \halign{$##$\hfil&&\qquad\hfil$##{}$&${}##$\hfil\cr#2\crcr}
+   \halign{&${}##$\hfil&\hfil$##{}$\cr#2\crcr}
+ \egroup}
+% End internal use
+
+\def\align#1{\vcenter
+ \bgroup
+   \let\>=\qquad
+   \halign{#1\crcr}
+ \egroup}
+
+%\def\aligndef#1#2{\expandafter\def\csname aligndef#1\endcsname{#2}}
+%\aligndef ]{\argalign}
+%\aligndef l{&\hfil$##{}$}
+%\aligndef r{&${}##$\hfil}
+%\aligndef c{&\hfil$##$\hfil}
+%\aligndef -{\qquad}
+%\aligndef L{&\hfil##$}
+%\aligndef R{&##\hfil}
+%\aligndef C{&\hfil##\hfil}
+%\def\argalign#1{\relax}
+%\def\prealign#1{\csname aligndef#1\endcsname\prealign}
+%\def\doalign#1]{\dohalign{\prealign#1]}}
+%\def\dohalign#1#2{\expandafter\halign{#1\cr#2\crcr}}
+
+
+
+%\def\dalign#1{\ifx#1[\doalign\else\Dalign3{#1}\fi}
+\def\dalign{\Dalign3}
+
+
+\def\Strut{\raise .4em\hbox{\strut}\raise -.4em\hbox{\strut}}
+
+\def \deftitle #1
+   {\def \title ##1
+      {\crcr\noalign{\medskip}\multispan#1{\hfil\bf##1\hfil}}}
+
+
+
+\bgroup
+ \catcode `\^^M \active
+ \gdef \obeycr {\catcode `\^^M\active \let ^^M\crcr}
+\egroup
+
+
+\ifx \csname linewidth\endcsname \hsize 
+ \let  \realwidth \hsize 
+\else
+ \let \realwidth \linewidth
+\fi
+
+\def \oris {\crcr \mid&}
+\def \syntaxtable #1
+  {\def\is {::=&}
+   \def \\{\cr\noalign{\medskip}}\def\cont{\cr&}\vbox 
+   \bgroup
+   \tabskip=100pt plus 1000pt minus 1000pt
+   \halign to \realwidth
+       {\hfil$##{}$\tabskip=0pt&
+        ${}##$\hfil \tabskip=100pt plus 1000pt minus 1000pt&
+        &##\hfil \cr#1\crcr}
+   \egroup}
+
+
+\def \assertions #1
+  {\deftitle2 \vbox
+   \bgroup
+     \halign {\hfil$##{}$&$##$\hfil&&\quad##\hfil\cr#1\crcr}
+   \egroup}
+
+
+%%% old version
+
+\def\malign#1{\vcenter\bgroup
+   \deftitle #1
+   \def \lign ##1\cr {\noalign {##1}}
+   \def \textlign##1{\noalign {\medskip \vbox {\noindent ##1}\medskip}}
+   \tabskip=100pt plus 1000pt minus 1000pt
+   \halign to \realwidth
+       {\hfil$##{}$\tabskip=0pt&
+        ${}##$\hfil \tabskip=100pt plus 1000pt minus 1000pt&
+        &##\hfil&$##$\hfil&  \cr#1\crcr\egroup}}
+
+\newif \ifhsize \hsizefalse
+
+\newskip \nullskip \nullskip 0pt
+\newskip \fullskip \fullskip 100pt plus 1000pt minus 1000pt
+\def \maligntrue {\tabskip \fullskip
+                   \halign to \realwidth \bgroup}
+\def \malignfalse {\halign \bgroup}
+\def \malign {\vcenter \bgroup \ifhsize \expandafter \maligntrue \else \expandafter \malignfalse \fi}
+\def \endmalign {\crcr \egroup \egroup}
+
+\def \makeword #1#2#3{\expandafter
+   \def \noexpand#3{#2 {#1\expandafter \let \expandafter \dummy\string #3}}}
+
+\let \vect \overrightarrow
+
+\def \uad {\hskip 0.5em}
+
+
+\newskip \mathandskip 
+\newskip\mathmargin \mathmargin  0em
+
+\mathandskip 2em plus 0.5fil minus 0.5em
+\def \mathand {\hskip \mathandskip}
+\def \mathleftright {\hfill{}\hskip 0em plus -2fill\penalty 50{}\hfill}
+\def \mathandcr {\penalty 50\mathand}
+\def \mathcr {\penalty -10000\mathand}
+\def \mathcrleft {\hfill{}\hskip 0em plus -2fill\penalty -10000{}\hskip
+     \mathmargin}
+\def \mathbreak {\penalty 50}
+
+\def \incrmargin #1{\advance\mathmargin by #1em\advance\mathmargin by #1em}
+\def \mathslash#1{\let \do \mathcrleft
+   \ifx #1[\let\do\mathdoskip\fi\do#1}
+\def \mathdoskip#1#2]{\incrmargin {#2}\mathcrleft}
+
+% Type inference rules
+
+\let \mathmoreskip=\moremoreskip
+\def \nomoreskip {\let \mathmoreskip \relax}
+
+\def \bmaths {\let \and \mathandcr  \hsize \realwidth
+    \centering \vbox \bgroup \mathmoreskip  \noindent 
+    $\displaystyle \let \\ \mathslash}
+\def \emaths {\unskip$\egroup}
+\def \mathflushleft {\def \emaths {\hfill$\egroup}\nomoreskip}
+\newenvironment {maths}{\bmaths}{\emaths}
+
+\def \maths #1{\bmaths #1\emaths}
+
+\def \whereis {\leftarrow}
+\def \where #1{[{\let \is \whereis #1}]}
+\def \dowhere #1\is#2\is{[\ifx#2\empty #1\else #2/#1\fi]}
+\def \where #1{\let \is \relax\dowhere #1\is\empty\is}
+
+\let \closeplus\relax
+\let \Empty \relax
+\let \is \relax
+\def \plus #1{\PLUS #1\is\is\END}
+\def \PLUS #1\is#2\is#3\END{\oplus\ifx #3\is (#1\plustoken#2)\else #1\fi}
+\let \plustoken \mapsto
+
+\let \diverge \uparrow
+
+\def \set #1{\{#1\}}
+\def \sem #1{\lbrack\!\lbrack#1\rbrack\!\rbrack}
+
+
+\def\mathrm #1{\mathrel {\rm #1}}
+\let \coerce \leq
+\makeatother
+
+\makeatletter
+
+
+%% see infer.doc for a documentation
+
+% Judgements
+
+\let\th=\vdash
+
+% naming
+
+\expandafter \ifx \csname name\endcsname\relax
+   \def\name#1{\hbox{\sc #1}}\else \relax \fi
+
+\def \labname #1{{\rm(\name{#1})}}
+\let \lab = \labname
+\def \clab #1{\hbox {$\smash {\lab{#1}}$}}
+\newskip \beforelabskip \beforelabskip = 0.5em
+\def \eqlab {\eqno \lab}
+
+%% inside rules
+
+\def \nmir #1[#2]{\crcr \hrulefill \cr}
+\def \rmir #1[#2]{\crcr \hrulefill & \clab {#2} \cr}
+\def \lmir #1[#2]{\relax}                         
+\def \Lmir #1[#2]{\crcr \Llabo {#2}\hrulefill \cr}     
+\def \Rmir #1[#2]{\crcr \hrulefill \Rlabo {#2}\cr}    
+\def \imir {\crcr \hrulefill\cr}
+
+% outside rules
+
+\def \rlabo #1{\hskip \beforelabskip \clab {#1}} 
+\def \llabo #1{\clab {#1}\hskip \beforelabskip}
+\def \Rlabo #1{\rlap {\rlabo {#1}}}   
+\def \Llabo #1{\llap {\llabo {#1}}}   
+\let \labr \rlabo \let \labl \llabo \let \labR \Rlabo \let \labL \Llabo
+
+
+\def \rlab #1 {\rlap {\lab {#1}}}
+\def \llab #1 {\llap {\lab {#1}}}
+
+
+% A good separator for multiple hypothesis
+
+\let \and \qquad
+\let \andcr \cr
+
+
+% Single rules
+
+\def \lessskip  {\lineskiplimit=.3em\lineskip= .2em plus .1em}
+
+\makeatletter
+\def \mathrulename {\scriptsize \labname}
+\def \ignoredash #1{\let\next\ignoredash
+         \ifx #1-\relax\else\let\next#1\fi\next}
+\def \mathrule {\@ifnextchar [{\mathrulelab}{\@mathrule}}
+\def \mathrulelab[#1]#2{\hbox
+   {\vbox {\hbox {\mathrulename {#1}}\nointerlineskip\smallskip
+           \hbox {$\@mathrule{#2}$}}}}
+\def \@mathrule #1{{\let \and \qquad \let \rlab \rl \let \llab \ll
+     \def \mir {MiR}\def\endrule {EnDrUlE}
+     \displaystyle \offinterlineskip \lessskip  \bgroup \openrule 
+     \beginrule #1\mir \mir \endrule}}
+\def \beginrule #1\mir#2{#1\ifx #2\mir \let \next \finishrule 
+     \else \def \next {\middlerule\openrule \beginrule\ignoredash#2}\fi\next} 
+\def\finishrule#1\endrule{\closerule\egroup}
+
+\def \openrule {\hbox \bgroup \vbox \bgroup
+     \halign \bgroup \hfil $##$\hfil &\hskip \beforelabskip$##$\hfil \cr}
+\def \closerule {\crcr\egroup\egroup\egroup}
+%\def \endrule {\closerule \egroup}
+
+\def \singleRule {\crcr\noalign {\vskip -0.1em}\closerule \over}
+\let \middlerule \singleRule
+
+
+% Double and Tripple rules see infer-more.def
+
+% Logic and rewriterules
+
+\def \logicrule #1{\let \mir \Longrightarrow #1}
+
+
+\def \longleadsto {\mathrel{-}\joinrel\leadsto}
+
+\def \rewriterule #1{\displaystyle \offinterlineskip \lessskip
+     \bgroup\let \mir \longleadsto \openrule#1\endrule}
+
+\def \suspend #1{\vbox to #1 {\leaders \hbox {$\cdot$}\vfill}}
+
+
+\if \relax \csname keywordstyle\endcsname  \let \keywordstyle \tt \fi
+
+%\def \keyword #1{{\hbox {\keywordstyle #1}}}
+\def \keyword #1{{\keywordstyle #1}}
+\def \mathtoken #1{\ifmmode
+   \mathopen{}\keyword {#1}\mathclose{}\else \keyword{#1}\fi}
+\def \mathpostfix #1{\mathrel{\keyword {#1}}\mathclose{}}
+\def \mathprefix #1{\mathopen{}\mathrel{\keyword {#1}}}
+\def \mathinfix #1{\mathrel{\keyword {#1}}}
+
+\def\ignorefirst #1{}
+\def \lwt #1{\expandafter \lowercase \expandafter \bgroup 
+  \expandafter \ignorefirst \string #1\egroup}
+
+
+\def \makeprefix #1#2{\expandafter\def \noexpand #1{\mathprefix  {#2}}}
+\def \makepostfix #1#2{\expandafter\def \noexpand #1{\mathpostfix  {#2}}}
+\def \maketoken #1#2{\expandafter\def \noexpand #1{\mathtoken {#2}}}
+\def \makeinfix #1#2{\expandafter\def \noexpand #1{\mathinfix {#2}}}
+
+\def \makein #1{\expandafter\def
+  \noexpand #1##1in{\keyword {\lwt #1}\,\,##1\,\,\keyword {in}\,\,}}
+
+\let \@ \;
+\def \Let #1=#2in{\keyword {let}\@ {#1 = #2} \@\keyword {in}\@}
+\def \fun (#1){\keyword {fun}\@ #1 \rightarrow}
+\def \type #1=#2in{\keyword {type}\@ #1 = #2 \@\keyword {in}\@}
+
+\makeatother
+
+\let \cont \kappa
+\let \t \tau
+\let \l \ell
+\let \s \sigma
+\let \tv \alpha
+\let \vect \bar
+
+\def \Gen {{\rm Gen}}
+
+\def \tplus #1{\TPLUS #1\is\is\END}
+\def \TPLUS #1\is#2\is#3\END{\oplus\ifx #3\is (#1:#2)\else #1\fi}
+
+%%%%%%%%%%%%%%% light programs
+
+\makeatletter
+\def \progstyle {\tt}
+\newskip \programindent \programindent 4em
+\def \program {\par \begingroup 
+    \medskip \parindent \programindent \@tempswafalse
+    \frenchspacing \@vobeyspaces \let \par \programpar
+    \obeylines \progstyle
+    \catcode``=13 \@noligs \let \do \@makeother \dospecials 
+    \catcode `\\ 0 \catcode `\{ 1 \catcode `\} 2
+    \prog@specials \prog@initspecials \obeyspaces}
+
+\def \programpar {\if@tempswa\hbox{}\fi\@tempswatrue\@@par}
+
+\bgroup
+\gdef \less@specials {\relax
+ \catcode `| \active 
+ \catcode `< \active
+ \catcode `> \active
+ \catcode `- \active
+ \catcode `\' \active 
+}
+\gdef \more@specials {\relax
+ \catcode `( \active
+ \catcode `) \active
+}
+\gdef \prog@specials {\less@specials\more@specials}
+\prog@specials
+\gdef \prog@initspecials {\def
+    -{\minus@program}\def
+    '{\acurate@program}\def
+    |{\bar@program}\def
+    <{\less@program}\def
+    >{\greater@program}\def
+    ({\less@program}\def
+    ){\greater@program}}
+ \gdef \bar@@program {\let\do \eattoken
+  \ifx \token >$\droite$\else ${}\mid{}$\let \do \relax\fi \do}
+ \gdef \minus@@program {\let\do \eattoken
+  \ifx \token >$\ar$\else -\let \do \relax\fi \do}
+\egroup
+
+\def \acurate@program {\futurelet \token \acurate@@program}
+\def \acurate@@program {\let \do \eattoken
+  \ifx \token a$\alpha$\else 
+   \ifx \token b$\beta$\else 
+    \char `\' \let \do \relax\fi\fi \do}
+\def \less@program {\hbox{$<$}}
+\def \greater@program {\hbox{$>$}}
+\def \bar@program {\futurelet \token \bar@@program}
+\def \minus@program {\futurelet \token \minus@@program}
+
+
+\def \endprogram {\ifdim\lastskip >\z@ \@tempskipa\lastskip 
+       \vskip -\lastskip\fi\medskip \endgroup
+     \@endpetrue}
+
+\def\prog {\begingroup \hbox \bgroup
+  \catcode ``=13 \@noligs
+  \let \do \@makeother \dospecials \progstyle
+   \prog@specials \prog@initspecials
+    \catcode `\\ 0 \catcode `\{ 1 \catcode `\} 2
+  \@prog}
+\def\@prog#1{\obeyspaces \frenchspacing \catcode `\  10
+            \def\@tempa ##1#1{##1\egroup\endgroup}\@tempa}
+\makeatother
+
+%%%%%%%%%%%%%%%%%%%  "quotations"
+
+\makeatletter
+% on  active  le cararectere " et on s'en sert pour le mode \prog
+% s'il est défini ou \verb autrement
+
+\bgroup
+\@makeother \"
+\gdef \progquote {\prog"}
+\catcode `\" \active
+\gdef "{\progquote}
+\egroup
+
+\def \quoteon {
+\let \quote@sanitize \@sanitize
+\def \@sanitize {\quote@sanitize \@makeother\"}
+\let \quote@specials \dospecials 
+\def \dospecials {\quote@specials \do\"}
+\def \quoteon {\catcode `\" \active}\quoteon}
+
+\def \quoteoff {\@makeother \"}
+\makeatother
+
+
+
+%%%%%%%%%%%%%%%%
+\def \lift #1{\;{}^{#1}}
+\def \inu #1{\lift {i \in 1..#1}}
+\def \jnu #1{\lift {j \in 1..#1}}
+
+%% typo
+
+\mathchardef \le "313C
+\mathchardef \ge "313E
+
+\mathcode `< "4268
+\mathcode `> "5269
+
+
+\catcode `\| \active 
+\let \olspecials \dospecials \def \dospecials {\olspecials \do \|}
+
+%\def \droite {\mathrel {\,\hbox {\large$\triangleright$}\,}}
+\def \droite {\mathrel{\tt =}}
+
+\makeatletter
+\def |{\baractive}
+\def \baractive {\futurelet\token \next@baractive}
+\def \eattoken #1{}
+\def \next@baractive{\let\do\eattoken
+    \ifx \token>\droite\else \mid \let \do \relax \fi \do}
+
+
+\def \Def #1in{\mathprefix {let}#1\mathinfix{in}}
+\def \Let#1in{\mathprefix {let}#1\mathinfix{in}}
+\def \Reply#1to{\mathprefix {reply}#1\mathinfix{to}}
+\def \>{\droite}
+\def \And {\mathrel{\tt and}}
+\def \tuple #1{{\tt (}#1{\tt )}}
+\def \<#1> {\tuple {#1}}
+
+\let \bcup \cup
+\let \thd \th
+\def \fv {fv}
+\def \defines {::}
+\def \produces #1{\Ds\mathop{\Longrightarrow}^{#1}}
+\def \reduces {\longrightarrow}
+\let \red \reduces
+\let \redcham \mapsto
+
+\let \plus \tplus
+
+\makeatother
+ 
+
+\def \dd {{\cal D}}
+\def \pp {{\cal P}}
+
+\def \dv {dv}
+
+\def \redsoupe {\mathrel {\mathop {\red} \limits^s}}
+\let \redstruct \rightleftharpoons
+\let \redchaud \rightharpoonup
+\let \redfroid \leftharpoondown
+\let \cool \leftharpoondown
+\let \heat \rightharpoonup
+
+\def\redstep{\mathrel{\mathpalette\redstepaux{}}}
+\def\redstepaux#1{\vcenter{\hbox{\ooalign{\hfil
+      \raise2pt \hbox{$\rightharpoonup$}\hfil\cr\hfil
+      \lower2pt\hbox {$\leftharpoondown$}\hfil\crcr
+      $\longrightarrow$}}}}
+
+
+\let \redsoupe \red
+\let \redx \red
+
+
+\def \Comment #1{}
+\let \agree \approx
+\quoteon
+
+\maketoken \int {int}
+
+

@@ -49,6 +49,6 @@ let _ = Arg.parse
        "filename, make hevea output go into file ``filename''")
     ]
     (add_input)
-   "hevea 0.0"
+   ("hevea "^Version.version)
 ;;
 

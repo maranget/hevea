@@ -24,9 +24,11 @@
 \def\LaTeX{\@print{L<sup>A</sup>T<sub>E</sub>X}}
 \newcommand{\hevea}{\@print{H}{\@incsize{-1}\@print{<sup>E</sup>}}\@print{V}%
 {\@incsize{-1}\@print{<sup>E</sup>}}\@print{A}}
+\newcommand{\hacha}{\@print{H}{\@incsize{-1}\@print{<sup>A</sup>}}\@print{C}%
+{\@incsize{-1}\@print{<sup>H</sup>}}\@print{A}}
 \newcommand{\html}{HTML}
-%\newcommand{\htmlgen}{\@print{H<sup>TML</sup>G<sub>E</sub>N}}
-\newcommand{\htmlcut}{\@print{H<sup>TML</sup>C<sub>U</sub>T}}
+\newif\ifhevea
+\heveatrue
 %% Paragraphs
 \def\noindent{}
 \def\indent{}
@@ -358,11 +360,12 @@
 \newcommand{\displaystyle}{\ifdisplay\else\warning{\displaystyle ignored}\fi}
 %%% not so serious
 \def\url#1#2{{\@nostyle\@print{<A HREF="}#1\@print{">}}{#2}{\@nostyle\@print{</A>}}}
+\def\footurl#1#2{\url{#1}{#2}}
 \def\home#1{\char126#1}
 \def\oneurl#1{\url{#1}{#1}}
 \def\localurl#1{}
 \newcommand{\docurl}{http://para.inria.fr/\home{maranget}/hevea}
-\newcommand{\mail}[2]{\url{mailto:#1\char64 #2}{#1\char64 #2}}
+\newcommand{\mailto}[1]{\url{mailto:#1}{#1}}
 %%% now serious
 \def\noprint#1{{\@nostyle\@print{#1}}}
 \newenvironment{document}{%
@@ -424,19 +427,20 @@
 \newenvironment{scshape}{\@anti{\it,\sl}\sc}{}
 \newenvironment{normalfont}{\rm\mdseries\upshape}{}
 %%%%%%%%%%%%%%%%
-\def\textrm#1{\mbox{\rm#1}}
+\def\textrm#1{\mbox{\rmfamily#1}}
 \def\textup#1{\mbox{\upshape#1}}
 \def\textmd#1{\mbox{\mdseries#1}}
 \def\textnormal#1{\mbox{\normalfont#1}}
-\def\texttt#1{\mbox{\tt#1}}
-\def\textit#1{\mbox{\it#1}}
-\def\textbf#1{\mbox{\bf#1}}
-\def\textsf#1{\mbox{\sf#1}}
-\def\textsl#1{\mbox{\sl#1}}
-\def\textsc#1{\mbox{\sc#1}}
+\def\texttt#1{\mbox{\ttfamily#1}}
+\def\textit#1{\mbox{\itshape#1}}
+\def\textbf#1{\mbox{\bfseries#1}}
+\def\textsf#1{\mbox{\sfshape#1}}
+\def\textsl#1{\mbox{\slshape#1}}
+\def\textsc#1{\mbox{\scshape#1}}
 \newcommand{\emph}[1]{\mbox{\em#1}}
 %%%%%%%%%%%%%%%%
 \def\makeatletter{}
+\def\makeatother{}
 %%%%%%%%%%%% Ignore length
 \def\cfoot{}
 \newcommand{\rfoot}[2][]{}

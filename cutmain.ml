@@ -7,8 +7,9 @@ let outname = ref "index.html"
 let main () =
   Arg.parse
     [("-o", Arg.String (fun s -> outname := s),
-       "filename, make htmlcut output go into file ``filename'' (defaults to index.html)")
-    ] (fun s -> filename := s) "htmlcut 0.0" ;
+       "filename, make htmlcut output go into file ``filename'' (defaults to index.html)");
+     ("-v"), Arg.Fun (fun () -> incr
+    ] (fun s -> filename := s) ("hacha "^Version.version);
   Cut.name := Filename.chop_extension !filename ;
   let chan = open_in !filename in
   let buf = Lexing.from_channel chan in

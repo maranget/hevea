@@ -1,6 +1,6 @@
 HTMLGEN=hevea
-IMAGEGEN=imagegen
-HTMLCUT=htmlcut
+IMAGEGEN=imagen
+HTMLCUT=hacha
 
 all: a.html testsccal.html patbis.html suite.html index.html
 
@@ -31,5 +31,5 @@ suite.html: suite.tex
 index.html: index.tex
 	$(HTMLGEN) index.tex
 
-clean:
-	rm -f *.aux *.log *.dvi *.html *~ *.gif *.bbl tmp.*
+clean cleanall:
+	rm -f *.aux *.log *.dvi *.html *~ *.gif *.bbl tmp.* *.ilg *.ind *.idx *.image.tex
