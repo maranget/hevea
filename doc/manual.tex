@@ -1,4 +1,4 @@
-\documentclass{article}
+ \documentclass{article}
 \usepackage{a4}
 \usepackage{fullpage}
 \usepackage{texnames}
@@ -334,7 +334,7 @@ even simple formulas do not follow the simple basic typesetting model of
 By contrast with \LaTeX{}, spaces from the input are significant in
 math mode, this
 feature allows users to instruct \hevea{}
-on how to put space their formulas.
+on how to put space in their formulas.
 For instance, \verb+\alpha\rightarrow\beta+ is typeset without spaces between
 symbols, whereas \verb+\alpha \rightarrow \beta+ produces these spaces.
 \begin{htmlonly}
@@ -577,7 +577,7 @@ are rendered in red (\verb+<FONT COLOR=red>+), and the small caps
 
 If you are not satisfied with \hevea{} rendering of text style
 declarations, then you
-can choose your own , by redefining the \verb+\cal+ and \verb+\sc+
+can choose your own, by redefining the \verb+\cal+ and \verb+\sc+
 macros, using \verb+\renewcommand+, the macro redefinition operator of
 \LaTeX{}. The key point is that you need not worry with \hevea{}
 internals~: just redefine the old-\LaTeX{} style text-style
@@ -592,7 +592,7 @@ changes while leaving your file processable by \LaTeX{}).
 
 \begin{htmlonly}
 With such redefinitions, we get:
-\renewcommand{\sc}{\blue}
+\renewcommand{\sc}{\Huge}
 \renewcommand{\cal}{\em}
 \begin{htmlout}
 This is \textsc{small caps} and this is $\cal CALLIGRAPHIC LETTERS$
@@ -876,7 +876,7 @@ This is a right-flushed quotation
 \end{htmlout}
 
 
-\section{Making both \hevea{} and \LaTeX{} happy}\label{both}
+\section{Making \hevea{} and \LaTeX{} both happy}\label{both}
 A satisfactory translation from \LaTeX{} to \html{} often requires
 giving instructions to \hevea{}.
 Typically, these instructions are macro definitions and
@@ -910,8 +910,9 @@ source as:
 \verb+\usepackage{+\filename{latexonly}\verb+}+
 \end{flushleft}
 Or, as
-\begin{flushleft}
-\verb+\documentstyle[+\ldots, \filename{latexonly},\ldots\verb+]{+\ldots
+1\begin{flushleft}
+\verb+\documentstyle[+\ldots,
+\filename{latexonly},\ldots\verb+]{+\ldots\verb+}+
 \end{flushleft}
 Another solution is  to use \verb+\input{+\filename{latexonly}\verb+}+
 in the source and to invoke \hevea{} as follows:
@@ -1202,14 +1203,17 @@ Then the \verb+imagen+ script has to be run by:
 \begin{flushleft}
 \verb+# imagen+ \textit{mydoc}
 \end{flushleft}
-This will process the \filename{mydoc}\texttt{.image.tex} file through \LaTeX,
+\noindent This will process the \filename{mydoc}\texttt{.image.tex}
+file through \LaTeX,
 \texttt{dvips}, \texttt{ghostscript} and a few others tools, which must all be
 present  (see section~\ref{requirements}), finally producing one
 \textit{pagename}\texttt{.gif} file per page in the \filename{image}
 file.
 
-Note that \verb+imagen+ is very rustic. Pages should not be too long
-and the final images are systematically magnified by $1.414$.
+The  usage of \verb+imagen+  is described at
+section~\ref{imagenusage}. Note that \texttt{imagen} is a simple shell
+script.
+
 
 
 \subsection{A toy example}
@@ -1219,7 +1223,7 @@ Here is the active part of a \texttt{blob.tex} file:
 \newcommand{\blob}{\rule[.2ex]{1ex}{1ex}}
 \blob\ Blob \blob
 \end{verbatim}
-This time, we would like blob to produce a small black square, which
+This time, we would like \verb+\blob+ to produce a small black square, which
 \verb+\rule[.2ex]{1ex}{1ex}+ indeed does in \LaTeX{}.
 Thus we can write:
 \begin{verbatim}
@@ -1252,15 +1256,13 @@ Observe that the trick can be used to replace missing symbols by small
 \texttt{.gif} images. However, the cost may be prohibitive, text rendering
 is generally bad, fine placement is ignored and font style changes are
 problematic.
-For instance, the blob above is not raised a little above the current
-line level.
 Cost can be lowered using \verb+\savebox+, but the other problems remain.
 
 
-\subsection{Including postscript images}\label{substimage}
+\subsection{Including Postscript images}\label{substimage}
 Such images are easy to manage: it suffices to let \LaTeX{} do the
 job.
-Let \texttt{round.ps} be a postscript file, which is included as an
+Let \texttt{round.ps} be a Postscript file, which is included as an
 image in the source file \texttt{round.tex} (which must load the
 \filename{epsf} package):
 \begin{verbatim}
@@ -1665,7 +1667,7 @@ Users are strongly advised to follow strict \LaTeX{} syntax for
 arguments. That is, mandatory arguments are enclosed in curly braces
 \verb+{+\ldots{} \verb+}+ and braces inside arguments must be properly
 balanced.
-Optional arguments are enclosed in squares brackets \verb+[+\ldots{}
+Optional arguments are enclosed in square brackets \verb+[+\ldots{}
 \verb+]+.
 However, \hevea{} does its best to read arguments even when they are
 not enclosed in curly braces.
@@ -1828,7 +1830,7 @@ There is no list of figures nor list of tables.
 Both \LaTeXe{} \verb+\documentclass+ and old \LaTeX{}
 \verb+\documentstyle+ are accepted.
 Their argument \filename{style} is interpreted by attempting to load a
-\filename{style}\texttt{.sty} file (see~\ref{files} to see where \hevea{}
+\filename{style}\texttt{.sty} file (see~\ref{heveausage} to see where \hevea{}
 searches its files).
 Presently, only the style files \texttt{article.sty}, \texttt{seminar.sty},
 \texttt{book.sty} and \texttt{report.sty} exist, the latter two
@@ -2087,9 +2089,10 @@ perform type size changes.
 
 \subsection{Defining Commands}\label{usermacro}
 
-\hevea{} understands macro definitions given in \LaTeX{} style (using
-\verb+\newcommand+, \verb+\renewcommand+ and \verb+\providecommand+).
-These three instructions accept the same arguments and have the same
+\hevea{} understands command definitions given in \LaTeX{} style. Such
+definitions are made using
+\verb+\newcommand+, \verb+\renewcommand+ and \verb+\providecommand+.
+These three constructs accept the same arguments and have the same
 meaning as in \LaTeX{}. However, \hevea{} is more tolerant: if macro
 {\it name} already exists, then a subsequent \verb+\newcommand{+{\it
 name}\verb+}+ is ignored.  If macro {\it name} does not exists, then
@@ -2303,7 +2306,7 @@ nothing.
 \subsection{Splitting the Input}
 
 The \verb+\input+ and \verb+\include+ commands exist and they perform
-exactly the same operation of searching a file (see~\ref{files}).
+exactly the same operation of searching a file.
 Given \filename{filename}, an the argument to \verb+\input+ or
 \verb+\include+,
 a file is searched as follows:
@@ -2318,11 +2321,10 @@ does not have an
 extension and that a first attempt to find it fails, then a second
 attempt is made, looking for file \filename{filename}\texttt{.tex}.
 
-\hevea{} search path starts by the current directory ``\texttt{.}'',
-then come user specified directories and \hevea{} library (e.g.
-\texttt{/usr/local/lib/hevea}).
-Users add directories in the search path using the \texttt{-I} command
-line option.
+The search path starts with the current directory ``\texttt{.}'' and
+ends with \hevea{} installation directory.
+Users can modify the search path by using command lines options and
+the \texttt{HEVEADIR} shell variable, see section~\ref{heveausage}.
 
 
 The \verb+\includeonly+ command is supported, while the
@@ -2405,8 +2407,9 @@ will be poor.
 Note that \TeX{} length syntax is not at all recognized. As a
 consequence, writing things like \verb+\textwidth=10cm+ will clobber
 the output.
-Users can correct such misbehavior by adopting \LaTeX{} syntax
-(\verb+\setlength{\textwidth}{10cm}+ here).
+Users can correct such misbehavior by adopting \LaTeX{} syntax, here
+they should write
+\verb+\setlength{\textwidth}{10cm}+.
 
 
 \subsection{Space}\label{spaces}
@@ -2699,7 +2702,7 @@ output normally goes to the standard output.
 Please note that this operating mode is just for translating a few
 constructs, the normal way to translate \textit{file}\verb+.tex+ being
 ``\verb+hevea+ \textit{file}\verb+.tex+'' and not
-``\verb+hevea <+ \textit{file}\verb+.tex+''
+``\verb+hevea -o+ \textit{file}\verb+.html < + \textit{file}\verb+.tex+''
 
 The \texttt{article.sty}, \texttt{seminar.sty}, \texttt{book.sty} and \texttt{report.sty}
 base style files from \hevea{} library are special.
@@ -2734,7 +2737,7 @@ This has three consequences:
 \item[{\tt -nosymb}] Avoid symbol font.
 In this mode, symbols are replaced by text-only equivalents. By
 default, these equivalent are in English.
-\item[{\tt -noiso}] Do not output (iso-latin1) chararacters whose code is above 127.
+\item[{\tt -noiso}] Do not output (iso-latin1) characters whose code is above 127.
 These characters are replaced by \html{} entities. This option is
 mostly useful for generating \html{} that will be displayed properly
 by \emph{Netscape Communicator} on a Macintosh.
@@ -2765,32 +2768,67 @@ It also recognizes the following options:
 \noindent Section~\ref{hacha} of the user manual explains how to
 alter \hacha{} default behavior.
 
-\subsection{\texttt{imagen} usage}
-\texttt{imagen} is a simple shell script.
-\hevea{} must have been previously run as:
+\subsection{\texttt{imagen} usage}\label{imagenusage}
+
+\texttt{imagen} is a simple shell script that translates
+a \LaTeX{} document into many \texttt{.gif} images.
+
+It is a companion program of \hevea{}, which must have been previously run as:
 \begin{flushleft}
 \texttt{\# hevea}\ldots{} \textit{base}\texttt{.tex}\\
 or\\
 \texttt{\# hevea}\ldots{} \texttt{-o} \textit{base}\texttt{.html}\ldots\\
 \end{flushleft}
-Then, \textit{base} is \hevea{} base output name and \hevea{} outputs
-a \textit{base}\texttt{.image.tex} file.
+Then, \textit{base} is \hevea{} base output name.
+When told to do so (see section~\ref{imagen})
+\hevea{} echoes part of its input into
+the \textit{base}\texttt{.image.tex} file.
 
 The \texttt{imagen} script should then be run as:
 \begin{flushleft}
 \texttt{\# imagen} \textit{base}
 \end{flushleft}
-The \texttt{imagen} script calls \texttt{latex},
-\texttt{dvips}, \texttt{gs}, \texttt{pnmcrop} and
-\texttt{ppmtogif}.
+The \texttt{imagen} script produces
+one \textit{base}\textsl{nnn}\texttt{.gif} image file per page in the
+\textit{base}\texttt{.image.tex} file.
 
+This is done by first calling \texttt{latex} on
+\textit{base}\texttt{.image.tex}, yielding one \texttt{dvi}
+file.
+Then, \texttt{dvips} translates this file into one single Postscript file that
+contains all 
+the images, or into one  Postscript file per image,
+depending upon your version of \texttt{dvips}.
+Postscript files are interpreted by \texttt{gs} that
+outputs \texttt{ppm} images, which are then fed into a series of
+transformations that change them into \texttt{.gif} files.
 
-Note that, for producing one \texttt{.gif} file per
-page in the \textit{base}\texttt{.image.tex} file,
-\texttt{imagen} can cut \LaTeX{} output into pages at two different
-stages: when producing Postscript, or while interpreting Postscript.
-The choice is made by checking whether \texttt{dvips} accepts the
-\texttt{-i} option or not.
+The \texttt{imagen} script recognizes the following options:
+\begin{description}
+\item[{\tt -mag} {\sl nnnn}] Change the enlarging ratio that is applied
+while translating DVI into Postscript.
+More precisely,  \texttt{dvips} is run with \texttt{-x}{\sl nnnn}
+option.
+Default value for this ration is $1414$, this means
+that, by default, \texttt{imagen} magnifies \LaTeX{} output by a factor of
+$1.414$.
+\item[{\tt -extra} {\it command}] Insert {\it command} as an additional
+stage in \texttt{imagen} \texttt{ppm} to \texttt{gif} production chain.
+\textit{command} is an Unix filter that expects a \texttt{ppm} image
+in its standard input and outputs a \texttt{ppm} image on its standard output.
+A sensible choice for \textit{command} is one command from the
+\texttt{netpbm} package or several such commands piped together.
+\end{description}
+
+These options enable users to correct some misbehaviors.
+For instance, when the document base style is \textit{seminar}, image
+orientation may
+be wrong and the images are too small. This can be cured by invoking
+\texttt{imagen} as:
+\begin{flushleft}
+\texttt{\# imagen -mag 2000 -extra "pnmflip -ccw"} \textit{base}
+\end{flushleft}
+
 
 More information on producing images can be found in section~\ref{imagen}.
 
@@ -2809,7 +2847,7 @@ comparing figure~\ref{xfd} and the web page located at
 
 By default,  \emph{Netscape Communicator} does not display symbol fonts
 as intended by \hevea{}.
-On an Unix system, the following procedure instructs the
+On an Unix system, the following procedure instructs
 \emph{Netscape Communicator} to do so:
 \begin{itemize}
 \item Add the following line to your \texttt{.Xdefaults} file:
@@ -2874,7 +2912,7 @@ processed into a
 script, which basically calls, \LaTeX, \texttt{dvips},
 \footurl{http://www.cs.wisc.edu/\home{ghost}/index.html}{\texttt{ghostscript}}
 and a few tools from the image processing package
-\footurl{ftp://wuarchive.wustl.edu/graphics/graphics/packages/NetPBM}{netpbm}.
+\footurl{ftp://wuarchive.wustl.edu/graphics/graphics/packages/NetPBM}{\texttt{netpbm}}.
 
 To benefit from the full functionality of \hevea, you need all
 this software. However, \hevea{} runs without them, but then you will
@@ -2940,7 +2978,7 @@ of \texttt{htmlgen} and a (bit outdated) discussion on \LaTeX{} to
 A fairly complete list of \LaTeX{} to \html{} translators can be found
 at:
 \begin{center}
-\oneurl{http://www.loria.fr/services/tex/german/outils.html}
+\oneurl{http://www.loria.fr/services/tex/english/outils.html}
 \end{center}
 
 \begin{thebibliography}{xxxxxxxxxx}
