@@ -13,6 +13,7 @@ module type T =
   sig
     val register : int -> string -> string -> string -> unit
     val flush : (string -> unit)  -> string -> string -> unit
+    val some : bool ref
   end
 
 module MakeFoot (Dest : OutManager.S) : T

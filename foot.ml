@@ -13,12 +13,13 @@ module type T =
   sig
     val register : int -> string -> string -> string -> unit
     val flush : (string -> unit)  -> string -> string -> unit
+    val some : bool ref
   end
       
 module MakeFoot ( Dest : OutManager.S )=
 struct
 
-let header = "$Id: foot.ml,v 1.9 1999-05-26 15:45:38 tessaud Exp $" 
+let header = "$Id: foot.ml,v 1.10 1999-05-27 15:38:09 tessaud Exp $" 
 open Parse_opts
 (*open Dest*)
 

@@ -445,7 +445,7 @@
 }}%
 \cutdef[\thecuttingdepth]{\cuttingunit}%
 \renewcommand{\thefootnote}{\arabic{footnote}}%
-\setcounter{footnote}{0}%
+%\setcounter{footnote}{0}%
 }{%
 \@footnoteflush{document}%
 {\@nostyle\@print{<!--HTMLFOOT-->

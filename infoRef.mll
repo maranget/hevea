@@ -10,7 +10,7 @@
 (***********************************************************************)
 
 {
-let header = "$Id: infoRef.mll,v 1.7 1999-05-26 15:45:39 tessaud Exp $"
+let header = "$Id: infoRef.mll,v 1.8 1999-05-27 15:38:10 tessaud Exp $"
 ;;
 
 
@@ -168,7 +168,7 @@ let loc_name s1 s2 = (* pose un label *)
   let _ = 
     try 
       let _ = cherche_label s1 !labels_list in
-      raise (Error "Duplicate use of labels")
+      raise (Error ("Duplicate use of labels :"^s1))
     with Not_found -> None
   in
 
@@ -366,23 +366,17 @@ let affiche_node num =
 ;;
 
 let affiche_ref key =
-  let verifie_ref s =
-    let t = String.copy s in
-    for i= 0 to String.length s -1 do begin
-      if t.[i]=':' then t.[i]<-' '
-    end
-    done;
-    t
-  in
-  
   let l = 
     try
       cherche_label key !labels_list;
-    with Not_found ->  raise (Error "Reference to no label");
+    with Not_found ->  raise (Error ("Reference to no label :"^key));
   in
   match l with
     | None -> ()
     | Some node -> put ("*Note "^noeud_name node^"::")
+;;
+
+let footNote_label = ref ""
 ;;
 
 } 
@@ -404,6 +398,11 @@ rule main = parse
   let key = arg lexbuf in
   affiche_ref key;
   main lexbuf}
+| "@@footNote{"
+    {
+  footNote_label := arg lexbuf;
+  put "* Note ";
+  foot lexbuf }
 | eof
     {
   if List.length !files = 1 then begin
@@ -432,7 +431,29 @@ and arg = parse
     String.sub lxm 0 ((String.length lxm) -1)}
 | _ {raise (Error "Syntax error in info temporary file: invalid reference.")}
     
-
+and foot = parse
+    "@@footNoteEnd"
+    {
+  put ":";
+  let l = 
+    try
+      cherche_label !footNote_label !labels_list;
+    with Not_found ->  raise (Error ("Reference to no label :"^ !footNote_label));
+  in
+  (
+  match l with
+  | None -> ()
+  | Some node -> put (noeud_name node^".")
+	);  
+  main lexbuf
+} 
+| eof
+    { raise (Error "End of file in footnote declaration")}
+| _ 
+    {
+  let lxm = lexeme lexbuf in
+  put lxm;
+  foot lexbuf}
 
 {}
 

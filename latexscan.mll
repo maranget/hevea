@@ -44,7 +44,7 @@ open Tabular
 open Lexstate
 
 
-let header = "$Id: latexscan.mll,v 1.103 1999-05-25 15:52:09 tessaud Exp $" 
+let header = "$Id: latexscan.mll,v 1.104 1999-05-27 15:38:14 tessaud Exp $" 
 
 
 let sbool = function
@@ -2242,7 +2242,7 @@ def_code "\\symbol"
 def_code "\\label"
   (fun lexbuf ->
     let save_last_closed = Dest.get_last_closed () in
-    let lab = subst_arg subst lexbuf in
+    let lab = get_this main (subst_arg subst lexbuf) in
     Dest.loc_name lab "" ;
     Dest.set_last_closed save_last_closed)
 ;;
@@ -2664,6 +2664,16 @@ def_code  "\\@infonode"
     Dest.infonode opt num nom)
 ;;
 
+def_code "\\@infoNoteFlush"
+    (fun lexbuf ->
+      let sec_here = subst_arg subst lexbuf
+      and theflush = subst_arg subst lexbuf
+      and sec_notes = get_this_nostyle main "\\@footnotelevel" in
+      if !Foot.some && Section.value sec_here <= Section.value sec_notes then begin
+	scan_this main ("\stepcounter{footnotesflush}%\n\@infonode{}{"^theflush^"}{Notes}");
+      end)
+;;
+	
 
 def_code "\\@printHR"
     (fun lexbuf ->

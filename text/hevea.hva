@@ -55,7 +55,7 @@
 \newcommand{\footnoterule}{\@printHR{left}{50}%
 }
 \newcommand{\footnotesep}[1]{}
-\newcommand{\@fnmarktext}[1]{{\normalfont $^{\mbox{#1}}$}}
+\newcommand{\@fnmarktext}[1]{#1}
 \newcommand{\@fnmarknote}[1]{{\@clearstyle\Large #1}}
 \newcounter{savenote}
 \newcommand{\@footnotemark}[2]{%
@@ -407,7 +407,7 @@
 \newenvironment{document}{%
 \cutdef[\thecuttingdepth]{\cuttingunit}%
 \renewcommand{\thefootnote}{\arabic{footnote}}%
-\setcounter{footnote}{0}%
+%%\setcounter{footnote}{0}%
 }{%
 \@footnoteflush{document}%
 \iffooter\input{footer.tex}\fi%
