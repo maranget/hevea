@@ -13,8 +13,9 @@ open Lexstate
 exception Failed
 exception Error of string
 
-val checkpoint : unit -> unit
-val hot_start : unit -> unit
+type saved
+val checkpoint : unit -> saved
+val hot_start : saved -> unit
 
 type env =
   Style of string

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.156 1999-12-22 10:46:04 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.157 2000-01-19 20:11:10 maranget Exp $ *)
 
 
 {
@@ -1466,9 +1466,9 @@ let do_newtheorem lxm lexbuf =
         do_subst_this (numbered_like,env) in
     
     def_env_pat name (Latexmacros.make_pat [""] 0)
-      (Subst ("\\cr{\\bf\\stepcounter{"^cname^"}"^caption^"~"^
+      (Subst ("\\begin{flushleft}\\refstepcounter{"^cname^"}{\\bf "^caption^"~"^
               "\\the"^cname^"}\\quad\\ifoptarg{\\purple[#1]\\quad}\\fi\\it"))
-      (Subst "\\cr")
+      (Subst "\\end{flushleft}")
   with Latexmacros.Failed -> () end
 ;;
 
@@ -1728,10 +1728,13 @@ def_code "\\@print"
   (fun lexbuf ->
           let arg,_ = save_arg lexbuf in
           Dest.put arg) ;
+
 def_code "\\@getprint"
   (fun lexbuf ->
     let arg = get_prim_arg lexbuf in
-    Dest.put arg) ;
+    let buff = Lexing.from_string arg in
+    Dest.put (Save.tagout buff)) ;
+
 def_code "\\@subst"
   (fun lexbuf ->
     let arg = subst_arg lexbuf in
@@ -1859,7 +1862,8 @@ let newif lexbuf =
     def_and_register ("\\if"^name) (testif cell) ;
     def_and_register ("\\"^name^"true") (setif cell true) ;
     def_and_register ("\\"^name^"false") (setif cell false) ;
-    if !env_level > 0 then register_cell name cell
+    register_cell name cell ;
+    fun_register (fun () -> unregister_cell name)
   with Latexmacros.Failed -> ()
 ;;
 
@@ -1887,7 +1891,7 @@ let newif_ref name cell =
   def_code ("\\if"^name) (testif cell) ;
   def_code ("\\"^name^"true") (setif cell true) ;
   def_code ("\\"^name^"false") (setif cell false) ;
-  register_cell name cell              
+  register_cell name cell (* Used at top level only ! *)
 ;;
 
 newif_ref "symb" symbols ;

@@ -12,7 +12,7 @@
 {
 open Lexing
 
-let header = "$Id: save.mll,v 1.49 1999-12-08 18:10:25 maranget Exp $" 
+let header = "$Id: save.mll,v 1.50 2000-01-19 20:11:20 maranget Exp $" 
 
 let verbose = ref 0 and silent = ref false
 ;;
@@ -29,11 +29,6 @@ exception Delim of string
 let seen_par = ref false
 ;;
 
-let my_int_of_string s =
-  try int_of_string s
-  with Failure "int_of_string" ->
-    raise (Error ("Integer argument expected: ``"^s^"''"))
-
 
 let brace_nesting = ref 0
 and arg_buff = Out.create_buff ()
@@ -41,6 +36,7 @@ and echo_buff = Out.create_buff ()
 and tag_buff = Out.create_buff ()
 ;;
 
+  
 let echo = ref false
 ;;
 
@@ -49,6 +45,21 @@ and start_echo () = echo := true ; Out.reset echo_buff
 and stop_echo () = echo := false ; Out.reset echo_buff
 ;;
 
+let empty_buffs () =
+  brace_nesting := 0 ; Out.reset arg_buff ;
+  echo := false ; Out.reset echo_buff ;
+  Out.reset tag_buff 
+;;
+
+let error s =
+  empty_buffs () ;
+  raise (Error s)
+;;
+
+let my_int_of_string s =
+  try int_of_string s
+  with Failure "int_of_string" ->
+    error ("Integer argument expected: ``"^s^"''")
 
 exception Eof
 ;;
@@ -102,7 +113,7 @@ and opt2 =  parse
                if !brace_nesting >= 0 then begin
                  put_both_char '}' ; opt2 lexbuf
                end else begin
-                 raise (Error "Bad brace nesting in optional argument")
+                 error "Bad brace nesting in optional argument"
                end}
 | ']'
     {if !brace_nesting > 0 then begin
@@ -138,7 +149,7 @@ and arg = parse
       put_both_char c ;
       Out.to_string arg_buff}
   | eof    {raise Eof}
-  | ""     {raise (Error "Argument expected")}
+  | ""     {error "Argument expected"}
 
 
 and first_char = parse
@@ -190,7 +201,7 @@ and arg2 = parse
       {let s = lexeme lexbuf in
       put_both s ; arg2 lexbuf }
 | eof
-    {raise (Error ("End of file in argument"))}
+    {error "End of file in argument"}
 | _
       {let c = lexeme_char lexbuf 0 in
       put_both_char c ; arg2 lexbuf }
@@ -212,11 +223,11 @@ and incsname = parse
 | _ 
     {put_both_char (lexeme_char lexbuf 0) ;
     incsname lexbuf}
-| eof           {raise (Error "End of file in command name")}
+| eof           {error "End of file in command name"}
 
 and cite_arg = parse
   ' '* '{'   {cite_args_bis lexbuf}
-| ""         {raise (Error ("No opening ``{''"))}
+| ""         {error "No opening ``{'' in citation argument"}
 
 and cite_args_bis = parse
   [^'}'' ''\n''%'',']* {let lxm = lexeme lexbuf in lxm::cite_args_bis lexbuf}
@@ -224,7 +235,7 @@ and cite_args_bis = parse
 | ','         {cite_args_bis lexbuf}
 | [' ''\n']+ {cite_args_bis lexbuf}
 | '}'         {[]}
-| ""          {raise (Error ("Bad syntax for \\cite argument"))}
+| ""          {error "Bad syntax for \\cite argument"}
 
 and macro_names = parse
   eof {[]}
@@ -339,7 +350,7 @@ and eat_delim_rec = parse
     put_echo "\\{" ;
     match kmp_char delim next i '\\' with
     | Stop _ ->
-        raise (Error "Delimitors cannot end with ``\\''")
+        error "Delimitors cannot end with ``\\''"
     | Continue i -> match  kmp_char delim next i '{' with
       | Stop s -> s
       | Continue i ->  eat_delim_rec lexbuf delim next i}
@@ -362,8 +373,9 @@ and eat_delim_rec = parse
     | Stop s -> s
     | Continue i -> eat_delim_rec lexbuf delim next i}
 |  eof
-    {raise (Error ("End of file in delimited argument, read:\n\t"^
-            Out.to_string echo_buff))}
+    {error ("End of file in delimited argument, read:
+	"^
+            Out.to_string echo_buff)}
 
 and skip_delim_init = parse
 | ' '|'\n' {skip_delim_init lexbuf}
@@ -380,7 +392,7 @@ and skip_delim_rec = parse
       skip_delim_rec lexbuf delim (i+1)}
 |  eof
     {fun delim i ->
-      raise (Error ("End of file checking delimiter ``"^delim^"''"))}
+      error ("End of file checking delimiter ``"^delim^"''")}
 and check_equal = parse
 | '=' {true}
 | ""  {false}

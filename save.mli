@@ -1,5 +1,6 @@
 exception Error of string
 exception Delim of string
+val empty_buffs : unit -> unit
 val set_verbose : bool -> int -> unit
 val seen_par : bool ref
 

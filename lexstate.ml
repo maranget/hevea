@@ -1,4 +1,4 @@
-let header =  "$Id: lexstate.ml,v 1.39 1999-12-08 18:10:21 maranget Exp $"
+let header =  "$Id: lexstate.ml,v 1.40 2000-01-19 20:11:15 maranget Exp $"
 
 open Misc
 open Lexing
@@ -196,8 +196,9 @@ and previous_lexbuf () =
 ;;
 
 (* Saving and restoring lexing status *)
+
 let stack_lexstate = Stack.create "stack_lexstate"
-;;
+
 let top_lexstate () = Stack.empty stack_lexstate
 
 let save_lexstate () =
@@ -211,6 +212,21 @@ and restore_lexstate () =
   Stack.restore stack_lexbuf lexbufs ;
   Stack.restore stack_subst substs ;
   subst := Stack.pop stack_subst
+
+
+(* Total ckeckpoint of lexstate *)
+type saved_lexstate = 
+(Lexing.lexbuf Stack.saved * subst Stack.saved) Stack.saved
+
+let check_lexstate () =
+  save_lexstate () ;
+  let r = Stack.save stack_lexstate in
+  restore_lexstate () ;
+  r
+
+and hot_lexstate saved =
+  Stack.restore stack_lexstate saved ;
+  restore_lexstate () 
 ;;
 
 (* Blank lexing status *)
@@ -282,7 +298,9 @@ and pok = function
   | No s  -> s
 
 
-let eof_arg () = raise (Error "Eof while looking for argument")
+let eof_arg () =
+  Save.empty_buffs () ;
+  raise (Error "Eof while looking for argument")
 
 let save_arg lexbuf = full_save_arg eof_arg pstring Save.arg lexbuf
 and save_arg_with_delim delim lexbuf =
@@ -464,14 +482,15 @@ let real_input_file loc_verb main filename input =
   let old_lexstate = Stack.save stack_lexstate in
   subst := Top ;
   begin try  main buf with
-  | Misc.EndInput -> Stack.restore  stack_lexstate old_lexstate
-  | Misc.EndDocument ->
+  | Misc.EndInput ->
+      Stack.restore  stack_lexstate old_lexstate
+  | e ->
       Stack.restore  stack_lexstate old_lexstate ;
       restore_lexstate ();
       close_in input ;
       verbose := old_verb ;
       Location.restore ()  ;
-      raise Misc.EndDocument
+      raise e
   end ;
   restore_lexstate ();
   if !verbose > 1 then prerr_endline ("scanning over: "^filename) ;    
@@ -494,19 +513,14 @@ let input_file loc_verb main filename =
 
 
 (* Hot start *)
-let registering = ref !Parse_opts.fixpoint
-;;
+type saved = (string * bool ref) list * bool list
 
 let cell_list = ref []
-and value_list = ref []
 
 let checkpoint () =
-  if !registering then begin
-    value_list := List.map (fun (_,cell) -> !cell) !cell_list ;
-    registering := false
-  end
+  !cell_list, List.map (fun (_,cell) -> !cell) !cell_list ;
 
-and hot_start () =
+and hot_start (cells, values)  =
   let rec start_rec cells values = match cells, values with
   | [],[] -> ()
   | (name,cell)::rcells, value :: rvalues ->
@@ -518,10 +532,21 @@ and hot_start () =
       start_rec rcells rvalues
   | _,_ ->
       Misc.fatal ("Trouble in Lexstate.hot_start") in
-  start_rec !cell_list !value_list
+  start_rec cells values ;
+  cell_list := cells
   
 
 let register_cell name cell =
-  if !registering  then
-    cell_list :=  (name,cell) :: !cell_list
+  cell_list :=  (name,cell) :: !cell_list
+
+and unregister_cell name =
+  let rec un_rec = function
+    | [] ->
+        Misc.warning ("Cannot unregister cell: "^name) ;
+        []
+    | (xname,cell) :: rest ->
+        if xname = name then rest
+        else
+          (xname,cell) :: un_rec rest in
+  cell_list := un_rec !cell_list
 

@@ -89,17 +89,20 @@ amstex.dvi: amstex.tex
 amstex.html: amstex.tex
 	$(HEVEA) $(HEVEAOPTS) ams.hva amstex
 
-graphics.dvi: graphics.tex
+HF.ps: HF.ps.gz
+	gunzip < HF.ps.gz > HF.ps
+
+graphics.dvi: graphics.tex HF.ps
 	latex < /dev/null graphics.tex
 
 
-graphics.html: graphics.tex
+graphics.html: graphics.tex HF.ps
 	$(HEVEA) $(HEVEAOPTS) graphics
 
-graphicx.dvi: HF.ps.gz graphicx.tex
+graphicx.dvi: HF.ps graphicx.tex
 	latex < /dev/null graphicx.tex
 
-graphicx.html: graphicx.tex HF.ps.gz
+graphicx.html: graphicx.tex HF.ps
 	$(HEVEA) $(HEVEAOPTS) graphicx
 
 index.html: index.tex

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmacros.ml,v 1.55 1999-12-08 18:10:12 maranget Exp $" 
+let header = "$Id: latexmacros.ml,v 1.56 2000-01-19 20:11:03 maranget Exp $" 
 open Misc
 open Parse_opts
 open Symb
@@ -33,17 +33,19 @@ let pretty_env = function
 
 let cmdtable =
   (Hashtbl.create 97 : (string, (pat * action)) Hashtbl.t)
-;;
-let cmd_checked = Hashtbl.create 17
-;;
+and prim_table = Hashtbl.create 5
 
-let prim_table = Hashtbl.create 5
-and prim_checked = Hashtbl.create 5
+type saved =  (string, (pat * action)) Hashtbl.t *
+ (string, (unit -> unit)) Hashtbl.t
 
 let checkpoint () =
+  let prim_checked = Hashtbl.create 5
+  and cmd_checked = Hashtbl.create 17 in
   Misc.copy_hashtbl prim_table prim_checked ;
-  Misc.copy_hashtbl cmdtable cmd_checked
-and hot_start () =
+  Misc.copy_hashtbl cmdtable cmd_checked ;
+  cmd_checked, prim_checked
+
+and hot_start (cmd_checked, prim_checked) = 
   Misc.copy_hashtbl prim_checked prim_table ;
   Misc.copy_hashtbl cmd_checked cmdtable
   

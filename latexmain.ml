@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmain.ml,v 1.60 1999-12-13 16:18:44 maranget Exp $" 
+let header = "$Id: latexmain.ml,v 1.61 2000-01-19 20:11:06 maranget Exp $" 
 
 open Misc
 open Parse_opts
@@ -151,24 +151,13 @@ let main () =
 
     if !Parse_opts.fixpoint then begin
       let image_changed = ref false in
-      Lexstate.checkpoint () ;
-      Latexmacros.checkpoint () ;
-      Counter.checkpoint () ;
-      Color.checkpoint () ;
+      let saved = Hot.checkpoint () in
       let rec do_rec i =
         read_tex name_in ;
         let changed,image_changed_now = finalize true in
         image_changed := !image_changed || image_changed_now ;
         if changed then begin
-          Lexstate.hot_start () ;
-          Latexmacros.hot_start () ;
-          Counter.hot_start () ;
-          Color.hot_start () ;
-          Foot.hot_start () ;
-          begin match !Parse_opts.destination with
-          | Info -> InfoRef.hot_start ()
-          | _ -> ()
-          end ;
+          Hot.start saved ;
           Auxx.hot_start () ;
           Misc.message ("Run, run, again...") ;
           do_rec (i+1)

@@ -43,6 +43,12 @@
 \newsavebox{\@htmlfoot}
 \newcommand{\htmlhead}[1]{\sbox{\@htmlhead}{#1}}
 \newcommand{\htmlfoot}[1]{\sbox{\@htmlfoot}{#1}}
+\AtEndDocument
+{{\@nostyle\@print{<!--HTMLFOOT-->
+}}%
+\usebox{\@htmlfoot}%
+{\@nostyle\@print{<!--ENDHTML-->
+}}}
 %%%%% Footnotes, html dependant part
 \newcommand{\@noteref}[4]{\@locnameref{#2#3}{#1#3}{#4}}
 \newcommand{\@notetextstyle}[1]
@@ -144,7 +150,10 @@
 \fi
 %%%%%%%%%%%% Bibliography
 \newcommand{\@bibref}[2]{\@locref{#1}{#2}}
-\newcommand{\@biblabel}[1]{\@locname{#1}{\purple[\@bibread{#1}]}}
+\newsavebox{\@bibbox}
+\newcommand{\@biblabel}[1]
+  {\sbox{\@bibbox}{#1}%
+  \@locname{\usebox{\@bibbox}}{\purple[\@bibread{\usebox{\@bibbox}}]}}
 %%% Environment document.
 \newcommand{\@bodyargs}{}
 \newcommand{\@meta}{\@print{<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
@@ -182,15 +191,7 @@
 \cutdef[\thecuttingdepth]{\cuttingunit}%
 }{%
 \@clearstyle\@footnoteflush{document}%
-{\@nostyle\@print{<!--HTMLFOOT-->
-}}%
-\usebox{\@htmlfoot}%
-{\@nostyle\@print{<!--ENDHTML-->
-}}%
-\iffooter\@print{
-<!--FOOTER-->
-}%
-\input{footer.tex}\fi%
+\@atenddocument%
 \@clearstyle\@print{</BODY>
 </HTML>
 }

@@ -15,6 +15,7 @@ val define_named : string -> string -> string -> unit
 val retrieve : string -> string
 val remove : string -> unit
 
-val checkpoint : unit -> unit
-val hot_start : unit -> unit
+type saved
+val checkpoint : unit -> saved
+val hot_start : saved -> unit
 

@@ -9,8 +9,9 @@
 (*                                                                     *)
 (***********************************************************************)
 
-val checkpoint : unit -> unit
-val hot_start : unit -> unit
+type saved
+val checkpoint : unit -> saved
+val hot_start : saved -> unit
 
 val value_counter : string -> int
 val def_counter: string -> string -> unit

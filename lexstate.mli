@@ -57,9 +57,16 @@ val stack_lexbuf : Lexing.lexbuf Stack.t
 val previous_lexbuf : unit -> Lexing.lexbuf
 val top_lexstate : unit -> bool
 
+(* Saving and restoring lexstates on a stack *)
 val save_lexstate : unit -> unit
 val restore_lexstate : unit -> unit
 val start_lexstate : unit -> unit
+
+(* Total checkpoint of lexstate *)
+type saved_lexstate
+val check_lexstate : unit -> saved_lexstate
+val hot_lexstate : saved_lexstate -> unit
+
 val flushing : bool ref
 val stack_in_math : bool Stack.t
 val stack_display : bool Stack.t
@@ -100,8 +107,8 @@ val real_input_file :
 val input_file : int -> (Lexing.lexbuf -> unit) -> string -> unit
 
 val register_cell : string -> bool ref -> unit
-val checkpoint : unit -> unit
-val hot_start : unit -> unit
+val unregister_cell : string -> unit
+type saved
 
-
-
+val checkpoint : unit -> saved
+val hot_start : saved -> unit

@@ -169,6 +169,16 @@
 %%% tabularx
 \newenvironment{tabularx}[2]{\begin{tabular}{#2}}{\end{tabular}}
 \newcolumntype{X}{p{}}
+%%% AtBeginDocument and AtEndDocument
+\newtokens{\@atbegindocument}
+\newcommand{\AtBeginDocument}[1]{\addtokens{\@atbegindocument}{#1}}
+\newtokens{\@atenddocument}
+\newcommand{\AtEndDocument}[1]{\addtokens{\@atenddocument}{#1}}
+\AtEndDocument
+{\iffooter\ifhtml\@print{
+<!--FOOTER-->
+}\fi%
+\input{footer.tex}\fi}
 %%% Boxes
 %% Boxes
 \newcommand{\textfbox}[1]{\warning{\fbox in text}\mbox{#1}}
@@ -188,11 +198,13 @@
   {\@saveclosed\@locname{#1}{}\@auxwrite{#1}{\@currentlabel}\@restoreclosed}
 \newcommand{\ref}[1]{\@locref{#1}{\@auxread{#1}}}
 \newcommand{\pageref}[1]{\@locref{#1}{??}}
+\newcommand{\@readhaux}
+{\@iffileexists{\jobname.haux}{\input{\jobname.haux}}{}\@hauxinit}
 \AtBeginDocument
 {\@stopoutput\@stopimage%
 \ifthenelse{\@fileexists{\@basein.aux} \and \not \boolean{fixpoint}}
-  {\input{\@basein.aux}}
-  {\@iffileexists{\jobname.haux}{\input{\jobname.haux}}{}\@hauxinit}%
+  {\@try{\input{\@basein.aux}}{\@readhaux}}
+  {\@readhaux}%
 \@restartoutput\@restartimage}
 %%%%%%%%%%% Bibliography
 \def\bibliographystyle#1{}
@@ -200,7 +212,7 @@
 \newcommand{\bibname}{\iffrench Références\else References\fi}
 \newenvironment{thebibliography}[1]
   {\@bibliosection{\bibname}%
-  \begin{list}{}
+  \begin{list}{\stepcounter{heveabib}\theheveabib}
     {\renewcommand{\makelabel}[1]{\@biblabel{##1}}}}
   {\end{list}}
 \newcounter{heveabib}
@@ -298,4 +310,3 @@
 \ifthenelse{\value{month}=10}{October}{}%
 \ifthenelse{\value{month}=11}{November}{}%
 \ifthenelse{\value{month}=12}{December}{} \theday, \theyear}}}
-

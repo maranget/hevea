@@ -100,8 +100,7 @@
 \cutdef[\thecuttingdepth]{\cuttingunit}%
 }{%
 \@footnoteflush{document}%
-\iffooter\input{footer.tex}\fi%
-}
+\@atenddocument}
 \newenvironment{center}{\@open{ALIGN}{CENTER}}{\@close{ALIGN}}
 \newenvironment{flushleft}{\@open{ALIGN}{LEFT}}{\@close{ALIGN}}
 \newenvironment{flushright}{\@open{ALIGN}{RIGHT}}{\@close{ALIGN}}

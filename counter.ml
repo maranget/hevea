@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: counter.ml,v 1.9 1999-11-05 19:01:47 maranget Exp $" 
+let header = "$Id: counter.ml,v 1.10 2000-01-19 20:10:59 maranget Exp $" 
 type t_counter =
     {mutable count : int ;
     mutable within : t_counter option ;
@@ -27,22 +27,23 @@ let cbidon = {cname = "" ; cvalue = (-1) ; cwithin = None ; crelated = []}
 
 let ctable = (Hashtbl.create 19 : (string,t_counter) Hashtbl.t);;
 
-let check_ctable = ref [||]
+type saved =  t_checked array
 
-let prerr_cc cc =
+
+let prerr_cc check_ctable cc =
   prerr_endline ("counter: "^cc.cname) ;
   prerr_endline ("\tvalue = "^string_of_int cc.cvalue) ;
   prerr_endline
     ("\twithin = "^
      begin match cc.cwithin with
      | None -> "None"
-     | Some j -> (!check_ctable).(j).cname
+     | Some j -> (check_ctable).(j).cname
      end) ;
   prerr_string "\trelated =" ;
   List.iter
     (fun j ->
       prerr_string " " ;
-      prerr_string (!check_ctable).(j).cname)
+      prerr_string (check_ctable).(j).cname)
     cc.crelated ;
   prerr_endline ""
 
@@ -81,13 +82,13 @@ let checkpoint () =
            end ;
         crelated = List.map to_int related})
     rev_table ;
-  check_ctable := t
+  t
 
-and hot_start () =
+and hot_start check_ctable =
   
   Hashtbl.clear ctable ;
   let rec create_rec i =
-    let cc = (!check_ctable).(i) in
+    let cc = (check_ctable).(i) in
     try
       Hashtbl.find ctable cc.cname
     with
@@ -101,10 +102,10 @@ and hot_start () =
         c.related <- List.map create_rec cc.crelated ;
         if !Misc.verbose > 1 then begin 
           prerr_string "Restored " ;
-          prerr_cc cc
+          prerr_cc check_ctable cc
         end ;
         c in
-  for i = 0 to Array.length !check_ctable - 1 do
+  for i = 0 to Array.length check_ctable - 1 do
     let _ = create_rec i in ()
   done
 ;;

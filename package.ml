@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.10 1999-12-08 18:10:23 maranget Exp $    *)
+(*  $Id: package.ml,v 1.11 2000-01-19 20:11:18 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -37,21 +37,47 @@ def_print "\@heveaversion" Version.version ;
 def_print "\@hevealibdir" Mylib.libdir
 ;;
 
-(* AtBeginDocument *)
-let atbegindocument = "\\@atbegindocument"
-;;
-def_macro atbegindocument 0 (Subst "") ;
-def_code "\\AtBeginDocument"
+(* ``Token'' registers *)
+def_code "\\newtokens"
   (fun lexbuf ->
-    let arg = Subst.subst_arg lexbuf in
-    begin try match find_macro atbegindocument with
-    | _,Subst s ->
-        redef_macro atbegindocument 0 (Subst (s^"%\n"^arg))
-    | _ -> raise Failed
-    with Failed ->
-      Misc.warning "\\AtBeginDocument failed"
+    let toks = Subst.subst_csname lexbuf in
+    begin try
+      def_macro toks 0 (Subst "")
+    with Latexmacros.Failed ->
+      Misc.warning ("\\newtokens for "^toks^" failed")
     end)
 ;;
+
+def_code "\\addtokens"
+  (fun lexbuf ->
+    let toks = Subst.subst_csname lexbuf in
+    let arg = Subst.subst_arg lexbuf in
+    begin try match find_macro toks with
+    | _,Subst s ->
+        redef_macro toks 0 (Subst (arg^"%\n"^s))
+    | _ -> raise Failed
+    with Failed ->
+      Misc.warning ("\\addtokens for "^toks^" failed")
+    end)
+;;
+
+(* try e1 with _ -> e2 *)
+def_code "\\@try"
+  (fun lexbuf ->
+    let e1 = save_arg lexbuf in
+    let e2 = save_arg lexbuf in
+    let saved = Hot.checkpoint ()
+    and saved_lexstate = Lexstate.check_lexstate () in
+    try
+      scan_this_arg Scan.main e1
+    with e -> begin
+      Misc.warning ("\\@try caught exception : "^Printexc.to_string e) ;
+      Hot.start saved ;
+      Lexstate.hot_lexstate saved_lexstate ;
+      scan_this_arg Scan.main e2
+    end)
+;;
+
 (* Aux files parsing *)
 def_code "\\@hauxinit"
   (fun lexbuf ->
