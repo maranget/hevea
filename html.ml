@@ -761,11 +761,11 @@ let flush () =
 let forget () = force_block "FORGET" ""
 ;;
 
-let loc_ref s =
+let loc_ref s1 s2 =
   put "<A HREF=\"#" ;
-  put s ;
+  put s2 ;
   put "\">" ;
-  put s ;
+  put s1 ;
   put "</A>"
 ;;
 

@@ -7,8 +7,13 @@ let base = ref "image"
 let count = ref 0
 ;;
 
-let buff = ref (Out.create_buff ())
+let buff = ref (Out.create_chan (open_out "/dev/null"))
 ;;
+
+let start () =
+  buff := Out.create_buff ()
+;;
+
 
 let put s = Out.put !buff s
 and put_char c = Out.put_char !buff c

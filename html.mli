@@ -34,7 +34,7 @@ val delay : (int -> unit) -> unit
 val flush : unit -> int
 val forget : unit -> unit
 
-val loc_ref: string -> unit
+val loc_ref: string -> string -> unit
 
 val insert_vdisplay: (unit -> unit) -> Latexmacros.env list
 val freeze : (unit -> unit) -> unit

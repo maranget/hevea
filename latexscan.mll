@@ -1,5 +1,6 @@
 {
 open Lexing
+open Myfiles
 open Latexmacros
 open Html
 
@@ -7,42 +8,6 @@ let verbose = ref 0
 ;;
 
 let out_file = ref (Out.create_null ())
-;;
-
-let tex_path =  try
-  let r = ref []
-  and j = ref 0 in
-  let s = Sys.getenv "TEXINPUTS" in
-  for i=0 to String.length s-1 do
-    match String.get s i with
-     ':' ->
-        r := String.sub s !j (i- !j) :: !r ;
-        j := i+1
-    | _  -> ()
-  done ;
-  r := String.sub s !j (String.length s - !j -1) :: !r ;
-  List.rev !r
-with Not_found -> ["." ; "/usr/local/lib/tex"]
-;;
-
-exception Found of (string * in_channel)
-;;
-
-let open_tex filename =
-  let filename =
-    if Filename.check_suffix filename ".tex" then filename
-    else if Filename.check_suffix filename ".sty" then filename
-    else filename^".tex" in  
-  try
-    List.iter (fun dir ->
-      try
-        let full_name = Filename.concat dir filename in
-        let r = open_in full_name in
-        raise (Found (full_name,r))
-      with Sys_error _ -> ())
-    tex_path ;
-    failwith ("File not found: "^filename)
-  with Found r -> r
 ;;
 
 
@@ -486,8 +451,7 @@ let new_env env lexfun lexbuf =
   push stack_env !cur_env   ;
   cur_env := env ;
   incr env_level ;
-  if !verbose > 1 then prerr_endline "++" ;
-  if !verbose > 0 then begin
+  if !verbose > 1 then begin
     Location.print_pos () ;
     Printf.fprintf stderr "Begin : %s <%d>" env !env_level ;
     prerr_endline ""
@@ -501,7 +465,7 @@ let error_env close_e open_e =
 
 let close_env env endaction lexfun lexbuf =
   endaction () ;
-  if !verbose > 0 then begin
+  if !verbose > 1 then begin
     Printf.fprintf stderr "End : %s <%d>" env !env_level ;
     prerr_endline  ""
   end ;
@@ -609,7 +573,7 @@ rule  main = parse
    "%" ' '* ("BEGIN"|"begin") ' '+ ("IMAGE"|"image")  [^'\n']* '\n'
     {Image.dump image lexbuf}
 |  '%' [^ '\n']* '\n'
-   {if !verbose > 0 then
+   {if !verbose > 1 then
      Printf.fprintf stderr "Comment : %s" (lexeme lexbuf) ;
    main lexbuf}
 (* included images *)
@@ -650,16 +614,27 @@ rule  main = parse
   | ("\\par" | "\n\n") '\n' *
     {if not !display then Html.par () ;
     main lexbuf }
-| "\\input" | "\\include"
-     {let filename = Save.arg lexbuf in
+| "\\input" | "\\include" | "\\bibliography"
+     {let lxm = lexeme lexbuf in
+     let filename = Save.arg lexbuf in
+     let filename =
+       if lxm = "\\bibliography" then
+         (Filename.chop_extension (Location.get ())^".bbl")
+       else (Image.put (lxm^"{"^filename^"}\n") ; filename) in
      if !verbose > 0 then
        Printf.fprintf stderr "input file : %s \n" filename ;
-     let filename,input = open_tex filename in
-     let buf = Lexing.from_channel input in
-     Location.set filename buf ;
-     new_env "*input" main buf ;
-     Location.restore () ;
-     close_env "*input" (fun () -> ()) main lexbuf}
+     try
+       let filename,input = open_tex filename in
+       let buf = Lexing.from_channel input in
+       Location.set filename buf ;
+       new_env "*input" main buf ;
+       Location.restore () ;
+       close_env "*input" (fun () -> ()) main lexbuf
+     with Not_found -> begin
+       if !verbose > 0 then
+         prerr_endline ("Not opening file: "^filename) ;
+       main lexbuf
+     end}
 (* subscripts and superscripts *)
   | ('_' | '^')
      {let lxm = lexeme lexbuf in
@@ -977,9 +952,9 @@ rule  main = parse
     put_char '[' ;
     let rec do_rec = function
       [] -> ()
-    | [x] -> Html.loc_ref x
+    | [x] -> Html.loc_ref (Aux.bget x) x
     | x::rest ->
-        Html.loc_ref x ;
+        Html.loc_ref (Aux.bget x) x ;
         put ", " ;
         do_rec rest in
     do_rec args ;
@@ -1006,11 +981,9 @@ rule  main = parse
         [] -> ()
       | i::rest -> begin match i with
             Print str -> Html.put str
-          | Print_arg i ->
-              let lex_one = Lexing.from_string stack.(i) in
-              main lex_one
+          | Print_arg i -> scan_this main stack.(i)
           | Print_fun (f,i) -> scan_this main (f stack.(i))
-          | Print_saved -> Html.put !reg
+          | Print_saved -> scan_this main !reg
           | Save_arg i -> reg := stack.(i)
           | New_count i -> Counter.def_counter stack.(i)
           | Set_count (i,j) ->

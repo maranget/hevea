@@ -28,11 +28,12 @@ let read_style name =
   Location.restore ()
 ;;
  
-  
 let main () =
   try begin  Arg.parse
     [("-v", Arg.Unit (fun () -> verbose := !verbose + 1),
-       "verbose flag, can be repeated to increase verbosity")
+       "verbose flag, can be repeated to increase verbosity") ;
+     ("-e", Arg.String Myfiles.erecord,
+       "-e filename, prevents filename from being read")
     ]
     (add_input)
     "htmlgen 0.00" ;
@@ -65,9 +66,23 @@ let main () =
     | _   -> Out.create_chan
         (open_out (Filename.chop_suffix texfile ".tex"^".html")) end ;
 
+    begin match texfile with
+      "" -> ()
+    | _  ->
+       let auxname = Filename.chop_suffix texfile ".tex"^".aux" in
+       try
+         let auxchan = open_in auxname in
+         let buf = Lexing.from_channel auxchan in
+         Aux.main buf
+       with Sys_error _ -> begin
+         if !verbose > 0 then
+           prerr_endline ("Cannot open aux file: "^auxname)
+       end
+    end ;
     let chan = match texfile with "" -> stdin | _ -> open_in texfile in
     let buf = Lexing.from_channel chan in
     Location.set texfile buf ;
+    Image.start () ;
     Latexscan.main buf ;
     Location.restore () ;
     finalize ()

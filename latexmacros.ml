@@ -58,7 +58,7 @@ let pretty_macro n acs =
 ;;
 
 let def_macro_pat name pat action =
-  if !verbose > 0 then begin
+  if !verbose > 1 then begin
    Printf.fprintf stderr "def_macro %s = " name;
    pretty_macro pat action
   end ;    
@@ -223,13 +223,19 @@ def_macro "\\newpage" 0 [];
 def_macro "\\pagestyle" 1 [];
 def_macro "\\thispagestyle" 1 [];
 def_macro "\\label" 1 [Print "<A name=\""; Print_arg 0; Print "\"></A>"];
-def_macro "\\ref" 1 [Print "<A href=\"#"; Print_arg 0; Print "\">X</A>"];
-def_macro "\\camlref" 1 [Print "<A href=\"caml:"; Print_arg 0; Print "\">X</A>"];
+def_macro "\\ref" 1
+  [Print "<A href=\"#"; Print_arg 0; Print "\">" ;
+   Print_fun (Aux.rget,0) ; Print "</A>"];
+def_macro "\\camlref" 1
+  [Print "<A href=\"caml:"; Print_arg 0; Print "\">X</A>"];
 def_macro "\\pageref" 1 [Print "<A href=\"#"; Print_arg 0; Print "\">X</A>"];
-def_macro "\\thebibliography" 0 [Open ("DL","")];
+def_macro "\\thebibliography" 1
+  [Open ("H2","") ; Print "References" ; Close "H2" ;
+  Open ("DL","")];
 def_macro "\\endthebibliography" 0 [Close "DL"];
 def_macro "\\bibitem" 1
-  [Subst "\\item[{\\purple #1}]\\label{#1}"] ;
+  [Subst "\\item[{\\purple [\\@bibref{#1}]}]\\label{#1}"] ;
+def_macro "\\@bibref" 1  [Print_fun (Aux.bget,0)] ;
 def_macro "\\index" 1 [];
 def_macro "\\oe" 0 [Print "oe"];
 def_macro "\\&" 0 [Print "&amp;"];
@@ -378,6 +384,8 @@ def_macro "\\propto" 0 [Print (get propto)];;
 def_macro "\\models" 0 [Print "|="];;
 def_macro "\\perp" 0 [Print (get perp)];;
 
+def_macro "\\leftarrow" 0 [Print (get leftarrow)];;
+def_macro "\\Leftarrow" 0 [Print (get upleftarrow)];;
 def_macro "\\rightarrow" 0 [Print (get rightarrow)];;
 def_macro "\\Rightarrow" 0 [Print (get uprightarrow)];;
 def_macro "\\leftrightarrow" 0 [Print (get leftrightarrow)];;

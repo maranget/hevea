@@ -12,6 +12,9 @@ let curlexbuf = ref (Lexing.from_string "")
 and curlexname = ref ""
 ;;
 
+let get () = !curlexname
+;;
+
 let set name lexbuf =
   push stack (!curlexname,!curlexbuf) ;
   curlexname := name ;
