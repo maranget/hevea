@@ -3,6 +3,8 @@
 %%% Color section
 \newcommand{\colorsections}[1]{
 \definecolor{title}{hsv}{#1,1,.7}
+\definecolor{titlemain}{hsv}{#1,1,.7}
+\definecolor{titlerest}{hsv}{#1,1,.7}
 \definecolor{part}{hsv}{#1, 1, .8}
 \ifthenelse{\equal{\@base}{article}}{%
 \definecolor{section}{hsv}{#1, .8, .9}%
@@ -14,11 +16,16 @@
 \definecolor{subsection}{hsv}{#1, .5, 1}%
 \definecolor{subsubsection}{hsv}{#1, .4, 1}%
 }}%
-\newcommand{\@color}{120}%
-\colorsections{\@color}%
-
+%\newcommand{\@color}{120}%
+\colorsections{120}%
 %% Define sectioning comands
 \ifthenelse{\equal{\@base}{article}}{%
+\setLATEXstyle{title}
+	{padding:0.4ex;background:\@getstylecolor{title}}%
+\setLATEXstyle{titlemain}
+	{padding:0.3ex;background:\@getstylecolor{titlemain}}%
+\setLATEXstyle{titlerest}
+	{padding:0.3ex;background:\@getstylecolor{titlerest}}%
 \setLATEXstyle{part}
 	{padding:0.4ex;background:\@getstylecolor{part}}%
 \setLATEXstyle{section}
@@ -29,6 +36,12 @@
 	{padding:0.2ex;background:\@getstylecolor{subsubsection}}%
 }{%
 \ifthenelse{\equal{\@base}{book}}{%
+\setLATEXstyle{title}
+	{padding:0.4ex;background:\@getstylecolor{title}}%
+\setLATEXstyle{titlemain}
+	{padding:0.3ex;background:\@getstylecolor{titlemain}}%
+\setLATEXstyle{titlerest}
+	{padding:0.3ex;background:\@getstylecolor{titlerest}}%
 \setLATEXstyle{part}
 	{padding:0.4ex;background:\@getstylecolor{part}}%
 \setLATEXstyle{chapter}
@@ -41,8 +54,8 @@
 	{padding:0.2ex;background:\@getstylecolor{subsubsection}}%
 }{%
 }}
-\setLATEXstyle{title}
-	{padding:1.5ex;background:\@getstylecolor{title}}%
+%\setLATEXstyle{title}
+%	{padding:1.5ex;background:\@getstylecolor{title}}%
 
 
 

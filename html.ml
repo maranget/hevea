@@ -10,7 +10,7 @@
 (***********************************************************************)
 
 
-let header = "$Id: html.ml,v 1.86 2004-07-14 02:46:19 thakur Exp $" 
+let header = "$Id: html.ml,v 1.87 2004-07-27 01:24:47 thakur Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -316,6 +316,29 @@ let item () =
 let nitem = item
 ;;
 
+(*********************************************
+*  Allows things like <LI CLASS=li-itemize>  *
+*********************************************)
+
+let item_with_class s =
+  if !verbose > 2 then begin
+    prerr_string "item: stack=" ;
+    pretty_stack out_stack
+  end ;
+  let mods = all_to_pending !cur_out in
+  clearstyle () ;
+  !cur_out.pending <- mods ;
+  let saved =
+    if flags.nitems = 0 then begin
+      let _ = forget_par () in () ;
+      Out.to_string !cur_out.out
+    end else  "" in
+  flags.nitems <- flags.nitems+1;
+  try_flush_par Now ;
+  do_put ("<LI "^s^">") ;
+  do_put saved
+;;
+
 let ditem scan arg =
   if !verbose > 2 then begin
     prerr_string "ditem: stack=" ;
@@ -341,6 +364,30 @@ let ditem scan arg =
   do_put "<DD>"
 ;;
 
+let ditem_with_class scan arg s1 s2 =
+  if !verbose > 2 then begin
+    prerr_string "ditem: stack=" ;
+    pretty_stack out_stack
+  end ;
+  let mods = all_to_pending !cur_out in
+  clearstyle () ;
+  !cur_out.pending <- mods ;
+  let true_scan =
+    if flags.nitems = 0 then begin
+      let _ = forget_par () in () ;
+      let saved = Out.to_string !cur_out.out in
+      (fun arg -> do_put saved ; scan arg)
+    end else scan in
+  try_flush_par Now ;
+  do_put ("<DT"^s1^">") ;
+  !cur_out.pending <- mods ;
+  flags.nitems <- flags.nitems+1;
+  open_block INTERN "" ;
+  if flags.dcount <> "" then scan ("\\refstepcounter{"^ flags.dcount^"}") ;
+  true_scan ("\\makelabel{"^arg^"}") ;
+  close_block INTERN ;
+  do_put ("<DD"^s2^">")
+;;
 
 let loc_name _ = ()
 

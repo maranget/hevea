@@ -5,15 +5,22 @@
 \usepackage{texnames}
 \usepackage{url}
 \usepackage{hevea}
+\usepackage{listings}
 \usepackage{isolatin1}
+\usepackage{amssymb}
 \usepackage{ifthen}
 \usepackage{array}
 \usepackage{graphics}
+\usepackage{bussproofs}
+\usepackage{proof}
+\usepackage{mathpartir}
 %HEVEA\usepackage{color}
 \input{macros.tex}
 \makeindex
 \input{version.tex}
-
+%\colorsections{20}
+%HEVEA\definecolor{part}{named}{BrickRed}
+\newtheorem{example}{Example}
 \title{\hevea{} User Documentation\\
 {\normalsize Version~\heveaversion}}
 \author{Luc Maranget\thanks{Inria Rocquencourt -- BP 105, 78153 Le
@@ -26,13 +33,19 @@ Chesnay Cedex. {\tt \mailto{Luc.Maranget@inria.fr}}}}
 \urldef{\ftpbase}{\url}{ftp://ftp.inria.fr/INRIA/moscova/hevea}
 \fi
 \urldef{\httpbase}{\url}{http://pauillac.inria.fr/~maranget/hevea}
+%HEVEA \setstyles{padding:3;background:\#bbddff;border:solid blue;color:black}
+%HEVEA \setHTMLstyle{.ruled-table}{padding:5;background:\#eeddbb;border:solid black;color:white}
+%HEVEA \setHTMLstyle{.part}{font-variant:small-caps;font-size:30pt}
+%HEVEA \setHTMLstyle{.title}{background:\#99bbdd}
+%HEVEA \setHTMLstyle{.titlemain}{font-size:26pt}
+%HEVEA \setHTMLstyle{.titlerest}{font-size:16pt}
 
 \begin{document}
 
 \maketitle
 
 \begin{htmlonly}
-\ifhtml
+\ifhtml 
 \def\locversion{\ifdevrelease\releasedate\else\heveaversion\fi}
 \@hr[]{}{}
 This manual also exists in
@@ -51,17 +64,13 @@ The input language is a fairly complete subset of \LaTeXe{} (old
 output language is {\html} that is (hopefully) correct with respect to
 version 4.0 transitional.
 
-Exotic symbols are translated into symbols
-pertaining to the symbol font of the {\html} browser, using the
-now standard \verb+FACE+ attribute of the \verb+FONT+ tag.
-This allows the translation to {\html} of quite a lot of the symbols used in
-\LaTeX.
-
+Recent versions of most browsers offer support for unicode entities, albeit to different extents. \hevea{} exploits this fact to translate various math symbols used in \LaTeX. As a result almost the entire set of  math symbols, including the {\tt amssymb} ones, are correctly rendered. The use of the symbol font of the {\html} browsers is no longer used, although retained for the sake for backward compatibility. 
 
 \hevea{} understands \LaTeX{} macro definitions. Simple user style
 files are understood with little or no modifications.
 Furthermore, \hevea{} customization is done by writing \LaTeX{} code.
 
+Among latest additions are support for style-sheets, babel, and some proof and math packages.
 
 \hevea{} is written in Objective Caml, as many lexers. It is
 quite fast and flexible.
@@ -74,7 +83,6 @@ smaller files, using the companion program \hacha.
 
 Information on \hevea{} is available at \ahrefurl{\heveaurl}.
 \end{abstract}
-
 
 \clearpage
 \cutdef{section}
@@ -3301,7 +3309,344 @@ text element.
 
 The \verb+alltt+ environment is supported.
 
-\section{Mathematical Formulas}
+\index{style-sheets}
+\section{Support for Style Sheets}\label{style-sheets}
+\subsection{Overview}
+\hevea{} also offers support for stylesheets. The principle is that the block level elements in the HTML output corresponding to a macro or environment are opened with a particular \emph{class}. As an example the \LaTeX{} command \verb+\subsection+ is implementad in \hevea{} using the block \emph{H3}, resulting in HTML output of the form
+\begin{verbatim}
+    <H3 CLASS=subsection>
+    ...
+    </H3>
+\end{verbatim}
+The styles for various \LaTeX{} macros and environments can be defined by making appropriate class definitions. So, in the above case, a definition for \emph{.subsection} would amounts to specifying a style for subsections. In the absence of a definition, the default style for \emph{H1} would take effect.\\
+\\
+So far so good! But how are these classes (e.g. \emph{.subsection}) defined. This is done using special \hevea{} commands, in the preamble of the \LaTeX{} document, and are transferred to the \emph{HEAD} of the HTML document. It is possible to link to an external style sheet, and/or define one's own styles. As an example the command 
+\begin{verbatim}
+    \setHTMLstyle{.subsection}{background:blue;padding:4;color:white;border:thin solid black}
+\end{verbatim}
+would result in the following entry in the style definitions in the preamble of the HTML document.
+\begin{verbatim}
+    <STYLE TYPE="text/css">
+    ...
+    ...
+    .subsection {background:blue;padding:4;color:white;border:thin solid black}
+    ...
+    ...
+    </STYLE>
+\end{verbatim}
+We now describe the usage in more detail. 
+
+\begin{enumerate}
+\item We first describe how to link to external stylesheets and define styles explicitly.  
+\item Then we describe the classes that affect different macros and environments. 
+\item We finally describe how to define enclose a particular fragment inside a \emph{DIV} with a class. This provides a way to specify styles for certain macros and environments which cannot be stylized by defining the appripriate class (e.g. HTML tables are used extensively to set math, so a style for \emph{TABLE} would leave its mark in undesired places).
+\end{enumerate}
+
+\subsection{Importing/Making Definitions}
+\subsubsection{Linking to External Style Sheets}
+\index{style-sheets!\verb+\loadcssfile+}
+The \hevea{} command {\tt $\setminus$loadcssfile\{...\}} allows the user to link to an external style sheet (like the LINK option for HTML). The command takes as argument, either the position of the file relative to the current directory (e.g {\tt ../abc.css}), or a url (e.g. {\tt http://www.styles.com/abc.css}), and emits the HTML text to \emph{link} to the file. As an example, the command
+\begin{verbatim}
+    %HEVEA \loadcssfile{../abc.css}
+\end{verbatim}
+produces the following HTML text in the \emph{HEAD} of the document.
+\begin{verbatim}
+    <LINK REL=STYLESHEET TYPE="text/css" HREF="../abc.css">
+\end{verbatim} 
+If used after the preamble, \hevea{} will ignore it after issuing a warning.
+
+\paragraph{Argument not verbose.} 
+As the argument is read in a \TeX-like way, it is not taken in verbose. Thus, if it contains special characters such as \# or \$, they must be specified as \verb+\#,\$+ respecively. However, since most files and urls do not use special symbols, the simple specification works more often than not.
+
+\paragraph{Limitations.}
+This approach, however, has its limitations. The style-sheets linked to would probably need to be modified to be \hevea-compatible, which would involve removing many definitions which could cause unwanted effects (unless the user actually \emph{wants} the unwanted effects). As an example, a style definition for SPAN would change, among others, the style of \emph{overline}d text. This means almost all predefined style files cannot be used directly. The option has still been provided for the following reasons
+\begin{enumerate}
+\item{If the user can rename the classes to erase conflicts, the files will still work well.}
+\item{The option is particularly useful if a set of styles is to be used for multiple documents generated using \hevea.}
+\item{Future releases of \hevea{} are likely to allow more flexibility.}
+\end{enumerate}
+
+\subsubsection{Defining Your Own Styles}
+There are three commands using which styles may be definied. All of them create definitions in the \emph{HEAD} of the HTML document. The user may choose the one he wants, depending on the degree of familiarity the user chooses to have with the \hevea{} internals. Needless to say, more familiarity gives more power, but also calls for a more responsible use. 
+
+\paragraph{A common theme for sectioning.}
+\index{style-sheets!\verb+\setstyles+}
+The {\tt $\setminus$setstyles\{...\}} command can be used to give a common theme for the various section headings in the document. Its advantage is that it requires no knowledge of \hevea{} internals. As an example the command
+\begin{verbatim}
+    %HEVEA \setstyles{padding:4; background:\#bbddee; color:black;font: sans-serif}
+\end{verbatim}
+sets a common style for each of sectioning elements by defining each class to have the same style, as shown below for the \emph{article} documentstyle
+\begin{verbatim}
+    <STYLE TYPE="text/css">
+    ..
+    .title {padding:4;background:#bbddee;color:black;font:sans-serif}
+    .titlemain {padding:4;background:#bbddee;color:black;font:sans-serif}
+    .titlerest {padding:4;background:#bbddee;color:black;font:sans-serif}
+    .part {padding:4;background:#bbddee;color:black;font:sans-serif}
+    .section {padding:4;background:#bbddee;color:black;font:sans-serif}
+    .subsection {padding:4;background:#bbddee;color:black;font:sans-serif}
+    .subsubsection {padding:4;background:#bbddee;color:black;font:sans-serif}
+    .paragraph {padding:4;background:#bbddee;color:black;font:sans-serif}
+    .subparagraph {padding:4;background:#bbddee;color:black;font:sans-serif}
+  ...
+  </STYLE>
+\end{verbatim} 
+These are the classes used by the title and the various sectioning macros. As an example the macro \verb+\part+ is implemented using \verb+H1 CLASS=part+. The details are given in the section on \emph{What Classes Affect What}.
+ 
+Worth noting is the use of \verb+\#bbddee+ to generate \texttt{\#bbddff}. As with linking to style-sheets, the argument is not read in verbose. In fact, the same holds for all arguments for style-sheet commands, and we shall assume that user keeps them in mind hereon. 
+
+\paragraph{Each \LaTeX{} style separately}
+\index{style-sheets!\verb+\setLATEXstyle+}
+One may choose to define a separate style for each/some of the \LaTeX{} sectioning elements using {\tt $\setminus$setLATEXstyle}. As an example the commands 
+\begin{verbatim}
+    %HEVEA \setLATEXstyle{section}{background:green;color:white;font:sans-serif}
+    %HEVEA \setLATEXstyle{titlemain}{background:\#aa9933;color:black;font:sans-serif}
+\end{verbatim}
+produce the class definitions
+\begin{verbatim}
+    .section {background:green;color:white;font:sans-serif}
+    .titlemain {background:#aa9933;color:black;font:sans-serif}
+\end{verbatim} 
+The general behaviour is to add a .(dot) in front of the first argument to generate the class. It allows the user to do a lot more than \verb+\setstyles+, such as styles for selected sectioning commands, and styles for other macros and environments (e.g \verb+itemize+) that can be stylized by \hevea.
+
+\paragraph{Each HTML style separately}
+\index{style-sheets!\verb+\setHTMLstyle+}
+Users may want to define basic HTML styles (hack straight into the HTML code produced by \hevea). They can do so using the command {\tt $\setminus$setHTMLstyle}. This option involves more care, and more careful knowledge of what classes are used where, and what attributes may be inherited (transferred to inner blocks).\\
+\\
+As a simple example, \hevea{} uses classes H1, H2, H3, H4 to create part, section, subsection, and subsubsection headings, respectively. A user who chooses to know this, can specify the styles of each of these as
+\begin{verbatim}
+    %HEVEA \setHTMLstyle{H1.part} {background:green;color:white;font:helvetica}
+    %HEVEA \setHTMLstyle{.section}{background:green;color:black;font:sans-serif}
+    %HEVEA \setHTMLstyle{H3}      {background:green;color:black;font:sans-serif}
+    %HEVEA \setHTMLstyle{H4}      {background:green;color:black;font:sans-serif}
+\end{verbatim}
+and obtain the predictable
+\begin{verbatim}
+    H1.part  {background:green;color:white;font:helvetica}
+    .section {background:green;color:white;font:sans-serif}
+    H3       {background:green;color:black;font:sans-serif}
+    H4.x.y   {background:green;color:black;font:sans-serif}
+\end{verbatim}
+The main difference with \verb+\setLATEXstyle+ is that no .(dot) is added to the class name, and that definitions such as {\tt H4.x.y} can be created. \\
+\\
+As in HTML, the definition of {\tt H1.part} will be used over the definition of {\tt .part} (if there exists one) when \texttt{<H1 CLASS=part>} is used. Similarly, So, the definition of {\tt H3} would have no effect when \texttt{<H3 CLASS=subsection>} is used, unless {\tt .subsection} is not defined.\\
+\\
+The use of this command is recommended only for users familiar with these semantics. For a first use, the previous two commands are usually sufficient. This, howver is useful for those willing to stretch the support offered by \hevea{} to its limits.  
+
+\subsubsection{Examples of Style Definitions}
+\index{style-sheets!examples}
+We now give two examples which combine the above commands.
+\begin{example}
+An input
+\begin{verbatim}
+    %HEVEA \loadcssfile{x.css}
+    %HEVEA \setHTMLstyle {H1.part}  {background:green;color:white;font:helvetica}
+    %HEVEA \setLATEXstyle{section}  {background:blue;color:white}
+    %HEVEA \setLATEXstyle{title}    {background:green;color:black;font:helvetica}
+    %HEVEA \setLATEXstyle{subsection}  {background:blue;color:white}
+    %HEVEA \setHTMLstyle {H5}          {background:cyan;color:black}
+    %HEVEA \setLATEXstyle{subparagraph}{background:magenta;color:white}
+\end{verbatim}
+in the preamble of the \LaTeX{} document will produce HTML code 
+\begin{verbatim}
+    <LINK REL=STYLESHEET type="text/css" HREF="x.css">
+
+    <STYLE type="text/css">
+      H1.part{background:green;color:white;font:helvetica}
+      H2{background:blue;color:white}
+      H1.title{background:green;color:black;font:helvetica}
+      H3{background:blue;color:white}
+      H5{background:cyan;color:black}
+      H6{background:magenta;color:white}
+    </STYLE>
+\end{verbatim}
+\end{example}
+
+\begin{example}
+An adventurous input
+\begin{verbatim}
+    %HEVEA \loadcssfile{x.css}
+    %HEVEA \loadcssfile{y.css}
+    %HEVEA \setstyles              {background:green;color:white;font:sans-serif}
+    %HEVEA \setHTMLstyle {H1.part} {background:green;color:white;font:helvetica}
+    %HEVEA \setLATEXstyle{section} {background:blue;color:white}
+    %HEVEA \setHTMLstyle{H3}       {background:cyan;color:black}
+\end{verbatim}
+will produce the following HTML output
+\begin{verbatim}
+    <LINK REL=STYLESHEET type="text/css" HREF="x.css">
+    <LINK REL=STYLESHEET type="text/css" HREF="y.css">
+  
+    <STYLE type="text/css"> 
+      .title    {background:green;color:white;font:sans-serif}
+      .titlemain      {background:green;color:white;font:sans-serif}
+      .titlerest      {background:green;color:white;font:sans-serif}    
+      .part           {background:green;color:white;font:sans-serif}
+      .section        {background:green;color:white;font:sans-serif}
+      .subsection     {background:green;color:white;font:sans-serif}
+      .subsubsection  {background:green;color:white;font:sans-serif}
+      .paragraph      {background:green;color:white;font:sans-serif}
+      .subparagraph   {background:green;color:white;font:sans-serif}
+      H1.part         {background:green;color:white;font:helvetica}
+      .section        {background:blue;color:white}
+      H3              {background:cyan;color:black}
+    </STYLE>
+\end{verbatim}
+Here {\tt .section} is defined twice, and the last definition will be used by HTML. Similarly definitions in {\tt y.css} will override those in {\tt x.css}. Also, conflicts between {\tt H1.part} and {\tt .part} will be resolved as explained above. The order of definitions is the same as the order in the \LaTeX{} document. 
+\end{example}
+
+\subsection{Which Class Affects What}
+We now specify which definitions have effects on what macros. The class names closely resemble the macros and environments, and should relatively easy to keep in mind. 
+
+\paragraph{Itemize}\index{styles for!{\tt itemize} environment}
+Governed by classes \emph{itemize} and \emph{li-itemize}. Given input
+\begin{verbatim}
+    \begin{itemize}
+      \item{x}
+    \end{itemize}
+\end{verbatim}
+produces output
+\begin{verbatim}
+    <UL CLASS=itemize>
+      <LI CLASS=li-itemize>x
+    </UL>
+\end{verbatim}
+
+\paragraph{Enumerate}\index{styles for!{\tt enumerate} environment}
+Governed by classes \emph{enumerate} and \emph{li-enumerate}. Given input
+\begin{verbatim}
+    \begin{enumerate}
+      \item{x}
+    \end{enumerate}
+\end{verbatim}
+produces output
+\begin{verbatim}
+    <OL CLASS=enumerate>
+      <LI CLASS=li-enumerate>x
+    </OL>
+\end{verbatim}
+
+\paragraph{Description}\index{styles for!{\tt description} environment}
+Governed by classes \emph{list}, emph{dt-list} and \emph{dd-list}. Given input
+\begin{verbatim}
+    \begin{description}
+      \item[x]{y}
+    \end{description}
+\end{verbatim}
+produces output
+\begin{verbatim}
+    <LIST CLASS=list>
+      <DT CLASS=dt-list>x
+      <DD CLASS=dd-list>y
+    </LIST>
+\end{verbatim}
+
+\paragraph{Sectioning Commands}\index{styles for!sectioning commands}
+The table below specifies the block level elements and respective classes.
+\begin{center}
+\begin{tabular}{|l|l|l|}
+\hline
+COMMAND&CLASS REQUIRED&HTML OUTPUT \\
+\hline
+$\setminus$part{...}         &part&$<$H1 CLASS=part$>$ ... $<$/H1$>$\\
+$\setminus$section{...}      &section&$<$H2 CLASS=section$>$ ... $<$/H2$>$\\
+$\setminus$subsection{...}   &subsection&$<$H3 CLASS=subsection$>$ ... $<$/H3$>$\\
+$\setminus$subsubsection{...}&subsubsection&$<$H4 CLASS=subsubsection$>$ ... $<$/H4$>$\\
+$\setminus$paragraph{...}    &paragraph&$<$H5 CLASS=paragraph$>$ ... $<$/H5$>$\\
+$\setminus$subparagraph{...} &subparagraph&$<$H6 CLASS=subparagraph$>$ ... $<$/H6$>$\\
+\hline
+\end{tabular}
+\end{center}
+
+\paragraph{The Title}\index{styles for!title}
+The command \verb+\maketitle+ uses a table with a single cell, with class \verb+title+, for display. The name of the title is displayed inside block H1, with class \verb+titlemain+, while all other information (author, date) are displayed inside block H3, with class \verb+titlerest+. As an example, if the title is to contain, the titlename, author, and the date, the HTML code will look like
+\begin{verbatim}
+    <TABLE ALIGN=center>
+     <TR>
+      <TD CLASS=title>
+       <H1 ALIGN=center CLASS=titlemain>..title here..</H1>
+       <H3 ALIGN=center CLASS=titlerest>..author here..</H3>
+       <H3 ALIGN=center CLASS=titlerest>..date here..</H3>
+      </TD>
+     </TR>
+    </TABLE>
+\end{verbatim}
+
+\paragraph{Proofs using `bussproofs'.}\index{styles for!{\tt bussproofs} package}
+Proofs are set using tables, and the (relevant) cells of the table are opened with class {\tt bussproofs}. A particular branch of the proof tree (which is indeed a proof tree in itself), is generated by creating a table inside that cell. Because the same class is used again, the user will notice no change, and a uniform proof will be seen. \\
+\\
+However, the {\tt border} attribute can be used very effectively here, to show the nested structure of proofs. In particular each branch would have its border, and the nested sequence of boxes gives good results (see the test file \footahref{../examples/style-test.tex}{\tt style-test.tex}, and its \hevea{} rendering \footahref{../examples/style-test.html}{\tt style-test.html} for more details).
+
+\paragraph{Proofs using `proof'.}\index{styles for!{\tt proof} package}
+As above, proofs are set using tables, and the (relevant) cells of the table are opened with class {\tt proof}. The rest of the functionality is similar to that for {\tt bussproofs}.
+
+\paragraph{Proofs using `mathpartir'.}\index{styles for!{\tt mathpartir} package} 
+Again, proofs are set using tables, and the (relevant) cells of the table are opened with class {\tt mathpartir}. The rest of the functionality is similar to that for {\tt bussproofs}.
+
+\subsection{Enclosing Things in a Styled DIV}\index{styles for!miscellaneous objexts}
+Due to internal use of certain environments by \hevea, they cannot be supported by defining an appropriate class in the preamble. A typical example would be the \texttt{table} environment. Defining a class \emph{.table} and using it universaly would also effect math constructs, such as \verb+\over,\frac,\xleftarrow,etc.+, besides many other things.\\
+\\
+One could separate \emph{internal} usages from the \emph{real} ones, using a class \emph{.internal} for the former; however, the use of constructs such as tables and arrays is too wide and entertwined to be able to do that.\\ 
+\\
+\index{style-sheets!\verb+\divstyle+}
+For such constructs, limited support for style-sheets is offered by the environment \verb+\divstyle+, which takes the name of a class as an argument, and encloses the part inside using \verb+<DIV CLASS=...>+ and \verb+</DIV>+.\\
+\\
+The limitation is that the enclosed part may generate more HTML blocks, and only the inherited style attributes shall apply uniformly inside. However, it is pretty effective for some basic styling.\\
+\\
+As an example consider the class definition below.
+\begin{verbatim}
+    \setHTMLstyle{.ruled-table}{border:solid black; padding:5; background:\#eeddbb; color:white}
+\end{verbatim}   
+Enclosing a \emph{tabular} environment using \verb+divstyle+ with the class \verb+ruled-table+ as the argument, as shown below
+\begin{verbatim}
+    $$
+    \begin{divstyle}{ruled-table}
+     \begin{tabular}{|>{\tt}c|p{0.7\hsize}|}
+      ...
+     \end{tabular}
+    \end{divstyle}
+    $$
+\end{verbatim}
+will produce output of the form
+\begin{verbatim}
+    <DIV ALIGN=center>
+     <TABLE CELLSPACING=0 CELLPADDING=0>
+      <TR VALIGN=center>
+       <TD NOWRAP>
+        <DIV CLASS=ruled-table>
+         <TABLE CELLSPACING=0 CELLPADDING=0> 
+          ....
+         </TABLE>
+        </DIV>
+       </TD>
+      </TR>
+     </TABLE>
+    </DIV>
+\end{verbatim}
+where the outer DIV and TABLE are due to the fact that the display-math mode uses a DIV to center everything, and tables to set elements formulae inside. 
+\begin{htmlonly}
+It will look something like
+$$
+\def \val {{\em v}}
+\def \arraystretch {1.4}
+%HEVEA \begin{divstyle}{ruled-table}
+\begin{tabular}{|>{\tt}c|p{0.7\hsize}|}
+\hline
+\bf English & \bf French\\
+\hline\hline
+Good Morning & Bon Jour\\
+\hline
+Thank You & Merci\\
+\hline
+Good Bye & Au Revoir\\
+\hline
+\end{tabular}
+%HEVEA \end{divstyle}
+$$
+\end{htmlonly}
+If another \verb+divstyle+ environment were used before the display-math, the effect would be another DIV enclosing the entire text, and other elements inside also getting affected (see the test file \footahref{../examples/style-test.tex}{style-test.tex}, and its \hevea{} rendering \footahref{../examples/style-test.html}{\tt style-test.html} for more details).
+
+\section{Mathematical Formulae}
 
 \subsection{Math Mode Environment}
 The three ways to use math mode (\verb+$+\ldots\verb+$+,
@@ -3324,7 +3669,7 @@ Additionally, numbering can be suppressed in one row of an
 
 Math mode is not as powerful in \hevea{} as in \LaTeX{}.  The
 limitations of math mode can often be surpassed by using math display
-mode.  As a matter of fact, math mode is for in-text formulas. From
+mode.  As a matter of fact, math mode is for in-text formulae. From
 the \html{} point of view, this means that math mode does not close
 the current flow of text and that formulas in math mode must be
 rendered using text-level elements only.  By contrast, displayed
@@ -3361,87 +3706,98 @@ When occurring outside math mode, characters \verb+_+ and \verb+^+ act as
 ordinary characters and get echoed to the output. However, a warning
 is issued.
 
-\comindex{sqrt}
-The n$^{\mbox{th}}$ root command \verb+\sqrt+ is not supported.
-The ``root'' symbol is not necessary, thanks
-to fractional exponents. For instance, the \verb+\sqrt+ command can be
-defined as follows:
-\begin{verbatim}
-\newcommand{\sqrt}[2][2]{\left(#2\right)^{1/#1}}
-\end{verbatim}
-\begin{htmlonly}
-Then, the source
-fragment: \verb"$$\sqrt[3]{\frac{1}{n!}} + \sqrt{\pi}$$" gets rendered
-as follows:
-$$
-\newcommand{\sqrt}[2][2]{\left(#2\right)^{1/#1}}
-\sqrt[3]{\frac{1}{n!}} + \sqrt{\pi}
-$$
-\end{htmlonly}
-
-
 An attempt is made to render all ellipsis constructs (\verb+\ldots+,
 \verb+\cdots+, \verb+\vdots+ and \verb+\ddots+). The effect may be
 strange for the latter two.
 
-\subsection{Mathematical symbols}
-Symbols that can be printed using browser iso-latin1 or symbol fonts
-are translated.
-Other symbols are undefined most of the time.
-Attempting to translate them will thus generate ``Unknown macro''
-warnings.
-Then, users can choose their own replacement for these symbols.
-These personal definitions are best placed in an ad-hoc style file,
-given as a command line argument to \hevea{}.
-A suggested replacement is a mix of colors and available
-symbols.
-\begin{htmlonly}
-For instance, \hevea{} cannot render the \verb+\leadsto+ symbol, but it
-can be defined as a red arrow  by:
+\subsection{Square Root}
+\index{\verb+\sqrt+}\index{sqrt}
+The n$^{\mbox{th}}$ root command \verb+\sqrt+ is supported only for n=3,4, thanks to the existence of unicode entities for the same. For the others, we shift to fractional exponents, in which case, the \verb+\sqrt+ command is
+defined as follows:
 \begin{verbatim}
-\newcommand{\leadsto}{{\red\rightarrow}}
+\newcommand{\sqrt}[3][2]{\left(#2\right)^{1/#1}}
 \end{verbatim}
-Then, \verb+$$A \leadsto B$$+ is rendered as follows:
-$$\newcommand{\leadsto}{{\red\rightarrow}}
-A \leadsto B
+\begin{htmlonly}
+Then, the source
+fragment: \verb"$$\sqrt[5]{\frac{1}{n!}} + \sqrt[3]{\pi} + \sqrt{\pi}$$" gets rendered
+as follows:
+$$
+\sqrt[5]{\frac{1}{n!}} + \sqrt[3]{\pi} + \sqrt{\pi}
 $$
 \end{htmlonly}
 
-When given the \verb+-nosymb+ option, \hevea{} silently replaces
-symbols that cannot be rendered by iso-latin1 only by text equivalents.
-These equivalents are English words by default, or French words when the
-\verb+-francais+ option is set.
+\subsection{Fractions and labelled arrows}
+\index{cfrac}\index{frac}
+The {\tt amsmath} command \verb+\frac works as in \LaTeX. \verb+\cfrac+ proccesses its optional argument and typesets material to the left or right accordingly. 
+\begin{htmlonly}
+The \LaTeX{} fragment
+\begin{verbatim}
+$$1+\cfrac[r]{\sqrt[5]{right-align}}{1 + right-align}$$
+\end{verbatim}
+would typeset in \hevea as follows
+\newcommand{\cfrac}[3][c]{%
+\ifthenelse{\equal{#1}{c}}{{#2\over #3}}{%
+\ifthenelse{\equal{#1}{l}}{{#2\@lover #3}}{%
+\ifthenelse{\equal{#1}{r}}{{#2\@rover #3}}{%
+\warning{Invalid Argument To \cfrac ignored}{#2\over #3}%
+}}}}
+$$1+\cfrac[r]{right-align}{1 + right-align}$$ 
+\end{htmlonly}
+\index{\verb+\xleftarrow+}\index{\ver+\xrightarrow+}
+The commands \verb+\xleftarrow+ and \verb+\xrightarrow+ also work well in display mode. However, the arguments are ignored when outside display mode, and an appropriate warning is issued.
 
+\begin{htmlonly}
+\newcommand{\xleftarrow}[2][]{\ifdisplay{#2\@xleft #1}\else%
+\warning{\xleftarrow outside display mode, arguments ignored}\leftarrow\fi}%
+\newcommand{\xrightarrow}[2][]{\ifdisplay{#2\@xright #1}\else%
+\warning{\xrightarrow outside display mode, arguments ignored}\rightarrow\fi}%
+Thus the fragment \verb+a \xrightarrow[2]{1} b \xleftarrow{3} c+ would appear as 
+$$a \xrightarrow[2]{1} b \xleftarrow{3} c$$
+in display mode, but as $a \xrightarrow[2]{1} b \xleftarrow{3} c$ in simple math mode.
+\end{htmlonly}
+
+\subsection{Unicode and mathematical symbols}\index{unicode}
+The support for unicode symbols offered by modern browsers allows to translate almost all math symbols correctly. However, some of the unicode encodings are not supported by all browsres. They are usually replaced by the best approximations. The rendering using advanced character encoding can be turned on by using the command line option \verb+-goodbreak+. 
+
+Users are encouraged to check with the {\tt test file} to see what symbols work correctly on their browser. It is hoped that in due time, all browsers will support these entities, whereupon \verb+-goodbreak+ can be made a default.
+
+However, the \verb+-symb+ option (which was the default earlier) allows the user to revert to rendering using iso-latin1 and symbol fonts (also disables unicode translation). The -nosymb option is now the default, and while redundant, is kept for backward compatibility. We also provide the option \verb+-noent+ which performs the same action as \verb+-symb+, but makes more sense as symbols are obsolete in \hevea.
+  
 Log-like functions and variable sized-symbols are recognized and their
 subscripts and superscripts are put where they should in display mode.
 Subscript and superscript placement can be changed using the
 \verb+\limits+ and \verb+\nolimits+ commands.
 Big delimiters are also handled.
 
-\subsection{Putting one thing above the other}
+\subsection{Putting one thing above/below/inside}
+
 \comindex{textstackrel}\comindex{textunderline}\comindex{textoverline}
 The commands \verb+\stackrel+,  \verb+\underline+ and \verb+\overline+
 are recognized.
 They produce sensible output in display mode.
 In text mode, these macros call the \verb+\textstackrel+,
 \verb+\textunderline+ and \verb+\textoverline+ macros.
-These macros perform the following default actions, which can be
-changed by redefining them:
+These macros perform the following default actions
 \begin{description}
 \item[\texttt{\char92 textstackrel}] Performs ordinary superscripting.
 \item[\texttt{\char92 textunderline}] Underlines its argument, using the
 \verb+U+ text-level element.
-\item[\texttt{\char92 textoverline}] Sends a warning message to the
-console and echoes its argument in the output.
+\item[\texttt{\char92 textoverline}] Overlines using style-sheets (used {\tt <SPAN>} with a top border). 
 \end{description}
 
-\index{math accents}
+\index{\verb+\boxed+} The command \verb+\boxed+ works well both in display and normal math mode. Input of the form \verb+\boxed{\frac{\pi}{2}}+ produces $\boxed{\frac{\pi}{2}}$ in normal math, and 
+$$\boxed{\frac{\pi}{2}}$$
+in display-math mode. The commands \verb+\bigl,\bigr+ etc. \index{\verb+\bigl,\bigr+ etc.}are also rendered well. 
+
+\subsection{Math accents}\index{math accents}
 Math accents (\verb+\hat+, \verb+\tilde+, etc.) are not
 handled\label{mathaccents} by default.
 However, the distribution includes a \texttt{mathaccents.hva} file
 that provides definitions for almost all math accents commands,
 except \verb+\check+ and \verb+\breve+.
-Rendering is far from perfect and changes from display to text mode.
+
+Rendering is far from perfect, but should get better as unicode encodings for these begin to be supported by browsers. 
+
 More precisely, the accent is put (too far) above the symbol in display mode,
 and as an ordinary superscript in text mode.
 \ifhevea{\input{mathaccents.hva}For instance, given the formula
@@ -4445,7 +4801,7 @@ However, some of the internal commands of \hevea{} are homonymous to
 Note that full compatibility with \TeX{} is not guaranteed.
 
 
-\subsubsection{À la \TeX{} macros definitions}
+\subsubsection{À la \TeX{} macros definitions}\label{texmacros}
 \comindex{def}\index{command!definition}
 The \verb+\def+ construct for defining commands is supported.
 It is important to
@@ -4662,7 +5018,7 @@ command\ifhevea, (e.g. \heveadate)\fi\\ \hline
 \end{tabular}
 \end{center}
 
-Note that I choosed to add an extra option (and not an extra
+Note that I chose to add an extra option (and not an extra
 ``\verb+\@exec+'' primitive) for security reasons. You certainly do
 not want to enable \hevea{} to execute silently an arbitrary program
 without being conscious of that fact.
@@ -4677,26 +5033,28 @@ Windows users should enjoy the same features with the version of
 \subsection{Fancy sectioning commands}
 \index{color!of section headings}
 Loading the \texttt{fancysection.hva} file will radically change the
-style of sectionnal units headers: they appear over a green
+style of sectional units headers: they appear over a green
 backgroud, the backgrould color saturation decreases as the sectioning
 commands themselves do\ifhevea{} (this is the style of this manual).\else.\fi{}
 Additionnaly, the document background color is white.
+
+\textbf{Note : }Fancy section has been re-implemented using style-sheets. While it respects the old behavior, users are encouraged to try out style-sheets for more flexibility. See Section~\ref{style-sheets} for details.
 
 The \texttt{fancysection.hva} file is intended to be loaded after
 the document base style. Thus, to use fancy section style in
 \texttt{doc.tex} whose base style is \textit{article}
 you should issue the command:
 \begin{verbatim}
-# hevea article.hva fancysection.hva doc.tex
+  # hevea article.hva fancysection.hva doc.tex
 \end{verbatim}
 You can also make a \texttt{doc.hva} file that contains the two lines:
 \begin{verbatim}
-\input{article.hva}
-\input{fancysection.hva}
+  \input{article.hva}
+  \input{fancysection.hva}
 \end{verbatim}
 And then launch \texttt{hevea} as:
 \begin{verbatim}
-# hevea doc.hva doc.tex
+  # hevea doc.hva doc.tex
 \end{verbatim}
 
 Sectioning command background colors can be changed by
@@ -4755,8 +5113,8 @@ documentation, which can usually be found in the book~\cite{latexbis},
 in your local
 \LaTeX{} installation or in a TeX CTAN-archive.
 
-At the moment, package options are ignored.
-\cutdef{subsection}
+At the moment, package options are ignored, except for the babel package, where it is essential.
+%\cutdef{subsection}
 
 \subsection{AMS compatibility}
 \hevea{} \texttt{amsmath} package defines  some of the constructs of the
@@ -4973,6 +5331,55 @@ Instead, one should perform to calls to the \verb+\newcites+ command~:
 \newcites{suf2}{Title2}
 \end{verbatim}
 
+\subsection{Support for {\tt babel}}\index{babel}
+\subsubsection{Basics}
+\hevea{} offers support for the \LaTeX{} package {\tt babel}. When it reads the command
+\begin{verbatim}
+  \usepackage[lang-list]{babel}
+\end{verbatim}
+it loads {\tt babel.hva}, and sends it the saved {\tt lang-list}. The file {\tt babel.hva} then looks at each language (say{\tt  x}) in it, and loads {\tt x.hva}, which offers support for the language {\tt x}. As in \LaTeX, the last language in the list is selected as default. As an example the command
+\begin{verbatim}
+\usepackage[english,french,german]{babel}
+\end{verbatim}
+would load {\tt babel.hva}, then the files {\tt english.hva,french.hva,german.hva} containing the respective definitions, and finally activate the definitions in {\tt greman.hva} and sets the current language to german.
+
+\subsubsection{Commands and Languages}
+The following babel commands for changing and querying the language work as in \LaTeX{} :
+\begin{enumerate}
+\item{$\setminus$selectlanguage : to change the language}
+\item{$\setminus$iflanguage : to branch after comparing with current language}
+\end{enumerate}  
+
+The language specific details are described in the corresponding \verb+.hva+ file, just as in the \verb+.sty+ file for \LaTeX. Users need to supply this file for their language, or modify/check the files if thay are already supplied with the distribution. The list of languages is given below.
+
+\begin{center}\index{babel!languages}
+\begin{tabular}{|l|l|l|l|}
+\hline
+american & austrian & brazil & catalan \\
+check & croatian & danish & dutch \\
+english & esperanto & finnish & french \\
+galician & german & italian & magyar \\
+norsk & nynorsk & polish & portuges \\
+romanian & russian & slovak & slovene \\
+spanish & swedish & turkish & \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsubsection{Writing {\tt hva} Files}
+The languages for which {\tt .hva} files are available with the dietribution are english, french, german, austrian and czech. These may need to be modified as not all accents and hyphenation techniques are supported.\\
+\\    
+They can be written/modified as simple \TeX{} files (see the section ~\ref{texmacros} on writing \TeX{} macros for details). As an example, one may also take a look at the file \footahref{../html/french.hva}{french.hva}, which describes the details for french. 
+
+Note how all definitions are \emph{inside} the definition for \verb+\french@babel+, which is the command that \verb+\selectlanguage{french}+ would call. Similar commands need to be provided (i.e. \verb+\x@babel+ in \verb+\x.hva+ for language \verb+x+).\\
+\\
+Some definitions may involeve specifying unicode encodings. The map from characters to unicode can be found at \footahref{http://www.unicode.org/charts/}{http://www.unicode.org/charts/} . Most language specific unicode characters can be found in the first few files. 
+
+\subsection{Support for Math Package \texttt{amssymb}}\index{amssymb}
+\hevea{} provides support for the \texttt{amssymb} symbols using unicode character encodings. However, a few symbols did not have any encoding yet (e.g. \verb+\varsubsetneqq+, $\varsubsetneqq$), and were approximated to their nearest kin (e.g. \verb+\subsetneqq+, $\subsetneqq$ in this case).
+\mynewline
+There were yet others which had unicode encodings, but not supported by current versions of some browsers (e.g. \verb+\ltimes+, $\ltimes$). A similar fate awaited them. However, as it is hoped that sooner rather than later, browsers will support these entities, a command-line option \verb+`-goodbrowser'+ can be used to activate them. Users are urget to try out the test file \footahref{../examples/amssymb-test.html}{amssymb-test.html}, for details on which symbols are supported by their browsers, and whether or not they should use the {\tt -goodbrowser} option.
+
 \subsection{The \texttt{url} package}\label{urlpackage}
 \comindex{url}\index{hyperlinks}\ttindex{url}{package}
 \LaTeX{} \footahref{\ctan/contrib/misc/url.sty}{source}.
@@ -5059,8 +5466,8 @@ is much more compatible with \hevea{} than
 the implementation of the latter.
 
 \subsection{Typesetting Computer Languages: the \texttt{listings} Package}
-I strongly recommand using the
-\footahref{\ctan/contrib/supported/listings}{\texttt{listings}}.
+I strongly recommend using the
+\footahref{\ctan/contrib/supported/listings}{\texttt{listings}} package.
 Learning the user interface requires a little effort, but it is worth
 it.
 
@@ -5073,12 +5480,411 @@ This can be cured, at some price in runtime cost, by
 giving \texttt{hevea} the command line option ``\texttt{-O}''
 (see Section~\ref{heveaoptions}).
 
-
 \subsection{Experimental Implementations}
 The \texttt{fancyverb} and \texttt{colortbl}
 packages are partly implemented.
 
-\cutend\cutend
+\section{Proof Packages}
+\subsection{Package \texttt{bussproofs}}\index{{\tt bussproofs} package} 
+\hevea{} offers support for the {\tt bussproofs} proof package. However, the commands used for explicit alignment, and those for changing the default spacing parameters, are not supported. The next section shows a part of the original documentation. For the original version of the documentation, users are referred to the style file \footahref{bussproofs.sty}{\tt bussproofs.sty}. Users familiar with the package may skip the first few sections and move to the last one, where the commands that are not supported, or those that deviate from their \LaTeX{} behavior, are detailed.
+
+\subsubsection{Basics}
+{\tt bussproofs} allows the construction of proof trees in the style of the sequent calculus and many other proof systems. Proofs are specified in left-to-right post-traversal order. For example a proof    
+\begin{prooftree}
+ \AxiomC{D}
+ \AxiomC{A}
+ \AxiomC{B}
+ \BinaryInfC{C}
+ \BinaryInfC{E}
+\end{prooftree}
+is given in the order D,A,B,C,E. The above proof tree would be displayed with the commands:
+\begin{verbatim}
+    \AxiomC{D}
+    \AxiomC{A}
+    \AxiomC{B}
+    \BinaryInfC{C}
+    \BinaryInfC{E}
+    \DisplayProof
+\end{verbatim}
+Each line in the proof is specified according to the arity of the inference which generates it. Thus, E would be specified with a $\setminus$BinaryInf or $\setminus$BinaryInfC command. Inferences in a proof may be nullary (axioms), unary, binary, or trinary.\\
+\\
+\textbf{NOTE : }You must give the $\setminus$DisplayProof command to make the proof be printed.  To display a centered proof on a line by itself, put the proof inside
+\begin{center}
+$\setminus$begin\{center\} ... $\setminus$end\{center\}
+\end{center}
+There are two styles for specifying horizontal centering of lines (formulas or sequents) in a proof. 
+\begin{enumerate}
+\item{One format $\setminus$AxiomC\{...\} just centers the formula \{...\} in the usual way.}
+\item{The other format is $\setminus$Axiom\$...$\setminus$fCenter...\$. Here, the $\setminus$fCenter specifies the center of the formula.}
+\end{enumerate}
+\textbf{NOTE : }$\setminus$fCenter is ignored by \hevea{} and the judgement behaves as above.\\
+\\
+Unary, Binary, Trinary inferences are specified with the same format as Axioms.
+
+\subsubsection{Labels}
+Often, one wishes to place a label next to an inference, usually to specify the type of inference.  These labels can be placed by using the commands $\setminus$LeftLabel\{...\} and $\setminus$RightLabel\{...\} immediately before the command which specifies the inference. For example, to generate
+\begin{prooftree}
+ \AxiomC{A}
+ \AxiomC{B}
+ \RightLabel{X}
+ \BinaryInfC{C}                                     
+\end{prooftree}
+use the commands  
+\begin{verbatim}
+    \AxiomC{A}
+    \AxiomC{B}
+    \RightLabel{X}
+    \BinaryInfC{C}
+    \DisplayProof
+\end{verbatim}
+\textbf{NOTE : } You can have both left and right labels on an inference.
+
+\subsubsection{Abbreviations}
+By using the optional $\setminus$EnableBpAbbreviations command, various abbreviated commands are enabled.  This allows\\
+$~~~~~~~~\setminus$AX and $\setminus$AXC for $\setminus$Axiom and $\setminus$AxiomC, (resp.),\\
+$~~~~~~~~\setminus$DP for $\setminus$DisplayProof,\\
+$~~~~~~~~\setminus$BI and $\setminus$BIC for $\setminus$BinaryInf and $\setminus$BinaryInfC,\\
+$~~~~~~~~\setminus$UI and $\setminus$UIC for $\setminus$UnaryInf  and $\setminus$UnaryInfC,\\
+$~~~~~~~~\setminus$TI and $\setminus$TIC for $\setminus$TrinaryInf and $\setminus$TrinaryInfC,\\
+$~~~~~~~~\setminus$LL and $\setminus$RL for $\setminus$LeftLabel and $\setminus$RightLabel.\\
+\\
+The enabling of these short abbreviations is OPTIONAL, since there is the possibility of conflicting with names from other macro packages.
+
+\subsubsection{Separators}
+By default, the inferences have single horizontal lines (scores). This can be overridden using the $\setminus$doubleLine command. This affects only the next inference. You can make make a permanent override that applies to the rest of the current proof using $\setminus$alwaysDoubleLine. \\
+\\
+The package provides similar macros, and a complete list is given in the table below.
+
+\begin{table}[h]
+\begin{center}
+\begin{tabular}{|l|l|}
+\hline
+$\setminus$singleLine & $\setminus$alwaysSingleLine\\
+$\setminus$noLine & $\setminus$alwaysNoLine\\
+$\setminus$dashedLine & $\setminus$alwaysDashedLine\\
+$\setminus$solidLine & $\setminus$alwaysSolidLine\\
+$\setminus$doubleLine & $\setminus$alwaysDoubleLine\\
+$\setminus$dottedLine & $\setminus$alwaysDottedLine\\
+\hline
+\end{tabular}
+\caption {Package \textsc{bussproofs} : Separators}
+\end{center}
+\end{table}
+
+\subsubsection{Displaying Proofs}
+The $\setminus$DisplayProof command displays the proof as a text item.  This allows you to put proofs anywhere normal text might appear; for example, in a paragraph, in a table, in a tabbing environment, etc.\\
+\\
+For displaying proofs in a centered display use 
+\begin{verbatim}
+    \begin{center} ... \DisplayProof \end{center}
+\end{verbatim}
+Actually there is a better construction to use instead. This is to write
+\begin{verbatim}
+    \begin{prooftree} ... \end{prooftree}
+\end{verbatim}
+\textbf{Note : } There is no $\setminus$DisplayProof used here; as the closeing of the environment automatically calls the command.\\
+\\
+\textbf{Warning : }Any commands that set line types or set vertical or horizontal alignment that are given AFTER the $\setminus$DisplayProof command will affect the next proof, no matter how distant.
+
+\subsubsection{Summary}                                        
+The complete list of commands is
+\begin{verbatim}
+    \Axiom$<antecedent>\fCenter<succedent>$
+    \UnaryInf$<antecendent>\fCenter<succedent>$
+    \BinaryInf$<antecendent>\fCenter<succedent>$
+    \TrinaryInf$<antecendent>\fCenter<succedent>$
+    \AxiomC{<sequent}         \UnaryInfC{<sequent>}
+    \BinaryInfC{<sequent>}    \TrinaryInfC{<sequent>}
+    \doubleLine               \alwaysDoubleLine
+    \noLine                   \alwaysNoLine
+    \singleLine               \alwaysSingleLine
+    \solidLine                \alwaysSolidLine
+    \dottedLine               \alwaysDottedLine
+    \dashedLine               \alwaysDashedLine
+    \LeftLabel{<label>}       \RightLabel{<label>}
+    \DisplayProof
+\end{verbatim}
+
+\subsubsection{Deviation from \LaTeX{} behavior}
+The, commands used for explicit alignment, and those for changing the default spacing parameters, are not supported. All proofs are horizontally aligned to the center, and vertically to the bottom. The table below details the commands.
+
+\begin{table}[h]
+\begin{center}
+\begin{tabular}{|l|l|l|}
+\hline
+Command & Function in \LaTeX & Function in \hevea\\
+\hline
+$\setminus$fCenter & takes this as center of & ignored, judgement centered\\
+ & the judgement & as a whole\\
+$\setminus$kernHyps & shifts hypothesis right by & no explicit shifts allowed\\
+ & specified distance & \\
+$\setminus$insertBetweenHyps & insert specified horizintal space & $\geq 3$ blank spaces between\\
+ & between hypotheses & hypotheses\\
+$\setminus$bottomAlignProof & vertical alignment towards & already default\\
+ & the bottom & \\
+$\setminus$centerAlignProof & vertical alignment towards & simply ignored\\
+ & the center & \\
+$\setminus$normalAlignProof & \LaTeX{} tries to align & --do--\\
+ & best it can & \\
+\hline
+\end{tabular}
+\caption {Package \textsc{bussproofs} : Departure from \LaTeX{} behavior}
+\end{center}
+\end{table}
+The other commands behave as in \LaTeX.
+
+\subsection{Package \texttt{proof}}\index{{\tt proof} package}
+
+The package {\tt proof} is also supported by \hevea, and a brief description is given below. The original documentation for the package can be found in the style file \footahref{proof.sty}{\tt proof.sty}. Proofs are specified in left-to-right pre-traversal order, with the premises separated by \&s. For example a proof    
+$$
+\infer{A}{
+        \infer=[\imp E]{B}{
+                \frac{\Pi}{2}
+                &
+                \infer[\wedge E$_1$]{B21}{B21 \wedge B22} 
+                & 
+                D1 \wedge D2
+        }
+        &
+        \infer={C}{C11 \wedge C12}
+}
+$$
+would be obtained using:
+\begin{verbatim}
+ \infer{A}{
+        \infer=[\to E]{B}{
+                \frac{\Pi}{2}
+                &
+                \infer[\wedge E$_1$]{B21}{B21 \wedge B22} 
+                & 
+                D1 \wedge D2
+        }
+        &
+        \infer={C}{C11 \wedge C12}
+ }
+\end{verbatim}
+The labels are optional arguments and are set on the right of the inference. The standard macro is $\setminus$infer. However, there are three other variants, resulting in different methods used to separate premises and the conclusion. The table below outlines them.
+
+\begin{table}[h]
+\begin{center}
+\begin{tabular}{|l|l|}
+\hline
+Command & Kind of Separator\\
+\hline
+$\setminus$infer & single line\\
+$\setminus$infer= & thick line (double in \LaTeX)\\
+$\setminus$infer$\star$ & no line\\
+$\setminus$deduce & three vertical dots\\
+\hline
+\end{tabular}
+\caption {Package \textsc{proof} : Separators}
+\end{center}
+\end{table}
+\noindent\textbf{Note : } All of them, even $\setminus$infer= macro, take optional arguments.
+
+\subsection{Package \texttt{mathpartir}}\index{{\tt mathpartir} package}
+\hevea{} includes support for the package \texttt{mathpartir}, useful firstly for typesetting several formulae on the same line, and secondly for typesetting inference rules. For the new users, a brief \hevea compatible description (lifted from the original documentation) is given below. For more details, the user is referred to the \footahref{mathpartir.ps}{\tt original documentation} for details. 
+
+The accustomed users may skip most of the following section, but are advised to look at \texttt{the change} that them might need to make if using the \verb+\inferrule+ macro. 
+
+\subsubsection {The mathpar environment}\index{{\tt mathpartir} package!{\tt mathpar} environment}
+
+The mathpar environment is a ``paragraph mode for formulae''. It  allows to typeset long list of formulas putting as many as possible on the same line: 
+$$
+\begin{tabular}{m{0.40\hsize}m{0.1\hsize}m{0.40\hsize}}
+\begin{lstlisting}{Ocaml}
+\begin{mathpar}
+A-Formula \and 
+Longer-Formula \and 
+And \and The-Last-One
+\end{mathpar}
+\end{lstlisting}
+&
+~~~
+&
+\begin{mathpar}
+A-Formula 
+\and
+Longer-Formula
+\and
+And 
+\and
+The-Last-One
+\end{mathpar}
+\end{tabular}
+$$
+Formulae are separated by \verb"\and" (or equivalently by a blank line). 
+To enforce a vertical break it sufficies to replace \verb"\and" by
+\verb"\\". 
+
+The implementation of \verb"mathpar" entirely relies on the paragraph mode for text. It starts a new paragraph, and a math formula within a paragraph, after adjusting the spacing and penalties for breaks. Then, it simply binds \verb"\and" to something like \verb"\goodbreak". \\
+
+\noindent
+\subsubsection {The inferrule macro}\index{{\tt mathpartir} package!\verb+\inferrule+}
+
+The \verb"\inferrule" macro is designed to typeset inference rules. It should only be used in math mode (or display math mode). It takes three arguments, the first being optional, specifying the label, premises, and conclusions respectively. The premises and the conclusions are both lists of formulae, and are separated by \verb"\\". 
+
+A simple example of its use is 
+\begin{verbatim}
+\inferrule
+  [label]
+  {one \\ two \\ three \\ or \\ more \\ premisses}
+  {and \\ any \\ number \\ of \\ conclusions \\ as \\ well}
+\end{verbatim}
+which gives the following rendering on a large page
+\def \one {\inferrule [label]
+  {one \\ two \\ three \\ or \\ more \\ premisses}
+  {and \\ any \\ number \\ of \\ conclusions \\ as \\ well}
+}
+$$
+\ifhevea \one
+\else
+\mbox{$$\one$$}
+\fi
+$$
+and automatically give something like this on a narrower one 
+like that:
+\def \two {\inferrule[label]
+  {one \\\\ two \\ three \\ or \\\\ more \\ premisses}
+  {and \\ any \\ number \\\\ of \\ conclusions \\\\ as \\ well}
+}
+$$
+\ifhevea \two
+\else
+\mbox{$$\two$$}
+\fi
+$$
+
+\noindent
+Note the dissymetry between typesetting of the premisses and of conclusions where lines closer to the center are fit first. A newline can be forced by adding an empty line \verb"\\\\", as shown below.
+
+\begin{tabular}{m{0.40\hsize}m{0.1\hsize}m{0.40\hsize}}
+\begin{lstlisting}{Ocaml}
+\inferrule 
+   {aa \\\\ bb}
+   {dd \\ ee \\ ff}
+\end{lstlisting}
+&
+~~~
+&
+$\inferrule {aa \\\\bb}{dd \\ ee \\ ff}$
+\\
+\end{tabular}
+
+\noindent
+
+\subsubsection{Options}
+The horizontal bar separating the premises and conclusions is omitted if either the premises or the conclusions are empty. To obtain the bar, one must use \verb"{ }" instead of \verb"{}" when specifying the empty argument.\\
+
+\noindent
+By default, lines are centerred in inference rules. However, this can be changed either by using \verb"\mprset{flushleft}" or \verb"\mprset{center}", as shown below. 
+
+\begin{tabular}{m{0.40\hsize}m{0.12\hsize}m{0.40\hsize}}
+\begin{lstlisting}{Ocaml}
+$$\mprset{flushleft}
+  \inferrule 
+    {a \\ bbb \\\\ ccc \\ dddd}
+    {e \\ ff \\\\ gg}
+$$ 
+\end{lstlisting}
+&
+~~~~~
+&
+$$\mprset{flushleft} 
+\inferrule {a \\ bbb  \hva \\ ccc \\ dddd}{e \\ ff \\\\ gg}$$
+\\
+\end{tabular}  
+
+\subsubsection {Derivation trees}\index{{\tt mathpartir} package!derivation trees}
+
+To help writing cascades of rules forming a derivation tree, inference rules
+can also be aligned on their bottom line. For this, we use the star-version of \verb+\inferrule+.\\
+
+\noindent
+\textbf{NOTE : }However, there is one significant difference, that accustomed \verb+mathpartir+ users must take special note of. The premises and conclusions are now separated by \verb +\and+ instead of \verb+\\+ (used earlier). This change has no effect on the layout in \LaTeX, while allowing \hevea{} to get around a small limitation. Linebreaks are forced by \verb+\\\\+ as usual. A simple example is given below. 
+$$
+\begin{tabular}{m{0.45\hsize}m{0.1\hsize}m{0.45\hsize}}
+\begin{lstlisting}{Ocaml}
+\inferrule*
+   {\inferrule* {aa \and bb}{cc}
+    \and dd}
+   {ee}
+\end{lstlisting}
+&
+~~~~~~
+&
+$
+\inferrule*
+   {\inferrule* {aa \and bb}{cc}
+    \and dd}
+   {ee}
+$
+\\
+\end{tabular}
+$$
+ 
+\noindent
+The optional arguments here follow different semantics. They are parsed by the 
+\verb"keyval" package, so as to offer a set of record-like options, as described in the table below.$$
+\def \val {{\em v}}
+\def \arraystretch {1.4}
+\begin{tabular}{|>{\tt}c|p{0.7\hsize}|}
+\hline
+\bf key & \bf Effect for value {\val}
+\\\hline\hline
+before & Execute {\val} before typesetting the rule.
+         Useful for instance to change the maximal width of the rule.
+\\\hline
+width &  Set the width of the rule to {\val}
+\\\hline
+narrower & Set the width of the rule to {\val} times \verb"\hsize".
+\\\hline
+left & Put a label {\val} on the left of the rule
+\\\hline
+Left & Idem, but as if the label had zero width. 
+\\\hline
+Right & As \verb"Left", but on  the right of the rule.
+\\\hline
+right & As \verb"left",  but on the right of the rule.
+\\\hline
+leftskip & Cheat by (skip negative space) {\val} on the left side.
+\\\hline
+rightskip & Cheat by {\val} on the right side of the rule.
+\\\hline
+vdots & Raise the rule by {\val} and insert vertical dots. 
+\\\hline
+\end{tabular}
+$$
+
+As an example, the code
+\begin{lstlisting}{Ocaml}
+\begin{mathpar}
+\inferrule* [Left=Foo]
+   {\inferrule* [Right=Bar,width=8em,
+                 leftskip=2em,rightskip=2em,vdots=1.5em]
+      {a \and a \and bb \\\\ cc \and dd}
+      {ee}
+    \and ff \and gg}
+   {hh}
+\and
+\inferrule* [lab=XX]{uu \and vv}{ww}
+\end{mathpar}
+\end{lstlisting}
+produces output of the form
+\begin{mathpar}
+\inferrule* [Left=Foo]
+   {\inferrule* [Right=Bar,width=8em,
+                 leftskip=2em,rightskip=2em,vdots=1.5em]
+      {a \and a \and bb \\\\ cc \and dd}
+      {ee}
+    \and ff \and gg}
+   {hh}
+\and
+\inferrule* [lab=XX]{uu \and vv}{ww}
+\end{mathpar}
+
+%\cutend
+\cutend
 \setcounter{section}{0}
 
 \part{Practical information}
@@ -5218,24 +6024,12 @@ section~\ref{esponjausage}).
 \item[{\tt -exec} {\it prog}] Execute file \textit{prog} and read the
 output. The file \textit{prog} must have execution permission and is
 searched by following the searching rules of~\texttt{hevea}.
-\item[{\tt -francais}] Set French mode.
-This has three consequences:
-\begin{itemize}
-\item Some words inserted by \LaTeX{} (such as ``Chapter'',
-``Bibliography'', \ldots) are replaced by French word.
-\item Text replacement for symbols are  in French (see the
-\texttt{-nosymb} option below).
-\item \texttt{hevea} sets the boolean register \texttt{french} to
-\textit{true}.
-\end{itemize}
-\item[{\tt -nosymb}] Avoid symbol font.
-In this mode, symbols are replaced by text-only equivalents. By
-default, these equivalent are in English.
-\item[{\tt -noiso}] Do not output (iso-latin1) characters whose code
-is above 127 (i.e. output ascii only).
-These characters are replaced by \html{} entities. This option is
-mostly useful for generating \html{} that will be displayed properly
-by \emph{Netscape Communicator} on a Macintosh.
+\item[{\tt -francais}] Obsolete after support for {\tt babel}. Was used to set French mode. 
+\item[{\tt -entities}] Obsolete now as unicode entities are used by default to render symbols.
+\item[{\tt -symb}] To use symbol fonts to render symbols. 
+\item[{\tt -noent}] A logical option after the above extesion, used to turn off the use of unicode entities. 
+\item[{\tt -nosymb}] Obsolete now. Used to avoid symbol font earlier, but that is so by default as entities are used. In this mode, symbols were replaced by text-only equivalents.
+\item[{\tt -noiso}] Obsolete as with {\tt -nosymb}. Earlier used to not output (iso-latin1) characters whose code was above 127 (i.e. output ascii only).
 \item[{\tt -pedantic}]  Be strict in interpreting \html{}
 definition. In particular, this option disable size and color changes inside
 \verb+<PRE>+\ldots{} \verb+</PRE>+, which are otherwise performed.

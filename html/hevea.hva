@@ -145,7 +145,7 @@
       {}%
       {\@open{##1}{ALIGN=center CLASS=##2}\usebox{##3}\@close{##1}}%
     }%
-  \@open{TABLE}{CELLPADDING=1.5ex ALIGN=center}\@open{TR}{}\@open{TD}{CLASS=titlecommon}%
+  \@open{TABLE}{CELLPADDING=1.5ex ALIGN=center}\@open{TR}{}\@open{TD}{CLASS=title}%
   \checkbox{H1}{titlemain}{\@title}%
   \checkbox{H3}{titlerest}{\@author}%
   \checkbox{H3}{titlerest}{\@date}%

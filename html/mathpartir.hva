@@ -136,8 +136,8 @@
 \define@key {mpr}{Lab}{\def \@@rulename {\mpr@name {#1}}}
 \define@key {mpr}{reduce}[]{\let \hhline \hh@arrow}
 
-\let \infer \inferrule
-\let \infer* \inferrule*
+%\let \infer \inferrule
+%\let \infer* \inferrule*
 
 \endinput
 

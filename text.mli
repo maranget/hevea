@@ -61,7 +61,9 @@ open Lexstate
     val set_dcount : string -> unit
     val item  : unit -> unit
     val nitem : unit -> unit
+    val item_with_class : string -> unit
     val ditem : (string -> unit) -> string -> unit
+    val ditem_with_class : (string -> unit) -> string -> string -> string -> unit
     val erase_block : string -> unit
     val open_group : string -> unit
     val open_aftergroup : (string -> string) -> unit

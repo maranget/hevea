@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.241 2004-07-22 18:55:04 thakur Exp $ *)
+(* $Id: latexscan.mll,v 1.242 2004-07-27 01:24:49 thakur Exp $ *)
 
 
 {
@@ -2052,13 +2052,22 @@ def_fun "\\lowercase" Subst.lowercase ;
 (* list items *)
 def_code "\\@li" (fun _ -> Dest.item ()) ;
 def_code "\\@linum" (fun _ -> Dest.nitem ()) ;
+def_code "\\@itemize@li" 
+  (fun _ -> Dest.item_with_class " CLASS=li-itemize ") ;
+def_code "\\@enumerate@linum" 
+  (fun _ -> Dest.item_with_class " CLASS=li-enumerate ") ;
 def_code "\\@dt"
   (fun lexbuf ->
     let arg = subst_arg lexbuf in
     Dest.ditem (scan_this main) arg ;
     check_alltt_skip lexbuf)
 ;;
-
+def_code "\\@list@dtdd"
+  (fun lexbuf ->
+    let arg = subst_arg lexbuf in
+    Dest.ditem_with_class (scan_this main) arg " CLASS=dt-list " " CLASS=dd-list ";
+    check_alltt_skip lexbuf)
+;;
     
 (* Html primitives *)
 def_code "\\@open"

@@ -43,7 +43,7 @@
 %%% e.g. \setstyles{background:blue;color:white;font:sans-serif}
 %%%
 \newcommand{\setstyles}[1]{%
-\newstyle{.titlecommon}{#1}%
+\newstyle{.title}{#1}%
 \newstyle{.titlemain}{#1}%
 \newstyle{.titlerest}{#1}%
 \newstyle{.part}{#1}%

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.61 2004-07-22 18:55:06 thakur Exp $"
+let header = "$Id: text.ml,v 1.62 2004-07-27 01:24:50 thakur Exp $"
 
 
 open Misc
@@ -971,6 +971,8 @@ let item () = do_item false
 and nitem () = do_item true
 ;;
 
+let item_with_class s = do_item false
+;;
     
 let ditem scan arg =
   if !verbose > 2 then begin
@@ -993,7 +995,8 @@ let ditem scan arg =
   do_put_char ' '
 ;;
 
-
+let ditem_with_class scan arg s1 s2 = ditem scan arg
+;;
 
 let erase_block s = 
   if not !cur_out.temp then close_block s
