@@ -1,0 +1,8 @@
+\@beginpackage{color}
+\newcommand{\definecolor}[3]{}
+\newcommand{\DefineNamedColor}[4]{}
+\newcommand{\@getcolor}[2][]{}
+\newcommand{\color}[2][!*!]{}
+\newcommand{\textcolor}[3][!*!]{{#3}}
+\newenvironment{bgcolor}[2][]{}{}
+\@endpackage{color}

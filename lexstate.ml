@@ -1,4 +1,4 @@
-let header =  "$Id: lexstate.ml,v 1.36 1999-11-05 19:02:13 maranget Exp $"
+let header =  "$Id: lexstate.ml,v 1.37 1999-11-24 19:01:05 maranget Exp $"
 
 open Misc
 open Lexing
@@ -312,6 +312,7 @@ and save_arg_with_delim delim lexbuf =
 and save_filename lexbuf = full_save_arg eof_arg pstring Save.filename lexbuf
 and save_verbatim lexbuf =
   full_save_arg eof_arg pstring Save.arg_verbatim lexbuf
+
 let eof_opt def () = No def,Top
 
 let save_arg_opt def lexbuf =

@@ -73,12 +73,12 @@ latexmain.cmx: auxx.cmx color.cmx colscan.cmx counter.cmx foot.cmx get.cmx \
     videoc.cmx zyva.cmx 
 latexscan.cmo: auxx.cmi counter.cmi foot.cmi get.cmi imageManager.cmi \
     latexmacros.cmi length.cmi lexstate.cmi location.cmi misc.cmi myfiles.cmi \
-    mylib.cmi out.cmi outManager.cmi parse_opts.cmi save.cmi section.cmi \
-    stack.cmi subst.cmi tabular.cmi latexscan.cmi 
+    mylib.cmi out.cmi outManager.cmi parse_opts.cmi save.cmi stack.cmi \
+    subst.cmi tabular.cmi latexscan.cmi 
 latexscan.cmx: auxx.cmx counter.cmx foot.cmx get.cmx imageManager.cmi \
     latexmacros.cmx length.cmx lexstate.cmx location.cmx misc.cmx myfiles.cmx \
-    mylib.cmx out.cmx outManager.cmi parse_opts.cmx save.cmx section.cmx \
-    stack.cmx subst.cmx tabular.cmx latexscan.cmi 
+    mylib.cmx out.cmx outManager.cmi parse_opts.cmx save.cmx stack.cmx \
+    subst.cmx tabular.cmx latexscan.cmi 
 length.cmo: length.cmi 
 length.cmx: length.cmi 
 lexstate.cmo: location.cmi misc.cmi myfiles.cmi parse_opts.cmi save.cmi \
@@ -97,8 +97,8 @@ myfiles.cmo: misc.cmi mylib.cmi parse_opts.cmi myfiles.cmi
 myfiles.cmx: misc.cmx mylib.cmx parse_opts.cmx myfiles.cmi 
 mylib.cmo: mylib.cmi 
 mylib.cmx: mylib.cmi 
-noimage.cmo: misc.cmi noimage.cmi 
-noimage.cmx: misc.cmx noimage.cmi 
+noimage.cmo: noimage.cmi 
+noimage.cmx: noimage.cmi 
 out.cmo: misc.cmi out.cmi 
 out.cmx: misc.cmx out.cmi 
 package.cmo: auxx.cmi color.cmi get.cmi imageManager.cmi index.cmi \

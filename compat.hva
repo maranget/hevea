@@ -1,6 +1,6 @@
 \@stopoutput\@stopimage% Avoid echo to image file
 \let\@url\ahref%
 \def\url#1#2{\@url{#1}{#2}}%
-\let\oneurl=\ahrefurl
-\def\home#1{\char126#1}%
+\def\oneurl#1{\@url{#1}{\texttt{#1}}}
+\let\footurl\url
 \@restartimage\@restartoutput%

@@ -1,6 +1,5 @@
 \input{article.hva}
 \input{fancysection.hva}
-\newcommand{\heveaurl}{http://pauillac.inria.fr/\home{maranget}/hevea}
 \newcommand{\BibTeX}{Bib\TeX}
 \newenvironment{showlatex}{\begin{toimage}}{\end{toimage}\imageflush}
 \newcommand{\myrule}{\@hr[HR NOSHADE SIZE=1 ALIGN=center]{}{}}

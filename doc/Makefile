@@ -51,14 +51,19 @@ info: manual.inf tmp.tex
 install:
 	-mkdir $(DOCDIR)
 	cp iso.html symbol.html index.html manual[0-9][0-9][0-9].html *.gif $(DOCDIR)
-
+	cp ../html/urlhref.hav $(DOCDIR)
 ############# Release stuff
 VERSIONFILE=../version.ml
-version:: $(VERSIONFILE)
+devversion::
+	 sed  -e "s/^let release_date = .*/let release_date = \"`date +%Y-%m-%d`\"/" $(VERSIONFILE) > /tmp/version.ml && mv /tmp/version.ml $(VERSIONFILE)
+	cvs commit -m version $(VERSIONFILE)
+
+
+doversion:: $(VERSIONFILE)
 	- rm -f version.make version.tex
-	sed -n -e 's/^let version = "\(.*\)".*$$/\\def\\heveaversion{\1}/p' $(VERSIONFILE) > version.tex
-	sed -n -e 's/^let version = "\(.*\)".*$$/VERSION=\1/p' $(VERSIONFILE) > version.make
-	sed -n -e 's/^let version = "\(.\)\.\(.*\)".*$$/RELEASETAG=release-\1-\2/p' $(VERSIONFILE) >> version.make
+	sed -n -e 's/^let real_version = "\(.*\)".*$$/\\def\\heveaversion{\1}/p' $(VERSIONFILE) > version.tex
+	sed -n -e 's/^let real_version = "\(.*\)".*$$/VERSION=\1/p' $(VERSIONFILE) > version.make
+	sed -n -e 's/^let real_version = "\(.\)\.\(.*\)".*$$/RELEASETAG=release-\1-\2/p' $(VERSIONFILE) >> version.make
 
 
 include version.make
@@ -69,7 +74,7 @@ RELEASENAME=hevea-$(VERSION)
 FTPDIR=/home/tobago/para-ftp/hevea
 UNSTABLE=
 
-dorelease:
+dorelease: doversion
 # hevea relase
 	cd $(RELEASEDIR) ; rm -rf $(RELEASENAME) ;\
 	cvs -d $(CVSDIR) export  $(RELEASEOPT) -l htmlgen htmlgen/html htmlgen/text htmlgen/info ;\
@@ -100,6 +105,7 @@ testrelease:
 	$(MAKE) $(MFLAGS) dorelease RELEASEOPT="-D now"
 
 devrelease:
+	$(MAKE) devversion
 	/bin/rm -rf ${FTPDIR}/unstable ; mkdir ${FTPDIR}/unstable
 	$(MAKE) $(MFLAGS) dorelease VERSION=`date +%Y-%m-%d` RELEASENAME="hevea-`date +%Y-%m-%d`" RELEASEOPT="-D now" FTPDIR="${FTPDIR}/unstable"
 	$(MAKE) install DOCDIR=$(HOME)/public_html/hevea/newdoc

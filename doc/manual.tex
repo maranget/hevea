@@ -3,6 +3,7 @@
 \usepackage{fullpage}
 \usepackage{makeidx}
 \usepackage{texnames}
+\usepackage{url}
 \usepackage{../hevea}
 \usepackage{isolatin1}
 \usepackage{epsf}
@@ -18,8 +19,9 @@
 %%%%%%%%%%%%%%%%%%%%
 \newcommand{\commandname}[1]{{\tt #1}}
 \newcommand{\filename}[1]{{\em #1}}
-\newcommand{\urlex}[1]{\footurl{\heveaurl/examples/#1}{\texttt{#1}}}
-\newcommand{\localurl}[1]{\footurl{\heveaurl/doc/#1}{\texttt{#1}}}
+\urldef{\heveaurl}{\url}{http://pauillac.inria.fr/~maranget/hevea/}
+\newcommand{\urlex}[1]{\footahref{\heveaurl/examples/#1}{\texttt{#1}}}
+\newcommand{\localurl}[1]{\footahref{\heveaurl/doc/#1}{\texttt{#1}}}
 \newcommand{\myrule}{\rule{\linewidth}{.05ex}}
 \newenvironment{htmlout}
 {\begingroup\linewidth=.8\linewidth\begin{quote}%
@@ -49,19 +51,15 @@ Chesnay Cedex. {\tt \mailto{Luc.Maranget@inria.fr}}}}
 
 \maketitle
 
-\newcommand{\ftpbase}{ftp://ftp.inria.fr/INRIA/Projects/para/hevea}%
-\newcommand{\httpbase}{http://para.inria.fr/\home{maranget}/hevea}%
+\urldef{\ftpbase}{\url}{ftp://ftp.inria.fr/INRIA/Projects/para/hevea}%
+\urldef{\httpbase}{\url}{http://pauillac.inria.fr/~maranget/hevea}%
 \begin{htmlonly}
 \ifhtml
-\@print{
-<HR>
-}%
+\@hr[]{}{}
 This manual also exists in
-\url{\ftpbase/hevea-\heveaversion-manual.ps.gz}{Postscript} and and as
-a \url{\ftpbase/hevea-\heveaversion-manual.tar.gz}{bundle of HTML files}.
-\@print{
-<HR>
-}%
+\ahref{\ftpbase/hevea-\heveaversion-manual.ps.gz}{Postscript} and and as
+a \ahref{\ftpbase/hevea-\heveaversion-manual.tar.gz}{bundle of HTML files}.
+\@hr[]{}{}
 \fi
 \end{htmlonly}
 
@@ -94,7 +92,7 @@ smaller files, using the companion program \hacha.
 
 \hevea{} can also be instructed to output plain text or info files.
 
-Information on \hevea{} is available at \oneurl{\heveaurl}.
+Information on \hevea{} is available at \ahrefurl{\heveaurl}.
 \end{abstract}
 
 
@@ -138,8 +136,7 @@ $x \in {\cal E}$
 <I>x</I> <FONT FACE=symbol>Î</FONT> <FONT COLOR=red><I>E</I></FONT>
 \end{verbatim}
 
-You can find some more elaborate
-\footurl{\heveaurl/examples/}{examples} in the on-line
+You can find some more elaborate \urlex{examples} in the on-line
 documentation.
 
 \section{Style files}
@@ -1025,9 +1022,12 @@ document.
 Note that \hevea{} copes with the constructs defined in
 the \texttt{hevea.sty} file by default.
 It is important to notice that the \texttt{hevea.sty} style file from
-the distribution is not compatible with old \LaTeX{}.
+the distribution is a \emph{package} in \LaTeXe{} terms and that it
+is not compatible with old \LaTeX{}. Moreover, the \texttt{hevea}
+package loads the \texttt{comment} package which must be present.
 
-\subsubsection{Selecting a translator}
+
+\subsubsection{Environments for selecting a translator}
 \hevea{} and \LaTeX{} perform the following actions on source inside
 the  \verb+latexonly+, \verb+verblatex+, \verb+htmlonly+, \verb+rawhtml+,
 \verb+toimage+ and \verb+verbimage+ environments:
@@ -1152,126 +1152,6 @@ Relations between \texttt{toimage} and \texttt{verbimage} are similar.
 Additionally, formal parameters \verb+#+\textit{i} are replaced by
 actual arguments inside the \texttt{toimage} environment
 (see end of section~\ref{substimage} for an example of this feature).
-
-\subsubsection{Bonus macros}\label{bonus}
-By default, \hevea{} knows some macros,
-which can be of interest to users.
-The \texttt{hevea} package defines \LaTeX{} equivalents for these
-macros.
-
-First, a few macros for URL management are provided:
-
-\comindex{url}
-\comindex{oneurl}
-\comindex{footurl}
-\comindex{mailto}
-\comindex{home}
-%BEGIN LATEX
-\bigskip
-%END LATEX
-\begin{tabular}{l<{\qquad}p{.3\linewidth}@{\qquad}p{.3\linewidth}}
-\multicolumn{1}{c}{Macro} & \multicolumn{1}{c}{\hevea} &
-\multicolumn{1}{c}{\LaTeX}\\
-\hline
-
-\verb+\url{+\textit{url}\verb+}{+\textit{text}\verb+}+ &
-make \textit{text} an hyper-link to \textit{url} &
-echo \textit{text}\\ \hline
-
-\verb+\footurl{+\textit{url}\verb+}{+\textit{text}\verb+}+ &
-make \textit{text} an hyper-link to \textit{url} &
-make \textit{url} a footnote to \textit{text},
-\textit{url} is shown in typewriter font\\ \hline
-
-\verb+\oneurl{+\textit{url}\verb+}+ &
-make \textit{url} an hyper-link to \textit{url}.
-&
-typeset \textit{url} in typewriter font\\ \hline
-\verb+\mailto{+\textit{address}\verb+}+ &
-make \textit{address} a ``mailto'' link to \textit{address} &
-typeset \textit{address} in typewriter font\\ \hline
-\verb+\home{+\textit{text}\verb+}+ &
-\multicolumn{2}{p{.6\linewidth}}{produce a home-dir url both for output and links, output aspect is: ``\home{\textit{text}}''}
-\end{tabular}
-
-\medskip\noindent The \textit{url} and \textit{address} arguments undergo macro
-substitution, however style changes are ignored in the
-``\verb+HREF=...+'' attribute of the \verb+<A ...>+ opening tag.
-As a consequence one can safely write something like:
-\begin{verbatim}
-\mailto{Luc.Maranget@\textit{inria}.\texttt{fr}}
-\end{verbatim}
-And one gets \mailto{Luc.Maranget@\textit{inria}.\texttt{fr}}.
-That is, one gets the following correct link:
-\begin{verbatim}
-<A HREF="mailto:Luc.Maranget@inria.fr">...
-\end{verbatim}
-
-
-\comindex{ahref}
-\comindex{aname}
-\comindex{ahrefurl}
-\comindex{footurl}
-\comindex{mailto}
-%BEGIN LATEX
-\bigskip
-%END LATEX
-\begin{tabular}{l<{\qquad}p{.3\linewidth}@{\qquad}p{.3\linewidth}}
-\multicolumn{1}{c}{Macro} & \multicolumn{1}{c}{\hevea} &
-\multicolumn{1}{c}{\LaTeX}\\
-\hline
-
-\verb+\ahref{+\textit{url}\verb+}{+\textit{text}\verb+}+ &
-make \textit{text} an hyper-link to \textit{url} &
-echo \textit{text}\\ \hline
-
-\verb+\aname{+\textit{label}\verb+}{+\textit{text}\verb+}+ &
-make \textit{text} an hyper-link target with label \textit{label} &
-echo \textit{text}\\ \hline
-
-\verb+\footurl{+\textit{url}\verb+}{+\textit{text}\verb+}+ &
-make \textit{text} an hyper-link to \textit{url} &
-make \textit{url} a footnote to \textit{text},
-\textit{url} is shown in typewriter font\\ \hline
-
-\verb+\ahrefurl{+\textit{url}\verb+}+ &
-make \textit{url} an hyper-link to \textit{url}.
-&
-typeset \textit{url} in typewriter font\\ \hline
-\verb+\mailto{+\textit{address}\verb+}+ &
-make \textit{address} a ``mailto'' link to \textit{address} &
-typeset \textit{address} in typewriter font
-\end{tabular}
-
-\medskip\noindent The \textit{url} and \textit{address} arguments undergo macro
-substitution, however style changes are ignored in the
-``\verb+HREF=...+'' attribute of the \verb+<A ...>+ opening tag.
-As a consequence one can safely write something like:
-\begin{verbatim}
-\mailto{Luc.Maranget@\textit{inria}.\texttt{fr}}
-\end{verbatim}
-And one gets \mailto{Luc.Maranget@\textit{inria}.\texttt{fr}}.
-That is, one gets the following correct link:
-\begin{verbatim}
-<A HREF="mailto:Luc.Maranget@inria.fr">...
-\end{verbatim}
-
-Additionally, the \verb+\hevea+ and \verb+\hacha+ commands
-output \hevea{} and \hacha{} logos, while
-\verb+\texdef+ and \verb+\texlet+ commands (see
-section~\ref{texmacro})
-are defined as \verb+\def+ and \verb+\let+.
-
-Finally, the \texttt{hevea} package contains
-null definitions for all the macros that are specific to
-\html{} output.
-For instance the \verb+\cuthere+ macro for controlling
-document cutting  is defined
-as discarding its two arguments.
-Section~\ref{hacha} exaplains what
-\hevea{} does with this two arguments, but \LaTeX{} should certainly
-ignore them.
-
 
 \subsubsection{The \texttt{hevea} boolean register}\label{heveabool}
 
@@ -1643,9 +1523,9 @@ own definition for the \verb+centergpic+ environment beforehand:
    {\begin{toimage}}
    {\box\graph\end{toimage}\begin{center}\imageflush\end{center}}
 \end{verbatim}
-Assuming that the definition above is in a \url{\heveaurl/examples/smile.hva}{smile.hva} file,
+Assuming that the definition above is in a \ahref{\heveaurl/examples/smile.hva}{smile.hva} file,
 the command sequence for translating
-\url{\heveaurl/examples/smile.tex}{smile.tex} \mbox{now is}:
+\ahref{\heveaurl/examples/smile.tex}{smile.tex} \mbox{now is}:
 \begin{verbatim}
  # gpic -t < smile.tex > tmp.tex
  # hevea smile.hva tmp.tex -o smile.html
@@ -1887,51 +1767,124 @@ unit by typing:
 source. However, \LaTeX{} still can process the document, since the
 \texttt{hevea} package is loaded).
 
-\section{Writing \html{} directly}
-In some rare occasions, it may be appropriate to
-generate \html{} directly.
+\section{Generating \html{} constructs}
+\hevea{} output language being \html{}, it is normal for users to insert
+hypertext constructs such as hyperlinks in their documents.
+
+\hevea{} provides high-level commands for doing this (see next section).
+Users are advised to use these macros in the first place,
+because it is easy to write incorrect \html{} and that writting
+\html{} directly may interfeer in nasty ways with \hevea{} internals.
 
 
-\subsection{The \texttt{rawhtml} environment}\label{rawhtml}
-\envindex{rawhtml}
-Any text enclosed between \verb+\begin{rawhtml}+ and
-\verb+\end{rawhtml}+ is echoed verbatim into the \html{} output file.
-No processing of any kind is performed on this text.
+\subsection{High-level commands}\index{hyperlinks}\label{hyperlink}
+A few commands for hyperlink  management and included images
+are provided, all these
+commands have approriate equivalents defined by the \texttt{hevea}
+package (see section~\ref{heveastyle}).
+Hence, a document that relies on these high-level commands
+still can be typeset by \LaTeX{}, provided it loads the \texttt{hevea}
+package.
 
-For the document to remain processable by \LaTeX{}, it must load the
-\texttt{hevea.sty} style file (see section~\ref{heveastyle}).
+\comindex{ahref}\comindex{ahrefurl}\comindex{footahref}\comindex{ahrefloc}
+\comindex{aname}
+\comindex{mailto}
+\comindex{imgsrc}
+\comindex{home}
+%BEGIN LATEX
+\bigskip
+%END LATEX
+\begin{tabular}{l<{\qquad}p{.3\linewidth}@{\qquad}p{.3\linewidth}}
+\multicolumn{1}{c}{Macro} & \multicolumn{1}{c}{\hevea} &
+\multicolumn{1}{c}{\LaTeX}\\
+\hline
 
-\subsection{Convenience macros}\label{imgsrc}
-A few ``\emph{high-level}'' macros are provided. These are first the
-``\emph{bonus}'' macros, \verb+\url+, \verb+\oneurl+, \verb+\home+ and
-\verb+\mailto+ that are described in section~\ref{bonus}.
-All these macros have \LaTeX{} equivalents defined in the
-\texttt{hevea.sty} style file.
+\verb+\ahref{+\textit{url}\verb+}{+\textit{text}\verb+}+ &
+make \textit{text} an hyperlink to \textit{url} &
+echo \textit{text}\\ \hline
 
-\comdefindex{imgsrc}
-\comdefindex{anchor}
-The following macros can be used to output specific \html{}
-constructs. These macros should be seen by \hevea{} only and
-they have no \LaTeX{} equivalents defined in the \texttt{hevea.sty} file.
-\begin{description}
-\item[{\tt\char92 imgsrc\char91}{\it attributes}{\tt\char93}{\tt\char123}{\it
-url}{\tt\char125}]
-Output
-\verb+<IMG SRC="+\textit{url}\verb+" +\textit{attributes}\verb+>+. The
-argument \textit{url} should reduce to a valid url (usually a file
-name), wheras the optional
-argument \textit{attributes} should reduce to the intended attributes.
-\item[{\tt\char92 anchor\char123}{\it label}{\tt\char125}]
-Output \verb+<A NAME="+\textit{label}\verb+">+. The argument
-should reduce to some kind of label.
-\end{description}
+\verb+\footahref{+\textit{url}\verb+}{+\textit{text}\verb+}+ &
+make \textit{text} an hyperlink to \textit{url} &
+make \textit{url} a footnote to \textit{text},
+\textit{url} is shown in typewriter font\\ \hline
 
-The \verb+\anchor+ command is an alternative to the \verb+\label+ command for
-inserting hyper-links targets.
+\verb+\ahrefurl{+\textit{url}\verb+}+ &
+make \textit{url} an hyperlink to \textit{url}.
+&
+typeset \textit{url} in typewriter font\\ \hline
 
+\verb+\ahrefloc{+\textit{label}\verb+}{+\textit{text}\verb+}+ &
+make \textit{text} an hyperlink to \textit{label} inside the document
+&
+echo \textit{text}\\ \hline
+
+\verb+\aname{+\textit{label}\verb+}{+\textit{text}\verb+}+ &
+make \textit{text} an hyperlink target with label \textit{label} &
+echo \textit{text}\\ \hline
+
+\verb+\mailto{+\textit{address}\verb+}+ &
+make \textit{address} a ``mailto'' link to \textit{address} &
+typeset \textit{address} in typewriter font
+\\ \hline
+\verb+\imgsrc[+\textit{attr}\verb+]{+\textit{url}\verb+}+
+& insert \textit{url} as an image, \textit{attr} are attributes in the
+\html{} sense & do nothing \\ \hline
+\verb+\home{+\textit{text}\verb+}+ &
+\multicolumn{2}{p{.6\linewidth}}{produce a home-dir url both for output and links, output aspect is: ``\home{\textit{text}}''}
+\end{tabular}
+It is important to notice that all arguments are processed.
+For instance, to insert a link to
+my home page, (\verb+http://pauillac.inria.fr/~maranget/index.html+),
+you should do something like this~:
+\begin{verbatim}
+\ahref{http://pauillac.inria.fr/\home{maranget}/index.html}{his home page}
+\end{verbatim}
+
+Given the frequency of \verb+~+, \verb+#+ etc. in urls,
+this is annoying. Moreover, the immediate solution
+\verb+\ahref{\verb" ... /~maranget/..."}{his home page}+ does not
+work, since \LaTeX{} forbids verbatim formatting inside command arguments.
+
+Fortunately, the \texttt{url} package provides a very convenient
+\verb+\url+ command that acts like \verb+\verb+ and can appear in
+other command arguments
+(unfortunately, this is not the full story, see section~\ref{urlpackage}).
+Hence, provided the \texttt{url} package is loaded,
+a more convenient reformulation of the example above is~:
+\begin{verbatim}
+\ahref{\url{http://pauillac.inria.fr/~maranget/index.html}}{his home page}
+\end{verbatim}
+Or even better~:
+\begin{verbatim}
+\urldef{\lucpage}{\url}{http://pauillac.inria.fr/~maranget/index.html}
+\ahref{\lucpage}{his home page}
+\end{verbatim}
+It may seem complicated, but this is a safe way to have a
+document processed both by \LaTeX{} and \hevea{}.
+Drawing a line between url typesetting and hyperlinks is correct,
+because there is no standard way to express hyperlinks in \LaTeX{}.
+That way, \hevea{} (optionnaly) depends on only one third party package:
+\texttt{url}, which as correct as it can be and well-written.
+
+
+
+\comindex{url}
+\comindex{oneurl}
+\comindex{footurl}
+In case the \verb+\url+ command is undefined
+at the time \verb+\begin{document}+ is processed, the commands
+\verb+\url+, \verb+\oneurl+ and \verb+\footurl+ are defined as
+synonymous for
+\verb+\ahref+, \verb+\ahrefurl+ and \verb+\footahref+, thereby
+ensuring
+some compatibility with older versions of \hevea.
+Note that this usage of \verb+\url+ is deprecated.
+
+
+\subsection{More on included images}\label{imgsrc}
 \index{image inclusion!in GIF}\comindex{imgsrc}
-The \verb+\imgsrc+ command is more useful.
-It becomes handy when one has images both in Postscript and GIF format.
+The \verb+\imgsrc+ command
+becomes handy when one has images both in Postscript and GIF format.
 As explained in section~\ref{substimage}, Postscript images can
 be included in \LaTeX{} documents by using the \verb+\epsfbox+
 command from the \texttt{epsf} package.
@@ -1990,6 +1943,16 @@ which will translate the image back from
 Postscript to bitmap format and thus degrade it.
 
 
+
+\subsection{The \texttt{rawhtml} environment}\label{rawhtml}
+\envindex{rawhtml}
+Any text enclosed between \verb+\begin{rawhtml}+ and
+\verb+\end{rawhtml}+ is echoed verbatim into the \html{} output file.
+No processing of any kind is performed on this text.
+
+For the document to remain processable by \LaTeX{}, it must load the
+\texttt{hevea.sty} style file (see section~\ref{heveastyle}).
+
 \subsection{Internal macros}\label{internal}
 In this section a few of \hevea{} internal macros are
 described.
@@ -2043,7 +2006,7 @@ width}{\tt\char125\char123}{\it height}{\tt\char125}]
 Ouput an \html{} horizontal rule, \textit{attr} is attributes given
 directly (e.g. \verb+SIZE=3 HOSHADE+), while \textit{width} and
 \textit{height} are length arguments given in the \LaTeX{} style
-(e.g. \verb+2pt+ or \verb+.5\linewidth+).
+(e.g. \verb+2pt+ or~\verb+.5\linewidth+).
 
 
 
@@ -3394,7 +3357,7 @@ The \verb+\listfiles+ command is a null command.
 \subsection{Index and Glossary}\label{index}
 \hevea{} supports several simultaneous indexes, following the scheme
 of the
-\footurl{ftp://theory.lcs.mit.edu/pub/tex/index/}{\texttt{index}} package,
+\footahref{ftp://theory.lcs.mit.edu/pub/tex/index/}{\texttt{index}} package,
 which is present in modern \LaTeX{} distributions.
 This scheme is backward compatible with the standard indexing scheme
 of \LaTeX.
@@ -4298,7 +4261,7 @@ educational CDROM to teach programming languages.
 VideoC author is Christian Queinnec and the documentation is available
 at:
 \begin{center}
-\oneurl{http://www-spi.lip6.fr/\home{queinnec}/VideoC/VideoC.html}.
+\ahrefurl{http://www-spi.lip6.fr/\home{queinnec}/VideoC/VideoC.html}.
 \end{center}
 
 
@@ -4344,6 +4307,76 @@ argument, which is interpreted as the tag of a particular index.
 
 Note that this style for indexes is not backward compatible with
 \LaTeX{} default indexing scheme.
+
+\subsection{The \texttt{url} package}\label{urlpackage}
+\comindex{url}\index{hyperlinks}
+This package in fact provides a enhanced  \verb+\verb+ command that
+can appear inside other command arguments.
+This command is named ``\verb+\url+'',
+but it can be used for any verbatim text, including DOS-like path
+names.
+Hence, one can insert urls in one's document without worrying about
+\LaTeX{} active characters~:
+\begin{verbatim}
+This is a complicated url: \url{http://foo.com/~user#label%coucou}.
+\end{verbatim}
+which gets typeset as: ``This is a complicated url: \url{http://foo.com/~user#label%coucou}.''
+
+Main use for the \verb+\url+ command is to specify urls as arguments to
+\hevea{} commands for hyperlinks (see section~\ref{hyperlink})~:
+\begin{verbatim}
+\hevea{} home page is
+\ahrefurl{\url{http://pauillac.inria.fr/~maranget/hevea/}}
+\end{verbatim}
+It yields~: ``\hevea{} home page is
+\ahrefurl{\url{http://pauillac.inria.fr/~maranget/hevea/}}''.
+
+\comindex{urldef}
+However the \verb+\url+ command is fragile, as a consequence it
+cannot be used inside \verb+\footahref+ first argument (This is a
+\LaTeX{} problem, not an \hevea{} one).
+The \texttt{url} package solves this problem by providing the
+\verb+\urldef+ command
+for defining commands whose body is typeset by using \verb+\url+:
+\begin{verbatim}
+\urldef{\heveahome}{\url}{http://pauillac.inria.fr/~maranget/hevea/}
+\end{verbatim}
+\urldef{\heveahome}{\url}{http://pauillac.inria.fr/~maranget/hevea/}%
+Such a source defines the robust command \verb+\heveahome+ as the
+intended url.
+Hence the following source works as expected~:
+\begin{verbatim}
+Have a look at \footurl{\heveahome}{\hevea{} home page}
+\end{verbatim}
+It yields: ``Have a look at \footahref{\heveahome}{\hevea{} home page}''.
+
+Using \verb+\url+ inside command definitions with a
+\verb+#+\textit{i} argument is a bad idea, since
+it gives ``verbatim'' a rather random meaning.
+Unfortunately, in some situations (e.g, no \verb+%+, no \verb+#+),
+it may work in \LaTeX{}. By
+contrast, it does not work in \hevea{}. In such situations,
+\verb+\urldef+ should be used.
+
+\hevea{} implementation is somehow compatible at the ``programming level''.
+Thus, users can define new commands whose argument is understood
+verbatim. The \ahref{urlhref.hva}{\texttt{urlhref.hva}} style file
+from the distribution
+takes advantage of this to define the \verb+\url+ command, so that it both
+typesets an url and inserts a link to it.
+\begin{htmlonly}
+\begin{verbatim}
+\input{urlhref.hva}
+Have a look at \url{http://pauillac.inria.fr/~maranget/hevea/}
+\end{verbatim}
+\input{urlhref.hva}It yields ``Have a look at \url{http://pauillac.inria.fr/~maranget/hevea/}''.
+\end{htmlonly}
+The \texttt{urlhref.hva}
+style file (which is an \hevea{} style file and not a \LaTeX{}
+style file) can be adequate for bibliographic references,
+which often use \verb+\url+ for its typesetting power.
+Of course, loading the \texttt{urlhref.hva} only makes sense when
+all arguments to \verb+\url+ are urls\ldots
 
 \subsection{Fancy sectionning commands}
 \index{color!of section headings}
@@ -4763,7 +4796,7 @@ work only with documents that are generated by \hevea{} with the
 
 
 More details on browser configuration can be found at
-\oneurl{http://www.tex2html.com/unix/}.
+\ahrefurl{http://www.tex2html.com/unix/}.
 More details on symbol fonts can be found
 in section~\ref{symbols} of this manual.
 In particular, note that symbol fonts may be completely avoided with
@@ -4773,26 +4806,26 @@ the \verb+-nosymb+ option.
 
 \subsection{Internet stuff}
 
-\hevea{} home page is \oneurl{\httpbase}. It contains links to the
-\footurl{\httpbase/doc/}{on-line manual}
-and to the \footurl{\ftpbase}{distribution}.
+\hevea{} home page is \ahrefurl{\httpbase}. It contains links to the
+\footahref{\httpbase/doc/}{on-line manual}
+and to the \footahref{\ftpbase}{distribution}.
 
 The author can be contacted at \mailto{Luc.Maranget@inria.fr}.
 
 \subsection{Law}
 \hevea{} can be freely used and redistributed without modifications.
 Modifying and redistributing \hevea{} requires a permission from INRIA.
-See the \footurl{\ftpbase/LICENSE}{LICENSE} file for details.
+See the \footahref{\ftpbase/LICENSE}{LICENSE} file for details.
 
 \section{Installation}
 
 \subsection{Requirements}\label{requirements}
 
 The programs \commandname{hevea} and \commandname{hacha} are written in
-\footurl{http://caml.inria.fr/ocaml/}{Objective Caml}. Thus, you
+\footahref{http://caml.inria.fr/ocaml/}{Objective Caml}. Thus, you
 really need Objective Caml (version 2.00 or further) to compile them.
 However, a Red~Hat 5.2
-\footurl{\ftpbase/hevea-\heveaversion-1.i386.rpm}{binary distribution}
+\footahref{\ftpbase/hevea-\heveaversion-1.i386.rpm}{binary distribution}
 is also available, it does not require an Objective Caml installation
 and can be installed on most Red~Hat Linux PC's.
 
@@ -4802,9 +4835,9 @@ processed into a
 \verb+.gif+ file and \hevea{} outputs a  link to the image file.
 \LaTeX{} source is changed into \verb+.gif+ images by the the \verb+imagen+
 script, which basically calls, \LaTeX, \texttt{dvips},
-\footurl{http://www.cs.wisc.edu/\home{ghost}/index.html}{\texttt{ghostscript}}
+\footahref{http://www.cs.wisc.edu/\home{ghost}/index.html}{\texttt{ghostscript}}
 and a few tools from the image processing package
-\footurl{ftp://wuarchive.wustl.edu/graphics/graphics/packages/NetPBM}{\texttt{netpbm}}.
+\footahref{ftp://wuarchive.wustl.edu/graphics/graphics/packages/NetPBM}{\texttt{netpbm}}.
 
 To benefit from the full functionality of \hevea, you need all
 this software. However, \hevea{} runs without them, but then you will
@@ -4839,7 +4872,7 @@ As a consequence, LaTeX2html is powerful but it may fail on
 large documents, for speed and memory reasons.
 More information on LaTeX2html can be found at
 \begin{center}
-\oneurl{http://www-dsed.llnl.gov/files/programs/unix/latex2html/}
+\ahrefurl{http://www-dsed.llnl.gov/files/programs/unix/latex2html/}
 \end{center}
 
 \item[TTH] The principle behind TTH is the same as the one of
@@ -4857,7 +4890,7 @@ whereas \hacha{} can cut the output of \hevea{} into several files.
 version of TTH that provides this extra functionality).
 TTH can be found at
 \begin{center}
-\oneurl{http://hutchinson.belmont.ma.us/tth/}.
+\ahrefurl{http://hutchinson.belmont.ma.us/tth/}.
 \end{center}
 
 \item[\texttt{htmlgen}] The \texttt{htmlgen} translator is specialized
@@ -4870,24 +4903,24 @@ of \texttt{htmlgen} and a (bit outdated) discussion on \LaTeX{} to
 A fairly complete list of \LaTeX{} to \html{} translators can be found
 at:
 \begin{center}
-\oneurl{http://www.loria.fr/services/tex/english/outils.html}
+\ahrefurl{http://www.loria.fr/services/tex/english/outils.html}
 \end{center}
 
 \section{Acknowledgements}
 The following people contributed to \hevea{} development:
 \begin{itemize}
 \item Philip~A.Viton, maintains a
-\url{http://www.arch.ohio-state.edu/crp/faculty/pviton/support/hevea.html}{window
+\ahref{http://www.arch.ohio-state.edu/crp/faculty/pviton/support/hevea.html}{window
 (win32) port} of \hevea.
 \item Christian Queinnec wrote an extra lexer to translate code
 snippets produced by its tool
-\url{http://www-spi.lip6.fr/\home{queinnec}/VideoC/VideoC.html}{VideoC}
+\ahref{http://www-spi.lip6.fr/\home{queinnec}/VideoC/VideoC.html}{VideoC}
 for writing pedagogical documents on programming.
 The very principle he introduced for interfacing the \texttt{videoc}
 lexer with \hevea{} main lexer is now used extensively throughout
 \hevea{} source code.
 \item Pierre Boulet, by using \hevea{} as a stage in his tool
-\url{http://www.lifl.fr/\home{boulet}/softs/mldoc/index.html}{MlDoc}
+\ahref{http://www.lifl.fr/\home{boulet}/softs/mldoc/index.html}{MlDoc}
 for documenting Objective Caml source code, forced me into debugging
 \hevea{} implementation of the \verb+alltt+ environment.
 \item Nicolas Tessaud implemented the \verb+-text+ and \verb+-info+
@@ -4911,18 +4944,18 @@ from \LaTeX{} to {\html}}.
 \newblock ERCIM/W4G Int. Workshop on WWW Authoring and Integration
 Tools, 1995.
 \newblock Available on the web at
-\oneurl{http://cristal.inria.fr/\home{xleroy}/w4g.html}
+\ahrefurl{\url{http://cristal.inria.fr/~xleroy/w4g.html}}
 
 \bibitem[HTML-3.2]{html}
 D.~Ragget.
 {\em HTML 3.2 Reference Specification}. Available on the web at
-\oneurl{http://www.w3.org/TR/REC-html32}, 1997.
+\ahrefurl{\url{http://www.w3.org/TR/REC-html32}}, 1997.
 
 
 \bibitem[HTML-4.0]{htmlbis}
 D.~Ragget, A.~Le~Hors and I.~Jacobs.
 {\em HTML 4.0 Reference Specification}. Available on the web at
-\oneurl{http://www.w3.org/TR/REC-html40}, 1997.
+\ahrefurl{\url{http://www.w3.org/TR/REC-html40}}, 1997.
 
 \end{thebibliography}
 \printindex

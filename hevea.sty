@@ -24,19 +24,20 @@
 \newcommand{\hevea}{H\kern-.15em\protect\heveasmup{.2ex}{E}\kern-.15emV\kern-.15em\protect\heveasmup{.2ex}{E}\kern-.15emA}%
 \newcommand{\hacha}{H\kern-.15em\protect\heveasmup{.2ex}{A}\kern-.15emC\kern-.1em\protect\heveasmup{.2ex}{H}\kern-.15emA}%
 \newcommand{\html}{\protect\heveasmup{0.ex}{HTML}}
-\@ifundefined{url}
-{%url package is not loaded
-\newcommand{\url}[2]{#2}
-\newcommand{\oneurl}[1]{\texttt{#1}}
-\newcommand{\home}[1]{\protect\raisebox{-.75ex}{\char126}#1}
-\newcommand{\heveaurl}{http://pauillac.inria.fr/\home{maranget}/hevea}}
-{%Let us assume the url package is loaded
-\newcommand{\ahref}[2]{#2}
-\newcommand{\aname}[2]{#2}
+%%%%%%%%% Hyperlinks hevea style
+\newcommand{\ahref}[2]{{#2}}
+\newcommand{\ahrefloc}[2]{{#2}}
+\newcommand{\aname}[2]{{#2}}
 \newcommand{\ahrefurl}[1]{\texttt{#1}}
-\urldef{\heveaurl}{\url}{http://pauillac.inria.fr/~maranget/hevea}}
-\newcommand{\footurl}[2]{#2\footnote{\texttt{#1}}}
+\newcommand{\footahref}[2]{#2\footnote{\texttt{#1}}}
 \newcommand{\mailto}[1]{\texttt{#1}}
+\newcommand{\imgsrc}[2][]{}
+\newcommand{\home}[1]{\protect\raisebox{-.75ex}{\char126}#1}
+\AtBeginDocument
+{\@ifundefined{url}
+{%url package is not loaded
+\let\url\ahref\let\oneurl\ahrefurl\let\footurl\footahref}
+{}}
 \makeatother
 %% Void cutting instructions
 \newcounter{cuttingdepth}

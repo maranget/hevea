@@ -24,19 +24,21 @@
 \newcommand{\@aelement}[2]
 {{\@nostyle\@print{<A }\@notags{#1}\@print{>}}{#2}{\@nostyle\@print{</A>}}}
 \newcommand{\ahref}[2]{\@aelement{HREF="#1"}{#2}}
-\newcommand{\aname}[2]{\@aelement{NAME="#1"}{#2}}
-\def\ahrefurl#1{\ahref{#1}{\texttt{#1}}}
-\let\footurl\ahref
-\newcommand{\mailto}[1]{\ahref{mailto:#1}{#1}}
-%%%% HTML constructs (no equivalents in html.sty)
+\def\ahrefurl#1{\@aelement{HREF="#1"}{\texttt{#1}}}
+\let\footahref\ahref
+\newcommand{\mailto}[1]{\@aelement{HREF="mailto:#1"}{#1}}
 \newcommand{\imgsrc}[2][]{%
 {\@nostyle\@print{<IMG SRC="}#2\ifpedantic\@print{" ALT="}#2\fi
 \ifthenelse{\equal{#1}{}}{\@print{"}}{\@print{" }#1}\@print{>}}}
 \newcommand{\anchor}[1]{\@saveclosed{\@nostyle\@print{<A NAME="}#1\@print{"></A>}}\@restoreclosed}
-%% Hyper-text references inside the document:
-\newcommand{\@locref}[2]{\ahref{\##1}{#2}}
-\newcommand{\@locname}[2]{\aname{#1}{#2}}
+%% Hyper-text references inside the document, internal usage
+\newcommand{\@locref}[2]{\@aelement{HREF="\##1"}{#2}}
+\newcommand{\@locname}[2]{\@aelement{NAME="#1"}{#2}}
 \newcommand{\@locnameref}[3]{\@aelement{NAME="#1" HREF="\##2"}{#3}}
+%% Two exported commands
+\let\ahrefloc\@locref
+\let\aname\@locname
+%% Html footer and header
 \newsavebox{\@htmlhead}
 \newsavebox{\@htmlfoot}
 \newcommand{\htmlhead}[1]{\sbox{\@htmlhead}{#1}}
@@ -178,8 +180,6 @@
 {\@nostyle\@print{<!--ENDHTML-->
 }}%
 \cutdef[\thecuttingdepth]{\cuttingunit}%
-\@stopimage\renewcommand{\thefootnote}{\arabic{footnote}}\@restartimage%
-\setcounter{footnote}{0}%
 }{%
 \@clearstyle\@footnoteflush{document}%
 {\@nostyle\@print{<!--HTMLFOOT-->

@@ -1,5 +1,9 @@
 
 version 1.05-6
+  - BUG \end{document} qui ferme \begin{toimage}
+  - RESTE UN BUG DANS LES NOTES info et footer mal traite'
+  - color (I mean no color!) for text
+  - documentation for new hyperlinks and url package
   - bug argument de \cite
   - \imageflush is now a hva macro that calls \imgsrc.
     (internal is \@imageflush)

@@ -12,7 +12,7 @@
 {
 open Lexing
 
-let header = "$Id: save.mll,v 1.47 1999-10-13 17:00:14 maranget Exp $" 
+let header = "$Id: save.mll,v 1.48 1999-11-24 19:01:08 maranget Exp $" 
 
 let verbose = ref 0 and silent = ref false
 ;;
@@ -388,9 +388,7 @@ let init_kmp s =
 
 let with_delim delim lexbuf =
   let next = init_kmp delim  in
-  start_echo () ;
   let r = eat_delim_init lexbuf delim next 0 in
-  stop_echo () ;
   r
 
 and skip_delim delim lexbuf =

@@ -1,6 +1,7 @@
 \newif\ifhevea\heveatrue
 \newenvironment{htmlonly}{}{}
 \newif\iffooter\footertrue
+\newcommand{\home}[1]{\~{}#1}
 %%%%%%%%%%%%%%%% Maths environments and TeXisms
 \def\mathord#1{#1}
 \def\mathrel#1{#1}
@@ -235,6 +236,9 @@
 \ifthenelse{\equal{#1}{!*!}}
   {\footnotemark\footnotetext{#2}}
   {\footnotemark[#1]\footnotetext[#1]{#2}}}
+\AtBeginDocument
+{\@stopimage\renewcommand{\thefootnote}{\arabic{footnote}}\@restartimage%
+\setcounter{footnote}{0}}
 %%% For defining Sectioning commands
 \newcounter{secnumdepth}\setcounter{secnumdepth}{3}%
 \newcommand{\checkdepth}[2]{\ifthenelse{\value{secnumdepth} > #1}{#2}{}}%
