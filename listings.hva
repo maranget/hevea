@@ -27,7 +27,7 @@
 %%%%%%%%%%%%
 \newcommand{\lst@Hook}[1]
   {\newtokens{\csname lsthk@#1\endcsname}}
-\newcommand{\lst@UseHook}
+\newcommand{\lst@UseHook}[1]
   {\csname lsthk@#1\endcsname}
 \newcommand{\lst@AddToHook}[2]
   {\addtokens{\csname lsthk@#1\endcsname}{#2}}
@@ -41,6 +41,11 @@
 \lst@Hook{DeInit}
 \lst@Hook{SelectCharTable}
 \lst@Hook{SetLanguage}
+\lst@Hook{SetStyle}
+\def\lststy@{\lsthk@EmptyStyle}
+\lst@Hook{EmptyStyle}
+\lst@Hook{EmptyLanguage}
+\lst@Hook{InlineUnsave}
 %%%%%%%%%%%%
 % Keywords %
 %%%%%%%%%%%%
@@ -75,44 +80,57 @@
 \lst@define@key{rdkeywords}{\lst@install@kwds{\lst@rdkwd@style}}
 \lst@define@key{morerdkeywords}{\lst@install@kwds{\lst@rdkwd@style}}
 \lst@define@key{deleterdkeywords}{\lst@delete@kwds}
-\lst@define@key{otherkeywords}{\lst@install@okwds{\lst@kwd@style}}
-\lst@define@key{moreotherkeywords}{\lst@install@okwds{\lst@kwd@style}}
+\lst@define@key{otherkeywords}{\lst@install@okwds{\lst@okwd@style}}
+\lst@define@key{moreotherkeywords}{\lst@install@okwds{\lst@okwd@style}}
 \lst@define@key{deleteotherkeywords}{\lst@delete@okwds}
+\lst@define@key{directives}{\lst@install@kwds{\lst@directive@style}}
 %%%%%%%
 \define@key{lst}{keywordstyle}{\def\lst@kwd@style##1{#1{##1}}}
 \define@key{lst}{ndkeywordstyle}{\def\lst@ndkwd@style##1{#1{##1}}}
 \define@key{lst}{rdkeywordstyle}{\def\lst@rdkwd@style##1{#1{##1}}}
-\define@key{lst}{otherkeywordstyle}{\def\lst@kwd@style##1{#1{##1}}}
+\define@key{lst}{otherkeywordstyle}{\def\lst@okwd@style##1{#1{##1}}}
+\define@key{lst}{directivetyle}{\def\lst@directive@style##1{#1{##1}}}
 \define@key{lst}{identifierstyle}{\def\lst@identifier@style##1{#1{##1}}}
 \define@key{lst}{nonkeywordstyle}{\def\lst@identifier@style##1{#1{##1}}}
 \define@key{lst}{basicstyle}{\def\lst@basic@style{#1}}
 \define@key{lst}{commentstyle}{\def\lst@comment@style{#1}}
 \define@key{lst}{stringstyle}{\def\lst@string@style{#1}}
-\lstset
-  {keywordstyle={},
-  ndkeywordstyle=\lst@kwd@style,
-  rdkeywordstyle=\lst@kwd@style,
-  identifierstyle={},
-  basicstyle={},
-  commentstyle={},
-  stringstyle={}}
+\lst@AddToHook{EmptyStyle}{\let\lst@string@style\@empty}
+\lst@AddToHook{EmptyStyle}{\let\lst@comment@style\@empty}
+\lst@AddToHook{EmptyStyle}{\let\lst@identifier@style\@empty}
+\lst@AddToHook{EmptyStyle}{\let\lst@basic@style\@empty}
+\lst@AddToHook{EmptyStyle}{\let\lst@kwd@style\bfseries}
+\lst@AddToHook{EmptyStyle}{\def\lst@ndkwd@style{\lst@kwd@style}}
+\lst@AddToHook{EmptyStyle}{\def\lst@rdkwd@style{\lst@kwd@style}}
+\lst@AddToHook{EmptyStyle}{\def\lst@okwd@style{\lst@kwd@style}}
+\lst@AddToHook{EmptyStyle}{\def\lst@directive@style{\lst@kwd@style}}
+%%%%%% Style definitions
+\define@key{lst}{style}[{}]{\lsthk@SetStyle\csname lst@sty#1\endcsname}
+\newcommand{\lstdefinestyle}[2]
+  {\def\csname lst@sty#1\endcsname{\lstset{#2}}}
+\lset
 %%%%%% Language definitions
+\newcommand{\lst@define@dd}[2][]{\newcommand{\csname lstdd@#2\endcsname}{#1}}
 \newcommand{\lst@mklang}[2][]
   {\ifthenelse{\equal{#1}{}}
     {lstlang@#2@\csname lstdd@#2\endcsname}
     {lstlang@#2@#1}}
 \newcommand{\lst@language@key}[2][]
-  {\lstinfo{SetLanguage: #2}\lsthk@SetLanguage\csname\lst@mklang[#1]{#2}\endcsname}
+  {\lstinfo{USE: #2 [#1]}\lsthk@SetLanguage\csname\lst@mklang[#1]{#2}\endcsname}
 \lst@define@key@opt{language}{\lst@language@key}
+\newcommand{\lst@checkdd}[2]
+  {\@ifundefined{lstdd@#1}{\lst@define@dd[#2]{#1}}{}}
 \newcommand{\lst@definelanguage@}[3]
-  {\def\csname\lst@mklang[#2]{#1}\endcsname{\lstset{#3}}}
+  {\lstinfo{DEFINE, #1 [#2]}\lst@checkdd{#1}{#2}\def\csname\lst@mklang[#2]{#1}\endcsname{\lstset{#3}}}
 \newcommand{\lst@derivelanguage@}[5]
-  {\def\csname\lst@mklang[#2]{#1}\endcsname{\csname\lst@mklang[#4]{#3}\endcsname\lstset{#5}}}
+  {\lst@checkdd{#1}{#2}\def\csname\lst@mklang[#2]{#1}\endcsname{\csname\lst@mklang[#4]{#3}\endcsname\lstset{#5}}}
+\lst@define@key@opt{defaultdialect}{\lst@define@dd}
 %%%%%%% Indentation
 \define@key{lst}{indent}[1]{\def\lst@doindent{\hspace{#1}}}
 \newcommand{\lst@doindent}{}
 %%%%%%% Lines
 \newcounter{lstlabel}
+\lst@AddToHook{InitVar}{\let\@currentlabel\thelstlabel}
 \newcounter{lst@firstline}
 \newcommand{\lst@saved@lastline}
   {\@ifundefined{thelst@saved@\lst@intname}
@@ -128,15 +146,17 @@
       {\setcounter{lst@firstline}{\lst@saved@lastline}}}
     {\setcounter{lst@firstline}{\lst@firstline-1}}}
 \lst@AddToHook{DeInit}
-  {\@ifundefined{thelst@saved@\lst@intname}
-     {\newcounter{lst@saved@\lst@intname}}
-     {}%
-  \setcounter{lst@saved@\lst@intname}{\value{lstlabel}}}
+  {\@ifundefined{lst@intname}{}
+     {\@ifundefined{thelst@saved@\lst@intname}
+       {\newcounter{lst@saved@\lst@intname}}
+       {}%
+     \setcounter{lst@saved@\lst@intname}{\value{lstlabel}}}}
 \lst@AddToHook{InitVar}{\setcounter{lstlabel}{\value{lst@firstline}}}
 \define@key{lst}{labelstyle}{\def\lst@label@style##1{#1{##1}}}
 \newcommand{\lst@label@style}[1]{#1}
-\define@key{lst}{labelstep}{\def{\lst@labelstep}{#1}}
-\newcommand{\lst@labelstep}{0}
+\define@key{lst}{labelstep}{\def\lst@labelstep{#1}}
+\lst@AddToHook{InlineUnsave}{\def\lst@labelstep{0}}
+\lst@AddToHookExe{EmptyStyle}{\def\lst@labelstep{0}}
 \define@key{lst}{labelsep}{\def{\lst@labelsep}{\hspace{#1}}}
 \newcommand{\lst@labelsep}{\hspace{1em}}
 \newcommand{\lst@pad}[1]{\@pad{ }{4}{#1}}
@@ -156,6 +176,22 @@
 \lst@AddToHook{EveryLine}{\sbox{\@wait}{\usebox{\@wait}\@print{
 }\@rawchars{\lst@doindent}\lst@linenumber}\global\let\@NewLine\@NewLine@}
 \lst@AddToHook{Init}{\sbox{\@wait}{}\global\let\@Newline\@empty}
+%%%%%% TeX escapes
+\define@key{lst}{texcl}[true]{\def\lst@texcl{#1}}
+\setboolean{lst@texcl}{false}
+\lst@AddToHook{Init}
+  {\@ifundefined{lst@texcl}{}
+     {\setboolean{lst@texcl}{\lst@boolean{\lst@texcl}}}}
+\lst@AddToHook{DeInit}{\setboolean{lst@texcl}{false}}
+\def\lst@BET{}\def\lst@EET{}
+\newcommand{\lst@Esc@key}[2]
+  {\def\lst@BET{\@rawchars{#1}}\def\lst@EET{\@rawchars{#2}}}
+\define@key{lst}{escapeinside}{\@callsubst{\lst@Esc@key}{#1{}}}
+\define@key{lst}{escapechar}[{}]{\lst@Esc@key#1#1}
+\def\lst@escapebegin{}
+\define@key{lst}{escapebegin}[]{\def\lst@escapebegin{#1}}
+\def\lst@escapeend{}
+\define@key{lst}{escapeend}[]{\def\lst@escapeend{#1}}
 %%%%%% Ignore input
 \newcommand{\lst@gobble}{0}
 \define@key{lst}{gobble}{\def\lst@gobble{#1}}
@@ -230,30 +266,24 @@
   {{\csname lstk@#1\endcsname{#2}}}\fi}
 %%%%%%% User interface
 \newcommand{\lstinputlisting}[2][]
-  {\@scaninput{\lstinfo{INPUT: ``#1'' ``#2''}\begin{lstlisting}[#1]{}
+  {\@scaninput{\begin{lstlisting}[#1]{}
 }{#2}{\end{lstlisting}}}
 \let\lstdefinelanguage\lst@definelanguage
-%%%%%% Driver files
-\lst@definelanguage[Objective]{Caml}[light]{Caml}
-  {deletekeywords={not,prefix,value,where},
-   morekeywords={assert,asr,class,closed,constraint,external,false,functor,include,inherit,land,lazy,lor,lsl,lsr,lxor,method,mod,module,new,open,parser,private,sig,struct,true,val,virtual,when}}
-\lst@definelanguage[light]{Caml}
-  {keywords={and,as,begin,do,done,downto,else,end,exception,for,fun,function,if,in,let,match,mutable,not,of,or,prefix,rec,then,to,try,type,value,where,while,with},
-   sensitive,
-   nestedcomment={(*}{*)},
-   stringizer=[b]",
-   directives={open,close,include},
-   extendedchars=true
-  }[keywords,comments,strings,directives]%
-\lst@definelanguage{Java}%
-  {keywords={abstract,boolean,break,byte,case,catch,char,class,const,%
-      continue,default,do,double,else,extends,final,finally,float,for,%
-      goto,if,implements,import,instanceof,int,interface,long,native,%
-      new,null,package,private,protected,public,return,short,static,%
-      super,switch,synchronized,this,throw,throws,transient,try,void,%
-      volatile,while,true,false},%
-   sensitive,%
-   commentline=//,%
-   singlecomment={/*}{*/},%
-   stringizer=[b]"%
-  }[keywords,comments,strings]%
+\newcommand{\lstloadlanguage}[1]{}
+%%%%%% Driver files are loaded directly!
+\lstset{defaultdialect=[95]Ada,
+        defaultdialect=[68]Algol,
+        defaultdialect=[ANSI]C,
+        defaultdialect=[Objective]Caml,
+        defaultdialect=[1985]Cobol,
+        defaultdialect=[ANSI]C++,
+        defaultdialect=[95]Fortran,
+        defaultdialect=[3.0]Mathematica,
+        defaultdialect=[Standard]Pascal,
+        defaultdialect=[67]Simula,
+        defaultdialect=[plain]TeX}
+\input{lstlang1.hva}
+\input{lstlang2.hva}
+%%%%%%%%%%% Inits
+\lst@UseHook{SetStyle}\lst@UseHook{EmptyStyle}
+\lst@UseHook{SetLanguage}\lst@UseHook{EmptyLanguage}

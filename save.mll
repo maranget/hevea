@@ -13,7 +13,7 @@
 open Lexing
 open Misc
 
-let header = "$Id: save.mll,v 1.56 2000-06-06 11:41:41 maranget Exp $" 
+let header = "$Id: save.mll,v 1.57 2000-07-07 17:44:46 maranget Exp $" 
 
 let verbose = ref 0 and silent = ref false
 ;;
@@ -419,6 +419,7 @@ and skip_delim_rec = parse
 and check_equal = parse
 | '=' {true}
 | ""  {false}
+
 {
 
 let init_kmp s =

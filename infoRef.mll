@@ -10,7 +10,7 @@
 (***********************************************************************)
 
 {
-let header = "$Id: infoRef.mll,v 1.20 2000-07-06 16:48:39 maranget Exp $"
+let header = "$Id: infoRef.mll,v 1.21 2000-07-07 17:44:40 maranget Exp $"
 ;;
 
 
@@ -357,8 +357,8 @@ rule main = parse
     {affiche_tag_table ()}
 
 | _ 
-    {let lxm = lexeme lexbuf in
-    put lxm;
+    {let lxm = lexeme_char lexbuf 0 in
+    put_char lxm;
     main lexbuf}
 
 and numero = parse

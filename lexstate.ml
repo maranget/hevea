@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: lexstate.ml,v 1.50 2000-07-06 16:48:48 maranget Exp $"
+let header = "$Id: lexstate.ml,v 1.51 2000-07-07 17:44:41 maranget Exp $"
 
 open Misc
 open Lexing
@@ -174,16 +174,17 @@ let rec if_next_char  c lb =
 let rec if_next_string s lb =
   if s = "" then
     true
-  else if lb.lex_eof_reached then
-    false
   else
     let pos = lb.lex_curr_pos
     and len = lb.lex_buffer_len
     and slen = String.length s in
     if pos + slen - 1 >= len then begin
-      warning "Refilling buffer" ;
-      lb.refill_buff lb ;
-      if_next_string s lb
+      if lb.lex_eof_reached then begin
+          false
+      end else begin
+          lb.refill_buff lb ;
+        if_next_string s lb
+      end
     end else
       String.sub lb.lex_buffer pos slen = s
   
