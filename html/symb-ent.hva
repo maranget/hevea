@@ -8,7 +8,9 @@
 \renewcommand{\cdots}{\@print{&#8943;}}
 \renewcommand{\ddots}{\@print{&#8944;}}
 \renewcommand{\vdots}{\@print{&#8942;}}
+
 %% Greek Letters
+
 \newcommand{\alpha}{\@print{&#945;}}
 \newcommand{\beta}{\@entity{beta}}
 \newcommand{\gamma}{\@entity{gamma}}
@@ -39,6 +41,8 @@
 \newcommand{\psi}{\@entity{psi}}
 \newcommand{\omega}{\@entity{omega}}
 
+%% Capital Greek Letters
+
 \newcommand{\Gamma}{\@entity{Gamma}}
 \newcommand{\Delta}{\@entity{Delta}}
 \newcommand{\Theta}{\@entity{Theta}}
@@ -52,6 +56,8 @@
 \newcommand{\Omega}{\@entity{Omega}}
 
 %% Binary Operation Symbols
+
+\renewcommand{\pm}{\@print{&#0177;}}
 \newcommand{\mp}{\@print{&#8723;}}
 %\newcommand{\ast}{\@entity{lowast}}
 \renewcommand{\star}{\@print{&#8902;}}
@@ -87,6 +93,7 @@
 %\newcommand{\amalg}{\@entity{amalg}}
 
 % Relation Symbols
+
 \newcommand{\leq}{\@entity{le}}
 \newcommand{\prec}{\@print{&#8826;}}
 \newcommand{\preceq}{\@print{&#8828;}}
@@ -124,6 +131,7 @@
 \newcommand{\propto}{\@entity{Proportional}}
 
 % Arrow Symbols
+
 \newcommand{\leftarrow}{\@entity{larr}}
 \newcommand{\Leftarrow}{\@entity{lArr}}
 \newcommand{\rightarrow}{\@entity{rarr}}
@@ -158,14 +166,23 @@
 \newcommand{\swarrow}{\@print{&#8601;}}
 \newcommand{\nwarrow}{\@print{&#8598;}}
 
+\renewcommand{\longleftarrow}{\@print{&#10229;}}
+\renewcommand{\Longleftarrow}{\@print{&#10232;}}
+\renewcommand{\longrightarrow}{\@print{&#10230;}}
+\renewcommand{\Longrightarrow}{\@print{&#10233;}}
+\renewcommand{\longleftrightarrow}{\@print{&#10231;}}
+\renewcommand{\Longleftrightarrow}{\@print{&#10234;}}
+\renewcommand{\longmapsto}{\@print{&#10236;}}
+
 % Miscellaneous symbols
-\newcommand{\aleph}{\@entity{alefsym}}
-\newcommand{\hbar}{\@entity{hbar}}
+
+\newcommand{\aleph}{\@print{&#8501;}}
+\newcommand{\hbar}{\@print{&#0295;}}
 \newcommand{\imath}{\@entity{imath}}
 \newcommand{\jmath}{\@entity{jmath}}
 \newcommand{\ell}{\@print{&#8467}}
 \newcommand{\wp}{\@entity{weierp}}
-\newcommand{\Re}{\@entity{real}}
+\newcommand{\Re}{\@print{&#8476;}}
 \newcommand{\Im}{\@entity{image}}
 %\newcommand{\mho}{\@entity{mho}}
 \newcommand{\prime}{\@entity{prime}}
@@ -191,14 +208,18 @@
 \newcommand{\diamondsuit}{\@entity{diams}}
 \newcommand{\heartsuit}{\@entity{hearts}}
 \newcommand{\spadesuit}{\@entity{spades}}
+
 %%% Delimiters
+
 \newcommand{\lfloor}{\@entity{lfloor}}
 \newcommand{\rfloor}{\@entity{rfloor}}
 \newcommand{\lceil}{\@entity{lceil}}
 \newcommand{\rceil}{\@entity{rceil}}
 \newcommand{\langle}{\@entity{lang}}
 \newcommand{\rangle}{\@entity{rang}}
+
 %% Variable-sized Symbols
+
 \newcommand{\@sum}{\@entity{sum}}
 \newcommand{\@prod}{\@entity{prod}}
 \newcommand{\@coprod}{\@entity{coproduct}}
@@ -206,5 +227,7 @@
 \newcommand{\@displayint}{\mbox{\Huge\@entity{int}}}
 \newcommand{\@displaysum}{\mbox{\Huge\@entity{sum}}}
 \newcommand{\@oint}{\@entity{oint}}
+
 %%%Additional
+
 \newcommand{\dag}{\@print{&#8224;}}
