@@ -2907,7 +2907,24 @@ invoked in the new definition of \verb+\@meta+.
 Namely, simply overriding the old definition of \verb+\@meta+ would
 imply not outputting default meta-information.
 
-
+\index{"@charset@\texttt{\char92"@charset}}\ttindex{xxcharset.exe}{script}
+The \verb+\@charset+ command holds value of the document character
+set. By default, this value is \texttt{ISO-8859-1}.
+To change this value, there are basically two techniques.
+\begin{itemize}
+\item You can set the charset by extracting its value from the current
+locale environment.
+This operation is performed by a companion script: \texttt{xxcharset.exe}.
+It thus suffices to lauch \hevea{} as:
+\begin{flushleft}
+\texttt{# hevea -exec xxcharset.exe}~\textit{other arguments} 
+\end{flushleft}
+\item You can more directly redefine \verb+\@charset+ in the document preamble.
+The suggested technique is to include the redefinition in a
+``\texttt{.hva}'' file, loaded as a package.
+\end{itemize}
+Notice though, that just changing \verb+\@charset+ will not turn
+\hevea{} into a multi-lingual tool.
 
 
 \section{Sentences and Paragraphs}

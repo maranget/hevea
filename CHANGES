@@ -1,4 +1,6 @@
 version 1.06+1
+   - New \@charset command and xxcharset.exe script, to control
+     output document character set.
    - firstnumber=auto|last|nnn in listings.hva
    - started adding an example for listings (exlst.tex)
    - proper (?) implementation of emph classes in listings
