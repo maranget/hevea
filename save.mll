@@ -12,7 +12,7 @@
 {
 open Lexing
 
-let header = "$Id: save.mll,v 1.16 1998-07-28 09:32:30 maranget Exp $" 
+let header = "$Id: save.mll,v 1.17 1998-09-03 14:24:47 maranget Exp $" 
 
 let silent = ref false
 ;;
@@ -84,6 +84,8 @@ and arg = parse
 
 and sarg = parse
   [^'{'] {lexeme lexbuf}
+| "\\"  ((['A'-'Z' 'a'-'z']+ '*'?) | [^ 'A'-'Z' 'a'-'z'])
+         {lexeme lexbuf}
 | ""     {arg lexbuf}
 
 and arg2 = parse

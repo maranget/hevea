@@ -17,7 +17,7 @@ open Latexmacros
 open Html
 open Save
 
-let header = "$Id: latexscan.mll,v 1.37 1998-09-02 15:47:44 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.38 1998-09-03 14:24:45 maranget Exp $" 
 
 let push s e = s := e:: !s
 and pop s = match !s with
@@ -1430,7 +1430,7 @@ rule  main = parse
     let lexfun = match env with
       "program" | "verbatim" ->
          (fun lexbuf -> Html.open_block "PRE" "" ;
-         skip_blanks lexbuf ; verbenv lexbuf)
+         verbenv lexbuf)
     | _ ->
       let macro = "\\"^env in
       (fun lb ->
