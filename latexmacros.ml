@@ -9,10 +9,11 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmacros.ml,v 1.37 1999-03-03 18:08:40 maranget Exp $" 
+let header = "$Id: latexmacros.ml,v 1.38 1999-03-08 15:51:27 maranget Exp $" 
 open Misc
 open Parse_opts
 open Symb
+open Lexstate
 
 exception Failed
 exception Error of string
@@ -30,15 +31,11 @@ let pretty_env = function
 
 type action =
     Print of string
-  | ItemDisplay
-  | Print_arg of int
   | Print_fun of ((string -> string) * int)
   | Subst of string
   | Print_count of ((int -> string)  * int)
   | Test of bool ref
   | SetTest of (bool ref * bool)
-  | IfCond of bool ref * action list * action list
-  | Br
 ;;
 
 type pat = string list * string list
@@ -50,16 +47,18 @@ let pretty_pat (_,args) =
 
 
 let cmdtable =
-  (Hashtbl.create 19 : (string, (pat * action list)) Hashtbl.t)
+  (Hashtbl.create 19 : (string, (pat * action)) Hashtbl.t)
 ;;
 
+
+let pretty_action acs =
+   match acs with
+     Subst s -> Printf.fprintf stderr "{%s}\n" s
+   | _         -> Printf.fprintf stderr "...\n"
 
 let pretty_macro n acs =
-   pretty_pat n ;
-   match acs with
-     [Subst s] -> Printf.fprintf stderr "{%s}\n" s
-   | _         -> Printf.fprintf stderr "...\n"
-;;
+  pretty_pat n ;
+  pretty_action acs
 
 let def_coltype name pat action =
   if !verbose > 1 then begin
@@ -168,7 +167,7 @@ let find_macro name =
     Hashtbl.find cmdtable name
   with Not_found ->
     warning ("unknown macro: "^name) ;
-    (([],[]),[])
+    (([],[]),(Print ""))
 ;;
 
 (* for conditionals *)
@@ -190,9 +189,9 @@ let extract_if name =
 ;;
 
 let newif_ref name cell =
-  def_macro ("\\if"^name) 0 [Test cell] ;
-  def_macro ("\\"^name^"true") 0 [SetTest (cell,true)] ;
-  def_macro ("\\"^name^"false") 0 [SetTest (cell,false)]
+  def_macro ("\\if"^name) 0 (Test cell) ;
+  def_macro ("\\"^name^"true") 0 (SetTest (cell,true)) ;
+  def_macro ("\\"^name^"false") 0 (SetTest (cell,false))
 ;;
 
 newif_ref "silent" silent;
@@ -203,8 +202,8 @@ newif_ref "french" french ;
 newif_ref "optarg" optarg;
 newif_ref "styleloaded" styleloaded;
 newif_ref "activebrace" activebrace;
-def_macro ("\\iftrue") 0 [Test (ref true)];
-def_macro ("\\iffalse") 0 [Test (ref false)]
+def_macro ("\\iftrue") 0 (Test (ref true));
+def_macro ("\\iffalse") 0 (Test (ref false))
 ;;
 
 let newif name = 
@@ -216,26 +215,27 @@ let newif name =
 
 
 (* Base LaTeX macros *)
-def_env "program" [] [];
-def_env "alltt" [] []
+def_env "program" (Subst "") (Subst "") ;
+def_env "alltt" (Subst "") (Subst "") ;
 ;;
 
 let no_dot = function
   "." -> ""
 | s   -> s in
-def_macro "\\bgroup" 0 [Subst "{"] ;
-def_macro "\\egroup" 0 [Subst "}"] ;
+def_macro "\\bgroup" 0 (Subst "{") ;
+def_macro "\\egroup" 0 (Subst "}") ;
 
-def_macro "\\@bibref" 1  [Print_fun (Auxx.bget,0)] ;
+def_macro "\\@bibref" 1  (Print_fun (Auxx.bget,0));
 
 let check_in = function
   "\\in" -> "\\notin"
 | "="    -> "\\neq"
 | "\\subset" -> "\\notsubset"
 | s      -> "\\neg"^s in
-def_macro "\\not" 1 [Print_fun (check_in,0)];
-def_macro_pat "\\makebox" (["" ; ""],["#1"]) [Subst "\\warning{makebox}\\mbox{#3}"] ;
-def_macro_pat "\\framebox" (["" ; ""],["#1"]) [Subst "\\warning{framebox}\\fbox{#3}"] ;
+def_macro "\\not" 1 (Print_fun (check_in,0));
+
+def_macro_pat "\\makebox" (["" ; ""],["#1"]) (Subst "\\warning{makebox}\\mbox{#3}") ;
+def_macro_pat "\\framebox" (["" ; ""],["#1"]) (Subst "\\warning{framebox}\\fbox{#3}") ;
 
 
 (*
@@ -245,145 +245,130 @@ let spaces = function
 def_macro "\\hspace" 1 [Print_fun (spaces,0)];
 *)
 (* Maths *)
-def_macro "\\alpha" 0 [Print alpha];
-def_macro "\\beta" 0 [Print beta];
-def_macro "\\gamma" 0 [Print gamma];
-def_macro "\\delta" 0 [Print delta];
-def_macro "\\epsilon" 0 [Print epsilon];
-def_macro "\\zeta" 0 [Print zeta];
-def_macro "\\eta" 0 [Print eta];
-def_macro "\\theta" 0 [Print theta];
-def_macro "\\vartheta" 0 [Print vartheta];
-def_macro "\\iota" 0 [Print iota];
-def_macro "\\kappa" 0 [Print kappa];
-def_macro "\\lambda" 0 [Print lambda];
-def_macro "\\nu" 0 [Print nu];
-def_macro "\\xi" 0 [Print xi];
-def_macro "\\pi" 0 [Print pi];
-def_macro "\\varpi" 0 [Print varpi];
-def_macro "\\rho" 0 [Print rho];
-def_macro "\\varrho" 0 [Print varrho];
-def_macro "\\sigma" 0 [Print sigma];
-def_macro "\\varsigma" 0 [Print varsigma];
-def_macro "\\tau" 0 [Print tau];
-def_macro "\\upsilon" 0 [Print upsilon];
-def_macro "\\phi" 0 [Print phi];
-def_macro "\\varphi" 0 [Print varphi];
-def_macro "\\chi" 0 [Print chi];
-def_macro "\\psi" 0 [Print psi];
-def_macro "\\omega" 0 [Print omega];
+def_macro "\\alpha" 0 (Print alpha);
+def_macro "\\beta" 0 (Print beta);
+def_macro "\\gamma" 0 (Print gamma);
+def_macro "\\delta" 0 (Print delta);
+def_macro "\\epsilon" 0 (Print epsilon);
+def_macro "\\zeta" 0 (Print zeta);
+def_macro "\\eta" 0 (Print eta);
+def_macro "\\theta" 0 (Print theta);
+def_macro "\\vartheta" 0 (Print vartheta);
+def_macro "\\iota" 0 (Print iota);
+def_macro "\\kappa" 0 (Print kappa);
+def_macro "\\lambda" 0 (Print lambda);
+def_macro "\\nu" 0 (Print nu);
+def_macro "\\xi" 0 (Print xi);
+def_macro "\\pi" 0 (Print pi);
+def_macro "\\varpi" 0 (Print varpi);
+def_macro "\\rho" 0 (Print rho);
+def_macro "\\varrho" 0 (Print varrho);
+def_macro "\\sigma" 0 (Print sigma);
+def_macro "\\varsigma" 0 (Print varsigma);
+def_macro "\\tau" 0 (Print tau);
+def_macro "\\upsilon" 0 (Print upsilon);
+def_macro "\\phi" 0 (Print phi);
+def_macro "\\varphi" 0 (Print varphi);
+def_macro "\\chi" 0 (Print chi);
+def_macro "\\psi" 0 (Print psi);
+def_macro "\\omega" 0 (Print omega);
 
-def_macro "\\Gamma" 0 [Print upgamma];
-def_macro "\\Delta" 0 [Print updelta];
-def_macro "\\Theta" 0 [Print uptheta];
-def_macro "\\Lambda" 0 [Print uplambda];
-def_macro "\\Xi" 0 [Print upxi];
-def_macro "\\Pi" 0 [Print uppi];
-def_macro "\\Sigma" 0 [Print upsigma];
-def_macro "\\Upsilon" 0 [Print upupsilon];
-def_macro "\\Phi" 0 [Print upphi];
-def_macro "\\Psi" 0 [Print uppsi];
-def_macro "\\Omega" 0 [Print upomega];
+def_macro "\\Gamma" 0 (Print upgamma);
+def_macro "\\Delta" 0 (Print updelta);
+def_macro "\\Theta" 0 (Print uptheta);
+def_macro "\\Lambda" 0 (Print uplambda);
+def_macro "\\Xi" 0 (Print upxi);
+def_macro "\\Pi" 0 (Print uppi);
+def_macro "\\Sigma" 0 (Print upsigma);
+def_macro "\\Upsilon" 0 (Print upupsilon);
+def_macro "\\Phi" 0 (Print upphi);
+def_macro "\\Psi" 0 (Print uppsi);
+def_macro "\\Omega" 0 (Print upomega);
 ();;
 
-def_macro "\\circ" 0 [Print circ];;
-def_macro "\\bullet" 0 [Subst "{\\@incsize{1}" ; Print bullet ; Subst "}"];;
-def_macro "\\cap" 0 [Print cap];;
-def_macro "\\cup" 0 [Print cup];;
-def_macro "\\sqcap" 0 [Print sqcap];;
-def_macro "\\sqcup" 0 [Print sqcup];;
-def_macro "\\vee" 0 [Print vee];;
-def_macro "\\wedge" 0 [Print wedge];;
-def_macro "\\setminus" 0 [Print setminus];;
-def_macro "\\bigtriangleup" 0 [Print bigtriangleup];;
-def_macro "\\bigtriangledown" 0 [Print bigtriangledown];;
-def_macro "\\triangleleft" 0 [Print triangleleft];;
-def_macro "\\triangleright" 0 [Print triangleright];;
-def_macro "\\lhd" 0 [Print triangleleft];;
-def_macro "\\rhd" 0 [Print triangleright];;
-def_macro "\\leq" 0 [Print leq];;
-def_macro "\\subset" 0 [Print subset];;
-def_macro "\\notsubset" 0 [Print notsubset];;
-def_macro "\\subseteq" 0 [Print subseteq];;
-def_macro "\\sqsubset" 0
-  [IfCond (display,
-    [Print display_sqsubset],
-    [Print "sqsubset"])];;
-def_macro "\\in" 0 [Print elem];;
+def_macro "\\circ" 0 (Print circ);;
+def_macro "\\@bullet" 0 (Print bullet);;
+def_macro "\\cap" 0 (Print cap);;
+def_macro "\\cup" 0 (Print cup);;
+def_macro "\\sqcap" 0 (Print sqcap);;
+def_macro "\\sqcup" 0 (Print sqcup);;
+def_macro "\\vee" 0 (Print vee);;
+def_macro "\\wedge" 0 (Print wedge);;
+def_macro "\\setminus" 0 (Print setminus);;
+def_macro "\\bigtriangleup" 0 (Print bigtriangleup);;
+def_macro "\\bigtriangledown" 0 (Print bigtriangledown);;
+def_macro "\\triangleleft" 0 (Print triangleleft);;
+def_macro "\\triangleright" 0 (Print triangleright);;
+def_macro "\\lhd" 0 (Print triangleleft);;
+def_macro "\\rhd" 0 (Print triangleright);;
+def_macro "\\leq" 0 (Print leq);;
+def_macro "\\subset" 0 (Print subset);;
+def_macro "\\notsubset" 0 (Print notsubset);;
+def_macro "\\subseteq" 0 (Print subseteq);;
+def_macro "\\@sqsubset" 0 (Print display_sqsubset);;
+def_macro "\\in" 0 (Print elem);;
 
-def_macro "\\geq" 0 [Print geq];;
-def_macro "\\supset" 0 [Print supset];;
-def_macro "\\supseteq" 0 [Print supseteq];;
-def_macro "\\sqsupset" 0
-  [IfCond (display,
-     [ItemDisplay ; Print display_sqsupset ; ItemDisplay],
-     [Print "sqsupset"])];;
-def_macro "\\equiv" 0 [Print equiv];;
-def_macro "\\ni" 0 [Print ni];;
+def_macro "\\geq" 0 (Print geq);;
+def_macro "\\supset" 0 (Print supset);;
+def_macro "\\supseteq" 0 (Print supseteq);;
+def_macro "\\@sqsupset" 0 (Print display_sqsupset);;
+def_macro "\\equiv" 0 (Print equiv);;
+def_macro "\\ni" 0 (Print ni);;
 
 
-def_macro "\\approx" 0 [Print approx];;
-def_macro "\\neq" 0 [Print neq];;
-def_macro "\\doteq" 0
-  [IfCond (display,
-     [ItemDisplay ; Print ".<BR>=" ; ItemDisplay],
-     [Subst "\\textdoteq"])];;
-def_macro "\\propto" 0 [Print propto];;
-def_macro "\\perp" 0 [Print perp];;
+def_macro "\\approx" 0 (Print approx);;
+def_macro "\\neq" 0 (Print neq);;
+def_macro "\\propto" 0 (Print propto);;
+def_macro "\\perp" 0 (Print perp);;
 
-def_macro "\\leftarrow" 0 [Print leftarrow];;
-def_macro "\\Leftarrow" 0 [Print upleftarrow];;
-def_macro "\\rightarrow" 0 [Print rightarrow];;
-def_macro "\\Rightarrow" 0 [Print uprightarrow];;
-def_macro "\\leftrightarrow" 0 [Print leftrightarrow];;
-def_macro "\\Leftrightarrow" 0 [Print upleftrightarrow];;
-def_macro "\\longleftarrow" 0 [Print longleftarrow];;
-def_macro "\\longrightarrow" 0 [Print longrightarrow];;
-def_macro "\\longleftrightarrow" 0 [Print longleftrightarrow];;
+def_macro "\\leftarrow" 0 (Print leftarrow);;
+def_macro "\\Leftarrow" 0 (Print upleftarrow);;
+def_macro "\\rightarrow" 0 (Print rightarrow);;
+def_macro "\\Rightarrow" 0 (Print uprightarrow);;
+def_macro "\\leftrightarrow" 0 (Print leftrightarrow);;
+def_macro "\\Leftrightarrow" 0 (Print upleftrightarrow);;
+def_macro "\\longleftarrow" 0 (Print longleftarrow);;
+def_macro "\\longrightarrow" 0 (Print longrightarrow);;
+def_macro "\\longleftrightarrow" 0 (Print longleftrightarrow);;
 
-def_macro "\\aleph" 0 [Print aleph];;
-def_macro "\\wp" 0 [Print wp];;
-def_macro "\\Re" 0 [Print upre];;
-def_macro "\\Im" 0 [Print upim];;
-def_macro "\\prim" 0 [Print prim];;
-def_macro "\\nabla" 0 [Print nabla];;
-def_macro "\\surd" 0 [Print surd];;
-def_macro "\\angle" 0 [Print angle];;
-def_macro "\\exists" 0 [Print exists];;
-def_macro "\\forall" 0 [Print forall];;
-def_macro "\\partial" 0 [Print partial];;
-def_macro "\\diamond" 0 [Print diamond];;
-def_macro "\\clubsuit" 0 [Print clubsuit];;
-def_macro "\\diamondsuit" 0 [Print diamondsuit];;
-def_macro "\\heartsuit" 0 [Print heartsuit];;
-def_macro "\\spadesuit" 0 [Print spadesuit];;
-def_macro "\\infty" 0 [Print infty];;
+def_macro "\\aleph" 0 (Print aleph);;
+def_macro "\\wp" 0 (Print wp);;
+def_macro "\\Re" 0 (Print upre);;
+def_macro "\\Im" 0 (Print upim);;
+def_macro "\\prim" 0 (Print prim);;
+def_macro "\\nabla" 0 (Print nabla);;
+def_macro "\\surd" 0 (Print surd);;
+def_macro "\\angle" 0 (Print angle);;
+def_macro "\\exists" 0 (Print exists);;
+def_macro "\\forall" 0 (Print forall);;
+def_macro "\\partial" 0 (Print partial);;
+def_macro "\\diamond" 0 (Print diamond);;
+def_macro "\\clubsuit" 0 (Print clubsuit);;
+def_macro "\\diamondsuit" 0 (Print diamondsuit);;
+def_macro "\\heartsuit" 0 (Print heartsuit);;
+def_macro "\\spadesuit" 0 (Print spadesuit);;
+def_macro "\\infty" 0 (Print infty);;
 
-def_macro "\\lfloor" 0 [Print lfloor];;
-def_macro "\\rfloor" 0 [Print rfloor];;
-def_macro "\\lceil" 0 [Print lceil];;
-def_macro "\\rceil" 0 [Print rceil];;
-def_macro "\\langle" 0 [Print langle];;
-def_macro "\\rangle" 0 [Print rangle];;
+def_macro "\\lfloor" 0 (Print lfloor);;
+def_macro "\\rfloor" 0 (Print rfloor);;
+def_macro "\\lceil" 0 (Print lceil);;
+def_macro "\\rceil" 0 (Print rceil);;
+def_macro "\\langle" 0 (Print langle);;
+def_macro "\\rangle" 0 (Print rangle);;
 
-def_macro "\\notin" 0 [Print notin];;
+def_macro "\\notin" 0 (Print notin);;
 
-def_macro "\\uparrow" 0 [Print uparrow];;
-def_macro "\\Uparrow" 0 [Print upuparrow];;
-def_macro "\\downarrow" 0 [Print downarrow];;
-def_macro "\\Downarrow" 0 [Print updownarrow];;
+def_macro "\\uparrow" 0 (Print uparrow);;
+def_macro "\\Uparrow" 0 (Print upuparrow);;
+def_macro "\\downarrow" 0 (Print downarrow);;
+def_macro "\\Downarrow" 0 (Print updownarrow);;
 
-def_macro "\\oplus" 0 [Print oplus];;
-def_macro "\\otimes" 0 [Print otimes];;
-def_macro "\\ominus" 0 [Print ominus];;
+def_macro "\\oplus" 0 (Print oplus);;
+def_macro "\\otimes" 0 (Print otimes);;
+def_macro "\\ominus" 0 (Print ominus);;
 
-
-def_macro "\\sum" 0 [IfCond (display,[Subst ("\\Huge")],[]) ; Print upsigma];
-def_macro "\\prod" 0 [IfCond (display,[Subst ("\\Huge")],[]) ; Print uppi];
-def_macro "\\int" 0
-  [IfCond (display,
-    [Print display_int],
-    [Print int])];
+def_macro "\\@int" 0 (Print int);;
+def_macro "\\@displayint" 0 (Print display_int);;
 ();;
 
 let alpha_of_int i = String.make 1 (Char.chr (i-1+Char.code 'a'))
@@ -469,21 +454,21 @@ and tilde = function
 
 
 (* Accents *)
-def_macro "\\'" 1 [Print_fun (aigu,0)];
-def_macro "\\`" 1 [Print_fun (grave,0)];
-def_macro "\\^" 1 [Print_fun (circonflexe,0)];
-def_macro "\\\"" 1 [Print_fun (trema,0)];
-def_macro "\\c" 1  [Print_fun (cedille,0)];
-def_macro "\\~" 1 [Print_fun (tilde,0)];
+def_macro "\\'" 1 (Print_fun (aigu,0));
+def_macro "\\`" 1 (Print_fun (grave,0));
+def_macro "\\^" 1 (Print_fun (circonflexe,0));
+def_macro "\\\"" 1 (Print_fun (trema,0));
+def_macro "\\c" 1  (Print_fun (cedille,0));
+def_macro "\\~" 1 (Print_fun (tilde,0));
 
 (* Counters *)
-def_macro "\\arabic" 1 [Print_count (string_of_int,0)] ;
-def_macro "\\alph" 1 [Print_count (alpha_of_int,0)] ;
-def_macro "\\Alph" 1 [Print_count (upalpha_of_int,0)] ;
-def_macro "\\roman" 1 [Print_count (roman_of_int,0)];
-def_macro "\\Roman" 1 [Print_count (uproman_of_int,0)];
-def_macro "\\fnsymbol" 1 [Print_count (fnsymbol_of_int,0)];
-def_macro "\\uppercase" 1 [Print_fun (String.uppercase,0)];
+def_macro "\\arabic" 1 (Print_count (string_of_int,0)) ;
+def_macro "\\alph" 1 (Print_count (alpha_of_int,0)) ;
+def_macro "\\Alph" 1 (Print_count (upalpha_of_int,0)) ;
+def_macro "\\roman" 1 (Print_count (roman_of_int,0));
+def_macro "\\Roman" 1 (Print_count (uproman_of_int,0));
+def_macro "\\fnsymbol" 1 (Print_count (fnsymbol_of_int,0));
+def_macro "\\uppercase" 1 (Print_fun (String.uppercase,0));
 ();;
 
 let invisible = function
@@ -500,8 +485,9 @@ let invisible = function
 | "\\purple" | "\\silver" | "\\gray" | "\\white"
 | "\\maroon" | "\\red" | "\\fuchsia" | "\\green"
 | "\\lime" | "\\olive" | "\\yellow" | "\\navy"
-| "\\blue" | "\\teal" | "\\aqua" -> true
-| _ -> false
+| "\\blue" | "\\teal" | "\\aqua" | "\\else" | "\\fi" -> true
+| name ->
+    (String.length name >= 3 && String.sub name 0 3 = "\\if")
 ;;
 
 let limit = function

@@ -650,6 +650,12 @@ $$
 \item Zobi
 \end{list}
 
+À comparer avec~:
+\begin{list}{\thecoucou}{\usecounter{coucou}}
+\item Coucou
+\item Zobi
+\end{list}
+
 \newenvironment{foo}{\begin{trivlist}\it\item[coucou]}{\end{trivlist}}
 \begin{foo}
 Foo! foooooooooooooooooooo.
@@ -820,14 +826,16 @@ Et pis en texte: $\overline{A} \stackrel{B}{\rightarrow}
 
 \section{The \texttt{ifthen} Package}
 \subsection{Des ok partout}
-\newboolean{coucou}
-\newboolean{zob}
-\ifthenelse{\not\boolean{coucou}}{\setboolean{zob}{true}}{\setboolean{zob}{false}}
+\newboolean{coucou}\newboolean{zob}%
+\ifthenelse{\boolean{coucou}}{\setboolean{zob}{false}}{\setboolean{zob}{true}}%
+
+
 \ifthenelse{\boolean{coucou}}{malaise}{ok}
 \ifthenelse{\boolean{coucou} \or \boolean{zob}}{ok}{malaise}
 
 \newcommand{\vrai}{true}%
 \ifthenelse{\equal{\vrai}{true} \and \not\(\equal{\vrai}{}\)}{ok}{malaise}
+
 
 \subsection{La totale}
 {\newcounter{ca}\newcounter{cb}}%
@@ -841,6 +849,9 @@ Et pis en texte: $\overline{A} \stackrel{B}{\rightarrow}
     gcd(\arabic{ca}, \arabic{cb}) = }%
   \arabic{ca}.}%
 Test du pgcd : \printgcd{54}{30}
+
+\section{The \texttt{calc} package}
+Aller voir~\cite{latexbis}
 
 \section{The \texttt{array} package}
 
@@ -915,5 +926,12 @@ Foo & Foobis\\
 Coucou & \Gamma_A\\
 Coucou & \Gamma_A \\
 \end{tabular}
+
+\begin{thebibliography}{xxxxxxxxxx}
+\bibitem[\LaTeX-bis]{latexbis}
+M.~Gooseens, F.~Mittelbach, A.~Samarin.
+\newblock {\em The \LaTeX{} Companion}
+\newblock Addison-Websley, 1994.
+\end{thebibliography}
 
 \end{document}

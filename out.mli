@@ -25,6 +25,7 @@ val flush: t -> unit
 val to_string : t -> string
 val to_chan : out_channel -> t -> unit
 val copy : t -> t -> unit
+val copy_fun : (string -> string) -> t -> t -> unit
 val copy_no_tag : t -> t -> unit
 val close : t -> unit
 

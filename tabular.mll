@@ -104,7 +104,7 @@ and tfmiddle = parse
     done ;
     Lexstate.scan_body
       (function
-        | [Latexmacros.Subst body] -> scan_this lexformat body
+        | (Latexmacros.Subst body) -> scan_this lexformat body
         | _ -> assert false)
       body (trim arg_t)}
 | eof {()}

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: html.ml,v 1.36 1999-03-03 18:08:37 maranget Exp $" 
+let header = "$Id: html.ml,v 1.37 1999-03-08 15:51:25 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -151,6 +151,10 @@ exception Close of string
 
 let failclose s = raise (Close s)
 ;;
+
+let check_block_closed opentag closetag =
+  if opentag <> closetag && not (opentag = "AFTER" && closetag = "") then
+    failclose ("hml: ``"^closetag^"'' closes ``"^opentag^"''") ;
 
 type 'a ok  = No | Yes of 'a
 ;;
@@ -424,6 +428,7 @@ and nrows_stack = ref []
 ;;
 
 let delay_stack = ref []
+and after_stack = ref []
 ;;
 
 let nitems_stack = ref []
@@ -492,7 +497,9 @@ let flush_par () =
 ;;
 
 let forget_par () =
-  flags.pending_par <- false
+  let r = flags.pending_par in
+  flags.pending_par <- false ;
+  r
 ;;
 
 
@@ -744,7 +751,7 @@ and try_close_display () =
 ;;
 
 let rec do_open_block s args = match s with
-  ""|"DELAY"|"FORGET" -> ()
+  ""|"DELAY"|"FORGET"|"AFTER" -> ()
 | "DISPLAY" ->
    do_open_block "TABLE" args ;
    do_open_block "TR" "VALIGN=middle"
@@ -799,7 +806,7 @@ let rec try_close_block s =
 ;;
 
 let rec do_close_block s = match s with
-  ""|"DELAY"|"FORGET" -> ()
+  ""|"DELAY"|"FORGET"|"AFTER" -> ()
 | "DISPLAY" ->
     do_close_block "TR" ;
     do_close_block "TABLE"
@@ -842,14 +849,11 @@ let rec force_block s content =
   if s = "PRE" then flags.in_pre <- false ;
   do_close_mods () ;
   let true_s =
-    if s = "FORGET" then
-      pblock()
-    else s in
+    if s = "FORGET" then pblock() else s in
   try_close_block true_s ;
   do_close_block true_s ;
   let ps,args,pout = pop_out out_stack in  
-  if ps <> true_s then
-    failclose ("hml: "^true_s^" closes "^ps) ;
+  check_block_closed ps true_s ;
   let old_out = !cur_out in  
   cur_out := pout ;
   if s = "FORGET" then free old_out
@@ -857,14 +861,20 @@ let rec force_block s content =
     let mods = !cur_out.active @ !cur_out.pending in
     do_close_mods () ;
     do_open_block s args ;
-    Out.copy old_out.out !cur_out.out ;
+    if ps = "AFTER" then begin
+      let f = pop "after" after_stack in
+      Out.copy_fun f old_out.out !cur_out.out
+    end else
+      Out.copy old_out.out !cur_out.out ;
     free old_out ;    
     !cur_out.pending <- mods
-  end else begin (* s = "DELAY" *)
+  end else begin (* ps = "DELAY" *)
     raise (Misc.Fatal ("html: unflushed DELAY"))
   end ;
-  if not was_empty && true_s <> ""  then flags.last_closed <- true_s
+  if not was_empty && true_s <> "" && true_s <> "AFTER" then
+    flags.last_closed <- true_s
 
+    
 and close_block_loc pred s =
   if !verbose > 2 then
     prerr_string ("close_block_loc: ``"^s^"'' = ");
@@ -998,6 +1008,10 @@ let open_group ss =
   !cur_out.pending <-
     (!cur_out.pending @ (if ss = "" then [] else [Style ss]))
 
+and open_aftergroup f =
+  open_block "AFTER" "" ;
+  push after_stack f
+
 and close_group () = close_block ""
 ;;
 
@@ -1111,7 +1125,7 @@ let do_item_display force =
     prerr_endline ("Item Display ncols="^string_of_int flags.ncols^" table_inside="^sbool flags.table_inside)
   end ;
   let f,is_freeze = pop_freeze () in
-  if force || flags.table_inside then begin
+  if (force && not flags.empty) || flags.table_inside then begin
     push saved_inside (pop "saved_inside, item" saved_inside || flags.table_inside) ;
     flags.table_inside <- false ;
     let active  = !cur_out.active
@@ -1246,7 +1260,7 @@ let item scan arg =
   do_close_mods () ;
   let true_scan =
     if flags.nitems = 0 then begin
-      forget_par () ;
+      let _ = forget_par () in () ;
       let saved = Out.to_string !cur_out.out in
       (fun arg -> do_put saved ; scan arg)
     end else scan in
@@ -1362,12 +1376,15 @@ let to_string f =
 ;;
 
 let to_style f =
+  let old_flags = copy_flags flags in
+  flags.pending_par <- false ;
   open_group "" ;
   !cur_out.active  <- [] ;
   !cur_out.pending <- [] ;
   f () ;
   let r = !cur_out.active @ !cur_out.pending in
   erase_block "" ;
+  set_flags flags old_flags ;
   r
 ;;
 

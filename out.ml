@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: out.ml,v 1.9 1999-02-19 18:00:11 maranget Exp $" 
+let header = "$Id: out.ml,v 1.10 1999-03-08 15:51:36 maranget Exp $" 
 let verbose = ref 0
 ;;
 
@@ -116,7 +116,11 @@ let hidden_copy from to_buf i l = match to_buf with
 let copy from_buff to_buff = match from_buff with
   Buff from -> hidden_copy from to_buff 0 from.bp
 | _         -> raise (Misc.Fatal "Out.copy")
-;;
+
+let copy_fun f  from_buff to_buff = match from_buff with
+  Buff from ->
+    put to_buff (f (String.sub from.buff 0 from.bp))
+| _         -> raise (Misc.Fatal "Out.copy_fun")
 
 let copy_no_tag from_buff to_buff =
   if !verbose > 2 then begin

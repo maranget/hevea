@@ -38,6 +38,7 @@
 \def\home#1{\char126#1}
 \def\oneurl#1{\@url{#1}{#1}}
 \newcommand{\docurl}{http://para.inria.fr/\home{maranget}/hevea}
+\newcommand{\mailto}[1]{\@url{mailto:#1}{#1}}
 %%%% HTML constructs (no equivalents in html.sty)
 \newcommand{\imgsrc}[1]{\@print{<IMG SRC="}{\@nostyle#1}\@print{">}}
 %% Paragraphs
@@ -170,7 +171,7 @@
   {\@open{DL}{}}
   {\@close{DL}}
 \newenvironment{list}[2]
-  {\@open{DL}{COMPACT=compact}\newcommand{\makelabel}[1]{#1}%open
+  {\@open{DL}{COMPACT=compact}\newcommand{\makelabel}[1]{##1}%open
   \@defaultdt{#1}%default
   #2%exec
 }{\@close{DL}}
@@ -310,6 +311,22 @@
 \def\bot{\perp}
 \def\models{|=}
 \def\|{||}
+\def\bullet{{\@incsize{1}\@bullet}}
+\def\textsqsubset{\mbox{sqsubset}}
+\def\sqsubset{%
+\ifdisplay\@itemdisplay\@sqsubset\@itemdisplay\else
+\textsqsubset\fi}
+\def\textsqsupset{\mbox{sqsupset}}
+\def\sqsupset{%
+\ifdisplay\@itemdisplay\@sqsupset\@itemdisplay\else
+\textsqsupset\fi}
+\def\textdoteq{=^{\cdot}}
+\def\doteq{%
+\ifdisplay\@itemdisplay\@print{<FONTSIZE=7>·</FONT><BR>}=\@itemdisplay\else
+\textdoteq\fi}
+\def\sum{\ifdisplay{\Huge\Sigma}\else\Sigma\fi}
+\def\prod{\ifdisplay{\Huge\Pi}\else\Pi\fi}
+\def\int{\ifdisplay\@displayint\else{\large\@int}\fi}
 %% Arrays and tabular
 \newenvironment{tabular*}[2]{\warning{Warning, tabular* changed into tabular}\begin{tabular}{#2}}{\end{tabular}}
 \newcommand{\extracolsep}[1]{\warning{Warning, \extracolsep ignored}}
@@ -319,7 +336,7 @@
 \def\bibliographystyle#1{}
 \def\nocite#1{}
 \newcommand{\bibname}{\iffrench Références\else References\fi}
-\newenvironment{thebibliography}[1]{\@bibliosection{\bibname}\@open{DL}{COMPACT}\newcommand{\makelabel}[1]{#1}}{\@close{DL}}
+\newenvironment{thebibliography}[1]{\@bibliosection{\bibname}\@open{DL}{COMPACT}\newcommand{\makelabel}[1]{##1}}{\@close{DL}}
 \newcommand{\bibitem}[2][]{\item[{\purple[\@bibref{#2}]\label{#2}}]}
 %% Indexes a` la index.cls
 \newcommand{\index}[2][default]{\@index[#1]{#2}}
@@ -377,7 +394,6 @@
 \textfbox{#1}\fi}
 \newcommand{\hbox}[1]{\warning{\hbox}\mbox{#1}}
 \newcommand{\displaystyle}{\ifdisplay\else\warning{\displaystyle ignored}\fi}
-\newcommand{\mailto}[1]{\url{mailto:#1}{#1}}
 %%% now serious
 \def\noprint#1{{\@nostyle\@print{#1}}}%
 \newcommand{\@bodyargs}{BGCOLOR=silver TEXT=black}
@@ -395,7 +411,7 @@
 }%
 \iffrench\@print{<!--FRENCH-->
 }\fi
-\cutdef[\value{cuttingdepth}]{\cuttingunit}%
+\cutdef[\thecuttingdepth]{\cuttingunit}%
 \renewcommand{\thefootnote}{\arabic{footnote}}%
 \setcounter{footnote}{0}%
 }{%

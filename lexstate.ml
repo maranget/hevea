@@ -3,6 +3,8 @@ open Misc
 let header = ""
 
 exception Error of string
+exception IfFalse
+
 
 type 'a t = 'a list ref
 
@@ -33,20 +35,25 @@ let stack_lexbuf = ref []
 
 (* arguments inside macros*)
 type env = string array ref
+type closenv = string array t
 
 let stack = ref [||]
 and stack_stack = ref []
 and stack_stack_stack = ref []
 ;;
 
+let top_level () = empty stack_stack
+
+
 let prerr_args_aux args =
-  prerr_endline "Arguments: " ;
-  for i = 0 to Array.length args - 1 do
-    prerr_string "\t``" ;
-    prerr_string args.(i) ;
-    prerr_endline "''"
-  done ;
-  prerr_endline "End of arguments"
+  if Array.length args <> 0 then begin
+    prerr_endline "Arguments: " ;
+    for i = 0 to Array.length args - 1 do
+      prerr_string "\t``" ;
+      prerr_string args.(i) ;
+      prerr_endline "''"
+    done
+  end
 
 let prerr_args () = prerr_args_aux !stack
 
@@ -64,18 +71,19 @@ let prerr_stack_string s f stack =
   prerr_string s ;
   prerr_string ": <<" ;
   do_rec !stack
-;;
 
 
 let scan_arg lexfun i =
   if i >= Array.length !stack then
     raise (Error "Macro argument not found");
   let arg = !stack.(i) in
-  if !verbose > 2 then
-    prerr_endline ("Subst arg: ``"^arg^"''") ;
+  if !verbose > 1 then begin
+    prerr_string ("Subst arg #"^string_of_int (i+1)^" -> ``"^arg^"''") ;
+    prerr_endline (" ("^string_of_int (List.length !stack_stack)^")")
+  end ;
   let old_args = !stack in
   stack := pop stack_stack ;
-  if !verbose > 2 then
+  if !verbose > 1 then
     prerr_args_aux !stack;
   let r = lexfun arg in
   push stack_stack !stack ;
@@ -86,12 +94,17 @@ and scan_body exec body args =
   push stack_stack !stack ;
   stack := args ;
   try
+(*
+    prerr_string "scan_body :" ;
+    Latexmacros.pretty_action body ;
+    prerr_args () ;
+*)
     let r = exec body in
     stack := pop stack_stack ;
     r
-  with x -> begin
+  with IfFalse -> begin
     stack := pop stack_stack ;
-    raise x
+    raise IfFalse
   end
 
 let eat_space = ref true
@@ -155,3 +168,18 @@ let flushing = ref false
 
 let stack_in_math = ref []
 and stack_display = ref []
+
+
+let start_normal display in_math =
+  start_lexstate () ;
+  push stack_display !display ;
+  push stack_in_math !in_math ;
+  display := false ;
+  in_math := false
+
+and  end_normal display in_math =
+  in_math := pop stack_in_math ;
+  display := pop stack_display ;
+  restore_lexstate () ;
+;;
+

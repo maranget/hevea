@@ -29,7 +29,7 @@ module type S =
     val open_mods : Latexmacros.env list -> unit
     val close_mods : unit -> unit
     val par : unit -> unit
-    val forget_par : unit -> unit
+    val forget_par : unit -> bool
     val open_block : string -> string -> unit
     val close_flow : string -> unit
     val close_block : string -> unit
@@ -49,6 +49,7 @@ module type S =
     val change_block : string -> string -> unit
     val erase_block : string -> unit
     val open_group : string -> unit
+    val open_aftergroup : (string -> string) -> unit
     val close_group : unit -> unit
     val put : string -> unit
     val put_char : char -> unit

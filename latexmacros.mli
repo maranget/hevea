@@ -19,19 +19,15 @@ type env =
 
 val pretty_env : env -> string
 
-
 type action =
     Print of string
-  | ItemDisplay
-  | Print_arg of int
   | Print_fun of ((string -> string) * int)
   | Subst of string
   | Print_count of ((int -> string)  * int)
   | Test of bool ref
   | SetTest of (bool ref * bool)
-  | IfCond of bool ref * action list * action list
-  | Br
 ;;
+
 
 
 
@@ -39,18 +35,19 @@ type pat =  string list * string list
 ;;
 
 val pretty_pat : pat -> unit
+val pretty_action : action -> unit
 
-val find_macro: string -> pat * action list
+val find_macro: string -> pat * action
 
 val make_pat: string list -> int -> pat
-val def_coltype: string -> pat  -> action list -> unit
-val def_macro_pat: string -> pat  -> action list -> unit
-val redef_macro_pat: string -> pat  -> action list -> unit
-val provide_macro_pat: string -> pat  -> action list -> unit
-val def_macro: string -> int -> action list -> unit
-val redef_macro: string -> int -> action list -> unit
-val def_env_pat: string -> pat -> action list -> action list -> unit
-val redef_env_pat: string -> pat -> action list -> action list -> unit
+val def_coltype: string -> pat  -> action -> unit
+val def_macro_pat: string -> pat  -> action -> unit
+val redef_macro_pat: string -> pat  -> action -> unit
+val provide_macro_pat: string -> pat  -> action -> unit
+val def_macro: string -> int -> action -> unit
+val redef_macro: string -> int -> action -> unit
+val def_env_pat: string -> pat -> action -> action -> unit
+val redef_env_pat: string -> pat -> action -> action -> unit
 val unregister : string -> unit
 val newif : string -> string
 

@@ -12,6 +12,10 @@ opt:
 	export HEVEADIR=.. ;\
 	$(MAKE) $(MFLAGS) HEVEA=hevea.opt HACHA=hacha.opt IMAGEN=imagen.opt all
 
+byte:
+	export HEVEADIR=.. ;\
+	$(MAKE) $(MFLAGS) HEVEA=hevea.byte HACHA=hacha.byte IMAGEN=imagen.byte all
+
 tmp.tex: manual.tex version.tex
 	$(GPIC) -t < manual.tex > tmp.tex
 
