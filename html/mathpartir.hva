@@ -32,26 +32,24 @@
 %
 % \hva is ignored in latex more.
 
-
-\usepackage {array}
 \usepackage {keyval}
-
-\let \latexcr \\
-\let\latexpar\par
-\def \mathpar@hva #1{&}%
-\def \mathpar@par
-  {\end{tabular}\vspace*{1ex}\begin{tabular}{*{20}{>{\centering$$}p{}<{$$}}}}
+\let\latexcr\\
+%%mathpar
+\def\open@mathpar@table
+{\@open{TABLE}{BORDER=0 CELLSPACING=4 CELLPADDING=0}}
+\def\mathpar@and{\mbox{\qquad}}%
+\def\mathpar@bsbs
+{\@force{TD}\@close{TR}\@open{TR}{}\@open{TD}{align=center}}%
+\def\mathpar@hva#1{\mathpar@bsbs}%
 \newenvironment{mathpar}[1][]
-  {\begin{center}%
-  \renewcommand{\@table@attributes}{WIDTH="100\%" %BORDER=0 BGCOLOR=yellow
- CELLSPACING=0 CELLPADDING=0}%
-  \let \hva \mathpar@hva \let \par \mathpar@par #1%
-  \begin{tabular}{*{20}{>{\centering$$}p{}<{$$}}}}
-  {\end{tabular}\end{center}}
-
+  {$$%
+  \let\and\mathpar@and\let\\\mathpar@bsbs\let\hva\mathpar@hva%
+  \open@mathpar@table%
+  \@open{TR}{}\@open{TD}{align=center}}
+  {\@close{TD}\@close{TR}\@close{TABLE}$$}
+%%%% Type Inference Rules (TIR)
 \newcommand{\mpr@globle}[1]{}
-\newcommand {\smaller}[1]{\@open{font}{size="-1"}#1\@close{font}}
-\newcommand {\@mpr@name}[1]{\textsc{\smaller {#1}}\let\mpr@name\mpr@globle}
+\newcommand {\@mpr@name}[1]{\@tir@name{#1}\let\mpr@name\mpr@globle}
 \def \@latexcr@char {\\}
 \def \mpr@line@hva #1{%
    \def \@testa {#1} \ifx \@testa \@latexcr@char
@@ -60,7 +58,6 @@
 \def \mpr@break@display
 {\global\let\mpr@save@arg\mpr@line@arg
 \endmpr@line\mpr@line{\mpr@save@arg}}
-
 %%% this may not be robust (if nextchar is special char)
 %%% also may not want this semantics
 \def \@latexcr #1{%
@@ -70,10 +67,10 @@
 \newcommand{\mpr@line}[1]
 {\@open{TR}{\mpr@valign{#1}}%
 \ifx\mpr@label\mpr@L\@open{TD}{}\mpr@name{\@rule@name}\@force{TD}\fi
-\@open{TD}{ALIGN="\ifmpr@center{}center\else{}left\fi"}%
+\@open{TD}{NOWRAP ALIGN="\ifmpr@center{}center\else{}left\fi"}%
 \bgroup\def\mpr@line@arg{#1}%
 \@open{DISPLAY}{\mpr@valign{#1}}%
-\def\\{\@latexcr{\qquad}}
+\def\\{\@latexcr{\qquad}}\def\and{\@latexcr{\qquad}}%
 \let\hva\mpr@line@hva}
 \newcommand{\endmpr@line}
 {\@close{DISPLAY}\egroup\@force{TD}%
@@ -89,7 +86,7 @@
 \whiledo{\value{mpr@count}>1}{\@br\vdots\addtocounter{mpr@count}{-1}}}
 \def\mpr@emptyL{\ifx\mpr@label\mpr@L\@open{TD}{}\@force{TD}\fi}
 \def\mpr@emptyR{\ifx\mpr@label\mpr@R\@open{TD}{}\@force{TD}\fi}
-\newcommand{\@mpr@table}{\@open{TABLE}{border=2 cellspacing=1 cellpadding=0}}
+\newcommand{\@mpr@table}{\@open{TABLE}{border=0 cellspacing=1 cellpadding=0}}
 \newcommand {\@inferrule}[2]
    {\bgroup
     \let \\ \latexcr%
@@ -119,21 +116,14 @@
     \@force{TABLE}%
     \egroup%
 }
-
-\def \hh@line {\@print
-   {</TD></TR><TR> <TD bgcolor=black>
-    <TABLE border=0 cellspacing=0 cellpadding=1 bgcolor=green width="100%">
-    <TR><TD></TD></TR></TABLE></TD></TR><TR><TD align=center>}} 
-
-\def \@hhline {\@print
-   {<TABLE border=0 cellspacing=0 cellpadding=1 bgcolor=green width="100%">
-    <TR><TD></TD></TR></TABLE>}}
+\def\hhline@color{green}
 \def \@hhline
 {\@open{TR}{}%
 \mpr@emptyL
-\@open{TD}{height="3" bgcolor=green}\@force{TD}%
+\@open{TD}{height="3" bgcolor="\hhline@color"}\@force{TD}%
 \mpr@emptyR
 \@force{TR}}
+
 \def \hh@arrow {\@print
    {</TD></TR><TR> 
      <td><table cellpadding=0 cellspacing=0 WIDTH="100%"><tr>
@@ -142,13 +132,9 @@
     <TR><TD></TD></TR></TABLE></TD>
      </tr></table></td><td><TD><b><sup><code>-><code></sup></b></TD></td>
     </TR><TR><TD align=center>}} 
-\let \hhline \hh@line
-\def \hharrow {\hh@arrow}
-
-\def \@single@mathrule #1]{\inferrule [#1]}
 
 \newcommand {\inferrule*}[3][]{%
-   \bgroup
+   \bgroup\let\@tir@name\RefTirName%
    \mpr@vdotsfalse\let\mpr@label\mpr@N\let\mpr@name\@mpr@name%Default
    \setkeys {mpr}{#1}%
    \@inferrule{#2}{#3}%
@@ -156,7 +142,7 @@
 \newcommand {\inferrule}[3][]{%
    \def\mpr@arg{#1}\ifx\mpr@arg\mpr@empty
    \inferrule*{#2}{#3}\else
-   \inferrule*[lab=#1,center]{#2}{#3}\fi}
+   \inferrule*[before={\let\@tir@name\TirName},lab=#1,center]{#2}{#3}\fi}
 
 \def \mprset {\setkeys{mprset}}
 \define@key {mprset}{flushleft}[]{\mpr@centerfalse}
@@ -166,8 +152,7 @@
 
 \define@key {mpr}{left}{[\mpr@name {#1}]}
 \define@key {mpr}{width}{}
-\define@key {mpr}{before}{}
-
+\define@key {mpr}{before}{#1}
 \define@key {mpr}{narrower}{}
 \define@key {mpr}{leftskip}{}
 \define@key {mpr}{rightskip}{}
@@ -181,10 +166,12 @@
 \define@key {mpr}{right}{\let\mpr@label\mpr@R\mpr@set@name{#1}}
 \define@key {mpr}{vdots}{\mpr@vdotstrue\def\mpr@vdots{#1}}
 \define@key {mpr}{after}{}
-\define@key {mpr}{reduce}[]{\let \hhline \hh@arrow}
-
-%\let \infer \inferrule
-%\let \infer* \inferrule*
-
+%\define@key {mpr}{reduce}[]{\let \hhline \hh@arrow}
+%%%%Synonyms
+\@ifundefined{infer}{\let\infer\inferrule}{}
+\@ifundefined{infer*}{\let\infer*\inferrule*}{}
+%%%Label formatting
+\newcommand {\tir@name}[1]{\textsc{\scriptsize {#1}}}
+\let\RefTirName\tir@name
+\let\TirName\tir@name
 \endinput
-

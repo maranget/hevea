@@ -2672,6 +2672,21 @@ As usual, \texttt{hevea} will invoke \texttt{imagen} with the
 appropriate option, provided it is passed the \texttt{-fix} option.
 
 
+\subsection{Controling \texttt{imagen} from documment source}
+\comindex{@addimagenopt}
+The internal command
+\verb+\@addimagenopt{+\textit{option}\verb+\verb+}+ add
+the text \textit{option} to \texttt{imagen} command-line options, when
+lauched atomatically by \texttt{hevea} (\emph{i.e.} when
+\texttt{hevea} is given the ``\texttt{-fix}'' command line option).
+
+For instance, as to instruct \texttt{hevea}/\texttt{imagen} to
+reduce all images by a factor of $\sqrt{2}$ it suffices to state~:
+\begin{flushleft}
+\texttt{\%HEVEA}\verb+\@addimagenopt+\texttt{-mag 707}
+\end{flushleft}
+See section~\ref{imagenusage} for the list of command-line options
+accepter by \texttt{imagen}.
 
 \section{Other output formats}\label{alternative}
 It is possible to translate \LaTeX{} file into other formats than
