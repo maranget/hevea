@@ -1,4 +1,4 @@
-let header =  "$Id: lexstate.ml,v 1.13 1999-05-14 17:55:00 maranget Exp $"
+let header =  "$Id: lexstate.ml,v 1.14 1999-05-21 12:54:15 maranget Exp $"
 
 open Misc
 open Lexing
@@ -222,16 +222,20 @@ let flushing = ref false
 
 let stack_in_math = ref []
 and stack_display = ref []
+and stack_alltt = ref []
 
 
 let start_normal display in_math =
   start_lexstate () ;
   push stack_display !display ;
   push stack_in_math !in_math ;
+  push stack_alltt !alltt ;
   display := false ;
-  in_math := false
+  in_math := false ;
+  alltt := false
 
 and  end_normal display in_math =
+  alltt   := pop stack_alltt ;
   in_math := pop stack_in_math ;
   display := pop stack_display ;
   restore_lexstate () ;

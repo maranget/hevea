@@ -1,6 +1,7 @@
 LATEX=latex
 GPIC=gpic
 HEVEA=hevea
+HEVEAOPTS=
 HACHA=hacha
 IMAGEN=imagen
 HTMLDIR=$(HOME)/public_html/hevea
@@ -10,17 +11,17 @@ all: manual.dvi index.html
 
 opt:
 	export HEVEADIR=.. ;\
-	$(MAKE) $(MFLAGS) HEVEA=hevea.opt HACHA=hacha.opt IMAGEN=imagen.opt all
+	$(MAKE) $(MFLAGS) HEVEAOPTS="$(HEVEAOPTS)" HEVEA=hevea.opt HACHA=hacha.opt IMAGEN=imagen.opt all
 
 byte:
 	export HEVEADIR=.. ;\
-	$(MAKE) $(MFLAGS) HEVEA=hevea.byte HACHA=hacha.byte IMAGEN=imagen.byte all
+	$(MAKE) $(MFLAGS) HEVEAOPTS="$(HEVEAOPTS)" HEVEA=hevea.byte HACHA=hacha.byte IMAGEN=imagen.byte all
 
 tmp.tex: manual.tex version.tex
 	$(GPIC) -t < manual.tex > tmp.tex
 
 manual.html: manual.hva tmp.tex
-	${HEVEA}  manual.hva tmp.tex -o manual.html
+	${HEVEA} $(HEVEAOPTS) manual.hva tmp.tex -o manual.html
 	$(MAKE) $(MFLAGS) images
 
 manual.dvi: tmp.tex

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmacros.ml,v 1.48 1999-05-17 13:40:21 maranget Exp $" 
+let header = "$Id: latexmacros.ml,v 1.49 1999-05-21 12:54:07 maranget Exp $" 
 open Misc
 open Parse_opts
 open Symb
@@ -173,147 +173,15 @@ let is_subst_noarg body pat = match body with
 
 (* Base LaTeX macros *)
 
-let no_dot = function
-  "." -> ""
-| s   -> s in
 def_macro "\\bgroup" 0 (Subst "{") ;
 def_macro "\\egroup" 0 (Subst "}") ;
 
 
 def_macro_pat "\\makebox" (["" ; ""],["#1"]) (Subst "\\warning{makebox}\\mbox{#3}") ;
-def_macro_pat "\\framebox" (["" ; ""],["#1"]) (Subst "\\warning{framebox}\\fbox{#3}") ;
+def_macro_pat "\\framebox" (["" ; ""],["#1"]) (Subst "\\warning{framebox}\\fbox{#3}")
+;;
 
-
-
-(* Maths *)
-def_macro "\\alpha" 0 (Print alpha);
-def_macro "\\beta" 0 (Print beta);
-def_macro "\\gamma" 0 (Print gamma);
-def_macro "\\delta" 0 (Print delta);
-def_macro "\\epsilon" 0 (Print epsilon);
-def_macro "\\zeta" 0 (Print zeta);
-def_macro "\\eta" 0 (Print eta);
-def_macro "\\theta" 0 (Print theta);
-def_macro "\\vartheta" 0 (Print vartheta);
-def_macro "\\iota" 0 (Print iota);
-def_macro "\\kappa" 0 (Print kappa);
-def_macro "\\lambda" 0 (Print lambda);
-def_macro "\\nu" 0 (Print nu);
-def_macro "\\xi" 0 (Print xi);
-def_macro "\\pi" 0 (Print pi);
-def_macro "\\varpi" 0 (Print varpi);
-def_macro "\\rho" 0 (Print rho);
-def_macro "\\varrho" 0 (Print varrho);
-def_macro "\\sigma" 0 (Print sigma);
-def_macro "\\varsigma" 0 (Print varsigma);
-def_macro "\\tau" 0 (Print tau);
-def_macro "\\upsilon" 0 (Print upsilon);
-def_macro "\\phi" 0 (Print phi);
-def_macro "\\varphi" 0 (Print varphi);
-def_macro "\\chi" 0 (Print chi);
-def_macro "\\psi" 0 (Print psi);
-def_macro "\\omega" 0 (Print omega);
-
-def_macro "\\Gamma" 0 (Print upgamma);
-def_macro "\\Delta" 0 (Print updelta);
-def_macro "\\Theta" 0 (Print uptheta);
-def_macro "\\Lambda" 0 (Print uplambda);
-def_macro "\\Xi" 0 (Print upxi);
-def_macro "\\Pi" 0 (Print uppi);
-def_macro "\\Sigma" 0 (Print upsigma);
-def_macro "\\Upsilon" 0 (Print upupsilon);
-def_macro "\\Phi" 0 (Print upphi);
-def_macro "\\Psi" 0 (Print uppsi);
-def_macro "\\Omega" 0 (Print upomega);
-();;
-
-def_macro "\\circ" 0 (Print circ);;
-def_macro "\\@bullet" 0 (Print bullet);;
-def_macro "\\cap" 0 (Print cap);;
-def_macro "\\cup" 0 (Print cup);;
-def_macro "\\sqcap" 0 (Print sqcap);;
-def_macro "\\sqcup" 0 (Print sqcup);;
-def_macro "\\vee" 0 (Print vee);;
-def_macro "\\wedge" 0 (Print wedge);;
-def_macro "\\setminus" 0 (Print setminus);;
-def_macro "\\bigtriangleup" 0 (Print bigtriangleup);;
-def_macro "\\bigtriangledown" 0 (Print bigtriangledown);;
-def_macro "\\triangleleft" 0 (Print triangleleft);;
-def_macro "\\triangleright" 0 (Print triangleright);;
-def_macro "\\lhd" 0 (Print triangleleft);;
-def_macro "\\rhd" 0 (Print triangleright);;
-def_macro "\\leq" 0 (Print leq);;
-def_macro "\\subset" 0 (Print subset);;
-def_macro "\\notsubset" 0 (Print notsubset);;
-def_macro "\\subseteq" 0 (Print subseteq);;
-def_macro "\\@sqsubset" 0 (Print display_sqsubset);;
-def_macro "\\in" 0 (Print elem);;
-
-def_macro "\\geq" 0 (Print geq);;
-def_macro "\\supset" 0 (Print supset);;
-def_macro "\\supseteq" 0 (Print supseteq);;
-def_macro "\\@sqsupset" 0 (Print display_sqsupset);;
-def_macro "\\equiv" 0 (Print equiv);;
-def_macro "\\ni" 0 (Print ni);;
-
-
-def_macro "\\approx" 0 (Print approx);;
-def_macro "\\neq" 0 (Print neq);;
-def_macro "\\propto" 0 (Print propto);;
-def_macro "\\perp" 0 (Print perp);;
-
-def_macro "\\leftarrow" 0 (Print leftarrow);;
-def_macro "\\Leftarrow" 0 (Print upleftarrow);;
-def_macro "\\rightarrow" 0 (Print rightarrow);;
-def_macro "\\Rightarrow" 0 (Print uprightarrow);;
-def_macro "\\leftrightarrow" 0 (Print leftrightarrow);;
-def_macro "\\Leftrightarrow" 0 (Print upleftrightarrow);;
-def_macro "\\longleftarrow" 0 (Print longleftarrow);;
-def_macro "\\longrightarrow" 0 (Print longrightarrow);;
-def_macro "\\longleftrightarrow" 0 (Print longleftrightarrow);;
-
-def_macro "\\aleph" 0 (Print aleph);;
-def_macro "\\wp" 0 (Print wp);;
-def_macro "\\Re" 0 (Print upre);;
-def_macro "\\Im" 0 (Print upim);;
-def_macro "\\prim" 0 (Print prim);;
-def_macro "\\nabla" 0 (Print nabla);;
-def_macro "\\surd" 0 (Print surd);;
-def_macro "\\angle" 0 (Print angle);;
-def_macro "\\exists" 0 (Print exists);;
-def_macro "\\forall" 0 (Print forall);;
-def_macro "\\partial" 0 (Print partial);;
-def_macro "\\diamond" 0 (Print diamond);;
-def_macro "\\clubsuit" 0 (Print clubsuit);;
-def_macro "\\diamondsuit" 0 (Print diamondsuit);;
-def_macro "\\heartsuit" 0 (Print heartsuit);;
-def_macro "\\spadesuit" 0 (Print spadesuit);;
-def_macro "\\infty" 0 (Print infty);;
-
-def_macro "\\lfloor" 0 (Print lfloor);;
-def_macro "\\rfloor" 0 (Print rfloor);;
-def_macro "\\lceil" 0 (Print lceil);;
-def_macro "\\rceil" 0 (Print rceil);;
-def_macro "\\langle" 0 (Print langle);;
-def_macro "\\rangle" 0 (Print rangle);;
-
-def_macro "\\notin" 0 (Print notin);;
-
-def_macro "\\uparrow" 0 (Print uparrow);;
-def_macro "\\Uparrow" 0 (Print upuparrow);;
-def_macro "\\downarrow" 0 (Print downarrow);;
-def_macro "\\Downarrow" 0 (Print updownarrow);;
-
-def_macro "\\oplus" 0 (Print oplus);;
-def_macro "\\otimes" 0 (Print otimes);;
-def_macro "\\ominus" 0 (Print ominus);;
-
-def_macro "\\@int" 0 (Print int);;
-def_macro "\\@displayint" 0 (Print display_int);;
-();;
-
-
-
+(* macro static properties *)
 
 let invisible = function
   "\\nofiles"

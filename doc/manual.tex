@@ -1946,8 +1946,7 @@ declarations.
 \index{"@fontcolor@\texttt{\char92"@fontcolor}}
 \begin{description}
 \item[{\tt\char92 @print\char123}{\it text}{\tt\char125}]
-Echo \textit{text} verbatim. The word ``verbatim'' means that (almost,
-see section~\ref{rawhtml})
+Echo \textit{text} verbatim. The word ``verbatim'' means no
 no processing of \textit{text} occurs.
 \item[{\tt\char92 @open\char123}{\it BLOCK}{\tt\char125\char123}{\it
 attributes}{\tt\char125}]
@@ -3223,11 +3222,15 @@ This section describes \hevea{} functionalities that extends on plain \LaTeX{},
 as defined in \cite{latex}.
 The features described here are performed by default.
 
-\subsection{\TeX{} Conditional Macros}\label{texcond}
+\subsection{\TeX{} macros}
 Normally, \hevea{} does not recognize constructs that are specific to
-\TeX{}, in the sense that they are not described in the \LaTeX{}
-manual.
-However \hevea{} recognizes à la \TeX{} conditional macros.
+\TeX{}.
+However, some of the internal commands of \hevea{} are homonymous to
+\TeX{} macros, in order to enhance compatibility.
+Note that full compatibility with \TeX{} is not guaranteed.
+
+\subsubsection{\TeX{} Conditional Macros}\label{texcond}
+\comindex{newif}\comindex{if}\comindex{else}\comindex{fi}
 The \verb+\newif+\textit{name}, where \textit{name} is made of letters
 only, creates three macros:
 \verb+\if+\textit{name}, \verb+\+\textit{name}\verb+true+ and
@@ -3265,6 +3268,43 @@ we have the following correspondences:
 \verb+\ifthenelse{\boolean{+\textit{name}\verb+}}{+\textit{text$_1$}\verb+}{+\textit{text$_2$}\verb+}+\\[.5em]
 \end{tabular}
 \end{center}
+
+\subsubsection{Command Definition inside Command Definition}
+\index{##n@\texttt{\#\#}\textit{n}}
+If one strictly follows the \LaTeX{} manual, only commands with no
+arguments can be defined inside other commands.
+Parameters (i.e., \verb+#+\textit{n}) occurring inside command bodies
+refer to the outer definition, even when they appear in nested
+command defitions.
+That is, the following source:
+\begin{verbatim}
+\newcommand{\outercom}[1]{\newcommand{\insidecom}{#1}\insidecom}
+\outercom{outer}
+\end{verbatim}
+yields this output:
+\begin{center}
+\newcommand{\outercom}[1]{\newcommand{\insidecom}{#1}\insidecom}
+\outercom{outer}
+\end{center}
+
+Nevertheless, nested commands with arguments are allowed.
+Standard parameters \verb+#+\textit{n} still refer to the outer
+definition, while nested parameters \verb+##+\textit{n} refer to the
+inner definition.
+That is, the source:
+\begin{verbatim}
+\newcommand{\outercom}[1]{\newcommand{\insidecom}[1]{##1}\insidecom{inner}}
+\outercom{outer}
+\end{verbatim}
+yields this output:
+\begin{center}
+\newcommand{\outercom}[1]{\newcommand{\insidecom}[1]{##1}\insidecom{inner}}
+\outercom{outer}
+\end{center}
+
+
+\subsubsection{Other \TeX{} Macros}
+\hevea{} implements the macros \verb+\unskip+ and \verb+\endinput+.
 
 
 \subsection{The \protect{\texttt{\char92{}verbatiminput}} Command}

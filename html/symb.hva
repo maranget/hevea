@@ -1,0 +1,158 @@
+\newcommand{\@symb}[1]{\@print{<FONT FACE=symbol>}#1\@print{</FONT>}}
+\newcommand{\forall}{\@symb{\char34}}
+\newcommand{\exists}{\@symb{\char36}}
+\newcommand{\ni}{\@symb{\char39}}
+\newcommand{\cong}{\@symb{\char64}}
+%%%%%%%% Greak uppercase
+\newcommand{\Delta}{\@symb{\char68}}
+\newcommand{\Phi}{\@symb{\char70}}
+\newcommand{\Gamma}{\@symb{\char71}}
+\newcommand{\vartheta}{\@symb{\char74}}
+\newcommand{\Lambda}{\@symb{\char76}}
+\newcommand{\Pi}{\@symb{\char80}}
+\newcommand{\Theta}{\@symb{\char81}}
+\newcommand{\Sigma}{\@symb{\char83}}
+\newcommand{\varsigma}{\@symb{\char86}}
+\newcommand{\Omega}{\@symb{\char87}}
+\newcommand{\Xi}{\@symb{\char88}}
+\newcommand{\Psi}{\@symb{\char89}}
+%%%%%%%%%%%%%%
+\newcommand{\perp}{\@symb{\char94}}
+%%%%%%%%% Greek lowercase
+\newcommand{\alpha}{\@symb{\char97}}
+\newcommand{\beta}{\@symb{\char98}}
+\newcommand{\chi}{\@symb{\char99}}
+\newcommand{\delta}{\@symb{\char100}}
+\newcommand{\epsilon}{\@symb{\char101}}
+\newcommand{\phi}{\@symb{\char102}}
+\newcommand{\gamma}{\@symb{\char103}}
+\newcommand{\eta}{\@symb{\char104}}
+\newcommand{\iota}{\@symb{\char105}}
+\newcommand{\varphi}{\@symb{\char106}}
+\newcommand{\kappa}{\@symb{\char107}}
+\newcommand{\lambda}{\@symb{\char108}}
+%%109 -> \mu in iso
+\newcommand{\nu}{\@symb{\char110}}
+%%111 -> \omicron non-existent
+\newcommand{\pi}{\@symb{\char112}}
+\newcommand{\theta}{\@symb{\char113}}
+\newcommand{\rho}{\@symb{\char114}}
+\newcommand{\sigma}{\@symb{\char115}}
+\newcommand{\tau}{\@symb{\char116}}
+\newcommand{\upsilon}{\@symb{\char117}}
+\newcommand{\varpi}{\@symb{\char118}}
+\newcommand{\omega}{\@symb{\char119}}
+\newcommand{\xi}{\@symb{\char120}}
+\newcommand{\psi}{\@symb{\char121}}
+\newcommand{\zeta}{\@symb{\char122}}
+%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\Upsilon}{\@symb{\char161}}
+%161 -> prime
+\newcommand{\leq}{\@symb{\char163}}
+%164 -> slash
+\newcommand{\infty}{\@symb{\char165}}
+%166 -> f barre'
+\newcommand{\clubsuit}{\@symb{\char167}}
+\newcommand{\diamondsuit}{\@symb{\char168}}
+\newcommand{\heartsuit}{\@symb{\char169}}
+\newcommand{\spadesuit}{\@symb{\char170}}
+%%%%%%%% Arrows
+\newcommand{\leftrightarrow}{\@symb{\char171}}
+\newcommand{\leftarrow}{\@symb{\char172}}
+\newcommand{\uparrow}{\@symb{\char173}}
+\newcommand{\rightarrow}{\@symb{\char174}}
+\newcommand{\downarrow}{\@symb{\char175}}
+\newcommand{\circ}{\@symb{\char176}}
+%%177 -> \pm as iso
+%%178 -> ''
+\newcommand{\geq}{\@symb{\char179}}
+%%180 -> \time as iso
+\newcommand{\propto}{\@symb{\char181}}
+\newcommand{\partial}{\@symb{\char182}}
+\newcommand{\@bullet}{\@symb{\char183}}
+%%184 -> \div as iso
+\newcommand{\neq}{\@symb{\char185}}
+\newcommand{\equiv}{\@symb{\char186}}
+\newcommand{\approx}{\@symb{\char187}}
+%%188 -> ... as iso
+%%189 -> vertical bar
+%%190 -> horizontal bar
+%%191 -> arrow down then left
+\newcommand{\aleph}{\@symb{\char192}}
+\newcommand{\Im}{\@symb{\char193}}
+\newcommand{\Re}{\@symb{\char194}}
+\newcommand{\wp}{\@symb{\char195}}
+\newcommand{\otimes}{\@symb{\char196}}
+\newcommand{\oplus}{\@symb{\char197}}
+%%198 -> \emptyset as iso
+%%%%%%%%%%%%%% Set things
+\newcommand{\cap}{\@symb{\char199}}
+\newcommand{\cup}{\@symb{\char200}}
+\newcommand{\supset}{\@symb{\char201}}
+\newcommand{\supseteq}{\@symb{\char202}}
+\newcommand{\notsubset}{\@symb{\char203}}
+\newcommand{\subset}{\@symb{\char204}}
+\newcommand{\subseteq}{\@symb{\char205}}
+\newcommand{\in}{\@symb{\char206}}
+\newcommand{\notin}{\@symb{\char207}}
+%%%%%%%%%%%%%%%%
+\newcommand{\angle}{\@symb{\char208}}
+\newcommand{\nabla}{\@symb{\char209}}
+%%%210 -> c in circle in iso
+%%%211 -> c in circle in iso
+%%%212 -> TM, non-existent
+\newcommand{\@prod}{\@symb{213}}
+\newcommand{\@displayprod}{{\Huge\@symb{213}}}
+\newcommand{\surd}{\@symb{\char214}}
+%%%215 -> \cdot in iso
+%%%%%%%%%%%%%%% Logics and double arrows
+%%%216 -> \neg in iso
+\newcommand{\wedge}{\@symb{\char217}}
+\newcommand{\vee}{\@symb{\char218}}
+\newcommand{\Leftrightarrow}{\@symb{\char219}}
+\newcommand{\Leftarrow}{\@symb{\char220}}
+\newcommand{\Uparrow}{\@symb{\char221}}
+\newcommand{\Rightarrow}{\@symb{\char222}}
+\newcommand{\Downarrow}{\@symb{\char223}}
+%%%%%%%%%%%%%%%%%%%
+\newcommand{\Diamond}{\@symb{\char224}}
+\newcommand{\langle}{\@symb{\char225}}
+%%%226 -> c in circle in iso
+%%%227 -> c in circle in iso
+%%%228 -> TM, non-existent
+\newcommand{\@sum}{\@symb{\char229}}
+\newcommand{\@displaysum}{{\Huge\@symb{\char229}}}
+%%%230 231 232 big left parenthesis
+\newcommand{\lceil}{\@symb{\char233}}
+%%%234 big left bracket 
+\newcommand{\lfloor}{\@symb{\char235}}
+%%%236 237 238 big left curly brace
+%%%239 left bar
+%%%240 unused
+\newcommand{\rangle}{\@symb{\char241}}
+\newcommand{\@int}{\@symb{242}}
+\newcommand{\@displayint}{\mbox{\@symb{\char243\\\char245}}}
+%%%244  big integral middle
+%%%246 247 248  big right parenthesis
+\newcommand{\rceil}{\@symb{\char249}}
+%%%250 big right bracket middle
+\newcommand{\rfloor}{\@symb{\char251}}
+%%%252 253 254 big right curly brace
+%%%255 unused
+%%%%%%%%%%%%%%%%%%%%
+% Compound symbols %
+%%%%%%%%%%%%%%%%%%%%
+\newcommand{\sqcap}{\@symb{\char250\char095\char189}}
+\newcommand{\sqcup}{\@symb{\char250\char96\char189}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\triangleleft}{\@symb{\char060\char124}}
+\newcommand{\triangleright}{\@symb{\char124\char062}}
+\newcommand{\unlhd}{\@symb{\char163\char124}}
+\newcommand{\unrhd}{\@symb{\char124\char179}}
+\newcommand{\longleftarrow}{\@symb{\char172\char190}}
+\newcommand{\longrightarrow}{\@symb{\char190\char174}}
+\newcommand{\longleftrightarrow}{\@symb{\char172\char190\char174}}
+\newcommand{\Longleftrightarrow}{\@symb{\char220\char222}}
+
+
+

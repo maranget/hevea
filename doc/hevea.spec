@@ -37,6 +37,10 @@ make install LIBDIR=/usr/lib/hevea BINDIR=/usr/bin
 /usr/lib/hevea/footer.tex
 /usr/lib/hevea/hevea.sty
 /usr/lib/hevea/html/hevea.hva
+/usr/lib/hevea/html/symb.hva
+/usr/lib/hevea/html/symb-text.hva
+/usr/lib/hevea/html/symb-eng.hva
+/usr/lib/hevea/html/symb-fra.hva
 /usr/lib/hevea/html/article.hva
 /usr/lib/hevea/html/book.hva
 /usr/lib/hevea/html/report.hva
@@ -50,6 +54,7 @@ make install LIBDIR=/usr/lib/hevea BINDIR=/usr/bin
 /usr/lib/hevea/info/report.hva
 /usr/lib/hevea/info/seminar.hva
 /usr/lib/hevea/text/hevea.hva
+/usr/lib/hevea/text/symb.hva
 /usr/lib/hevea/text/article.hva
 /usr/lib/hevea/text/book.hva
 /usr/lib/hevea/text/report.hva

@@ -60,6 +60,7 @@ val prelude : bool ref
 val flushing : bool ref
 val stack_in_math : bool t
 val stack_display : bool t
+val stack_alltt : bool t
 
 val start_normal: bool ref -> bool ref -> unit
 val end_normal : bool ref -> bool ref  -> unit

@@ -1,0 +1,29 @@
+\newcommand{\clubsuit}{\mbox{clubsuit}}
+\newcommand{\diamondsuit}{\mbox{diamondsuit}}
+\newcommand{\heartsuit}{\mbox{heartsuit}}
+\newcommand{\spadesuit}{\mbox{spadesuit}}
+\newcommand{\uparrow}{\mbox{uparrow}}
+\newcommand{\downarrow}{\mbox{downarrow}}
+\newcommand{\propto}{\mbox{propto}}
+\newcommand{\partial}{\mbox{partial}}
+\newcommand{\equiv}{\mbox{same as}}
+\newcommand{\approx}{\mbox{approx}}
+\newcommand{\otimes}{\mbox{otimes}}
+\newcommand{\oplus}{\mbox{oplus}}
+\newcommand{\cap}{\mbox{intersect}}
+\newcommand{\cup}{\mbox{union}}
+\newcommand{\supset}{\mbox{include}}
+\newcommand{\supseteq}{\mbox{include or equal to}}
+\newcommand{\notsubset}{\mbox{not includes in}}
+\newcommand{\subset}{\mbox{included in}}
+\newcommand{\subseteq}{\mbox{included in or equal to}}
+\newcommand{\in}{\mbox{in}}
+\newcommand{\notin}{\mbox{not in}}
+\newcommand{\Uparrow}{\mbox{Uparrow}}
+\newcommand{\Downarrow}{Downarrow}
+\newcommand{\@sum}{\mbox{sum}}
+\newcommand{\@int}{\mbox{int}}
+\newcommand{\lceil}{\mbox{lceil}}
+\newcommand{\lfloor}{\mbox{lfloor}}
+\newcommand{\rceil}{\mbox{rceil}}
+\newcommand{\rfloor}{\mbox{rfloor}}

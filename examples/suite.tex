@@ -1029,6 +1029,11 @@ Coucou & \Gamma_A \\
         ocamlrun caml.out \nth{arg}{1} \nth{arg}{2} \ldots \nth{arg}{n}
 \end{alltt}
 
+\begin{alltt}
+        ocamlc -use-runtime /home/me/ocamlunixrun -o myprog \char92
+                unix.cma threads.cma {\it{your .cmo and .cma files}}
+\end{alltt}
+
 \begin{thebibliography}{xxxxxxxxxx}
 \bibitem[\LaTeX-bis]{latexbis}
 M.~Gooseens, F.~Mittelbach, A.~Samarin.

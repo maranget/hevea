@@ -1,6 +1,6 @@
 (* <Christian.Queinnec@lip6.fr>
  The plugin for HeVeA that implements the VideoC style.
- $Id: videoc.mll,v 1.5 1999-05-14 17:55:02 maranget Exp $ 
+ $Id: videoc.mll,v 1.6 1999-05-21 12:54:19 maranget Exp $ 
 *)
 
 {
@@ -20,9 +20,11 @@ open Latexmacros
 
 
 let header = 
-  "$Id: videoc.mll,v 1.5 1999-05-14 17:55:02 maranget Exp $"
+  "$Id: videoc.mll,v 1.6 1999-05-21 12:54:19 maranget Exp $"
 
 exception EndSnippet
+;;
+exception EndTeXInclusion
 ;;
 (* Re-link with these variables inserted in latexscan. *)
 
@@ -185,11 +187,20 @@ and do_texinclusion lexbuf =
   Scan.top_open_block "SPAN" 
     ("class=\"" ^ !snippetLanguage ^ "Inclusion\"");
   snippetRunHook Scan.main "BeforeTeX";
-  Scan.main lexbuf; (* Until a \] is read *)
+  begin
+    try Scan.main lexbuf with EndTeXInclusion -> ()
+  end ; (* Until a \] is read *)
   snippetRunHook Scan.main "AfterTeX";
   Scan.top_close_block "SPAN";
   Scan.top_close_block "SPAN";
   snippetRunHook Scan.main "Restart"
+
+and do_texexclusion _ =
+ if !withinSnippet then begin
+   if !verbose > 2 then prerr_endline "\\] caught within TeX escape"; 
+   raise EndTeXInclusion
+ end else
+   raise (Misc.ScanError ("\\] without opening \\[ in snippet"))
 
 and do_backslash_newline  _ =
   Dest.put "\\\n";
@@ -292,7 +303,9 @@ and do_snippet lexbuf =
     (* Register local commands *)
     def_code "\\endsnippet" do_endsnippet;
     Scan.macro_register "\\endsnippet";
-    def_code "\\[" do_texinclusion ;
+    redef_code "\\[" do_texinclusion ;
+    Scan.macro_register "\\[";
+    redef_code "\\]" do_texexclusion ;
     Scan.macro_register "\\[";
     redef_code "\\\\" do_four_backslashes;
     Scan.macro_register "\\\\";

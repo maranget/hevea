@@ -99,7 +99,6 @@
 \@footnotetext{\value{onefoot}}{#2}{\theanchornote}%
 }
 %%%% Accents and special symbols.
-% Accents commands are defined in latexmacros.ml
 \def\oe{oe}
 \def\OE{OE}
 \def\ae{æ}
@@ -185,12 +184,18 @@
 }{\@close{DL}}
 \newenvironment{trivlist}{\@open{DL}{}}{\@close{DL}}
 %%% Maths
+%%% Loading symbols
+\ifsymb
+\input{html/symb.hva}
+\else
+\input{html/symb-text.hva}
+\fi
 \newenvironment{math}{$}{$}
 \newenvironment{displaymath}{$$}{$$}
 \newcommand{\(}{$}\newcommand{\)}{$}
 \newcommand{\[}{$$}\newcommand{\]}{$$}
 \newcommand{\sp}[1]{^{#1}}\newcommand{\sb}[1]{_{#1}}
-\newcommand{\ensuremath}[1]{\ifmath#1\else\(#1\)\fi}
+\newcommand{\ensuremath}[1]{\ifmmode#1\else\(#1\)\fi}
 \newcommand{\eqno}[1]{\quad\quad#1}
 \newenvironment{equation}{\[}{\stepcounter{equation}\eqno{(\theequation)}\]}
 \newenvironment{eqnarray*}{$$\begin{array}{rcl}}{\end{array}$$}
@@ -265,6 +270,7 @@
 \def\mathchardef#1#2{}
 %% Some math symbols, some others are defined in symb.ml and latexmacros.ml
 \def\backslash{\char92}
+\def\setminus{\char92}
 \def\neg{¬}
 \def\mu{µ}
 \def\pm{±}
@@ -275,8 +281,6 @@
 \def\emptyset{Ø}
 \def\le{\leq}
 \def\ge{\geq}
-\def\bigcup{{\Huge\cup}}
-\def\bigcap{{\Huge\cap}}
 \def\arccos{\mbox{arccos}}
 \def\arcsin{\mbox{arcsin}}
 \def\arctan{\mbox{arctan}}
@@ -335,9 +339,18 @@
 \def\doteq{%
 \ifdisplay\@itemdisplay\@print{<FONTSIZE=7>·</FONT><BR>}=\@itemdisplay\else
 \textdoteq\fi}
-\def\sum{\ifdisplay{\Huge\Sigma}\else\Sigma\fi}
-\def\prod{\ifdisplay{\Huge\Pi}\else\Pi\fi}
+\def\sum{\ifdisplay\@displaysum\else\@sum\fi}
+\def\prod{\ifdisplay\@displayprod\else\@prod\fi}
 \def\int{\ifdisplay\@displayint\else{\large\@int}\fi}
+\def\bigcap{{\ifdisplay\Huge\fi\cap}}
+\def\bigcup{{\ifdisplay\Huge\fi\cup}}
+\def\bigvee{{\ifdisplay\Huge\fi\vee}}
+\def\bigwedge{{\ifdisplay\Huge\fi\wedge}}
+\def\bigsqcup{{\ifdisplay\Huge\fi\sqcup}}
+\def\bigodot{{\ifdisplay\Huge\fi\odot}}
+\def\bigoplus{{\ifdisplay\Huge\fi\oplus}}
+\def\biguplus{{\ifdisplay\Huge\fi\uplus}}
+\def\bigotimes{{\ifdisplay\Huge\fi\otimes}}
 %% Arrays and tabular
 \newcommand{\extracolsep}[1]{}
 \newcommand{\cline}[1]{\warning{Warning, \cline changed into \hline}\hline}

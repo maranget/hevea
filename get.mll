@@ -17,7 +17,7 @@ open Latexmacros
 open Lexstate
 
 (* Compute functions *)
-let header = "$Id: get.mll,v 1.6 1999-05-17 13:40:20 maranget Exp $"
+let header = "$Id: get.mll,v 1.7 1999-05-21 12:54:06 maranget Exp $"
 
 exception Error of string
 
@@ -295,7 +295,7 @@ let def_commands_bool () =
         match r with
         | "true" -> true
         | "false" -> false
-        | _ -> assert false
+        | _ -> raise (Misc.Fatal ("boolean value: "^r))
       with
         Latexmacros.Failed -> true  in
       push bool_stack b) ;

@@ -47,7 +47,7 @@ open Save
 open Tabular
 open Lexstate
 
-let header = "$Id: latexscan.mll,v 1.98 1999-05-20 16:11:48 tessaud Exp $" 
+let header = "$Id: latexscan.mll,v 1.99 1999-05-21 12:54:12 maranget Exp $" 
 
 let sbool = function
   | false -> "false"
@@ -1039,16 +1039,9 @@ rule  main = parse
 (* Math mode *)
 | "$" | "$$"
      {let lxm = lexeme lexbuf in
-     if !withinSnippet && lxm = "\\]" then begin
-       if !verbose > 2 then prerr_endline "\\] caught within TeX escape"; 
-       ()
-     end else if !alltt && (lxm = "$" || lxm = "$$") then begin
+     if !alltt then begin
        Dest.put lxm ; main lexbuf
      end else begin
-       let lxm = match lxm with
-         "\\(" | "\\)" -> "$"
-       | "\\[" | "\\]" -> "$$"
-       | _ -> lxm in
        let dodo = lxm <> "$" in
        let math_env = if dodo then "*display" else "*math" in
        if !in_math then begin
@@ -1137,12 +1130,14 @@ rule  main = parse
             ("Expanding macro "^name^" {"^(string_of_int !macro_depth)^"}") ;
           macro_depth := !macro_depth + 1
         end ;
+        push stack_alltt !alltt ;
         if !alltt then begin
           alltt := false ;
           scan_body exec body args ;
           alltt := not !alltt
         end else
           scan_body exec body args ;
+        let _ = pop stack_alltt in
         if (!verbose > 1) then begin
           prerr_endline ("Cont after macro "^name^": ") ;
           macro_depth := !macro_depth - 1
@@ -1491,6 +1486,15 @@ and subst = parse
 |  eof {()}
 
 {
+let check_alltt_skip lexbuf =
+  if not (Lexstate.empty stack_alltt) && pop stack_alltt then begin
+    push stack_alltt true
+  end else begin
+    push stack_alltt false ;
+    skip_blanks lexbuf
+  end
+;;
+
 let def_fun name f =
   def_code name
     (fun lexbuf ->
@@ -1728,7 +1732,7 @@ let do_unskip () =
 def_code "\\unskip"
     (fun lexbuf ->
       do_unskip () ;
-      skip_blanks lexbuf)
+      check_alltt_skip lexbuf)
 ;;
 
 
@@ -1755,7 +1759,7 @@ def_code "\\right"
       let do_what = (fun () -> ()) in
       int_sup_sub false vsize main do_what sup sub
     end ;
-    skip_blanks lexbuf)
+    check_alltt_skip lexbuf)
 ;;
 
 def_code "\\over"
@@ -1943,12 +1947,12 @@ def_code "\\@br"
 
 (* TeX conditionals *)
 let testif cell lexbuf =
-  if !cell then skip_blanks lexbuf
+  if !cell then check_alltt_skip lexbuf
   else skip_false lexbuf
 
 let setif cell b lexbuf =
   cell := b ;
-  skip_blanks lexbuf 
+  check_alltt_skip lexbuf 
 ;;
 
 let extract_if name =
@@ -1979,7 +1983,7 @@ def_code "\\newif" newif
 def_code "\\else" (fun lexbuf -> skip_false lexbuf)
 ;;
 
-def_code "\\fi" (fun lexbuf -> skip_blanks lexbuf)
+def_code "\\fi" (fun lexbuf -> check_alltt_skip lexbuf)
 ;;
 
 
@@ -1989,6 +1993,7 @@ let newif_ref name cell =
   def_code ("\\"^name^"false") (setif cell false)
 ;;
 
+newif_ref "symb" symbols ;
 newif_ref "alltt" alltt ;
 newif_ref "silent" silent;
 newif_ref "math" in_math ;
@@ -2139,7 +2144,6 @@ def_code "\\end"
     let env = subst_arg subst lexbuf in
     scan_this main ("\\end"^env) ;
     if env <> "document" then top_close_block "" ;
-(*    Dest.put_char '\n'; *)
     close_env env ;
     if env = "document" then raise Misc.EndInput)
 ;;
@@ -2216,12 +2220,12 @@ def_code "\\endlrbox"
 def_code "\\char"
   (fun lexbuf ->
     let arg = Save.num_arg lexbuf in
-    if not !silent && (arg < 32 || arg > 127) then begin
+    if not !silent && (arg < 32 || (arg > 127 && arg < 161)) then begin
       Location.print_pos () ;
-      prerr_endline ("Warning: \\char");
+      prerr_endline ("Warning: \\char, check output");
     end ;
     Dest.put (Dest.iso (Char.chr arg)) ;
-    if not !alltt then skip_blanks lexbuf)
+    if not !alltt then check_alltt_skip lexbuf)
 ;;
 
 def_code "\\symbol"

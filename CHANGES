@@ -1,4 +1,5 @@
 version 1.04-1
+  - Symbols defined as .hva source files.
   - Simplified macro values (-> 3 constructor only, and CamlCode arg is
       lexbuf -> unit)
   - Added an index in the manual (only extensions on LaTeX are indexed).
