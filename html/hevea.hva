@@ -43,7 +43,7 @@
 \newcommand{\imgsrc}[2][!*!]{%
 {\@nostyle\@print{<IMG SRC="}#2\ifpedantic\@print{" ALT="}#1\fi
 \ifthenelse{\equal{#1}{!*!}}{\@print{"}}{\@print{" }#1}\@print{>}}}
-\newcommand{\anchor}[1]{{\@nostyle\@print{<A NAME="}#1\@print{"></A>}}}
+\newcommand{\anchor}[1]{\@saveclosed{\@nostyle\@print{<A NAME="}#1\@print{"></A>}}\@restoreclosed}
 %% Paragraphs
 \def\noindent{}
 \def\indent{}

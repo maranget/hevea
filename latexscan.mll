@@ -44,7 +44,7 @@ open Tabular
 open Lexstate
 open Stack
 
-let header = "$Id: latexscan.mll,v 1.129 1999-09-01 13:53:54 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.130 1999-09-02 17:59:13 maranget Exp $" 
 
 
 let sbool = function
@@ -1552,6 +1552,12 @@ def_code "\\csname"
     expand_command main skip_blanks name lexbuf)
 ;;
 
+def_code "\\string"
+   (fun lexbuf ->
+     let arg = subst_arg subst lexbuf in
+     Dest.put arg)
+;;
+
 (* Complicated use of output blocks *)
 def_code "\\left"
   (fun lexbuf ->
@@ -1724,7 +1730,7 @@ def_code "\\@fromlib"
 def_code "\\imageflush"
   (fun lexbuf ->
           let arg = save_opt "" lexbuf in
-          iput_newpage arg )
+          iput_newpage arg)
 ;;
 def_code "\\textalltt"
   (fun lexbuf ->
@@ -1778,6 +1784,15 @@ let newif lexbuf =
   with Latexmacros.Failed -> ()
 ;;
 
+def_code "\\ifx"
+  (fun lexbuf ->
+    let arg1 = subst_this subst (Save.csname lexbuf) in
+    let arg2 = subst_this subst  (Save.csname lexbuf) in
+    if silent_find_macro arg1 = silent_find_macro arg2 then check_alltt_skip lexbuf
+    else skip_false lexbuf)
+;;
+    
+    
 def_code "\\newif" newif 
 ;;
 
@@ -1995,7 +2010,7 @@ let def_print name s = def_code name (fun _ -> Dest.put s)
 and redef_print name s = redef_code name (fun _ -> Dest.put s)
 ;;
 
-def_print "\\jobname" Parse_opts.base_in
+def_print "\\jobname" Parse_opts.base_out
 ;;
 
 def_code "\\newsavebox"
@@ -2077,13 +2092,6 @@ def_code "\\label"
     let theref = get_this_nostyle main "\\@currentlabel" in
     Dest.set_last_closed save_last_closed ;
     Auxx.rwrite lab theref) ;
-
-def_code "\\@expandlabel"
-  (fun lexbuf ->
-    let save_last_closed = Dest.get_last_closed () in
-    let lab = get_this_nostyle main (save_arg lexbuf) in
-    Dest.loc_name lab "" ;
-    Dest.set_last_closed save_last_closed) ;    
 ;;
 
 def_code "\\ref"

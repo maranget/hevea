@@ -12,7 +12,7 @@
 {
 open Lexing
 
-let header = "$Id: save.mll,v 1.40 1999-09-01 13:54:02 maranget Exp $" 
+let header = "$Id: save.mll,v 1.41 1999-09-02 17:59:20 maranget Exp $" 
 
 let verbose = ref 0 and silent = ref false
 ;;
@@ -71,10 +71,9 @@ let put_both_char c =
 }
 
 rule opt = parse
-   '['
-        {put_echo_char '[' ;
+| ' '* '\n'? ' '* '['
+        {put_echo (lexeme lexbuf) ;
         opt2 lexbuf}
-| ' '+ | '\n' + {put_echo (lexeme lexbuf) ; opt lexbuf}
 |  eof  {raise Eof}
 |  ""   {raise NoOpt}
 
@@ -181,7 +180,7 @@ and arg2 = parse
 
 and csname = parse
   [' ''\n']+ {put_echo (lexeme lexbuf) ; csname lexbuf}
-| '{'? "\\csname" ' '+
+| '{'? "\\csname" ' '*
       {let lxm = lexeme lexbuf in
       put_echo lxm ; Out.put_char arg_buff '\\' ;
       incsname lexbuf}

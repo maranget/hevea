@@ -13,7 +13,7 @@
 open Lexing
 open Misc
 
-let header = "$Id: auxx.mll,v 1.5 1999-08-30 18:12:32 maranget Exp $" 
+let header = "$Id: auxx.mll,v 1.6 1999-09-02 17:59:05 maranget Exp $" 
 
 let rtable = Hashtbl.create 17
 ;;
@@ -22,7 +22,9 @@ let rset name value = Hashtbl.add rtable name value
 ;;
 
 let rget name =
-  try Hashtbl.find rtable name with Not_found -> "X"
+  try Hashtbl.find rtable name with Not_found -> begin
+    warning ("Undefined label: "^name) ; "??"
+  end
 ;;
 
 let btable = Hashtbl.create 17
@@ -32,7 +34,10 @@ let bset name value = Hashtbl.add btable name value
 ;;
 
 let bget name =
-  try Hashtbl.find btable name with Not_found -> name
+  try Hashtbl.find btable name with Not_found ->
+  begin
+    warning ("Undefined citation: "^name) ; name
+  end
 ;;
 
 let auxfile = ref None

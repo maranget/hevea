@@ -1,4 +1,6 @@
 version 1.05-3
+  - l,c,r cells get top-aligned when there are other cells with
+    vertical alignement specified (such as p).
   - new ``Stack'' module.
   - ``-tocbis'' option for hacha
   - Introduced \texlet \texdef and better documentation for TeX macros.
@@ -9,7 +11,7 @@ version 1.05-2
 version 1.05-1
   - Small bug in optional arg parsing ('\n' before arg)
   - Warning for \def with delimiting characters
-  - Smal table of contents at file start (hacha modification).
+  - Small table of contents at file start (hacha modification).
   - Support for the \FRAME macro from Scientific Word.
   - For paragraph breaks -> empty lines may contain spaces.
   - Added a -entities switch -> math symbols as HTML 4.0 entities and

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmain.ml,v 1.46 1999-08-30 17:59:18 maranget Exp $" 
+let header = "$Id: latexmain.ml,v 1.47 1999-09-02 17:59:08 maranget Exp $" 
 
 open Misc
 open Parse_opts
@@ -125,7 +125,7 @@ let main () =
              false,chan
            with
              Myfiles.Error _ ->
-               let auxname =  base_in^".haux" in
+               let auxname =  base_out^".haux" in
                let chan = open_in auxname in
                if !verbose > 0 then
                  prerr_endline ("Input aux file: "^auxname) ;
@@ -134,9 +134,9 @@ let main () =
          Auxx.main buf ;
          close_in auxchan ;
          if is_haux then
-           Auxx.init base_in
+           Auxx.init base_out
        with Sys_error s -> begin
-         Auxx.init base_in ;
+         Auxx.init base_out ;
          if !verbose > 0 then
            prerr_endline ("I found no aux file, going on")
        end

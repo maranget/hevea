@@ -21,6 +21,7 @@ type env =
 val pretty_env : env -> string
 
 val find_macro: string -> pat * action
+val silent_find_macro: string -> pat * action
 val exists_macro: string -> bool
 val is_subst_noarg : action -> pat -> bool
 val start_env : string -> string

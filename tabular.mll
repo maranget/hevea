@@ -3,7 +3,7 @@ open Misc
 open Lexing
 open Table
 
-let header = "$Id: tabular.mll,v 1.12 1999-08-17 13:26:48 maranget Exp $"
+let header = "$Id: tabular.mll,v 1.13 1999-09-02 17:59:21 maranget Exp $"
 
 exception Error of string
 ;;
@@ -14,7 +14,7 @@ let init latexsubst (*latexgetint*) =
   subst_this := latexsubst ;
 
 type align =
-    {hor : string ; vert : string ; wrap : bool ;
+    {hor : string ; mutable vert : string ; wrap : bool ;
       mutable pre : string ; mutable post : string ; width : Length.t option}
 
 let make_hor = function
@@ -30,11 +30,30 @@ and make_vert = function
   | 'm' -> "middle"
   | 'b' -> "bottom"
   | _ -> raise (Misc.Fatal "make_vert")
+
 type format =
   Align of align
 | Inside of string
 | Border of string
 ;;
+
+let check_vert f =
+  try
+    for i = 0 to Array.length f-1 do
+      match f.(i) with
+      | Align {vert=s} when s <> "" -> raise Exit
+      | _ -> ()
+    done ;
+    f
+  with Exit -> begin
+    for i = 0 to Array.length f-1 do
+      match f.(i) with
+      | Align ({vert=""} as f) ->
+          f.vert <- "top"
+      | _ -> ()
+    done ;
+    f
+  end
 
 
 let border = ref false
@@ -157,7 +176,8 @@ and lexformat = parse
 
 
 {
+
 let main   s =
-  lexformat (Lexing.from_string s) ; trim out_table
+  lexformat (Lexing.from_string s) ; check_vert (trim out_table)
 }
 

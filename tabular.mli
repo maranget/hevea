@@ -1,7 +1,7 @@
 exception Error of string
 
 type align =
-    {hor : string ; vert : string ; wrap : bool ;
+    {hor : string ; mutable vert : string ; wrap : bool ;
       mutable pre : string ; mutable post : string ; width : Length.t option}
 type format =
     Align of align

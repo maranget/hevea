@@ -26,9 +26,13 @@
 {\par\vspace*{-.5\baselineskip}\myrule\end{quote}\endgroup}
 \newenvironment{latexout}{\begin{htmlout}}{\end{htmlout}}
 \newenvironment{showlatex}{}{}
+\newcommand{\defocc}[1]{\textit{#1}}
 \newcommand{\comindex}[1]{\index{#1@\texttt{\char92#1}}}
+\newcommand{\comdefindex}[1]{\index{#1@\texttt{\char92#1}|defocc}}
 \newcommand{\ttindex}[2]{\index{#1@\texttt{#1} #2}}
+\newcommand{\ttdefindex}[2]{\index{#1@\texttt{#1} #2|defocc}}
 \newcommand{\envindex}[1]{\ttindex{#1}{environment}}
+\newcommand{\envdefindex}[1]{\ttdefindex{#1}{environment}}
 \newcommand{\countindex}[1]{\ttindex{#1}{counter}}
 \newcommand{\boolindex}[1]{\ttindex{#1}{boolean register}}
 \input{version.tex}
@@ -285,7 +289,7 @@ after a comment or macro definition can be deleted.
 
 
 
-%\index{ @`` '' (space)!after macro}
+\index{ @`` '' (space)!after macro}
 Space after macros with no argument is skipped (as in \LaTeX{}) ---
 however this is not true in math mode, as explained in
 section~\ref{spacemath} below.
@@ -355,8 +359,7 @@ even simple formulas do not follow the simple basic typesetting model of
 
 
 \subsubsection{Spacing in math mode}\label{spacemath}
-
-%\index{ @`` '' (space)!significant in math mode}
+\index{ @`` '' (space)!after macro!in math}
 By contrast with \LaTeX{}, spaces from the input are significant in
 math mode, this
 feature allows users to instruct \hevea{}
@@ -1018,12 +1021,12 @@ the \texttt{hevea.sty} file by default.
 \hevea{} and \LaTeX{} perform the following actions on source inside
 the  \verb+latexonly+, \verb+verblatex+, \verb+htmlonly+, \verb+rawhtml+,
 \verb+toimage+ and \verb+verbimage+ environments:
-\envindex{latexonly}
-\envindex{htmlonly}
-\envindex{rawhtml}
-\envindex{toimage}
-\envindex{verbimage}
-\envindex{verblatex}
+\envdefindex{latexonly}
+\envdefindex{htmlonly}
+\envdefindex{rawhtml}
+\envdefindex{toimage}
+\envdefindex{verbimage}
+\envdefindex{verblatex}
 \begin{center}
 \begin{tabular}{l@{~}p{.5\hsize}@{\quad}l}\hline
 environment & \multicolumn{1}{c}{\hevea} &  \multicolumn{1}{c}{\LaTeX}
@@ -1324,7 +1327,7 @@ are automatically echoed to the image file. This enables using
 document-specific commands in \textit{text} above.
 
 
-\comindex{imageflush}
+\comdefindex{imageflush}
 Output to the image file builds up a current page, which is flushed
 by the \verb+\imageflush+ command.
 This command has the following effect:  it outputs a strict page break
@@ -1394,6 +1397,7 @@ Cost can be lowered using \verb+\savebox+, but the other problems remain.
 
 
 \subsection{Including Postscript images}\label{substimage}
+\index{image inclusion!in Postcript|defocc}
 Such images are easy to manage: it suffices to let \LaTeX{} do the
 job.
 Let \texttt{round.ps} be a Postscript file, which is included as an
@@ -1825,8 +1829,8 @@ A few ``\emph{high-level}'' macros are provided. These are first the
 All these macros have \LaTeX{} equivalents defined in the
 \texttt{hevea.sty} style file.
 
-\comindex{imgsrc}
-\comindex{anchor}
+\comdefindex{imgsrc}
+\comdefindex{anchor}
 The following macros can be used to output specific \html{}
 constructs. They have no \LaTeX{} equivalents and should be seen by
 \hevea{} only.
@@ -1844,6 +1848,7 @@ should reduce to some kind of label.
 The \verb+\anchor+ command is an alternative to the \verb+\label+ command for
 inserting hyper-links targets.
 
+\index{image inclusion!in GIF}\comindex{imgsrc}
 The \verb+\imgsrc+ command is more useful.
 It becomes handy when one has images both in Postscript and GIF format.
 As explained in section~\ref{substimage}, Postscript images can
@@ -1944,13 +1949,13 @@ internal text-level declarations \verb+\@style+, \verb+\@fontsize+ and
 \verb+\@fontcolor+. Block-level elements (and \html{} groups)
 delimit the effect of such declarations.
 
-\index{"@print@\texttt{\char92"@print}}
-\index{"@open@\texttt{\char92"@open}}
-\index{"@close@\texttt{\char92"@close}}
-\index{"@style@\texttt{\char92"@style}}
-\index{"@nostyle@\texttt{\char92"@nostyle}}
-\index{"@fontsize@\texttt{\char92"@fontsize}}
-\index{"@fontcolor@\texttt{\char92"@fontcolor}}
+\index{"@print@\texttt{\char92"@print}|defocc}
+\index{"@open@\texttt{\char92"@open}|defocc}
+\index{"@close@\texttt{\char92"@close}|defocc}
+\index{"@style@\texttt{\char92"@style}|defocc}
+\index{"@nostyle@\texttt{\char92"@nostyle}|defocc}
+\index{"@fontsize@\texttt{\char92"@fontsize}|defocc}
+\index{"@fontcolor@\texttt{\char92"@fontcolor}|defocc}
 \begin{description}
 \item[{\tt\char92 @print\char123}{\it text}{\tt\char125}]
 Echo \textit{text} verbatim.
@@ -1995,6 +2000,10 @@ declarations (such as \verb+\@style+, etc).
 The effect stops when the enclosing block-level element is closed.
 \end{description}
 
+\subsection{Examples}
+\comindex{purple}
+\index{"@open@\texttt{\char92"@open}}
+\index{"@close@\texttt{\char92"@close}}
 As a first example of using internal macros, consider the following
 excerpt from the \texttt{hevea.hva} file that
 defines the \LaTeX{} \verb+center+ environment:
@@ -2007,6 +2016,9 @@ color declaration (see section~\ref{htmlcolor}):
 \newcommand{\purple}{\@fontcolor{purple}}
 \end{verbatim}
 
+\comindex{imgsrc}
+\index{"@print@\texttt{\char92"@print}}
+\index{"@nostyle@\texttt{\char92"@nostyle}}
 Finally, here is the definition of a simplified \verb+\imgsrc+
 command, without optional argument:
 \begin{verbatim}
@@ -2117,6 +2129,7 @@ and some other comments have a specific meaning to it (see
 section~\ref{comments}).
 This features allows having source processed by \hevea{} only.
 
+\index{command!name syntax}
 Command names follow strict \LaTeX{} syntax. That is, apart from
 \verb+#+, \verb+$+, %$
 \verb+~+, \verb+_+ and \verb+^+, they either are
@@ -2144,6 +2157,7 @@ Note that, by contrast with \LaTeX{}, comments are parsed during
 argument scanning, as an important consequence brace nesting is also
 checked inside comments.
 
+\index{command!and arguments}
 Another important restriction is that command names must appear followed by
 \emph{all} their arguments, in the same static body of text.
 As a consequence, the following definition is dangerous:
@@ -2206,7 +2220,7 @@ occur  before \verb+\begin{document}+ are performed.
 and they remain
 valid during all the processing.
 
-
+\index{color!of background|see{\texttt{\char92"@bodyargs}}}
 \index{"@bodyargs@\texttt{\char92"@bodyargs}}
 \index{"@meta@\texttt{\char92"@meta}}\label{metadef}
 In particular, it is possible to change \hevea{} default argument
@@ -2218,6 +2232,7 @@ following declaration occurs before \verb+\begin{document}+:
 \renewcommand{\@bodyargs}{TEXT=black BGCOLOR=white}
 \end{verbatim}
 
+\comindex{let}\envindex{rawhtml}
 \label{exlet}Similarly, some elements can be inserted into the output file
 \verb+HEAD+ element by redefining the \verb+\@meta+ command
 (Such elements typically are \verb+META+, \verb+LINK+, etc.).
@@ -2263,7 +2278,8 @@ in the document preamble:
 \section{Sentences and Paragraphs}
 
 \subsection{Spacing}
-%\index{ @`` '' (space)}\index{spacing|see{`` ''}}
+\index{ @`` '' (space)}
+\index{spacing|see{`` ''}}
 Generally speaking, spaces (and single newline characters) in the
 source are echoed in the output.  Browser then manage with spaces and
 line-breaks.  Following \LaTeX{} behavior, spaces after commands are
@@ -2622,6 +2638,7 @@ changed by redefining them:
 console and echoes its argument in the output.
 \end{description}
 
+\index{math accents}
 Math accents (\verb+\hat+, \verb+\tilde+, etc.) are not
 handled\label{mathaccents} by default.
 However, the distribution includes a \texttt{mathaccents.hva} file
@@ -2658,7 +2675,7 @@ closer to universally understood  notations for mathematics.
 
 
 \subsection{Spacing}\label{spacemathref}
-%\index{ @`` '' (space)!significant in math mode}
+\index{ @`` '' (space)!after macro!in math|defocc}
 By contrast with \LaTeX{}, space in the input matters in math mode.
 One or more spaces are translated to one space.
 Furthermore,
@@ -2693,6 +2710,7 @@ perform type size changes.
 
 \subsection{Defining Commands}\label{usermacro}
 
+\index{command!definition|defocc}
 \hevea{} understands command definitions given in \LaTeX{} style. Such
 definitions are made using
 \verb+\newcommand+, \verb+\renewcommand+ and \verb+\providecommand+.
@@ -2859,8 +2877,12 @@ disable word wrap, while the \verb+p+~specification enables it.
 
 Entries in a column whose specification is \verb+l+ (resp. \verb+c+ or
 \verb+r+) get left-aligned (resp. centered or right-aligned)
-in the horizontal direction. Their vertical alignment is
-unspecified.
+in the horizontal direction.
+They will get top-aligned in the vertical direction if there are
+other column specifications in the
+same array that specify vertical alignement constraints
+(such as ``\verb+p+'' below).
+Otherwise, vertical alignement is unspecified.
 
 Entries in a column whose specification is \verb+p{+{\it wd}\verb+}+
 get left-aligned in the horizontal direction and
@@ -3236,8 +3258,10 @@ by \hevea:
 \multiput(0,0)(10,0){6}{\line(0,1){5}}
 \end{picture}
 %END IMAGE
-%HEVEA\imageflush
+\imageflush
 
+\index{image inclusion!in Postcript}\envindex{toimage}\comindex{imageflush}
+\noindent
 By contrast with the case of the picture given above, simple usage of
 the \verb+\includegraphics+ command
 from the \texttt{graphics} package can be treated without altering the
@@ -3262,7 +3286,7 @@ place.
 
 
 
-\subsection{The \texttt{color} Package}\label{color}
+\subsection{The \texttt{color} Package}\label{color}\index{color}
 %BEGIN LATEX
 \newcommand{\showcolor}[1]{\texttt{#1}}
 %END LATEX
@@ -3282,7 +3306,7 @@ pre-defined.
 
 \section{Font Selection}
 
-\subsection{Changing the Type Style}\label{htmlcolor}
+\subsection{Changing the Type Style}
 All \LaTeXe{} declarations and environments for changing type style
 are recognized. Aspect is rather like \LaTeXe{} output, but there is
 no guarantee.
@@ -3290,6 +3314,7 @@ Old style declarations are also recognized, they
 should yield the same
 appearance as corresponding new declarations.
 
+\label{htmlcolor}\index{color}
 \hevea{} possesses an extra font attribute: color.
 Text color is changed by declarations whose names follow \html{}
 conventions for colors.
@@ -3297,37 +3322,37 @@ There are sixteen predefined colors:
 \begin{center}
 \begin{tabular}{p{.7\linewidth}}
 %HEVEA\black
-\comindex{black}\verb+\black+,
+\verb+\black+,
 %HEVEA\silver
-\comindex{silver}\verb+\silver+,
+\verb+\silver+,
 %HEVEA\gray
-\comindex{gray}\verb+\gray+,
+\verb+\gray+,
 %HEVEA\white
-\comindex{white}\verb+\white+,
+\verb+\white+,
 %HEVEA\maroon
-\comindex{maroon}\verb+\maroon+,
+\verb+\maroon+,
 %HEVEA\red
-\comindex{red}\verb+\red+,
+\verb+\red+,
 %HEVEA\fuchsia
-\comindex{fuchsia}\verb+\fuchsia+,
+\verb+\fuchsia+,
 %HEVEA\purple
-\comindex{purple}\verb+\purple+,
+\verb+\purple+,
 %HEVEA\green
-\comindex{green}\verb+\green+,
+\verb+\green+,
 %HEVEA\lime
-\comindex{lime}\verb+\lime+,
+\verb+\lime+,
 %HEVEA\olive
-\comindex{olive}\verb+\olive+,
+\verb+\olive+,
 %HEVEA\yellow
-\comindex{yellow}\verb+\yellow+,
+\verb+\yellow+,
 %HEVEA\navy
-\comindex{navy}\verb+\navy+,
+\verb+\navy+,
 %HEVEA\blue
-\comindex{blue}\verb+\blue+,
+\verb+\blue+,
 %HEVEA\teal
-\comindex{teal}\verb+\teal+,
+\verb+\teal+,
 %HEVEA\aqua
-\comindex{aqua}\verb+\aqua+
+\verb+\aqua+
 \end{tabular}
 \end{center}
 \comindex{htmlcolor}Additionally, the current text color can be
@@ -3374,7 +3399,7 @@ Note that full compatibility with \TeX{} is not guaranteed.
 
 
 \subsubsection{À la \TeX{} macros definitions}
-\comindex{def}
+\comindex{def}\index{command!definition}
 The \verb+\def+ construct for defining commands is supported, with the
 same behavior as \verb+\newcommand+ with respect to command
 redefinition (see section~\ref{usermacro}).
@@ -3452,7 +3477,7 @@ Please note that in most situations this discrepancy will make
 
 
 \subsubsection{The \texttt{\char92 let} construct}
-\comindex{let}\hevea{} also processes a
+\comdefindex{let}\hevea{} also processes a
 limited version of \verb+\let+:
 \begin{flushleft}
 \verb+\let+ {\it macro-name1} = {\it macro-name2}
@@ -3551,7 +3576,7 @@ construct.
 
 
 \subsection{Command Definition inside Command Definition}
-\index{##n@\texttt{\#\#}\textit{n}}
+\index{##n@\texttt{\#\#}\textit{n}}\index{command!definition}
 If one strictly follows the \LaTeX{} manual, only commands with no
 arguments can be defined inside other commands.
 Parameters (i.e., \verb+#+\textit{n}) occurring inside command bodies
@@ -3747,6 +3772,7 @@ explicitly either by giving them as command line arguments or as
 arguments to the \verb+\input+ command.
 
 \subsection{Accents in maths}
+\index{math accents}
 Loading the \texttt{mathaccents.hva} style files enables
 default typesetting of the math
 accents commands
@@ -3831,11 +3857,15 @@ with leading directories omitted. However the output basename can be
 changed, using the \verb+-o+ option (see the section on options below).
 \end{itemize}
 \hevea{} will attempt to load the main input file.
-Ancillary files (such as the \texttt{.aux} file)
+Ancillary files from a previous run of \LaTeX{}
+(i.e., \texttt{.aux}, \texttt{.bll} and \texttt{.idx} files)
 will be searched as \textit{basein}\verb+.+\textit{ext}.
-The output of \hevea{} normally goes to the file
-\textit{baseout}\texttt{.html}.
-If an \textit{image} file is generated (cf. section~\ref{imagen}), its
+The output base name governs all files produced by \hevea{}.
+That is, \html{} output of \hevea{} normally goes to the file
+\textit{baseout}\texttt{.html},
+while cross-referencing information goes into
+\textit{baseout}\texttt{.haux}. Furthemore,
+if an \textit{image} file is generated (cf. section~\ref{imagen}), its
 name will be \textit{baseout}\texttt{.image.tex}.
 
 Thus, in the simple case where the \texttt{hevea} command is invoked

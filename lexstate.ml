@@ -1,4 +1,4 @@
-let header =  "$Id: lexstate.ml,v 1.24 1999-09-01 13:53:58 maranget Exp $"
+let header =  "$Id: lexstate.ml,v 1.25 1999-09-02 17:59:19 maranget Exp $"
 
 open Misc
 open Lexing
@@ -138,7 +138,7 @@ let scan_arg lexfun i =
   and old_alltt = !alltt in
   stack := Stack.pop  stack_stack ;
   alltt := pop  stack_alltt ;
-  if !verbose > 1 then
+  if !verbose > 2 then
     prerr_args_aux !stack;
   let r = lexfun arg in
   Stack.push stack_stack !stack ;
