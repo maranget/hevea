@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.64 2004-07-22 18:55:05 thakur Exp $    *)
+(*  $Id: package.ml,v 1.65 2004-07-27 16:14:31 thakur Exp $    *)
 
 module type S = sig  end
 
@@ -1257,17 +1257,20 @@ register_init "bussproofs"
 *                                                           *
 ************************************************************)
 
+let inside_proof = ref false
+;;
+
 register_init "proof"
     (fun () ->
       def_code "\\infer"
 	(fun lexbuf ->
+        if !inside_proof then begin
           let tag = if (Save.if_next_char '=' lexbuf) then 
 	                let _ = save_arg lexbuf 
 			in (true) 
                     else (false) in
           let optarg2 = save_opt "" lexbuf in
           let is_opt_arg = if ("" = optarg2.arg) then false else true in  
-	  let formatted2 = Scan.get_this_arg_mbox optarg2 in
 	  let arg3 = save_arg lexbuf in
 	  let arg4 = save_arg lexbuf in
 	  start_table "CLASS=proof" "ALIGN=center" ;
@@ -1285,19 +1288,55 @@ register_init "proof"
 	  if (tag=true) then Dest.put "<HR NOSHADE SIZE=\"4\">\n" 
              else Dest.put "<HR NOSHADE SIZE=\"2\">\n" ;
           next_column () ; 
-          Dest.put (formatted2^"&nbsp;&nbsp;") ;
+          scan_this_arg Scan.main optarg2 ;
           next_row () ;
 	  scan_this_arg Scan.main arg3 ;
           next_column () ; 
           Dest.put_nbsp () ; 
 	  end_table ()
+        end 
+        else begin
+          scan_this Scan.main "$"; 
+          inside_proof := true; 
+          let tag = if (Save.if_next_char '=' lexbuf) then 
+	                let _ = save_arg lexbuf 
+			in (true) 
+                    else (false) in
+          let optarg2 = save_opt "" lexbuf in
+          let is_opt_arg = if ("" = optarg2.arg) then false else true in  
+	  let arg3 = save_arg lexbuf in
+	  let arg4 = save_arg lexbuf in
+	  start_table "CLASS=proof" "ALIGN=center" ;
+          def "\\@hevea@amper" zero_pat
+	    (CamlCode (fun _ ->  
+	      Dest.force_item_display (); 
+              Dest.put_nbsp (); Dest.put_nbsp ())
+            ) ;
+	  Dest.open_display_varg "VALIGN=bottom";	  
+	  scan_this_arg Scan.main arg4;
+	  Dest.close_display();
+          next_column () ; 
+          Dest.put_nbsp () ; 
+          next_row () ;
+	  if (tag=true) then Dest.put "<HR NOSHADE SIZE=\"4\">\n" 
+             else Dest.put "<HR NOSHADE SIZE=\"2\">\n" ;
+          next_column () ; 
+          scan_this_arg Scan.main optarg2 ;
+          next_row () ;
+	  scan_this_arg Scan.main arg3 ;
+          next_column () ; 
+          Dest.put_nbsp () ; 
+	  end_table ();
+          scan_this Scan.main "$";
+          inside_proof := false
+        end
         ) ;
       def_code "\\infer*"
 	(fun lexbuf ->
+        if !inside_proof then begin
           let optarg1 = save_opt "" lexbuf in
           let is_opt_arg = if ("" = optarg1.arg) then false else true in  
-	  let formatted1 = Scan.get_this_arg_mbox optarg1 in
-          let arg2 = save_arg lexbuf in
+	  let arg2 = save_arg lexbuf in
 	  let arg3 = save_arg lexbuf in
 	  start_table "CLASS=proof" "ALIGN=center";
           def "\\@hevea@amper" zero_pat
@@ -1313,19 +1352,50 @@ register_init "proof"
           next_row () ;
           Dest.put "&#8942\n" ; 
           next_column () ; 
-          Dest.put (formatted1^"&nbsp;&nbsp;");
+          scan_this_arg Scan.main optarg1 ;
           next_row () ;
 	  scan_this_arg Scan.main arg2 ;
           next_column () ; 
           Dest.put_nbsp () ;
 	  end_table ()
+        end
+        else begin
+          scan_this Scan.main "$"; 
+          inside_proof := true; 
+          let optarg1 = save_opt "" lexbuf in
+          let is_opt_arg = if ("" = optarg1.arg) then false else true in  
+	  let arg2 = save_arg lexbuf in
+	  let arg3 = save_arg lexbuf in
+	  start_table "CLASS=proof" "ALIGN=center";
+          def "\\@hevea@amper" zero_pat
+	    (CamlCode (fun _ ->  
+	      Dest.force_item_display (); 
+              Dest.put_nbsp () ; Dest.put_nbsp ()) ;
+            ) ;
+	  Dest.open_display_varg "VALIGN=bottom";	  
+	  scan_this_arg Scan.main arg3;
+	  Dest.close_display();
+          next_column () ; 
+          Dest.put_nbsp () ;
+          next_row () ;
+          Dest.put "&#8942\n" ; 
+          next_column () ; 
+          scan_this_arg Scan.main optarg1 ;
+          next_row () ;
+	  scan_this_arg Scan.main arg2 ;
+          next_column () ; 
+          Dest.put_nbsp () ;
+	  end_table ();
+          scan_this Scan.main "$";
+          inside_proof := false
+        end
         ) ;
       def_code "\\deduce"
 	(fun lexbuf ->
+        if !inside_proof then begin
           let optarg1 = save_opt "" lexbuf in
           let is_opt_arg = if ("" = optarg1.arg) then false else true in  
-	  let formatted1 = Scan.get_this_arg_mbox optarg1 in
-          let arg2 = save_arg lexbuf in
+	  let arg2 = save_arg lexbuf in
 	  let arg3 = save_arg lexbuf in
 	  start_table "CLASS=proof" "ALIGN=center";
           def "\\@hevea@amper" zero_pat
@@ -1341,14 +1411,45 @@ register_init "proof"
           next_row () ;
           Dest.put_nbsp () ; 
           next_column () ; 
-          Dest.put formatted1 ;
-          Dest.put_nbsp () ;
+          scan_this_arg Scan.main optarg1(*Dest.put formatted1*) ;
           Dest.put_nbsp () ;
           next_row () ;
 	  scan_this_arg Scan.main arg2 ;
           next_column () ; 
           Dest.put_nbsp () ;
 	  end_table ()
+        end
+        else begin
+          scan_this Scan.main "$"; 
+          inside_proof := true; 
+          let optarg1 = save_opt "" lexbuf in
+          let is_opt_arg = if ("" = optarg1.arg) then false else true in  
+	  let arg2 = save_arg lexbuf in
+	  let arg3 = save_arg lexbuf in
+	  start_table "CLASS=proof" "ALIGN=center";
+          def "\\@hevea@amper" zero_pat
+	    (CamlCode (fun _ ->  
+	      Dest.force_item_display (); 
+              Dest.put_nbsp () ; Dest.put_nbsp ()) (* scan_this_main "~~" *)
+            ) ;
+	  Dest.open_display_varg "VALIGN=bottom";	  
+	  scan_this_arg Scan.main arg3;
+	  Dest.close_display();
+          next_column () ; 
+          Dest.put_nbsp () ;
+          next_row () ;
+          Dest.put_nbsp () ; 
+          next_column () ; 
+          scan_this_arg Scan.main optarg1 ;
+          Dest.put_nbsp () ;
+          next_row () ;
+	  scan_this_arg Scan.main arg2 ;
+          next_column () ; 
+          Dest.put_nbsp () ;
+	  end_table ();
+          scan_this Scan.main "$";
+          inside_proof := false
+        end
         ) ;
     )
 ;;

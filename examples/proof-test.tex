@@ -26,44 +26,44 @@
                }
 
 \noindent(1)
-$$
-\infer{A}{
-        \infer=[\imp E]{B}{
+
+\infer{A_1}{
+        \infer=[\imp E_1]{B_1}{
                 \frac{\Pi}{2}
                 &
-                \infer[\wedge E$_1$]{B21}{B21 \wedge B22} 
+                \infer[\wedge E_1]{B_21}{B_21 \wedge B22} 
                 & 
                 D1 \wedge D2
         }
         &
-        \infer={C}{C11 \wedge C12}
+        \infer={C_1}{C_11 \wedge C12}
 }
-$$
+
 
 \noindent(2)
-$$
+
 \infer={A}{
         \infer=[\imp E]{B}{
                 \frac{\Pi}{2}
                 &
-                \infer*[\wedge E$_1$]{B21}{B21 \wedge B22} 
+                \infer*[\wedge E_1]{B21}{B21 \wedge B22} 
                 & 
                 D1 \wedge D2
         }
         &
         \deduce{C}{C11 \wedge C12}
 }
-$$
+
 
 \noindent (3)
-$$
+
 \infer=[RI]{A \imp B}{
         \infer*{B}{[A]}
 }
-$$
+
 
 \noindent (4)
-$$
+
 \infer=[(1)]{A}{
         \infer{B}{
                 B11\land B12\land B13
@@ -73,16 +73,16 @@ $$
         &
         C
 }
-$$
+
 
 \noindent (5)
-$$
-\infer[(\land I)]{A \land B}{A & B}
+
+\infer[(\wedge I)]{A \wedge B}{A & B}
 \qquad
-\infer[(\land E$_l$)]{A}{A\land B}
+\infer[(\wedge E_1)]{A}{A \wedge B}
 \qquad
-\infer[(\land E$_r$)]{B}{A\land B}
-$$
+\infer[(\wedge E_r)]{B}{A \wedge B}
+
 
 
 \end{document}
