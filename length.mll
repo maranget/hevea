@@ -1,6 +1,6 @@
 {
 open Lexing
-let header = "$Id: length.mll,v 1.7 1999-05-17 13:40:29 maranget Exp $" 
+let header = "$Id: length.mll,v 1.8 1999-05-18 17:12:12 maranget Exp $" 
 
 exception No
 ;;
@@ -23,7 +23,8 @@ let convert unit x = match unit with
     |  "cm"     -> mk_absolute ((x *. 28.47) /. font_float)
     |  "mm"     -> mk_absolute ((x *. 2.847) /. font_float)
     |  "pc"     -> mk_absolute ((x *. 12.0)  /. font_float)
-    | "\\linewidth" | "\\textwidth" -> mk_percent (100.0 *. x)
+    | "\\linewidth" | "\\textwidth" | "\\hsize" ->
+        mk_percent (100.0 *. x)
     |  _ -> raise No
 ;;
 

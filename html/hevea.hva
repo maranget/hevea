@@ -53,9 +53,7 @@
 \newcommand{\htmlhead}[1]{\sbox{\@htmlhead}{#1}}
 \newcommand{\htmlfoot}[1]{\sbox{\@htmlfoot}{#1}}
 %%%%%%%%%%% Footnotes
-\newcommand{\footnoterule}{\@print{<HR ALIGN=left WIDTH="50%">
-}%
-}
+\newcommand{\footnoterule}{{\@nostyle\@print{<HR ALIGN=left WIDTH="50%">}}}
 \newcommand{\footnotesep}[1]{}
 \newcommand{\@fnmarktext}[1]{{\normalfont $^{\mbox{#1}}$}}
 \newcommand{\@fnmarknote}[1]{{\@clearstyle\Large #1}}
@@ -127,19 +125,17 @@
 \newcounter{cuttingdepth}
 \setcounter{cuttingdepth}{1}
 \newcommand{\cutdef}[2][]{%
-\@print{<!--CUT DEF }#2\@print{ }#1\@print{ -->
-}%
-}
+{\@nostyle\@print{<!--CUT DEF }#2\@print{ }#1\@print{ -->
+}}}%
 \newcommand{\cutend}{%
-\@print{<!--CUT END -->
-}%
+{\@nostyle\@print{<!--CUT END -->
+}}%
 }
 \newcommand{\cuthere}[2]{%
 \@footnoteflush{#1}%
-{\@nostyle\@print{<!--}TOC\@print{ }\@notags{#1}\@print{ }%
-#2\@print{-->
-}}%
-}
+{\@nostyle\@print{<!--TOC }\@notags{#1}\@print{ }}%
+{#2}{\@nostyle\@print{-->
+}}}
 %% Packages and Page Styles
 \newcommand{\usepackage}[2][!*!]{%
 \ifthenelse{\equal{#1}{!*!}}
@@ -189,8 +185,11 @@
 }{\@close{DL}}
 \newenvironment{trivlist}{\@open{DL}{}}{\@close{DL}}
 %%% Maths
-\newenvironment{math}{\(}{\)}
-\newenvironment{displaymath}{\[}{\]}
+\newenvironment{math}{$}{$}
+\newenvironment{displaymath}{$$}{$$}
+\newcommand{\(}{$}\newcommand{\)}{$}
+\newcommand{\[}{$$}\newcommand{\]}{$$}
+\newcommand{\sp}[1]{^{#1}}\newcommand{\sb}[1]{_{#1}}
 \newcommand{\ensuremath}[1]{\ifmath#1\else\(#1\)\fi}
 \newcommand{\eqno}[1]{\quad\quad#1}
 \newenvironment{equation}{\[}{\stepcounter{equation}\eqno{(\theequation)}\]}
@@ -236,21 +235,21 @@
 \def\caption#1{\sbox{\@caption}{#1}}
 \newenvironment{figure}[1][]{%
 \caption{}\refstepcounter{figure}%
-\@open{BLOCKQUOTE}{}\@print{<HR>}%
+\@open{BLOCKQUOTE}{}\@printHR{}{}%
 %\@open{DISPLAY}{}%
 }{%
 %\@close{DISPLAY}%
 \par\begin{center}Figure \thefigure\iffrench~\fi: \usebox{\@caption}\end{center}
-\@print{<HR>}\@close{BLOCKQUOTE}}
+\@printHR{}{}\@close{BLOCKQUOTE}}
 \newenvironment{figure*}[1][]{\begin{figure}[#1]}{\end{figure}}
 \newenvironment{table}[1][]{%
 \caption{}\refstepcounter{table}%
-\@open{BLOCKQUOTE}{}\@print{<HR>}%
+\@open{BLOCKQUOTE}{}\@printHR{}{}%
 %\@open{DISPLAY}{}%
 }{%
 %\@close{DISPLAY}%
 \par\begin{center}Table \thetable\iffrench~\fi: \usebox{\@caption}\end{center}
-\@print{<HR>}\@close{BLOCKQUOTE}}
+\@printHR{}{}\@close{BLOCKQUOTE}}
 \newenvironment{table*}[1][]{\begin{table}[#1]}{\end{table}}
 \newcommand{\suppressfloats}[1][]{}
 \newcounter{topnumber}
@@ -445,7 +444,7 @@
 <!--FOOTER-->
 }%
 \input{footer.tex}\fi%
-\@print{</BODY>
+\@clearstyle\@print{</BODY>
 </HTML>
 }
 }
@@ -454,18 +453,15 @@
 \newenvironment{flushleft}{\@open{DIV}{ALIGN=left}}{\@close{DIV}}
 \newenvironment{flushright}{\@open{DIV}{ALIGN=right}}{\@close{DIV}}
 \newcommand{\centerline}[1]{\begin{center}#1\end{center}}
-\newenvironment{quote}{\@open{BLOCKQUOTE}{}}{\@close{BLOCKQUOTE}}
+\newenvironment{quote}{\@close{}\@open{BLOCKQUOTE}{}}{\@close{BLOCKQUOTE}\@open{}{}}
 \newenvironment{quotation}{\@open{BLOCKQUOTE}{}}{\@close{BLOCKQUOTE}}
 \newcommand{\centering}{\@insert{DIV}{ALIGN=center}}
 \newcommand{\raggedleft}{\@insert{DIV}{ALIGN=right}}
 \newcommand{\raggedright}{\@insert{DIV}{ALIGN=left}}
-\newenvironment{alltt}{\alltttrue\@open{PRE}{}}{\@close{PRE}\allttfalse}
-
 %%%%%%%%%%% Figures
 
 %% Equations
-\newcommand{\rule}[3][]{\@print{<HR>
-}}%
+\newcommand{\rule}[3][]{\@printHR{}{}}%
 %%%%%%%%%%%%%%%% LaTeX 2.09 style declarations
 \newenvironment{tt}{\@style{TT}}{}
 \newenvironment{bf}{\@style{B}}{}

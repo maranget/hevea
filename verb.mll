@@ -10,6 +10,9 @@ open Lexing
 open Lexstate
 open Latexmacros
 
+exception EndAlltt
+;;
+
 let verb_delim = ref (Char.chr 0)
 let env_extract s =
   let i = String.index s '{'
@@ -127,7 +130,6 @@ and latex2html_latexonly = parse
     {latex2html_latexonly lexbuf}
 | eof
     {raise (Error ("End of file inside ``latexonly'' environment"))}
-
 {
 
 let open_verb lexbuf =

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: html.ml,v 1.47 1999-05-17 15:52:45 tessaud Exp $" 
+let header = "$Id: html.ml,v 1.48 1999-05-18 17:12:05 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -622,11 +622,7 @@ let already_here = function
    ( !cur_out.pending @ !cur_out.active )
 ;;
 
-let ok_pre = function
-  Style "BIG"| Style "SMALL"| Style "SUP"| Style "SUB" -> false
-| Style _ -> false
-| Font _ -> false
-| _      -> not !pedantic
+let ok_pre = function _ ->  not !pedantic
 ;;
 
 let rec filter_pre = function
@@ -1057,8 +1053,11 @@ let flush x =
 
 let open_group ss =
   open_block "" "" ;
-  !cur_out.pending <-
-    (!cur_out.pending @ (if ss = "" then [] else [Style ss]))
+  let e = Style ss in
+    !cur_out.pending <-
+       (!cur_out.pending @
+        (if ss = "" || (flags.in_pre && not (ok_pre e)) then []
+        else [e]))
 
 and open_aftergroup f =
   open_block "AFTER" "" ;
@@ -1479,10 +1478,13 @@ let finalize check =
   Out.close !cur_out.out
 ;;
 
-let horizontal_line s  t u =
-  match t with
+let horizontal_line s t u =
+  open_block "" "" ;
+  nostyle () ;
+  begin match t with
   | "0" -> put ("<HR "^s^">")
-  | _ -> put ("<HR "^s^" SIZE="^t^">")
+  | _ -> put ("<HR "^s^" SIZE="^t^">") end ;
+  close_block ""
 ;;
 
 let put_separator () =
@@ -1508,9 +1510,13 @@ let put_close_group () =
 ;;
 
 let put_in_math s =
-  put "<I>";
-  put s;
-  put "</I>"
+  if flags.in_pre && !pedantic then
+    put s
+  else begin
+    put "<I>";
+    put s;
+    put "</I>"
+  end
 ;;
 
 

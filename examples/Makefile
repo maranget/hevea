@@ -12,11 +12,11 @@ TEX=$(HTML:.html=.tex)
 all: dvi html
 opt:
 	export HEVEADIR=.. ;\
-	$(MAKE) $(MFLAGS) HEVEA=../hevea.opt HACHA=../hacha.opt IMAGEN=../imagen all
+	$(MAKE) $(MFLAGS) HEVEAOPTS="$(HEVEAOPTS)" HEVEA=../hevea.opt HACHA=../hacha.opt IMAGEN=../imagen all
 
 byte:
 	export HEVEADIR=.. ;\
-	$(MAKE) $(MFLAGS) HEVEA=../hevea.byte HACHA=../hacha.byte IMAGEN=../imagen all
+	$(MAKE) $(MFLAGS)  HEVEAOPTS="$(HEVEAOPTS)" HEVEA=../hevea.byte HACHA=../hacha.byte IMAGEN=../imagen all
 
 dvi: $(DVI)
 
@@ -103,7 +103,7 @@ index.html: index.tex
 	$(HEVEA) $(HEVEAOPTS) index.tex
 
 cleanhtml:
-	rm -f $(HTML) tmp.html
+	rm -f $(HTML) tmp.html *.txt
 
 clean cleanall: cleanhtml
 	rm -f *.aux *.log *.dvi *~ *.gif *.bbl tmp.* tenv.* tsmile.* *.ilg *.ind *.idx *.image.tex *.html *.tid

@@ -9,6 +9,7 @@
 \usepackage{ifthen}
 \usepackage{calc}
 \usepackage{array}
+\usepackage{alltt}
 
 \title{Test de \hevea\footnote{Une étoile}}
 \makeindex
@@ -1021,6 +1022,12 @@ Foo & Foobis\\
 Coucou & \Gamma_A\\
 Coucou & \Gamma_A \\
 \end{tabular}
+
+\section{Un peu de \texttt{alltt}}
+\newcommand{\nth}[2]{${#1}_{#2}$}
+\begin{alltt}
+        ocamlrun caml.out \nth{arg}{1} \nth{arg}{2} \ldots \nth{arg}{n}
+\end{alltt}
 
 \begin{thebibliography}{xxxxxxxxxx}
 \bibitem[\LaTeX-bis]{latexbis}

@@ -47,7 +47,7 @@ open Save
 open Tabular
 open Lexstate
 
-let header = "$Id: latexscan.mll,v 1.95 1999-05-17 15:52:51 tessaud Exp $" 
+let header = "$Id: latexscan.mll,v 1.96 1999-05-18 17:12:09 maranget Exp $" 
 
 let sbool = function
   | false -> "false"
@@ -323,6 +323,8 @@ let get_this lexfun s = do_get_this false lexfun s
 and get_this_nostyle lexfun s = do_get_this true lexfun s
 
 let subst_buff = Out.create_buff ()
+;;
+let more_buff = Out.create_buff ()
 ;;
 
 let subst_this subst arg =
@@ -1002,7 +1004,7 @@ rule  main = parse
      end ;
      main lexbuf}
 (* Math mode *)
-| "$" | "$$" | "\\(" | "\\)" | "\\[" | "\\]"
+| "$" | "$$"
      {let lxm = lexeme lexbuf in
      if !withinSnippet && lxm = "\\]" then begin
        if !verbose > 2 then prerr_endline "\\] caught within TeX escape"; 
@@ -1085,7 +1087,7 @@ rule  main = parse
       let args = make_stack name pat lexbuf in
       let saw_par = !Save.seen_par in
       let is_limit = checklimits lexbuf ||  Latexmacros.limit name in
-      if is_limit || Latexmacros.big name then begin
+      if not !alltt && (is_limit || Latexmacros.big name) then begin
         let sup,sub = Save.get_sup_sub lexbuf in
         let do_what =
           (fun () -> scan_body exec body args) in
@@ -1102,7 +1104,12 @@ rule  main = parse
             ("Expanding macro "^name^" {"^(string_of_int !macro_depth)^"}") ;
           macro_depth := !macro_depth + 1
         end ;
-        scan_body exec body args ;
+        if !alltt then begin
+          alltt := false ;
+          scan_body exec body args ;
+          alltt := not !alltt
+        end else
+          scan_body exec body args ;
         if (!verbose > 1) then begin
           prerr_endline ("Cont after macro "^name^": ") ;
           macro_depth := !macro_depth - 1
@@ -1134,14 +1141,11 @@ rule  main = parse
 | '}' 
     {if !activebrace then begin
       let cenv = !cur_env in
-      top_close_group () ;
-      if cenv <> "*mbox" then
-        main lexbuf
-      else ()
+      top_close_group ()
     end else begin
-      Dest.put_char '}' ;
-      main lexbuf
-    end}
+      Dest.put_char '}'
+    end ;
+    main lexbuf}
 | eof {()}
 | ' '+
    {if !alltt then
@@ -1307,7 +1311,7 @@ and image_comment = parse
     image_comment lexbuf}
 
 and mbox_arg = parse
-  ' '+ {mbox_arg lexbuf}
+| ' '+ | '\n' {mbox_arg lexbuf}
 | eof
      {if not (Lexstate.empty stack_lexbuf) then begin
      let lexbuf = previous_lexbuf () in
@@ -1323,8 +1327,7 @@ and mbox_arg = parse
     if !display then Dest.item_display () ;
     push stack_display !display ; display := false ;
     Dest.open_block "" "" ;
-    new_env "*mbox" ;
-    main lexbuf}
+    new_env "*mbox"}
 
 and skip_blanks_pop = parse
   ' '+ {skip_blanks_pop lexbuf}
@@ -1352,6 +1355,15 @@ and more_skip_pop = parse
      end ;
      more_skip_pop lexbuf
    end else ()}
+
+and to_newline = parse
+|  '\n' {()}
+| _     {Out.put_char more_buff (Lexing.lexeme_char lexbuf 0) ;
+        to_newline lexbuf}
+| eof
+   {if not (Lexstate.empty stack_lexbuf) then
+     let lexbuf = previous_lexbuf () in
+     to_newline lexbuf}
 
 and skip_blanks = parse
   ' '+ {skip_blanks lexbuf}
@@ -1674,6 +1686,18 @@ def_code "\\noexpand"
      let arg = save_arg lexbuf in
      Dest.put arg)
 ;;
+
+let do_unskip () =
+ let _ = Dest.forget_par () in
+ Dest.unskip ()
+;;
+
+def_code "\\unskip"
+    (fun lexbuf ->
+      do_unskip () ;
+      skip_blanks lexbuf)
+;;
+
 
 (* Complicated use of output blocks *)
 def_code "\\left"
@@ -2082,12 +2106,20 @@ def_code "\\end"
     let env = subst_arg subst lexbuf in
     scan_this main ("\\end"^env) ;
     if env <> "document" then top_close_block "" ;
-    Dest.put_char '\n';
+(*    Dest.put_char '\n'; *)
     close_env env ;
     if env = "document" then raise Misc.EndInput)
 ;;
 
-def_code "\\endinput" (fun _ -> raise Misc.EndInput)    
+let little_more lexbuf =
+  to_newline lexbuf ;
+  Out.to_string more_buff
+;;
+
+def_code "\\endinput" (fun lexbuf ->
+  let reste = little_more lexbuf in
+  scan_this main reste ;
+  raise Misc.EndInput)    
 ;;
 
 (* Boxes *)
@@ -2364,22 +2396,21 @@ def_code "\\hspace"  (fun lexbuf -> do_space false lexbuf) ;
 def_code "\\vspace"  (fun lexbuf -> do_space true lexbuf)
 ;;
 
-let do_unskip () =
- let _ = Dest.forget_par () in
- Dest.unskip ()
-;;
-
-def_code "\\unskip"
-    (fun lexbuf ->
-      do_unskip () ;
-      skip_blanks lexbuf)
-;;
-
 (* Explicit groups *)
 def_code "\\begingroup" (fun _ -> new_env "command-group")
 ;;
 
 def_code "\\endgroup" (fun _ -> close_env !cur_env)
+;;
+
+(* alltt *)
+
+def_code "\\alltt"
+  (fun _ ->
+    alltt := true ; Dest.close_block "" ; Dest.open_block "PRE" "") ;
+def_code "\\endalltt"
+  (fun _ ->
+    alltt := true ; Dest.close_block "PRE" ; Dest.open_block "" "")
 ;;
 
 (* Multicolumn *)

@@ -174,8 +174,11 @@
 }{\@close{DL}}
 \newenvironment{trivlist}{\@open{DL}{}}{\@close{DL}}
 %%% Maths
-\newenvironment{math}{\(}{\)}
-\newenvironment{displaymath}{\[}{\]}
+\newenvironment{math}{$}{$}
+\newenvironment{displaymath}{$$}{$$}
+\newcommand{\(}{$}\newcommand{\)}{$}
+\newcommand{\[}{$$}\newcommand{\]}{$$}
+\newcommand{\sp}[1]{^{#1}}\newcommand{\sb}[1]{_{#1}}
 \newcommand{\ensuremath}[1]{\ifmath#1\else\(#1\)\fi}
 \newcommand{\eqno}[1]{\quad\quad#1}
 \newenvironment{equation}{\[}
@@ -221,21 +224,21 @@
 \def\caption#1{\sbox{\@caption}{#1}}
 \newenvironment{figure}[1][]{%
 \caption{}\refstepcounter{figure}%
-\@open{BLOCKQUOTE}{}\@printHR%
+\@open{BLOCKQUOTE}{}\@printHR{center}{80}%
 %\@open{DISPLAY}{}%
 }{%
 %\@close{DISPLAY}%
 \par\begin{center}Figure \thefigure\iffrench~\fi: \usebox{\@caption}\end{center}
-\@printHR\@close{BLOCKQUOTE}}
+\@printHR{center}{80}\@close{BLOCKQUOTE}}
 \newenvironment{figure*}[1][]{\begin{figure}[#1]}{\end{figure}}
 \newenvironment{table}[1][]{%
 \caption{}\refstepcounter{table}%
-\@open{BLOCKQUOTE}{}\@printHR%
+\@open{BLOCKQUOTE}{}\@printHR{center}{80}%
 %\@open{DISPLAY}{}%
 }{%
 %\@close{DISPLAY}%
 \par\begin{center}Table \thetable\iffrench~\fi: \usebox{\@caption}\end{center}
-\@printHR\@close{BLOCKQUOTE}}
+\@printHR{center}{80}\@close{BLOCKQUOTE}}
 \newenvironment{table*}[1][]{\begin{table}[#1]}{\end{table}}
 \newcommand{\suppressfloats}[1][]{}
 \newcounter{topnumber}
@@ -326,8 +329,7 @@
 \def\prod{\ifdisplay{\Huge\Pi}\else\Pi\fi}
 \def\int{\ifdisplay\@displayint\else{\large\@int}\fi}
 %% Arrays and tabular
-\newenvironment{tabular*}[2]{\begin{tabular}{#2}}{\end{tabular}}
-\newcommand{\extracolsep}[1]{\warning{Warning, \extracolsep ignored}}
+\newcommand{\extracolsep}[1]{}
 \newcommand{\cline}[1]{\warning{Warning, \cline changed into \hline}\hline}
 \def\cases#1{\left\{\begin{array}{l>{$}l<{$}}#1\end{array}\right.}
 %%% tabularx
@@ -418,8 +420,6 @@
 \newcommand{\centering}{\@insert{ALIGN}{CENTER}}
 \newcommand{\raggedleft}{\@insert{ALIGN}{RIGHT}}
 \newcommand{\raggedright}{\@insert{ALIGN}{LEFT}}
-\newenvironment{alltt}{\alltttrue\@open{PRE}{}}{\@close{PRE}\allttfalse}
-
 %%%%%%%%%%% Figures
 
 %% Equations

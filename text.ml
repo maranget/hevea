@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.9 1999-05-18 12:47:25 tessaud Exp $"
+let header = "$Id: text.ml,v 1.10 1999-05-18 17:12:13 maranget Exp $"
 
 
 open Misc
@@ -869,7 +869,11 @@ let finalize check =
 
 let horizontal_line s u t =
   put_char '\n';
-  let taille = (flags.hsize -1) * (int_of_string t) / 100 in
+  let tint =
+    try int_of_string t
+    with Failure s -> raise (Misc.Fatal (s^": ``"^t^"''")) in
+    
+  let taille = (flags.hsize -1) * tint / 100 in
   let ligne = String.concat "" 
       [(match s with
       |	"right" -> String.make (flags.hsize - taille -1) ' '
