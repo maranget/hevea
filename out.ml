@@ -11,7 +11,7 @@
 
 open Lexing
 
-let header = "$Id: out.ml,v 1.20 2000-10-27 11:26:58 maranget Exp $" 
+let header = "$Id: out.ml,v 1.21 2005-02-18 13:39:48 maranget Exp $" 
 let verbose = ref 0
 ;;
 
@@ -134,7 +134,7 @@ let flush = function
 let iter f = function
   | Buff {buff=buff ; bp=bp} ->
       for i = 0 to bp-1 do
-        f (buff.[i])
+        f (String.unsafe_get buff i)
       done
   | Null -> ()
   | _ -> Misc.fatal "Out.iter"
