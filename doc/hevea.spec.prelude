@@ -18,7 +18,7 @@ version 4.0 (transitional)
 This package is a binary installation of the hevea system.
 
     This software includes the Objective Caml run-time system, 
-    which is copyright 1995 INRIA.
+    which is copyright 1995--1999 INRIA.
 %prep
 %setup
 %build

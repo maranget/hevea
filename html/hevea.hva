@@ -232,7 +232,7 @@
 }
 \def\makeindex{\newindex{default}{idx}{ind}{Index}}
 \newcommand{\index*}[1]{#1\index{#1}}
-\newcommand{\indexref}[2]{\url{\##2}{#1}}
+\newcommand{\indexref}[2]{\ahref{\##2}{#1}}
 \newcommand{\@seename}{\iffrench voir\else see\fi}
 \newcommand{\see}[2]{\@seename\ \textit{#1}}
 %% Boxes
