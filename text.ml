@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.28 1999-06-28 13:01:32 tessaud Exp $"
+let header = "$Id: text.ml,v 1.29 1999-07-05 08:30:30 tessaud Exp $"
 
 
 open Misc
@@ -1682,8 +1682,9 @@ let insert_sup_sub () =
   open_block "" "";
   if is_freeze then freeze f;
   open_display "";
-  do_put (Out.to_string new_out.out);
-  flags.empty <- false;
+  let s =(Out.to_string new_out.out) in
+  do_put s;
+  flags.empty <- (s="");
   free new_out;
 ;;  
 
@@ -1691,16 +1692,17 @@ let insert_sup_sub () =
 let standard_sup_sub scanner what sup sub display =
   if display then begin
     insert_sup_sub ();
-    let f = match sup,sub with
-    | "","" -> "cm"
-    |	"",_ -> change_format (formated "lt"); "lb"
-    |	_,"" -> change_format (formated "lb"); "lt"
-    |	_,_ -> "cm"
+    let f,ff = match sup,sub with
+    | "","" -> "cm","cm"
+    |	"",_ -> change_format (formated "lt"); "lb","cm"
+    |	_,"" -> change_format (formated "lm"); "lt","cmm"
+    |	_,_ -> "cm","cm"
     in
+    let vide= flags.empty in
     item_display_format f ;
     if sup<>"" || sub<>"" then begin
       open_vdisplay display;
-      if sup<>"" then begin
+      if sup<>"" || vide then begin
 	open_vdisplay_row "lt";
 	scanner sup ;
 	close_vdisplay_row ();
@@ -1708,7 +1710,7 @@ let standard_sup_sub scanner what sup sub display =
       open_vdisplay_row "lm";
       what ();
       close_vdisplay_row ();
-      if sub<>"" then begin
+      if sub<>"" || vide then begin
 	open_vdisplay_row "lb";
 	scanner sub ;
 	close_vdisplay_row ();
@@ -1717,7 +1719,7 @@ let standard_sup_sub scanner what sup sub display =
       item_display ();
     end else what ();
     close_display ();
-(*    change_format (formated f);*)
+    change_format (formated ff);
     item_display ();
   end else begin
     what ();

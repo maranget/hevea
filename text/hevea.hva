@@ -257,6 +257,7 @@
 \def\mathclose#1{#1}
 \def\mathchardef#1#2{}
 %% Some math symbols, some others are defined in symb.ml and latexmacros.ml
+\input{html/mathaccents.hva}
 \def\backslash{\char92}
 \def\neg{¬}
 \def\mu{µ}

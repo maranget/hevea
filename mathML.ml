@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: mathML.ml,v 1.5 1999-06-22 14:51:48 tessaud Exp $" 
+let header = "$Id: mathML.ml,v 1.6 1999-07-05 08:30:29 tessaud Exp $" 
 
 
 open Misc
@@ -261,7 +261,6 @@ let open_maths display =
   if display then do_put "<BR>\n";
   if not flags.in_math then open_block "math" "align=\"center\""
   else erase_mods [Style "mtext"];
-(*  else if pblock()="mtext" then close_block "mtext";*)
   do_put_char '\n';
   flags.in_math <- true;
   open_display "";
@@ -275,10 +274,8 @@ let close_maths display =
   flags.in_math <- pop "in_math" in_math_stack;
   do_put_char '\n';
   if not flags.in_math then begin
-(*    if pblock ()="mtext" then close_block "mtext";*)
     close_block "math" end
   else open_mod (Style "mtext");
-(*  end else open_block "mtext" "";*)
 ;;
 
 
@@ -432,9 +429,11 @@ let put s =
     do_pending () ;
     flags.empty <- false;
     flags.blank <- s_blank && flags.blank ;
-    if s_number then do_put ("<mn> "^s^" </mn>\n")
-    else if s_text then do_put ("<mtext>"^s^"</mtext>")
-    else if s_op then begin
+    if s_number then begin
+      do_put ("<mn> "^s^" </mn>\n")
+    end else if s_text then begin
+      do_put ("<mtext>"^s^"</mtext>")
+    end else if s_op then begin
       do_put ("<mo> "^s^" </mo>\n");
     end else begin
       do_put s
@@ -457,9 +456,11 @@ let put_char c =
     do_pending () ;
     flags.empty <- false;
     flags.blank <- c_blank && flags.blank ;
-    if c_digit then do_put ("<mn> "^s^" </mn>\n")
-    else if c_text then do_put ("<mtext>"^s^"</mtext>")
-    else if c_op then begin
+    if c_digit then begin
+      do_put ("<mn> "^s^" </mn>\n")
+    end else if c_text then begin
+      do_put ("<mtext>"^s^"</mtext>")
+    end else if c_op then begin
       do_put ("<mo> "^s^" </mo>\n");
     end else begin
       do_put_char c;
@@ -490,6 +491,8 @@ let put_in_math s =
 let put_sub_sup  scanner s = 
   open_display "";
   scanner s;
+  item_display ();
+  
   close_display ();
 ;;
 
@@ -618,10 +621,14 @@ let over display lexbuf =
         (fun () ->
           open_block "mfrac" "";
 	  open_display "") in
+    force_item_display ();
+    flags.ncols <- flags.ncols +1;
     close_display () ;
     open_display "" ;
     freeze
       (fun () ->
+	force_item_display ();
+	flags.ncols <- flags.ncols +1;
         close_display () ;
         close_block "mfrac")
   end else begin

@@ -1,7 +1,11 @@
-\newcommand{\@mop}[1]{\@print{<mo> &}\@subst{#1}\@print{; </mo>}%
+\newcommand{\@mop}[1]{
+  \ifmath\@itemdisplay\fi%
+  \@print{<mo> &}\@subst{#1}\@print{; </mo>}%
   \ifmath\@itemdisplay\fi}
 \newcommand{\@mopop}[1]{\@print{<mo> &}\@subst{#1}\@print{; </mo>}}
-\newcommand{\@mid}[1]{\@print{<mi> &}\@subst{#1}\@print{; </mi>}%
+\newcommand{\@mid}[1]{
+  \ifmath\@itemdisplay\fi%
+  \@print{<mi> &}\@subst{#1}\@print{; </mi>}%
   \ifmath\@itemdisplay\fi}
 \newcommand{\@mfun}[1]{\@print{<mo> }\@subst{#1}\@print{ </mo>}}
 
