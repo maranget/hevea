@@ -14,7 +14,7 @@ val csname : Lexing.lexbuf -> (string -> string) -> string
 val incsname : Lexing.lexbuf -> string
 val cite_arg : Lexing.lexbuf -> string list
 val macro_names : Lexing.lexbuf -> string list
-val num_arg : Lexing.lexbuf -> int
+val num_arg : Lexing.lexbuf -> (string -> int) -> int
 val skip_equal : Lexing.lexbuf -> unit
 val filename : Lexing.lexbuf -> string
 val get_sup_sub : Lexing.lexbuf -> string * string

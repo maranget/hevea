@@ -44,7 +44,7 @@ open Tabular
 open Lexstate
 open Stack
 
-let header = "$Id: latexscan.mll,v 1.132 1999-09-07 18:47:54 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.133 1999-09-08 15:11:26 maranget Exp $" 
 
 
 let sbool = function
@@ -1566,18 +1566,17 @@ def_code "\\string"
 
 def_code "\\catcode"
    (fun lexbuf ->
-     let char = Char.chr (Save.num_arg lexbuf) in
-     Save.skip_equal lexbuf ;
-     let code = Save.num_arg lexbuf in
+     let char = Char.chr (Get.get_int (Save.with_delim "=" lexbuf)) in
+     let code = Save.num_arg lexbuf Get.get_int in
      begin match char,code with
      | '\\',0  -> set_plain '\\'
      | '\\',_  -> raise (Fatal "Suicide: changing escape char catcode!")
      | ('{',1) | ('}',2) | ('$',3) | ('&' ,4) |
        ('#',6) | ('^',7) | ('_',8) | ('~',13) |
        ('%',14) -> set_plain char
-     | ('{',11) | ('}',11) | ('$',11) | ('&' ,11) |
-       ('#',11) | ('^',11) | ('_',11) | ('~',11) |
-       ('%',14) -> unset_plain char
+     | ('{',(11|12)) | ('}',(11|12)) | ('$',(11|12)) | ('&' ,(11|12)) |
+       ('#',(11|12)) | ('^',(11|12)) | ('_',(11|12)) | ('~',(11|12)) |
+       ('%',(11|12)) -> unset_plain char
      | _ ->
          warning "This \\catcode operation is not permitted"
      end ;
@@ -2095,7 +2094,7 @@ def_code "\\endlrbox"
 (* chars *)
 def_code "\\char"
   (fun lexbuf ->
-    let arg = Save.num_arg lexbuf in
+    let arg = Save.num_arg lexbuf Get.get_int in
     if not !silent && (arg < 32 || (arg > 127 && arg < 161)) then begin
       Location.print_pos () ;
       prerr_endline ("Warning: \\char, check output");

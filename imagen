@@ -1,5 +1,5 @@
 #! /bin/sh
-TMPBASE=/usr/tmp
+TMPBASE=/tmp
 TMP=${TMPBASE}/imagen$$
 LATEX=latex
 DVIPS=dvips

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmain.ml,v 1.48 1999-09-06 17:48:55 maranget Exp $" 
+let header = "$Id: latexmain.ml,v 1.49 1999-09-08 15:11:21 maranget Exp $" 
 
 open Misc
 open Parse_opts
@@ -53,10 +53,31 @@ let
       Info.finalize, Noimage.finalize
 ;;
 
+let prerr_error msg  =
+  Location.print_pos () ;
+  if msg <> "" then prerr_endline msg
+;;
+
+let prerr_bug msg =
+  prerr_error msg ;
+  prerr_endline
+  "    (if input is plain LaTeX, please report to Luc.Maranget@inria.fr)"
+;;
+
+
 let finalize check =
-  image_finalize () ;
-  Auxx.finalize () ;
-  dest_finalize check
+  try
+    image_finalize () ;
+    Auxx.finalize () ;
+    dest_finalize check
+  with e ->
+    if check then raise e
+    else begin
+      prerr_bug ("Uncaught exception in finalyze: "^Printexc.to_string e) ;
+      prerr_endline "Adios" ;
+      exit 2
+    end
+      
 ;;
 
 let read_style name =
@@ -145,98 +166,51 @@ let main () =
 ;;   
 
 
-begin try
-  main ()
-with
-| Misc.Close s ->
-    Location.print_pos () ;
-    prerr_endline s;
-    print_env_pos () ;
+let _ = 
+  begin try
+    main ()
+  with e -> begin
+    match e with
+    | Misc.Close s -> prerr_error s
+    | Html.Error s ->
+        prerr_error ("Error while writing HTML:\n\t"^s)
+    | Text.Error s ->
+        prerr_error ("Error while writing Text:\n\t"^s)
+    | Info.Error s ->
+        prerr_error ("Error while writing Info:\n\t"^s)
+    | InfoRef.Error s ->
+        prerr_error ("Error while writing Info:\n\t"^s)
+    | Misc.ScanError s ->
+        prerr_error ("Error while reading LaTeX:\n\t"^s)
+    | Lexstate.Error s ->
+        prerr_error ("Error while reading LaTeX:\n\t"^s)
+    | Verb.VError s ->
+        prerr_error ("Error while reading verbatim LaTeX:\n\t"^s)
+    | Colscan.Error s ->
+        prerr_error ("Error while reading LaTeX style colors:\n\t"^s)
+    | Save.Error s ->
+        prerr_error ("Error while reading LaTeX macros arguments:\n\t"^s)
+    | Tabular.Error s ->
+        prerr_error ("Error while reading table format:\n\t"^s)
+    | Get.Error s ->
+        prerr_error ("Error while getting a value:\n\t"^s)
+    | Latexmacros.Error s ->
+        prerr_error ("Error in macro definition:\n\t"^s)
+    | Myfiles.Error s ->
+        prerr_error ("File error:\n\t"^s)
+    |  Misc.Fatal s ->
+        prerr_bug ("Fatal error: "^s)
+    |  Location.Fatal s ->
+        prerr_bug ("Fatal location error: "^s)
+    |  x ->
+        prerr_bug
+          ("Fatal error, spurious exception:\n\t"^Printexc.to_string x)
+  end ;
+    finalize false ;
     prerr_endline "Adios" ;
     exit 2
-| Html.Error s ->
-    Location.print_pos () ;
-    prerr_endline ("Error while writing HTML:\n\t"^s) ;
-    prerr_endline "Adios" ;
-    exit 2
-| Text.Error s ->
-    Location.print_pos () ;
-    prerr_endline ("Error while writing Text:\n\t"^s) ;
-    prerr_endline "Adios" ;
-    exit 2
-| Info.Error s ->
-    Location.print_pos () ;
-    prerr_endline ("Error while writing Info:\n\t"^s) ;
-    prerr_endline "Adios" ;
-    exit 2
-| InfoRef.Error s ->
-    Location.print_pos () ;
-    prerr_endline ("Error while writing Info:\n\t"^s) ;
-    prerr_endline "Adios" ;
-    exit 2
-| Misc.ScanError s ->
-    Location.print_pos () ;
-    prerr_endline ("Error while reading LaTeX:\n\t"^s) ;
-    prerr_endline "Adios" ;
-    exit 2
-| Lexstate.Error s ->
-    Location.print_pos () ;
-    prerr_endline ("Error while reading LaTeX:\n\t"^s) ;
-    prerr_endline "Adios" ;
-    exit 2
-| Verb.VError s ->
-    Location.print_pos () ;
-    prerr_endline ("Error while reading verbatim LaTeX:\n\t"^s) ;
-    prerr_endline "Adios" ;
-    exit 2
-| Colscan.Error s ->
-    Location.print_pos () ;
-    prerr_endline ("Error while reading LaTeX style colors:\n\t"^s) ;
-    prerr_endline "Adios" ;
-    exit 2
-| Save.Error s ->
-    Location.print_pos () ;
-    prerr_endline ("Error while reading LaTeX macros arguments:\n\t"^s) ;
-    prerr_endline "Adios" ;
-    exit 2
-| Tabular.Error s ->
-    Location.print_pos () ;
-    prerr_endline ("Error while reading table format:\n\t"^s) ;
-    prerr_endline "Adios" ;
-    exit 2
-| Get.Error s ->
-    Location.print_pos () ;
-    prerr_endline ("Error while getting a value:\n\t"^s) ;
-    prerr_endline "Adios" ;
-    exit 2
-| Latexmacros.Error s ->
-    Location.print_pos () ;
-    prerr_endline ("Error in macro definition:\n\t"^s) ;
-    prerr_endline "Adios" ;
-    exit 2
-| Myfiles.Error s ->
-    Location.print_pos () ;
-    prerr_endline ("File error:\n\t"^s) ;
-    prerr_endline "Adios" ;
-    exit 2
-|  Misc.Fatal s ->
-    Location.print_pos () ;
-    prerr_endline
-      ("Fatal error: "^s^"\n (if input is plain LaTeX, please report to Luc.Maranget@inria.fr)") ;
-    prerr_endline "Adios" ;
-    exit 2 
-|  Location.Fatal s ->
-    prerr_endline
-      ("Fatal location error: "^s^"\n (if input is plain LaTeX, please report to Luc.Maranget@inria.fr)") ;
-    prerr_endline "Adios" ;
-    exit 2 
-|  x ->
-    Location.print_pos () ;
-    prerr_endline
-      ("Fatal error, spurious exception:\n\t"^Printexc.to_string x^
-       "\n(if input is plain LaTeX, please report to Luc.Maranget@inria.fr)") ;
-    prerr_endline "Adios" ;
-    exit 2
-end ;
-exit 0;;
+  end
+;;
+
+
 

@@ -12,7 +12,7 @@
 {
 open Lexing
 
-let header = "$Id: save.mll,v 1.42 1999-09-06 17:49:06 maranget Exp $" 
+let header = "$Id: save.mll,v 1.43 1999-09-08 15:11:32 maranget Exp $" 
 
 let verbose = ref 0 and silent = ref false
 ;;
@@ -66,34 +66,34 @@ let put_both s =
 
 let put_both_char c =
   put_echo_char c ; Out.put_char arg_buff c
-;;
+    ;;
 
 }
 
-rule opt = parse
+  rule opt = parse
 | ' '* '\n'? ' '* '['
-        {put_echo (lexeme lexbuf) ;
-        opt2 lexbuf}
+    {put_echo (lexeme lexbuf) ;
+      opt2 lexbuf}
 |  eof  {raise Eof}
 |  ""   {raise NoOpt}
 
 
 and opt2 =  parse
     '{'         {incr brace_nesting;
-                put_both_char '{' ; opt2 lexbuf}
-  | '}'        { decr brace_nesting;
-                 if !brace_nesting >= 0 then begin
-                    put_both_char '}' ; opt2 lexbuf
-                 end else begin
-                   raise (Error "Bad brace nesting in optional argument")
-                 end}
-  | ']'
-      {if !brace_nesting > 0 then begin
-        put_both_char ']' ; opt2 lexbuf
-      end else begin
-        put_echo_char ']' ;
-        Out.to_string arg_buff
-      end}
+                  put_both_char '{' ; opt2 lexbuf}
+| '}'        { decr brace_nesting;
+               if !brace_nesting >= 0 then begin
+                 put_both_char '}' ; opt2 lexbuf
+               end else begin
+                 raise (Error "Bad brace nesting in optional argument")
+               end}
+| ']'
+    {if !brace_nesting > 0 then begin
+      put_both_char ']' ; opt2 lexbuf
+    end else begin
+      put_echo_char ']' ;
+      Out.to_string arg_buff
+    end}
   | _
       {let s = lexeme_char lexbuf 0 in
       put_both_char s ; opt2 lexbuf }
@@ -217,23 +217,28 @@ and macro_names = parse
 | _   {macro_names lexbuf}
 
 and num_arg = parse
-| [' ''\n']+ {num_arg lexbuf}
+| [' ''\n']+ {(fun get_int -> num_arg lexbuf get_int)}
 | ['0'-'9']+ 
-    {let lxm = lexeme lexbuf in
-    my_int_of_string lxm}
+    {fun get_int ->
+      let lxm = lexeme lexbuf in
+      my_int_of_string lxm}
 |  "'" ['0'-'7']+ 
-    {let lxm = lexeme  lexbuf in
+    {fun get_int ->let lxm = lexeme  lexbuf in
     my_int_of_string ("0o"^String.sub lxm 1 (String.length lxm-1))}
 |  '"' ['0'-'9' 'a'-'f' 'A'-'F']+ 
-    {let lxm = lexeme  lexbuf in
+    {fun get_int ->let lxm = lexeme  lexbuf in
     my_int_of_string ("0x"^String.sub lxm 1 (String.length lxm-1))}
 | '`' '\\' _
-    {let c = lexeme_char lexbuf 2 in
+    {fun get_int ->let c = lexeme_char lexbuf 2 in
     Char.code c}
 | '`' _
-    {let c = lexeme_char lexbuf 1 in
+    {fun get_int ->let c = lexeme_char lexbuf 1 in
     Char.code c}
-| "" {raise (Error "Bad syntax in latex numerical argument")}
+| ""
+    {fun get_int ->
+      let s = arg lexbuf in
+      get_int s}
+    
 
 and filename = parse
   [' ''\n']+     {put_echo (lexeme lexbuf) ; filename lexbuf}
