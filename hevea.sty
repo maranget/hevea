@@ -369,7 +369,8 @@
 \newcommand{\@bodyargs}{BGCOLOR=silver TEXT=black}
 \newcommand{\@htmlargs}{}
 \newenvironment{document}{%
-\@print{<HTML}\@notags{\@htmlargs}\@print{>
+\@print{<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML}\@notags{\@htmlargs}\@print{>
 }%
 \@print{<HEAD><TITLE>}%
 \@notags{\@title}%

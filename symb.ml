@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: symb.ml,v 1.11 1998-10-09 16:33:03 maranget Exp $" 
+let header = "$Id: symb.ml,v 1.12 1998-10-12 17:22:15 maranget Exp $" 
 open Parse_opts
 
 exception No
@@ -87,12 +87,12 @@ let bigtriangleup = get ("<FONT FACE=symbol>\068</FONT>","/_\\","/_\\");;
 let bigtriangledown = get ("<FONT FACE=symbol>\209</FONT>","\\/","\\/");;
 let triangleleft = get ("<FONT FACE=symbol>\060\124</FONT>","<|","<|");;
 let triangleright = get ("<FONT FACE=symbol>\124\062</FONT>","|>","|>");;
-let unlhd = get ("<FONT FACE=symbol>\163\124</FONT>","<=|","<=|");;
-let unrhd = get  ("<FONT FACE=symbol>\124\179</FONT>","|>=","|>=");;
+let unlhd = get ("<FONT FACE=symbol>\163\124</FONT>","&lt;=|","&lt;=|");;
+let unrhd = get  ("<FONT FACE=symbol>\124\179</FONT>","|&gt;=","|&gt>=");;
 let oplus = get  ("<FONT FACE=symbol>\197</FONT>","oplus","plus-rond");;
 let otimes = get  ("<FONT FACE=symbol>\196</FONT>","otimes","mult-rond");;
 
-let leq = get ("<FONT FACE=symbol>\163</FONT>","<=","<=");;
+let leq = get ("<FONT FACE=symbol>\163</FONT>","&lt;=","&lt;=");;
 let subset = get ("<FONT FACE=symbol>\204</FONT>","included in","inclus dans");;
 let notsubset = get ("<FONT FACE=symbol>\203</FONT>","not included in","n'est pas inclus dans");;
 let subseteq =
@@ -100,7 +100,7 @@ get   ("<FONT FACE=symbol>\205</FONT>","included in or equal to","inclus dans ou
 let display_sqsubset =
 get  ("<FONT FACE=symbol>\190<BR>\234<BR>\190</FONT>","sqsubset", "sqsubset");;
 let elem = get ("<FONT FACE=symbol>\206</FONT>","in", "appartient à");;
-let geq = get ("<FONT FACE=symbol>\179</FONT>",">=", ">=");;
+let geq = get ("<FONT FACE=symbol>\179</FONT>","&gt;=", "&gt;=");;
 let supset = get  ("<FONT FACE=symbol>\201</FONT>","contains","contient");;
 let supseteq = get  ("<FONT FACE=symbol>\202</FONT>","contains or equal to","contient ou égal à");;
 let display_sqsupset = get ("<FONT FACE=symbol>\190<BR> \234<BR>\190</FONT>",
@@ -139,7 +139,7 @@ let angle = get ("<FONT FACE=symbol>Ð</FONT>","angle","angle");;
 let exists = get ("<FONT FACE=symbol>\036</FONT>","exists", "il existe");;
 let forall = get ("<FONT FACE=symbol>\034</FONT>","for all", "pour tout");;
 let partial = get ("<FONT FACE=symbol>¶</FONT>","partial", "d rond");;
-let diamond = get ("<FONT FACE=symbol>à</FONT>","<>", "<>");;
+let diamond = get ("<FONT FACE=symbol>à</FONT>","&lt;&gt;", "&lt;&gt;");;
 let clubsuit = get ("<FONT FACE=symbol>§</FONT>","clubsuit", "trèfle");;
 let diamondsuit = get ("<FONT FACE=symbol>¨</FONT>","diamondsuit", "carreau");;
 let heartsuit = get ("<FONT FACE=symbol>©</FONT>","heartsuit", "coeur");;
@@ -242,7 +242,7 @@ let put_delim skip put d n =
       do_rec "ï" ((n-3)/2) ;
       put_skip "þ"     
     end ;
-    put "</FONT FACE=symbol>\n"
+    put "</FONT>\n"
   end
 ;;
 

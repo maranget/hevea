@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmain.ml,v 1.18 1998-08-27 15:24:33 maranget Exp $" 
+let header = "$Id: latexmain.ml,v 1.19 1998-10-12 17:22:12 maranget Exp $" 
 
 open Parse_opts
 
@@ -19,7 +19,9 @@ let finalize () =
 ;;
 
 let read_style name =
-  try
+  let oldverb = !verbose in
+  if !verbose > 0 then verbose := 1;
+  begin try
     let name,chan =  Myfiles.open_tex name in
     if !verbose > 0 then begin
        prerr_endline ("read_style: "^name)
@@ -28,14 +30,13 @@ let read_style name =
     Location.set name buf ;
     Latexscan.main buf ;
     Location.restore ()
-  with Myfiles.Except-> ()
+  with Myfiles.Except-> ()  end ;
+  verbose := oldverb
 ;;
  
 let main () = 
 
-    Save.silent := !Parse_opts.silent ;
-
-    if !readverb > 0 then Parse_opts.verbose := 1;
+    verbose := !readverb ;
     read_style "hevea.sty" ;
 
     begin match !files with
@@ -94,7 +95,7 @@ let main () =
     let chan = match texfile with "" -> stdin | _ -> open_in texfile in
     let buf = Lexing.from_channel chan in
     Location.set texfile buf ;
-    verbose := !readverb;
+    Save.set_verbose !silent !verbose ;
     Latexscan.main buf ;
     Location.restore () ;
     finalize ()

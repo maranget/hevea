@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: html.ml,v 1.25 1998-08-17 13:21:53 maranget Exp $" 
+let header = "$Id: html.ml,v 1.26 1998-10-12 17:22:11 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -200,6 +200,9 @@ and table_stack = ref []
 ;;
 
 let empty = ref true
+and blank = ref true
+and blank_stack = 
+ref []
 and empty_stack = ref []
 ;;
 
@@ -222,12 +225,13 @@ let is_list = function
 let last_closed = ref "rien"
 ;;
 
-let par_val s =
-  if
-    is_header s || is_list s ||
-    s = "PRE" || s = "BLOCKQUOTE"
+let par_val last now =
+  if is_list last then begin
+    if is_list now then 1 else 0
+  end else if
+    is_header last || last = "PRE" || last = "BLOCKQUOTE"
   then 0
-  else if s = "DIV" then 1
+  else if last = "DIV" then 1
   else 2
 ;;
 
@@ -241,7 +245,7 @@ let par () =
 
 let flush_par () =
   pending_par := false ;
-  let p = par_val !last_closed in
+  let p = par_val !last_closed (pblock()) in
   for i = 1 to p do
     do_put "<BR>\n"
   done ;
@@ -450,10 +454,10 @@ let rec try_open_block s args =
     prerr_endline ("try in "^s^" : "^sbool !empty);  
   if s = "DISPLAY" then begin
     try_open_block "TABLE" args ;
-    try_open_block "TR" ""
+    try_open_block "TR" "VALIGN=middle"
   end else begin
-    push empty_stack !empty ;
-    empty := true ;
+    push empty_stack !empty ; push blank_stack !blank ;
+    empty := true ; blank := true ;
     if s = "TABLE" then begin
       push table_stack !table_vsize ;
       push vsize_stack !vsize ;
@@ -483,7 +487,7 @@ let rec do_open_block s args = match s with
   ""|"DELAY"|"FORGET" -> ()
 | "DISPLAY" ->
    do_open_block "TABLE" args ;
-   do_open_block "TR" ""
+   do_open_block "TR" "VALIGN=middle"
 | _  ->
     if s = "TR" || s = "TABLE" || is_header s then
       do_put "\n";
@@ -503,8 +507,10 @@ let rec try_close_block s =
     try_close_block "TR" ;
     try_close_block "TABLE"
   end else begin
-    let here = !empty in
-    empty := here && pop empty_stack ;
+    let ehere = !empty and ethere = pop empty_stack in
+    empty := ehere && ethere ;
+    let bhere = !blank and bthere = pop blank_stack in
+    blank := bhere && bthere ;
     if !verbose > 2 then
       prerr_string (" -> "^sbool !empty);
     if s = "TABLE" then begin
@@ -663,6 +669,8 @@ let delay f =
 ;;
 
 let flush x =
+  if !verbose > 2 then
+    prerr_endline ("flushing DELAY with arg "^string_of_int x) ;
   let ps,_,pout = pop_out out_stack in
   if ps <> "DELAY" then
     failwith ("html: Flush attempt on: "^ps) ;
@@ -675,7 +683,8 @@ let flush x =
   Out.copy old_out.out !cur_out.out ;
   free old_out ;
   !cur_out.pending <- mods ;
-  vsize := max (pop vsize_stack) !vsize
+  vsize := max (pop vsize_stack) !vsize ;
+  empty := false
 ;;
 
 let open_group ss =
@@ -691,15 +700,18 @@ let ncols = ref 0
 and ncols_stack = ref []
 ;;
 
-let begin_item_display () =
+let begin_item_display f is_freeze =
   if !verbose > 2 then begin
     Printf.fprintf stderr "begin_item_display: ncols=%d" !ncols;
     prerr_newline ()
   end ;
   open_block "TD" "nowrap";
-  open_block "" ""
+  open_block "" "" ;
+  if is_freeze then push out_stack (Freeze f) ;
+
 
 and end_item_display () =
+  let f,is_freeze = pop_freeze () in
   let _ = close_flow_loc "" in
   if close_flow_loc "TD" then
     ncols := !ncols + 1;
@@ -707,7 +719,7 @@ and end_item_display () =
     Printf.fprintf stderr "end_item_display: ncols=%d stck: " !ncols;
     pretty_stack !out_stack
   end;
-  !vsize
+  !vsize,f,is_freeze
 ;;
 
 let open_display args =
@@ -756,6 +768,7 @@ let close_display () =
       !cur_out.pending <- active @ pending;
       table_inside := false
     end else begin
+      empty := !blank ;
       close_flow "TD" ;
       table_inside := close_flow_loc "DISPLAY"
     end
@@ -785,7 +798,7 @@ let do_item_display force =
     cur_out := pout ;
     empty := Out.is_empty !cur_out.out ;
     if close_flow_loc "TD" then ncols := !ncols + 1;
-    open_block "TD" "nowarp" ;
+    open_block "TD" "nowrap" ;
     do_put (Out.to_string new_out.out) ;
     free new_out ;
     empty := false ;
@@ -847,7 +860,7 @@ let is_blank = function
 ;;
 
 let put s =
-  let blank =
+  let s_blank =
     let r = ref true in
     for i = 0 to String.length s - 1 do
       r := !r && is_blank (String.get s i)
@@ -856,17 +869,19 @@ let put s =
   let save_last_closed = !last_closed in
   do_pending () ;
   empty := false;
+  blank := s_blank && !blank ;
   do_put s ;
-  if blank then last_closed := save_last_closed
+  if s_blank then last_closed := save_last_closed
 ;;
 
 let put_char c =
   let save_last_closed = !last_closed in
-  let blank = is_blank c in
+  let c_blank = is_blank c in
   do_pending () ;
   empty := false;
+  blank := c_blank && !blank ;
   do_put_char c ;
-  if blank then last_closed := save_last_closed
+  if c_blank then last_closed := save_last_closed
 ;;
 
 let flush_out () = 

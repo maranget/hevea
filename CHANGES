@@ -1,4 +1,6 @@
 version 1.02-1
+  - Small cosmetic changes in paragraph breaks inside nested lists.
+  - Corrected bug in the onteraction of \left... \right and \over
   - added \includonly
   - added  \@bodyargs \@htmlargs macros to parametrize the <BODY> and <HTML>
 tags.

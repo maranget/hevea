@@ -11,7 +11,7 @@
 
 {
 open Lexing
-let header = "$Id: cut.mll,v 1.10 1998-10-05 12:37:04 maranget Exp $" 
+let header = "$Id: cut.mll,v 1.11 1998-10-12 17:22:09 maranget Exp $" 
 
 let verbose = ref 0
 ;;
@@ -30,6 +30,8 @@ and count = ref 0
 ;;
 
 let body = ref "<BODY>"
+and doctype = ref ""
+and html = ref "<HTML>"
 ;;
 
 let new_filename () =
@@ -113,7 +115,8 @@ let putlinks out name =
 ;;
 
 let openhtml title out outname =
-  Out.put out "<HTML>\n" ;
+  Out.put out !doctype ; Out.put_char out '\n' ;
+  Out.put out !html ; Out.put_char out '\n' ;
   Out.put out "<HEAD>\n" ;
   Out.put out "<TITLE>\n" ;
   let title = Save.tagout (Lexing.from_string title) in
@@ -217,7 +220,9 @@ let open_notes sec_notes =
     if !phase > 0 then begin
       otherout := !out ;
       out := Out.create_chan (open_out !outname) ;
-      Out.put !out "<HTML><HEAD><TITLE>Notes</TITLE></HEAD>\n" ;
+      Out.put !out !doctype ; Out.put_char !out '\n' ;
+      Out.put !out !html ; Out.put_char !out '\n' ;
+      Out.put !out "<HEAD><TITLE>Notes</TITLE></HEAD>\n" ;
       Out.put !out !body ;
       Out.put !out "\n"
     end
@@ -403,6 +408,20 @@ rule main = parse
    close_all () ;
    if !phase > 0 then Out.put !out lxm ;
    footer lexbuf}
+| "<!DOCTYPE"  [^'>']* '>'
+   {let lxm = lexeme lexbuf in
+   if !phase = 0 then
+     doctype := lxm
+   else
+     Out.put !out lxm;
+   main lexbuf}
+| "<HTML"  [^'>']* '>'
+   {let lxm = lexeme lexbuf in
+   if !phase = 0 then
+     html := lxm
+   else
+     Out.put !out lxm;
+   main lexbuf}
 | "<BODY" [^'>']* '>'
    {let lxm = lexeme lexbuf in
    if !phase = 0 then

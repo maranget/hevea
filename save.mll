@@ -12,9 +12,12 @@
 {
 open Lexing
 
-let header = "$Id: save.mll,v 1.18 1998-10-09 16:33:02 maranget Exp $" 
+let header = "$Id: save.mll,v 1.19 1998-10-12 17:22:15 maranget Exp $" 
 
-let silent = ref false
+let verbose = ref 0 and silent = ref false
+;;
+let set_verbose s v =
+  silent := s ; verbose := v
 ;;
 
 type formatopt = Wrap | NoMath
@@ -193,7 +196,7 @@ and tformat = parse
 | 'r' {Align ("right",[])::tformat lexbuf}
 | 'p'
    {let _ = arg lexbuf in
-   if not !silent then begin
+   if !verbose > 0 then begin
      Location.print_pos () ;
      prerr_endline "Warning, p column specification, argument ignored"
    end ;

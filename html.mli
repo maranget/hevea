@@ -31,8 +31,8 @@ val open_display : string -> unit
 val close_display : unit -> unit
 val item_display : unit -> unit
 val force_item_display : unit -> unit
-val end_item_display : unit -> int
-val begin_item_display : unit -> unit
+val end_item_display : unit -> int * (unit -> unit) * bool
+val begin_item_display : (unit -> unit) -> bool -> unit
 val erase_display : unit -> unit
 
 val set_dt : string -> unit
