@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.44 2004-05-27 14:48:59 maranget Exp $    *)
+(*  $Id: package.ml,v 1.45 2004-05-27 15:57:35 thakur Exp $    *)
 
 module type S = sig  end
 
@@ -639,14 +639,217 @@ register_init "natbib"
     ())
 ;;            
 
+type proof  = AXIOM of string * string * string
+            | UNARY_INF of proof * string * int * int *
+			string * string
+            | BINARY_INF of proof * proof * string * int * int *
+                        string * string
+	    | TRINARY_INF of proof * proof * proof * string *
+	                int * int * string * string;;
 
+(************************************************************
+*                                                           *
+*   "update_proof" computes some Synthesized Attributes     *
+*                                                           *
+*    a) wid : the number of axioms in a proof  		    *
+*    b) ht  : the maximum height of the proof tree	    *
+*                                                           *
+************************************************************)
+   
+let rec update_proof pf = match pf with
+	  AXIOM (str, str1, str2)				-> 
+	  	(AXIOM (str,str1,str2),3,1)
+	| UNARY_INF (pr,str,wid,ht, str1, str2)			-> 
+		let (new_pr, new_wid, new_ht) = update_proof pr 
+		in
+		    (UNARY_INF (new_pr, str, new_wid+2, new_ht+1, str1, str2), 
+		     new_wid+2, new_ht+1)
+        | BINARY_INF (pr1,pr2,str,wid,ht, str1, str2) 		-> 
+	        let (new_pr1, new_wid1, new_ht1) = update_proof pr1 
+		in let (new_pr2, new_wid2, new_ht2) = update_proof pr2 
+		in let new_wid = new_wid1 + new_wid2 + 2 
+		in let new_ht = (if new_ht1>new_ht2 then new_ht1 
+		    	  	  else new_ht2) + 1 
+		in
+		    (BINARY_INF (new_pr1, new_pr2, str, new_wid, new_ht, 
+			str1, str2), new_wid, new_ht)
+	 | TRINARY_INF (pr1,pr2,pr3,str,wid,ht, str1, str2) 	->
+	        let  (new_pr1, new_wid1, new_ht1) = update_proof pr1
+		in let (new_pr2, new_wid2, new_ht2) = update_proof pr2
+		in let (new_pr3, new_wid3, new_ht3) = update_proof pr3
+		in let new_wid = new_wid1 + new_wid2 + new_wid3 + 2
+		in let new_ht = (if new_ht1>new_ht2 & new_ht1>new_ht3 
+		     			then new_ht1
+		     		   else if new_ht2>new_ht3 
+				   	    then new_ht2 
+				        else new_ht3) + 1
+		in
+		     (TRINARY_INF (new_pr1, new_pr2, new_pr3, str, 
+		      new_wid, new_ht, str1, str2), new_wid, new_ht);;
+   
+(************************************************************
+*                                                           *
+*   "get_proof_col_row" obtains the number of rows and	    *
+*    columns of the table in whoch the proof is to be       *
+*    							    *
+*   a) columns = number of axioms + (2 * number of rules)   *
+*   b) rows    = height of tree  			    *
+*                                                           *
+************************************************************)
+   
+let get_proof_col_row proof =
+    	let (new_pr,new_wid,new_ht) = update_proof proof
+	in
+	    (new_pr,new_wid,new_ht);;
+   
+let get_text pf = match pf with
+    		  (AXIOM (s, str1, str2)) -> s
+      		| (UNARY_INF (p,s,w,h, str1, str2)) -> s
+      		| (BINARY_INF (p1,p2,s,w,h, str1, str2)) -> s
+      		| (TRINARY_INF (p1,p2,p3,s,w,h, str1, str2)) -> s;;
+   
+let get_rinf pf = match pf with
+    		  (AXIOM (s, str1, str2)) 			->  
+    			(AXIOM (s, str1, str2), 1, 1)
+      		| (UNARY_INF (p,s,w,h, str1, str2)) 		-> 
+      			(UNARY_INF (p,s,w,h, str1, str2), w, h)
+      		| (BINARY_INF (p1,p2,s,w,h, str1, str2)) 	-> 
+      			(BINARY_INF (p1,p2,s,w,h, str1, str2), w, h)
+      		| (TRINARY_INF (p1,p2,p3,s,w,h, str1, str2)) 	->
+      		 	(TRINARY_INF (p1,p2,p3,s,w,h, str1, str2), w, h);;
+   
+let rec gen_next_rinfo l = match l with
+        [] -> []
+      | ((p,c,r)::rinfo) -> match c with
+      	    0 -> (p,0,0)::(gen_next_rinfo rinfo)
+	  | n -> match p with
+	     	  AXIOM (s, str1, str2) 		   -> 
+		  		(p,0,0)::(p,0,0)::(p,0,0)::
+				(gen_next_rinfo rinfo)
+		| UNARY_INF (p1,s,w,h, str1, str2)         ->
+				(p1,0,0)::(get_rinf p1)::(p1,0,0)::
+				(gen_next_rinfo rinfo)
+		| BINARY_INF (p1,p2,s,w,h, str1, str2)     ->
+				(p1,0,0)::(get_rinf p1)::(get_rinf p2)::
+				(p2,0,0)::(gen_next_rinfo rinfo)
+		| TRINARY_INF (p1,p2,p3,s,w,h, str1, str2) ->
+				(p1,0,0)::(get_rinf p1)::(get_rinf p2)::
+				(get_rinf p3)::(p3,0,0)::
+				(gen_next_rinfo rinfo);;
+   
+let rec gen_row l = match l with
+        [] -> ""
+      | ((p,c,r)::rinfo) -> 
+          let left = "      <td style=\"vertical-align: center;"^
+	             "text-align: center;\"><br>\n      </td>\n"
+	  in let right = left
+	  in 
+	      match c with
+      		  0 -> "      <td style=\"vertical-align: center;"^
+		       "text-align: center;\"><br>\n      </td>\n"^
+		       (gen_row rinfo)
+		| n -> left^
+		       "      <td colspan=\""^(int_to_string(n-2))^"\""^
+		       "style=\"vertical-align: center;"^
+		       "text-align: center;\">\n        "^
+		       (get_text p)^
+		       "<br>\n      </td>\n"^
+		       right^
+		       (gen_row rinfo);;
+
+let get_labels pf = match pf with
+      	  (AXIOM (s,str1,str2)) -> (str1,str2)
+      	| (UNARY_INF (p,s,w,h, str1, str2)) -> (str1,str2)
+      	| (BINARY_INF (p1,p2,s,w,h, str1, str2)) -> (str1,str2)
+      	| (TRINARY_INF (p1,p2,p3,s,w,h, str1, str2)) -> (str1,str2);;
+
+let rec gen_dash_row pf = match pf with
+    	  [] -> ""
+        | ((p,c,r)::rinfo) -> 
+              let (left_label,right_label) = get_labels p
+	      in let left = "      <td style=\"vertical-align: center;"^
+	                 "text-align: center;\">"^
+			 "&nbsp;&nbsp;&nbsp;"^left_label^
+			 "<br>\n      </td>\n"
+	      in let right = "      <td style=\"vertical-align: center;"^
+	                  "text-align: center;\">"^
+			  right_label^"&nbsp;&nbsp;&nbsp;"^
+			  "<br>\n      </td>\n"
+	      in
+	         match c with
+    	            0 -> "      <td style=\"vertical-align: center;"^
+	              "text-align: center;\"><br>\n      </td>\n"^
+	              (gen_dash_row rinfo)
+	          | n -> left^
+	              "      <td colspan=\""^(int_to_string (n-2))^"\""^
+	              "style=\"vertical-align: center;"^
+	              "text-align: center;\">\n        "^
+	              "<HR>"^ (*(if r=1 then "<br>" else "<HR>")^*)
+		      "\n      </td>\n"^
+		      right^
+	              (gen_dash_row rinfo);;
+
+let rec gen_table r  rinfo  result_rows  = match r with
+   	0 -> result_rows
+      | rnow -> 
+    	    let this_row = "    <tr>\n"^(gen_row rinfo)^"    </tr>\n"
+	    in let dash_row = "    <tr>\n"^(gen_dash_row rinfo)^"    </tr>\n"
+	    in let new_rinfo = gen_next_rinfo rinfo 
+   	    in
+	     	gen_table (rnow-1) new_rinfo (dash_row^this_row^result_rows);;
+
+let start_table () = "<html>\n<head>\n"^
+		"  <meta content=\"text/html; charset=ISO-8859-1\"\n"^
+		"  http-equiv=\"content-type\">\n"^
+		"  <title>Proof Table</title>\n"^
+		"</head>\n<body>\n"^
+		"<table style=\"text-align: center;\" "^
+		"border=\"0\"\n"^
+		" cellspacing=\"1\" cellpadding=\"0\">\n"^
+		"  <tbody>\n";;
+
+let end_table () = "  </tbody>\n</table>\n</body>\n</html>";;
+   
+let pf = BINARY_INF(
+    		    BINARY_INF(
+  			UNARY_INF(
+				AXIOM(
+					"G , a |-  b","","Ax"
+				),
+				"G |- a -> b",0,0,"","->I"
+				
+			),
+			BINARY_INF(
+				AXIOM(
+					"G |- c","","Ax"
+				),
+				AXIOM(
+				        "G |- d","","Ax"
+				),
+				"G |- c ^ d",0,0,"","^I"
+			),
+			"G |- (a -> b) ^ (c ^ d)",0,0,"","^I"
+		    ),
+		    AXIOM(
+			"G |- e","","Ax"
+		    ),
+		    "G |-  ((a -> b) ^ (c ^ d)) ^ e",0,0,"","^I"
+		);;
+let (new_pr,cols,rows) = get_proof_col_row pf;;
+let inner_text = gen_table rows [(new_pr,cols,rows)] "";;
+let text = start_table()^inner_text^end_table();;
+*)    
 register_init "bussproof"
     (fun () ->
       def_code "\\AxiomC"
         (fun lexbuf ->
           let arg = save_arg lexbuf in
           let formatted = Scan.get_this_arg_mbox arg in
-          ())
+          let branch = AXIOM(formatted,"","") in
+	  let (new_pr,cols,rows) = get_proof_col_row branch in
+	  let inner_text = gen_table rows [(new_pr,cols,rows)] "" in
+	  let text = start_table()^inner_text^end_table() in
+	  Dest.put text)
     )
 ;;
 
