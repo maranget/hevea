@@ -12,7 +12,7 @@
    \def\&{\@print{\&}}}
   {}
 \def\lst@define@key@opt#1#2{\define@key{lst}{#1}
-  {\lst@funcall{#2}{\begin{lst@protect}##1\end{lst@protect}}}}
+  {\@callopt{#2}{\begin{lst@protect}##1\end{lst@protect}}}}
 %%%%%%%%%%%
 % Helpers %
 %%%%%%%%%%%
@@ -58,7 +58,7 @@
 \lst@AddToHook{SetLanguage}
   {\@callprim{\lst@delete@kwds}{\{\lst@allkeywords\}}%
   \@callprim{\lst@delete@okwds}{\{\@rawchars{\lst@allotherkeywords}\}}}
-\def\lst@install@kwd#1#2{\lstinfo{INSTALL #2 as \lst@normalize{#2}}\def\csname lstk@\lst@normalize{#2}\endcsname{#1}}
+\def\lst@install@kwd#1#2{\def\csname lstk@\lst@normalize{#2}\endcsname{#1}}
 \def\lst@install@kwds
   #1#2{%
     \lst@record@kwds{#2}%
@@ -68,7 +68,7 @@
     \lst@record@okwds{#2}%
     \@rawchars{\lst@iter{\lst@install@kwd{#1}}{#2}}}
 \def\lst@delete@kwd
-  #1{\lstinfo{DLT: #1}\def\csname lstk@\@rawchars{#1}\endcsname{\lst@identifier@style}}
+  #1{\def\csname lstk@\@rawchars{#1}\endcsname{\lst@identifier@style}}
 \def\lst@delete@okwds#1{\lst@iter{\lst@delete@okwd}{#1}}
 \def\lst@delete@okwd
   #1{\def\csname lstk@\@rawchars{#1}\endcsname{}}

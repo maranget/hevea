@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.25 2000-07-18 10:02:13 maranget Exp $    *)
+(*  $Id: package.ml,v 1.26 2000-07-19 16:39:32 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -29,6 +29,11 @@ open Scan
 (* Various outworld information *)
 let def_print name s =
   def_code name  (fun _ -> Dest.put (Dest.iso_string s))
+;;
+
+def_code "\\@lexbuf"
+  (fun lexbuf ->
+    prerr_endline ("LEXBUF: "^string_of_int (Stack.length stack_lexbuf)))
 ;;
 
 def_print "\\@basein" Parse_opts.base_in ;

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.188 2000-07-18 20:25:49 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.189 2000-07-19 16:39:24 maranget Exp $ *)
 
 
 {
@@ -770,33 +770,42 @@ let debug = function
 
 let expand_command main skip_blanks name lexbuf =
   let cur_subst = get_subst () in
-  let exec = function
-    | Subst body ->
-        if !verbose > 2 then
-          prerr_endline ("user macro: "^body) ;            
-        let old_alltt = !alltt in
-        Stack.push stack_alltt old_alltt ;        
-        alltt :=
-           (match old_alltt with
-           | Not -> Not
-           | _   -> Macro) ;
+  let exec =
+    if !alltt_loaded then
+      function
+        | Subst body ->
+            if !verbose > 2 then
+              prerr_endline ("user macro: "^body) ;            
+            let old_alltt = !alltt in
+            Stack.push stack_alltt old_alltt ;        
+            alltt :=
+               (match old_alltt with
+               | Not -> Not
+               | _   -> Macro) ;
 (*
-        Printf.fprintf stderr
-          "Enter: %s, %s -> %s\n" name (debug old_alltt) (debug !alltt) ;
-*)
-        scan_this_may_cont main lexbuf cur_subst (string_to_arg body) ;
-        let _ =  Stack.pop stack_alltt in
-        alltt :=
-          (match old_alltt, !alltt with
-          | Not, Inside         -> Inside
-          | (Macro|Inside), Not -> Not
-          | _, _                -> old_alltt)
+  Printf.fprintf stderr
+  "Enter: %s, %s -> %s\n" name (debug old_alltt) (debug !alltt) ;
+  *)
+            scan_this_may_cont main lexbuf cur_subst (string_to_arg body) ;
+            let _ =  Stack.pop stack_alltt in
+            alltt :=
+               (match old_alltt, !alltt with
+               | Not, Inside         -> Inside
+               | (Macro|Inside), Not -> Not
+               | _, _                -> old_alltt)
 (*
-        Printf.fprintf stderr
-          "After: %s, %s -> %s\n" name (debug old_alltt) (debug !alltt)
-*)
-               
-    | CamlCode f -> f lexbuf in
+  Printf.fprintf stderr
+  "After: %s, %s -> %s\n" name (debug old_alltt) (debug !alltt)
+  *)
+                 
+        | CamlCode f -> f lexbuf
+    else
+      function
+        | Subst body ->
+            if !verbose > 2 then
+              prerr_endline ("user macro: "^body) ;            
+            scan_this_may_cont main lexbuf cur_subst (string_to_arg body)
+        | CamlCode f -> f lexbuf in
 
   let pat,body = Latexmacros.find name in
   let par_before = Dest.forget_par () in
@@ -930,12 +939,16 @@ rule  main = parse
       else
         let i = Char.code lxm.[1] - Char.code '1' in
         scan_arg
-          (fun s ->
-            let old_alltt = !alltt in
-            alltt := Stack.pop stack_alltt ;
-            scan_this main s ;
-            alltt := old_alltt ;
-            Stack.push stack_alltt old_alltt) i
+          (if !alltt_loaded then
+            (fun arg ->
+              let old_alltt = !alltt in
+              alltt := Stack.pop stack_alltt ;
+              scan_this_may_cont main lexbuf (get_subst ()) arg ;
+              alltt := old_alltt ;
+              Stack.push stack_alltt old_alltt)
+          else
+            (fun arg -> scan_this_may_cont main lexbuf (get_subst ()) arg))
+          i
       end ;
       main lexbuf}
 (* Commands *)
@@ -1057,7 +1070,7 @@ and image = parse
 | '#' ['1'-'9']
     {let lxm = lexeme lexbuf in
     let i = Char.code (lxm.[1]) - Char.code '1' in
-    scan_arg (scan_this image) i ;
+    scan_arg (scan_this_arg image) i ;
     image lexbuf}
 |  "\\end"
      {let lxm = lexeme lexbuf in
@@ -1342,7 +1355,7 @@ def_code "\\mathop"
   (fun lexbuf ->
     let symbol = save_arg lexbuf in
     let {limits=limits ; sup=sup ; sub=sub} = save_sup_sub lexbuf in
-    match limits with
+    begin match limits with
     | (Some Limits|None) when !display ->
         Dest.limit_sup_sub
           (scan_this_arg main)
@@ -1356,7 +1369,8 @@ def_code "\\mathop"
         scan_this_arg main symbol ;
         Dest.standard_sup_sub
           (scan_this_arg main)
-          (fun _ -> ()) sup sub !display)
+          (fun _ -> ()) sup sub !display
+    end)
 ;;
 
 
@@ -2154,6 +2168,7 @@ newif_ref "styleloaded" styleloaded;
 newif_ref "activebrace" activebrace;
 newif_ref "pedantic" pedantic ;
 newif_ref "fixpoint" fixpoint ;
+newif_ref "alltt@loaded" alltt_loaded ;
 def_code ("\\iftrue") (testif (ref true)) ;
 def_code ("\\iffalse") (testif (ref false))
 ;;
@@ -2583,17 +2598,19 @@ def_code "\\endgroup"
 
 (* alltt *)
 
-def_code "\\alltt"
-  (fun _ ->
-    if !verbose > 1 then prerr_endline "begin alltt" ;
-    alltt := Inside ;
-    fun_register (fun () -> alltt := Not) ;
-    Dest.close_block "" ; Dest.open_block "PRE" "") ;
+register_init "alltt"
+    (fun () ->
+      def_code "\\alltt"
+        (fun _ ->
+          if !verbose > 1 then prerr_endline "begin alltt" ;
+          alltt := Inside ;
+          fun_register (fun () -> alltt := Not) ;
+          Dest.close_block "" ; Dest.open_block "PRE" "") ;
 
-def_code "\\endalltt"
-  (fun _ ->
-    if !verbose > 1 then prerr_endline "end alltt" ;
-    Dest.close_block "PRE" ; Dest.open_block "" "")
+      def_code "\\endalltt"
+        (fun _ ->
+          if !verbose > 1 then prerr_endline "end alltt" ;
+          Dest.close_block "PRE" ; Dest.open_block "" ""))
 ;;
 
 (* Multicolumn *)

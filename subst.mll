@@ -14,7 +14,8 @@ rule subst = parse
     {let lxm = lexeme lexbuf in
     if is_plain '#' then begin
       let i = Char.code (lxm.[1]) - Char.code '1' in
-      scan_arg (fun arg -> subst (Lexing.from_string arg)) i
+      scan_arg
+        (fun arg -> scan_this_arg subst arg) i
     end else
       Out.put subst_buff lxm ;
     subst lexbuf}

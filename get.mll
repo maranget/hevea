@@ -18,7 +18,7 @@ open Lexstate
 open Stack
 
 (* Compute functions *)
-let header = "$Id: get.mll,v 1.21 2000-06-02 15:23:17 maranget Exp $"
+let header = "$Id: get.mll,v 1.22 2000-07-19 16:39:20 maranget Exp $"
 
 exception Error of string
 
@@ -212,7 +212,7 @@ rule result = parse
 |  '#' ['1'-'9']
     {let lxm = lexeme lexbuf in
     let i = Char.code (lxm.[1]) - Char.code '1' in
-    scan_arg (scan_this result) i ;
+    scan_arg (scan_this_arg result) i ;
     result lexbuf} 
 | command_name
     {let lxm = lexeme lexbuf in

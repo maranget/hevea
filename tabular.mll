@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: tabular.mll,v 1.24 2000-06-05 08:07:33 maranget Exp $ *)
+(* $Id: tabular.mll,v 1.25 2000-07-19 16:39:33 maranget Exp $ *)
 {
 open Misc
 open Lexing
@@ -134,7 +134,7 @@ and tfmiddle = parse
 | '#' ['1'-'9']
     {let lxm = lexeme lexbuf in
     let i = Char.code (lxm.[1]) - Char.code '1' in
-    Lexstate.scan_arg (scan_this tfmiddle) i}
+    Lexstate.scan_arg (scan_this_arg tfmiddle) i}
 | [^'|' '@' '<' '>' '!' '#']
     {let lxm = lexeme lexbuf in
     let name = column_to_command lxm in
@@ -185,7 +185,7 @@ and lexformat = parse
 | '#' ['1'-'9']
     {let lxm = lexeme lexbuf in
     let i = Char.code (lxm.[1]) - Char.code '1' in
-    Lexstate.scan_arg (scan_this lexformat) i ;
+    Lexstate.scan_arg (scan_this_arg lexformat) i ;
     lexformat lexbuf}
 | eof {()}
 | "" {tfone lexbuf ; lexformat lexbuf}

@@ -45,6 +45,7 @@ val styleloaded : bool ref
 val activebrace : bool ref
 val html : bool ref
 val text : bool ref
+val alltt_loaded : bool ref
 
 val is_plain : char -> bool
 val set_plain : char -> unit
@@ -69,7 +70,7 @@ val pretty_lexbuf : Lexing.lexbuf -> unit
 val if_next_char : char -> Lexing.lexbuf  -> bool
 val if_next_string : string -> Lexing.lexbuf -> bool
 
-val scan_arg : (string -> 'a) -> int -> 'a
+val scan_arg : (string arg -> 'a) -> int -> 'a
 val scan_body :
   (action -> 'a) -> action -> subst -> 'a
 

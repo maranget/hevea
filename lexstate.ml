@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: lexstate.ml,v 1.54 2000-07-12 11:39:13 maranget Exp $"
+let header = "$Id: lexstate.ml,v 1.55 2000-07-19 16:39:29 maranget Exp $"
 
 open Misc
 open Lexing
@@ -66,7 +66,7 @@ let subst = ref Top
 and alltt = ref Not
 
 let stack_subst = Stack.create "stack_subst"
-and stack_alltt = Stack.create "stack_alltt"
+and stack_alltt = Stack.create_init "stack_alltt" Not
 
 let get_subst () = !subst
 let set_subst s = subst := s
@@ -126,6 +126,7 @@ and text =
     (match !Parse_opts.destination with
     | Parse_opts.Html -> false
     | Parse_opts.Info | Parse_opts.Text -> true)
+and alltt_loaded = ref false
 (* Additional variables for videoc *)
 and withinLispComment = ref false
 and afterLispCommentNewlines = ref 0
@@ -245,17 +246,12 @@ let scan_arg lexfun i =
     end ;
     raise (Error "Macro argument not found")
   end;
-  let {arg=arg ; subst=arg_subst } = args.(i) in
+  let arg = args.(i) in
 
   if !verbose > 1 then begin
-    prerr_string ("Subst arg #"^string_of_int (i+1)^" -> ``"^arg^"''")
+    prerr_string ("Subst arg #"^string_of_int (i+1)^" -> ``"^arg.arg^"''")
   end ;
-  let old_subst = !subst in
-  subst := arg_subst ;
-  if !verbose > 2 then
-    pretty_subst !subst ;
   let r = lexfun arg in
-  subst := old_subst ;
   r
 
 and scan_body exec body args = match body with
@@ -389,9 +385,13 @@ let full_save_arg eoferror mkarg parg lexfun lexbuf =
     r
   with
   | (Save.Error _ | Error _) as e ->
+      restore_lexstate () ;
       Save.seen_par := false ;
       Location.print_this_pos start_pos ;
       prerr_endline "Parsing of argument failed" ;
+      raise e
+  | e ->
+      restore_lexstate () ;
       raise e
 ;;
 

@@ -570,7 +570,7 @@ let noeof lexer lexbuf =
   try lexer lexbuf
   with
   | Eof s ->
-    raise (VError ("End of file in environment: ``"^ !Scan.cur_env^"''"))
+    raise (Misc.Close ("End of file in environment: ``"^ !Scan.cur_env^"''"))
   | EndVerb -> ()
 (*
 and verb_input lexer file =
@@ -598,7 +598,8 @@ let open_verbenv star =
   finish :=
      if star then
        put_line_buff_verb_star
-     else put_line_buff_verb
+     else
+       put_line_buff_verb
 
 and close_verbenv _ = Scan.top_close_block "PRE"
 
@@ -948,13 +949,7 @@ let lst_boolean lexbuf =
     | _ -> "false")
 ;;
 
-let init_listings () =
-  Scan.newif_ref "lst@print" lst_print ;
-  Scan.newif_ref "lst@extendedchars" lst_extended ;
-  Scan.newif_ref "lst@texcl" lst_texcl ;
-  Scan.newif_ref "lst@sensitive" lst_sensitive ;
-  def_code "\\lst@boolean" lst_boolean ;
-  def_code "\\lst@funcall"
+def_code "\\@callopt"
     (fun lexbuf ->
       let csname = Scan.get_csname lexbuf in
       let old_raw = !raw_chars in
@@ -963,7 +958,14 @@ let init_listings () =
       let opt = Subst.subst_opt "" lexarg in
       let arg = Save.rest lexarg in
       let exec = csname^"["^opt^"]{"^arg^"}" in
-      scan_this  Scan.main exec) ;
+      scan_this  Scan.main exec)
+;;
+let init_listings () =
+  Scan.newif_ref "lst@print" lst_print ;
+  Scan.newif_ref "lst@extendedchars" lst_extended ;
+  Scan.newif_ref "lst@texcl" lst_texcl ;
+  Scan.newif_ref "lst@sensitive" lst_sensitive ;
+  def_code "\\lst@boolean" lst_boolean ;
   def_code "\\lst@AddTo"
     (fun lexbuf ->
       let name = Scan.get_csname lexbuf in
@@ -1035,6 +1037,20 @@ let init_listings () =
 
 register_init "listings" init_listings
 ;;
+
+
+let init_fancyvrb () =
+  def_code "\\@Verbatim"
+    (fun lexbuf ->
+      open_verbenv false ;
+      noeof scan_byline lexbuf) ;
+  def_code "\\@endVerbatim" close_verbenv
+;;
+
+  
+register_init "fancyvrb" init_fancyvrb
+;;
+
 
 
 def_code "\\@scaninput"
