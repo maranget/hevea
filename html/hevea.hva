@@ -4,6 +4,31 @@
 \input{plain.hva}
 \newif\ififthen\ifthenfalse
 \input{ifthen.hva}
+%%%%%%%%%%%%%%%%%%%%%%%
+%%Style-sheet support %
+%%%%%%%%%%%%%%%%%%%%%%%
+%% External/internal style declarations are accumulated into approriate
+%% token registers
+% Linking to external style sheets
+\newtokens{\css@link}%
+\newcommand{\addcssfile}[1]{\addtokens{\css@link}{#1}}%
+\newcommand{\loadcssfile}[1]{\addcssfile{\@print{<}\@getprint{LINK REL=STYLESHEET type=\char34 text/css\char34\@print{ }HREF=\char34#1\char34\char62\@print{
+}}}}%
+%%%%%%
+% Styles definition in the <HEAD> element
+\newtokens{\hevea@css}%
+\newcommand{\addstyle}[1]{\addtokens{\hevea@css}{#1}}%
+\newcommand{\newstyle}[2]{\addstyle{\@getprint{\@print{ }\@print{ }\@print{ }\@print{ }#1\char123#2\char125\@print{
+}}}}%
+\input{style-sheets.hva}
+%
+%%Style attributes are normaly set through an indirection.
+%% Ie the class of the BLOCK elt that translates environment 'env' is
+%%    \'env'@class
+\newcommand{\class@attr}[2]{\ife#1\else\@getprint{CLASS="#1"#2}\fi}
+\newcommand{\setenvclass}[2]{\def\csname{}#1@class\endcsname{#2}}
+\newcommand{\getenvclass}[1]{\csname{}#1@class\endcsname}
+\newcommand{\envclass@attr}[2][]{\class@attr{\getenvclass{#2}}{#1}}
 %% Packages
 \input{packages.hva}
 %%%%%% Spacing
@@ -12,7 +37,8 @@
 \input{iso-symb.hva}
 \renewcommand{\&}{\ifraw\@print{&}\else\@print{&amp;}\fi}
 \input{latexcommon.hva}
-%%%% A few srange
+%%%% A few strange entities
+\ifentities
 \newcommand{\glqq}{\@print{&#8222;}}
 \newcommand{\grqq}{\@print{&#8220;}}
 \newcommand{\glq}{\@print{&#8218;}}
@@ -21,6 +47,7 @@
 \newcommand{\frqq}{\@print{&#0187;}}
 \newcommand{\flq}{\@print{&#8249;}}
 \newcommand{\frq}{\@print{&#8250;}}
+\fi
 %%% Logos
 \def\TeX{\@print{TeX}}
 \def\LaTeX{\@print{L<sup>A</sup>T<sub>E</sub>X}}
@@ -152,7 +179,7 @@
   \bgroup\newcommand{\checkbox}[4]%
     {\ifthenelse{\equal{\usebox{##3}}{}}%
       {\ifthenelse{\equal{##4}{}}{}{\warning{No ##4 given}}}%
-      {\@open{##1}{ALIGN=center CLASS=##2}\usebox{##3}\@close{##1}}%
+      {\@open{##1}{\class@attr{##2}{}}\usebox{##3}\@close{##1}}%
     }%
   \@open{TABLE}{CELLPADDING=1.5ex ALIGN=center}\@open{TR}{}\@open{TD}{CLASS=title}%
   \checkbox{H1}{titlemain}{\@@title}{title}%
@@ -198,40 +225,14 @@
 {\begin{rawhtml}
 <META http-equiv="Content-Type" content="text/html; charset=\end{rawhtml}\@charset\begin{rawhtml}">
 <META name="GENERATOR" content="hevea \end{rawhtml}\usebox{\@heveaversion}\@print{">
-}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%   Hacking into '\@meta' to make style declarations      %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%
-\ife\css@link\else%
-%\@print{LINK REL=STYLESHEET type="text/css"}
-\css@link\@print{
+}%
+% style declarations
+\ife\css@link\else\css@link\@print{
 }%
 \fi
 \ife\hevea@css\else\@print{<STYLE type="text/css">}
 \hevea@css\@print{</STYLE>
-}
-\fi
-}
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%   Support for linking to external style sheets          %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%
-\newtokens{\css@link}%
-\newcommand{\addcssfile}[1]{\addtokens{\css@link}{#1}}%
-\newcommand{\loadcssfile}[1]{\addcssfile{\@print{<}\@getprint{LINK REL=STYLESHEET type=\char34 text/css\char34\@print{ }HREF=\char34#1\char34\char62\@print{
-}}}}%
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%   Support for defining styles in the 'head'             %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%
-\newtokens{\hevea@css}%
-\newcommand{\addstyle}[1]{\addtokens{\hevea@css}{#1}}%
-\newcommand{\newstyle}[2]{\addstyle{\@getprint{\@print{ }\@print{ }\@print{ }\@print{ }#1\char123#2\char125\@print{
-}}}}%
-%
+}\fi}
 \newenvironment{document}{%
 \@end{document}
 \@restartoutput\unskip%
@@ -277,15 +278,29 @@
 \@print{</BODY>
 </HTML>
 }\@raise@enddocument}
-\newenvironment{center}{\@open{DIV}{ALIGN=center}}{\@close{DIV}}
-\newenvironment{flushleft}{\@open{DIV}{ALIGN=left}}{\@close{DIV}}
-\newenvironment{flushright}{\@open{DIV}{ALIGN=right}}{\@close{DIV}}
+\setenvclass{center}{center}%
+\newstyle{.center}{text-align: center}%
+\newenvironment{center}{\@open{DIV}{\envclass@attr{center}}}{\@close{DIV}}
+\setenvclass{flushleft}{flushleft}
+\newstyle{.flushleft}{text-align: left}%
+\newenvironment{flushleft}
+{\@open{DIV}{\envclass@attr{flushleft}}}{\@close{DIV}}
+\setenvclass{flushright}{flushright}%
+\newstyle{.flushright}{text-align: right}
+\newenvironment{flushright}
+  {\@open{DIV}{\envclass@attr{flushright}}}
+  {\@close{DIV}}%
 \newcommand{\centerline}[1]{\begin{center}#1\end{center}}
-\newenvironment{quote}{\@close{}\@open{BLOCKQUOTE}{}}{\@close{BLOCKQUOTE}\@open{}{}}
-\newenvironment{quotation}{\@open{BLOCKQUOTE}{}}{\@close{BLOCKQUOTE}}
-\newcommand{\centering}{\@insert{DIV}{ALIGN=center}}
-\newcommand{\raggedleft}{\@insert{DIV}{ALIGN=right}}
-\newcommand{\raggedright}{\@insert{DIV}{ALIGN=left}}
+\setenvclass{quote}{quote}%
+\newenvironment{quote}
+{\@close{}\@open{BLOCKQUOTE}{\envclass@attr{quote}}}
+{\@close{BLOCKQUOTE}\@open{}{}}%
+\setenvclass{quotation}{quotation}%
+\newenvironment{quotation}
+{\@open{BLOCKQUOTE}{\envclass@attr{quotation}}}{\@close{BLOCKQUOTE}}
+\newcommand{\centering}{\@insert{DIV}{\envclass@attr{center}}}
+\newcommand{\raggedleft}{\@insert{DIV}{\envclass@attr{flushright}}}
+\newcommand{\raggedright}{\@insert{DIV}{\envclass@attr{flushleft}}}
 
 \newcommand{\rule}[3][]{\@printHR{}{}}%
 %%%%%%%%%%%%%%%% LaTeX 2.09 style declarations
@@ -420,12 +435,6 @@
 \newcommand{\@table@attributes@border}{CELLSPACING=0 CELLPADDING=1}
 %%%%%% Do not load hevea.hva again !
 \def\csname hevea@loaded\endcsname{}
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%   including HEVEA commands used for style-sheets		%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%
-\input{style-sheets.hva}%
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %   Redefining \textoverline of latexcommon.hva			%

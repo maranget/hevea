@@ -371,9 +371,11 @@
 % make a short name \infer is not already defined
 \@ifundefined {infer}{\let \infer \mpr@infer}{}
 
-\def \tir@name #1{\hbox {\small \sc #1}}
+\def \TirNameStyle #1{\small \textsc{#1}}
+\def \tir@name #1{\hbox {\small \TirNameStyle{#1}}}
 \let \TirName \tir@name
-\let \RefTirName \tir@name
+\let \DefTirName \TirName
+\let \RefTirName \TirName
 
 %%% Other Exports
 

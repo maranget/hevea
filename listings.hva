@@ -189,17 +189,18 @@
     \lstset{#5}}}
 \lst@define@key@opt{defaultdialect}{\lst@define@dd}{}
 %%%%%%% Frames
+\setenvclass{lstlisting}{flushleft}
 \def\lst@bgcolor{}
 \lst@AddToHook{InitVar}
   {\ife\lst@bgcolor
-   \def\@open@lstbox{\begin{flushleft}\ttfamily}\def\@close@lstbox{\end{flushleft}}%
+   \def\@open@lstbox{\setenvclass{flushleft}{\getenvclass{lstlisting}}\begin{flushleft}\ttfamily}\def\@close@lstbox{\end{flushleft}}%
    \else
    \def\@open@lstbox
       {\begin{Tabular}[bgcolor=\lst@bgcolor]{l}\ttfamily}%
    \def\@close@lstbox{\end{Tabular}}%
-   \fi
-   \ifhtml\else
-   \def\@open@lstbox{\begin{flushleft}\ttfamily}\def\@close@lstbox{\end{flushleft}}\fi}
+   \fi}
+%   \ifhtml\else
+%   \def\@open@lstbox{\begin{flushleft}\ttfamily}\def\@close@lstbox{\end{flushleft}}\fi}
 \newcommand{\lst@define@bgcolor}[2][!*!]
   {\def\lst@tmp{#2}%
   \ifx\lst@tmp\@empty\let\lst@bgcolor\@empty

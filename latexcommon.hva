@@ -88,15 +88,17 @@
 \def\textstyle{\ifmathml\@style{mtext}\fi}
 \def\textsuperscript#1{\ensuremath{^{\mbox{#1}}}}
 %%%%% Figures and tables
+\setenvclass{figure}{figure}
 \newcommand{\@figrule}{\begin{center}\@hr{.8\linewidth}{2pt}\end{center}}
 \newenvironment{figure}[1][]
 {\@forcecommand{\caption}[1]{\par\refstepcounter{figure}\begin{center}\figurename{} \thefigure: ##1\end{center}\par}%
-\@open{BLOCKQUOTE}{CLASS=figure}\@figrule}
+\@open{BLOCKQUOTE}{\envclass@attr{figure}}\@figrule}
 {\@figrule\@close{BLOCKQUOTE}}
 \newenvironment{figure*}[1][]{\begin{figure}[#1]}{\end{figure}}
+\setenvclass{table}{table}
 \newenvironment{table}[1][]
 {\newcommand{\caption}[1]{\par\refstepcounter{table}\begin{center}\tablename{} \thetable: ##1\end{center}\par}%
-\@open{BLOCKQUOTE}{CLASS=table}\@figrule%
+\@open{BLOCKQUOTE}{\envclass@attr{table}}\@figrule%
 }{\@figrule\@close{BLOCKQUOTE}}
 \newenvironment{table*}[1][]{\begin{table}[#1]}{\end{table}}
 \@forcecommand{\suppressfloats}[1][]{}
@@ -180,14 +182,10 @@
 {\@itemize@li\ifthenelse{\equal{#1}{!*!}}{}{\warning{Optional argument to \item in itemize environment}{#1}}}
 \newcommand{\@itemenumerate}[1][!*!]
 {\stepcounter{\@itemcount}\@enumerate@linum\ifthenelse{\equal{#1}{!*!}}{}{\warning{Ignored optional argument to \item in enumerate enironment}}}
-%
-%% Modified to support styles e.g. 
-%%                <UL CLASS=enumerate>,
-%% ONLY CHANGE  : CLASS=itemize added to \@open{UL} argument
-%% Remove this to get original behaviour
-%
+%environement itemize
+\setenvclass{itemize}{itemize}
 \newenvironment{itemize}
-  {\@open{UL}{CLASS=itemize}\let\item\@itemitemize}
+  {\@open{UL}{\envclass@attr{itemize}}\let\item\@itemitemize}
   {\@close{UL}}
 \newcounter{enumcount}
 \newcommand{\@enumstyle}
@@ -215,14 +213,10 @@
 \newcommand{\itemiii}{itemiii}
 \newcommand{\itemiiii}{itemiiii}
 \newcommand{\itemv}{itemv}
-%
-%% Modified to support styles e.g. 
-%%                <OL CLASS=enumerate>,
-%% ONLY CHANGE  : CLASS=enumerate added to \@open{OL} argument
-%% Remove this to get original behaviour
-%
+%environment enumerate
+\setenvclass{enumerate}{enumerate}
 \newenvironment{enumerate}
-  {\@open{OL}{CLASS=enumerate \@enumstyle}%
+  {\@open{OL}{\envclass@attr[ ]{enumerate}\@enumstyle}%
   \let\item\@itemenumerate%
   \let\@itemcount\csname\@enumcitem\endcsname%
   \let\@currentlabel\csname the\@enumcitem\endcsname%
@@ -237,21 +231,24 @@
 %%                2) \@dt replaced by \@list@dtdd 
 %% Remove these to get original behaviour
 %
-\def\@list@class{list}
+\setenvclass{list}{list}
 \newenvironment{list}[3][!*!]
-  {\ifthenelse{\equal{#1}{!*!}}{\@open{DL}{CLASS="\@list@class" COMPACT=compact}}{\@open{DL}{CLASS=list}}%open
+  {\ifthenelse{\equal{#1}{!*!}}{\@open{DL}{\envclass@attr[ ]{list}COMPACT=compact}}{\@open{DL}{\envclass@attr{list}}}%
   \renewcommand{\item}[1][#2]{\@list@dtdd{##1}}%
   \@forcecommand{\makelabel}[1]{##1}%
   #3%exec
 }{\@close{DL}}
+\setenvclass{description}{description}
 \newenvironment{@list@description}[3][!*!]
-  {\ifthenelse{\equal{#1}{!*!}}{\@open{DL}{CLASS=description COMPACT=compact}}{\@open{DL}{CLASS=description}}%open
+  {\ifoptarg
+   \@open{DL}{\envclass@attr{description}}\else
+   \@open{DL}{\envclass@attr[ ]{description}COMPACT=compact}\fi
   \renewcommand{\item}[1][#2]{\@description@dtdd{##1}}%
   \@forcecommand{\makelabel}[1]{##1}%
   #3%exec
 }{\@close{DL}}
 \newenvironment{description}{\begin{@list@description}{}{\renewcommand{\makelabel}[1]{\textbf{##1}}}}{\end{@list@description}}
-\newenvironment{trivlist}{\def\@list@class{trivlist}\begin{list}{}{}}{\end{list}}
+\newenvironment{trivlist}{\setclassenv{list}{trivlist}\begin{list}{}{}}{\end{list}}
 %% Input...
 \newcommand{\listfiles}{}
 %% Line breaking

@@ -13,10 +13,7 @@
 \usepackage{array}
 \usepackage{graphics}
 \usepackage{mathpartir}
-\usepackage{proof}
 \usepackage{alltt}
-%%Notice: both mathparir and proof define \infer and \infer*
-%%We want proof \infer !!!
 %HEVEA\usepackage{color}
 \input{macros.tex}
 \makeindex
@@ -42,8 +39,6 @@ Chesnay Cedex. {\tt \mailto{Luc.Maranget@inria.fr}}}}
 %HEVEA% \setHTMLstyle{.title}{background:\#99bbdd}
 %HEVEA% \setHTMLstyle{.titlemain}{font-size:26pt}
 %HEVEA% \setHTMLstyle{.titlerest}{font-size:16pt}
-%HEVEA\usepackage{fancysection}
-
 \begin{document}
 
 \maketitle
@@ -5619,31 +5614,31 @@ In the example above, formulas are separated with \verb+\and+. The
 to act as \verb+\and+. It also redefines the command \verb+\\+ as
 an explicit line-break in the flow of formulas.
 
-The \hevea{} version is simplistic: all separators
-(\emph{i.e.} \verb+\and+, \verb+\par+ and \verb+\\+) produce
-line-breaks. However, when prefixed by \verb+\hva+ the separators
-produce horizontal space.
-Hence, we can typeset the previous example on two lines only:
+The \hevea{} version is simplistic:
+\verb+\and+~separators always produce horizontal space, while
+separators \verb+\par+ and \verb+\\+  always produce
+line-breaks.
+However, when prefixed by \verb+\hva+ the meaning of explicit
+speparators is inversed: that is,
+\verb+\hva\and+ produces a line-break, while \verb+\hva\\+
+produces horizontal space.
+Hence, we can typeset the previous example on two lines:
 \begin{center}
 \begin{tabular}{m{0.40\hsize}m{0.1\hsize}m{0.40\hsize}}
 \begin{lstlisting}[language=C]
 \begin{mathpar}
-A-Formula \hva\and 
-Longer-Formula \and 
-And \hva\and The-Last-One
+A-Formula \and
+Longer-Formula \hva\and 
+And \and The-Last-One
 \end{mathpar}
 \end{lstlisting}
 &
 \qquad\qquad
 &
 \begin{mathpar}
-A-Formula 
-\hva\and
-Longer-Formula
-\and
-And 
-\hva\and
-The-Last-One
+A-Formula \and
+Longer-Formula \hva\and 
+And \and The-Last-One
 \end{mathpar}
 \end{tabular}
 \end{center}

@@ -4,6 +4,11 @@
 \input{plain.hva}
 \newif\ififthen\ifthenfalse
 \input{ifthen.hva}
+%% Style sheet information is ignored
+\newcommand{\newstyle}[2]{}
+\newcommand{\class@attr}[2]{}
+\newcommand{\setenvclass}[2]{}
+\newcommand{\getenvclass}[][2]{}
 %% Packages
 \input{packages.hva}
 %%%%%% Spacing

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.250 2005-02-14 09:04:55 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.251 2005-02-14 16:29:28 maranget Exp $ *)
 
 
 {
@@ -1031,6 +1031,9 @@ rule  main = parse
     Dest.put lxm;
     main lexbuf}
 (* Html specials *)
+| '-'
+  {do_expand_command main skip_blanks "\\@hevea@minus" lexbuf ;
+  main lexbuf }  
 | '~'
   {do_expand_command main skip_blanks "\\@hevea@tilde" lexbuf ;
   main lexbuf }
@@ -3104,11 +3107,15 @@ let open_array env lexbuf =
   begin match attributes with
   | "" ->
       if !Tabular.border then
-        Dest.open_table true (get_table_attributes true len)(*^" CLASS=tabular"**)
+        Dest.open_table true
+          (get_table_attributes true len)
       else
-        Dest.open_table false (get_table_attributes false len)(*^" CLASS=tabular"*);
+        Dest.open_table false
+          (get_table_attributes false len)
+
   | _  ->
-       Dest.open_table !Tabular.border (attributes^check_width len(*^" CLASS=tabular"*))
+       Dest.open_table !Tabular.border
+        (attributes^check_width len)
   end ;
   open_row() ;
   open_first_col main ;
@@ -3177,27 +3184,30 @@ and do_bsbs lexbuf =
   end ;
   skip_blanks_pop lexbuf ;
   let _ = Dest.forget_par () in ()
+
+and do_minus lexbuf = match !symbol_mode with
+| Entity ->
+    if Save.if_next_char '-' lexbuf then begin
+      gobble_one_char lexbuf ;
+      if  Save.if_next_char '-' lexbuf then begin
+        gobble_one_char lexbuf ;
+        Dest.put "&mdash;"
+      end else
+        Dest.put "&ndash;"
+    end else if !in_math then
+      Dest.put "&minus;"      
+    else
+      Dest.put_char '-'
+|  _ -> Dest.put_char '-'
 ;;
-(*    
-let do_bsbsbsbs lexbuf = 
-  do_unskip ();
-  skip_opt lexbuf ;
-  if !display then begin
-    Dest.put "<BR>"
-  end
-  else begin
-    Dest.skip_line () ;Dest.skip_line() 
-  end;
-  skip_blanks_pop lexbuf;
-  let _ = Dest.forget_par () in ()
-;;  
-*)
-(*def_code "\\\\\\\\"       do_bsbsbsbs ;*)
+
+
 def_code "\\@hevea@amper" do_amper ;
 def_code "\\\\"           do_bsbs  ;
 def_code "\\@HEVEA@amper" do_amper ;
 def_code "\\@HEVEA@bsbs"  do_bsbs  ; 
-(*def_code "\\@HEVEA@bsbsbsbs" do_bsbsbsbs ; ()*)
+def_code "\\@hevea@minus" do_minus ;
+()
 ;;
 
 

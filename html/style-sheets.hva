@@ -1,73 +1,12 @@
-%%% Keeps track of which style is being used for document preparation.
-%%% Used to map LATEXstyle to HTMLstyle
-%%%
-\newcommand{\book@style}{book}%
-\newcommand{\art@style}{article}%
-
-%%% Map from LATEX to HTML sectioning for book style (redundant)
-%%%
-\newcommand{\bookHTMLequiv}[1]{%
-\ifthenelse{\equal{#1}{title}}{H1.title}{%
-\ifthenelse{\equal{#1}{chapter}}{H1.chapter}{%
-\ifthenelse{\equal{#1}{section}}{H2}{%
-\ifthenelse{\equal{#1}{subsection}}{H3}{%
-\ifthenelse{\equal{#1}{subsubsection}}{H4}{%
-\ifthenelse{\equal{#1}{paragraph}}{H5}{%
-\ifthenelse{\equal{#1}{subparagraph}}{H6}{%
-}}}}}}}%	
-}%
-
-%%% Map from LATEX to HTML sectioning for book style (redundant)
-%%%
-\newcommand{\articleHTMLequiv}[1]{%
-\ifthenelse{\equal{#1}{title}}{H1.title}{%
-\ifthenelse{\equal{#1}{part}}{H1.part}{%
-\ifthenelse{\equal{#1}{section}}{H2}{%
-\ifthenelse{\equal{#1}{subsection}}{H3}{%
-\ifthenelse{\equal{#1}{subsubsection}}{H4}{%
-\ifthenelse{\equal{#1}{paragraph}}{H5}{%
-\ifthenelse{\equal{#1}{subparagraph}}{H6}{%
-}}}}}}}%
-}	
-%	
-
-%%% Mapping LATEX sectioning to HTML sectioning (redundant)
-%%%
-\newcommand{\getHTMLequiv}[1]{%
-\ifthenelse{\equal{\doc@style}{\book@style}}{\bookHTMLequiv{#1}}{%
-\ifthenelse{\equal{\doc@style}{\art@style}}{\articleHTMLequiv{#1}}{%
-}}%
-}%
-
-%%% Specify a common theme for all sectioning displays.
-%%% e.g. \setstyles{background:blue;color:white;font:sans-serif}
-%%%
-\newcommand{\setstyles}[1]{%
-\newstyle{.title}{#1}%
-\newstyle{.titlemain}{#1}%
-\newstyle{.titlerest}{#1}%
-\newstyle{.part}{#1}%
-\newstyle{.section}{#1}%
-\newstyle{.subsection}{#1}%
-\newstyle{.subsubsection}{#1}%
-\newstyle{.paragraph}{#1}%
-\newstyle{.subparagraph}{#1}%
-}%
-
 %%% Make style declarations directly in HTML
 %%% e.g. \setHTMLstyle{H2}{background:blue;font:large sans-serif}
 %%%      \setHTMLstyle{H3.titlename}{background:blue;font:large sans-serif}
 %%% (knowing that \section{..} is rewritten using H2, and
 %%%               \maketitle uses H3.titlerest for author etc.)
 %%%
-\newcommand{\setHTMLstyle}[2]{%
-	\newstyle{#1}{#2}%
-}%
-
+\let\setHTMLstyle\newstyle
 %%% Specify a style for a sectioning macro (HEVEA taking care and echoing 
 %%% it to its HTML rewrite).
 %%% e.g. \setLATEXstyle{subsection}{background:blue;font:small sans-serif}
 %%%
 \newcommand{\setLATEXstyle}[2]{\newstyle{.#1}{#2}}%
-
-

@@ -40,10 +40,10 @@
 \def\mathpar@hspace{\mbox{\qquad}}%
 \def\mathpar@vspace
 {\@force{TD}\@close{TR}\@open{TR}{}\@open{TD}{align=center}}%
-\def\mathpar@hva#1{\mathpar@hspace}%
+\def\mathpar@hva#1{\ifx#1\and\mathpar@vspace\mathpar@vspace\else\mathpar@hspace\fi}%
 \newenvironment{mathpar}[1][]
   {$$%
-  \let\and\mathpar@vspace\let\par\mathpar@vspace\let\\\mathpar@vspace\let\hva\mathpar@hva%
+  \let\and\mathpar@hspace\let\par\mathpar@vspace\let\\\mathpar@vspace\let\hva\mathpar@hva%
   \open@mathpar@table%
   \@open{TR}{}\@open{TD}{align=center}}
   {\@close{TD}\@close{TR}\@close{TABLE}$$}

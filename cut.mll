@@ -12,9 +12,13 @@
 {
 open Lexing
 open Stack
-let header = "$Id: cut.mll,v 1.43 2004-12-17 16:36:15 maranget Exp $" 
+let header = "$Id: cut.mll,v 1.44 2005-02-14 16:29:28 maranget Exp $" 
 
 let verbose = ref 0
+
+let name = ref "main"
+and count = ref 0
+;;
 
 let language = ref "eng"
 let base = ref None
@@ -39,13 +43,26 @@ exception Error of string
    in order to output them in the preamble of every generated page. *)
 
 let header_buff = Out.create_buff ()
-let common_headers = ref "";;
- 
+let style_buff = Out.create_buff ()
+let common_headers = ref ""
+and link_style = ref ""
+
 let adjoin_to_header s = Out.put header_buff s
 
 and adjoin_to_header_char c = Out.put_char header_buff c
 
-and finalize_header () =
+let finalize_header () =
+  if not (Out.is_empty style_buff) then begin
+    let css_name = Printf.sprintf "%s.css" !name in
+    link_style :=
+       Printf.sprintf
+         "<LINK rel=\"stylesheet\" type=\"text/css\" href=\"%s\">\n"
+         css_name ;
+    adjoin_to_header !link_style ;
+    let chan = real_open_out css_name in
+    output_string chan (Out.to_string style_buff) ;
+    close_out chan
+  end ;
   common_headers := Out.to_string header_buff
 
 let html_buff = Out.create_buff ()
@@ -54,10 +71,6 @@ and html_foot = ref ""
 and html_prefix = ref ""
 
 let phase = ref (-1)
-;;
-
-let name = ref "main"
-and count = ref 0
 ;;
 
 let body = ref "<BODY>"
@@ -490,8 +503,9 @@ and closeflow () =
 } 
 
 let secname = ['a'-'z' 'A'-'Z']+
+let blank = [' ''\t''\n']
 
-  rule main = parse
+rule main = parse
 | "<!--HEVEA" [^'>']* "-->" '\n'?
     {let lxm = lexeme lexbuf in
     if !phase > 0 then begin
@@ -645,8 +659,10 @@ let secname = ['a'-'z' 'A'-'Z']+
       if !phase = 0 then begin
         if !verbose > 0 then prerr_endline "Collect header" ;
         collect_header lexbuf
-      end else
-        main lexbuf}
+      end else begin
+        repeat_header lexbuf
+      end ;
+      main lexbuf}
 | "</BODY>" _ * 
     {let lxm = lexeme lexbuf in
     close_all () ;
@@ -679,15 +695,31 @@ and collect_header = parse
       prerr_string "Header is: ``" ;
       prerr_string !common_headers ;
       prerr_endline "''"
-    end ;
-    main lexbuf}
-
+    end}
 | "<TITLE" [^'>']* '>'
-    {skip_title lexbuf ;
-      collect_header lexbuf}
+    {skip_title lexbuf ; collect_header lexbuf}
+| "<STYLE" blank+ "type" blank* '=' blank* '"' "text/css" '"' blank* '>'
+    {collect_style lexbuf ;  collect_header lexbuf}
 | _ as lxm
     {adjoin_to_header_char lxm;
     collect_header lexbuf}
+
+and repeat_header = parse
+| "</HEAD>" as lxm
+    {put (!link_style) ; put lxm }
+| "<STYLE" blank+ "type" blank* '=' blank* '"' "text/css" '"' blank* '>'
+    {skip_style lexbuf ; repeat_header lexbuf}
+| _ as lxm
+    {put_char lxm ; repeat_header lexbuf}
+
+and collect_style = parse
+| "</STYLE>" '\n'? { () }
+| _ as c
+    { Out.put_char style_buff c ; collect_style lexbuf }
+
+and skip_style = parse
+| "</STYLE>" '\n'? { () }
+| _ { skip_style lexbuf }
 
 and skip_title = parse
 |  "</TITLE>" '\n'? {()}
