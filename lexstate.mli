@@ -20,6 +20,8 @@ val prerr_stack_string : string -> ('a -> string) -> 'a t -> unit
 
 val scan_arg : (string -> 'a) -> int -> 'a
 val scan_body : ('b -> 'a) -> 'b -> string array -> 'a
+val scan_fun :
+  (Lexing.lexbuf -> string -> 'a) -> Lexing.lexbuf -> string -> 'a
 
 val stack_lexbuf : Lexing.lexbuf t
 val eat_space : bool ref

@@ -53,7 +53,7 @@ open Save
 open Tabular
 open Lexstate
 
-let header = "$Id: latexscan.mll,v 1.66 1999-03-08 18:37:34 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.67 1999-03-09 08:57:01 maranget Exp $" 
 
 exception Error of string
 
@@ -2195,7 +2195,7 @@ rule  main = parse
                   prerr_endline ("user macro: "^body) ;            
                 scan_this_may_cont true main lexbuf body
             | CamlCode (f) -> 
-                f lexbuf name in
+                scan_fun f lexbuf name in
 
           let pat,body = find_macro name in
           let args = make_stack name pat lexbuf in
@@ -2545,6 +2545,36 @@ and image = parse
     let i = Char.code (lxm.[1]) - Char.code '1' in
     scan_arg (scan_this image) i ;
     image lexbuf}
+(* Definitions of  simple macros, bodies are not substituted *)
+| "\\def" | "\\gdef"
+   {let lxm = lexeme lexbuf in
+   Save.start_echo () ;
+   let _ = Save.csname lexbuf in
+   let _ = Save.defargs lexbuf in
+   let _ = save_arg lexbuf in
+   Image.put lxm ;
+   Image.put (Save.get_echo ()) ;
+   image lexbuf}
+| "\\renewcommand" | "\\newcommand" | "\\providecommand"
+  {let lxm = lexeme lexbuf in
+  Save.start_echo () ;
+  let _ = Save.csname lexbuf in
+  let _ = parse_args_opt ["0" ; ""] lexbuf in
+  let _ = save_arg lexbuf in
+  Image.put lxm ;
+  Image.put (Save.get_echo ()) ;
+  image lexbuf}
+| "\\newenvironment" | "\\renewenvironment"
+   {let lxm = lexeme lexbuf in
+   Save.start_echo () ;
+   let _ = save_arg lexbuf in
+   let _ = parse_quote_arg_opt "0" lexbuf in
+   let _ = parse_quote_arg_opt "" lexbuf in
+   let _ = save_arg lexbuf in
+   let _ = save_arg lexbuf in
+   Image.put lxm ;
+   Image.put (Save.get_echo ()) ;
+   image lexbuf}
 |  "\\end"
      {let lxm = lexeme lexbuf in
      Save.start_echo () ;

@@ -1,4 +1,6 @@
 version 1.03-1
+  - integrate the ``snippet'' plugin (by Christian.Queinnec@lip6.fr)
+  - change computation of values (integer and boolean)
   - space optimization of size changes
   - commands \ifthenelse and \equal from the ifthenelse package
   - compatibility with the ``array'' package

@@ -74,8 +74,14 @@ let prerr_stack_string s f stack =
 
 
 let scan_arg lexfun i =
-  if i >= Array.length !stack then
-    raise (Error "Macro argument not found");
+  if i >= Array.length !stack then begin
+    if !verbose > 1 then begin
+      prerr_string ("Subst arg #"^string_of_int (i+1)^" -> not found") ;
+      prerr_args_aux !stack;
+      prerr_endline (" ("^string_of_int (List.length !stack_stack)^")")
+    end ;
+    raise (Error "Macro argument not found")
+  end;
   let arg = !stack.(i) in
   if !verbose > 1 then begin
     prerr_string ("Subst arg #"^string_of_int (i+1)^" -> ``"^arg^"''") ;
@@ -89,6 +95,15 @@ let scan_arg lexfun i =
   push stack_stack !stack ;
   stack := old_args ;
   r
+
+and scan_fun f lexbuf name =
+  let old_args = !stack in
+  stack := pop stack_stack ;
+  let r = f lexbuf name in
+  push stack_stack !stack ;
+  stack := old_args ;
+  r
+
 
 and scan_body exec body args =
   push stack_stack !stack ;
