@@ -9,16 +9,20 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: symb.ml,v 1.17 1999-05-21 12:54:17 maranget Exp $" 
+let header = "$Id: symb.ml,v 1.18 2003-03-07 17:25:33 maranget Exp $" 
 open Parse_opts
 
 let tr = function
-  "<" -> "<"
-| ">" -> ">"
 | "\\{" -> "{"
 | "\\}" -> "}"
+| "\\|" -> "<FONT FACE=symbol>½½</FONT>"
+| "\\lfloor" -> "<FONT FACE=symbol>ë</FONT>"   
+| "\\rfloor" -> "<FONT FACE=symbol>û</FONT>"
+| "\\lceil"  -> "<FONT FACE=symbol>é</FONT>"
+| "\\rceil"  -> "<FONT FACE=symbol>ù</FONT>"
 | s   -> s
 ;;
+
 let put_delim skip put d n =
 
   let  put_skip s = put s ; skip () ; in
@@ -76,7 +80,7 @@ let put_delim skip put d n =
     end else if d = "\\{" then begin
       put_skip "ì" ; 
       do_rec "ï" ((n-3)/2) ;
-      put_skip "í" ; 
+      put_skip "í" ;  
       do_rec "ï" ((n-3)/2) ;
       put "î"     
     end else if d = "\\}" then begin

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.227 2002-12-12 09:46:39 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.228 2003-03-07 17:25:33 maranget Exp $ *)
 
 
 {
@@ -1144,7 +1144,6 @@ and image = parse
         skip_csname lexbuf ;
         skip_blanks lexbuf ;
         let _ = Save.defargs lexbuf in
-        let _ = save_arg lexbuf in
         Image.put lxm ;
         let saved = Save.get_echo () in
         Image.put saved
@@ -1929,34 +1928,48 @@ def_code "\\chardef"
 ;;
 
 (* Complicated use of output blocks *)
-def_code "\\display@left"
-  (fun lexbuf ->
-    let dprev = !display in
-    Stack.push stack_display dprev ;
-    display := true ;
-    if not dprev then
-      top_open_display () ;      
-    let delim = subst_arg lexbuf in
-    let {sub=sub ; sup=sup} = save_sup_sub lexbuf in
-    Dest.left delim
-      (fun vsize ->
-        Dest.int_sup_sub false vsize
-          (scan_this_arg main) (fun () -> ())  sup sub true))
+
+let displayleft lexbuf = 
+  let dprev = !display in
+  Stack.push stack_display dprev ;
+  display := true ;
+  if not dprev then
+    top_open_display () ;      
+  let delim = subst_arg lexbuf in
+  let {sub=sub ; sup=sup} = save_sup_sub lexbuf in
+  Dest.left delim
+    (fun vsize ->
+      Dest.int_sup_sub false vsize
+        (scan_this_arg main) (fun () -> ())  sup sub true)
 ;;
 
-(* Display is true *)
-def_code "\\display@right"
-  (fun lexbuf ->    
-    let delim = subst_arg lexbuf in
-    let vsize = Dest.right delim in
-    let {sup=sup ; sub=sub} = save_sup_sub lexbuf in
-    let do_what = (fun () -> ()) in
+let displayright lexbuf =
+  let delim = subst_arg lexbuf in
+  let vsize = Dest.right delim in
+  let {sup=sup ; sub=sub} = save_sup_sub lexbuf in
+  let do_what = (fun () -> ()) in
+  if vsize > 1 then
     Dest.int_sup_sub false vsize
-      (scan_this_arg main) do_what sup sub !display ;
-    let dprev = Stack.pop stack_display in
-    if not dprev then top_close_display () ;
-    display := dprev)
+      (scan_this_arg main) do_what sup sub !display
+  else
+    Dest.standard_sup_sub (scan_this_arg main) do_what sup sub !display ;
+  let dprev = Stack.pop stack_display in
+  if not dprev then top_close_display () ;
+  display := dprev
 ;;
+
+def_code "\\left"
+  (fun lexbuf ->
+    if !display then displayleft lexbuf
+    else expand_command main skip_blanks "\\textleft" lexbuf)
+;;
+
+def_code "\\right"
+  (fun lexbuf ->
+    if !display then displayright lexbuf
+    else expand_command main skip_blanks "\\textright" lexbuf)
+;;
+
 
 def_code "\\over"
    (fun lexbuf ->
@@ -3160,12 +3173,13 @@ and cedille = function
 | "C" -> "Ç"
 | s   -> s
 
-and tilde = function
-  "a" -> "ã" | "A" -> "Ã"
-| "o" -> "õ" | "O" -> "Õ"
-| "n" -> "ñ" | "N" -> "Ñ"
-| "" | " " -> "\\@print{~}"
-| s   -> s
+and tilde s = 
+  match s with
+  |  "a" -> "ã" | "A" -> "Ã"
+  | "o" -> "õ" | "O" -> "Õ"
+  | "n" -> "ñ" | "N" -> "Ñ"
+  | "" | " " -> "\\@print{~}"
+  | s   -> "\\@print{~}"^s
 ;;
 
 

@@ -5,8 +5,6 @@
 %%%%%%%%%%%%%%%% Maths environments and TeXisms
 \newcommand{\textright}[1]{#1}
 \newcommand{\textleft}[1]{#1}
-\newcommand{\right}[1]{\ifdisplay\display@right#1\else\textright#1\fi}
-\newcommand{\left}[1]{\ifdisplay\display@left#1\else\textleft#1\fi}
 \def\mathord#1{#1}
 \def\mathrel#1{#1}
 \def\mathbin#1{#1}

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlCommon.ml,v 1.39 2002-11-05 09:35:15 maranget Exp $" 
+let header = "$Id: htmlCommon.ml,v 1.40 2003-03-07 17:25:33 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -125,6 +125,13 @@ let find_block s =
 let check_block_closed opentag closetag =
   if opentag <> closetag && not (opentag = AFTER && closetag = GROUP) then
     failclose "html" closetag opentag
+;;
+
+let display_arg  verbose =
+  if verbose > 1 then
+    "BORDER=1 CELLSPACING=0 CELLPADDING=0"
+  else
+    "CELLSPACING=0 CELLPADDING=0"
 ;;
 
 (* output globals *)
@@ -1237,7 +1244,7 @@ let rec do_open_block insert s args = match s with
    | _ -> ()
    end
 | DISPLAY ->
-   do_open_block insert TABLE "" ;
+   do_open_block insert TABLE (display_arg !verbose) ;
    do_open_block None TR args
 | _  -> begin match insert with
   | Some (tag,iargs) ->

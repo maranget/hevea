@@ -1,6 +1,5 @@
 %% Maths accents
 \newcommand{\@mathaccent}[2]{\newcommand{#1}[1]{\mathop{##1}\limits^{#2}}}%
-%\newcommand{\@mathaccent}[2]{\newcommand{#1}[1]{\stackrel{#2}{##1}}}%
 \@mathaccent{\hat}{\^{}}%
 \@mathaccent{\grave}{`}%
 \@mathaccent{\acute}{'}%
@@ -8,5 +7,5 @@
 \@mathaccent{\dot}{.}%
 \@mathaccent{\ddot}{..}%
 \@mathaccent{\vec}{\rightarrow}%
-\@mathaccent{\bar}{\@print{_}}%
+\@mathaccent{\bar}{\@print{-}}%
 

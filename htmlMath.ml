@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlMath.ml,v 1.22 2002-01-04 18:41:21 maranget Exp $" 
+let header = "$Id: htmlMath.ml,v 1.23 2003-03-07 17:25:33 maranget Exp $" 
 
 
 open Misc
@@ -80,12 +80,6 @@ let open_center () =  open_block DIV "ALIGN=center"
 and close_center () = close_block DIV
 ;;
 
-let display_arg  verbose =
-  if verbose > 1 then
-    "BORDER=1 CELLSPACING=0 CELLPADDING=0"
-  else
-    "CELLSPACING=0 CELLPADDING=0"
-;;
 
 
 
