@@ -105,7 +105,7 @@ devrelease:
 
 
 RPMDIR=/usr/src/redhat
-dorpm:
+dorpm: hevea.spec
 	sed -e "s/VERSION/$(VERSION)/g" -e "s|/UNSTABLE|$(UNSTABLE)|g" hevea.spec > $(RPMDIR)/SPECS/$(RELEASENAME).spec
 	cp $(FTPDIR)/$(RELEASENAME).tar.gz $(RPMDIR)/SOURCES
 	cd $(RPMDIR)/SPECS ; rpm -bb --clean --rmsource $(RELEASENAME).spec
@@ -121,4 +121,13 @@ clean:
 
 cleanall: clean
 	rm -f manual.dvi manual.ps manual[0-9][0-9][0-9].html *_motif.gif \
-	manual*.gif tmp.tex *.image.tex manual.html index.html faq.html
+	manual*.gif tmp.tex *.image.tex manual.html index.html faq.html hevea.spec
+
+include ../libs.def
+RPMLIB=/usr/lib/hevea
+hevea.spec: hevea.spec.prelude ../libs.def
+	cat hevea.spec.prelude > hevea.spec
+	@for i in $(ALLLIB) ; do echo $(RPMLIB)/$$i ; done >> hevea.spec
+	@for i in $(HTMLLIB) ; do echo $(RPMLIB)/html/$$i ; done >> hevea.spec
+	@for i in $(TEXTLIB) ; do echo $(RPMLIB)/text/$$i ; done >> hevea.spec
+	@for i in $(INFOLIB) ; do echo $(RPMLIB)/info/$$i ; done >> hevea.spec

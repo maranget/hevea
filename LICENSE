@@ -40,9 +40,6 @@ The user undertakes to distribute the software either as unmodified
 source files, identical to those originally made public by INRIA, or as
 executable binaries obtained by compiling the original source files.
 
-All binary distributions must include the following statement:
-    "This software includes the Objective Caml run-time system,
-     which is copyright 1996, 1997, 1998, 1999 INRIA."
 
 Distribution of derivative works obtained by modifying the software or
 integrating it in another software is allowed only if the distribution
@@ -50,6 +47,13 @@ consists of the unmodified, original source files for the software,
 along with difference files (patches) to be applied by the user of the
 derivative work.
 
+Binary distributions of derivative works are allowed, provided the distributor
+also makes available a source distribution of the derivative work that
+fulfills the conditions above.
+
+All binary distributions must include the following statement:
+    "This software includes the Objective Caml run-time system,
+     which is copyright 1996, 1997, 1998, 1999 INRIA."
 
 As regards any other type of distribution, the user undertakes to
 apply to obtain the express approval of INRIA.
@@ -62,6 +66,11 @@ INRIA shall not be responsible in any way concerning conformity, and in
 particular shall not be liable should the software not comply with the
 requirements of the user, INRIA not being obliged to repair any
 possible direct or indirect damage.
+
+d- Relation with Objective Caml
+
+    "Binary distributions of this software includes the Objective Caml
+    run-time system, which is copyright 1996, 1997, 1998, 1999 INRIA."
 
 
 

@@ -1,0 +1,11 @@
+\@beginpackage{hyperref}
+\usepackage{url}
+\@primitives{hyperref}
+\newcommand{\hyperlink}[2]{\ahref{\#{}#1}{#2}}
+\newcommand{\hypertarget}[2]{\aname{\#{}#1}{#2}}
+\newcommand{\hyperdef}[3]{\hypertarget{#1.#2}{#3}}
+\texdef\url{\begingroup
+\texdef\UrlLeft##1\UrlRight{{\@nostyle\@print{<A HREF="}##1\@print{">}}##1{\@nostyle\@print{</A>}}}%
+\urlstyle{tt}%
+\Url}
+\@endpackage{hyperref}

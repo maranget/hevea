@@ -22,9 +22,7 @@ GENSRC=auxx.ml colscan.ml cut.ml entry.ml get.ml latexscan.ml length.ml save.ml 
 OPTS=$(OBJS:.cmo=.cmx) $(OBJMAIN:.cmo=.cmx)
 OPTSCUT=$(OBJSCUT:.cmo=.cmx)
 
-HTMLLIB=article.hva book.hva report.hva seminar.hva hevea.hva ams.hva mathaccents.hva multind.hva symb.hva symb-text.hva symb-eng.hva symb-fra.hva symb-mathml.hva symb-ent.hva graphics.hva color.hva fancysection.hva
-TEXTLIB=article.hva book.hva report.hva seminar.hva hevea.hva symb.hva
-INFOLIB=article.hva book.hva report.hva seminar.hva hevea.hva
+include libs.def
 
 all: $(TARGET)
 everything: byte opt
@@ -41,6 +39,7 @@ install-lib:
 	-mkdir $(LIBDIR)
 	$(INSTALL) hevea.sty cutfoot-fra.html cutfoot-eng.html footer.tex ${LIBDIR}
 	$(INSTALL) contents_motif.gif next_motif.gif previous_motif.gif ${LIBDIR}
+	$(INSTALL) $(ALLLIB) $(LIBDIR)
 	-mkdir $(LIBDIR)/html
 	cd html ; $(INSTALL) $(HTMLLIB) $(LIBDIR)/html
 	-mkdir $(LIBDIR)/text
@@ -62,7 +61,7 @@ install-byte: install-lib
 
 
 hevea.byte: ${OBJS}
-	${OCAMLC} -o $@ dynlink.cma ${OBJS} ${OBJMAIN}
+	${OCAMLC} -o $@ ${OBJS} ${OBJMAIN}
 
 hacha.byte: ${OBJSCUT}
 	${OCAMLC} -o $@ ${OBJSCUT}

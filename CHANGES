@@ -1,6 +1,8 @@
 
 version 1.05-6
-  - implemented the ``url'' package and hate it.
+  - new hevea.sty as a package.
+  - half implemented ``hyperref'' package needs doc
+  - implemented the ``url'' package needs documentation (-> compat.hva)
   - new management of pending mods in html.ml,
     cancellation is done on a per-color basis -> more or less efficient ?
   - Added many colors (hsv, named color models)

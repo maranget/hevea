@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.4 1999-10-13 17:00:12 maranget Exp $    *)
+(*  $Id: package.ml,v 1.5 1999-10-19 15:45:23 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -33,6 +33,22 @@ def_print "\\@heveacomline"
 def_print "\@heveaversion" Version.version ;
 def_print "\@hevealibdir" Mylib.libdir
 ;;
+
+(*
+let def_set name x =
+  Counter.def_counter name "" ;
+  Counter.set_counter name x
+;;
+open Unix
+;;
+
+let tm = Unix.localtime (Unix.time ()) in
+def_set "year" tm.tm_year ;
+def_set "month" tm.tm_mon ;
+def_set "day" tm.tm_wday ;
+def_set "time" (60 * tm.tm_hour + tm.tm_min)
+;;
+*)
 
 register_init "ifthen"
   (fun () ->
