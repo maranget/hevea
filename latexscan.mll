@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.200 2000-12-04 16:40:26 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.201 2001-01-05 14:00:02 maranget Exp $ *)
 
 
 {
@@ -2259,18 +2259,6 @@ def_code "\\cite"
     end ;
     Dest.close_group () ;
     Dest.put_char ']' )
-;;
-
-def_fun "\\@bibread" (Auxx.bget false)
-;;
-
-def_code "\\@bibwrite"
-  (fun lexbuf ->
-    let pretty = match Subst.subst_arg lexbuf with
-    | "\\theheveabib" as s  -> get_prim s
-    | s -> s in
-    let key = get_prim_arg lexbuf in
-    Auxx.bwrite key pretty)
 ;;
 
 (* Includes *)

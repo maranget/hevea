@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.28 2000-09-28 10:34:52 maranget Exp $    *)
+(*  $Id: package.ml,v 1.29 2001-01-05 14:00:09 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -108,31 +108,54 @@ def_code "\\@hauxinit"
     check_alltt_skip lexbuf)
 ;;
 
+let get_raw lexbuf =
+  let saved = !raw_chars in
+  raw_chars := true ;
+  let r = get_prim_arg lexbuf in
+  raw_chars := saved ;
+  r
+;;
+
 def_code "\\@newlabel"
   (fun lexbuf ->
-    let name = get_prim_arg lexbuf in
-    let arg = get_prim_arg lexbuf in
+    let name = get_raw lexbuf in
+    let arg = get_raw lexbuf in
     Auxx.rset name arg)
 ;;
 
 
 def_code "\\@auxwrite"
   (fun lexbuf ->
-    let lab = get_prim_arg lexbuf in
+    let lab = get_raw lexbuf in
     let theref = get_prim_arg lexbuf in
     Auxx.rwrite lab theref)
 ;;
 
 def_code "\\@auxread"
   (fun lexbuf ->
-    let lab = get_prim_arg lexbuf in 
+    let lab = get_raw lexbuf in
     scan_this main (Auxx.rget lab))
+;;
+
+def_code "\\@bibread"
+  (fun lexbuf ->
+    let key = get_raw lexbuf in
+    scan_this main (Auxx.bget false key))
+;;
+
+def_code "\\@bibwrite"
+  (fun lexbuf ->
+    let pretty = match Subst.subst_arg lexbuf with
+    | "\\theheveabib" as s  -> get_prim s
+    | s -> s in
+    let key = get_raw lexbuf in
+    Auxx.bwrite key pretty)
 ;;
 
 
 def_code "\\bibcite"
   (fun lexbuf ->
-    let name = get_prim_arg lexbuf in
+    let name = get_raw lexbuf in
     let arg = Subst.subst_arg lexbuf in
     Auxx.bset name arg)
 ;;
@@ -324,6 +347,9 @@ let verb_arg lexbuf =
   for i = 0 to String.length url - 1 do
     Dest.put (Dest.iso url.[i])
   done
+;;
+
+def_code "\\@verbarg" verb_arg ;
 ;;
 
 register_init "url"

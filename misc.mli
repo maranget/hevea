@@ -29,8 +29,8 @@ val print_verb : int -> string -> unit
 val message : string -> unit
 val fatal : string -> 'a
 val not_supported : string -> 'a
-val copy_hashtbl : (string, 'a) Hashtbl.t -> (string, 'a) Hashtbl.t -> unit
-val clone_hashtbl : (string, 'a) Hashtbl.t -> (string, 'a) Hashtbl.t
+val copy_hashtbl : ('b, 'a) Hashtbl.t -> ('b, 'a) Hashtbl.t -> unit
+val clone_hashtbl : ('b, 'a) Hashtbl.t -> ('b, 'a) Hashtbl.t
 
 val start_env : string -> string
 val end_env : string -> string

@@ -1,5 +1,9 @@
   
 version 1.06-5
+  - insertion d'un @verbarg pour les clefs de labels et de citations
+  - Hot oubliait les notes de bas de page.
+  - Simplification Misc.copy_hashtbl,
+    ne marche plus pour les liaisans multiples.
   - small simplification fancyvrb
   - \sbox lrbox finally ok ?
   - New \@getprintnostyle primitive

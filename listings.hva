@@ -69,7 +69,7 @@
 \def\lst@install@okwds
   #1#2{%
     \lst@record@okwds{#2}%
-    \@rawchars{\lst@iter{\lst@install@kwd{#1}}{#2}}}
+    \lst@iter{\lst@install@kwd{#1}}{#2}}
 \def\lst@delete@kwd
   #1{\def\csname lstk@\@rawchars{#1}\endcsname{\lst@identifier@style}}
 \def\lst@delete@okwds#1{\lst@iter{\lst@delete@okwd}{#1}}
@@ -89,7 +89,7 @@
 \define@key{lst}{morerdkeywords}{\lst@delay@install\lst@rdkwd@style#1}
 \define@key{lst}{deleterdkeywords}{\lst@delay@delete#1}
 %%%%%%%% Other keywords
-\def\lst@delay@oinstall#1#2{\lst@AddToHook{AfterSetLanguage}{\lst@install@okwds{#1}{#2}}}
+\def\lst@delay@oinstall#1#2{\lstinfo{DELAY: \lst@normalize{#2}}\lst@AddToHook{AfterSetLanguage}{\warning{COUCOU}\lst@install@okwds{#1}{#2}}}
 \def\lst@delay@odelete#1{\lst@AddToHook{AfterSetLanguage}{\lst@delete@okwds{#1}}}
 \define@key{lst}{otherkeywords}{\lst@delay@oinstall\lst@okwd@style#1}
 \define@key{lst}{morekeothersywords}{\lst@delay@oinstall\lst@okwd@style#1}
@@ -355,10 +355,10 @@
   \lst@identifier@style{#2}\else
   \csname lstk@\lst@normalize{#1}\endcsname{#2}\fi}}
 \def\lst@output@other#1#2{%
-\@NewLine%\lstinfo{OTHER: ``#1'' ``#2''}
-\ifu\csname lstk@#1\endcsname
+\@NewLine%\lstinfo{OTHER: ``#1'' ``#2''}%
+\ifu\csname lstk@\lst@normalize{#1}\endcsname
   #2\else
-  {{\csname lstk@#1\endcsname{#2}}}\fi}
+  {{\csname lstk@\lst@normalize{#1}\endcsname{#2}}}\fi}
 %%%%%% Pre and post (already obsolete)
 \let\lst@pre\@empty
 \let\lst@post\@empty

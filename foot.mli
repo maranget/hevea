@@ -9,7 +9,11 @@
 (*                                                                     *)
 (***********************************************************************)
 
-val hot_start : unit -> unit
+type saved
+val checkpoint : unit -> saved
+val hot_start : saved -> unit
+
+
 val step_anchor : int -> unit
 val get_anchor : int -> int
 val register : int -> string -> string -> unit

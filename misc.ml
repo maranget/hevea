@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: misc.ml,v 1.17 2000-07-07 17:44:45 maranget Exp $" 
+let header = "$Id: misc.ml,v 1.18 2001-01-05 14:00:07 maranget Exp $" 
 
 exception Fatal of string
 exception NoSupport of string
@@ -51,6 +51,11 @@ let fatal s = raise (Fatal s)
 let not_supported s = raise (NoSupport s)
 
 
+(*
+let rec rev_iter f = function
+  | [] -> ()
+  | x::rem -> rev_iter f rem ; f x
+
 let copy_hashtbl from_table to_table =
   Hashtbl.clear to_table ;
   let module OString =
@@ -66,10 +71,16 @@ let copy_hashtbl from_table to_table =
   Strings.iter
     (fun key ->
       let vals = Hashtbl.find_all from_table key in
-      match vals with
-      | [] -> assert false
-      | value :: _ -> Hashtbl.add to_table key value)
+      rev_iter (Hashtbl.add to_table key) vals)
     !keys
+*)
+
+let copy_hashtbl from_table to_table =
+  Hashtbl.clear to_table ;
+  Hashtbl.iter 
+    (fun key v -> Hashtbl.add to_table key v)
+    from_table 
+  
 
 let clone_hashtbl from_table =
   let to_table = Hashtbl.create 17 in

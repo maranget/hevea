@@ -11,7 +11,7 @@
 
 open Misc
 
-let header = "$Id: auxx.ml,v 1.12 2000-10-30 10:16:53 maranget Exp $" 
+let header = "$Id: auxx.ml,v 1.13 2001-01-05 13:59:57 maranget Exp $" 
 
 let rtable = Hashtbl.create 17
 ;;
@@ -38,7 +38,7 @@ let bget warn name =
     try Hashtbl.find btable name with Not_found ->
       begin
         if warn then warning ("Undefined citation: ``"^name^"''") ;
-        "{"^name^"}"
+        "\\@verbarg{"^name^"}"
       end in
   r
 ;;
@@ -76,7 +76,9 @@ and finalize check =
           Hashtbl.iter
             (fun key _ ->
               try Hashtbl.find seen key
-              with Not_found -> changed := true)
+              with Not_found ->
+                Misc.warning ("Disappear: "^key) ;
+                changed := true)
             table in
         if not !changed then begin
           check_disappear rtable rseen ;
