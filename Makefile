@@ -10,7 +10,7 @@ CPP=cpp -E -P
 #Some alternatives...
 #CPP=/lib/cpp -E -P  (Old fashioned Unix)
 #CPP=gcc -E -P -x c  (If you have gcc)
-#CPP==cc --traditional-cpp -E -P -x c (repported to work on MacOsX by Georg)
+#CPP=cc --traditional-cpp -E -P -x c (repported to work on MacOsX by Georg)
 ############### End of configuration parameters
 SUF=
 #DIR=/usr/bin/

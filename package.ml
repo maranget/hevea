@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.41 2002-11-05 09:35:15 maranget Exp $    *)
+(*  $Id: package.ml,v 1.42 2003-04-18 17:41:15 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -49,7 +49,15 @@ def_print "\\@heveacomline"
 def_print "\\@heveaversion" Version.version ;
 def_print "\\@hevealibdir" Mylib.libdir
 ;;
+(* Unicode entities given in hexa *)
 
+def_code "\\@unicode"
+ (fun lexbuf ->
+   let arg = get_prim_arg lexbuf in
+   Scanf.sscanf arg "%x" (fun x -> Dest.put ("&#"^string_of_int x^";")))
+;;
+
+     
 (* ``Token'' registers *)
 def_code "\\newtokens"
   (fun lexbuf ->
