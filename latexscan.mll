@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.252 2005-02-17 19:07:41 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.253 2005-02-22 17:45:02 maranget Exp $ *)
 
 
 {
@@ -2411,9 +2411,13 @@ def_code "\\fi" (fun lexbuf -> check_alltt_skip lexbuf)
 let sawdocument = ref false
 ;;
 
+let entities =
+  ref (match !symbol_mode with Entity -> true | _ -> false)
+;;
+
+
 newif_ref "symb" (ref (match !symbol_mode with Symbol -> true | _ -> false)) ;
-newif_ref "entities"
-    (ref (match !symbol_mode with Entity -> true | _ -> false)) ;
+newif_ref "entities" entities ;
 newif_ref "symbtext"
     (ref (match !symbol_mode with SText -> true | _ -> false)) ;
 newif_ref "iso" iso ;
@@ -3202,8 +3206,8 @@ and do_minus lexbuf = match !symbol_mode with
         Dest.put "&mdash;"
       end else
         Dest.put "&ndash;"
-    end else if !in_math then
-      Dest.put "&minus;"      
+    end else if  !in_math && not !raw_chars then
+      Dest.put "&minus;"
     else
       Dest.put_char '-'
 |  _ -> Dest.put_char '-'
@@ -3214,7 +3218,9 @@ def_code "\\@hevea@amper" do_amper ;
 def_code "\\\\"           do_bsbs  ;
 def_code "\\@HEVEA@amper" do_amper ;
 def_code "\\@HEVEA@bsbs"  do_bsbs  ; 
-def_code "\\@hevea@minus" do_minus ;
+def_code "\\@hevea@minus"
+  (if !entities then do_minus
+  else (fun lexbuf -> Dest.put_char '-')) ;
 ()
 ;;
 

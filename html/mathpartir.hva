@@ -35,17 +35,26 @@
 \usepackage {keyval}
 \let\latexcr\\
 %%mathpar
+%Example of fancy styles
+%\newstyle{TABLE.mathpar}{background-color:yellow;border-model:separate;border-spacing:2ex}
+%\newstyle{TD.mprcell}{border-style:solid; border-color:green;}
+%%Actual styles
+\newstyle{TABLE.mathpar}{border-model:separate;border-spacing:2ex}
+\newstyle{TD.mprcell}{border-style:none;}
+\setenvclass{mathpar}{mathpar}
+\setenvclass{mprcell}{mprcell}
 \def\open@mathpar@table
-{\@open{TABLE}{CELLSPACING=0 CELLPADDING=8}}
-\def\mathpar@hspace{\mbox{\qquad}}%
+{\@open{TABLE}{\envclass@attr{mathpar}}}
+%{\@open{TABLE}{CELLSPACING=0 CELLPADDING=8}}
+\def\mathpar@hspace{\mbox{\qquad}}
 \def\mathpar@vspace
-{\@force{TD}\@close{TR}\@open{TR}{}\@open{TD}{align=center}}%
+{\@force{TD}\@close{TR}\@open{TR}{}\@open{TD}{\envclass@attr[ ]{mprcell}ALIGN="center"}}%
 \def\mathpar@hva#1{\ifx#1\and\mathpar@vspace\mathpar@vspace\else\mathpar@hspace\fi}%
 \newenvironment{mathpar}[1][]
   {$$%
   \let\and\mathpar@hspace\let\par\mathpar@vspace\let\\\mathpar@vspace\let\hva\mathpar@hva%
   \open@mathpar@table%
-  \@open{TR}{}\@open{TD}{align=center}}
+  \@open{TR}{}\@open{TD}{\envclass@attr[ ]{mprcell}ALIGN="center"}}
   {\@close{TD}\@close{TR}\@close{TABLE}$$}
 %%%% Type Inference Rules (TIR)
 \newsavebox{\mpr@save@arg}%
