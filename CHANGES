@@ -1,4 +1,5 @@
 version 1.06-3  
+  - Bug hacha, all output now goes into current directory
   - Paragraphs not ok, quick fix (in \\begin and \\end)
   - All document was typeset inside a Latexmacros group !
       -> change \document \enddocument commands
@@ -15,7 +16,7 @@ version 1.06-1
   - patched bugs in info genearation
   - alltt implementation revised. Efficency concern
   - listings package implementation
-  - \def and \let now have TeX semantics
+  - \def and \let now have TeX semantics *IMPORTANT*
   - \toplinks, for prev,up, next links on the root file.
   - Bug for paragraphs inside \@stopoutput.. \@restoreoutput.
   - Bug CamlCode in get.mll lexer. Correction is patchy.

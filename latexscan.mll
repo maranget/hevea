@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.191 2000-07-27 17:29:52 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.192 2000-08-17 14:54:47 maranget Exp $ *)
 
 
 {
@@ -341,10 +341,12 @@ let do_get_this start_lexstate restore_lexstate
   verbose := !verbose - 1;
   let lexer = Lexing.from_string s in
   let r = Dest.to_string (fun () ->
+    if !display then  Dest.open_display () ;
     top_open_group () ;
     make_style () ;
     lexfun lexer ;
-    top_close_group ()) in
+    top_close_group () ;
+    if !display then Dest.close_display ()) in
 
   verbose := !verbose + 1 ;
   if !verbose > 1 then begin
@@ -2369,10 +2371,11 @@ def_code "\\providesavebox"
 
 let caml_print s = CamlCode (fun _ -> Dest.put s)
 
-let do_sbox name body =
+let do_sbox global name body =
   if not (Latexmacros.exists name) then
     warning ("\\sbox on undefined bin ``"^name^"''") ;
-  def name zero_pat (caml_print (get_this_arg main body))
+  (if global then global_def else def)
+    name zero_pat (caml_print (get_this_arg main body))
 ;;
 
 def_code "\\savebox" 
@@ -2382,14 +2385,19 @@ def_code "\\savebox"
     skip_opt lexbuf ;
     skip_opt lexbuf ;
     let body = save_arg lexbuf in
-    do_sbox name body)
+    do_sbox false name body)
 ;;
 
 def_code "\\sbox"
   (fun lexbuf ->
     let name = get_csname lexbuf in
     let body = save_arg lexbuf in
-    do_sbox name body)
+    do_sbox false name body) ;
+def_code "\\gsbox"
+  (fun lexbuf ->
+    let name = get_csname lexbuf in
+    let body = save_arg lexbuf in
+    do_sbox true name body) ;
 ;;
 
 def_code "\\usebox"

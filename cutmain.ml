@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: cutmain.ml,v 1.13 2000-03-28 13:52:55 maranget Exp $" 
+let header = "$Id: cutmain.ml,v 1.14 2000-08-17 14:54:43 maranget Exp $" 
 
 exception Error of string
 ;;
@@ -31,7 +31,9 @@ let main () =
      ("-v", Arg.Unit (fun () -> incr Cut.verbose),
         ", verbose flag")    ]
      (fun s -> filename := s) ("hacha "^Version.version);
-  Cut.name := (try Filename.chop_extension !filename with Invalid_argument _ -> !filename) ;
+  let base = Filename.basename !filename in
+  Cut.name :=
+     (try Filename.chop_extension base with Invalid_argument _ -> base) ;
   let chan = try open_in !filename with Sys_error s -> raise (Error ("File error: "^s)) in
   let buf = Lexing.from_channel chan in
   Location.set !filename buf ;
