@@ -108,9 +108,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Echoing to the image file %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\def\@iopt@def{!*!}
 \newcommand{\@imageopt}[1][!*!]
-{\ifthenelse{\equal{!*!}{#1}}{}
-  {\begin{toimage}[#1]\end{toimage}}}
+{\def\@itmp{#1}\ifx\@itmp\@iopt@def\else\begin{toimage}[#1]\end{toimage}\fi}
 \newcommand{\@imagearg}[1]
   {\begin{toimage}{#1}\end{toimage}}
 \newcommand{\@imagecommand}[2]

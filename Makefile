@@ -11,7 +11,7 @@ CPP=gcc -E -P -x c
 
 HEVEA=./hevea.$(TARGET)
 OCAMLC=ocamlc
-OCAMLCI=ocamlc
+OCAMLCI=$(OCAMLC)
 OCAMLOPT=ocamlopt
 OCAMLLEX=ocamllex
 INSTALL=cp

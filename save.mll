@@ -13,7 +13,7 @@
 open Lexing
 open Misc
 
-let header = "$Id: save.mll,v 1.57 2000-07-07 17:44:46 maranget Exp $" 
+let header = "$Id: save.mll,v 1.58 2000-09-09 16:03:55 maranget Exp $" 
 
 let verbose = ref 0 and silent = ref false
 ;;
@@ -103,9 +103,10 @@ let rec kmp_char delim next i c =
   end
 }
 let command_name = '\\' (( ['@''A'-'Z' 'a'-'z']+ '*'?) | [^ 'A'-'Z' 'a'-'z'])
+let space = [' ''\t''\r']
 
-  rule opt = parse
-| ' '* '\n'? ' '* '['
+rule opt = parse
+| space* '\n'? space* '['
     {put_echo (lexeme lexbuf) ;
     opt2 lexbuf}
 |  eof  {raise Eof}
@@ -134,7 +135,7 @@ and opt2 =  parse
 
 and skip_comment = parse
   | eof       {()}
-  | '\n' ' '* {()}
+  | '\n' space* {()}
   | _         {skip_comment lexbuf}
 
 and check_comment = parse
@@ -142,7 +143,7 @@ and check_comment = parse
   | ""  {()}
 
 and arg = parse
-    ' '+ | '\n'+  {put_echo (lexeme lexbuf) ; arg lexbuf}
+    space+ | '\n'+  {put_echo (lexeme lexbuf) ; arg lexbuf}
   | '{'
       {incr brace_nesting;
       put_echo_char '{' ;
@@ -181,15 +182,15 @@ and rest = parse
       lxm}
   
 and skip_blanks = parse
-| ' '* '\n'
+| space* '\n'
     {seen_par := false ;
     put_echo (lexeme lexbuf) ;
     more_skip lexbuf}
-| ' '*
+| space*
     {put_echo (lexeme lexbuf) ; Out.to_string arg_buff}
 
 and more_skip = parse
-  (' '* '\n' ' '*)+
+  (space* '\n' space*)+
    {seen_par := true ;
    put_echo (lexeme lexbuf) ;
    more_skip lexbuf}
@@ -197,7 +198,7 @@ and more_skip = parse
   {Out.to_string arg_buff}
 
 and skip_equal = parse
-    [' ']* '='? [' ']* {()}
+    space* '='? space* {()}
 
 and arg2 = parse
   '{'         
@@ -225,10 +226,10 @@ and arg2 = parse
     put_both_char c ; arg2 lexbuf}
 
 and csname = parse
-  [' ''\n']+
+  (space|'\n')+
     {(fun get_prim subst ->
       blit_echo lexbuf ; csname lexbuf get_prim subst)}
-| '{'? "\\csname" ' '*
+| '{'? "\\csname" space*
       {(fun get_prim subst_fun ->
         blit_echo lexbuf ;
         let r = incsname lexbuf in
@@ -245,28 +246,19 @@ and incsname = parse
 | eof           {error "End of file in command name"}
 
 and cite_arg = parse
-  ' '* '{'   {cite_args_bis lexbuf}
+  space* '{'   {cite_args_bis lexbuf}
 | ""         {error "No opening ``{'' in citation argument"}
 
 and cite_args_bis = parse
-  [^'}'' ''\n''%'',']* {let lxm = lexeme lexbuf in lxm::cite_args_bis lexbuf}
+  (space|[^'}''\n''%'','])* {let lxm = lexeme lexbuf in lxm::cite_args_bis lexbuf}
 |  '%' [^'\n']* '\n' {cite_args_bis lexbuf}
 | ','         {cite_args_bis lexbuf}
-| [' ''\n']+ {cite_args_bis lexbuf}
+| (space|'\n')+ {cite_args_bis lexbuf}
 | '}'         {[]}
 | ""          {error "Bad syntax for \\cite argument"}
 
-(*
-and macro_names = parse
-  eof {[]}
-| '\\' ((['@''A'-'Z' 'a'-'z']+ '*'?) | [^ 'A'-'Z' 'a'-'z'])
-  {let name = lexeme lexbuf in
-  name :: macro_names lexbuf}
-| _   {macro_names lexbuf}
-*)
-
 and num_arg = parse
-| [' ''\n']+ {(fun get_int -> num_arg lexbuf get_int)}
+| (space|'\n')+ {(fun get_int -> num_arg lexbuf get_int)}
 | ['0'-'9']+ 
     {fun get_int ->
       let lxm = lexeme lexbuf in
@@ -299,7 +291,7 @@ and filename = parse
 | ""             {arg lexbuf}  
 
 and get_limits = parse
-  ' '+          {get_limits lexbuf}
+  space+          {get_limits lexbuf}
 | "\\limits"    {Some Limits}
 | "\\nolimits"  {Some NoLimits}
 | "\\intlimits" {Some IntLimits}
@@ -307,13 +299,13 @@ and get_limits = parse
 | ""            {None}
 
 and get_sup = parse
-| ' '* '^'  {try Some (arg lexbuf) with Eof -> error "End of file after ^"}
+| space* '^'  {try Some (arg lexbuf) with Eof -> error "End of file after ^"}
 | eof       {raise Eof}
 | ""        {None}
 
 
 and get_sub = parse
-| ' '* '_'  {try Some (arg lexbuf) with Eof -> error "End of file after _"}
+| space* '_'  {try Some (arg lexbuf) with Eof -> error "End of file after _"}
 | eof       {raise Eof}
 | ""        {None}
 
@@ -401,7 +393,7 @@ and eat_delim_rec = parse
             Out.to_string echo_buff)}
 
 and skip_delim_init = parse
-| ' '|'\n' {skip_delim_init lexbuf}
+| space|'\n' {skip_delim_init lexbuf}
 | ""       {skip_delim_rec lexbuf}
 
 and skip_delim_rec = parse

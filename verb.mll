@@ -520,7 +520,7 @@ and scan_byline = parse
       !finish () ;
       raise
         (Eof "scan_byline")
-    end}
+    end} 
 
 and listings = parse
 |  eof
@@ -547,12 +547,25 @@ and eat_line = parse
     end}
 | [^'\n']  {eat_line lexbuf}
 | '\n'     {lst_nchars := 0 ; lst_process_newline lexbuf '\n'}
+
+and do_escape = parse
+| eof {}
+| "\\esc"
+    {let arg = save_arg lexbuf in
+    Scan.top_open_block "" "" ;
+    scan_this_arg Scan.main arg ;
+    Scan.top_close_block "" ;
+    do_escape lexbuf}
+| _
+    {let lxm = Lexing.lexeme_char lexbuf 0 in
+    Dest.put (Dest.iso lxm)}
 {
 let _ = ()
 ;;
 let put_char_star = function
   | ' '|'\t' -> Dest.put_char '_' ;
   | c ->  Dest.put (Dest.iso c)
+
 and put_char = function
   |  '\t' -> Dest.put_char ' '
   | c -> Dest.put (Dest.iso c)
@@ -697,6 +710,27 @@ let init_verbatim () =
 register_init "verbatim" init_verbatim 
 ;;
 
+(* The program package for JJL  que j'aime bien *)
+
+let look_escape () =
+  let lexbuf = Lexing.from_string (Out.to_string line_buff) in
+  do_escape lexbuf
+;;
+
+let init_program () =
+  def_code "\\program"
+    (fun lexbuf ->
+      Scan.top_open_block "PRE" "" ;
+      process :=
+         (fun () -> look_escape () ; Dest.put_char '\n') ;
+      finish := look_escape  ;
+      noeof scan_byline lexbuf) ;
+  def_code "\\endprogram" close_verbenv
+;;
+
+register_init "program" init_program
+;;
+    
 
 (* The moreverb package *)
 let tab_val = ref 8

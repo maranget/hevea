@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.193 2000-09-05 12:34:06 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.194 2000-09-09 16:03:48 maranget Exp $ *)
 
 
 {
@@ -2127,8 +2127,15 @@ let extract_if name =
 let def_and_register name f = def name zero_pat (CamlCode f)
 ;;
 
+let tverb name cell lexbuf =
+  if !verbose > 1 then
+  Printf.fprintf stderr
+    "Testing %s -> %b\n" name !cell ;
+  testif cell lexbuf
+;;
+
 let newif_ref name cell =  
-  def_and_register ("\\if"^name) (testif cell) ;
+  def_and_register ("\\if"^name) (tverb name cell) ;
   def_and_register ("\\"^name^"true") (setif cell true) ;
   def_and_register ("\\"^name^"false") (setif cell false) ;
   register_cell name cell ;
@@ -2496,9 +2503,7 @@ def_printcount "\\fnsymbol" fnsymbol_of_int
 ;;
 
 let pad p l s =
-  Printf.fprintf stderr
-    "pad: %s, %d, ``%s''\n" p l s;
-  for i = l-String.length s to 0 do
+  for i = l-String.length s downto 1 do
     Dest.put (Dest.iso_string p)
   done
 ;;
@@ -2710,7 +2715,7 @@ let get_table_attributes border len =
 let open_tabbing lexbuf =
   let lexbuf = Lexstate.previous_lexbuf in
   let lexfun lb =
-    Dest.open_table false (get_table_attributes false Length.Default) ;
+    Dest.open_table false "border=0 cellspacing=0 cellpadding=0" ;
     Dest.new_row ();
     Dest.open_cell default_format 1 0 in
   push stack_table !in_table ;

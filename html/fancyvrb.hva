@@ -47,8 +47,7 @@
 \define@key{fancyvrb}{frame}{\def\verb@frame{#1}}
 \def\verb@frame{none}
 \def\begin@frame@{\@open{TABLE}{BORDER=0 CELLSPACING=0 CELLPADDING=0}\verb@toplabel\@open{TR}{}\@open{TD}{}\@open{TABLE}{\@getprint{\verb@fillcolor} BORDER=0 CELLPADDING=0
-  CELLSPACING=0}\ifverb@top\verb@horiz@line\fi\@open{TR}{}\ifverb@left\verb@vert@line\fi\@open{TD}{}\@open{TABLE}{BORDER=0
-  CELLPADDING="\verb@framesep" CELLSPACING=0}\@open{TR}{}\@open{TD}{}}
+  CELLSPACING=0}\ifverb@top\verb@horiz@line\fi\@open{TR}{}\ifverb@left\verb@vert@line\fi\@open{TD}{}\@open{TABLE}{BORDER=0 CELLPADDING="\verb@framesep" CELLSPACING=0}\@open{TR}{}\@open{TD}{}}
 \def\end@frame@{\@close{TD}\@close{TR}\@close{TABLE}\@close{TD}\ifverb@right\verb@vert@line\fi\@close{TR}\ifverb@bottom\verb@horiz@line\fi\@close{TABLE}\@close{TD}\@close{TR}\verb@bottomlabel\@close{TABLE}}
 \newif\ifverb@left\newif\ifverb@bottom\newif\ifverb@top\newif\ifverb@right
 \def\reset@frame

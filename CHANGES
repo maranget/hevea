@@ -1,3 +1,7 @@
+version 1.06-5
+  - Plein de bugs corrige's (arguments a` , notamment), listings et fancyverb
+  
+version 1.06-4   
 version 1.06-3  
   - Bug hacha, all output now goes into current directory
   - Paragraphs not ok, quick fix (in \\begin and \\end)

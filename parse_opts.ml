@@ -11,7 +11,7 @@
 
 open Misc
 
-let header = "$Id: parse_opts.ml,v 1.21 1999-12-01 19:04:51 maranget Exp $" 
+let header = "$Id: parse_opts.ml,v 1.22 2000-09-09 16:03:54 maranget Exp $" 
 
 type input = File of string | Prog of string
 
@@ -156,4 +156,6 @@ let name_out = match !outname with
   end
 end    
 | x  -> x
+
+
 
