@@ -1,5 +1,7 @@
 exception Error of string
 exception IfFalse
+
+val out_file : Out.t
 type 'a t
 
 val create : unit -> 'a t
@@ -33,7 +35,6 @@ val previous_lexbuf : unit -> Lexing.lexbuf
 val save_lexstate : unit -> unit
 val restore_lexstate : unit -> unit
 val start_lexstate : unit -> unit
-val out_file : Out.t ref
 val prelude : bool ref
 val flushing : bool ref
 val stack_in_math : bool t

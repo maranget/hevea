@@ -9,8 +9,6 @@
 (*                                                                     *)
 (***********************************************************************)
 
-val base : string ref
-
 val start : unit -> unit
 
 val put_char : char -> unit

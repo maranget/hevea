@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: myfiles.ml,v 1.13 1999-03-03 18:08:49 maranget Exp $" 
+let header = "$Id: myfiles.ml,v 1.14 1999-03-12 13:18:07 maranget Exp $" 
 open Misc
 
 exception Error of string
@@ -49,29 +49,24 @@ let do_open_tex filename =
   with Found r -> r
 ;;
 
+
+
 let open_tex filename =
   if !verbose > 1 then
     prerr_endline ("Searching file: "^filename) ;
   if is_except filename then raise Except ;
   if Filename.is_implicit filename then
+    if Filename.check_suffix filename ".tex" then do_open_tex filename
+      else
+        try
+            let name = filename^".tex" in
+            if is_except name then raise Except ;
+            do_open_tex name
+        with Error _ -> do_open_tex filename
+   else
     try
-      do_open_tex filename
-    with Error _ ->
-      if Filename.check_suffix filename ".tex" then
-        raise (Error ("Cannot find: "^filename))
-      else begin
-        let name = filename^".tex" in
-        if is_except name then raise Except ;
-        try do_open_tex name
-        with Error _ -> raise (Error ("Cannot find file: "^filename))
-      end
-  else
-    try filename,open_in filename
-    with Sys_error _ ->
-      if Filename.check_suffix filename ".tex" then
-        raise (Error ("Cannot open: "^filename))
+      if Filename.check_suffix filename ".tex" then filename,open_in filename
       else
         try (filename^".tex"),open_in (filename^".tex") with
-        Sys_error _ -> raise (Error ("Cannot open: "^filename))
-;; 
-
+        Sys_error _ -> filename,open_in filename
+    with Sys_error _ -> raise (Error ("Cannot open: "^filename))

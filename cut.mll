@@ -11,7 +11,7 @@
 
 {
 open Lexing
-let header = "$Id: cut.mll,v 1.13 1999-03-08 18:37:27 maranget Exp $" 
+let header = "$Id: cut.mll,v 1.14 1999-03-12 13:17:55 maranget Exp $" 
 
 let verbose = ref 0
 ;;
@@ -24,10 +24,16 @@ exception Error of string
 
 (* Accumulate all META, LINK and similar tags that appear in the preamble
    in order to output them in the preamble of every generated page. *)
+
+let header_buff = Out.create_buff ()
 let common_headers = ref "";;
-let adjoin_to_header s =
-  common_headers := !common_headers ^ s;
-  ();;
+ 
+let adjoin_to_header s = Out.put header_buff s
+
+and adjoin_to_header_char c = Out.put_char header_buff c
+
+and finalize_header () =
+  common_headers := Out.to_string header_buff
 
 let push s e = s := e:: !s
 and pop s = match !s with
@@ -35,7 +41,7 @@ and pop s = match !s with
 | e::rs -> s := rs ; e
 ;;
 
-let phase = ref 0
+let phase = ref (-1)
 ;;
 
 let name = ref "main"
@@ -64,6 +70,9 @@ and otherout = ref !out
 ;;
 
 let start_phase name =
+  incr phase ;
+  if !verbose > 0 then
+    prerr_endline ("Starting phase number: "^string_of_int !phase);
   outname := name ;
   tocname := name ;
   otheroutname := "" ;
@@ -166,6 +175,7 @@ let put_sec hd title hde out =
 
 
 let put s = Out.put !out s
+and put_char c = Out.put_char !out c
 ;;
 
 let cur_level = ref (Section.value "DOCUMENT")
@@ -333,6 +343,9 @@ rule main = parse
     if String.uppercase arg = "NOW" then !chapter
     else Section.value arg in
   let name = tocline lexbuf in
+  if !verbose > 1 then begin
+    prerr_endline ("TOC "^arg^" "^name)
+  end;
   if !phase > 0 then begin
     if sn < !chapter then begin
        if !cur_level >= !chapter then begin
@@ -448,9 +461,11 @@ rule main = parse
    main lexbuf}
 | "<HEAD" [^'>']* '>'
     {put (lexeme lexbuf);
-     if !phase = 0 
-     then collect_header lexbuf
-     else main lexbuf}
+     if !phase = 0 then begin
+       if !verbose > 0 then prerr_endline "Collect header" ;
+       collect_header lexbuf
+     end else
+       main lexbuf}
 | "</BODY>" _*
    {let lxm = lexeme lexbuf in
    close_all () ;
@@ -458,8 +473,8 @@ rule main = parse
      close_top lxm
    end}
 |  _
-   {let lxm = lexeme lexbuf in
-   if !phase > 0 then put lxm ;
+   {let lxm = lexeme_char lexbuf 0 in
+   if !phase > 0 then put_char lxm ;
    main lexbuf}
 | eof
    {raise (Error ("No </BODY> tag in input file"))}
@@ -467,25 +482,26 @@ rule main = parse
 and collect_header = parse
 | "</HEAD>"
     {let lxm = lexeme lexbuf in
-     put lxm;
-     if !verbose > 1 then
-       prerr_endline ("Header was: " ^ !common_headers ^ ".\n");
+    finalize_header () ;
+     if !verbose > 0 then begin
+       prerr_string "Header is: ``" ;
+       prerr_string !common_headers ;
+       prerr_endline "''"
+     end ;
      main lexbuf}
-| "<TITLE" [^'>']* '>'_ * "</TITLE>"
-    {let title = lexeme lexbuf in
-     put title;
-     collect_header lexbuf}
-| [ ^ '<'] *
-    {let lxm = lexeme lexbuf in
-     put lxm;
-     adjoin_to_header lxm;
-     collect_header lexbuf}
+
+| "<TITLE" [^'>']* '>'
+    {skip_title lexbuf ;
+    collect_header lexbuf}
 | _
-    {let lxm = lexeme lexbuf in
-     put lxm;
-     adjoin_to_header lxm;
+    {let lxm = lexeme_char lexbuf 0 in
+     adjoin_to_header_char lxm;
      collect_header lexbuf}
 
+and skip_title = parse
+|  "</TITLE>" {()}
+|  _          {skip_title lexbuf}
+ 
 and footer = parse
   "</BODY>" _*
   {let lxm = lexeme lexbuf in

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmain.ml,v 1.30 1999-03-08 18:37:31 maranget Exp $" 
+let header = "$Id: latexmain.ml,v 1.31 1999-03-12 13:17:58 maranget Exp $" 
 
 open Misc
 open Parse_opts
@@ -49,31 +49,15 @@ let read_style name =
 ;;
 
 let read_tex name =
-  try open_in name with
-  | Sys_error s -> raise (Myfiles.Error s)
+  let name,chan =  Myfiles.open_tex name in
+  if !verbose > 0 then
+    prerr_endline ("Main input_file: "^name) ;
+  name,chan
 
 let main () = 
 
     verbose := !readverb ;
     read_style "hevea.hva" ;
-
-    begin match !files with
-     [] -> files := ["article.hva"]
-    | _ -> () end;
-
-    let texfile = match !files with
-      [] -> ""
-    | x::rest ->
-       if Filename.check_suffix x ".tex" then begin
-         files := rest ;
-         x
-       end else "" in
-
-    Image.base :=
-     (if !outname <> ""  then  Filename.chop_suffix !outname ".html"
-     else begin match texfile with
-        "" -> !Image.base
-     | _   -> Filename.chop_suffix texfile ".tex" end) ;
 
     let rec do_rec = function
       [] -> ()
@@ -81,26 +65,18 @@ let main () =
        do_rec rest ;
        read_style x in
 
-    do_rec !files ;
+    let styles = match Parse_opts.styles with
+    | [] -> if base_in = "" then ["article.hva"] else []
+    | _  -> Parse_opts.styles in
 
-    let basename = match texfile with "" -> "zorglub"
-      | _ -> Filename.chop_suffix texfile ".tex" in
+    do_rec styles ;
 
-    Location.set_base basename ;
+    Location.set_base base_in ;
 
-    Lexstate.out_file :=
-      if !outname <> "" then
-         Out.create_chan (open_out !outname)
-      else begin match texfile with
-        "" ->  Out.create_chan stdout
-      | s  ->
-         Out.create_chan
-           (open_out (Filename.basename basename^".html")) end ;
-        
-    begin match texfile with
+    begin match base_in with
       "" -> Scan.no_prelude ()
     | _  ->
-       let auxname = Filename.basename basename^".aux" in
+       let auxname = base_in^".aux" in
        try
          let _,auxchan = Myfiles.open_tex auxname in
          let buf = Lexing.from_channel auxchan in
@@ -110,9 +86,10 @@ let main () =
            prerr_endline ("Cannot open aux file: "^auxname)
        end
     end ;
-    let chan = match texfile with "" -> stdin | _ -> read_tex texfile in
+    let input_name,chan =
+      match base_in with "" -> "",stdin | _ -> read_tex base_in in
     let buf = Lexing.from_channel chan in
-    Location.set texfile buf ;
+    Location.set input_name buf ;
     Save.set_verbose !silent !verbose ;
     Scan.main buf ;
     Location.restore () ;

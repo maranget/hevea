@@ -1501,7 +1501,8 @@ ellipse "{\Large\bf Smile!}"
 %HEVEA\imageflush
 \end{center}
 Observe how the \verb+-o+ argument to \hevea{} is used and that
-\texttt{imagen} argument is the output file base name.
+\texttt{imagen} argument is \hevea{} output basename (see
+section~\ref{heveausage} for the full definition of \hevea{} output basename).
 
 
 In the \texttt{gpic} example, modifying user source cannot be totally avoided.
@@ -2866,11 +2867,15 @@ file whose name is given as argument inside a \texttt{verbatim} environment.
 The \texttt{hevea} command interprets its arguments as the names of
 \LaTeX{} source
 files and attempts to process them.
-If an argument \textit{filename} does not have an extension,
-then a first attempt is made to open \textit{filename};
-in case of failure, another attempt to open
-\textit{filename}\texttt{.tex} is made.
-In all cases, filenames that do not contain ``\texttt{/}'' are
+Given an argument \textit{filename} there are two cases~:
+\begin{itemize}
+\item If \textit{filename} is \textit{base}\texttt{.tex}, then a single
+attempt is made to open \textit{filename}.
+\item If \textit{filename} does not have the extension \texttt{.tex},
+then a first attempt is made to open \textit{filename}\texttt{.tex}.
+In case of failure, a second attempt to open  \textit{filename} is made.
+\end{itemize}
+In all cases, implicit filenames are
 searched along \texttt{hevea} search path.
 \texttt{hevea} search path consist in the current, directory ``\texttt{.}'',
 followed by directories specified by the user with the \texttt{-I}
@@ -2879,16 +2884,54 @@ command line option, and by \texttt{hevea} library directory
 \texttt{hevea} library directory compile-time value can be overridden
 by setting the \texttt{HEVEADIR} shell environment variable.
 
-If the last argument has extension \texttt{.tex}, that is, if
-this last argument is \textit{name}\texttt{.tex}, then \textit{name} is
-the input base name and output normally goes into file
-\textit{name}\texttt{.html}.
-Otherwise, there is no input base name, the standard input is read and
+If the last argument has extension \texttt{.tex} or no extension,
+then it is interpreted as the name of the \emph{main input file}.
+In that case two \emph{basenames} are defined~:
+\begin{itemize}
+\item The input basename, \textit{basein},
+is defined as the main input file name,
+with the \texttt{.tex} extension removed when present.
+\item The output basename, \textit{baseout}, is  \textit{basein}
+with leading directories omitted.
+\end{itemize}
+\hevea{} will attempt to load the main input file.
+Ancilary files (such as the \texttt{.aux} file)
+will be searched as \textit{basein}\verb+.+\textit{ext}.
+The output of \hevea{} normally goes to the file \textit{basout}\texttt{.html}.
+If an \textit{image} file is generated (cf. section~\ref{imagen}), its
+name will be \textit{baseout}\texttt{.image.tex}.
+
+Thus, in the simple case where the \texttt{hevea} command is invoked
+as~:
+\begin{verbatim}
+# hevea file.tex
+\end{verbatim}
+The input basename is \texttt{file} and the output basename also is
+\texttt{file}. The main input file is searched along \texttt{hevea}
+search path as \texttt{file.tex}.
+Whereas output goes into the file
+\texttt{file.html} in the current directory.
+
+In the more complicated case where the \texttt{hevea} command is invoked
+as~:
+\begin{verbatim}
+# hevea ./dir/file
+\end{verbatim}
+The input base name is \texttt{./dir/file} and the output basename is
+\texttt{file}. The main input file is loaded by first attempting to
+open file \texttt{./dir/file.tex}, then file~\texttt{dir/file}.
+\html output goes into the file \texttt{file.html} in the current directory.
+
+If there is no command line argument, or if the last command line
+argument has an extension different from \texttt{.tex}, then
+there is neither input base name nor output base name,
+the standard input is read and
 output normally goes to the standard output.
 Please note that this operating mode is just for translating a few
 constructs, the normal way to translate \textit{file}\verb+.tex+ being
 ``\verb+hevea+ \textit{file}\verb+.tex+'' and not
-``\verb+hevea -o+ \textit{file}\verb+.html < + \textit{file}\verb+.tex+''
+``\verb+hevea < + \textit{file}\verb+.tex > +\textit{file}\verb+.html+''
+
 
 The \texttt{article.hva}, \texttt{seminar.hva}, \texttt{book.hva} and \texttt{report.hva}
 base style files from \hevea{} library are special.
@@ -2929,9 +2972,9 @@ These characters are replaced by \html{} entities. This option is
 mostly useful for generating \html{} that will be displayed properly
 by \emph{Netscape Communicator} on a Macintosh.
 \item[{\tt -I} {\it dirname}] Add {\it dirname} to the search path.
-\item[{\tt -o} {\it filename}] Make \texttt{hevea} output go into file {\it
-filename}. By default, \texttt{hevea} output goes into
-\textit{name}\texttt{.html}, where \textit{name} is the input base name.
+\item[{\tt -o} {\it name}] Make \textit{name} the output basename.
+However, if \textit{name} is \textit{base}\texttt{.html}, then
+the output basename is \textit{base}.
 \item[{\tt -help}] Print version number and a short help message.
 \end{description}
 
@@ -2966,7 +3009,7 @@ It is a companion program of \hevea{}, which must have been previously run as:
 or\\
 \texttt{\# hevea}\ldots{} \texttt{-o} \textit{base}\texttt{.html}\ldots\\
 \end{flushleft}
-Then, \textit{base} is \hevea{} base output name.
+(In both cases, \textit{base} is \hevea{} output basename.)
 When told to do so (see section~\ref{imagen})
 \hevea{} echoes part of its input into
 the \textit{base}\texttt{.image.tex} file.

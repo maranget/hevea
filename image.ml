@@ -9,16 +9,16 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: image.ml,v 1.11 1999-03-10 10:46:57 maranget Exp $" 
+let header = "$Id: image.ml,v 1.12 1999-03-12 13:17:56 maranget Exp $" 
 open Misc
 
-let base = ref "image"
+let base = Parse_opts.base_out
 ;;
 
 let count = ref 0
 ;;
 
-let buff = ref (Out.create_chan (open_out "/dev/null"))
+let buff = ref (Out.create_null ())
 ;;
 
 let start () =
@@ -30,14 +30,15 @@ let put s = Out.put !buff s
 and put_char c = Out.put_char !buff c
 ;;
 
-let tmp_name = ref ""
-
+let tmp_name = match base with
+| "" -> "image.tex.new"
+| _ -> base ^ ".image.tex.new"
 
 let open_chan () =
-  tmp_name := !base ^ ".image.tex.new" ;
-  let chan = open_out !tmp_name in
+  let chan = open_out tmp_name in
   Out.to_chan chan !buff ;
   buff := Out.create_chan chan
+
 
 and close_chan () =
   Out.put !buff "\\end{document}\n" ;
@@ -60,10 +61,9 @@ let page () =
     Printf.fprintf stderr "dump image number %d" (n+1) ;
     prerr_endline ""
   end ;
-  (if n = 0 then
-    open_chan()) ;
+  if n = 0 then open_chan() ;
   incr count ;
-  !base^my_string_of_int !count^".gif"
+  base^my_string_of_int !count^".gif"
 ;;
 
 let dump s_open image  lexbuf =
@@ -111,12 +111,11 @@ let changed tmp_name name =
 
 
 let finalize () = 
-  close_chan() ;
-  if !tmp_name <> "" then begin
-    let true_name = !base ^ ".image.tex" in
-    if changed !tmp_name true_name then
-      Sys.rename !tmp_name true_name
+  if !count > 0 then begin
+    close_chan() ;
+    let true_name = Filename.chop_suffix tmp_name ".new" in
+    if changed tmp_name true_name then
+      Sys.rename tmp_name true_name
     else
-      Sys.remove !tmp_name
+      Sys.remove tmp_name
   end
-;;

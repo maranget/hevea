@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: cutmain.ml,v 1.9 1999-03-08 18:37:28 maranget Exp $" 
+let header = "$Id: cutmain.ml,v 1.10 1999-03-12 13:17:55 maranget Exp $" 
 let filename = ref ""
 ;;
 
@@ -32,7 +32,6 @@ let main () =
   Cut.start_phase !outname ;
   Cut.main buf ;
   Location.restore () ;
-  incr Cut.phase ;
   let chan = open_in !filename in
   let buf = Lexing.from_channel chan in
   Location.set !filename buf ;

@@ -53,7 +53,9 @@ open Save
 open Tabular
 open Lexstate
 
-let header = "$Id: latexscan.mll,v 1.68 1999-03-10 10:47:01 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.69 1999-03-12 13:18:02 maranget Exp $" 
+
+module Index = Index.Make (Html)
 
 exception Error of string
 
@@ -952,7 +954,24 @@ let get_style lexfun s =
   let r = Html.to_style (fun () -> lexfun lexer) in
   end_normal display in_math ;
   r
-;;
+
+let check_this lexfun s =
+  if !verbose > 1 then
+    prerr_endline ("check_this: ``"^s^"''");
+  start_normal display in_math ;
+  let save_par = Html.forget_par () in
+  Html.open_block "" "";
+  let r =
+    try
+      scan_this lexfun s ;
+      true
+    with
+    |  x -> false in
+  Html.erase_block "" ;
+  end_normal display in_math ;
+  if !verbose > 1 then
+    prerr_endline ("check_this: ``"^s^"'' = "^sbool r);
+  r
   
 
 (* Image stuff *)
@@ -1214,7 +1233,7 @@ let no_prelude () =
   flushing := true ;
   prelude := false ;
   let _ = Html.forget_par () in () ;
-  Html.set_out !out_file
+  Html.set_out out_file
 ;;
 
 
@@ -1568,7 +1587,7 @@ rule  main = parse
           Image.put "\\pagestyle{empty}\n\\begin{document}\n";
           prelude := false ;
           let _ = Html.forget_par () in () ;
-          Html.set_out !out_file
+          Html.set_out out_file
         end ;
         let lexfun = match env with
           "program" | "verbatim" ->
@@ -2095,7 +2114,10 @@ rule  main = parse
           let save_last_closed = Html.get_last_closed () in
           let tag = subst_opt "default" subst lexbuf in
           let arg = subst_arg subst lexbuf in
-          Index.treat tag arg ;
+          begin try
+            Index.treat (check_this main) tag arg
+          with Index.Error s -> raise (Error s)
+          end ;
           Html.set_last_closed save_last_closed ;
           main lexbuf
       | "\\@printindex" ->
@@ -2448,7 +2470,7 @@ and verbenv = parse
 | _   { Html.put (Html.iso (lexeme_char lexbuf 0)) ; verbenv lexbuf}
 
 and inverb = parse
- _
+|  _
   {let c = lexeme_char lexbuf 0 in
   if c = !verb_delim then begin
     Html.close_group () ;
@@ -2458,6 +2480,9 @@ and inverb = parse
     Html.put (Html.iso c) ;
     inverb lexbuf
   end}
+| eof {raise
+        (Error ("End of file inside ``\\verb"^
+                String.make 1 !verb_delim^"'' construct"))}
 
 and verblatex = parse
   "\\end"

@@ -8,11 +8,23 @@
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
 (***********************************************************************)
+module type T =
+  sig
+    exception Error of string
+    val newindex : string -> string -> string -> unit
+    val treat: (string -> bool) -> string -> string -> unit
+    val print: (string -> unit) -> string -> unit
+  end
 
-let header = "$Id: index.ml,v 1.17 1999-03-03 18:08:39 maranget Exp $" 
+module Make (Html : OutManager.S) =
+struct
+
+let header = "$Id: index.ml,v 1.18 1999-03-12 13:17:57 maranget Exp $"
 open Misc
 open Parse_opts
 open Entry
+
+exception Error of string
 
 let comp (l1,p1) (l2,p2) =
 
@@ -114,24 +126,24 @@ let newindex tag suf name =
             try read_index (Lexing.from_string arg) 
             with NoGood _ -> raise (NoGood arg) in
           k::do_rec ()
-        with Entry.Fini -> []
+        with
+        | Entry.Fini -> []
         | NoGood arg -> begin
-           if not !silent then begin
-             Location.print_pos () ;
-             prerr_endline
-             ("Warning, bad index arg syntax in file: "^filename^
-             " arg is "^arg)
-           end ;
-           bad_entry::do_rec ()
+             Parse_opts.warning
+              ("Warning, bad index arg syntax in file: "^filename^
+               " arg is "^arg) ;
+            bad_entry::do_rec ()
         end in
 
         let r = do_rec () in
         if !verbose > 0 then
           prerr_endline ("Index file: "^fullname^" succesfully read");
         Yes (Array.of_list r)     
-      with  Myfiles.Error msg -> begin
-        prerr_endline ("Index: "^msg^", I try to manage") ;
-        No end
+      with
+      | Myfiles.Error msg -> begin
+          Parse_opts.warning
+            ("Index: "^msg^", I try to manage") ;
+          No end
       | Myfiles.Except -> begin
         if !verbose > 0 then
           prerr_endline ("Not reading file: "^filename);
@@ -144,7 +156,23 @@ let newindex tag suf name =
 ;;
 
 
-let treat tag arg =
+let check_key lexcheck ((l,p),_) =
+  let rec check_rec xs ys = match xs,ys with
+    | [],[] -> true
+    | x::xs,""::ys ->
+        lexcheck x &&
+        check_rec xs ys
+    | _::xs,y::ys ->
+        lexcheck y &&
+        check_rec xs ys
+    | _,_ -> assert false in
+  let r = check_rec l p in
+  if not r then begin
+    raise (Error ("Index key ``"^pretty_key (l,p)^"'' is incorrect")) ;
+  end ;
+  r
+
+let treat lexcheck tag arg =
   try
     if !verbose > 2 then prerr_endline ("Index.treat with arg: "^arg) ;
     let name,all,table,count,idxstruct = Hashtbl.find itable tag in
@@ -164,24 +192,19 @@ let treat tag arg =
     if !verbose > 2 then
       prerr_endline ("Finally arg is: "^pretty_entry key) ;
     let label = ("@"^tag^string_of_int !count) in
-    if key <> bad_entry then begin
+    if key <> bad_entry && check_key lexcheck key then begin
       Html.loc_name label "" ;
       let key,macro = key in
       Hashtbl.add table key (label,!count,macro) ;
       all := add key !all
-    end else if not !silent then begin
-      Location.print_pos () ;
-      prerr_endline
-        ("Warning, bad index arg syntax: "^arg)
-    end ;
+    end else 
+      Parse_opts.warning ("Warning, bad index arg syntax: "^arg) ;
     count := !count + 1 ;
     if !verbose > 2 then
       prerr_endline ("Treat out: count="^string_of_int !count)
   with Not_found -> begin
-    if not !silent || !verbose > 0 then begin
-      Location.print_pos () ;
-      prerr_endline ("Index: "^tag^" is undefined, makeindex or newindex is missing")
-    end
+    Parse_opts.warning
+      ("Index: "^tag^" is undefined, makeindex or newindex is missing")
   end
 ;;
 
@@ -264,3 +287,4 @@ let print main  tag =
 ;;
 
   
+end

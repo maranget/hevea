@@ -1,6 +1,6 @@
 {
 open Lexing
-let header = "$Id: length.mll,v 1.3 1999-03-02 18:20:26 maranget Exp $" 
+let header = "$Id: length.mll,v 1.4 1999-03-12 13:18:06 maranget Exp $" 
 
 exception No
 ;;
@@ -11,7 +11,7 @@ let font = 10
 ;;
 let chars_per_line = 80
 ;;
-let font_float = float_of_int font
+let font_float = float font
 ;;
 
 let mk_absolute x = Absolute (truncate (0.5 +. x))

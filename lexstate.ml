@@ -1,6 +1,6 @@
-open Misc
+let header =  "$Id: lexstate.ml,v 1.5 1999-03-12 13:18:06 maranget Exp $"
 
-let header = "$Id"
+open Misc
 
 exception Error of string
 exception IfFalse
@@ -172,7 +172,9 @@ let start_lexstate () =
   eat_space := false
 ;;
 
-let out_file = ref (Out.create_null ())
+let out_file = match Parse_opts.name_out with
+| "" -> Out.create_chan stdout
+| x  -> Out.create_chan (open_out x)
 ;;
 
 let prelude = ref true

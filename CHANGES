@@ -1,10 +1,11 @@
 version 1.03-1
+  - Optimized the regexps for headers in hacha.
   - A new ``image'' file is generated only when its content changed
     w.r.t. hevea previous run
-  - macros ``centering'', ``raggedleft'' and ``raggedright''. q
+  - macros ``centering'', ``raggedleft'' and ``raggedright''
   - integrate the ``snippet'' plugin (by Christian.Queinnec@lip6.fr)
   - change computation of values (integer and boolean)
-  - space optimization of size changes
+  - optimization of size changes, in term of the generated HTML size
   - commands \ifthenelse and \equal from the ifthenelse package
   - compatibility with the ``array'' package
   - html.sty changed into hevea.sty
