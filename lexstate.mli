@@ -77,6 +77,7 @@ val from_ok : ok * subst -> string * subst
 
 val save_arg : Lexing.lexbuf -> string * subst
 val save_filename : Lexing.lexbuf -> string * subst
+val save_verbatim : Lexing.lexbuf -> string * subst
 val save_opt : string -> Lexing.lexbuf -> string * subst
 val save_opts : string list -> Lexing.lexbuf -> (ok * subst) list
 

@@ -1,4 +1,4 @@
-\@ifundefined{\@base}{\typeout{``fancysection.hva'' must be loaded after base style}\endinput}{}
+\@ifundefined{@base}{\typeout{``fancysection.hva'' must be loaded after base style}\endinput}{}
 %%% Color section
 \def\@color{120}%% green
 \definecolor{part}{hsv}{\@color, 1, .8}

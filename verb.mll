@@ -35,9 +35,12 @@ rule inverb = parse
     Dest.put (Dest.iso c) ;
     inverb lexbuf
   end}
-| eof {raise
-        (Fatal ("End of file inside ``\\verb"^
-                String.make 1 !verb_delim^"'' construct"))}
+| eof
+    {if not (empty stack_lexbuf) then
+      let lexbuf = previous_lexbuf () in
+      inverb lexbuf
+    else
+      raise (VError ("End of file after \\verb"))}
 
 and start_inverb = parse
 | _
@@ -139,7 +142,9 @@ and latex2html_latexonly = parse
 let open_verb lexbuf =
   Dest.open_group "CODE" ;
   Scan.new_env "*verb" ;
-  start_inverb lexbuf
+  try start_inverb lexbuf with
+  | Eof s -> raise (VError s)
+
 
 let open_verbenv lexbuf =
   Scan.top_close_block "" ;

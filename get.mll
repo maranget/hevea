@@ -18,7 +18,7 @@ open Lexstate
 open Stack
 
 (* Compute functions *)
-let header = "$Id: get.mll,v 1.12 1999-10-05 17:02:21 maranget Exp $"
+let header = "$Id: get.mll,v 1.13 1999-10-06 17:18:46 maranget Exp $"
 
 exception Error of string
 
@@ -96,14 +96,10 @@ rule result = parse
     push_int
       (int_of_string ("0x"^String.sub lxm 1 (String.length lxm-1))) ;
     result lexbuf}
-| '`' '\\'  [^ 'A'-'Z' 'a'-'z']
-    {let lxm = lexeme lexbuf in
-    push_int (Char.code lxm.[2]);
+| '`'
+    {let token = Subst.subst_csname lexbuf in
+    after_quote (Lexing.from_string token) ;
     result lexbuf}
-| '`' _
-    {let lxm = lexeme lexbuf in
-    push_int (Char.code lxm.[1]);
-    result lexbuf} 
 |  "true"
     {push bool_stack true ;
     result lexbuf}
@@ -213,6 +209,17 @@ rule result = parse
 | _   {raise (Error ("Bad character in Get.result: ``"^lexeme lexbuf^"''"))}
 | eof {()}
 
+and after_quote = parse
+|  '\\'  [^ 'A'-'Z' 'a'-'z'] eof
+    {let lxm = lexeme lexbuf in
+    push_int (Char.code lxm.[1]);
+    result lexbuf}
+|  _ eof
+    {let lxm = lexeme lexbuf in
+    push_int (Char.code lxm.[0]);
+    result lexbuf} 
+| ""
+    {Misc.fatal "Cannot understand `-like numerical argument"}
 {
 let init latexget latexregister latexopenenv latexcloseenv =
   get_this := latexget ;

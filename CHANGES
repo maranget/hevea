@@ -1,5 +1,9 @@
 
 version 1.05-6
+  - implemented the ``url'' package and hate it.
+  - new management of pending mods in html.ml,
+    cancellation is done on a per-color basis -> more or less efficient ?
+  - Added many colors (hsv, named color models)
   - new panic mode, (old mode sometimes made hevea loop for ever)
   - new fancyarticle.hva style for the manual
   - introduced \@hr -> <HR>  

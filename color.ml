@@ -1,3 +1,19 @@
+(***********************************************************************)
+(*                                                                     *)
+(*                          HEVEA                                      *)
+(*                                                                     *)
+(*  Luc Maranget, projet PARA, INRIA Rocquencourt                      *)
+(*                                                                     *)
+(*  Copyright 1998 Institut National de Recherche en Informatique et   *)
+(*  Automatique.  Distributed only by permission.                      *)
+(*                                                                     *)
+(***********************************************************************)
+
+let header = "$Id: color.ml,v 1.6 1999-10-06 17:18:45 maranget Exp $" 
+
+let default_color = "#000000"
+;;
+
 let table = Hashtbl.create 17
 ;;
 
@@ -108,10 +124,11 @@ let retrieve clr =
     Hashtbl.find table clr
   with Not_found ->
     Misc.warning ("Colors.retrieve, unknown color: "^clr);
-    ""
+    default_color
 ;;
 
 
 let define_named name mdl value = define ("named@"^name) mdl value
 ;;
 
+let remove clr = Hashtbl.remove table clr

@@ -43,7 +43,7 @@ open Lexstate
 open Stack
 open Subst
 
-let header = "$Id: latexscan.mll,v 1.139 1999-10-04 08:00:59 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.140 1999-10-06 17:18:51 maranget Exp $" 
 
 
 let sbool = function
@@ -68,15 +68,23 @@ let if_level = ref 0
 
 let cur_env = ref ""
 and macros = ref []
+and after = ref [] 
 and stack_env = Stack.create "stack_env"
 and env_level = ref 0
 ;;
 
 
 let macro_register name =
-  if !verbose > 1 then
-    prerr_endline ("Registering macro: "^name);
-  if !env_level > 0 then macros := name :: !macros
+  if !env_level > 0 then begin
+    if !verbose > 1 then
+      prerr_endline ("Registering macro: "^name);
+    macros := name :: !macros
+  end
+;;
+
+let fun_register f =
+  if !env_level > 0 then
+    after := f :: !after
 ;;
 
 let macros_unregister () =
@@ -84,7 +92,11 @@ let macros_unregister () =
    (fun name ->
      if !verbose > 1 then
        prerr_endline ("Unregistering macro: "^name) ;
-     Latexmacros.unregister name) !macros
+     Latexmacros.unregister name) !macros ;
+  let rec do_rec = function
+    | [] -> ()
+    | f :: rest -> do_rec rest ; f () in
+  do_rec !after
 ;;
 
 let inc_size i =
@@ -128,10 +140,10 @@ let top_close_display () =
 
 (* Latex environment stuff *)
 let new_env env =
-  push stack_env (!cur_env,!macros) ;
+  push stack_env (!cur_env,!macros, !after) ;
   Location.push_pos () ;
   cur_env := env ;
-  macros := [] ;
+  macros := [] ; after := [] ;
   if env <> "document" then incr env_level ;
   if !verbose > 1 then begin
     Location.print_pos () ;
@@ -158,10 +170,11 @@ let close_env env  =
   end ;
   if env = !cur_env then begin  
     if env <> "document" then decr env_level ;
-    let e,m = pop stack_env in    
+    let e,m,a = pop stack_env in    
     cur_env := e ;
     macros_unregister () ;
     macros := m ;
+    after := a ;
     Location.pop_pos ()
   end else
     error_env env !cur_env
@@ -655,7 +668,7 @@ let start_other_scan env lexfun lexbuf =
   if !verbose > 1 then begin
     prerr_endline ("Start other scan ("^env^")") ;
     Stack.pretty
-      (fun (x,_) -> x) stack_env ;
+      (fun (x,_,_) -> x) stack_env ;
     prerr_endline ("Current env is: ``"^ !cur_env^"''") ;
     pretty (fun x -> x) stack_entry
   end;
@@ -675,7 +688,7 @@ let complete_scan main lexbuf =
   top_close_block "" ;
   if !verbose > 1 then begin
     prerr_endline "Complete scan" ;
-    Stack.pretty (fun (x,_) -> x) stack_env ;
+    Stack.pretty (fun (x,_,_) -> x) stack_env ;
     prerr_endline ("Current env is: ``"^ !cur_env^"''")
   end
 ;;
@@ -684,7 +697,7 @@ let complete_scan main lexbuf =
 let stop_other_scan comment main lexbuf =
   if !verbose > 1 then begin
     prerr_endline "Stop image: env stack is" ;
-    Stack.pretty  (fun (x,_) -> x) stack_env ;
+    Stack.pretty  (fun (x,_,_) -> x) stack_env ;
     prerr_endline ("Current env is: ``"^ !cur_env^"''")
   end;
   let _ = pop stack_entry in
@@ -1254,6 +1267,20 @@ and get_prim_opt lexbuf =
   let arg = save_opt "!*!" lexbuf in
   get_prim arg
 
+let def_code name f =
+  try
+    Latexmacros.def_code name f ;
+    macro_register name
+  with
+  | Failed -> ()
+
+and redef_code name f =
+  try
+    Latexmacros.redef_code name f ;
+    macro_register name
+  with
+  | Failed -> ()
+;;
 
 let def_fun name f =
   def_code name
@@ -1551,26 +1578,47 @@ let get_num_arg lexbuf =
   Save.num_arg lexbuf (fun s -> Get.get_int (s,get_subst ()))
 ;;
 
+
+let top_plain c =
+  if not (is_plain c) then begin
+    set_plain c ;
+    fun_register (fun () -> unset_plain c)
+  end
+
+and top_unplain c =
+  if is_plain c then begin
+    unset_plain c ;
+    fun_register (fun () -> set_plain c)
+  end
+;;
+
 def_code "\\catcode"
    (fun lexbuf ->
      let char = Char.chr
          (Get.get_int (Save.with_delim "=" lexbuf,get_subst ()))in
      let code = get_num_arg lexbuf in
      begin match char,code with
-     | '\\',0  -> set_plain '\\'
-     | '\\',_  -> raise (Fatal "Suicide: changing escape char catcode!")
-     | ('{',1) | ('}',2) | ('$',3) | ('&' ,4) |
+     | ('\\',0) | ('{',1) | ('}',2) | ('$',3) | ('&' ,4) |
        ('#',6) | ('^',7) | ('_',8) | ('~',13) |
-       ('%',14) -> set_plain char
+       ('%',14) -> top_plain char
      | ('{',(11|12)) | ('}',(11|12)) | ('$',(11|12)) | ('&' ,(11|12)) |
        ('#',(11|12)) | ('^',(11|12)) | ('_',(11|12)) | ('~',(11|12)) |
-       ('%',(11|12)) -> unset_plain char
+       ('%',(11|12)) | ('\\',(11|12)) -> top_unplain char
      | _ ->
          warning "This \\catcode operation is not permitted"
      end ;
      main lexbuf)
 ;;
-    
+
+def_code "\\chardef"
+  (fun lexbuf ->
+    let csname = Subst.subst_csname lexbuf in
+    Save.skip_equal lexbuf ;
+    let i = get_num_arg lexbuf in
+    macro_register csname ;
+    Latexmacros.silent_def csname 0 (Subst (string_of_int i)))
+;;
+
 (* Complicated use of output blocks *)
 def_code "\\left"
   (fun lexbuf ->
@@ -1675,8 +1723,12 @@ def_code "\\@notags"
   (fun lexbuf ->
           let arg = save_arg lexbuf in
           let arg = get_this_arg main arg in
-          let buff = Lexing.from_string arg in
-          Dest.put (Save.tagout buff)  )
+          prerr_endline arg ;
+          let r =
+            let buff = Lexing.from_string arg in
+            Save.tagout buff in
+          prerr_endline r ;
+          Dest.put r)
 ;;
 def_code "\\@anti"
   (fun lexbuf ->
@@ -1880,6 +1932,7 @@ def_code "\\definecolor"
     let value = get_prim_arg lexbuf in
     Image.put "\\definecolor" ;
     Image.put (Save.get_echo ()) ;
+    fun_register (fun () -> Color.remove clr) ;
     Color.define clr mdl value )
 ;;
 
@@ -1889,8 +1942,9 @@ def_code "\\DefineNamedColor"
     let clr = get_prim_arg lexbuf in
     let mdl = get_prim_arg lexbuf in
     let value = get_prim_arg lexbuf in
+    fun_register (fun () -> Color.remove clr) ;
     Color.define clr mdl value ;
-    Color.define_named clr mdl value )
+    Color.define_named clr mdl value)
 ;;
 
 def_code "\\@getcolor"
@@ -2337,10 +2391,16 @@ def_code "\\vspace"  (fun lexbuf -> do_space true lexbuf)
 ;;
 
 (* Explicit groups *)
-def_code "\\begingroup" (fun _ -> new_env "command-group")
+def_code "\\begingroup"
+  (fun lexbuf  ->
+    new_env "command-group" ; top_open_block "" "" ;
+    check_alltt_skip lexbuf)
 ;;
 
-def_code "\\endgroup" (fun _ -> close_env !cur_env)
+def_code "\\endgroup"
+  (fun lexbuf  ->
+    top_close_block ""  ; close_env !cur_env ;
+    check_alltt_skip lexbuf)
 ;;
 
 (* alltt *)
@@ -2681,6 +2741,42 @@ quotes *)
 (* put it back into the input stream *)
      scan_this main cmd)
 ;;
+
+def_code "\\@Url"
+  (fun lexbuf ->
+    let url,_ = save_verbatim lexbuf in
+    for i = 0 to String.length url - 1 do
+      Dest.put (Dest.iso url.[i])
+    done)
+;;
+def_code "\\Url"
+  (fun lexbuf ->
+    Save.start_echo () ;
+    let _ = save_verbatim lexbuf in
+    let arg = Save.get_echo () in
+    scan_this main ("\\UrlFont\\UrlLeft\\@Url"^arg^"\\UrlRight\\endgroup"))
+;;
+
+        
+def_code "\\urldef"
+   (fun lexbuf ->
+     Save.start_echo () ;
+     let name = subst_csname lexbuf in
+     let url_macro = subst_csname lexbuf in
+     let true_args = Save.get_echo () in
+     Save.start_echo () ;
+     let _ = save_verbatim lexbuf in
+     let arg = Save.get_echo () in
+     if !env_level > 0 then begin
+       Image.put "\\urldef" ;
+       Image.put true_args ;
+       Image.put arg
+     end ;
+     let what = get_this main (url_macro^arg) in
+     def_print name what)
+;;
+         
+
 
 Get.init
       (fun nostyle s ->

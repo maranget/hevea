@@ -34,7 +34,7 @@
 \newif\ifhevea
 \heveatrue
 %%% HTML related stuff (TEX equivalents are in the hevea.sty file)
-\def\@url#1#2{{\@nostyle\@print{<A HREF="}#1\@print{">}}{#2}{\@nostyle\@print{</A>}}}
+\def\@url#1#2{{\@nostyle\@print{<A HREF="}\@notags{#1}\@print{">}}{#2}{\@nostyle\@print{</A>}}}
 \def\url#1#2{\@url{#1}{#2}}
 \def\footurl#1#2{\@url{#1}{#2}}
 \def\home#1{\char126#1}
@@ -487,7 +487,7 @@
 \texdef\thefootnote{\arabic{footnote}}%
 \setcounter{footnote}{0}%
 }{%
-\@footnoteflush{document}%
+\@clearstyle\@footnoteflush{document}%
 {\@nostyle\@print{<!--HTMLFOOT-->
 }}%
 \usebox{\@htmlfoot}%
@@ -636,7 +636,7 @@
 %%%%%%%%%%%%%%
 %%% A few if commands
 \newcommand{\IfFileExists}[3]{\ifthenelse{\@fileexists{#1}}{#2}{#3}}
-\newcommand{\@ifundefined}[3]{\ifthenelse{\@commandexists{#1}}{#3}{#2}}
+\newcommand{\@ifundefined}[3]{\ifthenelse{\@commandexists\csname#1\endcsname}{#3}{#2}}
 %%% Scientific Word
 \def\swEXT{.gif}  %graphics extension
 \def\swFRAME#1{\imgsrc{#1\swEXT}}

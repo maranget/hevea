@@ -12,7 +12,7 @@
 {
 open Lexing
 
-let header = "$Id: save.mll,v 1.44 1999-09-11 18:02:52 maranget Exp $" 
+let header = "$Id: save.mll,v 1.45 1999-10-06 17:18:57 maranget Exp $" 
 
 let verbose = ref 0 and silent = ref false
 ;;
@@ -123,19 +123,14 @@ and arg = parse
   | eof    {raise Eof}
   | ""     {raise (Error "Argument expected")}
 
-and arg_verbatim = parse
-  | '{'
-      {start_echo();
-       in_arg_verbatim lexbuf}
-  | ""
-      {raise (Error "Ill starting verbatim Arg")}
 
-and in_arg_verbatim = parse
-  | '}'
-      {get_echo()}
-  | _
-      {put_echo (lexeme lexbuf);
-       in_arg_verbatim lexbuf}
+and first_char = parse
+  | _ 
+      {let lxm = lexeme_char lexbuf 0 in
+      put_echo_char lxm ;
+      lxm}
+  | eof {raise Eof}
+
 
 and skip_blanks = parse
 | ' '* '\n'
@@ -231,6 +226,10 @@ and num_arg = parse
 | '`' '\\' _
     {fun get_int ->let c = lexeme_char lexbuf 2 in
     Char.code c}
+| '`' '#' ['1'-'9']
+    {fun get_int ->
+      let lxm = lexeme lexbuf in
+      get_int (String.sub lxm 1 2)}
 | '`' _
     {fun get_int ->let c = lexeme_char lexbuf 1 in
     Char.code c}
@@ -391,4 +390,13 @@ and skip_delim delim lexbuf =
 let skip_blanks_init lexbuf =
   let _ = skip_blanks lexbuf in
   ()
+
+let arg_verbatim lexbuf = match first_char lexbuf with
+  | '{' ->
+       incr brace_nesting ;
+       arg2 lexbuf
+  | c ->
+      let delim = String.make 1 c in
+      with_delim delim lexbuf
+        
 } 
