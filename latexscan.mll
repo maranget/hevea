@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.212 2001-06-06 16:52:47 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.213 2001-07-13 07:43:09 maranget Exp $ *)
 
 
 {
@@ -1355,10 +1355,14 @@ def_code "\\@hevea@newline"
        end)
 ;;
 
+let warn_under = ref true
+;;
+
 let sub_sup lxm lexbuf =
   if effective !alltt || not (is_plain lxm) then Dest.put_char lxm
   else if not !in_math then begin
-    warning ("``"^Char.escaped lxm^"''occuring outside math mode") ;
+    if !warn_under then
+      warning ("``"^Char.escaped lxm^"''occuring outside math mode") ;
     Dest.put_char lxm
   end else begin
     let sup,sub = match lxm with
@@ -2255,6 +2259,7 @@ newif_ref "fixpoint" fixpoint ;
 newif_ref "alltt@loaded" alltt_loaded ;
 newif_ref "filter" (ref filter) ;
 newif_ref "@sawdocument" sawdocument ;
+newif_ref "@warnunder" warn_under ;
 def_code "\\iftrue" (testif (ref true)) ;
 def_code "\\iffalse" (testif (ref false))
 ;;
