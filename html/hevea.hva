@@ -49,7 +49,7 @@
 \newcommand{\frq}{\@print{&#8250;}}
 \fi
 %%% Logos
-\def\TeX{\@print{TeX}}
+\def\TeX{\@print{T<sub>E</sub>X}}
 \def\LaTeX{\@print{L<sup>A</sup>T<sub>E</sub>X}}
 \def\LaTeXe{\mbox{\@print{L<sup>A</sup>T<sub>E</sub>X}~$2\epsilon$}}
 \newcommand{\hevea}{\@print{H}{\@incsize{-1}\@print{<sup>E</sup>}}\@print{V}%
