@@ -1,20 +1,18 @@
 LATEX=latex
 GPIC=gpic
-HTMLGEN=hevea
-HTMLCUT=hacha
+HEVEA=hevea
+HACHA=hacha
 IMAGEN=imagen
-DOCDIR=$(HOME)/public_html/hevea/doc
-all: manual.dvi index.html
+HTMLDIR=$(HOME)/public_html/hevea
+DOCDIR=$(HTMLDIR)/doc
 
-install:
-	-mkdir $(DOCDIR)
-	cp *.html *.gif $(DOCDIR)
+all: manual.dvi index.html
 
 tmp.tex: manual.tex
 	$(GPIC) -t < manual.tex > tmp.tex
 
 manual.html: manual.sty tmp.tex
-	${HTMLGEN} manual.sty tmp.tex -o manual.html
+	${HEVEA} manual.sty tmp.tex -o manual.html
 	${IMAGEN} manual
 
 manual.dvi: tmp.tex
@@ -23,10 +21,43 @@ manual.dvi: tmp.tex
 	mv tmp.dvi manual.dvi
 
 index.html: manual.html
-	$(HTMLCUT)  manual.html
+	$(HACHA) manual.html
+
+############ Installation stuff
+install:
+	-mkdir $(DOCDIR)
+	cp iso.html symbol.html index.html manual[0-9][0-9][0-9].html *.gif $(DOCDIR)
+
+############# Release stuff
+VERSIONFILE=../version.ml
+version:: $(VERSIONFILE)
+	- rm -f version.make version.tex
+	sed -n -e 's/^let version = "\(.*\)".*$$/\\def\\heveaversion{\1}/p' $(VERSIONFILE) > version.tex
+	sed -n -e 's/^let version = "\(.*\)".*$$/VERSION=\1/p' $(VERSIONFILE) > version.make
+	sed -n -e 's/^let version = "\(.\)\.\(.*\)".*$$/RELEASETAG=release-\1-\2/p' $(VERSIONFILE) >> version.make
+
+
+include version.make
+
+RELEASEDIR=/usr/tmp
+RELEASENAME=hevea-$(VERSION)
+
+dorelease:
+	cd $(RELEASEDIR) ; rm -rf $(RELEASENAME) ;\
+	cvs export  $(RELEASEOPT) -l htmlgen ;\
+	mv htmlgen $(RELEASENAME) ;\
+	tar cfo $(RELEASENAME).tar ./$(RELEASENAME) ;\
+	gzip -best $(RELEASENAME).tar
+
+release:
+	$(MAKE) $(MFLAGS) dorelease RELEASEOPT="-t $(RELEASETAG)"
+
+testrelease:
+	$(MAKE) $(MFLAGS) dorelease RELEASEOPT="-D now"
 
 clean:
 	rm -f *~ *.aux *.log *.toc
 
 cleanall: clean
-	rm -f manual.dvi *.html *_motif.gif  manual*.gif tmp.tex manual.image.tex
+	rm -f manual.dvi manual[0-9][0-9][0-9].html *_motif.gif \
+	manual*.gif tmp.tex manual.image.tex

@@ -1,3 +1,15 @@
+(***********************************************************************)
+(*                                                                     *)
+(*                          HEVEA                                      *)
+(*                                                                     *)
+(*  Luc Maranget, projet PARA, INRIA Rocquencourt                      *)
+(*                                                                     *)
+(*  Copyright 1998 Institut National de Recherche en Informatique et   *)
+(*  Automatique.  Distributed only by permission.                      *)
+(*                                                                     *)
+(***********************************************************************)
+
+let header = "$Id: parse_opts.ml,v 1.6 1998-07-21 11:18:40 maranget Exp $" 
 let verbose = ref 0
 and readverb = ref 0
 ;;

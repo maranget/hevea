@@ -1,3 +1,15 @@
+(***********************************************************************)
+(*                                                                     *)
+(*                          HEVEA                                      *)
+(*                                                                     *)
+(*  Luc Maranget, projet PARA, INRIA Rocquencourt                      *)
+(*                                                                     *)
+(*  Copyright 1998 Institut National de Recherche en Informatique et   *)
+(*  Automatique.  Distributed only by permission.                      *)
+(*                                                                     *)
+(***********************************************************************)
+
+let header = "$Id: out.ml,v 1.4 1998-07-21 11:18:40 maranget Exp $" 
 type buff = {
   mutable buff : string;
   mutable bp : int;

@@ -1,3 +1,14 @@
+(***********************************************************************)
+(*                                                                     *)
+(*                          HEVEA                                      *)
+(*                                                                     *)
+(*  Luc Maranget, projet PARA, INRIA Rocquencourt                      *)
+(*                                                                     *)
+(*  Copyright 1998 Institut National de Recherche en Informatique et   *)
+(*  Automatique.  Distributed only by permission.                      *)
+(*                                                                     *)
+(***********************************************************************)
+
 {
 open Parse_opts
 open Lexing
@@ -5,6 +16,8 @@ open Myfiles
 open Latexmacros
 open Html
 open Save
+
+let header = "$Id: latexscan.mll,v 1.31 1998-07-21 11:18:36 maranget Exp $" 
 
 let push s e = s := e:: !s
 and pop s = match !s with

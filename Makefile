@@ -1,14 +1,13 @@
+################## Configuration parameters
 # Compile using ocamlopt, to use ocamlc set TARGET=byte
 TARGET=opt
 # Library directory of hevea
 LIBDIR=/usr/local/lib/hevea
-# A replacement for /lib/cpp
-CPP=gcc -E -P -x c 
 # Where to install programms
 BINDIR=/usr/local/bin
-HTMLDIR=$(HOME)/public_html/hevea
-
-include version.make
+# A replacement for /lib/cpp
+CPP=gcc -E -P -x c 
+############### End of configuration parameters
 
 HEVEA=./hevea.$(TARGET)
 OCAMLC=ocamlc
@@ -46,15 +45,6 @@ install-byte: install-lib
 	$(INSTALL) hacha.byte $(BINDIR)/hacha
 	$(INSTALL) imagen $(BINDIR)
 
-docu:
-	cd doc ; $(MAKE) $(MFLAGS)
-	cd examples ; $(MAKE) $(MFLAGS)
-
-install-doc:
-	$(INSTALL) iso.html symbol.html $(HTMLDIR) 
-	cd doc ; $(MAKE) $(MFLAGS) DOCDIR=$(HTMLDIR)/doc install
-	-mkdir $(DOCDIR)/examples
-	cd examples ; $(MAKE) $(MFLAGS) EXDIR=$(HTMLDIR)/examples install
 
 hevea.byte: ${OBJS}
 	${OCAMLC} -o $@ ${OBJS}
@@ -111,30 +101,9 @@ clean:
 	rm -f *~ #*#
 	rm -f cutfoot-fra.html cutfoot-eng.html
 
-cleanall: clean
-	cd doc ; $(MAKE) $(MFLAGS) cleanall
-	cd examples ; $(MAKE) $(MFLAGS) cleanall
-
 depend: latexscan.ml subst.ml save.ml aux.ml entry.ml cut.ml
 	- cp .depend .depend.bak
 	ocamldep *.mli *.ml > .depend
 
-
-VERSIONFILE=version.ml
-version:: $(VERSIONFILE)
-	- rm -f version.make version.tex
-	sed -n -e 's/^let version = "\(.*\)".*$$/\\def\\heveaversion{\1}/p' $(VERSIONFILE) > version.tex
-	sed -n -e 's/^let version = "\(.*\)".*$$/VERSION=\1/p' $(VERSIONFILE) > version.make
-	sed -n -e 's/^let version = "\(.\)\.\(.*\)".*$$/RELEASETAG=release-\1-\2/p' $(VERSIONFILE) >> version.make
-
-RELEASEDIR=/usr/tmp
-RELEASENAME=hevea-$(VERSION)
-
-release:
-	cd $(RELEASEDIR) ; rm -rf $(RELEASENAME)
-	cd $(RELEASEDIR); cvs export -r $(RELEASETAG) -l htmlgen
-	cd $(RELEASEDIR); mv htmlgen $(RELEASENAME)
-	cd $(RELEASEDIR); tar cfo $(RELEASE).tar ./$(RELEASENAME) 
-	gzip -best $(RELEASE).tar
 
 include .depend

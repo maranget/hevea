@@ -27,7 +27,7 @@
 \end{htmlonly}
 \newenvironment{latexout}{\begin{htmlout}}{\end{htmlout}}
 
-\input{../version.tex}
+\input{version.tex}
 
 \title{\hevea{} User Documentation\\
 {\normalsize Version~\heveaversion}}
@@ -335,7 +335,7 @@ as shown by figure~\ref{xfd}.
 
 A browser  correctly displays \hevea{} symbols when
 figure~\ref{xfd} resembles the html page located
-at~\oneurl{\docurl/symbol.html}.
+at \oneurl{\docurl/symbol.html}.
 Section~\ref{browser} explains how to configure Netscape on an Unix
 systems to get the right symbols.
 
@@ -1515,7 +1515,7 @@ They are ignored. Related commands do nothing.
 As a consequence, style files that are relevant to \hevea{} sould be
 loaded using the \verb+\input+ command.
 Note, however, \verb+\usepackage+ commands are echoed to the \filename{image}
-file (see~\ref{image}).
+file (see~\ref{imagen}).
 
 \subsection{The Title Page and Abstract}
 All title related commands exist, with the following peculiarities:
@@ -2193,6 +2193,34 @@ from the isolatin1 character set.
 This departs from \LaTeX{}, which output symbol number \textit{num} in
 the current font.
 
+\section{\TeX{} Conditional Macros}
+Normally, \hevea{} does not recognize constructs that are specific to
+\TeX{}, in the sense that they are not described in the \LaTeX{}
+manual.
+However \hevea{} recognizes \`a la \TeX{} conditional macros.
+The \verb+\newif+\textit{name}, where \textit{name} is made of letters
+only, creates three macros:
+\verb+\if+\textit{name}, \verb+\+\textit{name}\texttt{true} and
+\verb+\+\textit{name}\textit{false}.
+The latter two set the \textit{name} condition to \textit{true} and
+\textit{false}, respectively.
+The \verb+\if+\textit{name} command tests the condition \textit{name}:
+\begin{flushleft}
+\verb+\if+\textit{name}\\
+\ldots\textit{text$_1$}\\
+\verb+\else+\\
+\ldots\textit{text$_2$}\\
+\verb+\fi+\\
+\end{flushleft}
+Text \textit{text$_1$} is processed when \textit{name} is
+\textit{true}, otherwise \textit{text$_2$} is processed.
+If \textit{text$_2$}  is empty, then the \verb+\else+ keyword can be
+omitted.
+
+Some conditions are defined internally by \hevea{}, such as the
+\texttt{french} condition, which is \textit{true} in french mode, or
+the \texttt{display} and \textt{math} condition that are set according
+to \hevea{} current operating mode.
 
 \part{Practical information}
 
@@ -2244,8 +2272,7 @@ sections~\ref{files} and~\ref{index}).
 This has three consequences:
 \begin{itemize}
 \item Some words inserted by \LaTeX{} (such as ``Chapter'',
-``Biblography'', \ldots)
-are replaced by french word.
+``Bibliography'', \ldots) are replaced by french word.
 \item Text replacement for symbols are  in french (see the
 \texttt{-nosymb} option below).
 \item \texttt{hevea} executes the \TeX{} conditionnal macro
@@ -2273,6 +2300,34 @@ It also recognizes the following options:
 \textit{filename} (defaults  to index.html).
 \item[{\tt -help}] Print version number and a short help message.
 \end{description}
+
+\subsection{\texttt{imagen} usage}
+\texttt{imagen} is a simple shell script.
+\hevea{} must have been previously run as:
+\begin{flushleft}
+\texttt{\# hevea}\ldots{} \textit{base}\texttt{.tex}\\
+or\\
+\texttt{\# hevea}\ldots{} \texttt{-o} \textit{base}\texttt{.html}\ldots\\
+\end{flushleft}
+Then, \textit{base} is \hevea{} base output name and \hevea{} outputs
+a \textit{base}\textt{.image.tex} file.
+
+The \texttt{imagen} script should then be run as:
+\begin{flushleft}
+\texttt{\# imagen} \textit{base}
+\end{flushleft}
+The \texttt{imagen} script calls the \texttt{latex},
+\texttt{dvips}, \texttt{gs}, \texttt{pnmcrop} and
+\texttt{ppmtogif} commands.
+
+
+Note that, for producing one \texttt{.gif} file per
+page in the \textit{base}\textt{.image.tex} file,
+\texttt{imagen} can cut \LaTeX{} output into pages at two different
+stages: when producing Postcript, or while interpreting Postcript.
+The choice is made by checking wether \texttt{dvips} accepts the
+\texttt{-i} option or not.
+
 
 
 \section{Browser configuration}\label{browser}
@@ -2306,7 +2361,7 @@ does contain isolatin1 characters above 127\ldots
 \section{Installation}
 
 
-\subsection{Requirements}
+\subsection{Requirements}\label{requirements}
 
 The programs \commandname{hevea} and \commandname{hacha} are written in
 \footurl{http://caml.inria.fr/ocaml/}{Objective Caml}. Thus, you
@@ -2331,7 +2386,16 @@ this software. However, \hevea{} runs without them, but then you will
 have to accept ``X'' labels and to manage to produce images by yourself.
 
 \subsection{Principles}
-The details are given in the \verb+README+ file in the distribution.
+The details are given in the \texttt{README} file in the distribution.
+Basically, \hevea{} should be given a library
+directory. The installation procedure stores the \texttt{hevea.sty}
+and base style files in this directory.
+There are two compilation mode, the \texttt{opt} mode select the
+native code \texttt{ocamlopt} OCaml compiler, while the \texttt{byte}
+mode selects the bytecode \texttt{ocamlc} OCaml compiler.
+Default is \texttt{opt}, however it may be the case on some systems
+that only \texttt{ocamlc} is available.
+
 
 \section{Other \LaTeX{} to \html{} translators}
 This very short section gives pointers to two other translators. I
@@ -2356,7 +2420,6 @@ of them. TTH can be found at
 \oneurl{http://hutchinson.belmont.ma.us/tth/tth.html}.
 \end{description}
 
-\section*{References}
 \begin{thebibliography}{xxxxxxxxxx}
 \bibitem[\LaTeX]{latex}
 L. Lamport.

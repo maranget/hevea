@@ -1,5 +1,18 @@
+(***********************************************************************)
+(*                                                                     *)
+(*                          HEVEA                                      *)
+(*                                                                     *)
+(*  Luc Maranget, projet PARA, INRIA Rocquencourt                      *)
+(*                                                                     *)
+(*  Copyright 1998 Institut National de Recherche en Informatique et   *)
+(*  Automatique.  Distributed only by permission.                      *)
+(*                                                                     *)
+(***********************************************************************)
+
 {
 open Lexing
+
+let header = "$Id: save.mll,v 1.15 1998-07-21 11:18:41 maranget Exp $" 
 
 let silent = ref false
 ;;
