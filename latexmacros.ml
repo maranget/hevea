@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmacros.ml,v 1.32 1998-12-28 13:06:00 maranget Exp $" 
+let header = "$Id: latexmacros.ml,v 1.33 1998-12-28 13:28:01 maranget Exp $" 
 open Parse_opts
 open Symb
 
@@ -518,11 +518,11 @@ let iso_translate = function
 | c   -> (r_translate.[0] <- c ; r_translate)
 ;;
 
-let iso =
+let iso c =
   if !Parse_opts.iso then
-    (fun c -> quote_char c)
+    quote_char c
   else
-    (fun c -> iso_translate c)
+    iso_translate c
 ;;
 
 let aigu = function
