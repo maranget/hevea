@@ -4882,8 +4882,24 @@ since the \LaTeX{} implementation of the former
 is much more compatible with \hevea{} than
 the implementation of the latter.
 
+\subsection{Typesetting Computer Languages: the \texttt{listings} Package}
+I strongly recommand using the
+\footahref{\ctan/contrib/supported/listings}{\texttt{listings}}.
+Learning the user interface requires a little effort, but it is worth
+it.
+
+\hevea{} features a quite compatible implementation, please refer to
+the original package documentation.
+Do not hesitate to report discrepancies.
+Note that \hevea{} does not produce very compact
+\html{} in case you use this package.
+This can be cured, at some price in runtime cost, by
+giving \texttt{hevea} the command line option ``\texttt{-O}''
+(see Section~\ref{heveaoptions}).
+
+
 \subsection{Experimental Implementations}
-The \texttt{listings},\texttt{fancyverb} and \texttt{colortbl}
+The \texttt{fancyverb} and \texttt{colortbl}
 packages are partly implemented.
 
 \cutend\cutend
@@ -5021,7 +5037,7 @@ whose name is \textit{filename}. Note that this option applies to all
 files, including \texttt{hevea.hva} and base style files.
 \item[{\tt -fix}] Iterate \hevea{} until a fixpoint is found.
 Additionnaly, images get generated automatically.
-\item[{\tt -O}] Optimize HTML by calling \esponja{} (see
+\item[{\tt -O}] Optimize \html{} by calling \esponja{} (see
 section~\ref{esponjausage}.
 \item[{\tt -exec} {\it prog}] Execute file \textit{prog} and read the
 output. The file \textit{prog} must have execution permission and is
