@@ -125,5 +125,10 @@ MAKE
 
 IN CASE OF TROUBLE.
 
-  - Most reported trouble originate in the definition of CPP in
+  - You do need version 3.07 of the Objective Caml System. Older versions
+    of OCaml cannot compile hevea 1.07.
+
+  - Most other reported trouble originate in the definition of CPP in
     the Makefile. The Makefile presents several alternatives.
+
+
