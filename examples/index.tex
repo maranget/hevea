@@ -12,7 +12,7 @@ You can compare \LaTeX{} and \hevea{} output,
 \oneurl{a.dvi} and \oneurl{a.html}. The \html{} output is
 generated with the french option set:
 \begin{verbatim}
-# htmlgen -francais a.tex
+# hevea -francais a.tex
 \end{verbatim}
 \item The test suite: \oneurl{suite.tex} and \oneurl{suite.html} (see
 also \oneurl{suite.dvi}).
@@ -21,12 +21,12 @@ also \oneurl{suite.dvi}).
 \oneurl{pat.html}). To yield this result, \verb+gpic+ is first
 applied to \verb+pat.tex+, yielding \verb+tmp.tex+; \LaTeX\ and
 \texttt{bibtex} are then used to produce the appropriate \verb+tmp.aux+ and
-\verb+tmp.bbl+ files; finally \hevea{}, \hacha{} and \texttt{imagegen}
+\verb+tmp.bbl+ files; finally \hevea{}, \hacha{} and \texttt{imagen}
 are run as follows:
 \begin{verbatim}
 # hevea pat.sty -e pat.def tmp.tex
 # hacha -o pat.html tmp.html
-# imagegen tmp
+# imagen tmp
 \end{verbatim}
 Notice that the \LaTeX{} style file \oneurl{pat.def} is not loaded and
 that a simplified \oneurl{pat.sty} is loaded.

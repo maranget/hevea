@@ -29,7 +29,7 @@ a.dvi: a.tex
 	$(LATEX) < /dev/null a.tex
 
 a.html: a.tex
-	$(HEVEA) -v -francais a.tex
+	$(HEVEA) -francais a.tex
 
 tmp.tex: pat.def pat.tex
 	gpic -t < pat.tex > tmp.tex
