@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: ultra.ml,v 1.7 2001-05-28 17:28:56 maranget Exp $             *)
+(*  $Id: ultra.ml,v 1.8 2001-06-05 17:57:41 maranget Exp $             *)
 (***********************************************************************)
 
 open Tree
@@ -101,8 +101,49 @@ let get_sames ts fs =
          
 let group_font ts fs =
   let fonts,no_fonts =
-    List.partition (fun ((i,j),f) -> is_font f.nat) fs in
+    List.partition (fun (_,f) -> is_font f.nat) fs in
   get_sames ts fonts@no_fonts
+
+let conflict_low i1 j1 i2 j2 =  i1 < i2 && i2 <= j1 && j1 < j2
+
+let correct_cfl_low ts i1 j1 i2 j2 =
+  if conflict_low i1 j1 i2 j2 &&
+    all_blanks ts i1 (i2-1)
+  then
+    i1
+  else
+    i2
+
+and correct_cfl_high ts i1 j1 i2 j2 =
+  if conflict_low i1 j1 i2 j2 &&
+    all_blanks ts (j1+1) j2
+  then
+    j2
+  else
+    j1
+
+
+
+
+
+let rec mk_cover_one ts i j f = function
+  | [] -> (i,j),f
+  | ((ii,jj),g)::rem ->
+      mk_cover_one
+        ts
+        (correct_cfl_low ts ii jj i j)
+        (correct_cfl_high ts i j ii jj)
+        f rem
+
+let rec mk_cover ts fs = function
+  | [] -> []
+  | ((i,j),f)::rem ->
+      mk_cover_one ts i j f fs :: mk_cover ts fs rem
+
+let extend_neutrals ts fs =
+  let neutral,not_neutral =
+    List.partition (fun (_,f) -> blanksNeutral f) fs in
+  mk_cover ts fs neutral @ not_neutral
 
 let factorize low high ts =
   if low >= high then []
@@ -112,6 +153,17 @@ let factorize low high ts =
       if i <= low then low
       else begin
         if is_blank ts.(i-1) then
+          do_rec (i-1)
+        else
+          i
+      end in
+    do_rec i
+
+  and limit_blanks_right i =
+    let rec do_rec i =
+      if i <= low then low
+      else begin
+        if is_blank ts.(i) then
           do_rec (i-1)
         else
           i
@@ -144,7 +196,7 @@ let factorize low high ts =
           if not (is_blank ts.(k)) then incr r
         done ;
         if !r > 1 then
-          correct_prop f (extend_blanks_left i) j env
+          correct_prop f i (limit_blanks_right j) env
         else
           env
       end in
@@ -165,6 +217,7 @@ let factorize low high ts =
       r in
   let r = do_rec low [] [] in
   let r = group_font ts r in
+  let r = extend_neutrals ts r in
   if r <> [] && !verbose > 1 then begin
     Printf.fprintf stderr "Factors in %d %d\n" low high ;
     for i=low to high do
