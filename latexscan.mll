@@ -553,7 +553,6 @@ let rec eat_cols n format i = match n with
   0 -> i
 | _ ->
    let f = get_col format i in
-   prerr_endline ("eat: "^pretty_format f^"i="^string_of_int i) ;
    if is_inside f then
      eat_cols n format (i+1)
    else

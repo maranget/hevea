@@ -16,11 +16,12 @@ latex < /dev/null ${BASE}.image.tex
 dvips -t a3 -x1414 -S 1 -i -o${BASE} ${NAME}.dvi
 /bin/rm -f ${NAME}.log ${NAME}.aux ${NAME}.dvi
 
+test -f pat[0-9][0-9][0-9] && \
 for i in ${BASE}[0-9][0-9][0-9]
 do
   mv $i $i.ps
   (echo "($i.ps) run" ; echo "quit") |\
   gs -q -sPAPERSIZE=a3 -dNOPAUSE -dNO_PAUSE -sDEVICE=ppmraw -sOutputFile=$i.ppm
   pnmcrop < $i.ppm | ppmtogif | giftrans -t '#ffffff' > $i.gif
-  /bin/rm $i.ps $i.ppm
+  /bin/rm -f $i.ps $i.ppm
 done

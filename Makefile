@@ -31,19 +31,20 @@ opt: hevea.opt hacha.opt cutfoot-fra.html cutfoot-eng.html
 byte:  hevea.byte hacha.byte cutfoot-fra.html cutfoot-eng.html
 
 install-lib:
+	-mkdir $(INSTALL)
 	$(INSTALL) article.sty book.sty hevea.sty cutfoot-fra.html cutfoot-eng.html footer.tex ${LIBDIR}
-	ln -s book.sty ${LIBDIR}/report.sty
+	- ln -s book.sty ${LIBDIR}/report.sty
 	$(INSTALL) contents_motif.gif next_motif.gif previous_motif.gif ${LIBDIR}
 
 install-opt: install-lib
 	$(INSTALL) hevea.opt $(BINDIR)/hevea
 	$(INSTALL) hacha.opt $(BINDIR)/hacha
-	$(INSTALL) imagegen $(BINDIR)
+	$(INSTALL) imagen $(BINDIR)
 
 install-byte: install-lib
 	$(INSTALL) hevea.byte $(BINDIR)/hevea
 	$(INSTALL) hacha.byte $(BINDIR)/hacha
-	$(INSTALL) imagegen $(BINDIR)
+	$(INSTALL) imagen $(BINDIR)
 
 docu:
 	cd doc ; $(MAKE) $(MFLAGS)
@@ -79,10 +80,10 @@ cutmain.cmx: cutmain.ml
 	${OCAMLOPT} -pp '${CPP} -DLIBDIR=\"${LIBDIR}\"' -c cutmain.ml
 
 cutfoot-fra.html: cutfoot.tex hevea.sty ${HEVEA}
-	${HEVEA} -francais < $< > $@
+	${HEVEA} -francais < cutfoot.tex > $@
 
 cutfoot-eng.html: cutfoot.tex hevea.sty ${HEVEA}
-	${HEVEA} < $< > $@
+	${HEVEA} < cutfoot.tex > $@
 
 .SUFFIXES:
 .SUFFIXES: .ml .cmo .mli .cmi .c .mll .cmx 
