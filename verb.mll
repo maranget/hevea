@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: verb.mll,v 1.58 2003-07-24 14:42:02 maranget Exp $            *)
+(*  $Id: verb.mll,v 1.59 2003-07-24 17:40:55 maranget Exp $            *)
 (***********************************************************************)
 {
 exception VError of string
@@ -1045,7 +1045,8 @@ let code_stringizer lexbuf =
 
 let open_lst_inline keys =
 
-  scan_this Scan.main ("\\lsthk@PreSet"^keys) ;
+  scan_this Scan.main "\\lsthk@PreSet" ;
+  scan_this Scan.main ("\\lstset{"^keys^"}") ;
 (* For inline *)
   scan_this Scan.main "\\lsthk@InlineUnsave" ;
 (* Ignoring output *)
