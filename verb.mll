@@ -525,6 +525,7 @@ and start_inverb = parse
 and scan_byline = parse
     "\\end" [' ''\t']* '{' [^'}']+ '}'
     {let lxm = lexeme lexbuf in
+    prerr_endline ("BYLINE: "^ !Scan.cur_env^" scanned="^lxm) ;
     let env = env_extract lxm in
     if
       (not !input_verb || Stack.empty stack_lexbuf)
@@ -646,7 +647,7 @@ and verb_input lexer file =
 *)
 
 let open_verbenv star =
-  Scan.top_open_block "PRE" "ALIGN=left" ;
+  Scan.top_open_block "PRE" "" ;
   process :=
      if star then
        (fun () -> put_line_buff_verb_star () ; Dest.put_char '\n')

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.199 2000-11-01 13:22:27 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.200 2000-12-04 16:40:26 maranget Exp $ *)
 
 
 {
@@ -2012,15 +2012,7 @@ def_code "\\@getprintnostyle"
 
 def_code "\\@getprint"
   (fun lexbuf ->
-(*
-    prerr_endline "GETPRINT:" ;
-    pretty_lexbuf lexbuf ;
-    full_pretty_subst (get_subst ()) ;
-*)
     let arg = get_prim_arg lexbuf in
-(*
-    prerr_endline arg ;
-*)
     let buff = Lexing.from_string arg in
     Dest.put (Save.tagout buff)) ;
 ;;
