@@ -1,4 +1,7 @@
 version 1.03-1
+  - Better error messages by better exception handling
+         (thanks to Pierre.Weis@inria.fr)
+  - Hevea style files now have extension ``.hva''
   - Make main scanner a functor (add outManager.mli). This is a first
     step toward having several output languages.
   - Added the -extra and -mag options to imagen

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: index.ml,v 1.14 1998-10-09 16:32:58 maranget Exp $" 
+let header = "$Id: index.ml,v 1.15 1999-02-19 18:00:03 maranget Exp $" 
 open Parse_opts
 open Entry
 
@@ -38,7 +38,7 @@ let pretty_key (l,p) =
  | [x],[y]-> x^"@"^y
  | x::xs,""::ys -> x^"!"^p_rec xs ys
  | x::xs,y::ys -> x^"@"^y^"!"^p_rec xs ys
- |  _,_ -> failwith "Index.pretty_key" in
+ |  _,_ -> assert false in
  p_rec l p
 ;;
 
@@ -195,12 +195,12 @@ let rec common e1 e2 = match e1,e2 with
       common (r1,p1) (r2,p2)
     else
       e1,e2
-|  _ -> failwith "Index.common"
+|  _ -> assert false
 ;;
 let rec close_prev = function
   [],_ | [_],_ -> ()
 | _::r,_::p    ->  Html.close_block "UL" ; close_prev (r,p)
-|  _ -> failwith "Index.close_prev"
+|  _ -> assert false
 ;;
 
 let rec open_this  main k = match k with
@@ -219,7 +219,7 @@ let rec open_this  main k = match k with
     | _  -> Html.open_block "UL" "" 
     end ;
     open_this main (r,rp)
-|  _ -> failwith "Index.open_this"
+|  _ -> assert false
 ;;
 
 

@@ -12,12 +12,16 @@
 {
 open Lexing
 
-let header = "$Id: save.mll,v 1.25 1999-01-28 22:21:26 maranget Exp $" 
+let header = "$Id: save.mll,v 1.26 1999-02-19 18:00:13 maranget Exp $" 
 
 let verbose = ref 0 and silent = ref false
 ;;
+
 let set_verbose s v =
   silent := s ; verbose := v
+;;
+
+exception Error of string
 ;;
 
 let seen_par = ref false
@@ -85,7 +89,7 @@ and opt2 =  parse
                  if !brace_nesting >= 0 then begin
                     put_both_char '}' ; opt2 lexbuf
                  end else begin
-                   failwith "Bad brace nesting in optional argument"
+                   raise (Error "Bad brace nesting in optional argument")
                  end}
   | ']'
       {if !brace_nesting > 0 then begin
@@ -204,7 +208,7 @@ and do_eat_delim = parse
    }
 | eof {fun delim i -> raise (EofDelim i)}
 
-and arg_delim = parse  "" {fun delim ->  failwith "Hum"}
+and arg_delim = parse  "" {fun delim ->  raise (Misc.Fatal "Not implemented")}
 
 and cite_arg = parse
   ' '* '{'   {cite_args_bis lexbuf}
@@ -240,7 +244,7 @@ and num_arg = parse
 | '`' _
     {let c = lexeme_char lexbuf 1 in
     Char.code c}
-| "" {failwith "num_arg"}
+| "" {raise (Error "Bad syntax in latex numerical argument")}
 
 and input_arg = parse
   [' ''\n']      {put_echo (lexeme lexbuf) ; input_arg lexbuf}

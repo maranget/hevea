@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmain.ml,v 1.24 1999-02-04 16:17:57 maranget Exp $" 
+let header = "$Id: latexmain.ml,v 1.25 1999-02-19 18:00:04 maranget Exp $" 
 
 open Parse_opts
 
@@ -40,10 +40,10 @@ let read_style name =
 let main () = 
 
     verbose := !readverb ;
-    read_style "hevea.sty" ;
+    read_style "hevea.hva" ;
 
     begin match !files with
-     [] -> files := ["article.sty"]
+     [] -> files := ["article.hva"]
     | _ -> () end;
 
     let texfile = match !files with
@@ -108,16 +108,45 @@ let main () =
 begin try
   main ()
 with
-  Html.Close s ->
+| Html.Close s ->
     Location.print_pos () ;
     prerr_endline s;
     Scan.print_env_pos () ;
-    failwith "Adios"
-|  x -> begin
-    Location.print_pos () ;
     prerr_endline "Adios" ;
-    raise x
-end
+    exit 2
+| Html.Error s ->
+    Location.print_pos () ;
+    prerr_endline ("Error while writing HTML: "^s) ;
+    prerr_endline "Adios" ;
+    exit 2
+| Scan.Error s ->
+    Location.print_pos () ;
+    prerr_endline ("Error while reading LaTeX: "^s) ;
+    prerr_endline "Adios" ;
+    exit 2
+| Colscan.Error s ->
+    Location.print_pos () ;
+    prerr_endline ("Error while reading LaTeX style colors: "^s) ;
+    prerr_endline "Adios" ;
+    exit 2
+| Save.Error s ->
+    Location.print_pos () ;
+    prerr_endline ("Error while reading LaTeX macros arguments: "^s) ;
+    prerr_endline "Adios" ;
+    exit 2
+|  Misc.Fatal s ->
+    Location.print_pos () ;
+    prerr_endline
+      ("Fatal error: "^s^" (please report to Luc.Maranget@inria.fr") ;
+    prerr_endline "Adios" ;
+    exit 2    
+|  x ->
+    Location.print_pos () ;
+    prerr_endline
+      ("Fatal error: spurious exception "^Printexc.to_string x^
+       " (please report to Luc.Maranget@inria.fr") ;
+    prerr_endline "Adios" ;
+    exit 2
 end ;
 exit 0;;
 

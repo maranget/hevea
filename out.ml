@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: out.ml,v 1.8 1998-12-28 13:06:07 maranget Exp $" 
+let header = "$Id: out.ml,v 1.9 1999-02-19 18:00:11 maranget Exp $" 
 let verbose = ref 0
 ;;
 
@@ -30,12 +30,12 @@ and create_null () = Null
 
 let reset = function
   Buff b -> b.bp <- 0
-| _      -> failwith "Out.reset"
+| _      -> raise (Misc.Fatal "Out.reset")
 ;;
 
 let is_empty = function
   Buff b -> b.bp = 0
-| _      -> failwith "Out.is_empty"
+| _      -> raise (Misc.Fatal "Out.is_empty")
 ;;
 
 let realloc out =
@@ -81,14 +81,14 @@ let to_string out = match out with
   Buff out ->
     let r = String.sub out.buff 0 out.bp in
     out.bp <- 0 ; r
-| _ -> failwith "Out.to_string"
+| _ -> raise (Misc.Fatal "Out.to_string")
 ;;
 
 let to_chan chan out = match out with
   Buff out ->
     output chan out.buff 0 out.bp ;
     out.bp <- 0
-| _  -> failwith "to_chan"
+| _  -> raise (Misc.Fatal "to_chan")
 ;;
 
 let debug chan out = match out with
@@ -115,7 +115,7 @@ let hidden_copy from to_buf i l = match to_buf with
 
 let copy from_buff to_buff = match from_buff with
   Buff from -> hidden_copy from to_buff 0 from.bp
-| _         -> failwith "Out.copy"  
+| _         -> raise (Misc.Fatal "Out.copy")
 ;;
 
 let copy_no_tag from_buff to_buff =
@@ -135,9 +135,9 @@ let copy_no_tag from_buff to_buff =
           debug stderr to_buff ;
           prerr_endline ""            
         end
-      with Not_found ->  failwith "Out.copy_no_tag, no tag found"
+      with Not_found ->  raise (Misc.Fatal "Out.copy_no_tag, no tag found")
     end
-  | _         -> failwith "Out.copy_no_tag"
+  | _         -> raise (Misc.Fatal "Out.copy_no_tag")
 ;;
 
 let close = function

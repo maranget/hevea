@@ -9,17 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-module type S =
-  sig
-    exception Error of string
+let header = "$Id: misc.ml,v 1.1 1999-02-19 18:00:10 maranget Exp $" 
 
-    val out_file : Out.t ref
-
-    val no_prelude : unit -> unit
-
-    val print_env_pos : unit -> unit
-    val main : Lexing.lexbuf -> unit
-end
-
-module Make (Html : OutManager.S) : S
+exception Fatal of string
 

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: location.ml,v 1.7 1998-12-09 17:36:37 maranget Exp $" 
+let header = "$Id: location.ml,v 1.8 1999-02-19 18:00:09 maranget Exp $" 
 
 
 type fileOption = No | Yes of in_channel
@@ -27,7 +27,7 @@ let stack = ref []
 
 let push s e = s := e:: !s
 and pop s = match !s with
-  [] -> failwith "Location : Empty stack"
+  [] -> raise (Misc.Fatal "Location : Empty stack")
 | e::rs -> s := rs ; e
 ;;
 
@@ -99,7 +99,7 @@ let stack_pos = ref []
 
 let push  x = stack_pos := x :: !stack_pos
 and pop () = match !stack_pos with
-  [] -> failwith "Empty stack_pos"
+  [] -> raise (Misc.Fatal "Empty stack_pos")
 | x::r -> stack_pos := r ; x
 ;;
 

@@ -130,61 +130,67 @@ You can find some \footurl{\docurl/examples/}{examples} in the on-line
 documentation, including examples of \urlex{a.tex} and
 \urlex{a.html} files.
 
-\section{More ambitious translations}
+\section{Syle files}
+\LaTeX style files are files that are not intended to produce output, but
+define document layout parameters, commands, environments, etc.
 
-\subsection{Base style files}
+\subsection{Standard base styles}
+
+The base style of a \LaTeX{} document is the argument to the
+\verb+\documentclass+ command (\verb+\documentstyle+ in old style).
+Normally, the base style of a document defines the structure and
+appearance of the whole document.
+
+
 
 \noindent\hevea{} knows about two \LaTeX{} base styles,
 \filename{article} and \filename{book}.
 Additionally, the \filename{report} base style is recognized and
-considered equivalent to \filename{book}.
+considered equivalent to \filename{book} and the
+\filename{seminar} base style for making slides is recognized and
+implemented by small additions on the \filename{article} style.
 
 
-To translate documents that use other base style file,
-\hevea{} must be
-instructed to load one of the
-style files it knows in place of the unknown style file.
-This is done by giving the desired style file as an extra command line
-argument.
+Base style \filename{style} is implemented by an \hevea{} specific
+style file whose name must be \filename{style}\verb+.hva+.
+More precisely, \hevea{} interprets
+\verb+\documentclass{+\filename{style}\verb+}+ by attempting to load
+the file \filename{style}\verb+.hva+ (see section~\ref{heveausage} on where
+\hevea{} searches for files).
+Thus, at the moment, \hevea{} distribution includes the files,
+\texttt{article.hva}, \texttt{book.hva}, etc.
+
+
+\subsection{Other base styles}
+Documents whose base style is not recognized by \hevea{} can be
+processed when the unknown base style is a derivation of a
+recognized base style.
 
 Let us assume that \texttt{mydoc.tex} uses an exotic
 base style such as \filename{acmconf}. Then, typing
-\verb+hevea mydoc.tex+ may yield two kind of errors.
-Either \hevea{} finds the the \texttt{acmconf.sty} file (e.g., if
-\texttt{acmconf.sty} is in the current directory)
-and fails to process it~:
+\verb+hevea mydoc.tex+ will yield an error, since
+\hevea{} cannot find the \texttt{acmconf.hva} file:
 \begin{verbatim}
-# hevea mydoc.tex
-Document Style `acmconf' <22 May 89>. Hacked 4/91 by shivers@cs.cmu.edu
-Bugs to KT@MC.LCS.MIT.EDU
-./acmconf.sty:87: Adios
-Fatal error: uncaught exception Failure("Bad newif: \if")
-\end{verbatim}
-Or,  \hevea{} cannot find the \texttt{acmconf.sty} file and you get a
-lot of warnings:
-\begin{verbatim}
-# hevea mydoc.tex
-...
-mydoc.tex:9: Unknown macro: \cuttingunit
-mydoc.tex:9: Defining a macro with \renewcommand: \thefootnote
-mydoc.tex:9: Unknown counter: footnote
-...
+# hevea.opt mydoc.tex
+mydoc.tex:1: Warning: Cannot find file: acmconf.hva
+mydoc.tex:1: Error while reading LaTeX: No base style
+Adios
 \end{verbatim}
 
 
-Both situations are avoided by invoking \hevea{} with the known
-base style file  \texttt{article.sty} as an extra argument:
+This situation is avoided by invoking \hevea{} with the known
+base style file  \texttt{article.hva} as an extra argument:
 \begin{verbatim}
-# hevea article.sty mydoc.tex
+# hevea article.hva mydoc.tex
 \end{verbatim}
-Such an extra argument instructs
-\hevea{} to load its \texttt{article.sty}
+The extra argument instructs
+\hevea{} to load its \texttt{article.hva}
 style file before processing \texttt{mydoc.tex}
-It will then ignore the base style specified by
+It will then ignore the document base style specified by
 \verb+\documentclass+ (or \verb+\documentstyle+).
 
-Observe that the fix above works because \texttt{article.sty} and
-\texttt{acmconf.sty} look the same to the document (i.e., they define
+Observe that the fix above works because the \filename{acmconf} and
+\filename{article} base styles look the same to the document (i.e., they define
 the same macros).
 More generally, most  base styles that are neither
 \textit{article} nor \textit{book} are in fact variations
@@ -192,6 +198,20 @@ on either two of them.
 However, such styles usually provides extra macros.
 If users documents use these macros, then users should also instruct
 \hevea{} about them (see section~\ref{dontknow}).
+
+If the document base style departs significantly from \hevea{} base
+styles, a specific base style file has to be written.
+Although tedious, it remains feasible because \hevea{} source langage
+is \LaTeX, but this probably requires some understanding of
+\hevea{} internals. Reading the base style files \texttt{article.hva} and
+\texttt{seminar.hva} from the distribution will give clues on how to
+proceed.
+
+Finally, it is important to notice that
+renaming a base style file \filename{style}\verb+.cls+ into
+\filename{style}\verb+.hva+ will not work in general.
+As a matter of fact, base style files are \TeX{} and not \LaTeX{} source and
+\hevea{} will almost surely fail on \TeX-ish input.
 
 
 \subsection{Other style files}
@@ -601,11 +621,11 @@ This is \textsc{small caps} and this is $\cal CALLIGRAPHIC LETTERS$
 
 
 Note that many base macros and environments are defined in the 
-\texttt{hevea.sty} file that \hevea{} loads before processing any
+\texttt{hevea.hva} file that \hevea{} loads before processing any
 input.
 These macros are written using \LaTeX{} source code.
-Having a look at the \texttt{hevea.sty} file (or at the base style
-files of \hevea) will help you in designing your own implementation
+Having a look at the \texttt{hevea.hva} file
+will help you in designing your own implementation
 of base macros.
 
 Other base macros that require a special processing are defined
@@ -1830,10 +1850,10 @@ There is no list of figures nor list of tables.
 Both \LaTeXe{} \verb+\documentclass+ and old \LaTeX{}
 \verb+\documentstyle+ are accepted.
 Their argument \filename{style} is interpreted by attempting to load a
-\filename{style}\texttt{.sty} file (see~\ref{heveausage} to see where \hevea{}
+\filename{style}\texttt{.hva} file (see~\ref{heveausage} to see where \hevea{}
 searches its files).
-Presently, only the style files \texttt{article.sty}, \texttt{seminar.sty},
-\texttt{book.sty} and \texttt{report.sty} exist, the latter two
+Presently, only the style files \texttt{article.hva}, \texttt{seminar.hva},
+\texttt{book.hva} and \texttt{report.hva} exist, the latter two
 being the same file.
 
 If one of the four styles has already been loaded at the time when
@@ -2235,7 +2255,7 @@ column format (\verb+c+, \verb+l+ or \verb+r+), then the corresponding
 column is typeset after exiting math-mode.
 This additional feature enables the encoding of \TeX{} \verb+\cases+ using
 the \LaTeX{} arrays.
-The command \verb+\cases+ is defined in \texttt{hevea.sty}.
+The command \verb+\cases+ is defined in \texttt{hevea.hva}.
 
 \section{Moving Information Around}
 \subsection{Files}\label{files}
@@ -2704,7 +2724,7 @@ constructs, the normal way to translate \textit{file}\verb+.tex+ being
 ``\verb+hevea+ \textit{file}\verb+.tex+'' and not
 ``\verb+hevea -o+ \textit{file}\verb+.html < + \textit{file}\verb+.tex+''
 
-The \texttt{article.sty}, \texttt{seminar.sty}, \texttt{book.sty} and \texttt{report.sty}
+The \texttt{article.hva}, \texttt{seminar.hva}, \texttt{book.hva} and \texttt{report.hva}
 base style files from \hevea{} library are special.
 Only the first base style file is loaded and the
 \verb+\documentclass+ command has no effect when a base style file is
@@ -2719,7 +2739,7 @@ verbosity. However, this is mostly for debug.
 \item[{\tt -s}] Suppress warnings.
 \item[{\tt -e} {\it filename}] Prevent \texttt{hevea} from loading any file
 whose name is \textit{filename}. Note that this option applies to all
-files, including \texttt{hevea.sty} and style files.
+files, including \texttt{hevea.hva} and style files.
 \item[{\tt -idx}] Read the \textit{name}\texttt{.idx} file, where
 \textit{name} is the input base name. This is useful when this
 file is customized after it has been generated by \LaTeX{} (See,
@@ -2922,7 +2942,7 @@ have to accept ``X'' labels and to manage to produce images by yourself.
 The details are given in the \url{\ftpbase/README}{\texttt{README}}
 file from the distribution.
 Basically, \hevea{} should be given a library
-directory. The installation procedure stores the \texttt{hevea.sty}
+directory. The installation procedure stores the \texttt{hevea.hva}
 and base style files in this directory.
 There are two compilation mode, the \texttt{opt} mode selects the
 native code  Ocaml compiler \texttt{ocamlopt}, while the \texttt{byte}

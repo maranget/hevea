@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: html.ml,v 1.32 1999-02-04 16:17:53 maranget Exp $" 
+let header = "$Id: html.ml,v 1.33 1999-02-19 18:00:02 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -18,6 +18,9 @@ let header = "$Id: html.ml,v 1.32 1999-02-04 16:17:53 maranget Exp $"
 
 open Parse_opts
 open Latexmacros
+
+exception Error of string
+;;
 
 let r_quote = String.create 1
 ;;
@@ -154,10 +157,10 @@ type 'a ok  = No | Yes of 'a
 (* Saving mods accross blocks *)
 let push s e = s := e:: !s
 and pop name s = match !s with
-  [] -> failwith ("Empty stack: "^name)
+  [] -> raise (Misc.Fatal ("Empty stack: "^name^" in Html"))
 | e::rs -> s := rs ; e
 and see_top name s = match !s with
-  [] ->  failwith ("Empty stack (see_top): "^name)
+  [] -> raise (Misc.Fatal ("Empty stack: "^name^" in Html (see)"))
 | e::_ -> e
 ;;
 
@@ -837,7 +840,7 @@ let rec force_block s content =
     free old_out ;    
     !cur_out.pending <- mods
   end else begin (* s = "DELAY" *)
-    failwith ("html: unflushed DELAY")
+    raise (Misc.Fatal ("html: unflushed DELAY"))
   end ;
   if not was_empty && true_s <> ""  then flags.last_closed <- true_s
 
@@ -953,7 +956,7 @@ let flush x =
   try_close_block "DELAY" ;
   let ps,_,pout = pop_out out_stack in
   if ps <> "DELAY" then
-    failwith ("html: Flush attempt on: "^ps) ;
+    raise (Misc.Fatal ("html: Flush attempt on: "^ps)) ;
   let mods = !cur_out.active @ !cur_out.pending in
   do_close_mods () ;
   let old_out = !cur_out in
@@ -1216,7 +1219,7 @@ let item scan arg =
     pretty_stack !out_stack
   end ;
   if not (is_list (pblock ())) then
-    failwith "Item not inside a list element";
+    raise (Error "Item not inside a list element") ;
 
   let mods = !cur_out.pending @ !cur_out.active in
   do_close_mods () ;
@@ -1308,7 +1311,7 @@ let insert_vdisplay open_fun =
       prerr_flags "<= insert_vdisplay" ;
     mods
   with PopFreeze ->
-    failwith "\\over should be properly parenthesized"
+    raise (Error "\\over should be properly parenthesized")
 ;;
 
   

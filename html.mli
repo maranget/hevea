@@ -9,6 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
+exception Error of string
 exception Close of string
 val iso : char -> string
 

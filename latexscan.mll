@@ -12,8 +12,8 @@
 {
 module type S =
   sig
+    exception Error of string
     val out_file : Out.t ref
-
     val no_prelude : unit -> unit
 
     val print_env_pos : unit -> unit
@@ -28,8 +28,9 @@ open Myfiles
 open Latexmacros
 (* open Html *)
 
-let header = "$Id: latexscan.mll,v 1.59 1999-02-04 16:18:00 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.60 1999-02-19 18:00:06 maranget Exp $" 
 
+exception Error of string
 
 let prerr_args args =
   prerr_endline "Arguments: " ;
@@ -66,10 +67,10 @@ let prerr_stack_string s l =
 
 let push s e = s := e:: !s
 and pop s = match !s with
-  [] -> failwith "Empty stack"
+  [] -> raise (Misc.Fatal "Empty stack in Latexscan")
 | e::rs -> s := rs ; e
 and top s = match !s with
-  [] -> failwith "Empty stack in top"
+  [] -> raise (Misc.Fatal "Empty stack in Latexscan (top)")
 | e::_ -> e
 ;;
 
@@ -147,7 +148,7 @@ let flushing = ref false
 
 let my_int_of_string s =
   try int_of_string s with
-  Failure m -> raise (Failure (m^": ``"^s^"''"))
+  Failure m -> raise (Error (m^": ``"^s^"''"))
 ;;
 
 let env_extract s =
@@ -170,7 +171,8 @@ let save_arg lexbuf =
   let rec save_rec lexbuf =
     try Save.arg lexbuf
     with Save.BadParse "EOF" -> begin
-        if !stack_lexbuf = [] then failwith "Eof while looking for arg";
+        if !stack_lexbuf = [] then
+          raise (Error "Eof while looking for argument");
         let lexbuf = previous_lexbuf () in
         if !verbose > 2 then begin
           prerr_endline "popping stack_lexbuf in save_arg";
@@ -674,7 +676,7 @@ and as_inside = function
 and as_align = function
   Save.Align (s,o) ->
     if is_par o then "VALIGN=top ALIGN="^s else "NOWRAP ALIGN="^s
-| _       -> failwith "as_align"
+| _       ->  raise (Misc.Fatal ("as_align"))
 
 and is_display = function
   Save.Align (_,o) -> keep_math o
@@ -1039,7 +1041,7 @@ exception Over
 
 let check_ital s =
   let rec check_rec = function
-    -1 -> failwith "Empty string in check_rec"
+    -1 -> raise (Misc.Fatal "Empty string in check_rec")
   | 0  -> check_char (String.get s 0)
   | i  ->
      let t = check_char (String.get s i)
@@ -1236,9 +1238,9 @@ rule  main = parse
     let arg =  save_arg lexbuf in
     let echo_args = Save.get_echo () in
     begin try if not !Latexmacros.styleloaded then
-      input_file 0 main (arg^".sty") with
+      input_file 0 main (arg^".hva") with
     Myfiles.Except | Myfiles.Error _ ->
-      warning "no base style file"
+      raise (Error ("No base style"))
     end ;
     Image.start () ;
     Image.put command ;
@@ -1388,7 +1390,7 @@ rule  main = parse
         (match a2 with
            No s -> false,s
         | Yes s -> true,s)
-    | _ -> failwith "Opts args in newcomand" in
+    | _ -> assert false in
     begin try
       (match lxm with
         "\\newcommand"   -> def_macro_pat
@@ -1627,7 +1629,7 @@ rule  main = parse
       let format = scan_this Save.tformat (save_arg lexbuf) in
       let n = try 
         my_int_of_string n
-        with Failure _ -> raise (Failure "multicolumn") in
+        with Error s -> raise (Error ("multicolumn: "^s)) in
       do_multi n (Array.of_list format) main ;
       main lexbuf}
   | "\\left"
@@ -1701,7 +1703,7 @@ rule  main = parse
       {let lxm = lexeme lexbuf in
       let i = Char.code (lxm.[1]) - Char.code '1' in
       if i >= Array.length !stack then
-        raise (Failure "Top level argument");
+        raise (Error "Macro argument not found");
       let arg = !stack.(i) in
       if !verbose > 2 then
         prerr_endline ("Subst arg: ``"^arg^"''") ;
@@ -2205,7 +2207,7 @@ and verblatex = parse
     end}
 |  _ 
     {verblatex lexbuf}
-|  eof {failwith "EOF in verblatex"}
+|  eof {raise (Error ("End of file inside ``verblatex'' environment"))}
 
 and latexonly = parse
    '%'+ ' '* ("END"|"end") ' '+ ("LATEX"|"latex")  [^'\n']* '\n'
@@ -2224,7 +2226,8 @@ and latexonly = parse
        begin match find_macro ("\\end"^arg) with
          _,[Subst body] ->
            scan_this_may_cont false latexonly lexbuf body
-       |  _,_ -> failwith ("Bad closing macro in latexonly: ``"^arg^"''")
+       |  _,_ ->
+           raise (Error ("Bad closing macro in latexonly: ``"^arg^"''"))
        end
      end else
        latexonly lexbuf}
@@ -2258,7 +2261,7 @@ and verbimage = parse
     {let lxm = lexeme_char lexbuf 0 in
     Image.put_char lxm ;
     verbimage lexbuf}
-|  eof {failwith "EOF in verbimage"}
+|  eof {raise (Error "End of file in ``verbimage'' environment")}
 
 and image = parse
    '%'+ ' '* ("END"|"end") ' '+ ("IMAGE"|"image")  [^'\n']* '\n'
@@ -2275,7 +2278,7 @@ and image = parse
     {let lxm = lexeme lexbuf in
     let i = Char.code (lxm.[1]) - Char.code '1' in
     if i >= Array.length !stack then
-      raise (Failure "Top level argument in image");
+      raise (Error "Macro argument not found (in toimage)");
     let arg = !stack.(i) in
     if !verbose > 2 then
       prerr_endline ("Subst arg: ``"^arg^"''");
@@ -2331,7 +2334,7 @@ and image = parse
        begin match find_macro ("\\end"^arg) with
          _,[Subst body] ->
            scan_this_may_cont false image lexbuf body
-       |  _,_ -> failwith ("Bad closing macro in image: ``"^arg^"''")
+       |  _,_ -> raise (Error ("Bad closing macro in image: ``"^arg^"''"))
        end
      end else begin
        Image.put lxm ; Image.put true_arg ;
@@ -2369,7 +2372,7 @@ and mbox_arg = parse
        pretty_lexbuf lexbuf
      end ;
      mbox_arg lexbuf
-   end else failwith "Eof in mbox_arg"}
+   end else raise (Error "End of file in \\mbox argument")}
 | '{' | ("\\bgroup" ' '* '\n'? ' '*)
     {push stack_table !in_table ; in_table := NoTable ;
     push stack_in_math !in_math ; in_math := false ;
@@ -2465,14 +2468,14 @@ and skip_comment = parse
    {if !verbose > 1 then
      prerr_endline ("Comment:"^lexeme lexbuf) ;
    if !flushing then Html.flush_out () }
-| "" {failwith "Comment not terminated"}
+| "" {raise (Error "Latex comment is not terminated")}
 
 and subst = parse
 '#' ['1'-'9']
     {let lxm = lexeme lexbuf in
     let i = Char.code (lxm.[1]) - Char.code '1' in
     if i >= Array.length !stack then
-      raise (Failure "Primitive argument");
+      raise (Error "Macro argument not found");
     let arg = !stack.(i) in
     if !verbose > 2 then
       prerr_endline ("Subst arg in subst: "^lxm^" -> <"^arg^">");

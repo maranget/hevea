@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: cutmain.ml,v 1.7 1998-12-09 17:36:28 maranget Exp $" 
+let header = "$Id: cutmain.ml,v 1.8 1999-02-19 17:59:59 maranget Exp $" 
 let filename = ref ""
 ;;
 
@@ -44,11 +44,25 @@ let _ = try
   Mylib.copy_from_lib "previous_motif.gif" ;  
   Mylib.copy_from_lib "next_motif.gif" ;  
   Mylib.copy_from_lib "contents_motif.gif" 
-with x -> begin
-  Location.print_pos () ;
-  prerr_endline "Adios" ;
-  raise x
-end
+with
+| Cut.Error s ->
+    Location.print_pos () ;
+    prerr_endline ("Error while reading HTML: "^s) ;
+    prerr_endline "Adios" ;
+    exit 2
+|  Misc.Fatal s ->
+    Location.print_pos () ;
+    prerr_endline
+      ("Fatal error: "^s^" (please report to Luc.Maranget@inria.fr") ;
+    prerr_endline "Adios" ;
+    exit 2
+|  x ->
+    Location.print_pos () ;
+    prerr_endline
+      ("Fatal error: spurious exception "^Printexc.to_string x^
+       " (please report to Luc.Maranget@inria.fr") ;
+    prerr_endline "Adios" ;
+    exit 2
 ;;
 
 exit 0;;

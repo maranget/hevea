@@ -11,14 +11,17 @@
 
 {
 open Lexing
-let header = "$Id: cut.mll,v 1.11 1998-10-12 17:22:09 maranget Exp $" 
+let header = "$Id: cut.mll,v 1.12 1999-02-19 17:59:58 maranget Exp $" 
+
+exception Error of string
+
 
 let verbose = ref 0
 ;;
 
 let push s e = s := e:: !s
 and pop s = match !s with
-  [] -> failwith "Empty stack"
+  [] -> raise (Misc.Fatal "Empty stack in Cut")
 | e::rs -> s := rs ; e
 ;;
 
@@ -440,7 +443,7 @@ rule main = parse
    if !phase > 0 then put lxm ;
    main lexbuf}
 | eof
-   {failwith "EOF"}
+   {raise (Error ("No </BODY> tag in input file"))}
 
 and footer = parse
   "</BODY>" _*
@@ -456,7 +459,7 @@ and footer = parse
 and secname = parse
   ['a'-'z' 'A'-'Z']+
     {let r = lexeme lexbuf in r}
-| "" {failwith "secname"}
+| "" {raise (Error "Bad section name syntax")}
 
 and intarg = parse
   ['0'-'9']+ {int_of_string (lexeme lexbuf)}
@@ -474,14 +477,14 @@ and refname = parse
    String.sub lxm 1 (String.length lxm-2)}
 | ['a'-'z' '.' 'A'-'Z' '0'-'9']+
    {lexeme lexbuf}
-| "" {failwith "refname"}
+| "" {raise (Error "Bad reference name syntax")}
 
 and skip_blanks = parse
   ' '* {()}
 
 and skip_endcom  = parse
   ' '* "-->" '\n'? {()}
-| ""               {failwith "endcom"}
+| ""               {raise (Error "Bad HTML comment syntax")}
 and skip_aref = parse
   "</A>" {()}
 | _      {skip_aref lexbuf}  

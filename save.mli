@@ -1,3 +1,4 @@
+exception Error of string
 val set_verbose : bool -> int -> unit
 val seen_par : bool ref
 
