@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: lexstate.ml,v 1.49 2000-07-05 17:46:34 maranget Exp $"
+let header = "$Id: lexstate.ml,v 1.50 2000-07-06 16:48:48 maranget Exp $"
 
 open Misc
 open Lexing
@@ -433,7 +433,6 @@ let save_limits lexbuf =
     try
       let r =
         full_save_arg eof_over mklimits plimits Save.get_limits lexbuf in
-      prerr_endline ("Full limit: "^plimits r) ;
       match r with
       | None -> res
       | Some _ -> do_rec r

@@ -43,10 +43,9 @@
          {#3}}
      {}}%
 \renewcommand{\@makesection}[6]{%
-\newcommand{#1}[2][!*!]{%
-\checkdepth{#2}{\refstepcounter{#3}}%
+\newcommand{#1}[2][!*!]
+{\checkdepth{#2}{\refstepcounter{#3}}%
 \@footnoteflush{#3}%
 \@insertmenu{#3}{#2}{\begin{@norefs}##2\end{@norefs}}%
 #4\checkdepth{#2}{#5} ##2#6\@secend}%
-\newcommand{#1*}[1]{%
-#4##1#6\@secend}}%
+\newcommand{#1*}[1]{#4##1#6\@secend}}

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.183 2000-07-05 17:46:28 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.184 2000-07-06 16:48:43 maranget Exp $ *)
 
 
 {
@@ -803,7 +803,7 @@ let expand_command main skip_blanks name lexbuf =
   if
     (if !in_math then Latexmacros.invisible name
     else
-      effective !alltt &&
+      not (effective !alltt) &&
       is_subst_noarg body pat && last_letter name)
   then begin
     if !verbose > 2 then
@@ -1328,12 +1328,10 @@ def_code "\\@hevea@circ" (fun lexbuf -> sub_sup '^' lexbuf)
 
 def_code "\\mathop"
   (fun lexbuf ->
-    prerr_endline "New mathop" ;
     let symbol = save_arg lexbuf in
     let {limits=limits ; sup=sup ; sub=sub} = save_sup_sub lexbuf in
     match limits with
     | (Some Limits|None) when !display ->
-        prerr_endline "Limit found" ;
         Dest.limit_sup_sub
           (scan_this_arg main)
           (fun _ -> scan_this_arg main symbol) sup sub !display

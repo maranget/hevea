@@ -10,7 +10,7 @@
 (***********************************************************************)
 
 {
-let header = "$Id: infoRef.mll,v 1.19 2000-07-05 17:46:23 maranget Exp $"
+let header = "$Id: infoRef.mll,v 1.20 2000-07-06 16:48:39 maranget Exp $"
 ;;
 
 
@@ -27,7 +27,6 @@ exception Error of string
 type node_t = {
     mutable name : string;
     mutable comment : string;
-    mutable file : string;
     mutable previous : node_t option;
     mutable next : node_t option;
     mutable up : node_t option;
@@ -54,9 +53,16 @@ let menu_num = ref 0
 ;;
 
 let counter = ref 0
+and pos_file = ref 0
 ;;
-let cur_file = ref (Parse_opts.name_out^"-1")
+
+let abs_pos () = !counter + !pos_file
 ;;
+
+
+let cur_file = ref (Parse_opts.name_out)
+;;
+
 let file_number = ref 1
 ;;
 
@@ -76,7 +82,8 @@ let hot_start () =
   current_node := None ;
   menu_num := 0 ;
   counter := 0 ;
-  cur_file := Parse_opts.name_out^"-1" ;
+  pos_file := 0 ;
+  cur_file := Parse_opts.name_out ;
   files := [] ;
   top_node := false ;
   file_number :=  1 ;
@@ -91,9 +98,9 @@ let infomenu arg =
     nod = !current_node;
     nodes = [];
   } ::!menu_list;
-  Text.open_block "INFO" "";
-  Text.put ("\n\\@menu"^string_of_int !menu_num^"\n");
-  Text.close_block "INFO"
+  Text.open_block "INFOLINE" "";
+  Text.put ("\\@menu"^string_of_int !menu_num^"\n");
+  Text.close_block "INFOLINE"
 ;;
 
 let rec cherche_menu m = function
@@ -134,20 +141,6 @@ let verifie name =
 
 
 
-let change_file() = 
-  let changed = 
-    match !current_node with
-      Some n -> if n.file = !cur_file then begin
-	file_number := !file_number +1;
-	true;
-      end else false
-    | _ -> false
-  in
-  
-  if Parse_opts.name_out <> "" then
-    cur_file := Parse_opts.name_out ^ "-" ^ string_of_int !file_number;
-  changed
-;;
 
 (* References *)
 
@@ -203,7 +196,6 @@ let set_out_file s =
   cur_file := s
 ;;
 
-
 let put s = 
   if !verbose >3 then
     prerr_endline ("put :"^s);
@@ -220,17 +212,31 @@ let put_char c =
 
 let put_credits () =
   put "\n\n-------------------------------------\nThis file has been translated from LaTeX by HeVeA.\n\n";
+
+and put_header () =
+  put "This file has been translated from LaTeX by HeVeA.\n"
 ;;
+
+let next_file () = 
+  Out.close !out_cur ;
+  file_number := !file_number +1;
+  cur_file := Parse_opts.name_out ^ "-" ^ string_of_int !file_number ;
+  if !verbose > 0 then
+    prerr_endline ("Change file to "^ !cur_file) ;
+  set_out (Out.create_chan (open_out !cur_file)) ;
+  files := (!cur_file,abs_pos ()) :: !files ;
+  pos_file := abs_pos () ;
+  put_header () ;
+  counter := 0
+
+;;
+
+
+
 
 let noeud_name n = n.name
 ;;
 
-let noeud_file_name n =
-  (if !cur_file = n.file 
-  then ""
-  else "("^n.file^")")
-  ^n.name
-;;
 
 let affiche_menu num =
   let menu = cherche_menu_par_num num !menu_list in
@@ -249,60 +255,49 @@ let affiche_menu num =
 ;;
     
 
-let  affiche_tag_table_un out_file = 
-  if !top_node then begin
-    put_credits ();
-    top_node := false;
-  end;
-
-  put "\n\nTag table:\n";
-  Hashtbl.iter (fun nom n -> put ("File: "^ out_file ^",\tNode: "^noeud_name n^""^string_of_int n.pos^"\n")) nodes;
+let  do_affiche_tag_table s = 
+  put ("\n\nTag table:\n"^(if s<> "" then s^"\n" else "")) ;
+  Hashtbl.iter
+    (fun nom n ->
+      put ("Node: "^noeud_name n^""^string_of_int n.pos^"\n")) nodes;
   put "\nEnd tag table\n";
 ;;
 
 
 let affiche_tag_table ()=
-  set_out (Out.create_chan (open_out Parse_opts.name_out));
-  set_out_file Parse_opts.name_out;
-  put_credits ();
-
-  let rec do_indirect = function
-    | [] -> ()
-    | (f,p)::reste ->
-        put (f^": "^string_of_int p^"\n");
-	do_indirect reste
-  in
-  put "\n\nIndirect:\n";
-  do_indirect (List.rev !files);
-  put "\n\nTag table:\n(Indirect)\n";
-  Hashtbl.iter (fun nom n ->put ("File: "^n.file^",\tNode: "^noeud_name n^""^string_of_int n.pos^"\n")) nodes;
-  put "\nEnd tag table\n";
-  Out.close !out_cur;
+  match !files with
+  | [_] ->
+    do_affiche_tag_table ""
+  | _   ->
+    let rec do_indirect = function
+      | [] -> ()
+      | (f,p)::reste ->
+          put (f^": "^string_of_int p^"\n");
+	  do_indirect reste
+    in
+    Out.close !out_cur ;
+    set_out (Out.create_chan (open_out Parse_opts.name_out)) ;
+    put_header () ;
+    put "\nIndirect:\n";
+    do_indirect (List.rev !files);
+    do_affiche_tag_table "(Indirect)"
 ;;
 
 
 let affiche_node nom =
   if !top_node then begin
-    put_credits ();
-    top_node := false;
-  end;
+    put_credits () ;
+    top_node := false
+  end ;
   let noeud = 
     try Hashtbl.find nodes nom
     with Not_found ->  raise (Error ("Node not found :"^nom))
   in
-  if noeud.file <> !cur_file then begin
-    Out.close !out_cur;
-    set_out_file noeud.file;
-    set_out (Out.create_chan (open_out noeud.file));
-    files := (!cur_file,!counter) :: !files
+  if not Parse_opts.filter && !counter > 50000 then begin
+    next_file ()
   end;
-  noeud.pos <- !counter;
+  noeud.pos <- abs_pos ();
   put "\n";
-(*
-  (match noeud.file with
-    "" -> ()
-  | f -> put ("File: "^f^",\t"));
-*)
   put ("Node: "^noeud_name noeud);
   (match noeud.next with
   | None -> ()
@@ -311,11 +306,13 @@ let affiche_node nom =
   | None -> ()
   | Some n -> put (",\tPrev: "^noeud_name n));
   (match noeud.up with
-  | None -> if noeud.name = "Top" then put ",\tUp: (dir)."
+  | None ->
+      if noeud.name = "Top" then begin
+        put ",\tUp: (dir)." ;
+        top_node := true
+      end
   | Some n -> put (",\tUp: "^noeud_name n));
   put_char '\n';
-  if noeud.name="Top" then top_node := true;
-
   if !verbose >1 then
     prerr_endline ("Node : "^noeud_name noeud);
   
@@ -357,16 +354,8 @@ rule main = parse
   {let _ = arg lexbuf in
   main lexbuf}
 | eof
-    {
-  if List.length !files = 1 then begin
-    affiche_tag_table_un Parse_opts.name_out;
-    Out.close !out_cur;
-    Myfiles.rename !cur_file Parse_opts.name_out;
-  end else begin
-    Out.close !out_cur;
-    affiche_tag_table ();
-  end
-    }
+    {affiche_tag_table ()}
+
 | _ 
     {let lxm = lexeme lexbuf in
     put lxm;
@@ -404,7 +393,6 @@ let do_infonode opt num arg =
   let n = {
     name = verifie num;
     comment = arg;
-    file = !cur_file;
     previous = None;
     next = None;
     up = None;
@@ -416,9 +404,9 @@ let do_infonode opt num arg =
     "" -> None
   | m ->  ajoute_node_dans_menu n m);
   Hashtbl.add nodes n.name n;
-  Text.open_block "INFO" "";
-  Text.put ("\n\\@node"^n.name^"\n");
-  Text.close_block "INFO";
+  Text.open_block "INFOLINE" "";
+  Text.put ("\\@node"^n.name^"\n");
+  Text.close_block "INFOLINE";
   current_node := Some n;
   if !verbose>1 then prerr_endline ("Node added :"^n.name^", "^n.comment)
 
@@ -490,7 +478,22 @@ let finalize_nodes () =
   if !verbose>2 then prerr_endline "finalizing done.";
 ;;
 
-
+let dump buff =
+  let name,out_chan = match Parse_opts.name_out with
+  | "" -> "", Out.create_chan stdout
+  | s  ->
+      let name = s^"-1" in
+      name, Out.create_chan (open_out name) in  
+  if !verbose > 0 then
+    prerr_endline ("Final dump in "^name) ;
+  set_out out_chan ;
+  set_out_file name ;
+  put_header () ;
+  files := [name,abs_pos ()] ;
+  main buff ;
+  Out.close !out_cur ;
+  if !file_number = 1 then
+    Myfiles.rename !cur_file Parse_opts.name_out
 }
 
 

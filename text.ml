@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.47 2000-06-05 08:07:34 maranget Exp $"
+let header = "$Id: text.ml,v 1.48 2000-07-06 16:48:50 maranget Exp $"
 
 
 open Misc
@@ -833,6 +833,11 @@ let try_open_block s args =
       push stacks.s_nocount flags.nocount ;
       flags.nocount <- true ;
       flags.first_line <-0
+  | "INFOLINE" ->
+      push stacks.s_nocount flags.nocount ;
+      flags.nocount <- true ;
+      flags.first_line <-0 ;
+      finit_ligne ()
   | _ -> ();
 
   if !verbose > 2 then
@@ -877,7 +882,7 @@ let try_close_block s =
       flags.first_line <-0;
       do_put ">>\n";
       flags.first_line <-fl;
-  | "INFO" ->
+  | "INFO"|"INFOLINE"->
       flags.nocount <- pop stacks.s_nocount
   | _ -> ()
 ;;

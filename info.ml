@@ -10,7 +10,7 @@
 (***********************************************************************)
 
 
-let header = "$Id: info.ml,v 1.24 2000-05-23 18:00:40 maranget Exp $"
+let header = "$Id: info.ml,v 1.25 2000-07-06 16:48:38 maranget Exp $"
 
 open Misc
 open Text
@@ -67,24 +67,10 @@ let open_group =Text.open_group;;
 let open_aftergroup =Text.open_aftergroup;;
 let close_group =Text.close_group;;
 
-let size = ref 0 ;;
-let max_size = 50000;;
+let put s = Text.put s
+;;
 
-let put s =
-  size:=!size + String.length s;
-  if !size > max_size then begin
-    if InfoRef.change_file() then
-      size := 0;
-  end;
-  Text.put s;;
-
-let put_char c=
-  size :=!size +1;
-  if !size > max_size then begin
-    if InfoRef.change_file() then
-      size := 0;
-  end;
-  Text.put_char c;;
+let put_char c = Text.put_char c;;
 
 let flush_out =Text.flush_out;;
 let skip_line =Text.skip_line;;
@@ -106,25 +92,17 @@ let finalize check =
     if !verbose>1 then prerr_endline "Beginning of second phase.";
     InfoRef.finalize_nodes ();
     Text.finalize check ;
-    let name, buf, out_chan = match Parse_opts.name_out with
-    | "" -> 
+    let name,buf =
+      if Parse_opts.filter then
         let texte = get_current_output () in 
-        Text.finalize check;
-        "",Lexing.from_string texte, Out.create_chan stdout
-    | s ->  
-        Text.finalize check;
+        "",Lexing.from_string texte
+      else
       (* changer de nom de fichier (renommer ?) *)
-        let f = s^".tmp" in
-        if !verbose >1 then prerr_endline ("Out file:"^s);
-        f,Lexing.from_channel  (open_in f),Out.create_chan (open_out s)
+        let f = Parse_opts.name_out^".tmp" in
+        f,Lexing.from_channel  (open_in f)
     in
-    InfoRef.set_out out_chan;
-    InfoRef.set_out_file Parse_opts.name_out;
-    InfoRef.main buf;
-    begin match name with
-    | "" -> ()
-    | _  -> if !verbose <= 0 then Myfiles.remove name
-    end
+    InfoRef.dump buf ;
+    if not Parse_opts.filter && !verbose <= 0 then Myfiles.remove name
   end else
     Text.finalize false
 ;;
