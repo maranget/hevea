@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: mathML.ml,v 1.17 2002-03-19 10:51:38 maranget Exp $" 
+let header = "$Id: mathML.ml,v 1.18 2003-03-17 13:24:51 maranget Exp $" 
 
 
 open Misc
@@ -138,7 +138,7 @@ let do_item_display force =
   !cur_out.active <- [] ;
   if is_freeze then freeze f;
   if !verbose > 2 then begin
-    prerr_string ("out item_display -> ncols="^string_of_int flags.ncols) ;
+    prerr_string ("out item_display -> ncols="^string_of_int flags.ncols^" ") ;
     pretty_stack out_stack
   end ;
 ;;
@@ -146,8 +146,6 @@ let do_item_display force =
 let item_display () = do_item_display false
 and force_item_display () = do_item_display true
 ;;
-
-
 
 let erase_display () =
   erase_block INTERN ;
@@ -272,6 +270,17 @@ let is_op = function
 | _ -> false
 ;;
 
+let is_letter = function
+  |  'a'..'Z'|'A'..'Z' -> true
+  | _ -> false
+
+let is_ident s =
+  let r = ref true in
+  for i = 0 to String.length s-1 do
+    r := !r && is_letter s.[i] 
+  done ;
+  !r
+
 let is_open_delim = function
   | "(" | "[" | "{" | "<" -> true
   | _ -> false
@@ -286,13 +295,15 @@ let open_delim () =
     ( fun () ->
       close_display ();
       close_display (););
+
 and is_close () =
   let f, is_freeze = pop_freeze () in
   if is_freeze then begin
     freeze f;
     false
   end else
-    true;
+    true
+
 and close_delim () =
   let f, is_freeze = pop_freeze () in
   if is_freeze then begin
@@ -307,19 +318,15 @@ and close_delim () =
 
 
 let put s =
+  if !verbose > 1 then
+    Printf.eprintf "MATH PUT: «%s»\n" s ;
   let s_blank =
     let r = ref true in
     for i = 0 to String.length s - 1 do
       r := !r && is_blank (String.get s i)
     done ;
     !r in
-  let s_blanc =
-    let r = ref true in
-    for i = 0 to String.length s - 1 do
-      r := !r &&  ((String.get s i)=' ')
-    done ;
-    !r in
-  if not s_blanc then begin
+  if not s_blank then begin
     let s_op = is_op s
     and s_number = is_number s in
     let save_last_closed = flags.last_closed in
@@ -331,6 +338,8 @@ let put s =
     flags.blank <- s_blank && flags.blank ;
     if s_number then begin
       do_put ("<mn> "^s^" </mn>\n")
+    end else if is_ident s then begin
+      do_put ("<mi> "^s^" </mi>\n")
     end else if s_text then begin
       do_put ("<mtext>"^s^"</mtext>")
     end else if s_op then begin
@@ -339,7 +348,7 @@ let put s =
       do_put s
     end;
     if s_blank then flags.last_closed <- save_last_closed;
-    if is_close_delim s then close_delim ();
+    if is_close_delim s then close_delim ()
   end
 ;;
 
@@ -386,15 +395,13 @@ let put_in_math s =
 
 
 (* Sup/Sub stuff *)
-
-
-let put_sub_sup  s = 
-  open_display ();
-  put s;
-  item_display ();  
-  close_display ();
+let put_sup_sub display scanner (arg : string Lexstate.arg) =
+  if display then open_display () else open_block INTERN "" ;
+  scanner arg ;
+  if display then close_display () else close_block INTERN ;
 ;;
 
+(*
 let insert_sub_sup tag s t =
   let f, is_freeze = pop_freeze () in
   let ps,pargs,pout = pop_out out_stack in
@@ -416,106 +423,82 @@ let insert_sub_sup tag s t =
   open_block INTERN "";
   if is_freeze then freeze f
 ;;
+*)
 
-let get_sup_sub
-    (scanner : string Lexstate.arg -> unit)
-    (s : string Lexstate.arg) =
-  to_string (fun () -> scanner s)
 
 let standard_sup_sub scanner what sup sub display =
-  let sup = get_sup_sub scanner sup
-  and sub = get_sup_sub  scanner sub in
+  if !verbose > 1 then
+    Printf.eprintf "STANDARD «%s, %s» display=%B\n"
+      sup.Lexstate.arg sub.Lexstate.arg display ;
+  let sup, fsup =
+    hidden_to_string (fun () -> put_sup_sub display scanner sup) in
+  let sub,fsub =
+    hidden_to_string (fun () -> put_sup_sub display scanner sub) in
+  if !verbose > 1 then
+    Printf.eprintf "STANDARD FORMAT «%s, %s»\n" sup sub ;
   match sub,sup with
   | "","" -> what ()
   | a,"" -> 
       open_block (OTHER "msub") "";
-      open_display ();
+      if display then open_display ();
       what ();
-      if flags.empty then begin
-	erase_display ();
-	erase_block (OTHER "msub") ;
-	insert_sub_sup (OTHER "msub") a "";
-      end else begin
-	close_display ();
-	put_sub_sup a;
-	close_block (OTHER "msub") ;
-      end;
+      if flags.empty then do_put "<mo> &InvisibleTimes; </mo>" ;
+      if display then close_display ();
+      put a ;
+      close_block (OTHER "msub") ;
   | "",b ->
       open_block (OTHER "msup") "";
-      open_display ();
+      if display then open_display ();
       what ();
-      if flags.empty then begin
-	erase_display ();
-	erase_block (OTHER "msup") ;
-	insert_sub_sup (OTHER "msup") b "";
-      end else begin
-	close_display ();
-	put_sub_sup b;
-	close_block (OTHER "msup");
-      end;
+      if flags.empty then do_put "<mo> &InvisibleTimes; </mo>" ;
+      if display then close_display ();
+      put b ;
+      close_block (OTHER "msup") ;
   | a,b ->
       open_block (OTHER "msubsup") "";
-      open_display ();
+      if display then open_display ();
       what ();
-      if flags.empty then begin
-	erase_display ();
-	erase_block (OTHER "msubsup") ;
-	insert_sub_sup (OTHER "msubsup") a b;
-      end else begin
-	close_display ();
-	put_sub_sup a;
-	put_sub_sup b;
-	close_block (OTHER "msubsup") ;
-      end;
+      if flags.empty then do_put "<mo> &InvisibleTimes; </mo>" ;
+      if display then close_display ();
+      put a ; put "\n" ; put b ;
+      close_block (OTHER "msubsup") ;
 ;;
 
 
 
 let limit_sup_sub scanner what sup sub display =
-  let sup = get_sup_sub scanner sup
-  and sub = get_sup_sub  scanner sub in
+  if !verbose > 1 then
+    Printf.eprintf "STANDARD «%s, %s»\n" sup.Lexstate.arg sub.Lexstate.arg ;
+  let sup, fsup =
+    hidden_to_string (fun () -> put_sup_sub display scanner sup) in
+  let sub,fsub =
+    hidden_to_string (fun () -> put_sup_sub display scanner sub) in
   match sub,sup with
   | "","" -> what ()
   | a,"" -> 
       open_block (OTHER "munder") "";
-      open_display ();
+      if display then open_display ();
       what ();
-      if flags.empty then begin
-	erase_display ();
-	erase_block (OTHER "munder");
-	insert_sub_sup (OTHER "munder") a "";
-      end else begin
-	close_display ();
-	put_sub_sup a;
-	close_block (OTHER "munder");
-      end;
+      if flags.empty then do_put "<mo> &InvisibleTimes; </mo>" ;
+      if display then close_display ();
+      do_put  a ;
+      close_block (OTHER "munder") ;
   | "",b ->
       open_block (OTHER "mover") "";
-      open_display ();
+      if display then open_display ();
       what ();
-      if flags.empty then begin
-	erase_display ();
-	erase_block (OTHER "mover");
-	insert_sub_sup (OTHER "mover") b "";
-      end else begin
-	close_display ();
-	put_sub_sup b;
-	close_block (OTHER "mover");
-      end;
+      if flags.empty then do_put "<mo> &InvisibleTimes; </mo>" ;
+      if display then close_display ();
+      do_put  b ;
+      close_block (OTHER "mover") ;
   | a,b ->
       open_block (OTHER "munderover") "";
-      open_display ();
+      if display then open_display ();
       what ();
-      if flags.empty then begin
-	erase_display ();
-	erase_block (OTHER "munderover");
-	insert_sub_sup (OTHER "munderover") a b;
-      end else begin
-	close_display ();
-	put_sub_sup a;
-	put_sub_sup b;
-	close_block (OTHER "munderover");
-      end;
+      if flags.empty then do_put "<mo> &InvisibleTimes; </mo>" ;
+      if display then close_display ();
+      do_put a ; do_put "\n" ; do_put b ;
+      close_block (OTHER "munderover") ;
 ;;
 
 let int_sup_sub something vsize scanner what sup sub display =

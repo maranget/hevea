@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.228 2003-03-07 17:25:33 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.229 2003-03-17 13:24:51 maranget Exp $ *)
 
 
 {
@@ -874,7 +874,7 @@ let expand_command main skip_blanks name lexbuf =
   end ;
   scan_body exec body args ;
   if (!verbose > 1) then begin
-    prerr_endline ("Cont after macro "^name^": ") ;
+    Printf.eprintf "Cont after macro «%s», display=%B\n" name !display ;
     macro_depth := !macro_depth - 1
   end ;
   Dest.par par_after ;
@@ -1145,6 +1145,10 @@ and image = parse
         skip_blanks lexbuf ;
         let _ = Save.defargs lexbuf in
         Image.put lxm ;
+        if (Lexstate.top_level()) then begin
+          let _ = save_arg lexbuf in
+          ()
+        end ;
         let saved = Save.get_echo () in
         Image.put saved
     | "\\renewcommand" | "\\newcommand" | "\\providecommand"

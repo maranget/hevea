@@ -22,6 +22,7 @@
   {\ifdisplay\ifmmode\def\@edm@act{NO}\else\let\@edm@act\relax\fi\else\let\@edm@act\relax\fi%
   \ifx\@edm@act\relax$$\fi}
   {\ifx\@edm@act\relax$$\fi}
+\newcommand{\to}{\rightarrow}
 %%% Arrays
 \newenvironment{array}
   {\let\\=\@HEVEA@bsbs\let\@hevea@amper=\@HEVEA@amper\@array}
