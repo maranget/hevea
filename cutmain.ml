@@ -1,24 +1,25 @@
 let filename = ref ""
 ;;
 
-let outname = "index.html"
+let outname = ref "index.html"
 ;;
-
-
   
 let main () =
-  Arg.parse [] (fun s -> filename := s) "htmlcut 0.0" ;
+  Arg.parse
+    [("-o", Arg.String (fun s -> outname := s),
+       "filename, make htmlcut output go into file ``filename'' (defaults to index.html)")
+    ] (fun s -> filename := s) "htmlcut 0.0" ;
   Cut.name := Filename.chop_extension !filename ;
   let chan = open_in !filename in
   let buf = Lexing.from_channel chan in
   Location.set !filename buf ;
-  Cut.start_phase outname ;
+  Cut.start_phase !outname ;
   Cut.main buf ;
   incr Cut.phase ;
   let chan = open_in !filename in
   let buf = Lexing.from_channel chan in
   Location.set !filename buf ;
-  Cut.start_phase outname ;
+  Cut.start_phase !outname ;
   Cut.main buf
 ;;
 

@@ -15,8 +15,9 @@ let read_style name =
   with Not_found -> ()
 ;;
  
-let main () =
+let main () = 
 
+    if !readverb > 0 then verbose := 1;
     read_style "htmlgen.sty" ;
 
     begin match !files with
@@ -31,9 +32,11 @@ let main () =
          x
        end else "" in
 
-    Image.base := begin match texfile with
-      "" -> !Image.base
-    | _   -> Filename.chop_suffix texfile ".tex" end ;
+    Image.base :=
+     (if !outname <> ""  then  Filename.chop_suffix !outname ".html"
+     else begin match texfile with
+        "" -> !Image.base
+     | _   -> Filename.chop_suffix texfile ".tex" end) ;
 
     let rec do_rec = function
       [] -> ()
@@ -48,9 +51,12 @@ let main () =
 
     Location.set_base basename ;
 
-    Latexscan.out_file := begin match Filename.basename basename with
-      "" ->  Out.create_chan stdout
-    | s  -> Out.create_chan (open_out (s^".html")) end ;
+    Latexscan.out_file :=
+      if !outname <> "" then
+         Out.create_chan (open_out !outname)
+      else begin match Filename.basename basename with
+        "" ->  Out.create_chan stdout
+      | s  -> Out.create_chan (open_out (s^".html")) end ;
 
         
     begin match texfile with
@@ -69,6 +75,7 @@ let main () =
     let chan = match texfile with "" -> stdin | _ -> open_in texfile in
     let buf = Lexing.from_channel chan in
     Location.set texfile buf ;
+    verbose := !readverb;
     Latexscan.main buf ;
     Location.restore () ;
     finalize ()
@@ -84,3 +91,4 @@ with x -> begin
   end
 end ;
 exit 0;;
+

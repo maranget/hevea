@@ -44,9 +44,12 @@ let open_tex filename =
     with Error _ ->
       if Filename.check_suffix filename ".tex" then
         raise (Error ("Cannot find: "^filename))
-      else
-        try do_open_tex (filename^".tex")
+      else begin
+        let name = filename^".tex" in
+        if is_except name then raise Not_found ;
+        try do_open_tex name
         with Error _ -> raise (Error ("Cannot find file: "^filename))
+      end
   else
     try filename,open_in filename
     with Sys_error _ ->

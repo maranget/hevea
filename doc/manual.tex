@@ -1,0 +1,258 @@
+\documentclass[a4paper]{article}
+\usepackage{../html}
+\usepackage{isolatin1}
+\usepackage{a4wide}
+
+\newcommand{\urlex}[1]{\url{\docurl/examples/#1}{\filename{#1}}}
+\newcommand{\command}[1]{{\tt #1}}
+\newcommand{\filename}[1]{{\tt #1}}
+
+\title{~\htmlgen\ user documentation}
+\author{Luc Maranget\thanks{Inria Rocquencourt -- BP 105, 78153 Le
+Chesnay Cedex. {\tt Luc.Maranget@inria.fr}}}
+
+\begin{document}
+\cutdef{document}{part}
+\maketitle
+
+\begin{abstract}
+The programm \htmlgen\ is a \LaTeX\ to html translator.
+The input language is a fairly complete subset of \LaTeX2e\ (old
+\LaTeX\ style is also accepted) and the
+output langaguage is html that is (hopefullly) correct with respect to
+version 3.2.
+
+Mathematics and other exotic symbols are translated into symbols
+pertening to the symbol font of the html browser, using the
+non-standard \verb+FACE+ atribute of the \verb+FONT+ tag.
+This allows the translation to html of quite a lot of the symbols used in
+\LaTeX.
+
+
+\indent\htmlgen\ understands \LaTeX\ user macros. This allows to use user style
+files with little or no modifications, provided these style files are
+not too tricky.
+
+\indent\htmlgen\ is written in Objective Caml, as many lexers. It is
+quite fast and flexible.
+Using \htmlgen\ is is possible to translate  big documents such
+as manuals, books, etc. very quickly. All documents are
+translated as one single html file. Then, the output file can be cut into
+smaller file, using the companion program \htmlcut.
+\end{abstract}
+
+\newpage
+
+\part{Tutorial}
+
+\section{How to get started}\label{getstarted}
+
+Assume that you have a file \filename{a.tex} written in \LaTeX, using the
+\filename{article}, \filename{book} or \filename{report} style. Then,
+translation
+is achieved by issuing the command~:
+\begin{verbatim}
+     htmlgen a.tex
+\end{verbatim}
+Probably, you will get some warnings about unknown macros. If
+\htmlgen\ does not crash, just ignore them for the moment.
+
+\label{browser}If everything goes fine, this will produce a new file
+``\filename{a.html}'' that you can visualize using an html brower.
+If \filename{a.tex} contains maths symbols you need to instruct your
+browser to use symbol fonts. For Netscape, add the following line to
+your \filename{.Xdefaults} file 
+\begin{verbatim}
+Netscape*documentFonts.charset*adobe-fontspecific:   iso-8859-1
+\end{verbatim}
+(Then, you probably need something like a \command{xrdb} command before
+you start Netscape.)
+
+
+If you wish to experiment \htmlgen\ on small \LaTeX\ source fragments,
+then lauch \htmlgen\ without arguments. \htmlgen\ will read its
+standard input and print the translation on its standard output.
+For instance:
+\begin{verbatim}
+# htmlgen
+$
+x \in {\cal E}
+$
+^D
+<I>
+x <FONT FACE=symbol>Î</FONT> </I><I><FONT COLOR=red> E</FONT></I><I>
+</I>
+\end{verbatim}
+
+You can find some \url{\docurl/examples/}{examples} in the on-line
+documentation, including examples of \urlex{a.tex} and
+\urlex{a.html} files.
+
+\section{More ambitious translations}
+
+\subsection{Base style files}
+
+\noindent\htmlgen\ knows about three \LaTeX\ base style file, \verb+article+,
+\verb+book+ and \verb+report+. In case your source file uses
+another base style, then you can instruct \htmlgen to load one of the
+style files it knows about before processing your source file.
+This is done by giving the desired style file as an extra command line
+argument.
+
+Let us assume that \verb+acmarticle.tex+ uses an exotic style
+file such as \verb+acmconf.sty+. Them, typing
+\verb+htmlgen acmarticle.tex+ may yield two kind of errors.
+Either \htmlgen\ finds the the \verb+acmconf.sty+ file (e.g. if you have a
+private copy of it in your directory) and fails to
+interpret it~:
+\begin{verbatim}
+# htmlgen acmarticle.tex
+./acmconf.sty:84: Unknown macro: \typeout
+./acmconf.sty:85: Unknown macro: \typeout
+./acmconf.sty:87: Adios
+Fatal error: uncaught exception Failure("Bad newif: \if")
+\end{verbatim}
+Or,  \htmlgen\ cannot find the \verb+acmconf.sty+ file and you get a
+lot of warnings:
+\begin{verbatim}
+# htmlgen acmarticle.tex
+main.tex:9: Unknown macro: \@docpart
+main.tex:9: Unknown macro: \@docchapter
+main.tex:18: Unknown counter: footnote
+...
+\end{verbatim}
+
+Both situations are avoided by issuing the command
+\verb+htmlgen article.sty -e acmconf.sty acmarticle.sty+ that instruct
+\htmlgen\ first to load its \verb+article.sty+ style file and then not to
+attempt to load \verb+acmconf.sty+.
+
+\subsection{Macros}
+Just like \LaTeX, \htmlgen\ can be seen as a macro langaguage, macros
+are rewritten until no more expansion is possible. Then either some
+caracters (such as letters, integers\ldots) are outputed or some
+internal operation (such as changing font attributes, or arranging
+text items in a certain manner) are performed.
+
+\subsection{Base macros}
+\LaTeX\ and html differ in many aspects. For instance, \LaTeX\ allows
+much flexibility in spacing, raising or lowering texts items, whereas
+html does not.
+Much more symbols and font attributes are available in \LaTeX\ than in
+html. However, html has font attributes, such as color, which \LaTeX\
+has not.
+
+As a consequence, there are many situation where \htmlgen\ just cannot
+render the visual effect of \LaTeX\ constructions. Here some choices
+have to be made. For instance, the calligraphic letters (\verb+\cal+)
+are rendered in red (\verb+<FONT COLOR=red>+), and the small caps
+(\verb+\sc+) are rendered in bold font (\verb+<BF>+).
+
+If you are not satisfied with my choice, then you
+can make your own choice, by redefining the \verb+\cal+ and \verb+\sc+
+macros. To avoid modyfing your \LaTeX\ file, it is advised to use an
+extra-style file that contains your definitions. Thus in a
+\verb+mydefs.sty+ file you can type:
+\begin{verbatim}
+\renewcommand{\sc}{\large}
+\renewcommand{\cal}{\em}
+\end{verbatim}
+Then, you process a tex file \verb+testsccal.tex+ by the command:
+\begin{verbatim}
+htmlgen mydefs.sty testsccal.tex
+\end{verbatim}
+You find the files
+\urlex{testcal.tex}
+\urlex{testcal.sty}
+and the result file \urlex{testsccal.html} in the on-line documentation.
+
+
+Note that base macros are partly defined in \LaTeX\ style in the
+\verb+htmlgen.sty+ file that \htmlgen\ loads before processing any
+input. Other base macros that require a special processing are defined
+in \htmlgen source code.
+Having a look at the \verb+htmlgen.sty+ file (or at the base style
+files of \htmlgen) will help you in
+designing your own macros.
+
+Hopefully, \htmlgen understands most of \LaTeX base macros and environments.
+This includes positionning environemnts such as \verb+center+,
+\verb+flushleft+ or \verb+quote+; sectioning commands, such as
+\verb+\section+; most of font atribute
+changes such as \verb+\em+, \verb+\tt+, \verb+\large+ and the
+associated environements; math mode as introduced by \verb+$+ and
+display mode as introduced by \verb+$$+\ldots; subscripting and
+superscriting; many math symbols, such as \verb+\in+ ($\in$) or
+\verb+\leftarrow+ ($\leftarrow$); array and tabular
+environmnents; cross references, figures, indexes, footnotes and
+bibliographic references are
+also handled. Again, I made some choices while mapping \LaTeX\
+constructs onto html and some part of them can be modified by
+rewriting macros and environments in \LaTeX.
+
+The html implementation of some nasty \TeX\ or \LaTeX\ constructs such
+as \verb+\over+, \verb+\left...\right+ or limits would deserve a more
+thorough description. Some others such as the \verb+tabbing+ environment would
+deserve a more thourough implementation.
+Some may have deserved an implementation, such as \verb+\sqrt+\ldots\ 
+I will not say more about them, you are invited to experiment and send
+your remarks or critics to \mail{Luc.Maranget}{inria.fr}.
+You can also have a look at \htmlgen\ test suite, see \url{suite.tex}
+and \urlex{suite.html}.
+
+\subsection{User macros}
+\noindent\htmlgen\ understands user macros,
+given both in \LaTeX\ style
+(using \verb+\newcommand+, \verb+\renewcommand+ and
+\verb+\providecommand+) and in simple
+\TeX\ style (using \verb+\def#1#2...+ without delimiting
+characters). 
+In good cases, when the macros does not perform subtle typesetting or
+overuse \TeX\ constructs, everything goes fine.
+However it may happen that the visual effect obtained is not
+satisfactory, even worse some spurious output such as arguments of
+unknown macros may get their way into the final html output.
+
+Consider another example, \urlex{trouble.tex}
+
+
+\section{Other style files}
+
+A latex document usually loads additional style files (using
+\verb+\input+ or \verb+\usepackage+).
+\htmlgen\ simply ignores \verb+\usepackage+ but attempt to load
+input files.
+Appart from understanding the warning of \htmlgen, you can see which
+files it loads by using the \verb+-v+ option.
+
+Consider again a simple \verb+article.tex+ article whose header is as follows
+
+
+
+
+\part{Installation}
+\section{Instalation}
+
+\subsection{Requirements}
+
+This package is mainly written in
+\url{http://caml.inria.fr/ocaml/}{Objective Caml}. Thus, you
+really need Objective Caml to compile it.
+
+The \htmlgen\ user may instruct the program not to process a
+part of the input. Instead, this parts is processed into a
+\verb+.gif+ file and \htmlgen\ ouptuts a  link to the image file.
+\LaTeX\ is changed into a \verb+.gif+ file by the the \verb+imagegen+
+script, which basically calls, \LaTeX, ghostscript a few tools from
+the image processing package
+\url{ftp://wuarchive.wustl.edu/graphics/graphics/packages/NetPBM}{netpbm}.
+To benefit from the full functionnality of \htmlgen, you need all
+this software. However, \htmlgen\ runs without them, but then you will
+have to manage to produce images by yourself.
+
+\subsection{Principles}
+The details are given in the \verb+README+ file in the distribution.
+
+
+
+\end{document}

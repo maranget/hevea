@@ -1,13 +1,16 @@
 %%% not so serious
 \def\TeX{\@print{TeX}}
-\def\LaTeX{\@print{L<sup>a</sup>T<sub>e</sub>X}}
-\newcommand{\htmlgen}{{\sc\sf HtmlGen}}
-\newcommand{\htmlcut}{{\sc\sf HtmlCut}}
+\def\LaTeX{\@print{L<sup>A</sup>T<sub>E</sub>X}}
+\newcommand{\htmlgen}{\@print{H<sup>TML</sup>G<sub>E</sub>N}}
+\newcommand{\htmlcut}{\@print{H<sup>TML</sup>C<sub>U</sub>T}}
 \def\url#1#2{{\nostyle\@print{<A HREF="}#1\@print{">}}{#2}{\nostyle\@print{</A>}}}
 \def\home#1{\char126#1}
+\def\oneurl#1{\url{#1}{#1}}
 \def\localurl#1{}
-\def\programindent#1{}
+\newcommand{\docurl}{http://para.inria.fr/\home{maranget}/htmlgen}
+\newcommand{\mail}[2]{\url{mailto:#1\char64 #2}{#1\char64 #2}}
 %%% now serious
+\def\noprint#1{{\nostyle\@print{#1}}}
 \newenvironment{document}{%
 \@print{<HTML>
 }%
@@ -68,7 +71,7 @@
 \stepcounter{figure}%
 \begin{center}Figure \thefigure:\@caption\end{center}
 \@print{<HR>}\@close{BLOCKQUOTE}}
-
+\newenvironment{figure*}[1][]{\begin{figure}[#1]}{\end{figure}}
 \newcommand{\eqno}[1]{\quad\quad#1}
 \newenvironment{equation}{$$}
   {\stepcounter{equation}\eqno{(\theequation)}$$}
@@ -84,6 +87,7 @@
 \newcommand{\footnoterule}{\@print{<HR ALIGN=left WIDTH=50%>
 }%
 }
+\newcommand{\footnotesep}[1]{}
 \newcommand{\@fnmarktext}[1]{$^{\hbox{#1}}$}
 \newcommand{\@fnmarknote}[1]{{\Large #1}}
 \newcounter{savenote}
@@ -113,7 +117,7 @@
 \@closeanchor
 }
 
-\newcommand{\footenotetext}[2][\value{footnote}]{%
+\newcommand{\footnotetext}[2][\value{footnote}]{%
 \setcounter{anchornote}{#1}%
 \@footnotetext{#1}{#2}{\theanchornote}}
 \newcounter{onefoot}
@@ -127,16 +131,23 @@
 }
 \newcommand{\thanks}[1]{\footnote{#1}}
 %%%%%% Symbols, spaces...
+\def\symbol#1{\char#1}
 \def\quad{~~~}
 \def\qquad{\quad\quad}
 \def\hfill{\qquad\qquad}
+\def\limits{}
 \def\underbrace#1{\underline{#1}}
+\def\@{}
 \def\ { }
+\def\:{ }
 \def\,{~}
 \def\!{}
 \def\frac#1#2{{#1 \over #2}}
-\def\mathord{}
-\def\mathrel{}
+\def\mathord#1{#1}
+\def\mathrel#1{#1}
+\def\mathop#1{#1}
+\def\mathopen#1{#1}
+\def\mathclosefoo1{#1}
 \def\ldots{...}
 \def\dots{...}
 \def\cdots{...}
@@ -146,10 +157,12 @@
 \def\/{}
 \def\&{\@print{&amp}}
 \def\_{\@print{_}}
+\def\{{\ifmath{\rm\char123}\else\char123\fi}
+\def\}{\ifmath{\rm\char125}\else\char125\fi}
 \def\
 {\@print{
 }}
-\def\backslash{\@print{\char92}}
+\def\backslash{\char92}
 \def\neg{\@print{¬}}
 %%% A few additional symbol in iso-latin char set
 \def\P{¶}
@@ -158,8 +171,6 @@
 \def\S{§}
 \def\emptyset{Ø}
 %index
-\def\manual#1{\maroon #1}
-\def\cal{\red}
 
 \def\oe{oe}
 \def\ae{ae}
@@ -220,17 +231,25 @@
 \def\frown{frown}
 \def\mapsto{{\rm |\leftarrow}}
 \def\tth{{\rm ||-}}
+\def\bot{\perp}
+\def\models{{\rm |=}}
+\def\|{||}
 \def\bibliographystyle#1{}
-%%%%%%%%%%%%%%%%
-\def\sf{\purple}
+%%%%%%%%%%%%%%%% Missing series and shapes
+\def\cal{\red}
+\def\sf{\it\purple}
 \def\sc{\bf}
+\def\mdseries{\rm}
+\def\upshape{\rm}
 %%%%%%%%%%%%%%%%
-\def\mathrm#1{{\rm{#1}}}
-\def\mathtt#1{{\tt{#1}}}
-\def\mathit#1{{\it{#1}}}
-\def\mathbf#1{{\bf{#1}}}
+\def\mathrm#1{{\rm #1}}
+\def\mathtt#1{{\tt #1}}
+\def\mathit#1{{\it #1}}
+\def\mathbf#1{{\bf #1}}
 %%%%%%%%%%%%%%%%
 \def\textrm#1{{\rm #1}}
+\def\textup#1{{\upshape #1}}
+\def\textnormal#1{{\rm\black #1}}
 \def\texttt#1{{\tt #1}}
 \def\textit#1{{\it #1}}
 \def\textbf#1{{\bf #1}}
@@ -249,10 +268,21 @@
 \def\textheight#1{}
 \def\parindent#1{}
 \def\topmargin#1{}
+\def\headheight#1{}
+\def\footheight#1{}
+\def\footskip#1{}
 \def\headsep#1{}
 \def\topsep#1{}
 \def\partopsep#1{}
 \def\baselineskip#1{}
+\def\marginparwidth#1{}
+\def\marginparsep#1{}
+\def\leftmargini#1{}
+\def\leftmarginii#1{}
+\def\leftmarginiii#1{}
+\def\leftmarginiv#1{}
+\def\leftmarginv#1{}
+\def\leftmarginvi#1{}
 \def\itemsep#1{}
 \newcommand{\addtolength}[2]{}
 \def\setlength#1#2{}
@@ -271,6 +301,7 @@
 \def\fancyplain#1#2{}
 \def\newblock{}
 \def\vec#1{vec(#1)}
+\def\nobreak{}
 \def\pagebreak{}
 \def\nopagebreak{}
 \def\newpage{}
@@ -290,10 +321,10 @@
 \def\mbox#1{\hbox{#1}}
 \def\parbox#1#2{\hbox{#2}}
 %% Horizontal spacing
-\def\raise#1#2{#2}
-\def\kern#1{}
 \def\noindent{}
+\def\indent{}
 %% Vertical spacing
+\def\unskip{}
 \def\null{}
 \def\cr{\\}
 \def\smallskip{\\}
@@ -308,9 +339,9 @@
 }
 %%%%%%%%%%%% Bibliography
 \def\nocite#1{}
-\newcommand{\bibname}{\iffrench Référenceces\else References\fi}
+\newcommand{\bibname}{\iffrench Références\else References\fi}
 \newenvironment{thebibliography}[1]{\@bibliosection{\bibname}\@open{DL}{}}{\@close{DL}}
-\newcommand{\bibitem}[1]{\item[{\purple[\@bibref{#1}]\label{#1}}]}
+\newcommand{\bibitem}[2][]{\item[{\purple[\@bibref{#2}]\label{#2}}]}
 
 
 %%%%%%%%%%%% Indexes a la index.cls
@@ -335,10 +366,10 @@
 \@print{<!--CUT END -->
 }%
 }
-\newcommand{\cut}[3]{%
+\newcommand{\cuthere}[3]{%
 \@footnoteflush{#2}%
-\@print{<!--}#1\@print{ }#2\@print{ }%
+{\nostyle\@print{<!--}#1\@print{ }#2\@print{ }%
 {#3}\@print{-->
-}%
+}}%
 }
 \def\tableofcontents{}

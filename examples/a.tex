@@ -1,0 +1,150 @@
+\documentstyle[../html,fullpage,isolatin1]{article}
+
+\def\homedir{http://www.polytechnique.fr/poly/edu/profs/Luc.Maranget}
+\begin{latexonly}
+\gdef\url#1#2{#2}
+\end{latexonly}
+\def\oneurl#1{\url{#1}{{\tt #1}}}
+
+\title{TD-5, encore les pointeurs}
+\date{}
+\author{}
+\pagestyle{empty}
+\begin{document}
+\maketitle
+\thispagestyle{empty}
+\begin{center}
+Ce document est disponible à l'URL
+\oneurl{\homedir/TD-5/enonce.html}
+\end{center}
+
+\begin{center}
+Programmes  {\em Prenom.Nom.c} à déposer par {\em
+ftp} sur {\tt poly} en {\tt /users/profs/maranget/TD-5}.
+\end{center}
+
+
+\section{Calculatrice HP}
+On se propose de réaliser une petite calculette HP.
+
+\subsection{Quatre opérations}
+Cette première partie s'inspire du cours. On utilisera une pile {\tt
+stack}, globale et codée
+en machine par une liste d'entiers, voici la définition de {\tt stack} et
+le constructeur des listes~:{\small
+\begin{verbatim}
+typedef struct cell {
+  int val;
+  struct cell *next;
+} Cell, *Stack;
+
+Stack stack = NULL;
+
+Cell *cons(int val,Cell *next)
+{
+  Cell *r;
+
+  r = (Cell *)malloc(sizeof(Cell));
+  if ( r == NULL) {
+    fprintf(stderr,"Plus de memoire\n");
+    exit(-1);
+  }
+  r->val = val;
+  r->next = next;
+  return r;
+}
+\end{verbatim}}
+\begin{itemize}
+\item Écrire les fonctions de base de manipulation de la pile,
+affichage de la pile ({\tt afficher}), empilage ({\tt push}) et
+dépilage ({\tt pop}). Voici des signatures possibles~:{\small
+\begin{verbatim}
+void afficher(void)
+int pop(void)
+void push(int i)
+\end{verbatim}}
+\item Une quelconque des quatre opérations (par exemple $-$) se
+ réalise ainsi~: dépiler le second argument (par exemple $i_2$), dépiler le
+premier argument, (par exemple $i_1$), effectuer l'opération (par
+ exemple $i_1-i_2$) et empiler le résultat.
+
+La calculatrice obéira à un programme contenu dans une chaîne de
+caractères et affichera, à chaque étape intermédiaire, le caractère lu
+(utiliser \verb+printf+ avec le format \verb+"%c"+)
+et l'état de de la pile. Par exemple,
+pour le programme {\tt "12-34++"}, on aura~(la pile est affichée du
+sommet vers le fond)~:{\small
+\begin{verbatim}
+    []
+1 : [1]
+2 : [2, 1]
+- : [-1]
+3 : [3, -1]
+4 : [4, 3, -1]
++ : [7, -1]
++ : [6]
+\end{verbatim}}
+Vous aurez donc à lire la chaîne-programme caractère par caractère
+(rappelez vous qu'une chaîne est un tableau de caractères) et
+à empiler un entier ou à réaliser une opération selon ce que vous avez
+lu. Les quatre opérations devront bien entendu utiliser les primitives de
+pile, {\tt push} et {\tt pop}. Attention au sens de la soustraction et
+de la division.
+\end{itemize}
+
+\subsection{Opérations avancées sur les piles}
+Les vraies calculatrices HP ont des touches spéciales qui permettent
+des manipulations de la pile. Les opérations suivantes (qui diffèrent
+un peu de celles des calculatrices HP) sont à réaliser sans allouer aucune
+cellule de liste.
+\begin{itemize}
+\item {\em Échanger} les deux éléments du sommet de pile. Cette
+opération sera réalisée par le caractère {\tt 's'}. Ainsi, le
+programme {\tt "12s-"} donnera le résultat suivant~:{\small
+\begin{verbatim}
+    []
+1 : [1]
+2 : [2, 1]
+s : [1, 2]
+- : [1]
+\end{verbatim}}
+\item {\em Rotation de la pile vers le haut}~: tous les éléments
+montent d'un cran vers le sommet de pile, le sommet de pile se
+retrouve en fond de 
+pile. Le programme {\tt "4321u"} devra produire~:{\small
+\begin{verbatim}
+    []
+4 : [4]
+3 : [3, 4]
+2 : [2, 3, 4]
+1 : [1, 2, 3, 4]
+u : [2, 3, 4, 1]
+\end{verbatim}}
+\item {\em Rotation de la pile vers le bas}~: c'est l'opération
+inverse, tous les éléments
+descendent d'un cran, le fond  de pile se retrouve en sommet de pile.
+Ainsi, le programme {\tt "4321d"} s'exécute ainsi~:{\small
+\begin{verbatim}
+    []
+4 : [4]
+3 : [3, 4]
+2 : [2, 3, 4]
+1 : [1, 2, 3, 4]
+d : [4, 1, 2, 3]
+\end{verbatim}}
+\end{itemize}
+Remarquez que les rotations reviennent, pour la rotation vers le haut,
+à mettre la cellule de tête en queue de liste et pour la rotation vers
+le bas, à mettre la cellule de queue en tête de liste. Vous aurez
+sans doute intérêt à faire de petits dessins pour vous guider.
+
+La solution de cet exercice apparaîtra \url{hp.txt}{en hp.txt}.
+
+\section{S'il vous reste du temps}
+Réaliser une calculatrice PH, dont la structure de contrôle est une
+file. La file sera réalisée par une liste (voir la fin du cours).
+Une opération se fera en défilant les deux arguments et en enfilant le
+résultat.
+Vous pouvez aller jusqu'à donner une signification claire aux
+rotations et à les programmer.
+\end{document}

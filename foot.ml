@@ -3,25 +3,25 @@ open Html
 
 type ok = Some of string * string * string | None
 
-let table = ref (Array.make 10 None)
+let table = ref (Array.make 12 None)
 and some = ref false
 ;;
 
 let register i mark text anchor =
   some := true ;
-  if Array.length !table < i-1 then begin
-    let t = Array.make (i*2) None in
+  if Array.length !table < i then begin
+    let t = Array.make ((i+1)*2) None in
     Array.blit !table 0 t 0 (Array.length !table) ;
     table := t
   end ;
-  begin match !table.(i-1) with
+  begin match !table.(i) with
     None -> ()
   | Some (_,_,_) -> begin
       Location.print_pos () ;
       prerr_endline "Warning: erasing previous footnote"
     end
   end ;
-  !table.(i-1) <- Some (mark,text,anchor)
+  !table.(i) <- Some (mark,text,anchor)
 ;;
 
 let sec_value s = match String.uppercase s with

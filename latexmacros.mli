@@ -32,9 +32,11 @@ val find_macro: string -> pat * action list
 val make_pat: string list -> int -> pat
 val def_macro_pat: string -> pat  -> action list -> unit
 val redef_macro_pat: string -> pat  -> action list -> unit
+val provide_macro_pat: string -> pat  -> action list -> unit
 val def_macro: string -> int -> action list -> unit
 val redef_macro: string -> int -> action list -> unit
 val def_env_pat: string -> pat -> action list -> action list -> unit
+val unregister : string -> unit
 val newif : string -> unit
 
 val reg : string ref
@@ -45,8 +47,9 @@ val alltt :  bool ref
 val optarg : bool ref
 val styleloaded : bool ref
 
-val invisible : string -> bool
 
+val stylemacro : string -> bool
+val invisible : string -> bool
 val limit : string -> bool
 val int : string -> bool
 val big : string -> bool

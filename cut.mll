@@ -206,10 +206,13 @@ let restore_state () =
   in_chapter := oldinchapter
 ;;
 
+let language = ref "eng"
+;;
+
 let close_top lxm =
   closelist !toc ;
   Out.put !out "<!--FOOTER-->\n" ;
-  Mylib.put_from_lib "footer.bis.html" (Out.put !out) ;
+  Mylib.put_from_lib ("cutfoot-"^ !language^".html") (Out.put !out) ;
   Out.put !out "\n</BODY></HTML>\n" ;
   Out.put !toc lxm ;
   if !tocname = "" then
@@ -217,6 +220,7 @@ let close_top lxm =
   else
    Out.close !toc
 ;;
+
 }
 
 rule main = parse
@@ -254,6 +258,9 @@ rule main = parse
    {if !otheroutname <> "" then
      close_notes ();
     main lexbuf}
+| "<!--" ' '* "FRENCH" ' '* "-->"
+   {language := "fra" ;
+   main lexbuf}
 | "<A" ' '* ("name"|"NAME") ' '* '=' ' '*
   {if !phase = 0 then begin
      let name = refname lexbuf in

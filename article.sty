@@ -8,7 +8,7 @@
 \newcounter {subparagraph}[paragraph]
 \newcounter {footnote}
 \newcounter {anchornote}
-\renewcommand \thepart {\Alph{part}}
+\renewcommand \thepart {\Roman{part}}
 \renewcommand\thesubsection   {\thesection.\arabic{subsection}}
 \renewcommand\thesubsubsection{\thesubsection .\arabic{subsubsection}}
 \renewcommand\theparagraph    {\thesubsubsection.\arabic{paragraph}}
@@ -28,8 +28,8 @@
 %%%%%%%%%%%%%%%%
 \newcommand{\part}[2][]{%
 \stepcounter{part}%
-\ifoptarg\cut{toc}{part}{#1}%
-\else\cut{toc}{part}{#2}\fi
+\ifoptarg\cuthere{toc}{part}{#1}%
+\else\cuthere{toc}{part}{#2}\fi
 \@open{H1}{ALIGN=center}%
 \partname:~\thepart\\%
 #2%
@@ -42,14 +42,14 @@
 }
 \newcommand{\section}[2][]{%
 \stepcounter{section}%
-\ifoptarg\cut{toc}{section}{#1}%
-\else\cut{toc}{section}{#2}\fi%
+\ifoptarg\cuthere{toc}{section}{#1}%
+\else\cuthere{toc}{section}{#2}\fi%
 \@open{H2}{}%
 \thesection\quad #2%
 \@close{H2}%
 }
 \newcommand{\section*}[1]{%
-\cut{toc}{section}{#1}%
+\cuthere{toc}{section}{#1}%
 \@open{H2}{}%
 #1%
 \@close{H2}%
@@ -58,8 +58,8 @@
 
 \newcommand{\subsection}[2][]{%
 \stepcounter{subsection}%
-\ifoptarg\cut{toc}{subsection}{#1}%
-\else\cut{toc}{subsection}{#2}\fi%
+\ifoptarg\cuthere{toc}{subsection}{#1}%
+\else\cuthere{toc}{subsection}{#2}\fi%
 \@open{H3}{}%
 \thesubsection\quad #2%
 \@close{H3}%

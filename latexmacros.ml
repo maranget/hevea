@@ -78,6 +78,23 @@ let redef_macro_pat name pat action =
       Hashtbl.add cmdtable name (pat,action)
   end
 ;;
+let provide_macro_pat name pat action =
+  if !verbose > 1 then begin
+   Printf.fprintf stderr "provide_macro %s = " name;
+   pretty_macro pat action
+  end ;
+  try
+    Hashtbl.find cmdtable name ;
+    Hashtbl.add cmdtable name (pat,action)
+  with
+    Not_found -> begin
+      if !verbose > 1 then begin
+        Location.print_pos () ;
+        prerr_string "Providing non existing: "; prerr_endline name
+      end ;
+      Hashtbl.add cmdtable name (pat,action)
+  end
+;;
 
 let make_pat opts n =
   let n_opts = List.length opts in
@@ -101,6 +118,9 @@ let def_env name body1 body2 =
 let def_env_pat name pat b1 b2 =
   def_macro_pat ("\\"^name) pat b1 ;
   def_macro ("\\end"^name) 0 b2
+;;
+
+let unregister name =  Hashtbl.remove cmdtable name
 ;;
 
 let find_macro name =
@@ -136,6 +156,7 @@ let newif_ref name cell =
   def_macro ("\\"^name^"false") 0 [SetTest (cell,false)]
 ;;
 
+newif_ref "math" in_math ;
 newif_ref "display" display ;
 newif_ref "french" french ;
 newif_ref "optarg" optarg;
@@ -188,6 +209,20 @@ def_env "navy" [Env (Color "navy")] [];
 def_env "blue" [Env (Color "blue")] [];
 def_env "teal" [Env (Color "teal")] [];
 def_env "aqua" [Env (Color "aqua")] [];
+();;
+
+let stylemacro = function
+  "\\nostyle" | "\\rm" | "\\tt"
+| "\\bf" | "\\em" | "\\it" | "\\sl" 
+| "\\tiny" | "\\footnotesize" | "\\scriptsize"
+| "\\small" | "\\normalsize" | "\\large" | "\\Large"
+| "\\huge" | "\\Huge"
+| "\\purple" | "\\silver" | "\\gray" | "\\white"
+| "\\maroon" | "\\red" | "\\fuchsia" | "\\green"
+| "\\lime" | "\\olive" | "\\yellow" | "\\navy"
+| "\\blue" | "\\teal" | "\\aqua" -> true
+| _ -> false
+;;
 
 def_macro "\\alltt" 0 [];
 def_macro "\\endalltt" 0 [];
@@ -199,14 +234,6 @@ def_macro "\\bgroup" 0 [Subst "{"] ;
 def_macro "\\egroup" 0 [Subst "}"] ;
 def_macro "\\underline" 1
   [Subst "{" ; Env (Style "U") ; Print_arg 0 ; Subst "}"];
-def_macro "\\{" 0
-  [IfCond (in_math,
-     [Open ("","") ; Env (Style "RM") ; Print "{" ; Close ""],
-     [Print "{"])];
-def_macro "\\}" 0
-  [IfCond (in_math,
-     [Open ("","") ; Env (Style "RM") ; Print "}" ; Close ""],
-     [Print "}"])] ;
 def_macro "\\ref" 1
   [Print "<A href=\"#"; Subst "\\@print{#1}" ; Print "\">" ;
    Print_fun (Aux.rget,0) ; Print "</A>"];
@@ -220,8 +247,8 @@ let check_in = function
 | "\\subset" -> "\\notsubset"
 | s      -> "\\neg"^s in
 def_macro "\\not" 1 [Print_fun (check_in,0)];
-def_macro_pat "\\makebox" (["" ; ""],["#1"]) [Subst "\\hbox{#1}"] ;
-def_macro_pat "\\framebox" (["" ; ""],["#1"]) [Subst "\\fbox{#1}"] ;
+def_macro_pat "\\makebox" (["" ; ""],["#1"]) [Subst "\\hbox{#3}"] ;
+def_macro_pat "\\framebox" (["" ; ""],["#1"]) [Subst "\\fbox{#3}"] ;
 
 let spaces = function
   ".5ex" -> ""
@@ -297,7 +324,6 @@ def_macro "\\vee" 0 [Print vee];;
 def_macro "\\wedge" 0 [Print wedge];;
 def_macro "\\setminus" 0 [Print setminus];;
 def_macro "\\wr" 0 [Print wr];;
-def_macro "\\diamond" 0 [Print diamond];;
 def_macro "\\bigtriangleup" 0 [Print bigtriangleup];;
 def_macro "\\bigtriangledown" 0 [Print bigtriangledown];;
 def_macro "\\triangleleft" 0 [Print triangleleft];;
@@ -338,7 +364,6 @@ def_macro "\\doteq" 0
      [ItemDisplay ; Print ".<BR>=" ; ItemDisplay],
      [Print "doteq"])];;
 def_macro "\\propto" 0 [Print propto];;
-def_macro "\\models" 0 [Print "|="];;
 def_macro "\\perp" 0 [Print perp];;
 
 def_macro "\\leftarrow" 0 [Print leftarrow];;
@@ -349,9 +374,23 @@ def_macro "\\leftrightarrow" 0 [Print leftrightarrow];;
 def_macro "\\Leftrightarrow" 0 [Print upleftrightarrow];;
 def_macro "\\longrightarrow" 0 [Print longrightarrow];;
 
-def_macro "\\infty" 0 [Print infty];;
-def_macro "\\forall" 0 [Print forall];;
+def_macro "\\aleph" 0 [Print aleph];;
+def_macro "\\wp" 0 [Print wp];;
+def_macro "\\Re" 0 [Print upre];;
+def_macro "\\Im" 0 [Print upim];;
+def_macro "\\prim" 0 [Print prim];;
+def_macro "\\nabla" 0 [Print nabla];;
+def_macro "\\surd" 0 [Print surd];;
+def_macro "\\angle" 0 [Print angle];;
 def_macro "\\exists" 0 [Print exists];;
+def_macro "\\forall" 0 [Print forall];;
+def_macro "\\partial" 0 [Print partial];;
+def_macro "\\diamond" 0 [Print diamond];;
+def_macro "\\clubsuit" 0 [Print clubsuit];;
+def_macro "\\diamondsuit" 0 [Print diamondsuit];;
+def_macro "\\heartsuit" 0 [Print heartsuit];;
+def_macro "\\spadesuit" 0 [Print spadesuit];;
+def_macro "\\infty" 0 [Print infty];;
 
 def_macro "\\lfloor" 0 [Print lfloor];;
 def_macro "\\rfloor" 0 [Print rfloor];;
@@ -413,7 +452,8 @@ let uproman_of_int i = String.uppercase (roman_of_int i)
 ;;
 
 let fnsymbol_of_int = function
-  1 -> "*"
+  0 -> " "
+| 1 -> "*"
 | 2 -> "#"
 | 3 -> "%"
 | 4 -> "\167"
@@ -506,7 +546,8 @@ let invisible = function
 ;;
 
 let limit = function
-  "\\underbrace"
+  "\\limits"
+| "\\underbrace"
 | "\\sum"
 | "\\prod"
 | "\\coprod"

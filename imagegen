@@ -9,14 +9,12 @@ case $1 in
   ;;
 esac
 
-TMP=${BASE}.tmp
+NAME=${BASE}.image
 
-test -r  ${BASE}.image.tex || exit 2
-#gpic -t < ${BASE}.image.tex > ${TMP}.tex
-cp ${BASE}.image.tex ${TMP}.tex
-latex < /dev/null ${TMP}.tex
-dvips -t a3 -x1414 -S 1 -i -o${BASE} ${TMP}.dvi
-/bin/rm -f ${TMP}.log ${TMP}.aux ${TMP}.tex ${TMP}.dvi
+test -r  ${NAME}.tex || exit 2
+latex < /dev/null ${BASE}.image.tex 
+dvips -t a3 -x1414 -S 1 -i -o${BASE} ${NAME}.dvi
+/bin/rm -f ${NAME}.log ${NAME}.aux ${NAME}.dvi
 
 for i in ${BASE}[0-9][0-9][0-9]
 do

@@ -89,11 +89,28 @@ val uprightarrow : string
 val leftrightarrow : string
 val upleftrightarrow : string
 val longrightarrow : string
-val infty : string
-val int : string
-val display_int : string
+
+val aleph : string
+val wp : string
+val upre : string
+val upim : string
+val prim : string
+val nabla : string
+val surd : string
+val angle : string
 val exists : string
 val forall : string
+val partial : string
+val diamond : string
+val clubsuit : string
+val diamondsuit : string
+val heartsuit : string
+val spadesuit : string
+val infty : string
+
+val int : string
+val display_int : string
+
 val notin : string
 val uparrow : string
 val upuparrow : string

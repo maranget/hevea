@@ -15,7 +15,7 @@ Test des exposants abusifs $1^{2^{3^{4^5}}}$
 
 \section{Test du display}
 $$
- 1 + 1 + 1 = 3
+ 1 + {\cal A} + 1 = 3
 $$
 
 \section{Les tableaux}
@@ -231,6 +231,7 @@ $$
 \subsection{Newtheorm + cases}
 
 \newtheorem{th}{Th\'eor\`eme}
+\newtheorem{ath}[th]{Autre théorème}
 \newcommand{\Preuve}{\noindent{\bf Preuve} \hspace{1ex}}
 \begin{th}
 Soit $M^p$ la puissance p-i\`eme de la matrice $M$, le co{e}fficient
@@ -239,6 +240,9 @@ dont l'origine est le sommet $x_i$ et dont l'extr\'emit\'e est le
 sommet $x_j$.
 \end{th}
 
+\begin{ath}[Pour voir]
+Ça devrait avoir le numéro 2.
+\end{ath}
 \Preuve On effectue une r\'ecurrence sur $p$. Pour $p=1$ le
 r\'esultat est imm\'ediat car un chemin de longueur $1$ est un arc du
 graphe. Le calcul de $M^p$, pour $p > 1$ donne: \[M^{p}_{i,j} =

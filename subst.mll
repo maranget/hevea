@@ -1,6 +1,9 @@
 {
 open Lexing
 
+exception BadArg
+;;
+
 let debug m lex =
   Printf.fprintf stderr "%s : %s\n" m lex
 ;;
@@ -18,6 +21,7 @@ rule subst = parse
    {fun stack ->
    let s = lexeme lexbuf in
    let i = Char.code (String.get s 1) - Char.code '1' in
+   if i >= Array.length stack then raise BadArg;
    Out.put outs stack.(i) ; subst lexbuf stack}
 | "\\expandafter" ' '* '#'
    {fun stack -> Out.put outs "#" ; subst lexbuf stack}

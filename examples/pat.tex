@@ -1,0 +1,1273 @@
+\documentstyle[fullpageusa,isolatin1,html]{article}
+
+\addtolength{\topmargin}{-1cm}
+\input{pat.def}
+
+
+\def\showgraph{\par\medskip\centerline{%% BEGIN IMAGE
+\box\graph
+%%END IMAGE
+}\medskip}
+\def\status#1{{\tt #1}}
+
+\title{Compiling Join-Patterns
+\footnote{
+This work is partly supported by the ESPRIT 
+    CONFER-2 WG-21836}}
+\author {Luc Maranget \and Fabrice
+Le~Fessant\\[.5em]
+INRIA Rocquencourt, 
+    BP 105, 78153 Le Chesnay Cedex France.
+\\[.5em]
+{\tt\small \{Luc.Maranget, Fabrice.Le-Fessant\}@inria.fr}
+}
+
+\date {}
+
+
+\begin{document}
+
+
+
+\maketitle
+\thispagestyle{empty}
+
+\begin{abstract}
+  
+  The join-calculus is both a name passing calculus and a core
+  language for concurrent and distributed programming.  An essential
+  part of its implementation is the compilation of {\em
+    join-patterns}.  Join-patterns define new channels and all the
+  synchronizations they take part to at the same time.  Relying on the
+  experience based on our two implementations, we study the
+  translation of join-patterns into deterministic finite-state
+  automata as well as some related optimizations.
+
+  
+\end{abstract}
+
+\section {Introduction}
+
+%%Baratin
+Join-pattern is the distinctive feature of the join-calculus, seen
+both as a process calculus and as a programming language.  On the
+calculus side, join-calculus can roughly be seen as a functional
+calculus plus join-patterns, thus achieving the same expressive power
+as previous name-passing process calculi~\cite{Milner-pi-calculus}.
+Join-definitions are made of several clauses, each clause being a pair
+of a join-pattern and of a guarded process.  A join-pattern expresses
+a synchronization between several {\em names} (or channels). When
+messages are pending on all the names that appear in a given
+join-pattern, then the corresponding clause is said to be active and
+its guarded process {\em may} be fired.  A definition whose
+join-patterns share some names expresses sophisticated
+synchronizations. In such a definition, a message on a name that
+appears in several active clauses is consumed as soon as one of the
+corresponding guarded processes is fired.
+
+Join-languages are built on top of the join-calculus taken as a core
+language.  Therefore, names are first-class citizens, computations are
+first abstracted as collections of asynchronous processes, and
+join-patterns provide an unique, clear and powerful mechanism for
+synchronizing these computations.  The documentation for the
+join-language~\cite{Join} includes a tutorial that shows how join
+definitions may encode classical synchronization constructs such as
+locks, barriers, shared counters,\ldots
+
+%%%Conclusion de l'intro
+On the implementation side, join-patterns are meant to be heavily used
+by programmers, as the only synchronization primitive available.
+Thus, their compilation requires much care.  At the moment, we propose
+two compilers: the {\tt join} compiler~\cite{Join}, a language of its
+own, and the {\tt jocaml} compiler~\cite{Jocaml}, an extension of the
+Objective Caml functional language.
+
+%%% Plan
+Section~\ref{join-calculus} of this paper succinctly presents the
+join-calculus syntax and semantics. Then, section~\ref{automatas}
+introduces the kind of automata we use to compile
+join-synchronization, while section~\ref{implementation} presents two
+techniques for implementing them.  The first technique directly
+derives from automata description and is used in our {\tt join}
+compiler. The second technique performs some extra runtime tests, this
+is the technique used in our {\tt jocaml} compiler.
+Sections~\ref{optimization} and~\ref{fusion} discuss
+optimizations and section~\ref{conclusion} concludes.
+
+
+
+
+\section{A rapid tour of the join-calculus}
+\label{join-calculus}
+\subsection {Syntax}
+
+We here rephrase the traditional presentation of the core
+join-calculus~\cite{FournetGonthier96}, where names are
+the only value. Thus, we ignore the issue of system primitives and
+constants, since
+names provide sufficient expressive power for our purpose of
+describing our implementation of pattern matching (However we use
+primitives and constants in our examples).
+We slightly change the syntax of~\cite{FournetGonthier96}, in order to
+match the one of
+the {\tt join} programming language.
+
+We use $x$ to denote a name in general.
+$$
+\begin{array}{l@{\hspace{2cm}}l}
+\begin{array}{rcl}
+P & ::= & x\tuple{x_i\inu p}\\
+  & \mid & \Def D in P\\
+  & \mid & P | P
+\end{array}
+&
+\begin{array}{rcl}
+D & ::= & J |> P \\
+  & \mid & D \And D\\[1em]
+
+J & ::= &  x\tuple {x_i\inu p}\\
+  & \mid & J | J
+\end{array}
+\end{array}
+$$
+
+A process $P$ is either a message, a defining process, or a parallel
+composition of processes (note that names are polyadic, meaning that
+messages may be made of several values);
+%
+a definition $D$ consists of one or several clauses $J = P$ that
+associate a guarded process $P$ to a specific message pattern $J$;
+%
+a join-pattern $J$ consists of one or several messages in parallel. We
+say that the pattern $J = \ldots x\tuple {x_i \inu p}\ldots$
+defines the name $x$ and that a definition defines the set of the names
+defined by its patterns.
+Moreover, patterns are linear, i.e. names may appear at most once in
+a given pattern.
+
+Processes and definitions are known modulo renaming of bound
+variables, as substitution performs $\alpha$-conversion to avoid
+captures.
+
+\subsection{Semantics}
+
+
+This semantics is specified as a reflexive chemical abstract machine
+(RCHAM)~\cite{BeBo92}. The state of the computation
+is a {\em chemical soup} $\dd \tth \pp$ that consists of two
+multisets: active definitions~$\dd$ and running processes~$\pp$.
+
+The chemical soup evolves according to two families of rules: {\em
+  Structural rules} $\redstruct$ are reversible ($\heat$ is heating,
+$\cool$ is cooling); they represent the syntactical rearrangement of
+terms (heating breaks terms into smaller ones, cooling builds larger
+terms from their components).  {\em Reduction rules} $\redsoupe$
+consume specific processes present in the soup, replacing them by some
+others; they are the basic computation steps.
+%
+
+We present simplified chemical rules
+(see~\cite{FournetGonthier96,FGLMR96_Calculus_mobile_agent} for
+the complete set of rules).
+Following the chemical tradition, every rule applies on any matching
+subpart of the soup, non-matching sub-parts of the soup being left
+implicit.
+$$
+\let \N \name
+\let \su \varphi
+\begin{array}{rl@{~}c@{~}rl@{\quad}l}
+  &\tth P_1 | P_2   &\redstruct&           &\tth P_1, P_2 &\hbox{S-Par}\\
+D_1 \And D_2 &\tth             &\redstruct& D_ 1, D_2 &\tth   &\hbox{S-And}\\
+             &\tth \Def D in P &\redstruct&         D  &\tth P
+             &\hbox{S-Def} \\[1em]
+      J |> P &\tth \su  (J)    &\redsoupe & J |> P    &\tth \su (P)
+      &\hbox{R-$\beta$}
+\end{array}
+$$
+Two of the rules above have side conditions:
+\begin{itemize}
+\item (\name{S-Def}) 
+the names defined in $D$ must not appear anywhere
+in solution but in the reacting process and definition~$D$ and $P$.
+This condition is global; in combination with $\alpha$-renaming it
+enforces lexical scoping.
+
+\item (\name{R-$\beta$}) $\varphi (\cdot)$ substitute actual names for
+the received variables in $J$ and $P$.
+
+\end{itemize}
+Additionally, we only consider well-typed terms and reductions.
+See~\cite{join-typing-97} for details on a rich polymorphic type system
+for the join calculus. Here, this mostly amounts to assuming that
+message and name arity always agree.
+
+
+In this paper, we take particular interest in the reduction (\name{R-$\beta$}).
+Informally, when there are messages pending on all the names defined
+in a given join-pattern, then the process guarded by this join-pattern
+may be fired. When firing is performed, we say that a {\em matching} occurs.
+On the semantics level, there is a message $\tuple{x_i\inu p}$ pending
+on a name~$x$ when there is an active molecule
+~$x\tuple {x_i\inu p}$ in the chemical soup.
+
+Thus, we may define the reactivity status of a given chemical soup as
+the multiset of the active molecules in it.
+Later on in this paper, we shall consider various abstractions of this
+reactivity status.
+
+
+\subsection{The join programming languages}
+
+Apart from primitives, join-languages support {\em synchronous}
+names, which the core join-calculus does not provide directly.
+Synchronous names send back results, a bit like functions.
+However synchronous names may engage in any kind of
+join-synchronization, just as asynchronous names do.
+A program written using synchronous names can be translated
+into the core join-calculus alone. 
+The translation is analogous to continuation passing style
+transformation in the $\lambda$-calculus.
+In our implementation, as far as pattern matching is concerned,
+a synchronous name
+behave like it was asynchronous and carried one additional continuation
+argument. All implementation difficulties concentrate in managing this extra
+argument, whose presence had no effect on pattern matching itself.
+
+
+
+The {\tt join} language~\cite{Join} is our first prototype. All
+examples in this paper are in {\tt join} syntax.  The system consists
+in a bytecode compiler and a bytecode interpreter.  Both compiler and
+interpreter are Objective Caml~\cite{Objective-Caml} programs and it
+is easy to lift Objective Caml data types and functions into {\tt
+  join} abstract data types and primitives.  For instance, {\tt join}
+programs easily draw graphics, using the graphics Objective Caml
+library.  As a consequence, {\tt join} can be seen either as a
+language of its own, featuring many primitives, or as a distributed
+layer on top of Objective Caml.  Continuations are encoded using
+ad hoc threads, which are created and scheduled by the {\tt join}
+bytecode interpreter.
+
+
+The {\tt jocaml} system is our second implementation. In {\tt jocaml},
+all join-calculus constructs for concurrency, communication,
+synchronization and process mobility are directly available as
+syntactical extensions to Objective Caml.  On the runtime environment
+side, we have supplemented the original Objective Caml runtime system
+(which already provides a thread library) with a special ``join''
+library and a distributed garbage collector~\cite{GCDistri}. On the
+compiler side, the Objective Caml compiler has been extended to
+translate join-calculus source code into functions calls to the
+``join'' library.  However, we also introduced a few new instructions
+to Objective Caml bytecode, but only to handle code mobility, a
+feature orthogonal to pattern matching.  The {\tt jocaml} system is
+currently available as a prototype version~\cite{Jocaml}.
+
+\section{Pattern matching in join definitions}
+\label{automatas}
+\subsection{Principle}
+
+Consider the following join definition:
+\begin{verbatim}
+let A(n) | B() = P(n)
+and A(n) | C() = Q(n)
+;;
+\end{verbatim}
+This defines three names $A$, $B$ and $C$. Name $A$ has arity one,
+whereas names $B$ and $C$ have arity zero.  Names may be synchronous
+or asynchronous, depending on whether there are \verb+reply ... to
+...+ constructs applying to them inside the guarded processes~$P(n)$
+and $Q(n)$ or not.
+
+According to the general join-calculus semantics, the guarded process
+$P(n)$ may be fired whenever there are some messages pending on $A$ and
+$B$. Similarly, $Q(n)$ may be fired whenever there are some messages
+pending on $A$ and $C$. In both cases, the formal parameter $n$ is
+replaced by (or bound to in the implementation) one of the messages
+pending on $A$.
+
+Reactivity information is to be considered at the definition level,
+since matching is indeed performed at this level.  Moreover, in order
+to use finite-state automata, we want this information to range on a
+finite set of possible values.  As far as matching is concerned and by
+the linearity of patterns, only the presence or absence of messages
+matters.  Thus, let us call \status{0} the status of a name without
+any message pending, and \status{N} the status of a name with at least
+one message pending.  Then, the status of a definition is a tuple
+consisting of the statuses of the names it defines, once some
+arbitrary order of these names has been adopted.
+
+For instance, if some messages are pending on $B$ and $C$, whereas
+none is pending on $A$, then the status of the $A$, $B$, $C$
+definition is a three-tuple written \status{0NN}.
+
+A {\em matching status} is defined as a status that holds enough
+\status{N}, so that at least one guarded process can be fired.
+
+Definition status evolves towards matching status as messages arrive.
+This yields a first kind of ``increasing'' transitions.  More
+specifically, when a message arrives on some name, then this name
+status either evolves from \status{0} to \status{N} or remains
+\status{N}.  Definition status evolves accordingly.  In the $A$, $B$,
+$C$ case we get the following transitions.  (In this diagram,
+transitions are labeled by the name that gets a new message and
+matching statuses are filled in gray.)
+%%BEGIN IMAGE
+.PS
+cm = 0.3937;
+pt = 1/72;
+hu = 2 * cm;
+vu = 1.5 * cm
+circlerad = 12 * pt
+arcrad = circlerad
+rblabht = 2 * circlerad
+rblabwid = 4 * circlerad
+fillval=0.3
+pi=3.1415927
+
+define clab {
+    {circle at Here $1 $2 $3}
+}
+
+define ilab {
+    {box invis $1 $2 $3 at Here}
+}
+
+define ln {
+    L: [circle rad 0]
+    if $4 < 0 then {
+      box $3 rjust wid 0 ht 0 at L.c + ($1*(hu/3)-circlerad/4, $2*(vu/3))
+    } else {if $4 > 0 then {
+      box $3 ljust wid 0 ht 0 at L.c + ($1*(hu/3)+circlerad/4, $2*(vu/3))
+    } else {
+      box $3 ljust wid 0 ht 0 at L.c + ($1*(hu/3)+ 0.001 * cm, $2*(vu/2.5))
+    }}
+    {line  ->  chop from L.c to L.c + ($1*hu, $2*vu)}
+    move to  L.c + ($1*hu, $2*vu)
+}
+
+define dln {
+    {line  -> dotted right $1*hu up $2*vu chop}
+    move right $1*hu up $2*vu
+}
+
+define htccw {
+  psi=$1
+  phi=$2
+  {
+  c0=circlerad * 2 * cos(psi/2) * cos(phi+psi/2)
+  s0=circlerad * 2 * cos(psi/2) * sin(phi+psi/2)
+  c1=circlerad * cos(phi) ; s1 = circlerad * sin(phi)
+  c2=circlerad * (2 * cos(psi/2) + 1) * cos(phi+psi/2)
+  s2=circlerad * (2 * cos(psi/2) + 1) * sin(phi+psi/2)
+  c3=circlerad * cos(phi+psi) ; s3 = circlerad * sin(phi+psi)
+  A: [circle rad 0.0]
+  move to A.c + (c1,s1)
+  arc $4 rad circlerad to A.c + (c2,s2)
+  arc -> $4 rad circlerad to A.c + (c3,s3)
+  circle invis $3 with.c at A.c + (c0,s0)}
+}
+
+define htcw {
+  psi=$1
+  phi=$2
+  {
+  c0=circlerad * 2 * cos(psi/2) * cos(phi-psi/2)
+  s0=circlerad * 2 * cos(psi/2) * sin(phi-psi/2)
+  c1=circlerad * cos(phi) ; s1 = circlerad * sin(phi)
+  c2=circlerad * (2 * cos(psi/2) + 1) * cos(phi-psi/2)
+  s2=circlerad * (2 * cos(psi/2) + 1) * sin(phi-psi/2)
+  c3=circlerad * cos(phi-psi) ; s3 = circlerad * sin(phi-psi)
+  A: [circle rad 0.0]
+  move to A.c + (c1,s1)
+  arc cw $4 rad circlerad to A.c + (c2,s2)
+  arc cw -> $4 rad circlerad to A.c + (c3,s3)
+  circle invis $3 with.c at A.c + (c0,s0)}
+}
+
+define tourccw {
+  htccw(pi/2,$1,$2,$3)
+} 
+
+define tourcw {
+  htcw(pi/2,$1,$2,$3)
+}
+
+hu=3*cm
+[
+vu=2*cm
+circlerad=15*pt
+clab("\status{000}")
+{ln(-1,-1,"$B$",-1) ; clab("\status{0N0}") ; tourccw(pi/2,"$B$")
+  {ln(0,-1,"$A$",0) ; clab("\status{NN0}",fill)
+   tourccw(pi,"$A, B$")
+   ln(1,-1,"$C$",-11)}
+  {ln(1,-1,"$C$",1) ; clab("\status{0NN}")
+    tourcw(pi/8,"$\,B, C$")
+    ln(0,-1,"$A$",-1) ; clab("\status{NNN}",fill)
+    tourccw(5*pi/4,"$A,B,C$")}}
+{ln(0,-1,"$A$",0) ; clab("\status{N00}") ; tourcw(pi/2.5,"$A$")
+  {ln(-1,-1,"$B$",-1)}
+  {ln(1,-1,"$C$",1)}}
+{ln(1,-1,"$C$",1) ; clab("\status{00N}") ; tourcw(pi/2,"$C$")
+  {ln(-1,-1,"$B$",1)}
+  {ln(0,-1,"$A$",0) ; clab("\status{N0N}",fill) tourcw(0,"$A, C$")
+   ln(-1,-1,"$B$",1)}}
+]
+.PE
+%% TO IMAGE
+\showgraph
+%
+
+Definition status also evolves when matching occurs. This yields
+new, ``decreasing'', transitions that we call matching transitions.
+According to the join-calculs semantics,
+matching may occur at any moment (provided of course that
+matching is possible).
+As a consequence, matching transitions start from matching states and
+they are unlabelled.
+In the $A$, $B$, $C$ case, they are as follows:
+%% BEGIN IMAGE
+.PS
+lab=0.5
+
+define iln {
+    move right $1*hu up $2*vu
+}
+
+aphi=pi/4
+
+define alncw {
+ c= circlerad*cos($1) ; s = circlerad*sin($1)
+ c2 =  circlerad*cos($2) ; s2 = circlerad*sin($2)
+ C: [circle rad 0]
+ if $4 < 0 then {abs = -$4} else {abs = $4}
+ x1 = c ; y1 = s ; x2 = $3*hu+c2 ; y2 = $4*vu+s2
+ d = (x2-x1) * (x2-x1) + (y2-y1)*(y2-y1)
+ ar = sqrt(d) / (2*sin(aphi))
+ D: arc cw -> $6 rad ar from C.c + (x1,y1) to C.c + (x2,y2)
+ r=last arc.rad
+ x3 = C.c.x + lab*(x1+x2) ; y3 = C.c.y + lab*(y2+y1)
+ d = sqrt((x3-D.c.x) * (x3-D.c.x) + (y3 -D.c.y)*(y3-D.c.y))
+ line invis from D.c to r/d  <D.c,(x3,y3)> ; $5
+}
+
+define aln {
+ c= circlerad*cos($1) ; s = circlerad*sin($1)
+ c2 =  circlerad*cos($2) ; s2 = circlerad*sin($2)
+ C: [circle rad 0]
+ if $4 < 0 then {abs = -$4} else {abs = $4}
+ x1=c ; y1 = s ; x2 = $3*hu+c2 ; y2 = $4*vu+s2
+ d = (x2-x1) * (x2-x1) + (y2-y1)*(y2-y1)
+  ar = sqrt(d) / (2*sin(aphi))
+ D: arc -> $6 rad ar from C.c + (x1,y1) to C.c + (x2,y2)
+ r=last arc.rad
+ x3 = C.c.x + lab*(x1+x2) ; y3 = C.c.y + lab*(y2+y1)
+ d = sqrt((x3-D.c.x) * (x3-D.c.x) + (y3 -D.c.y)*(y3-D.c.y))
+ line invis from D.c to r/d  <D.c,(x3,y3)> ; $5
+}
+
+clab("\status{000}")
+{iln(-1,-1,invis) ; clab("\status{0N0}")
+  {iln(0,-1,"$B$") ; clab("\status{NN0}",fill) ;
+    {dln(0,1)} ; {dln(1,1)} ; {dln(1,2)}
+    tourccw(pi,"",dotted) ; iln(1,-1,"$C$")}
+  {iln(1,-1,"$C$") ; clab("\status{0NN}")
+    iln(0,-1,"$B$") ; clab("\status{NNN}",fill)
+     tourccw(5*pi/4,"",dotted)
+     {dln(0,1)} ; {dln(-1,1)} ; {dln(1,1)} ;
+     {aln(3*pi/8,-pi/3,0,2,"",dotted)}
+     {dln(-1,2)} ; {dln(1,2)}}}
+{iln(0,-1,"$B$") ; clab("\status{N00}")
+  {iln(-1,-1,"$A$")}
+  {iln(1,-1,"$C$")}}
+{iln(1,-1,"$C$") ; clab("\status{00N}")
+  {iln(-1,-1,"$A$")}
+  {iln(0,-1,"$B$") ; clab("\status{N0N}",fill) ;
+    {dln(0,1)} ; {dln(-1,1)} ; {dln(-1,2)}
+    tourcw(0,"",dotted) ; iln(-1,-1,"$A$")}}
+.PE
+%% TO IMAGE
+\showgraph
+
+
+Observe that there may be several matching transitions starting from a
+given status.  This is not always a consequence of the
+non-deterministic semantics of the join-calculus.
+
+Often, ambiguity is only apparent.  For instance, matching transitions
+starting from \status{NN0} lead to \status{NN0}, \status{N00},
+\status{0N0} and \status{000}.  When such a matching occurs, two
+messages are consumed (one pending on $A$ and one pending on $B$)
+then, depending on whether there are some messages left pending on $A$
+and $B$ or not, status evolves to \status{NN0}, \status{N00},
+\status{0N0} or \status{000}.  From the implementation point of view,
+this means that a little runtime testing is required once matching has
+been performed. Here, we pay a price for using finite-state automata.
+
+However, some true non-determinism is still present.  Consider
+status~\status{NNN} for instance.  Then, both guarded processes of the
+$A$, $B$, $C$ definition can now be fired.  The choice of firing
+either $P(n)$ or $Q(n)$ will result in either consuming one message
+pending on $A$ and one on $B$, or consuming one message pending on $A$
+and one on $C$.
+
+Finally, a view of join-matching compilation can be given by taking
+together both kinds of transitions. This yields a non-deterministic
+automaton.
+
+Note that matching of non-linear patterns  can also be compiled using automata.
+For instance, if a name appears at most twice in one or more pattern,
+then it status will ramge on $\status{0}$, $\status{1}$ and $\status{N}$.
+We do not present this extension in greater detail, for simplicity, and
+because we do not implement non-linear patterns.
+
+\subsection{Towards deterministic automata}
+
+For efficiency and simplicity reasons we choose to implement matching
+using deterministic automata that react to message reception.
+
+Fortunately, it is quite possible to do so. It suffices to perform
+matching as soon as possible.  More precisely, when a message arrives
+and carries definition status into matching status, matching is
+performed immediately, while definition status is adjusted to reflect
+message consumption.  This results in pruning the status space just
+below matching statuses.
+
+
+In practise, in the $A$, $B$, $C$ case, we get the
+automaton of figure~\ref{abc}.
+\begin{figure}[th]
+%% BEGIN IMAGE
+.PS
+circlerad=16*pt
+hu=3 *cm
+vu=3 *cm
+clab("\status{000}")
+{ln(-1,-1,"$B$",-1) ; clab("\status{0N0}")
+  tourccw(-9*pi/10,"$B$")
+  tourccw(pi/2,"$A$",dotted)
+  {alncw(pi/4,-3*pi/4,1,1,"$A$",dotted)}
+  {ln(1,-1,"$C$",1) ; clab("\status{0NN}")
+    htccw(pi/4,-pi/2-pi/8,"$B, C$")
+    {alncw(3*pi/4,-pi/4,-1,1,"$A$",dashed)}
+    {aln(pi/4,-3*pi/4,1,1,"$A$",dotted)}
+    tourccw(-5*pi/12,"$A$",dotted)
+    tourcw(-7*pi/12,"$A$",dashed)
+}}
+{ln(0,-1,"$A$",0) ; clab("\status{N00}")
+  tourcw(5*pi/12,"$A$")
+  tourccw(-3*pi/4,"$B$",dotted)
+  tourccw(-17*pi/12,"$C$",dashed)
+  {alncw(pi/2,-pi/2,0,1,"$B$",dotted)}
+  {aln(pi/2,-pi/2,0,1,"$C$",dashed)}
+}
+{ln(1,-1,"$C$",1) ; clab("\status{00N}") ;
+  tourcw(-pi/10,"$C$")
+  tourcw(pi/2,"$A$",dashed)
+  {aln(3*pi/4,-pi/4,-1,1,"$A$",dashed)}
+  {ln(-1,-1,"$B$",-1)}}
+.PE
+%% TO IMAGE
+\showgraph
+\caption{\label{abc} Automaton in the $A$, $B$, $C$ case}
+\end{figure}
+
+Observe that all transitions are now labeled and that a name labels a
+transition when message reception on this name triggers that
+transition.  Furthermore, matching transitions that correspond to
+firing $P(n)$ or firing $Q(n)$ are now represented differently (the
+former by a dotted arrow, the latter by a dashed arrow).  This
+highlights the difference between false and true non-deterministic
+transitions: real non-determinism is present when there are both
+dotted and dashed edges with the same label starting from the same
+node.
+
+For instance, there are two $B$-labeled dotted transitions starting
+from $\status{N00}$.  Non-determinism is only apparent here, since
+$P(n)$ is fired in both cases and that the selected transition depends
+only on whether there is at least one message left pending on $A$
+or not after firing $P(n)$.
+
+
+By contrast, from status \status{0NN}, the automaton may react to the
+arrival of a message on $A$ in two truly different manners, by firing
+either $P(n)$ or $Q(n)$.  This is clearly shown in figure~\ref{abc} by
+the  $A$-labeled edges that start from status~\status{0NN}, some of
+them being dashed and the others being dotted.  A simple way to avoid
+such a non-deterministic choice at run-time is to perform it at
+compile-time.  That is, here, we suppress either dotted or dashed
+$A$-labeled transitions that start from $\status{0NN}$.
+
+In the rest of the paper, we take automata such as the one of
+figure~\ref{abc} as suitable abstractions
+of join-pattern compilation output.
+
+\subsection{Automata and semantics}
+
+Both the ``match as soon as possible'' behavior and the deletion of
+some matching transitions have a price in terms of semantics.
+More precisely, some CHAM behaviors now just cannot be observed
+anymore.
+However,
+the CHAM semantics is a non-deterministic one: an initial
+configuration of the CHAM {\em may} evolve into a variety of configurations.
+Furthermore, there is no fairness constraint of any kind and
+no particular event is required to occur.
+
+As an example of the consequence of the ``match as soon as possible''
+behavior, consider this definition:
+\begin{verbatim}
+let A() = print(1);
+and B() = print(2);
+and A() | B() = print(3);
+;;
+\end{verbatim}
+Then, we get the following automaton:
+%% BEGIN IMAGE
+.PS
+clab("\status{00}")
+ tourcw(-3*pi/4,"$A$",dotted)
+ tourccw(-pi/4,"$B$",dashed)
+.PE
+%% TO IMAGE
+\showgraph
+Status \status{NN} that is preceded by the two matching statuses
+\status{0N} and \status{N0} cannot be reached. As a consequence, the
+above program will never print a {\tt 3}, no matter how many messages
+are sent on $A$ and $B$.
+
+Next, to illustrate the effect of deleting ambiguous matching
+transitions, consider the following definition:
+\begin{verbatim}
+let A() = print(1);
+and A() | B() = print(2);
+\end{verbatim}
+Such a definition will get compiled into one of the following
+deterministic automata:
+%% BEGIN IMAGE
+.PS
+{clab("\status{00}")
+ tourccw(pi/4,"$A$",dotted)
+ {ln(0,-1,"$B$",0)
+   clab("\status{0N}")
+   tourcw(pi/4,"$B$");
+   tourcw(-3*pi/4,"$A$",dotted)
+ }
+}
+move right 1.5*hu
+{clab("\status{00}")
+ tourccw(pi/4,"$A$",dotted)
+ {ln(0,-1,"$B$",0)
+   clab("\status{0N}")
+   tourcw(pi/4,"$B$");
+   tourcw(-3*pi/4,"$A$",dashed)
+   {alncw(pi/2,-pi/2,0,1,"$A$",dashed)}   
+ }
+}
+.PE
+%% TO IMAGE
+\showgraph
+In the case of the left automaton, only {\tt 1} will ever get printed.
+In the case of the right
+automaton, {\tt 2} will be printed when some messages arrives on~$B$
+and then on~$A$.
+Both automata lead to correct implementations of the semantics. However
+the second automata looks a better choice than the first one, since it
+yields more program behaviors.
+
+
+\section{Runtime definitions}
+
+\label{implementation}
+\subsection{Basics}
+
+Names are the basic values of the join-calculus, and thus any
+implementation of the join-calculus must supply a runtime
+representation for them. For instance, a name can be sent on some
+appropriate channel. At runtime, we must indeed send something.
+
+However, names that are defined together in the same join definition
+interact when matching is tested for and performed.  Moreover, by the
+very idea behind the join-calculus, matching is the only
+synchronization primitive.  In other words, only names that are
+defined by the same join definition have some kind of interaction that
+is of the runtime system responsibility.
+
+
+This makes possible and desirable to compile a source definition into
+a runtime ``definition'', a single vector structure that groups all
+the names defined in a given definition.  Names must still exist as
+individuals, they can be represented as infix pointers into their
+definition (as in {\tt join}), or as a definition pointer and an index
+(as in {\tt jocaml}).
+
+Both the {\tt join} and {\tt jocaml} systems implement the automata of
+the previous section.  However, they do so in quite different manners.
+The former focuses on minimizing runtime testing, while the latter
+involves a systematic runtime testing of the current status at every
+message arrival.
+
+\subsection{Definitions in {\tt join}}
+
+Runtime definitions are vector structures.  Every name defined in a
+definition occupies two slots in the vector structure.  The first
+entry holds a code pointer that stands for the name itself, while the
+second entry holds a pointer to a queue of pending messages, queues
+being organized as linked lists.  Runtime definitions include
+additional slots that hold the values of the variables that are free
+in guarded processes. This technique resembles much the one used by
+the SML/NJ compiler~\cite{Appel-compiling} to represent mutually
+recursive functions.  Message sending on name~$x$ is performed by
+stacking message values and then calling the code for name~$x$.  This
+code is retrieved by dereferencing twice the infix pointer that
+represents~$x$ at runtime.
+
+
+However, there is a big difference between mutually recursive
+functions and join definitions.  The code for name~$x$ is automaton
+code that reacts to the arrival of a new message on that name.  The
+compiler issues various versions of name code, one per possible status
+of the definition that defines~$x$.  Typically, name code either saves
+a message into the queue for~$x$ (in the non-matching case), or
+retrieves messages from other queues before firing a guarded process
+(in the matching case). In all cases, definition status may then
+need an update, which is performed by updating all code entries in
+the definition.
+
+
+\subsection{Definitions in {\tt jocaml}}
+
+In the {\tt jocaml} system, a name is a pointer to a definition plus
+an index.  Definitions are still vectors structures, but there is only
+one entry per name for message queues. Additionally, definitions hold
+guarded closures (i.e. guarded process code plus free variable
+values), a status field and a matching data structure.
+
+Status field holds the current status of the definition as a
+bit-field.  Each name status is encoded by a bit, using bit 1 for
+\status{N} and bit 0 for \status{0}, and bit position is given by name
+index.
+%  The matching data structure is an array of maps from statuses to
+%  clause indexes. 
+
+Message sending is performed by calling a generic C~function from the
+``join'' library, taking message value, a definition pointer and a
+name index as arguments.  When a message is received on name~$x$, the
+bit for~$x$ is checked in the current status bit-field. If the bit is
+set, some messages on name~$x$ are already present. Thus, definition
+status does not change. Since the current status before message
+sending is guaranteed to be a non-matching one, the message is queued
+and the function is exited.
+
+Otherwise, the current definition status is searched in the matching
+structure for~$x$. This matching structure is an array of pattern
+encoding, guarded process index pairs. Pattern encodings are
+bit-fields, just like status encodings.
+ corresponding to a join pattern containing name~$x$, from which name~$x$ has been removed. Using a sequential
+search by a bitwise "and" with each pattern encoding, the current
+status can be identified as matching or non-matching in at most $N_x$
+tests, where $N_x$ is the number of clauses whose pattern contains~$x$.
+
+If no match is found, the automaton state is updated and the message
+value is queued in the queue for $x$.  Otherwise, a guarded process
+index has been found, and is used to retrieve the associated guarded
+closure.  Arguments to the guarded process are extracted from the
+queues identified by the matching status found.  Status is updated at
+the same moment (when a queue becomes empty a bit is erased).  Finally
+the guarded process is fired.
+
+Therefore, the performance of this technique much relies on fast
+comparisons and modifications of definition statuses.  The best result
+is achieved when statuses are encoded by machine integers.  In that
+case, the number of names that a definition can define is limited by
+the integer size of the hoisting Objective Caml system (which
+typically is 31 or 63~bits).  If this is not considered enough, then
+statuses have to be encoded using several integers or one string. Both
+kinds of status encodings can be mixed, using integers for small
+definitions and strings for larger ones. However, in the current {\tt
+  jocaml} system, we use a single integer to hold status, and a
+technique (described in section~\ref{fusion}) is used to associate
+several channels to a same bit in the status bit-field.
+
+\section{The pragmatics of compilation}\label{opt}
+\label{optimization}
+
+This section is dedicated to optimizations that are first pertinent
+for the {\tt join} technique and that  are performed by the
+current version of the {\tt join} compiler.
+
+We first introduce optimizations that improve the runtime behavior of
+programs, both in speed and dynamic memory usage. Then, we show how to
+reduce emitted code size.
+We focus on optimizing definitions written in
+object-oriented style, as described in the tutorial~\cite{Join}. As
+this programming style proved quite frequent,
+it is normal for us compiler writers to concentrate
+our efforts on such definitions.
+
+In this style, a definition is an objet. Object state is encoded by
+asynchronous {\em state names}, while synchronous {\em methods} access
+or modify object state.
+For instance, given one state name $S$ and $n$ methods
+$m_1$, $m_2$,\ldots $m_n$ taken in that order, we get:
+\begin{verbatim}
+let create(x_0) =
+  let S(x) | m_1() = P_1(x)
+  and S(x) | m_2() = P_2(x)
+    ....
+  and S(x) | m_n() = P_n(x) in
+  S(x_0) | reply m_1,m_2,...,m_n to create
+;;
+\end{verbatim}
+\noindent The synchronous call \verb+create(v)+ creates a new
+object (i.e. a new $S$, $m_1$, $m_2$,\ldots $m_n$ definition)
+and then sends back a $n$-tuple of its methods. Moreover, this call
+initializes object state with the value~$v$.
+
+
+\subsection{Refined status}
+As a working example of an object-style definition, consider the
+following adder:
+\begin{verbatim}
+let create(x_0) =
+  let S(x) | get() = S(x) | reply x to get
+  and S(x) | add(y) = S(x+y) | reply to add in
+  S(x_0) | reply get,add to create
+;;
+\end{verbatim}
+
+The adder has one state name $S$ and two methods $get$ and $add$.  We
+then try to figure out some ``normal'' runtime behavior for it.  As
+the initial \verb+S(x_0)+ is forked as soon as the adder definition
+has been created, a highly likely initial situation is that there is
+one message pending on $S$ and none on the other names.  Later on,
+as some external agent invokes the $get$ or $add$ method, the message
+pending on $S$ is consumed and the appropriate guarded process is
+fired.  Either process quickly sends a message on $S$.  Thus, a likely
+behavior is for the queue of $S$ to alternate between being empty and
+holding one element, the queue being empty for short periods.  By some
+aspects of the compilation of ``\verb+|+'' and of our scheduling
+policy that we will not examine here, this behavior is almost certain.
+
+As a matter of fact, this ``normal'' life cycle involves a blatant
+waste of memory, queue elements (cons cells) are allocated and
+deallocated in the general dynamic fashion, while the runtime usage of
+these cells would allow a more efficient policy.  It is more clever
+not to allocate a cell for the only message pending on $S$ and to use
+the queue entry attributed to $S$~in the runtime definition as a
+placeholder.  On the status side, this new situation is rendered by a
+new ``\status{1}'' status.  Hence, $S$ now possesses a three valued
+status: \status{0} (no message), \status{1} (one message in the queue
+slot) or \status{N} (some messages organized in a linked list).  Thus,
+assuming for the time being, that there may be an arbitrary number of
+messages pending on $S$, the adder compiles into the automaton of
+figure~\ref{adder} (adder names are taken in the order $S$, $get$,
+$add$). This new automaton can be seen as an evolution of the $A$,
+$B$, $C$ automaton of figure~\ref{abc}, with a slight change in
+channel names.
+
+\begin{figure}[th]
+%% BEGIN IMAGE
+.PS
+[
+circlerad=16*pt
+hu=3 *cm
+vu=3.5 *cm
+clab("\status{000}")
+{ln(-1,-1,"$get$",-1) ; clab("\status{0N0}")
+  tourccw(-9*pi/10,"$get$")
+  tourccw(pi/2,"$S$",dotted)
+  {alncw(pi/4,-3*pi/4,1,1,"$S$",dotted)}
+  {ln(1,-1,"$add$",1) ; clab("\status{0NN}")
+    {alncw(3*pi/4,-pi/4,-1,1,"$S$",dashed)}
+    {aln(pi/4,-3*pi/4,1,1,"$S$",dotted)}
+    htccw(pi/3,-pi/2-pi/6,"$\begin{array}{l} get\\ add\end{array}$")
+    tourccw(-5*pi/12,"$S$",dotted)
+    tourcw(-7*pi/12,"$S$",dashed)
+}}
+{
+  ln(0,-.67,"$S$",0) ; clab("\status{100}")
+  {alncw(pi/2,-pi/2-pi/12,0,0.67,"$get$",dotted)}
+  {aln(pi/2,-pi/2+pi/12,0,0.67,"$add$",dashed)}
+  ln(0,-.67,"$S$",0) ; clab("\status{N00}")
+  tourcw(5*pi/12,"$add$",dashed)
+  tourccw(-3*pi/4,"$S$")
+  tourccw(-17*pi/12,"$get$",dotted)
+  {alncw(pi/2,-pi/2-pi/6,0,1.33,"$get$",dotted)}
+  {aln(pi/2,-pi/2+pi/6,0,1.33,"$add$",dashed)}
+}
+{ln(1,-1,"$add$",1) ; clab("\status{00N}") ;
+  tourcw(-pi/10,"$add$")
+  tourcw(pi/2,"$S$",dashed)
+  {aln(3*pi/4,-pi/4,-1,1,"$S$",dashed)}
+  {ln(-1,-1,"$get$",-1)}}
+]
+.PE
+%% TO IMAGE
+\showgraph
+\caption{\label{adder} Full automaton for the adder}
+\end{figure}
+
+Using the status~\status{1} not only spares memory, it also avoids
+some of the runtime tests that compute post-matching status.
+Basically, when a matching consumes the sole message pending on a name
+with status~\status{1}, then the automaton already knows that this
+name queue is empty.  For instance, when the automaton of
+figure~\ref{adder} is in the \status{100} status and that a message
+arrive on either one of the two methods, then the appropriate process
+is fired and status goes back to \status{000} without any runtime
+test.  By contrast, when the automaton is in the \status{00N} status
+and that a message arrive on $S$, the second guarded process is fired
+immediately, but a test on $add$ queue is then performed: if this
+queue is now empty then status goes back to \status{000}, otherwise
+status remains \status{00N}.  Receiving a message on $S$ when status
+is \status{0NN} is a bit more complicated. First, the automaton
+chooses to consume a message pending on either one of the two methods
+and to fire the appropriate process (figure~\ref{adder} does not
+specify this choice).  Then, the queue of the selected method has to
+be tested, in order to determine post-matching status.
+
+Status \status{1} is easy to implement using the {\tt join}
+compilation technique. The compiler issues different method codes for
+\status{100} and \status{N00}, and different codes can find
+$S$~argument at different places.  Implementing status \status{1} in
+{\tt jocaml} would be more tricky, since the encoding of states using
+bit-patterns would be far less straightforward than with
+\status{0}/\status{N} statuses only.  As a consequence, the {\tt
+  jocaml} compiler does not perform the space optimization described
+in this section.
+
+\subsection{Taking advantage of semantical analysis}
+
+The automaton of figure~\ref{adder} has a \status{N00} status, to
+reflect the case when there are two messages or more pending on $S$.
+However, one quite easily sees that that status \status{N00} is
+useless.  First, as $S$~does not escape from the scope of its
+definition, message sending on~$S$ is performed at three places only:
+once initially (by \verb+S(x_0)+) and once in each guarded process.
+Thus, there is one message pending on $S$ initially.  A single message
+pending on~$S$ is consumed by any match and the process fired on that
+occasion is the only one to send one message on $S$. Therefore, there
+cannot be two messages or more pending on $S$. As a consequence the
+full automaton can be simplified by suppressing the \status{N00} node
+and every edge that starts from it or leads to it.
+
+In particular, there is no more $S$-labeled edge starting from node
+\status{100}. In the {\tt join} implementation this means that 
+the code entry for $S$ needs not be updated when going from status
+\status{000} to \status{100}. This entry is simply left as it is.
+Symmetrically, the code entry for $S$ will not have to be restored when
+status goes back to \status{000} after matching.
+
+
+
+
+Another important usage of semantical analysis is determining which names
+are state names.  For a given definition, the output of the
+analyzer is a status set~${\cal S}$, which is a safe approximation of
+the actual runtime statuses of that definition.  State names are the
+asynchronous names such that all statuses in ${\cal S}$ give them the
+status \status{0}~or~\status{1}.
+
+The current {\tt join} compiler includes a rudimentary
+name usage analyzer, which suffices for object definitions given in
+the style of 
+the $S$, $m_1$, $m_2$, \ldots, $m_n$ definitions , where all state
+variables are asynchronous and do not escape from the scope of their
+definition.
+
+An promising alternative would be to design an ad hoc syntax for
+distributed objects, or, and this would be more ambitious, a full
+object-oriented join-calculus. Then, the state variables of
+object-definitions would be apparent directly from user programs.
+
+
+
+\subsection{Avoiding status space explosion}\label{space}
+
+Consider any definition that defines $n$ names.  Ignoring
+\status{1}~statuses, the size of the status space of a given
+definition already is $2^n$.  The size of the non-matching status
+space is thus bounded by $2^n$.  As a full automaton for this
+definition has one state per non-matching status, status space size
+explosion would be a real nuisance in the case of the {\tt join}
+compiler.  In particular, there are $n$~times the number of
+non-matching statuses automaton code entries to create.
+
+Unfortunately the exponential upper bound is reached by practical
+programs, as demonstrated by the general object-oriented definition
+given at the beginning of this section~\ref{opt}.  In that case, all
+definition statuses such that $S$ has the \status{0} status are
+non-matching.  In such a situation, using runtime testing, as {\tt
+  jocaml} does, is not that much a penalty, when compared to code size
+explosion.
+
+We thus introduce dynamic behavior in the automata.  We do so on a
+name per name basis: the status of state names will be encoded by
+automata states as before, whereas method statuses will now be
+explicitly checked at runtime.  Thus, we introduce ``\status{?}'', a
+new status, which means that nothing is known about the number of
+messages pending on a name.  Additionally, we state that all methods
+will have the \status{?} status, as soon as there is one message or
+more pending on any of the methods.
+
+This technique can be seen as merging some states of
+the full automaton compiled by considering complete status
+information into new states with \status{?} statuses in them.
+
+For instance, in the adder example, we get the automaton of
+figure~\ref{adder2}, where the three statuses \status{0N0},
+\status{0NN} and \status{00N} of figure~\ref{adder} merge into the new
+status~\status{0??}.  (Note that we also take advantage of name usage
+analysis to delete status \status{N00}.)
+
+\begin{figure}[th]
+%% BEGIN IMAGE
+.PS
+clab("\status{000}")
+
+{{iln(-.4,-.4) ; "$\begin{array}{l}get\\add\\[.5em]\end{array}$"}
+ ln(-1,-1,"",0) ; clab("\status{0??}")
+ tourccw(pi,"$\begin{array}{l}get\\add\\[.5em]\end{array}$")
+ tourcw(pi/4-pi/12,"$S$",dashed)
+ tourccw(pi/4+pi/12,"$S$",dotted)
+ {alncw(pi/4,-3*pi/4-pi/12,1,1,"$S$",dotted)}
+ {aln(pi/4,-3*pi/4+pi/12,1,1,"$S$",dashed)}
+}
+
+{ln(1,-1,"$S$",0)
+   clab("\status{100}")
+   {aln(3*pi/4,-pi/4+pi/12,-1,1,"$add$",dashed)}
+   {alncw(3*pi/4,-pi/4-pi/12,-1,1,"$get$",dotted)}
+}
+.PE
+%% TO IMAGE
+\showgraph
+\caption{\label{adder2} Final automaton for the adder}
+\end{figure}
+
+Information on where runtime testing has to be performed can be
+inferred from the diagram of figure~\ref{adder2}.  For instance,
+assume that current status is \status{0??} and that a message arrives
+on~$S$.  Since there is at least one message pending on a method, a
+matching will occur.  Tests are needed though, before matching to
+determine the matching clause, and after matching to determine
+post-matching status.  Abstractly, the first series of tests changes
+the \status{?}  statuses in either \status{0} or \status{N} statuses,
+while the second series checks if there are still messages pending on
+names with \status{?} status.  We are still investigating on how to
+organize these tests efficiently without producing too much code
+(see~\cite{Augustsson85,Maranget92} for a discussion of the size of
+such code in the context of compiling ML~pattern-matching).
+
+By contrast, when status is \status{100} and that a message arrives on
+$get$ or $add$, then the corresponding matching is known immediately
+and the message pending on $S$ is consumed. Then, the queue for $S$ is
+known to be empty and status can be restored to \status{000} with no
+runtime testing at all.  As message arrival order is likely to be
+first one message on $S$ and then one message on $get$ or $add$ the
+final automaton of figure~\ref{adder2} responds efficiently to more
+frequent case, still being able to respond to less frequent cases (for
+instance, two messages on methods may arrive in a row).  Furthermore,
+when trouble is over, the automaton has status \status{000} and is
+thus ready for the normal case. In this example, a penalty in code
+size is paid for improving code speed in the frequent, ``normal''
+case, whereas this penalty is avoided in non-frequent cases, which are
+treated by less efficient code.
+
+We introduced a \status{?} status on a name per name basis.  However,
+there are other choices possible: {\em a priori}, there are many ways
+to merge full automata states into final automata states. However, if
+one really wants to avoid status space explosion the final automaton
+should be constructed directly, without first constructing the full
+automaton.  Adopting our per name \status{?} status makes this direct
+construction possible. Additionally, the \status{?} status can be used
+by the simple static analyzer as a status for the names it cannot
+trace (e.g. names that escape their definition scope).  This
+dramatically decreases the size of analyzer output and its running
+time.
+
+\section{Optimizing further}
+\label{fusion}
+
+We here describe a simple transformation on
+join definitions, which does not rely on a full semantical analysis
+(such as name usage analysis),
+but only on a simple, local, syntactical analysis of join-patterns.
+
+
+Let us take a simple example:
+\begin{verbatim}
+let S(x) | m_1(y) = P_1(x,y)
+and S(x) | m_2(y) = P_2(x,y)
+  ....
+and S(x) | m_n(y) = P_n(x,y)
+;;
+\end{verbatim}
+
+In this example, a match occurs only when there are messages pending
+both on $S$ and on one of the methods $m_1$, $m_2$,\ldots Thus, from the
+synchronization
+point of view, all the methods are equivalent. And indeed, we can
+regroup them into one, single method channel $m$ by
+transforming this join definition into:
+
+\begin{verbatim}
+let S(x) | m(p,y) = P[p] (x,y);;
+let m_1(y) = m(1,y);;
+let m_2(y) = m(2,y);;
+ ....
+let m_n(y) = m(n,y);;
+\end{verbatim}
+Where $P$ is the vector of processes $[P_1,P_2,...,P_n]$.
+
+Methods $m_1$ $m_2$,\ldots are now simple wrappers.  Method $m_i$ now
+calls $m$ with an additional $i$~argument, which basically is the
+index of $P_i$ in array $P$.  At this point, we must emphasize that we
+describe this technique as a source to source transformation only for
+clarity. However, the produced source code may not be correct with
+respect to the join type system, when the types of methods are
+different.  Anyhow, this optimization is implemented using ad hoc
+mechanisms, this both improves efficiency and solves the typing
+problem.
+
+Currently, this optimization is performed by the {\tt jocaml}
+compiler.  This leads to a new interpretation of name indexes by the
+``join'' library.  The least significant bits in name indexes still
+encode names that actually take part to synchronization (here $S$ and
+$m$), while their most significant bits (which were previously unused)
+now encode the extra $i$~argument.  This yields two benefits. First,
+the number of status checks decreases, as the number of matching
+statuses decreases.  Second, the number of channels that can be
+defined in one definition can now exceed the hosting system integer
+size, provided some names can be grouped together for synchronization.
+
+In the {\tt join} compiler, this technique might be used to reduce
+automata size, since it lowers the number of non-matching statuses, by
+reducing the number of synchronizing names.  Code entries for methods
+$m_1$, $m_2$,\ldots would still be contained in the definition
+structure, they would only stack the index of the process to fire, and
+then call the code for method $m$. Moreover, they do not need to be
+updated after each transition of the automaton.
+
+
+Finally, this technique can also be applied to more complex
+synchronizations.  Given a definition that defines names $x_1$, $x_2$,
+\ldots, $x_n$, using patterns $J_1$, $J_2$, \ldots $J_m$.  We say that
+two names are equivalent, when swapping them in the patterns yields
+the same set of patterns.  We then replace equivalent names by a
+single name, plus an index.
+
+Consider the following definition
+\begin{verbatim}
+let S_1(x) | m_1(y) = P_1(x,y)
+and S_1(x) | m_2(y) = P_2(x,y)
+and S_2(x) | m_1(y) = P_3(x,y)
+and S_2(x) | m_2(y) = P_4(x,y)
+;;
+\end{verbatim}
+Then the set of defined names $\{S_1, S_2, m_1, m_2\}$ can be
+partitioned into $\{S_1, S_2\}$ and $\{m_1, m_2\}$.
+Then, the above program can be transformed into:
+\begin{verbatim}
+let S(p,x) | m(q,y) = P[p,q] (x,y);;
+let m_1(y) = m(1,y);;
+let m_2(y) = m(2,y);;
+let S_1(y) = S(1,y);;
+let S_2(y) = S(2,y);;
+\end{verbatim}
+(with $P[1,1] = P_1$, $P[1,2] = P_2$, $P[2,1] = P_3$ and $P[2,2] = P_4$)
+
+
+\section{Conclusion and future work}
+\label{conclusion}
+
+In join-calculus, a name definition, all receptors on that name and all
+possible synchronizations on that name are grouped altogether in a single
+join definition. This enables the compilation of synchronization
+between concurrent or even distributed processes, using finite-state
+automata.
+In the distributed case, a message transport phase to the
+machine that currently hosts the join definition (and hence the
+automaton) is first performed.  This strengthens our point of view
+that the join-calculus is the core of a distributed programming
+language that can be compiled in practice, mainly because it restricts
+reception on a channel to statically known parts of the program.  The
+same argument applied to \`a la ML polymorphic typing
+in~\cite{join-typing-97}.
+
+
+Taking a few benchmarks as a set of sensible join programs, both the
+{\tt join} and the {\tt jocaml} pattern matching compilation schemes
+prove adequate.  In particular, none of the two schemes falls into the
+pitfall associated to the compilation technique used.
+
+In the {\tt join} case, one can be afraid of code size, the technique
+exposed in section~\ref{space} successfully avoids code size explosion
+in practical cases.  The {\tt jocaml} technique appears expensive in
+runtime checks and thus {\em a priori} produces slow code.  We choose
+such a scheme of implementing automata using generic code, because it
+can be implemented simply by adding code to the Objective Caml
+bytecode interpreter.  Using bytecode specialized for automata
+manipulation would have implied more important modifications of the
+Objective Caml bytecode interpreter. Moreover, the {\tt jocaml} system
+runs faster than the {\tt join} system, even for pure join programs,
+showing that its weaker compilation of join definitions is more than
+compensated by its total integration in the Objective Caml system.
+
+Comparison with the Bologna implementation~\cite{Bologna} of the
+join-calculus is also instructive.  This system also produces
+bytecode, which is interpreted by a C~program.  It proves faster than
+{\tt join} and slower that {\tt jocaml} on most of the examples.
+Taking a glance at the Bologna source code reveals that it uses a
+scheme very similar to the one of {\tt jocaml}, with two slight
+differences.  First, status is systematically encoded as an array of
+integers.  Second when a message arrives on a name $x$ with an empty
+queue, all patterns are tested (whereas in {\tt jocaml} only the
+patterns that contain $x$ are tested).
+
+Performance of a given join system depends on many factors. In
+particular, scheduling policy and message queue management have a
+dramatic impact on it. Furthermore, a policy that gives good results
+on one benchmark can be defeated by another.  For these reasons, we
+cannot tell which compilation technique is the best by comparing
+different implementations.
+
+
+
+Clearly, we now need to integrate all our compilation techniques in
+the same system, in order to compare them more thoroughly and to
+experiment further.  However, the definition of reactivity status and
+the automata of section~\ref{automatas} provide a sound
+basis for these future investigations.  Apart from future language
+development and fully implementing the failure semantics of the
+join-calculus, we also plan to investigate more on the implementation
+of threads, attempting to minimize thread suspension and creation.
+
+
+
+\bibliography{bib}
+\bibliographystyle{abbrv}
+
+
+\end{document}
+
+%\subsection{Playing with the runtime scheduler}
+%
+%Concentrating on the {\it object style} of programming, lots of
+%methods do not modify the automaton status, but only read or modify
+%state names (such as {\tt set} and {\tt get}), with only little
+%non-blocking computations. Most of the time, these methods are never
+%interrupted, and thus behave as in critical sections from the
+%threads scheduler point of view.
+%
+%As a consequence, when such a method is called, an optimization would
+%be not to modify the automaton status at all, since the method will
+%end by giving back its original status to the automaton. To prevent
+%the automaton to receive other messages from other methods while in an
+%incoherent state, these methods are executed in a critical section.
+%
+%This optimization relies on a simple analysis of methods, which can
+%also be used to decrease the number of forked threads, since such
+%methods do not need to be executed in a forked thread. 

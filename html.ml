@@ -859,8 +859,8 @@ let insert_vdisplay open_fun =
     close_display () ;
     cur_out := ppout ;
     open_fun () ;
-    do_put (Out.to_string new_out.out) ;
-    free new_out ;
+    do_put (Out.to_string new_out.out) ; empty := false ;
+    free new_out ;    
     if !verbose > 1 then begin
       prerr_string "insert_vdisplay -> " ;
       pretty_mods mods ;

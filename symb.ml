@@ -72,7 +72,7 @@ let vee = get ("<FONT FACE=symbol>\218</FONT>","\\/", "\\/");;
 let wedge = get ("<FONT FACE=symbol>\217</FONT>","/\\", "/\\");;
 let setminus = get ("\\","\\","\\");;
 let wr = get ("wr","wr","wr");;
-let diamond = get ("<FONT FACE=symbol>\224</FONT>","<>","<>");;
+
 let bigtriangleup = get ("<FONT FACE=symbol>\068</FONT>","/_\\","/_\\");;
 let bigtriangledown = get ("<FONT FACE=symbol>\209</FONT>","\\/","\\/");;
 let triangleleft = get ("<FONT FACE=symbol>\060\124</FONT>","<|","<|");;
@@ -86,7 +86,7 @@ let leq = get ("<FONT FACE=symbol>\163</FONT>","<=","<=");;
 let subset = get ("<FONT FACE=symbol>\204</FONT>","included in","inclus dans");;
 let notsubset = get ("<FONT FACE=symbol>\203</FONT>","not included in","n'est pas inclus dans");;
 let subseteq =
-get   ("<FONT FACE=symbol>\204</FONT>","included in or equal to","inclus dans ou égal à");;
+get   ("<FONT FACE=symbol>\205</FONT>","included in or equal to","inclus dans ou égal à");;
 let display_sqsubset =
 get  ("<FONT FACE=symbol>\190<BR>\234<BR>\190</FONT>","sqsubset", "sqsubset");;
 let elem = get ("<FONT FACE=symbol>\206</FONT>","in", "appartient à");;
@@ -115,13 +115,28 @@ let leftrightarrow = get ("<FONT FACE=symbol>\171</FONT>","&lt;-&gt;", "&lt;-&gt
 let upleftrightarrow = get ("<FONT FACE=symbol>\219</FONT>","&lt;=&gt;", "&lt;=&gt;");;
 let longrightarrow = get ("<FONT FACE=symbol>\190\174</FONT>","--&gt;", "--&gt;");;
 
-let infty = get ("<FONT FACE=symbol>\165</FONT>","oo", "oo");;
 let int = get ("<FONT FACE=symbol>\242</FONT>","int", "integrale");;
 let display_int = get ("<FONT FACE=symbol>\243<BR>\245</FONT>",
 "/<BR>|<BR>/", "/<BR>|<BR>/");;
 
+let aleph = get ("<FONT FACE=symbol>À</FONT>","aleph","aleph");;
+let wp =  get ("<FONT FACE=symbol>Ã</FONT>","wp","wp");;
+let upre = get ("<FONT FACE=symbol>Â</FONT>","Re","Re");;
+let upim = get ("<FONT FACE=symbol>Á</FONT>","Im","Im");;
+let prim = get ("<FONT FACE=symbol>¢</FONT>","'","'");;
+let nabla =  get ("<FONT FACE=symbol>Ñ</FONT>","nabla","nabla");;
+let surd =  get ("<FONT FACE=symbol>Ö</FONT>","surd","surd");;
+let angle = get ("<FONT FACE=symbol>Ð</FONT>","angle","angle");;
 let exists = get ("<FONT FACE=symbol>\036</FONT>","exists", "il existe");;
 let forall = get ("<FONT FACE=symbol>\034</FONT>","for all", "pour tout");;
+let partial = get ("<FONT FACE=symbol>¶</FONT>","partial", "d rond");;
+let diamond = get ("<FONT FACE=symbol>à</FONT>","<>", "<>");;
+let clubsuit = get ("<FONT FACE=symbol>§</FONT>","clubsuit", "trèfle");;
+let diamondsuit = get ("<FONT FACE=symbol>¨</FONT>","diamondsuit", "carreau");;
+let heartsuit = get ("<FONT FACE=symbol>©</FONT>","heartsuit", "coeur");;
+let spadesuit = get ("<FONT FACE=symbol>ª</FONT>","spadesuit", "pique");;
+let infty = get ("<FONT FACE=symbol>\165</FONT>","oo", "oo");;
+
 
 let notin  = get ("<FONT FACE=symbol>\207</FONT>","not in", "n'appartient pas à");;
 

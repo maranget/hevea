@@ -31,6 +31,8 @@
 \newcommand{\@docchapter}{chapter}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newcommand{\appendix}{%
+\iffrench\part*{Annexes}\else
+\part*{Appendices}\fi
 \renewcommand{\chaptername}{\appendixname}%
 \setcounter{chapter}{0}%
 \renewcommand{\thechapter}{\Alph{chapter}}%
@@ -40,8 +42,8 @@
 
 \newcommand{\part}[2][]{%
 \stepcounter{part}%
-\ifoptarg\cut{toc}{part}{#1}%
-\else\cut{toc}{part}{#2}\fi
+\ifoptarg\cuthere{toc}{part}{#1}%
+\else\cuthere{toc}{part}{#2}\fi
 \@open{H1}{ALIGN=center}%
 \par
 \partname:~\thepart\\%
@@ -49,7 +51,7 @@
 \@close{H1}%
 }
 \newcommand{\part*}[1]{%
-\cut{toc}{part}{#1}%
+\cuthere{toc}{part}{#1}%
 \@open{H1}{ALIGN=center}%
 \par
 #1%
@@ -58,14 +60,14 @@
 
 \newcommand{\chapter}[2][]{%
 \stepcounter{chapter}%
-\ifoptarg\cut{toc}{chapter}{#1}%
-\else\cut{toc}{chapter}{#2}\fi
+\ifoptarg\cuthere{toc}{chapter}{#1}%
+\else\cuthere{toc}{chapter}{#2}\fi
 \@open{H1}{}%
 \chaptername~\thechapter\qquad #2%
 \@close{H1}%
 }
 \newcommand{\chapter*}[1]{%
-\cut{toc}{chapter}{#1}%
+\cuthere{toc}{chapter}{#1}%
 \@open{H1}{}%
 #1%
 \@close{H1}%
@@ -73,8 +75,8 @@
 
 \newcommand{\section}[2][]{%
 \stepcounter{section}%
-\ifoptarg\cut{toc}{section}{#1}%
-\else\cut{toc}{section}{#2}\fi%
+\ifoptarg\cuthere{toc}{section}{#1}%
+\else\cuthere{toc}{section}{#2}\fi%
 \@open{H2}{}%
 \thesection\quad #2%
 \@close{H2}%
@@ -88,8 +90,8 @@
 
 \newcommand{\subsection}[2][]{%
 \stepcounter{subsection}%
-\ifoptarg\cut{toc}{subsection}{#1}%
-\else\cut{toc}{subsection}{#2}\fi%
+\ifoptarg\cuthere{toc}{subsection}{#1}%
+\else\cuthere{toc}{subsection}{#2}\fi%
 \@open{H3}{}%
 \thesubsection\quad #2%
 \@close{H3}%

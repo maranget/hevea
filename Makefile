@@ -1,57 +1,101 @@
+# Compile using ocamlopt, to use ocamlc set TARGET=byte
+TARGET=byte
+# Library directory of htmlgen
 LIBDIR=/usr/local/lib/htmlgen
-CPP=gcc -E -P -x c
+# A replacement for /lib/cpp
+CPP=gcc -E -P -x c 
+# Where to install programms
+BINDIR=/usr/local/bin
+
+HTMLGEN=./htmlgen.$(TARGET)
+OCAMLC=ocamlc
+OCAMLCI=ocamlc
+OCAMLOPT=ocamlopt
+OCAMLLEX=ocamllex
+INSTALL=cp
 OBJS=parse_opts.cmo mylib.cmo myfiles.cmo location.cmo out.cmo counter.cmo symb.cmo image.cmo subst.cmo save.cmo  aux.cmo latexmacros.cmo  html.cmo foot.cmo entry.cmo index.cmo latexscan.cmo latexmain.cmo
 OBJSCUT=location.cmo out.cmo thread.cmo cross.cmo mylib.cmo cut.cmo cutmain.cmo
 
 OPTS=$(OBJS:.cmo=.cmx)
+OPTSCUT=$(OBJSCUT:.cmo=.cmx)
 
-all:  htmlgen htmlcut footer.bis.html
-opt: htmlgen.opt
+all: $(TARGET)
+everything: byte opt
 
-htmlgen: ${OBJS}
-	ocamlc -o htmlgen ${OBJS}
+install: install-$(TARGET)
 
-htmlcut: ${OBJSCUT}
-	ocamlc -o htmlcut ${OBJSCUT}
+opt: htmlgen.opt htmlcut.opt cutfoot-fra.html cutfoot-eng.html
+byte:  htmlgen.byte htmlcut.byte cutfoot-fra.html cutfoot-eng.html
+
+install-lib:
+	$(INSTALL) article.sty book.sty htmlgen.sty cutfoot-fra.html cutfoot-eng.html footer.tex ${LIBDIR}
+	ln -s book.sty ${LIBDIR}/report.sty
+	$(INSTALL) contents_motif.gif next_motif.gif previous_motif.gif ${LIBDIR}
+
+install-opt: install-lib
+	$(INSTALL) htmlgen.opt $(BINDIR)/htmlgen
+	$(INSTALL) htmlcut.opt $(BINDIR)/htmlcut
+	$(INSTALL) imagegen $(BINDIR)
+
+install-byte: install-lib
+	$(INSTALL) htmlgen.byte $(BINDIR)/htmlgen
+	$(INSTALL) htmlcut.byte $(BINDIR)/htmlcut
+	$(INSTALL) imagegen $(BINDIR)
+
+htmlgen.byte: ${OBJS}
+	${OCAMLC} -o $@ ${OBJS}
+
+htmlcut.byte: ${OBJSCUT}
+	${OCAMLC} -o $@ ${OBJSCUT}
 
 htmlgen.opt: ${OPTS}
-	ocamlopt -o htmlgen.opt ${OPTS}
+	${OCAMLOPT} -o $@ ${OPTS}
+
+htmlcut.opt: ${OPTSCUT}
+	${OCAMLOPT} -o $@ ${OPTSCUT}
 
 mylib.cmo: mylib.ml mylib.cmi
-	ocamlc -pp '${CPP} -DLIBDIR=\"${LIBDIR}\"' -c mylib.ml
+	${OCAMLCI} -pp '${CPP} -DLIBDIR=\"${LIBDIR}\"' -c mylib.ml
 
 mylib.cmx: mylib.ml mylib.cmi
-	ocamlopt -pp '${CPP} -DLIBDIR=\"${LIBDIR}\"' -c mylib.ml
+	${OCAMLOPT} -pp '${CPP} -DLIBDIR=\"${LIBDIR}\"' -c mylib.ml
 
 cutmain.cmo: cutmain.ml
-	ocamlc -pp '${CPP} -DLIBDIR=\"${LIBDIR}\"' -c cutmain.ml
+	${OCAMLCI} -pp '${CPP} -DLIBDIR=\"${LIBDIR}\"' -c cutmain.ml
+
+cutmain.cmx: cutmain.ml
+	${OCAMLOPT} -pp '${CPP} -DLIBDIR=\"${LIBDIR}\"' -c cutmain.ml
+
+cutfoot-fra.html: cutfoot.tex htmlgen.sty ${HTMLGEN}
+	${HTMLGEN} -francais < $< > $@
+
+cutfoot-eng.html: cutfoot.tex htmlgen.sty ${HTMLGEN}
+	${HTMLGEN} < $< > $@
 
 .SUFFIXES:
-.SUFFIXES: .ml .cmo .mli .cmi .c .mll .cmx .tex .html
+.SUFFIXES: .ml .cmo .mli .cmi .c .mll .cmx 
 
 .mll.ml:
-	ocamllex $<
+	${OCAMLLEX} $<
 
 .ml.cmx:
-	ocamlopt -c $<
+	${OCAMLOPT} -c $<
 
 .ml.cmo:
-	ocamlc -c $<
+	${OCAMLC} -c $<
 
 .mli.cmi:
-	ocamlc -c $<
-
-.tex.html:
-	htmlgen < $<  > $@
+	${OCAMLCI} -c $<
 
 .c:
 	$(CC) $(CFLAGS) -o $@ $<
 
 clean:
-	rm -f htmlgen htmlgen.opt
+	rm -f *.byte *.opt
 	rm -f subst.ml latexscan.ml aux.ml save.ml entry.ml cut.ml
-	rm -f *.o *.cmi *.cmo *.cmix *.cmx *.o 
+	rm -f *.o *.cmi *.cmo *.cmix *.cmx *.o *.ppo *.ppi
 	rm -f *~ #*#
+	rm -f cutfoot-fra.html cutfoot-eng.html
 
 depend: latexscan.ml subst.ml save.ml aux.ml entry.ml cut.ml
 	- cp .depend .depend.bak
