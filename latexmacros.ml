@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmacros.ml,v 1.61 2000-05-31 13:17:17 maranget Exp $" 
+let header = "$Id: latexmacros.ml,v 1.62 2000-05-31 13:49:57 maranget Exp $" 
 open Misc
 open Parse_opts
 open Symb
@@ -321,17 +321,25 @@ let int = function
 | _ -> false
 ;;
 
-let big = function
-  "\\sum"
-| "\\prod"
-| "\\coprod"
-| "\\int"
-| "\\oint"
-| "\\bigcap"
-| "\\bigcup"
-| "\\bigsqcap"
-| "\\bigsqcup"
-| "\\bigodot"
-| "\\bigdotplus"
-| "\\biguplus" -> true
-| _ -> false
+let big_t = Hashtbl.create 37
+;;
+
+Hashtbl.add limit_t "\\sum" () ;
+Hashtbl.add limit_t "\\prod" () ;
+Hashtbl.add limit_t "\\coprod" () ;
+Hashtbl.add limit_t "\\int" () ;
+Hashtbl.add limit_t "\\oint" () ;
+Hashtbl.add limit_t "\\bigcap" () ;
+Hashtbl.add limit_t "\\bigcup" () ;
+Hashtbl.add limit_t "\\bigsqcap" () ;
+Hashtbl.add limit_t "\\bigsqcup" () ;
+Hashtbl.add limit_t "\\bigodot" () ;
+Hashtbl.add limit_t "\\bigdotplus" () ;
+Hashtbl.add limit_t "\\biguplus" () ;
+()
+;;
+
+let big s =
+  try Hashtbl.find big_t s ; true with
+  | Not_found -> false
+;;
