@@ -13,10 +13,11 @@
 open Misc
 open Parse_opts
 open Lexing
+open Latexmacros
 open Lexstate
 
 (* Compute functions *)
-let header = "$Id: get.mll,v 1.2 1999-03-17 15:24:47 maranget Exp $"
+let header = "$Id: get.mll,v 1.3 1999-04-02 18:34:15 maranget Exp $"
 
 exception Error of string
 
@@ -305,6 +306,7 @@ let get_int expr =
     prerr_endline ("get_int : "^expr) ;
   let old_int = !int_out in
   int_out := true ;
+  start_normal display in_math ;
   open_ngroups 2 ;
   begin try scan_this result expr with
   | x ->
@@ -315,6 +317,7 @@ let get_int expr =
       end
   end ;
   close_ngroups 2 ;
+  end_normal display in_math ;
   if Lexstate.empty int_stack then
     raise (Error ("``"^expr^"'' has no value as an integer"));
   let r = pop int_stack in
@@ -328,6 +331,7 @@ let get_bool expr =
     prerr_endline ("get_bool : "^expr) ;
   let old_bool = !bool_out in
   bool_out := true ;
+  start_normal display in_math ;
   open_ngroups 7 ;
   begin try scan_this result expr with
   | x ->
@@ -338,6 +342,7 @@ let get_bool expr =
       end
   end ;
   close_ngroups 7 ;
+  end_normal display in_math ;
   if Lexstate.empty bool_stack then
     raise (Error ("``"^expr^"'' has no value as an integer"));
   let r = pop bool_stack in
