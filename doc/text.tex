@@ -2843,6 +2843,52 @@ Good Morning & Bonjour\\ Thank You & Merci\\ Good Bye & Au Revoir\\
 We have to problems here: first the text is black, and second
 the brown background extend on all the width of the displayed page.
 
+The second problem is solved by introducing an extra table.
+We first open an extra centered table and then only open the
+\texttt{divstyle} environment.
+\begin{verbatim}
+\begin{center}\begin{tabular}{c}
+\begin{divstyle}{ruled}
+\begin{tabular}{|c|c|}
+\hline \bf English & \bf French\\ \hline
+Good Morning & Bonjour\\ Thank You & Merci\\ Good Bye & Au Revoir\\
+\hline
+\end{tabular}
+\end{divstyle}
+\end{tabular}\end{center}
+\end{verbatim}
+This works because of the rules that
+govern the width of {\html} \verb+TABLE+ elements, which yield
+minimal width. This trick is used in
+numerous places by \hevea{}, for instance in document titles, and look
+quite safe.
+\begin{htmlonly}
+\begin{center}\begin{tabular}{c}
+\begin{divstyle}{ruled}
+\begin{tabular}{|c|c|}
+\hline \bf English & \bf French\\ \hline
+Good Morning & Bonjour\\ Thank You & Merci\\ Good Bye & Au Revoir\\
+\hline
+\end{tabular}
+\end{divstyle}
+\end{tabular}\end{center}
+\end{htmlonly}
+
+As regards text color, one can rely on explicit color change.
+For instance, one can add a \verb+\maroon+ declaration, after the
+opening command~\verb+\open{divstyle}{ruled}+.
+\begin{htmlonly}
+Then we get:
+\begin{center}\begin{tabular}{c}
+\begin{divstyle}{ruled}\maroon
+\begin{tabular}{|c|c|}
+\hline \bf English & \bf French\\ \hline
+Good Morning & Bonjour\\ Thank You & Merci\\ Good Bye & Au Revoir\\
+\hline
+\end{tabular}
+\end{divstyle}
+\end{tabular}\end{center}
+\end{htmlonly}
 where the outer DIV and TABLE are due to the fact that the display-math mode uses a DIV to center everything, and tables to set elements formulas inside. 
 \begin{htmlonly}
 It will look something like
