@@ -1,58 +1,68 @@
-
-%% Binary Operators under "amssymb"
-
-\newcommand{\barwedge}{\@print{&#8892;}}
-\newcommand{\veebar}{\@print{&#8891;}}
-\newcommand{\boxdot}{\@print{&#8865;}}
-\newcommand{\boxminus}{\@print{&#8863;}}
-\newcommand{\boxplus}{\@print{&#8862;}}
-\newcommand{\boxtimes}{\@print{&#8864;}}
+%
+%% AMSSYMB Binary Operators (Table 8.19 of Goos-Mitt-Sam)
+%
+\newcommand{\dotplus}{\@print{&#8724;}}
+\newcommand{\smallsetminus}{\@print{&#8726;}}
 \newcommand{\Cap}{\@print{&#8914;}}
 \newcommand{\Cup}{\@print{&#8915;}}
-\newcommand{\centerdot}{\@print{&#8729;}}
-\newcommand{\circledast}{\@print{&#8859;}}
-\newcommand{\circledcirc}{\@print{&#8858;}}
-\newcommand{\circleddash}{\@print{&#8861;}}
-\newcommand{\curlyvee}{\@print{&#8910;}}
-\newcommand{\curlywedge}{\@print{&#8911;}}
-\newcommand{\divideontimes}{\@print{&#8903;}}
-\renewcommand{\div}{\@print{&#0247;}}
-\newcommand{\dotplus}{\@print{&#8724;}}
+\newcommand{\barwedge}{\@print{&#8892;}}
+\newcommand{\veebar}{\@print{&#8891;}}
 \newcommand{\doublebarwedge}{\@print{&#8966;}}
-\newcommand{\gtrdot}{\@print{&#8919;}}
-\newcommand{\lessdot}{\@print{&#8918;}}
-\newcommand{\intercal}{\@print{&#8890;}}
-\newcommand{\leftthreetimes}{\@print{&#8907;}}
-\newcommand{\rightthreetimes}{\@print{&#8908;}}
+\newcommand{\boxminus}{\@print{&#8863;}}
+\newcommand{\boxtimes}{\@print{&#8864;}}
+\newcommand{\boxdot}{\@print{&#8865;}}
+\newcommand{\boxplus}{\@print{&#8862;}}
+\newcommand{\divideontimes}{\@print{&#8903;}}
 \newcommand{\ltimes}{\@print{&#8905;}}
 \newcommand{\rtimes}{\@print{&#8906;}}
-\newcommand{\smallsetminus}{\@print{&#8726;}}
-
+\newcommand{\leftthreetimes}{\@print{&#8907;}}
+\newcommand{\rightthreetimes}{\@print{&#8908;}}
+\newcommand{\curlywedge}{\@print{&#8911;}}
+\newcommand{\curlyvee}{\@print{&#8910;}}
+\newcommand{\circleddash}{\@print{&#8861;}}
+\newcommand{\circledast}{\@print{&#8859;}}
+\newcommand{\circledcirc}{\@print{&#8858;}}
+\newcommand{\centerdot}{\@print{&#8729;}}
+\newcommand{\intercal}{\@print{&#8868;}}
+%
+%% AMSSYMB Misc (Remains of Table 8.7 of Goos-Mitt-Sam)
+%
 \newcommand{\Box}{\@print{&#9723;}}
 \newcommand{\Diamond}{\@entity{loz}}
-\newcommand{\square}{\@print{&#9723;}}
-
-%% Miscellaneous Simple Symbols under "amssymb"
-
-\newcommand{\backprime}{\@print{&#0096;}}
-\newcommand{\bigstar}{\ifdisplay{\Large\@star}\else\fi}
-\newcommand{\blacklozenge}{\@print{&#9670;}}
-\newcommand{\blacksquare}{\@print{&#9632;}}
+%
+%% AMSSYMB Miscellaneous Symbols (Table 8.20 of Goos-Mitt-Sam)
+%
+\newcommand{\hslash}{\@print{&#8463;}}
+\newcommand{\vartriangle}{\@print{&#9651;}}
+\newcommand{\triangledown}{\@print{&#9661;}}
+\newcommand{\square}{\@print{&#9723;}}	
+\newcommand{\lozenge}{\@print{&#9674;}}
+\newcommand{\circledS}{\@print{&#9416;}}
+\newcommand{\measuredangle}{\@print{&#8737;}}
+\newcommand{\nexists}{\@print{&#8708;}}
+\newcommand{\mho}{\@print{&#8487;}}
+\newcommand{\Finv}{\@print{&#8498;}}
+\newcommand{\Game}{\@print{&#3629;}}
+\newcommand{\Bbbk}{\@print{&#409;}}			% EVENTUALLY 120156
+\newcommand{\backprime}{\@print{&#96;}}
+\newcommand{\varnothing}{\@print{&#216;}}
 \newcommand{\blacktriangle}{\@print{&#9650;}}
 \newcommand{\blacktriangledown}{\@print{&#9660;}}
-\newcommand{\diagdown}{\@print{&#0047;}}
+\newcommand{\blacksquare}{\@print{&#9632;}}
+\newcommand{\blacklozenge}{\@print{&#9670;}}
+\newcommand{\bigstar}{\@print{&#9733;}}
+\newcommand{\sphericalangle}{\@print{&#8738;}}
+\newcommand{\complement}{\@print{&#663;}}
+\newcommand{\eth}{\partial}
 \newcommand{\diagup}{\@print{&#0092;}}
-\newcommand{\lozenge}{\@print{&#9674;}}
-\newcommand{\nexists}{\@print{&#8708;}}
-\renewcommand{\surd}{\@print{&#8730;}}
-\newcommand{\triangledown}{\@print{&#9661;}}
-\newcommand{\varnothing}{\@print{&#8709;}}	%not ideal (emptyset)
-
-%% Arrow Symbols under "amssymb"
-
+\newcommand{\diagdown}{\@print{&#0047;}}
+%
+%% AMSSYMB Arrow Symbols (Table 8.15 of Goos-Mitt-Sam)
+%
 \newcommand{\dashleftarrow}{\@print{&#8672;}}
 \newcommand{\dashrightarrow}{\@print{&#8674;}}
 \newcommand{\leftrightharpoons}{\@print{&#8651;}}
+\renewcommand{\rightleftharpoons}{\@print{&#8652;}}
 \newcommand{\Lleftarrow}{\@print{&#8666;}}
 \newcommand{\Rrightarrow}{\@print{&#8667;}}
 \newcommand{\curvearrowleft}{\@print{&#8630;}}
@@ -62,13 +72,11 @@
 \newcommand{\upuparrows}{\@print{&#8648;}}
 \newcommand{\downdownarrows}{\@print{&#8650;}}
 \newcommand{\leftrightarrows}{\@print{&#8646;}}
+\newcommand{\rightleftarrows}{\@print{&#8646;}}
 \newcommand{\leftarrowtail}{\@print{&#8610;}}
 \newcommand{\rightarrowtail}{\@print{&#8611;}}
 \newcommand{\looparrowleft}{\@print{&#8619;}}
 \newcommand{\looparrowright}{\@print{&#8620;}}
-\newcommand{\nLeftarrow}{\@print{&#8653;}}
-\newcommand{\nRightarrow}{\@print{&#8655;}}
-\newcommand{\nLeftrightarrow}{\@print{&#8654;}}
 \newcommand{\twoheadleftarrow}{\@print{&#8606;}}
 \newcommand{\twoheadrightarrow}{\@print{&#8608;}}
 \newcommand{\upharpoonleft}{\@print{&#8639;}}
@@ -78,144 +86,215 @@
 \newcommand{\Lsh}{\@print{&#8624;}}
 \newcommand{\Rsh}{\@print{&#8625;}}
 \newcommand{\leftrightsquigarrow}{\@print{&#8621;}}
-\newcommand{\rightsquigarrow}{\@print{&#10239;}}
-\newcommand{\nleftarrow}{\@print{&#8695;}}
-\newcommand{\nrightarrow}{\@print{&#8696;}}
-\newcommand{\nleftrightarrow}{\@print{&#8697;}}
-\newcommand{\circlearrowleft}{\@print{&#10226;}}
-\newcommand{\circlearrowright}{\@print{&#10227;}}
+\newcommand{\rightsquigarrow}{\@print{&#8669;}}
+\newcommand{\circlearrowleft}{\@print{&#8630;}} 	% EVENTUALLY 10226
+\newcommand{\circlearrowright}{\@print{&#8631;}}        % EVENTUALLY 10227
 \newcommand{\multimap}{\@print{&#8888;}}
-%% Simple Relational Symbols under "amssymb"
-
-%\newcommand{\shortmid}{\@print{&#;}}              % not ideal (\mid)
-%\newcommand{\shortparallel}{\@print{&#;}}         % not ideal (\parallel)
-\newcommand{\nshortparallel}{\@print{&#8742;}}     % not ideal (\nparallel)
-\newcommand{\nshortmid}{\@print{&#8740;}}          % not ideal (\nmid)
-\newcommand{\nmid}{\@print{&#8740;}}
-\newcommand{\nparallel}{\@print{&#8742;}}
-\newcommand{\lll}{\@print{&#8920;}}
-\newcommand{\ggg}{\@print{&#8921;}}
-\newcommand{\approxeq}{\@print{&#8778;}}
-\newcommand{\ncong}{\@print{&#8775;}}
-\newcommand{\backsim}{\@print{&#8765;}}
-\newcommand{\bumpeq}{\@print{&#8783;}}
-\newcommand{\Bumpeq}{\@print{&#8782;}}
-\newcommand{\circeq}{\@print{&#8791;}}
-\newcommand{\fallingdotseq}{\@print{&#8786;}}
-\newcommand{\risingdotseq}{\@print{&#8787;}}
-\newcommand{\doteqdot}{\@print{&#8785;}}
-\newcommand{\eqcirc}{\@print{&#8790;}}
-\newcommand{\leqslant}{\@print{&#10877;}}
-\newcommand{\geqslant}{\@print{&#10878;}}
-\newcommand{\lneq}{\@print{&#10887;}}
-\newcommand{\gneq}{\@print{&#10888;}}
-\newcommand{\lesseqqgtr}{\@print{&#10891;}}
-\newcommand{\gtreqqless}{\@print{&#10892;}}
-\newcommand{\nless}{\@print{&#8814;}}
-\newcommand{\ngtr}{\@print{&#8815;}}
-\newcommand{\nleq}{\@print{&#8816;}}
-\newcommand{\ngeq}{\@print{&#8817;}}
-\newcommand{\lessapprox}{\@print{&#10885;}}
-\newcommand{\gtrapprox}{\@print{&#10886;}}
-\newcommand{\nprec}{\@print{&#8832;}}
-\newcommand{\nsucc}{\@print{&#8833;}}
-\newcommand{\precapprox}{\@print{&#10935;}}
-\newcommand{\succapprox}{\@print{&#10936;}}
-\newcommand{\preccurlyeq}{\@print{&#8828;}}   
-\newcommand{\succcurlyeq}{\@print{&#8829;}}   
-\newcommand{\precnapprox}{\@print{&#10937;}}
-\newcommand{\succnapprox}{\@print{&#10938;}}
-\newcommand{\lessgtr}{\@print{&#8822;}}
-\newcommand{\gtrless}{\@print{&#8823;}}
-\newcommand{\lesseqgtr}{\@print{&#8922;}}
-\newcommand{\gtreqless}{\@print{&#8923;}}
-\newcommand{\lneqq}{\@print{&#8808;}}
-\newcommand{\gneqq}{\@print{&#8809;}}
-\newcommand{\lvertneqq}{\@print{&#8808;}}    % not ideal (lneqq)
-\newcommand{\gvertneqq}{\@print{&#8809;}}    % not ideal (gneqq)
-\newcommand{\precnsim}{\@print{&#8936;}}
-\newcommand{\succnsim}{\@print{&#8937;}}
-\newcommand{\thickapprox}{\@print{&#8776;}}  % not ideal (approx)
-\newcommand{\thicksim}{\@print{&#8764;}}     % not ideal (sim)
-\newcommand{\eqslantless}{\@print{&#10901;}}
-\newcommand{\eqslantgtr}{\@print{&#10902;}}
-\newcommand{\curlyeqprec}{\@print{&#8828;}}
-\newcommand{\curlyeqsucc}{\@print{&#8829;}}
-\newcommand{\nsim}{\@print{&#8769;}}
+%
+%% AMSSYMB Negated Arrows (Table 8.16 of Goos-Mitt-Sam)
+%
+\newcommand{\nleftarrow}{\@print{&#8602;}}
+\newcommand{\nrightarrow}{\@print{&#8603;}}
+\newcommand{\nLeftarrow}{\@print{&#8653;}}
+\newcommand{\nRightarrow}{\@print{&#8655;}}
+\newcommand{\nleftrightarrow}{\@print{&#8622;}}
+\newcommand{\nLeftrightarrow}{\@print{&#8654;}}
+%
+%% AMSSYMB Binary (Remains of Table 8.4 of Goos-Mott-Sam)
+%
+\newcommand{\lhd}{\@print{&#8882;}}
+\newcommand{\rhd}{\@print{&#8883;}}
+\newcommand{\unlhd}{\@print{&#8884;}}
+\newcommand{\unrhd}{\@print{&#8885;}}
+%
+%% AMSSYMB Relational Symbols
+%
 \newcommand{\eqsim}{\@print{&#8770;}}
-\newcommand{\backsimeq}{\@print{&#8909;}}
+\newcommand{\leqq}{\@print{&#8806;}}
+\newcommand{\leqslant}{\leq}			%
+\newcommand{\eqslantless}{\@print{&#8924;}}	
 \newcommand{\lesssim}{\@print{&#8818;}}
-\newcommand{\gtrsim}{\@print{&#8819;}}
-\newcommand{\lnapprox}{\@print{&#10889;}}
-\newcommand{\gnapprox}{\@print{&#10890;}}
-\newcommand{\lnsim}{\@print{&#8934;}}
-\newcommand{\gnsim}{\@print{&#8935;}}
-\newcommand{\precsim}{\@print{&#8830;}}
-\newcommand{\succsim}{\@print{&#8831;}}
-\newcommand{\triangleq}{\@print{&#8796;}}
-\newcommand{\npreceq}{\@print{&#8928;}}      % almost 
-\newcommand{\nsucceq}{\@print{&#8929;}}      % almost
-\newcommand{\nleqslant}{\@print{&#8816;}}    % not ideal (\nleq)
-\newcommand{\ngeqslant}{\@print{&#8817;}}    % not ideal (\ngeq)
-\newcommand{\nleqq}{\nleq}        	     % not ideal (\nleq) 
-\newcommand{\ngeqq}{\ngeq}                   % not ideal (\ngeq)
-
-%% Set Relational Symbols under "amssymb"
-
+\newcommand{\lessapprox}{\lesssim}
+\newcommand{\approxeq}{\@print{&#8778;}}
+\newcommand{\lessdot}{\@print{&#8918;}}
+\newcommand{\lll}{\@print{&#8920;}}
+\newcommand{\lessgtr}{\@print{&#8822;}}
+\newcommand{\lesseqgtr}{\@print{&#8922;}}
+\newcommand{\lesseqqgtr}{\lesseqgtr}
+\newcommand{\doteqdot}{\@print{&#8785;}}
+\newcommand{\risingdotseq}{\@print{&#8787;}}
+\newcommand{\fallingdotseq}{\@print{&#8786;}}
+\newcommand{\backsim}{\@print{&#8765;}}
+\newcommand{\backsimeq}{\@print{&#8909;}}
+\newcommand{\subseteqq}{\subseteq}
 \newcommand{\Subset}{\@print{&#8912;}} 
-\newcommand{\Supset}{\@print{&#8913;}}
-\newcommand{\subseteqq}{\@print{&#10949;}}
-\newcommand{\supseteqq}{\@print{&#10950;}}
-\newcommand{\subsetneq}{\@print{&#8842;}}
-\newcommand{\supsetneq}{\@print{&#8843;}}
-\newcommand{\subsetneqq}{\@print{&#10955;}}
-\newcommand{\supsetneqq}{\@print{&#10966;}}
-\newcommand{\varsubsetneq}{\@print{&#8842;}}   % not ideal (subsetneq)
-\newcommand{\varsupsetneq}{\@print{&#8843;}}   % not ideal (supsetneq)
-\newcommand{\varsubsetneqq}{\@print{&#10955;}} % not ideal (subsetneqq)
-\newcommand{\varsupsetneqq}{\@print{&#10966;}} % not ideal (supsetneqq)
+\newcommand{\preccurlyeq}{\@print{&#8828;}}
+\newcommand{\curlyeqprec}{\@print{&#8926;}}
+\newcommand{\precsim}{\@print{&#8830;}}
+\newcommand{\precapprox}{\precsim}
+\newcommand{\vartriangleleft}{\@print{&#8882;}}
+\newcommand{\trianglelefteq}{\@print{&#8884;}}
 \newcommand{\vDash}{\@print{&#8872;}}
 \newcommand{\Vvdash}{\@print{&#8874;}}
+\newcommand{\smallsmile}{\@print{<SMALL>}\smile\@print{</SMALL>}}
+\newcommand{\smallfrown}{\@print{<SMALL>}\frown\@print{</SMALL>}}
+\newcommand{\bumpeq}{\@print{&#8783;}}
+\newcommand{\Bumpeq}{\@print{&#8782;}}
+\newcommand{\geqq}{\@print{&#8807;}}
+\newcommand{\geqslant}{\geq}
+\newcommand{\eqslantgtr}{\@print{&#8925;}}
+\newcommand{\gtrsim}{\@print{&#8819;}}
+\newcommand{\gtrapprox}{\gtrsim}
+\newcommand{\gtrdot}{\@print{&#8919;}}
+\newcommand{\ggg}{\@print{&#8921;}}
+\newcommand{\gtrless}{\@print{&#8823;}}
+\newcommand{\gtreqless}{\@print{&#8923;}}
+\newcommand{\gtreqqless}{\gtreqless}
+\newcommand{\eqcirc}{\@print{&#8790;}}
+\newcommand{\circeq}{\@print{&#8791;}}
+\newcommand{\triangleq}{\@print{&#8796;}}
+\newcommand{\thicksim}{\sim}     
+\newcommand{\thickapprox}{\approx}  
+\newcommand{\supseteqq}{\supseteq}
+\newcommand{\Supset}{\@print{&#8913;}}
+\newcommand{\succcurlyeq}{\@print{&#8829;}}
+\newcommand{\curlyeqsucc}{\@print{&#8927;}}
+\newcommand{\succsim}{\@print{&#8831;}}
+\newcommand{\succapprox}{\succsim}
+\newcommand{\vartriangleright}{\@print{&#8883;}}
+\newcommand{\trianglerighteq}{\@print{&#8885;}}
 \newcommand{\Vdash}{\@print{&#8873;}}
+\newcommand{\shortmid}{\mid}              
+\newcommand{\shortparallel}{\parallel}        
+\newcommand{\between}{\@print{&#8812;}}
+\newcommand{\pitchfork}{\@print{&#10971;}}
+\newcommand{\varpropto}{\propto}
+\newcommand{\blacktriangleleft}{\@print{&#9654;}}
+\newcommand{\therefore}{\@print{&#8756;}}
+\newcommand{\blacktriangleright}{\@print{&#9664;}}
+\newcommand{\backepsilon}{\@print{&#1101;}}	   % EVENTUALLY 1014
+\newcommand{\because}{\@print{&#8757;}}
+%
+%% These will be activated eventually
+%
+%\newcommand{\leqslant}{\@print{&#10877;}}
+%\newcommand{\geqslant}{\@print{&#10878;}}
+%\newcommand{\lesseqqgtr}{\@print{&#10891;}}
+%\newcommand{\gtreqqless}{\@print{&#10892;}}
+%\newcommand{\lessapprox}{\@print{&#10885;}}
+%\newcommand{\gtrapprox}{\@print{&#10886;}}
+%\newcommand{\precapprox}{\@print{&#10935;}}
+%\newcommand{\succapprox}{\@print{&#10936;}}
+%\newcommand{\preccurlyeq}{\@print{&#8828;}}   
+%\newcommand{\succcurlyeq}{\@print{&#8829;}}   
+%\newcommand{\subseteqq}{\@print{&#10949;}}
+%\newcommand{\supseteqq}{\@print{&#10950;}}
+%
+%% AMSSYMB Negated Relational Symbols
+%
+\newcommand{\nless}{\@print{&#8814;}}
+\newcommand{\nleq}{\@print{&#8816;}}
+\newcommand{\nleqslant}{\@print{&#8816;}}    	% not ideal (\nleq)
+\newcommand{\nleqq}{\nleq}        	     	% not ideal (\nleq) 
+\newcommand{\lneq}{\@print{&#10887;}}
+\newcommand{\lneqq}{\@print{&#8808;}}
+\newcommand{\lvertneqq}{\@print{&#8808;}}    	% not ideal (lneqq)
+\newcommand{\lnsim}{\@print{&#8934;}}
+\newcommand{\lnapprox}{\@print{&#10889;}}
+\newcommand{\nprec}{\@print{&#8832;}}
+\newcommand{\npreceq}{\@print{&#8928;}}      	% almost 
+\newcommand{\precnsim}{\@print{&#8936;}}
+\newcommand{\precnapprox}{\@print{&#10937;}}
+\newcommand{\nsim}{\@print{&#8769;}}
+\newcommand{\nshortmid}{\@print{&#8740;}}   	% not ideal (\nmid)
+\newcommand{\nmid}{\@print{&#8740;}}
+\newcommand{\nvdash}{\@print{&#8876;}}
 \newcommand{\nvDash}{\@print{&#8877;}}
+\newcommand{\ntriangleleft}{\@print{&#8938;}}
+\newcommand{\ntrianglelefteq}{\@print{&#8940;}}
+\newcommand{\nsubseteq}{\@print{&#8840;}}
+\newcommand{\nsubseteqq}{\nsubseteq}	       	% not ideal
+\newcommand{\subsetneq}{\@print{&#8842;}}
+\newcommand{\varsubsetneq}{\@print{&#8842;}}   	% not ideal (subsetneq)
+\newcommand{\subsetneqq}{\@print{&#10955;}}
+\newcommand{\varsubsetneqq}{\subsetneqq} 	% not ideal (subsetneqq)
+\newcommand{\ngtr}{\@print{&#8815;}}
+\newcommand{\ngeq}{\@print{&#8817;}}
+\newcommand{\ngeqslant}{\@print{&#8817;}}    	% not ideal (\ngeq)
+\newcommand{\ngeqq}{\ngeq}                   	% not ideal (\ngeq)
+\newcommand{\gneq}{\@print{&#10888;}}
+\newcommand{\gneqq}{\@print{&#8809;}}
+\newcommand{\gvertneqq}{\@print{&#8809;}}    	% not ideal (gneqq)
+\newcommand{\gnsim}{\@print{&#8935;}}
+\newcommand{\gnapprox}{\@print{&#10890;}}
+\newcommand{\nsucc}{\@print{&#8833;}}
+\newcommand{\nsucceq}{\@print{&#8929;}}      	% almost
+\newcommand{\succnsim}{\@print{&#8937;}}
+\newcommand{\succnapprox}{\@print{&#10938;}}
+\newcommand{\ncong}{\@print{&#8775;}}
+\newcommand{\nshortparallel}{\@print{&#8742;}}  % not ideal (\nparallel)
+\newcommand{\nparallel}{\@print{&#8742;}}
 \newcommand{\nVDash}{\@print{&#8879;}}
 \newcommand{\nVdash}{\@print{&#8878;}}
-\newcommand{\nvdash}{\@print{&#8876;}}
-\newcommand{\ntriangleleft}{\@print{&#8938;}}
 \newcommand{\ntriangleright}{\@print{&#8939;}}
-\newcommand{\ntrianglelefteq}{\@print{&#8940;}}
 \newcommand{\ntrianglerighteq}{\@print{&#8941;}}
-\newcommand{\nsubseteq}{\@print{&#8840;}}
 \newcommand{\nsupseteq}{\@print{&#8841;}}
-\newcommand{\nsubseteqq}{\nsubseteq}	       % not ideal
-\newcommand{\nsupseteqq}{\nsupseteq}	       % not ideal
-\newcommand{\lhd}{\@print{&#9665;}}
-\newcommand{\rhd}{\@print{&#9655;}}
-\newcommand{\unlhd}{\@entity{LeftTriangleEqual}}
-\newcommand{\unrhd}{\@entity{RightTriangleEqual}}
-
+\newcommand{\nsupseteqq}{\nsupseteq}	       	% not ideal
+\newcommand{\supsetneq}{\@print{&#8843;}}
+\newcommand{\varsupsetneq}{\@print{&#8843;}}  	% not ideal (supsetneq)
+\newcommand{\supsetneqq}{\@print{&#10966;}}
+\newcommand{\varsupsetneqq}{\supsetneqq} 	% not ideal (supsetneqq)
+%
+%% These will be activated eventually
+%
+%\newcommand{\lneq}{\@print{&#10887;}}
+%\newcommand{\gneq}{\@print{&#10888;}}
+%\newcommand{\precnapprox}{\@print{&#10937;}}
+%\newcommand{\succnapprox}{\@print{&#10938;}}
+%\newcommand{\lnapprox}{\@print{&#10889;}}
+%\newcommand{\gnapprox}{\@print{&#10890;}}
+%\newcommand{\subsetneqq}{\@print{&#10955;}}
+%\newcommand{\supsetneqq}{\@print{&#10966;}}
+%\newcommand{\varsubsetneqq}{\@print{&#10955;}} % not ideal (subsetneqq)
+%\newcommand{\varsupsetneqq}{\@print{&#10966;}} % not ideal (supsetneqq)
+%
 %% Miscellaneous Symbols under "amssymb"
-
-\newcommand{\Game}{\@print{&#;}}
-\newcommand{\eth}{\@print{&#;}}
-\newcommand{\Finv}{\@print{&#8498;}}
-\newcommand{\mho}{\@print{&#8487;}}
-\newcommand{\hslash}{\@print{&#8463;}}
-\newcommand{\backepsilon}{\@print{&#;}}
-\newcommand{\circledS}{\@print{&#;}}
-\newcommand{\complement}{\@print{&#8405;}}
-\newcommand{\measuredangle}{\@print{&#10664;}}
-\newcommand{\sphericalangle}{\@print{&#;}}
-\newcommand{\because}{\@print{&#8957;}}
-\newcommand{\Bbbk}{\@print{&#120156;}}
-\newcommand{\therefore}{\@print{&#8956;}}
-\newcommand{\between}{\@print{&#8812;}}
-\newcommand{\blacktriangleright}{\@print{&#9664;}}
-\newcommand{\blacktriangleleft}{\@print{&#9654;}}
-\newcommand{\pitchfork}{\@print{&#10971;}}
-\newcommand{\smallsmile}{\@print{&#8995;}}
-\newcommand{\smallfrown}{\@print{&#8994;}}
-
+%
+%\newcommand{\Game}{\@print{&#;}}
+%\newcommand{\eth}{\@print{&#;}}
+%\newcommand{\Finv}{\@print{&#8498;}}
+%\newcommand{\mho}{\@print{&#8487;}}
+%\newcommand{\hslash}{\@print{&#8463;}}
+%\newcommand{\backepsilon}{\@print{&#;}}
+%\newcommand{\circledS}{\@print{&#;}}
+%\newcommand{\complement}{\@print{&#8405;}}
+%\newcommand{\measuredangle}{\@print{&#10664;}}
+%\newcommand{\sphericalangle}{\@print{&#;}}
+%\newcommand{\because}{\@print{&#8957;}}
+%\newcommand{\Bbbk}{\@print{&#120156;}}
+%\newcommand{\therefore}{\@print{&#8956;}}
+%\newcommand{\between}{\@print{&#8812;}}
+%\newcommand{\blacktriangleright}{\@print{&#9664;}}
+%\newcommand{\blacktriangleleft}{\@print{&#9654;}}
+%\newcommand{\pitchfork}{\@print{&#10971;}}
+%\newcommand{\smallsmile}{\@print{&#8995;}}
+%\newcommand{\smallfrown}{\@print{&#8994;}}
+%
+%% AMSSYMB Greek and Hebrew
+%
+\newcommand{\digamma}{\@print{<I>&#988;</I>}}
+\newcommand{\varkappa}{\@print{&#983;}}		% EVENTUALLY 1008
+\newcommand{\beth}{\@print{&#1489;}}
+\newcommand{\daleth}{\@print{&#1491;}}
+\newcommand{\gimel}{\@print{&#1490;}}
+%
+%% AMSSYMB delimiters
+%
+\newcommand{\ulcorner}{\@print{&#8988;}}
+\newcommand{\urcorner}{\@print{&#8989;}}
+\newcommand{\llcorner}{\@print{&#8990;}}
+\newcommand{\lrcorner}{\@print{&#8991;}}
+%
 \let\mathbb\@mathbb
 \let\mathfrak\@mathfrak
 

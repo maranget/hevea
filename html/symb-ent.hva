@@ -8,15 +8,15 @@
 \renewcommand{\cdots}{\@print{&#8943;}}
 \renewcommand{\ddots}{\@print{&#8944;}}
 \renewcommand{\vdots}{\@print{&#8942;}}
-
+%
 %% Greek Letters
-
+%
 \newcommand{\alpha}{\@print{&#945;}}
 \newcommand{\beta}{\@entity{beta}}
 \newcommand{\gamma}{\@entity{gamma}}
 \newcommand{\delta}{\@entity{delta}}
-\newcommand{\epsilon}{\@entity{epsilon}}
-\newcommand{\varepsilon}{\@print{&#1013;}}
+\newcommand{\epsilon}{\@print{&#1108;}}			% EVENTUALLY 1013
+\newcommand{\varepsilon}{\@entity{epsilon}}
 \newcommand{\zeta}{\@entity{zeta}}
 \newcommand{\eta}{\@entity{eta}}
 \newcommand{\theta}{\@entity{theta}}
@@ -40,9 +40,9 @@
 \newcommand{\chi}{\@entity{chi}}
 \newcommand{\psi}{\@entity{psi}}
 \newcommand{\omega}{\@entity{omega}}
-../
+%
 %% Capital Greek Letters
-
+%
 \newcommand{\Gamma}{\@entity{Gamma}}
 \newcommand{\Delta}{\@entity{Delta}}
 \newcommand{\Theta}{\@entity{Theta}}
@@ -54,9 +54,9 @@
 \newcommand{\Phi}{\@entity{Phi}}
 \newcommand{\Psi}{\@entity{Psi}}
 \newcommand{\Omega}{\@entity{Omega}}
-
+%
 %% Binary Operation Symbols
-
+%
 \renewcommand{\pm}{\@print{&#0177;}}
 \newcommand{\mp}{\@print{&#8723;}}
 \renewcommand{\ast}{\@entity{lowast}}
@@ -91,9 +91,9 @@
 \newcommand{\dagger}{\@print{<SMALL>&#8224;</SMALL>}}  % better but bold
 \newcommand{\ddagger}{\@print{<SMALL>&#8225;</SMALL>}} % better but bold
 \newcommand{\amalg}{\@print{<SMALL>&#1062;</SMALL>}}   % EVENTUALLY 10815
-
-% Relation Symbols (Table 8.5 of 'Goos-Mitt-Sam')
-
+%
+%% Relation Symbols (Table 8.5 of 'Goos-Mitt-Sam')
+%
 \newcommand{\leq}{\@print{&#8804;}}     %{\@entity{le}} 
 \renewcommand{\le}{\@print{&#8804;}}
 \newcommand{\geq}{\@print{&#8805;}}	%entity{ge}}
@@ -134,9 +134,9 @@
 \renewcommand{\vdash}{\@print{&#8866;}}
 \renewcommand{\dashv}{\@print{&#8867;}}
 \newcommand{\notin}{\@print{&#8713;}}
-
-% Arrow Symbols (Table 8.6 of 'Goos-Mitt-Sam')
-
+%
+%% Arrow Symbols (Table 8.6 of 'Goos-Mitt-Sam')
+%
 \newcommand{\leftarrow}{\@entity{larr}}
 \newcommand{\Leftarrow}{\@entity{lArr}}
 \newcommand{\rightarrow}{\@entity{rarr}}
@@ -170,10 +170,9 @@
 \newcommand{\searrow}{\@print{&#8600;}}
 \newcommand{\swarrow}{\@print{&#8601;}}
 \newcommand{\nwarrow}{\@print{&#8598;}}
-
-%%%
-%%%Eventually these commands would be activated
-%%%
+%
+%% Eventually these commands would be activated
+%
 %\renewcommand{\longleftarrow}{\@print{&#10229;}}
 %\renewcommand{\Longleftarrow}{\@print{&#10232;}}
 %\renewcommand{\longrightarrow}{\@print{&#10230;}}
@@ -181,15 +180,15 @@
 %\renewcommand{\longleftrightarrow}{\@print{&#10231;}}
 %\renewcommand{\Longleftrightarrow}{\@print{&#10234;}}
 %\renewcommand{\longmapsto}{\@print{&#10236;}}
-
-% Miscellaneous symbols (Table 8.7 of 'Goos-Mitt-Sam')
-
+%
+%% Miscellaneous symbols (Table 8.7 of 'Goos-Mitt-Sam')
+%
 \newcommand{\aleph}{\@print{&#8501;}}
 \newcommand{\prime}{\@entity{prime}}
 \newcommand{\forall}{\@entity{forall}}
 \newcommand{\infty}{\@entity{infin}}
 \newcommand{\hbar}{\@print{&#8463;}}
-\renewcommand{\emptyset}{\@print{&#216;}}
+\renewcommand{\emptyset}{\@print{&#8709;}}
 \newcommand{\exists}{\@entity{exist}}
 \newcommand{\nabla}{\@entity{nabla}}
 \newcommand{\surd}{\@entity{radic}}
@@ -199,9 +198,9 @@
 \newcommand{\ell}{\@print{&#8467}}
 \renewcommand{\neg}{\@entity{not}}
 \newcommand{\top}{\@print{&#8868;}}
-\newcommand{\flat}{\@print{<SMALL>b</SMALL>}}   % EVENTUALLY
-\newcommand{\natural}{\@print{&#35;}} 		% EVENTUALLY
-\newcommand{\sharp}{\@print{&#35;}}		% EVENTUALLY
+\newcommand{\flat}{\@print{&#9837;}}   		% EVENTUALLY
+\newcommand{\natural}{\@print{&#9838;;}} 	% EVENTUALLY
+\newcommand{\sharp}{\@print{&#9839;}}		% EVENTUALLY
 \newcommand{\wp}{\@entity{weierp}}
 \renewcommand{\bot}{\@entity{perp}}
 \newcommand{\clubsuit}{\@entity{clubs}}
@@ -218,7 +217,7 @@
 %\newcommand{\Diamond}{\@entity{loz}}
 %\newcommand{\mho}{\@print{&#8487;}}
 %
-%%% Delimiters
+%% Delimiters
 %
 \newcommand{\lfloor}{\@entity{lfloor}}
 \newcommand{\rfloor}{\@entity{rfloor}}
@@ -242,7 +241,7 @@
 \newcommand{\@displaycoprod}{\mbox{\large\@print{&#1062;}}}
 \newcommand{\@displayoint}{\mbox{\large\@print{&#8750;}}}
 %
-%%%Additional
+%% Additional
 %
 \newcommand{\dag}{\@print{&#8224;}}
 %
@@ -253,5 +252,11 @@
 \let\mathtt\@mathtt
 \newcommand{\mathit}[1]{\@open{I}{}#1\@close{I}}
 %
-\def\bigl#1{\ifdisplay{\Large #1}\else{\large #1}\fi}
-\def\bigr#1{\ifdisplay{\Large #1}\else{\large #1}\fi}
+\def\bigl#1{\ifdisplay{\large #1}\else{\large #1}\fi}
+\def\bigr#1{\ifdisplay{\large #1}\else{\large #1}\fi}
+\def\Bigl#1{\ifdisplay{\Large #1}\else{\large #1}\fi}
+\def\Bigr#1{\ifdisplay{\Large #1}\else{\large #1}\fi}
+\def\biggl#1{\ifdisplay{\huge #1}\else{\large #1}\fi}
+\def\biggr#1{\ifdisplay{\huge #1}\else{\large #1}\fi}
+\def\Biggl#1{\ifdisplay{\Huge #1}\else{\large #1}\fi}
+\def\Biggr#1{\ifdisplay{\Huge #1}\else{\large #1}\fi}
