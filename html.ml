@@ -10,7 +10,7 @@
 (***********************************************************************)
 
 
-let header = "$Id: html.ml,v 1.76 2000-05-26 17:05:52 maranget Exp $" 
+let header = "$Id: html.ml,v 1.77 2000-06-02 15:23:19 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -165,9 +165,6 @@ let iso_string s =
 
 let 
   over,
-  int_sup_sub,
-  limit_sup_sub,
-  standard_sup_sub ,
   erase_display,
   begin_item_display,
   end_item_display,
@@ -185,9 +182,6 @@ let
     =
   if !Parse_opts.mathml then begin
     MathML.over,
-    MathML.int_sup_sub,
-    MathML.limit_sup_sub,
-    MathML.standard_sup_sub,
     MathML.erase_display,
     MathML.begin_item_display,
     MathML.end_item_display,
@@ -204,9 +198,6 @@ let
     MathML.right
   end else begin
     HtmlMath.over,
-    HtmlMath.int_sup_sub,
-    HtmlMath.limit_sup_sub,
-    HtmlMath.standard_sup_sub,
     HtmlMath.erase_display,
     HtmlMath.begin_item_display,
     HtmlMath.end_item_display,
@@ -224,6 +215,20 @@ let
   end
 ;;
 
+let
+  int_sup_sub,
+  limit_sup_sub,
+  standard_sup_sub
+    =
+  if !Parse_opts.mathml then
+    MathML.int_sup_sub,
+    MathML.limit_sup_sub,
+    MathML.standard_sup_sub
+  else
+    HtmlMath.int_sup_sub,
+    HtmlMath.limit_sup_sub,
+    HtmlMath.standard_sup_sub
+;;
 
 let skip_line = skip_line
 and flush_out = flush_out
@@ -244,6 +249,7 @@ and nostyle = nostyle
 and get_fontsize = get_fontsize
 and horizontal_line = horizontal_line
 and close_flow = close_flow
+and to_string = to_string
 ;;
 
 
@@ -395,23 +401,6 @@ let close_chan () =
   close_group ()
 ;;
 
-let to_string f =
-(*
-  prerr_string "to_string: " ;
-  debug_empty flags ;
-  Out.debug stderr !cur_out.out ;
-  prerr_endline "" ;
-*)
-  let old_flags = copy_flags flags in
-  let _ = forget_par () in
-  open_group "" ;
-  f () ;
-  let r = Out.to_string !cur_out.out in
-  flags.empty <- true ;
-  close_group () ;
-  set_flags flags old_flags ;
-  r
-;;
 
 let to_style f =
   let old_flags = copy_flags flags in

@@ -53,6 +53,4 @@ val replace : string -> (Lexstate.pat * Lexstate.action) option ->
 
 
 val invisible : string -> bool
-val limit : string -> bool
-val int : string -> bool
-val big : string -> bool
+

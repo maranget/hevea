@@ -6,7 +6,6 @@
 \def\mathord#1{#1}
 \def\mathrel#1{#1}
 \def\mathbin#1{#1}
-\def\mathop#1{#1}
 \def\mathopen#1{#1}
 \def\mathclose#1{#1}
 \def\mathchardef#1#2{}

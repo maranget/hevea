@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlCommon.ml,v 1.22 2000-05-30 19:00:07 maranget Exp $" 
+let header = "$Id: htmlCommon.ml,v 1.23 2000-06-02 15:23:21 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -199,7 +199,11 @@ type flags_t = {
     mutable insert: (string * string) option;
 } ;;
 
+let debug_flags f =
+  Printf.fprintf stderr "table_inside=%b\n" f.table_inside ;
+  flush stderr
 
+    
 let flags = {
   table_inside = false;
   ncols = 0;
@@ -317,8 +321,8 @@ let stacks = {
   s_blank = Stack.create_init "blank" false ;
   s_pending_par = Stack.create "pending_par" ;
   s_vsize = Stack.create "vsize" ;
-  s_nrows = Stack.create "nrows" ;
-  s_table_vsize = Stack.create "table_vsize" ;
+  s_nrows = Stack.create_init "nrows" 0 ;
+  s_table_vsize = Stack.create_init "table_vsize" 0 ;
   s_nitems = Stack.create_init "nitems" 0 ;
   s_dt = Stack.create_init "dt" "" ;
   s_dcount = Stack.create_init "dcount" "" ;
@@ -472,10 +476,11 @@ let sbool = function true -> "true" | _ -> "false"
 let prerr_flags s =
   prerr_endline ("<"^string_of_int (Stack.length stacks.s_empty)^"> "^s^
     " empty="^sbool flags.empty^
-    " blank="^sbool flags.blank)
+    " blank="^sbool flags.blank^
+    " table="^sbool flags.table_inside)
 
 let is_header s =
-  String.length s = 2 && String.get s 0 = 'H'
+  String.length s = 2 && String.unsafe_get s 0 = 'H'
 ;;
 
 let is_list = function
@@ -669,7 +674,7 @@ let do_open_mods () =
         {here=true ; env=e} :: rest in
   
   let now_active = do_rec false false !cur_out.pending in
-  if !verbose > 3 && !cur_out.pending <> [] then begin
+  if !verbose > 2 && !cur_out.pending <> [] then begin
     prerr_string "do_open_mods: " ;
     pretty_mods !cur_out.pending ;
     prerr_string " -> " ;
@@ -1133,7 +1138,7 @@ let put s =
   let s_blank =
     let r = ref true in
     for i = 0 to String.length s - 1 do
-      r := !r && is_blank (String.get s i)
+      r := !r && is_blank (String.unsafe_get s i)
     done ;
     !r in
   let save_last_closed = flags.last_closed in
@@ -1283,3 +1288,25 @@ let get_block s args =
 
 
 
+let hidden_to_string f =
+(*
+  prerr_string "to_string: " ;
+  debug_empty flags ;
+  Out.debug stderr !cur_out.out ;
+  prerr_endline "" ;
+*)
+  let old_flags = copy_flags flags in
+  let _ = forget_par () in
+  open_group "" ;
+  f () ;
+  let flags_now = copy_flags flags in
+  let r = Out.to_string !cur_out.out in
+  flags.empty <- true ;
+  close_group () ;
+  set_flags flags old_flags ;
+  r,flags_now
+;;
+
+let to_string f =
+  let r,_ = hidden_to_string f in
+  r

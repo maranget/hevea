@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: mathML.ml,v 1.11 2000-05-30 12:28:50 maranget Exp $" 
+let header = "$Id: mathML.ml,v 1.12 2000-06-02 15:23:37 maranget Exp $" 
 
 
 open Misc
@@ -386,15 +386,14 @@ let put_in_math s =
 (* Sup/Sub stuff *)
 
 
-let put_sub_sup  scanner s = 
+let put_sub_sup  s = 
   open_display ();
-  scanner s;
-  item_display ();
-  
+  put s;
+  item_display ();  
   close_display ();
 ;;
 
-let insert_sub_sup tag scanner s t =
+let insert_sub_sup tag s t =
   let f, is_freeze = pop_freeze () in
   let ps,pargs,pout = pop_out out_stack in
   if ps <> "" then failclose ("sup_sub: "^ps^" closes ``''");
@@ -409,14 +408,21 @@ let insert_sub_sup tag scanner s t =
   flags.empty <- false; flags.blank <- false;
   free new_out;
   close_display ();
-  put_sub_sup scanner s;
-  if t<>"" then put_sub_sup scanner t;
+  put_sub_sup s;
+  if t<>"" then put_sub_sup t;
   close_block tag;
   open_block "" "";
   if is_freeze then freeze f
 ;;
 
+let get_sup_sub
+    (scanner : Lexstate.arg -> unit)
+    (s : Lexstate.arg) =
+  to_string (fun () -> scanner s)
+
 let standard_sup_sub scanner what sup sub display =
+  let sup = get_sup_sub scanner sup
+  and sub = get_sup_sub  scanner sub in
   match sub,sup with
   | "","" -> what ()
   | a,"" -> 
@@ -426,10 +432,10 @@ let standard_sup_sub scanner what sup sub display =
       if flags.empty then begin
 	erase_display ();
 	erase_block "msub";
-	insert_sub_sup "msub" scanner a "";
+	insert_sub_sup "msub" a "";
       end else begin
 	close_display ();
-	put_sub_sup scanner a;
+	put_sub_sup a;
 	close_block "msub";
       end;
   | "",b ->
@@ -439,10 +445,10 @@ let standard_sup_sub scanner what sup sub display =
       if flags.empty then begin
 	erase_display ();
 	erase_block "msup";
-	insert_sub_sup "msup" scanner b "";
+	insert_sub_sup "msup" b "";
       end else begin
 	close_display ();
-	put_sub_sup scanner b;
+	put_sub_sup b;
 	close_block "msup";
       end;
   | a,b ->
@@ -452,17 +458,20 @@ let standard_sup_sub scanner what sup sub display =
       if flags.empty then begin
 	erase_display ();
 	erase_block "msubsup";
-	insert_sub_sup "msubsup" scanner a b;
+	insert_sub_sup "msubsup" a b;
       end else begin
 	close_display ();
-	put_sub_sup scanner a;
-	put_sub_sup scanner b;
+	put_sub_sup a;
+	put_sub_sup b;
 	close_block "msubsup";
       end;
 ;;
 
 
+
 let limit_sup_sub scanner what sup sub display =
+  let sup = get_sup_sub scanner sup
+  and sub = get_sup_sub  scanner sub in
   match sub,sup with
   | "","" -> what ()
   | a,"" -> 
@@ -472,10 +481,10 @@ let limit_sup_sub scanner what sup sub display =
       if flags.empty then begin
 	erase_display ();
 	erase_block "munder";
-	insert_sub_sup "munder" scanner a "";
+	insert_sub_sup "munder" a "";
       end else begin
 	close_display ();
-	put_sub_sup scanner a;
+	put_sub_sup a;
 	close_block "munder";
       end;
   | "",b ->
@@ -485,10 +494,10 @@ let limit_sup_sub scanner what sup sub display =
       if flags.empty then begin
 	erase_display ();
 	erase_block "mover";
-	insert_sub_sup "mover" scanner b "";
+	insert_sub_sup "mover" b "";
       end else begin
 	close_display ();
-	put_sub_sup scanner b;
+	put_sub_sup b;
 	close_block "mover";
       end;
   | a,b ->
@@ -498,11 +507,11 @@ let limit_sup_sub scanner what sup sub display =
       if flags.empty then begin
 	erase_display ();
 	erase_block "munderover";
-	insert_sub_sup "munderover" scanner a b;
+	insert_sub_sup "munderover" a b;
       end else begin
 	close_display ();
-	put_sub_sup scanner a;
-	put_sub_sup scanner b;
+	put_sub_sup a;
+	put_sub_sup b;
 	close_block "munderover";
       end;
 ;;
@@ -543,10 +552,11 @@ let tr = function
 | s   -> s
 ;;
 
-let left delim = 
+let left delim k = 
   force_item_display ();
   open_display ();
   if delim <>"." then put ("<mo> "^ tr delim^" </mo>");
+  k 0 ;
   force_item_display ();
   freeze
     ( fun () ->

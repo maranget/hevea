@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.178 2000-05-31 16:59:21 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.179 2000-06-02 15:23:31 maranget Exp $ *)
 
 
 {
@@ -790,31 +790,18 @@ let expand_command main skip_blanks name lexbuf =
   Dest.par par_before ;
   let args = make_stack name pat lexbuf in
   let saw_par = !Save.seen_par in
-  let is_limit = checklimits lexbuf ||  Latexmacros.limit name in
-  if not !alltt && (is_limit || Latexmacros.big name) then begin
-    let sup,sub = Save.get_sup_sub lexbuf in
-    let do_what =
-      (fun () -> scan_body exec body args) in
-    if !display && is_limit then
-      Dest.limit_sup_sub (scan_this main) do_what sup sub !display
-    else if !display &&  Latexmacros.int name then
-      Dest.int_sup_sub true 3 (scan_this main) do_what sup sub !display
-    else
-      Dest.standard_sup_sub (scan_this main) do_what sup sub !display
-  end else begin
-    if (!verbose > 1) then begin
-      prerr_endline
-        ("Expanding macro "^name^" {"^(string_of_int !macro_depth)^"}") ;
-      macro_depth := !macro_depth + 1
-    end ;
-    scan_body exec body args ;
-    if (!verbose > 1) then begin
-      prerr_endline ("Cont after macro "^name^": ") ;
-      macro_depth := !macro_depth - 1
-    end ;
-    Dest.par par_after ;
-    if saw_par then top_par (par_val !in_table)
-  end
+  if (!verbose > 1) then begin
+    prerr_endline
+      ("Expanding macro "^name^" {"^(string_of_int !macro_depth)^"}") ;
+    macro_depth := !macro_depth + 1
+  end ;
+  scan_body exec body args ;
+  if (!verbose > 1) then begin
+    prerr_endline ("Cont after macro "^name^": ") ;
+    macro_depth := !macro_depth - 1
+  end ;
+  Dest.par par_after ;
+  if saw_par then top_par (par_val !in_table)
 ;;
 
 let count_newlines s =
@@ -1286,20 +1273,43 @@ let sub_sup lxm lexbuf =
   end else begin
     let sup,sub = match lxm with
       '^' ->
-        let sup = Save.arg lexbuf in
-        let sub = Save.get_sub lexbuf in
+        let sup = save_arg lexbuf in
+        let sub = save_sub lexbuf in
         sup,sub
     | '_'   ->
-        let sub = Save.arg lexbuf in
-        let sup = Save.get_sup lexbuf in
+        let sub = save_arg lexbuf in
+        let sup = save_sub lexbuf in
         sup,sub
     | _ -> assert false in
-    Dest.standard_sup_sub (scan_this main) (fun () -> ()) sup sub !display
+    Dest.standard_sup_sub (scan_this_arg main) (fun () -> ()) sup sub !display
   end
 ;;
 
 def_code "\\@hevea@underscore" (fun lexbuf -> sub_sup '_' lexbuf) ;
 def_code "\\@hevea@circ" (fun lexbuf -> sub_sup '^' lexbuf)
+;;
+
+def_code "\\mathop"
+  (fun lexbuf ->
+    prerr_endline "New mathop" ;
+    let symbol = save_arg lexbuf in
+    let {limits=limits ; sup=sup ; sub=sub} = save_sup_sub lexbuf in
+    match limits with
+    | (Some Limits|None) when !display ->
+        prerr_endline "Limit found" ;
+        Dest.limit_sup_sub
+          (scan_this_arg main)
+          (fun _ -> scan_this_arg main symbol) sup sub !display
+    | (Some IntLimits) when !display ->
+        Dest.int_sup_sub true 3
+          (scan_this_arg main)
+          (fun () -> scan_this_arg main symbol)
+          sup sub !display        
+    | _ ->
+        scan_this_arg main symbol ;
+        Dest.standard_sup_sub
+          (scan_this_arg main)
+          (fun _ -> ()) sup sub !display)
 ;;
 
 
@@ -1800,7 +1810,11 @@ def_code "\\left"
   (fun lexbuf ->
     if !display then begin
       let delim = subst_arg lexbuf in
-      Dest.left delim;
+      let {sub=sub ; sup=sup} = save_sup_sub lexbuf in
+      Dest.left delim
+        (fun vsize ->
+          Dest.int_sup_sub false vsize
+            (scan_this_arg main) (fun () -> ())  sup sub true)
     end)
 ;;
 
@@ -1809,9 +1823,10 @@ def_code "\\right"
     if !display then begin
       let delim = subst_arg lexbuf in
       let vsize = Dest.right delim in
-      let sup,sub = Save.get_sup_sub lexbuf in
+      let {sup=sup ; sub=sub} = save_sup_sub lexbuf in
       let do_what = (fun () -> ()) in
-      Dest.int_sup_sub false vsize (scan_this main) do_what sup sub !display
+      Dest.int_sup_sub false vsize
+        (scan_this_arg main) do_what sup sub !display
     end ;
     check_alltt_skip lexbuf)
 ;;
@@ -2487,10 +2502,13 @@ def_code "\\endgroup"
 
 def_code "\\alltt"
   (fun _ ->
+    if !verbose > 1 then prerr_endline "begin alltt" ;
     alltt := true ; Dest.close_block "" ; Dest.open_block "PRE" "") ;
+
 def_code "\\endalltt"
   (fun _ ->
-    alltt := true ; Dest.close_block "PRE" ; Dest.open_block "" "")
+    if !verbose > 1 then prerr_endline "end alltt" ;
+    alltt := false ; Dest.close_block "PRE" ; Dest.open_block "" "")
 ;;
 
 (* Multicolumn *)

@@ -33,3 +33,4 @@ val clone_hashtbl : (string, 'a) Hashtbl.t -> (string, 'a) Hashtbl.t
 val start_env : string -> string
 val end_env : string -> string
 
+type limits = Limits | NoLimits | IntLimits

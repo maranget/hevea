@@ -16,14 +16,15 @@ val csname : Lexing.lexbuf ->
 val incsname : Lexing.lexbuf -> string
 val cite_arg : Lexing.lexbuf -> string list
 val rest : Lexing.lexbuf -> string
-val macro_names : Lexing.lexbuf -> string list
 val num_arg : Lexing.lexbuf -> (string -> int) -> int
 val skip_equal : Lexing.lexbuf -> unit
 val check_equal : Lexing.lexbuf -> bool
 val filename : Lexing.lexbuf -> string
-val get_sup_sub : Lexing.lexbuf -> string * string
+(* Superscript and subscripts *)
+val get_limits : Lexing.lexbuf -> Misc.limits option
 val get_sup : Lexing.lexbuf -> string
 val get_sub : Lexing.lexbuf -> string
+
 val defargs : Lexing.lexbuf -> string list
 val get_defargs : Lexing.lexbuf -> string
 val tagout : Lexing.lexbuf -> string

@@ -18,7 +18,7 @@ open Lexstate
 open Stack
 
 (* Compute functions *)
-let header = "$Id: get.mll,v 1.20 2000-05-30 12:28:40 maranget Exp $"
+let header = "$Id: get.mll,v 1.21 2000-06-02 15:23:17 maranget Exp $"
 
 exception Error of string
 
@@ -334,7 +334,7 @@ let def_commands_bool () =
             let name = !get_this (save_arg lexbuf) in
             let b = try
               let r = !get_this
-                  ("\\if"^name^" true\\else false\\fi",get_subst ()) in
+                  (string_to_arg ("\\if"^name^" true\\else false\\fi")) in
               match r with
               | "true" -> true
               | "false" -> false
@@ -385,7 +385,7 @@ let first_try s =
   try_rec 0 0
 ;;
 
-let get_int (expr, subst) =
+let get_int {arg=expr ; subst=subst} =
   if !verbose > 1 then
     prerr_endline ("get_int : "^expr) ;
   let r =
@@ -417,7 +417,7 @@ let get_int (expr, subst) =
   r
   
 
-let get_bool (expr,subst) =
+let get_bool {arg=expr ; subst=subst} =
   if !verbose > 1 then
     prerr_endline ("get_bool : "^expr) ;
   let old_bool = !bool_out in
@@ -445,7 +445,7 @@ let get_bool (expr,subst) =
   bool_out := old_bool ;
   r
 
-let get_length ((expr,_) as arg) =
+let get_length ({arg=expr ; subst=subst} as arg) =
   if !verbose > 1 then
     prerr_endline ("get_length : "^expr) ;
   let r = Length.main (Lexing.from_string (Subst.do_subst_this arg)) in

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmacros.ml,v 1.63 2000-05-31 16:59:17 maranget Exp $" 
+let header = "$Id: latexmacros.ml,v 1.64 2000-06-02 15:23:26 maranget Exp $" 
 open Misc
 open Parse_opts
 open Symb
@@ -272,63 +272,3 @@ let invisible = function
     (String.length name >= 3 && String.sub name 0 3 = "\\if")
 ;;
 
-let limit_t = Hashtbl.create 37
-;;
-Hashtbl.add limit_t  "\\limits" () ;
-Hashtbl.add limit_t "\\underbrace" () ;
-Hashtbl.add limit_t "\\sum" () ;
-Hashtbl.add limit_t "\\prod" () ;
-Hashtbl.add limit_t "\\coprod" () ;
-Hashtbl.add limit_t "\\bigcap" () ;
-Hashtbl.add limit_t "\\bigcup" () ;
-Hashtbl.add limit_t "\\bigsqcap" () ;
-Hashtbl.add limit_t "\\bigsqcup" () ;
-Hashtbl.add limit_t "\\bigodot" () ;
-Hashtbl.add limit_t "\\bigdotplus" () ;
-Hashtbl.add limit_t "\\biguplus" () ;
-Hashtbl.add limit_t "\\det" () ;
-Hashtbl.add limit_t "\\gcd" () ;
-Hashtbl.add limit_t "\\inf" () ;
-Hashtbl.add limit_t "\\liminf" () ;
-Hashtbl.add limit_t "\\lim" () ;
-Hashtbl.add limit_t "\\limsup" () ;
-Hashtbl.add limit_t "\\max" () ;
-Hashtbl.add limit_t "\\min" () ;
-Hashtbl.add limit_t "\\Pr" () ;
-Hashtbl.add limit_t "\\sup" () ;
-()
-;;
- 
-let limit s =
-  try Hashtbl.find limit_t s ; true with
-  | Not_found -> false
-;;
-
-let int = function
-  "\\int"
-| "\\oint" -> true
-| _ -> false
-;;
-
-let big_t = Hashtbl.create 37
-;;
-
-Hashtbl.add limit_t "\\sum" () ;
-Hashtbl.add limit_t "\\prod" () ;
-Hashtbl.add limit_t "\\coprod" () ;
-Hashtbl.add limit_t "\\int" () ;
-Hashtbl.add limit_t "\\oint" () ;
-Hashtbl.add limit_t "\\bigcap" () ;
-Hashtbl.add limit_t "\\bigcup" () ;
-Hashtbl.add limit_t "\\bigsqcap" () ;
-Hashtbl.add limit_t "\\bigsqcup" () ;
-Hashtbl.add limit_t "\\bigodot" () ;
-Hashtbl.add limit_t "\\bigdotplus" () ;
-Hashtbl.add limit_t "\\biguplus" () ;
-()
-;;
-
-let big s =
-  try Hashtbl.find big_t s ; true with
-  | Not_found -> false
-;;

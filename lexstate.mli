@@ -24,6 +24,10 @@ val zero_pat : pat
 val one_pat : pat
 
 type subst
+type 'a arg = {arg : 'a ; subst : subst ; alltt : bool}
+val mkarg : 'a -> subst -> bool -> 'a arg
+val string_to_arg : 'a -> 'a arg
+
 val top_subst : subst
 val get_subst : unit -> subst
 
@@ -89,31 +93,38 @@ val stack_closed : string Stack.t
 val start_normal: subst -> unit
 val end_normal : unit -> unit
 
+(* Super/Sub-script parsing *)
+  type sup_sub = {
+    limits : Misc.limits option;
+    sup : string arg;
+    sub : string arg;
+  } 
 
+val save_sup_sub : Lexing.lexbuf -> sup_sub
+val save_sup : Lexing.lexbuf -> string arg option
+val save_sub : Lexing.lexbuf -> string arg option
+(* Argument parsing *)
 type ok = | No of string | Yes of string
+val from_ok : ok arg -> string arg
 
-val from_ok : ok * subst -> string * subst
-
-val save_arg : Lexing.lexbuf -> string * subst
-val save_filename : Lexing.lexbuf -> string * subst
-val save_verbatim : Lexing.lexbuf -> string * subst
-val save_opt : string -> Lexing.lexbuf -> string * subst
-val save_opts : string list -> Lexing.lexbuf -> (ok * subst) list
-val save_arg_with_delim : string -> Lexing.lexbuf -> string * subst
+val save_arg : Lexing.lexbuf -> string arg
+val save_filename : Lexing.lexbuf -> string arg
+val save_verbatim : Lexing.lexbuf -> string arg 
+val save_opt : string -> Lexing.lexbuf -> string arg
+val save_opts : string list -> Lexing.lexbuf -> ok arg list
+val save_arg_with_delim : string -> Lexing.lexbuf -> string arg
 val pretty_ok : ok -> string
 val skip_opt : Lexing.lexbuf -> unit
 val skip_csname : Lexing.lexbuf -> unit
-(* val parse_args :
-  string list * string list -> Lexing.lexbuf -> ok list * string list
-*)
+
 val make_stack : string -> pat -> Lexing.lexbuf -> subst
 
 
 
 val scan_this : (Lexing.lexbuf -> 'a ) -> string -> 'a
-val scan_this_arg : (Lexing.lexbuf -> 'a ) -> (string * subst) -> 'a
+val scan_this_arg : (Lexing.lexbuf -> 'a ) -> string arg -> 'a
 val scan_this_may_cont :
-    (Lexing.lexbuf -> 'a ) -> Lexing.lexbuf -> subst ->  string * subst -> 'a
+    (Lexing.lexbuf -> 'a ) -> Lexing.lexbuf -> subst ->  string arg -> 'a
 
 val real_input_file :
     int -> (Lexing.lexbuf -> unit) -> string -> in_channel -> unit

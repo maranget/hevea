@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: misc.ml,v 1.14 2000-05-30 12:28:51 maranget Exp $" 
+let header = "$Id: misc.ml,v 1.15 2000-06-02 15:23:38 maranget Exp $" 
 
 exception Fatal of string
 exception Purposly of string
@@ -77,3 +77,5 @@ let clone_hashtbl from_table =
 let start_env env = "\\"^ env
 and end_env env = "\\end"^env
 
+
+type limits = Limits | NoLimits | IntLimits

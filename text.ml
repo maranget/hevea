@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.45 2000-05-30 12:28:53 maranget Exp $"
+let header = "$Id: text.ml,v 1.46 2000-06-02 15:23:43 maranget Exp $"
 
 
 open Misc
@@ -1018,6 +1018,14 @@ let erase_block s =
   end
 ;;
 
+let to_string f =
+  open_block "TEMP" "";
+  f () ;
+  let r = Out.to_string !cur_out.out in
+  close_block "TEMP";
+  r
+;;
+
 let open_group ss =  
   open_block "" "";
   open_mod (Style ss);
@@ -1065,13 +1073,6 @@ let close_chan () =
   !cur_out.out <- Out.create_buff()
 ;;
 
-let to_string f =
-  open_block "TEMP" "";
-  f () ;
-  let r = Out.to_string !cur_out.out in
-  close_block "TEMP";
-  r
-;;
 
 let to_style f =
   !cur_out.active<-[];
@@ -1922,10 +1923,14 @@ let insert_sup_sub () =
 ;;  
 
 
+let format_sup_sub scanner s =  to_string (fun () -> scanner s)
+
 let standard_sup_sub scanner what sup sub display =
+  let fsup =  format_sup_sub scanner sup
+  and fsub = format_sup_sub scanner sub in
   if display then begin
     insert_sup_sub ();
-    let f,ff = match sup,sub with
+    let f,ff = match fsup,fsub with
     | "","" -> "cm","cm"
     |	"",_ -> change_format (formated "lt"); "lb","cm"
     |	_,"" -> change_format (formated "lm"); "lt","cmm"
@@ -1933,7 +1938,7 @@ let standard_sup_sub scanner what sup sub display =
     in
     let vide= flags.empty in
     item_display_format f ;
-    if sup<>"" || sub<>"" then begin
+    if fsup<>"" || fsub<>"" then begin
       open_vdisplay display;
       (*if sup<>"" || vide then*) begin
 	open_vdisplay_row "lt";
@@ -1943,7 +1948,7 @@ let standard_sup_sub scanner what sup sub display =
       open_vdisplay_row "lm";
       what ();
       close_vdisplay_row ();
-      if sub<>"" || vide then begin
+      if fsub<>"" || vide then begin
 	open_vdisplay_row "lb";
 	scanner sub ;
 	close_vdisplay_row ();
@@ -1956,11 +1961,11 @@ let standard_sup_sub scanner what sup sub display =
     item_display ();
   end else begin
     what ();
-    if sub <> "" then begin
+    if fsub <> "" then begin
       put "_";
       scanner sub;
     end;
-    if sup <> "" then begin
+    if fsup <> "" then begin
       put "^";
       scanner sup;
     end;
@@ -2058,11 +2063,12 @@ let translate = function
 | s   -> s
 ;;
 
-let left delim =
+let left delim k =
   item_display ();
   open_display "";
   close_cell_group ();
   if delim<>"." then make_border (translate delim);
+  k 3 ;
   open_cell_group ();
 ;;
 

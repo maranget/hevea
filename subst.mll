@@ -44,7 +44,7 @@ rule subst = parse
 
 {
 
-let do_subst_this (arg,env) =
+let do_subst_this {arg=arg ; subst=env} =
   if not (top_level ()) then begin
     try
       let _ = String.index arg '#' in
@@ -62,7 +62,7 @@ let do_subst_this (arg,env) =
     arg
 ;;
 
-let subst_this lexbuf = do_subst_this (lexbuf,get_subst ())
+let subst_this s = do_subst_this (mkarg s (get_subst ()) !alltt)
 
 let subst_arg lexbuf = do_subst_this (save_arg lexbuf)  
 and subst_opt def lexbuf = do_subst_this (save_opt def lexbuf)  
@@ -70,7 +70,7 @@ and subst_opt def lexbuf = do_subst_this (save_opt def lexbuf)
 
 let subst_body lexbuf = 
  if Lexstate.top_level () then
-   fst (save_arg lexbuf)
+   (save_arg lexbuf).arg
  else
    subst_arg lexbuf
 } 

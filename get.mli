@@ -3,7 +3,7 @@ open Lexstate
 exception Error of string
 
 val init :
-  (string * Lexstate.subst -> string) ->
+  (string arg -> string) ->
   ((Lexing.lexbuf -> unit) -> Lexing.lexbuf -> string) ->
   (string -> unit) -> (string -> unit) ->
   (Lexing.lexbuf -> string) ->
@@ -13,7 +13,7 @@ type saved
 val check : unit -> saved
 val hot : saved -> unit
 
-val get_int : string * subst -> int
-val get_bool : string * subst -> bool
-val get_length : string * subst  -> Length.t
+val get_int : string arg -> int
+val get_bool : string arg -> bool
+val get_length : string arg  -> Length.t
 

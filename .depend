@@ -3,9 +3,10 @@ html.cmi: element.cmi length.cmi out.cmi tabular.cmi
 info.cmi: element.cmi length.cmi out.cmi tabular.cmi 
 latexmacros.cmi: lexstate.cmi 
 latexscan.cmi: imageManager.cmi lexstate.cmi outManager.cmi 
-lexstate.cmi: stack.cmi 
+lexstate.cmi: misc.cmi stack.cmi 
 outManager.cmi: element.cmi length.cmi out.cmi tabular.cmi 
 package.cmi: imageManager.cmi latexscan.cmi outManager.cmi 
+save.cmi: misc.cmi 
 subst.cmi: lexstate.cmi 
 tabular.cmi: length.cmi lexstate.cmi 
 text.cmi: element.cmi length.cmi out.cmi tabular.cmi 
@@ -119,8 +120,8 @@ package.cmx: auxx.cmx color.cmx counter.cmx get.cmx imageManager.cmi \
     package.cmi 
 parse_opts.cmo: location.cmi misc.cmi version.cmi parse_opts.cmi 
 parse_opts.cmx: location.cmx misc.cmx version.cmx parse_opts.cmi 
-save.cmo: out.cmi save.cmi 
-save.cmx: out.cmx save.cmi 
+save.cmo: misc.cmi out.cmi save.cmi 
+save.cmx: misc.cmx out.cmx save.cmi 
 section.cmo: section.cmi 
 section.cmx: section.cmi 
 stack.cmo: stack.cmi 

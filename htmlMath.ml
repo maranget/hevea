@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlMath.ml,v 1.15 2000-05-30 12:28:42 maranget Exp $" 
+let header = "$Id: htmlMath.ml,v 1.16 2000-06-02 15:23:22 maranget Exp $" 
 
 
 open Misc
@@ -25,14 +25,12 @@ let delay_stack = Stack.create "delay_stack"
 (* delaying output .... *)
 
 let delay f =
-  if !verbose > 2 then
-    prerr_flags "=> delay" ;
+  if !verbose > 2 then prerr_flags "=> delay" ;
   push stacks.s_vsize flags.vsize ;
   flags.vsize <- 0;
   push delay_stack f ;
   open_block "DELAY" "" ;
-  if !verbose > 2 then
-    prerr_flags "<= delay"
+  if !verbose > 2 then prerr_flags "<= delay"
 ;;
 
 let flush x =
@@ -47,8 +45,10 @@ let flush x =
   let old_out = !cur_out in
   cur_out := pout ;
   let f = pop delay_stack in
+  let saved_flags = copy_flags flags in
   f x ;
   Out.copy old_out.out !cur_out.out ;
+  set_flags flags saved_flags ;
   flags.empty <- false ; flags.blank <- false ;
   free old_out ;
   !cur_out.pending <- mods ;
@@ -313,78 +313,55 @@ and close_vdisplay_row () =
 
 (* Sup/Sub stuff *)
 
-type ital = Ital | NoItal | Complex | Mixed
-;;
-
-let check_char = function
-  '{' | '}' | '$' | '^' | '_' | '\\' | '#' -> Complex
-| c ->
-   if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) then
-     Ital
-   else NoItal
-;;
-
-exception Over
-;;
-
-let check_ital s =
-  let rec check_rec = function
-    -1 -> raise (Misc.Fatal "Empty string in check_rec")
-  | 0  -> check_char (String.get s 0)
-  | i  ->
-     let t = check_char (String.get s i)
-     and tt = check_rec (i-1) in
-     match t,tt with
-       Ital,Ital -> Ital
-     | NoItal,NoItal -> NoItal
-     | Ital,NoItal   -> Mixed
-     | NoItal,Ital   -> Mixed
-     | Complex,_ -> raise Over
-     | _,Complex -> raise Over
-     | _,Mixed   -> Mixed
-     | Mixed,_   -> Mixed in
-
-  match s with "" -> NoItal
-  | _ ->
-     try check_rec (String.length s-1) with Over -> Complex
-;;
-
-
-
 let get_script_font () =
   let n = get_fontsize () in
-  if n >= 3 then n-1 else n
+  if n >= 3 then Some (n-1) else None
 ;;
 
 let open_script_font () =
-  open_mod (Font (get_script_font ()))
+  if not !pedantic then
+    match get_script_font () with
+    | Some m -> open_mod (Font m)
+    | _ -> ()
 ;;
 
 
-let complex s = match check_ital s with
-| Complex -> true
-| _       -> false
+let put_sup_sub display scanner (arg : (string * Lexstate.subst)) =
+  if display then open_display () else open_group "" ;
+  open_script_font () ;
+  scanner arg ;
+  if display then close_display () else close_group () ;
 ;;
 
-let put_sup_sub tag scanner = function
-  "" -> ()
-| s  ->
-    open_group tag ;
-    if not !pedantic then open_script_font () ;
-    scanner s;
-    close_group ()
-;;
+let reput_sup_sub tag = function
+  | "" -> ()
+  | s  ->
+      put_char '<' ;
+      put tag ;
+      put_char '>' ;
+      put s ;
+      put "</" ;
+      put tag ;
+      put_char '>'
 
-
+let debug s sub f =
+  prerr_endline  (s^": "^sub) ;
+  debug_flags f
 
 let standard_sup_sub scanner what sup sub display =
-  if display && (complex sup || complex sub) then begin
+  let sup,fsup =
+    hidden_to_string (fun () -> put_sup_sub display scanner sup)
+  in
+  debug "SUP" sup fsup ;
+  let sub,fsub =
+    hidden_to_string (fun () -> put_sup_sub display scanner sub) in
+  debug "SUB" sub fsub ;
+  if display && (fsub.table_inside || fsup.table_inside) then begin
     force_item_display () ;
     open_vdisplay display ;
     if sup <> "" then begin
       open_vdisplay_row "NOWRAP" ;
-      open_script_font () ;
-      scanner sup ;
+      put sup ;
       close_vdisplay_row ()
     end ;           
     open_vdisplay_row "" ;
@@ -392,36 +369,36 @@ let standard_sup_sub scanner what sup sub display =
     close_vdisplay_row () ;
     if sub <> "" then begin
       open_vdisplay_row "NOWRAP" ;
-      open_script_font () ;
-      scanner sub ;
+      put sub ;
       close_vdisplay_row ()
     end ;
       close_vdisplay () ;
       force_item_display ()
   end else begin
-     what ();
-     put_sup_sub "SUB" scanner sub ;
-     put_sup_sub "SUP" scanner sup
+    what ();
+    reput_sup_sub "SUB" sub ;
+    reput_sup_sub "SUP" sup ;
+    if display && flags.vsize <= 1 then flags.vsize <- 2
   end
 ;;
 
 
 let limit_sup_sub scanner what sup sub display =
+  let sup = to_string (fun () -> put_sup_sub display scanner sup)
+  and sub = to_string (fun () -> put_sup_sub display scanner sub) in
   if sup = "" && sub = "" then
     what ()
   else begin
     force_item_display () ;
     open_vdisplay display ;
     open_vdisplay_row "ALIGN=center" ;
-    open_script_font () ;
-    scanner sup ;
+    put sup ;
     close_vdisplay_row () ;
     open_vdisplay_row "ALIGN=center" ;
     what () ;
     close_vdisplay_row () ;
     open_vdisplay_row "ALIGN=center" ;
-    open_script_font () ;
-    scanner sub ;
+    put sub ;
     close_vdisplay_row () ;
     close_vdisplay () ;
     force_item_display ()
@@ -429,6 +406,8 @@ let limit_sup_sub scanner what sup sub display =
 ;;
 
 let int_sup_sub something vsize scanner what sup sub display =
+  let sup = to_string (fun () -> put_sup_sub display scanner sup)
+  and sub = to_string (fun () -> put_sup_sub display scanner sub) in
   if something then begin
     force_item_display () ;
     what () ;
@@ -437,8 +416,7 @@ let int_sup_sub something vsize scanner what sup sub display =
   if sup <> "" || sub <> "" then begin
     open_vdisplay display ;
     open_vdisplay_row "ALIGN=left NOWRAP" ;
-    open_script_font () ;
-    scanner sup ;
+    put sup ;
     close_vdisplay_row () ;
     open_vdisplay_row "ALIGN=left" ;
     for i = 2 to vsize do
@@ -446,8 +424,7 @@ let int_sup_sub something vsize scanner what sup sub display =
     done ;
     close_vdisplay_row () ;
     open_vdisplay_row "ALIGN=left NOWRAP" ;
-    open_script_font () ;
-    scanner sub ;
+    put sub ;
     close_vdisplay_row () ;
     close_vdisplay () ;
     force_item_display ()
@@ -536,9 +513,15 @@ let put_delim delim i =
   end
 ;;
 
-let left delim =
+let left delim k =
   let _,f,is_freeze = end_item_display () in
-  delay (fun vsize -> put_delim delim vsize) ;
+  delay
+    (fun vsize ->
+      put_delim delim vsize ;
+      begin_item_display (fun () -> ()) false ;
+      k vsize ;
+      let _ = end_item_display () in
+      ()) ;
   begin_item_display f is_freeze
 ;;
 

@@ -43,11 +43,17 @@ module type S =
     val item_display : unit -> unit
     val force_item_display : unit -> unit
     val erase_display : unit -> unit
-    val standard_sup_sub : (string -> unit) -> (unit -> unit) -> string -> string -> bool -> unit
-    val limit_sup_sub : (string -> unit) -> (unit -> unit) -> string -> string -> bool -> unit
-    val int_sup_sub : bool -> int -> (string -> unit) -> (unit -> unit) -> string -> string -> bool -> unit
+
+    val standard_sup_sub :
+        (Lexstate.arg -> unit) -> (unit -> unit) -> Lexstate.arg -> Lexstate.arg -> bool -> unit
+    val limit_sup_sub :
+        (Lexstate.arg -> unit) -> (unit -> unit) -> Lexstate.arg -> Lexstate.arg -> bool -> unit
+    val int_sup_sub :
+        bool -> int ->
+          (Lexstate.arg -> unit) -> (unit -> unit) -> Lexstate.arg -> Lexstate.arg -> bool -> unit
+
     val over : bool -> Lexing.lexbuf -> unit
-    val left : string -> unit
+    val left : string -> (int -> unit) -> unit
     val right : string -> int
 
     val set_dcount : string -> unit

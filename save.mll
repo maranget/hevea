@@ -11,8 +11,9 @@
 
 {
 open Lexing
+open Misc
 
-let header = "$Id: save.mll,v 1.53 2000-05-31 12:22:05 maranget Exp $" 
+let header = "$Id: save.mll,v 1.54 2000-06-02 15:23:40 maranget Exp $" 
 
 let verbose = ref 0 and silent = ref false
 ;;
@@ -97,6 +98,7 @@ let rec kmp_char delim next i c =
     kmp_char delim next next.(i) c
   end
 }
+let command_name = '\\' (( ['@''A'-'Z' 'a'-'z']+ '*'?) | [^ 'A'-'Z' 'a'-'z'])
 
   rule opt = parse
 | ' '* '\n'? ' '* '['
@@ -147,7 +149,7 @@ and arg = parse
      {let lxm = lexeme lexbuf in
      put_echo lxm ;
      lxm}
-  | '\\' ( [^'A'-'Z' 'a'-'z'] | (['@''A'-'Z' 'a'-'z']+ '*'?))
+  | command_name
      {put_both (lexeme lexbuf) ;
      skip_blanks lexbuf}
   | '#' ['1'-'9']
@@ -252,12 +254,14 @@ and cite_args_bis = parse
 | '}'         {[]}
 | ""          {error "Bad syntax for \\cite argument"}
 
+(*
 and macro_names = parse
   eof {[]}
 | '\\' ((['@''A'-'Z' 'a'-'z']+ '*'?) | [^ 'A'-'Z' 'a'-'z'])
   {let name = lexeme lexbuf in
   name :: macro_names lexbuf}
 | _   {macro_names lexbuf}
+*)
 
 and num_arg = parse
 | [' ''\n']+ {(fun get_int -> num_arg lexbuf get_int)}
@@ -292,22 +296,24 @@ and filename = parse
 | [^'\n''{'' ']+ {let lxm = lexeme lexbuf in put_echo lxm ; lxm}
 | ""             {arg lexbuf}  
 
-and get_sup_sub = parse
-  ' '* '^'
-    {let sup = arg lexbuf in
-    sup,get_sub lexbuf}
-| ' '* '_'
-    {let sub = arg lexbuf in
-    get_sup lexbuf,sub}
-| "" {("","")}
+and get_limits = parse
+  ' '+          {get_limits lexbuf}
+| "\\limits"    {Some Limits}
+| "\\nolimits"  {Some NoLimits}
+| "\\intlimits" {Some IntLimits}
+| eof           {raise Eof}
+| ""            {None}
 
 and get_sup = parse
-  ' '* '^'  {arg lexbuf}
-| ""   {""}
+| ' '* '^'  {try arg lexbuf with Eof -> error "End of file after ^"}
+| eof       {raise Eof}
+| ""        {""}
+
 
 and get_sub = parse
-  ' '* '_'  {arg lexbuf}
-| ""   {""}
+| ' '* '_'  {try arg lexbuf with Eof -> error "End of file after _"}
+| eof       {raise Eof}
+| ""        {""}
 
 and defargs = parse 
 |  '#' ['1'-'9']
