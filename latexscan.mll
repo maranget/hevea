@@ -180,8 +180,12 @@ and stack_in_math = ref []
 let open_ital () = Html.open_mod (Style "I")
 ;;
 
-let open_script_font () = Html.open_mod (Font 2)
-and big_size () =  Html.open_mod (Font 7)
+let open_script_font () =
+  let n = Html.get_fontsize () in
+  Html.open_mod (Font (if n >= 1 then n-1 else n))
+;;
+
+let big_size () =  Html.open_mod (Font 7)
 ;;
 
 (* Horizontal display *)
@@ -280,20 +284,23 @@ let unparse_args opts args =
 ;;
 
 let scan_this lexfun s =
-  if !verbose > 1 then begin
+  if !verbose > 2 then begin
     Printf.fprintf stderr "scan_this : [%s]" s ;
     prerr_endline ""  
   end ;
   let lexer = Lexing.from_string s in
   let r = lexfun lexer in
-  if !verbose > 1 then begin
+  if !verbose > 2 then begin
     Printf.fprintf stderr "scan_this : over" ;
     prerr_endline ""
   end ;
   r
 ;;
 
-let put_delim lexfun delim i =
+let put_delim delim i =
+  if !verbose > 2 then
+    prerr_endline
+     ("put_delim: ``"^delim^"'' ("^string_of_int i^")") ;
   if delim <> "." then begin
     Html.begin_item_display () ;
     Symb.put_delim Html.skip_line Html.put delim i ;
@@ -571,6 +578,31 @@ let limit_sup_sub main what sup sub =
     item_display ()
   end
 ;;
+
+let int_sup_sub main what sup sub =
+  if sup = "" && sub = "" then
+    what ()
+  else begin
+    item_display () ;
+    what () ;
+    item_display () ;    
+    open_vdisplay () ;
+    open_vdisplay_row "ALIGN=left" ;
+    open_script_font () ;
+    scan_this main sup ;
+    close_vdisplay_row () ;
+    open_vdisplay_row "ALIGN=left" ;
+    Html.put "&nbsp;" ;
+    close_vdisplay_row () ;
+    open_vdisplay_row "ALIGN=left" ;
+    open_script_font () ;
+    scan_this main sub ;
+    close_vdisplay_row () ;
+    close_vdisplay () ;
+    item_display ()
+  end
+;;
+
 }
 
 rule  main = parse
@@ -616,7 +648,7 @@ rule  main = parse
     main lexbuf}
 (* Paragraphs *)
   | ("\\par" | "\n\n") '\n' *
-    {Html.par () ;
+    {if not !display then Html.par () ;
     main lexbuf }
 | "\\input" | "\\include"
      {let filename = Save.arg lexbuf in
@@ -675,13 +707,15 @@ rule  main = parse
          main lb in
        new_env math_env lexfun lexbuf
      end}
-|   ("\\mbox" | "\\hbox" | "\\vbox") [^'{']* '{'
+|   ("\\mbox" | "\\hbox" | "\\vbox" | "\\makebox") [^'{']* '{'
     {if !in_math then begin
        push stack_in_math !in_math ;
        in_math := false ;
        let lexfun lb =
-         if !display then begin item_display () ; open_display () end
-         else open_group "" ;
+         if !display then begin
+           item_display () ; open_group "" ; open_display ()
+         end else
+           open_group "" ;
          open_mod (Style "RM") ;
          main lb in
        new_env "*mbox" lexfun lexbuf
@@ -826,19 +860,40 @@ rule  main = parse
       {if !display then begin
         end_item_display () ;
         let delim = Save.arg lexbuf in
-        Html.delay (put_delim main delim) ;
-        begin_item_display ()
+        Html.delay (put_delim delim) ;
+        begin_item_display () ;
+        scan_this main "{"
       end ;     
       main lexbuf}
   | "\\right"
       {if !display then begin
         let delim = Save.arg lexbuf in
+        scan_this main "}" ;
         end_item_display () ;
         let vsize = Html.flush () in
-        put_delim main delim vsize ;
+        put_delim delim vsize ;
         begin_item_display ()
       end ;
       main lexbuf}
+  | "\\over"
+      {if !display then begin
+        let mods = Html.insert_vdisplay
+          (fun () ->
+             open_vdisplay () ;
+             open_vdisplay_row "ALIGN=center") in
+        close_vdisplay_row () ;
+        open_vdisplay_row "ALIGN=center" ;
+        Html.open_mods mods ;
+        Html.put "<HR NOSHADE SIZE=2>" ;
+        close_vdisplay_row () ;
+        open_vdisplay_row "ALIGN=center" ;
+        Html.open_mods mods ;
+        Html.freeze (fun () -> close_vdisplay_row () ; close_vdisplay ()) ;
+        main lexbuf        
+      end else begin
+        Html.put "/" ;
+        main lexbuf
+      end}
   |  [' ''\n']* "\\hline" [' ''\n']* ("\\\\"  [' ''\n']*)?
      {if !in_table = Table then
        do_hline main ;
@@ -981,35 +1036,39 @@ rule  main = parse
           | Env s -> Html.open_mod s
           | Open (s,args) -> Html.open_block s args
           | Close s       -> Html.close_block s
+          | ItemDisplay   -> item_display ()
           | Subst body ->
-            if !verbose > 1 then
+            if !verbose > 2 then
               Printf.fprintf stderr "user macro : %s\n" body ;
             let lex_one = Lexing.from_string body in
             let body_instance = Subst.subst lex_one stack in
-            if !verbose > 1 then
+            if !verbose > 2 then
               Printf.fprintf stderr "subst: %s\n" body_instance ;
             scan_this main body_instance
           | IfCond (b,t,f) ->
-             prerr_endline ("IfCond: "^if !b then "true" else "false") ;
+             if !verbose > 2 then
+               prerr_endline ("IfCond: "^if !b then "true" else "false") ;
              if !b then exec stack t else exec stack f
           end ;
         exec stack rest in
 
         let name = name_extract lxm in
         let pat,body = find_macro name in
-        if Latexmacros.limit name then begin
+        if Latexmacros.limit name || Latexmacros.big name then begin
            let do_what = (fun () -> exec [||] body) in
            let sup,sub = get_sup_sub lexbuf in
-           if !display then
+           if !display && Latexmacros.limit name then
              limit_sup_sub main do_what sup sub
+           else if !display &&  Latexmacros.int name then
+             int_sup_sub main do_what sup sub
            else
              standard_sup_sub main do_what sup sub ;
            main lexbuf
         end else begin
           let opts,args = parse_args pat lexbuf in
           let stack = Array.of_list (opts@args) in
-          if !verbose > 1 then begin
-            Printf.fprintf stderr "macro  : %s\n"  name ;
+          if !verbose > 2 then begin
+            Printf.fprintf stderr "macro: %s\n"  name ;
             for i = 0 to Array.length stack-1 do
               Printf.fprintf stderr "\t#%d = %s\n" (i+1) stack.(i)
             done
@@ -1017,7 +1076,8 @@ rule  main = parse
           try
             exec stack body ;
             if (!verbose > 2) then prerr_endline ("Cont after macro"^name) ;
-            if (pat = ([],[])) || Latexmacros.invisible name then
+            if not !in_math &&
+               ((pat = ([],[])) || Latexmacros.invisible name) then
               skip_blanks_main lexbuf
             else
               main lexbuf
@@ -1040,13 +1100,16 @@ rule  main = parse
 | "\\}" {Html.put_char '}' ; main lexbuf}
 | "{"
     {if !verbose > 2 then prerr_endline "Open brace" ;
-    if !display then open_display () else Html.open_group "" ;
+    if !display then begin
+      item_display () ; Html.open_group "" ; open_display ()
+    end else
+      Html.open_group "" ;
     new_env " " main lexbuf}
 | "}"
     {if !verbose > 2 then prerr_endline "Close brace" ;
     let env = " " in
     let close_fun = if !display then
-      (fun () -> close_display () ; item_display ())
+      (fun () -> close_display () ; close_group () ; item_display ())
     else close_group in
     if env = !cur_env then
       close_env env close_fun  main lexbuf

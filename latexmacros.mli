@@ -10,6 +10,7 @@ type action =
     Print of string
   | Open of (string * string)
   | Close of string
+  | ItemDisplay
   | Print_arg of int
   | Print_fun of ((string -> string) * int)
   | Save_arg of int
@@ -46,4 +47,6 @@ val display :  bool ref
 val invisible : string -> bool
 
 val limit : string -> bool
+val int : string -> bool
+val big : string -> bool
 

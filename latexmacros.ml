@@ -16,6 +16,7 @@ type action =
     Print of string
   | Open of (string * string)
   | Close of string
+  | ItemDisplay
   | Print_arg of int
   | Print_fun of ((string -> string) * int)
   | Save_arg of int
@@ -234,13 +235,6 @@ def_macro "\\oe" 0 [Print "oe"];
 def_macro "\\&" 0 [Print "&amp;"];
 def_macro "\\_" 0 [Print "_"];
 def_macro "\\not" 0 [Print "\172"];
-def_macro "\\leq" 0 [Print "&lt;="];
-def_macro "\\geq" 0 [Print "&gt;="];
-def_macro "\\le" 0 [Print "&lt;="];
-def_macro "\\ge" 0 [Print "&gt;="];
-def_macro "\\neq" 0 [Print "&lt;&gt"];
-def_macro "\\sim" 0 [Print "~"] ;
-def_macro "\\simeq" 0 [Print "~"] ;
 def_macro "\\raise" 2 [Print_arg 1];
 def_macro "\\hbox" 0 [];
 def_macro "\\mbox" 0 [];
@@ -274,6 +268,10 @@ def_macro "\\-" 0 [];
 def_macro "\\TeX" 0 [Print "TeX"] ;
 def_macro "\\LaTeX" 0 [Print "L<sup>a</sup>T<sub>e</sub>X"] ;
 def_macro "\\addcontentsline" 3 [];
+def_macro "\\stackrel" 2
+  [IfCond (display,
+    [Subst "\\begin{array}{c}\\scriptsize #1\\\\ #2\\\\ ~ \\end{array}"],
+    [Subst "{#2}^{#1}"])];
 (* Maths *)
 def_macro "\\[" 0 [Subst "$$"];
 def_macro "\\]" 0 [Subst "$$"];
@@ -318,53 +316,95 @@ def_macro "\\Upsilon" 0 [Print (get upupsilon)];
 def_macro "\\Phi" 0 [Print (get upphi)];
 def_macro "\\Psi" 0 [Print (get uppsi)];
 def_macro "\\Omega" 0 [Print (get upomega)];
+();;
 
-(* def_macro "\\" 0 [Print ""]; *)
-def_macro "\\pm" 0 [Print "\177"];
-def_macro "\\div" 0 [Print "\247 "];
-def_macro "\\times" 0 [Print "\215 "];
-def_macro "\\ast" 0 [Print "*"];
-def_macro "\\star" 0 [Print (get star)];
-def_macro "\\circ" 0 [Print "circ"];
-def_macro "\\bullet" 0 [Print "bullet"];
-def_macro "\\cdot" 0 [Print "&middot;"];
-def_macro "\\cap" 0 [Print (get cap)];
-def_macro "\\cup" 0 [Print (get cup)];
-def_macro "\\uplus" 0 [Print "uplus"];
-def_macro "\\sqcap" 0 [Print "sqcap"];
-def_macro "\\sqcup" 0 [Print ""];
-def_macro "\\infty" 0 [Print (get infty)];
+def_macro "\\pm" 0 [Print (get pm)];;
+def_macro "\\mp" 0 [Print (get mp)];;
+def_macro "\\times" 0 [Print (get times)];;
+def_macro "\\div" 0 [Print (get div)];;
+def_macro "\\ast" 0 [Print (get ast)];;
+def_macro "\\star" 0 [Print (get star)];;
+def_macro "\\circ" 0 [Print (get circ)];;
+def_macro "\\bullet" 0 [Print (get bullet)];;
+def_macro "\\cdot" 0 [Print (get cdot)];;
+def_macro "\\cap" 0 [Print (get cap)];;
+def_macro "\\cup" 0 [Print (get cup)];;
+def_macro "\\sqcap" 0 [Print (get sqcap)];;
+def_macro "\\sqcup" 0 [Print (get sqcup)];;
+def_macro "\\vee" 0 [Print (get vee)];;
+def_macro "\\wedge" 0 [Print (get wedge)];;
+def_macro "\\setminus" 0 [Print (get setminus)];;
+def_macro "\\wr" 0 [Print (get wr)];;
+def_macro "\\diamond" 0 [Print (get diamond)];;
+def_macro "\\bigtriangleup" 0 [Print (get bigtriangleup)];;
+def_macro "\\bigtriangledown" 0 [Print (get bigtriangledown)];;
+def_macro "\\triangleleft" 0 [Print (get triangleleft)];;
+def_macro "\\triangleright" 0 [Print (get triangleright)];;
+def_macro "\\lhd" 0 [Print (get triangleleft)];;
+def_macro "\\rhd" 0 [Print (get triangleright)];;
+def_macro "\\leq" 0 [Print (get leq)];;
+def_macro "\\subset" 0 [Print (get subset)];;
+def_macro "\\subseteq" 0 [Print (get subseteq)];;
+def_macro "\\sqsubset" 0
+  [IfCond (display,
+    [Print (get display_sqsubset)],
+    [Print "sqsubset"])];;
+def_macro "\\in" 0 [Print (get elem)];;
+
+def_macro "\\geq" 0 [Print (get geq)];;
+def_macro "\\supset" 0 [Print (get supset)];;
+def_macro "\\supseteq" 0 [Print (get supseteq)];;
+def_macro "\\sqsupset" 0
+  [IfCond (display,
+     [ItemDisplay ; Print (get display_sqsupset) ; ItemDisplay],
+     [Print "sqsupset"])];;
+def_macro "\\equiv" 0 [Print (get equiv)];;
+def_macro "\\ni" 0 [Print (get ni)];;
 
 
+def_macro "\\sim" 0 [Print "~"];;
+def_macro "\\simeq" 0
+  [IfCond (display,
+     [ItemDisplay ; Print "~<BR>-" ; ItemDisplay],
+     [Print "simeq"])];;
+def_macro "\\approx" 0 [Print (get approx)];;
+def_macro "\\cong" 0 [Print (get cong)];;
+def_macro "\\neq" 0 [Print (get neq)];;
+def_macro "\\doteq" 0
+  [IfCond (display,
+     [ItemDisplay ; Print ".<BR>=" ; ItemDisplay],
+     [Print "doteq"])];;
+def_macro "\\propto" 0 [Print (get propto)];;
+def_macro "\\models" 0 [Print "|="];;
+def_macro "\\perp" 0 [Print (get perp)];;
 
-def_macro "\\max" 0 [Print "max"];
-def_macro "\\arctan" 0 [Print "arctan"];
-def_macro "\\log" 0 [Print "log"];
-def_macro "\\notin" 0 [Print " n'appartient pas à "];
-def_macro "\\in" 0 [Print " appartient à "];
+def_macro "\\rightarrow" 0 [Print (get rightarrow)];;
+def_macro "\\Rightarrow" 0 [Print (get uprightarrow)];;
+def_macro "\\leftrightarrow" 0 [Print (get leftrightarrow)];;
+def_macro "\\Leftrightarrow" 0 [Print (get upleftrightarrow)];;
+
+def_macro "\\infty" 0 [Print (get infty)];;
+def_macro "\\forall" 0 [Print (get forall)];;
+def_macro "\\exists" 0 [Print (get exists)];;
+
+def_macro "\\lfloor" 0 [Print (get lfloor)];;
+def_macro "\\rfloor" 0 [Print (get rfloor)];;
+def_macro "\\lceil" 0 [Print (get lceil)];;
+def_macro "\\rceil" 0 [Print (get rceil)];;
+def_macro "\\langle" 0 [Print (get langle)];;
+def_macro "\\rangle" 0 [Print (get rangle)];;
+
+def_macro "\\notin" 0 [Print (get notin)];;
 
 
-
-def_macro "\\mid" 0 [Print " | "];
-def_macro "\\rightarrow" 0 [Subst "->"];
-def_macro "\\longrightarrow" 0 [Subst "-->"];
-def_macro "\\Longrightarrow" 0 [Subst "==>"];
-def_macro "\\leftarrow" 0 [Subst "<-"];
-def_macro "\\Leftarrow" 0 [Subst "<="];
-def_macro "\\ll" 0 [Subst "<<"];
-def_macro "\\vee" 0 [Print "\\/"];
-def_macro "\\wedge" 0 [Print "/\\"];
-def_macro "\\frac" 2
-  [Subst "\\begin{array}{c}#1\\\\ \hline #2\\end{array}"];
-def_macro "\\over" 0 [Print "/"];
 def_macro "\\sum" 0 [IfCond (display,[Env (Font 7)],[]) ; Print (get upsigma)];
-def_macro "\\vee" 0 [Print (get vee)];
-def_macro "\\wedge" 0 [Print (get wedge)];
+def_macro "\\int" 0
+  [IfCond (display,
+    [Print (get display_int)],
+    [Print (get int)])];
 def_macro "\\mathchardef" 2 [];
 def_macro "\\cite" 1 [];
 def_macro "\\Nat" 0 [Print "N"];
-def_macro "\\langle" 0 [Subst "<"];
-def_macro "\\rangle" 0 [Subst ">"];
 def_macro "\\ " 0 [Subst "~"] ;
 def_macro "\\;" 0 [Subst "~"] ;
 def_macro "\\bar" 1
@@ -527,8 +567,6 @@ let limit = function
   "\\sum"
 | "\\prod"
 | "\\coprod"
-| "\\int"
-| "\\oint"
 | "\\bigcap"
 | "\\bigcup"
 | "\\bigsqcap"
@@ -538,6 +576,12 @@ let limit = function
 | "\\biguplus"
 | "\\det" | "\\gcd" | "\\inf" | "\\liminf" |
    "\\limsup" | "\\max" | "\\min" | "\\Pr" | "\\sup" -> true
+| _ -> false
+;;
+
+let int = function
+  "\\int"
+| "\\oint" -> true
 | _ -> false
 ;;
 
@@ -553,5 +597,5 @@ let big = function
 | "\\bigsqcup"
 | "\\bigodot"
 | "\\bigdotplus"
-| "\\biguplus"
+| "\\biguplus" -> true
 | _ -> false

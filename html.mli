@@ -2,7 +2,9 @@ val verbose : int ref
 val set_out : Out.t -> unit
 
 
+val get_fontsize : unit -> int
 val open_mod : Latexmacros.env -> unit
+val open_mods : Latexmacros.env list -> unit
 val par : unit -> unit
 val open_par : unit -> unit
 val close_par : unit -> unit
@@ -34,3 +36,5 @@ val forget : unit -> unit
 
 val loc_ref: string -> unit
 
+val insert_vdisplay: (unit -> unit) -> Latexmacros.env list
+val freeze : (unit -> unit) -> unit

@@ -52,6 +52,26 @@ let new_status pending active = match !free_list with
 let cur_out = ref {pending = [] ; active = [] ; out = Out.create_null ()}
 ;;
 
+let pretty_mods mods =
+  let rec do_rec = function
+    [x]  -> prerr_string (Latexmacros.pretty_env x)
+  | x::xs ->
+     prerr_string (Latexmacros.pretty_env x^"; ") ;
+     do_rec xs
+  | [] -> () in
+  prerr_string "[" ;
+  do_rec mods ;
+  prerr_string "]"
+;;
+
+     
+let pretty_cur {pending = pending ; active = active} =
+  prerr_string "pending = " ;
+  pretty_mods pending ;
+  prerr_string " active = " ;
+  pretty_mods active
+;;
+
 let set_out out =  !cur_out.out <- out
 ;;
 
@@ -70,20 +90,13 @@ let delay_stack = ref []
 
 type stack_item =
   Normal of string * string * status
-| Par of string * (string) list
+| Freeze of (unit -> unit)
 ;;
 
 exception PopFreeze
 ;;
 
 let push_out s (a,b,c) = push s (Normal (a,b,c))
-and pop_out s = match pop s with
-  Normal (a,b,c) -> a,b,c
-| _              -> raise PopFreeze
-;;
-
-  
-let out_stack = ref []
 ;;
 
 let pretty_stack s =
@@ -91,8 +104,45 @@ let pretty_stack s =
   List.iter
    (function Normal (s,args,_) ->
      prerr_string ("["^s^"]-{"^args^"} ")
-   | _   -> prerr_string "Freeze ") s ;
+   | Freeze _   -> prerr_string "Freeze ") s ;
   prerr_endline "|"
+;;
+
+let rec pop_out s = match pop s with
+  Normal (a,b,c) -> a,b,c
+| Freeze f       -> raise PopFreeze
+(* begin
+  if !verbose > 1 then begin
+     prerr_string "unfreeze in pop_out" ;
+     pretty_stack !s
+  end ;
+  f () ; pop_out s end
+*)
+;;
+
+
+let out_stack = ref []
+;;
+
+
+
+let freeze f =
+  push out_stack (Freeze f) ;
+  if !verbose > 1 then begin
+    prerr_string "freeze: stack=" ;
+    pretty_stack !out_stack
+  end
+;;
+
+let flush_freeze () = match !out_stack with
+  Freeze f::rest ->
+    let _ = pop out_stack in
+      if !verbose > 1 then begin
+      prerr_string "flush_freeze" ;
+      pretty_stack !out_stack
+    end ;
+    f () ; true
+| _ -> false
 ;;
 
 
@@ -231,6 +281,13 @@ let rec perform_rm = function
     else x::perform_rm rest
 ;;
 
+let get_fontsize () =
+  let rec do_rec = function
+    (Font n)::_ -> n
+  | _::rest -> do_rec rest
+  | []              -> 3 in
+  do_rec (!cur_out.pending @ !cur_out.active)
+;;
      
 let open_mod = function
   Style "RM" ->
@@ -248,6 +305,10 @@ let open_mod = function
       !cur_out.pending <- e :: !cur_out.pending
 ;;
 
+let rec open_mods = function
+  m::rest -> open_mods rest ; open_mod m
+| []      -> ()
+;;
 
 (* Blocks *)
 
@@ -346,10 +407,15 @@ let rec do_close_block s = match s with
 
 let pblock () = match !out_stack with
   Normal (s,_,_)::_ -> s
-| []                -> ""
-| _ -> raise PopFreeze
+| _ -> ""
 ;;
 
+let pop_freeze () = match !out_stack with
+  Freeze f::rest ->
+    let _ = pop out_stack in
+    f,true
+| _ -> (fun () -> ()),false
+;;
 
 let pstart = function
   "H1" | "H2" | "H3" | "H4" | "H5" | "H6" -> true
@@ -367,22 +433,24 @@ let rec force_block s content =
   end ;
   if pblock () = "P" && (s <> "P" && s <> "FORGET") then close_par () ;
   if !empty then begin
-    empty := s = "FORGET" ;
-    Out.reset !cur_out.out ;
-    do_open_mods () ;
-    do_put content
+    if s <> "FORGET" then begin
+      empty := false;
+      Out.reset !cur_out.out ;
+      do_open_mods () ;
+      do_put content
+    end
   end ;
   if s = "PRE" then in_pre := false ;
   do_close_mods () ;  
   try_close_block (if s = "FORGET" then pblock() else s) ;
-  do_close_block s ;
-  let vsize = !vsize in
+  do_close_block (if s = "FORGET" then pblock() else s) ;
   let ps,args,pout = pop_out out_stack in  
   if ps <> s && s <> "FORGET" then
     failwith ("hml: "^s^" closes "^ps) ;
   let old_out = !cur_out in  
   cur_out := pout ;
-  if ps <> "DELAY" then begin
+  if s = "FORGET" then free old_out
+  else if ps <> "DELAY" then begin
     let mods = !cur_out.active @ !cur_out.pending in
     do_close_mods () ;
     do_open_block s args ;
@@ -393,16 +461,15 @@ let rec force_block s content =
 *)
     free old_out ;
     !cur_out.pending <- mods
-  end else if s = "DELAY" then begin
+  end else begin (* s = "DELAY" *)
     let f = pop delay_stack in
-    f vsize ; 
+    let x = !vsize in
+    f x ; vsize := x ;    
     let mods = !cur_out.active @ !cur_out.pending in
     do_close_mods () ;
     Out.copy old_out.out !cur_out.out ;
     free old_out ;
     !cur_out.pending <- mods
-  end else begin (* s = "FORGET" *)
-    free old_out
   end ;
   if pstart s then
     open_par ()
@@ -431,7 +498,7 @@ and close_flow_loc s =
     !cur_out.pending <- active @ pending ;
     true
   end else begin
-    !cur_out.pending <- pending ;
+    !cur_out.pending <- active @ pending ;
     false
   end
 
@@ -512,54 +579,69 @@ and ncols_stack = ref []
 
 let open_display args =
   if !verbose > 1 then begin
-    Printf.fprintf stderr "open_display: %s" args;
-    prerr_newline ()
+    Printf.fprintf stderr "open_display: %s -> " args
   end ;
   push ncols_stack !ncols ;
   ncols := 0;
   open_block "DISPLAY" args ;
   open_block "TD" "" ;
+  if !verbose > 1 then begin
+    pretty_cur !cur_out ;
+    prerr_endline ""
+  end     
 ;;
 
 let close_display () =
   if !verbose > 1 then begin
-    Printf.fprintf stderr "close_display: ncols=%d" !ncols;
-    prerr_newline ()
+    Printf.fprintf stderr "close_display: ncols=%d stack=" !ncols;
+    pretty_stack !out_stack
   end ;
-  let n = !ncols in
-  ncols := pop ncols_stack ;
-  if n = 0 && not !empty then begin
-    do_close_mods () ;
-    let active = !cur_out.active and pending = !cur_out.pending in
-    let ps,_,pout = pop_out out_stack in
-    if ps <> "TD" then
-      failwith ("close_display: "^ps^" closes TD") ;
-    do_close_mods () ;
-    try_close_block "TD" ;
-    let ps,_,ppout = pop_out out_stack in
-    if ps <> "DISPLAY" then
-      failwith ("close_display: "^ps^" closes DISPLAY") ;
-    try_close_block "DISPLAY" ;
-    let old_out = !cur_out in
-    cur_out := ppout ;
-    do_close_mods () ;
-    Out.copy old_out.out !cur_out.out ;
-    free old_out ; free pout ;
-    !cur_out.pending <- active @ pending
-  end else begin
-    close_block "TD" ;
-    close_block "DISPLAY" 
+  if not (flush_freeze ()) then begin
+    let n = !ncols in
+    ncols := pop ncols_stack ;
+    if n = 0 && not !empty then begin
+      let active = !cur_out.active and pending = !cur_out.pending in
+      do_close_mods () ;
+      let ps,_,pout = pop_out out_stack in
+      if ps <> "TD" then
+        failwith ("close_display: "^ps^" closes TD") ;
+      do_close_mods () ;
+      try_close_block "TD" ;
+      let ps,_,ppout = pop_out out_stack in
+      if ps <> "DISPLAY" then
+        failwith ("close_display: "^ps^" closes DISPLAY") ;
+      try_close_block "DISPLAY" ;
+      let old_out = !cur_out in
+      cur_out := ppout ;
+      do_close_mods () ;
+      Out.copy old_out.out !cur_out.out ;
+      free old_out ; free pout ;
+      !cur_out.pending <- active @ pending
+    end else begin
+      close_block "TD" ;
+      close_block "DISPLAY" 
+    end
   end
 ;;
 
+  
+  
 let item_display () =
   if !verbose > 1 then begin
-    Printf.fprintf stderr "item_display: ncols=%d" !ncols;
-    prerr_newline ()
+    Printf.fprintf stderr "item_display: ncols=%d cur: " !ncols;
+    pretty_cur !cur_out ;
+    prerr_string " stack=" ;
+    pretty_stack !out_stack
   end ;
+  let f,is_freeze = pop_freeze () in
   if close_flow_loc "TD" then
     ncols := !ncols + 1;
-  open_block "TD" ""
+  open_block "TD" "" ;
+  if is_freeze then push out_stack (Freeze f) ;
+  if !verbose > 1 then begin
+    prerr_string "item display -> stack=" ;
+    pretty_stack !out_stack
+  end ;
 
 and begin_item_display () =
   if !verbose > 1 then begin
@@ -639,7 +721,7 @@ let par () =
   end else begin
    prerr_endline "Warning: bad par"  ;
    pretty_stack !out_stack ;
-   put "\n<BR>\n"
+   put "\n<BR><BR>\n"
   end
 ;;
 
@@ -685,4 +767,35 @@ let loc_ref s =
   put "\">" ;
   put s ;
   put "</A>"
+;;
+
+let insert_vdisplay open_fun =
+  if !verbose > 1 then begin
+    prerr_string "insert_vdisplay: stack=" ;
+    pretty_stack !out_stack
+  end ;
+  try
+    let mods = !cur_out.pending @ !cur_out.active in
+    let ps,pargs,pout = pop_out out_stack in
+    if ps <> "TD" then
+      failwith ("insert_vdisplay: "^ps^" close TD");
+    let pps,ppargs,ppout = pop_out out_stack  in
+    if pps <> "DISPLAY" then
+      failwith ("insert_vdisplay: "^pps^" close DISPLAY");
+    let new_out = new_status [] [] in
+    push_out out_stack (pps,ppargs,new_out) ;
+    push_out out_stack (ps,pargs,pout) ;
+    close_display () ;
+    cur_out := ppout ;
+    open_fun () ;
+    put (Out.to_string new_out.out) ;
+    free new_out ;
+    if !verbose > 1 then begin
+      prerr_string "insert_vdisplay -> " ;
+      pretty_mods mods ;
+      prerr_newline ()
+    end ;
+    mods
+  with PopFreeze ->
+    failwith "\\over should be properly parenthesized"
 ;;
