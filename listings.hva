@@ -98,6 +98,7 @@
 \define@key{lst}{otherkeywordstyle}{\def\lst@okwd@style##1{#1{##1}}}
 \define@key{lst}{directivetyle}{\def\lst@directive@style##1{#1{##1}}}
 \define@key{lst}{identifierstyle}{\def\lst@identifier@style##1{#1{##1}}}
+\define@key{lst}{Identifierstyle}{\def\lst@Identifier@style##1{#1{##1}}}
 \define@key{lst}{nonkeywordstyle}{\def\lst@identifier@style##1{#1{##1}}}
 \define@key{lst}{basicstyle}{\def\lst@basic@style{#1}}
 \define@key{lst}{commentstyle}{\def\lst@comment@style{#1}}
@@ -165,7 +166,7 @@
 \lst@AddToHookExe{EmptyStyle}{\def\lst@labelstep{0}}
 \define@key{lst}{labelsep}{\def{\lst@labelsep}{\hspace{#1}}}
 \newcommand{\lst@labelsep}{\hspace{1em}}
-\newcommand{\lst@pad}[1]{\@pad{ }{4}{#1}}
+\newcommand{\lst@pad}[1]{\@pad{a}{4}{#1}}
 \newcommand{\lst@linenumber@}[1]
   {{\@clearstyle\lst@basic@style\lst@label@style{\lst@pad{#1}}}\lst@labelsep}
 \newcommand{\lst@linenumber}
@@ -179,8 +180,8 @@
 \newsavebox{\@wait}
 \newcommand{\@NewLine@}
   {\usebox{\@wait}\sbox{\@wait}{}\global\let\@NewLine\@empty}
-\lst@AddToHook{EveryLine}{\sbox{\@wait}{\usebox{\@wait}\@print{
-}\@rawchars{\lst@doindent}\lst@linenumber}\global\let\@NewLine\@NewLine@}
+\lst@AddToHook{EveryLine}{\sbox{\@wait}{\usebox{\@wait}\@br%
+\@rawchars{\lst@doindent}\lst@linenumber}\global\let\@NewLine\@NewLine@}
 \lst@AddToHook{Init}{\sbox{\@wait}{}\global\let\@NewLine\@empty}
 %%%%%% TeX escapes
 \define@key{lst}{texcl}[true]{\def\lst@texcl{#1}}
@@ -217,6 +218,7 @@
   {\def\lst@quote@stringizers{\@rawchars{#1}}%
   \def\lst@stringizers{\@rawchars{#2}}}
 \lst@define@key@opt{stringizer}{\lst@stringizer@key}
+\lst@define@key@opt{string}{\lst@stringizer@key}
 \lst@AddToHookExe{SetLanguage}
   {\def\lst@stringizers{}\def\lst@quote@stringizers{}}
 %%%%%% Comments
@@ -258,7 +260,7 @@
 %%%%%%% Output
 \def\lst@normalize
   #1{\iflst@sensitive\@rawchars{#1}\else\@rawchars{\lowercase{#1}}\fi}
-\def\lst@output@space{\sbox{\@wait}{\usebox{\@wait}\@print{ }}\global\let\@NewLine\@NewLine@}
+\def\lst@output@space{\sbox{\@wait}{\usebox{\@wait}\@print{&nbsp;}}\global\let\@NewLine\@NewLine@}
 \def\lst@output#1#2{%
 \@NewLine
 {\ifu\csname lstk@\lst@normalize{#1}\endcsname
@@ -270,6 +272,11 @@
 \ifu\csname lstk@#1\endcsname
   #1\else
   {{\csname lstk@#1\endcsname{#2}}}\fi}
+%%%%%% Pre and post (already obsolete)
+\let\lst@pre\@empty
+\let\lst@post\@empty
+\define@key{lst}{pre}{\def\lst@pre{#1}}
+\define@key{lst}{post}{\def\lst@post{#1}}
 %%%%%%% User interface
 \newcommand{\lstinputlisting}[2][]
   {\@scaninput{\begin{lstlisting}[#1]{}

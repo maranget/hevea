@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.192 2000-08-17 14:54:47 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.193 2000-09-05 12:34:06 maranget Exp $ *)
 
 
 {
@@ -2496,21 +2496,20 @@ def_printcount "\\fnsymbol" fnsymbol_of_int
 ;;
 
 let pad p l s =
-  if l > String.length s then
-    String.make (l-String.length s) p^s
-  else
-    s
+  Printf.fprintf stderr
+    "pad: %s, %d, ``%s''\n" p l s;
+  for i = l-String.length s to 0 do
+    Dest.put (Dest.iso_string p)
+  done
 ;;
 
 def_code "\\@pad"
   (fun lexbuf ->
     let p = get_prim_arg lexbuf in
-    let p = match p with
-    | "" -> ' '
-    | _  -> p.[0] in
     let l = Get.get_int (save_arg lexbuf) in
     let arg = get_prim_arg lexbuf in
-    Dest.put (Dest.iso_string (pad p l arg)))
+    pad p l arg ;
+    Dest.put (Dest.iso_string arg))
 ;;
 
 def_code "\\newcounter"

@@ -201,7 +201,10 @@ let rec lst_process_newline lb c = match !lst_top_mode with
 | Skip ->
     if !lst_nlines = !lst_first - 1 then begin
       lst_top_mode := Normal ;
-      lst_process_newline lb c
+      scan_this Scan.main "\\begingroup\\def\\@br{\@print{
+}}" ;
+      lst_process_newline lb c ;
+      scan_this Scan.main "\\endgroup"
     end else
       incr lst_nlines
 | Gobble (mode,_) ->
@@ -979,11 +982,11 @@ let init_listings () =
       restore_lexstate () ;
 (* For detecting endstring, must be done last *)
       lst_init_save_char '\\' (lst_process_end "end{lstlisting}") ;
-      Scan.top_open_block "PRE" "" ;  
-      scan_this Scan.main "\\lst@basic@style" ;
+      scan_this Scan.main "\\lst@pre\\begin{flushleft}" ;  
+      scan_this Scan.main "\\ttfamily\\lst@basic@style" ;
       noeof listings lexbuf ;
       close_lst false  ;
-      Scan.top_close_block "PRE" ;
+      scan_this Scan.main "\\end{flushleft}\\lst@post" ;
       Scan.top_close_block "" ;
       Scan.close_env !Scan.cur_env ;
       Scan.check_alltt_skip lexbuf) ;

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlCommon.ml,v 1.25 2000-07-10 15:06:18 maranget Exp $" 
+let header = "$Id: htmlCommon.ml,v 1.26 2000-09-05 12:34:00 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -1248,7 +1248,7 @@ let flush_out () =
 
 let skip_line () =
   flags.vsize <- flags.vsize + 1 ;
-  put "<BR>"
+  put "<BR>\n"
 ;;
 
 let put_length which  = function

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmain.ml,v 1.65 2000-07-05 17:46:24 maranget Exp $" 
+let header = "$Id: latexmain.ml,v 1.66 2000-09-05 12:34:02 maranget Exp $" 
 
 open Misc
 open Parse_opts
@@ -173,7 +173,8 @@ let main () =
     end else begin
       read_tex name_in ;
       let _ = finalize true in ()      
-    end
+    end ;
+    exit 0
 ;;   
 (*
 let _ =

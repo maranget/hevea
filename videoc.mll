@@ -1,6 +1,6 @@
 (* <Christian.Queinnec@lip6.fr>
  The plugin for HeVeA that implements the VideoC style.
- $Id: videoc.mll,v 1.21 2000-06-05 08:07:36 maranget Exp $ 
+ $Id: videoc.mll,v 1.22 2000-09-05 12:34:13 maranget Exp $ 
 *)
 
 {
@@ -24,10 +24,10 @@ open Scan
 
 
 let header = 
-  "$Id: videoc.mll,v 1.21 2000-06-05 08:07:36 maranget Exp $"
+  "$Id: videoc.mll,v 1.22 2000-09-05 12:34:13 maranget Exp $"
 (* So I can synchronize my changes from Luc's ones *)
 let qnc_header = 
-  "17 aout 99"
+  "24 aout 2000"
 
 exception EndSnippet
 ;;
@@ -146,14 +146,13 @@ rule snippetenv = parse
             Lexstate.withinLispComment := false;
             (* re-raise every exception but EndOfLispComment *)
             try raise exc with
-            | Misc.EndOfLispComment i -> begin
-                let nlnum = i in
+            | Misc.EndOfLispComment nlnum -> begin
                 let addon = (if !endSnippetRead then "\\endsnippet" else "") in
                 if !verbose > 1 then 
                   Printf.fprintf stderr "%d NL after LispComment %s\n" 
                     nlnum ((if !endSnippetRead then "and " else "")^addon);
                 let _ = Lexstate.scan_this snippetenv 
-                    ((String.make nlnum '\n')^addon) in
+                    ((String.make (1+nlnum) '\n')^addon) in
                 ()
             end;
         end;
@@ -367,13 +366,16 @@ and do_snippet lexbuf =
       end;
   end
 
-and do_enable_some_backslashed_chars lexbuf =
+and do_enable_backslashed_chars lexbuf =
   let def_echo s = snippet_def s (fun _ -> Dest.put s) in
-  def_echo "\\n" ;
-  def_echo "\\0" ;
-  def_echo "\\t" ;
-  def_echo "\\f" ;
-  ()  
+  let chars = subst_arg lexbuf in begin
+  if !verbose > 2 then prerr_endline ("\\enableBackslashedChar "^chars);
+  for i=0 to (String.length chars - 1) do
+    let charcommandname = "\\" ^ (String.sub chars i 1) in 
+    def_echo charcommandname;
+  done; 
+  end;
+  ()
 
 and do_enableLispComment lexbuf =
   enableLispComment := true;
@@ -457,7 +459,7 @@ let init = function () ->
     def_code "\\disableLispComment"         do_disableLispComment;
     def_code "\\enableSchemeCharacters"     do_enableSchemeCharacters;
     def_code "\\disableSchemeCharacters"    do_disableSchemeCharacters;
-    def_code "\\enableSomeBackslashedChars" do_enable_some_backslashed_chars;
+    def_code "\\enableBackslashedChars"     do_enable_backslashed_chars;
     ()
   end;;
 
