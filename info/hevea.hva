@@ -3,7 +3,7 @@
 \let\endtextdocument=\enddocument
 \renewenvironment{document}
 {\textdocument%
-\@infonode{0}{Top}}
+\@infonode{Top}{Racine}}
 {\newboolean{infofoot}\setboolean{infofoot}{\boolean{footer}}\footerfalse
 \endtextdocument\setboolean{footer}{\boolean{infofoot}}}
 \renewcommand{\indexref}[2]{\pageref{#2}

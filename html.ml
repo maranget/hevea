@@ -10,7 +10,7 @@
 (***********************************************************************)
 
 
-let header = "$Id: html.ml,v 1.59 1999-06-18 13:25:00 maranget Exp $" 
+let header = "$Id: html.ml,v 1.60 1999-06-18 15:09:02 tessaud Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -587,7 +587,10 @@ let make_hline w noborder =
     close_mods () ;
     if not (flags.in_math && !Parse_opts.mathml) then
       horizontal_line "NOSHADE" "2" "100" 
-    else do_put "<mo stretchy=\"true\" > &horbar; </mo>";
+    else begin
+      put "<mo stretchy=\"true\" > &horbar; </mo>";
+      force_item_display ();
+    end;
     close_cell "" ;
     close_row ();
   end

@@ -10,7 +10,7 @@
 (***********************************************************************)
 
 {
-let header = "$Id: infoRef.mll,v 1.9 1999-06-02 17:10:49 maranget Exp $"
+let header = "$Id: infoRef.mll,v 1.10 1999-06-18 15:09:04 tessaud Exp $"
 ;;
 
 
@@ -21,7 +21,6 @@ open Misc
 exception Error of string
 
 type node_t = {
-    mutable numero : int;
     mutable name : string;
     mutable comment : string;
     mutable file : string;
@@ -48,7 +47,6 @@ let nodes = Hashtbl.create 17;;
 let current_node = ref None;;
 
 let menu_num = ref 0
-and node_num = ref 0
 ;;
 
 let counter = ref 0
@@ -85,13 +83,6 @@ let rec cherche_menu_par_num n = function
       else cherche_menu_par_num n r
 ;; 
 
-let rec cherche_noeud_par_num n = function
-  | [] -> raise (Error ("Node not found"))
-  | node::r -> 
-      if node.numero = n then node
-      else cherche_noeud_par_num n r
-;; 
-
 let ajoute_node_dans_menu n m =
   let menu = cherche_menu m !menu_list in
   menu.nodes <- n :: menu.nodes;
@@ -113,24 +104,23 @@ let verifie name =
 ;;
 
 let infonode opt num arg = 
-  node_num:= !node_num +1;
+
   let n = {
-    numero = !node_num;
-    name = if opt="" then (verifie arg) else (verifie num);
-    comment = if opt = "" then "" else arg;
+    name = verifie num;
+    comment = arg;
     file = !cur_file;
-    previous = None; (* current_node ();*)
+    previous = None;
     next = None;
     up = None;
     pos = 0;
   } in
-    
+  if Hashtbl.mem nodes n.name then raise (Error ("Duplicate node name :"^n.name));  
   n.up <- (match opt with
     "" -> None
   | m ->  ajoute_node_dans_menu n m);
-  Hashtbl.add nodes !node_num n;
+  Hashtbl.add nodes n.name n;
   Text.open_block "INFO" "";
-  Text.put ("\n\\@node"^string_of_int !node_num^"\n");
+  Text.put ("\n\\@node"^n.name^"\n");
   Text.close_block "INFO";
   current_node := Some n;
   if !verbose>1 then prerr_endline ("Node added :"^n.name^", "^n.comment);
@@ -303,7 +293,7 @@ let  affiche_tag_table_un out_file =
   end;
 
   put "\n\nTag table:\n";
-  Hashtbl.iter (fun num n -> put ("File: "^ out_file ^",\tNode: "^noeud_name n^""^string_of_int n.pos^"\n")) nodes;
+  Hashtbl.iter (fun nom n -> put ("File: "^ out_file ^",\tNode: "^noeud_name n^""^string_of_int n.pos^"\n")) nodes;
   put "\nEnd tag table\n";
 ;;
 
@@ -320,20 +310,20 @@ let affiche_tag_table ()=
   put "\n\nIndirect:\n";
   do_indirect (List.rev !files);
   put "\n\nTag table:\n(Indirect)\n";
-  Hashtbl.iter (fun num n ->put ("File: "^n.file^",\tNode: "^noeud_name n^""^string_of_int n.pos^"\n")) nodes;
+  Hashtbl.iter (fun nom n ->put ("File: "^n.file^",\tNode: "^noeud_name n^""^string_of_int n.pos^"\n")) nodes;
   put "\nEnd tag table\n";
   Out.close !out_cur;
 ;;
 
 
-let affiche_node num =
+let affiche_node nom =
   if !top_node then begin
     put_credits ();
     top_node := false;
   end;
   let noeud = 
-    try Hashtbl.find nodes num
-    with Not_found ->  raise (Error ("Node not found"))
+    try Hashtbl.find nodes nom
+    with Not_found ->  raise (Error ("Node not found :"^nom))
   in
   if noeud.file <> !cur_file then begin
     Out.close !out_cur;
@@ -390,8 +380,8 @@ rule main = parse
   main lexbuf}
 | "\\@node"
     {
-  let num = numero lexbuf in
-  affiche_node num;
+  let nom = finitLigne lexbuf in
+  affiche_node nom;
   main lexbuf}
 | "\\@reference{"
     {
@@ -424,6 +414,12 @@ and numero = parse
     {let lxm = lexeme lexbuf in
     int_of_string lxm}
 | _ {raise (Error "Syntax error in info temp file")}
+    
+and finitLigne = parse
+    [^'\n']+'\n'
+    {let lxm = lexeme lexbuf in
+    String.sub lxm 0 ((String.length lxm) -1)}
+| _ {raise ( Error "Syntax error in info temp file: no node name.")}
     
 and arg = parse
     [^'}']+'}'

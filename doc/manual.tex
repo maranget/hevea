@@ -65,7 +65,7 @@ a \url{\ftpbase/hevea-\heveaversion-manual.tar.gz}{bundle of HTML files}.
 The input language is a fairly complete subset of \LaTeXe{} (old
 \LaTeX{} style is also accepted) and the
 output language is {\html} that is (hopefully) correct with respect to
-version 3.2.
+version 3.2. It can also output plain text or info files instead of \html.
 
 Exotic symbols are translated into symbols
 pertaining to the symbol font of the {\html} browser, using the
@@ -2004,6 +2004,77 @@ Observe how a group \verb+{+\ldots{} \verb+}+ and the text-level
 declaration \verb+\@nostyle+ are combined in order to allow the
 expansion of the macro-argument \verb+#1+ without introducing
 untimely \html{} tags.
+Then, references, index and footnotes are supported.
+
+\section{Others types of output}
+It is possible to translate \LaTeX\ file into other formats than
+ \html\ 3.2. There are two others outputs : Plain Text and info files.
+
+\subsection{Text}
+The \LaTeX\ file is processed and converted into a plain text
+formatted file. It allows some pretty-printing in plain text.
+
+To translate into text, you must invoke \hevea as follow:
+\begin{verbatim}
+# hevea -text [-w <width>] myfile.tex
+\end{verbatim}
+
+Additionnally, an optionnal argument \texttt{-w <number>} sets the width of the output
+for text formatting. By default, The text will be 72 characters wide.
+
+Nearly every environments have been translated, included lists and tables.
+The support is nearly the same as in \html, excepted some cases shown below:
+
+The tables are not typesetted like in \html. The borders are put correctly.
+However, if the table is too wide, an error can occur if it is bigger than
+the width of the page. In such cases, you can ajust the width thanks to
+the \texttt{-w} argument.
+
+For now, maths are not supported at all in text mode. You can get very weird
+results with mathematical formulas. But simple things such as subscripts
+and superscripts should not cause too much trouble. There are of course
+no sub or superscripts in text, but there will be no more characters than
+the subscript itself.
+
+For example, $x^2$ will be rendered as \verb+x2+, but $\int_0^1f(x)dx$ will
+do something like : \verb+int01f(x)dx+, and that is not really readable.
+
+The style changes are not made in this mode, because it is hardly
+impossible to render in ASCII. So there are no italics,
+ bold fonts, underlinings, no changes of size or color.
+The only exception is for the verbatim environment
+that puts the text inside quotes, to distinguish it more easily.
+
+
+\subsection{Info}
+The file format info is also supported. The input file must be a \LaTeX\ file,
+and not a TeXinfo file. Thus you can make manuals in postscript,
+\html, and info with only one input file.
+
+You can translate your \LaTeX\ files
+into info files using the arguments :
+\begin{verbatim}
+# hevea -info [-w <width>] myfile.tex
+\end{verbatim}
+
+The optionnal argument \verb+-w+ has the same meaning as for text output.
+
+The text will be organized in nodes that follow
+ the pattern of \LaTeX\ sectionning
+commands. Menus are created to navigate through the sections easily
+
+The Table of Content is automatic, so the command is ignored.
+Then, references, index and footnotes are supported.
+The pointers can only go to an info node, so it is impossible to
+point to a particular line, like in \html.
+
+If the resulting info file is too large, it is also cut into pieces,
+and the first file \texttt{.info} contains the references for all
+the nodes in the others files. The files are named \filename{myfile.info-1},
+\filename{myfile.info-2},\ldots
+
+You then can read your info files using emacs' info mode or the
+info program.
 
 \setcounter{section}{0}
 \renewcommand{\thesection}{\thepart.\arabic{section}}
@@ -3669,6 +3740,11 @@ definition. In particular, this option disable style changes inside
 However, if \textit{name} is \textit{base}\texttt{.html}, then
 the output basename is \textit{base}.
 \item[{\tt -help}] Print version number and a short help message.
+\item[{\tt -text}] Output as a plain text format. Default output
+extension is \texttt{.txt}.
+\item[{\tt -w} {\it width}] Set the width for text or info output.
+\item[{\tt -info}] Output as an info file. Default output extension
+is \texttt{.info}.
 \end{description}
 
 \hevea{} user manual is part~\ref{usermanual} of this document,

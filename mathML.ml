@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: mathML.ml,v 1.3 1999-06-16 08:31:31 tessaud Exp $" 
+let header = "$Id: mathML.ml,v 1.4 1999-06-18 15:09:12 tessaud Exp $" 
 
 
 open Misc
@@ -229,10 +229,13 @@ let do_item_display force =
   let f,is_freeze = pop_freeze () in
   if ((*force && *)not flags.empty) || flags.table_inside then
     flags.ncols <- flags.ncols + 1 ;
-
+  let active  = !cur_out.active
+  and pending = !cur_out.pending in
+  if flags.empty then erase_mods active;
   close_flow "";
   open_block "" "";
-
+  !cur_out.pending <- active @ pending ;
+  !cur_out.active <- [] ;
   if is_freeze then freeze f;
   if !verbose > 2 then begin
     prerr_string ("out item_display -> ncols="^string_of_int flags.ncols) ;
@@ -436,6 +439,7 @@ and close_delim () =
   end else begin
     close_display ();
     open_display "";
+    warning "Math expression improperly parenthesized";
   end
 ;;
 
@@ -517,24 +521,24 @@ let put_sub_sup  scanner s =
 
 let insert_sub_sup tag scanner s t =
   let f, is_freeze = pop_freeze () in
-	let ps,pargs,pout = pop_out out_stack in
-	if ps <> "" then failclose ("sup_sub: "^ps^" closes ``''");
-	let new_out = new_status false [] [] in
-	push_out out_stack (ps,pargs,new_out);
-	close_block "";
-	cur_out := pout;
-	open_block tag "";
-	open_display "";
-	let texte = Out.to_string new_out.out in
-	do_put (if texte = "" then "<mo> &InvisibleTimes; </mo>" else texte);
-	flags.empty <- false; flags.blank <- false;
-	free new_out;
-	close_display ();
-	put_sub_sup scanner s;
-	if t<>"" then put_sub_sup scanner t;
-	close_block tag;
-	open_block "" "";
-	if is_freeze then freeze f
+  let ps,pargs,pout = pop_out out_stack in
+  if ps <> "" then failclose ("sup_sub: "^ps^" closes ``''");
+  let new_out = new_status false [] [] in
+  push_out out_stack (ps,pargs,new_out);
+  close_block "";
+  cur_out := pout;
+  open_block tag "";
+  open_display "";
+  let texte = Out.to_string new_out.out in
+  do_put (if texte = "" then "<mo> &InvisibleTimes; </mo>" else texte);
+  flags.empty <- false; flags.blank <- false;
+  free new_out;
+  close_display ();
+  put_sub_sup scanner s;
+  if t<>"" then put_sub_sup scanner t;
+  close_block tag;
+  open_block "" "";
+  if is_freeze then freeze f
 ;;
 
 let standard_sup_sub scanner what sup sub display =
@@ -639,8 +643,10 @@ let over display lexbuf =
         (fun () ->
           open_block "mfrac" "";
 	  open_display "") in
+    erase_mods mods;
     close_display () ;
     open_display "" ;
+    erase_mods mods;
     freeze
       (fun () ->
         close_display () ;
@@ -668,6 +674,7 @@ let left delim =
     ( fun () ->
       force_item_display ();
       close_display ();
+      warning "Left delimitor not matched with a right one.";
       force_item_display ();
       close_display ();)
 ;;
@@ -677,8 +684,27 @@ let right delim =
   if delim <> "." then put ("<mo> "^tr delim^" </mo>");
   force_item_display ();
   let f,is_freeze = pop_freeze () in
-  if not is_freeze then (*raise (Error ("Bad placement of right delimitor"));*)
-    warning "right delimitor alone";
-  close_display ();
+  if not is_freeze then begin
+    warning "Right delimitor alone";
+    close_display ();
+    open_display "";
+  end else begin
+    try
+      let ps,parg,pout = pop_out out_stack in
+      let pps,pparg,ppout = pop_out out_stack in
+      if pblock() = "mfrac" then begin
+	warning "Right delimitor not matched with a left one.";
+	push_out out_stack (pps,pparg,ppout);
+	push_out out_stack (ps,parg,pout);
+	freeze f;
+	close_display ();
+	open_display "";
+      end else begin
+	push_out out_stack (pps,pparg,ppout);
+	push_out out_stack (ps,parg,pout);
+	close_display ();
+      end;
+    with PopFreeze -> raise (Error ("Bad placement of right delimitor"));
+  end;
   3
 ;;

@@ -10,6 +10,36 @@
 %% dans le livre LaTeX, de Leslie Lamport.
 
 
+%% overline, underline et Cie
+
+\renewcommand{\stackrel}[2]{\ifdisplay
+\@print{
+<mover>}%
+\@open{DISPLAY}{}#2\@close{DISPLAY}{}
+
+\@open{DISPLAY}{}#1\@close{DISPLAY}{}%
+\@print{
+</mover>}
+\else
+\textstackrel{#1}{#2}\fi}
+
+\renewcommand\overline[1]{\ifdisplay
+\@print{
+<mover accent="true">}%
+\@open{DISPLAY}{}#1\@close{DISPLAY}{}%
+\@print{<mo> &horbar; </mo>
+</mover>}
+\else\textoverline{#1}\fi}
+
+\renewcommand\underline[1]{\ifdisplay
+\@print{
+<munder accentunder="true">}%
+\@open{DISPLAY}{}#1\@close{DISPLAY}{}%
+\@print{<mo> &horbar; </mo>
+</munder>}
+\else\textunderline{#1}\fi}
+
+
 % Roots
 \newcommand{\sqrt}[2][!*!]{\ifthenelse{\equal{#1}{!*!}}%
 {\@print{<msqrt>
@@ -17,8 +47,12 @@
 #2\@print{
 </msqrt>}%
 }{\@print{<mroot>
-}#2
+}\@open{DISPLAY}{}%
+#2
+\@close{DISPLAY}{}%
+\@open{DISPLAY}{}%
 #1%
+\@close{DISPLAY}{}%
 \@print{
 </mroot>
 }}}

@@ -44,7 +44,7 @@ open Tabular
 open Lexstate
 
 
-let header = "$Id: latexscan.mll,v 1.113 1999-06-18 13:25:05 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.114 1999-06-18 15:09:08 tessaud Exp $" 
 
 
 let sbool = function
@@ -2461,7 +2461,7 @@ def_code "\\@infoNoteFlush"
       and theflush = subst_arg subst lexbuf
       and sec_notes = get_this_nostyle main "\\@footnotelevel" in
       if !Foot.some && Section.value sec_here <= Section.value sec_notes then begin
-	scan_this main ("\stepcounter{footnotesflush}%\n\@infonode{}{"^theflush^"}{Notes}");
+	scan_this main ("\stepcounter{footnotesflush}%\n\@infonode{"^theflush^"}{Notes}");
       end)
 ;;
 	
