@@ -1,6 +1,7 @@
 {
 open Lexing
-let verbose = ref 1
+
+let verbose = ref 0
 ;;
 
 let push s e = s := e:: !s

@@ -147,7 +147,8 @@ and macro_names = parse
 | _   {macro_names lexbuf}
 
 and num_arg = parse
-   ['0'-'9']+ 
+   '#' ['1'-'9'] 
+|  ['0'-'9']+ 
     {let lxm = lexeme lexbuf in
     int_of_string lxm}
 |  "'" ['0'-'7']+ 

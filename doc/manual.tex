@@ -232,17 +232,17 @@ Consider the following example:
 \begin{verbatim}
 \newcommand{\open}{(}
 \newcommand{\close}{)}
-\open text opened by ``openpar''
-and closed by ``closepar''\close.
+\open text opened by ``open''
+and closed by ``close''\close.
 \end{verbatim}
 We get:
 \begin{htmlout}
 \newcommand{\open}{(}
 \newcommand{\close}{)}
-\open text opened by ``openpar'' and closed by
-``closepar''\close.
+\open text opened by ``open'' and closed by
+``close''\close.
 \end{htmlout}
-In the output above, the space after \verb+\openpar+ does not
+In the output above, the space after \verb+\open+ does not
 find its way to the output.
 
 
@@ -252,7 +252,7 @@ math mode, this
 feature allows users to instruct \hevea{}
 on how to put space their formulas.
 For instance, \verb+\alpha\rightarrow\beta+ is typeset without spaces between
-symbols, whereas \verb+\alpha \rightarrow \beta+ produces these spaces:
+symbols, whereas \verb+\alpha \rightarrow \beta+ produces these spaces.
 \begin{htmlonly}
 $$
 \begin{array}{l@{ : }l}
@@ -275,8 +275,7 @@ Consider for instance the following command definition:
 Using \verb+\bfsymbol+ in text mode, we 
 \end{htmlonly}
 
-Not even attempting to be rational about spacing,
-\hevea{} try to emulate \LaTeX{} behavior in all situations, but
+\hevea{} tries to emulate \LaTeX{} behavior in all situations, but
 discrepancies probably exist.
 Thus, users are invited to make explicit what they want.
 This is good practice anyway, because \LaTeX{} is mysterious
@@ -454,7 +453,7 @@ it first prints a warning message:
 \begin{verbatim}
 trouble.tex:34: Unknown macro: \raisebox
 \end{verbatim}
-Then, it goes on by translating the arguments of \verb+\raisebox+ as
+Then, it goes on by translating the arguments of \verb+\raisebox+ as if
 there were normal text. As a
 consequence some \verb+.6ex+ is finally found in the {\html} output:
 \begin{htmlout}
@@ -466,9 +465,10 @@ You can \raisebox{.6ex}{\em raise} text.
 \end{htmlonly}
 \end{htmlout}
 
-To correct this, you should provide a macro that more or less has the effect of
-\verb+raisebox+. It is difficult, yet impossible, to write a generic
-\verb+raisebox+ macro for \hevea. However, in this case, the effect
+To correct this, you should provide a macro that has more or less the effect of
+\verb+\raisebox+. It is impossible to write a generic
+\verb+\raisebox+ macro for \hevea, because \hevea{} ignores
+lengths. However, in this case, the effect
 of \verb+\raisebox+ is to raise the box {\em a little}.
 Thus, the first, numerical, argument to \verb+\raisebox+  can be
 ignored in a private \verb+\raisebox+ macro defined in \filename{trouble.sty}:
@@ -476,14 +476,15 @@ ignored in a private \verb+\raisebox+ macro defined in \filename{trouble.sty}:
 \newcommand{\raisebox}[2]{$^{\mbox{#2}}$}
 \end{verbatim}
 
-Now, tranlating the document yields:
+Now, translating the document yields:
 \begin{htmlout}
 \renewcommand{\raisebox}[2]{$^{\mbox{#2}}$}%
 You can \raisebox{.6ex}{\em raise} text a little.
 \end{htmlout}
 
-Of course, this will work only when all \verb+\raisebox+ in the document
-raise text a little. Consider, for instance, this example, where text
+Of course, this will work only when all \verb+\raisebox+ commands in
+the document raise text a little. Consider, for instance, this
+example, where text
 is both raised a lowered a little:
 \begin{verbatim}
 You can \raisebox{.6ex}{\em raise} or \raisebox{-.6ex}{\em lower} text.
@@ -527,14 +528,27 @@ You can \raisebox{.6ex}{\em raise} or \lowerbox{-.6ex}{\em lower} text.
 \end{htmlonly}
 \end{htmlout}
 
+Note that \LaTeX{} should also be given a definition for
+\verb+\lowerbox+:
+\begin{verbatim}
+\newcommand{\lowerbox}[2]{\raisebox{#1}{#2}
+\end{verbatim}
+This definition can safely be placed anywhere in \texttt{trouble.tex},
+sice by \hevea{} semantics for \verb+\newcommand+ (see
+section~\ref{usermacro})
+the new definition will not overwrite the old one.
+
 \subsection{\hevea\ uncorrectly interprets a macro}\label{blob}
 
-Sometimes \hevea\ knows about a macro, but the produced {\html}
-is obviously wrong.
-This kind of errors is a little more difficult to detect than the
-previous one because the translator does not issue a warning. Here you
-have to look at the output.
-Consider, for instance, this definition:
+Sometimes \hevea{} knows about a macro, but the produced \html{}
+does not look good when seen through a browser.
+This kind of errors is detected while visually checking the
+output.
+However, \hevea{} does its best to issue warnings when such situations
+are likely to occur.
+
+Consider, for instance, this definition of \verb+\blob+ as a small
+black square.
 \begin{verbatim}
 \newcommand{\blob}{\rule[.2ex]{1ex}{1ex}}
 \blob\ Blob \blob
@@ -548,7 +562,7 @@ Which \LaTeX typesets as follows:
 \imageflush
 \end{htmlonly}
 \end{latexout}
-\hevea\ always translate \verb+\rule+ as \verb+<HR>+, ignoring size
+\hevea\ always translates \verb+\rule+ as \verb+<HR>+, ignoring size
 arguments.
 Hence, it here produces the following, wrong, output:
 \begin{htmlout}\newcommand{\blob}{\rule[.2ex]{1ex}{1ex}}
@@ -559,8 +573,8 @@ Hence, it here produces the following, wrong, output:
 
 There is not small square in the symbol font used by \hevea.
 However there are other small symbols that would perfectly do the job
-of \verb+\blob+, such as a small bullet (\verb+\bullet+ in \LaTeX).
-Thus you may choose to give \verb+\blob+ a shadowing definition in
+of \verb+\blob+, such as a bullet (\verb+\bullet+ in \LaTeX).
+Thus, you may choose to give \verb+\blob+ a shadowing definition in
 \verb+trouble.sty+:
 \begin{verbatim}
 \newcommand{\blob}{\bullet}
@@ -572,11 +586,11 @@ This new definition yields the following, more satisfying output:
 \end{htmlonly}
 \end{htmlout}
 
-\subsection{\hevea\ crashes}
+\subsection{\hevea{} crashes}
 
-Such an errors may have many causes, including a bug in \hevea.
-However, it may also steem from a wrong \LaTeX\ input.
-Thus this section is to be read before reporting a bug\ldots
+\hevea{} failure may have many causes, including a bug.
+However, it may also steem from a wrong \LaTeX{} input.
+Thus, this section is to be read before reporting a bug\ldots
 
 In  the following source, environments are not properly balanced:
 \begin{verbatim}
@@ -593,48 +607,49 @@ input is correct by running \LaTeX{} on it.
 
 Unfortunatly, \hevea{} may crash on input that does not affect
 \LaTeX.
-Such errors are likely to appear when processiong {\TeX}ish input,
+Such errors are likely to appear when processiong \TeX-ish input,
 such as found in style files.
 Consider for instance the following ``optimized'' version of a
 \verb+quoteright+  environment:
 \begin{verbatim}
-\newenvironment{quotebis}{\quote\flushright}{\endquote}
+\newenvironment{quoteright}{\quote\flushright}{\endquote}
 
-\begin{quotebis}
+\begin{quoteright}
 This a right-flushed quotation
-\end{quotebis}
+\end{quoteright}
 \end{verbatim}
 
-\LaTeX{} produces the expected output:
-\begin{latexout}
-\begin{toimage}
-\newenvironment{quotebis}{\quote\flushright}{\endquote}
-\begin{quotebis}
-This is a right-flushed quotation
-\end{quotebis}
-\end{toimage}\imageflush[ALIGN=right]\par
-\end{latexout}
+The \verb+\flushright+ is intended to replace
+\verb+\begin{flushright}+ and the closing macro \verb+\endflushright+
+is omitted, since it does nothing.
+\LaTeX{} accepts such an input and produces a  right-flushed quotation.
 
-However, as \hevea{} often translates \LaTeX{} environments by {\html}
-opening and  closing tags  and refuses to generate obviously
-non-correct {\html}, it crashes:
+However, when \hevea{} translates an environment \textit{env}
+by a block-level element, it proceeds as follows:
+the \verb+\+\textit{env} macro opens the element, while the
+\verb+\end+\textit{env} macro closes it.
+As a consequence, \verb+\quote+ translates to, \verb+<BLOCKQUOTE>+,
+\verb+\flushright+ translates to \verb+<DIV ALIGN=right>+ and
+\verb+\endquote+ translates to \verb+</BLOCKQUOTE>+.
+At that point, \hevea{} refuses to generate obviously
+non-correct {\html} and it crashes:
 \begin{verbatim}
 trouble.tex:8: Adios
-Fatal error: uncaught exception Failure("hml: BLOCKQUOTE closes DIV")
+Fatal error: uncaught exception Failure("html: BLOCKQUOTE closes DIV")
 \end{verbatim}
 
-In this case the solution is easy: environments must be opened and
+In this case, the solution is easy: environments must be opened and
 closed consistently. \LaTeX{} style being recommended, one should write:
 \begin{verbatim}
-\newenvironment{quotebis}
+\newenvironment{quoteright}
   {\begin{quote}\begin{flushright}}
   {\end{flushright}\end{quote}}
 \end{verbatim}
 And we get:
-\begin{htmlout}\newenvironment{quotebis}{\begin{quote}\begin{flushright}}{\end{flushright}\end{quote}}
-\begin{quotebis}
+\begin{htmlout}\newenvironment{quoteright}{\begin{quote}\begin{flushright}}{\end{flushright}\end{quote}}
+\begin{quoteright}
 This is a right-flushed quotation
-\end{quotebis}
+\end{quoteright}
 \end{htmlout}
 
 \section{To have it all}
@@ -1485,9 +1500,8 @@ Math accents (\verb+\hat+, \verb+\tilde+, etc.) are not handled at
 all.
 
 \subsection{Spacing}\label{spacemath}
-By contrast with \LaTeX{}, spaces matters in math mode.
-One or more spaces are translated to one space inside text and to one
-non-breaking space in display mode.
+By contrast with \LaTeX{}, space in the input matters in math mode.
+One or more spaces are translated to one space.
 Futhermore,
 spaces after commands (such as \verb+\alpha+) are echoed
 except for invisible commands (such as \verb+\tt+).
@@ -1505,7 +1519,7 @@ changed. The appearence of
 other symbols can be changed using
 \LaTeX2e{} style changing commands (\verb+\mathrm+, etc.).
 The commands \verb+\boldmath+ and \verb+\unboldmath+ are not
-recognized. Wether symbols belonging to the symbol font are affected
+recognized. Whether symbols belonging to the symbol font are affected
 by these changes or not is browser dependant.
 
 Observe that this does not corresponds directly to how \LaTeX{} manage style
@@ -1571,13 +1585,14 @@ while  theorem-like environment definitions  are global.
 In particular, defining a counter \textit{cmd} with
 \verb+\newcounter{+\textit{com}\verb+}+ create a macro
 \verb+\the+\textit{cmd}+ that ouputs the counter value.
-Then the \verb+\the+\textit{cmd}+ macro can be redefined.
+Then the \verb+\the+\textit{cmd} command can be redefined.
 For instance, section numbering can be turned into alphabetic style by:
 \begin{verbatim}
 \renewcommand{\thesection}{\alph{section}}
 \end{verbatim}
 
-Note that \TeX{} style for counters is not supported at all.
+Note that \TeX{} style for counters is not supported at all and that
+it will clobber the output.
 
 \section{Figures and Other Floating Bodies}
 
@@ -1872,7 +1887,7 @@ The \verb+\rule+ commands translate to a \html{} horizontal rule
 (\verb+<HR>+)  regardless of its arguemts.
 
 
-All other box-related  commands do not exist.
+All other box-related commands do not exist.
 
 \section{Font selection}
 
@@ -1932,21 +1947,21 @@ For instance, the following declarations change font color to dark gray:
 \end{verbatim}
 %HEVEA}
 
-Colors should be used carefully. Two many colors
+Colors should be used carefully. Too many colors
 hinders clarity and some of the colors may not be readable on the
 document backgroud color.
 
 \subsection{Changing the Type Size}
 All declarations, from \verb+\tiny+ to \verb+\Huge+ are recognized.
-Output is not satisfactory inside headers elements, as generated, for
-instance, 
-by sectionning commands.
+Output is not satisfactory inside headers elements
+generated by sectionning commands.
 
 \subsection{Special Symbols}
 
-The \verb+\symbol{+{\it num}\verb+}+ outputs character number {\it num}.
-In practice, this is a way to output any character from the isolatin1
-character set.
+The \verb+\symbol{+{\it num}\verb+}+ outputs character number {\it num}
+from the isolatin1 character set.
+This departs from \LaTeX{}, which output symbol number \textit{num} in
+the current font.
 
 
 \part{Practical information}

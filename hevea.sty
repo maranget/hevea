@@ -296,6 +296,7 @@
 \newcommand{\cline}[1]{\warning{Warning, \cline changed into \hline}\hline}
 \def\cases#1{\left\{\begin{array}{ltl}#1\end{array}\right.}
 %%%%%%%%%%%% Bibliography
+\def\bibliographystyle#1{}
 \def\nocite#1{}
 \newcommand{\bibname}{\iffrench Références\else References\fi}
 \newenvironment{thebibliography}[1]{\@bibliosection{\bibname}\@open{DL}{}}{\@close{DL}}
@@ -406,9 +407,6 @@
 %% Equations
 \newcommand{\rule}[3][]{\@print{<HR>
 }}%
-%%%%%% Symbols, spaces...
-\def\symbol#1{\char#1}
-\def\bibliographystyle#1{}
 %%%%%%%%%%%%%%%% Missing series and shapes
 \def\cal{\red}
 \def\sf{\purple}

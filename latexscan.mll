@@ -100,7 +100,6 @@ let subst_arg arg = try
     prerr_endline ("Bad var number in  ``"^arg^"''");
     raise (Failure "subst")
   end
-;;
 
 
 let save_quote_arg lexbuf =
@@ -1516,8 +1515,16 @@ rule  main = parse
 (* chars *)
         | "\\char" ->
            let arg = Save.num_arg lexbuf in
+           if not !silent && (arg < 32 || arg > 127) then begin
+             Location.print_pos () ;
+             prerr_endline ("Warning: \\char");
+           end ;
            Html.put_char (Char.chr arg) ;
-           skip_blanks lexbuf ; main lexbuf
+           skip_blanks_pop lexbuf ; main lexbuf
+        | "\\symbol" ->
+           let arg = save_arg lexbuf in
+           scan_this main ("\\char"^arg) ;
+           main lexbuf
 (* labels *)
         | "\\label" ->
            let save_last_closed = !last_closed in

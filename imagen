@@ -16,7 +16,7 @@ latex < /dev/null ${BASE}.image.tex
 dvips -t a3 -x1414 -S 1 -i -o${BASE} ${NAME}.dvi
 /bin/rm -f ${NAME}.log ${NAME}.aux ${NAME}.dvi
 
-test -f pat[0-9][0-9][0-9] && \
+test -f ${BASE}001 && \
 for i in ${BASE}[0-9][0-9][0-9]
 do
   mv $i $i.ps
