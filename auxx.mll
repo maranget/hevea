@@ -13,7 +13,7 @@
 open Lexing
 open Misc
 
-let header = "$Id: auxx.mll,v 1.4 1999-08-30 17:59:16 maranget Exp $" 
+let header = "$Id: auxx.mll,v 1.5 1999-08-30 18:12:32 maranget Exp $" 
 
 let rtable = Hashtbl.create 17
 ;;
@@ -36,6 +36,7 @@ let bget name =
 ;;
 
 let auxfile = ref None
+and auxname = ref ""
 and something = ref false
 and changed = ref false
 ;;
@@ -44,6 +45,7 @@ let init base =
   let filename = base^".haux" in
   try
     let file = open_out filename in
+    auxname := filename ;
     auxfile := Some file
   with Sys_error s ->
     warning ("Cannot open out file: "^filename^" : "^s)
@@ -52,6 +54,8 @@ and finalize () = match !auxfile with
 | None -> ()
 | Some file ->
     close_out file ;
+    if not !something then
+      Sys.remove !auxname;
     if !changed then
         prerr_endline
           "HeVeA Warning: Label(s) may have changed. Rerun to get cross-references right." ;
