@@ -11,7 +11,7 @@
 
 open Misc
 
-let header = "$Id: parse_opts.ml,v 1.16 1999-07-05 17:13:39 maranget Exp $" 
+let header = "$Id: parse_opts.ml,v 1.17 1999-07-12 15:49:51 maranget Exp $" 
 
 
 let files = ref []
@@ -27,6 +27,7 @@ type language = Francais | English
 type destination = Html | Text | Info
 ;;
 let mathml = ref false
+and entities = ref false
 ;;
 
 let language = ref English
@@ -72,6 +73,8 @@ let _ = Arg.parse
        "dir, add directory ``dir'' to search path") ;
      ("-mathml",Arg.Unit (fun() -> mathml := true),
        ", produces MathML output for equations, very experimental");
+     ("-entities",Arg.Unit (fun() -> entities := true),
+       ", produces HTML 4.0 entities and unicode characters references for symbols, very experimental");
      ("-text",Arg.Unit (fun () -> symbols := false; destination := Text),
        ", output plain text");
      ("-info",Arg.Unit (fun () -> symbols := false; destination := Info),

@@ -16,6 +16,7 @@ val language : language  ref
 type destination = Html | Text | Info
 val destination : destination ref
 val mathml : bool ref
+val entities : bool ref
 val pedantic : bool ref
 val width : int ref
 val read_idx : bool ref
