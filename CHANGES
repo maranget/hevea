@@ -1,4 +1,6 @@
-version 1.06-5
+  
+version 1.06-5  
+  - Leading spaces in \usepackage{pkg1, pgk2}
   - Plein de bugs corrige's (arguments a` , notamment), listings et fancyverb
   
 version 1.06-4   

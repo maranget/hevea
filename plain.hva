@@ -13,3 +13,5 @@
         \let\@next\@@iter\fi
         \@next}%
     \@callsubst{\@@iter}{#3#2#2}\fi}
+%%%%%%%%%% eat leading spaces in argument
+\def\@eatspaces#1,{#1}%

@@ -280,6 +280,10 @@ More precisely, any sequence of spaces is outputed as one
 space, whereas a single newline is replicated in the output.
 However one  blank line  (i.e., two newlines in a row) or more
 introduce a paragraph break.
+\index{tabulation}Whether the tabulation character is a space or not 
+is random, so avoid tabs in your source document.
+
+
 Paragraphs are rendered by a blank line and there is no paragraph
 indentation.
 \hevea{} is a bit simplistic in breaking paragraphs and extra paragraph
@@ -2887,7 +2891,7 @@ However, it is more simple to write the document using iso-latin1.
 
 \section{Sectioning}
 
-\subsection{Sectioning commands}
+\subsection{\label{section:section}Sectioning commands}
 Sectioning commands from \verb+\part+ down to
 \verb+\subparagraph+ are defined in base style files.
 They accept an optional argument and have starred versions.
@@ -2907,6 +2911,26 @@ chapters into alphabetic (uppercase) style:
 \begin{verbatim}
 \renewcommand{\thechapter}{\Alph{chapter}}
 \end{verbatim}
+
+When jumping to anchors, browsers put the targeted line on top
+of display. As a consequence, in the following code:
+\begin{verbatim}
+\section{A section}
+\label{section:section}
+ ...
+See Section~\ref{section:section}
+\end{verbatim}
+Clicking on the link produced by
+\verb"\ref{section:section}" will result in \emph{not} displaying the
+targeted section title.
+A fix is writting:
+\begin{verbatim}
+\section{\label{section:section}A section}
+ ...
+See Section~\ref{section:section}
+\end{verbatim}
+Which happens to be legal \LaTeX{}, according to the Blue Book.
+Have a try for this section~\ref{section:section}!
 
 \subsection{The Appendix}
 The \verb+\appendix+ command exists and should work as in \LaTeX.

@@ -1,7 +1,9 @@
+\newsavebox{\pkg@arg}
 \newcommand{\@usepackage}[1]
-  {\@ifundefined{#1@loaded}
-    {\@iffileexists{#1.hva}
-       {\input{#1.hva}\def\csname#1@loaded\endcsname{}}
+  {\sbox{\pkg@arg}{\@nostyle\@callprim{\@eatspaces}{#1,}}%
+  \@ifundefined{\usebox{\pkg@arg}@loaded}
+    {\@iffileexists{\usebox{\pkg@arg}.hva}
+       {\input{\usebox{\pkg@arg}.hva}\def\csname\usebox{\pkg@arg}@loaded\endcsname{}}
        {}}
     {}}
 \newcommand{\usepackage}[2][!*!]

@@ -11,7 +11,7 @@
 
 open Lexing
 
-let header = "$Id: out.ml,v 1.19 2000-10-23 07:34:40 maranget Exp $" 
+let header = "$Id: out.ml,v 1.20 2000-10-27 11:26:58 maranget Exp $" 
 let verbose = ref 0
 ;;
 
@@ -71,8 +71,6 @@ let get_pos = function
 
 let erase_start n = function
   | Buff b ->
-      Printf.fprintf stderr "erase %d\n" n ;
-      debug stderr (Buff b) ;
       String.blit b.buff n b.buff 0 (b.bp-n) ;
       b.bp <- b.bp-n
   | _      ->  raise (Misc.Fatal "Out.erase_start")

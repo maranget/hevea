@@ -54,7 +54,7 @@
 \let\@HEVEA@lefteqn\lefteqn
 \newenvironment{eqnarray}
 {\@ifundefined{@eqna@inside}{\def\@eqna@inside{}}{\warning{Nested eqnarray}}%
-\[\def\@currentlabel{\theequation}%
+\[\@changelabel\def\@currentlabel{\theequation}%
 \setcounter{@eqna@col}{0}\numbertrue\stepcounter{equation}
 \let\@PBS=\@HEVEA@bsbs
 \let\@PAM=\@HEVEA@amper
@@ -77,6 +77,7 @@
 \def\scriptstyle{\ifmathml{\scriptsize}\else\scriptsize\fi}
 \def\scriptscriptstyle{\ifmathml{\scriptsize\@incsize{-1}}\else\scriptsize\@incsize{-1}\fi}
 \def\textstyle{\ifmathml\@style{mtext}\fi}
+\def\textsuperscript#1{\ensuremath{^{\mbox{#1}}}}
 %%%%% Figures and tables
 \newcommand{\@figrule}{\begin{center}\@hr{.8\linewidth}{2pt}\end{center}}
 \newenvironment{figure}[1][]
