@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.49 2004-06-03 17:16:08 thakur Exp $    *)
+(*  $Id: package.ml,v 1.50 2004-06-03 17:28:55 thakur Exp $    *)
 
 module type S = sig  end
 
@@ -954,7 +954,7 @@ let end_table1 () =
 
 let start_table () =
   Dest.open_block "TABLE"
-    "style = \"text-align: center;\" border=\"1\" 
+    "style = \"text-align: center;\" border=\"0\" 
      cellspacing=\"2\" cellpadding=\"1\"" ;
   Dest.open_block "TR" "" ;
   Dest.open_block "TD" "ALIGN=center"
