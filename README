@@ -1,4 +1,4 @@
-      This is HEVEA, version 1.06, a fast Latex to HTML translator.
+      This is HEVEA, version 1.07, a fast Latex to HTML translator.
 
 
 ADVERTISEMENT
@@ -70,16 +70,16 @@ REQUIREMENTS
 INSTALLATION FROM THE SOURCE DISTRIBUTION
 
   Download the source distribution
-    ftp://ftp.inria.fr/INRIA/Projects/para/hevea/hevea-1.06.tar.gz
+    ftp://ftp.inria.fr/INRIA/Projects/para/hevea/hevea-1.07.tar.gz
 
   Unsizp it
-    gunzip hevea-1.06.tar.gz
+    gunzip hevea-1.07.tar.gz
 
   Untar it
-    tar xf  hevea-1.06.tar
+    tar xf  hevea-1.07.tar
 
   Go to the source directory
-    cd hevea-1.06
+    cd hevea-1.07
 
 CONFIGURATION
     There are a few configuration variables at the beginning of
@@ -123,3 +123,7 @@ MAKE
 
    Once hevea is installed, you can remove the sources.
 
+IN CASE OF TROUBLE.
+
+  - Most reported trouble originate in the definition of CPP in
+    the Makefile. The Makefile presents several alternatives.

@@ -1,3 +1,6 @@
+version 1.07
+   - Release, to follow ocaml evolution.
+
 version 1.06+1
    - Added \lstnewenvironment  in package listings
    - Pb pour les delims de hauteur 1 : -> rescanner le delimiteur ! Pas le tps.
