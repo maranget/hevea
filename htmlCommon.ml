@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlCommon.ml,v 1.12 1999-10-05 17:02:25 maranget Exp $" 
+let header = "$Id: htmlCommon.ml,v 1.13 1999-11-01 15:52:53 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -994,7 +994,7 @@ let skip_line () =
 let put_length which  = function
   | Pixel x -> put (which^string_of_int x)
   | Char x -> put (which^string_of_int (Length.font * x))
-  | Percent x  -> put (which^string_of_int x^"%")
+  | Percent x  -> put (which^"\""^string_of_int x^"%\"")
   | Default    -> ()
   | No s       -> raise (Misc.Fatal ("No-length ``"^s^"'' in outManager"))
 

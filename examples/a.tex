@@ -1,5 +1,7 @@
-\documentstyle[../hevea,fullpage,isolatin1]{article}
-
+\documentclass{article}
+\usepackage{fullpage}
+\usepackage{isolatin1}
+\usepackage{../hevea}
 \def\homedir{http://w3.edu.polytechnique.fr/profs/informatique/Luc.Maranget/X.97}
 \begin{latexonly}
 \gdef\url#1#2{#2}
@@ -53,7 +55,8 @@ Cell *cons(int val,Cell *next)
   r->next = next;
   return r;
 }
-\end{verbatim}}
+\end{verbatim}
+}
 \begin{itemize}
 \item Écrire les fonctions de base de manipulation de la pile,
 affichage de la pile ({\tt afficher}), empilage ({\tt push}) et
@@ -62,7 +65,8 @@ dépilage ({\tt pop}). Voici des signatures possibles~:{\small
 void afficher(void)
 int pop(void)
 void push(int i)
-\end{verbatim}}
+\end{verbatim}
+}
 \item Une quelconque des quatre opérations (par exemple $-$) se
  réalise ainsi~: dépiler le second argument (par exemple $i_2$), dépiler le
 premier argument, (par exemple $i_1$), effectuer l'opération (par
@@ -83,7 +87,8 @@ sommet vers le fond)~:{\small
 4 : [4, 3, -1]
 + : [7, -1]
 + : [6]
-\end{verbatim}}
+\end{verbatim}
+}
 Vous aurez donc à lire la chaîne-programme caractère par caractère
 (rappelez vous qu'une chaîne est un tableau de caractères) et
 à empiler un entier ou à réaliser une opération selon ce que vous avez
@@ -107,7 +112,8 @@ programme {\tt "12s-"} donnera le résultat suivant~:{\small
 2 : [2, 1]
 s : [1, 2]
 - : [1]
-\end{verbatim}}
+\end{verbatim}
+}
 \item {\em Rotation de la pile vers le haut}~: tous les éléments
 montent d'un cran vers le sommet de pile, le sommet de pile se
 retrouve en fond de 
@@ -119,7 +125,8 @@ pile. Le programme {\tt "4321u"} devra produire~:{\small
 2 : [2, 3, 4]
 1 : [1, 2, 3, 4]
 u : [2, 3, 4, 1]
-\end{verbatim}}
+\end{verbatim}
+}
 \item {\em Rotation de la pile vers le bas}~: c'est l'opération
 inverse, tous les éléments
 descendent d'un cran, le fond  de pile se retrouve en sommet de pile.
@@ -131,7 +138,8 @@ Ainsi, le programme {\tt "4321d"} s'exécute ainsi~:{\small
 2 : [2, 3, 4]
 1 : [1, 2, 3, 4]
 d : [4, 1, 2, 3]
-\end{verbatim}}
+\end{verbatim}
+}
 \end{itemize}
 Remarquez que les rotations reviennent, pour la rotation vers le haut,
 à mettre la cellule de tête en queue de liste et pour la rotation vers

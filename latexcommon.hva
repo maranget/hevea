@@ -1,3 +1,6 @@
+\newif\ifhevea\heveatrue
+\newenvironment{htmlonly}{}{}
+\newif\iffooter\footertrue
 %%%%%%%%%%%%%%%% Maths environments and TeXisms
 \def\mathord#1{#1}
 \def\mathrel#1{#1}
@@ -19,18 +22,69 @@
 \newcommand{\nonumber}{\numberfalse}
 \newcommand{\lefteqn}[1]{\multicolumn{3}{r}{#1~~\ifnumber\stepcounter{equation}\eqno{(\theequation)}\else\eqno{~~~~~~~}\fi}}
 \newenvironment{eqnarray}{$$\begin{array}{@{\numbertrue}rcl@{\ifnumber\stepcounter{equation}\eqno{(\theequation)}\fi}}}{\end{array}$$}
+\def\mathrm#1{{\rm #1}}
+\def\mathtt#1{{\tt #1}}
+\def\mathit#1{{\it #1}}
+\def\mathbf#1{{\bf #1}}
+\def\mathcal#1{{\cal #1}}
+\def\mathsf#1{{\sf #1}}
+\def\scriptstyle{\ifmathml{\scriptsize}\else\scriptsize\fi}
+\def\scriptscriptstyle{\ifmathml{\scriptsize\@incsize{-1}}\else\scriptsize\@incsize{-1}\fi}
+\def\textstyle{\ifmathml{\@style{mtext}#1}\else{#1}\fi}
+%%%%% Figures and tables
+\newcommand{\@figrule}{\begin{center}\@hr{.8\linewidth}{2pt}\end{center}}
+\newenvironment{figure}[1][]{%
+\@forcecommand{\caption}[1]{\par\refstepcounter{figure}\begin{center}Figure \thefigure\iffrench~\fi: ##1\end{center}\par}%
+\@open{BLOCKQUOTE}{}\@figrule}
+{\@figrule\@close{BLOCKQUOTE}}
+\newenvironment{figure*}[1][]{\begin{figure}[#1]}{\end{figure}}
+\newenvironment{table}[1][]{%
+\newcommand{\caption}[1]{\par\refstepcounter{table}\begin{center}Table \thetable\iffrench~\fi: ##1\end{center}\par}%
+\@open{BLOCKQUOTE}{}\@figrule%
+}{\@figrule\@close{BLOCKQUOTE}}
+\newenvironment{table*}[1][]{\begin{table}[#1]}{\end{table}}
+\@forcecommand{\suppressfloats}[1][]{}
+\newcounter{topnumber}
+\newcounter{bottomnumber}
+\newcounter{totalnumber}
+\newcounter{dbltopnumber}
 %% Page Styles
 \def\pagestyle#1{}
 \def\thispagestyle#1{}
+%%% No table of contents, no a lot of things
+\def\tableofcontents{}
+\def\listoffigures{}
+\def\listoftables{}
+\def\contentsname{}
+\newcommand{\addcontentsline}[3]{}
+\newcommand{\numberline}[2]{}
+\newcommand{\addtocontents}[2]{}
 \newcommand{\markright}[1]{}
 \newcommand{\markboth}[2]{}
 \newcommand{\pagenumbering}[1]{}
 \newcommand{\twocolumn}[1][]{}
 \newcommand{\onecolumn}{}
-%%%Miscleanous
+%%% Stackrel et compagine
+\newcommand{\textstackrel}[2]{#2^{#1}}
+\newcommand{\stackrel}[2]{\ifdisplay
+\begin{array}{c}\scriptsize #1\\ #2\\ ~ \end{array}\else
+\textstackrel{#1}{#2}\fi}
+\newcommand{\textoverline}[1]{\warning{Warning: overline in text}#1}
+\def\overline#1{\ifdisplay
+\begin{array}{c}\hline #1 \\~\end{array}\else\textoverline{#1}\fi}
+\newcommand{\textunderline}[1]{{\@style{U}#1}}
+\def\underline#1{\ifdisplay
+\begin{array}{c}~\\ #1\\ \hline\end{array}\else\textunderline{#1}\fi}
+%%%Miscleanous, title stiff
 \newcommand{\thanks}[1]{\footnote{#1}}
 \newenvironment{titlepage}{}{}
 \newcommand{\and}{\quad}
+\newsavebox{\@title}
+\newcommand{\title}[1]{\sbox{\@title}{#1}}
+\newsavebox{\@author}
+\newcommand{\author}[1]{\sbox{\@author}{#1}}
+\newsavebox{\@date}
+\newcommand{\date}[1]{\sbox{\@date}{#1}}
 %% Lists
 \newcommand{\item}[1][]{\warning{\item outside a list-making environment}}
 \newcommand{\@itemitemize}[1][!*!]
@@ -51,14 +105,6 @@
 }{\@close{DL}}
 \newenvironment{description}{\begin{list}{}{}}{\end{list}}
 \newenvironment{trivlist}{\begin{list}{}{}}{\end{list}}
-%%% No table of contents
-\def\tableofcontents{}
-\def\listoffigures{}
-\def\listoftables{}
-\def\contentsname{}
-\newcommand{\addcontentsline}[3]{}
-\newcommand{\numberline}[2]{}
-\newcommand{\addtocontents}[2]{}
 %% Input...
 \newcommand{\listfiles}{}
 %% Line breaking
@@ -87,19 +133,20 @@
 \newcommand{\settoheight}[2]{}
 \newcommand{\fill}{}
 \newcommand{\stretch}[1]{}
-%%Space
-\newcommand{\hspace*}[1]{\hspace{#1}}
-\newcommand{\vspace*}[1]{\vspace{#1}}
-\newcommand{\addvspace}[1]{\vspace{#1}}
-\def\cr{\\}
-\def\smallskip{\\}
-\def\medskip{\\}
-\def\bigskip{\\ \\}
-\def\enspace{~}
-\def\quad{~~}
-\def\qquad{\quad\quad}
-
-
-
-
-
+%%
+%% Arrays and tabular
+\newcommand{\extracolsep}[1]{}
+\newcommand{\cline}[1]{\warning{Warning, \cline changed into \hline}\hline}
+\def\cases#1{\left\{\begin{array}{l>{$}l<{$}}#1\end{array}\right.}
+\def\endcases{}
+%%% tabularx
+\newenvironment{tabularx}[2]{\begin{tabular}{#2}}{\end{tabular}}
+\newcolumntype{X}{p{}}
+%%% Boxes
+%% Boxes
+\newcommand{\textfbox}[1]{\warning{\fbox in text}\mbox{#1}}
+\def\fbox#1{%
+\ifdisplay\begin{array}{|c|}\hline#1\end{array}\else
+\textfbox{#1}\fi}
+\newcommand{\hbox}[1]{\warning{\hbox}\mbox{#1}}
+\newcommand{\displaystyle}{\ifdisplay\else\warning{\displaystyle ignored}\fi}

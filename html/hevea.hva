@@ -9,6 +9,7 @@
 \input{spaces.hva}
 %%% \... symbols renderered with iso-latin1
 \input{iso-symb.hva}
+\renewcommand{\&}{\@print{&amp;}}
 \input{latexcommon.hva}
 %%% Logos
 \def\TeX{\@print{TeX}}
@@ -19,8 +20,6 @@
 \newcommand{\hacha}{\@print{H}{\@incsize{-1}\@print{<sup>A</sup>}}\@print{C}%
 {\@incsize{-1}\@print{<sup>H</sup>}}\@print{A}}
 \newcommand{\html}{HTML}
-\newif\ifhevea
-\heveatrue
 %%% HTML related stuff (TEX equivalents are in the hevea.sty file)
 \newcommand{\@aelement}[2]
 {{\@nostyle\@print{<A }\@notags{#1}\@print{>}}{#2}{\@nostyle\@print{</A>}}}
@@ -45,7 +44,7 @@
 \newcommand{\htmlhead}[1]{\sbox{\@htmlhead}{#1}}
 \newcommand{\htmlfoot}[1]{\sbox{\@htmlfoot}{#1}}
 %%%%%%%%%%% Footnotes
-\newcommand{\footnoterule}{{\@nostyle\@print{<HR ALIGN=left WIDTH="50%">}}}
+\newcommand{\footnoterule}{{\@nostyle\@hr[ALIGN=left WIDTH="50%"]{}{}}}
 \newcommand{\footnotesep}[1]{}
 \newcounter{savenote}\newcounter{onemark}
 \newcommand{\@fnmarktext}[1]{%
@@ -59,17 +58,18 @@
   {\@clearstyle\Large\thefootnote}%
   \setcounter{footnote}{\value{savenote}}}
 \newcommand{\@openanchor}[3]{%
-{\@nostyle\@print{<A NAME="}#2#3\@print{"></A>}%
+{\@nostyle\@print{<A NAME="}#2#3\@print{"></A>}
 \@print{<A HREF="}\#{}#1#3\@print{">}}}
 \newcommand{\@closeanchor}{{\@nostyle\@print{</A>}}}
+\newcommand{\@noteref}[4]{\@aelement{NAME="#2#3" HREF="#1#3"}{#4}}
 %%%%%%%%%%%%%%%%%%
 \newcommand{\footnotemark}[1][!*!]{%
 \ifthenelse{\equal{#1}{!*!}}%
   {\stepcounter{footnote}\@stepanchor{\value{footnote}}\setcounter{onemark}{\value{footnote}}}%
   {\setcounter{onemark}{#1}}%
-\@openanchor{note}{text}{\@anchorval{\value{onemark}}}%
-\@fnmarktext{\value{onemark}}%
-\@closeanchor}
+\@noteref{note}{text}
+  {\@anchorval{\value{onemark}}}
+  {\@fnmarktext{\value{onemark}}}}
 \newcommand{\footnotetext}[2][\value{footnote}]{\@footnotetext{#1}{#2}}
 \newcommand{\footnote}[2][!*!]{%
 \ifthenelse{\equal{#1}{!*!}}
@@ -81,8 +81,6 @@
   {\end{list}{\@nostyle\@print{
 <!--END NOTES-->
 }}}
-%%%% Accents and special symbols.
-
 %%% for htmlcut
 \newcounter{cuttingdepth}
 \setcounter{cuttingdepth}{1}
@@ -102,6 +100,7 @@
 {\@nostyle\@print{<!--TOC }\@notags{#1}\@print{ }}%
 {#2}{\@nostyle\@print{-->
 }}}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Echoing to the image file %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -112,27 +111,22 @@
   {\begin{toimage}{#1}\end{toimage}}
 \newcommand{\@imagecommand}[2]
   {\newcommand{#1}{\begin{toimage}#1\end{toimage}#2}}
-%%% Title stuff
-\newsavebox{\@title}
-\newcommand{\title}[1]{\sbox{\@title}{#1}}
-\newsavebox{\@author}
-\newcommand{\author}[1]{\sbox{\@author}{#1}}
-\newsavebox{\@date}
-\newcommand{\date}[1]{\sbox{\@date}{#1}}
+
+%%%%%%%%%%%%%
+% Maketitle %
+%%%%%%%%%%%%%
 \newcommand{\maketitle}{%
-\@open{H1}{ALIGN=center}%
-\usebox{\@title}%
-\@close{H1}%
-{\newcommand{\checkbox}[1]
-  {\ifthenelse{\equal{\usebox{##1}}{}}
+{\newcommand{\checkbox}[2]
+  {\ifthenelse{\equal{\usebox{##2}}{}}
     {}
-    {\@open{H3}{ALIGN=center}\usebox{##1}\@close{H3}}}%
-\checkbox{\@author}
-\checkbox{\@date}}
-%\@print{<BR><BR><BR>}%
-}
-%%% Maths
-%%% Loading symbols
+    {\@open{##1}{ALIGN=center}\usebox{##2}\@close{##1}}}%
+\checkbox{H1}{\@title}
+\checkbox{H3}{\@author}
+\checkbox{H3}{\@date}}}
+
+%%%%%%%%%
+% Maths %
+%%%%%%%%%
 \ifmathml
 \else
 \ifsymb
@@ -144,32 +138,6 @@
 \fi
 \fi
 %% Maths fonts
-\def\mathrm#1{\rm #1}
-\def\mathtt#1{\tt #1}
-\def\mathit#1{\it #1}
-\def\mathbf#1{\bf #1}
-\def\mathcal#1{\cal #1}
-\def\mathsf#1{\sf #1}
-%\ifmathml{\@style{font-family: sans-serif } #1}\else{\sf #1}\fi}
-\def\scriptstyle{\ifmathml{\scriptsize}\else\scriptsize\fi}
-\def\scriptscriptstyle{\ifmathml{\scriptsize\@incsize{-1}}\else\scriptsize\@incsize{-1}\fi}
-\def\textstyle{\ifmathml{\@style{mtext}#1}\else{#1}\fi}
-%%%%% Figures and tables
-\newenvironment{figure}[1][]{%
-\@forcecommand{\caption}[1]{\par\refstepcounter{figure}\begin{center}Figure \thefigure\iffrench~\fi: ##1\end{center}\par}%
-\@open{BLOCKQUOTE}{}\@printHR{}{}%
-}{\@printHR{}{}\@close{BLOCKQUOTE}}
-\newenvironment{figure*}[1][]{\begin{figure}[#1]}{\end{figure}}
-\newenvironment{table}[1][]{%
-\newcommand{\caption}[1]{\par\refstepcounter{table}\begin{center}Table \thetable\iffrench~\fi: ##1\end{center}\par}%
-\@open{BLOCKQUOTE}{}\@printHR{}{}%
-}{\@printHR{}{}\@close{BLOCKQUOTE}}
-\newenvironment{table*}[1][]{\begin{table}[#1]}{\end{table}}
-\@forcecommand{\suppressfloats}[1][]{}
-\newcounter{topnumber}
-\newcounter{bottomnumber}
-\newcounter{totalnumber}
-\newcounter{dbltopnumber}
 %%%%%%%%%%%
 \def\bullet{{\@incsize{1}\@bullet}}
 \def\textsqsubset{\mbox{sqsubset}}
@@ -197,21 +165,9 @@
 \def\bigoplus{{\ifdisplay\Huge\fi\oplus}}
 \def\biguplus{{\ifdisplay\Huge\fi\uplus}}
 \def\bigotimes{{\ifdisplay\Huge\fi\otimes}}
-
 \ifmathml
 \input{html/symb-mathml.hva}
 \fi
-
-
-
-%% Arrays and tabular
-\newcommand{\extracolsep}[1]{}
-\newcommand{\cline}[1]{\warning{Warning, \cline changed into \hline}\hline}
-\def\cases#1{\left\{\begin{array}{l>{$}l<{$}}#1\end{array}\right.}
-\def\endcases{}
-%%% tabularx
-\newenvironment{tabularx}[2]{\begin{tabular}{#2}}{\end{tabular}}
-\newcolumntype{X}{p{}}
 %%%%%%%%%%%% Bibliography
 \def\bibliographystyle#1{}
 \def\nocite#1{}
@@ -235,21 +191,12 @@
 \newcommand{\indexref}[2]{\ahref{\##2}{#1}}
 \newcommand{\@seename}{\iffrench voir\else see\fi}
 \newcommand{\see}[2]{\@seename\ \textit{#1}}
-%% Boxes
-\newcommand{\textfbox}[1]{\warning{\fbox in text}\mbox{#1}}
-\def\fbox#1{%
-\ifdisplay\begin{array}{|c|}\hline#1\end{array}\else
-\textfbox{#1}\fi}
-\newcommand{\hbox}[1]{\warning{\hbox}\mbox{#1}}
-\newcommand{\displaystyle}{\ifdisplay\else\warning{\displaystyle ignored}\fi}
-%%% now serious
-\def\noprint#1{{\@nostyle\@print{#1}}}%
+%%% Environment document.
 \newcommand{\@bodyargs}{}
 \newcommand{\@meta}{\@print{<META http-equiv="Content-Type" content="text/html; charset= ISO-8859-1">
 }%
 \@print{<META name="GENERATOR" content="hevea }\usebox{\@heveaversion}\@print{">
 }}
-\newif\iffooter\footertrue
 \newenvironment{document}{%
 \@ifundefined{url}{\input{compat.hva}}{}%
 \@print{<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
@@ -296,7 +243,6 @@
 </HTML>
 }
 }
-\newenvironment{htmlonly}{}{}
 \newenvironment{center}{\@open{DIV}{ALIGN=center}}{\@close{DIV}}
 \newenvironment{flushleft}{\@open{DIV}{ALIGN=left}}{\@close{DIV}}
 \newenvironment{flushright}{\@open{DIV}{ALIGN=right}}{\@close{DIV}}
@@ -306,9 +252,7 @@
 \newcommand{\centering}{\@insert{DIV}{ALIGN=center}}
 \newcommand{\raggedleft}{\@insert{DIV}{ALIGN=right}}
 \newcommand{\raggedright}{\@insert{DIV}{ALIGN=left}}
-%%%%%%%%%%% Figures
 
-%% Equations
 \newcommand{\rule}[3][]{\@printHR{}{}}%
 %%%%%%%%%%%%%%%% LaTeX 2.09 style declarations
 \newenvironment{tt}{\@style{TT}}{}

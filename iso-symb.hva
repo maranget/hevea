@@ -2,7 +2,7 @@
 \def\%{\@print{%}}
 \def\${\@print{$}}%$
 \def\#{\@print{#}}
-\def\&{\@print{&amp;}}
+\def\&{\@print{&}}
 \def\_{\@print{_}}
 \def\{{\char123}
 \def\}{\char125}
@@ -90,13 +90,4 @@
 \newcommand{\nolimits}{}
 \def\sim{\@print{~}}
 \def\simeq{\textunderline{\sim}}
-\newcommand{\textstackrel}[2]{#2^{#1}}
-\newcommand{\stackrel}[2]{\ifdisplay
-\begin{array}{c}\scriptsize #1\\ #2\\ ~ \end{array}\else
-\textstackrel{#1}{#2}\fi}
-\newcommand{\textoverline}[1]{\warning{Warning: overline in text}#1}
-\def\overline#1{\ifdisplay
-\begin{array}{c}\hline #1 \\~\end{array}\else\textoverline{#1}\fi}
-\newcommand{\textunderline}[1]{{\@style{U}#1}}
-\def\underline#1{\ifdisplay
-\begin{array}{c}~\\ #1\\ \hline\end{array}\else\textunderline{#1}\fi}
+

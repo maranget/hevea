@@ -1,24 +1,25 @@
 \documentclass{article}
-\usepackage{html}
+\usepackage{url}
+\usepackage{hevea}
 \title{Examples of \hevea{} usage}
 \begin{document}\maketitle
 
 \section*{Examples from the distribution}
 
 \begin{itemize}
-\item The \oneurl{Makefile}
-\item A simple article,  source is \oneurl{a.tex}.
+\item The \ahrefurl{Makefile}
+\item A simple article,  source is \ahrefurl{a.tex}.
 You can compare \LaTeX{} and \hevea{} output,
-\oneurl{a.dvi} and \oneurl{a.html}. The \html{} output is
+\ahrefurl{a.dvi} and \ahrefurl{a.html}. The \html{} output is
 generated with the french option set:
 \begin{verbatim}
 # hevea -francais a.tex
 \end{verbatim}
-\item The test suite: \oneurl{suite.tex} and \oneurl{suite.html} (see
-also \oneurl{suite.dvi}).
+\item The test suite: \ahrefurl{suite.tex} and \ahrefurl{suite.html} (see
+also \ahrefurl{suite.dvi}).
 \item A full article, cut into pieces , with images (source is
-\oneurl{pat.tex}, output is \oneurl{pat.dvi} and
-\oneurl{pat.html}). To yield this result, \verb+gpic+ is first
+\ahrefurl{pat.tex}, output is \ahrefurl{pat.dvi} and
+\ahrefurl{pat.html}). To yield this result, \verb+gpic+ is first
 applied to \verb+pat.tex+, yielding \verb+tmp.tex+; \LaTeX\ and
 \texttt{bibtex} are then used to produce the appropriate \verb+tmp.aux+ and
 \verb+tmp.bbl+ files; finally \hevea{}, \hacha{} and \texttt{imagen}
@@ -28,11 +29,11 @@ are run as follows:
 # hacha -o pat.html tmp.html
 # imagen tmp
 \end{verbatim}
-Notice that the \LaTeX{} style file \oneurl{pat.def} is not loaded and
-that a simplified \oneurl{pat.hva} is loaded.
+Notice that the \LaTeX{} style file \ahrefurl{pat.def} is not loaded and
+that a simplified \ahrefurl{pat.hva} is loaded.
 \item How to use the \verb+latexonly+ and \verb+toimage+ environments
-inside other environments (files \oneurl{env.hva}, \oneurl{env.tex}
-and \oneurl{env.html}). \texttt{gpic}, \hevea{} and \texttt{imagen}
+inside other environments (files \ahrefurl{env.hva}, \ahrefurl{env.tex}
+and \ahrefurl{env.html}). \texttt{gpic}, \hevea{} and \texttt{imagen}
 are run as follows:
 \begin{verbatim}
 # gpic -t < env.tex > tenv.tex
@@ -40,21 +41,21 @@ are run as follows:
 # imagen env
 \end{verbatim}
 \item The ``\emph{Smile!}'' example, from the manual.
-Files are \oneurl{smile.hva}, \oneurl{smile.tex} and
-\oneurl{smile.html}, command sequence is~:
+Files are \ahrefurl{smile.hva}, \ahrefurl{smile.tex} and
+\ahrefurl{smile.html}, command sequence is~:
 \begin{verbatim}
 # gpic -t < smile.tex > tsmile.tex
 # hevea smile.hva tsmile.tex -o smile.html
 # imagen smile
 \end{verbatim}
-\item A few amstex primitives, \oneurl{amstex.tex},
-\oneurl{amstex.dvi} and \oneurl{amstex.html}.
+\item A few amstex primitives, \ahrefurl{amstex.tex},
+\ahrefurl{amstex.dvi} and \ahrefurl{amstex.html}.
 \hevea{} is invoked as:
 \begin{verbatim}
 # hevea ams.hva amstex.tex
 \end{verbatim}
-\item The \texttt{graphics} package, \oneurl{graphics.tex},
-\oneurl{graphics.dvi} and \oneurl{graphics.html}.
+\item The \texttt{graphics} package, \ahrefurl{graphics.tex},
+\ahrefurl{graphics.dvi} and \ahrefurl{graphics.html}.
 \hevea{} is invoked as:
 \begin{verbatim}
 # hevea graphics.tex

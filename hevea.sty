@@ -11,7 +11,7 @@
 % etc.), void cutting and image commands.
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{hevea}[1999/08/11]
-\RequirePackage{verbatim}
+\RequirePackage{comment}
 \newif\ifhevea\heveafalse
 \makeatletter%
 \newcommand{\heveasmup}[2]{%
@@ -50,12 +50,8 @@
 \let\texlet\let
 \let\texdef\def
 %%%% Html only
-\let\rawhtml=\comment
-\let\endrawhtml=\endcomment
-\let\htmlonly=\comment
-\let\endhtmlonly=\endcomment
-\let\htmlonly=\comment
-\let\endhtmlonly=\endcomment
+\excludecomment{rawhtml}
+\excludecomment{htmlonly}
 %%%% Latex only
 \newenvironment{latexonly}{}{}
 \newenvironment{verblatex}{}{}
