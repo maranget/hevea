@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: tabular.mli,v 1.10 2001-05-25 09:20:50 maranget Exp $"            *)
+(*  $Id: tabular.mli,v 1.11 2001-05-25 12:37:29 maranget Exp $         *)
 (***********************************************************************)
 exception Error of string
 

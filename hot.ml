@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: hot.ml,v 1.4 2001-05-25 09:20:44 maranget Exp $"            *)
+(*  $Id: hot.ml,v 1.5 2001-05-25 12:37:22 maranget Exp $               *)
 (***********************************************************************)
 type saved =
     Lexstate.saved * Latexmacros.saved *

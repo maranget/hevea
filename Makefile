@@ -16,9 +16,12 @@ OCAMLCI=$(OCAMLC)
 OCAMLOPT=${DIR}ocamlopt
 OCAMLLEX=${DIR}ocamllex
 INSTALL=cp
-OBJS=version.cmo mysys.cmo stack.cmo location.cmo misc.cmo element.cmo out.cmo table.cmo mylib.cmo parse_opts.cmo  myfiles.cmo symb.cmo save.cmo auxx.cmo  lexstate.cmo subst.cmo latexmacros.cmo counter.cmo noimage.cmo image.cmo length.cmo  get.cmo tabular.cmo htmlCommon.cmo htmlMath.cmo mathML.cmo html.cmo  text.cmo infoRef.cmo info.cmo section.cmo foot.cmo entry.cmo index.cmo colscan.cmo color.cmo hot.cmo package.cmo videoc.cmo verb.cmo latexscan.cmo zyva.cmo latexmain.cmo
+
+ONLYESPONJA=buff.cmo htmllex.cmo htmlparse.cmo htmltext.cmo pp.cmo util.cmo explode.cmo ultra.cmo esponja.cmo
+
+OBJS=version.cmo mysys.cmo stack.cmo location.cmo misc.cmo element.cmo out.cmo table.cmo mylib.cmo parse_opts.cmo  myfiles.cmo symb.cmo save.cmo auxx.cmo  lexstate.cmo subst.cmo latexmacros.cmo counter.cmo noimage.cmo image.cmo length.cmo  get.cmo tabular.cmo htmlCommon.cmo htmlMath.cmo mathML.cmo html.cmo  text.cmo infoRef.cmo info.cmo section.cmo foot.cmo entry.cmo index.cmo colscan.cmo color.cmo hot.cmo package.cmo videoc.cmo verb.cmo latexscan.cmo zyva.cmo $(ONLYESPONJA) latexmain.cmo
 OBJSCUT=version.cmo mysys.cmo stack.cmo location.cmo misc.cmo  out.cmo thread.cmo cross.cmo mylib.cmo section.cmo length.cmo save.cmo cut.cmo cutmain.cmo
-OBJSESPONJA=mysys.cmo stack.cmo location.cmo buff.cmo htmllex.cmo htmlparse.cmo htmltext.cmo pp.cmo util.cmo explode.cmo ultra.cmo esponja.cmo
+OBJSESPONJA=mysys.cmo stack.cmo location.cmo $(ONLYESPONJA)  esponjamain.cmo
 GENSRC=colscan.ml cut.ml entry.ml get.ml latexscan.ml length.ml save.ml tabular.ml videoc.ml verb.ml infoRef.ml subst.ml htmllex.ml
 
 OPTS=$(OBJS:.cmo=.cmx)

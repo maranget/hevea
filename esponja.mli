@@ -7,16 +7,10 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: tree.mli,v 1.3 2001-05-25 12:37:30 maranget Exp $             *)
+(*  $Id: esponja.mli,v 1.1 2001-05-25 12:37:21 maranget Exp $           *)
 (***********************************************************************)
-open Lexeme
+val pess : bool ref
+val move : bool ref
 
-type style =
- {tag : tag ; attrs : attrs ; txt : string ; ctxt : string}
-
-
-type 'a t =
-  | Text of string
-  | Blanks of string
-  | Node of 'a * ('a t) list
-  | ONode of string * string * ('a t) list
+val process : string -> in_channel -> out_channel -> bool
+val file : string -> bool

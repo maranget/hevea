@@ -21,6 +21,7 @@ val mathml : bool ref
 val entities : bool ref
 val pedantic : bool ref
 val fixpoint : bool ref
+val optimize : bool ref
 val width : int ref
 val except : string list ref
 val path : string list ref

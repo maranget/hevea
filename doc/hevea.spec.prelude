@@ -28,6 +28,7 @@ make install LIBDIR=/usr/lib/hevea BINDIR=/usr/bin
 %files
 /usr/bin/hevea
 /usr/bin/hacha
+/usr/bin/esponja
 /usr/bin/imagen
 /usr/lib/hevea/cutfoot-eng.html
 /usr/lib/hevea/cutfoot-fra.html

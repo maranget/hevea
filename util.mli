@@ -7,8 +7,9 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: util.mli,v 1.2 2001-05-25 09:20:52 maranget Exp $"            *)
+(*  $Id: util.mli,v 1.3 2001-05-25 12:37:32 maranget Exp $             *)
 (***********************************************************************)
+
 val cost : int * int -> Htmltext.style Tree.t -> int * int
 val costs : int * int -> Htmltext.style Tree.t list -> int * int
 val there : Htmltext.t_style -> Htmltext.style -> bool

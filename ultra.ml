@@ -7,8 +7,9 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: ultra.ml,v 1.4 2001-05-25 09:20:50 maranget Exp $"            *)
+(*  $Id: ultra.ml,v 1.5 2001-05-25 12:37:31 maranget Exp $             *)
 (***********************************************************************)
+
 open Tree
 open Htmltext
 open Util
@@ -95,6 +96,7 @@ let get_sames ts fs =
             x::r)
           rem in
   do_rec [] fs
+
 
          
 let group_font ts fs =
@@ -303,20 +305,44 @@ let extract_props ps s =
       List.exists (fun p -> p s.nat) ps)
     s
 
-let rec clean t k = match t with
+
+let  clean t k = match t with
   | Node ([],ts) -> ts@k
   | _ -> t::k
 
-let check_node t = match t with
+let rec as_long p = function
+  | x::rem when p x ->
+      let yes,no = as_long p rem in
+      x::yes,no
+  | l -> [],l
+
+let rec as_long_end p = function
+  | [] -> [],[]
+  | x::rem ->
+      match as_long_end p rem with
+      | [],no when p x -> [],x::no
+      | yes,no -> x::yes,no
+          
+
+      
+let bouts p ts =
+  let bef,rem = as_long is_blank ts in
+  let inside,aft = as_long_end is_blank rem in
+  bef,inside,aft
+
+let check_node t k = match t with
   | Node (s, (Node (si,args)::rem as ts)) when
     some_font s && font_trees ts ->
     begin match all_props (other_props s) ts with
-    | [] -> t
+    | [] -> t::k
     | ps ->
         let lift,keep = extract_props ps si in
-        Node (lift@s, clean (Node (keep,args)) rem)
+        Node (lift@s, clean (Node (keep,args)) rem)::k
     end
-  | _ -> t
+  | Node (s, ts) when List.for_all blanksNeutral s ->
+      let bef,inside,after = bouts is_blank ts in
+      bef@Node (s,inside)::after@k
+  | _ -> t::k
 
 let rec as_list i j ts k =
   if i > j then k
@@ -325,7 +351,7 @@ let rec as_list i j ts k =
 
 let remove s = function
   | Node (os,ts) -> node (sub os s) ts
-  | t -> assert (List.for_all Htmltext.blanksNeutral s && is_blank t) ;t
+  | t -> t
 
 
 let is_text = function
@@ -397,8 +423,8 @@ and trees i j ts k =
               ts.(k) <- remove gs ts.(k)
             done ;
             deeper cur (ii-1) ts
-              (check_node (node gs (trees ii jj ts []))::
-               zyva (jj+1) rem k) in
+              (check_node (node gs (trees ii jj ts []))
+                 (zyva (jj+1) rem k)) in
         let fs = select_factors fs in
         if !verbose > 1 then begin
           prerr_endline "selected" ;

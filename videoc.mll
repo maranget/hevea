@@ -3,15 +3,15 @@
 (*                          HEVEA                                      *)
 (*                                                                     *)
 (*  Luc Maranget, projet Moscova, INRIA Rocquencourt                   *)
+(*  Christian Queinnec, Universite Paris IV                            *)
 (*                                                                     *)
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: videoc.mll,v 1.25 2001-05-25 09:20:55 maranget Exp $"            *)
 (***********************************************************************)
 (* <Christian.Queinnec@lip6.fr>
  The plugin for HeVeA that implements the VideoC style.
- $Id: videoc.mll,v 1.25 2001-05-25 09:20:55 maranget Exp $ 
+ $Id: videoc.mll,v 1.26 2001-05-25 12:37:35 maranget Exp $ 
 *)
 
 {
@@ -35,7 +35,7 @@ open Scan
 
 
 let header = 
-  "$Id: videoc.mll,v 1.25 2001-05-25 09:20:55 maranget Exp $"
+  "$Id: videoc.mll,v 1.26 2001-05-25 12:37:35 maranget Exp $"
 (* So I can synchronize my changes from Luc's ones *)
 let qnc_header = 
   "30 oct 2000"

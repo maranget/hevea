@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: buff.mli,v 1.2 2001-05-25 09:20:42 maranget Exp $"            *)
+(*  $Id: buff.mli,v 1.3 2001-05-25 12:37:19 maranget Exp $             *)
 (***********************************************************************)
 type t
 

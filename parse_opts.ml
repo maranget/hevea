@@ -11,7 +11,7 @@
 
 open Misc
 
-let header = "$Id: parse_opts.ml,v 1.24 2001-03-01 22:17:00 maranget Exp $" 
+let header = "$Id: parse_opts.ml,v 1.25 2001-05-25 12:37:27 maranget Exp $" 
 
 type input = File of string | Prog of string
 
@@ -39,6 +39,7 @@ and iso = ref true
 and pedantic = ref false
 and destination = ref Html
 and fixpoint = ref false
+and optimize = ref false
 ;;
 
 let width = ref 72
@@ -61,35 +62,37 @@ let _ = Arg.parse
            print_endline ("hevea "^Version.version) ;
            print_endline ("library directory: "^Mylib.static_libdir) ;
            exit 0),
-       ", show hevea version and library directory") ;
+       "show hevea version and library directory") ;
       ("-v", Arg.Unit (fun () -> readverb := !readverb + 1),
-       ", verbose flag, can be repeated to increase verbosity") ;
+       "verbose flag, can be repeated to increase verbosity") ;
       ("-s", Arg.Unit (fun () -> silent := true),
-       ", suppress warnings") ;
+       "suppress warnings") ;
       ("-e", Arg.String (fun s -> except := s :: !except),
        "filename, prevent file ``filename'' from being read") ;
       ("-fix", Arg.Unit (fun () -> fixpoint := true),
-       ", iterate Hevea until fixpoint") ;
+       "iterate Hevea until fixpoint") ;
+      ("-O", Arg.Unit (fun () -> optimize := true),
+       "call esponja to optimize HTML output") ;
      ("-exec", Arg.String add_program,
-       ", prog execute external program ``prog'', then read its result") ;
+       "prog , execute external program ``prog'', then read its result") ;
      ("-francais",Arg.Unit (fun () -> language := Francais),
-       ", french mode") ;
+       "french mode") ;
      ("-nosymb",Arg.Unit (fun () -> symbols := false),
-       ", do not output symbol fonts") ;
+       "do not output symbol fonts") ;
      ("-noiso",Arg.Unit (fun () -> iso := false),
-       ", use HTML entities in place of isolatin1 non-ascii characters") ;
+       "use HTML entities in place of isolatin1 non-ascii characters") ;
      ("-pedantic",Arg.Unit (fun () -> pedantic := true),
-       ", be pedantic in interpreting HTML 4.0 transitional definition") ;
+       "be pedantic in interpreting HTML 4.0 transitional definition") ;
      ("-I", Arg.String (fun s -> path := s :: !path),
        "dir, add directory ``dir'' to search path") ;
      ("-mathml",Arg.Unit (fun() -> mathml := true),
-       ", produces MathML output for equations, very experimental");
+       "produces MathML output for equations, very experimental");
      ("-entities",Arg.Unit (fun() -> entities := true),
-       ", produces HTML 4.0 entities and unicode characters references for symbols, very experimental");
+       "produces HTML 4.0 entities and unicode characters references for symbols, very experimental");
      ("-text",Arg.Unit (fun () -> symbols := false; destination := Text),
-       ", output plain text");
+       "output plain text");
      ("-info",Arg.Unit (fun () -> symbols := false; destination := Info),
-       ", output info file(s)");
+       "output info file(s)");
      ("-w", Arg.String (fun s -> width := int_of_string s),
       "width, set the output width for text or info output");
      ("-o", Arg.String (fun s -> outname := s),

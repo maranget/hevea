@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: htmlparse.mli,v 1.2 2001-05-25 09:20:46 maranget Exp $"            *)
+(*  $Id: htmlparse.mli,v 1.3 2001-05-25 12:37:24 maranget Exp $        *)
 (***********************************************************************)
 exception Error of string
 

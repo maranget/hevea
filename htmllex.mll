@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: htmllex.mll,v 1.5 2001-05-25 09:20:45 maranget Exp $"            *)
+(*  $Id: htmllex.mll,v 1.6 2001-05-25 12:37:23 maranget Exp $          *)
 (***********************************************************************)
 {
 open Lexing

@@ -1,6 +1,6 @@
 LATEX=latex
 HEVEA=hevea
-HEVEAOPTS=-fix
+HEVEAOPTS=-fix -O -v
 IMAGEN=imagen
 HACHA=hacha
 EXDIR=$(HOME)/public_html/hevea/examples

@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: subst.mll,v 1.13 2001-05-25 09:20:49 maranget Exp $"            *)
+(*  $Id: subst.mll,v 1.14 2001-05-25 12:37:29 maranget Exp $           *)
 (***********************************************************************)
 {
 open Misc

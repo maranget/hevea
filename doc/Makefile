@@ -2,10 +2,9 @@ LATEX=latex
 PDFLATEX=pdflatex
 GPIC=gpic
 HEVEA=hevea
-HEVEAOPTS=-fix -exec xxdate.exe
+HEVEAOPTS=-fix -exec xxdate.exe -O
 HACHA=hacha
 HACHAOPTS=-tocbis
-ESPONJA=esponja
 IMAGEN=imagen
 HTMLDIR=$(HOME)/public_html/hevea
 DOCDIR=$(HTMLDIR)/doc
@@ -14,11 +13,11 @@ all: index.html
 
 opt:
 	export HEVEADIR=.. ;\
-	$(MAKE) $(MFLAGS) HEVEA="$(HEVEAOPTS)" HACHAOPTS="$(HACHAOPTS)" HEVEA=../hevea.opt HACHA=../hacha.opt ESPONJA=../esponja.opt IMAGEN=../imagen all
+	$(MAKE) $(MFLAGS) HEVEA="$(HEVEAOPTS)" HACHAOPTS="$(HACHAOPTS)" HEVEA=../hevea.opt HACHA=../hacha.opt IMAGEN=../imagen all
 
 infoopt:
 	export HEVEADIR=.. ;\
-	$(MAKE) $(MFLAGS) HEVEA="$(HEVEAOPTS)" HACHAOPTS="$(HACHAOPTS)" ../HEVEA=hevea.opt HACHA=../hacha.opt ESPONJA=../esponja.byte IMAGEN=imagen.opt info
+	$(MAKE) $(MFLAGS) HEVEA="$(HEVEAOPTS)" HACHAOPTS="$(HACHAOPTS)" ../HEVEA=hevea.opt HACHA=../hacha.opt IMAGEN=imagen.opt info
 
 byte:
 	export HEVEADIR=.. ;\
@@ -28,7 +27,7 @@ tmp.tex: text.tex
 	$(GPIC) -t < text.tex > tmp.tex
 
 manual.html: manual.hva  macros.tex manual.tex version.tex tmp.tex
-	${HEVEA} $(HEVEAOPTS) manual.hva manual.tex && $(ESPONJA) manual.html
+	${HEVEA} $(HEVEAOPTS) manual.hva manual.tex
 
 manual.dvi: manual.tex macros.tex version.tex tmp.tex
 	$(LATEX) < /dev/null manual.tex &&\

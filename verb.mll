@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: verb.mll,v 1.52 2001-05-25 09:20:54 maranget Exp $"            *)
+(*  $Id: verb.mll,v 1.53 2001-05-25 12:37:33 maranget Exp $            *)
 (***********************************************************************)
 {
 exception VError of string

@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: get.mli,v 1.11 2001-05-25 09:20:44 maranget Exp $"            *)
+(*  $Id: get.mli,v 1.12 2001-05-25 12:37:22 maranget Exp $             *)
 (***********************************************************************)
 open Lexstate
 
