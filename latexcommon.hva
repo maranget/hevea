@@ -186,7 +186,7 @@
   \@forcecommand{\makelabel}[1]{##1}%
   #3%exec
 }{\@close{DL}}
-\newenvironment{description}{\begin{list}{}{}}{\end{list}}
+\newenvironment{description}{\begin{list}{}{\renewcommand{\makelabel}[1]{\textbf{##1}}}}{\end{list}}
 \newenvironment{trivlist}{\begin{list}{}{}}{\end{list}}
 %% Input...
 \newcommand{\listfiles}{}

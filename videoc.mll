@@ -1,6 +1,6 @@
 (* <Christian.Queinnec@lip6.fr>
  The plugin for HeVeA that implements the VideoC style.
- $Id: videoc.mll,v 1.22 2000-09-05 12:34:13 maranget Exp $ 
+ $Id: videoc.mll,v 1.23 2000-10-31 08:25:16 maranget Exp $ 
 *)
 
 {
@@ -24,10 +24,10 @@ open Scan
 
 
 let header = 
-  "$Id: videoc.mll,v 1.22 2000-09-05 12:34:13 maranget Exp $"
+  "$Id: videoc.mll,v 1.23 2000-10-31 08:25:16 maranget Exp $"
 (* So I can synchronize my changes from Luc's ones *)
 let qnc_header = 
-  "24 aout 2000"
+  "30 oct 2000"
 
 exception EndSnippet
 ;;
@@ -49,7 +49,7 @@ let enableSchemeCharacters = ref false;;
 (* Snippet Environment: run a series of hooks provided they exist as
    user macros. *)
 
-let snippetRunHook parsing name =
+let runHook prefix parsing name =
   let run name = begin
     if !verbose > 2 then prerr_endline ("Trying to run hook " ^ name);
     if Latexmacros.exists name 
@@ -60,7 +60,13 @@ let snippetRunHook parsing name =
     if suffix <> ""
     then iterate (name ^ (String.make 1 (String.get suffix 0)))
                  (String.sub suffix 1 ((String.length suffix) - 1))
-  in iterate ("\\snippet" ^ name ^ "Hook") !snippetLanguage;;
+  in iterate (prefix ^ name ^ "Hook") !snippetLanguage;;
+
+let snippetRunHook parsing name =
+  runHook "\\snippet" parsing name;;
+
+let snipRunHook parsing name =
+  runHook "\\snip" parsing name;;
 
 (* Hack for mutual recursion between modules: *)
 
@@ -248,44 +254,6 @@ and do_backslash_newline  _ =
 
 and do_four_backslashes _ = Dest.put "\\"
 
-(* Parse an url that may contain a defined url macro.
-   Url macros are defined as in \defineURL\QNC{http://h.o.st:80/~queinnec}
-   and used as in \referenceURL{bla bla}{\QNC/index.html}. *)
-
-and expand_url_macros lexbuf =
-   let url = Save.arg_verbatim lexbuf in
-   let url = get_this_main url in
-   url
-
-and do_reference_url lexbuf  =
-  let txt = save_arg lexbuf in
-  let url = expand_url_macros lexbuf in
-  Dest.put ("<A href=\"" ^ url ^ "\" class=\"referenceURL\">");
-  scan_this_arg main txt;
-  Dest.put "</A>";
-  ()
-
-and do_single_url lexbuf =
-  let url = expand_url_macros lexbuf in
-  Dest.put ("<A href=\"" ^ url ^ "\" class=\"referenceURL\">" ^ url ^ "</A>");
-  ()
-
-and do_define_url lxm lexbuf =
-  Save.start_echo () ;
-  let name = Scan.get_csname lexbuf in
-  let body = Save.arg_verbatim lexbuf in
-  let real_arg = Save.get_echo () in
-  if Scan.echo_toimage () then begin
-    Image.put lxm ;
-    Image.put real_arg ;
-    Image.put_char '\n' ;
-  end ;
-  snippet_def name (make_do_defined_macro_url body)
-
-
-and make_do_defined_macro_url body lexbuf =
-  Dest.put body
-
 (* HACK: Define a macro with a body that is obtained via substitution.
    This is a kind of restricted \edef as in TeX.
    Syntax:    \@EDEF\macroName{#2#1..}                                 *)
@@ -338,7 +306,7 @@ and do_snippet lexbuf =
                                     else language in
     skip_blanks_till_eol_included lexbuf;
     Dest.put "<BR>\n";
-    Scan.top_open_block "DIV" ("class=\"" ^ language ^ "\"");
+    Scan.top_open_block "DIV" ("class=\"div" ^ language ^ "\"");
     Dest.put "\n";
     Scan.new_env "snippet";
     (* Define commands local to \snippet *)
@@ -393,6 +361,18 @@ and do_disableSchemeCharacters lexbuf =
   enableSchemeCharacters := false;
   ()
 
+and do_snippet_run_hook lexbuf =
+  let name = subst_arg lexbuf in begin
+    snippetRunHook Scan.main name;
+    ()
+  end
+
+and do_snip_run_hook lexbuf =
+  let name = subst_arg lexbuf in begin
+    snipRunHook Scan.main name;
+    ()
+  end
+
 (* These macros are defined in Caml since they are not nullary macros.
    They require some arguments but they cannot get them in the snippet
    environment. So I code them by hand. *)
@@ -446,20 +426,21 @@ end
 let init = function () -> 
   begin
     (* Register global TeX macros: *)
-    def_name_code "\\defineURL"             do_define_url;
-    def_code "\\referenceURL"               do_reference_url ;
-    def_code "\\singleURL"                  do_single_url;
+    def_code "\\snippet"                    do_snippet;
     def_name_code "\\@EDEF"                 do_edef;
     def_name_code "\\@MULEDEF"              do_muledef;
-    def_code "\\snippet"                    do_snippet;
+
     def_code "\\ViCEndAnchor"               do_vicendanchor;
     def_code "\\ViCAnchor"                  do_vicanchor;
     def_code "\\ViCIndex"                   do_vicindex;
+
     def_code "\\enableLispComment"          do_enableLispComment;
     def_code "\\disableLispComment"         do_disableLispComment;
     def_code "\\enableSchemeCharacters"     do_enableSchemeCharacters;
     def_code "\\disableSchemeCharacters"    do_disableSchemeCharacters;
     def_code "\\enableBackslashedChars"     do_enable_backslashed_chars;
+    def_code "\\snippetRunHook"             do_snippet_run_hook;
+    def_code "\\snipRunHook"                do_snip_run_hook;
     ()
   end;;
 
@@ -467,6 +448,4 @@ register_init "videoc" init
 ;;
 
 end}
-
-(* end of videoc.mll *)
 

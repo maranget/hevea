@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlMath.ml,v 1.20 2000-10-13 19:17:28 maranget Exp $" 
+let header = "$Id: htmlMath.ml,v 1.21 2000-10-31 08:25:14 maranget Exp $" 
 
 
 open Misc
@@ -338,13 +338,17 @@ let reput_sup_sub tag = function
   | s  ->
       open_block INTERN "" ;
       clearstyle () ;
-      put_char '<' ;
-      put tag ;
-      put_char '>' ;
+      if not  (flags.in_pre && !pedantic) then begin
+        put_char '<' ;
+        put tag ;
+        put_char '>'
+      end ;
       put s ;
-      put "</" ;
-      put tag ;
-      put_char '>' ;
+      if not  (flags.in_pre && !pedantic) then begin
+        put "</" ;
+        put tag ;
+        put_char '>'
+      end ;
       close_block INTERN
 
 

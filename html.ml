@@ -10,7 +10,7 @@
 (***********************************************************************)
 
 
-let header = "$Id: html.ml,v 1.81 2000-10-13 19:17:24 maranget Exp $" 
+let header = "$Id: html.ml,v 1.82 2000-10-31 08:25:12 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -286,7 +286,7 @@ and set_dcount s = flags.dcount <- s
 ;;
 
 let item () =
-   if !verbose > 2 then begin
+  if !verbose > 2 then begin
     prerr_string "item: stack=" ;
     pretty_stack out_stack
   end ;
@@ -312,16 +312,17 @@ let ditem scan arg =
     prerr_string "ditem: stack=" ;
     pretty_stack out_stack
   end ;
+  let mods = all_to_pending !cur_out in
+  clearstyle () ;
+  !cur_out.pending <- mods ;
   let true_scan =
     if flags.nitems = 0 then begin
       let _ = forget_par () in () ;
       let saved = Out.to_string !cur_out.out in
       (fun arg -> do_put saved ; scan arg)
     end else scan in
-  try_flush_par ();
-  let mods = all_to_pending !cur_out in
-  clearstyle () ;
-  put "<DT>" ;
+  try_flush_par () ;
+  do_put "<DT>" ;
   !cur_out.pending <- mods ;
   flags.nitems <- flags.nitems+1;
   open_block INTERN "" ;
