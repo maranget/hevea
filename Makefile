@@ -22,7 +22,7 @@ GENSRC=auxx.ml colscan.ml cut.ml entry.ml get.ml latexscan.ml length.ml save.ml 
 OPTS=$(OBJS:.cmo=.cmx) $(OBJMAIN:.cmo=.cmx)
 OPTSCUT=$(OBJSCUT:.cmo=.cmx)
 
-HTMLLIB=article.hva book.hva report.hva seminar.hva hevea.hva ams.hva mathaccents.hva multind.hva symb.hva symb-text.hva symb-eng.hva symb-fra.hva symb-mathml.hva symb-ent.hva graphics.hva
+HTMLLIB=article.hva book.hva report.hva seminar.hva hevea.hva ams.hva mathaccents.hva multind.hva symb.hva symb-text.hva symb-eng.hva symb-fra.hva symb-mathml.hva symb-ent.hva graphics.hva color.hva fancysection.hva
 TEXTLIB=article.hva book.hva report.hva seminar.hva hevea.hva symb.hva
 INFOLIB=article.hva book.hva report.hva seminar.hva hevea.hva
 
