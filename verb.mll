@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: verb.mll,v 1.60 2003-09-29 08:54:54 maranget Exp $            *)
+(*  $Id: verb.mll,v 1.61 2004-05-04 08:15:47 maranget Exp $            *)
 (***********************************************************************)
 {
 exception VError of string
@@ -735,24 +735,25 @@ let put_html () =
   Out.reset line_buff
 ;;
 
-let open_rawhtml lexbuf =
-  begin match !Parse_opts.destination with
-    | Parse_opts.Html -> ()
-    | _ ->  Misc.warning "rawhtml detected"
-  end ;
-  process :=
-     (fun () -> put_html () ; Dest.put_char '\n') ;
-  finish := put_html ;
-  noeof scan_byline lexbuf
-
-and close_rawhtml _ = ()
-
 let open_forget lexbuf =
   process := (fun () -> Out.reset line_buff) ;
   finish := (fun () -> Out.reset line_buff) ;
   noeof scan_byline lexbuf
 
-and close_forget _ = ()
+let open_raw lexbuf =
+  process := (fun () -> put_html () ; Dest.put_char '\n') ;
+  finish := put_html ;
+  noeof scan_byline lexbuf
+  
+let open_rawhtml lexbuf = match !Parse_opts.destination with
+    | Parse_opts.Html -> open_raw lexbuf
+    | _ -> open_forget lexbuf
+
+let open_rawtext lexbuf = match !Parse_opts.destination with
+    | Parse_opts.Text|Parse_opts.Info -> open_raw lexbuf
+    | _ -> open_forget lexbuf
+
+let  close_nothing _ = ()
 
 let open_tofile chan lexbuf =
   process :=
@@ -794,8 +795,13 @@ def_code "\\verbatim*"
       noeof scan_byline lexbuf) ;        
 def_code "\\endverbatim*" close_verbenv ;
 
+def_code "\\rawtext" open_rawhtml ;
+def_code "\\endrawtext" close_nothing ;
 def_code "\\rawhtml" open_rawhtml ;
-def_code "\\endrawhtml" close_forget ;
+def_code "\\endrawhtml" close_nothing ;
+def_code "\\raw" open_raw ;
+def_code "\\endraw" close_nothing ;
+
 def_code "\\verblatex" open_forget ; 
 def_code "\\endverblatex" Scan.check_alltt_skip ;
 def_code "\\verbimage" open_verbimage ; 

@@ -110,7 +110,7 @@
 \newcommand{\asymp}{\@print{&#8781;}}
 \newcommand{\approx}{\@entity{asymp}}
 \newcommand{\cong}{\@entity{cong}}
-\newcommand{\neq}{\@print{&#8802;}}
+\newcommand{\neq}{\@print{&#8800;}}
 \newcommand{\doteq}{\@print{#8784;}}
 \newcommand{\notin}{\@entity{notin}}
 \renewcommand{\models}{\@print{&#8872;}}
@@ -206,3 +206,5 @@
 \newcommand{\@displayint}{\mbox{\Huge\@entity{int}}}
 \newcommand{\@displaysum}{\mbox{\Huge\@entity{sum}}}
 \newcommand{\@oint}{\@entity{oint}}
+%%%Additional
+\newcommand{\dag}{\@print{&#8224;}}

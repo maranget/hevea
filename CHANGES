@@ -1,6 +1,7 @@
 version 1.07+1
+   - change rawhtml -> output in html mode only + new raw and rawtext envs
    - Additional entities for big delimiters.
-   
+      
 version 1.07
    - Release, to follow ocaml evolution.
 

@@ -1,0 +1,2 @@
+%% Ce n'est qu'un debut.
+\newcommand{\gtrsim}{\@print{&#8819}}
