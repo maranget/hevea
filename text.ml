@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.26 1999-06-22 14:51:51 tessaud Exp $"
+let header = "$Id: text.ml,v 1.27 1999-06-25 08:07:41 tessaud Exp $"
 
 
 open Misc
@@ -1049,6 +1049,32 @@ let new_row () =
   if !verbose>2 then prerr_endline ("new_row, line ="^string_of_int !table.line)
 ;;
 
+let change_format format = match format with 
+  Tabular.Align {Tabular.vert=v ; Tabular.hor=h ; Tabular.wrap=w ; Tabular.width=size} ->
+    !cell.ver <- 
+      (match v with
+      | "" -> Base 50
+      | "middle" -> Base 50
+      | "top" -> Top
+      | "bottom" -> Bottom
+      | _-> raise (Misc.Fatal ("open_cell, invalid vertical format :"^v)));
+    !cell.hor <-
+      (match h with
+      | "" -> Left
+      | "center" -> Center
+      | "left" -> Left
+      | "right" -> Right
+      | _-> raise (Misc.Fatal ("open_cell, invalid horizontal format :"^h)));
+    !cell.wrap <- (if w then True else False);
+    if w then
+      !cell.w <- 
+	(match size with
+	  Some Length.Absolute l -> l
+	| Some Length.Percent l -> l * !Parse_opts.width / 100
+	| None -> !cell.wrap <- False; warning "cannot wrap column with no width"; 0)
+    else !cell.w <- 0;
+| _       ->  raise (Misc.Fatal ("as_align"))
+;;
 
 let open_cell format span insides =
   open_block "TEMP" "";
@@ -1059,31 +1085,8 @@ let open_cell format span insides =
    (* remplir les champs de formattage de cell *)
   !table.col <- !table.col+1;
   if !verbose>2 then prerr_endline ("open_cell, col="^string_of_int !table.col);
-  let _=match format with 
-    Tabular.Align {Tabular.vert=v ; Tabular.hor=h ; Tabular.wrap=w ; Tabular.width=size} ->
-      !cell.ver <- 
-	(match v with
-	| "" -> Base 50
-	| "middle" -> Base 50
-	| "top" -> Top
-	| "bottom" -> Bottom
-	| _-> raise (Misc.Fatal ("open_cell, invalid vertical format :"^v)));
-      !cell.hor <-
-	(match h with
-	| "" -> Left
-	| "center" -> Center
-	| "left" -> Left
-	| "right" -> Right
-	| _-> raise (Misc.Fatal ("open_cell, invalid horizontal format :"^h)));
-      !cell.wrap <- (if w then True else False);
-      if w then
-	!cell.w <- 
-	  (match size with
-	    Some Length.Absolute l -> l
-	  | Some Length.Percent l -> l * !Parse_opts.width / 100
-	  | None -> !cell.wrap <- False; warning "cannot wrap column with no width"; 0)
-      else !cell.w <- 0;
-  | _       ->  raise (Misc.Fatal ("as_align")) in
+
+  change_format format;
   !cell.span <- span - insides;
   if !table.col > 0 && !cell.span=1 then begin
     !cell.pre <- "";
@@ -1517,6 +1520,22 @@ let lm_format =
 		   Tabular.post = "" ; Tabular.width = None} 
 ;;
 
+let formated s = Tabular.Align  
+    { Tabular.hor=
+      (match s with
+      |	"cm" |"cb" | "ct" -> "center"
+      |       "lt" | "lb" | "lm" -> "left"
+      |	_ -> "left") ;
+      Tabular.vert = 
+      (match s with
+      | "cm" | "lm" ->"middle"
+      | "lt" | "ct" -> "top"
+      | "lb" | "cb" -> "bottom"
+      | _ -> "middle") ;
+      Tabular.wrap = false ; Tabular.pre = "" ; 
+      Tabular.post = "" ; Tabular.width = None} 
+;;
+
 
 let freeze f=
   push out_stack (Freeze f)
@@ -1568,6 +1587,16 @@ let item_display () =
   if is_freeze then freeze f;
 ;;
 
+let item_display_format format =
+  let f,is_freeze = pop_freeze () in
+  if !verbose > 0 then make_border "|";
+  close_cell ();
+  close_cell_group ();
+  open_cell (formated format) 1 0;
+  open_cell_group ();
+  if is_freeze then freeze f;
+;;
+
 let force_item_display () = item_display ()
 ;;
 
@@ -1584,11 +1613,16 @@ let open_maths display =
     prerr_endline "open_maths";
   if display then begin
     open_block "ALIGN" "CENTER";
+
+    open_display "";
+    flags.first_line <- 0;
+    
     open_display ""
   end else open_block "" "";
 
 and close_maths display =
   if display then begin
+    close_display ();
     close_display ();
     close_block "ALIGN";
   end else close_block "";
@@ -1606,23 +1640,8 @@ and close_vdisplay () =
 
 and open_vdisplay_row s =
   new_row ();
-  let f = Tabular.Align  
-      { Tabular.hor=
-	(match s with
-	|	"cm" |"cb" | "ct" -> "center"
-	|       "lt" | "lb" | "lm" -> "left"
-	|	_ -> "left") ;
-	Tabular.vert = 
-	(match s with
-	| "cm" | "lm" ->"middle"
-	| "lt" | "ct" -> "top"
-	| "lb" | "cb" -> "bottom"
-	| _ -> "middle") ;
-	Tabular.wrap = false ; Tabular.pre = "" ; 
-	Tabular.post = "" ; Tabular.width = None} 
-  in
   if !verbose > 0 then make_border "[";
-  open_cell f 1 0;
+  open_cell (formated s) 1 0;
   open_cell_group ();
   open_display "";
 
@@ -1637,19 +1656,30 @@ and close_vdisplay_row () =
 
 let standard_sup_sub scanner what sup sub display =
   if display then begin
-    item_display ();
+    let f = match sup,sub with
+    | "","" -> "cm"
+    |	"",_ -> change_format (formated "lt"); "lb"
+    |	_,"" -> change_format (formated "lb"); "lt"
+    |	_,_ -> "cm"
+    in
+    item_display_format f ;
     if sup<>"" || sub<>"" then begin
       open_vdisplay display;
-      open_vdisplay_row "lt";
-      scanner sup ;
-      close_vdisplay_row ();
+      if sup<>"" then begin
+	open_vdisplay_row "lt";
+	scanner sup ;
+	close_vdisplay_row ();
+      end;
       open_vdisplay_row "lm";
       what ();
       close_vdisplay_row ();
-      open_vdisplay_row "lb";
-      scanner sub ;
-      close_vdisplay_row ();
+      if sub<>"" then begin
+	open_vdisplay_row "lb";
+	scanner sub ;
+	close_vdisplay_row ();
+      end;
       close_vdisplay ();
+      item_display ();
     end else what ()
   end else begin
     what ();
@@ -1697,11 +1727,30 @@ and int_sup_sub something vsize scanner what sup sub display =
 
 
 let insert_vdisplay open_fun =
-  force_block "" "";
-  let s = Out.to_string !cur_out.out in (* FAUX : il faut intercepter le tableau entier ! *)
-  open_block "" "";
+  let ps,parg,pout = pop_out out_stack in
+  if ps <> "" then
+    failclose ("insert_vdisplay : "^ps^" closes the cell.");
+  let pps,pparg,ppout = pop_out out_stack in
+  if pps <> "TEMP" then
+    failclose ("insert_vdisplay : "^pps^" closes the cell2.");
+  let ts,targ,tout = pop_out out_stack in
+  if ts <> "" then
+    failclose ("insert_vdisplay : "^ts^" closes the table.");
+  
+  let new_out = newstatus false [] [] tout.temp in
+  push_out out_stack (ts,targ,new_out);
+  push_out out_stack (pps,pparg,ppout);
+  push_out out_stack (ps,parg,pout);
+  close_display ();
+
+
+  cur_out :=tout;
+  open_display "";
   open_fun ();
+  
+  let s = Out.to_string new_out.out in
   put s;
+  free new_out;
   []
 ;;
 
@@ -1727,6 +1776,8 @@ let over display lexbuf =
   end else begin
     put "/";
   end
+
+
 and left delim = ()
 and right delim = 3
 ;;

@@ -44,7 +44,7 @@ open Tabular
 open Lexstate
 
 
-let header = "$Id: latexscan.mll,v 1.115 1999-06-22 14:51:40 tessaud Exp $" 
+let header = "$Id: latexscan.mll,v 1.116 1999-06-25 08:07:37 tessaud Exp $" 
 
 
 let sbool = function
@@ -1549,7 +1549,8 @@ def_code "\\right"
 
 def_code "\\over"
    (fun lexbuf ->
-     Dest.over !display lexbuf)
+     Dest.over !display lexbuf;
+     skip_blanks lexbuf)
 ;;
 
 let check_not = function
