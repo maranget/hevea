@@ -10,6 +10,7 @@
 \newcommand{\setenvclass}[2]{}
 \newcommand{\getenvclass}[1]{}
 \newcommand{\envclass@attr}[2][]{}
+\newcommand{\loadcssfile}[1]{}
 %% Packages
 \input{packages.hva}
 %%%%%% Spacing

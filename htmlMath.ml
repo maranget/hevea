@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlMath.ml,v 1.31 2005-02-14 09:28:53 maranget Exp $" 
+let header = "$Id: htmlMath.ml,v 1.32 2005-03-11 19:17:47 maranget Exp $" 
 
 
 open Misc
@@ -76,7 +76,7 @@ let put_in_math s =
 (* DISPLAYS *)
 (*----------*)
 
-let open_center () =  open_block DIV "ALIGN=center"
+let open_center () =  open_block DIV "CLASS=\"center\""
 and close_center () = close_block DIV
 ;;
 

@@ -20,7 +20,6 @@
 \newcommand{\addstyle}[1]{\addtokens{\hevea@css}{#1}}%
 \newcommand{\newstyle}[2]{\addstyle{\@getprint{#1\char123#2\char125\@print{
 }}}}%
-\input{style-sheets.hva}
 %
 %%Style attributes are normaly set through an indirection.
 %% Ie the class of the BLOCK elt that translates environment 'env' is
