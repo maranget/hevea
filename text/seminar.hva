@@ -10,11 +10,11 @@
 \newenvironment{slide}[1][]{%
 \stepcounter{slide}%
 \cuthere{section}{\slidename{} \theslide}%
-\@printHR%
+\@printHR{}{100}%
 \@open{ALIGN}{RIGHT}%
 \@open{HEAD}{*=}\slidename{} \theslide\@close{HEAD}%H2
 \@close{ALIGN}
-\@printHR%
+\@printHR{}{100}%
 }{}
 \newenvironment{slide*}[1][]{\begin{slide}}{\end{slide}}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
