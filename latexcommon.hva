@@ -166,7 +166,7 @@
 \def\underline#1{\ifdisplay
 \begin{@varray}#1\\ \hline\end{@varray}\else\textunderline{#1}\fi}
 %%%Miscleanous, title stuff
-\input{common-math.hva}
+%\input{common-math.hva}
 \newcommand{\thanks}[1]{\footnote{#1}}
 \newenvironment{titlepage}{}{}
 \newcommand{\and}{\quad}

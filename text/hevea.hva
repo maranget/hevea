@@ -8,7 +8,8 @@
 \newcommand{\newstyle}[2]{}
 \newcommand{\class@attr}[2]{}
 \newcommand{\setenvclass}[2]{}
-\newcommand{\getenvclass}[][2]{}
+\newcommand{\getenvclass}[1]{}
+\newcommand{\envclass@attr}[2][]{}
 %% Packages
 \input{packages.hva}
 %%%%%% Spacing

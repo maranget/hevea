@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: verb.mll,v 1.68 2005-02-17 22:55:15 maranget Exp $            *)
+(*  $Id: verb.mll,v 1.69 2005-03-01 12:56:36 maranget Exp $            *)
 (***********************************************************************)
 {
 exception VError of string
@@ -892,8 +892,10 @@ let noeof lexer lexbuf =
            ("End of file in environment: ``"^ !Scan.cur_env^"'' ("^s^")"))
   | EndVerb -> ()
 
+let getclass env = Scan.get_prim (Printf.sprintf "\\envclass@attr{%s}" env)
+
 let open_verbenv star =
-  Scan.top_open_block "PRE" "" ;
+  Scan.top_open_block "PRE" (getclass "verbatim") ;
   process :=
      if star then
        (fun () -> put_line_buff_verb_star () ; Dest.put_char '\n')
