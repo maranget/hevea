@@ -8,7 +8,7 @@ DOCDIR=$(HTMLDIR)/doc
 
 all: manual.dvi index.html
 
-tmp.tex: manual.tex
+tmp.tex: manual.tex version.tex
 	$(GPIC) -t < manual.tex > tmp.tex
 
 manual.html: manual.sty tmp.tex

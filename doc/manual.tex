@@ -45,14 +45,14 @@ Chesnay Cedex. {\tt \mailto{Luc.Maranget@inria.fr}}}}
 
 \maketitle
 
+\newcommand{\ftpbase}{ftp://ftp.inria.fr/INRIA/Projects/para/hevea}%
 \begin{htmlonly}
 \@print{
 <HR>
 }%
-\newcommand{\base}{ftp://ftp.inria.fr/INRIA/Projects/para/hevea}%
 This manual also exist in
-\url{\base/hevea-\heveaversion-manual.ps.gz}{Postcript} and and as
-a \url{\base/hevea-\heveaversion-manual.tar.gz}{bundle of HTML files}.
+\url{\ftpbase/hevea-\heveaversion-manual.ps.gz}{Postcript} and and as
+a \url{\ftpbase/hevea-\heveaversion-manual.tar.gz}{bundle of HTML files}.
 \@print{
 <HR>
 }%
@@ -84,6 +84,8 @@ Using \hevea{} it is possible to translate  large documents such
 as manuals, books, etc. very quickly. All documents are
 translated as one single {\html} file. Then, the output file can be cut into
 smaller files, using the companion program \hacha.
+
+Information on \hevea{} is available at \oneurl{\docurl}.
 \end{abstract}
 
 
@@ -102,7 +104,7 @@ is achieved by issuing the command~:
 \begin{verbatim}
 # hevea a.tex
 \end{verbatim}
-Probably, you will get some warnings about unknown macros. If
+Probably, you will get some warnings. If
 \hevea{} does not crash, just ignore them for the moment
 (Section~\ref{trouble}  explains how to correct errors).
 
@@ -130,7 +132,7 @@ documentation, including examples of \urlex{a.tex} and
 
 \subsection{Base style files}
 
-\noindent\hevea{} knows about two \LaTeX{} base style file,
+\noindent\hevea{} knows about two \LaTeX{} base styles,
 \filename{article} and \filename{book}.
 Additionally, the \filename{report} base style is recognized and
 considered equivalent to \filename{book}.
@@ -171,7 +173,7 @@ mydoc.tex:9: Unknown counter: footnote
 Both situations are avoided by invoking \hevea{} with the known
 base style file  \texttt{article.sty} as an extra argument:
 \begin{verbatim}
-hevea article.sty mydoc.tex
+# hevea article.sty mydoc.tex
 \end{verbatim}
 Such an extra argument instructs
 \hevea{} to load its \texttt{article.sty}
@@ -182,7 +184,7 @@ It will then ignore the base style specified by
 Observe that the fix above works because \texttt{article.sty} and
 \texttt{acmconf.sty} look the same to the document (i.e. they define
 the same macros).
-More generally, most  base styles which are neither
+More generally, most  base styles that are neither
 \textit{article} nor \textit{book} are in fact variations
 on either two of them.
 However, such styles usually provides extra macros.
@@ -235,14 +237,14 @@ all the useful macros of \texttt{macro.tex}.
 Note that another solution to instruct \LaTeX{} to load a file and
 \hevea{} not to load it is to use \verb+\usepackage+ or optional
 arguments to \verb+\documentstyle+, which \hevea{}
-ignore.
+ignores.
 
 
 \section{A note on style}
 
 \subsection{Spacing, Paragraphs}
 Spacing in the \html{} document reflects the original source spacing.
-More precisely, any non empty sequence of spaces is output-ed as one
+More precisely, any non empty sequence of spaces is outputed as one
 space, whereas a single newline is replicated in the output.
 However one  blank line  (i.e., two newlines in a row) or more
 introduce a paragraph break.
@@ -292,14 +294,6 @@ output.
 
 
 \newcommand{\bfsymbol}{\mbox{\bf symbol}}
-\begin{htmlonly}
-Consider for instance the following command definition:
-\begin{verbatim}
-\newcommand{\bfsymbol}{\mbox{\bf symbol}}
-\end{verbatim}
-Using \verb+\bfsymbol+ in text mode, we 
-\end{htmlonly}
-
 \hevea{} tries to emulate \LaTeX{} behavior in all situations, but
 discrepancies probably exist.
 Thus, users are invited to make explicit what they want.
@@ -307,6 +301,7 @@ This is good practice anyway, because \LaTeX{} is mysterious
 here. Consider the following example, where the \verb+\tryspace+
 macro is first applied and then expansed by hand:
 \begin{verbatim}
+\newcommand{\bfsymbol}{\mbox{\bf symbol}}
 \newcommand{\tryspace}[1]{#1 XXX}
 
 Some space: \tryspace{\bfsymbol}\\
@@ -335,9 +330,9 @@ one should probably write:
 
 \subsection{Math mode}\label{symbols}
 
-\hevea{} math mode is not very far from normal text mode:
-all letters are shown in italics and spaces after macros
-are echoed.
+\hevea{} math mode is not very far from normal text mode, except that
+all letters are shown in italics and that space after macros
+is echoed.
 
 However, typesetting math formulas in \html{} rises two difficulties.
 First, formulas contain symbols, such as greek letters, second,
@@ -362,9 +357,9 @@ as shown by figure~\ref{xfd}.
 \end{figure}
 
 A browser  correctly displays \hevea{} symbols when
-figure~\ref{xfd} resembles the html page located
+figure~\ref{xfd} resembles the \html{} page located
 at \localurl{symbol.html}.
-Section~\ref{browser} explains how to configure Netscape on an Unix
+Section~\ref{browser} explains how to configure Netscape on Unix
 systems to get the right symbols.
 
 For authors that do not want to generate symbols that cannot be shown
@@ -399,7 +394,7 @@ However, this does not suffice for displayed math formulas and
 The main two operating modes of \hevea{} are \emph{text} mode and \emph{display}
 mode.
 Text mode is the mode for typesetting normal text,
-when in this mode, \hevea{} outputs text-level elements only,
+when in this mode, \hevea{} should output text-level elements only,
 text items are echoed one following the other,
 paragraph breaks are just blank lines, both in input and output.
 
@@ -443,6 +438,10 @@ By contrast with formulas, which \hevea{} attempts to render with
 text-level elements only, arrays are always translated to the
 block-level element \verb+TABLE+, thereby introducing non-desired line
 breaks before and after in-text arrays.
+As a consequence, in-text arrays yield an acceptable output, only while
+alone in a paragraph.
+
+
 \begin{htmlonly}
 Consider the following source:
 \begin{verbatim}
@@ -464,10 +463,6 @@ the \verb+array+ and \verb+tabular+ environments implicitly open
 display mode.
 As an immediate consequence, array elements are typeset in display
 mode, which is not the case in \LaTeX.
-This choice of displaying all arrays allows a correct aspect for
-arrays that are not \LaTeX{}
-displays but that make a single paragraph.
-In particular, this applies to \verb+tabular+ environments.
 
 Users can get an idea on how \hevea{} combines elements in display mode
 by giving the \verb+-v+ options, which instructs \hevea{} to show the
@@ -522,7 +517,7 @@ may occur after several levels of macro expansion.
 As a consequence, users can tailor \hevea{} to their needs, but it
 remains a subtle task.
 However, happy \LaTeX{} users should enjoy customizing
-\hevea{}, since this is done merely by writing \LaTeX{} code.
+\hevea{}, since this is done by writing \LaTeX{} code.
 
 
 
@@ -585,8 +580,9 @@ If you attempt to define or redefine these macros, nothing should happen.
 \section{How to detect and correct errors}\label{trouble}
 
 Most of the problems that occur during the translation of a given
-\LaTeX{} file (say \verb+trouble.tex+) can be solved at
-the macro-level. That is, most problems can be solved by writing a few
+\LaTeX{} file (say \verb+trouble.tex+) can be detected and solved at
+the macro-level. That is, most problems induce a macro-related warning
+and can be solved by writing a few
 macros. The best place for these macros is an user-style file (say
 \verb+trouble.sty+) given as
 argument to \hevea.
@@ -705,7 +701,7 @@ You can \raisebox{.6ex}{\em raise} or \lowerbox{-.6ex}{\em lower} text.
 Note that \LaTeX{} should also be given a definition for
 \verb+\lowerbox+:
 \begin{verbatim}
-\newcommand{\lowerbox}[2]{\raisebox{#1}{#2}
+\newcommand{\lowerbox}[2]{\raisebox{#1}{#2}}
 \end{verbatim}
 This definition can safely be placed anywhere in \texttt{trouble.tex},
 since by \hevea{} semantics for \verb+\newcommand+ (see
@@ -749,7 +745,7 @@ Hence, it produces the following, wrong, output:
 
 There is not small square in the symbol font used by \hevea.
 However there are other small symbols that would perfectly do the job
-of \verb+\blob+, such as a bullet (\verb+\bullet+ in \LaTeX).
+of \verb+\blob+, such as a bullet (\verb+\bullet+).
 Thus, you may choose to give \verb+\blob+ a definition in
 \verb+trouble.sty+:
 \begin{verbatim}
@@ -805,7 +801,7 @@ This a right-flushed quotation
 \end{verbatim}
 
 The \verb+\flushright+ is intended to replace
-\verb+\begin{flushright}+ and the closing macro \verb+\endflushright+
+\verb+\begin{flushright}+ and the closing \verb+\endflushright+
 is omitted, since it does nothing.
 \LaTeX{} accepts such an input and produces a  right-flushed quotation.
 
@@ -851,7 +847,7 @@ file.
 
 \subsection{File loading}
 
-\hevea and \LaTeX treat files differently. Here is a summary of the main
+\hevea{} and \LaTeX{} treat files differently. Here is a summary of the main
 differences:
 
 \begin{itemize}
@@ -868,19 +864,19 @@ As a consequence, for having a file \filename{latexonly} loaded by
 \LaTeX{} only, it suffices either to load the file in the document
 source as:
 \begin{flushleft}
-\quad\verb+\usepackage{+\filename{latexonly}\verb+}+
+\verb+\usepackage{+\filename{latexonly}\verb+}+
 \end{flushleft}
 Or, as
 \begin{flushleft}
 \verb+\documentstyle[+\ldots, \filename{latexonly},\ldots\verb+]{+\ldots
 \end{flushleft}
 Another solution is  to use \verb+\input{+\filename{latexonly}\verb+}+
-in the source and to invoke \hevea as follows:
+in the source and to invoke \hevea{} as follows:
 \begin{flushleft}
 \verb+# hevea+ \texttt{-e} \filename{latexonly}\ldots
 \end{flushleft}
 
-Having \filename{heveaonly} loaded by \hevea{} only is even more
+Having \filename{heveaonly} loaded by \hevea{} only is more
 simple: it  suffices to invoke \hevea{} as follows:
 \begin{flushleft}
 \verb+# hevea+ \filename{heveaonly}\ldots
@@ -991,12 +987,9 @@ make \textit{url} a footnote to \textit{text},
 make \textit{url} an hyper-link to \textit{url}.
 &
 typeset \textit{url} in typewriter font\\ \hline
-\verb\\
-
-\verb+\mailto{+address\verb+}+ &
+\verb+\mailto{+\textit{address}\verb+}+ &
 make \textit{address} a ``mailto'' link to \textit{address} &
 typeset \textit{address} in typewriter font\\ \hline
-
 \verb+\home{+\textit{text}\verb+}+ &
 \multicolumn{2}{p{.6\linewidth}}{produce a home-dir url both for output and links, output aspect is: ``\home{\textit{text}}''}
 \end{tabular}
@@ -1143,7 +1136,7 @@ still can be processed by \LaTeX, since
 the \verb+\imageflush+ command is  inside
 a \verb+%HEVEA+ comment.)
 
-Then processing \texttt{trouble.tex} through \hevea{} and
+Then, processing \texttt{round.tex} through \hevea{} and
 \texttt{imagen} yields:
 \begin{htmlout}
 \begin{center}
@@ -1193,7 +1186,7 @@ ellipse "{\Large\bf Smile!}"
 Both the image description (\verb+.PS+\ldots\ \verb+.PE+) and usage (\verb+\box\graph+)
 are for the \filename{image} file, and they should be
 enclosed by \verb+%BEGIN IMAGE+\ldots\ \verb+%END IMAGE+ comments.
-Additionally, the immage is put where it belongs by an
+Additionally, the image link is put where it belongs by an
 \verb+\imageflush+ command:
 \begin{verbatim}
 %BEGIN IMAGE
@@ -1331,8 +1324,8 @@ These comments act as instructions to {\hacha}.
 \item[{\tt\char92 cuthere\{}{\it secname}{\tt\}\{}{\it itemtitle}{\tt\}}]
    Attempt a cut.
    \begin{itemize}
-   \item If {\it secname} is the current cutting  unit or if {\it
-   secname} is ``\texttt{now}'', then
+   \item If {\it secname} is the current cutting  unit or
+   the keyword ``\texttt{now}'', then
    a new output file is started and an entry in the current table of contents
    is generated, with title {\it itemtitle}. This entry holds a link
    to the new output file.
@@ -2416,19 +2409,20 @@ In particular, note that symbol fonts may be completly avoided with
 
 The programs \commandname{hevea} and \commandname{hacha} are written in
 \footurl{http://caml.inria.fr/ocaml/}{Objective Caml}. Thus, you
-really need Objective Caml to compile it.
+really need Objective Caml to compile them.
 
-\hevea{} extract referencing information for \filename{.aux} files,
-and bibliographic information from \filename{.bbl} files.
-Hence you need a fully functional \LaTeX{} system to get the right
+\hevea{} extract referencing information for \texttt{.aux} files,
+and bibliographic information from \texttt{.bbl} files.
+Hence, you need a fully functional \LaTeX{} system to get the right
 cross reference labels in \hevea{} output.
 Additionally, the \hevea{} user may instruct the program not to process a
 part of the input (see section~\ref{imagen}). Instead, this part is
 processed into a 
 \verb+.gif+ file and \hevea{} ouputs a  link to the image file.
 \LaTeX{} is changed into a \verb+.gif+ file by the the \verb+imagen+
-script, which basically calls, \LaTeX, ghostscript and a few tools from
-the image processing package
+script, which basically calls, \LaTeX, \texttt{dvips},
+\footurl{http://www.cs.wisc.edu/\home{ghost}/index.html}{\texttt{ghostscript}}
+and a few tools from the image processing package
 \footurl{ftp://wuarchive.wustl.edu/graphics/graphics/packages/NetPBM}{netpbm}.
 
 To benefit from the full functionnality of \hevea, you need all
@@ -2436,7 +2430,8 @@ this software. However, \hevea{} runs without them, but then you will
 have to accept ``X'' labels and to manage to produce images by yourself.
 
 \subsection{Principles}
-The details are given in the \texttt{README} file in the distribution.
+The details are given in the \url{\ftpbase/README}{\texttt{README}}
+file from the distribution.
 Basically, \hevea{} should be given a library
 directory. The installation procedure stores the \texttt{hevea.sty}
 and base style files in this directory.
@@ -2448,6 +2443,9 @@ times as fast as the one produced by \texttt{ocamlc}.
 Thus, default compilation mode is \texttt{opt}, however it may be the
 case on some systems that only \texttt{ocamlc} is available.
 
+Note that the \texttt{html.sty} file is simply copied to \hevea{}
+library directory. It remains users responsability to
+make it accessible to \LaTeX.
 
 \section{Other \LaTeX{} to \html{} translators}
 This very short section gives pointers to two other translators. I
@@ -2477,6 +2475,10 @@ of them. TTH can be found at
 \end{description}
 
 \begin{thebibliography}{xxxxxxxxxx}
+\bibitem[HTML]{html}
+D.~Ragget.
+{\em HTML 3.2 Reference Specification}. Available on the web at
+\oneurl{http://www.w3.org/TR/REC-html32}, 1997.
 \bibitem[\LaTeX]{latex}
 L. Lamport.
 \newblock {\em A Document Preparation System System, \LaTeX{}, User's
