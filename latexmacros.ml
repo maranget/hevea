@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmacros.ml,v 1.49 1999-05-21 12:54:07 maranget Exp $" 
+let header = "$Id: latexmacros.ml,v 1.50 1999-05-21 14:46:52 maranget Exp $" 
 open Misc
 open Parse_opts
 open Symb
@@ -155,7 +155,7 @@ let find_macro name =
     Hashtbl.find cmdtable name
   with Not_found ->
     warning ("unknown macro: "^name) ;
-    (([],[]),(Print ""))
+    (([],[]),(Subst ""))
 
 (* Does a user macro exist ? *)
 let exists_macro name = 

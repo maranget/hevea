@@ -17,7 +17,7 @@ open Latexmacros
 open Lexstate
 
 (* Compute functions *)
-let header = "$Id: get.mll,v 1.7 1999-05-21 12:54:06 maranget Exp $"
+let header = "$Id: get.mll,v 1.8 1999-05-21 14:46:50 maranget Exp $"
 
 exception Error of string
 
@@ -206,8 +206,7 @@ rule result = parse
       (function
         | Subst body ->
             scan_this result body
-        | CamlCode f -> f lexbuf
-        | _          -> warning "Strange macro in Get")
+        | CamlCode f -> f lexbuf)
           body args ;
     result lexbuf}
 | _   {raise (Error ("Bad character in Get.result: ``"^lexeme lexbuf^"''"))}

@@ -1,5 +1,15 @@
+(***********************************************************************)
+(*                                                                     *)
+(*                          HEVEA                                      *)
+(*                                                                     *)
+(*  Luc Maranget, projet PARA, INRIA Rocquencourt                      *)
+(*                                                                     *)
+(*  Copyright 1998 Institut National de Recherche en Informatique et   *)
+(*  Automatique.  Distributed only by permission.                      *)
+(*                                                                     *)
+(***********************************************************************)
+
 type action =
-  | Print of string
   | Subst of string
   | CamlCode of (Lexing.lexbuf -> unit)
 
@@ -22,6 +32,9 @@ val styleloaded : bool ref
 val activebrace : bool ref
 val html : bool ref
 val text : bool ref
+
+val withinLispComment : bool ref
+val afterLispCommentNewlines : int ref
 
 val out_file : Out.t
 type 'a t

@@ -130,7 +130,7 @@
 %%%239 left bar
 %%%240 unused
 \newcommand{\rangle}{\@symb{\char241}}
-\newcommand{\@int}{\@symb{242}}
+\newcommand{\@int}{\@symb{\char242}}
 \newcommand{\@displayint}{\mbox{\@symb{\char243\\\char245}}}
 %%%244  big integral middle
 %%%246 247 248  big right parenthesis

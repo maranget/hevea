@@ -30,10 +30,6 @@ module type S =
     val top_open_block : string -> string -> unit
     val top_close_block : string -> unit
     val get_this : (Lexing.lexbuf -> unit) -> string -> string
-
-    val withinLispComment : bool ref
-    val afterLispCommentNewlines : int ref
-    val withinSnippet : bool ref        
   end
 
 module Make (Dest : OutManager.S) =
@@ -47,7 +43,7 @@ open Save
 open Tabular
 open Lexstate
 
-let header = "$Id: latexscan.mll,v 1.99 1999-05-21 12:54:12 maranget Exp $" 
+let header = "$Id: latexscan.mll,v 1.100 1999-05-21 14:46:56 maranget Exp $" 
 
 let sbool = function
   | false -> "false"
@@ -55,11 +51,6 @@ let sbool = function
 
 module Index = Index.Make (Dest)
 module Foot = Foot.MakeFoot (Dest)
-
-(* Additional variables for videoc *)
-let withinLispComment = ref false;;
-let afterLispCommentNewlines = ref 0;;
-let withinSnippet = ref false;;
 
 
 let my_int_of_string s =
@@ -499,7 +490,7 @@ let get_col format i =
   r
 ;;
 
-let show_inside main format i b =
+let show_inside main format i closing =
 (*
   if !verbose > -1 then begin
     prerr_string ("show_inside: "^string_of_int i)
@@ -515,15 +506,15 @@ let show_inside main format i b =
         Dest.close_cell "";
     | Tabular.Border c -> 
 	(try 
-	  Dest.make_border c;
-	  if !first_col then first_col := false;
-	with Exit -> t:= !t+1;
-	  if !first_col then first_col := false;
+	  Dest.make_border c
+	with Exit -> t:= !t+1 ;
 	  raise EndInside)
     | _ -> raise EndInside
     end ;
     t := !t+1
-  done with EndInside -> if (!t = i) && (b || !first_col)  then  Dest.make_border ' ';
+  done with EndInside ->
+    if (!t = i) && (closing || !first_col)  then
+      Dest.make_border ' ';
   end ;
 (*
   if !verbose > -1 then
@@ -1102,7 +1093,6 @@ rule  main = parse
   | command_name
       {let name = lexeme lexbuf in
       let exec = function
-        | Print str -> Dest.put str
         | Subst body ->
             if !verbose > 2 then
               prerr_endline ("user macro: "^body) ;            
@@ -2164,10 +2154,14 @@ def_code "\\endinput" (fun lexbuf ->
 def_code "\\mbox" (fun lexbuf -> mbox_arg lexbuf)
 ;;
 
+let def_print name s = def_code name (fun _ -> Dest.put s)
+and redef_print name s = redef_code name (fun _ -> Dest.put s)
+;;
+
 def_code "\\newsavebox"
   (fun lexbuf ->
     let name = save_arg lexbuf in
-    begin try def_macro name 0 (Print "")
+    begin try def_print name ""
     with Latexmacros.Failed -> () end )
 ;;
 
@@ -2178,7 +2172,7 @@ def_code "\\savebox"
     skip_opt lexbuf ;
     skip_opt lexbuf ;
     let body = save_arg lexbuf in
-    redef_macro name 0 (Print (get_this main body)) ;
+    redef_print name (get_this main body) ;
     macro_register name)
 ;;
 
@@ -2186,7 +2180,7 @@ def_code "\\sbox"
   (fun lexbuf ->
     let name = subst_this subst (save_arg lexbuf) in
     let body = save_arg lexbuf in
-    redef_macro name 0 (Print (get_this main body)) ;
+    redef_print name (get_this main body) ;
     macro_register name)
 ;;
 
@@ -2203,7 +2197,7 @@ def_code "\\lrbox"
     let name = subst_arg subst lexbuf in
     Dest.open_aftergroup
       (fun s ->
-        redef_macro name 0 (Print s) ;
+        redef_print name s ;
         macro_register name ;
         "") ;
     scan_this main ("\\mbox{"))

@@ -1,11 +1,10 @@
-let header =  "$Id: lexstate.ml,v 1.14 1999-05-21 12:54:15 maranget Exp $"
+let header =  "$Id: lexstate.ml,v 1.15 1999-05-21 14:47:00 maranget Exp $"
 
 open Misc
 open Lexing
 
 (* Commands nature *)
 type action =
-  | Print of string
   | Subst of string
   | CamlCode of (Lexing.lexbuf -> unit)
 
@@ -14,7 +13,6 @@ let pretty_action acs =
    match acs with
    | Subst s    -> Printf.fprintf stderr "{%s}\n" s
    | CamlCode _ -> prerr_endline "*code*"
-   | Print s    -> prerr_endline ("Raw print ``"^String.escaped s^"''")
 
 type pat = string list * string list
 
@@ -46,6 +44,9 @@ and text =
     (match !Parse_opts.destination with
     | Parse_opts.Html -> false
     | Parse_opts.Info | Parse_opts.Text -> true)
+(* Additional variables for videoc *)
+and withinLispComment = ref false
+and afterLispCommentNewlines = ref 0
 ;;
 
 

@@ -28,10 +28,6 @@ module type S =
     val top_open_block : string -> string -> unit
     val top_close_block : string -> unit
     val get_this : (Lexing.lexbuf -> unit) -> string -> string
-
-    val withinLispComment : bool ref
-    val afterLispCommentNewlines : int ref
-    val withinSnippet : bool ref
 end
 
 module Make (Dest : OutManager.S) : S

@@ -1,6 +1,6 @@
 (* <Christian.Queinnec@lip6.fr>
  The plugin for HeVeA that implements the VideoC style.
- $Id: videoc.mll,v 1.6 1999-05-21 12:54:19 maranget Exp $ 
+ $Id: videoc.mll,v 1.7 1999-05-21 14:47:01 maranget Exp $ 
 *)
 
 {
@@ -20,7 +20,7 @@ open Latexmacros
 
 
 let header = 
-  "$Id: videoc.mll,v 1.6 1999-05-21 12:54:19 maranget Exp $"
+  "$Id: videoc.mll,v 1.7 1999-05-21 14:47:01 maranget Exp $"
 
 exception EndSnippet
 ;;
@@ -28,9 +28,7 @@ exception EndTeXInclusion
 ;;
 (* Re-link with these variables inserted in latexscan. *)
 
-let withinSnippet = Scan.withinSnippet;;
-let withinLispComment = Scan.withinLispComment;;
-let afterLispCommentNewlines = Scan.afterLispCommentNewlines;;
+let withinSnippet = ref false;;
 
 (* Snippet global defaults *)
 
@@ -79,7 +77,6 @@ rule snippetenv = parse
     | [],[] ->
       let args =  make_stack csname pat lexbuf in
       let exec = function
-        | Print str -> Dest.put str
         | Subst body ->
             if !verbose > 2 then
               prerr_endline ("user macro in snippet: "^body) ;            
@@ -175,6 +172,7 @@ and comma_separated_values = parse
 (* Trailer: Register local macros as global. *)
 
 {
+let caml_print s = CamlCode (fun _ -> Dest.put s)
 
 let rec do_endsnippet _ =
   if !Scan.cur_env = "snippet" then
@@ -230,7 +228,7 @@ and do_define_url lxm lexbuf =
   else 
     Scan.macro_register name;
   begin try
-    def_macro name 0 (Print body);
+    def_macro name 0 (caml_print body);
   with Latexmacros.Failed -> () end ;
   ()
 
@@ -246,7 +244,7 @@ and do_edef lxm lexbuf =
   else 
     Scan.macro_register name;
   begin try
-    def_macro name 0 (Print body);
+    def_macro name 0 (caml_print body);
   with Latexmacros.Failed -> () end ;
   ()
 
@@ -265,20 +263,16 @@ and do_muledef lxm lexbuf =
     let name = String.sub names lasti (i - lasti) in
     let body = String.sub bodies lastj (j - lastj) in
     if !verbose > 2 then prerr_endline (lxm ^ name ^ ";" ^ body);
-    try (if exists_macro name then redef_macro else def_macro)
-        name 0 (Print body);
-      Scan.macro_register name;
-    with Failed -> ();
+    silent_def name 0 (caml_print body);
+    Scan.macro_register name;
       bind (i+1) (j+1)
     with Not_found -> failwith "Missing bodies for \\@MULEDEF"
     with Not_found ->
       let name = String.sub names lasti (String.length names - lasti) in
       let body = String.sub bodies lastj (String.length bodies - lastj) in
       if !verbose > 2 then prerr_endline (lxm ^ name ^ ";" ^ body);
-      try (if exists_macro name then redef_macro else def_macro)
-          name 0 (Print body);
-        Scan.macro_register name
-      with Failed -> ();
+      silent_def name 0 (caml_print body) ;
+      Scan.macro_register name ;
   in bind 0 0;
   ()
 
@@ -326,11 +320,11 @@ and do_snippet lexbuf =
   end
 
 and do_enable_some_backslashed_chars lexbuf =
-  def_macro "\\n" 0 (Print "\\n"); Scan.macro_register "\\n";
-  def_macro "\\r" 0 (Print "\\r"); Scan.macro_register "\\r";
-  def_macro "\\0" 0 (Print "\\0"); Scan.macro_register "\\0";
-  def_macro "\\t" 0 (Print "\\t"); Scan.macro_register "\\t";
-  def_macro "\\f" 0 (Print "\\f"); Scan.macro_register "\\f";
+  def_macro "\\n" 0 (caml_print "\\n"); Scan.macro_register "\\n";
+  def_macro "\\r" 0 (caml_print "\\r"); Scan.macro_register "\\r";
+  def_macro "\\0" 0 (caml_print "\\0"); Scan.macro_register "\\0";
+  def_macro "\\t" 0 (caml_print "\\t"); Scan.macro_register "\\t";
+  def_macro "\\f" 0 (caml_print "\\f"); Scan.macro_register "\\f";
   ()  
 
 and do_enableLispComment lexbuf =
