@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.46 2004-05-28 11:55:22 thakur Exp $    *)
+(*  $Id: package.ml,v 1.47 2004-05-28 12:12:13 thakur Exp $    *)
 
 module type S = sig  end
 
@@ -942,8 +942,8 @@ register_init "bussproof"
 	  let arg = save_arg lexbuf in
 	  let formatted = Scan.get_this_arg_mbox arg in
 	  let (left_label,right_label) = get_labels_from_stack () in
-	  let proof1 = stack_pop () in
 	  let proof2 = stack_pop () in
+	  let proof1 = stack_pop () in
 	  let bi_inf = BINARY_INF (proof1,proof2,formatted,0,0,
 	  			   left_label,right_label) in
 	  stack_push bi_inf; 
@@ -953,9 +953,9 @@ register_init "bussproof"
 	  let arg = save_arg lexbuf in
 	  let formatted = Scan.get_this_arg_mbox arg in
 	  let (left_label,right_label) = get_labels_from_stack () in
-	  let proof1 = stack_pop () in
-	  let proof2 = stack_pop () in
 	  let proof3 = stack_pop () in
+	  let proof2 = stack_pop () in
+	  let proof1 = stack_pop () in
 	  let tri_inf = TRINARY_INF (proof1,proof2,proof3,formatted,0,0,
 	  			     left_label,right_label) in
 	  stack_push tri_inf;
