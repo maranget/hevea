@@ -485,7 +485,7 @@ and scan_byline = parse
     "\\end" [' ''\t']* '{' [^'}']+ '}'
     {let lxm = lexeme lexbuf in
     let env = env_extract lxm in
-    if env = !Scan.cur_env then begin
+    if Stack.empty stack_lexbuf && env = !Scan.cur_env then begin
       !finish () ;
       scan_this Scan.main ("\\end"^env) ;
       Scan.top_close_block "" ;

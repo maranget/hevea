@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.187 2000-07-18 09:57:38 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.188 2000-07-18 20:25:49 maranget Exp $ *)
 
 
 {
@@ -2530,6 +2530,17 @@ def_code "\\@restoreclosed"
 ;;
     
 exception Cannot
+;;
+
+def_code "\\@getlength"
+  (fun lexbuf ->
+    let arg = save_arg lexbuf in
+    let pxls = 
+      match Get.get_length arg with
+      | Length.Pixel n -> n
+      | Length.Char n -> Length.char_to_pixel n
+      | _             -> 0 in
+    Dest.put (string_of_int (pxls/2)))
 ;;
 
 let do_space vert lexbuf  = 
