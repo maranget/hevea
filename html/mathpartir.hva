@@ -94,7 +94,7 @@
       \@close{TD}\@close{TR}%
     \fi
     \def \@@arg{#1}\ifx \@@arg \mpr@empty%
-      \mpr@line{center}#2\endmpr@line%
+      \mpr@line{}#2\endmpr@line%
     \else
       \def \@@arg{#2}\ifx \@@arg \mpr@empty%
       \mpr@line{}#1\endmpr@line%
