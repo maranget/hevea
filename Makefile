@@ -1,10 +1,16 @@
 ################## Configuration parameters
 # Compile using ocamlopt, to use ocamlc set TARGET=byte
 TARGET=opt
+# Install prefix
+PREFIX=/usr/local
 # Library directory of hevea
-LIBDIR=/usr/local/lib/hevea
+LIBDIR=$(PREFIX)/lib/hevea
 # Where to install programms
-BINDIR=/usr/local/bin
+BINDIR=$(PREFIX)/bin
+# Install prefix prefix (cf. DESTDIR below)
+DESTDIR=
+#Where to install hevea.sty
+LATEXLIBDIR=$(PREFIX)/lib/hevea
 # C preprocessor with proper options
 #CPP=cpp -E -P
 #Some alternatives...
@@ -57,30 +63,32 @@ byte:
 	$(MAKE) $(MFLAGS) TARGET=byte hevea.byte hacha.byte esponja.byte cutfoot-fra.html cutfoot-eng.html
 
 install-lib:
-	- $(MKDIR) $(LIBDIR)
-	$(INSTALL) hevea.sty cutfoot-fra.html cutfoot-eng.html footer.tex ${LIBDIR}
-	$(INSTALL) contents_motif.gif next_motif.gif previous_motif.gif ${LIBDIR}
-	$(INSTALL) $(ALLLIB) $(LIBDIR)
-	- $(MKDIR)  $(LIBDIR)/html
-	cd html ; $(INSTALL) $(HTMLLIB) $(LIBDIR)/html
-	- $(MKDIR)  $(LIBDIR)/text
-	cd text ; $(INSTALL) $(TEXTLIB) $(LIBDIR)/text
-	- $(MKDIR) $(LIBDIR)/info
-	cd info ; $(INSTALL) $(INFOLIB) $(LIBDIR)/info
+	- $(MKDIR) $(DESTDIR)/$(LATEXLIBDIR)
+	$(INSTALL)  hevea.sty $(DESTDIR)/$(LATEXLIBDIR)
+	- $(MKDIR) $(DESTDIR)/$(LIBDIR)
+	$(INSTALL) cutfoot-fra.html cutfoot-eng.html footer.tex $(DESTDIR)/$(LIBDIR)
+	$(INSTALL) contents_motif.gif next_motif.gif previous_motif.gif $(DESTDIR)/$(LIBDIR)
+	$(INSTALL) $(ALLLIB) $(DESTDIR)/$(LIBDIR)
+	- $(MKDIR)  $(DESTDIR)/$(LIBDIR)/html
+	cd html ; $(INSTALL) $(HTMLLIB) $(DESTDIR)/$(LIBDIR)/html
+	- $(MKDIR)  $(DESTDIR)/$(LIBDIR)/text
+	cd text ; $(INSTALL) $(TEXTLIB) $(DESTDIR)/$(LIBDIR)/text
+	- $(MKDIR) $(DESTDIR)/$(LIBDIR)/info
+	cd info ; $(INSTALL) $(INFOLIB) $(DESTDIR)/$(LIBDIR)/info
 
 
 
 install-opt: install-lib
-	$(INSTALL) hevea.opt $(BINDIR)/hevea
-	$(INSTALL) hacha.opt $(BINDIR)/hacha
-	$(INSTALL) esponja.opt $(BINDIR)/esponja
-	$(INSTALL) imagen $(BINDIR)
+	$(INSTALL) hevea.opt $(DESTDIR)/$(BINDIR)/hevea
+	$(INSTALL) hacha.opt $(DESTDIR)/$(BINDIR)/hacha
+	$(INSTALL) esponja.opt $(DESTDIR)/$(BINDIR)/esponja
+	$(INSTALL) imagen $(DESTDIR)/$(BINDIR)
 
 install-byte: install-lib
-	$(INSTALL) hevea.byte $(BINDIR)/hevea
-	$(INSTALL) hacha.byte $(BINDIR)/hacha
-	$(INSTALL) esponja.byte $(BINDIR)/esponja
-	$(INSTALL) imagen $(BINDIR)
+	$(INSTALL) hevea.byte $(DESTDIR)/$(BINDIR)/hevea
+	$(INSTALL) hacha.byte $(DESTDIR)/$(BINDIR)/hacha
+	$(INSTALL) esponja.byte $(DESTDIR)/$(BINDIR)/esponja
+	$(INSTALL) imagen $(DESTDIR)/$(BINDIR)
 
 
 hevea.byte: ${OBJS}
