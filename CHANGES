@@ -1,2 +1,8 @@
-Version 1.1
-  - Corrected a bug with \frac and \over.
+Development version.
+  - Corrected a bug with \frac and \over: text before them appeared
+    above fraction.
+  - Corrected a HACHA bug: a spurious </UL> was introduced before footer.
+  - Corrected a few bugs in documentation (htmlraw -> rawhtml).
+
+Version 1.0
+  Initial release.

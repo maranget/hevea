@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: index.ml,v 1.12 1998-07-21 11:18:32 maranget Exp $" 
+let header = "$Id: index.ml,v 1.13 1998-08-20 12:36:18 maranget Exp $" 
 open Parse_opts
 open Entry
 
@@ -173,8 +173,10 @@ let treat tag arg =
     end ;
     count := !count + 1
   with Not_found -> begin
-    Location.print_pos () ;
-    prerr_endline ("Index: "^tag^" is undefined, makeindex or newindex is missing")
+    if not !silent || !verbose > 0 then begin
+      Location.print_pos () ;
+      prerr_endline ("Index: "^tag^" is undefined, makeindex or newindex is missing")
+    end
   end
 ;;
 

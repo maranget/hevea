@@ -66,6 +66,10 @@ release:
 testrelease:
 	$(MAKE) $(MFLAGS) dorelease RELEASEOPT="-D now"
 
+devrelease:
+	$(MAKE) $(MFLAGS) dorelease RELEASEOPT="-D now" FTPDIR="${FTPDIR}/unstable"
+
+
 clean:
 	rm -f *~ *.aux *.log *.toc
 
