@@ -1,0 +1,6 @@
+\let\RaggedRight\raggedright
+\let\RaggedLeft\raggedleft
+\let\Centering\centering
+\newenvironment{Center}{\begin{center}}{\end{center}}
+\newenvironment{FlushLeft}{\begin{flushleft}}{\end{flushleft}}
+\newenvironment{FlushLeftRight}{\begin{flushright}}{\end{flushright}}

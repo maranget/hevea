@@ -8,6 +8,18 @@
 \renewcommand{\cdots}{\@print{&#8943;}}
 \renewcommand{\ddots}{\@print{&#8944;}}
 \renewcommand{\vdots}{\@print{&#8942;}}
+%Somme text commands available in LaTeX2e to give << absolute >> names to
+%various languistic constructs.
+\def\textvisiblespace{\@print{&#9251;}}
+\def\textemdash{\@print{&mdash;}}
+\def\textendash{\@print{&ndash;}}
+\def\textexclamdown{\@print{&iexcl;}}
+\def\textquestiondown{\@print{&iquest;}}
+\def\textquotedblleft{\@print{&ldquo;}}
+\def\textquotedblright{\@print{&rdquo;}}
+\def\textquoteright{\@print{&rsquo;}}
+\def\textquoteleft{\@print{&lsquo;}}
+%
 %
 %% Greek Letters
 %
@@ -238,7 +250,6 @@
 \newcommand{\langle}{\@entity{lang}}
 \newcommand{\rangle}{\@entity{rang}}
 \renewcommand{\|}{\@print{&#8741;}}
-\renewcommand{\backslash}{\@print{&#92;}}
 %
 %% Variable-sized Symbols
 %

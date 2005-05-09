@@ -87,6 +87,7 @@
 \def\scriptscriptstyle{\ifmathml{\scriptsize\@incsize{-1}}\else\scriptsize\@incsize{-1}\fi}
 \def\textstyle{\ifmathml\@style{mtext}\fi}
 \def\textsuperscript#1{\ensuremath{^{\mbox{#1}}}}
+\def\textunderscore{\@print{_}}
 %%%%% Figures and tables
 \setenvclass{figure}{figure}
 \newcommand{\@figrule}{\begin{center}\@hr{.8\linewidth}{2pt}\end{center}}
