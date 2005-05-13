@@ -217,4 +217,4 @@
 %%%% For each option (language l), checks for l.hva and 'includes' it.
 %
 \ProcessOptions*%
-\typeout{MAIN: \bbl@main@language}\selectlanguage{\bbl@main@language}
+\selectlanguage{\bbl@main@language}

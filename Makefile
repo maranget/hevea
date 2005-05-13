@@ -62,6 +62,7 @@ install-lib:
 	cd text ; $(INSTALL) $(TEXTLIB) $(DESTDIR)/$(LIBDIR)/text
 	- $(MKDIR) $(DESTDIR)/$(LIBDIR)/info
 	cd info ; $(INSTALL) $(INFOLIB) $(DESTDIR)/$(LIBDIR)/info
+	$(INSTALL) imagen $(DESTDIR)/$(LIBDIR)
 
 
 
