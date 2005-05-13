@@ -16,12 +16,12 @@ SUF=
 DIR=
 HEVEA=./hevea.$(TARGET)
 ESPONJA=./esponja.$(TARGET)
-OCAMLC=${DIR}ocamlc$(SUF) -g
+OCAMLC=${DIR}ocamlc$(SUF)
 OCAMLFLAGS=
 #OCAMLFLAGS=-g -w Y
 OCAMLCI=$(OCAMLC)
 OCAMLOPT=${DIR}ocamlopt$(SUF)
-OCAMLLEX=${DIR}ocamllex$(SUF)
+OCAMLLEX=${DIR}ocamllex$(SUF) -q
 INSTALL=cp
 MKDIR=mkdir -p
 

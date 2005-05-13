@@ -180,14 +180,14 @@
 \newstyle{.title}{margin:auto;text-align:center}
 \newcommand{\maketitle}{%
   \bgroup\newcommand{\checkbox}[4]%
-    {\ifthenelse{\equal{\usebox{##3}}{}}%
+    {\@ifundefined{##3}
       {\ifthenelse{\equal{##4}{}}{}{\warning{No ##4 given}}}%
-      {\@open{##1}{\class@attr{##2}{}}\usebox{##3}\@close{##1}}%
+      {\@open{##1}{\class@attr{##2}{}}\usebox{\csname @##3\endcsname}\@close{##1}}%
     }%
   \@opencell{CLASS="title"}{}{}%
-  \checkbox{H1}{titlemain}{\@@title}{title}%
-  \checkbox{H3}{titlerest}{\@@author}{author}%
-  \checkbox{H3}{titlerest}{\@@date}{}%
+  \checkbox{H1}{titlemain}{@title}{title}%
+  \checkbox{H3}{titlerest}{@author}{author}%
+  \checkbox{H3}{titlerest}{@date}{}%
   \@closecell%
   \egroup%
 \let\maketitle\relax\let\checkbox\relax}%

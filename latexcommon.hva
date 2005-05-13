@@ -171,11 +171,11 @@
 \newcommand{\thanks}[1]{\footnote{#1}}
 \newenvironment{titlepage}{}{}
 \newcommand{\and}{\quad}
-\let\@title\relax\newsavebox{\@@title}%
+\newsavebox{\@@title}%
 \newcommand{\title}[1]{\gdef{\@title}{#1}}
-\let\@author\relax\newsavebox{\@@author}%
+\newsavebox{\@@author}%
 \newcommand{\author}[1]{\gdef{\@author}{#1}}
-\let\@date\relax\newsavebox{\@@date}%
+\newsavebox{\@@date}%
 \newcommand{\date}[1]{\gdef{\@date}{#1}}
 %% Lists
 \setenvclass{li-itemize}{li-itemize}
@@ -505,7 +505,9 @@
 \renewcommand{\theminute}{\@twoarabic{minute}}
 \renewcommand{\thesecond}{\@twoarabic{second}}}%
 %Format date after \today is defined
-\sbox{\@@title}{\@title}\sbox{\@@author}{\@author}\sbox{\@@date}{\@date}}
+\ifu\@title\else\sbox{\@@title}{\@title}\fi
+\ifu\@author\else\sbox{\@@author}{\@author}\fi
+\ifu\@date\else\sbox{\@@date}{\@date}\fi}
 
 %%%%%%%% Corrected format for the day  
 \newcommand\english@day{%
