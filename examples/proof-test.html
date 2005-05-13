@@ -4,15 +4,24 @@
 
 <HEAD>
 
-<TITLE></TITLE>
 
 <META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<META name="GENERATOR" content="hevea 1.07">
-
+<META name="GENERATOR" content="hevea 1.08">
+<STYLE type="text/css">
+.toc{list-style:none;}
+.title{margin:auto;text-align:center}
+.center{text-align:center;margin-left:auto;margin-right:auto;}
+.flushleft{text-align:left;margin-left:0ex;margin-right:auto;}
+.flushright{text-align:right;margin-left:auto;margin-right:0ex;}
+DIV TABLE{margin-left:inherit;margin-right:inherit;}
+PRE{text-align:left;margin-left:0ex;margin-right:auto;}
+BLOCKQUOTE{margin-left:4ex;margin-right:4ex;text-align:left;}
+.part{margin:auto;text-align:center}
+</STYLE>
 </HEAD>
 
 <BODY >
-<!--HEVEA command line is: ../hevea.byte proof-test -->
+<!--HEVEA command line is: ../hevea.byte -fix -fix -O proof-test.tex -->
 <!--HTMLHEAD-->
 <!--ENDHTML-->
 <!--PREFIX <ARG ></ARG>-->
@@ -21,245 +30,53 @@
 
 <!--TOC section Examples of proof.sty-->
 
-<H2 CLASS=section><A NAME="htoc1">1</A>&nbsp;&nbsp;Examples of proof.sty</H2><!--SEC END -->
+<H2 CLASS="section"><A NAME="htoc1">1</A>&nbsp;&nbsp;Examples of proof.sty</H2><!--SEC END -->
 <BR>
 <BR>
 <CODE>\infer</CODE> draws beautiful proof figures easily:
-<TABLE CLASS=proof ALIGN=center >
-<TR><TD ALIGN=center><TABLE CELLSPACING=0 CELLPADDING=0>
-<TR VALIGN=bottom><TD NOWRAP>
- <I>A</I></TD>
-<TD NOWRAP>&nbsp;&nbsp;
- <TABLE CLASS=proof ALIGN=center >
-<TR><TD ALIGN=center><TABLE CELLSPACING=0 CELLPADDING=0>
-<TR VALIGN=bottom><TD NOWRAP><I>B</I></TD>
-<TD NOWRAP>&nbsp;&nbsp; <I>C</I></TD>
-</TR></TABLE></TD>
-<TD ALIGN=center>&nbsp;</TD>
-</TR>
-<TR><TD ALIGN=center><HR NOSHADE SIZE="2">
-</TD>
-</TR>
-<TR><TD ALIGN=center><I>D</I></TD>
-<TD ALIGN=center>&nbsp;</TD>
-</TR></TABLE>
- </TD>
-</TR></TABLE></TD>
-<TD ALIGN=center>&nbsp;</TD>
-</TR>
-<TR><TD ALIGN=center><HR NOSHADE SIZE="2">
-</TD>
-</TR>
-<TR><TD ALIGN=center><I>E</I></TD>
-<TD ALIGN=center>&nbsp;</TD>
-</TR></TABLE><BR>
+E
+ ADBC
+ <BR>
+<BR>
 (1)<BR>
-<TABLE CLASS=proof ALIGN=center >
-<TR><TD ALIGN=center><TABLE CELLSPACING=0 CELLPADDING=0>
-<TR VALIGN=bottom><TD NOWRAP>
- <TABLE CLASS=proof ALIGN=center >
-<TR><TD ALIGN=center><TABLE CELLSPACING=0 CELLPADDING=0>
-<TR VALIGN=bottom><TD NOWRAP>
- &Pi;/2</TD>
-<TD NOWRAP>&nbsp;&nbsp;
- <TABLE CLASS=proof ALIGN=center >
-<TR><TD ALIGN=center><I>B</I><SUB><FONT SIZE=2>2</FONT></SUB>1 &and; <I>B</I>22</TD>
-<TD ALIGN=center>&nbsp;</TD>
-</TR>
-<TR><TD ALIGN=center><HR NOSHADE SIZE="2">
-</TD>
-<TD ALIGN=center>&and; <I>E</I><SUB><FONT SIZE=2>1</FONT></SUB></TD>
-</TR>
-<TR><TD ALIGN=center><I>B</I><SUB><FONT SIZE=2>2</FONT></SUB>1</TD>
-<TD ALIGN=center>&nbsp;</TD>
-</TR></TABLE></TD>
-<TD NOWRAP>&nbsp;&nbsp; 
- <I>D</I>1 &and; <I>D</I>2
- </TD>
-</TR></TABLE></TD>
-<TD ALIGN=center>&nbsp;</TD>
-</TR>
-<TR><TD ALIGN=center><HR NOSHADE SIZE="4">
-</TD>
-<TD ALIGN=center>&rarr; <I>E</I><SUB><FONT SIZE=2>1</FONT></SUB></TD>
-</TR>
-<TR><TD ALIGN=center><I>B</I><SUB><FONT SIZE=2>1</FONT></SUB></TD>
-<TD ALIGN=center>&nbsp;</TD>
-</TR></TABLE></TD>
-<TD NOWRAP>&nbsp;&nbsp;
- <TABLE CLASS=proof ALIGN=center >
-<TR><TD ALIGN=center><I>C</I><SUB><FONT SIZE=2>1</FONT></SUB>1 &and; <I>C</I>12</TD>
-<TD ALIGN=center>&nbsp;</TD>
-</TR>
-<TR><TD ALIGN=center><HR NOSHADE SIZE="4">
-</TD>
-</TR>
-<TR><TD ALIGN=center><I>C</I><SUB><FONT SIZE=2>1</FONT></SUB></TD>
-<TD ALIGN=center>&nbsp;</TD>
-</TR></TABLE>
-</TD>
-</TR></TABLE></TD>
-<TD ALIGN=center>&nbsp;</TD>
-</TR>
-<TR><TD ALIGN=center><HR NOSHADE SIZE="2">
-</TD>
-</TR>
-<TR><TD ALIGN=center><I>A</I><SUB><FONT SIZE=2>1</FONT></SUB></TD>
-<TD ALIGN=center>&nbsp;</TD>
-</TR></TABLE><BR>
+<BR>
+A_1
+ =[&rarr;E_1]B_1
+ &Pi;/2[&and;E_1]B_21B_21 &and;B22D1 &and;D2
+ =C_1C_11 &and;C12
+<BR>
+<BR>
 (2)<BR>
-<TABLE CLASS=proof ALIGN=center >
-<TR><TD ALIGN=center><TABLE CELLSPACING=0 CELLPADDING=0>
-<TR VALIGN=bottom><TD NOWRAP>
- <TABLE CLASS=proof ALIGN=center >
-<TR><TD ALIGN=center><TABLE CELLSPACING=0 CELLPADDING=0>
-<TR VALIGN=bottom><TD NOWRAP>
- &Pi;/2</TD>
-<TD NOWRAP>&nbsp;&nbsp;
- <TABLE CLASS=proof ALIGN=center >
-<TR><TD ALIGN=center><I>B</I>21 &and; <I>B</I>22</TD>
-<TD ALIGN=center>&nbsp;</TD>
-</TR>
-<TR><TD ALIGN=center>&#8942
-</TD>
-<TD ALIGN=center>&and; <I>E</I><SUB><FONT SIZE=2>1</FONT></SUB></TD>
-</TR>
-<TR><TD ALIGN=center><I>B</I>21</TD>
-<TD ALIGN=center>&nbsp;</TD>
-</TR></TABLE></TD>
-<TD NOWRAP>&nbsp;&nbsp; 
- <I>D</I>1 &and; <I>D</I>2
- </TD>
-</TR></TABLE></TD>
-<TD ALIGN=center>&nbsp;</TD>
-</TR>
-<TR><TD ALIGN=center><HR NOSHADE SIZE="4">
-</TD>
-<TD ALIGN=center>&rarr; <I>E</I></TD>
-</TR>
-<TR><TD ALIGN=center><I>B</I></TD>
-<TD ALIGN=center>&nbsp;</TD>
-</TR></TABLE></TD>
-<TD NOWRAP>&nbsp;&nbsp;
- <TABLE CLASS=proof ALIGN=center >
-<TR><TD ALIGN=center><I>C</I>11 &and; <I>C</I>12</TD>
-<TD ALIGN=center>&nbsp;</TD>
-</TR>
-<TR><TD ALIGN=center>&nbsp;</TD>
-<TD ALIGN=center>&nbsp;</TD>
-</TR>
-<TR><TD ALIGN=center><I>C</I></TD>
-<TD ALIGN=center>&nbsp;</TD>
-</TR></TABLE>
-</TD>
-</TR></TABLE></TD>
-<TD ALIGN=center>&nbsp;</TD>
-</TR>
-<TR><TD ALIGN=center><HR NOSHADE SIZE="4">
-</TD>
-</TR>
-<TR><TD ALIGN=center><I>A</I></TD>
-<TD ALIGN=center>&nbsp;</TD>
-</TR></TABLE><BR>
+<BR>
+=A
+ =[&rarr;E]B
+ &Pi;/2[&and;E_1]B21B21 &and;B22D1 &and;D2
+ CC11 &and;C12
+<BR>
+<BR>
 (3)<BR>
-<TABLE CLASS=proof ALIGN=center >
-<TR><TD ALIGN=center>
- <TABLE CLASS=proof ALIGN=center >
-<TR><TD ALIGN=center>[<I>A</I>]</TD>
-<TD ALIGN=center>&nbsp;</TD>
-</TR>
-<TR><TD ALIGN=center>&#8942
-</TD>
-</TR>
-<TR><TD ALIGN=center><I>B</I></TD>
-<TD ALIGN=center>&nbsp;</TD>
-</TR></TABLE>
-</TD>
-<TD ALIGN=center>&nbsp;</TD>
-</TR>
-<TR><TD ALIGN=center><HR NOSHADE SIZE="4">
-</TD>
-<TD ALIGN=center><I>RI</I></TD>
-</TR>
-<TR><TD ALIGN=center><I>A</I> &rarr; <I>B</I></TD>
-<TD ALIGN=center>&nbsp;</TD>
-</TR></TABLE><BR>
+<BR>
+=[RI]A &rarr;B
+ B[A]
+<BR>
+<BR>
 (4)<BR>
-<TABLE CLASS=proof ALIGN=center >
-<TR><TD ALIGN=center><TABLE CELLSPACING=0 CELLPADDING=0>
-<TR VALIGN=bottom><TD NOWRAP>
- <TABLE CLASS=proof ALIGN=center >
-<TR><TD ALIGN=center><TABLE CELLSPACING=0 CELLPADDING=0>
-<TR VALIGN=bottom><TD NOWRAP>
- <I>B</I>11&amp; <I>B</I>12&amp; <I>B</I>13</TD>
-<TD NOWRAP>&nbsp;&nbsp;
- <I>B</I>21&amp; <I>B</I>22&amp; <I>B</I>23
- </TD>
-</TR></TABLE></TD>
-<TD ALIGN=center>&nbsp;</TD>
-</TR>
-<TR><TD ALIGN=center><HR NOSHADE SIZE="2">
-</TD>
-</TR>
-<TR><TD ALIGN=center><I>B</I></TD>
-<TD ALIGN=center>&nbsp;</TD>
-</TR></TABLE></TD>
-<TD NOWRAP>&nbsp;&nbsp;
- <I>C</I>
-</TD>
-</TR></TABLE></TD>
-<TD ALIGN=center>&nbsp;</TD>
-</TR>
-<TR><TD ALIGN=center><HR NOSHADE SIZE="4">
-</TD>
-<TD ALIGN=center>(1)</TD>
-</TR>
-<TR><TD ALIGN=center><I>A</I></TD>
-<TD ALIGN=center>&nbsp;</TD>
-</TR></TABLE><BR>
+<BR>
+=[(1)]A
+ B
+ B11&amp;B12&amp;B13B21&amp;B22&amp;B23
+ C
+<BR>
+<BR>
 (5)<BR>
-<TABLE CLASS=proof ALIGN=center >
-<TR><TD ALIGN=center><TABLE CELLSPACING=0 CELLPADDING=0>
-<TR VALIGN=bottom><TD NOWRAP><I>A</I></TD>
-<TD NOWRAP>&nbsp;&nbsp; <I>B</I></TD>
-</TR></TABLE></TD>
-<TD ALIGN=center>&nbsp;</TD>
-</TR>
-<TR><TD ALIGN=center><HR NOSHADE SIZE="2">
-</TD>
-<TD ALIGN=center>(&and; <I>I</I>)</TD>
-</TR>
-<TR><TD ALIGN=center><I>A</I> &and; <I>B</I></TD>
-<TD ALIGN=center>&nbsp;</TD>
-</TR></TABLE>
-&nbsp;&nbsp;&nbsp;&nbsp;<TABLE CLASS=proof ALIGN=center >
-<TR><TD ALIGN=center><I>A</I> &and; <I>B</I></TD>
-<TD ALIGN=center>&nbsp;</TD>
-</TR>
-<TR><TD ALIGN=center><HR NOSHADE SIZE="2">
-</TD>
-<TD ALIGN=center>(&and; <I>E</I><SUB><FONT SIZE=2>1</FONT></SUB>)</TD>
-</TR>
-<TR><TD ALIGN=center><I>A</I></TD>
-<TD ALIGN=center>&nbsp;</TD>
-</TR></TABLE>
-&nbsp;&nbsp;&nbsp;&nbsp;<TABLE CLASS=proof ALIGN=center >
-<TR><TD ALIGN=center><I>A</I> &and; <I>B</I></TD>
-<TD ALIGN=center>&nbsp;</TD>
-</TR>
-<TR><TD ALIGN=center><HR NOSHADE SIZE="2">
-</TD>
-<TD ALIGN=center>(&and; <I>E</I><SUB><FONT SIZE=2><I>r</I></FONT></SUB>)</TD>
-</TR>
-<TR><TD ALIGN=center><I>B</I></TD>
-<TD ALIGN=center>&nbsp;</TD>
-</TR></TABLE><BR>
+<BR>
+[(&and;I)]A &and;BAB
+&nbsp;&nbsp;&nbsp;&nbsp;[(&and;E_1)]AA &and;B
+&nbsp;&nbsp;&nbsp;&nbsp;[(&and;E_r)]BA &and;B<BR>
+<BR>
 <!--HTMLFOOT-->
 <!--ENDHTML-->
 <!--FOOTER-->
-<HR SIZE=2>
-<BLOCKQUOTE><EM>This document was translated from L<sup>A</sup>T<sub>E</sub>X by
-</EM><A HREF="http://pauillac.inria.fr/~maranget/hevea/index.html"><EM>H<FONT SIZE=2><sup>E</sup></FONT>V<FONT SIZE=2><sup>E</sup></FONT>A</EM></A><EM>.
-</EM></BLOCKQUOTE>
-</BODY>
+<HR SIZE=2><BLOCKQUOTE CLASS="quote"><EM>This document was translated from L<sup>A</sup>T<sub>E</sub>X by
+<A HREF="http://pauillac.inria.fr/~maranget/hevea/index.html">H<FONT SIZE=2><sup>E</sup></FONT>V<FONT SIZE=2><sup>E</sup></FONT>A</A>.</EM></BLOCKQUOTE></BODY>
 </HTML>

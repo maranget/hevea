@@ -6,10 +6,13 @@
 %%%%    c) sets current language to l
 %
 \newcommand{\InitiateOption}[1]{%
+\@ifundefined{bbl@#1@loaded}
+{\let\csname bbl@#1@loaded\endcsname\relax%
 \@iffileexists{#1.hva}
   {\input{#1.hva}\def\bbl@main@language{#1}}
-  {\warning{Hevea babel '#1' not found, loading 'english' intead}}%
-   \input{english.hva}\def\bbl@main@language{english}}
+  {\warning{Hevea babel '#1' not found, loading 'english' intead}%
+   \input{english.hva}\def\bbl@main@language{english}}}
+{}}
 %
 %%%% Processing information for each optional argument
 %
@@ -26,6 +29,9 @@
         \InitiateOption{french}% 
 }%
 \DeclareOption{german}{%
+        \InitiateOption{german}% 
+}%
+\DeclareOption{ngerman}{%
         \InitiateOption{german}% 
 }%
 \DeclareOption{austrian}{%
@@ -211,4 +217,4 @@
 %%%% For each option (language l), checks for l.hva and 'includes' it.
 %
 \ProcessOptions*%
-\selectlanguage{\bbl@main@language}
+\typeout{MAIN: \bbl@main@language}\selectlanguage{\bbl@main@language}

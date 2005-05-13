@@ -7,39 +7,20 @@
 <TITLE>HEVEA User Documentation</TITLE>
 
 <META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<META name="GENERATOR" content="hevea 1.07+2 of 2005-02-18">
+<META name="GENERATOR" content="hevea 1.08">
 <LINK REL=STYLESHEET type="text/css" HREF="x.css">
 <LINK REL=STYLESHEET type="text/css" HREF="y.css">
 
 <STYLE type="text/css">
+.toc{list-style:none;}
 .title{margin:auto;text-align:center}
 .center{text-align:center;margin-left:auto;margin-right:auto;}
 .flushleft{text-align:left;margin-left:0ex;margin-right:auto;}
 .flushright{text-align:right;margin-left:auto;margin-right:0ex;}
 DIV TABLE{margin-left:inherit;margin-right:inherit;}
 PRE{text-align:left;margin-left:0ex;margin-right:auto;}
-BLOCKQUOTE{margin-left:4ex;margin-right:auto;text-align:left;}
+BLOCKQUOTE{margin-left:4ex;margin-right:4ex;text-align:left;}
 .part{margin:auto;text-align:center}
-H1.part{background:blue;color:white;font-variant:small-caps}
-.section{background:blue;color:white}
-.subsection{background:blue;color:white}
-.titlecommon{background:#ddccaa;color:white}
-.titlemain{padding:5;background:#ffeecc;color:black;font-variant:small-caps;font-size:30pt}
-.titlerest{padding:5;background:#ffeecc;color:black;font-variant:small-caps}
-H5{background:cyan;color:black}
-.subparagraph{background:magenta;color:white}
-.itemize{border:dotted black;margin-left:20;background:#eeddbb;color:black;font-variant:small-caps}
-.li-itemize{padding-left:10;border-left:solid blue;background:#bbddff;color:black;font-variant:small-caps}
-.enumerate{border:solid black;margin-left:20;background:#eeddbb;color:#ccccc;font-style:italic}
-.li-enumerate{padding-left:10;background:#bbddff;color:black;font-variant:small-caps}
-.list{border:solid red;padding:8;margin-left:20;background:#eeddbb;color:black;font-style:italic;font-variant:small-caps}
-.dt-list{background:#eeddbb;color:black;font-style:italic;font-variant:small-caps}
-.dd-list{border:solid blue;background:#bbddff;color:black;font-style:italic;font-variant:normal}
-.tabular{margin-left:20;background:#eeddbb;color:black}
-.proof{border:solid #88aacc;background:#bbddff;color:black;align:center}
-.bussproofs{border:thin solid red;background:#eeddbb;color:black;align:center}
-.fancy{background:#00cb00;color:white}
-.ruled-table{border:solid black;padding:5;background:#00cb00;color:white}
 </STYLE>
 </HEAD>
 
@@ -54,7 +35,8 @@ H5{background:cyan;color:black}
 <TABLE CLASS="title">
 <TR><TD>
 <H1 CLASS="titlemain">H<FONT SIZE=2><sup>E</sup></FONT>V<FONT SIZE=2><sup>E</sup></FONT>A User Documentation</H1>
-<H3 CLASS="titlerest">Luc Maranget<SUP><A NAME="text1" HREF="#note1">1</A></SUP></H3></TD>
+<H3 CLASS="titlerest">Luc Maranget<SUP><A NAME="text1" HREF="#note1">1</A></SUP></H3>
+<H3 CLASS="titlerest"></H3></TD>
 </TR></TABLE><BR>
 <!--TOC part Adding Style to Macros and Environments-->
 <TABLE CLASS="center">
@@ -65,7 +47,7 @@ Adding Style to Macros and Environments</H1></TD>
 <BR>
 <!--TOC section Adding 'Style' to Listing Mechanisms-->
 
-<H2 CLASS=section><A NAME="htoc2">1</A>&nbsp;&nbsp;Adding 'Style' to Listing Mechanisms</H2><!--SEC END -->
+<H2 CLASS="section"><A NAME="htoc2">1</A>&nbsp;&nbsp;Adding 'Style' to Listing Mechanisms</H2><!--SEC END -->
 
 HEVEA implements the list environments <TT>itemize</TT>, <TT>enumerate</TT>, <TT>description</TT> using the HTML block elements <TT>UL</TT>, <TT>OL</TT>, and <TT>DL</TT>. The <TT>&#92;begin</TT> and <TT>&#92;end</TT> commands correspond to opening and closing of the respective blocks. <BR>
 <BR>
@@ -73,7 +55,7 @@ To allow the user to add style, the blocks for each environment is opened with t
 <BR>
 <!--TOC subsection Itemize-->
 
-<H3 CLASS=subsection><A NAME="htoc3">1.1</A>&nbsp;&nbsp;Itemize</H3><!--SEC END -->
+<H3 CLASS="subsection"><A NAME="htoc3">1.1</A>&nbsp;&nbsp;Itemize</H3><!--SEC END -->
 
 <TABLE CELLSPACING=2 CELLPADDING=0>
 <TR><TD ALIGN=left NOWRAP>Name of Class</TD>
@@ -85,26 +67,26 @@ To allow the user to add style, the blocks for each environment is opened with t
 <TD ALIGN=left NOWRAP>&lt;UL CLASS=itemize&gt; .... &lt;/UL&gt;, &lt;LI CLASS=li-itemize&gt;</TD>
 </TR></TABLE><BR>
 Class definitions 
-<PRE>
+<PRE CLASS="verbatim">
 \setHTMLstyle{.itemize}{border:dotted black;margin-left:20;background:\#eeddbb;color:black;font-variant:small-caps}
 \setHTMLstyle{.li-itemize}{border-left:solid blue;padding-left:10;background:\#bbddff;color:black;font-variant:small-caps}
 </PRE>in the document preamble, for an input 
-<PRE>
+<PRE CLASS="verbatim">
 \begin{itemize}
 \item First Row of \texttt{Itemize}
 \item Second Row of \texttt{Itemize}
 \item Third Row of \texttt{Itemize}
 \end{itemize}
 </PRE>would produce output 
-<UL CLASS="itemize"><LI  CLASS=li-itemize >
+<UL CLASS="itemize"><LI CLASS="li-itemize">
 First Row of <TT>Itemize</TT>
-<LI  CLASS=li-itemize >Second Row of <TT>Itemize</TT>
-<LI  CLASS=li-itemize >Third Row of <TT>Itemize</TT>
+<LI CLASS="li-itemize">Second Row of <TT>Itemize</TT>
+<LI CLASS="li-itemize">Third Row of <TT>Itemize</TT>
 </UL>
 Note the use of &#92;# when specifying the color in the <EM>rgb</EM> format. It is exactly what one would do when printing out # in L<sup>A</sup>T<sub>E</sub>X (it would be unreasonable to expect the argument to be parsed in verbose). The arguments of all style commands follow the same principle.
 <!--TOC subsection Enumerate-->
 
-<H3 CLASS=subsection><A NAME="htoc4">1.2</A>&nbsp;&nbsp;Enumerate</H3><!--SEC END -->
+<H3 CLASS="subsection"><A NAME="htoc4">1.2</A>&nbsp;&nbsp;Enumerate</H3><!--SEC END -->
 
 <TABLE CELLSPACING=2 CELLPADDING=0>
 <TR><TD ALIGN=left NOWRAP>Name of Class</TD>
@@ -124,20 +106,20 @@ Note the use of &#92;# when specifying the color in the <EM>rgb</EM> format. It 
 <TD ALIGN=left NOWRAP>&#92;setHTMLstyle{.li-enumerate}{padding-left:10;background:#bbddff;color:black;font-variant:small-caps}</TD>
 </TR></TABLE><BR>
 An input of the form
-<PRE>
+<PRE CLASS="verbatim">
 \begin{enumerate}
 \item First Row of \texttt{Enumerate}
 \item Second Row of \texttt{Enumerate}
 \item Third Row of \texttt{Enumerate}
 \end{enumerate}
-</PRE>would then produce output of the form<OL CLASS="enumerate" type=1><LI  CLASS=li-enumerate >
+</PRE>would then produce output of the form<OL CLASS="enumerate" type=1><LI CLASS="li-enumerate">
 First Row of <TT>Enumerate</TT>
-<LI  CLASS=li-enumerate >Second Row of <TT>Enumerate</TT>
-<LI  CLASS=li-enumerate >Third Row of <TT>Enumerate</TT>
+<LI CLASS="li-enumerate">Second Row of <TT>Enumerate</TT>
+<LI CLASS="li-enumerate">Third Row of <TT>Enumerate</TT>
 </OL>
 <!--TOC subsection Description-->
 
-<H3 CLASS=subsection><A NAME="htoc5">1.3</A>&nbsp;&nbsp;Description</H3><!--SEC END -->
+<H3 CLASS="subsection"><A NAME="htoc5">1.3</A>&nbsp;&nbsp;Description</H3><!--SEC END -->
 
 <TABLE CELLSPACING=2 CELLPADDING=0>
 <TR><TD ALIGN=left NOWRAP>Name of Class</TD>
@@ -161,29 +143,29 @@ First Row of <TT>Enumerate</TT>
 <TD ALIGN=left NOWRAP>&#92;setHTMLstyle{.dd-list}{border:solid blue;background:#bbddff;color:black;font-style:italic;font-variant:normal}</TD>
 </TR></TABLE><BR>
 An input of the form
-<PRE>
+<PRE CLASS="verbatim">
 \begin{description}
 \item[Itemize] Unordered lists. $${unordered \over lists}$$
 \item[Enumerate] Ordered lists. $${ordered \over lists}$$
 \item[Description] Lists with user-defined labels, (also referred to as description lists). $${description \over lists}$$ 
 \end{description}
 </PRE>would then produce output of the form
-<DL CLASS="description" COMPACT=compact><DT CLASS=dt-description >
-<B>Itemize</B><DD CLASS=dd-description > Unordered lists. <DIV ALIGN=center><TABLE CELLSPACING=0 CELLPADDING=0>
+<DL CLASS="description" COMPACT=compact><DT CLASS="dt-description">
+<B>Itemize</B><DD CLASS="dd-description"> Unordered lists. <DIV CLASS="center"><TABLE CELLSPACING=0 CELLPADDING=0>
 <TR><TD NOWRAP ALIGN=center><I>unordered</I> </TD>
 </TR>
 <TR><TD BGCOLOR=black><TABLE BORDER=0 WIDTH="100%" CELLSPACING=0 CELLPADDING=1><TR><TD></TD></TR></TABLE></TD>
 </TR>
 <TR><TD NOWRAP ALIGN=center><I>lists</I></TD>
 </TR></TABLE></DIV>
-<DT CLASS=dt-description ><B>Enumerate</B><DD CLASS=dd-description > Ordered lists. <DIV ALIGN=center><TABLE CELLSPACING=0 CELLPADDING=0>
+<DT CLASS="dt-description"><B>Enumerate</B><DD CLASS="dd-description"> Ordered lists. <DIV CLASS="center"><TABLE CELLSPACING=0 CELLPADDING=0>
 <TR><TD NOWRAP ALIGN=center><I>ordered</I> </TD>
 </TR>
 <TR><TD BGCOLOR=black><TABLE BORDER=0 WIDTH="100%" CELLSPACING=0 CELLPADDING=1><TR><TD></TD></TR></TABLE></TD>
 </TR>
 <TR><TD NOWRAP ALIGN=center><I>lists</I></TD>
 </TR></TABLE></DIV>
-<DT CLASS=dt-description ><B>Description</B><DD CLASS=dd-description > Lists with user-defined labels, (also referred to as description lists). <DIV ALIGN=center><TABLE CELLSPACING=0 CELLPADDING=0>
+<DT CLASS="dt-description"><B>Description</B><DD CLASS="dd-description"> Lists with user-defined labels, (also referred to as description lists). <DIV CLASS="center"><TABLE CELLSPACING=0 CELLPADDING=0>
 <TR><TD NOWRAP ALIGN=center><I>description</I> </TD>
 </TR>
 <TR><TD BGCOLOR=black><TABLE BORDER=0 WIDTH="100%" CELLSPACING=0 CELLPADDING=1><TR><TD></TD></TR></TABLE></TD>
@@ -193,17 +175,17 @@ An input of the form
 </DL>
 <!--TOC section Proof Packages-->
 
-<H2 CLASS=section><A NAME="htoc6">2</A>&nbsp;&nbsp;Proof Packages</H2><!--SEC END -->
+<H2 CLASS="section"><A NAME="htoc6">2</A>&nbsp;&nbsp;Proof Packages</H2><!--SEC END -->
 
 HEVEA sets proofs using (nested) tables. Each of these tables is opened with a class, whose name is the name of the proof package being used. Thus the user may define that particular class in the preamble to give a particular style to the proofs. <BR>
 <BR>
 Examples for two proof packages supported by HEVEA (<TT>bussproofs</TT>, <TT>proof</TT>) are given below. The third supported package, mathpartir, is omitted as the commands clash with those of <TT>proof</TT>. 
 <!--TOC subsection Style Options with 'Proofs'-->
 
-<H3 CLASS=subsection><A NAME="htoc7">2.1</A>&nbsp;&nbsp;Style Options with 'Proofs'</H3><!--SEC END -->
+<H3 CLASS="subsection"><A NAME="htoc7">2.1</A>&nbsp;&nbsp;Style Options with 'Proofs'</H3><!--SEC END -->
 
 A class definition of the form
-<PRE>
+<PRE CLASS="verbatim">
 %HEVEA \setHTMLstyle{.proof}{border:solid \#88aacc;background:\#bbddff;color:black;align:center}
 </PRE>would produce proofs of the form
 (1)
@@ -222,19 +204,19 @@ A
  &Pi;/2[&and;E<SUB>1</SUB>]B21B21 &and;B22D1 &and;D2
  CC11 &and;C12
 
-<DIV ALIGN=center> (3)
+<DIV CLASS="center"> (3)
 </DIV>
 =[RI]A &rarr;B
  B[A]
 
-<DIV ALIGN=center> (4)
+<DIV CLASS="center"> (4)
 </DIV>
 =[(1)]A
  B
  B11&amp;B12&amp;B13B21&amp;B22&amp;B23
  C
 
-<DIV ALIGN=center> (5)
+<DIV CLASS="center"> (5)
 </DIV>
 <TABLE CELLSPACING=2 CELLPADDING=0>
 <TR><TD ALIGN=center NOWRAP>[(&amp; <I>I</I>)]<I>A</I> &amp; <I>B</I><I>A</I><I>B</I></TD>
@@ -243,12 +225,12 @@ A
 <TD ALIGN=center NOWRAP>&nbsp;</TD>
 <TD ALIGN=center NOWRAP>[(&amp; <I>E</I>_r)]<I>B</I><I>A</I>&amp; <I>B</I></TD>
 </TR></TABLE>
-<DIV ALIGN=center><!--TOC subsection <I>Style</I> <I>Options</I> <I>with</I> '<I>Bussproofs</I>'-->
+<DIV CLASS="center"><!--TOC subsection <I>Style</I> <I>Options</I> <I>with</I> '<I>Bussproofs</I>'-->
 
-<H3 CLASS=subsection><A NAME="htoc8">2.2</A>&nbsp;&nbsp;<I>Style</I> <I>Options</I> <I>with</I> '<I>Bussproofs</I>'</H3><!--SEC END -->
+<H3 CLASS="subsection"><A NAME="htoc8">2.2</A>&nbsp;&nbsp;<I>Style</I> <I>Options</I> <I>with</I> '<I>Bussproofs</I>'</H3><!--SEC END -->
 
 <I>A</I> <I>class</I> <I>definition</I> <I>of</I> <I>the</I> <I>form</I>
-<PRE>
+<PRE CLASS="verbatim">
 %HEVEA \setHTMLstyle{.bussproofs}{border:thin solid red;background:\#eeddbb;color:black;align:center}
 </PRE><I>would</I> <I>produce</I> <I>proofs</I> <I>like</I>
 
@@ -269,15 +251,15 @@ Ax
 &Gamma; &#8866; <I>c</I> &and; <I>d</I>
 &and;I
 &Gamma; &#8866; (<I>a</I> &rarr; <I>b</I>) &and; (<I>c</I> &and; <I>d</I>)
-<DIV ALIGN=center><!--TOC section <I>Using</I> <I>DIV</I> <I>for</I> <I>Styles</I>-->
+<DIV CLASS="center"><!--TOC section <I>Using</I> <I>DIV</I> <I>for</I> <I>Styles</I>-->
 
-<H2 CLASS=section><A NAME="htoc9">3</A>&nbsp;&nbsp;<I>Using</I> <I>DIV</I> <I>for</I> <I>Styles</I></H2><!--SEC END -->
+<H2 CLASS="section"><A NAME="htoc9">3</A>&nbsp;&nbsp;<I>Using</I> <I>DIV</I> <I>for</I> <I>Styles</I></H2><!--SEC END -->
 
 <I>Due</I> <I>to</I> <I>internal</I> <I>use</I> <I>of</I> <I>certain</I> <I>environments</I> <I>by</I> <I>HEVEA</I>, <I>they</I> <I>cannot</I> <I>be</I> <I>supported</I> <I>by</I> <I>defining</I> <I>an</I> <I>appropriate</I> <I>class</I> <I>in</I> <I>the</I> <I>preamble</I>. <I>A</I> <I>typical</I> <I>example</I> <I>would</I> <I>be</I> <I>the</I> <TT>table</TT> <I>environment</I>. <I>Defining</I> <I>a</I> <I>class</I> <EM>.table</EM> <I>and</I> <I>using</I> <I>it</I> <I>universaly</I> <I>would</I> <I>throw</I> <I>also</I> <I>effect</I> <I>math</I> <I>constructs</I>, <I>such</I> <I>as</I> <CODE>\over,\frac,\xleftarrow,etc.</CODE>, <I>besides</I> <I>many</I> <I>other</I> <I>things</I>.<I>One</I> <I>could</I> <I>separate</I> <EM>internal</EM> <I>usages</I> <I>from</I> <I>the</I> <EM>real</EM> <I>ones</I>, <I>using</I> <I>a</I> <I>class</I> <EM>.internal</EM> <I>for</I> <I>the</I> <I>former</I>; <I>however</I>, <I>the</I> <I>use</I> <I>of</I> <I>constructs</I> <I>such</I> <I>as</I> <I>tables</I> <I>and</I> <I>arrays</I> <I>is</I> <I>too</I> <I>wide</I> <I>and</I> <I>entertwined</I> <I>to</I> <I>be</I> <I>able</I> <I>to</I> <I>do</I> <I>that</I>. <I>However</I>, <I>for</I> <I>such</I> <I>constructs</I>, <I>limited</I> <I>support</I> <I>for</I> <I>style</I>&minus;<I>sheets</I> <I>is</I> <I>offered</I> <I>by</I> <I>the</I> <I>environment</I> <CODE>\divstyle</CODE>, <I>which</I> <I>takes</I> <I>the</I> <I>name</I> <I>of</I> <I>a</I> <I>class</I> <I>as</I> <I>an</I> <I>argument</I>, <I>and</I> <I>encloses</I> <I>the</I> <I>part</I> <I>inside</I> <I>using</I> <CODE>&lt;DIV CLASS=...&gt;</CODE> <I>and</I> <CODE>&lt;/DIV&gt;</CODE>. <I>The</I> <I>limitation</I> <I>is</I> <I>that</I> <I>the</I> <I>enclosed</I> <I>part</I> <I>may</I> <I>generate</I> <I>more</I> <I>HTML</I> <I>blocks</I>, <I>and</I> <I>only</I> <I>the</I> <I>inherited</I> <I>style</I> <I>attributes</I> <I>shall</I> <I>apply</I> <I>uniformly</I> <I>inside</I>. <I>However</I>, <I>it</I> <I>is</I> <I>pretty</I> <I>effective</I> <I>for</I> <I>some</I> <I>basic</I> <I>styling</I>.<I>As</I> <I>an</I> <I>example</I> <I>consider</I> <I>the</I> <I>class</I> <I>definition</I> <I>below</I>.
-<PRE>
+<PRE CLASS="verbatim">
 \setHTMLstyle{.ruled-table}{border:solid black; padding:5; background:\#00cb00;color:white}
 </PRE><I>Enclosing</I> <I>a</I> <EM>tabular</EM> <I>environment</I> <I>using</I> <EM>divstyle</EM> <I>with</I> <I>the</I> <I>class</I> <EM>.ruled-table</EM> <I>as</I> <I>the</I> <I>argument</I>, <I>as</I> <I>shown</I> <I>below</I>
-<PRE>
+<PRE CLASS="verbatim">
 $$
 \begin{divstyle}{ruled-table}
 \begin{tabular}{|&gt;{\tt}c|p{0.7\hsize}|}
@@ -288,7 +270,7 @@ $$
 </PRE><I>will</I> <I>produced</I> <I>output</I> <I>of</I> <I>the</I> <I>form</I></DIV>
 
 
-<DIV CLASS=ruled-table>
+<DIV CLASS="ruled-table">
 <TABLE BORDER=1 CELLSPACING=0 CELLPADDING=1>
 <TR><TD VALIGN=top ALIGN=center NOWRAP><TT><B>key</B></TT></TD>
 <TD VALIGN=top ALIGN=left><B>Effect for value <EM>v</EM></B></TD>
@@ -326,9 +308,9 @@ $$
 </TR></TABLE>
 </DIV>
 <I>As</I> <I>one</I> <I>can</I> <I>see</I>, <I>all</I> <I>attributes</I> <I>except</I> <I>color</I> (<I>which</I> <I>is</I> <I>not</I> <I>inherited</I>), <I>worked</I>. <I>Thus</I> <I>the</I> <I>user</I> <I>should</I> <I>remember</I> <I>to</I> <I>use</I> <I>only</I> <I>those</I> <I>arttributes</I> <I>which</I> <I>do</I> <I>not</I> <I>need</I> <I>to</I> <I>be</I> <I>inherited</I> (<I>e</I>.<I>g</I>. <I>border</I> <I>and</I> <I>padding</I>, <I>used</I> <I>once</I> <I>at</I> <I>the</I> <I>beginning</I>), <I>or</I> <I>those</I> <I>that</I> <I>get</I> <I>inherited</I> <I>by</I> <I>blocks</I> <I>inside</I> (<I>e</I>.<I>g</I>. <I>background</I>).<I>A</I> <I>typical</I> <I>error</I> <I>would</I> <I>be</I> <I>of</I> <I>the</I> <I>kind</I>.
-<PRE>
+<PRE CLASS="verbatim">
 \begin{divstyle}{ruled-table}
 I should be $$\frac{white}{white}$$
 \end{divstyle}
-</PRE><I>which</I> <I>would</I> <I>result</I> <I>in</I><DIV CLASS=ruled-table>
+</PRE><I>which</I> <I>would</I> <I>result</I> <I>in</I><DIV CLASS="ruled-table">
 <I>I</I> <I>should</I> <I>be</I> </DIV>

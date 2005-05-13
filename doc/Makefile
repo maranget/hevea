@@ -97,7 +97,7 @@ UNSTABLE=
 
 dorelease: doversion
 	$(MAKE) $(MFLAGS) byte manual.dvi
-#pdfmanual.pdf
+	( unset TEXINPUTS ; $(MAKE) $(MFLAGS)  pdfmanual.pdf )
 # hevea relase
 	cd $(RELEASEDIR) ; rm -rf $(RELEASENAME) ;\
 	cvs -d $(CVSDIR) export  $(RELEASEOPT) -l htmlgen htmlgen/html htmlgen/text htmlgen/info ;\
@@ -109,7 +109,7 @@ dorelease: doversion
 	rm -rf $(RELEASEDIR)/$(RELEASENAME)-manual-dvi
 	mkdir $(RELEASEDIR)/$(RELEASENAME)-manual-dvi
 	cp manual.dvi $(RELEASEDIR)/$(RELEASENAME)-manual-dvi
-#	cp pdfmanual.pdf $(RELEASEDIR)/$(RELEASENAME)-manual.pdf
+	cp pdfmanual.pdf $(RELEASEDIR)/$(RELEASENAME)-manual.pdf
 	cp blob.ps cloche.ps int.ps realblob.ps rquote.ps blob2.ps\
 home.ps intd.ps round.ps xfd.ps $(RELEASEDIR)/$(RELEASENAME)-manual-dvi
 	rm -rf $(RELEASEDIR)/$(RELEASENAME)-manual

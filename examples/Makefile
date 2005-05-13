@@ -1,8 +1,7 @@
 LATEX=latex
-HEVEA=hevea
+HEVEA=../hevea.byte
 HEVEAOPTS=-fix -O
-IMAGEN=imagen
-HACHA=hacha
+HACHA=../hacha.byte
 EXDIR=$(HOME)/public_html/hevea/examples
 TEX=$(HTML:.html=.tex)
 HTML=a.html pat.html suite.html env.html smile.html amstex.html graphics.html graphicx.html verbs.html style-test.html bussproofs-test.html proof-test.html
@@ -13,11 +12,11 @@ INFO=$(TEXT:.txt=.info)
 
 all: dvi html text info
 opt:	export HEVEADIR=.. ;\
-	$(MAKE) $(MFLAGS) HEVEAOPTS="$(HEVEAOPTS)" HEVEA=../hevea.opt HACHA=../hacha.opt IMAGEN=../imagen all
+	$(MAKE) $(MFLAGS) HEVEAOPTS="$(HEVEAOPTS)" HEVEA=../hevea.opt HACHA=../hacha.opt all
 
 byte:
 	export HEVEADIR=.. ;\
-	$(MAKE) $(MFLAGS)  HEVEAOPTS="$(HEVEAOPTS)" HEVEA=../hevea.byte HACHA=../hacha.byte IMAGEN=../imagen html
+	$(MAKE) $(MFLAGS)  HEVEAOPTS="$(HEVEAOPTS)" HEVEA=../hevea.byte HACHA=../hacha.byte html
 
 dvi: $(DVI)
 
@@ -29,7 +28,7 @@ info: $(INFO)
 install:
 	/bin/rm -rf $(EXDIR)
 	mkdir $(EXDIR)
-	cp *.gif $(HTML) index.html tmp*.html conclusion.html benchmarks.html hp.c $(EXDIR)
+	cp *.gif $(HTML) index.html tmp.css tmp*.html conclusion.html benchmarks.html hp.c $(EXDIR)
 	-cp $(TEXT) $(EXDIR)
 	cp Makefile $(TEX) pat.def env.hva pat.hva smile.hva $(EXDIR)
 	cp $(DVI) $(EXDIR)
