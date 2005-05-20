@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.70 2005-05-20 13:44:24 maranget Exp $    *)
+(*  $Id: package.ml,v 1.71 2005-05-20 13:46:56 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -696,7 +696,7 @@ register_init "german"
             | 'U' -> gput lexbuf 'Ü'
             | 's'|'z' -> gput lexbuf 'ß'
             | 'c'|'f'|'l'|'m'|'p'|'r'|'t' as c ->
-                gput lexbuf c (* for "ck and "ff "mm etc. *)
+                gput lexbuf c (* for "ck and "ff etc. *)
             | 'S' ->
                 Save.gobble_one_char lexbuf ;
                 Dest.put "SS"
