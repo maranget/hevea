@@ -1,4 +1,7 @@
 version 1.08
+    - Serious german babel, with active '"'
+
+version 1.08
     -Release : two major changes
      * Replace symbol font by entities
      * Introduction of style sheets.

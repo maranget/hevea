@@ -13,21 +13,26 @@
 open Lexing
 open Misc
 
-let header = "$Id: save.mll,v 1.68 2005-02-18 12:48:04 maranget Exp $" 
+let header = "$Id: save.mll,v 1.69 2005-05-20 13:44:24 maranget Exp $" 
 
-let rec if_next_char  c lb =
+let rec peek_next_char lb =
   let pos = lb.lex_curr_pos
   and len = lb.lex_buffer_len in
   if pos >= len then begin
     if lb.lex_eof_reached then
-      false
+      raise Not_found
     else begin
       lb.refill_buff lb ;
-      if_next_char c lb
+      peek_next_char lb
     end
   end else
-    let c_pos = lb.lex_buffer.[pos] in
-    c_pos = c
+    lb.lex_buffer.[pos]
+
+let if_next_char  c lb =
+  try
+     peek_next_char lb = c
+  with
+  | Not_found -> false
 
 let rec if_next_string s lb =
   if s = "" then
@@ -481,6 +486,11 @@ and simple_delim c = parse
   } 
 | eof
   {error (Printf.sprintf "End of file in simple delim '%c'" c)}
+
+and gobble_one_char = parse 
+| _   {()}
+| ""  {fatal ("Gobble at end of file")}
+
 
 {
 

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: lexstate.ml,v 1.65 2005-03-08 15:15:03 maranget Exp $"
+let header = "$Id: lexstate.ml,v 1.66 2005-05-20 13:44:24 maranget Exp $"
 
 open Misc
 open Lexing
@@ -172,8 +172,6 @@ type env = string array ref
 type closenv = string array t
 
 
-
-
 (* catcodes *)
 
 let plain_of_char = function
@@ -190,11 +188,12 @@ let plain_of_char = function
   | '\'' -> 10
   | '`' -> 11
   | '-' -> 12
+  | '"' -> 13
   | c   ->
       raise
         (Fatal ("Internal catcode table error: '"^String.make 1 c^"'"))
 
-and plain = Array.create 13 true
+and plain = Array.create 14 true
 
 let is_plain c = plain.(plain_of_char c)
 and set_plain c = plain.(plain_of_char c) <- true

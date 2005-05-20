@@ -7,30 +7,31 @@
 %%%%    c) names of various part descriptors (contentsname etc.)
 %%%%    d) \dq
 %%%%    e) Different quotations marks (\glqq etc.)
-
+\@primitives{german}
 \newcommand{\common@common@german@babel}{
   \renewcommand\prefacename{Vorwort}%
-  \renewcommand\refname{Literatur}
-  \renewcommand\abstractname{Zusammenfassung}
-  \renewcommand\bibname{Literaturverzeichnis}
-  \renewcommand\chaptername{Kapitel}
-  \renewcommand\appendixname{Anhang}
-  \renewcommand\contentsname{Inhaltsverzeichnis}
-  \renewcommand\listfigurename{Abbildungsverzeichnis}
-  \renewcommand\listtablename{Tabellenverzeichnis}
-  \renewcommand\indexname{Index}
-  \renewcommand\figurename{Abbildung}
-  \renewcommand\tablename{Tabelle}
-  \renewcommand\partname{Teil}
-  \renewcommand\enclname{Anlage(n)}
-  \renewcommand\ccname{Verteiler}
-  \renewcommand\headtoname{An}
-  \renewcommand\pagename{Seite}
-  \renewcommand\headpagename{Siete}
-  \renewcommand\seename{siehe}
-  \renewcommand\alsoseename{siehe auch}
-  \renewcommand\dq{\@print{"}}
-} 
+  \renewcommand\refname{Literatur}%
+  \renewcommand\abstractname{Zusammenfassung}%
+  \renewcommand\bibname{Literaturverzeichnis}%
+  \renewcommand\chaptername{Kapitel}%
+  \renewcommand\appendixname{Anhang}%
+  \renewcommand\contentsname{Inhaltsverzeichnis}%
+  \renewcommand\listfigurename{Abbildungsverzeichnis}%
+  \renewcommand\listtablename{Tabellenverzeichnis}%
+  \renewcommand\indexname{Index}%
+  \renewcommand\figurename{Abbildung}%
+  \renewcommand\tablename{Tabelle}%
+  \renewcommand\partname{Teil}%
+  \renewcommand\enclname{Anlage(n)}%
+  \renewcommand\ccname{Verteiler}%
+  \renewcommand\headtoname{An}%
+  \renewcommand\pagename{Seite}%
+  \renewcommand\headpagename{Siete}%
+  \renewcommand\seename{siehe}%
+  \renewcommand\alsoseename{siehe auch}%
+  \renewcommand\dq{\@print{"}}%
+  \catcode`\"=13\let\@hevea@dquote\@german@dquote%
+}
 \newcommand{\common@german@babel}{%
   \common@common@german@babel
   \def{\german@month}{ 

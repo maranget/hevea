@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.69 2005-03-08 15:15:03 maranget Exp $    *)
+(*  $Id: package.ml,v 1.70 2005-05-20 13:44:24 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -663,6 +663,56 @@ register_init "natbib"
         scan_this main ("\\NAT@args" ^ arg)) ;
     ())
 ;;            
+
+let gput lexbuf c =
+  Save.gobble_one_char lexbuf ;
+  Dest.put (Dest.iso c)
+;;
+
+let gscan lexbuf cmd =
+  Save.gobble_one_char lexbuf ;
+  Scan.expand_command_no_skip cmd lexbuf
+;;
+
+
+register_init "german"
+  (fun () ->
+      def_code "\\@german@dquote"
+        (fun lexbuf ->
+          if effective !alltt then
+            Dest.put_char '"'
+          else try
+            let c = Save.peek_next_char lexbuf  in
+            match c with
+            | 'a' -> gput lexbuf 'ä'
+            | 'A' -> gput lexbuf 'Ä'
+            | 'e' -> gput lexbuf 'ë'
+            | 'E' -> gput lexbuf 'Ë'
+            | 'i' -> gput lexbuf 'ï'
+            | 'I' -> gput lexbuf 'Ï'
+            | 'o' -> gput lexbuf 'ö'
+            | 'O' -> gput lexbuf 'Ö'
+            | 'u' -> gput lexbuf 'ü'
+            | 'U' -> gput lexbuf 'Ü'
+            | 's'|'z' -> gput lexbuf 'ß'
+            | 'c'|'f'|'l'|'m'|'p'|'r'|'t' as c ->
+                gput lexbuf c (* for "ck and "ff "mm etc. *)
+            | 'S' ->
+                Save.gobble_one_char lexbuf ;
+                Dest.put "SS"
+            | 'Z' ->
+                Save.gobble_one_char lexbuf ;
+                Dest.put "SZ"
+            | '|' | '-'| '"' -> Save.gobble_one_char lexbuf
+            | '~'|'=' -> gput lexbuf '-'
+            | '`' -> gscan lexbuf "\\glqq"
+            | '\'' -> gscan lexbuf "\\grqq"
+            | '<' -> gscan lexbuf "\\flqq"
+            | '>' -> gscan lexbuf "\\frqq"
+            | _ -> Dest.put_char '"'
+          with
+          | Not_found -> Dest.put_char '"'))
+;;
 
 let get_elements str = 
     let len = String.length str in

@@ -9,6 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
+val peek_next_char : Lexing.lexbuf  -> char
 val if_next_char : char -> Lexing.lexbuf  -> bool
 val if_next_string : string -> Lexing.lexbuf -> bool
 
@@ -17,6 +18,8 @@ exception Delim of string
 val empty_buffs : unit -> unit
 val set_verbose : bool -> int -> unit
 val seen_par : bool ref
+
+val gobble_one_char : Lexing.lexbuf -> unit
 
 exception Eof
 exception NoOpt

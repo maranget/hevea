@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.259 2005-03-08 15:15:03 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.260 2005-05-20 13:44:24 maranget Exp $ *)
 
 
 {
@@ -1030,7 +1030,7 @@ rule  main = parse
     {let lxm = lexeme lexbuf in
     Dest.put lxm;
     main lexbuf}
-(* Html specials *)
+(* Active characters *)
 | '-'
   {do_expand_command main skip_blanks "\\@hevea@minus" lexbuf ;
   main lexbuf }
@@ -1050,15 +1050,18 @@ rule  main = parse
 | '!'
   {do_expand_command main skip_blanks "\\@hevea@excl" lexbuf ;
   main lexbuf}
+| '"'
+  {if is_plain '"' then 
+    Dest.put_char '"'
+  else
+    do_expand_command main skip_blanks "\\@hevea@dquote" lexbuf ;
+  main lexbuf}
+
 (* One character *)
 | _  as lxm
    {let lxm = check_case_char lxm in
    Dest.put (Dest.iso lxm) ;
    main lexbuf}
-
-and gobble_one_char = parse 
-| _   {()}
-| ""  {fatal ("Gobble at end of file")}
 
 and complete_newline = parse
 |  (' '* '\n')* {lexeme lexbuf}
@@ -1492,6 +1495,9 @@ def_code "\\@hevea@excl"
        Dest.put_char '!')
 ;;
 
+def_code "\\@hevea@dquote" (fun lexbuf -> Dest.put_char '"')
+;;
+
 let get_this_main arg = get_this_string main arg
 
 let check_this_main s =
@@ -1520,9 +1526,11 @@ let get_prim_onarg arg =
   and plain_amper = is_plain '&'
   and plain_quote = is_plain '\''
   and plain_backquote = is_plain '`'
-  and plain_minus = is_plain '-' in
+  and plain_minus = is_plain '-'
+  and plain_dquote = is_plain '"' in
   unset_plain '_' ; unset_plain '^' ; unset_plain '$' ; unset_plain '&' ;
   unset_plain '\'' ; unset_plain '`' ; unset_plain  '-' ;
+  set_plain '"' ;
   let old_raw = !raw_chars in
   raw_chars := true ;
   let r = do_get_this
@@ -1533,7 +1541,7 @@ let get_prim_onarg arg =
   plain_back plain_sub '_' ; plain_back plain_sup '^' ;
   plain_back plain_dollar '$' ; plain_back plain_amper '&' ;
   plain_back plain_quote '\'' ; plain_back plain_backquote  '`' ;
-  plain_back plain_minus '-' ;
+  plain_back plain_minus '-' ; plain_back plain_dquote '"' ;
   r
 
 let get_prim s = get_prim_onarg (string_to_arg s)
@@ -1951,10 +1959,11 @@ def_code "\\catcode"
      begin match char,code with
      | ('\\',0) | ('{',1) | ('}',2) | ('$',3) | ('&' ,4) |
        ('#',6) | ('^',7) | ('_',8) | ('~',13) |
-       ('%',14) -> top_plain char
+       ('%',14)|('"',12) -> top_plain char
      | ('{',(11|12)) | ('}',(11|12)) | ('$',(11|12)) | ('&' ,(11|12)) |
        ('#',(11|12)) | ('^',(11|12)) | ('_',(11|12)) | ('~',(11|12)) |
-       ('%',(11|12)) | ('\\',(11|12)) -> top_unplain char
+       ('%',(11|12)) | ('\\',(11|12))|
+       ('"',13) -> top_unplain char
      | _ ->
          warning "This \\catcode operation is not permitted"
      end ;

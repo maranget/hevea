@@ -118,6 +118,7 @@
 \newcommand\english@language{english}%
 \newcommand\french@language{french}%
 \newcommand\german@language{german}%
+\newcommand\ngerman@language{ngerman}%
 \newcommand\american@language{american}%
 \newcommand\austrian@language{austrian}%
 \newcommand\brazil@language{brazil}%
@@ -149,9 +150,14 @@
 %
 %%%% Support for the 'babel' command to select languages.
 %
+%Save definition of double quote (altered by german)
+\let\@hevea@saved@dquote\@hevea@dquote
 \newcommand{\selectlanguage}[1]{%
+\let\@hevea@dquote\@hevea@saved@dquote%Restore inocuous definition
   \ifthenelse{\equal{#1}{german}} {%
 	\let\current@language\german@language    \german@babel    } {%
+  \ifthenelse{\equal{#1}{ngerman}} {%
+	\let\current@language\ngerman@language   \german@babel    } {%
   \ifthenelse{\equal{#1}{english}} {%
  	\let\current@language\english@language   \english@babel   } {%
   \ifthenelse{\equal{#1}{french}} {%
@@ -204,7 +210,7 @@
 	\let\current@language\swedish@language   \swedish@babel   } {%
   \ifthenelse{\equal{#1}{turkish}} {%
 	\let\current@language\turkish@language   \turkish@babel   } {%
-  }}}}}}}}}}}}}}}}}}}}}}}}}}}%
+  }}}}}}}}}}}}}}}}}}}}}}}}}}}}%
 }%
 %
 %%%% Support for the 'babel' command for querying the current language.
@@ -218,3 +224,4 @@
 %
 \ProcessOptions*%
 \selectlanguage{\bbl@main@language}
+\endinput
