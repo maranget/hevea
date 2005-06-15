@@ -63,8 +63,7 @@ install-lib:
 	- $(MKDIR) $(DESTDIR)/$(LIBDIR)/info
 	cd info ; $(INSTALL) $(INFOLIB) $(DESTDIR)/$(LIBDIR)/info
 	$(INSTALL) imagen $(DESTDIR)/$(LIBDIR)
-
-
+	$(INSTALL) xxcharset.exe xxdate.exe $(DESTDIR)/$(LIBDIR)
 
 install-opt: install-lib
 	- $(MKDIR) $(DESTDIR)/$(BINDIR)
