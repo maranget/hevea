@@ -173,10 +173,13 @@
 \newcommand{\and}{\quad}
 \newsavebox{\@@title}%
 \newcommand{\title}[1]{\gdef{\@title}{#1}}
+\newcommand{\@titlebis}[1]{\gdef{\@title}{seen}\sbox{\@@title}{#1}}
 \newsavebox{\@@author}%
 \newcommand{\author}[1]{\gdef{\@author}{#1}}
+\newcommand{\@authorbis}[1]{\gdef{\@author}{seen}\sbox{\@@author}{#1}}
 \newsavebox{\@@date}%
 \newcommand{\date}[1]{\gdef{\@date}{#1}}
+\newcommand{\@datebis}[1]{\gdef{\@date}{seen}\sbox{\@@date}{#1}}
 %% Lists
 \setenvclass{li-itemize}{li-itemize}
 \newcommand{\item}[1][]{\warning{\item outside a list-making environment}}
@@ -505,9 +508,9 @@
 \renewcommand{\theminute}{\@twoarabic{minute}}
 \renewcommand{\thesecond}{\@twoarabic{second}}}%
 %Format date after \today is defined
-\ifu\@title\else\sbox{\@@title}{\@title}\fi
-\ifu\@author\else\sbox{\@@author}{\@author}\fi
-\ifu\@date\else\sbox{\@@date}{\@date}\fi}
+\ifu\@title\let\title\@titlebis\else\sbox{\@@title}{\@title}\fi
+\ifu\@author\let\author\@authorbis\else\sbox{\@@author}{\@author}\fi
+\ifu\@date\let\date\@datebis\else\sbox{\@@date}{\@date}\fi}
 
 %%%%%%%% Corrected format for the day  
 \newcommand\english@day{%

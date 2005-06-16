@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: htmlparse.ml,v 1.5 2001-05-28 17:28:55 maranget Exp $         *)
+(*  $Id: htmlparse.ml,v 1.6 2005-06-16 16:44:42 maranget Exp $         *)
 (***********************************************************************)
 open Lexeme
 open Htmllex
@@ -32,7 +32,7 @@ and put_back lexbuf tok = match !buff with
 let txt_buff = Buff.create ()
 
 let rec to_close tag lb = match next_token lb with
-|  Close (t,txt) when t=tag ->
+| Close (t,txt) when t=tag ->
     Buff.put txt_buff txt
 | Open (t,_,txt) when t=tag ->
     Buff.put txt_buff txt ;

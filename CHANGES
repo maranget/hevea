@@ -1,3 +1,7 @@
+    - \title \author \date work aftr \begin{document}
+    - Small bug listings, an additional line was appended at the end
+      of listings when showlines=true
+    
 version 1.08
     - Serious german babel, with active '"'
 

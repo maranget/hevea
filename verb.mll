@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: verb.mll,v 1.71 2005-03-08 15:15:03 maranget Exp $            *)
+(*  $Id: verb.mll,v 1.72 2005-06-16 16:44:42 maranget Exp $            *)
 (***********************************************************************)
 {
 exception VError of string
@@ -132,6 +132,12 @@ type lst_scan_mode =
   | Letter | Other | Empty | Start
   | Directive of bool (* bool flags some letter read *)
 
+let is_start = function | Start -> true | _ -> false
+
+let show_mode = function
+  | Letter -> "Letter" | Other -> "Other" | Empty -> "Empty" | Start -> "Start"
+  | Directive _ -> "Directive"
+
 let lst_scan_mode = ref Empty
 
 type comment_type =
@@ -224,7 +230,7 @@ let lst_output_token () =
 
 
 let lst_finalize inline =
- if inline || !lst_showlines then begin
+ if inline || (!lst_showlines && not (is_start !lst_scan_mode)) then begin
    lst_output_token ()
  end ;
  scan_this main "\\lst@forget@lastline"
