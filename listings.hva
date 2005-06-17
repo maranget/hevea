@@ -191,30 +191,56 @@
 %%%%%%% Frames
 \newstyle{.lstlisting}{font-family:monospace;white-space:pre;margin-right:auto;margin-left:0pt;text-align:left}
 \setenvclass{lstlisting}{lstlisting}
-\def\lst@color@in@temp{%
+\def\lst@bgcolor@in@temp{%
    \let\old@color\color%
    \renewcommand{\color}[2][!*!]{\@getstylecolor[##1]{##2}}%
-   \prim@def\lst@temp{\lst@bgcolor}%
+   \prim@def\lst@temp@bgcolor{background-color:\lst@bgcolor;}%
    \let\color\old@color%
 }
+\def\lst@rulecolor@in@temp{%
+   \let\old@color\color%
+   \renewcommand{\color}[2][!*!]{\@getstylecolor[##1]{##2}}%
+   \prim@def\lst@temp@rulecolor{border-color:\lst@rulecolor;}%
+   \let\color\old@color%
+}
+\def\lst@border@none{border-style:none;}
+\def\lst@border@leftline{border-left-style:solid;}
+\def\lst@border@topline{border-top-style:solid;}
+\def\lst@border@bottomline{border-bottom-style:solid;}
+\def\lst@border@lines{border-style:solid none;}
+\def\lst@border@single{border-style:solid;}
+\def\lst@border@shadowbox{border-style:outset;}
+\def\lst@frame@in@temp{%
+   \ifu\csname lst@border@\lst@frame\endcsname
+   \prim@def\lst@temp@frame{\lst@see@frame{\lst@frame}}
+   \else
+   \let\lst@temp@frame\csname lst@border@\lst@frame\endcsname
+%   \prim@def\lst@temp@frame{\csname lst@border@\lst@frame\endcsname}%
+   \fi
+}
 \lst@AddToHook{InitVar}
-  {\ifu\lst@bgcolor
+  {\ifu\lst@cell@needed
    \def\@@open@lstbox{\@open{DIV}{\envclass@attr{lstlisting}}}%
    \def\@close@lstbox{\@close{DIV}}%
    \else
-   \lst@color@in@temp%
-   \def\@@open@lstbox{\@opencell{STYLE="padding:1ex;background-color:\lst@temp"}{}{\envclass@attr{lstlisting}}}%
+   \ifu\lst@bgcolor\def\lst@temp@bgcolor{}\else\lst@bgcolor@in@temp\fi%
+   \ifu\lst@rulecolor\def\lst@temp@rulecolor{}\else\lst@rulecolor@in@temp\fi%
+   \ifu\lst@frame\def\lst@temp@frame{}\else\lst@frame@in@temp\fi%
+   \def\@@open@lstbox{\@opencell{STYLE="padding:1ex;\lst@temp@bgcolor\lst@temp@frame\lst@temp@rulecolor"}{}{\envclass@attr{lstlisting}}}%
    \def\@close@lstbox{\@closecell}%
    \fi
    \def\@open@lstbox{\@@open@lstbox\whitepretrue}}
-%\newcommand{\lst@define@bgcolor}[2][!*!]
-%  {\def\lst@tmp{#2}%
-%  \ifx\lst@tmp\@empty\let\lst@bgcolor\@empty
-%  \else\def\lst@bgcolor{\@getcolor[#1]{#2}}\fi}
-%\lst@define@key@opt{backgroundcolor}{\lst@define@bgcolor}{}
 \def\colorwarning{\warning{Colors in listings and 'color' package not loaded}}
 \define@key{lst}{backgroundcolor}
-{\ifu\color\colorwarning\else\def\lst@bgcolor{#1}\fi}
+{\ifu\color\colorwarning\else\def\lst@cell@needed{}\def\lst@bgcolor{#1}\fi}
+\define@key{lst}{frame}{\def\lst@cell@needed{}\def\lst@frame{#1}}
+\define@key{lst}{rulecolor}
+{\ifu\color\colorwarning\else\def\lst@cell@needed{}\def\lst@rulecolor{#1}\fi}
+\lst@iter{\ignore@key}
+   {framexleftmargin,framexrightmargin,framextopmargin,framexbottommargin}
+\lst@iter{\ignore@key}{fillcolor,rulesepcolor}
+\lst@iter{\ignore@key}{framesep,rulesep,framerule}
+\lst@iter{\ignore@key}{frameround}
 %%%%%%% Margins and line shape
 \def\lst@doindent#1{}
 \define@key{lst}{indent}{\def\lst@doindent{\hspace{#1}}}

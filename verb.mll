@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: verb.mll,v 1.72 2005-06-16 16:44:42 maranget Exp $            *)
+(*  $Id: verb.mll,v 1.73 2005-06-17 16:17:01 maranget Exp $            *)
 (***********************************************************************)
 {
 exception VError of string
@@ -1420,6 +1420,9 @@ def_code "\\@callopt"
       let exec = csname^"["^opt^"]{"^arg^"}" in
       scan_this  Scan.main exec)
 
+
+type css_border = None | Solid | Double
+
 let init_listings () =
   Scan.newif_ref "lst@print" lst_print ;
   Scan.newif_ref "lst@includerangemarker" lst_includerangemarker ;
@@ -1526,7 +1529,47 @@ let init_listings () =
             ("\\lst@derivelanguage@{"^
              language^"}{"^ dialect^"}{"^
              base_language^"}{"^base_dialect^"}{"^
-             keys^"}"))        
+             keys^"}")) ;
+
+(* Interpret 'trblTRBL' subset to yield border-style specifications in CSS2 *)
+    let string_of_border = function
+      | None -> "none"
+      | Solid -> "solid"
+      | Double -> "double" in
+
+    def_code "\\lst@see@frame"
+     (fun lexbuf ->
+       let arg = get_prim_arg lexbuf in
+       let bs = Array.create 4 None in
+       for i = 0 to String.length arg-1 do
+         match arg.[i] with
+         | 't' -> bs.(0) <- Solid
+         | 'T' -> bs.(0) <- Double
+         | 'r' -> bs.(1) <- Solid
+         | 'R' -> bs.(1) <- Double
+         | 'b' -> bs.(2) <- Solid
+         | 'B' -> bs.(2) <- Double
+         | 'l' -> bs.(3) <- Solid
+         | 'L' -> bs.(3) <- Double
+         | _ -> ()
+       done ;
+       let specif = match bs with
+       |  [| None ; None ; None ; None |] -> ""
+       |  [| Solid ; Solid ; Solid ; Solid |] -> "border-style:solid;"
+       |  [| Double ; Double ; Double ; Double |] -> "border-style:double;"
+       |  [| bt ; br ; bb ; bl |]
+           when bt=bb && br=bl ->
+             Printf.sprintf "border-style:%s %s;"
+               (string_of_border bt)
+               (string_of_border br)
+       | [| bt ; br ; bb ; bl |] ->
+           Printf.sprintf "border-style:%s %s %s %s;"
+             (string_of_border bt)
+             (string_of_border br)
+             (string_of_border bb)
+             (string_of_border bl)
+       | _ -> assert false in
+       Dest.put specif)
 ;;
 
 register_init "listings" init_listings
