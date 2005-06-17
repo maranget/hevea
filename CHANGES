@@ -1,6 +1,6 @@
 version 1.08+1
     - key frame (and a few others, related to frames) in listings
-    - \title \author \date work aftr \begin{document}
+    - \title, \author and \date now work after \begin{document}
     - Small bug listings, an additional line was appended at the end
       of listings when showlines=true
     
