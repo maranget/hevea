@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: htmlparse.ml,v 1.7 2005-06-24 08:32:21 maranget Exp $         *)
+(*  $Id: htmlparse.ml,v 1.8 2005-06-24 08:34:23 maranget Exp $         *)
 (***********************************************************************)
 open Lexeme
 open Htmllex
@@ -49,8 +49,10 @@ let rec tree lexbuf =
       let otxt = txt
       and ctxt = Htmllex.to_string (to_close STYLE lexbuf) in
       let txt = Buff.to_string txt_buff in
+(*
       let css = Htmllex.styles (Lexing.from_string txt) in
       Pp.styles stderr css ;
+*)
       Some (Text (otxt^txt^ctxt))
   | Open (SCRIPT,_,txt) ->
       Buff.put txt_buff txt ;

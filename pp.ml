@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: pp.ml,v 1.4 2001-05-28 17:28:56 maranget Exp $                *)
+(*  $Id: pp.ml,v 1.5 2005-06-24 08:32:21 maranget Exp $                *)
 (***********************************************************************)
 open Printf 
 open Lexeme
@@ -82,3 +82,18 @@ and pctags chan x = do_pctags chan x
 
 let tree chan t = tree potags pctags chan t
 and trees chan ts = trees potags pctags chan ts
+
+open Css
+
+let style chan = function
+  | Other txt -> output_string chan txt
+  | Class (name,txt) ->
+      output_char chan '.' ; output_string chan name ;
+      output_string chan txt
+
+let styles chan ids =
+  List.iter
+    (fun id ->
+      style chan id ;
+      output_char chan '\n')
+    ids
