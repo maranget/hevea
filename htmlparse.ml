@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: htmlparse.ml,v 1.6 2005-06-16 16:44:42 maranget Exp $         *)
+(*  $Id: htmlparse.ml,v 1.7 2005-06-24 08:32:21 maranget Exp $         *)
 (***********************************************************************)
 open Lexeme
 open Htmllex
@@ -32,11 +32,10 @@ and put_back lexbuf tok = match !buff with
 let txt_buff = Buff.create ()
 
 let rec to_close tag lb = match next_token lb with
-| Close (t,txt) when t=tag ->
-    Buff.put txt_buff txt
+| Close (t,txt) as tok when t=tag -> tok
 | Open (t,_,txt) when t=tag ->
     Buff.put txt_buff txt ;
-    to_close tag lb ;
+    Buff.put txt_buff (Htmllex.to_string (to_close tag lb)) ;
     to_close tag lb
 | Eof -> error ("Eof in to_close") lb
 | tok ->
@@ -46,9 +45,16 @@ let rec to_close tag lb = match next_token lb with
 let rec tree lexbuf =
   match next_token lexbuf with
   | (Eof|Close (_,_)) as tok-> put_back lexbuf tok ; None
+  | Open (STYLE,_,txt) ->
+      let otxt = txt
+      and ctxt = Htmllex.to_string (to_close STYLE lexbuf) in
+      let txt = Buff.to_string txt_buff in
+      let css = Htmllex.styles (Lexing.from_string txt) in
+      Pp.styles stderr css ;
+      Some (Text (otxt^txt^ctxt))
   | Open (SCRIPT,_,txt) ->
       Buff.put txt_buff txt ;
-      to_close SCRIPT lexbuf ;
+      Buff.put txt_buff (Htmllex.to_string (to_close SCRIPT lexbuf)) ;
       Some (Text (Buff.to_string txt_buff))
   | Open (tag,attrs,txt) ->
       let fils = trees lexbuf in

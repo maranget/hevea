@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: htmllex.mll,v 1.9 2001-05-29 15:09:22 maranget Exp $          *)
+(*  $Id: htmllex.mll,v 1.10 2005-06-24 08:32:21 maranget Exp $          *)
 (***********************************************************************)
 {
 open Lexing
@@ -70,7 +70,8 @@ List.iter (init text)
    "STRIKE",STRIKE ; "S",S ; "U",U ; "FONT",FONT ;
    "EM",EM ; "STRONG",STRONG ; "DFN",DFN ; "CODE",CODE ; "SAMP",SAMP ;
    "KBD",KBD ; "VAR",VAR ; "CITE",CITE ; "ABBR",ABBR ; "ACRONYM",ACRONYM ; 
-   "Q",Q ; "SUB",SUB ; "SUP",SUP ; "A", A ; "SPAN", SPAN ; "SCRIPT", SCRIPT]
+   "Q",Q ; "SUB",SUB ; "SUP",SUP ; "A", A ; "SPAN", SPAN ; "SCRIPT", SCRIPT;
+    "STYLE", STYLE; ]
 ;;
 
 let is_textlevel name =
@@ -201,28 +202,26 @@ rule main = parse
     let tag = read_tag lexbuf in    
     in_tag lexbuf ;
     ferme lexbuf tag (Buff.to_string buff)}
-|  eof {Eof}
-| _
-    {putc (lexeme_char lexbuf 0) ;
+| eof {Eof}
+| _ as c
+    {putc c ;
     text lexbuf ;
     Text (Buff.to_string buff)}
 
 and text = parse
-| [^'<']
-  {putc (lexeme_char lexbuf 0) ; text lexbuf}
+| [^'<'] as c
+  {putc c ; text lexbuf}
 | "" {()}
 
 and read_tag = parse
-| ['a'-'z''A'-'Z''0'-'9']*
-    {let lxm = lexeme lexbuf in
-    put lxm ; lxm}
+| ['a'-'z''A'-'Z''0'-'9']* as lxm
+    {put lxm ; lxm}
 
 and read_attrs = parse
-| blank+
-    {aput (lexeme lexbuf) ; read_attrs lexbuf}
-| ['a'-'z''A'-'Z''-''0'-'9']+
-  {let name = lexeme lexbuf in
-  aput name ;
+| blank+ as lxm
+    {aput lxm ; read_attrs lexbuf}
+| ['a'-'z''A'-'Z''-''0'-'9']+ as name
+  {aput name ;
   let v = read_avalue lexbuf in
   let atxt = Buff.to_string abuff in
   put atxt ;
@@ -238,29 +237,36 @@ and read_avalue = parse
 | "" {None}
 
 and read_aavalue = parse
-| '\''[^'\'']*'\''
-| '"'[^'"']*'"'
-    {let lxm = lexeme lexbuf in
-    aput lxm ;
-    unquote lxm}
-| '#'?['a'-'z''A'-'Z''0'-'9''-''+''_'':''.']+
-    {let lxm = lexeme lexbuf in
-    aput lxm ;
+| '\'' ([^'\'']* as x) '\''
+| '"' ([^'"']* as x) '"' as lxm
+    {aput lxm ;
+    x}
+| '#'?['a'-'z''A'-'Z''0'-'9''-''+''_'':''.']+ as lxm
+    {aput lxm ;
     lxm}
 | "" {error "Attribute syntax" lexbuf}
 
 and in_tag = parse
-| '>' {putc (lexeme_char lexbuf 0)}
-| _   {putc (lexeme_char lexbuf 0) ; in_tag lexbuf}
+| '>' {putc '>'}
+| _ as c   {putc c ; in_tag lexbuf}
 | eof {error "End of file in tag" lexbuf}
 
 and in_comment = parse
 | "-->" '\n'?
   {put (lexeme lexbuf)}
-| _
-   {putc (lexeme_char lexbuf 0) ; in_comment lexbuf}
+| _ as c
+   {putc c ; in_comment lexbuf}
 | eof
     {error "End of file in comment" lexbuf}
+
+and styles = parse
+| blank+ { styles lexbuf }
+| eof    { [] }
+| blank* '.' ([^'{'' ''\t''\n']+ as name) blank*
+    ('{' [^'}']* '}' as cl)
+  { Css.Class (name, cl) :: styles lexbuf }
+| blank* ([^'{']+ '{' [^'}']* '}' as lxm)
+  {Css.Other lxm :: styles lexbuf}
 
 {
 

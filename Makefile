@@ -25,7 +25,7 @@ OCAMLLEX=${DIR}ocamllex$(SUF) -q
 INSTALL=cp
 MKDIR=mkdir -p
 
-ONLYESPONJA=emisc.cmo buff.cmo htmllex.cmo htmlparse.cmo htmltext.cmo pp.cmo util.cmo explode.cmo ultra.cmo esponja.cmo
+ONLYESPONJA=emisc.cmo buff.cmo pp.cmo htmllex.cmo htmlparse.cmo htmltext.cmo util.cmo explode.cmo ultra.cmo esponja.cmo
 
 OBJS=version.cmo mysys.cmo stack.cmo location.cmo misc.cmo element.cmo out.cmo table.cmo mylib.cmo parse_opts.cmo  myfiles.cmo symb.cmo save.cmo auxx.cmo  lexstate.cmo subst.cmo latexmacros.cmo counter.cmo noimage.cmo image.cmo length.cmo  get.cmo tabular.cmo htmlCommon.cmo htmlMath.cmo mathML.cmo html.cmo  text.cmo infoRef.cmo info.cmo section.cmo foot.cmo entry.cmo index.cmo colscan.cmo color.cmo hot.cmo package.cmo videoc.cmo verb.cmo latexscan.cmo zyva.cmo $(ONLYESPONJA) latexmain.cmo
 OBJSCUT=version.cmo mysys.cmo stack.cmo location.cmo misc.cmo  out.cmo thread.cmo cross.cmo mylib.cmo section.cmo length.cmo save.cmo cut.cmo cutmain.cmo
