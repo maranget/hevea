@@ -1,6 +1,6 @@
 explode.cmi: tree.cmi lexeme.cmi htmltext.cmi 
 get.cmi: lexstate.cmi length.cmi 
-htmllex.cmi: lexeme.cmi 
+htmllex.cmi: lexeme.cmi css.cmi 
 html.cmi: tabular.cmi out.cmi lexstate.cmi length.cmi element.cmi 
 htmlparse.cmi: tree.cmi lexeme.cmi 
 htmltext.cmi: lexeme.cmi 
@@ -10,7 +10,7 @@ latexscan.cmi: outManager.cmi lexstate.cmi imageManager.cmi
 lexstate.cmi: stack.cmi misc.cmi 
 outManager.cmi: tabular.cmi out.cmi lexstate.cmi length.cmi element.cmi 
 package.cmi: outManager.cmi latexscan.cmi imageManager.cmi 
-pp.cmi: tree.cmi lexeme.cmi htmltext.cmi 
+pp.cmi: tree.cmi lexeme.cmi htmltext.cmi css.cmi 
 save.cmi: misc.cmi 
 subst.cmi: lexstate.cmi 
 tabular.cmi: lexstate.cmi length.cmi 
@@ -153,8 +153,8 @@ package.cmx: version.cmx subst.cmx stack.cmx save.cmx parse_opts.cmx \
     auxx.cmx package.cmi 
 parse_opts.cmo: version.cmi mylib.cmi misc.cmi location.cmi parse_opts.cmi 
 parse_opts.cmx: version.cmx mylib.cmx misc.cmx location.cmx parse_opts.cmi 
-pp.cmo: tree.cmi lexeme.cmi htmltext.cmi pp.cmi 
-pp.cmx: tree.cmi lexeme.cmi htmltext.cmx pp.cmi 
+pp.cmo: tree.cmi lexeme.cmi htmltext.cmi css.cmi pp.cmi 
+pp.cmx: tree.cmi lexeme.cmi htmltext.cmx css.cmi pp.cmi 
 save.cmo: out.cmi misc.cmi save.cmi 
 save.cmx: out.cmx misc.cmx save.cmi 
 section.cmo: section.cmi 
