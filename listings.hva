@@ -320,7 +320,7 @@ breakindent,breakautoindent}
 \global\let\@NewLine\@NewLine@}
 \lst@AddToHook{LastLine}{\setcounter{lst@spaces}{0}%
 \sbox{\@prevlines}{\usebox{\@prevlines}\usebox{\@curline}}%
-\iflst@showlines\else\sbox{\@prevlines}{}\fi\sbox{\@curline}{}%
+\iflst@showlines\usebox{\@prevlines}\fi\sbox{\@prevlines}{}\sbox{\@curline}{}%
 \global\let\@NewLine\@NewLine@}
 \lst@AddToHook{Init}{\sbox{\@prevlines}{}\sbox{\@curline}{}\global\let\@NewLine\lst@spaces}
 \def\lst@numbers@none{\setboolean{lst@numbers}{false}}

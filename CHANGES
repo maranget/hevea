@@ -1,4 +1,5 @@
 version 1.08+1
+    - debugged showlines in listings at end ?
     - key frame (and a few others, related to frames) in listings
     - \title, \author and \date now work after \begin{document}
     - Small bug listings, an additional line was appended at the end
