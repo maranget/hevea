@@ -1,4 +1,4 @@
-version 1.08+1
+version 1.08+2
     - added default values for keywords
     - changed keywords management
         * keywords are installed while defining languages (and not in
@@ -6,6 +6,7 @@ version 1.08+1
         * all keywords are erased in PreSetlanguage
     - added classes in keywords
     - debugged showlines in listings,  at end ?
+version 1.08+1
     - key frame (and a few others, related to frames) in listings
     - \title, \author and \date now work after \begin{document}
     - Small bug listings, an additional line was appended at the end

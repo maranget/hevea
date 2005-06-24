@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: verb.mll,v 1.74 2005-06-24 12:45:04 maranget Exp $            *)
+(*  $Id: verb.mll,v 1.75 2005-06-24 18:24:53 maranget Exp $            *)
 (***********************************************************************)
 {
 exception VError of string
@@ -871,6 +871,7 @@ and lst_parse_linerange = parse
     (fst,lst)::lst_parse_linerange lexbuf}
 
 {
+
 let _ = ()
 ;;
 let put_char_star = function
@@ -1276,7 +1277,8 @@ let lst_finalize inline =
 
 let open_lst_inline keys =
   scan_this Scan.main "\\lsthk@PreSet" ;
-  scan_this Scan.main ("\\lstset{"^keys^"}\\lsthk@AfterSetLanguage") ;
+  scan_this Scan.main ("\\lstset{"^keys^"}") ;
+(*  scan_this Scan.main  "\\lsthk@AfterSetLanguage" ; *)
 (* For inline *)
   scan_this Scan.main "\\lsthk@InlineUnsave" ;
 (* Ignoring output *)
@@ -1340,7 +1342,7 @@ let open_lst_env name =
     Image.stop () ;
     scan_this Scan.main "\\lsthk@PreSet" ;
     expand_command_no_skip com_name lexbuf ;
-    scan_this Scan.main "\\lsthk@AfterSetLanguage" ;
+(*    scan_this Scan.main "\\lsthk@AfterSetLanguage" ; *)
     lst_init_char_table false ;
     scan_this Scan.main "\\lsthk@SelectCharTable" ;
     if !lst_extended then
@@ -1393,7 +1395,7 @@ let open_lst_env name =
     Scan.close_env !Scan.cur_env ;
     Image.restart () ;
     Scan.check_alltt_skip lexbuf)
-   
+;;   
     
 
 let do_newenvironment lexbuf =
