@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: mathML.ml,v 1.21 2004-11-26 13:13:05 maranget Exp $" 
+let header = "$Id: mathML.ml,v 1.22 2005-07-15 13:23:12 maranget Exp $" 
 
 
 open Misc
@@ -125,7 +125,7 @@ let open_display_varg _ = open_display ()
   
 let do_item_display _force =
   if !verbose > 2 then begin
-    prerr_endline ("Item Display ncols="^string_of_int flags.ncols^" table_inside="^sbool flags.table_inside)
+    prerr_endline ("Item Display in mathML ncols="^string_of_int flags.ncols^" table_inside="^sbool flags.table_inside)
   end ;
   let f,is_freeze = pop_freeze () in
   if ((*force && *)not flags.empty) || flags.table_inside then
@@ -332,7 +332,7 @@ let put s =
     let save_last_closed = flags.last_closed in
     if is_open_delim s then open_delim ();
     let s_text = if is_close_delim s then is_close () else false in
-    if s_op || s_number then force_item_display ();
+    if (s_op || s_number) && !Lexstate.display then force_item_display ();
     do_pending () ;
     flags.empty <- false;
     flags.blank <- s_blank && flags.blank ;
@@ -361,7 +361,7 @@ let put_char c =
     let c_digit = is_digit c in
     if is_open_delim s then open_delim ();
     let c_text = if is_close_delim s then is_close () else false in
-    if c_op || c_digit then force_item_display ();
+    if (c_op || c_digit) && !Lexstate.display then force_item_display ();
     do_pending () ;
     flags.empty <- false;
     flags.blank <- c_blank && flags.blank ;
@@ -383,7 +383,7 @@ let put_in_math s =
   if flags.in_pre && !pedantic then
     put s
   else begin
-    force_item_display ();
+    if !Lexstate.display then force_item_display ();
     do_pending () ;
     do_put "<mi> ";
     do_put s;
@@ -557,9 +557,9 @@ let left delim k =
 ;;
 
 let right delim =
-  force_item_display ();
+  if !Lexstate.display then force_item_display ();
   if delim <> "." then put ("<mo> "^tr delim^" </mo>");
-  force_item_display ();
+  if !Lexstate.display then force_item_display ();
   let f,is_freeze = pop_freeze () in
   if not is_freeze then begin
     warning "Right delimitor alone";

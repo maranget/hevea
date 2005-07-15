@@ -155,7 +155,7 @@
 \define@key{lst}{commentstyle}{\def\lst@comment@style{#1}}
 \define@key{lst}{stringstyle}{\def\lst@string@style{#1}}
 \lst@AddToHook{EmptyStyle}{\let\lst@string@style\@empty}
-\lst@AddToHook{EmptyStyle}{\let\lst@comment@style\@empty}
+\lst@AddToHook{EmptyStyle}{\let\lst@comment@style\em}
 \lst@AddToHook{EmptyStyle}{\let\lst@identifier@style\@empty}
 \lst@AddToHook{EmptyStyle}{\let\lst@basic@style\@empty}
 \lst@AddToHook{EmptyStyle}{\lst@keywordstyle@key[1]{\bfseries}}
@@ -500,10 +500,22 @@ breakindent,breakautoindent}
 \lst@AddToHook{SelectCharTable}
 {\setboolean{lst@extendedchars}{\lst@boolean{\lst@extendedchars}}}
 \define@key{lst}{extendedchars}[true]{\def\lst@extendedchars{#1}}
-\lst@iter{\ignore@key}{inputencoding,showspaces,formfeed}
-\newcommand{\lst@warnkey}[2]{\define@key{lst}{#2}{\warning{#1}}}
-\lst@iter{\lst@warnkey{No more tabulations in our
-century}}{tabsize,showtabs,tab}
+\define@key{lst}{showspaces}[true]{\def\lst@showspaces{#1}}
+\setboolean{lst@showspaces}{false}
+\lst@AddToHook{Init}
+  {\@ifundefined{lst@showspaces}{}
+     {\setboolean{lst@showspaces}{\lst@boolean{\lst@showspaces}}}}
+\define@key{lst}{showtabs}[true]{\def\lst@showtabs{#1}}
+\setboolean{lst@showtabs}{false}
+\lst@AddToHook{Init}
+  {\@ifundefined{lst@showtabs}{}
+     {\setboolean{lst@showtabs}{\lst@boolean{\lst@showtabs}}}}
+\lst@AddToHook{DeInit}{\setboolean{lst@showtabs}{false}}
+
+\newcommand{\lst@tabsize}{8}
+\define@key{lst}{tabsize}[8]{\def\lst@tabsize{#1}}
+\define@key{lst}{tab}{\def\lst@tab{#1}}
+\lst@iter{\ignore@key}{inputencoding,formfeed}
 %%%%%%% Alter char categories
 \def\lst@alsoletter{}
 \define@key{lst}{alsoletter}{\def\lst@alsoletter{#1}}

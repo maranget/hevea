@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: verb.mll,v 1.75 2005-06-24 18:24:53 maranget Exp $            *)
+(*  $Id: verb.mll,v 1.76 2005-07-15 13:23:12 maranget Exp $            *)
 (***********************************************************************)
 {
 exception VError of string
@@ -108,8 +108,11 @@ and lst_sensitive = ref true
 and lst_mathescape = ref false
 and lst_directives = ref false
 and lst_showlines = ref false
+and lst_tabsize = ref 8
+and lst_col = ref 0
 
-let lst_effective_spaces = ref false (* false => spaces are spaces *)
+let lst_showspaces = ref false (* false => spaces are spaces *)
+and lst_showtabs = ref false 
 and lst_save_spaces  = ref false
 
 
@@ -121,10 +124,12 @@ let lst_last_char = ref ' '
 and lst_finish_comment = ref 0
 
 let lst_put c =
+  incr lst_col ;
   lst_last_char := c ;
   Out.put_char lst_buff c
 
 and lst_direct_put c =
+  incr lst_col ;
   lst_last_char := c ;
   Dest.put_char c
 
@@ -151,6 +156,10 @@ type lst_top_mode =
   | Delim of int * (char * (Lexing.lexbuf -> char -> unit)) list
   | Gobble of lst_top_mode * int
   | Escape of lst_top_mode * char * bool (* bool flags mathescape *)
+
+let is_normal = function
+| Normal -> true
+| _ -> false
 
 let is_outputing = function
   | Skip _ -> false
@@ -330,7 +339,7 @@ and end_comment () = scan_this Scan.main "\\endgroup"
 let end_string to_restore =
   scan_this Scan.main "\\endgroup" ;
   restore_char_table to_restore ;
-  lst_effective_spaces := !lst_save_spaces
+  lst_showspaces := !lst_save_spaces
 
 let rec end_mode mode = match mode with
 | Comment _ -> end_comment ()
@@ -401,15 +410,16 @@ match !lst_top_mode with
     end ;
     let next_line = !lst_nlines+1 in
     if next_line <= !lst_last then begin
+      lst_col := 0 ;
       scan_this Scan.main
         "\\lsthk@InitVarBOL\\lsthk@EveryLine" ;
       if !lst_gobble > 0 then
         lst_top_mode := Gobble (mode,!lst_gobble)
     end else begin
       incr lst_nblocks ;
+      lst_col := 0 ;
       scan_this Scan.main
         "\\lsthk@InitVarBOL\\lsthk@LastLine" ;
-(*      end_mode mode ; *)
       set_next_linerange mode
     end ;
     if real_eol then lst_nlines := next_line
@@ -560,11 +570,13 @@ match !lst_top_mode with
         lst_put lxm
 
 (*  Caml code for \stepcounter{lst@space}  *)
-let lst_output_space () = Counter.step_counter "lst@spaces"
+let lst_output_space () =
+  incr lst_col ;
+  Counter.step_counter "lst@spaces"
 
 let lst_process_space lb lxm =
 if !verbose > 1 then
- fprintf stderr "process_space: ``%c''\n" lxm ;
+ fprintf stderr "process_space: '%s'\n" (Char.escaped lxm) ;
 match !lst_top_mode with
 | Skip _ |StartNextLine (_,_)-> ()
 | Gobble (mode,n) -> lst_do_gobble mode n
@@ -582,6 +594,38 @@ match !lst_top_mode with
         lst_scan_mode := Empty
     end ;
     lst_output_space ()
+
+let lst_process_tab lb lxm =
+  if !verbose > 1 then
+    fprintf stderr "process_tab: '%s'\n" (Char.escaped lxm) ;
+  let n = !lst_tabsize - (!lst_col mod !lst_tabsize) in
+  if !lst_showtabs && is_normal !lst_top_mode then begin
+    lst_output_token () ;
+    if Latexmacros.exists "\\lst@tab" then begin
+      for i = 1 to n-1 do
+        lst_process_space lb lxm
+      done ;
+      let save = !lst_showspaces in
+      lst_showspaces := false ;
+      lst_output_token () ;
+      lst_showspaces := save ;
+(* Assumes that the tab equivalent is one-char wide *)
+      incr lst_col ;
+      scan_this main "{\\lst@tab}"
+    end else begin
+      for i = 1 to n do
+        lst_process_space lb lxm
+      done ;
+      let save = !lst_showspaces in
+      lst_showspaces := true ;
+      lst_output_token () ;
+      lst_showspaces := save      
+    end
+  end else begin
+    for i = 1 to n do
+      lst_process_space lb lxm
+    done
+  end
 
 let lst_process_start_directive  old_process lb lxm =
   match !lst_top_mode with
@@ -613,7 +657,8 @@ let lst_init_char_table inline =
     lst_process_letter ;
   lst_init_chars "!\"#%&'()*+,-./:;<=>?[\\]^{}|`~" lst_process_other ;
   lst_init_chars "0123456789" lst_process_digit ;
-  lst_init_chars " \t" lst_process_space ;
+  lst_init_char ' ' lst_process_space ;
+  lst_init_char '\t' lst_process_tab ;
   if inline then
     lst_init_char '\n' lst_process_space
   else
@@ -682,8 +727,8 @@ let lst_process_stringizer quote old_process lb lxm = match !lst_top_mode with
       lst_output_token () ;
       let to_restore = lst_init_quote old_process lxm quote in
       lst_top_mode := String (lxm, to_restore) ;
-      lst_save_spaces := !lst_effective_spaces ;
-      lst_effective_spaces := !lst_string_spaces ;
+      lst_save_spaces := !lst_showspaces ;
+      lst_showspaces := !lst_string_spaces ;
       scan_this Scan.main "\\begingroup\\lst@string@style" ;
       old_process lb lxm
   | String (c,to_restore) when lxm = c ->
@@ -1222,7 +1267,7 @@ let parse_linerange s =
 
 let code_spaces lexbuf =
   let n = Counter.value_counter "lst@spaces" in
-  if !lst_effective_spaces then
+  if !lst_showspaces then
     for i = n-1 downto 0 do
       Dest.put_char '_'
     done
@@ -1355,6 +1400,7 @@ let open_lst_env name =
     let linerange = Scan.get_prim "\\lst@linerange" in
     lst_linerange := parse_linerange linerange ;
     lst_nlines := 0 ; lst_nblocks := 0 ;
+    lst_tabsize := Get.get_int (string_to_arg "\\lst@tabsize") ;
 (* Change char categories *)
   let alsoletter = Scan.get_prim "\\lst@alsoletter" in
   if alsoletter <> "" then begin
@@ -1459,6 +1505,8 @@ let init_listings () =
   Scan.newif_ref "lst@directives" lst_directives ;
   Scan.newif_ref "lst@stringspaces" lst_string_spaces ;
   Scan.newif_ref "lst@showlines" lst_showlines ;
+  Scan.newif_ref "lst@showspaces" lst_showspaces ;
+  Scan.newif_ref "lst@showtabs" lst_showtabs ;
   def_code "\\lst@spaces" code_spaces ;
   def_code "\\lst@boolean" lst_boolean ;
   def_code "\\lst@def@stringizer" code_stringizer ;

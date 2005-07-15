@@ -86,6 +86,39 @@
    sensitive,%
    morestring=[d]"%
   }[keywords,strings]%
+%%
+%% Erlang definition (c) 2003 Daniel Gazard
+%%
+\lst@definelanguage{erlang}%
+  {morekeywords={abs,after,and,apply,atom,atom_to_list,band,binary,%
+      binary_to_list,binary_to_term,bor,bsl,bsr,bxor,case,catch,%
+      date,div,element,erase,end,exit,export,float,float_to_list,%
+      get,halt,hash,hd,if,info,import,integer,integer_to_list,%
+      length,link,list,list_to_atom,list_to_float,list_to_integer,%
+      list_to_tuple,module,node,nodes,now,of,or,pid,port,ports,%
+      processes,put,receive,reference,register,registered,rem,%
+      round,self,setelement,size,spawn,throw,time,tl,trace,trunc,%
+      tuple,tuple_to_list,unlink,unregister,whereis,error,false,%
+      infinity,nil,ok,true,undefined,when},%
+   otherkeywords={->,!,[,],\{,\},},%
+   morecomment=[l]\%,%
+   morestring=[b]",%
+   morestring=[b]'%
+  }[keywords,comments,strings]%
+\lst@definelanguage{ksh}
+  {morekeywords={alias,awk,cat,echo,else,elif,fi,exec,exit,%
+      for,in,do,done,select,case,esac,while,until,function,%
+      time,export,cd,eval,fc,fg,kill,let,pwd,read,return,rm,%
+      glob,goto,history,if,logout,nice,nohup,onintr,repeat,sed,%
+      set,setenv,shift,source,switch,then,umask,unalias,%
+      unset,wait,@,env,argv,child,home,ignoreeof,noclobber,%
+      noglob,nomatch,path,prompt,shell,status,verbose,print,printf,%
+      sqrt,BEGIN,END},%
+   morecomment=[l]\#,%
+   morestring=[d]",%
+   morestring=[d]',%
+   morestring=[d]`%
+  }[keywords,comments,strings]%
 \lst@definelanguage{Logo}%
   {morekeywords={and,atan,arctan,both,break,bf,bl,butfirst,butlast,%
       cbreak, close,co,continue,cos,count,clearscreen,cs,debquit,%

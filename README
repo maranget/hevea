@@ -115,7 +115,9 @@ MAKE
 
       
   ** Note that the hevea.sty file,  is simply copied to LIBDIR.
-    It remains users responsability to make it accessible to LaTeX.
+     It remains users responsability to make it accessible to LaTeX.
+     Some packagers make additional installation efforts as regards
+     this file.
 
    Once hevea is installed, you can remove the sources.
 
@@ -124,3 +126,6 @@ IN CASE OF TROUBLE.
   - You do need version 3.07 of the Objective Caml System. Older versions
     of OCaml cannot compile hevea 1.08.
 
+  - Some version of RedHat provided a (slightly) non-fonctional implementation
+    of the pbm package. Il particular, the script 'pnmmargin' may be broken,
+    which will impact hevea 'imagen' script behavior.

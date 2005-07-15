@@ -10,6 +10,7 @@
 (***********************************************************************)
 
 type saved
+
 val checkpoint : unit -> saved
 val hot_start : saved -> unit
 

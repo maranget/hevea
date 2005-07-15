@@ -453,34 +453,7 @@
 \newcommand{\overlinedbox}[1]%
      {{\@styleattr{SPAN}{style="text-decoration:overline"}#1}}% 
 \renewcommand{\textoverline}[1]{\overlinedbox{#1}}%
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%   We can now define \sqrt using \overlinedbox                 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%
-\newcommand{\sqrt}[2][1]{\ifdisplay%
- \ifthenelse{\equal{#1}{4}}{\@print{<BIG>&#8732;</BIG>}\overline{#2}}{%
-  \ifthenelse{\equal{#1}{3}}{\@print{<BIG>&#8731;</BIG>}\overline{#2}}{%
-   \ifthenelse{\equal{#1}{1}}{%
-    \@print{<BIG><BIG>}\surd\@print{</BIG></BIG>}\overline{#2}}{%
-    %\warning{opt argument to \sqrt not 3 or 4, ignored}%
-    %\@print{<BIG><BIG>}\surd\@print{</BIG></BIG>}\overline{#2}%
-    \left(#2\right)^{\frac{1}{#1}}%
-   }%
-  }%
- }%
-\else
- \ifthenelse{\equal{#1}{4}}{\@print{&#8732;}\overlinedbox{#2}}{%
-  \ifthenelse{\equal{#1}{3}}{\@print{&#8731;}\overlinedbox{#2}}{%
-   \ifthenelse{\equal{#1}{1}}{\surd\overlinedbox{#2}}{%
-   %\warning{opt argument to \sqrt (outside display mode) ignored}%
-   %\surd\overlinedbox{#2}%
-   (#2)^{\frac{1}{#1}}
-   }%
-  }%
- }%
-\fi%
-}%
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %   \boxed is more complicated, though                          %
 %   1) outside display mode, we can use style-sheets            %
