@@ -10,7 +10,7 @@
 (***********************************************************************)
 
 {
-let header = "$Id: infoRef.mll,v 1.23 2002-12-12 09:46:39 maranget Exp $"
+let header = "$Id: infoRef.mll,v 1.24 2005-07-18 08:07:09 maranget Exp $"
 ;;
 
 
@@ -480,7 +480,7 @@ let finalize_nodes () =
 
 let dump buff =
   let name,out_chan = match Parse_opts.name_out with
-  | "" -> "", Out.create_chan stdout
+  | ""|"-" -> "", Out.create_chan stdout
   | s  ->
       let name = s^"-1" in
       name, Out.create_chan (open_out name) in  

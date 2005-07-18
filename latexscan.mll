@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.261 2005-06-15 16:03:54 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.262 2005-07-18 08:07:09 maranget Exp $ *)
 
 
 {
@@ -779,8 +779,8 @@ let check_include s =
 
 
 let mk_out_file () = match Parse_opts.name_out,!Parse_opts.destination with
-| "", Parse_opts.Info ->  Out.create_buff ()
-| "", _ -> Out.create_chan stdout
+| (""|"-"), Parse_opts.Info ->  Out.create_buff ()
+| (""|"-"), _ -> Out.create_chan stdout
 | x , Parse_opts.Info -> Out.create_chan (open_out (x^".tmp"))
 | x , _  -> Out.create_chan (open_out x)
 ;;
