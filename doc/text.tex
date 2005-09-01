@@ -705,7 +705,7 @@ at all.
 
 Of course, this will be easier if the \LaTeX{} source is written in a
 generic style, using macros.
-Note that this style is recommended anyway, since it eases the changing
+Note that this style is recommended anyway, since it facilitates the changing
 and tuning of documents.
 
 \subsection{\hevea{} does not know a macro}\label{dontknow}
@@ -2465,8 +2465,8 @@ default, be translated into blocks
 \verb+<DIV CLASS="center">+\ldots\verb+</DIV>+.
 Additionally, the style class associated to \verb+center+ environments
 is managed through an indirection, using the
-commands \verb+\setenvclass+ and \verb+\getenvclass+
-See section~\ref{style:change} for more explanations.
+commands \verb+\setenvclass+ and \verb+\getenvclass+.
+See section~\ref{css:change} for more explanations.
 
 Another example is the definition of the \verb+\purple+
 color declaration (see section~\ref{color:high}):
@@ -2643,7 +2643,7 @@ the document preamble.
 Observe that, in the explicit numerical color argument above, the
 hash character ``\texttt{\#}'' has to be escaped.
 
-\subsection{Changing \label{change:style}the style of some instances of an environment}\
+\subsection{Changing \label{css:change}the style of some instances of an environment}\
 \comdefindex{setenvclass}\comdefindex{getenvclass}%
 One can also change the style class  attached to a given instance of
 an environment and thus control styling of environments more precisely.
@@ -3264,7 +3264,7 @@ option when it thinks images need to be rebuild.
 
 \subsection{Storing images in a separate directory}
 \comindex{heveaimagedir}
-By redefining the \verb+heveaimagedir+ command, users can specify a
+By redefining the \verb+\heveaimagedir+ command, users can specify a
 directory for images.
 
 More precisely, if the following redefinition occurs in the document
@@ -6509,10 +6509,9 @@ The programs \commandname{hevea} and \commandname{hacha} are written in
 \footahref{http://caml.inria.fr/ocaml/}{Objective Caml}. Thus, you
 really need Objective Caml (the more recent version, the better) to
 compile them.
-However, a Red~Hat 7.2
-\footahref{\ftpbase/hevea-\heveaversion-1.i386.rpm}{binary distribution}
-is also available, it does not require an Objective Caml installation
-and can be installed on most Red~Hat Linux PC's.
+However, some binary distributions exist, which are managed by
+people other than me (thanks to them).
+Links to some of these distributions appear in \ahref{\heveaurl}{\hevea{} home page}.
 
 \label{imagen:needs}\hevea{} users may instruct the program not to process a
 part of the input (see section~\ref{imagen}). Instead, this part is
@@ -6586,12 +6585,6 @@ owe much to its author, X.~Leroy. See \cite{htmlgen} for a description
 of \texttt{htmlgen} and a (bit outdated) discussion on \LaTeX{} to
 \html{} translation.
 \end{description}
-
-A fairly complete list of \LaTeX{} to \html{} translators can be found
-at:
-\begin{center}
-\ahrefurl{http://www.loria.fr/services/tex/english/outils.html}
-\end{center}
 
 \section{Acknowledgements}
 The following people contributed to \hevea{} development:
