@@ -2446,10 +2446,28 @@ Simply close active text-level declarations.
 \index{"@close@\texttt{\char92"@close}}
 As a first example of using internal macros, consider the following
 excerpt from the \texttt{hevea.hva} file that
-defines the \LaTeX{} \verb+center+ environment:
+defines the \verb+center+ environment:
 \begin{verbatim}
 \newenvironment{center}{\@open{DIV}{ALIGN=center}}{\@close{DIV}}
 \end{verbatim}
+\comindex{setenvclass}\comindex{getenvclass}%
+Notice that the code above is no longer present and is given here
+for explanatory purpose only.
+Now \hevea{} uses style-sheets and the actual definition of the
+\verb+center+ environment is as follows:
+\begin{verbatim}
+\newstyle{.center}{text-align:center;margin-left:auto;margin-right:auto;}
+\setenvclass{center}{center}%
+\newenvironment{center}{\@open{DIV}{\@getprint{CLASS="\getenvclass{center}"}}{\@close{DIV}}
+\end{verbatim}
+Basically environments \verb+\begin{center}+\ldots\verb+\end{center}+ will, by
+default, be translated into blocks
+\verb+<DIV CLASS="center">+\ldots\verb+</DIV>+.
+Additionally, the style class associated to \verb+center+ environments
+is managed through an indirection, using the
+commands \verb+\setenvclass+ and \verb+\getenvclass+
+See section~\ref{style:change} for more explanations.
+
 Another example is the definition of the \verb+\purple+
 color declaration (see section~\ref{color:high}):
 \begin{verbatim}
@@ -2625,7 +2643,7 @@ the document preamble.
 Observe that, in the explicit numerical color argument above, the
 hash character ``\texttt{\#}'' has to be escaped.
 
-\subsection{Changing the style of some instances of an environment}\
+\subsection{Changing \label{change:style}the style of some instances of an environment}\
 \comdefindex{setenvclass}\comdefindex{getenvclass}%
 One can also change the style class  attached to a given instance of
 an environment and thus control styling of environments more precisely.
@@ -3276,7 +3294,7 @@ launched automatically by \texttt{hevea} (\emph{i.e.} when
 For instance, as to instruct \texttt{hevea}/\texttt{imagen} to
 reduce all images by a factor of $\sqrt{2}$ it suffices to state~:
 \begin{flushleft}
-\texttt{\%HEVEA}\verb+\@addimagenopt+\texttt{-mag 707}
+\texttt{\%HEVEA}\verb+\@addimagenopt{\texttt{-mag 707}}+
 \end{flushleft}
 See section~\ref{imagenusage} for the list of command-line options
 accepted by \texttt{imagen}.
@@ -6056,11 +6074,16 @@ option),
 \texttt{info} from \texttt{hevea} library directory, depending upon
 \texttt{hevea} output format,
 \end{enumerate}
+\index{"@hevealibdir@\texttt{\char92"@hevealibdir}|defocc}
 The \texttt{hevea} library directory is fixed at compile-time
 (this is where \texttt{hevea} library files are installed)
 and typically is \texttt{/usr/local/lib/hevea}.
 However, this compile-time value can be overridden
 by setting the \texttt{HEVEADIR} shell environment variable.
+In all cases, the value of \texttt{hevea} library directory can
+be accessed from the processed document as the value of the command
+\verb+\@hevealibdir+.
+
 
 
 \subsubsection{Normal mode}\label{basenames}

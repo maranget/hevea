@@ -19,7 +19,7 @@ open Stack
 open Length
 
 (* Compute functions *)
-let header = "$Id: get.mll,v 1.26 2005-01-21 17:40:51 maranget Exp $"
+let header = "$Id: get.mll,v 1.27 2005-09-01 12:52:57 maranget Exp $"
 
 exception Error of string
 
@@ -127,9 +127,8 @@ rule result = parse
     {push bool_stack false ;
     result lexbuf}
 (* Operands *)
-| '+' | '-'
-    {let lxm = lexeme_char lexbuf 0 in
-    let unary = !just_opened in
+| '+' | '-' as lxm
+    {let unary = !just_opened in
     if unary then begin
       let f = pop group_stack in
       open_aftergroup

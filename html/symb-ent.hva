@@ -47,8 +47,8 @@
 \newcommand{\varsigma}{\@entity{sigmaf}}
 \newcommand{\tau}{\@entity{tau}}
 \newcommand{\upsilon}{\@entity{upsilon}}
-\newcommand{\phi}{\@print{&#981;}}
-\newcommand{\varphi}{\@entity{phi}}
+\newcommand{\phi}{\@entity{phi}}
+\newcommand{\varphi}{\@print{&#981;}}
 \newcommand{\chi}{\@entity{chi}}
 \newcommand{\psi}{\@entity{psi}}
 \newcommand{\omega}{\@entity{omega}}
