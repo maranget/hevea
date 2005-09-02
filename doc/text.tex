@@ -52,10 +52,10 @@ Chesnay Cedex. {\tt \mailto{Luc.Maranget@inria.fr}}}}
   {text-align:center;margin:1ex auto;padding:2ex;color:navy;border:solid navy;}
 \newstyle{.xtitlerest}{font-variant:small-caps;}
 \newstyle{.ruled}{border:solid black;padding:1ex;background:\#eeddbb;color:maroon}
+\newstyle{.xmathpar}{background:yellow;margin-left:2ex;margin-right:auto;}
+
 \begin{document}
-
 \maketitle
-
 \begin{htmlonly}
 \ifhtml 
 \def\locversion{\ifdevrelease\releasedate\else\heveaversion\fi}
@@ -3087,7 +3087,7 @@ declared by \verb+\newstyle+ take precedence over those contained in
 external style sheets. Thus, using external style-sheets, especially
 if they alter the styling of elements, may produce awkward results.
 
-Those limitations does not apply of course to style classes whose
+Those limitations do not apply of course to style classes whose
 names are new, since there cannot be default definitions for them.
 Then, linking with external style sheets can prove useful to
 promote uniform styling of several documents produced by \hevea{}.
@@ -5812,6 +5812,7 @@ We give a short description, focussing on \hevea{}-related details.
 Users are encouraged to refer to the
 \footahref{http://pauillac.inria.fr/\home{remy}/latex/index.html\#tir}{original
 documentation} of the package.
+\ifhevea
 In the following, comments on rule typesetting apply to \hevea{} output
 and not to \LaTeX{} output.
 
@@ -5848,12 +5849,37 @@ In the example above, formulas are separated with \verb+\and+. The
 (either explicit as a \verb+\par+ command or implicit as a blank line)
 to act as \verb+\and+. It also redefines the command \verb+\\+ as
 an explicit line-break in the flow of formulas.
+\begin{center}
+\begin{tabular}{m{0.40\hsize}m{0.1\hsize}m{0.40\hsize}}
+\begin{lstlisting}[language=C]
+\begin{mathpar}
+\int_0^2 xdx = \frac{3}{2}
+\and
+\int_0^3 xdx = \frac{5}{2}
+\end{mathpar}
+\end{lstlisting}
+&
+\qquad\qquad
+&
+\begin{mathpar}
+\int_0^2 xdx = \frac{3}{2}
+\and
+\int_0^3 xdx = \frac{5}{2}
+\end{mathpar}
+\end{tabular}
+\end{center}
+
 
 The \hevea{} version is simplistic:
+Formulas are typeset in math display
+mode,
 \verb+\and+~separators always produce horizontal space, while
 \verb+\\+  always produce line-breaks.
+The amount of horizontal space introduced by \verb+\and+
+is defined by the command
+\verb+\mathpar@hspace+, whose default value is \verb+\qquad\qquad+.
 However, when prefixed by \verb+\hva+ the meaning of explicit
-speparators is inversed: that is,
+separators is inversed: that is,
 \verb+\hva\and+ produces a line-break, while \verb+\hva\\+
 produces horizontal space.
 Hence, we can typeset the previous example on two lines:
@@ -5880,6 +5906,26 @@ And \and The-Last-One
 It is to be noticed that the \LaTeX{} version of the package defines
 \verb+\hva+ as a no-op, so as to allow explicit instructions given to
 \hevea{} not to impact on the automatic typesetting performed by~\LaTeX.
+
+\hevea{} translates \verb+mathpar+ environments
+into \verb+TABLE+ elements, which belong to the (CSS) class
+``\verb+\getenvclass{mathpar}+'' with a default value of
+``\verb+mathpar+'' (see section~\ref{css:change}).
+As a consequence, if, for instance, one defines the class
+``\verb+mathpar+'' as follows in the document preamble:
+\begin{verbatim}
+\newstyle{.mathpar}{background:yellow;margin-left:2ex;margin-right:auto;}
+\end{verbatim}
+Then, all \verb+mathpar+ environments in the document are rendered
+flushed left with a yellow background:
+{\setenvclass{mathpar}{xmathpar}\begin{mathpar}
+A-Formula \and
+Longer-Formula \hva\and 
+And \and The-Last-One
+\end{mathpar}}
+
+
+
 
 \subsubsection {The inferrule macro}%
 \index{mathpartir@\texttt{mathpartir} package!inferrule@\verb+\inferrule+}
@@ -6028,6 +6074,7 @@ produces the following output:
 \hva\and
 \inferrule* [lab=XX]{uu \and vv}{ww}
 \end{mathpar}
+\fi
 
 \subsection{Experimental Implementations}
 The \texttt{fancyverb} and \texttt{colortbl}

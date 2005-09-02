@@ -46,7 +46,7 @@
 \def\open@mathpar@table
 {\@open{TABLE}{\envclass@attr{mathpar}}}
 %{\@open{TABLE}{CELLSPACING=0 CELLPADDING=8}}
-\def\mathpar@hspace{\mbox{\qquad}}
+\def\mathpar@hspace{\qquad\qquad}
 \def\mathpar@vspace
 {\@force{TD}\@close{TR}\@open{TR}{}\@open{TD}{\envclass@attr[ ]{mprcell}ALIGN="center"}}%
 \def\mathpar@hva#1{\ifx#1\and\mathpar@vspace\mathpar@vspace\else\mathpar@hspace\fi}%
