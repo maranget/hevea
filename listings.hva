@@ -269,7 +269,7 @@
    {framexleftmargin,framexrightmargin,framextopmargin,framexbottommargin}
 \lst@iter{\ignore@key}{fillcolor,rulesepcolor}
 \lst@iter{\ignore@key}{framesep,rulesep,framerule}
-\lst@iter{\ignore@key}{frameround}
+\lst@iter{\ignore@key}{frameround,captionpos}
 %%%%%%% Margins and line shape
 \def\lst@doindent#1{}
 \define@key{lst}{indent}{\def\lst@doindent{\hspace{#1}}}
@@ -612,3 +612,4 @@ breakindent,breakautoindent}
 %%%%%%%%%%% Inits
 \lst@UseHook{SetStyle}\lst@UseHook{EmptyStyle}
 \lst@UseHook{SetLanguage}\lst@UseHook{EmptyLanguage}
+\newsavebox{\lst@box}

@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: verb.mll,v 1.76 2005-07-15 13:23:12 maranget Exp $            *)
+(*  $Id: verb.mll,v 1.77 2005-09-09 13:32:56 maranget Exp $            *)
 (***********************************************************************)
 {
 exception VError of string
@@ -332,12 +332,12 @@ let debug_curline msg =
 (* We put those here since newlines may terminate comments *)
 let begin_comment () =
   lst_output_token () ;
-  scan_this Scan.main "\\begingroup\\lst@comment@style"
+  scan_this Scan.main "\\begin{lrbox}{\\lst@box}"
 
-and end_comment () = scan_this Scan.main "\\endgroup"
+and end_comment () = scan_this Scan.main "\\end{lrbox}{\\lst@comment@style{\\lst@box}}"
 
 let end_string to_restore =
-  scan_this Scan.main "\\endgroup" ;
+  scan_this Scan.main "\\end{lrbox}{\\lst@string@style{\\lst@box}}" ;
   restore_char_table to_restore ;
   lst_showspaces := !lst_save_spaces
 
@@ -729,7 +729,7 @@ let lst_process_stringizer quote old_process lb lxm = match !lst_top_mode with
       lst_top_mode := String (lxm, to_restore) ;
       lst_save_spaces := !lst_showspaces ;
       lst_showspaces := !lst_string_spaces ;
-      scan_this Scan.main "\\begingroup\\lst@string@style" ;
+      scan_this Scan.main "\\begin{lrbox}{\\lst@box}" ;
       old_process lb lxm
   | String (c,to_restore) when lxm = c ->
       old_process lb lxm ;
