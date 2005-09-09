@@ -1,4 +1,6 @@
 version 1.08+2
+    - Listing bugs, style command can be arguments to commentstyle and
+      stringstyle
     - <<-o - >> redirects html output to stdout.
     - added tabsize, showtabs and tab keys in listings, approximate rendering.
     - added default values for keywords

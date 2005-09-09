@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.262 2005-07-18 08:07:09 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.263 2005-09-09 13:32:56 maranget Exp $ *)
 
 
 {
@@ -2730,6 +2730,8 @@ def_code "\\gsbox"
     do_sbox true name body) ;
 ;;
 
+(* Notice that using a bin name as a command also works,
+   but without erasing actives styles *)
 def_code "\\usebox"
   (fun lexbuf ->
     let name = get_csname lexbuf in
@@ -2738,6 +2740,7 @@ def_code "\\usebox"
     expand_command name lexbuf ;
     top_close_group ())
 ;;
+
 
 def_code "\\lrbox"
   (fun lexbuf ->
