@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: verb.mll,v 1.77 2005-09-09 13:32:56 maranget Exp $            *)
+(*  $Id: verb.mll,v 1.78 2005-09-22 12:16:44 maranget Exp $            *)
 (***********************************************************************)
 {
 exception VError of string
@@ -753,7 +753,7 @@ let lst_process_BNC _ s old_process lb c =  match !lst_top_mode with
 and lst_process_ENC s old_process lb c = match !lst_top_mode with
 | Comment (Nested 0) when if_next_string s lb ->
     eat_delim
-      (fun () -> scan_this Scan.main "\\endgroup")
+      end_comment
       Normal
       old_process
       lb c s
@@ -777,7 +777,7 @@ and lst_process_EBC s old_process lb c = match !lst_top_mode with
 | Comment (Balanced check) when
   check c s && if_next_string  s lb ->
      eat_delim
-      (fun () -> scan_this Scan.main "\\endgroup")
+      end_comment
       Normal
       old_process
       lb c s

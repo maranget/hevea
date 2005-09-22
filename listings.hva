@@ -220,6 +220,7 @@
 %%%%%%% Frames
 \newstyle{.lstlisting}{font-family:monospace;white-space:pre;margin-right:auto;margin-left:0pt;text-align:left}
 \setenvclass{lstlisting}{lstlisting}
+\setenvclass{lstframe}{lstframe}
 \def\lst@bgcolor@in@temp{%
    \let\old@color\color%
    \renewcommand{\color}[2][!*!]{\@getstylecolor[##1]{##2}}%
@@ -255,7 +256,7 @@
    \ifu\lst@bgcolor\def\lst@temp@bgcolor{}\else\lst@bgcolor@in@temp\fi%
    \ifu\lst@rulecolor\def\lst@temp@rulecolor{}\else\lst@rulecolor@in@temp\fi%
    \ifu\lst@frame\def\lst@temp@frame{}\else\lst@frame@in@temp\fi%
-   \def\@@open@lstbox{\@opencell{STYLE="padding:1ex;\lst@temp@bgcolor\lst@temp@frame\lst@temp@rulecolor"}{}{\envclass@attr{lstlisting}}}%
+   \def\@@open@lstbox{\@opencell{\envclass@attr[ ]{lstframe}STYLE="padding:1ex;\lst@temp@bgcolor\lst@temp@frame\lst@temp@rulecolor"}{}{\envclass@attr{lstlisting}}}%
    \def\@close@lstbox{\@closecell}%
    \fi
    \def\@open@lstbox{\@@open@lstbox\whitepretrue}}

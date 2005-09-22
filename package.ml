@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.71 2005-05-20 13:46:56 maranget Exp $    *)
+(*  $Id: package.ml,v 1.72 2005-09-22 12:16:44 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -40,6 +40,7 @@ def_code "\\@macros"
   (fun _ -> Latexmacros.pretty_table ())
 ;;
 
+
 def_print "\\@basein" Parse_opts.base_in ;
 def_print "\\jobname" Parse_opts.base_out ;
 def_print "\\@heveacomline"
@@ -48,6 +49,11 @@ def_print "\\@heveacomline"
      Sys.argv "") ;
 def_print "\\@heveaversion" Version.version ;
 def_print "\\@hevealibdir" Mylib.libdir
+;;
+def_code "\\@heveaverbose"
+  (fun lexbuf ->    
+    let lvl = Get.get_int (save_arg lexbuf) in
+    Misc.verbose := lvl)
 ;;
 
 (* Unicode entities given in hexa *)

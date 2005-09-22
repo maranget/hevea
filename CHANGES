@@ -1,4 +1,6 @@
 version 1.08+3
+    - Previous fix introduced a bug in balanced/nested comments:
+      replace scan of \endgroup by call to end_comment.
     - Listing bugs, style command can be arguments to commentstyle and
       stringstyle
 version 1.08+2
