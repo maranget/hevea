@@ -2631,7 +2631,8 @@ document processing by \LaTeX{}.
 
 
 
-\subsection{Changing the style of all instances of an environment}
+\subsection{Changing \label{css:change:all}
+the style of all instances of an environment}
 
 In this very document, all \texttt{verbatim} environments appear over
 a light green background, with small left and right margins.
@@ -5782,7 +5783,7 @@ since \hevea{}~implementation is more advanced for the former package.
 
 
 \subsection{Typesetting \label{listings:package}Computer Languages: the \texttt{listings} Package}
-I strongly recommend using the
+I strongly recommend the
 \footahref{\ctan/contrib/listings/}{\texttt{listings}} package.
 Learning the user interface requires a little effort, but it is worth
 it.
@@ -5795,6 +5796,96 @@ Note that \hevea{} does not produce very compact
 This can be cured, at some price in runtime cost, by
 giving \texttt{hevea} the command line option ``\texttt{-O}''
 (see Section~\ref{heveaoptions}).
+
+The \texttt{lstlisting} environment is styled through
+and homonymous style class (see Sections \ref{css:change:all}
+and~\ref{css:change}) and
+most  \texttt{lstlisting} environments get translated to \verb+DIV+
+elements with the approriate \verb+\getenvclass{lstlisting}+ class, 
+which, by default is ``\texttt{lstlisting}''.
+A few points deserve mention:
+\begin{enumerate}
+\item The definition of default style class ``\texttt{lstlisting}'' includes
+the important declarations
+\verb+font-family:monospace;+ and \verb+white-space:pre;+, which, more or less,
+specify non-proportional font and mandatory line breaks.
+In case you replace ``\texttt{lstlisting}'' by another style class (by
+\verb+\setenvclass{lstlisting}{+\textit{another one}\verb+}+), your
+alternate definition should probably feature an identical
+specification. Otherwise, rendering would be poor, as regards spacing
+and line breaks.
+\ifhevea
+Here is how specific listings are styled.
+We first define a new environment to typeset programs written in the C
+language, by using the command \verb+\lstnewenvironment+:
+\begin{verbatim}
+\lstdefinestyle{colors}{keywordstyle={\bf\color{blue}}, commentstyle={\em\color{magenta}}}
+\lstnewenvironment{clisting}
+  {\setenvclass{lstlisting}{clisting}\lstset{language=C, style=colors}}
+  {}
+\end{verbatim}
+The command
+\verb+\lstnewenvironment{+\textit{name}\verb+}{+\textit{starting
+code}\verb+}{+\textit{ending code}\verb+}+ is from the
+\texttt{listings} package, with similar semantics.
+In the starting code above, the fragment
+\verb+\setenvclass{lstlisting}{clisting}+ instructs \hevea{} to
+use the style class ``\texttt{clisting}'' locally (notice that it could just
+be another name). The style class ``\texttt{clisting}'' is defined in
+the document preamble as follows:
+\begin{verbatim}
+\newstyle{.clisting}{font-family:monospace;white-space:pre;
+border-left:solid black;padding-left:2ex;margin-left:2ex;}
+\end{verbatim}
+Typesetting a C~listing with a black border on the left is then as
+simple as:
+\begin{verbatim}
+\begin{clisting}
+/* Compute, guess what! */
+int fact(int n) {
+  int r = 1 ;
+  for ( ; n > 0 ; n--) {
+    r *= n ;
+  }
+  return r ;
+}
+\end{clisting}
+\end{verbatim}
+The final result is:
+\begingroup%
+\lstdefinestyle{colors}{keywordstyle={\bf\color{blue}},
+commentstyle={\em\color{magenta}}}%
+\lstnewenvironment{clisting}
+{\setenvclass{lstlisting}{clisting}\lstset{language=C, style=colors}}
+{}
+\begin{clisting}
+/* Compute, guess what! */
+int fact(int n) {
+  int r = 1 ;
+  for ( ; n > 0 ; n--) {
+    r *= n ;
+  }
+  return r ;
+}
+\end{clisting}
+\endgroup\fi
+\item When listings are framed, that is, when  some
+\texttt{frame=}\ldots{} or \texttt{background=}\ldots{} keyval
+specifications are active, they no longer get translated to \verb+DIV+
+elements.
+Instead they get translated to one cell tables whose \verb+TD+
+and \verb+TABLE+ elements
+are styled through style classes \texttt{lstlisting} and
+\texttt{lstframe}, respectively. Of course, those two style classes
+follow the usual \verb+\setenvclass+/\verb+\getenvclass+ mecanism.
+That way, one can for instance center all framed listings by issuing
+the following declaration in the document preamble:
+\begin{verbatim}
+\newstyle{.lstframe}{margin:auto;}
+\end{verbatim}
+Notice that the default style class ``\texttt{lstframe}'' is empty.
+\end{enumerate}
+
 
 
 \subsection{The \label{mathpartir:package} \texttt{mathpartir} package}
