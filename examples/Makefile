@@ -4,7 +4,7 @@ HEVEAOPTS=-fix -O
 HACHA=../hacha.byte
 EXDIR=$(HOME)/public_html/hevea/examples
 TEX=$(HTML:.html=.tex)
-HTML=a.html pat.html suite.html env.html smile.html amstex.html graphics.html graphicx.html verbs.html style-test.html bussproofs-test.html proof-test.html
+HTML=a.html pat.html suite.html env.html smile.html amstex.html graphics.html graphicx.html verbs.html style-test.html amssymb-test.html bussproofs-test.html proof-test.html
 DVI=a.dvi pat.dvi suite.dvi amstex.dvi verbs.dvi
 TEXT=a.txt pat.txt suite.txt env.txt
 INFO=$(TEXT:.txt=.info)

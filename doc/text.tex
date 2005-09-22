@@ -5697,7 +5697,15 @@ Some definitions may involve specifying unicode encodings. The map from characte
 \subsection{Support for Math Package \texttt{amssymb}}\index{amssymb}
 \hevea{} provides support for the \texttt{amssymb} symbols using unicode character encodings. However, a few symbols did not have any encoding yet (e.g. \verb+\varsubsetneqq+, $\varsubsetneqq$), and were approximated to their nearest kin (e.g. \verb+\subsetneqq+, $\subsetneqq$ in this case).
 
-There were yet others which had unicode encodings, but not supported by current versions of some browsers (e.g. \verb+\ltimes+, $\ltimes$). A similar fate awaited them. However, as it is hoped that sooner rather than later, browsers will support these entities, a command-line option \verb+`-goodbrowser'+ can be used to activate them. Users are urget to try out the test file \footahref{../examples/amssymb-test.html}{amssymb-test.html}, for details on which symbols are supported by their browsers, and whether or not they should use the {\tt -goodbrowser} option.
+There were yet others which had unicode encodings, but not supported
+by current versions of some browsers (e.g. \verb+\ltimes+,
+$\ltimes$). A similar fate awaited them. However, as it is hoped that
+sooner rather than later, browsers will support these entities, a
+command-line option \texttt{-moreentities} can be used to activate
+them. Users are urget to try out the test file
+\footahref{../examples/amssymb-test.html}{amssymb-test.html}, for
+details on which symbols are supported by their browsers, and whether
+or not they should use the \texttt{-moreentities} option.
 
 \subsection{The \texttt{url} package}\label{urlpackage}
 \comindex{url}\index{hyperlinks}\ttindex{url}{package}
@@ -5877,7 +5885,7 @@ Instead they get translated to one cell tables whose \verb+TD+
 and \verb+TABLE+ elements
 are styled through style classes \texttt{lstlisting} and
 \texttt{lstframe}, respectively. Of course, those two style classes
-follow the usual \verb+\setenvclass+/\verb+\getenvclass+ mecanism.
+follow the usual \verb+\setenvclass+/\verb+\getenvclass+ mechanism.
 That way, one can for instance center all framed listings by issuing
 the following declaration in the document preamble:
 \begin{verbatim}
