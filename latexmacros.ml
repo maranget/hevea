@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmacros.ml,v 1.69 2005-03-03 15:33:28 maranget Exp $" 
+let header = "$Id: latexmacros.ml,v 1.70 2005-10-13 18:13:28 maranget Exp $" 
 open Misc
 open Parse_opts
 open Lexstate
@@ -80,8 +80,8 @@ let pretty_table () =
 
 let checkpoint () =
   !group_level, !purge, Stack.save purge_stack,
-  clone_hashtbl prim_table,
-  clone_hashtbl global_table, clone_hashtbl local_table
+  Hashtbl.copy prim_table,
+  Hashtbl.copy global_table, Hashtbl.copy local_table
 
 and hot_start (level_checked, purge_checked, purge_stack_checked,
                prim_checked,

@@ -1,4 +1,4 @@
-% CHANGE MADE BY ABHISHEK THAKUR : JUST THIS LINE ADDED 
+ CHANGE MADE BY ABHISHEK THAKUR : JUST THIS LINE ADDED 
 \usepackage{a4}
 \usepackage{fullpage}
 \usepackage{makeidx}
@@ -2638,9 +2638,9 @@ In this very document, all \texttt{verbatim} environments appear over
 a light green background, with small left and right margins.
 This has been performed by simply issuing the following command in
 the document preamble.
-\begin{alltt}
-\char92newstyle\{.verbatim\}\{margin:1ex 1ex;padding:1ex;background:\char92#ccffcc;\}
-\end{alltt}
+\begin{verbatim}
+\newstyle{.verbatim}{margin:1ex 1ex;padding:1ex;background:\#ccffcc;}
+\end{verbatim}
 Observe that, in the explicit numerical color argument above, the
 hash character ``\texttt{\#}'' has to be escaped.
 
@@ -3133,6 +3133,18 @@ In some sense, this second
 solution is easier, when one already knows
 how to customize \LaTeX{}. However, this is less safe, since the definition of
 \verb+\em+ can be changed elsewhere.
+
+There is yet another solution that takes advantage of style sheets.
+One can also add this line to the \texttt{macros.hva} file:
+\begin{verbatim}
+\newstyle{.quote}{font-style:oblique;}
+\end{verbatim}
+This works because the environment \texttt{quote} is styled through
+style class ``\texttt{quote}'' (see Section~\ref{css:change:all}).
+Notice that this solution has very little to do with
+``\emph{emphasizing}'' in the proper sense, since here we
+short-circuit the implicit path from \verb+\em+ to oblique fonts.
+
 
 \subsection{Changing defaults for type-styles}\label{customize-style}
 
@@ -3661,7 +3673,7 @@ Thanks to Unicode character references, \hevea{} can virtually output
 any symbol. Notice that \hevea{} is a bit iso-latin1 centric:
 by default, characters in the iso-latin1 charset are outputted as
 themselves (the command-line option ``\texttt{-noiso}'' prevent the
-production of such and change the output page charset to)
+production of such and change the output page charset too)
 It may happen that \hevea{} does not known about a particular symbol,
 that is, most of the time, \hevea{} does not known about a particular
 command. In that case a warning is issued to draw user attention.
@@ -5806,7 +5818,7 @@ giving \texttt{hevea} the command line option ``\texttt{-O}''
 (see Section~\ref{heveaoptions}).
 
 The \texttt{lstlisting} environment is styled through
-and homonymous style class (see Sections \ref{css:change:all}
+an homonymous style class (see Sections \ref{css:change:all}
 and~\ref{css:change}) and
 most  \texttt{lstlisting} environments get translated to \verb+DIV+
 elements with the approriate \verb+\getenvclass{lstlisting}+ class, 

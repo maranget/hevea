@@ -31,10 +31,10 @@ val fatal : string -> 'a
 val not_supported : string -> 'a
 
 (* Copying hash tables, not very nice at present *)
+
 val copy_hashtbl : (string, 'a) Hashtbl.t -> (string, 'a) Hashtbl.t -> unit
-val clone_hashtbl : (string, 'a) Hashtbl.t -> (string, 'a) Hashtbl.t
 val copy_int_hashtbl : (int, 'a) Hashtbl.t -> (int, 'a) Hashtbl.t -> unit
-val clone_int_hashtbl : (int, 'a) Hashtbl.t -> (int, 'a) Hashtbl.t
+
 
 val start_env : string -> string
 val end_env : string -> string

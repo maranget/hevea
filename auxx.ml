@@ -11,7 +11,7 @@
 
 open Misc
 
-let header = "$Id: auxx.ml,v 1.19 2004-11-26 13:13:05 maranget Exp $" 
+let header = "$Id: auxx.ml,v 1.20 2005-10-13 18:13:28 maranget Exp $" 
 
 let rtable = Hashtbl.create 17
 ;;
@@ -211,8 +211,8 @@ type saved =
   out_channel option * string * bool * Digest.t option
 
 let check () =
-  Misc.clone_hashtbl rtable,  Misc.clone_hashtbl rseen,
-  Misc.clone_hashtbl btable,  Misc.clone_hashtbl  bseen,
+  Hashtbl.copy rtable,  Hashtbl.copy rseen,
+  Hashtbl.copy btable,  Hashtbl.copy  bseen,
   !auxfile, !auxname, !something, !digest
 
 let hot

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: foot.ml,v 1.18 2001-02-20 14:10:08 maranget Exp $" 
+let header = "$Id: foot.ml,v 1.19 2005-10-13 18:13:28 maranget Exp $" 
 open Parse_opts
 
 let some = ref false
@@ -28,8 +28,8 @@ type saved =
   * (int, int * string * string) Hashtbl.t * int * bool
 
 let checkpoint () =
-  Misc.clone_int_hashtbl mark_to_anchor,
-  Misc.clone_int_hashtbl anchor_to_note,
+  Hashtbl.copy mark_to_anchor,
+  Hashtbl.copy anchor_to_note,
   !anchor, !some
 
 and hot_start (t1,t2,i,b) =
