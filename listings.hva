@@ -276,7 +276,7 @@
 \define@key{lst}{indent}{\def\lst@doindent{\hspace{#1}}}
 \define@key{lst}{xleftmargin}{\def\lst@doindent{\hspace{#1}}}
 \lst@iter{\ignore@key}
-  {linewitdh,xrightmargin,resetmargin,breaklines,prebreak,postbreak,%
+  {linewitdh,xrightmargin,resetmargin,prebreak,postbreak,%
 breakindent,breakautoindent}
 %%%%%%% Lines
 %%% Those two I don't care
