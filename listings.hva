@@ -337,6 +337,8 @@ breakindent,breakautoindent}
 \lst@AddToHook{InitVarEOL}{\stepcounter{lstlabel}}
 \newsavebox{\@prevlines}
 \newsavebox{\@curline}
+\ifu\lst@@br\def\lst@@br{
+}\fi
 \lst@AddToHook{Init}
 {\def\lst@br{}}
 \newcommand{\lst@forget@lastline}

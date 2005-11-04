@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.263 2005-09-09 13:32:56 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.264 2005-11-04 17:00:27 maranget Exp $ *)
 
 
 {
@@ -3266,7 +3266,7 @@ and do_quote lexbuf = match !symbol_mode with
 
 
 
-let just_put c lb = Dest.put_char '-'
+let just_put c lb = Dest.put_char c
 ;;
 
 def_code "\\@hevea@amper" do_amper ;

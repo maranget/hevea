@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: verb.mll,v 1.78 2005-09-22 12:16:44 maranget Exp $            *)
+(*  $Id: verb.mll,v 1.79 2005-11-04 17:00:27 maranget Exp $            *)
 (***********************************************************************)
 {
 exception VError of string
@@ -369,7 +369,7 @@ match !lst_top_mode with
       lst_top_mode := newmode ;
       lst_process_newline real_eol lb c ;
       if !lst_nblocks = 0 then
-        scan_this Scan.main "\\def\\lst@br{\n}" ;
+        scan_this Scan.main "\\let\\lst@br\\lst@@br" ;
     end else begin
       if real_eol then begin
         incr lst_nlines ;
@@ -501,7 +501,7 @@ and set_next_linerange mode = match !lst_linerange with
            lst_top_mode := Skip mode
         end else begin
           if !lst_nblocks = 0 then
-            scan_this Scan.main "\\def\\lst@br{\n}" ;
+            scan_this Scan.main "\\let\\lst@br\\lst@@br" ;
           lst_top_mode := mode
         end
     | Marker tok ->
