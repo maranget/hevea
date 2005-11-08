@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: mathML.ml,v 1.22 2005-07-15 13:23:12 maranget Exp $" 
+let header = "$Id: mathML.ml,v 1.23 2005-11-08 10:14:19 maranget Exp $" 
 
 
 open Misc
@@ -506,7 +506,7 @@ let int_sup_sub _something _vsize scanner what sup sub display =
 ;;
 
 
-let over display lexbuf =
+let over display _lexbuf =
  if display then begin
     force_item_display ();
     let _mods = insert_vdisplay

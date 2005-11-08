@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: index.ml,v 1.42 2001-11-14 12:57:04 maranget Exp $"
+let header = "$Id: index.ml,v 1.43 2005-11-08 10:14:19 maranget Exp $"
 open Misc
 open Parse_opts
 open Entry
@@ -245,7 +245,7 @@ let start_change s1 s2 = match s1,s2 with
 | _,"" -> false
 | _,_  -> Char.uppercase s1.[0] <> Char.uppercase s2.[0]
 
-let print_entry out tag entries bk k xs  =
+let print_entry out _ entries bk k xs  =
   let rp,rt = common bk k in
   close_prev out rp ;
   if fst rp = [] then
@@ -372,7 +372,7 @@ let finalize check =
   if check then begin
     let top_changed = ref false in
     Hashtbl.iter
-      (fun tag idx ->
+      (fun _ idx ->
         let entries = Table.trim idx.from_doc in
         let changed =
           match idx.from_file with

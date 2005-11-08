@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: html.ml,v 1.91 2005-03-08 15:15:03 maranget Exp $" 
+let header = "$Id: html.ml,v 1.92 2005-11-08 10:14:19 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -464,8 +464,7 @@ let as_align f span = match f with
 
 let as_align_mathml f span = match f with
   Tabular.Align
-    {Tabular.vert=v ; Tabular.hor=h ;
-     Tabular.wrap=w ; Tabular.width=_} ->
+    {Tabular.vert=v ; Tabular.hor=h } ->
     attribut "rowalign" ("\""^v^"\"")^
     attribut "columnalign" ("\""^h^"\"")^
     as_colspan_mathml span

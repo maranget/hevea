@@ -1,4 +1,6 @@
 version 1.08+3
+    - -w Z warning -> quite a lot of corrections.
+    - Huge bug (all ' -> - in text mode).
     - breaklines in listings -> warning
     - Previous fix introduced a bug in balanced/nested comments:
       replace scan of \endgroup by call to end_comment.

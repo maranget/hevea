@@ -10,7 +10,7 @@
 (***********************************************************************)
 
 {
-let header = "$Id: infoRef.mll,v 1.24 2005-07-18 08:07:09 maranget Exp $"
+let header = "$Id: infoRef.mll,v 1.25 2005-11-08 10:14:19 maranget Exp $"
 ;;
 
 
@@ -258,7 +258,7 @@ let affiche_menu num =
 let  do_affiche_tag_table s = 
   put ("\n\nTag table:\n"^(if s<> "" then s^"\n" else "")) ;
   Hashtbl.iter
-    (fun nom n ->
+    (fun _ n ->
       put ("Node: "^noeud_name n^""^string_of_int n.pos^"\n")) nodes;
   put "\nEnd tag table\n";
 ;;

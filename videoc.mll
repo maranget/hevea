@@ -11,7 +11,7 @@
 (***********************************************************************)
 (* <Christian.Queinnec@lip6.fr>
  The plugin for HeVeA that implements the VideoC style.
- $Id: videoc.mll,v 1.27 2004-11-26 13:13:05 maranget Exp $ 
+ $Id: videoc.mll,v 1.28 2005-11-08 10:14:20 maranget Exp $ 
 *)
 
 {
@@ -35,7 +35,7 @@ open Scan
 
 
 let header = 
-  "$Id: videoc.mll,v 1.27 2004-11-26 13:13:05 maranget Exp $"
+  "$Id: videoc.mll,v 1.28 2005-11-08 10:14:20 maranget Exp $"
 (* So I can synchronize my changes from Luc's ones *)
 let qnc_header = 
   "30 oct 2000"
@@ -82,13 +82,13 @@ let snipRunHook parsing name =
 (* Hack for mutual recursion between modules: *)
 
 let handle_command = ref
-  ((function lexbuf -> function s -> ()) 
+  ((function _lexbuf -> function _s -> ()) 
      : (Lexing.lexbuf -> string -> unit));;
 
 (* Convert a reference to a hint such as "3" "annote.ann" "premier indice"
    into "3_annote_ann". This is needed for the annote tool.  *)
 
-let compute_hint_id number filename notename =
+let compute_hint_id number filename _notename =
   let result = number ^ "_" ^ filename in
   let rec convert i = begin
     if i<String.length(result)
@@ -273,7 +273,7 @@ and do_four_backslashes _ = Dest.put "\\"
    This is a kind of restricted \edef as in TeX.
    Syntax:    \@EDEF\macroName{#2#1..}                                 *)
 
-and do_edef lxm lexbuf =
+and do_edef _lxm lexbuf =
   let name = Scan.get_csname lexbuf in
   let body = subst_arg lexbuf in
   if Scan.echo_toimage () then 
@@ -360,19 +360,19 @@ and do_enable_backslashed_chars lexbuf =
   end;
   ()
 
-and do_enableLispComment lexbuf =
+and do_enableLispComment _lexbuf =
   enableLispComment := true;
   ()
 
-and do_disableLispComment lexbuf =
+and do_disableLispComment _lexbuf =
   enableLispComment := false;
   ()
 
-and do_enableSchemeCharacters lexbuf =
+and do_enableSchemeCharacters _lexbuf =
   enableSchemeCharacters := true;
   ()
 
-and do_disableSchemeCharacters lexbuf =
+and do_disableSchemeCharacters _lexbuf =
   enableSchemeCharacters := false;
   ()
 
@@ -421,7 +421,7 @@ and do_vicendanchor lexbuf = begin
   let fields = 
     comma_separated_values (Lexing.from_string (nfn ^ ",")) in
   match fields with
-  | [number;filename;notename] -> begin
+  | [_number;_filename;_notename] -> begin
       Dest.put_tag ("</SPAN></A>");
       ()
   end

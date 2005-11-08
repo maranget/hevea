@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.65 2005-03-29 10:46:27 maranget Exp $"
+let header = "$Id: text.ml,v 1.66 2005-11-08 10:14:19 maranget Exp $"
 
 
 open Misc
@@ -730,7 +730,7 @@ let flush_par n =
   flags.pending_par <- None;
   let p = n in
   do_put_char '\n' ;
-  for i=1 to p-1 do
+  for _i=1 to p-1 do
     do_put_char '\n'
   done;
   if !verbose >2 then
@@ -844,7 +844,7 @@ let try_open_block s args =
 ;;
     
 let try_close_block s =
-  let (h,x,xs,xe,fl,lp) = pop stacks.s_x in
+  let (h,_,xs,xe,fl,_) = pop stacks.s_x in
   flags.hsize<-h; 
   flags.x_start<-xs;
   flags.x_end<-xe;
@@ -903,12 +903,12 @@ let open_block s args =
     prerr_endline ("<= open_block ``"^bloc^"''")
 ;;
 
-let force_block s content =  
+let force_block s _ =  
   if !verbose > 2 then
     prerr_endline ("   force_block ``"^s^"''");
   let old_out = !cur_out in
   try_close_block s;
-  let ps,pa,pout = pop_out out_stack in
+  let ps,_,pout = pop_out out_stack in
   if ps <>"DELAY" then begin
     cur_out:=pout;
     if ps = "AFTER" then begin
@@ -934,7 +934,7 @@ let close_block s =
 
 
 
-let insert_block tag arg =  match arg with
+let insert_block _ arg =  match arg with
 | "LEFT" -> flags.align <- Left
 | "CENTER" -> flags.align <- Center
 | "RIGHT" -> flags.align <- Right
@@ -1054,7 +1054,7 @@ let skip_line () =
   put_char '\n'
 ;;
 
-let loc_name s1 = ()
+let loc_name _ = ()
 ;;
 
 let open_chan chan =
@@ -1097,7 +1097,7 @@ let unskip () = do_unskip ()
 let put_separator () = put " "
 ;;
 
-let put_tag tag = ()
+let put_tag _ = ()
 ;;
 
 let put_nbsp () =  put " "
@@ -1220,7 +1220,7 @@ let multi = ref []
 and multi_stack = Stack.create "multi_stack";;
 
 
-let open_table border _ =
+let open_table _ _ =
   (* creation d'une table : on prepare les donnees : creation de l'environnement qvb, empilage du precedent. *)
   push table_stack !table;
   push row_stack !row;
@@ -1319,7 +1319,7 @@ let change_format format = match format with
 	  let n =
 	    try
 	      int_of_string s
-	    with (Failure fail) -> raise (Misc.Fatal ("open_cell, invalid vertical format :"^v));
+	    with (Failure _) -> raise (Misc.Fatal ("open_cell, invalid vertical format :"^v));
 	  in
 	  if n>100 || n<0 then raise (Misc.Fatal ("open_cell, invalid vertical format :"^v));
 	  Base n);
@@ -1438,7 +1438,7 @@ let close_cell content =
   end else if !cell.span = 0 then begin
     Table.emit !table.taille 0;
   end else begin
-    for i = 1 to !cell.span do
+    for _i = 1 to !cell.span do
       Table.emit !table.taille 0
     done;
     multi := (!table.col,!table.col + !cell.span -1,!cell.w) :: !multi;
@@ -1479,7 +1479,7 @@ let erase_row () =
   if !verbose > 2 then prerr_endline "erase_row" ;  
   !table.line <- !table.line -1
 
-and close_row erase =
+and close_row _ =
   if !verbose> 2  then
     Printf.eprintf "close_row tailles=%a, taille=%a\n"
       ptailles !table ptaille !table ;
@@ -1509,7 +1509,7 @@ let make_border s =
     !cell.post <- !cell.post ^ s
 ;;
 
-let make_inside s multi =
+let make_inside s _ =
   if !verbose>2 then prerr_endline ("Adding inside after column "^string_of_int !table.col^" :'"^s^"'");
   
   if (!table.col = -1) || not ( !table.in_cell) then begin
@@ -1528,7 +1528,7 @@ let make_inside s multi =
 ;;
 
 
-let make_hline w noborder =
+let make_hline _ _ =
   new_row();
   open_cell center_format 0 0;
   close_mods ();
@@ -1729,11 +1729,11 @@ let close_table () =
 (* Info *)
 
 
-let infomenu arg = ()
+let infomenu _ = ()
 ;;
 
-let infonode opt num arg = ()
-and infoextranode num arg text = ()
+let infonode _ _ _ = ()
+and infoextranode _ _ _ = ()
 ;;
 
 (* Divers *)
@@ -1749,7 +1749,7 @@ let is_blank s =
 let is_empty () =
   flags.in_table && (Out.is_empty !cur_out.out) && (flags.x= -1);;
 
-let image arg n = 
+let image arg _ = 
     if arg <> "" then begin
     put arg;
     put_char ' '
@@ -1921,9 +1921,9 @@ and close_maths display =
     prerr_endline "close_maths";
 ;;
 
-let box_around_display scanner arg = ();;
+let box_around_display _ _ = ();;
 
-let open_vdisplay display = 
+let open_vdisplay _ = 
   open_table (!verbose>1) "";
 
 and close_vdisplay () = 
@@ -2022,7 +2022,7 @@ and limit_sup_sub scanner what sup sub display =
   close_vdisplay ();
   item_display ();
 
-and int_sup_sub something vsize scanner what sup sub display =
+and int_sup_sub something _ scanner what sup sub display =
   if something then what ();
   item_display ();
   open_vdisplay display;
@@ -2070,7 +2070,7 @@ let insert_vdisplay open_fun =
 
 
 
-let over display lexbuf =
+let over display _ =
   if !verbose>1 then
     prerr_endline "over";
   if display then begin
@@ -2099,7 +2099,7 @@ let translate = function
 | s   -> s
 ;;
 
-let over_align align1 align2 display lexbuf = over display lexbuf
+let over_align _ _ display lexbuf = over display lexbuf
 ;;
 
 let left delim k =

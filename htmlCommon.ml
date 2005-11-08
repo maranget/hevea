@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlCommon.ml,v 1.45 2005-01-18 16:25:12 maranget Exp $" 
+let header = "$Id: htmlCommon.ml,v 1.46 2005-11-08 10:14:19 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -673,7 +673,7 @@ let par  = function
 
 let flush_par n =
   flags.pending_par <- None ;
-  for i = 1 to n do
+  for _i = 1 to n do
     do_put "<BR>\n"
   done ;
   if n <= 0 then do_put_char '\n' ;

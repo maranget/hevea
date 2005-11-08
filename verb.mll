@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: verb.mll,v 1.79 2005-11-04 17:00:27 maranget Exp $            *)
+(*  $Id: verb.mll,v 1.80 2005-11-08 10:14:19 maranget Exp $            *)
 (***********************************************************************)
 {
 exception VError of string
@@ -313,7 +313,7 @@ let lst_do_gobble mode n =
   else
     lst_top_mode := mode
 
-let lst_do_escape mode endchar math lb lxm =
+let lst_do_escape mode endchar math _lb lxm =
   if lxm = endchar then begin
     scan_this main "\\begingroup\\lst@escapebegin" ;
     if math then scan_this main "$" ;
@@ -388,7 +388,7 @@ match !lst_top_mode with
 | Gobble (mode,_) ->
     lst_top_mode := mode ;
     lst_process_newline real_eol lb c
-| Escape (mode,cc,math) ->
+| Escape (_mode,cc,math) ->
     lst_do_escape (Comment Line) cc math lb c ;
     if !lst_top_mode = Comment Line then
       lst_process_newline real_eol lb c
@@ -602,7 +602,7 @@ let lst_process_tab lb lxm =
   if !lst_showtabs && is_normal !lst_top_mode then begin
     lst_output_token () ;
     if Latexmacros.exists "\\lst@tab" then begin
-      for i = 1 to n-1 do
+      for _i = 1 to n-1 do
         lst_process_space lb lxm
       done ;
       let save = !lst_showspaces in
@@ -613,7 +613,7 @@ let lst_process_tab lb lxm =
       incr lst_col ;
       scan_this main "{\\lst@tab}"
     end else begin
-      for i = 1 to n do
+      for _i = 1 to n do
         lst_process_space lb lxm
       done ;
       let save = !lst_showspaces in
@@ -622,7 +622,7 @@ let lst_process_tab lb lxm =
       lst_showspaces := save      
     end
   end else begin
-    for i = 1 to n do
+    for _i = 1 to n do
       lst_process_space lb lxm
     done
   end
@@ -1009,7 +1009,7 @@ let open_tofile chan lexbuf =
        close_out chan) ;
   noeof scan_byline lexbuf
 
-and close_tofile lexbuf = ()
+and close_tofile _lexbuf = ()
 
 
 let put_line_buff_image () =
@@ -1093,7 +1093,7 @@ let put_verb_tabs () =
     (fun c -> match c with
       | '\t' ->
           let limit = !tab_val - !char mod !tab_val in
-          for j = 1 to limit do
+          for _j = 1 to limit do
             Dest.put_char ' ' ; incr char
           done ;  
       | c -> Dest.put (Dest.iso c) ; incr char)
@@ -1265,14 +1265,14 @@ let parse_linerange s =
     {\whiledo{\value{lst@spaces}>0}{~\addtocounter{lst@spaces}{-1}}}
 *)
 
-let code_spaces lexbuf =
+let code_spaces _lexbuf =
   let n = Counter.value_counter "lst@spaces" in
   if !lst_showspaces then
-    for i = n-1 downto 0 do
+    for _i = n-1 downto 0 do
       Dest.put_char '_'
     done
   else
-    for i = n-1 downto 0 do
+    for _i = n-1 downto 0 do
       Dest.put_nbsp ()
     done ;
   Counter.set_counter "lst@spaces" 0

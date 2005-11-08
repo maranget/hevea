@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlMath.ml,v 1.33 2005-03-17 16:46:07 maranget Exp $" 
+let header = "$Id: htmlMath.ml,v 1.34 2005-11-08 10:14:19 maranget Exp $" 
 
 
 open Misc
@@ -423,7 +423,7 @@ let int_sup_sub something vsize scanner what sup sub display =
     put sup ;
     close_vdisplay_row () ;
     open_vdisplay_row "" "ALIGN=left" ;
-    for i = 2 to vsize do
+    for _i = 2 to vsize do
       skip_line ()
     done ;
     close_vdisplay_row () ;

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.72 2005-09-22 12:16:44 maranget Exp $    *)
+(*  $Id: package.ml,v 1.73 2005-11-08 10:14:19 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -32,7 +32,7 @@ let def_print name s =
 ;;
 
 def_code "\\@lexbuf"
-  (fun lexbuf ->
+  (fun _ ->
     prerr_endline ("LEXBUF: "^string_of_int (Stack.length stack_lexbuf)))
 ;;
 
