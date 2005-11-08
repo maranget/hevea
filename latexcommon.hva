@@ -536,8 +536,8 @@
 {\ifthenelse{\value{month}=11}{November}
 {\ifthenelse{\value{month}=12}{December}{}
 }}}}}}}}}}}}%
-%%%%%%%% Format for \today, e.g 31st July, 1980
-\newcommand\today{\default@day~\default@month,~\theyear}
+%%%%%%%% Default today slightly differs from english babel today
+\newcommand\today{\default@month~\theday, \theyear}
 %%%%%%%%%%%%%% Defined counter printing functions
 \newcommand{\@arabic}[1]{\@pad{0}{3}{\arabic{#1}}}
 \newcommand{\@twoarabic}[1]{\@pad{0}{2}{\arabic{#1}}}
