@@ -1,7 +1,5 @@
 \documentclass {article}
-\usepackage {bussproofs}
 %\usepackage {texnames}
-\usepackage {proof}
 \usepackage {array}
 \usepackage {url}
 \usepackage {amssymb}
@@ -18,34 +16,32 @@ Chesnay Cedex. {\tt \mailto{Luc.Maranget@inria.fr}}}}
 
 %\title {Styles Everywhere}
 %\author {Abhishek Thakur}
-
 %HEVEA \loadcssfile{x.css}
 %HEVEA \loadcssfile{y.css}
-%HEVEA \setstyles{background:green;color:white;padding:3}
-%HEVEA \setHTMLstyle{H1.part}{background:blue;color:white;font-variant:small-caps}
-%HEVEA \setLATEXstyle{section}{background:blue;color:white}
-%HEVEA \setLATEXstyle{subsection}{background:blue;color:white}
-%HEVEA \setLATEXstyle{titlecommon}{background:\#ddccaa;color:white}
-%HEVEA \setHTMLstyle{.titlemain}{padding:5;background:\#ffeecc;color:black;font-variant:small-caps;font-size:30pt}
-%HEVEA \setHTMLstyle{.titlerest}{padding:5;background:\#ffeecc;color:black;font-variant:small-caps}
-%HEVEA \setHTMLstyle{H5}{background:cyan;color:black}
-%HEVEA \setLATEXstyle{subparagraph}{background:magenta;color:white}
-%HEVEA \setHTMLstyle{.itemize}{border:dotted black;margin-left:20;background:\#eeddbb;color:black;font-variant:small-caps}
-%HEVEA \setHTMLstyle{.li-itemize}{padding-left:10;border-left:solid blue;background:\#bbddff;color:black;font-variant:small-caps}
-%HEVEA \setHTMLstyle{.enumerate}{border:solid black;margin-left:20;background:\#eeddbb;color:\#ccccc;font-style:italic}
-%HEVEA \setHTMLstyle{.li-enumerate}{padding-left:10;background:\#bbddff;color:black;font-variant:small-caps}
-%HEVEA \setHTMLstyle{.list}{border:solid red;padding:8;margin-left:20;background:\#eeddbb;color:black;font-style:italic;font-variant:small-caps}
-%HEVEA \setHTMLstyle{.dt-list}{background:\#eeddbb;color:black;font-style:italic;font-variant:small-caps}
-%HEVEA \setHTMLstyle{.dd-list}{border:solid blue;background:\#bbddff;color:black;font-style:italic;font-variant:normal}
-%HEVEA \setHTMLstyle{.tabular}{margin-left:20;background:\#eeddbb;color:black}
-%HEVEA \setHTMLstyle{.proof}{border:solid \#88aacc;background:\#bbddff;color:black;align:center}
-%HEVEA \setHTMLstyle{.bussproofs}{border:thin solid red;background:\#eeddbb;color:black;align:center}
+%HEVEA \newstyle{H1.part}{background:blue;color:white;font-variant:small-caps}
+%HEVEA \newstyle{.section}{background:blue;color:white}
+%HEVEA \newstyle{.subsection}{background:blue;color:white}
+%HEVEA \newstyle{.titlecommon}{background:\#ddccaa;color:white}
+%HEVEA \newstyle{.titlemain}{padding:5;background:\#ffeecc;color:black;font-variant:small-caps;font-size:30pt}
+%HEVEA \newstyle{.titlerest}{padding:5;background:\#ffeecc;color:black;font-variant:small-caps}
+%HEVEA \newstyle{H5}{background:cyan;color:black}
+%HEVEA \newstyle{.subparagraph}{background:magenta;color:white}
+%HEVEA \newstyle{.itemize}{border:dotted black;margin-left:20;background:\#eeddbb;color:black;font-variant:small-caps}
+%HEVEA \newstyle{.li-itemize}{padding-left:10;border-left:solid blue;background:\#bbddff;color:black;font-variant:small-caps}
+%HEVEA \newstyle{.enumerate}{border:solid black;margin-left:20;background:\#eeddbb;color:\#ccccc;font-style:italic}
+%HEVEA \newstyle{.li-enumerate}{padding-left:10;background:\#bbddff;color:black;font-variant:small-caps}
+%HEVEA \newstyle{.list}{border:solid red;padding:8;margin-left:20;background:\#eeddbb;color:black;font-style:italic;font-variant:small-caps}
+%HEVEA \newstyle{.dt-list}{background:\#eeddbb;color:black;font-style:italic;font-variant:small-caps}
+%HEVEA \newstyle{.dd-list}{border:solid blue;background:\#bbddff;color:black;font-style:italic;font-variant:normal}
+%HEVEA \newstyle{.tabular}{margin-left:20;background:\#eeddbb;color:black}
+%HEVEA \newstyle{.proof}{border:solid \#88aacc;background:\#bbddff;color:black;align:center}
+%HEVEA \newstyle{.bussproofs}{border:thin solid red;background:\#eeddbb;color:black;align:center}
 
-%\setHTMLstyle{H3}{background:blue;color:white;font:sans-serif}
+%\newstyle{H3}{background:blue;color:white;font:sans-serif}
 %\setstyles{background:blue;color:white;font:sans-serif}
 %\setstyles{backgound:green}
-%HEVEA \setHTMLstyle{.fancy}{background:\#00cb00;color:white}
-%HEVEA \setHTMLstyle{.ruled-table}{border:solid black;padding:5;background:\#00cb00;color:white}
+%HEVEA \newstyle{.fancy}{background:\#00cb00;color:white}
+%HEVEA \newstyle{.ruled-table}{border:solid black;padding:5;background:\#00cb00;color:white}
 \begin{document}
 
 \maketitle
@@ -55,7 +51,7 @@ Chesnay Cedex. {\tt \mailto{Luc.Maranget@inria.fr}}}}
 \section {Adding 'Style' to Listing Mechanisms}
 HEVEA implements the list environments \texttt{itemize}, \texttt{enumerate}, \texttt{description} using the HTML block elements \texttt{UL}, \texttt{OL}, and \texttt{DL}. The \texttt{$\setminus$begin} and \texttt{$\setminus$end} commands correspond to opening and closing of the respective blocks. 
 
-To allow the user to add style, the blocks for each environment is opened with the a class, whose name is the same as the name of the environment. This allows the user to give a specific style by defining the class in the preamble using the \texttt{$\setminus$setHTMLstyle} command. The following subsections describe the three environments in detail, with examples. 
+To allow the user to add style, the blocks for each environment is opened with the a class, whose name is the same as the name of the environment. This allows the user to give a specific style by defining the class in the preamble using the \texttt{$\setminus$newstyle} command. The following subsections describe the three environments in detail, with examples. 
 
 \subsection{Itemize}
 \begin{tabular}{lll}
@@ -65,8 +61,8 @@ Example & : & <UL CLASS=itemize> .... </UL>, <LI CLASS=li-itemize>\\
 
 Class definitions 
 \begin{verbatim}
-\setHTMLstyle{.itemize}{border:dotted black;margin-left:20;background:\#eeddbb;color:black;font-variant:small-caps}
-\setHTMLstyle{.li-itemize}{border-left:solid blue;padding-left:10;background:\#bbddff;color:black;font-variant:small-caps}
+\newstyle{.itemize}{border:dotted black;margin-left:20;background:\#eeddbb;color:black;font-variant:small-caps}
+\newstyle{.li-itemize}{border-left:solid blue;padding-left:10;background:\#bbddff;color:black;font-variant:small-caps}
 \end{verbatim}
 in the document preamble, for an input 
 \begin{verbatim}
@@ -87,8 +83,8 @@ Note the use of $\setminus$\# when specifying the color in the \emph{rgb} format
 \begin{tabular}{lll}
 Name of Class & : & enumerate\\
 Example & : & <OL CLASS=enumerate> .... </OL>, <LI CLASS=li-enumerate>\\
-Example Class Definition & : & $\setminus$setHTMLstyle\{.enumerate\}\{border:solid black;margin-left:20;background:\#eeddbb;color:black;font-variant:small-caps;font-style:italics\}\\
- & & $\setminus$setHTMLstyle\{.li-enumerate\}\{padding-left:10;background:\#bbddff;color:black;font-variant:small-caps\}\\
+Example Class Definition & : & $\setminus$newstyle\{.enumerate\}\{border:solid black;margin-left:20;background:\#eeddbb;color:black;font-variant:small-caps;font-style:italics\}\\
+ & & $\setminus$newstyle\{.li-enumerate\}\{padding-left:10;background:\#bbddff;color:black;font-variant:small-caps\}\\
 \end{tabular}
 
 An input of the form
@@ -109,9 +105,9 @@ would then produce output of the form\begin{enumerate}
 \begin{tabular}{lll}
 Name of Class & : & list\\
 Example & : & <DL CLASS=list> .... </DL>, <DT CLASS=dt-list>, <DD CLASS=dd-list>\\
-Example Class Definition & : & $\setminus$setHTMLstyle\{.list\}\{border:solid red;padding:8;margin-left:20;background:$\setminus$\#eeddbb;color:black;font-style:italic;font-variant:small-caps\}\\
- & & $\setminus$setHTMLstyle\{.dt-list\}\{background:\#eeddbb;color:black;font-style:italic;font-variant:small-caps\}\\
- & & $\setminus$setHTMLstyle\{.dd-list\}\{border:solid blue;background:\#bbddff;color:black;font-style:italic;font-variant:normal\}\\
+Example Class Definition & : & $\setminus$newstyle\{.list\}\{border:solid red;padding:8;margin-left:20;background:$\setminus$\#eeddbb;color:black;font-style:italic;font-variant:small-caps\}\\
+ & & $\setminus$newstyle\{.dt-list\}\{background:\#eeddbb;color:black;font-style:italic;font-variant:small-caps\}\\
+ & & $\setminus$newstyle\{.dd-list\}\{border:solid blue;background:\#bbddff;color:black;font-style:italic;font-variant:normal\}\\
 \end{tabular}
 
 An input of the form
@@ -129,116 +125,6 @@ would then produce output of the form
 \item[Description] Lists with user-defined labels, (also referred to as description lists). $${description \over lists}$$ 
 \end{description}
 
-\section{Proof Packages}
-HEVEA sets proofs using (nested) tables. Each of these tables is opened with a class, whose name is the name of the proof package being used. Thus the user may define that particular class in the preamble to give a particular style to the proofs. 
-
-Examples for two proof packages supported by HEVEA (\texttt{bussproofs}, \texttt{proof}) are given below. The third supported package, \textrm{mathpartir}, is omitted as the commands clash with those of \texttt{proof}. 
-\subsection{Style Options with 'Proofs'}
-A class definition of the form
-\begin{verbatim}
-%HEVEA \setHTMLstyle{.proof}{border:solid \#88aacc;background:\#bbddff;color:black;align:center}
-\end{verbatim}
-would produce proofs of the form
-\noindent(1)
-\begin{center}
-\infer{A}{
-        \infer=[\imp E]{B}{
-                \frac{\Pi}{2}
-                &
-                \infer[\wedge E$_1$]{B21}{B21 \wedge B22} 
-                & 
-                D1 \wedge D2
-        }
-        &
-        \infer={C}{C11 \wedge C12}
-}
-\end{center}
-
-\noindent(2)
-\begin{center}
-\infer={A}{
-        \infer=[\imp E]{B}{
-                \frac{\Pi}{2}
-                &
-                \infer*[\wedge E$_1$]{B21}{B21 \wedge B22} 
-                & 
-                D1 \wedge D2
-        }
-        &
-        \deduce{C}{C11 \wedge C12}
-}
-$$
-
-\noindent (3)
-$$
-\infer=[RI]{A \imp B}{
-        \infer*{B}{[A]}
-}
-$$
-
-\noindent (4)
-$$
-\infer=[(1)]{A}{
-        \infer{B}{
-                B11\land B12\land B13
-                &
-                B21\land B22\land B23
-        }
-        &
-        C
-}
-$$
-
-\noindent (5)
-$$
-\begin{tabular}{ccccc}
-$\infer[(\land I)]{A \land B}{A & B}$
-&
-~
-&
-$\infer[(\land E$_l$)]{A}{A\land B}$
-&
-~
-&
-$\infer[(\land E$_r$)]{B}{A\land B}$
-\\
-\end{tabular}
-$$
-
-\subsection{Style Options with 'Bussproofs'}
-A class definition of the form
-\begin{verbatim}
-%HEVEA \setHTMLstyle{.bussproofs}{border:thin solid red;background:\#eeddbb;color:black;align:center}
-\end{verbatim}
-would produce proofs like
-\EnableBpAbbreviations
-$$
-%\begin{divstyle}{fancy}
-\solidLine
-\AxiomC{}
-\RightLabel{Ax}
-\UnaryInfC{$\Gamma, a \vdash b$}
-\RightLabel{$\to$I}
-\singleLine
-\UnaryInfC{$\Gamma \vdash a \to b$}
-\singleLine
-\AxiomC{}
-\RightLabel{Ax}
-\UnaryInfC{$\Gamma \vdash c$}
-\AXC{}
-\dashedLine
-\RightLabel{Ax}
-\UnaryInf$\Gamma \fCenter \vdash d$
-\RightLabel{$\wedge$I}
-\doubleLine
-\BinaryInfC{$\Gamma \vdash c \wedge d$}
-\RightLabel{$\wedge$I}
-\dottedLine
-\BinaryInfC{$\Gamma \vdash (a \to b) \wedge (c \wedge d)$}
-\DP
-%\end{divstyle}
-$$
-
 \section{Using DIV for Styles}
 Due to internal use of certain environments by HEVEA, they cannot be supported by defining an appropriate class in the preamble. A typical example would be the \texttt{table} environment. Defining a class \emph{.table} and using it universaly would throw also effect math constructs, such as \verb+\over,\frac,\xleftarrow,etc.+, besides many other things.
 
@@ -250,7 +136,7 @@ The limitation is that the enclosed part may generate more HTML blocks, and only
 
 As an example consider the class definition below.
 \begin{verbatim}
-\setHTMLstyle{.ruled-table}{border:solid black; padding:5; background:\#00cb00;color:white}
+\newstyle{.ruled-table}{border:solid black; padding:5; background:\#00cb00;color:white}
 \end{verbatim}   
 Enclosing a \emph{tabular} environment using \emph{divstyle} with the class \emph{.ruled-table} as the argument, as shown below
 \begin{verbatim}

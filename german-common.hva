@@ -1,4 +1,3 @@
-
 %%%% Hevea support for babel option 'german'.
 
 %%%% Support for
@@ -33,38 +32,36 @@
   \catcode`\"=13\let\@hevea@dquote\@german@dquote%
 }
 \newcommand{\common@german@babel}{%
-  \common@common@german@babel
-  \def{\german@month}{ 
-  	\ifthenelse{\value{month}=1}{Januar}   {
-  	\ifthenelse{\value{month}=2}{Februar}  {
- 	\ifthenelse{\value{month}=3}{M\"arz}   {
- 	\ifthenelse{\value{month}=4}{April}    {
- 	\ifthenelse{\value{month}=5}{Mai}      {
- 	\ifthenelse{\value{month}=6}{Juni}     {
- 	\ifthenelse{\value{month}=7}{Juli}     {
- 	\ifthenelse{\value{month}=8}{August}   {
- 	\ifthenelse{\value{month}=9}{September}{
- 	\ifthenelse{\value{month}=10}{Oktober}  {
- 	\ifthenelse{\value{month}=11}{November} {
- 	\ifthenelse{\value{month}=12}{Dezember} {
-  }}}}}}}}}}}}}%
-  \renewcommand\today{\theday.~\german@month~\theyear}%
-}
+\common@common@german@babel%
+\def\german@month
+{\ifthenelse{\value{month}=1}{Januar}
+{\ifthenelse{\value{month}=2}{Februar}
+{\ifthenelse{\value{month}=3}{M\"arz}
+{\ifthenelse{\value{month}=4}{April}
+{\ifthenelse{\value{month}=5}{Mai}
+{\ifthenelse{\value{month}=6}{Juni}
+{\ifthenelse{\value{month}=7}{Juli}
+{\ifthenelse{\value{month}=8}{August}
+{\ifthenelse{\value{month}=9}{September}
+{\ifthenelse{\value{month}=10}{Oktober}
+{\ifthenelse{\value{month}=11}{November}
+{\ifthenelse{\value{month}=12}{Dezember}{}
+}}}}}}}}}}}}%
+\renewcommand\today{\theday.~\german@month~\theyear}}
 %%%
-\newcommand{\common@austrian@babel}{
-\def\austrian@month{%
-  	\ifthenelse{\value{month}=1 }{J\"anner} {
-  	\ifthenelse{\value{month}=2 }{Februar}  {
- 	\ifthenelse{\value{month}=3 }{M\"arz}   {
- 	\ifthenelse{\value{month}=4 }{April}    {
- 	\ifthenelse{\value{month}=5 }{Mai}      {
- 	\ifthenelse{\value{month}=6 }{Juni}     {
- 	\ifthenelse{\value{month}=7 }{Juli}     {
- 	\ifthenelse{\value{month}=8 }{August}   {
- 	\ifthenelse{\value{month}=9 }{September}{
- 	\ifthenelse{\value{month}=10}{Oktober}  {
- 	\ifthenelse{\value{month}=11}{November} {
- 	\ifthenelse{\value{month}=12}{Dezember} {
-  }}}}}}}}}}}}}%
-\renewcommand\today{\theday.~\austrian@month~\theyear}%
-}
+\newcommand{\common@austrian@babel}{%
+\def\austrian@month
+{\ifthenelse{\value{month}=1 }{J\"anner}
+{\ifthenelse{\value{month}=2 }{Februar}
+{\ifthenelse{\value{month}=3 }{M\"arz}
+{\ifthenelse{\value{month}=4 }{April}
+{\ifthenelse{\value{month}=5 }{Mai}
+{\ifthenelse{\value{month}=6 }{Juni}
+{\ifthenelse{\value{month}=7 }{Juli}
+{\ifthenelse{\value{month}=8 }{August}
+{\ifthenelse{\value{month}=9 }{September}
+{\ifthenelse{\value{month}=10}{Oktober}
+{\ifthenelse{\value{month}=11}{November}
+{\ifthenelse{\value{month}=12}{Dezember}{}
+}}}}}}}}}}}}%
+\renewcommand\today{\theday.~\austrian@month~\theyear}}

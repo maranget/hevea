@@ -510,36 +510,34 @@
 %Format date after \today is defined
 \ifu\@title\let\title\@titlebis\else\sbox{\@@title}{\@title}\fi
 \ifu\@author\let\author\@authorbis\else\sbox{\@@author}{\@author}\fi
-\ifu\@date\let\date\@datebis\else\sbox{\@@date}{\@date}\fi}
-
-%%%%%%%% Corrected format for the day  
-\newcommand\english@day{%
-        \ifthenelse{\value{day}=1 }{\theday st} {%
-  	\ifthenelse{\value{day}=21}{\theday st} {%
- 	\ifthenelse{\value{day}=31}{\theday st} {%
- 	\ifthenelse{\value{day}=2 }{\theday nd} {%
- 	\ifthenelse{\value{day}=22}{\theday nd} {%
- 	\ifthenelse{\value{day}=3 }{\theday rd} {%
- 	\ifthenelse{\value{day}=23}{\theday rd} {%
-        \theday th%
-}}}}}}}}%
-%%%%%%%% Usual format for the month  
-\newcommand\english@month{% 
-  	\ifthenelse{\value{month}=1 }{January}  {%
-  	\ifthenelse{\value{month}=2 }{February} {%
- 	\ifthenelse{\value{month}=3 }{March}    {%
- 	\ifthenelse{\value{month}=4 }{April}    {%
- 	\ifthenelse{\value{month}=5 }{May}      {%
- 	\ifthenelse{\value{month}=6 }{June}     {%
- 	\ifthenelse{\value{month}=7 }{July}     {%
- 	\ifthenelse{\value{month}=8 }{August}   {%
- 	\ifthenelse{\value{month}=9 }{September}{%
- 	\ifthenelse{\value{month}=10}{October}  {%
- 	\ifthenelse{\value{month}=11}{November} {%
- 	\ifthenelse{\value{month}=12}{December} {%
-}}}}}}}}}}}}}%  
+\ifu\@date\let\date\@datebis\else\sbox{\@@date}{\@date}\fi}%
+%%End AtBeginDocument
+%%%%%%%% Day and month formats
+\def\default@day
+{\ifthenelse{\value{day}=1}{\theday\textsuperscript{st}}
+{\ifthenelse{\value{day}=21}{\theday\textsuperscript{st}}
+{\ifthenelse{\value{day}=31}{\theday\textsuperscript{st}}
+{\ifthenelse{\value{day}=2}{\theday\textsuperscript{nd}}
+{\ifthenelse{\value{day}=22}{\theday\textsuperscript{nd}}
+{\ifthenelse{\value{day}=3}{\theday\textsuperscript{rd}}
+{\ifthenelse{\value{day}=23}{\theday\textsuperscript{rd}}
+{\theday\textsuperscript{th}}}}}}}}}%
+\def\default@month
+{\ifthenelse{\value{month}=1}{January}
+{\ifthenelse{\value{month}=2}{February}
+{\ifthenelse{\value{month}=3}{March}
+{\ifthenelse{\value{month}=4}{April}
+{\ifthenelse{\value{month}=5}{May}
+{\ifthenelse{\value{month}=6}{June}
+{\ifthenelse{\value{month}=7}{July}
+{\ifthenelse{\value{month}=8}{August}
+{\ifthenelse{\value{month}=9}{September}
+{\ifthenelse{\value{month}=10}{October}
+{\ifthenelse{\value{month}=11}{November}
+{\ifthenelse{\value{month}=12}{December}{}
+}}}}}}}}}}}}%
 %%%%%%%% Format for \today, e.g 31st July, 1980
-\newcommand\today{\english@day\english@month,~\theyear}
+\newcommand\today{\default@day~\default@month,~\theyear}
 %%%%%%%%%%%%%% Defined counter printing functions
 \newcommand{\@arabic}[1]{\@pad{0}{3}{\arabic{#1}}}
 \newcommand{\@twoarabic}[1]{\@pad{0}{2}{\arabic{#1}}}

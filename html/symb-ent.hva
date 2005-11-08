@@ -223,8 +223,8 @@
 \renewcommand{\neg}{\@entity{not}}
 \newcommand{\top}{\@print{&#8868;}}
 \newcommand{\flat}{\@print{&#9837;}}   		% EVENTUALLY
-\newcommand{\natural}{\@print{&#9838;;}} 	% EVENTUALLY
-\newcommand{\sharp}{\@print{&#9839;}}		% EVENTUALLY
+\newcommand{\natural}{\@print{&#9838;}} 	% EVENTUALLY
+\renewcommand{\sharp}{\@print{&#9839;}}		% EVENTUALLY
 \newcommand{\wp}{\@entity{weierp}}
 \renewcommand{\bot}{\@entity{perp}}
 \newcommand{\clubsuit}{\@entity{clubs}}

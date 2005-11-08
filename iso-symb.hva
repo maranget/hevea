@@ -33,6 +33,7 @@
 \newcommand{\emptyset}{Ø}
 \newcommand{\le}{\leq}
 \newcommand{\ge}{\geq}
+\newcommand{\sharp}{\@print{#}}
 %%% So called log-like functions
 \newcommand{\@defl}[2]{\newcommand{#1}{\mathop{\mbox{#2}}}}
 \newcommand{\@defnl}[2]{\newcommand{#1}{\mathop{\mbox{#2}}\nolimits}}
@@ -96,7 +97,7 @@
 \newcommand{\nolimits}{}
 \def\sim{\@print{~}}
 \def\simeq{\textunderline{\sim}}
-\def\textasciicircum{^}
+\def\textasciicircum{\@print{^}}
 \def\textasciitilde{\@print{~}}
 \def\textless{<}
 \def\textgreater{>}

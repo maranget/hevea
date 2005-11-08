@@ -6,51 +6,29 @@
 %%%%    b) names of various part descriptors (contentsname etc.)
 
 \newcommand{\english@babel}{
-  \def\english@day{
-        \ifthenelse{\value{day}=1 }{\theday st} {
-  	\ifthenelse{\value{day}=21}{\theday st} {
- 	\ifthenelse{\value{day}=31}{\theday st} {
- 	\ifthenelse{\value{day}=2 }{\theday nd} {
- 	\ifthenelse{\value{day}=22}{\theday nd} {
- 	\ifthenelse{\value{day}=3 }{\theday rd} {
- 	\ifthenelse{\value{day}=23}{\theday rd} {
-        \theday th
-  }}}}}}}}%
-  \def\english@month{ 
-  	\ifthenelse{\value{month}=1 }{January}  {
-  	\ifthenelse{\value{month}=2 }{February} {
- 	\ifthenelse{\value{month}=3 }{March}    {
- 	\ifthenelse{\value{month}=4 }{April}    {
- 	\ifthenelse{\value{month}=5 }{May}      {
- 	\ifthenelse{\value{month}=6 }{June}     {
- 	\ifthenelse{\value{month}=7 }{July}     {
- 	\ifthenelse{\value{month}=8 }{August}   {
- 	\ifthenelse{\value{month}=9 }{September}{
- 	\ifthenelse{\value{month}=10}{October}  {
- 	\ifthenelse{\value{month}=11}{November} {
- 	\ifthenelse{\value{month}=12}{December} {
-  }}}}}}}}}}}}}%
-  \@ifundefined{theyear}{}{\def\today{\english@day\english@month,~\theyear}}%
-  \def\prefacename{Preface}%
-  \def\refname{References}%
-  \def\abstractname{Abstract}%
-  \def\bibname{Bibliography}%
-  \def\chaptername{Chapter}%
-  \def\appendixname{Appendix}%
-  \def\contentsname{Contents}%
-  \def\listfigurename{List of Figures}%
-  \def\listtablename{List of Tables}%
-  \def\indexname{Index}%
-  \def\figurename{Figure}%
-  \def\tablename{Table}%
-  \def\partname{Part}%
-  \def\enclname{encl}%
-  \def\ccname{cc}%
-  \def\headtoname{To}%
-  \def\pagename{Page}%
-  \def\headpagename{Page}%
-  \def\seename{see}%
-  \def\alsoseename{see also}%
-  \def\footertext{This document was translated from \LaTeX{} by
+\let\english@day\default@day%
+\let\english@month\default@month%
+\@ifundefined{theyear}{}{\def\today{\english@day\english@month,~\theyear}}%
+\def\prefacename{Preface}%
+\def\refname{References}%
+\def\abstractname{Abstract}%
+\def\bibname{Bibliography}%
+\def\chaptername{Chapter}%
+\def\appendixname{Appendix}%
+\def\contentsname{Contents}%
+\def\listfigurename{List of Figures}%
+\def\listtablename{List of Tables}%
+\def\indexname{Index}%
+\def\figurename{Figure}%
+\def\tablename{Table}%
+\def\partname{Part}%
+\def\enclname{encl}%
+\def\ccname{cc}%
+\def\headtoname{To}%
+\def\pagename{Page}%
+\def\headpagename{Page}%
+\def\seename{see}%
+\def\alsoseename{see also}%
+\def\footertext{This document was translated from \LaTeX{} by
 \footahref{\heveaurl/index.html}{\hevea}.}%
 }
