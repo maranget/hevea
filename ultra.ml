@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: ultra.ml,v 1.10 2005-02-25 17:49:18 maranget Exp $             *)
+(*  $Id: ultra.ml,v 1.11 2005-11-08 14:27:20 maranget Exp $             *)
 (***********************************************************************)
 
 open Tree
@@ -527,7 +527,14 @@ and trees i j ts k =
 and opt_onodes ts i = match ts.(i) with
   |  ONode (o,c,args) -> begin match opt false (Array.of_list args) [] with
       | [Node (s,args)] ->
-          ts.(i) <- Node (s,[ONode (o,c,args)])
+	  let s1, s2 = partition_color s in
+	  ts.(i) <-
+	     begin match s1, s2 with
+	     | [],[] -> assert false
+	     | [],s  -> ONode (o,c,[Node (s, args)])
+	     | s,[]  -> Node (s,[ONode (o,c,args)])
+	     | _,_   -> Node (s1, [ONode (o,c,[Node (s2, args)])])
+	     end
       | t ->
           ts.(i) <- ONode (o,c,t)
   end

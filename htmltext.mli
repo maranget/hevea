@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: htmltext.mli,v 1.5 2001-05-28 17:28:56 maranget Exp $         *)
+(*  $Id: htmltext.mli,v 1.6 2005-11-08 14:27:20 maranget Exp $         *)
 (***********************************************************************)
 exception No
 
@@ -37,3 +37,5 @@ val add_style : Lexeme.style -> env -> env
 
 
 val blanksNeutral : t_style -> bool
+
+val partition_color : env -> env * env

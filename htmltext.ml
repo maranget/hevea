@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: htmltext.ml,v 1.11 2005-02-25 17:49:18 maranget Exp $          *)
+(*  $Id: htmltext.ml,v 1.12 2005-11-08 14:27:20 maranget Exp $          *)
 (***********************************************************************)
 open Emisc
 open Lexeme
@@ -217,3 +217,6 @@ let add_style
 let blanksNeutral s = match s.nat with
 | Size _ | Style (U|TT|CODE|SUB|SUP) | Other -> false
 | _ -> true
+
+let partition_color styles =
+  List.partition (fun s -> not (is_color s.nat)) styles
