@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: ultra.ml,v 1.11 2005-11-08 14:27:20 maranget Exp $             *)
+(*  $Id: ultra.ml,v 1.12 2005-11-09 10:24:24 maranget Exp $             *)
 (***********************************************************************)
 
 open Tree
@@ -79,7 +79,7 @@ let rec all_blanks ts i j =
 
 let rec get_same ts i j f = function
   | [] -> ((i,j),f)
-  | ((ii,jj),g)::rem when
+  | ((ii,jj),_)::_ when
        covers i j ii jj &&
        all_blanks ts i (ii-1) &&
        all_blanks ts (jj+1) j -> ((ii,jj),f)
@@ -124,7 +124,7 @@ and correct_cfl_high ts i1 j1 i2 j2 =
 
 let rec mk_cover_one ts i j f = function
   | [] -> (i,j),f
-  | ((ii,jj),g)::rem ->
+  | ((ii,jj),_)::rem ->
       mk_cover_one
         ts
         (correct_cfl_low ts ii jj i j)
@@ -275,7 +275,7 @@ let slen f =
   else
     0) + String.length f.txt + String.length f.ctxt
 
-let order_factors (((i1,j1),f1),c1) (((i2,j2),f2),c2) =
+let order_factors (((_i1,_j1),f1),c1) (((_i2,_j2),f2),c2) =
   if c1 < c2 then true
   else if c1=c2 then
     slen f1 >= slen f2
@@ -363,7 +363,7 @@ let rec as_long_end p = function
           
 
       
-let bouts p ts =
+let bouts _p ts =
   let bef,rem = as_long is_blank ts in
   let inside,aft = as_long_end is_blank rem in
   bef,inside,aft
@@ -486,7 +486,7 @@ let rec deeper i j ts k =
         if not r then
           ts.(i) <- Node (s,opt true (Array.of_list args) []) ;
         r
-    | t -> again r (i+1) in
+    | _ -> again r (i+1) in
   if again false i then begin
     let ts = as_list i j ts [] in    
     let rs = opt true  (Array.of_list ts) k in
