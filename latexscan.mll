@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.264 2005-11-04 17:00:27 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.265 2005-11-15 17:36:16 maranget Exp $ *)
 
 
 {
@@ -1850,12 +1850,15 @@ def_name_code "\\def" (do_def false) ;
 def_name_code "\\gdef" (do_def true)
 ;;
 
+let caml_print s = CamlCode (fun _ -> Dest.put s)
+;;
+
 def_code "\\prim@def"
   (fun lexbuf ->
     let name = get_csname lexbuf in
     Save.skip_blanks_init lexbuf ;
     let body = get_prim_arg lexbuf in
-    def name ([],[]) (Subst body))
+    def name zero_pat (caml_print body))
 ;;
 
 def_code "\\undef"
@@ -2689,8 +2692,6 @@ def_code "\\providesavebox"
         global_def name zero_pat (CamlCode (fun _ -> ())))
 ;;
 
-let caml_print s = CamlCode (fun _ -> Dest.put s)
-;;
 
 let get_this_arg_mbox arg =
   start_mbox () ;

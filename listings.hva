@@ -89,11 +89,11 @@
 %     \warning{RESET: «#1»}%
     \lst@delete@kwd@class{#1}%
     \lst@record@kwd@class{#1}{#2}%
-    \lst@iter{\lst@install@kwd{\csname lst@kwd@style#1\endcsname}}{#2}}
+    \lst@iter{\lst@install@kwd{\csname lst@keywordstyle#1\endcsname}}{#2}}
 \def\lst@more@kwds#1#2{%
 %     \warning{MORE: «#1»}%
     \lst@record@kwd@class{#1}{#2}%
-    \lst@iter{\lst@install@kwd{\csname lst@kwd@style#1\endcsname}}{#2}}
+    \lst@iter{\lst@install@kwd{\csname lst@keywordstyle#1\endcsname}}{#2}}
 \def\lst@install@directive#1#2{\def\csname lstd@\lst@normalize{#2}\endcsname{#1}}
 \def\lst@install@directives
   #1#2{%
@@ -142,8 +142,8 @@
 \define@key{lst}{moredirectives}{\lst@delay@dinstall\lst@directive@style#1}
 %%%%%%% Styles applied to keywords, strings etc %%%%%%
 \newcommand{\lst@keywordstyle@key}[2][1]
-{\def\csname lst@kwd@style#1\endcsname##1{#2{##1}}}
-\def\lst@kwd@style{\csname lst@kwd@style1\endcsname}
+{\def\csname lst@keywordstyle#1\endcsname##1{#2{##1}}}
+\def\lst@keywordstyle{\csname lst@keywordstyle1\endcsname}
 \define@key{lst}{keywordstyle}{\@calloptsimple{\lst@keywordstyle@key}{#1}}
 %\define@key{lst}{keywordstyle}{\def\lst@kwd@style##1{#1{##1}}}
 \define@key{lst}{ndkeywordstyle}{\@calloptsimple{\lst@keywordstyle@key}{[2]#1}}
@@ -152,20 +152,20 @@
 \define@key{lst}{directivestyle}{\def\lst@directive@style##1{#1{##1}}}
 \define@key{lst}{identifierstyle}[]{\def\lst@identifier@style##1{#1{##1}}}
 \define@key{lst}{basicstyle}{\def\lst@basic@style{#1}}
-\define@key{lst}{commentstyle}{\def\lst@comment@style{#1}}
+\define@key{lst}{commentstyle}{\def\lst@commentstyle{#1}}
 \define@key{lst}{stringstyle}{\def\lst@string@style{#1}}
 \lst@AddToHook{EmptyStyle}{\let\lst@string@style\@empty}
-\lst@AddToHook{EmptyStyle}{\let\lst@comment@style\em}
+\lst@AddToHook{EmptyStyle}{\let\lst@commentstyle\em}
 \lst@AddToHook{EmptyStyle}{\let\lst@identifier@style\@empty}
 \lst@AddToHook{EmptyStyle}{\let\lst@basic@style\@empty}
 \lst@AddToHook{EmptyStyle}{\lst@keywordstyle@key[1]{\bfseries}}
 \lst@AddToHook{EmptyStyle}
-{\lst@keywordstyle@key[2]{\csname lst@kwd@style1\endcsname}}
+{\lst@keywordstyle@key[2]{\csname lst@keywordstyle1\endcsname}}
 \lst@AddToHook{EmptyStyle}
-{\lst@keywordstyle@key[3]{\csname lst@kwd@style1\endcsname}}
-\lst@AddToHook{EmptyStyle}{\def\lst@okwd@style{\lst@kwd@style}}
-\lst@AddToHook{EmptyStyle}{\def\lst@directive@style{\lst@kwd@style}}
-\lst@AddToHook{EmptyStyle}{\def\lst@directive@style{\lst@kwd@style}}
+{\lst@keywordstyle@key[3]{\csname lst@keywordstyle1\endcsname}}
+\lst@AddToHook{EmptyStyle}{\def\lst@okwd@style{\lst@keywordstyle}}
+\lst@AddToHook{EmptyStyle}{\def\lst@directive@style{\lst@keywordstyle}}
+\lst@AddToHook{EmptyStyle}{\def\lst@directive@style{\lst@keywordstyle}}
 %%%%%% Emph identifiers, classes seems to be implemented properly
 \def\lst@defall#1#2{\def\csname #1\endcsname{#2}}
 \def\lst@emphstyle@key#1#2\@empty{\lst@defall{lst@emphstyle#1}{#2}}
@@ -225,14 +225,12 @@
    \let\old@color\color%
    \renewcommand{\color}[2][!*!]{\@getstylecolor[##1]{##2}}%
    \prim@def\lst@temp@bgcolor{background-color:\lst@bgcolor;}%
-   \let\color\old@color%
-}
+   \let\color\old@color}
 \def\lst@rulecolor@in@temp{%
    \let\old@color\color%
    \renewcommand{\color}[2][!*!]{\@getstylecolor[##1]{##2}}%
    \prim@def\lst@temp@rulecolor{border-color:\lst@rulecolor;}%
-   \let\color\old@color%
-}
+   \let\color\old@color}
 \def\lst@border@none{border-style:none;}
 \def\lst@border@leftline{border-left-style:solid;}
 \def\lst@border@topline{border-top-style:solid;}
@@ -242,10 +240,9 @@
 \def\lst@border@shadowbox{border-style:outset;}
 \def\lst@frame@in@temp{%
    \ifu\csname lst@border@\lst@frame\endcsname
-   \prim@def\lst@temp@frame{\lst@see@frame{\lst@frame}}
+   \prim@def\lst@temp@frame{\lst@see@frame{\lst@frame}}%
    \else
    \let\lst@temp@frame\csname lst@border@\lst@frame\endcsname
-%   \prim@def\lst@temp@frame{\csname lst@border@\lst@frame\endcsname}%
    \fi
 }
 \lst@AddToHook{InitVar}
@@ -337,8 +334,14 @@ breakindent,breakautoindent}
 \lst@AddToHook{InitVarEOL}{\stepcounter{lstlabel}}
 \newsavebox{\@prevlines}
 \newsavebox{\@curline}
+\ifhtml
 \ifu\lst@@br\def\lst@@br{
 }\fi
+\def\lst@@@br{\global\let\lst@br\lst@@br}%To avoid output of first line skip
+\else
+\ifu\lst@@br\let\lst@@br\@br\fi
+\let\lst@@@br\lst@@br
+\fi
 \lst@AddToHook{Init}
 {\def\lst@br{}}
 \newcommand{\lst@forget@lastline}
@@ -444,17 +447,17 @@ breakindent,breakautoindent}
 \lst@AddToHookExe{SetLanguage}{\let\lst@DefineComments@LC\@empty}
 \lst@AddToHook{SelectCharTable}{\lst@DefineComments@LC}
 % Nested comments
-\newcommand{\lst@NC@key}[2]
+\newcommand{\lst@NC@key}[3]
   {\lst@lExtend\lst@DefineComments@NC
-     {\lst@nested@comment{\@rawchars{#1}}{\@rawchars{#2}}}}
-\define@key[2]{lst}{nestedcomment}{\lst@NC@key{#1}{#2}}
+     {\lst@nested@comment{#1}{\@rawchars{#2}}{\@rawchars{#3}}}}
+\define@key[2]{lst}{nestedcomment}{\lst@NC@key{commentstyle}{#1}{#2}}
 \lst@AddToHookExe{SetLanguage}{\let\lst@DefineComments@NC\@empty}
 \lst@AddToHook{SelectCharTable}{\lst@DefineComments@NC}
 % Balanced comments
-\newcommand{\lst@SC@key}[2]
+\newcommand{\lst@SC@key}[3]
    {\lst@lExtend\lst@DefineComments@SC
-     {\lst@balanced@comment{\@rawchars{#1}}{\@rawchars{#2}}}}
-\define@key[2]{lst}{singlecomment}{\lst@SC@key{#1}{#2}}
+     {\lst@balanced@comment{#1}{\@rawchars{#2}}{\@rawchars{#3}}}}
+\define@key[2]{lst}{singlecomment}{\lst@SC@key{commentstyle}{#1}{#2}}
 \lst@AddToHookExe{SetLanguage}{\let\lst@DefineComments@SC\@empty}
 \lst@AddToHook{SelectCharTable}{\lst@DefineComments@SC}
 \newcommand{\lst@DC@key}[4]
@@ -467,13 +470,16 @@ breakindent,breakautoindent}
 \lst@AddToHook{SelectCharTable}{\lst@DefineComments@DC}
 %%%%%% New interface for comments grr...
 \def\lst@morecomment@d#1#2#3#4{\lst@DC@key{#1}{#2}{#3}{#4}}
-\def\lst@morecomment@s#1#2{\lst@SC@key{#1}{#2}}
-\def\lst@morecomment@n#1#2{\lst@NC@key{#1}{#2}}
+\newcommand{\lst@morecomment@s}[3][commentstyle]{\lst@SC@key{#1}{#2}{#3}}
+\newcommand{\lst@morecomment@n}[3][commentstyle]{\lst@NC@key{#1}{#2}{#3}}
 \def\lst@morecomment@l#1#2#3#4\@empty{\lst@LC@key{#1#2#3#4}}
 \def\lst@deletecomment@d{\let\lst@DefineComments@DC\@empty}
 \def\lst@deletecomment@s{\let\lst@DefineComments@SC\@empty}
 \def\lst@deletecomment@n{\let\lst@DefineComments@NC\@empty}
 \def\lst@deletecomment@l{\let\lst@DefineComments@LC\@empty}
+\def\lst@deletecomment@all{%
+\lst@deletecomment@d\lst@deletecomment@s%
+\lst@deletecomment@n\lst@deletecomment@l}
 \def\lst@till@empty#1\@empty{}
 \newcommand{\lst@morecomment@key}[1][]
   {\ifu\csname lst@morecomment@#1\endcsname
@@ -490,12 +496,51 @@ breakindent,breakautoindent}
   {\ifu\csname lst@morecomment@#1\endcsname
     \warning{Unkown comment type ``#1''}%
     \let\lst@next\lst@till@empty\else
-    \csname lst@deletecomment@#1\endcsname
+    \csname lst@deletecomment@all\endcsname
     \let\lst@next\csname lst@morecomment@#1\endcsname\fi
     \lst@next}
 \define@key{lst}{deletecomment}{\@callsubst{\lst@deletecomment@key}{#1\@empty}}
 \define@key{lst}{comment}{\@callsubst{\lst@comment@key}{#1\@empty\@empty\@empty}}
-\define@key{lst}{morecomment}{\@callsubst{\lst@morecomment@key}{#1\@empty\@empty\@empty}}
+\define@key{lst}{morecomment}{\@callsubst{\lst@morecomment@key}{#1\@empty\@empty}}
+%%%%%%% General delimiters
+%Line delimiters
+\newcommand{\lst@LD@key}[2]
+{\lst@lExtend\lst@Define@LD{\lst@line@delim{#1}{\@rawchars{#2}}}}
+\lst@AddToHookExe{SetLanguage}{\let\lst@Define@LD\@empty}
+\lst@AddToHook{SelectCharTable}{\lst@Define@LD}
+%Single delimiters
+\newcommand{\lst@SD@key}[3]
+{\lst@lExtend\lst@Define@SD
+{\lst@single@delim{#1}{\@rawchars{#2}}{\@rawchars{#3}}}}
+\lst@AddToHookExe{SetLanguage}{\let\lst@Define@SD\@empty}
+\lst@AddToHook{SelectCharTable}{\lst@Define@SD}
+%%General interface
+\def\lst@deletedelim@l{\let\lst@Define@LC\@empty}
+\def\lst@deletedelim@s{\let\lst@Define@SD\@empty}
+\def\lst@deletedelim@all{\lst@deletedelim@l\lst@deletedelim@s}
+\newcommand{\lst@deletedelim@key}[1][]
+{\ifu\csname lst@deletedelim@#1\endcsname
+\warning{Unkown delimiter type ``#1''}\else
+\csname lst@deletedelim@#1\endcsname\fi
+\lst@till@empty}
+\newcommand{\lst@moredelim@l}[2][\@empty]{\lst@LD@key{#1}{#2}}
+\newcommand{\lst@moredelim@s}[3][\@empty]{\lst@SD@key{#1}{#2}{#3}}
+\newcommand{\lst@moredelim@key}[1][]
+{\ifu\csname lst@moredelim@#1\endcsname
+\warning{Unkown delimiter type ``#1''}%
+\let\lst@next\lst@till@empty\else
+\let\lst@next\csname lst@moredelim@#1\endcsname\fi
+\lst@next}
+\newcommand{\lst@delim@key}[1][]
+{\ifu\csname lst@moredelim@#1\endcsname
+\warning{Unkown delimiter type ``#1''}%
+\let\lst@next\lst@till@empty\else
+\csname lst@deletedelim@all\endcsname
+\let\lst@next\csname lst@moredelim@#1\endcsname\fi
+\lst@next}
+\define@key{lst}{deletedelim}{\@callsubst{\lst@deletedelim@key}{#1\@empty}}
+\define@key{lst}{delim}{\@callsubst{\lst@delim@key}{#1\@empty}}
+\define@key{lst}{moredelim}{\@callsubst{\lst@moredelim@key}{#1\@empty}}
 %%%%%%% Extended chars and others
 \def\lst@extendedchars{false}
 \lst@AddToHook{DeInit}{\setboolean{lst@extendedchars}{false}}
@@ -508,13 +553,13 @@ breakindent,breakautoindent}
 \lst@AddToHook{Init}
   {\@ifundefined{lst@showspaces}{}
      {\setboolean{lst@showspaces}{\lst@boolean{\lst@showspaces}}}}
+%Tabs...
 \define@key{lst}{showtabs}[true]{\def\lst@showtabs{#1}}
 \setboolean{lst@showtabs}{false}
 \lst@AddToHook{Init}
   {\@ifundefined{lst@showtabs}{}
      {\setboolean{lst@showtabs}{\lst@boolean{\lst@showtabs}}}}
 \lst@AddToHook{DeInit}{\setboolean{lst@showtabs}{false}}
-
 \newcommand{\lst@tabsize}{8}
 \define@key{lst}{tabsize}[8]{\def\lst@tabsize{#1}}
 \define@key{lst}{tab}{\def\lst@tab{#1}}

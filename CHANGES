@@ -1,3 +1,8 @@
+version 1.08+4
+    - added delim, moredelim, deletedelim, should now implement
+      new interface for comments and strinsg, and normalize style
+      command names... Semantics of 'delete' key is somehow radical...
+
 version 1.08+3
     - esponja -> keep color inside A elts
     - made \today proper (lot of space were introduced).

@@ -439,9 +439,6 @@
 %%%%%% Default TABLE attribute for array and tabular
 \newcommand{\@table@attributes}{CELLSPACING=2 CELLPADDING=0}
 \newcommand{\@table@attributes@border}{CELLSPACING=0 CELLPADDING=1}
-%%%%
-\newcommand{\@opencell}[3]{\@open{TABLE}{#1}\@open{TR}{#2}\@open{TD}{#3}}
-\newcommand{\@closecell}{\@force{TD}\@close{TR}\@close{TABLE}}
 %%%%%% Do not load hevea.hva again !
 \def\csname hevea@loaded\endcsname{}
 %

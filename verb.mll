@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: verb.mll,v 1.80 2005-11-08 10:14:19 maranget Exp $            *)
+(*  $Id: verb.mll,v 1.81 2005-11-15 17:36:16 maranget Exp $            *)
 (***********************************************************************)
 {
 exception VError of string
@@ -152,7 +152,7 @@ type lst_top_mode =
   | Skip of lst_top_mode
   | StartNextLine of lst_top_mode * (bool ref) | EndNextLine of lst_top_mode
   | String of (char * (char * (Lexing.lexbuf -> char -> unit)) list)
-  | Normal | Comment of comment_type
+  | Normal | Comment of string * comment_type
   | Delim of int * (char * (Lexing.lexbuf -> char -> unit)) list
   | Gobble of lst_top_mode * int
   | Escape of lst_top_mode * char * bool (* bool flags mathescape *)
@@ -171,9 +171,9 @@ let rec string_of_top_mode = function
   | StartNextLine (_,_) -> "StartNextLine"
   | EndNextLine (mode) ->
       sprintf "EndNextLine (%s)" (string_of_top_mode mode)
-  | Comment (Balanced _) -> "Balanced"
-  | Comment (Nested n)   -> "(Nested "^string_of_int n^")"
-  | Comment (Line) -> "Line"
+  | Comment (_, Balanced _) -> "Balanced"
+  | Comment (_, Nested n)   -> "(Nested "^string_of_int n^")"
+  | Comment (_, Line) -> "Line"
   | String _  -> "String"
   | Normal -> "Normal"
   | Gobble (_,_) -> "Gobble"
@@ -222,7 +222,7 @@ let lst_output_com com =
       | Escape (_,_,_) ->
           assert false
       | Delim (_, _)
-      | Comment _|String _
+      | Comment (_,_)|String _
       | EndNextLine _ ->
           scan_this main "\\@NewLine" ;
           dest_string arg
@@ -334,7 +334,9 @@ let begin_comment () =
   lst_output_token () ;
   scan_this Scan.main "\\begin{lrbox}{\\lst@box}"
 
-and end_comment () = scan_this Scan.main "\\end{lrbox}{\\lst@comment@style{\\lst@box}}"
+and end_comment sty () =
+  scan_this Scan.main
+    (Printf.sprintf "\\end{lrbox}{%s{\\lst@box}}" sty)
 
 let end_string to_restore =
   scan_this Scan.main "\\end{lrbox}{\\lst@string@style{\\lst@box}}" ;
@@ -342,7 +344,7 @@ let end_string to_restore =
   lst_showspaces := !lst_save_spaces
 
 let rec end_mode mode = match mode with
-| Comment _ -> end_comment ()
+| Comment (style,_) -> end_comment style ()
 | String (_,to_restore) -> end_string to_restore
 | Skip m|StartNextLine (m,_) -> end_mode m
 | _ -> ()
@@ -357,6 +359,10 @@ let lst_nblocks = ref 0
    2. This process_newlines must sometime not increase line numbers,
       ie, when there is in fact no eol *)
 
+
+let is_comment_line = function
+  | Comment (_, Line) -> true
+  | _ -> false
       
 let rec lst_process_newline real_eol lb c =
 if !verbose > 1 then
@@ -369,7 +375,7 @@ match !lst_top_mode with
       lst_top_mode := newmode ;
       lst_process_newline real_eol lb c ;
       if !lst_nblocks = 0 then
-        scan_this Scan.main "\\let\\lst@br\\lst@@br" ;
+        scan_this Scan.main "\\let\\lst@br\\lst@@@br" ;
     end else begin
       if real_eol then begin
         incr lst_nlines ;
@@ -389,16 +395,16 @@ match !lst_top_mode with
     lst_top_mode := mode ;
     lst_process_newline real_eol lb c
 | Escape (_mode,cc,math) ->
-    lst_do_escape (Comment Line) cc math lb c ;
-    if !lst_top_mode = Comment Line then
+    lst_do_escape (Comment ("\\@empty",Line)) cc math lb c ;
+    if is_comment_line !lst_top_mode  then
       lst_process_newline real_eol lb c
-| Comment Line ->
+| Comment (style, Line) ->
     lst_output_token () ;
-    end_comment () ;
+    end_comment style () ;
     lst_top_mode := Normal ;
     lst_process_newline real_eol lb c
 | Delim (_, _) -> assert false
-| String _|Normal|Comment (Balanced _|Nested _) as mode ->
+| String _|Normal|Comment (_,(Balanced _|Nested _)) as mode ->
     if real_eol then
       scan_this Scan.main "\\lsthk@InitVarEOL\\lsthk@EOL" ;
     begin match !lst_scan_mode with
@@ -461,7 +467,7 @@ and lst_process_BMark active to_activate mark_start old_process lb c =
           old_process lb c
         end
     | Escape (_, _, _)|Gobble (_, _)|Delim (_, _)|
-      Comment _|String _|EndNextLine _|
+      Comment (_,_)|String _|EndNextLine _|
       StartNextLine (_,_)|Skip _|Normal ->
         old_process lb c
   end else
@@ -501,7 +507,7 @@ and set_next_linerange mode = match !lst_linerange with
            lst_top_mode := Skip mode
         end else begin
           if !lst_nblocks = 0 then
-            scan_this Scan.main "\\let\\lst@br\\lst@@br" ;
+            scan_this Scan.main "\\let\\lst@br\\lst@@@br" ;
           lst_top_mode := mode
         end
     | Marker tok ->
@@ -742,53 +748,53 @@ let lst_process_stringizer quote old_process lb lxm = match !lst_top_mode with
 
 (* Comment *)
   
-let lst_process_BNC _ s old_process lb c =  match !lst_top_mode with
+let lst_process_BNC sty _ s old_process lb c =  match !lst_top_mode with
 | Normal when if_next_string s lb -> 
     begin_comment () ;
-    eat_delim (fun () -> ()) (Comment (Nested 0)) old_process lb c s
-| Comment (Nested n) when if_next_string s lb ->
-    eat_delim (fun () -> ()) (Comment (Nested (n+1))) old_process lb c s
+    eat_delim (fun () -> ()) (Comment (sty,Nested 0)) old_process lb c s
+| Comment (sty,Nested n) when if_next_string s lb ->
+    eat_delim (fun () -> ()) (Comment (sty,Nested (n+1))) old_process lb c s
 | _ -> old_process lb c
 
 and lst_process_ENC s old_process lb c = match !lst_top_mode with
-| Comment (Nested 0) when if_next_string s lb ->
+| Comment (sty,Nested 0) when if_next_string s lb ->
     eat_delim
-      end_comment
+      (end_comment sty)
       Normal
       old_process
       lb c s
-|  Comment (Nested n) when if_next_string s lb ->
+|  Comment (sty,Nested n) when if_next_string s lb ->
     eat_delim
       (fun () -> ())
-      (Comment (Nested (n-1)))
+      (Comment (sty,Nested (n-1)))
       old_process lb c s
 | _ -> old_process lb c
 
-let lst_process_BBC check s old_process lb c =  match !lst_top_mode with
+let lst_process_BBC sty check s old_process lb c =  match !lst_top_mode with
 | Normal when if_next_string s lb ->
     begin_comment () ;
     eat_delim
       (fun () -> ())
-      (Comment (Balanced check))
+      (Comment (sty, Balanced check))
       old_process lb c s
 | _ -> old_process lb c
 
 and lst_process_EBC s old_process lb c = match !lst_top_mode with
-| Comment (Balanced check) when
+| Comment (sty,Balanced check) when
   check c s && if_next_string  s lb ->
      eat_delim
-      end_comment
+      (end_comment sty)
       Normal
       old_process
       lb c s
 | _ -> old_process lb c
 
-let lst_process_LC s old_process lb c = match !lst_top_mode with
+let lst_process_LC sty s old_process lb c = match !lst_top_mode with
 | Normal when if_next_string s lb ->
     begin_comment () ;
     eat_delim
       (fun () -> ())
-      (if !lst_texcl then Escape (Normal,'\n', false) else Comment Line)
+      (if !lst_texcl then Escape (Normal,'\n', false) else Comment (sty,Line))
       old_process lb c s
 | _ -> old_process lb c
 
@@ -1278,7 +1284,16 @@ let code_spaces _lexbuf =
   Counter.set_counter "lst@spaces" 0
 ;;
 
-let code_double_comment process_B process_E lexbuf =
+let comment_style = "\\lst@commentstyle"
+
+let check_style sty =
+  if String.length sty > 0 && sty.[0] == '\\' then
+    sty
+  else
+    "\\csname lst@"^sty^"\\endcsname"
+
+let do_code_double_delim sty process_B process_E lexbuf =
+  let sty = check_style sty in
   let lxm_B = get_prim_arg lexbuf in
   let lxm_E = get_prim_arg lexbuf in
   if lxm_B <> "" && lxm_E <> "" then begin
@@ -1288,19 +1303,34 @@ let code_double_comment process_B process_E lexbuf =
     and rest_E = String.sub lxm_E 1 (String.length lxm_E-1) in
     lst_init_save_char head_B
       (process_B
+         sty
          (fun c s ->
            c = head_E && s = rest_E)
          rest_B) ;
     lst_init_save_char head_E (process_E rest_E)
   end
 
-let code_line_comment lexbuf =
+let code_double_comment = do_code_double_delim "commentstyle"
+
+let code_double_delim process_B process_E lexbuf =
+  let sty = subst_arg lexbuf in
+  do_code_double_delim sty process_B process_E lexbuf
+
+let do_code_line_delim sty lexbuf =
+  let sty = check_style sty in
   let lxm_LC = get_prim_arg lexbuf in
   if lxm_LC <> "" then begin
     let head = lxm_LC.[0]
     and rest = String.sub lxm_LC 1 (String.length lxm_LC-1) in
-    lst_init_save_char head (lst_process_LC rest)
+    lst_init_save_char head
+      (lst_process_LC sty rest)
   end
+
+let code_line_comment lexbuf = do_code_line_delim "commentstyle" lexbuf
+
+let code_line_delim lexbuf =
+  let sty = subst_arg lexbuf in
+  do_code_line_delim sty lexbuf
 
 let code_stringizer lexbuf =
   let mode = Scan.get_prim_arg lexbuf in
@@ -1495,6 +1525,13 @@ def_code "\\@callopt"
 
 type css_border = None | Solid | Double
 
+let echo name n lexbuf =
+  Printf.eprintf "Command %s\n" name ;
+  for i = 1 to n do
+    let arg = subst_arg lexbuf in
+    Printf.eprintf "  %i: <<%s>>\n" i arg
+  done
+
 let init_listings () =
   Scan.newif_ref "lst@print" lst_print ;
   Scan.newif_ref "lst@includerangemarker" lst_includerangemarker ;
@@ -1556,12 +1593,15 @@ let init_listings () =
 (* Init comments from .hva *)
   def_code "\\lst@balanced@comment"
     (fun lexbuf ->
-      code_double_comment lst_process_BBC lst_process_EBC lexbuf) ;
+      code_double_delim lst_process_BBC lst_process_EBC lexbuf) ;
   def_code "\\lst@nested@comment"
     (fun lexbuf ->
-      code_double_comment lst_process_BNC lst_process_ENC lexbuf) ;
+      code_double_delim lst_process_BNC lst_process_ENC lexbuf) ;
   def_code "\\lst@line@comment" code_line_comment ;
-
+(* Idem for delimters *)
+  def_code "\\lst@line@delim"  code_line_delim ;
+  def_code "\\lst@single@delim"
+    (fun lexbuf -> code_double_delim lst_process_BBC lst_process_EBC lexbuf) ;
   def_code "\\lstinline"
     (fun lexbuf ->
       Image.stop () ;

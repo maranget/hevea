@@ -552,6 +552,9 @@
 %%%%%%%%%%%%%%%%% Ignoring arguments
 \newcommand{\@skipopt}[1][!*!]{}
 \newcommand{\@skiparg}[1]{}
+%%%%Utility
+\newcommand{\@opencell}[3]{\@open{TABLE}{#1}\@open{TR}{#2}\@open{TD}{#3}}
+\newcommand{\@closecell}{\@force{TD}\@close{TR}\@close{TABLE}}
 %%%%%%%%%%%%%%%%% Length as percent
 \def\linewidth{@percent}
 \def\textwidth{@percent}
