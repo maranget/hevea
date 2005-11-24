@@ -154,7 +154,8 @@ cleanall: clean
 	manual*.gif manual*.png\
 	tmp.* *.image.tex manual.html index.html faq.html\
 	 hevea.spec manual.txt manual.info manual.info-[0-9]\
-	browser.html cutname.html pdfmanual.pdf
+	browser.html cutname.html pdfmanual.pdf \
+	manual.css manual.htoc
 
 include ../libs.def
 RPMLIB=/usr/lib/hevea

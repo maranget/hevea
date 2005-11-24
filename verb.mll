@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: verb.mll,v 1.81 2005-11-15 17:36:16 maranget Exp $            *)
+(*  $Id: verb.mll,v 1.82 2005-11-24 16:49:48 maranget Exp $            *)
 (***********************************************************************)
 {
 exception VError of string
@@ -339,7 +339,7 @@ and end_comment sty () =
     (Printf.sprintf "\\end{lrbox}{%s{\\lst@box}}" sty)
 
 let end_string to_restore =
-  scan_this Scan.main "\\end{lrbox}{\\lst@string@style{\\lst@box}}" ;
+  scan_this Scan.main "\\end{lrbox}{\\lst@stringstyle{\\lst@box}}" ;
   restore_char_table to_restore ;
   lst_showspaces := !lst_save_spaces
 
@@ -1292,7 +1292,8 @@ let check_style sty =
   else
     "\\csname lst@"^sty^"\\endcsname"
 
-let do_code_double_delim sty process_B process_E lexbuf =
+let code_double_delim process_B process_E lexbuf =
+  let sty = subst_arg lexbuf in
   let sty = check_style sty in
   let lxm_B = get_prim_arg lexbuf in
   let lxm_E = get_prim_arg lexbuf in
@@ -1310,13 +1311,8 @@ let do_code_double_delim sty process_B process_E lexbuf =
     lst_init_save_char head_E (process_E rest_E)
   end
 
-let code_double_comment = do_code_double_delim "commentstyle"
-
-let code_double_delim process_B process_E lexbuf =
+let code_line_delim lexbuf =
   let sty = subst_arg lexbuf in
-  do_code_double_delim sty process_B process_E lexbuf
-
-let do_code_line_delim sty lexbuf =
   let sty = check_style sty in
   let lxm_LC = get_prim_arg lexbuf in
   if lxm_LC <> "" then begin
@@ -1326,14 +1322,9 @@ let do_code_line_delim sty lexbuf =
       (lst_process_LC sty rest)
   end
 
-let code_line_comment lexbuf = do_code_line_delim "commentstyle" lexbuf
-
-let code_line_delim lexbuf =
-  let sty = subst_arg lexbuf in
-  do_code_line_delim sty lexbuf
-
 let code_stringizer lexbuf =
   let mode = Scan.get_prim_arg lexbuf in
+  let sty = subst_arg lexbuf in
   let schars = Scan.get_prim_arg lexbuf in
   lst_init_save_chars schars (lst_process_stringizer mode)
 ;;
@@ -1457,7 +1448,7 @@ let open_lst_env name =
     lst_scan_mode := Empty ;
     set_next_linerange Normal ;
     scan_this Scan.main "\\lst@pre\\@lst@caption\\@open@lstbox" ;  
-    scan_this Scan.main "\\lst@basic@style" ;
+    scan_this Scan.main "\\lst@basicstyle" ;
 (* Eat first line *)
     save_lexstate () ;
     noeof eat_line lexbuf ;
@@ -1597,7 +1588,7 @@ let init_listings () =
   def_code "\\lst@nested@comment"
     (fun lexbuf ->
       code_double_delim lst_process_BNC lst_process_ENC lexbuf) ;
-  def_code "\\lst@line@comment" code_line_comment ;
+  def_code "\\lst@line@comment" code_line_delim ;
 (* Idem for delimters *)
   def_code "\\lst@line@delim"  code_line_delim ;
   def_code "\\lst@single@delim"

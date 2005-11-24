@@ -105,8 +105,7 @@
     \lst@record@okwds{#2}%
     \lst@iter{\lst@install@kwd{#1}}{#2}}
 \def\lst@delete@kwd#1{%
-%\warning{DELETE: «#1»}%
-\def\csname lstk@\@rawchars{#1}\endcsname{\lst@identifier@style}}
+\def\csname lstk@\@rawchars{#1}\endcsname{\lst@identifierstyle}}
 \def\lst@delete@directive
   #1{\def\csname lstd@\@rawchars{#1}\endcsname{}}
 \def\lst@delete@okwds#1{\lst@iter{\lst@delete@okwd}{#1}}
@@ -122,11 +121,8 @@
 \def\lst@keywords@key#1#2\@empty{\lst@install@kwds{#1}{#2}}
 \newcommand{\lst@morekeywords@key}[2][1]{\lst@more@kwds{#1}{#2}}
 \newcommand{\lst@deletekeywords@key}[2][1]{\lst@delete@kwds{#2}}
-%\define@key{lst}{keywords}{\@calloptsimple{\lst@keywords@key}{#1}}
 \define@key{lst}{keywords}[]{\@callsubstopt{\lst@keywords@key}{1}{#1\@empty}}
 \define@key{lst}{morekeywords}{\@calloptsimple{\lst@morekeywords@key}{#1}}
-%\define@key{lst}{keywords}{\lst@delay@install\lst@kwd@style#1}
-%\define@key{lst}{morekeywords}{\lst@delay@install\lst@kwd@style#1}
 \define@key{lst}{deletekeywords}{\@calloptsimple{\lst@deletekeywords@key}{#1}}
 \define@key{lst}{ndkeywords}[]{\@funcall{\lst@keywords@key}{{2}#1\@empty}}
 \define@key{lst}{morendkeywords}{\@funcall{\lst@morekeywords@key}{[2]{#1}}}
@@ -138,37 +134,38 @@
 %%% Directives
 \def\lst@delay@dinstall#1#2{\lst@AddToHook{AfterSetLanguage}{\lst@install@directives{#1}{#2}}}
 \def\lst@delay@ddelete#1{\lst@AddToHook{AfterSetLanguage}{\lst@delete@directives{#1}}}
-\define@key{lst}{directives}{\lst@delay@dinstall\lst@directive@style#1}
-\define@key{lst}{moredirectives}{\lst@delay@dinstall\lst@directive@style#1}
+\define@key{lst}{directives}{\lst@delay@dinstall\lst@directivestyle#1}
+\define@key{lst}{moredirectives}{\lst@delay@dinstall\lst@directivestyle#1}
 %%%%%%% Styles applied to keywords, strings etc %%%%%%
 \newcommand{\lst@keywordstyle@key}[2][1]
 {\def\csname lst@keywordstyle#1\endcsname##1{#2{##1}}}
 \def\lst@keywordstyle{\csname lst@keywordstyle1\endcsname}
 \define@key{lst}{keywordstyle}{\@calloptsimple{\lst@keywordstyle@key}{#1}}
-%\define@key{lst}{keywordstyle}{\def\lst@kwd@style##1{#1{##1}}}
+%\define@key{lst}{keywordstyle}{\def\lst@kwdstyle##1{#1{##1}}}
 \define@key{lst}{ndkeywordstyle}{\@calloptsimple{\lst@keywordstyle@key}{[2]#1}}
 \define@key{lst}{rdkeywordstyle}{\@calloptsimple{\lst@keywordstyle@key}{[3]#1}}
-\define@key{lst}{otherkeywordstyle}{\def\lst@okwd@style##1{#1{##1}}}
-\define@key{lst}{directivestyle}{\def\lst@directive@style##1{#1{##1}}}
-\define@key{lst}{identifierstyle}[]{\def\lst@identifier@style##1{#1{##1}}}
-\define@key{lst}{basicstyle}{\def\lst@basic@style{#1}}
+\define@key{lst}{otherkeywordstyle}{\def\lst@okwdstyle##1{#1{##1}}}
+\define@key{lst}{directivestyle}{\def\lst@directivestyle##1{#1{##1}}}
+\define@key{lst}{identifierstyle}[]{\def\lst@identifierstyle##1{#1{##1}}}
+\define@key{lst}{basicstyle}{\def\lst@basicstyle{#1}}
 \define@key{lst}{commentstyle}{\def\lst@commentstyle{#1}}
-\define@key{lst}{stringstyle}{\def\lst@string@style{#1}}
-\lst@AddToHook{EmptyStyle}{\let\lst@string@style\@empty}
+\define@key{lst}{stringstyle}{\def\lst@stringstyle{#1}}
+\lst@AddToHook{EmptyStyle}{\let\lst@stringstyle\@empty}
 \lst@AddToHook{EmptyStyle}{\let\lst@commentstyle\em}
-\lst@AddToHook{EmptyStyle}{\let\lst@identifier@style\@empty}
-\lst@AddToHook{EmptyStyle}{\let\lst@basic@style\@empty}
+\lst@AddToHook{EmptyStyle}{\let\lst@identifierstyle\@empty}
+\lst@AddToHook{EmptyStyle}{\let\lst@basicstyle\@empty}
 \lst@AddToHook{EmptyStyle}{\lst@keywordstyle@key[1]{\bfseries}}
 \lst@AddToHook{EmptyStyle}
 {\lst@keywordstyle@key[2]{\csname lst@keywordstyle1\endcsname}}
 \lst@AddToHook{EmptyStyle}
 {\lst@keywordstyle@key[3]{\csname lst@keywordstyle1\endcsname}}
-\lst@AddToHook{EmptyStyle}{\def\lst@okwd@style{\lst@keywordstyle}}
-\lst@AddToHook{EmptyStyle}{\def\lst@directive@style{\lst@keywordstyle}}
-\lst@AddToHook{EmptyStyle}{\def\lst@directive@style{\lst@keywordstyle}}
+\lst@AddToHook{EmptyStyle}{\def\lst@okwdstyle{\lst@keywordstyle}}
+\lst@AddToHook{EmptyStyle}{\def\lst@directivestyle{\lst@keywordstyle}}
+\lst@AddToHook{EmptyStyle}{\def\lst@directivestyle{\lst@keywordstyle}}
 %%%%%% Emph identifiers, classes seems to be implemented properly
 \def\lst@defall#1#2{\def\csname #1\endcsname{#2}}
 \def\lst@emphstyle@key#1#2\@empty{\lst@defall{lst@emphstyle#1}{#2}}
+\def\lst@emphstyle{\csname lst@emphstyle1\endcsname}
 \lst@AddToHook{EmptyStyle}{\let\csname lst@emphstyle1\endcsname\@empty}
 \define@key{lst}{emphstyle}{\@callsubstopt{\lst@emphstyle@key}{1}{#1\@empty}}
 \def\lst@record@class#1#2{%
@@ -309,9 +306,9 @@ breakindent,breakautoindent}
        \gdef\csname thelst@saved@\lst@intname\endcsname{\arabic{lst@saved@\lst@intname}}}
        {}%
      \setcounter{lst@saved@\lst@intname}{\value{lstlabel}}}}
-\define@key{lst}{labelstyle}{\def\lst@label@style##1{{#1{##1}}}}
-\define@key{lst}{numberstyle}{\def\lst@label@style##1{{#1{##1}}}}
-\newcommand{\lst@label@style}[1]{#1}
+\define@key{lst}{labelstyle}{\def\lst@labelstyle##1{{#1{##1}}}}
+\define@key{lst}{numberstyle}{\def\lst@labelstyle##1{{#1{##1}}}}
+\newcommand{\lst@labelstyle}[1]{#1}
 \define@key{lst}{labelstep}{\def\lst@labelstep{#1}}
 \define@key{lst}{stepnumber}{\def\lst@labelstep{#1}}
 \lst@AddToHook{InlineUnsave}{\def\lst@labelstep{1}}
@@ -320,7 +317,7 @@ breakindent,breakautoindent}
 \newcommand{\lst@labelsep}{ }
 \newcommand{\lst@pad}[1]{\@pad{\@print{ }}{4}{#1}}
 \newcommand{\lst@linenumber@}[1]
-  {\lst@label@style{\lst@pad{#1}}\lst@labelsep}
+  {\lst@labelstyle{\lst@pad{#1}}\lst@labelsep}
 \newboolean{lst@numbers}
 \newcommand{\lst@linenumber}
   {\ifthenelse{\boolean{lst@numbers}}
@@ -419,17 +416,45 @@ breakindent,breakautoindent}
   {\setboolean{lst@showlines}{\lst@boolean{\lst@showlines}}}}
 %%%%%%% Strings
 \lst@Hook{String}
-\lst@AddToHook{Init}{\lst@UseHook{String}}
-\lst@AddToHook{SetLanguage}{\lst@ResetHook{String}}
-\newcommand{\lst@stringizer@key@add}[2][]
-  {\lst@AddToHook{String}{\lst@def@stringizer{#1}{#2}}}
-\newcommand{\lst@stringizer@key}[2][]
-  {\lst@ResetHook{String}\lst@AddToHook{String}{\lst@def@stringizer{#1}{#2}}}
-\newcommand{\lst@stringizer@key@delete}[2][]{\lst@ResetHook{String}}
-\lst@define@key@opt{stringizer}{\lst@stringizer@key}{}
-\lst@define@key@opt{string}{\lst@stringizer@key}{}
-\lst@define@key@opt{morestring}{\lst@stringizer@key@add}{}
-\lst@define@key@opt{deletestring}{\lst@stringizer@key@delete}{}
+\lst@AddToHook{Init}{\let\lst@do\@empty\lst@UseHook{String}}
+\lst@AddToHook{SetLanguage}
+{\let\lst@do\undef\lst@UseHook{String}\lst@ResetHook{String}}
+%\newcommand{\lst@stringizer@key@add}[2][]
+%  {\lst@AddToHook{String}{\lst@def@stringizer{#1}{#2}}}
+%\newcommand{\lst@stringizer@key}[2][]
+%  {\lst@ResetHook{String}\lst@AddToHook{String}{\lst@def@stringizer{#1}{#2}}}
+%\newcommand{\lst@stringizer@key@delete}[2][]{\lst@ResetHook{String}}
+%\lst@define@key@opt{stringizer}{\lst@stringizer@key}{}
+%\lst@define@key@opt{string}{\lst@stringizer@key}{}
+%\lst@define@key@opt{morestring}{\lst@stringizer@key@add}{}
+%\lst@define@key@opt{deletestring}{\lst@stringizer@key@delete}{}
+%%Real keys, that take all three arguments
+\newcommand{\lst@DS@key}[3]
+{\def\csname @is@string@#3\endcsname{}}%
+\newcommand{\lst@SS@key}[3]
+{\let\lst@do\undef\lst@UseHook{String}\lst@ResetHook{String}%
+\lst@MS@key{#1}{#2}{#3}}%
+\newcommand{\lst@MS@key}[3]
+{\ifu\csname @recorded@string@#3\endcsname
+\let\csname @recorded@string@#3\endcsname\@empty
+\lst@AddToHook{String}
+{\lst@do\csname @recorded@string@#3\endcsname%
+\lst@do\csname @is@string@#3\endcsname}\fi
+\def\csname @is@string@#3\endcsname{\lst@def@stringizer{#1}{#2}{#3}}}%
+%%Parse the  [][]{} arguments
+\newcommand{\lst@stringarg@one}[1][b]{\def\lst@arg@one{#1}\lst@stringarg@two}
+\newcommand{\lst@stringarg@two}[1][stringstyle]
+{\def\lst@arg@two{#1}\lst@stringarg@three}
+\newcommand{\lst@stringarg@three}[1]
+{\lst@cmd{\lst@arg@one}{\lst@arg@two}{#1}}
+%%%Real key handlers
+\newcommand{\lst@deletetring@key}{\let\lst@cmd\lst@MS@key\lst@stringarg@one}
+\newcommand{\lst@string@key}{\let\lst@cmd\lst@MS@key\lst@stringarg@one}
+\newcommand{\lst@morestring@key}{\let\lst@cmd\lst@MS@key\lst@stringarg@one}
+\define@key{lst}{deletestring}{\@callsubst{\lst@deletestring@key}{#1}}
+\define@key{lst}{stringizer}{\@callsubst{\lst@string@key}{#1}}
+\define@key{lst}{string}{\@callsubst{\lst@string@key}{#1}}
+\define@key{lst}{morestring}{\@callsubst{\lst@morestring@key}{#1}}
 % stringspaces
 \define@key{lst}{stringspaces}[true]{\def\lst@stringspaces{#1}}
 \define@key{lst}{showstringspaces}[false]{\def\lst@stringspaces{#1}}
@@ -440,10 +465,10 @@ breakindent,breakautoindent}
 \lst@AddToHook{DeInit}{\setboolean{lst@stringspaces}{false}}
 %%%%%% Comments
 % Line comments
-\newcommand{\lst@LC@key}[1]
+\newcommand{\lst@LC@key}[2]
   {\lst@lExtend\lst@DefineComments@LC
-    {\lst@line@comment{\@rawchars{#1}}}}
-\define@key{lst}{commentline}{\lst@LC@key{#1}}
+    {\lst@line@comment{#1}{\@rawchars{#2}}}}
+\define@key{lst}{commentline}{\lst@LC@key{commentstyle}{#1}}
 \lst@AddToHookExe{SetLanguage}{\let\lst@DefineComments@LC\@empty}
 \lst@AddToHook{SelectCharTable}{\lst@DefineComments@LC}
 % Nested comments
@@ -460,19 +485,24 @@ breakindent,breakautoindent}
 \define@key[2]{lst}{singlecomment}{\lst@SC@key{commentstyle}{#1}{#2}}
 \lst@AddToHookExe{SetLanguage}{\let\lst@DefineComments@SC\@empty}
 \lst@AddToHook{SelectCharTable}{\lst@DefineComments@SC}
-\newcommand{\lst@DC@key}[4]
+% Double comments: more or less single comment twice
+\newcommand{\lst@DC@key}[5]
    {\lst@lExtend\lst@DefineComments@DC
-      {\lst@balanced@comment{\@rawchars{#1}}{\@rawchars{#2}}}%
+      {\lst@balanced@comment{#1}{\@rawchars{#2}}{\@rawchars{#3}}}%
    \lst@lExtend\lst@DefineComments@DC
-      {\lst@balanced@comment{\@rawchars{#3}}{\@rawchars{#4}}}}
-\define@key[4]{lst}{doublecomment}{\lst@DC@key{#1}{#2}{#3}{#4}}
+      {\lst@balanced@comment{#1}{\@rawchars{#4}}{\@rawchars{#5}}}}
+\define@key[4]{lst}{doublecomment}{\lst@DC@key{commentstyle}{#1}{#2}{#3}{#4}}
 \lst@AddToHookExe{SetLanguage}{\let\lst@DefineComments@DC\@empty}
 \lst@AddToHook{SelectCharTable}{\lst@DefineComments@DC}
 %%%%%% New interface for comments grr...
-\def\lst@morecomment@d#1#2#3#4{\lst@DC@key{#1}{#2}{#3}{#4}}
+\newcommand{\lst@morecomment@d}[5][commentstyle]
+{\lst@DC@key{#1}{#2}{#3}{#4}{#5}}
 \newcommand{\lst@morecomment@s}[3][commentstyle]{\lst@SC@key{#1}{#2}{#3}}
 \newcommand{\lst@morecomment@n}[3][commentstyle]{\lst@NC@key{#1}{#2}{#3}}
-\def\lst@morecomment@l#1#2#3#4\@empty{\lst@LC@key{#1#2#3#4}}
+%Notice the horible trick to parse morecomment=[l]\\
+\def\lst@LC@parse#1#2\@empty{\lst@LC@key{#1}{#2}}
+\newcommand{\lst@morecomment@l}[1][commentstyle]{\lst@LC@parse{#1}}
+%%%
 \def\lst@deletecomment@d{\let\lst@DefineComments@DC\@empty}
 \def\lst@deletecomment@s{\let\lst@DefineComments@SC\@empty}
 \def\lst@deletecomment@n{\let\lst@DefineComments@NC\@empty}
@@ -500,8 +530,8 @@ breakindent,breakautoindent}
     \let\lst@next\csname lst@morecomment@#1\endcsname\fi
     \lst@next}
 \define@key{lst}{deletecomment}{\@callsubst{\lst@deletecomment@key}{#1\@empty}}
-\define@key{lst}{comment}{\@callsubst{\lst@comment@key}{#1\@empty\@empty\@empty}}
-\define@key{lst}{morecomment}{\@callsubst{\lst@morecomment@key}{#1\@empty\@empty}}
+\define@key{lst}{comment}{\@callsubst{\lst@comment@key}{#1\@empty}}
+\define@key{lst}{morecomment}{\@callsubst{\lst@morecomment@key}{#1\@empty}}
 %%%%%%% General delimiters
 %Line delimiters
 \newcommand{\lst@LD@key}[2]
@@ -523,7 +553,9 @@ breakindent,breakautoindent}
 \warning{Unkown delimiter type ``#1''}\else
 \csname lst@deletedelim@#1\endcsname\fi
 \lst@till@empty}
-\newcommand{\lst@moredelim@l}[2][\@empty]{\lst@LD@key{#1}{#2}}
+%Trick to parse delim=[l]\\
+\def\lst@LD@parse#1#2\@empty{\lst@LD@key{#1}{#2}}
+\newcommand{\lst@moredelim@l}[1][\@empty]{\lst@LD@parse{#1}}
 \newcommand{\lst@moredelim@s}[3][\@empty]{\lst@SD@key{#1}{#2}{#3}}
 \newcommand{\lst@moredelim@key}[1][]
 {\ifu\csname lst@moredelim@#1\endcsname
@@ -609,7 +641,7 @@ breakindent,breakautoindent}
 \def\lst@output#1#2{%
 \@NewLine%\lstinfo{OUT: ``#1'' ``#2''}%
 {\ifu\csname lstk@\lst@normalize{#1}\endcsname
-  \lst@identifier@style{#2}\else
+  \lst@identifierstyle{#2}\else
   \csname lstk@\lst@normalize{#1}\endcsname{#2}\fi}}
 \def\lst@output@other#1#2{%
 \@NewLine%\lstinfo{OTHER: ``#1'' ``#2''}%
@@ -625,7 +657,7 @@ breakindent,breakautoindent}
 %\lstinfo{DIRECTIVE: ``#1'' ``#2'' ``\thelst@spaces''}%
 \save@spaces\@NewLine\restore@spaces%
 \ifu\csname lstd@\lst@normalize{#1}\endcsname
-  {\lst@directive@style{\@print{#}}}%
+  {\lst@directivestyle{\@print{#}}}%
   \lst@spaces\lst@output{#1}{#2}\else
   {\csname lstd@\lst@normalize{#1}\endcsname{\@print{#}\lst@spaces#2}}\fi}
 %%%%%% Pre and post (already obsolete)

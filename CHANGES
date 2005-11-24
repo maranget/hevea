@@ -1,3 +1,7 @@
+    - new interfaces for commemts and strings, still
+      need to activate various styles in strings,
+      Note the new mecanism for strings,generalize to other
+      delims ? (to implement delete)
     - new -t option for imagen (doc pending) -> dvips
 version 1.08+4
     - added delim, moredelim, deletedelim, should now implement

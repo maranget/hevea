@@ -1,5 +1,6 @@
 \input{article.hva}
 \input{fancysection.hva}
+%\colorsections{160}
 \let\oldcontentsname\contentsname
 \def\contentsname{\aname{ftoc}{\oldcontentsname}}
 \newcommand{\BibTeX}{Bib\TeX}
