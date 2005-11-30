@@ -415,10 +415,12 @@ breakindent,breakautoindent}
   {\setboolean{lst@showlines}{false}}
   {\setboolean{lst@showlines}{\lst@boolean{\lst@showlines}}}}
 %%%%%%% Strings
+\newcommand{\lst@inactivate}[1]{\let#1\@empty}
+\newcommand{\lst@activate}[1]{#1}
 \lst@Hook{String}
-\lst@AddToHook{Init}{\let\lst@do\@empty\lst@UseHook{String}}
+\lst@AddToHook{Init}{\let\lst@do\lst@activate\lst@UseHook{String}}
 \lst@AddToHook{SetLanguage}
-{\let\lst@do\undef\lst@UseHook{String}\lst@ResetHook{String}}
+{\let\lst@do\lst@inactivate\lst@UseHook{String}}
 %\newcommand{\lst@stringizer@key@add}[2][]
 %  {\lst@AddToHook{String}{\lst@def@stringizer{#1}{#2}}}
 %\newcommand{\lst@stringizer@key}[2][]
@@ -432,14 +434,13 @@ breakindent,breakautoindent}
 \newcommand{\lst@DS@key}[3]
 {\def\csname @is@string@#3\endcsname{}}%
 \newcommand{\lst@SS@key}[3]
-{\let\lst@do\undef\lst@UseHook{String}\lst@ResetHook{String}%
+{\let\lst@do\lst@inactivate\lst@UseHook{String}%
 \lst@MS@key{#1}{#2}{#3}}%
 \newcommand{\lst@MS@key}[3]
 {\ifu\csname @recorded@string@#3\endcsname
 \let\csname @recorded@string@#3\endcsname\@empty
 \lst@AddToHook{String}
-{\lst@do\csname @recorded@string@#3\endcsname%
-\lst@do\csname @is@string@#3\endcsname}\fi
+{\lst@do{\csname @is@string@#3\endcsname}}\fi
 \def\csname @is@string@#3\endcsname{\lst@def@stringizer{#1}{#2}{#3}}}%
 %%Parse the  [][]{} arguments
 \newcommand{\lst@stringarg@one}[1][b]{\def\lst@arg@one{#1}\lst@stringarg@two}
@@ -448,8 +449,8 @@ breakindent,breakautoindent}
 \newcommand{\lst@stringarg@three}[1]
 {\lst@cmd{\lst@arg@one}{\lst@arg@two}{#1}}
 %%%Real key handlers
-\newcommand{\lst@deletetring@key}{\let\lst@cmd\lst@MS@key\lst@stringarg@one}
-\newcommand{\lst@string@key}{\let\lst@cmd\lst@MS@key\lst@stringarg@one}
+\newcommand{\lst@deletetring@key}{\let\lst@cmd\lst@DS@key\lst@stringarg@one}
+\newcommand{\lst@string@key}{\let\lst@cmd\lst@SS@key\lst@stringarg@one}
 \newcommand{\lst@morestring@key}{\let\lst@cmd\lst@MS@key\lst@stringarg@one}
 \define@key{lst}{deletestring}{\@callsubst{\lst@deletestring@key}{#1}}
 \define@key{lst}{stringizer}{\@callsubst{\lst@string@key}{#1}}

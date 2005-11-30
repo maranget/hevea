@@ -1,8 +1,13 @@
+version 1.08+5
+    - Bug in new integerface, canniot use \unsef to deactivate
+      a stringizer.., use \lst@inactivate in place. Very inneficient.
     - new interfaces for commemts and strings, still
       need to activate various styles in strings,
       Note the new mecanism for strings,generalize to other
       delims ? (to implement delete)
     - new -t option for imagen (doc pending) -> dvips
+    - Got rid of spurious line skip at start of lstlisting env.
+
 version 1.08+4
     - added delim, moredelim, deletedelim, should now implement
       new interface for comments and strinsg, and normalize style
@@ -18,6 +23,7 @@ version 1.08+3
       replace scan of \endgroup by call to end_comment.
     - Listing bugs, style command can be arguments to commentstyle and
       stringstyle
+
 version 1.08+2
     - <<-o - >> redirects html output to stdout.
     - added tabsize, showtabs and tab keys in listings, approximate rendering.
