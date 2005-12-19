@@ -1,5 +1,6 @@
+    - trick to allow nested \underline\overline in displays.
 version 1.08+5
-    - Bug in new integerface, canniot use \unsef to deactivate
+    - Bug in new integerface, canniot use \unset to deactivate
       a stringizer.., use \lst@inactivate in place. Very inneficient.
     - new interfaces for commemts and strings, still
       need to activate various styles in strings,

@@ -122,8 +122,9 @@
 \newcommand{\twocolumn}[1][]{}
 \newcommand{\onecolumn}{}
 %%% Stackrel et compagine
+\def\space@varray{1}
 \newenvironment{@varray}
-  {\renewcommand{\@table@attributes}{border=0 cellspacing=0 cellpadding=0}%
+  {\prim@def{\@table@attributes}{border=0 cellspacing=\space@varray{} cellpadding=0}\def\space@varray{0}%
   \begin{array}{c}}
   {\end{array}}
 \newcommand{\textstackrel}[2]{#2^{#1}}
@@ -165,7 +166,7 @@
 \begin{@varray}\hline #1\end{@varray}\else\textoverline{#1}\fi}
 \newcommand{\textunderline}[1]{{\@style{U}#1}}
 \def\underline#1{\ifdisplay
-\begin{@varray}#1\\ \hline\end{@varray}\else\textunderline{#1}\fi}
+\begin{@varray}#1\\\hline\end{@varray}\else\textunderline{#1}\fi}
 %%%Miscleanous, title stuff
 %\input{common-math.hva}
 \newcommand{\thanks}[1]{\footnote{#1}}
