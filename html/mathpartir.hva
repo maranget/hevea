@@ -1,9 +1,10 @@
 %  Mathpartir --- Math Paragraph for Typesetting Inference Rules
 %
-%  Copyright (C) 2001, 2002, 2003 Didier Rémy
+%  Copyright (C) 2001--2005 Didier Rémy
+%  Hevea version by Luc Maranget
 %
 %  Author         : Didier Remy 
-%  Version        : 1.1.1
+%  Version        : 1.2
 %  Bug Reports    : to author
 %  Web Site       : http://pauillac.inria.fr/~remy/latex/
 % 
