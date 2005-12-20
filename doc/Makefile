@@ -59,7 +59,7 @@ info: manual.inf tmp.tex
 ############ Installation stuff
 install:
 	-mkdir $(DOCDIR)
-	cp iso.html symbol.html index.html fddl.html packages.html manual[0-9][0-9][0-9].html *.gif $(DOCDIR)
+	cp iso.html symbol.html index.html fddl.html manual-packages.html manual[0-9][0-9][0-9].html *.gif $(DOCDIR)
 	cp browser.html cutname.html $(DOCDIR)
 	cp ../html/urlhref.hva $(DOCDIR)
 	cp manual.css $(DOCDIR)
