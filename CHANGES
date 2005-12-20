@@ -1,3 +1,5 @@
+version 1.08+6
+    - ignore keys fraction and myfraction in mathpartir (warning)
     - trick to allow nested \underline\overline in displays.
 version 1.08+5
     - Bug in new integerface, canniot use \unset to deactivate
