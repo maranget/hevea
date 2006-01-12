@@ -55,6 +55,10 @@ do
         shift
         TPAPER="-t $1"
         ;;
+     -pdflatex|-pdf)
+         LATEX=pdflatex
+         DVIPS=cat
+       ;;
     *)
         break
         ;;
@@ -87,7 +91,12 @@ GSOPTS="-q  -dNOPAUSE -dBATCH -DNOPROMPT -sDEVICE=ppmraw \
 test -f  ${NAME}.tex ||\
 { echo "Failure: no ${NAME}.tex file!" 2>&1 ; exit 2 ; }
 ${LATEX} ${NAME}.tex
-${DVIPS} ${DVIPSOPTS} -o - ${NAME}.dvi |\
+if [ "$LATEX" = "pdflatex" ]
+then
+  cat ${NAME}.pdf
+else
+  ${DVIPS} ${DVIPSOPTS} -o - ${NAME}.dvi
+fi |\
 ${GS} ${GSOPTS} -sOutputFile="|\
     ${PNMCROP} | ${PNMEXTRA} \
     ${PNMMARGIN} | ${PPMQUANT} \

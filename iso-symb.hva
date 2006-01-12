@@ -52,7 +52,7 @@
 \@defnl\exp{exp}
 \@defl\gcd{gcd}
 \@defnl\hom{hom}
-\@defnl\inf{inf}
+\@defl\inf{inf}
 \@defnl\ker{ker}
 \@defnl\lg{lg}
 \@defl\lim{lim}

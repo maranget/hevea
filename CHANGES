@@ -1,3 +1,4 @@
+    - new option -pdf for imagen (doc pending)
 version 1.08+6
     - ignore keys fraction and myfraction in mathpartir (warning)
     - trick to allow nested \underline\overline in displays.

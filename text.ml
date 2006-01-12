@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.66 2005-11-08 10:14:19 maranget Exp $"
+let header = "$Id: text.ml,v 1.67 2006-01-12 17:07:06 maranget Exp $"
 
 
 open Misc
@@ -1031,15 +1031,13 @@ let close_group () =
 
 
 let put s =
-  if !verbose > 3 then
-    Printf.fprintf stderr "put: %s\n" s ;
+  if !verbose > 3 then Printf.fprintf stderr "put: %s\n" s ;
   do_pending ();
   do_put s
 ;;
 
 let put_char c =
-  if !verbose > 3 then
-    Printf.fprintf stderr "put_char: %c\n" c ;
+  if !verbose > 3 then Printf.fprintf stderr "put_char: %c\n" c ;
   do_pending ();
   do_put_char c
 ;;
