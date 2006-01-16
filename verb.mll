@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: verb.mll,v 1.82 2005-11-24 16:49:48 maranget Exp $            *)
+(*  $Id: verb.mll,v 1.83 2006-01-16 17:12:00 maranget Exp $            *)
 (***********************************************************************)
 {
 exception VError of string
@@ -375,7 +375,9 @@ match !lst_top_mode with
       lst_top_mode := newmode ;
       lst_process_newline real_eol lb c ;
       if !lst_nblocks = 0 then
-        scan_this Scan.main "\\let\\lst@br\\lst@@@br" ;
+        scan_this Scan.main
+          (if !lst_first=1 then "\\let\\lst@br\\lst@@@br"
+          else "\\let\\lst@br\\lst@@br")
     end else begin
       if real_eol then begin
         incr lst_nlines ;
@@ -1324,7 +1326,7 @@ let code_line_delim lexbuf =
 
 let code_stringizer lexbuf =
   let mode = Scan.get_prim_arg lexbuf in
-  let sty = subst_arg lexbuf in
+  let _sty = subst_arg lexbuf in
   let schars = Scan.get_prim_arg lexbuf in
   lst_init_save_chars schars (lst_process_stringizer mode)
 ;;

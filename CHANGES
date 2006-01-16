@@ -1,3 +1,5 @@
+    - correct (once again) eol marker in listings
+      (line skip was missing for firstline=n, n > 1)
     - new option -pdf for imagen (doc pending)
 version 1.08+6
     - ignore keys fraction and myfraction in mathpartir (warning)
