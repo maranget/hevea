@@ -3295,7 +3295,7 @@ As usual, \texttt{hevea} will invoke \texttt{imagen} with the
 appropriate option, provided it is passed the \texttt{-fix} option.
 
 
-\subsection{Controlling \texttt{imagen} from document source}
+\subsection{Controlling\label{imagen-source} \texttt{imagen} from document source}
 \index{"@addimagenopt@\texttt{\char92"@addimagenopt}|defocc}
 The internal command
 \verb+\@addimagenopt{+\textit{option}\verb+}+ add
@@ -6543,7 +6543,8 @@ adopting exotic image formats.
 \texttt{dvips}.
 For instance, using ``\texttt{-t a3}'' may help when images are
 truncated on the right.
-\item[{\tt -pdf}] Have \texttt{imagen} call \texttt{pdflatex} instead
+\item[{\tt -pdf}]\index{PDF}\index{pdflatex}
+Have \texttt{imagen} call \texttt{pdflatex} instead
 of~\texttt{latex}.
 \end{description}
 
@@ -6556,13 +6557,11 @@ be wrong and the images are too small. This can be cured by invoking
 \texttt{\# imagen  -extra "pnmflip -ccw" -mag 2000} \textit{base}
 \end{flushleft}
 
-Sometimes \texttt{imagen} crashes because the PPM transformation chain
-does not cope with images with more than 256~colors by default. The
-solution is to re-issue the \texttt{imagen} command as:
-\begin{flushleft}
-\texttt{\# imagen  -quant 256} \textit{base}
-\end{flushleft}
-
+Notice that \texttt{hevea} calls \texttt{imagen} by itself,
+when given the command-line option ``\texttt{-fix}''.
+In that situation, the command-line options of \texttt{imagen} can
+be controled from source file by using the
+command~\verb+\@addimagenopt+ (see Section~\ref{imagen-source}).
 
 More information on producing images can be found in section~\ref{imagen}.
 
