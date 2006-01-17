@@ -1,3 +1,6 @@
+version 1.08+7
+    - change caption (in figure, tables) formatting -> new command
+      \hva@caption that can be redefined for customisation.
     - correct (once again) eol marker in listings
       (line skip was missing for firstline=n, n > 1)
     - new option -pdf for imagen (doc pending)
