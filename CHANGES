@@ -3,7 +3,7 @@ version 1.08+7
       \hva@caption that can be redefined for customisation.
     - correct (once again) eol marker in listings
       (line skip was missing for firstline=n, n > 1)
-    - new option -pdf for imagen (doc pending)
+    - new option -pdf for imagen.
 version 1.08+6
     - ignore keys fraction and myfraction in mathpartir (warning)
     - trick to allow nested \underline\overline in displays.

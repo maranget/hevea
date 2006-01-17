@@ -1,5 +1,6 @@
 \usepackage{url}
 \@primitives{hyperref}
+\newcommand{\texorpdfstring}[2]{#1}
 \newcommand{\hyperlink}[2]{\ahrefloc{#1}{#2}}
 \newcommand{\hypertarget}[2]{\aname{#1}{#2}}
 \newcommand{\hyperdef}[3]{\hypertarget{#1.#2}{#3}}

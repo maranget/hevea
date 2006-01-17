@@ -90,15 +90,18 @@
 \def\textunderscore{\@print{_}}
 %%%%% Figures and tables
 \setenvclass{figure}{figure}
+%%General \caption command: #1 -> env name, #2 -> \caption arg
+\newcommand{\hva@caption}[2]
+{\par\refstepcounter{#1}\begin{center}\csname #1name\endcsname{} \csname the#1\endcsname: #2\end{center}\par}
 \newcommand{\@figrule}{\begin{center}\@hr{.8\linewidth}{2pt}\end{center}}
 \newenvironment{figure}[1][]
-{\@forcecommand{\caption}[1]{\par\refstepcounter{figure}\begin{center}\figurename{} \thefigure: ##1\end{center}\par}%
+{\@forcecommand{\caption}[1]{\hva@caption{figure}{##1}}%
 \@open{BLOCKQUOTE}{\envclass@attr{figure}}\@figrule}
 {\@figrule\@close{BLOCKQUOTE}}
 \newenvironment{figure*}[1][]{\begin{figure}[#1]}{\end{figure}}
 \setenvclass{table}{table}
 \newenvironment{table}[1][]
-{\newcommand{\caption}[1]{\par\refstepcounter{table}\begin{center}\tablename{} \thetable: ##1\end{center}\par}%
+{\@forcecommand{\caption}[1]{\hva@caption{table}{##1}}%
 \@open{BLOCKQUOTE}{\envclass@attr{table}}\@figrule%
 }{\@figrule\@close{BLOCKQUOTE}}
 \newenvironment{table*}[1][]{\begin{table}[#1]}{\end{table}}
