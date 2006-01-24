@@ -1,3 +1,5 @@
+     - Basic chapterbib (works for included files only, no top level
+       bibliography).
 version 1.08+7
     - change caption (in figure, tables) formatting -> new command
       \hva@caption that can be redefined for customisation.

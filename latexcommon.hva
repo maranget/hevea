@@ -409,11 +409,11 @@
   \begin{list}{\stepcounter{heveabib}\theheveabib}
     {\let\makelabel\@biblabel}}
   {\end{list}}
-\newcounter{heveabib}
+\newcounter{heveabib}\newcommand{\bibtag@hook}[1]{#1}%
 \newcommand{\bibitem}[2][!*!]
   {\ifthenelse{\equal{#1}{!*!}}
-    {\stepcounter{heveabib}\@bibwrite{\theheveabib}{#2}}
-    {\@bibwrite{#1}{#2}}\item[#2]}
+    {\stepcounter{heveabib}\@bibwrite{\theheveabib}{\bibtag@hook{#2}}}
+    {\@bibwrite{#1}{\bibtag@hook{#2}}}\item[#2]}
 \newcommand{\@open@cite}{[}
 \newcommand{\@close@cite}{]}
 \newcommand{\@sep@cite}{, }

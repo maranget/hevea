@@ -1,7 +1,7 @@
 \newcommand{\@readmultbib}[1]
 {\@stopoutput\@stopimage%
 \ifthenelse{\@fileexists{#1.aux} \and \not \boolean{fixpoint}}
-  {\@try{\@readaux{#1}}{\warning{Failure while reading #1.aux}}}
+  {\@try{\@readaux{#1}}{\warning{Failure while reading #1.aux, multibib not available}}}
   {}%
 \@restartoutput\@restartimage}
 \newcommand{\newcites}[2]{%

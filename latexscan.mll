@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.265 2005-11-15 17:36:16 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.266 2006-01-24 15:58:59 maranget Exp $ *)
 
 
 {
@@ -2488,10 +2488,11 @@ def_code "\\if@toplevel"
 
 
 (* Bibliographies *)
-let bib_ref s1 s2 = scan_this main ("\\@bibref{"^s1^"}{"^s2^"}")
+let bib_ref s1 s2 = scan_this main ("\\@bibref{\\bibtag@hook{"^s1^"}}{"^s2^"}")
 ;;
 
 let cite_arg key =
+  let key = get_prim ("\\bibtag@hook{"^key^"}") in
   match Auxx.bget true key with
   | None   -> ""
   | Some s -> s

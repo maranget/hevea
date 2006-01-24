@@ -1,0 +1,17 @@
+\let\hva@include\include
+\newcounter{chap@included}
+\renewcommand{\include}[1]
+{\stepcounter{chap@included}\def\chapterbib@include@name{#1}\hva@include{#1}}
+\renewcommand{\bibliography}[1]{\input{\chapterbib@include@name.bbl}}
+\let\hva@thebibliography\thebibliography
+\renewcommand{\thebibliography}[1]
+{\setcounter{heveabib}{0}\hva@thebibliography{#1}}
+\renewcommand{\bibtag@hook}[1]
+{\@ifundefined{chapterbib@include@name}{#1}{#1@\thechap@included}}
+\newcommand{\sectionbib}[2]{\let\@bibliosection#1}
+\DeclareOption{sectionbib}{\sectionbib{\section*}{section}}%
+\DeclareOption{draft}{}%
+\DeclareOption{rootbib}{}%
+\DeclareOption{duplicate}{}%
+\DeclareOption{gather}{}%
+\ProcessOptions*

@@ -23,7 +23,6 @@
   {@pkg\usebox{\@pkg@me}@@#1}
 \newcommand{\DeclareOption}[2]
   {\newcommand{\csname\@pkg@opt@name{#1}\endcsname}{#2}}
-
 \newcommand{\@process@option}[1]%
 	{\def\pkg@opt{{\@nostyle\@callprim{\@eatspaces}{#1,}}}%
 	 \csname\@pkg@opt@name{\pkg@opt}\endcsname}%
