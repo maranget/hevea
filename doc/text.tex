@@ -52,7 +52,7 @@ Chesnay Cedex. {\tt \mailto{Luc.Maranget@inria.fr}}}}
 \newstyle{.xtitlerest}{font-variant:small-caps;}
 \newstyle{.ruled}{border:solid black;padding:1ex;background:\#eeddbb;color:maroon}
 \newstyle{.xmathpar}{background:yellow;margin-left:2ex;margin-right:auto;}
-
+%%DOCUMENT START HERE
 \begin{document}
 \maketitle
 \begin{htmlonly}
@@ -1962,6 +1962,16 @@ This feature can prove useful to
 relate documents that are generated independantly by
 \hevea{} and \hacha{}.
 
+\subsubsection{Controling link aspect from the document}
+\comdefindex{setlinkstext}%
+By default the links to the previous, up and next pages show a small
+icon (an appropriate arrow). This can be changed with the command
+\verb+\setlinkstext{+\textit{prev}\verb+}{+\textit{up}\verb+}{+\textit{next}\verb+}+,
+where \textit{prev}, \textit{up} and \textit{next} are some \LaTeX{}
+source and are processed.
+The command \verb+\setlinkstext+ globally behaves as \verb+\toplinks+.
+That is, it must occur in document preamble, arguments are processed
+and empty arguments yield no effect (\emph{i.e.} default apply).
 
 \subsubsection{Cutting a document anywhere}
 \envdefindex{cutflow}

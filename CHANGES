@@ -1,3 +1,5 @@
+version 1.08+8
+     - \settoplinks command for changing hacha links aspect.
      - Basic chapterbib (works for included files only, no top level
        bibliography).
 version 1.08+7

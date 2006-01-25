@@ -12,7 +12,7 @@
 {
 open Lexing
 open Stack
-let header = "$Id: cut.mll,v 1.44 2005-02-14 16:29:28 maranget Exp $" 
+let header = "$Id: cut.mll,v 1.45 2006-01-25 08:46:02 maranget Exp $" 
 
 let verbose = ref 0
 
@@ -36,6 +36,21 @@ let toc_style = ref Normal
 let cross_links = ref true
 and some_links = ref false
 
+let env = Hashtbl.create 17
+
+let imgsrc img alt =
+  Printf.sprintf "<IMG SRC=\"%s\" ALT=\"%s\">" img alt
+
+
+let _ =
+  Hashtbl.add env "UPTXT" (imgsrc "contents_motif.gif" "Up") ;
+  Hashtbl.add env "PREVTXT" (imgsrc "previous_motif.gif" "Previous") ;
+  Hashtbl.add env "NEXTTXT" (imgsrc "next_motif.gif" "Next") ;
+  ()
+
+let get_env key =
+  try Hashtbl.find env key with Not_found -> assert false
+  
 exception Error of string
 
 
@@ -172,14 +187,12 @@ and itemlist s out =
   Out.put out s
 ;;
 
-let putlink out name img alt =
+let putlink out name txt =
   Out.put out "<A HREF=\"" ;
   Out.put out name ;
-  Out.put out "\"><IMG SRC =\"" ;
-  Out.put out img ;
-  Out.put out "\" ALT=\"" ;
-  Out.put out alt ;
-  Out.put out "\"></A>\n"
+  Out.put out "\">" ; 
+  Out.put out txt ;
+  Out.put out "</A>\n"
 ;;
 
 let link_buff = Out.create_buff ()
@@ -189,24 +202,18 @@ let putlinks  name =
   if !verbose > 0 then
     prerr_endline ("putlinks: "^name) ;
   begin try
-    putlink link_buff (Thread.prev name) "previous_motif.gif" 
-      (if !language = "fra" then "Précédent"
-      else "Previous") ;
+    putlink link_buff (Thread.prev name) (get_env "PREVTXT") ;
     links_there := true
   with Not_found ->
     if !verbose > 0 then
       prerr_endline ("No prev link for "^name)
   end ;
   begin try
-    putlink link_buff (Thread.up name) "contents_motif.gif" 
-      (if !language = "fra" then "Remonter"
-      else "Up") ;
+    putlink link_buff (Thread.up name) (get_env "UPTXT") ;
     links_there := true
   with Not_found -> () end ;
   begin try
-    putlink link_buff (Thread.next name) "next_motif.gif" 
-      (if !language = "fra" then "Suivant"
-      else "Next") ;
+    putlink link_buff (Thread.next name) (get_env "NEXTTXT") ;
     links_there := true
   with Not_found -> () end ;
   if !links_there then
@@ -522,6 +529,14 @@ rule main = parse
    {let title = flowline lexbuf in
    openflow title ;
    main lexbuf}
+| "<!--" "SETENV" ' ' +
+   { let pairs = getargs lexbuf in
+     if !phase = 0 then begin
+       List.iter
+         (fun (name, v) -> Hashtbl.replace env name v)
+         pairs
+     end ;
+     main lexbuf }
 | "<!--" "LINKS" ' '+
    {let links = getargs lexbuf in
    List.iter
