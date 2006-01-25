@@ -66,6 +66,7 @@
 \newenvironment{cutflow}[1]{}{}
 \newcommand{\cutname}[1]{}
 \newcommand{\toplinks}[3]{}
+\newcommand{\setlinkstext}[3]{}
 %%%%%%%%%%%%%
 % Maketitle %
 %%%%%%%%%%%%%

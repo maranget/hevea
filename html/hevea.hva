@@ -145,6 +145,15 @@
     \@link@arg{NEXT}{#3}%
     \@printnostyle{-->
 }}}
+\newsavebox{\@linkstext}
+\newcommand{\setlinkstext}[3]
+  {\sbox{\@linkstext}
+    {\@printnostyle{<!--SETENV }%
+    \@link@arg{PREVTXT}{#1}%
+    \@link@arg{UPTXT}{#2}%
+    \@link@arg{NEXTTXT}{#3}%
+    \@printnostyle{-->
+}}}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Using style CLASSES with DIV for local style-setting   %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -270,7 +279,7 @@
 \@hacha@arg{}{\usebox{\@htmlprefix}}%
 \@printnostyle{-->
 }%
-\usebox{\@toplinks}%
+\usebox{\@toplinks}\usebox{\@linkstext}%
 \cutdef[\thecuttingdepth]{\cuttingunit}%
 \renewcommand{\addstyle}[1]{\warning{\addstyle{} must be used in document preamble}}
 }{%
