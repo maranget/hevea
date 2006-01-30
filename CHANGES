@@ -1,5 +1,5 @@
 version 1.08+9
-     - figcut and deepcur packages (doc pending)
+     - figcut and deepcut packages.
      - \lstmouse command in listings -> allow copy/paste in listings
         (doc pending)
 version 1.08+8
