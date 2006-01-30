@@ -5952,6 +5952,19 @@ the following declaration in the document preamble:
 \newstyle{.lstframe}{margin:auto;}
 \end{verbatim}
 Notice that the default style class ``\texttt{lstframe}'' is empty.
+
+\item \comdefindex{lstavoidwhitepre}%
+Unfortunately the \verb+white-space:pre;+ style declaration is still a
+bit young, and some browsers implement it in rather uncomplete
+fashion.  This is particularily true as regards text copy-pasted from
+browser display.  As a patch, \hevea{} can be instructed operate
+differently, by issuing the command \verb+\lstavoidwhitepre+ in the document
+preamble.  Then, \verb+white-space:pre;+ is not used, while spaces get
+rendered by non-breaking space entities and linebreaks by \verb+<BR>+
+elements, which significantly increase output size.
+However, as a positive consequence, display remains correct and text
+copy-pasted from browser display indeed possesses the linebreaks shown
+in display.
 \end{enumerate}
 
 

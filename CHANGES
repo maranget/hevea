@@ -1,7 +1,6 @@
 version 1.08+9
      - figcut and deepcut packages.
-     - \lstmouse command in listings -> allow copy/paste in listings
-        (doc pending)
+     - \lstavoidpre command in listings -> allow copy/paste in listings.
 version 1.08+8
      - \settoplinks command for changing hacha links aspect.
      - Basic chapterbib (works for included files only, no top level

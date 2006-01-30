@@ -696,9 +696,9 @@ breakindent,breakautoindent}
 \lst@UseHook{SetLanguage}\lst@UseHook{EmptyLanguage}
 \newsavebox{\lst@box}
 %%%%%% Alternative style, with explicit <BR> (for copy/paste)
-\newcommand{\lstmouse}
+\newcommand{\lstavoidwhitepre}
 {\let\lst@@br\@br%
 \newstyle{.mouselstlisting}{font-family:monospace;margin-right:auto;margin-left:0pt;text-align:left}%
-\setenvclass{lstlisting}{.mouselstlisting}%
+\setenvclass{lstlisting}{mouselstlisting}%
 \let\lst@whitepre\@empty%
 \renewcommand{\lst@pad}[1]{\@pad{~}{4}{##1}}}
