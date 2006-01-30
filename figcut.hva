@@ -1,31 +1,31 @@
 %% Some pointers to original figure env.
-\let\hva@figure=\figure
-\let\endhva@figure=\endfigure
+\let\figcut@figure=\figure
+\let\endfigcut@figure=\endfigure
 %%Inside figure label names are recorded with a global \def
-\let\hva@label\label
+\let\figcut@label\label
 \newcommand{\@def@figlabel}[1]{\global\def\csname #1@figlabel\endcsname{}}
 \newcommand{\figlabel}[1]
 {\@auxdowrite{\@print{\@def@figlabel}\{#1\}}%
-\hva@label{#1}}
+\figcut@label{#1}}
 %%So that we can format ref to figures differently.
-\let\hva@ref\ref
-\let\hva@locref\@locref
+\let\figcut@ref\ref
+\let\figcut@locref\@locref
 \newcommand{\fig@locref}[2]{\@aelement{HREF="\@print{#}#1" TARGET="_new"}{#2}}
 \newcommand{\figref}[1]
-{\let\@locref\fig@locref\hva@ref{#1}\let\@locref\hva@locref}
+{\let\@locref\fig@locref\figcut@ref{#1}\let\@locref\figcut@locref}
 \renewcommand{\ref}[1]
-{\@ifundefined{#1@figlabel}{\hva@ref{#1}}{\figref{#1}}}
+{\@ifundefined{#1@figlabel}{\figcut@ref{#1}}{\figref{#1}}}
 %%My custom figure
 %change \hva@caption
-\let\oldhva@caption\hva@caption
-\newsavebox{\caption@box}
+\let\figcut@caption\hva@caption
+\newsavebox{\figcut@caption@box}
 \renewcommand{\hva@caption}[2]
-{\gsbox{\caption@box}{\oldhva@caption{#1}{#2}}\usebox{\caption@box}}
+{\gsbox{\figcut@caption@box}{\figcut@caption{#1}{#2}}\usebox{\figcut@caption@box}}
 %change figure env
-\newsavebox{\figure@box}
-\newenvironment{myfig}[1][]
-  {\begin{lrbox}{\figure@box}\let\label\figlabel\begin{hva@figure}[]}
-  {\end{hva@figure}\end{lrbox}%
-  \begin{cutflow}{\usebox{\caption@box}}\usebox{\figure@box}\end{cutflow}}
-\let\figure\myfig
-\let\endfigure\endmyfig
+\newsavebox{\figcut@figure@box}
+\newenvironment{figcut@myfig}[1][]
+  {\begin{lrbox}{\figcut@figure@box}\let\label\figlabel\begin{figcut@figure}[]}
+  {\end{figcut@figure}\end{lrbox}%
+  \begin{cutflow}{\usebox{\caption@box}}\usebox{\figcut@figure@box}\end{cutflow}}
+\let\figure\figcut@myfig
+\let\endfigure\endfigcut@myfig
