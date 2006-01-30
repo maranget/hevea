@@ -1,6 +1,8 @@
 %% Some pointers to original figure env.
-\let\figcut@figure=\figure
-\let\endfigcut@figure=\endfigure
+\let\figcut@figure\figure
+\let\endfigcut@figure\endfigure
+\let\figcut@table\table
+\let\endfigcut@table\endtable
 %%Inside figure label names are recorded with a global \def
 \let\figcut@label\label
 \newcommand{\@def@figlabel}[1]{\global\def\csname #1@figlabel\endcsname{}}
@@ -26,6 +28,17 @@
 \newenvironment{figcut@myfig}[1][]
   {\begin{lrbox}{\figcut@figure@box}\let\label\figlabel\begin{figcut@figure}[]}
   {\end{figcut@figure}\end{lrbox}%
-  \begin{cutflow}{\usebox{\caption@box}}\usebox{\figcut@figure@box}\end{cutflow}}
+  \begin{cutflow}{\usebox{\figcut@caption@box}}\usebox{\figcut@figure@box}\end{cutflow}}
 \let\figure\figcut@myfig
 \let\endfigure\endfigcut@myfig
+\let\figure*\figcut@myfig
+\let\endfigure*\endfigcut@myfig
+%change table env
+\newenvironment{figcut@mytab}[1][]
+  {\begin{lrbox}{\figcut@figure@box}\let\label\figlabel\begin{figcut@table}[]}
+  {\end{figcut@table}\end{lrbox}%
+  \begin{cutflow}{\usebox{\figcut@caption@box}}\usebox{\figcut@figure@box}\end{cutflow}}
+\let\table\figcut@mytab
+\let\endtable\endfigcut@mytab
+\let\table*\figcut@mytab
+\let\endtable*\endfigcut@mytab

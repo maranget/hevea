@@ -97,8 +97,7 @@ Furthermore, \hevea{} customization is done by writing \LaTeX{} code.
 quite fast and flexible.  Using \hevea{} it is possible to translate
 large documents such as manuals, books, etc. very quickly. All
 documents are translated as one single {\html} file. Then, the output
-file can be cut into smaller files, using the companion program
-\hacha.
+file can be cut into smaller files, using the companion program~\hacha.
 
 \hevea{} can also be instructed to output plain text or info files.
 
@@ -439,7 +438,7 @@ now performed by using Unicode character references, an option that
 much more complies whith standards than the previous option of
 selecting a ``symbol'' font.  Observe that this choice is now
 possible, because more and more browsers correctly display such
-references.
+references. See~Figure~\ref{symbol:fig} for a few such symbols.
 
 
 
@@ -1890,6 +1889,16 @@ unit by typing:
 (Note that, this time, cutting macros appear unprotected in the
 source. However, \LaTeX{} still can process the document, since the
 \texttt{hevea} package is loaded).
+
+\subsubsection{More and More Pages in Output}
+\ttindex{deepcut}{package}\ttindex{figcut}{package}%
+In some situations it may be appropriate to produce many
+pages from one source files.
+More specifically, loading the \texttt{deepcut} package will put
+all sectionning units of your document (from \verb+\part+ to
+\verb+\subsection+ in their own file.
+Similarily, loading the \texttt{figcut} package will make all figures
+and tables go into their own file.
 
 \subsection{More Advanced Usage}
 In this section we show how to alter some details of \hacha{}
