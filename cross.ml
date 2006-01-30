@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: cross.ml,v 1.11 2001-10-19 18:35:45 maranget Exp $" 
+let header = "$Id: cross.ml,v 1.12 2006-01-30 08:56:26 maranget Exp $" 
 let verbose = ref 0
 ;;
 
@@ -25,18 +25,18 @@ let add name file =
     prerr_endline ("Warning, multiple definitions for anchor: "^name) ;
   with
   | Not_found ->
-      Hashtbl.add table name (ref file)
+      Hashtbl.add table name file
 ;;
 
 
-let fullname myfilename name =
+let fullname change myfilename name =
   try
-    let filename = !(Hashtbl.find table name) in
+    let filename = Hashtbl.find table name in
     let newname =
       if myfilename = filename  then
-      "#"^name
+	"#"^name
       else
-        filename^"#"^name in
+        change filename^"#"^name in
     if !verbose > 0 then
       prerr_endline ("From "^name^" to "^newname) ;
     newname
@@ -47,17 +47,12 @@ let fullname myfilename name =
   end
 ;;
 
-let change oldname name =
-  Hashtbl.iter
-    (fun k x -> if !x = oldname then x := name)
-    table
-
-let dump outname =
+let dump outname change =
   try
     let chan = open_out outname in
     try
       Hashtbl.iter
-        (fun k x -> Printf.fprintf chan "%s\t%s\n" k !x)
+        (fun k x -> Printf.fprintf chan "%s\t%s\n" k (change x))
         table ;
       close_out chan
     with

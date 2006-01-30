@@ -1,0 +1,23 @@
+\newif\ifcutchapter\cutchapterfalse
+\let\hva@part\part
+\renewcommand{\part}[1]
+{\ifcutsubsection\cutend\fi\cutsubsectionfalse
+\ifcutsection\cutend\fi\cutsectionfalse
+\ifcutchapter\cutend\fi\hva@part{#1}\cutdef{chapter}\cutchaptertrue}
+%%%%%%%%%%%%%%%%%%
+\newif\ifcutsection\cutsectionfalse
+\@ifundefined{chapter}{}
+{\let\hva@chapter\chapter
+\renewcommand{\chapter}[1]
+{\ifcutsubsection\cutend\fi\cutsubsectionfalse
+\ifcutsection\cutend\fi\hva@chapter{#1}\cutdef{section}\cutsectiontrue}}
+%%%%%%%%%%%%%%%%%%
+\newif\ifcutsubsection\cutsubsectionfalse
+\let\hva@section\section
+\renewcommand{\section}[1]
+{\ifcutsubsection\cutend\fi
+\hva@section{#1}\cutdef{subsection}\cutsubsectiontrue}
+%%%%%Check that!
+\AtEndDocument
+{\ifcutsubsection\cutend\fi\ifcutsection\cutend\fi\ifcutchapter\cutend\fi}
+

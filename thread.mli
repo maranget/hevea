@@ -17,5 +17,3 @@ val setprevnext : string -> string -> unit
 val next : string -> string
 val prev : string -> string
 val up   : string -> string
-
-val change : string -> string -> unit

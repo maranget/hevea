@@ -12,7 +12,7 @@
 {
 open Lexing
 open Stack
-let header = "$Id: cut.mll,v 1.45 2006-01-25 08:46:02 maranget Exp $" 
+let header = "$Id: cut.mll,v 1.46 2006-01-30 08:56:26 maranget Exp $" 
 
 let verbose = ref 0
 
@@ -23,11 +23,25 @@ and count = ref 0
 let language = ref "eng"
 let base = ref None
 
+let changed_t = Hashtbl.create 17
+
+let record_changed oldname newname =
+  try
+    let _ = Hashtbl.find changed_t oldname in
+    Hashtbl.replace changed_t oldname newname
+  with Not_found ->
+    Hashtbl.add changed_t oldname newname
+
+let rec check_changed name =
+  try Hashtbl.find changed_t name
+  with Not_found -> name
+
+
 let real_name name = match !base with
 | None -> name
 | Some dir -> Filename.concat dir name
 
-let real_open_out name = open_out (real_name name)
+let real_open_out name = open_out (real_name (check_changed name))
 
 type toc_style = Normal | Both | Special
 
@@ -93,21 +107,9 @@ and doctype = ref ""
 and html = ref "<HTML>"
 ;;
 
-let changed_t = Hashtbl.create 17
-
-let rec check_changed name =
-  try
-    let r = Hashtbl.find changed_t name in
-    check_changed r
-  with
-  | Not_found -> name
-
 let new_filename s =  
   incr count ;
-  let r1 = Printf.sprintf "%s%0.3d.html" !name !count in
-  let r2 = check_changed r1 in
-  r2
-;;
+  Printf.sprintf "%s%0.3d.html" !name !count
 
 let out = ref (Out.create_null ())
 and out_prefix = ref (Out.create_null ())
@@ -126,16 +128,11 @@ and otherout = ref !out
 let close_loc ctx name out =  Out.close out
 
 let change_name oldname name =
-  if !verbose > 0 then
-    prerr_endline ("Change "^oldname^" into "^name) ;
   if !phase <= 0 then begin
-    Thread.change oldname name ;
-    Cross.change oldname name ;
-    Hashtbl.add changed_t oldname name ;
-    outname := name
+    if !verbose > 0 then
+      prerr_endline ("Change "^oldname^" into "^name) ;
+    record_changed oldname name ;
   end
-
-    
 
 let start_phase name =
   incr phase ;
@@ -152,14 +149,16 @@ let start_phase name =
     end
   end ;
   if !phase > 0 then begin
-    out := (Out.create_chan (open_out name))
+    out := (Out.create_chan (real_open_out name))
   end ;
   toc := !out
 ;;
 
 let openlist out = Out.put out "<UL>\n"
 and closelist out = Out.put out "</UL>\n"
+
 and itemref filename s out =
+  let filename = check_changed filename in
   Out.put out "<LI>" ;
   Out.put out "<A HREF=\"" ;
   Out.put out filename ;
@@ -168,6 +167,7 @@ and itemref filename s out =
   Out.put out "</A>\n"
 
 and itemanchor filename label s out =
+  let filename = check_changed filename in
   Out.put out "<LI>" ;
   Out.put out "<A HREF=\"" ;
   Out.put out filename ;
@@ -188,6 +188,7 @@ and itemlist s out =
 ;;
 
 let putlink out name txt =
+  let name = check_changed name in
   Out.put out "<A HREF=\"" ;
   Out.put out name ;
   Out.put out "\">" ; 
@@ -803,7 +804,9 @@ and aargs = parse
       try
         let newname =
           if String.length name > 0 && String.get name 0 = '#' then
-            Cross.fullname !outname (String.sub name 1 (String.length name-1))
+            Cross.fullname
+	      check_changed
+	      !outname (String.sub name 1 (String.length name-1))
           else name in
         put lxm ;
         put "\"" ;
@@ -822,11 +825,10 @@ and aargs = parse
   {raise (Error "Bad <A ...> tag")}
 
 and refname = parse
-|  '"' [^'"']* '"'
-   {let lxm = lexeme lexbuf in
-   String.sub lxm 1 (String.length lxm-2)}
-| ['a'-'z''A'-'Z''0'-'9''.''_''-']+
-   {lexeme lexbuf}
+|  '"' ([^'"']* as name) '"'
+|  ''' ([^''']* as name) '''
+| (['a'-'z''A'-'Z''0'-'9''.''_''-']+ as name)
+   { name }
 | "" {raise (Error "Bad reference name syntax")}
 
 and skip_blanks = parse

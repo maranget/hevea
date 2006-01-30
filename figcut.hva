@@ -1,0 +1,31 @@
+%% Some pointers to original figure env.
+\let\hva@figure=\figure
+\let\endhva@figure=\endfigure
+%%Inside figure label names are recorded with a global \def
+\let\hva@label\label
+\newcommand{\@def@figlabel}[1]{\global\def\csname #1@figlabel\endcsname{}}
+\newcommand{\figlabel}[1]
+{\@auxdowrite{\@print{\@def@figlabel}\{#1\}}%
+\hva@label{#1}}
+%%So that we can format ref to figures differently.
+\let\hva@ref\ref
+\let\hva@locref\@locref
+\newcommand{\fig@locref}[2]{\@aelement{HREF="\@print{#}#1" TARGET="_new"}{#2}}
+\newcommand{\figref}[1]
+{\let\@locref\fig@locref\hva@ref{#1}\let\@locref\hva@locref}
+\renewcommand{\ref}[1]
+{\@ifundefined{#1@figlabel}{\hva@ref{#1}}{\figref{#1}}}
+%%My custom figure
+%change \hva@caption
+\let\oldhva@caption\hva@caption
+\newsavebox{\caption@box}
+\renewcommand{\hva@caption}[2]
+{\gsbox{\caption@box}{\oldhva@caption{#1}{#2}}\usebox{\caption@box}}
+%change figure env
+\newsavebox{\figure@box}
+\newenvironment{myfig}[1][]
+  {\begin{lrbox}{\figure@box}\let\label\figlabel\begin{hva@figure}[]}
+  {\end{hva@figure}\end{lrbox}%
+  \begin{cutflow}{\usebox{\caption@box}}\usebox{\figure@box}\end{cutflow}}
+\let\figure\myfig
+\let\endfigure\endmyfig

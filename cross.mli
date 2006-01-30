@@ -9,7 +9,17 @@
 (*                                                                     *)
 (***********************************************************************)
 
+(* To store an association anchor -> filename *)
 val add : string -> string -> unit
-val fullname : string -> string -> string
-val change : string -> string -> unit
-val dump : string -> unit
+
+(*
+   To retrieve associations,
+   the filename retrieved can be changed at the very last moment
+   by the change function given as argument
+*)
+
+(* fullname change file name: format reference from file 'file' to 'name' *)
+val fullname : (string -> string) -> string -> string -> string
+
+(* Dump the whole cross-reference table *)
+val dump : string -> (string -> string) -> unit

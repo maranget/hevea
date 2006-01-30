@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: cutmain.ml,v 1.20 2004-09-03 12:31:16 maranget Exp $" 
+let header = "$Id: cutmain.ml,v 1.21 2006-01-30 08:56:26 maranget Exp $" 
 
 exception Error of string
 ;;
@@ -52,7 +52,7 @@ let main () =
   Location.set !filename buf ;
   Cut.start_phase !outname ;
   Cut.main buf ;
-  if !log then Cross.dump (!Cut.name^".hrf")
+  if !log then Cross.dump (!Cut.name^".hrf") Cut.check_changed
 ;;
 
 

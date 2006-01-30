@@ -21,12 +21,17 @@
 %% Define sectioning comands
 \AtBeginDocument
 {\newstyle{BODY}{backgroundcolor:white}%
+\iftrue
 \newstyle{.title}
 	{padding:1ex;background:\@getstylecolor{title}}%
 \newstyle{.titlemain}
 	{padding:1ex;background:\@getstylecolor{titlemain}}%
 \newstyle{.titlerest}
 	{padding:1ex;background:\@getstylecolor{titlerest}}%
+\else
+\newstyle{.title}
+	{padding:1ex;border:solid 1ex\@getstylecolor{title}}%
+\fi
 \newstyle{.part}
 	{padding:1ex;background:\@getstylecolor{part}}%
 \newstyle{.section}
