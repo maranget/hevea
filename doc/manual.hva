@@ -1,6 +1,6 @@
 \input{article.hva}
 \input{fancysection.hva}
-%\usepackage{deepcut}\usepackage{figcut}%
+%\usepackage{figcut}%
 %\colorsections{160}
 \let\oldcontentsname\contentsname
 \def\contentsname{\aname{ftoc}{\oldcontentsname}}

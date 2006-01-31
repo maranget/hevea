@@ -1,3 +1,4 @@
+     - show/noshow option for package figcut.
 version 1.08+9
      - figcut and deepcut packages.
      - \lstavoidpre command in listings -> allow copy/paste in listings.
