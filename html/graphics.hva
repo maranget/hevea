@@ -1,4 +1,4 @@
-\input{commongraphic.hva}
+\usepackage{commongraphic.hva}
 \@imagecommand{\includegraphics}
   {\execafter{\imageflush{}}\execafter\@imagearg\execafter\@imageopt\@imageopt}
 \@imagecommand{\includegraphics*}
