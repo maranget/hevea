@@ -1,4 +1,4 @@
-\usepackage{commongraphic.hva}
+\usepackage{commongraphic}
 %%% Graphicx specific part
 \usepackage{keyval}
 \@imagecommand{\includegraphics}

@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: verb.mll,v 1.83 2006-01-16 17:12:00 maranget Exp $            *)
+(*  $Id: verb.mll,v 1.84 2006-02-01 17:34:17 maranget Exp $            *)
 (***********************************************************************)
 {
 exception VError of string
@@ -803,6 +803,9 @@ let lst_process_LC sty s old_process lb c = match !lst_top_mode with
 } 
 
 
+let command_name =
+  '\\' (( ['@''A'-'Z' 'a'-'z']+ '*'?) | [^ 'A'-'Z' 'a'-'z'] | "\\*")
+
 rule inverb verb_delim put = parse
 |  (_ as c)
     {if c = verb_delim then begin
@@ -828,7 +831,7 @@ and start_inverb put = parse
         raise (VError ("End of file after \\verb"))}
 
 and scan_byline = parse
-    "\\end" [' ''\t']* '{' [^'}']+ '}'
+|  "\\end" [' ''\t']* '{' [^'}']+ '}'
     {let lxm = lexeme lexbuf in
     let env = env_extract lxm in
     if
@@ -857,6 +860,46 @@ and scan_byline = parse
       !finish () ;
       raise
         (Eof "scan_byline")
+    end} 
+
+and scan_bycommand out is_cmd = parse
+|  "\\end" [' ''\t']* '{' [^'}']+ '}' as lxm
+    {let env = env_extract lxm in
+    if env = !Scan.cur_env then begin
+        Latexmacros.def "\\@tmp@scanned"
+          zero_pat (Toks [Out.to_string out]) ;
+        lxm
+    end else begin
+      Out.blit out lexbuf ;
+      scan_bycommand out is_cmd lexbuf
+    end}
+| "\\verb"
+  {Out.blit out lexbuf ;
+   Save.start_echo () ;
+   ignore (arg_verbatim lexbuf) ;
+   let a = Save.get_echo () in
+   Out.put out a ;
+   scan_bycommand out is_cmd lexbuf}
+| command_name as lxm
+    {if is_cmd lxm then begin
+      Latexmacros.def "\\@tmp@scanned" zero_pat (Toks [Out.to_string out]) ;
+      Scan.expand_command lxm lexbuf ;
+      Out.reset out
+    end else begin
+      Out.blit out lexbuf ;
+    end ;
+    scan_bycommand out is_cmd lexbuf}
+| ('%' [^'\n']* '\n'?) | _
+   { Out.blit out lexbuf ;
+     scan_bycommand out is_cmd lexbuf }
+| eof
+   {if not (Stack.empty stack_lexbuf) then begin
+      let lexbuf = previous_lexbuf () in
+      Out.put out "%\n" ;
+      scan_bycommand out is_cmd lexbuf
+    end else begin
+      raise
+        (Eof "scan_bycommand")
     end} 
 
 and listings = parse
@@ -1695,6 +1738,22 @@ let init_fancyvrb () =
 register_init "fancyvrb" init_fancyvrb
 ;;
 
+let init_longtable () =
+  let is_cmd cmd = Latexmacros.exists (cmd^"@lt@exists") in
+  def_code "\\@longtable"
+    (fun lexbuf ->
+      let out = Out.create_buff () in
+      let again = scan_bycommand out is_cmd lexbuf in
+      scan_this Scan.main again) ;
+  def_code "\\lt@exists"
+    (fun lexbuf ->
+      let cmd = get_csname lexbuf in
+      Latexmacros.def (cmd^"@lt@exists") zero_pat (Subst "")) ;
+  ()
+;;
+
+register_init "longtable" init_longtable
+;;
 
 
 def_code "\\@scaninput"

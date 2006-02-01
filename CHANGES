@@ -1,3 +1,7 @@
+version 1.08+10
+     - longtable package, a nightmare
+     - forget option argument in \caption, fixed
+     - publicize the generic url hevea.inria.fr
      - a few changes in graphics/graphicx to allow loading both
        (and \@imagecommand in html/hevea.hva uses \def)
      - show/noshow option for package figcut.

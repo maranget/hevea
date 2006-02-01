@@ -32,7 +32,7 @@ Chesnay Cedex. {\tt \mailto{Luc.Maranget@inria.fr}}}}
 \else
 \urldef{\ftpbase}{\url}{ftp://ftp.inria.fr/INRIA/moscova/hevea}
 \fi
-\urldef{\httpbase}{\url}{http://pauillac.inria.fr/~maranget/hevea}
+\urldef{\httpbase}{\url}{http://hevea.inria.fr/}
 \def\stylex{padding:1ex;color:navy;border:solid navy;}
 \newstyle{.subsectionex}{\stylex}
 \def\verbstyle{margin:1ex 1ex;padding:1ex;background:\@getstylecolor{paragraph};}%
@@ -5792,10 +5792,10 @@ Main use for the \verb+\url+ command is to specify urls as arguments to
 \hevea{} commands for hyperlinks (see section~\ref{hyperlink})~:
 \begin{verbatim}
 \hevea{} home page is
-\ahrefurl{\url{http://pauillac.inria.fr/~maranget/hevea/}}
+\ahrefurl{\url{http://hevea.inria.fr/}}
 \end{verbatim}
 It yields~: ``\hevea{} home page is
-\ahrefurl{\url{http://pauillac.inria.fr/~maranget/hevea/}}''.
+\ahrefurl{\url{http://hevea.inria.fr/}}''.
 
 \comindex{urldef}
 However the \verb+\url+ command is fragile, as a consequence it
@@ -5805,9 +5805,9 @@ The \texttt{url} package solves this problem by providing the
 \verb+\urldef+ command
 for defining commands whose body is typeset by using \verb+\url+:
 \begin{verbatim}
-\urldef{\heveahome}{\url}{http://pauillac.inria.fr/~maranget/hevea/}
+\urldef{\heveahome}{\url}{http://hevea.inria.fr/}
 \end{verbatim}
-\urldef{\heveahome}{\url}{http://pauillac.inria.fr/~maranget/hevea/}%
+\urldef{\heveahome}{\url}{http://hevea.inria.fr/}%
 Such a source defines the robust command \verb+\heveahome+ as the
 intended url.
 Hence the following source works as expected~:
@@ -5833,9 +5833,9 @@ typesets an url and inserts a link to it.
 \begin{htmlonly}
 \begin{verbatim}
 \input{urlhref.hva}
-Have a look at \url{http://pauillac.inria.fr/~maranget/hevea/}
+Have a look at \url{http://hevea.inria.fr/}
 \end{verbatim}
-\input{urlhref.hva}It yields ``Have a look at \url{http://pauillac.inria.fr/~maranget/hevea/}''.
+\input{urlhref.hva}It yields ``Have a look at \url{http://hevea.inria.fr/}''.
 \end{htmlonly}
 The \texttt{urlhref.hva}
 style file (which is an \hevea{} style file and not a \LaTeX{}
@@ -5973,6 +5973,21 @@ copy-pasted from browser display indeed possesses the linebreaks shown
 in display.
 \end{enumerate}
 
+
+\subsection{(Non-)Multipage tabular material with the
+\texttt{longtable} package}
+\ttindex{longtable}{package}%
+\LaTeX{} \footahref{\ctan/required/tools/longtable.dtx}{source}.
+
+The \texttt{longtable} package provides \LaTeX{} users with the
+possibility to typeset tabular material over several
+pages~\cite[Section~5.4.2]{latexbis}. Of course, \hevea{}
+does not care much about physical pages,
+and \texttt{longtable} environments are rendered more or less
+as \texttt{tabular} environments inside \texttt{table} environments.
+However, \hevea{} implementation may suffer from discrepancy
+with \LaTeX{} implementation, due to strong differences in the
+scanning processes.
 
 
 \subsection{Typesetting inference rules: the

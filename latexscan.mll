@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.266 2006-01-24 15:58:59 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.267 2006-02-01 17:34:17 maranget Exp $ *)
 
 
 {
@@ -908,7 +908,8 @@ and check_case_char c = match !case with
 | Neutral -> c
 } 
 
-let command_name = '\\' (( ['@''A'-'Z' 'a'-'z']+ '*'?) | [^ 'A'-'Z' 'a'-'z'])
+let command_name =
+  '\\' (( ['@''A'-'Z' 'a'-'z']+ '*'?) | [^ 'A'-'Z' 'a'-'z'] | "\\*")
 
 rule  main = parse
 (* comments *)
@@ -1106,11 +1107,48 @@ and latexonly = parse
       latexonly lexbuf
     end}
 
-
 and latex_comment = parse
   '\n' | eof  {()}
 | [^'\n']+    {latex_comment lexbuf}
 
+and copy kont env out = parse
+|  '%'
+     {Out.put_char out '%' ;
+      copy_comment out lexbuf ;
+      copy kont env out lexbuf }
+|  "\\end"
+     {Save.start_echo() ;
+      let {arg=arg} = save_arg lexbuf in
+      let true_arg = Save.get_echo () in
+      if arg = env then begin
+        top_close_block "" ;
+        stop_other_scan false kont lexbuf
+      end else if arg = top stack_entry then begin
+        let _ = pop stack_entry in
+        push stack_out arg ;
+        begin match Latexmacros.find (end_env arg) with
+          _,(Subst body) ->
+            scan_this_may_cont (copy kont env out) lexbuf (get_subst ())
+              (string_to_arg body)
+        |  _,_ ->
+            raise (Misc.ScanError ("Bad closing macro in copy: ``"^arg^"''"))
+        end
+      end else begin
+        Out.put out ("\\end"^true_arg) ;
+        copy kont env out lexbuf
+      end}
+| command_name  | _
+    {Out.blit out lexbuf ; copy kont env out lexbuf}
+| eof
+    {if empty stack_lexbuf then ()
+    else begin
+      let lexbuf = previous_lexbuf () in
+      copy kont env out lexbuf
+    end}
+
+
+and copy_comment out = parse
+| [^'\n']* ('\n'|eof) {Out.blit out lexbuf}
 
 
 and image = parse
@@ -3301,6 +3339,31 @@ def_code "\\toimage"
     start_image_scan "" image lexbuf)
 ;;
 
+def_code "\\lrtokens"
+  (fun lexbuf ->
+    let toks = get_csname lexbuf in
+    let out = Out.create_buff () in
+
+    let kont =
+      let once = ref false in
+      (fun lexbuf ->
+        if not !once then begin
+          once := true ;
+          begin try match Latexmacros.find_fail toks with
+          | _,Toks l ->
+              let arg = Out.to_string out in
+              Latexmacros.def toks zero_pat (Toks (l@[arg]))
+          | _ -> raise Failed
+          with Failed ->
+            Misc.warning ("\\lrtokens for "^toks^" failed")
+          end
+        end ;
+        main lexbuf) in
+    start_other_scan "lrtokens" (copy kont "lrtokens" out) lexbuf)
+
+;;
+
+(* Commands to control output to image file or target file *)
 def_code "\\@stopimage"
     (fun lexbuf  ->
       Image.stop () ;

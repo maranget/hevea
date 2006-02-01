@@ -1,5 +1,4 @@
 LATEX=latex
-PDFLATEX=pdflatex
 GPIC=gpic
 HEVEA=hevea
 HEVEAOPTS=-fix -exec xxdate.exe -O
@@ -39,11 +38,8 @@ manual.dvi: manual.tex macros.tex version.tex tmp.tex
 manual.ps: manual.dvi
 	dvips -o manual.ps manual.dvi
 
-pdfmanual.pdf: pdfmanual.tex macros.tex version.tex tmp.tex
-	$(PDFLATEX) < /dev/null pdfmanual.tex &&\
-	$(PDFLATEX) < /dev/null pdfmanual.tex &&\
-	makeindex pdfmanual.idx &&\
-	$(PDFLATEX) < /dev/null pdfmanual.tex
+manual.pdf: manual.ps
+	ps2pdf manual.ps
 
 index.html: manual.html
 	$(HACHA) $(HACHAOPTS) manual.html
@@ -96,8 +92,7 @@ FTPDIR=/home/beaune/moscova0/ftp/hevea
 UNSTABLE=
 
 dorelease: doversion
-	$(MAKE) $(MFLAGS) byte manual.dvi
-	( unset TEXINPUTS ; $(MAKE) $(MFLAGS)  pdfmanual.pdf )
+	$(MAKE) $(MFLAGS) byte manual.dvi manual.pdf
 # hevea relase
 	cd $(RELEASEDIR) ; rm -rf $(RELEASENAME) ;\
 	cvs -d $(CVSDIR) export  $(RELEASEOPT) -l htmlgen htmlgen/html htmlgen/text htmlgen/info ;\
@@ -109,7 +104,7 @@ dorelease: doversion
 	rm -rf $(RELEASEDIR)/$(RELEASENAME)-manual-dvi
 	mkdir $(RELEASEDIR)/$(RELEASENAME)-manual-dvi
 	cp manual.dvi $(RELEASEDIR)/$(RELEASENAME)-manual-dvi
-	cp pdfmanual.pdf $(RELEASEDIR)/$(RELEASENAME)-manual.pdf
+	cp manual.pdf $(RELEASEDIR)/$(RELEASENAME)-manual.pdf
 	cp blob.ps cloche.ps int.ps realblob.ps rquote.ps blob2.ps\
 home.ps intd.ps round.ps xfd.ps $(RELEASEDIR)/$(RELEASENAME)-manual-dvi
 	rm -rf $(RELEASEDIR)/$(RELEASENAME)-manual
@@ -133,6 +128,7 @@ devrelease:
 	/bin/rm -rf ${FTPDIR}/unstable ; mkdir ${FTPDIR}/unstable
 	$(MAKE) $(MFLAGS) dorelease VERSION=`date +%Y.%m.%d` RELEASENAME="hevea-`date +%Y.%m.%d`" RELEASEOPT="-D now" FTPDIR="${FTPDIR}/unstable"
 	$(MAKE) install DOCDIR=$(HOME)/public_html/hevea/newdoc
+	cp -r ${FTPDIR}/unstable ${DISTRIDIR}
 
 RPMDIR=/usr/src/redhat
 dorpm: hevea.spec

@@ -95,13 +95,13 @@
 {\refstepcounter{#1}\begin{center}\csname #1name\endcsname{} \csname the#1\endcsname: #2\end{center}\par}
 \newcommand{\@figrule}{\begin{center}\@hr{.8\linewidth}{2pt}\end{center}}
 \newenvironment{figure}[1][]
-{\@forcecommand{\caption}[1]{\hva@caption{figure}{##1}}%
+{\@forcecommand{\caption}[2][]{\hva@caption{figure}{##2}}%
 \@open{BLOCKQUOTE}{\envclass@attr{figure}}\@figrule}
 {\@figrule\@close{BLOCKQUOTE}}
 \newenvironment{figure*}[1][]{\begin{figure}[#1]}{\end{figure}}
 \setenvclass{table}{table}
 \newenvironment{table}[1][]
-{\@forcecommand{\caption}[1]{\hva@caption{table}{##1}}%
+{\@forcecommand{\caption}[2][]{\hva@caption{table}{##2}}%
 \@open{BLOCKQUOTE}{\envclass@attr{table}}\@figrule%
 }{\@figrule\@close{BLOCKQUOTE}}
 \newenvironment{table*}[1][]{\begin{table}[#1]}{\end{table}}
@@ -610,7 +610,7 @@
 \newcommand\dq{No-dq}
 %%% Footer
 \newif\iffooter\footertrue
-\def\heveaurl{http://pauillac.inria.fr/\home{maranget}/hevea}
+\def\heveaurl{http://hevea.inria.fr}
 \newcommand{\footertext}
 {This document was translated from \LaTeX{} by
 \footahref{\heveaurl/index.html}{\hevea}.}

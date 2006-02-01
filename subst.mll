@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: subst.mll,v 1.16 2002-11-05 09:35:15 maranget Exp $           *)
+(*  $Id: subst.mll,v 1.17 2006-02-01 17:34:17 maranget Exp $           *)
 (***********************************************************************)
 {
 open Misc
@@ -18,7 +18,9 @@ open Lexing
 let subst_buff = Out.create_buff ()
 ;;
 } 
-let command_name = '\\' ((['@''A'-'Z' 'a'-'z']+ '*'?) | [^ 'A'-'Z' 'a'-'z'])
+
+let command_name =
+ '\\' ((['@''A'-'Z' 'a'-'z']+ '*'?) | [^ 'A'-'Z' 'a'-'z'] | "\\*")
 
 rule subst = parse
 | '#' ['1'-'9'] as lxm

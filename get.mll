@@ -19,7 +19,7 @@ open Stack
 open Length
 
 (* Compute functions *)
-let header = "$Id: get.mll,v 1.27 2005-09-01 12:52:57 maranget Exp $"
+let header = "$Id: get.mll,v 1.28 2006-02-01 17:34:17 maranget Exp $"
 
 exception Error of string
 
@@ -95,7 +95,7 @@ let open_aftergroup f s =
 
 } 
 let command_name =
- '\\' ((['@''A'-'Z' 'a'-'z']+ '*'?) | [^ '@' 'A'-'Z' 'a'-'z'])
+ '\\' ((['@''A'-'Z' 'a'-'z']+ '*'?) | [^ '@' 'A'-'Z' 'a'-'z'] | "\\*")
 
 rule result = parse
 (* Skip comments and spaces *)

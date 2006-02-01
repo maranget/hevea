@@ -13,7 +13,7 @@
 open Lexing
 open Misc
 
-let header = "$Id: save.mll,v 1.69 2005-05-20 13:44:24 maranget Exp $" 
+let header = "$Id: save.mll,v 1.70 2006-02-01 17:34:17 maranget Exp $" 
 
 let rec peek_next_char lb =
   let pos = lb.lex_curr_pos
@@ -138,7 +138,8 @@ let rec kmp_char delim next i c =
     kmp_char delim next next.(i) c
   end
 }
-let command_name = '\\' (( ['@''A'-'Z' 'a'-'z']+ '*'?) | [^ 'A'-'Z' 'a'-'z'])
+let command_name =
+ '\\' (( ['@''A'-'Z' 'a'-'z']+ '*'?) | [^ 'A'-'Z' 'a'-'z'] | "\\*")
 let space = [' ''\t''\r']
 
 rule opt = parse

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: tabular.mll,v 1.29 2004-11-26 13:13:05 maranget Exp $ *)
+(* $Id: tabular.mll,v 1.30 2006-02-01 17:34:17 maranget Exp $ *)
 {
 open Misc
 open Lexing
@@ -224,6 +224,13 @@ open Parse_opts
 
 let main {arg=s ; subst=env} =
   if !verbose > 1 then prerr_endline ("Table format: "^s);
+  let s =
+    if String.length s > 0 && s.[0] = '\\' then
+      match Latexmacros.find s with
+      | _, Lexstate.Subst s -> s
+      | _,_ -> s
+    else
+      s in
   start_normal env ;
   lexformat (Lexing.from_string s) ;
   end_normal () ;

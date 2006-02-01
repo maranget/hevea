@@ -1,0 +1,69 @@
+\@primitives{longtable}
+%% Of no interest to hevea
+\def\setlongtables{}
+%%Those commands are invoked by the special scanner 'scan_bycommand'
+%%in verb.mll.
+%%They assume that scanned text is in the token command '\@tmp@scanned'
+\newtokens{\lt@lines}%
+\newcommand{\lt@save@line}[1]
+{\appendtokens\lt@lines\@tmp@scanned%
+\let#1\lt@lines\resettokens{\lt@lines}}
+\def\lt@endhead{\lt@save@line{\lt@head}}
+\def\lt@endfirsthead{\lt@save@line{\lt@firsthead}}
+\def\lt@endfoot{\lt@save@line{\lt@foot}}
+\def\lt@endlastfoot{\lt@save@line{\lt@lastfoot}}
+\def\lt@kill{}
+\newcommand{\lt@saveline}[1][]
+{\appendtokens\lt@lines\@tmp@scanned%
+\addtokens{\lt@lines}{\\[#1]}}
+\newcommand{\lt@nosaveline}[1][]{\let\\\lt@saveline}
+%%Infamous hack, prepare a '\caption' command for 'table' env
+\newcommand{\lt@caption}[2][]
+{\ifx\lt@fst@caption\@empty\gdef\lt@fst@caption{\caption[#1]{#2}}\fi%
+\let\\\lt@nosaveline}
+%%No more than a tabular in a table
+%%For interpreting optionnal arg.
+\def\lt@fmt@{\begin{center}}
+\def\lt@fmt@e{\end{center}}
+\def\lt@fmt@c{\begin{center}}
+\def\lt@fmt@ec{\end{center}}
+\def\lt@fmt@l{\begin{flushleft}}
+\def\lt@fmt@el{\end{flushleft}}
+\def\lt@fmt@r{\begin{flushright}}
+\def\lt@fmt@er{\end{flushright}}
+%% Define commands being active during scan_bycommand
+\def\lt@let#1#2{\let#1#2\lt@exists{#1}}
+%% Invoke comand #1 or command #2 or nothing, if they exist
+\def\lt@choose#1#2{\ifu#1\ifu#2\else#2\fi\else#1\fi}
+%Table is typeset first in this box (to place caption above it)
+\newsavebox{\lt@tabular@box}
+%Here we go
+\newenvironment{longtable}[2][]
+{\def\lt@arg{#2}\def\lt@opt{#1}
+\@forcecommand{\pagebreak}[1][]{}%
+\@forcecommand{\nopagebreak}[1][]{}%
+\@forcecommand{\newpage}{}
+\lt@let\endhead\lt@endhead%
+\lt@let\endfirsthead\lt@endfirsthead%
+\lt@let\endfoot\lt@endfoot%
+\lt@let\endlastfoot\lt@endlastfoot%
+\lt@let\kill\lt@kill%
+\lt@let\\\lt@saveline\lt@let\\*\lt@saveline\lt@let\tabularnewline\lt@saveline%
+\global\let\lt@fst@caption\@empty%
+\lt@let\caption\lt@caption\lt@let\caption*\lt@caption%
+\@longtable}
+{\lt@saveline%
+\begin{lrbox}{\lt@tabular@box}%
+\begin{tabular}{\lt@arg}%
+\lt@choose{\lt@firsthead}{\lt@head}%
+\lt@lines%
+\lt@choose{\lt@lastfoot}{\lt@foot}%
+\end{tabular}
+\end{lrbox}
+\begin{table}\lt@fst@caption%
+\csname lt@fmt@\lt@opt\endcsname%
+\usebox{\lt@tabular@box}
+\csname lt@fmt@e\lt@opt\endcsname%
+\end{table}}
+
+

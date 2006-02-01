@@ -28,18 +28,19 @@ CONTENTS
     This distribution includes HEVEA sources.
 
 CONTACTS
-    mail:      Luc.Maranget@inria.fr
-    distribution:  ftp://ftp.inria.fr/INRIA/Projects/para/hevea/
+    mail:       Luc.Maranget@inria.fr
+    home page:  http://hevea.inria.fr/
 
 DOCUMENTATION
     On-line documentation is available at
-    http://para.inria.fr/~maranget/hevea
+    http://hevea.inria.fr/doc/
     The first sections explain how to use hevea.
 
-
-    Postscript and HTML documentation can be found at in the
-    distribution directory:
-    ftp://ftp.inria.fr/INRIA/Projects/para/hevea
+DISTRIBUTION
+    By FTP
+      ftp://ftp.inria.fr/INRIA/Projects/para/hevea/
+    By HTTP
+      http://hevea.inria.fr/distri/
 
 
 

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.73 2005-11-08 10:14:19 maranget Exp $    *)
+(*  $Id: package.ml,v 1.74 2006-02-01 17:34:17 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -73,13 +73,17 @@ def_code "\\newtokens"
     Latexmacros.def toks zero_pat (Toks []))
 ;;
 
+let get_tokens toks = match Latexmacros.find_fail toks with
+| _,Toks r-> r
+| _ -> raise Failed
+;;
+
 def_code "\\resettokens"
   (fun lexbuf ->
-    let toks = Scan.get_csname lexbuf in
-    begin try match Latexmacros.find_fail toks with
-    | _,Toks _ ->
-        Latexmacros.def toks zero_pat (Toks [])
-    | _ -> raise Failed
+    let toks = Scan.get_csname lexbuf in    
+    begin try
+      ignore (get_tokens toks) ;
+      Latexmacros.def toks zero_pat (Toks [])
     with Failed ->
       Misc.warning ("\\resettokens for "^toks^" failed")
     end)
@@ -89,26 +93,41 @@ def_code "\\addtokens"
   (fun lexbuf ->
     let toks = Scan.get_csname lexbuf in
     let arg = Subst.subst_arg lexbuf in
-    begin try match Latexmacros.find_fail toks with
-    | _,Toks l ->
-        Latexmacros.def toks zero_pat (Toks (arg::l))
-    | _ -> raise Failed
+    begin try
+      let l = get_tokens toks in
+      Latexmacros.def toks zero_pat (Toks (arg::l))
     with Failed ->
       Misc.warning ("\\addtokens for "^toks^" failed")
     end)
 ;;
+
 def_code "\\addrevtokens"
   (fun lexbuf ->
     let toks = Scan.get_csname lexbuf in
     let arg = Subst.subst_arg lexbuf in
-    begin try match Latexmacros.find_fail toks with
-    | _,Toks l ->
-        Latexmacros.def toks zero_pat (Toks (l@[arg]))
-    | _ -> raise Failed
+    begin try 
+      let l = get_tokens toks in
+      Latexmacros.def toks zero_pat (Toks (l@[arg]))
     with Failed ->
       Misc.warning ("\\addtokens for "^toks^" failed")
     end)
 ;;
+
+def_code "\\appendtokens"
+ (fun lexbuf ->
+   let toks1 = Scan.get_csname lexbuf in
+   let toks2 = Scan.get_csname lexbuf in
+   begin try
+     let l1 = get_tokens toks1
+     and l2 = get_tokens toks2 in
+      Latexmacros.def toks1 zero_pat (Toks (l2@l1))
+   with Failed ->
+     Misc.warning ("\\addtokens for "^toks1^" and "^toks2^" failed")
+   end)
+;;
+
+
+(* See also the lrtokens env in latexscan.mll *)
 
 let call_subst lexbuf =
   let csname = get_csname lexbuf in
