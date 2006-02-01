@@ -1,3 +1,4 @@
+%%From code by Gilles Gregoire.
 \@primitives{longtable}
 %% Of no interest to hevea
 \def\setlongtables{}
@@ -52,7 +53,7 @@
 \global\let\lt@fst@caption\@empty%
 \lt@let\caption\lt@caption\lt@let\caption*\lt@caption%
 \@longtable}
-{\lt@saveline%
+{\lt@saveline%For the last line
 \begin{lrbox}{\lt@tabular@box}%
 \begin{tabular}{\lt@arg}%
 \lt@choose{\lt@firsthead}{\lt@head}%
