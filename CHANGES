@@ -1,4 +1,6 @@
 version 1.08+10
+     - deepcut patched
+     - supertable completed.
      - longtable package, a nightmare
      - forget option argument in \caption, fixed
      - publicize the generic url hevea.inria.fr
