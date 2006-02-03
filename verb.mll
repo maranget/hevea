@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: verb.mll,v 1.84 2006-02-01 17:34:17 maranget Exp $            *)
+(*  $Id: verb.mll,v 1.85 2006-02-03 12:25:49 maranget Exp $            *)
 (***********************************************************************)
 {
 exception VError of string
@@ -895,7 +895,6 @@ and scan_bycommand out is_cmd = parse
 | eof
    {if not (Stack.empty stack_lexbuf) then begin
       let lexbuf = previous_lexbuf () in
-      Out.put out "%\n" ;
       scan_bycommand out is_cmd lexbuf
     end else begin
       raise

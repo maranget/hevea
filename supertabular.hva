@@ -1,37 +1,31 @@
-%%% supertabular package, partial implementation %%%%
-%%% Headers and trailers
-\newcommand{\tablehead}[1]{\def\@tablehead{#1}}
-\newcommand{\tablefirsthead}[1]{\def\@firsttablehead{#1}}
-\newcommand{\tabletail}[1]{\def\@tabletail{#1}}
-\newcommand{\tablelasttail}[1]{\def\@lasttabletail{#1}}
-\newcommand{\@st@head}
-  {\@ifundefined{@firsttablehead}%
-      {\@ifundefined{@tablehead}{}{\@tablehead}}%
-      {\@firsttablehead}}
-\newcommand{\@st@tail}
-  {\@ifundefined{@lasttabletail}%
-      {\@ifundefined{@tabletail}{}{\@tabletail}}%
-      {\@lasttabletail}}
-%%%%% Caption
-\newcommand{\topcaption}[1]{\def\@st@topcaption{#1}}
-\newcommand{\bottomcaption}[1]{\def\@st@bottomcaption{#1}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Supertabular, more or less complete implementation.  %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\let\st@tablefirsthead\@empty
+\newcommand{\tablefirsthead}[1]{\gdef\st@tablefirsthead{#1}}
+\newcommand{\tablehead}[1]{}
+\newcommand{\tabletail}[1]{}
+\let\st@tablelasttail\@empty
+\newcommand{\tablelasttail}[1]{\gdef\st@tablelasttail{#1}}
+\let\st@bottomcaption\@empty
+\newcommand{\bottomcaption}[1]
+{\def\st@bottomcaption{\caption{#1}}}
+\let\st@topcaption\@empty
+\newcommand{\topcaption}[1]
+{\def\st@topcaption{\caption{#1}}}
 \let\tablecaption\topcaption
-\newcommand{\@st@caption}[1]
-  {\@ifundefined{#1}{}{\caption{\csname #1\endcsname}}}
-%%%% An finally supertabular envs
-\newenvironment{supertabular}[1]
-  {\begin{table}%
-   \@st@caption{@st@topcaption}%
-   \begin{tabular}{#1}\@st@head}
-  {\@st@tail%
-   \end{tabular}%
-   \@st@caption{@st@bottomcaption}%
-   \end{table}}
-\newenvironment{supertabular*}[2]
-  {\begin{table}%
-   \@st@caption{@st@topcaption}%
-   \begin{tabular*}{#1}{#2}\@st@head}
-  {\@st@tail%
-   \end{tabular*}%
-   \@st@caption{@st@bottomcaption}%
-   \end{table}}
+%%%
+\newenvironment{supertabular}[2][]
+{\begin{table}\st@topcaption\begin{tabular}[#1]{#2}\st@tablefirsthead}
+{\st@tablelasttail\end{tabular}\st@bottomcaption\end{table}}
+\newcommand{\st@kont@supertabular*}[2][]
+{\begin{tabular*}{\st@arg}[#1]{#2}\st@tablefirsthead}
+\newenvironment{supertabular*}[1]
+{\def\st@arg{#1}\begin{table}\st@topcaption\st@kont@supertabular*}
+{\st@tablelasttail\end{tabular*}\st@bottomcaption\end{table}}
+\let\mpsupertabular\supertabular
+\let\endmpsupertabular\endsupertabular
+\let\mpsupertabular*\supertabular*
+\let\endmpsupertabular*\endsupertabular*
+%%
+\newcommand{\shrinkheight}[1]{}

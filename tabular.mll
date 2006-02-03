@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: tabular.mll,v 1.30 2006-02-01 17:34:17 maranget Exp $ *)
+(* $Id: tabular.mll,v 1.31 2006-02-03 12:25:49 maranget Exp $ *)
 {
 open Misc
 open Lexing
@@ -142,6 +142,8 @@ and tfmiddle = parse
     {let lxm = lexeme lexbuf in
     let i = Char.code (lxm.[1]) - Char.code '1' in
     Lexstate.scan_arg (scan_this_arg tfmiddle) i}
+| '%' [^'\n']* '\n'
+    {tfmiddle lexbuf}
 | [^'|' '@' '<' '>' '!' '#']
     {let lxm = lexeme lexbuf in
     let name = column_to_command lxm in
@@ -170,7 +172,7 @@ and tfmiddle = parse
   {let rest =
     String.sub lexbuf.lex_buffer lexbuf.lex_curr_pos
       (lexbuf.lex_buffer_len - lexbuf.lex_curr_pos) in
-  raise (Error ("Syntax bonga of array format near: "^rest))}
+  raise (Error ("Syntax of array format near: "^rest))}
 
 and tfpostlude = parse
 | [' ''\t''\n''\r'] {tfpostlude lexbuf}

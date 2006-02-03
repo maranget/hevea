@@ -1,4 +1,6 @@
-%%From code by Gilles Gregoire.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%From code by Gilles Gregoire. %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \@primitives{longtable}
 %% Of no interest to hevea
 \def\setlongtables{}
@@ -9,8 +11,8 @@
 \newcommand{\lt@save@line}[1]
 {\appendtokens\lt@lines\@tmp@scanned%
 \let#1\lt@lines\resettokens{\lt@lines}}
-\def\lt@endhead{\lt@save@line{\lt@head}}
-\def\lt@endfirsthead{\lt@save@line{\lt@firsthead}}
+\def\lt@endhead{\addtokens{\@tmp@scanned}{\\}\lt@save@line{\lt@head}}
+\def\lt@endfirsthead{\addtokens{\@tmp@scanned}{\\}\lt@save@line{\lt@firsthead}}
 \def\lt@endfoot{\lt@save@line{\lt@foot}}
 \def\lt@endlastfoot{\lt@save@line{\lt@lastfoot}}
 \def\lt@kill{}

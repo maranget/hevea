@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.74 2006-02-01 17:34:17 maranget Exp $    *)
+(*  $Id: package.ml,v 1.75 2006-02-03 12:25:49 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -126,6 +126,12 @@ def_code "\\appendtokens"
    end)
 ;;
 
+def_code "\\typemacro"
+  (fun lexbuf ->
+    let name = Scan.get_csname lexbuf in
+    let pat,body = Latexmacros.find name in
+    Latexmacros.pretty_macro pat body)
+;;
 
 (* See also the lrtokens env in latexscan.mll *)
 

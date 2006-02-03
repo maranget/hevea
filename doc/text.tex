@@ -5974,21 +5974,22 @@ display indeed possesses the linebreaks shown in display.
 \end{enumerate}
 
 
-\subsection{(Non-)Multipage tabular material with the
-\texttt{longtable} package}
-\ttindex{longtable}{package}%
-\LaTeX{} \footahref{\ctan/required/tools/longtable.dtx}{source}.
+\subsection{(Non-)Multipage tabular material}
+\ttindex{longtable}{package}\ttindex{supertabular}{package}
+\LaTeX{} source
+for the
+\footahref{\ctan/required/tools/longtable.dtx}{\texttt{longtable}}
+and 
+\footahref{\ctan/contrib/supertabular/}{\texttt{supertabular}}
+packages.
 
-The \texttt{longtable} package provides \LaTeX{} users with the
+Those two packages provide \LaTeX{} users with the
 possibility to typeset tabular material over several
-pages~\cite[Section~5.4.2]{latexbis}. Of course, \hevea{}
-does not care much about physical pages,
+pages~\cite[Section~5.4]{latexbis}. Of course, \hevea{}
+does not care much about physical pages.
+Thus the \texttt{supertabular}
 and \texttt{longtable} environments are rendered more or less
 as \texttt{tabular} environments inside \texttt{table} environments.
-However, \hevea{} implementation may suffer from discrepancy
-with \LaTeX{} implementation, due to strong differences in the
-scanning processes.
-
 
 \subsection{Typesetting inference rules: the
 \label{mathpartir:package} \aname{mathpartir}{\texttt{mathpartir}} package}
