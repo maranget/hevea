@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.267 2006-02-01 17:34:17 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.268 2006-02-07 16:51:26 maranget Exp $ *)
 
 
 {
@@ -2625,6 +2625,24 @@ def_code "\\begin"
 ;;
 
 
+def_code "\\end"
+  (fun lexbuf ->
+    let env = get_prim_arg lexbuf in
+    do_expand_command main no_skip (end_env env) lexbuf ;
+    top_close_block "" ;
+    close_env env)
+;;
+
+(* To close/reopen envs from their associated commands *)
+
+def_code "\\@end"
+  (fun lexbuf ->
+    let env = get_prim_arg lexbuf in
+    top_close_block "" ;
+    close_env env)
+;;
+
+
 def_code "\\@begin"
   (fun lexbuf ->
      let env = get_prim_arg lexbuf in
@@ -2632,13 +2650,7 @@ def_code "\\@begin"
      top_open_block "" "")
 ;;
 
-def_code "\\end"
-  (fun lexbuf ->
-    let env = get_prim_arg lexbuf in
-    do_expand_command main no_skip (end_env env) lexbuf ;
-    close_env env ;
-    top_close_block "")
-;;
+
 
 (* to be called by \document *)
 let append_to_opt o s = match o with
@@ -2683,13 +2695,6 @@ def_code "\\@raise@enddocument"
       error_env "document" !cur_env
     else
       raise Misc.EndDocument)
-;;
-
-def_code "\\@end"
-  (fun lexbuf ->
-    let env = get_prim_arg lexbuf in
-    top_close_block "" ;
-    close_env env)
 ;;
 
 let little_more lexbuf =

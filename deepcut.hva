@@ -2,6 +2,18 @@
 %% Instruct hacha to cut everywhere from part to subsection %%
 %% Some code contributed by Gilles Gregoire                 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%
+%% cut footnotes  %
+%%%%%%%%%%%%%%%%%%%
+\let\deepcut@thefootnotes\thefootnotes
+\let\enddeepcut@thefootnotes\endthefootnotes
+\renewenvironment{thefootnotes}[1]
+{\begin{cutflow}{Notes}\begin{deepcut@thefootnotes}{#1}}
+{\end{deepcut@thefootnotes}\end{cutflow}}
+%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% sectionning commands
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newif\ifcutchapter\cutchapterfalse
 \let\dc@part\part\let\dc@part*\part*
 \renewcommand{\part}[2][]

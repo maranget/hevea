@@ -404,7 +404,9 @@
 \def\nocite#1{}
 \newcommand{\refname}{References}
 \newenvironment{thebibliography}[1]
-  {\@bibliosection{\refname}%
+  {\@end{thebibliography}%Execute sectionning command in outer scope
+  \@bibliosection{\refname}%
+  \@begin{thebibliography}%
   \def\@list@class{thebibliography}%
   \begin{list}{\stepcounter{heveabib}\theheveabib}
     {\let\makelabel\@biblabel}}
