@@ -128,6 +128,7 @@ devrelease:
 	/bin/rm -rf ${FTPDIR}/unstable ; mkdir ${FTPDIR}/unstable
 	$(MAKE) $(MFLAGS) dorelease VERSION=`date +%Y.%m.%d` RELEASENAME="hevea-`date +%Y.%m.%d`" RELEASEOPT="-D now" FTPDIR="${FTPDIR}/unstable"
 	$(MAKE) install DOCDIR=$(HOME)/public_html/hevea/newdoc
+	/bin/rm -rf  ${DISTRIDIR}/unstable
 	cp -r ${FTPDIR}/unstable ${DISTRIDIR}
 
 RPMDIR=/usr/src/redhat
