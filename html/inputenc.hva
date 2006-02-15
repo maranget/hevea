@@ -1,0 +1,13 @@
+%% Inputencoding are simple minded
+%%  - Characters will be accepted as they are
+%%  - The document charset is changed.
+\ProvidesPackage{inputenc}
+\newcommand{\ic@input}[1]
+{\@iffileexists{#1.hva}
+{\input{#1.hva}}
+{\warning{Unkown input encoding: #1}}}%
+\newcommand{\ic@option}[1]{\DeclareOption{#1}{\ic@input{#1}}}%
+%%%
+\ic@option{latin1}\ic@option{latin2}\ic@option{latin9}%
+%%%
+\ProcessOptions*%

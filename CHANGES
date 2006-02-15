@@ -1,3 +1,4 @@
+     - added eurosym package
      - added textcomp package
      - compatibility deepcut/thebibliography, \sectionning command
        \@bbliosection must appear in outer scope.

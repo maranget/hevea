@@ -1,0 +1,17 @@
+\ProvidesPackage{eurosym}
+%%Hum I have one symbol only for euro!
+\def\es@euro{\@print{&#X20AC}}
+\newcommand{\let@euro}[1]{\let#1\es@euro}
+\let@euro{\officialeuro}\let@euro{\geneuro}\let@euro{\geneuroarrow}%
+\let@euro{\geneurowide}%
+\let@euro{\euro}%
+\newcommand{\es@left}[1]{\euro\,#1}
+\newcommand{\es@right}[1]{#1\,\euro}
+\let\EUR\es@left
+%%Usefull options.
+\DeclareOption{official}{}\DeclareOption{gen}{}\DeclareOption{genarrow}{}
+\DeclareOption{genwide}{}
+\DeclareOption{left}{\let\EUR\es@left}
+\DeclareOption{right}{\let\EUR\es@right}
+\ProcessOptions*
+%%
