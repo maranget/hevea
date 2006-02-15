@@ -14,3 +14,4 @@
 \def\UrlLeft##1\UrlRight{\ahrefurl{##1}}%
 \urlstyle{tt}%
 \Url}
+\newcommand{\hypersetup}[1]{}
