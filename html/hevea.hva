@@ -231,7 +231,7 @@
 \newsavebox{\@bibbox}
 \newcommand{\@biblabel}[1]{\@locname{\bibtag@hook{#1}}{\purple[\@bibread{\bibtag@hook{#1}}]}}
 %%% Environment document.
-\newcommand{\@charset}{ISO-8859-1}
+\newcommand{\@charset}{US-ASCII}
 \newcommand{\@bodyargs}{}
 \newcommand{\@meta}
 {\begin{rawhtml}
