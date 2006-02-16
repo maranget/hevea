@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.75 2006-02-03 12:25:49 maranget Exp $    *)
+(*  $Id: package.ml,v 1.76 2006-02-16 07:54:01 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -56,14 +56,6 @@ def_code "\\@heveaverbose"
     Misc.verbose := lvl)
 ;;
 
-(* Unicode entities given in hexa *)
-def_code "\\@unicode"
- (fun lexbuf ->
-   let arg = get_prim_arg lexbuf in
-   Scanf.sscanf arg "%x" (fun x -> Dest.put ("&#"^string_of_int x^";")))
-;;
-
-     
 (* ``Token'' registers *)
 def_code "\\newtokens"
   (fun lexbuf ->
@@ -743,6 +735,14 @@ register_init "german"
             | _ -> Dest.put_char '"'
           with
           | Not_found -> Dest.put_char '"'))
+;;
+
+register_init "inputenc"
+  (fun () ->
+    def_code "\\@set@out@translator"
+      (fun lexbuf ->
+	let key = get_prim_arg lexbuf in
+	OutUnicode.set_translate key))
 ;;
 
 let get_elements str = 

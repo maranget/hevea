@@ -1,6 +1,9 @@
+\@primitives{inputenc}
 %% Inputencoding are simple minded
 %%  - Characters will be accepted as they are
 %%  - The document charset is changed.
+%%  - Numerical entities given by \@print@u{NUM} are translated
+%%    to chars when possible
 \ProvidesPackage{inputenc}
 \newcommand{\ic@input}[1]
 {\@iffileexists{#1.hva}

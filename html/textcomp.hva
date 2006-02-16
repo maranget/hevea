@@ -8,7 +8,7 @@
 {\ifx#1\@empty
 \def\csname text#2\endcsname{\@print{&}\@getprint{#2}\@print{;}}%
 \else
-\def\csname text#2\endcsname{\@print{&#}\@getprint{#1}\@print{;}}%
+\def\csname text#2\endcsname{\@print@u{#1}}%
 \fi}
 %\@buildtext{capitalcompwordmark}
 %\@buildtext{ascendercompwordmark}

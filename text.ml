@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.67 2006-01-12 17:07:06 maranget Exp $"
+let header = "$Id: text.ml,v 1.68 2006-02-16 07:54:01 maranget Exp $"
 
 
 open Misc
@@ -1040,6 +1040,13 @@ let put_char c =
   if !verbose > 3 then Printf.fprintf stderr "put_char: %c\n" c ;
   do_pending ();
   do_put_char c
+;;
+
+let put_unicode i =
+  if !verbose > 3 then Printf.fprintf stderr "put_unicode: %04X\n" i ;
+  do_pending ();
+  try do_put_char (OutUnicode.translate i)
+  with OutUnicode.CannotTranslate -> do_put "??"
 ;;
 
 let flush_out () =

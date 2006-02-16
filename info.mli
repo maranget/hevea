@@ -70,6 +70,7 @@ open Lexstate
     val close_group : unit -> unit
     val put : string -> unit
     val put_char : char -> unit
+    val put_unicode : int -> unit
     val flush_out : unit -> unit
     val skip_line : unit -> unit
 

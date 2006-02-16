@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.268 2006-02-07 16:51:26 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.269 2006-02-16 07:54:01 maranget Exp $ *)
 
 
 {
@@ -2188,6 +2188,13 @@ def_code "\\@print"
           let {arg=arg} = save_arg lexbuf in
           Dest.put arg) ;
 ;;
+
+def_code "\\@print@u"
+  (fun lexbuf ->
+    let {arg=arg} = save_arg lexbuf in
+    Dest.put_unicode (OutUnicode.parse arg)) ;
+;;
+
 
 def_code "\\@printnostyle"
   (fun lexbuf ->

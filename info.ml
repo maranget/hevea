@@ -10,7 +10,7 @@
 (***********************************************************************)
 
 
-let header = "$Id: info.ml,v 1.34 2005-03-04 15:56:35 maranget Exp $"
+let header = "$Id: info.ml,v 1.35 2006-02-16 07:54:01 maranget Exp $"
 
 open Misc
 open Text
@@ -71,9 +71,9 @@ let open_aftergroup =Text.open_aftergroup;;
 let close_group =Text.close_group;;
 
 let put s = Text.put s
-;;
+and put_char c = Text.put_char c
+and put_unicode i = Text.put_unicode i
 
-let put_char c = Text.put_char c;;
 
 let flush_out =Text.flush_out;;
 let skip_line =Text.skip_line;;

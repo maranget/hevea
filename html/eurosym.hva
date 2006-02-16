@@ -1,6 +1,6 @@
 \ProvidesPackage{eurosym}
 %%Hum I have one symbol only for euro!
-\def\es@euro{\@print{&#X20AC}}
+\def\es@euro{\@print@u{X20AC}}
 \newcommand{\let@euro}[1]{\let#1\es@euro}
 \let@euro{\officialeuro}\let@euro{\geneuro}\let@euro{\geneuroarrow}%
 \let@euro{\geneurowide}%
