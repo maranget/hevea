@@ -35,7 +35,7 @@
 %\@buildtext{eightoldstyle}
 %\@buildtext{nineoldstyle}
 \@buildtext[9001]{langle}
-\@buildtext{minus}
+\@buildtext[X2D]{minus}
 \@buildtext[9002]{rangle}
 \@buildtext[X2127]{mho}
 \@buildtext[X25EF]{bigcircle}
@@ -55,9 +55,9 @@
 \def\textdblhyphenchar{\@print{=}}%snif
 \@buildtext[X02D8]{asciibreve}
 \@buildtext[X02C7]{asciicaron}
-\def\textgravedbl{\@print{&nbsp;&#X030F;}}
-\def\textacutedbl{\@print{&nbsp;&#X030B;}}
-\@buildtext{dagger}
+\def\textgravedbl{\print@u{XA0}\@print{&#X030F;}}
+\def\textacutedbl{\print@u{XA0}\@print{&#X030B;}}
+\@buildtext[X2020{dagger}
 \@buildtext[8225]{daggerdbl}
 \@buildtext[X2016]{bardbl}
 \@buildtext[X2031]{perthousand}
@@ -87,11 +87,11 @@
 \@buildtext[X2120]{servicemark}
 %\@buildtext{lquill}
 %\@buildtext{rquill}
-\@buildtext{cent}
+\@buildtext[X00A2]{cent}
 %%Ascii section
 \@buildtext[X00A3]{sterling}
 \@buildtext[X00A4]{currency}
-\@buildtext{yen}
+\@buildtext[X00A5]{yen}
 \@buildtext[X00A6]{brokenbar}
 \@buildtext[X00A7]{section}
 \@buildtext[X00A8]{asciidieresis}
@@ -118,5 +118,5 @@
 \@buildtext[X00BD]{onehalf}
 \@buildtext[X00BE]{threequarters}
 \@buildtext[X20AC]{euro}
-\@buildtext{times}
+\@buildtext[X00D7]{times}
 \@buildtext[X00F7]{div}

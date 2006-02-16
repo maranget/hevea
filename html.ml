@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: html.ml,v 1.93 2006-02-16 07:54:01 maranget Exp $" 
+let header = "$Id: html.ml,v 1.94 2006-02-16 19:12:21 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -288,7 +288,7 @@ let put_char c =
 let put_unicode i =
   try put_char (OutUnicode.translate i)
   with OutUnicode.CannotTranslate ->
-    put (Printf.sprintf "&#X%04X" i)
+    put (Printf.sprintf "&#X%X;" i)
 ;;
 
 let set_dt s = flags.dt <- s
@@ -409,15 +409,14 @@ let unskip () =
     flags.empty <- true;
 ;;
   
-let put_tag tag =
-  put tag
+let put_tag tag = put tag
 ;;
 
 let put_nbsp () =
   if !Lexstate.whitepre || (flags.in_math && !Parse_opts.mathml) then
     put_char ' '
   else
-    put "&nbsp;"
+    put_unicode 0xA0
 ;;
 
 let put_open_group () =

@@ -1,10 +1,13 @@
 \newcommand{\@entity}[1]{\@print{&}\@subst{#1}\@print{;}}
 \newcommand{\@bigentity}[1]{\@print{<FONT SIZE=7>&}\@subst{#1}\@print{;</FONT>}}
 \newcommand{\@numentity}[1]{\@print{&#}\@subst{#1}\@print{;}}
+%%Petit extra
+\def\L{\@print@u{X141}}
+\def\l{\@print@u{X142}}
 %% HTML 4.0 symbol entities
 %% classes dans le meme ordre que
 %% dans le livre LaTeX, de Leslie Lamport.
-\renewcommand{\ldots}{\ifmath\@entity{hellip}\else{...}\fi}
+\renewcommand{\ldots}{\ifmath\@print@u{X2026}\else{...}\fi}
 \renewcommand{\cdots}{\@print{&#8943;}}
 \renewcommand{\ddots}{\@print{&#8944;}}
 \renewcommand{\vdots}{\@print{&#8942;}}
@@ -13,8 +16,8 @@
 \def\textvisiblespace{\@print{&#9251;}}
 \def\textemdash{\@print{&mdash;}}
 \def\textendash{\@print{&ndash;}}
-\def\textexclamdown{\@print{&iexcl;}}
-\def\textquestiondown{\@print{&iquest;}}
+\def\textexclamdown{\@print@u{XA1}}
+\def\textquestiondown{\@print@u{XBF}}
 \def\textquotedblleft{\@print{&ldquo;}}
 \def\textquotedblright{\@print{&rdquo;}}
 \def\textquoteright{\@print{&rsquo;}}
@@ -71,7 +74,7 @@
 %
 %% Binary Operation Symbols
 %
-\renewcommand{\pm}{\@print{&#0177;}}
+\renewcommand{\pm}{\@print@u{177}}
 \newcommand{\mp}{\@print{&#8723;}}
 \renewcommand{\ast}{\@entity{lowast}}
 \renewcommand{\star}{\@print{&#8902;}}
@@ -85,7 +88,7 @@
 \newcommand{\sqcup}{\@print{&#8852;}}
 \newcommand{\vee}{\@entity{or}}
 \newcommand{\wedge}{\@entity{and}}
-\renewcommand{\setminus}{\@print{&#92;}}
+\renewcommand{\setminus}{\@print@u{92}}
 \newcommand{\wr}{\@print{&#8768;}}
 \newcommand{\diamond}{\@print{&#9671;}}
 \newcommand{\bigtriangleup}{\@print{<BIG>&#9651;</BIG>}}
@@ -220,7 +223,7 @@
 \newcommand{\imath}{\@print{<I>&#953;</I>}}
 \newcommand{\jmath}{\@print{<I><SMALL>j</SMALL></I>}} %????
 \newcommand{\ell}{\@print{&#8467}}
-\renewcommand{\neg}{\@entity{not}}
+\renewcommand{\neg}{\@print@u{XAC}}
 \newcommand{\top}{\@print{&#8868;}}
 \newcommand{\flat}{\@print{&#9837;}}   		% EVENTUALLY
 \newcommand{\natural}{\@print{&#9838;}} 	% EVENTUALLY
@@ -253,9 +256,9 @@
 %
 %% Variable-sized Symbols
 %
-\newcommand{\@sum}{\@entity{Sigma}}
-\newcommand{\@prod}{\@entity{Pi}}
-\newcommand{\@coprod}{\@print{&#1062;}}
+\newcommand{\@sum}{\@print{&#X2211;}}
+\newcommand{\@prod}{\@print{&#X220F;}}
+\newcommand{\@coprod}{\@print{&#X2210;}}
 \newcommand{\@int}{\@entity{int}}
 \newcommand{\@iint}{\@print{&#8748;}}
 \newcommand{\@iiint}{\@print{&#8749;}}
@@ -265,9 +268,9 @@
 \newcommand{\@displayint}{\mbox{\Large\@entity{int}}}
 \newcommand{\@displayiint}{\mbox{\Large\@print{&#8748;}}}
 \newcommand{\@displayiiint}{\mbox{\Large\@print{&#8749;}}}
-\newcommand{\@displaysum}{\mbox{\Large\@entity{Sigma}}}
-\newcommand{\@displayprod}{\mbox{\Large\@entity{Pi}}}
-\newcommand{\@displaycoprod}{\mbox{\Large\@print{&#1062;}}}
+\newcommand{\@displaysum}{\mbox{\Large\@sum}}
+\newcommand{\@displayprod}{\mbox{\Large\@prod}}
+\newcommand{\@displaycoprod}{\mbox{\Large\@coprod}}
 \newcommand{\@displayoint}{\mbox{\Large\@print{&#8750;}}}
 \newcommand{\@displayoiint}{\mbox{\Large\@print{&#8751;}}}
 \newcommand{\@displayoiiint}{\mbox{\huge\@print{&#8752;}}}

@@ -1,0 +1,33 @@
+\newcommand{\@buildtext}[2][]
+{\def\csname text#2\endcsname{\@print@u{#1}}}
+\@buildtext[X0024]{dollar}
+\@buildtext[X0027]{quotesingle}
+\@buildtext[X2D]{minus}
+\@buildtext[X00A3]{sterling}
+\@buildtext[X00A4]{currency}
+\@buildtext[X00A5]{yen}
+\@buildtext[X00A6]{brokenbar}
+\@buildtext[X00A7]{section}
+\@buildtext[X00A8]{asciidieresis}
+\@buildtext[X00A9]{copyright}
+\@buildtext[X00AA]{ordfeminine}
+\@buildtext[X00AC]{lnot}
+\@buildtext[X00AE]{registered}
+\@buildtext[X00AF]{asciimacron}
+\@buildtext[X00B0]{degree}
+\@buildtext[X00B1]{pm}
+\@buildtext[X00B2]{twosuperior}
+\@buildtext[X00B3]{threesuperior}
+\@buildtext[X00B4]{asciiacute}
+\@buildtext[X00B5]{mu}
+\@buildtext[X00B6]{paragraph}
+\@buildtext[X00B7]{periodcentered}
+\@buildtext[X00B9]{onesuperior}
+\@buildtext[X00BA]{ordmasculine}
+\let\textsurd\surd
+\@buildtext[X00BC]{onequarter}
+\@buildtext[X00BD]{onehalf}
+\@buildtext[X00BE]{threequarters}
+\@buildtext[X20AC]{euro}%will work for latin9 input encoding
+\@buildtext[X00D7]{times}
+\@buildtext[X00F7]{div}

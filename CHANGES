@@ -1,3 +1,6 @@
+     - latin encoding support, through the inputenc package and
+       checked numerical entities (\@print@u)
+       Defaut charset is now US-ASCII.
      - added eurosym package
      - added textcomp package
      - compatibility deepcut/thebibliography, \sectionning command

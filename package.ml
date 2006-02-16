@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.76 2006-02-16 07:54:01 maranget Exp $    *)
+(*  $Id: package.ml,v 1.77 2006-02-16 19:12:21 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -25,6 +25,49 @@ open Subst
 open Stack
 open Scan
 ;;
+
+(* Accents are here, to make latexscan.mll a bit smaller *)
+(* Accents *)
+let put_empty empty =
+  if empty <> 0 then Dest.put_unicode empty
+  else raise OutUnicode.CannotTranslate 
+
+let def_diacritic name f empty =
+  def_code name
+    (fun lexbuf ->
+      Save.start_echo () ;
+      let arg = get_prim_arg lexbuf in
+      let input = Save.get_echo () in
+      try match String.length arg with
+      | 0 -> put_empty empty
+      | 1 ->
+          let c = arg.[0] in
+          if c = ' ' then put_empty empty
+          else Dest.put_unicode (f arg.[0])
+      | _ -> raise OutUnicode.CannotTranslate
+      with OutUnicode.CannotTranslate ->
+        warning
+          (Printf.sprintf
+             "Application of '%s' on '%s' failed"
+             name input) ;
+        scan_this main input)
+;;
+      
+def_diacritic "\\'"  OutUnicode.acute 0xB4 ;
+def_diacritic "\\`"  OutUnicode.grave 0x50 ;
+def_diacritic "\\^"  OutUnicode.circumflex 0x5E ;
+def_diacritic "\\\"" OutUnicode.diaeresis 0xA8 ;
+def_diacritic "\\c"  OutUnicode.cedilla 0xB8 ;
+def_diacritic "\\~"  OutUnicode.tilde 0x7E ;
+def_diacritic "\\="  OutUnicode.macron 0xAF ;
+def_diacritic "\\v"  OutUnicode.caron 0 ;
+def_diacritic "\\H"  OutUnicode.doubleacute 0x2DD ;
+def_diacritic "\\u"  OutUnicode.breve 0x2D8 ;
+def_diacritic "\\."  OutUnicode.dotabove 0x2D9 ;
+def_diacritic "\\d"  OutUnicode.dotbelow 0 ;
+()
+;;
+
 
 (* Various outworld information *)
 let def_print name s =
@@ -690,6 +733,11 @@ register_init "natbib"
 let gput lexbuf c =
   Save.gobble_one_char lexbuf ;
   Dest.put (Dest.iso c)
+
+and gput_unicode lexbuf u =
+  Save.gobble_one_char lexbuf ;
+  Dest.put_unicode u
+  
 ;;
 
 let gscan lexbuf cmd =
@@ -707,17 +755,10 @@ register_init "german"
           else try
             let c = Save.peek_next_char lexbuf  in
             match c with
-            | 'a' -> gput lexbuf 'ä'
-            | 'A' -> gput lexbuf 'Ä'
-            | 'e' -> gput lexbuf 'ë'
-            | 'E' -> gput lexbuf 'Ë'
-            | 'i' -> gput lexbuf 'ï'
-            | 'I' -> gput lexbuf 'Ï'
-            | 'o' -> gput lexbuf 'ö'
-            | 'O' -> gput lexbuf 'Ö'
-            | 'u' -> gput lexbuf 'ü'
-            | 'U' -> gput lexbuf 'Ü'
-            | 's'|'z' -> gput lexbuf 'ß'
+            | 'a' | 'A' | 'e' | 'E' | 'i' | 'I' | 'o' | 'O' | 'u'| 'U' ->
+                begin try gput_unicode lexbuf (OutUnicode.diaeresis c)
+                with OutUnicode.CannotTranslate -> assert false end
+            | 's'|'z' -> gput_unicode lexbuf 0xDF
             | 'c'|'f'|'l'|'m'|'p'|'r'|'t' as c ->
                 gput lexbuf c (* for "ck and "ff etc. *)
             | 'S' ->
@@ -742,7 +783,12 @@ register_init "inputenc"
     def_code "\\@set@out@translator"
       (fun lexbuf ->
 	let key = get_prim_arg lexbuf in
-	OutUnicode.set_translate key))
+	OutUnicode.set_translate key) ;
+    def_code "\\@set@out@translator@table"
+      (fun lexbuf ->
+	let name = get_prim_arg lexbuf in
+	OutUnicode.set_translate_table name) ;
+    ())    
 ;;
 
 let get_elements str = 

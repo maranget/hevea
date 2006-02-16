@@ -11,6 +11,9 @@
 {\warning{Unkown input encoding: #1}}}%
 \newcommand{\ic@option}[1]{\DeclareOption{#1}{\ic@input{#1}}}%
 %%%
-\ic@option{latin1}\ic@option{latin2}\ic@option{latin9}%
+\ic@option{latin1}\ic@option{latin2}\ic@option{latin3}\ic@option{latin4}%
+\ic@option{latin5}\ic@option{latin6}\ic@option{latin7}\ic@option{latin8}%
+\ic@option{latin9}\ic@option{latin10}%
 %%%
 \ProcessOptions*%
+\EndPackage

@@ -7,30 +7,32 @@
 \def\{{\char123}
 \def\}{\char125}
 \def\i{i}
-\def\oe{oe}
-\def\OE{OE}
-\def\ae{æ}
-\def\AE{Æ}
-\def\aa{å}
-\def\AA{Å}
-\def\o{ø}
-\def\O{Ø}
-\def\ss{ß}
-\def\P{¶}
-\def\copyright{©}
-\def\pounds{£}
-\def\S{§}
+%%Those belong to latin9
+\def\oe{\@print@u{X153}}
+\def\OE{\@print@u{X152}}
+%%And those to latin1
+\def\ae{\@print@u{XE6}}
+\def\AE{\@print@u{XC6}}
+\def\aa{\@print@u{XE5}}
+\def\AA{\@print@u{XC5}}
+\def\o{\@print@u{XF8}}
+\def\O{\@print@u{XD8}}
+\def\ss{\@print@u{XDF}}
+\def\P{\@print@u{XB6}}
+\def\copyright{\@print@u{XA9}}
+\def\pounds{\print@u{XA3}}
+\def\S{\@print@u{XA7}}
 %% Some math symbols
 \newcommand{\backslash}{\char92}
 \newcommand{\textbackslash}{\char92}
 \newcommand{\setminus}{\char92}
-\newcommand{\neg}{¬}
-\newcommand{\mu}{µ}
-\newcommand{\pm}{±}
-\newcommand{\times}{×}
-\newcommand{\div}{÷}
+\newcommand{\neg}{\@print@u{XAC}}
+\newcommand{\mu}{\@print@u{XB5}}
+\newcommand{\pm}{\@print@u{XB1}}
+\newcommand{\times}{\@print@u{XD7}}
+\newcommand{\div}{\@print@u{XF7}}
 \newcommand{\ast}{*}
-\newcommand{\emptyset}{Ø}
+\newcommand{\emptyset}{\@print@u{XD8}}
 \newcommand{\le}{\leq}
 \newcommand{\ge}{\geq}
 \newcommand{\sharp}{\@print{#}}
@@ -73,8 +75,8 @@
 %%%%%%%%%%%%%%
 \def\pmod#1{\mbox{(mod }#1{\@anti{\@style{I}} )}}
 \def\bigcirc{{\Huge\circ}}
-\def\ll{«}
-\def\gg{»}
+\def\ll{\@print@u{XAB}}
+\def\gg{\@print@u{XBB}}
 \def\vdash{\textnormal{|-}}
 \def\dashv{\textnormal{-|}}
 \def\mid{\textnormal{|}}
@@ -88,10 +90,10 @@
 \def\frac#1#2{{#1\over #2}}
 \def\ldots{...}
 \def\dots{...}
-\def\cdots{···}
-\def\cdot{{\@incsize{2}·}}
-\def\vdots{\ifdisplay\mbox{·\\·\\·}\else:\fi}
-\def\ddots{\ifdisplay\mbox{·~~\\~·~\\~~·}\else%
+\def\cdot{\@print@u{XD7}}
+\def\cdots{\cdot\cdot\cdot}
+\def\vdots{\ifdisplay\mbox{\cdot\\\cdot\\\cdot}\else:\fi}
+\def\ddots{\ifdisplay\mbox{\cdot~~\\~\cdot~\\~~\cdot}\else%
 \warning{\ddots in text}\mbox{ddots}\fi}
 \newcommand{\limits}{}
 \newcommand{\nolimits}{}

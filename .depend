@@ -145,16 +145,16 @@ noimage.cmo: noimage.cmi
 noimage.cmx: noimage.cmi 
 out.cmo: misc.cmi out.cmi 
 out.cmx: misc.cmx out.cmi 
-outUnicode.cmo: misc.cmi outUnicode.cmi 
-outUnicode.cmx: misc.cmx outUnicode.cmi 
+outUnicode.cmo: myfiles.cmi misc.cmi outUnicode.cmi 
+outUnicode.cmx: myfiles.cmx misc.cmx outUnicode.cmi 
 package.cmo: version.cmi subst.cmi stack.cmi save.cmi parse_opts.cmi \
-    outManager.cmi mylib.cmi misc.cmi lexstate.cmi latexscan.cmi \
-    latexmacros.cmi index.cmi imageManager.cmi get.cmi counter.cmi color.cmi \
-    auxx.cmi package.cmi 
+    outUnicode.cmi outManager.cmi mylib.cmi misc.cmi lexstate.cmi \
+    latexscan.cmi latexmacros.cmi index.cmi imageManager.cmi get.cmi \
+    counter.cmi color.cmi auxx.cmi package.cmi 
 package.cmx: version.cmx subst.cmx stack.cmx save.cmx parse_opts.cmx \
-    outManager.cmi mylib.cmx misc.cmx lexstate.cmx latexscan.cmx \
-    latexmacros.cmx index.cmx imageManager.cmi get.cmx counter.cmx color.cmx \
-    auxx.cmx package.cmi 
+    outUnicode.cmx outManager.cmi mylib.cmx misc.cmx lexstate.cmx \
+    latexscan.cmx latexmacros.cmx index.cmx imageManager.cmi get.cmx \
+    counter.cmx color.cmx auxx.cmx package.cmi 
 parse_opts.cmo: version.cmi mylib.cmi misc.cmi location.cmi parse_opts.cmi 
 parse_opts.cmx: version.cmx mylib.cmx misc.cmx location.cmx parse_opts.cmi 
 pp.cmo: tree.cmi lexeme.cmi htmltext.cmi css.cmi pp.cmi 

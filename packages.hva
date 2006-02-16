@@ -17,15 +17,18 @@
 \@stopoutput\@stopimage\@funcall{\@iter}{\@usepackage,{#2}}\@restartimage\@restartoutput
 }
 \newsavebox{\@pkg@me}
-\newcommand{\ProvidesPackage}[1]
-  {\sbox{\@pkg@me}{\@getprint{#1}}}
+\newcommand{\ProvidesPackage}[1]{\sbox{\@pkg@me}{\@getprint{#1}}}
+\newcommand{\EndPackage}{\sbox{\@pkg@me}{}}
+
 \newcommand{\@pkg@opt@name}[1]
   {@pkg\usebox{\@pkg@me}@@#1}
 \newcommand{\DeclareOption}[2]
   {\newcommand{\csname\@pkg@opt@name{#1}\endcsname}{#2}}
 \newcommand{\@process@option}[1]%
 	{\def\pkg@opt{{\@nostyle\@callprim{\@eatspaces}{#1,}}}%
-	 \csname\@pkg@opt@name{\pkg@opt}\endcsname}%
+        \ifu\csname\@pkg@opt@name{\pkg@opt}\endcsname
+         \warning{Igoring option: '#1'}\else
+	 \csname\@pkg@opt@name{\pkg@opt}\endcsname\fi}%
 \newcommand{\ProcessOptions*}
 {\@callprim{\@iter}
   {\string\@process@option,{\char123\usebox{\@pkg@opts}\char125}}}

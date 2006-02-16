@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.269 2006-02-16 07:54:01 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.270 2006-02-16 19:12:21 maranget Exp $ *)
 
 
 {
@@ -2815,6 +2815,12 @@ def_code "\\endlrbox"
     new_env "lrbox")
 ;;
 
+(* External acess to start_box /end_mbox *)
+def_code "\\@start@mbox" (fun _ -> start_mbox ()) ;
+def_code "\\@end@mbox" (fun _ ->  top_close_group ())
+;;
+
+
 
 (* chars *)
 def_code "\\char"
@@ -3101,22 +3107,22 @@ let do_tabul lexbuf =
   skip_blanks_pop lexbuf
 ;;
 
-def_code "\\>" do_tabul ;
-def_code "\\=" do_tabul
+let tabbing_kill lexbuf =
+  if is_tabbing !in_table then begin
+    do_unskip () ;
+    Dest.close_cell "";
+    Dest.erase_row () ;
+    Dest.new_row () ;
+    Dest.open_cell default_format 1 0
+  end ;
+  skip_blanks_pop lexbuf
 ;;
 
-def_code "\\kill"
-  (fun lexbuf ->
-    if is_tabbing !in_table then begin
-      do_unskip () ;
-      Dest.close_cell "";
-      Dest.erase_row () ;
-      Dest.new_row () ;
-      Dest.open_cell default_format 1 0
-    end ;
-    skip_blanks_pop lexbuf)
+let def_tabbing_commands () =
+  def_code "\\=" do_tabul ;
+  def_code "\\>" do_tabul ;
+  def_code "\\kill" tabbing_kill
 ;;
-
 
 (* Tabular and arrays *)
 
@@ -3149,6 +3155,7 @@ let open_tabbing lexbuf =
   push stack_table !in_table ;
   in_table := Tabbing ;
   new_env "tabbing" ;
+  def_tabbing_commands () ;
   def "\\a" zero_pat
     (CamlCode
        (fun lexbuf ->
@@ -3451,63 +3458,6 @@ def_code"\\@hr"
      let width = safe_len (Get.get_length (get_prim_arg lexbuf)) in
      let height = safe_len (Get.get_length (get_prim_arg lexbuf)) in
      Dest.horizontal_line attr width height)
-;;
-
-(* Accents *)
-let aigu = function
-  "a" -> "á" | "e" -> "é" | "i" | "\\i" | "\\i " -> "í"
-| "o" -> "ó" | "u" -> "ú"
-| "A" -> "Á" | "E" -> "É" | "I" | "\\I" | "\\I " -> "Í"
-| "O" -> "Ó" | "U" -> "Ú"
-| "y" -> "ý" | "Y" -> "Ý"
-| "" | " " -> "'"
-| s   -> s
-
-and grave = function
-  "a" -> "à" | "e" -> "è"  | "i" -> "ì"
-| "o" -> "ò" | "u" -> "ù"  | "\\i" | "\\i " -> "í"
-| "A" -> "À" | "E" -> "È"  | "I" -> "Ì"
-| "O" -> "Ò" | "U" -> "Ù"  | "\\I" | "\\I " -> "Ì"
-| "" | " " -> "`"
-| s -> s
-and circonflexe = function
-  "a" -> "â" | "e" -> "ê"  | "i" -> "î"
-| "o" -> "ô" | "u" -> "û"  | "\\i" | "\\i " -> "î"
-| "A" -> "Â" | "E" -> "Ê"  | "I" -> "Î"
-| "O" -> "Ô" | "U" -> "Û"  | "\\I" | "\\I " -> "Î"
-| "" | " " -> "\\@print{^}"
-| s -> s
-
-and trema = function
-  "a" -> "ä" | "e" -> "ë"  | "i" -> "ï"
-| "o" -> "ö" | "u" -> "ü"  | "\\i" | "\\i " -> "ï"
-| "A" -> "Ä" | "E" -> "Ë"  | "I" -> "Ï"
-| "O" -> "Ö" | "U" -> "Ü"  | "\\I" | "\\I " -> "Ï"
-| "" | " " -> "¨"
-| s -> s
-
-and cedille = function
-  "c" -> "ç"
-| "C" -> "Ç"
-| s   -> s
-
-and tilde s = 
-  match s with
-  |  "a" -> "ã" | "A" -> "Ã"
-  | "o" -> "õ" | "O" -> "Õ"
-  | "n" -> "ñ" | "N" -> "Ñ"
-  | "" | " " -> "\\@print{~}"
-  | s   -> "\\@print{~}"^s
-;;
-
-
-      
-def_fun "\\'"  aigu ;
-def_fun "\\`"  grave ;
-def_fun "\\^"  circonflexe ;
-def_fun "\\\"" trema ;
-def_fun "\\c"  cedille ;
-def_fun "\\~"  tilde
 ;;
 
 Get.init
