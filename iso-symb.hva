@@ -78,28 +78,22 @@
 \DeclareSymbolHtml{\diamond}{X22C4}
 \DeclareSymbol[/]{\div}{XF7}
 \DeclareSymbolHtml[-/+]{\mp}{X2213}
-\DeclareSymbolHtml{\odot}{X2299}
-\DeclareSymbolHtml{\ominus}{X2296}
-\DeclareSymbolHtml{\oplus}{X2295}
-\DeclareSymbolHtml{\oslash}{X2298}
-\DeclareSymbolHtml{\otimes}{X2297}
+\DeclareSymbolHtml[(\cdot)]{\odot}{X2299}
+\DeclareSymbolHtml[(-)]{\ominus}{X2296}
+\DeclareSymbolHtml[(+)]{\oplus}{X2295}
+\DeclareSymbolHtml[(\char92)]{\oslash}{X2298}
+\DeclareSymbolHtml[(\times)]{\otimes}{X2297}
 \DeclareSymbol[+/-]{\pm}{XB1}
 \DeclareSymbolHtml[\backslash]{\setminus}{X2216}
-\DeclareSymbolHtml{\@sqcap}{X2293}
-\DeclareSymbolHtml[\mbox{---\@br| |\@br| |}]{\@display@sqcap}{X2A05}
-\newcommand{\sqcap}{\ifdisplay\@display@sqsqcap\else\@sqcap\fi}
-\DeclareSymbolHtml[\mbox{|\_|}]{\@sqcup}{X2294}
-\DeclareSymbolHtml[\mbox{| |\@br| |\@br---}]{\@display@sqcup}{X2294}
-\newcommand{\sqcup}{\ifdisplay\@display@sqcup\else\@sqcup\fi}
+\DeclareSymbolHtml{\sqcap}{X2293}
+\DeclareSymbolHtml[\mbox{|\_|}]{\sqcup}{X2294}
 \DeclareSymbolHtml[*]{\star}{X22C6}
 \DeclareSymbol[X]{\times}{XD7}
 \DeclareSymbolHtml[<|]{\triangleleft}{X25C1}
 \DeclareSymbolHtml[|>]{\triangleright}{X25B7}
-\DeclareSymbolHtml[\mbox{|\pm|}]{\@uplus}{X228E}
-\DeclareSymbolHtml[\mbox{| |\@br|+|\@br---}]{\@display@uplus}{X2A04}
-\newcommand{\uplus}{\ifdisplay\@display@uplus\else\@uplus\fi}
-\DeclareSymbolHtml[\mbox{\backslash/}]{\vee}{X2228}
-\DeclareSymbolHtml[\mbox{/\backslash}]{\wedge}{X2227}
+\DeclareSymbolHtml[\mbox{|\pm|}]{\uplus}{X228E}
+\DeclareSymbolHtml[\mbox{OR}]{\vee}{X2228}
+\DeclareSymbolHtml[\mbox{AND}]{\wedge}{X2227}
 \DeclareSymbolHtml{\wr}{X2240}
 %%Miscellaneous LaTeX2e Math Symbols
 \DeclareSymbolHtml[\mbox{aleph}]{\aleph}{X2135}
@@ -111,28 +105,44 @@
 \DeclareSymbolHtml{\flat}{X266D}
 \DeclareSymbolHtml{\heartsuit}{X2661}
 \DeclareSymbolHtml[\mbox{oo}]{\infty}{X221E}
-\DeclareSymbolHtml{\nabla}{X2207}
+\DeclareSymbolHtml[\mbox{nabla}]{\nabla}{X2207}
 \DeclareSymbolHtml{\natural}{X266E}
-\DeclareSymbol{\neg}{XAC}
+\DeclareSymbol[\mbox{NOT}]{\neg}{XAC}
 \DeclareSymbol[\@print{'}]{\prime}{X2032}
 \DeclareSymbolHtml[\@print{#}]{\sharp}{X266F}
 \DeclareSymbolHtml{\spadesuit}{X2660}
 \DeclareSymbolHtml{\surd}{X221A}
 \DeclareSymbolHtml{\triangle}{X25B3}
 %%Table 47 Variable-sized math operator
-\MakeBigSymbol{\bigcap}{\@cap}{\@cap}{\@cap}{\@display@cap}
-\MakeBigSymbol{\bigcup}{\@cup}{\@cup}{\@cap}{\@display@cup}
-\MakeBigSymbol{\bigodot}{\odot}{\odot}{\odot}{\odot}
-\MakeBigSymbol{\bigoplus}{\oplus}{\oplus}{\oplus}{\oplus}
-\MakeBigSymbol{\bigotimes}{\otimes}{\otimes}{\otimes}{\otimes}
-%\MakeBigSymbol{\bigsqcap}{\@sqcap}{\@sqcap}{\@sqcap}{\@display@sqcap}
-\MakeBigSymbol{\bigsqcup}{\@sqcup}{\@sqcup}{\@cap}{\@display@sqcup}
+\MakeBigSymbol{\bigcap}{\@cap}{\@cap}{\@display@cap}
+\MakeBigSymbol{\bigcup}{\@cup}{\@cap}{\@display@cup}
+\MakeBigSymbol{\bigodot}{\odot}{\odot}{\odot}
+\newcommand{\@textdisplayuplus}{\mbox{|~~~|\@br|~+~|\@br-----}}
+\MakeBigSymbol{\biguplus}{\uplus}{\uplus}{\@textdisplayuplus}
+\MakeBigSymbol{\bigoplus}{\oplus}{\oplus}{\oplus}
+\MakeBigSymbol{\bigotimes}{\otimes}{\otimes}{\otimes}
+%\MakeBigSymbol{\bigsqcap}{\@sqcap}{\@sqcap}{\@display@sqcap}
+\newcommand{\@textdisplaysqcup}{|~~|\@br|~~\@br----}
+\MakeBigSymbol{\bigsqcup}{\sqcup}{\sqcup}{\@textdisplaysqcup}
+\newcommand{\@textdisplayvee}{\mbox{\char92{}~~/\@br~\char92/~}}
+\MakeBigSymbol{\bigvee}{\vee}{\vee}{\@textdisplayvee}
+\newcommand{\@textdisplaywedge}{\mbox{~/\char92~\@br/~~\char92}}
+\MakeBigSymbol{\bigwedge}{\wedge}{\wedge}{\@textdisplaywedge}
+\DeclareSymbolHtml[coprod]{\@coprod}{X2210}
+\newcommand{\@textdisplaycoprod}{\mbox{---\@br| |\@br| |}}
+\MakeBigSymbol{\coprod}{\@coprod}{\@coprod}{\@textdisplaycoprod}
+\DeclareSymbolHtml[prod]{\@prod}{X220F}
+\newcommand{\@textdisplayprod}{\mbox{| |\@br| |\@br---}}
+\MakeBigSymbol{\prod}{\@prod}{\@prod}{\@textdisplayprod}
 \DeclareSymbolHtml[sum]{\@sum}{X2211}
 \newcommand{\@textdisplaysum}{\mbox{--\@br\char92\@br/\@br--}}
-\MakeBigSymbol{\sum}{\@sum}{\@sum}{\@sum}{\@textdisplaysum}
+\MakeBigSymbol{\sum}{\@sum}{\@sum}{\@textdisplaysum}
 \DeclareSymbolHtml[\mbox{integral}]{\@int}{X222B}
 \newcommand{\@textdisplayint}{\mbox{/\@br|\@br|\@br/}}
-\MakeBigSymbol{\int}{\@int}{\@int}{\@int}{\@textdisplayint}
+\MakeBigSymbol{\int}{\@int}{\@int}{\@textdisplayint}
+\DeclareSymbolHtml[\mbox{oint}]{\@oint}{X222E}
+\newcommand{\@textdisplayoint}{\mbox{/\@br|\@br{}o\@br|\@br/}}
+\MakeBigSymbol{\oint}{\@oint}{\@oint}{\@textdisplayoint}
 %
 %
 %% Greek Letters
@@ -188,7 +198,7 @@
 \DeclareSymbolHtml[\mbox{h}]{\hbar}{X210F}
 \DeclareSymbolHtml[\mbox{Im}]{\Im}{X2111}
 \DeclareSymbolHtml{\imath}{X2129}
-\DeclareSymbolHtml[\mbox{in}]{\in}{X2206}
+\DeclareSymbolHtml[\mbox{in}]{\in}{X2208}
 \newcommand{\jmath}{j}%???
 \DeclareSymbolHtml[\mbox{contains}]{\ni}{X220B}
 \DeclareSymbolHtml{\partial}{X2202}

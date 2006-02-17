@@ -24,8 +24,8 @@
 %This symbol does not appear in latin encoding -> direct text definition
 \newcommand{\DeclareSymbolHtml}[3][\@empty]
 {\ifx#1\@empty\else\newcommand{#2}{#1}\fi}
-\newcommand{\MakeBigSymbol}[5]
-{\newcommand{#1}{\mathop{\ifdisplay#5\else#4\fi}}}
+\newcommand{\MakeBigSymbol}[4]
+{\newcommand{#1}{\mathop{\ifdisplay#4\else#3\fi}}}
 \input{iso-symb.hva}
 \input{latexcommon.hva}
 %%% Logos
