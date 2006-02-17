@@ -1,4 +1,3 @@
-\@primitives{inputenc}
 %% Inputencoding are simple minded
 %%  - Characters will be accepted as they are
 %%  - The document charset is changed.

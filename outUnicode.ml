@@ -488,3 +488,9 @@ and dotbelow = function
 | 'Y' -> 0x1EF4
 | 'y' -> 0x1EF5
 | _ -> raise CannotTranslate
+
+(* Text rendering *)
+let def_t = Hashtbl.create 101
+
+let def_default i default = Hashtbl.replace def_t i default
+and get_default i = Hashtbl.find def_t i

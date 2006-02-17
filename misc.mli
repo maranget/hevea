@@ -18,6 +18,7 @@ exception EndInput
 exception EndDocument
 exception Close of string
 exception EndOfLispComment of int (* QNC *)
+exception CannotPut
 
 val hot_start : unit -> unit
 val verbose : int ref

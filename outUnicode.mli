@@ -36,3 +36,7 @@ val doubleacute : char -> int
 val breve : char -> int
 val dotabove : char -> int
 val dotbelow : char -> int
+
+(* Default rendering *)
+val def_default : int -> string -> unit
+val get_default : int -> string (* may raise Not_found *)

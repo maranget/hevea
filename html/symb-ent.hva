@@ -22,92 +22,16 @@
 \def\textquotedblright{\@print{&rdquo;}}
 \def\textquoteright{\@print{&rsquo;}}
 \def\textquoteleft{\@print{&lsquo;}}
-%
-%
-%% Greek Letters
-%
-\newcommand{\alpha}{\@print{&#945;}}
-\newcommand{\beta}{\@entity{beta}}
-\newcommand{\gamma}{\@entity{gamma}}
-\newcommand{\delta}{\@entity{delta}}
-\newcommand{\epsilon}{\@print{&#1108;}}			%EVENTUALLY 1013
-\newcommand{\varepsilon}{\@entity{epsilon}}
-\newcommand{\zeta}{\@entity{zeta}}
-\newcommand{\eta}{\@entity{eta}}
-\newcommand{\theta}{\@entity{theta}}
-\newcommand{\vartheta}{\@print{&#977;}}%\@entity{thetasym}}
-\newcommand{\iota}{\@entity{iota}}
-\newcommand{\kappa}{\@entity{kappa}}
-\newcommand{\lambda}{\@entity{lambda}}
-\renewcommand{\mu}{\@entity{mu}}
-\newcommand{\nu}{\@entity{nu}}
-\newcommand{\xi}{\@entity{xi}}
-\newcommand{\pi}{\@entity{pi}}
-\newcommand{\varpi}{\@print{&#982;}}
-\newcommand{\rho}{\@entity{rho}}
-\newcommand{\varrho}{\@print{&#1009;}}
-\newcommand{\sigma}{\@entity{sigma}}
-\newcommand{\varsigma}{\@entity{sigmaf}}
-\newcommand{\tau}{\@entity{tau}}
-\newcommand{\upsilon}{\@entity{upsilon}}
-\newcommand{\phi}{\@entity{phi}}
-\newcommand{\varphi}{\@print{&#981;}}
-\newcommand{\chi}{\@entity{chi}}
-\newcommand{\psi}{\@entity{psi}}
-\newcommand{\omega}{\@entity{omega}}
-%
-\ifmoreentities\renewcommand{\epsilon}{\@print{&#1013;}}\fi
-%
-%% Capital Greek Letters
-%
-\newcommand{\Gamma}{\@entity{Gamma}}
-\newcommand{\Delta}{\@entity{Delta}}
-\newcommand{\Theta}{\@entity{Theta}}
-\newcommand{\Lambda}{\@entity{Lambda}}
-\newcommand{\Xi}{\@entity{Xi}}
-\newcommand{\Pi}{\@entity{Pi}}
-\newcommand{\Sigma}{\@entity{Sigma}}
-\newcommand{\Upsilon}{\@entity{Upsilon}}
-\newcommand{\Phi}{\@entity{Phi}}
-\newcommand{\Psi}{\@entity{Psi}}
-\newcommand{\Omega}{\@entity{Omega}}
+
 %
 %% Binary Operation Symbols
 %
 \renewcommand{\pm}{\@print@u{177}}
-\newcommand{\mp}{\@print{&#8723;}}
-\renewcommand{\ast}{\@entity{lowast}}
-\renewcommand{\star}{\@print{&#8902;}}
-\newcommand{\circ}{\@print{&#8728;}}
-\newcommand{\bullet}{\@print{&#8226;}}
-\renewcommand{\cdot}{\@entity{sdot}}
-\newcommand{\cap}{\@entity{cap}}
-\newcommand{\cup}{\@entity{cup}}
-\newcommand{\uplus}{\@print{&#8846;}}
-\newcommand{\sqcap}{\@print{&#8851;}}
-\newcommand{\sqcup}{\@print{&#8852;}}
-\newcommand{\vee}{\@entity{or}}
-\newcommand{\wedge}{\@entity{and}}
-\renewcommand{\setminus}{\@print@u{92}}
-\newcommand{\wr}{\@print{&#8768;}}
-\newcommand{\diamond}{\@print{&#9671;}}
-\newcommand{\bigtriangleup}{\@print{<BIG>&#9651;</BIG>}}
-\newcommand{\bigtriangledown}{\@print{<BIG>&#9661;</BIG>}}
-\newcommand{\triangleleft}{\@print{&#9665;}}
-\newcommand{\triangleright}{\@print{&#9655;}}
+%\renewcommand{\star}{\@print{&#8902;}}
 %\newcommand{\lhd}{\@print{&#9665;}}
 %\newcommand{\rhd}{\@print{&#9655;}}
 %\newcommand{\unlhd}{\@entity{LeftTriangleEqual}}
 %\newcommand{\unrhd}{\@entity{RightTriangleEqual}}
-\newcommand{\oplus}{\@entity{oplus}}
-\newcommand{\ominus}{\@print{&#8854;}}
-\newcommand{\otimes}{\@entity{otimes}}
-\newcommand{\oslash}{\@print{&#8856;}}
-\newcommand{\odot}{\@print{&#8857;}}   	
-\renewcommand{\bigcirc}{\@print{&#9711;}}
-\newcommand{\dagger}{\@print{<SMALL>&#8224;</SMALL>}}  % better but bold
-\newcommand{\ddagger}{\@print{<SMALL>&#8225;</SMALL>}} % better but bold
-\newcommand{\amalg}{\@print{<SMALL>&#1062;</SMALL>}}   % EVENTUALLY 10815
 %
 %% Relation Symbols (Table 8.5 of 'Goos-Mitt-Sam')
 %
@@ -145,8 +69,6 @@
 \newcommand{\sqsupseteq}{\@print{&#8849;}}
 \newcommand{\doteq}{\@print{&#8784;}}
 \newcommand{\frown}{\@print{&#8256;}}
-\newcommand{\in}{\@entity{isin}}
-\newcommand{\ni}{\@entity{ni}}
 \newcommand{\propto}{\@print{&#8733;}}
 \renewcommand{\vdash}{\@print{&#8866;}}
 \renewcommand{\dashv}{\@print{&#8867;}}
@@ -210,39 +132,7 @@
 %
 %% Miscellaneous symbols (Table 8.7 of 'Goos-Mitt-Sam')
 %
-\newcommand{\aleph}{\@print{&#8501;}}
-\newcommand{\prime}{\@entity{prime}}
-\newcommand{\forall}{\@entity{forall}}
-\newcommand{\infty}{\@entity{infin}}
-\newcommand{\hbar}{\@print{&#8463;}}
-\renewcommand{\emptyset}{\@print{&#8709;}}
-\newcommand{\exists}{\@entity{exist}}
-\newcommand{\nabla}{\@entity{nabla}}
-\newcommand{\surd}{\@entity{radic}}
-\newcommand{\triangle}{\@print{&#9651;}}
-\newcommand{\imath}{\@print{<I>&#953;</I>}}
-\newcommand{\jmath}{\@print{<I><SMALL>j</SMALL></I>}} %????
-\newcommand{\ell}{\@print{&#8467}}
-\renewcommand{\neg}{\@print@u{XAC}}
-\newcommand{\top}{\@print{&#8868;}}
-\newcommand{\flat}{\@print{&#9837;}}   		% EVENTUALLY
-\newcommand{\natural}{\@print{&#9838;}} 	% EVENTUALLY
-\renewcommand{\sharp}{\@print{&#9839;}}		% EVENTUALLY
-\newcommand{\wp}{\@entity{weierp}}
-\renewcommand{\bot}{\@entity{perp}}
-\newcommand{\clubsuit}{\@entity{clubs}}
-\newcommand{\diamondsuit}{\@entity{diams}}
-\newcommand{\heartsuit}{\@entity{hearts}}
-\newcommand{\spadesuit}{\@entity{spades}}
-\newcommand{\Re}{\@print{&#8476;}}
-\newcommand{\Im}{\@entity{image}}
-\newcommand{\angle}{\@print{&#8736;}}
-\newcommand{\partial}{\@entity{part}}
-%
-%\newcommand{\square}{\@print{&#9723;}}
-%\newcommand{\Box}{\@print{&#9723;}}
-%\newcommand{\Diamond}{\@entity{loz}}
-%\newcommand{\mho}{\@print{&#8487;}}
+
 %
 %% Delimiters
 %
@@ -256,10 +146,8 @@
 %
 %% Variable-sized Symbols
 %
-\newcommand{\@sum}{\@print{&#X2211;}}
 \newcommand{\@prod}{\@print{&#X220F;}}
 \newcommand{\@coprod}{\@print{&#X2210;}}
-\newcommand{\@int}{\@entity{int}}
 \newcommand{\@iint}{\@print{&#8748;}}
 \newcommand{\@iiint}{\@print{&#8749;}}
 \newcommand{\@oint}{\@print{&#8750;}}
@@ -277,8 +165,6 @@
 %
 %% Additional
 %
-\newcommand{\dag}{\@print{&#8224;}}
-
 %\newcommand{\mathit}[1]{\@open{I}{}#1\@close{I}}
 %\let\mathrm\@mathrm%
 %\let\mathtt\@mathtt%

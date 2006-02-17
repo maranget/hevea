@@ -59,7 +59,6 @@
 \newcommand{\Rightarrow}{\mbox{=>}}
 \newcommand{\Diamond}{\mbox{Diamond}}
 \newcommand{\langle}{\mbox{<}}
-\newcommand{\@displaysum}{\mbox{--\@br\char92\@br/\@br--}}
 \newcommand{\rangle}{\mbox{>}}
 \newcommand{\@displayint}{\mbox{/\@br|\@br|\@br/}}
 \newcommand{\sqcap}{\mbox{sqcap}}

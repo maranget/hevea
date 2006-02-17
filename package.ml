@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.77 2006-02-16 19:12:21 maranget Exp $    *)
+(*  $Id: package.ml,v 1.78 2006-02-17 18:18:21 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -45,12 +45,15 @@ let def_diacritic name f empty =
           if c = ' ' then put_empty empty
           else Dest.put_unicode (f arg.[0])
       | _ -> raise OutUnicode.CannotTranslate
-      with OutUnicode.CannotTranslate ->
-        warning
-          (Printf.sprintf
-             "Application of '%s' on '%s' failed"
-             name input) ;
-        scan_this main input)
+      with
+      |	OutUnicode.CannotTranslate ->
+          warning
+            (Printf.sprintf
+               "Application of '%s' on '%s' failed"
+               name input) ;
+          scan_this main input
+      |	Misc.CannotPut ->
+          scan_this main input)
 ;;
       
 def_diacritic "\\'"  OutUnicode.acute 0xB4 ;
@@ -732,12 +735,11 @@ register_init "natbib"
 
 let gput lexbuf c =
   Save.gobble_one_char lexbuf ;
-  Dest.put (Dest.iso c)
+  Dest.put_char c
 
 and gput_unicode lexbuf u =
   Save.gobble_one_char lexbuf ;
   Dest.put_unicode u
-  
 ;;
 
 let gscan lexbuf cmd =
@@ -778,17 +780,16 @@ register_init "german"
           | Not_found -> Dest.put_char '"'))
 ;;
 
-register_init "inputenc"
-  (fun () ->
-    def_code "\\@set@out@translator"
-      (fun lexbuf ->
-	let key = get_prim_arg lexbuf in
-	OutUnicode.set_translate key) ;
-    def_code "\\@set@out@translator@table"
-      (fun lexbuf ->
-	let name = get_prim_arg lexbuf in
-	OutUnicode.set_translate_table name) ;
-    ())    
+(* Used by inputenc, other uses ? *)
+def_code "\\@set@out@translator"
+    (fun lexbuf ->
+      let key = get_prim_arg lexbuf in
+      OutUnicode.set_translate key) ;
+def_code "\\@set@out@translator@table"
+    (fun lexbuf ->
+      let name = get_prim_arg lexbuf in
+      OutUnicode.set_translate_table name) ;
+  ()    
 ;;
 
 let get_elements str = 

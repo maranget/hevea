@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.270 2006-02-16 19:12:21 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.271 2006-02-17 18:18:21 maranget Exp $ *)
 
 
 {
@@ -142,7 +142,7 @@ let print_env_pos () =
   end else begin
     let _,_,pos = Stack.pop stack_env in
     Location.print_this_pos pos ;
-    prerr_endline ("Latex environment ``"^ !cur_env^"'' is pending")
+    prerr_endline ("Latex environment '"^ !cur_env^"' is pending")
   end
 ;;
 
@@ -160,7 +160,7 @@ let new_env env =
 let error_env close_e open_e =
   raise
     (Misc.Close
-       ("Latex env error: ``"^close_e^"'' closes ``"^open_e^"''"))
+       ("Latex env error: '"^close_e^"' closes '"^open_e^"'"))
 
 let close_env env  =
   if !verbose > 1 then begin
@@ -348,7 +348,7 @@ let get_fun_result f lexbuf =
     f lexbuf ;
     top_close_group ()) in
   if !verbose > 1 then begin
-    prerr_endline ("get_fun -> ``"^r^"''")
+    prerr_endline ("get_fun -> '"^r^"'")
   end ;
   r
 
@@ -358,7 +358,7 @@ let do_get_this start_lexstate restore_lexstate
   let par_val = Dest.forget_par () in
   start_lexstate subst;
   if !verbose > 1 then
-    prerr_endline ("get_this : ``"^s^"''") ;  
+    prerr_endline ("get_this : '"^s^"'") ;  
   verbose := !verbose - 1;
   let lexer = Lexing.from_string s in
   let r = Dest.to_string (fun () ->
@@ -372,7 +372,7 @@ let do_get_this start_lexstate restore_lexstate
   let _ = Dest.forget_par () in
   verbose := !verbose + 1 ;
   if !verbose > 1 then begin
-    prerr_endline ("get_this ``"^s^"'' -> ``"^r^"''")
+    prerr_endline ("get_this '"^s^"' -> '"^r^"'")
   end ;
   restore_lexstate () ;
   Dest.par par_val ;
@@ -716,7 +716,7 @@ let start_other_scan env lexfun lexbuf =
   if !verbose > 1 then begin
     prerr_endline ("Start other scan ("^env^")") ;
     stack_env_pretty () ;
-    prerr_endline ("Current env is: ``"^ !cur_env^"''") ;
+    prerr_endline ("Current env is: '"^ !cur_env^"'") ;
     pretty (fun x -> x) stack_entry
   end;
   save_lexstate () ;
@@ -736,7 +736,7 @@ let complete_scan main lexbuf =
   if !verbose > 1 then begin
     prerr_endline "Complete scan" ;
     stack_env_pretty () ;
-    prerr_endline ("Current env is: ``"^ !cur_env^"''")
+    prerr_endline ("Current env is: '"^ !cur_env^"'")
   end
 ;;
 
@@ -745,7 +745,7 @@ let stop_other_scan comment main lexbuf =
   if !verbose > 1 then begin
     prerr_endline "Stop image: env stack is" ;
     stack_env_pretty () ;
-    prerr_endline ("Current env is: ``"^ !cur_env^"''")
+    prerr_endline ("Current env is: '"^ !cur_env^"'")
   end;
   let _ = pop stack_entry in
   if not comment then close_env !cur_env ;
@@ -931,11 +931,11 @@ rule  main = parse
 (* Math mode *)
 | "$" | "$$"
      {let lxm = lexeme lexbuf in
-     (* ``$'' has nothing special *)
+     (* '$' has nothing special *)
      let dodo = lxm <> "$" in
      if effective !alltt || not (is_plain '$') then begin
        Dest.put lxm ; main lexbuf
-     (* vicious case ``$x$$y$'' *)
+     (* vicious case '$x$$y$' *)
      end else if dodo && not !display && !in_math then begin
        scan_this main "${}$" ;
        main lexbuf
@@ -1095,7 +1095,7 @@ and latexonly = parse
            scan_this_may_cont latexonly lexbuf (get_subst ())
              (string_to_arg body)
        |  _,_ ->
-           raise (Misc.ScanError ("Bad closing macro in latexonly: ``"^arg^"''"))
+           raise (Misc.ScanError ("Bad closing macro in latexonly: '"^arg^"'"))
        end
      end else
        latexonly lexbuf}
@@ -1131,7 +1131,7 @@ and copy kont env out = parse
             scan_this_may_cont (copy kont env out) lexbuf (get_subst ())
               (string_to_arg body)
         |  _,_ ->
-            raise (Misc.ScanError ("Bad closing macro in copy: ``"^arg^"''"))
+            raise (Misc.ScanError ("Bad closing macro in copy: '"^arg^"'"))
         end
       end else begin
         Out.put out ("\\end"^true_arg) ;
@@ -1182,7 +1182,7 @@ and image = parse
          _,(Subst body) ->
            scan_this_may_cont  image lexbuf (get_subst ())
              (string_to_arg body)
-       |  _,_ -> raise (Misc.ScanError ("Bad closing macro in image: ``"^arg^"''"))
+       |  _,_ -> raise (Misc.ScanError ("Bad closing macro in image: '"^arg^"'"))
        end
      end else begin
        Image.put lxm ; Image.put true_arg ;
@@ -1434,7 +1434,7 @@ let sub_sup lxm lexbuf =
   if effective !alltt || not (is_plain lxm) then Dest.put_char lxm
   else if not !in_math then begin
     if !warn_under then
-      warning ("``"^Char.escaped lxm^"''occuring outside math mode") ;
+      warning ("'"^Char.escaped lxm^"'occuring outside math mode") ;
     Dest.put_char lxm
   end else begin
     let sup,sub = match lxm with
@@ -1540,7 +1540,7 @@ let get_this_main arg = get_this_string main arg
 
 let check_this_main s =
   if !verbose > 1 then
-    prerr_endline ("check_this: ``"^s^"''");
+    prerr_endline ("check_this: '"^s^"'");
   start_normal (get_subst ()) ;
   let save_par = Dest.forget_par () in
   Dest.open_block "TEMP" "";
@@ -1554,7 +1554,7 @@ let check_this_main s =
   Dest.par save_par ;
   end_normal () ;
   if !verbose > 1 then
-    prerr_endline ("check_this: ``"^s^"'' = "^sbool r);
+    prerr_endline ("check_this: '"^s^"' = "^sbool r);
   r
   
 let get_prim_onarg arg =
@@ -1717,13 +1717,13 @@ let do_newcommand lxm lexbuf =
   | "\\newcommand"|"\\newcommand*"    ->
       echo () ;
       if Latexmacros.exists name then
-        warning ("Ignoring (re-)definition of ``"^name^"'' by \\newcommand")
+        warning ("Ignoring (re-)definition of '"^name^"' by \\newcommand")
       else begin
         Latexmacros.def name pat (Subst body)
       end
   | "\\renewcommand"|"\\renewcommand*" ->
       if not (Latexmacros.exists name) then begin
-        warning ("Defining ``"^name^"'' by \\renewcommand")
+        warning ("Defining '"^name^"' by \\renewcommand")
       end else
         echo () ;
       Latexmacros.def name pat (Subst body)
@@ -1757,7 +1757,7 @@ def_name_code "\\newcolumntype"
     let col_cmd = Misc.column_to_command name in
     if Latexmacros.exists col_cmd then
       warning
-        ("Not (re)-defining column type ``"^name^"'' with \\newcolumntype")
+        ("Not (re)-defining column type '"^name^"' with \\newcolumntype")
     else
       Latexmacros.def
         col_cmd
@@ -1795,7 +1795,7 @@ let do_newenvironment lxm lexbuf =
       Latexmacros.exists (end_env name)
     then
       warning
-        ("Not (re)-defining environment ``"^name^"'' with "^lxm)
+        ("Not (re)-defining environment '"^name^"' with "^lxm)
     else
       do_defs ()
   else begin
@@ -1804,7 +1804,7 @@ let do_newenvironment lxm lexbuf =
            Latexmacros.exists (end_env name))
     then
       warning
-        ("Defining environment ``"^name^"'' with "^lxm) ;
+        ("Defining environment '"^name^"' with "^lxm) ;
     do_defs ()
   end
 ;;
@@ -2185,14 +2185,34 @@ def_code "\\@force"
 
 def_code "\\@print"
   (fun lexbuf ->
-          let {arg=arg} = save_arg lexbuf in
-          Dest.put arg) ;
+    let {arg=arg} = save_arg lexbuf in
+    Dest.put arg)
+;;
+
+let put_unicode uc =
+  try Dest.put_unicode uc
+  with Misc.CannotPut -> try
+    let txt = OutUnicode.get_default uc in
+    scan_this main txt
+  with Not_found ->
+    Misc.warning
+      (Printf.sprintf
+         "Cannot output that numerical entity: 0x%04X" uc) ;
+    Dest.put_char '?'
 ;;
 
 def_code "\\@print@u"
   (fun lexbuf ->
     let {arg=arg} = save_arg lexbuf in
-    Dest.put_unicode (OutUnicode.parse arg)) ;
+    let uc = OutUnicode.parse arg in
+    put_unicode uc)
+;;
+
+def_code "\\@def@u@default"
+  (fun lexbuf ->
+    let uc = OutUnicode.parse (subst_arg lexbuf) in
+    let default = subst_arg lexbuf in
+    OutUnicode.def_default uc default)
 ;;
 
 
@@ -2727,7 +2747,7 @@ def_code "\\newsavebox"
     let name = get_csname lexbuf in
     try
       let _ = find_fail name in
-      warning ("Not (re-)defining ``"^name^"'' with \\newsavebox")
+      warning ("Not (re-)defining '"^name^"' with \\newsavebox")
     with
     | Failed ->
         global_def name zero_pat (CamlCode (fun _ -> ())))
@@ -2754,7 +2774,7 @@ let get_this_arg_mbox arg =
 
 let do_sbox global name body =
   if not (Latexmacros.exists name) then
-    warning ("\\sbox on undefined bin ``"^name^"''") ;
+    warning ("\\sbox on undefined bin '"^name^"'") ;
   let to_print =  get_this_arg_mbox body in
   (if global then global_def else def) name zero_pat (caml_print to_print)
 ;;
@@ -3024,7 +3044,7 @@ let do_space
   with Cannot -> warn arg
 ;;
 
-let warn_space name arg = warning (name^" with arg ``"^arg^"''")
+let warn_space name arg = warning (name^" with arg '"^arg^"'")
 ;;
 
 let warn_hspace = warn_space "\\hspace"
@@ -3187,7 +3207,7 @@ let open_array env lexbuf =
         let arg = save_arg lexbuf in
         begin match Get.get_length (get_prim_onarg arg) with
         | Length.No s ->
-            warning ("``tabular*'' with length argument: "^
+            warning ("'tabular*' with length argument: "^
                      do_subst_this arg) ;
             Length.Default
         | width -> width
@@ -3288,59 +3308,59 @@ and do_bsbs lexbuf =
   end ;
   skip_blanks_pop lexbuf ;
   let _ = Dest.forget_par () in ()
+;;
 
-and do_minus lexbuf = match !symbol_mode with
-| Entity when is_plain '-' ->
+OutUnicode.def_default 0x2212 "\\@print{-}" ;
+OutUnicode.def_default 0x2013 "\\@print{--}" ;
+OutUnicode.def_default 0x2014 "\\@print{---}" ;
+()
+;;
+
+let do_minus lexbuf = 
+  if is_plain '-' then
     if Save.if_next_char '-' lexbuf then begin
       gobble_one_char lexbuf ;
       if  Save.if_next_char '-' lexbuf then begin
         gobble_one_char lexbuf ;
-        Dest.put "&mdash;"
+        put_unicode 0x2014 (* em dash *)
       end else
-        Dest.put "&ndash;"
-    end else if  !in_math && not !raw_chars then
-      Dest.put "&minus;"
+        put_unicode 0x2013 (* en dash *)
+    end else if !in_math && not !raw_chars then
+      put_unicode 0x2212 (* minus *)
     else
       Dest.put_char '-'
-|  _ -> Dest.put_char '-'
+  else
+    Dest.put_char '-'
+;;
 
-and do_backquote lexbuf = match !symbol_mode with
-| Entity when not !in_math && is_plain '`' ->
-    if Save.if_next_char '`' lexbuf then begin
-      gobble_one_char lexbuf ;
-      Dest.put "&#8220;"
-    end else
-      Dest.put_char '`'
-| _ ->  Dest.put_char '`'
+OutUnicode.def_default 0x201C "\\@print{\"}" ;
+OutUnicode.def_default 0x201D "\\@print{\"}" ;
+()
+;;
 
-and do_quote lexbuf = match !symbol_mode with
-| Entity when not !in_math && is_plain '\'' ->
-    if Save.if_next_char '\'' lexbuf then begin
-      gobble_one_char lexbuf ;
-      Dest.put "&#8221;"
-    end else
-      Dest.put_char '\''
-| _ ->  Dest.put_char '\''
+let do_backquote lexbuf = 
+  if not !in_math && is_plain '`' && Save.if_next_char '`' lexbuf then begin
+    gobble_one_char lexbuf ;
+    put_unicode 0x201C (* left quotation mark *)
+  end else Dest.put_char '`'
+
+and do_quote lexbuf =
+  if not !in_math && is_plain '\'' && Save.if_next_char '\'' lexbuf then begin
+    gobble_one_char lexbuf ;
+    put_unicode 0x201D (* right quotation mark *)
+  end else
+    Dest.put_char '\''
 ;;
 
 
-
-let just_put c lb = Dest.put_char c
-;;
 
 def_code "\\@hevea@amper" do_amper ;
 def_code "\\\\"           do_bsbs  ;
 def_code "\\@HEVEA@amper" do_amper ;
 def_code "\\@HEVEA@bsbs"  do_bsbs  ; 
-def_code "\\@hevea@minus"
-  (if !entities then do_minus
-  else just_put '-') ;
-def_code "\\@hevea@backquote"
-  (if !entities then do_backquote
-  else just_put '`') ;
-def_code "\\@hevea@quote"
-  (if !entities then do_quote
-  else just_put '\'') ;
+def_code "\\@hevea@minus" do_minus ;
+def_code "\\@hevea@backquote" do_backquote ;
+def_code "\\@hevea@quote" do_quote ;
 ()
 ;;
 

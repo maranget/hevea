@@ -1,4 +1,4 @@
-\def\sum{\mathop{\ifdisplay\@displaysum\else{\@sum}\fi}}
+%\newcommand{\sum}{\mathop{\ifdisplay\@displaysum\else{\@sum}\fi}}
 \def\prod{\mathop{\ifdisplay\@displayprod\else{\@prod}\fi}}
 \def\coprod{\mathop{\ifdisplay\@displaycoprod\else{\@coprod}\fi}}
 \def\intop{\mathop{\ifdisplay\@displayint\else{\@int}\fi}}

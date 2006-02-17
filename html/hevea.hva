@@ -32,7 +32,14 @@
 \input{packages.hva}
 %%%%%% Spacing
 \input{spaces.hva}
-%%% \... symbols renderered with iso-latin1
+%%% Basic symbols
+%Declare unicode encoded symbol, with optional text equivalent
+\newcommand{\DeclareSymbol}[3][\@empty]
+{\newcommand{#2}{\@print@u{#3}}%
+\ifx#1\@empty\else\@def@u@default{#3}{#1}\fi}
+\let\DeclareSymbolHtml\DeclareSymbol
+\newcommand{\MakeBigSymbol}[5]
+{\newcommand{#1}{\mathop{\ifdisplay{\huge#3}\else#2\fi}}}
 \input{iso-symb.hva}
 \renewcommand{\&}{\ifraw\@print{&}\else\@print{&amp;}\fi}
 \input{latexcommon.hva}
@@ -225,7 +232,6 @@
 %\def\doteq{%
 %\ifdisplay\@itemdisplay\@print{<FONT SIZE=7>·</FONT><BR>}=\@itemdisplay\else
 %\textdoteq\fi}
-\input{mathop.hva}
 %%%%%%%%%%%% Bibliography
 \newcommand{\@bibref}[2]{\@locref{#1}{\ifx#2\@empty\@verbarg{#1}\else#2\fi}}
 \newsavebox{\@bibbox}

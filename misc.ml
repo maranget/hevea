@@ -9,8 +9,6 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: misc.ml,v 1.22 2001-10-19 18:35:58 maranget Exp $" 
-
 exception Fatal of string
 exception NoSupport of string
 exception Purposly of string
@@ -19,6 +17,7 @@ exception UserError of string
 exception EndInput
 exception EndDocument
 exception Close of string
+exception CannotPut
 exception EndOfLispComment of int (* QNC *)
 
 let verbose = ref 0

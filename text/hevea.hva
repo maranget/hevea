@@ -18,6 +18,14 @@
 \renewcommand{\
 }{ }
 %%% Special characters
+\newcommand{\DeclareSymbol}[3][\@empty]
+{\newcommand{#2}{\@print@u{#3}}%
+\ifx#1\@empty\else\@def@u@default{#3}{#1}\fi}
+%This symbol does not appear in latin encoding -> direct text definition
+\newcommand{\DeclareSymbolHtml}[3][\@empty]
+{\ifx#1\@empty\else\newcommand{#2}{#1}\fi}
+\newcommand{\MakeBigSymbol}[5]
+{\newcommand{#1}{\mathop{\ifdisplay#5\else#4\fi}}}
 \input{iso-symb.hva}
 \input{latexcommon.hva}
 %%% Logos
@@ -84,7 +92,7 @@
 %%%%%%%%%
 % Maths %
 %%%%%%%%%
-\input{text/symb.hva}
+%\input{text/symb.hva}
 \input{mathaccents.hva}
 \def\textsqsubset{\mbox{sqsubset}}
 \def\sqsubset{%
@@ -99,7 +107,6 @@
 \ifdisplay\@itemdisplay{\@print{o
 }}=\@itemdisplay\else
 \textdoteq\fi}
-\input{mathop.hva}
 %%%%%%%%%%%% Bibliography
 \newcommand{\@bibref}[2]{#2}
 \newcommand{\@biblabel}[1]{[\@bibread{#1}]}

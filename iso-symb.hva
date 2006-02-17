@@ -1,4 +1,4 @@
-%% Some non-math symbols
+%% Escapable special characters
 \def\%{\@print{%}}
 \def\${\@print{$}}%$
 \def\#{\@print{#}}
@@ -6,36 +6,209 @@
 \def\_{\@print{_}}
 \def\{{\char123}
 \def\}{\char125}
-\def\i{i}
-%%Those belong to latin9
-\def\oe{\@print@u{X153}}
-\def\OE{\@print@u{X152}}
-%%And those to latin1
-\def\ae{\@print@u{XE6}}
-\def\AE{\@print@u{XC6}}
-\def\aa{\@print@u{XE5}}
-\def\AA{\@print@u{XC5}}
-\def\o{\@print@u{XF8}}
-\def\O{\@print@u{XD8}}
-\def\ss{\@print@u{XDF}}
-\def\P{\@print@u{XB6}}
-\def\copyright{\@print@u{XA9}}
-\def\pounds{\print@u{XA3}}
-\def\S{\@print@u{XA7}}
-%% Some math symbols
-\newcommand{\backslash}{\char92}
+%%Table 2 Predefined text-mode commands
+\newcommand{\textasciicircum}{\@print{^}}
+\newcommand{\textasciitilde}{\@print{~}}
+\DeclareSymbolHtml[*]{\textasteriskcentered}{X2217}
 \newcommand{\textbackslash}{\char92}
-\newcommand{\setminus}{\char92}
-\newcommand{\neg}{\@print@u{XAC}}
-\newcommand{\mu}{\@print@u{XB5}}
-\newcommand{\pm}{\@print@u{XB1}}
-\newcommand{\times}{\@print@u{XD7}}
-\newcommand{\div}{\@print@u{XF7}}
-\newcommand{\ast}{*}
-\newcommand{\emptyset}{\@print@u{XD8}}
+\newcommand{\textbar}{|}
+\let\textbraceleft\{
+\let\textbraceright\}
+\DeclareSymbol[*]{\textbullet}{X2022}
+\DeclareSymbol[(c)]{\textcopyright}{XA9}
+\DeclareSymbolHtml{\textdagger}{8224}
+\DeclareSymbolHtml{\textdaggerdbl}{8225}
+\let\textdollar\$
+\DeclareSymbol[...]{\textellipsis}{X2026}
+\DeclareSymbolHtml[\@print{--}]{\textemdash}{X2014}
+\DeclareSymbolHtml[\@print{-}]{\textendash}{X2013}
+\DeclareSymbol{\textexclamdown}{XA1}
+\newcommand{\textgreater}{\@print{>}}
+\newcommand{\textless}{\@print{<}}
+\DeclareSymbol[\textsup{a}]{\textordfeminine}{XAA}
+\DeclareSymbol[\textsup{o}]{\textordmasculine}{XBA}
+\DeclareSymbol{\textparagraph}{XB6}
+\DeclareSymbol{\textperiodcentered}{XB7}
+\DeclareSymbol{\textquestiondown}{XBF}
+\DeclareSymbolHtml[\@print{"}]{\textquotedblleft}{X201C}
+\DeclareSymbolHtml[\@print{"}]{\textquotedblright}{X201D}
+\DeclareSymbolHtml[\@print{'}]{\textquoteleft}{X2018}
+\DeclareSymbolHtml[\@print{'}]{\textquoteright}{X2019}
+\DeclareSymbol[(R)]{\textregistered}{XAE}
+\DeclareSymbol{\textsection}{XA7}
+\DeclareSymbol[pounds]{\textsterling}{XA3}
+\DeclareSymbolHtml[(TM)]{\texttrademark}{X2122}
+\newcommand{\textunderscore}{\@print{_}}
+\DeclareSymbolHtml[\@print{_}]{\textvisiblespace}{X2423}
+%%Table 3 Commands defined both for math and text
+\DeclareSymbol{\P}{XB6}
+\DeclareSymbol{\S}{XA7}
+\DeclareSymbol[(c)]{\copyright}{XA9}
+\DeclareSymbolHtml{\dag}{8224}
+\DeclareSymbolHtml{\ddag}{8225}
+\DeclareSymbolHtml[...]{\dots}{X2026}
+\DeclareSymbol[pounds]{\pounds}{XA3}
+%%%%%%%%%%%%%%%%
+%%Basic maths %%
+%%%%%%%%%%%%%%%%
+%%Table 38 Maths-Mode Versions of Text Symbols
+\let\mathdollar\$
+\DeclareSymbolHtml[...]{\mathellipsis}{X2026}
+\DeclareSymbol{\mathparagraph}{XB6}
+\DeclareSymbol{\mathsection}{XA7}
+\DeclareSymbol[pounds]{\mathsterling}{XA3}
+\let\mathunderscore\_
+%%Table 39 Binary Operators
+\DeclareSymbolHtml[\mbox{|\_|}]{\amalg}{X2A3F}
+\DeclareSymbolHtml[*]{\ast}{X2217}
+\DeclareSymbolHtml[O]{\bigcirc}{X25EF}
+\DeclareSymbolHtml{\bigtriangledown}{X25BD}
+\DeclareSymbolHtml{\bigtriangleup}{X25B3}
+\DeclareSymbolHtml[*]{\bullet}{X2022}
+\DeclareSymbolHtml{\@cap}{X2229}
+\DeclareSymbolHtml[\mbox{---\@br| |\@br| |}]{\@display@cap}{X22C2}
+\newcommand{\cap}{\ifdisplay\@display@cap\else\@cap\fi}
+\DeclareSymbol{\cdot}{XB7}
+\DeclareSymbolHtml{\circ}{X2218}
+\DeclareSymbolHtml{\@cup}{X222A}
+\DeclareSymbolHtml[\mbox{| |\@br| |\@br---}]{\@display@cup}{X22C3}
+\newcommand{\cup}{\ifdisplay\@display@cup\else\@cup\fi}
+\newcommand{\dagger}{\dag}
+\newcommand{\ddagger}{\ddag}
+\DeclareSymbolHtml{\diamond}{X22C4}
+\DeclareSymbol[/]{\div}{XF7}
+\DeclareSymbolHtml[-/+]{\mp}{X2213}
+\DeclareSymbolHtml{\odot}{X2299}
+\DeclareSymbolHtml{\ominus}{X2296}
+\DeclareSymbolHtml{\oplus}{X2295}
+\DeclareSymbolHtml{\oslash}{X2298}
+\DeclareSymbolHtml{\otimes}{X2297}
+\DeclareSymbol[+/-]{\pm}{XB1}
+\DeclareSymbolHtml[\backslash]{\setminus}{X2216}
+\DeclareSymbolHtml{\@sqcap}{X2293}
+\DeclareSymbolHtml[\mbox{---\@br| |\@br| |}]{\@display@sqcap}{X2A05}
+\newcommand{\sqcap}{\ifdisplay\@display@sqsqcap\else\@sqcap\fi}
+\DeclareSymbolHtml[\mbox{|\_|}]{\@sqcup}{X2294}
+\DeclareSymbolHtml[\mbox{| |\@br| |\@br---}]{\@display@sqcup}{X2294}
+\newcommand{\sqcup}{\ifdisplay\@display@sqcup\else\@sqcup\fi}
+\DeclareSymbolHtml[*]{\star}{X22C6}
+\DeclareSymbol[X]{\times}{XD7}
+\DeclareSymbolHtml[<|]{\triangleleft}{X25C1}
+\DeclareSymbolHtml[|>]{\triangleright}{X25B7}
+\DeclareSymbolHtml[\mbox{|\pm|}]{\@uplus}{X228E}
+\DeclareSymbolHtml[\mbox{| |\@br|+|\@br---}]{\@display@uplus}{X2A04}
+\newcommand{\uplus}{\ifdisplay\@display@uplus\else\@uplus\fi}
+\DeclareSymbolHtml[\mbox{\backslash/}]{\vee}{X2228}
+\DeclareSymbolHtml[\mbox{/\backslash}]{\wedge}{X2227}
+\DeclareSymbolHtml{\wr}{X2240}
+%%Miscellaneous LaTeX2e Math Symbols
+\DeclareSymbolHtml[\mbox{aleph}]{\aleph}{X2135}
+\DeclareSymbolHtml{\angle}{X2220}
+\newcommand{\backslash}{\char92}
+\DeclareSymbolHtml{\clubsuit}{X2663}
+\DeclareSymbolHtml{\diamondsuit}{X2662}
+\DeclareSymbolHtml[\O]{\emptyset}{X2205}
+\DeclareSymbolHtml{\flat}{X266D}
+\DeclareSymbolHtml{\heartsuit}{X2661}
+\DeclareSymbolHtml[\mbox{oo}]{\infty}{X221E}
+\DeclareSymbolHtml{\nabla}{X2207}
+\DeclareSymbolHtml{\natural}{X266E}
+\DeclareSymbol{\neg}{XAC}
+\DeclareSymbol[\@print{'}]{\prime}{X2032}
+\DeclareSymbolHtml[\@print{#}]{\sharp}{X266F}
+\DeclareSymbolHtml{\spadesuit}{X2660}
+\DeclareSymbolHtml{\surd}{X221A}
+\DeclareSymbolHtml{\triangle}{X25B3}
+%%Table 47 Variable-sized math operator
+\MakeBigSymbol{\bigcap}{\@cap}{\@cap}{\@cap}{\@display@cap}
+\MakeBigSymbol{\bigcup}{\@cup}{\@cup}{\@cap}{\@display@cup}
+\MakeBigSymbol{\bigodot}{\odot}{\odot}{\odot}{\odot}
+\MakeBigSymbol{\bigoplus}{\oplus}{\oplus}{\oplus}{\oplus}
+\MakeBigSymbol{\bigotimes}{\otimes}{\otimes}{\otimes}{\otimes}
+%\MakeBigSymbol{\bigsqcap}{\@sqcap}{\@sqcap}{\@sqcap}{\@display@sqcap}
+\MakeBigSymbol{\bigsqcup}{\@sqcup}{\@sqcup}{\@cap}{\@display@sqcup}
+\DeclareSymbolHtml[sum]{\@sum}{X2211}
+\newcommand{\@textdisplaysum}{\mbox{--\@br\char92\@br/\@br--}}
+\MakeBigSymbol{\sum}{\@sum}{\@sum}{\@sum}{\@textdisplaysum}
+\DeclareSymbolHtml[\mbox{integral}]{\@int}{X222B}
+\newcommand{\@textdisplayint}{\mbox{/\@br|\@br|\@br/}}
+\MakeBigSymbol{\int}{\@int}{\@int}{\@int}{\@textdisplayint}
+%
+%
+%% Greek Letters
+%
+\DeclareSymbolHtml[alpha]{\alpha}{X03B1}
+\DeclareSymbolHtml[beta]{\beta}{X03B2}
+\DeclareSymbolHtml[gamma]{\gamma}{X03B3}
+\DeclareSymbolHtml[delta]{\delta}{X03B4}
+\DeclareSymbolHtml[epsilon]{\epsilon}{X454}
+\DeclareSymbolHtml[varepsilon]{\varepsilon}{X03B5}
+\DeclareSymbolHtml[zeta]{\zeta}{X03B6}
+\DeclareSymbolHtml[eta]{\eta}{X03B7}
+\DeclareSymbolHtml[theta]{\theta}{X03B8}
+\DeclareSymbolHtml[vartheta]{\vartheta}{X3D1}
+\DeclareSymbolHtml[iota]{\iota}{X3B9}
+\DeclareSymbolHtml[kappa]{\kappa}{X3BA}
+\DeclareSymbolHtml[lambda]{\lambda}{X3BB}
+\DeclareSymbol[mu]{\mu}{XB5}
+\DeclareSymbolHtml[nu]{\nu}{X3BD}
+\DeclareSymbolHtml[xi]{\xi}{X3BE}
+\DeclareSymbolHtml[pi]{\pi}{X3C0}
+\DeclareSymbolHtml[varpi]{\varpi}{X3D6}
+\DeclareSymbolHtml[rho]{\rho}{X3C1}
+\DeclareSymbolHtml[varrho]{\varrho}{X3F1}
+\DeclareSymbolHtml[sigma]{\sigma}{X3C3}
+\DeclareSymbolHtml[varsigma]{\varsigma}{X3C2}
+\DeclareSymbolHtml[tau]{\tau}{X3C4}
+\DeclareSymbolHtml[upsilon]{\upsilon}{X3C5}
+\DeclareSymbolHtml[phi]{\phi}{X3C6}
+\DeclareSymbolHtml[varphi]{\varphi}{X3D5}
+\DeclareSymbolHtml[chi]{\chi}{X3C7}
+\DeclareSymbolHtml[psi]{\psi}{X3C8}
+\DeclareSymbolHtml[omega]{\omega}{X3C9}
+%
+%% Capital Greek Letters
+%
+\DeclareSymbolHtml[Gamma]{\Gamma}{X393}
+\DeclareSymbolHtml[Delta]{\Delta}{X394}
+\DeclareSymbolHtml[Theta]{\Theta}{X398}
+\DeclareSymbolHtml[Lambda]{\Lambda}{X39B}
+\DeclareSymbolHtml[Xi]{\Xi}{X39E}
+\DeclareSymbolHtml[Pi]{\Pi}{X3A0}
+\DeclareSymbolHtml[Sigma]{\Sigma}{X3A3}
+\DeclareSymbolHtml[Upsilon]{\Upsilon}{X3A5}
+\DeclareSymbolHtml[Phi]{\Phi}{X3A6}
+\DeclareSymbolHtml[Psi]{\Psi}{X3A8}
+\DeclareSymbolHtml[Omega]{\Omega}{X3A9}
+%% Table 104 Letter-like symbols
+\DeclareSymbolHtml[\mbox{\_|\_}]{\bot}{X22A5}
+\DeclareSymbolHtml[\mbox{ell}]{\ell}{X2113}
+\DeclareSymbolHtml[\mbox{exists}]{\exists}{X2203}
+\DeclareSymbolHtml[\mbox{forall}]{\forall}{X2200}
+\DeclareSymbolHtml[\mbox{h}]{\hbar}{X210F}
+\DeclareSymbolHtml[\mbox{Im}]{\Im}{X2111}
+\DeclareSymbolHtml{\imath}{X2129}
+\DeclareSymbolHtml[\mbox{in}]{\in}{X2206}
+\newcommand{\jmath}{j}%???
+\DeclareSymbolHtml[\mbox{contains}]{\ni}{X220B}
+\DeclareSymbolHtml{\partial}{X2202}
+\DeclareSymbolHtml[\mbox{Re}]{\Re}{X211C}
+\DeclareSymbolHtml{\top}{X22A4}
+\DeclareSymbolHtml{\wp}{X2118}
+%%Those belong to latin9
+\DeclareSymbol[oe]{\oe}{X153}
+\DeclareSymbol[OE]{\OE}{X152}
+%%And those to latin1
+\DeclareSymbol[ae]{\ae}{XE6}
+\DeclareSymbol[AE]{\AE}{XC6}
+\DeclareSymbol[a]{\aa}{XE5}
+\DeclareSymbol[A]{\AA}{XC5}
+\DeclareSymbol[o]{\o}{XF8}
+\DeclareSymbol[O]{\O}{XD8}
+\DeclareSymbol[ss]{\ss}{XDF}
+%% Some math symbols
 \newcommand{\le}{\leq}
 \newcommand{\ge}{\geq}
-\newcommand{\sharp}{\@print{#}}
 %%% So called log-like functions
 \newcommand{\@defl}[2]{\newcommand{#1}{\mathop{\mbox{#2}}}}
 \newcommand{\@defnl}[2]{\newcommand{#1}{\mathop{\mbox{#2}}\nolimits}}
@@ -74,7 +247,6 @@
 \@defnl\bmod{mod}
 %%%%%%%%%%%%%%
 \def\pmod#1{\mbox{(mod }#1{\@anti{\@style{I}} )}}
-\def\bigcirc{{\Huge\circ}}
 \def\ll{\@print@u{XAB}}
 \def\gg{\@print@u{XBB}}
 \def\vdash{\textnormal{|-}}
@@ -83,14 +255,11 @@
 \let\textbar\mid
 \def\mapsto{\textnormal{|}\rightarrow}
 \def\tth{\textnormal{||-}}
-\def\bot{\perp}
 \def\models{\textnormal{|=}}
 \def\|{\textnormal{||}}
-\def\star{\warning{Star -> *}*}
 \def\frac#1#2{{#1\over #2}}
 \def\ldots{...}
 \def\dots{...}
-\def\cdot{\@print@u{XD7}}
 \def\cdots{\cdot\cdot\cdot}
 \def\vdots{\ifdisplay\mbox{\cdot\\\cdot\\\cdot}\else:\fi}
 \def\ddots{\ifdisplay\mbox{\cdot~~\\~\cdot~\\~~\cdot}\else%
@@ -99,7 +268,5 @@
 \newcommand{\nolimits}{}
 \def\sim{\@print{~}}
 \def\simeq{\textunderline{\sim}}
-\def\textasciicircum{\@print{^}}
-\def\textasciitilde{\@print{~}}
-\def\textless{<}
-\def\textgreater{>}
+%%Vrac
+\def\i{i}
