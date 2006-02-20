@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.79 2006-02-20 15:25:40 maranget Exp $    *)
+(*  $Id: package.ml,v 1.80 2006-02-20 16:53:50 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -87,6 +87,7 @@ def_diacritic "\\k"  "ogonek" OutUnicode.ogonek 0x3DB ;
 def_diacritic "\\r"  "ringabove" OutUnicode.ring  0x2DA ;
 def_diacritic "\\v"  "caron" OutUnicode.caron 0 ;
 def_diacritic "\\textcircled" "circled" OutUnicode.circled 0x25EF ;
+def_diacritic "\\@doublestruck" "doublestruck" OutUnicode.doublestruck 0 ;
 ()
 ;;
 

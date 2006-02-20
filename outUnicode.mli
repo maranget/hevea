@@ -40,6 +40,7 @@ val linebelow : char -> int
 val ringabove : char -> int
 val ogonek : char -> int
 val circled : char -> int
+val doublestruck : char -> int
 
 
 (* Default rendering *)
