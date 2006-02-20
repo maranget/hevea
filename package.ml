@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.78 2006-02-17 18:18:21 maranget Exp $    *)
+(*  $Id: package.ml,v 1.79 2006-02-20 15:25:40 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -26,48 +26,67 @@ open Stack
 open Scan
 ;;
 
+(*********************************************************)
 (* Accents are here, to make latexscan.mll a bit smaller *)
-(* Accents *)
+(* Accent commands use a mapping from ascii to           *)
+(* unicode entities with accents                         *)   
+(*  - When no char with accent exists (html) or can      *)
+(*    be outputed (text), command                        *)
+(*    \text@accent{\cmd}{name}{arg} is scanned           *)
+(* where \cmd is accent command name                     *)
+(*       name is some internal name (eg \' -> accute)    *)
+(*       arg is the argument to \cmd                     *)
+(* See iso-sym.hva, for the definition of \text@accent   *)
+(*********************************************************)
+
 let put_empty empty =
   if empty <> 0 then Dest.put_unicode empty
   else raise OutUnicode.CannotTranslate 
 
-let def_diacritic name f empty =
+exception DiacriticFailed of string
+
+let do_def_diacritic verb name f empty = 
+  (fun lexbuf ->
+    Save.start_echo () ;
+    let arg = get_prim_arg lexbuf in
+    let input = Save.get_echo () in
+    try match String.length arg with
+    | 0 -> put_empty empty
+    | 1 ->
+        let c = arg.[0] in
+        if c = ' ' then put_empty empty
+        else Dest.put_unicode (f arg.[0])
+    | _ -> raise OutUnicode.CannotTranslate
+    with
+    | OutUnicode.CannotTranslate
+    | Misc.CannotPut ->
+	raise (DiacriticFailed input))
+
+let def_diacritic name internal f empty =
   def_code name
     (fun lexbuf ->
-      Save.start_echo () ;
-      let arg = get_prim_arg lexbuf in
-      let input = Save.get_echo () in
-      try match String.length arg with
-      | 0 -> put_empty empty
-      | 1 ->
-          let c = arg.[0] in
-          if c = ' ' then put_empty empty
-          else Dest.put_unicode (f arg.[0])
-      | _ -> raise OutUnicode.CannotTranslate
-      with
-      |	OutUnicode.CannotTranslate ->
-          warning
-            (Printf.sprintf
-               "Application of '%s' on '%s' failed"
-               name input) ;
-          scan_this main input
-      |	Misc.CannotPut ->
-          scan_this main input)
+      try do_def_diacritic true name f empty lexbuf
+      with DiacriticFailed input ->
+	scan_this main
+	  ("\\text@accent{"^internal^"}{"^name^"}{"^input^"}"))
 ;;
-      
-def_diacritic "\\'"  OutUnicode.acute 0xB4 ;
-def_diacritic "\\`"  OutUnicode.grave 0x50 ;
-def_diacritic "\\^"  OutUnicode.circumflex 0x5E ;
-def_diacritic "\\\"" OutUnicode.diaeresis 0xA8 ;
-def_diacritic "\\c"  OutUnicode.cedilla 0xB8 ;
-def_diacritic "\\~"  OutUnicode.tilde 0x7E ;
-def_diacritic "\\="  OutUnicode.macron 0xAF ;
-def_diacritic "\\v"  OutUnicode.caron 0 ;
-def_diacritic "\\H"  OutUnicode.doubleacute 0x2DD ;
-def_diacritic "\\u"  OutUnicode.breve 0x2D8 ;
-def_diacritic "\\."  OutUnicode.dotabove 0x2D9 ;
-def_diacritic "\\d"  OutUnicode.dotbelow 0 ;
+
+def_diacritic "\\'"  "acute" OutUnicode.acute 0xB4 ;
+def_diacritic "\\`"  "grave" OutUnicode.grave 0x50 ;
+def_diacritic "\\^"  "circumflex" OutUnicode.circumflex 0x5E ;
+def_diacritic "\\\"" "diaeresis" OutUnicode.diaeresis 0xA8 ;
+def_diacritic "\\c"  "cedilla" OutUnicode.cedilla 0xB8 ;
+def_diacritic "\\~"  "tilde" OutUnicode.tilde 0x7E ;
+def_diacritic "\\="  "macron" OutUnicode.macron 0xAF ;
+def_diacritic "\\H"  "doubleacute" OutUnicode.doubleacute 0x2DD ;
+def_diacritic "\\u"  "breve" OutUnicode.breve 0x2D8 ;
+def_diacritic "\\."  "dotabove" OutUnicode.dotabove 0x2D9 ;
+def_diacritic "\\d"  "dotbelow" OutUnicode.dotbelow 0 ;
+def_diacritic "\\b"  "linebelow" OutUnicode.linebelow 0x5F ;
+def_diacritic "\\k"  "ogonek" OutUnicode.ogonek 0x3DB ;
+def_diacritic "\\r"  "ringabove" OutUnicode.ring  0x2DA ;
+def_diacritic "\\v"  "caron" OutUnicode.caron 0 ;
+def_diacritic "\\textcircled" "circled" OutUnicode.circled 0x25EF ;
 ()
 ;;
 

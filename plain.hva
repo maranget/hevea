@@ -1,3 +1,4 @@
+%%%%%%% Internal basic commands for package
 \newcommand{\relax}{}
 \newcommand{\@empty}{}
 %%%%%% Iter #1 on #3, a #2 separated list of non-empty elements
@@ -15,3 +16,5 @@
     \@callsubst{\@@iter}{#3#2#2}\fi}
 %%%%%%%%%% eat leading spaces in argument
 \def\@eatspaces#1,{#1}%
+%%%%%
+\newcommand{\DisplayChoose}[2]{\ifdisplay#1\else#2\fi}

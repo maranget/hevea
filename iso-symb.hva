@@ -48,10 +48,44 @@
 \DeclareSymbolHtml{\ddag}{8225}
 \DeclareSymbolHtml[...]{\dots}{X2026}
 \DeclareSymbol[pounds]{\pounds}{XA3}
-%%%%%%%%%%%%%%%%
-%%Basic maths %%
-%%%%%%%%%%%%%%%%
-%%Table 38 Maths-Mode Versions of Text Symbols
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Table 5:  Non-ascii letters %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%Those belong to latin9
+\DeclareSymbol[oe]{\oe}{X153}
+\DeclareSymbol[OE]{\OE}{X152}
+%%And those to latin1
+\DeclareSymbol[ae]{\ae}{XE6}
+\DeclareSymbol[AE]{\AE}{XC6}
+\DeclareSymbol[aa]{\aa}{XE5}
+\DeclareSymbol[AA]{\AA}{XC5}
+\DeclareSymbol[o]{\o}{XF8}
+\DeclareSymbol[O]{\O}{XD8}
+\DeclareSymbol[ss]{\ss}{XDF}
+\newcommand{\SS}{SS}
+\DeclareSymbol[DH]{\DH}{XD0}
+\DeclareSymbol[dh]{\dh}{XF0}
+\DeclareSymbol[DJ]{\DJ}{X110}
+\DeclareSymbol[dj]{\dj}{X111}
+\DeclareSymbol[TH]{\TH}{XDE}
+\DeclareSymbol[th]{\th}{XFE}
+\DeclareSymbol[ENG]{\NG}{X14A}
+\DeclareSymbol[eng]{\ng}{X14B}
+\DeclareSymbol[L]{\L}{X141}
+\DeclareSymbol[l]{\l}{X142}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Punctuation Marks Not Found in OT1 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\DeclareSymbol[<<]{\guillemotleft}{XAB}
+\DeclareSymbol[>>]{\guillemotright}{XBB}
+\DeclareSymbolHtml[<]{\guilsinglleft}{X2039}
+\DeclareSymbolHtml[>]{\guilsinglright}{X203A}
+\DeclareSymbolHtml[,,]{\quotedblbase}{X201E}
+\DeclareSymbolHtml[,]{\quotesinglbase}{X201A}
+\newcommand{\textquotedbl}{\@print{"}}%"
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Table 38: Maths-Mode Versions of Text Symbols %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \let\mathdollar\$
 \DeclareSymbolHtml[...]{\mathellipsis}{X2026}
 \DeclareSymbol{\mathparagraph}{XB6}
@@ -113,7 +147,9 @@
 \DeclareSymbolHtml{\spadesuit}{X2660}
 \DeclareSymbolHtml{\surd}{X221A}
 \DeclareSymbolHtml{\triangle}{X25B3}
-%%Table 47 Variable-sized math operator
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Table 47 Variable-sized math operator %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \MakeBigSymbol{\bigcap}{\@cap}{\@cap}{\@display@cap}
 \MakeBigSymbol{\bigcup}{\@cup}{\@cap}{\@display@cup}
 \MakeBigSymbol{\bigodot}{\odot}{\odot}{\odot}
@@ -143,10 +179,60 @@
 \DeclareSymbolHtml[\mbox{oint}]{\@oint}{X222E}
 \newcommand{\@textdisplayoint}{\mbox{/\@br|\@br{}o\@br|\@br/}}
 \MakeBigSymbol{\oint}{\@oint}{\@oint}{\@textdisplayoint}
-%
-%
-%% Greek Letters
-%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Table 54: Binary relations %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\DeclareSymbolHtml[\mbox{approx}]{\approx}{X2248}
+\DeclareSymbolHtml[\mbox{asymp}]{\asymp}{X224D}
+\DeclareSymbolHtml[\mbox{bowtie}]{\bowtie}{X22C8}
+\DeclareSymbolHtml[\mbox{cong}]{\cong}{X2245}
+\DeclareSymbolHtml[\@print{-|}]{\dashv}{X22A2}
+\DeclareSymbolHtml[\@print{|-}]{\vdash}{X22A3}
+\DeclareSymbolHtml[\stackrel{\cdot}{=}]{\doteq}{X2250}
+\DeclareSymbolHtml[\mbox{equiv}]{\equiv}{X2261}
+\DeclareSymbolHtml[\mbox{frown}]{\frown}{X2040}
+\DeclareSymbolHtml[\mbox{|}]{\mid}{X2223}
+\DeclareSymbolHtml[\mbox{|=}]{\models}{X22A8}
+\DeclareSymbolHtml[\mbox{||}]{\parallel}{X2225}
+\DeclareSymbolHtml[\mbox{\@print{_|_}}]{\perp}{X22A5}
+\DeclareSymbolHtml[\mbox{prec}]{\prec}{X227A}
+\DeclareSymbolHtml[\mbox{preceq}]{\preceq}{X227C}
+\DeclareSymbolHtml[\mbox{oc}]{\propto}{X221D}
+\DeclareSymbolHtml[\@print{~}]{\sim}{X223C}
+\DeclareSymbolHtml[\textunderline{\sim}]{\simeq}{X2243}
+\DeclareSymbolHtml[\mbox{smile}]{\smile}{X203F}
+\DeclareSymbolHtml[\mbox{succ}]{\succ}{X227B}
+\DeclareSymbolHtml[\mbox{succeq}]{\succeq}{X227D}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Table 65: Subset and Superset Relations %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\@textdisplaysubset}{\mbox{-\@br|\@br-}}
+\newcommand{\@textdisplaysupset}{\mbox{-\@br~|\@br-}}
+\newcommand{\@textdisplaysubseteq}{\mbox{-\@br|\@br=}}
+\newcommand{\@textdisplaysupseteq}{\mbox{-\@br~|\@br=}}
+\DeclareSymbolHtml[\DisplayChoose{\@textdisplysubset}{\mbox{subset}}]
+{\subset}{X2282}
+\DeclareSymbolHtml[\DisplayChoose{\@textdisplaysubseteq}{\mbox{subseteq}}]
+{\subseteq}{X2286}
+\DeclareSymbolHtml[\DisplayChoose{\@textdisplaysupset}{\mbox{supset}}]
+{\supset}{X2283}
+\DeclareSymbolHtml[\DisplayChoose{\@textdisplaysupseteq}{\mbox{supseteq}}]
+{\supseteq}{X2287}
+\DeclareSymbolHtml[\DisplayChoose{\@textdisplaysubseteq}{\mbox{sqsubseteq}}]
+{\sqsubseteq}{X2291}
+\DeclareSymbolHtml[\DisplayChoose{\@textdisplaysupseteq}{\mbox{sqsupseteq}}]
+{\sqsupseteq}{X2292}
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Table 71: Inequalities %
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+\DeclareSymbolHtml[<=]{\leq}{X2264}
+\DeclareSymbolHtml[<<]{\ll}{X226A}
+\DeclareSymbolHtml[>=]{\geq}{X2265}
+\DeclareSymbolHtml[>>]{\gg}{X226B}
+\DeclareSymbolHtml[\mbox{neq}]{\neq}{X2260}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Table 98: Greek Letters %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \DeclareSymbolHtml[alpha]{\alpha}{X03B1}
 \DeclareSymbolHtml[beta]{\beta}{X03B2}
 \DeclareSymbolHtml[gamma]{\gamma}{X03B3}
@@ -176,9 +262,7 @@
 \DeclareSymbolHtml[chi]{\chi}{X3C7}
 \DeclareSymbolHtml[psi]{\psi}{X3C8}
 \DeclareSymbolHtml[omega]{\omega}{X3C9}
-%
-%% Capital Greek Letters
-%
+% Capital Greek Letters
 \DeclareSymbolHtml[Gamma]{\Gamma}{X393}
 \DeclareSymbolHtml[Delta]{\Delta}{X394}
 \DeclareSymbolHtml[Theta]{\Theta}{X398}
@@ -190,8 +274,10 @@
 \DeclareSymbolHtml[Phi]{\Phi}{X3A6}
 \DeclareSymbolHtml[Psi]{\Psi}{X3A8}
 \DeclareSymbolHtml[Omega]{\Omega}{X3A9}
-%% Table 104 Letter-like symbols
-\DeclareSymbolHtml[\mbox{\_|\_}]{\bot}{X22A5}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Table 104 Letter-like symbols %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\DeclareSymbolHtml[\mbox{\@print{_|_}}]{\bot}{X22A5}
 \DeclareSymbolHtml[\mbox{ell}]{\ell}{X2113}
 \DeclareSymbolHtml[\mbox{exists}]{\exists}{X2203}
 \DeclareSymbolHtml[\mbox{forall}]{\forall}{X2200}
@@ -205,17 +291,6 @@
 \DeclareSymbolHtml[\mbox{Re}]{\Re}{X211C}
 \DeclareSymbolHtml{\top}{X22A4}
 \DeclareSymbolHtml{\wp}{X2118}
-%%Those belong to latin9
-\DeclareSymbol[oe]{\oe}{X153}
-\DeclareSymbol[OE]{\OE}{X152}
-%%And those to latin1
-\DeclareSymbol[ae]{\ae}{XE6}
-\DeclareSymbol[AE]{\AE}{XC6}
-\DeclareSymbol[a]{\aa}{XE5}
-\DeclareSymbol[A]{\AA}{XC5}
-\DeclareSymbol[o]{\o}{XF8}
-\DeclareSymbol[O]{\O}{XD8}
-\DeclareSymbol[ss]{\ss}{XDF}
 %% Some math symbols
 \newcommand{\le}{\leq}
 \newcommand{\ge}{\geq}
@@ -259,24 +334,32 @@
 \def\pmod#1{\mbox{(mod }#1{\@anti{\@style{I}} )}}
 \def\ll{\@print@u{XAB}}
 \def\gg{\@print@u{XBB}}
-\def\vdash{\textnormal{|-}}
-\def\dashv{\textnormal{-|}}
-\def\mid{\textnormal{|}}
-\let\textbar\mid
 \def\mapsto{\textnormal{|}\rightarrow}
 \def\tth{\textnormal{||-}}
-\def\models{\textnormal{|=}}
 \def\|{\textnormal{||}}
 \def\frac#1#2{{#1\over #2}}
-\def\ldots{...}
-\def\dots{...}
-\def\cdots{\cdot\cdot\cdot}
 \def\vdots{\ifdisplay\mbox{\cdot\\\cdot\\\cdot}\else:\fi}
 \def\ddots{\ifdisplay\mbox{\cdot~~\\~\cdot~\\~~\cdot}\else%
 \warning{\ddots in text}\mbox{ddots}\fi}
 \newcommand{\limits}{}
 \newcommand{\nolimits}{}
 \def\sim{\@print{~}}
-\def\simeq{\textunderline{\sim}}
 %%Vrac
 \def\i{i}
+%%%TeX definitions
+\let\le\leq
+\let\ge\geq
+%%%%%%%%%%%%%%%%%%
+%%Defaut accents%%
+%%%%%%%%%%%%%%%%%%
+%\<internalname>@default is the default typesetting cmd, when
+%translation to unicode fails.
+%eg by \newcommand{\acute@default}[1]{#1'}, you get postfix accute accents.
+\ifhtml
+\newcommand{\macron@default}[1]{\textoverline{#1}}
+\newcommand{\linebelow@default}[1]{\textunderline{#1}}
+\fi
+\newcommand{\text@accent}[3]
+{\@ifundefined{#1@default}
+  {\warning{Application of '#2' on '#3' failed}#3}
+  {\csname#1@default\endcsname{#3}}}

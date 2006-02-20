@@ -36,6 +36,11 @@ val doubleacute : char -> int
 val breve : char -> int
 val dotabove : char -> int
 val dotbelow : char -> int
+val linebelow : char -> int
+val ringabove : char -> int
+val ogonek : char -> int
+val circled : char -> int
+
 
 (* Default rendering *)
 val def_default : int -> string -> unit

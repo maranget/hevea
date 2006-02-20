@@ -1,8 +1,13 @@
 %%
-\DeclareSymbolHtml[<|]{\lhd}{X25C1}
-\DeclareSymbolHtml[|>]{\rhd}{X25B7}
+\DeclareSymbolHtml[\mbox{<|}]{\lhd}{X25C1}
+\DeclareSymbolHtml[\mbox{|>}]{\rhd}{X25B7}
 \DeclareSymbolHtml{\unlhd}{X22B4}%Not that good, triangle is smashed
 \DeclareSymbolHtml{\unrhd}{X22B5}
 \DeclareSymbolHtml{\Box}{X25A1}
 \DeclareSymbolHtml{\Diamond}{X25C7}
 \DeclareSymbolHtml{\mho}{X2127}
+\DeclareSymbolHtml{\Join}{X2445}
+\DeclareSymbolHtml[\DisplayChoose{\@textdisplaysubset}{\mbox{sqsubset}}]
+{\sqsubset}{X228F}
+\DeclareSymbolHtml[\DisplayChoose{\@textdisplaysupset}{\mbox{sqsupset}}]
+{\sqsupset}{X2290}

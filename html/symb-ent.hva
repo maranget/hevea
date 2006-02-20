@@ -2,8 +2,6 @@
 \newcommand{\@bigentity}[1]{\@print{<FONT SIZE=7>&}\@subst{#1}\@print{;</FONT>}}
 \newcommand{\@numentity}[1]{\@print{&#}\@subst{#1}\@print{;}}
 %%Petit extra
-\def\L{\@print@u{X141}}
-\def\l{\@print@u{X142}}
 %% HTML 4.0 symbol entities
 %% classes dans le meme ordre que
 %% dans le livre LaTeX, de Leslie Lamport.
@@ -35,43 +33,7 @@
 %
 %% Relation Symbols (Table 8.5 of 'Goos-Mitt-Sam')
 %
-\newcommand{\leq}{{\@print{&#8804;}}}     %{\@entity{le}} 
-\renewcommand{\le}{\@print{&#8804;}}
-\newcommand{\geq}{\@print{&#8805;}}	%entity{ge}}
-\renewcommand{\ge}{\@print{&#8805;}}
-\newcommand{\equiv}{\@entity{equiv}}
-\renewcommand{\models}{\@print{&#8872;}}
-\newcommand{\prec}{\@print{&#8826;}}
-\newcommand{\succ}{\@print{&#8827;}}
-\renewcommand{\sim}{\@entity{sim}}
-\newcommand{\perp}{\bot}
-\newcommand{\preceq}{\@print{&#8828;}}
-\newcommand{\succeq}{\@print{&#8829;}}
-\renewcommand{\simeq}{\@print{&#8771;}}
-\renewcommand{\mid}{\@print{&#8739;}}
-\renewcommand{\ll}{\@print{&#8810;}}
-\renewcommand{\gg}{\@print{&#8811;}}
-\newcommand{\asymp}{\@print{&#8781;}}
-\newcommand{\parallel}{\@print{&#8741;}}
-\newcommand{\subset}{\@entity{sub}}
-\newcommand{\supset}{\@entity{sup}}
-\newcommand{\approx}{\@print{&#8776;}}
-\newcommand{\bowtie}{\@print{&#8904;}}
-\newcommand{\subseteq}{\@entity{sube}}
-\newcommand{\supseteq}{\@entity{supe}}
-\newcommand{\cong}{\@entity{cong}}
-\newcommand{\Join}{\@print{&#8904;}}
-\newcommand{\sqsubset}{\@print{&#8847;}}
-\newcommand{\sqsupset}{\@print{&#8847;}}
-\newcommand{\neq}{\@print{&#8800;}}
-\newcommand{\smile}{\@print{&#8255;}}
-\newcommand{\sqsubseteq}{\@print{&#8849;}}
-\newcommand{\sqsupseteq}{\@print{&#8849;}}
-\newcommand{\doteq}{\@print{&#8784;}}
-\newcommand{\frown}{\@print{&#8256;}}
-\newcommand{\propto}{\@print{&#8733;}}
-\renewcommand{\vdash}{\@print{&#8866;}}
-\renewcommand{\dashv}{\@print{&#8867;}}
+%%%%%%%%%%%%%%%%%%%
 \newcommand{\notin}{\@print{&#8713;}}
 %
 %% Arrow Symbols (Table 8.6 of 'Goos-Mitt-Sam')
@@ -146,11 +108,8 @@
 %
 %% Variable-sized Symbols
 %
-\newcommand{\@prod}{\@print{&#X220F;}}
-\newcommand{\@coprod}{\@print{&#X2210;}}
 \newcommand{\@iint}{\@print{&#8748;}}
 \newcommand{\@iiint}{\@print{&#8749;}}
-\newcommand{\@oint}{\@print{&#8750;}}
 \newcommand{\@oiint}{\@print{&#8751;}}
 \newcommand{\@oiiint}{\@print{&#8752;}}
 \newcommand{\@displayint}{\mbox{\Large\@entity{int}}}

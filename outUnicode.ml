@@ -414,6 +414,7 @@ and dotabove = function
 | 'G' -> 0x0120
 | 'g' -> 0x0121
 | 'I' -> 0x0130
+| 'i' -> 0x69
 | 'Z' -> 0x017B
 | 'z' -> 0x017C
 | 'A' -> 0x0226
@@ -489,6 +490,102 @@ and dotbelow = function
 | 'y' -> 0x1EF5
 | _ -> raise CannotTranslate
 
+and linebelow = function
+| 'B' -> 0x1E06
+| 'b' -> 0x1E07
+| 'D' -> 0x1E0E
+| 'd' -> 0x1E0F
+| 'K' -> 0x1E34
+| 'k' -> 0x1E35
+| 'L' -> 0x1E3A
+| 'l' -> 0x1E3B
+| 'N' -> 0x1E48
+| 'n' -> 0x1E49
+| 'R' -> 0x1E5E
+| 'r' -> 0x1E5F
+| 'T' -> 0x1E6E
+| 't' -> 0x1E6F
+| 'Z' -> 0x1E94
+| 'z' -> 0x1E95
+| 'h' -> 0x1E96
+| _ -> raise CannotTranslate
+
+and ringabove = function
+| 'A' -> 0x00C5
+| 'a' -> 0x00E5
+| 'U' -> 0x016E
+| 'u' -> 0x016F
+| 'w' -> 0x1E98
+| 'y' -> 0x1E99
+| _ -> raise CannotTranslate
+
+and ogonek = function
+| 'A' -> 0x0104
+| 'a' -> 0x0105
+| 'E' -> 0x0118
+| 'e' -> 0x0119
+| 'I' -> 0x012E
+| 'i' -> 0x012F
+| 'U' -> 0x0172
+| 'u' -> 0x0173
+| 'O' -> 0x01EA
+| 'o' -> 0x01EB
+| _ -> raise CannotTranslate
+
+and circled = function
+| 'A' -> 0x24B6
+| 'B' -> 0x24B7
+| 'C' -> 0x24B8
+| 'D' -> 0x24B9
+| 'E' -> 0x24BA
+| 'F' -> 0x24BB
+| 'G' -> 0x24BC
+| 'H' -> 0x24BD
+| 'I' -> 0x24BE
+| 'J' -> 0x24BF
+| 'K' -> 0x24C0
+| 'L' -> 0x24C1
+| 'M' -> 0x24C2
+| 'N' -> 0x24C3
+| 'O' -> 0x24C4
+| 'P' -> 0x24C5
+| 'Q' -> 0x24C6
+| 'R' -> 0x24C7
+| 'S' -> 0x24C8
+| 'T' -> 0x24C9
+| 'U' -> 0x24CA
+| 'V' -> 0x24CB
+| 'W' -> 0x24CC
+| 'X' -> 0x24CD
+| 'Y' -> 0x24CE
+| 'Z' -> 0x24CF
+| 'a' -> 0x24D0
+| 'b' -> 0x24D1
+| 'c' -> 0x24D2
+| 'd' -> 0x24D3
+| 'e' -> 0x24D4
+| 'f' -> 0x24D5
+| 'g' -> 0x24D6
+| 'h' -> 0x24D7
+| 'i' -> 0x24D8
+| 'j' -> 0x24D9
+| 'k' -> 0x24DA
+| 'l' -> 0x24DB
+| 'm' -> 0x24DC
+| 'n' -> 0x24DD
+| 'o' -> 0x24DE
+| 'p' -> 0x24DF
+| 'q' -> 0x24E0
+| 'r' -> 0x24E1
+| 's' -> 0x24E2
+| 't' -> 0x24E3
+| 'u' -> 0x24E4
+| 'v' -> 0x24E5
+| 'w' -> 0x24E6
+| 'x' -> 0x24E7
+| 'y' -> 0x24E8
+| 'z' -> 0x24E9
+| _ -> raise CannotTranslate
 (* Text rendering *)
 let def_t = Hashtbl.create 101
 
