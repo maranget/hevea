@@ -6,7 +6,9 @@
 \def\_{\@print{_}}
 \def\{{\char123}
 \def\}{\char125}
-%%Table 2 Predefined text-mode commands
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Table 2: Predefined text-mode commands%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newcommand{\textasciicircum}{\@print{^}}
 \newcommand{\textasciitilde}{\@print{~}}
 \DeclareSymbolHtml[*]{\textasteriskcentered}{X2217}
@@ -40,7 +42,9 @@
 \DeclareSymbolHtml[(TM)]{\texttrademark}{X2122}
 \newcommand{\textunderscore}{\@print{_}}
 \DeclareSymbolHtml[\@print{_}]{\textvisiblespace}{X2423}
-%%Table 3 Commands defined both for math and text
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Table 3: Commands defined both for math and text%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \DeclareSymbol{\P}{XB6}
 \DeclareSymbol{\S}{XA7}
 \DeclareSymbol[(c)]{\copyright}{XA9}
@@ -92,7 +96,9 @@
 \DeclareSymbol{\mathsection}{XA7}
 \DeclareSymbol[pounds]{\mathsterling}{XA3}
 \let\mathunderscore\_
-%%Table 39 Binary Operators
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Table 39 Binary Operators%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \DeclareSymbolHtml[\mbox{|\_|}]{\amalg}{X2A3F}
 \DeclareSymbolHtml[*]{\ast}{X2217}
 \DeclareSymbolHtml[O]{\bigcirc}{X25EF}
@@ -107,8 +113,8 @@
 \DeclareSymbolHtml{\@cup}{X222A}
 \DeclareSymbolHtml[\mbox{| |\@br| |\@br---}]{\@display@cup}{X22C3}
 \newcommand{\cup}{\ifdisplay\@display@cup\else\@cup\fi}
-\newcommand{\dagger}{\dag}
-\newcommand{\ddagger}{\ddag}
+\Let{\dagger}{\dag}
+\Let{\ddagger}{\ddag}
 \DeclareSymbolHtml{\diamond}{X22C4}
 \DeclareSymbol[/]{\div}{XF7}
 \DeclareSymbolHtml[-/+]{\mp}{X2213}
@@ -274,9 +280,9 @@
 \DeclareSymbolHtml[Phi]{\Phi}{X3A6}
 \DeclareSymbolHtml[Psi]{\Psi}{X3A8}
 \DeclareSymbolHtml[Omega]{\Omega}{X3A9}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Table 104 Letter-like symbols %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Table 104: Letter-like symbols %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \DeclareSymbolHtml[\mbox{\@print{_|_}}]{\bot}{X22A5}
 \DeclareSymbolHtml[\mbox{ell}]{\ell}{X2113}
 \DeclareSymbolHtml[\mbox{exists}]{\exists}{X2203}
@@ -291,9 +297,19 @@
 \DeclareSymbolHtml[\mbox{Re}]{\Re}{X211C}
 \DeclareSymbolHtml{\top}{X22A4}
 \DeclareSymbolHtml{\wp}{X2118}
-%% Some math symbols
-\newcommand{\le}{\leq}
-\newcommand{\ge}{\geq}
+%%%%%%%%%%%%%%%%%%%
+% Table 138: Dots %
+%%%%%%%%%%%%%%%%%%%
+\DeclareSymbolHtml[...]{\ldots}{X2026}
+\newcommand{\text@vdots}
+  {\ifdisplay\mbox{\cdot\\\cdot\\\cdot}\else:\fi}
+\DeclareSymbolHtml[\text@vdots]{\vdots}{X22EE}
+\DeclareSymbolHtml[\cdot\cdot\cdot]{\cdots}{X22EF}
+\newcommand{\text@ddots}{\ifdisplay\mbox{\cdot~~\\~\cdot~\\~~\cdot}\else%
+\warning{\ddots in text}\mbox{ddots}\fi}
+\DeclareSymbolHtml[\text@ddots]{\ddots}{X22F1}
+\let\cdotp\cdot
+\newcommand{\ldotp}{.}
 %%% So called log-like functions
 \newcommand{\@defl}[2]{\newcommand{#1}{\mathop{\mbox{#2}}}}
 \newcommand{\@defnl}[2]{\newcommand{#1}{\mathop{\mbox{#2}}\nolimits}}
@@ -332,17 +348,11 @@
 \@defnl\bmod{mod}
 %%%%%%%%%%%%%%
 \def\pmod#1{\mbox{(mod }#1{\@anti{\@style{I}} )}}
-\def\ll{\@print@u{XAB}}
-\def\gg{\@print@u{XBB}}
 \def\mapsto{\textnormal{|}\rightarrow}
 \def\tth{\textnormal{||-}}
 \def\frac#1#2{{#1\over #2}}
-\def\vdots{\ifdisplay\mbox{\cdot\\\cdot\\\cdot}\else:\fi}
-\def\ddots{\ifdisplay\mbox{\cdot~~\\~\cdot~\\~~\cdot}\else%
-\warning{\ddots in text}\mbox{ddots}\fi}
 \newcommand{\limits}{}
 \newcommand{\nolimits}{}
-\def\sim{\@print{~}}
 %%Vrac
 \def\i{i}
 %%%TeX definitions
@@ -454,4 +464,8 @@
 {\process@delim@dow{#1}{\Arr@mid}{\Downarrow}}
 \newcommand{\csname\delim@name{\Updownarrow}\endcsname}[1]
 {\process@delim@three{#1}{\Uparrow}{\Arr@mid}{\Downarrow}}
-
+%%%%%%%%%%%%%%%%%%%
+% TeX definitions %
+%%%%%%%%%%%%%%%%%%%
+\Let{\le}{\leq}
+\Let{\ge}{\geq}

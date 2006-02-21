@@ -18,3 +18,4 @@
 \def\@eatspaces#1,{#1}%
 %%%%%
 \newcommand{\DisplayChoose}[2]{\ifdisplay#1\else#2\fi}
+\newcommand{\Let}[2]{\ifu#2\else\let#1#2\fi}
