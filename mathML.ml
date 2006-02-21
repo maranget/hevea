@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: mathML.ml,v 1.23 2005-11-08 10:14:19 maranget Exp $" 
+let header = "$Id: mathML.ml,v 1.24 2006-02-21 07:50:33 maranget Exp $" 
 
 
 open Misc
@@ -541,7 +541,7 @@ let tr = function
 | s   -> s
 ;;
 
-let left delim k = 
+let left delim _ k = 
   force_item_display ();
   open_display ();
   if delim <>"." then put ("<mo> "^ tr delim^" </mo>");
@@ -556,7 +556,7 @@ let left delim k =
       close_display ();)
 ;;
 
-let right delim =
+let right delim _ =
   if !Lexstate.display then force_item_display ();
   if delim <> "." then put ("<mo> "^tr delim^" </mo>");
   if !Lexstate.display then force_item_display ();

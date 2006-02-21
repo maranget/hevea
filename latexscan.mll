@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.271 2006-02-17 18:18:21 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.272 2006-02-21 07:50:33 maranget Exp $ *)
 
 
 {
@@ -809,8 +809,8 @@ let rec expand_toks main = function
       scan_this main s
 
 let do_expand_command main skip_blanks name lexbuf =
-  if !verbose > 2 then begin
-    Printf.fprintf stderr "expand_command: %s\n" name
+  if !verbose > 1 then begin
+    Printf.fprintf stderr "expand_command: '%s'\n" name
   end ;
   let cur_subst = get_subst () in
   let exec =
@@ -1594,9 +1594,12 @@ and get_prim_opt def lexbuf =
 
 
 let get_csname lexbuf =
-  protect_save_string
-    (fun lexbuf -> Save.csname lexbuf get_prim Subst.subst_this)
-    lexbuf
+  let r = 
+    protect_save_string
+      (fun lexbuf -> Save.csname lexbuf get_prim Subst.subst_this)
+      lexbuf in
+(*  Printf.eprintf "GET CSNAME: '%s'\n" r ; *)
+  r
 
 
 let def_fun name f =
@@ -2025,11 +2028,13 @@ let displayleft lexbuf =
   let dprev = !display in
   Stack.push stack_display dprev ;
   display := true ;
-  if not dprev then
-    top_open_display () ;      
+  if not dprev then top_open_display () ;      
   let delim = subst_arg lexbuf in
   let {sub=sub ; sup=sup} = save_sup_sub lexbuf in
   Dest.left delim
+    (fun vsize ->
+      scan_this main
+	("\\process@delim{"^delim^"}{"^string_of_int vsize^"}"))
     (fun vsize ->
       Dest.int_sup_sub false vsize
         (scan_this_arg main) (fun () -> ())  sup sub true)
@@ -2037,7 +2042,11 @@ let displayleft lexbuf =
 
 let displayright lexbuf =
   let delim = subst_arg lexbuf in
-  let vsize = Dest.right delim in
+  let vsize =
+    Dest.right delim
+    (fun vsize ->
+      scan_this main
+	("\\process@delim{"^delim^"}{"^string_of_int vsize^"}")) in
   let {sup=sup ; sub=sub} = save_sup_sub lexbuf in
   let do_what = (fun () -> ()) in
   if vsize > 1 then

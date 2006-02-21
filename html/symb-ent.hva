@@ -5,8 +5,6 @@
 %% HTML 4.0 symbol entities
 %% classes dans le meme ordre que
 %% dans le livre LaTeX, de Leslie Lamport.
-\renewcommand{\ldots}{\ifmath\@print@u{X2026}\else{...}\fi}
-\renewcommand{\cdots}{\@print{&#8943;}}
 \renewcommand{\ddots}{\@print{&#8944;}}
 \renewcommand{\vdots}{\@print{&#8942;}}
 %Somme text commands available in LaTeX2e to give << absolute >> names to
@@ -104,7 +102,6 @@
 \newcommand{\rceil}{\@entity{rceil}}
 \newcommand{\langle}{\@entity{lang}}
 \newcommand{\rangle}{\@entity{rang}}
-\renewcommand{\|}{\@print{&#8741;}}
 %
 %% Variable-sized Symbols
 %

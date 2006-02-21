@@ -57,8 +57,8 @@ module type S =
 
     val over : bool -> Lexing.lexbuf -> unit
     val over_align : bool -> bool -> bool -> Lexing.lexbuf -> unit
-    val left : string -> (int -> unit) -> unit
-    val right : string -> int
+    val left : string -> (int -> unit) -> (int -> unit) -> unit
+    val right : string -> (int -> unit) -> int
 
     val set_dcount : string -> unit
     val item : string-> unit

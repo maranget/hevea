@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.80 2006-02-20 16:53:50 maranget Exp $    *)
+(*  $Id: package.ml,v 1.81 2006-02-21 07:50:33 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -91,6 +91,72 @@ def_diacritic "\\@doublestruck" "doublestruck" OutUnicode.doublestruck 0 ;
 ()
 ;;
 
+(**************)
+(* Delimiters *)
+(**************)
+def_code "\\process@delim@one"
+  (fun lexbuf ->
+    let n = Get.get_int (save_arg lexbuf) in
+    let mid = get_csname lexbuf in
+    for _i = 1 to n-1 do
+      scan_this main mid ; Dest.skip_line () ;
+    done ;
+    scan_this main mid)
+;;
+
+def_code "\\process@delim@top"
+  (fun lexbuf ->
+    let n = Get.get_int (save_arg lexbuf) in
+    let top = get_csname lexbuf in
+    let mid = get_csname lexbuf in
+    scan_this main top ; Dest.skip_line () ;
+    for _i = 1 to n-2 do
+      scan_this main mid ; Dest.skip_line () ;
+    done ;
+    scan_this main mid)
+;;
+
+def_code "\\process@delim@dow"
+  (fun lexbuf ->
+    let n = Get.get_int (save_arg lexbuf) in
+    let mid = get_csname lexbuf in
+    let dow = get_csname lexbuf in
+    for _i = 1 to n-1 do
+      scan_this main mid ; Dest.skip_line () ;
+    done ;
+    scan_this main dow)
+;;
+
+def_code "\\process@delim@three"
+  (fun lexbuf ->
+    let n = Get.get_int (save_arg lexbuf) in
+    let top = get_csname lexbuf in
+    let mid = get_csname lexbuf in
+    let dow = get_csname lexbuf in
+    scan_this main top ; Dest.skip_line () ;
+    for _i = 1 to n-2 do
+      scan_this main mid ; Dest.skip_line () ;
+    done ;
+    scan_this main dow)
+;;
+
+def_code "\\process@delim@four"
+  (fun lexbuf ->
+    let n = Get.get_int (save_arg lexbuf) in
+    let ext = get_csname lexbuf in
+    let top = get_csname lexbuf in
+    let mid = get_csname lexbuf in
+    let dow = get_csname lexbuf in
+    scan_this main top ; Dest.skip_line () ;
+    for _i = 1 to (n-3+1)/2 do
+      scan_this main ext ; Dest.skip_line () ;
+    done ;
+    scan_this main mid ;  Dest.skip_line () ;
+    for _i = 1 to (n-3+1)/2 do
+      scan_this main ext ; Dest.skip_line () ;
+    done ;
+    scan_this main dow)
+;;
 
 (* Various outworld information *)
 let def_print name s =

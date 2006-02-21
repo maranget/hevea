@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlMath.ml,v 1.34 2005-11-08 10:14:19 maranget Exp $" 
+let header = "$Id: htmlMath.ml,v 1.35 2006-02-21 07:50:33 maranget Exp $" 
 
 
 open Misc
@@ -576,22 +576,13 @@ let box_around_display scanner arg =
 
 (* Gestion of left and right delimiters *)
 
-let put_delim delim i =
-  if !verbose > 1 then
-    prerr_endline
-     ("put_delim: ``"^delim^"'' ("^string_of_int i^")") ;
-  if delim <> "." then begin
-    begin_item_display (fun () -> ()) false ;
-    Symb.put_delim skip_line put delim i ;
-    let _ = end_item_display () in ()
-  end
-;;
-
-let left delim k =
+let left _ k_delim k =
   let _,f,is_freeze = end_item_display () in
   delay
     (fun vsize ->
-      put_delim delim vsize ;
+      begin_item_display (fun () -> ()) false ;
+      k_delim vsize ;
+      ignore (end_item_display ()) ;
       begin_item_display (fun () -> ()) false ;
       k vsize ;
       let _ = end_item_display () in
@@ -599,9 +590,11 @@ let left delim k =
   begin_item_display f is_freeze
 ;;
 
-let right delim =
+let right _ k_delim =
   let vsize,f,is_freeze = end_item_display () in
-  put_delim delim vsize;
+  begin_item_display (fun () -> ()) false ;
+  k_delim vsize;
+  ignore (end_item_display ()) ;
   flush vsize ;
   begin_item_display f is_freeze ;
   vsize

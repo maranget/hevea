@@ -336,7 +336,6 @@
 \def\gg{\@print@u{XBB}}
 \def\mapsto{\textnormal{|}\rightarrow}
 \def\tth{\textnormal{||-}}
-\def\|{\textnormal{||}}
 \def\frac#1#2{{#1\over #2}}
 \def\vdots{\ifdisplay\mbox{\cdot\\\cdot\\\cdot}\else:\fi}
 \def\ddots{\ifdisplay\mbox{\cdot~~\\~\cdot~\\~~\cdot}\else%
@@ -363,3 +362,96 @@
 {\@ifundefined{#1@default}
   {\warning{Application of '#2' on '#3' failed}#3}
   {\csname#1@default\endcsname{#3}}}
+%%%%%%%%%%%%%%
+% Delimiters %
+%%%%%%%%%%%%%%
+\newcommand{\delim@name}[1]{\string{#1@delimname}}
+\newcommand{\process@delim}[2]
+{\@ifundefined{\delim@name{#1}}
+  {\process@delim@one{#2}{#1}}
+  {\csname\delim@name{#1}\endcsname{#2}}}
+\newcommand{\csname\delim@name{.}\endcsname}[1]{}
+%%Simple replication
+\DeclareSymbolHtml[|]{\mid@vert}{X23AA}%curly bracket extension
+\DeclareSymbolHtml[||]{\mid@Vert}{X2016}
+\newcommand{\vert}{|}
+\newcommand{\|}{||}
+\newcommand{\Vert}{||}
+\newcommand{\csname\delim@name{\vert}\endcsname}[1]
+{\process@delim@one{#1}{\mid@vert}}
+\newcommand{\csname\delim@name{\Vert}\endcsname}[1]
+{\process@delim@one{#1}{\mid@Vert}}
+\newcommand{\csname\delim@name{|}\endcsname}[1]
+{\process@delim@one{#1}{\mid@vert}}
+\newcommand{\csname\delim@name{\|}\endcsname}[1]
+{\process@delim@one{#1}{\mid@Vert}}
+%%Left parenthesis
+\DeclareSymbolHtml[(]{\top@parleft}{X239B}
+\DeclareSymbolHtml[(]{\mid@parleft}{X239C}
+\DeclareSymbolHtml[(]{\dow@parleft}{X239D}
+\newcommand{\csname\delim@name(\endcsname}[1]
+{\process@delim@three{#1}{\top@parleft}{\mid@parleft}{\dow@parleft}}
+%%Right parenthesis
+\DeclareSymbolHtml[)]{\top@parright}{X239E}
+\DeclareSymbolHtml[)]{\mid@parright}{X239F}
+\DeclareSymbolHtml[)]{\dow@parright}{X23A0}
+\newcommand{\csname\delim@name)\endcsname}[1]
+{\process@delim@three{#1}{\top@parright}{\mid@parright}{\dow@parright}}
+%%Left square bracket
+\DeclareSymbolHtml[\@print{-}]{\top@sqbraleft}{X23A1}
+\DeclareSymbolHtml[|]{\mid@sqbraleft}{X23A2}
+\DeclareSymbolHtml[\@print{-}]{\dow@sqbraleft}{X23A3}
+\newcommand{\csname\delim@name{[}\endcsname}[1]
+{\process@delim@three{#1}{\top@sqbraleft}{\mid@sqbraleft}{\dow@sqbraleft}}
+%%Right square bracket
+\DeclareSymbolHtml[\@print{-}]{\top@sqbraright}{X23A4}
+\DeclareSymbolHtml[|]{\mid@sqbraright}{X23A5}
+\DeclareSymbolHtml[\@print{-}]{\dow@sqbraright}{X23A6}
+\newcommand{\csname\delim@name{]}\endcsname}[1]
+{\process@delim@three{#1}{\top@sqbraright}{\mid@sqbraright}{\dow@sqbraright}}
+%%Left ceil
+\newcommand{\csname\delim@name{\lceil}\endcsname}[1]
+{\process@delim@top{#1}{\top@sqbraleft}{\mid@sqbraleft}}
+%%Left floor
+\newcommand{\csname\delim@name{\lfloor}\endcsname}[1]
+{\process@delim@dow{#1}{\mid@sqbraleft}{\dow@sqbraleft}}
+%%Right ceil
+\newcommand{\csname\delim@name{\rceil}\endcsname}[1]
+{\process@delim@top{#1}{\top@sqbraright}{\mid@sqbraright}}
+%%Right floor
+\newcommand{\csname\delim@name{\rfloor}\endcsname}[1]
+{\process@delim@dow{#1}{\mid@sqbraright}{\dow@sqbraright}}
+%%Left curly bracket
+\let\@obra\{
+\DeclareSymbolHtml[\@obra]{\curlybra@ext}{X23AA}
+\DeclareSymbolHtml[\@obra]{\leftcurlybra@top}{X23A7}
+\DeclareSymbolHtml[\@obra]{\leftcurlybra@mid}{X23A8}
+\DeclareSymbolHtml[\@obra]{\leftcurlybra@dow}{X23A9}
+\newcommand{\csname\delim@name{\{}\endcsname}[1]
+{\process@delim@four{#1}
+{\curlybra@ext}{\leftcurlybra@top}{\leftcurlybra@mid}{\leftcurlybra@dow}}
+%%Right curly bracket
+\let\@cbra\}
+\DeclareSymbolHtml[\@cbra]{\rightcurlybra@top}{X23AB}
+\DeclareSymbolHtml[\@cbra]{\rightcurlybra@mid}{X23AC}
+\DeclareSymbolHtml[\@cbra]{\rightcurlybra@dow}{X23AD}
+\newcommand{\csname\delim@name{\}}\endcsname}[1]
+{\process@delim@four{#1}
+{\curlybra@ext}{\rightcurlybra@top}{\rightcurlybra@mid}{\rightcurlybra@dow}}
+%%Arrows
+\DeclareSymbolHtml[|]{\arr@mid}{X23AA}%curly bracket extension
+\newcommand{\csname\delim@name{\uparrow}\endcsname}[1]
+{\process@delim@top{#1}{\uparrow}{\arr@mid}}
+\newcommand{\csname\delim@name{\downarrow}\endcsname}[1]
+{\process@delim@dow{#1}{\arr@mid}{\downarrow}}
+\newcommand{\csname\delim@name{\updownarrow}\endcsname}[1]
+{\process@delim@three{#1}{\uparrow}{\arr@mid}{\downarrow}}
+%%Arrows
+\DeclareSymbolHtml[||]{\Arr@mid}{X2016}
+\newcommand{\csname\delim@name{\Uparrow}\endcsname}[1]
+{\process@delim@top{#1}{\Uparrow}{\Arr@mid}}
+\newcommand{\csname\delim@name{\Downarrow}\endcsname}[1]
+{\process@delim@dow{#1}{\Arr@mid}{\Downarrow}}
+\newcommand{\csname\delim@name{\Updownarrow}\endcsname}[1]
+{\process@delim@three{#1}{\Uparrow}{\Arr@mid}{\Downarrow}}
+

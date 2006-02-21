@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.70 2006-02-17 18:18:21 maranget Exp $"
+let header = "$Id: text.ml,v 1.71 2006-02-21 07:50:33 maranget Exp $"
 
 
 open Misc
@@ -2107,16 +2107,16 @@ let translate = function
 let over_align _ _ display lexbuf = over display lexbuf
 ;;
 
-let left delim k =
+let left delim _ k =
   item_display ();
   open_display "";
   close_cell_group ();
-  if delim<>"." then make_border (translate delim);
+  make_border (translate delim) ;
   k 3 ;
   open_cell_group ();
 ;;
 
-let right delim =
+let right delim _ =
   let vsize = 3 in
   if delim<>"." then make_border (translate delim);
   item_display ();
