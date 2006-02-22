@@ -389,6 +389,21 @@ and doubleacute = function
   | 'u' -> 0x0171
   | _ -> raise CannotTranslate
 
+and doublegrave = function
+  | 'A' -> 0x0200
+  | 'a' -> 0x0201
+  | 'E' -> 0x0204
+  | 'e' -> 0x0205
+  | 'I' -> 0x0208
+  | 'i' -> 0x0209
+  | 'O' -> 0x020C
+  | 'o' -> 0x020D
+  | 'R' -> 0x0210
+  | 'r' -> 0x0211
+  | 'U' -> 0x0214
+  | 'u' -> 0x0215
+  | _ -> raise CannotTranslate
+
 and breve = function
   | 'A' -> 0x0102
   | 'a' -> 0x0103

@@ -19,57 +19,12 @@
 \def\textquoteright{\@print{&rsquo;}}
 \def\textquoteleft{\@print{&lsquo;}}
 
-%
-%% Binary Operation Symbols
-%
-\renewcommand{\pm}{\@print@u{177}}
-%\renewcommand{\star}{\@print{&#8902;}}
-%\newcommand{\lhd}{\@print{&#9665;}}
-%\newcommand{\rhd}{\@print{&#9655;}}
-%\newcommand{\unlhd}{\@entity{LeftTriangleEqual}}
-%\newcommand{\unrhd}{\@entity{RightTriangleEqual}}
-%
-%% Relation Symbols (Table 8.5 of 'Goos-Mitt-Sam')
-%
 %%%%%%%%%%%%%%%%%%%
 \newcommand{\notin}{\@print{&#8713;}}
 %
 %% Arrow Symbols (Table 8.6 of 'Goos-Mitt-Sam')
 %
-\newcommand{\leftarrow}{\@entity{larr}}
-\newcommand{\Leftarrow}{\@entity{lArr}}
-\newcommand{\rightarrow}{\@entity{rarr}}
-\newcommand{\Rightarrow}{\@entity{rArr}}
-\newcommand{\leftrightarrow}{\@print{&#8596;}}
-\newcommand{\Leftrightarrow}{\@print{&#8660;}}
-\renewcommand{\mapsto}{\@print{&#8614;}}
-\newcommand{\hookleftarrow}{\@print{&#8617;}}
-\newcommand{\leftharpoonup}{\@print{&#8636;}}
-\newcommand{\leftharpoondown}{\@print{&#8637;}}
-\newcommand{\rightleftharpoons}{\@print{&#8652;}}
-\newcommand{\longleftarrow}{\leftarrow\@entity{mdash}} 	% EVENTUALY 10229
-\newcommand{\Longleftarrow}{\Leftarrow}			% EVENTUALY 10232
-\newcommand{\longrightarrow}{\@entity{mdash}\rightarrow}% EVENTUALY 10230
-\newcommand{\Longrightarrow}{\Rightarrow}		% EVENTUALY 10233
-\newcommand{\longleftrightarrow}{\leftarrow\rightarrow} % EVENTUALY 10231
-\newcommand{\Longleftrightarrow}{\Leftarrow\Rightarrow} % EVENTUALY 10234
-\newcommand{\longmapsto}{\vdash\rightarrow}		% EVENTUALY 10236
-\newcommand{\hookrightarrow}{\@print{&#8618;}}
-\newcommand{\rightharpoonup}{\@print{&#8640;}}
-\newcommand{\rightharpoondown}{\@print{&#8641;}}
-\newcommand{\leadsto}{\@print{&#8605;}}
-\newcommand{\uparrow}{\@print{&#8593;}}
-\newcommand{\Uparrow}{\@print{&#8657;}}
-\newcommand{\downarrow}{\@print{&#8595;}}
-\newcommand{\Downarrow}{\@print{&#8659;}}
-\newcommand{\updownarrow}{\@print{&#8597;}}
-\newcommand{\Updownarrow}{\@print{&#8661;}}
-%\newcommand{\@displayUpdownarrow}{\mbox{\@print{&#8657;}\@br\@print{&#8659;}}}
-\newcommand{\nearrow}{\@print{&#8598;}}
-\newcommand{\searrow}{\@print{&#8600;}}
-\newcommand{\swarrow}{\@print{&#8601;}}
-\newcommand{\nwarrow}{\@print{&#8598;}}
-%
+
 %% Eventually these commands would be activated (currently with '-moreentities')
 %
 %\renewcommand{\longleftarrow}{\@print{&#10229;}}
@@ -133,14 +88,6 @@
 %
 %% Definition for big left and right brackets
 %
-\def\bigl#1{\ifdisplay{\large #1}\else{\large #1}\fi}
-\def\bigr#1{\ifdisplay{\large #1}\else{\large #1}\fi}
-\def\Bigl#1{\ifdisplay{\Large #1}\else{\large #1}\fi}
-\def\Bigr#1{\ifdisplay{\Large #1}\else{\large #1}\fi}
-\def\biggl#1{\ifdisplay{\huge #1}\else{\large #1}\fi}
-\def\biggr#1{\ifdisplay{\huge #1}\else{\large #1}\fi}
-\def\Biggl#1{\ifdisplay{\Huge #1}\else{\large #1}\fi}
-\def\Biggr#1{\ifdisplay{\Huge #1}\else{\large #1}\fi}
 %%% SQRT
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

@@ -88,3 +88,8 @@
 \DeclareSymbol[Euro]{\texteuro}{X20AC}
 \DeclareSymbol[X]{\texttimes}{XD7}
 \DeclareSymbol[/]{\textdiv}{XF7}
+%%%% Text-mode arrows
+\Let\textdownarrow\downarrow
+\Let\textrightarrow\rightarrow
+\Let\textleftarrow\leftarrow
+\Let\textuparrow\uparrow

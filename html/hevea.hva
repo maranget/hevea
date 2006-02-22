@@ -40,6 +40,7 @@
 \let\DeclareSymbolHtml\DeclareSymbol
 \newcommand{\MakeBigSymbol}[4]
 {\newcommand{#1}{\mathop{\ifdisplay{\huge#2}\else#2\fi}}}
+\let\NewcommandHtml\newcommand%no opt-arg (see text/hevea.hva)
 \input{iso-symb.hva}
 \renewcommand{\&}{\ifraw\@print{&}\else\@print{&amp;}\fi}
 \input{latexcommon.hva}

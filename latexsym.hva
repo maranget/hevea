@@ -11,3 +11,5 @@
 {\sqsubset}{X228F}
 \DeclareSymbolHtml[\DisplayChoose{\@textdisplaysupset}{\mbox{sqsupset}}]
 {\sqsupset}{X2290}
+\DeclareSymbolHtml{\leadsto}{X219D}
+\endinput

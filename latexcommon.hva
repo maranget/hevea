@@ -3,8 +3,9 @@
 \newenvironment{htmlonly}{}{}
 \newcommand{\home}[1]{\~{}#1}
 %%%%%%%%%%%%%%%% Maths environments and TeXisms
-\newcommand{\textright}[1]{#1}
-\newcommand{\textleft}[1]{#1}
+\newcommand{\@dot}{.}
+\newcommand{\textright}[1]{\def\@tmp{#1}\ifx\@tmp\@dot\else#1\fi}
+\newcommand{\textleft}[1]{\def\@tmp{#1}\ifx\@tmp\@dot\else#1\fi}
 \def\mathord#1{#1}
 \def\mathrel#1{#1}
 \def\mathbin#1{#1}
@@ -27,6 +28,7 @@
 %%%
 \newcommand{\\*}{\\}
 %%% Arrays
+\let\arraystretch\@empty
 \newenvironment{array}
   {\let\\=\@HEVEA@bsbs\let\@hevea@amper=\@HEVEA@amper\@array}
   {\end@array}

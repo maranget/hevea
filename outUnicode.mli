@@ -33,6 +33,7 @@ val stroke : char -> int
 val macron : char -> int
 val caron : char -> int
 val doubleacute : char -> int
+val doublegrave : char -> int
 val breve : char -> int
 val dotabove : char -> int
 val dotbelow : char -> int

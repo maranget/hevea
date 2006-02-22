@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.81 2006-02-21 07:50:33 maranget Exp $    *)
+(*  $Id: package.ml,v 1.82 2006-02-22 19:26:39 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -48,8 +48,9 @@ exception DiacriticFailed of string
 let do_def_diacritic verb name f empty = 
   (fun lexbuf ->
     Save.start_echo () ;
-    let arg = get_prim_arg lexbuf in
+    let arg = save_arg lexbuf in
     let input = Save.get_echo () in
+    let arg = get_this_arg_mbox arg in
     try match String.length arg with
     | 0 -> put_empty empty
     | 1 ->
@@ -79,6 +80,8 @@ def_diacritic "\\c"  "cedilla" OutUnicode.cedilla 0xB8 ;
 def_diacritic "\\~"  "tilde" OutUnicode.tilde 0x7E ;
 def_diacritic "\\="  "macron" OutUnicode.macron 0xAF ;
 def_diacritic "\\H"  "doubleacute" OutUnicode.doubleacute 0x2DD ;
+(* package fc, see later ? *)
+(* def_diacritic "\\G"  "doublegrave" OutUnicode.doublegrave 0x2F5 ; *)
 def_diacritic "\\u"  "breve" OutUnicode.breve 0x2D8 ;
 def_diacritic "\\."  "dotabove" OutUnicode.dotabove 0x2D9 ;
 def_diacritic "\\d"  "dotbelow" OutUnicode.dotbelow 0 ;
@@ -87,8 +90,19 @@ def_diacritic "\\k"  "ogonek" OutUnicode.ogonek 0x3DB ;
 def_diacritic "\\r"  "ringabove" OutUnicode.ring  0x2DA ;
 def_diacritic "\\v"  "caron" OutUnicode.caron 0 ;
 def_diacritic "\\textcircled" "circled" OutUnicode.circled 0x25EF ;
+(* activated by amssymb *)
 def_diacritic "\\@doublestruck" "doublestruck" OutUnicode.doublestruck 0 ;
 ()
+;;
+
+def_code "\\DisplayChoose"
+  (fun lexbuf ->
+    let cmd1 = get_csname lexbuf in
+    let cmd2 = get_csname lexbuf in
+    if !display then
+      expand_command cmd1 lexbuf
+    else
+      expand_command cmd2 lexbuf)
 ;;
 
 (**************)
@@ -97,12 +111,14 @@ def_diacritic "\\@doublestruck" "doublestruck" OutUnicode.doublestruck 0 ;
 def_code "\\process@delim@one"
   (fun lexbuf ->
     let n = Get.get_int (save_arg lexbuf) in
+    let n = if n < 2 then 2 else n in
     let mid = get_csname lexbuf in
     for _i = 1 to n-1 do
       scan_this main mid ; Dest.skip_line () ;
     done ;
     scan_this main mid)
 ;;
+
 
 def_code "\\process@delim@top"
   (fun lexbuf ->
@@ -157,6 +173,17 @@ def_code "\\process@delim@four"
     done ;
     scan_this main dow)
 ;;
+
+let int_sup_sub lexbuf =
+  let n = Get.get_int (save_arg lexbuf) in
+  let {limits=limits ; sup=sup ; sub=sub} = save_sup_sub lexbuf in
+  Dest.int_sup_sub false n
+    (scan_this_arg main) (fun () -> ()) sup sub true
+;;
+
+def_code "\\int@sup@sub" int_sup_sub
+;;
+
 
 (* Various outworld information *)
 let def_print name s =

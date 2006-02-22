@@ -26,6 +26,9 @@
 {\ifx#1\@empty\else\newcommand{#2}{#1}\fi}
 \newcommand{\MakeBigSymbol}[4]
 {\newcommand{#1}{\mathop{\ifdisplay#4\else#3\fi}}}
+\newcommand{\@non@k}[2][]{}
+\newcommand{\@nonewcommand}[1]{\@non@k}
+\let\NewcommandHtml\@nonewcommand
 \input{iso-symb.hva}
 \input{latexcommon.hva}
 %%% Logos

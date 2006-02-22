@@ -140,10 +140,10 @@
 \DeclareSymbolHtml{\angle}{X2220}
 \newcommand{\backslash}{\char92}
 \DeclareSymbolHtml{\clubsuit}{X2663}
-\DeclareSymbolHtml{\diamondsuit}{X2662}
+\DeclareSymbolHtml{\diamondsuit}{X2666}
 \DeclareSymbolHtml[\O]{\emptyset}{X2205}
 \DeclareSymbolHtml{\flat}{X266D}
-\DeclareSymbolHtml{\heartsuit}{X2661}
+\DeclareSymbolHtml{\heartsuit}{X2665}
 \DeclareSymbolHtml[\mbox{oo}]{\infty}{X221E}
 \DeclareSymbolHtml[\mbox{nabla}]{\nabla}{X2207}
 \DeclareSymbolHtml{\natural}{X266E}
@@ -236,6 +236,58 @@
 \DeclareSymbolHtml[>=]{\geq}{X2265}
 \DeclareSymbolHtml[>>]{\gg}{X226B}
 \DeclareSymbolHtml[\mbox{neq}]{\neq}{X2260}
+%%%%%%%%%%%%%%%%%%%%
+% Table 79: Arrows %
+%%%%%%%%%%%%%%%%%%%%
+\DeclareSymbolHtml{\Downarrow}{X21D3}
+\DeclareSymbolHtml{\downarrow}{X2193}
+\DeclareSymbolHtml{\hookleftarrow}{X21A9}
+\DeclareSymbolHtml{\hookrightarrow}{X21AA}
+\DeclareSymbolHtml[\mbox{<-}]{\leftarrow}{X2190}
+\DeclareSymbolHtml[\mbox{<=}]{\Leftarrow}{X21D0}
+\DeclareSymbolHtml[\mbox{<=>}]{\Leftrightarrow}{X21D4}
+\DeclareSymbolHtml[\mbox{<->}]{\leftrightarrow}{X2194}
+\DeclareSymbolHtml[\mbox{|->>}]{\mapsto}{X21A6}
+\DeclareSymbolHtml[\mbox{-}]{\relbar}{X23AF}
+%EM DASH (better than arrow extension X23AF)
+\DeclareSymbolHtml[\@print{-}]{\@arrowextension}{X2014}
+%nothing satisfactory
+\newcommand{\Relbar}{=}
+\newcommand{\@Arrowextension}{=}
+\newcommand{\longleftarrow}{\leftarrow\@arrowextension}
+\newcommand{\Longleftarrow}{\Leftarrow\@Arrowextension}
+\newcommand{\longleftrightarrow}{\leftarrow\rightarrow}
+\newcommand{\Longleftrightarrow}{\Leftarrow\Rightarrow}
+\newcommand{\longmapsto}{\dashv\rightarrow}
+\newcommand{\Longrightarrow}{\@Arrowextension\Rightarrow}
+\newcommand{\longrightarrow}{\@arrowextension\rightarrow}
+\DeclareSymbolHtml{\nearrow}{X2197}
+\DeclareSymbolHtml{\nwarrow}{X2196}
+\DeclareSymbolHtml[\mbox{=>}]{\Rightarrow}{X21D2}
+\DeclareSymbolHtml[\mbox{->}]{\rightarrow}{X2192}
+\DeclareSymbolHtml{\searrow}{X2198}
+\DeclareSymbolHtml{\swarrow}{X2199}
+\DeclareSymbolHtml{\uparrow}{X2191}
+\DeclareSymbolHtml{\Uparrow}{X21D1}
+\DeclareSymbolHtml{\updownarrow}{X2195}
+\DeclareSymbolHtml{\@textUpdownarrow}{X21D5}
+\iffalse
+\NewcommandHtml{\@displayUpdownarrow}
+{\@open{TABLE}{CELLSPACING=0 CELLPADDING=0}\@open{TR}{}\@open{TD}{}%
+\Uparrow\@force{TD}\@force{TR}\@open{TR}{}\@open{TD}{}%
+\Downarrow\@force{TD}\@force{TR}\@force{TABLE}}
+\fi
+\NewcommandHtml{\@displayUpdownarrow}
+{\@itemdisplay\Uparrow\@br\Downarrow\@itemdisplay\int@sup@sub{2}}
+\NewcommandHtml{\Updownarrow}{\DisplayChoose{\@displayUpdownarrow}{\@textUpdownarrow}}
+%%%%%%%%%%%%%%%%%%%%%
+%Table 80: Harpoons %
+%%%%%%%%%%%%%%%%%%%%%
+\DeclareSymbolHtml{\leftharpoondown}{X21BD}
+\DeclareSymbolHtml{\leftharpoonup}{X21BC}
+\DeclareSymbolHtml{\rightharpoondown}{X21C1}
+\DeclareSymbolHtml{\rightharpoonup}{X21C0}
+\DeclareSymbolHtml{\rightleftharpoons}{X21CC}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Table 98: Greek Letters %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -289,14 +341,31 @@
 \DeclareSymbolHtml[\mbox{forall}]{\forall}{X2200}
 \DeclareSymbolHtml[\mbox{h}]{\hbar}{X210F}
 \DeclareSymbolHtml[\mbox{Im}]{\Im}{X2111}
-\DeclareSymbolHtml{\imath}{X2129}
 \DeclareSymbolHtml[\mbox{in}]{\in}{X2208}
-\newcommand{\jmath}{j}%???
 \DeclareSymbolHtml[\mbox{contains}]{\ni}{X220B}
 \DeclareSymbolHtml{\partial}{X2202}
 \DeclareSymbolHtml[\mbox{Re}]{\Re}{X211C}
 \DeclareSymbolHtml{\top}{X22A4}
 \DeclareSymbolHtml{\wp}{X2118}
+\newcommand{\i}{i}%To have \^{\i} work. (No accent as fct of U-chars yet)
+\let\imath\i
+%\DeclareSymbolHtml[i]{\imath}{X131}
+\newcommand{\j}{j}
+%\DeclareSymbolHtml[j]{\jmath}{X237}
+\let\jmath\j
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Table 122: Math-mode Accents %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\let\acute\'
+\let\bar\=
+\let\breve\u
+\let\check\v
+\let\dot\.
+\let\grave\`
+\let\hat\^
+\let\mathring\r
+\let\tilde\~
+\newcommand{\vec}[1]{\warning{'\vec'}#1}
 %%%%%%%%%%%%%%%%%%%
 % Table 138: Dots %
 %%%%%%%%%%%%%%%%%%%
@@ -310,6 +379,7 @@
 \DeclareSymbolHtml[\text@ddots]{\ddots}{X22F1}
 \let\cdotp\cdot
 \newcommand{\ldotp}{.}
+\DeclareSymbolHtml[:]{\colon}{X2236}
 %%% So called log-like functions
 \newcommand{\@defl}[2]{\newcommand{#1}{\mathop{\mbox{#2}}}}
 \newcommand{\@defnl}[2]{\newcommand{#1}{\mathop{\mbox{#2}}\nolimits}}
@@ -348,13 +418,10 @@
 \@defnl\bmod{mod}
 %%%%%%%%%%%%%%
 \def\pmod#1{\mbox{(mod }#1{\@anti{\@style{I}} )}}
-\def\mapsto{\textnormal{|}\rightarrow}
 \def\tth{\textnormal{||-}}
 \def\frac#1#2{{#1\over #2}}
 \newcommand{\limits}{}
 \newcommand{\nolimits}{}
-%%Vrac
-\def\i{i}
 %%%TeX definitions
 \let\le\leq
 \let\ge\geq
@@ -372,9 +439,9 @@
 {\@ifundefined{#1@default}
   {\warning{Application of '#2' on '#3' failed}#3}
   {\csname#1@default\endcsname{#3}}}
-%%%%%%%%%%%%%%
-% Delimiters %
-%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Delimiters (Table 113) %
+%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newcommand{\delim@name}[1]{\string{#1@delimname}}
 \newcommand{\process@delim}[2]
 {\@ifundefined{\delim@name{#1}}
@@ -383,7 +450,7 @@
 \newcommand{\csname\delim@name{.}\endcsname}[1]{}
 %%Simple replication
 \DeclareSymbolHtml[|]{\mid@vert}{X23AA}%curly bracket extension
-\DeclareSymbolHtml[||]{\mid@Vert}{X2016}
+\DeclareSymbolHtml[||]{\mid@Vert}{X2225}
 \newcommand{\vert}{|}
 \newcommand{\|}{||}
 \newcommand{\Vert}{||}
@@ -457,13 +524,62 @@
 \newcommand{\csname\delim@name{\updownarrow}\endcsname}[1]
 {\process@delim@three{#1}{\uparrow}{\arr@mid}{\downarrow}}
 %%Arrows
-\DeclareSymbolHtml[||]{\Arr@mid}{X2016}
+\DeclareSymbolHtml[||]{\Arr@mid}{X2225}
 \newcommand{\csname\delim@name{\Uparrow}\endcsname}[1]
 {\process@delim@top{#1}{\Uparrow}{\Arr@mid}}
 \newcommand{\csname\delim@name{\Downarrow}\endcsname}[1]
 {\process@delim@dow{#1}{\Arr@mid}{\Downarrow}}
 \newcommand{\csname\delim@name{\Updownarrow}\endcsname}[1]
 {\process@delim@three{#1}{\Uparrow}{\Arr@mid}{\Downarrow}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Large Delimiters (Table 113) %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\DeclareSymbolHtml{\lmoustache}{X23B0}%does noyt really exist in latex...
+\newcommand{\csname\delim@name{\lmoustache}\endcsname}[1]
+{\process@delim@three{#1}
+  {\leftcurlybra@top}{\curlybra@ext}{\rightcurlybra@dow}}
+\DeclareSymbolHtml{\rmoustache}{X23B1}%does noyt really exist in latex...
+\newcommand{\csname\delim@name{\rmoustache}\endcsname}[1]
+{\process@delim@three{#1}
+  {\rightcurlybra@top}{\curlybra@ext}{\leftcurlybra@dow}}
+\newcommand{\lgroup}{(}
+\newcommand{\csname\delim@name\lgroup\endcsname}[1]
+{\process@delim@three{#1}{\top@parleft}{\mid@parleft}{\dow@parleft}}
+\newcommand{\rgroup}{)}
+\newcommand{\csname\delim@name\rgroup\endcsname}[1]
+{\process@delim@three{#1}{\top@parright}{\mid@parright}{\dow@parright}}
+\newcommand{\arrowvert}{|}
+\Let\Arrowvert\Vert
+\newcommand{\bracevert}{\textbf{|}}
+\newcommand{\csname\delim@name{\arrowvert}\endcsname}[1]
+{\process@delim@one{#1}{\mid@vert}}
+\newcommand{\csname\delim@name{\Arrowvert}\endcsname}[1]
+{\process@delim@one{#1}{\mid@Vert}}
+\newcommand{\csname\delim@name{\bracevert}\endcsname}[1]
+{\process@delim@one{#1}{\textbf{\mid@vert}}}
+%%%%%%%%%%%%%%%%%%%%%
+% Explicit \big etc.%
+%%%%%%%%%%%%%%%%%%%%%
+\NewcommandHtml{\@big}[1]
+{\@itemdisplay\process@delim{#1}{2}\@itemdisplay\int@sup@sub{2}}
+\NewcommandHtml{\@@big}[1]{\warning{\big in text mode}#1}
+\NewcommandHtml{\big}{\DisplayChoose\@big\@@big}
+\NewcommandHtml{\@Big}[1]
+{\@itemdisplay\process@delim{#1}{3}\@itemdisplay\int@sup@sub{3}}
+\NewcommandHtml{\@@Big}[1]{\warning{\Big in text mode}#1}
+\NewcommandHtml{\Big}{\DisplayChoose\@Big\@@Big}
+\NewcommandHtml{\@bigg}[1]
+{\@itemdisplay\process@delim{#1}{4}\@itemdisplay\int@sup@sub{4}}
+\NewcommandHtml{\@@bigg}[1]{\warning{\bigg in text mode}#1}
+\NewcommandHtml{\bigg}{\DisplayChoose\@bigg\@@bigg}
+\NewcommandHtml{\@Bigg}[1]
+{\@itemdisplay\process@delim{#1}{5}\@itemdisplay\int@sup@sub{5}}
+\NewcommandHtml{\@@Bigg}[1]{\warning{\Bigg in text mode}#1}
+\NewcommandHtml{\Bigg}{\DisplayChoose\@Bigg\@@Bigg}
+\Let\bigl\big\Let\bigm\big\Let\bigr\big
+\Let\Bigl\Big\Let\Bigm\Big\Let\Bigr\Big
+\Let\biggl\bigg\Let\biggm\bigg\Let\biggr\bigg
+\Let\Biggl\Bigg\Let\Biggm\Bigg\Let\Biggr\Bigg
 %%%%%%%%%%%%%%%%%%%
 % TeX definitions %
 %%%%%%%%%%%%%%%%%%%
