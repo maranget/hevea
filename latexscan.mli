@@ -32,12 +32,14 @@ module type S =
     val top_close_block : string -> unit
     val check_alltt_skip : Lexing.lexbuf -> unit
     val skip_pop : Lexing.lexbuf -> unit
-(* ``def'' functions for initialisation only *)
+(* 'def' functions for initialisation only *)
     val def_code : string -> (Lexing.lexbuf -> unit) -> unit
     val def_name_code : string -> (string -> Lexing.lexbuf -> unit) -> unit
     val def_fun : string -> (string -> string) -> unit
+(* various calls of main scanner, should tidy that a bit *)
     val get_this_main : string -> string
     val get_this_arg_mbox : string arg -> string
+    val get_prim_onarg : string Lexstate.arg -> string
     val check_this_main : string -> bool
     val get_prim : string -> string
     val get_prim_arg : Lexing.lexbuf -> string

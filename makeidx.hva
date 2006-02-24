@@ -10,7 +10,6 @@
 %{\if@refs\@saveclosed%
 %\@@indexwrite[default]{#1}{\@currentlabel}{htoc\thetocanchor}%force evaluation
 %\@restoreclosed\fi}
-
 \newcommand{\printindex}{\@printindex[default]}
 \newcommand{\makeindex}{\newindex{default}{idx}{ind}{Index}}
 \newcommand{\@seename}{see}

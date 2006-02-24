@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.82 2006-02-22 19:26:39 maranget Exp $    *)
+(*  $Id: package.ml,v 1.83 2006-02-24 16:43:25 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -50,7 +50,7 @@ let do_def_diacritic verb name f empty =
     Save.start_echo () ;
     let arg = save_arg lexbuf in
     let input = Save.get_echo () in
-    let arg = get_this_arg_mbox arg in
+    let arg = get_prim_onarg arg in
     try match String.length arg with
     | 0 -> put_empty empty
     | 1 ->
@@ -95,6 +95,10 @@ def_diacritic "\\@doublestruck" "doublestruck" OutUnicode.doublestruck 0 ;
 ()
 ;;
 
+(*
+ Specialized version of \IfDisplay (plain.hva) for command names,
+ so as to avoid inserting \fi at end of scanned text
+*)
 def_code "\\DisplayChoose"
   (fun lexbuf ->
     let cmd1 = get_csname lexbuf in
@@ -176,9 +180,11 @@ def_code "\\process@delim@four"
 
 let int_sup_sub lexbuf =
   let n = Get.get_int (save_arg lexbuf) in
-  let {limits=limits ; sup=sup ; sub=sub} = save_sup_sub lexbuf in
-  Dest.int_sup_sub false n
-    (scan_this_arg main) (fun () -> ()) sup sub true
+  if !display then begin
+    let {limits=limits ; sup=sup ; sub=sub} = save_sup_sub lexbuf in
+    Dest.int_sup_sub false n
+      (scan_this_arg main) (fun () -> ()) sup sub true
+  end
 ;;
 
 def_code "\\int@sup@sub" int_sup_sub

@@ -181,7 +181,7 @@
 \MakeBigSymbol{\sum}{\@sum}{\@sum}{\@textdisplaysum}
 \DeclareSymbolHtml[\mbox{integral}]{\@int}{X222B}
 \newcommand{\@textdisplayint}{\mbox{/\@br|\@br|\@br/}}
-\MakeBigSymbol{\int}{\@int}{\@int}{\@textdisplayint}
+\MakeBigSymbol[\int@sup@sub{2}]{\int}{\@int}{\@int}{\@textdisplayint}
 \DeclareSymbolHtml[\mbox{oint}]{\@oint}{X222E}
 \newcommand{\@textdisplayoint}{\mbox{/\@br|\@br{}o\@br|\@br/}}
 \MakeBigSymbol{\oint}{\@oint}{\@oint}{\@textdisplayoint}
@@ -216,17 +216,17 @@
 \newcommand{\@textdisplaysupset}{\mbox{-\@br~|\@br-}}
 \newcommand{\@textdisplaysubseteq}{\mbox{-\@br|\@br=}}
 \newcommand{\@textdisplaysupseteq}{\mbox{-\@br~|\@br=}}
-\DeclareSymbolHtml[\DisplayChoose{\@textdisplysubset}{\mbox{subset}}]
+\DeclareSymbolHtml[\IfDisplay{\@textdisplysubset}{\mbox{subset}}]
 {\subset}{X2282}
-\DeclareSymbolHtml[\DisplayChoose{\@textdisplaysubseteq}{\mbox{subseteq}}]
+\DeclareSymbolHtml[\IfDisplay{\@textdisplaysubseteq}{\mbox{subseteq}}]
 {\subseteq}{X2286}
-\DeclareSymbolHtml[\DisplayChoose{\@textdisplaysupset}{\mbox{supset}}]
+\DeclareSymbolHtml[\IfDisplay{\@textdisplaysupset}{\mbox{supset}}]
 {\supset}{X2283}
-\DeclareSymbolHtml[\DisplayChoose{\@textdisplaysupseteq}{\mbox{supseteq}}]
+\DeclareSymbolHtml[\IfDisplay{\@textdisplaysupseteq}{\mbox{supseteq}}]
 {\supseteq}{X2287}
-\DeclareSymbolHtml[\DisplayChoose{\@textdisplaysubseteq}{\mbox{sqsubseteq}}]
+\DeclareSymbolHtml[\IfDisplay{\@textdisplaysubseteq}{\mbox{sqsubseteq}}]
 {\sqsubseteq}{X2291}
-\DeclareSymbolHtml[\DisplayChoose{\@textdisplaysupseteq}{\mbox{sqsupseteq}}]
+\DeclareSymbolHtml[\IfDisplay{\@textdisplaysupseteq}{\mbox{sqsupseteq}}]
 {\sqsupseteq}{X2292}
 %%%%%%%%%%%%%%%%%%%%%%%%%%
 % Table 71: Inequalities %
@@ -580,8 +580,44 @@
 \Let\Bigl\Big\Let\Bigm\Big\Let\Bigr\Big
 \Let\biggl\bigg\Let\biggm\bigg\Let\biggr\bigg
 \Let\Biggl\Bigg\Let\Biggm\Bigg\Let\Biggr\Bigg
+%%%%%%%%%%%%%%%
+% Square root %
+%%%%%%%%%%%%%%%
+\newcounter{@c}
+\NewcommandHtml{\@surd}[2]
+{\ifthenelse{#1 < 5}{{\Large#2}}
+{\@open{TABLE}{CELLSPACING=0 CELLPADDING=0}%
+\setcounter{@c}{#1-5}%
+\whiledo{\value{@c}>0}
+{\@open{TR}{}\@open{TD}{BGCOLOR="green" ALIGN="right"}%
+\textbf{\Large|}%
+\@close{TD}\@close{TR}%
+\addtocounter{@c}{-1}}%
+\@open{TR}{}\@open{TD}{BGCOLOR="red"}%
+{\Huge#2}%
+\@close{TD}\@close{TR}\@close{TABLE}}}
+\NewcommandHtml{\csname\delim@name{\surd}\endcsname}[1]{\@surd{#1}{\surd}}
+\DeclareSymbolHtml{\surd@four}{X221C}
+\NewcommandHtml{\csname\delim@name{\surd@four}\endcsname}[1]
+  {\@surd{#1}{\surd@four}}
+\DeclareSymbolHtml{\surd@three}{X221B}
+\NewcommandHtml{\csname\delim@name{\surd@three}\endcsname}[1]
+  {\@surd{#1}{\surd@three}}
+\NewcommandHtml{\@sqrt}[2][2]
+{\ifthenelse{\equal{#1}{2}}{\left\surd\overline{#2}\right.}{%
+\ifthenelse{\equal{#1}{3}}{\left\surd@three\overline{#2}\right.}{%
+\ifthenelse{\equal{#1}{4}}{\left\surd@four\overline{#2}\right.}{%
+{\left(#2\right)^{\frac{1}{#1}}}}}}}
+\NewcommandHtml{\@@sqrt}[2][2]
+{\ifthenelse{\equal{#1}{2}}{\surd\overlinedbox{#2}}{%
+\ifthenelse{\equal{#1}{3}}{\surd@three\overlinedbox{#2}}{%
+\ifthenelse{\equal{#1}{4}}{\surd@four\overlinedbox{#2}}{%
+{(#2)^{\frac{1}{#1}}}}}}}
+\NewcommandHtml{\sqrt}{\DisplayChoose\@sqrt\@@sqrt}
+\NewcommandText{\sqrt}[2][2]{\left(#2\right)^{1/#1}}
 %%%%%%%%%%%%%%%%%%%
 % TeX definitions %
 %%%%%%%%%%%%%%%%%%%
 \Let{\le}{\leq}
 \Let{\ge}{\geq}
+

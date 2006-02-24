@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.272 2006-02-21 07:50:33 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.273 2006-02-24 16:43:25 maranget Exp $ *)
 
 
 {
@@ -41,6 +41,7 @@ module type S =
     val def_fun : string -> (string -> string) -> unit
     val get_this_main : string -> string
     val get_this_arg_mbox : string Lexstate.arg -> string
+    val get_prim_onarg : string Lexstate.arg -> string
     val check_this_main : string -> bool
     val get_prim : string -> string
     val get_prim_arg : Lexing.lexbuf -> string

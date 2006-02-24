@@ -11,7 +11,7 @@
 
 open Misc
 
-let header = "$Id: auxx.ml,v 1.20 2005-10-13 18:13:28 maranget Exp $" 
+let header = "$Id: auxx.ml,v 1.21 2006-02-24 16:43:25 maranget Exp $" 
 
 let rtable = Hashtbl.create 17
 ;;
@@ -23,7 +23,7 @@ let rset name value =
   
 let rget name =
   try Hashtbl.find rtable name with Not_found -> begin
-    warning ("Undefined label: ``"^name^"''") ; "??"
+    warning ("Undefined label: '"^name^"'") ; "??"
   end
 ;;
 
@@ -37,7 +37,7 @@ let bget warn name =
   let r =
     try Some (Hashtbl.find btable name) with Not_found ->
       begin
-        if warn then warning ("Undefined citation: ``"^name^"''") ;
+        if warn then warning ("Undefined citation: '"^name^"'") ;
         None
       end in
   r

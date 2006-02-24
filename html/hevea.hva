@@ -38,9 +38,10 @@
 {\newcommand{#2}{\@print@u{#3}}%
 \ifx#1\@empty\else\@def@u@default{#3}{#1}\fi}
 \let\DeclareSymbolHtml\DeclareSymbol
-\newcommand{\MakeBigSymbol}[4]
-{\newcommand{#1}{\mathop{\ifdisplay{\huge#2}\else#2\fi}}}
-\let\NewcommandHtml\newcommand%no opt-arg (see text/hevea.hva)
+\newcommand{\MakeBigSymbol}[5][]
+{\newcommand{#2}{\mathop{\ifdisplay{\Huge#3}\else#3\fi}#1}}
+\let\NewcommandHtml\newcommand%
+\let\NewcommandText\NoCommand%
 \input{iso-symb.hva}
 \renewcommand{\&}{\ifraw\@print{&}\else\@print{&amp;}\fi}
 \input{latexcommon.hva}
