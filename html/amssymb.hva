@@ -1,3 +1,4 @@
+\usepackage{amsfonts}
 %
 %% AMSSYMB Binary Operators (Table 8.19 of Goos-Mitt-Sam)
 %
@@ -326,12 +327,3 @@
 \newcommand{\urcorner}{\@print{&#8989;}}
 \newcommand{\llcorner}{\@print{&#8990;}}
 \newcommand{\lrcorner}{\@print{&#8991;}}
-%
-%\ifmoreentities
-%\let\mathbb\@mathbb
-%\let\mathfrak\@mathfrak
-%\fi
-\def\@mathbb#1{%
-\ifx#1\@empty\let\@next\@empty\else\@doublestruck#1\let\@next\@mathbb\fi
-\@next}
-\newcommand{\mathbb}[1]{\@callprim{\@mathbb}{#1\@print{\@empty}}}
