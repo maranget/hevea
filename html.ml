@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: html.ml,v 1.94 2006-02-16 19:12:21 maranget Exp $" 
+let header = "$Id: html.ml,v 1.95 2006-02-28 18:02:18 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -169,7 +169,6 @@ let iso_string s =
 let 
   over,
   over_align,
-  box_around_display,
   erase_display,
   begin_item_display,
   end_item_display,
@@ -189,7 +188,6 @@ let
   if !Parse_opts.mathml then begin
     MathML.over,
     MathML.over_align,
-    MathML.box_around_display,
     MathML.erase_display,
     MathML.begin_item_display,
     MathML.end_item_display,
@@ -208,7 +206,6 @@ let
   end else begin
     HtmlMath.over,
     HtmlMath.over_align,
-    HtmlMath.box_around_display,
     HtmlMath.erase_display,
     HtmlMath.begin_item_display,
     HtmlMath.end_item_display,
@@ -399,8 +396,7 @@ let finalize check =
 ;;
 
 
-let put_separator () =
-  put "\n"
+let put_separator () = put "\n"
 ;;
 
 let unskip () = 
@@ -555,9 +551,9 @@ let make_hline w noborder =
   if noborder then begin
     new_row ();
     if not (flags.in_math && !Parse_opts.mathml) then begin
-      open_direct_cell "BGCOLOR=black" w ;
+      open_direct_cell "" w ;
       close_mods () ;
-      line_in_table 3 ;
+      line_in_table () ;
     end else begin
       open_cell center_format w 0;
       close_mods () ;

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlCommon.ml,v 1.46 2005-11-08 10:14:19 maranget Exp $" 
+let header = "$Id: htmlCommon.ml,v 1.47 2006-02-28 18:02:18 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -129,9 +129,9 @@ let check_block_closed opentag closetag =
 
 let display_arg  verbose =
   if verbose > 1 then
-    "BORDER=1 CELLSPACING=0 CELLPADDING=0"
+    "CLASS=\"vdisplay\""
   else
-    "CELLSPACING=0 CELLPADDING=0"
+    "CLASS=\"display\""
 ;;
 
 (* output globals *)
@@ -1674,11 +1674,8 @@ let arrow_in_table h dir =
   end 
 ;;
 
-let line_in_table h =
-  let pad = (h-1)/2 in
-  put "<TABLE BORDER=0 WIDTH=\"100%\" CELLSPACING=0 CELLPADDING=" ;
-  put (string_of_int pad) ;
-  put "><TR><TD></TD></TR></TABLE>"
+let line_in_table () = put "<DIV CLASS=\"hbar\"></DIV>"
+;;
 
 let freeze f =
   push out_stack (Freeze f) ;

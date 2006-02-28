@@ -147,3 +147,7 @@
 \warning{\xleftarrow outside display mode, arguments ignored}\leftarrow\fi}%
 \newcommand{\xrightarrow}[2][]{\ifdisplay{#2\@xright #1}\else%
 \warning{\xrightarrow outside display mode, arguments ignored}\rightarrow\fi}%
+%%%%%%%%%%%%%%%%%
+% \boxed command%
+%%%%%%%%%%%%%%%%%
+\NewcommandHtml{\boxed}{\DisplayChoose\@@boxed\@boxed}

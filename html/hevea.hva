@@ -45,17 +45,6 @@
 \input{iso-symb.hva}
 \renewcommand{\&}{\ifraw\@print{&}\else\@print{&amp;}\fi}
 \input{latexcommon.hva}
-%%%% A few strange entities
-\ifentities
-\newcommand{\glqq}{\@print{&#8222;}}
-\newcommand{\grqq}{\@print{&#8220;}}
-\newcommand{\glq}{\@print{&#8218;}}
-\newcommand{\grq}{\@print{&#8216;}}
-\newcommand{\flqq}{\@print{&#0171;}}
-\newcommand{\frqq}{\@print{&#0187;}}
-\newcommand{\flq}{\@print{&#8249;}}
-\newcommand{\frq}{\@print{&#8250;}}
-\fi
 %%% Logos
 \def\TeX{\@print{T<sub>E</sub>X}}
 \def\LaTeX{\@print{L<sup>A</sup>T<sub>E</sub>X}}
@@ -220,20 +209,6 @@
 \ifsymb\input{html/symb.hva}\fi
 \ifsymbtext\input{html/symb-text.hva}\fi
 \fi
-%% Maths fonts
-%%%%%%%%%%%
-\def\textsqsubset{\mbox{sqsubset}}
-%\def\sqsubset{%
-%\ifdisplay\@itemdisplay\@sqsubset\@itemdisplay\else
-%\textsqsubset\fi}
-\def\textsqsupset{\mbox{sqsupset}}
-%\def\sqsupset{%
-%\ifdisplay\@itemdisplay\@sqsupset\@itemdisplay\else
-%\textsqsupset\fi}
-\def\textdoteq{=^{\cdot}}
-%\def\doteq{%
-%\ifdisplay\@itemdisplay\@print{<FONT SIZE=7>·</FONT><BR>}=\@itemdisplay\else
-%\textdoteq\fi}
 %%%%%%%%%%%% Bibliography
 \newcommand{\@bibref}[2]{\@locref{#1}{\ifx#2\@empty\@verbarg{#1}\else#2\fi}}
 \newsavebox{\@bibbox}
@@ -456,8 +431,6 @@
 %%%%%% Default TABLE attribute for array and tabular
 \newcommand{\@table@attributes}{CELLSPACING=6 CELLPADDING=0}
 \newcommand{\@table@attributes@border}{CELLSPACING=0 CELLPADDING=1}
-%%%%%% Do not load hevea.hva again !
-\def\csname hevea@loaded\endcsname{}
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %   Redefining \textoverline of latexcommon.hva			%
@@ -467,21 +440,28 @@
 \newcommand{\overlinedbox}[1]%
      {{\@styleattr{SPAN}{style="text-decoration:overline"}#1}}% 
 \renewcommand{\textoverline}[1]{\overlinedbox{#1}}%
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%   \boxed is more complicated, though                          %
-%   1) outside display mode, we can use style-sheets            %
-%   2) in display mode, we need to maintain the display-like    %
-%      treatment of the argument, so the solution would be to   %
-%      create a virtual display-box inside the current box, and %
-%      then draw a box around it before continuing in display   %
-%      mode.							%
+%   Redefining \fbox of latexcommon.hva	         		%
+%   Here we can use HTML primitives				%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%
-\newcommand{\boxed}[1]{\ifdisplay%
-	{\@boxed{#1}}%
-	\else{\@styleattr{SPAN}{STYLE="border:solid thin black"}#1}%
-	\fi%
-}%
+\newstyle{.boxed}{border:1px solid black}
+\newstyle{.textboxed}{border:1px solid black}
+\NewcommandHtml{\@@boxed}[1]
+{\@open{TABLE}{CLASS="boxed"}\@open{TR}{}\@open{TD}{}%
+#1%
+\@close{TD}\@close{TR}\@close{TABLE}}
+\NewcommandHtml{\@boxed}[1]{{\@styleattr{SPAN}{CLASS="textboxed"}#1}}
+\renewcommand{\fbox}{\DisplayChoose\@@boxed\@boxed}
+%%Style of bars
+\newstyle{.vbar}{width:2px;background-color:black;}
+\newstyle{.hbar}{height:2px;width:100\%;background-color:black;}
+%%Style of display
+\newstyle{.vdisplay}{border-collapse:collapse;border:1px solid gray}
+\newstyle{.vdcell}{border:1px solid gray;white-space:nowrap;}
+\newstyle{.display}{border-collapse:collapse}
+\newstyle{.dcell}{white-space:nowrap;}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%Default env class for verbatim
 \setenvclass{verbatim}{verbatim}
+%%%%%% Do not load hevea.hva again !
+\def\csname hevea@loaded\endcsname{}

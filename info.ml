@@ -10,7 +10,7 @@
 (***********************************************************************)
 
 
-let header = "$Id: info.ml,v 1.35 2006-02-16 07:54:01 maranget Exp $"
+let header = "$Id: info.ml,v 1.36 2006-02-28 18:02:18 maranget Exp $"
 
 open Misc
 open Text
@@ -60,7 +60,6 @@ and over_align = Text.over_align
 and left = Text.left
 and right = Text.right
 ;;
-let box_around_display = Text.box_around_display;;
 let set_dcount =Text.set_dcount;;
 let item = Text.item;;
 let nitem = Text.nitem;;

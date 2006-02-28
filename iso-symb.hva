@@ -586,14 +586,12 @@
 \newcounter{@c}
 \NewcommandHtml{\@surd}[2]
 {\ifthenelse{#1 < 5}{{\Large#2}}
-{\@open{TABLE}{CELLSPACING=0 CELLPADDING=0}%
-\setcounter{@c}{#1-5}%
-\whiledo{\value{@c}>0}
-{\@open{TR}{}\@open{TD}{BGCOLOR="green" ALIGN="right"}%
-\textbf{\Large|}%
+{\setcounter{@c}{(#1-5)*2}%
+\@open{TABLE}{CELLSPACING=0 CELLPADDING=0}%
+\@open{TR}{}\@open{TD}{ALIGN="right"}%
+\@open{DIV}{CLASS="vbar" STYLE="height:\arabic{@c}em;"}\@force{DIV}%
 \@close{TD}\@close{TR}%
-\addtocounter{@c}{-1}}%
-\@open{TR}{}\@open{TD}{BGCOLOR="red"}%
+\@open{TR}{}\@open{TD}{}%
 {\Huge#2}%
 \@close{TD}\@close{TR}\@close{TABLE}}}
 \NewcommandHtml{\csname\delim@name{\surd}\endcsname}[1]{\@surd{#1}{\surd}}
