@@ -39,8 +39,10 @@
 {\newcommand{#2}{\@print@u{#3}}%
 \ifx#1\@empty\else\@def@u@default{#3}{#1}\fi}
 \let\DeclareSymbolHtml\DeclareSymbol
+\newcommand{\MakeBigSymbolHtml}[3][]
+{\newcommand{#2}{\mathop{\ifdisplay{\huge#3}\else#3\fi}#1}}
 \newcommand{\MakeBigSymbol}[5][]
-{\newcommand{#2}{\mathop{\ifdisplay{\Huge#3}\else#3\fi}#1}}
+{\MakeBigSymbolHtml[#1]{#2}{#3}}
 \let\NewcommandHtml\newcommand%
 \let\NewcommandText\NoCommand%
 \let\RenewcommandHtml\renewcommand%

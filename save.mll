@@ -13,7 +13,7 @@
 open Lexing
 open Misc
 
-let header = "$Id: save.mll,v 1.70 2006-02-01 17:34:17 maranget Exp $" 
+let header = "$Id: save.mll,v 1.71 2006-03-01 17:44:20 maranget Exp $" 
 
 let rec peek_next_char lb =
   let pos = lb.lex_curr_pos
@@ -99,6 +99,8 @@ let my_int_of_string s =
     error ("Integer argument expected: ``"^s^"''")
 
 exception Eof
+;;
+exception LimitEof of Misc.limits option
 ;;
 exception NoOpt
 ;;
@@ -262,16 +264,28 @@ and arg2 = parse
     {let c = lexeme_char lexbuf 0 in
     put_both_char c ; arg2 lexbuf}
 
-and csname = parse
+and csname get_prim subst = parse
   (space|'\n')+
-    {(fun get_prim subst ->
-      blit_echo lexbuf ; csname lexbuf get_prim subst)}
+    { blit_echo lexbuf ; csname get_prim subst lexbuf }
 | '{'? "\\csname" space*
-      {(fun get_prim _subst ->
-        blit_echo lexbuf ;
-        let r = incsname lexbuf in
-        "\\"^get_prim r)}
-| ""  {fun _get_prim subst -> let r = arg lexbuf in subst r}
+      {blit_echo lexbuf ;
+       let r = incsname lexbuf in
+       "\\"^get_prim r}
+| "" 
+   {let r = arg lexbuf in
+   let r = subst r in
+   try
+     check_csname get_prim (Lexing.from_string r)
+   with
+   | Exit -> r }
+
+and check_csname get_prim = parse
+| "\\csname" space*
+  { let r = incsname lexbuf in
+   "\\"^get_prim r}
+| command_name
+| ""
+   { raise Exit }
 
 and incsname = parse
   "\\endcsname"  '}'?
@@ -331,13 +345,13 @@ and filename = parse
 and remain = parse
  _ * eof {Lexing.lexeme lexbuf}
 
-and get_limits = parse
-  space+          {get_limits lexbuf}
-| "\\limits"    {Some Limits}
-| "\\nolimits"  {Some NoLimits}
-| "\\intlimits" {Some IntLimits}
-| eof           {raise Eof}
-| ""            {None}
+and get_limits r = parse
+  space+        {get_limits r lexbuf}
+| "\\limits"    {get_limits (Some Limits) lexbuf}
+| "\\nolimits"  {get_limits (Some NoLimits) lexbuf}
+| "\\intlimits" {get_limits (Some IntLimits) lexbuf}
+| eof           {raise (LimitEof r)}
+| ""            {r}
 
 and get_sup = parse
 | space* '^'  {try Some (arg lexbuf) with Eof -> error "End of file after ^"}

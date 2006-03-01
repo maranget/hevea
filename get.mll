@@ -19,7 +19,7 @@ open Stack
 open Length
 
 (* Compute functions *)
-let header = "$Id: get.mll,v 1.28 2006-02-01 17:34:17 maranget Exp $"
+let header = "$Id: get.mll,v 1.29 2006-03-01 17:44:20 maranget Exp $"
 
 exception Error of string
 
@@ -304,6 +304,7 @@ let def_commands_bool () =
         "\\@commandexists",
         (fun lexbuf ->
           let name = !get_csname lexbuf in
+(*          Printf.eprintf "EXISTS? '%s'\n" name ; *)
           push bool_stack (Latexmacros.exists name)) ;
         "\\or",
         (fun _ ->

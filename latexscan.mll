@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.275 2006-03-01 12:39:15 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.276 2006-03-01 17:44:20 maranget Exp $ *)
 
 
 {
@@ -1475,6 +1475,26 @@ def_code "\\mathop"
         Dest.standard_sup_sub
           (scan_this_arg main)
           (fun _ -> ()) sup sub !display
+    end) ;
+def_code "\\@mathop"
+  (fun lexbuf ->
+    let symbol = save_arg lexbuf in
+    let {limits=limits ; sup=sup ; sub=sub} = save_sup_sub lexbuf in
+    begin match limits with
+    | (Some Limits) when !display ->
+        Dest.limit_sup_sub
+          (scan_this_arg main)
+          (fun _ -> scan_this_arg main symbol) sup sub !display
+    | (Some IntLimits|None) when !display ->
+        Dest.int_sup_sub true 3
+          (scan_this_arg main)
+          (fun () -> scan_this_arg main symbol)
+          sup sub !display        
+    | _ ->
+        scan_this_arg main symbol ;
+        Dest.standard_sup_sub
+          (scan_this_arg main)
+          (fun _ -> ()) sup sub !display
     end)
 ;;
 
@@ -1597,7 +1617,7 @@ and get_prim_opt def lexbuf =
 let get_csname lexbuf =
   let r = 
     protect_save_string
-      (fun lexbuf -> Save.csname lexbuf get_prim Subst.subst_this)
+      (fun lexbuf -> Save.csname get_prim Subst.subst_this lexbuf)
       lexbuf in
 (*  Printf.eprintf "GET CSNAME: '%s'\n" r ; *)
   r
@@ -2101,16 +2121,6 @@ def_code "\\@xright"
    (fun lexbuf ->
      Dest.over_align true true !display lexbuf;
      skip_blanks lexbuf)
-;;
-
-let check_not = function
-  | "\\in" -> "\\notin"
-  | "="    -> "\\neq"
-  | "\\subset" -> "\\notsubset"
-  | s -> "\\neg\\:"^s
-;;
-
-def_fun "\\not" check_not
 ;;
 
 def_code "\\MakeUppercase"

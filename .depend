@@ -71,9 +71,9 @@ htmllex.cmo: stack.cmi location.cmi lexeme.cmi emisc.cmi css.cmi buff.cmi \
     htmllex.cmi 
 htmllex.cmx: stack.cmx location.cmx lexeme.cmi emisc.cmx css.cmi buff.cmx \
     htmllex.cmi 
-htmlMath.cmo: symb.cmi stack.cmi parse_opts.cmi out.cmi misc.cmi lexstate.cmi \
+htmlMath.cmo: stack.cmi parse_opts.cmi out.cmi misc.cmi lexstate.cmi \
     htmlCommon.cmo element.cmi 
-htmlMath.cmx: symb.cmx stack.cmx parse_opts.cmx out.cmx misc.cmx lexstate.cmx \
+htmlMath.cmx: stack.cmx parse_opts.cmx out.cmx misc.cmx lexstate.cmx \
     htmlCommon.cmx element.cmx 
 html.cmo: tabular.cmi stack.cmi parse_opts.cmi outUnicode.cmi out.cmi \
     misc.cmi mathML.cmo lexstate.cmi length.cmi latexmacros.cmi htmlMath.cmo \
@@ -145,8 +145,8 @@ noimage.cmo: noimage.cmi
 noimage.cmx: noimage.cmi 
 out.cmo: misc.cmi out.cmi 
 out.cmx: misc.cmx out.cmi 
-outUnicode.cmo: myfiles.cmi misc.cmi outUnicode.cmi 
-outUnicode.cmx: myfiles.cmx misc.cmx outUnicode.cmi 
+outUnicode.cmo: parse_opts.cmi myfiles.cmi misc.cmi outUnicode.cmi 
+outUnicode.cmx: parse_opts.cmx myfiles.cmx misc.cmx outUnicode.cmi 
 package.cmo: version.cmi subst.cmi stack.cmi save.cmi parse_opts.cmi \
     outUnicode.cmi outManager.cmi mylib.cmi misc.cmi lexstate.cmi \
     latexscan.cmi latexmacros.cmi index.cmi imageManager.cmi get.cmi \
@@ -167,8 +167,6 @@ stack.cmo: stack.cmi
 stack.cmx: stack.cmi 
 subst.cmo: save.cmi out.cmi misc.cmi lexstate.cmi subst.cmi 
 subst.cmx: save.cmx out.cmx misc.cmx lexstate.cmx subst.cmi 
-symb.cmo: parse_opts.cmi symb.cmi 
-symb.cmx: parse_opts.cmx symb.cmi 
 table.cmo: table.cmi 
 table.cmx: table.cmi 
 tabular.cmo: table.cmi subst.cmi stack.cmi parse_opts.cmi misc.cmi \

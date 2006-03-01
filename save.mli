@@ -22,6 +22,7 @@ val seen_par : bool ref
 val gobble_one_char : Lexing.lexbuf -> unit
 
 exception Eof
+exception LimitEof of Misc.limits option
 exception NoOpt
 val get_echo : unit -> string
 val start_echo : unit -> unit
@@ -29,8 +30,8 @@ val opt : Lexing.lexbuf -> string
 val arg : Lexing.lexbuf -> string
 val arg_verbatim : Lexing.lexbuf -> string
 (* val arg_verbatim2 : char -> Lexing.lexbuf -> string *)
-val csname : Lexing.lexbuf ->
-  (string -> string) -> (string -> string) -> string
+val csname :
+  (string -> string) -> (string -> string) -> Lexing.lexbuf -> string
 val incsname : Lexing.lexbuf -> string
 val cite_arg : Lexing.lexbuf -> string list
 val rest : Lexing.lexbuf -> string
@@ -40,7 +41,7 @@ val check_equal : Lexing.lexbuf -> bool
 val filename : Lexing.lexbuf -> string
 val remain : Lexing.lexbuf -> string
 (* Superscript and subscripts *)
-val get_limits : Lexing.lexbuf -> Misc.limits option
+val get_limits : Misc.limits option -> Lexing.lexbuf -> Misc.limits option
 val get_sup : Lexing.lexbuf -> string option
 val get_sub : Lexing.lexbuf -> string option
 

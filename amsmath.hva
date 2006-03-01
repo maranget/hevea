@@ -128,8 +128,6 @@
 \newcommand{\dotsc}{\dots}
 \newcommand{\dotsm}{\cdots}
 \newcommand{\eqref}[1]{(\ref{#1})}
-%\newcommand{\iiint}{\int\!\!\int\!\!\int}
-\newcommand{\iiiint}{\int\!\!\int\!\!\int\!\!\int}
 %\newcommand{\mathbb}[1]{{\bf #1}}
 %\newcommand{\mathfrak}[1]{{\green #1}}
 \newcommand{\mathnormal}[1]{#1}
@@ -151,3 +149,11 @@
 % \boxed command%
 %%%%%%%%%%%%%%%%%
 \NewcommandHtml{\boxed}{\DisplayChoose\@@boxed\@boxed}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Table 48: AMS Variable-sized Math Operators %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\MakeInt}[2]{\MakeBigSymbolHtml[\intlimits]{#1}{#2}}
+\DeclareSymbolHtml{\@iint}{X222C}\MakeInt{\iint}{\@iint}
+\DeclareSymbolHtml{\@iiint}{X222D}\MakeInt{\iiint}{\@iiint}
+\DeclareSymbolHtml{\@iiiint}{X2A0C}\MakeInt{\iiiint}{\@iiiint}
+\NewcommandHtml{\idotsint}{\int\cdots\int}

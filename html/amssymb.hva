@@ -1,35 +1,41 @@
 \usepackage{amsfonts}
-%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Table 4: Commands Defined to Work in Both Math and Text Mode %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\DeclareSymbolHtml{\checkmark}{X2713}
+\Let\circledR\textregistered
+\DeclareSymbolHtml{\maltese}{X2720}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Table 40: AMS Binary Operators %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\DeclareSymbolHtml{\barwedge}{X22BC}
+\DeclareSymbolHtml{\boxdot}{8865}
+\DeclareSymbolHtml{\boxminus}{8863}
+\DeclareSymbolHtml{\boxtimes}{8864}
+\DeclareSymbolHtml{\boxplus}{8862}
+\DeclareSymbolHtml{\Cap}{8914}
+\Let\centerdot\cdot
+\DeclareSymbolHtml{\circledast}{8859}
+\DeclareSymbolHtml{\circleddash}{8861}
+\DeclareSymbolHtml{\circledcirc}{8858}
+\DeclareSymbolHtml{\Cup}{8915}
+\DeclareSymbolHtml{\curlywedge}{8911}
+\DeclareSymbolHtml{\curlyvee}{8910}
+\DeclareSymbolHtml{\divideontimes}{8903}
+\DeclareSymbolHtml{\dotplus}{8724}
+\DeclareSymbolHtml{\doublebarwedge}{X2305}
+\DeclareSymbolHtml{\intercal}{X22BA}
+\DeclareSymbolHtml{\leftthreetimes}{8907}
+\DeclareSymbolHtml{\rightthreetimes}{8908}
+\DeclareSymbolHtml{\veebar}{8891}
+\DeclareSymbolHtml{\ltimes}{8905}
+\DeclareSymbolHtml{\rtimes}{8906}
+\DeclareSymbolHtml{\smallsetminus}{XFE68}
 %% AMSSYMB Binary Operators (Table 8.19 of Goos-Mitt-Sam)
 %
-\newcommand{\dotplus}{\@print{&#8724;}}
-\newcommand{\smallsetminus}{\@print{&#8726;}}
-\newcommand{\Cap}{\@print{&#8914;}}
-\newcommand{\Cup}{\@print{&#8915;}}
-\newcommand{\barwedge}{\@print{&#8892;}}
-\newcommand{\veebar}{\@print{&#8891;}}
-\newcommand{\doublebarwedge}{\@print{&#8966;}}
-\newcommand{\boxminus}{\@print{&#8863;}}
-\newcommand{\boxtimes}{\@print{&#8864;}}
-\newcommand{\boxdot}{\@print{&#8865;}}
-\newcommand{\boxplus}{\@print{&#8862;}}
-\newcommand{\divideontimes}{\@print{&#8903;}}
-\newcommand{\ltimes}{\@print{&#8905;}}
-\newcommand{\rtimes}{\@print{&#8906;}}
-\newcommand{\leftthreetimes}{\@print{&#8907;}}
-\newcommand{\rightthreetimes}{\@print{&#8908;}}
-\newcommand{\curlywedge}{\@print{&#8911;}}
-\newcommand{\curlyvee}{\@print{&#8910;}}
-\newcommand{\circleddash}{\@print{&#8861;}}
-\newcommand{\circledast}{\@print{&#8859;}}
-\newcommand{\circledcirc}{\@print{&#8858;}}
-\newcommand{\centerdot}{\@print{&#8729;}}
-\newcommand{\intercal}{\@print{&#8868;}}
 %
 %% AMSSYMB Misc (Remains of Table 8.7 of Goos-Mitt-Sam)
 %
-\newcommand{\Box}{\@print{&#9723;}}
-\newcommand{\Diamond}{\@entity{loz}}
 %
 %% AMSSYMB Miscellaneous Symbols (Table 8.20 of Goos-Mitt-Sam)
 %
@@ -41,7 +47,6 @@
 \newcommand{\circledS}{\@print{&#9416;}}
 \newcommand{\measuredangle}{\@print{&#8737;}}
 \newcommand{\nexists}{\@print{&#8708;}}
-\newcommand{\mho}{\@print{&#8487;}}
 \newcommand{\Finv}{\@print{&#8498;}}
 \newcommand{\Game}{\@print{&#3629;}}
 \newcommand{\Bbbk}{\@print{&#409;}}			% EVENTUALLY 120156
@@ -100,13 +105,6 @@
 \newcommand{\nRightarrow}{\@print{&#8655;}}
 \newcommand{\nleftrightarrow}{\@print{&#8622;}}
 \newcommand{\nLeftrightarrow}{\@print{&#8654;}}
-%
-%% AMSSYMB Binary (Remains of Table 8.4 of Goos-Mott-Sam)
-%
-\newcommand{\lhd}{\@print{&#8882;}}
-\newcommand{\rhd}{\@print{&#8883;}}
-\newcommand{\unlhd}{\@print{&#8884;}}
-\newcommand{\unrhd}{\@print{&#8885;}}
 %
 %% AMSSYMB Relational Symbols
 %

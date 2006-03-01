@@ -6,7 +6,6 @@
 %% classes dans le meme ordre que
 %% dans le livre LaTeX, de Leslie Lamport.
 %%%%%%%%%%%%%%%%%%%
-\newcommand{\notin}{\@print{&#8713;}}
 %
 %
 \ifmoreentities
@@ -27,6 +26,7 @@
 %
 %% Variable-sized Symbols
 %
+\iffalse
 \newcommand{\@iint}{\@print{&#8748;}}
 \newcommand{\@iiint}{\@print{&#8749;}}
 \newcommand{\@oiint}{\@print{&#8751;}}
@@ -40,3 +40,4 @@
 \newcommand{\@displayoint}{\mbox{\Large\@print{&#8750;}}}
 \newcommand{\@displayoiint}{\mbox{\Large\@print{&#8751;}}}
 \newcommand{\@displayoiiint}{\mbox{\huge\@print{&#8752;}}}
+\fi

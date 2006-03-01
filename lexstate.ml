@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: lexstate.ml,v 1.66 2005-05-20 13:44:24 maranget Exp $"
+let header = "$Id: lexstate.ml,v 1.67 2006-03-01 17:44:20 maranget Exp $"
 
 open Misc
 open Lexing
@@ -356,7 +356,7 @@ let full_save_arg eoferror mkarg parg lexfun lexbuf =
     let r = save_rec lexbuf in
     restore_lexstate () ;
     if !verbose > 2 then
-      prerr_endline ("Arg parsed: ``"^parg r^"''") ;
+      prerr_endline ("Arg parsed: '"^parg r^"'") ;
     r
   with
   | (Save.Error _ | Error _) as e ->
@@ -369,6 +369,48 @@ let full_save_arg eoferror mkarg parg lexfun lexbuf =
       restore_lexstate () ;
       raise e
 ;;
+
+let full_save_arg_limits eoferror parg lexfun lexbuf =
+  let rec save_rec opt lexbuf =
+    try
+      lexfun opt lexbuf
+    with Save.LimitEof r -> begin
+        if Stack.empty stack_lexbuf then
+          match r with
+          | None -> eoferror () 
+          | _ -> r
+        else begin
+          let lexbuf = previous_lexbuf () in
+          if !verbose > 1 then begin
+            prerr_endline "popping stack_lexbuf in full_save_arg_limits";
+            pretty_lexbuf lexbuf ;
+            prerr_args ()
+          end;
+          save_rec r lexbuf
+        end
+    end in
+
+  let start_pos = Location.get_pos () in
+  try 
+    Save.seen_par := false ;
+    save_lexstate () ;
+    let r = save_rec None lexbuf in
+    restore_lexstate () ;
+    if !verbose > 2 then
+      prerr_endline ("Arg parsed: '"^parg r^"'") ;
+    r
+  with
+  | (Save.Error _ | Error _) as e ->
+      restore_lexstate () ;
+      Save.seen_par := false ;
+      Location.print_this_pos start_pos ;
+      prerr_endline "Parsing of argument failed" ;
+      raise e
+  | e ->
+      restore_lexstate () ;
+      raise e
+;;
+
 
 type ok = No of string | Yes of string
 ;;
@@ -403,8 +445,6 @@ type sup_sub = {
   sub : string arg ;
 } 
 
-let mklimits x _ = x
-
 let plimits = function
   | Some Limits ->    "\\limits"
   | Some NoLimits ->  "\\nolimits"
@@ -418,7 +458,8 @@ let save_limits lexbuf =
   let rec do_rec res =
     try
       let r =
-        full_save_arg eof_over mklimits plimits Save.get_limits lexbuf in
+        full_save_arg_limits
+          eof_over plimits Save.get_limits lexbuf in
       match r with
       | None -> res
       | Some _ -> do_rec r
@@ -525,7 +566,8 @@ let rec parse_args_norm pat lexbuf = match pat with
 
 
 let skip_csname lexbuf =
-  let _ = Save.csname lexbuf (fun x -> x) in ()
+  let _ = Save.csname (fun x -> x) (fun x -> x) lexbuf in
+  ()
 
 
 let skip_opt lexbuf =

@@ -181,10 +181,10 @@
 \MakeBigSymbol{\sum}{\@sum}{\@sum}{\@textdisplaysum}
 \DeclareSymbolHtml[\mbox{integral}]{\@int}{X222B}
 \newcommand{\@textdisplayint}{\mbox{/\@br|\@br|\@br/}}
-\MakeBigSymbol[\int@sup@sub{2}]{\int}{\@int}{\@int}{\@textdisplayint}
+\MakeBigSymbol[\intlimits]{\int}{\@int}{\@int}{\@textdisplayint}
 \DeclareSymbolHtml[\mbox{oint}]{\@oint}{X222E}
 \newcommand{\@textdisplayoint}{\mbox{/\@br|\@br{}o\@br|\@br/}}
-\MakeBigSymbol{\oint}{\@oint}{\@oint}{\@textdisplayoint}
+\MakeBigSymbol[\intlimits]{\oint}{\@oint}{\@oint}{\@textdisplayoint}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Table 54: Binary relations %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -489,15 +489,19 @@
 \newcommand{\csname\delim@name{]}\endcsname}[1]
 {\process@delim@three{#1}{\top@sqbraright}{\mid@sqbraright}{\dow@sqbraright}}
 %%Left ceil
+\DeclareSymbolHtml[\mbox{lceil}]{\lceil}{X2308}
 \newcommand{\csname\delim@name{\lceil}\endcsname}[1]
 {\process@delim@top{#1}{\top@sqbraleft}{\mid@sqbraleft}}
 %%Left floor
+\DeclareSymbolHtml[\mbox{lfloor}]{\lfloor}{X230A}
 \newcommand{\csname\delim@name{\lfloor}\endcsname}[1]
 {\process@delim@dow{#1}{\mid@sqbraleft}{\dow@sqbraleft}}
 %%Right ceil
+\DeclareSymbolHtml[\mbox{rceil}]{\rceil}{X2309}
 \newcommand{\csname\delim@name{\rceil}\endcsname}[1]
 {\process@delim@top{#1}{\top@sqbraright}{\mid@sqbraright}}
 %%Right floor
+\DeclareSymbolHtml[\mbox{rfloor}]{\rfloor}{X230B}
 \newcommand{\csname\delim@name{\rfloor}\endcsname}[1]
 {\process@delim@dow{#1}{\mid@sqbraright}{\dow@sqbraright}}
 %%Left curly bracket
@@ -533,6 +537,9 @@
 {\process@delim@dow{#1}{\Arr@mid}{\Downarrow}}
 \newcommand{\csname\delim@name{\Updownarrow}\endcsname}[1]
 {\process@delim@three{#1}{\Uparrow}{\Arr@mid}{\Downarrow}}
+%%Those get replicated in \left\right
+\DeclareSymbolHtml[\mbox{<bra~}]{\langle}{X27E8}
+\DeclareSymbolHtml[\mbox{~ket>}]{\rangle}{X27E9}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Large Delimiters (Table 113) %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -615,9 +622,52 @@
 {(#2)^{\frac{1}{#1}}}}}}}
 \NewcommandHtml{\sqrt}{\DisplayChoose\@sqrt\@@sqrt}
 \NewcommandText{\sqrt}[2][2]{\left(#2\right)^{1/#1}}
-%%%%%%%%%%%%%%%%%%%
-% TeX definitions %
-%%%%%%%%%%%%%%%%%%%
-\Let{\le}{\leq}
-\Let{\ge}{\geq}
-
+%%%%%%%%%%%%%%%%%%%%%
+% Negated relations %
+%%%%%%%%%%%%%%%%%%%%%
+% Table 8, p. 436 in TeX book
+\newcommand{\not@name}[1]{\string{#1@not}}
+\newcommand{\DeclareNot}[3][\@empty]
+{\DeclareSymbolHtml[\mbox{\neg(#2)}]{\csname\not@name{#2}\endcsname}{#3}}
+\newcommand{\not}[1]
+{\@ifundefined{\not@name{#1}}
+{\warning{Cannot apply '\not' to '#1'}\neg{}#1}%
+{\csname\not@name{#1}\endcsname}}
+%%
+\DeclareSymbolHtml[\mbox{notin}]{\notin}{X2209}
+\DeclareNot[\mbox{notin}]{\in}{X2209}
+%%
+\DeclareNot{<}{X226E}
+\DeclareNot{>}{X226F}
+\DeclareNot{=}{X2260}
+\DeclareNot{\leq}{X2270}
+\DeclareNot{\geq}{X2271}
+\DeclareNot{\equiv}{X2262}
+\DeclareNot{\prec}{X2280}
+\DeclareNot{\succ}{X2281}
+\DeclareNot{\sim}{X2241}
+\DeclareNot{\preceq}{X22E0}
+\DeclareNot{\succeq}{X22E1}
+\DeclareNot{\simeq}{X2244}
+\DeclareNot{\subset}{X2284}
+\DeclareNot{\supset}{X2285}
+\DeclareNot{\approx}{X2249}
+\DeclareNot{\subseteq}{X2288}
+\DeclareNot{\supseteq}{X2289}
+\DeclareNot{\cong}{X2246}
+\DeclareNot{\sqsubseteq}{X22E2}
+\DeclareNot{\sqsupseteq}{X22E3}
+\DeclareNot{\asymp}{X226D}
+%%%%%%%%%%%%%%%%%%
+% TeX synomyms   %
+%%%%%%%%%%%%%%%%%%
+\Let\le\leq
+\Let\ge\geq
+\Let\ne\neq
+\Let\to\rightarrow
+\Let\land\wedge
+\newcommand{\iff}{\;\Longleftrightarrow\;}
+\Let\gets\leftarrow
+\Let\lor\vee
+\Let\owns\ni
+\Let\lnot\neg
