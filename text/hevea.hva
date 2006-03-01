@@ -1,4 +1,4 @@
-%%%% Une précaution.
+%%% Une précaution.
 \ifhtml\warning{text/hevea is for text and info mode !!!}\endinput\fi
 %%%% package used by all packages
 \input{plain.hva}
@@ -17,6 +17,8 @@
 \input{spaces.hva}
 \renewcommand{\
 }{ }
+%%
+\input{latexcommon.hva}
 %%% Special characters
 \newcommand{\DeclareSymbol}[3][\@empty]
 {\newcommand{#2}{\@print@u{#3}}%
@@ -28,8 +30,9 @@
 {\newcommand{#2}{\mathop{\ifdisplay#5\else#4\fi}#1}}
 \let\NewcommandHtml\NoCommand
 \let\NewcommandText\newcommand
+\let\RenewcommandHtml\NoCommand
+\let\RenewcommandText\renewcommand
 \input{iso-symb.hva}
-\input{latexcommon.hva}
 %%% Logos
 \def\TeX{\@print{TeX}}
 \def\LaTeX{\@print{LaTeX}}
@@ -91,24 +94,6 @@
 \@close{HEAD}%
 \@close{ALIGN}%
 \global\let\maketitle\relax}
-%%%%%%%%%
-% Maths %
-%%%%%%%%%
-%\input{text/symb.hva}
-\input{mathaccents.hva}
-\def\textsqsubset{\mbox{sqsubset}}
-\def\sqsubset{%
-\ifdisplay\@itemdisplay\@sqsubset\@itemdisplay\else
-\textsqsubset\fi}
-\def\textsqsupset{\mbox{sqsupset}}
-\def\sqsupset{%
-\ifdisplay\@itemdisplay\@sqsupset\@itemdisplay\else
-\textsqsupset\fi}
-\def\textdoteq{=^{\cdot}}
-\def\doteq{%
-\ifdisplay\@itemdisplay{\@print{o
-}}=\@itemdisplay\else
-\textdoteq\fi}
 %%%%%%%%%%%% Bibliography
 \newcommand{\@bibref}[2]{#2}
 \newcommand{\@biblabel}[1]{[\@bibread{#1}]}

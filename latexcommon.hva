@@ -19,7 +19,6 @@
 \newcommand{\sp}[1]{^{#1}}\newcommand{\sb}[1]{_{#1}}
 \newcommand{\ensuremath}[1]{\ifmmode#1\else\(#1\)\fi}
 \newcommand{\@edm@act}{}
-
 \newenvironment{ensuredisplaymath}
   {\ifdisplay\ifmmode\def\@edm@act{NO}\else\let\@edm@act\relax\fi\else\let\@edm@act\relax\fi%
   \ifx\@edm@act\relax$$\fi}
@@ -89,7 +88,6 @@
 \def\scriptscriptstyle{\ifmathml{\scriptsize\@incsize{-1}}\else\scriptsize\@incsize{-1}\fi}
 \def\textstyle{\ifmathml\@style{mtext}\fi}
 \def\textsuperscript#1{\ensuremath{^{\mbox{#1}}}}
-\def\textunderscore{\@print{_}}
 %%%%% Figures and tables
 \setenvclass{figure}{figure}
 %%General \caption command: #1 -> env name, #2 -> \caption arg
@@ -115,7 +113,7 @@
 %% Page Styles
 \def\pagestyle#1{}
 \def\thispagestyle#1{}
-%%% No table of contents, no a lot of things
+%%% No table of figures/tables
 \def\listoffigures{}
 \def\listoftables{}
 \newcommand{\contentsline}[3]{}
@@ -127,15 +125,12 @@
 \newcommand{\twocolumn}[1][]{}
 \newcommand{\onecolumn}{}
 %%% Stackrel et compagine
+\newcommand{\stackrel}[2]{\mathop{#2}\limits^{\scriptsize{}#1}\nolimits}
 \def\space@varray{1}
 \newenvironment{@varray}
   {\prim@def{\@table@attributes}{border=0 cellspacing=\space@varray{} cellpadding=0}\def\space@varray{0}%
   \begin{array}{c}}
   {\end{array}}
-\newcommand{\textstackrel}[2]{#2^{#1}}
-\newcommand{\stackrel}[2]{\ifdisplay
-\begin{@varray}\scriptsize#1\\{}#2\\{}~\end{@varray}\else
-\textstackrel{#1}{#2}\fi}
 %%% OLD DEFINITIONS : rediscovered, only \textoverline redefined in hevea.hva
 %%%
 \newcommand{\textoverline}[1]{\warning{overline ignored in text mode}#1}
@@ -334,7 +329,7 @@
 %%% Boxes
 \newcommand{\textfbox}[1]{\warning{\fbox in text}\mbox{#1}}
 \def\fbox#1{%
-\ifdisplay\begin{array}{|c|}\hline#1\end{array}\else
+\ifdisplay\begin{tabular}{|c|}\hline#1\end{array}\else
 \textfbox{#1}\fi}
 \newcommand{\hbox}[1]{\warning{\hbox}\mbox{#1}}
 \newcommand{\displaystyle}{\ifdisplay\else\warning{\displaystyle ignored}\fi}
@@ -560,7 +555,7 @@
 }}}
 %%%%%%%%% Minipage
 \newenvironment{minipage}[2][]
-{\warning{minipage, output may be poor}\@start@mbox}{\@end@mbox}
+{\warning{minipage, output may be poor}\@start@text}{\@end@text}
 %%%%% Extension des environnments hevea en lecture de fichier
 \newcommand{\rawhtmlinput}[1]
 {\@scaninput{\begin{rawhtml}}{#1}{\end{rawhtml}}}

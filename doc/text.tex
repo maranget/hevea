@@ -6,6 +6,7 @@
 \usepackage{../hevea}
 \usepackage{listings}
 \usepackage[latin1]{inputenc}
+\usepackage[T1]{fontenc}
 \usepackage{amssymb}
 \usepackage{amsmath}
 \usepackage{ifthen}\usepackage{array}
@@ -4147,41 +4148,25 @@ $$\boxed{\frac{\pi}{2}}$$
 in display-math mode. The commands \verb+\bigl,\bigr+ etc. \index{\verb+\bigl,\bigr+ etc.}are also rendered well. Some examples can be found \ifhevea \footahref{../examples/random-math.html}{here}\else in the test file {\tt random-math.html} provided with the distribution\fi.
 
 \subsection{Math accents}\index{math accents}
-Math accents (\verb+\hat+, \verb+\tilde+, etc.) are not
-handled\label{mathaccents} by default.
-However, the distribution includes a \texttt{mathaccents.hva} file
-that provides definitions for almost all math accents commands,
-except \verb+\check+ and \verb+\breve+.
+Math accents (\verb+\hat+, \verb+\tilde+, etc.) are
+handled\label{mathaccents} by default.  They in fact act as the
+corresponding text-mode accents, when possible.  The \verb+\vec+
+command is rendered differently in display and non-display mode. In
+display mode, the arrow appears in normal position, while in
+non-display the arrow appears as an ordinary superscript.
+$$
+\mbox{\texttt{\textbackslash{}vec\{u\}} in text mode: $\vec{u}$},\quad
+\mbox{\texttt{\textbackslash{}vec\{u\}} in display mode:}~\vec{u}
+$$
 
-Rendering is far from perfect, but should get better as unicode encodings for these begin to be supported by browsers. 
-
-More precisely, the accent is put (too far) above the symbol in display mode,
-and as an ordinary superscript in text mode.
-\ifhevea{\input{mathaccents.hva}For instance, given the formula
-\verb+\tilde{v} \cdot \vec{U}+, we get
-``$\tilde{v} \cdot \vec{U}$'' in text mode and
-$$\tilde{v} \cdot \vec{U}$$ in display mode.}\fi
-
-If such a rendering is considered too ugly,
-one should not load the \texttt{mathaccents.hva} file and write
-alternative definitions.
-For instance, the following custom definitions
-issue color changes:
-\begin{verbatim}
-\newcommand{\tilde}[1]{{\blue#1}}
-\newcommand{\vec}[1]{{\red#1}}
-\end{verbatim}
-\ifhevea With such definitions the previous example now appears as:
-{\newcommand{\tilde}[1]{{\blue#1}}%
-\newcommand{\vec}[1]{{\red#1}}%
-we get
-``$\tilde{v} \cdot \vec{U}$'' in text mode and
-$$\tilde{v} \cdot \vec{U}$$ in display mode.
-}\fi
-Of course, such a trick probably requires looking closely at \html{}
-output to check whether the document is still understandable or not.
-It may be better to stay with a poorly formatted document that remains
-closer to universally understood  notations for mathematics.
+Most ``extensible accents'' (\verb+\widetilde+, \verb+\widehat+, etc.)
+are not even defined.
+There are two exceptions,
+$$\newcommand{\demo}[1]{\quad\quad#1{abc}\quad\texttt{\string#1}}
+\begin{array}{cc}
+\demo{\underline} & \demo{\overline}
+\end{array}
+$$
 
 
 \subsection{Spacing}\label{spacemathref}
@@ -5149,14 +5134,6 @@ the current font.
 This section describes \hevea{} functionalities that extends on plain \LaTeX{},
 as defined in \cite{latex}.
 Most of the features described here are performed by default.
-
-\subsection{Accents in maths}
-\index{math accents}
-Loading the \texttt{mathaccents.hva} style files enables
-default typesetting of the math
-accents commands
-(\verb+\hat+, \verb+\tilde+,\ldots), see Section~\ref{mathaccents}.
-
 
 \subsection{\TeX{} macros}\label{texmacro}
 Normally, \hevea{} does not recognize constructs that are specific to

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.274 2006-02-28 18:02:18 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.275 2006-03-01 12:39:15 maranget Exp $ *)
 
 
 {
@@ -2837,9 +2837,19 @@ def_code "\\endlrbox"
     new_env "lrbox")
 ;;
 
-(* External acess to start_box /end_mbox *)
-def_code "\\@start@mbox" (fun _ -> start_mbox ()) ;
-def_code "\\@end@mbox" (fun _ ->  top_close_group ())
+(* External acess to close math mode, preserving text/display *)
+
+let start_text () =
+  push stack_table !in_table ; in_table := NoTable ;
+  push stack_in_math !in_math ; in_math := false
+
+and end_text () =
+  in_math := pop stack_in_math ;
+  in_table := pop stack_table
+;;
+
+def_code "\\@start@text" (fun _ -> start_text ()) ;
+def_code "\\@end@text" (fun _ ->  end_text ())
 ;;
 
 

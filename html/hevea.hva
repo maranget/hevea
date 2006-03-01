@@ -32,6 +32,7 @@
 \input{packages.hva}
 %%%%%% Spacing
 \input{spaces.hva}
+\input{latexcommon.hva}
 %%% Basic symbols
 %Declare unicode encoded symbol, with optional text equivalent
 \newcommand{\DeclareSymbol}[3][\@empty]
@@ -42,9 +43,10 @@
 {\newcommand{#2}{\mathop{\ifdisplay{\Huge#3}\else#3\fi}#1}}
 \let\NewcommandHtml\newcommand%
 \let\NewcommandText\NoCommand%
+\let\RenewcommandHtml\renewcommand%
+\let\RenewcommandText\NoCommand%
 \input{iso-symb.hva}
 \renewcommand{\&}{\ifraw\@print{&}\else\@print{&amp;}\fi}
-\input{latexcommon.hva}
 %%% Logos
 \def\TeX{\@print{T<sub>E</sub>X}}
 \def\LaTeX{\@print{L<sup>A</sup>T<sub>E</sub>X}}
@@ -447,11 +449,11 @@
 \newstyle{.boxed}{border:1px solid black}
 \newstyle{.textboxed}{border:1px solid black}
 \NewcommandHtml{\@@boxed}[1]
-{\@open{TABLE}{CLASS="boxed"}\@open{TR}{}\@open{TD}{}%
+{\@start@text\@open{TABLE}{CLASS="boxed"}\@open{TR}{}\@open{TD}{}%
 #1%
-\@close{TD}\@close{TR}\@close{TABLE}}
+\@close{TD}\@close{TR}\@close{TABLE}\@end@text}
 \NewcommandHtml{\@boxed}[1]{{\@styleattr{SPAN}{CLASS="textboxed"}#1}}
-\renewcommand{\fbox}{\DisplayChoose\@@boxed\@boxed}
+\RenewcommandHtml{\fbox}{\DisplayChoose\@@boxed\@boxed}
 %%Style of bars
 \newstyle{.vbar}{width:2px;background-color:black;}
 \newstyle{.hbar}{height:2px;width:100\%;background-color:black;}

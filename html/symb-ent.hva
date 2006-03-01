@@ -5,35 +5,9 @@
 %% HTML 4.0 symbol entities
 %% classes dans le meme ordre que
 %% dans le livre LaTeX, de Leslie Lamport.
-\renewcommand{\ddots}{\@print{&#8944;}}
-\renewcommand{\vdots}{\@print{&#8942;}}
-%Somme text commands available in LaTeX2e to give << absolute >> names to
-%various languistic constructs.
-\def\textvisiblespace{\@print{&#9251;}}
-\def\textemdash{\@print{&mdash;}}
-\def\textendash{\@print{&ndash;}}
-\def\textexclamdown{\@print@u{XA1}}
-\def\textquestiondown{\@print@u{XBF}}
-\def\textquotedblleft{\@print{&ldquo;}}
-\def\textquotedblright{\@print{&rdquo;}}
-\def\textquoteright{\@print{&rsquo;}}
-\def\textquoteleft{\@print{&lsquo;}}
-
 %%%%%%%%%%%%%%%%%%%
 \newcommand{\notin}{\@print{&#8713;}}
 %
-%% Arrow Symbols (Table 8.6 of 'Goos-Mitt-Sam')
-%
-
-%% Eventually these commands would be activated (currently with '-moreentities')
-%
-%\renewcommand{\longleftarrow}{\@print{&#10229;}}
-%\renewcommand{\Longleftarrow}{\@print{&#10232;}}
-%\renewcommand{\longrightarrow}{\@print{&#10230;}}
-%\renewcommand{\Longrightarrow}{\@print{&#10233;}}
-%\renewcommand{\longleftrightarrow}{\@print{&#10231;}}
-%\renewcommand{\Longleftrightarrow}{\@print{&#10234;}}
-%\renewcommand{\longmapsto}{\@print{&#10236;}}
 %
 \ifmoreentities
 \renewcommand{\longleftarrow}{\@print{&#10229;}}%
@@ -51,13 +25,6 @@
 %
 %% Delimiters
 %
-\newcommand{\lfloor}{\@entity{lfloor}}
-\newcommand{\rfloor}{\@entity{rfloor}}
-\newcommand{\lceil}{\@entity{lceil}}
-\newcommand{\rceil}{\@entity{rceil}}
-\newcommand{\langle}{\@entity{lang}}
-\newcommand{\rangle}{\@entity{rang}}
-%
 %% Variable-sized Symbols
 %
 \newcommand{\@iint}{\@print{&#8748;}}
@@ -73,47 +40,3 @@
 \newcommand{\@displayoint}{\mbox{\Large\@print{&#8750;}}}
 \newcommand{\@displayoiint}{\mbox{\Large\@print{&#8751;}}}
 \newcommand{\@displayoiiint}{\mbox{\huge\@print{&#8752;}}}
-%
-%% Additional
-%
-%\newcommand{\mathit}[1]{\@open{I}{}#1\@close{I}}
-%\let\mathrm\@mathrm%
-%\let\mathtt\@mathtt%
-%\ifmoreentities
-%\let\mathcal\@mathcal%
-%\let\mathsf\@mathsf%
-%\let\mathbf\@mathbf%
-%\fi
-
-%
-%% Definition for big left and right brackets
-%
-%%% SQRT
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%   We can now define \sqrt using \overlinedbox (f hevea.hva)   %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%
-\newcommand{\sqrt}[2][1]{\ifdisplay%
- \ifthenelse{\equal{#1}{4}}{\@print{<BIG>&#8732;</BIG>}\overline{#2}}{%
-  \ifthenelse{\equal{#1}{3}}{\@print{<BIG>&#8731;</BIG>}\overline{#2}}{%
-   \ifthenelse{\equal{#1}{1}}{%
-    \@print{<BIG><BIG>}\surd\@print{</BIG></BIG>}\overline{#2}}{%
-    %\warning{opt argument to \sqrt not 3 or 4, ignored}%
-    %\@print{<BIG><BIG>}\surd\@print{</BIG></BIG>}\overline{#2}%
-    \left(#2\right)^{\frac{1}{#1}}%
-   }%
-  }%
- }%
-\else
- \ifthenelse{\equal{#1}{4}}{\@print{&#8732;}\overlinedbox{#2}}{%
-  \ifthenelse{\equal{#1}{3}}{\@print{&#8731;}\overlinedbox{#2}}{%
-   \ifthenelse{\equal{#1}{1}}{\surd\overlinedbox{#2}}{%
-   %\warning{opt argument to \sqrt (outside display mode) ignored}%
-   %\surd\overlinedbox{#2}%
-   (#2)^{\frac{1}{#1}}
-   }%
-  }%
- }%
-\fi%
-}%

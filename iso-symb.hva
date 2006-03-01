@@ -365,7 +365,9 @@
 \let\hat\^
 \let\mathring\r
 \let\tilde\~
-\newcommand{\vec}[1]{\warning{'\vec'}#1}
+\newcommand{\@@vec}[1]{{#1}^{\rightarrow}}
+\newcommand{\@vec}[1]{\mathop{#1}\limits^{\rightarrow}\nolimits}
+\newcommand{\vec}{\DisplayChoose\@vec\@@vec}
 %%%%%%%%%%%%%%%%%%%
 % Table 138: Dots %
 %%%%%%%%%%%%%%%%%%%
