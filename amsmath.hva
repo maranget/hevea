@@ -157,3 +157,18 @@
 \DeclareSymbolHtml{\@iiint}{X222D}\MakeInt{\iiint}{\@iiint}
 \DeclareSymbolHtml{\@iiiint}{X2A0C}\MakeInt{\iiiint}{\@iiiint}
 \NewcommandHtml{\idotsint}{\int\cdots\int}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Table 97: AMS Log-Like symbols %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\@defl\injlim{inj lim}
+\@defl\projlim{proj lim}
+\@defl\varliminf{\underline{lim}}
+\@defl\varlimsup{\overline{lim}}
+%%%%%%%%%%%%%%%%%%%%%%
+% Table 39: AMS Dots %
+%%%%%%%%%%%%%%%%%%%%%%
+\Let\dotsb\cdots
+\Let\dotsi\cdots
+\Let\dotso\ldots
+\Let\dotsc\ldots
+\Let\dotsm\cdots

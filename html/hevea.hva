@@ -459,11 +459,36 @@
 %%Style of bars
 \newstyle{.vbar}{width:2px;background-color:black;}
 \newstyle{.hbar}{height:2px;width:100\%;background-color:black;}
+\newcommand{\@hbar}{\@open{DIV}{CLASS="hbar"}\@force{DIV}}
 %%Style of display
 \newstyle{.vdisplay}{border-collapse:collapse;border:1px solid gray}
 \newstyle{.vdcell}{border:1px solid gray;white-space:nowrap;}
 \newstyle{.display}{border-collapse:collapse}
-\newstyle{.dcell}{white-space:nowrap;}
+\newstyle{.dcell}{white-space:nowrap;padding:0px;}
+%%% And we can get something similar for extensible arrows accents.
+\newcommand{\@over@arrow}[2]
+{\@open{TABLE}{CLASS="display"}%
+\@open{TR}{}#1\@close{TR}%
+\@open{TR}{}\@open{TD}{CLASS="dcell" COLSPAN=2}#2\@close{TD}\@close{TR}%
+\@open{TR}{}\@open{TD}{CLASS="dcell" COLSPAN=2}~\@close{TD}\@close{TR}%
+\@close{TABLE}}
+\newcommand{\textoverleftarrow}[1]
+{\warning{\overleftarrow outside display mode}#1}
+\newcommand{\@overleftarrow}[1]
+{\@over@arrow
+  {\@open{TD}{CLASS="dcell"}\hva@lefthead\@close{TD}%
+   \@open{TD}{CLASS="dcell" WIDTH="100\%"}\@hbar\@close{TD}}
+  {#1}}
+\newcommand{\overleftarrow}{\DisplayChoose\@overleftarrow\textoverleftarrow}
+\newcommand{\textoverrightarrow}[1]
+{\warning{\overrightarrow outside display mode}#1}
+\newcommand{\@overrightarrow}[1]
+{\@over@arrow
+  {\@open{TD}{CLASS="dcell" WIDTH="100\%"}\@hbar\@close{TD}%
+  \@open{TD}{CLASS="dcell"}\hva@righthead\@close{TD}}
+  {#1}}
+\newcommand{\overrightarrow}{\DisplayChoose\@overrightarrow\textoverrightarrow}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%Default env class for verbatim
 \setenvclass{verbatim}{verbatim}
