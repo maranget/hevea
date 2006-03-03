@@ -674,5 +674,3 @@
 %%%%%%%%%%%%%%%%%%%%
 %Needed internally %
 %%%%%%%%%%%%%%%%%%%%
-\DeclareSymbolHtml[\mbox{>}]{\hva@righthead}{X25B8}
-\DeclareSymbolHtml[\mbox{<}]{\hva@lefthead}{X25C2}

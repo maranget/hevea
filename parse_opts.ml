@@ -11,7 +11,7 @@
 
 open Misc
 
-let header = "$Id: parse_opts.ml,v 1.32 2005-02-14 09:28:53 maranget Exp $" 
+let header = "$Id: parse_opts.ml,v 1.33 2006-03-03 09:14:42 maranget Exp $" 
 
 type input = File of string | Prog of string
 
@@ -68,6 +68,8 @@ let path = ref []
 let outname = ref ""
 ;;
 
+let check_displayverb n = if n > 1 then displayverb := true
+
 let _ = Arg.parse
     [
   ("-version", Arg.Unit
@@ -76,8 +78,12 @@ let _ = Arg.parse
        print_endline ("library directory: "^Mylib.static_libdir) ;
        exit 0),
    "show hevea version and library directory") ;
-  ("-v", Arg.Unit (fun () -> readverb := !readverb + 1),
+  ("-v",
+   Arg.Unit
+     (fun () -> readverb := !readverb + 1 ; check_displayverb !readverb),
    "verbose flag, can be repeated to increase verbosity") ;
+  ("-dv", Arg.Unit (fun () -> displayverb := true),
+   "highlight TABLE elements used by display mode") ;
   ("-s", Arg.Unit (fun () -> silent := true),
    "suppress warnings") ;
   ("-I", Arg.String (fun s -> path := s :: !path),

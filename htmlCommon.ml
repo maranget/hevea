@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlCommon.ml,v 1.47 2006-02-28 18:02:18 maranget Exp $" 
+let header = "$Id: htmlCommon.ml,v 1.48 2006-03-03 09:14:42 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -127,11 +127,9 @@ let check_block_closed opentag closetag =
     failclose "html" closetag opentag
 ;;
 
-let display_arg  verbose =
-  if verbose > 1 then
-    "CLASS=\"vdisplay\""
-  else
-    "CLASS=\"display\""
+let display_arg verbose =
+  if !displayverb then "CLASS=\"vdisplay\""
+  else "CLASS=\"display\""
 ;;
 
 (* output globals *)

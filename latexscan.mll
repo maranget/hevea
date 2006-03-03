@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.276 2006-03-01 17:44:20 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.277 2006-03-03 09:14:42 maranget Exp $ *)
 
 
 {
@@ -2535,6 +2535,7 @@ newif_ref "math" in_math ;
 newif_ref "whitepre" whitepre ;
 newif_ref "mmode" in_math ;
 newif_ref "display" display ;
+newif_ref "verbd" displayverb ;
 (* NO NEED AFTER BABEL SUPPORT *)
 (*newif_ref "french" french ;*)
 newif_ref "html" html;

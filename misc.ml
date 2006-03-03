@@ -22,6 +22,7 @@ exception EndOfLispComment of int (* QNC *)
 
 let verbose = ref 0
 and readverb = ref 0
+and displayverb = ref false
 
 let silent = ref false
 

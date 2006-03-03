@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlMath.ml,v 1.36 2006-02-28 18:02:18 maranget Exp $" 
+let header = "$Id: htmlMath.ml,v 1.37 2006-03-03 09:14:42 maranget Exp $" 
 
 
 open Misc
@@ -81,7 +81,7 @@ and close_center () = close_block DIV
 ;;
 
 let display_cell_arg () =
-  if !verbose > 1 then "CLASS=\"vdcell\"" else "CLASS=\"dcell\""
+  if !displayverb then "CLASS=\"vdcell\"" else "CLASS=\"dcell\""
 
 let open_display_cell () =
  open_block TD (display_cell_arg ())
@@ -315,7 +315,7 @@ and open_vdisplay_row trarg tdarg  =
     prerr_endline "open_vdisplay_row";
   open_block TR trarg ;
   open_block TD
-    (if tdarg="" then display_cell_arg () else tdarg^" "^display_cell_arg ()) ;
+    (if tdarg="" then display_cell_arg () else display_cell_arg ()^" "^tdarg) ;
   open_display ()
 
 and close_vdisplay_row () =
@@ -398,13 +398,13 @@ let limit_sup_sub scanner what sup sub display =
   else begin
     force_item_display () ;
     open_vdisplay display ;
-    open_vdisplay_row "" "ALIGN=center" ;
+    open_vdisplay_row "" "" ;
     put sup ;
     close_vdisplay_row () ;
-    open_vdisplay_row "" "ALIGN=center" ;
+    open_vdisplay_row "" "" ;
     what () ;
     close_vdisplay_row () ;
-    open_vdisplay_row "" "ALIGN=center" ;
+    open_vdisplay_row "" "" ;
     put sub ;
     close_vdisplay_row () ;
     close_vdisplay () ;
@@ -422,15 +422,15 @@ let int_sup_sub something vsize scanner what sup sub display =
   end ;
   if sup <> "" || sub <> "" then begin
     open_vdisplay display ;
-    open_vdisplay_row "" "ALIGN=left" ;
+    open_vdisplay_row "" "STYLE=\"text-align:left;\"" ;
     put sup ;
     close_vdisplay_row () ;
-    open_vdisplay_row "" "ALIGN=left" ;
+    open_vdisplay_row "" "STYLE=\"text-align:left;\"" ;
     for _i = 2 to vsize do
       skip_line ()
     done ;
     close_vdisplay_row () ;
-    open_vdisplay_row "" "ALIGN=left" ;
+    open_vdisplay_row "" "STYLE=\"text-align:left;\"" ;
     put sub ;
     close_vdisplay_row () ;
     close_vdisplay () ;
@@ -483,13 +483,13 @@ let over display _lexbuf =
     let mods = insert_vdisplay
         (fun () ->
           open_vdisplay display ;
-          open_vdisplay_row "" "ALIGN=center") in
+          open_vdisplay_row "" "") in
     close_vdisplay_row () ;
     open_vdisplay_row "" "" ;
     close_mods () ;
     line_in_table () ;
     close_vdisplay_row () ;
-    open_vdisplay_row "" "ALIGN=center" ;
+    open_vdisplay_row "" "" ;
     close_mods () ;
     open_mods mods ;
     freeze

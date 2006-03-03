@@ -167,6 +167,8 @@ stack.cmo: stack.cmi
 stack.cmx: stack.cmi 
 subst.cmo: save.cmi out.cmi misc.cmi lexstate.cmi subst.cmi 
 subst.cmx: save.cmx out.cmx misc.cmx lexstate.cmx subst.cmi 
+symb.cmo: parse_opts.cmi symb.cmi 
+symb.cmx: parse_opts.cmx symb.cmi 
 table.cmo: table.cmi 
 table.cmx: table.cmi 
 tabular.cmo: table.cmi subst.cmi stack.cmi parse_opts.cmi misc.cmi \
