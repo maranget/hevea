@@ -13,7 +13,7 @@
 open Lexing
 open Misc
 
-let header = "$Id: save.mll,v 1.71 2006-03-01 17:44:20 maranget Exp $" 
+let header = "$Id: save.mll,v 1.72 2006-03-03 20:08:53 maranget Exp $" 
 
 let rec peek_next_char lb =
   let pos = lb.lex_curr_pos
@@ -168,9 +168,10 @@ and opt2 =  parse
       put_echo_char ']' ;
       Out.to_string arg_buff
     end}
-  | _
-      {let s = lexeme_char lexbuf 0 in
-      put_both_char s ; opt2 lexbuf }
+| command_name as lxm
+   {put_both lxm ; opt2 lexbuf }
+| _ as lxm 
+   {put_both_char lxm ; opt2 lexbuf }
 
 and skip_comment = parse
   | eof       {()}

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlCommon.ml,v 1.48 2006-03-03 09:14:42 maranget Exp $" 
+let header = "$Id: htmlCommon.ml,v 1.49 2006-03-03 20:08:53 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -1388,6 +1388,7 @@ let rec open_top_styles = function
 let rec force_block s content =
   if !verbose > 2 then begin
     prerr_endline ("=> force_block: ["^string_of_block s^"]");    
+    pretty_stack out_stack ;
     pretty_cur !cur_out
   end ;
   let was_empty = flags.empty in

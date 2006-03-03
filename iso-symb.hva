@@ -628,7 +628,8 @@
 % Table 8, p. 436 in TeX book
 \newcommand{\not@name}[1]{\string{#1@not}}
 \newcommand{\DeclareNot}[3][\@empty]
-{\DeclareSymbolHtml[\mbox{\neg(#2)}]{\csname\not@name{#2}\endcsname}{#3}}
+{\ifu\csname\not@name{#2}\endcsname
+\DeclareSymbolHtml[\mbox{\neg(#2)}]{\csname\not@name{#2}\endcsname}{#3}\fi}
 \newcommand{\not}[1]
 {\@ifundefined{\not@name{#1}}
 {\warning{Cannot apply '\not' to '#1'}\neg{}#1}%
@@ -654,10 +655,22 @@
 \DeclareNot{\approx}{X2249}
 \DeclareNot{\subseteq}{X2288}
 \DeclareNot{\supseteq}{X2289}
-\DeclareNot{\cong}{X2246}
+\DeclareNot{\cong}{X2247}
 \DeclareNot{\sqsubseteq}{X22E2}
 \DeclareNot{\sqsupseteq}{X22E3}
 \DeclareNot{\asymp}{X226D}
+\DeclareNot{\ni}{X220C}
+\DeclareNot{\vdash}{X22AC}
+\DeclareNot{\Leftarrow}{X21CD}
+\DeclareNot{\leftarrow}{X219A}
+\DeclareNot{\Leftrightarrow}{X21CE}
+\DeclareNot{\leftrightarrow}{X21AE}
+\DeclareNot{\rightarrow}{X219B}
+\DeclareNot{\Rightarrow}{X21CF}
+\DeclareNot{\exists}{X2204}
+\DeclareNot{\mid}{X2224}
+\DeclareNot{\parallel}{X2226}
+\DeclareNot{\models}{X22AD}
 %%%%%%%%%%%%%%%%%%
 % TeX synomyms   %
 %%%%%%%%%%%%%%%%%%

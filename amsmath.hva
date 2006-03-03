@@ -136,15 +136,6 @@
 \newcommand{\smallint}{\int}
 \newcommand{\substack}[1]{\begin{matrix}#1\end{matrix}}
 \newenvironment{proof}{\par\noindent{\bf Proof.}}{\par\medskip}
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%   Support for \xleftarrow and \xrightarrow			%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%
-\newcommand{\xleftarrow}[2][]{\ifdisplay{#2\@xleft #1}\else%
-\warning{\xleftarrow outside display mode, arguments ignored}\leftarrow\fi}%
-\newcommand{\xrightarrow}[2][]{\ifdisplay{#2\@xright #1}\else%
-\warning{\xrightarrow outside display mode, arguments ignored}\rightarrow\fi}%
 %%%%%%%%%%%%%%%%%
 % \boxed command%
 %%%%%%%%%%%%%%%%%
@@ -172,3 +163,72 @@
 \Let\dotso\ldots
 \Let\dotsc\ldots
 \Let\dotsm\cdots
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Table 129: AMS Extensible Accents %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\NewcommandHtml{\textoverleftrightarrow}[1]
+{\warning{\overleftrightarrow outside display mode}#1}
+\NewcommandHtml{\@overleftrightarrow}[1]
+{\mathop{\@over@arrow[3]
+  {\d@cell{\hva@lefthead}%
+   \d@cell[WIDTH="100\%"]{\@hbar}%
+   \d@cell{\hva@righthead}}
+  {#1}}\intlimits}
+\NewcommandHtml{\overleftrightarrow}
+{\DisplayChoose\@overleftrightarrow\textoverleftrightarrow}
+%%%%%%%%%%%%%%%%%%%%%%%
+\NewcommandHtml{\textunderleftrightarrow}[1]
+{\warning{\underleftrightarrow outside display mode}#1}
+\NewcommandHtml{\@underleftrightarrow}[1]
+{\mathop{\@under@arrow[3]
+  {\d@cell{\hva@lefthead}%
+   \d@cell[WIDTH="100\%"]{\@hbar}%
+   \d@cell{\hva@righthead}}{#1}}\intlimits}
+\NewcommandHtml{\underleftrightarrow}
+{\DisplayChoose\@underleftrightarrow\textunderleftrightarrow}
+%%%%%%%%%%%%%%%%%%%%%%%
+\NewcommandHtml{\textunderrightarrow}[1]
+{\warning{\underrightarrow outside display mode}#1}
+\NewcommandHtml{\@underrightarrow}[1]
+{\mathop{\@under@arrow[2]
+  {\d@cell[WIDTH="100\%"]{\@hbar}%
+   \d@cell{\hva@righthead}}{#1}}\intlimits}
+\NewcommandHtml{\underrightarrow}
+{\DisplayChoose\@underrightarrow\textunderrightarrow}
+%%%%%%%%%%%%%%%%%%%%%%%
+\NewcommandHtml{\textunderleftarrow}[1]
+{\warning{\underleftarrow outside display mode}#1}
+\NewcommandHtml{\@underleftarrow}[1]
+{\mathop{\@under@arrow[2]
+  {\d@cell{\hva@lefthead}\d@cell[WIDTH="100\%"]{\@hbar}}{#1}}\intlimits}
+\NewcommandHtml{\underleftarrow}
+{\DisplayChoose\@underleftarrow\textunderleftarrow}
+%%%%%%%%%%%%%% New generic function for accents both below and above
+\NewcommandHtml{\@both@arrow}[4][2]
+{\@itemdisplay%
+\@open@display\@open@display%
+\d@cell[COLSPAN="#1" STYLE="font-size:smaller;"]{#2}%
+\@close{TR}\@open{TR}{}%
+#3%
+\@close{TR}\@open{TR}{}%
+\d@cell[COLSPAN="#1" STYLE="font-size:smaller;"]{#4}%
+\@close@display\@close@display\@itemdisplay}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\NewcommandHtml{\textxleftarrow}[2][]
+{\warning{\xleftarrow outside display mode}\leftarrow^{#2}_{#1}}
+\NewcommandHtml{\@xleftarrow}[2][~]
+{\mathop
+  {\@both@arrow[2]{\quad{}#2\quad}
+    {\d@cell{\hva@lefthead}\d@cell[WIDTH="100\%"]{\@hbar}}
+    {\quad{}#1\quad}%
+  }\intlimits}
+\NewcommandHtml{\xleftarrow}{\DisplayChoose\@xleftarrow\textxleftarrow}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\NewcommandHtml{\textxrightarrow}[2][]
+{\warning{\xrightarrow outside display mode}\leftarrow^{#2}_{#1}}
+\NewcommandHtml{\@xrightarrow}[2][~]
+{\mathop
+{\@both@arrow[2]{\quad{}#2\quad}
+{\d@cell[WIDTH="100\%"]{\@hbar}\d@cell{\hva@righthead}}
+{\quad{}#1\quad}}\intlimits}
+\NewcommandHtml{\xrightarrow}{\DisplayChoose\@xrightarrow\textxrightarrow}

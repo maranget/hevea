@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.83 2006-02-24 16:43:25 maranget Exp $    *)
+(*  $Id: package.ml,v 1.84 2006-03-03 20:08:53 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -1008,85 +1008,6 @@ def_code "\\@mathtt"
 ;;
 
 
-(*
-def_code "\\xrightarrow"
-  (fun lexbuf ->
-    let optarg = save_opt "" lexbuf in
-    let arg = save_arg lexbuf in
-    Dest.open_block "TABLE" "border=0 cellpadding=0 cellspacing=0";
-    Dest.open_block "SMALL" "" ;
-    Dest.open_block "TR" "" ;
-    Dest.open_block "TD" "" ;
-    Dest.put "&nbsp;&nbsp; " ;
-    Dest.close_block "TD" ;
-    Dest.open_block "TD" "align=center valign=bottom" ;
-    scan_this_arg Scan.main arg;
-    Dest.close_block "TD" ;
-    Dest.open_block "TD" "color=black" ;
-    Dest.put "&nbsp;" ;
-    Dest.close_block "TD" ;
-    Dest.close_block "TR" ;
-    Dest.close_block "SMALL";
-
-    Dest.open_block "TR" "" ;
-    Dest.open_block "TD" "ALIGN=right" ;
-    Dest.put ("<TABLE border=0 cellspacing=0 cellpadding=1 bgcolor=black "^
-	      "width=\"100%\"><TR><TD></TD></TR></TABLE>") ;
-    Dest.close_block "TD" ;
-    Dest.open_block "TD" "align=center" ;
-    Dest.put ("<TABLE border=0 cellspacing=0 cellpadding=1 bgcolor=black "^
-	      "width=\"100%\"><TR><TD></TD></TR></TABLE>") ;
-    Dest.close_block "TD" ;
-    Dest.open_block "TD" "ALIGN=left" ;
-    Dest.put "&gt" ;
-    Dest.close_block "TD" ; 
-    Dest.close_block "TR" ;
-
-    Dest.open_block "SMALL" "" ;
-    Dest.open_block "TR" "" ;
-    Dest.open_block "TD" "" ;
-    Dest.put "&nbsp;" ;
-    Dest.close_block "TD" ;
-    Dest.open_block "TD" "align=center valign=top" ;
-    scan_this_arg Scan.main optarg;
-    Dest.close_block "TD" ;
-    Dest.open_block "TD" "" ;
-    Dest.put "&nbsp;" ;
-    Dest.close_block "TD" ;
-    Dest.close_block "TR" ;
-    Dest.close_block "SMALL" ;
-    Dest.close_block "TABLE")
-;;
-
-
-def_code "\\xleftarrow"
-  (fun lexbuf ->
-    let optarg = save_opt "" lexbuf in
-    let arg = save_arg lexbuf in
-    Dest.open_block "TABLE" "border=0 cellpadding=0 cellspacing=0";
-    Dest.open_block "SMALL" "" ;
-    
-    Dest.open_block "TR" "" ;
-    Dest.open_block "TD" "align=center valign=bottom" ;
-    scan_this_arg Scan.main arg;
-    Dest.close_block "TD" ;
-    Dest.close_block "TR" ;
-
-    Dest.open_block "TR" "" ;
-    Dest.open_block "TD" "align=center style=\"font-size:7pt;\"" ;
-    Dest.put "&larr;&mdash;&mdash;&mdash;&mdash;" ;
-    Dest.close_block "TD" ; 
-    Dest.close_block "TR" ;
-
-    Dest.open_block "TR" "" ;
-    Dest.open_block "TD" "align=center valign=top" ;
-    scan_this_arg Scan.main optarg;
-    Dest.close_block "TD" ;
-    Dest.close_block "TR" ;
-    Dest.close_block "SMALL" ;
-    Dest.close_block "TABLE")
-;;
-*)
 (*
 def_code "\\cfrac"
   (fun lexbuf ->

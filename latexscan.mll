@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.277 2006-03-03 09:14:42 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.278 2006-03-03 20:08:53 maranget Exp $ *)
 
 
 {
@@ -126,6 +126,11 @@ let top_open_display () =
 and top_item_display () =
   if !display then begin
     Dest.item_display ()
+  end
+
+and top_force_item_display () =
+  if !display then begin
+    Dest.force_item_display ()
   end
 ;;
 
@@ -269,7 +274,7 @@ let top_open_block block args =
   | "TABLE" ->
       save_array_state () ;
       in_table := NoTable ;
-      top_item_display () ;
+      top_force_item_display () ;
       Dest.open_block "TABLE" args
   | "TR" ->
       Dest.open_block "TR" args      
@@ -297,7 +302,7 @@ and top_close_block_aux close_fun block =
       display := pop stack_display
   | "TABLE" ->
       close_fun "TABLE" ;
-      top_item_display () ;
+      top_force_item_display () ;
       restore_array_state ()
   | "TR" ->
       close_fun "TR"
@@ -2111,6 +2116,7 @@ def_code "\\@rover"
      skip_blanks lexbuf)
 ;;
 
+(*
 def_code "\\@xleft"
    (fun lexbuf ->
      Dest.over_align true false !display lexbuf;
@@ -2122,7 +2128,7 @@ def_code "\\@xright"
      Dest.over_align true true !display lexbuf;
      skip_blanks lexbuf)
 ;;
-
+*)
 def_code "\\MakeUppercase"
   (fun lexbuf ->
     let arg = save_arg lexbuf in

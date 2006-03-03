@@ -4094,13 +4094,11 @@ would typeset in \hevea{} as follows
 $$1+\cfrac[r]{right-align}{1 + right-align}$$ 
 \end{htmlonly}
 \comindex{xleftarrow}\comindex{xrightarrow}
-The commands \verb+\xleftarrow+ and \verb+\xrightarrow+ also work well in display mode. However, the arguments are ignored when outside display mode, and an appropriate warning is issued.
+The commands \verb+\xleftarrow+ and \verb+\xrightarrow+ also work well
+in display mode. However, the arguments are ignored when outside
+display mode, and an appropriate warning is issued.
 
 \begin{htmlonly}
-\newcommand{\xleftarrow}[2][]{\ifdisplay{#2\@xleft #1}\else%
-\warning{\xleftarrow outside display mode, arguments ignored}\leftarrow\fi}%
-\newcommand{\xrightarrow}[2][]{\ifdisplay{#2\@xright #1}\else%
-\warning{\xrightarrow outside display mode, arguments ignored}\rightarrow\fi}%
 Thus the fragment \verb+a \xrightarrow[2]{1} b \xleftarrow{3} c+ would appear as 
 $$a \xrightarrow[2]{1} b \xleftarrow{3} c$$
 in display mode, but as $a \xrightarrow[2]{1} b \xleftarrow{3} c$ in simple math mode.

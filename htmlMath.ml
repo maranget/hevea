@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlMath.ml,v 1.37 2006-03-03 09:14:42 maranget Exp $" 
+let header = "$Id: htmlMath.ml,v 1.38 2006-03-03 20:08:53 maranget Exp $" 
 
 
 open Misc
@@ -83,8 +83,7 @@ and close_center () = close_block DIV
 let display_cell_arg () =
   if !displayverb then "CLASS=\"vdcell\"" else "CLASS=\"dcell\""
 
-let open_display_cell () =
- open_block TD (display_cell_arg ())
+let open_display_cell () = open_block TD (display_cell_arg ())
 
 let begin_item_display f is_freeze =
   if !verbose > 2 then begin
@@ -146,10 +145,15 @@ let open_display () = open_display_varg "VALIGN=middle"
 
 let close_display () =
   if !verbose > 2 then begin
-    prerr_flags "=> close_display"
+    prerr_flags "=> close_display " ; pretty_stack out_stack ;
+    Out.debug stderr !cur_out.out
   end ;
   if not (flush_freeze ()) then begin
     close_flow INTERN ;
+    if !verbose > 3 then begin
+      Printf.eprintf "Just closed INTERN " ;  pretty_stack out_stack ;
+      Out.debug stderr !cur_out.out
+    end ;
     let n = flags.ncols in
     if !verbose > 2 then
       Printf.fprintf stderr "=> close_display, ncols=%d\n" n ;
@@ -215,7 +219,8 @@ let close_display () =
   
 let do_item_display force =
   if !verbose > 2 then begin
-    prerr_endline ("Item Display ncols="^string_of_int flags.ncols^" table_inside="^sbool flags.table_inside)
+    prerr_endline ("Item Display ncols="^string_of_int flags.ncols^" table_inside="^sbool flags.table_inside) ;
+    pretty_stack out_stack
   end ;
   let f,is_freeze = pop_freeze () in
   if (force && not flags.empty) || flags.table_inside then begin
@@ -225,6 +230,7 @@ let do_item_display force =
     let active  = !cur_out.active
     and pending = !cur_out.pending in
     flags.ncols <- flags.ncols + 1 ;
+(*
     let save = get_block TD (display_cell_arg ()) in
     if !verbose > 2 then begin
       Out.debug stderr !cur_out.out ;
@@ -238,27 +244,27 @@ let do_item_display force =
     Out.copy save.out !cur_out.out ;
     flags.empty <- false ; flags.blank <- false ;
     free save ;
-    !cur_out.pending <- as_envs active pending ;
-    !cur_out.active <- [] ;
     if !verbose > 2 then begin
       Out.debug stderr !cur_out.out ;
       prerr_endline ("Some Item")
     end;
+*)
+    close_flow INTERN ;
+    close_flow TD ;
+    if !verbose > 2 then begin
+      prerr_endline "Added Item to Display" ;
+      Out.debug stderr !cur_out.out ;
+    end;
     open_display_cell () ;
-    open_block INTERN ""
+    open_block INTERN "" ;
+    !cur_out.pending <- as_envs active pending ;
+    !cur_out.active <- []
   end else begin
     if !verbose > 2 then begin
       Out.debug stderr !cur_out.out ;
       prerr_endline "No Item" ;
       prerr_endline ("flags: empty="^sbool flags.empty^" blank="^sbool flags.blank)
-    end;
-    close_flow INTERN ;
-    if !verbose > 2 then begin
-      Out.debug stderr !cur_out.out ;
-      prerr_endline "No Item" ;
-      prerr_endline ("flags: empty="^sbool flags.empty^" blank="^sbool flags.blank)
-    end;
-    open_block INTERN ""
+    end
   end ;
   if is_freeze then push out_stack (Freeze f) ;
   if !verbose > 2 then begin

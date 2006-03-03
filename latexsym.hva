@@ -1,8 +1,8 @@
 %%
 \DeclareSymbolHtml[\mbox{<|}]{\lhd}{X25C1}
 \DeclareSymbolHtml[\mbox{|>}]{\rhd}{X25B7}
-\DeclareSymbolHtml{\unlhd}{X22B4}%Not that good, triangle is smashed
-\DeclareSymbolHtml{\unrhd}{X22B5}
+\DeclareSymbolHtml{\unlhd}{X22B4}\DeclareNot{\unlhd}{X22EC}
+\DeclareSymbolHtml{\unrhd}{X22B5}\DeclareNot{\unrhd}{X22ED}
 \DeclareSymbolHtml{\Box}{X25A1}
 \DeclareSymbolHtml{\Diamond}{X25C7}
 \DeclareSymbolHtml{\mho}{X2127}
