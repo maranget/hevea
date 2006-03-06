@@ -116,17 +116,42 @@
 %       \tfrac makes no estimate of text-style in HEVEA         %
 %       \cfrac takes an optional argument as well		%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\newcommand{\dfrac}[2]{\frac{#1}{#2}}
-\newcommand{\tfrac}[2]{\frac{#1}{#2}}
-\newcommand{\cfrac}[3][c]{%
-\ifthenelse{\equal{#1}{c}}{{#2\over #3}}{%
-\ifthenelse{\equal{#1}{l}}{{#2\@lover #3}}{%
-\ifthenelse{\equal{#1}{r}}{{#2\@rover #3}}{%
-\warning{Invalid Argument To \cfrac ignored}{#2\over #3}%
-}}}}
-\newcommand{\dotsb}{\cdots}
-\newcommand{\dotsc}{\dots}
-\newcommand{\dotsm}{\cdots}
+\let\dfrac\frac
+\let\tfrac\frac
+\let\hva@frac\frac
+\NewcommandHtml{\textfrac}[3][]{\hva@frac{#2}{#3}}
+\NewcommandHtml{\@frac}[3][]
+{\@open@display\d@cell{#2}%
+\@close{TR}\@open{TR}{}%
+\@open@dcell{}%
+{\def\@tmp{#1}\ifx\@tmp\@empty\@hbar\else
+\@hbar[STYLE="height:\@getlength{#1}px;"]\fi}%
+\@close@dcell%
+\@close{TR}\@open{TR}{CLASS="bot"}%
+\d@cell[STYLE="background-color:lime;"]{#3}%
+\@close@display}
+\NewcommandHtml{\gfrac}{\DisplayChoose\@frac\textfrac}
+%%%\cfrac -> vertical alignement on top in denominator
+\NewcommandHtml{\@@cfrac}[3][]
+{\@open@display%
+\d@cell[#1]{#2}%
+\@close{TR}\@open{TR}{}%
+\d@cell{\@hbar}\@addvsize{-1}%
+\@close{TR}\@open{TR}{}%
+\@open@dcell{}\@open{DISPLAY}{VALIGN="top"}#3\@close{DISPLAY}\@close@dcell%
+\@close@display}
+\NewcommandHtml{\@lcfrac}[2]{\@@cfrac[STYLE="text-align:left;"]{#1}{#2}}
+\NewcommandHtml{\@rcfrac}[2]{\@@cfrac[STYLE="text-align:right;"]{#1}{#2}}
+\newcommand{\@cfrac}[3][c]
+{\ifthenelse{\equal{#1}{c}}{\@@cfrac{#2}{#3}}
+{\ifthenelse{\equal{#1}{l}}{\@lcfrac{#2}{#3}}
+{\ifthenelse{\equal{#1}{r}}{\@rcfrac{#2}{#3}}
+{\warning{Invalid Argument To \cfrac: '#1', ignored}{\@@cfrac{#2}{#3}}}}}}
+\NewcommandHtml{\textcfrac}[3]{\frac{#2}{#3}}
+\NewcommandHtml{\cfrac}{\DisplayChoose\@cfrac\textcfrac}
+\NewcommandHtml{\lcfrac}{\DisplayChoose\@lcfrac\frac}
+\NewcommandHtml{\rcfrac}{\DisplayChoose\@rcfrac\frac}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newcommand{\eqref}[1]{(\ref{#1})}
 %\newcommand{\mathbb}[1]{{\bf #1}}
 %\newcommand{\mathfrak}[1]{{\green #1}}
@@ -205,14 +230,13 @@
 {\DisplayChoose\@underleftarrow\textunderleftarrow}
 %%%%%%%%%%%%%% New generic function for accents both below and above
 \NewcommandHtml{\@both@arrow}[4][2]
-{\@itemdisplay%
-\@open@display\@open@display%
+{\@open@sizer\@open@display%
 \d@cell[COLSPAN="#1" STYLE="font-size:smaller;"]{#2}%
 \@close{TR}\@open{TR}{}%
 #3%
 \@close{TR}\@open{TR}{}%
 \d@cell[COLSPAN="#1" STYLE="font-size:smaller;"]{#4}%
-\@close@display\@close@display\@itemdisplay}
+\@close@display\@close@sizer}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \NewcommandHtml{\textxleftarrow}[2][]
 {\warning{\xleftarrow outside display mode}\leftarrow^{#2}_{#1}}

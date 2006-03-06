@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.72 2006-02-28 18:02:18 maranget Exp $"
+let header = "$Id: text.ml,v 1.73 2006-03-06 18:34:48 maranget Exp $"
 
 
 open Misc
@@ -2072,28 +2072,22 @@ let insert_vdisplay open_fun =
   []
 ;;
 
+let addvsize x = flags.vsize <- flags.vsize + x
 
-
-let over display _ =
-  if !verbose>1 then
-    prerr_endline "over";
-  if display then begin
-    let _=insert_vdisplay 
-	( fun () -> 
-	  begin
-	    open_vdisplay display;
-	    open_vdisplay_row "cm";
-	  end) in
+let over _ =
+  let _=insert_vdisplay 
+      ( fun () -> 
+	begin
+	  open_vdisplay display;
+	  open_vdisplay_row "cm"
+	end) in
+  close_vdisplay_row ();
+  make_hline 0 false ;
+  open_vdisplay_row "cm";
+  freeze (fun () ->
     close_vdisplay_row ();
-    make_hline 0 false;
-    open_vdisplay_row "cm";
-    freeze (fun () ->
-      close_vdisplay_row ();
-      close_vdisplay ();
-      close_display (););
-  end else begin
-    put "/";
-  end
+    close_vdisplay ();
+    close_display ();)
 
 let translate = function
   "<" -> "<"
@@ -2103,7 +2097,7 @@ let translate = function
 | s   -> s
 ;;
 
-let over_align _ _ display lexbuf = over display lexbuf
+let over_align _ _ display lexbuf = over lexbuf
 ;;
 
 let left delim _ k =

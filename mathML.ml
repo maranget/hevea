@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: mathML.ml,v 1.24 2006-02-21 07:50:33 maranget Exp $" 
+let header = "$Id: mathML.ml,v 1.25 2006-03-06 18:34:48 maranget Exp $" 
 
 
 open Misc
@@ -506,31 +506,27 @@ let int_sup_sub _something _vsize scanner what sup sub display =
 ;;
 
 
-let over display _lexbuf =
- if display then begin
-    force_item_display ();
-    let _mods = insert_vdisplay
-        (fun () ->
-          open_block (OTHER "mfrac") "";
-	  open_display ()) in
-    force_item_display ();
-    flags.ncols <- flags.ncols +1;
-    close_display () ;
-    open_display () ;
-    freeze
+let over _lexbuf =
+  force_item_display ();
+  let _mods = insert_vdisplay
       (fun () ->
-	force_item_display ();
-	flags.ncols <- flags.ncols +1;
-        close_display () ;
-        close_block (OTHER "mfrac"))
-  end else begin
-    put "/"
-  end
+        open_block (OTHER "mfrac") "";
+	open_display ()) in
+  force_item_display ();
+  flags.ncols <- flags.ncols +1;
+  close_display () ;
+  open_display () ;
+  freeze
+    (fun () ->
+      force_item_display ();
+      flags.ncols <- flags.ncols +1;
+      close_display () ;
+      close_block (OTHER "mfrac"))
 ;;
 
 let box_around_display _scanner _arg = ();;
 
-let over_align _align1 _align2 display lexbuf = over display lexbuf
+let over_align _align1 _align2 display lexbuf = over lexbuf
 ;;
 
 let tr = function

@@ -52,8 +52,8 @@ module type S =
     val int_sup_sub :
         bool -> int ->
           (string arg -> unit) -> (unit -> unit) -> string arg -> string arg -> bool -> unit
-
-    val over : bool -> Lexing.lexbuf -> unit
+    val addvsize : int -> unit
+    val over : Lexing.lexbuf -> unit
     val over_align : bool -> bool -> bool -> Lexing.lexbuf -> unit
     val left : string -> (int -> unit) -> (int -> unit) -> unit
     val right : string -> (int -> unit) -> int

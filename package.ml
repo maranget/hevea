@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.84 2006-03-03 20:08:53 maranget Exp $    *)
+(*  $Id: package.ml,v 1.85 2006-03-06 18:34:48 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -190,6 +190,12 @@ let int_sup_sub lexbuf =
 def_code "\\int@sup@sub" int_sup_sub
 ;;
 
+(* Direct ahustement of vsize *)
+def_code "\\@addvsize"
+  (fun lexbuf ->
+    let n =  Get.get_int (save_arg lexbuf) in
+    Dest.addvsize n)
+;;
 
 (* Various outworld information *)
 let def_print name s =

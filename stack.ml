@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: stack.ml,v 1.9 2004-11-26 13:13:05 maranget Exp $             *)
+(*  $Id: stack.ml,v 1.10 2006-03-06 18:34:48 maranget Exp $             *)
 (***********************************************************************)
 exception Fatal of string
 
@@ -37,6 +37,10 @@ and top s = match s.l with
 | [] -> bottom "top" s
 | x :: _ -> x
 
+and top2 s = match s.l with
+| []|[_] -> bottom "top2" s
+| _ :: x :: _ -> x
+
 and length s = List.length s.l
 
 and empty s = match s.l with
@@ -49,12 +53,12 @@ let pretty f stack =
   let rec do_rec = function
     | [] -> prerr_endline ">>"
     | [x] ->
-        prerr_string ("``"^f x^"''") ;
+        prerr_string ("'"^f x^"'") ;
         prerr_endline ">>"
     | x :: r ->
-        prerr_string "``" ;
+        prerr_string "'" ;
         prerr_string (f x) ;
-        prerr_string "'' " ;
+        prerr_string "' " ;
         do_rec r in
   do_rec stack.l
 

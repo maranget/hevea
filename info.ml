@@ -10,7 +10,7 @@
 (***********************************************************************)
 
 
-let header = "$Id: info.ml,v 1.36 2006-02-28 18:02:18 maranget Exp $"
+let header = "$Id: info.ml,v 1.37 2006-03-06 18:34:48 maranget Exp $"
 
 open Misc
 open Text
@@ -55,6 +55,7 @@ let erase_display =Text.erase_display
 and standard_sup_sub = Text.standard_sup_sub
 and limit_sup_sub = Text.limit_sup_sub
 and int_sup_sub = Text.int_sup_sub
+and addvsize = Text.addvsize
 and over = Text.over
 and over_align = Text.over_align
 and left = Text.left

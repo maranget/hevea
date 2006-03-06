@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.278 2006-03-03 20:08:53 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.279 2006-03-06 18:34:48 maranget Exp $ *)
 
 
 {
@@ -256,7 +256,6 @@ and restore_array_state () =
 ;;
 
 let top_open_block block args =
-  if !verbose > 2 then prerr_endline ("Top open: "^block);
   push stack_table !in_table ;
   in_table := NoTable ;
   begin match block with
@@ -2100,7 +2099,8 @@ def_code "\\right"
 
 def_code "\\over"
    (fun lexbuf ->
-     Dest.over !display lexbuf;
+     if !display then  Dest.over lexbuf
+     else Dest.put_char '/' ;
      skip_blanks lexbuf)
 ;;
 
@@ -2116,19 +2116,6 @@ def_code "\\@rover"
      skip_blanks lexbuf)
 ;;
 
-(*
-def_code "\\@xleft"
-   (fun lexbuf ->
-     Dest.over_align true false !display lexbuf;
-     skip_blanks lexbuf)
-;;
-
-def_code "\\@xright"
-   (fun lexbuf ->
-     Dest.over_align true true !display lexbuf;
-     skip_blanks lexbuf)
-;;
-*)
 def_code "\\MakeUppercase"
   (fun lexbuf ->
     let arg = save_arg lexbuf in
@@ -2179,6 +2166,7 @@ def_code "\\@open"
   (fun lexbuf ->
     let tag = get_prim_arg lexbuf in
     let arg = get_prim_arg lexbuf in
+(*    Printf.eprintf "\\@open{%s}{%s}\n" tag arg ; *)
     top_open_block tag arg)
 ;;
 
@@ -2192,12 +2180,14 @@ def_code "\\@insert"
 def_code "\\@close"
   (fun lexbuf ->
     let tag = get_prim_arg  lexbuf in
+(*    Printf.eprintf "\\@close{%s}\n" tag ; *)
     top_close_block tag)
 ;;
 
 def_code "\\@force"
   (fun lexbuf ->
     let tag = get_prim_arg  lexbuf in
+(*    Printf.eprintf "\\@force{%s}\n" tag ; *)
     top_force_block tag)
 ;;
 
@@ -3054,7 +3044,8 @@ def_code "\\@getlength"
       | Length.Pixel n -> n
       | Length.Char n -> Length.char_to_pixel n
       | _             -> 0 in
-    Dest.put (string_of_int (pxls/2)))
+(*    Printf.eprintf "GET LENGTH: %i\n" pxls ; *)
+    Dest.put (string_of_int pxls))
 ;;
 
 
@@ -3253,7 +3244,7 @@ let open_array env lexbuf =
   in_table := Table
        {math = (env = "array")  ;
          border = !Tabular.border} ;
-  if !display then Dest.item_display () ;
+  if !display then Dest.force_item_display () ;
   in_math := false ;
   push stack_display !display ;
   display := false ;
@@ -3293,7 +3284,7 @@ let close_array _ =
   restore_array_state () ;
   in_math := pop stack_in_math ;
   display := pop stack_display;
-  if !display then Dest.item_display () ;
+  if !display then Dest.force_item_display () ;
 ;;
 
 def_code "\\end@array" close_array  ;

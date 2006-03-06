@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: stack.mli,v 1.8 2001-05-28 17:28:56 maranget Exp $            *)
+(*  $Id: stack.mli,v 1.9 2006-03-06 18:34:48 maranget Exp $            *)
 (***********************************************************************)
 exception Fatal of string
 
@@ -20,6 +20,7 @@ val name : 'a t -> string
 val push : 'a t -> 'a -> unit
 val pop : 'a t -> 'a
 val top : 'a t -> 'a
+val top2 : 'a t -> 'a
 val pretty : ('a -> string) -> 'a t -> unit
 val length : 'a t -> int
 val empty : 'a t -> bool

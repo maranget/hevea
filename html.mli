@@ -52,7 +52,8 @@ open Lexstate
         bool -> int ->
           (string arg -> unit) -> (unit -> unit) -> string arg -> string arg -> bool -> unit
 
-    val over : bool -> Lexing.lexbuf -> unit
+    val addvsize : int -> unit
+    val over :Lexing.lexbuf -> unit
     (******************************************************
      *  over_aling useful for \cfrac, \xleftarrow         *
      *  and \xrightarrow.                                 *

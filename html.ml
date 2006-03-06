@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: html.ml,v 1.95 2006-02-28 18:02:18 maranget Exp $" 
+let header = "$Id: html.ml,v 1.96 2006-03-06 18:34:48 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -164,6 +164,9 @@ let iso_string s =
     Out.to_string iso_buff
   end else
     s
+
+let addvsize x = flags.vsize <- flags.vsize + x 
+
 (* Calls to other modules that are in the interface *)
 
 let 
