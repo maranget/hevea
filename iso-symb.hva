@@ -455,7 +455,7 @@
 \DeclareSymbolHtml[||]{\mid@Vert}{X2225}
 \newcommand{\vert}{|}
 \newcommand{\|}{||}
-\newcommand{\Vert}{||}
+\DeclareSymbolHtml[||]{\Vert}{X2225}
 \newcommand{\csname\delim@name{\vert}\endcsname}[1]
 {\process@delim@one{#1}{\mid@vert}}
 \newcommand{\csname\delim@name{\Vert}\endcsname}[1]

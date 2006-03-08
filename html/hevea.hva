@@ -469,6 +469,7 @@
 \newstyle{.dcell}{text-align:center;white-space:nowrap;padding:0px;}
 %%% And we can get something similar for extensible arrows accents.
 \newcommand{\@vd}{\ifverbd{}v\fi}
+\newcommand{\@dclass}{CLASS="\@vd{}display"}
 \DeclareSymbolHtml{\hva@righthead}{X25B8}
 \DeclareSymbolHtml{\hva@lefthead}{X25C2}
 \DeclareSymbolHtml{\hva@uphead}{X25B4}

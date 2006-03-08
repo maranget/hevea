@@ -27,7 +27,7 @@
 \newcommand{\DeclareSymbolHtml}[3][\@empty]
 {\ifx#1\@empty\else\newcommand{#2}{#1}\fi}
 \newcommand{\MakeBigSymbolHtml}[3][]{}
-\newcommand{\MakeBigSymbol}[5]
+\newcommand{\MakeBigSymbol}[5][]
 {\newcommand{#2}{\mathop{\ifdisplay#5\else#4\fi}#1}}
 \let\NewcommandHtml\NoCommand
 \let\NewcommandText\newcommand

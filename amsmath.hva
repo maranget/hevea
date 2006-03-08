@@ -110,6 +110,20 @@
 %%%%%%%%%%%% Some commands by B. Salvy
 \newcommand{\binom}[2]{\begin{pmatrix}#1\\#2\end{pmatrix}}
 \newcommand{\boldmath}{\bf}
+%%%%%%%%%% AMS extra variable size delimiters
+\newcommand{\lvert}{|}
+\newcommand{\csname\delim@name{\lvert}\endcsname}[1]
+{\process@delim@one{#1}{\mid@vert}}
+\newcommand{\rvert}{|}
+\newcommand{\csname\delim@name{\rvert}\endcsname}[1]
+{\process@delim@one{#1}{\mid@vert}}
+%%%
+\DeclareSymbolHtml[||]{\lVert}{X2225}
+\newcommand{\csname\delim@name{\lVert}\endcsname}[1]
+{\process@delim@one{#1}{\mid@Vert}}
+\DeclareSymbolHtml[||]{\rVert}{X2225}
+\newcommand{\csname\delim@name{\rVert}\endcsname}[1]
+{\process@delim@one{#1}{\mid@Vert}}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %   Other variants of \frac					%
 %      	\dfrac makes no estimate of display-style in HEVEA	%
@@ -117,7 +131,7 @@
 %       \cfrac takes an optional argument as well		%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \let\dfrac\frac
-\let\tfrac\frac
+\newcommand{\tfrac}[2]{{#1/#2}}
 \let\hva@frac\frac
 \NewcommandHtml{\textfrac}[3][]{\hva@frac{#2}{#3}}
 \NewcommandHtml{\@frac}[3][]
@@ -159,7 +173,6 @@
 \newcommand{\mod}{\text{mod}}
 \newcommand{\operatorname}[1]{\text{#1}}
 \newcommand{\smallint}{\int}
-\newcommand{\substack}[1]{\begin{matrix}#1\end{matrix}}
 \newenvironment{proof}{\par\noindent{\bf Proof.}}{\par\medskip}
 %%%%%%%%%%%%%%%%%
 % \boxed command%
@@ -249,10 +262,16 @@
 \NewcommandHtml{\xleftarrow}{\DisplayChoose\@xleftarrow\textxleftarrow}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \NewcommandHtml{\textxrightarrow}[2][]
-{\warning{\xrightarrow outside display mode}\leftarrow^{#2}_{#1}}
+{\warning{\xrightarrow outside display mode}\rightarrow^{#2}_{#1}}
 \NewcommandHtml{\@xrightarrow}[2][~]
 {\mathop
 {\@both@arrow[2]{\quad{}#2\quad}
 {\d@cell[WIDTH="100\%"]{\@hbar}\d@cell{\hva@righthead}}
 {\quad{}#1\quad}}\intlimits}
 \NewcommandHtml{\xrightarrow}{\DisplayChoose\@xrightarrow\textxrightarrow}
+%%% subarray/substack
+\NewcommandHtml{\@smaller}{\@span{STYLE="font-size:smaller;"}}
+\NewcommandText{\@smaller}{}
+\NewcommandText{\@dclass}{}
+\newenvironment{subarray}[1]{\@smaller\begin{Array}[\@dclass]{#1}}{\end{Array}}
+\newcommand{\substack}[1]{\begin{subarray}{c}#1\end{subarray}}
