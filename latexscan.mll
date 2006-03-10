@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.279 2006-03-06 18:34:48 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.280 2006-03-10 12:27:01 maranget Exp $ *)
 
 
 {
@@ -980,7 +980,7 @@ rule  main = parse
 
 (* Definitions of  simple macros *)
 (* inside tables and array *)
-  | [' ''\n']* "&"
+  | [' ''\n']* '&'
     {do_expand_command main skip_blanks "\\@hevea@amper" lexbuf ;
     main lexbuf}
 (* Substitution  *)
@@ -1016,11 +1016,17 @@ rule  main = parse
     {do_expand_command main skip_blanks "\\@hevea@cbrace" lexbuf ;
     main lexbuf} 
 | eof {()}
-| ' '+
+| ' '+ as lxm
    {if effective !alltt then
-     let lxm = lexeme lexbuf in Dest.put lxm
-   else
-     Dest.put_char ' ';
+     Dest.put lxm
+   else begin
+     if !display then
+       for _i = 1 to String.length lxm do
+	 Dest.put_nbsp ()
+       done
+     else
+       Dest.put_char ' '
+   end ;
    main lexbuf}
 (* Alphabetic characters *)
 | ['a'-'z' 'A'-'Z']+
@@ -1062,7 +1068,6 @@ rule  main = parse
   else
     do_expand_command main skip_blanks "\\@hevea@dquote" lexbuf ;
   main lexbuf}
-
 (* One character *)
 | _  as lxm
    {let lxm = check_case_char lxm in
@@ -3242,7 +3247,7 @@ let open_array env lexbuf =
   cur_format := format ;
   push stack_in_math !in_math ;
   in_table := Table
-       {math = (env = "array")  ;
+       {math = (match env with  "array"|"Array" -> true | _ -> false)  ;
          border = !Tabular.border} ;
   if !display then Dest.force_item_display () ;
   in_math := false ;
