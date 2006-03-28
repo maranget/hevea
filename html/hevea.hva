@@ -115,8 +115,7 @@
 }}%
 }
 \newcommand{\@secend}{%
-\@saveclosed{\@nostyle\@print{<!--SEC END }\@print{-->
-}\@restoreclosed}%
+\@saveclosed{\@nostyle\@print{<!--SEC END }\@print{-->}\@restoreclosed}%
 }
 \newcommand{\cuthere}[2]{%
 \@footnoteflush{#1}%
@@ -268,7 +267,7 @@
 }%
 \usebox{\@toplinks}\usebox{\@linkstext}%
 \cutdef[\thecuttingdepth]{\cuttingunit}%
-\renewcommand{\addstyle}[1]{\warning{\addstyle{} must be used in document preamble}}
+\renewcommand{\addstyle}[1]{\warning{\addstyle{} must be used in document preamble}}%
 }{%
 \@clearstyle\@footnoteflush{document}%
 \@atenddocument%

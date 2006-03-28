@@ -446,7 +446,7 @@
 \ifoptarg\checktocdepth{#2}{\@doaddtoc{#2}{#5}{##1}}\else
 \checktocdepth{#2}{\@doaddtoc{#2}{#5}{##2}}\fi
 \ifoptarg\cuthere{#3}{\@addsecnumber{#2}{#5}{##1}}\else
-\cuthere{#3}{\@addsecnumber{#2}{#5}{\begin{@norefs}##2\end{@norefs}}}\fi%
+\cuthere{#3}{\@addsecnumber{#2}{#5}{\begin{@norefs}##2\end{@norefs}}}\fi
 #4\checkdepth{#2}{\alttocdepth{#2}{\@locname{htoc\thetocanchor}{#5}#6}{#5#6}}##2#7\@secend}%
 \newcommand{#1*}[1]{%
 \cuthere{#3}{##1}%
