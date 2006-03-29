@@ -26,3 +26,4 @@
 \renewcommand{\@bibliosection}[1]{\namedsection{@biblio}{#1}}
 \newstyle{.clisting}{font-family:monospace;white-space:pre;
 border-left:solid black;padding-left:2ex;margin-left:2ex;}
+\@def@charset{ISO-8859-15}
