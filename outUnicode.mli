@@ -12,14 +12,15 @@
 (* Parse unicode chars given the HTML way *)
 val parse : string -> int
 
-(* Set output translator by key *)
-val set_translate : string -> unit
-(* Set output translator from table in subdir 'mappings' *)
-val set_translate_table : string -> unit
+(* Set translators from table in subdir 'mappings' *)
+val set_output_translator : string -> unit
+val set_input_translator : string -> unit
+val set_translators : string -> unit
 
 (* Translate for output *)
 exception CannotTranslate
-val translate : int -> char
+val translate_in : char -> int
+val translate_out : int -> char
 
 (* Diacritical marks *)
 val grave : char -> int

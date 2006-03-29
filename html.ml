@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: html.ml,v 1.96 2006-03-06 18:34:48 maranget Exp $" 
+let header = "$Id: html.ml,v 1.97 2006-03-29 16:31:18 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -22,148 +22,8 @@ open Latexmacros
 open HtmlCommon
 
 exception Error of string
-;;
 
 type block = HtmlCommon.block
-;;
-
-
-let r_quote = String.create 1
-;;
-
-let quote_char = function
-| '<' -> "&lt;"
-| '>' -> "&gt;"
-| '&' -> "&amp;"
-| c   -> (r_quote.[0] <- c ; r_quote)
-;;
-
-let r_translate = String.create 1
-;;
-
-let iso_translate = function
-| '<' -> "&lt;"
-| '>' -> "&gt;"
-| '&' -> "&amp;"
-| ' ' -> "&nbsp;"
-| '¡' -> "&iexcl;"
-| '¢' -> "&cent;"
-| '£' -> "&pound;"
-| '¤' -> "&curren;"
-| '¥' -> "&yen;"
-| '¦' -> "&brvbar;"
-| '§' -> "&sect;"
-| '¨' -> "&uml;"
-| '©' -> "&copy;"
-| 'ª' -> "&ordf;"
-| '«' -> "&laquo;"
-| '¬' -> "&not;"
-| '­' -> "&shy;"
-| '®' -> "&reg;"
-| '¯' -> "&macr;"
-| '°' -> "&deg;"
-| '±' -> "&plusmn;"
-| '²' -> "&sup2;"
-| '³' -> "&sup3;"
-| '´' -> "&acute;"
-| 'µ' -> "&micro;"
-| '¶' -> "&para;"
-| '·' -> "&middot;"
-| '¸' -> "&cedil;"
-| '¹' -> "&sup1;"
-| 'º' -> "&ordm;"
-| '»' -> "&raquo;"
-| '¼' -> "&frac14;"
-| '½' -> "&frac12;"
-| '¾' -> "&frac34;"
-| '¿' -> "&iquest;"
-| 'À' -> "&Agrave;"
-| 'Á' -> "&Aacute;"
-| 'Â' -> "&Acirc;"
-| 'Ã' -> "&Atilde;"
-| 'Ä' -> "&Auml;"
-| 'Å' -> "&Aring;"
-| 'Æ' -> "&AElig;"
-| 'Ç' -> "&Ccedil;"
-| 'È' -> "&Egrave;"
-| 'É' -> "&Eacute;"
-| 'Ê' -> "&Ecirc;"
-| 'Ë' -> "&Euml;"
-| 'Ì' -> "&Igrave;"
-| 'Í' -> "&Iacute;"
-| 'Î' -> "&Icirc;"
-| 'Ï' -> "&Iuml;"
-| 'Ð' -> "&ETH;"
-| 'Ñ' -> "&Ntilde;"
-| 'Ò' -> "&Ograve;"
-| 'Ó' -> "&Oacute;"
-| 'Ô' -> "&Ocirc;"
-| 'Õ' -> "&Otilde;"
-| 'Ö' -> "&Ouml;"
-| '×' -> "&times;"
-| 'Ø' -> "&Oslash;"
-| 'Ù' -> "&Ugrave;"
-| 'Ú' -> "&Uacute;"
-| 'Û' -> "&Ucirc;"
-| 'Ü' -> "&Uuml;"
-| 'Ý' -> "&Yacute;"
-| 'Þ' -> "&THORN;"
-| 'ß' -> "&szlig;"
-| 'à' -> "&agrave;"
-| 'á' -> "&aacute;"
-| 'â' -> "&acirc;"
-| 'ã' -> "&atilde;"
-| 'ä' -> "&auml;"
-| 'å' -> "&aring;"
-| 'æ' -> "&aelig;"
-| 'ç' -> "&ccedil;"
-| 'è' -> "&egrave;"
-| 'é' -> "&eacute;"
-| 'ê' -> "&ecirc;"
-| 'ë' -> "&euml;"
-| 'ì' -> "&igrave;"
-| 'í' -> "&iacute;"
-| 'î' -> "&icirc;"
-| 'ï' -> "&iuml;"
-| 'ð' -> "&eth;"
-| 'ñ' -> "&ntilde;"
-| 'ò' -> "&ograve;"
-| 'ó' -> "&oacute;"
-| 'ô' -> "&ocirc;"
-| 'õ' -> "&otilde;"
-| 'ö' -> "&ouml;"
-| '÷' -> "&divide;"
-| 'ø' -> "&oslash;"
-| 'ù' -> "&ugrave;"
-| 'ú' -> "&uacute;"
-| 'û' -> "&ucirc;"
-| 'ü' -> "&uuml;"
-| 'ý' -> "&yacute;"
-| 'þ' -> "&thorn;"
-| 'ÿ' -> "&yuml;"
-| c   -> (r_translate.[0] <- c ; r_translate)
-;;
-
-
-let iso c =
-  if !Lexstate.raw_chars then
-    (String.unsafe_set r_translate 0 c ; r_translate)
-  else if !Parse_opts.iso then
-    quote_char c
-  else
-    iso_translate c
-;;
-
-let iso_buff = Out.create_buff ()
-
-let iso_string s =
-  if not !Parse_opts.iso then begin
-    for i = 0 to String.length s - 1 do
-      Out.put iso_buff (iso_translate s.[i])
-    done ;
-    Out.to_string iso_buff
-  end else
-    s
 
 let addvsize x = flags.vsize <- flags.vsize + x 
 
@@ -285,8 +145,12 @@ let put_char c =
   else HtmlCommon.put_char c
 ;;
 
-let put_unicode i =
-  try put_char (OutUnicode.translate i)
+let put_unicode i = match i with
+| 0x3C -> put "&lt;"
+| 0x3E -> put "&gt;"
+| 0x26 -> put "&amp;"
+| _ ->
+  try put_char (OutUnicode.translate_out i)
   with OutUnicode.CannotTranslate ->
     put (Printf.sprintf "&#X%X;" i)
 ;;

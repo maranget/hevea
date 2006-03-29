@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.280 2006-03-10 12:27:01 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.281 2006-03-29 16:31:18 maranget Exp $ *)
 
 
 {
@@ -17,6 +17,7 @@ module type S =
   sig
     (* external entry points *)
     val no_prelude : unit -> unit
+    val translate_put_unicode : char -> unit
     val main : Lexing.lexbuf -> unit
     val expand_command : string -> Lexing.lexbuf -> unit
     val expand_command_no_skip : string -> Lexing.lexbuf -> unit
@@ -911,6 +912,25 @@ and check_case_char c = match !case with
 | Lower -> Char.lowercase c
 | Upper -> Char.uppercase c
 | Neutral -> c
+
+let translate_put_unicode c =
+  if !raw_chars then
+    Dest.put_char c
+  else
+    let uni =
+      try OutUnicode.translate_in c
+      with OutUnicode.CannotTranslate ->
+        raise
+          (Error
+             (Printf.sprintf
+                "Non ascii '%c' in input, consider using package inputenc"
+                c)) in
+    try Dest.put_unicode uni
+    with Misc.CannotPut ->
+      Misc.warning
+        (Printf.sprintf
+           "Cannot output unicode %x (%c)" uni c) ;
+      Dest.put_char c
 } 
 
 let command_name =
@@ -1071,7 +1091,7 @@ rule  main = parse
 (* One character *)
 | _  as lxm
    {let lxm = check_case_char lxm in
-   Dest.put (Dest.iso lxm) ;
+   translate_put_unicode lxm ;
    main lexbuf}
 
 and complete_newline = parse
@@ -1549,7 +1569,7 @@ def_code "\\@hevea@question"
       gobble_one_char lexbuf ;
       if effective !alltt then Dest.put "?`"
       else
-        Dest.put (Dest.iso '¿')
+        Dest.put_unicode 0xBF
     end else
       Dest.put_char  '?')
 ;;
@@ -1558,7 +1578,7 @@ def_code "\\@hevea@excl"
      if if_next_char '`' lexbuf then begin
        gobble_one_char lexbuf ;
        if effective !alltt then Dest.put "!`"
-       else Dest.put (Dest.iso '¡')
+       else Dest.put_unicode 0xA1
      end else
        Dest.put_char '!')
 ;;
@@ -2529,7 +2549,6 @@ newif_ref "symb" (ref (match !symbol_mode with Symbol -> true | _ -> false)) ;
 newif_ref "entities" entities ;
 newif_ref "symbtext"
     (ref (match !symbol_mode with SText -> true | _ -> false)) ;
-newif_ref "iso" iso ;
 newif_ref "raw" raw_chars ;
 newif_ref "silent" silent;
 newif_ref "math" in_math ;
@@ -2874,7 +2893,7 @@ def_code "\\char"
       Location.print_pos () ;
       prerr_endline ("Warning: \\char, check output");
     end ;
-    Dest.put (Dest.iso (Char.chr arg)) ;
+    translate_put_unicode (Char.chr arg) ;
     if not (effective !alltt) then check_alltt_skip lexbuf)
 ;;
 
@@ -2938,9 +2957,15 @@ def_printcount "\\Roman" uproman_of_int;
 def_printcount "\\fnsymbol" fnsymbol_of_int
 ;;
 
+let translate_put s =
+  for k=0 to String.length s-1 do
+    translate_put_unicode s.[k]
+  done
+;;
+
 let pad p l s =
   for i = l-String.length s downto 1 do
-    Dest.put (Dest.iso_string p)
+    translate_put p
   done
 ;;
 
@@ -2950,7 +2975,7 @@ def_code "\\@pad"
     let l = Get.get_int (save_arg lexbuf) in
     let arg = get_prim_arg lexbuf in
     pad p l arg ;
-    Dest.put (Dest.iso_string arg))
+    translate_put arg)
 ;;
 
 def_code "\\newcounter"
@@ -3305,7 +3330,7 @@ let do_amper lexbuf =
   if effective !alltt || not (is_plain '&') then begin
     let lxm = lexeme lexbuf in
     for i = 0 to String.length lxm -1 do
-      Dest.put (Dest.iso lxm.[i])
+      translate_put_unicode lxm.[i]
     done
   end else if is_table !in_table  then begin
     close_col main "&nbsp;"; 

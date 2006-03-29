@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: verb.mll,v 1.85 2006-02-03 12:25:49 maranget Exp $            *)
+(*  $Id: verb.mll,v 1.86 2006-03-29 16:31:18 maranget Exp $            *)
 (***********************************************************************)
 {
 exception VError of string
@@ -188,7 +188,7 @@ let lst_ptok s =  prerr_endline (s^": "^Out.to_string lst_buff)
 (* Final ouput, with transformations *)
 let dest_string s =
   for i = 0 to String.length s - 1 do
-    Dest.put (Dest.iso s.[i])
+    Scan.translate_put_unicode s.[i]
   done
 
 (* Echo, with case change *)
@@ -950,7 +950,7 @@ and do_escape = parse
     scan_this main "}" ;
     do_escape lexbuf}
 | _ as lxm
-    {Dest.put (Dest.iso lxm) ;
+    {Scan.translate_put_unicode lxm ;
     do_escape lexbuf}
 
 and lst_linearg = parse
@@ -971,11 +971,11 @@ let _ = ()
 ;;
 let put_char_star = function
   | ' '|'\t' -> Dest.put_char '_' ;
-  | c ->  Dest.put (Dest.iso c)
+  | c -> Scan.translate_put_unicode c
 
 and put_char = function
   |  '\t' -> Dest.put_char ' '
-  | c -> Dest.put (Dest.iso c)
+  | c ->  Scan.translate_put_unicode c
 ;;
 
 
@@ -984,7 +984,7 @@ let open_verb put lexbuf =
   start_inverb put lexbuf
 ;;
   
-def_code "\\verb" (open_verb (fun c -> Dest.put (Dest.iso c)));
+def_code "\\verb" (open_verb Scan.translate_put_unicode) ;
 def_code "\\verb*" (open_verb put_char_star);
 ();;
 
@@ -1146,7 +1146,7 @@ let put_verb_tabs () =
           for _j = 1 to limit do
             Dest.put_char ' ' ; incr char
           done ;  
-      | c -> Dest.put (Dest.iso c) ; incr char)
+      | c -> Scan.translate_put_unicode c ; incr char)
     line_buff ;
   Out.reset line_buff
 

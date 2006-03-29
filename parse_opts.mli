@@ -17,7 +17,6 @@ val symbol_mode : symbol_mode ref
 type destination = Html | Text | Info
 val destination : destination ref
 
-val iso : bool ref
 val moreentities : bool ref
 val mathml : bool ref
 val pedantic : bool ref

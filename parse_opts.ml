@@ -11,7 +11,7 @@
 
 open Misc
 
-let header = "$Id: parse_opts.ml,v 1.33 2006-03-03 09:14:42 maranget Exp $" 
+let header = "$Id: parse_opts.ml,v 1.34 2006-03-29 16:31:18 maranget Exp $" 
 
 type input = File of string | Prog of string
 
@@ -42,7 +42,6 @@ let moreentities = ref false
 type symbol_mode = SText | Symbol | Entity
 
 let symbol_mode = ref Entity
-and iso = ref true
 and pedantic = ref false
 and destination = ref Html
 and fixpoint = ref false
@@ -111,8 +110,8 @@ let _ = Arg.parse
   ("-textsymbols", Arg.Unit (fun () -> symbol_mode := SText),
    "Render symbols by english text") ;
 
-  ("-noiso",Arg.Unit (fun () -> iso := false),
-   "use HTML entities in place of isolatin1 non-ascii characters") ;
+  ("-noiso",Arg.Unit (fun () -> Misc.warning "-noiso is deprecated, by default hevea output is ascii"),
+   "deprecated, does nothing") ;
   ("-pedantic",Arg.Unit (fun () -> pedantic := true),
    "be pedantic in interpreting HTML 4.0 transitional definition") ;
   ("-mathml",Arg.Unit (fun() -> mathml := true),

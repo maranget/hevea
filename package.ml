@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.85 2006-03-06 18:34:48 maranget Exp $    *)
+(*  $Id: package.ml,v 1.86 2006-03-29 16:31:18 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -198,10 +198,6 @@ def_code "\\@addvsize"
 ;;
 
 (* Various outworld information *)
-let def_print name s =
-  def_code name  (fun _ -> Dest.put (Dest.iso_string s))
-;;
-
 def_code "\\@lexbuf"
   (fun _ ->
     prerr_endline ("LEXBUF: "^string_of_int (Stack.length stack_lexbuf)))
@@ -211,6 +207,15 @@ def_code "\\@macros"
   (fun _ -> Latexmacros.pretty_table ())
 ;;
 
+let translate_put s =
+  for k=0 to String.length s-1 do
+    Scan.translate_put_unicode s.[k]
+  done
+;;
+
+let def_print name s =
+  def_code name (fun _ -> translate_put s)
+;;
 
 def_print "\\@basein" Parse_opts.base_in ;
 def_print "\\jobname" Parse_opts.base_out ;
@@ -221,6 +226,7 @@ def_print "\\@heveacomline"
 def_print "\\@heveaversion" Version.version ;
 def_print "\\@hevealibdir" Mylib.libdir
 ;;
+
 def_code "\\@heveaverbose"
   (fun lexbuf ->    
     let lvl = Get.get_int (save_arg lexbuf) in
@@ -643,9 +649,7 @@ register_init "graphics"
 (* url package *)
 let verb_arg lexbuf =
   let {arg=url} = save_verbatim lexbuf in
-  for i = 0 to String.length url - 1 do
-    Dest.put (Dest.iso url.[i])
-  done
+  translate_put url
 ;;
 
 def_code "\\@verbarg" verb_arg ;
@@ -906,16 +910,24 @@ register_init "german"
 ;;
 
 (* Used by inputenc, other uses ? *)
-def_code "\\@set@out@translator"
-    (fun lexbuf ->
-      let key = get_prim_arg lexbuf in
-      OutUnicode.set_translate key) ;
-def_code "\\@set@out@translator@table"
+def_code "\\@set@translators"
     (fun lexbuf ->
       let name = get_prim_arg lexbuf in
-      OutUnicode.set_translate_table name) ;
-  ()    
+      OutUnicode.set_translators name)
 ;;
+
+def_code "\\@set@out@translator"
+  (fun lexbuf ->
+    let name = get_prim_arg lexbuf in
+    OutUnicode.set_output_translator name)
+;;
+
+def_code "\\@set@in@translator"
+  (fun lexbuf ->
+    let name = get_prim_arg lexbuf in
+    OutUnicode.set_input_translator name)
+;;
+
 
 let get_elements str = 
     let len = String.length str in

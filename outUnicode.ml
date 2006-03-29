@@ -56,67 +56,118 @@ let parse str =
 
 exception CannotTranslate
 
-let translate_ascii i =
+let translate_ascii_out i =
   if i < 128 then Char.chr i
   else raise CannotTranslate
 
-let translate_latin1 i =
+and translate_ascii_in c =
+  let i = Char.code c in
+  if i < 128 then i
+  else raise CannotTranslate    
+
+let translate_latin1_out i =
   if i < 256 then Char.chr i
   else raise CannotTranslate
 
-let translate_fun = ref translate_ascii
+and translate_latin1_in c = Char.code c
 
-let set_translate key =
-  let f = match key with
-  | "latin1" -> translate_latin1
-  | _ ->
-      Misc.warning
-	(Printf.sprintf
-	   "Unavailable encoding: %s, defaulting to ascii\n"
-	   key) ;
-      translate_ascii in
-  translate_fun := f
+let translate_out_fun = ref translate_ascii_out
+and translate_in_fun = ref translate_ascii_in
 
-let read_mapping chan =
-  let t = Hashtbl.create 101
+let make_out_translator ps =
+  let t = Hashtbl.create 101 in
+  List.iter (fun (iso, uni) -> Hashtbl.add t uni (Char.chr iso)) ps ;
+  (fun i ->
+    try Hashtbl.find t i
+    with Not_found -> raise CannotTranslate)
+
+and make_in_translator ps =
+  let t = Array.create 256 0 in
+  List.iter (fun (iso, uni) -> t.(iso) <- uni) ps ;
+  (fun c -> t.(Char.code c))
+
+let read_mapping name chan =
+  let t = ref []
   and scanbuf = Scanf.Scanning.from_channel chan in
   try
     while true do
       Scanf.bscanf scanbuf " %i %i"
-        (fun iso uni -> Hashtbl.add t uni (Char.chr iso)) ;
+        (fun iso uni -> t := (iso,uni) :: !t) ;
     done ;
-    t
-  with End_of_file -> t
-
-let set_translate_table name =
-  try
-    let real_name = Myfiles.find name in
-    let chan = open_in real_name in
-    begin try
-      let t = read_mapping chan in
-      translate_fun :=
-         (fun i ->
-           try Hashtbl.find t i
-           with Not_found -> raise CannotTranslate)
-    with
-    | Sys_error msg ->
-        Misc.warning
-          (Printf.sprintf
-             "Error '%s' while loading mapping: %s\n"
-             msg name)
-    end ;
-    begin try close_in chan with _ -> () end ;
+    !t
   with
-  | Not_found ->
-      Misc.warning
-        (Printf.sprintf "Cannot find mapping: %s\n" name)
+  | End_of_file -> !t
   | Sys_error msg ->
       Misc.warning
         (Printf.sprintf
            "Error '%s' while loading mapping: %s\n"
-           msg name)
+           msg name) ;
+      raise (Misc.Fatal "Mapping")
+ 
+let open_mapping name =
+  try
+    let real_name = Myfiles.find name in
+     open_in real_name
+  with
+  | Not_found ->
+      Misc.warning
+        (Printf.sprintf "Cannot find mapping: %s\n" name) ;
+      raise (Misc.Fatal "Mapping")
+  | Sys_error msg ->
+      Misc.warning
+        (Printf.sprintf
+           "Error '%s' while opening mapping: %s\n"
+           msg name) ;
+      raise (Misc.Fatal "Mapping")
 
-let translate i = !translate_fun i
+and close_mapping chan = try close_in chan with _ -> ()
+
+
+let set_output_translator name =
+  let key = Filename.basename name in
+  match key with
+  | "ISO-8859-1.map" ->
+      translate_out_fun := translate_latin1_out
+  | "US-ASCII.map" ->
+      translate_out_fun := translate_ascii_out
+  | _ ->
+      let chan = open_mapping name in
+      let ps = read_mapping name chan in
+      close_mapping chan ;
+      translate_out_fun := make_out_translator ps
+
+and set_input_translator name =
+  let key = Filename.basename name in
+  match key with
+  | "ISO-8859-1.map" ->
+      translate_in_fun := translate_latin1_in
+  | "US-ASCII.map" ->
+      translate_in_fun := translate_ascii_in
+  | _ ->
+      let chan = open_mapping name in
+      let ps = read_mapping name chan in
+      close_mapping chan ;
+      translate_in_fun := make_in_translator ps
+
+and set_translators name =
+  let key = Filename.basename name in
+  match key with
+  | "ISO-8859-1.map" ->
+      translate_out_fun := translate_latin1_out ;
+      translate_in_fun := translate_latin1_in
+  | "US-ASCII.map" ->
+      translate_out_fun := translate_ascii_out ;
+      translate_in_fun := translate_ascii_in
+  | _ ->
+      let chan = open_mapping name in
+      let ps = read_mapping name chan in
+      close_mapping chan ;
+      translate_out_fun := make_out_translator ps ;
+      translate_in_fun := make_in_translator ps
+  
+  
+let translate_out i = !translate_out_fun i
+and translate_in c = !translate_in_fun c
 
 (* Diacritical marks *)
 

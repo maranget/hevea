@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.73 2006-03-06 18:34:48 maranget Exp $"
+let header = "$Id: text.ml,v 1.74 2006-03-29 16:31:18 maranget Exp $"
 
 
 open Misc
@@ -22,105 +22,6 @@ open Length
 
 exception Error of string;;
 type block = string
-
-
-let r_quote = String.create 1
-;;
-
-let quote c =
-  (r_quote.[0] <- c ; r_quote)
-;;
-
-let r_translate = String.create 1
-;;
-
-let iso_translate = function
-| '¡' -> "!"
-| '¢' -> "cent"
-| '£' -> "pound"
-| '¤' -> "curren"
-| '¥' -> "yen"
-| '¦' -> "I"
-| '§' -> "paragraphe"
-| '¨' -> "trema"
-| '©' -> "copyright"
-| 'ª' -> "a"
-| '«' -> "<<"
-| '¬' -> "not"
-| '­' -> "-"
-| '®' -> "registered"
-| '¯' -> "-"
-| '°' -> "degre"
-| '±' -> "plus ou moins"
-| '²' -> "carre"
-| '³' -> "cube"
-| '´' -> "'"
-| 'µ' -> "mu"
-| '¶' -> ""
-| '·' -> "."
-| '¸' -> ""
-| '¹' -> "1"
-| 'º' -> "eme"
-| '»' -> ">>"
-| '¼' -> "1/4"
-| '½' -> "1/2"
-| '¾' -> "3/4"
-| '¿' -> "?"
-| 'À' -> "A"
-| 'Á' -> "A"
-| 'Â' -> "A"
-| 'Ã' -> "A"
-| 'Ä' -> "A"
-| 'Å' -> "A"
-| 'Æ' -> "AE"
-| 'Ç' -> "C"
-| 'È' -> "E"
-| 'É' | 'Ê' | 'Ë' -> "E"
-| 'Ì' | 'Í' | 'Î' | 'Ï' -> "I"
-| 'Ð' -> "D"
-| 'Ñ' -> "N"
-| 'Ò' | 'Ó' | 'Ô' | 'Õ' | 'Ö' -> "O"
-| '×' -> "x"
-| 'Ø' -> "0"
-| 'Ù' | 'Ú' | 'Û' | 'Ü' -> "U"
-| 'Ý' -> "Y"
-| 'Þ' -> "P"
-| 'ß' -> "ss"
-| 'à' | 'á' | 'â' | 'ã' | 'ä' | 'å' -> "a"
-| 'æ' -> "ae"
-| 'ç' -> "c"
-| 'è' | 'é' | 'ê' | 'ë' -> "e"
-| 'ì' | 'í' | 'î' | 'ï' -> "i"
-| 'ð' -> "o"
-| 'ñ' -> "n"
-| 'ò' | 'ó' | 'ô' | 'õ' | 'ö' -> "o"
-| '÷' -> "/"
-| 'ø' -> "o"
-| 'ù' | 'ú' | 'û' | 'ü' -> "u"
-| 'ý' -> "y"
-| 'þ' -> "y"
-| 'ÿ' -> "y"
-| c   -> (r_translate.[0] <- c ; r_translate)
-;;
-
-let iso c =
-  if !Parse_opts.iso || !Lexstate.raw_chars then
-    (r_translate.[0]<-c; r_translate)
-  else
-    iso_translate c
-;;
-
-let iso_buff = Out.create_buff ()
-
-let iso_string s =
-  if !Parse_opts.iso then begin
-    for i = 0 to String.length s - 1 do
-      Out.put iso_buff (iso_translate s.[i])
-    done ;
-    Out.to_string iso_buff
-  end else
-    s
-
 
 let failclose s = raise (Misc.Close s)
 ;;
@@ -1045,7 +946,7 @@ let put_char c =
 let put_unicode i =
   if !verbose > 3 then Printf.fprintf stderr "put_unicode: %04X\n" i ;
   do_pending ();
-  try do_put_char (OutUnicode.translate i)
+  try do_put_char (OutUnicode.translate_out i)
   with OutUnicode.CannotTranslate -> raise Misc.CannotPut
 ;;
 

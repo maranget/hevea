@@ -5,7 +5,6 @@
 \usepackage{url}
 \usepackage{../hevea}
 \usepackage{listings}
-\usepackage[latin1]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{amssymb}
 \usepackage{amsmath}
@@ -3640,7 +3639,8 @@ imply not outputting default meta-information.
 
 \index{"@charset@\texttt{\char92"@charset}}\ttindex{xxcharset.exe}{script}
 The \verb+\@charset+ command holds the value of the document character
-set. By default, this value is \texttt{ISO-8859-1}.
+set. By default, this value is \texttt{US-ASCII}.
+
 To change this value, there are basically two techniques.
 \begin{itemize}
 \item You can set the charset by extracting its value from the current
@@ -3708,10 +3708,7 @@ as follows:
 
 \subsection{Accents and special symbols}
 Thanks to Unicode character references, \hevea{} can virtually output
-any symbol. Notice that \hevea{} is a bit iso-latin1 centric:
-by default, characters in the iso-latin1 charset are outputted as
-themselves (the command-line option ``\texttt{-noiso}'' prevent the
-production of such and change the output page charset too)
+any symbol.
 It may happen that \hevea{} does not known about a particular symbol,
 that is, most of the time, \hevea{} does not known about a particular
 command. In that case a warning is issued to draw user attention.
@@ -3720,11 +3717,30 @@ or as an explicit Unicode character reference (see
 Section~\ref{square:blob} for an example of this technique).
 
 Commands for making accents used in non-English languages, such as
-\verb+\'+, work when then produce letters from the iso-latin1 character set.
-Otherwise, the argument to the command is not modified (no warning here).
-However, it is more simple to write the document using iso-latin1.
-\LaTeX{} can process such documents by loading the package
-\texttt{isolatin1}.
+\verb+\'+, work when applied to accent-less (\emph{i.e.} ascii)
+letters and that the corresponding accented letters exist
+in the Unicode character set.
+Otherwise, the argument to the command is not modified
+and a warning is issued.
+For instance, consider the following source code, where, after a
+legitimate use of acute accents, one attempt to put an accute accent
+over the letter~``h'':
+\begin{verbatim}
+``\'Ecole'' works as in \LaTeX, while ``\'h'' does not.
+\end{verbatim}
+\ifhevea
+\hevea{} output will be ``\'Ecole'' works as in \LaTeX, while ``\'h'' does not.
+\else
+\hevea{} output will  be ``\'Ecole'' works as in \LaTeX, while ``h'' does not.
+\fi{}
+And a warning will be issued.
+\begin{verbatim}
+./tmp.tex:3741: Warning: Application of '\'' on 'h' failed
+\end{verbatim}
+
+However, when the document contains a lot of accented characters it is
+more convenient to use the appropriate input encoding. See
+section~\ref{inputenc} on the \texttt{inputenc} package.
 
 \section{Sectioning}
 
@@ -3872,8 +3888,7 @@ such as \texttt{verbatim}, \texttt{colors}, \texttt{graphics}, etc.
 
 In some situations it may not hurt at all if \hevea{} does not
 implement a package, for instance \hevea{} does not provide an
-implementation for the packages \texttt{isolatin1} or
-\texttt{fullpage}\ldots
+implementation for the \texttt{fullpage} package.
 
 Users needing an implementation of a package that is widely used and
 available are encouraged to contact the
@@ -4341,7 +4356,7 @@ document has been translated by \hevea}''.
 
 \end{description}
 
-Finally, note that \hevea{} also recognized à la \TeX{} conditional
+Finally, note that \hevea{} also recognized \`a la \TeX{} conditional
 macros (see section~\ref{texcond}). Such macros are fully compatible
 with the boolean registers of the \texttt{ifthen} package, as it is
 the case in \LaTeX.
@@ -5143,7 +5158,7 @@ However, some of the internal commands of \hevea{} are homonymous to
 Note that full compatibility with \TeX{} is not guaranteed.
 
 
-\subsubsection{À la \TeX{} macros definitions}\label{texmacros}
+\subsubsection{\`A la \TeX{} macros definitions}\label{texmacros}
 \comindex{def}\index{command!definition}
 The \verb+\def+ construct for defining commands is supported.
 It is important to
@@ -5178,14 +5193,14 @@ spaces or command names, in particular the command name \verb+\{+.
 One can include \verb+\{+ in a command argument by using the grouping
 characters \verb+{+\ldots{} \verb+}+:
 \begin{verbatim}
-\def\frenchquote(#1){«~\emph{#1}~» (in French)}
-He said \frenchquote(Alors cette accolade ouvrante {``\{''}~?).
+\def\frenchquote(#1){\guillemotleft~\emph{#1}~\guillemotright{} (in French)}
+he said \frenchquote(Alors cette accolade ouvrante {``\{''}~?).
 \end{verbatim}
 Yields:
-\begin{flushleft}
-\def\frenchquote(#1){«~\emph{#1}~» (in French)}
-He said \frenchquote(Alors cette accolade ouvrante {``\{''}~?).
-\end{flushleft}
+\begingroup%
+\def\frenchquote(#1){\guillemotleft~\emph{#1}~\guillemotright{} (in French)}%
+he said \frenchquote(Alors cette accolade ouvrante {``\{''}~?).
+\endgroup
 
 
 Another source of incompatibilty with \TeX{} is that  substitution of
@@ -5608,8 +5623,11 @@ of the \textit{len} argument to the \verb+\setlength+ and
 \hevea{} does not implement this extension, since it does not
 implement length registers in the first place.
 
-\subsection{The \texttt{comment} package}
+\subsection{Specifying the document input encoding, the \texttt{inpuenc} package}
 \ttindex{comment}{package}
+
+
+\subsection{The \texttt{comment} package}
 \LaTeX{} \footahref{\ctan/contrib/comment/}{source}.
 
 The implementation for this package provides two commands,
@@ -6861,7 +6879,7 @@ D.~Ragget, A.~Le~Hors and I.~Jacobs.
 \ahrefurl{\url{http://www.w3.org/TR/REC-html40}}, 1997.
 
 \bibitem[CSS-2]{css}
-Bert Bos,  Håkon Wium Lie,
+Bert Bos,  H{\aa}kon Wium Lie,
 Chris Lilley and Ian Jacobs.
 {\em Cascading Style Sheets, level 2 CSS2 Specification}. Available on
 the web at

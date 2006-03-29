@@ -13,10 +13,10 @@ module type S =
   sig
     exception Error of string
     type block
-
+(*
     val iso : char -> string
     val iso_string : string -> string
-
+*)
     val set_out : Out.t -> unit
     val stop : unit -> unit
     val restart : unit -> unit

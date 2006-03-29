@@ -1,2 +1,2 @@
 \def\@charset{ISO-8859-14}
-\@set@out@translator@table{mappings/8859-14.map}
+\@set@translators{mappings/ISO-8859-14.map}

@@ -14,6 +14,7 @@ module type S =
   sig
     (* external entry points *)
     val no_prelude : unit -> unit
+    val translate_put_unicode : char -> unit
     val main : Lexing.lexbuf -> unit
     val expand_command : string -> Lexing.lexbuf -> unit
     val expand_command_no_skip : string -> Lexing.lexbuf -> unit

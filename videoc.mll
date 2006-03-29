@@ -11,7 +11,7 @@
 (***********************************************************************)
 (* <Christian.Queinnec@lip6.fr>
  The plugin for HeVeA that implements the VideoC style.
- $Id: videoc.mll,v 1.29 2006-02-01 17:34:17 maranget Exp $ 
+ $Id: videoc.mll,v 1.30 2006-03-29 16:31:18 maranget Exp $ 
 *)
 
 {
@@ -35,7 +35,7 @@ open Scan
 
 
 let header = 
-  "$Id: videoc.mll,v 1.29 2006-02-01 17:34:17 maranget Exp $"
+  "$Id: videoc.mll,v 1.30 2006-03-29 16:31:18 maranget Exp $"
 (* So I can synchronize my changes from Luc's ones *)
 let qnc_header = 
   "30 oct 2000"
@@ -189,8 +189,8 @@ rule snippetenv = parse
         schemecharacterenv lexbuf
      end;
      snippetenv lexbuf}
-| _ 
-    {Dest.put (Dest.iso (lexeme_char lexbuf 0));
+| _ as lxm
+    {Scan.translate_put_unicode lxm ;
      snippetenv lexbuf}
 
 (* Scheme characters are written as #\A or #\Newspace *)

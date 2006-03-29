@@ -1,8 +1,17 @@
-%% Inputencoding are simple minded
-%%  - Characters will be accepted as they are
+%% Inputencodings are simple minded, and also impacts on the output
+%% document charset
+%%  - The 'input' translator is changed to accept chars on 8-bits
+%%    and to translate them to the appropriate unicode chars.
 %%  - The document charset is changed.
 %%  - Numerical entities given by \@print@u{NUM} are translated
-%%    to chars when possible
+%%    to chars when possible (through 'output' translator)
+%%  - Moreover, the latin*.hva files set both input and output
+%%    translators to cope with the corresponding encoding
+%%  - Later, one can desynchronize those translators
+%%    For instance, to interpret input as latin1 and to output
+%%    asciii only, one should perform:
+%%     \usepackage[latin1]{inputenc}
+%%     \@def@charset{US-ASCII}
 \ProvidesPackage{inputenc}
 \newcommand{\ic@input}[1]
 {\@iffileexists{#1.hva}

@@ -218,6 +218,8 @@
 \newcommand{\@biblabel}[1]{\@locname{\bibtag@hook{#1}}{\purple[\@bibread{\bibtag@hook{#1}}]}}
 %%% Environment document.
 \newcommand{\@charset}{US-ASCII}
+\newcommand{\@def@charset}[1]
+{\renewcommand{\@charset}{#1}\@set@out@translator{mappings/#1.map}}
 \newcommand{\@bodyargs}{}
 \newcommand{\@meta}
 {\begin{rawhtml}
