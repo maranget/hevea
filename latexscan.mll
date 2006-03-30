@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.281 2006-03-29 16:31:18 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.282 2006-03-30 14:14:56 maranget Exp $ *)
 
 
 {
@@ -916,7 +916,7 @@ and check_case_char c = match !case with
 let translate_put_unicode c =
   if !raw_chars then
     Dest.put_char c
-  else
+  else begin
     let uni =
       try OutUnicode.translate_in c
       with OutUnicode.CannotTranslate ->
@@ -931,6 +931,7 @@ let translate_put_unicode c =
         (Printf.sprintf
            "Cannot output unicode %x (%c)" uni c) ;
       Dest.put_char c
+  end
 } 
 
 let command_name =
@@ -1049,9 +1050,8 @@ rule  main = parse
    end ;
    main lexbuf}
 (* Alphabetic characters *)
-| ['a'-'z' 'A'-'Z']+
-   {let lxm = lexeme lexbuf in
-   let lxm = check_case lxm in
+| ['a'-'z' 'A'-'Z']+ as lxm
+   {let lxm = check_case lxm in
    if !in_math then begin
       Dest.put_in_math lxm;
     end else
@@ -1082,6 +1082,7 @@ rule  main = parse
 | '!'
   {do_expand_command main skip_blanks "\\@hevea@excl" lexbuf ;
   main lexbuf}
+(* German stuff *)
 | '"'
   {if is_plain '"' then 
     Dest.put_char '"'
