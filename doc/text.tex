@@ -6,6 +6,7 @@
 \usepackage{../hevea}
 \usepackage{listings}
 \usepackage[T1]{fontenc}
+\usepackage{textcomp}
 \usepackage{amssymb}
 \usepackage{amsmath}
 \usepackage{ifthen}\usepackage{array}
@@ -79,12 +80,12 @@ The input language is a fairly complete subset of \LaTeXe{} (old
 output language is {\html} that is (hopefully) correct with respect to
 version 4.0 transitional.
 
-Recent versions of most browsers offer support for Unicode entities,
-albeit to different extents. \hevea{} exploits this fact to translate
-various math symbols used in \LaTeX. As a result, almost the entire set
-of math symbols, including the {\tt amssymb} ones, are correctly
-rendered. The use of the symbol font browsers is no
-longer the default.
+Recent versions of most browsers offer support for Unicode (ISO~10646)
+characters, albeit to different extents. \hevea{} exploits this fact
+to translate various math symbols used in \LaTeX. As a result, almost
+the entire set of math symbols, including the {\tt amssymb} ones, are
+correctly rendered. The use of the symbol font browsers is no longer
+the default.
 
 \hevea{} understands \LaTeX{} macro definitions. Simple user style
 files are understood with little or no modifications.
@@ -147,7 +148,7 @@ $x \in \mathcal{E}$
 <I>x</I> &#X2208; <FONT COLOR=red><I>E</I></FONT>
 \end{verbatim}
 Incidentally, notice that the symbol ``$\in$'' translates to the
-appropriate numerical entity and that the calligraphic letter
+appropriate numerical  character reference and that the calligraphic letter
 ``$\mathcal{E}$'' renders as a red ``$E$''.
 You can find some more elaborate \footahref{\heveaurl/examples/index.html}{examples} in the on-line
 documentation.
@@ -860,20 +861,21 @@ This new definition yields the following, more satisfying output:
 \end{htmlout}
 
 \label{square:blob}
+\index{"@print"@u@\texttt{\char92"@print"@u}}%
 In case we do want a square blob, there are two alternatives.
 We can have \LaTeX{} typeset some subparts of
 the document and then to include them as images, section~\ref{imagen}
 explain how to proceed.
-We can also find a square blob somewhere in the variety of Unicode I
+We can also find a square blob somewhere in the variety of Unicode, I
 mean ISO~10646) characters,
 and define \verb+\blob+ as a (numerical or symbolic)
 character reference. Here, the character \texttt{U02588}
 seems ok.
 \begin{verbatim}
-\newcommand{\blob}{\@print{&#X2588;}
+\newcommand{\blob}{\@print@u{X2588}}
 \end{verbatim}
 \begin{htmlout}%
-\begin{htmlonly}\newcommand{\blob}{\@print{&#X2588;}}%
+\begin{htmlonly}\newcommand{\blob}{\@print@u{X2588}}%
 \blob\ Blob \blob
 \end{htmlonly}
 \begin{latexonly}\vspace*{.5ex}
@@ -2307,6 +2309,12 @@ Any text enclosed between \verb+\begin{rawhtml}+ and
 \verb+\end{rawhtml}+ is echoed verbatim into the \html{} output file.
 Similarly, \verb+\rawhtmlinput{+\textit{file}\verb+}+ echoes the
 contents of file~\textit{file}.
+Verbatim means that no translatation of any kind is performed. In
+particular, be aware that input encoding (see~\ref{inputenc}) does
+not apply. Hence one should use ascii only, if needed
+non-ascii characters can be givent as
+entity or numerical character references --- \emph{e.g.}
+\verb+&eacute;+ and \verb+&#XE9;+ for \'e.
 
 For avoiding to break \html~element nesting, the \texttt{rawhtml}
 environment should be used only at toplevel (i.e. not within another
@@ -2341,7 +2349,7 @@ mode.
 
 
 
-\subsection{Internal macros}\label{internal}
+\subsection{Internal \label{internal}macros}
 In this section a few of \hevea{} internal macros are
 described.
 Internal macros occur at the final expansion stage of \hevea{} and
@@ -2377,6 +2385,7 @@ elements with neither opening tag nor closing tag.
 
 \index{"@print@\texttt{\char92"@print}|defocc}
 \index{"@getprint@\texttt{\char92"@getprint}|defocc}
+\index{"@print"@u@\texttt{\char92"@print"@u}|defocc}
 \index{"@hr@\texttt{\char92"@hr}|defocc}
 \index{"@open@\texttt{\char92"@open}|defocc}
 \index{"@close@\texttt{\char92"@close}|defocc}
@@ -2394,7 +2403,8 @@ some characters cannot be given directly (e.g. \verb+#+ and
 \verb+%+ must be given as \verb+\#+ and \verb+\%+).
 \begin{description}
 \item[{\tt\char92 @print\char123}{\it text}{\tt\char125}]
-Echo \textit{text} verbatim.
+Echo \textit{text} verbatim. As a consequence use only ascii
+in \textit{text}.
 \item[{\tt\char92 @getprint\char123}{\it text}{\tt\char125}]
 Process \textit{text} using a special output mode that strips off
 \html~tags. This macro is the one to use for processed attributes of
@@ -2405,8 +2415,10 @@ Output an \html{} horizontal rule, \textit{attr} is attributes given
 directly (e.g. \verb+SIZE=3 HOSHADE+), while \textit{width} and
 \textit{height} are length arguments given in the \LaTeX{} style
 (e.g. \verb+2pt+ or~\verb+.5\linewidth+).
-
-
+\item[{\tt\char92 @print@u\char123}{\it n}{\tt\char125}]
+Output the (Unicode) character ``\textit{n}'', which can
+be given either as a decimal number or an hexadecimal number prefixed
+by ``\texttt{X}''.
 
 \item[{\tt\char92 @open\char123}{\it BLOCK}{\tt\char125\char123}{\it
 attributes}{\tt\char125}]
@@ -2588,6 +2600,76 @@ needs to be translated into a low-level color by using the
 Additionally,  \verb+\begin{bgcolor}+ takes \html{} attributes
 as an optional argument. These attributes are the ones of the
 \verb+TABLE+ element.
+
+\subsection{The \label{encodings}document charset}
+According to standards, as I understand them, \html{} pages are
+made of Unicode (ISO~10646) characters.
+By constrast, a file in any operating system is usually considerered as
+being made of bytes.
+
+\index{"@print"@u@\texttt{\char92"@print"@u}}%
+To account for that fact, \html{} pages usually specify a \emph{document
+charset} that defines a translation from a flow of bytes to a flow of
+characters. \hevea{} easily manage 8~bits encodings that specify an
+interpretation of every byte as a character\footnote{Provided these
+encodings map ascii to ascii.}.
+For instance, the byte
+\texttt{0xA4} means Unicode~\texttt{0x00A4} (\textcurrency) in the
+ISO-8859-1 (or latin1) encoding, and \texttt{0x20AC} (\texteuro) in
+the ISO-8859-15 (or latin9) encoding.
+Notice that \hevea{} has no difficulty to output both symbols, in fact
+they are defined as unicode characters:
+\begin{verbatim}
+\newcommand{\textcurrency}{\@print@u{XA4}}
+\newcommand{\texteuro}{\@print@u{X20AC}}
+\end{verbatim}
+But the \verb+\@print@u+ command may output the specified character as
+a byte, when possible, by the means of the \emph{output translator}.
+If not possible, \verb+\@print@u+ outputs a numerical character
+references (for instance \verb+&#X20AC;+).
+
+\index{"@def"@charset@\texttt{\char92"@def"@charset}|defocc}%
+Of course, the document charset and the output translator
+must be synchronized. The command \verb+\@def@charset+ takes a
+charset name as argument and performs the operation of specifying the
+document character set and the output translator. It should occur in
+the document preamble.
+Valid  charset names are \texttt{ISO-8859-}\textit{n} where $n$ is a
+number in \texttt{1}\ldots\texttt{15}, and \texttt{US-ASCII} (the
+default).
+
+
+\ttindex{xxcharset.exe}{script}%
+If wished so, the charset can be extracted from the current
+locale environment, provided this yields a valid (to \hevea) charset name.
+This operation is performed by a companion script: \texttt{xxcharset.exe}.
+It thus suffices to launch \hevea{} as:
+\begin{flushleft}
+\texttt{\# hevea -exec xxcharset.exe}~\textit{other arguments} 
+\end{flushleft}
+
+\iffalse
+\index{"@charset\texttt{\char92"charset}}%
+\index{"@set"@out"@translator@\texttt{\char92"@set"@out"@translator}}%
+\hevea{} mechanism for charsets can be extended to other
+8~bits encodings. To provide support for encoding \textit{encoding}:
+\begin{itemize}
+\item Be sure that \textit{encoding} is a valid (to \html) encoding
+name.
+\item Create a file \textit{encoding}\texttt{.map}, that contains
+the definition of the encoding --- see Section~\ref{newmap} for details.
+\item Issue the following commands~:
+\begin{flushleft}
+\verb+\def\@charset{+\textit{encoding}\verb+}+\\
+\verb+\@set@out@translator{+\textit{encoding}\verb+}+
+\end{flushleft}
+\item Send me \textit{encoding}\texttt{.map} file.
+I will include it in the \texttt{mappings} directory.
+As a result, \verb+\@def@charset{+\texttt{encoding}\verb+}+ will work.
+\end{itemize}
+Notice however, that document charset is not that important, the default
+\texttt{US-ASCII} works everywhere!
+\fi
 
 \section{Support for style sheets}\label{style:sheets}
 \index{style-sheets}
@@ -3637,25 +3719,15 @@ invoked in the new definition of \verb+\@meta+.
 Namely, simply overriding the old definition of \verb+\@meta+ would
 imply not outputting default meta-information.
 
-\index{"@charset@\texttt{\char92"@charset}}\ttindex{xxcharset.exe}{script}
-The \verb+\@charset+ command holds the value of the document character
+\index{"@charset@\texttt{\char92"@charset}}
+The \verb+\@charset+ command holds the value of the (\html) document character
 set. By default, this value is \texttt{US-ASCII}.
-
-To change this value, there are basically two techniques.
-\begin{itemize}
-\item You can set the charset by extracting its value from the current
-locale environment.
-This operation is performed by a companion script: \texttt{xxcharset.exe}.
-It thus suffices to launch \hevea{} as:
-\begin{flushleft}
-\texttt{\# hevea -exec xxcharset.exe}~\textit{other arguments} 
-\end{flushleft}
-\item You can more directly redefine \verb+\@charset+ in the document preamble.
-The suggested technique is to include the redefinition in a
-``\texttt{.hva}'' file, loaded as a package.
-\end{itemize}
-Notice though, that just changing \verb+\@charset+ will not turn
-\hevea{} into a multi-lingual tool.
+In previous versions of \hevea{}, one could change the
+value of the document character set by simply redefining
+\verb+\@charset+. Then, it was users responsability to provide a
+(\LaTeX) document in the correspounding encoding.
+This is no longer so, and users should \emph{not} redefine
+\verb+\@charset+ directly. Please see Section~\ref{encoding} for details.
 
 
 \section{Sentences and Paragraphs}
@@ -4079,7 +4151,7 @@ strange for the latter two.
 
 \subsection{Square Root}
 \index{\verb+\sqrt+}\index{sqrt}
-The n$^{\mbox{th}}$ root command \verb+\sqrt+ is supported only for n=3,4, thanks to the existence of unicode entities for the same. For the others, we shift to fractional exponents, in which case, the \verb+\sqrt+ command is
+The n$^{\mbox{th}}$ root command \verb+\sqrt+ is supported only for n=3,4, thanks to the existence of Unicode characters for the same. For the others, we shift to fractional exponents, in which case, the \verb+\sqrt+ command is
 defined as follows:
 \begin{verbatim}
 \newcommand{\sqrt}[3][2]{\left(#2\right)^{1/#1}}
@@ -4124,8 +4196,11 @@ in display mode, but as $a \xrightarrow[2]{1} b \xleftarrow{3} c$ in simple math
 \subsection{Unicode and mathematical symbols}\index{unicode}
 
 The support for unicode symbols offered by modern browsers allows to
-translate almost all math symbols correctly. However, some of the
-unicode encodings are not supported by all browsres. They are usually
+translate almost all math symbols correctly.
+
+A few unicode entito
+
+They are usually
 replaced by the best approximations. Outputing such ``advanced''
 characters is turned on by the command line option
 \texttt{-moreentities}.
@@ -5623,8 +5698,44 @@ of the \textit{len} argument to the \verb+\setlength+ and
 \hevea{} does not implement this extension, since it does not
 implement length registers in the first place.
 
-\subsection{Specifying the document input encoding, the \texttt{inpuenc} package}
-\ttindex{comment}{package}
+\subsection{Specifying \label{inputenc}the document input encoding, the \texttt{inputenc} package}
+\ttindex{inputenc}{package}
+The \texttt{inputenc} package enables \LaTeX{} to process a file
+according to various \emph{8~bits} encodings.
+The one used encoding is specified as an option while loading the package
+\verb+\usepackage[+\textit{encoding}\verb+]{inputenc}+.
+At the moment, \hevea{} recognizes the ten \emph{latin} encodings
+(from \texttt{latin1} to \texttt{latin10}) and the \texttt{ascii} encoding.
+It is important to notice that loading the \verb+inputenc+ package
+alters the \html{} document charset.
+For instance if the \texttt{latin9} input encoding is selected by:
+\begin{verbatim}
+\usepackage[latin9]{inputenc}
+\end{verbatim}
+Then, the document charset is \verb+ISO-8859-15+, which is an
+enhanced version of \verb+ISO-8859-1+ with some characters
+for \OE, \oe{} and \texteuro.
+The rationale behind changing the output document charset at the same
+time as changing the input encoding is to allow
+non-ascii bytes in the input file to be replicated as
+themselves in the output file.
+
+\index{"@def"@charset@\texttt{\char92"@def"@charset}}
+However, one can change the document charset (and the output
+translator) by using the internal command \verb+\@def@charset+.
+For instance how is one can specify \texttt{latin1} encoding, while
+producing \html{} pages in ascii:
+\begin{verbatim}
+\usepackage[latin1]{inputenc}
+%HEVEA\@def@charset{US-ASCII}
+\end{verbatim}
+See Section~\ref{encodings} for a more thorough description of \html{}
+charset management.
+
+\subsection{More symbols}
+\hevea{} implements the following packages: \texttt{latexsym}
+\texttt{amssymb}, \texttt{textcomp} (a.k.a. ``Text companion'')
+and \texttt{eurosym} (a nice \texteuro{} symbol in \LaTeX).
 
 
 \subsection{The \texttt{comment} package}
@@ -5752,13 +5863,22 @@ They can be written/modified as simple \TeX{} files (see the section ~\ref{texma
 
 Note how all definitions are \emph{inside} the definition for \verb+\french@babel+, which is the command that \verb+\selectlanguage{french}+ would call. Similar commands need to be provided (i.e. \verb+\x@babel+ in \verb+\x.hva+ for language \verb+x+).
 
-Some definitions may involve specifying unicode encodings. The map from characters to unicode can be found at \footahref{http://www.unicode.org/charts/}{http://www.unicode.org/charts/} . Most language specific unicode characters can be found in the first few files. 
+Some definitions may involve specifying Unicode characters, for doing
+so, using the \verb+\@print@u+ is recommended (cf. Section~\ref{internal}).
+The definition of Unicode characters can be found at
+\footahref{http://www.unicode.org/charts/}{http://www.unicode.org/charts/}.
+Most language specific unicode characters can be found in the first
+few files.
 
 \subsection{Support for math package \texttt{amssymb}}%
 \ttindex{amssymb}{package}%
-\hevea{} provides support for the \texttt{amssymb} symbols using unicode character encodings. However, a few symbols did not have any encoding yet (e.g. \verb+\varsubsetneqq+, $\varsubsetneqq$), and were approximated to their nearest kin (e.g. \verb+\subsetneqq+, $\subsetneqq$ in this case).
+\hevea{} provides support for the \texttt{amssymb} symbols using
+Unicode. However, a few symbols did not have any encoding yet
+(e.g. \verb+\varsubsetneqq+, $\varsubsetneqq$), and were approximated
+to their nearest kin (e.g. \verb+\subsetneqq+, $\subsetneqq$ in this
+case).
 
-There were yet others which had unicode encodings, but not supported
+There are yet others which have an Unicode definition, but not supported
 by current versions of some browsers (e.g. \verb+\ltimes+,
 $\ltimes$). A similar fate awaited them. However, as it is hoped that
 sooner rather than later, browsers will support these entities, a

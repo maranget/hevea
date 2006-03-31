@@ -1,4 +1,4 @@
 #! /bin/sh
 cat <<EOF
-\renewcommand{\@charset}{`locale charmap`}
+\renewcommand{\@def@charset}{`locale charmap`}
 EOF
