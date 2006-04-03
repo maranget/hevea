@@ -1,9 +1,18 @@
-     - changed \limits/\nolimits scanning, so as to find last !
+version 1.08+11
+     - Important change in managing inputencodings/charsets, so
+       as they can be different. Documentation done.
+        Basically: for all chars in input
+        1. Translate to unicode
+        2. From one unicode char
+            a- Output as a char if possible in doc charset
+            b- Otherwise, output numerical reference.
+
+     - Changed \limits/\nolimits scanning, so as to find last !
      - latin encoding support, through the inputenc package and
        checked numerical entities (\@print@u)
        Defaut charset is now US-ASCII.
-     - added eurosym package
-     - added textcomp package
+     - Added eurosym package
+     - Added textcomp package
      - compatibility deepcut/thebibliography, \sectionning command
        \@bbliosection must appear in outer scope.
      - deepcut: also cut footnotes.
