@@ -1,6 +1,6 @@
 LATEX=latex
 HEVEA=../hevea.byte
-HEVEAOPTS=-fix -O
+HEVEAOPTS=-fix -O -dv
 HACHA=../hacha.byte
 EXDIR=$(HOME)/public_html/hevea/examples
 TEX=$(HTML:.html=.tex)

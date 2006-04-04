@@ -51,17 +51,6 @@ open Lexstate
 
     val addvsize : int -> unit
     val over :Lexing.lexbuf -> unit
-    (******************************************************
-     *  over_aling useful for \cfrac, \xleftarrow         *
-     *  and \xrightarrow.                                 *
-     *  takes two additional boolean arguments and        *
-     *  depending on the four combinations, decides to    *
-     *    aligns the args to the left for \cfrac          *
-     *    aligns the args to the right for \cfrac         *
-     *    implements \xleftarrow                          *
-     *    implements \xrightarrow                         *
-     ******************************************************)
-    val over_align : bool -> bool -> bool -> Lexing.lexbuf -> unit
     val left : string -> (int -> unit) -> (int -> unit) -> unit
     val right : string -> (int -> unit) -> int
 

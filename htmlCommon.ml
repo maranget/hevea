@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlCommon.ml,v 1.51 2006-03-28 11:54:25 maranget Exp $" 
+let header = "$Id: htmlCommon.ml,v 1.52 2006-04-04 08:45:11 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -293,6 +293,7 @@ type flags_t = {
     mutable empty:bool;
     mutable blank:bool;
     mutable pending_par: int option;
+    mutable npars: int ;
     mutable vsize:int;
     mutable nrows:int;
     mutable table_vsize:int;
@@ -342,6 +343,7 @@ let flags = {
   empty = true;
   blank = true;
   pending_par = None;
+  npars = 0 ;
   vsize = 0;
   nrows = 0;
   table_vsize = 0;
@@ -361,6 +363,7 @@ let copy_flags {
   empty = empty;
   blank = blank;
   pending_par = pending_par;
+  npars = npars ;
   vsize = vsize;
   nrows = nrows;
   table_vsize = table_vsize;
@@ -378,6 +381,7 @@ let copy_flags {
   empty = empty;
   blank = blank;
   pending_par = pending_par;
+  npars = npars ;
   vsize = vsize;
   nrows = nrows;
   table_vsize = table_vsize;
@@ -396,6 +400,7 @@ and set_flags f {
   empty = empty;
   blank = blank;
   pending_par = pending_par;
+  npars = npars ;
   vsize = vsize;
   nrows = nrows;
   table_vsize = table_vsize;
@@ -413,6 +418,7 @@ and set_flags f {
   f.empty <- empty;
   f.blank <- blank;
   f.pending_par <- pending_par;
+  f.npars <- npars ;
   f.vsize <- vsize;
   f.nrows <- nrows;
   f.table_vsize <- table_vsize;
@@ -436,6 +442,7 @@ type stack_t = {
   s_empty : bool Stack.t ;
   s_blank : bool Stack.t ;
   s_pending_par : int option Stack.t ;
+  s_npars : int Stack.t ;
   s_vsize : int Stack.t ;
   s_nrows : int Stack.t ;
   s_table_vsize : int Stack.t ;
@@ -457,6 +464,7 @@ let stacks = {
   s_empty = Stack.create_init "empty" false;
   s_blank = Stack.create_init "blank" false ;
   s_pending_par = Stack.create "pending_par" ;
+  s_npars = Stack.create "npars" ;
   s_vsize = Stack.create "vsize" ;
   s_nrows = Stack.create_init "nrows" 0 ;
   s_table_vsize = Stack.create_init "table_vsize" 0 ;
@@ -477,6 +485,7 @@ type saved_stacks = {
   ss_empty : bool Stack.saved ;
   ss_blank : bool Stack.saved ;
   ss_pending_par : int option Stack.saved ;
+  ss_npars : int Stack.saved ;
   ss_vsize : int Stack.saved ;
   ss_nrows : int Stack.saved ;
   ss_table_vsize : int Stack.saved ;
@@ -499,6 +508,7 @@ let save_stacks () =
   ss_empty = Stack.save stacks.s_empty ;
   ss_blank = Stack.save stacks.s_blank ;
   ss_pending_par = Stack.save stacks.s_pending_par ;
+  ss_npars = Stack.save stacks.s_npars ;
   ss_vsize = Stack.save stacks.s_vsize ;
   ss_nrows = Stack.save stacks.s_nrows ;
   ss_table_vsize = Stack.save stacks.s_table_vsize ;
@@ -520,6 +530,7 @@ and restore_stacks
   ss_empty = saved_empty ;
   ss_blank = saved_blank ;
   ss_pending_par = saved_pending_par ;
+  ss_npars = saved_npars ;
   ss_vsize = saved_vsize ;
   ss_nrows = saved_nrows ;
   ss_table_vsize = saved_table_vsize ;
@@ -538,6 +549,7 @@ and restore_stacks
   Stack.restore stacks.s_empty saved_empty ;
   Stack.restore stacks.s_blank saved_blank ;
   Stack.restore stacks.s_pending_par saved_pending_par ;
+  Stack.restore stacks.s_npars saved_npars ;
   Stack.restore stacks.s_vsize saved_vsize ;
   Stack.restore stacks.s_nrows saved_nrows ;
   Stack.restore stacks.s_table_vsize saved_table_vsize ;
@@ -566,6 +578,7 @@ let check_stacks () = match stacks with
   s_empty = s_empty ;
   s_blank = s_blank ;
   s_pending_par = s_pending_par ;
+  s_npars = s_npars ;
   s_vsize = s_vsize ;
   s_nrows = s_nrows ;
   s_table_vsize = s_table_vsize ;
@@ -584,6 +597,7 @@ let check_stacks () = match stacks with
   check_stack s_empty ;
   check_stack s_blank ;
   check_stack s_pending_par ;
+  check_stack s_npars ;
   check_stack s_vsize ;
   check_stack s_nrows ;
   check_stack s_table_vsize ;
@@ -1549,8 +1563,33 @@ and open_block s args =
   if !verbose > 2 then begin
     prerr_endline ("<= open_block ``"^string_of_block s^"''");
     pretty_cur !cur_out ;
-  end ;
-;;
+  end
+
+and close_flow_loc s =
+  if !verbose > 2 then
+    prerr_endline ("close_flow_loc: "^string_of_block s) ;
+
+  let active  = !cur_out.active
+  and pending = !cur_out.pending in
+  if close_block_loc check_empty s then begin
+    !cur_out.pending <- to_pending pending active ;
+    true
+  end else begin
+    !cur_out.pending <- to_pending pending active ;
+    false
+  end
+
+
+let close_flow s =
+  assert (s <> GROUP) ;
+  if !verbose > 2 then
+    prerr_flags ("=> close_flow ``"^string_of_block s^"''");
+  let _ = close_flow_loc s in
+  if !verbose > 2 then
+    prerr_flags ("<= close_flow ``"^string_of_block s^"''")
+
+
+
 
   
 let insert_block tag arg =
@@ -1688,50 +1727,6 @@ let horizontal_line attr width height =
   close_block GROUP
 ;;
 
-let skip_column s =
-    put ("&nbsp;</TD><TD NOWRAP ALIGN=center "^s^">")
-;;    
-
-let arrow_in_three_cols dir =
-  if dir then begin
-    put "<TABLE BGCOLOR=black BORDER=0 WIDTH=\"100%\" CELLSPACING=0 " ;
-    put "CELLPADDING=1><TR><TD></TD></TR></TABLE>" ;
-    put "</TD><TD>" ;
-    put "<TABLE BGCOLOR=black BORDER=0 WIDTH=\"100%\" CELLSPACING=0 " ;
-    put ("CELLPADDING=1><TR><TD></TD></TR></TABLE>") ;
-    put "</TD><TD STYLE=\"font-size:smaller\">&#9654;"
-  end
-  else begin
-    put "&#9664;</TD><TD>" ;
-    put "<TABLE BGCOLOR=black BORDER=0 WIDTH=\"100%\" CELLSPACING=0 " ;
-    put "CELLPADDING=1><TR><TD></TD></TR></TABLE>" ;
-    put "</TD><TD>" ;
-    put "<TABLE BGCOLOR=black BORDER=0 WIDTH=\"100%\" CELLSPACING=0 " ;
-    put ("CELLPADDING=1><TR><TD></TD></TR></TABLE>")
-  end 
-;;
-
-
-let arrow_in_table h dir =
-  let pad = (h-1)/2 in
-  if dir then begin
-    put "<TABLE BORDER=0 WIDTH=\"100%\" CELLSPACING=0 CELLPADDING=0>" ;
-    put "<TR><TD>" ;
-    put "<TABLE BGCOLOR=black BORDER=0 WIDTH=\"100%\" CELLSPACING=0 CELLPADDING=" ;
-    put (string_of_int pad) ;
-    put "><TR><TD></TD></TR></TABLE>" ;
-    put "</TD><TD>&gt</TD></TR></TABLE>"
-  end
-  else begin
-    put "<TABLE BORDER=1 WIDTH=\"100%\" CELLSPACING=0 CELLPADDING=0>" ;
-    put "<TR><TD>&lt</TD><TD>" ;
-    put "<TABLE BGCOLOR=black BORDER=1 WIDTH=\"100%\" CELLSPACING=0 CELLPADDING=" ;
-    put (string_of_int pad) ;
-    put "><TR><TD></TD></TR></TABLE>" ;
-    put "</TD></TR></TABLE>"
-  end 
-;;
-
 let line_in_table () =
   put "<DIV CLASS=\"hbar\"></DIV>" ;
   flags.vsize <- flags.vsize - 1
@@ -1776,30 +1771,6 @@ and try_close_display () =
   flags.table_inside <- pop stacks.s_saved_inside || flags.table_inside ;
   flags.table_inside <- pop stacks.s_table_inside || flags.table_inside
 ;;
-
-
-let close_flow_loc s =
-  if !verbose > 2 then
-    prerr_endline ("close_flow_loc: "^string_of_block s) ;
-
-  let active  = !cur_out.active
-  and pending = !cur_out.pending in
-  if close_block_loc check_empty s then begin
-    !cur_out.pending <- to_pending pending active ;
-    true
-  end else begin
-    !cur_out.pending <- to_pending pending active ;
-    false
-  end
-
-
-let close_flow s =
-  assert (s <> GROUP) ;
-  if !verbose > 2 then
-    prerr_flags ("=> close_flow ``"^string_of_block s^"''");
-  let _ = close_flow_loc s in
-  if !verbose > 2 then
-    prerr_flags ("<= close_flow ``"^string_of_block s^"''")
 
 
 

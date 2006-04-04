@@ -10,7 +10,7 @@
 (***********************************************************************)
 
 
-let header = "$Id: info.ml,v 1.38 2006-03-29 16:31:18 maranget Exp $"
+let header = "$Id: info.ml,v 1.39 2006-04-04 08:45:11 maranget Exp $"
 
 open Misc
 open Text
@@ -55,7 +55,6 @@ and limit_sup_sub = Text.limit_sup_sub
 and int_sup_sub = Text.int_sup_sub
 and addvsize = Text.addvsize
 and over = Text.over
-and over_align = Text.over_align
 and left = Text.left
 and right = Text.right
 ;;

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.282 2006-03-30 14:14:56 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.283 2006-04-04 08:45:11 maranget Exp $ *)
 
 
 {
@@ -923,7 +923,7 @@ let translate_put_unicode c =
         raise
           (Error
              (Printf.sprintf
-                "Non ascii '%c' in input, consider using package inputenc"
+                "Non-ascii '%c' in input, consider using package inputenc"
                 c)) in
     try Dest.put_unicode uni
     with Misc.CannotPut ->
@@ -2127,18 +2127,6 @@ def_code "\\over"
    (fun lexbuf ->
      if !display then  Dest.over lexbuf
      else Dest.put_char '/' ;
-     skip_blanks lexbuf)
-;;
-
-def_code "\\@lover"
-   (fun lexbuf ->
-     Dest.over_align false false !display lexbuf;
-     skip_blanks lexbuf)
-;;
-
-def_code "\\@rover"
-   (fun lexbuf ->
-     Dest.over_align false true !display lexbuf;
      skip_blanks lexbuf)
 ;;
 

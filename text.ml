@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.74 2006-03-29 16:31:18 maranget Exp $"
+let header = "$Id: text.ml,v 1.75 2006-04-04 08:45:11 maranget Exp $"
 
 
 open Misc
@@ -1998,9 +1998,6 @@ let translate = function
 | s   -> s
 ;;
 
-let over_align _ _ display lexbuf = over lexbuf
-;;
-
 let left delim _ k =
   item_display ();
   open_display "";
@@ -2017,8 +2014,4 @@ let right delim _ =
   close_display ();
   vsize
 ;;
-
-(*
-  C'est fini, élegamment
-*)
 

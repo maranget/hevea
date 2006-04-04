@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlMath.ml,v 1.39 2006-03-06 18:34:48 maranget Exp $" 
+let header = "$Id: htmlMath.ml,v 1.40 2006-04-04 08:45:11 maranget Exp $" 
 
 
 open Misc
@@ -477,63 +477,6 @@ let over _lexbuf =
     (fun () ->
       close_vdisplay_row () ;
       close_vdisplay ())
-;;
-
-(********************************************************
- *  For use by                                          *
- *      \cfrac to align arguments to the left or right  *
- *      \xleftarrow and \xrightarrow to print the arrow *
- *          instead of the fraction bar                 *
- ********************************************************)
-
-let over_align align1 align2 display _lexbuf =
-  if align1 then begin
-    let mods = insert_vdisplay
-      (fun () ->
-        open_vdisplay display ;
-        open_vdisplay_row
-          "" ("STYLE=\"font-size:smaller\" ALIGN=center") ;
-        skip_column "STYLE=\"font-size:smaller\"") in
-    skip_column "STYLE=\"font-size:smaller\"" ;
-    close_vdisplay_row () ;
-    open_vdisplay_row "" "STYLE=\"font-size:smaller\"" ;
-    close_mods () ;
-    arrow_in_three_cols align2 ;
-    close_vdisplay_row () ;
-    open_vdisplay_row "" ("STYLE=\"font-size:smaller\" ALIGN=center") ;
-    skip_column "STYLE=\"font-size:smaller\"" ;
-    close_mods () ;
-    open_mods mods ;
-    freeze
-      (fun () ->
-        skip_column "STYLE=\"font-size:smaller\"" ;
-        close_vdisplay_row () ;
-        close_vdisplay ();)
-  end
-  else begin
-    let alignment = if align2 then "ALIGN=right" else "ALIGN=left" in
-    if display then begin
-      let mods = insert_vdisplay
-        (fun () ->
-          open_vdisplay display ;
-          open_vdisplay_row "" (alignment)) in
-      close_vdisplay_row () ;
-      open_vdisplay_row "" "" ;
-      close_mods () ;
-      line_in_table () ;
-      close_vdisplay_row () ;
-      open_vdisplay_row "" (alignment) ;
-      close_mods () ;
-      open_mods mods ;
-      freeze
-        (fun () ->
-          close_vdisplay_row () ;
-          close_vdisplay ();)
-    end 
-    else begin
-      put "/"
-    end
-  end
 ;;
 
 (* Gestion of left and right delimiters *)

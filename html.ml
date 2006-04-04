@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: html.ml,v 1.97 2006-03-29 16:31:18 maranget Exp $" 
+let header = "$Id: html.ml,v 1.98 2006-04-04 08:45:11 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -31,7 +31,6 @@ let addvsize x = flags.vsize <- flags.vsize + x
 
 let 
   over,
-  over_align,
   erase_display,
   begin_item_display,
   end_item_display,
@@ -50,7 +49,6 @@ let
     =
   if !Parse_opts.mathml then begin
     MathML.over,
-    MathML.over_align,
     MathML.erase_display,
     MathML.begin_item_display,
     MathML.end_item_display,
@@ -68,7 +66,6 @@ let
     MathML.right
   end else begin
     HtmlMath.over,
-    HtmlMath.over_align,
     HtmlMath.erase_display,
     HtmlMath.begin_item_display,
     HtmlMath.end_item_display,
