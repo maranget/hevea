@@ -95,7 +95,7 @@ dorelease: doversion
 	$(MAKE) $(MFLAGS) byte manual.dvi manual.pdf
 # hevea relase
 	cd $(RELEASEDIR) ; rm -rf $(RELEASENAME) ;\
-	cvs -d $(CVSDIR) export  $(RELEASEOPT) -l htmlgen htmlgen/html htmlgen/text htmlgen/info ;\
+	cvs -d $(CVSDIR) export  $(RELEASEOPT) -l htmlgen htmlgen/html htmlgen/text htmlgen/info htmlgen/mappings ;\
 	mv htmlgen $(RELEASENAME) ;\
 	tar cfo $(RELEASENAME).tar $(RELEASENAME) ;\
 	gzip -f --best  $(RELEASENAME).tar

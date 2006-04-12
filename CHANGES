@@ -1,4 +1,6 @@
 version 1.08+11
+     - Big trouble : forgot mapings in distribution !
+version 1.08+11
      - Important change in managing inputencodings/charsets, so
        as they can be different. Documentation done.
         Basically: for all chars in input
