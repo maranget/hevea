@@ -6,4 +6,3 @@
 {\ifthenelse{\@commandexists\csname #1\endcsname}{#3}{#2}}
 \ifthentrue
 \@restartimage
-

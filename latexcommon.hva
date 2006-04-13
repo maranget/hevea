@@ -160,7 +160,8 @@
 {\@itemize@li{\envclass@attr{li-itemize}}\ifthenelse{\equal{#1}{!*!}}{}{\warning{Optional argument to \item in itemize environment}{#1}}}
 \setenvclass{li-enumerate}{li-enumerate}
 \newcommand{\@itemenumerate}[1][!*!]
-{\stepcounter{\@itemcount}\@enumerate@linum{\envclass@attr{li-enumerate}}\ifthenelse{\equal{#1}{!*!}}{}{\warning{Ignored optional argument to \item in enumerate enironment}}}
+{\let\@currentlabel\csname the\@enumcitem\endcsname%
+\stepcounter{\@itemcount}\@enumerate@linum{\envclass@attr{li-enumerate}}\ifthenelse{\equal{#1}{!*!}}{}{\warning{Ignored optional argument to \item in enumerate enironment}}}
 %environement itemize
 \setenvclass{itemize}{itemize}
 \newenvironment{itemize}
@@ -168,16 +169,16 @@
   {\@close{UL}}
 \newcounter{enumcount}
 \newcommand{\@enumstyle}
-{\ifthenelse{\value{enumcount}=0}{type=1}{}%
-\ifthenelse{\value{enumcount}=1}{type=a}{}%
-\ifthenelse{\value{enumcount}=2}{type=i}{}%
-\ifthenelse{\value{enumcount}=3}{type=A}{}}
+{\ifthenelse{\value{enumcount}=1}{type=1}{}%
+\ifthenelse{\value{enumcount}=2}{type=a}{}%
+\ifthenelse{\value{enumcount}=3}{type=i}{}%
+\ifthenelse{\value{enumcount}=4}{type=A}{}}
 \newcommand{\@enumcitem}
-{\ifthenelse{\value{enumcount}=0}{itemi}{}%
-\ifthenelse{\value{enumcount}=1}{itemii}{}%
-\ifthenelse{\value{enumcount}=2}{itemiii}{}%
-\ifthenelse{\value{enumcount}=3}{itemiiii}{}%
-\ifthenelse{\value{enumcount}>3}{itemv}{}}
+{\ifthenelse{\value{enumcount}=1}{itemi}{}%
+\ifthenelse{\value{enumcount}=2}{itemii}{}%
+\ifthenelse{\value{enumcount}=3}{itemiii}{}%
+\ifthenelse{\value{enumcount}=4}{itemiiii}{}%
+\ifthenelse{\value{enumcount}>4}{itemv}{}}
 \newcounter{itemi}
 \newcounter{itemii}
 \renewcommand{\theitemii}{\theitemi(\alph{itemii})}
@@ -195,13 +196,12 @@
 %environment enumerate
 \setenvclass{enumerate}{enumerate}
 \newenvironment{enumerate}
-  {\@open{OL}{\envclass@attr[ ]{enumerate}\@enumstyle}%
+  {\stepcounter{enumcount}%
+  \@open{OL}{\envclass@attr[ ]{enumerate}\@enumstyle}%
   \let\item\@itemenumerate%
   \let\@itemcount\csname\@enumcitem\endcsname%
-  \let\@currentlabel\csname the\@enumcitem\endcsname%
-  \setcounter{\@itemcount}{0}%
-  \stepcounter{enumcount}}
-  {\addtocounter{enumcount}{-1}\@close{OL}}
+  \setcounter{\@itemcount}{0}}
+  {\@close{OL}\addtocounter{enumcount}{-1}}
 %
 %% Modified to support styles e.g. 
 %%                <DL CLASS=list>,
@@ -333,6 +333,9 @@
 \textfbox{#1}\fi}
 \newcommand{\hbox}[1]{\warning{\hbox}\mbox{#1}}
 \newcommand{\displaystyle}{\ifdisplay\else\warning{\displaystyle ignored}\fi}
+%%% Paragraphs
+\let\par\@empty
+\AtBeginDocument{\let\par\hva@par}
 %%% References
 \newcommand{\@currentlabel}{}
 \newcommand{\refstepcounter}[1]
@@ -346,8 +349,7 @@
 \newcommand{\bibdata}[1]{}
 \newcommand{\bibstyle}[1]{}
 \newcommand{\bibliographystyle}[1]{}
-\newcommand{\label}[2][]
-  {\@saveclosed\@locname{#2}{#1}\@auxwrite{#2}{\@currentlabel}\@restoreclosed}
+\newcommand{\label}[2][]{\@locname{#2}{#1}\@auxwrite{#2}{\@currentlabel}}
 \newcommand{\ref}[1]{\@locref{#1}{\@auxread{#1}}}
 \newcommand{\pageref}[1]{\@locref{#1}{??}}
 \let\@input\input%appears inside aux files
@@ -442,25 +444,25 @@
 \newcommand{\@makesection}[7]{%
 \newcommand{\csname @#3@level\endcsname}{#2}%
 \newcommand{#1}[2][]{%
-\checkdepth{#2}{\refstepcounter{#3}}%
+\@secbegin\checkdepth{#2}{\refstepcounter{#3}}%
 \ifoptarg\checktocdepth{#2}{\@doaddtoc{#2}{#5}{##1}}\else
 \checktocdepth{#2}{\@doaddtoc{#2}{#5}{##2}}\fi
 \ifoptarg\cuthere{#3}{\@addsecnumber{#2}{#5}{##1}}\else
 \cuthere{#3}{\@addsecnumber{#2}{#5}{\begin{@norefs}##2\end{@norefs}}}\fi
 #4\checkdepth{#2}{\alttocdepth{#2}{\@locname{htoc\thetocanchor}{#5}#6}{#5#6}}##2#7\@secend}%
 \newcommand{#1*}[1]{%
-\cuthere{#3}{##1}%
+\@secbegin\cuthere{#3}{##1}%
 #4##1#7\@secend}}%
 \newcommand{\remakesection}[7]{%
 \renewcommand{#1}[2][]{%
-\checkdepth{#2}{\refstepcounter{#3}}%
+\@secbegin\checkdepth{#2}{\refstepcounter{#3}}%
 \ifoptarg\checktocdepth{#2}{\@doaddtoc{#2}{#5}{##1}}\else
 \checktocdepth{#2}{\@doaddtoc{#2}{#5}{##2}}\fi
 \ifoptarg\cuthere{#3}{\@addsecnumber{#2}{#5}{##1}}\else
 \cuthere{#3}{\@addsecnumber{#2}{#5}{\begin{@norefs}##2\end{@norefs}}}\fi%
 #4\checkdepth{#2}{\alttocdepth{#2}{\@locname{htoc\thetocanchor}{#5}#6}{#5#6}}##2#7\@secend}%
 \renewcommand{#1*}[1]{%
-\cuthere{#3}{\begin{@norefs}##1\end{@norefs}}%
+\@secbegin\cuthere{#3}{\begin{@norefs}##1\end{@norefs}}%
 #4##1#7\@secend}}%
 %%%%%%%%%%%%%%
 % Images     %

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.75 2006-04-04 08:45:11 maranget Exp $"
+let header = "$Id: text.ml,v 1.76 2006-04-13 16:55:56 maranget Exp $"
 
 
 open Misc
@@ -68,6 +68,7 @@ let pblock () =
   match top out_stack with
   | Normal (s,_,_) -> s
   | _ -> ""
+
 and parg () =
   if empty out_stack then "" else
   match top out_stack with
@@ -606,6 +607,9 @@ let close_mods () =
   !cur_out.active <- []
 ;;
 
+let open_par () = assert false
+and close_par () = assert false
+
 let par = function (*Nombre de lignes a sauter avant le prochain put*)
   | Some n ->
       begin
@@ -621,6 +625,8 @@ let par = function (*Nombre de lignes a sauter avant le prochain put*)
   | _ -> ()
 
 
+
+	
 let forget_par () = 
   let r = flags.pending_par in
   flags.pending_par <- None;
@@ -833,6 +839,9 @@ let close_block s =
     prerr_endline ("<= close_block ``"^bloc^"''");
 ;;
 
+(* Hum... *)
+let close_flow_block s = raise (Error ("close_flow in text mode"))
+;;
 
 
 let insert_block _ arg =  match arg with

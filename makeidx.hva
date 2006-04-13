@@ -1,10 +1,10 @@
 \@primitives{index}
 \newsavebox{\@indexbox}
 \newcommand{\index}[1]
-{\if@refs\@saveclosed%
+{\if@refs%
 \sbox{\@indexbox}{\@indexwrite[default]{#1}{\@currentlabel}}%force evaluation
 \@locname{\usebox{\@indexbox}}{}%
-\@restoreclosed\fi}
+\fi}
 %%%% uncomment this to get index citations that point to section titles.
 %\renewcommand{\index}[1]
 %{\if@refs\@saveclosed%

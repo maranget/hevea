@@ -1,4 +1,6 @@
-version 1.08+11
+     - Use P elements for paragraphs, numerous changes, doc pending
+       \n\n lines found while parsing arguments pending
+version 1.08+12
      - Big trouble : forgot mapings in distribution !
 version 1.08+11
      - Important change in managing inputencodings/charsets, so

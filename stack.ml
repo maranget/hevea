@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: stack.ml,v 1.10 2006-03-06 18:34:48 maranget Exp $             *)
+(*  $Id: stack.ml,v 1.11 2006-04-13 16:55:56 maranget Exp $             *)
 (***********************************************************************)
 exception Fatal of string
 
@@ -58,7 +58,7 @@ let pretty f stack =
     | x :: r ->
         prerr_string "'" ;
         prerr_string (f x) ;
-        prerr_string "' " ;
+        prerr_string "'" ;
         do_rec r in
   do_rec stack.l
 

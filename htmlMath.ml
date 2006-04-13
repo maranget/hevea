@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlMath.ml,v 1.40 2006-04-04 08:45:11 maranget Exp $" 
+let header = "$Id: htmlMath.ml,v 1.41 2006-04-13 16:55:56 maranget Exp $" 
 
 
 open Misc
@@ -97,8 +97,8 @@ let begin_item_display f is_freeze =
 
 and end_item_display () =
   let f,is_freeze = pop_freeze () in
-  let _ = close_flow_loc DFLOW in
-  if close_flow_loc TD then
+  let _ = close_flow_loc check_empty DFLOW in
+  if close_flow_loc check_empty TD then
     flags.ncols <- flags.ncols + 1;
   if !verbose > 2 then begin
     Printf.fprintf stderr "end_item_display: ncols=%d stck: " flags.ncols;

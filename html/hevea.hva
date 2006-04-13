@@ -87,7 +87,7 @@
 \newcommand{\htmlfoot}[1]{\sbox{\@htmlfoot}{#1}}
 \newcommand{\htmlprefix}[1]{\sbox{\@htmlprefix}{#1}}
 \AtEndDocument
-{{\@nostyle\@print{<!--HTMLFOOT-->
+{\@close@par{\@nostyle\@print{<!--HTMLFOOT-->
 }}%
 \usebox{\@htmlfoot}%
 {\@nostyle\@print{<!--ENDHTML-->
@@ -108,15 +108,14 @@
 \newcounter{cuttingdepth}
 \setcounter{cuttingdepth}{1}
 \newcommand{\cutdef}[2][]{%
-{\@nostyle\@print{<!--CUT DEF }#2\@print{ }#1\@print{ -->
-}}}%
+\@close@par{\@nostyle\@print{<!--CUT DEF }#2\@print{ }#1\@print{ -->
+}}\@open@par}%
 \newcommand{\cutend}{%
-{\@nostyle\@print{<!--CUT END }\@print{-->
-}}%
-}
-\newcommand{\@secend}{%
-\@saveclosed{\@nostyle\@print{<!--SEC END }\@print{-->}\@restoreclosed}%
-}
+\@close@par{\@nostyle\@print{<!--CUT END -->
+}}\@open@par}
+%%%Close/Re-open toplevel pars
+\newcommand{\@secbegin}{\@close@par}
+\newcommand{\@secend}{{\@nostyle\@print{<!--SEC END -->}}\@open@par}
 \newcommand{\cuthere}[2]{%
 \@footnoteflush{#1}%
 {\@nostyle\@print{<!--TOC }\@getprint{#1}\@print{ }}%
@@ -270,6 +269,7 @@
 \usebox{\@toplinks}\usebox{\@linkstext}%
 \cutdef[\thecuttingdepth]{\cuttingunit}%
 \renewcommand{\addstyle}[1]{\warning{\addstyle{} must be used in document preamble}}%
+\@open@par%Open first paragraph
 }{%
 \@clearstyle\@footnoteflush{document}%
 \@atenddocument%
@@ -284,6 +284,8 @@
 \newstyle{DIV TABLE}{margin-left:inherit;margin-right:inherit;}
 \newstyle{PRE}{text-align:left;margin-left:0ex;margin-right:auto;}
 \newstyle{BLOCKQUOTE}{margin-left:4ex;margin-right:4ex;text-align:left;}
+%Paragraphs in table cells are special (close to latex rendering)
+\newstyle{TD P}{margin:0px;}
 \setenvclass{center}{center}%
 \newenvironment{center}{\@open{DIV}{\envclass@attr{center}}}{\@close{DIV}}
 \setenvclass{flushleft}{flushleft}
@@ -463,6 +465,9 @@
 \newcommand{\@hbar}[1][]
 {{\def\@tmp{#1}\@open{DIV}{CLASS="hbar"\ifx\@tmp\@empty\else{} #1\fi}%
 \@force{DIV}}}
+%%Style of paragraphs
+\ifverbd\newstyle{P}{border:1px solid gray}\fi
+\ifverbd\newstyle{DIV}{border:1px dotted gray}\fi
 %%Style of display
 \newstyle{.vdisplay}{border-collapse:collapse;border:1px solid gray}
 \newstyle{.vdcell}{text-align:center;border:1px solid gray;white-space:nowrap;padding:0px;}

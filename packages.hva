@@ -19,7 +19,6 @@
 \newsavebox{\@pkg@me}
 \newcommand{\ProvidesPackage}[1]{\sbox{\@pkg@me}{\@getprint{#1}}}
 \newcommand{\EndPackage}{\sbox{\@pkg@me}{}}
-
 \newcommand{\@pkg@opt@name}[1]
   {@pkg\usebox{\@pkg@me}@@#1}
 \newcommand{\DeclareOption}[2]

@@ -14,7 +14,6 @@ pp.cmi: tree.cmi lexeme.cmi htmltext.cmi css.cmi
 save.cmi: misc.cmi 
 subst.cmi: lexstate.cmi 
 tabular.cmi: lexstate.cmi length.cmi 
-text.cmi: tabular.cmi out.cmi lexstate.cmi length.cmi element.cmi 
 ultra.cmi: tree.cmi lexeme.cmi 
 util.cmi: tree.cmi htmltext.cmi 
 verb.cmi: outManager.cmi latexscan.cmi imageManager.cmi 
@@ -167,8 +166,6 @@ stack.cmo: stack.cmi
 stack.cmx: stack.cmi 
 subst.cmo: save.cmi out.cmi misc.cmi lexstate.cmi subst.cmi 
 subst.cmx: save.cmx out.cmx misc.cmx lexstate.cmx subst.cmi 
-symb.cmo: parse_opts.cmi symb.cmi 
-symb.cmx: parse_opts.cmx symb.cmi 
 table.cmo: table.cmi 
 table.cmx: table.cmi 
 tabular.cmo: table.cmi subst.cmi stack.cmi parse_opts.cmi misc.cmi \

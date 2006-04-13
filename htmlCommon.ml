@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlCommon.ml,v 1.52 2006-04-04 08:45:11 maranget Exp $" 
+let header = "$Id: htmlCommon.ml,v 1.53 2006-04-13 16:55:56 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -33,6 +33,7 @@ type block =
   | QUOTE | BLOCKQUOTE
   | DIV
   | UL | OL | DL
+  | LI | DD | DT
   | GROUP | AFTER | DELAY | FORGET
   | INTERN
   | P
@@ -66,6 +67,9 @@ let string_of_block = function
   | P     -> "P"
   | NADA  -> "NADA"
   | INTERN -> "INTERN"
+  | LI -> "LI"
+  | DD -> "DD"
+  | DT -> "DT"
   | OTHER s -> s
 
 let block_t = Hashtbl.create 17
@@ -113,8 +117,8 @@ add NADA ; ()
 
 
 let failclose s b1 b2=
-  raise (Misc.Close (s^": ``"^string_of_block b1^"'' closes ``"^
-                     string_of_block b2^"''"))
+  raise (Misc.Close (s^": '"^string_of_block b1^"' closes '"^
+                     string_of_block b2^"'"))
 ;;
 
 let find_block s =
@@ -228,8 +232,8 @@ let push_out s (a,b,c) = push s (Normal (a,b,c))
 ;;
 
 let pretty_stack s = Stack.pretty 
-   (function Normal (s,args,_) -> "["^string_of_block s^"]-{"^args^"} "
-   | Freeze _   -> "Freeze ") s
+   (function Normal (s,args,_) -> "["^string_of_block s^"]-{"^args^"}"
+   | Freeze _   -> "Freeze") s
 ;;
 
 let pop_out s = match pop s with
@@ -292,15 +296,13 @@ type flags_t = {
     mutable ncols:int;
     mutable empty:bool;
     mutable blank:bool;
-    mutable pending_par: int option;
-    mutable npars: int ;
+    mutable saw_par: bool ;
     mutable vsize:int;
     mutable nrows:int;
     mutable table_vsize:int;
     mutable nitems:int;
     mutable dt:string;
     mutable dcount:string;
-    mutable last_closed:block;
     mutable in_pre:bool;
     mutable insert: (block * string) option;
     mutable insert_attr: (block * string) option;
@@ -342,15 +344,13 @@ let flags = {
   in_math = false;
   empty = true;
   blank = true;
-  pending_par = None;
-  npars = 0 ;
+  saw_par = false ;
   vsize = 0;
   nrows = 0;
   table_vsize = 0;
   nitems = 0;
   dt = "";
   dcount = "";
-  last_closed = NADA;
   in_pre = false;
   insert = None;
   insert_attr = None;
@@ -362,15 +362,13 @@ let copy_flags {
   in_math = in_math;
   empty = empty;
   blank = blank;
-  pending_par = pending_par;
-  npars = npars ;
+  saw_par = saw_par ;
   vsize = vsize;
   nrows = nrows;
   table_vsize = table_vsize;
   nitems = nitems;
   dt = dt;
   dcount = dcount;
-  last_closed = last_closed;
   in_pre = in_pre;
   insert = insert;
   insert_attr = insert_attr;
@@ -380,15 +378,13 @@ let copy_flags {
   in_math = in_math;
   empty = empty;
   blank = blank;
-  pending_par = pending_par;
-  npars = npars ;
+  saw_par = saw_par ;
   vsize = vsize;
   nrows = nrows;
   table_vsize = table_vsize;
   nitems = nitems;
   dt = dt;
   dcount = dcount;
-  last_closed = last_closed;
   in_pre = in_pre;
   insert = insert;
   insert_attr = insert_attr;
@@ -399,15 +395,13 @@ and set_flags f {
   in_math = in_math;
   empty = empty;
   blank = blank;
-  pending_par = pending_par;
-  npars = npars ;
+  saw_par = saw_par ;
   vsize = vsize;
   nrows = nrows;
   table_vsize = table_vsize;
   nitems = nitems;
   dt = dt;
   dcount = dcount;
-  last_closed = last_closed;
   in_pre = in_pre;
   insert = insert;
   insert_attr = insert_attr;
@@ -417,15 +411,13 @@ and set_flags f {
   f.in_math <- in_math;
   f.empty <- empty;
   f.blank <- blank;
-  f.pending_par <- pending_par;
-  f.npars <- npars ;
+  f.saw_par <- saw_par ;
   f.vsize <- vsize;
   f.nrows <- nrows;
   f.table_vsize <- table_vsize;
   f.nitems <- nitems;
   f.dt <- dt;
   f.dcount <- dcount;
-  f.last_closed <- last_closed;
   f.in_pre <- in_pre;
   f.insert <- insert ;
   f.insert_attr <- insert_attr ;
@@ -441,8 +433,7 @@ type stack_t = {
   s_ncols : int Stack.t ;
   s_empty : bool Stack.t ;
   s_blank : bool Stack.t ;
-  s_pending_par : int option Stack.t ;
-  s_npars : int Stack.t ;
+  s_saw_par : bool Stack.t ;
   s_vsize : int Stack.t ;
   s_nrows : int Stack.t ;
   s_table_vsize : int Stack.t ;
@@ -463,8 +454,7 @@ let stacks = {
   s_ncols = Stack.create "ncols" ;
   s_empty = Stack.create_init "empty" false;
   s_blank = Stack.create_init "blank" false ;
-  s_pending_par = Stack.create "pending_par" ;
-  s_npars = Stack.create "npars" ;
+  s_saw_par = Stack.create "saw_par" ;
   s_vsize = Stack.create "vsize" ;
   s_nrows = Stack.create_init "nrows" 0 ;
   s_table_vsize = Stack.create_init "table_vsize" 0 ;
@@ -484,8 +474,7 @@ type saved_stacks = {
   ss_ncols : int Stack.saved ;
   ss_empty : bool Stack.saved ;
   ss_blank : bool Stack.saved ;
-  ss_pending_par : int option Stack.saved ;
-  ss_npars : int Stack.saved ;
+  ss_saw_par : bool Stack.saved ;
   ss_vsize : int Stack.saved ;
   ss_nrows : int Stack.saved ;
   ss_table_vsize : int Stack.saved ;
@@ -507,8 +496,7 @@ let save_stacks () =
   ss_ncols = Stack.save stacks.s_ncols ;
   ss_empty = Stack.save stacks.s_empty ;
   ss_blank = Stack.save stacks.s_blank ;
-  ss_pending_par = Stack.save stacks.s_pending_par ;
-  ss_npars = Stack.save stacks.s_npars ;
+  ss_saw_par = Stack.save stacks.s_saw_par ;
   ss_vsize = Stack.save stacks.s_vsize ;
   ss_nrows = Stack.save stacks.s_nrows ;
   ss_table_vsize = Stack.save stacks.s_table_vsize ;
@@ -529,8 +517,7 @@ and restore_stacks
   ss_ncols = saved_ncols ;
   ss_empty = saved_empty ;
   ss_blank = saved_blank ;
-  ss_pending_par = saved_pending_par ;
-  ss_npars = saved_npars ;
+  ss_saw_par = saved_saw_par ;
   ss_vsize = saved_vsize ;
   ss_nrows = saved_nrows ;
   ss_table_vsize = saved_table_vsize ;
@@ -548,8 +535,7 @@ and restore_stacks
   Stack.restore stacks.s_ncols saved_ncols ;
   Stack.restore stacks.s_empty saved_empty ;
   Stack.restore stacks.s_blank saved_blank ;
-  Stack.restore stacks.s_pending_par saved_pending_par ;
-  Stack.restore stacks.s_npars saved_npars ;
+  Stack.restore stacks.s_saw_par saved_saw_par ;
   Stack.restore stacks.s_vsize saved_vsize ;
   Stack.restore stacks.s_nrows saved_nrows ;
   Stack.restore stacks.s_table_vsize saved_table_vsize ;
@@ -577,8 +563,7 @@ let check_stacks () = match stacks with
   s_ncols = s_ncols ;
   s_empty = s_empty ;
   s_blank = s_blank ;
-  s_pending_par = s_pending_par ;
-  s_npars = s_npars ;
+  s_saw_par = s_saw_par ;
   s_vsize = s_vsize ;
   s_nrows = s_nrows ;
   s_table_vsize = s_table_vsize ;
@@ -596,8 +581,7 @@ let check_stacks () = match stacks with
   check_stack s_ncols ;
   check_stack s_empty ;
   check_stack s_blank ;
-  check_stack s_pending_par ;
-  check_stack s_npars ;
+  check_stack s_saw_par ;
   check_stack s_vsize ;
   check_stack s_nrows ;
   check_stack s_table_vsize ;
@@ -647,84 +631,9 @@ let is_list = function
 | _ -> false
 ;;
 
-let string_of_par = function
-  | Some i -> "+"^string_of_int i
-  | None   -> "-"
-
-let par_val last now n =
-  let r = 
-    if is_list last then begin
-      if is_list now then 1 else 0
-    end
-    else if last = P then
-      0
-    else if
-      is_header last || last = PRE || last = BLOCKQUOTE
-    then n-1
-    else if last = TABLE then n
-    else n+1 in
-  if !verbose > 2 then
-    Printf.fprintf stderr
-      "par_val last=%s, now=%s, r=%d\n"
-      (string_of_block last) 
-      (string_of_block now) r ;
-  r
-;;
-
-let par  = function
-  | Some n as p ->
-      flags.pending_par <- p ;
-      if !verbose > 2 then
-        prerr_endline
-          ("par: last_close="^ string_of_block flags.last_closed^
-           " r="^string_of_int n)
-  | _ -> ()
-;;
-
-let flush_par n =
-  flags.pending_par <- None ;
-  for _i = 1 to n do
-    do_put "<BR>\n"
-  done ;
-  if n <= 0 then do_put_char '\n' ;
-  if !verbose > 2 then
-     prerr_endline
-       ("flush_par: last_closed="^ string_of_block flags.last_closed^
-       " p="^string_of_int n);
-  flags.vsize <- flags.vsize + n;
-  flags.last_closed <- NADA
-;;
-
-type t_try = Wait of block | Now
-let string_of_wait = function
-  | Wait b -> "(Wait "^string_of_block b^")"
-  | Now    -> "Now"
-
-let try_flush_par block = match block with
-| Wait GROUP -> ()
-| _ ->  match flags.pending_par with
-  | Some n ->
-      flush_par
-        (match block with
-        | Wait b -> par_val b NADA n
-        | _ -> par_val NADA NADA n)
-  | _      -> ()
-
-
 let string_of_into = function
   | Some n -> "+"^string_of_int n
   | None -> "-"
-
-let forget_par () =
-  let r = flags.pending_par in
-  if !verbose > 2 then
-    prerr_endline
-      ("forget_par: last_close="^ string_of_block flags.last_closed^
-       " r="^string_of_into r) ;  
-  flags.pending_par <- None ;
-  r
-;;
-
 
 
 (* styles *)
@@ -988,14 +897,7 @@ let do_open_mods () =
 
 
   
-let do_pending () =  
-  begin match flags.pending_par with
-  | Some n ->
-      flush_par (par_val flags.last_closed (pblock()) n)
-  | _ -> ()
-  end ;
-  flags.last_closed <- NADA ;
-  do_open_mods ()
+let do_pending () =  do_open_mods ()
 ;;
 
 
@@ -1141,7 +1043,7 @@ let erase_mods ms =
 let open_mod  m =
   if not !cur_out.nostyle then begin
     if !verbose > 3 then begin
-      prerr_endline ("open_mod: "^pretty_text m^" ok="^sbool (ok_mod m)) ;
+      prerr_endline ("=> open_mod: "^pretty_text m^" ok="^sbool (ok_mod m)) ;
       pretty_cur !cur_out
     end ;
     begin match m with
@@ -1154,7 +1056,11 @@ let open_mod  m =
         if ok_mod m then begin
           !cur_out.pending <- m :: !cur_out.pending
         end
-    end
+    end ;
+    if !verbose > 3 then begin
+      prerr_endline ("<= open_mod: "^pretty_text m) ;
+      pretty_cur !cur_out
+    end ;
   end
 ;;
 
@@ -1177,9 +1083,17 @@ let pstart = function
   | _ -> false
 ;;
 
+let transmit_par s = match s with
+| GROUP|AFTER|INTERN|DFLOW|P|LI -> false
+| _ -> true
+
 let is_group = function
   | GROUP -> true
   | _ -> false
+
+and transmit_par_or_par = function
+  | P -> true
+  | s -> transmit_par s
 
 and is_pre = function
   | PRE -> true
@@ -1194,9 +1108,9 @@ let rec do_try_open_block s =
       do_try_open_block TR
   | _  ->
       push stacks.s_empty flags.empty ; push stacks.s_blank flags.blank ;
-      push stacks.s_insert flags.insert ;
+      push stacks.s_insert flags.insert ; push stacks.s_saw_par flags.saw_par ;
       flags.empty <- true ; flags.blank <- true ;
-      flags.insert <- None ;
+      flags.insert <- None ; flags.saw_par <- false ;
       begin match s with
       | PRE -> flags.in_pre <- true (* No stack, cannot nest *)
       | TABLE ->
@@ -1225,7 +1139,7 @@ let rec do_try_open_block s =
       end
   end ;
   if !verbose > 2 then
-    prerr_flags ("<= try open ``"^string_of_block s^"''")
+    prerr_flags ("<= try open '"^string_of_block s^"'")
 ;;
 
 let try_open_block s _ =
@@ -1282,6 +1196,7 @@ let rec do_try_close_block s =
       let bhere = flags.blank and bthere = pop  stacks.s_blank in
       flags.blank <- (bhere && bthere) ;
       flags.insert <- pop  stacks.s_insert ;
+      flags.saw_par <- pop stacks.s_saw_par ;
       begin match s with 
       | PRE   -> flags.in_pre <- false (* PRE cannot nest *)
       | TABLE ->
@@ -1359,7 +1274,10 @@ and make_empty () =
   !cur_out.top <- NotMe ;
   !cur_out.pending <-  to_pending !cur_out.pending !cur_out.active ;
   !cur_out.active <- []  
-;;
+
+let check_blank () = flags.blank
+
+let no_check () = false
 
 let rec open_top_styles = function
   | NotMe|Insert (_,_) -> (* Real block, inserted block *)
@@ -1408,7 +1326,6 @@ let rec force_block s content =
     pretty_cur !cur_out
   end ;
   let pempty = top stacks.s_empty in
-  let was_empty = flags.empty in
   if s = FORGET then begin
     make_empty () ;
   end else begin
@@ -1520,13 +1437,11 @@ let rec force_block s content =
   end else begin (* ps = DELAY *)
     raise (Misc.Fatal ("html: unflushed DELAY"))
   end ;
-  if not was_empty && true_s <> GROUP && true_s <> AFTER then
-    flags.last_closed <- true_s ;
-
+    
   if !verbose > 2 then begin
     prerr_endline ("<= force_block: ["^string_of_block s^"]");    
     pretty_cur !cur_out
-  end ;
+  end
 
   
 and close_block_loc pred s =
@@ -1547,11 +1462,10 @@ and open_block s args =
     prerr_endline ("=> open_block ``"^string_of_block s^"''"^" arg="^args);
     pretty_cur !cur_out ;
   end ;
-  try_flush_par (Wait s);
 
   push_out out_stack (s,args,!cur_out) ;
   cur_out :=
-     begin if is_group s then
+     begin if false && is_group s then
        create_status_from_top !cur_out
      else
        create_status_from_scratch
@@ -1560,12 +1474,13 @@ and open_block s args =
          if flags.in_pre || is_pre s then filter_pre cur_mods else cur_mods)
      end ;
   try_open_block s args ;
+
   if !verbose > 2 then begin
     prerr_endline ("<= open_block ``"^string_of_block s^"''");
     pretty_cur !cur_out ;
   end
 
-and close_flow_loc s =
+and close_flow_loc check_empty s =
   if !verbose > 2 then
     prerr_endline ("close_flow_loc: "^string_of_block s) ;
 
@@ -1584,14 +1499,10 @@ let close_flow s =
   assert (s <> GROUP) ;
   if !verbose > 2 then
     prerr_flags ("=> close_flow ``"^string_of_block s^"''");
-  let _ = close_flow_loc s in
+  let _ = close_flow_loc check_empty s in
   if !verbose > 2 then
     prerr_flags ("<= close_flow ``"^string_of_block s^"''")
 
-
-
-
-  
 let insert_block tag arg =
   begin match !cur_out.top with
   | Nothing {top_pending=pending ; top_active=active} ->
@@ -1629,8 +1540,7 @@ let erase_block s =
   end ;
   try_close_block s ;
   let ts,_,tout = pop_out out_stack in
-  if ts <> s && not (s = GROUP && ts = INTERN && ts = DFLOW) then
-    failclose "erase_block" s ts;
+  if ts <> s then failclose "erase_block" s ts;
   free !cur_out ;
   cur_out := tout
 ;;
@@ -1650,20 +1560,25 @@ and open_aftergroup f =
   flags.empty <- false ;
   push stacks.s_after f
 
-and close_group () =
-  match pblock () with
+and close_group () = match pblock () with
   | INTERN -> close_block INTERN
-  | DFLOW -> close_block DFLOW
+  | DFLOW ->  close_block DFLOW
   | AFTER  -> force_block AFTER ""
   | _      -> close_block GROUP
+
+and erase_group () = match pblock () with
+  | INTERN -> erase_block INTERN
+  | DFLOW ->  erase_block DFLOW
+  | AFTER  -> erase_block AFTER
+  | _      -> erase_block GROUP
 ;;
 
 
 
 (* output requests  *)
 let is_blank = function
-   ' ' | '\n' -> true
-| _ -> false
+  | ' ' | '\n' -> true
+  | _ -> false
 ;;
 
 let put s =
@@ -1677,12 +1592,10 @@ let put s =
           r := !r && is_blank (String.unsafe_get s i)
         done ;
         !r in
-      let save_last_closed = flags.last_closed in
       do_pending () ;
       flags.empty <- false;
       flags.blank <- s_blank && flags.blank ;
-      do_put s ;
-      if s_blank then flags.last_closed <- save_last_closed
+      do_put s
 ;;
 
 let put_char c =
@@ -1690,13 +1603,11 @@ let put_char c =
   match s with
   | TABLE|TR -> ()
   | _ -> 
-      let save_last_closed = flags.last_closed in
       let c_blank = is_blank c in
       do_pending () ;
       flags.empty <- false;
       flags.blank <- c_blank && flags.blank ;
-      do_put_char c ;
-      if c_blank then flags.last_closed <- save_last_closed
+      do_put_char c
 ;;
 
 
@@ -1810,7 +1721,6 @@ let hidden_to_string f =
   prerr_endline "" ;
 *)
   let old_flags = copy_flags flags in
-  let _ = forget_par () in
   open_block INTERN "" ;
   f () ;
   do_close_mods () ;

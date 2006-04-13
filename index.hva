@@ -1,10 +1,10 @@
 \@primitives{index}
 \newsavebox{\@indexbox}
 \newcommand{\index}[2][default]
-{\if@refs\@saveclosed%
+{\if@refs%
 \sbox{\@indexbox}{\@indexwrite[#1]{#2}{\@currentlabel}}% side effect
 \@locname{\usebox{\@indexbox}}{}%
-\@restoreclosed\fi}
+\fi}
 \newcommand{\index*}[2][default]
 {\if@refs\sbox{\@indexbox}{\@indexwrite[#1]{#2}{\@currentlabel}}% side effect
 \@locname{\usebox{\@indexbox}}{#2}\fi}

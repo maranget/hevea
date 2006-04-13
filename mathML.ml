@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: mathML.ml,v 1.25 2006-03-06 18:34:48 maranget Exp $" 
+let header = "$Id: mathML.ml,v 1.26 2006-04-13 16:55:56 maranget Exp $" 
 
 
 open Misc
@@ -35,8 +35,8 @@ let begin_item_display f is_freeze =
 
 and end_item_display () =
   let f,is_freeze = pop_freeze () in
-  let _ = close_flow_loc INTERN in
-  if close_flow_loc (OTHER "mrow") then
+  let _ = close_flow_loc check_empty INTERN in
+  if close_flow_loc check_empty (OTHER "mrow") then
     flags.ncols <- flags.ncols + 1;
   if !verbose > 2 then begin
     Printf.fprintf stderr "end_item_display: ncols=%d stck: " flags.ncols;
@@ -329,7 +329,6 @@ let put s =
   if not s_blank then begin
     let s_op = is_op s
     and s_number = is_number s in
-    let save_last_closed = flags.last_closed in
     if is_open_delim s then open_delim ();
     let s_text = if is_close_delim s then is_close () else false in
     if (s_op || s_number) && !Lexstate.display then force_item_display ();
@@ -347,13 +346,11 @@ let put s =
     end else begin
       do_put s
     end;
-    if s_blank then flags.last_closed <- save_last_closed;
     if is_close_delim s then close_delim ()
   end
 ;;
 
 let put_char c =
-  let save_last_closed = flags.last_closed in
   let c_blank = is_blank c in
   if c <> ' ' then begin
     let s = String.make 1 c in
@@ -374,7 +371,6 @@ let put_char c =
     end else begin
       do_put_char c;
     end;
-    if c_blank then flags.last_closed <- save_last_closed;
     if is_close_delim s then close_delim ();
   end
 ;;

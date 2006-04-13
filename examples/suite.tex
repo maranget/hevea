@@ -245,14 +245,14 @@ And here is the end of the test.
 \item Second.
 \begin{enumerate}
 \item Encore un.
-\begin{enumerate}
+\begin{enumerate}\label{dernierenum}
 \item \label{dernieritem}Et
 puis un autre, et là, pour \LaTeX{}, c'est le dernier.
 \end{enumerate}
 \end{enumerate}
 \end{enumerate}
 \end{enumerate}
-Le dernier item est~\ref{dernieritem}.
+Le dernier item est~\ref{dernieritem}. Et le dernier enumerate est~\ref{dernierenum}.
 \section{Arguments}
 Le i chapô sans espaces~: ``\^\i \^{\i }\^\i\^{\i}''
 
@@ -337,8 +337,8 @@ $$1 + a_{i+1} + \int^N_01/x dx + \frac{\partial x}{2}$$
 
 Mauvais espacement en mode display~:
 $$
-{C_N \over C_{N-1}} + \frac{C_{N+1}}{C_N} + \begin{array}{c}C_{N-2} \\
-\hline C_{N-1}\end{array} + 4 + \cdots + 5
+{C_N \over C_{N-1}} + \frac{C_{N+1}}{C_N} + \frac{C_{N-2}}{C_{N-1}}
++ 4 + \cdots + 5
 $$
 
 \section{Les fractions}
@@ -863,17 +863,18 @@ $$
 
 \newcounter{coucou}
 \renewcommand{\thecoucou}{\Alph{coucou}}
-\begin{list}{\thecoucou}{\renewcommand{\makelabel}[1]{\underline{#1}}\usecounter{coucou}}
+\begin{list}{\thecoucou}{\renewcommand{\makelabel}[1]{\underline{#1}}\usecounter{coucou}}\label{label-inside-list}
 \item Coucou
 \item Zobi\label{zob:under}
 \end{list}
+R\'ef\'erence~: \ref{label-inside-list}
 
 À comparer avec~:
-\begin{list}{\thecoucou}{\usecounter{coucou}}
+\begin{list}{\thecoucou}{\usecounter{coucou}}\label{zob:top}
 \item Coucou
 \item Zobi\label{zob:compare}
 \end{list}
-Avec les références \ref{zob:triv}, \ref{zob:under}
+Avec les références \ref{zob:top}, \ref{zob:triv}, \ref{zob:under}
 et~\ref{zob:compare}.
 
 \newenvironment{foo}{\begin{trivlist}\it\item[coucou]}{\end{trivlist}}

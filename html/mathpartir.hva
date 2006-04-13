@@ -37,10 +37,10 @@
 \let\latexcr\\
 %%mathpar
 %Example of fancy styles
-%\newstyle{TABLE.mathpar}{background-color:yellow;border-model:separate;border-spacing:2ex}
+%\newstyle{TABLE.mathpar}{background-color:yellow;border-collapse:separate;border-spacing:2ex}
 %\newstyle{TD.mprcell}{border-style:solid; border-color:green;}
 %%Actual styles
-\newstyle{TABLE.mathpar}{border-model:separate;border-spacing:0.5ex}
+\newstyle{TABLE.mathpar}{border-collapse:separate;border-spacing:0.5ex}
 \newstyle{TD.mprcell}{border-style:none;}
 \setenvclass{mathpar}{mathpar}
 \setenvclass{mprcell}{mprcell}

@@ -76,6 +76,7 @@
 \newcommand{\cutdef}[2][]{}
 \newcommand{\cutend}{}
 \newcommand{\cuthere}[2]{\@footnoteflush{#1}}
+\newcommand{\@secbegin}{}
 \newcommand{\@secend}{}
 \newenvironment{cutflow}[1]{}{}
 \newcommand{\cutname}[1]{}

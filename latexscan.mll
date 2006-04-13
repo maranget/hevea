@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.283 2006-04-04 08:45:11 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.284 2006-04-13 16:55:56 maranget Exp $ *)
 
 
 {
@@ -160,7 +160,7 @@ let new_env env =
   after := [] ;
   if !verbose > 1 then begin
     Location.print_pos () ;
-    Printf.fprintf stderr "Begin : %s <%d>" env (get_level ());
+    Printf.fprintf stderr "Begin : %s (%d)" env (get_level ());
     prerr_endline ""
   end
 
@@ -171,7 +171,7 @@ let error_env close_e open_e =
 
 let close_env env  =
   if !verbose > 1 then begin
-    Printf.fprintf stderr "End: %s <%d>" env (get_level ());
+    Printf.fprintf stderr "End: %s (%d)" env (get_level ());
     prerr_endline  ""
   end ;
   if env = !cur_env then begin  
@@ -361,7 +361,6 @@ let get_fun_result f lexbuf =
 
 let do_get_this start_lexstate restore_lexstate
     make_style  lexfun {arg=s ; subst=subst} =
-  let par_val = Dest.forget_par () in
   start_lexstate subst;
   if !verbose > 1 then
     prerr_endline ("get_this : '"^s^"'") ;  
@@ -375,13 +374,11 @@ let do_get_this start_lexstate restore_lexstate
     top_close_group () ;
     if !display then Dest.close_display ()) in
 
-  let _ = Dest.forget_par () in
   verbose := !verbose + 1 ;
   if !verbose > 1 then begin
     prerr_endline ("get_this '"^s^"' -> '"^r^"'")
   end ;
   restore_lexstate () ;
-  Dest.par par_val ;
   r
 
 let get_this_arg =
@@ -814,7 +811,7 @@ let rec expand_toks main = function
       expand_toks main rem ;
       scan_this main s
 
-let do_expand_command main skip_blanks name lexbuf =
+let rec do_expand_command main skip_blanks name lexbuf =
   if !verbose > 1 then begin
     Printf.fprintf stderr "expand_command: '%s'\n" name
   end ;
@@ -858,25 +855,23 @@ let do_expand_command main skip_blanks name lexbuf =
         | CamlCode f -> f lexbuf in
 
   let pat,body = Latexmacros.find name in
-  let par_before = Dest.forget_par () in
-  if
-    (if !in_math then Latexmacros.invisible name
-    else
-      not (effective !alltt) &&
-      is_subst body && last_letter name)
-  then begin
-    if !verbose > 2 then
-      prerr_endline ("skipping blanks ("^name^")");
-    skip_blanks lexbuf
-  end else begin
-    if !verbose > 2 then begin
-      prerr_endline ("not skipping blanks ("^name^")")
-    end
-  end ;
-  let par_after = Dest.forget_par () in
-  Dest.par par_before ;
+  let saw_par =
+    if
+      (if !in_math then Latexmacros.invisible name
+      else
+	not (effective !alltt) &&
+	is_subst body && last_letter name)
+    then begin
+      if !verbose > 2 then
+	prerr_endline ("skipping blanks ("^name^")");
+      skip_blanks lexbuf
+    end else begin
+      if !verbose > 2 then begin
+	prerr_endline ("not skipping blanks ("^name^")")
+      end ;
+      false
+  end in
   let args = make_stack name pat lexbuf in
-  let saw_par = !Save.seen_par in
   if (!verbose > 1) then begin
     prerr_endline
       ("Expanding macro "^name^" {"^(string_of_int !macro_depth)^"}") ;
@@ -887,10 +882,7 @@ let do_expand_command main skip_blanks name lexbuf =
     Printf.eprintf "Cont after macro «%s», display=%B\n" name !display ;
     macro_depth := !macro_depth - 1
   end ;
-  Dest.par par_after ;
-  if saw_par then begin
-    top_par (par_val !in_table)
-  end
+  if saw_par then do_expand_command main skip_blanks "\\par" lexbuf
 ;;
 
 let count_newlines s =
@@ -994,7 +986,7 @@ rule  main = parse
 	     Dest.open_maths dodo;
              top_open_display () ;
            end;
-           skip_blanks lb ; main lb in
+           ignore (skip_blanks lb) ; main lb in
          new_env math_env ;
          lexfun lexbuf
        end end}
@@ -1226,7 +1218,7 @@ and image = parse
     | "\\def" | "\\gdef" ->
         Save.start_echo () ;
         skip_csname lexbuf ;
-        skip_blanks lexbuf ;
+        ignore (skip_blanks lexbuf) ;
         let _ = Save.defargs lexbuf in
         Image.put lxm ;
         if (Lexstate.top_level()) then begin
@@ -1294,11 +1286,11 @@ and mbox_arg = parse
     {raise (Misc.ScanError "Cannot find a \\mbox argument here, use braces")}
 
 and no_skip = parse
-| "" {()}
+| "" { false }
 
 and skip_blanks_pop = parse
   ' '+ {skip_blanks_pop lexbuf}
-| '\n' {more_skip_pop lexbuf}
+| '\n' {()}
 | ""   {()}
 | eof
    {if not (empty stack_lexbuf) then begin
@@ -1308,19 +1300,6 @@ and skip_blanks_pop = parse
        pretty_lexbuf lexbuf
      end ;
      skip_blanks_pop lexbuf
-   end else ()}
-
-and more_skip_pop = parse
-  '\n'+ {top_par (par_val !in_table)}
-| ""    {skip_blanks_pop lexbuf}
-| eof
-   {if not (empty stack_lexbuf) then begin
-     let lexbuf = previous_lexbuf () in
-     if !verbose > 2 then begin
-       prerr_endline "Poping lexbuf in skip_blanks" ;
-       pretty_lexbuf lexbuf
-     end ;
-     more_skip_pop lexbuf
    end else ()}
 
 and to_newline = parse
@@ -1335,11 +1314,12 @@ and to_newline = parse
 and skip_blanks = parse
   ' '+ {skip_blanks lexbuf}
 | '\n' {more_skip lexbuf}
-| ""   {()}
+| ""   { false }
 
 and more_skip = parse
-  '\n'+ {top_par (par_val !in_table)}
-| ""    {skip_blanks lexbuf}
+| ' '+ { false }
+| (' '* '\n')+ ' '* { true }
+| "" { false }
 
 and skip_spaces = parse
   ' ' * {()}
@@ -1349,7 +1329,7 @@ and skip_spaces = parse
 and skip_false = parse
 |  '%'
      {if is_plain '%' then skip_comment lexbuf ;
-       skip_false lexbuf}
+      skip_false lexbuf}
 |  "\\ifthenelse"
      {skip_false lexbuf}
 |  "\\if" ['a'-'z' 'A'-'Z''@']+
@@ -1358,13 +1338,16 @@ and skip_false = parse
 | "\\else" ['a'-'z' 'A'-'Z''@']+
      {skip_false lexbuf}
 | "\\else"
-     {if !if_level = 0 then skip_blanks lexbuf
-     else skip_false lexbuf}
+     {if !if_level = 0 then begin
+       if skip_blanks lexbuf then
+	 do_expand_command main no_skip "\\par" lexbuf
+     end else skip_false lexbuf}
 | "\\fi" ['a'-'z' 'A'-'Z']+
      {skip_false lexbuf}
 | "\\fi"
      {if !if_level = 0 then begin
-        skip_blanks lexbuf
+        if skip_blanks lexbuf then
+	  do_expand_command main no_skip "\\par" lexbuf
      end else begin
        if_level := !if_level -1 ;
        skip_false lexbuf
@@ -1374,19 +1357,19 @@ and skip_false = parse
 
 and comment = parse
 |  ['%'' ']* ("BEGIN"|"begin") ' '+ ("IMAGE"|"image")
-    {skip_comment lexbuf ; start_image_scan "" image lexbuf}
+    {skip_comment lexbuf ; start_image_scan "" image lexbuf ; () }
 (* Backward compatibility with latex2html *)
 | [ ' ' '\t' ] * "\\begin{latexonly}"
-    {latex2html_latexonly lexbuf}
+    {latex2html_latexonly lexbuf }
 | ['%'' ']* ("HEVEA"|"hevea") ' '*
-   {()}
+   { () }
 | ['%'' ']* ("BEGIN"|"begin") ' '+ ("LATEX"|"latex")
-    {skip_to_end_latex lexbuf}
+    { skip_to_end_latex lexbuf}
 | ""
-    {skip_comment lexbuf ; more_skip lexbuf}
+    { skip_comment lexbuf }
 
 and skip_comment = parse    
-|  [^ '\n']* ('\n'|eof)
+|  [^ '\n']*
    {if !verbose > 1 then
      prerr_endline ("Comment:"^lexeme lexbuf) ;
    if !flushing then Dest.flush_out () }
@@ -1411,7 +1394,10 @@ def "\\framebox" (latex_pat ["" ; ""] 3)
 
 
 let check_alltt_skip lexbuf =
-  if not (effective !alltt) then skip_blanks lexbuf
+  if not (effective !alltt) then begin
+    if skip_blanks lexbuf then
+      do_expand_command main no_skip "\\par" lexbuf
+  end
 
 and skip_pop lexbuf =
   save_lexstate () ;
@@ -1435,7 +1421,9 @@ def_code "\\@hevea@percent"
         Dest.put lxm ;
         main lexbuf
       end else begin
-        comment lexbuf
+	comment lexbuf ;
+        if skip_blanks lexbuf then
+	  do_expand_command main no_skip "\\par" lexbuf
       end)
 ;;
 
@@ -1593,7 +1581,6 @@ let check_this_main s =
   if !verbose > 1 then
     prerr_endline ("check_this: '"^s^"'");
   start_normal (get_subst ()) ;
-  let save_par = Dest.forget_par () in
   Dest.open_block "TEMP" "";
   let r =
     try
@@ -1602,7 +1589,6 @@ let check_this_main s =
     with
     |  x -> false in
   Dest.erase_block "TEMP" ;
-  Dest.par save_par ;
   end_normal () ;
   if !verbose > 1 then
     prerr_endline ("check_this: '"^s^"' = "^sbool r);
@@ -1672,15 +1658,17 @@ def_code "\\unskip"
       check_alltt_skip lexbuf)
 ;;
 
-def_code "\\par"
+def_code "\\hva@par"
   (fun lexbuf ->
-    match par_val !in_table with
-    | None ->
-        Dest.put_char ' ' ;
-        check_alltt_skip lexbuf
-    | pval ->
-        top_par pval ;
-        check_alltt_skip lexbuf)
+    if !display || !in_math then begin
+      warning "\\par in display or math mode"
+    end else begin match par_val !in_table with
+      | None ->
+          Dest.put_char ' '
+      | pval ->
+          top_par pval
+    end ;
+    check_alltt_skip lexbuf)
 
 ;;
 
@@ -2016,7 +2004,7 @@ def_code "\\execafter"
 
 def_code "\\csname"
   (fun lexbuf ->
-    skip_blanks lexbuf ;
+    ignore (skip_blanks lexbuf) ;
     let name = "\\"^get_prim (Save.incsname lexbuf) in
     check_alltt_skip lexbuf ;
     expand_command name lexbuf)
@@ -2127,7 +2115,7 @@ def_code "\\over"
    (fun lexbuf ->
      if !display then  Dest.over lexbuf
      else Dest.put_char '/' ;
-     skip_blanks lexbuf)
+     ignore (skip_blanks lexbuf))
 ;;
 
 def_code "\\MakeUppercase"
@@ -2196,6 +2184,17 @@ def_code "\\@close"
     let tag = get_prim_arg  lexbuf in
 (*    Printf.eprintf "\\@close{%s}\n" tag ; *)
     top_close_block tag)
+;;
+
+def_code "\\@close@par"
+  (fun lexbuf ->
+    Dest.close_par () ;
+    check_alltt_skip lexbuf) ;
+
+def_code "\\@open@par"
+  (fun lexbuf ->
+    Dest.open_par () ;
+    check_alltt_skip lexbuf)    
 ;;
 
 def_code "\\@force"
@@ -2376,8 +2375,7 @@ def_code "\\usecounter"
   (fun lexbuf ->
     let arg = get_prim_arg lexbuf in
     Counter.set_counter arg 0 ;
-    scan_this main ("\\let\\@currentlabel\\the"^arg) ;
-    Dest.set_dcount arg )
+    Dest.set_dcount arg)
 ;;
 def_code "\\@fromlib"
   (fun lexbuf ->
@@ -2456,15 +2454,11 @@ let newif_ref name cell =
 
 let newif lexbuf =
   let arg = get_csname lexbuf in
-  let saw_par = !Save.seen_par  in
   begin try
     let name = extract_if arg in
     let cell = ref false in
     newif_ref name cell ;
   with Latexmacros.Failed -> ()
-  end ;
-  if saw_par then begin
-    top_par (par_val !in_table)
   end
 ;;
 
@@ -3037,6 +3031,7 @@ def_code "\\warning"
 
 (* spacing *)
 
+(*
 let stack_closed = Stack.create "stack_closed"
 ;;
 
@@ -3051,7 +3046,7 @@ def_code "\\@restoreclosed"
     Dest.set_last_closed (pop stack_closed) ;
     check_alltt_skip lexbuf)
 ;;
-    
+*)    
 exception Cannot
 ;;
 

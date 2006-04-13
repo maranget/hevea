@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: html.ml,v 1.98 2006-04-04 08:45:11 maranget Exp $" 
+let header = "$Id: html.ml,v 1.99 2006-04-13 16:55:56 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -36,11 +36,11 @@ let
   end_item_display,
   force_item_display,
   item_display,
-  close_display,
-  open_display_varg,
-  open_display,
-  close_maths,
-  open_maths, 
+  do_close_display,
+  do_open_display_varg,
+  do_open_display,
+  do_close_maths,
+  do_open_maths, 
   put_in_math,
   math_put,
   math_put_char,
@@ -102,22 +102,18 @@ let
 
 
 let set_out out =  !cur_out.out <- out
+
 and stop () =
   Stack.push stacks.s_active !cur_out.out ;
-  Stack.push stacks.s_pending_par flags.pending_par ;
-  !cur_out.out <- Out.create_null () ;
-  flags.pending_par <- None
+  !cur_out.out <- Out.create_null ()
 
 and restart () =
-  !cur_out.out <- Stack.pop stacks.s_active ;
-  flags.pending_par <- Stack.pop stacks.s_pending_par
+  !cur_out.out <- Stack.pop stacks.s_active
 ;;
 
 
 (* acces to flags *)
 let is_empty () = flags.empty
-and get_last_closed () = flags.last_closed
-and set_last_closed s = flags.last_closed <- s
 ;;
 
     
@@ -152,60 +148,6 @@ let put_unicode i = match i with
     put (Printf.sprintf "&#X%X;" i)
 ;;
 
-let set_dt s = flags.dt <- s
-and set_dcount s = flags.dcount <- s
-;;
-
-(*********************************************
-*  Allows things like <LI CLASS=li-itemize>  *
-*********************************************)
-
-let item s =
-  if !verbose > 2 then begin
-    prerr_string "item: stack=" ;
-    pretty_stack out_stack
-  end ;
-  let mods = all_to_pending !cur_out in
-  clearstyle () ;
-  !cur_out.pending <- mods ;
-  let saved =
-    if flags.nitems = 0 then begin
-      let _ = forget_par () in () ;
-      Out.to_string !cur_out.out
-    end else  "" in
-  flags.nitems <- flags.nitems+1;
-  try_flush_par Now ;
-  do_put ("<LI "^s^">") ;
-  do_put saved
-
-let nitem = item
-
-let ditem scan arg s1 s2 =
-  if !verbose > 2 then begin
-    Printf.eprintf "DITEM: «%s» «%s» «%s»\n" arg s1 s2 ;
-    prerr_string "ditem: stack=" ;
-    pretty_stack out_stack
-  end ;
-  let mods = all_to_pending !cur_out in
-  clearstyle () ;
-  !cur_out.pending <- mods ;
-  let true_scan =
-    if flags.nitems = 0 then begin
-      let _ = forget_par () in () ;
-      let saved = Out.to_string !cur_out.out in
-      (fun arg -> do_put saved ; scan arg)
-    end else scan in
-  try_flush_par Now ;
-  do_put ("<DT "^s1^">") ;
-  !cur_out.pending <- mods ;
-  flags.nitems <- flags.nitems+1;
-  open_block INTERN "" ;
-  if flags.dcount <> "" then scan ("\\refstepcounter{"^ flags.dcount^"}") ;
-  true_scan ("\\makelabel{"^arg^"}") ;
-  close_block INTERN ;
-  do_put ("<DD "^s2^">")
-;;
-
 let loc_name _ = ()
 
   
@@ -226,7 +168,6 @@ let close_chan () =
 
 let to_style f =
   let old_flags = copy_flags flags in
-  let _ = forget_par () in
   open_block INTERN "" ;
   clearstyle () ;
   f () ;
@@ -288,6 +229,233 @@ let put_close_group () =
 ;;
 
 
+let infomenu _ = ()
+and infonode _opt _num _arg = ()
+and infoextranode _num _arg _text = ()
+;;
+
+
+let image arg n = 
+  if flags.in_pre && !Parse_opts.pedantic then begin
+    warning "Image tag inside preformatted block, ignored"
+  end else begin
+    put "<IMG " ;
+    if arg <> "" then begin
+      put arg;
+      put_char ' '
+    end ;
+    put "SRC=\"" ;
+    put n ;
+    if !Parse_opts.pedantic then begin
+      put "\" ALT=\"" ;
+      put n
+    end ;
+    put "\">"
+  end
+;;
+
+type saved = HtmlCommon.saved
+
+let check = HtmlCommon.check
+and hot = HtmlCommon.hot
+
+let forget_par () = None
+
+let rec do_open_par () = match pblock () with
+| GROUP ->
+    let pending = to_pending !cur_out.pending !cur_out.active in
+    let a,b,_ = top_out out_stack in
+    ignore (close_block_loc check_empty GROUP) ;
+    do_open_par () ;
+    open_block a b ;
+    !cur_out.pending <- pending
+| P ->
+    Misc.warning "Opening P twice" (* An error in fact ! *)
+| s ->
+    if !verbose > 2 then
+      Printf.eprintf "Opening par below: '%s'\n" (string_of_block s) ;
+    open_block P ""
+    
+let open_par () = do_open_par ()
+
+let rec do_close_par () = match pblock () with
+| GROUP ->
+    let pending = to_pending !cur_out.pending !cur_out.active in
+    let a,b,_ = top_out out_stack in
+    ignore (close_block_loc check_empty GROUP) ;
+    let r = do_close_par () in
+    open_block a b ;
+    !cur_out.pending <- pending ;
+    r
+| P ->
+    ignore (close_flow_loc check_blank P) ;
+    true
+| s ->
+    false
+
+
+let close_par () = ignore (do_close_par ())
+
+(* Find P, maybe above groups *)
+let rec find_prev_par () = match pblock () with
+| P -> true
+| GROUP ->
+    let x = pop_out out_stack in
+    let r = find_prev_par () in
+    push_out out_stack x ;
+    r
+| _ -> false
+
+let rec do_close_prev_par () = match pblock () with
+| P ->
+    ignore (close_flow_loc check_blank P)
+| GROUP ->
+    let pending = to_pending !cur_out.pending !cur_out.active in
+    let b,a,_ = top_out out_stack in
+    ignore (close_block_loc check_empty GROUP) ;
+    do_close_prev_par () ;
+    open_block b a ;
+    !cur_out.pending <- pending
+| _ -> assert false
+
+let close_prev_par () =
+  do_close_prev_par () ;
+  flags.saw_par <- true
+
+let rec do_par () = match pblock () with
+| P ->
+    ignore (close_flow_loc check_blank P) ; open_block P ""
+| GROUP ->
+    let pending = to_pending !cur_out.pending !cur_out.active in
+    let b,a,_ = top_out out_stack in
+    ignore (close_block_loc check_empty GROUP) ;
+    do_par () ;
+    open_block b a ;
+    !cur_out.pending <- pending
+| s ->
+    if !verbose > 2 then
+      Printf.eprintf "Opening par below: '%s'\n" (string_of_block s) ;
+    open_block P ""
+    
+let par _ = do_par ()
+
+(* Interface open block: manage par above *)    
+let open_block_loc = open_block (* save a reference to basic open_block *)
+
+let open_block_with_par ss s a =
+  if transmit_par s && find_prev_par () then begin
+    if !verbose > 2 then begin
+      Printf.eprintf "OPEN: %s, closing par\n" ss ;
+      Printf.eprintf "BEFORE: " ;
+      pretty_stack out_stack
+    end ;
+    close_prev_par () ;
+    if !verbose > 2 then begin
+      Printf.eprintf "AFTER: " ;
+      pretty_stack out_stack
+    end
+  end ;  
+  open_block_loc s a
+
+let open_block ss a = open_block_with_par ss (find_block ss) a
+
+let open_display () =
+  if find_prev_par () then begin
+    close_prev_par ()
+  end ;
+  do_open_display ()
+
+and open_display_varg a =
+  if find_prev_par () then begin
+    close_prev_par ()
+  end ;
+  do_open_display_varg a
+
+and close_display () =
+  do_close_display () ;
+  if flags.saw_par then begin
+    flags.saw_par <- false ;
+    open_par () 
+  end
+
+let open_maths display =
+  if display && find_prev_par () then begin
+    close_prev_par ()
+  end ;
+  do_open_maths display
+
+and close_maths display =
+  do_close_maths display ;
+  if flags.saw_par then begin
+    flags.saw_par <- false ;
+    open_par ()
+  end
+
+
+let close_block_common = close_block
+
+let wrap_close close_block s =
+  let s = find_block s in
+  begin match s with GROUP -> () | _ -> close_par () end ;
+  begin match s with
+  | UL|OL ->
+      close_block LI
+  | DL ->
+      close_block DD
+  | _ -> ()
+  end ;
+  close_block s ;
+  if flags.saw_par then begin
+    flags.saw_par <- false ;
+    if !verbose > 2 then begin
+      Misc.warning "RE-OPEN PAR:" ;
+      Printf.eprintf "BEFORE: " ;
+      pretty_stack out_stack
+    end ;
+    open_par () ;
+    if !verbose > 2 then begin
+      Printf.eprintf "AFTER: " ;
+      pretty_stack out_stack
+    end
+  end
+
+let erase_block_common = erase_block (* save it for later use *)
+and close_block_common = close_block
+
+let force_block_with_par s content =
+  close_par () ;
+  force_block s content
+
+and close_block_with_par s =
+  close_par () ;
+  close_block s
+
+and erase_block_with_par s =
+  close_par () ;
+  erase_block s
+
+and force_block s content = wrap_close (fun s -> force_block s content) s
+and close_block s = wrap_close close_block s
+and erase_block s = wrap_close erase_block s
+
+let skip_line = skip_line
+and flush_out = flush_out
+and close_group = close_group
+and open_aftergroup = open_aftergroup
+and open_group = open_group
+and insert_block s = insert_block (find_block s)
+and insert_attr s = insert_attr (find_block s)
+and erase_mods = erase_mods
+and open_mod = open_mod
+and clearstyle = clearstyle
+and nostyle = nostyle
+and get_fontsize = get_fontsize
+and to_string = to_string
+;;
+
+(****************************************)
+(* Table stuff, must take P into acount *)
+(****************************************)
 
 let open_table border htmlargs =
   let _,arg_b, arg =
@@ -295,14 +463,15 @@ let open_table border htmlargs =
       "mtable","frame = \"solid\"",""
     else "TABLE","BORDER=1",htmlargs
   in
-  if border then open_block TABLE (arg_b^" "^arg)
-  else open_block TABLE arg
+  (* open_block will close P (and record that) if appropriate *)
+  if border then open_block_with_par "TABLE" TABLE (arg_b^" "^arg)
+  else open_block_with_par "TABLE" TABLE arg
 ;;
 
 let new_row () =
   if flags.in_math && !Parse_opts.mathml then
-    open_block (OTHER "mtr") ""
-  else open_block TR ""
+    open_block_loc (OTHER "mtr") ""
+  else open_block_loc TR ""
 ;;
 
 
@@ -338,52 +507,63 @@ let as_align_mathml f span = match f with
 
 let open_direct_cell attrs span =
   if flags.in_math && !Parse_opts.mathml then begin
-    open_block (OTHER "mtd") (attrs^as_colspan_mathml span);
-    open_display ()
-  end else open_block TD (attrs^as_colspan span)
+    open_block_loc (OTHER "mtd") (attrs^as_colspan_mathml span);
+    do_open_display ()
+  end else open_block_loc TD (attrs^as_colspan span)
 
 let open_cell format span _= 
   if flags.in_math && !Parse_opts.mathml then begin
-    open_block (OTHER "mtd") (as_align_mathml format span);
-    open_display ()
-  end else open_block TD (as_align format span)
+    open_block_loc (OTHER "mtd") (as_align_mathml format span);
+    do_open_display ()
+  end else open_block_loc TD (as_align format span)
 ;;
 
+(* By contrast closing/erasing TD, may in some occasions
+   implies closing some internal P => use wrapped close functions *)
 let erase_cell () =  
   if flags.in_math && !Parse_opts.mathml then begin
     erase_display ();
-    erase_block (OTHER "mtd")
-  end else erase_block TD
+    erase_block_with_par (OTHER "mtd")
+  end else erase_block_with_par TD
+
 and close_cell content = 
   if flags.in_math && !Parse_opts.mathml then begin
-    close_display ();
-    force_block (OTHER "mtd") ""
-  end else force_block TD content
+    do_close_display ();
+    force_block_with_par (OTHER "mtd") ""
+  end else force_block_with_par TD content
+
 and do_close_cell () = 
     if flags.in_math && !Parse_opts.mathml then begin
-      close_display ();
-      close_block (OTHER "mtd")
-    end else close_block TD
+      do_close_display ();
+      close_block_with_par (OTHER "mtd")
+    end else close_block_with_par TD
+
 and open_cell_group () = open_group ""
 and close_cell_group () = close_group ()
-and erase_cell_group () = erase_block GROUP
+and erase_cell_group () = erase_group ()
 ;;
 
 
 let erase_row () = 
   if flags.in_math && !Parse_opts.mathml then
-    erase_block (OTHER "mtr")
-  else erase_block TR
+    erase_block_common (OTHER "mtr")
+  else erase_block_common TR
+
 and close_row () = 
   if flags.in_math && !Parse_opts.mathml then
-    close_block (OTHER "mtr")
-  else close_block TR
+    close_block_common (OTHER "mtr")
+  else close_block_common TR
 ;;
 
 let close_table () = 
-  if flags.in_math && !Parse_opts.mathml then
-    close_block (OTHER "mtable")
-  else close_block TABLE
+  begin if flags.in_math && !Parse_opts.mathml then
+    close_block_common (OTHER "mtable")
+  else close_block_common TABLE
+  end ;
+  if flags.saw_par then begin
+    flags.saw_par <- false ;
+    open_par ()
+  end
 ;;
 
 let make_border _ = ()
@@ -429,54 +609,122 @@ let make_hline w noborder =
   end
 ;;
 
-let infomenu _ = ()
-and infonode _opt _num _arg = ()
-and infoextranode _num _arg _text = ()
-;;
-
-
-let image arg n = 
-  if flags.in_pre && !Parse_opts.pedantic then begin
-    warning "Image tag inside preformatted block, ignored"
-  end else begin
-    put "<IMG " ;
-    if arg <> "" then begin
-      put arg;
-      put_char ' '
-    end ;
-    put "SRC=\"" ;
-    put n ;
-    if !Parse_opts.pedantic then begin
-      put "\" ALT=\"" ;
-      put n
-    end ;
-    put "\">"
+(* HR is not correct inside P *)
+let horizontal_line attr width height =
+  if find_prev_par () then begin
+    close_prev_par ()
+  end ;
+  horizontal_line attr width height ;
+  if flags.saw_par then begin
+    flags.saw_par <- false ;
+    open_par ()
   end
+
+(* Lists also have to take P into account *)
+let rec do_li s = match pblock () with
+| P ->
+    let pend = to_pending !cur_out.pending !cur_out.active in
+    ignore (close_flow_loc check_blank P) ;
+    do_li s ;
+    !cur_out.pending <- pend
+| LI ->
+    ignore (close_flow_loc no_check LI) ;
+    open_block_loc LI s
+| GROUP ->
+    let pend = to_pending !cur_out.pending !cur_out.active in
+    let a,b,_ = top_out out_stack in
+    ignore (close_block_loc check_empty GROUP) ;
+    do_li s ;
+    open_block_loc a b ;
+    !cur_out.pending <- pend
+| _ -> assert false    
+    
+    
+  
+let item s =
+  if !verbose > 2 then begin
+    prerr_string "=> item: stack=" ;
+    pretty_stack out_stack
+  end ;
+  if flags.nitems > 0 then begin
+    do_li s
+  end else begin
+    let saved =
+      let pending = to_pending !cur_out.pending !cur_out.active in
+      do_close_mods () ; close_par () ;
+      let r = Out.to_string !cur_out.out in
+      !cur_out.pending <- pending ;
+      r in
+    open_block_loc LI s ;
+    do_put saved
+  end ;
+  if !verbose > 2 then begin
+    prerr_string "<= item: stack=" ;
+    pretty_stack out_stack
+  end ;  
+  flags.nitems <- flags.nitems+1
+
+let nitem = item
+
+let set_dt s = flags.dt <- s
+and set_dcount s = flags.dcount <- s
 ;;
 
-type saved = HtmlCommon.saved
+(*********************************************
+*  Allows things like <LI CLASS=li-itemize>  *
+*********************************************)
 
-let check = HtmlCommon.check
-and hot = HtmlCommon.hot
+let emit_dt_dd scan true_scan arg s1 s2 =
+  open_block_loc DT s1 ;
+  if flags.dcount <> "" then scan ("\\refstepcounter{"^ flags.dcount^"}") ;
+  true_scan ("\\makelabel{"^arg^"}") ;
+  ignore (close_block_loc no_check DT) ;
+  open_block_loc DD s2
+    
+  
+let rec do_dt_dd scan true_scan arg s1 s2 = match pblock () with
+| P ->
+    let pend = to_pending !cur_out.pending !cur_out.active in
+    ignore (close_flow_loc check_blank P) ;
+    do_dt_dd scan true_scan arg s1 s2  ;
+    !cur_out.pending <- pend
+| DD ->
+    ignore (close_flow_loc no_check DD) ;
+    emit_dt_dd scan true_scan arg s1 s2
+| GROUP ->
+    let pend = to_pending !cur_out.pending !cur_out.active in
+    let a,b,_ = top_out out_stack in
+    ignore (close_block_loc check_empty GROUP) ;
+    do_dt_dd scan true_scan arg s1 s2 ;
+    open_block_loc a b ;
+    !cur_out.pending <- pend
+| _ -> assert false    
+    
+let ditem scan arg s1 s2 =
+  if !verbose > 2 then begin
+    Printf.eprintf "=> DITEM: «%s» «%s» «%s»\n" arg s1 s2 ;
+    prerr_string "ditem: stack=" ;
+    pretty_stack out_stack
+  end ;
+  let true_scan =
+    if flags.nitems = 0 then begin
+      let pending = to_pending !cur_out.pending !cur_out.active in
+      do_close_mods () ;
+      let saved = Out.to_string !cur_out.out in
+      !cur_out.pending <- pending ;
+      (fun arg -> do_put saved ; scan arg)
+    end
+    else scan in
+  begin if flags.nitems > 0 then
+    do_dt_dd scan true_scan arg s1 s2
+  else
+    emit_dt_dd scan true_scan arg s1 s2
+  end ;
+  flags.nitems <- flags.nitems+1 ;
+  if !verbose > 2 then begin
+    Printf.eprintf "<= DITEM: «%s» «%s» «%s»\n" arg s1 s2 ;
+    prerr_string "ditem: stack=" ;
+    pretty_stack out_stack
+  end ;
 
-let skip_line = skip_line
-and flush_out = flush_out
-and close_group = close_group
-and open_aftergroup = open_aftergroup
-and open_group = open_group
-and erase_block s = erase_block (find_block s)
-and insert_block s = insert_block (find_block s)
-and insert_attr s = insert_attr (find_block s)
-and force_block s = force_block (find_block s)
-and close_block s = close_block (find_block s)
-and open_block s = open_block (find_block s)
-and forget_par = forget_par
-and par = par
-and erase_mods = erase_mods
-and open_mod = open_mod
-and clearstyle = clearstyle
-and nostyle = nostyle
-and get_fontsize = get_fontsize
-and horizontal_line = horizontal_line
-and to_string = to_string
-;;
+
