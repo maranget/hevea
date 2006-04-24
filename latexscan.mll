@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.284 2006-04-13 16:55:56 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.285 2006-04-24 16:14:51 maranget Exp $ *)
 
 
 {
@@ -2186,15 +2186,23 @@ def_code "\\@close"
     top_close_block tag)
 ;;
 
+(* Paragraphs, used for closing/re-opening P elts explictely *)
 def_code "\\@close@par"
   (fun lexbuf ->
-    Dest.close_par () ;
+    ignore (Dest.close_par ()) ;
     check_alltt_skip lexbuf) ;
-
 def_code "\\@open@par"
   (fun lexbuf ->
     Dest.open_par () ;
-    check_alltt_skip lexbuf)    
+    check_alltt_skip lexbuf) ;
+(* Some material (eg hacha directives) must appear outside P *)
+def_code "\\@out@par"
+  (fun lexbuf ->
+    let arg = save_arg lexbuf in
+    let have_closed = Dest.close_par () in
+    scan_this_arg main arg ;
+    if have_closed then Dest.open_par ()) ;
+()
 ;;
 
 def_code "\\@force"

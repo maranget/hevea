@@ -34,7 +34,8 @@
 {\figcut@caption{#1}{#2}}\usebox{\figcut@caption@box}}
 \newcommand{\figcut@show}[1]
 {\@hr{.5\linewidth}{1pt}%
-\begin{center}\renewcommand{\label}[1]{}%
+\begin{center}%
+\renewcommand{\label}[1]{}\renewcommand{\aname}[2]{##2}%
 \fig@locref{\current@figlabel}
 {\csname#1name\endcsname~\csname the#1\endcsname}: \figcut@caption@text%
 \end{center}%
@@ -44,7 +45,7 @@
 \newenvironment{figcut@myfig}[1][]
   {\begin{lrbox}{\figcut@figure@box}\let\label\figlabel\begin{figcut@figure}[]}
   {\end{figcut@figure}\end{lrbox}%
-  \begin{cutflow}{\usebox{\figcut@caption@box}}\usebox{\figcut@figure@box}\end{cutflow}%
+  \begin{cutflow}{\usebox{\figcut@caption@box}}\@out@par{\usebox{\figcut@figure@box}}\end{cutflow}%
 \iffigcut@show\figcut@show{figure}\fi}
 \let\figure\figcut@myfig
 \let\endfigure\endfigcut@myfig
@@ -54,9 +55,10 @@
 \newenvironment{figcut@mytab}[1][]
   {\begin{lrbox}{\figcut@figure@box}\let\label\figlabel\begin{figcut@table}[]}
   {\end{figcut@table}\end{lrbox}%
-  \begin{cutflow}{\usebox{\figcut@caption@box}}\usebox{\figcut@figure@box}\end{cutflow}%
+  \begin{cutflow}{\usebox{\figcut@caption@box}}\@out@par{\usebox{\figcut@figure@box}}\end{cutflow}%
 \iffigcut@show\figcut@show{table}\fi}
 \let\table\figcut@mytab
 \let\endtable\endfigcut@mytab
 \let\table*\figcut@mytab
 \let\endtable*\endfigcut@mytab
+\EndPackage

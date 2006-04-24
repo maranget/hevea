@@ -23,7 +23,7 @@ val clearstyle : unit -> unit
 val open_mod : Element.text -> unit
 val erase_mods : Element.text list -> unit
 val forget_par : unit -> int option
-val close_par : unit -> unit
+val close_par : unit -> bool
 val open_par : unit -> unit
 val par : int option -> unit
 val open_block : string -> string -> unit

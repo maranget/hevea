@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: html.ml,v 1.99 2006-04-13 16:55:56 maranget Exp $" 
+let header = "$Id: html.ml,v 1.100 2006-04-24 16:14:51 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -294,7 +294,7 @@ let rec do_close_par () = match pblock () with
     false
 
 
-let close_par () = ignore (do_close_par ())
+let close_par () = do_close_par ()
 
 (* Find P, maybe above groups *)
 let rec find_prev_par () = match pblock () with
@@ -392,11 +392,9 @@ and close_maths display =
   end
 
 
-let close_block_common = close_block
-
 let wrap_close close_block s =
   let s = find_block s in
-  begin match s with GROUP -> () | _ -> close_par () end ;
+  begin match s with GROUP -> () | _ -> ignore (close_par ()) end ;
   begin match s with
   | UL|OL ->
       close_block LI
@@ -419,19 +417,16 @@ let wrap_close close_block s =
     end
   end
 
-let erase_block_common = erase_block (* save it for later use *)
-and close_block_common = close_block
-
 let force_block_with_par s content =
-  close_par () ;
+  ignore (close_par ()) ;
   force_block s content
 
 and close_block_with_par s =
-  close_par () ;
+  ignore (close_par ()) ;
   close_block s
 
 and erase_block_with_par s =
-  close_par () ;
+  ignore (close_par ()) ;
   erase_block s
 
 and force_block s content = wrap_close (fun s -> force_block s content) s
@@ -546,19 +541,19 @@ and erase_cell_group () = erase_group ()
 
 let erase_row () = 
   if flags.in_math && !Parse_opts.mathml then
-    erase_block_common (OTHER "mtr")
-  else erase_block_common TR
+    HtmlCommon.erase_block (OTHER "mtr")
+  else HtmlCommon.erase_block TR
 
 and close_row () = 
   if flags.in_math && !Parse_opts.mathml then
-    close_block_common (OTHER "mtr")
-  else close_block_common TR
+    HtmlCommon.close_block (OTHER "mtr")
+  else HtmlCommon.close_block TR
 ;;
 
 let close_table () = 
   begin if flags.in_math && !Parse_opts.mathml then
-    close_block_common (OTHER "mtable")
-  else close_block_common TABLE
+    HtmlCommon.close_block (OTHER "mtable")
+  else HtmlCommon.close_block TABLE
   end ;
   if flags.saw_par then begin
     flags.saw_par <- false ;
@@ -651,7 +646,7 @@ let item s =
   end else begin
     let saved =
       let pending = to_pending !cur_out.pending !cur_out.active in
-      do_close_mods () ; close_par () ;
+      do_close_mods () ; ignore (close_par ()) ;
       let r = Out.to_string !cur_out.out in
       !cur_out.pending <- pending ;
       r in
@@ -670,9 +665,9 @@ let set_dt s = flags.dt <- s
 and set_dcount s = flags.dcount <- s
 ;;
 
-(*********************************************
-*  Allows things like <LI CLASS=li-itemize>  *
-*********************************************)
+(*********************************************)
+(*  Allows things like <LI CLASS=li-itemize> *)
+(*********************************************)
 
 let emit_dt_dd scan true_scan arg s1 s2 =
   open_block_loc DT s1 ;

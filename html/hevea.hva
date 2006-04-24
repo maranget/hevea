@@ -108,28 +108,27 @@
 \newcounter{cuttingdepth}
 \setcounter{cuttingdepth}{1}
 \newcommand{\cutdef}[2][]{%
-\@close@par{\@nostyle\@print{<!--CUT DEF }#2\@print{ }#1\@print{ -->
-}}\@open@par}%
+\@out@par{{\@nostyle\@print{<!--CUT DEF }#2\@print{ }#1\@print{ -->}}}}
 \newcommand{\cutend}{%
-\@close@par{\@nostyle\@print{<!--CUT END -->
-}}\@open@par}
+\@out@par{{\@nostyle\@print{<!--CUT END -->
+}}}}
 %%%Close/Re-open toplevel pars
 \newcommand{\@secbegin}{\@close@par}
 \newcommand{\@secend}{{\@nostyle\@print{<!--SEC END -->}}\@open@par}
 \newcommand{\cuthere}[2]{%
 \@footnoteflush{#1}%
-{\@nostyle\@print{<!--TOC }\@getprint{#1}\@print{ }}%
+{\@out@par{{\@nostyle\@print{<!--TOC }\@getprint{#1}\@print{ }}%
 \begin{@norefs}#2\end{@norefs}{\@nostyle\@print{-->
-}}}
+}}}}}
 \newcommand{\@hacha@arg}[2]
-  {{\@nostyle\@print{<ARG }\@getprint{#1}\@print{>}{#2}\@print{</ARG>}}}
+{{\@nostyle\@print{<ARG }\@getprint{#1}\@print{>}{#2}\@print{</ARG>}}}
 \newenvironment{cutflow}[1]
-  {\@printnostyle{<!--FLOW }%
-  \@hacha@arg{TITLE}{#1}%
-  \@printnostyle{-->
-}}
-{\@printnostyle{<!--END FLOW-->
-}}
+{\@out@par{\@printnostyle{<!--FLOW }%
+\@hacha@arg{TITLE}{#1}%
+\@printnostyle{-->
+}}}
+{\@out@par{\@printnostyle{<!--END FLOW-->
+}}}
 \newcommand{\cutname}[1]
   {{\@nostyle\@print{<!--NAME }\@getprint{#1}\@print{-->
 }}}
