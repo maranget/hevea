@@ -9,21 +9,19 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: counter.ml,v 1.10 2000-01-19 20:10:59 maranget Exp $" 
+let header = "$Id: counter.ml,v 1.11 2006-04-24 14:01:16 maranget Exp $" 
 type t_counter =
     {mutable count : int ;
-    mutable within : t_counter option ;
     mutable related : t_counter list}
 
-let mk_bidon () = {count = 0 ; within = None ; related = []}
+let mk_bidon () = {count = 0 ; related = []}
 
 type t_checked =
     {cname : string ;
     cvalue : int ;
-    cwithin : int option ;
     crelated : int list} 
 
-let cbidon = {cname = "" ; cvalue = (-1) ; cwithin = None ; crelated = []}
+let cbidon = {cname = "" ; cvalue = (-1) ; crelated = []}
 
 let ctable = (Hashtbl.create 19 : (string,t_counter) Hashtbl.t);;
 
@@ -33,12 +31,6 @@ type saved =  t_checked array
 let prerr_cc check_ctable cc =
   prerr_endline ("counter: "^cc.cname) ;
   prerr_endline ("\tvalue = "^string_of_int cc.cvalue) ;
-  prerr_endline
-    ("\twithin = "^
-     begin match cc.cwithin with
-     | None -> "None"
-     | Some j -> (check_ctable).(j).cname
-     end) ;
   prerr_string "\trelated =" ;
   List.iter
     (fun j ->
@@ -71,15 +63,10 @@ let checkpoint () =
   let t = Array.create !count cbidon in
 
   RevHash.iter
-    (fun {count = value ; within = within ; related = related} (name, i) ->
+    (fun {count = value ; related = related} (name, i) ->
       t.(i) <-
          {cname = name ;
          cvalue = value ;
-         cwithin =
-           begin match within with
-           | None -> None
-           | Some c -> Some (to_int c)
-           end ;
         crelated = List.map to_int related})
     rev_table ;
   t
@@ -94,11 +81,8 @@ and hot_start check_ctable =
     with
     | Not_found ->
         let c =
-          {count = cc.cvalue ; within = None ; related = []} in
+          {count = cc.cvalue ; related = []} in
         Hashtbl.add ctable cc.cname c;
-        c.within <- begin match cc.cwithin with
-          | None -> None
-          | Some j -> Some (create_rec j) end ;
         c.related <- List.map create_rec cc.crelated ;
         if !Misc.verbose > 1 then begin 
           prerr_string "Restored " ;
@@ -137,29 +121,13 @@ let def_counter name within =
         with Not_found -> begin
           unkown within ("\\newcounter{"^name^"}["^within^"]") ;
           None end in
-      let c = {count=0 ; within=within_c ; related = []} in
+      let c = {count=0 ; related = []} in
       Hashtbl.add ctable name c ;
       match within_c with
       | Some d -> d.related <- c :: d.related
       | _ -> ()
   end
 
-let number_within name within =
-  try
-    let c = find_counter name in
-    begin match c.within with
-    | Some d ->
-        d.related <-
-           List.fold_right (fun e r -> if e == c then r else e :: r)
-             d.related []
-    | _ -> ()
-    end ;
-    let d = find_counter within in
-    c.within <- Some d ;
-    d.related <- c :: d.related
-  with Not_found ->
-    unkown (name^" or "^within)  ("\\numberwithin")
-  
 let add_counter name i =
   try
    let c = find_counter name in
@@ -182,5 +150,22 @@ let step_counter name =
     unkown name ("\\stepcounter")
 ;;
 
-
+let addtoreset name within =
+  try
+    let c = find_counter name in
+    let d = find_counter within in
+    d.related <- c :: d.related
+  with Not_found ->
+    unkown (name^" or "^within) "\\@addtoreset"
+  
+and removefromreset name within =
+  try
+    let c = find_counter name in
+    let d = find_counter within in
+    d.related <-
+       List.fold_right
+	 (fun e r -> if e == c then r else  e::r)
+	 d.related []
+  with Not_found ->
+    unkown (name^" or "^within) "\\@removefromreset"
 

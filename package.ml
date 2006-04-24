@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.86 2006-03-29 16:31:18 maranget Exp $    *)
+(*  $Id: package.ml,v 1.87 2006-04-24 14:01:16 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -819,18 +819,9 @@ register_init "keyval"
   )
 ;;
 
-register_init "amsmath"
-  (fun () ->
-    def_code "\\numberwithin"
-      (fun lexbuf ->
-        let name = get_prim_arg lexbuf in
-        let within = get_prim_arg  lexbuf in
-        Counter.number_within name within)
-  )
-;;
-
 register_init "xypic"
-  (fun () -> def_code "\\@xyarg" 
+  (fun () ->
+    def_code "\\@xyarg" 
       (fun lexbuf ->
         Save.start_echo () ;
         let _ = Lexstate.save_xy_arg lexbuf in
@@ -909,7 +900,10 @@ register_init "german"
           | Not_found -> Dest.put_char '"'))
 ;;
 
-(* Used by inputenc, other uses ? *)
+(***************)
+(* Translators *)
+(***************)
+
 def_code "\\@set@translators"
     (fun lexbuf ->
       let name = get_prim_arg lexbuf in
@@ -928,6 +922,31 @@ def_code "\\@set@in@translator"
     OutUnicode.set_input_translator name)
 ;;
 
+(********************************)
+(* Counters, change reset lists *)
+(********************************)
+
+def_code "\\@addtoreset"
+  (fun lexbuf ->
+    let name = get_prim_arg lexbuf in
+    let within = get_prim_arg lexbuf in
+    Counter.addtoreset name within)
+;;
+
+register_init "chngcntr"
+  (fun () ->
+    def_code "\\@removefromreset"
+      (fun lexbuf ->
+	let name = get_prim_arg lexbuf in
+	let within = get_prim_arg lexbuf in
+	Counter.removefromreset name within) ;
+    ())
+;;
+
+
+(*************************************)
+(* Extra font changes, from abisheck *)
+(*************************************)
 
 let get_elements str = 
     let len = String.length str in
@@ -1026,46 +1045,4 @@ def_code "\\@mathtt"
 ;;
 
 
-(*
-def_code "\\cfrac"
-  (fun lexbuf ->
-    let optarg = save_opt "" lexbuf in
-    let arg_up = save_arg lexbuf in
-    let arg_down = save_arg lexbuf in
-    let opt_str = optarg.arg in
-    let align = match opt_str with
-      "l" -> "align=left"
-    | "r" -> "align=right"
-    | "" ->  "align=center"  
-    | _ -> "align=center" (* WARNING : need to give appropriate warning *) in
-    Dest.open_block "TABLE" "border=0 cellpadding=0 cellspacing=0";
-        
-    Dest.open_block "TR" "" ;
-    Dest.open_block "TD" (align^" valign=bottom") ;
-    scan_this_arg Scan.main arg_up;
-    Dest.close_block "TD" ;
-    Dest.close_block "TR" ;
-
-    Dest.open_block "TR" "" ;
-    Dest.open_block "TD" "bgcolor=black" ;
-    Dest.open_block "TABLE" 
-      "border=0 width=\"100%\" cellspacing=0 cellpadding=1" ;
-    Dest.open_block "TR" "" ;
-    Dest.open_block "TD" "";
-    Dest.close_block "TD" ; 
-    Dest.close_block "TR" ;
-    Dest.close_block "TABLE" ;
-    Dest.close_block "TD" ; 
-    Dest.close_block "TR" ;
-
-    Dest.open_block "TR" "" ;
-    Dest.open_block "TD" (align^" valign=top") ;
-    scan_this_arg Scan.main arg_down;
-    Dest.close_block "TD" ;
-    Dest.close_block "TR" ;
-    Dest.close_block "TABLE")
-;;
-*)
-
-
- end
+end

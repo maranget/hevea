@@ -1,4 +1,4 @@
-\@primitives{amsmath}
+\let\numberwithin\@addtoreset
 \let\text\mbox
 %% Equation tags
 \renewcommand{\theequation}{\arabic{equation}}

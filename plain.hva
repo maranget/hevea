@@ -22,3 +22,6 @@
 \newcommand{\@non@kk}[2][]{}
 \newcommand{\@non@k}[1][]{\@non@kk}
 \newcommand{\NoCommand}[1]{\@non@k}
+%%%shortcuts for defining/using strange csname %%%
+\newcommand{\@namedef}[1]{\def\csname#1\endcsname}
+\newcommand{\@nameuse}[1]{\csname#1\endcsname}

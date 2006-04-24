@@ -1,0 +1,13 @@
+\ProvidesPackage{chngcntr}
+\@primitives{chngcntr}
+%%%%%%%%%%%%%%%
+\newcommand{\counterwithin*}[2]{\@addtoreset{#1}{#2}}
+\newcommand{\counterwithin}[2]
+{\@addtoreset{#1}{#2}%
+\@namedef{the#1}{\@nameuse{the#2}.\arabic{#1}}}
+%%%%%%%%%%%%%%%
+\newcommand{\counterwithout*}[2]{\@removefromreset{#1}{#2}}
+\newcommand{\counterwithout}[2]
+{\@removefromreset{#1}{#2}%
+\@namedef{the#1}{\arabic{#1}}}
+\EndPackage

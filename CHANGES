@@ -1,3 +1,5 @@
+     - option -dv, doc pending
+     - chngcntr package, doc pending.
      - Use P elements for paragraphs, numerous changes, doc pending
        \n\n lines found while parsing arguments pending
 version 1.08+12

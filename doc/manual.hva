@@ -1,7 +1,8 @@
 \input{article.hva}
 \input{fancysection.hva}
-%\usepackage{deepcut}%
 %\colorsections{160}
+%\usepackage{deepcut}
+\usepackage[show]{figcut}
 \let\oldcontentsname\contentsname
 \def\contentsname{\aname{ftoc}{\oldcontentsname}}
 \newcommand{\BibTeX}{Bib\TeX}

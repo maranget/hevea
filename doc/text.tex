@@ -4117,10 +4117,10 @@ normal flow of text.  In particular, stacking text elements one above
 the over is possible only in display context.
 \begin{htmlonly}
 For instance compare how \hevea{} renders
-\verb+$\frac{1}{\sum_{i=1}^{\infty}$+
-as: $\frac{1}{\sum_{i=1}^{\infty} i^i}$, and 
-\verb+$$\frac{1}{\sum_{i=1}^{\infty}$$+ as:
-$$\frac{1}{\sum_{i=1}^{\infty} i^i}$$
+\verb+$\frac{1}{\sum_{i=1}^{\infty} i$+
+as: $\frac{1}{\sum_{i=1}^{\infty} i}$, and 
+\verb+$$\frac{1}{\sum_{i=1}^{\infty} i$$+ as:
+$$\frac{1}{\sum_{i=1}^{\infty} i}$$
 \end{htmlonly}
 
 
@@ -4239,7 +4239,7 @@ in display-math mode. The commands \verb+\bigl,\bigr+ etc. \index{\verb+\bigl,\b
 \subsection{Math accents}\index{math accents}
 Math accents (\verb+\hat+, \verb+\tilde+, etc.) are
 handled\label{mathaccents} by default.  They in fact act as the
-corresponding text-mode accents, when possible.  The \verb+\vec+
+corresponding text-mode accents.  The \verb+\vec+
 command is rendered differently in display and non-display mode. In
 display mode, the arrow appears in normal position, while in
 non-display the arrow appears as an ordinary superscript.
@@ -4250,10 +4250,16 @@ $$
 
 Most ``extensible accents'' (\verb+\widetilde+, \verb+\widehat+, etc.)
 are not even defined.
-There are two exceptions,
+There are a few exceptions: line ``accents'':
 $$\newcommand{\demo}[1]{\quad\quad#1{abc}\quad\texttt{\string#1}}
 \begin{array}{cc}
 \demo{\underline} & \demo{\overline}
+\end{array}
+$$
+And brace ``accents'':
+$$\newcommand{\demo}[1]{\quad\quad#1{1 \times 2 \times \cdots \times n}\quad\texttt{\string#1}}
+\begin{array}{cc}
+\demo{\underbrace} & \demo{\overbrace}
 \end{array}
 $$
 
