@@ -12,7 +12,7 @@
 {
 open Lexing
 
-let header = "$Id: entry.mll,v 1.13 2004-03-24 14:56:48 maranget Exp $" 
+let header = "$Id: entry.mll,v 1.14 2006-04-25 08:23:59 maranget Exp $" 
 
 let buff = Out.create_buff ()
 ;;
@@ -46,21 +46,16 @@ exception NoGood
 rule entry = parse
 | "\\\""
     {put "\\\"" ; entry lexbuf}
-| "\"!"
-    {put_char '!' ; entry lexbuf}
-| "\"@"
-    {put_char '@' ; entry lexbuf}
-| "\"|"
-    {put_char '|' ; entry lexbuf}
+| '"' (_ as lxm)
+    {put_char lxm ; entry lexbuf}
 | '!' {Bang   (Out.to_string buff,"")}
-| '@'|'?'
+| '@'
     {let s = Out.to_string buff in
     let r = entry lexbuf in
     extend r s}
 | '|' {Bar (Out.to_string buff,"")}
 | eof {Eof (Out.to_string buff,"")}
-| _
-   {let lxm = lexeme_char lexbuf 0 in put_char lxm ; entry lexbuf}      
+| _ as lxm {put_char lxm ; entry lexbuf}      
 
 and idx = parse
 |  "\\indexentry"

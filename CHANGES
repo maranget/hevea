@@ -1,3 +1,5 @@
+     - ? is no more special (equivalent to @) in indexes
+       " becomes more general (quote everything)
      - option -dv, doc pending
      - chngcntr package, doc pending.
      - Use P elements for paragraphs, numerous changes, doc pending

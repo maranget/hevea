@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: index.ml,v 1.43 2005-11-08 10:14:19 maranget Exp $"
+let header = "$Id: index.ml,v 1.44 2006-04-25 08:23:59 maranget Exp $"
 open Misc
 open Parse_opts
 open Entry
@@ -74,7 +74,7 @@ let read_index_file name file =
         with Entry.NoGood ->
           Misc.warning
           ("Bad index arg syntax in file: "^name^
-           ", index entry is ``"^arg1^"''") ;
+           ", index entry is '"^arg1^"'") ;
           Bad in
       Table.emit r entry ;
       do_rec ()
@@ -122,7 +122,7 @@ let do_treat tag arg refvalue anchor =
       with
       | Entry.NoGood ->
           idx.onebad <- true ;
-          Misc.warning ("Bad index syntax: ``"^arg^"''") ;
+          Misc.warning ("Bad index syntax: '"^arg^"'") ;
           Bad in
     Table.emit from_doc entry ;
     lbl
