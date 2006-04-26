@@ -115,6 +115,7 @@
 %%%Close/Re-open toplevel pars
 \newcommand{\@secbegin}{\@close@par}
 \newcommand{\@secend}{{\@nostyle\@print{<!--SEC END -->}}\@open@par}
+\newcommand{\@secanchor}{{\@nostyle\@print{<!--SEC ANCHOR -->}}}
 \newcommand{\cuthere}[2]{%
 \@footnoteflush{#1}%
 {\@out@par{{\@nostyle\@print{<!--TOC }\@getprint{#1}\@print{ }}%
@@ -130,8 +131,8 @@
 {\@out@par{\@printnostyle{<!--END FLOW-->
 }}}
 \newcommand{\cutname}[1]
-  {{\@nostyle\@print{<!--NAME }\@getprint{#1}\@print{-->
-}}}
+{\@out@par{{\@nostyle\@print{<!--NAME }\@getprint{#1}\@print{-->
+}}}}
 \newcommand{\@link@arg}[2]
   {\ifthenelse{\equal{#2}{}}{}
   {\@hacha@arg{#1}{#2}}}
@@ -220,9 +221,11 @@
 {\renewcommand{\@charset}{#1}\@set@out@translator{mappings/#1.map}}
 \newcommand{\@bodyargs}{}
 \newcommand{\@meta}
-{\begin{rawhtml}
-<META http-equiv="Content-Type" content="text/html; charset=\end{rawhtml}\@charset\begin{rawhtml}">
-<META name="GENERATOR" content="hevea \end{rawhtml}\usebox{\@heveaversion}\@print{">
+{\@print{<META http-equiv="Content-Type" content="text/html; charset=}%
+\@getprint{\@charset}%
+\@print{">
+<META name="GENERATOR" content="hevea }%
+\@getprint{\usebox{\@heveaversion}}\@print{">
 }%
 % style declarations
 \ife\css@link\else\css@link\@print{
@@ -238,9 +241,7 @@
 \@print{<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
             "http://www.w3.org/TR/REC-html40/loose.dtd">
 }\@print{<HTML>
-}
-\@print{<HEAD>
-}
+<HEAD>}
 \ifthenelse{\equal{\usebox{\@@title}}{}}{}
 {\@print{<TITLE>}%
 \@notags{\usebox{\@@title}}%
@@ -251,20 +252,20 @@
 </STYLE>
 }\fi
 \@print{</HEAD>
-}
+}%
 \@print{<BODY }\@notags{\@bodyargs}\@print{>
 }%
 \@print{<!--HEVEA command line is: }\usebox{\@heveacomline}\@print{-->
 }%
-{\@nostyle\@print{<!--HTMLHEAD-->
+\ife\@htmlhead\else{\@nostyle\@print{<!--HTMLHEAD-->
 }}%
 \usebox{\@htmlhead}%
 {\@nostyle\@print{<!--ENDHTML-->
-}}%
-\@printnostyle{<!--PREFIX }%
+}}\fi%
+\ife\@htmlprefix\else\@printnostyle{<!--PREFIX }%
 \@hacha@arg{}{\usebox{\@htmlprefix}}%
 \@printnostyle{-->
-}%
+}\fi%
 \usebox{\@toplinks}\usebox{\@linkstext}%
 \cutdef[\thecuttingdepth]{\cuttingunit}%
 \renewcommand{\addstyle}[1]{\warning{\addstyle{} must be used in document preamble}}%

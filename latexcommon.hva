@@ -449,21 +449,10 @@
 \checktocdepth{#2}{\@doaddtoc{#2}{#5}{##2}}\fi
 \ifoptarg\cuthere{#3}{\@addsecnumber{#2}{#5}{##1}}\else
 \cuthere{#3}{\@addsecnumber{#2}{#5}{\begin{@norefs}##2\end{@norefs}}}\fi
-#4\checkdepth{#2}{\alttocdepth{#2}{\@locname{htoc\thetocanchor}{#5}#6}{#5#6}}##2#7\@secend}%
+#4\@secanchor\checkdepth{#2}{\alttocdepth{#2}{\@locname{htoc\thetocanchor}{#5}#6}{#5#6}}##2#7\@secend}%
 \newcommand{#1*}[1]{%
 \@secbegin\cuthere{#3}{##1}%
-#4##1#7\@secend}}%
-\newcommand{\remakesection}[7]{%
-\renewcommand{#1}[2][]{%
-\@secbegin\checkdepth{#2}{\refstepcounter{#3}}%
-\ifoptarg\checktocdepth{#2}{\@doaddtoc{#2}{#5}{##1}}\else
-\checktocdepth{#2}{\@doaddtoc{#2}{#5}{##2}}\fi
-\ifoptarg\cuthere{#3}{\@addsecnumber{#2}{#5}{##1}}\else
-\cuthere{#3}{\@addsecnumber{#2}{#5}{\begin{@norefs}##2\end{@norefs}}}\fi%
-#4\checkdepth{#2}{\alttocdepth{#2}{\@locname{htoc\thetocanchor}{#5}#6}{#5#6}}##2#7\@secend}%
-\renewcommand{#1*}[1]{%
-\@secbegin\cuthere{#3}{\begin{@norefs}##1\end{@norefs}}%
-#4##1#7\@secend}}%
+#4\@secanchor{}##1#7\@secend}}%
 %%%%%%%%%%%%%%
 % Images     %
 %%%%%%%%%%%%%%
@@ -544,8 +533,10 @@
 \newenvironment{tocenv}
 {\setenvclass{itemize}{\getenvclass{toc}}%
 \setenvclass{li-itemize}{\getenvclass{li-toc}}%
-\begin{itemize}}{\end{itemize}}
-\newcommand{\tocitem}[1][]{\ifoptarg\item[#1]\else\item\fi}
+\begin{itemize}}
+{\end{itemize}}
+\newcommand{\tocitem}[1][]
+{\ifoptarg\item[#1]\else\item\fi}
 %%%%%%%%tocname changed to contentsname (standard)
 \newcommand{\contentsname}{Contents}
 \newcommand{\@readtoc}[2]

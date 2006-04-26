@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: html.ml,v 1.100 2006-04-24 16:14:51 maranget Exp $" 
+let header = "$Id: html.ml,v 1.101 2006-04-26 15:47:06 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -646,7 +646,8 @@ let item s =
   end else begin
     let saved =
       let pending = to_pending !cur_out.pending !cur_out.active in
-      do_close_mods () ; ignore (close_par ()) ;
+      do_close_mods () ;
+      ignore (close_par ()) ; (* in case some par opened before first \item *)
       let r = Out.to_string !cur_out.out in
       !cur_out.pending <- pending ;
       r in
@@ -705,6 +706,7 @@ let ditem scan arg s1 s2 =
     if flags.nitems = 0 then begin
       let pending = to_pending !cur_out.pending !cur_out.active in
       do_close_mods () ;
+      ignore (close_par ()) ; (* in case some par opened before first \item *)
       let saved = Out.to_string !cur_out.out in
       !cur_out.pending <- pending ;
       (fun arg -> do_put saved ; scan arg)

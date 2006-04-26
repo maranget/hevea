@@ -12,7 +12,7 @@
 {
 open Lexing
 open Stack
-let header = "$Id: cut.mll,v 1.46 2006-01-30 08:56:26 maranget Exp $" 
+let header = "$Id: cut.mll,v 1.47 2006-04-26 15:47:06 maranget Exp $" 
 
 let verbose = ref 0
 
@@ -164,7 +164,7 @@ and itemref filename s out =
   Out.put out filename ;
   Out.put out "\">" ;
   Out.put out s ;
-  Out.put out "</A>\n"
+  Out.put out "</A></LI>\n"
 
 and itemanchor filename label s out =
   let filename = check_changed filename in
@@ -175,17 +175,33 @@ and itemanchor filename label s out =
   Out.put out label ;
   Out.put out "\">" ;
   Out.put out s ;
-  Out.put out "</A>\n"
+  Out.put out "</A></LI>\n"
+;;
 
-and putanchor label out =
+let delayed_anchor = ref false
+and prev_anchor = ref None
+
+let do_putanchor label out =
   Out.put out "<A NAME=\"" ;
   Out.put out label ;
   Out.put out "\"></A>"
-
-and itemlist s out =
-  Out.put out "<LI>" ;
-  Out.put out s
 ;;
+
+let putanchor label out =
+  if !delayed_anchor then
+    prev_anchor := Some (label, out)
+  else
+    do_putanchor label out
+
+and really_putanchor () =
+  if !phase = 0 then
+    delayed_anchor := true
+  else match !prev_anchor with
+  | Some (label, out) ->
+      do_putanchor label out ;
+      prev_anchor := None
+  | None -> ()
+    
 
 let putlink out name txt =
   let name = check_changed name in
@@ -246,10 +262,10 @@ let openhtml withlinks title out outname =
   Out.put out !html ; Out.put_char out '\n' ;
   Out.put out "<HEAD>\n" ;
   Out.put out !common_headers;
-  Out.put out "<TITLE>\n" ;
+  Out.put out "<TITLE>" ;
   let title = Save.tagout (Lexing.from_string (!html_prefix^title)) in
   Out.put out title ;
-  Out.put out "\n</TITLE>\n" ;
+  Out.put out "</TITLE>\n" ;
   Out.put out "</HEAD>\n" ;
   Out.put out !body;
   Out.put out "\n" ;
@@ -563,6 +579,8 @@ rule main = parse
     {let name = tocline lexbuf in
     change_name !outname name ;
     main lexbuf} 
+| "<!--SEC ANCHOR" ' '* "-->"    
+    {really_putanchor () ; main lexbuf }
 |  "<!--" ("TOC"|"toc") ' '+ (secname as arg) ' '+
     {let sn = 
       if String.uppercase arg = "NOW" then !chapter
@@ -594,7 +612,7 @@ rule main = parse
       close_section sn ;
       open_section sn name
     end ;
-    main lexbuf}     
+    main lexbuf}
 | "<!--CUT DEF" ' '+ (secname as name) ' '* (['0'-'9']+ as i_opt)?
     {let chapter = Section.value (String.uppercase name) in
     let depth = match i_opt with
@@ -708,11 +726,11 @@ and collect_header = parse
 | "</HEAD>"
     {finalize_header () ;
     if !verbose > 0 then begin
-      prerr_string "Header is: ``" ;
+      prerr_string "Header is: '" ;
       prerr_string !common_headers ;
-      prerr_endline "''"
+      prerr_endline "'"
     end}
-| "<TITLE" [^'>']* '>'
+| '\n'? "<TITLE" [^'>']* '>'
     {skip_title lexbuf ; collect_header lexbuf}
 | "<STYLE" blank+ "type" blank* '=' blank* '"' "text/css" '"' blank* '>'
     {collect_style lexbuf ;  collect_header lexbuf}

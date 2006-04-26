@@ -1,3 +1,7 @@
+     - Suppressed first line, if empty, in verbatim (and verbatim*).       
+     - New placement of hacha anchors (inside section headers, through command
+       \@secanchor)
+     - Suppressed some spurious newlines in html output (mostly in HEAD)
      - ? is no more special (equivalent to @) in indexes
        " becomes more general (quote everything)
      - option -dv, doc pending

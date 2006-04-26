@@ -6,6 +6,7 @@
 \input{ifthen.hva}
 %% Style sheet information is ignored
 \newcommand{\newstyle}[2]{}
+\newcommand{\@getstylecolor}[1]{}
 \newcommand{\class@attr}[2]{}
 \newcommand{\setenvclass}[2]{}
 \newcommand{\getenvclass}[1]{}
@@ -70,7 +71,7 @@
   {\footnoterule\begin{list}[]{}{\renewcommand{\makelabel}[1]{##1}}}
   {\end{list}}
 %%%% Accents and special symbols.
-%%% for htmlcut
+%%% Neutral definitions for hacha
 \newcounter{cuttingdepth}
 \setcounter{cuttingdepth}{1}
 \newcommand{\cutdef}[2][]{}
@@ -78,6 +79,7 @@
 \newcommand{\cuthere}[2]{\@footnoteflush{#1}}
 \newcommand{\@secbegin}{}
 \newcommand{\@secend}{}
+\newcommand{\@secanchor}{}
 \newenvironment{cutflow}[1]{}{}
 \newcommand{\cutname}[1]{}
 \newcommand{\toplinks}[3]{}

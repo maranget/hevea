@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.76 2006-04-13 16:55:56 maranget Exp $"
+let header = "$Id: text.ml,v 1.77 2006-04-26 15:47:06 maranget Exp $"
 
 
 open Misc
@@ -607,8 +607,8 @@ let close_mods () =
   !cur_out.active <- []
 ;;
 
-let open_par () = assert false
-and close_par () = assert false
+let open_par () = ()
+and close_par () = false
 
 let par = function (*Nombre de lignes a sauter avant le prochain put*)
   | Some n ->
