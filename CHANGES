@@ -1,3 +1,6 @@
+     - Corrected bug in table of Contents:
+         Section whose level is < to tocdepth should go into toc,
+         regardless of secnumdepth
      - Suppressed first line, if empty, in verbatim (and verbatim*).       
      - New placement of hacha anchors (inside section headers, through command
        \@secanchor)
