@@ -6802,19 +6802,19 @@ clean:
         rm -f $(DOC).image.* $(DOC)[0-9][0-9][0-9].gif
 \end{verbatim}
 %$
+
 Observe that the \texttt{clean} rule now also gets rid of
 \texttt{doc.image.tex} and of the various files produced by
-\texttt{imagen}.
-Note the following, useful feature~:
-when given the \verb+-fix+ option, \texttt{hevea} will itself run
+\texttt{imagen}. Note the following, useful feature:
+when given the \verb+-fix+ option, \texttt{hevea} will run
 \texttt{imagen}, if needed.
 
 
 \section{Browser configuration}\label{browser}\cutname{browser.html}
 \index{browser configuration}
-By default, \hevea{} does not anymore use the \verb+FACE=symbol+ attribute to
-the \verb+<FONT ...>+ tag.
-As a consequence, browser configuration is no longer needed.
+By default, \hevea{} does not anymore use the \verb+FACE=symbol+
+attribute to the \verb+<FONT ...>+ tag.  As a consequence, browser
+configuration is no longer needed.
 
 
 \section{Availability}
