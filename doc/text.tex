@@ -57,7 +57,6 @@ Chesnay Cedex. {\tt \mailto{Luc.Maranget@inria.fr}}}}
   {\imgsrc[ALT="Previous"]{previous_motif.gif}}
   {\imgsrc[ALT="Up"]{contents_motif.gif}}
   {\imgsrc[ALT="Next"]{next_motif.gif}}
-\newstyle{P}{border:1px solid black}
 %%DOCUMENT START HERE
 \begin{document}
 \maketitle
@@ -310,30 +309,121 @@ See section~\ref{usepackage} for the full story on \verb+\usepackage+.
 \section{A note on style}
 
 \subsection{Spacing, Paragraphs}
-Spacing in the \html{} document reflects the original source spacing.
-More precisely, any sequence of spaces is outputed as one
-space, whereas a single newline is replicated in the output.
-However one  blank line  (i.e., two newlines in a row) or more
-introduce a paragraph break.
-\index{tabulation}Whether the tabulation character is a space or not 
-is random, so avoid tabs in your source document.
+Sequence of spaces normally are translated into one single space.
+Newlines in the input document undergo a special treatement.
+A newline triggers a special scanning mode that reads all following
+spaces and newlines. In case at least one additional newline character
+is read, then \hevea{} executes the \verb+\par+ command.
+Otherwise, \hevea{} outputs a single newline character.
+This process approximates \TeX{} process for introducting paragraph
+breaks and, as a result, empty lines produce paragraph breaks.
 
-
-Paragraphs are rendered by a blank line and there is no paragraph
-indentation.
-\hevea{} is a bit simplistic in breaking paragraphs and extra paragraph
-breaks may be present in the final \html{} documents.
-This can usually be corrected by modifying the source, without
-altering \LaTeX{} output. For instance, some blank line before or
-after a comment or macro definition can be deleted.
-
-
-
-
-\index{ @`` '' (space)!after macro}
-Space after macros with no argument is skipped (as in \LaTeX{}) ---
+Space after commands with no argument is skipped (as in \LaTeX{}) ---
 however this is not true in math mode, as explained in
-section~\ref{spacemath} below.
+section~\ref{spacemath}.
+
+The following two subsections describe management of paragraphs and
+spaces after command sequences in greater detail.
+They can be skipped in first reading.
+
+\subsubsection{Spurious Paragraphs}
+Paragraphs are rendered by the means of \verb+P+ elements.
+\hevea{} is a bit simplistic in breaking paragraphs and spurious paragraphs
+may be present in the final \html{} document.
+Normally, as \hevea{} never outputs \verb+P+ elements whose contents is
+made of spaces only, this should not happen very often.
+Unfortunately, some commands do not produce any output in \LaTeX,
+while they do produce output in \hevea.
+Consider for instance the command \verb+\label+.
+\hevea{} translates
+\verb+\label{+\textit{name}\verb+}+ into the anchor
+\verb+<A NAME="+\textit{name}\verb+"></A>+. As a result, the following
+source fragment will introduce a spurious paragraph.
+\begin{verbatim}
+This a first paragraph.
+
+\label{label}
+
+This is another paragraph.
+\end{verbatim}
+Indeed, whe have the following translation~:
+\begin{verbatim}
+<P>This a first paragraph.</P>
+<P><A NAME="label"></A></P>
+<P>This is another paragraph.</P>
+\end{verbatim}
+\ifhevea Which your browser renders as follows --- with additional borders
+emphasizing \verb+P+ elements.
+\begin{htmlout}%
+\begin{rawhtml}
+<P STYLE="border:1px solid black;">This a first paragraph.</P>
+<P STYLE="border:1px solid black;"><A NAME="label"></A></P>
+<P STYLE="border:1px solid black;">This is another paragraph.</P>
+\end{rawhtml}%
+\end{htmlout}%
+\fi
+
+Most of the time, such extra paragraphs remain unnoticed.
+Of course, they can be supressed by erasing one of the empty
+lines. For instance:
+\begin{verbatim}
+This a first paragraph.
+
+\label{label}
+This is another paragraph.
+\end{verbatim}
+
+A similar situation occurs when a sectioning command is followed by
+\verb+\label+ and a paragraph break:
+\begin{verbatim}
+\section*{A section}\label{section:label}
+
+First paragraph. 
+\end{verbatim}
+Produced \html{} is, after a few cosmetic simplifications:
+\begin{verbatim}
+<H2 CLASS="section">A section</H2>
+<P><A NAME="section:label"></A></P>
+<P>First paragraph.</P>
+\end{verbatim}
+Output is so, because closing the element \verb+H2+ implies re-opening
+a new paragraph.
+\ifhevea Your browser renders the above \html{} fragment as follows:
+\begin{htmlout}%
+\begin{rawhtml}
+<H2 CLASS="section">A section</H2>
+<P STYLE="border:1px solid black;"><A NAME="section:label"></A></P>
+<P STYLE="border:1px solid black;">First paragraph.</P>
+\end{rawhtml}%
+\end{htmlout}%
+\fi
+Here, two possible re-writing of source are:
+\begin{center}
+\begin{tabular}{p{.45\linewidth}p{.45\linewidth}}
+\begin{verbatim}
+\section*{A\label{section:label} section}
+
+First paragraph.
+\end{verbatim}
+&
+\begin{verbatim}
+\section*{A section}
+
+\label{section:label}First paragraph.
+\end{verbatim}
+\end{tabular}
+\end{center}
+In all cases, this amounts to avoiding a paragraph whose contents
+consists in a sole \verb+\label+~command.
+
+Spurious paragraphs are more easily seen by running \texttt{hevea}
+with the command-line option~``\texttt{-dv}'', which instructs
+\texttt{hevea} to add border on some of the elements it produces,
+including \verb+P+ elements.
+
+\subsubsection{Spaces after Commands}
+\index{ @`` '' (space)!after macro}
+Space after commands with no argument is skipped.
 Consider the following example:
 \begin{verbatim}
 \newcommand{\open}{(}
@@ -387,9 +477,10 @@ one should probably write:
 \newcommand{\tryspace}[1]{#1{} XXX}
 \end{verbatim}
 
+Finally, \index{tabulation}whether the tabulation character is a space or not 
+is random, so avoid tabs in your source document.
 
 \subsection{Math mode}
-
 \hevea{} math mode is not very far from normal text mode, except that
 all letters are shown in italics and that space after macros
 is echoed.
@@ -399,7 +490,7 @@ First, formulas contain symbols, such as Greek letters; second,
 even simple formulas do not follow the simple basic typesetting model of~\html.
 
 
-\subsubsection{Spacing in math mode}\label{spacemath}
+\subsubsection{Spacing\label{spacemath} in math mode}
 \index{ @`` '' (space)!after macro!in math}
 By contrast with \LaTeX{}, spaces from the input are significant in
 math mode, this
@@ -544,9 +635,9 @@ that always get centered in the vertical direction.
 Such a crude model cannot  faithfully emulate any \TeX{} box placement.
 
 Users can get an idea on how \hevea{} combines elements in display mode
-by giving the \verb+-v+ option comand line option twice, which
-instructs \hevea{} to add a
-border to the \verb+TABLE+ elements introduced by displays.
+by giving the \verb+-dv+  command-iine option, which
+instructs \hevea{} to add
+borders to the \verb+TABLE+ elements introduced by displays.
 
 \subsubsection{Arrays and display mode}
 
@@ -1898,7 +1989,7 @@ source. However, \LaTeX{} still can process the document, since the
 In some situations it may be appropriate to produce many
 pages from one source files.
 More specifically, loading the \texttt{deepcut} package will put
-all sectionning units of your document (from \verb+\part+ to
+all sectioning units of your document (from \verb+\part+ to
 \verb+\subsection+ in their own file.
 
 Similarily, loading the \texttt{figcut} package will make all figures
@@ -2302,23 +2393,27 @@ Postscript to bitmap format and will thus degrade it.
 
 
 
-\subsection{The \texttt{rawhtml} environment}\label{rawhtml}
+\subsection{The \texttt{rawhtml}\label{rawhtml} environment}
 \envindex{rawhtml}\comindex{rawhtmlinput}
 Any text enclosed between \verb+\begin{rawhtml}+ and
 \verb+\end{rawhtml}+ is echoed verbatim into the \html{} output file.
 Similarly, \verb+\rawhtmlinput{+\textit{file}\verb+}+ echoes the
 contents of file~\textit{file}.
-Verbatim means that no translatation of any kind is performed. In
+
+There are numerous pitfalls around \texttt{rawhtml}, here are a few:
+\begin{itemize}
+\item
+Verbatim means that no translation of any kind is performed. In
 particular, be aware that input encoding (see~\ref{inputenc}) does
 not apply. Hence one should use ascii only, if needed
-non-ascii characters can be givent as
+non-ascii characters can be given as
 entity or numerical character references --- \emph{e.g.}
 \verb+&eacute;+ and \verb+&#XE9;+ for \'e.
 
-For avoiding to break \html~element nesting, the \texttt{rawhtml}
-environment should be used only at toplevel (i.e. not within another
-environment), and it should contain only \html~text that makes sense
-alone. For instance, writing
+\item
+The \texttt{rawhtml}
+environment should contain only \html~text that makes sense alone.
+For instance, writing
 \verb+\begin{rawhtml}<TABLE><ALIGN=right>\end{rawhtml}+\ldots{}
 \verb+\begin{rawhtml}</TABLE>\end{rawhtml}+ is
 dangerous, because \hevea{} is not informed about opening and closing
@@ -2326,6 +2421,17 @@ the block-level element \texttt{TABLE}. In that case, one should use
 the internal macros \verb+\@open+ and \verb+\@close+ of the following
 section.
 
+\item \verb+\begin{rawhtml}+\textit{text}\verb+\end{rawhtml}+ fragments that
+contain block-level elements will almost certainly mix poorly with
+\verb+P+ elements (introduced by paragraph breaks) and with active
+style declaration (introduced by, for instance, \verb+\it+).
+Safe usage will most of the time means using the internal macros
+\verb+\@nostyle+ and \verb+\@out@par+ of the following
+section.
+\end{itemize}
+
+
+As a conclusion, do not use the \texttt{rawhtml} environment!
 When \hevea{} is given the command line option ``\texttt{-O}'',
 checking and optimization of text-level elements in the whole document
 takes place.  As a consequence, incorrect \html{} introduced by using
@@ -2345,8 +2451,6 @@ output mode.
 Additionally, the \texttt{raw} environment and a \verb+\rawinput+
 command echo their contents verbatim, regardless of \hevea{} output
 mode.
-
-
 
 \subsection{Internal \label{internal}macros}
 In this section a few of \hevea{} internal macros are
@@ -2487,9 +2591,7 @@ Simply close active text-level declarations.
 \end{description}
 
 \subsection{Examples}
-\comindex{purple}
-\index{"@open@\texttt{\char92"@open}}
-\index{"@close@\texttt{\char92"@close}}
+\comindex{purple}\index{"@open@\texttt{\char92"@open}}\index{"@close@\texttt{\char92"@close}}
 As a first example of using internal macros, consider the following
 excerpt from the \texttt{hevea.hva} file that
 defines the \verb+center+ environment:
@@ -3635,7 +3737,6 @@ Optional arguments to \verb+\\+ and \verb+\\*+ are ignored.
 
 
 \section{The Structure of the Document}\label{structure}
-
 Document structure is a bit simplified with respect to \LaTeX{}, since
 documents consist of only two parts.
 The \emph{preamble} starts as soon as \hevea{} starts to operate and
@@ -3807,7 +3908,7 @@ section~\ref{inputenc} on the \texttt{inputenc} package.
 
 \section{Sectioning}
 
-\subsection{\label{section:section}Sectioning commands}
+\subsection{\label{section:section}Sectioning Commands}
 Sectioning commands from \verb+\part+ down to
 \verb+\subparagraph+ are defined in base style files.
 They accept an optional argument and have starred versions.
@@ -4156,52 +4257,11 @@ $$
 $$
 \end{htmlonly}
 
-\subsection{Fractions and labelled arrows}
-\comindex{cfrac}\comindex{frac}
-The {\tt amsmath} command \verb+\frac+ works as in \LaTeX. \verb+\cfrac+ proccesses its optional argument and typesets material to the left or right accordingly. 
-\begin{htmlonly}
-The \LaTeX{} fragment
-\begin{verbatim}
-$$1+\cfrac[r]{\sqrt[5]{right-align}}{1 + right-align}$$
-\end{verbatim}
-would typeset in \hevea{} as follows
-\newcommand{\cfrac}[3][c]{%
-\ifthenelse{\equal{#1}{c}}{{#2\over #3}}{%
-\ifthenelse{\equal{#1}{l}}{{#2\@lover #3}}{%
-\ifthenelse{\equal{#1}{r}}{{#2\@rover #3}}{%
-\warning{Invalid Argument To \cfrac ignored}{#2\over #3}%
-}}}}
-$$1+\cfrac[r]{right-align}{1 + right-align}$$ 
-\end{htmlonly}
-\comindex{xleftarrow}\comindex{xrightarrow}
-The commands \verb+\xleftarrow+ and \verb+\xrightarrow+ also work well
-in display mode. However, the arguments are ignored when outside
-display mode, and an appropriate warning is issued.
-
-\begin{htmlonly}
-Thus the fragment \verb+a \xrightarrow[2]{1} b \xleftarrow{3} c+ would appear as 
-$$a \xrightarrow[2]{1} b \xleftarrow{3} c$$
-in display mode, but as $a \xrightarrow[2]{1} b \xleftarrow{3} c$ in simple math mode.
-\end{htmlonly}
-
 \subsection{Unicode and mathematical symbols}\index{unicode}
 
 The support for unicode symbols offered by modern browsers allows to
 translate almost all math symbols correctly.
 
-A few unicode entito
-
-They are usually
-replaced by the best approximations. Outputing such ``advanced''
-characters is turned on by the command line option
-\texttt{-moreentities}.
-A new explicit command line option \texttt{-symbols}
-allows the user to revert to rendering using iso-latin1 and symbol
-fonts (and also disables unicode translation), that is reverts to previous
-behavior. Using the option~\texttt{-symbols} is not recommended, as output
-is not rendered satisfactorily by more and more browsers.
-
-  
 Log-like functions and variable sized-symbols are recognized and their
 subscripts and superscripts are put where they should in display mode.
 Subscript and superscript placement can be changed using the
@@ -4420,8 +4480,6 @@ initial value \textit{false}.
 mode, it is \textit{true} in math-mode and \textit{false} otherwise.
 \item[\texttt{display}]  This register value reflects \hevea{} operating
 mode, it is \textit{true} in display-mode and \textit{false} otherwise.
-\item[\texttt{french}] \boolindex{french}This register value reflects the \verb+-french+
-command line option internally (see Section~\ref{heveaoptions}).
 \item[\texttt{footer}] Initial value is  \texttt{true}.
 When set false, \hevea{} does not insert its footer ``\emph{This
 document has been translated by \hevea}''.
@@ -4742,8 +4800,7 @@ they should write
 \verb+\setlength{\textwidth}{10cm}+.
 
 
-\subsection{Space}\label{spaces}
-
+\subsection{Space}
 The \verb+\hspace+, \verb+\vspace+ and \verb+\addvspace+ spacing
 commands and their starred versions recognize positive explicit length
 arguments.  Such arguments get converted to a number of non-breaking
@@ -5811,7 +5868,7 @@ define one bibliography per included file and no toplevel
 bibliography.
 \hevea{} implementation of this package recognizes the option
 \verb+sectionbib+ and provides the command \verb+\sectionbib+
-to change the sectionning command introduced by bibliographies.
+to change the sectioning command introduced by bibliographies.
 
 
 \subsection{Support for \texttt{babel}}\ttindex{babel}{package}
@@ -6509,6 +6566,9 @@ The \texttt{hevea} command recognizes the following options:
 \item[{\tt -version}] Show \texttt{hevea} version and exit.
 \item[{\tt -v}] Verbose flag, can be repeated to increase
 verbosity. However, this is mostly for debug.
+\item[{\tt -dv}] -dv Add border around some of the block-level
+elements issued. Specifically, all \verb+DIV+ and \verb+P+ are bordered,
+while the structure of displayed material is also shown.
 \item[{\tt -s}] Suppress warnings.
 \item[{\tt -I} {\it dirname}] Add {\it dirname} to the search path.
 \item[{\tt -o} {\it name}] Make \textit{name} the output basename.

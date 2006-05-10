@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.285 2006-04-24 16:14:51 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.286 2006-05-10 15:38:59 maranget Exp $ *)
 
 
 {
@@ -1088,7 +1088,7 @@ rule  main = parse
    main lexbuf}
 
 and complete_newline = parse
-|  (' '* '\n')* {lexeme lexbuf}
+|  [' ''\n']* {lexeme lexbuf}
 
 and latex2html_latexonly = parse
 | '%' + [ ' ' '\t' ] * "\\end{latexonly}" [ ^ '\n' ] * '\n'

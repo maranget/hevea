@@ -11,7 +11,7 @@
 
 open Misc
 
-let header = "$Id: parse_opts.ml,v 1.34 2006-03-29 16:31:18 maranget Exp $" 
+let header = "$Id: parse_opts.ml,v 1.35 2006-05-10 15:38:59 maranget Exp $" 
 
 type input = File of string | Prog of string
 
@@ -82,7 +82,7 @@ let _ = Arg.parse
      (fun () -> readverb := !readverb + 1 ; check_displayverb !readverb),
    "verbose flag, can be repeated to increase verbosity") ;
   ("-dv", Arg.Unit (fun () -> displayverb := true),
-   "highlight TABLE elements used by display mode") ;
+   "add borders to some block-level elements, so as to show hevea output structure") ;
   ("-s", Arg.Unit (fun () -> silent := true),
    "suppress warnings") ;
   ("-I", Arg.String (fun s -> path := s :: !path),
