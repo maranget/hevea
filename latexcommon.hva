@@ -155,10 +155,12 @@
 \newcommand{\@datebis}[1]{\gdef{\@date}{seen}\sbox{\@@date}{#1}}
 %% Lists
 \setenvclass{li-itemize}{li-itemize}
+\newstyle{.li-itemize}{margin:1ex 0ex;}
 \newcommand{\item}[1][]{\warning{\item outside a list-making environment}}
 \newcommand{\@itemitemize}[1][!*!]
 {\@itemize@li{\envclass@attr{li-itemize}}\ifthenelse{\equal{#1}{!*!}}{}{\warning{Optional argument to \item in itemize environment}{#1}}}
 \setenvclass{li-enumerate}{li-enumerate}
+\newstyle{.li-enumerate}{margin:1ex 0ex;}
 \newcommand{\@itemenumerate}[1][!*!]
 {\let\@currentlabel\csname the\@enumcitem\endcsname%
 \stepcounter{\@itemcount}\@enumerate@linum{\envclass@attr{li-enumerate}}\ifthenelse{\equal{#1}{!*!}}{}{\warning{Ignored optional argument to \item in enumerate enironment}}}
@@ -210,35 +212,36 @@
 %%                2) \@dt replaced by \@list@dtdd 
 %% Remove these to get original behaviour
 %
+\newcommand{\setlistclass}[1]
+{\setenvclass{list}{\getenvclass{#1}}%
+\setenvclass{dt-list}{\getenvclass{dt-#1}}%
+\setenvclass{dd-list}{\getenvclass{dd-#1}}}
 \setenvclass{list}{list}
 \setenvclass{dt-list}{dt-list}
 \setenvclass{dd-list}{dd-list}
-\newenvironment{list}[3][!*!]
-  {\ifthenelse{\equal{#1}{!*!}}{\@open{DL}{\envclass@attr[ ]{list}COMPACT="compact"}}{\@open{DL}{\envclass@attr{list}}}%
-  \renewcommand{\item}[1][#2]{\@dtdd{##1}{\envclass@attr{dt-list}}{\envclass@attr{dd-list}}}%
+\newenvironment{list}[2]
+  {\@open{DL}{\envclass@attr{list}}
+  \renewcommand{\item}[1][#1]{\@dtdd{##1}{\envclass@attr{dt-list}}{\envclass@attr{dd-list}}}%
   \@forcecommand{\makelabel}[1]{##1}%
-  #3%exec
+  #2%exec
 }{\@close{DL}}
 \setenvclass{description}{description}
 \setenvclass{dt-description}{dt-description}
 \setenvclass{dd-description}{dd-description}
-\newenvironment{@list@description}[3][!*!]
-  {\ifoptarg
-   \@open{DL}{\envclass@attr{description}}\else
-   \@open{DL}{\envclass@attr[ ]{description}COMPACT=compact}\fi
-  \renewcommand{\item}[1][#2]{\@dtdd{##1}{\envclass@attr{dt-description}}{\envclass@attr{dd-description}}}%
+\newstyle{.dd-description}{margin:0ex 0ex 1ex 4ex;}
+\newstyle{.dt-description}{margin:0ex;}
+\newenvironment{@list@description}[2]
+  {\@open{DL}{\envclass@attr{description}}%
+  \renewcommand{\item}[1][#1]{\@dtdd{##1}{\envclass@attr{dt-description}}{\envclass@attr{dd-description}}}%
   \@forcecommand{\makelabel}[1]{##1}%
-  #3%exec
+  #2%exec
 }{\@close{DL}}
 \newenvironment{description}{\begin{@list@description}{}{\renewcommand{\makelabel}[1]{\textbf{##1}}}}{\end{@list@description}}
 \setenvclass{trivlist}{trivlist}
 \setenvclass{dt-trivlist}{dt-trivlist}
 \setenvclass{dd-trivlist}{dd-trivlist}
 \newenvironment{trivlist}
-{\setenvclass{list}{\getenvclass{trivlist}}%
-\setenvclass{dt-list}{\getenvclass{dt-trivlist}}%
-\setenvclass{dd-list}{\getenvclass{dd-trivlist}}%
-\begin{list}{}{}}{\end{list}}
+{\setlistclass{trivlist}\begin{list}{}{}}{\end{list}}
 %% Input...
 \newcommand{\listfiles}{}
 %% Line breaking
@@ -373,14 +376,16 @@
 %%%%%%%%%%% Bibliography
 \def\bibliographystyle#1{}
 \def\nocite#1{}
+\setenvclass{thebibliography}{thebibliography}
+\setenvclass{dt-thebibliography}{dt-thebibliography}
+\setenvclass{dd-thebibliography}{dd-thebibliography}
 \newcommand{\refname}{References}
 \newenvironment{thebibliography}[1]
   {\@end{thebibliography}%Execute sectionning command in outer scope
   \@bibliosection{\refname}%
   \@begin{thebibliography}%
-  \def\@list@class{thebibliography}%
-  \begin{list}{\stepcounter{heveabib}\theheveabib}
-    {\let\makelabel\@biblabel}}
+  \setlistclass{thebibliography}%
+  \begin{list}{\stepcounter{heveabib}\theheveabib}{\let\makelabel\@biblabel}}
   {\end{list}}
 \newcounter{heveabib}\newcommand{\bibtag@hook}[1]{#1}%
 \newcommand{\bibitem}[2][!*!]

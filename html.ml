@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: html.ml,v 1.101 2006-04-26 15:47:06 maranget Exp $" 
+let header = "$Id: html.ml,v 1.102 2006-05-12 09:52:55 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -667,7 +667,7 @@ and set_dcount s = flags.dcount <- s
 ;;
 
 (*********************************************)
-(*  Allows things like <LI CLASS=li-itemize> *)
+(*  s1 and s2 below are attributes to DR/DD  *)
 (*********************************************)
 
 let emit_dt_dd scan true_scan arg s1 s2 =

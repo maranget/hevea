@@ -1,3 +1,6 @@
+     - Something strange with footnotes, stars etc does not work
+       anymore ! CORRECT!
+     - Style all list environments (+ thefootnotes, the bibliography)
      - Corrected bug in table of Contents:
          Section whose level is < to tocdepth should go into toc,
          regardless of secnumdepth

@@ -96,11 +96,15 @@
 \newcommand{\@noteref}[4]{\@locnameref{#2#3}{#1#3}{#4}}
 \newcommand{\@notetextstyle}[1]
   {{\@nostyle\@print{<SUP>}}#1{{\@nostyle\@print{</SUP>}}}}
-\newcommand{\@notenotestyle}[1]
-  {{\@clearstyle\Large{}#1}}
+\newcommand{\@notenotestyle}[1]{{\@clearstyle{}#1}}
+\setenvclass{thefootnotes}{thefootnotes}
+\setenvclass{dt-thefootnotes}{dt-thefootnotes}
+\setenvclass{dd-thefootnotes}{dd-thefootnotes}
 \newenvironment{thefootnotes}[1]
   {\@out@par{{\@nostyle\@print{<!--BEGIN NOTES }\@getprint{#1}\@print{-->
-}}}\footnoterule\begin{list}[]{}{\renewcommand{\makelabel}[1]{##1}}}
+}}}\footnoterule%
+  \setlistclass{thefootnotes}%
+  \begin{list}{}{\renewcommand{\makelabel}[1]{##1}}}
   {\end{list}\@out@par{{\@nostyle\@print{
 <!--END NOTES-->
 }}}}
@@ -395,8 +399,12 @@
 \begin{lrbox}{\csname indexbox\theindexbox\endcsname}}
 \newcommand{\indexspace}{\indexitem}
 {\stepcounter{indexcount}}
+\setenvclass{indexenv}{indexenv}
+\setenvclass{li-indexenv}{li-indexenv}
 \newenvironment{indexenv}
-{\stepcounter{indexdepth}
+{\setenvclass{itemize}{\getenvclass{indexenv}}%
+\setenvclass{li-itemize}{\getenvclass{li-indexenv}}%
+\stepcounter{indexdepth}
 \ifthenelse{\value{indexdepth}>1}
 {\begin{itemize}%
 \renewcommand{\indexitem}{\stepcounter{indexcount}\item}%
