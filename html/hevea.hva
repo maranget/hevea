@@ -100,6 +100,8 @@
 \setenvclass{thefootnotes}{thefootnotes}
 \setenvclass{dt-thefootnotes}{dt-thefootnotes}
 \setenvclass{dd-thefootnotes}{dd-thefootnotes}
+\newstyle{.dt-thefootnotes}{margin-left:0em; display:compact;}
+\newstyle{.dd-thefootnotes}{margin-left:2em;}
 \newenvironment{thefootnotes}[1]
   {\@out@par{{\@nostyle\@print{<!--BEGIN NOTES }\@getprint{#1}\@print{-->
 }}}\footnoterule%
