@@ -333,9 +333,9 @@ may be present in the final \html{} document.
 Normally, as \hevea{} never outputs \verb+P+ elements whose contents is
 made of spaces only, this should not happen very often.
 Unfortunately, some commands do not produce any output in \LaTeX,
-while they do produce output in \hevea.
-Consider for instance the command \verb+\label+.
-\hevea{} translates
+while they do produce output in \hevea: those commands
+are \verb+\label+, \verb+\index+
+Consider for instance command \verb+\label+. \hevea{} translates
 \verb+\label{+\textit{name}\verb+}+ into the anchor
 \verb+<A NAME="+\textit{name}\verb+"></A>+. As a result, the following
 source fragment will introduce a spurious paragraph.
@@ -1733,9 +1733,8 @@ environment and refuses to override its own definition for that
 environment.
 
 
-\latexsection{Cutting your document into pieces with \hacha{}}
-\pdfsection{Cutting your document into pieces with HaChA}
-\label{hacha}
+\latexsection{Cutting\label{hacha} your document into pieces with \hacha{}}
+\pdfsection{Cutting\label{hacha} your document into pieces with HaChA}
 \hevea{} outputs a single \texttt{.html} file. This file can be
 cut into pieces at various sectional units by {\hacha}
 
@@ -2738,6 +2737,9 @@ the document preamble.
 Valid  charset names are \texttt{ISO-8859-}\textit{n} where $n$ is a
 number in \texttt{1}\ldots\texttt{15}, and \texttt{US-ASCII} (the
 default).
+In case those charsets do not suffice, you may ask the author for
+other document charsets.  Notice however that document charset is not
+that important, the default \texttt{US-ASCII} works everywhere!
 
 
 \ttindex{xxcharset.exe}{script}%
@@ -2768,12 +2770,9 @@ the definition of the encoding --- see Section~\ref{newmap} for details.
 I will include it in the \texttt{mappings} directory.
 As a result, \verb+\@def@charset{+\texttt{encoding}\verb+}+ will work.
 \end{itemize}
-Notice however, that document charset is not that important, the default
-\texttt{US-ASCII} works everywhere!
 \fi
 
-\section{Support for style sheets}\label{style:sheets}
-\index{style-sheets}
+\section{Support\label{style:sheets}\index{style-sheets} for style sheets}
 
 \subsection{Overview}
 Starting with version~1.08, \hevea{} offers support for style sheets
@@ -3165,8 +3164,8 @@ Good Morning & Bonjour\\ Thank You & Merci\\ Good Bye & Au Revoir\\
 
 
 
-\subsubsection{Styling the \texttt{itemize} environment}\index{styles for!lists}
-
+\subsubsection{Styling the \texttt{itemize} environment}
+\index{styles for!lists}
 \newcounter{toc}
 \newenvironment{toc}
 {\stepcounter{toc}\setenvclass{itemize}{toc\thetoc}\begin{itemize}}
@@ -3870,7 +3869,7 @@ as follows:
 \renewcommand{\footnote}[2][]{~(#2)}
 \end{verbatim}
 
-\subsection{Accents and special symbols}
+\subsection{Accents\label{accents} and special symbols}
 Thanks to Unicode character references, \hevea{} can virtually output
 any symbol.
 It may happen that \hevea{} does not known about a particular symbol,
@@ -4291,7 +4290,7 @@ in display-math mode. The commands \verb+\bigl,\bigr+ etc. \index{\verb+\bigl,\b
 \subsection{Math accents}\index{math accents}
 Math accents (\verb+\hat+, \verb+\tilde+, etc.) are
 handled\label{mathaccents} by default.  They in fact act as the
-corresponding text-mode accents.  The \verb+\vec+
+corresponding text-mode accents (Section~\ref{accents}).  The \verb+\vec+
 command is rendered differently in display and non-display mode. In
 display mode, the arrow appears in normal position, while in
 non-display the arrow appears as an ordinary superscript.
@@ -6206,7 +6205,7 @@ an explicit line-break in the flow of formulas.
 \begin{lstlisting}[language=C]
 \begin{mathpar}
 \int_0^2 xdx = \frac{3}{2}
-\and
+\\
 \int_0^3 xdx = \frac{5}{2}
 \end{mathpar}
 \end{lstlisting}
@@ -6215,7 +6214,7 @@ an explicit line-break in the flow of formulas.
 &
 \begin{mathpar}
 \int_0^2 xdx = \frac{3}{2}
-\and
+\\
 \int_0^3 xdx = \frac{5}{2}
 \end{mathpar}
 \end{tabular}
