@@ -6427,6 +6427,21 @@ produces the following output:
 \end{mathpar}
 \fi
 
+\subsection{The \text{ifpdf} package}
+\ttindex{ifpdf}{package}
+This package should be present in modern \texttt{latex} installations.
+Basically, the package defines a boolean register~\texttt{pdf}, whose
+value is true for tools that produce~\textsc{PDF} such as
+\texttt{pdflatex}) and false for tools that produce~\textsc{DVI}.
+
+The hevea version of the package simply defines the boolean
+register~\texttt{pdf} with value true. It also adds
+\texttt{-pdf}  to \texttt{imagen} command-line options.
+As a result, provided \texttt{imagen} will normally call
+\texttt{pdflatex} in place of \texttt{latex}.
+
+
+
 \subsection{Experimental implementations}
 The \texttt{fancyverb} and \texttt{colortbl}
 packages are partly implemented.
