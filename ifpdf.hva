@@ -1,0 +1,2 @@
+\newif\ifpdf\pdftrue
+\@addimagenopt{-pdf}
