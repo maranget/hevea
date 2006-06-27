@@ -422,9 +422,6 @@
 \ifthenelse{\equal{#1}{!*!}}
   {\footnotemark\footnotetext{#2}}
   {\footnotemark[#1]\footnotetext[#1]{#2}}}
-\AtBeginDocument
-{\@stopimage\renewcommand{\thefootnote}{\arabic{footnote}}\@restartimage%
-\setcounter{footnote}{0}}
 %%% For defining Sectioning commands
 \newif\if@refs\@refstrue
 \newenvironment{@norefs}
@@ -486,7 +483,10 @@
 %Format date after \today is defined
 \ifu\@title\let\title\@titlebis\else\sbox{\@@title}{\@title}\fi
 \ifu\@author\let\author\@authorbis\else\sbox{\@@author}{\@author}\fi
-\ifu\@date\let\date\@datebis\else\sbox{\@@date}{\@date}\fi}%
+\ifu\@date\let\date\@datebis\else\sbox{\@@date}{\@date}\fi
+%%%Reset footnotes counter: next footnotes are 1, 2, etc.
+\@stopimage\renewcommand{\thefootnote}{\arabic{footnote}}\@restartimage%
+\setcounter{footnote}{0}}%
 %%End AtBeginDocument
 %%%%%%%% Day and month formats
 \def\default@day

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: html.ml,v 1.102 2006-05-12 09:52:55 maranget Exp $" 
+let header = "$Id: html.ml,v 1.103 2006-06-27 07:24:12 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -397,9 +397,15 @@ let wrap_close close_block s =
   begin match s with GROUP -> () | _ -> ignore (close_par ()) end ;
   begin match s with
   | UL|OL ->
-      close_block LI
+      if flags.nitems > 0 then
+	close_block LI	
+      else
+	warning "List with no iterm"
   | DL ->
-      close_block DD
+      if flags.nitems > 0 then
+	close_block DD
+      else
+	warning "List with no iterm"
   | _ -> ()
   end ;
   close_block s ;

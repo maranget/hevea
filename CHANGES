@@ -1,3 +1,4 @@
+     - \setkeys => \@seytkeys in mathpartir (avoid echo in image file)
      - Be more tolerant with lists without \item (warning) + avoid producing
        such in multicolumn indexes.
      - Style all list environments (+ thefootnotes, the bibliography)

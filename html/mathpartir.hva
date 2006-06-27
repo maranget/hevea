@@ -134,7 +134,7 @@
 \newcommand {\inferrule*}[3][]{%
    \bgroup\let\@tir@name\RefTirName%
    \mpr@vdotsfalse\let\mpr@label\mpr@N\let\mpr@name\@mpr@name%Default
-   \setkeys {mpr}{#1}%
+   \@setkeys {mpr}{#1}%
    \@inferrule{#2}{#3}%
    \egroup}
 \newcommand {\inferrule}[3][]{%

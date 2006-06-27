@@ -404,16 +404,19 @@
 \setenvclass{indexenv}{indexenv}
 \setenvclass{li-indexenv}{li-indexenv}
 \newenvironment{indexenv}
-{\setenvclass{itemize}{\getenvclass{indexenv}}%
-\setenvclass{li-itemize}{\getenvclass{li-indexenv}}%
-\stepcounter{indexdepth}
-\ifthenelse{\value{indexdepth}>1}
-{\begin{itemize}%
-\renewcommand{\indexitem}{\stepcounter{indexcount}\item}%
-\renewcommand{\indexspace}{\stepcounter{indexcount}\vspace*{2ex}}}
-{\setcounter{indexbox}{0}\setcounter{indexcount}{0}%
-\providesavebox{\csname indexbox0\endcsname}%
-\begin{lrbox}{\csname indexbox0\endcsname}}}
+  {\setenvclass{itemize}{\getenvclass{indexenv}}%
+   \setenvclass{li-itemize}{\getenvclass{li-indexenv}}%
+   \stepcounter{indexdepth}%
+%IF
+   \ifthenelse{\value{indexdepth}>1}
+%THEN
+     {\begin{itemize}%
+      \renewcommand{\indexitem}{\stepcounter{indexcount}\item}%
+      \renewcommand{\indexspace}{\stepcounter{indexcount}\vspace*{2ex}}}
+%ELSE
+     {\setcounter{indexbox}{0}\setcounter{indexcount}{0}%
+      \providesavebox{\csname indexbox0\endcsname}%
+      \begin{lrbox}{\csname indexbox0\endcsname}}}
 {\ifthenelse{\value{indexdepth}>1}
 {\end{itemize}\addtocounter{indexdepth}{-1}}
 {\end{lrbox}%
@@ -426,7 +429,8 @@
 \newcounter{indexclines}\newcounter{indexprev}\newcounter{indexnow}%
 \newcommand{\printindexboxes}
 {\setcounter{indexwork}{1}%
-\setcounter{indexlimit}{(\value{indexcount}+\value{indexcols}-1)/\value{indexcols}}
+\setcounter{indexlimit}
+  {(\value{indexcount}+\value{indexcols}-1)/\value{indexcols}}%
 \setcounter{indexclines}{0}%
 \setcounter{indexprev}{0}%
 \setcounter{indexnow}{0}%
@@ -440,10 +444,14 @@
 {\item}%
 \setboolean{spaceallowed}{true}%
 \usebox{\csname indexbox\theindexwork\endcsname}%
+\stepcounter{indexwork}%
 \ifthenelse{\value{indexclines}>\value{indexlimit}}
-{\end{itemize}&\begin{itemize}\setboolean{spaceallowed}{false}%
-\setcounter{indexclines}{0}}{}%
-\stepcounter{indexwork}\setcounter{indexprev}{\value{indexnow}}}%
+  {\ifthenelse{\value{indexwork}<\value{indexbox}}
+     {\end{itemize}&\begin{itemize}\setboolean{spaceallowed}{false}%
+      \setcounter{indexclines}{0}}
+     {}}%
+  {}%
+\setcounter{indexprev}{\value{indexnow}}}%
 \end{itemize}\end{tabular}}
 %%%%%% Default TABLE attribute for array and tabular
 \newcommand{\@table@attributes}{CELLSPACING=6 CELLPADDING=0}
