@@ -1,6 +1,7 @@
      - \setkeys => \@seytkeys in mathpartir (avoid echo in image file)
      - Be more tolerant with lists without \item (warning) + avoid producing
        such in multicolumn indexes.
+     - added ifpdf package, DOC PENDING
      - Style all list environments (+ thefootnotes, the bibliography)
      - Corrected bug in table of Contents:
          Section whose level is < to tocdepth should go into toc,
