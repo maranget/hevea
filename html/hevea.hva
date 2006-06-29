@@ -25,7 +25,7 @@
 %% Ie the class of the BLOCK elt that translates environment 'env' is
 %%    \'env'@class
 \newcommand{\class@attr}[2]{\ife#1\else\@getprint{CLASS="#1"#2}\fi}
-\newcommand{\setenvclass}[2]{\def\csname{}#1@class\endcsname{#2}}
+\newcommand{\setenvclass}[3][]{#1\def\csname{}#2@class\endcsname{#3}}
 \newcommand{\getenvclass}[1]{\csname{}#1@class\endcsname}
 \newcommand{\envclass@attr}[2][]{\class@attr{\getenvclass{#2}}{#1}}
 %% Packages
@@ -574,5 +574,18 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%Default env class for verbatim
 \setenvclass{verbatim}{verbatim}
+%%%%%% format theorems
+\let\th@font\em
+\newstyle{.theorem}{text-align:left;margin:1ex auto 1ex 0ex;}
+\newcommand{\set@th}[1]
+{\global\let\csname#1@font\endcsname\th@font%
+\setenvclass[\global]{#1}{theorem}}
+\newenvironment{th@env}[3]
+{\@open{DIV}{CLASS="\getenvclass{#1}"}%
+\refstepcounter{#2}\textbf{#3~\csname{}the#2\endcsname}%
+\def\th@tmp{#1}\th@kont}
+{\@close{DIV}}
+\newcommand{\th@kont}[1][]
+{\ifoptarg~\textbf{(#1)}\fi\quad\csname\th@tmp{}@font\endcsname}
 %%%%%% Do not load hevea.hva again !
 \def\csname hevea@loaded\endcsname{}

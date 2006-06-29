@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.87 2006-04-24 14:01:16 maranget Exp $    *)
+(*  $Id: package.ml,v 1.88 2006-06-29 13:48:40 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -468,6 +468,7 @@ register_init "index"
         let tag = get_prim_opt "default" lexbuf in
         let name = get_prim_arg lexbuf in
         Index.changename tag name) ;
+
     let new_index lexbuf =
       let tag = get_prim_arg lexbuf in
       let sufin = get_prim_arg lexbuf in

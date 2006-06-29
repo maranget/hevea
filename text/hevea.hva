@@ -187,6 +187,17 @@
 \newenvironment{indexenv}{\begin{itemize}}{\end{itemize}}
 \newcommand{\indexitem}{\item}
 \newcommand{\indexspace}{\vspace*{1em}}
+%%%%%% format theorems
+\let\th@font\em
+\newcommand{\set@th}[1]
+{\global\let\csname#1@font\endcsname\th@font}
+\newenvironment{th@env}[3]
+{\begin{flushleft}%
+\refstepcounter{#2}\textbf{#3~\csname{}the#2\endcsname}%
+\def\th@tmp{#1}\th@kont}
+{\end{flushleft}}
+\newcommand{\th@kont}[1][]
+{\ifoptarg~\textbf{(#1)}\fi\quad\csname\th@tmp{}@font\endcsname}
 %%%%%%%%%% No attributes for arrays and tabular
 \newcommand{\@table@attributes}{}
 \newcommand{\@table@attributes@border}{}

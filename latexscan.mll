@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.286 2006-05-10 15:38:59 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.287 2006-06-29 13:48:40 maranget Exp $ *)
 
 
 {
@@ -1885,14 +1885,15 @@ let do_newtheorem lxm lexbuf =
       do_newcounter name within ; name
   | {arg=Yes _},_ ->
       get_prim_onarg (from_ok numbered_like) in
+  do_expand_command main no_skip ("\\set@th")
+    (Lexing.from_string ("{"^name^"}")) ;
   Latexmacros.global_def
-    (start_env name) (latex_pat [""] 1)     
+    (start_env name) zero_pat     
     (Subst
-       ("\\begin{flushleft}\\refstepcounter{"^cname^"}{\\bf "^caption^"~"^
-        "\\the"^cname^"}\\quad\\ifoptarg{\\purple[#1]\\quad}\\fi\\em")) ;
+       ("\\begin{th@env}{"^name^"}{"^cname^"}{"^caption^"}")) ;
   Latexmacros.global_def
     (end_env name) zero_pat
-    (Subst "\\end{flushleft}")
+    (Subst "\\end{th@env}")
 ;;
 
 def_name_code "\\newtheorem" do_newtheorem ;
