@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.287 2006-06-29 13:48:40 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.288 2006-07-07 17:46:51 maranget Exp $ *)
 
 
 {
@@ -2086,7 +2086,7 @@ let displayright lexbuf =
     Dest.right delim
     (fun vsize ->
       scan_this main
-	("\\process@delim{"^delim^"}{"^string_of_int vsize^"}")) in
+	("\\process@delim{"^delim^"}{"^string_of_int vsize^"}")) in  
   let {sup=sup ; sub=sub} = save_sup_sub lexbuf in
   let do_what = (fun () -> ()) in
   if vsize > 1 then

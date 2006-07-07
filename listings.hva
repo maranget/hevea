@@ -59,6 +59,8 @@
 \lst@Hook{EmptyStyle}
 \lst@Hook{EmptyLanguage}
 \lst@Hook{InlineUnsave}
+%%Avoid explicit TT in listings, they are useless with style sheets
+\lst@AddToHook{Init}{\let\tt\@empty}
 %%%%%%%%%%%%
 % Keywords %
 %%%%%%%%%%%%

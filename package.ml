@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.88 2006-06-29 13:48:40 maranget Exp $    *)
+(*  $Id: package.ml,v 1.89 2006-07-07 17:46:51 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -129,11 +129,13 @@ def_code "\\process@delim@top"
     let n = Get.get_int (save_arg lexbuf) in
     let top = get_csname lexbuf in
     let mid = get_csname lexbuf in
-    scan_this main top ; Dest.skip_line () ;
-    for _i = 1 to n-2 do
-      scan_this main mid ; Dest.skip_line () ;
-    done ;
-    scan_this main mid)
+    scan_this main top ;
+    if n > 1 then begin
+      Dest.skip_line () ; scan_this main mid ;
+      for _i = 1 to n-2 do
+        Dest.skip_line () ; scan_this main mid ;
+      done
+    end)
 ;;
 
 def_code "\\process@delim@dow"
