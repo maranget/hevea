@@ -1,3 +1,4 @@
+     - \textsubscript forgotten.
      - Small bug in 'mid' counts in \process@delim@top
      - styled theorem-like envs, DOC PENDING
      - \setkeys => \@seytkeys in mathpartir (avoid echo in image file)

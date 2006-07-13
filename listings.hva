@@ -93,7 +93,7 @@
     \lst@record@kwd@class{#1}{#2}%
     \lst@iter{\lst@install@kwd{\csname lst@keywordstyle#1\endcsname}}{#2}}
 \def\lst@more@kwds#1#2{%
-%     \warning{MORE: «#1»}%
+%    \warning{MORE: «#1»}%
     \lst@record@kwd@class{#1}{#2}%
     \lst@iter{\lst@install@kwd{\csname lst@keywordstyle#1\endcsname}}{#2}}
 \def\lst@install@directive#1#2{\def\csname lstd@\lst@normalize{#2}\endcsname{#1}}
