@@ -88,7 +88,7 @@
 \def\scriptscriptstyle{\ifmathml{\scriptsize\@incsize{-1}}\else\scriptsize\@incsize{-1}\fi}
 \def\textstyle{\ifmathml\@style{mtext}\fi}
 \def\textsuperscript#1{\ensuremath{^{\mbox{#1}}}}
-\def\textsubcript#1{\ensuremath{_{\mbox{#1}}}}
+\def\textsubscript#1{\ensuremath{_{\mbox{#1}}}}
 %%%%% Figures and tables
 \setenvclass{figure}{figure}
 %%General \caption command: #1 -> env name, #2 -> \caption arg
