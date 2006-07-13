@@ -1,3 +1,4 @@
+     - \textsubscript does not exist!
      - \textsubscript forgotten.
      - Small bug in 'mid' counts in \process@delim@top
      - styled theorem-like envs, DOC PENDING
