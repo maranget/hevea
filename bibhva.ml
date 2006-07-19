@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: bibhva.ml,v 1.1 2006-07-19 14:48:56 maranget Exp $    *)
+(*  $Id: bibhva.ml,v 1.2 2006-07-19 16:17:13 maranget Exp $    *)
 
 let parse_args () =
   let options = ref []
@@ -66,7 +66,7 @@ and restore () =
   let restore_one x =
     try begin match x with
     | name,None ->
-        remove name
+        if file_exists name then remove name
     | name,Some tmp_name ->
         if file_exists name then remove name ;
         rename tmp_name name
