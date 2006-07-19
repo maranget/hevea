@@ -14,8 +14,6 @@ LATEXLIBDIR=$(PREFIX)/lib/hevea
 ############### End of configuration parameters
 SUF=
 DIR=
-HEVEA=./hevea.$(TARGET)
-ESPONJA=./esponja.$(TARGET)
 OCAMLC=${DIR}ocamlc$(SUF)
 OCAMLFLAGS=-g
 #OCAMLFLAGS=-g -w ZY
@@ -30,13 +28,14 @@ ONLYESPONJA=emisc.cmo buff.cmo pp.cmo htmllex.cmo htmlparse.cmo htmltext.cmo uti
 OBJS=version.cmo mysys.cmo stack.cmo location.cmo misc.cmo  element.cmo out.cmo table.cmo mylib.cmo parse_opts.cmo  myfiles.cmo outUnicode.cmo save.cmo auxx.cmo  lexstate.cmo subst.cmo latexmacros.cmo counter.cmo noimage.cmo image.cmo length.cmo  get.cmo tabular.cmo htmlCommon.cmo htmlMath.cmo mathML.cmo html.cmo  text.cmo infoRef.cmo info.cmo section.cmo foot.cmo entry.cmo index.cmo colscan.cmo color.cmo hot.cmo package.cmo videoc.cmo verb.cmo latexscan.cmo zyva.cmo $(ONLYESPONJA) latexmain.cmo
 OBJSCUT=version.cmo mysys.cmo stack.cmo location.cmo misc.cmo  out.cmo thread.cmo cross.cmo mylib.cmo section.cmo length.cmo save.cmo cut.cmo cutmain.cmo
 OBJSESPONJA=mysys.cmo stack.cmo location.cmo $(ONLYESPONJA)  esponjamain.cmo
+OBJSBIBHVA=bibhva.cmo
 
 GENSRC=colscan.ml cut.ml entry.ml get.ml latexscan.ml length.ml save.ml tabular.ml videoc.ml verb.ml infoRef.ml subst.ml htmllex.ml
 
 OPTS=$(OBJS:.cmo=.cmx)
 OPTSCUT=$(OBJSCUT:.cmo=.cmx)
 OPTSESPONJA=$(OBJSESPONJA:.cmo=.cmx)
-
+OPTSBIBHVA=$(OBJSBIBHVA:.cmo=.cmx)
 include libs.def
 
 all: $(TARGET)
@@ -45,10 +44,10 @@ everything: byte opt
 install: install-$(TARGET)
 
 opt:
-	$(MAKE) $(MFLAGS) TARGET=opt hevea.opt hacha.opt esponja.opt
+	$(MAKE) $(MFLAGS) TARGET=opt hevea.opt hacha.opt esponja.opt bibhva.opt
 
 byte:
-	$(MAKE) $(MFLAGS) TARGET=byte hevea.byte hacha.byte esponja.byte
+	$(MAKE) $(MFLAGS) TARGET=byte hevea.byte hacha.byte esponja.byte bibhva.byte
 
 install-lib:
 	- $(MKDIR) $(DESTDIR)/$(LATEXLIBDIR)
@@ -72,6 +71,7 @@ install-opt: install-lib
 	$(INSTALL) hevea.opt $(DESTDIR)/$(BINDIR)/hevea
 	$(INSTALL) hacha.opt $(DESTDIR)/$(BINDIR)/hacha
 	$(INSTALL) esponja.opt $(DESTDIR)/$(BINDIR)/esponja
+	$(INSTALL) bibhva.opt $(DESTDIR)/$(BINDIR)/bibhva
 	$(INSTALL) imagen $(DESTDIR)/$(BINDIR)
 
 install-byte: install-lib
@@ -79,6 +79,7 @@ install-byte: install-lib
 	$(INSTALL) hevea.byte $(DESTDIR)/$(BINDIR)/hevea
 	$(INSTALL) hacha.byte $(DESTDIR)/$(BINDIR)/hacha
 	$(INSTALL) esponja.byte $(DESTDIR)/$(BINDIR)/esponja
+	$(INSTALL) bibhva.byte $(DESTDIR)/$(BINDIR)/bibhva
 	$(INSTALL) imagen $(DESTDIR)/$(BINDIR)
 
 
@@ -91,6 +92,9 @@ hacha.byte: ${OBJSCUT}
 esponja.byte: ${OBJSESPONJA}
 	${OCAMLC} ${OCAMLFLAGS} -o $@ ${OBJSESPONJA}
 
+bibhva.byte: ${OBJSBIBHVA}
+	${OCAMLC} ${OCAMLFLAGS} -o $@ ${OBJSBIBHVA}
+
 hevea.opt: ${OPTS}
 	${OCAMLOPT} -o $@ ${OPTS}
 
@@ -99,6 +103,9 @@ hacha.opt: ${OPTSCUT}
 
 esponja.opt: ${OPTSESPONJA}
 	${OCAMLOPT} -o $@ ${OPTSESPONJA}
+
+bibhva.opt: ${OPTSBIBHVA}
+	${OCAMLOPT} -o $@ ${OPTSBIBHVA}
 
 mylib.cmo: mylib.ml mylib.cmi
 	${OCAMLC} ${OCAMLFLAGS} -pp 'sed -e "s,LIBDIR,${LIBDIR},g"' -c mylib.ml

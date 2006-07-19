@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.288 2006-07-07 17:46:51 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.289 2006-07-19 14:48:56 maranget Exp $ *)
 
 
 {
@@ -1712,24 +1712,18 @@ let do_input lxm lexbuf =
   let arg = get_prim_arg lexbuf in
   let echo_arg = Save.get_echo () in
   if lxm <> "\\include" || check_include arg then begin
-    let filename =
-      if lxm = "\\bibliography" then Parse_opts.base_in^".bbl"
-      else arg in
-    begin
-      try input_file !verbose main filename
+      try input_file !verbose main arg
       with
       | Myfiles.Except ->
           Image.put lxm ;
           Image.put echo_arg ;
           Image.put "\n"
       | Myfiles.Error _ -> ()
-    end
   end
 ;;
 
 def_code "\\input" (do_input "\\input") ;
 def_code "\\include" (do_input "\\include") ;
-def_code "\\bibliography" (do_input "\\bibliography")
 ;;
 
 (* Command definitions *)
@@ -2578,7 +2572,9 @@ def_code "\\if@toplevel"
 
 
 (* Bibliographies *)
-let bib_ref s1 s2 = scan_this main ("\\@bibref{\\bibtag@hook{"^s1^"}}{"^s2^"}")
+let bib_ref s1 s2 =
+  Auxx.swrite ("\\citation{"^s1^"}\n") ;
+  scan_this main ("\\@bibref{\\bibtag@hook{"^s1^"}}{"^s2^"}")
 ;;
 
 let cite_arg key =

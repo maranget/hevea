@@ -1,3 +1,4 @@
+     - managed for .haux files to be bibtex processable, DOC PENDING
      - \textsubscript does not exist!
      - \textsubscript forgotten.
      - Small bug in 'mid' counts in \process@delim@top

@@ -349,10 +349,6 @@
 \newcommand{\newlabel}[2]{\@newlabel{#1}{\@funcall{\@fst}{#2}}}
 \newcommand{\@writefile}[2]{}
 \newcommand{\@setckpt}[2]{}
-\newcommand{\citation}[1]{}
-\newcommand{\bibdata}[1]{}
-\newcommand{\bibstyle}[1]{}
-\newcommand{\bibliographystyle}[1]{}
 \newcommand{\label}[2][]{\@locname{#2}{#1}\@auxwrite{#2}{\@currentlabel}}
 \newcommand{\ref}[1]{\@locref{#1}{\@auxread{#1}}}
 \newcommand{\pageref}[1]{\@locref{#1}{??}}
@@ -375,8 +371,23 @@
 \AtBeginDocument
 {\@sawdocumenttrue\@readauxorhaux{\@basein}{\jobname}}
 %%%%%%%%%%% Bibliography
-\def\bibliographystyle#1{}
-\def\nocite#1{}
+\newcommand{\bibdata}[1]{}
+\newcommand{\bibliography}[1]
+{\@auxdowrite{\@print{\bibdata}\{\@getprint{#1}\}
+}%
+\@iffileexists{\jobname.hbbl}
+  {\input{\jobname.hbbl}}
+  {\@iffileexists{\jobname.bbl}
+     {\input{\jobname.bbl}}
+     {}}}
+\newcommand{\bibstyle}[1]{}
+\newcommand{\bibliographystyle}[1]
+{\@auxdowrite{\@print{\bibstyle}\{\@getprint{#1}\}
+}}
+\newcommand{\citation}[1]{}
+\newcommand{\nocite}[1]
+{\@auxdowrite{\@print{\citation}\{\@getprint{#1}\}
+}}
 \setenvclass{thebibliography}{thebibliography}
 \setenvclass{dt-thebibliography}{dt-thebibliography}
 \setenvclass{dd-thebibliography}{dd-thebibliography}
