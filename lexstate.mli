@@ -109,7 +109,13 @@ val unoption : string arg option -> string arg
 val save_sup_sub : Lexing.lexbuf -> sup_sub
 val save_sup : Lexing.lexbuf -> string arg option
 val save_sub : Lexing.lexbuf -> string arg option
+
+(* Give next char in entry,
+   may raise Not_found, if no next char is available *)
+val full_peek_char : Lexing.lexbuf -> char
+
 (* Argument parsing *)
+
 type ok = | No of string | Yes of string
 val from_ok : ok arg -> string arg
 

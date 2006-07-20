@@ -1,0 +1,3 @@
+\ProvidesPackage{xspace}
+\@primitives{xspace}
+\endinput

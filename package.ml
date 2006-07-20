@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.89 2006-07-07 17:46:51 maranget Exp $    *)
+(*  $Id: package.ml,v 1.90 2006-07-20 12:52:00 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -582,6 +582,18 @@ register_init "colortbl"
           Dest.insert_attr "TR" ("bgcolor=\""^color_to_string htmlval^"\"")))
 ;;
 
+(* xspace package *)
+register_init "xspace"
+  (fun () ->
+    def_code "\\xspace"
+    (fun lexbuf ->
+      try match Lexstate.full_peek_char lexbuf with
+      | '{'|'}'|'~'|'.'|'!'|','|':'|'?'|'/'|'\''|')'|'-'
+      | ' '|'\t'|'\n' -> ()
+      |  _ -> Dest.put_char ' '
+      with Not_found ->
+        warning "\\xspace could not reach next char"))
+;;
 
 (* sword package *)
 register_init "sword"

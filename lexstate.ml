@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: lexstate.ml,v 1.67 2006-03-01 17:44:20 maranget Exp $"
+let header = "$Id: lexstate.ml,v 1.68 2006-07-20 12:52:00 maranget Exp $"
 
 open Misc
 open Lexing
@@ -330,6 +330,17 @@ and end_normal () =
   restore_lexstate ()
 ;;
 
+let full_peek_char lexbuf =
+  let rec full_peek lexbuf =
+    try
+      Save.peek_next_char lexbuf
+    with Not_found ->
+      if Stack.empty stack_lexbuf then
+        raise Not_found
+      else
+        full_peek (previous_lexbuf ()) in
+  full_peek lexbuf
+        
 let full_save_arg eoferror mkarg parg lexfun lexbuf =
   let rec save_rec lexbuf =
     try
