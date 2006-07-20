@@ -1,3 +1,6 @@
+version 1.08+13
+     - added bibhva executable, so as to call bibtex on .haux files
+       yielding .hbbl files
      - managed for .haux files to be bibtex processable, DOC PENDING
      - \textsubscript does not exist!
      - \textsubscript forgotten.
