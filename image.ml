@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: image.ml,v 1.28 2001-10-02 12:51:36 maranget Exp $" 
+let header = "$Id: image.ml,v 1.29 2006-07-26 06:33:19 maranget Exp $" 
 open Misc
 
 let base = Parse_opts.base_out
@@ -43,8 +43,9 @@ and restart () =
     active := Stack.pop active_stack
 
 let put s = if !active then Out.put !buff s
+
 and put_char c = if !active then Out.put_char !buff c
-;;
+
 
 let tmp_name =
   if Parse_opts.filter then "" else base ^ ".image.tex.new"
@@ -54,14 +55,9 @@ let open_chan () =
   Out.to_chan chan !buff ;
   buff := Out.create_chan chan
 
-
 and close_chan () = Out.close !buff
-;;
-
 
 let my_string_of_int n = Printf.sprintf "%03d" n
-;;
-
 
 let page () =
   let n = !count in

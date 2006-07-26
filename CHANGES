@@ -1,3 +1,5 @@
+     - Include imagen options as comment in image file -> force
+       production of images when options change
 version 1.08+14
      - added xspace.hva
 version 1.08+13

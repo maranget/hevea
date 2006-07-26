@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.289 2006-07-19 14:48:56 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.290 2006-07-26 06:33:19 maranget Exp $ *)
 
 
 {
@@ -2731,8 +2731,14 @@ def_code "\\@begin@document"
 def_code "\\@addimagenopt"
   (fun lexbuf ->
     let opt = get_prim_arg lexbuf in
-    Image.put ("%add option"^opt^"\n") ;
     Misc.image_opt := append_to_opt !Misc.image_opt opt ;)
+;;
+
+def_code "\\@imagenopt"
+  (fun lexbuf ->
+    Image.put ("%Options: "^Misc.get_image_opt ()) ;
+    check_alltt_skip lexbuf)
+    
 ;;
 
 def_code "\\@raise@enddocument"
@@ -2741,8 +2747,9 @@ def_code "\\@raise@enddocument"
       fatal ("\\end{document} with no \\begin{document}")
     else if not (Stack.empty stack_env) then
       error_env "document" !cur_env
-    else
-      raise Misc.EndDocument)
+    else begin
+      raise Misc.EndDocument
+    end)
 ;;
 
 let little_more lexbuf =

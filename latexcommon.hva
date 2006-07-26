@@ -327,7 +327,8 @@
 \@print{<!--FOOTER-->}
 \fi\@footer\fi}
 \AtEndDocument
-{\begin{toimage}
+{\@imagenopt%
+\begin{toimage}
 \end{document}
 \end{toimage}}
 %%% Boxes
