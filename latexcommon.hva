@@ -93,7 +93,7 @@
 \setenvclass{figure}{figure}
 %%General \caption command: #1 -> env name, #2 -> \caption arg
 \newcommand{\hva@caption}[2]
-{\refstepcounter{#1}\begin{center}\csname #1name\endcsname{} \csname the#1\endcsname: #2\end{center}}
+{\refstepcounter{#1}\begin{hva@capted}\csname #1name\endcsname{} \csname the#1\endcsname: #2\end{hva@capted}}
 \newcommand{\@figrule}{\begin{center}\@hr{.8\linewidth}{2pt}\end{center}}
 \newenvironment{figure}[1][]
 {\@forcecommand{\caption}[2][]{\hva@caption{figure}{##2}}%

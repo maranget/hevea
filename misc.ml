@@ -29,8 +29,6 @@ let silent = ref false
 let column_to_command s = "\\@"^s^"@"
 
 
-let hot_start () = ()
-
 let warning s =
   if not !silent || !verbose > 0 then begin
     Location.print_pos () ;
@@ -114,3 +112,10 @@ let get_image_opt () = match !image_opt with
 
 
 let dump_index = ref false
+
+type saved = string option
+
+let checkpoint () = !image_opt
+
+and hot_start so = image_opt := so
+

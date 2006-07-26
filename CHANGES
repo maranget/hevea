@@ -1,3 +1,4 @@
+     - added stacks for redefining/restoring commands
      - Include imagen options as comment in image file -> force
        production of images when options change
 version 1.08+14

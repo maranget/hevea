@@ -110,14 +110,26 @@
   {\end{list}\@out@par{{\@nostyle\@print{
 <!--END NOTES-->
 }}}}
+%%% Captions html dependent part
+\newstyle{.caption}{border: solid blue;
+text-align:left;margin-left:2ex;margin-right:2ex;}
+\setenvclass{caption}{caption}
+\newenvironment{hva@capted}
+  {\@open{DIV}{STYLE="border:solid red; padding-left:auto; padding-right:auto;"}\@open{DIV}{CLASS="\getenvclass{caption}"}}
+  {\@close{DIV}\@close{DIV}}
 %%% for HaChA
 \newcounter{cuttingdepth}
 \setcounter{cuttingdepth}{1}
+\@hva@newstack{@foot}
 \newcommand{\cutdef}[2][]{%
+\@push@foot{\@footnotelevel}%
+\renewcommand{\@footnotelevel}{#2}%
 \@out@par{{\@nostyle\@print{<!--CUT DEF }#2\@print{ }#1\@print{ -->}}}}
 \newcommand{\cutend}{%
+\@footnoteflush{\@footnotelevel}%
 \@out@par{{\@nostyle\@print{<!--CUT END -->
-}}}}
+}}}%
+\@pop@foot{\@footnotelevel}}
 %%%Close/Re-open toplevel pars
 \newcommand{\@secbegin}{\@close@par}
 \newcommand{\@secend}{{\@nostyle\@print{<!--SEC END -->}}\@open@par}

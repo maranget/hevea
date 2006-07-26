@@ -20,7 +20,6 @@ exception Close of string
 exception EndOfLispComment of int (* QNC *)
 exception CannotPut
 
-val hot_start : unit -> unit
 val verbose : int ref
 val readverb : int ref
 val displayverb : bool ref
@@ -46,3 +45,7 @@ type limits = Limits | NoLimits | IntLimits
 val image_opt : string option ref
 val get_image_opt : unit -> string
 val dump_index : bool ref
+
+type saved
+val checkpoint : unit -> saved
+val hot_start : saved -> unit

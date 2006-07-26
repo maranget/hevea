@@ -7,21 +7,22 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: hot.ml,v 1.5 2001-05-25 12:37:22 maranget Exp $               *)
+(*  $Id: hot.ml,v 1.6 2006-07-26 18:16:05 maranget Exp $               *)
 (***********************************************************************)
 type saved =
-    Lexstate.saved * Latexmacros.saved *
+    Misc.saved * Lexstate.saved * Latexmacros.saved *
       Counter.saved * Color.saved * Foot.saved
 
 let checkpoint () =
+  Misc.checkpoint (),
   Lexstate.checkpoint (),
   Latexmacros.checkpoint (),
   Counter.checkpoint (),
   Color.checkpoint (),
   Foot.checkpoint ()
 
-and start (lexstate, latexmacros, counter, color, foot) =
-  Misc.hot_start () ;
+and start (misc, lexstate, latexmacros, counter, color, foot) =
+  Misc.hot_start misc ;
   Lexstate.hot_start lexstate ;
   Latexmacros.hot_start latexmacros ;
   Counter.hot_start counter ;

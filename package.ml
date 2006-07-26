@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.90 2006-07-20 12:52:00 maranget Exp $    *)
+(*  $Id: package.ml,v 1.91 2006-07-26 18:16:05 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -235,7 +235,30 @@ def_code "\\@heveaverbose"
     Misc.verbose := lvl)
 ;;
 
-(* ``Token'' registers *)
+(* Stacks of command definitions *)
+
+def_code "\\@hva@newstack"
+  (fun lexbuf ->
+     let name = get_prim_arg lexbuf in
+     let stack = Stack.create name in
+     def_code
+       ("\\@push"^name)
+       (fun lexbuf ->
+         let cmd = Scan.get_csname lexbuf in
+         let def = Latexmacros.find cmd in
+         Stack.push stack def) ;
+     def_code
+       ("\\@pop"^name)
+       (fun lexbuf ->
+         let cmd = Scan.get_csname lexbuf in
+         try
+           let pat,body = Stack.pop stack in
+           Latexmacros.def cmd pat body
+         with Fatal _ ->
+           warning (Printf.sprintf "Pop empty stack '%s'" name)))
+;;
+
+(* 'Token' registers *)
 def_code "\\newtokens"
   (fun lexbuf ->
     let toks = Scan.get_csname lexbuf in
