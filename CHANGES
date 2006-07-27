@@ -1,6 +1,12 @@
-     - added stacks for redefining/restoring commands
-     - Include imagen options as comment in image file -> force
-       production of images when options change
+     - hacha: bug in toplevel toc for -tocter mode those where
+       closed too often. Finally working ?
+     - hacha/footnotes: added \@footnoteflush in \cutend -> footnotes text in
+       the same file as marks most of the time
+     - added stacks for redefining/restoring commands (\hva@newstack)
+     - include imagen options as comment in image file -> force
+       production of images when options change. Then, Misc also
+       has a checkpointed state, so as to avoid double inclusion
+       of options with -fix.
 version 1.08+14
      - added xspace.hva
 version 1.08+13

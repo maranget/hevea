@@ -70,7 +70,10 @@
 \newenvironment{thefootnotes}[1]
   {\footnoterule\begin{list}[]{}{\renewcommand{\makelabel}[1]{##1}}}
   {\end{list}}
-%%%% Accents and special symbols.
+%%% Captions
+\newenvironment{hva@capted}
+  {\begin{center}\begin{flushleft}}
+  {\end{flushleft}\end{center}}
 %%% Neutral definitions for hacha
 \newcounter{cuttingdepth}
 \setcounter{cuttingdepth}{1}

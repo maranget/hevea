@@ -12,7 +12,7 @@
 {
 open Lexing
 open Stack
-let header = "$Id: cut.mll,v 1.47 2006-04-26 15:47:06 maranget Exp $" 
+let header = "$Id: cut.mll,v 1.48 2006-07-27 08:05:47 maranget Exp $" 
 
 let verbose = ref 0
 
@@ -37,11 +37,13 @@ let rec check_changed name =
   with Not_found -> name
 
 
-let real_name name = match !base with
-| None -> name
-| Some dir -> Filename.concat dir name
+let real_name name =
+  let name = check_changed name in
+  match !base with
+  | None -> name
+  | Some dir -> Filename.concat dir name
 
-let real_open_out name = open_out (real_name (check_changed name))
+let real_open_out name = open_out (real_name name)
 
 type toc_style = Normal | Both | Special
 
@@ -71,17 +73,17 @@ exception Error of string
 (* Accumulate all META, LINK and similar tags that appear in the preamble
    in order to output them in the preamble of every generated page. *)
 
-let header_buff = Out.create_buff ()
-let style_buff = Out.create_buff ()
+let header_buff = CutOut.create_buff "header-buf"
+let style_buff = CutOut.create_buff "style-buf"
 let common_headers = ref ""
 and link_style = ref ""
 
-let adjoin_to_header s = Out.put header_buff s
+let adjoin_to_header s = CutOut.put header_buff s
 
-and adjoin_to_header_char c = Out.put_char header_buff c
+and adjoin_to_header_char c = CutOut.put_char header_buff c
 
 let finalize_header () =
-  if not (Out.is_empty style_buff) then begin
+  if not (CutOut.is_empty style_buff) then begin
     let css_name = Printf.sprintf "%s.css" !name in
     link_style :=
        Printf.sprintf
@@ -89,12 +91,12 @@ let finalize_header () =
          css_name ;
     adjoin_to_header !link_style ;
     let chan = real_open_out css_name in
-    output_string chan (Out.to_string style_buff) ;
+    output_string chan (CutOut.to_string style_buff) ;
     close_out chan
   end ;
-  common_headers := Out.to_string header_buff
+  common_headers := CutOut.to_string header_buff
 
-let html_buff = Out.create_buff ()
+let html_buff = CutOut.create_buff "html-buf"
 let html_head = ref ""
 and html_foot = ref ""
 and html_prefix = ref ""
@@ -111,13 +113,13 @@ let new_filename s =
   incr count ;
   Printf.sprintf "%s%0.3d.html" !name !count
 
-let out = ref (Out.create_null ())
-and out_prefix = ref (Out.create_null ())
+let out = ref (CutOut.create_null ())
+and out_prefix = ref (CutOut.create_null ())
 and outname = ref ""
 and lastclosed = ref ""
 and otheroutname = ref ""
 and flowname_stack = (Stack.create "flowname" : string Stack.t)
-and flow_stack = (Stack.create "flow" : Out.t Stack.t)
+and flow_stack = (Stack.create "flow" : CutOut.t Stack.t)
 ;;
 
 let toc = ref !out
@@ -125,7 +127,7 @@ and tocname = ref !outname
 and otherout = ref !out
 ;;
 
-let close_loc ctx name out =  Out.close out
+let close_loc ctx name out =  CutOut.close out
 
 let change_name oldname name =
   if !phase <= 0 then begin
@@ -149,42 +151,47 @@ let start_phase name =
     end
   end ;
   if !phase > 0 then begin
-    out := (Out.create_chan (real_open_out name))
+    out := CutOut.create_chan (real_name name)
   end ;
   toc := !out
 ;;
 
-let openlist out = Out.put out "<UL>\n"
-and closelist out = Out.put out "</UL>\n"
+let openlist out =
+(*  Printf.eprintf "OPEN LIST: %s\n" (CutOut.get_name out) ; *)
+  CutOut.put out "<UL>\n"
+
+and closelist out =
+(*  Printf.eprintf "CLOSE LIST: %s\n" (CutOut.get_name out) ; *)
+  CutOut.put out "</UL>\n"
 
 and itemref filename s out =
   let filename = check_changed filename in
-  Out.put out "<LI>" ;
-  Out.put out "<A HREF=\"" ;
-  Out.put out filename ;
-  Out.put out "\">" ;
-  Out.put out s ;
-  Out.put out "</A></LI>\n"
+  CutOut.put out "<LI>" ;
+  CutOut.put out "<A HREF=\"" ;
+  CutOut.put out filename ;
+  CutOut.put out "\">" ;
+  CutOut.put out s ;
+  CutOut.put out "</A></LI>\n"
 
 and itemanchor filename label s out =
   let filename = check_changed filename in
-  Out.put out "<LI>" ;
-  Out.put out "<A HREF=\"" ;
-  Out.put out filename ;
-  Out.put_char out '#' ;
-  Out.put out label ;
-  Out.put out "\">" ;
-  Out.put out s ;
-  Out.put out "</A></LI>\n"
+  CutOut.put out "<LI>" ;
+  CutOut.put out "<A HREF=\"" ;
+  CutOut.put out filename ;
+  CutOut.put_char out '#' ;
+  CutOut.put out label ;
+  CutOut.put out "\">" ;
+  CutOut.put out s ;
+  CutOut.put out "</A></LI>\n"
 ;;
 
 let delayed_anchor = ref false
 and prev_anchor = ref None
 
 let do_putanchor label out =
-  Out.put out "<A NAME=\"" ;
-  Out.put out label ;
-  Out.put out "\"></A>"
+  CutOut.put out "<A NAME=\"" ;
+  CutOut.put out label ;
+  CutOut.put out "\"></A>"
 ;;
 
 let putanchor label out =
@@ -205,14 +212,14 @@ and really_putanchor () =
 
 let putlink out name txt =
   let name = check_changed name in
-  Out.put out "<A HREF=\"" ;
-  Out.put out name ;
-  Out.put out "\">" ; 
-  Out.put out txt ;
-  Out.put out "</A>\n"
+  CutOut.put out "<A HREF=\"" ;
+  CutOut.put out name ;
+  CutOut.put out "\">" ; 
+  CutOut.put out txt ;
+  CutOut.put out "</A>\n"
 ;;
 
-let link_buff = Out.create_buff ()
+let link_buff = CutOut.create_buff "link-buf"
 
 let putlinks  name =
   let links_there = ref false in
@@ -234,7 +241,7 @@ let putlinks  name =
     links_there := true
   with Not_found -> () end ;
   if !links_there then
-    Some (Out.to_string link_buff)
+    Some (CutOut.to_string link_buff)
   else
     None
 
@@ -243,8 +250,8 @@ let putlinks_start out outname =
     match putlinks outname with
     | Some s -> 
         some_links := true ;
-        Out.put out s ;
-        Out.put out "<HR>\n"
+        CutOut.put out s ;
+        CutOut.put out "<HR>\n"
     | None -> ()
 
 let putlinks_end out outname =
@@ -252,48 +259,48 @@ let putlinks_end out outname =
     match putlinks outname with
     | Some s -> 
         some_links := true ;
-        Out.put out "<HR>\n" ;
-        Out.put out s
+        CutOut.put out "<HR>\n" ;
+        CutOut.put out s
     | None -> ()
   
 
 let openhtml withlinks title out outname =
-  Out.put out !doctype ; Out.put_char out '\n' ;
-  Out.put out !html ; Out.put_char out '\n' ;
-  Out.put out "<HEAD>\n" ;
-  Out.put out !common_headers;
-  Out.put out "<TITLE>" ;
+  CutOut.put out !doctype ; CutOut.put_char out '\n' ;
+  CutOut.put out !html ; CutOut.put_char out '\n' ;
+  CutOut.put out "<HEAD>\n" ;
+  CutOut.put out !common_headers;
+  CutOut.put out "<TITLE>" ;
   let title = Save.tagout (Lexing.from_string (!html_prefix^title)) in
-  Out.put out title ;
-  Out.put out "</TITLE>\n" ;
-  Out.put out "</HEAD>\n" ;
-  Out.put out !body;
-  Out.put out "\n" ;
+  CutOut.put out title ;
+  CutOut.put out "</TITLE>\n" ;
+  CutOut.put out "</HEAD>\n" ;
+  CutOut.put out !body;
+  CutOut.put out "\n" ;
   if withlinks then putlinks_start out outname ;
-  Out.put out !html_head
+  CutOut.put out !html_head
 
 
 and closehtml withlinks name out =
-  Out.put out !html_foot ;
+  CutOut.put out !html_foot ;
   if withlinks then begin
     putlinks_end out name
   end ;
-  Out.put out "</BODY>\n" ;
-  Out.put out "</HTML>\n" ;
+  CutOut.put out "</BODY>\n" ;
+  CutOut.put out "</HTML>\n" ;
   close_loc "closehtml" name out
 ;;
 
 let put_sec hd title hde out =
-  Out.put out hd ;
-  Out.put_char out '\n' ;
-  Out.put out title ;
-  Out.put out hde ;
-  Out.put_char out '\n'
+  CutOut.put out hd ;
+  CutOut.put_char out '\n' ;
+  CutOut.put out title ;
+  CutOut.put out hde ;
+  CutOut.put_char out '\n'
 ;;
 
 
-let put s = Out.put !out s
-and put_char c = Out.put_char !out c
+let put s = CutOut.put !out s
+and put_char c = CutOut.put_char !out c
 ;;
 
 let cur_level = ref (Section.value "DOCUMENT")
@@ -305,10 +312,10 @@ and depth = ref 2
 (* Open all lists in toc from chapter to sec, with sec > chapter *)
 let rec do_open l1 l2 =
   if l1 < l2 then begin
-    openlist !toc ;
-    begin match !toc_style with
-    | Both|Special -> openlist !out_prefix
-    | _ -> ()
+     begin match !toc_style with
+     | Both -> openlist !toc ; openlist !out_prefix
+     | Special -> openlist !out_prefix
+     | Normal  -> openlist !toc
     end ;
     do_open (l1+1) l2
   end
@@ -317,10 +324,10 @@ let rec do_open l1 l2 =
 (* close from l1 down to l2 *)
 let rec do_close l1 l2 =
   if l1 > l2 then begin
-     closelist !toc ;
      begin match !toc_style with
-     | Both|Special -> closelist !out_prefix
-     | _  -> ()
+     | Both -> closelist !toc ; closelist !out_prefix
+     | Special -> closelist !out_prefix
+     | Normal  -> closelist !toc
      end ;
      do_close (l1-1) l2
   end else
@@ -364,8 +371,8 @@ let close_chapter () =
     begin match !toc_style with
     | Both|Special ->
       let real_out = real_open_out !outname in
-      Out.to_chan real_out !out_prefix ;
-      Out.to_chan real_out !out ;
+      CutOut.to_chan real_out !out_prefix ;
+      CutOut.to_chan real_out !out ;
       close_out real_out
     | Normal -> ()
     end ;
@@ -384,11 +391,11 @@ and open_chapter name =
   if !phase > 0 then begin
     begin match !toc_style with
     | Both|Special ->
-        out_prefix := Out.create_buff () ;
+        out_prefix := CutOut.create_buff (!outname ^ "-prefix") ;
         out := !out_prefix ;
         openhtml true name !out_prefix !outname
     | Normal ->
-        out := Out.create_chan (real_open_out !outname) ;
+        out := CutOut.create_chan (real_name !outname) ;
         openhtml true name !out !outname
     end ;
     itemref !outname name !toc ;
@@ -411,21 +418,21 @@ let open_notes sec_notes =
     outname := new_filename "open_notes" ;
     if !phase > 0 then begin
       otherout := !out ;
-      out := Out.create_chan (real_open_out !outname) ;
-      Out.put !out !doctype ; Out.put_char !out '\n' ;
-      Out.put !out !html ; Out.put_char !out '\n' ;
-      Out.put !out "<HEAD><TITLE>Notes</TITLE>\n" ;
-      Out.put !out !common_headers ;
-      Out.put !out "</HEAD>\n" ;
-      Out.put !out !body ;
-      Out.put !out "\n"
+      out := CutOut.create_chan (real_name !outname) ;
+      CutOut.put !out !doctype ; CutOut.put_char !out '\n' ;
+      CutOut.put !out !html ; CutOut.put_char !out '\n' ;
+      CutOut.put !out "<HEAD><TITLE>Notes</TITLE>\n" ;
+      CutOut.put !out !common_headers ;
+      CutOut.put !out "</HEAD>\n" ;
+      CutOut.put !out !body ;
+      CutOut.put !out "\n"
     end
   end else
    otheroutname := ""
 
 and close_notes () =
   if !otheroutname <> "" then begin
-     Out.put !out "\n</BODY></HTML>\n" ;
+     CutOut.put !out "\n</BODY></HTML>\n" ;
      close_loc "notes" !outname !out ;
      outname := !otheroutname ;
      out := !otherout ;
@@ -433,8 +440,8 @@ and close_notes () =
   end
 ;;
 
-let toc_buf = Out.create_buff ()
-and arg_buf = Out.create_buff ()
+let toc_buf = CutOut.create_buff "toc-buf"
+and arg_buf = CutOut.create_buff "arg-buf"
 ;;
 
 let stack = Stack.create "main"
@@ -474,19 +481,19 @@ let restore_state () =
 
 let hevea_footer = ref false
 
-let hevea_footer_buff = Out.create_buff ()
+let hevea_footer_buff = CutOut.create_buff "hevea-footer-buf"
 
 
 let close_top lxm =
-  Out.put !toc !html_foot ;
+  CutOut.put !toc !html_foot ;
   putlinks_end !toc !tocname ;
   if !hevea_footer then begin
-    Out.put !out "<!--FOOTER-->\n" ;
-    Out.copy hevea_footer_buff !out 
+    CutOut.put !out "<!--FOOTER-->\n" ;
+    CutOut.copy hevea_footer_buff !out 
   end ;
-  Out.put !toc lxm ;
+  CutOut.put !toc lxm ;
   if !tocname = "" then
-    Out.flush !toc
+    CutOut.flush !toc
   else
    close_loc "top" !tocname !toc
 ;;
@@ -512,7 +519,7 @@ let openflow title =
   outname := new_outname ;
   if !phase > 0 then begin
     push flow_stack !out ;
-    out := Out.create_chan (real_open_out !outname) ;
+    out := CutOut.create_chan (real_name !outname) ;
     openhtml false title !out !outname
   end
 
@@ -626,7 +633,7 @@ rule main = parse
     {if !phase > 0 then begin
       match !toc_style with
       | Both|Special when !out == !out_prefix ->
-          out := Out.create_buff ()
+          out := CutOut.create_buff "out-buf"
       | _ -> ()
     end ;
     main lexbuf}
@@ -653,7 +660,7 @@ rule main = parse
     if !phase = 0 then
       html_head := head
     else
-      Out.put !out head;
+      CutOut.put !out head;
     main lexbuf}
 | "<!--HTML" ' '* "FOOT" ' '* "-->" '\n' ?
     {let foot =  save_html lexbuf in
@@ -670,21 +677,21 @@ rule main = parse
     if !phase = 0 then
       doctype := lxm
     else
-      Out.put !out lxm;
+      CutOut.put !out lxm;
     main lexbuf}
 | "<HTML"  [^'>']* '>'
     {let lxm = lexeme lexbuf in
     if !phase = 0 then
       html := lxm
     else
-      Out.put !out lxm;
+      CutOut.put !out lxm;
     main lexbuf}
 | "<BODY" [^'>']* '>'
     {let lxm = lexeme lexbuf in
     if !phase = 0 then
       body := lxm
     else begin
-      Out.put !out lxm ;
+      CutOut.put !out lxm ;
       putlinks_start !out !outname
     end ;
     main lexbuf}
@@ -711,13 +718,13 @@ rule main = parse
 
 and save_html = parse
 | "<!--END" ' '* ['A'-'Z']+ ' '* "-->" '\n'?
-    {let s = Out.to_string html_buff in
+    {let s = CutOut.to_string html_buff in
     if !verbose > 0 then
       prerr_endline ("save_html -> ``"^s^"''");
     s}
 |  _
     {let lxm = lexeme_char lexbuf 0 in    
-    Out.put_char html_buff lxm ;
+    CutOut.put_char html_buff lxm ;
     save_html lexbuf}
 | eof
     {raise (Misc.Fatal ("End of file in save_html"))}
@@ -749,7 +756,7 @@ and repeat_header = parse
 and collect_style = parse
 | "</STYLE>" '\n'? { () }
 | _ as c
-    { Out.put_char style_buff c ; collect_style lexbuf }
+    { CutOut.put_char style_buff c ; collect_style lexbuf }
 
 and skip_style = parse
 | "</STYLE>" '\n'? { () }
@@ -764,15 +771,15 @@ and footer = parse
     {if !phase > 0 then begin
       close_top lxm 
     end}
-| _  as lxm {if !phase = 0 then begin Out.put_char hevea_footer_buff lxm end ;
+| _  as lxm {if !phase = 0 then begin CutOut.put_char hevea_footer_buff lxm end ;
        footer lexbuf}
 | eof {raise (Misc.Fatal ("End of file in footer (no </BODY> tag)"))}
 
 
 and tocline = parse
-    "-->" '\n' ? {Out.to_string toc_buf}
+    "-->" '\n' ? {CutOut.to_string toc_buf}
 | _
-    {Out.put_char toc_buf (lexeme_char lexbuf 0) ;
+    {CutOut.put_char toc_buf (lexeme_char lexbuf 0) ;
       tocline lexbuf}
 
 
@@ -802,8 +809,8 @@ and argname = parse
 | "" {raise (Misc.Fatal "ARG title")}
 
 and arg = parse
-| "</ARG>"  {Out.to_string arg_buf}
-| _         {Out.put_char arg_buf (Lexing.lexeme_char lexbuf 0) ; arg lexbuf}
+| "</ARG>"  {CutOut.to_string arg_buf}
+| _         {CutOut.put_char arg_buf (Lexing.lexeme_char lexbuf 0) ; arg lexbuf}
 | eof       {raise (Misc.Fatal "Unclosed arg")}
 
 
