@@ -111,12 +111,12 @@
 <!--END NOTES-->
 }}}}
 %%% Captions html dependent part
-\newstyle{.caption}{border: solid blue;
-text-align:left;margin-left:2ex;margin-right:2ex;}
+\newstyle{.caption}
+{padding-left:2ex; padding-right:2ex; margin-left:auto; margin-right:auto}
 \setenvclass{caption}{caption}
 \newenvironment{hva@capted}
-  {\@open{DIV}{STYLE="border:solid red; padding-left:auto; padding-right:auto;"}\@open{DIV}{CLASS="\getenvclass{caption}"}}
-  {\@close{DIV}\@close{DIV}}
+  {\@open{DIV}{CLASS="\getenvclass{caption}"}\begin{tabular}{p{\linewidth}}}
+  {\end{tabular}\@close{DIV}}
 %%% for HaChA
 \newcounter{cuttingdepth}
 \setcounter{cuttingdepth}{1}
