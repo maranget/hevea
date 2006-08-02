@@ -13,7 +13,7 @@
 open Lexing
 open Misc
 
-let header = "$Id: save.mll,v 1.72 2006-03-03 20:08:53 maranget Exp $" 
+let header = "$Id: save.mll,v 1.73 2006-08-02 19:09:05 maranget Exp $" 
 
 let rec peek_next_char lb =
   let pos = lb.lex_curr_pos
@@ -539,7 +539,9 @@ let skip_blanks_init lexbuf =
   let _ = skip_blanks lexbuf in
   ()
 
-let arg_verbatim lexbuf = match first_char lexbuf with
+let arg_verbatim lexbuf =
+  ignore (skip_blanks lexbuf) ;
+  match first_char lexbuf with
   | '{' ->
        incr brace_nesting ;
        arg2 lexbuf

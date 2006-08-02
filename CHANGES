@@ -1,3 +1,6 @@
+version 1.08+15
+     - eat space before scanning \verb, \lstlisting argument
+       (Save.save_verbatim) 
      - hacha: bug in toplevel toc for -tocter mode those where
        closed too often. Finally working ?
      - hacha/footnotes: added \@footnoteflush in \cutend -> footnotes text in
