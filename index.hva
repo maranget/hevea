@@ -10,7 +10,6 @@
 \@locname{\usebox{\@indexbox}}{#2}\fi}
 \newcommand{\printindex}[1][default]{\@printindex[#1]}
 \newcommand{\makeindex}{\newindex{default}{idx}{ind}{Index}}
-\newcommand{\@seename}{see}
-\newcommand{\see}[2]{\@seename\ \textit{#1}}
+\newcommand{\see}[2]{\seename\ \textit{#1}}
 \newcommand{\@vwritefile}[2]{}
 

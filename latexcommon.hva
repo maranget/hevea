@@ -409,6 +409,7 @@
 \newcommand{\@close@cite}{]}
 \newcommand{\@sep@cite}{, }
 %%%%%%%%%%% Footnotes
+\def\footnote@c{footnote}%indirection to footnote counter
 \newcommand{\footnoterule}{{\@nostyle\@hr{.5\textwidth}{1pt}}}
 \newcommand{\footnotesep}[1]{}
 \newcounter{savenote}\newcounter{onemark}
@@ -425,12 +426,12 @@
 %%%%%%%%%%%%%%%%%%
 \newcommand{\footnotemark}[1][!*!]{%
 \ifthenelse{\equal{#1}{!*!}}%
-  {\stepcounter{footnote}\@stepanchor{\value{footnote}}\setcounter{onemark}{\value{footnote}}}%
+  {\stepcounter{\footnote@c}\@stepanchor{\value{\footnote@c}}\setcounter{onemark}{\value{\footnote@c}}}%
   {\setcounter{onemark}{#1}}%
 \@notetextstyle{\@noteref{note}{text}
   {\@anchorval{\value{onemark}}}
   {\@fnmarktext{\value{onemark}}}}}
-\newcommand{\footnotetext}[2][\value{footnote}]{\@footnotetext{#1}{#2}}
+\newcommand{\footnotetext}[2][\value{\footnote@c}]{\@footnotetext{#1}{#2}}
 \newcommand{\footnote}[2][!*!]{%
 \ifthenelse{\equal{#1}{!*!}}
   {\footnotemark\footnotetext{#2}}
@@ -570,8 +571,15 @@
 {\@auxdowrite{\@print{\@addcontentsline}{\{\@nostyle{}h#1\}\{\csname @#2@level\endcsname\}}\{\@subst{#3}\}\@print{
 }}}
 %%%%%%%%% Minipage
+%Manage footnotes in minipage. flush of those is missing.
+\newcounter{mpfootnote}
+\renewcommand{\thempfootnote}{\alph{mpfootnote}}
 \newenvironment{minipage}[2][]
-{\warning{minipage, output may be poor}\@start@text}{\@end@text}
+  {\warning{minipage, output may be poor}%
+  \setcounter{mpfootnote}{0}%
+  \def\footnote@c{mpfootnote}%
+  \@start@text}
+  {\@end@text}
 %%%%% Extension des environnments hevea en lecture de fichier
 \newcommand{\rawhtmlinput}[1]
 {\@scaninput{\begin{rawhtml}}{#1}{\end{rawhtml}}}

@@ -12,6 +12,5 @@
 %\@restoreclosed\fi}
 \newcommand{\printindex}{\@printindex[default]}
 \newcommand{\makeindex}{\newindex{default}{idx}{ind}{Index}}
-\newcommand{\@seename}{see}
-\newcommand{\see}[2]{\@seename\ \textit{#1}}
+\newcommand{\see}[2]{\seename\ \textit{#1}}
 
