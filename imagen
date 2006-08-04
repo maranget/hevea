@@ -37,7 +37,7 @@ do
         ;;  
      -quant)
         shift
-        PPMQUANT="ppmquant $1 |"
+        PPMQUANT="ppmquant $1 2>/dev/null |"
         ;;
     -extra)
         shift
@@ -69,7 +69,7 @@ echo "RESOLUTION: $RESOLUTION"
 #always quantize for gifs (ppmtogif ouputs non valid files when colors >= 256)
 if [ "$EXT" = "gif" -a -z "$PPMQUANT" ]
 then
-  PPMQUANT="ppmquant 255 |"
+  PPMQUANT="ppmquant 255 2>/dev/null |"
 fi
 
 case $1 in
@@ -100,5 +100,5 @@ fi |\
 ${GS} ${GSOPTS} -sOutputFile="|\
     ${PNMCROP} | ${PNMEXTRA} \
     ${PNMMARGIN} | ${PPMQUANT} \
-    ${PPMTOEXT} > ${TODIR}/${BASE}%03d.${EXT}" -
+    ${PPMTOEXT} 2>/dev/null > ${TODIR}/${BASE}%03d.${EXT}" -
 ${RM} ${NAME}.dvi ${NAME}.log ${NAME}.aux  head.tmp body.tmp

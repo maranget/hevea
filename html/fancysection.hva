@@ -50,16 +50,16 @@
    \stepcounter{tocstyle}%
    \begin{itemize}}
   {\end{itemize}\addtocounter{tocstyle}{-1}}
-\newcommand{\newftocstyle}[2]
-  {\newstyle{.ftoc#1}{list-style:none;margin:0ex 1ex;padding:0ex 1ex;border-left:1ex solid \@getstylecolor{#2};}}
+\newcommand{\newftocstyle}[3][0ex]
+  {\newstyle{.ftoc#2}{list-style:none;margin:#1 1ex;padding:0ex 1ex;border-left:1ex solid \@getstylecolor{#3};}}
 \AtBeginDocument
 {\newftocstyle{1}{part}%
 \ifthenelse{\equal{\@base}{book}}
-{\newftocstyle{2}{chapter}\newftocstyle{3}{section}%
+{\newftocstyle[1ex]{2}{chapter}\newftocstyle{3}{section}%
  \newftocstyle{4}{subsection}%
  \newftocstyle{5}{subsubsection}%
  \newftocstyle{6}{paragraph}}
-{\newftocstyle{2}{section}%
+{\newftocstyle[1ex]{2}{section}%
  \newftocstyle{3}{subsection}%
  \newftocstyle{4}{subsubsection}%
  \newftocstyle{5}{paragraph}}}
