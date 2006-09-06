@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: foot.ml,v 1.19 2005-10-13 18:13:28 maranget Exp $" 
+let header = "$Id: foot.ml,v 1.20 2006-09-06 13:52:05 maranget Exp $" 
 open Parse_opts
 
 let some = ref false
@@ -23,20 +23,29 @@ let mark_to_anchor = Hashtbl.create 17
 and anchor_to_note = Hashtbl.create 17
 ;;
 
+let fst_stack = Stack.create_init "fst_stack" 0
+and some_stack = Stack.create "some_stack"
+
 type saved =
     (int, int) Hashtbl.t
   * (int, int * string * string) Hashtbl.t * int * bool
+  * int Stack.saved * bool Stack.saved
+
 
 let checkpoint () =
   Hashtbl.copy mark_to_anchor,
   Hashtbl.copy anchor_to_note,
-  !anchor, !some
+  !anchor, !some,
+  Stack.save fst_stack, Stack.save some_stack
 
-and hot_start (t1,t2,i,b) =
+and hot_start (t1,t2,i,b,fst_saved,some_saved) =
   Misc.copy_int_hashtbl t1 mark_to_anchor ;
   Misc.copy_int_hashtbl t2 anchor_to_note ;
   anchor := i ;
-  some := b
+  some := b ;
+  Stack.restore fst_stack fst_saved ;
+  Stack.restore some_stack some_saved ;
+  ()
 
 let step_anchor mark =
   incr anchor ;
@@ -67,13 +76,21 @@ let register mark themark text =
 ;;
 
 
+let sub_notes () =
+  Stack.push fst_stack !anchor ;
+  Stack.push some_stack !some ;
+  some := false
+
+
 let flush lexer sec_notes sec_here =
   if !some && Section.value sec_here <= Section.value sec_notes then begin
     some := false ;
+    let fst = Stack.top fst_stack in
     lexer ("\\begin{thefootnotes}{"^sec_notes^"}") ;
     let all = ref [] in
     Hashtbl.iter
       (fun anchor (mark,themark,text) ->
+        if anchor > fst then
         all := ((mark,anchor),(themark,text)) :: !all)
       anchor_to_note ;
     all := Sort.list
@@ -90,8 +107,15 @@ let flush lexer sec_notes sec_here =
         lexer ("\\@print{"^text^"\n}"))
       !all ;
     lexer "\\end{thefootnotes}" ;
-    Hashtbl.clear mark_to_anchor ;
-    Hashtbl.clear anchor_to_note ;
+    List.iter
+      (fun ((m,a),_) ->
+        Hashtbl.remove mark_to_anchor m ;
+        Hashtbl.remove anchor_to_note a)
+      !all
+  end ;
+  if not (Stack.empty some_stack) then begin
+    some := Stack.pop some_stack ;
+    ignore (Stack.pop fst_stack)
   end
 ;;
 

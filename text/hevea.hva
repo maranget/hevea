@@ -68,7 +68,7 @@
 \newcommand{\@notetextstyle}[1]{~(#1)}
 \newcommand{\@notenotestyle}[1]{(#1)}
 \newenvironment{thefootnotes}[1]
-  {\footnoterule\begin{list}[]{}{\renewcommand{\makelabel}[1]{##1}}}
+  {\footnoterule\begin{list}{}{\renewcommand{\makelabel}[1]{##1}}}
   {\end{list}}
 %%% Captions
 \newenvironment{hva@capted}
@@ -190,6 +190,9 @@
 \newenvironment{indexenv}{\begin{itemize}}{\end{itemize}}
 \newcommand{\indexitem}{\item}
 \newcommand{\indexspace}{\vspace*{1em}}
+%%%%%%%%concrete minipage
+\setenvclass{minipage}{minipage}
+\newenvironment{@minipage}{}{}
 %%%%%% format theorems
 \let\th@font\em
 \newcommand{\set@th}[1]

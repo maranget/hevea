@@ -16,96 +16,37 @@
 %
 %%%% Processing information for each optional argument
 %
-\DeclareOption{english}{%
-        \InitiateOption{english}%
-}%
-\DeclareOption{USenglish}{%
-        \InitiateOption{english}%
-}%
-\DeclareOption{french}{%
-        \InitiateOption{french}% 
-}%
-\DeclareOption{francais}{%
-        \InitiateOption{french}% 
-}%
-\DeclareOption{german}{%
-        \InitiateOption{german}% 
-}%
-\DeclareOption{ngerman}{%
-        \InitiateOption{german}% 
-}%
-\DeclareOption{austrian}{%
- 	\InitiateOption{austrian}% 
-}%
-\DeclareOption{czech}{%
-	\InitiateOption{czech}%
-}%
-\DeclareOption{american}{%
-	\InitiateOption{english}% 
-}%
-\DeclareOption{croatian}{%
-	\InitiateOption{croatian}% 
-}%
-\DeclareOption{catalan}{%
-	\InitiateOption{catalan}%
-}%
-\DeclareOption{brazil}{%
-	\InitiateOption{brazil}%
-}%
-\DeclareOption{danish}{%
-	\InitiateOption{danish}%
-}%
-\DeclareOption{dutch}{%
-	\InitiateOption{dutch}%
-}%
-\DeclareOption{esperanto}{%
-	\InitiateOption{esperanto}%
-}%
-\DeclareOption{finnish}{%
-	\InitiateOption{finnish}%	
-}%
-\DeclareOption{galician}{%
-	\InitiateOption{galician}%
-}%
-\DeclareOption{italian}{%
-	\InitiateOption{italian}%
-}%
-\DeclareOption{magyar}{%
-	\InitiateOption{magyar}%
-}%
-\DeclareOption{norsk}{%
-	\InitiateOption{norsk}%
-}%
-\DeclareOption{nynorsk}{%
-	\InitiateOption{nynorsk}%
-}%
-\DeclareOption{polish}{%
-	\InitiateOption{polish}%
-}%
-\DeclareOption{portuges}{%
-	\InitiateOption{portuges}%
-}%
-\DeclareOption{romanian}{%
-	\InitiateOption{romanian}%
-}%
-\DeclareOption{russian}{%
-	\InitiateOption{russian}%
-}%
-\DeclareOption{slovak}{%
-	\InitiateOption{slovak}%
-}%
-\DeclareOption{slovene}{%
-	\InitiateOption{slovene}%
-}%
-\DeclareOption{spanish}{%
-	\InitiateOption{spanish}%
-}%
-\DeclareOption{swedish}{%
-	\InitiateOption{swedish}%
-}%
-\DeclareOption{turkish}{%
-	\InitiateOption{turkish}%
-}%
+\DeclareOption{english}{\InitiateOption{english}}%
+\DeclareOption{USenglish}{\InitiateOption{english}}%
+\DeclareOption{french}{\InitiateOption{french}}%
+\DeclareOption{frenchb}{\InitiateOption{french}}%
+\DeclareOption{francais}{\InitiateOption{french}}%
+\DeclareOption{german}{\InitiateOption{german}}%
+\DeclareOption{ngerman}{\InitiateOption{german}}%
+\DeclareOption{austrian}{\InitiateOption{austrian}}% 
+\DeclareOption{czech}{\InitiateOption{czech}}%
+\DeclareOption{american}{\InitiateOption{english}}
+\DeclareOption{croatian}{\InitiateOption{croatian}}%
+\DeclareOption{catalan}{\InitiateOption{catalan}}%
+\DeclareOption{brazil}{\InitiateOption{brazil}}%
+\DeclareOption{danish}{\InitiateOption{danish}}%
+\DeclareOption{dutch}{\InitiateOption{dutch}}%
+\DeclareOption{esperanto}{\InitiateOption{esperanto}}%
+\DeclareOption{finnish}{\InitiateOption{finnish}}%
+\DeclareOption{galician}{\InitiateOption{galician}}%
+\DeclareOption{italian}{\InitiateOption{italian}}%
+\DeclareOption{magyar}{\InitiateOption{magyar}}%
+\DeclareOption{norsk}{\InitiateOption{norsk}}%
+\DeclareOption{nynorsk}{\InitiateOption{nynorsk}}%
+\DeclareOption{polish}{\InitiateOption{polish}}%
+\DeclareOption{portuges}{\InitiateOption{portuges}}%
+\DeclareOption{romanian}{\InitiateOption{romanian}}%
+\DeclareOption{russian}{\InitiateOption{russian}}%
+\DeclareOption{slovak}{\InitiateOption{slovak}}%
+\DeclareOption{slovene}{\InitiateOption{slovene}}%
+\DeclareOption{spanish}{\InitiateOption{spanish}}%
+\DeclareOption{swedish}{\InitiateOption{swedish}}%
+\DeclareOption{turkish}{\InitiateOption{turkish}}%
 %
 %%%% Processing babel options postponed for later
 %

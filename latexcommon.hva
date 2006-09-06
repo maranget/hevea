@@ -410,7 +410,7 @@
 \newcommand{\@sep@cite}{, }
 %%%%%%%%%%% Footnotes
 \def\footnote@c{footnote}%indirection to footnote counter
-\newcommand{\footnoterule}{{\@nostyle\@hr{.5\textwidth}{1pt}}}
+\newcommand{\footnoterule}{{\@nostyle\@hr[ALIGN=left]{.5\textwidth}{1pt}}}
 \newcommand{\footnotesep}[1]{}
 \newcounter{savenote}\newcounter{onemark}
 \newcommand{\@fnmarktext}[1]{%
@@ -571,15 +571,18 @@
 {\@auxdowrite{\@print{\@addcontentsline}{\{\@nostyle{}h#1\}\{\csname @#2@level\endcsname\}}\{\@subst{#3}\}\@print{
 }}}
 %%%%%%%%% Minipage
-%Manage footnotes in minipage. flush of those is missing.
+%Manage footnotes in minipage, as latex does
+% 1. Use counter mpfootnote
+% 2. Flush notes at end
 \newcounter{mpfootnote}
 \renewcommand{\thempfootnote}{\alph{mpfootnote}}
 \newenvironment{minipage}[2][]
   {\warning{minipage, output may be poor}%
+  \@footnotesub%
   \setcounter{mpfootnote}{0}%
   \def\footnote@c{mpfootnote}%
-  \@start@text}
-  {\@end@text}
+  \@minipage\@start@text}
+  {\@end@text\@footnoteflush{now}\end@minipage}
 %%%%% Extension des environnments hevea en lecture de fichier
 \newcommand{\rawhtmlinput}[1]
 {\@scaninput{\begin{rawhtml}}{#1}{\end{rawhtml}}}

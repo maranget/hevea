@@ -9,9 +9,9 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: section.ml,v 1.3 1999-10-05 17:02:31 maranget Exp $" 
+let header = "$Id: section.ml,v 1.4 2006-09-06 13:52:05 maranget Exp $" 
 let value s = match String.uppercase s with
-  "DOCUMENT"|"" -> 0
+  "DOCUMENT"|""|"NOW" -> 0
 | "PART" -> 1
 | "CHAPTER" -> 2
 | "SECTION" -> 3
@@ -19,5 +19,7 @@ let value s = match String.uppercase s with
 | "SUBSUBSECTION" -> 5
 | "PARAGRAPH" -> 6
 | "SUBPARAGRAPH" -> 7
-| _         -> 8
+| _         ->
+    Misc.warning (Printf.sprintf "argument '%s' as section level" s) ;
+    8
 ;;

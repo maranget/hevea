@@ -1,3 +1,4 @@
+     - Fush footnotes at end of 'minipage' environments
      - \@seename -> \seename in index.hva/makeidx.hva
 version 1.08+15
      - eat space before scanning \verb, \lstlisting argument

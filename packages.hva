@@ -26,7 +26,7 @@
 \newcommand{\@process@option}[1]%
 	{\def\pkg@opt{{\@nostyle\@callprim{\@eatspaces}{#1,}}}%
         \ifu\csname\@pkg@opt@name{\pkg@opt}\endcsname
-         \warning{Igoring option: '#1'}\else
+         \warning{Ignoring option: '#1'}\else
 	 \csname\@pkg@opt@name{\pkg@opt}\endcsname\fi}%
 \newcommand{\ProcessOptions*}
 {\@callprim{\@iter}

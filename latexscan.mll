@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.290 2006-07-26 06:33:19 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.291 2006-09-06 13:52:05 maranget Exp $ *)
 
 
 {
@@ -2649,6 +2649,9 @@ def_code "\\@footnoteflush"
     start_lexstate () ;
     Foot.flush (scan_this main) sec_notes sec_here ;
     restore_lexstate ())
+;;
+
+def_code "\\@footnotesub" (fun lexbuf -> Foot.sub_notes ())
 ;;
 
 (* Opening and closing environments *)

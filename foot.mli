@@ -17,6 +17,7 @@ val hot_start : saved -> unit
 val step_anchor : int -> unit
 val get_anchor : int -> int
 val register : int -> string -> string -> unit
+val sub_notes : unit -> unit
 val flush : (string -> unit)  -> string -> string -> unit
 val some : bool ref
 

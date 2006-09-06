@@ -100,6 +100,7 @@
 \setenvclass{thefootnotes}{thefootnotes}
 \setenvclass{dt-thefootnotes}{dt-thefootnotes}
 \setenvclass{dd-thefootnotes}{dd-thefootnotes}
+\newstyle{.thefootnotes}{text-align:left;}
 \newstyle{.dt-thefootnotes}{margin-left:0em; display:compact;}
 \newstyle{.dd-thefootnotes}{margin-left:2em;}
 \newenvironment{thefootnotes}[1]
@@ -584,6 +585,12 @@
   {#1}}}
 \newcommand{\underbrace}{\DisplayChoose\@underbrace\textunderbrace}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%concrete minipage
+\newstyle{.minipage}{border:solid red;}
+\setenvclass{minipage}{minipage}
+\newenvironment{@minipage}
+{\@open{DIV}{CLASS="\getenvclass{minipage}"}}
+{\@close{DIV}}
 %%%%%%%%Default env class for verbatim
 \setenvclass{verbatim}{verbatim}
 %%%%%% format theorems

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: html.ml,v 1.103 2006-06-27 07:24:12 maranget Exp $" 
+let header = "$Id: html.ml,v 1.104 2006-09-06 13:52:05 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -400,12 +400,12 @@ let wrap_close close_block s =
       if flags.nitems > 0 then
 	close_block LI	
       else
-	warning "List with no iterm"
+	warning "List with no item"
   | DL ->
       if flags.nitems > 0 then
 	close_block DD
       else
-	warning "List with no iterm"
+	warning "List with no item"
   | _ -> ()
   end ;
   close_block s ;
