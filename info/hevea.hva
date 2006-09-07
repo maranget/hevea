@@ -23,7 +23,7 @@
 \renewenvironment{thefootnotes}[1]
   {\begin{lrbox}{\footflushed}
   \footnoterule%
-  \begin{list}[]{}{\renewcommand{\makelabel}[1]{##1}}}
+  \begin{list}{}{\renewcommand{\makelabel}[1]{##1}}}
   {\end{list}\end{lrbox}%
   \@infoextranode{\theflush}{Notes}{\usebox{\footflushed}}%
   \stepcounter{footnotesflush}}
@@ -43,8 +43,8 @@
      {}}%
 \renewcommand{\@makesection}[7]{%
 \newcommand{#1}[2][!*!]
-{\checkdepth{#2}{\refstepcounter{#3}}%
+{\@checkdepth{#2}{\refstepcounter{#3}}%
 \@footnoteflush{#3}%
 \@insertmenu{#3}{#2}{\begin{@norefs}##2\end{@norefs}}%
-#4\checkdepth{#2}{#5#6} ##2#7\@secend}%
+#4\@checkdepth{#2}{#5#6} ##2#7\@secend}%
 \newcommand{#1*}[1]{#4##1#7\@secend}}

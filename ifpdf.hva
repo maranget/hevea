@@ -1,2 +1,2 @@
 \newif\ifpdf\pdftrue
-\@addimagenopt{-pdf}
+\AtBeginDocument{\ifpdf\@addimagenopt{-pdf}\fi}

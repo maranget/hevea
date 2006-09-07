@@ -1,3 +1,5 @@
+\usepackage{ifpdf}
+%HEVEA\pdffalse
 \usepackage{a4}
 \usepackage[latin1]{inputenc}
 %HEVEA\@def@charset{US-ASCII}
@@ -6556,7 +6558,7 @@ produces the following output:
 \end{mathpar}
 \fi
 
-\subsection{The \text{ifpdf} package}
+\subsection{The \texttt{ifpdf} package}
 \ttindex{ifpdf}{package}
 This package should be present in modern \texttt{latex} installations.
 Basically, the package defines a boolean register~\texttt{pdf}, whose
@@ -6564,11 +6566,22 @@ value is true for tools that produce~\textsc{PDF} such as
 \texttt{pdflatex}) and false for tools that produce~\textsc{DVI}.
 
 The hevea version of the package simply defines the boolean
-register~\texttt{pdf} with value true. It also adds
-\texttt{-pdf}  to \texttt{imagen} command-line options.
-As a result, provided \texttt{imagen} will normally call
-\texttt{pdflatex} in place of \texttt{latex}.
+register~\texttt{pdf} with initial value true.  Command-line option
+``\texttt{-pdf}'' is also added to \texttt{imagen} command-line
+options (by using the command~\verb+\@addimagenopt+, see
+Section~\ref{imagen-source}).  As a result, \texttt{imagen} will
+normally call \texttt{pdflatex} in place of \texttt{latex}.
 
+In case standard \texttt{latex} processing in \texttt{imagen} is
+wished, one can issue the command \verb+\pdffalse+ after loading the
+\text{ifpdf} package and before \verb+\begin{document}+. Then, no
+command line option is added.
+Hence, to achieve normal \texttt{latex} processing, while still loading
+the \texttt{ifpdf} package, one writes:
+\begin{verbatim}
+\usepackage{ifpdf}
+%HEVEA\pdftrue
+\end{verbatim}
 
 
 \subsection{Other packages}
