@@ -1,3 +1,4 @@
+version 1.08+16
      - Fush footnotes at end of 'minipage' environments
      - \@seename -> \seename in index.hva/makeidx.hva
 version 1.08+15
@@ -17,15 +18,15 @@ version 1.08+14
 version 1.08+13
      - added bibhva executable, so as to call bibtex on .haux files
        yielding .hbbl files
-     - managed for .haux files to be bibtex processable, DOC PENDING
+     - managed for .haux files to be bibtex processable
      - \textsubscript does not exist!
      - \textsubscript forgotten.
      - Small bug in 'mid' counts in \process@delim@top
-     - styled theorem-like envs, DOC PENDING
+     - styled theorem-like envs
      - \setkeys => \@seytkeys in mathpartir (avoid echo in image file)
      - Be more tolerant with lists without \item (warning) + avoid producing
        such in multicolumn indexes.
-     - added ifpdf package, DOC PENDING
+     - added ifpdf package
      - Style all list environments (+ thefootnotes, the bibliography)
      - Corrected bug in table of Contents:
          Section whose level is < to tocdepth should go into toc,
@@ -36,10 +37,10 @@ version 1.08+13
      - Suppressed some spurious newlines in html output (mostly in HEAD)
      - ? is no more special (equivalent to @) in indexes
        " becomes more general (quote everything)
-     - option -dv, doc pending
-     - chngcntr package, doc pending.
-     - Use P elements for paragraphs, numerous changes, doc pending
-       \n\n lines found while parsing arguments pending
+     - option -dv
+     - chngcntr package.
+     - Use P elements for paragraphs, numerous changes,
+       \n\n lines found while parsing arguments pending, useful ?
 version 1.08+12
      - Big trouble : forgot mapings in distribution !
 version 1.08+11
