@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.91 2006-07-26 18:16:05 maranget Exp $    *)
+(*  $Id: package.ml,v 1.92 2006-09-18 14:33:53 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -233,6 +233,29 @@ def_code "\\@heveaverbose"
   (fun lexbuf ->    
     let lvl = Get.get_int (save_arg lexbuf) in
     Misc.verbose := lvl)
+;;
+
+(* External style-sheet *)
+def_code "\\hva@dump@css"
+  (fun _ ->
+     let name = match Parse_opts.base_out with
+     | "" ->
+         let r = "out.css" in
+         warning ("Outputing style sheet to default file: "^r) ;
+         r
+     | base -> base ^ ".css" in
+     begin try
+       let stys =
+         Dest.to_string 
+           (fun () -> scan_this main "\\hevea@css") in
+       let chan = open_out name in
+       output_string chan stys ;
+       close_out chan
+     with
+     | Sys_error msg ->
+         warning ("Trouble while outputing style sheet: "^msg)
+     end ;
+     scan_this main (Printf.sprintf "\\@getprintnostyle{%s}" name))
 ;;
 
 (* Stacks of command definitions *)

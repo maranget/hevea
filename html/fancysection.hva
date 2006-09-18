@@ -43,6 +43,9 @@
 \ifthenelse{\equal{\@base}{book}}
 {\newstyle{.chapter}{padding:0.5ex;background:\@getstylecolor{chapter}}}
 {}}
+\newstyle{.fmarginpar}
+{border:solid thin \@getstylecolor{subsection}; width:20\%; text-align:left;}
+\setenvclass{marginpar}{fmarginpar}
 \newcounter{tocstyle}
 \renewenvironment{tocenv}
   {\setenvclass{itemize}{ftoc\thetocstyle}%

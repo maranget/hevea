@@ -1,5 +1,9 @@
+version 1.08+17
+     - Styles defined by \newstyle can go into external file, by
+       \externalcsstrue
+     - Added \marginpar
 version 1.08+16
-     - Fush footnotes at end of 'minipage' environments
+     - Flush footnotes at end of 'minipage' environments
      - \@seename -> \seename in index.hva/makeidx.hva
 version 1.08+15
      - eat space before scanning \verb, \lstlisting argument

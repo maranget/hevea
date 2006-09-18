@@ -20,6 +20,7 @@
 \newcommand{\addstyle}[1]{\addtokens{\hevea@css}{#1}}%
 \newcommand{\newstyle}[2]{\addstyle{\@getprint{#1\char123#2\char125\@print{
 }}}}%
+\newif\ifexternalcss\externalcssfalse
 %
 %%Style attributes are normaly set through an indirection.
 %% Ie the class of the BLOCK elt that translates environment 'env' is
@@ -246,13 +247,14 @@
 <META name="GENERATOR" content="hevea }%
 \@getprint{\usebox{\@heveaversion}}\@print{">
 }%
-% style declarations
-\ife\css@link\else\css@link\@print{
-}%
-\fi
-\ife\hevea@css\else\@print{<STYLE type="text/css">}
+\ife\hevea@css\else
+\ifexternalcss\loadcssfile{\hva@dump@css}\else
+\@print{<STYLE type="text/css">}
 \hevea@css\@print{</STYLE>
-}\fi\undef\hevea@css\undef\newstyle}
+}\fi\fi
+\ife\css@link\else\css@link\fi
+\undef\hevea@css\undef\newstyle}
+
 \newenvironment{document}{%
 \@end{document}
 \@atbegindocument%
@@ -586,11 +588,37 @@
 \newcommand{\underbrace}{\DisplayChoose\@underbrace\textunderbrace}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%concrete minipage
-\newstyle{.minipage}{border:solid red;}
+\newstyle{.minipage}{text-align:left; margin-left:0em; margin-right:auto;}
 \setenvclass{minipage}{minipage}
 \newenvironment{@minipage}
 {\@open{DIV}{CLASS="\getenvclass{minipage}"}}
 {\@close{DIV}}
+%%%%%%%%margin par
+\newstyle{.marginpar}
+{border:solid thin black; width:20\%; text-align:left;}
+\newstyle{.marginparleft}
+  {float:left; margin-left:0ex; margin-right:1ex;}
+\newstyle{.marginparright}
+  {float:right; margin-left:1ex; margin-right:0ex;}
+\newif\ifmarginright\marginrighttrue
+\setenvclass{marginpar}{marginpar}
+\setenvclass{marginparside}{marginparright}
+\newcommand{\normalmarginpar}
+  {\setenvclass{marginparside}{marginparright}\marginrighttrue}
+\newcommand{\reversemarginpar}
+  {\setenvclass{marginparside}{marginparleft}\marginrightfalse}
+\newcommand{\hva@mtemp}{}
+\newcommand{\marginpar}[2][]
+{\def\hva@mtemp{#1}%
+\@open{DIV}{CLASS="\getenvclass{marginpar} \getenvclass{marginparside}"}%
+\ifx\hva@mtemp\@empty%
+#2%
+\else\ifmarginright
+#2%
+\else
+#1%
+\fi\fi
+\@close{DIV}}
 %%%%%%%%Default env class for verbatim
 \setenvclass{verbatim}{verbatim}
 %%%%%% format theorems

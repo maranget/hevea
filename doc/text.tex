@@ -61,6 +61,7 @@ Chesnay Cedex. {\tt \mailto{Luc.Maranget@inria.fr}}}}
   {\imgsrc[ALT="Previous"]{previous_motif.gif}}
   {\imgsrc[ALT="Up"]{contents_motif.gif}}
   {\imgsrc[ALT="Next"]{next_motif.gif}}
+%HEVEA\externalcsstrue
 %%DOCUMENT START HERE
 \begin{document}
 \maketitle
@@ -127,7 +128,7 @@ includes a small \ahrefloc{@index}{index}.
 \cutdef{section}
 \section{How to get started}\label{getstarted}
 Assume that you have a file, \texttt{a.tex}, written in \LaTeX, using the
-\filename{article}, \filename{book} or \filename{report} style. Then,
+\texttt{article}, \texttt{book} or \texttt{report} style. Then,
 translation
 is achieved by issuing the command:
 \begin{verbatim}
@@ -171,11 +172,11 @@ appearance of the whole document.
 
 
 \noindent\hevea{} really knows about two \LaTeX{} base styles,
-\filename{article} and \filename{book}.
-Additionally, the \filename{report} base style is recognized and
-considered equivalent to \filename{book} and the
-\filename{seminar} base style for making slides is recognized and
-implemented by small additions on the \filename{article} style.
+\texttt{article} and~\texttt{book}.
+Additionally, the \texttt{report} base style is recognized and
+considered equivalent to \texttt{book} and the
+\texttt{seminar} base style for making slides is recognized and
+implemented by small additions on the \texttt{article} style.
 
 
 Base style \filename{style} is implemented by an \hevea{} specific
@@ -193,14 +194,14 @@ Documents whose base style is not recognized by \hevea{} can be
 processed when the unknown base style is a derivation of a
 recognized base style.
 
-Let us assume that \texttt{mydoc.tex} uses an exotic
-base style such as \filename{acmconf}. Then, typing
-\verb+hevea mydoc.tex+ will yield an error, since
+Let us assume that \texttt{doc.tex} uses an exotic
+base style such as \texttt{acmconf}. Then, typing
+\verb+hevea doc.tex+ will yield an error, since
 \hevea{} cannot find the \texttt{acmconf.hva} file:
 \begin{verbatim}
-# hevea.opt mydoc.tex
-mydoc.tex:1: Warning: Cannot find file: acmconf.hva
-mydoc.tex:1: Error while reading LaTeX: No base style
+# hevea.opt doc.tex
+doc.tex:1: Warning: Cannot find file: acmconf.hva
+doc.tex:1: Error while reading LaTeX: No base style
 Adios
 \end{verbatim}
 
@@ -208,16 +209,16 @@ Adios
 This situation is avoided by invoking \hevea{} with the known
 base style file  \texttt{article.hva} as an extra argument:
 \begin{verbatim}
-# hevea article.hva mydoc.tex
+# hevea article.hva doc.tex
 \end{verbatim}
 The extra argument instructs
 \hevea{} to load its \texttt{article.hva}
-style file before processing \texttt{mydoc.tex}.
+style file before processing \texttt{doc.tex}.
 It will then ignore the document base style specified by
 \verb+\documentclass+ (or \verb+\documentstyle+).
 
-Observe that the fix above works because the \filename{acmconf} and
-\filename{article} base styles look the same to the document (i.e., they define
+Observe that the fix above works because the \texttt{acmconf} and
+\texttt{article} base styles look the same to the document (i.e., they define
 the same macros).
 More generally, most  base styles that are neither
 \textit{article} nor \textit{book} are in fact variations
@@ -245,7 +246,7 @@ Just like \LaTeX{}, \hevea{} reacts to the construct
 \textit{file}. (if I got it right, \hevea{} even follows \TeX{} crazy
 convention on \texttt{.tex} extensions).
 
-As it is often the case, assume that the document \texttt{mydoc.tex} has a
+As it is often the case, assume that the document \texttt{doc.tex} has a
 \verb+\input{mymacros.tex}+ instruction in its preamble, where
 \texttt{mymacros.tex} gathers custom definitions.
 Hopefully, only a few macros give rise to trouble: macros that performs fine
@@ -254,12 +255,12 @@ Such macros need to be rewritten, using basic \LaTeX{}
 constructs (section~\ref{trouble} gives examples of macro-rewriting).
 The new definitions are best collected in a style file,
 \texttt{mymacros.hva} for instance.
-Then, \texttt{mydoc.tex} is to be translated by issuing the command:
+Then, \texttt{doc.tex} is to be translated by issuing the command:
 \begin{verbatim}
-# hevea mymacros.hva mydoc.tex
+# hevea mymacros.hva doc.tex
 \end{verbatim}
 The file \texttt{mymacros.hva} is processed before
-\texttt{mydoc.tex} (and thus before \texttt{mymacros.tex}).
+\texttt{doc.tex} (and thus before \texttt{mymacros.tex}).
 As a consequence of \hevea{} behavior with respect to
 definition and redefinition (see section~\ref{usermacro}),
 the macro definitions in \texttt{mymacros.tex}
@@ -278,7 +279,7 @@ Then, \hevea{} should be instructed
 to load \texttt{mymacros.hva} and not to load \texttt{mymacros.tex}.
 This is done by invoking \texttt{hevea} as follows:
 \begin{verbatim}
-# hevea mymacros.hva -e mymacros.tex mydoc.tex
+# hevea mymacros.hva -e mymacros.tex doc.tex
 \end{verbatim}
 
 
@@ -1442,9 +1443,9 @@ output.
 
 \subsection{The \textit{image}\label{image:file} file}
 
-While outputting \filename{mydoc}\texttt{.html}, \hevea{} echoes some
+While outputting \filename{doc}\texttt{.html}, \hevea{} echoes some
 of its input to the \filename{image} file,
-\filename{mydoc}\texttt{.image.tex}.
+\filename{doc}\texttt{.image.tex}.
 \envindex{toimage}
 Part of this process is done at the user's request.
 More precisely, the following two constructs
@@ -1474,9 +1475,9 @@ output file, where \textit{pagename} is build from the image counter
 and \hevea{} output file name.
 Then the \verb+imagen+ script has to be run by:
 \begin{flushleft}
-\verb+# imagen+ \textit{mydoc}
+\verb+# imagen+ \filename{doc}
 \end{flushleft}
-\noindent This will process the \filename{mydoc}\texttt{.image.tex}
+\noindent This will process the \filename{doc}\texttt{.image.tex}
 file through \LaTeX,
 \texttt{dvips}, \texttt{ghostscript} and a few others tools, which must all be
 present  (see section~\ref{requirements}), finally producing one
@@ -1745,11 +1746,11 @@ cut into pieces at various sectional units by {\hacha}
 \subsection{Simple usage}
 First generate your {\html} document by applying \hevea{}:
 \begin{flushleft}
-\texttt{\# hevea }\filename{mydoc}\texttt{.tex}
+\texttt{\# hevea }\filename{doc}\texttt{.tex}
 \end{flushleft}
-Then cut \filename{mydoc}\texttt{.html} into pieces by the command:
+Then cut \filename{doc}\texttt{.html} into pieces by the command:
 \begin{flushleft}
-\texttt{\# hacha }\filename{mydoc}\texttt{.html}
+\texttt{\# hacha }\filename{doc}\texttt{.html}
 \end{flushleft}
 This will generate a simple root file
 \texttt{index.html}.
@@ -1760,8 +1761,8 @@ that holds a ``cutting'' sectional unit.
 By default, the cutting sectional unit is {\em section} in the
 \filename{article} style and {\em chapter} in the \filename{book}
 style.
-The name of those files are \filename{mydoc}001\texttt{.html},
-\filename{mydoc}002\texttt{.html}, etc.
+The name of those files are \filename{doc}001\texttt{.html},
+\filename{doc}002\texttt{.html}, etc.
 
 Additionally, one level of sectioning below the cutting unit (i.e.,
 subsections in the \filename{article} style and sections in the
@@ -1776,7 +1777,7 @@ Cross-references are properly handled, that is, the local links generated by
 The name of the root  file can be changed using the
 \verb+-o+ option:
 \begin{flushleft}
-\texttt{\# hacha -o root.html }\filename{mydoc}\texttt{.html}
+\texttt{\# hacha -o root.html }\filename{doc}\texttt{.html}
 \end{flushleft}
 
 
@@ -1800,13 +1801,14 @@ feature.
 By contrast, style information specified in the \verb+STYLE+ elements
 from rom the \verb+<HEAD>+\ldots{} \verb+<\HEAD>+
 block is not replicated. Instead, all style definitions are collected into an
-external style sheet file whose name is \filename{mydoc}\texttt{.css},
-and all generated {\html} files adopt \filename{mydoc}\texttt{.css} as
+external style sheet file whose name is \filename{doc}\texttt{.css},
+and all generated {\html} files adopt \filename{doc}\texttt{.css} as
 an external style sheet.
 It is important to notice that, since version 1.08, \hevea{} produces
 a \verb+STYLE+ element by itself, even if users do not explicitely
-use styles. As a consequence, the file \filename{mydoc}\texttt{.css} is
-always produced and should not be forgotten while
+use styles. As a consequence,
+\hacha{} normally produces a
+file \filename{doc}\texttt{.css}, which should not be forgotten while
 copying files to their final destination after a run of~\hacha.
 
 \subsection{Advanced usage}
@@ -2012,10 +2014,10 @@ web pages and introducing arbitrary cuts.
 \subsubsection{Controlling\label{cutname} output file names}
 \cutname{cutname.html}%
 \comdefindex{cutname}%
-When invoked as \texttt{hacha \textit{doc}.html},
+When invoked as \texttt{hacha \filename{doc}.html},
 \hacha{} produces a \texttt{index.html} table of links file that
-points into \textit{doc}\texttt{001.html},
-\textit{doc}\texttt{002.html}, etc. content files.
+points into \filename{doc}\texttt{001.html},
+\filename{doc}\texttt{002.html}, etc. content files.
 This is not very convenient when one wishes to point inside the
 document from outside.
 However, the \verb+\cutname{+\textit{name}\verb+}+ command
@@ -3371,6 +3373,23 @@ Section&nbsp;I.1
 shared by all the~{\html} files produced by \hacha.
 Please refer to section~\ref{hacha:style} for details.
 
+\subsubsection{Producing an external style sheet}
+\index{externalcss@\texttt{externalcss} (boolean register)|defocc}%
+\comdefindex{externalcsstrue}%
+By default,  style declarations defined with
+\verb+\newstyle+ go into the header of the \html{} document
+\filename{doc}\texttt{.html}.
+However, one can send those declaration into an external style file,
+whose name is \filename{doc}\texttt{.css}.
+Then, \hevea{} automatically relates \filename{doc}\texttt{.html} to
+its style sheet  \filename{doc}\texttt{.css}.
+To achieve this behavior, it suffices to set the value of the boolean
+register \texttt{externalcss} to \textit{true}, by issuing the command
+\verb+\externalcsstrue+ in the premable of the source document.
+Notice that \hevea{} output still can be processed by \hacha{}, with
+correct behavior.
+
+
 \subsubsection{Linking to external style sheets}
 \comdefindex{loadcssfile}%
 \index{style-sheets!\verb+\loadcssfile+}%
@@ -3386,13 +3405,12 @@ produces the following \html{} text in the \verb+HEAD+ of the document.
 \begin{verbatim}
   <LINK REL=STYLESHEET TYPE="text/css" HREF="../abc.css">
 \end{verbatim} 
-To yield some effect, \verb+\loadcssfile+ must appear in the  document
-preamble.
-When several \verb+\loadcss+ commands are issued. The given external
-style sheets appear in the output, following source order.
+To yield some effect, \verb+\loadcssfile+ must appear in the document
+preamble.  Several \verb+\loadcssfile+ commands can be issued.  Then
+the given external style sheets appear in the output, following source
+order.
 
-Notice that the argument of \verb+\loadcssfile+ are
-are processed. Thus, if it
+Notice that the argument to \verb+\loadcssfile+ is processed. Thus, if it
 contains special characters such as ``\#'' or ``\$'', those must be specified
 as \verb+\#+ and \verb+\$+ respectively.
 A viable alternative would be to quote
@@ -3423,10 +3441,10 @@ promote uniform styling of several documents produced by \hevea{}.
 \hevea{} can be controlled by writing \LaTeX{} code. In this section,
 we examine how users can change \hevea{} default behavior or add
 functionalities. In all this section we assume that a document
-\texttt{mydoc.tex} is processed, using a private command file
+\texttt{doc.tex} is processed, using a private command file
 \texttt{macros.hva}. That is, \hevea{} is invoked as:
 \begin{verbatim}
-# hevea macros.hva mydoc.tex
+# hevea macros.hva doc.tex
 \end{verbatim}
 The general idea is as follows: one redefines \LaTeX{} constructs in
 \texttt{macros.hva}, using internal commands. This requires a good
@@ -3523,7 +3541,7 @@ effect of another that belongs to another component.
 Anyway, you might have not noticed it if I had not told you.
 
 \subsection{Changing the interface of a command}\label{customize-let}
-Assume for instance that the base style of \texttt{mydoc.tex} is
+Assume for instance that the base style of \texttt{doc.tex} is
 \textit{jsc} (the
 \emph{Journal of Symbolic Computation} style for articles).
 For running \hevea{}, the \textit{jsc} style can be replaced by
@@ -3580,16 +3598,16 @@ By default, images are GIF images, stored in \texttt{.gif} files.
 format.
 It suffices to invoke \texttt{hevea} as:
 \begin{flushleft}
-\texttt{\#~hevea~png.hva}~\textit{mydoc.tex}
+\texttt{\#~hevea~png.hva}~\textit{doc.tex}
 \end{flushleft}
 Then imagen must be run as:
 \begin{flushleft}
-\texttt{\#~imagen~-png}~\textit{mydoc}
+\texttt{\#~imagen~-png}~\filename{doc}
 \end{flushleft}
 
 A convenient alternative is to invoke \texttt{hevea} as:
 \begin{flushleft}
-\texttt{\#~hevea~-fix~~png.hva}~\textit{mydoc.tex}
+\texttt{\#~hevea~-fix~~png.hva}~\textit{doc.tex}
 \end{flushleft}
 Then \texttt{hevea} will invoke \texttt{imagen} with the appropriate
 option when it thinks images need to be rebuild.
@@ -3608,7 +3626,7 @@ Then, all links to images in the produced \html{} file will be as
 ``\textit{dir}/\ldots''.
 Then \texttt{imagen} must be invoked as:
 \begin{flushleft}
-\texttt{\#~imagen~-todir}~\textit{dir}~\textit{mydoc}
+\texttt{\#~imagen~-todir}~\textit{dir}~\filename{doc}
 \end{flushleft}
 As usual, \texttt{hevea} will invoke \texttt{imagen} with the
 appropriate option, provided it is passed the \texttt{-fix} option.
@@ -4612,13 +4630,54 @@ where the \verb+\caption+ commands occur in source code.
 The \verb+\suppressfloats+ command does nothing and the
 figure related counters (such as \verb+topnumber+) exist but are useless.
 
-Marginal notes are not handled and the \verb+\marginpar+ command does
-not exist.
-If their document holds \verb+\marginpar+ command, users should
-probably define it as a null command:
+\comdefindex{marginpar}%
+\comdefindex{reversemarginpar}%
+\comdefindex{normalmarginpar}%
+\marginpar{Marginal notes go in the right margin by default.}
+\reversemarginpar%
+\marginpar{To get marginal notes in the left margin, use
+\verb+\reversemaginpar+.}
+\normalmarginpar%
+Marginal notes are handled in an \hevea{} specific way.
+By default, all notes go in the right margin.
+Issuing \verb+\reversemarginpar+ causes the notes to go in the left
+margin. Unsurprisingly, issuing \verb+\normalmarginpar+ reverts to
+default behavior.
+
+The \verb+\marginpar+ command has an optional argument.
+\begin{flushleft}
+\quad\verb+\marginpar[+\textit{left\_text}\verb+]{+\textit{right\_text}\verb+}+
+\end{flushleft}
+If optional argument \textit{left\_text} is present and that notes
+go in the left margin, then \textit{left\_text} is the text of the
+note. Otherwise, \textit{right\_text} is the text of the note.
+As a conclusion, marginal notes in \hevea{} always go to a fixed side
+of the page, which side being controlled by the commands
+\verb+\normalmarginpar+ (right side) and \verb+\reversemarginpar+
+(left side). This departs form \LaTeX{} that selects a default side
+depending on the parity of the page counter.
+
+Marginal notes are styled by the means of two environment style
+classes (see Section~\ref{css:change})~:
+\verb+marginpar+ and \verb+marginparside+.
+The latter \verb+marginparside+ takes care of margins and placement as
+a float, its value is \verb+marginparright+ for notes in the right
+margin and \verb+marginparleft+ for notes in the left margin.
+Users are not expected to alter those.
+The \verb+marginpar+ environment style class governs the general
+aspect of all marginal notes.
+Users can control the aspect of all marginal notes by defining a new
+style class and assigning the \verb+marginpar+ environment style
+class.
+For instance, to get all marginal notes in red font,
+and taking 10\% of the page width (in place of the default
+20\%),
+one can issue the following commands in the document preamble.
 \begin{verbatim}
-\newcommand{\marginpar}[1]{}
+\newstyle{.mynote}{width:10\%; color:red;}
+\setenvclass{marginpar}{mynote}
 \end{verbatim}
+
 
 \section{Lining It Up in Columns}
 \subsection{The \protect\texttt{tabbing} Environment}
@@ -4700,10 +4759,10 @@ document), which significantly extends the
 \subsection{Files}\label{files}
 In some situations,
 \hevea{} uses some of the ancillary files generated by \LaTeX.
-More precisely, while processing file \filename{mydoc}\texttt{.tex},
+More precisely, while processing file \filename{doc}\texttt{.tex},
 the following files may be read:
 \begin{description}
-\item[\protect\texttt{.aux}] The file \filename{mydoc}\texttt{.aux} contains
+\item[\protect\texttt{.aux}] The file \filename{doc}\texttt{.aux} contains
 cross-referencing information, such as figure or section numbers.
 If this file is present, \hevea{} reads it and put such numbers (or
 labels) inside
@@ -4721,14 +4780,14 @@ As consequence a table of contents is available only when the
 \texttt{.haux} file is read.
 
 
-\item[\protect\texttt{.hbbl}] The \filename{mydoc}\texttt{.hbbl} file
-is generated by \texttt{bibhva} from \filename{mydoc}\texttt{.haux}.
+\item[\protect\texttt{.hbbl}] The \filename{doc}\texttt{.hbbl} file
+is generated by \texttt{bibhva} from \filename{doc}\texttt{.haux}.
 When present, it is read by the \verb+\bibliography+ command.
 
-\item[\protect\texttt{.bbl}] The \filename{mydoc}\texttt{.bbl} file is
-generated by \BibTeX{} from \filename{mydoc}\texttt{.aux}.
-When present, and if no \filename{mydoc}\texttt{.hbbl} exists,
-\filename{mydoc}\texttt{.bbl} is read by the \verb+\bibliography+ command.
+\item[\protect\texttt{.bbl}] The \filename{doc}\texttt{.bbl} file is
+generated by \BibTeX{} from \filename{doc}\texttt{.aux}.
+When present, and if no \filename{doc}\texttt{.hbbl} exists,
+\filename{doc}\texttt{.bbl} is read by the \verb+\bibliography+ command.
 
 \item[\protect\texttt{.hidx} and \protect\texttt{.hind}]
 \hevea{} computes its own indexes, using \texttt{.hidx} files for
@@ -4756,35 +4815,35 @@ file.
 Numerical references to pages (such as generated by \verb+\pageref+)
 are not shown; only an link is generated.
 
-While processing a document \filename{mydoc}\texttt{.tex},
+While processing a document \filename{doc}\texttt{.tex},
 cross-referencing information can be computed in two different, mutually
 exclusive, ways, depending
 on whether \LaTeX{} has been previously run or not:
 \begin{itemize}
 \item If there exists a file 
-\filename{mydoc}\texttt{.aux}, then cross-referencing information is extracted
-from that file. Of course, the \filename{mydoc}\texttt{.aux} file
+\filename{doc}\texttt{.aux}, then cross-referencing information is extracted
+from that file. Of course, the \filename{doc}\texttt{.aux} file
 has to be up-to-date, that is,
 it should be generated by running \LaTeX{} as many times as necessary.
 (For \hevea{} needs, one run is probably sufficient).
-\item If no \filename{mydoc}\texttt{.aux} file exists, then \hevea{}
+\item If no \filename{doc}\texttt{.aux} file exists, then \hevea{}
 expect to find cross-referencing information in the file
-\filename{mydoc}\texttt{.haux}.
+\filename{doc}\texttt{.haux}.
 \end{itemize}
-When using its own \filename{mydoc}\texttt{.haux} file,
+When using its own \filename{doc}\texttt{.haux} file,
 \hevea{} will output a
-new \filename{mydoc}\texttt{.haux} file at the end of its processing.
-This new  \filename{mydoc}\texttt{.haux} file contains actualized
+new \filename{doc}\texttt{.haux} file at the end of its processing.
+This new  \filename{doc}\texttt{.haux} file contains actualized
 cross referencing information.
 Hence, in that case, \hevea{} may need to run twice to get
 cross-references right.
 Note that, just like \LaTeX,
 \hevea{} issues a warning then the cross-referencing information it
 generates differs from what it has read at start-up, and that it does
-not fail if \filename{mydoc}\texttt{.haux} does not exist.
+not fail if \filename{doc}\texttt{.haux} does not exist.
 
 
-Observe that if a non-correct \filename{mydoc}\texttt{.aux} file is
+Observe that if a non-correct \filename{doc}\texttt{.aux} file is
 present, then cross-references will apparently be wrong. However the
 links are correct.
 
@@ -4861,10 +4920,10 @@ The \verb+\listfiles+ command is a null command.
 \envdefindex{indexenv}\countindex{indexcols}
 Glossaries are not handled (who uses them ?).
 
-While processing a document \textit{mydoc}\texttt{.tex}, index
-entries go into the file \textit{mydoc}\texttt{.hidx}, while
+While processing a document \filename{doc}\texttt{.tex}, index
+entries go into the file \filename{doc}\texttt{.hidx}, while
 the formatted index gets written into the file
-\textit{mydoc}\texttt{.hind}.
+\filename{doc}\texttt{.hind}.
 As with \LaTeX{}, two runs of \hevea{} are normally needed to format
 the index.
 However, if all index producing commands (normally \verb+\index+)
@@ -5956,7 +6015,7 @@ commands; {\it ext} is the extension of the index information file
 generated by \LaTeX{} (e.g., \texttt{idx}); {\it ignored} is ignored by
 \hevea{}; and {\it indexname} is the title of the index.
 If given the \verb+idx+ option. \hevea{} attempts to read file
-\filename{mydoc}\texttt{.}{\it ext}. There also exists a
+\filename{doc}\texttt{.}{\it ext}. There also exists a
 \verb+\renewindex+ commands that takes the same arguments and that can be
 used to redefine previously declared indexes.
 \item[{\tt\char92 makeindex}] Perform
