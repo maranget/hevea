@@ -409,6 +409,9 @@
 \newcommand{\@close@cite}{]}
 \newcommand{\@sep@cite}{, }
 %%%%%%%%%%% Footnotes
+\newcommand{\@footnotelevel}{document}%
+\newcommand{\flushdef}[1]{\def\@footnotelevel{#1}}
+\let\footnoteflush\@footnoteflush
 \def\footnote@c{footnote}%indirection to footnote counter
 \newcommand{\footnoterule}{{\@nostyle\@hr[ALIGN=left]{.5\textwidth}{1pt}}}
 \newcommand{\footnotesep}[1]{}
@@ -578,11 +581,11 @@
 \renewcommand{\thempfootnote}{\alph{mpfootnote}}
 \newenvironment{minipage}[2][]
   {\warning{minipage, output may be poor}%
-  \@footnotesub%
+  \renewcommand{\@footnotelevel}{document}\@footnotesub%
   \setcounter{mpfootnote}{0}%
   \def\footnote@c{mpfootnote}%
   \@minipage\@start@text}
-  {\@end@text\@footnoteflush{now}\end@minipage}
+  {\@end@text\@footnoteflush@sticky{document}\@endfootnotesub\end@minipage}
 %%%%% Extension des environnments hevea en lecture de fichier
 \newcommand{\rawhtmlinput}[1]
 {\@scaninput{\begin{rawhtml}}{#1}{\end{rawhtml}}}

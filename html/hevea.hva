@@ -104,8 +104,8 @@
 \newstyle{.thefootnotes}{text-align:left;}
 \newstyle{.dt-thefootnotes}{margin-left:0em; display:compact;}
 \newstyle{.dd-thefootnotes}{margin-left:2em;}
-\newenvironment{thefootnotes}[1]
-  {\@out@par{{\@nostyle\@print{<!--BEGIN NOTES }\@getprint{#1}\@print{-->
+\newenvironment{thefootnotes}[2][]
+  {\@out@par{{\@nostyle\@print{<!--BEGIN }\@getprint{#1}\@print{NOTES }\@getprint{#2}\@print{-->
 }}}\footnoterule%
   \setlistclass{thefootnotes}%
   \begin{list}{}{\renewcommand{\makelabel}[1]{##1}}}
@@ -122,16 +122,22 @@
 %%% for HaChA
 \newcounter{cuttingdepth}
 \setcounter{cuttingdepth}{1}
+%% Old cutdef/cutend, no footnote managment
+\newcommand{\cutdef*}[2][]{%
+\@out@par{{\@nostyle\@print{<!--CUT DEF }#2\@print{ }#1\@print{ -->}}}}
+\newcommand{\cutend*}{%
+\@out@par{{\@nostyle\@print{<!--CUT END -->
+}}}}
+%%% New cutdef/cutend, with footnote managment
 \@hva@newstack{@foot}
 \newcommand{\cutdef}[2][]{%
-\@push@foot{\@footnotelevel}%
-\renewcommand{\@footnotelevel}{#2}%
+\@footnotesub\@push@foot{\@footnotelevel}\flushdef{#2}%
 \@out@par{{\@nostyle\@print{<!--CUT DEF }#2\@print{ }#1\@print{ -->}}}}
 \newcommand{\cutend}{%
-\@footnoteflush{\@footnotelevel}%
+\footnoteflush{\@footnotelevel}%
 \@out@par{{\@nostyle\@print{<!--CUT END -->
 }}}%
-\@pop@foot{\@footnotelevel}}
+\@endfootnotesub\@pop@foot{\@footnotelevel}}
 %%%Close/Re-open toplevel pars
 \newcommand{\@secbegin}{\@close@par}
 \newcommand{\@secend}{{\@nostyle\@print{<!--SEC END -->}}\@open@par}
@@ -288,11 +294,11 @@
 \@printnostyle{-->
 }\fi%
 \usebox{\@toplinks}\usebox{\@linkstext}%
-\cutdef[\thecuttingdepth]{\cuttingunit}%
+\cutdef*[\thecuttingdepth]{\cuttingunit}%
 \renewcommand{\addstyle}[1]{\warning{\addstyle{} must be used in document preamble}}%
 \@open@par%Open first paragraph
 }{%
-\@clearstyle\@footnoteflush{document}%
+\@clearstyle\@footnoteflush{now}\cutend*%
 \@atenddocument%
 \@final@footer%
 \@clearstyle%

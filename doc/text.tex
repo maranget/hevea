@@ -153,10 +153,10 @@ $x \in \mathcal{E}$
 <I>x</I> &#X2208; <FONT COLOR=red><I>E</I></FONT>
 \end{verbatim}
 Incidentally, notice that the symbol ``$\in$'' translates to the
-appropriate numerical  character reference and that the calligraphic letter
-``$\mathcal{E}$'' renders as a red ``$E$''.
-You can find some more elaborate \footahref{\heveaurl/examples/index.html}{examples} in the on-line
-documentation.
+appropriate numerical character reference and that the calligraphic
+letter ``$\mathcal{E}$'' renders as a red ``$E$''. You can find some
+more elaborate \footahref{\heveaurl/examples/index.html}{examples} in
+the on-line documentation.
 
 \section{Style files}
 \LaTeX{} style files are files that are not intended to produce output, but
@@ -1829,7 +1829,7 @@ all cutting instructions in comments starting with \verb+%HEVEA+.
 {\hacha} recognizes all sectional units, ordered as follows, from
 top to bottom: {\em
 part}, {\em chapter},
-{\em section}, {\em subsection}, {\em subsubection},
+{\em section}, {\em subsection}, {\em subsubsection},
 \emph{paragraph} and \emph{subparagraph}.
 
 At any point between \verb+\begin{document}+ and
@@ -1915,19 +1915,20 @@ These comments then act as instructions to {\hacha}.
    restored.
    Note that \verb+\cutdef+ and \verb+\cutend+ must be properly balanced.
 \end{description}
+Commands \verb+\cuthere+ and \verb+\cutend+ have starred variants,
+which behave identically except for footnotes (see~\ref{hachafoot}).
 
-\noindent Default settings work as follows:
+Default settings work as follows:
 \verb+\begin{document}+ performs
 \begin{verbatim}
-\cutdef[\value{cuttingdepth}]{\cuttingunit}
+\cutdef*[\value{cuttingdepth}]{\cuttingunit}
 \end{verbatim}
-and \verb+\end{document}+
-performs \verb+\cutend+.
+and \verb+\end{document}+ performs \verb+\cutend*+.
 All sectioning commands perform \verb+\cuthere+,
 with the sectional unit name as first argument and the (optional, if
 present) sectioning
 command argument (i.e., the section title) as second argument.
-Note that stared versions of the sectioning commands also perform
+Note that starred versions of the sectioning commands also perform
 cutting instructions.
 
 \subsubsection{Examples}
@@ -2153,15 +2154,126 @@ Answers in section~\ref{answers}.
 \end{enumerate}
 \end{cutflow}
 \fi
-
 \comindex{aname}\comindex{ahrefloc}
 However,introducing \html{} hyperlink targets and
 references with the \verb+\aname+ and \verb+\ahrefloc+ commands
 (see section~\ref{hyperlink})
 will be more practical most of the time.
 
+\subsubsection{Footnotes\label{hachafoot}}
+\comdefindex{footnoteflush}%
+\comdefindex{flushdef}%
+Footnote texts (given as arguments either to \verb+\footnote+ or
+\verb+\footnotetext+) do not go directly to output.
+Instead, footnote texts accumulate internally in a \emph{buffer},
+awaiting to be flushed.
+The flushing of notes is controled by the means of a current
+\emph{flushing unit}, which is a sectional unit name or
+\textit{document} --- a fictional unit above all units.
+In practice, the flushing of footnote texts is performed by two commands:
+\begin{itemize}
+\item \verb+\flushdef{+\textit{secname}\verb+}+ simply sets
+the flushing unit to \textit{secname}.
+\item \verb+\footnoteflush{+\textit{secname}\verb+}+ acts
+as follows:
+\begin{itemize}
+\item If argument \textit{secname} is equal to or above the
+flushing unit, then footnote texts are flushed (if any).
+In the output, the texts themselves are surrounded by special comments
+that tags them as footnote texts and record \textit{secname}.
+\item Otherwise, no action is performed.
+\end{itemize}
+\end{itemize}
+The \filename{article} style file performs \verb+\flushdef{document}+,
+while the \filename{book} style file performs  \verb+\flushdef{chapter}+.
+At the end of processing, \verb+\end{document}+ performs
+\verb+\footnoteflush{document}+, so as to flush any pending notes.
 
+Cutting commands interact with footnote flushing as follows:
+\begin{itemize}
+\item \verb+\cuthere{+\textit{secname}\verb+}+
+executes \verb+\footnoteflush{+\textit{secname}\verb+}+.
+Remember that all sectioning commands perform
+\verb+\cuthere+ with their sectional unit name as argument.
+\item \verb+\cutdef{+\textit{secname}\verb+}+,
+starts a new buffer for footnote texts,
+saves the current flushing unit and old buffer on some internal stack, and
+sets the current flushing unit to \textit{secname}
+(by performing \verb+\flushdef{+\textit{secname}\verb+}+).
+\item \verb+\cutend+ first flushes any pending texts
+(by performing \verb+\footnoteflush+ with the current flushing unit
+as argument), restores the flushing unit and footnote text buffer saved
+by the matching \verb+\cutdef+.
+\end{itemize}
+Later, when running accros footnote texts in its input file, \hacha{}
+sometimes put notes in a separate file.
+More precisely, \hacha{} maintains two sectional unit levels.
+\begin{enumerate}
+\item The \emph{cutting level} is the current sectional unit where
+cuts occur (as given by the relevant \verb+\cutdef+).
+\item The \emph{section level} is the level of the current sectional unit
+(as given by the last \verb+\cuthere+).
+\end{enumerate}
+Besides, \hacha{} extracts the \emph{note level} from the comments
+that surround the notes (as given by the command
+\verb+\footnoteflush+ that produced the notes).
+Then, \hacha{} creates a separate file for notes
+if the cutting level and the note level differ or
+if the note level is below the section level.
+As a result, notes should stay where they are when they occur at the end of
+\hacha{} output file and otherwise go to a separate file.
 
+\ifhevea
+We now give a few example of interaction between notes and cutting.
+We first consider normal behavior.
+The following two subsubsections are sent to their own files by
+the means of a \verb+\cutdef{subsubsection}+/\verb+\cutend+ pair.
+As a result the text of footnotes appear at the end of the
+subsubsection pages.
+\cutdef{subsubsection}
+\subsubsection{A cutted subsubsection}
+A note in a subsubsection, flushed at subsubsections.\footnote{At the
+end of my page.}
+\subsubsection{Another cutted subsubsection}
+Another note in a subsubsection, flushed at subsubsections.\footnote{At the
+end of my page.}
+\cutend
+
+The following two subsubsections are sent to their own files by
+the means of a \verb+\cutdef*{subsubsection}+/\verb+\cutend*+ pair.
+As a result, the text of footnotes in the subsections appear
+at the end of the current chapter page.\footnote{Standard chapter footnote.}
+\cutdef*{subsubsection}
+\subsubsection{A cutted subsubsection}
+A note in a subsubsection, flushed at chapters.\footnote{Sent at
+the end of \texttt{cutname.html}}
+\subsubsection{Another cutted subsubsection}
+Another note in a subsubsection, flushed at chapters.\footnote{Sent at
+the end of \texttt{cutname.html}}
+\cutend*
+
+Finally, to send the footnotes in subsubsections
+to a separate web page, one should use
+a~\verb+\cutdef{subsubsection}+/\verb+\cutend+ pair
+(to create a proper buffer for subsubsection notes),
+redefine the flushing unit, and flush notes explicitely.
+\begin{verbatim}
+\cutdef{subsubsection}\flushdef{document}%
+\subsubsection{...}
+  ...
+\footnoteflush{document}\cutend
+\end{verbatim}
+
+\cutdef{subsubsection}\flushdef{document}
+\subsubsection{A cutted subsubsection}
+A note in a subsubsection flushed at document level.\footnote{Sent to a
+separate file}
+\subsubsection{Another cutted subsubsection}
+Another note in a subsubsection at document level.\footnote{Sent to
+a separate file}
+\footnoteflush{document}%
+\cutend
+\fi
 
 \latexsection{Generating \html{} constructs}
 \pdfsection{Generating HTML constructs}
@@ -3955,10 +4067,8 @@ line-breaks.  Following \LaTeX{} behavior, spaces after commands are
 not echoed.  Spaces after invisible commands with arguments are not
 echoed either.
 
-
 However this is no longer true in math mode, see
 section~\ref{spacemathref} on spaces in math mode.
-
 
 \subsection{Paragraphs}
 New paragraphs are introduced by one blank line or more.
@@ -3978,22 +4088,10 @@ When footnotes are issued by a combination of \verb+\footnotemark+ and
 \verb+\footnotetext+, a \verb+\footnotemark+
 command must be issued
 first, otherwise some footnotes may get numbered incorrectly or disappear.
-
 Footnotes appear at document end in the \filename{article} style and
-at every chapter end in the \filename{book} style.
-If the document is then cut into smaller files by \hacha{} (see
-section~\ref{hacha}) footnotes may go to a separate file.
+at chapters end in the \filename{book} style.
+See section~\ref{hachafoot} for a description of how footnotes are flushed.
 
-Footnotes are bad.
-If you want to suppress them, redefine \verb+\footnote+ as follows:
-\begin{verbatim}
-\renewcommand{\footnote}[2][]{}
-\end{verbatim}
-If you want to put then in the text flow,  redefine \verb+\footnote+
-as follows:
-\begin{verbatim}
-\renewcommand{\footnote}[2][]{~(#2)}
-\end{verbatim}
 
 \subsection{Accents\label{accents} and special symbols}
 Thanks to Unicode character references, \hevea{} can virtually output
@@ -5790,7 +5888,6 @@ in your local
 
 At the moment, most package options are ignored, except for the babel
 package, where it is essential.
-%\cutdef{subsection}
 
 \subsection{AMS compatibility}
 \ttindex{amsmath}{package}%
@@ -6639,9 +6736,8 @@ Hence, to achieve normal \texttt{latex} processing, while still loading
 the \texttt{ifpdf} package, one writes:
 \begin{verbatim}
 \usepackage{ifpdf}
-%HEVEA\pdftrue
+%HEVEA\pdffalse
 \end{verbatim}
-
 
 \subsection{Other packages}
 The \texttt{fancyverb} and \texttt{colortbl}

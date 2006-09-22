@@ -67,7 +67,7 @@
 \newcommand{\@noteref}[4]{#4}
 \newcommand{\@notetextstyle}[1]{~(#1)}
 \newcommand{\@notenotestyle}[1]{(#1)}
-\newenvironment{thefootnotes}[1]
+\newenvironment{thefootnotes}[2][]
   {\footnoterule\begin{list}{}{\renewcommand{\makelabel}[1]{##1}}}
   {\end{list}}
 %%% Captions
@@ -79,7 +79,7 @@
 \setcounter{cuttingdepth}{1}
 \newcommand{\cutdef}[2][]{}
 \newcommand{\cutend}{}
-\newcommand{\cuthere}[2]{\@footnoteflush{#1}}
+\newcommand{\cuthere}[2]{\footnoteflush{#1}}
 \newcommand{\@secbegin}{}
 \newcommand{\@secend}{}
 \newcommand{\@secanchor}{}

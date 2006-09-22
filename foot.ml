@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: foot.ml,v 1.20 2006-09-06 13:52:05 maranget Exp $" 
+let header = "$Id: foot.ml,v 1.21 2006-09-22 14:34:09 maranget Exp $" 
 open Parse_opts
 
 let some = ref false
@@ -82,11 +82,18 @@ let sub_notes () =
   some := false
 
 
-let flush lexer sec_notes sec_here =
+let flush sticky lexer sec_notes sec_here =
   if !some && Section.value sec_here <= Section.value sec_notes then begin
+(*
+    Misc.warning
+      (Printf.sprintf "NOTES %s (%s)" sec_here sec_notes) ;
+*)
     some := false ;
     let fst = Stack.top fst_stack in
-    lexer ("\\begin{thefootnotes}{"^sec_notes^"}") ;
+    lexer
+      ("\\begin{thefootnotes}" ^
+       (if sticky then "[STICKY]" else "") ^
+       "{"^sec_notes^"}") ;
     let all = ref [] in
     Hashtbl.iter
       (fun anchor (mark,themark,text) ->
@@ -112,10 +119,11 @@ let flush lexer sec_notes sec_here =
         Hashtbl.remove mark_to_anchor m ;
         Hashtbl.remove anchor_to_note a)
       !all
-  end ;
-  if not (Stack.empty some_stack) then begin
-    some := Stack.pop some_stack ;
-    ignore (Stack.pop fst_stack)
   end
 ;;
 
+let end_notes () =
+  some := Stack.pop some_stack ;
+  ignore (Stack.pop fst_stack)
+
+  

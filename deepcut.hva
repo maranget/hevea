@@ -7,8 +7,8 @@
 %%%%%%%%%%%%%%%%%%%
 \let\deepcut@thefootnotes\thefootnotes
 \let\enddeepcut@thefootnotes\endthefootnotes
-\renewenvironment{thefootnotes}[1]
-{\begin{cutflow}{Notes}\begin{deepcut@thefootnotes}{#1}}
+\renewenvironment{thefootnotes}[2][]
+{\begin{cutflow}{Notes}\begin{deepcut@thefootnotes}{#2}}
 {\end{deepcut@thefootnotes}\end{cutflow}}
 %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

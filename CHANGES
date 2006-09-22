@@ -1,3 +1,5 @@
+     - Clarify and document footnote flushing.
+     - \vdash and \dashv unicode entities were swapped (iso-symb.hva)
 version 1.08+17
      - Styles defined by \newstyle can go into external file, by
        \externalcsstrue

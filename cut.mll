@@ -12,7 +12,7 @@
 {
 open Lexing
 open Stack
-let header = "$Id: cut.mll,v 1.48 2006-07-27 08:05:47 maranget Exp $" 
+let header = "$Id: cut.mll,v 1.49 2006-09-22 14:34:09 maranget Exp $" 
 
 let verbose = ref 0
 
@@ -412,8 +412,15 @@ let setlink set target =
   if !phase = 0 && target <> "" then
     set !outname target
 
-let open_notes sec_notes =
-  if sec_notes <> !chapter || !outname = !tocname then begin
+let open_notes sticky sec_notes =
+  if !verbose > 0 && !phase > 0 then 
+    Printf.eprintf "Notes %s (%s,%s)\n"
+      (Section.pretty sec_notes)
+      (Section.pretty !chapter)
+      (Section.pretty !cur_level) ;
+  if
+    not sticky && (sec_notes <> !chapter || !cur_level < sec_notes)
+  then begin
     otheroutname := !outname ;
     outname := new_filename "open_notes" ;
     if !phase > 0 then begin
@@ -643,7 +650,11 @@ rule main = parse
       main lexbuf}
 | "<!--BEGIN" ' '+ "NOTES" ' '+ (secname as sec_notes)
     {skip_endcom lexbuf ;
-    open_notes (Section.value sec_notes) ;     
+    open_notes false (Section.value sec_notes) ;     
+    main lexbuf}
+| "<!--BEGIN" ' '+ "STICKYNOTES" ' '+ (secname as sec_notes)
+    {skip_endcom lexbuf ;
+    open_notes true (Section.value sec_notes) ;     
     main lexbuf}
 | "<!--END" ' '+ "NOTES" ' '* "-->" '\n'?
     {if !otheroutname <> "" then

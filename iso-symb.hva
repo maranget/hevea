@@ -192,8 +192,8 @@
 \DeclareSymbolHtml[\mbox{asymp}]{\asymp}{X224D}
 \DeclareSymbolHtml[\mbox{bowtie}]{\bowtie}{X22C8}
 \DeclareSymbolHtml[\mbox{cong}]{\cong}{X2245}
-\DeclareSymbolHtml[\@print{-|}]{\dashv}{X22A2}
-\DeclareSymbolHtml[\@print{|-}]{\vdash}{X22A3}
+\DeclareSymbolHtml[\@print{|-}]{\vdash}{X22A2}
+\DeclareSymbolHtml[\@print{-|}]{\dashv}{X22A3}
 \DeclareSymbolHtml[\stackrel{\cdot}{=}]{\doteq}{X2250}
 \DeclareSymbolHtml[\mbox{equiv}]{\equiv}{X2261}
 \DeclareSymbolHtml[\mbox{frown}]{\frown}{X2040}

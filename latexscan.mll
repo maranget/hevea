@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.291 2006-09-06 13:52:05 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.292 2006-09-22 14:34:09 maranget Exp $ *)
 
 
 {
@@ -2642,16 +2642,20 @@ def_code "\\@footnotetext"
     restore_lexstate ())
 ;;
 
-def_code "\\@footnoteflush"
-  (fun lexbuf ->
-    let sec_here = get_prim_arg lexbuf
-    and sec_notes = get_prim "\\@footnotelevel" in
-    start_lexstate () ;
-    Foot.flush (scan_this main) sec_notes sec_here ;
-    restore_lexstate ())
+let foot_noteflush sticky lexbuf =
+  let sec_here = get_prim_arg lexbuf
+  and sec_notes = get_prim "\\@footnotelevel" in
+  start_lexstate () ;
+  Foot.flush sticky (scan_this main) sec_notes sec_here ;
+  restore_lexstate ()
 ;;
 
-def_code "\\@footnotesub" (fun lexbuf -> Foot.sub_notes ())
+def_code "\\@footnoteflush" (foot_noteflush false) ;
+def_code "\\@footnoteflush@sticky" (foot_noteflush true)
+;;
+
+def_code "\\@footnotesub" (fun lexbuf -> Foot.sub_notes ()) ;
+def_code "\\@endfootnotesub" (fun _ -> Foot.end_notes ())
 ;;
 
 (* Opening and closing environments *)

@@ -23,7 +23,7 @@
 \newcounter{equation}
 \newcounter{figure}
 \newcounter{table}
-\newcommand{\@footnotelevel}{document}
+\flushdef{document}
 \newcommand{\partname}{Part}
 \newcommand{\appendixname}{Appendix}
 
