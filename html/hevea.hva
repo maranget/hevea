@@ -298,7 +298,7 @@
 \renewcommand{\addstyle}[1]{\warning{\addstyle{} must be used in document preamble}}%
 \@open@par%Open first paragraph
 }{%
-\@clearstyle\@footnoteflush{now}\cutend*%
+\@clearstyle\@footnoteflush{document}\cutend*%
 \@atenddocument%
 \@final@footer%
 \@clearstyle%

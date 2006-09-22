@@ -64,6 +64,7 @@ Chesnay Cedex. {\tt \mailto{Luc.Maranget@inria.fr}}}}
 %HEVEA\externalcsstrue
 %%DOCUMENT START HERE
 \begin{document}
+\flushdef{document}
 \maketitle
 \begin{htmlonly}
 \ifhtml 
@@ -96,9 +97,6 @@ the default.
 files are understood with little or no modifications.
 Furthermore, \hevea{} customization is done by writing \LaTeX{} code.
 
-%Among latest additions are support for style-sheets, babel, and some
-%proof and math packages.
-
 \hevea{} is written in Objective Caml, as many lexers. It is
 quite fast and flexible.  Using \hevea{} it is possible to translate
 large documents such as manuals, books, etc. very quickly. All
@@ -122,11 +120,12 @@ includes a small \ahrefloc{@index}{index}.
 \end{htmlonly}
 
 \clearpage
+\cutdef{part}
 \part{Tutorial}
 \pdfpart{10}{Tutorial}
 \label{usermanual}
 \cutdef{section}
-\section{How to get started}\label{getstarted}
+\section{How to get\label{getstarted} started}
 Assume that you have a file, \texttt{a.tex}, written in \LaTeX, using the
 \texttt{article}, \texttt{book} or \texttt{report} style. Then,
 translation
@@ -2195,17 +2194,17 @@ Cutting commands interact with footnote flushing as follows:
 executes \verb+\footnoteflush{+\textit{secname}\verb+}+.
 Remember that all sectioning commands perform
 \verb+\cuthere+ with their sectional unit name as argument.
-\item \verb+\cutdef{+\textit{secname}\verb+}+,
-starts a new buffer for footnote texts,
-saves the current flushing unit and old buffer on some internal stack, and
+\item \verb+\cutdef{+\textit{secname}\verb+}+
+saves the current flushing unit and  buffer on some internal stack,
+starts a new buffer for footnote texts, and
 sets the current flushing unit to \textit{secname}
 (by performing \verb+\flushdef{+\textit{secname}\verb+}+).
 \item \verb+\cutend+ first flushes any pending texts
 (by performing \verb+\footnoteflush+ with the current flushing unit
-as argument), restores the flushing unit and footnote text buffer saved
+as argument), and restores the flushing unit and footnote text buffer saved
 by the matching \verb+\cutdef+.
 \end{itemize}
-Later, when running accros footnote texts in its input file, \hacha{}
+Later, when running accross footnote texts in its input file, \hacha{}
 sometimes put notes in a separate file.
 More precisely, \hacha{} maintains two sectional unit levels.
 \begin{enumerate}
@@ -2219,13 +2218,15 @@ that surround the notes (as given by the command
 \verb+\footnoteflush+ that produced the notes).
 Then, \hacha{} creates a separate file for notes
 if the cutting level and the note level differ or
-if the note level is below the section level.
+if the note level is above the section level.
 As a result, notes should stay where they are when they occur at the end of
 \hacha{} output file and otherwise go to a separate file.
 
 \ifhevea
 We now give a few example of interaction between notes and cutting.
 We first consider normal behavior.
+The page you are reading is a section page, since the current
+cutting unit is ``section''. The current unit is ``subsection''.
 The following two subsubsections are sent to their own files by
 the means of a \verb+\cutdef{subsubsection}+/\verb+\cutend+ pair.
 As a result the text of footnotes appear at the end of the
@@ -2242,13 +2243,13 @@ end of my page.}
 The following two subsubsections are sent to their own files by
 the means of a \verb+\cutdef*{subsubsection}+/\verb+\cutend*+ pair.
 As a result, the text of footnotes in the subsections appear
-at the end of the current chapter page.\footnote{Standard chapter footnote.}
+at the end of the current section page.\footnote{Standard section footnote.}
 \cutdef*{subsubsection}
 \subsubsection{A cutted subsubsection}
-A note in a subsubsection, flushed at chapters.\footnote{Sent at
+A note in a subsubsection, flushed at sections.\footnote{Sent at
 the end of \texttt{cutname.html}}
 \subsubsection{Another cutted subsubsection}
-Another note in a subsubsection, flushed at chapters.\footnote{Sent at
+Another note in a subsubsection, flushed at sections.\footnote{Sent at
 the end of \texttt{cutname.html}}
 \cutend*
 
@@ -7376,5 +7377,6 @@ the web at
 
 \end{thebibliography}
 \printindex
-\cutend
+\cutend\cutend
+%HEVEA\@stopimage\let\@footnoteflush\@footnoteflush@sticky\@restartimage
 \end{document}
