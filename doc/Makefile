@@ -106,7 +106,7 @@ dorelease: doversion
 	cp manual.dvi $(RELEASEDIR)/$(RELEASENAME)-manual-dvi
 	cp manual.pdf $(RELEASEDIR)/$(RELEASENAME)-manual.pdf
 	cp blob.ps cloche.ps int.ps realblob.ps rquote.ps blob2.ps\
-home.ps intd.ps round.ps xfd.ps $(RELEASEDIR)/$(RELEASENAME)-manual-dvi
+ home.ps intd.ps round.ps xfd.ps $(RELEASEDIR)/$(RELEASENAME)-manual-dvi
 	rm -rf $(RELEASEDIR)/$(RELEASENAME)-manual
 	$(MAKE) $(MFLAGS) DOCDIR=$(RELEASEDIR)/$(RELEASENAME)-manual install
 	cd $(RELEASEDIR) ;\

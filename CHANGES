@@ -1,3 +1,4 @@
+version 1.08+18
      - Clarify and document footnote flushing.
      - \vdash and \dashv unicode entities were swapped (iso-symb.hva)
 version 1.08+17
