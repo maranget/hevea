@@ -12,7 +12,7 @@
 {
 open Lexing
 open Stack
-let header = "$Id: cut.mll,v 1.49 2006-09-22 14:34:09 maranget Exp $" 
+let header = "$Id: cut.mll,v 1.50 2006-09-25 11:48:50 maranget Exp $" 
 
 let verbose = ref 0
 
@@ -419,7 +419,7 @@ let open_notes sticky sec_notes =
       (Section.pretty !chapter)
       (Section.pretty !cur_level) ;
   if
-    not sticky && (sec_notes <> !chapter || !cur_level < sec_notes)
+    not sticky && (sec_notes <> !chapter)
   then begin
     otheroutname := !outname ;
     outname := new_filename "open_notes" ;

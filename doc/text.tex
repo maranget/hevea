@@ -2204,21 +2204,17 @@ sets the current flushing unit to \textit{secname}
 as argument), and restores the flushing unit and footnote text buffer saved
 by the matching \verb+\cutdef+.
 \end{itemize}
+
 Later, when running accross footnote texts in its input file, \hacha{}
 sometimes put notes in a separate file.
-More precisely, \hacha{} maintains two sectional unit levels.
-\begin{enumerate}
-\item The \emph{cutting level} is the current sectional unit where
-cuts occur (as given by the relevant \verb+\cutdef+).
-\item The \emph{section level} is the level of the current sectional unit
-(as given by the last \verb+\cuthere+).
-\end{enumerate}
+More precisely, \hacha{} has knowledge of the
+current \emph{cutting level}, the current sectional unit where
+cuts occur --- as given by the relevant \verb+\cutdef+.
 Besides, \hacha{} extracts the \emph{note level} from the comments
 that surround the notes (as given by the command
 \verb+\footnoteflush+ that produced the notes).
 Then, \hacha{} creates a separate file for notes
-if the cutting level and the note level differ or
-if the note level is above the section level.
+when the cutting level and the note level differ.
 As a result, notes should stay where they are when they occur at the end of
 \hacha{} output file and otherwise go to a separate file.
 

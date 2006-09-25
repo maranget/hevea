@@ -2,6 +2,11 @@
 %% Instruct hacha to cut everywhere from part to subsection %%
 %% Some code contributed by Gilles Gregoire                 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Inactivate cutting macros %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\let\dc@cutdef\cutdef
+\let\dc@cutend\cutend
 %%%%%%%%%%%%%%%%%%%
 %% cut footnotes  %
 %%%%%%%%%%%%%%%%%%%
@@ -17,44 +22,44 @@
 \newif\ifcutchapter\cutchapterfalse
 \let\dc@part\part\let\dc@part*\part*
 \renewcommand{\part}[2][]
-{\ifcutsubsection\cutend\fi\cutsubsectionfalse
-\ifcutsection\cutend\fi\cutsectionfalse
-\ifcutchapter\cutend\fi
+{\ifcutsubsection\dc@cutend\fi\cutsubsectionfalse
+\ifcutsection\dc@cutend\fi\cutsectionfalse
+\ifcutchapter\dc@cutend\fi
 \ife#1\dc@part{#2}\else\dc@part[#1]{#2}\fi
-\cutdef{chapter}\cutchaptertrue}
+\dc@cutdef{chapter}\cutchaptertrue}
 \renewcommand{\part*}[1]
-{\ifcutsubsection\cutend\fi\cutsubsectionfalse
-\ifcutsection\cutend\fi\cutsectionfalse
-\ifcutchapter\cutend\fi
+{\ifcutsubsection\dc@cutend\fi\cutsubsectionfalse
+\ifcutsection\dc@cutend\fi\cutsectionfalse
+\ifcutchapter\dc@cutend\fi
 \dc@part*{#1}%
-\cutdef{chapter}\cutchaptertrue}
+\dc@cutdef{chapter}\cutchaptertrue}
 %%%%%%%%%%%%%%%%%%
 \newif\ifcutsection\cutsectionfalse
 \@ifundefined{chapter}{}
 {\let\dc@chapter\chapter\let\dc@chapter*\chapter*
 \renewcommand{\chapter}[2][]
-{\ifcutsubsection\cutend\fi\cutsubsectionfalse
-\ifcutsection\cutend\fi
+{\ifcutsubsection\dc@cutend\fi\cutsubsectionfalse
+\ifcutsection\dc@cutend\fi
 \ife#1\dc@chapter{#2}\else\dc@chapter[#1]{#2}\fi
-\cutdef{section}\cutsectiontrue}
+\dc@cutdef{section}\cutsectiontrue}
 \renewcommand{\chapter*}[1]
-{\ifcutsubsection\cutend\fi\cutsubsectionfalse
-\ifcutsection\cutend\fi
+{\ifcutsubsection\dc@cutend\fi\cutsubsectionfalse
+\ifcutsection\dc@cutend\fi
 \dc@chapter*{#1}%
-\cutdef{section}\cutsectiontrue}}
+\dc@cutdef{section}\cutsectiontrue}}
 %%%%%%%%%%%%%%%%%%
 \newif\ifcutsubsection\cutsubsectionfalse
 \let\dc@section\section
 \let\dc@section*\section*
 \renewcommand{\section}[2][]
-{\ifcutsubsection\cutend\fi
+{\ifcutsubsection\dc@cutend\fi
 \ife#1\dc@section{#2}\else\dc@section[#1]{#2}\fi
-\cutdef{subsection}\cutsubsectiontrue}
+\dc@cutdef{subsection}\cutsubsectiontrue}
 \renewcommand{\section*}[1]
-{\ifcutsubsection\cutend\fi
+{\ifcutsubsection\dc@cutend\fi
 \dc@section*{#1}%
-\cutdef{subsection}\cutsubsectiontrue}
+\dc@cutdef{subsection}\cutsubsectiontrue}
 %%%%%Check that!
 \AtEndDocument
-{\ifcutsubsection\cutend\fi\ifcutsection\cutend\fi\ifcutchapter\cutend\fi}
+{\ifcutsubsection\dc@cutend\fi\ifcutsection\dc@cutend\fi\ifcutchapter\dc@cutend\fi}
 
