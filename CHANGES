@@ -1,3 +1,5 @@
+     - Suppress DIV CLASS="center" around displays,
+       include margin-left:auto; margin-right-auto in display class
 version 1.08+18
      - Clarify and document footnote flushing.
      - \vdash and \dashv unicode entities were swapped (iso-symb.hva)

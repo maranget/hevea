@@ -508,9 +508,9 @@
 \ifverbd\newstyle{P}{border:1px solid gray}\fi
 \ifverbd\newstyle{DIV}{border:1px dotted gray}\fi
 %%Style of display
-\newstyle{.vdisplay}{border-collapse:collapse;border:1px solid gray}
+\newstyle{.vdisplay}{margin-left:auto; margin-right:auto; border-collapse:collapse;border:1px solid gray}
 \newstyle{.vdcell}{text-align:center;border:1px solid gray;white-space:nowrap;padding:0px;}
-\newstyle{.display}{border-collapse:collapse}
+\newstyle{.display}{margin-left:auto; margin-right:auto; border-collapse:collapse}
 \newstyle{.dcell}{text-align:center;white-space:nowrap;padding:0px;}
 %%% And we can get something similar for extensible arrows accents.
 \newcommand{\@vd}{\ifverbd{}v\fi}

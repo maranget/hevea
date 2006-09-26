@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.292 2006-09-22 14:34:09 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.293 2006-09-26 08:47:56 maranget Exp $ *)
 
 
 {
@@ -3191,10 +3191,13 @@ let tabbing_kill lexbuf =
   skip_blanks_pop lexbuf
 ;;
 
+let def_no_fail name f = Latexmacros.def name zero_pat (CamlCode f)
+;;
+
 let def_tabbing_commands () =
-  def_code "\\=" do_tabul ;
-  def_code "\\>" do_tabul ;
-  def_code "\\kill" tabbing_kill
+  def_no_fail "\\=" do_tabul ;
+  def_no_fail "\\>" do_tabul ;
+  def_no_fail "\\kill" tabbing_kill
 ;;
 
 (* Tabular and arrays *)

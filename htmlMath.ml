@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlMath.ml,v 1.41 2006-04-13 16:55:56 maranget Exp $" 
+let header = "$Id: htmlMath.ml,v 1.42 2006-09-26 08:47:56 maranget Exp $" 
 
 
 open Misc
@@ -75,10 +75,6 @@ let put_in_math s =
 (*----------*)
 (* DISPLAYS *)
 (*----------*)
-
-let open_center () =  open_block DIV "CLASS=\"center\""
-and close_center () = close_block DIV
-;;
 
 let display_cell_arg () =
   if !displayverb then "CLASS=\"vdcell\"" else "CLASS=\"dcell\""
@@ -264,7 +260,6 @@ let erase_display () =
 
 
 let open_maths display =
-  if display then open_center ();
   push stacks.s_in_math flags.in_math;
   flags.in_math <- true;
   if display then open_display ()
@@ -274,9 +269,7 @@ let open_maths display =
 let close_maths display =
   if display then close_display ()
   else close_group ();
-  flags.in_math <- pop stacks.s_in_math ;
-
-  if display then close_center ()
+  flags.in_math <- pop stacks.s_in_math
 ;;
 
 (* vertical display *)
