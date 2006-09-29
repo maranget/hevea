@@ -1,1 +1,2 @@
-\@set@in@translator{mappings/applemac.map}
+\def\@charset{macintosh}
+\@set@translators{mappings/macintosh.map}

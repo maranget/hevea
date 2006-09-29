@@ -1,1 +1,2 @@
-\@set@in@translator{mappings/cp1257.map}
+\def\@charset{windows-1257}
+\@set@translators{mappings/windows-1257.map}

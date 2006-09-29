@@ -1,1 +1,2 @@
-\@set@in@translator{mappings/cp1252.map}
+\input{cp1252.hva}
+
