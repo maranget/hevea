@@ -1,3 +1,4 @@
+     - adopt most recent mac encoding 0xDB -> euro sign
      - added three window codepages and applemac in inputenc, useful ?
 version 1.08+19
      - added sym.tex in examples.
