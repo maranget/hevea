@@ -23,6 +23,7 @@
 \ic@option{latin5}\ic@option{latin6}\ic@option{latin7}\ic@option{latin8}%
 \ic@option{latin9}\ic@option{latin10}\ic@option{ascii}%
 \ic@option{cp1250}\ic@option{cp1252}\ic@option{cp1257}\ic@option{ansinew}%
+\ic@option{applemac}%
 %%%
 \ProcessOptions*%
 \EndPackage

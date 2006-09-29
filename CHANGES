@@ -1,4 +1,4 @@
-     - added window codepages in inputenc, useful ?
+     - added three window codepages and applemac in inputenc, useful ?
 version 1.08+19
      - added sym.tex in examples.
      - suppress -symbols option !
