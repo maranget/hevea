@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlCommon.ml,v 1.53 2006-04-13 16:55:56 maranget Exp $" 
+let header = "$Id: htmlCommon.ml,v 1.54 2006-09-29 13:53:59 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -29,7 +29,7 @@ type block =
   | H1 | H2 | H3 | H4 | H5 | H6
   | PRE
   | TABLE | TR | TD
-  | DISPLAY | DFLOW
+  | DISPLAY of bool | DFLOW
   | QUOTE | BLOCKQUOTE
   | DIV
   | UL | OL | DL
@@ -52,7 +52,8 @@ let string_of_block = function
   | TABLE -> "TABLE"
   | TR -> "TR"
   | TD  -> "TD"
-  | DISPLAY -> "DISPLAY"
+  | DISPLAY false -> "DISPLAY"
+  | DISPLAY true -> "DISPLAY (center)"
   | DFLOW -> "DFLOW"
   | QUOTE -> "QUOTE"
   | BLOCKQUOTE -> "BLOCKQUOTE"
@@ -95,7 +96,7 @@ add PRE ;
 add TABLE ;
 add TR ;
 add TD ;
-add DISPLAY ;
+add (DISPLAY false) ;
 add QUOTE ;
 add BLOCKQUOTE ;
 add DIV ;
@@ -127,14 +128,25 @@ let find_block s =
   | Not_found -> OTHER s
 ;;
 
+let eq_tags t1 t2 = match t1, t2 with
+| DISPLAY _, DISPLAY _ -> true
+| _, _ -> t1=t2
+
 let check_block_closed opentag closetag =
-  if opentag <> closetag && not (opentag = AFTER && closetag = GROUP) then
+  if not (eq_tags opentag closetag) &&
+    not (opentag = AFTER && closetag = GROUP) then
     failclose "html" closetag opentag
 ;;
 
-let display_arg verbose =
-  if !displayverb then "CLASS=\"vdisplay\""
-  else "CLASS=\"display\""
+let display_arg centering _verbose =
+  let cl = 
+    if !displayverb then "vdisplay"
+    else "display" in
+  let cl =
+    if centering then cl^" dcenter"
+    else cl in
+  let arg = "CLASS=\""^cl^"\"" in
+  arg
 ;;
 
 (* output globals *)
@@ -1103,7 +1115,7 @@ let rec do_try_open_block s =
   if !verbose > 2 then
     prerr_flags ("=> try open '"^string_of_block s^"'");  
   begin match s with
-  | DISPLAY ->
+  | DISPLAY _ ->
       do_try_open_block TABLE ;
       do_try_open_block TR
   | _  ->
@@ -1168,8 +1180,8 @@ let rec do_open_block insert s args = match s with
    | Some (tag,iargs) -> do_do_open_block tag iargs
    | _ -> ()
    end
-| DISPLAY ->
-   do_open_block insert TABLE (display_arg !verbose) ;
+| DISPLAY centering ->   
+   do_open_block insert TABLE (display_arg centering !verbose) ;
    do_open_block None TR args
 | _  -> begin match insert with
   | Some (tag,iargs) ->
@@ -1187,7 +1199,7 @@ let rec do_try_close_block s =
   if !verbose > 2 then
     prerr_flags ("=> try close ``"^string_of_block s^"''") ;
   begin match s with
-  | DISPLAY ->
+  | DISPLAY _ ->
       do_try_close_block TR ;
       do_try_close_block TABLE
   | _ ->
@@ -1251,7 +1263,7 @@ let rec do_close_block insert s = match s with
    | Some (tag,_) -> do_do_close_block tag
    | _ -> ()
    end
-| DISPLAY ->
+| DISPLAY _ ->
     do_close_block None TR ;
     do_close_block insert TABLE
 | s  -> begin match insert with
@@ -1330,7 +1342,7 @@ let rec force_block s content =
     make_empty () ;
   end else begin
     begin match s with
-    | TABLE|DISPLAY -> flags.table_inside <- true
+    | TABLE|DISPLAY _ -> flags.table_inside <- true
     | _ -> ()
     end ;
     if flags.empty then begin
@@ -1405,8 +1417,7 @@ let rec force_block s content =
   else if ps <> DELAY then begin
 
     let mods = open_top_styles was_top in
-    
-    do_open_block insert s
+    do_open_block insert ps
       (match insert_attr with
       | Some (this_tag,attr) when this_tag = s -> args^" "^attr
       | _ -> args) ;

@@ -11,17 +11,15 @@
 
 open Misc
 
-let header = "$Id: parse_opts.ml,v 1.35 2006-05-10 15:38:59 maranget Exp $" 
+let header = "$Id: parse_opts.ml,v 1.36 2006-09-29 13:53:59 maranget Exp $" 
 
 type input = File of string | Prog of string
 
 let files = ref []
 ;;
 
-let add_input s =
-  files := File s :: !files
-and add_program s =
-  files := Prog s :: !files
+let add_input s = files := File s :: !files
+and add_program s = files := Prog s :: !files
 ;;
 
 (* use this to create your warnings if you wish to *)
@@ -105,8 +103,6 @@ let _ = Arg.parse
    "Enable the output of some rare entities.") ;
   ("-entities", Arg.Unit (fun () -> symbol_mode := Entity),
    "Render symbols by using entities, this is the default") ;
-  ("-symbols", Arg.Unit (fun () -> symbol_mode := Symbol),
-   "Render symbols by using the symbol font, obsolete") ;
   ("-textsymbols", Arg.Unit (fun () -> symbol_mode := SText),
    "Render symbols by english text") ;
 

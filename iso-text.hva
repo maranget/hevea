@@ -1,0 +1,14 @@
+\newcommand{\DeclareSymbol}[3][\@empty]
+{\newcommand{#2}{\@print@u{#3}}%
+\ifx#1\@empty\else\@def@u@default{#3}{#1}\fi}
+%This symbol does not appear in latin encoding -> direct text definition
+\newcommand{\DeclareSymbolHtml}[3][\@empty]
+{\ifx#1\@empty\else\newcommand{#2}{#1}\fi}
+\newcommand{\MakeBigSymbolHtml}[3][]{}
+\newcommand{\MakeBigSymbol}[5][]
+{\newcommand{#2}{\mathop{\ifdisplay#5\else#4\fi}#1}}
+\let\NewcommandHtml\NoCommand
+\let\NewcommandText\newcommand
+\let\RenewcommandHtml\NoCommand
+\let\RenewcommandText\renewcommand
+\input{iso-symb.hva}

@@ -21,14 +21,14 @@ byte:
 dvi: $(DVI)
 
 
-html: $(HTML) index.html
+html: $(HTML) sym.html index.html
 text: $(TEXT)
 info: $(INFO)
 
 install:
 	/bin/rm -rf $(EXDIR)
 	mkdir $(EXDIR)
-	cp *.gif $(HTML) index.html tmp.css tmp*.html conclusion.html benchmarks.html hp.c $(EXDIR)
+	cp *.gif $(HTML) index.html symb.html tmp.css tmp*.html conclusion.html benchmarks.html hp.c $(EXDIR)
 	-cp $(TEXT) $(EXDIR)
 	cp Makefile $(TEX) pat.def env.hva pat.hva smile.hva $(EXDIR)
 	cp $(DVI) $(EXDIR)

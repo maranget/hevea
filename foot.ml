@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: foot.ml,v 1.21 2006-09-22 14:34:09 maranget Exp $" 
+let header = "$Id: foot.ml,v 1.22 2006-09-29 13:53:59 maranget Exp $" 
 open Parse_opts
 
 let some = ref false
@@ -93,7 +93,7 @@ let flush sticky lexer sec_notes sec_here =
     lexer
       ("\\begin{thefootnotes}" ^
        (if sticky then "[STICKY]" else "") ^
-       "{"^sec_notes^"}") ;
+       "{"^sec_here^"}") ;
     let all = ref [] in
     Hashtbl.iter
       (fun anchor (mark,themark,text) ->

@@ -147,13 +147,20 @@
 \newcommand{\and}{\quad}
 \newsavebox{\@@title}%
 \newcommand{\title}[1]{\gdef{\@title}{#1}}
-\newcommand{\@titlebis}[1]{\gdef{\@title}{seen}\sbox{\@@title}{#1}}
+\newcommand{\@titlebis}[1]
+{\ifu\@title
+\gdef{\@title}{seen}\s@title{\@@title}{#1}\title@tohaux{#1}\fi}
+\newcommand{\@titleaux}[1]{\gdef{\@title}{#1}}
+\newcommand{\title@tohaux}[1]
+{{\def\footnote##1{}\@auxdowrite{\@print{\@titleaux}\{\@getprint{#1}\}
+}}}
+%\newcommand{\title@tohaux}[1]{}
 \newsavebox{\@@author}%
 \newcommand{\author}[1]{\gdef{\@author}{#1}}
-\newcommand{\@authorbis}[1]{\gdef{\@author}{seen}\sbox{\@@author}{#1}}
+\newcommand{\@authorbis}[1]{\gdef{\@author}{seen}\s@title{\@@author}{#1}}
 \newsavebox{\@@date}%
 \newcommand{\date}[1]{\gdef{\@date}{#1}}
-\newcommand{\@datebis}[1]{\gdef{\@date}{seen}\sbox{\@@date}{#1}}
+\newcommand{\@datebis}[1]{\gdef{\@date}{seen}\s@title{\@@date}{#1}}
 %% Lists
 \setenvclass{li-itemize}{li-itemize}
 \newstyle{.li-itemize}{margin:1ex 0ex;}
@@ -490,6 +497,9 @@
 %%%%%%%%%% Compatibility with old hevea \url
 \AtBeginDocument{\@ifundefined{url}{\input{compat.hva}}{}}
 %%%%%%%%% Time stuff
+%Change footnote counter when formatting title/autor/date
+\newcommand{\s@title}[2]
+{\sbox{#1}{{\def\footnote@c{titlenote}\let\thefootnote\thetitlenote#2}}}
 \AtBeginDocument
 {\@ifundefined{theyear}
 {\renewcommand{\today}{\warning{\today needs ``-exec xxdate.exe'' option}}}
@@ -498,12 +508,9 @@
 \renewcommand{\theminute}{\@twoarabic{minute}}
 \renewcommand{\thesecond}{\@twoarabic{second}}}%
 %Format date after \today is defined
-\ifu\@title\let\title\@titlebis\else\sbox{\@@title}{\@title}\fi
-\ifu\@author\let\author\@authorbis\else\sbox{\@@author}{\@author}\fi
-\ifu\@date\let\date\@datebis\else\sbox{\@@date}{\@date}\fi
-%%%Reset footnotes counter: next footnotes are 1, 2, etc.
-\@stopimage\renewcommand{\thefootnote}{\arabic{footnote}}\@restartimage%
-\setcounter{footnote}{0}}%
+\ifu\@title\else\s@title{\@@title}{\@title}\fi\let\title\@titlebis
+\ifu\@author\let\author\@authorbis\else\s@title{\@@author}{\@author}\fi
+\ifu\@date\let\date\@datebis\else\s@title{\@@date}{\@date}\fi}%
 %%End AtBeginDocument
 %%%%%%%% Day and month formats
 \def\default@day

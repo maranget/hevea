@@ -1,5 +1,16 @@
+     - suppress -symbols option !
+     - Back to ALIGN attributes in display cells, corresponding
+       CSS declaration (text-align) does not apply to TABLE alignement,
+       which breaks proper alignement of displays eg in numerator/denominator
+       of \frac.
+     - New behavior for \title, \title after \begin{document} should work
+       with documentation.
      - Suppress DIV CLASS="center" around displays,
        include margin-left:auto; margin-right-auto in display class
+       There is one complication : top level displays now
+       have to be kept (cf open_maths in htmlMaths.ml).
+       Beside an enclosing group is needed (for limiting the scope
+       of font changes in $$... $$).
 version 1.08+18
      - Clarify and document footnote flushing.
      - \vdash and \dashv unicode entities were swapped (iso-symb.hva)

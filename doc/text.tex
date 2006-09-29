@@ -4280,17 +4280,31 @@ Experienced users may find it fun to attempt to write package
 implementations by themselves.
 
 
-
 \subsection{The Title Page and Abstract}
-\comindex{today}
 All title related commands exist, with the following peculiarities:
 \begin{itemize}
-  \item The \verb+\title+ command must appear in the preamble for the title
-to appear in \html{} document header.
-  \item When not present the date is left empty. The \verb+\today+
-command generates will work properly only if \texttt{hevea} is invoked
-with the \verb+-exec xxdate.exe+ option.
-Otherwise \verb+\today+ generates nothing and a warning is issued.
+  \item
+  The argument to the \verb+\title+\comindex{title} command appears
+  in the \html{}~document header. As a consequence, titles should
+  remain simple. Normal design (as regards \hevea{}) is for
+  \verb+\title+ to occur in the document preamble, so that teh title
+  is known at the time when the document header is emitted (while
+  processing \verb+\begin{document}+). However there are two subtlities
+
+  However, if no \verb+\title+
+  command occurs in document preamble and that one \verb+\title+
+  command appears in the document, then the title is saved into the
+  \texttt{.haux} file for a next run of \hevea{} to put it in the
+  \html{}~document header.
+
+  If \verb+\title+ commands are present both in preamble and after
+ \verb+\begin{document}, then the former takes precedence.
+
+ \item When not present the date is left empty. The
+ \verb+\today+\comindex{today} command generates will work properly
+ only if \texttt{hevea} is invoked with the \verb+-exec xxdate.exe+
+ option.  Otherwise \verb+\today+ generates nothing and a warning is
+ issued.
 \end{itemize}
 
 The \verb+abstract+ environment is present is all base styles,
@@ -6913,12 +6927,9 @@ entities. To our knowledge, this behavior is satisfactory only if the
 input file is encoded in iso-latin1 or in plain ascii.
 \begin{description}
 \item[{\tt -entities}] Render symbols by using entities. This is the default.
-\item[{\tt -symbols}] Render symbols by using the symbol font. This
-mode is deprecated and is no more maintained.
 \item[{\tt -textsymbols}] Render symbols by English text.
 \item[{\tt -moreenties}] Enable the output of some unfrequent entities. Use
 this option to target browsers with wide entities support.
-\item[{\tt -noiso}] Use us-ascii for encoding the output page.
 \item[{\tt -mathml}] Produces MathML output for equations, very
 experimental.
 \item[{\tt -pedantic}]  Be strict in interpreting \html{}

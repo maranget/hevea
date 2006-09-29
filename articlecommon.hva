@@ -12,7 +12,8 @@
 \setenvclass{paragraph}{paragraph}
 \setenvclass{subparagraph}{subparagraph}
 \newcounter {footnote}
-\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+\newcounter{titlenote}
+\renewcommand{\thetitlenote}{\fnsymbol{titlenote}}
 \newcounter {anchornote}
 \renewcommand \theanchornote{{\@nostyle\arabic{anchornote}}}
 \renewcommand \thepart {\Roman{part}}

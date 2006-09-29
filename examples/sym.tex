@@ -1,0 +1,1064 @@
+\documentclass{article}
+\usepackage{latexsym}
+\usepackage{textcomp}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{st}
+\title{Selected extracts from the ``Comprehensive \LaTeX{} symbol
+list''}
+\author{}
+\date{}
+
+\begin{document}\maketitle
+\section*{Introduction}
+This file consists in extracts of the
+\ahref{http://www.ctan.org/tex-archive/info/symbols/comprehensive/}
+{Comprehensive list of \LaTeX{} symbols}.
+
+\section{Body-text symbols}
+\begin{symtable}{\latexE{} Escapable ``Special'' Characters}
+\index{special characters=``special'' characters}
+\index{escapable characters}
+\label{special-escapable}
+\begin{tabular}{*6{ll@{\qqquad}}ll}
+\K\$   & \K\%   & \K\_$\,^*$  & \Kp\}   & \K\&   & \K\#   & \Kp\{   \\
+\end{tabular}
+
+\bigskip
+\begin{tablenote}[*]
+  The \pkgname{underscore} package redefines ``\verb+_+'' to produce
+  an underscore in text mode (i.e.,~it makes it unnecessary to escape
+  the underscore character).
+\end{tablenote}
+\end{symtable}
+
+\begin{symtable}{Predefined \latexE{} Text-mode Commands}
+\index{space, visible}
+\index{inequalities}
+\index{tilde}
+\index{copyright}
+\idxboth{legal}{symbols}
+\label{text-predef}
+\begin{tabular}{lll@{\qqquad}lll}
+\V\textasciicircum      & \V\textless            \\
+\V\textasciitilde       & \V[\ltextordfeminine]\textordfeminine   \\
+\V\textasteriskcentered & \V[\ltextordmasculine]\textordmasculine \\
+\V\textbackslash        & \V\textparagraph$^*$   \\
+\V\textbar              & \V\textperiodcentered  \\
+\V\textbraceleft$^*$    & \V\textquestiondown    \\
+\V\textbraceright$^*$   & \V\textquotedblleft    \\
+\V\textbullet           & \V\textquotedblright   \\
+\V[\ltextcopyright]\textcopyright$^*$
+                        & \V\textquoteleft       \\
+\V\textdagger$^*$       & \V\textquoteright      \\
+\V\textdaggerdbl$^*$    & \V[\ltextregistered]\textregistered     \\
+\V\textdollar$^*$       & \V\textsection$^*$     \\
+\V\textellipsis$^*$     & \V\textsterling$^*$    \\
+\V\textemdash           & \V[\ltexttrademark]\texttrademark       \\
+\V\textendash           & \V\textunderscore$^*$  \\
+\V\textexclamdown       & \V\textvisiblespace    \\
+\V\textgreater          \\
+\end{tabular}
+
+\bigskip
+\twosymbolmessage
+
+\bigskip
+\usetextmathmessage[*]
+
+\end{symtable}
+
+
+\begin{symtable}{\latexE{} Commands Defined to Work in Both Math and Text Mode}
+\index{dots (ellipses)} \index{ellipses (dots)}
+\index{copyright}
+\idxboth{legal}{symbols}
+\label{math-text}
+\begin{tabular}{*3{lll@{\qqquad}}lll}
+\V\$ & \V\_              & \V\ddag    & \Vp\{ \\
+\V\P & \V[\ltextcopyright]\copyright
+                         & \V\dots    & \Vp\} \\
+\V\S & \V\dag            & \V\pounds          \\
+\end{tabular}
+
+\bigskip
+\twosymbolmessage
+\end{symtable}
+\begin{symtable}{Non-ASCII Letters (Excluding Accented Letters)}
+\index{letters>non-ASCII}\index{ASCII}
+\label{non-ascii}
+\begin{tabular}{*4{ll@{\hspace*{3em}}}ll}
+\K\aa      & \Ks\DH     & \K\L       & \K\o       & \K\ss      \\
+\K\AA      & \Ks\dh     & \K\l       & \K\O       & \K\SS      \\
+\K\AE      & \Ks\DJ     & \Ks\NG     & \K\OE      & \Ks\TH     \\
+\K\ae      & \Ks\dj     & \Ks\ng     & \K\oe      & \Ks\th     \\
+\end{tabular}
+
+\bigskip
+\begin{tablenote}[*]
+  Not available in the OT1 \fntenc[OT1].  Use the \pkgname{fontenc}
+  package to select an alternate \fntenc[T1], such as T1.
+\end{tablenote}
+\end{symtable}
+
+
+\begin{symtable}{Punctuation Marks Not Found in OT1}
+\index{punctuation}
+\label{punc-no-OT1}
+\begin{tabular}{*8l}
+\Kt\guillemotleft  & \Kt\guilsinglleft & \Kt\quotedblbase & \Kt\textquotedbl \\
+\Kt\guillemotright & \Kt\guilsinglright & \Kt\quotesinglbase \\
+\end{tabular}
+\bigskip
+\begin{tablenote}
+  To get these symbols, use the \pkgname{fontenc} package to select an
+  alternate \fntenc[T1], such as~T1.
+\end{tablenote}
+\end{symtable}
+\begin{symtable}{\TC\ Diacritics}
+\index{accents}
+\label{tc-accent-chars}
+\begin{tabular}{*3{ll}}
+\K\textacutedbl      & \K\textasciicaron    & \K\textasciimacron \\
+\K\textasciiacute    & \K\textasciidieresis & \K\textgravedbl    \\
+\K\textasciibreve    & \K\textasciigrave                         \\
+\end{tabular}
+
+\bigskip
+
+\begin{tablenote}
+  The \TC\ package defines all of the above as ordinary characters,
+  not as accents.
+\end{tablenote}
+\end{symtable}
+
+
+\begin{symtable}{\TC\ Currency Symbols}
+\idxboth{currency}{symbols}
+\idxboth{monetary}{symbols}
+\label{tc-currency}
+\begin{tabular}{*4{ll}}
+\K\textbaht          & \K\textdollar$^*$     & \K\textguarani  & \K\textwon \\
+\K\textcent          & \NK\textdollaroldstyle & \K\textlira     & \K\textyen \\
+\NK\textcentoldstyle  & \K\textdong           & \K\textnaira    \\
+\K\textcolonmonetary & \K\texteuro           & \K\textpeso     \\
+\K\textcurrency      & \K\textflorin         & \K\textsterling$^*$ \\
+\end{tabular}
+
+\bigskip
+\usetextmathmessage[*]
+
+\end{symtable}
+
+\begin{symtable}{\TC\ Legal Symbols}
+\index{copyright}
+\idxboth{legal}{symbols}
+\label{tc-legal}
+\begin{tabular}{*2{lll@{\qquad}}lll}
+\V\textcircledP & \V[\ltextcopyright]\textcopyright   & \V\textservicemark \\
+\NV\textcopyleft & \V[\ltextregistered]\textregistered & \V[\ltexttrademark]\texttrademark \\
+\end{tabular}
+
+\bigskip
+\twosymbolmessage
+\medskip
+\begin{tablenote}
+  \hspace*{15pt}%
+  See \url{http://www.tex.ac.uk/cgi-bin/texfaq2html?label=tradesyms}
+  for solutions to common problems that occur when using these symbols
+  (e.g.,~getting a~``\textcircled{r}'' when you expected to get
+  a~``\textregistered'').
+\end{tablenote}
+\end{symtable}
+\begin{symtable}{Miscellaneous \TC\ Symbols}
+\idxboth{musical}{symbols}
+\index{tilde}
+\label{tc-misc}
+\begin{tabular}{lll@{\qquad}lll}
+\V\textasteriskcentered & \V[\ltextordfeminine]\textordfeminine   \\
+\V\textbardbl           & \V[\ltextordmasculine]\textordmasculine \\
+\V\textbigcircle        & \V\textparagraph$^*$                    \\
+\NV\textblank            & \V\textperiodcentered                   \\
+\V\textbrokenbar        & \V\textpertenthousand                   \\
+\V\textbullet           & \V\textperthousand                      \\
+\V\textdagger$^*$       & \V\textpilcrow                          \\
+\V\textdaggerdbl$^*$    & \V\textquotesingle                      \\
+\V\textdblhyphen        & \NV\textquotestraightbase                \\
+\V\textdblhyphenchar    & \NV\textquotestraightdblbase             \\
+\V\textdiscount         & \V\textrecipe                           \\
+\V\textestimated        & \V\textreferencemark                    \\
+\V\textinterrobang      & \V\textsection$^*$                      \\
+\NV\textinterrobangdown  & \NV\textthreequartersemdash              \\
+\V\textmusicalnote      & \V\texttildelow                         \\
+\V\textnumero           & \NV\texttwelveudash                      \\
+\V\textopenbullet                                                 \\
+\end{tabular}
+
+\bigskip
+\twosymbolmessage
+
+\bigskip
+\usetextmathmessage[*]
+
+\end{symtable}
+
+
+
+\begin{symtable}{Text-mode Accents}
+\index{accents}
+\label{text-accents}
+\begin{tabular}{*3{ll@{\hspace*{3em}}}ll}
+ \Q\"                                & \Q\`         & \Q\d         & \Q\r        \\
+\Q\'                                & \QivBAR\ddag & \Qiv\G\ddag  & \NQ\t        \\
+\Q\.                                & \Q\~         & \Qv\h\S      & \Q\u        \\
+\Q\= & \Q\b         & \QQ{\H}{O}{o}         & \Qiv\U\ddag \\
+\Q\^                                & \QQ{\c}Cc         & \Qt\k$^\dag$ & \Q\v        \\
+\end{tabular}
+\par\medskip
+\begin{tabular}{ll@{\hspace*{3em}}ll}
+\NQ\newtie$^*$ & \Qc\textcircled
+\end{tabular}
+
+\bigskip
+\begin{tablenote}[*]
+  Requires the \TC\ package.
+\end{tablenote}
+
+\medskip
+\begin{tablenote}[\dag]
+  Not available in the OT1 \fntenc[OT1].  Use the \pkgname{fontenc}
+  package to select an alternate \fntenc[T1], such as T1.
+\end{tablenote}
+
+\medskip
+\begin{tablenote}[\ddag]
+  Requires the T4 \fntenc[T4], provided by the \FC\ package.
+\end{tablenote}
+
+\medskip
+\begin{tablenote}[\S]
+  Requires the T5 \fntenc[T5], provided by the \VIET\ package.
+\end{tablenote}
+
+\bigskip
+\begin{tablenote}
+  \index{dotless i=dotless $i~(\imath)$>text mode}
+  \index{dotless j=dotless $j~(\jmath)$>text mode}
+  Also note the existence of \cmdI{\i} and \cmdI{\j}, which produce
+  dotless versions of ``i'' and ``j'' (viz., ``\i'' and ``\j'').  These
+  are useful when the accent is supposed to replace the dot.  For
+  example, ``\verb|na\"{\i}ve|'' produces a correct ``na\"{\i}ve'',
+  while ``\verb|na\"{i}ve|'' would yield the rather odd-looking
+  ``na\"{i}ve''.  (``\verb|na\"{i}ve|'' \emph{does} work in encodings
+  other than OT1, however.)
+\end{tablenote}
+\end{symtable}
+
+\section{Symbols for maths}
+
+\begin{symtable}{Math-Mode Versions of Text Symbols}
+\index{math-text}
+\begin{tabular}{*3{ll}}
+\X\mathdollar   & \X\mathparagraph & \X\mathsterling   \\
+\X\mathellipsis & \X\mathsection   & \X\mathunderscore \\
+\end{tabular}
+
+\bigskip
+\usetextmathmessage
+
+\end{symtable}
+
+\begin{symtable}{Binary Operators}
+\idxboth{binary}{operators}
+\index{division}
+\label{bin}
+\begin{tabular}{*4{ll}}
+\X\amalg           & \X\cup          & \X\oplus    & \X\times           \\
+\X\ast             & \X\dagger       & \X\oslash   & \X\triangleleft    \\
+\X\bigcirc         & \X\ddagger      & \X\otimes   & \X\triangleright   \\
+\X\bigtriangledown & \X\diamond      & \X\pm       & \X\unlhd$^*$       \\
+\X\bigtriangleup   & \X\div          & \X\rhd$^*$  & \X\unrhd$^*$       \\
+\X\bullet          & \X\lhd$^*$      & \X\setminus & \X\uplus           \\
+\X\cap             & \X\mp           & \X\sqcap    & \X\vee             \\
+\X\cdot            & \X\odot         & \X\sqcup    & \X\wedge           \\
+\X\circ            & \X\ominus       & \X\star     & \X\wr              \\
+\end{tabular}
+
+\bigskip
+\notpredefinedmessage
+\end{symtable}
+
+\begin{symtable}{Variable-sized Math Operators}
+\idxboth{variable-sized}{symbols}
+\index{integrals}
+\label{op}
+\renewcommand{\arraystretch}{1.75}  % Keep tall symbols from touching.
+\begin{tabular}{*3{l@{$\:$}ll@{\qquad}}l@{$\:$}ll}
+\R\bigcap    & \R\bigotimes & \R\bigwedge  & \R\prod      \\
+\R\bigcup    & \R\bigsqcup  & \R\coprod    & \R\sum       \\
+\R\bigodot   & \R\biguplus  & \R\int       \\
+\R\bigoplus  & \R\bigvee    & \R\oint      \\
+\end{tabular}
+\end{symtable}
+
+\begin{symtable}{Binary Relations}
+\idxboth{relational}{symbols}
+\index{tacks}
+\label{rel}
+\begin{tabular}{*4{ll}}
+\X\approx   & \X\equiv    & \X\perp     & \X\smile  \\
+\X\asymp    & \X\frown    & \X\prec     & \X\succ   \\
+\X\bowtie   & \X\Join$^*$ & \X\preceq   & \X\succeq \\
+\X\cong     & \X\mid      & \X\propto   & \X\vdash  \\
+\X\dashv    & \X\models   & \X\sim                  \\
+\X\doteq    & \X\parallel & \X\simeq                \\
+\end{tabular}
+
+\bigskip
+\notpredefinedmessageABX
+\end{symtable}
+
+\begin{symtable}{Subset and Superset Relations}
+\index{binary relations}
+\index{relational symbols>binary}
+\index{subsets}
+\index{supersets}
+\index{symbols>subset and superset}
+\label{subsets}
+\begin{tabular}{*3{ll}}
+\X\sqsubset$^*$ & \X\sqsupseteq & \X\supset   \\
+\X\sqsubseteq   & \X\subset     & \X\supseteq \\
+\X\sqsupset$^*$ & \X\subseteq                 \\
+\end{tabular}
+
+\bigskip
+\notpredefinedmessageABX
+\end{symtable}
+
+\begin{symtable}{Inequalities}
+\index{binary relations}\index{relational symbols>binary}
+\index{inequalities}
+\label{inequal-rel}
+\begin{tabular}{*5{ll}}
+\X\geq & \X\gg & \X\leq & \X\ll & \X\neq \\
+\end{tabular}
+\end{symtable}
+
+\begin{symtable}{Arrows}
+\index{arrows}
+\label{arrow}
+\begin{tabular}{*3{ll}}
+\X\Downarrow          & \X\longleftarrow      & \X\nwarrow     \\
+\X\downarrow          & \X\Longleftarrow      & \X\Rightarrow  \\
+\X\hookleftarrow      & \X\longleftrightarrow & \X\rightarrow  \\
+\X\hookrightarrow     & \X\Longleftrightarrow & \X\searrow     \\
+\X\leadsto$^*$        & \X\longmapsto         & \X\swarrow     \\
+\X\leftarrow          & \X\Longrightarrow     & \X\uparrow     \\
+\X\Leftarrow          & \X\longrightarrow     & \X\Uparrow     \\
+\X\Leftrightarrow     & \X\mapsto             & \X\updownarrow \\
+\X\leftrightarrow     & \X\nearrow$^\dag$     & \X\Updownarrow \\
+\end{tabular}
+
+\bigskip
+\notpredefinedmessage
+
+\bigskip
+\begin{tablenote}[\dag]
+  See the note beneath Table~\ref{extensible-accents} for information
+  about how to put a diagonal arrow across a mathematical expression%
+\ifhavecancel
+  ~(as in ``$\cancelto{0}{\nabla \cdot \vec{B}}\quad$'')
+\fi
+.
+\end{tablenote}
+\end{symtable}
+
+
+\begin{symtable}{Harpoons}
+\index{harpoons}
+\label{harpoons}
+\begin{tabular}{*3{ll}}
+\X\leftharpoondown   & \X\rightharpoondown  & \X\rightleftharpoons \\
+\X\leftharpoonup     & \X\rightharpoonup                           \\
+\end{tabular}
+\end{symtable}
+
+\begin{symtable}{Extension Characters}
+\index{extension characters}
+\label{ext}
+\begin{tabular}{*2{ll}}
+\X\relbar & \X\Relbar \\
+\end{tabular}
+\end{symtable}
+
+\begin{symtable}{Log-like Symbols}
+\idxboth{log-like}{symbols}
+\index{atomic math objects}
+\index{limits}
+\label{log}
+\begin{tabular}{*8l}
+\Z\arccos & \Z\cos  & \Z\csc & \Z\exp & \Z\ker    & \Z\limsup & \Z\min & \Z\sinh \\
+\Z\arcsin & \Z\cosh & \Z\deg & \Z\gcd & \Z\lg     & \Z\ln     & \Z\Pr  & \Z\sup  \\
+\Z\arctan & \Z\cot  & \Z\det & \Z\hom & \Z\lim    & \Z\log    & \Z\sec & \Z\tan  \\
+\Z\arg    & \Z\coth & \Z\dim & \Z\inf & \Z\liminf & \Z\max    & \Z\sin & \Z\tanh
+\end{tabular}
+
+\bigskip
+\begin{tablenote}
+  Calling the above ``symbols'' may be a bit
+  misleading.\footnotemark{} Each log-like symbol merely produces the
+  eponymous textual equivalent, but with proper surrounding spacing.
+  As \cmd{\bmod} and \cmd{\pmod} are arguably not symbols we
+  refer the reader to the Short Math Guide for
+  \latex~\cite{Downes:smg} for samples.
+\end{tablenote}
+\end{symtable}
+\footnotetext{Michael\index{Downes, Michael J.} J. Downes prefers the
+more general term, ``atomic\index{atomic math objects} math objects''.}
+
+
+\begin{symtable}{\TC\ Text-mode Arrows}
+\index{arrows}
+\label{tc-arrows}
+\begin{tabular}{*2{ll}}
+\K\textdownarrow & \K\textrightarrow \\
+\K\textleftarrow & \K\textuparrow    \\
+\end{tabular}
+\end{symtable}
+
+\begin{symtable}{Math-mode Accents}
+\index{accents}
+\index{tilde}
+\label{math-accents}
+\begin{tabular}{*4{ll}}
+\W\acute{a}    & \W\check{a}    & \W\grave{a}    & \W\tilde{a} \\
+\W\bar{a}      & \NW\ddot{a}     & \W\hat{a}      & \NW\vec{a}   \\
+\W\breve{a}    & \W\dot{a}      & \W\mathring{a}               \\
+\end{tabular}
+
+\bigskip
+
+\begin{tablenote}
+  \index{dotless i=dotless $i~(\imath)$>math mode}
+  \index{dotless j=dotless $j~(\jmath)$>math mode}
+  Also note the existence of \cmdX{\imath} and \cmdX{\jmath}, which
+  produce dotless versions of ``\textit{i}'' and ``\textit{j}''.  (See
+  Table~\vref{ord}.)  These are useful when the accent is supposed to
+  replace the dot.  For example, ``\verb|\hat{\imath}|'' produces a
+  correct ``$\,\hat{\imath}\,$'', while ``\verb|\hat{i}|'' would yield
+  the rather odd-looking ``\,$\hat{i}\,$''.
+\end{tablenote}
+\end{symtable}
+
+
+
+
+\begin{symtable}{Greek Letters}
+\index{Greek}\index{alphabets>Greek}
+\label{greek}
+\begin{tabular}{*8l}
+\X\alpha        &\X\theta       &\X o           &\X\tau         \\
+\X\beta         &\X\vartheta    &\X\pi          &\X\upsilon     \\
+\X\gamma        &\X\iota        &\X\varpi       &\X\phi         \\
+\X\delta        &\X\kappa       &\X\rho         &\X\varphi      \\
+\X\epsilon      &\X\lambda      &\X\varrho      &\X\chi         \\
+\X\varepsilon   &\X\mu          &\X\sigma       &\X\psi         \\
+\X\zeta         &\X\nu          &\X\varsigma    &\X\omega       \\
+\X\eta          &\X\xi                                          \\
+                                                                \\
+\X\Gamma        &\X\Lambda      &\X\Sigma       &\X\Psi         \\
+\X\Delta        &\X\Xi          &\X\Upsilon     &\X\Omega       \\
+\X\Theta        &\X\Pi          &\X\Phi
+\end{tabular}
+
+\bigskip
+\begin{tablenote}
+  The remaining Greek majuscules\index{majuscules} can be produced
+  with ordinary Latin letters.  The symbol ``M'', for instance, is
+  used for both an uppercase ``m'' and an uppercase ``$\mu$''.
+\end{tablenote}
+\end{symtable}
+
+\begin{symtable}{Letter-like Symbols}
+\idxboth{letter-like}{symbols}
+\index{tacks}
+\label{letter-like}
+\begin{tabular}{*5{ll}}
+\X\bot    & \X\forall & \X\imath & \X\ni      & \X\top \\
+\X\ell    & \X\hbar   & \X\in    & \X\partial & \X\wp  \\
+\X\exists & \X\Im     & \X\jmath & \X\Re               \\
+\end{tabular}
+\end{symtable}
+
+\begin{symtable}{Variable-sized Delimiters}
+\index{delimiters}
+\index{delimiters>variable-sized}
+\label{dels}
+\renewcommand{\arraystretch}{1.75}  % Keep tall symbols from touching.
+\begin{tabular}{lll@{\qquad}lll@{\hspace*{1.5cm}}lll@{\qquad}lll}
+\N\downarrow & \N\Downarrow & \N{[}           & \N[\magicrbrack]{]} \\
+\N\langle    & \N\rangle    & \N|$^*$
+                                              & \N\| \\
+\N\lceil     & \N\rceil     & \N\uparrow      & \N\Uparrow          \\
+\N\lfloor    & \N\rfloor    & \N\updownarrow  & \N\Updownarrow      \\
+\N(          & \N)          & \N\{           & \N\}               \\
+\N/          & \N\backslash                                         \\
+\end{tabular}
+
+\bigskip
+\begin{tablenote}
+  When used with \cmd{\left} and \cmd{\right}, these symbols expand to
+  the height of the enclosed math expression.  Note that \cmdX{\vert}
+  is a synonym for \verb+|+, and \cmdX{\Vert} is a synonym for
+  \verb+\|+.
+\end{tablenote}
+
+\bigskip
+\begin{tablenote}[*]
+  $\varepsilon$-\TeX{}\index{e-tex=$\varepsilon$-\TeX} provides a
+  \cmd{\middle} analogue to \cmd{\left} and \cmd{\right} that can be
+  used to make an internal ``$|$'' (often used to indicate
+  ``evaluated\index{evaluated at=evaluated at ($\vert$)} at'') expand
+  to the height of the surrounding \cmd{\left} and \cmd{\right}
+  symbols.  A similar effect can be achieved in conventional \latex
+  using the \pkgname{braket} package.
+\end{tablenote}
+\end{symtable}
+
+\begin{symtable}{Large, Variable-sized Delimiters}
+\index{delimiters}
+\index{delimiters>variable-sized}
+\label{ldels}
+\renewcommand{\arraystretch}{2.5}  % Keep tall symbols from touching.
+\begin{tabular}{*3{lll@{\qquad}}lll}
+\Y\lmoustache & \Y\rmoustache & \Y\lgroup    & \Y\rgroup \\
+\Y\arrowvert  & \Y\Arrowvert  & \Y\bracevert
+\end{tabular}
+
+\bigskip
+\begin{tablenote}
+  These symbols \emph{must} be used with \cmd{\left} and \cmd{\right}.
+  The \ABX\ package, however, redefines
+  \cmdI[$\string\big\string\lgroup$]{\lgroup} and
+  \cmdI[$\string\big\string\rgroup$]{\rgroup} so that those symbols
+  can work without \cmd{\left} and \cmd{\right}.
+\end{tablenote}
+\end{symtable}
+
+\begin{symtable}{\TC\ Text-mode Delimiters}
+\index{delimiters}
+\index{delimiters>text-mode}
+\label{tc-delimiters}
+\begin{tabular}{*2{ll}}
+\K\textlangle    & \K\textrangle    \\
+\K\textlbrackdbl & \K\textrbrackdbl \\
+\NK\textlquill    & \NK\textrquill    \\
+\end{tabular}
+\end{symtable}
+
+\begin{symtable}{Extensible Accents}
+\index{accents}
+\idxboth{extensible}{accents}
+\idxboth{extensible}{arrows}
+\index{tilde}
+\index{tilde>extensible}
+\index{extensible tildes}
+\label{extensible-accents}
+\renewcommand{\arraystretch}{1.5}
+\begin{tabular}{*4l}
+\NW\widetilde{abc}$^*$         & \NW\widehat{abc}$^*$    \\
+\WD\overleftarrow{abc}$^\dag$  & \WD\overrightarrow{abc}$^\dag$ \\
+\WD\overline{abc}              & \WD\underline{abc}      \\
+\WD\overbrace{abc}             & \WD\underbrace{abc}     \\[5pt]
+\WD\sqrt{abc}$^\ddag$                                   \\
+\end{tabular}
+
+\bigskip
+
+\begin{tablenote}
+  \def\longdivsign{%
+    \ensuremath{\overline{\vphantom{)}%
+      \hbox{\smash{\raise3.5\fontdimen8\textfont3\hbox{$)$}}}%
+      abc}}}
+
+  \index{long division|(}
+  \index{division|(}
+  \index{polynomial division|(}
+
+  As demonstrated in a 1997 TUGboat\index{TUGboat} article about
+  typesetting long-division problems~\cite{Gibbons:longdiv}, an
+  extensible long-division sign (``\,\longdivsign\,'') can be faked by
+  putting a ``\verb|\big)|'' in a \texttt{tabular} environment with an
+  \verb|\hline| or \verb|\cline| in the preceding row.  The article
+  also presents a piece of code (uploaded to CTAN\idxCTAN{} as
+  \texttt{longdiv.tex}%
+  \index{longdiv=\textsf{longdiv} (package)}%
+  \index{packages>\textsf{longdiv}}) that automatically solves and
+  typesets---by putting an \cmdW{\overline} atop ``\verb|\big)|'' and
+  the desired text---long-division problems.  See also the
+  \pkgname{polynom} package, which automatically solves and typesets
+  polynomial-division problems in a similar manner.
+
+  \index{long division|)}
+  \index{division|)}
+  \index{polynomial division|)}
+\end{tablenote}
+
+\begin{tablenote}[\dag]
+  If you're looking for an extensible \emph{diagonal} line or arrow to
+  be used for canceling or reducing mathematical
+  subexpressions\index{arrows>diagonal, for reducing subexpressions}
+\ifhavecancel
+  (e.g.,~``$\cancel{x + -x}$'' or ``$\cancelto{5}{3+2}\quad$'')
+\fi
+  then consider using the \pkgname{cancel} package.
+\end{tablenote}
+
+\bigskip
+
+\begin{tablenote}[\ddag]
+  With an optional argument, \verb|\sqrt| typesets nth roots.  For
+  example, ``\verb|\sqrt[3]{abc}|'' produces~``$\!\sqrt[3]{abc}$\,''
+  and ``\verb|\sqrt[n]{abc}|'' produces~``$\!\sqrt[n]{abc}$\,''.
+\end{tablenote}
+\end{symtable}
+\begin{symtable}{Dots}
+\idxboth{dot}{symbols}
+\index{dots (ellipses)} \index{ellipses (dots)}
+\label{dots}
+\ifMDOTS
+  \def\MDfn{$^\dag$}%
+\else
+  \def\MDfn{}%
+\fi    % MDOTS test
+\begin{tabular}{*{3}{ll@{\hspace*{1.5cm}}}ll}
+\X\cdotp & \X\colon$^*$  & \X\ldotp & \X\vdots\MDfn \\
+\X\cdots & \X\ddots\MDfn & \X\ldots                 \\
+\end{tabular}
+
+\bigskip
+
+\begin{tablenote}[*]
+  While ``\texttt{:}'' is valid in math mode, \cmd{\colon} uses
+  different surrounding spacing. 
+\end{tablenote}
+
+\ifMDOTS
+\bigskip
+
+\begin{tablenote}[\dag]
+  The \MDOTS\ package redefines \cmdX{\ddots} and \cmdX{\vdots} to
+  make them scale properly with font size.  (They normally scale
+  horizontally but not vertically.)  \cmdX{\fixedddots} and
+  \cmdX{\fixedvdots} provide the original, fixed-height functionality
+  of \latexE's \cmdX{\ddots} and \cmdX{\vdots} macros.
+\end{tablenote}
+
+\fi    % MDOTS test
+\end{symtable}
+\begin{symtable}{Miscellaneous \TC\ Text-mode Math Symbols}
+\index{fractions}
+\label{tc-math}
+\ifFRAC
+  \def\FRACfn{$^\dag$}
+\else
+  \def\FRACfn{}
+\fi
+\begin{tabular}{*3{ll}}
+\K\textdegree$^*$      & \K\textonehalf\FRACfn    & \K\textthreequarters\FRACfn \\
+\K\textdiv             & \K\textonequarter\FRACfn & \K\textthreesuperior \\
+\K\textfractionsolidus & \K\textonesuperior       & \K\texttimes         \\
+\K\textlnot            & \K\textpm                & \K\texttwosuperior   \\
+\K\textminus           & \K\textsurd                                     \\
+\end{tabular}
+
+\bigskip
+
+\begin{tablenote}[*]
+  If you prefer a larger degree symbol you might consider defining one
+  as ``\verb|\ensuremath{^\circ}|''~(``$^\circ$'')%
+  \indexcommand[$\string\circ$]{\circ}.
+\end{tablenote}
+
+\ifFRAC
+  \bigskip
+  \begin{tablenote}[\dag]
+    \pkgname{nicefrac} (part of the \pkgname{units} package) can be
+    used to construct vulgar fractions like ``\nicefrac{1}{2}'',
+    ``\nicefrac{1}{4}'', ``\nicefrac{3}{4}'', and even
+    ``\nicefrac{c}{o}''\index{care of=care of (\nicefrac{c}{o})}.
+  \end{tablenote}
+\fi    % FRAC test
+\end{symtable}
+
+\begin{symtable}{\TC\ Text-mode Science and Engineering Symbols}
+\label{tc-science}
+\begin{tabular}{*4{ll}}
+\K\textcelsius & \K\textmho & \K\textmu & \K\textohm \\
+\end{tabular}
+\end{symtable}
+
+\begin{symtable}{\TC\ Genealogical Symbols}
+\idxboth{genealogical}{symbols}
+\label{genealogical}
+\begin{tabular}{*3{ll}}
+\K\textborn     & \K\textdivorced & \K\textmarried  \\
+\K\textdied     & \NK\textleaf     \\
+\end{tabular}
+\end{symtable}
+
+
+\begin{symtable}{Miscellaneous \latexE{} Math Symbols}
+\idxboth{miscellaneous}{symbols}
+\index{card suits}
+\index{diamonds (suit)}
+\index{hearts (suit)}
+\index{clubs (suit)}
+\index{spades (suit)}
+\idxboth{musical}{symbols}
+\index{dots (ellipses)}
+\index{ellipses (dots)}
+\index{null set}
+\index{dotless i=dotless $i~(\imath)$>math mode}
+\index{dotless j=dotless $j~(\jmath)$>math mode}
+\index{angles}
+\label{ord}
+\ifAMS
+  \def\AMSfn{$^\ddag$}
+\else
+  \def\AMSfn{}
+\fi
+\begin{tabular}{*4{ll}}
+\X\aleph          & \X\Diamond$^*$    & \X\infty   & \X\prime     \\
+\X\angle          & \X\diamondsuit    & \X\mho$^*$ & \X\sharp     \\
+\X\backslash      & \X\emptyset\AMSfn & \X\nabla   & \X\spadesuit \\
+\X\Box$^{*,\dag}$ & \X\flat           & \X\natural & \X\surd      \\
+\X\clubsuit       & \X\heartsuit      & \X\neg     & \X\triangle  \\
+\end{tabular}
+
+\bigskip
+\notpredefinedmessage
+
+\bigskip
+\begin{tablenote}[\dag]
+  To use \cmdX{\Box}---or any other symbol---as an end-of-proof
+  (Q.E.D\@.)\index{Q.E.D.}\index{end of proof}\index{proof, end of}
+  marker, consider using the \pkgname{ntheorem} package, which
+  properly juxtaposes a symbol with the end of the proof text.
+\end{tablenote}
+
+\ifAMS
+  \bigskip
+  \begin{tablenote}[\ddag]
+    Many people prefer the look of \AMS's \cmdX{\varnothing}
+    (Table~\ref{ams-misc}) to that of \latex's \cmdX{\emptyset}.
+  \end{tablenote}
+\fi    % AMS test
+
+\end{symtable}
+
+\section*{AMS symbols}
+
+
+\begin{symtable}[AMS]{\AMS\ Commands Defined to Work in Both Math and Text Mode}
+\label{ams-math-text}
+\begin{tabular}{*2{ll@{\qquad}}ll}
+\X\checkmark & \X\circledR & \X\maltese
+\end{tabular}
+\end{symtable}
+
+\begin{symtable}[AMS]{\AMS\ Binary Operators}
+\idxboth{binary}{operators}
+\index{semidirect products}
+\label{ams-bin}
+\begin{tabular}{*3{ll}}
+\X\barwedge        & \X\circledcirc     & \X\intercal        \\
+\X\boxdot          & \X\circleddash     & \X\leftthreetimes  \\
+\X\boxminus        & \X\Cup             & \X\ltimes          \\
+\X\boxplus         & \X\curlyvee        & \X\rightthreetimes \\
+\X\boxtimes        & \X\curlywedge      & \X\rtimes          \\
+\X\Cap             & \X\divideontimes   & \X\smallsetminus   \\
+\X\centerdot       & \X\dotplus         & \X\veebar          \\
+\X\circledast      & \X\doublebarwedge  \\
+\end{tabular}
+\end{symtable}
+
+\begin{symtable}[AMS]{\AMS\ Variable-sized Math Operators}
+\idxboth{variable-sized}{symbols}
+\index{integrals}
+\label{ams-large}
+\renewcommand{\arraystretch}{2.5}  % Keep tall symbols from touching.
+\begin{tabular}{l@{$\:$}ll@{\qquad}l@{$\:$}ll}
+\R[\AMSiint]\iint     & \R[\AMSiiint]\iiint       \\
+\R[\AMSiiiint]\iiiint & \R[\AMSidotsint]\idotsint \\
+\end{tabular}
+\end{symtable}
+
+\begin{symtable}[AMS]{\AMS\ Binary Relations}
+\index{binary relations}
+\index{relational symbols>binary}
+\label{ams-rel}
+\begin{tabular}{*3{ll}}
+\X\approxeq      & \X\eqcirc        & \X\succapprox    \\
+\X\backepsilon   & \X\fallingdotseq & \X\succcurlyeq   \\
+\X\backsim       & \X\multimap      & \X\succsim       \\
+\X\backsimeq     & \X\pitchfork     & \X\therefore     \\
+\X\because       & \X\precapprox    & \NX\thickapprox   \\
+\X\between       & \X\preccurlyeq   & \NX\thicksim      \\
+\X\Bumpeq        & \X\precsim       & \X\varpropto     \\
+\X\bumpeq        & \X\risingdotseq  & \X\Vdash         \\
+\X\circeq        & \NX\shortmid      & \X\vDash         \\
+\X\curlyeqprec   & \NX\shortparallel & \X\Vvdash        \\
+\X\curlyeqsucc   & \NX\smallfrown    &                  \\
+\X\doteqdot      & \NX\smallsmile    &                  \\
+\end{tabular}
+\end{symtable}
+
+\begin{symtable}[AMS]{\AMS\ Negated Binary Relations}
+\index{binary relations>negated}
+\index{relational symbols>negated binary}
+\label{ams-nrel}
+\begin{tabular}{*3{ll}}
+\X\ncong     & \NX\nshortparallel & \X\nVDash      \\
+\X\nmid      & \X\nsim           & \X\precnapprox \\
+\X\nparallel & \X\nsucc          & \X\precnsim    \\
+\X\nprec     & \X\nsucceq        & \X\succnapprox \\
+\X\npreceq   & \X\nvDash         & \X\succnsim    \\
+\NX\nshortmid & \X\nvdash                          \\
+\end{tabular}
+\end{symtable}
+\begin{symtable}[AMS]{\AMS\ Subset and Superset Relations}
+\index{binary relations}
+\index{relational symbols>binary}
+\index{subsets}
+\index{supersets}
+\index{symbols>subset and superset}
+\label{ams-subsets}
+\begin{tabular}{*3{ll}}
+\X\nsubseteq  & \X\subseteqq  & \X\supsetneqq    \\
+\X\nsupseteq  & \X\subsetneq  & \NX\varsubsetneq  \\
+\NX\nsupseteqq & \X\subsetneqq & \NX\varsubsetneqq \\
+\X\sqsubset   & \X\Supset     & \NX\varsupsetneq  \\
+\X\sqsupset   & \X\supseteqq  & \NX\varsupsetneqq \\
+\X\Subset     & \X\supsetneq                     \\
+\end{tabular}
+\end{symtable}
+
+
+\begin{symtable}[AMS]{\AMS\ Inequalities}
+\index{binary relations}\index{relational symbols>binary}
+\index{inequalities}
+\label{ams-inequal-rel}
+\renewcommand{\arraystretch}{1.5}   % Keep visually similar symbols from touching.
+\begin{tabular}{*4{ll}}
+\X\eqslantgtr  & \X\gtrdot      & \X\lesseqgtr   & \X\ngeq        \\
+\X\eqslantless & \X\gtreqless   & \X\lesseqqgtr  & \NX\ngeqq       \\
+\X\geqq        & \X\gtreqqless  & \X\lessgtr     & \NX\ngeqslant   \\
+\X\geqslant    & \X\gtrless     & \X\lesssim     & \X\ngtr        \\
+\X\ggg         & \X\gtrsim      & \X\lll         & \X\nleq        \\
+\X\gnapprox    & \NX\gvertneqq   & \X\lnapprox    & \NX\nleqq       \\
+\X\gneq        & \X\leqq        & \X\lneq        & \NX\nleqslant   \\
+\X\gneqq       & \X\leqslant    & \X\lneqq       & \X\nless       \\
+\X\gnsim       & \X\lessapprox  & \X\lnsim       &                \\
+\X\gtrapprox   & \X\lessdot     & \NX\lvertneqq   &                \\
+\end{tabular}
+\end{symtable}
+
+\begin{symtable}[AMS]{\AMS\ Triangle Relations}
+\index{triangle relations}\index{relational symbols>triangle}
+\label{ams-triangle-rel}
+\begin{tabular}{*4{ll}}
+\X\blacktriangleleft  & \X\ntrianglelefteq  & \X\trianglelefteq  & \X\vartriangleleft  \\
+\X\blacktriangleright & \X\ntriangleright   & \X\triangleq       & \X\vartriangleright \\
+\X\ntriangleleft      & \X\ntrianglerighteq & \X\trianglerighteq                       \\
+\end{tabular}
+\end{symtable}
+
+\begin{symtable}[AMS]{\AMS\ Arrows}
+\index{arrows}
+\label{ams-arrows}
+\begin{tabular}{*3{ll}}
+\X\circlearrowleft  & \X\leftleftarrows      & \X\rightleftarrows   \\
+\X\circlearrowright & \X\leftrightarrows     & \X\rightrightarrows  \\
+\X\curvearrowleft   & \X\leftrightsquigarrow & \X\rightsquigarrow   \\
+\X\curvearrowright  & \X\Lleftarrow          & \X\Rsh               \\
+\X\dashleftarrow    & \X\looparrowleft       & \X\twoheadleftarrow  \\
+\X\dashrightarrow   & \X\looparrowright      & \X\twoheadrightarrow \\
+\X\downdownarrows   & \X\Lsh                 & \X\upuparrows        \\
+\X\leftarrowtail    & \X\rightarrowtail      &                      \\
+\end{tabular}
+\end{symtable}
+
+
+\begin{symtable}[AMS]{\AMS\ Negated Arrows}
+\index{arrows>negated}
+\label{ams-narrows}
+\begin{tabular}{*3{ll}}
+\X\nLeftarrow      & \X\nLeftrightarrow & \X\nRightarrow     \\
+\X\nleftarrow      & \X\nleftrightarrow & \X\nrightarrow     \\
+\end{tabular}
+\end{symtable}
+
+\begin{symtable}[AMS]{\AMS\ Harpoons}
+\index{harpoons}
+\label{ams-harpoons}
+\begin{tabular}{*3{ll}}
+\X\downharpoonleft  & \X\leftrightharpoons                        & \X\upharpoonleft  \\
+\X\downharpoonright & \X\rightleftharpoons & \X\upharpoonright \\
+\end{tabular}
+\end{symtable}
+\begin{symtable}[AMS]{\AMS\ Log-like Symbols}
+\idxboth{log-like}{symbols}
+\index{atomic math objects}
+\index{limits}
+\label{ams-log}
+\renewcommand{\arraystretch}{1.5}  % Keep tall symbols from touching.
+\begin{tabular}{*2{ll@{\qquad}}ll}
+\X\injlim     & \NX\varinjlim  & \X\varlimsup  \\
+\X\projlim    & \X\varliminf  & \NX\varprojlim
+\end{tabular}
+
+
+\bigskip
+\begin{tablenote}
+  Load the \pkgname{amsmath} package to get these symbols.
+  As \cmd{\mod} and \cmd{\pod} are arguably not
+  symbols we refer the reader to the Short Math Guide for
+  \latex~\cite{Downes:smg} for samples.
+\end{tablenote}
+\end{symtable}
+
+\begin{symtable}[AMS]{\AMS\ Greek Letters}
+\index{Greek}\index{alphabets>Greek}
+\label{ams-greek}
+\begin{tabular}{*4l}
+\X\digamma      &\X\varkappa
+\end{tabular}
+\end{symtable}
+
+
+\begin{symtable}[AMS]{\AMS\ Hebrew Letters}
+\index{Hebrew}\index{alphabets>Hebrew}
+\label{ams-hebrew}
+\begin{tabular}{*6l}
+\X\beth & \X\gimel & \X\daleth
+\end{tabular}
+
+\bigskip
+\begin{tablenote}
+\cmdX{\aleph} appears in Table~\vref{ord}.
+\end{tablenote}
+\end{symtable}
+\begin{symtable}[AMS]{\AMS\ Letter-like Symbols}
+\idxboth{letter-like}{symbols}
+\label{ams-letter-like}
+\begin{tabular}{*3{ll}}
+\X\Bbbk       & \X\complement & \X\hbar    \\
+\X\circledR   & \X\Finv       & \X\hslash  \\
+\X\circledS   & \X\Game       & \X\nexists \\
+\end{tabular}
+\end{symtable}
+
+
+\begin{symtable}[AMS]{\AMS\ Delimiters}
+\index{delimiters}
+\label{ams-del}
+\begin{tabular}{*2{ll}}
+\X\ulcorner & \X\urcorner \\
+\X\llcorner & \X\lrcorner
+\end{tabular}
+\end{symtable}
+
+\begin{symtable}[AMS]{\AMS\ Variable-sized Delimiters}
+\index{delimiters}
+\index{delimiters>variable-sized}
+\label{ams-var-del}
+\renewcommand{\arraystretch}{2.5}  % Keep tall symbols from touching.
+\begin{tabular}{lll@{\qquad}lll}
+\N\lvert & \N\rvert \\
+\N\lVert & \N\rVert \\
+\end{tabular}
+\bigskip
+\begin{tablenote}
+  According to the \texttt{amsmath}
+  documentation~\cite{AMS1999:amsmath}, the preceding symbols are
+  intended to be used as delimiters (e.g.,~as in ``$\lvert -z
+  \rvert$'') while the \cmdX{\vert} and \cmdX{\Vert} symbols
+  (Table~\vref{dels}) are intended to be used as operators (e.g.,~as
+  in ``$p \vert q$'').
+\end{tablenote}
+\end{symtable}
+
+\begin{symtable}[AMS]{\AMS\ Math-mode Accents}
+\index{accents}
+\label{ams-math-accents}
+\begin{tabular}{ll@{\hspace*{2em}}ll}
+\NW\dddot{a}    & \NW\ddddot{a} \\
+\end{tabular}
+
+\bigskip
+
+\begin{tablenote}
+  These accents are also provided by the \ABX\ package.
+\end{tablenote}
+\end{symtable}
+
+\begin{symtable}[AMS]{\AMS\ Extensible Accents}
+\idxboth{extensible}{accents}
+\idxboth{extensible}{arrows}
+\label{extensible-arrows}
+\renewcommand{\arraystretch}{1.5}
+\begin{tabular}{ll@{\qquad}ll}
+\W\overleftrightarrow{abc}  & \W\underleftrightarrow{abc} \\
+\W\underleftarrow{abc}      & \W\underrightarrow{abc}     \\[2ex]
+\multicolumn{4}{p{0.75\textwidth}}{%
+  The following are a sort of ``reverse accent'' in that the argument
+  text serves as a superscript to the arrow.  In addition, the
+  optional first argument (not shown) serves as a subscript to the
+  arrow.  See the Short Math Guide for \latex~\cite{Downes:smg} for
+  further examples.
+} \\~\\[-2ex]
+\W\xleftarrow{abc}          & \W\xrightarrow{abc}         \\
+\end{tabular}
+\end{symtable}
+
+
+\begin{symtable}[AMS]{\AMS\ Dots}
+\idxboth{dot}{symbols}
+\index{dots (ellipses)} \index{ellipses (dots)}
+\label{ams-dots}
+\begin{tabular}{*{2}{ll@{\hspace*{1.5cm}}}ll}
+\X[\cdots]\dotsb & \X[\cdots]\dotsi & \X[\ldots]\dotso \\
+\X[\ldots]\dotsc & \X[\cdots]\dotsm                    \\
+\end{tabular}
+
+\bigskip
+\begin{tablenote}
+  The \AMS\ dot symbols are named according to their intended usage:
+  \cmdI[$\string\cdots$]{\dotsb} between pairs of binary operators/relations,
+  \cmdI[$\string\ldots$]{\dotsc} between pairs of commas,
+  \cmdI[$\string\cdots$]{\dotsi} between pairs of integrals,
+  \cmdI[$\string\cdots$]{\dotsm} between pairs of multiplication signs, and
+  \cmdI[$\string\ldots$]{\dotso} between other symbol pairs.
+\end{tablenote}
+\end{symtable}
+
+\begin{symtable}[AMS]{Miscellaneous \AMS\ Math Symbols}
+\idxboth{miscellaneous}{symbols}
+\index{stars}
+\index{triangles}
+\index{null set}
+\index{angles}
+\label{ams-misc}
+\begin{tabular}{*3{ll}}
+\X\angle & \X\blacktriangledown & \X\mho            \\
+\X\backprime        & \X\diagdown          & \X\sphericalangle \\
+\X\bigstar          & \X\diagup            & \X\square         \\
+\X\blacklozenge     & \X\eth               & \X\triangledown   \\
+\X\blacksquare      & \X\lozenge           & \X\varnothing     \\
+\X\blacktriangle    & \X\measuredangle     & \X\vartriangle    \\
+
+\end{tabular}
+\end{symtable}
+
+\end{document}

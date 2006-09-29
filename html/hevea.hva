@@ -35,21 +35,6 @@
 \input{spaces.hva}
 \input{latexcommon.hva}
 %%% Basic symbols
-%Declare unicode encoded symbol, with optional text equivalent
-\newcommand{\DeclareSymbol}[3][\@empty]
-{\newcommand{#2}{\@print@u{#3}}%
-\ifx#1\@empty\else\@def@u@default{#3}{#1}\fi}
-\let\DeclareSymbolHtml\DeclareSymbol
-\newcommand{\MakeBigSymbolHtml}[3][]
-{\newcommand{#2}{\mathop{\ifdisplay{\huge#3}\else#3\fi}#1}}
-\newcommand{\MakeBigSymbol}[5][]
-{\MakeBigSymbolHtml[#1]{#2}{#3}}
-\let\NewcommandHtml\newcommand%
-\let\NewcommandText\NoCommand%
-\let\RenewcommandHtml\renewcommand%
-\let\RenewcommandText\NoCommand%
-\input{iso-symb.hva}
-\renewcommand{\&}{\ifraw\@print{&}\else\@print{&amp;}\fi}
 %%% Logos
 \def\TeX{\@print{T<sub>E</sub>X}}
 \def\LaTeX{\@print{L<sup>A</sup>T<sub>E</sub>X}}
@@ -123,10 +108,10 @@
 \newcounter{cuttingdepth}
 \setcounter{cuttingdepth}{1}
 %% Old cutdef/cutend, no footnote managment
-\newcommand{\cutdef*}[2][]{%
-\@out@par{{\@nostyle\@print{<!--CUT DEF }#2\@print{ }#1\@print{ -->}}}}
-\newcommand{\cutend*}{%
-\@out@par{{\@nostyle\@print{<!--CUT END -->
+\newcommand{\cutdef*}[2][]
+{\@out@par{{\@nostyle\@print{<!--CUT DEF }#2\@print{ }#1\@print{ -->}}}}
+\newcommand{\cutend*}
+{\@out@par{{\@nostyle\@print{<!--CUT END -->
 }}}}
 %%% New cutdef/cutend, with footnote managment
 \@hva@newstack{@foot}
@@ -233,10 +218,11 @@
 \ifmathml
 \input{html/symb-mathml.hva}
 \else
-\ifentities\input{html/symb-ent.hva}\fi
-\ifsymb\input{html/symb.hva}\fi
-\ifsymbtext\input{html/symb-text.hva}\fi
+\ifsymbtext\input{iso-text.hva}\else\input{iso-html.hva}\fi
 \fi
+\renewcommand{\&}{\ifraw\@print{&}\else\@print{&amp;}\fi}
+\renewcommand{\textless}{\ifraw\@print{<}\else\@print{&lt;}\fi}
+\renewcommand{\textgreater}{\ifraw\@print{>}\else\@print{&gt;}\fi}
 %%%%%%%%%%%% Bibliography
 \newcommand{\@bibref}[2]{\@locref{#1}{\ifx#2\@empty\@verbarg{#1}\else#2\fi}}
 \newsavebox{\@bibbox}
@@ -508,10 +494,11 @@
 \ifverbd\newstyle{P}{border:1px solid gray}\fi
 \ifverbd\newstyle{DIV}{border:1px dotted gray}\fi
 %%Style of display
-\newstyle{.vdisplay}{margin-left:auto; margin-right:auto; border-collapse:collapse;border:1px solid gray}
-\newstyle{.vdcell}{text-align:center;border:1px solid gray;white-space:nowrap;padding:0px;}
-\newstyle{.display}{margin-left:auto; margin-right:auto; border-collapse:collapse}
-\newstyle{.dcell}{text-align:center;white-space:nowrap;padding:0px;}
+\newstyle{.vdisplay}{border-collapse:collapse;border:1px solid gray}
+\newstyle{.vdcell}{border:1px solid gray;white-space:nowrap;padding:0px;}
+\newstyle{.display}{border-collapse:collapse}
+\newstyle{.dcell}{white-space:nowrap;padding:0px;}
+\newstyle{.dcenter}{margin:0ex auto;}
 %%% And we can get something similar for extensible arrows accents.
 \newcommand{\@vd}{\ifverbd{}v\fi}
 \newcommand{\@dclass}{CLASS="\@vd{}display"}

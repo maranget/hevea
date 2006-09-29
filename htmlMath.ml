@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlMath.ml,v 1.42 2006-09-26 08:47:56 maranget Exp $" 
+let header = "$Id: htmlMath.ml,v 1.43 2006-09-29 13:53:59 maranget Exp $" 
 
 
 open Misc
@@ -76,17 +76,24 @@ let put_in_math s =
 (* DISPLAYS *)
 (*----------*)
 
-let display_cell_arg () =
-  if !displayverb then "CLASS=\"vdcell\"" else "CLASS=\"dcell\""
+let display_cell_arg tdarg =
+  let arg =
+    if !displayverb then
+      "CLASS=\"vdcell\""
+    else
+      "CLASS=\"dcell\"" in
+  match tdarg with
+  | "" -> arg
+  | _  -> arg ^ " " ^ tdarg
 
-let open_display_cell () = open_block TD (display_cell_arg ())
+let open_display_cell tdarg = open_block TD (display_cell_arg tdarg)
 
 let begin_item_display f is_freeze =
   if !verbose > 2 then begin
     Printf.fprintf stderr "begin_item_display: ncols=%d empty=%s" flags.ncols (sbool flags.empty) ;
     prerr_newline ()
   end ;
-  open_display_cell () ;
+  open_display_cell "" ;
   open_block DFLOW "" ;
   if is_freeze then freeze f
 
@@ -103,13 +110,13 @@ and end_item_display () =
   flags.vsize,f,is_freeze
 ;;
 
-let open_display_varg varg =
+let open_display_varg centering varg =
   if !verbose > 2 then begin
     Printf.fprintf stderr "open_display: "
   end ;
   try_open_display () ;
-  open_block DISPLAY varg ;
-  open_display_cell () ;
+  open_block (DISPLAY centering) varg ;
+  open_display_cell "" ;
   open_block DFLOW "" ;
   if !verbose > 2 then begin
     pretty_cur !cur_out ;
@@ -123,13 +130,13 @@ let open_display_varg varg =
 *                                                                       *
 ************************************************************************)
 
-let open_display_varg_harg varg harg = 
+let open_display_varg_harg centering varg harg = 
   if !verbose > 2 then begin
     Printf.fprintf stderr "open_display: "
   end ;
   try_open_display () ;
-  open_block DISPLAY (varg^harg);
-  open_display_cell () ;
+  open_block (DISPLAY centering) (varg^harg);
+  open_display_cell "" ;
   open_block DFLOW "" ;
   if !verbose > 2 then begin
     pretty_cur !cur_out ;
@@ -137,9 +144,13 @@ let open_display_varg_harg varg harg =
   end
 ;;
 
-let open_display () = open_display_varg "VALIGN=middle"
+let open_display centering = open_display_varg centering "VALIGN=middle"
 
-let close_display () =
+(* argument force forces the display structure,
+   when false, the TABLE/TR/TD may be spared in two situation
+    1. No display cell at all (n=0)
+    2. One display cell, one empty cell *)
+let close_display force =
   if !verbose > 2 then begin
     prerr_flags "=> close_display " ; pretty_stack out_stack ;
     Out.debug stderr !cur_out.out
@@ -153,7 +164,7 @@ let close_display () =
     let n = flags.ncols in
     if !verbose > 2 then
       Printf.fprintf stderr "=> close_display, ncols=%d\n" n ;
-    if (n = 0 && not flags.blank) then begin
+    if (n = 0 && not flags.blank && not force) then begin
       if !verbose > 2 then begin
         prerr_string "No Display n=0" ;
         (Out.debug stderr !cur_out.out);
@@ -167,9 +178,12 @@ let close_display () =
       do_close_mods () ;
       try_close_block TD ;
       let ps,_,ppout = pop_out out_stack in
-      if ps <> DISPLAY then
-        failclose "close_display" ps DISPLAY;
-      try_close_block DISPLAY ;
+      begin match ps with
+      | DISPLAY _ -> ()
+      | _ ->
+        failclose "close_display" ps (DISPLAY false)
+      end;
+      try_close_block ps ;
       let old_out = !cur_out in
       cur_out := ppout ;
       do_close_mods () ;
@@ -177,7 +191,7 @@ let close_display () =
       flags.empty <- false ; flags.blank <- false ;
       free old_out ; free pout ;     
       !cur_out.pending <- as_envs active pending
-    end else if (n=1 && flags.blank) then begin
+    end else if (n=1 && flags.blank && not force) then begin
       if !verbose > 2 then begin
         prerr_string "No display n=1";
         (Out.debug stderr !cur_out.out);
@@ -186,9 +200,12 @@ let close_display () =
       close_flow FORGET ;
       let active = !cur_out.active and pending = !cur_out.pending in
       let ps,_,pout = pop_out out_stack in
-      if ps <> DISPLAY then
-        failclose "close_display" ps DISPLAY ;
-      try_close_block DISPLAY ;
+      begin match ps with
+      | DISPLAY _ -> ()
+      | _ ->
+        failclose "close_display" ps (DISPLAY false)
+      end ;
+      try_close_block ps ;
       let old_out = !cur_out in
       cur_out := pout ;
       do_close_mods () ;
@@ -204,7 +221,7 @@ let close_display () =
       end;
       flags.empty <- flags.blank ;
       close_flow TD ;
-      close_flow DISPLAY
+      close_flow (DISPLAY false)
     end ;
     try_close_display ()
   end ;
@@ -232,7 +249,7 @@ let do_item_display force =
       prerr_endline "Added Item to Display" ;
       Out.debug stderr !cur_out.out ;
     end;
-    open_display_cell () ;
+    open_display_cell "" ;
     open_block DFLOW "" ;
     !cur_out.pending <- as_envs active pending ;
     !cur_out.active <- [] ;
@@ -254,7 +271,7 @@ and force_item_display () = do_item_display true
 let erase_display () =
   erase_block DFLOW ;
   erase_block TD ;
-  erase_block DISPLAY ;
+  erase_block (DISPLAY false);
   try_close_display ()
 ;;
 
@@ -262,13 +279,14 @@ let erase_display () =
 let open_maths display =
   push stacks.s_in_math flags.in_math;
   flags.in_math <- true;
-  if display then open_display ()
-  else open_group "";
+  open_group "";
+  if display then open_display true
 ;;
 
 let close_maths display =
-  if display then close_display ()
-  else close_group ();
+ (* force a table in that case, because we want to apply style class *)
+  if display then close_display true ;
+  close_group () ;
   flags.in_math <- pop stacks.s_in_math
 ;;
 
@@ -278,7 +296,7 @@ let open_vdisplay display =
   if !verbose > 1 then
     prerr_endline "open_vdisplay";
   if not display then  raise (Misc.Fatal ("VDISPLAY in non-display mode"));
-  open_block TABLE (display_arg !verbose)
+  open_block TABLE (display_arg false !verbose)
 
 and close_vdisplay () =
   if !verbose > 1 then
@@ -289,14 +307,13 @@ and open_vdisplay_row trarg tdarg  =
   if !verbose > 1 then
     prerr_endline "open_vdisplay_row";
   open_block TR trarg ;
-  open_block TD
-    (if tdarg="" then display_cell_arg () else display_cell_arg ()^" "^tdarg) ;
-  open_display ()
+  open_display_cell tdarg ;
+  open_display false
 
 and close_vdisplay_row () =
   if !verbose > 1 then
     prerr_endline "close_vdisplay_row";
-  close_display () ;
+  close_display false ;
   force_block TD "&nbsp;"  ;
   close_block TR
 ;;
@@ -306,9 +323,9 @@ and close_vdisplay_row () =
 (* Sup/Sub stuff *)
 
 let put_sup_sub display scanner (arg : string Lexstate.arg) =
-  if display then open_display () else open_block INTERN "" ;
+  if display then open_display false else open_block INTERN "" ;
   scanner arg ;
-  if display then close_display () else close_block INTERN ;
+  if display then close_display false else close_block INTERN ;
 ;;
 
 let reput_sup_sub tag = function
@@ -373,13 +390,13 @@ let limit_sup_sub scanner what sup sub display =
   else begin
     force_item_display () ;
     open_vdisplay display ;
-    open_vdisplay_row "" "" ;
+    open_vdisplay_row "" "ALIGN=\"center\"" ;
     put sup ;
     close_vdisplay_row () ;
-    open_vdisplay_row "" "" ;
+    open_vdisplay_row "" "ALIGN=\"center\"" ;
     what () ;
     close_vdisplay_row () ;
-    open_vdisplay_row "" "" ;
+    open_vdisplay_row "" "ALIGN=\"center\"" ;
     put sub ;
     close_vdisplay_row () ;
     close_vdisplay () ;
@@ -397,15 +414,15 @@ let int_sup_sub something vsize scanner what sup sub display =
   end ;
   if sup <> "" || sub <> "" then begin
     open_vdisplay display ;
-    open_vdisplay_row "" "STYLE=\"text-align:left;\"" ;
+    open_vdisplay_row "" "ALIGN=\"left\"" ;
     put sup ;
     close_vdisplay_row () ;
-    open_vdisplay_row "" "STYLE=\"text-align:left;\"" ;
+    open_vdisplay_row "" "ALIGN=\"left\"" ;
     for _i = 2 to vsize do
       skip_line ()
     done ;
     close_vdisplay_row () ;
-    open_vdisplay_row "" "STYLE=\"text-align:left;\"" ;
+    open_vdisplay_row "" "ALIGN=\"left\"" ;
     put sub ;
     close_vdisplay_row () ;
     close_vdisplay () ;
@@ -427,13 +444,15 @@ let insert_vdisplay open_fun =
     if ps <> TD then
       failclose "insert_vdisplay" ps TD ;
     let pps,ppargs,ppout = pop_out out_stack  in
-    if pps <> DISPLAY then
-      failclose "insert_vdisplay" pps DISPLAY ;
+    begin match pps with
+    | DISPLAY _ -> ()
+    | _ -> failclose "insert_vdisplay" pps (DISPLAY false)
+    end ;
     let new_out = create_status_from_scratch false [] in
     push_out out_stack (pps,ppargs,new_out) ;
     push_out out_stack (ps,pargs,pout) ;
     push_out out_stack (bs,bargs,bout) ;    
-    close_display () ;
+    close_display false ;
     cur_out := ppout ;
     let () = open_fun () in (* force 'unit -> unit' type  *)
     do_put (Out.to_string new_out.out) ;
@@ -457,13 +476,13 @@ let over _lexbuf =
   let mods = insert_vdisplay
       (fun () ->
         open_vdisplay true ;
-        open_vdisplay_row "" "") in
+        open_vdisplay_row "" "ALIGN=\"center\"") in
   close_vdisplay_row () ;
   open_vdisplay_row "" "" ;
   close_mods () ;
   line_in_table () ;
   close_vdisplay_row () ;
-  open_vdisplay_row "" "" ;
+  open_vdisplay_row "" "ALIGN=\"center\"" ;
   close_mods () ;
   open_mods mods ;
   freeze

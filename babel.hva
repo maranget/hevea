@@ -165,4 +165,5 @@
 %
 \ProcessOptions*%
 \selectlanguage{\bbl@main@language}
+\EndPackage
 \endinput
