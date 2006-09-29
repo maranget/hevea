@@ -486,10 +486,10 @@
 \RenewcommandHtml{\fbox}{\DisplayChoose\@@boxed\@boxed}
 %%Style of bars
 \newstyle{.vbar}{width:2px;background-color:black;}
-\newstyle{.hbar}{height:2px;width:100\%;background-color:black;}
+\newstyle{.hbar}{border:none;height:2px;width:100\%;background-color:black;}
 \newcommand{\@hbar}[1][]
-{{\def\@tmp{#1}\@open{DIV}{CLASS="hbar"\ifx\@tmp\@empty\else{} #1\fi}%
-\@force{DIV}}}
+{{\@clearstyle\def\@tmp{#1}\@print{<HR CLASS="hbar"}%
+\@getprint{\ifx\@tmp\@empty\else{} #1\fi}\@print{>}}}
 %%Style of paragraphs
 \ifverbd\newstyle{P}{border:1px solid gray}\fi
 \ifverbd\newstyle{DIV}{border:1px dotted gray}\fi
