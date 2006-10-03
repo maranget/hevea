@@ -578,9 +578,9 @@ breakindent,breakautoindent}
 \define@key{lst}{delim}{\@callsubst{\lst@delim@key}{#1\@empty}}
 \define@key{lst}{moredelim}{\@callsubst{\lst@moredelim@key}{#1\@empty}}
 %%%%%%% Extended chars and others
-\def\lst@extendedchars{false}
-\lst@AddToHook{DeInit}{\setboolean{lst@extendedchars}{false}}
-\lst@AddToHookExe{SetLanguage}{\setboolean{lst@extendedchars}{false}}
+\def\lst@extendedchars{true}
+\lst@AddToHook{DeInit}{\setboolean{lst@extendedchars}{true}}
+\lst@AddToHookExe{SetLanguage}{\setboolean{lst@extendedchars}{true}}
 \lst@AddToHook{SelectCharTable}
 {\setboolean{lst@extendedchars}{\lst@boolean{\lst@extendedchars}}}
 \define@key{lst}{extendedchars}[true]{\def\lst@extendedchars{#1}}
