@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlMath.ml,v 1.43 2006-09-29 13:53:59 maranget Exp $" 
+let header = "$Id: htmlMath.ml,v 1.44 2006-10-04 08:19:19 maranget Exp $" 
 
 
 open Misc
@@ -471,6 +471,14 @@ let insert_vdisplay open_fun =
 ;;
 
 
+let line_in_vdisplay_row () =
+  open_block TR "" ;
+  open_block TD "CLASS=\"hbar\"" ;
+  close_mods () ;
+(*  line_in_table () ; *)
+  force_block TD "" ;
+  force_block TR ""
+;;
 
 let over _lexbuf =
   let mods = insert_vdisplay
@@ -478,10 +486,7 @@ let over _lexbuf =
         open_vdisplay true ;
         open_vdisplay_row "" "ALIGN=\"center\"") in
   close_vdisplay_row () ;
-  open_vdisplay_row "" "" ;
-  close_mods () ;
-  line_in_table () ;
-  close_vdisplay_row () ;
+  line_in_vdisplay_row () ;
   open_vdisplay_row "" "ALIGN=\"center\"" ;
   close_mods () ;
   open_mods mods ;

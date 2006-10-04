@@ -1,0 +1,16 @@
+%%Parenthesis
+\let\top@parleft\top@parleft@txt
+\let\mid@parleft\mid@parleft@txt
+\let\dow@parleft\dow@parleft@txt
+\let\top@parright\top@parright@txt
+\let\mid@parright\mid@parright@txt
+\let\dow@parright\dow@parright@txt
+%%Curly braces
+\let\leftcurlybra@ext\leftcurlybra@ext@txt
+\let\leftcurlybra@top\leftcurlybra@top@txt
+\let\leftcurlybra@mid\leftcurlybra@mid@txt
+\let\leftcurlybra@dow\leftcurlybra@dow@txt
+\let\rightcurlybra@ext\rightcurlybra@ext@txt
+\let\rightcurlybra@top\rightcurlybra@top@txt
+\let\rightcurlybra@mid\rightcurlybra@mid@txt
+\let\rightcurlybra@dow\rightcurlybra@dow@txt

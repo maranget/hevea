@@ -465,15 +465,22 @@
 \newcommand{\csname\delim@name{\|}\endcsname}[1]
 {\process@delim@one{#1}{\mid@Vert}}
 %%Left parenthesis
-\DeclareSymbolHtml[(]{\top@parleft}{X239B}
-\DeclareSymbolHtml[(]{\mid@parleft}{X239C}
-\DeclareSymbolHtml[(]{\dow@parleft}{X239D}
+\newcommand{\@nbsp}{\@print@u{XA0}}
+\newcommand{\top@parleft@txt}{\@print@u{X2F}\@nbsp}
+\newcommand{\mid@parleft@txt}{\@print@u{X7C}\@nbsp}
+\newcommand{\dow@parleft@txt}{\@print@u{X5C}\@nbsp}
+\DeclareSymbolHtml[\top@parleft@txt]{\top@parleft}{X239B}
+\DeclareSymbolHtml[\mid@parleft@txt]{\mid@parleft}{X239C}
+\DeclareSymbolHtml[\dow@parleft@txt]{\dow@parleft}{X239D}
 \newcommand{\csname\delim@name(\endcsname}[1]
 {\process@delim@three{#1}{\top@parleft}{\mid@parleft}{\dow@parleft}}
 %%Right parenthesis
-\DeclareSymbolHtml[)]{\top@parright}{X239E}
-\DeclareSymbolHtml[)]{\mid@parright}{X239F}
-\DeclareSymbolHtml[)]{\dow@parright}{X23A0}
+\newcommand{\top@parright@txt}{\@nbsp\@print@u{X5C}}
+\newcommand{\mid@parright@txt}{\@nbsp\@print@u{X7C}}
+\newcommand{\dow@parright@txt}{\@nbsp\@print@u{X2F}}
+\DeclareSymbolHtml[\top@parright@txt]{\top@parright}{X239E}
+\DeclareSymbolHtml[\mid@parright@txt]{\mid@parright}{X239F}
+\DeclareSymbolHtml[\dow@parright@txt]{\dow@parright}{X23A0}
 \newcommand{\csname\delim@name)\endcsname}[1]
 {\process@delim@three{#1}{\top@parright}{\mid@parright}{\dow@parright}}
 %%Left square bracket
@@ -505,22 +512,30 @@
 \newcommand{\csname\delim@name{\rfloor}\endcsname}[1]
 {\process@delim@dow{#1}{\mid@sqbraright}{\dow@sqbraright}}
 %%Left curly bracket
-\let\@obra\{
-\DeclareSymbolHtml[\@obra]{\curlybra@ext}{X23AA}
-\DeclareSymbolHtml[\@obra]{\leftcurlybra@top}{X23A7}
-\DeclareSymbolHtml[\@obra]{\leftcurlybra@mid}{X23A8}
-\DeclareSymbolHtml[\@obra]{\leftcurlybra@dow}{X23A9}
+\newcommand{\leftcurlybra@ext@txt}{\@nbsp\@print@u{X7C}\@nbsp}
+\newcommand{\leftcurlybra@top@txt}{\@nbsp\@print@u{X2F}\@nbsp}
+\newcommand{\leftcurlybra@mid@txt}{<\@nbsp}
+\newcommand{\leftcurlybra@dow@txt}{\@nbsp\@print@u{X5C}\@nbsp}
+\DeclareSymbolHtml[\leftcurlybra@ext@txt]{\leftcurlybra@ext}{X23AA}
+\DeclareSymbolHtml[\leftcurlybra@top@txt]{\leftcurlybra@top}{X23A7}
+\DeclareSymbolHtml[\leftcurlybra@mid@txt]{\leftcurlybra@mid}{X23A8}
+\DeclareSymbolHtml[\leftcurlybra@dow@txt]{\leftcurlybra@dow}{X23A9}
 \newcommand{\csname\delim@name{\{}\endcsname}[1]
 {\process@delim@four{#1}
-{\curlybra@ext}{\leftcurlybra@top}{\leftcurlybra@mid}{\leftcurlybra@dow}}
+{\leftcurlybra@ext}{\leftcurlybra@top}{\leftcurlybra@mid}{\leftcurlybra@dow}}
 %%Right curly bracket
-\let\@cbra\}
-\DeclareSymbolHtml[\@cbra]{\rightcurlybra@top}{X23AB}
-\DeclareSymbolHtml[\@cbra]{\rightcurlybra@mid}{X23AC}
-\DeclareSymbolHtml[\@cbra]{\rightcurlybra@dow}{X23AD}
+\newcommand{\rightcurlybra@ext@txt}{\@nbsp\@print@u{X7C}}
+\newcommand{\rightcurlybra@top@txt}{\@nbsp\@print@u{X5C}}
+\newcommand{\rightcurlybra@mid@txt}{\@nbsp>}
+\newcommand{\rightcurlybra@dow@txt}{\@nbsp\@print@u{X2F}}
+\DeclareSymbolHtml[\rightcurlybra@ext@txt]{\rightcurlybra@ext}{X23AA}
+\DeclareSymbolHtml[\rightcurlybra@top@txt]{\rightcurlybra@top}{X23AB}
+\DeclareSymbolHtml[\rightcurlybra@mid@txt]{\rightcurlybra@mid}{X23AC}
+\DeclareSymbolHtml[\rightcurlybra@dow@txt]{\rightcurlybra@dow}{X23AD}
 \newcommand{\csname\delim@name{\}}\endcsname}[1]
 {\process@delim@four{#1}
-{\curlybra@ext}{\rightcurlybra@top}{\rightcurlybra@mid}{\rightcurlybra@dow}}
+{\rightcurlybra@ext}{\rightcurlybra@top}
+{\rightcurlybra@mid}{\rightcurlybra@dow}}
 %%Arrows
 \DeclareSymbolHtml[|]{\arr@mid}{X23AA}%curly bracket extension
 \newcommand{\csname\delim@name{\uparrow}\endcsname}[1]
