@@ -485,18 +485,37 @@
 \NewcommandHtml{\@boxed}[1]{{\@styleattr{SPAN}{CLASS="textboxed"}#1}}
 \RenewcommandHtml{\fbox}{\DisplayChoose\@@boxed\@boxed}
 %%Style of bars
-\newstyle{.vbar}{width:2px;background-color:black;}
-\newstyle{.hbar}{border:none;height:2px;width:100\%;background-color:black;}
+\def\@barsz{2px}
+\def\@@barsz{4px}%2 x
+\def\@@@barsz{6px}%3 x
+\def\@@@@barsz{8px}%3 x
+\newstyle{.vbar}
+{border:none;width:\@barsz;background-color:black;}
+\newstyle{.hbar}
+{border:none;height:\@barsz;width:100\%;background-color:black;}
+%%%Bars with HR
 \newcommand{\@hbar}[1][]
 {{\@clearstyle\def\@tmp{#1}\@print{<HR CLASS="hbar"}%
 \@getprint{\ifx\@tmp\@empty\else{} #1\fi}\@print{>}}}
+\newcommand{\@vbar}[1][]
+{{\@clearstyle\def\@tmp{#1}\@print{<HR CLASS="vbar"}%
+\@getprint{\ifx\@tmp\@empty\else{} #1\fi}\@print{>}}}
+%%Bars with DIV
+\newcommand{\@@hbar}[1][]
+{{\@clearstyle\def\@tmp{#1}%
+\@open{DIV}{CLASS="hbar"\ifx\@tmp\@empty\else{} #1\fi}\@force{DIV}}}
+\newcommand{\@@vbar}[1][]
+{{\@clearstyle\def\@tmp{#1}%
+\@open{DIV}{CLASS="vbar"\ifx\@tmp\@empty\else{} #1\fi}\@force{DIV}}}
 %%Style of paragraphs
 \ifverbd\newstyle{P}{border:1px solid gray}\fi
 \ifverbd\newstyle{DIV}{border:1px dotted gray}\fi
 %%Style of display
-\newstyle{.vdisplay}{border-collapse:collapse;border:1px solid gray}
-\newstyle{.vdcell}{border:1px solid gray;white-space:nowrap;padding:0px;}
-\newstyle{.display}{border-collapse:collapse}
+\newstyle{.vdisplay}
+{table-layout:fixed;border-collapse:collapse;border:1px solid gray}
+\newstyle{.vdcell}
+{border:1px solid green;white-space:nowrap;padding:0px;width:0px;}
+\newstyle{.display}{table-layout:fixed;border-collapse:collapse}
 \newstyle{.dcell}{white-space:nowrap;padding:0px;}
 \newstyle{.dcenter}{margin:0ex auto;}
 %%% And we can get something similar for extensible arrows accents.

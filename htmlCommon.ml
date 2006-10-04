@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlCommon.ml,v 1.56 2006-10-04 08:19:19 maranget Exp $" 
+let header = "$Id: htmlCommon.ml,v 1.57 2006-10-04 17:13:26 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -1650,8 +1650,8 @@ let horizontal_line attr width height =
 ;;
 
 let line_in_table () =
-  put "<DIV CLASS=\"hbar\"></DIV>" ;
-(*  put "<HR CLASS=\"hbar\">" ; *)
+(*  put "<DIV CLASS=\"hbar\"></DIV>" ; *)
+  put "<HR CLASS=\"hbar\">" ;
   flags.vsize <- flags.vsize - 1
 ;;
 

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.92 2006-09-18 14:33:53 maranget Exp $    *)
+(*  $Id: package.ml,v 1.93 2006-10-04 17:13:26 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -155,7 +155,7 @@ def_code "\\process@delim@three"
     let top = get_csname lexbuf in
     let mid = get_csname lexbuf in
     let dow = get_csname lexbuf in
-    scan_this main top ; Dest.skip_line () ;
+    scan_this main top ; scan_this main "\\@top@br" ;
     for _i = 1 to n-2 do
       scan_this main mid ; Dest.skip_line () ;
     done ;

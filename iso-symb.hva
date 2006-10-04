@@ -258,7 +258,7 @@
 \newcommand{\Longleftarrow}{\Leftarrow\@Arrowextension}
 \newcommand{\longleftrightarrow}{\leftarrow\rightarrow}
 \newcommand{\Longleftrightarrow}{\Leftarrow\Rightarrow}
-\newcommand{\longmapsto}{\dashv\rightarrow}
+\newcommand{\longmapsto}{\vdash\rightarrow}
 \newcommand{\Longrightarrow}{\@Arrowextension\Rightarrow}
 \newcommand{\longrightarrow}{\@arrowextension\rightarrow}
 \DeclareSymbolHtml{\nearrow}{X2197}
@@ -444,6 +444,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%
 % Delimiters (Table 113) %
 %%%%%%%%%%%%%%%%%%%%%%%%%%
+\let\@top@br\@br
 \newcommand{\delim@name}[1]{\string{#1@delimname}}
 \newcommand{\process@delim}[2]
 {\@ifundefined{\delim@name{#1}}
@@ -451,8 +452,10 @@
   {\csname\delim@name{#1}\endcsname{#2}}}
 \newcommand{\csname\delim@name{.}\endcsname}[1]{}
 %%Simple replication
-\DeclareSymbolHtml[|]{\mid@vert}{X23AA}%curly bracket extension
-\DeclareSymbolHtml[||]{\mid@Vert}{X2225}
+\newcommand{\mid@vert@txt}{\@print@u{X7C}}
+\DeclareSymbolHtml[\mid@vert@txt]{\mid@vert}{X23AA}%curly bracket extension
+\newcommand{\mid@Vert}{\mid@vert\mid@vert}
+%\DeclareSymbolHtml[\mid@Vert@txt]{\mid@Vert}{X2225}
 \newcommand{\vert}{|}
 \newcommand{\|}{||}
 \DeclareSymbolHtml[||]{\Vert}{X2225}
@@ -484,15 +487,21 @@
 \newcommand{\csname\delim@name)\endcsname}[1]
 {\process@delim@three{#1}{\top@parright}{\mid@parright}{\dow@parright}}
 %%Left square bracket
-\DeclareSymbolHtml[\@print{-}]{\top@sqbraleft}{X23A1}
-\DeclareSymbolHtml[|]{\mid@sqbraleft}{X23A2}
-\DeclareSymbolHtml[\@print{-}]{\dow@sqbraleft}{X23A3}
+\newcommand{\top@sqbraleft@txt}{--}
+\newcommand{\mid@sqbraleft@txt}{\@print@u{X7C}\@nbsp}
+\newcommand{\dow@sqbraleft@txt}{--}
+\DeclareSymbolHtml[\top@sqbraleft@txt]{\top@sqbraleft}{X23A1}
+\DeclareSymbolHtml[\mid@sqbraleft@txt]{\mid@sqbraleft}{X23A2}
+\DeclareSymbolHtml[\dow@sqbraleft@txt]{\dow@sqbraleft}{X23A3}
 \newcommand{\csname\delim@name{[}\endcsname}[1]
 {\process@delim@three{#1}{\top@sqbraleft}{\mid@sqbraleft}{\dow@sqbraleft}}
 %%Right square bracket
-\DeclareSymbolHtml[\@print{-}]{\top@sqbraright}{X23A4}
-\DeclareSymbolHtml[|]{\mid@sqbraright}{X23A5}
-\DeclareSymbolHtml[\@print{-}]{\dow@sqbraright}{X23A6}
+\newcommand{\top@sqbraright@txt}{--}
+\newcommand{\mid@sqbraright@txt}{\@nbsp\@print@u{X7C}}
+\newcommand{\dow@sqbraright@txt}{--}
+\DeclareSymbolHtml[\top@sqbraright@txt]{\top@sqbraright}{X23A4}
+\DeclareSymbolHtml[\mid@sqbraright@txt]{\mid@sqbraright}{X23A5}
+\DeclareSymbolHtml[\dow@sqbraright@txt]{\dow@sqbraright}{X23A6}
 \newcommand{\csname\delim@name{]}\endcsname}[1]
 {\process@delim@three{#1}{\top@sqbraright}{\mid@sqbraright}{\dow@sqbraright}}
 %%Left ceil
@@ -512,10 +521,12 @@
 \newcommand{\csname\delim@name{\rfloor}\endcsname}[1]
 {\process@delim@dow{#1}{\mid@sqbraright}{\dow@sqbraright}}
 %%Left curly bracket
+\newcommand{\curlybra@ext@txt}{\@print@u{X7C}}
 \newcommand{\leftcurlybra@ext@txt}{\@nbsp\@print@u{X7C}\@nbsp}
 \newcommand{\leftcurlybra@top@txt}{\@nbsp\@print@u{X2F}\@nbsp}
 \newcommand{\leftcurlybra@mid@txt}{<\@nbsp}
 \newcommand{\leftcurlybra@dow@txt}{\@nbsp\@print@u{X5C}\@nbsp}
+\DeclareSymbolHtml[\curlybra@ext@txt]{\curlybra@ext}{X23AA}
 \DeclareSymbolHtml[\leftcurlybra@ext@txt]{\leftcurlybra@ext}{X23AA}
 \DeclareSymbolHtml[\leftcurlybra@top@txt]{\leftcurlybra@top}{X23A7}
 \DeclareSymbolHtml[\leftcurlybra@mid@txt]{\leftcurlybra@mid}{X23A8}
@@ -559,13 +570,25 @@
 % Large Delimiters (Table 113) %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \DeclareSymbolHtml{\lmoustache}{X23B0}%does noyt really exist in latex...
+\newcommand{\lmous@top@txt}{\@print@u{X2F}\@nbsp}
+\newcommand{\lmous@mid@txt}{\@print@u{X7C}\@nbsp}
+\newcommand{\lmous@dow@txt}{\@print@u{X2F}\@nbsp}
+\DeclareSymbolHtml[\lmous@top@txt]{\lmous@top}{X23A7}
+\DeclareSymbolHtml[\lmous@mid@txt]{\lmous@mid}{X23AA}
+\DeclareSymbolHtml[\lmous@dow@txt]{\lmous@dow}{X23AD}
 \newcommand{\csname\delim@name{\lmoustache}\endcsname}[1]
 {\process@delim@three{#1}
-  {\leftcurlybra@top}{\curlybra@ext}{\rightcurlybra@dow}}
+  {\lmous@top}{\lmous@mid}{\lmous@dow}}
 \DeclareSymbolHtml{\rmoustache}{X23B1}%does noyt really exist in latex...
+\newcommand{\rmous@top@txt}{\@nbsp\@print@u{X5C}}
+\newcommand{\rmous@mid@txt}{\@nbsp\@print@u{X7C}}
+\newcommand{\rmous@dow@txt}{\@nbsp\@print@u{X5C}}
+\DeclareSymbolHtml[\rmous@top@txt]{\rmous@top}{X23AB}
+\DeclareSymbolHtml[\rmous@mid@txt]{\rmous@mid}{X23AA}
+\DeclareSymbolHtml[\rmous@dow@txt]{\rmous@dow}{X23A9}
 \newcommand{\csname\delim@name{\rmoustache}\endcsname}[1]
 {\process@delim@three{#1}
-  {\rightcurlybra@top}{\curlybra@ext}{\leftcurlybra@dow}}
+  {\rmous@top}{\rmous@mid}{\rmous@dow}}
 \newcommand{\lgroup}{(}
 \newcommand{\csname\delim@name\lgroup\endcsname}[1]
 {\process@delim@three{#1}{\top@parleft}{\mid@parleft}{\dow@parleft}}

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlMath.ml,v 1.44 2006-10-04 08:19:19 maranget Exp $" 
+let header = "$Id: htmlMath.ml,v 1.45 2006-10-04 17:13:26 maranget Exp $" 
 
 
 open Misc
@@ -474,8 +474,10 @@ let insert_vdisplay open_fun =
 let line_in_vdisplay_row () =
   open_block TR "" ;
   open_block TD "CLASS=\"hbar\"" ;
+(*
   close_mods () ;
-(*  line_in_table () ; *)
+  line_in_table () ;
+*)
   force_block TD "" ;
   force_block TR ""
 ;;
