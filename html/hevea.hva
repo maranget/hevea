@@ -524,6 +524,7 @@
 \newstyle{.display}{\@dtstyle{} border:none;}
 \newstyle{.dcell}{\@dcstyle{} border:none;}
 \newstyle{.dcenter}{margin:0ex auto;}
+\newstyle{.vdcenter}{border:solid orange 2px; margin:0ex auto;}
 %%% And we can get something similar for extensible arrows accents.
 \newcommand{\@vd}{\ifverbd{}v\fi}
 \newcommand{\@dclass}{CLASS="\@vd{}display"}
