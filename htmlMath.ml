@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlMath.ml,v 1.46 2006-10-05 08:48:15 maranget Exp $" 
+let header = "$Id: htmlMath.ml,v 1.47 2006-10-05 19:37:03 maranget Exp $" 
 
 
 open Misc
@@ -295,11 +295,11 @@ let close_maths display =
 
 (* vertical display *)
 
-let open_vdisplay display =  
+let open_vdisplay center display =  
   if !verbose > 1 then
     prerr_endline "open_vdisplay";
   if not display then  raise (Misc.Fatal ("VDISPLAY in non-display mode"));
-  open_block TABLE (display_arg false !verbose)
+  open_block TABLE (display_arg center !verbose)
 
 and close_vdisplay () =
   if !verbose > 1 then
@@ -359,7 +359,7 @@ let standard_sup_sub scanner what sup sub display =
 
   if display && (fsub.table_inside || fsup.table_inside) then begin
     force_item_display () ;
-    open_vdisplay display ;
+    open_vdisplay false display ;
     if sup <> "" then begin
       open_vdisplay_row "" "" ;
       clearstyle () ;
@@ -392,7 +392,7 @@ let limit_sup_sub scanner what sup sub display =
     what ()
   else begin
     force_item_display () ;
-    open_vdisplay display ;
+    open_vdisplay false display ;
     open_vdisplay_row "" "ALIGN=\"center\"" ;
     put sup ;
     close_vdisplay_row () ;
@@ -416,7 +416,7 @@ let int_sup_sub something vsize scanner what sup sub display =
     force_item_display ()
   end ;
   if sup <> "" || sub <> "" then begin
-    open_vdisplay display ;
+    open_vdisplay false display ;
     open_vdisplay_row "" "ALIGN=\"left\"" ;
     put sup ;
     close_vdisplay_row () ;
@@ -447,17 +447,17 @@ let insert_vdisplay open_fun =
     if ps <> TD then
       failclose "insert_vdisplay" ps TD ;
     let pps,ppargs,ppout = pop_out out_stack  in
-    begin match pps with
-    | DISPLAY _ -> ()
-    | _ -> failclose "insert_vdisplay" pps (DISPLAY false)
-    end ;
+    let center =
+      match pps with
+      | DISPLAY b -> b
+      | _ -> failclose "insert_vdisplay" pps (DISPLAY false) in    
     let new_out = create_status_from_scratch false [] in
-    push_out out_stack (pps,ppargs,new_out) ;
+    push_out out_stack (DISPLAY false,ppargs,new_out) ;
     push_out out_stack (ps,pargs,pout) ;
     push_out out_stack (bs,bargs,bout) ;    
     close_display false ;
     cur_out := ppout ;
-    let () = open_fun () in (* force 'unit -> unit' type  *)
+    let () = open_fun center in (* force bool -> unit' type  *)
     do_put (Out.to_string new_out.out) ;
     flags.empty <- false ; flags.blank <- false ;
     free new_out ;    
@@ -487,8 +487,8 @@ let line_in_vdisplay_row () =
 
 let over _lexbuf =
   let mods = insert_vdisplay
-      (fun () ->
-        open_vdisplay true ;
+      (fun center ->
+        open_vdisplay center true ;
         open_vdisplay_row "" "ALIGN=\"center\"") in
   close_vdisplay_row () ;
   line_in_vdisplay_row () ;

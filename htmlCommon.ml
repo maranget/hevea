@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlCommon.ml,v 1.57 2006-10-04 17:13:26 maranget Exp $" 
+let header = "$Id: htmlCommon.ml,v 1.58 2006-10-05 19:37:03 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -143,7 +143,8 @@ let display_arg centering _verbose =
     if !displayverb then "vdisplay"
     else "display" in
   let cl =
-    if centering then cl^" dcenter"
+    if centering then
+      cl^(if  !displayverb then " vdcenter" else " dcenter")
     else cl in
   let arg = "CLASS=\""^cl^"\"" in
   arg
@@ -1255,7 +1256,7 @@ let do_do_close_block s =
   do_put "</" ;
   do_put (string_of_block s) ;
   do_put_char '>' ;
-  match s with TD -> do_put_char '\n' | _ -> ()
+  match s with TR -> do_put_char '\n' | _ -> ()
 
 let rec do_close_block insert s = match s with
 | GROUP|DELAY|FORGET|AFTER|INTERN|DFLOW -> 

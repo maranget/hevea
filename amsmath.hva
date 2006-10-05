@@ -209,7 +209,7 @@
 \NewcommandHtml{\@overleftrightarrow}[1]
 {\mathop{\@over@arrow[3]
   {\d@cell{\hva@lefthead}%
-   \d@cell[WIDTH="100\%"]{\@hbar}%
+   \d@cell[STYLE="width:100\%;"]{\@hbar}%
    \d@cell{\hva@righthead}}
   {#1}}\intlimits}
 \NewcommandHtml{\overleftrightarrow}
@@ -220,7 +220,7 @@
 \NewcommandHtml{\@underleftrightarrow}[1]
 {\mathop{\@under@arrow[3]
   {\d@cell{\hva@lefthead}%
-   \d@cell[WIDTH="100\%"]{\@hbar}%
+   \d@cell[STYLE="width:100\%;"]{\@hbar}%
    \d@cell{\hva@righthead}}{#1}}\intlimits}
 \NewcommandHtml{\underleftrightarrow}
 {\DisplayChoose\@underleftrightarrow\textunderleftrightarrow}
@@ -229,7 +229,7 @@
 {\warning{\underrightarrow outside display mode}#1}
 \NewcommandHtml{\@underrightarrow}[1]
 {\mathop{\@under@arrow[2]
-  {\d@cell[WIDTH="100\%"]{\@hbar}%
+  {\d@cell[STYLE="width:100\%;"]{\@hbar}%
    \d@cell{\hva@righthead}}{#1}}\intlimits}
 \NewcommandHtml{\underrightarrow}
 {\DisplayChoose\@underrightarrow\textunderrightarrow}
@@ -238,7 +238,7 @@
 {\warning{\underleftarrow outside display mode}#1}
 \NewcommandHtml{\@underleftarrow}[1]
 {\mathop{\@under@arrow[2]
-  {\d@cell{\hva@lefthead}\d@cell[WIDTH="100\%"]{\@hbar}}{#1}}\intlimits}
+  {\d@cell{\hva@lefthead}\d@cell[STYLE="width:100\%;"]{\@hbar}}{#1}}\intlimits}
 \NewcommandHtml{\underleftarrow}
 {\DisplayChoose\@underleftarrow\textunderleftarrow}
 %%%%%%%%%%%%%% New generic function for accents both below and above
@@ -256,7 +256,7 @@
 \NewcommandHtml{\@xleftarrow}[2][~]
 {\mathop
   {\@both@arrow[2]{\quad{}#2\quad}
-    {\d@cell{\hva@lefthead}\d@cell[WIDTH="100\%"]{\@hbar}}
+    {\d@cell{\hva@lefthead}\d@cell[STYLE="width:100\%;"]{\@hbar}}
     {\quad{}#1\quad}%
   }\intlimits}
 \NewcommandHtml{\xleftarrow}{\DisplayChoose\@xleftarrow\textxleftarrow}
@@ -266,7 +266,7 @@
 \NewcommandHtml{\@xrightarrow}[2][~]
 {\mathop
 {\@both@arrow[2]{\quad{}#2\quad}
-{\d@cell[WIDTH="100\%"]{\@hbar}\d@cell{\hva@righthead}}
+{\d@cell[STYLE="width:100\%;"]{\@hbar}\d@cell{\hva@righthead}}
 {\quad{}#1\quad}}\intlimits}
 \NewcommandHtml{\xrightarrow}{\DisplayChoose\@xrightarrow\textxrightarrow}
 %%% subarray/substack

@@ -567,14 +567,14 @@
 {\warning{\overleftarrow outside display mode}#1}
 \newcommand{\@overleftarrow}[1]
 {\mathop{\@over@arrow
-  {\d@cell{\hva@lefthead}\d@cell[WIDTH="100\%"]{\@hbar}}
+  {\d@cell{\hva@lefthead}\d@cell[STYLE="width:100\%;"]{\@hbar}}
   {#1}}\intlimits}
 \newcommand{\overleftarrow}{\DisplayChoose\@overleftarrow\textoverleftarrow}
 \newcommand{\textoverrightarrow}[1]
 {\warning{\overrightarrow outside display mode}#1}
 \newcommand{\@overrightarrow}[1]
 {\mathop{\@over@arrow
-  {\d@cell[WIDTH="100\%"]{\@hbar}\d@cell{\hva@righthead}}
+  {\d@cell[STYLE="width:100\%;"]{\@hbar}\d@cell{\hva@righthead}}
   {#1}}\intlimits}
 \newcommand{\overrightarrow}{\DisplayChoose\@overrightarrow\textoverrightarrow}
 \newcommand{\textoverbrace}[1]
@@ -582,9 +582,9 @@
 \newcommand{\@overbrace}[1]
 {\mathop{\@over@arrow[5]
   {\d@cell{\hva@lrt}%
-   \d@cell[WIDTH="50\%"]{\@hbar}%
+   \d@cell[STYLE="width:50\%;"]{\@hbar}%
    \d@cell{\hva@utr}%
-   \d@cell[WIDTH="50\%"]{\@hbar}%
+   \d@cell[STYLE="width:50\%;"]{\@hbar}%
    \d@cell{\hva@llt}}
   {#1}}}
 \newcommand{\overbrace}{\DisplayChoose\@overbrace\textoverbrace}
@@ -599,9 +599,9 @@
 \newcommand{\@underbrace}[1]
 {\mathop{\@under@arrow[5]
   {\d@cell{\hva@urt}%
-   \d@cell[WIDTH="50\%"]{\@hbar}%
+   \d@cell[STYLE="width:50\%;"]{\@hbar}%
    \d@cell{\hva@dtr}%
-   \d@cell[WIDTH="50\%"]{\@hbar}%
+   \d@cell[STYLE="width:50\%;"]{\@hbar}%
    \d@cell{\hva@ult}}
   {#1}}}
 \newcommand{\underbrace}{\DisplayChoose\@underbrace\textunderbrace}

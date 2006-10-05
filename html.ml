@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: html.ml,v 1.105 2006-09-29 13:53:59 maranget Exp $" 
+let header = "$Id: html.ml,v 1.106 2006-10-05 19:37:03 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -596,16 +596,15 @@ let make_hline w noborder =
   if noborder then begin
     new_row ();
     if not (flags.in_math && !Parse_opts.mathml) then begin
-      open_direct_cell "" w ;
-      close_mods () ;
-      line_in_table () ;
+      open_direct_cell "CLASS=\"hbar\"" w ;
+      close_cell ""
     end else begin
       open_cell center_format w 0;
       close_mods () ;
       put "<mo stretchy=\"true\" > &horbar; </mo>";
       force_item_display ();
+      close_cell ""
     end;
-    close_cell "" ;
     close_row ();
   end
 ;;

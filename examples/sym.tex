@@ -566,11 +566,13 @@ more general term, ``atomic\index{atomic math objects} math objects''.}
 \label{extensible-accents}
 \renewcommand{\arraystretch}{1.5}
 \begin{tabular}{*4l}
-\NW\widetilde{abc}$^*$         & \NW\widehat{abc}$^*$    \\
-\WD\overleftarrow{abc}$^\dag$  & \WD\overrightarrow{abc}$^\dag$ \\
-\WD\overline{abc}              & \WD\underline{abc}      \\
-\WD\overbrace{abc}             & \WD\underbrace{abc}     \\[5pt]
-\WD\sqrt{abc}$^\ddag$                                   \\
+\NW\widetilde{abc}{$^*$}         & \NW\widehat{abc}{$^*$}    \\
+\WD\overleftarrow{abc}{$^\dag$}  & \WD\overrightarrow{abc}{$^\dag$} \\
+\WD\overline{abc}{}              & \WD\underline{abc}{}      \\
+\WD\overbrace{abcd\cdots{}wxyz}{}         &
+\WD\underbrace{abcd\cdots{}wxyz}{}
+\\[5pt]
+\WD\sqrt{abc}{$^\ddag$}                                \\
 \end{tabular}
 
 \bigskip
@@ -1009,8 +1011,9 @@ more general term, ``atomic\index{atomic math objects} math objects''.}
 \label{extensible-arrows}
 \renewcommand{\arraystretch}{1.5}
 \begin{tabular}{ll@{\qquad}ll}
-\W\overleftrightarrow{abc}  & \W\underleftrightarrow{abc} \\
-\W\underleftarrow{abc}      & \W\underrightarrow{abc}     \\[2ex]
+\WD\overleftrightarrow{abc\cdots{}xyz}{}  &
+\WD\underleftrightarrow{abc\cdots{}xyz}{} \\
+\WD\underleftarrow{abc}{}      & \WD\underrightarrow{abc}{}     \\[2ex]
 \multicolumn{4}{p{0.75\textwidth}}{%
   The following are a sort of ``reverse accent'' in that the argument
   text serves as a superscript to the arrow.  In addition, the
@@ -1018,7 +1021,7 @@ more general term, ``atomic\index{atomic math objects} math objects''.}
   arrow.  See the Short Math Guide for \latex~\cite{Downes:smg} for
   further examples.
 } \\~\\[-2ex]
-\W\xleftarrow{abc}          & \W\xrightarrow{abc}         \\
+\WD\xleftarrow{abc}{}          & \WD\xrightarrow{abc}{}         \\
 \end{tabular}
 \end{symtable}
 

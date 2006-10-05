@@ -1,3 +1,6 @@
+version 1.08+21
+     - Corrected bars for math accents: WIDTH= -> STYLE="width:..
+       and added some tests in examples/sym.tex
      - Notice : horiz bars in table -> <TD CLASS="hbar" STYLE="height=..">
        is the most simple and works for both moz and IE.
      - Pending: $$ ... \over ... $$ is not centered !

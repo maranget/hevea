@@ -11,11 +11,11 @@
 \def\Q#1{\qquad{#1{A}#1{a}}\quad\texttt{\string#1\{A\}\string#1\{a\}}}
 \def\QQ#1#2#3{\qquad{#1{#2}#1{#3}}\quad\texttt{\string#1\{#2\}\string#1\{#3\}}}
 \def\W#1#2{\qquad{$#1{#2}$}\quad\texttt{\string#1\{#2\}}}
-\def\WD#1#2{\qquad$$\mbox{$#1{#2}$}\quad{#1{#2}}\quad\texttt{\string#1\{#2\}}$$}
+\def\WD#1#2#3{\qquad$$\mbox{$#1{#2}$}\quad{#1{#2}}\quad\texttt{\string#1\{#2\}#3}$$}
 \let\Qt\Q\let\Qc\Q
 \newcommand{\NQ}[1]{\qquad``\cmd{#1}'' not available}
 \newcommand{\NK}[1]{\qquad``\cmd{#1}'' not available}
-\newcommand{\NW}[2]{\qquad``\cmd{#1}'' not available}
+\newcommand{\NW}[3]{\qquad``\cmd{#1}#3'' not available}
 \let\Qv\NQ\def\QivBAR{\Qiv{\|}}\let\Qiv\NQ
 \newcommand{\V}[2][]{\qqquad{#2}\quad\texttt{\string#2}}\let\Vp\V
 \newcommand{\NV}[2][]{\qquad``\cmd{#2}'' not available}
@@ -86,7 +86,7 @@
 \newcommand{\AMS}{\mbox{\cal{}AMS}}
 \iftext\usepackage[latin1]{inputenc}\fi
 \renewcommand{\cite}[1]{}
-\newcommand{\unavail}[1]{Unavailable in non-display mode}
+\newcommand{\unavail}[1]{No}
 \let\textxleftarrow\unavail
 \let\textxrightarrow\unavail
 \let\textoverleftarrow\unavail
