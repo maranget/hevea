@@ -1,5 +1,11 @@
+%%Style for tables expressing delimitors
+\newcommand{\@delim@s}
+{border-collapse:separate;border-spacing:0px;}
+\newstyle{.delim}{\@delim@s{}margin:0px \@barsz;}
+\newstyle{.delimleft}{\@delim@s{}margin:0px \@@barsz{} 0px 0px;}
+\newstyle{.delimright}{\@delim@s{}margin:0px 0px 0px \@@barsz;}
+\newstyle{.bracell}{padding:0ex;}
 %%vert
-\newstyle{.delim}{table-layout:fixed; border:none; border-collapse:collapse}
 \newcommand{\@vert@table}[2][\@@barsz]
 {\setcounter{@c}{(#2)}%
 \@open{DIV}{CLASS="vbar" STYLE="height:\arabic{@c}em; margin:0ex #1;"}\@force{DIV}}
@@ -24,11 +30,6 @@
 \let\dow@parright\dow@parright@txt
 %%Square brackets
 %Left
-\newstyle{.delimleft}{table-layout:fixed;
-border:none; border-collapse:collapse;margin-right:\@@barsz;}
-\newstyle{.delimright}{table-layout:fixed;
-border:none; border-collapse:collapse;margin-left:\@@barsz;}
-\newstyle{.bracell}{padding:0ex;}
 \newcommand{\@bracell}[2][]
 {\@open{TR}{}\@open{TD}{CLASS="bracell"#1}%
 #2\@close{TD}\@close{TR}}
