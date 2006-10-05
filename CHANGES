@@ -1,6 +1,9 @@
+     - Pending: $$ ... \over ... $$ is not centered !
      - Suppress vertical-align in dcells !
        Vertical alignment is controlled by TR.
-     - Big trouble with styled displays (IE)
+       (used by \@open{DISPLAY}{VALIGN="top"} in html/mathpartir)
+     - Big trouble with styled displays (IE) finally solved
+       by width:auto; in styles dcell and display.
 version 1.08+20
      - added winfonts.hva, to replace a few entities by ascii art
      - initial value of 'true' for extendedchars (listings)
