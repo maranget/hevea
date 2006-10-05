@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.293 2006-09-26 08:47:56 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.294 2006-10-05 08:48:15 maranget Exp $ *)
 
 
 {
@@ -2213,9 +2213,8 @@ def_code "\\@print"
     Dest.put arg)
 ;;
 
-let put_unicode uc =
-  try Dest.put_unicode uc
-  with Misc.CannotPut -> try
+let put_unicode_default uc =
+  try
     let txt = OutUnicode.get_default uc in
     scan_this main txt
   with Not_found ->
@@ -2225,11 +2224,23 @@ let put_unicode uc =
     Dest.put_char '?'
 ;;
 
+let put_unicode uc =
+  try Dest.put_unicode uc
+  with Misc.CannotPut -> put_unicode_default uc
+;;
+
 def_code "\\@print@u"
   (fun lexbuf ->
     let {arg=arg} = save_arg lexbuf in
     let uc = OutUnicode.parse arg in
     put_unicode uc)
+;;
+
+def_code "\\@print@u@default"
+  (fun lexbuf ->
+    let {arg=arg} = save_arg lexbuf in
+    let uc = OutUnicode.parse arg in
+    put_unicode_default uc)
 ;;
 
 def_code "\\@def@u@default"

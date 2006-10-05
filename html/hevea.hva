@@ -197,20 +197,24 @@
 %     one for the class.					%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
+\newcommand{\title@tohaux}[1]
+{\@auxdowrite{\@print{\@titleaux}\{\@subst{#1}\}
+}}
 \newstyle{.title}{margin:auto;text-align:center}
 \newcommand{\maketitle}{%
-  \bgroup\newcommand{\checkbox}[4]%
-    {\@ifundefined{##3}
-      {\ifthenelse{\equal{##4}{}}{}{\warning{No ##4 given}}}%
-      {\@open{##1}{\class@attr{##2}{}}\usebox{\csname @##3\endcsname}\@close{##1}}%
-    }%
+  \bgroup
+  \newcommand{\checkcmd}[4]
+    {\@ifundefined{@##3}{##4{No ##3 given}}
+     {\@open{##1}{\class@attr{##2}{}}%
+      \@fmt@title{\csname @##3\endcsname}%
+      \@close{##1}}}%
   \@opencell{CLASS="title"}{}{}%
-  \checkbox{H1}{titlemain}{@title}{title}%
-  \checkbox{H3}{titlerest}{@author}{author}%
-  \checkbox{H3}{titlerest}{@date}{}%
+  \checkcmd{H1}{titlemain}{title}{\warning}%
+  \checkcmd{H3}{titlerest}{author}{\warning}%
+  \checkcmd{H3}{titlerest}{date}{\@gooble}%
   \@closecell%
   \egroup%
-\let\maketitle\relax\let\checkbox\relax}%
+\let\maketitle\relax}%
 %
 %%%%%%%%%
 % Maths %
@@ -255,11 +259,13 @@
             "http://www.w3.org/TR/REC-html40/loose.dtd">
 }\@print{<HTML>
 <HEAD>}
-\ifthenelse{\equal{\usebox{\@@title}}{}}{}
-{\@print{<TITLE>}%
-\@notags{\usebox{\@@title}}%
+\@print{<TITLE>}%
+\ifu\@title\jobname\else
+\@notags{\begin{@norefs}\let\@print@u\@print@u@default\@getprint{\@title}\end{@norefs}}
+\fi
 \@print{</TITLE>
-}}\@meta%
+}
+\@meta%
 \ifmathml\@print{<STYLE type="text/css">
   math.centered { text-align: center}
 </STYLE>
@@ -511,12 +517,12 @@
 \ifverbd\newstyle{P}{border:1px solid gray}\fi
 \ifverbd\newstyle{DIV}{border:1px dotted gray}\fi
 %%Style of display
-\newstyle{.vdisplay}
-{table-layout:fixed;border-collapse:collapse;border:1px solid gray}
-\newstyle{.vdcell}
-{border:1px solid green;white-space:nowrap;padding:0px;width:0px;}
-\newstyle{.display}{table-layout:fixed;border-collapse:collapse}
-\newstyle{.dcell}{white-space:nowrap;padding:0px;}
+\def\@dtstyle{border-collapse:separate;border-spacing:\@barsz;}
+\def\@dcstyle{white-space:nowrap;padding:0px;width:auto;}
+\newstyle{.vdisplay}{\@dtstyle{} border:2px solid red;}
+\newstyle{.vdcell}{\@dcstyle{} border:2px solid green;}
+\newstyle{.display}{\@dtstyle{} border:none;}
+\newstyle{.dcell}{\@dcstyle{} border:none;}
 \newstyle{.dcenter}{margin:0ex auto;}
 %%% And we can get something similar for extensible arrows accents.
 \newcommand{\@vd}{\ifverbd{}v\fi}

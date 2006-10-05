@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: htmllex.mll,v 1.10 2005-06-24 08:32:21 maranget Exp $          *)
+(*  $Id: htmllex.mll,v 1.11 2006-10-05 08:48:15 maranget Exp $          *)
 (***********************************************************************)
 {
 open Lexing
@@ -169,7 +169,7 @@ and aputc c = Buff.put_char abuff c
 let blank = [' ''\t''\n''\r']
 
 rule main = parse
-| (blank|"&nbsp;")+ {Blanks (lexeme lexbuf)}
+| (blank|"&nbsp;"|"&XA0;")+ as lxm {Blanks lxm}
 | "<!--"
   {put (lexeme lexbuf) ;
   in_comment lexbuf ;

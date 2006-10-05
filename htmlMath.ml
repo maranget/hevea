@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlMath.ml,v 1.45 2006-10-04 17:13:26 maranget Exp $" 
+let header = "$Id: htmlMath.ml,v 1.46 2006-10-05 08:48:15 maranget Exp $" 
 
 
 open Misc
@@ -110,6 +110,12 @@ and end_item_display () =
   flags.vsize,f,is_freeze
 ;;
 
+(********************************************************
+*					        	*
+*    To open display with vertical alignment arguments  *
+*                                                       *
+*********************************************************)
+
 let open_display_varg centering varg =
   if !verbose > 2 then begin
     Printf.fprintf stderr "open_display: "
@@ -124,12 +130,8 @@ let open_display_varg centering varg =
   end     
 ;;
 
-(************************************************************************
-*									*
-*    To open display with vertical and horizontal alignment arguments   *
-*                                                                       *
-************************************************************************)
 
+(*
 let open_display_varg_harg centering varg harg = 
   if !verbose > 2 then begin
     Printf.fprintf stderr "open_display: "
@@ -143,8 +145,9 @@ let open_display_varg_harg centering varg harg =
     prerr_endline ""
   end
 ;;
+*)
 
-let open_display centering = open_display_varg centering "VALIGN=middle"
+let open_display centering = open_display_varg centering "VALIGN=\"middle\""
 
 (* argument force forces the display structure,
    when false, the TABLE/TR/TD may be spared in two situation

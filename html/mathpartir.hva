@@ -41,7 +41,7 @@
 %\newstyle{TD.mprcell}{border-style:solid; border-color:green;}
 %%Actual styles
 \newstyle{TABLE.mathpar}{border-collapse:separate;border-spacing:0.5ex}
-\newstyle{TD.mprcell}{border-style:none;white-space:nowrap;}
+\newstyle{TD.mprcell}{border:none;white-space:nowrap;}
 \setenvclass{mathpar}{mathpar}
 \setenvclass{mprcell}{mprcell}
 \def\open@mathpar@table

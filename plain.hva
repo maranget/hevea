@@ -1,6 +1,7 @@
 %%%%%%% Internal basic commands for package
 \newcommand{\relax}{}
 \newcommand{\@empty}{}
+\newcommand{\@gooble}[1]{}
 %%%%%% Iter #1 on #3, a #2 separated list of non-empty elements
 \def\@iter
   #1#2#3{%

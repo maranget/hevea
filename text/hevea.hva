@@ -77,14 +77,15 @@
 %%%%%%%%%%%%%
 % Maketitle %
 %%%%%%%%%%%%%
+\newcommand{\title@tohaux}[1]{}
 \newcommand{\maketitle}{%
 \@open{ALIGN}{CENTER}
 \@open{HEAD}{*}%
-\usebox{\@@title}\\%
+\@title\\%
 \@close{HEAD}%
 \@open{HEAD}{=}%H3
-\usebox{\@@author}\par
-\usebox{\@@date}
+\usebox{\@author}\par
+\usebox{\@date}
 \@close{HEAD}%
 \@close{ALIGN}%
 \global\let\maketitle\relax}

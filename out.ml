@@ -11,7 +11,7 @@
 
 open Lexing
 
-let header = "$Id: out.ml,v 1.21 2005-02-18 13:39:48 maranget Exp $" 
+let header = "$Id: out.ml,v 1.22 2006-10-05 08:48:15 maranget Exp $" 
 let verbose = ref 0
 ;;
 
@@ -204,7 +204,7 @@ let close = function
 ;;
 
 let is_space = function
-  | ' ' | '\n' -> true
+  | ' ' | '\n' | '\r' | '\t' -> true
   | _ -> false
 
 let unskip = function
