@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.294 2006-10-05 08:48:15 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.295 2006-10-06 08:25:37 maranget Exp $ *)
 
 
 {
@@ -812,77 +812,83 @@ let rec expand_toks main = function
       scan_this main s
 
 let rec do_expand_command main skip_blanks name lexbuf =
-  if !verbose > 1 then begin
-    Printf.fprintf stderr "expand_command: '%s'\n" name
-  end ;
-  let cur_subst = get_subst () in
-  let exec =
-    if !alltt_loaded then
-      function
-        | Subst body ->
-            if !verbose > 2 then
-              prerr_endline ("user macro: "^body) ;            
-            let old_alltt = !alltt in
-            Stack.push stack_alltt old_alltt ;        
-            alltt :=
-               (match old_alltt with
-               | Not -> Not
-               | _   -> Macro) ;
+  try
+    if !verbose > 1 then begin
+      Printf.fprintf stderr "expand_command: '%s'\n" name
+    end ;
+    let cur_subst = get_subst () in
+    let exec =
+      if !alltt_loaded then
+        function
+          | Subst body ->
+              if !verbose > 2 then
+                prerr_endline ("user macro: "^body) ;            
+              let old_alltt = !alltt in
+              Stack.push stack_alltt old_alltt ;        
+              alltt :=
+                 (match old_alltt with
+                 | Not -> Not
+                 | _   -> Macro) ;
 (*
   Printf.fprintf stderr
   "Enter: %s, %s -> %s\n" name (debug old_alltt) (debug !alltt) ;
   *)
-            scan_this_may_cont main lexbuf cur_subst (string_to_arg body) ;
-            let _ =  Stack.pop stack_alltt in
-            alltt :=
-               (match old_alltt, !alltt with
-               | Not, Inside         -> Inside
-               | (Macro|Inside), Not -> Not
-               | _, _                -> old_alltt)
+              scan_this_may_cont main lexbuf cur_subst (string_to_arg body) ;
+              let _ =  Stack.pop stack_alltt in
+              alltt :=
+                 (match old_alltt, !alltt with
+                 | Not, Inside         -> Inside
+                 | (Macro|Inside), Not -> Not
+                 | _, _                -> old_alltt)
 (*
   Printf.fprintf stderr
   "After: %s, %s -> %s\n" name (debug old_alltt) (debug !alltt)
   *)
-        | Toks l -> expand_toks main l            
-        | CamlCode f -> f lexbuf
-    else
-      function
-        | Subst body ->
-            if !verbose > 2 then
-              prerr_endline ("user macro: "^body) ;            
-            scan_this_may_cont main lexbuf cur_subst (string_to_arg body)
-        | Toks l -> expand_toks main l            
-        | CamlCode f -> f lexbuf in
-
-  let pat,body = Latexmacros.find name in
-  let saw_par =
-    if
-      (if !in_math then Latexmacros.invisible name
+          | Toks l -> expand_toks main l            
+          | CamlCode f -> f lexbuf
       else
-	not (effective !alltt) &&
-	is_subst body && last_letter name)
-    then begin
-      if !verbose > 2 then
-	prerr_endline ("skipping blanks ("^name^")");
-      skip_blanks lexbuf
-    end else begin
-      if !verbose > 2 then begin
-	prerr_endline ("not skipping blanks ("^name^")")
-      end ;
-      false
-  end in
-  let args = make_stack name pat lexbuf in
-  if (!verbose > 1) then begin
-    prerr_endline
-      ("Expanding macro "^name^" {"^(string_of_int !macro_depth)^"}") ;
-    macro_depth := !macro_depth + 1
-  end ;
-  scan_body exec body args ;
-  if (!verbose > 1) then begin
-    Printf.eprintf "Cont after macro «%s», display=%B\n" name !display ;
-    macro_depth := !macro_depth - 1
-  end ;
-  if saw_par then do_expand_command main skip_blanks "\\par" lexbuf
+        function
+          | Subst body ->
+              if !verbose > 2 then
+                prerr_endline ("user macro: "^body) ;            
+              scan_this_may_cont main lexbuf cur_subst (string_to_arg body)
+          | Toks l -> expand_toks main l            
+          | CamlCode f -> f lexbuf in
+
+    let pat,body = Latexmacros.find name in
+    let saw_par =
+      if
+        (if !in_math then Latexmacros.invisible name
+        else
+	  not (effective !alltt) &&
+	  is_subst body && last_letter name)
+      then begin
+        if !verbose > 2 then
+	  prerr_endline ("skipping blanks ("^name^")");
+        skip_blanks lexbuf
+      end else begin
+        if !verbose > 2 then begin
+	  prerr_endline ("not skipping blanks ("^name^")")
+        end ;
+        false
+      end in
+    let args = make_stack name pat lexbuf in
+    if (!verbose > 1) then begin
+      prerr_endline
+        ("Expanding macro "^name^" {"^(string_of_int !macro_depth)^"}") ;
+      macro_depth := !macro_depth + 1
+    end ;
+    scan_body exec body args ;
+    if (!verbose > 1) then begin
+      Printf.eprintf "Cont after macro «%s», display=%B\n" name !display ;
+      macro_depth := !macro_depth - 1
+    end ;
+    if saw_par then do_expand_command main skip_blanks "\\par" lexbuf
+  with
+  | Misc.EndDocument|Misc.EndInput as e -> raise e
+  | e ->
+      Printf.eprintf "Giving up command: %s\n" name ;
+      raise e
 ;;
 
 let count_newlines s =

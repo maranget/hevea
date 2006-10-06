@@ -9,16 +9,23 @@
 (*                                                                     *)
 (***********************************************************************)
 
-exception Fatal of string
-exception NoSupport of string
-exception Purposly of string
-exception ScanError of string
-exception UserError of string
-exception EndInput
-exception EndDocument
-exception Close of string
+(***************)
+(* Some errors *)
+(***************)
+exception Fatal of string      (* A bug *)
+exception NoSupport of string  (* A feature *)
+exception Purposly of string   (* Explicit failure: \@heveafail command *)
+exception ScanError of string  (* Error while reading input *)
+exception UserError of string  (* Users should correct their code *)
+exception Close of string      (* Specific user error: env nesting *)
+
+(*******************)
+(* Some non-errors *)
+(*******************)
+exception EndInput    (* Stop reading that file *)
+exception EndDocument (* Document is over *)
 exception EndOfLispComment of int (* QNC *)
-exception CannotPut
+exception CannotPut   (* Cannot ouput Unicode char (text mode) *)
 
 val verbose : int ref
 val readverb : int ref
