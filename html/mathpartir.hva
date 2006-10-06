@@ -36,23 +36,23 @@
 \usepackage {keyval}
 \let\latexcr\\
 %%% Styles for mathpar
-\newcommand{\mp@table@style}
+\newcommand{\mp@row@style}
   {border-collapse:separate;border-spacing:2ex;width:100\%;margin:0ex;}
-\newstyle{TABLE.mathpar}{\mp@table@style}
-\newstyle{TABLE.vmathpar}{\mp@table@style
-background-color:yellow;border:solid black 2px}
+\newstyle{TABLE.mprow}{\mp@row@style}
+\newstyle{TABLE.vmprow}{\mp@row@style border:solid magenta 2px}
 \newcommand{\mp@cell@style}{padding:0px;width:auto;}
 \newstyle{TD.mprcell}{\mp@cell@style}
-\newstyle{TD.vmprcell}{\mp@cell@style border:dotted green 2px;}
+\newstyle{TD.vmprcell}{\mp@cell@style border:dotted magenta 2px;}
+\setenvclass{mathpar}{mathpar}
 \ifverbd
-\setenvclass{mathpar}{vmathpar}
+\setenvclass{mprow}{vmprow}
 \setenvclass{mprcell}{vmprcell}
 \else
-\setenvclass{mathpar}{mathpar}
+\setenvclass{mprow}{mprow}
 \setenvclass{mprcell}{mprcell}
 \fi
 %% Open/close TABLE elements
-\def\open@mathpar@table{\@open{TABLE}{\envclass@attr{mathpar}}}
+\def\open@mathpar@table{\@open{TABLE}{\envclass@attr{mprow}}}
 \def\open@mprow{\@open{TR}{VALIGN="middle"}}
 \def\close@mprow{\@close{TR}}
 \def\open@mpcell{\@open{TD}{\envclass@attr[ ]{mprcell}ALIGN="center"}$$}
@@ -67,10 +67,10 @@ background-color:yellow;border:solid black 2px}
 \def\mathpar@hva#1{\ifx#1\and\mathpar@vspace\else\mathpar@hspace\fi}%
 %%exported mathpar
 \newenvironment{mathpar}[1][]
-  {%
+  {\@open{DIV}{\envclass@attr{mathpar}}
   \let\and\mathpar@hspace\let\par\mathpar@vspace\let\\\mathpar@vspace\let\hva\mathpar@hva%
   \open@mathpar@table\open@mprow\open@mpfstcell}
-  {\close@mplstcell\close@mprow\@close{TABLE}}
+  {\close@mplstcell\close@mprow\@close{TABLE}\@close{DIV}}
 %%%% Type Inference Rules (TIR)
 \newsavebox{\mpr@save@arg}%
 \newcommand{\mpr@globle}[1]{}
