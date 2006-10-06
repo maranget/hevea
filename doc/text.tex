@@ -56,7 +56,6 @@ Chesnay Cedex. {\tt \mailto{Luc.Maranget@inria.fr}}}}
   {text-align:center;margin:1ex auto;padding:2ex;color:navy;border:solid navy;}
 \newstyle{.xtitlerest}{font-variant:small-caps;}
 \newstyle{.ruled}{border:solid black;padding:1ex;background:\#eeddbb;color:maroon}
-\newstyle{.xmathpar}{background:yellow;margin-left:2ex;margin-right:auto;}
 \setlinkstext
   {\imgsrc[ALT="Previous"]{previous_motif.gif}}
   {\imgsrc[ALT="Up"]{contents_motif.gif}}
@@ -6472,7 +6471,7 @@ We give a short description, focussing on \hevea{}-related details.
 Users are encouraged to refer to the
 \footahref{http://pauillac.inria.fr/\home{remy}/latex/index.html\#tir}{original
 documentation} of the package.
-\ifhevea
+
 In the following, comments on rule typesetting apply to \hevea{} output
 and not to \LaTeX{} output.
 
@@ -6483,7 +6482,7 @@ In its \LaTeX{} version, the \texttt{mathpar} environment is a
 formulas putting as many as possible on the same line:
 \begin{center}
 \begin{tabular}{m{0.40\hsize}m{0.1\hsize}m{0.40\hsize}}
-\begin{lstlisting}[language=C]
+\begin{lstlisting}[basicstyle=\tt]
 \begin{mathpar}
 A-Formula \and 
 Longer-Formula \and 
@@ -6511,7 +6510,7 @@ to act as \verb+\and+. It also redefines the command \verb+\\+ as
 an explicit line-break in the flow of formulas.
 \begin{center}
 \begin{tabular}{m{0.40\hsize}m{0.1\hsize}m{0.40\hsize}}
-\begin{lstlisting}[language=C]
+\begin{lstlisting}[basicstyle=\tt]
 \begin{mathpar}
 \int_0^2 xdx = \frac{3}{2}
 \\
@@ -6535,9 +6534,6 @@ Formulas are typeset in math display
 mode,
 \verb+\and+~separators always produce horizontal space, while
 \verb+\\+  always produce line-breaks.
-The amount of horizontal space introduced by \verb+\and+
-is defined by the command
-\verb+\mathpar@hspace+, whose default value is \verb+\qquad\qquad+.
 However, when prefixed by \verb+\hva+ the meaning of explicit
 separators is inversed: that is,
 \verb+\hva\and+ produces a line-break, while \verb+\hva\\+
@@ -6545,7 +6541,7 @@ produces horizontal space.
 Hence, we can typeset the previous example on two lines:
 \begin{center}
 \begin{tabular}{m{0.40\hsize}m{0.1\hsize}m{0.40\hsize}}
-\begin{lstlisting}[language=C]
+\begin{lstlisting}[basicstyle=\tt]
 \begin{mathpar}
 A-Formula \and
 Longer-Formula \hva\and 
@@ -6562,30 +6558,9 @@ And \and The-Last-One
 \end{mathpar}
 \end{tabular}
 \end{center}
-
 It is to be noticed that the \LaTeX{} version of the package defines
 \verb+\hva+ as a no-op, so as to allow explicit instructions given to
 \hevea{} not to impact on the automatic typesetting performed by~\LaTeX.
-
-\hevea{} translates \verb+mathpar+ environments
-into \verb+TABLE+ elements, which belong to the (CSS) class
-``\verb+\getenvclass{mathpar}+'' with a default value of
-``\verb+mathpar+'' (see section~\ref{css:change}).
-As a consequence, if, for instance, one defines the class
-``\verb+mathpar+'' as follows in the document preamble:
-\begin{verbatim}
-\newstyle{.mathpar}{background:yellow;margin-left:2ex;margin-right:auto;}
-\end{verbatim}
-Then, all \verb+mathpar+ environments in the document are rendered
-flushed left with a yellow background:
-{\setenvclass{mathpar}{xmathpar}\begin{mathpar}
-A-Formula \and
-Longer-Formula \hva\and 
-And \and The-Last-One
-\end{mathpar}}
-
-
-
 
 \subsubsection {The inferrule macro}%
 \index{mathpartir@\texttt{mathpartir} package!inferrule@\verb+\inferrule+}
@@ -6596,7 +6571,6 @@ three arguments, the first being optional, specifying the label,
 premises, and conclusions respectively. The premises and the
 conclusions are both lists of formulas, and are separated by
 \verb"\\".
-
 A simple example of its use is 
 \begin{verbatim}
 \inferrule
@@ -6623,8 +6597,9 @@ horizontal break. In fact \hevea{} interpret all separators
 they appear in the arguments of the \verb+\inferrule+ command.
 Nethertheless prefixing separators with \verb+\hva+ yields vertical
 breaks:
+\begin{center}
 \begin{tabular}{m{0.40\hsize}m{0.1\hsize}m{0.40\hsize}}
-\begin{lstlisting}{Ocaml}
+\begin{lstlisting}[basicstyle=\tt]{Ocaml}
 \inferrule 
    {aa \hva\\ bb}
    {dd \\ ee \\ ff}
@@ -6634,6 +6609,7 @@ breaks:
 &
 $\inferrule {aa \hva\\ bb}{dd \\ ee \\ ff}$
 \end{tabular}
+\end{center}
 
 The color of the horizontal rule that separates the premises and
 conclusions can be changed by redefining the command
@@ -6644,9 +6620,9 @@ color (cf. Section~\ref{getcolor}).
 \subsubsection{Options}
 
 By default, lines are centerred in inference rules. However, this can be changed either by using \verb"\mprset{flushleft}" or \verb"\mprset{center}", as shown below. 
-
+\begin{center}
 \begin{tabular}{m{0.40\hsize}m{0.12\hsize}m{0.40\hsize}}
-\begin{lstlisting}{Ocaml}
+\begin{lstlisting}[basicstyle=\tt]{Ocaml}
 $$\mprset{flushleft}
   \inferrule 
     {a \\ bbb \hva\\ ccc \\ dddd}
@@ -6660,6 +6636,7 @@ $$\mprset{flushleft}
 \inferrule {a \\ bbb  \hva\\ ccc \\ dddd}{e \\ ff \hva\\ gg}$$
 \\
 \end{tabular}  
+\end{center}
 
 \subsubsection {Derivation trees}%
 \index{mathpartir@\texttt{mathpartir} package!derivation trees}
@@ -6709,7 +6686,7 @@ Other keys defined by the \LaTeX{} package exist and are parsed, but
 they perform no operation.
 
 As an example, the code
-\begin{lstlisting}{Ocaml}
+\begin{lstlisting}[basicstyle=\tt]{Ocaml}
 \begin{mathpar}
 \inferrule* [Left=Foo]
    {\inferrule* [Right=Bar,width=8em,
@@ -6734,7 +6711,7 @@ produces the following output:
 \hva\and
 \inferrule* [lab=XX]{uu \and vv}{ww}
 \end{mathpar}
-\fi
+
 
 \subsection{The \texttt{ifpdf} package}
 \ttindex{ifpdf}{package}

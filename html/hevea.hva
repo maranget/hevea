@@ -499,7 +499,10 @@
 {border:none;width:\@barsz;background-color:black;}
 \newstyle{.hbar}
 {border:none;height:\@barsz;width:100\%;background-color:black;}
+\newstyle{.hfill}
+{border:none;height:1px;width:200\%;background-color:black;}
 %%%Bars with HR
+\newcommand{\@hfill}{{\@nostyle\@print{<HR CLASS="hfill"}}}
 \newcommand{\@hbar}[1][]
 {{\@clearstyle\def\@tmp{#1}\@print{<HR CLASS="hbar"}%
 \@getprint{\ifx\@tmp\@empty\else{} #1\fi}\@print{>}}}
