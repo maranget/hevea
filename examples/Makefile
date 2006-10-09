@@ -20,6 +20,37 @@ byte:
 
 dvi: $(DVI)
 
+test: test.html di.html mp.html cart-index.html cbook-index.html
+TDIR=$(HOME)/public_html/vrac/test
+
+install-test:
+	-mkdir -p $(TDIR)
+	cp test.html $(TDIR)/index.html
+	cp di.html mp.html $(TDIR)
+	cp *_motif.gif $(TDIR)
+	cp cart-index.html cart.css cart[0-9][0-9][0-9].html  $(TDIR)
+	cp cbook-index.html cbook.css cbook[0-9][0-9][0-9].html  $(TDIR)
+
+clean-test::
+	/bin/rm -f test.html mp.html di.html cart.html cbook.html
+
+cart-index.html: cart.html
+	$(HACHA) -o cart-index.html cart.html
+
+cbook-index.html: cbook.html
+	$(HACHA) -o cbook-index.html cbook.html
+
+clean-test::
+	/bin/rm -f cart[0-9][0-9][0-9].html cart.css cart-index.html cart.htoc
+	/bin/rm -f cbook[0-9][0-9][0-9].html cbook.css cbook-index.html cbook.htoc
+
+clean:: clean-test
+
+byte-test:
+	export HEVEADIR=.. ;\
+	$(MAKE) $(MFLAGS)  HEVEAOPTS="$(HEVEAOPTS)" HEVEA=../hevea.byte HACHA=../hacha.byte test
+
+
 
 html: $(HTML) sym.html index.html
 text: $(TEXT)
@@ -151,7 +182,7 @@ cleantext:
 cleaninfo:
 	rm -f *.info *.info-*
 
-clean cleanall: cleanhtml cleantext cleaninfo
+clean:: cleanhtml cleantext cleaninfo
 	rm -f *.aux *.log *.dvi *~ *.gif *.pnm *.png *.bbl tmp.* tenv.* tsmile.* *.ilg *.ind *.idx *.image.tex  *.tid HF.ps *.haux *.hidx *.hind
 	/bin/rm -f hevea.sty
 

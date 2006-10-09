@@ -86,7 +86,7 @@
 \setenvclass{thefootnotes}{thefootnotes}
 \setenvclass{dt-thefootnotes}{dt-thefootnotes}
 \setenvclass{dd-thefootnotes}{dd-thefootnotes}
-\newstyle{.thefootnotes}{text-align:left;}
+\newstyle{.thefootnotes}{text-align:left;margin:0ex;}
 \newstyle{.dt-thefootnotes}{margin:0em;}
 \newstyle{.dd-thefootnotes}{margin:0em 0em 0em 2em;}
 \newenvironment{thefootnotes}[2][]
@@ -201,6 +201,7 @@
 {\@auxdowrite{\@print{\@titleaux}\{\@subst{#1}\}
 }}
 \newstyle{.title}{margin:auto;text-align:center}
+\let\title@flush@hook\relax
 \newcommand{\maketitle}{%
   \bgroup
   \newcommand{\checkcmd}[4]
@@ -214,6 +215,9 @@
   \checkcmd{H3}{titlerest}{date}{\@gooble}%
   \@closecell%
   \egroup%
+  \ifthenelse{\equal{\@footnotelevel}{document}}{}
+  {\@footnotesub%
+   \gdef\title@flush@hook{\@endfootnotesub\@footnoteflush@sticky{document}}}%
 \let\maketitle\relax}%
 %
 %%%%%%%%%
@@ -290,7 +294,7 @@
 \renewcommand{\addstyle}[1]{\warning{\addstyle{} must be used in document preamble}}%
 \@open@par%Open first paragraph
 }{%
-\@clearstyle\@footnoteflush{document}\cutend*%
+\@clearstyle\@footnoteflush{\@footnotelevel}\cutend*\title@flush@hook%
 \@atenddocument%
 \@final@footer%
 \@clearstyle%

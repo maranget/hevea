@@ -66,4 +66,9 @@
  \newftocstyle{3}{subsection}%
  \newftocstyle{4}{subsubsection}%
  \newftocstyle{5}{paragraph}}}
-
+\renewcommand{\footnoterule}
+{{\@nostyle\@print{<HR }%
+\@getprint
+{CLASS="hbar"
+  STYLE="border:none;width:75\%;margin:0px auto 0px 1em;background:\@getstylecolor{section};"}%
+\@print{>}}}

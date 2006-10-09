@@ -1,0 +1,15 @@
+\documentclass{article}
+\newcommand{\zyva}[2]
+  {\left#1\begin{array}{cc}\hline\hline1&2\\3&4\end{array}\right#2}
+\begin{document}
+Fraction is centered:
+$$
+\zyva{[}{]} \times \zyva{\lceil}{\rfloor} \over \zyva{(}{)}
+$$
+You can see arrows:
+$$\newcommand{\demo}[1]{\quad\quad#1{1 \times 2 \times \cdots \times n}\quad\texttt{\string#1}}%
+\begin{array}{cc}
+\demo{\overleftarrow} & \demo{\overrightarrow}
+\end{array}
+$$
+\end{document}

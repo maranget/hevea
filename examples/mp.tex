@@ -1,0 +1,19 @@
+\documentclass{article}
+\usepackage{mathpartir}
+\begin{document}
+\section*{Infererence rule}
+Check vertical alignment.
+$$
+\infer*
+{\infer*{}{A}\and\infer*{\infer*{B'\and{}B''}{B}\and{}X}{C}}
+{C \and D}
+$$
+\section*{Mathpar}
+Command defined inside \texttt{mathpar} environment.
+\begin{mathpar}
+\newcommand{\for}[2]{\left#1\begin{array}{cc}1&2\\3&4\end{array}\right#2}%
+\for\{\} \and \for() \and \for\vert.\\
+\for\vert\vert \and \for\lfloor\rfloor \and
+\end{mathpar}
+
+\end{document}

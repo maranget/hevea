@@ -1,0 +1,30 @@
+\documentclass{book}
+\usepackage{hevea}
+\begin{document}
+\title{Coucou\footnote{Coucou} --- Toi\footnote{Toi}}
+\author{Moi\thanks{Moi}}
+\date{Aujourd'hui}
+\maketitle
+\begin{quote}
+Default \hacha{} behavior for \texttt{book}:
+\begin{enumerate}
+\item Title footnotes in this file\footnote{This one in extra file}.
+\item Cut at chapters.
+\item Chapter footnotes at the end of chapter files.
+\end{enumerate}
+\end{quote}
+\tableofcontents
+\part{Grand un}
+\chapter{Un}
+Un\footnote{un}.
+\chapter{Deux}
+Deux\footnote{deux}.
+\chapter{Trois}
+Trois\footnote{trois}.
+\part{Grand deux}
+\chapter{Quatre}
+\section{Quatre.Un}
+Quatre\footnote{quatre.un}.
+\section{Quatre.Deux}
+Quatre\footnote{quatre.deux}.
+\end{document}

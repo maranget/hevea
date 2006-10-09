@@ -12,7 +12,7 @@
 {
 open Lexing
 open Stack
-let header = "$Id: cut.mll,v 1.50 2006-09-25 11:48:50 maranget Exp $" 
+let header = "$Id: cut.mll,v 1.51 2006-10-09 16:32:36 maranget Exp $" 
 
 let verbose = ref 0
 
@@ -367,7 +367,7 @@ let close_chapter () =
   if !verbose > 0 then
     prerr_endline ("Close chapter out="^ !outname^" toc="^ !tocname) ;
   if !phase > 0 then begin
-    closehtml true !outname !out ;
+    if !outname <> !tocname then closehtml true !outname !out ;
     begin match !toc_style with
     | Both|Special ->
       let real_out = real_open_out !outname in
@@ -414,12 +414,12 @@ let setlink set target =
 
 let open_notes sticky sec_notes =
   if !verbose > 0 && !phase > 0 then 
-    Printf.eprintf "Notes %s (%s,%s)\n"
+    Printf.eprintf "Notes flushed as %s (current cut is %s, current level is %s)\n"
       (Section.pretty sec_notes)
       (Section.pretty !chapter)
       (Section.pretty !cur_level) ;
   if
-    not sticky && (sec_notes <> !chapter)
+    not sticky && (sec_notes <> !chapter || !cur_level < !chapter)
   then begin
     otheroutname := !outname ;
     outname := new_filename "open_notes" ;

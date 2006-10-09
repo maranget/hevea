@@ -1,3 +1,9 @@
+version 1.08+22
+     - make byte-test in examples -> specific tests
+     - footnote to extra file, change behavior document.
+     - special footnote flusing for \maketitle
+     - Bug, hacha (close_chapter, cut.mll) must not close
+       chapter page when it equals toc page.
      - Factor out code for mathdisplay (latexscan.mll) +
        new internal commands \displaymath \enddisplaymath ->
        display math without latex env (useful for mathpartir.)

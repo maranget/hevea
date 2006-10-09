@@ -2168,6 +2168,8 @@ awaiting to be flushed.
 The flushing of notes is controled by the means of a current
 \emph{flushing unit}, which is a sectional unit name or
 \textit{document} --- a fictional unit above all units.
+At any point, the current flushing unit is the value of the
+command~\verb+\@footnotelevel+\index{"@footnotelevel@\texttt{\char92"@footnotelevel}|defocc}.
 In practice, the flushing of footnote texts is performed by two commands:
 \begin{itemize}
 \item \verb+\flushdef{+\textit{secname}\verb+}+ simply sets
@@ -2176,16 +2178,16 @@ the flushing unit to \textit{secname}.
 as follows:
 \begin{itemize}
 \item If argument \textit{secname} is equal to or above the
-flushing unit, then footnote texts are flushed (if any).
+current flushing unit, then footnote texts are flushed (if any).
 In the output, the texts themselves are surrounded by special comments
-that tags them as footnote texts and record \textit{secname}.
+that tag them as footnote texts and record \textit{secname}.
 \item Otherwise, no action is performed.
 \end{itemize}
 \end{itemize}
 The \filename{article} style file performs \verb+\flushdef{document}+,
 while the \filename{book} style file performs  \verb+\flushdef{chapter}+.
 At the end of processing, \verb+\end{document}+ performs
-\verb+\footnoteflush{document}+, so as to flush any pending notes.
+\verb+\footnoteflush{\@footnotelevel}+, so as to flush any pending notes.
 
 Cutting commands interact with footnote flushing as follows:
 \begin{itemize}
@@ -2209,13 +2211,23 @@ sometimes put notes in a separate file.
 More precisely, \hacha{} has knowledge of the
 current \emph{cutting level}, the current sectional unit where
 cuts occur --- as given by the relevant \verb+\cutdef+.
+Moreover, \hacha{} knows the current \emph{section level} ---
+that is, the last sectional command processed.
 Besides, \hacha{} extracts the \emph{note level} from the comments
 that surround the notes (as given by the command
 \verb+\footnoteflush+ that produced the notes).
 Then, \hacha{} creates a separate file for notes
-when the cutting level and the note level differ.
+when the cutting level and the note level differ,
+or when the current level is above the cutting level
+(\emph{e.g.} the current level is \texttt{document} while the cutting
+level is \texttt{chapter}).
 As a result, notes should stay where they are when they occur at the end of
 \hacha{} output file and otherwise go to a separate file.
+
+To make a complicated story even more complicated,
+footnotes in~\texttt{minipage} environments or in the arguments
+to \verb+\title+ or \verb+\author+ have a different, I guess satisfactory,
+behavior.
 
 \ifhevea
 We now give a few example of interaction between notes and cutting.
