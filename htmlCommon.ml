@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlCommon.ml,v 1.58 2006-10-05 19:37:03 maranget Exp $" 
+let header = "$Id: htmlCommon.ml,v 1.59 2006-10-09 08:25:16 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -1164,8 +1164,6 @@ let try_open_block s _ =
   do_try_open_block s
 
 let do_do_open_block s args =
-  if s = TR then
-    do_put "\n";
   do_put_char '<' ;
   do_put (string_of_block s) ;
   if args <> "" then begin

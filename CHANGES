@@ -1,3 +1,7 @@
+     - Factor out code for mathdisplay (latexscan.mll) +
+       new internal commands \displaymath \enddisplaymath ->
+       display math without latex env (useful for mathpartir.)
+     - Esponja removes unreferenced style classes.
      - Backtracking info printed directly in do_expand_command (latescan.mll)
 version 1.08+21
      - Corrected bars for math accents: WIDTH= -> STYLE="width:..

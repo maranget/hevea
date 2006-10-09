@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmain.ml,v 1.80 2005-02-25 17:49:18 maranget Exp $" 
+let header = "$Id: latexmain.ml,v 1.81 2006-10-09 08:25:16 maranget Exp $" 
 
 open Misc
 open Parse_opts
@@ -183,7 +183,7 @@ let main () =
     if !optimize then begin
       match !destination with
       | Html when name_in <> "" ->
-          Ultra.verbose := !Misc.verbose ;
+	  Emisc.verbose := !Misc.verbose ;
           if not (Esponja.file name_out) then
             warning "Esponja failed, optimisation not performed"
       | _ -> ()        

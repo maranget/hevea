@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: htmllex.mll,v 1.11 2006-10-05 08:48:15 maranget Exp $          *)
+(*  $Id: htmllex.mll,v 1.12 2006-10-09 08:25:16 maranget Exp $          *)
 (***********************************************************************)
 {
 open Lexing
@@ -167,20 +167,20 @@ and aputc c = Buff.put_char abuff c
  
 
 let blank = [' ''\t''\n''\r']
-
+let tag = ['a'-'z''A'-'Z''0'-'9']+
+let class_name = ['a'-'z''A'-'Z''0'-'9''-']+
 rule main = parse
 | (blank|"&nbsp;"|"&XA0;")+ as lxm {Blanks lxm}
 | "<!--"
   {put (lexeme lexbuf) ;
   in_comment lexbuf ;
   Text (Buff.to_string buff)}
-|   "<!"
+| "<!"
   {put (lexeme lexbuf) ;
   in_tag lexbuf ;
   Text (Buff.to_string buff)}
-| '<' 
-    {putc '<' ;
-    let tag = read_tag lexbuf in
+| '<' (tag as tag) as lxm
+    {put lxm ;
     if is_textlevel tag then begin
       let attrs = read_attrs lexbuf in    
       ouvre lexbuf tag attrs (Buff.to_string buff)
@@ -197,9 +197,8 @@ rule main = parse
       else
         Text txt
     end}
-|  "</" 
-    {put "</" ;
-    let tag = read_tag lexbuf in    
+|  "</"  (tag as tag) as lxm
+    {put lxm ;
     in_tag lexbuf ;
     ferme lexbuf tag (Buff.to_string buff)}
 | eof {Eof}
@@ -212,10 +211,6 @@ and text = parse
 | [^'<'] as c
   {putc c ; text lexbuf}
 | "" {()}
-
-and read_tag = parse
-| ['a'-'z''A'-'Z''0'-'9']* as lxm
-    {put lxm ; lxm}
 
 and read_attrs = parse
 | blank+ as lxm
@@ -253,11 +248,11 @@ and in_tag = parse
 
 and in_comment = parse
 | "-->" '\n'?
-  {put (lexeme lexbuf)}
+   {put (lexeme lexbuf)}
 | _ as c
    {putc c ; in_comment lexbuf}
 | eof
-    {error "End of file in comment" lexbuf}
+   {error "End of file in comment" lexbuf}
 
 and styles = parse
 | blank+ { styles lexbuf }
@@ -267,6 +262,72 @@ and styles = parse
   { Css.Class (name, cl) :: styles lexbuf }
 | blank* ([^'{']+ '{' [^'}']* '}' as lxm)
   {Css.Other lxm :: styles lexbuf}
+
+(* Extract classes: values of the CLASS attribute *)
+and extract_classes cls = parse
+| "<!--"
+  { skip_comment lexbuf ; extract_classes cls lexbuf}
+| "<!"|"</"
+  { skip_tag lexbuf ; extract_classes cls lexbuf }
+| '<' tag
+    { let cls = extract_attrs cls lexbuf in
+      extract_classes cls lexbuf }
+| [^'<']+ { extract_classes cls lexbuf }
+| eof      { cls }
+
+and skip_comment = parse
+| "-->" { () }
+| _     { skip_comment lexbuf }
+| eof   { error "End of file in comment" lexbuf }
+
+and skip_tag = parse
+| [^'>']* '>' { () }
+| eof         { error "End of file in tag" lexbuf }
+
+and skip_value = parse
+| '\'' [^'\'']* '\''
+| '"'  [^'"']*  '"'
+| '#'?['a'-'z''A'-'Z''0'-'9''-''+''_'':''.']+
+   { () }
+| "" { error "Attribute syntax" lexbuf }
+
+and extract_value cls = parse
+| ['a'-'z''A'-'Z''0'-'9''-''+''_'':''.']+ as name
+   { Emisc.Strings.add name cls }
+| '\''
+    { extract_values_q cls lexbuf }
+| '"'
+    { extract_values_qq cls lexbuf }
+| "" { error "Attribute syntax" lexbuf }
+
+and extract_values_q cls = parse
+| blank+ { extract_values_q cls lexbuf }
+| class_name as cl { extract_values_q (Emisc.Strings.add cl cls) lexbuf }
+| '\'' { cls }
+| "" { error "Class value syntax" lexbuf }
+
+and extract_values_qq cls = parse
+| blank+ { extract_values_qq cls lexbuf }
+| class_name as cl { extract_values_qq (Emisc.Strings.add cl cls) lexbuf }
+| '"' { cls }
+| ""  { error "Class value syntax" lexbuf }
+
+and extract_attrs cls = parse
+(* Blanks or attributes with no value *)
+| blank+|['a'-'z''A'-'Z''-''0'-'9']+
+   { extract_attrs cls lexbuf }
+(* Class attribute *)
+| ['c''C']['l''L']['a''A']['s''S']['s''S'] blank* '=' blank*  
+   { let cls = extract_value cls lexbuf in
+     extract_attrs cls lexbuf }
+(* Other attributes with a value *)
+| ['a'-'z''A'-'Z''-''0'-'9']+ blank* '=' blank*
+   { skip_value lexbuf ;
+     extract_attrs cls lexbuf }
+(* End of tag *)
+| '/'? '>' { cls }
+| ""  { error "Attribute syntax" lexbuf }
+
 
 {
 
@@ -315,5 +376,8 @@ let next_token lb =
   | e ->
       reset () ;
       raise e
+
+let classes lexbuf =
+  extract_classes Emisc.Strings.empty lexbuf
 
 } 

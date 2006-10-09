@@ -87,8 +87,8 @@
 \setenvclass{dt-thefootnotes}{dt-thefootnotes}
 \setenvclass{dd-thefootnotes}{dd-thefootnotes}
 \newstyle{.thefootnotes}{text-align:left;}
-\newstyle{.dt-thefootnotes}{margin-left:0em; display:compact;}
-\newstyle{.dd-thefootnotes}{margin-left:2em;}
+\newstyle{.dt-thefootnotes}{margin:0em;}
+\newstyle{.dd-thefootnotes}{margin:0em 0em 0em 2em;}
 \newenvironment{thefootnotes}[2][]
   {\@out@par{{\@nostyle\@print{<!--BEGIN }\@getprint{#1}\@print{NOTES }\@getprint{#2}\@print{-->
 }}}\footnoterule%

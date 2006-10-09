@@ -7,14 +7,12 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: ultra.ml,v 1.12 2005-11-09 10:24:24 maranget Exp $             *)
+(*  $Id: ultra.ml,v 1.13 2006-10-09 08:25:16 maranget Exp $             *)
 (***********************************************************************)
 
 open Tree
 open Htmltext
 open Util
-
-let verbose = ref 0
 
 let same_prop f s =
   try
@@ -203,7 +201,7 @@ let factorize low high ts =
   let r = do_rec low [] [] in
   let r = group_font ts r in
   let r = extend_neutrals ts r in
-  if r <> [] && !verbose > 1 then begin
+  if r <> [] && !Emisc.verbose > 1 then begin
     Printf.fprintf stderr "Factors in %d %d\n" low high ;
     for i=low to high do
       Pp.tree stderr ts.(i)
@@ -286,7 +284,7 @@ let select_factors fs =
   let fs1 = put_conflicts fs in
   let fs2 = biggest fs1 in
   let fs3 = Sort.list order_factors fs2 in
-  if !verbose > 1 then begin
+  if !Emisc.verbose > 1 then begin
     prerr_string "fs1:" ; pfactorc stderr fs1 ;
     prerr_string "fs2:" ; pfactorc stderr fs2 ;
     prerr_string "fs3:" ; pfactorc stderr fs3
@@ -511,7 +509,7 @@ and trees i j ts k =
               (check_node gs (trees ii jj ts [])
                  (zyva (jj+1) rem k)) in
         let fs = select_factors fs in
-        if !verbose > 1 then begin
+        if !Emisc.verbose > 1 then begin
           prerr_endline "selected" ;
           List.iter
             (fun ((i,j),fs) ->
@@ -575,7 +573,7 @@ let main chan ts =
   let rs =  opt true (Array.of_list (Explode.trees ts)) [] in
   let cf = costs Htmltext.cost rs in
   if compare ci cf < 0 then begin
-    if !verbose > 1 then begin
+    if !Emisc.verbose > 1 then begin
       prerr_endline "*********** Pessimization ***********" ;
       Pp.ptrees stderr ts ;
       prerr_endline "***********   Into        ***********" ;

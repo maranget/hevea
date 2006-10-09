@@ -13,9 +13,8 @@
 \def\mathclose#1{#1}
 \def\mathchardef#1#2{}
 \newenvironment{math}{$}{$}
-\newenvironment{displaymath}{$$}{$$}
 \newcommand{\(}{$}\newcommand{\)}{$}
-\newcommand{\[}{$$}\newcommand{\]}{$$}
+\newcommand{\[}{$$\@skip@blanks}\newcommand{\]}{$$}
 \newcommand{\sp}[1]{^{#1}}\newcommand{\sb}[1]{_{#1}}
 \newcommand{\ensuremath}[1]{\ifmmode#1\else\(#1\)\fi}
 \newcommand{\@edm@act}{}

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.295 2006-10-06 08:25:37 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.296 2006-10-09 08:25:16 maranget Exp $ *)
 
 
 {
@@ -930,127 +930,131 @@ let translate_put_unicode c =
            "Cannot output unicode %x (%c)" uni c) ;
       Dest.put_char c
   end
+
+let top_open_maths dodo =
+  push stack_in_math !in_math ;
+  in_math := true ;
+  if !display then  Dest.item_display () ;
+  push stack_display !display ;
+  if dodo then begin
+    display  := true ;
+    Dest.open_maths dodo;
+  end else begin
+    Dest.open_maths dodo;
+    top_open_display () ;
+  end
+
+and top_close_maths dodo =
+  in_math := pop stack_in_math ;
+  if dodo then begin
+    Dest.close_maths dodo
+  end else begin
+    top_close_display () ;
+    Dest.close_maths dodo
+  end ;
+  display := pop stack_display ;
+  if !display then begin
+    Dest.item_display ()
+  end
+;;
+
 } 
 
 let command_name =
   '\\' (( ['@''A'-'Z' 'a'-'z']+ '*'?) | [^ 'A'-'Z' 'a'-'z'] | "\\*")
 
-rule  main = parse
+    rule  main = parse
 (* comments *)
- | '%'
-   {do_expand_command main skip_blanks "\\@hevea@percent" lexbuf ;
-   main lexbuf}
+| '%'
+    {do_expand_command main skip_blanks "\\@hevea@percent" lexbuf ;
+      main lexbuf}
 
 (* Paragraphs *)
-  | '\n'
-      {do_expand_command main skip_blanks "\\@hevea@newline" lexbuf ;
+| '\n'
+    {do_expand_command main skip_blanks "\\@hevea@newline" lexbuf ;
       main lexbuf}
 (* subscripts and superscripts *)
-  | '_'
-      {do_expand_command main skip_blanks "\\@hevea@underscore" lexbuf ;
+| '_'
+    {do_expand_command main skip_blanks "\\@hevea@underscore" lexbuf ;
       main lexbuf}
-  | '^'
-      {do_expand_command main skip_blanks "\\@hevea@circ" lexbuf ;
+| '^'
+    {do_expand_command main skip_blanks "\\@hevea@circ" lexbuf ;
       main lexbuf}
 (* Math mode *)
-| "$" | "$$"
-     {let lxm = lexeme lexbuf in
-     (* '$' has nothing special *)
-     let dodo = lxm <> "$" in
-     if effective !alltt || not (is_plain '$') then begin
-       Dest.put lxm ; main lexbuf
+| "$" | "$$" as lxm
+    {let dodo = lxm <> "$" in
+    if effective !alltt || not (is_plain '$') then begin
+      Dest.put lxm
      (* vicious case '$x$$y$' *)
-     end else if dodo && not !display && !in_math then begin
-       scan_this main "${}$" ;
-       main lexbuf
-     end else begin (* General case *)
-       let math_env = if dodo then "*display" else "*math" in
-       if !in_math then begin
-         in_math := pop stack_in_math ;
-         if dodo then begin
-	   Dest.close_maths dodo
-         end else begin
-           top_close_display () ;
-	   Dest.close_maths dodo
-         end ;
-         display := pop stack_display ;
-         if !display then begin
-           Dest.item_display ()
-         end ;
-         close_env math_env ;
-         main lexbuf
-       end else begin
-         push stack_in_math !in_math ;
-         in_math := true ;
-         let lexfun lb =
-           if !display then  Dest.item_display () ;
-           push stack_display !display ;
-           if dodo then begin
-             display  := true ;
-	     Dest.open_maths dodo;
-           end else begin
-	     Dest.open_maths dodo;
-             top_open_display () ;
-           end;
-           ignore (skip_blanks lb) ; main lb in
-         new_env math_env ;
-         lexfun lexbuf
-       end end}
+    end else if dodo && not !display && !in_math then begin
+      scan_this main "${}$"
+    end else begin (* General case *)
+      let math_env = if dodo then "*display" else "*math" in
+      if !in_math then begin
+	top_close_maths dodo ;
+        close_env math_env
+      end else begin
+        new_env math_env ;
+	top_open_maths dodo ;
+	if dodo then ignore (skip_blanks lexbuf)
+      end
+    end ;
+    main lexbuf }
 
 (* Definitions of  simple macros *)
 (* inside tables and array *)
-  | [' ''\n']* '&'
+| [' ''\n']* '&'
     {do_expand_command main skip_blanks "\\@hevea@amper" lexbuf ;
-    main lexbuf}
+      main lexbuf}
 (* Substitution  *)
-  | '#' ['1'-'9']
-      {let lxm = lexeme lexbuf in
-      begin if effective !alltt || not (is_plain '#') then
-        Dest.put lxm
-      else
-        let i = Char.code lxm.[1] - Char.code '1' in
-        scan_arg
-          (if !alltt_loaded then
-            (fun arg ->
-              let old_alltt = !alltt in
-              alltt := Stack.pop stack_alltt ;
-              scan_this_may_cont main lexbuf (get_subst ()) arg ;
-              alltt := old_alltt ;
-              Stack.push stack_alltt old_alltt)
-          else
-            (fun arg -> scan_this_may_cont main lexbuf (get_subst ()) arg))
-          i
-      end ;
-      main lexbuf}
+| '#' ['1'-'9']
+    {let lxm = lexeme lexbuf in
+    begin if effective !alltt || not (is_plain '#') then
+      Dest.put lxm
+    else
+      let i = Char.code lxm.[1] - Char.code '1' in
+      scan_arg
+        (if !alltt_loaded then
+          (fun arg ->
+            let old_alltt = !alltt in
+            alltt := Stack.pop stack_alltt ;
+            scan_this_may_cont main lexbuf (get_subst ()) arg ;
+            alltt := old_alltt ;
+            Stack.push stack_alltt old_alltt)
+        else
+          (fun arg -> scan_this_may_cont main lexbuf (get_subst ()) arg))
+        i
+    end ;
+    main lexbuf}
 (* Commands *)
-  | command_name
-      {let name = lexeme lexbuf in
-      do_expand_command main skip_blanks name lexbuf ;
-      main lexbuf}
+| command_name
+    {let name = lexeme lexbuf in
+    do_expand_command main skip_blanks name lexbuf ;
+    main lexbuf}
 (* Groups *)
 | '{'
     {do_expand_command main skip_blanks "\\@hevea@obrace" lexbuf ;
-    main lexbuf} 
+      main lexbuf} 
 | '}' 
     {do_expand_command main skip_blanks "\\@hevea@cbrace" lexbuf ;
-    main lexbuf} 
+      main lexbuf} 
 | eof {()}
 | ' '+ as lxm
-   {if effective !alltt then
-     Dest.put lxm
-   else begin
-     if !display then
-       for _i = 1 to String.length lxm do
-	 Dest.put_nbsp ()
-       done
-     else
-       Dest.put_char ' '
-   end ;
-   main lexbuf}
+    {if effective !alltt then
+      Dest.put lxm
+    else begin
+      if !display then
+	for _i = 1 to String.length lxm do
+	  Dest.put_nbsp ()
+	done
+      else
+	Dest.put_char ' '
+    end ;
+      main lexbuf}
 (* Alphabetic characters *)
 | ['a'-'z' 'A'-'Z']+ as lxm
-   {let lxm = check_case lxm in
-   if !in_math then begin
+    {let lxm = check_case lxm in
+    if !in_math then begin
       Dest.put_in_math lxm;
     end else
       Dest.put lxm ;
@@ -1062,36 +1066,36 @@ rule  main = parse
     main lexbuf}
 (* Active characters *)
 | '-'
-  {do_expand_command main skip_blanks "\\@hevea@minus" lexbuf ;
-  main lexbuf }
+    {do_expand_command main skip_blanks "\\@hevea@minus" lexbuf ;
+      main lexbuf }
 | '`'
-  {do_expand_command main skip_blanks "\\@hevea@backquote" lexbuf ;
-  main lexbuf } 
+    {do_expand_command main skip_blanks "\\@hevea@backquote" lexbuf ;
+      main lexbuf } 
 | '''
-  {do_expand_command main skip_blanks "\\@hevea@quote" lexbuf ;
-  main lexbuf } 
+    {do_expand_command main skip_blanks "\\@hevea@quote" lexbuf ;
+      main lexbuf } 
 | '~'
-  {do_expand_command main skip_blanks "\\@hevea@tilde" lexbuf ;
-  main lexbuf }
+    {do_expand_command main skip_blanks "\\@hevea@tilde" lexbuf ;
+      main lexbuf }
 (* Spanish stuff *)
 | '?'
-  {do_expand_command main skip_blanks "\\@hevea@question" lexbuf ;
-  main lexbuf}
+    {do_expand_command main skip_blanks "\\@hevea@question" lexbuf ;
+      main lexbuf}
 | '!'
-  {do_expand_command main skip_blanks "\\@hevea@excl" lexbuf ;
-  main lexbuf}
+    {do_expand_command main skip_blanks "\\@hevea@excl" lexbuf ;
+      main lexbuf}
 (* German stuff *)
 | '"'
-  {if is_plain '"' then 
-    Dest.put_char '"'
-  else
-    do_expand_command main skip_blanks "\\@hevea@dquote" lexbuf ;
-  main lexbuf}
+    {if is_plain '"' then 
+      Dest.put_char '"'
+    else
+      do_expand_command main skip_blanks "\\@hevea@dquote" lexbuf ;
+      main lexbuf}
 (* One character *)
 | _  as lxm
-   {let lxm = check_case_char lxm in
-   translate_put_unicode lxm ;
-   main lexbuf}
+    {let lxm = check_case_char lxm in
+    translate_put_unicode lxm ;
+    main lexbuf}
 
 and complete_newline = parse
 |  [' ''\n']* {lexeme lexbuf}
@@ -1105,29 +1109,29 @@ and latex2html_latexonly = parse
     {fatal "End of file in latex2html_latexonly"}
 
 and latexonly = parse
-   '%'+ ' '* ("END"|"end") ' '+ ("LATEX"|"latex")  [^'\n']* '\n'
-     {stop_other_scan true main lexbuf}
+    '%'+ ' '* ("END"|"end") ' '+ ("LATEX"|"latex")  [^'\n']* '\n'
+    {stop_other_scan true main lexbuf}
 |  '%'+ ' '* ("HEVEA"|"hevea") ' '*
-     {latexonly lexbuf}
+    {latexonly lexbuf}
 |  '%'
-     {latex_comment lexbuf ; latexonly lexbuf}
+    {latex_comment lexbuf ; latexonly lexbuf}
 |  "\\end"
-     {let {arg=arg} = save_arg lexbuf in
-     if arg = "latexonly" then begin
-       top_close_block "" ;
-       stop_other_scan false main lexbuf
-     end else if arg = top stack_entry then begin
-       let _ = pop stack_entry in
-       push stack_out arg ;
-       begin match Latexmacros.find (end_env arg) with
-         _,(Subst body) ->
-           scan_this_may_cont latexonly lexbuf (get_subst ())
-             (string_to_arg body)
-       |  _,_ ->
-           raise (Misc.ScanError ("Bad closing macro in latexonly: '"^arg^"'"))
-       end
-     end else
-       latexonly lexbuf}
+    {let {arg=arg} = save_arg lexbuf in
+    if arg = "latexonly" then begin
+      top_close_block "" ;
+      stop_other_scan false main lexbuf
+    end else if arg = top stack_entry then begin
+      let _ = pop stack_entry in
+      push stack_out arg ;
+      begin match Latexmacros.find (end_env arg) with
+        _,(Subst body) ->
+          scan_this_may_cont latexonly lexbuf (get_subst ())
+            (string_to_arg body)
+      |  _,_ ->
+          raise (Misc.ScanError ("Bad closing macro in latexonly: '"^arg^"'"))
+      end
+    end else
+      latexonly lexbuf}
 | command_name  | _ {latexonly lexbuf}
 | eof
     {if empty stack_lexbuf then ()
@@ -1137,229 +1141,229 @@ and latexonly = parse
     end}
 
 and latex_comment = parse
-  '\n' | eof  {()}
-| [^'\n']+    {latex_comment lexbuf}
+    '\n' | eof  {()}
+  | [^'\n']+    {latex_comment lexbuf}
 
 and copy kont env out = parse
-|  '%'
-     {Out.put_char out '%' ;
-      copy_comment out lexbuf ;
-      copy kont env out lexbuf }
-|  "\\end"
-     {Save.start_echo() ;
-      let {arg=arg} = save_arg lexbuf in
-      let true_arg = Save.get_echo () in
-      if arg = env then begin
-        top_close_block "" ;
-        stop_other_scan false kont lexbuf
-      end else if arg = top stack_entry then begin
-        let _ = pop stack_entry in
-        push stack_out arg ;
-        begin match Latexmacros.find (end_env arg) with
-          _,(Subst body) ->
-            scan_this_may_cont (copy kont env out) lexbuf (get_subst ())
-              (string_to_arg body)
-        |  _,_ ->
-            raise (Misc.ScanError ("Bad closing macro in copy: '"^arg^"'"))
-        end
-      end else begin
-        Out.put out ("\\end"^true_arg) ;
-        copy kont env out lexbuf
+  |  '%'
+      {Out.put_char out '%' ;
+	copy_comment out lexbuf ;
+	copy kont env out lexbuf }
+  |  "\\end"
+      {Save.start_echo() ;
+	let {arg=arg} = save_arg lexbuf in
+	let true_arg = Save.get_echo () in
+	if arg = env then begin
+          top_close_block "" ;
+          stop_other_scan false kont lexbuf
+	end else if arg = top stack_entry then begin
+          let _ = pop stack_entry in
+          push stack_out arg ;
+          begin match Latexmacros.find (end_env arg) with
+            _,(Subst body) ->
+              scan_this_may_cont (copy kont env out) lexbuf (get_subst ())
+		(string_to_arg body)
+          |  _,_ ->
+              raise (Misc.ScanError ("Bad closing macro in copy: '"^arg^"'"))
+          end
+	end else begin
+          Out.put out ("\\end"^true_arg) ;
+          copy kont env out lexbuf
+	end}
+  | command_name  | _
+      {Out.blit out lexbuf ; copy kont env out lexbuf}
+  | eof
+      {if empty stack_lexbuf then ()
+      else begin
+	let lexbuf = previous_lexbuf () in
+	copy kont env out lexbuf
       end}
-| command_name  | _
-    {Out.blit out lexbuf ; copy kont env out lexbuf}
-| eof
-    {if empty stack_lexbuf then ()
-    else begin
-      let lexbuf = previous_lexbuf () in
-      copy kont env out lexbuf
-    end}
 
 
 and copy_comment out = parse
-| [^'\n']* ('\n'|eof) {Out.blit out lexbuf}
+  | [^'\n']* ('\n'|eof) {Out.blit out lexbuf}
 
 
 and image = parse
-   '%'+ ' '* ("END"|"end") ' '+ ("IMAGE"|"image")  [^'\n']* '\n'
-     {stop_other_scan true main lexbuf}
-|  '%'+ ' '* ("HEVEA"|"hevea") ' '*
-     {image lexbuf}
-|  '%'
-     {let lxm = lexeme lexbuf in
-     Image.put lxm ;
-     image_comment lexbuf ;
-     image lexbuf}
+    '%'+ ' '* ("END"|"end") ' '+ ("IMAGE"|"image")  [^'\n']* '\n'
+    {stop_other_scan true main lexbuf}
+  |  '%'+ ' '* ("HEVEA"|"hevea") ' '*
+      {image lexbuf}
+  |  '%'
+      {let lxm = lexeme lexbuf in
+      Image.put lxm ;
+      image_comment lexbuf ;
+      image lexbuf}
 (* Substitution in image *)
-| '#' ['1'-'9']
-    {let lxm = lexeme lexbuf in
-    let i = Char.code (lxm.[1]) - Char.code '1' in
-    scan_arg (scan_this_arg image) i ;
-    image lexbuf}
-|  "\\end"
-     {let lxm = lexeme lexbuf in
-     Save.start_echo () ;
-     let {arg=arg} = save_arg lexbuf in
-     let true_arg = Save.get_echo () in
-     if arg = "toimage" then begin
-       top_close_block "" ;
-       stop_other_scan false main lexbuf
-     end else if arg = top stack_entry then begin
-       let _ = pop stack_entry in
-       push stack_out arg ;
-       begin match Latexmacros.find (end_env arg) with
-         _,(Subst body) ->
-           scan_this_may_cont  image lexbuf (get_subst ())
-             (string_to_arg body)
-       |  _,_ -> raise (Misc.ScanError ("Bad closing macro in image: '"^arg^"'"))
-       end
-     end else begin
-       Image.put lxm ; Image.put true_arg ;
-       image lexbuf
-     end}
-|  command_name
-    {let lxm = lexeme lexbuf in
-    begin match lxm with
+  | '#' ['1'-'9']
+      {let lxm = lexeme lexbuf in
+      let i = Char.code (lxm.[1]) - Char.code '1' in
+      scan_arg (scan_this_arg image) i ;
+      image lexbuf}
+  |  "\\end"
+      {let lxm = lexeme lexbuf in
+      Save.start_echo () ;
+      let {arg=arg} = save_arg lexbuf in
+      let true_arg = Save.get_echo () in
+      if arg = "toimage" then begin
+	top_close_block "" ;
+	stop_other_scan false main lexbuf
+      end else if arg = top stack_entry then begin
+	let _ = pop stack_entry in
+	push stack_out arg ;
+	begin match Latexmacros.find (end_env arg) with
+          _,(Subst body) ->
+            scan_this_may_cont  image lexbuf (get_subst ())
+              (string_to_arg body)
+	|  _,_ -> raise (Misc.ScanError ("Bad closing macro in image: '"^arg^"'"))
+	end
+      end else begin
+	Image.put lxm ; Image.put true_arg ;
+	image lexbuf
+      end}
+  |  command_name
+      {let lxm = lexeme lexbuf in
+      begin match lxm with
 (* Definitions of  simple macros, bodies are not substituted *)
-    | "\\def" | "\\gdef" ->
-        Save.start_echo () ;
-        skip_csname lexbuf ;
-        ignore (skip_blanks lexbuf) ;
-        let _ = Save.defargs lexbuf in
-        Image.put lxm ;
-        if (Lexstate.top_level()) then begin
+      | "\\def" | "\\gdef" ->
+          Save.start_echo () ;
+          skip_csname lexbuf ;
+          ignore (skip_blanks lexbuf) ;
+          let _ = Save.defargs lexbuf in
+          Image.put lxm ;
+          if (Lexstate.top_level()) then begin
+            let _ = save_arg lexbuf in
+            ()
+          end ;
+          let saved = Save.get_echo () in
+          Image.put saved
+      | "\\renewcommand" | "\\newcommand" | "\\providecommand"
+      | "\\renewcommand*" | "\\newcommand*" | "\\providecommand*" ->
+          Save.start_echo () ;
           let _ = save_arg lexbuf in
-          ()
-        end ;
-        let saved = Save.get_echo () in
-        Image.put saved
-    | "\\renewcommand" | "\\newcommand" | "\\providecommand"
-    | "\\renewcommand*" | "\\newcommand*" | "\\providecommand*" ->
-        Save.start_echo () ;
-        let _ = save_arg lexbuf in
-        let _ = save_opts ["0" ; ""] lexbuf in
-        let _ = save_arg lexbuf in
-        Image.put lxm ;
-        let saved = Save.get_echo () in
-        Image.put saved
-    | "\\newenvironment" | "\\renewenvironment"
-    | "\\newenvironment*" | "\\renewenvironment*" ->
-        Save.start_echo () ;
-        let _ = save_arg lexbuf in
-        let _ = save_opts ["0" ; ""] lexbuf in
-        let _ = save_arg lexbuf in
-        let _ = save_arg lexbuf in
-        Image.put lxm ;
-        Image.put (Save.get_echo ())
-    | _ -> Image.put lxm end ;
-    image lexbuf}
-| _
-     {let s = lexeme lexbuf in
-     Image.put s ;
-     image lexbuf}
-| eof
-    {if empty stack_lexbuf then begin
-      if not filter && top_lexstate () then
-        raise (Misc.ScanError ("No \\end{document} found"))
-    end else begin
-      let lexbuf = previous_lexbuf () in
-      image lexbuf
-    end}
+          let _ = save_opts ["0" ; ""] lexbuf in
+          let _ = save_arg lexbuf in
+          Image.put lxm ;
+          let saved = Save.get_echo () in
+          Image.put saved
+      | "\\newenvironment" | "\\renewenvironment"
+      | "\\newenvironment*" | "\\renewenvironment*" ->
+          Save.start_echo () ;
+          let _ = save_arg lexbuf in
+          let _ = save_opts ["0" ; ""] lexbuf in
+          let _ = save_arg lexbuf in
+          let _ = save_arg lexbuf in
+          Image.put lxm ;
+          Image.put (Save.get_echo ())
+      | _ -> Image.put lxm end ;
+      image lexbuf}
+  | _
+      {let s = lexeme lexbuf in
+      Image.put s ;
+      image lexbuf}
+  | eof
+      {if empty stack_lexbuf then begin
+	if not filter && top_lexstate () then
+          raise (Misc.ScanError ("No \\end{document} found"))
+      end else begin
+	let lexbuf = previous_lexbuf () in
+	image lexbuf
+      end}
 
 
 and image_comment = parse
-  '\n' {Image.put_char '\n'}
-| eof  {()}
-| [^'\n']+
-    {let lxm = lexeme lexbuf in
-    Image.put lxm ;
-    image_comment lexbuf}
+    '\n' {Image.put_char '\n'}
+  | eof  {()}
+  | [^'\n']+
+      {let lxm = lexeme lexbuf in
+      Image.put lxm ;
+      image_comment lexbuf}
 
 and mbox_arg = parse
-| ' '+ | '\n' {mbox_arg lexbuf}
-| eof
-     {if not (empty stack_lexbuf) then begin
-     let lexbuf = previous_lexbuf () in
-     if !verbose > 2 then begin
-       prerr_endline "Poping lexbuf in mbox_arg" ;
-       pretty_lexbuf lexbuf
-     end ;
-     mbox_arg lexbuf
-   end else raise (Misc.ScanError "End of file in \\mbox argument")}
-| '{' | ("\\bgroup" ' '* '\n'? ' '*)
-    {start_mbox ()}
-| ""
-    {raise (Misc.ScanError "Cannot find a \\mbox argument here, use braces")}
+  | ' '+ | '\n' {mbox_arg lexbuf}
+  | eof
+      {if not (empty stack_lexbuf) then begin
+	let lexbuf = previous_lexbuf () in
+	if !verbose > 2 then begin
+	  prerr_endline "Poping lexbuf in mbox_arg" ;
+	  pretty_lexbuf lexbuf
+	end ;
+	mbox_arg lexbuf
+      end else raise (Misc.ScanError "End of file in \\mbox argument")}
+  | '{' | ("\\bgroup" ' '* '\n'? ' '*)
+      {start_mbox ()}
+  | ""
+      {raise (Misc.ScanError "Cannot find a \\mbox argument here, use braces")}
 
 and no_skip = parse
-| "" { false }
+  | "" { false }
 
 and skip_blanks_pop = parse
-  ' '+ {skip_blanks_pop lexbuf}
-| '\n' {()}
-| ""   {()}
-| eof
-   {if not (empty stack_lexbuf) then begin
-     let lexbuf = previous_lexbuf () in
-     if !verbose > 2 then begin
-       prerr_endline "Poping lexbuf in skip_blanks" ;
-       pretty_lexbuf lexbuf
-     end ;
-     skip_blanks_pop lexbuf
-   end else ()}
+    ' '+ {skip_blanks_pop lexbuf}
+  | '\n' {()}
+  | ""   {()}
+  | eof
+      {if not (empty stack_lexbuf) then begin
+	let lexbuf = previous_lexbuf () in
+	if !verbose > 2 then begin
+	  prerr_endline "Poping lexbuf in skip_blanks" ;
+	  pretty_lexbuf lexbuf
+	end ;
+	skip_blanks_pop lexbuf
+      end else ()}
 
 and to_newline = parse
-|  '\n' {()}
-| _     {Out.put_char more_buff (Lexing.lexeme_char lexbuf 0) ;
-        to_newline lexbuf}
-| eof
-   {if not (empty stack_lexbuf) then
-     let lexbuf = previous_lexbuf () in
-     to_newline lexbuf}
+  |  '\n' {()}
+  | _     {Out.put_char more_buff (Lexing.lexeme_char lexbuf 0) ;
+            to_newline lexbuf}
+  | eof
+      {if not (empty stack_lexbuf) then
+	let lexbuf = previous_lexbuf () in
+	to_newline lexbuf}
 
 and skip_blanks = parse
-  ' '+ {skip_blanks lexbuf}
-| '\n' {more_skip lexbuf}
-| ""   { false }
+    ' '+ {skip_blanks lexbuf}
+  | '\n' {more_skip lexbuf}
+  | ""   { false }
 
 and more_skip = parse
-| ' '+ { false }
-| (' '* '\n')+ ' '* { true }
-| "" { false }
+  | ' '+ { false }
+  | (' '* '\n')+ ' '* { true }
+  | "" { false }
 
 and skip_spaces = parse
-  ' ' * {()}
-| eof   {()}
+    ' ' * {()}
+  | eof   {()}
 
 
 and skip_false = parse
-|  '%'
-     {if is_plain '%' then skip_comment lexbuf ;
-      skip_false lexbuf}
-|  "\\ifthenelse"
-     {skip_false lexbuf}
-|  "\\if" ['a'-'z' 'A'-'Z''@']+
-     {if_level := !if_level + 1 ;
-     skip_false lexbuf}
-| "\\else" ['a'-'z' 'A'-'Z''@']+
-     {skip_false lexbuf}
-| "\\else"
-     {if !if_level = 0 then begin
-       if skip_blanks lexbuf then
-	 do_expand_command main no_skip "\\par" lexbuf
-     end else skip_false lexbuf}
-| "\\fi" ['a'-'z' 'A'-'Z']+
-     {skip_false lexbuf}
-| "\\fi"
-     {if !if_level = 0 then begin
+  |  '%'
+      {if is_plain '%' then skip_comment lexbuf ;
+	skip_false lexbuf}
+  |  "\\ifthenelse"
+      {skip_false lexbuf}
+  |  "\\if" ['a'-'z' 'A'-'Z''@']+
+      {if_level := !if_level + 1 ;
+	skip_false lexbuf}
+  | "\\else" ['a'-'z' 'A'-'Z''@']+
+      {skip_false lexbuf}
+  | "\\else"
+      {if !if_level = 0 then begin
+	if skip_blanks lexbuf then
+	  do_expand_command main no_skip "\\par" lexbuf
+      end else skip_false lexbuf}
+  | "\\fi" ['a'-'z' 'A'-'Z']+
+      {skip_false lexbuf}
+  | "\\fi"
+      {if !if_level = 0 then begin
         if skip_blanks lexbuf then
 	  do_expand_command main no_skip "\\par" lexbuf
-     end else begin
-       if_level := !if_level -1 ;
-       skip_false lexbuf
-     end}
-| _  {skip_false lexbuf}
-| "" {raise (Error "End of entry while skipping TeX conditional macro")}
+      end else begin
+	if_level := !if_level -1 ;
+	skip_false lexbuf
+      end}
+  | _  {skip_false lexbuf}
+  | "" {raise (Error "End of entry while skipping TeX conditional macro")}
 
 and comment = parse
 |  ['%'' ']* ("BEGIN"|"begin") ' '+ ("IMAGE"|"image")
@@ -1388,8 +1392,10 @@ and skip_to_end_latex = parse
     {skip_to_end_latex lexbuf}
 | eof {fatal ("End of file in %BEGIN LATEX ... %END LATEX")}
 {
-let _ = ()
+
+let () = ()
 ;;
+
 (* A few subst definitions, with 2 optional arguments *)
 
 def "\\makebox" (latex_pat ["" ; ""] 3)
@@ -1417,8 +1423,16 @@ let expand_command name lexbuf = do_expand_command main skip_blanks name lexbuf
 and expand_command_no_skip name lexbuf = do_expand_command main no_skip name lexbuf
 ;;
 
+(* Direct display math, no env opened *)
+def_code "\\displaymath"
+  (fun lexbuf -> top_open_maths true ; skip_pop lexbuf) ;
+def_code "\\enddisplaymath"
+  (fun _lexbuf -> top_close_maths true) ;
+()
+;;
 
-
+def_code "\\@skip@blanks" (fun lexbuf -> skip_pop lexbuf)
+;;
 
 def_code "\\@hevea@percent"
     (fun lexbuf ->

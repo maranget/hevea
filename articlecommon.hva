@@ -27,7 +27,6 @@
 \flushdef{document}
 \newcommand{\partname}{Part}
 \newcommand{\appendixname}{Appendix}
-
 %%%%%%%%%%% Initial cutting
 \newcommand{\cuttingunit}{section}
 %%%%%%%%%%%%%%%%
