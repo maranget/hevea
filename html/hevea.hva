@@ -526,7 +526,7 @@
 %%Style of display
 \def\@dtstyle{border-collapse:separate;border-spacing:\@barsz;width:auto;}
 \def\@dcstyle{white-space:nowrap;padding:0px;width:auto;}
-\newstyle{.vdisplay}{\@dtstyle{} border:2px solid red;}
+\newstyle{.vdisplay}{\@dtstyle{} empty-cells:show; border:2px solid red;}
 \newstyle{.vdcell}{\@dcstyle{} border:2px solid green;}
 \newstyle{.display}{\@dtstyle{} border:none;}
 \newstyle{.dcell}{\@dcstyle{} border:none;}

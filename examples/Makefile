@@ -20,19 +20,20 @@ byte:
 
 dvi: $(DVI)
 
-test: test.html di.html mp.html cart-index.html cbook-index.html
+SUITE=suite.html test.html di.html mp.html
+test: $(SUITE) cart-index.html cbook-index.html
 TDIR=$(HOME)/public_html/vrac/test
 
 install-test:
 	-mkdir -p $(TDIR)
-	cp test.html $(TDIR)/index.html
-	cp di.html mp.html $(TDIR)
+	cp $(SUITE) $(TDIR)
+	mv $(TDIR)/test.html $(TDIR)/index.html
 	cp *_motif.gif $(TDIR)
 	cp cart-index.html cart.css cart[0-9][0-9][0-9].html  $(TDIR)
 	cp cbook-index.html cbook.css cbook[0-9][0-9][0-9].html  $(TDIR)
 
 clean-test::
-	/bin/rm -f test.html mp.html di.html cart.html cbook.html
+	/bin/rm -f $(SUITE) cart.html cbook.html
 
 cart-index.html: cart.html
 	$(HACHA) -o cart-index.html cart.html

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: html.ml,v 1.106 2006-10-05 19:37:03 maranget Exp $" 
+let header = "$Id: html.ml,v 1.107 2006-10-10 11:02:04 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -169,7 +169,7 @@ let close_chan () =
 let to_style f =
   let old_flags = copy_flags flags in
   open_block INTERN "" ;
-  clearstyle () ;
+(*  clearstyle () ; *)
   f () ;
   let r = to_pending !cur_out.pending !cur_out.active in
   erase_block INTERN ;
@@ -438,6 +438,9 @@ and erase_block_with_par s =
 and force_block s content = wrap_close (fun s -> force_block s content) s
 and close_block s = wrap_close close_block s
 and erase_block s = wrap_close erase_block s
+and close_flow s =
+  prerr_endline ("FLOW: "^s) ;
+  wrap_close close_flow s
 
 let skip_line = skip_line
 and flush_out = flush_out

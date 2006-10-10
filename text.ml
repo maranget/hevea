@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.78 2006-09-07 15:06:15 maranget Exp $"
+let header = "$Id: text.ml,v 1.79 2006-10-10 11:02:04 maranget Exp $"
 
 
 open Misc
@@ -839,8 +839,11 @@ let close_block s =
     prerr_endline ("<= close_block ``"^bloc^"''");
 ;;
 
-(* Hum... *)
-let close_flow_block s = raise (Error ("close_flow in text mode"))
+(* Hum, wrong *)
+let close_flow s =
+  let active  = !cur_out.active in
+  close_block s ;
+  !cur_out.active <- active
 ;;
 
 

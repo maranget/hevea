@@ -1,5 +1,6 @@
 \documentclass{article}
 \usepackage{mathpartir}
+\usepackage[dvips]{color}
 \begin{document}
 \section*{Infererence rule}
 Check vertical alignment.
@@ -9,11 +10,21 @@ $$
 {C \and D}
 $$
 \section*{Mathpar}
+\subsection*{Command}
 Command defined inside \texttt{mathpar} environment.
 \begin{mathpar}
 \newcommand{\for}[2]{\left#1\begin{array}{cc}1&2\\3&4\end{array}\right#2}%
 \for\{\} \and \for() \and \for\vert.\\
-\for\vert\vert \and \for\lfloor\rfloor \and
+\for\vert\vert \and \for\lfloor\rfloor
 \end{mathpar}
+
+\subsection*{Font change (orange color)}
+First cell in \textbf{bold}.
+Three last cells in \textbf{bold \textcolor[named]{Orange}{orange}}.
+{\bfseries\begin{mathpar}
+F(0) = 1 \and \color[named]{Orange}F(1) = 1 \and F(2) = 2
+\\ F(n+2) = F(n+1) + F(n)
+\end{mathpar}}
+In black.
 
 \end{document}

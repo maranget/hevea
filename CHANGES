@@ -1,3 +1,5 @@
+     - primitives \push@styles,\pop@styles to save,restore styles
+       accross blocks (mathpartir)
 version 1.08+22
      - make byte-test in examples -> specific tests
      - footnote to extra file, change behavior document.

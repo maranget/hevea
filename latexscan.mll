@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.296 2006-10-09 08:25:16 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.297 2006-10-10 11:02:04 maranget Exp $ *)
 
 
 {
@@ -321,6 +321,7 @@ let top_close_block block = top_close_block_aux Dest.close_block block
 and top_erase_block block = top_close_block_aux Dest.erase_block block
 and top_force_block block =
   top_close_block_aux (fun name -> Dest.force_block name "") block
+and top_close_flow block = top_close_block_aux Dest.close_flow block
 
 let top_open_group () = top_open_block "" "" ; new_env ""
 
@@ -2197,8 +2198,15 @@ def_code "\\@insert"
 def_code "\\@close"
   (fun lexbuf ->
     let tag = get_prim_arg  lexbuf in
-(*    Printf.eprintf "\\@close{%s}\n" tag ; *)
-    top_close_block tag)
+    top_close_block tag) ;
+def_code "\\@force"
+  (fun lexbuf ->
+    let tag = get_prim_arg  lexbuf in
+    top_force_block tag) ;
+def_code "\\@flow"
+  (fun lexbuf ->
+    let tag = get_prim_arg  lexbuf in
+    top_close_flow tag) ;
 ;;
 
 (* Paragraphs, used for closing/re-opening P elts explictely *)
@@ -2220,12 +2228,6 @@ def_code "\\@out@par"
 ()
 ;;
 
-def_code "\\@force"
-  (fun lexbuf ->
-    let tag = get_prim_arg  lexbuf in
-(*    Printf.eprintf "\\@force{%s}\n" tag ; *)
-    top_force_block tag)
-;;
 
 def_code "\\@print"
   (fun lexbuf ->
@@ -2342,7 +2344,8 @@ def_code "\\@notags"
 def_code "\\@anti"
   (fun lexbuf ->
     let arg = save_arg lexbuf in
-    let envs = get_style main arg in
+    let envs =
+      get_style (fun _lex -> Dest.clearstyle () ; main _lex) arg in
     if !verbose > 2 then begin
       prerr_string ("Anti result: ") ;
       List.iter
@@ -2351,6 +2354,21 @@ def_code "\\@anti"
       prerr_endline ""
     end ;
     Dest.erase_mods envs)
+;;
+
+let styles_stack = Stack.create "styles"
+;;
+
+def_code "\\push@styles"
+  (fun _lexbuf ->
+    let envs = get_style main {arg = "" ; subst=top_subst} in
+    Stack.push styles_stack envs) ;
+
+def_code "\\pop@styles"
+   (fun _lexbuf ->
+     let envs = Stack.pop styles_stack in
+     Dest.clearstyle () ;
+     List.iter Dest.open_mod (List.rev envs))
 ;;
 
 def_code "\\@style"  
