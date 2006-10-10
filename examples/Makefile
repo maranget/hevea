@@ -46,9 +46,10 @@ clean-test::
 
 clean:: clean-test
 
+TOPTS=winfonts.hva
 byte-test:
 	export HEVEADIR=.. ;\
-	$(MAKE) $(MFLAGS)  HEVEAOPTS="$(HEVEAOPTS)" HEVEA=../hevea.byte HACHA=../hacha.byte test
+	$(MAKE) $(MFLAGS)  HEVEAOPTS="$(TOPTS) $(HEVEAOPTS)" HEVEA=../hevea.byte HACHA=../hacha.byte test
 
 
 
