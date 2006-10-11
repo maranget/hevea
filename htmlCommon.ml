@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlCommon.ml,v 1.59 2006-10-09 08:25:16 maranget Exp $" 
+let header = "$Id: htmlCommon.ml,v 1.60 2006-10-11 16:28:17 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -1196,7 +1196,7 @@ end
 
 let rec do_try_close_block s =
   if !verbose > 2 then
-    prerr_flags ("=> try close ``"^string_of_block s^"''") ;
+    prerr_flags ("=> try close '"^string_of_block s^"'") ;
   begin match s with
   | DISPLAY _ ->
       do_try_close_block TR ;
@@ -1238,7 +1238,7 @@ let rec do_try_close_block s =
       end
   end ;
   if !verbose > 2 then
-    prerr_flags ("<= try close ``"^string_of_block s^"''")
+    prerr_flags ("<= try close '"^string_of_block s^"'")
 
 let try_close_block s =
   begin match flags.insert_attr with
@@ -1456,7 +1456,7 @@ let rec force_block s content =
   
 and close_block_loc pred s =
   if !verbose > 2 then
-    prerr_string ("close_block_loc: ``"^string_of_block s^"'' = ");
+    prerr_string ("close_block_loc: '"^string_of_block s^"' = ");
   if not (pred ()) then begin
     if !verbose > 2 then prerr_endline "do it" ;
     force_block s "";
@@ -1469,7 +1469,7 @@ and close_block_loc pred s =
 
 and open_block s args =
   if !verbose > 2 then begin
-    prerr_endline ("=> open_block ``"^string_of_block s^"''"^" arg="^args);
+    prerr_endline ("=> open_block '"^string_of_block s^"'"^" arg="^args);
     pretty_cur !cur_out ;
   end ;
 
@@ -1486,7 +1486,7 @@ and open_block s args =
   try_open_block s args ;
 
   if !verbose > 2 then begin
-    prerr_endline ("<= open_block ``"^string_of_block s^"''");
+    prerr_endline ("<= open_block '"^string_of_block s^"'");
     pretty_cur !cur_out ;
   end
 
@@ -1508,10 +1508,10 @@ and close_flow_loc check_empty s =
 let close_flow s =
   assert (s <> GROUP) ;
   if !verbose > 2 then
-    prerr_flags ("=> close_flow ``"^string_of_block s^"''");
+    prerr_flags ("=> close_flow '"^string_of_block s^"'");
   let _ = close_flow_loc check_empty s in
   if !verbose > 2 then
-    prerr_flags ("<= close_flow ``"^string_of_block s^"''")
+    prerr_flags ("<= close_flow '"^string_of_block s^"'")
 
 let insert_block tag arg =
   begin match !cur_out.top with
@@ -1635,7 +1635,7 @@ let put_length which  = function
   | Char x -> put (which^string_of_int (Length.font * x))
   | Percent x  -> put (which^"\""^string_of_int x^"%\"")
   | Default    -> ()
-  | No s       -> raise (Misc.Fatal ("No-length ``"^s^"'' in outManager"))
+  | No s       -> raise (Misc.Fatal ("No-length '"^s^"' in outManager"))
 
 let horizontal_line attr width height =
   open_block GROUP "" ;

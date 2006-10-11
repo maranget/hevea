@@ -1,0 +1,139 @@
+\documentclass{article}
+\usepackage[latin1]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{color}
+\definecolor{blue}{cmyk}{1,1,0,0}
+\definecolor{red}{cmyk}{0,1,1,0}
+\definecolor{green}{cmyk}{1,0,1,0}
+\definecolor{green}{rgb}{0,0.8,0}
+\definecolor{lightgreen}{rgb}{0.6,1,0.6}
+\definecolor{gray}{rgb}{0.33, 0.33, 0.33}
+\definecolor{forestgreen}{rgb}{0.1,0.6,0.1}
+\definecolor{darkgreen}{rgb}{0,0.6,0}
+\definecolor{lightblue}{rgb}{0.5,0.5,1}
+\definecolor{purple}{rgb}{1,0,1}
+\definecolor{lightred}{rgb}{1,0.85,0.85}
+\definecolor{darkred}{rgb}{0.6,0,0}
+\definecolor{magenta}{cmyk}{0,1,0,0}
+\definecolor{yellow}{cmyk}{0,0,1,0}
+\definecolor{cyan}{cmyk}{1,0,0,0}
+\definecolor{brown}{rgb}{0.3,0.3,0.8}
+\definecolor{orange}{named}{Salmon}
+\definecolor{classcolor}{named}{Peach}
+\definecolor{libcolor}{named}{MidnightBlue}
+\definecolor{commentcolor}{named}{Melon}
+\definecolor{kwdcolor}{named}{Tan}
+\definecolor{stringcolor}{rgb}{0.1,0.6,0.1}
+\usepackage{listings}
+\lstset{language=caml}
+\def\bfcolor#1{\ttfamily\bfseries\color{#1}}
+\def\itcolor#1{\itshape\color{#1}}
+\newcommand{\kwd}{\bfcolor{kwdcolor}}
+\newcommand{\ndkwd}{\bfcolor{libcolor}}
+\newcommand{\emphstyle}{\bfcolor{classcolor}}
+\lstdefinestyle {javastyle}{
+   keywordstyle=\kwd,
+   ndkeywordstyle=\ndkwd,
+   commentstyle=\color{commentcolor}\scshape,
+   emphstyle=\emphstyle,
+   emphstyle={[3]\color{blue}},
+   stringstyle=\color{stringcolor}\itshape,
+   moredelim=[s][keywordstyle]{(*+}{+*)}
+}
+\lstset{style=javastyle}
+\lstset{morekeywords={[2]Random,Sys,Printf,Array}}
+\begin{document}
+\title{Recursive fair? suffle}
+\author{}
+\maketitle
+\begin{lstlisting}[escapechar=@,mathescape=true,numbers=left,stepnumber=5,numberstyle=\color{brown},frame=tb,rulecolor=\color{kwdcolor}]
+(*+@\label{start}@
+  Special comment!
+   Start at line @\ref{start}@.
+   End at line @\ref{over}@.
++*)
+
+(* Read arguments, $n$ is list len, « nexp » is number of experiments *)
+let n =
+  if Array.length Sys.argv > 1 then int_of_string Sys.argv.(1)
+  else 10
+
+let nexp =
+  if Array.length Sys.argv > 2 then int_of_string Sys.argv.(2)
+  else 100
+
+(* Generate list $[m\ldots{}n]$ *)
+let rec gen m n =
+  if m <= n then m::gen (m+1) n
+  else []
+
+(* Merge (uniformly) at random *)
+let rec merge r xs sx ys sy = match xs, ys with
+| [],[] -> r
+| x::rx, [] -> merge (x::r) rx (sx-1)  ys sy
+| [],y::ry -> merge (y::r) xs sx ry (sy-1)
+| x::rx, y::ry ->
+    if Random.int(sx+sy) < sx then
+      merge (x::r) rx (sx-1) ys sy
+    else
+      merge (y::r) xs sx ry (sy-1)
+
+(* Split a list into two lists of same size *)
+let rec do_split even se odd so = function
+  | [] -> (even,se), (odd,so)
+  | [x] -> (x::even,se+1), (odd,so)
+  | x::y::rem -> do_split (x::even) (se+1) (y::odd) (so+1) rem
+
+let split xs = do_split [] 0 [] 0 xs
+
+(* Actual suffle *)
+let rec shuffle xs = match xs with
+| []|[_] -> xs
+| _ ->
+    let (ys,sy), (zs,sz) = split xs in
+    merge [] (shuffle ys) sy (shuffle zs) sz
+
+
+
+(* Perform experiment *)
+let zyva n m =
+  let xs = gen 1 n in
+  let t = Array.make_matrix (n+1) (n+1) 0 in
+  for k = 1 to m do
+    let ys = shuffle xs in
+    let idx = ref 1 in
+    List.iter
+      (fun x -> t.(!idx).(x) <-  t.(!idx).(x) + 1 ; incr idx)
+      ys
+  done ;
+  let mm = float_of_int m in
+  for i = 1 to n do
+    let t = t.(i) in
+    for k=1 to n do
+      let f = float_of_int t.(k) *. 100.0 /. mm in
+      printf " %02.2f" f 
+    done ;
+    print_endline ""
+  done
+
+let _ = zyva n nexp ; exit 0
+
+(* @\label{over}@Start at line @\ref{start}@, end here. *)
+
+(***************)
+(* Print lists *)
+(***************)
+
+open Printf
+
+let rec do_plist = function
+  | [] -> printf "}"
+  | x::xs -> printf ", %i" x ; do_plist xs
+
+let plist = function
+  | [] -> printf "{}"
+  | x::xs -> printf "{%i" x ; do_plist xs
+
+let plistln xs = plist xs ; print_endline ""
+\end{lstlisting}
+\end{document}
