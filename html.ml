@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: html.ml,v 1.108 2006-10-11 16:42:39 maranget Exp $" 
+let header = "$Id: html.ml,v 1.109 2006-10-11 16:43:20 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -449,7 +449,7 @@ and open_aftergroup = open_aftergroup
 and open_group = open_group
 and insert_block s attr =
   if find_prev_par () then
-    warning "Ignore \\centering or \\ragged..."
+    warning "Ignoring \\centering or \\ragged..."
   else
     insert_block (find_block s) attr
 and insert_attr s = insert_attr (find_block s)

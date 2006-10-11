@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlCommon.ml,v 1.60 2006-10-11 16:28:17 maranget Exp $" 
+let header = "$Id: htmlCommon.ml,v 1.61 2006-10-11 16:42:39 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -1184,7 +1184,7 @@ let rec do_open_block insert s args = match s with
    do_open_block None TR args
 | _  -> begin match insert with
   | Some (tag,iargs) ->
-      if is_list s || s = TABLE then begin
+      if is_list s || s = TABLE || s = P then begin
         do_do_open_block tag iargs ;
         do_do_open_block s args
       end else begin
@@ -1267,7 +1267,7 @@ let rec do_close_block insert s = match s with
     do_close_block insert TABLE
 | s  -> begin match insert with
   | Some (tag,_) ->
-      if is_list s || s = TABLE then begin
+      if is_list s || s = TABLE || s = P then begin
         do_do_close_block s;
         do_do_close_block tag
       end else begin
