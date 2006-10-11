@@ -20,7 +20,7 @@ byte:
 
 dvi: $(DVI)
 
-SUITE=suite.html test.html di.html mp.html
+SUITE=suite.html test.html di.html mp.html acc.html
 test: $(SUITE) cart-index.html cbook-index.html
 TDIR=$(HOME)/public_html/vrac/test
 

@@ -1,0 +1,44 @@
+\documentclass{article}
+\usepackage[latin1]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amssymb}
+\usepackage{textcomp}
+\renewcommand{\text@accent}[3]{}
+\newcommand{\zyva}[1]
+{\texttt{\string#1} & #1{A}#1{a} & #1{E}#1{e} & #1{I}#1{\i} & #1{O}#1{o} &
+#1{U}#1{u} & #1{Y}#1{y} & #1{C}#1{c} & #1{}}
+
+\begin{document}
+
+\section*{Text accent}
+This table shows the accented letters that \hevea{} can generate.
+\begin{tabular}{c@{\quad}*{8}{c}}
+ & \textbf{Aa} &  \textbf{Ee} & \textbf{I\i} & \textbf{Oo} & \textbf{Uu}
+ & \textbf{Yy} & \textbf{Cc} & --- \\
+\hline
+\zyva{\"}\\
+\zyva{\'}\\
+\zyva{\.}\\
+\zyva{\=}\\
+\zyva{\^}\\
+\zyva{\`}\\
+\zyva{\~}\\
+\zyva{\b}\\
+\zyva{\c}\\
+\zyva{\k}\\
+\zyva{\r}\\
+\zyva{\u}\\
+\zyva{\v}\\
+\zyva{\H}\\
+\zyva{\textcircled}
+\hline
+\end{tabular}
+
+\section*{A few ``blackboard'' letters}
+$$
+\begin{array}{c}
+\mathbb{CNRZQ}
+\end{array}
+$$
+
+\end{document}

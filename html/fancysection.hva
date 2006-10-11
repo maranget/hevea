@@ -20,28 +20,28 @@
 \colorsections{120}%
 %% Define sectioning comands
 \AtBeginDocument
-{\newstyle{BODY}{background:white}%
+{\newstyle{BODY}{background:white;}%
 \iftrue
 \newstyle{.title}
-	{padding:1ex;background:\@getstylecolor{title}}%
+	{padding:1ex;background:\@getstylecolor{title};}%
 \newstyle{.titlemain}
-	{padding:1ex;background:\@getstylecolor{titlemain}}%
+	{padding:1ex;background:\@getstylecolor{titlemain};}%
 \newstyle{.titlerest}
-	{padding:1ex;background:\@getstylecolor{titlerest}}%
+	{padding:1ex;background:\@getstylecolor{titlerest};}%
 \else
 \newstyle{.title}
-	{padding:1ex;border:solid 1ex\@getstylecolor{title}}%
+	{padding:1ex;border:solid 1ex\@getstylecolor{title};}%
 \fi
 \newstyle{.part}
-	{padding:1ex;background:\@getstylecolor{part}}%
+	{padding:1ex;background:\@getstylecolor{part};}%
 \newstyle{.section}
-	{padding:.5ex;background:\@getstylecolor{section}}%
+	{padding:.5ex;background:\@getstylecolor{section};}%
 \newstyle{.subsection}
-	{padding:0.3ex;background:\@getstylecolor{subsection}}%
+	{padding:0.3ex;background:\@getstylecolor{subsection};}%
 \newstyle{.subsubsection}
-	{padding:0.5ex;background:\@getstylecolor{subsubsection}}%
+	{padding:0.5ex;background:\@getstylecolor{subsubsection};}%
 \ifthenelse{\equal{\@base}{book}}
-{\newstyle{.chapter}{padding:0.5ex;background:\@getstylecolor{chapter}}}
+{\newstyle{.chapter}{padding:0.5ex;background:\@getstylecolor{chapter};}}
 {}}
 \newstyle{.fmarginpar}
 {border:solid thin \@getstylecolor{subsection}; width:20\%; text-align:left;}

@@ -336,7 +336,7 @@
 \newenvironment{bf}{\@style{B}}{}
 \newenvironment{em}{\@style{EM}}{}
 \newenvironment{it}{\@style{I}}{}
-\newenvironment{rm}{\@anti{\sf,\tt}}{}
+\newenvironment{rm}{\@anti{\it,\bf,\em,\sf,\tt}}{}
 \newenvironment{tiny}{\@fontsize{1}}{}
 \newenvironment{footnotesize}{\@fontsize{2}}{}
 \newenvironment{scriptsize}{\@fontsize{2}}{}
@@ -368,10 +368,9 @@
 \else\red\fi\else\red\fi}
 \def\sf{\ifmath\ifmathml\@style{font-family: sans-serif }%
 \else\purple\fi\else\purple\fi}
-%\def\sc{\ifmath\ifmathml\@style{font-family: monospace }%
-%\else\navy\fi\else\navy\fi}
 \def\sl{\ifmath\ifmathml\@style{font-family: fantasy; font-style: italic }%
 \else\it\maroon\fi\else\it\maroon\fi}
+\def\sc{\@styleattr{SPAN}{STYLE="font-variant:small-caps"}}%
 %%%% LaTeX2e verbose declarations
 \newenvironment{mdseries}{\@anti{\bf}}{}
 \newenvironment{bfseries}{\bf}{}
@@ -399,7 +398,6 @@
 %  New implementation of \sc & \textsc using "small-caps" style. %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-\def\sc{\@styleattr{SPAN}{STYLE="font-variant:small-caps"}}%
 %
 %%%%%%%%%%%%%%% Multicolumns index formating
 \newcommand{\setindexpos}[2]
@@ -648,6 +646,7 @@
 %%%%%%%%Default env class for verbatim
 \setenvclass{verbatim}{verbatim}
 %%%%%% format theorems
+\newcommand{\set@th@font}[1]{\def\th@font{#1}}
 \let\th@font\em
 \newstyle{.theorem}{text-align:left;margin:1ex auto 1ex 0ex;}
 \newcommand{\set@th}[1]

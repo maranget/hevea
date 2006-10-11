@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.94 2006-10-06 16:01:25 maranget Exp $    *)
+(*  $Id: package.ml,v 1.95 2006-10-11 14:42:42 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -48,9 +48,8 @@ exception DiacriticFailed of string
 let do_def_diacritic verb name f empty = 
   (fun lexbuf ->
     Save.start_echo () ;
-    let arg = save_arg lexbuf in
-    let input = Save.get_echo () in
-    let arg = get_prim_onarg arg in
+    let arg0 = save_arg lexbuf in
+    let arg = get_prim_onarg arg0 in
     try match String.length arg with
     | 0 -> put_empty empty
     | 1 ->
@@ -60,8 +59,7 @@ let do_def_diacritic verb name f empty =
     | _ -> raise OutUnicode.CannotTranslate
     with
     | OutUnicode.CannotTranslate
-    | Misc.CannotPut ->
-	raise (DiacriticFailed input))
+    | Misc.CannotPut ->	raise (DiacriticFailed arg))
 
 let def_diacritic name internal f empty =
   def_code name
@@ -86,7 +84,7 @@ def_diacritic "\\u"  "breve" OutUnicode.breve 0x2D8 ;
 def_diacritic "\\."  "dotabove" OutUnicode.dotabove 0x2D9 ;
 def_diacritic "\\d"  "dotbelow" OutUnicode.dotbelow 0 ;
 def_diacritic "\\b"  "linebelow" OutUnicode.linebelow 0x5F ;
-def_diacritic "\\k"  "ogonek" OutUnicode.ogonek 0x3DB ;
+def_diacritic "\\k"  "ogonek" OutUnicode.ogonek 0x2DB ;
 def_diacritic "\\r"  "ringabove" OutUnicode.ring  0x2DA ;
 def_diacritic "\\v"  "caron" OutUnicode.caron 0 ;
 def_diacritic "\\textcircled" "circled" OutUnicode.circled 0x25EF ;
