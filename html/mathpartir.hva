@@ -39,10 +39,10 @@
 \newcommand{\mp@row@style}
   {border-collapse:separate;border-spacing:2ex;width:100\%;margin:0ex;}
 \newstyle{.mprow}{\mp@row@style}
-\newstyle{.vmprow}{\mp@row@style empty-cells:show; border:solid magenta 2px}
+\newstyle{.vmprow}{\mp@row@style empty-cells:show; border:solid \@magenta{} 2px}
 \newcommand{\mp@cell@style}{padding:0px;width:auto;}
 \newstyle{.mprcell}{\mp@cell@style}
-\newstyle{.vmprcell}{\mp@cell@style border:dotted magenta 2px;}
+\newstyle{.vmprcell}{\mp@cell@style border:dotted \@magenta{} 2px;}
 \setenvclass{mathpar}{mathpar}
 \ifverbd
 \setenvclass{mprow}{vmprow}
@@ -63,7 +63,7 @@
 \def\mathpar@hspace{\push@styles\close@mpcell\open@mpcell\pop@styles\@skip@blanks}
 \def\mathpar@vspace
 {\push@styles\close@mplstcell\close@mprow\@close{TABLE}%
-\open@mathpar@table\open@mprow\open@mpfstcell\pop@styles}%
+\open@mathpar@table\open@mprow\open@mpfstcell\pop@styles\@skip@blanks}%
 \def\mathpar@hva#1{\ifx#1\and\mathpar@vspace\else\mathpar@hspace\fi}%
 %%exported mathpar
 \newenvironment{mathpar}[1][]

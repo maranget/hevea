@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.297 2006-10-10 11:02:04 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.298 2006-10-12 17:09:13 maranget Exp $ *)
 
 
 {
@@ -2210,6 +2210,12 @@ def_code "\\@flow"
 ;;
 
 (* Paragraphs, used for closing/re-opening P elts explictely *)
+let out_par do_it =
+  let have_closed = Dest.close_par () in
+  do_it () ; 
+  if have_closed then Dest.open_par ()
+;;
+
 def_code "\\@close@par"
   (fun lexbuf ->
     ignore (Dest.close_par ()) ;
@@ -2222,9 +2228,7 @@ def_code "\\@open@par"
 def_code "\\@out@par"
   (fun lexbuf ->
     let arg = save_arg lexbuf in
-    let have_closed = Dest.close_par () in
-    scan_this_arg main arg ;
-    if have_closed then Dest.open_par ()) ;
+    out_par (fun () ->  scan_this_arg main arg)) ;
 ()
 ;;
 
@@ -3574,7 +3578,7 @@ def_code "\\@printHR"
     (fun lexbuf ->
       let arg = get_prim_arg lexbuf in
       let taille = safe_len (Get.get_length (get_prim_arg lexbuf)) in
-      Dest.horizontal_line arg taille (Length.Pixel 2))
+      out_par (fun () -> Dest.horizontal_line arg taille (Length.Pixel 2)))
 ;;
 
 def_code"\\@hr"
@@ -3582,7 +3586,7 @@ def_code"\\@hr"
      let attr = subst_opt "" lexbuf in
      let width = safe_len (Get.get_length (get_prim_arg lexbuf)) in
      let height = safe_len (Get.get_length (get_prim_arg lexbuf)) in
-     Dest.horizontal_line attr width height)
+     out_par (fun () ->  Dest.horizontal_line attr width height))
 ;;
 
 Get.init

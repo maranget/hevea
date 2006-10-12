@@ -522,6 +522,8 @@
 \ifverbd\newstyle{P}{border:1px solid gray}\fi
 \ifverbd\newstyle{DIV}{border:1px dotted gray}\fi
 %%Style of display
+\def\@orange{\@print{#}FF8000}
+\def\@magenta{fuchsia}
 \def\@dtstyle{border-collapse:separate;border-spacing:\@barsz;width:auto;}
 \def\@dcstyle{white-space:nowrap;padding:0px;width:auto;}
 \newstyle{.vdisplay}{\@dtstyle{} empty-cells:show; border:2px solid red;}
@@ -529,7 +531,7 @@
 \newstyle{.display}{\@dtstyle{} border:none;}
 \newstyle{.dcell}{\@dcstyle{} border:none;}
 \newstyle{.dcenter}{margin:0ex auto;}
-\newstyle{.vdcenter}{border:solid orange 2px; margin:0ex auto;}
+\newstyle{.vdcenter}{border:solid \@orange{} 2px; margin:0ex auto;}
 %%% And we can get something similar for extensible arrows accents.
 \newcommand{\@vd}{\ifverbd{}v\fi}
 \newcommand{\@dclass}{CLASS="\@vd{}display"}

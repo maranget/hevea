@@ -12,7 +12,7 @@
 \definecolor{darkgreen}{rgb}{0,0.6,0}
 \definecolor{lightblue}{rgb}{0.5,0.5,1}
 \definecolor{purple}{rgb}{1,0,1}
-\definecolor{lightred}{rgb}{1,0.85,0.85}
+\definecolor{lightred}{rgb}{1,0.5,0.5}
 \definecolor{darkred}{rgb}{0.6,0,0}
 \definecolor{magenta}{cmyk}{0,1,0,0}
 \definecolor{yellow}{cmyk}{0,0,1,0}
@@ -36,16 +36,21 @@
    ndkeywordstyle=\ndkwd,
    commentstyle=\color{commentcolor}\scshape,
    emphstyle=\emphstyle,
-   emphstyle={[3]\color{blue}},
+   emphstyle={[2]\color{lightred}},
    stringstyle=\color{stringcolor}\itshape,
    moredelim=[s][keywordstyle]{(*+}{+*)}
 }
 \lstset{style=javastyle}
 \lstset{morekeywords={[2]Random,Sys,Printf,Array}}
+\let\lst\lstinline
 \begin{document}
 \title{Recursive fair? suffle}
 \author{}
 \maketitle
+\lstset{emph={merge,shuffle}}%
+\lstset{emph=[2]{gen,split}}
+Significant functions are \lst|merge| and~\lst|shuffle|.
+Functions \lst|gen| and \lst|split| are also worth a look.
 \begin{lstlisting}[escapechar=@,mathescape=true,numbers=left,stepnumber=5,numberstyle=\color{brown},frame=tb,rulecolor=\color{kwdcolor}]
 (*+@\label{start}@
   Special comment!
@@ -120,9 +125,11 @@ let _ = zyva n nexp ; exit 0
 
 (* @\label{over}@Start at line @\ref{start}@, end here. *)
 
+(*
 (***************)
 (* Print lists *)
 (***************)
+*)
 
 open Printf
 
