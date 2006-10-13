@@ -1,0 +1,6 @@
+%%Style for tables expressing delimitors
+\def\@delim@s{border-collapse:separate;border-spacing:0px;}%
+\newstyle{.delim}{\@delim@s{}margin:0px \@barsz;}%
+\newstyle{.delimleft}{\@delim@s{}margin:0px \@@barsz{} 0px 0px;}%
+\newstyle{.delimright}{\@delim@s{}margin:0px 0px 0px \@@barsz;}%
+\newstyle{.bracell}{padding:0ex;}%

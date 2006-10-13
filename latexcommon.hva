@@ -409,7 +409,6 @@
 \newcommand{\flushdef}[1]{\def\@footnotelevel{#1}}
 \let\footnoteflush\@footnoteflush
 \def\footnote@c{footnote}%indirection to footnote counter
-\newcommand{\footnoterule}{{\@nostyle\@hr[ALIGN=left]{.5\textwidth}{1pt}}}
 \newcommand{\footnotesep}[1]{}
 \newcounter{savenote}\newcounter{onemark}
 \newcommand{\@fnmarktext}[1]{%

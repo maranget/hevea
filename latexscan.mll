@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.298 2006-10-12 17:09:13 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.299 2006-10-13 17:25:03 maranget Exp $ *)
 
 
 {
@@ -3574,19 +3574,28 @@ let safe_len = function
   | l    -> l
 ;;
 
+let wrap_hr f =
+  out_par
+    (fun () ->
+      top_open_group () ;
+      Dest.nostyle () ;
+      f () ;
+      top_close_group ())
+;;
+
 def_code "\\@printHR"
-    (fun lexbuf ->
-      let arg = get_prim_arg lexbuf in
-      let taille = safe_len (Get.get_length (get_prim_arg lexbuf)) in
-      out_par (fun () -> Dest.horizontal_line arg taille (Length.Pixel 2)))
+  (fun lexbuf ->
+    let arg = get_prim_arg lexbuf in
+    let taille = safe_len (Get.get_length (get_prim_arg lexbuf)) in
+    wrap_hr (fun () -> Dest.horizontal_line arg taille (Length.Pixel 2)))
 ;;
 
 def_code"\\@hr"
    (fun lexbuf ->
-     let attr = subst_opt "" lexbuf in
+     let attr = get_prim_opt "" lexbuf in
      let width = safe_len (Get.get_length (get_prim_arg lexbuf)) in
      let height = safe_len (Get.get_length (get_prim_arg lexbuf)) in
-     out_par (fun () ->  Dest.horizontal_line attr width height))
+     wrap_hr (fun () ->  Dest.horizontal_line attr width height))
 ;;
 
 Get.init

@@ -54,6 +54,7 @@
 \newcommand{\@noteref}[4]{#4}
 \newcommand{\@notetextstyle}[1]{~(#1)}
 \newcommand{\@notenotestyle}[1]{(#1)}
+\newcommand{\footnoterule}{\@hr[ALIGN=left]{.5\textwidth}{1pt}}
 \newenvironment{thefootnotes}[2][]
   {\footnoterule\begin{list}{}{\renewcommand{\makelabel}[1]{##1}}}
   {\end{list}}

@@ -60,7 +60,6 @@ Chesnay Cedex. {\tt \mailto{Luc.Maranget@inria.fr}}}}
   {\imgsrc[ALT="Previous"]{previous_motif.gif}}
   {\imgsrc[ALT="Up"]{contents_motif.gif}}
   {\imgsrc[ALT="Next"]{next_motif.gif}}
-%HEVEA\externalcsstrue
 %%DOCUMENT START HERE
 \begin{document}
 \flushdef{document}
@@ -999,8 +998,8 @@ Such a source will make both \LaTeX{} and \hevea{} choke.
 \hevea{} issues the following error message that shows the \LaTeX{}
 environment that is not closed properly:
 \begin{verbatim}
-trouble.tex:7: hml: DIV closes BLOCKQUOTE
-trouble.tex:5: Latex environment 'quote' is pending
+./trouble.tex:6: Environment nesting error: html: 'DIV' closes 'BLOCKQUOTE'
+./trouble.tex:4: Latex environment 'quote' is pending
 Adios
 \end{verbatim}
 Thus, when \hevea{} crashes, it is a good idea to check that the
@@ -1039,10 +1038,16 @@ Here, \verb+\quote+ translates to \verb+<BLOCKQUOTE>+,
 At that point, \hevea{} refuses to generate obviously
 non-correct {\html} and it crashes:
 \begin{verbatim}
-trouble.tex:9: hml: BLOCKQUOTE closes DIV
-trouble.tex:7: Latex environment 'quoteright' is pending
+Giving up command: \@close
+Giving up command: \endquote
+Giving up command: \endquoteright
+Giving up command: \end
+./trouble.tex:7: Environment nesting error: html: 'BLOCKQUOTE' closes 'DIV'
+./trouble.tex:5: Latex environment 'quoteright' is pending
 Adios
 \end{verbatim}
+Also notice that the error message above includes a backtrace showing
+the call-chain of commands.
 
 In this case, the solution is easy: environments must be opened and
 closed consistently. \LaTeX{} style being recommended, one should write:
@@ -1087,8 +1092,11 @@ Output written on horreur.dvi (1 page, 280 bytes).
 By contrast, running \hevea{} on \texttt{horreur.tex} yields a fatal error:
 \begin{verbatim}
 # hevea horreur.tex 
-horreur.tex:5: Latex env error: 'document' closes ''
-horreur.tex:4: Latex environment '' is pending
+Giving up command: \@raise@enddocument
+Giving up command: \enddocument
+Giving up command: \end
+./horreur.tex:4: Environment nesting error: Latex env error: 'document' closes ''
+./horreur.tex:3: Latex environment '' is pending
 Adios
 \end{verbatim}
 Thus, users should close opening braces where it belongs.
@@ -5886,6 +5894,60 @@ For instance,
 \end{verbatim}
 will yield sectionnal headers on a red-orange background.
 
+\subsection{Targetting \label{winfonts}Windows Internet Explorer}
+\index{display problems!for authors}%
+At the time of this release, Internet Explorer support for symbols
+through Unicode is not as complete as the one of Firefox, which I am
+using for testing~\hevea{}.
+
+One of the most salient shortcomings is the inability to display sub-elements
+for big brackets, braces and parenthesis, which \hevea{} normally
+outputs when it processes \verb+\left[+, \verb+\right\}+ etc.
+
+We (hopefully) expect Internet Explorer to  display more of
+Unicode easily in a foreseable future. As a temporary fix, we provide
+a style file \texttt{winfonts.hva}.
+Authors concerned by producing pages that do not look too ugly
+when viewed through Internet Explorer are thus advised to
+load the file \texttt{winfonts.hva}.
+For instance they can invoke \hevea{} as:
+\begin{verbatim}
+# hevea winfonts.hva ...
+\end{verbatim}
+At the moment, loading \texttt{winfonts.hva}
+only changes the rendering
+of \LaTeX{} big delimiters, avoiding the troublesome Unicode entities.
+\ifhevea
+As an example, here are some exemples of rendering.
+$$
+\newcommand{\zyva}[2]
+{\mbox{\ttfamily\string\left\string#1\quad\ldots\quad\string\right\string#2} &
+\left#1\begin{array}{c}1\\2\\3\end{array}\right#2 &
+\input{activatewinfonts.hva}%
+\unskip\left#1\begin{array}{c}1\\2\\3\end{array}\right#2}%
+\begin{array}{l@{\qquad}c@{\qquad}c}
+\hline
+\multicolumn{1}{c}{\mbox{delimiters}}&
+\multicolumn{1}{c}{\mbox{default}}&
+\multicolumn{1}{c}{\mbox{winfonts}}\\ \hline
+\zyva\{\} \\
+\zyva{[}{]}\\
+\zyva()\\
+\zyva\vert\vert\\
+\zyva\Vert\Vert\\
+\hline
+\end{array}
+$$
+\fi
+
+More generally, it remains authors responsability to be careful not to
+issue too refined Unicode entities.  To that aim, authors that target
+a wide audience should first limit themselves to the most common
+symbols (\emph{e.g.} use \verb+\leq+ [$\leq$]
+in place of \verb+\preceq+ [$\preceq$]) and, above all,
+they should control the rendering of their documents using several browsers.
+
+
 \subsection{\hevea{} as a Back-End for VideoC}
 \hevea{} is one of the back-ends of the VideoC system for producing
 educational CDROM to teach programming languages.
@@ -7206,11 +7268,22 @@ when given the \verb+-fix+ option, \texttt{hevea} will run
 
 
 \section{Browser \label{browser}configuration}\cutname{browser.html}
-\index{browser configuration}
+\index{browser configuration}%
+\index{display problems!for viewers}%
 By default, \hevea{} does not anymore use the \verb+FACE=symbol+
 attribute to the \verb+<FONT ...>+ tag.  As a consequence, browser
 configuration is no longer needed.
 
+\urldef{\woods}{\url}{http://www.alanwood.net/unicode/}%
+\hevea{} now extensively outputs Unicode entities.
+This first means that \hevea{} targets modern browsers with
+decent unicode support, and only those.
+
+In case your browser is recent and that you nevertheless experience display
+problems on \hevea{}-generated pages, see the excellent
+\footahref{\woods}{Alan Wood's Unicode Resources}.
+It may help to understand display  problems and even to solve them
+by configuring browsers or installing some fonts.
 
 \section{Availability}
 

@@ -22,7 +22,7 @@
 \newcommand{\R}[2][]
 {\qqquad$$\mbox{$#2$}\quad#2\quad\mbox{\texttt{\string#2}}$$}
 \newcommand{\N}[2][]
-{\qqquad$$\mbox{$#2$}\quad{}#2\quad\left#2\begin{array}{c}1\\2\\3\end{array}\right.\quad\mbox{\texttt{\string#2}}$$}
+{\qqquad$$\mbox{$#2$}\quad\left#2\begin{array}{c}1\\2\\3\end{array}\right.\quad\mbox{\texttt{\string#2}}$$}
 \let\Y\N
 \newcommand{\Z}[1]{\qquad\cmd{#1}}
 \def\latexE{LaTeX2e}\def\latex{latex}
