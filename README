@@ -1,4 +1,4 @@
-      This is HEVEA, version 1.08, a fast Latex to HTML translator.
+      This is HEVEA, version 1.09, a fast Latex to HTML translator.
 
 
 ADVERTISEMENT
@@ -70,16 +70,16 @@ REQUIREMENTS
 INSTALLATION FROM THE SOURCE DISTRIBUTION
 
   Download the source distribution
-    ftp://ftp.inria.fr/INRIA/Projects/para/hevea/hevea-1.08.tar.gz
+    ftp://ftp.inria.fr/INRIA/Projects/para/hevea/hevea-1.09.tar.gz
 
   Unsizp it
-    gunzip hevea-1.08.tar.gz
+    gunzip hevea-1.09.tar.gz
 
   Untar it
-    tar xf  hevea-1.08.tar
+    tar xf  hevea-1.09.tar
 
   Go to the source directory
-    cd hevea-1.08
+    cd hevea-1.09
 
 CONFIGURATION
     There are a few configuration variables at the beginning of
@@ -125,7 +125,7 @@ MAKE
 IN CASE OF TROUBLE.
 
   - You do need version 3.07 of the Objective Caml System. Older versions
-    of OCaml cannot compile hevea 1.08.
+    of OCaml cannot compile hevea 1.09.
 
   - Some version of RedHat provided a (slightly) non-fonctional implementation
     of the pbm package. Il particular, the script 'pnmmargin' may be broken,
