@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.95 2006-10-11 14:42:42 maranget Exp $    *)
+(*  $Id: package.ml,v 1.96 2006-10-16 08:57:17 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -71,7 +71,7 @@ let def_diacritic name internal f empty =
 ;;
 
 def_diacritic "\\'"  "acute" OutUnicode.acute 0xB4 ;
-def_diacritic "\\`"  "grave" OutUnicode.grave 0x50 ;
+def_diacritic "\\`"  "grave" OutUnicode.grave 0x60 ;
 def_diacritic "\\^"  "circumflex" OutUnicode.circumflex 0x5E ;
 def_diacritic "\\\"" "diaeresis" OutUnicode.diaeresis 0xA8 ;
 def_diacritic "\\c"  "cedilla" OutUnicode.cedilla 0xB8 ;
@@ -82,11 +82,11 @@ def_diacritic "\\H"  "doubleacute" OutUnicode.doubleacute 0x2DD ;
 (* def_diacritic "\\G"  "doublegrave" OutUnicode.doublegrave 0x2F5 ; *)
 def_diacritic "\\u"  "breve" OutUnicode.breve 0x2D8 ;
 def_diacritic "\\."  "dotabove" OutUnicode.dotabove 0x2D9 ;
-def_diacritic "\\d"  "dotbelow" OutUnicode.dotbelow 0 ;
+def_diacritic "\\d"  "dotbelow" OutUnicode.dotbelow 0x2D4 ;
 def_diacritic "\\b"  "linebelow" OutUnicode.linebelow 0x5F ;
 def_diacritic "\\k"  "ogonek" OutUnicode.ogonek 0x2DB ;
 def_diacritic "\\r"  "ringabove" OutUnicode.ring  0x2DA ;
-def_diacritic "\\v"  "caron" OutUnicode.caron 0 ;
+def_diacritic "\\v"  "caron" OutUnicode.caron 0x2C7 ;
 def_diacritic "\\textcircled" "circled" OutUnicode.circled 0x25EF ;
 (* activated by amssymb *)
 def_diacritic "\\@doublestruck" "doublestruck" OutUnicode.doublestruck 0 ;

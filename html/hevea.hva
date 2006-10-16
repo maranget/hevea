@@ -577,26 +577,26 @@
 {\warning{\overleftarrow outside display mode}#1}
 \newcommand{\@overleftarrow}[1]
 {\mathop{\@over@arrow
-  {\d@cell[STYLE="width:1\%;"]{\hva@lefthead}%
-   \d@cell[STYLE="width:99\%;"]{\@hbar}}
+  {\d@cell[STYLE="width:10\%;"]{\hva@lefthead}%
+   \d@cell[STYLE="width:90\%;"]{\@hbar}}
   {#1}}\intlimits}
 \newcommand{\overleftarrow}{\DisplayChoose\@overleftarrow\textoverleftarrow}
 \newcommand{\textoverrightarrow}[1]
 {\warning{\overrightarrow outside display mode}#1}
 \newcommand{\@overrightarrow}[1]
 {\mathop{\@over@arrow
-  {\d@cell[STYLE="width:99\%;"]{\@hbar}\d@cell[STYLE="width:1\%;"]{\hva@righthead}}
+  {\d@cell[STYLE="width:90\%;"]{\@hbar}\d@cell[STYLE="width:10\%;"]{\hva@righthead}}
   {#1}}\intlimits}
 \newcommand{\overrightarrow}{\DisplayChoose\@overrightarrow\textoverrightarrow}
 \newcommand{\textoverbrace}[1]
 {\warning{\overbrace in non-display mode}#1}
 \newcommand{\@overbrace}[1]
 {\mathop{\@over@arrow[5]
-  {\d@cell[STYLE="width:1\%;"]{\hva@lrt}%
-   \d@cell[STYLE="width:48\%;"]{\@hbar}%
-   \d@cell[STYLE="width:2\%;"]{\hva@utr}%
-   \d@cell[STYLE="width:48\%;"]{\@hbar}%
-   \d@cell[STYLE="width:1\%;"]{\hva@llt}}
+  {\d@cell[STYLE="width:5\%;"]{\hva@lrt}%
+   \d@cell[STYLE="width:40\%;"]{\@hbar}%
+   \d@cell[STYLE="width:10\%;"]{\hva@utr}%
+   \d@cell[STYLE="width:40\%;"]{\@hbar}%
+   \d@cell[STYLE="width:5\%;"]{\hva@llt}}
   {#1}}}
 \newcommand{\overbrace}{\DisplayChoose\@overbrace\textoverbrace}
 \newcommand{\@under@arrow}[3][2]
@@ -609,11 +609,11 @@
 {\warning{\underbrace in non-display mode}#1}
 \newcommand{\@underbrace}[1]
 {\mathop{\@under@arrow[5]
-  {\d@cell[STYLE="width:1\%;"]{\hva@urt}%
-   \d@cell[STYLE="width:48\%;"]{\@hbar}%
-   \d@cell[STYLE="width:2\%;"]{\hva@dtr}%
-   \d@cell[STYLE="width:48\%;"]{\@hbar}%
-   \d@cell[STYLE="width:1\%;"]{\hva@ult}}
+  {\d@cell[STYLE="width:5\%;"]{\hva@urt}%
+   \d@cell[STYLE="width:40\%;"]{\@hbar}%
+   \d@cell[STYLE="width:10\%;"]{\hva@dtr}%
+   \d@cell[STYLE="width:40\%;"]{\@hbar}%
+   \d@cell[STYLE="width:5\%;"]{\hva@ult}}
   {#1}}}
 \newcommand{\underbrace}{\DisplayChoose\@underbrace\textunderbrace}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
