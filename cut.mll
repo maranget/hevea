@@ -12,7 +12,7 @@
 {
 open Lexing
 open Stack
-let header = "$Id: cut.mll,v 1.51 2006-10-09 16:32:36 maranget Exp $" 
+let header = "$Id: cut.mll,v 1.52 2006-10-16 12:39:00 maranget Exp $" 
 
 let verbose = ref 0
 
@@ -412,6 +412,14 @@ let setlink set target =
   if !phase = 0 && target <> "" then
     set !outname target
 
+let open_notes_pred sec_notes =
+  if sec_notes = !chapter then
+    !cur_level < sec_notes
+  else if sec_notes < !chapter then
+    !chapter < !cur_level
+  else
+    true
+
 let open_notes sticky sec_notes =
   if !verbose > 0 && !phase > 0 then 
     Printf.eprintf "Notes flushed as %s (current cut is %s, current level is %s)\n"
@@ -419,7 +427,7 @@ let open_notes sticky sec_notes =
       (Section.pretty !chapter)
       (Section.pretty !cur_level) ;
   if
-    not sticky && (sec_notes <> !chapter || !cur_level < !chapter)
+    not sticky && open_notes_pred sec_notes
   then begin
     otheroutname := !outname ;
     outname := new_filename "open_notes" ;
