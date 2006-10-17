@@ -1,7 +1,7 @@
 LATEX=latex
-HEVEA=../hevea.byte
-HEVEAOPTS=-fix -O -dv
-HACHA=../hacha.byte
+HEVEA=hevea
+HEVEAOPTS=-fix -O
+HACHA=hacha
 EXDIR=$(HOME)/public_html/hevea/examples
 TEX=$(HTML:.html=.tex)
 HTML=a.html pat.html suite.html env.html smile.html amstex.html graphics.html graphicx.html verbs.html style-test.html amssymb-test.html
@@ -64,10 +64,11 @@ info: $(INFO)
 install:
 	/bin/rm -rf $(EXDIR)
 	mkdir $(EXDIR)
-	cp *.gif $(HTML) index.html symb.html tmp.css tmp*.html conclusion.html benchmarks.html hp.c $(EXDIR)
+	cp *.gif $(HTML) index.html sym.html tmp.css tmp*.html conclusion.html benchmarks.html hp.c $(EXDIR)
 	-cp $(TEXT) $(EXDIR)
 	cp Makefile $(TEX) pat.def env.hva pat.hva smile.hva $(EXDIR)
 	cp $(DVI) $(EXDIR)
+	$(MAKE) $(MFLAGS) install-test TDIR="$(EXDIR)/test"
 
 a.dvi: a.tex
 	$(LATEX) < /dev/null a.tex
