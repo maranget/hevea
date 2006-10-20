@@ -65,6 +65,7 @@ install-distri:
 	mkdir $(DISTRIDIR)
 	cp $(FTPDIR)/INDEX  $(FTPDIR)/README $(FTPDIR)/LICENSE $(FTPDIR)/*$(VERSION)* $(DISTRIDIR)
 	cp ../hevea.sty $(DISTRIDIR)
+	[ -d $(FTPDIR)/unstable ] && cp -r $(FTPDIR)/unstable $(DISTRIDIR)
 
 ############# Release stuff
 VERSIONFILE=../version.ml
@@ -92,14 +93,16 @@ FTPDIR=/home/beaune/moscova0/ftp/hevea
 UNSTABLE=
 
 dorelease: doversion
-	$(MAKE) $(MFLAGS) byte manual.dvi manual.pdf
 # hevea relase
 	cd $(RELEASEDIR) ; rm -rf $(RELEASENAME) ;\
 	cvs -d $(CVSDIR) export  $(RELEASEOPT) -l htmlgen htmlgen/html htmlgen/text htmlgen/info htmlgen/mappings ;\
 	mv htmlgen $(RELEASENAME) ;\
 	tar cfo $(RELEASENAME).tar $(RELEASENAME) ;\
 	gzip -f --best  $(RELEASENAME).tar
-# Doc release
+# Copy to FTPDIR
+	-cd $(RELEASEDIR) ; $(RELEASENAME).tar.gz $(RELEASENAME)/README $(RELEASENAME)/LICENSE $(RELEASENAME)/CHANGES $(FTPDIR)
+
+docrelease: doversion byte manual.dvi manual.pdf
 	dvips -o$(RELEASEDIR)/$(RELEASENAME)-manual.ps manual.dvi
 	rm -rf $(RELEASEDIR)/$(RELEASENAME)-manual-dvi
 	mkdir $(RELEASEDIR)/$(RELEASENAME)-manual-dvi
@@ -114,19 +117,19 @@ dorelease: doversion
 	tar cfo $(RELEASENAME)-manual-dvi.tar $(RELEASENAME)-manual-dvi ;\
 	gzip -f --best  $(RELEASENAME)-manual-dvi.tar $(RELEASENAME)-manual.ps  $(RELEASENAME)-manual.tar
 # Copy to FTPDIR
-	-cd $(RELEASEDIR) ; mv $(RELEASENAME)-manual-dvi.tar.gz $(RELEASENAME)-manual.ps.gz  $(RELEASENAME)-manual.pdf $(RELEASENAME)-manual.tar.gz  $(RELEASENAME).tar.gz $(RELEASENAME)/README $(RELEASENAME)/LICENSE $(RELEASENAME)/CHANGES $(FTPDIR)
+	-cd $(RELEASEDIR) ; mv $(RELEASENAME)-manual-dvi.tar.gz $(RELEASENAME)-manual.ps.gz  $(RELEASENAME)-manual.pdf $(RELEASENAME)-manual.tar.gz $(FTPDIR)
 
 #Avant, e'diter README, CHANGES, version.ml, commettre, tagger, make doversion
 release:
-	$(MAKE) $(MFLAGS) dorelease RELEASEOPT="-r $(RELEASETAG)"
+	$(MAKE) $(MFLAGS) dorelease docrelease RELEASEOPT="-r $(RELEASETAG)"
 
 testrelease:
-	$(MAKE) $(MFLAGS) dorelease RELEASEOPT="-D now"
+	$(MAKE) $(MFLAGS) dorelease docrelease RELEASEOPT="-D now"
 
 devrelease:
 	$(MAKE) dateversion
 	/bin/rm -rf ${FTPDIR}/unstable ; mkdir ${FTPDIR}/unstable
-	$(MAKE) $(MFLAGS) dorelease VERSION=`date +%Y.%m.%d` RELEASENAME="hevea-`date +%Y.%m.%d`" RELEASEOPT="-D now" FTPDIR="${FTPDIR}/unstable"
+	$(MAKE) $(MFLAGS) dorelease docrelease VERSION=`date +%Y.%m.%d` RELEASENAME="hevea-`date +%Y.%m.%d`" RELEASEOPT="-D now" FTPDIR="${FTPDIR}/unstable"
 	$(MAKE) install DOCDIR=$(HOME)/public_html/hevea/newdoc
 	/bin/rm -rf  ${DISTRIDIR}/unstable
 	cp -r ${FTPDIR}/unstable ${DISTRIDIR}

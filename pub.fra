@@ -1,29 +1,36 @@
 J'ai la joie d'anoncer la nouvelle release d'HEVEA.
 
-      HEVEA, version 1.06 un traducteur rapide de LaTeX vers HTML.
+      HEVEA, version 1.09 un traducteur rapide de LaTeX vers HTML.
 
-  HEVEA traduit un sous-ensemble quasi complet de LaTeX2e (il accepte aussi
-  le vieux style LaTeX) vers HTML 4.0 transitionel.
+  HEVEA traduit un sous-ensemble quasi complet de LaTeX2e
+  vers HTML 4.0 transitionel.
 
-  Plus d'information en
-    http://pauillac.inria.fr/~maranget/hevea/
+  Plus d'information en <http://hevea.inria.fr/>
 
-  Par rapport à la version précédente, il y a, entre autres:
+QUOI DE NEUF ?
 
-     - Hevea comprend un optimiseur de HTML (simple), que l'on invoque
-       par une nouvelle option de la ligne de commande (« -O »).
-       L'optimiseur est également disponible sous la forme d'un
-       programme indépendant  « esponja ».
+  Par rapport à la version précédente, il y a, entre autres 
 
-     - Il y a de nouvelles implémentations de packages latex2e. En particulier,
-       est fourni le package listings, très utile pour formater des programmes
+    - De nouveaux packages
+        ifpdf, chngcntr, inputenc (encodage latins 8bits)
+        eurosym (hevea passe à l'euro avec un petit retard),
+        textcomp, longtable, supertabular.
 
-     - Le couple hevea/imagen peut maintenant travailler en format
-       PNG, si on lui demande...
+    - Plus de liberté (au fait hevea est du logiciel libre)
+        Un truc bizarre a disparu. On peut maintenant mettre \title{...}
+        après \bgin{document} si on a envie.
+
+    - Plus de propreté
+        Le HTML généré est je crois, plus propre, emploi massif
+        des feuilles de styles, paragraphes rendus par l'élément P.
 
 ATTENTION
-  Pour compiler hevea 1.06, il faut ocaml 3.04. Toutefois trois
-  packages binaires sont accessibles (Linux/RedHat récent, Windows et
-  Solaris).
 
---Luc Maranget
+  Pour compiler hevea 1.09, il faut ocaml (au moins) 3.07.
+  <http://caml.inria.fr/ocaml/>
+
+  Une version Windows compilée est disponible, merci Ph. Viton.
+  <http://facweb.knowlton.ohio-state.edu/pviton/support/winport.html>
+
+  Les packagers Linux ne tarderont pas à adopter la nouvelle version.
+

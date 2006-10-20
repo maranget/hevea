@@ -1,30 +1,38 @@
-It is my pleasure to anounce the new, 1.06, release of HEVEA.
+It is my pleasure to anounce the new, 1.09, release of HEVEA.
 
-    HEVEA is a LaTeX to HTML translator.  The input language is a fairly
-    complete subset of LaTeX2e (old LaTeX style is also accepted) and the
-    output language is HTML that is (hopefully) correct with respect to
+    HEVEA is a LaTeX to HTML translator.  The input language is a
+    fairly complete subset of LaTeX2e and the output
+    language is HTML that is (hopefully) correct with respect to
     version 4.0 (transitional)
 
-    HEVEA web page is
-    http://pauillac.inria.fr/~maranget/hevea/
+    HEVEA web page is <http://hevea.inria.fr/>
 
 
-With respect to previous version 1.05, there are numerous changes,
+With respect to previous version 1.08, there are numerous changes,
 including :
-      - Hevea now includes a simple-minded HTML optimizer, and a new
-        command line option ``-O'' to invoke it.
-        The optimizer is also available as a standalone program
-       ``esponja''.
 
-      - New (latex2e style) packages are provided, including the
-        listings package for typesetting programs.
+   * Added packages,
+        ifpdf, chngcntr, inputenc (support for latin 8 bit encodings)
+        eurosym, textcomp, longtable, supertabular.
 
-      - Image genearation in PNG format is provided.
+   * A long standing misfeature is now  corrected
+     (you can now put \title{...} after \begin{document})
+
+   * On the HTML side, CSS usage have been extended and
+     paragraphs are now translated with P elements.
+
 
 WARNING
-  To compile hevea 1.06, you need ocaml 3.04. However, three binary
-  packages are available from hevea home page (Linux/RedHat, Windows and
-  Solaris).
+  To compile hevea 1.09, you need ocaml 3.07.
+
+  Thanks to Ph. Viton. the (compiled) windows version 1.09  is
+  available
+  <http://facweb.knowlton.ohio-state.edu/pviton/support/winport.html>
+
+  Packagers for various Linux distributions
+  will update their packages at their convenience.
+
+
 
 
 --Luc Maranget
