@@ -6791,8 +6791,9 @@ produces the following output:
 \ttindex{ifpdf}{package}
 This package should be present in modern \texttt{latex} installations.
 Basically, the package defines a boolean register~\texttt{pdf}, whose
-value is true for tools that produce~\textsc{PDF} such as
-\texttt{pdflatex}) and false for tools that produce~\textsc{DVI}.
+value is true for tools that produce~\textsc{PDF} (such as
+\texttt{pdflatex}) and false for tools that produce~\textsc{DVI}
+(such as \texttt{latex}).
 
 The hevea version of the package simply defines the boolean
 register~\texttt{pdf} with initial value true.  Command-line option
@@ -6805,8 +6806,8 @@ In case standard \texttt{latex} processing in \texttt{imagen} is
 wished, one can issue the command \verb+\pdffalse+ after loading the
 \text{ifpdf} package and before \verb+\begin{document}+. Then, no
 command line option is added.
-Hence, to achieve normal \texttt{latex} processing, while still loading
-the \texttt{ifpdf} package, one writes:
+Hence, to achieve \texttt{latex} processing of the \textit{image}
+file, while still loading the \texttt{ifpdf} package, one writes:
 \begin{verbatim}
 \usepackage{ifpdf}
 %HEVEA\pdffalse
