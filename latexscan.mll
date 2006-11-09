@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.299 2006-10-13 17:25:03 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.300 2006-11-09 20:58:25 maranget Exp $ *)
 
 
 {
@@ -708,9 +708,6 @@ let get_style lexfun {arg=s ; subst=env} =
   r
 
 (* Image stuff *)
-
-let iput_newpage () = Image.page ()
-;;
 
 let stack_entry = Stack.create "stack_entry"
 and stack_out = Stack.create  "stack_out"
@@ -2442,7 +2439,7 @@ def_code "\\@fromlib"
 ;;
 def_code "\\@imageflush"
   (fun lexbuf ->
-    iput_newpage () ;
+    Image.page () ;
     check_alltt_skip lexbuf)
 ;;
 def_code "\\textalltt"

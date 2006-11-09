@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.97 2006-11-09 20:29:33 maranget Exp $    *)
+(*  $Id: package.ml,v 1.98 2006-11-09 20:58:25 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -218,6 +218,7 @@ let def_print name s =
 
 def_print "\\@basein" Parse_opts.base_in ;
 def_print "\\jobname" Parse_opts.base_out ;
+def_print "\\jobname@base" (Filename.basename Parse_opts.base_out) ;
 def_print "\\@heveacomline"
   (Array.fold_right
      (fun arg r -> arg^" "^r)

@@ -481,7 +481,7 @@
 \renewcommand{\theimage}{\@arabic{image}}
 \newcommand{\imageflush}[1][]
 {\@imageflush\stepcounter{image}%
-\imgsrc[#1]{\ife\heveaimagedir\else\heveaimagedir/\fi\jobname\theimage\heveaimageext}}
+\imgsrc[#1]{\ife\heveaimagedir\else\heveaimagedir/\fi\jobname@base\theimage\heveaimageext}}
 %%%%%%%%%% Compatibility with old hevea \url
 \AtBeginDocument{\@ifundefined{url}{\input{compat.hva}}{}}
 %%%%%%%%% Time stuff
