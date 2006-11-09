@@ -12,16 +12,16 @@
 {
 open Lexing
 open Stack
-let header = "$Id: cut.mll,v 1.52 2006-10-16 12:39:00 maranget Exp $" 
+let header = "$Id: cut.mll,v 1.53 2006-11-09 21:36:45 maranget Exp $" 
 
 let verbose = ref 0
 
-let name = ref "main"
-and count = ref 0
+let count = ref 0
 ;;
 
 let language = ref "eng"
 let base = ref None
+and name = ref "coucou"
 
 let changed_t = Hashtbl.create 17
 
@@ -136,22 +136,22 @@ let change_name oldname name =
     record_changed oldname name ;
   end
 
-let start_phase name =
+let start_phase name_in name_out =
   incr phase ;
   if !verbose > 0 then
     prerr_endline ("Starting phase number: "^string_of_int !phase);
-  outname := name ;
-  tocname := name ;
+  outname := name_out ;
+  tocname := name_out ;
   otheroutname := "" ;
   count := 0 ;
   if !phase = 0 then begin
-    let d = Filename.dirname name in
+    let d = Filename.dirname name_out in
     if d <> "." then begin
-      base := Some d 
+      base := Some d
     end
   end ;
   if !phase > 0 then begin
-    out := CutOut.create_chan (real_name name)
+    out := CutOut.create_chan (real_name name_out)
   end ;
   toc := !out
 ;;

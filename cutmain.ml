@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: cutmain.ml,v 1.21 2006-01-30 08:56:26 maranget Exp $" 
+let header = "$Id: cutmain.ml,v 1.22 2006-11-09 21:36:45 maranget Exp $" 
 
 exception Error of string
 ;;
@@ -24,9 +24,7 @@ let log = ref false
 let main () =
   Arg.parse
     [("-o", Arg.String (fun s -> outname := s),
-       "filename, make hacha output go into file ``filename'' (defaults to index.html)");
-     ("-francais", Arg.Unit (fun () -> Cut.language := "fra"),
-       ", French mode");      
+       "filename, make hacha output go into file 'filename' (defaults to index.html)");
      ("-tocbis", Arg.Unit (fun () -> Cut.toc_style := Cut.Both),
        ", duplicate table of contents at the begining of files");      
      ("-tocter", Arg.Unit (fun () -> Cut.toc_style := Cut.Special),
@@ -38,19 +36,16 @@ let main () =
      ("-v", Arg.Unit (fun () -> incr Cut.verbose),
         ", verbose flag")    ]
      (fun s -> filename := s) ("hacha "^Version.version);
-  let base = Filename.basename !filename in
-  Cut.name :=
-     (try Filename.chop_extension base with Invalid_argument _ -> base) ;
   let chan = try open_in !filename with Sys_error s -> raise (Error ("File error: "^s)) in
   let buf = Lexing.from_channel chan in
   Location.set !filename buf ;
-  Cut.start_phase !outname ;
+  Cut.start_phase !filename !outname ;
   Cut.main buf ;
   Location.restore () ;
   let chan = try open_in !filename with Sys_error s -> raise (Error ("File error: "^s)) in
   let buf = Lexing.from_channel chan in
   Location.set !filename buf ;
-  Cut.start_phase !outname ;
+  Cut.start_phase !filename !outname ;
   Cut.main buf ;
   if !log then Cross.dump (!Cut.name^".hrf") Cut.check_changed
 ;;
