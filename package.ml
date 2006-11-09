@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.96 2006-10-16 08:57:17 maranget Exp $    *)
+(*  $Id: package.ml,v 1.97 2006-11-09 20:29:33 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -47,7 +47,6 @@ exception DiacriticFailed of string
 
 let do_def_diacritic verb name f empty = 
   (fun lexbuf ->
-    Save.start_echo () ;
     let arg0 = save_arg lexbuf in
     let arg = get_prim_onarg arg0 in
     try match String.length arg with
@@ -67,7 +66,7 @@ let def_diacritic name internal f empty =
       try do_def_diacritic true name f empty lexbuf
       with DiacriticFailed input ->
 	scan_this main
-	  ("\\text@accent{"^internal^"}{"^name^"}{"^input^"}"))
+	  ("\\text@accent{"^internal^"}{"^name^"}{\\@print{"^input^"}}"))
 ;;
 
 def_diacritic "\\'"  "acute" OutUnicode.acute 0xB4 ;

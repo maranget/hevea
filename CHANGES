@@ -1,3 +1,6 @@
+     - Simplified error messages for accents, too many
+       problems in displaying argument.
+     - imagen accepts dir/file
 version 1.09
      - Release at last.
 version 1.08+23

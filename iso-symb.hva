@@ -439,7 +439,7 @@
 \fi
 \newcommand{\text@accent}[3]
 {\@ifundefined{#1@default}
-  {\warning{Application of '#2' on '#3' failed}#3}
+  {\warning{Application of '#2' failed}#3}
   {\csname#1@default\endcsname{#3}}}
 %%%%%%%%%%%%%%%%%%%%%%%%%%
 % Delimiters (Table 113) %
