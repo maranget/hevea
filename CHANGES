@@ -1,8 +1,12 @@
+version 1.09+2
+     - correct some bugs for output to dir and above all document that.
+       Also produce doc in subdirectory doc/doc.
+     - document -toc{bis,ter} options.
 version 1.09+1
      - Simplified error messages for accents, too many
        problems in displaying argument.
      - hevea/hacha/imagen accept dir/file as input or output
-      with sensible (?) behavior 
+      with sensible (?) behavior [DOC PENDING]
 version 1.09
      - Release at last.
 version 1.08+23

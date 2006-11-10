@@ -9,8 +9,14 @@ HTMLDIR=$(HOME)/public_html/hevea
 DOCDIR=$(HTMLDIR)/doc
 DISTRIDIR=$(HTMLDIR)/distri
 
-all: index.html
+all: doc doc/index.html
 
+doc:
+	mkdir -p doc
+	cp fddl.html doc
+
+docclean:
+	/bin/rm -f doc/manual.h{tml,aux,ind,toc} doc/manual.image.tex
 opt:
 	export HEVEADIR=.. ;\
 	$(MAKE) $(MFLAGS) HEVEAOPTS="$(HEVEAOPTS)" HACHAOPTS="$(HACHAOPTS)" HEVEA=../hevea.opt HACHA=../hacha.opt IMAGEN=../imagen all
@@ -26,8 +32,8 @@ byte:
 tmp.tex: text.tex
 	$(GPIC) -t < text.tex > tmp.tex
 
-manual.html: manual.hva  macros.tex manual.tex version.tex tmp.tex
-	${HEVEA} $(HEVEAOPTS) manual.hva manual.tex
+doc/manual.html: manual.hva  macros.tex manual.tex version.tex tmp.tex
+	${HEVEA} $(HEVEAOPTS) -o doc/manual.html manual.hva manual.tex
 
 manual.dvi: manual.tex macros.tex version.tex tmp.tex
 	$(LATEX) < /dev/null manual.tex &&\
@@ -41,24 +47,18 @@ manual.ps: manual.dvi
 manual.pdf: manual.ps
 	ps2pdf manual.ps
 
-index.html: manual.html
-	$(HACHA) $(HACHAOPTS) manual.html
-
-images: manual001.gif
-
-manual001.gif: manual.image.tex
-	${IMAGEN} manual
+doc/index.html: doc/manual.html
+	$(HACHA) $(HACHAOPTS) -o doc/index.html doc/manual.html
 
 info: manual.inf tmp.tex
 	$(HEVEA) $(HEVEAOPTS) -info manual.inf manual.tex -o manual.info
 
 ############ Installation stuff
-install:
+install: docclean
 	-mkdir $(DOCDIR)
-	cp iso.html symbol.html index.html fddl.html manual-packages.html manual[0-9][0-9][0-9].html *.gif $(DOCDIR)
-	cp browser.html cutname.html $(DOCDIR)
+	cp doc/* $(DOCDIR)
 	cp ../html/urlhref.hva $(DOCDIR)
-	cp manual.css $(DOCDIR)
+
 
 install-distri:
 	/bin/rm -rf $(DISTRIDIR)
@@ -150,12 +150,10 @@ clean:
 	rm -f *~ *.aux *.log *.toc *.idx *.ilg *.ind *.haux *.hidx *.hind *.htoc *.hrf
 
 cleanall: clean
-	rm -f manual.dvi manual.ps manual[0-9][0-9][0-9].html *_motif.gif \
-	manual*.gif manual*.png\
-	tmp.* *.image.tex manual.html index.html faq.html\
-	 hevea.spec manual.txt manual.info manual.info-[0-9]\
-	browser.html cutname.html pdfmanual.pdf \
-	manual.css manual.htoc
+	rm -f manual.dvi manual.ps manual.pdf
+	rm -f faq.html hevea.spec manual.txt manual.info manual.info-[0-9] pdfmanual.pdf
+	/bin/rm -rf doc
+	/bin/rm -f tmp.tex
 
 include ../libs.def
 RPMLIB=/usr/lib/hevea

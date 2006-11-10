@@ -15,6 +15,7 @@
 }}
 \newcommand{\showcolor}[1]{\textcolor{#1}{\texttt{#1}}}
 \renewcommand{\cuttingunit}{part}
+\setcounter{cuttingdepth}{1}
 \renewcommand{\@footnotelevel}{section}
 \let\latexsection\section
 \newcommand{\pdfsection}[1]{}

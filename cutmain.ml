@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: cutmain.ml,v 1.23 2006-11-10 08:28:46 maranget Exp $" 
+let header = "$Id: cutmain.ml,v 1.24 2006-11-10 17:01:43 maranget Exp $" 
 
 exception Error of string
 ;;
@@ -27,7 +27,7 @@ let main () =
     [("-o", Arg.String (fun s -> outname := s),
        "filename, make hacha output go into file 'filename' (defaults to index.html)");
      ("-tocbis", Arg.Unit (fun () -> toc_style := Cut.Both),
-       ", duplicate table of contents at the begining of files");      
+       ", Duplicate table of contents at the begining of files");      
      ("-tocter", Arg.Unit (fun () -> toc_style := Cut.Special),
        ", Insert most of table of contents at the beginning of files");
      ("-nolinks", Arg.Unit (fun () -> cross_links := false),

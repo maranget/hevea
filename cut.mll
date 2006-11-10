@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: cut.mll,v 1.54 2006-11-10 08:28:46 maranget Exp $ *)
+(* $Id: cut.mll,v 1.55 2006-11-10 17:01:43 maranget Exp $ *)
 {
 
 type toc_style = Normal | Both | Special
@@ -67,8 +67,6 @@ let real_name name =
   | Some dir -> Filename.concat dir name
 
 let real_open_out name = open_out (real_name name)
-
-let toc_style = ref Normal
 
 let some_links = ref false
 
@@ -324,7 +322,7 @@ and depth = ref 2
 (* Open all lists in toc from chapter to sec, with sec > chapter *)
 let rec do_open l1 l2 =
   if l1 < l2 then begin
-     begin match !toc_style with
+     begin match toc_style with
      | Both -> openlist !toc ; openlist !out_prefix
      | Special -> openlist !out_prefix
      | Normal  -> openlist !toc
@@ -336,7 +334,7 @@ let rec do_open l1 l2 =
 (* close from l1 down to l2 *)
 let rec do_close l1 l2 =
   if l1 > l2 then begin
-     begin match !toc_style with
+     begin match toc_style with
      | Both -> closelist !toc ; closelist !out_prefix
      | Special -> closelist !out_prefix
      | Normal  -> closelist !toc
@@ -355,7 +353,7 @@ let open_section sec name =
     else if !cur_level < sec then do_open  !cur_level sec ;
     incr anchor ;
     let label = "toc"^string_of_int !anchor in
-    begin match !toc_style with
+    begin match toc_style with
     | Normal ->
         itemanchor !outname label name !toc ;
     | Both ->
@@ -380,7 +378,7 @@ let close_chapter () =
     prerr_endline ("Close chapter out="^ !outname^" toc="^ !tocname) ;
   if !phase > 0 then begin
     if !outname <> !tocname then closehtml true !outname !out ;
-    begin match !toc_style with
+    begin match toc_style with
     | Both|Special ->
       let real_out = real_open_out !outname in
       CutOut.to_chan real_out !out_prefix ;
@@ -401,7 +399,7 @@ and open_chapter name =
       ("Open chapter out="^ !outname^" toc="^ !tocname^
        " cur_level="^string_of_int !cur_level) ;
   if !phase > 0 then begin
-    begin match !toc_style with
+    begin match toc_style with
     | Both|Special ->
         out_prefix := CutOut.create_buff (!outname ^ "-prefix") ;
         out := !out_prefix ;
@@ -658,7 +656,7 @@ rule main = parse
     main lexbuf}
 | "<!--SEC END" ' '* "-->" '\n'?
     {if !phase > 0 then begin
-      match !toc_style with
+      match toc_style with
       | Both|Special when !out == !out_prefix ->
           out := CutOut.create_buff "out-buf"
       | _ -> ()
