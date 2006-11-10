@@ -1,3 +1,4 @@
+version 1.09+1
      - Simplified error messages for accents, too many
        problems in displaying argument.
      - hevea/hacha/imagen accept dir/file as input or output
