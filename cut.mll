@@ -9,19 +9,42 @@
 (*                                                                     *)
 (***********************************************************************)
 
+(* $Id: cut.mll,v 1.54 2006-11-10 08:28:46 maranget Exp $ *)
 {
+
+type toc_style = Normal | Both | Special
+
+
+exception Error of string
+
+module type Config = sig
+  val verbose : int
+  val name_in : string
+  val name_out : string
+  val toc_style : toc_style
+  val cross_links : bool
+end
+
+module Make (Config : Config) =
+struct
+
+open Config
 open Lexing
 open Stack
-let header = "$Id: cut.mll,v 1.53 2006-11-09 21:36:45 maranget Exp $" 
-
-let verbose = ref 0
 
 let count = ref 0
-;;
 
-let language = ref "eng"
-let base = ref None
-and name = ref "coucou"
+let dir =
+  let dir = Filename.dirname name_out in
+  if dir = "." then
+    None
+  else
+    Some dir
+ 
+and base =
+  let base = Filename.basename name_in in
+  try Filename.chop_extension base 
+  with Invalid_argument _ -> base
 
 let changed_t = Hashtbl.create 17
 
@@ -39,18 +62,15 @@ let rec check_changed name =
 
 let real_name name =
   let name = check_changed name in
-  match !base with
+  match dir with
   | None -> name
   | Some dir -> Filename.concat dir name
 
 let real_open_out name = open_out (real_name name)
 
-type toc_style = Normal | Both | Special
-
 let toc_style = ref Normal
 
-let cross_links = ref true
-and some_links = ref false
+let some_links = ref false
 
 let env = Hashtbl.create 17
 
@@ -67,9 +87,6 @@ let _ =
 let get_env key =
   try Hashtbl.find env key with Not_found -> assert false
   
-exception Error of string
-
-
 (* Accumulate all META, LINK and similar tags that appear in the preamble
    in order to output them in the preamble of every generated page. *)
 
@@ -84,7 +101,7 @@ and adjoin_to_header_char c = CutOut.put_char header_buff c
 
 let finalize_header () =
   if not (CutOut.is_empty style_buff) then begin
-    let css_name = Printf.sprintf "%s.css" !name in
+    let css_name = Printf.sprintf "%s.css" base in
     link_style :=
        Printf.sprintf
          "<LINK rel=\"stylesheet\" type=\"text/css\" href=\"%s\">\n"
@@ -111,7 +128,7 @@ and html = ref "<HTML>"
 
 let new_filename s =  
   incr count ;
-  Printf.sprintf "%s%0.3d.html" !name !count
+  Printf.sprintf "%s%0.3d.html" base !count
 
 let out = ref (CutOut.create_null ())
 and out_prefix = ref (CutOut.create_null ())
@@ -131,27 +148,22 @@ let close_loc ctx name out =  CutOut.close out
 
 let change_name oldname name =
   if !phase <= 0 then begin
-    if !verbose > 0 then
+    if verbose > 0 then
       prerr_endline ("Change "^oldname^" into "^name) ;
     record_changed oldname name ;
   end
 
-let start_phase name_in name_out =
+let start_phase () =
   incr phase ;
-  if !verbose > 0 then
+  if verbose > 0 then
     prerr_endline ("Starting phase number: "^string_of_int !phase);
-  outname := name_out ;
-  tocname := name_out ;
+  let base_out = Filename.basename name_out in
+  outname := base_out ;
+  tocname := base_out ;
   otheroutname := "" ;
   count := 0 ;
-  if !phase = 0 then begin
-    let d = Filename.dirname name_out in
-    if d <> "." then begin
-      base := Some d
-    end
-  end ;
   if !phase > 0 then begin
-    out := CutOut.create_chan (real_name name_out)
+    out := CutOut.create_chan (real_name base_out)
   end ;
   toc := !out
 ;;
@@ -223,13 +235,13 @@ let link_buff = CutOut.create_buff "link-buf"
 
 let putlinks  name =
   let links_there = ref false in
-  if !verbose > 0 then
+  if verbose > 0 then
     prerr_endline ("putlinks: "^name) ;
   begin try
     putlink link_buff (Thread.prev name) (get_env "PREVTXT") ;
     links_there := true
   with Not_found ->
-    if !verbose > 0 then
+    if verbose > 0 then
       prerr_endline ("No prev link for "^name)
   end ;
   begin try
@@ -246,7 +258,7 @@ let putlinks  name =
     None
 
 let putlinks_start out outname =
-  if !cross_links then
+  if cross_links then
     match putlinks outname with
     | Some s -> 
         some_links := true ;
@@ -255,7 +267,7 @@ let putlinks_start out outname =
     | None -> ()
 
 let putlinks_end out outname =
-  if !cross_links then
+  if cross_links then
     match putlinks outname with
     | Some s -> 
         some_links := true ;
@@ -364,7 +376,7 @@ and close_section sec =
 ;;
 
 let close_chapter () =
-  if !verbose > 0 then
+  if verbose > 0 then
     prerr_endline ("Close chapter out="^ !outname^" toc="^ !tocname) ;
   if !phase > 0 then begin
     if !outname <> !tocname then closehtml true !outname !out ;
@@ -384,7 +396,7 @@ let close_chapter () =
 
 and open_chapter name =
   outname := new_filename ("open_chapter <<"^name^">>") ;
-  if !verbose > 0 then
+  if verbose > 0 then
     prerr_endline
       ("Open chapter out="^ !outname^" toc="^ !tocname^
        " cur_level="^string_of_int !cur_level) ;
@@ -401,7 +413,7 @@ and open_chapter name =
     itemref !outname name !toc ;
     cur_level := !chapter
   end else begin
-    if !verbose > 0 then
+    if verbose > 0 then
       prerr_endline ("link prev="^ !lastclosed^" next="^ !outname) ;
     Thread.setup !outname !tocname ;
     Thread.setprevnext !lastclosed !outname ;
@@ -421,7 +433,7 @@ let open_notes_pred sec_notes =
     true
 
 let open_notes sticky sec_notes =
-  if !verbose > 0 && !phase > 0 then 
+  if verbose > 0 && !phase > 0 then 
     Printf.eprintf "Notes flushed as %s (current cut is %s, current level is %s)\n"
       (Section.pretty sec_notes)
       (Section.pretty !chapter)
@@ -463,7 +475,7 @@ let stack = Stack.create "main"
 ;;
 
 let save_state newchapter newdepth =
-  if !verbose > 0 then
+  if verbose > 0 then
     prerr_endline ("New state: "^string_of_int newchapter) ;
   push stack
     (!outname, Stack.save flowname_stack, Stack.save flow_stack,
@@ -476,7 +488,7 @@ let save_state newchapter newdepth =
 ;;
 
 let restore_state () =
-  if !verbose > 0 then prerr_endline ("Restore") ;
+  if verbose > 0 then prerr_endline ("Restore") ;
   let
     oldoutname, oldflowname, oldflow,
     oldchapter,olddepth,oldtoc,oldtocname,
@@ -608,7 +620,7 @@ rule main = parse
       if String.uppercase arg = "NOW" then !chapter
       else Section.value arg in
     let name = tocline lexbuf in
-    if !verbose > 1 then begin
+    if verbose > 1 then begin
       prerr_endline ("TOC "^arg^" "^name)
     end;
     if sn < !chapter then begin
@@ -668,9 +680,6 @@ rule main = parse
     {if !otheroutname <> "" then
       close_notes ();
       main lexbuf}
-| "<!--" ' '* "FRENCH" ' '* "-->"
-    {language := "fra" ;
-      main lexbuf}
 | "<A" ' '+
     {if !phase > 0 then put (lexeme lexbuf) ;
     aargs lexbuf}
@@ -717,7 +726,7 @@ rule main = parse
 | "<HEAD" [^'>']* '>'
     {put (lexeme lexbuf);
       if !phase = 0 then begin
-        if !verbose > 0 then prerr_endline "Collect header" ;
+        if verbose > 0 then prerr_endline "Collect header" ;
         collect_header lexbuf
       end else begin
         repeat_header lexbuf
@@ -738,7 +747,7 @@ rule main = parse
 and save_html = parse
 | "<!--END" ' '* ['A'-'Z']+ ' '* "-->" '\n'?
     {let s = CutOut.to_string html_buff in
-    if !verbose > 0 then
+    if verbose > 0 then
       prerr_endline ("save_html -> ``"^s^"''");
     s}
 |  _
@@ -751,7 +760,7 @@ and save_html = parse
 and collect_header = parse
 | "</HEAD>"
     {finalize_header () ;
-    if !verbose > 0 then begin
+    if verbose > 0 then begin
       prerr_string "Header is: '" ;
       prerr_string !common_headers ;
       prerr_endline "'"
@@ -884,3 +893,12 @@ and skip_endcom  = parse
 and skip_aref = parse
   "</A>" {()}
 | _      {skip_aref lexbuf}  
+
+{
+
+let do_lex lexbuff =
+  main lexbuff ;
+  !some_links
+
+end
+} 

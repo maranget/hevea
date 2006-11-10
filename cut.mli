@@ -9,16 +9,26 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* "$Id: cut.mli,v 1.3 2006-11-09 21:36:45 maranget Exp $" *)
-val real_name : string -> string
-val verbose : int ref
-(* val base : string option ref *)
-(* val language : string ref *)
-val check_changed : string -> string
+(* "$Id: cut.mli,v 1.4 2006-11-10 08:28:46 maranget Exp $" *)
+
 type toc_style = Normal | Both | Special
-val toc_style : toc_style ref
-val cross_links : bool ref
-val some_links : bool ref
+
 exception Error of string
-val start_phase : string -> string -> unit
-val main : Lexing.lexbuf -> unit
+
+module type Config = sig
+  val verbose : int
+  val name_in : string
+  val name_out : string
+  val toc_style : toc_style
+  val cross_links : bool
+end
+
+module Make (Config:Config) :
+sig
+  val dir : string option
+  val base : string
+  val real_name : string -> string
+  val check_changed : string -> string
+  val start_phase : unit -> unit
+  val do_lex : Lexing.lexbuf -> bool
+end
