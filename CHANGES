@@ -1,6 +1,7 @@
      - Simplified error messages for accents, too many
        problems in displaying argument.
-     - imagen accepts dir/file
+     - hevea/hacha/imagen accept dir/file as input or output
+      with sensible (?) behavior 
 version 1.09
      - Release at last.
 version 1.08+23
