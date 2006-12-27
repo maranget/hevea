@@ -1,2 +1,2 @@
-\def\@charset{windows-1250}
-\@set@translators{mappings/windows-1250.map}
+\def\@charset{windows-1250}%
+\@set@translators{mappings/windows-1250.map}%

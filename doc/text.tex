@@ -1,9 +1,8 @@
 \usepackage{ifpdf}
 %HEVEA\pdffalse
 \usepackage{a4}
-\usepackage[koi8-r]{inputenc}
-%\usepackage[latin1]{inputenc}
-%HEVEA%\@def@charset{US-ASCII}
+\usepackage[latin1]{inputenc}
+%HEVEA\@def@charset{US-ASCII}
 \usepackage{fullpage}
 \usepackage{makeidx}
 \usepackage{texnames}
@@ -3016,10 +3015,11 @@ charset name as argument and performs the operation of specifying the
 document character set and the output translator. It should occur in
 the document preamble.
 Valid  charset names are \texttt{ISO-8859-}\textit{n} where \textit{n} is a
-number in \texttt{1}\ldots\texttt{15}, \texttt{US-ASCII} (the
+number in \texttt{1}\ldots\texttt{15},
+\texttt{KOI8-R}, \texttt{US-ASCII} (the
 default),
 \texttt{windows-}\textit{n} where \textit{n} is
-\texttt{1250}, \texttt{1252} or~\texttt{1257},
+\texttt{1250}, \texttt{1251}, \texttt{1252} or~\texttt{1257},
 or \texttt{macintosh}.
 In case those charsets do not suffice, you may ask the author for
 other document charsets.  Notice however that document charset is not
@@ -6183,9 +6183,10 @@ according to various \emph{8~bits} encodings.
 The one used encoding is specified as an option while loading the package
 \verb+\usepackage[+\textit{encoding}\verb+]{inputenc}+.
 At the moment, \hevea{} recognizes the ten \emph{latin} encodings
-(from \texttt{latin1} to \texttt{latin10}) and the \texttt{ascii}
-encoding,
-three windows encodings, and the \texttt{applemac} encoding.
+(from \texttt{latin1} to \texttt{latin10}),
+the \texttt{koi8-r} encoding,
+the \texttt{ascii} encoding,
+four windows encodings, and the \texttt{applemac} encoding.
 It is important to notice that loading the \verb+inputenc+ package
 alters the \html{} document charset.
 For instance if the \texttt{latin9} input encoding is selected by:

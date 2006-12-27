@@ -1,3 +1,4 @@
+      - Added input encodings koi8-r et cp1251 (Russian)
 version 1.09+2
      - Correct some bugs for output to dir (imagen on absolute path).
      -  And above all document that.
