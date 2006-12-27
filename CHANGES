@@ -1,7 +1,8 @@
 version 1.09+2
-     - correct some bugs for output to dir and above all document that.
-       Also produce doc in subdirectory doc/doc.
-     - document -toc{bis,ter} options.
+     - Correct some bugs for output to dir (imagen on absolute path).
+     -  And above all document that.
+     - Produce doc in subdirectory doc/doc.
+     - Document -toc{bis,ter} options for hacha.
 version 1.09+1
      - Simplified error messages for accents, too many
        problems in displaying argument.

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.300 2006-11-09 20:58:25 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.301 2006-12-27 16:02:34 maranget Exp $ *)
 
 
 {
@@ -961,7 +961,7 @@ and top_close_maths dodo =
 let command_name =
   '\\' (( ['@''A'-'Z' 'a'-'z']+ '*'?) | [^ 'A'-'Z' 'a'-'z'] | "\\*")
 
-    rule  main = parse
+rule  main = parse
 (* comments *)
 | '%'
     {do_expand_command main skip_blanks "\\@hevea@percent" lexbuf ;

@@ -1,8 +1,9 @@
 \usepackage{ifpdf}
 %HEVEA\pdffalse
 \usepackage{a4}
-\usepackage[latin1]{inputenc}
-%HEVEA\@def@charset{US-ASCII}
+\usepackage[koi8-r]{inputenc}
+%\usepackage[latin1]{inputenc}
+%HEVEA%\@def@charset{US-ASCII}
 \usepackage{fullpage}
 \usepackage{makeidx}
 \usepackage{texnames}
@@ -260,9 +261,10 @@ The file \texttt{mymacros.hva} is processed before
 \texttt{doc.tex} (and thus before \texttt{mymacros.tex}).
 As a consequence of \hevea{} behavior with respect to
 definition and redefinition (see section~\ref{usermacro}),
-the macro definitions in \texttt{mymacros.tex}
-override the ones in  \texttt{mymacros.tex}, provided
-the document original definitions are performed by \verb+\newcommand+
+the macro definitions in \texttt{mymacros.hva}
+take precedence over the ones in  \texttt{mymacros.tex}, provided
+the document original definitions (the ones in
+\texttt{mymacros.tex}) are performed by \verb+\newcommand+
 (or \verb+\newenvironment+).
 
 

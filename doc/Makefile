@@ -100,7 +100,7 @@ dorelease: doversion
 	tar cfo $(RELEASENAME).tar $(RELEASENAME) ;\
 	gzip -f --best  $(RELEASENAME).tar
 # Copy to FTPDIR
-	-cd $(RELEASEDIR) ; $(RELEASENAME).tar.gz $(RELEASENAME)/README $(RELEASENAME)/LICENSE $(RELEASENAME)/CHANGES $(FTPDIR)
+	-cd $(RELEASEDIR) ; cp $(RELEASENAME).tar.gz $(RELEASENAME)/README $(RELEASENAME)/LICENSE $(RELEASENAME)/CHANGES $(FTPDIR)
 
 docrelease: doversion byte manual.dvi manual.pdf
 	dvips -o$(RELEASEDIR)/$(RELEASENAME)-manual.ps manual.dvi
