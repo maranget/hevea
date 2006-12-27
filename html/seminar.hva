@@ -41,6 +41,8 @@
 \newcommand{\slidepagestyle}[1]{}
 \newcommand{\addtoslidelist}[1]{}
 \newcommand{\newpagestyle}[2]{}
+\newcommand{\slideheadfont}{}
+\newcommand{\slidefootfont}{}
 %%%% load the article style file
 \input{article.hva}
 \fi
