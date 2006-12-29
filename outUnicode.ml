@@ -9,6 +9,10 @@
 (*                                                                     *)
 (***********************************************************************)
 
+type unichar = int (* 31 bits, well *)
+
+let show x = Printf.sprintf "U+%04X" x
+
 exception Failed of string
 
 let bad_char c =
@@ -56,20 +60,87 @@ let parse str =
 
 exception CannotTranslate
 
-let translate_ascii_out i =
-  if i < 128 then Char.chr i
+let translate_ascii_out i put =
+  if i < 128 then put (Char.unsafe_chr i)
   else raise CannotTranslate
 
-and translate_ascii_in c =
+and translate_ascii_in c _ =
   let i = Char.code c in
   if i < 128 then i
   else raise CannotTranslate    
 
-let translate_latin1_out i =
-  if i < 256 then Char.chr i
+let translate_latin1_out i put =
+  if i < 256 then put (Char.unsafe_chr i)
   else raise CannotTranslate
 
-and translate_latin1_in c = Char.code c
+and translate_latin1_in c _ = Char.code c
+
+let cannot () = raise CannotTranslate
+
+(* Code adapted from netstring library, by G stolpmann *)
+
+let translate_utf8_in c next = match c with
+| '\000'..'\127' -> Char.code c
+| '\128'..'\223' ->
+    let n1 = Char.code c in
+    let n2 = next () in
+    if n2 < 128 || n2 > 191 then cannot () ;
+    let p = ((n1 land 0b11111) lsl 6) lor (n2 land 0b111111) in
+    if p < 128 then cannot () ;
+    p
+| '\224'..'\239' ->
+    let n1 = Char.code c in
+    let n2 = next () in
+    let n3 = next () in
+    if n2 < 128 or n2 > 191 then cannot();
+    if n3 < 128 or n3 > 191 then cannot();
+    let p =
+      ((n1 land 0b1111) lsl 12) lor
+      ((n2 land 0b111111) lsl 6) lor
+      (n3 land 0b111111) in
+    if p < 0x800 then cannot();
+    if (p >= 0xd800 && p < 0xe000) then
+    (* Surrogate pairs are not supported in UTF-8 *)
+      cannot();
+    if (p >= 0xfffe && p <= 0xffff) then cannot();
+    p
+| ('\240'..'\247' as x) ->
+    let n1 = Char.code x in
+    let n2 = next () in
+    let n3 = next () in
+    let n4 = next () in
+    if n2 < 128 or n2 > 191 then cannot();
+    if n3 < 128 or n3 > 191 then cannot();
+    if n4 < 128 or n4 > 191 then cannot();
+    let p =
+      ((n1 land 0b111) lsl 18) lor
+      ((n2 land 0b111111) lsl 12) lor
+      ((n3 land 0b111111) lsl 6) lor
+      (n4 land 0b111111) in
+    if p < 0x10000 then cannot ();
+    if p >= 0x110000 then cannot();
+    (* These code points are not supported. *)
+    p
+| _ -> cannot ()
+
+and translate_utf8_out p put =
+  if p <= 127 then put (Char.unsafe_chr p)
+  else if p <= 0x7ff then begin
+    put (Char.unsafe_chr (0xc0 lor (p lsr 6))) ;
+    put (Char.unsafe_chr (0x80 lor (p land 0x3f)))
+  end else if p <= 0xffff then begin
+    put (Char.unsafe_chr (0xe0 lor (p lsr 12)));
+    put (Char.unsafe_chr (0x80 lor ((p lsr 6) land 0x3f)));
+    put (Char.unsafe_chr (0x80 lor (p land 0x3f)))
+  end else begin
+  (* No such characters are defined... *)
+    put (Char.chr (0xf0 lor (p lsr 18)));
+    put (Char.chr (0x80 lor ((p lsr 12) land 0x3f))) ;
+    put (Char.chr (0x80 lor ((p lsr 6)  land 0x3f))) ;
+    put (Char.chr (0x80 lor (p land 0x3f))) ;
+  end
+
+    
 
 let translate_out_fun = ref translate_ascii_out
 and translate_in_fun = ref translate_ascii_in
@@ -77,14 +148,14 @@ and translate_in_fun = ref translate_ascii_in
 let make_out_translator ps =
   let t = Hashtbl.create 101 in
   List.iter (fun (iso, uni) -> Hashtbl.add t uni (Char.chr iso)) ps ;
-  (fun i ->
-    try Hashtbl.find t i
+  (fun i put ->
+    try put (Hashtbl.find t i)
     with Not_found -> raise CannotTranslate)
 
 and make_in_translator ps =
   let t = Array.create 256 0 in
   List.iter (fun (iso, uni) -> t.(iso) <- uni) ps ;
-  (fun c -> t.(Char.code c))
+  (fun c _ -> t.(Char.code c))
 
 let read_mapping name chan =
   let t = ref []
@@ -130,6 +201,8 @@ let set_output_translator name =
       translate_out_fun := translate_latin1_out
   | "US-ASCII.map" ->
       translate_out_fun := translate_ascii_out
+  | "UTF-8.map" ->
+      translate_out_fun := translate_utf8_out
   | _ ->
       let chan = open_mapping name in
       let ps = read_mapping name chan in
@@ -143,6 +216,8 @@ and set_input_translator name =
       translate_in_fun := translate_latin1_in
   | "US-ASCII.map" ->
       translate_in_fun := translate_ascii_in
+  | "UTF-8.map" ->
+      translate_in_fun := translate_utf8_in
   | _ ->
       let chan = open_mapping name in
       let ps = read_mapping name chan in
@@ -158,6 +233,9 @@ and set_translators name =
   | "US-ASCII.map" ->
       translate_out_fun := translate_ascii_out ;
       translate_in_fun := translate_ascii_in
+  | "UTF-8.map" ->
+      translate_out_fun := translate_utf8_out ;
+      translate_in_fun := translate_utf8_in
   | _ ->
       let chan = open_mapping name in
       let ps = read_mapping name chan in
@@ -167,7 +245,7 @@ and set_translators name =
   
   
 let translate_out i = !translate_out_fun i
-and translate_in c = !translate_in_fun c
+and translate_in c (next:unit -> int) = !translate_in_fun c next
 
 (* Diacritical marks *)
 
@@ -726,3 +804,42 @@ let def_t = Hashtbl.create 101
 
 let def_default i default = Hashtbl.replace def_t i default
 and get_default i = Hashtbl.find def_t i
+
+
+let html_put put put_char i = match i with
+| 0x3C -> put "&lt;"
+| 0x3E -> put "&gt;"
+| 0x26 -> put "&amp;"
+| _ ->
+  try (translate_out i put_char)
+  with CannotTranslate ->
+    put (Printf.sprintf "&#X%X;" i)
+
+(* Constants *)
+
+let null = 0x00
+and nbsp = 0X0A
+and acute_alone = 0xB4
+and grave_alone = 0X60
+and circum_alone = 0X5E
+and diaeresis_alone = 0xA8
+and cedilla_alone = 0xB8
+and tilde_alone = 0x7E
+and macron_alone = 0xAF
+and doubleacute_alone = 0x2DD
+and breve_alone = 0x2D8
+and dotabove_alone = 0x2D9
+and dotbelow_alone = 0x2D4
+and linebelow_alone = 0x5F
+and ogonek_alone = 0x2DB
+and ring_alone =  0x2DA
+and caron_alone = 0x2C7
+and circled_alone = 0x25EF
+and eszett = 0xDF
+and iques = 0xBF
+and iexcl = 0xA10
+and minus = 0x2212
+and endash = 0x2013
+and emdash = 0x2014
+and lquot = 0x201C
+and rquot = 0x201D

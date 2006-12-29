@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: verb.mll,v 1.87 2006-04-26 15:47:06 maranget Exp $            *)
+(*  $Id: verb.mll,v 1.88 2006-12-29 15:32:19 maranget Exp $            *)
 (***********************************************************************)
 {
 exception VError of string
@@ -175,10 +175,7 @@ let lst_top_mode = ref (Skip Normal)
 let lst_ptok s =  prerr_endline (s^": "^Out.to_string lst_buff)
 
 (* Final ouput, with transformations *)
-let dest_string s =
-  for i = 0 to String.length s - 1 do
-    Scan.translate_put_unicode s.[i]
-  done
+let dest_string = Scan.translate_put_unicode_string
 
 (* Echo, with case change *)
 let dest_case s =
@@ -800,7 +797,7 @@ rule inverb verb_delim put = parse
     {if c = verb_delim then begin
       Dest.close_group () ;
     end else begin
-      put c ;
+      put c (fun () -> read_lexbuf lexbuf) ;
       inverb verb_delim put lexbuf
     end}
 | eof
@@ -935,8 +932,12 @@ and do_escape = parse
     scan_this main "}" ;
     do_escape lexbuf}
 | _ as lxm
-    {Scan.translate_put_unicode lxm ;
+    {Scan.translate_put_unicode lxm (fun () -> read_lexbuf lexbuf) ;
     do_escape lexbuf}
+
+and read_lexbuf = parse
+| eof    { -1 }
+| _ as c { Char.code c }
 
 and lst_linearg = parse
 | '-'? (['0'-'9']+ as n)   {LineNumber (int_of_string n)}
@@ -954,13 +955,14 @@ and lst_parse_linerange = parse
 
 let _ = ()
 ;;
-let put_char_star = function
-  | ' '|'\t' -> Dest.put_char '_' ;
-  | c -> Scan.translate_put_unicode c
 
-and put_char = function
+let put_char_star c next = match c with
+  | ' '|'\t' -> Dest.put_char '_' ;
+  | c -> Scan.translate_put_unicode c next
+
+and put_char c next = match c with
   |  '\t' -> Dest.put_char ' '
-  | c ->  Scan.translate_put_unicode c
+  | c ->  Scan.translate_put_unicode c next
 ;;
 
 
@@ -969,16 +971,16 @@ let open_verb put lexbuf =
   start_inverb put lexbuf
 ;;
   
-def_code "\\verb" (open_verb Scan.translate_put_unicode) ;
+def_code "\\verb" (open_verb put_char) ;
 def_code "\\verb*" (open_verb put_char_star);
 ();;
 
 let put_line_buff_verb () =
-  Out.iter put_char line_buff ;
+  Out.iter_next put_char line_buff ;
   Out.reset line_buff
 
 and put_line_buff_verb_star () =
-  Out.iter put_char_star line_buff ;
+  Out.iter_next put_char_star line_buff ;
   Out.reset line_buff  
 ;;
 
@@ -1126,14 +1128,14 @@ let tab_val = ref 8
 
 let put_verb_tabs () =
   let char = ref 0 in
-  Out.iter
-    (fun c -> match c with
+  Out.iter_next
+    (fun c next -> match c with
       | '\t' ->
           let limit = !tab_val - !char mod !tab_val in
           for _j = 1 to limit do
             Dest.put_char ' ' ; incr char
           done ;  
-      | c -> Scan.translate_put_unicode c ; incr char)
+      | c -> Scan.translate_put_unicode c next ; incr char)
     line_buff ;
   Out.reset line_buff
 

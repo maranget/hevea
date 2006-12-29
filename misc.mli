@@ -56,3 +56,7 @@ val dump_index : bool ref
 type saved
 val checkpoint : unit -> saved
 val hot_start : saved -> unit
+
+(* Some kind of abstract buffer used by unicode in translator *)
+val next_of_string : string -> (unit -> int)
+

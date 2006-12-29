@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: html.ml,v 1.109 2006-10-11 16:43:20 maranget Exp $" 
+let header = "$Id: html.ml,v 1.110 2006-12-29 15:32:19 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -138,15 +138,7 @@ let put_char c =
   else HtmlCommon.put_char c
 ;;
 
-let put_unicode i = match i with
-| 0x3C -> put "&lt;"
-| 0x3E -> put "&gt;"
-| 0x26 -> put "&amp;"
-| _ ->
-  try put_char (OutUnicode.translate_out i)
-  with OutUnicode.CannotTranslate ->
-    put (Printf.sprintf "&#X%X;" i)
-;;
+let put_unicode i = OutUnicode.html_put put put_char i
 
 let loc_name _ = ()
 
@@ -217,7 +209,7 @@ let put_nbsp () =
   if !Lexstate.whitepre || (flags.in_math && !Parse_opts.mathml) then
     put_char ' '
   else
-    put_unicode 0xA0
+    put_unicode OutUnicode.nbsp
 ;;
 
 let put_open_group () =

@@ -1,9 +1,11 @@
+      - UTF-8 support.
+      - abstract type for unicode
       - Added input encodings koi8-r et cp1251 (Russian)
 version 1.09+2
      - Correct some bugs for output to dir (imagen on absolute path).
      -  And above all document that.
      - Produce doc in subdirectory doc/doc.
-     - Document -toc{bis,ter} options for hacha.
+     - Document -toc{is,ter} options for hacha.
 version 1.09+1
      - Simplified error messages for accents, too many
        problems in displaying argument.

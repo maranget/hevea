@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.98 2006-11-09 20:58:25 maranget Exp $    *)
+(*  $Id: package.ml,v 1.99 2006-12-29 15:32:19 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -40,7 +40,7 @@ open Scan
 (*********************************************************)
 
 let put_empty empty =
-  if empty <> 0 then Dest.put_unicode empty
+  if empty <> OutUnicode.null then Dest.put_unicode empty
   else raise OutUnicode.CannotTranslate 
 
 exception DiacriticFailed of string
@@ -69,27 +69,30 @@ let def_diacritic name internal f empty =
 	  ("\\text@accent{"^internal^"}{"^name^"}{\\@print{"^input^"}}"))
 ;;
 
-def_diacritic "\\'"  "acute" OutUnicode.acute 0xB4 ;
-def_diacritic "\\`"  "grave" OutUnicode.grave 0x60 ;
-def_diacritic "\\^"  "circumflex" OutUnicode.circumflex 0x5E ;
-def_diacritic "\\\"" "diaeresis" OutUnicode.diaeresis 0xA8 ;
-def_diacritic "\\c"  "cedilla" OutUnicode.cedilla 0xB8 ;
-def_diacritic "\\~"  "tilde" OutUnicode.tilde 0x7E ;
-def_diacritic "\\="  "macron" OutUnicode.macron 0xAF ;
-def_diacritic "\\H"  "doubleacute" OutUnicode.doubleacute 0x2DD ;
+open OutUnicode
+
+let () =
+  def_diacritic "\\'"  "acute" OutUnicode.acute acute_alone ;
+  def_diacritic "\\`"  "grave" OutUnicode.grave grave_alone ;
+  def_diacritic "\\^"  "circumflex" OutUnicode.circumflex circum_alone ;
+  def_diacritic "\\\"" "diaeresis" OutUnicode.diaeresis diaeresis_alone ;
+  def_diacritic "\\c"  "cedilla" OutUnicode.cedilla cedilla_alone ;
+  def_diacritic "\\~"  "tilde" OutUnicode.tilde tilde_alone ;
+  def_diacritic "\\="  "macron" OutUnicode.macron macron_alone ;
+  def_diacritic "\\H"  "doubleacute" OutUnicode.doubleacute doubleacute_alone ;
 (* package fc, see later ? *)
 (* def_diacritic "\\G"  "doublegrave" OutUnicode.doublegrave 0x2F5 ; *)
-def_diacritic "\\u"  "breve" OutUnicode.breve 0x2D8 ;
-def_diacritic "\\."  "dotabove" OutUnicode.dotabove 0x2D9 ;
-def_diacritic "\\d"  "dotbelow" OutUnicode.dotbelow 0x2D4 ;
-def_diacritic "\\b"  "linebelow" OutUnicode.linebelow 0x5F ;
-def_diacritic "\\k"  "ogonek" OutUnicode.ogonek 0x2DB ;
-def_diacritic "\\r"  "ringabove" OutUnicode.ring  0x2DA ;
-def_diacritic "\\v"  "caron" OutUnicode.caron 0x2C7 ;
-def_diacritic "\\textcircled" "circled" OutUnicode.circled 0x25EF ;
+  def_diacritic "\\u"  "breve" OutUnicode.breve breve_alone ;
+  def_diacritic "\\."  "dotabove" OutUnicode.dotabove dotabove_alone ;
+  def_diacritic "\\d"  "dotbelow" OutUnicode.dotbelow dotbelow_alone ;
+  def_diacritic "\\b"  "linebelow" OutUnicode.linebelow  linebelow_alone ;
+  def_diacritic "\\k"  "ogonek" OutUnicode.ogonek ogonek_alone ;
+  def_diacritic "\\r"  "ringabove" OutUnicode.ring ring_alone ;
+  def_diacritic "\\v"  "caron" OutUnicode.caron  caron_alone ;
+  def_diacritic "\\textcircled" "circled" OutUnicode.circled circled_alone ;
 (* activated by amssymb *)
-def_diacritic "\\@doublestruck" "doublestruck" OutUnicode.doublestruck 0 ;
-()
+  def_diacritic "\\@doublestruck" "doublestruck" OutUnicode.doublestruck null ;
+  ()
 ;;
 
 (*
@@ -206,14 +209,9 @@ def_code "\\@macros"
   (fun _ -> Latexmacros.pretty_table ())
 ;;
 
-let translate_put s =
-  for k=0 to String.length s-1 do
-    Scan.translate_put_unicode s.[k]
-  done
-;;
 
 let def_print name s =
-  def_code name (fun _ -> translate_put s)
+  def_code name (fun _ -> Scan.translate_put_unicode_string s)
 ;;
 
 def_print "\\@basein" Parse_opts.base_in ;
@@ -709,7 +707,7 @@ register_init "graphics"
 (* url package *)
 let verb_arg lexbuf =
   let {arg=url} = save_verbatim lexbuf in
-  translate_put url
+  Scan.translate_put_unicode_string url
 ;;
 
 def_code "\\@verbarg" verb_arg ;
@@ -940,7 +938,7 @@ register_init "german"
             | 'a' | 'A' | 'e' | 'E' | 'i' | 'I' | 'o' | 'O' | 'u'| 'U' ->
                 begin try gput_unicode lexbuf (OutUnicode.diaeresis c)
                 with OutUnicode.CannotTranslate -> assert false end
-            | 's'|'z' -> gput_unicode lexbuf 0xDF
+            | 's'|'z' -> gput_unicode lexbuf eszett
             | 'c'|'f'|'l'|'m'|'p'|'r'|'t' as c ->
                 gput lexbuf c (* for "ck and "ff etc. *)
             | 'S' ->

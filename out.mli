@@ -29,6 +29,7 @@ val get_pos : t -> int
 val erase_start : int -> t -> unit
 
 val iter : (char -> unit) -> t -> unit
+val iter_next : (char -> (unit -> int) -> unit) -> t -> unit
 val to_string : t -> string
 val to_chan : out_channel -> t -> unit
 val copy : t -> t -> unit

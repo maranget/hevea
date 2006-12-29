@@ -3,7 +3,7 @@
 \usepackage{a4}
 \usepackage[latin1]{inputenc}
 %HEVEA\@def@charset{US-ASCII}
-\usepackage{fullpage}
+U\usepackage{fullpage}
 \usepackage{makeidx}
 \usepackage{texnames}
 \usepackage{url}
@@ -3020,7 +3020,7 @@ number in \texttt{1}\ldots\texttt{15},
 default),
 \texttt{windows-}\textit{n} where \textit{n} is
 \texttt{1250}, \texttt{1251}, \texttt{1252} or~\texttt{1257},
-or \texttt{macintosh}.
+or \texttt{macintosh}, or \texttt{UTF-8}.
 In case those charsets do not suffice, you may ask the author for
 other document charsets.  Notice however that document charset is not
 that important, the default \texttt{US-ASCII} works everywhere!
@@ -6179,14 +6179,15 @@ implement length registers in the first place.
 \subsection{Specifying \label{inputenc}the document input encoding, the \texttt{inputenc} package}
 \ttindex{inputenc}{package}
 The \texttt{inputenc} package enables \LaTeX{} to process a file
-according to various \emph{8~bits} encodings.
+according to various \emph{8~bits} encodings, plus \texttt{UTF-8}.
 The one used encoding is specified as an option while loading the package
 \verb+\usepackage[+\textit{encoding}\verb+]{inputenc}+.
 At the moment, \hevea{} recognizes the ten \emph{latin} encodings
 (from \texttt{latin1} to \texttt{latin10}),
 the \texttt{koi8-r} encoding,
 the \texttt{ascii} encoding,
-four windows encodings, and the \texttt{applemac} encoding.
+four windows encodings, the \texttt{applemac} encoding, and the
+\texttt{utf8} encoding.
 It is important to notice that loading the \verb+inputenc+ package
 alters the \html{} document charset.
 For instance if the \texttt{latin9} input encoding is selected by:

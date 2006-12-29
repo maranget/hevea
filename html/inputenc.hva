@@ -25,6 +25,7 @@
 \ic@option{cp1250}\ic@option{cp1251}\ic@option{cp1252}\ic@option{cp1257}%
 \ic@option{ansinew}%
 \ic@option{applemac}\ic@option{koi8-r}%
+\ic@option{utf8}%
 %%%
 \ProcessOptions*%
 \EndPackage

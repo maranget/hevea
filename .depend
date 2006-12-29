@@ -2,20 +2,24 @@ esponja.cmi: emisc.cmi
 explode.cmi: tree.cmi lexeme.cmi htmltext.cmi 
 get.cmi: lexstate.cmi length.cmi 
 htmllex.cmi: lexeme.cmi emisc.cmi css.cmi 
-html.cmi: tabular.cmi out.cmi lexstate.cmi length.cmi element.cmi 
+html.cmi: tabular.cmi outUnicode.cmi out.cmi lexstate.cmi length.cmi \
+    element.cmi 
 htmlparse.cmi: tree.cmi lexeme.cmi emisc.cmi 
 htmltext.cmi: lexeme.cmi 
-info.cmi: tabular.cmi out.cmi lexstate.cmi length.cmi element.cmi 
+info.cmi: tabular.cmi outUnicode.cmi out.cmi lexstate.cmi length.cmi \
+    element.cmi 
 latexmacros.cmi: lexstate.cmi 
 latexscan.cmi: outManager.cmi lexstate.cmi imageManager.cmi 
 lexstate.cmi: stack.cmi misc.cmi 
-outManager.cmi: tabular.cmi out.cmi lexstate.cmi length.cmi element.cmi 
+outManager.cmi: tabular.cmi outUnicode.cmi out.cmi lexstate.cmi length.cmi \
+    element.cmi 
 package.cmi: outManager.cmi latexscan.cmi imageManager.cmi 
 pp.cmi: tree.cmi lexeme.cmi htmltext.cmi css.cmi 
 save.cmi: misc.cmi 
 subst.cmi: lexstate.cmi 
 tabular.cmi: lexstate.cmi length.cmi 
-text.cmi: tabular.cmi out.cmi lexstate.cmi length.cmi element.cmi 
+text.cmi: tabular.cmi outUnicode.cmi out.cmi lexstate.cmi length.cmi \
+    element.cmi 
 ultra.cmi: tree.cmi lexeme.cmi 
 util.cmi: tree.cmi htmltext.cmi 
 verb.cmi: outManager.cmi latexscan.cmi imageManager.cmi 

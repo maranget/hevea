@@ -119,3 +119,13 @@ let checkpoint () = !image_opt
 
 and hot_start so = image_opt := so
 
+let next_of_string s =
+  let len = String.length s
+  and k = ref 0 in
+  (fun () ->
+    let i = !k in
+    if i >= len then -1
+    else begin
+      incr k ;
+      Char.code (String.unsafe_get s i)
+    end)

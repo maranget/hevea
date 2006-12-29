@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.301 2006-12-27 16:02:34 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.302 2006-12-29 15:32:19 maranget Exp $ *)
 
 
 {
@@ -17,7 +17,8 @@ module type S =
   sig
     (* external entry points *)
     val no_prelude : unit -> unit
-    val translate_put_unicode : char -> unit
+    val translate_put_unicode : char -> (unit -> int) -> unit
+    val translate_put_unicode_string : string -> unit
     val main : Lexing.lexbuf -> unit
     val expand_command : string -> Lexing.lexbuf -> unit
     val expand_command_no_skip : string -> Lexing.lexbuf -> unit
@@ -909,12 +910,12 @@ and check_case_char c = match !case with
 | Upper -> Char.uppercase c
 | Neutral -> c
 
-let translate_put_unicode c =
+let translate_put_unicode c next =
   if !raw_chars then
     Dest.put_char c
   else begin
     let uni =
-      try OutUnicode.translate_in c
+      try OutUnicode.translate_in c next
       with OutUnicode.CannotTranslate ->
         raise
           (Error
@@ -925,9 +926,19 @@ let translate_put_unicode c =
     with Misc.CannotPut ->
       Misc.warning
         (Printf.sprintf
-           "Cannot output unicode %x (%c)" uni c) ;
+           "Cannot output unicode %s (%c)" (OutUnicode.show uni) c) ;
       Dest.put_char c
   end
+
+let rec translate_next next = match next () with
+| -1 -> ()
+| c  ->
+    translate_put_unicode (Char.chr c) next ;
+    translate_next next
+
+let translate_put_unicode_string s =
+  let next = Misc.next_of_string s in
+  translate_next next
 
 let top_open_maths dodo =
   push stack_in_math !in_math ;
@@ -1092,8 +1103,12 @@ rule  main = parse
 (* One character *)
 | _  as lxm
     {let lxm = check_case_char lxm in
-    translate_put_unicode lxm ;
+    translate_put_unicode lxm (fun () -> read_lexbuf lexbuf) ;
     main lexbuf}
+
+and read_lexbuf = parse
+| eof      { -1 }
+| _ as lxm { Char.code lxm }
 
 and complete_newline = parse
 |  [' ''\n']* {lexeme lexbuf}
@@ -1576,7 +1591,7 @@ def_code "\\@hevea@question"
       gobble_one_char lexbuf ;
       if effective !alltt then Dest.put "?`"
       else
-        Dest.put_unicode 0xBF
+        Dest.put_unicode OutUnicode.iques
     end else
       Dest.put_char  '?')
 ;;
@@ -1585,7 +1600,7 @@ def_code "\\@hevea@excl"
      if if_next_char '`' lexbuf then begin
        gobble_one_char lexbuf ;
        if effective !alltt then Dest.put "!`"
-       else Dest.put_unicode 0xA1
+       else Dest.put_unicode OutUnicode.iexcl 
      end else
        Dest.put_char '!')
 ;;
@@ -2243,7 +2258,7 @@ let put_unicode_default uc =
   with Not_found ->
     Misc.warning
       (Printf.sprintf
-         "Cannot output that numerical entity: 0x%04X" uc) ;
+         "Cannot output that numerical entity: %s" (OutUnicode.show uc)) ;
     Dest.put_char '?'
 ;;
 
@@ -2945,7 +2960,7 @@ def_code "\\char"
       Location.print_pos () ;
       prerr_endline ("Warning: \\char, check output");
     end ;
-    translate_put_unicode (Char.chr arg) ;
+    translate_put_unicode (Char.chr arg) (fun () -> -1) ;
     if not (effective !alltt) then check_alltt_skip lexbuf)
 ;;
 
@@ -3009,15 +3024,9 @@ def_printcount "\\Roman" uproman_of_int;
 def_printcount "\\fnsymbol" fnsymbol_of_int
 ;;
 
-let translate_put s =
-  for k=0 to String.length s-1 do
-    translate_put_unicode s.[k]
-  done
-;;
-
 let pad p l s =
   for i = l-String.length s downto 1 do
-    translate_put p
+    translate_put_unicode_string p
   done
 ;;
 
@@ -3027,7 +3036,7 @@ def_code "\\@pad"
     let l = Get.get_int (save_arg lexbuf) in
     let arg = get_prim_arg lexbuf in
     pad p l arg ;
-    translate_put arg)
+    translate_put_unicode_string arg)
 ;;
 
 def_code "\\newcounter"
@@ -3385,9 +3394,7 @@ def_code "\\end@Tabular*" close_array ;
 let do_amper lexbuf =
   if effective !alltt || not (is_plain '&') then begin
     let lxm = lexeme lexbuf in
-    for i = 0 to String.length lxm -1 do
-      translate_put_unicode lxm.[i]
-    done
+    translate_put_unicode_string lxm
   end else if is_table !in_table  then begin
     close_col main "&nbsp;"; 
     open_col main
@@ -3416,9 +3423,9 @@ and do_bsbs lexbuf =
   let _ = Dest.forget_par () in ()
 ;;
 
-OutUnicode.def_default 0x2212 "\\@print{-}" ;
-OutUnicode.def_default 0x2013 "\\@print{--}" ;
-OutUnicode.def_default 0x2014 "\\@print{---}" ;
+OutUnicode.def_default OutUnicode.minus "\\@print{-}" ;
+OutUnicode.def_default OutUnicode.endash "\\@print{--}" ;
+OutUnicode.def_default OutUnicode.emdash "\\@print{---}" ;
 ()
 ;;
 
@@ -3428,32 +3435,32 @@ let do_minus lexbuf =
       gobble_one_char lexbuf ;
       if  Save.if_next_char '-' lexbuf then begin
         gobble_one_char lexbuf ;
-        put_unicode 0x2014 (* em dash *)
+        put_unicode OutUnicode.emdash
       end else
-        put_unicode 0x2013 (* en dash *)
+        put_unicode OutUnicode.endash
     end else if !in_math && not !raw_chars then
-      put_unicode 0x2212 (* minus *)
+      put_unicode OutUnicode.minus
     else
       Dest.put_char '-'
   else
     Dest.put_char '-'
 ;;
 
-OutUnicode.def_default 0x201C "\\@print{\"}" ;
-OutUnicode.def_default 0x201D "\\@print{\"}" ;
+OutUnicode.def_default OutUnicode.lquot "\\@print{\"}" ;
+OutUnicode.def_default OutUnicode.rquot "\\@print{\"}" ;
 ()
 ;;
 
 let do_backquote lexbuf = 
   if not !in_math && is_plain '`' && Save.if_next_char '`' lexbuf then begin
     gobble_one_char lexbuf ;
-    put_unicode 0x201C (* left quotation mark *)
+    put_unicode OutUnicode.lquot
   end else Dest.put_char '`'
 
 and do_quote lexbuf =
   if not !in_math && is_plain '\'' && Save.if_next_char '\'' lexbuf then begin
     gobble_one_char lexbuf ;
-    put_unicode 0x201D (* right quotation mark *)
+    put_unicode OutUnicode.rquot
   end else
     Dest.put_char '\''
 ;;

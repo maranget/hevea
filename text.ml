@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.79 2006-10-10 11:02:04 maranget Exp $"
+let header = "$Id: text.ml,v 1.80 2006-12-29 15:32:19 maranget Exp $"
 
 
 open Misc
@@ -956,9 +956,8 @@ let put_char c =
 ;;
 
 let put_unicode i =
-  if !verbose > 3 then Printf.fprintf stderr "put_unicode: %04X\n" i ;
   do_pending ();
-  try do_put_char (OutUnicode.translate_out i)
+  try OutUnicode.translate_out i do_put_char
   with OutUnicode.CannotTranslate -> raise Misc.CannotPut
 ;;
 

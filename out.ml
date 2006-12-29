@@ -11,7 +11,7 @@
 
 open Lexing
 
-let header = "$Id: out.ml,v 1.22 2006-10-05 08:48:15 maranget Exp $" 
+let header = "$Id: out.ml,v 1.23 2006-12-29 15:32:19 maranget Exp $" 
 let verbose = ref 0
 ;;
 
@@ -138,6 +138,26 @@ let iter f = function
       done
   | Null -> ()
   | _ -> Misc.fatal "Out.iter"
+
+let iter_next f = function
+  | Buff {buff=buff ; bp=bp} ->
+      let rec do_rec next =
+        let c = next () in
+        if c <> -1 then begin
+          f (Char.chr c) next ;
+          do_rec next
+        end in
+      do_rec
+        (let k = ref 0 in
+        fun () ->
+          let i = !k in
+          if i >= bp then -1
+          else begin
+            incr k ;
+            Char.code (String.unsafe_get buff i)
+          end)
+  | Null -> ()
+  | _ -> Misc.fatal "Out.iter_next"
 
 let to_string out = match out with
   Buff out ->

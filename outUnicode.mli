@@ -9,8 +9,12 @@
 (*                                                                     *)
 (***********************************************************************)
 
+type unichar
+
+val show : unichar -> string
+
 (* Parse unicode chars given the HTML way *)
-val parse : string -> int
+val parse : string -> unichar
 
 (* Set translators from table in subdir 'mappings' *)
 val set_output_translator : string -> unit
@@ -19,32 +23,64 @@ val set_translators : string -> unit
 
 (* Translate for output *)
 exception CannotTranslate
-val translate_in : char -> int
-val translate_out : int -> char
+val translate_in : char -> (unit -> int) -> unichar
+val translate_out : unichar -> (char -> unit) -> unit
 
 (* Diacritical marks *)
-val grave : char -> int
-val acute : char -> int
-val circumflex : char -> int
-val tilde : char -> int
-val diaeresis : char -> int
-val ring : char -> int
-val cedilla : char -> int
-val stroke : char -> int
-val macron : char -> int
-val caron : char -> int
-val doubleacute : char -> int
-val doublegrave : char -> int
-val breve : char -> int
-val dotabove : char -> int
-val dotbelow : char -> int
-val linebelow : char -> int
-val ringabove : char -> int
-val ogonek : char -> int
-val circled : char -> int
-val doublestruck : char -> int
+val grave : char -> unichar
+val acute : char -> unichar
+val circumflex : char -> unichar
+val tilde : char -> unichar
+val diaeresis : char -> unichar
+val ring : char -> unichar
+val cedilla : char -> unichar
+val stroke : char -> unichar
+val macron : char -> unichar
+val caron : char -> unichar
+val doubleacute : char -> unichar
+val doublegrave : char -> unichar
+val breve : char -> unichar
+val dotabove : char -> unichar
+val dotbelow : char -> unichar
+val linebelow : char -> unichar
+val ringabove : char -> unichar
+val ogonek : char -> unichar
+val circled : char -> unichar
+val doublestruck : char -> unichar
 
 
 (* Default rendering *)
-val def_default : int -> string -> unit
-val get_default : int -> string (* may raise Not_found *)
+val def_default : unichar -> string -> unit
+val get_default : unichar -> string (* may raise Not_found *)
+
+(* Output unicode char as html *)
+val html_put : (string -> unit) -> (char -> unit) -> unichar -> unit
+
+(* A few constants *)
+
+val null : unichar
+val nbsp : unichar
+val acute_alone : unichar
+val grave_alone : unichar
+val circum_alone : unichar
+val diaeresis_alone : unichar
+val cedilla_alone : unichar
+val tilde_alone : unichar
+val macron_alone : unichar
+val doubleacute_alone : unichar
+val breve_alone : unichar
+val dotabove_alone : unichar
+val dotbelow_alone : unichar
+val linebelow_alone : unichar
+val ogonek_alone : unichar
+val ring_alone : unichar
+val caron_alone : unichar
+val circled_alone : unichar
+val eszett : unichar
+val iques : unichar
+val iexcl : unichar
+val minus : unichar
+val endash : unichar
+val emdash : unichar
+val lquot : unichar
+val rquot : unichar
