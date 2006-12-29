@@ -59,6 +59,7 @@ val html_put : (string -> unit) -> (char -> unit) -> unichar -> unit
 (* A few constants *)
 
 val null : unichar
+val space : unichar
 val nbsp : unichar
 val acute_alone : unichar
 val grave_alone : unichar

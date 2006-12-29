@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.302 2006-12-29 15:32:19 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.303 2006-12-29 18:21:15 maranget Exp $ *)
 
 
 {
@@ -177,10 +177,12 @@ let close_env env  =
   end ;
   if env = !cur_env then begin  
     let e,a,_ = pop stack_env in    
-    List.iter (fun f -> f ()) !after ;
+    let af = !after in
+(*    List.iter (fun f -> f ()) !after ; *)
     cur_env := e ;
     after := a ;
-    Latexmacros.close_group ()
+    Latexmacros.close_group () ;
+    List.iter (fun f -> f ()) af
   end else
     error_env env !cur_env
 ;;
@@ -910,6 +912,7 @@ and check_case_char c = match !case with
 | Upper -> Char.uppercase c
 | Neutral -> c
 
+
 let translate_put_unicode c next =
   if !raw_chars then
     Dest.put_char c
@@ -919,9 +922,16 @@ let translate_put_unicode c next =
       with OutUnicode.CannotTranslate ->
         raise
           (Error
-             (Printf.sprintf
-                "Non-ascii '%c' in input, consider using package inputenc"
-                c)) in
+             (if Latexmacros.exists "\\inputencodingname" then
+               Printf.sprintf
+                 "Encoding %s failed on '%c'"
+                    (match Latexmacros.find "\\inputencodingname" with
+                    | _,Subst s -> s
+                    | _,_ -> assert false) c
+             else
+               Printf.sprintf
+                  "Non-ascii '%c' in input, consider using package inputenc"
+                  c)) in
     try Dest.put_unicode uni
     with Misc.CannotPut ->
       Misc.warning
@@ -3693,6 +3703,10 @@ def_fileop "\\closeout"
 ;;
 *)
 
-
+def_code "\\@funregister"
+  (fun lexbuf ->
+    let later = subst_arg lexbuf in
+    fun_register (fun () -> scan_this main later))
+;;
 
 end}

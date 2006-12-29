@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: verb.mll,v 1.88 2006-12-29 15:32:19 maranget Exp $            *)
+(*  $Id: verb.mll,v 1.89 2006-12-29 18:21:15 maranget Exp $            *)
 (***********************************************************************)
 {
 exception VError of string
@@ -1302,10 +1302,11 @@ let code_spaces _lexbuf =
     for _i = n-1 downto 0 do
       Dest.put_char '_'
     done
-  else
+  else begin
     for _i = n-1 downto 0 do
       Dest.put_nbsp ()
-    done ;
+    done
+  end ;
   Counter.set_counter "lst@spaces" 0
 ;;
 

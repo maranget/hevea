@@ -611,3 +611,4 @@
 \footahref{\heveaurl/index.html}{\hevea}.}
 \newcommand{\@footer}
 {\rule{}{}\begin{quote}\em\footertext\end{quote}}
+%%%%%

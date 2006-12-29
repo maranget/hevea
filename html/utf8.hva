@@ -1,3 +1,0 @@
-\def\@charset{UTF-8}%
-%%There is no mapping, UTF-8.map acts as a key to select UTF-8 translation
-\@set@translators{UTF-8.map}

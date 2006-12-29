@@ -818,7 +818,8 @@ let html_put put put_char i = match i with
 (* Constants *)
 
 let null = 0x00
-and nbsp = 0X0A
+and space = 0X20
+and nbsp = 0XA0
 and acute_alone = 0xB4
 and grave_alone = 0X60
 and circum_alone = 0X5E
