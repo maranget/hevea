@@ -2239,6 +2239,7 @@ while the \filename{book} style file performs  \verb+\flushdef{chapter}+.
 At the end of processing, \verb+\end{document}+ performs
 \verb+\footnoteflush{\@footnotelevel}+, so as to flush any pending notes.
 
+
 Cutting commands interact with footnote flushing as follows:
 \begin{itemize}
 \item \verb+\cuthere{+\textit{secname}\verb+}+
@@ -2254,6 +2255,8 @@ sets the current flushing unit to \textit{secname}
 (by performing \verb+\footnoteflush+ with the current flushing unit
 as argument), and restores the flushing unit and footnote text buffer saved
 by the matching \verb+\cutdef+.
+\item The starred variants \verb+\cutdef*+ and~\verb+\cutend*+ perform
+no operation that is related to footnotes.
 \end{itemize}
 
 Later, when running accross footnote texts in its input file, \hacha{}
@@ -2278,6 +2281,23 @@ To make a complicated story even more complicated,
 footnotes in~\texttt{minipage} environments or in the arguments
 to \verb+\title+ or \verb+\author+ have a different, I guess satisfactory,
 behavior.
+
+Given the above description, footnotes are manages by default as follows.
+\begin{itemize}
+\item In style~\filename{article}, \texttt{hevea} puts all footnotes
+go at the end of the \html{} file.
+A later run of~\texttt{hacha} creates a separate footnote file.
+\item In style~\filename{book}, footnotes are collected at the end of
+chapters. A later run of ~\texttt{hacha} leaves them where they
+are. Footnotes in the title or author names are managed specially,
+they will normally appear at the end of the root file.
+\end{itemize}
+\comindex{flushdef}%
+In case you wish to adopt a \filename{book}-like behavior for
+an \filename{article} (footnotes at the end of sections),
+it suffices to insert \verb+\flushdef{section}+ in the document
+preamble.
+
 
 \ifhevea
 We now give a few example of interaction between notes and cutting.
@@ -7084,10 +7104,12 @@ Additionally, if \textit{filename} is a composite filename,
 \textit{dir/base}, then all files outputted by \hacha{} will
 reside in directory \textit{dir}.
 \item[{\tt -tocbis}]
-Add a small table of contents at the beginning of
+Another style for table of contents:
+sub-tables are replicated at the beginning of
 every file.
 \item[{\tt -tocter}]
-Insert most of table of contents at the beginning of files
+Like \texttt{-tocbis} above, except that
+sub-tables do not appear in the main table of contents
 (see Section~\ref{table:link:style}).
 \item[{\tt -nolinks}] Do not insert Previous/Up/Next links in
 generated pages.

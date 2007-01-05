@@ -1,3 +1,5 @@
+      - Corrected footnotes flushing (to follow documentation)
+        and made documentation more precise.
       - listings,  *keywords* keys with correct interface
         (already here for *emph*).      
 version 1.09+3

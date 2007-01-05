@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: cut.mll,v 1.55 2006-11-10 17:01:43 maranget Exp $ *)
+(* $Id: cut.mll,v 1.56 2007-01-05 15:03:47 maranget Exp $ *)
 {
 
 type toc_style = Normal | Both | Special
@@ -423,12 +423,8 @@ let setlink set target =
     set !outname target
 
 let open_notes_pred sec_notes =
-  if sec_notes = !chapter then
-    !cur_level < sec_notes
-  else if sec_notes < !chapter then
-    !chapter < !cur_level
-  else
-    true
+  (sec_notes <> !chapter) ||
+  (!cur_level < sec_notes)
 
 let open_notes sticky sec_notes =
   if verbose > 0 && !phase > 0 then 
