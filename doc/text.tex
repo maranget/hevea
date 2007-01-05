@@ -964,7 +964,7 @@ explain how to proceed.
 We can also find a square blob somewhere in the variety of Unicode
 (or do I mean ISO~10646?) characters,
 and define \verb+\blob+ as a numerical
-character reference. Here, the character \texttt{U02588}
+character reference. Here, the character \texttt{U+02588}
 seems ok.
 \begin{verbatim}
 \newcommand{\blob}{\@print@u{X2588}}
@@ -1971,6 +1971,9 @@ is appropriate for documents with long $B$~units with
 a few sub-units; and \texttt{-tocter} style is appropriate
 for documents with long $B$~units with
 a lot of sub-units.
+\ifhevea
+As you may have noticed, this manual is cutted by following the
+\texttt{-tocbis}~style.\fi
 
 Whatever the style is, if a $B$~unit is cut
 (\emph{e.g.} because its text is enclosed in
@@ -2622,8 +2625,9 @@ internal macro \verb+\@open+ and closed by the internal macro
 As a special case, \LaTeX{} groups \verb+{+\ldots{} \verb+}+
 get translated into \html{} \emph{groups}, which are shadow block-level
 elements with neither opening nor closing tag.
+
 In the following few paragraph, we sketch the interaction of
-\verb+\@open+\ldots\verb+\@close+ with paragraphs and display.
+\verb+\@open+\ldots\verb+\@close+ with paragraphs.
 Doing so, we intend to warn users about the complexity
 of the task of producing correct \html{}, and to encourage
 them to use internal macros, which, most of the time, take nasty
@@ -2812,7 +2816,7 @@ particular, be aware that input encoding (see~\ref{inputenc}) does
 not apply. Hence one should use ascii only, if needed
 non-ascii characters can be given as
 entity or numerical character references --- \emph{e.g.}
-\verb+&eacute;+ and \verb+&#XE9;+ for \'e.
+\verb+&eacute;+ or \verb+&#XE9;+ for \'e.
 
 \item
 The \texttt{rawhtml}
@@ -2993,7 +2997,7 @@ as an optional argument. These attributes are the ones of the
 If you wish to output a given unicode character whose value you know,
 the recommended technique is to define an ad-hoc command
 that simply call the \verb+\@print@u+ command.
-For instance, ``blackboard sigma'' is Unicode \texttt{U02140} (hexa).
+For instance, ``blackboard sigma'' is Unicode \texttt{U+02140} (hexa).
 Hence you can define the command \verb+\bbsigma+ as follows:
 \begin{verbatim}
 \newcommand{\bbsigma}{\@print@u{X2140}}
@@ -3010,9 +3014,7 @@ being made of bytes.
 \index{"@print"@u@\texttt{\char92"@print"@u}}%
 To account for that fact, \html{} pages usually specify a \emph{document
 charset} that defines a translation from a flow of bytes to a flow of
-characters. \hevea{} easily manage 8~bits encodings that specify an
-interpretation of every byte as a character\footnote{Provided these
-encodings map ascii to ascii.}.
+characters.
 For instance, the byte
 \texttt{0xA4} means Unicode~\texttt{0x00A4} (\textcurrency) in the
 ISO-8859-1 (or latin1) encoding, and \texttt{0x20AC} (\texteuro) in
@@ -3044,7 +3046,8 @@ or \texttt{macintosh}, or \texttt{UTF-8}.
 In case those charsets do not suffice, you may ask the author for
 other document charsets.  Notice however that document charset is not
 that important, the default \texttt{US-ASCII} works everywhere!
-
+\emph{Input} encoding of source files is another, although
+related, issue --- see Section~\ref{inputenc}.
 
 \ttindex{xxcharset.exe}{script}%
 If wished so, the charset can be extracted from the current
@@ -4373,9 +4376,9 @@ All title related commands exist, with the following peculiarities:
   The argument to the \verb+\title+\comindex{title} command appears
   in the \html{}~document header. As a consequence, titles should
   remain simple. Normal design (as regards \hevea{}) is for
-  \verb+\title+ to occur in the document preamble, so that teh title
+  \verb+\title+ to occur in the document preamble, so that the title
   is known at the time when the document header is emitted (while
-  processing \verb+\begin{document}+). However there are two subtlities
+  processing \verb+\begin{document}+). However, there are two subtleties.
 
   If no \verb+\title+
   command occurs in document preamble and that one \verb+\title+
@@ -6202,7 +6205,7 @@ The \texttt{inputenc} package enables \LaTeX{} to process a file
 according to various \emph{8~bits} encodings, plus \texttt{UTF-8}.
 The one used encoding is specified as an option while loading the package
 \verb+\usepackage[+\textit{encoding}\verb+]{inputenc}+.
-At the moment, \hevea{} recognizes the ten \emph{latin} encodings
+At the moment, \hevea{} recognizes ten latin encodings
 (from \texttt{latin1} to \texttt{latin10}),
 the \texttt{koi8-r} encoding,
 the \texttt{ascii} encoding,
@@ -6233,6 +6236,17 @@ producing \html{} pages in ascii:
 \end{verbatim}
 See Section~\ref{encodings} for a more thorough description of \html{}
 charset management.
+
+\comdefindex{inputencoding}The \texttt{inputenc} package also provides the
+command~\verb+\inputcoding{+\textit{encoding}\verb+}+ that
+changes the input encoding at any time.
+The argument \textit{encoding} can be any of the options accepted
+by \verb+\usepackage[+\textit{encoding}\verb+]{inputenc}+.
+The command~\verb+\inputcoding+ of \hevea{}
+follows the behavior of its \LaTeX{} counterpart, it the sense
+that it obeys scope rules.
+Notice that \verb+\inputcoding+ does not change the document output
+encoding and charset.
 
 \subsection{More symbols}
 \hevea{} implements the following packages: \texttt{latexsym}
@@ -7033,7 +7047,7 @@ The \texttt{hevea} command recognizes the following options:
 \item[{\tt -version}] Show \texttt{hevea} version and exit.
 \item[{\tt -v}] Verbose flag, can be repeated to increase
 verbosity. However, this is mostly for debug.
-\item[{\tt -dv}] -dv Add border around some of the block-level
+\item[{\tt -dv}] Add border around some of the block-level
 elements issued. Specifically, all \verb+DIV+ and \verb+P+ are bordered,
 while the structure of displayed material is also shown.
 \item[{\tt -s}] Suppress warnings.
@@ -7363,13 +7377,14 @@ relevant files by copying \texttt{doc} to a public destination.
 \end{verbatim}
 %$
 However, one then also installs the auxiliary files of \texttt{hevea},
-and \texttt{hevea} output file \texttt{doc.html}, which is not more useful once
-\texttt{hacha} has run.
+and \texttt{hevea} output file \texttt{doc.html}, which is no longer
+useful once \texttt{hacha} has run.
 Hence, those should be erased beforehand.
 \begin{verbatim}
 # rm -f doc/doc.h{tml,aux,ind,toc} doc/doc.image.tex
+# cp -r doc $(HOME)/public_html
 \end{verbatim}
-
+%$
 
 
 \subsection{Using \label{makefile}\texttt{make}}

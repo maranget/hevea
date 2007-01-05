@@ -2,16 +2,19 @@
 %% document charset
 %%  - The 'input' translator is changed to accept chars on 8-bits
 %%    and to translate them to the appropriate unicode chars.
-%%  - The document charset is changed.
 %%  - Numerical entities given by \@print@u{NUM} are translated
 %%    to chars when possible (through 'output' translator)
-%%  - Moreover, the latin*.hva files set both input and output
-%%    translators to cope with the corresponding encoding
-%%  - Later, one can desynchronize those translators
+%%    output translator and document charset must of course agree,
+%%  - \usepackage[enc]{inputenc} affects both input and
+%%     output translators and doc charset.
+%%  - Later, one can desynchronize the translators
 %%    For instance, to interpret input as latin1 and to output
 %%    asciii only, one should perform:
 %%     \usepackage[latin1]{inputenc}
 %%     \@def@charset{US-ASCII}
+%%   
+%%    Or, to change input translator alone : \inputencoding{enc}
+
 \ProvidesPackage{inputenc}
 \def\ic@mk@map#1{ic@#1@map}
 \def\def@ic@map#1#2{\def\csname\ic@mk@map{#1}\endcsname{#2}}
