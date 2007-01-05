@@ -677,6 +677,9 @@ breakindent,breakautoindent}
 \let\lst@post\@empty
 \define@key{lst}{pre}{\def\lst@pre{#1}}
 \define@key{lst}{post}{\def\lst@post{#1}}
+%%% inputencodings (for compatibility only ?)
+\def\lst@inputencoding@key#1{\inputencoding{#1}}
+\define@key{lst}{inputencoding}{\lst@inputencoding@key{#1}}
 %%%%% Column allignement None !
 \lst@iter{\ignore@key}
   {columns,flexiblecolumns,keepspaces,basewidth,fontadjust,aboveskip,belowskip,lineskip}

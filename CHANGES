@@ -1,3 +1,4 @@
+      - listings, added inputencoding key.
       - Corrected footnotes flushing (to follow documentation)
         and made documentation more precise.
       - listings,  *keywords* keys with correct interface

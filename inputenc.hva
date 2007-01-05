@@ -24,9 +24,11 @@
   {mappings/\csname\ic@mk@map{\inputencodingname}\endcsname.map}}%
 %%
 \newcommand{\inputencoding}[1]
-{\def\inputencodingname{#1}%
-\@set@in@translator{mappings/\csname\ic@mk@map{#1}\endcsname.map}%
-\@funregister{\ic@restore}}
+{\@ifundefined{\ic@mk@map{#1}}
+  {\warning{Unknown input encoding: #1}}
+  {\def\inputencodingname{#1}%
+  \@set@in@translator{mappings/\csname\ic@mk@map{#1}\endcsname.map}%
+  \@funregister{\ic@restore}}}
 %%%Seting inputencoding as package option also sets output encoding
 \newcommand{\ic@set}[1]
 {\def\inputencodingname{#1}%
