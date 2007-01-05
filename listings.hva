@@ -121,18 +121,26 @@
 {\lst@more@kwds{#1}{#2}}}
 \def\lst@delay@delete#1#2{\lst@AddToHook{AfterSetLanguage}{\lst@delete@kwds{#2}}}
 \def\lst@keywords@key#1#2\@empty{\lst@install@kwds{#1}{#2}}
-\newcommand{\lst@morekeywords@key}[2][1]{\lst@more@kwds{#1}{#2}}
-\newcommand{\lst@deletekeywords@key}[2][1]{\lst@delete@kwds{#2}}
+\def\lst@morekeywords@key#1#2\@empty{\lst@more@kwds{#1}{#2}}
+\def\lst@deletekeywords@key#1#2\@empty{\lst@delete@kwds{#2}}
 \define@key{lst}{keywords}[]{\@callsubstopt{\lst@keywords@key}{1}{#1\@empty}}
-\define@key{lst}{morekeywords}{\@calloptsimple{\lst@morekeywords@key}{#1}}
-\define@key{lst}{deletekeywords}{\@calloptsimple{\lst@deletekeywords@key}{#1}}
-\define@key{lst}{ndkeywords}[]{\@funcall{\lst@keywords@key}{{2}#1\@empty}}
-\define@key{lst}{morendkeywords}{\@funcall{\lst@morekeywords@key}{[2]{#1}}}
-\define@key{lst}{deletendkeywords}
-{\@calloptsimple{\lst@deletekeywords@key}{[2]#1}}
+\define@key{lst}{morekeywords}[]
+  {\@callsubstopt{\lst@morekeywords@key}{1}{#1\@empty}}
+\define@key{lst}{deletekeywords}[]
+  {\@callsubstopt{\lst@deletekeywords@key}{1}{#1\@empty}}
+%%2nd
+\define@key{lst}{ndkeywords}[]
+  {\@funcall{\lst@keywords@key}{{2}#1\@empty}}
+\define@key{lst}{morendkeywords}[]
+  {\@funcall{\lst@morekeywords@key}{{2}#1\@empty}}
+\define@key{lst}{deletendkeywords}[]
+  {\@funcall{\lst@deletekeywords@key}{{2}#1\@empty}}
+%%3rd
 \define@key{lst}{rdkeywords}[]{\@callsubstopt{\lst@keywords@key}{3}{#1\@empty}}
-\define@key{lst}{morerdkeywords}{\@calloptsimple{\lst@morekeywords@key}{[3]#1}}
-\define@key{lst}{deleterdkeywords}{\@calloptsimple{\lst@deletekeywords@key}{[3]#1}}
+\define@key{lst}{morerdkeywords}[]
+  {\@funcall{\lst@morekeywords@key}{{3}#1\@empty}}
+\define@key{lst}{deleterdkeywords}[]
+  {\@funcall{\lst@deletekeywords@key}{{3}#1\@empty}}
 %%% Directives
 \def\lst@delay@dinstall#1#2{\lst@AddToHook{AfterSetLanguage}{\lst@install@directives{#1}{#2}}}
 \def\lst@delay@ddelete#1{\lst@AddToHook{AfterSetLanguage}{\lst@delete@directives{#1}}}
