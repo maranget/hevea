@@ -6,7 +6,7 @@
   {\@opencell{CLASS="center"}{}{}\@open{H1}{\envclass@attr{part}}}
   {\partname~\thepart}{\\}
   {\@close{H1}\@closecell}
-\newstyle{.part}{margin:auto;text-align:center}
+\newstyle{.part}{margin:2ex auto;text-align:center}
 \@makesection
   {\section}{0}{section}
   {\@open{H2}{\envclass@attr{section}}}{\thesection}{\quad}{\@close{H2}}%

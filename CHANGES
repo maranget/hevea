@@ -1,3 +1,4 @@
+      - add vertical magins to styles .part and .title
       - listings, added inputencoding key.
       - Corrected footnotes flushing (to follow documentation)
         and made documentation more precise.

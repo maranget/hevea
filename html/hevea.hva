@@ -203,7 +203,7 @@
 \newcommand{\title@tohaux}[1]
 {\@auxdowrite{\@print{\@titleaux}\{\@subst{#1}\}
 }}
-\newstyle{.title}{margin:auto;text-align:center}
+\newstyle{.title}{margin:2ex auto;text-align:center}
 \let\title@flush@hook\relax
 \newcommand{\maketitle}{%
   \bgroup
