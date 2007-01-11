@@ -129,3 +129,11 @@ let next_of_string s =
       incr k ;
       Char.code (String.unsafe_get s i)
     end)
+
+let hexa c = match c with
+  | '0'..'9' -> Char.code c - Char.code '0'
+  | 'a'..'f' ->  10 + Char.code c - Char.code 'a'
+  | 'A'..'F' ->  10 + Char.code c - Char.code 'A'
+  | _ -> assert false
+
+let hexa_code c1 c2 = 16 * hexa c1 + hexa c2

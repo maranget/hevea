@@ -60,3 +60,5 @@ val hot_start : saved -> unit
 (* Some kind of abstract buffer used by unicode in translator *)
 val next_of_string : string -> (unit -> int)
 
+(* two digit hexa -> int *)
+val hexa_code : char -> char  -> int

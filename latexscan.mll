@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.303 2006-12-29 18:21:15 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.304 2007-01-11 10:52:38 maranget Exp $ *)
 
 
 {
@@ -982,6 +982,8 @@ and top_close_maths dodo =
 let command_name =
   '\\' (( ['@''A'-'Z' 'a'-'z']+ '*'?) | [^ 'A'-'Z' 'a'-'z'] | "\\*")
 
+let hexa = ['0'-'9''a'-'f']
+
 rule  main = parse
 (* comments *)
 | '%'
@@ -1111,6 +1113,10 @@ rule  main = parse
       do_expand_command main skip_blanks "\\@hevea@dquote" lexbuf ;
       main lexbuf}
 (* One character *)
+| "^^" (hexa as lxm1) (hexa as lxm2)
+   {let c = Char.chr (hexa_code lxm1 lxm2) in
+   translate_put_unicode c (fun () -> read_lexbuf lexbuf) ;
+   main lexbuf}
 | _  as lxm
     {let lxm = check_case_char lxm in
     translate_put_unicode lxm (fun () -> read_lexbuf lexbuf) ;
@@ -1118,6 +1124,7 @@ rule  main = parse
 
 and read_lexbuf = parse
 | eof      { -1 }
+| "^^" (hexa as lxm1) (hexa as lxm2) { hexa_code lxm1 lxm2 }
 | _ as lxm { Char.code lxm }
 
 and complete_newline = parse
