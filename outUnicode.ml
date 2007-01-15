@@ -77,8 +77,6 @@ and translate_latin1_in c _ = Char.code c
 
 let cannot () = raise CannotTranslate
 
-(* Code adapted from netstring library, by G stolpmann *)
-
 let translate_utf8_in c next = match c with
 | '\000'..'\127' -> Char.code c
 | '\128'..'\223' ->
