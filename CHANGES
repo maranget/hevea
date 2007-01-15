@@ -1,3 +1,5 @@
+version 1.09+4
+      - thai support
       - add vertical magins to styles .part and .title
       - listings, added inputencoding key.
       - Corrected footnotes flushing (to follow documentation)
