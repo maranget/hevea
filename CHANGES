@@ -1,3 +1,5 @@
+      - Add empty group after title in section (for \xspace ! -> no space)
+      - Introduced \RequirePackage
 version 1.09+4
       - thai support
       - add vertical magins to styles .part and .title

@@ -1,4 +1,5 @@
-\usepackage{keyval}
+\ProvidesPackage{listings}
+\RequiresPackage{keyval}
 \@primitives{listings}
 %%%%%%%%%%% interface keyval
 \def\lst@define@key#1#2{\define@key{lst}{#1}{\@funcall{#2}{##1}}}
@@ -715,3 +716,4 @@ breakindent,breakautoindent}
 \setenvclass{lstlisting}{mouselstlisting}%
 \let\lst@whitepre\@empty%
 \renewcommand{\lst@pad}[1]{\@pad{~}{4}{##1}}}
+\EndPackage

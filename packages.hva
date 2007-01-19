@@ -31,3 +31,8 @@
 \newcommand{\ProcessOptions*}
 {\@callprim{\@iter}
   {\string\@process@option,{\char123\usebox{\@pkg@opts}\char125}}}
+%%%% Packages in packages
+\@hva@newstack{@Pack}%
+\newcommand{\@GoobleOpt}[1][]{}%
+\newcommand{\RequiresPackage}[2][!*!]
+{\@push@Pack{\@pkg@me}\usepackage[#1]{#2}\@pop@Pack{\@pkg@me}\@GoobleOpt}%

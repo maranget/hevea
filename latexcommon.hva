@@ -461,17 +461,17 @@
 \newcommand{#1}[2][]{%
 \@secbegin\@checkdepth{#2}{\refstepcounter{#3}}%
 \ifoptarg\@checktocdepth{#2}{\@doaddtoc{#2}{#5}{##1}}\else
-\@checktocdepth{#2}{\@doaddtoc{#2}{#5}{##2}}\fi
+\@checktocdepth{#2}{\@doaddtoc{#2}{#5}{##2{}}}\fi
 \ifoptarg\cuthere{#3}{\@addsecnumber{#2}{#5}{##1}}\else
-\cuthere{#3}{\@addsecnumber{#2}{#5}{\begin{@norefs}##2\end{@norefs}}}\fi
+\cuthere{#3}{\@addsecnumber{#2}{#5}{\begin{@norefs}##2{}\end{@norefs}}}\fi
 #4\@secanchor%
 \@altdepth{#2}
 {\@alttocdepth{#2}{\@locname{htoc\thetocanchor}{#5}#6}{#5#6}}
 {\@checktocdepth{#2}{\@locname{htoc\thetocanchor}{}}}%
-##2#7\@secend}%
+##2{}#7\@secend}%
 \newcommand{#1*}[1]{%
 \@secbegin\cuthere{#3}{##1}%
-#4\@secanchor{}##1#7\@secend}}%
+#4\@secanchor{}##1{}#7\@secend}}%
 %%%%%%%%%%%%%%
 % Images     %
 %%%%%%%%%%%%%%

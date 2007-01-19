@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.99 2006-12-29 15:32:19 maranget Exp $    *)
+(*  $Id: package.ml,v 1.100 2007-01-19 17:19:41 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -633,7 +633,7 @@ register_init "xspace"
       try match Lexstate.full_peek_char lexbuf with
       | '{'|'}'|'~'|'.'|'!'|','|':'|'?'|'/'|'\''|')'|'-'
       | ' '|'\t'|'\n' -> ()
-      |  _ -> Dest.put_char ' '
+      |  _c -> Dest.put_char ' '
       with Not_found ->
         warning "\\xspace could not reach next char"))
 ;;
