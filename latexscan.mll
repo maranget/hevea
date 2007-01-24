@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.304 2007-01-11 10:52:38 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.305 2007-01-24 18:01:25 maranget Exp $ *)
 
 
 {
@@ -984,6 +984,9 @@ let command_name =
 
 let hexa = ['0'-'9''a'-'f']
 
+(* Horreur malheur *)
+let newline = '\n' | ('\r' '\n') | '\r'
+
 rule  main = parse
 (* comments *)
 | '%'
@@ -991,7 +994,7 @@ rule  main = parse
       main lexbuf}
 
 (* Paragraphs *)
-| '\n'
+| newline
     {do_expand_command main skip_blanks "\\@hevea@newline" lexbuf ;
       main lexbuf}
 (* subscripts and superscripts *)
@@ -1128,7 +1131,7 @@ and read_lexbuf = parse
 | _ as lxm { Char.code lxm }
 
 and complete_newline = parse
-|  [' ''\n']* {lexeme lexbuf}
+|  (' ' | newline)* as lxm { lxm }
 
 and latex2html_latexonly = parse
 | '%' + [ ' ' '\t' ] * "\\end{latexonly}" [ ^ '\n' ] * '\n'
