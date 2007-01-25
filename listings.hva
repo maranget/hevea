@@ -25,7 +25,7 @@
 \def\lst@eat@again#1XXX#2{\@callsubst{#2}{#1\@empty\@empty\@empty\@empty\@empty}}
 \def\lst@eat@key#1XXX#2{\@callsubst{\lst@eat@again}{#1XXX#2}}
 %%%%%%%% Interface with keyval
-\def\lstset#1{\warning{SET '#1'}\@setkeys{lst}{#1}}
+\def\lstset#1{\@setkeys{lst}{#1}}
 %%%%%%%% Def if not empty
 \newcommand{\lst@defne}[2]{\ifx#1\@empty\def#1{#2}\fi}
 %%%%%%%%%%%%%
