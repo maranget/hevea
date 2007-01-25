@@ -1,5 +1,5 @@
 \ProvidesPackage{listings}
-\RequiresPackage{keyval}
+\RequirePackage{keyval}
 \@primitives{listings}
 %%%%%%%%%%% interface keyval
 \def\lst@define@key#1#2{\define@key{lst}{#1}{\@funcall{#2}{##1}}}
@@ -25,7 +25,7 @@
 \def\lst@eat@again#1XXX#2{\@callsubst{#2}{#1\@empty\@empty\@empty\@empty\@empty}}
 \def\lst@eat@key#1XXX#2{\@callsubst{\lst@eat@again}{#1XXX#2}}
 %%%%%%%% Interface with keyval
-\def\lstset#1{\@setkeys{lst}{#1}}
+\def\lstset#1{\warning{SET '#1'}\@setkeys{lst}{#1}}
 %%%%%%%% Def if not empty
 \newcommand{\lst@defne}[2]{\ifx#1\@empty\def#1{#2}\fi}
 %%%%%%%%%%%%%
@@ -67,7 +67,7 @@
 %%%%%%%%%%%%
 \newtokens{\lst@delete@all@kwd@class}%
 \def\lst@record@kwd@class#1#2{%
-%\warning{RECORD «#1»}%
+%\warning{RECORD '#1' '#2'}%
 \ifu\csname lst@allkwd@#1\endcsname%
 \addtokens{\lst@delete@all@kwd@class}{\lst@delete@kwd@class{#1}}\fi%
 \providecommand{\csname lst@allkwd@#1\endcsname}{}%

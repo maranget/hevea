@@ -5,7 +5,20 @@
 %%%%    - names of various part descriptors (contentsname etc.)
 %%%%    - special quotations (\glqq et.)
 %
+\newcommand{\french@quotes}
+{\def{\flqq}{\@print@u{0171}}%
+\def{\glqq}{\@print@u{8222}}%
+\def{\glqq}{\@print@u{8222}}%
+\def{\grqq}{\@print@u{8220}}%
+\def{\glq}{\@print@u{8218}}%
+\def{\grq}{\@print@u{8216}}%
+\def{\frqq}{\@print@u{0187}}%
+\def{\flq}{\@print@u{8249}}%
+\def{\frq}{\@print@u{8250}}%
+\let\og\flqq\let\fg\frqq%
+}%
 \newcommand{\common@french@babel}{%
+\french@quotes%
 \def\french@day
 {\ifthenelse{\value{day}=1}{\theday\textsuperscript{er}}{\theday}}%
 \def\csname f@month1\endcsname{janvier}%

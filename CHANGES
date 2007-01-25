@@ -1,3 +1,4 @@
+      - A few correction in french.hva -> \@print@u + \og\fg.
       - '\r' '\n' is scanned while looking for \par
       - Add empty group after title in section (for \xspace ! -> no space)
       - Introduced \RequirePackage

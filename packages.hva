@@ -34,5 +34,5 @@
 %%%% Packages in packages
 \@hva@newstack{@Pack}%
 \newcommand{\@GoobleOpt}[1][]{}%
-\newcommand{\RequiresPackage}[2][!*!]
+\newcommand{\RequirePackage}[2][!*!]
 {\@push@Pack{\@pkg@me}\usepackage[#1]{#2}\@pop@Pack{\@pkg@me}\@GoobleOpt}%

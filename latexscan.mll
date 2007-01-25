@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.305 2007-01-24 18:01:25 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.306 2007-01-25 10:33:30 maranget Exp $ *)
 
 
 {
@@ -984,8 +984,8 @@ let command_name =
 
 let hexa = ['0'-'9''a'-'f']
 
-(* Horreur malheur *)
-let newline = '\n' | ('\r' '\n') | '\r'
+(* Horreur malheur, enfin sait-on jamais (mauvais transcodage) *)
+let newline = '\n' | ('\r' '\n')
 
 rule  main = parse
 (* comments *)

@@ -1,6 +1,1 @@
-\input{french-common.hva}
-\newcommand{\french@babel}{%
-\common@french@babel%
-\def{\flqq}{\@print{«}}%
-\def{\frqq}{\@print{»}}%
-}%
+\input{\@hevealibdir/html/french.hva}
