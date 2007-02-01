@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.100 2007-01-19 17:19:41 maranget Exp $    *)
+(*  $Id: package.ml,v 1.101 2007-02-01 18:45:40 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -852,19 +852,21 @@ let do_setkey lexbuf =
       let {arg=key} = save_arg_with_delim "=" xbuff in
       let {arg=value} = save_arg_with_delim "=" xbuff in
       if !verbose > 1 then
-        Printf.fprintf stderr "SETKEY, key=%s, value=%s\n" key value ;
-      let csname = keyval_name family key in
-      if Latexmacros.exists csname then begin
-        if value <> "" then
-          scan_this main (csname^"{"^value^"}")
-        else
-          let defname = csname^"@default" in
-          if Latexmacros.exists defname then
-            scan_this main defname
+        Printf.fprintf stderr "SETKEY, key='%s', value='%s'\n" key value ;
+      if key <> "" then begin
+        let csname = keyval_name family key in
+        if Latexmacros.exists csname then begin
+          if value <> "" then
+            scan_this main (csname^"{"^value^"}")
           else
-            warning ("keyval, no default value for key: ``"^key^"''")
-      end else
-        warning ("keyval, uknown key: ``"^key^"''") ;
+            let defname = csname^"@default" in
+            if Latexmacros.exists defname then
+              scan_this main defname
+            else
+              warning ("keyval, no default value for key: '"^key^"'")
+        end else
+          warning ("keyval, unknown key: '"^key^"'")
+      end ;
       do_rec ()
     end in
   do_rec ()
