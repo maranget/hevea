@@ -1,3 +1,5 @@
+version 1.09+5
+      - Include documentation for Thai.
       - A few typos in doc.
       - A few correction in french.hva -> \@print@u + \og\fg.
       - '\r' '\n' is scanned while looking for \par

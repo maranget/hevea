@@ -1,0 +1,161 @@
+%%%%-------------------------------------------------
+\documentclass[a4paper]{article}
+
+%\newcommand{\thaistuff}[1]{}   % eliminate Thai text
+\newcommand{\thaistuff}[1]{#1}  % accept Thai text (default)
+
+\thaistuff{
+\usepackage{thai}  % <-------- the Thai package is used
+}
+\usepackage{graphics}
+\usepackage{hevea} % <-------- the Hevea package is used
+
+% this is some information for the first page
+\title{How to Use \hevea\ with the Thai Character Set}
+\author{Andrew Seagar \thaistuff{and นิตยา ซีการ์} % <--- the name of 1 author is in Thai language
+ \\ email: dr\_andrew\_seagar@ieee.org}
+\date{}
+
+%%%%-------------------------------------------------
+\setlength{\evensidemargin}{-1in} \addtolength{\evensidemargin}{2cm}
+\setlength{\oddsidemargin}{-1in}  \addtolength{\oddsidemargin}{2cm}
+\setlength{\topmargin}{-1in}      \addtolength{\topmargin}{1.5cm}
+\setlength{\headheight}{0pt}
+\setlength{\headsep}{0pt}
+\setlength{\textwidth}{17cm}
+\setlength{\textheight}{26cm}
+%%%%-------------------------------------------------
+\begin{document}
+
+\maketitle
+
+\section{Latin/Thai Character Set}
+
+Thai \LaTeX\ is written in the TIS-620 character encoding.  Some
+people call this ISO-8859-11, but that name was (for a long time)
+never officially recognised.
+
+The TIS-620 character encoding is an 8-bit single byte character set.
+It encodes both the ASCII Latin characters (0-127) and the Thai
+characters (128-255).  See, for the official Thai definition, the
+docuemnt:\\ ``ISO 8859-11 Latin/Thai Character Set standard''\\ at the
+website:\\ {\bf www.nectec.or.th/it-standards/iso8859-11/}
+
+Non-Thai variations to the official Thai character set were introduced
+by some vendors.  The \textsc{Windows} Thai character set (874) places
+an unofficial `smart quote' character into one of the empty (illegal)
+slots in the official Thai set.  The DEC (Digital Equipement
+Coorporation) character set places an unofficial `no-break space'
+character into another of the empty (illegal) slots in the
+\emph{original} official Thai set.  It is not too clear what is now
+``official'' and what is not.  It is necessary to be a little bit
+careful.  Importing ``Thai'' docuemnts from \textsc{Windows} into a
+\textsc{Linux} environment via (for example) Openoffice doesn't always
+produce a faithful copy of the original text.
+
+Figure~\ref{thaichar} shows the Thai characters according to the
+Unicode Standard (version 3.0).
+
+\section{Thai in \LaTeX}
+
+For Thai in \LaTeX\ the package `thai' (file: thai.sty) is used,
+\emph{i.e.} \verb|\usepackage{thai}|.
+
+The source is run through a preprocessor (cttex) to encapsulate all
+Thai text within bracketted pairs \verb|{\thai ....}| and to insert
+the thai-break `\verb|\tb|' separator.
+
+Normally Thai text is written in a continuous stream with few (if any)
+blank (space) characters.  The preprocessor inserts the `\verb|\tb|'
+command to indicate places where the text may be broken if near the
+end of a line.  If these separators are not inserted \LaTeX\ has a
+great deal of trouble in getting a flush right margin without leaving
+huge gaps in the text.
+
+The style file `thai.sty' contains the definitions for \verb|{\thai ....}| 
+and \verb|\tb|.  The \verb|{\thai ....}| command is used to switch the
+\LaTeX\ font.
+
+After passing through the preprocessor, the file is compiled by
+\LaTeX\ in the normal fashion.
+
+\section{Thai in \hevea}
+
+For \hevea\ the style (package) file `thai.sty' is not used. \hevea\
+does not recognise the \verb|{\thai ....}| or \verb|\tb| constructs.
+If these constructs are encountered, warnings will be issued and the
+constructs will be ignored.
+
+In order to use the Thai language with \hevea, the preprocessor which
+is normally used before invoking \LaTeX\ should \emph{not} be used.
+The original (as typed) Thai \LaTeX\ file should be passed directly to
+\hevea.  The command \verb|\usepackage{thai}| in the file is detected
+by \hevea\ and is used to establish a Thai character encoding.  (It is
+no longer necessary to use the command line flag --charset=TIS-620.
+This flag is no longer operational).
+
+The commands required to process this file for both Thai \LaTeX\ and
+Thai \hevea\ are listed in table~\ref{commands}.  The original \LaTeX\
+filename is assumed to be `thaihevea.ttex' (ttex = Thai tex).
+
+\begin{table}[h]
+\centering
+\begin{tabular}{ll} \hline
+for \LaTeX & \\ \hline
+\verb|cttex  <  thaihevea.ttex  >  thaihevea.tex| & run preprocessor \\
+\verb|latex  thaihevea.tex| & compile using \LaTeX \\
+\verb|dvips  thaihevea.dvi  -o| & convert using dvips \\
+\verb|gv  thaihevea.ps| & view using ghostview \\ \hline
+for \hevea & \\ \hline
+\verb|cp  thaihevea.ttex  thaihevea.tex| & `rename' file for benefit of \hevea \\
+\verb|hevea  thaihevea.tex| & compile using \hevea \\
+\verb|imagen thaihevea| & convert image to bitmap \\
+\verb|firefox  thaihevea.html| & view using web browser \\ \hline
+\end{tabular}
+\caption{Processing Thai text with \LaTeX\ and \hevea.} \label{commands}
+\end{table}
+
+Since the Thai text is not processed to indicate where the text may be
+broken, the decision is left to the application displaying the html
+code. The browser I currently use (Firefox) doesn't know how to break
+continuous Thai text in suitable places without external help.
+However the screen width is larger than a page width, which means that
+on average there are more natural breaks in any line, and the browser
+is left justifying the text so it doesn't make large ugly gaps.  The
+right margin is ragged, not flush, but that looks acceptable (to me).
+
+Following is a paragraph of Thai text. It doesn't say anything
+important, it is simply here to serve as a basic test.  Even if you
+can't compile this with \LaTeX\ (\emph{e.g.} you don't have the
+file thai.sty or a Thai character set for printing), you can still
+compile it with \hevea\ and make an English/Thai web page.
+
+If you want to eliminate the Thai so you can compile an English-only
+version of this document, simply insert a comment \% character before
+the \verb|\thaistuff| command at the top of the file and uncomment the
+second version of the command (which eliminates the Thai) on the
+adjacent line.
+
+\thaistuff{
+ศึกษาความหมาย ความสำคัญของสิ่งแวดล้อมศึกษา วิธีการเผยแพร่ประชาสัมพันธ์
+ความรู้ทางสิ่งแวดล้อม วิธีการเขียนแผนงานเพื่อเผยแพร่ความรู้ทางสิ่งแวดล้อม นำ
+สิ่งแวดล้อมศึกษาไปประยุกต์ใช้ในการพัฒนาและเผยแพร่ความรู้ข้อมูล ข่าวสารต่างๆ
+ในโครงการอื่นๆ ที่มีความสัมพันธ์เกี่ยวข้อง
+}
+
+\begin{figure}[p]
+\centering
+%BEGIN IMAGE
+%HEVEA\enlargethispage{1000pt}
+\setlength{\unitlength}{1pt}
+\begin{picture}(266,662)(0,0)
+%\put(0,0){\special{psfile='unithai.ps'}}
+\put(0,0){\includegraphics{unithai.ps}}
+\put(0,0){\framebox(266,662){}}
+\end{picture}
+%END IMAGE
+%HEVEA\imageflush
+\caption{Thai Character Set} \label{thaichar}
+\end{figure}
+
+\end{document}

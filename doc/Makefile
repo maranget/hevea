@@ -15,8 +15,9 @@ doc:
 	mkdir -p doc
 	cp fddl.html doc
 
-docclean:
+docclean::
 	/bin/rm -f doc/manual.h{tml,aux,ind,toc} doc/manual.image.tex
+
 opt:
 	export HEVEADIR=.. ;\
 	$(MAKE) $(MFLAGS) HEVEAOPTS="$(HEVEAOPTS)" HACHAOPTS="$(HACHAOPTS)" HEVEA=../hevea.opt HACHA=../hacha.opt IMAGEN=../imagen all
@@ -33,7 +34,7 @@ tmp.tex: text.tex
 	$(GPIC) -t < text.tex > tmp.tex
 
 doc/manual.html: manual.hva  macros.tex manual.tex version.tex tmp.tex
-	${HEVEA} $(HEVEAOPTS) -o doc/manual.html manual.hva manual.tex
+	$(HEVEA) $(HEVEAOPTS) -o doc/manual.html manual.hva manual.tex
 
 manual.dvi: manual.tex macros.tex version.tex tmp.tex
 	$(LATEX) < /dev/null manual.tex &&\
@@ -52,6 +53,14 @@ doc/index.html: doc/manual.html
 
 info: manual.inf tmp.tex
 	$(HEVEA) $(HEVEAOPTS) -info manual.inf manual.tex -o manual.info
+
+thai: doc doc/thaihevea.html
+
+doc/thaihevea.html: thai/thaihevea.ttex
+	( cd thai ; $(HEVEA)  $(HEVEAOPTS) -o ../$@ thaihevea.ttex )
+
+docclean::
+	/bin/rm -f doc/thaihevea.h{aux,ind,toc} doc/thaihevea.image.tex
 
 ############ Installation stuff
 install: docclean
