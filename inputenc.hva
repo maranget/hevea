@@ -34,9 +34,15 @@
 {\def\inputencodingname{#1}%
 \def\@charset{\csname\ic@mk@map{#1}\endcsname}%
 \@set@translators{mappings/\csname\ic@mk@map{#1}\endcsname.map}}
+\newcommand{\ic@set@bis}[1]
+{\def\inputencodingname{#1}%
+\@set@in@translator{mappings/\csname\ic@mk@map{#1}\endcsname.map}}
 \newcommand{\ic@option}[2]
 {\def@ic@map{#1}{#2}%
 \DeclareOption{#1}{\ic@set{#1}}}%
+\newcommand{\ic@option@bis}[2]
+{\def@ic@map{#1}{#2}%
+\DeclareOption{#1}{\ic@set@bis{#1}}}%
 %%%
 \ic@option{ascii}{US-ASCII}%
 %%%
@@ -50,8 +56,8 @@
 \ic@option{latin8}{ISO-8859-14}%
 \ic@option{latin9}{ISO-8859-15}%
 \ic@option{latin10}{ISO-8859-16}%
-\ic@option{tis-620}{ISO-8859-11}%
-\ic@option{thai}{ISO-8859-11}%
+\ic@option@bis{tis-620}{ISO-8859-11}%
+\ic@option@bis{thai}{ISO-8859-11}%
 %%%
 \ic@option{cp1250}{windows-1250}%
 \ic@option{cp1251}{windows-1251}%
