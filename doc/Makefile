@@ -9,7 +9,7 @@ HTMLDIR=$(HOME)/public_html/hevea
 DOCDIR=$(HTMLDIR)/doc
 DISTRIDIR=$(HTMLDIR)/distri
 
-all: doc doc/index.html
+all: doc doc/index.html thai
 
 doc:
 	mkdir -p doc
@@ -57,7 +57,7 @@ info: manual.inf tmp.tex
 thai: doc doc/thaihevea.html
 
 doc/thaihevea.html: thai/thaihevea.ttex
-	( cd thai ; $(HEVEA)  $(HEVEAOPTS) -o ../$@ thaihevea.ttex )
+	export TEXINPUTS="thai:" ; $(HEVEA)  $(HEVEAOPTS) -o $@ $<
 
 docclean::
 	/bin/rm -f doc/thaihevea.h{aux,ind,toc} doc/thaihevea.image.tex

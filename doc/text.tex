@@ -6897,8 +6897,15 @@ file, while still loading the \texttt{ifpdf} package, one writes:
 \subsection{Typesetting Thai}
 \index{thai@Thai}%
 \hevea{} features an implementation of Andrew Seagar's technique
-for Thai in \LaTeX{}.
-See this specific \footahref{\ifhevea.\else\heveaurl/doc\fi/thaihevea.html}{document}.
+for Thai in \LaTeX{},
+by the means of the package \texttt{thai.hva} in the distribution.
+
+As regards input encoding, Thai users of \hevea{} could (perhaps) use
+\verb+\usepackage[utf8]{inputenc}+.
+However, the typesetting of Thai is more subtle than just proper
+characters.  For that reason, Thai in \LaTeX{} is better performed by
+another technique, which \hevea{} supports.  See this specific
+\footahref{\ifhevea.\else\heveaurl/doc\fi/thaihevea.html}{document}.
 
 \subsection{Other packages}
 The \texttt{fancyverb} and \texttt{colortbl}
@@ -7646,7 +7653,9 @@ The very principle he introduced for interfacing the \texttt{videoc}
 lexer with \hevea{} main lexer is now used extensively throughout
 \hevea{} source code.
 \item \ahref{http://electric.ee.psu.ac.th/\home{andrew}/}{Andrew Seagar}
-is at the origin of support for the Thai language.
+is at the origin of support for the Thai language. He is
+the author of the document \ahref{thaihevea.html}{``How to Use \hevea{}
+with the Thai Character Set''}.
 \item Pierre Boulet, by using \hevea{} as a stage in his tool
 \ahref{http://www.lifl.fr/\home{boulet}/softs/mldoc/index.html}{MlDoc}
 for documenting Objective Caml source code, forced me into debugging
