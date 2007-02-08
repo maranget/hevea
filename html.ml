@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: html.ml,v 1.111 2006-12-29 18:21:15 maranget Exp $" 
+let header = "$Id: html.ml,v 1.112 2007-02-08 17:48:28 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -104,11 +104,11 @@ let
 let set_out out =  !cur_out.out <- out
 
 and stop () =
-  Stack.push stacks.s_active !cur_out.out ;
+  MyStack.push stacks.s_active !cur_out.out ;
   !cur_out.out <- Out.create_null ()
 
 and restart () =
-  !cur_out.out <- Stack.pop stacks.s_active
+  !cur_out.out <- MyStack.pop stacks.s_active
 ;;
 
 
@@ -178,8 +178,8 @@ let finalize check =
   end else begin
     (* Flush output in case of fatal error *)
     let rec close_rec () =
-      if not (Stack.empty out_stack) then begin
-        match Stack.pop out_stack with
+      if not (MyStack.empty out_stack) then begin
+        match MyStack.pop out_stack with
         | Freeze _ -> close_rec ()
         | Normal (_,_,pout) ->
             Out.copy !cur_out.out pout.out ;

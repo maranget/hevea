@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: stack.ml,v 1.11 2006-04-13 16:55:56 maranget Exp $             *)
+(*  $Id: myStack.ml,v 1.1 2007-02-08 17:48:28 maranget Exp $             *)
 (***********************************************************************)
 exception Fatal of string
 

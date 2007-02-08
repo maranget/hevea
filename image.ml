@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: image.ml,v 1.29 2006-07-26 06:33:19 maranget Exp $" 
+let header = "$Id: image.ml,v 1.30 2007-02-08 17:48:28 maranget Exp $" 
 open Misc
 
 let base = Parse_opts.base_out
@@ -30,17 +30,17 @@ let start () =
   buff := Out.create_buff ()
 ;;
 
-let active_stack = Stack.create "Image.active" 
+let active_stack = MyStack.create "Image.active" 
 
 let stop () =
-  Stack.push active_stack !active ;
+  MyStack.push active_stack !active ;
   active := false
 
 and restart () =
-  if Stack.empty active_stack then
+  if MyStack.empty active_stack then
     active := true
   else
-    active := Stack.pop active_stack
+    active := MyStack.pop active_stack
 
 let put s = if !active then Out.put !buff s
 

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.101 2007-02-01 18:45:40 maranget Exp $    *)
+(*  $Id: package.ml,v 1.102 2007-02-08 17:48:28 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -22,7 +22,7 @@ open Lexing
 open Lexstate
 open Latexmacros
 open Subst
-open Stack
+open MyStack
 open Scan
 ;;
 
@@ -202,7 +202,7 @@ def_code "\\@addvsize"
 (* Various outworld information *)
 def_code "\\@lexbuf"
   (fun _ ->
-    prerr_endline ("LEXBUF: "^string_of_int (Stack.length stack_lexbuf)))
+    prerr_endline ("LEXBUF: "^string_of_int (MyStack.length stack_lexbuf)))
 ;;
 
 def_code "\\@macros"
@@ -260,19 +260,19 @@ def_code "\\hva@dump@css"
 def_code "\\@hva@newstack"
   (fun lexbuf ->
      let name = get_prim_arg lexbuf in
-     let stack = Stack.create name in
+     let stack = MyStack.create name in
      def_code
        ("\\@push"^name)
        (fun lexbuf ->
          let cmd = Scan.get_csname lexbuf in
          let def = Latexmacros.find cmd in
-         Stack.push stack def) ;
+         MyStack.push stack def) ;
      def_code
        ("\\@pop"^name)
        (fun lexbuf ->
          let cmd = Scan.get_csname lexbuf in
          try
-           let pat,body = Stack.pop stack in
+           let pat,body = MyStack.pop stack in
            Latexmacros.def cmd pat body
          with Fatal _ ->
            warning (Printf.sprintf "Pop empty stack '%s'" name)))

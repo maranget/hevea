@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.80 2006-12-29 15:32:19 maranget Exp $"
+let header = "$Id: text.ml,v 1.81 2007-02-08 17:48:28 maranget Exp $"
 
 
 open Misc
@@ -17,7 +17,7 @@ open Parse_opts
 open Element
 open Lexstate
 open Latexmacros
-open Stack
+open MyStack
 open Length
 
 exception Error of string;;
@@ -48,7 +48,7 @@ let push_out s (a,b,c) = push s (Normal (a,b,c))
 ;;
 
 let pretty_stack s =
-  Stack.pretty
+  MyStack.pretty
    (function
      | Normal (s,args,_) -> "["^s^"]-{"^args^"} "
      | Freeze _   -> "Freeze ") s
@@ -61,7 +61,7 @@ let rec pop_out s = match pop s with
 
 let free_list = ref [];;
 
-let out_stack = Stack.create "out_stack";;
+let out_stack = MyStack.create "out_stack";;
 
 let pblock () =
   if empty out_stack then "" else
@@ -112,14 +112,14 @@ let newstatus nostyle _ a t = match !free_list with
     e
 ;;
 
-type saved_out = status * stack_item Stack.saved
+type saved_out = status * stack_item MyStack.saved
 
-let save_out () = !cur_out, Stack.save out_stack
+let save_out () = !cur_out, MyStack.save out_stack
 
 and restore_out (a,b) =
   if !cur_out != a then begin
     free !cur_out ;
-    Stack.finalize out_stack
+    MyStack.finalize out_stack
       (function
         | Normal (_,_,out) -> out == a
         | _ -> false)
@@ -128,7 +128,7 @@ and restore_out (a,b) =
         | _ -> ())
   end ;  
   cur_out := a ;
-  Stack.restore out_stack b
+  MyStack.restore out_stack b
 
 
 type align_t = Left | Center | Right
@@ -224,68 +224,68 @@ and set_flags f {
 
 
 type stack_t = {
-  s_nitems : int Stack.t ;
-  s_dt : string Stack.t ;
-  s_dcount : string Stack.t ;
-  s_x : (int * int * int * int * int * int) Stack.t ;
-  s_align : align_t Stack.t ;
-  s_in_align : bool Stack.t ;
-  s_underline : string Stack.t ;
-  s_nocount : bool Stack.t ;
-  s_in_table : bool Stack.t ;
-  s_vsize : int Stack.t ;
-  s_active : Out.t Stack.t ;
-  s_pending_par : int option Stack.t ;
-  s_after : (string -> string) Stack.t
+  s_nitems : int MyStack.t ;
+  s_dt : string MyStack.t ;
+  s_dcount : string MyStack.t ;
+  s_x : (int * int * int * int * int * int) MyStack.t ;
+  s_align : align_t MyStack.t ;
+  s_in_align : bool MyStack.t ;
+  s_underline : string MyStack.t ;
+  s_nocount : bool MyStack.t ;
+  s_in_table : bool MyStack.t ;
+  s_vsize : int MyStack.t ;
+  s_active : Out.t MyStack.t ;
+  s_pending_par : int option MyStack.t ;
+  s_after : (string -> string) MyStack.t
 } 
 
 let stacks = {
-  s_nitems = Stack.create "nitems" ;
-  s_dt = Stack.create "dt" ;
-  s_dcount = Stack.create "dcount" ;
-  s_x = Stack.create "x" ;
-  s_align = Stack.create "align" ;
-  s_in_align = Stack.create "in_align" ;
-  s_underline = Stack.create "underline" ;
-  s_nocount = Stack.create "nocount" ;
-  s_in_table = Stack.create "in_table" ;
-  s_vsize = Stack.create "vsize" ;
-  s_active = Stack.create "active" ;
-  s_pending_par = Stack.create "pending_par" ;
-  s_after = Stack.create "after"
+  s_nitems = MyStack.create "nitems" ;
+  s_dt = MyStack.create "dt" ;
+  s_dcount = MyStack.create "dcount" ;
+  s_x = MyStack.create "x" ;
+  s_align = MyStack.create "align" ;
+  s_in_align = MyStack.create "in_align" ;
+  s_underline = MyStack.create "underline" ;
+  s_nocount = MyStack.create "nocount" ;
+  s_in_table = MyStack.create "in_table" ;
+  s_vsize = MyStack.create "vsize" ;
+  s_active = MyStack.create "active" ;
+  s_pending_par = MyStack.create "pending_par" ;
+  s_after = MyStack.create "after"
 } 
 
 type saved_stacks = {
-  ss_nitems : int Stack.saved ;
-  ss_dt : string Stack.saved ;
-  ss_dcount : string Stack.saved ;
-  ss_x : (int * int * int * int * int * int) Stack.saved ;
-  ss_align : align_t Stack.saved ;
-  ss_in_align : bool Stack.saved ;
-  ss_underline : string Stack.saved ;
-  ss_nocount : bool Stack.saved ;
-  ss_in_table : bool Stack.saved ;
-  ss_vsize : int Stack.saved ;
-  ss_active : Out.t Stack.saved ;  
-  ss_pending_par : int option Stack.saved ;
-  ss_after : (string -> string) Stack.saved
+  ss_nitems : int MyStack.saved ;
+  ss_dt : string MyStack.saved ;
+  ss_dcount : string MyStack.saved ;
+  ss_x : (int * int * int * int * int * int) MyStack.saved ;
+  ss_align : align_t MyStack.saved ;
+  ss_in_align : bool MyStack.saved ;
+  ss_underline : string MyStack.saved ;
+  ss_nocount : bool MyStack.saved ;
+  ss_in_table : bool MyStack.saved ;
+  ss_vsize : int MyStack.saved ;
+  ss_active : Out.t MyStack.saved ;  
+  ss_pending_par : int option MyStack.saved ;
+  ss_after : (string -> string) MyStack.saved
 } 
 
 let save_stacks () =
 {
-  ss_nitems = Stack.save stacks.s_nitems ;
-  ss_dt = Stack.save stacks.s_dt ;
-  ss_dcount = Stack.save stacks.s_dcount ;
-  ss_x = Stack.save stacks.s_x ;
-  ss_align = Stack.save stacks.s_align ;
-  ss_in_align = Stack.save stacks.s_in_align ;
-  ss_underline = Stack.save stacks.s_underline ;
-  ss_nocount = Stack.save stacks.s_nocount ;
-  ss_in_table = Stack.save stacks.s_in_table ;
-  ss_vsize = Stack.save stacks.s_vsize ;
-  ss_active = Stack.save stacks.s_active ;
-  ss_pending_par = Stack.save stacks.s_pending_par ;
-  ss_after = Stack.save stacks.s_after
+  ss_nitems = MyStack.save stacks.s_nitems ;
+  ss_dt = MyStack.save stacks.s_dt ;
+  ss_dcount = MyStack.save stacks.s_dcount ;
+  ss_x = MyStack.save stacks.s_x ;
+  ss_align = MyStack.save stacks.s_align ;
+  ss_in_align = MyStack.save stacks.s_in_align ;
+  ss_underline = MyStack.save stacks.s_underline ;
+  ss_nocount = MyStack.save stacks.s_nocount ;
+  ss_in_table = MyStack.save stacks.s_in_table ;
+  ss_vsize = MyStack.save stacks.s_vsize ;
+  ss_active = MyStack.save stacks.s_active ;
+  ss_pending_par = MyStack.save stacks.s_pending_par ;
+  ss_after = MyStack.save stacks.s_after
 }
 
 and restore_stacks 
@@ -304,24 +304,24 @@ and restore_stacks
   ss_pending_par = saved_pending_par ;
   ss_after = saved_after
 } =
-  Stack.restore stacks.s_nitems saved_nitems ;
-  Stack.restore stacks.s_dt saved_dt ;
-  Stack.restore stacks.s_dcount saved_dcount ;
-  Stack.restore stacks.s_x saved_x ;
-  Stack.restore stacks.s_align saved_align ;
-  Stack.restore stacks.s_in_align saved_in_align ;
-  Stack.restore stacks.s_underline saved_underline ;
-  Stack.restore stacks.s_nocount saved_nocount ;
-  Stack.restore stacks.s_in_table saved_in_table ;
-  Stack.restore stacks.s_vsize saved_vsize ;
-  Stack.restore stacks.s_active saved_active ;
-  Stack.restore stacks.s_pending_par saved_pending_par ;
-  Stack.restore stacks.s_after saved_after
+  MyStack.restore stacks.s_nitems saved_nitems ;
+  MyStack.restore stacks.s_dt saved_dt ;
+  MyStack.restore stacks.s_dcount saved_dcount ;
+  MyStack.restore stacks.s_x saved_x ;
+  MyStack.restore stacks.s_align saved_align ;
+  MyStack.restore stacks.s_in_align saved_in_align ;
+  MyStack.restore stacks.s_underline saved_underline ;
+  MyStack.restore stacks.s_nocount saved_nocount ;
+  MyStack.restore stacks.s_in_table saved_in_table ;
+  MyStack.restore stacks.s_vsize saved_vsize ;
+  MyStack.restore stacks.s_active saved_active ;
+  MyStack.restore stacks.s_pending_par saved_pending_par ;
+  MyStack.restore stacks.s_after saved_after
 
 let check_stack what =
-  if not (Stack.empty what)  && not !silent then begin
+  if not (MyStack.empty what)  && not !silent then begin
     prerr_endline
-      ("Warning: stack "^Stack.name what^" is non-empty in Html.finalize") ;
+      ("Warning: stack "^MyStack.name what^" is non-empty in Html.finalize") ;
   end
 ;;
 
@@ -373,13 +373,13 @@ and hot (l,f,s,o) =
   restore_out o
 
 let stop () =
-  Stack.push stacks.s_active !cur_out.out ;
-  Stack.push stacks.s_pending_par flags.pending_par ;
+  MyStack.push stacks.s_active !cur_out.out ;
+  MyStack.push stacks.s_pending_par flags.pending_par ;
   !cur_out.out <- Out.create_null ()
 
 and restart () =
-  !cur_out.out <- Stack.pop stacks.s_active ;
-  flags.pending_par <- Stack.pop stacks.s_pending_par
+  !cur_out.out <- MyStack.pop stacks.s_active ;
+  flags.pending_par <- MyStack.pop stacks.s_pending_par
 
 let do_do_put_char c =
   Out.put_char !cur_out.out c;;
@@ -1129,12 +1129,12 @@ let table =  ref {
 } 
 ;;
 
-let table_stack = Stack.create "table_stack";;
-let row_stack = Stack.create "row_stack";;
-let cell_stack = Stack.create "cell_stack";;
+let table_stack = MyStack.create "table_stack";;
+let row_stack = MyStack.create "row_stack";;
+let cell_stack = MyStack.create "cell_stack";;
 
 let multi = ref []
-and multi_stack = Stack.create "multi_stack";;
+and multi_stack = MyStack.create "multi_stack";;
 
 
 let open_table _ _ =

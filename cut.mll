@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: cut.mll,v 1.56 2007-01-05 15:03:47 maranget Exp $ *)
+(* $Id: cut.mll,v 1.57 2007-02-08 17:48:28 maranget Exp $ *)
 {
 
 type toc_style = Normal | Both | Special
@@ -30,7 +30,7 @@ struct
 
 open Config
 open Lexing
-open Stack
+open MyStack
 
 let count = ref 0
 
@@ -133,8 +133,8 @@ and out_prefix = ref (CutOut.create_null ())
 and outname = ref ""
 and lastclosed = ref ""
 and otheroutname = ref ""
-and flowname_stack = (Stack.create "flowname" : string Stack.t)
-and flow_stack = (Stack.create "flow" : CutOut.t Stack.t)
+and flowname_stack = (MyStack.create "flowname" : string MyStack.t)
+and flow_stack = (MyStack.create "flow" : CutOut.t MyStack.t)
 ;;
 
 let toc = ref !out
@@ -465,14 +465,14 @@ let toc_buf = CutOut.create_buff "toc-buf"
 and arg_buf = CutOut.create_buff "arg-buf"
 ;;
 
-let stack = Stack.create "main"
+let stack = MyStack.create "main"
 ;;
 
 let save_state newchapter newdepth =
   if verbose > 0 then
     prerr_endline ("New state: "^string_of_int newchapter) ;
   push stack
-    (!outname, Stack.save flowname_stack, Stack.save flow_stack,
+    (!outname, MyStack.save flowname_stack, MyStack.save flow_stack,
      !chapter,!depth,!toc,!tocname,!cur_level,!lastclosed,!out_prefix) ;
   chapter := newchapter ;
   depth := newdepth ;
@@ -488,8 +488,8 @@ let restore_state () =
     oldchapter,olddepth,oldtoc,oldtocname,
     oldlevel,oldlastclosed,oldprefix  = pop stack in
   outname := oldoutname ;
-  Stack.restore flowname_stack oldflowname ;
-  Stack.restore flow_stack oldflow ;
+  MyStack.restore flowname_stack oldflowname ;
+  MyStack.restore flow_stack oldflow ;
   chapter := oldchapter ;
   depth := olddepth ;
   toc := oldtoc ;

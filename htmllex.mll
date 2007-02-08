@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: htmllex.mll,v 1.12 2006-10-09 08:25:16 maranget Exp $          *)
+(*  $Id: htmllex.mll,v 1.13 2007-02-08 17:48:28 maranget Exp $          *)
 (***********************************************************************)
 {
 open Lexing
@@ -15,7 +15,7 @@ open Lexeme
 open Buff
 
 let txt_level = ref 0
-and txt_stack = Stack.create "htmllex"
+and txt_stack = MyStack.create "htmllex"
 
 exception Error of string
 ;;
@@ -41,8 +41,8 @@ List.iter (init block)
 ;;
 
 let ptop () =
-  if not (Stack.empty txt_stack) then begin
-    let pos = Stack.top txt_stack in
+  if not (MyStack.empty txt_stack) then begin
+    let pos = MyStack.top txt_stack in
     Location.print_this_fullpos pos ;
     prerr_endline "This opening tag is pending"
   end
@@ -127,7 +127,7 @@ let ouvre lb name attrs txt =
     let tag = Hashtbl.find text uname in
     let attrs = norm_attrs lb attrs in
     incr txt_level ;
-    Stack.push txt_stack (Location.get_pos ()) ;
+    MyStack.push txt_stack (Location.get_pos ()) ;
     Open (tag, attrs,txt)
   with
   | Not_found -> assert false
@@ -136,8 +136,8 @@ and ferme lb name txt =
   try
     let tag = Hashtbl.find text (String.uppercase name) in
     decr txt_level ;
-    begin if not (Stack.empty txt_stack) then
-      let _  = Stack.pop txt_stack in ()
+    begin if not (MyStack.empty txt_stack) then
+      let _  = MyStack.pop txt_stack in ()
     end ;
     Close (tag,txt)
   with
@@ -363,7 +363,7 @@ let rec read_tokens blanks lb =
 
 let reset () =
   txt_level := 0 ;
-  Stack.reset txt_stack ;
+  MyStack.reset txt_stack ;
   Buff.reset txt_buff ;
   Buff.reset buff ;
   Buff.reset abuff

@@ -9,18 +9,18 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlMath.ml,v 1.47 2006-10-05 19:37:03 maranget Exp $" 
+let header = "$Id: htmlMath.ml,v 1.48 2007-02-08 17:48:28 maranget Exp $" 
 
 
 open Misc
 open Parse_opts
 open Element
 open HtmlCommon
-open Stack
+open MyStack
 
 
 
-let delay_stack = Stack.create "delay_stack"
+let delay_stack = MyStack.create "delay_stack"
 ;;
 (* delaying output .... *)
 

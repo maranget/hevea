@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmacros.ml,v 1.70 2005-10-13 18:13:28 maranget Exp $" 
+let header = "$Id: latexmacros.ml,v 1.71 2007-02-08 17:48:28 maranget Exp $" 
 open Misc
 open Parse_opts
 open Lexstate
@@ -29,14 +29,14 @@ and global_table = Hashtbl.create 97
 and prim_table = Hashtbl.create 5
 
 let purge = ref Strings.empty
-and purge_stack = Stack.create "purge"
+and purge_stack = MyStack.create "purge"
 and group_level = ref 0
 
 (* Hot start *)
 type ctable = (string, pat * action) Hashtbl.t
 type ptable = (string, (unit -> unit)) Hashtbl.t
 type saved = 
-    int * Strings.t * Strings.t Stack.saved *
+    int * Strings.t * Strings.t MyStack.saved *
     ptable * ctable * ctable
 
 
@@ -79,7 +79,7 @@ let pretty_table () =
   hidden_pretty_table local_table
 
 let checkpoint () =
-  !group_level, !purge, Stack.save purge_stack,
+  !group_level, !purge, MyStack.save purge_stack,
   Hashtbl.copy prim_table,
   Hashtbl.copy global_table, Hashtbl.copy local_table
 
@@ -88,7 +88,7 @@ and hot_start (level_checked, purge_checked, purge_stack_checked,
                global_checked, local_checked) = 
   group_level := level_checked ;
   purge := purge_checked ;
-  Stack.restore purge_stack purge_stack_checked ;
+  MyStack.restore purge_stack purge_stack_checked ;
   Misc.copy_hashtbl prim_checked prim_table ;
   Misc.copy_hashtbl global_checked global_table ;
   Misc.copy_hashtbl local_checked local_table
@@ -96,7 +96,7 @@ and hot_start (level_checked, purge_checked, purge_stack_checked,
 (* Controlling scope *)
 let open_group () =
   incr group_level ;
-  Stack.push purge_stack !purge ;
+  MyStack.push purge_stack !purge ;
   purge := Strings.empty
 
 and close_group () =
@@ -105,7 +105,7 @@ and close_group () =
       (fun name -> Hashtbl.remove local_table name)
       !purge ;
   decr group_level ;
-  purge := Stack.pop purge_stack
+  purge := MyStack.pop purge_stack
 
 let get_level () = !group_level
 
@@ -125,7 +125,7 @@ let hidden_global_def name x =
       undo all local bindings
     *)
     purge := pre_purge name !purge ;
-    Stack.map purge_stack (fun purge -> pre_purge name purge)
+    MyStack.map purge_stack (fun purge -> pre_purge name purge)
   end ;
   Hashtbl.remove global_table name ;
   Hashtbl.add global_table name x

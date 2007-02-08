@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: tabular.mll,v 1.31 2006-02-03 12:25:49 maranget Exp $ *)
+(* $Id: tabular.mll,v 1.32 2007-02-08 17:48:28 maranget Exp $ *)
 {
 open Misc
 open Lexing
@@ -182,7 +182,7 @@ and tfpostlude = parse
     let r = concat_pre_post one rest in
     r}
 | eof
-    {if Stack.empty stack_lexbuf then
+    {if MyStack.empty stack_lexbuf then
       ""
     else
       let lexbuf = previous_lexbuf () in
@@ -212,7 +212,7 @@ and lexformat = parse
     Lexstate.scan_arg (scan_this_arg lexformat) i ;
     lexformat lexbuf}
 | eof
-    {if Stack.empty stack_lexbuf then
+    {if MyStack.empty stack_lexbuf then
       ()
     else
       let lexbuf = previous_lexbuf () in

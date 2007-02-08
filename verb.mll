@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: verb.mll,v 1.89 2006-12-29 18:21:15 maranget Exp $            *)
+(*  $Id: verb.mll,v 1.90 2007-02-08 17:48:28 maranget Exp $            *)
 (***********************************************************************)
 {
 exception VError of string
@@ -24,7 +24,7 @@ open Lexing
 open Save
 open Lexstate
 open Latexmacros
-open Stack
+open MyStack
 open Scan
 open Subst
 
@@ -638,7 +638,7 @@ let lst_process_end  endstring old_process lb lxm =
 if !verbose > 1 then
  fprintf stderr "process_end: «%c»\n" lxm ;
   if
-    (not !input_verb || Stack.empty stack_lexbuf)
+    (not !input_verb || MyStack.empty stack_lexbuf)
       && if_next_string endstring lb then begin
     Save.skip_delim endstring lb ;
     raise EndVerb
@@ -819,7 +819,7 @@ and start_inverb put = parse
 and scan_byline process finish = parse
 |  "\\end" [' ''\t']* '{' ([^'}']+ as env) '}' as lxm
     {if
-      (not !input_verb || Stack.empty stack_lexbuf)
+      (not !input_verb || MyStack.empty stack_lexbuf)
         && env = !Scan.cur_env then begin
       finish () ;
       scan_this Scan.main ("\\end"^env) ;
@@ -836,7 +836,7 @@ and scan_byline process finish = parse
     {Out.put_char line_buff lxm ;
     scan_byline process finish lexbuf}
 | eof
-    {if not (Stack.empty stack_lexbuf) then begin
+    {if not (MyStack.empty stack_lexbuf) then begin
       let lexbuf = previous_lexbuf () in
       scan_byline process finish lexbuf
     end else begin
@@ -875,7 +875,7 @@ and scan_bycommand out is_cmd = parse
    { Out.blit out lexbuf ;
      scan_bycommand out is_cmd lexbuf }
 | eof
-   {if not (Stack.empty stack_lexbuf) then begin
+   {if not (MyStack.empty stack_lexbuf) then begin
       let lexbuf = previous_lexbuf () in
       scan_bycommand out is_cmd lexbuf
     end else begin
@@ -885,7 +885,7 @@ and scan_bycommand out is_cmd = parse
 
 and listings = parse
 |  eof
-    {if not (Stack.empty stack_lexbuf) then begin
+    {if not (MyStack.empty stack_lexbuf) then begin
       let lexbuf = previous_lexbuf () in
       listings lexbuf
     end else begin
@@ -898,7 +898,7 @@ and listings = parse
 
 and eat_line = parse
 | eof
-    {if not (Stack.empty stack_lexbuf) then begin
+    {if not (MyStack.empty stack_lexbuf) then begin
       let lexbuf = previous_lexbuf () in
       eat_line lexbuf
     end else begin
@@ -910,7 +910,7 @@ and eat_line = parse
 
 and get_line = parse
 |  eof
-    {if not (Stack.empty stack_lexbuf) then begin
+    {if not (MyStack.empty stack_lexbuf) then begin
       let lexbuf = previous_lexbuf () in
       get_line lexbuf
     end else begin

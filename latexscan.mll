@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.306 2007-01-25 10:33:30 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.307 2007-02-08 17:48:28 maranget Exp $ *)
 
 
 {
@@ -63,7 +63,7 @@ open Latexmacros
 open Save
 open Tabular
 open Lexstate
-open Stack
+open MyStack
 open Subst
 
 let sbool = function
@@ -86,13 +86,13 @@ let if_level = ref 0
 
 let cur_env = ref ""
 and after = ref [] 
-and stack_env = Stack.create "stack_env"
+and stack_env = MyStack.create "stack_env"
 ;;
 
 let echo_toimage () =  get_level () = 0 && top_level ()
 and echo_global_toimage () = top_level ()
 
-let stack_env_pretty () =  Stack.pretty (fun (x,_,_) -> x) stack_env
+let stack_env_pretty () =  MyStack.pretty (fun (x,_,_) -> x) stack_env
 
 let fun_register f =
   if get_level () > 0 then after := f :: !after
@@ -145,10 +145,10 @@ let top_close_display () =
 (* Latex environment stuff *)
 
 let print_env_pos () =
-  if Stack.empty stack_env then begin
+  if MyStack.empty stack_env then begin
     prerr_endline "No Latex environement is pending"
   end else begin
-    let _,_,pos = Stack.pop stack_env in
+    let _,_,pos = MyStack.pop stack_env in
     Location.print_this_pos pos ;
     prerr_endline ("Latex environment '"^ !cur_env^"' is pending")
   end
@@ -187,11 +187,11 @@ let close_env env  =
     error_env env !cur_env
 ;;
 
-let env_check () = !cur_env, !after, Stack.save stack_env
+let env_check () = !cur_env, !after, MyStack.save stack_env
 and env_hot (e,a,s) =
   cur_env := e ;
   after := a ;
-  Stack.restore stack_env s
+  MyStack.restore stack_env s
         
 
 (* Top functions for blocks *)
@@ -201,18 +201,18 @@ type in_table = Table of array_type | NoTable | Tabbing
 ;;
 
 let cur_format = ref [||]
-and stack_format = Stack.create "stack_format"
+and stack_format = MyStack.create "stack_format"
 and cur_col = ref 0
-and stack_col = Stack.create "stack_col"
+and stack_col = MyStack.create "stack_col"
 and in_table = ref NoTable
-and stack_table = Stack.create_init "stack_table" NoTable
+and stack_table = MyStack.create_init "stack_table" NoTable
 and first_col = ref false
 and first_border = ref false
-and stack_first = Stack.create "stack_first"
-and stack_first_b = Stack.create "stack_first_b"
+and stack_first = MyStack.create "stack_first"
+and stack_first_b = MyStack.create "stack_first_b"
 and in_multi = ref false
-and stack_multi_flag = Stack.create "stack_multi_flag"
-and stack_multi = Stack.create "stack_multi"
+and stack_multi_flag = MyStack.create "stack_multi_flag"
+and stack_multi = MyStack.create "stack_multi"
 ;;
 
 
@@ -712,8 +712,8 @@ let get_style lexfun {arg=s ; subst=env} =
 
 (* Image stuff *)
 
-let stack_entry = Stack.create "stack_entry"
-and stack_out = Stack.create  "stack_out"
+let stack_entry = MyStack.create "stack_entry"
+and stack_out = MyStack.create  "stack_out"
 ;;
 
 let start_other_scan env lexfun lexbuf =
@@ -753,9 +753,9 @@ let stop_other_scan comment main lexbuf =
   end;
   let _ = pop stack_entry in
   if not comment then close_env !cur_env ;
-  if not (Stack.empty stack_out) then begin
+  if not (MyStack.empty stack_out) then begin
     complete_scan main lexbuf ;
-    while not (Stack.empty stack_out) do
+    while not (MyStack.empty stack_out) do
       let lexbuf = previous_lexbuf () in
       complete_scan main lexbuf
     done
@@ -825,7 +825,7 @@ let rec do_expand_command main skip_blanks name lexbuf =
               if !verbose > 2 then
                 prerr_endline ("user macro: "^body) ;            
               let old_alltt = !alltt in
-              Stack.push stack_alltt old_alltt ;        
+              MyStack.push stack_alltt old_alltt ;        
               alltt :=
                  (match old_alltt with
                  | Not -> Not
@@ -835,7 +835,7 @@ let rec do_expand_command main skip_blanks name lexbuf =
   "Enter: %s, %s -> %s\n" name (debug old_alltt) (debug !alltt) ;
   *)
               scan_this_may_cont main lexbuf cur_subst (string_to_arg body) ;
-              let _ =  Stack.pop stack_alltt in
+              let _ =  MyStack.pop stack_alltt in
               alltt :=
                  (match old_alltt, !alltt with
                  | Not, Inside         -> Inside
@@ -1041,10 +1041,10 @@ rule  main = parse
         (if !alltt_loaded then
           (fun arg ->
             let old_alltt = !alltt in
-            alltt := Stack.pop stack_alltt ;
+            alltt := MyStack.pop stack_alltt ;
             scan_this_may_cont main lexbuf (get_subst ()) arg ;
             alltt := old_alltt ;
-            Stack.push stack_alltt old_alltt)
+            MyStack.push stack_alltt old_alltt)
         else
           (fun arg -> scan_this_may_cont main lexbuf (get_subst ()) arg))
         i
@@ -2113,7 +2113,7 @@ def_code "\\chardef"
 
 let displayleft lexbuf = 
   let dprev = !display in
-  Stack.push stack_display dprev ;
+  MyStack.push stack_display dprev ;
   display := true ;
   if not dprev then top_open_display () ;      
   let delim = subst_arg lexbuf in
@@ -2141,7 +2141,7 @@ let displayright lexbuf =
       (scan_this_arg main) do_what sup sub !display
   else
     Dest.standard_sup_sub (scan_this_arg main) do_what sup sub !display ;
-  let dprev = Stack.pop stack_display in
+  let dprev = MyStack.pop stack_display in
   if not dprev then top_close_display () ;
   display := dprev
 ;;
@@ -2392,17 +2392,17 @@ def_code "\\@anti"
     Dest.erase_mods envs)
 ;;
 
-let styles_stack = Stack.create "styles"
+let styles_stack = MyStack.create "styles"
 ;;
 
 def_code "\\push@styles"
   (fun _lexbuf ->
     let envs = get_style main {arg = "" ; subst=top_subst} in
-    Stack.push styles_stack envs) ;
+    MyStack.push styles_stack envs) ;
 
 def_code "\\pop@styles"
    (fun _lexbuf ->
-     let envs = Stack.pop styles_stack in
+     let envs = MyStack.pop styles_stack in
      Dest.clearstyle () ;
      List.iter Dest.open_mod (List.rev envs))
 ;;
@@ -2837,7 +2837,7 @@ def_code "\\@raise@enddocument"
   (fun _ ->
     if not !sawdocument then
       fatal ("\\end{document} with no \\begin{document}")
-    else if not (Stack.empty stack_env) then
+    else if not (MyStack.empty stack_env) then
       error_env "document" !cur_env
     else begin
       raise Misc.EndDocument
@@ -3130,7 +3130,7 @@ def_code "\\warning"
 (* spacing *)
 
 (*
-let stack_closed = Stack.create "stack_closed"
+let stack_closed = MyStack.create "stack_closed"
 ;;
 
 def_code "\\@saveclosed"

@@ -8,14 +8,15 @@
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
 (***********************************************************************)
-open Stack
 
-let header = "$Id: location.ml,v 1.19 2001-05-28 17:28:56 maranget Exp $" 
+let header = "$Id: location.ml,v 1.20 2007-02-08 17:48:28 maranget Exp $" 
+
+open MyStack
 
 type fileOption = No | Yes of in_channel
 ;;
 
-let stack = Stack.create "location"
+let stack = MyStack.create "location"
 ;;
 
 
@@ -36,7 +37,7 @@ and restore_state () =
   curline := line;
   curfile := file
 
-type saved = (string * Lexing.lexbuf * (int * int)  * fileOption) Stack.saved
+type saved = (string * Lexing.lexbuf * (int * int)  * fileOption) MyStack.saved
 
 let close_file = function
   | Yes f -> close_in f
@@ -46,15 +47,15 @@ let close_curfile () = close_file !curfile
 
 let check () =
   save_state () ;
-  let r = Stack.save stack in
+  let r = MyStack.save stack in
   restore_state () ;
   r
 
 and hot saved =
   let to_finalize = stack in
-  Stack.restore stack saved ;  
-  let _,_,_,file_now = Stack.top stack in
-  Stack.finalize to_finalize
+  MyStack.restore stack saved ;  
+  let _,_,_,file_now = MyStack.top stack in
+  MyStack.finalize to_finalize
     (fun (_,_,_,file) -> file == file_now)
     (fun (_,_,_,file) -> close_file file) ;
   restore_state ()

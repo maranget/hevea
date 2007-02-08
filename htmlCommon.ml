@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlCommon.ml,v 1.61 2006-10-11 16:42:39 maranget Exp $" 
+let header = "$Id: htmlCommon.ml,v 1.62 2007-02-08 17:48:28 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -20,7 +20,7 @@ open Misc
 open Element
 open Parse_opts
 open Latexmacros
-open Stack
+open MyStack
 open Length
 
 
@@ -244,7 +244,7 @@ exception PopFreeze
 let push_out s (a,b,c) = push s (Normal (a,b,c))
 ;;
 
-let pretty_stack s = Stack.pretty 
+let pretty_stack s = MyStack.pretty 
    (function Normal (s,args,_) -> "["^string_of_block s^"]-{"^args^"}"
    | Freeze _   -> "Freeze") s
 ;;
@@ -260,16 +260,16 @@ and top_out s = match top s with
 
 
 let out_stack =
-  Stack.create_init "out_stack" (Normal (NADA,"",!cur_out))
+  MyStack.create_init "out_stack" (Normal (NADA,"",!cur_out))
 ;;
 
-type saved_out = status * stack_item Stack.saved
+type saved_out = status * stack_item MyStack.saved
 
-let save_out () = !cur_out, Stack.save out_stack
+let save_out () = !cur_out, MyStack.save out_stack
 and restore_out (a,b) =
   if !cur_out != a then begin
     free !cur_out ;
-    Stack.finalize out_stack
+    MyStack.finalize out_stack
       (function
         | Normal (_,_,x) -> x == a
         | _ -> false)
@@ -278,13 +278,13 @@ and restore_out (a,b) =
         | _ -> ())
   end ;  
   cur_out := a ;
-  Stack.restore out_stack b
+  MyStack.restore out_stack b
 
-let pblock () = match Stack.top out_stack with
+let pblock () = match MyStack.top out_stack with
 | Normal (s,_,_) -> s
 | _ -> NADA
 
-and p2block () = Stack.top2 out_stack
+and p2block () = MyStack.top2 out_stack
   
 ;;
 
@@ -440,86 +440,86 @@ and set_flags f {
     
 (* Independant stacks for flags *)
 type stack_t = {
-  s_table_inside : bool Stack.t ;
-  s_saved_inside : bool Stack.t ;
-  s_in_math : bool Stack.t ;
-  s_ncols : int Stack.t ;
-  s_empty : bool Stack.t ;
-  s_blank : bool Stack.t ;
-  s_saw_par : bool Stack.t ;
-  s_vsize : int Stack.t ;
-  s_nrows : int Stack.t ;
-  s_table_vsize : int Stack.t ;
-  s_nitems : int Stack.t ;
-  s_dt : string Stack.t ;
-  s_dcount : string Stack.t ;
-  s_insert : (block * string) option Stack.t ;
-  s_insert_attr : (block * string) option Stack.t ;
+  s_table_inside : bool MyStack.t ;
+  s_saved_inside : bool MyStack.t ;
+  s_in_math : bool MyStack.t ;
+  s_ncols : int MyStack.t ;
+  s_empty : bool MyStack.t ;
+  s_blank : bool MyStack.t ;
+  s_saw_par : bool MyStack.t ;
+  s_vsize : int MyStack.t ;
+  s_nrows : int MyStack.t ;
+  s_table_vsize : int MyStack.t ;
+  s_nitems : int MyStack.t ;
+  s_dt : string MyStack.t ;
+  s_dcount : string MyStack.t ;
+  s_insert : (block * string) option MyStack.t ;
+  s_insert_attr : (block * string) option MyStack.t ;
 (* Other stacks, not corresponding to flags *)
-  s_active : Out.t Stack.t ;
-  s_after : (string -> string) Stack.t
+  s_active : Out.t MyStack.t ;
+  s_after : (string -> string) MyStack.t
   } 
 
 let stacks = {
-  s_table_inside = Stack.create "inside" ;
-  s_saved_inside = Stack.create "saved_inside" ;
-  s_in_math = Stack.create_init "in_math" false ;
-  s_ncols = Stack.create "ncols" ;
-  s_empty = Stack.create_init "empty" false;
-  s_blank = Stack.create_init "blank" false ;
-  s_saw_par = Stack.create "saw_par" ;
-  s_vsize = Stack.create "vsize" ;
-  s_nrows = Stack.create_init "nrows" 0 ;
-  s_table_vsize = Stack.create_init "table_vsize" 0 ;
-  s_nitems = Stack.create_init "nitems" 0 ;
-  s_dt = Stack.create_init "dt" "" ;
-  s_dcount = Stack.create_init "dcount" "" ;
-  s_insert = Stack.create_init "insert" None;
-  s_insert_attr = Stack.create_init "insert_attr" None;
-  s_active = Stack.create "active" ;
-  s_after = Stack.create "after"
+  s_table_inside = MyStack.create "inside" ;
+  s_saved_inside = MyStack.create "saved_inside" ;
+  s_in_math = MyStack.create_init "in_math" false ;
+  s_ncols = MyStack.create "ncols" ;
+  s_empty = MyStack.create_init "empty" false;
+  s_blank = MyStack.create_init "blank" false ;
+  s_saw_par = MyStack.create "saw_par" ;
+  s_vsize = MyStack.create "vsize" ;
+  s_nrows = MyStack.create_init "nrows" 0 ;
+  s_table_vsize = MyStack.create_init "table_vsize" 0 ;
+  s_nitems = MyStack.create_init "nitems" 0 ;
+  s_dt = MyStack.create_init "dt" "" ;
+  s_dcount = MyStack.create_init "dcount" "" ;
+  s_insert = MyStack.create_init "insert" None;
+  s_insert_attr = MyStack.create_init "insert_attr" None;
+  s_active = MyStack.create "active" ;
+  s_after = MyStack.create "after"
 } 
 
 type saved_stacks = {
-  ss_table_inside : bool Stack.saved ;
-  ss_saved_inside : bool Stack.saved ;
-  ss_in_math : bool Stack.saved ;
-  ss_ncols : int Stack.saved ;
-  ss_empty : bool Stack.saved ;
-  ss_blank : bool Stack.saved ;
-  ss_saw_par : bool Stack.saved ;
-  ss_vsize : int Stack.saved ;
-  ss_nrows : int Stack.saved ;
-  ss_table_vsize : int Stack.saved ;
-  ss_nitems : int Stack.saved ;
-  ss_dt : string Stack.saved ;
-  ss_dcount : string Stack.saved ;
-  ss_insert : (block * string) option Stack.saved ;
-  ss_insert_attr : (block * string) option Stack.saved ;
+  ss_table_inside : bool MyStack.saved ;
+  ss_saved_inside : bool MyStack.saved ;
+  ss_in_math : bool MyStack.saved ;
+  ss_ncols : int MyStack.saved ;
+  ss_empty : bool MyStack.saved ;
+  ss_blank : bool MyStack.saved ;
+  ss_saw_par : bool MyStack.saved ;
+  ss_vsize : int MyStack.saved ;
+  ss_nrows : int MyStack.saved ;
+  ss_table_vsize : int MyStack.saved ;
+  ss_nitems : int MyStack.saved ;
+  ss_dt : string MyStack.saved ;
+  ss_dcount : string MyStack.saved ;
+  ss_insert : (block * string) option MyStack.saved ;
+  ss_insert_attr : (block * string) option MyStack.saved ;
 (* Other stacks, not corresponding to flags *)
-  ss_active : Out.t Stack.saved ;
-  ss_after : (string -> string) Stack.saved
+  ss_active : Out.t MyStack.saved ;
+  ss_after : (string -> string) MyStack.saved
   } 
 
 let save_stacks () =
 {
-  ss_table_inside = Stack.save stacks.s_table_inside ;
-  ss_saved_inside = Stack.save stacks.s_saved_inside ;
-  ss_in_math = Stack.save stacks.s_in_math ;
-  ss_ncols = Stack.save stacks.s_ncols ;
-  ss_empty = Stack.save stacks.s_empty ;
-  ss_blank = Stack.save stacks.s_blank ;
-  ss_saw_par = Stack.save stacks.s_saw_par ;
-  ss_vsize = Stack.save stacks.s_vsize ;
-  ss_nrows = Stack.save stacks.s_nrows ;
-  ss_table_vsize = Stack.save stacks.s_table_vsize ;
-  ss_nitems = Stack.save stacks.s_nitems ;
-  ss_dt = Stack.save stacks.s_dt ;
-  ss_dcount = Stack.save stacks.s_dcount ;
-  ss_insert = Stack.save stacks.s_insert ;
-  ss_insert_attr = Stack.save stacks.s_insert_attr ;
-  ss_active = Stack.save stacks.s_active ;
-  ss_after = Stack.save stacks.s_after
+  ss_table_inside = MyStack.save stacks.s_table_inside ;
+  ss_saved_inside = MyStack.save stacks.s_saved_inside ;
+  ss_in_math = MyStack.save stacks.s_in_math ;
+  ss_ncols = MyStack.save stacks.s_ncols ;
+  ss_empty = MyStack.save stacks.s_empty ;
+  ss_blank = MyStack.save stacks.s_blank ;
+  ss_saw_par = MyStack.save stacks.s_saw_par ;
+  ss_vsize = MyStack.save stacks.s_vsize ;
+  ss_nrows = MyStack.save stacks.s_nrows ;
+  ss_table_vsize = MyStack.save stacks.s_table_vsize ;
+  ss_nitems = MyStack.save stacks.s_nitems ;
+  ss_dt = MyStack.save stacks.s_dt ;
+  ss_dcount = MyStack.save stacks.s_dcount ;
+  ss_insert = MyStack.save stacks.s_insert ;
+  ss_insert_attr = MyStack.save stacks.s_insert_attr ;
+  ss_active = MyStack.save stacks.s_active ;
+  ss_after = MyStack.save stacks.s_after
 }   
 
 and restore_stacks
@@ -542,29 +542,29 @@ and restore_stacks
   ss_active = saved_active ;
   ss_after = saved_after
 }   =
-  Stack.restore stacks.s_table_inside saved_table_inside ;
-  Stack.restore stacks.s_saved_inside saved_saved_inside ;
-  Stack.restore stacks.s_in_math saved_in_math ;
-  Stack.restore stacks.s_ncols saved_ncols ;
-  Stack.restore stacks.s_empty saved_empty ;
-  Stack.restore stacks.s_blank saved_blank ;
-  Stack.restore stacks.s_saw_par saved_saw_par ;
-  Stack.restore stacks.s_vsize saved_vsize ;
-  Stack.restore stacks.s_nrows saved_nrows ;
-  Stack.restore stacks.s_table_vsize saved_table_vsize ;
-  Stack.restore stacks.s_nitems saved_nitems ;
-  Stack.restore stacks.s_dt saved_dt ;
-  Stack.restore stacks.s_dcount saved_dcount ;
-  Stack.restore stacks.s_insert saved_insert ;
-  Stack.restore stacks.s_insert_attr saved_insert_attr ;
-  Stack.restore stacks.s_active saved_active ;
-  Stack.restore stacks.s_after saved_after
+  MyStack.restore stacks.s_table_inside saved_table_inside ;
+  MyStack.restore stacks.s_saved_inside saved_saved_inside ;
+  MyStack.restore stacks.s_in_math saved_in_math ;
+  MyStack.restore stacks.s_ncols saved_ncols ;
+  MyStack.restore stacks.s_empty saved_empty ;
+  MyStack.restore stacks.s_blank saved_blank ;
+  MyStack.restore stacks.s_saw_par saved_saw_par ;
+  MyStack.restore stacks.s_vsize saved_vsize ;
+  MyStack.restore stacks.s_nrows saved_nrows ;
+  MyStack.restore stacks.s_table_vsize saved_table_vsize ;
+  MyStack.restore stacks.s_nitems saved_nitems ;
+  MyStack.restore stacks.s_dt saved_dt ;
+  MyStack.restore stacks.s_dcount saved_dcount ;
+  MyStack.restore stacks.s_insert saved_insert ;
+  MyStack.restore stacks.s_insert_attr saved_insert_attr ;
+  MyStack.restore stacks.s_active saved_active ;
+  MyStack.restore stacks.s_after saved_after
 
 
 let check_stack what =
-  if not (Stack.empty what)  && not !silent then begin
+  if not (MyStack.empty what)  && not !silent then begin
     prerr_endline
-      ("Warning: stack "^Stack.name what^" is non-empty in Html.finalize") ;
+      ("Warning: stack "^MyStack.name what^" is non-empty in Html.finalize") ;
   end
 ;;
 
@@ -629,7 +629,7 @@ let sbool = function true -> "true" | _ -> "false"
 ;;
 
 let prerr_flags s =
-  prerr_endline ("<"^string_of_int (Stack.length stacks.s_empty)^"> "^s^
+  prerr_endline ("<"^string_of_int (MyStack.length stacks.s_empty)^"> "^s^
     " empty="^sbool flags.empty^
     " blank="^sbool flags.blank^
     " table="^sbool flags.table_inside)

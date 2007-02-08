@@ -73,7 +73,7 @@ val scan_arg : (string arg -> 'a) -> int -> 'a
 val scan_body :
   (action -> 'a) -> action -> subst -> 'a
 
-val stack_lexbuf : Lexing.lexbuf Stack.t
+val stack_lexbuf : Lexing.lexbuf MyStack.t
 val previous_lexbuf : unit -> Lexing.lexbuf
 val record_lexbuf : Lexing.lexbuf -> subst -> unit
 val top_lexstate : unit -> bool
@@ -91,9 +91,9 @@ val check_lexstate : unit -> saved_lexstate
 val hot_lexstate : saved_lexstate -> unit
 
 val flushing : bool ref
-val stack_in_math : bool Stack.t
-val stack_display : bool Stack.t
-val stack_alltt : alltt Stack.t
+val stack_in_math : bool MyStack.t
+val stack_display : bool MyStack.t
+val stack_alltt : alltt MyStack.t
 
 val start_normal: subst -> unit
 val end_normal : unit -> unit

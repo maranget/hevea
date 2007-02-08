@@ -15,11 +15,11 @@ open Parse_opts
 open Lexing
 open Latexmacros
 open Lexstate
-open Stack
+open MyStack
 open Length
 
 (* Compute functions *)
-let header = "$Id: get.mll,v 1.29 2006-03-01 17:44:20 maranget Exp $"
+let header = "$Id: get.mll,v 1.30 2007-02-08 17:48:28 maranget Exp $"
 
 exception Error of string
 
@@ -38,26 +38,26 @@ and main = ref (fun _ -> assert false)
 let bool_out = ref false
 and int_out = ref false
 
-let int_stack = Stack.create "int_stack"
-and bool_stack = Stack.create "bool_stack"
-and group_stack = Stack.create "group_stack"
+let int_stack = MyStack.create "int_stack"
+and bool_stack = MyStack.create "bool_stack"
+and group_stack = MyStack.create "group_stack"
 and just_opened = ref false
 
 type saved =
-  bool * bool Stack.saved *
-  bool * int Stack.saved * 
-  (unit -> unit) Stack.saved * bool
+  bool * bool MyStack.saved *
+  bool * int MyStack.saved * 
+  (unit -> unit) MyStack.saved * bool
 
 let check () =
-  !bool_out, Stack.save bool_stack,
-  !int_out, Stack.save int_stack,
-  Stack.save group_stack,
+  !bool_out, MyStack.save bool_stack,
+  !int_out, MyStack.save int_stack,
+  MyStack.save group_stack,
   !just_opened
 
 and hot (b,bs,i,is,gs,j) =
-  bool_out := b ; Stack.restore bool_stack bs ;
-  int_out := i ; Stack.restore int_stack is ;
-  Stack.restore group_stack gs ;
+  bool_out := b ; MyStack.restore bool_stack bs ;
+  int_out := i ; MyStack.restore int_stack is ;
+  MyStack.restore group_stack gs ;
   just_opened := j
 
 let push_int x =
@@ -135,7 +135,7 @@ rule result = parse
         (fun () ->
           if !verbose > 2 then begin
             prerr_endline ("UNARY: "^String.make 1 lxm) ;
-            Stack.pretty string_of_int int_stack
+            MyStack.pretty string_of_int int_stack
           end ;
           let x1 = pop int_stack in
           let r = match lxm with
@@ -149,7 +149,7 @@ rule result = parse
         (fun () ->
           if !verbose > 2 then begin
             prerr_endline ("OPPADD: "^String.make 1 lxm) ;
-            Stack.pretty string_of_int int_stack
+            MyStack.pretty string_of_int int_stack
           end ;
           let x2 = pop int_stack in
           let x1 = pop int_stack in
@@ -168,7 +168,7 @@ rule result = parse
         (fun () ->
           if !verbose > 2 then begin
             prerr_endline ("MULTOP"^String.make 1 lxm) ;
-            Stack.pretty string_of_int int_stack
+            MyStack.pretty string_of_int int_stack
           end ;
           let x2 = pop int_stack in
           let x1 = pop int_stack in
@@ -186,7 +186,7 @@ rule result = parse
       (fun () ->
         if !verbose > 2 then begin
           prerr_endline ("COMP: "^String.make 1 lxm) ;
-          Stack.pretty string_of_int int_stack
+          MyStack.pretty string_of_int int_stack
         end ;
         let x2 = pop int_stack in
         let x1 = pop int_stack in              
@@ -197,7 +197,7 @@ rule result = parse
           | '=' -> x1 = x2
           | _   -> assert false) ;
           if !verbose > 2 then
-            Stack.pretty sbool bool_stack) "COMP" ;
+            MyStack.pretty sbool bool_stack) "COMP" ;
     open_ngroups 2 ;
     result lexbuf}
 
@@ -313,7 +313,7 @@ let def_commands_bool () =
             (fun () ->
               if !verbose > 2 then begin
                 prerr_endline "OR" ;
-                Stack.pretty sbool bool_stack
+                MyStack.pretty sbool bool_stack
               end ;
               let b1 = pop bool_stack in
               let b2 = pop bool_stack in
@@ -326,7 +326,7 @@ let def_commands_bool () =
             (fun () ->
               if !verbose > 2 then begin
                 prerr_endline "AND" ;
-                Stack.pretty sbool bool_stack
+                MyStack.pretty sbool bool_stack
               end ;
               let b1 = pop bool_stack in
               let b2 = pop bool_stack in
@@ -339,7 +339,7 @@ let def_commands_bool () =
             (fun () ->
               if !verbose > 2 then begin
                 prerr_endline "NOT" ;
-                Stack.pretty sbool bool_stack
+                MyStack.pretty sbool bool_stack
               end ;
               let b1 = pop bool_stack in
               push bool_stack (not b1)) "NOT";
@@ -364,12 +364,12 @@ let def_commands_bool () =
             (fun () ->
               if !verbose > 2 then begin
                 prerr_endline ("ISODD") ;
-                Stack.pretty string_of_int int_stack
+                MyStack.pretty string_of_int int_stack
               end ;
               let x = pop int_stack in
               push bool_stack (x mod 2 = 1) ;
               if !verbose > 2 then
-                Stack.pretty sbool bool_stack) "ISODD" ;
+                MyStack.pretty sbool bool_stack) "ISODD" ;
           open_ngroups 2) ] in
   let old_equal =
     try Some (Latexmacros.find_fail "\\equal") with Failed -> None in
@@ -422,7 +422,7 @@ let get_int {arg=expr ; subst=subst} =
       close_ngroups 2 ;
       !close_env "*int*" ;
       end_normal () ;
-      if Stack.empty int_stack then
+      if MyStack.empty int_stack then
         raise (Error ("``"^expr^"'' has no value as an integer"));
       let r = pop int_stack in
       int_out := old_int ;
@@ -452,7 +452,7 @@ let get_bool {arg=expr ; subst=subst} =
   close_ngroups 7 ;
   !close_env "*bool*" ;
   end_normal () ;
-  if Stack.empty bool_stack then
+  if MyStack.empty bool_stack then
     raise (Error ("``"^expr^"'' has no value as a boolean"));
   let r = pop bool_stack in
   if !verbose > 1 then

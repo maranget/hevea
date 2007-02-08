@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: foot.ml,v 1.22 2006-09-29 13:53:59 maranget Exp $" 
+let header = "$Id: foot.ml,v 1.23 2007-02-08 17:48:28 maranget Exp $" 
 open Parse_opts
 
 let some = ref false
@@ -23,28 +23,28 @@ let mark_to_anchor = Hashtbl.create 17
 and anchor_to_note = Hashtbl.create 17
 ;;
 
-let fst_stack = Stack.create_init "fst_stack" 0
-and some_stack = Stack.create "some_stack"
+let fst_stack = MyStack.create_init "fst_stack" 0
+and some_stack = MyStack.create "some_stack"
 
 type saved =
     (int, int) Hashtbl.t
   * (int, int * string * string) Hashtbl.t * int * bool
-  * int Stack.saved * bool Stack.saved
+  * int MyStack.saved * bool MyStack.saved
 
 
 let checkpoint () =
   Hashtbl.copy mark_to_anchor,
   Hashtbl.copy anchor_to_note,
   !anchor, !some,
-  Stack.save fst_stack, Stack.save some_stack
+  MyStack.save fst_stack, MyStack.save some_stack
 
 and hot_start (t1,t2,i,b,fst_saved,some_saved) =
   Misc.copy_int_hashtbl t1 mark_to_anchor ;
   Misc.copy_int_hashtbl t2 anchor_to_note ;
   anchor := i ;
   some := b ;
-  Stack.restore fst_stack fst_saved ;
-  Stack.restore some_stack some_saved ;
+  MyStack.restore fst_stack fst_saved ;
+  MyStack.restore some_stack some_saved ;
   ()
 
 let step_anchor mark =
@@ -77,8 +77,8 @@ let register mark themark text =
 
 
 let sub_notes () =
-  Stack.push fst_stack !anchor ;
-  Stack.push some_stack !some ;
+  MyStack.push fst_stack !anchor ;
+  MyStack.push some_stack !some ;
   some := false
 
 
@@ -89,7 +89,7 @@ let flush sticky lexer sec_notes sec_here =
       (Printf.sprintf "NOTES %s (%s)" sec_here sec_notes) ;
 *)
     some := false ;
-    let fst = Stack.top fst_stack in
+    let fst = MyStack.top fst_stack in
     lexer
       ("\\begin{thefootnotes}" ^
        (if sticky then "[STICKY]" else "") ^
@@ -123,7 +123,7 @@ let flush sticky lexer sec_notes sec_here =
 ;;
 
 let end_notes () =
-  some := Stack.pop some_stack ;
-  ignore (Stack.pop fst_stack)
+  some := MyStack.pop some_stack ;
+  ignore (MyStack.pop fst_stack)
 
   

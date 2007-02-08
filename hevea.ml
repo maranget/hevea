@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: hevea.ml,v 1.1 2007-02-08 15:15:12 maranget Exp $" 
+let header = "$Id: hevea.ml,v 1.2 2007-02-08 17:48:28 maranget Exp $" 
 
 open Misc
 open Parse_opts
@@ -228,7 +228,7 @@ let _ =
         prerr_not_supported s
     |  Misc.Fatal s ->
         prerr_bug ("Fatal error: "^s)
-    |  Stack.Fatal s ->
+    |  MyStack.Fatal s ->
         prerr_bug ("Fatal stack error, "^s)
 (*
     |  x ->

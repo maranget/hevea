@@ -9,11 +9,11 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: lexstate.ml,v 1.68 2006-07-20 12:52:00 maranget Exp $"
+let header = "$Id: lexstate.ml,v 1.69 2007-02-08 17:48:28 maranget Exp $"
 
 open Misc
 open Lexing
-open Stack
+open MyStack
 
 
 
@@ -70,8 +70,8 @@ let effective = function
 let subst = ref Top
 and alltt = ref Not
 
-let stack_subst = Stack.create "stack_subst"
-and stack_alltt = Stack.create_init "stack_alltt" Not
+let stack_subst = MyStack.create "stack_subst"
+and stack_alltt = MyStack.create_init "stack_alltt" Not
 
 let get_subst () = !subst
 let set_subst s = subst := s
@@ -143,11 +143,11 @@ let case = ref Neutral
 let string_to_arg arg = {arg=arg ; subst= !subst }
 
 (* Stacks for flags *)
-let stack_in_math = Stack.create "stack_in_math"
-and stack_display = Stack.create "stack_display"
+let stack_in_math = MyStack.create "stack_in_math"
+and stack_display = MyStack.create "stack_display"
 
 (* Stacks for entry stream  *)
-let stack_lexbuf = Stack.create "stack_lexbuf"
+let stack_lexbuf = MyStack.create "stack_lexbuf"
 ;;
 
 let pretty_lexbuf lb =
@@ -241,34 +241,34 @@ and scan_body do_exec body args = match body with
 (* Recoding and restoring lexbufs *)
 
 let record_lexbuf lexbuf subst =
-  Stack.push stack_subst subst ;
-  Stack.push stack_lexbuf lexbuf ;
+  MyStack.push stack_subst subst ;
+  MyStack.push stack_lexbuf lexbuf ;
 
 and previous_lexbuf () =
-  let lexbuf = Stack.pop stack_lexbuf in
-  subst := Stack.pop stack_subst ;
+  let lexbuf = MyStack.pop stack_lexbuf in
+  subst := MyStack.pop stack_subst ;
   lexbuf
 ;;
 
 (* Saving and restoring lexing status *)
 
-let stack_lexstate = Stack.create "stack_lexstate"
+let stack_lexstate = MyStack.create "stack_lexstate"
 
-let top_lexstate () = Stack.empty stack_lexstate
+let top_lexstate () = MyStack.empty stack_lexstate
 
 let save_lexstate () =
-  let old_stack = Stack.save stack_subst in
-  Stack.push stack_subst !subst ;
+  let old_stack = MyStack.save stack_subst in
+  MyStack.push stack_subst !subst ;
   push stack_lexstate
-    (Stack.save stack_lexbuf,
-     Stack.save stack_subst) ;
-  Stack.restore stack_subst old_stack
+    (MyStack.save stack_lexbuf,
+     MyStack.save stack_subst) ;
+  MyStack.restore stack_subst old_stack
 
 and restore_lexstate () =
   let lexbufs,substs = pop stack_lexstate in
-  Stack.restore stack_lexbuf lexbufs ;
-  Stack.restore stack_subst substs ;
-  subst := Stack.pop stack_subst
+  MyStack.restore stack_lexbuf lexbufs ;
+  MyStack.restore stack_subst substs ;
+  subst := MyStack.pop stack_subst
 
 (* Flags save and restore *)
 let save_flags () = 
@@ -281,24 +281,24 @@ and restore_flags () =
 
 (* Total ckeckpoint of lexstate *)
 type saved_lexstate = 
-(Lexing.lexbuf Stack.saved * subst Stack.saved) Stack.saved *
-bool Stack.saved * bool Stack.saved
+(Lexing.lexbuf MyStack.saved * subst MyStack.saved) MyStack.saved *
+bool MyStack.saved * bool MyStack.saved
 
 let check_lexstate () =
   save_lexstate () ;
   save_flags () ;
   let r =
-    Stack.save stack_lexstate,
-    Stack.save stack_display,
-    Stack.save stack_in_math in
+    MyStack.save stack_lexstate,
+    MyStack.save stack_display,
+    MyStack.save stack_in_math in
   restore_lexstate () ;
   restore_flags () ;
   r
 
 and hot_lexstate (l,d,m) =
-  Stack.restore stack_lexstate l ;
-  Stack.restore stack_display d ;
-  Stack.restore stack_in_math m ;
+  MyStack.restore stack_lexstate l ;
+  MyStack.restore stack_display d ;
+  MyStack.restore stack_in_math m ;
   restore_lexstate ()  ;
   restore_flags ()
 ;;
@@ -306,8 +306,8 @@ and hot_lexstate (l,d,m) =
 (* Blank lexing status *)
 let start_lexstate () =
   save_lexstate () ;
-  Stack.restore stack_lexbuf (Stack.empty_saved) ;
-  Stack.restore stack_subst (Stack.empty_saved)
+  MyStack.restore stack_lexbuf (MyStack.empty_saved) ;
+  MyStack.restore stack_subst (MyStack.empty_saved)
 
 let start_lexstate_subst this_subst =
   start_lexstate () ;
@@ -335,7 +335,7 @@ let full_peek_char lexbuf =
     try
       Save.peek_next_char lexbuf
     with Not_found ->
-      if Stack.empty stack_lexbuf then
+      if MyStack.empty stack_lexbuf then
         raise Not_found
       else
         full_peek (previous_lexbuf ()) in
@@ -347,7 +347,7 @@ let full_save_arg eoferror mkarg parg lexfun lexbuf =
       let arg = lexfun lexbuf in
       mkarg arg !subst
     with Save.Eof -> begin
-        if Stack.empty stack_lexbuf then
+        if MyStack.empty stack_lexbuf then
            eoferror () 
         else begin
           let lexbuf = previous_lexbuf () in
@@ -386,7 +386,7 @@ let full_save_arg_limits eoferror parg lexfun lexbuf =
     try
       lexfun opt lexbuf
     with Save.LimitEof r -> begin
-        if Stack.empty stack_lexbuf then
+        if MyStack.empty stack_lexbuf then
           match r with
           | None -> eoferror () 
           | _ -> r
@@ -696,13 +696,13 @@ let real_input_file loc_verb main filename input =
   verbose := loc_verb ;
   if !verbose > 1 then prerr_endline ("scanning: "^filename) ;
   start_lexstate () ;
-  let old_lexstate = Stack.save stack_lexstate in
+  let old_lexstate = MyStack.save stack_lexstate in
   subst := Top ;
   begin try  main buf with
   | Misc.EndInput ->
-      Stack.restore  stack_lexstate old_lexstate
+      MyStack.restore  stack_lexstate old_lexstate
   | e ->
-      Stack.restore  stack_lexstate old_lexstate ;
+      MyStack.restore  stack_lexstate old_lexstate ;
       restore_lexstate ();
       close_in input ;
       verbose := old_verb ;
