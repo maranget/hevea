@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: myStack.mli,v 1.1 2007-02-08 17:48:28 maranget Exp $            *)
+(*  $Id: myStack.mli,v 1.2 2007-02-08 18:12:08 maranget Exp $          *)
 (***********************************************************************)
 exception Fatal of string
 
@@ -32,6 +32,7 @@ val empty_saved : 'a saved
 val save : 'a t -> 'a saved
 val restore : 'a t -> 'a saved -> unit
 val finalize : 'a t -> ('a -> bool) -> ('a -> unit) -> unit
+
 (*
   finalize now p f
     apply f to now elements until
