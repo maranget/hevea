@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.103 2007-02-09 09:18:36 maranget Exp $    *)
+(*  $Id: package.ml,v 1.104 2007-02-09 17:22:29 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -45,7 +45,7 @@ let put_empty empty =
 
 exception DiacriticFailed of string
 
-let do_def_diacritic verb name f empty = 
+let do_def_diacritic _verb _name f empty = 
   (fun lexbuf ->
     let arg0 = save_arg lexbuf in
     let arg = get_prim_onarg arg0 in
@@ -183,7 +183,7 @@ def_code "\\process@delim@four"
 let int_sup_sub lexbuf =
   let n = Get.get_int (save_arg lexbuf) in
   if !display then begin
-    let {limits=limits ; sup=sup ; sub=sub} = save_sup_sub lexbuf in
+    let {limits=_limits ; sup=sup ; sub=sub} = save_sup_sub lexbuf in
     Dest.int_sup_sub false n
       (scan_this_arg main) (fun () -> ()) sup sub true
   end

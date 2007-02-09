@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: html.ml,v 1.112 2007-02-08 17:48:28 maranget Exp $" 
+let header = "$Id: html.ml,v 1.113 2007-02-09 17:22:29 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -282,7 +282,7 @@ let rec do_close_par () = match pblock () with
 | P ->
     ignore (close_flow_loc check_blank P) ;
     true
-| s ->
+| _ ->
     false
 
 

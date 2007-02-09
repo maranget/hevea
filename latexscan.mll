@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.308 2007-02-09 09:18:36 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.309 2007-02-09 17:22:29 maranget Exp $ *)
 
 
 {
@@ -1590,7 +1590,7 @@ def_code "\\egroup"
 
 
 def_code "\\@hevea@tilde"
-  (fun lexbuf ->
+  (fun _lexbuf ->
     if effective !alltt || not (is_plain '~') then
       Dest.put_char '~'
     else Dest.put_nbsp ())
@@ -1616,7 +1616,7 @@ def_code "\\@hevea@excl"
        Dest.put_char '!')
 ;;
 
-def_code "\\@hevea@dquote" (fun lexbuf -> Dest.put_char '"')
+def_code "\\@hevea@dquote" (fun _lexbuf -> Dest.put_char '"')
 ;;
 
 let get_this_main arg = get_this_string main arg
@@ -1631,7 +1631,7 @@ let check_this_main s =
       scan_this main s ;
       true
     with
-    |  x -> false in
+    |  _ -> false in
   Dest.erase_block "TEMP" ;
   end_normal () ;
   if !verbose > 1 then
@@ -2509,10 +2509,10 @@ def_code "\\textalltt"
        alltt := old )
 ;;
 def_code "\\@itemdisplay"
-  (fun lexbuf -> Dest.force_item_display ())
+  (fun _lexbuf -> Dest.force_item_display ())
 ;;
 def_code "\\@br"
-  (fun lexbuf -> Dest.skip_line ())
+  (fun _lexbuf -> Dest.skip_line ())
 ;;
 
 
@@ -2757,7 +2757,7 @@ def_code "\\@footnoteflush" (foot_noteflush false) ;
 def_code "\\@footnoteflush@sticky" (foot_noteflush true)
 ;;
 
-def_code "\\@footnotesub" (fun lexbuf -> Foot.sub_notes ()) ;
+def_code "\\@footnotesub" (fun _lexbuf -> Foot.sub_notes ()) ;
 def_code "\\@endfootnotesub" (fun _ -> Foot.end_notes ())
 ;;
 
@@ -3306,9 +3306,9 @@ let get_table_attributes border len =
   attrs^check_width len
   
 
-let open_tabbing lexbuf =
+let open_tabbing _lexbuf =
   let lexbuf = Lexstate.previous_lexbuf in
-  let lexfun lb =
+  let lexfun _lb =
     Dest.open_table false "border=0 cellspacing=0 cellpadding=0" ;
     Dest.new_row ();
     Dest.open_cell default_format 1 0 in
@@ -3346,7 +3346,7 @@ let open_array env lexbuf =
     | "tabular*"|"Tabular*" ->
         let arg = save_arg lexbuf in
         begin match Get.get_length (get_prim_onarg arg) with
-        | Length.No s ->
+        | Length.No _ ->
             warning ("'tabular*' with length argument: "^
                      do_subst_this arg) ;
             Length.Default

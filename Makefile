@@ -1,4 +1,4 @@
-################## Configuration parameters
+#### Standard configuration parameters
 # Compile using ocamlopt, to use ocamlc set TARGET=byte
 TARGET=opt
 # Install prefix
@@ -11,16 +11,18 @@ BINDIR=$(PREFIX)/bin
 DESTDIR=
 #Where to install hevea.sty
 LATEXLIBDIR=$(PREFIX)/lib/hevea
-############### End of configuration parameters
-SUF=.opt
+##### Advanced configuration parameters
+SUF=
 DIR=
 OCAMLC=$(DIR)ocamlc$(SUF)
 OCAMLFLAGS=
-#OCAMLFLAGS=-g -w ZY
+#OCAMLFLAGS=-w ZY
 OCAMLCI=$(OCAMLC)
 OCAMLOPT=$(DIR)ocamlopt$(SUF)
 OCAMLLEX=$(DIR)ocamllex$(SUF) -q
+OCBFLAGS=-j 4 -classic-display
 
+#### End of configuration parameters
 PGM=hevea.byte hacha.byte esponja.byte bibhva.byte
 PGMOPT=$(PGM:.byte=.opt)
 PGMNATIVE=$(PGM:.byte=.native)
@@ -48,7 +50,7 @@ install: config.sh
 
 byte: ocb-byte
 opt: ocb-opt
-both: ocb-opt
+both: ocb-both
 
 opt-make:
 	$(MAKE) $(MFLAGS) TARGET=opt $(PGMOPT)
@@ -99,6 +101,7 @@ config.sh: Makefile
 	echo DESTDIR=$(DESTDIR) &&\
 	echo LATEXLIBDIR=$(LATEXLIBDIR) &&\
 	echo OCAMLFLAGS=\"$(OCAMLFLAGS)\" &&\
+	echo OCBFLAGS=\"$(OCBFLAGS)\" &&\
 	echo ALLLIB=\"$(ALLLIB)\" && \
 	echo HTMLLIB=\"$(HTMLLIB)\" && \
 	echo TEXTLIB=\"$(TEXTLIB)\" && \

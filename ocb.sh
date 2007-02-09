@@ -9,13 +9,20 @@ case $1 in
      exit 0
      ;;
   clean)
+     exit 0
      ;;
   *) echo "Bad ocb argument '$1'"
      exit 2
 esac
 
+OCBOCAMLFLAGS=''
+for i in $OCAMLFLAGS
+do
+  OCBOCAMLFLAGS="$OCBOCAMLFLAGS -cflag $i"
+done
+
 ocb() {
-    ocamlbuild -j 2 -classic-display $*
+    ocamlbuild $OCBFLAGS $OCBOCAMLFLAGS $*
 }
 
 toopt () {

@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: htmllex.mll,v 1.13 2007-02-08 17:48:28 maranget Exp $          *)
+(*  $Id: htmllex.mll,v 1.14 2007-02-09 17:22:29 maranget Exp $          *)
 (***********************************************************************)
 {
 open Lexing
@@ -21,7 +21,7 @@ exception Error of string
 ;;
 
 
-let error msg lb = 
+let error msg _lb = 
   raise (Error msg)
 
 
@@ -49,7 +49,7 @@ let ptop () =
 
 let warnings = ref true
 
-let check_nesting lb name =
+let check_nesting _lb name =
   try
     Hashtbl.find block (String.uppercase name) ;
     if !txt_level <> 0 && !warnings then begin
@@ -132,7 +132,7 @@ let ouvre lb name attrs txt =
   with
   | Not_found -> assert false
 
-and ferme lb name txt =
+and ferme _lb name txt =
   try
     let tag = Hashtbl.find text (String.uppercase name) in
     decr txt_level ;

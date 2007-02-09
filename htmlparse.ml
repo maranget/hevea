@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: htmlparse.ml,v 1.9 2006-10-09 08:25:16 maranget Exp $         *)
+(*  $Id: htmlparse.ml,v 1.10 2007-02-09 17:22:29 maranget Exp $         *)
 (***********************************************************************)
 open Lexeme
 open Htmllex
@@ -15,8 +15,7 @@ open Tree
 
 exception Error of string
 
-let error msg lb = 
-  raise (Error msg)
+let error msg _lb = raise (Error msg)
 ;;
 
 let buff = ref None
@@ -32,7 +31,7 @@ and put_back lexbuf tok = match !buff with
 let txt_buff = Buff.create ()
 
 let rec to_close tag lb = match next_token lb with
-| Close (t,txt) as tok when t=tag -> tok
+| Close (t,_) as tok when t=tag -> tok
 | Open (t,_,txt) when t=tag ->
     Buff.put txt_buff txt ;
     Buff.put txt_buff (Htmllex.to_string (to_close tag lb)) ;

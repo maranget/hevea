@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: cut.mll,v 1.57 2007-02-08 17:48:28 maranget Exp $ *)
+(* $Id: cut.mll,v 1.58 2007-02-09 17:22:29 maranget Exp $ *)
 {
 
 type toc_style = Normal | Both | Special
@@ -124,7 +124,7 @@ and doctype = ref ""
 and html = ref "<HTML>"
 ;;
 
-let new_filename s =  
+let new_filename _from =  
   incr count ;
   Printf.sprintf "%s%0.3d.html" base !count
 
@@ -142,7 +142,7 @@ and tocname = ref !outname
 and otherout = ref !out
 ;;
 
-let close_loc ctx name out =  CutOut.close out
+let close_loc _ctx _name out =  CutOut.close out
 
 let change_name oldname name =
   if !phase <= 0 then begin
@@ -486,7 +486,7 @@ let restore_state () =
   let
     oldoutname, oldflowname, oldflow,
     oldchapter,olddepth,oldtoc,oldtocname,
-    oldlevel,oldlastclosed,oldprefix  = pop stack in
+    oldlevel,_oldlastclosed,oldprefix  = pop stack in
   outname := oldoutname ;
   MyStack.restore flowname_stack oldflowname ;
   MyStack.restore flow_stack oldflow ;
