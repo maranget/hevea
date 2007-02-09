@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: hevea.ml,v 1.2 2007-02-08 17:48:28 maranget Exp $" 
+let header = "$Id: hevea.ml,v 1.3 2007-02-09 14:44:28 maranget Exp $" 
 
 open Misc
 open Parse_opts
@@ -184,7 +184,7 @@ let main () =
       match !destination with
       | Html when name_in <> "" ->
 	  Emisc.verbose := !Misc.verbose ;
-          if not (Esponja.file name_out) then
+          if not (Esp.file name_out) then
             warning "Esponja failed, optimisation not performed"
       | _ -> ()        
     end

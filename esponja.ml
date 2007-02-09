@@ -7,19 +7,18 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: esponjamain.ml,v 1.5 2006-10-09 08:25:16 maranget Exp $           *)
+(*  $Id: esponja.ml,v 1.11 2007-02-09 14:44:28 maranget Exp $           *)
 (***********************************************************************)
 
 open Mysys
-open Esponja
 
 let arg = ref []
 ;;
 
 Arg.parse
-  ["-u", Arg.Set pess, "pessimize" ;
+  ["-u", Arg.Set Esp.pess, "pessimize" ;
   "-v", Arg.Unit (fun () -> incr Emisc.verbose),"be verbose" ;
-  "-n", Arg.Unit (fun () -> move := false ; incr Emisc.verbose),
+  "-n", Arg.Unit (fun () -> Esp.move := false ; incr Emisc.verbose),
     "do not change files"]
   (fun s -> arg :=  s :: !arg)
   ("Usage: esponja [option*] < infile > outfile,\n or    esponja [option*] files+
@@ -30,10 +29,10 @@ let main () =
   try
     begin match !arg with
     | [] ->
-        let ok = process None "" stdin stdout in
+        let ok = Esp.process None "" stdin stdout in
         exit (if ok then 0 else 2)
     | files ->
-        List.iter (fun f -> ignore (Esponja.file f)) (List.rev files) ;
+        List.iter (fun f -> ignore (Esp.file f)) (List.rev files) ;
         exit 0
     end
   with

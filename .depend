@@ -1,4 +1,4 @@
-esponja.cmi: ./emisc.cmi 
+esp.cmi: ./emisc.cmi 
 explode.cmi: ./tree.cmi ./lexeme.cmi ./htmltext.cmi 
 get.cmi: ./lexstate.cmi ./length.cmi 
 htmllex.cmi: ./lexeme.cmi ./emisc.cmi ./css.cmi 
@@ -10,7 +10,7 @@ info.cmi: ./tabular.cmi ./outUnicode.cmi ./out.cmi ./lexstate.cmi \
     ./length.cmi ./element.cmi 
 latexmacros.cmi: ./lexstate.cmi 
 latexscan.cmi: ./outManager.cmi ./lexstate.cmi ./imageManager.cmi 
-lexstate.cmi: ./misc.cmi 
+lexstate.cmi: ./myStack.cmi ./misc.cmi 
 outManager.cmi: ./tabular.cmi ./outUnicode.cmi ./out.cmi ./lexstate.cmi \
     ./length.cmi ./element.cmi 
 package.cmi: ./outManager.cmi ./latexscan.cmi ./imageManager.cmi 
@@ -36,14 +36,10 @@ counter.cmo: ./misc.cmi ./latexmacros.cmi counter.cmi
 counter.cmx: ./misc.cmx ./latexmacros.cmx counter.cmi 
 cross.cmo: ./location.cmi cross.cmi 
 cross.cmx: ./location.cmx cross.cmi 
-cutmain.cmo: ./version.cmi ./mysys.cmi ./mylib.cmi ./misc.cmi ./location.cmi \
-    ./cut.cmi ./cross.cmi 
-cutmain.cmx: ./version.cmx ./mysys.cmx ./mylib.cmx ./misc.cmx ./location.cmx \
-    ./cut.cmx ./cross.cmx 
-cut.cmo: ./thread.cmi ./section.cmi ./save.cmi ./misc.cmi ./cutOut.cmi \
-    ./cross.cmi cut.cmi 
-cut.cmx: ./thread.cmx ./section.cmx ./save.cmx ./misc.cmx ./cutOut.cmx \
-    ./cross.cmx cut.cmi 
+cut.cmo: ./thread.cmi ./section.cmi ./save.cmi ./myStack.cmi ./misc.cmi \
+    ./cutOut.cmi ./cross.cmi cut.cmi 
+cut.cmx: ./thread.cmx ./section.cmx ./save.cmx ./myStack.cmx ./misc.cmx \
+    ./cutOut.cmx ./cross.cmx cut.cmi 
 cutOut.cmo: ./out.cmi cutOut.cmi 
 cutOut.cmx: ./out.cmx cutOut.cmi 
 element.cmo: element.cmi 
@@ -52,64 +48,68 @@ emisc.cmo: emisc.cmi
 emisc.cmx: emisc.cmi 
 entry.cmo: ./save.cmi ./out.cmi entry.cmi 
 entry.cmx: ./save.cmx ./out.cmx entry.cmi 
-esponjamain.cmo: ./mysys.cmi ./esponja.cmi ./emisc.cmi 
-esponjamain.cmx: ./mysys.cmx ./esponja.cmx ./emisc.cmx 
-esponja.cmo: ./ultra.cmi ./pp.cmi ./mysys.cmi ./location.cmi ./htmlparse.cmi \
-    ./htmllex.cmi ./explode.cmi ./emisc.cmi esponja.cmi 
-esponja.cmx: ./ultra.cmx ./pp.cmx ./mysys.cmx ./location.cmx ./htmlparse.cmx \
-    ./htmllex.cmx ./explode.cmx ./emisc.cmx esponja.cmi 
+esp.cmo: ./ultra.cmi ./pp.cmi ./mysys.cmi ./location.cmi ./htmlparse.cmi \
+    ./htmllex.cmi ./explode.cmi ./emisc.cmi esp.cmi 
+esp.cmx: ./ultra.cmx ./pp.cmx ./mysys.cmx ./location.cmx ./htmlparse.cmx \
+    ./htmllex.cmx ./explode.cmx ./emisc.cmx esp.cmi 
+esponja.cmo: ./mysys.cmi ./esp.cmi ./emisc.cmi 
+esponja.cmx: ./mysys.cmx ./esp.cmx ./emisc.cmx 
 explode.cmo: ./util.cmi ./tree.cmi ./lexeme.cmi ./htmltext.cmi explode.cmi 
 explode.cmx: ./util.cmx ./tree.cmi ./lexeme.cmi ./htmltext.cmx explode.cmi 
-foot.cmo: ./section.cmi ./parse_opts.cmi ./misc.cmi foot.cmi 
-foot.cmx: ./section.cmx ./parse_opts.cmx ./misc.cmx foot.cmi 
-get.cmo: ./parse_opts.cmi ./myfiles.cmi ./misc.cmi ./lexstate.cmi \
-    ./length.cmi ./latexmacros.cmi ./counter.cmi get.cmi 
-get.cmx: ./parse_opts.cmx ./myfiles.cmx ./misc.cmx ./lexstate.cmx \
-    ./length.cmx ./latexmacros.cmx ./counter.cmx get.cmi 
+foot.cmo: ./section.cmi ./parse_opts.cmi ./myStack.cmi ./misc.cmi foot.cmi 
+foot.cmx: ./section.cmx ./parse_opts.cmx ./myStack.cmx ./misc.cmx foot.cmi 
+get.cmo: ./parse_opts.cmi ./myfiles.cmi ./myStack.cmi ./misc.cmi \
+    ./lexstate.cmi ./length.cmi ./latexmacros.cmi ./counter.cmi get.cmi 
+get.cmx: ./parse_opts.cmx ./myfiles.cmx ./myStack.cmx ./misc.cmx \
+    ./lexstate.cmx ./length.cmx ./latexmacros.cmx ./counter.cmx get.cmi 
+hacha.cmo: ./version.cmi ./mysys.cmi ./mylib.cmi ./misc.cmi ./location.cmi \
+    ./cut.cmi ./cross.cmi 
+hacha.cmx: ./version.cmx ./mysys.cmx ./mylib.cmx ./misc.cmx ./location.cmx \
+    ./cut.cmx ./cross.cmx 
 hevea.cmo: ./zyva.cmo ./videoc.cmi ./verb.cmi ./text.cmi ./tabular.cmi \
     ./save.cmi ./parse_opts.cmi ./package.cmi ./noimage.cmi ./mysys.cmi \
-    ./mylib.cmi ./myfiles.cmi ./misc.cmi ./location.cmi ./lexstate.cmi \
-    ./latexscan.cmi ./infoRef.cmo ./info.cmi ./index.cmi ./image.cmi \
-    ./html.cmi ./hot.cmi ./get.cmi ./esponja.cmi ./emisc.cmi ./colscan.cmi \
-    ./auxx.cmi 
+    ./mylib.cmi ./myfiles.cmi ./myStack.cmi ./misc.cmi ./location.cmi \
+    ./lexstate.cmi ./latexscan.cmi ./infoRef.cmo ./info.cmi ./index.cmi \
+    ./image.cmi ./html.cmi ./hot.cmi ./get.cmi ./esponja.cmo ./emisc.cmi \
+    ./colscan.cmi ./auxx.cmi 
 hevea.cmx: ./zyva.cmx ./videoc.cmx ./verb.cmx ./text.cmx ./tabular.cmx \
     ./save.cmx ./parse_opts.cmx ./package.cmx ./noimage.cmx ./mysys.cmx \
-    ./mylib.cmx ./myfiles.cmx ./misc.cmx ./location.cmx ./lexstate.cmx \
-    ./latexscan.cmx ./infoRef.cmx ./info.cmx ./index.cmx ./image.cmx \
-    ./html.cmx ./hot.cmx ./get.cmx ./esponja.cmx ./emisc.cmx ./colscan.cmx \
-    ./auxx.cmx 
+    ./mylib.cmx ./myfiles.cmx ./myStack.cmx ./misc.cmx ./location.cmx \
+    ./lexstate.cmx ./latexscan.cmx ./infoRef.cmx ./info.cmx ./index.cmx \
+    ./image.cmx ./html.cmx ./hot.cmx ./get.cmx ./esponja.cmx ./emisc.cmx \
+    ./colscan.cmx ./auxx.cmx 
 hot.cmo: ./parse_opts.cmi ./misc.cmi ./lexstate.cmi ./latexmacros.cmi \
     ./infoRef.cmo ./foot.cmi ./counter.cmi ./color.cmi hot.cmi 
 hot.cmx: ./parse_opts.cmx ./misc.cmx ./lexstate.cmx ./latexmacros.cmx \
     ./infoRef.cmx ./foot.cmx ./counter.cmx ./color.cmx hot.cmi 
-htmlCommon.cmo: ./parse_opts.cmi ./out.cmi ./misc.cmi ./length.cmi \
-    ./latexmacros.cmi ./element.cmi 
-htmlCommon.cmx: ./parse_opts.cmx ./out.cmx ./misc.cmx ./length.cmx \
-    ./latexmacros.cmx ./element.cmx 
-htmllex.cmo: ./location.cmi ./lexeme.cmi ./emisc.cmi ./css.cmi ./buff.cmi \
-    htmllex.cmi 
-htmllex.cmx: ./location.cmx ./lexeme.cmi ./emisc.cmx ./css.cmi ./buff.cmx \
-    htmllex.cmi 
-htmlMath.cmo: ./parse_opts.cmi ./out.cmi ./misc.cmi ./lexstate.cmi \
-    ./htmlCommon.cmo ./element.cmi 
-htmlMath.cmx: ./parse_opts.cmx ./out.cmx ./misc.cmx ./lexstate.cmx \
-    ./htmlCommon.cmx ./element.cmx 
+htmlCommon.cmo: ./parse_opts.cmi ./out.cmi ./myStack.cmi ./misc.cmi \
+    ./length.cmi ./latexmacros.cmi ./element.cmi 
+htmlCommon.cmx: ./parse_opts.cmx ./out.cmx ./myStack.cmx ./misc.cmx \
+    ./length.cmx ./latexmacros.cmx ./element.cmx 
+htmllex.cmo: ./myStack.cmi ./location.cmi ./lexeme.cmi ./emisc.cmi ./css.cmi \
+    ./buff.cmi htmllex.cmi 
+htmllex.cmx: ./myStack.cmx ./location.cmx ./lexeme.cmi ./emisc.cmx ./css.cmi \
+    ./buff.cmx htmllex.cmi 
+htmlMath.cmo: ./parse_opts.cmi ./out.cmi ./myStack.cmi ./misc.cmi \
+    ./lexstate.cmi ./htmlCommon.cmo ./element.cmi 
+htmlMath.cmx: ./parse_opts.cmx ./out.cmx ./myStack.cmx ./misc.cmx \
+    ./lexstate.cmx ./htmlCommon.cmx ./element.cmx 
 html.cmo: ./tabular.cmi ./parse_opts.cmi ./outUnicode.cmi ./out.cmi \
-    ./misc.cmi ./mathML.cmo ./lexstate.cmi ./length.cmi ./latexmacros.cmi \
-    ./htmlMath.cmo ./htmlCommon.cmo html.cmi 
+    ./myStack.cmi ./misc.cmi ./mathML.cmo ./lexstate.cmi ./length.cmi \
+    ./latexmacros.cmi ./htmlMath.cmo ./htmlCommon.cmo html.cmi 
 html.cmx: ./tabular.cmx ./parse_opts.cmx ./outUnicode.cmx ./out.cmx \
-    ./misc.cmx ./mathML.cmx ./lexstate.cmx ./length.cmx ./latexmacros.cmx \
-    ./htmlMath.cmx ./htmlCommon.cmx html.cmi 
+    ./myStack.cmx ./misc.cmx ./mathML.cmx ./lexstate.cmx ./length.cmx \
+    ./latexmacros.cmx ./htmlMath.cmx ./htmlCommon.cmx html.cmi 
 htmlparse.cmo: ./tree.cmi ./lexeme.cmi ./htmllex.cmi ./emisc.cmi ./css.cmi \
     ./buff.cmi htmlparse.cmi 
 htmlparse.cmx: ./tree.cmi ./lexeme.cmi ./htmllex.cmx ./emisc.cmx ./css.cmi \
     ./buff.cmx htmlparse.cmi 
 htmltext.cmo: ./lexeme.cmi ./emisc.cmi htmltext.cmi 
 htmltext.cmx: ./lexeme.cmi ./emisc.cmx htmltext.cmi 
-image.cmo: ./parse_opts.cmi ./out.cmi ./mysys.cmi ./myfiles.cmi ./misc.cmi \
-    ./location.cmi image.cmi 
-image.cmx: ./parse_opts.cmx ./out.cmx ./mysys.cmx ./myfiles.cmx ./misc.cmx \
-    ./location.cmx image.cmi 
+image.cmo: ./parse_opts.cmi ./out.cmi ./mysys.cmi ./myfiles.cmi ./myStack.cmi \
+    ./misc.cmi ./location.cmi image.cmi 
+image.cmx: ./parse_opts.cmx ./out.cmx ./mysys.cmx ./myfiles.cmx ./myStack.cmx \
+    ./misc.cmx ./location.cmx image.cmi 
 index.cmo: ./table.cmi ./parse_opts.cmi ./out.cmi ./mysys.cmi ./misc.cmi \
     ./entry.cmi index.cmi 
 index.cmx: ./table.cmx ./parse_opts.cmx ./out.cmx ./mysys.cmx ./misc.cmx \
@@ -120,30 +120,32 @@ info.cmx: ./text.cmx ./parse_opts.cmx ./mysys.cmx ./misc.cmx ./infoRef.cmx \
     info.cmi 
 infoRef.cmo: ./text.cmi ./parse_opts.cmi ./out.cmi ./mysys.cmi ./misc.cmi 
 infoRef.cmx: ./text.cmx ./parse_opts.cmx ./out.cmx ./mysys.cmx ./misc.cmx 
-latexmacros.cmo: ./parse_opts.cmi ./misc.cmi ./lexstate.cmi latexmacros.cmi 
-latexmacros.cmx: ./parse_opts.cmx ./misc.cmx ./lexstate.cmx latexmacros.cmi 
+latexmacros.cmo: ./parse_opts.cmi ./myStack.cmi ./misc.cmi ./lexstate.cmi \
+    latexmacros.cmi 
+latexmacros.cmx: ./parse_opts.cmx ./myStack.cmx ./misc.cmx ./lexstate.cmx \
+    latexmacros.cmi 
 latexscan.cmo: ./tabular.cmi ./subst.cmi ./save.cmi ./parse_opts.cmi \
     ./outUnicode.cmi ./outManager.cmi ./out.cmi ./mysys.cmi ./mylib.cmi \
-    ./myfiles.cmi ./misc.cmi ./location.cmi ./lexstate.cmi ./length.cmi \
-    ./latexmacros.cmi ./imageManager.cmi ./hot.cmi ./get.cmi ./foot.cmi \
-    ./element.cmi ./counter.cmi ./auxx.cmi latexscan.cmi 
+    ./myfiles.cmi ./myStack.cmi ./misc.cmi ./location.cmi ./lexstate.cmi \
+    ./length.cmi ./latexmacros.cmi ./imageManager.cmi ./hot.cmi ./get.cmi \
+    ./foot.cmi ./element.cmi ./counter.cmi ./auxx.cmi latexscan.cmi 
 latexscan.cmx: ./tabular.cmx ./subst.cmx ./save.cmx ./parse_opts.cmx \
     ./outUnicode.cmx ./outManager.cmi ./out.cmx ./mysys.cmx ./mylib.cmx \
-    ./myfiles.cmx ./misc.cmx ./location.cmx ./lexstate.cmx ./length.cmx \
-    ./latexmacros.cmx ./imageManager.cmi ./hot.cmx ./get.cmx ./foot.cmx \
-    ./element.cmx ./counter.cmx ./auxx.cmx latexscan.cmi 
+    ./myfiles.cmx ./myStack.cmx ./misc.cmx ./location.cmx ./lexstate.cmx \
+    ./length.cmx ./latexmacros.cmx ./imageManager.cmi ./hot.cmx ./get.cmx \
+    ./foot.cmx ./element.cmx ./counter.cmx ./auxx.cmx latexscan.cmi 
 length.cmo: length.cmi 
 length.cmx: length.cmi 
-lexstate.cmo: ./save.cmi ./parse_opts.cmi ./myfiles.cmi ./misc.cmi \
-    ./location.cmi lexstate.cmi 
-lexstate.cmx: ./save.cmx ./parse_opts.cmx ./myfiles.cmx ./misc.cmx \
-    ./location.cmx lexstate.cmi 
-location.cmo: location.cmi 
-location.cmx: location.cmi 
-mathML.cmo: ./parse_opts.cmi ./out.cmi ./misc.cmi ./lexstate.cmi \
-    ./latexmacros.cmi ./htmlCommon.cmo ./element.cmi 
-mathML.cmx: ./parse_opts.cmx ./out.cmx ./misc.cmx ./lexstate.cmx \
-    ./latexmacros.cmx ./htmlCommon.cmx ./element.cmx 
+lexstate.cmo: ./save.cmi ./parse_opts.cmi ./myfiles.cmi ./myStack.cmi \
+    ./misc.cmi ./location.cmi lexstate.cmi 
+lexstate.cmx: ./save.cmx ./parse_opts.cmx ./myfiles.cmx ./myStack.cmx \
+    ./misc.cmx ./location.cmx lexstate.cmi 
+location.cmo: ./myStack.cmi location.cmi 
+location.cmx: ./myStack.cmx location.cmi 
+mathML.cmo: ./parse_opts.cmi ./out.cmi ./myStack.cmi ./misc.cmi \
+    ./lexstate.cmi ./latexmacros.cmi ./htmlCommon.cmo ./element.cmi 
+mathML.cmx: ./parse_opts.cmx ./out.cmx ./myStack.cmx ./misc.cmx \
+    ./lexstate.cmx ./latexmacros.cmx ./htmlCommon.cmx ./element.cmx 
 misc.cmo: ./location.cmi misc.cmi 
 misc.cmx: ./location.cmx misc.cmi 
 myfiles.cmo: ./parse_opts.cmi ./mylib.cmi ./misc.cmi myfiles.cmi 
@@ -161,13 +163,15 @@ out.cmx: ./misc.cmx out.cmi
 outUnicode.cmo: ./parse_opts.cmi ./myfiles.cmi ./misc.cmi outUnicode.cmi 
 outUnicode.cmx: ./parse_opts.cmx ./myfiles.cmx ./misc.cmx outUnicode.cmi 
 package.cmo: ./version.cmi ./subst.cmi ./save.cmi ./parse_opts.cmi \
-    ./outUnicode.cmi ./outManager.cmi ./mylib.cmi ./misc.cmi ./lexstate.cmi \
-    ./latexscan.cmi ./latexmacros.cmi ./index.cmi ./imageManager.cmi \
-    ./get.cmi ./counter.cmi ./color.cmi ./auxx.cmi package.cmi 
+    ./outUnicode.cmi ./outManager.cmi ./mylib.cmi ./myStack.cmi ./misc.cmi \
+    ./lexstate.cmi ./latexscan.cmi ./latexmacros.cmi ./index.cmi \
+    ./imageManager.cmi ./get.cmi ./counter.cmi ./color.cmi ./auxx.cmi \
+    package.cmi 
 package.cmx: ./version.cmx ./subst.cmx ./save.cmx ./parse_opts.cmx \
-    ./outUnicode.cmx ./outManager.cmi ./mylib.cmx ./misc.cmx ./lexstate.cmx \
-    ./latexscan.cmx ./latexmacros.cmx ./index.cmx ./imageManager.cmi \
-    ./get.cmx ./counter.cmx ./color.cmx ./auxx.cmx package.cmi 
+    ./outUnicode.cmx ./outManager.cmi ./mylib.cmx ./myStack.cmx ./misc.cmx \
+    ./lexstate.cmx ./latexscan.cmx ./latexmacros.cmx ./index.cmx \
+    ./imageManager.cmi ./get.cmx ./counter.cmx ./color.cmx ./auxx.cmx \
+    package.cmi 
 parse_opts.cmo: ./version.cmi ./mylib.cmi ./misc.cmi ./location.cmi \
     parse_opts.cmi 
 parse_opts.cmx: ./version.cmx ./mylib.cmx ./misc.cmx ./location.cmx \
@@ -182,16 +186,18 @@ subst.cmo: ./save.cmi ./out.cmi ./misc.cmi ./lexstate.cmi subst.cmi
 subst.cmx: ./save.cmx ./out.cmx ./misc.cmx ./lexstate.cmx subst.cmi 
 table.cmo: table.cmi 
 table.cmx: table.cmi 
-tabular.cmo: ./table.cmi ./subst.cmi ./parse_opts.cmi ./misc.cmi \
-    ./lexstate.cmi ./length.cmi ./latexmacros.cmi ./get.cmi tabular.cmi 
-tabular.cmx: ./table.cmx ./subst.cmx ./parse_opts.cmx ./misc.cmx \
-    ./lexstate.cmx ./length.cmx ./latexmacros.cmx ./get.cmx tabular.cmi 
+tabular.cmo: ./table.cmi ./subst.cmi ./parse_opts.cmi ./myStack.cmi \
+    ./misc.cmi ./lexstate.cmi ./length.cmi ./latexmacros.cmi ./get.cmi \
+    tabular.cmi 
+tabular.cmx: ./table.cmx ./subst.cmx ./parse_opts.cmx ./myStack.cmx \
+    ./misc.cmx ./lexstate.cmx ./length.cmx ./latexmacros.cmx ./get.cmx \
+    tabular.cmi 
 text.cmo: ./tabular.cmi ./table.cmi ./parse_opts.cmi ./outUnicode.cmi \
-    ./out.cmi ./misc.cmi ./lexstate.cmi ./length.cmi ./latexmacros.cmi \
-    ./element.cmi text.cmi 
+    ./out.cmi ./myStack.cmi ./misc.cmi ./lexstate.cmi ./length.cmi \
+    ./latexmacros.cmi ./element.cmi text.cmi 
 text.cmx: ./tabular.cmx ./table.cmx ./parse_opts.cmx ./outUnicode.cmx \
-    ./out.cmx ./misc.cmx ./lexstate.cmx ./length.cmx ./latexmacros.cmx \
-    ./element.cmx text.cmi 
+    ./out.cmx ./myStack.cmx ./misc.cmx ./lexstate.cmx ./length.cmx \
+    ./latexmacros.cmx ./element.cmx text.cmi 
 thread.cmo: thread.cmi 
 thread.cmx: thread.cmi 
 ultra.cmo: ./util.cmi ./tree.cmi ./pp.cmi ./htmltext.cmi ./htmllex.cmi \
@@ -201,11 +207,13 @@ ultra.cmx: ./util.cmx ./tree.cmi ./pp.cmx ./htmltext.cmx ./htmllex.cmx \
 util.cmo: ./tree.cmi ./htmltext.cmi util.cmi 
 util.cmx: ./tree.cmi ./htmltext.cmx util.cmi 
 verb.cmo: ./subst.cmi ./save.cmi ./parse_opts.cmi ./outManager.cmi ./out.cmi \
-    ./myfiles.cmi ./misc.cmi ./location.cmi ./lexstate.cmi ./latexscan.cmi \
-    ./latexmacros.cmi ./imageManager.cmi ./get.cmi ./counter.cmi verb.cmi 
+    ./myfiles.cmi ./myStack.cmi ./misc.cmi ./location.cmi ./lexstate.cmi \
+    ./latexscan.cmi ./latexmacros.cmi ./imageManager.cmi ./get.cmi \
+    ./counter.cmi verb.cmi 
 verb.cmx: ./subst.cmx ./save.cmx ./parse_opts.cmx ./outManager.cmi ./out.cmx \
-    ./myfiles.cmx ./misc.cmx ./location.cmx ./lexstate.cmx ./latexscan.cmx \
-    ./latexmacros.cmx ./imageManager.cmi ./get.cmx ./counter.cmx verb.cmi 
+    ./myfiles.cmx ./myStack.cmx ./misc.cmx ./location.cmx ./lexstate.cmx \
+    ./latexscan.cmx ./latexmacros.cmx ./imageManager.cmi ./get.cmx \
+    ./counter.cmx verb.cmi 
 version.cmo: version.cmi 
 version.cmx: version.cmi 
 videoc.cmo: ./subst.cmi ./parse_opts.cmi ./outManager.cmi ./myfiles.cmi \
