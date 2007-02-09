@@ -14,12 +14,12 @@ LATEXLIBDIR=$(PREFIX)/lib/hevea
 ############### End of configuration parameters
 SUF=.opt
 DIR=
-OCAMLC=${DIR}ocamlc$(SUF)
+OCAMLC=$(DIR)ocamlc$(SUF)
 OCAMLFLAGS=
 #OCAMLFLAGS=-g -w ZY
 OCAMLCI=$(OCAMLC)
-OCAMLOPT=${DIR}ocamlopt$(SUF)
-OCAMLLEX=${DIR}ocamllex$(SUF) -q
+OCAMLOPT=$(DIR)ocamlopt$(SUF)
+OCAMLLEX=$(DIR)ocamllex$(SUF) -q
 INSTALL=cp
 MKDIR=mkdir -p
 
@@ -41,46 +41,14 @@ include libs.def
 all: $(TARGET)
 everything: byte opt
 
-install: install-$(TARGET)
+install: config.sh
+	./install.sh $(TARGET)
 
 opt:
 	$(MAKE) $(MFLAGS) TARGET=opt hevea.opt hacha.opt esponja.opt bibhva.opt
 
 byte:
 	$(MAKE) $(MFLAGS) TARGET=byte hevea.byte hacha.byte esponja.byte bibhva.byte
-
-install-lib:
-	- $(MKDIR) $(DESTDIR)/$(LATEXLIBDIR)
-	$(INSTALL)  hevea.sty $(DESTDIR)/$(LATEXLIBDIR)
-	- $(MKDIR) $(DESTDIR)/$(LIBDIR)
-	$(INSTALL) contents_motif.gif next_motif.gif previous_motif.gif $(DESTDIR)/$(LIBDIR)
-	$(INSTALL) $(ALLLIB) $(DESTDIR)/$(LIBDIR)
-	- $(MKDIR)  $(DESTDIR)/$(LIBDIR)/html
-	cd html ; $(INSTALL) $(HTMLLIB) $(DESTDIR)/$(LIBDIR)/html
-	- $(MKDIR)  $(DESTDIR)/$(LIBDIR)/text
-	cd text ; $(INSTALL) $(TEXTLIB) $(DESTDIR)/$(LIBDIR)/text
-	- $(MKDIR) $(DESTDIR)/$(LIBDIR)/info
-	cd info ; $(INSTALL) $(INFOLIB) $(DESTDIR)/$(LIBDIR)/info
-	$(INSTALL) imagen $(DESTDIR)/$(LIBDIR)
-	$(INSTALL) xxcharset.exe xxdate.exe $(DESTDIR)/$(LIBDIR)
-	- $(MKDIR)  $(DESTDIR)/$(LIBDIR)/mappings
-	cp mappings/*.map $(DESTDIR)/$(LIBDIR)/mappings
-
-install-opt: install-lib
-	- $(MKDIR) $(DESTDIR)/$(BINDIR)
-	$(INSTALL) hevea.opt $(DESTDIR)/$(BINDIR)/hevea
-	$(INSTALL) hacha.opt $(DESTDIR)/$(BINDIR)/hacha
-	$(INSTALL) esponja.opt $(DESTDIR)/$(BINDIR)/esponja
-	$(INSTALL) bibhva.opt $(DESTDIR)/$(BINDIR)/bibhva
-	$(INSTALL) imagen $(DESTDIR)/$(BINDIR)
-
-install-byte: install-lib
-	- $(MKDIR) $(DESTDIR)/$(BINDIR)
-	$(INSTALL) hevea.byte $(DESTDIR)/$(BINDIR)/hevea
-	$(INSTALL) hacha.byte $(DESTDIR)/$(BINDIR)/hacha
-	$(INSTALL) esponja.byte $(DESTDIR)/$(BINDIR)/esponja
-	$(INSTALL) bibhva.byte $(DESTDIR)/$(BINDIR)/bibhva
-	$(INSTALL) imagen $(DESTDIR)/$(BINDIR)
 
 
 hevea.byte: ${OBJS}
@@ -107,14 +75,39 @@ esponja.opt: ${OPTSESPONJA}
 bibhva.opt: ${OPTSBIBHVA}
 	${OCAMLOPT} -o $@ ${OPTSBIBHVA}
 
-mylib.cmo: mylib.ml mylib.cmi
-	${OCAMLC} ${OCAMLFLAGS} -pp 'sed -e "s,LIBDIR,${LIBDIR},g"' -c mylib.ml
+mylib.cmo: mylib.ml mylib.cmi config.sh
+	${OCAMLC} ${OCAMLFLAGS} -pp ./expandlib.sh -c mylib.ml
 
-mylib.cmx: mylib.ml mylib.cmi
-	${OCAMLOPT} -pp 'sed -e "s,LIBDIR,${LIBDIR},g"' -c mylib.ml
+mylib.cmx: mylib.ml mylib.cmi config.sh
+	${OCAMLOPT} -pp ./expandlib.sh -c mylib.ml
 
 fmt_map: fmt_map.cmo
 	${OCAMLC} -o fmt_map fmt_map.cmo
+
+config.sh: Makefile
+	@( echo BINDIR=$(BINDIR) &&\
+	echo LIBDIR=$(LIBDIR) &&\
+	echo DESTDIR=$(DESTDIR) &&\
+	echo LATEXLIBDIR=$(LATEXLIBDIR) &&\
+	echo OCAMLFLAGS=\"$(OCAMLFLAGS)\" &&\
+	echo ALLLIB=\"$(ALLLIB)\" && \
+	echo HTMLLIB=\"$(HTMLLIB)\" && \
+	echo TEXTLIB=\"$(TEXTLIB)\" && \
+	echo INFOLIB=\"$(INFOLIB)\" ) > $@
+
+clean::
+	ocamlbuild -clean
+	/bin/rm -f config.sh
+
+ocb-byte:
+	sh ocb.sh byte
+
+ocb-opt:
+	sh ocb.sh opt
+
+ocb:config.sh
+	sh ocb.sh $(TARGET)
+
 
 .SUFFIXES:
 .SUFFIXES: .ml .cmo .mli .cmi .c .mll .cmx 
@@ -138,7 +131,7 @@ cleanbyte:
 	rm -f *.byte
 	rm -f *.cmo
 
-clean: cleanbyte
+clean::
 	rm -f *.byte *.opt
 	rm -f $(GENSRC) fmt_map.ml
 	rm -f *.o *.cmi *.cmo *.cmx *.o *.ppo *.ppi
