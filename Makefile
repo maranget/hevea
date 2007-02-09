@@ -109,7 +109,6 @@ config.sh: Makefile
 
 clean:: config.sh
 	sh ocb.sh clean
-	/bin/rm -f config.sh
 
 ocb-byte: config.sh
 	sh ocb.sh byte
