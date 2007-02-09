@@ -1,11 +1,26 @@
-#!/bin/sh
+#!/bin/sh -
 
-FLAGS=
-OCAMLBUILD=ocamlbuild
+source ./config.sh
 
-ocb()
-{
-  $OCAMLBUILD $FLAGS $*
+ocamlbuild -version > /dev/null 2>/dev/null || \
+( case $1 in
+  opt) make opt-make ;;
+  byte) make byte-make ;;
+  both) make both-make ;;
+  clean) ;;
+  *) echo "Bad ocb argument '$1'"
+     exit 2
+esac ; exit 0 )
+
+ocb() {
+    ocamlbuild -j 2 -classic-display $*
+}
+
+toopt () {
+  for f in $*
+  do
+    mv $f `basename .native`.opt
+  done
 }
 
 rule() {
@@ -14,25 +29,24 @@ rule() {
       ocb -clean
       ;;
     byte)
-      ocb hevea.byte hacha.byte esponjamain.byte bibhva.byte && \
-      mv esponjamain.byte esponja.byte
+      ocb $PGM
       ;;
     opt)
-      ocb hevea.native hacha.native esponjamain.native bibhva.native && \
-      mv hevea.native hevea.opt && \
-      mv hacha.native hacha.opt && \
-      mv esponjamain.native esponja.opt && \
-      mv bibhva.native bibhva.opt
+      ocb $PGMNATIVE && toopt $PGMNATIVE
+      ;;
+    both)
+      ocb $PGM $PGMNATIVE && toopt $PGMNATIVE
       ;;
     *)      echo "Unknown action $1";;
   esac;
 }
 
-if [ $# -eq 0 ]; then
+if [ $# -eq 0 ]
+then
   rule opt
 else
-  while [ $# -gt 0 ]; do
-    rule $1;
-    shift
+  for i
+  do
+    rule $i
   done
 fi

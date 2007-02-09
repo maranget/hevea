@@ -20,8 +20,10 @@ OCAMLFLAGS=
 OCAMLCI=$(OCAMLC)
 OCAMLOPT=$(DIR)ocamlopt$(SUF)
 OCAMLLEX=$(DIR)ocamllex$(SUF) -q
-INSTALL=cp
-MKDIR=mkdir -p
+
+PGM=hevea.byte hacha.byte esponja.byte bibhva.byte
+PGMOPT=$(PGM:.byte=.opt)
+PGMNATIVE=$(PGM:.byte=.native)
 
 ONLYESPONJA=emisc.cmo buff.cmo pp.cmo htmllex.cmo htmlparse.cmo htmltext.cmo util.cmo explode.cmo ultra.cmo esp.cmo
 
@@ -32,6 +34,7 @@ OBJSBIBHVA=bibhva.cmo
 
 GENSRC=colscan.ml cut.ml entry.ml get.ml latexscan.ml length.ml save.ml tabular.ml videoc.ml verb.ml infoRef.ml subst.ml htmllex.ml
 
+
 OPTS=$(OBJS:.cmo=.cmx)
 OPTSCUT=$(OBJSCUT:.cmo=.cmx)
 OPTSESPONJA=$(OBJSESPONJA:.cmo=.cmx)
@@ -39,17 +42,21 @@ OPTSBIBHVA=$(OBJSBIBHVA:.cmo=.cmx)
 include libs.def
 
 all: $(TARGET)
-everything: byte opt
 
 install: config.sh
 	./install.sh $(TARGET)
 
-opt:
-	$(MAKE) $(MFLAGS) TARGET=opt hevea.opt hacha.opt esponja.opt bibhva.opt
+byte: ocb-byte
+opt: ocb-opt
+both: ocb-opt
 
-byte:
-	$(MAKE) $(MFLAGS) TARGET=byte hevea.byte hacha.byte esponja.byte bibhva.byte
+opt-make:
+	$(MAKE) $(MFLAGS) TARGET=opt $(PGMOPT)
 
+byte-make:
+	$(MAKE) $(MFLAGS) TARGET=byte $(PGM)
+
+both-make: byte-make opt-make
 
 hevea.byte: ${OBJS}
 	${OCAMLC}  ${OCAMLFLAGS} -o $@ ${OBJS}
@@ -85,7 +92,9 @@ fmt_map: fmt_map.cmo
 	${OCAMLC} -o fmt_map fmt_map.cmo
 
 config.sh: Makefile
-	@( echo BINDIR=$(BINDIR) &&\
+	@(echo PGM=\"$(PGM)\" &&\
+	echo PGMNATIVE=\"$(PGMNATIVE)\" &&\
+	echo BINDIR=$(BINDIR) &&\
 	echo LIBDIR=$(LIBDIR) &&\
 	echo DESTDIR=$(DESTDIR) &&\
 	echo LATEXLIBDIR=$(LATEXLIBDIR) &&\
@@ -95,18 +104,20 @@ config.sh: Makefile
 	echo TEXTLIB=\"$(TEXTLIB)\" && \
 	echo INFOLIB=\"$(INFOLIB)\" ) > $@
 
-clean::
-	ocamlbuild -clean
+clean:: config.sh
+	./ocb.sh clean
 	/bin/rm -f config.sh
 
-ocb-byte:
+ocb-byte: config.sh
 	sh ocb.sh byte
 
-ocb-opt:
+ocb-opt: config.sh
 	sh ocb.sh opt
 
-ocb:config.sh
-	sh ocb.sh $(TARGET)
+ocb-both: config.sh
+	sh ocb.sh both
+
+ocb: ocb-$(TARGET)
 
 
 .SUFFIXES:
