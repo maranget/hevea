@@ -105,7 +105,7 @@ config.sh: Makefile
 	echo INFOLIB=\"$(INFOLIB)\" ) > $@
 
 clean:: config.sh
-	./ocb.sh clean
+	sh ocb.sh clean
 	/bin/rm -f config.sh
 
 ocb-byte: config.sh

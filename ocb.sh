@@ -3,14 +3,16 @@
 source ./config.sh
 
 ocamlbuild -version > /dev/null 2>/dev/null || \
-( case $1 in
-  opt) make opt-make ;;
-  byte) make byte-make ;;
-  both) make both-make ;;
-  clean) ;;
+case $1 in
+  opt|byte|both)
+     make $1-make
+     exit 0
+     ;;
+  clean)
+     ;;
   *) echo "Bad ocb argument '$1'"
      exit 2
-esac ; exit 0 )
+esac
 
 ocb() {
     ocamlbuild -j 2 -classic-display $*
