@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.102 2007-02-08 17:48:28 maranget Exp $    *)
+(*  $Id: package.ml,v 1.103 2007-02-09 09:18:36 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -199,7 +199,22 @@ def_code "\\@addvsize"
     Dest.addvsize n)
 ;;
 
-(* Various outworld information *)
+(*****************)
+(* Cummunication *)
+(*****************)
+
+def_code "\\typeout"
+  (fun lexbuf ->
+    let what = Scan.get_prim_arg lexbuf in
+    prerr_endline what )
+;;
+
+def_code "\\hva@warn"
+  (fun lexbuf ->
+    let what = Subst.subst_arg lexbuf in
+    warning what )
+;;
+
 def_code "\\@lexbuf"
   (fun _ ->
     prerr_endline ("LEXBUF: "^string_of_int (MyStack.length stack_lexbuf)))
@@ -231,7 +246,16 @@ def_code "\\@heveaverbose"
     Misc.verbose := lvl)
 ;;
 
+
+def_code "\\typemacro"
+  (fun lexbuf ->
+    let name = Scan.get_csname lexbuf in
+    let pat,body = Latexmacros.find name in
+    Latexmacros.pretty_macro pat body)
+;;
+
 (* External style-sheet *)
+
 def_code "\\hva@dump@css"
   (fun _ ->
      let name = match Parse_opts.base_out with
@@ -255,30 +279,19 @@ def_code "\\hva@dump@css"
 ;;
 
 
-(* Stacks of command definitions *)
+(* A few subst definitions, with 2 optional arguments *)
 
-def_code "\\@hva@newstack"
-  (fun lexbuf ->
-     let name = get_prim_arg lexbuf in
-     let stack = MyStack.create name in
-     def_code
-       ("\\@push"^name)
-       (fun lexbuf ->
-         let cmd = Scan.get_csname lexbuf in
-         let def = Latexmacros.find cmd in
-         MyStack.push stack def) ;
-     def_code
-       ("\\@pop"^name)
-       (fun lexbuf ->
-         let cmd = Scan.get_csname lexbuf in
-         try
-           let pat,body = MyStack.pop stack in
-           Latexmacros.def cmd pat body
-         with Fatal _ ->
-           warning (Printf.sprintf "Pop empty stack '%s'" name)))
+def "\\makebox" (latex_pat ["" ; ""] 3)
+    (Subst "\\hva@warn{makebox}\\mbox{#3}") ;
+def "\\framebox" (latex_pat ["" ; ""] 3)
+    (Subst "\\hva@warn{framebox}\\fbox{#3}")
 ;;
 
+(*********************)
 (* 'Token' registers *)
+(*********************)
+
+
 def_code "\\newtokens"
   (fun lexbuf ->
     let toks = Scan.get_csname lexbuf in
@@ -294,13 +307,12 @@ let get_tokens toks = match Latexmacros.find_fail toks with
 
 def_code "\\resettokens"
   (fun lexbuf ->
-    let toks = Scan.get_csname lexbuf in    
-    begin try
+    let toks = Scan.get_csname lexbuf in 
+    try
       ignore (get_tokens toks) ;
       Latexmacros.def toks zero_pat (Toks [])
     with Failed ->
-      Misc.warning ("\\resettokens for "^toks^" failed")
-    end)
+      Misc.warning ("\\resettokens for "^toks^" failed"))
 ;;
 
 def_code "\\addtokens"
@@ -340,14 +352,57 @@ def_code "\\appendtokens"
    end)
 ;;
 
-def_code "\\typemacro"
+(* Useful ???
+def_code "\\lrtokens"
   (fun lexbuf ->
-    let name = Scan.get_csname lexbuf in
-    let pat,body = Latexmacros.find name in
-    Latexmacros.pretty_macro pat body)
-;;
+    let toks = Scan.get_csname lexbuf in
+    let out = Out.create_buff () in
 
-(* See also the lrtokens env in latexscan.mll *)
+    let kont =
+      let once = ref false in
+      (fun lexbuf ->
+        if not !once then begin
+          once := true ;
+          begin try match Latexmacros.find_fail toks with
+          | _,Toks l ->
+              let arg = Out.to_string out in
+              Latexmacros.def toks zero_pat (Toks (l@[arg]))
+          | _ -> raise Failed
+          with Failed ->
+            Misc.warning ("\\lrtokens for "^toks^" failed")
+          end
+        end ;
+        main lexbuf) in
+    start_other_scan "lrtokens" (copy kont "lrtokens" out) lexbuf)
+
+;;
+*)
+
+
+(*********************************)
+(* Stacks of command definitions *)
+(*********************************)
+
+def_code "\\hva@newstack"
+  (fun lexbuf ->
+     let name = get_prim_arg lexbuf in
+     let stack = MyStack.create name in
+     def_code
+       ("\\@push"^name)
+       (fun lexbuf ->
+         let cmd = Scan.get_csname lexbuf in
+         let def = Latexmacros.find cmd in
+         MyStack.push stack def) ;
+     def_code
+       ("\\@pop"^name)
+       (fun lexbuf ->
+         let cmd = Scan.get_csname lexbuf in
+         try
+           let pat,body = MyStack.pop stack in
+           Latexmacros.def cmd pat body
+         with Fatal _ ->
+           warning (Printf.sprintf "Pop empty stack '%s'" name)))
+;;
 
 let call_subst lexbuf =
   let csname = get_csname lexbuf in

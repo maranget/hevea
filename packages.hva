@@ -1,12 +1,13 @@
 \newcommand{\@usepackage}[1]
   {\def\pkg@arg{{\@nostyle\@callprim{\@eatspaces}{#1,}}}%
-  \ifu\csname\pkg@arg{}@loaded\endcsname
+  \ifthenelse{\equal{\pkg@arg}{hevea}}{\@usepackage{comment}}
+  {\ifu\csname\pkg@arg{}@loaded\endcsname
     \@iffileexists{\pkg@arg.hva}
        {\def\csname\pkg@arg{}@loaded\endcsname{foo}%
 %Warning: loading \pkg@arg.hva may redefine \pgk@arg!!!!
        \input{\pkg@arg.hva}}
        {}%
-    \fi}
+    \fi}}
 \newsavebox{\@pkg@opts}
 \newcommand{\usepackage}[2][!*!]
 {\ifthenelse{\equal{#1}{!*!}}
@@ -16,23 +17,23 @@
 \end{toimage}}%
 \@stopoutput\@stopimage\@funcall{\@iter}{\@usepackage,{#2}}\@restartimage\@restartoutput
 }
-\newsavebox{\@pkg@me}
-\newcommand{\ProvidesPackage}[1]{\sbox{\@pkg@me}{\@getprint{#1}}}
-\newcommand{\EndPackage}{\sbox{\@pkg@me}{}}
-\newcommand{\@pkg@opt@name}[1]
-  {@pkg\usebox{\@pkg@me}@@#1}
+\hva@newstack{@pkg}\let\@pkg@me\relax
+\newcommand{\ProvidesPackage}[1]
+{\@push@pkg{\@pkg@me}\def{\@pkg@me}{\@getprint{#1}}%
+\AtEndOfFile{\@EndPackage}}
+\newcommand{\@EndPackage}{\@pop@pkg{\@pkg@me}}
+\newcommand{\EndPackage}{\hva@warn{END}\@EndPackage}
+\newcommand{\@pkg@opt@name}[1]{@pkg\@pkg@me{}@#1}
 \newcommand{\DeclareOption}[2]
   {\newcommand{\csname\@pkg@opt@name{#1}\endcsname}{#2}}
 \newcommand{\@process@option}[1]%
 	{\def\pkg@opt{{\@nostyle\@callprim{\@eatspaces}{#1,}}}%
         \ifu\csname\@pkg@opt@name{\pkg@opt}\endcsname
-         \warning{Ignoring option: '#1'}\else
+         \hva@warn{Ignoring option: '#1'}\else
 	 \csname\@pkg@opt@name{\pkg@opt}\endcsname\fi}%
 \newcommand{\ProcessOptions*}
 {\@callprim{\@iter}
   {\string\@process@option,{\char123\usebox{\@pkg@opts}\char125}}}
 %%%% Packages in packages
-\@hva@newstack{@Pack}%
 \newcommand{\@GoobleOpt}[1][]{}%
-\newcommand{\RequirePackage}[2][!*!]
-{\@push@Pack{\@pkg@me}\usepackage[#1]{#2}\@pop@Pack{\@pkg@me}\@GoobleOpt}%
+\newcommand{\RequirePackage}[2][!*!]{\usepackage[#1]{#2}\@GoobleOpt}%

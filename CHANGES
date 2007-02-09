@@ -1,22 +1,27 @@
+     - \usepackage{hevea} -> execute \usepackage{comment} for LaTeX
+        compatibility
+     - Change \warning into \hva@warning
+     - New \AtEndOfFile command, rediscovered Latexmacros.replace at
+       the occasion!
 version 1.09+5
-      - Include documentation for Thai.
-      - A few typos in doc.
-      - A few correction in french.hva -> \@print@u + \og\fg.
-      - '\r' '\n' is scanned while looking for \par
-      - Add empty group after title in section (for \xspace ! -> no space)
-      - Introduced \RequirePackage
+     - Include documentation for Thai.
+     - A few typos in doc.
+     - A few correction in french.hva -> \@print@u + \og\fg.
+     - '\r' '\n' is scanned while looking for \par
+     - Add empty group after title in section (for \xspace ! -> no space)
+     - Introduced \RequirePackage
 version 1.09+4
-      - thai support
-      - add vertical magins to styles .part and .title
-      - listings, added inputencoding key.
-      - Corrected footnotes flushing (to follow documentation)
+     - thai support
+     - add vertical magins to styles .part and .title
+     - listings, added inputencoding key.
+     - Corrected footnotes flushing (to follow documentation)
         and made documentation more precise.
-      - listings,  *keywords* keys with correct interface
+     - listings,  *keywords* keys with correct interface
         (already here for *emph*).      
 version 1.09+3
-      - UTF-8 support, hartd to test.
-      - abstract type for unicode + many less files for input encodings
-      - Added input encodings koi8-r et cp1251 (Russian)
+     - UTF-8 support, hard to test.
+     - abstract type for unicode + many less files for input encodings
+     - Added input encodings koi8-r et cp1251 (Russian)
 version 1.09+2
      - Correct some bugs for output to dir (imagen on absolute path).
      - And above all document that.
@@ -26,7 +31,7 @@ version 1.09+1
      - Simplified error messages for accents, too many
        problems in displaying argument.
      - hevea/hacha/imagen accept dir/file as input or output
-      with sensible (?) behavior [DOC PENDING]
+      with sensible (?) behavior
 version 1.09
      - Release at last.
 version 1.08+23

@@ -29,7 +29,7 @@
 \newcounter{@align@limit}
 \newenvironment{ams@alignat}[2]
 {\setcounter{@align@limit}{2*#1-1}%
-\@ifundefined{@align@inside}{\def\@align@inside{}}{\warning{Nested align}}%
+\@ifundefined{@align@inside}{\def\@align@inside{}}{\hva@warn{Nested align}}%
 \[\@changelabel\def\@currentlabel{\ams@currentlabel}%
 \setcounter{@align@col}{0}%
 #2%
@@ -43,7 +43,7 @@
     {\stepcounter{@align@col}%
     \ifthenelse{\isodd{\value{@align@col}}}{}{\@extra}%
     \@PAM}
-    {\warning{Extra column in eqnarray}}}     
+    {\hva@warn{Extra column in eqnarray}}}     
 \renewcommand{\\}[1][]
   {\@eqna@complete% End line
   \@PAM\@number\@PBS% format equation number
@@ -160,7 +160,7 @@
 {\ifthenelse{\equal{#1}{c}}{\@@cfrac{#2}{#3}}
 {\ifthenelse{\equal{#1}{l}}{\@lcfrac{#2}{#3}}
 {\ifthenelse{\equal{#1}{r}}{\@rcfrac{#2}{#3}}
-{\warning{Invalid Argument To \cfrac: '#1', ignored}{\@@cfrac{#2}{#3}}}}}}
+{\hva@warn{Invalid Argument To \cfrac: '#1', ignored}{\@@cfrac{#2}{#3}}}}}}
 \NewcommandHtml{\textcfrac}[3]{\frac{#2}{#3}}
 \NewcommandHtml{\cfrac}{\DisplayChoose\@cfrac\textcfrac}
 \NewcommandHtml{\lcfrac}{\DisplayChoose\@lcfrac\frac}
@@ -205,7 +205,7 @@
 % Table 129: AMS Extensible Accents %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \NewcommandHtml{\textoverleftrightarrow}[1]
-{\warning{\overleftrightarrow outside display mode}#1}
+{\hva@warn{\overleftrightarrow outside display mode}#1}
 \NewcommandHtml{\@overleftrightarrow}[1]
 {\mathop{\@over@arrow[3]
   {\d@cell[STYLE="width:1\%;"]{\hva@lefthead}%
@@ -216,7 +216,7 @@
 {\DisplayChoose\@overleftrightarrow\textoverleftrightarrow}
 %%%%%%%%%%%%%%%%%%%%%%%
 \NewcommandHtml{\textunderleftrightarrow}[1]
-{\warning{\underleftrightarrow outside display mode}#1}
+{\hva@warn{\underleftrightarrow outside display mode}#1}
 \NewcommandHtml{\@underleftrightarrow}[1]
 {\mathop{\@under@arrow[3]
   {\d@cell[STYLE="width:1\%;"]{\hva@lefthead}%
@@ -226,7 +226,7 @@
 {\DisplayChoose\@underleftrightarrow\textunderleftrightarrow}
 %%%%%%%%%%%%%%%%%%%%%%%
 \NewcommandHtml{\textunderrightarrow}[1]
-{\warning{\underrightarrow outside display mode}#1}
+{\hva@warn{\underrightarrow outside display mode}#1}
 \NewcommandHtml{\@underrightarrow}[1]
 {\mathop{\@under@arrow[2]
   {\d@cell[STYLE="width:99\%;"]{\@hbar}%
@@ -235,7 +235,7 @@
 {\DisplayChoose\@underrightarrow\textunderrightarrow}
 %%%%%%%%%%%%%%%%%%%%%%%
 \NewcommandHtml{\textunderleftarrow}[1]
-{\warning{\underleftarrow outside display mode}#1}
+{\hva@warn{\underleftarrow outside display mode}#1}
 \NewcommandHtml{\@underleftarrow}[1]
 {\mathop{\@under@arrow[2]
   {\d@cell[STYLE="width:1\%;"]{\hva@lefthead}%
@@ -253,7 +253,7 @@
 \@close@display\@close@sizer}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \NewcommandHtml{\textxleftarrow}[2][]
-{\warning{\xleftarrow outside display mode}\leftarrow^{#2}_{#1}}
+{\hva@warn{\xleftarrow outside display mode}\leftarrow^{#2}_{#1}}
 \NewcommandHtml{\@xleftarrow}[2][~]
 {\mathop
   {\@both@arrow[2]{\quad{}#2\quad}
@@ -264,7 +264,7 @@
 \NewcommandHtml{\xleftarrow}{\DisplayChoose\@xleftarrow\textxleftarrow}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \NewcommandHtml{\textxrightarrow}[2][]
-{\warning{\xrightarrow outside display mode}\rightarrow^{#2}_{#1}}
+{\hva@warn{\xrightarrow outside display mode}\rightarrow^{#2}_{#1}}
 \NewcommandHtml{\@xrightarrow}[2][~]
 {\mathop
 {\@both@arrow[2]{\quad{}#2\quad}

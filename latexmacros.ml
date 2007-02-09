@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmacros.ml,v 1.71 2007-02-08 17:48:28 maranget Exp $" 
+let header = "$Id: latexmacros.ml,v 1.72 2007-02-09 09:18:36 maranget Exp $" 
 open Misc
 open Parse_opts
 open Lexstate
@@ -127,8 +127,7 @@ let hidden_global_def name x =
     purge := pre_purge name !purge ;
     MyStack.map purge_stack (fun purge -> pre_purge name purge)
   end ;
-  Hashtbl.remove global_table name ;
-  Hashtbl.add global_table name x
+  Hashtbl.replace global_table name x
 
 let hidden_local_def name x =
   if !group_level > 0 then begin (* indeed local *)
@@ -138,8 +137,7 @@ let hidden_local_def name x =
       purge := Strings.add name !purge ;
     Hashtbl.add local_table name x
   end else begin (* same as global *)
-    Hashtbl.remove global_table name ;
-    Hashtbl.add global_table name x
+    Hashtbl.replace global_table name x
   end
 
 let hidden_find name =
@@ -243,7 +241,7 @@ let replace name new_def =
   | Some d -> hidden_local_def name d
   | None -> match old_def with
     | None -> ()
-    | Some _ -> (* what will happen if binging was global ??? *)
+    | Some _ -> (* what will happen if binding was global ??? *)
         if !group_level > 0 then
           purge := pre_purge name !purge
         else

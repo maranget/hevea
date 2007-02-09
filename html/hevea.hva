@@ -1,5 +1,5 @@
 %%%% Une précaution.
-\ifhtml\else\warning{html/hevea is for html mode !!!}\endinput\fi
+\ifhtml\else\hva@warn{html/hevea is for html mode !!!}\endinput\fi
 %%%% package used by all packages
 \input{plain.hva}
 \newif\ififthen\ifthenfalse
@@ -47,7 +47,7 @@
 %%% HTML related stuff (TEX equivalents are in the hevea.sty file)
 \newcommand{\@doaelement}[2]
 {{\@nostyle\@print{<A }\@getprint{#1}\@print{>}}{#2}{\@nostyle\@print{</A>}}}
-\newcommand{\@nestedaelement}[2]{\warning{Suppressing nested A element}#2}
+\newcommand{\@nestedaelement}[2]{\hva@warn{Suppressing nested A element}#2}
 \newcommand{\@aelement}[2]
 {\bgroup\let\@aelement\@nestedaelement\@doaelement{#1}{#2}\egroup}
 \newcommand{\ahref}[2]{\@aelement{HREF="#1"}{#2}}
@@ -117,7 +117,7 @@
 {\@out@par{{\@nostyle\@print{<!--CUT END -->
 }}}}
 %%% New cutdef/cutend, with footnote managment
-\@hva@newstack{@foot}
+\hva@newstack{@foot}
 \newcommand{\cutdef}[2][]{%
 \@footnotesub\@push@foot{\@footnotelevel}\flushdef{#2}%
 \@out@par{{\@nostyle\@print{<!--CUT DEF }#2\@print{ }#1\@print{ -->}}}}
@@ -213,8 +213,8 @@
       \@fmt@title{\csname @##3\endcsname}%
       \@close{##1}}}%
   \@opencell{CLASS="title"}{}{}%
-  \checkcmd{H1}{titlemain}{title}{\warning}%
-  \checkcmd{H3}{titlerest}{author}{\warning}%
+  \checkcmd{H1}{titlemain}{title}{\hva@warn}%
+  \checkcmd{H3}{titlerest}{author}{\hva@warn}%
   \checkcmd{H3}{titlerest}{date}{\@gooble}%
   \@closecell%
   \egroup%
@@ -294,7 +294,7 @@
 }\fi%
 \usebox{\@toplinks}\usebox{\@linkstext}%
 \cutdef*[\thecuttingdepth]{\cuttingunit}%
-\renewcommand{\addstyle}[1]{\warning{\addstyle{} must be used in document preamble}}%
+\renewcommand{\addstyle}[1]{\hva@warn{\addstyle{} must be used in document preamble}}%
 \@open@par%Open first paragraph
 }{%
 \@clearstyle\@footnoteflush{\@footnotelevel}\cutend*\title@flush@hook%
@@ -574,7 +574,7 @@
 \d@cell[COLSPAN="#1"]{~}%
 \@close@display\@close@sizer}
 \newcommand{\textoverleftarrow}[1]
-{\warning{\overleftarrow outside display mode}#1}
+{\hva@warn{\overleftarrow outside display mode}#1}
 \newcommand{\@overleftarrow}[1]
 {\mathop{\@over@arrow
   {\d@cell[STYLE="width:10\%;"]{\hva@lefthead}%
@@ -582,14 +582,14 @@
   {#1}}\intlimits}
 \newcommand{\overleftarrow}{\DisplayChoose\@overleftarrow\textoverleftarrow}
 \newcommand{\textoverrightarrow}[1]
-{\warning{\overrightarrow outside display mode}#1}
+{\hva@warn{\overrightarrow outside display mode}#1}
 \newcommand{\@overrightarrow}[1]
 {\mathop{\@over@arrow
   {\d@cell[STYLE="width:90\%;"]{\@hbar}\d@cell[STYLE="width:10\%;"]{\hva@righthead}}
   {#1}}\intlimits}
 \newcommand{\overrightarrow}{\DisplayChoose\@overrightarrow\textoverrightarrow}
 \newcommand{\textoverbrace}[1]
-{\warning{\overbrace in non-display mode}#1}
+{\hva@warn{\overbrace in non-display mode}#1}
 \newcommand{\@overbrace}[1]
 {\mathop{\@over@arrow[5]
   {\d@cell[STYLE="width:5\%;"]{\hva@lrt}%
@@ -606,7 +606,7 @@
 \@open{TR}{}#2%
 \@close@display\@close@sizer}
 \newcommand{\textunderbrace}[1]
-{\warning{\underbrace in non-display mode}#1}
+{\hva@warn{\underbrace in non-display mode}#1}
 \newcommand{\@underbrace}[1]
 {\mathop{\@under@arrow[5]
   {\d@cell[STYLE="width:5\%;"]{\hva@urt}%

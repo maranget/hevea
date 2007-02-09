@@ -62,7 +62,7 @@
 \newcommand{\lefteqn}[1]{\begin{ensuredisplaymath}\raggedright#1\end{ensuredisplaymath}}
 \let\@HEVEA@lefteqn\lefteqn
 \newenvironment{eqnarray}
-{\@ifundefined{@eqna@inside}{\def\@eqna@inside{}}{\warning{Nested eqnarray}}%
+{\@ifundefined{@eqna@inside}{\def\@eqna@inside{}}{\hva@warn{Nested eqnarray}}%
 \[\@changelabel\def\@currentlabel{\theequation}%
 \setcounter{@eqna@col}{0}\@yesnumber\stepcounter{equation}
 \let\@PBS=\@HEVEA@bsbs
@@ -73,7 +73,7 @@
 \renewcommand{\@hevea@amper}
   {\ifthenelse{\value{@eqna@col}<2}
     {\stepcounter{@eqna@col}\@PAM}
-    {\warning{Extra column in eqnarray}}}     
+    {\hva@warn{Extra column in eqnarray}}}     
 \renewcommand{\\}[1][]{\@eqna@complete\@PAM\@number\setcounter{@eqna@col}{0}\@yesnumber\stepcounter{equation}\@PBS}
 \@array{rclr}}
 {\\{}\addtocounter{equation}{-1}\end@array\]}
@@ -133,7 +133,7 @@
   {\end{array}}
 %%% OLD DEFINITIONS : rediscovered, only \textoverline redefined in hevea.hva
 %%%
-\newcommand{\textoverline}[1]{\warning{overline ignored in text mode}#1}
+\newcommand{\textoverline}[1]{\hva@warn{overline ignored in text mode}#1}
 \def\overline#1{\ifdisplay
 \begin{@varray}\hline #1\end{@varray}\else\textoverline{#1}\fi}
 \newcommand{\textunderline}[1]{{\@style{U}#1}}
@@ -153,14 +153,14 @@
 %% Lists
 \setenvclass{li-itemize}{li-itemize}
 \newstyle{.li-itemize}{margin:1ex 0ex;}
-\newcommand{\item}[1][]{\warning{\item outside a list-making environment}}
+\newcommand{\item}[1][]{\hva@warn{\item outside a list-making environment}}
 \newcommand{\@itemitemize}[1][!*!]
-{\@itemize@li{\envclass@attr{li-itemize}}\ifthenelse{\equal{#1}{!*!}}{}{\warning{Optional argument to \item in itemize environment}{#1}}}
+{\@itemize@li{\envclass@attr{li-itemize}}\ifthenelse{\equal{#1}{!*!}}{}{\hva@warn{Optional argument to \item in itemize environment}{#1}}}
 \setenvclass{li-enumerate}{li-enumerate}
 \newstyle{.li-enumerate}{margin:1ex 0ex;}
 \newcommand{\@itemenumerate}[1][!*!]
 {\let\@currentlabel\csname the\@enumcitem\endcsname%
-\stepcounter{\@itemcount}\@enumerate@linum{\envclass@attr{li-enumerate}}\ifthenelse{\equal{#1}{!*!}}{}{\warning{Ignored optional argument to \item in enumerate enironment}}}
+\stepcounter{\@itemcount}\@enumerate@linum{\envclass@attr{li-enumerate}}\ifthenelse{\equal{#1}{!*!}}{}{\hva@warn{Ignored optional argument to \item in enumerate enironment}}}
 %environement itemize
 \setenvclass{itemize}{itemize}
 \newenvironment{itemize}
@@ -300,12 +300,14 @@
 \newcommand{\expandafter}{}
 %% Arrays and tabular
 \newcommand{\extracolsep}[1]{}
-\newcommand{\cline}[1]{\warning{\cline changed into \hline}\hline}
+\newcommand{\cline}[1]{\hva@warn{\cline changed into \hline}\hline}
 \newcommand{\cases}[1]{\left\{\begin{array}{l>{$}l<{$}}#1\end{array}\right.}
 \newcommand{\endcases}{}
 %%% tabularx
 \newenvironment{tabularx}[2]{\begin{tabular}{#2}}{\end{tabular}}
 \newcolumntype{X}{p{}}
+%%% AtEof
+\newcommand{\AtEndOfFile}[1]{\addtokens{\@ateof}{#1}}
 %%% AtBeginDocument and AtEndDocument
 \newtokens{\@atbegindocument}
 \newcommand{\AtBeginDocument}[1]{\addtokens{\@atbegindocument}{#1}}
@@ -328,12 +330,12 @@
 \end{document}
 \end{toimage}}
 %%% Boxes
-\newcommand{\textfbox}[1]{\warning{\fbox in text}\mbox{#1}}
+\newcommand{\textfbox}[1]{\hva@warn{\fbox in text}\mbox{#1}}
 \def\fbox#1{%
 \ifdisplay\begin{tabular}{|c|}\hline#1\end{array}\else
 \textfbox{#1}\fi}
-\newcommand{\hbox}[1]{\warning{\hbox}\mbox{#1}}
-\newcommand{\displaystyle}{\ifdisplay\else\warning{\displaystyle ignored}\fi}
+\newcommand{\hbox}[1]{\hva@warn{\hbox}\mbox{#1}}
+\newcommand{\displaystyle}{\ifdisplay\else\hva@warn{\displaystyle ignored}\fi}
 %%% Paragraphs
 \let\par\@empty
 \AtBeginDocument{\let\par\hva@par}
@@ -353,7 +355,7 @@
 \newcommand{\@readhaux}[1]
 {\@hauxinit%
 \@iffileexists{#1.haux}
-  {\@try{\input{#1.haux}}{\warning{Failure while reading .haux}}}
+  {\@try{\input{#1.haux}}{\hva@warn{Failure while reading .haux}}}
   {}%
 \@hauxfinal}
 \newcommand{\@readaux}[1]{\input{#1.aux}}
@@ -362,7 +364,7 @@
 \ifthenelse{\@fileexists{#1.aux} \and \not \boolean{fixpoint}}
   {\@try
      {\@readaux{#1}}
-     {\warning{Failure while reading .aux, reading .haux}\@readhaux{#2}}}
+     {\hva@warn{Failure while reading .aux, reading .haux}\@readhaux{#2}}}
   {\@readhaux{#2}}%
 \@restartoutput\@restartimage}
 \AtBeginDocument
@@ -490,7 +492,7 @@
 {{\def\footnote@c{titlenote}\let\thefootnote\thetitlenote#1}}
 \AtBeginDocument
 {\@ifundefined{theyear}
-{\renewcommand{\today}{\warning{\today needs ``-exec xxdate.exe'' option}}}
+{\renewcommand{\today}{\hva@warn{\today needs '-exec xxdate.exe' option}}}
 {\renewcommand{\theHour}{\@twoarabic{Hour}}
 \renewcommand{\thehour}{\@twoarabic{hour}}
 \renewcommand{\theminute}{\@twoarabic{minute}}
@@ -561,7 +563,7 @@
 \newcommand{\contentsname}{Contents}
 \newcommand{\@readtoc}[2]
 {\@tocsection{#2}
-\@iffileexists{\jobname.#1}{\input{\jobname.#1}}{\warning{File \jobname.#1 not found}}}
+\@iffileexists{\jobname.#1}{\input{\jobname.#1}}{\hva@warn{File \jobname.#1 not found}}}
 \newcommand{\tableofcontents}{\@readtoc{htoc}{\contentsname}}
 \newcommand{\addcontentsline}[3]
 {\@auxdowrite{\@print{\@addcontentsline}{\{\@nostyle{}h#1\}\{\csname @#2@level\endcsname\}}\{\@subst{#3}\}\@print{
@@ -573,7 +575,7 @@
 \newcounter{mpfootnote}
 \renewcommand{\thempfootnote}{\alph{mpfootnote}}
 \newenvironment{minipage}[2][]
-  {\warning{minipage, output may be poor}%
+  {\hva@warn{minipage, output may be poor}%
   \renewcommand{\@footnotelevel}{document}\@footnotesub%
   \setcounter{mpfootnote}{0}%
   \def\footnote@c{mpfootnote}%
@@ -611,4 +613,5 @@
 \footahref{\heveaurl/index.html}{\hevea}.}
 \newcommand{\@footer}
 {\rule{}{}\begin{quote}\em\footertext\end{quote}}
-%%%%%
+%%%%% Compat
+%\let\@hva@newstack\hva@newstack

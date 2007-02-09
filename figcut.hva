@@ -61,4 +61,4 @@
 \let\endtable\endfigcut@mytab
 \let\table*\figcut@mytab
 \let\endtable*\endfigcut@mytab
-\EndPackage
+

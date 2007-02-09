@@ -25,7 +25,7 @@
 %%
 \newcommand{\inputencoding}[1]
 {\@ifundefined{\ic@mk@map{#1}}
-  {\warning{Unknown input encoding: #1}}
+  {\hva@warn{Unknown input encoding: '#1'}}
   {\def\inputencodingname{#1}%
   \@set@in@translator{mappings/\csname\ic@mk@map{#1}\endcsname.map}%
   \@funregister{\ic@restore}}}
@@ -56,7 +56,7 @@
 \ic@option{latin8}{ISO-8859-14}%
 \ic@option{latin9}{ISO-8859-15}%
 \ic@option{latin10}{ISO-8859-16}%
-\ic@option@bis{tis-620}{ISO-8859-11}%
+\ic@option{tis-620}{ISO-8859-11}%
 \ic@option@bis{thai}{ISO-8859-11}%
 %%%
 \ic@option{cp1250}{windows-1250}%
@@ -71,4 +71,3 @@
 \ic@option{utf8}{UTF-8}%
 %%%
 \ProcessOptions*%
-\EndPackage

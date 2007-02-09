@@ -176,8 +176,8 @@
 \define@key {mpr}{right}{\let\mpr@label\mpr@R\mpr@set@name{#1}}
 \define@key {mpr}{vdots}{\mpr@vdotstrue\def\mpr@vdots{#1}}
 \define@key {mpr}{after}{}
-\define@key {mpr}{fraction}{\warning{fraction key ignored (mathpartir)}}
-\define@key {mpr}{myfraction}{\warning{myfraction key ignored (mathpartir)}}
+\define@key {mpr}{fraction}{\hva@warn{fraction key ignored (mathpartir)}}
+\define@key {mpr}{myfraction}{\hva@warn{myfraction key ignored (mathpartir)}}
 %%%%Synonyms
 \@ifundefined{infer}{\let\infer\inferrule}{}
 \@ifundefined{infer*}{\let\infer*\inferrule*}{}

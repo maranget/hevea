@@ -12,7 +12,7 @@ DESTDIR=
 #Where to install hevea.sty
 LATEXLIBDIR=$(PREFIX)/lib/hevea
 ############### End of configuration parameters
-SUF=
+SUF=.opt
 DIR=
 OCAMLC=${DIR}ocamlc$(SUF)
 OCAMLFLAGS=

@@ -67,13 +67,13 @@
 %%%%%%%%%%%%
 \newtokens{\lst@delete@all@kwd@class}%
 \def\lst@record@kwd@class#1#2{%
-%\warning{RECORD '#1' '#2'}%
+%\hva@warn{RECORD '#1' '#2'}%
 \ifu\csname lst@allkwd@#1\endcsname%
 \addtokens{\lst@delete@all@kwd@class}{\lst@delete@kwd@class{#1}}\fi%
 \providecommand{\csname lst@allkwd@#1\endcsname}{}%
 \lst@AddTo,{\csname lst@allkwd@#1\endcsname}{\lst@normalize{#2}}}
 \def\lst@delete@kwd@class#1{%
-%\warning{DELETE «#1»}%
+%\hva@warn{DELETE «#1»}%
 \ifu\csname lst@allkwd@#1\endcsname\else
 \@callprim{\lst@delete@kwds}{\{\csname lst@allkwd@#1\endcsname\}}%
 \lst@Empty{\csname lst@allkwd@#1\endcsname}\fi}
@@ -86,15 +86,15 @@
   \@callprim{\lst@delete@okwds}{\{\@rawchars{\lst@allotherkeywords}\}}%
   \@callprim{\lst@delete@directives}{\{\lst@alldirectives\}}}
 \def\lst@install@kwd#1#2{%
-%\warning{INSTALL: #2 -> #1}%
+%\hva@warn{INSTALL: #2 -> #1}%
 \def\csname lstk@\lst@normalize{#2}\endcsname{#1}}
 \def\lst@install@kwds#1#2{%
-%     \warning{RESET: «#1»}%
+%     \hva@warn{RESET: «#1»}%
     \lst@delete@kwd@class{#1}%
     \lst@record@kwd@class{#1}{#2}%
     \lst@iter{\lst@install@kwd{\csname lst@keywordstyle#1\endcsname}}{#2}}
 \def\lst@more@kwds#1#2{%
-%    \warning{MORE: «#1»}%
+%    \hva@warn{MORE: «#1»}%
     \lst@record@kwd@class{#1}{#2}%
     \lst@iter{\lst@install@kwd{\csname lst@keywordstyle#1\endcsname}}{#2}}
 \def\lst@install@directive#1#2{\def\csname lstd@\lst@normalize{#2}\endcsname{#1}}
@@ -266,7 +266,7 @@
    \def\@close@lstbox{\@closecell}%
    \fi
    \def\@open@lstbox{\@@open@lstbox\lst@whitepre}}
-\def\colorwarning{\warning{Colors in listings and 'color' package not loaded}}
+\def\colorwarning{\hva@warn{Colors in listings and 'color' package not loaded}}
 \define@key{lst}{backgroundcolor}
 {\ifu\color\colorwarning\else\def\lst@cell@needed{}\def\lst@bgcolor{#1}\fi}
 \define@key{lst}{frame}{\def\lst@cell@needed{}\def\lst@frame{#1}}
@@ -526,18 +526,18 @@ breakindent,breakautoindent}
 \def\lst@till@empty#1\@empty{}
 \newcommand{\lst@morecomment@key}[1][]
   {\ifu\csname lst@morecomment@#1\endcsname
-    \warning{Unkown comment type ``#1''}%
+    \hva@warn{Unknown comment type '#1'}%
     \let\lst@next\lst@till@empty\else
     \let\lst@next\csname lst@morecomment@#1\endcsname\fi
     \lst@next}
 \newcommand{\lst@deletecomment@key}[1][]
   {\ifu\csname lst@deletecomment@#1\endcsname
-   \warning{Unkown comment type ``#1''}\else
+   \hva@warn{Unknown comment type '#1'}\else
    \csname lst@deletecomment@#1\endcsname\fi
    \lst@till@empty}
 \newcommand{\lst@comment@key}[1][]
   {\ifu\csname lst@morecomment@#1\endcsname
-    \warning{Unkown comment type ``#1''}%
+    \hva@warn{Unknown comment type '#1'}%
     \let\lst@next\lst@till@empty\else
     \csname lst@deletecomment@all\endcsname
     \let\lst@next\csname lst@morecomment@#1\endcsname\fi
@@ -563,7 +563,7 @@ breakindent,breakautoindent}
 \def\lst@deletedelim@all{\lst@deletedelim@l\lst@deletedelim@s}
 \newcommand{\lst@deletedelim@key}[1][]
 {\ifu\csname lst@deletedelim@#1\endcsname
-\warning{Unkown delimiter type ``#1''}\else
+\hva@warn{Unknown delimiter type '#1'}\else
 \csname lst@deletedelim@#1\endcsname\fi
 \lst@till@empty}
 %Trick to parse delim=[l]\\
@@ -572,13 +572,13 @@ breakindent,breakautoindent}
 \newcommand{\lst@moredelim@s}[3][\@empty]{\lst@SD@key{#1}{#2}{#3}}
 \newcommand{\lst@moredelim@key}[1][]
 {\ifu\csname lst@moredelim@#1\endcsname
-\warning{Unkown delimiter type ``#1''}%
+\hva@warn{Unknown delimiter type '#1'}%
 \let\lst@next\lst@till@empty\else
 \let\lst@next\csname lst@moredelim@#1\endcsname\fi
 \lst@next}
 \newcommand{\lst@delim@key}[1][]
 {\ifu\csname lst@moredelim@#1\endcsname
-\warning{Unkown delimiter type ``#1''}%
+\hva@warn{Unknown delimiter type '#1'}%
 \let\lst@next\lst@till@empty\else
 \csname lst@deletedelim@all\endcsname
 \let\lst@next\csname lst@moredelim@#1\endcsname\fi
@@ -652,12 +652,12 @@ breakindent,breakautoindent}
   {\iflst@sensitive\@rawchars{#1}\else\@rawchars{\MakeLowercase{#1}}\fi}%
   \usebox{\normalize@box}}
 \def\lst@output#1#2{%
-\@NewLine%\lstinfo{OUT: ``#1'' ``#2''}%
+\@NewLine%\lstinfo{OUT: '#1' '#2'}%
 {\ifu\csname lstk@\lst@normalize{#1}\endcsname
   \lst@identifierstyle{#2}\else
   \csname lstk@\lst@normalize{#1}\endcsname{#2}\fi}}
 \def\lst@output@other#1#2{%
-\@NewLine%\lstinfo{OTHER: ``#1'' ``#2''}%
+\@NewLine%\lstinfo{OTHER: '#1' '#2'}%
 \ifu\csname lstk@\lst@normalize{#1}\endcsname
   #2\else
   {\csname lstk@\lst@normalize{#1}\endcsname{#2}}\fi}
@@ -667,7 +667,7 @@ breakindent,breakautoindent}
 \def\restore@spaces
   {\setcounter{lst@spaces}{\value{lst@save@spaces}}}
 \def\lst@output@directive#1#2{%
-%\lstinfo{DIRECTIVE: ``#1'' ``#2'' ``\thelst@spaces''}%
+%\lstinfo{DIRECTIVE: '#1' '#2' '\thelst@spaces'}%
 \save@spaces\@NewLine\restore@spaces%
 \ifu\csname lstd@\lst@normalize{#1}\endcsname
   {\lst@directivestyle{\@print{#}}}%
@@ -716,4 +716,3 @@ breakindent,breakautoindent}
 \setenvclass{lstlisting}{mouselstlisting}%
 \let\lst@whitepre\@empty%
 \renewcommand{\lst@pad}[1]{\@pad{~}{4}{##1}}}
-\EndPackage

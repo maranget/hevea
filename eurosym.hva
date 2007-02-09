@@ -14,5 +14,3 @@
 \DeclareOption{left}{\let\EUR\es@left}
 \DeclareOption{right}{\let\EUR\es@right}
 \ProcessOptions*
-%%
-\EndPackage

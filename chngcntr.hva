@@ -10,4 +10,3 @@
 \newcommand{\counterwithout}[2]
 {\@removefromreset{#1}{#2}%
 \@namedef{the#1}{\arabic{#1}}}
-\EndPackage

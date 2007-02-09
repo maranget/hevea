@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.307 2007-02-08 17:48:28 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.308 2007-02-09 09:18:36 maranget Exp $ *)
 
 
 {
@@ -1429,15 +1429,6 @@ and skip_to_end_latex = parse
 let () = ()
 ;;
 
-(* A few subst definitions, with 2 optional arguments *)
-
-def "\\makebox" (latex_pat ["" ; ""] 3)
-    (Subst "\\warning{makebox}\\mbox{#3}") ;
-def "\\framebox" (latex_pat ["" ; ""] 3)
-    (Subst "\\warning{framebox}\\fbox{#3}")
-;;
-
-
 let check_alltt_skip lexbuf =
   if not (effective !alltt) then begin
     if skip_blanks lexbuf then
@@ -1725,6 +1716,37 @@ def_code "\\hva@par"
 
 ;;
 
+
+(********************************)
+(* Tokens to be executed at eof *)
+(********************************)
+
+(* Defined as a token register in latexcommon.hva *)
+let ateof = "\\@ateof"
+
+(* Mask Lexstate.input_file *)
+
+let after_input lexbuf old_toks =
+  begin try
+    expand_command_no_skip ateof lexbuf
+  with e ->
+    Misc.warning
+      (Printf.sprintf "Exception '%s' raised by input handler"
+	 (Printexc.to_string e))
+  end ;
+  ignore (Latexmacros.replace ateof old_toks)
+
+let input_file loc_verb main filename lexbuf  =
+  let old_toks = Latexmacros.replace ateof (Some (zero_pat, Toks [])) in
+  begin try
+    Lexstate.input_file loc_verb main filename ;
+  with e ->
+    after_input lexbuf old_toks ;
+    raise e
+  end ;
+  after_input lexbuf old_toks
+  
+	      
 (* Styles and packages *)
 let do_documentclass command lexbuf =
   Save.start_echo () ;
@@ -1732,18 +1754,14 @@ let do_documentclass command lexbuf =
   let {arg=arg} =  save_arg lexbuf in
   let real_args = Save.get_echo () in
   begin try if not !styleloaded then
-    input_file 0 main (arg^".hva")
+    input_file 0 main (arg^".hva") lexbuf
   with
     Myfiles.Except | Myfiles.Error _ ->
       raise (Misc.ScanError ("No base style"))
   end ;
   if command = "\\documentstyle" then begin
-    let rec read_packages = function
-      | [] -> ()
-      | pack :: rest ->
-          scan_this main ("\\usepackage{"^pack^"}") ;
-          read_packages rest in
-    read_packages
+    List.iter
+      (fun pack -> scan_this main ("\\usepackage{"^pack^"}"))
       (Save.cite_arg (Lexing.from_string ("{"^opt_arg^"}")))
   end ;
   Image.start () ;
@@ -1765,7 +1783,7 @@ let do_input lxm lexbuf =
   let arg = get_prim_arg lexbuf in
   let echo_arg = Save.get_echo () in
   if lxm <> "\\include" || check_include arg then begin
-      try input_file !verbose main arg
+      try input_file !verbose main arg lexbuf
       with
       | Myfiles.Except ->
           Image.put lxm ;
@@ -3114,19 +3132,6 @@ def_code "\\stepcounter"
     Counter.step_counter name)
 ;;
 
-(* terminal output *)
-def_code "\\typeout"
-  (fun lexbuf ->
-    let what = get_prim_arg lexbuf in
-    prerr_endline what )
-;;
-
-def_code "\\warning"
-  (fun lexbuf ->
-    let what = subst_arg lexbuf in
-    warning what )
-;;
-
 (* spacing *)
 
 (*
@@ -3511,29 +3516,6 @@ def_code "\\toimage"
     start_image_scan "" image lexbuf)
 ;;
 
-def_code "\\lrtokens"
-  (fun lexbuf ->
-    let toks = get_csname lexbuf in
-    let out = Out.create_buff () in
-
-    let kont =
-      let once = ref false in
-      (fun lexbuf ->
-        if not !once then begin
-          once := true ;
-          begin try match Latexmacros.find_fail toks with
-          | _,Toks l ->
-              let arg = Out.to_string out in
-              Latexmacros.def toks zero_pat (Toks (l@[arg]))
-          | _ -> raise Failed
-          with Failed ->
-            Misc.warning ("\\lrtokens for "^toks^" failed")
-          end
-        end ;
-        main lexbuf) in
-    start_other_scan "lrtokens" (copy kont "lrtokens" out) lexbuf)
-
-;;
 
 (* Commands to control output to image file or target file *)
 def_code "\\@stopimage"

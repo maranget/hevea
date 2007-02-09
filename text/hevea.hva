@@ -1,5 +1,5 @@
 %%% Une précaution.
-\ifhtml\warning{text/hevea is for text and info mode !!!}\endinput\fi
+\ifhtml\hva@warn{text/hevea is for text and info mode !!!}\endinput\fi
 %%%% package used by all packages
 \input{plain.hva}
 \newif\ififthen\ifthenfalse
@@ -36,7 +36,7 @@
 \let\footahref\ahref
 \newcommand{\ahrefurl}[1]{\texttt{#1}}
 \newcommand{\mailto}[1]{{#1}}
-\newcommand{\imgsrc}[2][]{\warning{Image in text}*#2*}
+\newcommand{\imgsrc}[2][]{\hva@warn{Image in text}*#2*}
 \newcommand{\anchor}[1]{}
 %% Hyper-text references inside the document:
 \newcommand{\@locref}[2]{{#2}}

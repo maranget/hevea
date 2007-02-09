@@ -377,7 +377,7 @@
 \DeclareSymbolHtml[\text@vdots]{\vdots}{X22EE}
 \DeclareSymbolHtml[\cdot\cdot\cdot]{\cdots}{X22EF}
 \newcommand{\text@ddots}{\ifdisplay\mbox{\cdot~~\\~\cdot~\\~~\cdot}\else%
-\warning{\ddots in text}\mbox{ddots}\fi}
+\hva@warn{\ddots in text}\mbox{ddots}\fi}
 \DeclareSymbolHtml[\text@ddots]{\ddots}{X22F1}
 \let\cdotp\cdot
 \newcommand{\ldotp}{.}
@@ -439,7 +439,7 @@
 \fi
 \newcommand{\text@accent}[3]
 {\@ifundefined{#1@default}
-  {\warning{Application of '#2' failed}#3}
+  {\hva@warn{Application of '#2' failed}#3}
   {\csname#1@default\endcsname{#3}}}
 %%%%%%%%%%%%%%%%%%%%%%%%%%
 % Delimiters (Table 113) %
@@ -609,19 +609,19 @@
 %%%%%%%%%%%%%%%%%%%%%
 \NewcommandHtml{\@big}[1]
 {\@itemdisplay\process@delim{#1}{2}\@itemdisplay\int@sup@sub{2}}
-\NewcommandHtml{\@@big}[1]{\warning{\big in text mode}#1}
+\NewcommandHtml{\@@big}[1]{\hva@warn{\big in text mode}#1}
 \NewcommandHtml{\big}{\DisplayChoose\@big\@@big}
 \NewcommandHtml{\@Big}[1]
 {\@itemdisplay\process@delim{#1}{3}\@itemdisplay\int@sup@sub{3}}
-\NewcommandHtml{\@@Big}[1]{\warning{\Big in text mode}#1}
+\NewcommandHtml{\@@Big}[1]{\hva@warn{\Big in text mode}#1}
 \NewcommandHtml{\Big}{\DisplayChoose\@Big\@@Big}
 \NewcommandHtml{\@bigg}[1]
 {\@itemdisplay\process@delim{#1}{4}\@itemdisplay\int@sup@sub{4}}
-\NewcommandHtml{\@@bigg}[1]{\warning{\bigg in text mode}#1}
+\NewcommandHtml{\@@bigg}[1]{\hva@warn{\bigg in text mode}#1}
 \NewcommandHtml{\bigg}{\DisplayChoose\@bigg\@@bigg}
 \NewcommandHtml{\@Bigg}[1]
 {\@itemdisplay\process@delim{#1}{5}\@itemdisplay\int@sup@sub{5}}
-\NewcommandHtml{\@@Bigg}[1]{\warning{\Bigg in text mode}#1}
+\NewcommandHtml{\@@Bigg}[1]{\hva@warn{\Bigg in text mode}#1}
 \NewcommandHtml{\Bigg}{\DisplayChoose\@Bigg\@@Bigg}
 \Let\bigl\big\Let\bigm\big\Let\bigr\big
 \Let\Bigl\Big\Let\Bigm\Big\Let\Bigr\Big
@@ -670,7 +670,7 @@
 \DeclareSymbolHtml[\mbox{\neg(#2)}]{\csname\not@name{#2}\endcsname}{#3}\fi}
 \newcommand{\not}[1]
 {\@ifundefined{\not@name{#1}}
-{\warning{Cannot apply '\not' to '#1'}\neg{}#1}%
+{\hva@warn{Cannot apply '\not' to '#1'}\neg{}#1}%
 {\csname\not@name{#1}\endcsname}}
 %%
 \DeclareSymbolHtml[\mbox{notin}]{\notin}{X2209}
