@@ -20,10 +20,10 @@ cd `dirname $0`/..
 /bin/rm -rf ${WORKDIR}/final
 mkdir -p  ${WORKDIR}/final
 mv ${WORKDIR}/htmlgen/doc/manual.ps ${WORKDIR}/final/${RELEASENAME}-manual.ps
-gzip -f --best ${RELEASENAME}-manual.ps
 mv ${WORKDIR}/htmlgen/doc/manual.pdf ${WORKDIR}/final/${RELEASENAME}-manual.pdf
-mv  ${WORKDIR}/htmlgen/doc/doc ${WORKDIR}/final/${RELEASENAME}-manual
+mv ${WORKDIR}/htmlgen/doc/doc ${WORKDIR}/final/${RELEASENAME}-manual
 ( cd  ${WORKDIR}/final &&
+  gzip -f --best ${RELEASENAME}-manual.ps &&\
   tar cf  ${RELEASENAME}-manual.tar ${RELEASENAME}-manual &&\
   gzip -f --best ${RELEASENAME}-manual.tar )
 
