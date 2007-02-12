@@ -1,5 +1,7 @@
 #! /bin/sh -
-VERSIONFILE=../version.ml
+
+cd `dirname $0`
+VERSIONFILE=version.ml
 case $1 in
   zyva)
     VERSION=`sed -n -e 's/^let real_version = "\(.*\)".*$/\1/p' ${VERSIONFILE}`
@@ -21,7 +23,7 @@ case $VERSION in
     echo RELEASETAG=$RELEASETAG
     echo CVSEXPORT=\"-r release-\${RELEASETAG}\"
     sed  -e "s/^let release_date = .*/let release_date = \"`date +%Y-%m-%d`\"/" ${VERSIONFILE} > $TMP && mv $TMP $VERSIONFILE
-    ( cd .. && cvs commit -m tag && cvs tag -F  release-${RELEASETAG} ) >/dev/null
+    ( cvs commit -m tag && cvs tag -F  release-${RELEASETAG} ) >/dev/null
     ;;
 esac
 
