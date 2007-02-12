@@ -23,7 +23,7 @@ case $VERSION in
     echo CVSEXPORT=\"-r \${RELEASETAG}\"
     sed  -e "s/^let release_date = .*/let release_date = \"`date +%Y-%m-%d`\"/" ${VERSIONFILE} > $TMP && mv $TMP $VERSIONFILE
     ( cd .. ; cvs commit -m tag )
-    ( cd .. ; tar -F $RELEASETAG )
+    ( cd .. ; cvs tag -F $RELEASETAG )
     ;;
 esac
 
