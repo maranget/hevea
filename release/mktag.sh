@@ -11,6 +11,14 @@ case $1 in
   VERSION=test
   ;;
 esac
+case $VERSION in
+  *+*)
+     echo DEV=true
+     ;;  
+    *)
+    echo DEV=false
+    ;;
+esac
 echo VERSION=${VERSION}
 echo RELEASENAME=hevea-\${VERSION}
 
