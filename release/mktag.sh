@@ -20,10 +20,10 @@ case $VERSION in
     TMP=/tmp/tag.$$
     RELEASETAG=`sed -n -e 's/^let real_version = "\(.\)\.\(.*\)".*$/\1-\2/p' ${VERSIONFILE}`
     echo RELEASETAG=$RELEASETAG
-    echo CVSEXPORT=\"-r \${RELEASETAG}\"
+    echo CVSEXPORT=\"-r release-\${RELEASETAG}\"
     sed  -e "s/^let release_date = .*/let release_date = \"`date +%Y-%m-%d`\"/" ${VERSIONFILE} > $TMP && mv $TMP $VERSIONFILE
     ( cd .. ; cvs commit -m tag )
-    ( cd .. ; cvs tag -F $RELEASETAG )
+    ( cd .. ; cvs tag -F  release-${RELEASETAG} )
     ;;
 esac
 
