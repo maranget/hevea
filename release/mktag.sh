@@ -8,7 +8,6 @@ case $1 in
   VERSION=test
   ;;
 esac
-echo CVSDIR=${HOME}/CVS
 echo VERSION=${VERSION}
 echo RELEASENAME=hevea-\${VERSION}
 
