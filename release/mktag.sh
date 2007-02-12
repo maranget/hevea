@@ -1,6 +1,7 @@
 #! /bin/sh -
 
-cd `dirname $0`
+cd `dirname $0`/..
+
 VERSIONFILE=version.ml
 case $1 in
   zyva)
