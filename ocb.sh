@@ -28,7 +28,7 @@ ocb() {
 toopt () {
   for f in $*
   do
-    mv $f `basename .native`.opt
+    mv $f `basename $f .native`.opt
   done
 }
 
