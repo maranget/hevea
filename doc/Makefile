@@ -83,14 +83,17 @@ dateversion::
 	(cd .. ; cvs commit -m version version.ml)
 
 
-doversion:: $(VERSIONFILE)
-	-rm -f version.make version.tex	
+version.tex:
 	sed -n -e 's/^let real_version = "\(.*\)".*$$/\\def\\heveaversion{\1}/p' $(VERSIONFILE) > version.tex
 	sed -n -e 's/^let release_date = "\([0-9\-]*\)".*$$/\\def\\releasedate{\1}/p' $(VERSIONFILE) >> version.tex
 	echo "\\newif\\ifdevrelease\\devreleasefalse" >> version.tex
+	sed -n -e '/let real_version = ".*+.*"/s//\\devreleasetrue/p' $(VERSIONFILE) >> version.tex
+
+doversion:: $(VERSIONFILE)
+	-rm -f version.make
 	sed -n -e 's/^let real_version = "\(.*\)".*$$/VERSION=\1/p' $(VERSIONFILE) > version.make
 	sed -n -e 's/^let real_version = "\(.\)\.\(.*\)".*$$/RELEASETAG=release-\1-\2/p' $(VERSIONFILE) >> version.make
-	sed -n -e '/let real_version = ".*-.*"/s//\\devreleasetrue/p' $(VERSIONFILE) >> version.tex
+
 
 
 include version.make
@@ -162,7 +165,7 @@ cleanall: clean
 	rm -f manual.dvi manual.ps manual.pdf
 	rm -f faq.html hevea.spec manual.txt manual.info manual.info-[0-9] pdfmanual.pdf
 	/bin/rm -rf doc
-	/bin/rm -f tmp.tex
+	/bin/rm -f tmp.tex version.tex
 
 include ../libs.def
 RPMLIB=/usr/lib/hevea
