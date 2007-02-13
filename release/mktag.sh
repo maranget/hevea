@@ -11,16 +11,19 @@ case $1 in
   VERSION=test
   ;;
 esac
+DATE=`date +%Y-%m-%d`
+echo DATE=$DATE
 case $VERSION in
   *+*)
      echo DEV=true
+     echo RELEASENAME=hevea-\${DATE}
      ;;  
     *)
-    echo DEV=false
-    ;;
+    echo DEV=false 
+    echo RELEASENAME=hevea-\${VERSION}
+   ;;
 esac
 echo VERSION=${VERSION}
-echo RELEASENAME=hevea-\${VERSION}
 
 case $VERSION in
   test)
@@ -31,7 +34,7 @@ case $VERSION in
     RELEASETAG=`sed -n -e 's/^let real_version = "\(.\)\.\(.*\)".*$/\1-\2/p' ${VERSIONFILE}`
     echo RELEASETAG=$RELEASETAG
     echo CVSEXPORT=\"-r release-\${RELEASETAG}\"
-    sed  -e "s/^let release_date = .*/let release_date = \"`date +%Y-%m-%d`\"/" ${VERSIONFILE} > $TMP && mv $TMP $VERSIONFILE
+    sed  -e "s/^let release_date = .*/let release_date = \"$DATE\"/" ${VERSIONFILE} > $TMP && mv $TMP $VERSIONFILE
     ( cvs commit -m tag && cvs tag -F  release-${RELEASETAG} ) >/dev/null
     ;;
 esac
