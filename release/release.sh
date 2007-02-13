@@ -68,7 +68,7 @@ then
 else
   DHTML=${HTMLDIR}/doc
 fi
-/bin/rm -rf $DESTDIR
+/bin/rm -rf $DHTML
 mv $WORKDIR/final/${RELEASENAME}-manual $DHTML
 /bin/rm -rf ${WORKDIR}/final
 

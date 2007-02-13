@@ -1,0 +1,5 @@
+Edit README, CHANGES
+Edit version.ml
+commit everything
+sh release/mktag.sh > release/tag.sh
+sh release/release.sh
