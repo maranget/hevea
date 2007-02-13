@@ -35,7 +35,7 @@ mv  ${WORKDIR}/htmlgen  ${WORKDIR}/${RELEASENAME}
   /bin/rm -rf ${RELEASENAME} )
 #Now install files
 TOINSTALL="${RELEASENAME}-manual.tar.gz ${RELEASENAME}-manual.ps.gz ${RELEASENAME}-manual.pdf  ${RELEASENAME}.tar.gz"
-EXTRA="LICENSE README CHANGES"
+EXTRA="LICENSE README CHANGES hevea.sty"
 #FTP
 if $DEV
 then
