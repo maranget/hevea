@@ -40,19 +40,34 @@ then
   /bin/rm -rf $FTPDIR/unstable
   mkdir  $FTPDIR/unstable
   ( cd $WORKDIR/final && cp * $FTPDIR/unstable )
+  DFTP=$FTPDIR/unstable
 else
   ( cd $WORKDIR/final && cp * $FTPDIR )
+  DFTP=$FTPDIR
 fi
- #HTTP
+#complements
+( cd $WORKDIR/final && tar zxf ${RELEASENAME}.tar.gz &&\
+  cd ${RELEASENAME} && cp LICENSE README CHANGES $DFTP )
+#copy to httpd-dir
+if $DEV
+then
+  /bin/rm -rf ${HTMLDIR}/distri/unstable
+  cp -r $DFTP ${HTMLDIR}/distri
+else
+  /bin/rm -rf ${HTMLDIR}/distri
+  ( cd $DFTP &&\
+    cp ${RELEASENAME}-manual.tar.gz ${RELEASENAME}-manual.ps.gz ${RELEASENAME}-manual.pdf  ${RELEASENAME}.tar.gz LICENSE README CHANGES ${HTMLDIR}/distri )
+fi
+#HTTP DOC
 ( cd $WORKDIR/final && tar zxf ${RELEASENAME}-manual.tar.gz )
 if $DEV
 then
-  DESTDIR=${HTMLDIR}/newdoc
+  DHTML=${HTMLDIR}/newdoc
 else
-  DESTDIR=${HTMLDIR}/doc
+  DHTML=${HTMLDIR}/doc
 fi
 /bin/rm -rf $DESTDIR
-mv $WORKDIR/final/${RELEASENAME}-manual $DESTDIR
+mv $WORKDIR/final/${RELEASENAME}-manual $DHTML
 /bin/rm -rf ${WORKDIR}/final
 
 
