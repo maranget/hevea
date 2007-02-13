@@ -34,20 +34,22 @@ mv  ${WORKDIR}/htmlgen  ${WORKDIR}/${RELEASENAME}
   gzip -f --best final/${RELEASENAME}.tar &&
   /bin/rm -rf ${RELEASENAME} )
 #Now install files
+TOINSTALL="${RELEASENAME}-manual.tar.gz ${RELEASENAME}-manual.ps.gz ${RELEASENAME}-manual.pdf  ${RELEASENAME}.tar.gz"
+EXTRA="LICENSE README CHANGES"
 #FTP
 if $DEV
 then
   /bin/rm -rf $FTPDIR/unstable
   mkdir  $FTPDIR/unstable
-  ( cd $WORKDIR/final && cp * $FTPDIR/unstable )
+  ( cd $WORKDIR/final && cp ${TOINSTALL} $FTPDIR/unstable )
   DFTP=$FTPDIR/unstable
 else
-  ( cd $WORKDIR/final && cp * $FTPDIR )
+  ( cd $WORKDIR/final && cp ${TOINSTALL} $FTPDIR )
   DFTP=$FTPDIR
 fi
 #complements
 ( cd $WORKDIR/final && tar zxf ${RELEASENAME}.tar.gz &&\
-  cd ${RELEASENAME} && cp LICENSE README CHANGES $DFTP )
+  cd ${RELEASENAME} && cp ${EXTRA} ${DFTP} )
 #copy to httpd-dir
 if $DEV
 then
@@ -56,7 +58,7 @@ then
 else
   /bin/rm -rf ${HTMLDIR}/distri
   ( cd $DFTP &&\
-    cp ${RELEASENAME}-manual.tar.gz ${RELEASENAME}-manual.ps.gz ${RELEASENAME}-manual.pdf  ${RELEASENAME}.tar.gz LICENSE README CHANGES ${HTMLDIR}/distri )
+    cp  ${TOINSTALL} ${EXTRA} ${HTMLDIR}/distri )
 fi
 #HTTP DOC
 ( cd $WORKDIR/final && tar zxf ${RELEASENAME}-manual.tar.gz )
