@@ -1,3 +1,5 @@
+     - skip_blanks in save.mll -> also eat spaces after
+       \n (-> \urldef more compatible ??)
      - \usepackage{hevea} -> execute \usepackage{comment} for LaTeX
         compatibility
      - Change \warning into \hva@warning

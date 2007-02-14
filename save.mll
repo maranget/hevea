@@ -13,7 +13,7 @@
 open Lexing
 open Misc
 
-let header = "$Id: save.mll,v 1.73 2006-08-02 19:09:05 maranget Exp $" 
+let header = "$Id: save.mll,v 1.74 2007-02-14 12:23:42 maranget Exp $" 
 
 let rec peek_next_char lb =
   let pos = lb.lex_curr_pos
@@ -222,20 +222,20 @@ and rest = parse
       lxm}
   
 and skip_blanks = parse
-| space* '\n'
+| space* '\n' as lxm
     {seen_par := false ;
-    put_echo (lexeme lexbuf) ;
+    put_echo lxm ;
     more_skip lexbuf}
-| space*
-    {put_echo (lexeme lexbuf) ; Out.to_string arg_buff}
+| space*  as lxm
+    {put_echo lxm ; Out.to_string arg_buff}
 
 and more_skip = parse
-  (space* '\n' space*)+
+  (space* '\n' space*)+ as lxm
    {seen_par := true ;
-   put_echo (lexeme lexbuf) ;
+   put_echo lxm ;
    more_skip lexbuf}
-| ""
-  {Out.to_string arg_buff}
+| space* as lxm
+  { put_echo lxm ; Out.to_string arg_buff}
 
 and skip_equal = parse
     space* '='? space* {()}
