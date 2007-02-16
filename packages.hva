@@ -22,7 +22,7 @@
 {\@push@pkg{\@pkg@me}\def{\@pkg@me}{\@getprint{#1}}%
 \AtEndOfFile{\@EndPackage}}
 \newcommand{\@EndPackage}{\@pop@pkg{\@pkg@me}}
-\newcommand{\EndPackage}{\hva@warn{END}\@EndPackage}
+\newcommand{\EndPackage}{\hva@warn{END}}
 \newcommand{\@pkg@opt@name}[1]{@pkg\@pkg@me{}@#1}
 \newcommand{\DeclareOption}[2]
   {\newcommand{\csname\@pkg@opt@name{#1}\endcsname}{#2}}

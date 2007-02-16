@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.81 2007-02-08 17:48:28 maranget Exp $"
+let header = "$Id: text.ml,v 1.82 2007-02-16 19:09:57 maranget Exp $"
 
 
 open Misc
@@ -446,13 +446,14 @@ let do_flush () =
   flags.x <- -1;
 ;;
   
-let do_put_char_format c =
+let do_put_char_format nbsp c =
   if !verbose > 3 then
     prerr_endline ("caracters read : '"^Char.escaped c^"', x="^string_of_int flags.x^", length ="^string_of_int (flags.hsize));
 
-  if c=' ' then  flags.last_space <- flags.x;
+  if not nbsp && c=' ' then  flags.last_space <- flags.x;
   if flags.x =(-1) then begin
     (* La derniere ligne finissait un paragraphe : on indente *)
+    Printf.eprintf "FIRST LINE: %i %i\n" flags.x_start flags.first_line ;
     flags.x<-flags.x_start + flags.first_line;   
     for i = 0 to flags.x-1 do
       line.[i]<-' ';
@@ -512,12 +513,21 @@ let do_put_char_format c =
   end;
 ;;  
 
+let direct_output () =  !cur_out.temp || (Out.is_null !cur_out.out) 
+  
 let do_put_char c =
   if !verbose>3 then
     prerr_endline ("put_char:|"^String.escaped (String.make 1 c)^"|");
-  if !cur_out.temp || (Out.is_null !cur_out.out) 
-  then do_do_put_char c
-  else do_put_char_format c
+  if direct_output () then
+    do_do_put_char c
+  else
+    do_put_char_format false c
+
+and do_put_nbsp () =
+  if direct_output () then
+    do_do_put_char ' '
+  else
+    do_put_char_format true ' '
 ;;
 
 let finit_ligne () =
@@ -565,8 +575,7 @@ let is_list = function
 
 let get_fontsize () = 3;;
 
-let nostyle () =
-  !cur_out.nostyle<-true
+let nostyle () = !cur_out.nostyle<-true
 ;;
 
 let clearstyle () =
@@ -575,7 +584,7 @@ let clearstyle () =
 
 let open_mod m =
   if m=(Style "CODE") then begin 
-    do_put "`";
+    do_put "'";
     !cur_out.active <- m::!cur_out.active
   end;
 ;;
@@ -680,7 +689,7 @@ let try_open_block s args =
     push stacks.s_nitems flags.nitems;
     flags.nitems <- 0;
     flags.x_start <- flags.x_start + 3;
-    flags.first_line <- -2;    
+    flags.first_line <- -2 ;    
     flags.hsize <- flags.x_end - flags.x_start+1;
     
     if not flags.in_align then begin
@@ -873,10 +882,14 @@ let do_item isnum =
   if flags.nitems = 0 then begin let _ = forget_par () in () end ;
   try_flush_par () ;
   flags.nitems<-flags.nitems+1;
-  if isnum then
-    do_put ("\n"^(string_of_int flags.nitems)^". ")
-  else
-    do_put "\n- "
+  do_put_char '\n' ;
+  let saved = flags.first_line in
+  flags.first_line <- 0 ;
+  let tag =
+    if isnum then string_of_int flags.nitems^". "
+    else "- " in
+  do_put tag ;
+  flags.first_line <- saved
 ;;
 
 let item _ = do_item false
@@ -1017,15 +1030,13 @@ let put_separator () = put " "
 let put_tag _ = ()
 ;;
 
-let put_nbsp () =  put " "
+let put_nbsp () =  do_pending (); do_put_nbsp() 
 ;;
 
-let put_open_group () =
-  ()
+let put_open_group () = ()
 ;;
 
-let put_close_group () =
-  ()
+let put_close_group () = ()
 ;;
 
 let put_in_math s =
