@@ -24,6 +24,7 @@ ultra.cmi: ./tree.cmi ./lexeme.cmi
 util.cmi: ./tree.cmi ./htmltext.cmi 
 verb.cmi: ./outManager.cmi ./latexscan.cmi ./imageManager.cmi 
 videoc.cmi: ./outManager.cmi ./latexscan.cmi ./imageManager.cmi 
+zyva.cmi: ./outManager.cmi ./latexscan.cmi ./imageManager.cmi 
 auxx.cmo: ./parse_opts.cmi ./mysys.cmi ./misc.cmi auxx.cmi 
 auxx.cmx: ./parse_opts.cmx ./mysys.cmx ./misc.cmx auxx.cmi 
 buff.cmo: buff.cmi 
@@ -66,17 +67,17 @@ hacha.cmo: ./version.cmi ./mysys.cmi ./mylib.cmi ./misc.cmi ./location.cmi \
     ./cut.cmi ./cross.cmi 
 hacha.cmx: ./version.cmx ./mysys.cmx ./mylib.cmx ./misc.cmx ./location.cmx \
     ./cut.cmx ./cross.cmx 
-hevea.cmo: ./zyva.cmo ./videoc.cmi ./verb.cmi ./text.cmi ./tabular.cmi \
+hevea.cmo: ./zyva.cmi ./videoc.cmi ./verb.cmi ./text.cmi ./tabular.cmi \
     ./save.cmi ./parse_opts.cmi ./package.cmi ./noimage.cmi ./mysys.cmi \
     ./mylib.cmi ./myfiles.cmi ./myStack.cmi ./misc.cmi ./location.cmi \
     ./lexstate.cmi ./latexscan.cmi ./infoRef.cmo ./info.cmi ./index.cmi \
-    ./image.cmi ./html.cmi ./hot.cmi ./get.cmi ./esponja.cmo ./emisc.cmi \
+    ./image.cmi ./html.cmi ./hot.cmi ./get.cmi ./esp.cmi ./emisc.cmi \
     ./colscan.cmi ./auxx.cmi 
 hevea.cmx: ./zyva.cmx ./videoc.cmx ./verb.cmx ./text.cmx ./tabular.cmx \
     ./save.cmx ./parse_opts.cmx ./package.cmx ./noimage.cmx ./mysys.cmx \
     ./mylib.cmx ./myfiles.cmx ./myStack.cmx ./misc.cmx ./location.cmx \
     ./lexstate.cmx ./latexscan.cmx ./infoRef.cmx ./info.cmx ./index.cmx \
-    ./image.cmx ./html.cmx ./hot.cmx ./get.cmx ./esponja.cmx ./emisc.cmx \
+    ./image.cmx ./html.cmx ./hot.cmx ./get.cmx ./esp.cmx ./emisc.cmx \
     ./colscan.cmx ./auxx.cmx 
 hot.cmo: ./parse_opts.cmi ./misc.cmi ./lexstate.cmi ./latexmacros.cmi \
     ./infoRef.cmo ./foot.cmi ./counter.cmi ./color.cmi hot.cmi 
@@ -222,5 +223,5 @@ videoc.cmo: ./subst.cmi ./parse_opts.cmi ./outManager.cmi ./myfiles.cmi \
 videoc.cmx: ./subst.cmx ./parse_opts.cmx ./outManager.cmi ./myfiles.cmx \
     ./misc.cmx ./lexstate.cmx ./latexscan.cmx ./latexmacros.cmx \
     ./imageManager.cmi videoc.cmi 
-zyva.cmo: ./outManager.cmi ./latexscan.cmi ./imageManager.cmi 
-zyva.cmx: ./outManager.cmi ./latexscan.cmx ./imageManager.cmi 
+zyva.cmo: ./outManager.cmi ./latexscan.cmi ./imageManager.cmi zyva.cmi 
+zyva.cmx: ./outManager.cmi ./latexscan.cmx ./imageManager.cmi zyva.cmi 
