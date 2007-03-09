@@ -1,3 +1,9 @@
+version 1.09+7
+     - Some changes for active characters -, ', and `
+         * -- not merged in entity if TT is on.
+         * ' -> simple right quote, ` simple left quote
+version 1.09+6
+     - test new technique for release [shell]
      - skip_blanks in save.mll -> also eat spaces after
        \n (-> \urldef more compatible ??)
      - \usepackage{hevea} -> execute \usepackage{comment} for LaTeX

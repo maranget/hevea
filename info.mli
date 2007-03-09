@@ -8,23 +8,21 @@
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
 (***********************************************************************)
+
 open Lexstate
-    exception Error of string
-    type block
-(*
-    val iso : char -> string
-    val iso_string : string -> string
-*)
-    val set_out : Out.t -> unit
-    val stop : unit -> unit
-    val restart : unit -> unit
-    val is_empty : unit -> bool
-  
-    val get_fontsize : unit -> int
-    val nostyle : unit -> unit
-    val clearstyle : unit -> unit
-    val open_mod : Element.text -> unit
-    val erase_mods : Element.text list -> unit
+exception Error of string
+type block
+val set_out : Out.t -> unit
+val stop : unit -> unit
+val restart : unit -> unit
+val is_empty : unit -> bool
+    
+val get_fontsize : unit -> int
+val nostyle : unit -> unit
+val clearstyle : unit -> unit
+val open_mod : Element.text -> unit
+val erase_mods : Element.text list -> unit
+val has_mod : Element.text -> bool
     val forget_par : unit -> int option
     val close_par : unit -> bool
     val open_par : unit -> unit

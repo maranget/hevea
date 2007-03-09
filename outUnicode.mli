@@ -83,5 +83,13 @@ val iexcl : unichar
 val minus : unichar
 val endash : unichar
 val emdash : unichar
-val lquot : unichar
-val rquot : unichar
+val ldquot : unichar
+val rdquot : unichar
+val lsquot : unichar
+val rsquot : unichar
+val prime : unichar
+val dprime : unichar
+val tprime : unichar
+val rprime : unichar
+val rdprime : unichar
+val rtprime : unichar

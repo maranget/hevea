@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: html.ml,v 1.113 2007-02-09 17:22:29 maranget Exp $" 
+let header = "$Id: html.ml,v 1.114 2007-03-09 13:23:52 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -447,6 +447,7 @@ and insert_block s attr =
 and insert_attr s = insert_attr (find_block s)
 and erase_mods = erase_mods
 and open_mod = open_mod
+and has_mod = has_mod
 and clearstyle = clearstyle
 and nostyle = nostyle
 and get_fontsize = get_fontsize

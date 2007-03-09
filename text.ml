@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.82 2007-02-16 19:09:57 maranget Exp $"
+let header = "$Id: text.ml,v 1.83 2007-03-09 13:23:53 maranget Exp $"
 
 
 open Misc
@@ -355,6 +355,7 @@ let check_stacks () = match stacks with
   check_stack pending_par ;
   check_stack after
 
+(* Buffer for one line *)
 let line = String.create (!Parse_opts.width +2);;
 
 type saved = string * flags_t * saved_stacks * saved_out
@@ -453,7 +454,7 @@ let do_put_char_format nbsp c =
   if not nbsp && c=' ' then  flags.last_space <- flags.x;
   if flags.x =(-1) then begin
     (* La derniere ligne finissait un paragraphe : on indente *)
-    Printf.eprintf "FIRST LINE: %i %i\n" flags.x_start flags.first_line ;
+(*    Printf.eprintf "FIRST LINE: %i %i\n" flags.x_start flags.first_line ; *)
     flags.x<-flags.x_start + flags.first_line;   
     for i = 0 to flags.x-1 do
       line.[i]<-' ';
@@ -603,6 +604,8 @@ let close_mod () = match !cur_out.active with
 | _ -> ()
 ;;
 
+let has_mod _ = false (* No text-level elements in text *)
+
 let erase_mods _ = ()
 ;;
 
@@ -675,7 +678,7 @@ let do_pending () =
 let try_open_block s args =
   (* Prepare l'environnement specifique au bloc en cours *)
   if !verbose > 2 then
-    prerr_endline ("=> try_open ``"^s^"''");
+    prerr_endline ("=> try_open '"^s^"'");
 
   push stacks.s_x
     (flags.hsize,flags.x,flags.x_start,flags.x_end,

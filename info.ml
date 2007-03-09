@@ -10,7 +10,7 @@
 (***********************************************************************)
 
 
-let header = "$Id: info.ml,v 1.41 2006-10-10 11:02:04 maranget Exp $"
+let header = "$Id: info.ml,v 1.42 2007-03-09 13:23:52 maranget Exp $"
 
 open Misc
 open Text
@@ -30,6 +30,7 @@ let nostyle=Text.nostyle;;
 let clearstyle=Text.clearstyle;;
 let open_mod=open_mod;;
 let erase_mods=Text.erase_mods;;
+let has_mod = Text.has_mod;;
 let forget_par = Text.forget_par;;
 let open_par = Text.open_par;;
 let close_par = Text.close_par;;

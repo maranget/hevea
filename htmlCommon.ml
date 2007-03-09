@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlCommon.ml,v 1.62 2007-02-08 17:48:28 maranget Exp $" 
+let header = "$Id: htmlCommon.ml,v 1.63 2007-03-09 13:23:52 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -1082,8 +1082,8 @@ let rec open_mods = function
 | []      -> ()
 ;;
 
-
-
+let has_mod m = already_here m
+  
 (* Blocks *)
 
 let pstart = function

@@ -25,7 +25,7 @@
 \DeclareSymbolAMS{\varkappa}{X03F0}
 \DeclareSymbolAMS{\measuredangle}{X2221}
 \DeclareSymbolAMS{\beth}{X2136}
-\DeclareSymbolAMS{\backprime}{X2035}
+\DeclareSymbolAMS[\@print{`}]{\backprime}{X2035}
 \DeclareSymbolAMS{\complement}{X2201}
 \DeclareSymbolAMS{\daleth}{X2138}
 \DeclareSymbolAMS{\gimel}{X2137}

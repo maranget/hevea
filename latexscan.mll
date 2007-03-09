@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.309 2007-02-09 17:22:29 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.310 2007-03-09 13:23:52 maranget Exp $ *)
 
 
 {
@@ -3454,8 +3454,10 @@ OutUnicode.def_default OutUnicode.emdash "\\@print{---}" ;
 ()
 ;;
 
+let has_tt () = Dest.has_mod (Element.Style "TT")
+
 let do_minus lexbuf = 
-  if is_plain '-' then
+  if is_plain '-' && not (has_tt ()) then
     if Save.if_next_char '-' lexbuf then begin
       gobble_one_char lexbuf ;
       if  Save.if_next_char '-' lexbuf then begin
@@ -3471,21 +3473,58 @@ let do_minus lexbuf =
     Dest.put_char '-'
 ;;
 
-OutUnicode.def_default OutUnicode.lquot "\\@print{\"}" ;
-OutUnicode.def_default OutUnicode.rquot "\\@print{\"}" ;
+OutUnicode.def_default OutUnicode.ldquot "\\@print{\"}" ;
+OutUnicode.def_default OutUnicode.rdquot "\\@print{\"}" ;
+OutUnicode.def_default OutUnicode.lsquot "\\@print{`}" ;
+OutUnicode.def_default OutUnicode.rsquot "\\@print{'}" ;
+OutUnicode.def_default OutUnicode.prime "\\@print{'}" ;
+OutUnicode.def_default OutUnicode.dprime "\\@print{''}" ;
+OutUnicode.def_default OutUnicode.tprime "\\@print{'''}" ;
+OutUnicode.def_default OutUnicode.rprime "\\@print{`}" ;
+OutUnicode.def_default OutUnicode.rdprime "\\@print{``}" ;
+OutUnicode.def_default OutUnicode.rtprime "\\@print{```}" ;
 ()
 ;;
 
 let do_backquote lexbuf = 
-  if not !in_math && is_plain '`' && Save.if_next_char '`' lexbuf then begin
-    gobble_one_char lexbuf ;
-    put_unicode OutUnicode.lquot
-  end else Dest.put_char '`'
+  if  is_plain '`' then begin
+    if !in_math then begin
+      if Save.if_next_char '`' lexbuf then begin
+        gobble_one_char lexbuf ;
+        if Save.if_next_char '`' lexbuf then begin
+          gobble_one_char lexbuf ;
+          put_unicode OutUnicode.rtprime
+        end else
+          put_unicode OutUnicode.rdprime
+      end else
+         put_unicode OutUnicode.rprime
+    end else if has_tt () then put_unicode OutUnicode.lsquot
+    else if Save.if_next_char '`' lexbuf then begin
+      gobble_one_char lexbuf ;
+      put_unicode OutUnicode.ldquot
+    end else
+      put_unicode OutUnicode.lsquot
+  end else
+    Dest.put_char '`'
 
 and do_quote lexbuf =
-  if not !in_math && is_plain '\'' && Save.if_next_char '\'' lexbuf then begin
-    gobble_one_char lexbuf ;
-    put_unicode OutUnicode.rquot
+  if is_plain '\'' then begin
+    if !in_math then begin
+      if Save.if_next_char '\'' lexbuf then begin
+        gobble_one_char lexbuf ;
+        if Save.if_next_char '\'' lexbuf then begin
+          gobble_one_char lexbuf ;
+          put_unicode OutUnicode.tprime
+        end else
+          put_unicode OutUnicode.dprime
+      end else
+         put_unicode OutUnicode.prime
+    end else if has_tt () then  put_unicode OutUnicode.rsquot
+    else if Save.if_next_char '\'' lexbuf then begin
+      gobble_one_char lexbuf ;
+      put_unicode OutUnicode.rdquot
+    end else
+      put_unicode OutUnicode.rsquot
   end else
     Dest.put_char '\''
 ;;
