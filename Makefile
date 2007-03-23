@@ -23,6 +23,7 @@ OCAMLLEX=$(DIR)ocamllex$(SUF) -q
 OCBFLAGS=-j 4 -classic-display
 
 #### End of configuration parameters
+#### The Makefile uses ocamlbuild if present.
 PGM=hevea.byte hacha.byte esponja.byte bibhva.byte
 PGMOPT=$(PGM:.byte=.opt)
 PGMNATIVE=$(PGM:.byte=.native)
