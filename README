@@ -34,7 +34,6 @@ CONTACTS
 DOCUMENTATION
     On-line documentation is available at
     http://hevea.inria.fr/doc/
-    The first sections explain how to use hevea.
 
 DISTRIBUTION
     By FTP
@@ -47,14 +46,13 @@ DISTRIBUTION
 REQUIREMENTS
      HEVEA is written in Objective Caml version 3.07 or later
      (Ocaml). It compiles under Ocaml, which should thus be properly
-     installed. Ocaml is  available at
-       ftp://ftp.inria.fr/lang/caml-light/
+     installed.
 
      More information on Ocaml can be found at
        http://caml.inria.fr/ocaml/
 
      However there exists binary distributions of HEVEA for PCs
-     Those are provided by external packager, see hevea home page
+     Those are provided by external packagers, see hevea home page
      for a (partial) list.
 
      There also exist a Win-32 distribution, by Philip A. Viton, see
@@ -71,11 +69,13 @@ INSTALLATION FROM THE SOURCE DISTRIBUTION
 
   Download the source distribution
     ftp://ftp.inria.fr/INRIA/Projects/para/hevea/hevea-1.09.tar.gz
+    Or
+    http://hevea.inria.fr/distri/hevea-1.09.tar.gz
 
-  Unsizp it
+  Unzip,
     gunzip hevea-1.09.tar.gz
 
-  Untar it
+  Untar,
     tar xf  hevea-1.09.tar
 
   Go to the source directory
@@ -127,6 +127,7 @@ IN CASE OF TROUBLE.
   - You do need version 3.07 of the Objective Caml System. Older versions
     of OCaml cannot compile hevea 1.09.
 
-  - Some version of RedHat provided a (slightly) non-fonctional implementation
+  - Some (old) versions of RedHat provided a (slightly) non-fonctional
+    implementation
     of the pbm package. Il particular, the script 'pnmmargin' may be broken,
     which will impact hevea 'imagen' script behavior.
