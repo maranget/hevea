@@ -2,11 +2,11 @@
 \newsavebox{\@indexbox}
 \newcommand{\index}[2][default]
 {\if@refs%
-\sbox{\@indexbox}{\@indexwrite[#1]{#2}{\@currentlabel}}% side effect
+\sbox{\@indexbox}{\@indexwrite[#1]{#2}{\@indexlabel}}% side effect
 \@locname{\usebox{\@indexbox}}{}%
 \fi}
 \newcommand{\index*}[2][default]
-{\if@refs\sbox{\@indexbox}{\@indexwrite[#1]{#2}{\@currentlabel}}% side effect
+{\if@refs\sbox{\@indexbox}{\@indexwrite[#1]{#2}{\@indexlabel}}% side effect
 \@locname{\usebox{\@indexbox}}{#2}\fi}
 \newcommand{\printindex}[1][default]{\@printindex[#1]}
 \newcommand{\makeindex}{\newindex{default}{idx}{ind}{Index}}

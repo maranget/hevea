@@ -341,8 +341,21 @@
 \AtBeginDocument{\let\par\hva@par}
 %%% References
 \newcommand{\@currentlabel}{}
+%%% Index references
+\newcommand{\hva@idx@counter}[1]{\def\csname #1@idx@counter\endcsname{}}
+\hva@idx@counter{part}%
+\hva@idx@counter{chapter}%
+\hva@idx@counter{section}%
+\hva@idx@counter{subsection}%
+\hva@idx@counter{subsubsection}%
+\hva@idx@counter{paragraph}%
+\hva@idx@counter{subparagraph}%
+\newcommand{\@indexlabel}{}
 \newcommand{\refstepcounter}[1]
-  {\let\@currentlabel\csname the#1\endcsname\stepcounter{#1}}
+{\let\@currentlabel\csname the#1\endcsname%
+\ifu\csname #1@idx@counter\endcsname\else%
+\let\@indexlabel\csname the#1\endcsname\fi%
+\stepcounter{#1}}
 %%% Aux files
 \newcommand{\@fst}[2]{#1}
 \newcommand{\newlabel}[2]{\@newlabel{#1}{\@funcall{\@fst}{#2}}}

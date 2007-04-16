@@ -1,3 +1,5 @@
+     - labels for indexes restricted to sectionning labels.
+       (credit to Yevgeniy Makarov)
 version 1.09+7
      - Some changes for active characters -, ', and `
          * -- not merged in entity if TT is on.

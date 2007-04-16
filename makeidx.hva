@@ -2,7 +2,7 @@
 \newsavebox{\@indexbox}
 \newcommand{\index}[1]
 {\if@refs%
-\sbox{\@indexbox}{\@indexwrite[default]{#1}{\@currentlabel}}%force evaluation
+\sbox{\@indexbox}{\@indexwrite[default]{#1}{\@indexlabel}}%force evaluation
 \@locname{\usebox{\@indexbox}}{}%
 \fi}
 %%%% uncomment this to get index citations that point to section titles.
