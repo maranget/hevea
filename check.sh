@@ -1,6 +1,6 @@
 #! /bin/sh
 
-source config.sh
+. config.sh
 TMP1=/tmp/check.1.$$
 TMP2=/tmp/check.2.$$
 TMP3=/tmp/check.3.$$

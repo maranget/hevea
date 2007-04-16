@@ -1,6 +1,6 @@
 #!/bin/sh -
 
-source ./config.sh
+. ./config.sh
 
 ocamlbuild -version > /dev/null 2>/dev/null || \
 case $1 in
