@@ -4211,9 +4211,10 @@ And a warning will be issued.
 ./tmp.tex:3741: Warning: Application of '\'' on 'h' failed
 \end{verbatim}
 
-However, when the document contains a lot of accented characters it is
-more convenient to use the appropriate input encoding. See
-section~\ref{inputenc} on the \texttt{inputenc} package.
+
+Observe that using input encodings
+is a convenient alternative to accent commands ---
+see Section~\ref{inputenc}.
 
 \section{Sectioning}
 
@@ -4611,9 +4612,45 @@ $$\boxed{\frac{\pi}{2}}$$
 in display-math mode. The commands \verb+\bigl,\bigr+ etc. \index{\verb+\bigl,\bigr+ etc.}are also rendered well. Some examples can be found \ifhevea \footahref{../examples/random-math.html}{here}\else in the test file {\tt random-math.html} provided with the distribution\fi.
 
 \subsection{Math accents}\index{math accents}
-Math accents (\verb+\hat+, \verb+\tilde+, etc.) are
+Math accents that have coresponding text accents
+(\verb+\hat+, \verb+\tilde+, etc.) are
 handled\label{mathaccents} by default.  They in fact act as the
-corresponding text-mode accents (Section~\ref{accents}).  The \verb+\vec+
+corresponding text-mode accents (Section~\ref{accents}).
+As a consequence, they work properly only on ascii letters.
+This may be quite cumbersome, but at least some warnings draw user's
+attention on the problem.
+If accents are critical to your document and that \hevea{} issues
+a lot of warnings, a solution is to redefine the math accent command.
+A suggested replacement is using limit superscripts.
+That way accents are positionned above symbols in display mode and
+after symbols in text mode.
+\begin{verbatim}
+\renewcommand{\hat}[1]{\mathop{#1}\limits^{\textasciicircum}\nolimits}
+Displayed:
+$$
+\hat{\mu} = \hat{\Delta}.
+$$
+In text: $\hat{\mu} = \hat{\delta}$
+\end{verbatim}
+\ifhevea
+An you get,
+{\renewcommand{\hat}[1]{\mathop{#1}\limits^{\textasciicircum}\nolimits}
+displayed:
+$$
+\hat{\mu} = \hat{\Delta}.
+$$
+In text: $\hat{\mu} = \hat{\delta}$.}
+
+Whereas, with the default of \verb+\hat+ being \verb+\^+,
+you get ``$\hat{\mu} = \hat{\delta}$'', with the following warnings:
+\begin{verbatim}
+./tmp.tex:4652: Warning: Application of '\^' on '\mu' failed
+./tmp.tex:4652: Warning: Application of '\^' on '\delta' failed
+\end{verbatim}
+\fi
+
+
+The \verb+\vec+
 command is rendered differently in display and non-display mode. In
 display mode, the arrow appears in normal position, while in
 non-display the arrow appears as an ordinary superscript.

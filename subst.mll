@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: subst.mll,v 1.17 2006-02-01 17:34:17 maranget Exp $           *)
+(*  $Id: subst.mll,v 1.18 2007-05-22 16:34:10 maranget Exp $           *)
 (***********************************************************************)
 {
 open Misc
@@ -92,7 +92,6 @@ let do_subst_this ({arg=arg ; subst=env} as x) =
 ;;
 
 let subst_this s = do_subst_this (mkarg s (get_subst ()))
-
 let subst_arg lexbuf = do_subst_this (save_arg lexbuf)  
 and subst_opt def lexbuf = do_subst_this (save_opt def lexbuf)  
 let subst_body = subst_arg

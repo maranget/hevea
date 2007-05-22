@@ -1,3 +1,6 @@
+version 1.09+10
+     - restored extra argument to \text@accent, silly ?
+     - added a bit of documentation on math accents
 version 1.09+8
      - labels for indexes restricted to sectionning labels.
        (credit to Yevgeniy Makarov)

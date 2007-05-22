@@ -437,9 +437,9 @@
 \newcommand{\macron@default}[1]{\textoverline{#1}}
 \newcommand{\linebelow@default}[1]{\textunderline{#1}}
 \fi
-\newcommand{\text@accent}[3]
+\newcommand{\text@accent}[4]
 {\@ifundefined{#1@default}
-  {\hva@warn{Application of '#2' failed}#3}
+  {\hva@warn{Application of '#2' on '#4' failed}#3}
   {\csname#1@default\endcsname{#3}}}
 %%%%%%%%%%%%%%%%%%%%%%%%%%
 % Delimiters (Table 113) %

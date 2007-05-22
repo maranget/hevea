@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.104 2007-02-09 17:22:29 maranget Exp $    *)
+(*  $Id: package.ml,v 1.105 2007-05-22 16:34:10 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -43,10 +43,10 @@ let put_empty empty =
   if empty <> OutUnicode.null then Dest.put_unicode empty
   else raise OutUnicode.CannotTranslate 
 
-exception DiacriticFailed of string
+exception DiacriticFailed of string * string
 
 let do_def_diacritic _verb _name f empty = 
-  (fun lexbuf ->
+  (fun lexbuf ->    
     let arg0 = save_arg lexbuf in
     let arg = get_prim_onarg arg0 in
     try match String.length arg with
@@ -58,15 +58,15 @@ let do_def_diacritic _verb _name f empty =
     | _ -> raise OutUnicode.CannotTranslate
     with
     | OutUnicode.CannotTranslate
-    | Misc.CannotPut ->	raise (DiacriticFailed arg))
+    | Misc.CannotPut ->	raise (DiacriticFailed (Subst.do_subst_this arg0,arg)))
 
 let def_diacritic name internal f empty =
   def_code name
     (fun lexbuf ->
       try do_def_diacritic true name f empty lexbuf
-      with DiacriticFailed input ->
+      with DiacriticFailed (p,input) ->
 	scan_this main
-	  ("\\text@accent{"^internal^"}{"^name^"}{\\@print{"^input^"}}"))
+	  ("\\text@accent{"^internal^"}{"^name^"}{\\@print{"^input^"}}{"^p^"}"))
 ;;
 
 open OutUnicode
