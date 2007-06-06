@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: lexstate.ml,v 1.69 2007-02-08 17:48:28 maranget Exp $"
+let header = "$Id: lexstate.ml,v 1.70 2007-06-06 18:24:19 maranget Exp $"
 
 open Misc
 open Lexing
@@ -427,6 +427,8 @@ type ok = No of string | Yes of string
 ;;
 
 let parg {arg=arg} = arg
+and pargs {arg=args} = String.concat ", " args
+
 and pok = function
   | {arg=Yes s} -> s
   | {arg=No s} -> "* default arg: ["^s^"] *"
@@ -446,10 +448,11 @@ and save_filename lexbuf =
   full_save_arg eof_arg mkarg parg Save.filename lexbuf
 and save_verbatim lexbuf =
   full_save_arg eof_arg mkarg parg Save.arg_verbatim lexbuf
-
 and save_xy_arg lexbuf =
   full_save_arg eof_arg mkarg parg Save.xy_arg lexbuf
-
+and save_cite_arg lexbuf =
+  full_save_arg eof_arg mkarg pargs Save.cite_arg lexbuf
+  
 type sup_sub = {
   limits : Misc.limits option ;
   sup : string arg ;

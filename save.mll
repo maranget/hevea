@@ -13,7 +13,7 @@
 open Lexing
 open Misc
 
-let header = "$Id: save.mll,v 1.74 2007-02-14 12:23:42 maranget Exp $" 
+let header = "$Id: save.mll,v 1.75 2007-06-06 18:24:19 maranget Exp $" 
 
 let rec peek_next_char lb =
   let pos = lb.lex_curr_pos
@@ -298,7 +298,8 @@ and incsname = parse
 | eof           {error "End of file in command name"}
 
 and cite_arg = parse
-  space* '{'   {cite_args_bis lexbuf}
+| space* '{' {cite_args_bis lexbuf}
+| eof        {raise Eof} 
 | ""         {error "No opening ``{'' in citation argument"}
 
 and cite_args_bis = parse

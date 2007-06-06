@@ -1,7 +1,9 @@
 \@ifundefined{@base}{\typeout{'fancysection.hva' must be loaded after base style}\endinput}{}
 \usepackage{color}
 %%% Color section
+\def\fcs@hue{}
 \newcommand{\colorsections}[1]{
+\def\fcs@hue{#1}%
 \definecolor{title}{hsv}{#1,1,.7}
 \definecolor{titlemain}{hsv}{#1,1,.7}
 \definecolor{titlerest}{hsv}{#1,1,.7}

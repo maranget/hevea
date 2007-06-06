@@ -13,3 +13,18 @@
   {\stepcounter{heveabib}\ifthenelse{\equal{#1}{!*!}}
     {\@callsubst{\NAT@bibitem}{()(@)#2(@)}}
     {\@callsubst{\NAT@bibitem}{#1(@)#2(@)}}}
+\def\NAT@open{(}
+\def\NAT@close{)}
+\def\NAT@sep{,}
+\def\NAT@post{,}
+%%%% Hack
+\let\hva@cite\cite
+\newcommand{\NAT@IN}[2]
+{\begingroup%
+\def\@open@cite{#1}%
+\def\@close@cite{\NAT@OUT{#2}}%
+\let\@sep@cite\NAT@sep%
+\let\@post@cite\NAT@post}
+\newcommand{\NAT@OUT}[1]{#1\endgroup}
+\newcommand{\citep}{\NAT@IN{\NAT@open}{\NAT@close}\hva@cite}
+\newcommand{\citet}{\NAT@IN{\relax}{\relax}\hva@cite}

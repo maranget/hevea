@@ -418,7 +418,8 @@
     {\@bibwrite{#1}{\bibtag@hook{#2}}}\item[#2]}
 \newcommand{\@open@cite}{[}
 \newcommand{\@close@cite}{]}
-\newcommand{\@sep@cite}{, }
+\newcommand{\@sep@cite}{,}
+\newcommand{\@post@cite}{,}
 %%%%%%%%%%% Footnotes
 \newcommand{\@footnotelevel}{document}%
 \newcommand{\flushdef}[1]{\def\@footnotelevel{#1}}
