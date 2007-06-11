@@ -45,6 +45,7 @@ OPTSBIBHVA=$(OBJSBIBHVA:.cmo=.cmx)
 include libs.def
 
 all: $(TARGET)
+all-make: $(TARGET)-make
 
 install: config.sh
 	./install.sh $(TARGET)
@@ -52,6 +53,7 @@ install: config.sh
 byte: ocb-byte
 opt: ocb-opt
 both: ocb-both
+
 
 opt-make:
 	$(MAKE) $(MFLAGS) TARGET=opt $(PGMOPT)

@@ -110,7 +110,7 @@ MAKE
     Once configuration variables are set, type:
       make 
 
-   Then install hevea binary in BINDIR and hevea library files in LIBDIR     
+   Then, install hevea binary in BINDIR and hevea library files in LIBDIR     
    (This might require gaining root privilege)
       make install
 
@@ -120,9 +120,18 @@ MAKE
      Some packagers make additional installation efforts as regards
      this file.
 
+  ** hevea build now uses ocamlbuild by default, in case of trouble,
+     try: 'make all-make'.
+
    Once hevea is installed, you can remove the sources.
 
+
 IN CASE OF TROUBLE.
+
+  - hevea is now built by default with ocamlbuild (Objective Caml >= 3.10)
+    If you wish not upgrade or experience build problems,
+    try 'make all-make.'
+
 
   - You do need version 3.07 of the Objective Caml System. Older versions
     of OCaml cannot compile hevea 1.09.
@@ -131,3 +140,4 @@ IN CASE OF TROUBLE.
     implementation
     of the pbm package. Il particular, the script 'pnmmargin' may be broken,
     which will impact hevea 'imagen' script behavior.
+
