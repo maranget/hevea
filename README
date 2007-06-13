@@ -121,7 +121,7 @@ MAKE
      this file.
 
   ** hevea build now uses ocamlbuild by default, in case of trouble,
-     try: 'make all-make'.
+     try: 'make all-make'
 
    Once hevea is installed, you can remove the sources.
 

@@ -1,3 +1,6 @@
+     - natbib being adde, mightmare
+       TODO Check it still works with standard bibliographies,
+            and without bbl files.
 version 1.09+10
      - restored extra argument to \text@accent, silly ?
      - added a bit of documentation on math accents

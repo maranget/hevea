@@ -1,11 +1,51 @@
+\ProvidesPackage{natbib}
+\RequirePackage{keyval}
+%% Options
+\DeclareOption{numbers}{\NAT@numbers}
+\DeclareOption{super}{\NAT@super}
+\DeclareOption{authoryear}{\NAT@authoryear}
+\DeclareOption{round}{\NAT@round}
+\DeclareOption{square}{\NAT@square}
+\DeclareOption{angle}{\NAT@angle}
+\DeclareOption{curly}{\NAT@curly}
+\DeclareOption{comma}{\NAT@comma}
+\DeclareOption{semicolon}{\NAT@semicolon}
+\DeclareOption{colon}{\NAT@semicolon}
+\DeclareOption{nobibstyle}{}%undocumented, what does it do ?
+\DeclareOption{bibstyle}{}%undocumented, what does it do ?
+\DeclareOption{openbib}{}%undocumented, what does it do ?
+\DeclareOption{sectionbib}{}%useless, chapterbib does the job
+%%%Not implemented, ignore silently
+\DeclareOption{sort}{}
+\DeclareOption{compress}{}
+\DeclareOption{sort&compress}{}
+%%%%%%%%%%%%
 \@primitives{natbib}
-\newcommand{\NAT@format@year}[1]{\ifx#1\@empty\else\quad(#1)\fi}
-\newcommand{\NAT@format@item}[4]{\ifx#3\@empty[#2]\else#3\NAT@format@year#4\fi}
-\newcommand{\@NAT@format@cite}[3]{\ifx#2\@empty#1\else#2\NAT@format@year{#3}\fi}
-\newcommand{\NAT@format@cite}[1]
-{\@callsubst\NAT@args#1\@NAT@format@cite{\NAT@num}{\NAT@auth}{\NAT@year}}
+\newcommand{\NAT@warn}[1]{\hva@warn{natbib in hevea: #1}}
+%%%%%%%%%%%% Citation formating, two macros per style
+% #1 -> num, #2 author (short or long), #3 year.
+\newcommand{\NAT@extra}[1]
+{\def\@tmp{#1}\ifx\@tmp\@empty\relax\else\NAT@post{} #1\fi}
+\newcommand{\NAT@authoryear@p}[4]{#2\@aysep@cite{} #3\NAT@extra{#4}}
+\newcommand{\NAT@authoryear@t}[4]{#2 \NAT@open{}#3\NAT@extra{#4}\NAT@close}
+\newcommand{\NAT@numbers@p}[4]{#1\NAT@extra{#4}}
+\newcommand{\NAT@numbers@t}[4]{#2 \NAT@open{}#1\NAT@close\NAT@extra{#4}}
+\newcommand{\NAT@super@p}[4]{#1\NAT@extra{#4}}
+\newcommand{\NAT@super@t}[4]
+{#2\ensuremath{^{\mbox{\NAT@open{}#1\NAT@close}}}\NAT@extra{#4}}
+%%Citation formatting hook
+\newcommand{\@NAT@format@cite}{\csname NAT@\NAT@style{}@\NAT@pt\endcsname}
+\newcommand{\NAT@format@cite}[2]
+{\@callsubst\NAT@args#1%
+\@NAT@format@cite
+  {\NAT@num}
+  {\NAT@choose@author{\NAT@auth}{\NAT@long}}
+  {\NAT@year}{#2}}
 \newcommand{\NAT@args}[4]
-{\def\NAT@num{#1}\def\NAT@auth{#2}\def\NAT@year{#3}\def\NAT@long{#4}}
+{\def\NAT@num{#1}\def\NAT@year{#2}\def\NAT@auth{#3}\def\NAT@long{#4}}
+%%%
+\newcommand{\NAT@format@item}[4]
+{\ifx#3\@empty#2\else\NAT@item@hook{\NAT@authoryear@p{#2}{#3}{#4}}{[#2]}\fi}
 \def\NAT@bibitem#1(#2)#3(@)#4(@){%
 \NAT@write{{#4}}{\theheveabib}{#1}{#2}{#3}%
 \item[#4]}
@@ -13,18 +53,93 @@
   {\stepcounter{heveabib}\ifthenelse{\equal{#1}{!*!}}
     {\@callsubst{\NAT@bibitem}{()(@)#2(@)}}
     {\@callsubst{\NAT@bibitem}{#1(@)#2(@)}}}
+%%%% Default config used for tags in the bibliography itself
+\newcommand{\NAT@fst}[2]{#1}
+\newcommand{\NAT@snd}[2]{#2}
+\let\NAT@choose@author\NAT@fst
+\let\NAT@item@hook\NAT@fst
+%% Those can be configured
 \def\NAT@open{(}
 \def\NAT@close{)}
 \def\NAT@sep{,}
 \def\NAT@post{,}
-%%%% Hack
+\def\NAT@aysep{,}
+%shorcuts
+\newcommand{\NAT@square}{\def\NAT@open{[}\def\NAT@close{]}}
+\newcommand{\NAT@round}{\def\NAT@open{(}\def\NAT@close{)}}
+\newcommand{\NAT@curly}{\def\NAT@open{\{}\def\NAT@close{\}}}
+\newcommand{\NAT@angle}{\def\NAT@open{<}\def\NAT@close{>}}
+\newcommand{\NAT@comma}{\def\NAT@sep{,}}
+\newcommand{\NAT@semicolon}{\def\NAT@sep{;}}
+%%%
+\let\@aysep@cite\relax
+\let\NAT@yopen\NAT@open
+\let\NAT@yclose\NAT@close
+\let\NAT@finalhook\relax
+%%%% Hack \cite in fact has two optional arguments
+%%%% and may hooks that er parametrize below
 \let\hva@cite\cite
-\newcommand{\NAT@IN}[2]
+\newcommand{\NAT@IN}[5]
 {\begingroup%
 \def\@open@cite{#1}%
 \def\@close@cite{\NAT@OUT{#2}}%
 \let\@sep@cite\NAT@sep%
-\let\@post@cite\NAT@post}
-\newcommand{\NAT@OUT}[1]{#1\endgroup}
-\newcommand{\citep}{\NAT@IN{\NAT@open}{\NAT@close}\hva@cite}
-\newcommand{\citet}{\NAT@IN{\relax}{\relax}\hva@cite}
+\let\@post@cite\NAT@post%
+\let\@aysep@cite#3\let\NAT@yopen#4\let\NAT@yclose#5}
+\newcommand{\NAT@OUT}[1]{#1\endgroup\NAT@finalhook}
+\newcommand{\citep}
+  {\def\NAT@pt{p}
+  \NAT@IN{\NAT@open}{\NAT@close}{\NAT@aysep}{\relax}{\relax}\hva@cite}
+\newcommand{\citep*}
+  {\begingroup%
+   \let\NAT@choose@author\NAT@snd%
+   \let\NAT@finalhook\endgroup%
+   \citep}  
+\newcommand{\citet}
+  {\def\NAT@pt{t}%
+   \NAT@IN{\relax}{\relax}{\relax}{\NAT@open}{\NAT@close}\hva@cite}
+\newcommand{\citet*}
+  {\begingroup%
+   \let\NAT@choose@author\NAT@snd%
+   \let\NAT@finalhook\endgroup%
+   \citet}
+\renewcommand{\cite}
+{\hva@warn{\cite in natbib is deprecated -> \citet}\citet}
+%%%%%%%%%%%%
+%% Styles %%
+%%%%%%%%%%%%
+%%%Author / year, default style in some sense
+\newcommand{\NAT@authoryear}
+{\def\NAT@style{authoryear}%
+\let\NAT@item@hook\NAT@fst%
+\NAT@round\NAT@semicolon}
+%%%Numbers
+\newcommand{\NAT@numbers}
+{\def\NAT@style{numbers}%
+\let\NAT@item@hook\NAT@snd%
+\NAT@square\NAT@comma}
+%%%Super not implemented yet
+\newcommand{\NAT@super}{
+\def\NAT@style{super}%
+\let\NAT@item@hook\NAT@snd%
+\NAT@round\NAT@semicolon}
+%% Keyval interface
+\newcommand{\setcitestyle}[1]{\@setkeys{NAT}{#1}}
+%simple keys
+\define@key{NAT}{numbers}[]{\NAT@numbers}
+\define@key{NAT}{authoryear}[]{\NAT@authoryear}
+\define@key{NAT}{super}[]{\NAT@super}
+\define@key{NAT}{round}[]{\NAT@round}
+\define@key{NAT}{square}[]{\NAT@square}
+\define@key{NAT}{curly}[]{\NAT@curly}
+\define@key{NAT}{angle}[]{\NAT@angle}
+\define@key{NAT}{comma}[]{\NAT@comma}
+\define@key{NAT}{semicolon}[]{\NAT@semicolon}
+\define@key{NAT}{colon}[]{\NAT@semicolon}
+%keys with argument
+\define@key{NAT}{open}{\def\NAT@open{#1}}
+%%% Need that because natbib styles put strange things in .bbl files
+\providecommand{\penalty}[1]{}
+%%%
+\NAT@authoryear%default
+\ProcessOptions*%

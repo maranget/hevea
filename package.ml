@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.105 2007-05-22 16:34:10 maranget Exp $    *)
+(*  $Id: package.ml,v 1.106 2007-06-13 18:29:25 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -956,7 +956,9 @@ register_init "natbib"
         let year = subst_arg lexbuf in
         let long = subst_arg lexbuf in
         Auxx.bwrite key
-          ("{"^num^"}{"^auth^"}{"^year^"}{"^long^"}")) ;
+          (Printf.sprintf
+             "{%s}{%s}{{%s}}{{%s}}"
+             num year auth long)) ;
     def_code "\\NAT@bibread"
       (fun lexbuf ->
         let key = get_raw lexbuf in

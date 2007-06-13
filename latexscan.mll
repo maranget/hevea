@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.311 2007-06-06 18:24:19 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.312 2007-06-13 18:29:25 maranget Exp $ *)
 
 
 {
@@ -2675,9 +2675,9 @@ def_code "\\if@toplevel"
 
 
 (* Bibliographies *)
-let bib_ref s1 s2 =
+let bib_ref s1 s2 post =
   Auxx.swrite ("\\citation{"^s1^"}\n") ;
-  scan_this main ("\\@bibref{\\bibtag@hook{"^s1^"}}{"^s2^"}")
+  scan_this main ("\\@bibref{\\bibtag@hook{"^s1^"}}{"^s2^"}{"^post^"}")
 ;;
 
 let cite_arg key =
@@ -2694,7 +2694,6 @@ def_code "\\cite"
     let opt2 = subst_opt "" lexbuf in
     let has_opt2 = !optarg in
     check_alltt_skip lexbuf ; 
-    Printf.eprintf "opt1='%s', opt2='%s'\n" opt1 opt2 ;
     let args = save_cite_arg lexbuf in
     let args = Subst.subst_list args in
     scan_this main "\\@open@cite" ;
@@ -2705,26 +2704,22 @@ def_code "\\cite"
         Dest.put " "
       end
     end ;
+    let post =
+      let opt =
+        if has_opt1 && has_opt2 then Some opt2
+        else if has_opt1 then Some opt1
+        else None in
+      match opt with
+      | Some s -> s
+      | None   -> "" in
     let rec do_rec = function
         [] -> ()
-      | [x] -> bib_ref x (cite_arg x)
+      | [x] -> bib_ref x (cite_arg x) post
       | x::rest ->
-          bib_ref x (cite_arg x) ;
+          bib_ref x (cite_arg x) "" ;
           scan_this main "\\@sep@cite{} " ;
           do_rec rest in
     do_rec args ;
-    let opt =
-      if has_opt1 && has_opt2 then Some opt2
-      else if has_opt1 then Some opt1
-      else None in
-    begin match opt with
-    | Some opt ->
-      if opt <> "" then begin
-        scan_this main "\\@post@cite{} " ;
-        scan_this main opt ;
-      end
-    | None -> ()
-    end ;
     Dest.close_group () ;
     scan_this main "\\@close@cite")
 ;;

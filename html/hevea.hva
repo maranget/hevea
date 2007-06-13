@@ -235,7 +235,10 @@
 \renewcommand{\textless}{\ifraw\@print{<}\else\@print{&lt;}\fi}
 \renewcommand{\textgreater}{\ifraw\@print{>}\else\@print{&gt;}\fi}
 %%%%%%%%%%%% Bibliography
-\newcommand{\@bibref}[2]{\@locref{#1}{\ifx#2\@empty\@verbarg{#1}\else#2\fi}}
+\newcommand{\@bib@post}[1]
+{\ifthenelse{\equal{#1}{}}{}{\@post@cite{} #1}}
+\newcommand{\@bibref}[3]
+  {\@locref{#1}{\ifx#2\@empty\@verbarg{#1}\else#2\fi}\@bibpost{#3}}
 \newsavebox{\@bibbox}
 \newcommand{\@biblabel}[1]{\@locname{\bibtag@hook{#1}}{\purple[\@bibread{\bibtag@hook{#1}}]}}
 %%% Environment document.
