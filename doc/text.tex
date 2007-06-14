@@ -1202,7 +1202,7 @@ the definitions from \textit{file}\texttt{.hva} replace
 the definitions from \textit{file}\texttt{.sty} in the strict sense.
 
 
-\subsection{The \protect\texttt{hevea} package}\label{heveastyle}
+\subsection{The \label{heveastyle}\protect\texttt{hevea} package}
 The \texttt{hevea.sty} style file is intended to be loaded by \LaTeX{}
 and not by \hevea{}.
 It provides \LaTeX{} with means to ignore or process some parts of the
@@ -1213,6 +1213,10 @@ It is important to notice that the \texttt{hevea.sty} style file from
 the distribution is a \emph{package} in \LaTeXe{} terms and that it
 is not compatible with old \LaTeX{}. Moreover, the \texttt{hevea}
 package loads the \texttt{comment} package which must be present.
+Also notice that, for compatibility,
+\hevea{} reacts to
+\verb+\usepackage{hevea}+ by loading its own version
+of the \texttt{comment} package (Section~\ref{commentpack}).
 
 
 \subsubsection{Environments for selecting a translator}
@@ -6103,7 +6107,7 @@ remain undefined (\emph{e.g.} \verb+\varsubsetneqq+).
 \subsection{The \texttt{array} and \texttt{tabularx}
 packages}\label{arraypack}
 \ttindex{array}{package}\ttindex{tabularx}{package}%
-The \footahref{\ctan/required/tools/array.dtx}{\texttt{array}}
+The \ahref{\catalog/array.html}{\texttt{array}}
 package is described in
 \cite[Section~5.3]{latexbis} and in the local documentation of modern \LaTeX{}
 installations.
@@ -6198,7 +6202,7 @@ Thus, a column specification that is
 first defined in a \texttt{macro.hva} specific
 file, overrides the document definition.
 
-The \footahref{\ctan/required/tools/tabularx.dtx}{\texttt{tabularx}}
+The \ahref{\catalog/tabularx.html}{\texttt{tabularx}}
 package~\cite[Section~5.3.5]{latexbis} provides a new tabular
 environment \verb+tabularx+ and a new column type \verb+X+. \hevea{}
 makes the former equivalent to \verb+tabular+ and the latter
@@ -6222,9 +6226,8 @@ aspect.
 
 \subsection{The \texttt{calc}\label{calc} package}
 \ttindex{calc}{package}%
-\LaTeX{} \footahref{\ctan/required/tools/calc.dtx}{source} and documentation.
-
-This package enables using traditional, infix, notation for
+The \ahref{\catalog/calc.html}{\texttt{calc}}
+package enables using traditional, infix, notation for
 arithmetic operations
 inside the \textit{num} argument to the
 \verb+\setcounter{+\textit{name}\verb+}{+\textit{num}\verb+}+
@@ -6238,8 +6241,9 @@ of the \textit{len} argument to the \verb+\setlength+ and
 implement length registers in the first place.
 
 \subsection{Specifying \label{inputenc}the document input encoding, the \texttt{inputenc} package}
-\ttindex{inputenc}{package}
-The \texttt{inputenc} package enables \LaTeX{} to process a file
+\ttindex{inputenc}{package}%
+The \ahref{\catalog/inputenc.html}{\texttt{inputenc}}
+package enables \LaTeX{} to process a file
 according to various \emph{8~bits} encodings, plus \texttt{UTF-8}.
 The one used encoding is specified as an option while loading the package
 \verb+\usepackage[+\textit{encoding}\verb+]{inputenc}+.
@@ -6272,7 +6276,7 @@ producing \html{} pages in ascii:
 \usepackage[latin1]{inputenc}
 %HEVEA\@def@charset{US-ASCII}
 \end{verbatim}
-See Section~\ref{encodings} for a more thorough description of \html{}
+See section~\ref{encodings} for a more thorough description of \html{}
 charset management.
 
 \comdefindex{inputencoding}The \texttt{inputenc} package also provides the
@@ -6292,21 +6296,22 @@ encoding and charset.
 and \texttt{eurosym} (a nice \texteuro{} symbol in \LaTeX).
 
 
-\subsection{The \texttt{comment} package}
-\LaTeX{} \footahref{\ctan/contrib/comment/}{source}.
-
-The implementation for this package provides two commands,
+\subsection{The \texttt{comment}\label{commentpack} package}
+\ttindex{comment}{package}%
+The \ahref{\catalog/comment.html}{\texttt{comment}} package provides two commands,
 \verb+\excludecomment+ and \verb+\includecomment+, for (re-)defining
 new environments that ignore their content or that do nothing. The
 comment environment is also defined as an environment of the first
 kind.
 
+
+
 \subsection{Multiple Indexes with the \texttt{index} and
-\texttt{multind}\label{multind} package}
+\texttt{multind}\label{multind} packages}
 \ttindex{index}{package}\ttindex{multind}{package}%
 \hevea{} supports several simultaneous indexes, following the scheme
 of the
-\footahref{ftp://theory.lcs.mit.edu/pub/tex/index/}{\texttt{index}} package,
+\ahref{ftp://tug.ctan.org/pub/tex-archive/help/Catalogue/entries/index.html}{\texttt{index}} package,
 which is present in modern \LaTeX{} distributions.
 This scheme is backward compatible with the standard indexing scheme
 of \LaTeX.
@@ -6340,6 +6345,20 @@ output index whose tag is \textit{tag}. The {\it tag} argument
 defaults to \verb+default+.
 \end{description}
 
+The \ahref{\catalog/multind.html}{\texttt{multind}} package is
+supported to some extend, but \texttt{index} is definitely to be
+preferred.
+
+\subsection{``Natural'' bibliographies, the \texttt{natbib} package }
+\LaTeX{} \footahref{\catalog/natbib.html}{version of \texttt{natbib}}
+is present in modern installations.\ttindex{natbib}{package}
+
+Implementation is quite complete and compatible
+with version~8.0 of the \texttt{natbib} package
+(with the \texttt{keyval} style command \verb+\setcitestyle+).
+
+Unimplemented features are the sorting and compression of references
+and teh automatic indexing of citations.
 
 \subsection{Multiple bibliographies}
 
@@ -6432,7 +6451,7 @@ few files.
 
 \subsection{The \label{urlpackage}\texttt{url} package}
 \comdefindex{url}\index{hyperlinks}\ttindex{url}{package}%
-\LaTeX{} \footahref{\ctan/contrib/misc/url.sty}{source}.
+\LaTeX{} \footahref{\catalog/url.html}{source}.
 
 This package in fact provides a enhanced  \verb+\verb+ command that
 can appear inside other command arguments.
@@ -6507,16 +6526,16 @@ all arguments to \verb+\url+ are urls\ldots
 These two packages provide new commands and environments for
 processing verbatim text.
 I recommend using
-\footahref{\ctan/contrib/moreverb/}{\texttt{moreverb}}
+\ahref{\catalog/moreverb.html}{\texttt{moreverb}}
 rather than~\texttt{verbatim},
-since the \hevea~implementation is more advanced for the former package.
+since \hevea~implementation is more advanced for the former package.
 
 
 
 \subsection{Typesetting \label{listings:package}computer languages: the \texttt{listings} package}
 \ttindex{listings}{package}%
 I strongly recommend the
-\footahref{\ctan/contrib/listings/}{\texttt{listings}} package.
+\ahref{\catalog/listings.html}{\texttt{listings}} package.
 Learning the user interface requires a little effort, but it is worth
 it.
 
@@ -6632,13 +6651,13 @@ display indeed possesses the linebreaks shown in display.
 
 
 \subsection{(Non-)Multipage tabular material}
-\ttindex{longtable}{package}\ttindex{supertabular}{package}
-\LaTeX{} source
+\ttindex{longtable}{package}\ttindex{supertabular}{package}%
+\ifhevea\LaTeX{} source
 for the
-\footahref{\ctan/required/tools/longtable.dtx}{\texttt{longtable}}
+\footahref{\catalog/longtable.html}{\texttt{longtable}}
 and 
-\footahref{\ctan/contrib/supertabular/}{\texttt{supertabular}}
-packages.
+\footahref{\catalog/supertabular.html}{\texttt{supertabular}}
+packages.\fi
 
 Those two packages provide \LaTeX{} users with the
 possibility to typeset tabular material over several
@@ -6650,8 +6669,7 @@ as \texttt{tabular} environments inside \texttt{table} environments.
 
 \subsection{Typesetting inference rules: the
 \label{mathpartir:package} \aname{mathpartir}{\texttt{mathpartir}} package}
-\ttindex{mathpartir}{package}
-
+\ttindex{mathpartir}{package}\index{inference rules}%
 The \texttt{mathpartir} package, authored by D.~R\'emy, essentially
 provides two features:
 \begin{enumerate}
