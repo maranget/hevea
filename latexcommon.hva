@@ -393,9 +393,12 @@
      {\input{\jobname.bbl}}
      {}}}
 \newcommand{\bibstyle}[1]{}
-\newcommand{\bibliographystyle}[1]
+\newcommand{\@bibliographystyle}[1]
 {\@auxdowrite{\@print{\bibstyle}\{\@getprint{#1}\}
 }}
+\newcommand{\bibliographystyle}[1]
+{\AtBeginDocument{\@bibliographystyle{#1}}}
+\AtBeginDocument{\let\bibliographystyle\@bibliographystyle}
 \newcommand{\citation}[1]{}
 \newcommand{\nocite}[1]
 {\@auxdowrite{\@print{\citation}\{\@getprint{#1}\}
@@ -416,10 +419,14 @@
   {\ifthenelse{\equal{#1}{!*!}}
     {\stepcounter{heveabib}\@bibwrite{\theheveabib}{\bibtag@hook{#2}}}
     {\@bibwrite{#1}{\bibtag@hook{#2}}}\item[#2]}
-\newcommand{\@open@cite}{[}
+\newcommand{\@open@cite@one}{[}
+\newcommand{\@open@cite@two}{}
+\newcommand{\@cite@pre}[1]{}
 \newcommand{\@close@cite}{]}
 \newcommand{\@sep@cite}{,}
+\newcommand{\@sep@cite@space}{ }
 \newcommand{\@post@cite}{,}
+\newcommand{\@bib@post}[1]{\ifthenelse{\equal{#1}{}}{}{\@post@cite{} #1}}
 %%%%%%%%%%% Footnotes
 \newcommand{\@footnotelevel}{document}%
 \newcommand{\flushdef}[1]{\def\@footnotelevel{#1}}

@@ -91,7 +91,7 @@
 \@close{ALIGN}%
 \global\let\maketitle\relax}
 %%%%%%%%%%%% Bibliography
-\newcommand{\@bibref}[2]{#2}
+\newcommand{\@bibref}[3]{#2\@bib@post{#3}}
 \newcommand{\@biblabel}[1]{[\@bibread{#1}]}
 %%%%%%%%%%%%%%%%%%%%%%%%
 % Document environment %

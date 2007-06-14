@@ -1,18 +1,21 @@
 \ProvidesPackage{natbib}
 \RequirePackage{keyval}
 %% Options
-\DeclareOption{numbers}{\NAT@numbers}
-\DeclareOption{super}{\NAT@super}
-\DeclareOption{authoryear}{\NAT@authoryear}
-\DeclareOption{round}{\NAT@round}
-\DeclareOption{square}{\NAT@square}
-\DeclareOption{angle}{\NAT@angle}
-\DeclareOption{curly}{\NAT@curly}
-\DeclareOption{comma}{\NAT@comma}
-\DeclareOption{semicolon}{\NAT@semicolon}
-\DeclareOption{colon}{\NAT@semicolon}
-\DeclareOption{nobibstyle}{}%undocumented, what does it do ?
-\DeclareOption{bibstyle}{}%undocumented, what does it do ?
+\DeclareOption{numbers}
+  {\NAT@numbers\NAT@square\NAT@comma\NAT@nobibstyle}
+\DeclareOption{super}
+  {\NAT@super\def\NAT@open{}\def\NAT@close{}\NAT@nobibstyle}
+\DeclareOption{authoryear}
+  {\NAT@authoryear\NAT@round\NAT@semicolon\NAT@bibstyle}
+\DeclareOption{round}{\NAT@round\NAT@nobibstyle}
+\DeclareOption{square}{\NAT@square\NAT@nobibstyle}
+\DeclareOption{angle}{\NAT@angle\NAT@nobibstyle}
+\DeclareOption{curly}{\NAT@curly\NAT@nobibstyle}
+\DeclareOption{comma}{\NAT@comma\NAT@nobibstyle}
+\DeclareOption{semicolon}{\NAT@semicolon\NAT@nobibstyle}
+\DeclareOption{colon}{\NAT@semicolon\NAT@nobibstyle}
+\DeclareOption{nobibstyle}{\NAT@nobibstyle}
+\DeclareOption{bibstyle}{\NAT@bibstyle}
 \DeclareOption{openbib}{}%undocumented, what does it do ?
 \DeclareOption{sectionbib}{}%useless, chapterbib does the job
 %%%Not implemented, ignore silently
@@ -20,8 +23,50 @@
 \DeclareOption{compress}{}
 \DeclareOption{sort&compress}{}
 %%%%%%%%%%%%
+\newcommand{\NAT@bibstyle}{\let\bibstyle\@citestyle}
+\newcommand{\NAT@nobibstyle}{\let\bibstyle\@gobble}
 \@primitives{natbib}
 \newcommand{\NAT@warn}[1]{\hva@warn{natbib in hevea: #1}}
+\newif\ifNAT@super
+%%%%%%%%%%% Automatic bibstyle (excerpt from natbib.sty)
+ % Define citation punctuation for some author-year styles
+ % One may add and delete at this point
+ % Or put additions into local configuration file natbib.cfg
+\newcommand\bibstyle@chicago{\bibpunct{(}{)}{;}{a}{,}{,}}
+\newcommand\bibstyle@named{\bibpunct{[}{]}{;}{a}{,}{,}}
+\newcommand\bibstyle@agu{\bibpunct{[}{]}{;}{a}{,}{,~}}%Amer. Geophys. Union
+\newcommand\bibstyle@copernicus{\bibpunct{(}{)}{;}{a}{,}{,}}%Copernicus Publications
+\let\bibstyle@egu=\bibstyle@copernicus
+\let\bibstyle@egs=\bibstyle@copernicus
+\newcommand\bibstyle@agsm{\bibpunct{(}{)}{,}{a}{}{,}\gdef\harvardand{\&}}
+\newcommand\bibstyle@kluwer{\bibpunct{(}{)}{,}{a}{}{,}\gdef\harvardand{\&}}
+\newcommand\bibstyle@dcu{\bibpunct{(}{)}{;}{a}{;}{,}\gdef\harvardand{and}}
+\newcommand\bibstyle@aa{\bibpunct{(}{)}{;}{a}{}{,}} %Astronomy & Astrophysics
+\newcommand\bibstyle@pass{\bibpunct{(}{)}{;}{a}{,}{,}}%Planet. & Space Sci
+\newcommand\bibstyle@anngeo{\bibpunct{(}{)}{;}{a}{,}{,}}%Annales Geophysicae
+\newcommand\bibstyle@nlinproc{\bibpunct{(}{)}{;}{a}{,}{,}}%Nonlin.Proc.Geophys.
+ % Define citation punctuation for some numerical styles
+\newcommand\bibstyle@cospar{\bibpunct{/}{/}{,}{n}{}{}%
+     \gdef\bibnumfmt##1{##1.}}
+\newcommand\bibstyle@esa{\bibpunct{(Ref.~}{)}{,}{n}{}{}%
+     \gdef\bibnumfmt##1{##1.\hspace{1em}}}
+\newcommand\bibstyle@nature{\bibpunct{}{}{,}{s}{}{\textsuperscript{,}}%
+     \gdef\bibnumfmt##1{##1.}}
+ % The standard LaTeX styles
+\newcommand\bibstyle@plain{\bibpunct{[}{]}{,}{n}{}{,}}
+\let\bibstyle@alpha=\bibstyle@plain
+\let\bibstyle@abbrv=\bibstyle@plain
+\let\bibstyle@unsrt=\bibstyle@plain
+ % The author-year modifications of the standard styles
+\newcommand\bibstyle@plainnat{\bibpunct{[}{]}{,}{a}{,}{,}}
+\let\bibstyle@abbrvnat=\bibstyle@plainnat
+\let\bibstyle@unsrtnat=\bibstyle@plainnat
+%%%Bibstyle definition
+\renewcommand\bibstyle[1]{\@ifundefined{bibstyle@#1}{\relax}
+     {\csname bibstyle@#1\endcsname}}
+\AtBeginDocument{\global\let\bibstyle=\@gobble}
+\let\@citestyle\bibstyle
+\newcommand\citestyle[1]{\@citestyle{#1}\let\bibstyle\@gobble}
 %%%%%%%%%%%% Citation formating, two macros per style
 % #1 -> num, #2 author (short or long), #3 year.
 \newcommand{\NAT@extra}[1]
@@ -32,7 +77,17 @@
 \newcommand{\NAT@numbers@t}[4]{#2 \NAT@open{}#1\NAT@close\NAT@extra{#4}}
 \newcommand{\NAT@super@p}[4]{#1\NAT@extra{#4}}
 \newcommand{\NAT@super@t}[4]
-{#2\ensuremath{^{\mbox{\NAT@open{}#1\NAT@close}}}\NAT@extra{#4}}
+{#2\ensuremath{^{\mbox{\NAT@yopen{}#1\NAT@yclose}}}\NAT@extra{#4}}
+%%\citenum,\citeauthor..
+\newcommand{\NAT@authoryear@n}[4]{#1}
+\newcommand{\NAT@numbers@n}[4]{#1}
+\newcommand{\NAT@super@n}[4]{#1}
+\newcommand{\NAT@authoryear@a}[4]{#2}
+\newcommand{\NAT@numbers@a}[4]{#2}
+\newcommand{\NAT@super@a}[4]{#2}
+\newcommand{\NAT@authoryear@y}[4]{#3}
+\newcommand{\NAT@numbers@y}[4]{#3}
+\newcommand{\NAT@super@y}[4]{#3}
 %%Citation formatting hook
 \newcommand{\@NAT@format@cite}{\csname NAT@\NAT@style{}@\NAT@pt\endcsname}
 \newcommand{\NAT@format@cite}[2]
@@ -42,10 +97,13 @@
   {\NAT@choose@author{\NAT@auth}{\NAT@long}}
   {\NAT@year}{#2}}
 \newcommand{\NAT@args}[4]
-{\def\NAT@num{#1}\def\NAT@year{#2}\def\NAT@auth{#3}\def\NAT@long{#4}}
+{\def\NAT@num{#1}\def\NAT@year{#2}\def\NAT@auth{#3}%
+\ifthenelse{\equal{#4}{}}{\let\NAT@long\NAT@auth}{\def\NAT@long{#4}}}
 %%%
+\newcommand{\bibnumfmt}[1]{[#1]}
 \newcommand{\NAT@format@item}[4]
-{\ifx#3\@empty#2\else\NAT@item@hook{\NAT@authoryear@p{#2}{#3}{#4}}{[#2]}\fi}
+{\ifx#3\@empty#2\else
+\NAT@item@hook{\NAT@authoryear@p{#2}{#3}{#4}}{\bibnumfmt{#2}}\fi}
 \def\NAT@bibitem#1(#2)#3(@)#4(@){%
 \NAT@write{{#4}}{\theheveabib}{#1}{#2}{#3}%
 \item[#4]}
@@ -55,7 +113,7 @@
     {\@callsubst{\NAT@bibitem}{#1(@)#2(@)}}}
 %%%% Default config used for tags in the bibliography itself
 \newcommand{\NAT@fst}[2]{#1}
-\newcommand{\NAT@snd}[2]{#2}
+\newcommand{\NAT@snd}[2]{\hva@warn{SND '#1' '#2'}#2}
 \let\NAT@choose@author\NAT@fst
 \let\NAT@item@hook\NAT@fst
 %% Those can be configured
@@ -76,17 +134,30 @@
 \let\NAT@yopen\NAT@open
 \let\NAT@yclose\NAT@close
 \let\NAT@finalhook\relax
+\newcommand{\NAT@neutral}
+  {\let\NAT@open@super\relax
+   \let\NAT@close@super\relax\let\@cite@pre\NAT@addsp
+   \NAT@superfalse}
+\newcommand{\NAT@addsp}[1]{#1~}
+\newcommand{\NAT@id}[1]{#1}
+\NAT@neutral
+\let\NAT@finalhook\relax
 %%%% Hack \cite in fact has two optional arguments
 %%%% and may hooks that er parametrize below
 \let\hva@cite\cite
 \newcommand{\NAT@IN}[5]
-{\begingroup%
-\def\@open@cite{#1}%
+{\ifNAT@super
+\def\@open@cite@one{}%
+\def\@open@cite@two{\NAT@open@super{}#1}%
+\else
+\def\@open@cite@one{#1}%
+\let\@open@cite@two\relax
+\fi
 \def\@close@cite{\NAT@OUT{#2}}%
 \let\@sep@cite\NAT@sep%
 \let\@post@cite\NAT@post%
 \let\@aysep@cite#3\let\NAT@yopen#4\let\NAT@yclose#5}
-\newcommand{\NAT@OUT}[1]{#1\endgroup\NAT@finalhook}
+\newcommand{\NAT@OUT}[1]{\NAT@close@super{}#1\NAT@finalhook}
 \newcommand{\citep}
   {\def\NAT@pt{p}
   \NAT@IN{\NAT@open}{\NAT@close}{\NAT@aysep}{\relax}{\relax}\hva@cite}
@@ -95,14 +166,55 @@
    \let\NAT@choose@author\NAT@snd%
    \let\NAT@finalhook\endgroup%
    \citep}  
+\newcommand{\citealp}
+  {\def\NAT@pt{p}
+  \NAT@IN{\relax}{\relax}{\NAT@aysep}{\relax}{\relax}\hva@cite}
+\newcommand{\citealp*}
+  {\begingroup%
+   \let\NAT@choose@author\NAT@snd%
+   \let\NAT@finalhook\endgroup%
+   \citealp}
 \newcommand{\citet}
-  {\def\NAT@pt{t}%
-   \NAT@IN{\relax}{\relax}{\relax}{\NAT@open}{\NAT@close}\hva@cite}
+  {\def\NAT@pt{t}\NAT@neutral\def\@sep@cite@space{ }
+   \NAT@IN{\relax}{\relax}{\relax}{\NAT@open}{\NAT@close}%
+   \hva@cite}
 \newcommand{\citet*}
   {\begingroup%
    \let\NAT@choose@author\NAT@snd%
    \let\NAT@finalhook\endgroup%
    \citet}
+\newcommand{\citealt}
+  {\def\NAT@pt{t}\NAT@neutral\def\@sep@cite@space{ }
+   \NAT@IN{\relax}{\relax}{\relax}{\relax}{\relax}%
+   \hva@cite}
+\newcommand{\citealt*}
+  {\begingroup%
+  \let\NAT@choose@author\NAT@snd%
+  \let\NAT@finalhook\endgroup%
+  \citealt}
+\newcommand{\citenum}
+  {\def\NAT@pt{n}\NAT@neutral\def\@sep@cite@space{}
+  \NAT@IN{\relax}{\relax}{\relax}{\relax}{\relax}%
+  \hva@cite}
+\newcommand{\citeauthor}
+  {\def\NAT@pt{a}\NAT@neutral\def\@sep@cite@space{ }
+  \NAT@IN{\relax}{\relax}{\relax}{\relax}{\relax}%
+  \hva@cite}
+\newcommand{\citeauthor*}
+  {\begingroup%
+  \let\NAT@choose@author\NAT@snd%
+  \let\NAT@finalhook\endgroup%
+  \citeauthor}
+\let\citefullauthor\citeauthor*
+\newcommand{\citeyear}
+  {\def\NAT@pt{y}\NAT@neutral\def\@sep@cite@space{ }
+  \NAT@IN{\relax}{\relax}{\relax}{\relax}{\relax}%
+  \hva@cite}
+\newcommand{\citeyearpar}
+  {\def\NAT@pt{y}\NAT@neutral\def\@sep@cite@space{ }
+  \NAT@IN{\NAT@open}{\NAT@close}{\relax}{\relax}{\relax}%
+  \hva@cite}
+\newcommand{\citetext}[1]{\NAT@open{}#1\NAT@close}
 \renewcommand{\cite}
 {\hva@warn{\cite in natbib is deprecated -> \citet}\citet}
 %%%%%%%%%%%%
@@ -110,21 +222,32 @@
 %%%%%%%%%%%%
 %%%Author / year, default style in some sense
 \newcommand{\NAT@authoryear}
-{\def\NAT@style{authoryear}%
-\let\NAT@item@hook\NAT@fst%
-\NAT@round\NAT@semicolon}
+{\def\NAT@style{authoryear}\NAT@superfalse%
+\def\@sep@cite@space{ }\let\NAT@item@hook\NAT@fst\NAT@neutral}
 %%%Numbers
 \newcommand{\NAT@numbers}
-{\def\NAT@style{numbers}%
-\let\NAT@item@hook\NAT@snd%
-\NAT@square\NAT@comma}
-%%%Super not implemented yet
+{\def\NAT@style{numbers}\NAT@superfalse
+\let\@sep@cite@space\@empty\let\NAT@item@hook\NAT@snd\NAT@neutral}
+%%%Super not fully implemented yet
+\newif\ifNAT@closed
+\newcommand{\@NAT@os}{\@style{SUP}}
+\newcommand{\@NAT@cs}{}
 \newcommand{\NAT@super}{
-\def\NAT@style{super}%
+\def\NAT@style{super}\NAT@supertrue
 \let\NAT@item@hook\NAT@snd%
-\NAT@round\NAT@semicolon}
+\let\@sep@cite@space\@empty%
+\let\NAT@open@super\@NAT@os\let\NAT@close@super\@NAT@cs\let\@cite@pre\NAT@id}
+%% \bibpunct command, arg #8 ignored
+\newcommand{\bibpunct}[7][, ]
+{\def\NAT@post{#1}%
+\def\NAT@open{#2}\def\NAT@close{#3}\def\NAT@sep{#4}%
+\ifthenelse{\equal{#5}{n}}{\NAT@numbers}
+  {\ifthenelse{\equal{#5}{s}}{\NAT@super}
+    {\NAT@authoryear}}
+\def\NAT@aysep{#6}%
+\let\bibstyle\@gobble}
 %% Keyval interface
-\newcommand{\setcitestyle}[1]{\@setkeys{NAT}{#1}}
+\newcommand{\setcitestyle}[1]{\@setkeys{NAT}{#1}\let\bibstyle\@gobble}
 %simple keys
 \define@key{NAT}{numbers}[]{\NAT@numbers}
 \define@key{NAT}{authoryear}[]{\NAT@authoryear}
@@ -138,6 +261,7 @@
 \define@key{NAT}{colon}[]{\NAT@semicolon}
 %keys with argument
 \define@key{NAT}{open}{\def\NAT@open{#1}}
+\define@key{NAT}{close}{\def\NAT@close{#1}}
 %%% Need that because natbib styles put strange things in .bbl files
 \providecommand{\penalty}[1]{}
 %%%

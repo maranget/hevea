@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.312 2007-06-13 18:29:25 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.313 2007-06-14 07:43:29 maranget Exp $ *)
 
 
 {
@@ -2696,14 +2696,14 @@ def_code "\\cite"
     check_alltt_skip lexbuf ; 
     let args = save_cite_arg lexbuf in
     let args = Subst.subst_list args in
-    scan_this main "\\@open@cite" ;
-    Dest.open_group "CITE" ;
+    Dest.open_group "" ;
+    scan_this main "\\@open@cite@one" ;
     if has_opt1 && has_opt2 then begin
       if opt1 <> "" then begin
-        scan_this main opt1 ;
-        Dest.put " "
+        scan_this main ("\\@cite@pre{"^opt1^"}")
       end
     end ;
+    scan_this main "\\@open@cite@two" ;
     let post =
       let opt =
         if has_opt1 && has_opt2 then Some opt2
@@ -2717,11 +2717,11 @@ def_code "\\cite"
       | [x] -> bib_ref x (cite_arg x) post
       | x::rest ->
           bib_ref x (cite_arg x) "" ;
-          scan_this main "\\@sep@cite{} " ;
+          scan_this main "\\@sep@cite\\@sep@cite@space" ;
           do_rec rest in
     do_rec args ;
-    Dest.close_group () ;
-    scan_this main "\\@close@cite")
+    scan_this main "\\@close@cite" ;
+    Dest.close_group ())
 ;;
 
 (* Includes *)

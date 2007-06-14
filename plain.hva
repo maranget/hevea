@@ -2,6 +2,7 @@
 \newcommand{\relax}{}
 \newcommand{\@empty}{}
 \newcommand{\@gooble}[1]{}
+\let\@gobble\@gooble
 %%%%%% Iter #1 on #3, a #2 separated list of non-empty elements
 \def\@iter
   #1#2#3{%

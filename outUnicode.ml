@@ -102,8 +102,8 @@ let translate_utf8_in c next = match c with
       cannot();
     if (p >= 0xfffe && p <= 0xffff) then cannot();
     p
-| ('\240'..'\247' as x) ->
-    let n1 = Char.code x in
+| '\240'..'\247' ->
+    let n1 = Char.code c in
     let n2 = next () in
     let n3 = next () in
     let n4 = next () in
