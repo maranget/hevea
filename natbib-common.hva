@@ -22,16 +22,16 @@
 \DeclareOption{sort}{}
 \DeclareOption{compress}{}
 \DeclareOption{sort&compress}{}
-%%%%%%%%%%%%
-\newcommand{\NAT@bibstyle}{\let\bibstyle\@citestyle}
-\newcommand{\NAT@nobibstyle}{\let\bibstyle\@gobble}
+%%
 \@primitives{natbib}
 \newcommand{\NAT@warn}[1]{\hva@warn{natbib in hevea: #1}}
 \newif\ifNAT@super
-%%%%%%%%%%% Automatic bibstyle (excerpt from natbib.sty)
- % Define citation punctuation for some author-year styles
- % One may add and delete at this point
- % Or put additions into local configuration file natbib.cfg
+\newcommand{\NAT@bibstyle}{\let\bibstyle\@citestyle}
+\newcommand{\NAT@nobibstyle}{\let\bibstyle\@gobble}
+% Automatic bibstyle (excerpt from natbib.sty)
+% Define citation punctuation for some author-year styles
+% One may add and delete at this point
+% Or put additions into local configuration file natbib.cfg
 \newcommand\bibstyle@chicago{\bibpunct{(}{)}{;}{a}{,}{,}}
 \newcommand\bibstyle@named{\bibpunct{[}{]}{;}{a}{,}{,}}
 \newcommand\bibstyle@agu{\bibpunct{[}{]}{;}{a}{,}{,~}}%Amer. Geophys. Union
@@ -107,7 +107,7 @@
 \newcommand{\bibnumfmt}[1]{[#1]}
 \newcommand{\NAT@format@item}[4]
 {\ifx#3\@empty#2\else
-\NAT@item@hook{\NAT@authoryear@p{#2}{#3}{#4}{}}{\bibnumfmt{#2}}\fi}
+\NAT@item@hook{\NAT@authoryear@t{#2}{#3}{#4}{}}{\bibnumfmt{#2}}\fi}
 \def\NAT@bibitem#1(#2)#3(@)#4(@){%
 \NAT@write{{#4}}{\theheveabib}{#1}{#2}{#3}%
 \item[#4]}
@@ -161,7 +161,7 @@
 \let\@sep@cite\NAT@sep%
 \let\@post@cite\NAT@post%
 \let\@aysep@cite#3\let\NAT@yopen#4\let\NAT@yclose#5}
-\newcommand{\NAT@OUT}[1]{\NAT@close@super{}#1\endgroup\NAT@finalhook}
+\newcommand{\NAT@OUT}[1]{\NAT@close@super{}#1\endgroup{}\NAT@finalhook}
 \newcommand{\citep}
   {\begingroup\def\NAT@pt{p}%
   \NAT@IN{\NAT@open}{\NAT@close}{\NAT@aysep}{\relax}{\relax}\hva@cite}
@@ -221,8 +221,9 @@
 \newcommand{\citetext}[1]{\NAT@open{}#1\NAT@close}
 \renewcommand{\cite}
 {\hva@warn{\cite in natbib is deprecated -> \citet}\citet}
-%% Aliases
-\newcommand{\defcitealias}[2]{\def\csname NAT@alias@#1\endcsname{#2}}
+%% Aliases, the explicit \bibtaghook is for chapterbib compatibility
+\newcommand{\defcitealias}[2]
+  {\def\csname NAT@alias@\bibtaghook{#1}\endcsname{#2}}
 \newcommand{\NAT@getalias}[1]
   {\@ifundefined{NAT@alias@#1}
      {\NAT@warn{undefined alias '#1'}}
@@ -238,7 +239,18 @@
   \NAT@IN{\NAT@open}{\NAT@close}{\relax}{\relax}{\relax}%
   \hva@cite}
 %%%%%%%%%%%%
-%% Styles %%
+%% Modes  %%
+%%%%%%%%%%%%
+\newif\ifciteindex\citeindexfalse
+\newcommand{\citeindextype}{default}
+\newcommand{\NAT@idxtxt}
+  {\NAT@auth\NAT@aysep{} \NAT@open{}\NAT@year\NAT@close}
+\newcommand{\NATfmtindex}[1]
+{\NAT@bibread{#1}\NAT@format@item{#1}{\NAT@num}{\NAT@auth}{\NAT@year}}
+\newcommand{\NAT@index}[1]
+{\@@@indexwrite[\citeindextype]{#1}{\NATfmtindex{#1}}{\@indexlabel}}
+%%%%%%%%%%%%
+%% Modes  %%
 %%%%%%%%%%%%
 %%%Author / year, default style in some sense
 \newcommand{\NAT@authoryear}

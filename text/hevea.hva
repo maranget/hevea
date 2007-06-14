@@ -92,7 +92,7 @@
 \global\let\maketitle\relax}
 %%%%%%%%%%%% Bibliography
 \newcommand{\@bibref}[3]{#2\@bib@post{#3}}
-\newcommand{\@biblabel}[1]{[\@bibread{#1}]}
+\newcommand{\@biblabel}[1]{[\@bibread{\bibtaghook{#1}}]}
 %%%%%%%%%%%%%%%%%%%%%%%%
 % Document environment %
 %%%%%%%%%%%%%%%%%%%%%%%%

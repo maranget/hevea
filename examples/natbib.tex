@@ -1,10 +1,12 @@
 \documentclass{article}
 \usepackage{a4}
 \usepackage{url}
+\usepackage{index}
 \usepackage{natbib}
 \title{The so-called ``natural''  bibliographies}
 \author{}
 \date{}
+\makeindex\citeindextrue
 \begin{document}\maketitle
 \bibliographystyle{plainnat}
 \newcommand{\zyva}
@@ -36,7 +38,11 @@
 \section*{Default, from \texttt{.bst} file \texttt{plainnat}}
 \zyva
 
+\citeindexfalse
 \bibliography{natbib}
+\citeindextrue
+\printindex
+
 
 \subsection*{A few other comands}
 \defcitealias{AppliedPi}{Applied~$\pi$}Now we

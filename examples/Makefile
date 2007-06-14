@@ -1,5 +1,6 @@
 LATEX=latex
 HEVEA=hevea
+BIBHVA=bibhva
 HEVEAOPTS=-fix -O
 HACHA=hacha
 EXDIR=$(HOME)/public_html/hevea/examples
@@ -11,12 +12,14 @@ INFO=$(TEXT:.txt=.info)
 
 
 all: dvi html text info
-opt:	export HEVEADIR=.. ;\
-	$(MAKE) $(MFLAGS) HEVEAOPTS="$(HEVEAOPTS)" HEVEA=../hevea.opt HACHA=../hacha.opt all
+
+opt:
+	export HEVEADIR=.. ;\
+	$(MAKE) $(MFLAGS) HEVEAOPTS="$(HEVEAOPTS)" HEVEA=../hevea.opt HACHA=../hacha.opt BIBHVA=../bibhva.opt all
 
 byte:
 	export HEVEADIR=.. ;\
-	$(MAKE) $(MFLAGS)  HEVEAOPTS="$(HEVEAOPTS)" HEVEA=../hevea.byte HACHA=../hacha.byte html
+	$(MAKE) $(MFLAGS)  HEVEAOPTS="$(HEVEAOPTS)" HEVEA=../hevea.byte HACHA=../hacha.byte BIBHVA=../bibhva.byte html
 
 dvi: $(DVI)
 
@@ -27,7 +30,7 @@ sym.html:sym.tex st.hva
 
 natbib.html: natbib.tex
 	$(HEVEA) -fix $(HEVEAOPTS) natbib.tex
-	bibhva natbib
+	$(BIBHVA) natbib
 	$(HEVEA) -fix $(HEVEAOPTS) natbib.tex
 
 test: $(SUITE) cart-index.html cbook-index.html
@@ -59,7 +62,11 @@ clean:: clean-test
 TOPTS=winfonts.hva
 byte-test:
 	export HEVEADIR=.. ;\
-	$(MAKE) $(MFLAGS)  HEVEAOPTS="$(TOPTS) $(HEVEAOPTS)" HEVEA=../hevea.byte HACHA=../hacha.byte test
+	$(MAKE) $(MFLAGS)  HEVEAOPTS="$(TOPTS) $(HEVEAOPTS)" HEVEA=../hevea.byte HACHA=../hacha.byte BIBHVA=../bibhva.byte test
+
+opt-test:
+	export HEVEADIR=.. ;\
+	$(MAKE) $(MFLAGS)  HEVEAOPTS="$(TOPTS) $(HEVEAOPTS)" HEVEA=../hevea.opt HACHA=../hacha.opt BIBHVA=../bibhva.opt test
 
 
 

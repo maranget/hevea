@@ -11,7 +11,7 @@
 \let\chapterbib@thebibliography\thebibliography
 \renewcommand{\thebibliography}[1]
 {\setcounter{heveabib}{0}\chapterbib@thebibliography{#1}}
-\renewcommand{\bibtag@hook}[1]
+\renewcommand{\bibtaghook}[1]
 {\@ifundefined{chapterbib@include@name}{#1}{#1@\thechap@included}}
 \newcommand{\sectionbib}[2]
 {\renewcommand{\@bibliosection}[1]{#1{\aname{bib:chap\thechap@included}{##1}}}%

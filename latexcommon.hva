@@ -414,11 +414,11 @@
   \setlistclass{thebibliography}%
   \begin{list}{\stepcounter{heveabib}\theheveabib}{\let\makelabel\@biblabel}}
   {\end{list}}
-\newcounter{heveabib}\newcommand{\bibtag@hook}[1]{#1}%
+\newcounter{heveabib}\newcommand{\bibtaghook}[1]{#1}%
 \newcommand{\bibitem}[2][!*!]
   {\ifthenelse{\equal{#1}{!*!}}
-    {\stepcounter{heveabib}\@bibwrite{\theheveabib}{\bibtag@hook{#2}}}
-    {\@bibwrite{#1}{\bibtag@hook{#2}}}\item[#2]}
+    {\stepcounter{heveabib}\@bibwrite{\theheveabib}{\bibtaghook{#2}}}
+    {\@bibwrite{#1}{\bibtaghook{#2}}}\item[#2]}
 \newcommand{\@open@cite@one}{[}
 \newcommand{\@open@cite@two}{}
 \newcommand{\@cite@pre}[1]{}
