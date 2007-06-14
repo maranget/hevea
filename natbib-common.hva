@@ -71,31 +71,35 @@
 % #1 -> num, #2 author (short or long), #3 year.
 \newcommand{\NAT@extra}[1]
 {\def\@tmp{#1}\ifx\@tmp\@empty\relax\else\NAT@post{} #1\fi}
-\newcommand{\NAT@authoryear@p}[4]{#2\@aysep@cite{} #3\NAT@extra{#4}}
-\newcommand{\NAT@authoryear@t}[4]{#2 \NAT@open{}#3\NAT@extra{#4}\NAT@close}
-\newcommand{\NAT@numbers@p}[4]{#1\NAT@extra{#4}}
-\newcommand{\NAT@numbers@t}[4]{#2 \NAT@open{}#1\NAT@close\NAT@extra{#4}}
-\newcommand{\NAT@super@p}[4]{#1\NAT@extra{#4}}
-\newcommand{\NAT@super@t}[4]
+\newcommand{\NAT@authoryear@p}[5]{#2\@aysep@cite{} #3\NAT@extra{#4}}
+\newcommand{\NAT@authoryear@t}[5]{#2 \NAT@open{}#3\NAT@extra{#4}\NAT@close}
+\newcommand{\NAT@numbers@p}[5]{#1\NAT@extra{#4}}
+\newcommand{\NAT@numbers@t}[5]{#2 \NAT@open{}#1\NAT@close\NAT@extra{#4}}
+\newcommand{\NAT@super@p}[5]{#1\NAT@extra{#4}}
+\newcommand{\NAT@super@t}[5]
 {#2\ensuremath{^{\mbox{\NAT@yopen{}#1\NAT@yclose}}}\NAT@extra{#4}}
 %%\citenum,\citeauthor..
-\newcommand{\NAT@authoryear@n}[4]{#1}
-\newcommand{\NAT@numbers@n}[4]{#1}
-\newcommand{\NAT@super@n}[4]{#1}
-\newcommand{\NAT@authoryear@a}[4]{#2}
-\newcommand{\NAT@numbers@a}[4]{#2}
-\newcommand{\NAT@super@a}[4]{#2}
-\newcommand{\NAT@authoryear@y}[4]{#3}
-\newcommand{\NAT@numbers@y}[4]{#3}
-\newcommand{\NAT@super@y}[4]{#3}
+\newcommand{\NAT@authoryear@n}[5]{#1}
+\newcommand{\NAT@numbers@n}[5]{#1}
+\newcommand{\NAT@super@n}[5]{#1}
+\newcommand{\NAT@authoryear@a}[5]{#2}
+\newcommand{\NAT@numbers@a}[5]{#2}
+\newcommand{\NAT@super@a}[5]{#2}
+\newcommand{\NAT@authoryear@y}[5]{#3}
+\newcommand{\NAT@numbers@y}[5]{#3}
+\newcommand{\NAT@super@y}[5]{#3}
+%%\citealias
+\newcommand{\NAT@authoryear@b}[5]{\NAT@getalias{#5}\NAT@extra{#4}}
+\newcommand{\NAT@numbers@b}[5]{\NAT@getalias{#5}\NAT@extra{#4}}
+\newcommand{\NAT@super@b}[5]{\NAT@getalias{#5}\NAT@extra{#4}}
 %%Citation formatting hook
 \newcommand{\@NAT@format@cite}{\csname NAT@\NAT@style{}@\NAT@pt\endcsname}
-\newcommand{\NAT@format@cite}[2]
+\newcommand{\NAT@format@cite}[3]
 {\@callsubst\NAT@args#1%
 \@NAT@format@cite
   {\NAT@num}
   {\NAT@choose@author{\NAT@auth}{\NAT@long}}
-  {\NAT@year}{#2}}
+  {\NAT@year}{#2}{#3}}
 \newcommand{\NAT@args}[4]
 {\def\NAT@num{#1}\def\NAT@year{#2}\def\NAT@auth{#3}%
 \ifthenelse{\equal{#4}{}}{\let\NAT@long\NAT@auth}{\def\NAT@long{#4}}}
@@ -103,7 +107,7 @@
 \newcommand{\bibnumfmt}[1]{[#1]}
 \newcommand{\NAT@format@item}[4]
 {\ifx#3\@empty#2\else
-\NAT@item@hook{\NAT@authoryear@p{#2}{#3}{#4}}{\bibnumfmt{#2}}\fi}
+\NAT@item@hook{\NAT@authoryear@p{#2}{#3}{#4}{}}{\bibnumfmt{#2}}\fi}
 \def\NAT@bibitem#1(#2)#3(@)#4(@){%
 \NAT@write{{#4}}{\theheveabib}{#1}{#2}{#3}%
 \item[#4]}
@@ -113,7 +117,7 @@
     {\@callsubst{\NAT@bibitem}{#1(@)#2(@)}}}
 %%%% Default config used for tags in the bibliography itself
 \newcommand{\NAT@fst}[2]{#1}
-\newcommand{\NAT@snd}[2]{\hva@warn{SND '#1' '#2'}#2}
+\newcommand{\NAT@snd}[2]{#2}
 \let\NAT@choose@author\NAT@fst
 \let\NAT@item@hook\NAT@fst
 %% Those can be configured
@@ -157,9 +161,9 @@
 \let\@sep@cite\NAT@sep%
 \let\@post@cite\NAT@post%
 \let\@aysep@cite#3\let\NAT@yopen#4\let\NAT@yclose#5}
-\newcommand{\NAT@OUT}[1]{\NAT@close@super{}#1\NAT@finalhook}
+\newcommand{\NAT@OUT}[1]{\NAT@close@super{}#1\endgroup\NAT@finalhook}
 \newcommand{\citep}
-  {\def\NAT@pt{p}
+  {\begingroup\def\NAT@pt{p}%
   \NAT@IN{\NAT@open}{\NAT@close}{\NAT@aysep}{\relax}{\relax}\hva@cite}
 \newcommand{\citep*}
   {\begingroup%
@@ -167,7 +171,7 @@
    \let\NAT@finalhook\endgroup%
    \citep}  
 \newcommand{\citealp}
-  {\def\NAT@pt{p}
+  {\begingroup\def\NAT@pt{p}%
   \NAT@IN{\relax}{\relax}{\NAT@aysep}{\relax}{\relax}\hva@cite}
 \newcommand{\citealp*}
   {\begingroup%
@@ -175,7 +179,7 @@
    \let\NAT@finalhook\endgroup%
    \citealp}
 \newcommand{\citet}
-  {\def\NAT@pt{t}\NAT@neutral\def\@sep@cite@space{ }
+  {\begingroup\def\NAT@pt{t}\NAT@neutral\def\@sep@cite@space{ }%
    \NAT@IN{\relax}{\relax}{\relax}{\NAT@open}{\NAT@close}%
    \hva@cite}
 \newcommand{\citet*}
@@ -184,7 +188,7 @@
    \let\NAT@finalhook\endgroup%
    \citet}
 \newcommand{\citealt}
-  {\def\NAT@pt{t}\NAT@neutral\def\@sep@cite@space{ }
+  {\begingroup\def\NAT@pt{t}\NAT@neutral\def\@sep@cite@space{ }%
    \NAT@IN{\relax}{\relax}{\relax}{\relax}{\relax}%
    \hva@cite}
 \newcommand{\citealt*}
@@ -193,11 +197,11 @@
   \let\NAT@finalhook\endgroup%
   \citealt}
 \newcommand{\citenum}
-  {\def\NAT@pt{n}\NAT@neutral\def\@sep@cite@space{}
+  {\begingroup\def\NAT@pt{n}\NAT@neutral\def\@sep@cite@space{}%
   \NAT@IN{\relax}{\relax}{\relax}{\relax}{\relax}%
   \hva@cite}
 \newcommand{\citeauthor}
-  {\def\NAT@pt{a}\NAT@neutral\def\@sep@cite@space{ }
+  {\begingroup\def\NAT@pt{a}\NAT@neutral\def\@sep@cite@space{ }%
   \NAT@IN{\relax}{\relax}{\relax}{\relax}{\relax}%
   \hva@cite}
 \newcommand{\citeauthor*}
@@ -207,16 +211,32 @@
   \citeauthor}
 \let\citefullauthor\citeauthor*
 \newcommand{\citeyear}
-  {\def\NAT@pt{y}\NAT@neutral\def\@sep@cite@space{ }
+  {\begingroup\def\NAT@pt{y}\NAT@neutral\def\@sep@cite@space{ }%
   \NAT@IN{\relax}{\relax}{\relax}{\relax}{\relax}%
   \hva@cite}
 \newcommand{\citeyearpar}
-  {\def\NAT@pt{y}\NAT@neutral\def\@sep@cite@space{ }
+  {\begingroup\def\NAT@pt{y}\NAT@neutral\def\@sep@cite@space{ }%
   \NAT@IN{\NAT@open}{\NAT@close}{\relax}{\relax}{\relax}%
   \hva@cite}
 \newcommand{\citetext}[1]{\NAT@open{}#1\NAT@close}
 \renewcommand{\cite}
 {\hva@warn{\cite in natbib is deprecated -> \citet}\citet}
+%% Aliases
+\newcommand{\defcitealias}[2]{\def\csname NAT@alias@#1\endcsname{#2}}
+\newcommand{\NAT@getalias}[1]
+  {\@ifundefined{NAT@alias@#1}
+     {\NAT@warn{undefined alias '#1'}}
+     {\csname NAT@alias@#1\endcsname}}
+\newcommand{\citetalias}
+  {\begingroup%
+  \def\NAT@pt{b}\NAT@neutral\def\@sep@cite@space{ }%
+  \NAT@IN{\relax}{\relax}{\relax}{\relax}{\relax}%
+  \hva@cite}
+\newcommand{\citepalias}
+  {\begingroup%
+  \def\NAT@pt{b}\NAT@neutral\def\@sep@cite@space{ }%
+  \NAT@IN{\NAT@open}{\NAT@close}{\relax}{\relax}{\relax}%
+  \hva@cite}
 %%%%%%%%%%%%
 %% Styles %%
 %%%%%%%%%%%%

@@ -20,9 +20,15 @@ byte:
 
 dvi: $(DVI)
 
-SUITE=suite.html test.html di.html mp.html lis.html lis2.html acc.html sym.html
+SUITE=suite.html test.html di.html mp.html lis.html lis2.html\
+ acc.html sym.html natbib.html
 
 sym.html:sym.tex st.hva
+
+natbib.html: natbib.tex
+	$(HEVEA) -fix $(HEVEAOPTS) natbib.tex
+	bibhva natbib
+	$(HEVEA) -fix $(HEVEAOPTS) natbib.tex
 
 test: $(SUITE) cart-index.html cbook-index.html
 TDIR=$(HOME)/public_html/vrac/test
@@ -36,7 +42,7 @@ install-test:
 	cp cbook-index.html cbook.css cbook[0-9][0-9][0-9].html  $(TDIR)
 
 clean-test::
-	/bin/rm -f $(SUITE) cart.html cbook.html
+	/bin/rm -f $(SUITE) cart.html cbook.html natbib.hbbl
 
 cart-index.html: cart.html
 	$(HACHA) -o cart-index.html cart.html

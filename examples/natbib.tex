@@ -2,9 +2,11 @@
 \usepackage{a4}
 \usepackage{url}
 \usepackage{natbib}
-\begin{document}
-\bibliographystyle{unsrtnat}
-\section*{So-called ``natural''  bibliographies}
+\title{The so-called ``natural''  bibliographies}
+\author{}
+\date{}
+\begin{document}\maketitle
+\bibliographystyle{plainnat}
 \newcommand{\zyva}
 {\begin{center}
 \begin{tabular}{p{.4\linewidth}@{\quad\ensuremath{\Rightarrow}\quad}p{.4\linewidth}}
@@ -31,8 +33,10 @@
 \end{tabular}
 \end{center}}
 
-\section*{Default}
+\section*{Default, from \texttt{.bst} file \texttt{plainnat}}
 \zyva
+
+\bibliography{natbib}
 
 \subsection*{A few other comands}
 \defcitealias{AppliedPi}{Applied~$\pi$}Now we
@@ -54,5 +58,4 @@ say~\citepalias{AppliedPi} for~\citep{AppliedPi}.
 \section*{Option \texttt{super}}
 \setcitestyle{super}\zyva
 
-\bibliography{natbib}
 \end{document}

@@ -2,4 +2,4 @@
 \renewcommand{\@biblabel}[1]
 {\@locname{#1}{\NAT@bibread{#1}\purple\NAT@format@item{#1}{\NAT@num}{\NAT@auth}{\NAT@year}}}
 \renewcommand{\@bibref}[3]
-{\@locref{#1}{\def\@tmp{#2}\ifx\@tmp\@empty{}???\else\NAT@format@cite{#2}{#3}\fi}}
+{\@locref{#1}{\def\@tmp{#2}\ifx\@tmp\@empty{}???\else\NAT@format@cite{#2}{#3}{#1}\fi}}
