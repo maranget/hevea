@@ -1,0 +1,58 @@
+\documentclass{article}
+\usepackage{a4}
+\usepackage{url}
+\usepackage{natbib}
+\begin{document}
+\bibliographystyle{unsrtnat}
+\section*{So-called ``natural''  bibliographies}
+\newcommand{\zyva}
+{\begin{center}
+\begin{tabular}{p{.4\linewidth}@{\quad\ensuremath{\Rightarrow}\quad}p{.4\linewidth}}
+\url+\citet{MPW92}+ & \citet{MPW92}\\
+\url+\citet[chap.~2]{MPW92}+ & \citet[chap.~2]{MPW92}\\
+\url+\citep{MPW92}+ & A~\citep{MPW92}\\
+\url+\citep[chap.~2]{MPW92}+ & A~\citep[chap.~2]{MPW92}\\
+\url+\citep[see][]{MPW92}+ & A~\citep[see][]{MPW92}\\
+\url+\citep[see][chap.~2]{MPW92}+ & A~\citep[see][chap.~2]{MPW92}\\
+\url+\citet*{MPW92}+ & \citet*{MPW92}\\
+\url+\citep*{MPW92}+ & A~\citep*{MPW92}\\
+\url+\citep[chap.~2]{MPW92,odersky:esop2000}+ & A~\citep[chap.~2]{MPW92,odersky:esop2000} \\
+\url+\citet[chap.~2]{MPW92,odersky:esop2000}+ &\citet[chap.~2]{MPW92,odersky:esop2000} \\
+\url+\citenum{MPW92}--\citenum{MPW92,odersky:esop2000}+ &
+\citenum{MPW92}--\citenum{MPW92,odersky:esop2000}\\
+\url+\citeauthor{MPW92}--\citeauthor{MPW92,odersky:esop2000}+ &
+\citeauthor{MPW92}--\citeauthor{MPW92,odersky:esop2000}\\
+\url+\citeauthor*{MPW92}--\citeauthor*{MPW92,odersky:esop2000}+ &
+\citeauthor*{MPW92}--\citeauthor*{MPW92,odersky:esop2000}\\
+\url+\citeyear{MPW92}--\citeyear{MPW92,odersky:esop2000}+ &
+\citeyear{MPW92}--\citeyear{MPW92,odersky:esop2000}\\
+\url+\citeyearpar{MPW92}--\citeyearpar{MPW92,odersky:esop2000}+ &
+\citeyearpar{MPW92}--\citeyearpar{MPW92,odersky:esop2000}\\
+\end{tabular}
+\end{center}}
+
+\section*{Default}
+\zyva
+
+\subsection*{A few other comands}
+\defcitealias{AppliedPi}{Applied~$\pi$}Now we
+say~\citepalias{AppliedPi} for~\citep{AppliedPi}.
+\begin{center}
+\begin{tabular}{l@{\quad$\Rightarrow$\quad}l}
+\url+\citetalias{AppliedPi}+ & \citetalias{AppliedPi}\\
+\url+\citepalias{AppliedPi}+ & \citepalias{AppliedPi}\\
+\url+\citepalias[See][Sec.~4]{AppliedPi}+ & \citepalias[See][Sec.~4]{AppliedPi}\\
+\end{tabular}
+\end{center}
+
+\section*{Option \texttt{authoryear}}
+\setcitestyle{authoryear}\zyva
+
+\section*{Option \texttt{numbers}}
+\setcitestyle{numbers}\zyva
+
+\section*{Option \texttt{super}}
+\setcitestyle{super}\zyva
+
+\bibliography{natbib}
+\end{document}
