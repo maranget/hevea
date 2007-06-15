@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.314 2007-06-14 14:34:22 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.315 2007-06-15 14:59:56 maranget Exp $ *)
 
 
 {
@@ -1754,7 +1754,7 @@ let do_documentclass command lexbuf =
   let {arg=arg} =  save_arg lexbuf in
   let real_args = Save.get_echo () in
   begin try if not !styleloaded then
-    input_file 0 main (arg^".hva") lexbuf
+    input_file (if !verbose > 0 then 1 else 0) main (arg^".hva") lexbuf
   with
     Myfiles.Except | Myfiles.Error _ ->
       raise (Misc.ScanError ("No base style"))

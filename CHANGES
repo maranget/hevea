@@ -1,3 +1,6 @@
+     - correct packages.hva
+        Now package state is pushed/restored by RequirePackage
+        [needed for proper saving of package options]
 version 1.09+11
      - natbib being added nightmare. Should release soon.
 version 1.09+10

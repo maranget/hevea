@@ -18,10 +18,17 @@
 \@stopoutput\@stopimage\@funcall{\@iter}{\@usepackage,{#2}}\@restartimage\@restartoutput
 }
 \hva@newstack{@pkg}\let\@pkg@me\relax
+\hva@newstack{@pkg@opts}
+\newcommand{\@pkg@pushs}
+{%\typeout{Saving: '\@pkg@opts' '\@pkg@me'}
+\@push@pkg{\@pkg@me}\@push@pkg@opts{\@pkg@opts}}
+\newcommand{\@pkg@pops}
+{\@pop@pkg@opts{\@pkg@opts}\@pop@pkg{\@pkg@me}%
+%\typeout{Restoring: '\@pkg@opts' '\@pkg@me'}
+}
 \newcommand{\ProvidesPackage}[1]
-{\@push@pkg{\@pkg@me}\def{\@pkg@me}{\@getprint{#1}}%
-\AtEndOfFile{\@EndPackage}}
-\newcommand{\@EndPackage}{\@pop@pkg{\@pkg@me}}
+{\def{\@pkg@me}{\@getprint{#1}}\AtEndOfFile{\@EndPackage}}
+\newcommand{\@EndPackage}{}
 \newcommand{\EndPackage}{\hva@warn{END}}
 \newcommand{\@pkg@opt@name}[1]{@pkg\@pkg@me{}@#1}
 \newcommand{\DeclareOption}[2]
@@ -36,4 +43,5 @@
   {\string\@process@option,{\char123\usebox{\@pkg@opts}\char125}}}
 %%%% Packages in packages
 \newcommand{\@GoobleOpt}[1][]{}%
-\newcommand{\RequirePackage}[2][!*!]{\usepackage[#1]{#2}\@GoobleOpt}%
+\newcommand{\RequirePackage}[2][!*!]
+{\@pkg@pushs\usepackage[#1]{#2}\execafter\@GoobleOpt\@pkg@pops}%

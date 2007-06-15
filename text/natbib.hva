@@ -1,3 +1,4 @@
+\ProvidesPackage{natbib}
 \input{natbib-common.hva}
 \renewcommand{\@biblabel}[1]
 {\NAT@bibread{#1}\purple\NAT@format@item{#1}{\NAT@num}{\NAT@auth}{\NAT@year}}

@@ -29,9 +29,9 @@ SUITE=suite.html test.html di.html mp.html lis.html lis2.html\
 sym.html:sym.tex st.hva
 
 natbib.html: natbib.tex
-	$(HEVEA) -fix $(HEVEAOPTS) natbib.tex
+	$(HEVEA) $(HEVEAOPTS) natbib.tex
 	$(BIBHVA) natbib
-	$(HEVEA) -fix $(HEVEAOPTS) natbib.tex
+	$(HEVEA) $(HEVEAOPTS) natbib.tex
 
 test: $(SUITE) cart-index.html cbook-index.html
 TDIR=$(HOME)/public_html/vrac/test

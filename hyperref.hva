@@ -1,4 +1,5 @@
-\usepackage{url}
+\ProvidesPackage{hyperref}
+\RequirePackage{url}
 \@primitives{hyperref}
 \newcommand{\texorpdfstring}[2]{#1}
 \newcommand{\hyperlink}[2]{\ahrefloc{#1}{#2}}

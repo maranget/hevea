@@ -1,6 +1,6 @@
 #! /bin/sh
 
-source ./config.sh
+. ./config.sh
 
 cpv () {
   echo "$1 -> $2"
