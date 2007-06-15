@@ -247,8 +247,11 @@
   {\NAT@auth\NAT@aysep{} \NAT@open{}\NAT@year\NAT@close}
 \newcommand{\NATfmtindex}[1]
 {\NAT@bibread{#1}\NAT@format@item{#1}{\NAT@num}{\NAT@auth}{\NAT@year}}
+\newcommand{\NAT@idxkey}[1]
+{\NAT@bibread{#1}%
+\ifx\NAT@num\@empty#1\else\@pad{0}{3}{\NAT@num}CITE\fi}
 \newcommand{\NAT@index}[1]
-{\@@@indexwrite[\citeindextype]{#1}{\NATfmtindex{#1}}{\@indexlabel}}
+{\@@@indexwrite[\citeindextype]{\NAT@idxkey{#1}}{\NATfmtindex{#1}}{\@indexlabel}}
 %%%%%%%%%%%%
 %% Modes  %%
 %%%%%%%%%%%%
