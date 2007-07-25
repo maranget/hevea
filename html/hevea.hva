@@ -137,13 +137,16 @@
 }}}}}
 \newcommand{\@hacha@arg}[2]
 {{\@nostyle\@print{<ARG }\@getprint{#1}\@print{>}{#2}\@print{</ARG>}}}
-\newenvironment{cutflow}[1]
+\newenvironment{@cutflow}[2]
 {\@out@par{\@printnostyle{<!--FLOW }%
-\@hacha@arg{TITLE}{#1}%
+\@hacha@arg{FOOTER}{#1}%
+\@hacha@arg{TITLE}{#2}%
 \@printnostyle{-->
 }}}
 {\@out@par{\@printnostyle{<!--END FLOW-->
 }}}
+\newenvironment{cutflow}[1]{\begin{@cutflow}{YES}{#1}}{\end{@cutflow}}
+\newenvironment{cutflow*}[1]{\begin{@cutflow}{NO}{#1}}{\end{@cutflow}}
 \newcommand{\cutname}[1]
 {\@out@par{{\@nostyle\@print{<!--NAME }\@getprint{#1}\@print{-->
 }}}}

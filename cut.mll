@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: cut.mll,v 1.58 2007-02-09 17:22:29 maranget Exp $ *)
+(* $Id: cut.mll,v 1.59 2007-07-25 14:00:12 maranget Exp $ *)
 {
 
 type toc_style = Normal | Both | Special
@@ -133,7 +133,7 @@ and out_prefix = ref (CutOut.create_null ())
 and outname = ref ""
 and lastclosed = ref ""
 and otheroutname = ref ""
-and flowname_stack = (MyStack.create "flowname" : string MyStack.t)
+and flowname_stack = (MyStack.create "flowname" : (string * bool) MyStack.t)
 and flow_stack = (MyStack.create "flow" : CutOut.t MyStack.t)
 ;;
 
@@ -272,9 +272,13 @@ let putlinks_end out outname =
         CutOut.put out "<HR>\n" ;
         CutOut.put out s
     | None -> ()
-  
 
-let openhtml withlinks title out outname =
+  
+type file_opt = { with_footer : bool ; with_links : bool ; }
+
+let std_file_opt = { with_footer=true; with_links=true ; }
+
+let openhtml opt title out outname =
   CutOut.put out !doctype ; CutOut.put_char out '\n' ;
   CutOut.put out !html ; CutOut.put_char out '\n' ;
   CutOut.put out "<HEAD>\n" ;
@@ -286,15 +290,13 @@ let openhtml withlinks title out outname =
   CutOut.put out "</HEAD>\n" ;
   CutOut.put out !body;
   CutOut.put out "\n" ;
-  if withlinks then putlinks_start out outname ;
-  CutOut.put out !html_head
+  if opt.with_links then putlinks_start out outname ;
+  if opt.with_footer then CutOut.put out !html_head
 
 
-and closehtml withlinks name out =
-  CutOut.put out !html_foot ;
-  if withlinks then begin
-    putlinks_end out name
-  end ;
+and closehtml opt name out =
+  if opt.with_footer then CutOut.put out !html_foot ;
+  if opt.with_links then putlinks_end out name ;
   CutOut.put out "</BODY>\n" ;
   CutOut.put out "</HTML>\n" ;
   close_loc "closehtml" name out
@@ -377,7 +379,7 @@ let close_chapter () =
   if verbose > 0 then
     prerr_endline ("Close chapter out="^ !outname^" toc="^ !tocname) ;
   if !phase > 0 then begin
-    if !outname <> !tocname then closehtml true !outname !out ;
+    if !outname <> !tocname then closehtml std_file_opt !outname !out ;
     begin match toc_style with
     | Both|Special ->
       let real_out = real_open_out !outname in
@@ -403,10 +405,10 @@ and open_chapter name =
     | Both|Special ->
         out_prefix := CutOut.create_buff (!outname ^ "-prefix") ;
         out := !out_prefix ;
-        openhtml true name !out_prefix !outname
+        openhtml std_file_opt name !out_prefix !outname
     | Normal ->
         out := CutOut.create_chan (real_name !outname) ;
-        openhtml true name !out !outname
+        openhtml std_file_opt name !out !outname
     end ;
     itemref !outname name !toc ;
     cur_level := !chapter
@@ -534,22 +536,25 @@ let close_all () =
   end ;
   cur_level := (Section.value "DOCUMENT")
 
-let openflow title =
+let openflow with_footer title =
   let new_outname = new_filename "openflow" in
-  push flowname_stack !outname ;
+  push flowname_stack (!outname,with_footer) ;
   outname := new_outname ;
   if !phase > 0 then begin
     push flow_stack !out ;
     out := CutOut.create_chan (real_name !outname) ;
-    openhtml false title !out !outname
+    let opt = { with_footer=with_footer; with_links=false; } in
+    openhtml opt title !out !outname
   end
 
 and closeflow () =
+  let prev_out, with_footer = pop flowname_stack in
   if !phase > 0 then begin
-    closehtml false !outname !out;
+    let opt = { with_links=false; with_footer=with_footer; } in
+    closehtml opt !outname !out;
     out := pop flow_stack
   end ;
-  outname := pop flowname_stack
+  outname := prev_out
 
 
 } 
@@ -571,8 +576,8 @@ rule main = parse
     end ;
     main lexbuf}
 |  "<!--" "FLOW" ' '+
-   {let title = flowline lexbuf in
-   openflow title ;
+   {let title,b = flowline lexbuf in
+   openflow b title ;
    main lexbuf}
 | "<!--" "SETENV" ' ' +
    { let pairs = getargs lexbuf in
@@ -808,10 +813,14 @@ and tocline = parse
 and flowline = parse
 | "<ARG TITLE>"
     {let title = arg lexbuf in
-    let _ = flowline lexbuf in
-    title}
-| "-->" '\n'?
-    {""}
+    let _,b = flowline lexbuf in
+    title,b}
+| "<ARG FOOTER>"
+    {let yes_no = arg lexbuf in
+    let b = match yes_no with "YES" -> true | _ -> false in
+    let title,_ = flowline lexbuf in
+    title,b}
+| "-->" '\n'? {"",true}
 | eof {raise (Misc.Fatal "Unclosed comment")}
 | _   {flowline lexbuf}
 
