@@ -263,7 +263,7 @@
 \undef\hevea@css\undef\newstyle}
 
 \newenvironment{document}{%
-\@end{document}
+\@end{document}%
 \@atbegindocument%
 \@restartoutput\unskip%
 \@print{<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"

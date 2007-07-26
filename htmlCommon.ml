@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlCommon.ml,v 1.63 2007-03-09 13:23:52 maranget Exp $" 
+let header = "$Id: htmlCommon.ml,v 1.64 2007-07-26 20:18:36 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -476,8 +476,8 @@ let stacks = {
   s_dcount = MyStack.create_init "dcount" "" ;
   s_insert = MyStack.create_init "insert" None;
   s_insert_attr = MyStack.create_init "insert_attr" None;
-  s_active = MyStack.create "active" ;
-  s_after = MyStack.create "after"
+  s_active = MyStack.create "Html.active" ;
+  s_after = MyStack.create "Html.after"
 } 
 
 type saved_stacks = {
