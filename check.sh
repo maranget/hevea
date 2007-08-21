@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/sh -e
 
 . config.sh
 TMP1=/tmp/check.1.$$
