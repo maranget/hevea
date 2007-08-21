@@ -1,3 +1,4 @@
+version 1.10
      - corrected hacha that generated non-compliant HTML lists !
 version 1.09+12
      - added cutflow* environment.    
