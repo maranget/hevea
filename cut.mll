@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: cut.mll,v 1.59 2007-07-25 14:00:12 maranget Exp $ *)
+(* $Id: cut.mll,v 1.60 2007-08-21 09:19:21 maranget Exp $ *)
 {
 
 type toc_style = Normal | Both | Special
@@ -172,19 +172,21 @@ let openlist out =
 
 and closelist out =
 (*  Printf.eprintf "CLOSE LIST: %s\n" (CutOut.get_name out) ; *)
-  CutOut.put out "</UL>\n"
+  CutOut.put out "</LI></UL>\n"
 
-and itemref filename s out =
+and itemref fst_item filename s out =
   let filename = check_changed filename in
+  if not fst_item then CutOut.put out "</LI>" ;
   CutOut.put out "<LI>" ;
   CutOut.put out "<A HREF=\"" ;
   CutOut.put out filename ;
   CutOut.put out "\">" ;
   CutOut.put out s ;
-  CutOut.put out "</A></LI>\n"
+  CutOut.put out "</A>\n"
 
-and itemanchor filename label s out =
+and itemanchor fst_item filename label s out =
   let filename = check_changed filename in
+  if not fst_item then CutOut.put out "</LI>" ;
   CutOut.put out "<LI>" ;
   CutOut.put out "<A HREF=\"" ;
   CutOut.put out filename ;
@@ -192,7 +194,7 @@ and itemanchor filename label s out =
   CutOut.put out label ;
   CutOut.put out "\">" ;
   CutOut.put out s ;
-  CutOut.put out "</A></LI>\n"
+  CutOut.put out "</A>\n"
 ;;
 
 let delayed_anchor = ref false
@@ -337,7 +339,7 @@ let rec do_open l1 l2 =
 let rec do_close l1 l2 =
   if l1 > l2 then begin
      begin match toc_style with
-     | Both -> closelist !toc ; closelist !out_prefix
+     | Both -> closelist  !toc ; closelist !out_prefix
      | Special -> closelist !out_prefix
      | Normal  -> closelist !toc
      end ;
@@ -351,18 +353,24 @@ let anchor = ref 0
 
 let open_section sec name =
   if !phase > 0 then begin
-    if !cur_level > sec then do_close !cur_level sec
-    else if !cur_level < sec then do_open  !cur_level sec ;
+    let fst_item =
+      if !cur_level > sec then begin
+        do_close !cur_level sec ;
+        false
+      end else if !cur_level < sec then begin
+        do_open  !cur_level sec ;
+        true
+      end else false in
     incr anchor ;
     let label = "toc"^string_of_int !anchor in
     begin match toc_style with
     | Normal ->
-        itemanchor !outname label name !toc ;
+        itemanchor  fst_item !outname label name !toc ;
     | Both ->
-        itemanchor !outname label name !toc ;
-        itemanchor !outname label name !out_prefix
+        itemanchor  fst_item !outname label name !toc ;
+        itemanchor  fst_item !outname label name !out_prefix
     | Special    ->
-        itemanchor !outname label name !out_prefix
+        itemanchor  fst_item !outname label name !out_prefix
     end ;
     putanchor label !out ;
     cur_level := sec
@@ -394,7 +402,7 @@ let close_chapter () =
     outname := !tocname
   end
 
-and open_chapter name =
+and open_chapter fst_item name =
   outname := new_filename ("open_chapter <<"^name^">>") ;
   if verbose > 0 then
     prerr_endline
@@ -410,7 +418,7 @@ and open_chapter name =
         out := CutOut.create_chan (real_name !outname) ;
         openhtml std_file_opt name !out !outname
     end ;
-    itemref !outname name !toc ;
+    itemref fst_item !outname name !toc ;
     cur_level := !chapter
   end else begin
     if verbose > 0 then
@@ -630,17 +638,20 @@ rule main = parse
       end ;
       cur_level := sn
     end else if sn = !chapter then begin
-      if !cur_level < sn then begin
-        open_toc () ;
-      end else begin
-        close_section !chapter ;
-        close_chapter  ()
-      end ;
-      open_chapter name
+      let fst_item =
+        if !cur_level < sn then begin
+          open_toc () ;
+          true
+        end else begin
+          close_section !chapter ;
+          close_chapter  () ;
+          false
+        end in
+      open_chapter  fst_item name
     end else if sn <= !chapter + !depth then begin (* sn > !chapter *)
       if !cur_level < !chapter then begin
         open_toc () ;
-        open_chapter ""
+        open_chapter true ""
       end ;
       close_section sn ;
       open_section sn name
