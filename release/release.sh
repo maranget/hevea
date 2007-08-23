@@ -1,4 +1,4 @@
-#! /bin/sh -
+#! /bin/sh -e
 
 cd `dirname $0`/..
 . release/config.sh
@@ -57,6 +57,7 @@ then
   cp -r $DFTP ${HTMLDIR}/distri
 else
   /bin/rm -rf ${HTMLDIR}/distri
+  mkdir ${HTMLDIR}/distri
   ( cd $DFTP &&\
     cp  ${TOINSTALL} ${EXTRA} ${HTMLDIR}/distri )
 fi

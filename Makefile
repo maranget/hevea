@@ -96,7 +96,7 @@ mylib.cmx: mylib.ml mylib.cmi config.sh
 fmt_map: fmt_map.cmo
 	${OCAMLC} -o fmt_map fmt_map.cmo
 
-config.sh: Makefile
+config.sh: Makefile libs.def
 	@(echo PGM=\"$(PGM)\" &&\
 	echo PGMNATIVE=\"$(PGMNATIVE)\" &&\
 	echo BINDIR=$(BINDIR) &&\

@@ -6,6 +6,7 @@ VERSIONFILE=version.ml
 VERSION=`sed -n -e 's/^let real_version = "\(.*\)".*$/\1/p' ${VERSIONFILE}`
 DATE=`date +%Y-%m-%d`
 echo DATE=$DATE
+echo VERSION=${VERSION}
 case $VERSION in
   *+*)
      echo DEV=true
@@ -16,7 +17,7 @@ case $VERSION in
     echo RELEASENAME=hevea-\${VERSION}
    ;;
 esac
-echo VERSION=${VERSION}
+
 
 TMP=/tmp/tag.$$
 RELEASETAG=`sed -n -e 's/^let real_version = "\(.\)\.\(.*\)".*$/\1-\2/p' ${VERSIONFILE}`

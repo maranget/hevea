@@ -452,7 +452,11 @@
 \@notetextstyle{\@noteref{note}{text}
   {\@anchorval{\value{onemark}}}
   {\@fnmarktext{\value{onemark}}}}}
-\newcommand{\footnotetext}[2][\value{\footnote@c}]{\@footnotetext{#1}{#2}}
+%Text of footnote in a DIV, because of possible \par in it
+\newcommand{\footnotetext}[2][\value{\footnote@c}]
+{\@footnotetext{#1}{\@open{DIV}{CLASS="footnotetext"}#2\@close{DIV}}}
+\newstyle{.footnotetext}{margin:0ex; padding 0ex;}
+\newstyle{DIV.footnotetext P}{margin:0px; text-indent:1em;}
 \newcommand{\footnote}[2][!*!]{%
 \ifthenelse{\equal{#1}{!*!}}
   {\footnotemark\footnotetext{#2}}
