@@ -1,3 +1,4 @@
+version 1.10+1
      - Allow \par in footnotetext (latexcommon.hva)
 version 1.10
      - corrected hacha that generated non-compliant HTML lists !
