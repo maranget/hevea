@@ -57,3 +57,7 @@
 \def\alsoseename{voir aussi}%
 \def\footertext{Ce document a \'et\'e traduit de \LaTeX{} par \ahref{\heveaurl}{\hevea}}%
 }%
+%%%
+\newif\ifFrenchItemizeSpacing
+\let\FrenchLabelItem\relax
+%%%
