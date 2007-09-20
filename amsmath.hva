@@ -1,3 +1,5 @@
+\ProvidesPackage{amsmath}
+\RequirePackage{amsfonts}
 \let\numberwithin\@addtoreset
 \let\text\mbox
 %% Equation tags
