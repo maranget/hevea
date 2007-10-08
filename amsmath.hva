@@ -198,11 +198,11 @@
 %%%%%%%%%%%%%%%%%%%%%%
 % Table 39: AMS Dots %
 %%%%%%%%%%%%%%%%%%%%%%
-\Let\dotsb\cdots
-\Let\dotsi\cdots
-\Let\dotso\ldots
-\Let\dotsc\ldots
-\Let\dotsm\cdots
+\@Let\dotsb\cdots
+\@Let\dotsi\cdots
+\@Let\dotso\ldots
+\@Let\dotsc\ldots
+\@Let\dotsm\cdots
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Table 129: AMS Extensible Accents %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

@@ -1,3 +1,4 @@
+     - \Let -> \@Let (plain.hva), [clash with user definition was likely].
 version 1.10+1
      - Allow \par in footnotetext (latexcommon.hva)
 version 1.10

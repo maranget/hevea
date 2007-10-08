@@ -113,8 +113,8 @@
 \DeclareSymbolHtml{\@cup}{X222A}
 \DeclareSymbolHtml[\mbox{| |\@br| |\@br---}]{\@display@cup}{X22C3}
 \newcommand{\cup}{\ifdisplay\@display@cup\else\@cup\fi}
-\Let{\dagger}{\dag}
-\Let{\ddagger}{\ddag}
+\@Let{\dagger}{\dag}
+\@Let{\ddagger}{\ddag}
 \DeclareSymbolHtml{\diamond}{X22C4}
 \DeclareSymbol[/]{\div}{XF7}
 \DeclareSymbolHtml[-/+]{\mp}{X2213}
@@ -596,7 +596,7 @@
 \newcommand{\csname\delim@name\rgroup\endcsname}[1]
 {\process@delim@three{#1}{\top@parright}{\mid@parright}{\dow@parright}}
 \newcommand{\arrowvert}{|}
-\Let\Arrowvert\Vert
+\@Let\Arrowvert\Vert
 \newcommand{\bracevert}{\textbf{|}}
 \newcommand{\csname\delim@name{\arrowvert}\endcsname}[1]
 {\process@delim@one{#1}{\mid@vert}}
@@ -623,10 +623,10 @@
 {\@itemdisplay\process@delim{#1}{5}\@itemdisplay\int@sup@sub{5}}
 \NewcommandHtml{\@@Bigg}[1]{\hva@warn{\Bigg in text mode}#1}
 \NewcommandHtml{\Bigg}{\DisplayChoose\@Bigg\@@Bigg}
-\Let\bigl\big\Let\bigm\big\Let\bigr\big
-\Let\Bigl\Big\Let\Bigm\Big\Let\Bigr\Big
-\Let\biggl\bigg\Let\biggm\bigg\Let\biggr\bigg
-\Let\Biggl\Bigg\Let\Biggm\Bigg\Let\Biggr\Bigg
+\@Let\bigl\big\@Let\bigm\big\@Let\bigr\big
+\@Let\Bigl\Big\@Let\Bigm\Big\@Let\Bigr\Big
+\@Let\biggl\bigg\@Let\biggm\bigg\@Let\biggr\bigg
+\@Let\Biggl\Bigg\@Let\Biggm\Bigg\@Let\Biggr\Bigg
 %%%%%%%%%%%%%%%
 % Square root %
 %%%%%%%%%%%%%%%
@@ -712,16 +712,16 @@
 %%%%%%%%%%%%%%%%%%
 % TeX synomyms   %
 %%%%%%%%%%%%%%%%%%
-\Let\le\leq
-\Let\ge\geq
-\Let\ne\neq
-\Let\to\rightarrow
-\Let\land\wedge
+\@Let\le\leq
+\@Let\ge\geq
+\@Let\ne\neq
+\@Let\to\rightarrow
+\@Let\land\wedge
 \newcommand{\iff}{\;\Longleftrightarrow\;}
-\Let\gets\leftarrow
-\Let\lor\vee
-\Let\owns\ni
-\Let\lnot\neg
+\@Let\gets\leftarrow
+\@Let\lor\vee
+\@Let\owns\ni
+\@Let\lnot\neg
 %%%%%%%%%%%%%%%%%%%%
 %Needed internally %
 %%%%%%%%%%%%%%%%%%%%

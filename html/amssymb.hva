@@ -215,7 +215,7 @@
 %% Table 4: Commands Defined to Work in Both Math and Text Mode %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \DeclareSymbolHtml{\checkmark}{X2713}
-\Let\circledR\textregistered
+\@Let\circledR\textregistered
 \DeclareSymbolHtml{\maltese}{X2720}
 \iffalse
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -227,7 +227,7 @@
 \DeclareSymbolHtml{\boxtimes}{8864}
 \DeclareSymbolHtml{\boxplus}{8862}
 \DeclareSymbolHtml{\Cap}{8914}
-\Let\centerdot\cdot
+\@Let\centerdot\cdot
 \DeclareSymbolHtml{\circledast}{8859}
 \DeclareSymbolHtml{\circleddash}{8861}
 \DeclareSymbolHtml{\circledcirc}{8858}

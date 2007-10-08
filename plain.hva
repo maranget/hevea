@@ -19,7 +19,7 @@ b\newcommand{\relax}{}
 %%%%%%%%%% eat leading spaces in argument
 \def\@eatspaces#1,{#1}%
 %%%%%
-\newcommand{\Let}[2]{\ifu#2\else\let#1#2\fi}
+\newcommand{\@Let}[2]{\ifu#2\else\let#1#2\fi}
 \newcommand{\IfDisplay}[2]{\ifdisplay#1\else#2\fi}
 \newcommand{\@non@kk}[2][]{}
 \newcommand{\@non@k}[1][]{\@non@kk}
