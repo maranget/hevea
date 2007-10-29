@@ -1,3 +1,6 @@
+     - listings: range{begin,env}{prefix,suffix} keys, with
+       different meaning: prefix/suffix are replaced instead of
+       being accumulated.
      - \Let -> \@Let (plain.hva), [clash with user definition was likely].
 version 1.10+1
      - Allow \par in footnotetext (latexcommon.hva)

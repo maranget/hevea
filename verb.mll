@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: verb.mll,v 1.90 2007-02-08 17:48:28 maranget Exp $            *)
+(*  $Id: verb.mll,v 1.91 2007-10-29 12:45:12 maranget Exp $            *)
 (***********************************************************************)
 {
 exception VError of string
@@ -155,7 +155,7 @@ let is_outputing = function
   | _    -> true
 
 let rec string_of_top_mode = function
-  | Delim (i,_) -> "Delim: "^string_of_int i
+   | Delim (i,_) -> sprintf "Delim: %i" i
   | Skip _ -> "Skip"
   | StartNextLine (_,_) -> "StartNextLine"
   | EndNextLine (mode) ->
@@ -275,12 +275,17 @@ let eat_delim k new_mode old_process lb c s =
   lst_top_mode := Delim (1+String.length s, to_restore) ;
   wrapper old_process lb c 
 
-let delay_action  k mode old_process lb c s =
+(* Typical overkill: processesors are restored/saved
+   at each step *)
+let delay_action  k rmode old_process lb c s =
   let chars = chars_string c s in
-  let wrapper old_process lb c = match !lst_top_mode with
+  let rec wrapper old_process lb c = match !lst_top_mode with
   | Delim (n,to_restore) ->
-      lst_top_mode := mode ;
+      restore_char_table to_restore ;
+      lst_top_mode := !rmode ;
       old_process lb c ;
+      rmode := !lst_top_mode ;
+      ignore (init_char_table_delim chars wrapper) ;
       if n = 1 then begin
         restore_char_table to_restore ;
         k ()
@@ -427,13 +432,14 @@ match !lst_top_mode with
 and process_EMark active rest_E old_process lb c =
   if !active && if_next_string rest_E lb then begin
     active := false ;
-    let zyva () =
-      lst_last := !lst_nlines-1 ;
+    let zyva x () =
+      lst_last := x ;
       lst_process_newline false lb c in
     if !lst_includerangemarker then begin
-      delay_action zyva !lst_top_mode old_process lb c rest_E
+      delay_action (zyva (!lst_nlines-1))
+	(ref !lst_top_mode) old_process lb c rest_E
     end else begin
-      zyva () ;
+      zyva (!lst_nlines-1) () ;
       old_process lb c
     end
   end else
@@ -449,7 +455,7 @@ and lst_process_BMark active to_activate mark_start old_process lb c =
           lst_process_newline false lb c ;
           delay_action
             (fun () -> to_activate := true)
-            !lst_top_mode old_process lb c mark_start
+            (ref newmode) old_process lb c mark_start
         end else begin
           lst_top_mode := StartNextLine (newmode, to_activate) ;
           old_process lb c
@@ -481,6 +487,10 @@ and set_next_linerange mode = match !lst_linerange with
         lst_last := x
     | Marker all_E ->
         lst_last := 99999 ;
+	let all_E =
+	  Scan.get_this_main "\\lst@rangeendprefix" ^
+	  all_E ^
+	  Scan.get_this_main "\\lst@rangeendsuffix" in	  
         let head_E = all_E.[0]
         and rest_E =
           String.sub all_E 1 (String.length all_E-1) in
@@ -499,6 +509,10 @@ and set_next_linerange mode = match !lst_linerange with
           lst_top_mode := mode
         end
     | Marker tok ->
+	let tok =
+	  Scan.get_this_main "\\lst@rangebeginprefix" ^
+	  tok ^
+	  Scan.get_this_main "\\lst@rangebeginsuffix" in
         lst_first := -1 ;
         lst_top_mode := Skip mode ;
         init_marker tok activate_end

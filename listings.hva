@@ -415,6 +415,17 @@ breakindent,breakautoindent}
 {\@ifundefined{lst@includerangemarker}
   {\setboolean{lst@includerangemarker}{true}}
   {\setboolean{lst@includerangemarker}{\lst@boolean{\lst@includerangemarker}}}}
+%prefix/suffix of markers, one prefix/suffix only
+\let\lst@rangebeginprefix\@empty\let\lst@rangeendprefix\@empty%
+\let\lst@rangebeginsuffix\@empty\let\lst@rangeendsuffix\@empty%
+\define@key{lst}{rangebeginprefix}{\def\lst@rangebeginprefix{#1}}
+\define@key{lst}{rangebeginsuffix}{\def\lst@rangebeginsuffix{#1}}
+\define@key{lst}{rangeendprefix}{\def\lst@rangeendprefix{#1}}
+\define@key{lst}{rangeendsuffix}{\def\lst@rangeendbeginsuffix{#1}}
+\define@key{lst}{rangeprefix}
+  {\def\lst@rangebeginprefix{#1}\def\lst@rangeendprefix{#1}}
+\define@key{lst}{rangesuffix}
+  {\def\lst@rangebeginsuffix{#1}\def\lst@rangeendsuffix{#1}}
 % boolean print key
 \define@key{lst}{print}[true]{\def\lst@print{#1}}
 \lst@AddToHook{Init}
