@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: verb.mll,v 1.91 2007-10-29 12:45:12 maranget Exp $            *)
+(*  $Id: verb.mll,v 1.92 2007-10-29 13:15:08 maranget Exp $            *)
 (***********************************************************************)
 {
 exception VError of string
@@ -341,6 +341,17 @@ let rec end_mode mode = match mode with
 | _ -> ()
 
 
+(* Utilities *)
+let rec zyva_all xs ys zyva =
+  List.iter
+    (fun x -> List.iter (fun y -> zyva x y) ys)
+    xs
+
+let gettoks cmd = match Latexmacros.find_fail cmd with
+| _,Toks r-> r
+| _ -> assert false
+
+  
 (* Number of (printed) source blocks in  a listing *)
 let lst_nblocks = ref 0
 
@@ -487,14 +498,16 @@ and set_next_linerange mode = match !lst_linerange with
         lst_last := x
     | Marker all_E ->
         lst_last := 99999 ;
-	let all_E =
-	  Scan.get_this_main "\\lst@rangeendprefix" ^
-	  all_E ^
-	  Scan.get_this_main "\\lst@rangeendsuffix" in	  
-        let head_E = all_E.[0]
-        and rest_E =
-          String.sub all_E 1 (String.length all_E-1) in
-        lst_init_save_char head_E (process_EMark activate_end rest_E)
+	let rec zyva pref suf =
+	  let all_E = pref ^ all_E ^ suf in
+          let head_E = all_E.[0]
+          and rest_E =
+            String.sub all_E 1 (String.length all_E-1) in
+          lst_init_save_char head_E (process_EMark activate_end rest_E)	in 
+	zyva_all
+	  (gettoks "\\lst@rangeendprefix")
+	  (gettoks "\\lst@rangeendprefix")
+	  zyva
     end ;
 
     begin match fst with
@@ -509,13 +522,15 @@ and set_next_linerange mode = match !lst_linerange with
           lst_top_mode := mode
         end
     | Marker tok ->
-	let tok =
-	  Scan.get_this_main "\\lst@rangebeginprefix" ^
-	  tok ^
-	  Scan.get_this_main "\\lst@rangebeginsuffix" in
-        lst_first := -1 ;
-        lst_top_mode := Skip mode ;
-        init_marker tok activate_end
+	let zyva pref suf =
+	  let tok = pref ^ tok ^ suf in
+          lst_first := -1 ;
+          lst_top_mode := Skip mode ;
+          init_marker tok activate_end in
+	zyva_all
+	  (gettoks "\\lst@rangebeginprefix")
+	  (gettoks "\\lst@rangebeginsuffix")
+	  zyva
     end
 
 let lst_process_letter lb lxm =
