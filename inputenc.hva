@@ -69,5 +69,6 @@
 %%%
 \ic@option{koi8-r}{KOI8-R}%
 \ic@option{utf8}{UTF-8}%
+\ic@option{utf8x}{UTF-8}%
 %%%
 \ProcessOptions*%
