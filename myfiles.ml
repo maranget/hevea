@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: myfiles.ml,v 1.23 2004-12-07 16:52:06 maranget Exp $" 
+let header = "$Id: myfiles.ml,v 1.24 2007-11-29 14:41:35 maranget Exp $" 
 open Misc
 
 exception Error of string
@@ -38,21 +38,29 @@ let tex_path = "." :: !Parse_opts.path @
      | Parse_opts.Info -> ["info" ; "text"])
 ;;
 
+let import = ref ""
+;;
+
+let set_import dir = import := dir
+
+let try_import f = match !import with "" -> () | dir -> f dir
+
 exception Found of (string * in_channel)
 ;;
 
 let do_open_tex filename =
+  let try_open dir =
+    try
+      let full_name = Filename.concat dir filename in
+      if !verbose > 1 then prerr_endline ("Trying: "^full_name) ;
+      let r = open_in full_name in
+      if !verbose > 1 then prerr_endline ("Opening: "^full_name) ;
+      raise (Found (full_name,r))
+    with Sys_error s ->
+      if !verbose > 1 then prerr_endline ("Failed: "^s) in
   try
-    List.iter (fun dir ->
-      try
-        let full_name = Filename.concat dir filename in
-        if !verbose > 1 then prerr_endline ("Trying: "^full_name) ;
-        let r = open_in full_name in
-        if !verbose > 1 then prerr_endline ("Opening: "^full_name) ;
-        raise (Found (full_name,r))
-      with Sys_error s ->
-        if !verbose > 1 then prerr_endline ("Failed: "^s))
-    tex_path ;
+    List.iter try_open tex_path ;
+    try_import try_open ;
     raise (Error ("Cannot open file: "^filename))
   with Found r -> r
 ;;
@@ -86,12 +94,13 @@ let open_tex filename =
 exception FoundBis of string
 
 let do_find name =
+  let try_find dir =
+    let full_name = Filename.concat dir name in
+    if Sys.file_exists full_name then
+      raise (FoundBis full_name) in
   try
-    List.iter (fun dir ->
-      let full_name = Filename.concat dir name in
-      if Sys.file_exists full_name then
-        raise (FoundBis full_name))
-      tex_path ;
+    List.iter try_find tex_path ;
+    try_import try_find ;
     raise Not_found
   with FoundBis r -> r
 ;;

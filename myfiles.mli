@@ -12,6 +12,7 @@
 exception Error of string
 exception Except
 
+val set_import : string -> unit
 val open_tex : string -> string * in_channel
 val find : string -> string
 val changed : string -> string -> bool

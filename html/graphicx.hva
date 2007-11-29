@@ -2,9 +2,9 @@
 %%% Graphicx specific part
 \usepackage{keyval}
 \@imagecommand{\includegraphics}
-  {\execafter\imageflush\execafter\@imagearg\@imageopt}
+  {\execafter\imageflush\execafter\@image@filearg\@imageopt}
 \@imagecommand{\includegraphics*}
-  {\execafter\imageflush\execafter\@imagearg\@imageopt}
+  {\execafter\imageflush\execafter\@image@filearg\@imageopt}
 \@imagecommand{\rotatebox}
   {\execafter\imageflush\execafter\@imagearg\execafter\@imagearg\@imageopt}
 

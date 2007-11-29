@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.315 2007-06-15 14:59:56 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.316 2007-11-29 14:41:34 maranget Exp $ *)
 
 
 {
@@ -1254,9 +1254,8 @@ and image = parse
 	Image.put lxm ; Image.put true_arg ;
 	image lexbuf
       end}
-  |  command_name
-      {let lxm = lexeme lexbuf in
-      begin match lxm with
+  |  command_name as lxm
+      {begin match lxm with
 (* Definitions of  simple macros, bodies are not substituted *)
       | "\\def" | "\\gdef" ->
           Save.start_echo () ;
@@ -1724,7 +1723,6 @@ def_code "\\hva@par"
 (* Defined as a token register in latexcommon.hva *)
 let ateof = "\\@ateof"
 
-(* Mask Lexstate.input_file *)
 
 let after_input lexbuf old_toks =
   begin try
@@ -1736,6 +1734,7 @@ let after_input lexbuf old_toks =
   end ;
   ignore (Latexmacros.replace ateof old_toks)
 
+(* NB: masks Lexstate.input_file *)
 let input_file loc_verb main filename lexbuf  =
   let old_toks = Latexmacros.replace ateof (Some (zero_pat, Toks [])) in
   begin try
@@ -3583,8 +3582,6 @@ def_code "\\@restartimage"
       check_alltt_skip lexbuf)
 ;;
 
-
-
 def_code "\\@stopoutput"
     (fun lexbuf  ->
       Dest.stop () ;
@@ -3597,6 +3594,11 @@ def_code "\\@restartoutput"
       check_alltt_skip lexbuf)
 ;;
 
+def_code "\\@prim@toimage"
+  (fun lexbuf ->
+    let arg = get_prim_arg lexbuf in
+    Image.put arg)
+;;
 
 (* Info  format specific *)
 

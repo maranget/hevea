@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.107 2007-06-14 14:34:22 maranget Exp $    *)
+(*  $Id: package.ml,v 1.108 2007-11-29 14:41:35 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -252,6 +252,17 @@ def_code "\\typemacro"
     let name = Scan.get_csname lexbuf in
     let pat,body = Latexmacros.find name in
     Latexmacros.pretty_macro pat body)
+;;
+
+def_code "\\@find@file"
+  (fun lexbuf ->
+    let real_name =
+      let name = Scan.get_prim_arg lexbuf in
+      try Myfiles.find name
+      with Not_found ->
+	Misc.warning ("Cannot find file: "^name) ;
+	name in
+     Scan.translate_put_unicode_string real_name)
 ;;
 
 (* External style-sheet *)
@@ -1071,7 +1082,20 @@ register_init "chngcntr"
     ())
 ;;
 
+(**********)
+(* Import *)
+(**********)
 
+register_init "import"
+  (fun () ->
+    def_code "\\@imp@set"
+      (fun lexbuf ->
+	let imp = get_prim_arg lexbuf in
+	Myfiles.set_import imp) ;
+    ())
+;;
+
+    
 (*************************************)
 (* Extra font changes, from abisheck *)
 (*************************************)

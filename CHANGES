@@ -1,3 +1,5 @@
+version 1.10+2
+     - added import package (no starred variants yet)
      - listings: range{begin,env}{prefix,suffix} keys.
        Result may be non-compliant, moire testing needed.
      - \Let -> \@Let (plain.hva), [clash with user definition was likely].
