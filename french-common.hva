@@ -28,11 +28,11 @@
 \def\csname f@month5\endcsname{mai}%
 \def\csname f@month6\endcsname{juin}%
 \def\csname f@month7\endcsname{juillet}%
-\def\csname f@month8\endcsname{ao^\^ut}%
+\def\csname f@month8\endcsname{ao\^ut}%
 \def\csname f@month9\endcsname{septembre}%
 \def\csname f@month10\endcsname{octobre}%
 \def\csname f@month11\endcsname{novembre}%
-\def\csname f@month12\endcsname{d\e'cembre}%
+\def\csname f@month12\endcsname{d\'ecembre}%
 \def\french@month{\csname f@month\arabic{month}\endcsname}%
 \@ifundefined{theyear}{}{\def\today{\theday~\french@month~\theyear}}%
 \def\prefacename{Pr\'eface}%
