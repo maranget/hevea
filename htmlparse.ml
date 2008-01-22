@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: htmlparse.ml,v 1.10 2007-02-09 17:22:29 maranget Exp $         *)
+(*  $Id: htmlparse.ml,v 1.11 2008-01-22 18:08:37 maranget Exp $         *)
 (***********************************************************************)
 open Lexeme
 open Htmllex
@@ -79,7 +79,7 @@ let rec tree cls lexbuf =
       | Close (ctag,ctxt) when tag=ctag ->          
           Some
             (match tag with
-            | A ->
+            | A|SUP|SUB ->
                 ONode (txt,ctxt,fils)
             | _ ->
               Node

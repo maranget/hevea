@@ -1,3 +1,6 @@
+     - remove explicit vertical VALIGN=top for @{...} in arrays (html.ml).
+     - esponja was 'optimizing' <SUB>t1<SUB>t2</SUB></SUB> into
+       <SUB>t1t2</SUB>. Correction: treat SUP and SUB as A. (htmlparse.ml)
 version 1.10+3
      - very unfortunate typo: d\e'cembre -> d\'ecembre (french-common.hva)
 version 1.10+2

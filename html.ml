@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: html.ml,v 1.114 2007-03-09 13:23:52 maranget Exp $" 
+let header = "$Id: html.ml,v 1.115 2008-01-22 18:08:37 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -571,8 +571,12 @@ let make_border _ = ()
 ;;
 
 
-let center_format =
-  Tabular.Align  {Tabular.hor="center" ; Tabular.vert = "top" ;
+let inside_format =
+  Tabular.Align  {Tabular.hor="center" ; Tabular.vert = "" ;
+		   Tabular.wrap = false ; Tabular.pre = "" ; 
+		   Tabular.post = "" ; Tabular.width = Length.Default} 
+and hline_format =
+ Tabular.Align  {Tabular.hor="center" ; Tabular.vert = "top" ;
 		   Tabular.wrap = false ; Tabular.pre = "" ; 
 		   Tabular.post = "" ; Tabular.width = Length.Default} 
 ;;
@@ -581,10 +585,10 @@ let make_inside s multi =
   if not (multi) then begin
     if pblock ()=TD || pblock() = (OTHER "mtd") then begin
       close_cell "&nbsp;";
-      open_cell center_format 1 0;
+      open_cell inside_format 1 0;
       put s;
     end else begin
-      open_cell center_format 1 0;
+      open_cell inside_format 1 0;
       put s;
       close_cell "&nbsp;"
     end;
@@ -599,7 +603,7 @@ let make_hline w noborder =
       open_direct_cell "CLASS=\"hbar\"" w ;
       close_cell ""
     end else begin
-      open_cell center_format w 0;
+      open_cell hline_format w 0;
       close_mods () ;
       put "<mo stretchy=\"true\" > &horbar; </mo>";
       force_item_display ();
