@@ -1,3 +1,6 @@
+version 1.10+5
+     - \newline definition as \\ is a bad idea in tables -> \@br
+version 1.10+4
      - remove explicit vertical VALIGN=top for @{...} in arrays (html.ml).
      - esponja was 'optimizing' <SUB>t1<SUB>t2</SUB></SUB> into
        <SUB>t1t2</SUB>. Correction: treat SUP and SUB as A. (htmlparse.ml)

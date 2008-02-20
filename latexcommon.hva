@@ -296,7 +296,7 @@
 \def\emergencystretch#1{}
 %%%%%%%%%%%% A few texisms
 \newcommand{\long}{}
-\newcommand{\newline}{\\}
+\newcommand{\newline}{\@br}
 \newcommand{\expandafter}{}
 %% Arrays and tabular
 \newcommand{\extracolsep}[1]{}
