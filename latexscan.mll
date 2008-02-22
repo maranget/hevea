@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.317 2008-02-22 10:38:54 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.318 2008-02-22 14:10:07 maranget Exp $ *)
 
 
 {
@@ -3555,6 +3555,7 @@ def_code "\\@hevea@quote" do_quote ;
 ;;
 
 
+
 (* Other scanners *)
 
 def_code "\\latexonly"
@@ -3709,7 +3710,7 @@ def_code "\\@heveafail"
     raise (Misc.Purposly s))
 ;;
 
-
+(*
 (* A la TeX ouput (more or less...) *)
 
 def_code "\\newwrite"

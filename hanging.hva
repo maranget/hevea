@@ -1,0 +1,15 @@
+\ProvidesPackage{hanging}
+%%Basically does nothing but eating arguments
+\newcommand{\hangpara}[2]{}
+\newcounter{@hang}
+\newcommand{\@hang@style}[2]
+{\newstyle{DIV.hangparas#1 P}{text-indent:-#2;padding-left:#2;}}
+\newenvironment{hangparas}[2]
+{\stepcounter{@hang}%
+\@auxdowrite{\string\@hang@style\{\arabic{@hang}\}\{\css@length{#1}\}
+}%
+\@open{DIV}{CLASS="hangparas\arabic{@hang}"}}{\@close{DIV}}
+\newenvironment{hangpunct}{}{}
+\newcommand{\nhpt}{.}
+\let\nhlq\@hevea@backquote
+\let\nhrq\@hevea@quote

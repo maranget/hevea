@@ -6971,6 +6971,26 @@ characters.  For that reason, Thai in \LaTeX{} is better performed by
 another technique, which \hevea{} supports.  See this specific
 \footahref{\ifhevea.\else\heveaurl/doc\fi/thaihevea.html}{document}.
 
+\subsection{Hanging paragraphs}
+\ttindex{hanging}{package}%
+The \texttt{hanging} package is implemented.
+\hevea{} implementation consists of no-ops, except for the
+\texttt{hangingparas} environment.
+Assume the following usage of \texttt{hangingparas}:
+\begin{flushleft}
+\verb+\begin{hangparas}{+\textit{wd}\verb+}{+\textit{n}\verb+}+
+\quad\ldots
+\verb+\end{hangparas}+
+\end{flushleft}
+where \textit{wd} is a length that makes sense both for \LaTeX{}
+and CSS (typically \texttt{2ex}).
+Then \html{} output will reproduce \LaTeX~output for~$n=1$, regardless
+of the given value of argument~$n$.
+That is, in any paragraph inside the environment,
+all lines except the first get indented by~\textit{wd}.
+
+
+
 \subsection{Other packages}
 The \texttt{fancyverb} and \texttt{colortbl}
 packages are partly implemented.
@@ -6990,6 +7010,9 @@ all starred commands are missing.
 The \texttt{booktabs} package is implemented.
 This package provides nicer rulers in tables as specific commands.
 \hevea{} defines those as no-ops.
+
+
+
 
 \cutend
 \setcounter{section}{0}

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.108 2007-11-29 14:41:35 maranget Exp $    *)
+(*  $Id: package.ml,v 1.109 2008-02-22 14:10:07 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -289,6 +289,17 @@ def_code "\\hva@dump@css"
      scan_this main (Printf.sprintf "\\@getprintnostyle{%s}" name))
 ;;
 
+(* Length for CSS *)
+def_code "\\css@length"
+(fun lexbuf ->
+    let arg = get_prim_arg lexbuf in
+    let len =
+      match Get.get_length arg with
+      | Length.Pixel n -> Printf.sprintf "%ipx" n
+      | Length.Char n ->  Printf.sprintf "%iem" n
+      | _ -> warning "\\css@length cannot interpret this length" ; "0px" in
+    Dest.put len)
+;;
 
 (* A few subst definitions, with 2 optional arguments *)
 
