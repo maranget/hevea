@@ -1,0 +1,23 @@
+\ProvidesPackage{booktabs}
+%Rather awfull way to read the (...) argument arg of \cmidrule
+%A better solution would be for \cmidrule to follow
+%usual LaTeX conventions.
+\def\@bt@op{(}
+\def\@bt@cp{)}
+\let\@bt@cmi\@gobble
+\def\@eatcp#1{%
+\def\@arg{#1}%
+\ifx\@arg\@bt@cp\let\@step\@bt@cmi\else\let\@step\@eatcp\fi%
+\@step}
+%%No-ops for all commands, perhaps style-sheets permit
+%%acurate rendering?
+\newcommand{\@btabs@void}[1][]{}
+\let\toprule\@btabs@void
+\let\midrule\@btabs@void
+\let\bottomrule\@btabs@void
+\newcommand{\@cmidrule}[1]
+{\def\@arg{#1}\ifx\@arg\@bt@op\@eatcp\else\@bt@cmi{#1}\fi}
+\newcommand{\cmidrule}[1][]{\@cmidrule}
+\let\morecmidrules\relax
+\newcommand{\specialrule}[3]{}
+\let\addlinespace\@btabs@void
