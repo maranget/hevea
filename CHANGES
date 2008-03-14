@@ -1,3 +1,6 @@
+version 1.10+8
+     - different url parsing for hyperref. Looks more compatible.
+version 1.10+7
 version 1.10+6
      - added hanging and booktabs package (all definitions are no-ops)
 version 1.10+5

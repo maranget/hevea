@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.318 2008-02-22 14:10:07 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.319 2008-03-14 18:29:21 maranget Exp $ *)
 
 
 {
@@ -1111,7 +1111,7 @@ rule  main = parse
 (* German stuff *)
 | '"'
     {if is_plain '"' then 
-      Dest.put_char '"'
+      Dest.put_char '"' (* '"' *)
     else
       do_expand_command main skip_blanks "\\@hevea@dquote" lexbuf ;
       main lexbuf}
@@ -1659,7 +1659,7 @@ let get_prim_onarg arg =
   plain_back plain_sub '_' ; plain_back plain_sup '^' ;
   plain_back plain_dollar '$' ; plain_back plain_amper '&' ;
   plain_back plain_quote '\'' ; plain_back plain_backquote  '`' ;
-  plain_back plain_minus '-' ; plain_back plain_dquote '"' ;
+  plain_back plain_minus '-' ; plain_back plain_dquote '"' ; (* '"' *)
   r
 
 let get_prim s = get_prim_onarg (string_to_arg s)
@@ -2101,8 +2101,8 @@ and top_unplain c =
 
 def_code "\\catcode"
    (fun lexbuf ->
-     let char = Char.chr
-         (Get.get_int (save_arg_with_delim "=" lexbuf)) in
+     let arg = save_arg_with_delim "=" lexbuf in
+     let char = Char.chr (Get.get_int arg) in
      let code = get_num_arg lexbuf in
      begin match char,code with
      | ('\\',0) | ('{',1) | ('}',2) | ('$',3) | ('&' ,4) |
@@ -2494,6 +2494,7 @@ def_code "\\@imageflush"
     Image.page () ;
     check_alltt_skip lexbuf)
 ;;
+
 def_code "\\textalltt"
   (fun lexbuf ->
        let opt = get_prim_opt "CODE" lexbuf in

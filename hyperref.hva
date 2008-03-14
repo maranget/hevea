@@ -1,6 +1,8 @@
 \ProvidesPackage{hyperref}
 \RequirePackage{url}
 \@primitives{hyperref}
+\newcommand{\@hr@expand}[1]
+{\begingroup\catcode`\%=12\catcode`\~=12#1\endgroup}
 \newcommand{\texorpdfstring}[2]{#1}
 \newcommand{\hyperlink}[2]{\ahrefloc{#1}{#2}}
 \newcommand{\hypertarget}[2]{\aname{#1}{#2}}

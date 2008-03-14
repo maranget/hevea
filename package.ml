@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.109 2008-02-22 14:10:07 maranget Exp $    *)
+(*  $Id: package.ml,v 1.110 2008-03-14 18:29:21 maranget Exp $    *)
 
 module type S = sig  end
 
@@ -838,35 +838,37 @@ register_init "url"
 (* hyperref (not implemented in fact) *)
 register_init "hyperref"
   (fun () ->
+
+    let get_url lexbuf =
+      if Lexstate.top_level () then begin
+	Save.start_echo () ;
+	ignore (save_arg lexbuf) ;
+	Save.get_echo ()
+      end else
+	subst_arg lexbuf in
+
     def_code "\\href"
       (fun lexbuf ->
-        Save.start_echo () ;
-        let _ = save_arg lexbuf in
-        let url = Save.get_echo () in
+        let url = get_url lexbuf in
         let {arg=arg ; subst=subst} = save_arg lexbuf in
         scan_this_arg main
-          (mkarg ("\\ahref{\\textalltt[]"^url^"}{"^arg^"}") subst)) ;
+          (mkarg ("\\ahref{\\@hr@expand{"^url^"}}{"^arg^"}") subst)) ;
     def_code "\\hyperimage"
       (fun lexbuf ->
-        Save.start_echo () ;
-        let _ = save_arg lexbuf in
-        let url = Save.get_echo () in
+        let url = get_url lexbuf in
         let _ = save_arg lexbuf in
         scan_this main
-          ("\\imgsrc{\\textalltt[]"^url^"}")) ;
+          ("\\imgsrc{\\@hr@expand{"^url^"}}")) ;
     def_code "\\@hyperref"
       (fun lexbuf ->
-        let _ = save_arg lexbuf in
-        Save.start_echo () ;
-        let _ = save_arg lexbuf in
-        let url = Save.get_echo () in
+        let url = get_url lexbuf in
         let category = get_prim_arg lexbuf in
         let name = get_prim_arg lexbuf in
         let {arg=text ; subst=subst} = save_arg lexbuf in
         scan_this_arg main
           (mkarg
-             ("\\ahref{\\textalltt[]"^url^
-              "\\#"^category^"."^name^"}{"^text^"}")
+             ("\\ahref{\\@hr@expand{"^url^
+              "\\#"^category^"."^name^"}}{"^text^"}")
              subst)))
 ;;
 

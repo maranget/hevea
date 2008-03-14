@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: lexstate.ml,v 1.70 2007-06-06 18:24:19 maranget Exp $"
+let header = "$Id: lexstate.ml,v 1.71 2008-03-14 18:29:21 maranget Exp $"
 
 open Misc
 open Lexing
@@ -188,7 +188,7 @@ let plain_of_char = function
   | '\'' -> 10
   | '`' -> 11
   | '-' -> 12
-  | '"' -> 13
+  | '"' -> 13 (* '"' *)
   | c   ->
       raise
         (Fatal ("Internal catcode table error: '"^String.make 1 c^"'"))
