@@ -48,7 +48,7 @@ install . $LATEXLIBDIR hevea.sty
 install html $LIBDIR/html $HTMLLIB
 install text $LIBDIR/text $TEXTLIB
 install info $LIBDIR/info $INFOLIB
-MAPPINGS=`( cd mappings >/dev/null && echo *.map )`
+MAPPINGS=`( cd ./mappings  && echo *.map )`
 install mappings $LIBDIR/mappings $MAPPINGS
 installbin $TARGET hevea hacha esponja bibhva
 cpv imagen $BINDIR
