@@ -11,7 +11,7 @@
 
 open Misc
 
-let header = "$Id: parse_opts.ml,v 1.37 2008-09-17 07:18:24 maranget Exp $" 
+let header = "$Id: parse_opts.ml,v 1.38 2008-09-17 08:12:11 maranget Exp $" 
 
 type input = File of string | Prog of string
 
@@ -77,15 +77,15 @@ let _ = Arg.parse
   ("-s", Arg.Unit (fun () -> silent := true),
    "suppress warnings") ;
   ("-I", Arg.String (fun s -> path := s :: !path),
-   "dir, add directory ``dir'' to search path") ;
+   "dir, add directory 'dir' to search path") ;
   ("-e", Arg.String (fun s -> except := s :: !except),
-   "filename, prevent file ``filename'' from being read") ;
+   "filename, prevent file 'filename' from being read") ;
   ("-fix", Arg.Unit (fun () -> fixpoint := true),
    "iterate Hevea until fixpoint") ;
   ("-O", Arg.Unit (fun () -> optimize := true),
    "call esponja to optimize HTML output") ;
   ("-exec", Arg.String add_program,
-   "prog , execute external program ``prog'', then read its result") ;
+   "prog , execute external program 'prog', then read its result") ;
   ("-francais",Arg.Unit (fun () -> frenchwarning := true),
    "French mode (deprecated)") ;
   ("-moreentities", Arg.Unit (fun () -> moreentities := true),
@@ -109,7 +109,7 @@ let _ = Arg.parse
   ("-w", Arg.String (fun s -> width := int_of_string s),
    "width, set the output width for text or info output");
   ("-o", Arg.String (fun s -> outname := s),
-   "filename, make hevea output go into file ``filename''")
+   "filename, make hevea output go into file 'filename'")
 ]
     (add_input)
     ("hevea "^Version.version)
