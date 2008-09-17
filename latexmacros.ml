@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmacros.ml,v 1.72 2007-02-09 09:18:36 maranget Exp $" 
+let header = "$Id: latexmacros.ml,v 1.73 2008-09-17 07:18:24 maranget Exp $" 
 open Misc
 open Parse_opts
 open Lexstate
@@ -214,8 +214,9 @@ and global_undef name =
 ;;
 
 let def_init name f =
-  if exists name then
-    fatal ("Command: "^name^" defined at initialisation") ;
+  if exists name then begin
+    fatal ("Command: "^name^" defined at initialisation")
+  end ;
   def name zero_pat (CamlCode f)
 
 let pretty_arg = function

@@ -11,7 +11,7 @@
 
 open Misc
 
-let header = "$Id: parse_opts.ml,v 1.36 2006-09-29 13:53:59 maranget Exp $" 
+let header = "$Id: parse_opts.ml,v 1.37 2008-09-17 07:18:24 maranget Exp $" 
 
 type input = File of string | Prog of string
 
@@ -44,13 +44,6 @@ and pedantic = ref false
 and destination = ref Html
 and fixpoint = ref false
 and optimize = ref false
-;;
-
-(* Variables for BibTex and GlossTex support *)
-let bib = ref false
-and gloss = ref false
-and bibfile = ref ""
-and glossfile = ref ""
 ;;
 
 let width = ref 72
@@ -93,10 +86,6 @@ let _ = Arg.parse
    "call esponja to optimize HTML output") ;
   ("-exec", Arg.String add_program,
    "prog , execute external program ``prog'', then read its result") ;
-  ("-gloss", Arg.String (fun s -> gloss := true ; glossfile := s),
-   "glossary definitions file to be read and processed for producing glossary entries, along with the glosstex package") ;
-  ("-bib", Arg.String (fun s -> bib := true ; bibfile := s),
-   "bibtex entry file to be read and processed for producing bibliography entries") ;
   ("-francais",Arg.Unit (fun () -> frenchwarning := true),
    "French mode (deprecated)") ;
   ("-moreentities", Arg.Unit (fun () -> moreentities := true),

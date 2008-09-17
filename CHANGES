@@ -1,3 +1,5 @@
+     - suppressed -gloss and -bib options that performed nothing.
+     - execute \textnormal starting math mode.
 version 1.10+8
      - different url parsing for hyperref. Looks more compatible.
 version 1.10+7

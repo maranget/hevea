@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.319 2008-03-14 18:29:21 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.320 2008-09-17 07:18:24 maranget Exp $ *)
 
 
 {
@@ -950,7 +950,7 @@ let translate_put_unicode_string s =
   let next = Misc.next_of_string s in
   translate_next next
 
-let top_open_maths dodo =
+let top_open_maths main dodo =
   push stack_in_math !in_math ;
   in_math := true ;
   if !display then  Dest.item_display () ;
@@ -961,7 +961,8 @@ let top_open_maths dodo =
   end else begin
     Dest.open_maths dodo;
     top_open_display () ;
-  end
+  end ;
+  scan_this main "\\normalfont"
 
 and top_close_maths dodo =
   in_math := pop stack_in_math ;
@@ -1019,7 +1020,7 @@ rule  main = parse
         close_env math_env
       end else begin
         new_env math_env ;
-	top_open_maths dodo ;
+	top_open_maths main dodo ;
 	if dodo then ignore (skip_blanks lexbuf)
       end
     end ;
@@ -1448,7 +1449,7 @@ and expand_command_no_skip name lexbuf = do_expand_command main no_skip name lex
 
 (* Direct display math, no env opened *)
 def_code "\\displaymath"
-  (fun lexbuf -> top_open_maths true ; skip_pop lexbuf) ;
+  (fun lexbuf -> top_open_maths main true ; skip_pop lexbuf) ;
 def_code "\\enddisplaymath"
   (fun _lexbuf -> top_close_maths true) ;
 ()
