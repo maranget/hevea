@@ -5,7 +5,7 @@
 \newcommand{\slidename}{Slide:}
 \newcounter{slide}
 \newenvironment{slide}[1][]{%
-\stepcounter{slide}%
+\refstepcounter{slide}%
 \cuthere{section}{\slidename{} \theslide}%
 \ifplanche\@hr{\linewidth}{2pt}%
 \@open{H3}{CLASS="flushright"}\slidename{} \theslide\@close{H3}

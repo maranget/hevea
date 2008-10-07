@@ -1,3 +1,4 @@
+     - \stepcounter -> \refstepcounter, for slide counter in seminar.hva
      - suppressed -gloss and -bib options that performed nothing.
      - execute \textnormal starting math mode.
 version 1.10+8
