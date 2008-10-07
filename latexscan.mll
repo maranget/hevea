@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.320 2008-09-17 07:18:24 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.321 2008-10-07 09:05:24 maranget Exp $ *)
 
 
 {
@@ -813,6 +813,7 @@ let rec expand_toks main = function
       scan_this main s
 
 let rec do_expand_command main skip_blanks name lexbuf =
+  let loca = Location.get_pos () in
   try
     if !verbose > 1 then begin
       Printf.fprintf stderr "expand_command: '%s'\n" name
@@ -888,6 +889,7 @@ let rec do_expand_command main skip_blanks name lexbuf =
   with
   | Misc.EndDocument|Misc.EndInput as e -> raise e
   | e ->
+      Location.print_this_pos loca ;
       Printf.eprintf "Giving up command: %s\n" name ;
       raise e
 ;;
