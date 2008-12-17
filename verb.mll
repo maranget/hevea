@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: verb.mll,v 1.92 2007-10-29 13:15:08 maranget Exp $            *)
+(*  $Id: verb.mll,v 1.93 2008-12-17 13:32:36 maranget Exp $            *)
 (***********************************************************************)
 {
 exception VError of string
@@ -258,11 +258,11 @@ let rec restore_char_table to_restore =
         do_rec rest in
   do_rec to_restore
 
-let eat_delim k new_mode old_process lb c s =
+let do_eat_delim visi k new_mode old_process lb c s =
   let chars = chars_string c s in
   let wrapper old_process lb c = match !lst_top_mode with
   | Delim (n,to_restore) ->
-      old_process lb c ;
+      if visi then old_process lb c ;
       if n = 1 then begin
         lst_output_token () ;
         lst_top_mode := new_mode ;
@@ -274,6 +274,8 @@ let eat_delim k new_mode old_process lb c s =
   let to_restore = init_char_table_delim chars wrapper in
   lst_top_mode := Delim (1+String.length s, to_restore) ;
   wrapper old_process lb c 
+
+let eat_delim = do_eat_delim true
 
 (* Typical overkill: processesors are restored/saved
    at each step *)
@@ -764,18 +766,21 @@ let lst_process_stringizer quote old_process lb lxm = match !lst_top_mode with
 
 
 (* Comment *)
-  
-let lst_process_BNC sty _ s old_process lb c =  match !lst_top_mode with
+
+let lst_process_BNC visi sty _ s old_process lb c =  match !lst_top_mode with
 | Normal when if_next_string s lb -> 
     begin_comment () ;
-    eat_delim (fun () -> ()) (Comment (sty,Nested 0)) old_process lb c s
+    do_eat_delim
+      visi
+      (fun () -> ()) (Comment (sty,Nested 0)) old_process lb c s
 | Comment (sty,Nested n) when if_next_string s lb ->
     eat_delim (fun () -> ()) (Comment (sty,Nested (n+1))) old_process lb c s
 | _ -> old_process lb c
 
-and lst_process_ENC s old_process lb c = match !lst_top_mode with
+and lst_process_ENC visi s old_process lb c = match !lst_top_mode with
 | Comment (sty,Nested 0) when if_next_string s lb ->
-    eat_delim
+    do_eat_delim
+      visi
       (end_comment sty)
       Normal
       old_process
@@ -787,33 +792,36 @@ and lst_process_ENC s old_process lb c = match !lst_top_mode with
       old_process lb c s
 | _ -> old_process lb c
 
-let lst_process_BBC sty check s old_process lb c =  match !lst_top_mode with
+let lst_process_BBC visi sty check s old_process lb c =
+  match !lst_top_mode with
 | Normal when if_next_string s lb ->
     begin_comment () ;
-    eat_delim
+    do_eat_delim visi
       (fun () -> ())
       (Comment (sty, Balanced check))
       old_process lb c s
 | _ -> old_process lb c
 
-and lst_process_EBC s old_process lb c = match !lst_top_mode with
+and lst_process_EBC visi s old_process lb c = match !lst_top_mode with
 | Comment (sty,Balanced check) when
   check c s && if_next_string  s lb ->
-     eat_delim
+     do_eat_delim visi
       (end_comment sty)
       Normal
       old_process
       lb c s
 | _ -> old_process lb c
 
-let lst_process_LC sty s old_process lb c = match !lst_top_mode with
+let lst_process_LC visi sty s old_process lb c  =
+  match !lst_top_mode with
 | Normal when if_next_string s lb ->
     begin_comment () ;
-    eat_delim
+    do_eat_delim visi
       (fun () -> ())
       (if !lst_texcl then Escape (Normal,'\n', false) else Comment (sty,Line))
       old_process lb c s
-| _ -> old_process lb c
+| _ ->
+    old_process lb c
 
 } 
 
@@ -1347,7 +1355,12 @@ let check_style sty =
   else
     "\\csname lst@"^sty^"\\endcsname"
 
-let code_double_delim process_B process_E lexbuf =
+let check_visi = function
+  | "visible" -> true
+  | "invisible" -> false
+  | _ -> assert false
+
+let do_code_double_delim process_B process_E lexbuf =
   let sty = subst_arg lexbuf in
   let sty = check_style sty in
   let lxm_B = get_prim_arg lexbuf in
@@ -1360,22 +1373,36 @@ let code_double_delim process_B process_E lexbuf =
     lst_init_save_char head_B
       (process_B
          sty
-         (fun c s ->
-           c = head_E && s = rest_E)
+         (fun c s -> c = head_E && s = rest_E)
          rest_B) ;
     lst_init_save_char head_E (process_E rest_E)
   end
 
-let code_line_delim lexbuf =
+let code_double_delim process_B process_E lexbuf =
+  do_code_double_delim (process_B true) (process_E true) lexbuf
+  
+let code_single_delim  process_B process_E lexbuf =
+  let visi =  check_visi (get_prim_arg lexbuf) in
+  do_code_double_delim (process_B visi) (process_E visi) lexbuf
+
+let do_code_line is_com lexbuf =
+  let visi =  check_visi (get_prim_arg lexbuf) in
+  let visi =
+    if is_com && not visi then begin
+      Misc.warning "invisible commments not available" ;
+      true 
+    end else visi in
   let sty = subst_arg lexbuf in
   let sty = check_style sty in
   let lxm_LC = get_prim_arg lexbuf in
   if lxm_LC <> "" then begin
     let head = lxm_LC.[0]
     and rest = String.sub lxm_LC 1 (String.length lxm_LC-1) in
-    lst_init_save_char head
-      (lst_process_LC sty rest)
+    lst_init_save_char head (lst_process_LC visi sty rest)
   end
+
+let code_line_comment = do_code_line true
+and code_line_delim = do_code_line false
 
 let code_stringizer lexbuf =
   let mode = Scan.get_prim_arg lexbuf in
@@ -1643,11 +1670,11 @@ let init_listings () =
   def_code "\\lst@nested@comment"
     (fun lexbuf ->
       code_double_delim lst_process_BNC lst_process_ENC lexbuf) ;
-  def_code "\\lst@line@comment" code_line_delim ;
+  def_code "\\lst@line@comment" code_line_comment;
 (* Idem for delimters *)
   def_code "\\lst@line@delim"  code_line_delim ;
   def_code "\\lst@single@delim"
-    (fun lexbuf -> code_double_delim lst_process_BBC lst_process_EBC lexbuf) ;
+    (fun lexbuf -> code_single_delim lst_process_BBC lst_process_EBC lexbuf) ;
   def_code "\\lstinline"
     (fun lexbuf ->
       Image.stop () ;

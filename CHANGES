@@ -1,3 +1,4 @@
+version 1.10+9
      - listings: invisible delimiters [and no invisible comments]
      - \stepcounter -> \refstepcounter, for slide counter in seminar.hva
      - suppressed -gloss and -bib options that performed nothing.

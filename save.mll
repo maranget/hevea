@@ -12,8 +12,9 @@
 {
 open Lexing
 open Misc
+open Printf
 
-let header = "$Id: save.mll,v 1.75 2007-06-06 18:24:19 maranget Exp $" 
+let header = "$Id: save.mll,v 1.76 2008-12-17 13:32:36 maranget Exp $" 
 
 let rec peek_next_char lb =
   let pos = lb.lex_curr_pos
@@ -49,7 +50,8 @@ let rec if_next_string s lb =
         if_next_string s lb
       end
     end else
-      String.sub lb.lex_buffer pos slen = s
+      let lb_s = String.sub lb.lex_buffer pos slen in
+      lb_s = s
   
 let verbose = ref 0 and silent = ref false
 ;;

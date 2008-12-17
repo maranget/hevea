@@ -491,9 +491,9 @@ breakindent,breakautoindent}
 \lst@AddToHook{DeInit}{\setboolean{lst@stringspaces}{false}}
 %%%%%% Comments
 % Line comments
-\newcommand{\lst@LC@key}[2]
+\newcommand{\lst@LC@key}[3]
   {\lst@lExtend\lst@DefineComments@LC
-    {\lst@line@comment{#1}{\@rawchars{#2}}}}
+    {\lst@line@comment{#1}{#2}{\@rawchars{#3}}}}
 \define@key{lst}{commentline}{\lst@LC@key{commentstyle}{#1}}
 \lst@AddToHookExe{SetLanguage}{\let\lst@DefineComments@LC\@empty}
 \lst@AddToHook{SelectCharTable}{\lst@DefineComments@LC}
@@ -524,10 +524,16 @@ breakindent,breakautoindent}
 \newcommand{\lst@morecomment@d}[5][commentstyle]
 {\lst@DC@key{#1}{#2}{#3}{#4}{#5}}
 \newcommand{\lst@morecomment@s}[3][commentstyle]{\lst@SC@key{#1}{#2}{#3}}
+\newcommand{\lst@morecomment@is}[3][commentstyle]
+{\hva@warn{Invisible comments not implemented}%
+\lst@SC@key{#1}{#2}{#3}}
 \newcommand{\lst@morecomment@n}[3][commentstyle]{\lst@NC@key{#1}{#2}{#3}}
 %Notice the horible trick to parse morecomment=[l]\\
-\def\lst@LC@parse#1#2\@empty{\lst@LC@key{#1}{#2}}
-\newcommand{\lst@morecomment@l}[1][commentstyle]{\lst@LC@parse{#1}}
+\def\lst@LC@parse#1#2#3\@empty{\lst@LC@key{#1}{#2}{#3}}
+\newcommand{\lst@morecomment@l}[1][commentstyle]{\lst@LC@parse{visible}{#1}}
+\newcommand{\lst@morecomment@il}[1][commentstyle]
+{\hva@warn{Invisible comments not implemented}%
+\lst@LC@parse{visible}{#1}}
 %%%
 \def\lst@deletecomment@d{\let\lst@DefineComments@DC\@empty}
 \def\lst@deletecomment@s{\let\lst@DefineComments@SC\@empty}
@@ -560,14 +566,14 @@ breakindent,breakautoindent}
 \define@key{lst}{morecomment}{\@callsubst{\lst@morecomment@key}{#1\@empty}}
 %%%%%%% General delimiters
 %Line delimiters
-\newcommand{\lst@LD@key}[2]
-{\lst@lExtend\lst@Define@LD{\lst@line@delim{#1}{\@rawchars{#2}}}}
+\newcommand{\lst@LD@key}[3]{
+\lst@lExtend\lst@Define@LD{\lst@line@delim{#1}{#2}{\@rawchars{#3}}}}
 \lst@AddToHookExe{SetLanguage}{\let\lst@Define@LD\@empty}
 \lst@AddToHook{SelectCharTable}{\lst@Define@LD}
 %Single delimiters
-\newcommand{\lst@SD@key}[3]
+\newcommand{\lst@SD@key}[4]
 {\lst@lExtend\lst@Define@SD
-{\lst@single@delim{#1}{\@rawchars{#2}}{\@rawchars{#3}}}}
+{\lst@single@delim{#1}{#2}{\@rawchars{#3}}{\@rawchars{#4}}}}
 \lst@AddToHookExe{SetLanguage}{\let\lst@Define@SD\@empty}
 \lst@AddToHook{SelectCharTable}{\lst@Define@SD}
 %%General interface
@@ -580,9 +586,11 @@ breakindent,breakautoindent}
 \csname lst@deletedelim@#1\endcsname\fi
 \lst@till@empty}
 %Trick to parse delim=[l]\\
-\def\lst@LD@parse#1#2\@empty{\lst@LD@key{#1}{#2}}
-\newcommand{\lst@moredelim@l}[1][\@empty]{\lst@LD@parse{#1}}
-\newcommand{\lst@moredelim@s}[3][\@empty]{\lst@SD@key{#1}{#2}{#3}}
+\def\lst@LD@parse#1#2#3\@empty{\lst@LD@key{#1}{#2}{#3}}
+\newcommand{\lst@moredelim@l}[1][\@empty]{\lst@LD@parse{visible}{#1}}
+\newcommand{\lst@moredelim@il}[1][\@empty]{\lst@LD@parse{invisible}{#1}}
+\newcommand{\lst@moredelim@s}[3][\@empty]{\lst@SD@key{visible}{#1}{#2}{#3}}
+\newcommand{\lst@moredelim@is}[3][\@empty]{\lst@SD@key{invisible}{#1}{#2}{#3}}
 \newcommand{\lst@moredelim@key}[1][]
 {\ifu\csname lst@moredelim@#1\endcsname
 \hva@warn{Unknown delimiter type '#1'}%
