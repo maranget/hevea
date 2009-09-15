@@ -93,7 +93,7 @@
   {\ams@startrue\begin{ams@multline}{\ams@nonumber}}
   {\end{ams@multline}}
 %AMS split
-\newenvironment{split}{\begin{array}{r}}{\end{array}}%
+\newenvironment{split}{\begin{array}{rl}}{\end{array}}%
 \renewenvironment{cases}{\left\{\begin{array}{ll}}{\end{array}\right.}%
 \newcommand{\intertext}[1]{\qquad\mbox{#1}\\}%
 %%Matrices

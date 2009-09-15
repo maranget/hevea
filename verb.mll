@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: verb.mll,v 1.93 2008-12-17 13:32:36 maranget Exp $            *)
+(*  $Id: verb.mll,v 1.94 2009-09-15 15:33:13 maranget Exp $            *)
 (***********************************************************************)
 {
 exception VError of string
@@ -1307,6 +1307,16 @@ let init_comment () =
 ;;
 
 register_init "comment" init_comment      
+;;    
+
+(* And preview, which is identical, up to interface *)
+
+let init_preview () =
+  def_code "\\@prw" open_forget ;
+  def_code "\\end@prw"  Scan.check_alltt_skip ;
+;;
+
+register_init "preview" init_preview
 ;;    
 
 (* The listings package *)
