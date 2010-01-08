@@ -1,3 +1,5 @@
+     - added option -dAutoRotate=/None in gs invokation by imagen.
+       (suggestion of Sebastien Flicker)
      - amsmaths.hva: corrected bug in split environemnt.
      - \refstepcounter in \bititem -> set \theref, allow
        a hack [\ref{...}] \sim \cite{...} (Some do that).

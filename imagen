@@ -86,7 +86,8 @@ trap "${RM} ${NAME}.dvi ${NAME}.pdf `basename ${NAME}.log` `basename ${NAME}.aux
 
 DVIPSOPTS="-Z $TPAPER"
 GSOPTS="-q -dNOPAUSE -dBATCH -DNOPROMPT -sDEVICE=ppmraw \
-	-r$RESOLUTION -dTextAlphaBits=4 -dGraphicsAlphaBits=4"
+	-r$RESOLUTION -dAutoRotate=/None \
+        -dTextAlphaBits=4 -dGraphicsAlphaBits=4"
 if [ "${TODIR}" = "." ]
 then
   FINAL=${BASE}%03d.${EXT}

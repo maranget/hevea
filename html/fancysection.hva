@@ -12,6 +12,7 @@
 \definecolor{section}{hsv}{#1, .8, .9}%
 \definecolor{subsection}{hsv}{#1, .6, 1}%
 \definecolor{subsubsection}{hsv}{#1, .4, 1}%
+\definecolor{paragraph}{hsv}{#1, .2, 1}%
 }{%
 \definecolor{chapter}{hsv}{#1, .8, .9}%
 \definecolor{section}{hsv}{#1, .6, 1}%
@@ -37,6 +38,8 @@
 	{padding:0.3ex;background:\@getstylecolor{subsection};}%
 \newstyle{.subsubsection}
 	{padding:0.5ex;background:\@getstylecolor{subsubsection};}%
+\newstyle{.paragraph}
+	{padding:0.5ex;background:\@getstylecolor{paragraph};}%
 \ifthenelse{\equal{\@base}{book}}
 {\newstyle{.chapter}{padding:0.5ex;background:\@getstylecolor{chapter};}}
 {}%
