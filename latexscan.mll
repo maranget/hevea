@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.322 2010-01-08 08:28:59 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.323 2010-01-20 15:48:26 maranget Exp $ *)
 
 
 {
@@ -1406,8 +1406,8 @@ and comment = parse
 (* Backward compatibility with latex2html *)
 | [ ' ' '\t' ] * "\\begin{latexonly}"
     {latex2html_latexonly lexbuf }
-| ['%'' ']* ("HEVEA"|"hevea") ' '* as lxm
-   { Image.put_char '%' ; Image.put lxm }
+| ['%'' ']* ("HEVEA"|"hevea") ' '*
+   { () }
 | ['%'' ']* ("BEGIN"|"begin") ' '+ ("LATEX"|"latex")
     { skip_to_end_latex lexbuf}
 | ""

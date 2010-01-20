@@ -1,3 +1,6 @@
+     - ftp links -> htp links in documentation
+     - tried awful ack to echo %HEVEA in image files,
+       does not work revert.
      - added option -dAutoRotate=/None in gs invokation by imagen.
        (suggestion of Sebastien Flicker)
      - amsmaths.hva: corrected bug in split environemnt.
