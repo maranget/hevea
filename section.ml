@@ -9,21 +9,64 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: section.ml,v 1.5 2006-09-22 14:34:09 maranget Exp $" 
+open Printf
 
-let value s = match String.uppercase s with
-  "DOCUMENT"|""|"NOW" -> 0
+let header = "$Id: section.ml,v 1.6 2010-01-25 15:58:18 maranget Exp $" 
+
+type style = Article | Book
+
+let style = ref Book
+
+let set_style sty = match String.uppercase sty with
+| "ARTICLE" -> style := Article
+| "BOOK" -> style := Book
+| _ ->
+    Misc.warning (sprintf "strange style '%s'" sty)
+
+
+let value_article s = match s with
+| "DOCUMENT"|""|"NOW" -> 0
 | "PART" -> 1
-| "CHAPTER" -> 2
+| "SECTION" -> 2
+| "SUBSECTION" -> 3
+| "SUBSUBSECTION" -> 4
+| "PARAGRAPH" -> 5
+| "SUBPARAGRAPH" -> 6
+| _         ->
+    Misc.warning
+      (sprintf "argument '%s' as section level in article mode" s) ;
+    7
+
+let value_book s = match s with
+| "DOCUMENT"|""|"NOW" -> 0
+| "PART" -> 1
+| "CHAPTER" ->2
 | "SECTION" -> 3
 | "SUBSECTION" -> 4
 | "SUBSUBSECTION" -> 5
 | "PARAGRAPH" -> 6
 | "SUBPARAGRAPH" -> 7
 | _         ->
-    Misc.warning (Printf.sprintf "argument '%s' as section level" s) ;
+    Misc.warning (Printf.sprintf "argument '%s' as section level in book mode" s) ;
     8
-and pretty x = match x with
+
+let value s =
+  (match !style with
+  | Article -> value_article
+  | Book -> value_book)
+    (String.uppercase s)
+
+let pretty_article = function
+| 0 -> "document"
+| 1 -> "part"
+| 2 -> "section"
+| 3 -> "subsection"
+| 4 -> "subsubsection"
+| 5 -> "paragraph"
+| 6 -> "subparagraph"
+| _ -> assert false
+
+let pretty_book = function
 | 0 -> "document"
 | 1 -> "part"
 | 2 -> "chapter"
@@ -33,4 +76,8 @@ and pretty x = match x with
 | 6 -> "paragraph"
 | 7 -> "subparagraph"
 | _ -> assert false
-;;
+
+
+
+let pretty x =
+  (match !style with | Article -> pretty_article| Book -> pretty_book) x

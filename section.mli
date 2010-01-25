@@ -9,5 +9,6 @@
 (*                                                                     *)
 (***********************************************************************)
 
+val set_style: string -> unit
 val value: string -> int
 val pretty: int -> string

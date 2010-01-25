@@ -1,3 +1,7 @@
+version 1.10+11
+     - correct (?) handling of DESTDIR
+     - hacha recognises 'style' parameters, so as not
+       to be fooled by missing chapters in article mode.
 version 1.10+10
      - ftp links -> htp links in documentation
      - tried awful ack to echo %HEVEA in image files,

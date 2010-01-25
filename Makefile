@@ -7,8 +7,6 @@ PREFIX=/usr/local
 LIBDIR=$(PREFIX)/lib/hevea
 # Where to install programms
 BINDIR=$(PREFIX)/bin
-# Install prefix prefix
-DESTDIR=
 #Where to install hevea.sty
 LATEXLIBDIR=$(PREFIX)/lib/hevea
 ##### Advanced configuration parameters
@@ -100,7 +98,6 @@ config.sh: Makefile libs.def
 	echo PGMNATIVE=\"$(PGMNATIVE)\" &&\
 	echo BINDIR=$(BINDIR) &&\
 	echo LIBDIR=$(LIBDIR) &&\
-	echo DESTDIR=$(DESTDIR) &&\
 	echo LATEXLIBDIR=$(LATEXLIBDIR) &&\
 	echo OCAMLFLAGS=\"$(OCAMLFLAGS)\" &&\
 	echo OCBFLAGS=\"$(OCBFLAGS)\" &&\
@@ -110,7 +107,7 @@ config.sh: Makefile libs.def
 	echo INFOLIB=\"$(INFOLIB)\" ) > $@
 
 clean:: config.sh
-	sh ocb.sh clean
+	sh ocb.sh clean && rm config.sh
 
 ocb-byte: config.sh
 	sh ocb.sh byte

@@ -9,8 +9,10 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: cut.mll,v 1.60 2007-08-21 09:19:21 maranget Exp $ *)
+(* $Id: cut.mll,v 1.61 2010-01-25 15:58:18 maranget Exp $ *)
 {
+
+open Printf
 
 type toc_style = Normal | Both | Special
 
@@ -567,7 +569,8 @@ and closeflow () =
 
 } 
 
-let secname = ['a'-'z' 'A'-'Z']+
+let alpha = ['a'-'z' 'A'-'Z']
+let secname = alpha+
 let blank = [' ''\t''\n']
 
 rule main = parse
@@ -657,6 +660,11 @@ rule main = parse
       open_section sn name
     end ;
     main lexbuf}
+| "<!--CUT STYLE" ' '+ (alpha+ as style) ' '* "-->"
+    {
+     Section.set_style style ;
+     main lexbuf 
+    }
 | "<!--CUT DEF" ' '+ (secname as name) ' '* (['0'-'9']+ as i_opt)?
     {let chapter = Section.value (String.uppercase name) in
     let depth = match i_opt with

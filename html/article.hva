@@ -22,5 +22,6 @@
 \@makesection
   {\subparagraph}{4}{subparagraph}
   {\@open{H6}{\envclass@attr{subparagraph}}}{\thesubparagraph}{\quad}{\@close{H6}}%
+\newcommand{\hacha@style}{article}%
 \styleloadedtrue
 \fi
