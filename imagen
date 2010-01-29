@@ -7,8 +7,8 @@ RESOLUTION=100 # resolution in dpi
 CROP="-trim +repage "
 EXTRA=" "
 MARGIN="-bordercolor none -border 2 "
-PPMQUANT=""
-TOGIF="-background white -flatten gif:-"
+TOGIF="-background white -flatten -interlace Plane gif:-"
+TOPNG="-interlace Plane -quality 90 png:-"
 TOEXT=${TOGIF}
 EXT=gif
 TODIR="."
@@ -62,6 +62,7 @@ do
     -raw)
        EXTRA=''
        MARGIN=''
+       TOEXT="pnm:-"
       ;;
     *)
         break
@@ -84,9 +85,9 @@ NAME=${BASE}.image
 trap "${RM} ${NAME}.dvi ${NAME}.pdf `basename ${NAME}.log` `basename ${NAME}.aux` head.tmp body.tmp ${COM} ; exit 2" 1 2 3 8 10 13 15
 
 DVIPSOPTS="-Z $TPAPER"
-GSOPTS="-q -dNOPAUSE -dBATCH -DNOPROMPT -sDEVICE=pngalpha \
+GSOPTS="-q -dNOPAUSE -dBATCH -dNOPROMPT -sDEVICE=pngalpha \
 	-r$RESOLUTION -dAutoRotatePages=/None \
-        -dTextAlphaBits=4 -dGraphicsAlphaBits=4"
+        -dTextAlphaBits=4 -dGraphicsAlphaBits=4 -dDOINTERPOLATE"
 
 CONVERT="convert png:- ${CROP} ${EXTRA} ${MARGIN} ${TOEXT}"
 echo ${CONVERT} > ${COM}

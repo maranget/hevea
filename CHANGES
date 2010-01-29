@@ -1,3 +1,6 @@
+     - changes of imagen
+        1. Adopt pngalpha device for ghostscript
+        2. Use convert in place of pbmplus 
 version 1.10+11
      - correct (?) handling of DESTDIR
      - hacha recognises 'style' parameters, so as not

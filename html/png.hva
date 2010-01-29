@@ -1,1 +1,2 @@
 \renewcommand{\heveaimageext}{.png}
+\@addimagenopt{-png}
