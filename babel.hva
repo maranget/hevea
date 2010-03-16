@@ -155,7 +155,7 @@
 	\let\current@language\swedish@language   \swedish@babel   } {%
   \ifthenelse{\equal{#1}{turkish}} {%
 	\let\current@language\turkish@language   \turkish@babel   } {%
-  }}}}}}}}}}}}}}}}}}}}}}}}}}}}%
+  }}}}}}}}}}}}}}}}}}}}}}}}}}}}}%
 }%
 %
 %%%% Support for the 'babel' command for querying the current language.
