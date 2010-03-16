@@ -1,3 +1,5 @@
+version 1.10+13
+     - added greek option to babel
      - changes of imagen
         1. Adopt pngalpha device for ghostscript
         2. Use convert in place of pbmplus 
