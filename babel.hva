@@ -22,6 +22,7 @@
 \DeclareOption{frenchb}{\InitiateOption{french}}%
 \DeclareOption{francais}{\InitiateOption{french}}%
 \DeclareOption{german}{\InitiateOption{german}}%
+\DeclareOption{greek}{\InitiateOption{greek}}%
 \DeclareOption{ngerman}{\InitiateOption{german}}%
 \DeclareOption{austrian}{\InitiateOption{austrian}}% 
 \DeclareOption{czech}{\InitiateOption{czech}}%
@@ -60,6 +61,7 @@
 \newcommand\french@language{french}%
 \newcommand\german@language{german}%
 \newcommand\ngerman@language{ngerman}%
+\newcommand\greek@language{greek}%
 \newcommand\american@language{american}%
 \newcommand\austrian@language{austrian}%
 \newcommand\brazil@language{brazil}%
@@ -97,6 +99,8 @@
 \let\@hevea@dquote\@hevea@saved@dquote%Restore inocuous definition
   \ifthenelse{\equal{#1}{german}} {%
 	\let\current@language\german@language    \german@babel    } {%
+  \ifthenelse{\equal{#1}{greek}} {%
+	\let\current@language\greek@language    \greek@babel    } {%
   \ifthenelse{\equal{#1}{ngerman}} {%
 	\let\current@language\ngerman@language   \german@babel    } {%
   \ifthenelse{\equal{#1}{english}} {%
