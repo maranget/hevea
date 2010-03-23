@@ -117,7 +117,7 @@
 }\fi}
 \renewcommand{\bibitem}[2][!*!]
   {\stepcounter{heveabib}\ifthenelse{\equal{#1}{!*!}}
-    {\@callsubst{\NAT@bibitem}{()(@)#2(@)}}
+    {\@callsubst{\NAT@bibitem}{()(@)#2(@)\theheveabib(@)}}
     {\ifthenelse
        {\equal{\@callsubst{\NAT@check}{#1()(@)}}{}}
          {\NAT@force@numbers\@callsubst{\NAT@bibitem}{()(@)#2(@)#1(@)}}
