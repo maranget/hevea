@@ -87,7 +87,8 @@ trap "${RM} ${NAME}.dvi ${NAME}.pdf `basename ${NAME}.log` `basename ${NAME}.aux
 DVIPSOPTS="-Z $TPAPER"
 GSOPTS="-q -dNOPAUSE -dBATCH -dNOPROMPT -sDEVICE=pngalpha \
 	-r$RESOLUTION -dAutoRotatePages=/None \
-        -dTextAlphaBits=4 -dGraphicsAlphaBits=4 -dDOINTERPOLATE"
+        -dTextAlphaBits=4 -dGraphicsAlphaBits=4 -dDOINTERPOLATE \
+        -P- -dSAFER"
 
 CONVERT="convert png:- ${CROP} ${EXTRA} ${MARGIN} ${TOEXT}"
 echo ${CONVERT} > ${COM}
