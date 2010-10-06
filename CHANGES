@@ -1,3 +1,4 @@
+     - Added optional argunment to \newindex (makeidx package)
 version 1.10+14
      - Silly bug in natbib-common.hva : forgot one argument to
        \NAT@bibitem in the no-optional argument case.      
