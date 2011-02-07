@@ -45,3 +45,6 @@
 \newcommand{\@GoobleOpt}[1][]{}%
 \newcommand{\RequirePackage}[2][!*!]
 {\@pkg@pushs\usepackage[#1]{#2}\execafter\@GoobleOpt\@pkg@pops}%
+%%%%No op ProvidesFile
+\newcommand{\@eatopt}[1][]{}
+\newcommand{\ProvidesFile}[1]{\@eatopt}

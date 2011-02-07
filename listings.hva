@@ -217,8 +217,11 @@
 \lst@define@key@opt{language}{\lst@language@key}{}
 \newcommand{\lst@checkdd}[2]
   {\@ifundefined{lstdd@\MakeLowercase{#1}}{\lst@define@dd[#2]{#1}}{}}
+%Awfull hack to avoid defining XML language (hevea crash)
+\def\lst@XML{XML}
 \newcommand{\lst@definelanguage@}[3]
-  {\lst@checkdd{#1}{#2}\def\csname\lst@mklang[#2]{#1}\endcsname{\lstset{#3}}}
+  {\def\@tmp{#1}\ifx\@tmp\lst@XML\else
+  \lst@checkdd{#1}{#2}\def\csname\lst@mklang[#2]{#1}\endcsname{\lstset{#3}}\fi}
 \newcommand{\lst@derivelanguage@}[5]
   {\lst@checkdd{#1}{#2}%
   \def\csname\lst@mklang[#2]{#1}\endcsname{\csname\lst@mklang[#4]{#3}\endcsname
@@ -591,6 +594,8 @@ breakindent,breakautoindent}
 \newcommand{\lst@moredelim@il}[1][\@empty]{\lst@LD@parse{invisible}{#1}}
 \newcommand{\lst@moredelim@s}[3][\@empty]{\lst@SD@key{visible}{#1}{#2}{#3}}
 \newcommand{\lst@moredelim@is}[3][\@empty]{\lst@SD@key{invisible}{#1}{#2}{#3}}
+%Awfull hack to ignore moredelim=*[directive]\# present in lstlang?.sty files
+\newcommand{\lst@moredelim@}[3][\@empty]{}
 \newcommand{\lst@moredelim@key}[1][]
 {\ifu\csname lst@moredelim@#1\endcsname
 \hva@warn{Unknown delimiter type '#1'}%
