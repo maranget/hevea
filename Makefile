@@ -45,7 +45,7 @@ all: $(TARGET)
 all-make: $(TARGET)-make
 
 install: config.sh
-	./install.sh $(TARGET)
+	LIBDIR=${LIBDIR} LATEXLIBDIR=${LATEXLIBDIR} ./install.sh $(TARGET)
 
 byte: ocb-byte
 opt: ocb-opt

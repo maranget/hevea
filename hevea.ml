@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: hevea.ml,v 1.3 2007-02-09 14:44:28 maranget Exp $" 
+let header = "$Id: hevea.ml,v 1.4 2011-12-07 13:05:57 maranget Exp $" 
 
 open Misc
 open Parse_opts
@@ -237,6 +237,7 @@ let _ =
 *)
   end ;
   let _ = finalize false in
+  begin try Sys.remove Parse_opts.name_out with _ -> () end;
   prerr_endline "Adios" ;
   exit 2
 ;;

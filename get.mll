@@ -19,7 +19,7 @@ open MyStack
 open Length
 
 (* Compute functions *)
-let header = "$Id: get.mll,v 1.30 2007-02-08 17:48:28 maranget Exp $"
+let header = "$Id: get.mll,v 1.31 2011-12-07 13:05:18 maranget Exp $"
 
 exception Error of string
 
@@ -298,7 +298,8 @@ let def_commands_bool () =
           let name = !get_this (save_arg lexbuf) in
           push bool_stack
             (try
-              let _ = Myfiles.open_tex name in
+              let _,chan = Myfiles.open_tex name in
+              begin try close_in chan with Sys_error _ -> () end ;
               true
             with Myfiles.Except | Myfiles.Error _ -> false)) ;
         "\\@commandexists",

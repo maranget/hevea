@@ -11,7 +11,7 @@
 
 open Lexing
 
-let header = "$Id: out.ml,v 1.23 2006-12-29 15:32:19 maranget Exp $" 
+let header = "$Id: out.ml,v 1.24 2011-12-07 13:05:19 maranget Exp $" 
 let verbose = ref 0
 ;;
 
