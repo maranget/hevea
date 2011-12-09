@@ -68,7 +68,7 @@ VERSIONFILE=../version.ml
 version.tex: $(VERSIONFILE)
 	sed -n -e 's/^let real_version = "\(.*\)".*$$/\\def\\heveaversion{\1}/p' $(VERSIONFILE) > version.tex
 	sed -n -e 's/^let release_date = "\([0-9\-]*\)".*$$/\\def\\releasedate{\1}/p' $(VERSIONFILE) >> version.tex
-	echo "\\newif\\ifdevrelease\\devreleasefalse" >> version.tex
+	echo '\\newif\\ifdevrelease\\devreleasefalse' >> version.tex
 	sed -n -e '/let real_version = ".*+.*"/s//\\devreleasetrue/p' $(VERSIONFILE) >> version.tex
 
 clean:

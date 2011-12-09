@@ -37,6 +37,8 @@ mv  ${WORKDIR}/htmlgen  ${WORKDIR}/${RELEASENAME}
 TOINSTALL="${RELEASENAME}-manual.tar.gz ${RELEASENAME}-manual.ps.gz ${RELEASENAME}-manual.pdf  ${RELEASENAME}.tar.gz"
 EXTRA="LICENSE README CHANGES hevea.sty"
 #FTP
+FTPDIR=/tmp/ftp.$$
+mkdir -p $FTPDIR
 if $DEV
 then
   /bin/rm -rf $FTPDIR/unstable
@@ -72,5 +74,4 @@ fi
 /bin/rm -rf $DHTML
 mv $WORKDIR/final/${RELEASENAME}-manual $DHTML
 /bin/rm -rf ${WORKDIR}/final
-
-
+/bin/rm -rf ${FTPDIR}
