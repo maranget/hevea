@@ -9,7 +9,7 @@
 %%     output translators and doc charset.
 %%  - Later, one can desynchronize the translators
 %%    For instance, to interpret input as latin1 and to output
-%%    asciii only, one should perform:
+%%    ascii only, one should perform:
 %%     \usepackage[latin1]{inputenc}
 %%     \@def@charset{US-ASCII}
 %%   
@@ -29,7 +29,7 @@
   {\def\inputencodingname{#1}%
   \@set@in@translator{mappings/\csname\ic@mk@map{#1}\endcsname.map}%
   \@funregister{\ic@restore}}}
-%%%Seting inputencoding as package option also sets output encoding
+%%%Setting inputencoding as package option also sets output encoding
 \newcommand{\ic@set}[1]
 {\def\inputencodingname{#1}%
 \def\@charset{\csname\ic@mk@map{#1}\endcsname}%
