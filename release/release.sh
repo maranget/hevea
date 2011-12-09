@@ -15,7 +15,6 @@ cd `dirname $0`/..
 #Recompile (test)
 ( cd $WORKDIR/htmlgen && make opt )
 #Recompile (produce doc)
-exit 0
 ( cd $WORKDIR/htmlgen/doc && make manual.ps manual.pdf opt docclean )
 #Make final files with their final names
 /bin/rm -rf ${WORKDIR}/final
