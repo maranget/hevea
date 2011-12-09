@@ -13,10 +13,10 @@ cd `dirname $0`/..
   cvs -d ${CVSDIR} export ${CVSEXPORT} -l htmlgen htmlgen/html htmlgen/text htmlgen/info htmlgen/mappings htmlgen/doc htmlgen/doc/thai )
 
 #Recompile (test)
-( cd $WORKDIR/htmlgen ; make opt )
+( cd $WORKDIR/htmlgen && make opt )
 #Recompile (produce doc)
-( cd $WORKDIR/htmlgen/doc ; make manual.ps manual.pdf opt docclean )
-
+exit 0
+( cd $WORKDIR/htmlgen/doc && make manual.ps manual.pdf opt docclean )
 #Make final files with their final names
 /bin/rm -rf ${WORKDIR}/final
 mkdir -p  ${WORKDIR}/final
