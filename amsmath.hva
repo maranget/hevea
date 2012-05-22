@@ -14,7 +14,7 @@
 \ifams@star\else\addtocounter{equation}{-1}\fi}%
 \def\notag
   {\ams@nonumber
-  \ifams@star\else\addtocounter{equation}{-1}}%
+  \ifams@star\else\addtocounter{equation}{-1}\fi}%
 \let\nonumber\notag%
 %%%%% AMS equations
 \newenvironment{ams@equation}[1]

@@ -1,3 +1,5 @@
+version 1.10+16
+     - bug in amsmath.hva (missing \fi)
 version 1.10+15
      - corrected file handle leak (in @iffileexists get.mll)
      - Added optional argunment to \newindex (makeidx package)

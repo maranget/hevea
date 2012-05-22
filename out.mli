@@ -24,7 +24,7 @@ val is_empty: t -> bool
 val put : t -> string -> unit
 val blit : t -> Lexing.lexbuf -> unit
 val put_char : t -> char -> unit
-val flush: t -> unit
+val flush : t -> unit
 val get_pos : t -> int
 val erase_start : int -> t -> unit
 

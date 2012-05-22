@@ -5744,12 +5744,8 @@ notice that \hevea{} semantics for \verb+\def+
 follows \TeX{} semantics.
 That is, defining a command that already
 exists with \verb+\def+ succeeds.
-This is an important change with respect to previous versions of
-\hevea{}, where \verb+\def+ had the same semantics as
-\verb+\newcommand+.
 
-
-Delimiting characters in command definition are supported.
+Delimiting characters in command definition are somehow supported.
 Consider the following example from the \TeX{} Book:
 \begin{verbatim}
 \def\Look{\textsc{Look}}
@@ -5779,6 +5775,17 @@ Yields:
 \def\frenchquote(#1){\guillemotleft~\emph{#1}~\guillemotright{} (in French)}%
 he said \frenchquote(Alors cette accolade ouvrante {``\{''}~?).
 \endgroup
+
+Another issue regards comments: ``\%'' in arguments may give undefined
+behaviors, while comments are better avoided while defining
+macros. As an example, the following code will not be handled properly
+by \hevea:
+\begin{verbatim}
+\def\x%
+   #1{y}
+\end{verbatim}
+Such \TeX{} source should be rewritten as \verb+\def\x#1{y}+.
+
 
 
 Another source of incompatibilty with \TeX{} is that  substitution of
