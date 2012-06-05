@@ -8,7 +8,6 @@
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
 (***********************************************************************)
-open Lexstate
 
 exception Failed
 

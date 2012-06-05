@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: htmltext.ml,v 1.12 2005-11-08 14:27:20 maranget Exp $          *)
+(*  $Id: htmltext.ml,v 1.13 2012-06-05 14:55:39 maranget Exp $          *)
 (***********************************************************************)
 open Emisc
 open Lexeme
@@ -132,8 +132,6 @@ let rec rem_style s = function
         let rem = rem_style s rem in
         os::rem
   | [] -> raise Same
-
-let there s env =  List.exists (fun t -> same_style s t) env
 
 type env = t_style list
 

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: myfiles.ml,v 1.24 2007-11-29 14:41:35 maranget Exp $" 
+let _header = "$Id: myfiles.ml,v 1.25 2012-06-05 14:55:39 maranget Exp $" 
 open Misc
 
 exception Error of string

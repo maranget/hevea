@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: lexstate.ml,v 1.71 2008-03-14 18:29:21 maranget Exp $"
+let _header = "$Id: lexstate.ml,v 1.72 2012-06-05 14:55:39 maranget Exp $"
 
 open Misc
 open Lexing
@@ -74,7 +74,6 @@ let stack_subst = MyStack.create "stack_subst"
 and stack_alltt = MyStack.create_init "stack_alltt" Not
 
 let get_subst () = !subst
-let set_subst s = subst := s
 let top_subst = Top
 
 
@@ -168,7 +167,6 @@ let pretty_lexbuf lb =
 
   
 (* arguments inside macros*)
-type env = string array ref
 type closenv = string array t
 
 

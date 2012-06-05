@@ -12,9 +12,8 @@
 {
 open Lexing
 open Misc
-open Printf
 
-let header = "$Id: save.mll,v 1.76 2008-12-17 13:32:36 maranget Exp $" 
+let _header = "$Id: save.mll,v 1.77 2012-06-05 14:55:39 maranget Exp $" 
 
 let rec peek_next_char lb =
   let pos = lb.lex_curr_pos
@@ -81,7 +80,6 @@ let echo = ref false
 
 let get_echo () = echo := false ; Out.to_string echo_buff
 and start_echo () = echo := true ; Out.reset echo_buff
-and stop_echo () = echo := false ; Out.reset echo_buff
 ;;
 
 let empty_buffs () =
@@ -462,9 +460,9 @@ and eat_delim_rec  delim next i = parse
     | Stop s -> s
     | Continue i -> eat_delim_rec delim next i lexbuf}
 |  eof
-    {error ("End of file in delimited argument, read:
-	"^
-            Out.to_string echo_buff)}
+    {error
+       ("End of file in delimited argument, read:\n" ^
+        Out.to_string echo_buff)}
 
 and skip_delim_init delim i = parse
 | space|'\n' {skip_delim_init delim i lexbuf}

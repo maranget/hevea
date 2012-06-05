@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: latexscan.mll,v 1.323 2010-01-20 15:48:26 maranget Exp $ *)
+(* $Id: latexscan.mll,v 1.324 2012-06-05 14:55:39 maranget Exp $ *)
 
 
 {
@@ -58,7 +58,6 @@ open Misc
 open Parse_opts
 open Element
 open Lexing
-open Myfiles
 open Latexmacros
 open Save
 open Tabular
@@ -106,9 +105,6 @@ let inc_size i =
     else if n+i >= 7 then 7
     else n+i in
   Dest.open_mod (Font new_size)
-;;
-
-let big_size () =  Dest.open_mod (Font 7)
 ;;
 
 (* Horizontal display *)
@@ -321,7 +317,6 @@ and top_close_block_aux close_fun block =
 ;;
 
 let top_close_block block = top_close_block_aux Dest.close_block block
-and top_erase_block block = top_close_block_aux Dest.erase_block block
 and top_force_block block =
   top_close_block_aux (fun name -> Dest.force_block name "") block
 and top_close_flow block = top_close_block_aux Dest.close_flow block
@@ -399,11 +394,6 @@ let default_format =
   Tabular.Align
     {hor="left" ; vert = "" ; wrap = false ;
       pre = "" ; post = "" ; width = Length.Default}
-
-and center_format =
-  Tabular.Align
-    {hor="center" ; vert = "top" ; wrap = false ;
-      pre = "" ; post = "" ; width = Length.Default} 
 ;;
 
 
@@ -427,16 +417,6 @@ and math_table = function
 
 exception EndInside
 ;;
-exception NoMulti
-;;
-
-let attribut name = function
-  | "" -> ""
-  | s  -> " "^name^"="^s
-
-and as_colspan = function
-  |  1  -> ""
-  |  n -> " COLSPAN="^string_of_int n
 
 let is_inside = function
     Tabular.Inside _ -> true
@@ -549,13 +529,6 @@ let rec find_end n format i b insides = match n with
 
 let find_start i = if !first_border then 0 else i
 
-let find_align format =
-  let t = ref 0 in
-  while (is_inside (get_col format !t)) || (is_border (get_col format !t)) do
-    t := !t+1
-  done ;
-  !t
-;;
 
 let next_no_border format n =
   let t = ref n in
@@ -798,13 +771,6 @@ let no_prelude () =
 
 let macro_depth = ref 0
 ;;
-
-let debug = function
-  | Not -> "Not"
-  | Macro -> "Macro"
-  | Inside -> "Inside"
-;;
-
 
 let rec expand_toks main = function
   | [] -> ()
@@ -1179,46 +1145,6 @@ and latexonly = parse
 and latex_comment = parse
     '\n' | eof  {()}
   | [^'\n']+    {latex_comment lexbuf}
-
-and copy kont env out = parse
-  |  '%'
-      {Out.put_char out '%' ;
-	copy_comment out lexbuf ;
-	copy kont env out lexbuf }
-  |  "\\end"
-      {Save.start_echo() ;
-	let {arg=arg} = save_arg lexbuf in
-	let true_arg = Save.get_echo () in
-	if arg = env then begin
-          top_close_block "" ;
-          stop_other_scan false kont lexbuf
-	end else if arg = top stack_entry then begin
-          let _ = pop stack_entry in
-          push stack_out arg ;
-          begin match Latexmacros.find (end_env arg) with
-            _,(Subst body) ->
-              scan_this_may_cont (copy kont env out) lexbuf (get_subst ())
-		(string_to_arg body)
-          |  _,_ ->
-              raise (Misc.ScanError ("Bad closing macro in copy: '"^arg^"'"))
-          end
-	end else begin
-          Out.put out ("\\end"^true_arg) ;
-          copy kont env out lexbuf
-	end}
-  | command_name  | _
-      {Out.blit out lexbuf ; copy kont env out lexbuf}
-  | eof
-      {if empty stack_lexbuf then ()
-      else begin
-	let lexbuf = previous_lexbuf () in
-	copy kont env out lexbuf
-      end}
-
-
-and copy_comment out = parse
-  | [^'\n']* ('\n'|eof) {Out.blit out lexbuf}
-
 
 and image = parse
     '%'+ ' '* ("END"|"end") ' '+ ("IMAGE"|"image")  [^'\n']* '\n'
@@ -3080,7 +3006,7 @@ def_printcount "\\fnsymbol" fnsymbol_of_int
 ;;
 
 let pad p l s =
-  for i = l-String.length s downto 1 do
+  for _i = l-String.length s downto 1 do
     translate_put_unicode_string p
   done
 ;;
@@ -3192,7 +3118,7 @@ let do_space
     | Length.Char n -> n
     | Length.Pixel n -> Length.pixel_to_char n
     | _                 -> raise Cannot in
-    for i=1 to n do
+    for _i=1 to n do
       doit ()
     done
   with Cannot -> warn arg

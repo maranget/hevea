@@ -11,7 +11,7 @@
 (***********************************************************************)
 (* <Christian.Queinnec@lip6.fr>
  The plugin for HeVeA that implements the VideoC style.
- $Id: videoc.mll,v 1.31 2006-12-29 15:32:19 maranget Exp $ 
+ $Id: videoc.mll,v 1.32 2012-06-05 14:55:39 maranget Exp $ 
 *)
 
 {
@@ -25,20 +25,17 @@ module Make
     (Scan : Latexscan.S) =
 struct
 open Misc
-open Parse_opts
 open Lexing
-open Myfiles
 open Lexstate
 open Latexmacros
 open Subst
 open Scan
 
 
-let header = 
-  "$Id: videoc.mll,v 1.31 2006-12-29 15:32:19 maranget Exp $"
+let _header = 
+  "$Id: videoc.mll,v 1.32 2012-06-05 14:55:39 maranget Exp $"
 (* So I can synchronize my changes from Luc's ones *)
-let qnc_header = 
-  "30 oct 2000"
+let _qnc_header =  "30 oct 2000"
 
 exception EndSnippet
 ;;
@@ -80,10 +77,6 @@ let snipRunHook parsing name =
   runHook "\\snip" parsing name;;
 
 (* Hack for mutual recursion between modules: *)
-
-let handle_command = ref
-  ((function _lexbuf -> function _s -> ()) 
-     : (Lexing.lexbuf -> string -> unit));;
 
 (* Convert a reference to a hint such as "3" "annote.ann" "premier indice"
    into "3_annote_ann". This is needed for the annote tool.  *)

@@ -7,12 +7,11 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: subst.mll,v 1.19 2007-06-06 18:24:19 maranget Exp $           *)
+(*  $Id: subst.mll,v 1.20 2012-06-05 14:55:39 maranget Exp $           *)
 (***********************************************************************)
 {
 open Misc
 open Lexstate
-open Lexing
 
 
 let subst_buff = Out.create_buff ()

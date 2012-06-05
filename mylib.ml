@@ -9,9 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: mylib.ml,v 1.8 2004-11-23 14:32:37 maranget Exp $" 
-exception Error of string
-;;
+let _header = "$Id: mylib.ml,v 1.9 2012-06-05 14:55:39 maranget Exp $" 
 
 let static_libdir  = "LIBDIR"
 ;;

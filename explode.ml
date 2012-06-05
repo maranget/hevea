@@ -7,10 +7,9 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: explode.ml,v 1.6 2001-05-28 17:28:55 maranget Exp $           *)
+(*  $Id: explode.ml,v 1.7 2012-06-05 14:55:39 maranget Exp $           *)
 (***********************************************************************)
 
-open Lexeme
 open Htmltext
 open Tree
 

@@ -10,9 +10,8 @@
 (***********************************************************************)
 
 {
-open Lexing
 
-let header = "$Id: entry.mll,v 1.14 2006-04-25 08:23:59 maranget Exp $" 
+let _header = "$Id: entry.mll,v 1.15 2012-06-05 14:55:39 maranget Exp $" 
 
 let buff = Out.create_buff ()
 ;;

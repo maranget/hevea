@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: htmllex.mll,v 1.14 2007-02-09 17:22:29 maranget Exp $          *)
+(*  $Id: htmllex.mll,v 1.15 2012-06-05 14:55:39 maranget Exp $          *)
 (***********************************************************************)
 {
 open Lexing
@@ -110,17 +110,6 @@ let norm_attrs lb attrs =
           | _      -> OTHER, txt)
     attrs
 
-let print_attrs s attrs =
-  print_string s ; print_string ":" ;
-  List.iter
-    (fun x -> match  x with
-    | name,Some value when name=s ->
-        print_char ' ' ;
-        print_string value
-    | _ -> ())
-    attrs ;
-  print_char '\n'
-
 let ouvre lb name attrs txt =
   let uname = String.uppercase name in
   try
@@ -147,11 +136,6 @@ and ferme _lb name txt =
   
 
 
-let unquote s =
-  let l = String.length s in
-  String.sub s 1 (l-2)
-;;
-
 let buff = Buff.create ()
 and abuff = Buff.create ()
 
@@ -159,7 +143,7 @@ let put s = Buff.put buff s
 and putc c = Buff.put_char buff c
 
 let aput s = Buff.put abuff s
-and aputc c = Buff.put_char abuff c
+
 
 
 
@@ -335,7 +319,7 @@ let to_string = function
   | Open (_,_,txt)  | Close (_,txt)  | Text txt  | Blanks txt -> txt
   | Eof -> "Eof"
 
-let rec cost = function
+let cost = function
   | {tag=FONT ; attrs=attrs} -> (1,List.length attrs)
   | _          -> (1,0)
 

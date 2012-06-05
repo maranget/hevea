@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: html.ml,v 1.115 2008-01-22 18:08:37 maranget Exp $" 
+let _header = "$Id: html.ml,v 1.116 2012-06-05 14:55:39 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -17,8 +17,6 @@ let header = "$Id: html.ml,v 1.115 2008-01-22 18:08:37 maranget Exp $"
 *)
 
 open Misc
-open Parse_opts
-open Latexmacros
 open HtmlCommon
 
 exception Error of string
@@ -32,8 +30,8 @@ let addvsize x = flags.vsize <- flags.vsize + x
 let 
   over,
   erase_display,
-  begin_item_display,
-  end_item_display,
+  _begin_item_display,
+  _end_item_display,
   force_item_display,
   item_display,
   do_close_display,
@@ -117,16 +115,6 @@ let is_empty () = flags.empty
 ;;
 
     
-
-let debug m =
-  Printf.fprintf stderr
-    "%s : table_vsize=%d vsize=%d" m flags.table_vsize flags.vsize ;
-  prerr_newline ()
-;;
-
-let debug_empty f =
-  prerr_string (if f.empty then "empty=true" else "empty=false")
-;;
 
 let put s = 
   if flags.in_math then math_put s
@@ -671,7 +659,6 @@ let item s =
 
 let nitem = item
 
-let set_dt s = flags.dt <- s
 and set_dcount s = flags.dcount <- s
 ;;
 

@@ -9,14 +9,12 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: text.ml,v 1.83 2007-03-09 13:23:53 maranget Exp $"
+let _header = "$Id: text.ml,v 1.84 2012-06-05 14:55:39 maranget Exp $"
 
 
 open Misc
-open Parse_opts
 open Element
 open Lexstate
-open Latexmacros
 open MyStack
 open Length
 
@@ -54,7 +52,7 @@ let pretty_stack s =
      | Freeze _   -> "Freeze ") s
 ;;
 
-let rec pop_out s = match pop s with
+let pop_out s = match pop s with
   Normal (a,b,c) -> a,b,c
 | Freeze _       -> raise PopFreeze
 ;;
@@ -67,12 +65,6 @@ let pblock () =
   if empty out_stack then "" else
   match top out_stack with
   | Normal (s,_,_) -> s
-  | _ -> ""
-
-and parg () =
-  if empty out_stack then "" else
-  match top out_stack with
-  | Normal (_,a,_) -> a
   | _ -> ""
 ;;
 
@@ -564,9 +556,6 @@ let do_put s =
 ;;
 
 
-let get_last_closed () = flags.last_closed;;
-let set_last_closed s = flags.last_closed<-s;;
-
 (* Gestion des styles : pas de style en mode texte *)
 
 let is_list = function
@@ -607,11 +596,6 @@ let close_mod () = match !cur_out.active with
 let has_mod _ = false (* No text-level elements in text *)
 
 let erase_mods _ = ()
-;;
-
-let rec open_mods = function
-  | [] -> ()
-  | s::reste -> open_mod s; open_mods reste
 ;;
 
 let close_mods () = 
@@ -872,9 +856,8 @@ and insert_attr _ _ = ()
 (* Autres *)
 
 (* Listes *)
-let set_dt s = flags.dt <- s
 
-and set_dcount s = flags.dcount <- s
+let set_dcount s = flags.dcount <- s
 ;;
 
 let do_item isnum =
@@ -1533,7 +1516,7 @@ let put_border s inside j =
   done;
 ;;
 
-let rec somme debut fin =
+let somme debut fin =
   let r = ref 0 in
   for k = debut to fin do
     r := !r + !table.tailles.(k)
@@ -1669,14 +1652,6 @@ and infoextranode _ _ _ = ()
 
 (* Divers *)
 
-let is_blank s =
-  let b = ref true in
-  for i = 0 to String.length s do
-    b := !b && s.[i]=' '
-  done;
-  !b
-;;
-
 let is_empty () =
   flags.in_table && (Out.is_empty !cur_out.out) && (flags.x= -1);;
 
@@ -1726,11 +1701,7 @@ let cm_format =
 		   Tabular.wrap = false ; Tabular.pre = "" ; 
 		   Tabular.post = "" ; Tabular.width = Length.Default} 
 ;;
-let lm_format =
-  Tabular.Align  {Tabular.hor="left" ; Tabular.vert = "middle" ;
-		   Tabular.wrap = false ; Tabular.pre = "" ; 
-		   Tabular.post = "" ; Tabular.width = Length.Default} 
-;;
+
 
 let formated s = Tabular.Align  
     { Tabular.hor=

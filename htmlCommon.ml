@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlCommon.ml,v 1.64 2007-07-26 20:18:36 maranget Exp $" 
+let header = "$Id: htmlCommon.ml,v 1.65 2012-06-05 14:55:39 maranget Exp $" 
 
 (* Output function for a strange html model :
      - Text elements can occur anywhere and are given as in latex
@@ -18,8 +18,6 @@ let header = "$Id: htmlCommon.ml,v 1.64 2007-07-26 20:18:36 maranget Exp $"
 
 open Misc
 open Element
-open Parse_opts
-open Latexmacros
 open MyStack
 open Length
 

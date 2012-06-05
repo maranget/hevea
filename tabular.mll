@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: tabular.mll,v 1.32 2007-02-08 17:48:28 maranget Exp $ *)
+(* $Id: tabular.mll,v 1.33 2012-06-05 14:55:39 maranget Exp $ *)
 {
 open Misc
 open Lexing
@@ -80,11 +80,6 @@ and check_length f =
 let border = ref false
 
 
-
-let push s e = s := e:: !s
-and pop s = match !s with
-  [] -> raise (Misc.Fatal "Empty stack in Latexscan")
-| e::rs -> s := rs ; e
 
 let out_table = Table.create (Inside "")
 

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: location.ml,v 1.20 2007-02-08 17:48:28 maranget Exp $" 
+let _header = "$Id: location.ml,v 1.21 2012-06-05 14:55:39 maranget Exp $" 
 
 open MyStack
 

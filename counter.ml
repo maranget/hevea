@@ -9,12 +9,11 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: counter.ml,v 1.11 2006-04-24 14:01:16 maranget Exp $" 
+let _header = "$Id: counter.ml,v 1.12 2012-06-05 14:55:39 maranget Exp $" 
+
 type t_counter =
     {mutable count : int ;
     mutable related : t_counter list}
-
-let mk_bidon () = {count = 0 ; related = []}
 
 type t_checked =
     {cname : string ;

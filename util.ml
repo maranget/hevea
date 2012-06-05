@@ -7,11 +7,10 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: util.ml,v 1.5 2001-05-28 17:28:56 maranget Exp $c             *)
+(*  $Id: util.ml,v 1.6 2012-06-05 14:55:39 maranget Exp $c             *)
 (***********************************************************************)
 
 open Tree
-open Htmltext
 
 let rec do_cost ks ((k1,k2) as c) = function
   | Text _ | Blanks _ -> c

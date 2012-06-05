@@ -7,15 +7,14 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: pp.ml,v 1.5 2005-06-24 08:32:21 maranget Exp $                *)
+(*  $Id: pp.ml,v 1.6 2012-06-05 14:55:39 maranget Exp $                *)
 (***********************************************************************)
-open Printf 
 open Lexeme
 open Tree
 
 let  potag chan ({txt=txt} as s)= output_string chan txt ; s
 
-let rec pctag chan  {ctxt=txt} = output_string chan txt
+let pctag chan  {ctxt=txt} = output_string chan txt
 
 
 let rec tree po pc chan = function

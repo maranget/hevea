@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header =  "$Id: element.ml,v 1.2 2002-06-04 11:37:05 maranget Exp $"
+let _header =  "$Id: element.ml,v 1.3 2012-06-05 14:55:39 maranget Exp $"
 (* For text-level elements *)
 type text =
   Style of string

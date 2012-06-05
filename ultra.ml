@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: ultra.ml,v 1.13 2006-10-09 08:25:16 maranget Exp $             *)
+(*  $Id: ultra.ml,v 1.14 2012-06-05 14:55:39 maranget Exp $             *)
 (***********************************************************************)
 
 open Tree
@@ -346,51 +346,6 @@ let  clean t k = match t with
   | Node ([],ts) -> ts@k
   | _ -> t::k
 
-let rec as_long p = function
-  | x::rem when p x ->
-      let yes,no = as_long p rem in
-      x::yes,no
-  | l -> [],l
-
-let rec as_long_end p = function
-  | [] -> [],[]
-  | x::rem ->
-      match as_long_end p rem with
-      | [],no when p x -> [],x::no
-      | yes,no -> x::yes,no
-          
-
-      
-let bouts _p ts =
-  let bef,rem = as_long is_blank ts in
-  let inside,aft = as_long_end is_blank rem in
-  bef,inside,aft
-
-exception Failed
-
-let extract_props_trees ps ts =
-  let card = List.length ps in
-  let rec do_rec seen = function
-    | [] -> seen,[]
-    | Blanks _ as t::rem ->
-        begin match do_rec seen rem with
-        | r,rem -> r,t::rem
-        end
-    | Node (s,args)::rem ->
-        let lift,keep = extract_props ps s in
-        let seen = union seen lift in
-        if List.length seen > card then
-          raise Failed
-        else
-          let r,rem = do_rec seen rem in
-          begin match keep with
-          | [] -> r,args@rem
-          | _  -> r,Node (keep,args)::rem
-          end
-    | _ -> assert false in
-  do_rec [] ts
-
-
 let rec neutrals started r = function
   | [] -> r
   | Blanks _::rem -> neutrals started r rem
@@ -436,10 +391,6 @@ let remove s = function
   | Node (os,ts) -> node (sub os s) ts
   | t -> t
 
-
-let is_text = function
-  | Text _ -> true
-  | _ -> false
 
 and is_text_blank = function
   | Text _ | Blanks _ -> true

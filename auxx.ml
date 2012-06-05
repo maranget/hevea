@@ -11,7 +11,7 @@
 
 open Misc
 
-let header = "$Id: auxx.ml,v 1.21 2006-02-24 16:43:25 maranget Exp $" 
+let _header = "$Id: auxx.ml,v 1.22 2012-06-05 14:55:39 maranget Exp $" 
 
 let rtable = Hashtbl.create 17
 ;;

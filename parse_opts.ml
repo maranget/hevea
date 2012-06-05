@@ -11,7 +11,7 @@
 
 open Misc
 
-let header = "$Id: parse_opts.ml,v 1.38 2008-09-17 08:12:11 maranget Exp $" 
+let _header = "$Id: parse_opts.ml,v 1.39 2012-06-05 14:55:39 maranget Exp $" 
 
 type input = File of string | Prog of string
 

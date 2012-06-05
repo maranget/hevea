@@ -7,12 +7,12 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: length.mll,v 1.15 2005-01-21 17:40:51 maranget Exp $          *)
+(*  $Id: length.mll,v 1.16 2012-06-05 14:55:39 maranget Exp $          *)
 (***********************************************************************)
 
 {
 open Lexing
-let header = "$Id: length.mll,v 1.15 2005-01-21 17:40:51 maranget Exp $" 
+let _header = "$Id: length.mll,v 1.16 2012-06-05 14:55:39 maranget Exp $" 
 
 exception Cannot
 ;;

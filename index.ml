@@ -9,9 +9,8 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: index.ml,v 1.44 2006-04-25 08:23:59 maranget Exp $"
+let _header = "$Id: index.ml,v 1.45 2012-06-05 14:55:39 maranget Exp $"
 open Misc
-open Parse_opts
 open Entry
 
 
@@ -46,8 +45,6 @@ let pretty_key (l,p) =
  p_rec l p
 ;;
 
-let pretty_entry (k,_) = pretty_key k
-;;
 
 type t_index =
   {mutable name : string ;
@@ -202,8 +199,6 @@ end
 module KeySet =  Set.Make(OrderedKey)
 ;;
 
-open KeySet
-      
 
 let rec common e1 e2 = match e1,e2 with
   ([],_),_        -> e1,e2

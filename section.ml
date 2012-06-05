@@ -11,7 +11,7 @@
 
 open Printf
 
-let header = "$Id: section.ml,v 1.6 2010-01-25 15:58:18 maranget Exp $" 
+let _header = "$Id: section.ml,v 1.7 2012-06-05 14:55:39 maranget Exp $" 
 
 type style = Article | Book
 

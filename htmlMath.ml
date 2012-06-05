@@ -9,12 +9,11 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: htmlMath.ml,v 1.48 2007-02-08 17:48:28 maranget Exp $" 
+let header = "$Id: htmlMath.ml,v 1.49 2012-06-05 14:55:39 maranget Exp $" 
 
 
 open Misc
 open Parse_opts
-open Element
 open HtmlCommon
 open MyStack
 

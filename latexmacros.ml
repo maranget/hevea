@@ -9,9 +9,8 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: latexmacros.ml,v 1.73 2008-09-17 07:18:24 maranget Exp $" 
+let _header = "$Id: latexmacros.ml,v 1.74 2012-06-05 14:55:39 maranget Exp $" 
 open Misc
-open Parse_opts
 open Lexstate
 
 exception Failed
@@ -219,6 +218,7 @@ let def_init name f =
   end ;
   def name zero_pat (CamlCode f)
 
+(*
 let pretty_arg = function
   | None -> prerr_string "<None>"
   | Some (n,acc) -> pretty_macro n acc
@@ -229,6 +229,7 @@ let pretty_replace s name old new_def =
   Printf.fprintf stderr "\n\tnew=" ;
   pretty_arg new_def ;
   prerr_endline ""
+*)
     
 let replace name new_def =
   let old_def =

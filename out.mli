@@ -19,7 +19,6 @@ val is_null : t -> bool
 val is_empty : t -> bool
 
 val reset : t -> unit
-val is_empty: t -> bool
 
 val put : t -> string -> unit
 val blit : t -> Lexing.lexbuf -> unit

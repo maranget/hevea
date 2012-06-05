@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: color.ml,v 1.10 2005-03-08 15:15:03 maranget Exp $" 
+let _header = "$Id: color.ml,v 1.11 2012-06-05 14:55:39 maranget Exp $" 
 
 type t = Name of string | Hex of string
 

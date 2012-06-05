@@ -71,11 +71,6 @@ let copy_hashtbl from_table to_table =
       rev_iter (Hashtbl.add to_table key) vals)
     !keys
 
-let clone_hashtbl from_table =
-  let to_table = Hashtbl.create 17 in
-  copy_hashtbl from_table to_table ;
-  to_table 
-
 let copy_int_hashtbl from_table to_table =
   Hashtbl.clear to_table ;
   let module OInt =
@@ -93,11 +88,6 @@ let copy_int_hashtbl from_table to_table =
       let vals = Hashtbl.find_all from_table key in
       rev_iter (Hashtbl.add to_table key) vals)
     !keys
-
-let clone_int_hashtbl from_table =
-  let to_table = Hashtbl.create 17 in
-  copy_int_hashtbl from_table to_table ;
-  to_table 
 
 let start_env env = "\\"^ env
 and end_env env = "\\end"^env

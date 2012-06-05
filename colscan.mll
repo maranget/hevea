@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: colscan.mll,v 1.6 2001-11-14 12:57:04 maranget Exp $          *)
+(*  $Id: colscan.mll,v 1.7 2012-06-05 14:55:39 maranget Exp $          *)
 (***********************************************************************)
 {
 open Lexing
@@ -15,8 +15,6 @@ open Lexing
 exception Error of string
 ;;
 
-let buf = Out.create_buff ()
-;;
 } 
 rule one = parse
 | ' '+ {one lexbuf}

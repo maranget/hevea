@@ -9,8 +9,8 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: foot.ml,v 1.23 2007-02-08 17:48:28 maranget Exp $" 
-open Parse_opts
+let _header = "$Id: foot.ml,v 1.24 2012-06-05 14:55:39 maranget Exp $" 
+
 
 let some = ref false
 ;;
