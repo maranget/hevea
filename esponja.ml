@@ -7,7 +7,7 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: esponja.ml,v 1.11 2007-02-09 14:44:28 maranget Exp $           *)
+(*  $Id: esponja.ml,v 1.12 2012-06-18 13:14:41 suzanne Exp $           *)
 (***********************************************************************)
 
 open Mysys
@@ -21,8 +21,7 @@ Arg.parse
   "-n", Arg.Unit (fun () -> Esp.move := false ; incr Emisc.verbose),
     "do not change files"]
   (fun s -> arg :=  s :: !arg)
-  ("Usage: esponja [option*] < infile > outfile,\n or    esponja [option*] files+
-options are:")
+  ("Usage: esponja [option*] < infile > outfile,\n or esponja [option*] files\noptions are:")
 ;;
 
 let main () =

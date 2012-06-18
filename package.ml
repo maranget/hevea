@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*  $Id: package.ml,v 1.111 2010-10-06 11:29:04 maranget Exp $    *)
+(*  $Id: package.ml,v 1.112 2012-06-18 13:14:41 suzanne Exp $    *)
 
 module type S = sig  end
 
@@ -759,8 +759,7 @@ name *)
             end ;
           if i<0 then begin
            (* no filename found: we use a default name and give a warning *)
-           warning ("\\FRAME: no filename (missing snapshot?) - using
-fallback name");
+           warning ("\\FRAME: no filename (missing snapshot?) - using\nfallback name");
            let s = "FRAME-graphic-not-found" in
            let cmd = "\\swFRAME{"^s^"}" in
            scan_this main cmd
