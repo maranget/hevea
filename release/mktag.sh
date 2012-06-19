@@ -1,7 +1,7 @@
 #! /bin/sh -
 
 cd `dirname $0`/..
-
+REPOS=svn+ssh://yquem.inria.fr/home/yquem/moscova/maranget/repos
 VERSIONFILE=version.ml
 VERSION=`sed -n -e 's/^let real_version = "\(.*\)".*$/\1/p' ${VERSIONFILE}`
 DATE=`date +%Y-%m-%d`
@@ -24,5 +24,5 @@ RELEASETAG=`sed -n -e 's/^let real_version = "\(.\)\.\(.*\)".*$/\1-\2/p' ${VERSI
 echo RELEASETAG=$RELEASETAG
 echo CVSEXPORT=\"-r release-\${RELEASETAG}\"
 sed  -e "s/^let release_date = .*/let release_date = \"$DATE\"/" ${VERSIONFILE} > $TMP && mv $TMP $VERSIONFILE
-( cvs commit -m tag && cvs tag -F  release-${RELEASETAG} ) >/dev/null
+( svn commit -m tag && svn copy ${REPOS}/hevea hevea-${RELEASETAG} -m "TAG${RELEASETAG}" ) >/dev/null
 
