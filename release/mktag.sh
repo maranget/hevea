@@ -22,7 +22,7 @@ esac
 TMP=/tmp/tag.$$
 RELEASETAG=`sed -n -e 's/^let real_version = "\(.\)\.\(.*\)".*$/\1-\2/p' ${VERSIONFILE}`
 echo RELEASETAG=$RELEASETAG
-echo CVSEXPORT=\"-r release-\${RELEASETAG}\"
+echo SVNEXPORT=${REPOS}/hevea-release/hevea-${RELEASETAG}
 sed  -e "s/^let release_date = .*/let release_date = \"$DATE\"/" ${VERSIONFILE} > $TMP && mv $TMP $VERSIONFILE
-( svn commit -m tag && svn copy ${REPOS}/hevea ${REPOS}/hevea-${RELEASETAG} -m "Tagging hevea-${RELEASETAG}" ) >/dev/null
+( svn commit -m tag && svn copy ${REPOS}/hevea ${REPOS}/hevea-release/hevea-${RELEASETAG} -m "Tagging hevea-${RELEASETAG}" ) >/dev/null
 
