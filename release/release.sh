@@ -9,26 +9,25 @@ cd `dirname $0`/..
 /bin/rm -rf ${WORKDIR}/htmlgen ${WORKDIR}/${RELEASENAME}
 
 #build source tar (with doc) 
-( cd $WORKDIR ;
-  cvs -d ${CVSDIR} export ${CVSEXPORT} -l htmlgen htmlgen/html htmlgen/text htmlgen/info htmlgen/mappings htmlgen/doc htmlgen/doc/thai )
+( cd $WORKDIR && svn export ${SVNEXPORT} hevea && /bin/rm -rf hevea/examples hevea/release )
 
 #Recompile (test)
-( cd $WORKDIR/htmlgen && make opt )
+( cd $WORKDIR/hevea && make opt )
 #Recompile (produce doc)
-( cd $WORKDIR/htmlgen/doc && make manual.ps manual.pdf opt docclean )
+( cd $WORKDIR/hevea/doc && make manual.ps manual.pdf opt docclean )
 #Make final files with their final names
 /bin/rm -rf ${WORKDIR}/final
 mkdir -p  ${WORKDIR}/final
-mv ${WORKDIR}/htmlgen/doc/manual.ps ${WORKDIR}/final/${RELEASENAME}-manual.ps
-mv ${WORKDIR}/htmlgen/doc/manual.pdf ${WORKDIR}/final/${RELEASENAME}-manual.pdf
-mv ${WORKDIR}/htmlgen/doc/doc ${WORKDIR}/final/${RELEASENAME}-manual
+mv ${WORKDIR}/hevea/doc/manual.ps ${WORKDIR}/final/${RELEASENAME}-manual.ps
+mv ${WORKDIR}/hevea/doc/manual.pdf ${WORKDIR}/final/${RELEASENAME}-manual.pdf
+mv ${WORKDIR}/hevea/doc/doc ${WORKDIR}/final/${RELEASENAME}-manual
 ( cd  ${WORKDIR}/final &&
   gzip -f --best ${RELEASENAME}-manual.ps &&\
   tar cf  ${RELEASENAME}-manual.tar ${RELEASENAME}-manual &&\
   gzip -f --best ${RELEASENAME}-manual.tar &&
   /bin/rm -rf ${RELEASENAME}-manual )
-( cd  ${WORKDIR}/htmlgen && make clean && /bin/rm -r doc )
-mv  ${WORKDIR}/htmlgen  ${WORKDIR}/${RELEASENAME}
+( cd  ${WORKDIR}/hevea && make clean && /bin/rm -r doc )
+mv  ${WORKDIR}/hevea  ${WORKDIR}/${RELEASENAME}
 ( cd  ${WORKDIR} && tar cf final/${RELEASENAME}.tar ${RELEASENAME} &&\
   gzip -f --best final/${RELEASENAME}.tar &&
   /bin/rm -rf ${RELEASENAME} )
