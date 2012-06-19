@@ -9,6 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
+(* Va pas tarder a etre lourdement modifie *)
 open Lexing
 
 let _header = "$Id: out.ml,v 1.25 2012-06-05 14:55:39 maranget Exp $" 
