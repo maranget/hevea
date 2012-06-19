@@ -1,4 +1,6 @@
 version 1.10+16
+     - Testing svn based release script
+version 1.10+16
      - bug in amsmath.hva (missing \fi, suggestion by Toomas Rosin)
 version 1.10+15
      - corrected file handle leak (in @iffileexists get.mll)
