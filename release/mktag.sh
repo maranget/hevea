@@ -24,5 +24,5 @@ RELEASETAG=`sed -n -e 's/^let real_version = "\(.\)\.\(.*\)".*$/\1-\2/p' ${VERSI
 echo RELEASETAG=$RELEASETAG
 echo CVSEXPORT=\"-r release-\${RELEASETAG}\"
 sed  -e "s/^let release_date = .*/let release_date = \"$DATE\"/" ${VERSIONFILE} > $TMP && mv $TMP $VERSIONFILE
-( svn commit -m tag && svn copy ${REPOS}/hevea hevea-${RELEASETAG} -m "TAG${RELEASETAG}" ) >/dev/null
+( svn commit -m tag && svn copy ${REPOS}/hevea ${REPOS}/hevea-${RELEASETAG} -m "Tagging hevea-${RELEASETAG}" ) >/dev/null
 
