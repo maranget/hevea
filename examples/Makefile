@@ -15,7 +15,7 @@ all: dvi html text info
 
 opt:
 	export HEVEADIR=.. ;\
-	$(MAKE) $(MFLAGS) HEVEAOPTS="$(HEVEAOPTS)" HEVEA=../hevea.opt HACHA=../hacha.opt BIBHVA=../bibhva.opt all
+	$(MAKE) $(MFLAGS) HEVEAOPTS="$(HEVEAOPTS)" HEVEA=../hevea.opt HACHA=../hacha.opt BIBHVA=../bibhva.opt html
 
 byte:
 	export HEVEADIR=.. ;\
@@ -33,9 +33,13 @@ natbib.html: natbib.tex
 	$(BIBHVA) natbib
 	$(HEVEA) $(HEVEAOPTS) natbib.tex
 
-test: $(SUITE) cart-index.html cart-bis-index.html cbook-index.html
-TDIR=$(HOME)/public_html/vrac/test
+test-opt:
+	export HEVEADIR=.. ;\
+	$(MAKE) $(MFLAGS) HEVEAOPTS="$(HEVEAOPTS)" HEVEA=../hevea.opt HACHA=../hacha.opt BIBHVA=../bibhva.opt test
 
+test: $(SUITE) cart-index.html cart-bis-index.html cbook-index.html
+
+TDIR=$(HOME)/public_html/vrac/test
 install-test:
 	-mkdir -p $(TDIR)
 	cp $(SUITE) $(TDIR)
