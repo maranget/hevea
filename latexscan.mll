@@ -2752,31 +2752,21 @@ def_code "\\@begin"
 ;;
 
 
-
-(* to be called by \document *)
 let append_to_opt o s = match o with
-| None | Some "" -> Some s
-| Some os -> Some (os ^ " " ^s)
+| "" -> s
+| _ -> o ^ " " ^s
 ;;
+
+
+(*****************************)
+(* To be called by \document *)
+(*****************************)
 
 def_code "\\@begin@document"
     (fun lexbuf ->
-    begin match !Misc.image_opt with
-    | None ->
-        let s = get_prim "\\heveaimageext" in
-        if String.length s = 0 then  warning "Empty \\heveaimageext"
-        else begin
-          s.[0] <- '-' ;
-          begin match s with
-          | "-gif" -> ()
-          | _      -> Misc.image_opt := append_to_opt !Misc.image_opt s
-          end
-        end
-    | _ -> ()
-    end ;
     let s = get_prim "\\heveaimagedir" in
     if s <> "" then begin
-      Misc.image_opt := append_to_opt !Misc.image_opt ("-todir "^s)
+      Misc.set_image_opt (append_to_opt (Misc.get_image_opt ()) ("-todir "^s))
     end ;
     check_alltt_skip lexbuf)
 ;;
@@ -2784,7 +2774,14 @@ def_code "\\@begin@document"
 def_code "\\@addimagenopt"
   (fun lexbuf ->
     let opt = get_prim_arg lexbuf in
-    Misc.image_opt := append_to_opt !Misc.image_opt opt ;)
+    Misc.set_image_opt (append_to_opt (Misc.get_image_opt ()) opt) ;
+    check_alltt_skip lexbuf)
+;;
+
+def_code "\\@getimagenopt"
+(fun lexbuf ->
+  Dest.put (Misc.get_image_opt ()) ;
+  check_alltt_skip lexbuf)
 ;;
 
 def_code "\\@imagenopt"

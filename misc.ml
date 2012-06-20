@@ -96,6 +96,8 @@ type limits = Limits | NoLimits | IntLimits
 
 let image_opt = ref None
 
+let set_image_opt s = image_opt := Some s
+
 let get_image_opt () = match !image_opt with
 | None -> ""
 | Some s -> s

@@ -1447,7 +1447,7 @@ created while using comment equivalents.
 \pdfsection{With a little help from LaTeX}\label{imagen}
 Sometimes,
 \hevea{} just cannot process its input, but it remains acceptable to
-have \LaTeX{} process it, to produce a \texttt{.gif} image from
+have \LaTeX{} process it, to produce an image from
 \LaTeX{} output and to include a link to this image into \hevea{}
 output.
 \hevea{} provides a limited support for doing this.
@@ -1481,7 +1481,7 @@ Output to the image file builds up a current page, which is flushed
 by the \verb+\imageflush+ command.
 This command has the following effect:  it outputs a strict page break
 in the \filename{image} file, increments the image counter and
-output a \verb+<IMG SRC="+\textit{pagename}\verb+.gif">+ tag in \hevea{}
+output a \verb+<IMG SRC="+\textit{pagename}\verb+.png">+ tag in \hevea{}
 output file, where \textit{pagename} is build from the image counter
 and \hevea{} output file name.
 Then the \verb+imagen+ script has to be run by:
@@ -1492,7 +1492,7 @@ Then the \verb+imagen+ script has to be run by:
 file through \LaTeX,
 \texttt{dvips}, \texttt{ghostscript} and a few others tools, which must all be
 present  (see section~\ref{requirements}), finally producing one
-\textit{pagename}\texttt{.gif} file per page in the \filename{image}
+\textit{pagename}\texttt{.png} file per page in the \filename{image}
 file.
 
 The  usage of \verb+imagen+  is described at
@@ -1542,7 +1542,7 @@ And we get:
 \end{htmlout}
 
 Observe that the trick can be used to replace missing symbols by small
-\texttt{.gif} images. However, the cost may be prohibitive, text rendering
+\texttt{.png} images. However, the cost may be prohibitive, text rendering
 is generally bad, fine placement is ignored and font style changes are
 problematic.
 Cost can be lowered using \verb+\savebox+, but the other problems remain.
@@ -1551,7 +1551,7 @@ Cost can be lowered using \verb+\savebox+, but the other problems remain.
 \subsection{Including Postscript images}\label{substimage}
 \index{image inclusion!in Postscript|defocc}
 In this section, a technique to transform included Postscript images
-into included GIF images is described.
+into included bitmap images is described.
 Note that this technique is used by \hevea{} implementation of the
 \texttt{graphics} package (see section~\ref{graphics}),
 which provides a more standard manner to include Postscript images in
@@ -1568,7 +1568,7 @@ image in the source file \texttt{round.tex} (which must load the
  \end{center}
 \end{verbatim}
 Then, \hevea{} can have this image translated into a inlined (and
-centered) \texttt{.gif} image by modifying source as follows:
+centered) \texttt{.png} image by modifying source as follows:
 \begin{verbatim}
  \begin{center}
  %BEGIN IMAGE
@@ -1629,9 +1629,9 @@ commands do not get expanded inside the \verb+toimage+ environment.
 
 Finally, if the Postscript image is produced from a bitmap, it is
 a pity to translate it back into a bitmap.
-A better idea is first to generate a GIF file from the bitmap source
+A better idea is first to generate a PNG file from the bitmap source
 independantly
-and then to include a link to that GIF file in \html{} output, see
+and then to include a link to that PNG file in \html{} output, see
 section~\ref{imgsrc} for a description of this more adequate technique.
 
 
@@ -2594,7 +2594,7 @@ one can adopt the slightly more verbose definition:
 }
 \end{verbatim}
 When the Postscript file has been produced by
-translating a bitmap file, this simple method of making a GIF image and
+translating a bitmap file, this simple method of making a bitmap image and
 using the \verb+\imgsrc+ command 
 is the most adequate.
 It should be preferred over using the more automated \textit{image} file
@@ -3790,6 +3790,7 @@ This can be achieved as follows:
 \subsection{Changing the format of images}
 \index{image inclusion!output format}
 \index{PNG}
+\index{GIF}
 \comindex{imageflush}
 \comindex{imgsrc}
 Semi-automatic generation of included images is described in
@@ -3803,21 +3804,20 @@ command, which calls the \verb+\imgsrc+ command:
 That is, you may supply a \html-style attribute to the included image,
 as an optional argument to the \verb+\imageflush+ command.
 
-By default, images are GIF images, stored in \texttt{.gif} files.
-\hevea{} provides direct support for the alternative PNG image file
-format.
+By default, images are PNG images stored in \texttt{.png} files.
+\hevea{} provides support for the alternative GIF image file format.
 It suffices to invoke \texttt{hevea} as:
 \begin{flushleft}
-\texttt{\#~hevea~png.hva}~\textit{doc.tex}
+\texttt{\#~hevea~gif.hva}~\textit{doc.tex}
 \end{flushleft}
-Then \texttt{imagen} must be run with option \cmdopt[imagen]{-png}:
+Then \texttt{imagen} must be run with option \cmdopt[imagen]{-gif}:
 \begin{flushleft}
-\texttt{\#~imagen~-png}~\filename{doc}
+\texttt{\#~imagen~-gif}~\filename{doc}
 \end{flushleft}
 
 A convenient alternative is to invoke \texttt{hevea} as:
 \begin{flushleft}
-\texttt{\#~hevea~-fix~png.hva}~\textit{doc.tex}
+\texttt{\#~hevea~-fix~gif.hva}~\textit{doc.tex}
 \end{flushleft}
 Then \texttt{hevea} will invoke \texttt{imagen} with the appropriate
 option when it thinks images need to be rebuild.
@@ -5320,7 +5320,7 @@ It is possible to have pictures and graphics processed by
 \texttt{imagen} (see section~\ref{image:file}).
 In the case of the \texttt{picture} environment
 it remains users responsability to explicitly choose
-source chunks that will get rendered as GIF images.
+source chunks that will get rendered as images.
 In the case of the commands from the \texttt{graphics} package,
 this choice is made by \hevea.
 
@@ -5378,7 +5378,7 @@ automatic image inclusion feature.
 More precisely, the outermost invocations of
 the \verb+\includegraphics+, \verb+\scalebox+,
 etc. commands are sent to the image \textit{image} file and there will
-be one GIF image per outermost invocation of these commands.
+be one image per outermost invocation of these commands.
 
 For instance, consider a document \texttt{doc.tex} that
 loads the \texttt{graphics} package and that includes some (scaled)
@@ -7331,7 +7331,7 @@ Usage is
 \subsection{\texttt{imagen} usage}\label{imagenusage}
 \ttindex{imagen}{command}
 The command \texttt{imagen} is a simple shell script that translates
-a \LaTeX{} document into many \texttt{.gif} images.
+a \LaTeX{} document into many \texttt{.png} images.
 The \texttt{imagen} script relies on much software to be installed on
 your computer, see Section~\ref{imagen:needs}.
 
@@ -7351,7 +7351,7 @@ The \texttt{imagen} script should then be run as:
 \texttt{\# imagen} \textit{base}
 \end{flushleft}
 The \texttt{imagen} script produces
-one \textit{base}\textsl{nnn}\texttt{.gif} image file per page in the
+one \textit{base}\textsl{nnn}\texttt{.png} image file per page in the
 \textit{base}\texttt{.image.tex} file.
 
 This is done by first calling \texttt{latex} on
@@ -7363,7 +7363,7 @@ the images, or into one  Postscript file per image,
 depending upon your version of \texttt{dvips}.
 Postscript files are interpreted by ghostscript (\texttt{gs}) that
 outputs \texttt{ppm} images, which are then fed into a series of
-transformations that change them into \texttt{.gif} files.
+transformations that change them into \texttt{.png} files.
 
 The \texttt{imagen} script recognizes the following options:
 \begin{description}
@@ -7375,28 +7375,26 @@ Default value for this ration is $1414$, this means
 that, by default, \texttt{imagen} magnifies \LaTeX{} output by a factor of
 $1.414$.
 \item[{\tt -extra} {\it command}] Insert {\it command} as an additional
-stage in \texttt{imagen} \texttt{ppm} to \texttt{gif} production chain.
+stage in \texttt{imagen} \texttt{ppm} to \texttt{png} production chain.
 \textit{command} is an Unix filter that expects a \texttt{ppm} image
 in its standard input and outputs a \texttt{ppm} image on its standard output.
 A sensible choice for \textit{command} is one command from the
-\texttt{netpbm} package or several such commands piped together.
+\texttt{netpbm} package, several such commands piped together, or
+various invocations of the \texttt{convert} command from \textbf{ImageMagick}.
 \item[{\tt -quant} {\it number}] Add an extra color quantization step
 in \texttt{imagen} \texttt{ppm} image production chain, where
 \textit{number} is the maximal number of colors in the produced
 images. This option may be needed as a response to a failure in the
 image production chain. It can also help in limiting image files size.
-\item[{\tt -gif}] Output GIF images. This is the default.
-\item[{\tt -png}]\index{PNG}
-Output PNG images in place of GIF images.
-PNG is sometimes preferred for legal reasons.
-PNG image files have a \texttt{.png} extension.
+\item[{\tt -png}]\index{PNG} Output PNG images. This is the default.
+\item[{\tt -gif}]\index{GIF}
+Output GIF images in place of PNG images.
+GIF image files have a \texttt{.gif} extension.
 Note that \texttt{hevea} should have been previously run as
-\texttt{hevea png.hva} \textit{base}\texttt{.tex} (so that the proper
-\texttt{.png} filename
+\texttt{hevea gif.hva} \textit{base}\texttt{.tex} (so that the proper
+\texttt{.gif} filename
 extension is given to image file references from within the \html{}
 document).
-Beware that the \texttt{pnmtopng} program looks to be plagued by bugs
-in old versions of the \texttt{netpbm} package.
 \item[{\tt -pnm}] Output PPM images. This option mostly serves
 debugging purposes. Experimented users can also take advantage
 of it for performing additional image transformation or
@@ -7481,7 +7479,7 @@ Notice that \texttt{hevea} does not create the target directory
 \texttt{doc}: it must exist before \texttt{hevea} runs.
 Again, in case \texttt{hevea} calls \texttt{imagen},
 image generation should proceed smoothly and the final files
-\texttt{doc001.gif}, \texttt{doc002.gif}, \ldots{} should go into
+\texttt{doc001.png}, \texttt{doc002.png}, \ldots{} should go into
 directory \texttt{doc}.
 
 
@@ -7490,7 +7488,7 @@ it is important not to forget any relevant files.
 In particular, in addition to the root file
 (\texttt{index.html}), contents files (\texttt{doc001.html},
 \texttt{doc002.html}, etc.) and images
-(\texttt{doc001.gif}, \texttt{doc002.gif}, etc.),
+(\texttt{doc001.png}, \texttt{doc002.png}, etc.),
 one should not forget the arrow images and the
 style sheet generated by \texttt{hacha}
 (\texttt{contents\_motif.gif}, \texttt{next\_motif.gif},
@@ -7558,7 +7556,7 @@ $(DOC).html: $(DOC).hva $(DOC).tex
 clean:
         rm -f $(DOC).html $(DOC).h{toc,aux,ind}
         rm -f index.html $(DOC)[0-9][0-9][0-9].html $(DOC).css
-        rm -f $(DOC).image.* $(DOC)[0-9][0-9][0-9].gif *_motif.gif
+        rm -f $(DOC).image.* $(DOC)[0-9][0-9][0-9].png *_motif.gif
 \end{verbatim}
 %$
 Observe that the \texttt{clean} rule now also gets rid of
@@ -7590,13 +7588,13 @@ clean:
         rm -f $(DIR)/*
 \end{verbatim}
 %$
-The above \texttt{Makefile} directly produces \html{} and GIF files
+The above \texttt{Makefile} directly produces \html{} and PNG files
 into the final directory \verb+$(HOME)/public_html/$(DOC)+.
 The new \texttt{partialclean} entry erases files that are not
 useful anymore, once \texttt{imagen} and \texttt{hacha} have
 performed their tasks.
 
-However, most often, it is more appropriate to build \html{} and GIF files
+However, most often, it is more appropriate to build \html{} and PNG files
 in a specific directory, and then to copy them to their final
 destination.
 \begin{verbatim}
@@ -7675,13 +7673,12 @@ Links to some of these distributions appear in \ahref{\heveaurl/}{\hevea{} home 
 
 \label{imagen:needs}\hevea{} users may instruct the program not to process a
 part of the input (see section~\ref{imagen}). Instead, this part is
-processed into a 
-\verb+.gif+ file and \hevea{} outputs a  link to the image file.
-\LaTeX{} source is changed into \verb+.gif+ images by the \verb+imagen+
+processed into a  bitmap file and \hevea{} outputs a  link to the image file.
+\LaTeX{} source is changed into \verb+.png+ images by the \verb+imagen+
 script, which basically calls, \LaTeX, \texttt{dvips},
 \footahref{http://www.cs.wisc.edu/\home{ghost}/index.html}{\texttt{ghostscript}}
-and a few tools from the image processing package
-\footahref{http://netpbm.sourceforge.net/}{\texttt{netpbm}}.
+and the \texttt{convert} command from the image processing package
+\footahref{http://www.imagemagick.org/}{\textbf{ImageMagick}}.
 
 To benefit from the full functionality of \hevea, you need all
 this software. However, \hevea{} runs without them, but then you will

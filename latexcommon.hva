@@ -503,7 +503,7 @@
 % Images     %
 %%%%%%%%%%%%%%
 \newcounter{image}
-\newcommand{\heveaimageext}{.gif}
+\newcommand{\heveaimageext}{.png}
 \newcommand{\heveaimagedir}{}
 \renewcommand{\theimage}{\@arabic{image}}
 \newcommand{\imageflush}[1][]
