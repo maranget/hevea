@@ -1,3 +1,4 @@
+     - Buffers with underlying rope structure
 version 1.10+17
      - Testing svn based release script
 version 1.10+16
