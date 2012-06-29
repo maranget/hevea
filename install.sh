@@ -1,5 +1,4 @@
 #! /bin/sh -e
-
 . ./config.sh
 
 cpv () {
