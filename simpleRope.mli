@@ -29,6 +29,7 @@ val iter_range : (char -> unit) -> t -> int -> int -> unit
 
 (* Translations *)
 val output : out_channel -> t -> unit
+val debug : out_channel -> t -> unit
 val to_string : t -> string
 
 (* Index function *)

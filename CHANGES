@@ -1,3 +1,6 @@
+     - Simplified html.mli, text.mli and info.mli by including outManager
+       signature
+     - Corrected installer bug (lstlang?.sty not installed !!)
      - Buffers with underlying rope structure (use our own)
 version 1.10+17
      - Testing svn based release script

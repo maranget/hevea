@@ -107,6 +107,10 @@ let as_string r = S.to_string r
 
 let to_string = function
   | Rope r ->
+      if !verbose > 2 && S.length !r > 256 then begin
+        eprintf "Rope to string:\n" ;
+        S.debug stderr !r
+      end ;
       let s = as_string !r in
       r := S.empty ;
       s
