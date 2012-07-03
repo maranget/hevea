@@ -294,7 +294,8 @@ let do_put_char c =
 and do_put s =
  if !verbose > 3 then
     prerr_endline ("put: |"^String.escaped s^"|");
-  Out.put !cur_out.out s
+  Out.put !cur_out.out s ;
+  ()
 ;;
 
 
@@ -1332,7 +1333,8 @@ let rec force_block s content =
   if !verbose > 2 then begin
     prerr_endline ("=> force_block: ["^string_of_block s^"]");    
     pretty_stack out_stack ;
-    pretty_cur !cur_out
+    pretty_cur !cur_out ;
+    ()
   end ;
   let pempty = top stacks.s_empty in
   if s = FORGET then begin
@@ -1424,11 +1426,12 @@ let rec force_block s content =
         ignore (do_open_these_mods do_open_mod mods)
     | _ -> ()
     end ;
+
 (*
   prerr_endline "****** NOW *******" ;
   pretty_cur !cur_out ;
   prerr_endline "\n**********" ;
-  *)
+*)
     if ps = AFTER then begin
       let f = pop stacks.s_after in
       Out.copy_fun f old_out.out !cur_out.out

@@ -13,6 +13,7 @@
 
 
 {
+open Printf
 module type S =
   sig
     (* external entry points *)
@@ -2888,7 +2889,8 @@ def_code "\\usebox"
     top_open_group () ;
     Dest.nostyle () ;
     expand_command name lexbuf ;
-    top_close_group ())
+    top_close_group () ;
+    ())
 ;;
 
 

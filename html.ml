@@ -9,6 +9,8 @@
 (*                                                                     *)
 (***********************************************************************)
 
+open Printf
+
 let _header = "$Id: html.ml,v 1.116 2012-06-05 14:55:39 maranget Exp $" 
 
 (* Output function for a strange html model :
@@ -119,6 +121,7 @@ let is_empty () = flags.empty
 let put s = 
   if flags.in_math then math_put s
   else HtmlCommon.put s
+  
 ;;
 
 let put_char c =
@@ -126,7 +129,7 @@ let put_char c =
   else HtmlCommon.put_char c
 ;;
 
-let put_unicode i = OutUnicode.html_put put put_char i
+let put_unicode i =  OutUnicode.html_put put put_char i
 
 let loc_name _ = ()
 
