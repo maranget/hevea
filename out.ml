@@ -129,12 +129,7 @@ let copy from_buff to_buff = match from_buff with
   | _ -> raise (Misc.fatal "Out.copy")
 
 let as_string = function
-  | Rope r ->
-      let s = 
-        S.print Format.str_formatter !r;
-        Format.flush_str_formatter () in
-      eprintf "AS STRING: <%s>\n%!" s;
-      s
+  | Rope r -> S.to_string !r
   | _ -> raise (Misc.fatal "Out.as_string")
 
 

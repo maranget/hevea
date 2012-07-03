@@ -2,7 +2,7 @@
 # Compile using ocamlopt, to use ocamlc set TARGET=byte
 TARGET=opt
 # Install prefix
-PREFIX=/opt/hevea
+PREFIX=/usr/local
 # Library directory of hevea
 LIBDIR=$(PREFIX)/lib/hevea
 # Where to install programms
