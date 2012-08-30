@@ -65,7 +65,7 @@ clean-test::
 	/bin/rm -f cart[0-9][0-9][0-9].html cart.css cart-index.html cart.htoc
 	/bin/rm -f cart-bis[0-9][0-9][0-9].html cart-bis.css cart-bis-index.html cart-bis.htoc
 	/bin/rm -f cbook[0-9][0-9][0-9].html cbook.css cbook-index.html cbook.htoc
- 	/bin/rm -f natbib.blg natbib.htoc suite.htoc sym.htoc
+	/bin/rm -f natbib.blg natbib.htoc suite.htoc sym.htoc
 
 clean:: clean-test
 
