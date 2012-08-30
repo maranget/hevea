@@ -9,8 +9,10 @@ cd `dirname $0`/..
 /bin/rm -rf ${WORKDIR}/htmlgen ${WORKDIR}/${RELEASENAME}
 HEVEA=hevea-${RELEASETAG}
 #build source tar (with doc) 
-( cd $WORKDIR && svn export ${SVNEXPORT} hevea-release/${HEVEA} && /bin/rm -rf ${HEVEA}/examples ${HEVEA}/release )
-
+( cd $WORKDIR && \
+svn export ${SVNEXPORT} -o ${HEVEA} hevea-release/${HEVEA} && \
+/bin/rm -rf ${HEVEA}/examples ${HEVEA}/release )
+exit 0
 #Recompile (test)
 ( cd $WORKDIR/${HEVEA} && make opt )
 #Recompile (produce doc)
