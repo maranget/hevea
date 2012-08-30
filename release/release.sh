@@ -10,7 +10,7 @@ cd `dirname $0`/..
 HEVEA=hevea-${RELEASETAG}
 #build source tar (with doc) 
 ( cd $WORKDIR && \
-svn export ${SVNEXPORT} -o ${HEVEA} hevea-release/${HEVEA} && \
+svn export ${SVNEXPORT} -o ${HEVEA} hevea-release/${HEVEA} ${HEVEA} && \
 /bin/rm -rf ${HEVEA}/examples ${HEVEA}/release )
 exit 0
 #Recompile (test)
