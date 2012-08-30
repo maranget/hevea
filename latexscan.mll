@@ -870,14 +870,13 @@ let rec do_expand_command main skip_blanks name lexbuf =
         false
       end in
     let args = make_stack name pat lexbuf in
-    if (!verbose > 1) then begin
-      prerr_endline
-        ("Expanding macro "^name^" {"^(string_of_int !macro_depth)^"}") ;
+    if !verbose > 1 then begin
+      eprintf "Expanding macro '%s' {%i}\n" name !macro_depth ;
       macro_depth := !macro_depth + 1
     end ;
     scan_body exec body args ;
-    if (!verbose > 1) then begin
-      eprintf "Cont after macro «%s», display=%B\n" name !display ;
+    if !verbose > 1 then begin
+      eprintf "Cont after macro '%s', display=%B\n" name !display ;
       macro_depth := !macro_depth - 1
     end ;
     if saw_par then do_expand_command main skip_blanks "\\par" lexbuf

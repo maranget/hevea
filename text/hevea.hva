@@ -51,6 +51,8 @@
 \newcommand{\htmlhead}[1]{\sbox{\@htmlhead}{#1}}
 \newcommand{\htmlfoot}[1]{\sbox{\@htmlfoot}{#1}}
 %%%%%%%%%%% Footnotes text dependant part
+\newcommand{\@open@footnotetext}{}
+\newcommand{\@close@footnotetext}{}
 \newcommand{\@noteref}[4]{#4}
 \newcommand{\@notepointer}[3]{#3}
 \newcommand{\@notetextstyle}[1]{~(#1)}

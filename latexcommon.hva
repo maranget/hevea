@@ -465,11 +465,9 @@
   {\@anchorval{\value{onemark}}}
   {\@fnmarktext{\value{onemark}}}}\fi
 }
-%Text of footnote in a div, because of possible \par in it
+%Text of footnote.
 \newcommand{\footnotetext}[2][\value{\footnote@c}]
-{\@footnotetext{#1}{\@open{div}{class="footnotetext"}#2\@close{div}}}
-\newstyle{.footnotetext}{margin:0ex; padding 0ex;}
-\newstyle{div.footnotetext P}{margin:0px; text-indent:1em;}
+{\@footnotetext{#1}{\@open@footnotetext{}#2\@close@footnotetext}}
 \newcommand{\footnote}[2][!*!]{%
 \ifthenelse{\equal{#1}{!*!}}
   {\footnotemark\footnotetext{#2}}

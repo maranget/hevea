@@ -84,6 +84,12 @@
 \newcommand{\@notetextstyle}[1]
   {{\@nostyle\@print{<sup>}}#1{{\@nostyle\@print{</sup>}}}}
 \newcommand{\@notenotestyle}[1]{{\@clearstyle{}#1}}
+%Styling fotnote text: use div because of possible \par in it
+\newcommand{\@open@footnotetext}{\@open{div}{class="footnotetext"}}
+\newcommand{\@close@footnotetext}{\@close{div}}
+\newstyle{.footnotetext}{margin:0ex; padding 0ex;}
+\newstyle{div.footnotetext P}{margin:0px; text-indent:1em;}
+%Other styles
 \setenvclass{thefootnotes}{thefootnotes}
 \setenvclass{dt-thefootnotes}{dt-thefootnotes}
 \setenvclass{dd-thefootnotes}{dd-thefootnotes}

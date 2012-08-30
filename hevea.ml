@@ -247,7 +247,7 @@ let _ =
 *)
   end ;
   let _ = finalize false in
-  begin try Sys.remove Parse_opts.name_out with _ -> () end;
+  if !verbose = 0 then Mysys.remove Parse_opts.name_out ;
   prerr_endline "Adios" ;
   exit 2
 ;;

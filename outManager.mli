@@ -11,7 +11,7 @@
 open Lexstate
 module type S = sig
 exception Error of string
-type block
+
 val set_out : Out.t -> unit
 val stop : unit -> unit
 val restart : unit -> unit

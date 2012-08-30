@@ -1,0 +1,68 @@
+\documentclass{article}
+\title{List test}
+\date{}
+\footerfalse
+\newenvironment{list2}
+{\begin{list}{}{\setlength{\itemsep}{0em}\setlength{\labelsep}{0em}%
+      \renewcommand{\makelabel}[1]{\textbf{$\bullet$\ ##1}}}}
+{\end{list}}%
+\begin{document}\maketitle
+\section{Paragraphs}
+Long text,
+long text,
+long text,
+long text,
+long text,
+long text,
+long text,
+long text,
+long text,
+long text,
+long text,
+long text,
+long text.
+
+Long text,
+long text,
+long text,
+long text,
+long text,
+long text,
+long text,
+long text,
+long text,
+long text,
+long text,
+long text,
+long text.
+
+\section{Simple lists}Environment \texttt{itemize}
+\begin{itemize}
+\item First item.
+\item Second item.
+\end{itemize}
+
+Environment \texttt{enumerate}
+\begin{enumerate}
+\item First item.
+\item Second item.
+\end{enumerate}
+
+Environment \texttt{description}
+\begin{description}
+\item[First] item.
+\item[Second] item.
+\item[Third] long item, long item, long item, long item, long item, long item, long item, long item, long item.
+\end{description}
+
+\section{Complex list}
+\begin{list2}
+\item Coucou
+\item Zobi
+\begin{list2}
+\item[a] Coucou
+\item[b] Zobi
+\end{list2}
+\end{list2}
+
+\end{document}

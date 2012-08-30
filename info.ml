@@ -14,7 +14,6 @@ open Misc
 open Text
 
 exception Error of string
-type block = Text.block
 
 
 let set_out=Text.set_out;;

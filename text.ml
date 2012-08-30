@@ -9,6 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
+open Printf
 open Misc
 open Element
 open Lexstate
@@ -16,12 +17,73 @@ open MyStack
 open Length
 
 exception Error of string;;
-type block = string
 
 let failclose s = raise (Misc.Close s)
 ;;
 
+type block =
+  | ALIGN
+  | HEAD
+  | QUOTE
+  | QUOTATION
+  | PRE
+  | INFO
+  | INFOLINE
+  | DELAY
+  | AFTER
+  | TEMP
+  | UL
+  | DL
+  | OL
+  | NONE
+  | GROUP
+  | OTHER of string
 
+let blocks =
+  [
+   ALIGN,"ALIGN" ;
+   HEAD,"HEAD" ;
+   QUOTE,"QUOTE" ;
+   QUOTATION,"QUOTATION" ;
+   PRE,"PRE" ;
+   INFO,"INFO" ;
+   INFOLINE,"INFOLINE" ;
+   DELAY,"DELAY" ;
+   AFTER,"AFTER" ;
+   TEMP,"TEMP" ;
+   UL,"UL" ;
+   OL,"OL" ;
+   DL,"DL" ;
+   NONE,"NONE" ;
+   GROUP,"" ;
+ ]
+
+let b2s = Hashtbl.create 17
+and s2b = Hashtbl.create 17
+
+let () =
+  List.iter
+    (fun (b,s) ->
+      Hashtbl.add b2s b s ;
+      Hashtbl.add s2b s b ;
+      ())
+    blocks
+
+let tr_block s a =
+  let s = String.uppercase s in
+  try
+    Hashtbl.find s2b s
+  with Not_found ->
+    Misc.warning
+      (sprintf "Undefined block in text mode: '%s' [%s]" s a) ;
+      OTHER s
+let pp_block b =
+  try Hashtbl.find b2s b
+  with Not_found ->
+    match b with
+    | OTHER s -> sprintf "'%s'" s
+    | _ -> assert false
+ 
 (* output globals *)
 type status = {
     mutable nostyle : bool ;
@@ -32,7 +94,7 @@ type status = {
 
 
 type stack_item =
-  Normal of string * string * status
+  Normal of block * string * status
 | Freeze of (unit -> unit)
 ;;
 
@@ -45,7 +107,8 @@ let push_out s (a,b,c) = push s (Normal (a,b,c))
 let pretty_stack s =
   MyStack.pretty
    (function
-     | Normal (s,args,_) -> "["^s^"]-{"^args^"} "
+     | Normal (s,args,_) ->
+         sprintf "[%s]-{%s} " (pp_block s) args
      | Freeze _   -> "Freeze ") s
 ;;
 
@@ -59,10 +122,10 @@ let free_list = ref [];;
 let out_stack = MyStack.create "out_stack";;
 
 let pblock () =
-  if empty out_stack then "" else
+  if empty out_stack then NONE else
   match top out_stack with
   | Normal (s,_,_) -> s
-  | _ -> ""
+  | _ -> NONE
 ;;
 
 let free out =
@@ -130,7 +193,7 @@ type flags_t = {
     mutable dt : string;
     mutable dcount : string;
     
-    mutable last_closed : string;
+    mutable last_closed : block;
     (* Alignement et formattage *)
     mutable align : align_t;
     mutable in_align : bool;
@@ -155,7 +218,7 @@ let flags = {
   nitems = 0;
   dt = "";
   dcount = "";
-  last_closed = "rien";
+  last_closed = NONE;
   align = Left;
   in_align = false;
   hsize = !Parse_opts.width;
@@ -443,7 +506,7 @@ let do_put_char_format nbsp c =
   if not nbsp && c=' ' then  flags.last_space <- flags.x;
   if flags.x =(-1) then begin
     (* La derniere ligne finissait un paragraphe : on indente *)
-(*    Printf.eprintf "FIRST LINE: %i %i\n" flags.x_start flags.first_line ; *)
+(*    eprintf "FIRST LINE: %i %i\n" flags.x_start flags.first_line ; *)
     flags.x<-flags.x_start + flags.first_line;   
     for i = 0 to flags.x-1 do
       line.[i]<-' ';
@@ -556,7 +619,7 @@ let do_put s =
 (* Gestion des styles : pas de style en mode texte *)
 
 let is_list = function
-  | "UL" | "DL" | "OL" -> true
+  | UL | DL | OL -> true
   | _ -> false
 ;;
 
@@ -608,12 +671,12 @@ let par = function (*Nombre de lignes a sauter avant le prochain put*)
       begin
 	flags.pending_par <-
 	  (match pblock() with
-	  | "QUOTE" | "QUOTATION" -> Some (n-1)
+	  | QUOTE |QUOTATION -> Some (n-1)
 	  | _ -> Some n);
 	if !verbose> 2 then
-	  prerr_endline
-	    ("par: last_close="^flags.last_closed^
-	     " r="^string_of_int n);
+          eprintf
+            "par: last_close=%s, r=%i\n"
+            (pp_block flags.last_closed) n
       end
   | _ -> ()
 
@@ -634,10 +697,10 @@ let flush_par n =
     do_put_char '\n'
   done;
   if !verbose >2 then
-    prerr_endline
-      ("flush_par : last_closed="^flags.last_closed^
-       "p="^string_of_int p);
-  flags.last_closed<-"rien"
+    eprintf
+      "flush_par : last_closed=%s, p=%i\n"
+      (pp_block flags.last_closed) p ;
+  flags.last_closed <- NONE
 ;;
 
 let try_flush_par () =
@@ -651,15 +714,14 @@ let do_pending () =
   | Some n -> flush_par n
   | _ -> ()
   end;
-  flags.last_closed <- "rien";
+  flags.last_closed <-  NONE
 ;;
 
 (* Blocs *)
 
 let try_open_block s args =
   (* Prepare l'environnement specifique au bloc en cours *)
-  if !verbose > 2 then
-    prerr_endline ("=> try_open '"^s^"'");
+  if !verbose > 2 then eprintf "=> try_open %s" (pp_block s) ;
 
   push stacks.s_x
     (flags.hsize,flags.x,flags.x_start,flags.x_end,
@@ -679,32 +741,35 @@ let try_open_block s args =
     if not flags.in_align then begin
       flags.align <- Left
     end;
-    if s="DL" then begin
+    if s=DL then begin
       push stacks.s_dt flags.dt;
       push stacks.s_dcount flags.dcount;
       flags.dt <- "";
       flags.dcount <- "";
     end;
   end else begin match s with
-  | "ALIGN" ->
+  | ALIGN ->
       begin
 	finit_ligne ();	
 	flags.in_align<-true;
 	flags.first_line <-2;
-	match args with
+	match String.uppercase args with
 	  "LEFT" -> flags.align <- Left
 	| "CENTER" -> flags.align <- Center
 	| "RIGHT" -> flags.align <- Right
-	| _ -> raise (Misc.ScanError "Invalid argument in ALIGN");
+	| a ->
+            raise
+              (Misc.ScanError
+                 (sprintf "Invalid argument in ALIGN: %s" a))
       end
-  |  "HEAD" ->
+  |  HEAD ->
       begin
 	finit_ligne ();
 	flags.first_line <-0 ;
 	push stacks.s_underline flags.underline;
 	flags.underline <- args;
       end
-  | "QUOTE" ->
+  | QUOTE ->
       begin
 	finit_ligne ();
 	flags.in_align<-true;
@@ -713,7 +778,7 @@ let try_open_block s args =
 	flags.x_start<- flags.x_start + 5 * flags.hsize / 100;
 	flags.hsize <- flags.x_end - flags.x_start+1;
       end
-  | "QUOTATION" ->
+  | QUOTATION ->
       begin
 	finit_ligne ();
 	flags.in_align<-true;
@@ -722,16 +787,16 @@ let try_open_block s args =
 	flags.x_start<- flags.x_start + 5 * flags.hsize / 100;
 	flags.hsize <- flags.x_end - flags.x_start+1;
       end
-  | "PRE" ->
+  | PRE ->
       flags.first_line <-0;
       finit_ligne ();
       do_put "<<";
       flags.first_line <-2;
-  | "INFO" ->
+  | INFO ->
       push stacks.s_nocount flags.nocount ;
       flags.nocount <- true ;
       flags.first_line <-0
-  | "INFOLINE" ->
+  | INFOLINE ->
       push stacks.s_nocount flags.nocount ;
       flags.nocount <- true ;
       flags.first_line <-0 ;
@@ -739,8 +804,7 @@ let try_open_block s args =
   | _ -> ()
   end ;
 
-  if !verbose > 2 then
-    prerr_endline ("<= try_open ``"^s^"''")
+  if !verbose > 2 then eprintf "<= try_open %s\n" (pp_block s)
 ;;
     
 let try_close_block s =
@@ -753,22 +817,22 @@ let try_close_block s =
   if (is_list s) then begin
     finit_ligne();
     flags.nitems <- pop  stacks.s_nitems;
-    if s="DL" then begin
+    if s=DL then begin
       flags.dt <- pop stacks.s_dt;
       flags.dcount <- pop stacks.s_dcount
     end
   end else begin match s with
-  | "ALIGN" | "QUOTE" | "QUOTATION" ->
+  | ALIGN | QUOTE | QUOTATION ->
 	finit_ligne ()
-  | "HEAD" ->
+  | HEAD ->
       finit_ligne();
       let u = pop stacks.s_underline in
       flags.underline <- u
-  | "PRE" ->
+  | PRE ->
       flags.first_line <-0;
       do_put ">>\n";
       flags.first_line <-fl
-  | "INFO"|"INFOLINE"->
+  | INFO|INFOLINE ->
       flags.nocount <- pop stacks.s_nocount
   | _ -> ()
   end ;
@@ -778,40 +842,33 @@ let try_close_block s =
   flags.in_align <- ia
 ;;
 
-let open_block s args =
+let open_block s arg =  
+  let s = tr_block s arg in
   (* Cree et se place dans le bloc de nom s et d'arguments args *)
-  if !verbose > 2 then
-    prerr_endline ("=> open_block ``"^s^"''");
-  let bloc,arg =
-    if s="DIV" && args="ALIGN=center" then
-      "ALIGN","CENTER"
-    else s,args
-  in
-  push_out out_stack (bloc,arg,!cur_out);
+  if !verbose > 2 then eprintf "=> open_block '%s'\n" (pp_block s);
+  push_out out_stack (s,arg,!cur_out);
   try_flush_par ();
   (* Sauvegarde de l'etat courant *)
   
-  if !cur_out.temp || s="TEMP" || s="AFTER" then begin
+  if !cur_out.temp || s=TEMP || s=AFTER then begin
     cur_out :=
       newstatus
 	!cur_out.nostyle
 	!cur_out.active
 	[] true;
   end;
-  try_open_block bloc arg;
-  if !verbose > 2 then
-    prerr_endline ("<= open_block ``"^bloc^"''")
+  try_open_block s arg;
+  if !verbose > 2 then  eprintf "<= open_block '%s'" (pp_block s)
 ;;
 
-let force_block s _ =  
-  if !verbose > 2 then
-    prerr_endline ("   force_block ``"^s^"''");
+let do_force_block s = 
+  if !verbose > 2 then eprintf "force_block '%s'\n" (pp_block s) ;
   let old_out = !cur_out in
   try_close_block s;
   let ps,_,pout = pop_out out_stack in
-  if ps <>"DELAY" then begin
+  if ps <>DELAY then begin
     cur_out:=pout;
-    if ps = "AFTER" then begin
+    if ps = AFTER then begin
         let f = pop stacks.s_after in
         Out.copy_fun f old_out.out !cur_out.out          
     end else if !cur_out.temp then
@@ -822,15 +879,16 @@ let force_block s _ =
   end else raise ( Misc.Fatal "text: unflushed DELAY")
 ;;
 
-let close_block s =
+let force_block s _content = do_force_block (tr_block s "")
+
+let do_close_block s =
   (* Fermeture du bloc : recuperation de la pile *)
-  if !verbose > 2 then
-    prerr_endline ("=> close_block ``"^s^"''");
-  let bloc =  if s = "DIV" then "ALIGN" else s in
-  force_block bloc "";
-  if !verbose > 2 then
-    prerr_endline ("<= close_block ``"^bloc^"''");
-;;
+  if !verbose > 2 then eprintf "=> close_block %s\n" (pp_block s);
+  do_force_block s ;
+  if !verbose > 2 then eprintf "<= close_block %s\n" (pp_block s);
+  ()
+
+let close_block s = do_close_block (tr_block s "")
 
 (* Hum, wrong *)
 let close_flow s =
@@ -840,11 +898,15 @@ let close_flow s =
 ;;
 
 
-let insert_block _ arg =  match arg with
+let insert_block _ arg =  match String.uppercase arg with
 | "LEFT" -> flags.align <- Left
 | "CENTER" -> flags.align <- Center
 | "RIGHT" -> flags.align <- Right
-| _ -> raise (Misc.ScanError "Invalid argument in ALIGN");
+| _ ->
+    raise
+      (Misc.ScanError
+         (sprintf
+         "Invalid argument in ALIGN: %s" arg))
 
 and insert_attr _ _ = ()
 ;;
@@ -899,17 +961,19 @@ let ditem scan arg _ _ =
   do_put_char ' '
 ;;
 
-let erase_block s = 
-  if not !cur_out.temp then close_block s
+let erase_block s =
+  let s = tr_block s "" in
+  if not !cur_out.temp then do_close_block s
   else begin
     if !verbose > 2 then begin
-      Printf.fprintf stderr "erase_block: %s" s;
+      fprintf stderr "erase_block: %s" (pp_block s);
       prerr_newline ()
     end ;
     try_close_block s ;
     let ts,_,tout = pop_out out_stack in
     if ts <> s then
-      failclose ("erase_block: "^s^" closes "^ts);
+      failclose
+        (sprintf "erase_block: %s closes %s" (pp_block s) (pp_block ts));
     free !cur_out ;
     cur_out := tout
   end
@@ -940,13 +1004,13 @@ let close_group () =
 
 
 let put s =
-  if !verbose > 3 then Printf.fprintf stderr "put: %s\n" s ;
+  if !verbose > 3 then fprintf stderr "put: %s\n" s ;
   do_pending ();
   do_put s
 ;;
 
 let put_char c =
-  if !verbose > 3 then Printf.fprintf stderr "put_char: %c\n" c ;
+  if !verbose > 3 then fprintf stderr "put_char: %c\n" c ;
   do_pending ();
   do_put_char c
 ;;
@@ -1075,19 +1139,19 @@ type table_t = {
 
 let ptailles chan table =
   let t = table.tailles in
-  Printf.fprintf chan  "[" ;
+  fprintf chan  "[" ;
   for i = 0 to Array.length t-1 do
-    Printf.fprintf chan "%d; " t.(i)
+    fprintf chan "%d; " t.(i)
   done ;
-  Printf.fprintf chan  "]"
+  fprintf chan  "]"
 
 let ptaille chan table =
   let t = Table.to_array table.taille in
-  Printf.fprintf chan  "[" ;
+  fprintf chan  "[" ;
   for i = 0 to Array.length t-1 do
-    Printf.fprintf chan "%d; " t.(i)
+    fprintf chan "%d; " t.(i)
   done ;
-  Printf.fprintf chan  "]"
+  fprintf chan  "]"
 
 let cell = ref {
   ver = Middle;
@@ -1200,7 +1264,7 @@ let register_taille table =
 
 let new_row () =
   if !verbose> 2 then begin
-    Printf.eprintf "=> new_row, line =%d, tailles=%a\n"
+    eprintf "=> new_row, line =%d, tailles=%a\n"
       !table.line ptailles !table
   end ;
   if !table.col> !table.cols then !table.cols<- !table.col;
@@ -1291,16 +1355,16 @@ let open_cell format span insides _border =
 ;;
 
 
-let close_cell content =
+let do_close_cell _content =
   if !verbose>2 then prerr_endline "=> force_cell";
   if (!cell.wrap=Wtrue) then begin
     do_flush ();
     flags.in_align <- pop stacks.s_in_align;
     flags.align <- pop stacks.s_align;
   end;
-  force_block "" content;
+  do_force_block GROUP ;
   !cell.text<-Out.to_string !cur_out.out;
-  close_block "TEMP";
+  do_close_block TEMP;
   if !verbose>2 then prerr_endline ("cell :#"^ !cell.text^
 				    "#,pre :#"^ !cell.pre^
 				    "#,post :#"^ !cell.post^
@@ -1360,9 +1424,7 @@ let close_cell content =
   !cell.pre_inside <- [];
   if !verbose>2 then prerr_endline "<= force_cell";
 ;;
-
-let do_close_cell () = close_cell ""
-;;
+let close_cell _content = do_close_cell _content
 
 let open_cell_group () = !table.in_cell <- true;
 
@@ -1392,7 +1454,7 @@ let erase_row () =
 
 and close_row _ =
   if !verbose> 2  then
-    Printf.eprintf "close_row tailles=%a, taille=%a\n"
+    eprintf "close_row tailles=%a, taille=%a\n"
       ptailles !table ptaille !table ;
   register_taille !table ;
   Table.emit !table.table
@@ -1446,7 +1508,7 @@ let make_hline _ _ =
   !cell.w <- 0;
   !cell.wrap <- Fill;
   put_char '-';
-  close_cell "";
+  close_cell ();
   close_row ();
 ;;
 
@@ -1468,7 +1530,7 @@ let safe_string_make n c =
   if n >= 0 then
     String.make n c
   else begin
-    warning (Printf.sprintf "Text.put_line: negative line: %i '%c'\n" n c) ;
+    warning (sprintf "Text.put_line: negative line: %i '%c'\n" n c) ;
     "" 
   end
 
@@ -1661,7 +1723,7 @@ let image arg _ =
 
 let horizontal_line s width height =  
   if flags.in_table then begin
-    Printf.eprintf "HR: %s %s %s\n" s (Length.pretty width) (Length.pretty height) ;
+    eprintf "HR: %s %s %s\n" s (Length.pretty width) (Length.pretty height) ;
     if false &&  not (Length.is_zero width || Length.is_zero height) then begin
       !cell.w <- 0;
       !cell.wrap <- Fill;
@@ -1846,7 +1908,9 @@ and close_vdisplay_row () =
 let insert_sup_sub () =
   let f,is_freeze = pop_freeze () in
   let ps,parg,pout = pop_out out_stack in
-  if ps <> "" then failclose ("sup_sub : "^ps^" closes \"\"");
+  if ps <> GROUP then
+    failclose
+      (sprintf "sup_sub : %s closes \"\"" (pp_block ps));
   let new_out = newstatus false [] [] true in
   push_out out_stack (ps,parg,new_out);
   close_block "";
@@ -1940,14 +2004,16 @@ and int_sup_sub something _ scanner what sup sub display =
 
 let insert_vdisplay open_fun =
   let ps,parg,pout = pop_out out_stack in
-  if ps <> "" then
-    failclose ("insert_vdisplay : "^ps^" closes the cell.");
+  if ps <> GROUP then
+    failclose (sprintf "insert_vdisplay : %s closes the cell." (pp_block ps));
   let pps,pparg,ppout = pop_out out_stack in
-  if pps <> "TEMP" then
-    failclose ("insert_vdisplay : "^pps^" closes the cell2.");
+  if pps <> TEMP then
+    failclose
+      (sprintf "insert_vdisplay : %s  closes the cell2." (pp_block pps));
   let ts,targ,tout = pop_out out_stack in
-  if ts <> "" then
-    failclose ("insert_vdisplay : "^ts^" closes the table.");
+  if ts <> GROUP then
+    failclose
+      (sprintf "insert_vdisplay : %s closes the table." (pp_block ts));
   
   let new_out = newstatus false [] [] tout.temp in
   push_out out_stack (ts,targ,new_out);

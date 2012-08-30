@@ -20,7 +20,6 @@ open Printf
 
 exception Error of string
 
-type block = HtmlCommon.block
 
 let addvsize x = flags.vsize <- flags.vsize + x
 
