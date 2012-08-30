@@ -154,7 +154,7 @@
 \NAT@neutral
 \let\NAT@finalhook\relax
 %%%% Hack \cite in fact has two optional arguments
-%%%% and may hooks that er parametrize below
+%%%% and may hooks that are parametrize below
 \let\hva@cite\cite
 \newcommand{\NAT@IN}[5]
 {\ifNAT@super
@@ -168,7 +168,7 @@
 \let\@sep@cite\NAT@sep%
 \let\@post@cite\NAT@post%
 \let\@aysep@cite#3\let\NAT@yopen#4\let\NAT@yclose#5}
-\newcommand{\NAT@OUT}[1]{\NAT@close@super{}#1\endgroup{}\NAT@finalhook}
+\newcommand{\NAT@OUT}[1]{#1\NAT@close@super\endgroup{}\NAT@finalhook}
 \newcommand{\citep}
   {\begingroup\def\NAT@pt{p}%
   \NAT@IN{\NAT@open}{\NAT@close}{\NAT@aysep}{\relax}{\relax}\hva@cite}

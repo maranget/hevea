@@ -16,6 +16,7 @@
 {\ifthenelse{\equal{#2}{text}}
 {\@locref{#1#3}{#4}}
 {\@locname{#2#3}{#4}}}
+\renewcommand{\@notepointer}[3]{\@locref{#1#2}{#3}}
 %%%% Number footnote nodes
 \newcounter{footnotesflush}
 \newcommand{\theflush}{Notes \arabic{footnotesflush}}

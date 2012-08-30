@@ -1,0 +1,41 @@
+\documentclass{article}
+\renewcommand{\cuttingunit}{section}
+\flushdef{part}
+\setcounter{cuttingdepth}{2}.
+\begin{document}
+\title{Coucou\footnote{Coucou} --- Toi\footnote{Toi}}
+\author{Moi\thanks{Moi}}
+\date{Aujourd'hui}
+\maketitle
+\begin{quote}
+Non-default \hacha{} behavior for \texttt{article}:
+cut at sections, flush footnotes at parts.
+\end{quote}
+\part{Grand un}
+\section{Un}
+Un\footnote{un}.
+\subsection{Un-Un}
+Un-Un~\footnote{un-un}.
+\subsection{Un-Deux}
+Un-Deux~\footnote{un-deux}.
+
+
+\subsection{Un-Trois}
+Un-Trois~\footnote{un-trois}.
+\subsubsection{Un-Trois-Un}
+Un-Trois-Un~\footnote{un-trois-un}.
+\subsubsection{Un-Trois-Deux}
+Un-Trois-Deux~\footnote{un-trois-deux}.
+
+
+
+\subsection{Un-Quatre}
+Un-Quatre~\footnote{un-quatre}.
+\section{Deux}
+Deux\footnote{deux}.
+\section{Trois}
+Trois\footnote{trois}.
+\part{Grand deux}
+\section{Quatre}
+Quatre\footnote{quatre}.
+\end{document}

@@ -25,6 +25,7 @@ val optimize : bool ref
 val width : int ref
 val except : string list ref
 val path : string list ref
+val small_length : int ref
 
 val filter : bool
 val styles : input list

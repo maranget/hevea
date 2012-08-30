@@ -1,19 +1,22 @@
 \documentclass{article}
+\let\sty\texttt
 \begin{document}
 \title{Coucou\footnote{Coucou} --- Toi\footnote{Toi}}
 \author{Moi\thanks{Moi}}
 \date{Aujourd'hui}
 \maketitle
+
 \begin{quote}
-Default \hacha{} behavior for \texttt{article}: all footnotes
+Default \hacha{} behavior for \sty{article}: all footnotes
 together, cut at sections.
 \end{quote}
+\tableofcontents
 \part{Grand un}
-\section{Un}
+\section{\sty{Un \& vice}}
 Un\footnote{un}.
-\subsection{Un-Un}
+\subsection{\sty{Un}-Un}
 Un-Un~\footnote{un-un}.
-\subsection{Un-Deux}
+\subsection{\sty{Un}-Deux}
 Un-Deux~\footnote{un-deux}.
 
 

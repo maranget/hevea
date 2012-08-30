@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: hacha.ml,v 1.1 2007-02-08 17:48:28 maranget Exp $" 
+open Printf
 
 exception Error of string
 ;;
@@ -20,6 +20,7 @@ let log = ref false
 let toc_style = ref Cut.Normal
 let cross_links = ref true
 let verbose = ref 0
+let small_length = ref 1024
 
   
 let main () =
@@ -33,7 +34,12 @@ let main () =
      ("-nolinks", Arg.Unit (fun () -> cross_links := false),
        ", Suppress the prevous/up/next links in generated pages");
      ("-hrf", Arg.Unit (fun () -> log := true),
-        ", output a log file showing the association from local anchors to files");  ("-version", Arg.Unit
+        ", output a log file showing the association from local anchors to files");
+  ("-rsz", Arg.Int (fun i -> small_length := i),
+   (sprintf
+     "size of leaves in rope implementation (default %i)"
+      !small_length));
+  ("-version", Arg.Unit
      (fun () ->
        print_endline ("hacha "^Version.version) ;
        print_endline ("library directory: "^Mylib.static_libdir) ;
@@ -60,6 +66,7 @@ let main () =
     let name_out = !outname
     let toc_style = !toc_style
     let cross_links = !cross_links 
+    let small_length = !small_length
   end in
   let module C = Cut.Make(Config) in
   let buf = Lexing.from_channel chan in
@@ -98,7 +105,7 @@ with
 | Misc.Fatal s ->
     Location.print_pos () ;
     prerr_endline
-      ("Fatal error: "^s^" (please report to Luc.Maranget@inria.fr") ;
+      ("Fatal error: "^s^" (please report to Luc.Maranget@inria.fr)") ;
     prerr_endline "Adios" ;
     exit 2
 (*

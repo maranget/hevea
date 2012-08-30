@@ -89,7 +89,7 @@ let finalize check =
 
 let read_style name =
   let oldverb = !verbose in
-  if !verbose > 0 then verbose := 1;
+  if !verbose > 0 then verbose := oldverb ;
   begin try
     let name,chan =  Myfiles.open_tex name in
     if !verbose > 0 then begin
@@ -182,11 +182,21 @@ let main () =
 (* Optimisation *)
     if !optimize then begin
       match !destination with
-      | Html when name_in <> "" ->
-	  Emisc.verbose := !Misc.verbose ;
-          if not (Esp.file name_out) then
-            warning "Esponja failed, optimisation not performed"
-      | _ -> ()        
+      | Html ->
+          if name_in <> "" then begin
+	    Emisc.verbose := !Misc.verbose ;
+            let module E =
+              Esp.Make
+                (struct
+                  let pess = false
+                  let move = true
+                end) in
+            begin try E.file name_out
+            with Esp.Failed ->
+              warning "Esponja failed, optimisation not performed"
+            end
+          end
+      | Text|Info -> ()        
     end
 ;;   
 

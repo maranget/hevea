@@ -57,9 +57,9 @@ Chesnay Cedex. {\tt \mailto{Luc.Maranget@inria.fr}}}}
 \newstyle{.xtitlerest}{font-variant:small-caps;}
 \newstyle{.ruled}{border:solid black;padding:1ex;background:\#eeddbb;color:maroon}
 \setlinkstext
-  {\imgsrc[ALT="Previous"]{previous_motif.gif}}
-  {\imgsrc[ALT="Up"]{contents_motif.gif}}
-  {\imgsrc[ALT="Next"]{next_motif.gif}}
+  {\imgsrc[alt="Previous"]{previous_motif.gif}}
+  {\imgsrc[alt="Up"]{contents_motif.gif}}
+  {\imgsrc[alt="Next"]{next_motif.gif}}
 %%DOCUMENT START HERE
 \begin{document}
 \flushdef{document}
@@ -82,7 +82,7 @@ a \ahref{\ftpbase/hevea-\locversion-manual.tar.gz}{bundle of HTML files}.
 The input language is a fairly complete subset of \LaTeXe{} (old
 \LaTeX{} style is also accepted) and the
 output language is {\html} that is (hopefully) correct with respect to
-version 4.0 transitional.
+version 5.
 
 Recent versions of most browsers offer support for Unicode (ISO~10646)
 characters, albeit to different extents. \hevea{} exploits this fact
@@ -147,7 +147,7 @@ For instance:
 # hevea
 $x \in \mathcal{E}$
 ^D
-<I>x</I> &#X2208; <FONT COLOR=red><I>E</I></FONT>
+<span style="font-style:italic">x</span> &#X2208; <span style="color:red"><span style="font-style:italic">E</span></span>
 \end{verbatim}
 Incidentally, notice that the symbol ``$\in$'' translates to the
 appropriate numerical character reference and that the calligraphic
@@ -330,17 +330,17 @@ spaces after command sequences in greater detail.
 They can be skipped in first reading.
 
 \subsubsection{Spurious\label{spurious:par} Paragraphs}
-Paragraphs are rendered by the means of \verb+P+ elements.
+Paragraphs are rendered by the means of \verb+p+ elements.
 \hevea{} is a bit simplistic in breaking paragraphs and spurious paragraphs
 may be present in the final \html{} document.
-Normally, as \hevea{} never outputs \verb+P+ elements whose contents is
+Normally, as \hevea{} never outputs \verb+p+ elements whose contents is
 made of spaces only, this should not happen very often.
 Unfortunately, some commands do not produce any output in \LaTeX,
 while they do produce output in \hevea: those commands
 are \verb+\label+, \verb+\index+ etc.
 \hevea{} translates
 \verb+\label{+\textit{name}\verb+}+ into the anchor
-\verb+<A NAME="+\textit{name}\verb+"></A>+. As a result, the following
+\verb+<a id="+\textit{name}\verb+"></a>+. As a result, the following
 source fragment will introduce a spurious paragraph.
 \begin{verbatim}
 This a first paragraph.
@@ -351,17 +351,17 @@ This is another paragraph.
 \end{verbatim}
 Indeed, whe have the following translation:
 \begin{verbatim}
-<P>This a first paragraph.</P>
-<P><A NAME="label"></A></P>
-<P>This is another paragraph.</P>
+<p>This a first paragraph.</p>
+<p><a id="label"></a></p>
+<p>This is another paragraph.</p>
 \end{verbatim}
 \ifhevea Which your browser renders as follows --- with additional borders
-emphasizing \verb+P+ elements.
+emphasizing \verb+p+ elements.
 \begin{htmlout}%
 \begin{rawhtml}
-<P STYLE="border:1px solid black;">This a first paragraph.</P>
-<P STYLE="border:1px solid black;"><A NAME="label"></A></P>
-<P STYLE="border:1px solid black;">This is another paragraph.</P>
+<p style="border:1px solid black;">This a first paragraph.</p>
+<p style="border:1px solid black;"><a id="label"></a></p>
+<p style="border:1px solid black;">This is another paragraph.</p>
 \end{rawhtml}%
 \end{htmlout}%
 \fi
@@ -385,18 +385,18 @@ First paragraph.
 \end{verbatim}
 Produced \html{} is, after a few cosmetic simplifications:
 \begin{verbatim}
-<H2 CLASS="section">A section</H2>
-<P><A NAME="section:label"></A></P>
-<P>First paragraph.</P>
+<h2 class="section">A section</h2>
+<p><a id="section:label"></a></p>
+<p>First paragraph.</p>
 \end{verbatim}
-Output is so, because closing the element \verb+H2+ implies re-opening
+Output is so, because closing the element \verb+h2+ implies re-opening
 a new paragraph.
 \ifhevea Your browser renders the above \html{} fragment as follows:
 \begin{htmlout}%
 \begin{rawhtml}
-<H2 CLASS="section">A section</H2>
-<P STYLE="border:1px solid black;"><A NAME="section:label"></A></P>
-<P STYLE="border:1px solid black;">First paragraph.</P>
+<h2 class="section">A section</h2>
+<p style="border:1px solid black;"><a id="section:label"></a></p>
+<p style="border:1px solid black;">First paragraph.</p>
 \end{rawhtml}%
 \end{htmlout}%
 \fi
@@ -422,7 +422,7 @@ consists in a sole \verb+\label+~command.
 Spurious paragraphs are more easily seen by running \texttt{hevea}
 with the command-line option~\cmdopt{-dv}, which instructs
 \texttt{hevea} to add border on some of the elements it produces,
-including \verb+P+ elements.
+including \verb+p+ elements.
 
 \subsubsection{Spaces after Commands}
 \index{ @`` '' (space)!after macro}
@@ -567,7 +567,7 @@ when in this mode, text items are echoed one following the other and
 paragraph breaks are just blank lines, both in input and output.
 The so called \emph{displayed-paragraph environments} of \LaTeX{} (such as
 \texttt{center} or \texttt{quote}) are rendered by \html{} block-level
-elements (such as \texttt{DIV} or \texttt{BLOCKQUOTE}).
+elements (such as \texttt{div} or \texttt{blockquote}).
 Rendering is correct becauses both \LaTeX{} displayed environments and
 \html{} block-level elements start a new line.
 Conversly, since opening a \html{} block-level elements means starting
@@ -578,7 +578,7 @@ translated using only \html{} text-level elements.
 
 \hevea{} display mode allows more control on text placement, since
 entering display mode means opening
-a \html{} \verb+TABLE+ element and that tables allow to control the
+a \html{} \verb+table+ element and that tables allow to control the
 relative position of their sub-elements.
 Displays come in two flavor, horizontal displays and vertical
 displays.
@@ -640,14 +640,14 @@ Such a crude model cannot  faithfully emulate any \TeX{} box placement.
 Users can get an idea on how \hevea{} combines elements in display mode
 by giving the \cmdopt{-dv}  command-line option, which
 instructs \hevea{} to add
-borders to the \verb+TABLE+ elements introduced by displays.
+borders to the \verb+table+ elements introduced by displays.
 
 \subsubsection{Arrays and display mode}
 
 By contrast with formulas, which \hevea{} attempts to render with
 text-level elements only when they appear inside paragraphs, \LaTeX{} arrays
 always translate to the
-block-level element \verb+TABLE+, thereby introducing non-desired line
+block-level element \verb+table+, thereby introducing non-desired line
 breaks before and after in-text arrays.
 As a consequence, in-text arrays yield an acceptable output, only while
 alone in a paragraph.
@@ -699,7 +699,7 @@ manual.tex:507: Warning: \hspace with arg '\mylength'
 \end{verbatim}
 However the final rendering is correct:
 \begin{htmlout}
-\newlength{\mylength}\setlength{\mylength}{5pt}
+\newlength{\mylength}\setlength{\mylength}{5pt}%
 \begin{tabular}{c@{\hspace{\mylength}}c}
 Before & After
 \end{tabular}
@@ -742,7 +742,7 @@ standard \LaTeX{} has not.
 Therefore, there are many situations where \hevea{} just cannot
 render the visual effect of \LaTeX{} constructions. Here some choices
 have to be made. For instance, calligraphic letters (\verb+\mathcal+)
-are rendered in red (\verb+<FONT COLOR=red>+).
+are rendered in red.
 
 If you are not satisfied with \hevea{} rendering of text style
 declarations, then you
@@ -925,7 +925,7 @@ Which \LaTeX{} typesets as follows:
 %END IMAGE
 %HEVEA\imageflush%
 \end{latexout}
-\hevea{} always translates \verb+\rule+ as \verb+<HR>+, ignoring size
+\hevea{} always translates \verb+\rule+ as \verb+<hr>+, ignoring size
 arguments.
 Hence, it produces the following, wrong, output:
 \begin{htmlout}\newcommand{\blob}{\rule[.2ex]{1ex}{1ex}}
@@ -1033,9 +1033,9 @@ is omitted, since it does nothing.
 However,  \hevea{} usually translates \LaTeX{} environments  to \html{}
 block-level elements and it \emph{requires}
 those elements to be nested properly.
-Here, \verb+\quote+ translates to \verb+<BLOCKQUOTE>+,
-\verb+\flushright+ translates to \verb+<DIV ALIGN=right>+ and
-\verb+\endquote+ translates to \verb+</BLOCKQUOTE>+.
+Here, \verb+\quote+ translates to \verb+<blockquote>+,
+\verb+\flushright+ translates to \verb+<div class="flushright">+ and
+\verb+\endquote+ translates to \verb+</blockquote>+.
 At that point, \hevea{} refuses to generate obviously
 non-correct {\html} and it crashes:
 \begin{verbatim}
@@ -1443,8 +1443,8 @@ comments. However, no environment is opened and closed and no scope is
 created while using comment equivalents.
 
 
-\latexsection{With a little help from \LaTeX}
-\pdfsection{With a little help from LaTeX}\label{imagen}
+\latexsection{With\label{imagen} a little help from \LaTeX}
+\pdfsection{With\label{imagen} a little help from LaTeX}
 Sometimes,
 \hevea{} just cannot process its input, but it remains acceptable to
 have \LaTeX{} process it, to produce an image from
@@ -1481,7 +1481,7 @@ Output to the image file builds up a current page, which is flushed
 by the \verb+\imageflush+ command.
 This command has the following effect:  it outputs a strict page break
 in the \filename{image} file, increments the image counter and
-output a \verb+<IMG SRC="+\textit{pagename}\verb+.png">+ tag in \hevea{}
+output a \verb+<img src="+\textit{pagename}\verb+.png">+ tag in \hevea{}
 output file, where \textit{pagename} is build from the image counter
 and \hevea{} output file name.
 Then the \verb+imagen+ script has to be run by:
@@ -1804,20 +1804,20 @@ include the following commands in the document preamble:
 \end{flushleft}
 
 \hacha{} also makes every page it generates a clone of its input as
-regards attributes to the \verb+<BODY ...>+ opening tag and
-meta-information from the \verb+<HEAD>+\ldots{} \verb+<\HEAD>+
+regards attributes to the \verb+<body ...>+ opening tag and
+meta-information from the \verb+<head>+\ldots{} \verb+<\head>+
 block. See section~\ref{metadef} for examples of this replication
 feature.
 
 \label{hacha:style}\index{style-sheets!and \hacha}%
-By contrast, style information specified in the \verb+STYLE+ elements
-from rom the \verb+<HEAD>+\ldots{} \verb+<\HEAD>+
+By contrast, style information specified in the \verb+style+ elements
+from rom the \verb+<head>+\ldots{} \verb+<\head>+
 block is not replicated. Instead, all style definitions are collected into an
 external style sheet file whose name is \filename{doc}\texttt{.css},
 and all generated {\html} files adopt \filename{doc}\texttt{.css} as
 an external style sheet.
 It is important to notice that, since version 1.08, \hevea{} produces
-a \verb+STYLE+ element by itself, even if users do not explicitely
+a \verb+style+ element by itself, even if users do not explicitely
 use styles. As a consequence,
 \hacha{} normally produces a
 file \filename{doc}\texttt{.css}, which should not be forgotten while
@@ -2096,7 +2096,7 @@ Then, section ``Important section'' can be referenced from
 an \hevea{} unaware \html{} page by:
 \begin{verbatim}
 In this document, there is a very
-<A HREF="important.html#important">important section</A>.
+<a href="important.html#important">important section</a>.
 \end{verbatim}
 \ifhevea
 If you are reading the \html{} version of this manual, you may check
@@ -2148,9 +2148,9 @@ source.
 For instance the default behavior is equivalent to:
 \begin{verbatim}
 \setlinkstext
-  {\imgsrc[ALT="Previous"]{previous_motif.gif}}
-  {\imgsrc[ALT="Up"]{contents_motif.gif}}
-  {\imgsrc[ALT="Next"]{next_motif.gif}}
+  {\imgsrc[alt="Previous"]{previous_motif.gif}}
+  {\imgsrc[alt="Up"]{contents_motif.gif}}
+  {\imgsrc[alt="Next"]{next_motif.gif}}
 \end{verbatim}
 Command \verb+\setlinkstext+ behaves as \verb+\toplinks+ does.
 That is, it must occur in document preamble, arguments are processed
@@ -2446,8 +2446,9 @@ you should do something like this:
 
 Given the frequency of \verb+~+, \verb+#+ etc. in urls,
 this is annoying. Moreover, the immediate solution, using \verb+\verb+,
-\verb+\ahref{\verb" ... /~maranget/..."}{his home page}+ does not
-work, since \LaTeX{} forbids verbatim formatting inside command arguments.
+\verb+\ahref{\verb" ... /~maranget/..."}{his home page}+
+does not work, since \LaTeX{} forbids verbatim formatting
+inside command arguments.
 
 \comindex{url}
 Fortunately, the \texttt{url} package provides a very convenient
@@ -2646,46 +2647,46 @@ of the task of producing correct \html{}, and to encourage
 them to use internal macros, which, most of the time, take nasty
 details into account.
 
-Paragraphs are rendered by \verb+P+ elements, which are opened and
+Paragraphs are rendered by \verb+p+ elements, which are opened and
 closed automatically.
-More specifically, a first \verb+P+ is opened after
+More specifically, a first \verb+p+ is opened after
 \verb+\begin{document}+, then paragraph breaks close the active
-\verb+P+ and open a new one.
-The final \verb+\end{document}+ closes the last \verb+P+.
+\verb+p+ and open a new one.
+The final \verb+\end{document}+ closes the last \verb+p+.
 In any occasion, paragraphs consisting only of space characters
 are discarded silently.
 
 Following \html{} ``normative reference~\cite{html}'', block-level
-elements cannot occur inside \verb+P+; more precisely,
-block-level opening tags implicitely close any active \verb+P+.
+elements cannot occur inside \verb+p+; more precisely,
+block-level opening tags implicitely close any active \verb+p+.
 As a consequence,
-\hevea{} closes the active \verb+P+ element when it processes
+\hevea{} closes the active \verb+p+ element when it processes
 \verb+\@open+
-and opens a new \verb+P+ when it processes the matching
+and opens a new \verb+p+ when it processes the matching
 \verb+\@close+.
-Generally, no \verb+P+ element is opened by default inside block-level
-elements, that is, \hevea{} does not immediately open \verb+P+ after having
+Generally, no \verb+p+ element is opened by default inside block-level
+elements, that is, \hevea{} does not immediately open \verb+p+ after having
 processed \verb+\@open+.
-However, if a paragraph break occurs later, then a new \verb+P+
+However, if a paragraph break occurs later, then a new \verb+p+
 element is opened, and will be closed automatically
 when the current block is closed.
 Thus, the first ``paragraph'' inside block-level elements
-that include several paragraphs is not a \verb+P+ element.
+that include several paragraphs is not a \verb+p+ element.
 That alone probably prevents the consistent styling
 of paragraphs with style sheets.
 
 Groups behave differently, opening or closing them does
-not close nor open \verb+P+ elements.
+not close nor open \verb+p+ elements.
 However, processing paragraph breaks inside groups involves temporarily
-closing all groups up to the nearest enclosing \verb+P+, closing it,
-opening a new \verb+P+ and finally re-opening all groups.
+closing all groups up to the nearest enclosing \verb+p+, closing it,
+opening a new \verb+p+ and finally re-opening all groups.
 Opening a block-level element inside a group, similarily
-involves closing the active \verb+P+ and opening a new \verb+P+
+involves closing the active \verb+p+ and opening a new \verb+p+
 when the matching \verb+\@close+ is processed.
 
 Finally, display mode (as introduced by \verb+$$+) is also
-complicated. Displays basically are \verb+TABLE+ elements with one row
-(\verb+TR+), and \hevea{} manages to introduce table cells (\verb+TD+)
+complicated. Displays basically are \verb+table+ elements with one row
+(\verb+tr+), and \hevea{} manages to introduce table cells (\verb+td+)
 where appropriate.  Processing \verb+\@open+ inside a display
 means closing the current cell, starting a new cell, opening the
 specified block, and then immediately opening a new display.
@@ -2732,25 +2733,24 @@ Output the (Unicode) character ``\textit{n}'', which can
 be given either as a decimal number or an hexadecimal number prefixed
 by ``\texttt{X}''.
 
-\item[{\tt\char92 @open\char123}{\it BLOCK}{\tt\char125\char123}{\it
+\item[{\tt\char92 @open\char123}{\it block}{\tt\char125\char123}{\it
 attributes}{\tt\char125}]
-Open \html{} block-level element \textit{BLOCK} with attributes
-\textit{attributes}. The block name \textit{BLOCK} \emph{must} be
-uppercase.
-As a special case \textit{BLOCK} may be the empty string, then a \html{}
+Open \html{} block-level element \textit{block} with attributes
+\textit{attributes}. The block name \textit{block} \textbf{must} be
+lowercase.
+As a special case \textit{block} may be the empty string, then a \html{}
 \emph{group} is opened.
-\item[{\tt\char92 @close\char123}{\it BLOCK}{\tt\char125}]
-Close \html{} block-level element \textit{BLOCK}.
+\item[{\tt\char92 @close\char123}{\it block}{\tt\char125}]
+Close \html{} block-level element \textit{block}.
 Note that \verb+\@open+ and \verb+\@close+ must be properly balanced.
 \item[{\tt\char92 @out@par\char123}{\it arg}{\tt\char125}]
-If occuring inside a \verb+P+ element,
-that is if a \verb+<P>+ opening tag is active,
-\verb+\@out@par+  first closes it (by emitting \verb+</P>+),
-then formats \textit{arg}, and then re-open a \verb+P+ element.
+If occuring inside a \verb+p+ element,
+that is if a \verb+<p>+ opening tag is active,
+\verb+\@out@par+  first closes it (by emitting \verb+</p>+),
+then formats \textit{arg}, and then re-open a \verb+p+ element.
 Otherwise \verb+\@out@par+ simply formats \textit{arg}.
 This command is adequate when
 formatting \textit{arg} produces block-level elements.
-Besides text-level elements should be managed properly (see below).
 \end{description}
 
 \index{text-level elements}
@@ -2761,34 +2761,43 @@ internal text-level declarations \verb+\@style+ (and
 \verb+\@fontcolor+. Block-level elements (and \html{} groups)
 delimit the effect of such declarations.
 \begin{description}
-\item[{\tt\char92 @style\char123}{\it SHAPE}{\tt\char125}]
-Declare the text shape \textit{SHAPE} (which must be uppercase)
-as active. Text shapes are known as font style elements (\verb+I+, \verb+TT+,
-etc.) or phrase elements (\verb+EM+, etc.) in the
-\html{} terminology, they are part of the more general class of
-text-level elements.
-
-The text-level element {\it SHAPE} will get opened as soon as
+\item[{{\tt\char92 @span\char123}{\it attr}{\tt\char125}}]
+\index{text-level elements!span}
+Declare the text-level element \verb+span+ (with given attributes)
+as active.
+The text-level element \verb+span+ will get opened as soon as
 necessary and closed automatically, when the
 enclosing block-level elements get closed.
-Enclosed block-level elements are treated properly by closing {\it
-SHAPE} before them, and re-opening {\it SHAPE} inside them.
-The next text-level constructs exhibit similar behavior with respect
+Enclosed block-level elements are treated properly by closing \verb+span+
+before them, and re-opening \verb+span+ (with given attributes)
+inside them.
+The following text-level constructs exhibit similar behavior with respect
 to block-level elements.
-\item[{\tt\char92 @styleattr\char123}{\it NAME}{\tt\char125\char123}{\it
-attr}{\tt\char125}]\index{text-level elements!SPAN}
-Declare the text-level element \textit{NAME} with
-attribute~\textit{attr}
-active. This primitive behaves as \verb+\@style+, except that the
-opening tag has attributes.
-This primitive may prove useful for introducing \texttt{SPAN} elements.
+
+\item[{\tt\char92 @style\char123}{\it shape}{\tt\char125}] Declare the
+text shape \textit{shape} (which must be lowercase) as active. Text
+shapes are known as font style elements (\verb+i+, \verb+tt+, etc.;
+\textbf{warning}: some of them are depreciated in \html{}5, and some
+of them are no longer valid, prefer CSS in \verb+span+ tags) or phrase
+elements (\verb+em+, etc.) in the \html{} terminology, they are part
+of the more general class of text-level elements.
+
+\item[{\tt\char92 @styleattr\char123}{\it name}{\tt\char125\char123}{\it
+attr}{\tt\char125}]
+A generalisation of \verb+\@span+ above.
+This primitive may prove useful for introducing \texttt{span} elements.
 Note that both argument are processed.
-\item[{{\tt\char92 @span\char123}{\it attr}{\tt\char125}}]
-A shorthand for \verb+\@styleattr{SPAN}{+\textit{attr}\verb+}+.
-\item[{\tt\char92 @fontsize\char123}{\it int}{\tt\char125}]
-Declare the text-level element \verb+FONT+ with attribute
-\verb+SIZE=+\textit{int} as active. Note that \textit{int} must
-be a small integer in the range \texttt{1},\texttt{2}, \ldots{} , \texttt{7}.
+A shorthand for \verb+\@styleattr{span}{+\textit{attr}\verb+}+.
+
+\item[{\tt\char92 @fontsize\char123}{\it int}{\tt\char125}] Declare
+the text-level element \verb+span+ with attribute
+\verb+style="font-size:+\textit{int}\verb+"+ as active. Note that
+\textit{int} must be a small integer in the range
+\texttt{1},\texttt{2}, \ldots{} , \texttt{7}. \verb+size+ is the CSS
+notation (from \verb+x-small+ to \verb+120%+ included in
+a \verb+xx-large+) corresponding to \textit{int}, 3 being the 
+default size (\verb+medium+).
+
 \item[{\tt\char92 @fontcolor\char123}{\it color}{\tt\char125}]
 Declare the text-level element \verb+FONT+ with attribute
 \verb+COLOR=+\textit{color} as active.
@@ -2799,6 +2808,16 @@ of the form
 \verb+"#+\textit{XXXXXX}\verb+"+ (yes, quotes are needed).
 Note that the argument \textit{color} is processed, as a consequence
 numerical color arguments should be given as \verb+"\#+\textit{XXXXXX}\verb+"+.
+
+\item[{\tt\char92 @addstyle\char123}{\it name:val}{\tt\char125\char123}{\it attrs}{\tt\char125}]
+Echo the space-separated attributes \textit{attrs} of a tag with the
+\textit{name:val} style declaration added to these attributes. The
+\verb+style+ attribute is added if necessary. Examples:
+\verb+\@addstyle{color:red}{href="#"}+ will produce
+\verb+href="#" style="color:red"+, and
+\verb+\@addstyle{color:red}{href="#" style="font-style:italic"}+ will
+produce \verb+href="#"  style="font-style:italic;color:red"+. Note
+that an unnecessary extra space can be added in some cases.
 
 \item[{\tt\char92 @nostyle}]
 Close active text-level declarations and ignore further text-level
@@ -2835,15 +2854,15 @@ entity or numerical character references --- \emph{e.g.}
 The \texttt{rawhtml}
 environment should contain only \html~text that makes sense alone.
 For instance, writing
-\verb+\begin{rawhtml}<TABLE><ALIGN=right>\end{rawhtml}+\ldots{}
-\verb+\begin{rawhtml}</TABLE>\end{rawhtml}+ is
+\verb+\begin{rawhtml}<table>\end{rawhtml}+\ldots{}
+\verb+\begin{rawhtml}</table>\end{rawhtml}+ is
 dangerous, because \hevea{} is not informed about opening and closing
-the block-level element \texttt{TABLE}. In that case, one should use
+the block-level element \texttt{table}. In that case, one should use
 the internal macros \verb+\@open+ and \verb+\@close+.
 
 \item \verb+\begin{rawhtml}+\textit{text}\verb+\end{rawhtml}+ fragments that
 contain block-level elements will almost certainly mix poorly with
-\verb+P+ elements (introduced by paragraph breaks) and with active
+\verb+p+ elements (introduced by paragraph breaks) and with active
 style declaration (introduced by, for instance, \verb+\it+).
 Safe usage will most of the time means using the internal macros
 \verb+\@nostyle+ and \verb+\@out@par+.
@@ -2862,10 +2881,10 @@ For instance, in place of writing:
 \begin{verbatim}
 \begin{rawhtml}
 A list of links:
-<UL>
-<LI><A HREF="http://www.apple.com/">Apple</A>.
-<LI><A HREF="http://www.sun.com/">Sun</A>.
-</UL>
+<ul>
+<li><a href="http://www.apple.com/">Apple</a>.
+<li><a href="http://www.sun.com/">Sun</a>.
+</ul>
 \end{rawhtml}
 \end{verbatim}
 One can write:
@@ -2907,7 +2926,7 @@ As a first example of using internal macros, consider the following
 excerpt from the \texttt{hevea.hva} file that
 defines the \verb+center+ environment:
 \begin{verbatim}
-\newenvironment{center}{\@open{DIV}{ALIGN=center}}{\@close{DIV}}
+\newenvironment{center}{\@open{div}{style="text-align:center"}}{\@close{div}}
 \end{verbatim}
 \comindex{setenvclass}\comindex{getenvclass}%
 Notice that the code above is no longer present and is given here
@@ -2918,12 +2937,12 @@ Now \hevea{} uses style-sheets and the actual definition of the
 \newstyle{.center}{text-align:center;margin-left:auto;margin-right:auto;}%
 \setenvclass{center}{center}%
 \newenvironment{center}
-  {\@open{DIV}{\@getprint{CLASS="\getenvclass{center}"}}
-  {\@close{DIV}}%
+  {\@open{div}{\@getprint{class="\getenvclass{center}"}}
+  {\@close{div}}%
 \end{verbatim}
 Basically environments \verb+\begin{center}+\ldots\verb+\end{center}+ will, by
 default, be translated into blocks
-\verb+<DIV CLASS="center">+\ldots\verb+</DIV>+.
+\verb+<div class="center">+\ldots\verb+</div>+.
 Additionally, the style class associated to \verb+center+ environments
 is managed through an indirection, using the
 commands \verb+\setenvclass+ and \verb+\getenvclass+.
@@ -2936,14 +2955,19 @@ color declaration (see section~\ref{color:high}):
 \end{verbatim}
 
 \hevea{} does not feature all text-level elements by default.
-However one can easily use them with the internal macro
-\verb+\@style+.
+However one can easily use them with internal macros.
 For instance this is how you can make all emphasized text blink:
 \begin{verbatim}
-\renewcommand{\em}{\@style{EM}\@style{BLINK}}
+\renewcommand{\em}{\@styleattr{em}{style="text-decoration:blink"}}
 \end{verbatim}
-
+\begin{htmlonly}
+Here is an example of this questionable blinking feature:
+\begin{center}
+{\@styleattr{em}{style="text-decoration:blink"}Hello!}
+\end{center}
+\end{htmlonly}
 \comindex{imgsrc}
+
 \index{"@print@\texttt{\char92"@print}}
 \index{"@getprint@\texttt{\char92"@getprint}}
 \index{"@nostyle@\texttt{\char92"@nostyle}}
@@ -2951,12 +2975,12 @@ Then, here is the definition of a simplified \verb+\imgsrc+
 command (see section~\ref{hyperlink}), without its optional argument:
 \begin{verbatim}
 \newcommand{\imgsrc}[1]
-  {\@print{<IMG SRC="}\@getprint{#1}\@print{">}}
+  {\@print{<img src="}\@getprint{#1}\@print{">}}
 \end{verbatim}
 Here, \verb+\@print+ and \verb+\@getprint+ are used to output
 \html~text, depending upon whether this text requires processing or not.
-Note that \verb+\@open{IMG}{SRC="#1"}+ is not correct,
-because the element \verb+IMG+ consists in a single tag, without a
+Note that \verb+\@open{img}{src="#1"}+ is not correct,
+because the element \verb+img+ consists in a single tag, without a
 closing tag.
 
 \index{"@nostyle@\texttt{\char92"@nostyle}}
@@ -2965,7 +2989,7 @@ Another interesting example is the definition of the command
 which \hevea{} uses internally to output \texttt{A} elements.
 \begin{verbatim}
 \newcommand{\@doaelement}[2]
-  {{\@nostyle\@print{<A }\@getprint{#1}\@print{>}}{#2}{\@nostyle\@print{</A>}}
+  {{\@nostyle\@print{<a }\@getprint{#1}\@print{>}}{#2}{\@nostyle\@print{</a>}}
 \end{verbatim}
 The command \verb+\@doaelement+ takes two arguments: the first
 argument contains the opening tag attributes; while the second element is
@@ -2985,26 +3009,27 @@ The \texttt{bgcolor} environment from the \texttt{color} package
 locally changes background color (see section~\ref{bgcolor}).
 This environment is defined as follows:
 \begin{verbatim}
-\newenvironment{bgcolor}[2][CELLPADDING=10]
-  {\@open{TABLE}{#1}\@open{TR}{}\@open{TD}{BGCOLOR=\@getcolor{#2}}}
-  {\@close{TD}\@close{TR}\@close{TABLE}}
+\newenvironment{bgcolor}[2][style="padding:1em"]
+{\@open{table}{}\@open{tr}{}%
+\@open{td}{\@addstyle{background-color:\@getcolor{#2}}{#1}}}
+{\@close{td}\@close{tr}\@close{table}}
 \end{verbatim}
 The \texttt{bgcolor} environment operates by opening a \html{} table
-(\verb+TABLE+) with only one row (\verb+TR+) and cell (\verb+TD+) in
+(\verb+table+) with only one row (\verb+tr+) and cell (\verb+td+) in
 its opening command, and closing all these elements in its closing
 command. In my opinion, such a style of opening block-level elements
 in environment opening commands and closing them in environment
 closing commands is good style.
 \index{"@getcolor@\texttt{\char92"@getcolor}}%
-The one cell background color is forced with a \verb+BGCOLOR+
-attribute.
+The one cell background color is forced with a \verb+background-color+
+property in a \verb+style+ attribute.
 Note that the mandatory argument to \verb+\begin{bgcolor}+ is the
 background color expressed as a high-level color, which therefore
 needs to be translated into a low-level color by using the
 \verb+\@getcolor+ internal macro from the \texttt{color} package.
 Additionally,  \verb+\begin{bgcolor}+ takes \html{} attributes
 as an optional argument. These attributes are the ones of the
-\verb+TABLE+ element.
+\verb+table+ element.
 
 \index{"@print"@u@\texttt{\char92"@print"@u}}%
 If you wish to output a given unicode character whose value you know,
@@ -3019,7 +3044,7 @@ Hence you can define the command \verb+\bbsigma+ as follows:
 
 
 \subsection{The \label{encodings}document charset}
-According to standards, as I understand them, \html{} pages are
+According to standards, as far as I understand them, \html{} pages are
 made of Unicode (ISO~10646) characters.
 By constrast, a file in any operating system is usually considerered as
 being made of bytes.
@@ -3109,21 +3134,21 @@ probably get familiar with how \hevea{} uses style sheets in the first
 place.
 
 \hevea{} interest for style sheets is at the moment confined to
-block-level elements (\verb+DIV+, \verb+TABLE+, \verb+H<+\textit{n}\verb+>+,
+block-level elements (\verb+div+, \verb+table+, \verb+H<+\textit{n}\verb+>+,
 etc.).
 The general principle is as follows: when a command or an
 environment gets translated into a block-level element,
 the opening tag of the block level element has a
-\texttt{CLASS="\textit{name}"} attribute, where \textit{name} is the
+\texttt{class="\textit{name}"} attribute, where \textit{name} is the
 command or environment name.
 
 As an example the \LaTeX{} command \verb+\subsection+
- is implemented with the element~\verb+H3+, resulting in
+ is implemented with the element~\verb+h3+, resulting in
 \html{} output of the form:
 \begin{verbatim}
-    <H3 CLASS="subsection">
+    <h3 class="subsection">
     ...
-    </H3>
+    </h3>
 \end{verbatim}
 By default, most styles are undefined, and default rendering of
 block-level elements applies. However, some packages (such as, for
@@ -3151,9 +3176,9 @@ Given the previous style definition, the sectioning command
 \subsection*{A styled subsection heading}
 \end{verbatim}
 should yield:
-\@open{H3}{CLASS="subsectionex"}
+\@open{h3}{class="subsectionex"}
 A styled subsection heading
-\@close{H3}
+\@close{h3}
 \end{htmlonly}
 
 The following points are worth noticing:
@@ -3265,23 +3290,23 @@ through style classes named \texttt{part}, \texttt{section}, etc.
 List making-environment introduce extra style classes for items.
 More specifically, for list-making environments
 \texttt{itemize} and \texttt{enumerate},
-\verb+LI+ elements are styled as follows:
+\verb+li+ elements are styled as follows:
 \begin{center}
 \begin{tabular}{p{.4\linewidth}p{\linewidth}}
 \begin{verbatim}
-<UL CLASS="itemize">
-<LI CLASS="li-itemize"> ...
-</UL>
+<ul class="itemize">
+<li class="li-itemize"> ...
+</ul>
 \end{verbatim}
 &
 \begin{verbatim}
-<OL CLASS="enumerate">
-<LI CLASS="li-enumerate"> ...
-</OL>
+<ol class="enumerate">
+<li class="li-enumerate"> ...
+</ol>
 \end{verbatim}
 \end{tabular}
 \end{center}
-That is, \verb+LI+ elements are styled as environments, the key name
+That is, \verb+li+ elements are styled as environments, the key name
 being \texttt{li-}\textit{env}.
 
 The \texttt{description}, \texttt{trivlist} and \texttt{list} environments
@@ -3293,21 +3318,21 @@ styles through names \texttt{dt-}\textit{env} and
 \subsection{A few examples}
 \subsubsection{The title of the document}\index{styles for!title}
 The command \verb+\maketitle+ formats the document
-title within a \verb+TABLE+ element, with
+title within a \verb+table+ element, with
 class \texttt{title}, for display. The name of the title is displayed
-inside block \verb+H1+, with class \texttt{titlemain}, while all other
-information (author, date) are displayed inside block \verb+H3+, with class
+inside block \verb+h1+, with class \texttt{titlemain}, while all other
+information (author, date) are displayed inside block \verb+h3+, with class
 \texttt{titlerest}.
 \begin{verbatim}
-<TABLE CLASS="title">
- <TR>
-  <TD>
-   <H1 ALIGN=center CLASS="titlemain">..title here..</H1>
-   <H3 ALIGN=center CLASS="titlerest">..author here..</H3>
-   <H3 ALIGN=center CLASS="titlerest">..date here..</H3>
-  </TD>
- </TR>
-</TABLE>
+<table class="title">
+ <tr>
+  <td>
+   <h1 style="text-align:center" class="titlemain">..title here..</h1>
+   <h3 style="text-align:center" class="titlerest">..author here..</h3>
+   <h3 style="text-align:center" class="titlerest">..date here..</h3>
+  </td>
+ </tr>
+</table>
 \end{verbatim}
 Users can impact  on title formatting by adding style in the
 appropriate style classes.
@@ -3320,14 +3345,14 @@ For instance the following style class definitions:
 will normally produce a title in dark blue, centered in a box, with
 author and date in small-caps.
 \begin{htmlonly}
-\@open{TABLE}{CLASS="xtitle"}\@open{TR}{}\@open{TD}{}
-\@open{H1}{CLASS="xtitlemain"}Title\@close{H1}
-\@open{H3}{CLASS="xtitlerest"}Date\@close{H3}
-\@open{H3}{CLASS="xtitlerest"}Author\@close{H3}
-\@close{TD}\@close{TR}\@close{TABLE}
+\@open{table}{class="xtitle"}\@open{tr}{}\@open{td}{}
+\@open{h1}{class="xtitlemain"}Title\@close{h1}
+\@open{h3}{class="xtitlerest"}Date\@close{h3}
+\@open{h3}{class="xtitlerest"}Author\@close{h3}
+\@close{td}\@close{tr}\@close{table}
 \end{htmlonly}
 
-\subsubsection{Enclosing things in a styled \texttt{DIV}}
+\subsubsection{Enclosing things in a styled \texttt{div}}
 \index{styles for!miscellaneous objects}%
 \index{style-sheets!\verb+\divstyle+}\envdefindex{divstyle}%
 At the moment, due to the complexity of the task, environments
@@ -3339,16 +3364,16 @@ limited styling can be performed, by using
 the \texttt{divstyle} environment.
 The opening command \verb+\begin{divstyle}{+\textit{class}\verb+}+
 takes the name of a class as
-an argument, and translates to \verb+<DIV CLASS="+\textit{class}\verb+">+.
+an argument, and translates to \verb+<div class="+\textit{class}\verb+">+.
 Of course the closing command \verb+\end{divstyle}+ translates to
-\verb+</DIV>+.
+\verb+</div>+.
 The limitation is that the enclosed part may generate more {\html}
 blocks, and that not all style attribute defined in class class
 \textit{class} will apply to those inner blocks.
 
 As an example consider the style class definition below.
 \begin{verbatim}
-\newstyle{.ruled}{border:solid black;padding:1ex;background:\#eeddbb;color:marron}
+\newstyle{.ruled}{border:solid black;padding:1ex;background:\#eeddbb;color:maroon}
 \end{verbatim}
 The intended behavior is to add a black border around the inner block
 (with some padding), and to have {\ifhevea\maroon maroon\else\fi} text over
@@ -3411,7 +3436,7 @@ Good Morning & Bonjour\\ Thank You & Merci\\ Good Bye & Au Revoir\\
 \end{tabular}\end{center}
 \end{verbatim}
 This works because of the rules that
-govern the width of {\html} \verb+TABLE+ elements, which yield
+govern the width of {\html} \verb+table+ elements, which yield
 minimal width. This trick is used in
 numerous places by \hevea{}, for instance in document titles, and looks
 quite safe.
@@ -3446,10 +3471,10 @@ But then, we do not use style sheets anymore.
 \subsubsection{Enclosing things in a styled cell}%
 \index{styles for!miscellaneous objects}%
 \index{style-sheets!\verb+\cellstyle+}\envdefindex{cellstyle}%
-Given the differences in styling \verb+DIV+ and table elements, \hevea{}
-provides a mean to issue a one-cell \verb+TABLE+ element with one cell,
-with style applied to the outer \verb+TABLE+ element and the inner
-\verb+TD+ element.
+Given the differences in styling \verb+div+ and table elements, \hevea{}
+provides a mean to issue a one-cell \verb+table+ element with one cell,
+with style applied to the outer \verb+table+ element and the inner
+\verb+td+ element.
 For instance, the previous example can be styled as follows, thereby
 avoiding the outer \texttt{tabular} environment.
 \begin{verbatim}
@@ -3561,16 +3586,16 @@ redefined before \verb+\begin{itemize}+.
 \end{verbatim}
 The outputted {\html} is:
 \begin{verbatim}
-<UL CLASS="toc1"><LI CLASS="li-itemize">
+<ul class="toc1"><li class="li-itemize">
 Part&nbsp;A
-<UL CLASS="toc2"><LI CLASS="li-itemize">
+<ul class="toc2"><li class="li-itemize">
 Chapter&nbsp;I
-<UL CLASS="toc3"><LI CLASS="li-itemize">
+<ul class="toc3"><li class="li-itemize">
 Section&nbsp;I.1
-<LI CLASS="li-itemize">Section&nbsp;I.2
+<li class="li-itemize">Section&nbsp;I.2
   ...
-</UL>
-</UL>
+</ul>
+</ul>
 \end{verbatim}
 
 \subsection{Miscellaneous}
@@ -3604,16 +3629,16 @@ correct behavior.
 \comdefindex{loadcssfile}%
 \index{style-sheets!\verb+\loadcssfile+}%
 The \hevea{} command \verb+\loadcssfile{+\textit{url}\verb+}+ allows the
-user to link to an external style sheet (like the LINK option for
+user to link to an external style sheet (like the link option for
 HTML). The command takes an \textit{url} of the external
 sheet as argument and emits the HTML text to
 \emph{link} to the given external style sheet. As an example, the command
 \begin{verbatim}
 \loadcssfile{../abc.css}
 \end{verbatim}
-produces the following \html{} text in the \verb+HEAD+ of the document.
+produces the following \html{} text in the \verb+head+ of the document.
 \begin{verbatim}
-  <LINK REL=STYLESHEET TYPE="text/css" HREF="../abc.css">
+  <link rel="stylesheet" type="text/css" href="../abc.css">
 \end{verbatim} 
 To yield some effect, \verb+\loadcssfile+ must appear in the document
 preamble.  Several \verb+\loadcssfile+ commands can be issued.  Then
@@ -3629,7 +3654,7 @@ package (see Section~\ref{urlpackage}).
 
 \subsubsection{Limitations}
 At the moment, style class definitions cumulate, and appear
-in the \verb+STYLE+ element in the order they are given in the
+in the \verb+style+ element in the order they are given in the
 document source. There is no way to cancel the default class
 definitions performed by \hevea{} before it starts to process the
 user's document.
@@ -3670,8 +3695,8 @@ emphasized. Then, it suffices to put the following redeclaration in
 \texttt{macros.hva}:
 \begin{verbatim}
 \renewenvironment{quote}
-  {\@open{BLOCKQUOTE}{}\@style{EM}}
-  {\@close{BLOCKQUOTE}}
+  {\@open{blockquote}{}\@style{em}}
+  {\@close{blockquote}}
 \end{verbatim}
 
 The same effect can be achieved without using any of the internal
@@ -3707,7 +3732,7 @@ for the font shapes:
 \itshape italic shape \slshape slanted shape
 \scshape small caps shape \upshape upright shape
 \end{verbatim}
-By default, \verb+\itshape+ is italics, \verb+\slshape+ is maroon
+By default, \verb+\itshape+ is italics, \verb+\slshape+ is oblique
 italics, \verb+\scshape+ is small-caps (thanks to style sheets) and \verb+\upshape+ is no style at all.
 All shapes are mutually exclusive, this means that each shape
 declaration cancels the effect of other active shape declarations.
@@ -3719,25 +3744,25 @@ For instance, in the example, small caps shapes is small caps (no italics here).
 \end{htmlout}
 \end{htmlonly}
 
-If one wishes to change the rendering of some of the shapes (say small
-caps), then one should redefine the old-style \verb+\sc+ declaration.
-For instance, to render small caps as bold fonts, one should
-redefine \verb+\sc+ by \verb+\renewcommand{\sc}{\@style{B}}+ in
+If one wishes to change the rendering of some of the shapes (say slanted
+caps), then one should redefine the old-style \verb+\sl+ declaration.
+For instance, to render slanted as Helvetica (why so?), one should
+redefine \verb+\sl+ by \verb+\renewcommand{\sl}{\@span{style="font-family:Helvetica"}}+ in
 \texttt{macros.hva}.
 
 
 \begin{htmlonly}
 And now, the shape example above gets rendered as follows:
-\begin{htmlout}\renewcommand{\sc}{\@style{B}}
+\begin{htmlout}\renewcommand{\sl}{\@span{style="font-family:Helvetica"}}
 {\itshape italic shape \slshape slanted shape
 \scshape small caps shape \upshape upright shape}
 \end{htmlout}
 
-Redefining the old-style \verb+\sc+ is compatible with the cancellation
-mechanism, redefining \verb+\scshape+ is not.
-Thus, redefining directly \LaTeXe{} \verb+\scshape+ with
-\verb+\renewcommand{\scshape}{\@style{B}}+ would yield:
-\begin{htmlout}\renewcommand{\scshape}{\@style{B}}
+Redefining the old-style \verb+\sl+ is compatible with the cancellation
+mechanism, redefining \verb+\slshape+ is not.
+Thus, redefining directly \LaTeXe{} \verb+\slshape+ with
+\verb+\renewcommand{\slshape}{}+ would yield:
+\begin{htmlout}\renewcommand{\slshape}{\@span{style="font-family:Helvetica"}}
 {\itshape italic shape \slshape slanted shape
 \scshape small caps shape \upshape upright shape}
 \end{htmlout}
@@ -4110,23 +4135,23 @@ the \html{} document body, there are specific commands for doing this.
 Those command must be used in the document preamble.
 One can
 change \hevea{} default (empty) attribute for
-the opening \verb+<BODY ...>+ tag by redefining
+the opening \verb+<body ...>+ tag by redefining
 \verb+\@bodyargs+.
 For instance, you get black text on a white background, when the
 following declaration occurs before \verb+\begin{document}+:
 \begin{verbatim}
-\renewcommand{\@bodyargs}{TEXT=black BGCOLOR=white}
+\renewcommand{\@bodyargs}{style="color:black;background:white"}
 \end{verbatim}
 Since version 1.08, a recommended alternative is to use style sheets:
 \begin{verbatim}
-\newstyle{BODY}{color:black; background:white;}
+\newstyle{body}{color:black; background:white;}
 \end{verbatim}
 
 
 \comindex{let}\envindex{rawhtml}
 \label{exlet}Similarly, some elements can be inserted into the output file
-\verb+HEAD+ element by redefining the \verb+\@meta+ command
-(Such elements typically are \verb+META+, \verb+LINK+, etc.).
+\verb+head+ element by redefining the \verb+\@meta+ command
+(Such elements typically are \verb+meta+, \verb+link+, etc.).
 As such text is pure \html{}, it should be included in a
 \verb+rawhtml+ environment. For instance, you can specify
 author information as follows:
@@ -4135,7 +4160,7 @@ author information as follows:
 \renewcommand{\@meta}{%
 \oldmeta
 \begin{rawhtml}
-<META name="Author" content="Luc Maranget">
+<meta name="Author" content="Luc Maranget">
 \end{rawhtml}}
 \end{verbatim}
 Note how \verb+\@meta+ is first bound to
@@ -4173,7 +4198,7 @@ section~\ref{spacemathref} on spaces in math mode.
 New paragraphs are introduced by one blank line or more.
 Paragraphs are not indented. Thus the macros \verb+\indent+ and
 \verb+\noindent+ perform no action.
-Paragraph are rendered by \verb+P+ elements.
+Paragraph are rendered by \verb+p+ elements.
 In some occasions, this technique may produce spurious paragraphs
 (see~\ref{spurious:par}).
 
@@ -4269,9 +4294,6 @@ A fix is writing:
  ...
 See Section~\ref{section:section}
 \end{verbatim}
-Note that \verb+\label+ should not be be placed last in
-section title (and I do not know the reason why).
-Have a try for this section~\ref{section:section}!
 
 \subsection{The Appendix}
 The \verb+\appendix+ command exists and should work as in \LaTeX.
@@ -4436,7 +4458,7 @@ The \verb+verse+ environment is not supported.
 
 \subsection{List-Making environments}
 The \verb+itemize+, \verb+enumerate+ and \verb+description+
-environments translate to the \verb+UL+, \verb+OL+, and
+environments translate to the \verb+ul+, \verb+ol+, and
 \verb+DL+ elements and this is the whole story.
 
 As a consequence, no control is allowed on the appearances of these
@@ -4508,8 +4530,8 @@ the \verb+PRE+ element.
 Inside \verb+verbatim*+, spaces are replaced by underscores (``\verb*+ +'').
 
 
-Similarly, \verb+\verb+ and \verb+\verb*+ translate to the \verb+CODE+
-text element.
+Similarly, \verb+\verb+ and \verb+\verb*+
+translate to the \verb+CODE+ text element.
 
 The \verb+alltt+ environment is supported.
 
@@ -4558,7 +4580,7 @@ $$\frac{1}{\sum_{i=1}^{\infty} i}$$
 \hevea{} admits, subscript (\verb+_+), superscripts (\verb+^+) and
 fractions (\verb+\frac{+{\it numer}\verb+}{+{\it denom}\verb+}+).
 The best effect is obtained in display mode, where \html{}
-\verb+TABLE+ element is extensively used.
+\verb+table+ element is extensively used.
 By contrast, when not in display mode, \hevea{} uses only
 \verb+SUB+ and \verb+SUP+ text-level elements to render superscrits
 and subscript, and the result may not be very satisfying.
@@ -4947,7 +4969,7 @@ All other tabbing commands do not even exist.
 environments}\label{arraydef}
 
 These environments are supported, using \html{}
-\verb+TABLE+ element, rendering is satisfactory in most (not too
+\verb+table+ element, rendering is satisfactory in most (not too
 complicated) cases.
 By contrast with \LaTeX{},
 some of the array items always are typeset in display mode.
@@ -5010,7 +5032,7 @@ document), which significantly extends the
 
 \section{Moving Information Around}
 
-\subsection{Files}\label{files}
+\subsection{\label{files}Files}
 In some situations,
 \hevea{} uses some of the ancillary files generated by \LaTeX.
 More precisely, while processing file \filename{doc}\texttt{.tex},
@@ -5587,21 +5609,21 @@ Hence the following source yield a paragraph with a red background:
 \end{bgcolor}
 \end{htmlonly}
 
-
-The \texttt{bgcolor} environment is implemented by a \verb+TABLE+
-element, it takes an
-optional argument that is used as an attribute for this \verb+TABLE+
-element (default value is \verb+CELLPADDING=10+).
-For instance, the following source:
+The \texttt{bgcolor} environment is implemented by one-cell
+\verb+table+ element, it takes an
+optional argument that is used as an attribute for the inner \verb+td+
+element (default value is \verb+style="padding:1em"+).
+Advanced users may change the default, for instance as:
 \begin{verbatim}
-\begin{bgcolor}[CELLPADDING=0]{yellow}
+\begin{bgcolor}[style="padding:0"]{yellow}
 \color{red}Red letters on a yellow backgroud
 \end{bgcolor}
 \end{verbatim}
-will be typeset on a yellow background and without padding:
+The resulting output will be red letters
+on a yellow background and no padding:
 \begin{htmlonly}
-\begin{bgcolor}[CELLPADDING=0]{yellow}
-\color{red}Red letters on a yellow backgroud
+\begin{bgcolor}[style="padding:0"]{yellow}
+\color{red}Red letters on a yellow background, no padding
 \end{bgcolor}
 \end{htmlonly}
 
@@ -5640,48 +5662,51 @@ are recognized. Aspect is rather like \LaTeXe{} output, but there is
 no guarantee.
 
 As \html{} does not provide the same variety of type styles as
-\LaTeX{}, some type style get rendered by using colors. For instance,
-the slanted shape yields maroon italics.
-\begin{htmlonly}
-Hence, the following source
-``\verb+{\slshape slanted shape} {\scshape small caps shape}+'' yields:
-``{\slshape slanted shape} {\scshape small caps shape}''
-\end{htmlonly}
+\LaTeX{} does.
+However \css{} provide a wide variety of font properties.
+\hevea{} uses generic properties, proper rendering will then depend
+upon user agent.
+For instance, it belongs to the user agent
+to make a difference beetween
+\textit{italics} (rendered by the font style ``italic'')
+and \textsl{slanted} (rendered by the font style ``oblique'').
+
 Here is how \hevea{} implements text-style declarations by default:
 \begin{center}
 \newcommand{\heveastyle}[2]{{\ifhevea#1\fi#2}}
 \begin{tabular}{*{3}{p{.3\linewidth}}}
 \begin{tabular}{l@{\quad}l} \hline
-\verb+\itshape+ &  \heveastyle{\itshape}{italics}\\
-\verb+\slshape+ &  \heveastyle{\slshape}{maroon italics}\\
-\verb+\scshape+ &  \heveastyle{\scshape}{small~caps}\\
+\verb+\itshape+ &  \heveastyle{\itshape}{font-style:italic}\\
+\verb+\slshape+ &  \heveastyle{\slshape}{font-style:oblique}\\
+\verb+\scshape+ &  \heveastyle{\scshape}{font-variant:small-caps}\\
 \verb+\upshape+ &  \heveastyle{\upshape}{no style}\\ \hline
 \end{tabular}
  &
 \begin{tabular}{l@{\quad}l} \hline
-\verb+\ttfamily+ & \heveastyle{\ttfamily}{typewriter font}\\
-\verb+\sffamily+ & \heveastyle{\sffamily}{purple}\\
+\verb+\ttfamily+ & \heveastyle{\ttfamily}{font-family:monospace}\\
+\verb+\sffamily+ & \heveastyle{\sffamily}{font-family:sans-serif}\\
 \verb+\rmfamily+ &  \heveastyle{\rmfamily}{no style}\\ \hline
 \end{tabular}
 
 &
 \begin{tabular}{l@{\quad}l} \hline
-\verb+\bfseries+ & \heveastyle{\bfseries}{bold}\\
+\verb+\bfseries+ & \heveastyle{\bfseries}{font-weight:bold}\\
 \verb+\mdseries+ & \heveastyle{\mdseries}{no style}\\ \hline
 \end{tabular}
 \end{tabular}
 \end{center}
+
+
 Text-style commands also exists, they are defined as
 \verb+\mbox{\+\textit{decl}\ldots\verb+}+. For instance,
 \verb+\texttt+ is defined as a command with one argument whose body is
 \verb+\mbox{\ttfamily#1}+.
-Finally, the \verb+\emph+ command for emphasized text also exists.
+Finally, the \verb+\emph+ command for emphasized text also exists,
+it yields text-level \verb+em+ elements.
 
 
 As in \LaTeX{}, type styles consists in three components:
 \emph{shape}, \emph{series} and \emph{family}.
-However this distinction does not exist in \html: one specifies a
-type style and that's all.
 \hevea{} implements the three components by making one declaration to
 cancel the effect of other declarations of the same kind.
 \begin{htmlonly}
@@ -5702,7 +5727,7 @@ only and not in italics:
 Old style declarations are also recognized, they translate to
 text-level elements. However, no elements are canceled when using
 old style declaration. Thus, the source
-``\verb+{\sl\sc slanted and small caps}+'' yields maroon ``slanted'' small caps
+``\verb+{\sl\sc slanted and small caps}+'' yields ``slanted'' small caps
 \ifhevea: ``{\sl\sc slanted and small caps}''\fi.
 Users need probably not worry about this. However this has an
 important practical consequence: to change the default rendering of
@@ -5937,7 +5962,7 @@ As a consequence, standard \LaTeX{} counters \verb+year+,
 \comindex{heveadate}
 Additionnally the following counters and commands are defined:
 \begin{center}
-\begin{tabular}{l@{\quad}p{.5\textwidth}}\\ \hline
+\begin{tabular}{l@{\quad}p{.5\textwidth}}\hline
 Counter \texttt{weekday} & day of week, 0\ldots{}6
 \ifhevea(e.g. \theweekday)\fi\\
 Counter \texttt{Hour} & hour, 00\ldots{}11
@@ -6026,6 +6051,7 @@ will yield sectionnal headers on a red-orange background.
 
 \subsection{Targetting \label{winfonts}Windows}
 \index{display problems!for authors}%
+\ttindex{winfonts}{package}
 At the time of this release, Windows support for symbols
 through Unicode is not as complete as the one of Linux, which I am
 using for testing~\hevea{}.
@@ -6574,7 +6600,7 @@ giving \texttt{hevea} the command-line option \cmdopt{-O}
 
 The \texttt{lstlisting} environment is styled through
 an homonymous style class (see \ref{css:change:all} and~\ref{css:change}) and
-most \texttt{lstlisting} environments get translated to \verb+DIV+
+most \texttt{lstlisting} environments get translated to \verb+div+
 elements with the approriate \verb+\getenvclass{lstlisting}+ class, 
 which, by default is \texttt{lstlisting}.
 A few points deserve mention:
@@ -6645,10 +6671,10 @@ int fact(int n) {
 \endgroup\fi
 \item When listings are framed, that is, when  some
 \texttt{frame=}\ldots{} or \texttt{background=}\ldots{} keyval
-specifications are active, they no longer get translated to \verb+DIV+
+specifications are active, they no longer get translated to \verb+div+
 elements.
-Instead they get translated to one cell tables whose \verb+TD+
-and \verb+TABLE+ elements
+Instead they get translated to one cell tables whose \verb+td+
+and \verb+table+ elements
 are styled through style classes \texttt{lstlisting} and
 \texttt{lstframe}, respectively. Of course, those two style classes
 follow the usual \verb+\setenvclass+/\verb+\getenvclass+ mechanism.
@@ -7017,7 +7043,7 @@ differs significantly from \TeX{}, and discrepancies are likely.
 
 The \texttt{chngcntr} package is implemented.
 This package provides commands to connect (and disconnect) counters
-once they are created\ifhevea(see
+once they are created\ifhevea{} (see
 \ahrefurl{\url|http://www.tex.ac.uk/cgi-bin/texfaq2html?label=addtoreset|}).\else.\fi
 
 The \texttt{import} package is partially implemented:
@@ -7168,14 +7194,14 @@ The normal way to translate a full document~\textit{file}\verb+.tex+ being
 ``\verb+hevea < + \textit{file}\verb+.tex > +\textit{file}\verb+.html+''.
 
 
-\subsubsection{Options}\label{heveaoptions}
+\subsubsection{\label{heveaoptions}Options}
 The \texttt{hevea} command recognizes the following options:
 \begin{description}
 \item[{\tt -version}] Show \texttt{hevea} version and exit.
 \item[{\tt -v}] Verbose flag, can be repeated to increase
 verbosity. However, this is mostly for debug.
 \item[{\tt -dv}] Add border around some of the block-level
-elements issued. Specifically, all \verb+DIV+ and \verb+P+ are bordered,
+elements issued. Specifically, all \verb+div+ and \verb+p+ are bordered,
 while the structure of displayed material is also shown.
 \item[{\tt -s}] Suppress warnings.
 \item[{\tt -I} {\it dirname}] Add {\it dirname} to the search path.
@@ -7277,20 +7303,14 @@ to operate when it detects incorrect~\html, it can be used as a
 partial \html~validator.
 
 
-\subsubsection{Operating modes}
-With no argument, \texttt{esponja} acts as a filter, it reads the
-standard input and writes on the standard output.
-Otherwise, \texttt{esponja} interprets its arguments as names of
+\subsubsection{Operating mode}
+The program \texttt{esponja} interprets its arguments as names of
 files and attempt to process them.
 It is important to notice that \texttt{esponja} will \emph{replace} files
-by their optimized versions.
+by their optimized versions, unless instructed not to do so with
+option~\texttt{-n}.
 
-Hence, to optimize file \texttt{foo.html} into \texttt{foo\_opt.html},
-one should invoke \texttt{esponja} as follows.
-\begin{verbatim}
-# esponja < foo.html > foo_opt.html
-\end{verbatim}
-By contrast, invoking \texttt{esponja} as
+Invoking \texttt{esponja} as
 \begin{verbatim}
 # esponja foo.html
 \end{verbatim}
@@ -7311,9 +7331,8 @@ The command \texttt{esponja} recognizes the following options:
 \begin{description}
 \item[{\tt -v}]Be verbose, can be repeated to increase verbosity.
 \item[{\tt -n}]Do not alter input files. Instead, \texttt{esponja}
-output for file \textit{input} goes to file
-\textit{input}\texttt{.esp}. Option \texttt{-n}
-implies option \texttt{-v}.
+output for file \textit{input}\texttt{.html} goes to file
+\textit{input}\texttt{.esp}. Option \texttt{-n} implies option \texttt{-v}.
 \item[{\tt -u}]Output \texttt{esponja} intermediate version of \html.
 In most occasions, this amounts to pessimize instead of to optimize.
 It may yield challenging input for other \html~optimizers.
@@ -7749,7 +7768,7 @@ The following people contributed to \hevea{} development:
 \item Philip~A.Viton, maintains a
 \ahref{http://facweb.knowlton.ohio-state.edu/pviton/support/winport.html}
 {Windows (win32) port} of \hevea.
-\item Abhishek Thakur implemented most of the new features if version
+\item Abhishek Thakur implemented most of the new features of version
 1.08, including, translations of symbols to Unicode entities,
 the  \texttt{babel} package, and style sheet support.
 \item Christian Queinnec wrote an extra lexer to translate code

@@ -9,8 +9,6 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: thread.ml,v 1.5 2006-01-30 08:56:26 maranget Exp $" 
-
 let uptable = Hashtbl.create 17
 and nexttable = Hashtbl.create 17
 and prevtable = Hashtbl.create 17

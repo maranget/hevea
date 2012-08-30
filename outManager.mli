@@ -89,7 +89,7 @@ val put_in_math : string -> unit
 
 val open_table : bool -> string -> unit
 val new_row : unit -> unit
-val open_cell : Tabular.format -> int -> int -> unit
+val open_cell : Tabular.format -> int -> int -> bool -> unit
 val erase_cell : unit -> unit
 val close_cell : string -> unit
 val do_close_cell : unit -> unit

@@ -19,7 +19,7 @@
 %%So that we can format ref to figures differently.
 \let\figcut@ref\ref
 \let\figcut@locref\@locref
-\newcommand{\fig@locref}[2]{\@aelement{HREF="\@print{#}#1" TARGET="_new"}{#2}}
+\newcommand{\fig@locref}[2]{\@aelement{href="\@print{#}#1" target="_new"}{#2}}
 \newcommand{\figref}[1]
 {\let\@locref\fig@locref\figcut@ref{#1}\let\@locref\figcut@locref}
 \renewcommand{\ref}[1]

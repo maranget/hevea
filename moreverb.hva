@@ -2,8 +2,8 @@
 \@primitives{moreverb}
 \newcommand{\verbatimtabsize}{8}
 \newenvironment{boxedverbatim}
-{\@open{TABLE}{BORDER=1 CELLPADDING=1 CELLSPACING=0}\@open{TR}{}\@open{TD}{ALIGN="left"}\verbatim}
-{\endverbatim\@close{TD}\@close{TR}\@close{TABLE}}
+{\@open{table}{style="border:1px;border-spacing:0" class="cellpadding1"}\@open{tr}{}\@open{td}{style="text-align:left"}\verbatim}
+{\endverbatim\@close{td}\@close{tr}\@close{table}}
 \newcommand{\verbatimtabinput}[2][\verbatimtabsize]
   {\@scaninput{\begin{verbatimtab}[#1]
 }{#2}{\end{verbatimtab}}}

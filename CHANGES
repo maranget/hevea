@@ -1,3 +1,5 @@
+version 2.00
+     - HTML 5.0 output.
 version 1.99
      - Last released version that outputs html 4.0
      - Simplified html.mli, text.mli and info.mli by including outManager

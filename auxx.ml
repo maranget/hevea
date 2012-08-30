@@ -11,13 +11,14 @@
 
 open Misc
 
-let _header = "$Id: auxx.ml,v 1.22 2012-06-05 14:55:39 maranget Exp $" 
-
 let rtable = Hashtbl.create 17
+and atable = Hashtbl.create 17
 ;;
 
-let rset name value =
-  Hashtbl.add rtable name value
+let rset name value = Hashtbl.add rtable name value
+let rset2 anchor name value =
+  Hashtbl.add rtable name value ;
+  Hashtbl.add atable name anchor
 ;;
 
   
@@ -25,6 +26,9 @@ let rget name =
   try Hashtbl.find rtable name with Not_found -> begin
     warning ("Undefined label: '"^name^"'") ; "??"
   end
+
+and rget2 name =
+  try Hashtbl.find atable name with Not_found -> name
 ;;
 
 let btable = Hashtbl.create 17
@@ -130,6 +134,17 @@ and rwrite key pretty =
         output_string file "}{{" ;
         output_string file pretty ;
         output_string file "}{X}}\n")
+and rwrite2 anchor key pretty =
+  if rcheck key then
+    write
+      (fun file ->
+        output_string file "\\new@anchor@label{" ;
+        output_string file anchor ;
+        output_string file "}{" ;
+        output_string file key ;
+        output_string file "}{{" ;
+        output_string file pretty ;
+        output_string file "}{X}}\n")
 ;;
 
 type toc_t =
@@ -206,19 +221,22 @@ let final base =
 
 
 type saved =
-(string, string) Hashtbl.t * (string, unit) Hashtbl.t *
+(string, string) Hashtbl.t * (string, string) Hashtbl.t *
+  (string, unit) Hashtbl.t *
   (string, string) Hashtbl.t * (string, unit) Hashtbl.t *
   out_channel option * string * bool * Digest.t option
 
 let check () =
-  Hashtbl.copy rtable,  Hashtbl.copy rseen,
+  Hashtbl.copy rtable,  Hashtbl.copy atable,
+  Hashtbl.copy rseen,
   Hashtbl.copy btable,  Hashtbl.copy  bseen,
   !auxfile, !auxname, !something, !digest
 
 let hot
- (srtable, srseen, sbtable, sbseen,
+ (srtable, satable, srseen, sbtable, sbseen,
   sauxfile, sauxname, ssomething, sdigest) =
-  Misc.copy_hashtbl srtable rtable ; Misc.copy_hashtbl srseen rseen ;
+  Misc.copy_hashtbl srtable rtable ;  Misc.copy_hashtbl satable atable ;
+  Misc.copy_hashtbl srseen rseen ;
   Misc.copy_hashtbl sbtable btable ; Misc.copy_hashtbl sbseen bseen ;
   auxfile := sauxfile ;
   auxname := sauxname ;
@@ -227,7 +245,7 @@ let hot
 
 (* Valid only juste before reading main input file *)
 let hot_start () =
-  Hashtbl.clear rtable ; Hashtbl.clear rseen ;
+  Hashtbl.clear rtable ; Hashtbl.clear atable ;Hashtbl.clear rseen ;
   Hashtbl.clear btable ; Hashtbl.clear bseen ;
   auxfile :=  None ;
   auxname := "" ;

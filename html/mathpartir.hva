@@ -51,26 +51,26 @@
 \setenvclass{mprow}{mprow}
 \setenvclass{mprcell}{mprcell}
 \fi
-%% Open/close TABLE elements
-\def\open@mathpar@table{\@open{TABLE}{\envclass@attr{mprow}}}
-\def\open@mprow{\@open{TR}{VALIGN="middle"}}
-\def\close@mprow{\@close{TR}}
-\def\open@mpcell{\@open{TD}{\envclass@attr[ ]{mprcell}ALIGN="center"}\displaymath}
-\def\close@mpcell{\enddisplaymath\@close{TD}}
-\def\force@mpcell{\enddisplaymath\@force{TD}}
+%% Open/close table elements
+\def\open@mathpar@table{\@open{table}{\envclass@attr{mprow}}}
+\def\open@mprow{\@open{tr}{style="vertical-align:middle"}}
+\def\close@mprow{\@close{tr}}
+\def\open@mpcell{\@open{td}{\@addstyle{text-align:center}{\envclass@attr[ ]{mprcell}}}\displaymath}
+\def\close@mpcell{\enddisplaymath\@close{td}}
+\def\force@mpcell{\enddisplaymath\@force{td}}
 \def\open@mpfstcell{\open@mpcell}
 \def\close@mplstcell{\force@mpcell}
 \def\mathpar@hspace{\push@styles\close@mpcell\open@mpcell\pop@styles\@skip@blanks}
 \def\mathpar@vspace
-{\push@styles\close@mplstcell\close@mprow\@close{TABLE}%
+{\push@styles\close@mplstcell\close@mprow\@close{table}%
 \open@mathpar@table\open@mprow\open@mpfstcell\pop@styles\@skip@blanks}%
 \def\mathpar@hva#1{\ifx#1\and\mathpar@vspace\else\mathpar@hspace\fi}%
 %%exported mathpar
 \newenvironment{mathpar}[1][]
-  {\@open{DIV}{\envclass@attr{mathpar}}
+  {\@open{div}{\envclass@attr{mathpar}}
   \let\and\mathpar@hspace\let\par\mathpar@vspace\let\\\mathpar@vspace\let\hva\mathpar@hva%
   \open@mathpar@table\open@mprow\open@mpfstcell}
-  {\close@mplstcell\close@mprow\@close{TABLE}\@close{DIV}}
+  {\close@mplstcell\close@mprow\@close{table}\@close{div}}
 %%%% Type Inference Rules (TIR)
 \newsavebox{\mpr@save@arg}%
 \newcommand{\mpr@globle}[1]{}
@@ -84,19 +84,20 @@
 \def \@latexcr #1{%
 \def \@test {#1}\ifx \@test \@latexcr@char \latexcr \else
 \qquad #1\fi}
-\newcommand{\mpr@valign}[1]{\ifthenelse{\equal{#1}{}}{}{valign="#1"}}
+\newcommand{\mpr@valign}[1]
+{\ifthenelse{\equal{#1}{}}{}{style="vertical-align:#1"}}
 \newcommand{\mpr@line}[1]
-{\@open{TR}{\mpr@valign{#1}}%
-\ifx\mpr@label\mpr@L\@open{TD}{}\mpr@name{\@rule@name}~\@force{TD}\fi
-\@open{TD}{NOWRAP ALIGN="\ifmpr@center{}center\else{}left\fi"}%
+{\@open{tr}{\mpr@valign{#1}}%
+\ifx\mpr@label\mpr@L\@open{td}{}\mpr@name{\@rule@name}~\@force{td}\fi
+\@open{td}{style="whitespace:nowrap;text-align:\ifmpr@center{}center\else{}left\fi"}%
 \bgroup\def\mpr@line@arg{#1}%
-\@open{DISPLAY}{\mpr@valign{#1}}%
+\@open{display}{\mpr@valign{#1}}%
 \def\\{\@latexcr{\qquad}}\def\and{\@latexcr{\qquad}}%
 \let\hva\mpr@line@hva}
 \newcommand{\endmpr@line}
-{\@close{DISPLAY}\egroup\@force{TD}%
-\ifx\mpr@label\mpr@R\@open{TD}{}~\mpr@name{\@rule@name}\@force{TD}\fi
-\@close{TR}}
+{\@close{display}\egroup\@force{td}%
+\ifx\mpr@label\mpr@R\@open{td}{}~\mpr@name{\@rule@name}\@force{td}\fi
+\@close{tr}}
 \def \mpr@empty {}
 \newif \ifmpr@center \mpr@centertrue
 \newif \ifmpr@vdots \mpr@vdotsfalse
@@ -105,17 +106,17 @@
 {\vdots%
 \setcounter{mpr@count}{\@lengthtonchar{\mpr@vdots}}%
 \whiledo{\value{mpr@count}>1}{\@br\vdots\addtocounter{mpr@count}{-1}}}
-\def\mpr@emptyL{\ifx\mpr@label\mpr@L\@open{TD}{}\@force{TD}\fi}
-\def\mpr@emptyR{\ifx\mpr@label\mpr@R\@open{TD}{}\@force{TD}\fi}
-\newcommand{\@mpr@table}{\@open{TABLE}{border=0 cellspacing=1 cellpadding=0}}
+\def\mpr@emptyL{\ifx\mpr@label\mpr@L\@open{td}{}\@force{td}\fi}
+\def\mpr@emptyR{\ifx\mpr@label\mpr@R\@open{td}{}\@force{td}\fi}
+\newcommand{\@mpr@table}{\@open{table}{style="border:0;border-spacing:1px;border-collapse:separate" class="cellpadding0"}}
 \newcommand {\@inferrule}[2]
    {\bgroup
     \let \\ \latexcr%
     \@mpr@table%
     \ifx\mpr@label\mpr@C
-      \@open{TR}{}\@open{TD}{align=left}%
+      \@open{tr}{}\@open{td}{style="text-align:left"}%
       \mpr@name{\@rule@name}%
-      \@close{TD}\@close{TR}%
+      \@close{td}\@close{tr}%
     \fi
     \def \@@arg{#1}\ifx \@@arg \mpr@empty%
       \mpr@line{}#2\endmpr@line%
@@ -128,22 +129,22 @@
       \mpr@line{top}#2\endmpr@line%
     \fi\fi%
     \ifmpr@vdots%
-      \@open{TR}{valign=middle}%
+      \@open{tr}{style="vertical-align:middle"}%
       \mpr@emptyL
-      \@open{TD}{align=center}\mpr@output@vdots\@force{TD}%
+      \@open{td}{style="text-align:center"}\mpr@output@vdots\@force{td}%
       \mpr@emptyR
-      \@close{TR}%
+      \@close{tr}%
     \fi
-    \@force{TABLE}%
+    \@force{table}%
     \egroup%
 }
 \def\mpr@hhline@color{green}
 \def \@hhline
-{\@open{TR}{}%
+{\@open{tr}{}%
 \mpr@emptyL
-\@open{TD}{height="3" bgcolor="\mpr@hhline@color"}\@force{TD}%
+\@open{td}{style="background-color:\mpr@hhline@color;height:3px"}\@force{td}%
 \mpr@emptyR
-\@force{TR}}
+\@force{tr}}
 
 \newcommand {\inferrule*}[3][]{%
    \bgroup\let\@tir@name\RefTirName%

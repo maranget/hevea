@@ -1,0 +1,93 @@
+\@primitives{fancyvrb}
+\usepackage{keyval}
+%%%%%%%% Helper
+\def\verb@table#1{\@open{TABLE}{#1}\@open{TR}{}\@open{TD}{}}
+\def\verb@elbat{\@close{TD}\@close{TR}\@close{TABLE}}
+%%%%%%%%% Font size
+\define@key{fancyvrb}{fontsize}{\def\verb@size{#1}}
+\def\verb@size{}
+\define@key{fancyvrb}{fontshape}{\def\verb@shape{\csname #1shape\endcsname}}
+\def\verb@shape{}
+%%%%%%% Labels
+\def\verb@label@
+  #1{\@open{TR}{}\@open{TH}{ALIGN=center COLSPAN=3}#1\@close{TH}\@close{TR}}
+\def\verb@toplabel{}\def\verb@bottomlabel{}
+\def\verb@deftop#1{\def\verb@toplabel{\ifverb@top\verb@horiz@line\verb@label@{#1}\fi}}
+\def\verb@defbottom#1{\def\verb@bottomlabel{\ifverb@bottom\verb@label@{#1}\verb@horiz@line\fi}}
+\newcommand{\verb@labelkey}[2][]
+  {\def\verb@test{#1}%
+  \ifx\verb@test\@empty\def\verb@label{#2}\else
+  \def\verb@label{#1}\def\verb@labelbis{#2}\fi}
+\newcommand{\verb@labels}[2][]
+  {\def\verb@test{#1}%
+  \ifx\verb@test\@empty\verb@deftop{#2}\else
+  \verb@deftop{#1}\verb@defbottom{#2}\fi}
+\define@key{fancyvrb}{label}{\@callopt{\verb@labelkey}{#1}}
+\def\verb@labelpos{default}
+\define@key{fancyvrb}{labelposition}{\def\verb@labelpos{#1}}
+%%%%%%% Framing
+\def\verb@framesize{2}
+\define@key{fancyvrb}{framerule}{\def\verb@framesize{\@getlength{#1}}}
+\def\verb@framesep{1}
+\define@key{fancyvrb}{framesep}{\def\verb@framesep{\@getlength{#1}}}
+\def\verb@rulecolor{black}
+\def\verb@rulecolor@key
+#1{\def\verb@rulecolor{{\let\color\@getcolor#1}}}
+\define@key{fancyvrb}{rulecolor}{\verb@rulecolor@key{#1}}
+\def\verb@fillcolor@key
+#1{\def\verb@fillcolor{{\let\color\@getcolor{}BGCOLOR=#1{}}}}
+\define@key{fancyvrb}{fillcolor}{\verb@fillcolor@key{#1}}
+\def\verb@fillcolor{}
+\def\verb@horiz@line
+  {\@open{TR}{}\verb@vert@line[3]\@close{TR}}
+\newcommand{\verb@vert@line}[1][1]
+  {\@open{TD}{BGCOLOR=\verb@rulecolor{} COLSPAN="\@getprint{#1}"}%
+   \verb@table{CELLSPACING="\verb@framesize" CELLPADDING=0 BORDER=0}
+   \verb@elbat\@close{TD}}
+\define@key{fancyvrb}{frame}{\def\verb@frame{#1}}
+\def\verb@frame{none}
+\def\begin@frame@{\@open{TABLE}{BORDER=0 CELLSPACING=0 CELLPADDING=0}\verb@toplabel\@open{TR}{}\@open{TD}{}\@open{TABLE}{\@getprint{\verb@fillcolor} BORDER=0 CELLPADDING=0
+  CELLSPACING=0}\ifverb@top\verb@horiz@line\fi\@open{TR}{}\ifverb@left\verb@vert@line\fi\@open{TD}{}\@open{TABLE}{BORDER=0 CELLPADDING="\verb@framesep" CELLSPACING=0}\@open{TR}{}\@open{TD}{}}
+\def\end@frame@{\@close{TD}\@close{TR}\@close{TABLE}\@close{TD}\ifverb@right\verb@vert@line\fi\@close{TR}\ifverb@bottom\verb@horiz@line\fi\@close{TABLE}\@close{TD}\@close{TR}\verb@bottomlabel\@close{TABLE}}
+\newif\ifverb@left\newif\ifverb@bottom\newif\ifverb@top\newif\ifverb@right
+\def\reset@frame
+  {\setcounter{verb@count}{0}%
+  \verb@leftfalse\verb@bottomfalse\verb@topfalse\verb@rightfalse%
+  \def\verb@toplabel{}\def\verb@bottomlabel{}}
+\def\verb@labelmaker#1#2{\ifu#2\else#1#2\fi}
+\def\check@labels
+  {\ifthenelse{\equal{\verb@labelpos}{topline}}
+    {\verb@labelmaker{\verb@deftop}{\verb@label}}{}%
+  \ifthenelse{\equal{\verb@labelpos}{bottomline}}
+    {\verb@labelmaker{\verb@defbottom}{\verb@label}%
+    \verb@labelmaker{\verb@defbottom}{\verb@labelbis}}{}%
+  \ifthenelse{\equal{\verb@labelpos}{all}}
+    {\verb@labelmaker{\verb@deftop}{\verb@label}%
+    \verb@labelmaker{\verb@defbottom}{\verb@label}%
+    \verb@labelmaker{\verb@defbottom}{\verb@labelbis}}{}%
+  \ifthenelse{\equal{\verb@labelpos}{default}}
+    {\verb@labelmaker{\verb@deftop}{\verb@label}%
+    \verb@labelmaker{\verb@defbottom}{\verb@labelbis}}{}}
+\def\check@frame
+  {\reset@frame%
+   \ifthenelse{\equal{\verb@frame}{lines}}{\verb@toptrue\verb@bottomtrue}{}%
+   \ifthenelse{\equal{\verb@frame}{leftline}}{\verb@lefttrue}{}%
+   \ifthenelse{\equal{\verb@frame}{topline}}{\verb@toptrue}{}%
+   \ifthenelse{\equal{\verb@frame}{bottomline}}{\verb@bottomtrue}{}%
+   \ifthenelse{\equal{\verb@frame}{single}}
+     {\verb@toptrue\verb@bottomtrue\verb@lefttrue\verb@righttrue}{}%
+   \ifthenelse{\equal{\verb@frame}{none}}
+      {\let\begin@frame\@empty\let\end@frame\@empty}
+      {\check@labels\let\begin@frame\begin@frame@\let\end@frame\end@frame@}}
+%%%%%%%%% Line numbers
+\newcounter{verb@count}
+\newcommand{\verb@startline}{\stepcounter{verb@count}\theverb@count}
+%%%%%%%%%% User command
+\newcommand{\fvset}[1]{\@setkeys{fancyvrb}{#1}}
+\newenvironment{Verbatim}[1][]
+  {\@setkeys{fancyvrb}{#1}%
+  \def\endVerbatim{\@endVerbatim\end@frame}%
+  \check@frame\begin@frame\verb@shape\verb@size\@Verbatim}
+  {}
+\newcommand{\VerbatimInput}[1]
+  {\@scaninput{\begin{Verbatim}}{#1}{\end{Verbatim}}}

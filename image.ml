@@ -9,7 +9,6 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let _header = "$Id: image.ml,v 1.31 2007-02-09 09:18:36 maranget Exp $" 
 open Misc
 
 let base = Parse_opts.base_out

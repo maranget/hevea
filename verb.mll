@@ -110,25 +110,21 @@ and lst_save_spaces  = ref false
 let lst_buff = Out.create_buff ()
 
 let lst_last_char = ref ' '
-and lst_finish_comment = ref 0
 
 let lst_put c =
   incr lst_col ;
   lst_last_char := c ;
   Out.put_char lst_buff c
 
-and lst_direct_put c =
-  incr lst_col ;
-  lst_last_char := c ;
-  Dest.put_char c
-
 type lst_scan_mode =
   | Letter | Other | Empty | Start
   | Directive of bool (* bool flags some letter read *)
 
+(*
 let show_mode = function
   | Letter -> "Letter" | Other -> "Other" | Empty -> "Empty" | Start -> "Start"
   | Directive _ -> "Directive"
+*)
 
 let lst_scan_mode = ref Empty
 
@@ -139,7 +135,8 @@ type comment_type =
 
 type lst_top_mode =
   | Skip of lst_top_mode
-  | StartNextLine of lst_top_mode * (bool ref) | EndNextLine of lst_top_mode
+  | StartNextLine of lst_top_mode * (bool ref)
+(*  | EndNextLine of lst_top_mode *)
   | String of (char * (char * (Lexing.lexbuf -> char -> unit)) list)
   | Normal | Comment of string * comment_type
   | Delim of int * (char * (Lexing.lexbuf -> char -> unit)) list
@@ -154,12 +151,14 @@ let is_outputing = function
   | Skip _ -> false
   | _    -> true
 
-let rec string_of_top_mode = function
+let string_of_top_mode = function
    | Delim (i,_) -> sprintf "Delim: %i" i
   | Skip _ -> "Skip"
   | StartNextLine (_,_) -> "StartNextLine"
+(*
   | EndNextLine (mode) ->
       sprintf "EndNextLine (%s)" (string_of_top_mode mode)
+*)
   | Comment (_, Balanced _) -> "Balanced"
   | Comment (_, Nested n)   -> "(Nested "^string_of_int n^")"
   | Comment (_, Line) -> "Line"
@@ -171,8 +170,9 @@ let rec string_of_top_mode = function
 
 let lst_top_mode = ref (Skip Normal)
 
-
+(*
 let lst_ptok s =  prerr_endline (s^": "^Out.to_string lst_buff)
+*)
 
 (* Final ouput, with transformations *)
 let dest_string = Scan.translate_put_unicode_string
@@ -209,7 +209,8 @@ let lst_output_com com =
           assert false
       | Delim (_, _)
       | Comment (_,_)|String _
-      | EndNextLine _ ->
+(*    | EndNextLine _ *)
+        ->
           scan_this main "\\@NewLine" ;
           dest_string arg
     end
@@ -318,9 +319,10 @@ let lst_do_escape mode endchar math _lb lxm =
     Out.put_char lst_buff lxm
 
 
+(*
 let debug_curline msg =
   eprintf "%s: %s\n" msg (Scan.get_this_main "\\usebox{\\@curline}")
-
+*)
 
 (* We put those here since newlines may terminate comments *)
 let begin_comment () =
@@ -393,10 +395,12 @@ match !lst_top_mode with
     lst_top_mode := Skip newmode ;
     lst_process_newline real_eol lb c ;
     to_activate := true
+(*
 | EndNextLine (mode) ->
     lst_last := !lst_nlines ;
     lst_top_mode := mode ;
     lst_process_newline real_eol lb c
+*)
 | Gobble (mode,_) ->
     lst_top_mode := mode ;
     lst_process_newline real_eol lb c
@@ -474,7 +478,7 @@ and lst_process_BMark active to_activate mark_start old_process lb c =
           old_process lb c
         end
     | Escape (_, _, _)|Gobble (_, _)|Delim (_, _)|
-      Comment (_,_)|String _|EndNextLine _|
+      Comment (_,_)|String _| (* EndNextLine _| *)
       StartNextLine (_,_)|Skip _|Normal ->
         old_process lb c
   end else
@@ -1004,7 +1008,7 @@ and put_char c next = match c with
 
 
 let open_verb put lexbuf =
-  Dest.open_group "CODE" ;
+  Dest.open_group "code" ;
   start_inverb put lexbuf
 ;;
   
@@ -1033,7 +1037,7 @@ let noeof lexer lexbuf =
 let getclass env = Scan.get_prim (Printf.sprintf "\\envclass@attr{%s}" env)
 
 let open_verbenv star =
-  Scan.top_open_block "PRE" (getclass "verbatim") ;
+  Scan.top_open_block "pre" (getclass "verbatim") ;
   let process =
     wrap_eat_fst_nl
       (if star then
@@ -1047,7 +1051,7 @@ let open_verbenv star =
        put_line_buff_verb in
   process, finish
 
-and close_verbenv _ = Scan.top_close_block "PRE"
+and close_verbenv _ = Scan.top_close_block "pre"
 
 let put_html () =
   Out.iter (fun c -> Dest.put_char c) line_buff ;
@@ -1085,8 +1089,9 @@ let open_tofile chan lexbuf =
        close_out chan) in
   noeof (scan_byline process finish) lexbuf
 
+(*
 and close_tofile _lexbuf = ()
-
+*)
 
 let put_line_buff_image () =
   Out.iter (fun c -> Image.put_char c) line_buff ;
@@ -1097,7 +1102,9 @@ let open_verbimage lexbuf =
   and finish = put_line_buff_image in
   noeof (scan_byline process finish) lexbuf
 
+(*
 and close_verbimage _ = ()
+*)
 ;;
 
 
@@ -1141,14 +1148,14 @@ register_init "verbatim" init_verbatim
 (* The program package for JJL  que j'aime bien *)
 
 let look_escape () =
-  let lexbuf = Lexing.from_string (Out.to_string line_buff) in
+  let lexbuf = MyLexing.from_string (Out.to_string line_buff) in
   do_escape lexbuf
 ;;
 
 let init_program () =
   def_code "\\program"
     (fun lexbuf ->
-      Scan.top_open_block "PRE" "" ;
+      Scan.top_open_block "pre" "" ;
       let process =
          (fun () -> look_escape () ; Dest.put_char '\n')
       and finish = look_escape in
@@ -1177,13 +1184,13 @@ let put_verb_tabs () =
   Out.reset line_buff
 
 let open_verbenv_tabs () =
-  Scan.top_open_block "PRE" "" ;
+  Scan.top_open_block "pre" "" ;
   let process = (fun () -> put_verb_tabs () ; Dest.put_char '\n')
   and finish = put_verb_tabs in
   process, finish
 
 and close_verbenv_tabs lexbuf =
-  Scan.top_close_block "PRE" ;
+  Scan.top_close_block "pre" ;
   Scan.check_alltt_skip lexbuf
 ;;
 
@@ -1205,7 +1212,7 @@ let output_line inter_arg star =
 
 
 let open_listing start_arg inter_arg star =
-  Scan.top_open_block "PRE" "" ;
+  Scan.top_open_block "pre" "" ;
   line := start_arg ;
   let first_line = ref true in
   let process = 
@@ -1224,7 +1231,7 @@ let open_listing start_arg inter_arg star =
   process, finish
 
 and close_listing lexbuf =
-  Scan.top_close_block "PRE" ;
+  Scan.top_close_block "pre" ;
   Scan.check_alltt_skip lexbuf
 ;;
 
@@ -1264,13 +1271,13 @@ register_init "moreverb"
 *)
   def_code "\\listinglabel"
     (fun lexbuf ->
-      let arg = Get.get_int (save_arg lexbuf) in
+      let arg = Get.get_int (save_body lexbuf) in
       Dest.put (sprintf "%4d " arg)) ;
 
   def_code "\\listing"
     (fun lexbuf ->
       let inter = Get.get_int (save_opt "1" lexbuf) in
-      let start = Get.get_int (save_arg lexbuf) in
+      let start = Get.get_int (save_body lexbuf) in
       interval := inter ;
       let p, f = open_listing start inter false in
       noeof (scan_byline p f) lexbuf) ;
@@ -1285,7 +1292,7 @@ register_init "moreverb"
   def_code "\\listing*"
     (fun lexbuf ->
       let inter = Get.get_int (save_opt "1" lexbuf) in
-      let start = Get.get_int (save_arg lexbuf) in
+      let start = Get.get_int (save_body lexbuf) in
       interval := inter ;
       let p, f = open_listing start inter true in
       noeof (scan_byline p f) lexbuf) ;
@@ -1327,7 +1334,7 @@ let default_linerange = [LineNumber 1, LineNumber 99999]
 let parse_linerange s =
   let r =
     try
-      lst_parse_linerange (Lexing.from_string s)
+      lst_parse_linerange (MyLexing.from_string s)
     with
     | ParseError ->
         warning ("lst: invalid linerange '"^s^"'") ;
@@ -1356,8 +1363,6 @@ let code_spaces _lexbuf =
   end ;
   Counter.set_counter "lst@spaces" 0
 ;;
-
-let comment_style = "\\lst@commentstyle"
 
 let check_style sty =
   if String.length sty > 0 && sty.[0] == '\\' then
@@ -1435,14 +1440,14 @@ let lst_finalize inline =
 
 let open_lst_inline keys =
   scan_this Scan.main "\\lsthk@PreSet" ;
-  scan_this Scan.main ("\\lstset{"^keys^"}") ;
+  scan_this_list Scan.main ("\\lstset{"::keys@["}"]) ;
 (*  scan_this Scan.main  "\\lsthk@AfterSetLanguage" ; *)
 (* For inline *)
   scan_this Scan.main "\\lsthk@InlineUnsave" ;
 (* Ignoring output *)
-  lst_gobble := Get.get_int (string_to_arg "\\lst@gobble") ;
-  lst_first := Get.get_int (string_to_arg "\\lst@first") ;
-  lst_last := Get.get_int (string_to_arg "\\lst@last") ;
+  lst_gobble := Get.get_int_string (string_to_arg "\\lst@gobble") ;
+  lst_first := Get.get_int_string (string_to_arg "\\lst@first") ;
+  lst_last := Get.get_int_string (string_to_arg "\\lst@last") ;
   lst_nlines := 0 ;
   lst_init_char_table true ;
   scan_this Scan.main "\\lsthk@SelectCharTable" ;
@@ -1509,11 +1514,11 @@ let open_lst_env name =
       done ;
 (* Set and exploit command sequence *)
     scan_this Scan.main "\\lsthk@Init" ;
-    lst_gobble := Get.get_int (string_to_arg "\\lst@gobble") ;
+    lst_gobble := Get.get_int_string (string_to_arg "\\lst@gobble") ;
     let linerange = Scan.get_prim "\\lst@linerange" in
     lst_linerange := parse_linerange linerange ;
     lst_nlines := 0 ; lst_nblocks := 0 ;
-    lst_tabsize := Get.get_int (string_to_arg "\\lst@tabsize") ;
+    lst_tabsize := Get.get_int_string (string_to_arg "\\lst@tabsize") ;
 (* Change char categories *)
   let alsoletter = Scan.get_prim "\\lst@alsoletter" in
   if alsoletter <> "" then begin
@@ -1545,13 +1550,15 @@ let open_lst_env name =
     save_lexstate () ;
     noeof eat_line lexbuf ;
     restore_lexstate () ;
+    if !Misc.verbose > 1 then eprintf "LISTINGS: first line is scanned\n" ;
 (* For detecting endstring, must be done after eat_line *)
     lst_init_save_char '\\' (lst_process_end ("end{"^name^"}")) ;
     noeof listings lexbuf ;
+    if !Misc.verbose > 1 then eprintf "LISTINGS: scanning over\n" ;
     close_lst_env name ;
     scan_this Scan.main "\\@close@lstbox\\lst@post" ;
     Scan.top_close_block "" ;
-    Scan.close_env !Scan.cur_env ;
+    Scan.close_env !Scan.cur_env ;    
     Image.restart () ;
     Scan.check_alltt_skip lexbuf)
 ;;   
@@ -1576,7 +1583,7 @@ let do_newenvironment lexbuf =
       (latex_pat
          (match optdef with
          | {arg=No _}    -> []
-         | {arg=Yes s ; subst=env} -> [do_subst_this (mkarg s env)])
+         | {arg=Yes s ; subst=env} -> [do_subst_this_list (mkarg s env)])
          (match nargs with 
          | {arg=No _} -> 0
          | {arg=Yes s ; subst=env} -> Get.get_int (mkarg s env)))
@@ -1599,21 +1606,23 @@ def_code "\\@callopt"
     (fun lexbuf ->
       let csname = Scan.get_csname lexbuf in
       let all_arg = get_prim_arg lexbuf in
-      let lexarg = Lexing.from_string all_arg in
+      let lexarg = MyLexing.from_string all_arg in
       let opt = Subst.subst_opt "" lexarg in
       let arg = Save.rest lexarg in
-      let exec = csname^"["^opt^"]{"^arg^"}" in
-      scan_this  Scan.main exec)
+      let exec = csname::"["::opt@["]{";arg;"}"] in
+      scan_this_list  Scan.main exec)
 
 
 type css_border = None | Solid | Double
 
+(*
 let echo name n lexbuf =
   Printf.eprintf "Command %s\n" name ;
   for i = 1 to n do
     let arg = subst_arg lexbuf in
     Printf.eprintf "  %i: <<%s>>\n" i arg
   done
+*)
 
 let init_listings () =
   Scan.newif_ref "lst@print" lst_print ;
@@ -1637,12 +1646,12 @@ let init_listings () =
       let old =
         try match Latexmacros.find_fail name with
         | _, Subst s -> s
-        | _,_        -> ""
+        | _,_        -> []
         with
-        | Latexmacros.Failed -> "" in
+        | Latexmacros.Failed -> [] in
       let toadd = get_prim_arg lexbuf in
       Latexmacros.def name zero_pat
-        (Subst (if old="" then toadd else old^sep^toadd))) ;      
+        (Subst (if is_empty_list old then [toadd] else old@[sep;toadd]))) ;      
   def_code "\\lst@lExtend"
     (fun lexbuf ->
       let name = Scan.get_csname lexbuf in
@@ -1650,7 +1659,8 @@ let init_listings () =
         match Latexmacros.find_fail name with
         | _, Subst body ->
             let toadd = Subst.subst_arg lexbuf in
-            Latexmacros.def name zero_pat (Subst (body^"%\n"^toadd))
+            Latexmacros.def name zero_pat
+                (Subst (body @ ["%\n"^toadd]))
         | _, _ ->
             warning ("Cannot \\lst@lExtend ``"^name^"''")
       with
@@ -1670,7 +1680,7 @@ let init_listings () =
       let lab = if lab = " " then "" else lab in
       if lab <> "" then
         def "\\lst@intname" zero_pat (CamlCode (fun _ -> Dest.put lab)) ;
-      scan_this Scan.main ("\\lstset{"^keys^"}")) ;
+      scan_this_list Scan.main ("\\lstset{"::keys@["}"])) ;
   def_code (end_env (lst_user_name "lstlisting")) (fun _ -> ()) ;
   def_code (start_env "lstlisting") (open_lst_env "lstlisting") ;
 (* Init comments from .hva *)
@@ -1693,7 +1703,7 @@ let init_listings () =
       Scan.new_env "*lstinline*" ;
       scan_this main "\\mbox{" ;
       open_lst_inline keys  ;
-      Dest.open_group "CODE" ;
+      Dest.open_group "code" ;
       begin try
         scan_this listings arg
       with
@@ -1713,20 +1723,22 @@ let init_listings () =
 
       match base_dialect with
       | "!*!" ->
-          let keys = subst_arg lexbuf in
+          let keys = subst_arg_list lexbuf in
           let _ = save_opt "" lexbuf in
-          scan_this main
-            ("\\lst@definelanguage@{"^language^"}{"^
-             dialect^"}{"^keys^"}")
+          let xs =
+            "\\lst@definelanguage@{"::language::"}{"::
+            dialect::"}{"::keys@["}"] in
+          scan_this_list main xs
       | _  ->
           let base_language = get_prim_arg lexbuf in
-          let keys = subst_arg lexbuf in
+          let keys = subst_arg_list lexbuf in
           let _ = save_opt "" lexbuf in
-          scan_this main
-            ("\\lst@derivelanguage@{"^
-             language^"}{"^ dialect^"}{"^
-             base_language^"}{"^base_dialect^"}{"^
-             keys^"}")) ;
+          let xs =
+            "\\lst@derivelanguage@{"::
+             language::"}{"::dialect::"}{"::
+             base_language::"}{"::base_dialect::"}{"::
+             keys@["}"] in
+          scan_this_list main xs) ;
 
 (* Interpret 'trblTRBL' subset to yield border-style specifications in CSS2 *)
     let string_of_border = function
@@ -1773,15 +1785,6 @@ register_init "listings" init_listings
 ;;
 
 
-let init_fancyvrb () =
-  def_code "\\@Verbatim"
-    (fun lexbuf ->
-      let p, f = open_verbenv false in
-      noeof (scan_byline p f) lexbuf) ;
-  def_code "\\@endVerbatim" close_verbenv
-;;
-
-  
 register_init "fancyvrb"
     (fun () ->
       def_code "\\@Verbatim"
@@ -1801,7 +1804,7 @@ let init_longtable () =
   def_code "\\lt@exists"
     (fun lexbuf ->
       let cmd = get_csname lexbuf in
-      Latexmacros.def (cmd^"@lt@exists") zero_pat (Subst "")) ;
+      Latexmacros.def (cmd^"@lt@exists") zero_pat (Subst [])) ;
   ()
 ;;
 
@@ -1825,7 +1828,7 @@ def_code "\\@scaninput"
       input_verb := true ;
       Location.set true_name filebuff ;
       begin try
-        record_lexbuf (Lexing.from_string post) post_subst ;
+        record_lexbuf (MyLexing.from_string post) post_subst ;
         scan_this_may_cont Scan.main filebuff top_subst
           pre ;
       with e ->

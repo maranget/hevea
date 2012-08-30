@@ -12,8 +12,8 @@
 {
 open Lexing
 open Misc
+open SaveUtils
 
-let _header = "$Id: save.mll,v 1.77 2012-06-05 14:55:39 maranget Exp $" 
 
 let rec peek_next_char lb =
   let pos = lb.lex_curr_pos
@@ -52,76 +52,6 @@ let rec if_next_string s lb =
       let lb_s = String.sub lb.lex_buffer pos slen in
       lb_s = s
   
-let verbose = ref 0 and silent = ref false
-;;
-
-let set_verbose s v =
-  silent := s ; verbose := v
-;;
-
-exception Error of string
-;;
-exception Delim of string
-;;
-
-let seen_par = ref false
-;;
-
-
-let brace_nesting = ref 0
-and arg_buff = Out.create_buff ()
-and echo_buff = Out.create_buff ()
-and tag_buff = Out.create_buff ()
-;;
-
-  
-let echo = ref false
-;;
-
-let get_echo () = echo := false ; Out.to_string echo_buff
-and start_echo () = echo := true ; Out.reset echo_buff
-;;
-
-let empty_buffs () =
-  brace_nesting := 0 ; Out.reset arg_buff ;
-  echo := false ; Out.reset echo_buff ;
-  Out.reset tag_buff 
-;;
-
-let error s =
-  empty_buffs () ;
-  raise (Error s)
-;;
-
-let my_int_of_string s =
-  try int_of_string s
-  with Failure "int_of_string" ->
-    error ("Integer argument expected: ``"^s^"''")
-
-exception Eof
-;;
-exception LimitEof of Misc.limits option
-;;
-exception NoOpt
-;;
-
-let put_echo s =
-  if !echo then Out.put echo_buff s
-and put_echo_char c =
-  if !echo then Out.put_char echo_buff c
-and blit_echo lb =
-  if !echo then Out.blit echo_buff lb
-;;
-
-let put_both s =
-  put_echo s ; Out.put arg_buff s
-;;
-let blit_both lexbuf =
-  blit_echo lexbuf ; Out.blit arg_buff lexbuf
-
-let put_both_char c =
-  put_echo_char c ; Out.put_char arg_buff c
-    ;;
 
 type kmp_t = Continue of int | Stop of string
 
@@ -139,41 +69,13 @@ let rec kmp_char delim next i c =
       Out.put arg_buff (String.sub delim 0 (i-next.(i))) ;
     kmp_char delim next next.(i) c
   end
+
 }
 let command_name =
  '\\' (( ['@''A'-'Z' 'a'-'z']+ '*'?) | [^ 'A'-'Z' 'a'-'z'] | "\\*")
 let space = [' ''\t''\r']
 
-rule opt = parse
-| space* '\n'? space* '['
-    {put_echo (lexeme lexbuf) ;
-    opt2 lexbuf}
-|  eof  {raise Eof}
-|  ""   {raise NoOpt}
-
-
-and opt2 =  parse
-| '{'         {incr brace_nesting;
-                 put_both_char '{' ; opt2 lexbuf}
-| '}'        { decr brace_nesting;
-               if !brace_nesting >= 0 then begin
-                 put_both_char '}' ; opt2 lexbuf
-               end else begin
-                 error "Bad brace nesting in optional argument"
-               end}
-| ']'
-    {if !brace_nesting > 0 then begin
-      put_both_char ']' ; opt2 lexbuf
-    end else begin
-      put_echo_char ']' ;
-      Out.to_string arg_buff
-    end}
-| command_name as lxm
-   {put_both lxm ; opt2 lexbuf }
-| _ as lxm 
-   {put_both_char lxm ; opt2 lexbuf }
-
-and skip_comment = parse
+rule skip_comment = parse
   | eof       {()}
   | '\n' space* {()}
   | _         {skip_comment lexbuf}
@@ -181,32 +83,6 @@ and skip_comment = parse
 and check_comment = parse
   | '%' {skip_comment lexbuf}
   | ""  {()}
-
-and arg = parse
-    space+ | '\n'+  {put_echo (lexeme lexbuf) ; arg lexbuf}
-  | '{'
-      {incr brace_nesting;
-      put_echo_char '{' ;
-      arg2 lexbuf}
-  | '%'
-     {skip_comment lexbuf  ; arg lexbuf}
-  | "\\box" '\\' (['A'-'Z' 'a'-'z']+ '*'? | [^ 'A'-'Z' 'a'-'z'])
-     {let lxm = lexeme lexbuf in
-     put_echo lxm ;
-     lxm}
-  | command_name
-     {blit_both lexbuf ;
-     skip_blanks lexbuf}
-  | '#' ['1'-'9']
-     {let lxm = lexeme lexbuf in
-     put_echo lxm ; lxm}
-  | [^ '}']
-      {let c = lexeme_char lexbuf 0 in
-      put_both_char c ;
-      Out.to_string arg_buff}
-  | eof    {raise Eof}
-  | ""     {error "Argument expected"}
-
 
 and first_char = parse
   | _ 
@@ -273,10 +149,10 @@ and csname get_prim subst = parse
        let r = incsname lexbuf in
        "\\"^get_prim r}
 | "" 
-   {let r = arg lexbuf in
+   {let r = Saver.String.arg lexbuf in
    let r = subst r in
    try
-     check_csname get_prim (Lexing.from_string r)
+     check_csname get_prim (MyLexing.from_string r)
    with
    | Exit -> r }
 
@@ -320,7 +196,7 @@ and num_arg = parse
 |  "'" ['0'-'7']+ 
     {fun _get_int ->let lxm = lexeme  lexbuf in
     my_int_of_string ("0o"^String.sub lxm 1 (String.length lxm-1))}
-|  '"' ['0'-'9' 'a'-'f' 'A'-'F']+ 
+|  '"' ['0'-'9' 'a'-'f' 'A'-'F']+ (* '"' *)
     {fun _get_int ->let lxm = lexeme  lexbuf in
     my_int_of_string ("0x"^String.sub lxm 1 (String.length lxm-1))}
 | '`' '\\' _
@@ -335,14 +211,14 @@ and num_arg = parse
     Char.code c}
 | ""
     {fun get_int ->
-      let s = arg lexbuf in
+      let s = Saver.String.arg lexbuf in
       get_int s}
     
 
 and filename = parse
   [' ''\n']+     {put_echo (lexeme lexbuf) ; filename lexbuf}
 | [^'\n''{'' ']+ {let lxm = lexeme lexbuf in put_echo lxm ; lxm}
-| ""             {arg lexbuf}  
+| ""             {Saver.String.arg lexbuf}  
 
 and remain = parse
  _ * eof {Lexing.lexeme lexbuf}
@@ -356,13 +232,13 @@ and get_limits r = parse
 | ""            {r}
 
 and get_sup = parse
-| space* '^'  {try Some (arg lexbuf) with Eof -> error "End of file after ^"}
+| space* '^'  {try Some (Saver.String.arg lexbuf) with Eof -> error "End of file after ^"}
 | eof       {raise Eof}
 | ""        {None}
 
 
 and get_sub = parse
-| space* '_'  {try Some (arg lexbuf) with Eof -> error "End of file after _"}
+| space* '_'  {try Some (Saver.String.arg lexbuf) with Eof -> error "End of file after _"}
 | eof       {raise Eof}
 | ""        {None}
 
@@ -386,7 +262,7 @@ and get_defargs = parse
   [^'{']* {let r = lexeme lexbuf in r}
 
 and tagout = parse
-| "<BR>" {Out.put_char tag_buff ' ' ; tagout lexbuf}
+| "<br>" {Out.put_char tag_buff ' ' ; tagout lexbuf}
 |  '<'  {intag lexbuf}
 | "&nbsp;" {Out.put tag_buff " " ; tagout lexbuf}
 | "&gt;" {Out.put tag_buff ">" ; tagout lexbuf}
@@ -396,7 +272,7 @@ and tagout = parse
 
 and intag = parse
   '>'  {tagout lexbuf}
-| '"'  {instring lexbuf}
+| '"'  {instring lexbuf} (* '"' *)
 | _    {intag lexbuf}
 | eof  {Out.to_string tag_buff}
 
@@ -510,6 +386,21 @@ and gobble_one_char = parse
 
 
 {
+
+let arg = Saver.String.arg
+let arg_list = Saver.List.arg
+let opt = Saver.String.opt
+let opt_list = Saver.List.opt
+let start_echo = SaveUtils.start_echo
+let get_echo = SaveUtils.get_echo
+exception NoOpt =  SaveUtils.NoOpt
+exception LimitEof = SaveUtils.LimitEof
+exception Eof =  SaveUtils.Eof
+let seen_par = SaveUtils.seen_par
+let set_verbose = SaveUtils.set_verbose
+let empty_buffs = SaveUtils.empty_buffs
+exception Delim = SaveUtils.Delim
+exception Error = SaveUtils.Error
 
 let init_kmp s =
   let l = String.length s in

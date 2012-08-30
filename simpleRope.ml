@@ -11,111 +11,109 @@
 
 open Printf
 
+exception Out_of_bounds
+
+
+module type Config = sig
+  val small_length : int
+end
+
+
+module Make(C:Config) = struct
+  open C
 (**********)
 (* Basics *)
 (**********)
 
-exception Out_of_bounds
+  type t =
+    | Str of string 
+    | App of t * t * int  (* String length *)
 
-let small_length = 256
+  let length = function
+    | Str s -> String.length s
+    | App (_,_,len) -> len
 
-type t =
-  | Str of string 
-  | App of t * t * int  (* String length *)
+  let of_string s = Str s
 
-let length = function
-  | Str s -> String.length s
-  | App (_,_,len) -> len
+  let singleton c = of_string (String.make 1 c)
 
-let of_string s = Str s
-
-let singleton c = of_string (String.make 1 c)
-
-let empty = of_string ""
+  let empty = of_string ""
 
 (**********)
 (* Append *)
 (**********)
 
-let app r1 r2 = match r1,r2 with
-| Str "",t | t,Str "" -> t
-| Str s1, Str s2
-  when String.length s1 <= small_length && String.length s2 <= small_length ->
-    Str (s1^s2)
-| App (t1,Str s1,len), Str s2
-   when String.length s1 <= small_length && String.length s2 <= small_length ->
-     App (t1,Str (s1^s2),len+String.length s2)
-| Str s1,App (Str s2,t2,len)
-   when String.length s1 <= small_length && String.length s2 <= small_length ->
-     App (Str (s1^s2),t2,len+String.length s1)
-| _,_ ->
-    App (r1,r2,length r1+length r2)
+  let app r1 r2 = match r1,r2 with
+  | Str "",t | t,Str "" -> t
+  | Str s1, Str s2
+    when String.length s1 < small_length && String.length s2 < small_length ->
+      Str (s1^s2)
+  | App (t1,Str s1,len), Str s2
+    when String.length s1 < small_length && String.length s2 < small_length ->
+      App (t1,Str (s1^s2),len+String.length s2)
+  | Str s1,App (Str s2,t2,len)
+    when String.length s1 < small_length && String.length s2 < small_length ->
+      App (Str (s1^s2),t2,len+String.length s1)
+  | _,_ ->
+      App (r1,r2,length r1+length r2)
 
 
-let append r1 r2 = app r1 r2
-let append_string r s = app r (of_string s)
-and append_char r c = app r (singleton c)
+  let append r1 r2 = app r1 r2
+  let append_string r s = app r (of_string s)
+  and append_char r c = app r (singleton c)
 
 (*************)
 (* Substring *)
 (*************)
 
 (* assumption: 0 <= start < stop <= len(t) *)
-let rec mksub start stop t =
-  if start = 0 && stop = length t then t 
-  else match t with
-  | Str s -> Str (String.sub s start (stop-start))
-  | App (t1, t2, _) ->
-      let n1 = length t1 in
-      if stop <= n1 then mksub start stop t1 
-      else if start >= n1 then mksub (start-n1) (stop-n1) t2
-      else app (mksub start n1 t1) (mksub 0 (stop-n1) t2)
-              
-let sub t ofs len = 
-  let stop = ofs + len in
-  if ofs < 0 || len < 0 || stop > length t then raise Out_of_bounds;
-  if len = 0 then empty else mksub ofs stop t
-
+  let rec mksub start stop t =
+    if start = 0 && stop = length t then t 
+    else match t with
+    | Str s -> Str (String.sub s start (stop-start))
+    | App (t1, t2, _) ->
+        let n1 = length t1 in
+        if stop <= n1 then mksub start stop t1 
+        else if start >= n1 then mksub (start-n1) (stop-n1) t2
+        else app (mksub start n1 t1) (mksub 0 (stop-n1) t2)
+            
+  let sub t ofs len = 
+    let stop = ofs + len in
+    if ofs < 0 || len < 0 || stop > length t then raise Out_of_bounds;
+    if len = 0 then empty else mksub ofs stop t
+      
 (***********************)
 (* Get a char by index *)
 (***********************)
 
-let rec get_rec t i = match t with
-| Str s -> String.unsafe_get s i
-| App (t1, t2, _) ->
-    let n1 = length t1 in
-    if i < n1 then get_rec t1 i else get_rec t2 (i - n1)
+  let rec get_rec t i = match t with
+  | Str s -> String.unsafe_get s i
+  | App (t1, t2, _) ->
+      let n1 = length t1 in
+      if i < n1 then get_rec t1 i else get_rec t2 (i - n1)
 
 
-let get t i = 
-  if i < 0 || i >= length t then raise Out_of_bounds;
-  get_rec t i
+  let get t i = 
+    if i < 0 || i >= length t then raise Out_of_bounds;
+    get_rec t i
 
 (***********)
 (* Iterate *)
 (***********)
 
-let iter_string f s ofs len =
-  for k=ofs to len-1 do
-    f (String.unsafe_get s k)
-  done
+  let iter_string f s =
+    for k=0 to String.length s-1 do
+      f (String.unsafe_get s k)
+    done
 
-let rec iter_rec f i n = function
-  | Str s -> iter_string f s i n
-  | App (t1,t2,_) ->
-      let n1 = length t1 in
-      if i+n <= n1 then
-        iter_rec f i n t1
-      else if i >= n1 then
-        iter_rec f (i-n1) n t2
-      else begin
-        iter_rec f i n1 t1 ;
-        iter_rec f (i-n1) (n-n1) t2
-      end
+  let rec iter_rec f = function
+    | Str s -> iter_string f s
+    | App (t1,t2,_) ->
+        iter_rec f t1 ;
+        iter_rec f t2
 
-let iter_range f t i n =
-  if i < 0 || n < 0 || i+n > length t then raise Out_of_bounds ;
-  iter_rec f i n t
+
+  let iter f t = iter_rec f t
 
 (**********)
 (* Output *)
@@ -127,13 +125,13 @@ let rec output chan = function
 
 let rec debug_rec indent chan = function
  | Str s ->
-     fprintf chan "%s%a\n" indent output_string s
+     fprintf chan "%s\"%a\"\n" indent output_string s
  | App (t1,t2,_) ->
      let indent2 = indent ^ "  " in
-     fprintf chan "%s<\n" indent ;
+     fprintf chan "%s[\n" indent ;
      debug_rec indent2 chan t1 ;
      debug_rec indent2 chan t2 ;
-     fprintf chan "%s>\n" indent ;
+     fprintf chan "%s]\n" indent ;
      ()
 
 let debug = debug_rec ""
@@ -142,18 +140,32 @@ let debug = debug_rec ""
 (* To string *)
 (*************)
 
-let buff = Buffer.create small_length
-
-let rec to_buff = function
-  | Str s -> Buffer.add_string buff s
-  | App (t1,t2,_) -> to_buff t1 ; to_buff t2
-
-let to_string t =
-  Buffer.reset buff ;
-  to_buff t ;
-  Buffer.contents buff
+let rec blit t buff pos = match t with
+ | Str s ->
+     String.unsafe_blit s 0 buff pos (String.length s)
+ | App (t1,t2,_) ->
+     blit t1 buff pos ;
+     blit t2 buff (pos+length t1)
 
 
+let to_string t = match t with
+| Str s -> s
+| App (_,_,len) ->
+    let buff = String.create len in
+    blit t buff 0 ;
+    buff
+
+(***********************)
+(* To list (of string) *)
+(***********************)
+let rec do_to_list k = function
+  | Str s -> if String.length s > 0 then (s::k) else k
+  | App (t1,t2,_) ->
+      let k = do_to_list k t2 in
+      do_to_list k t1
+
+let to_list t = do_to_list [] t
+let to_list_append t k = do_to_list k t
 (*******************)
 (* Index functions *)
 (*******************)
@@ -164,10 +176,15 @@ let rec index_from r i c = match r with
     let n1 = length t1 in
     if i < n1 then
       try index_from t1 i c
-      with Not_found -> index_from t2 (i-n1) c + n1
+      with Not_found -> index_from t2 0 c + n1
     else index_from t2 (i-n1) c
 
-let index r c = index_from r 0 c
+let index r c =
+  try index_from r 0 c
+  with e ->
+    eprintf "SimpleRope.index failed c='%c'\n" c ;
+    debug stderr r ;
+    raise e
 
 let rec rindex_from r i c = match r with
 | Str s -> String.rindex_from s i c
@@ -176,13 +193,13 @@ let rec rindex_from r i c = match r with
     if i < n1 then rindex_from t1 i c
     else
       try rindex_from t2 (i-n1) c + n1
-      with Not_found -> rindex_from t1 i c
+      with Not_found -> rindex_from t1 (n1-1) c
 
 let rindex r c = rindex_from r (length r-1) c
 
 (* Erase end according to predicate *)
-let erase t pred =
-  let rec do_rec t = match t with
+  let erase t pred =
+    let rec do_rec t = match t with
     | Str s ->
         let len = String.length s in
         let rec find_no k =
@@ -198,7 +215,7 @@ let erase t pred =
         let t2 = do_rec t2 in
         if t2 = empty then do_rec t1
         else append t1 t2 in
-  do_rec t
+    do_rec t
 
-
+end
 

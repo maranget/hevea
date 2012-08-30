@@ -1,5 +1,5 @@
 \newcommand{\@entity}[1]{\@print{&}\@subst{#1}\@print{;}}
-\newcommand{\@bigentity}[1]{\@print{<FONT SIZE=7>&}\@subst{#1}\@print{;</FONT>}}
+\newcommand{\@bigentity}[1]{\begin{Huge}\@subst{#1};\end{Huge}}
 \newcommand{\@numentity}[1]{\@print{&#}\@subst{#1}\@print{;}}
 %%Petit extra
 %% HTML 4.0 symbol entities

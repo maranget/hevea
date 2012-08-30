@@ -273,7 +273,7 @@
 \DeclareSymbolHtml{\@textUpdownarrow}{X21D5}
 \iffalse
 \NewcommandHtml{\@displayUpdownarrow}
-{\@open{TABLE}{CELLSPACING=0 CELLPADDING=0}\@open{TR}{}\@open{TD}{}%
+{\@open{TABLE}{style="border-spacing:0" class="cellpadding0"}\@open{TR}{}\@open{TD}{}%
 \Uparrow\@force{TD}\@force{TR}\@open{TR}{}\@open{TD}{}%
 \Downarrow\@force{TD}\@force{TR}\@force{TABLE}}
 \fi
@@ -634,7 +634,7 @@
 \NewcommandHtml{\@surd}[2]
 {\ifthenelse{#1 < 5}{{\Large#2}}
 {\setcounter{@c}{(#1-5)*2}%
-\@open{TABLE}{CELLSPACING=0 CELLPADDING=0}%
+\@open{TABLE}{style="border-spacing:0" class="cellpadding0"}%
 \@open{TR}{}\@open{TD}{ALIGN="right"}%
 \@open{DIV}{CLASS="vbar" STYLE="height:\arabic{@c}em;"}\@force{DIV}%
 \@close{TD}\@close{TR}%

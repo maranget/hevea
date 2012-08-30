@@ -1,5 +1,6 @@
 \newcommand{\@usepackage}[1]
-  {\def\pkg@arg{{\@nostyle\@callprim{\@eatspaces}{#1,}}}%
+  {%\hva@warn{\@usepackage '#1'}%
+  \def\pkg@arg{{\@nostyle\@callprim{\@eatspaces}{#1,}}}%
   \ifthenelse{\equal{\pkg@arg}{hevea}}{\@usepackage{comment}}
   {\ifu\csname\pkg@arg{}@loaded\endcsname
     \@iffileexists{\pkg@arg.hva}
@@ -10,13 +11,13 @@
     \fi}}
 \newsavebox{\@pkg@opts}
 \newcommand{\usepackage}[2][!*!]
-{\ifthenelse{\equal{#1}{!*!}}
-{\sbox{\@pkg@opts}{}\begin{toimage}\usepackage{#2}
-\end{toimage}}
-{\sbox{\@pkg@opts}{#1}\begin{toimage}\usepackage[#1]{#2}
-\end{toimage}}%
-\@stopoutput\@stopimage\@funcall{\@iter}{\@usepackage,{#2}}\@restartimage\@restartoutput
-}
+{%\hva@warn{\usepackage '#1' '#2'}
+\ifthenelse{\equal{#1}{!*!}}
+  {\sbox{\@pkg@opts}{}\begin{toimage}\usepackage{#2}\end{toimage}}
+{\sbox{\@pkg@opts}{#1}\begin{toimage}\usepackage[#1]{#2}\end{toimage}}%
+\@stopoutput\@stopimage%
+\@funcall{\@iter}{\@usepackage,{#2}}%
+\@restartimage\@restartoutput}
 \hva@newstack{@pkg}\let\@pkg@me\relax
 \hva@newstack{@pkg@opts}
 \newcommand{\@pkg@pushs}

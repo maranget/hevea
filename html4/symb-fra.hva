@@ -1,0 +1,31 @@
+\newcommand{\forall}{\mbox{pour tout}}
+\newcommand{\exists}{\mbox{il existe}}
+\newcommand{\clubsuit}{\mbox{trèfle}}
+\newcommand{\diamondsuit}{\mbox{carreau}}
+\newcommand{\heartsuit}{\mbox{c{\oe}ur}}
+\newcommand{\spadesuit}{\mbox{pique}}
+\newcommand{\uparrow}{\mbox{flèche en haut}}
+\newcommand{\downarrow}{\mbox{flèche en bas}}
+\newcommand{\propto}{\mbox{proptionnel à}}
+\newcommand{\partial}{\mbox{d~rond}}
+\newcommand{\equiv}{\mbox{identique à}}
+\newcommand{\approx}{\mbox{approximativement}}
+\newcommand{\otimes}{\mbox{croix rond}}
+\newcommand{\oplus}{\mbox{plus rond}}
+\newcommand{\cap}{\mbox{inter}}
+\newcommand{\cup}{\mbox{union}}
+\newcommand{\supset}{\mbox{contient}}
+\newcommand{\supseteq}{\mbox{contient ou égal à}}
+\newcommand{\notsubset}{\mbox{ne contient pas}}
+\newcommand{\subset}{\mbox{inclus dans}}
+\newcommand{\subseteq}{\mbox{inclus dans ou égal à}}
+\newcommand{\in}{\mbox{appartient à}}
+\newcommand{\notin}{\mbox{n'appartient pas à}}
+\newcommand{\Uparrow}{\mbox{double flèche en haut}}
+\newcommand{\Downarrow}{\mbox{double flèche en bas}}
+\newcommand{\@sum}{\mbox{sum}}
+\newcommand{\@int}{\mbox{int}}
+\newcommand{\lceil}{\mbox{lceil}}
+\newcommand{\lfloor}{\mbox{lfloor}}
+\newcommand{\rceil}{\mbox{rceil}}
+\newcommand{\rfloor}{\mbox{rfloor}}

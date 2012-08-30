@@ -9,8 +9,6 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let _header = "$Id: counter.ml,v 1.12 2012-06-05 14:55:39 maranget Exp $" 
-
 type t_counter =
     {mutable count : int ;
     mutable related : t_counter list}

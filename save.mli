@@ -24,10 +24,13 @@ val gobble_one_char : Lexing.lexbuf -> unit
 exception Eof
 exception LimitEof of Misc.limits option
 exception NoOpt
+
 val get_echo : unit -> string
 val start_echo : unit -> unit
 val opt : Lexing.lexbuf -> string
+val opt_list : Lexing.lexbuf -> string list
 val arg : Lexing.lexbuf -> string
+val arg_list : Lexing.lexbuf -> string list 
 val arg_verbatim : Lexing.lexbuf -> string
 (* val arg_verbatim2 : char -> Lexing.lexbuf -> string *)
 val csname :

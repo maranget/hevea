@@ -9,9 +9,18 @@
 (*                                                                     *)
 (*  $Id: esp.mli,v 1.1 2007-02-09 14:44:50 maranget Exp $           *)
 (***********************************************************************)
-val pess : bool ref
-val move : bool ref
 
-val process :
-    Emisc.Strings.t option -> string -> in_channel -> out_channel -> bool
-val file : string -> bool
+exception Failed
+
+module type Config = sig
+  val pess : bool
+  val move : bool
+end
+
+module Make(C:Config) : sig
+val file : string -> unit
+end
+(*
+val process : Emisc.Strings.t option -> string -> in_channel -> out_channel -> bool
+*)
+

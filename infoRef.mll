@@ -10,9 +10,6 @@
 (***********************************************************************)
 
 {
-let header = "$Id: infoRef.mll,v 1.25 2005-11-08 10:14:19 maranget Exp $"
-;;
-
 
 open Lexing
 open Misc
@@ -421,7 +418,7 @@ and flushextranodes () =
         Text.open_block "INFO" "" ;
         Text.put text ;
         Text.close_block "INFO" ;
-        let labs = labels (Lexing.from_string text) in
+        let labs = labels (MyLexing.from_string text) in
         List.iter (fun lab -> change_label lab !labels_list) labs ;
         flush_rec rest in
   flush_rec !delayed ;

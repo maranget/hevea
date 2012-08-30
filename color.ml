@@ -9,8 +9,6 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let _header = "$Id: color.ml,v 1.11 2012-06-05 14:55:39 maranget Exp $" 
-
 type t = Name of string | Hex of string
 
 let default_color = Name "black"
@@ -124,22 +122,22 @@ let do_compute mdl value =
   | _ ->
       let res = match mdl with
       | "gray" ->
-          let x = Colscan.one (Lexing.from_string value) in
+          let x = Colscan.one (MyLexing.from_string value) in
           let xx = to_hex x in
           xx^xx^xx
       | "rgb" ->
-          let r,g,b =  Colscan.three(Lexing.from_string value) in
+          let r,g,b =  Colscan.three(MyLexing.from_string value) in
           to_hex r^to_hex g^to_hex b
       | "cmyk" ->
-          let c,m,y,k = Colscan.four (Lexing.from_string value) in
+          let c,m,y,k = Colscan.four (MyLexing.from_string value) in
           let r,g,b = cmyk_to_rgb c m y k in
           to_hex r^to_hex g^to_hex b
       | "hsv" ->
-          let h,s,v = Colscan.three (Lexing.from_string value) in
+          let h,s,v = Colscan.three (MyLexing.from_string value) in
           let r,g,b = hsv_to_rgb h s v in
           to_hex r^to_hex g^to_hex b
       | "hls" ->
-          let h,l,s = Colscan.three (Lexing.from_string value) in
+          let h,l,s = Colscan.three (MyLexing.from_string value) in
           let r,g,b = hls_to_rgb h l s in
           to_hex r^to_hex g^to_hex b
       | _     ->

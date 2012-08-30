@@ -16,9 +16,21 @@ type tag =
   | KBD |VAR |CITE |ABBR |ACRONYM 
   | Q |SUB |SUP | A | SCRIPT | SPAN | STYLE
 
+(* style for fonts by span tags *)
+type fontstyle =
+  | Ffamily
+  | Fstyle
+  | Fvariant
+  | Fweight
+  | Fsize
+  | Fcolor
+  | Fbgcolor
+
+
 type atag =
   | SIZE of string | COLOR of string | FACE of string
   | CLASS of string
+  | ASTYLE of fontstyle * string
   | OTHER
 
 type attr = atag * string

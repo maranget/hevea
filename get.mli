@@ -24,7 +24,8 @@ type saved
 val check : unit -> saved
 val hot : saved -> unit
 
-val get_int : string arg -> int
+val get_int_string : string arg -> int
+val get_int : string list arg -> int
 val get_bool : string arg -> bool
 val get_length : string -> Length.t
 

@@ -128,7 +128,7 @@ and tfmiddle = parse
 | ['p''m''b']
   {let f = Lexing.lexeme_char lexbuf 0 in
   let width = subst_arg lexbuf in
-  let my_width = Length.main (Lexing.from_string width) in
+  let my_width = Length.main (MyLexing.from_string width) in
   let post = tfpostlude lexbuf in
   emit out_table
     (Align {hor = make_hor f ; vert = make_vert f ; wrap = true ;
@@ -136,7 +136,7 @@ and tfmiddle = parse
 | '#' ['1'-'9']
     {let lxm = lexeme lexbuf in
     let i = Char.code (lxm.[1]) - Char.code '1' in
-    Lexstate.scan_arg (scan_this_arg tfmiddle) i}
+    Lexstate.scan_arg (scan_this_arg_list tfmiddle) i}
 | '%' [^'\n']* '\n'
     {tfmiddle lexbuf}
 | [^'|' '@' '<' '>' '!' '#']
@@ -148,7 +148,7 @@ and tfmiddle = parse
     Lexstate.scan_body
       (function
         | Lexstate.Subst body ->
-            scan_this_may_cont
+            scan_this_list_may_cont
               lexformat lexbuf  cur_subst (string_to_arg body) ;            
         | _ -> assert false)
       body args ;
@@ -194,7 +194,7 @@ and lexformat = parse
      0 -> lexformat lexbuf
    | i ->
       scan_this_arg lexformat what ; do_rec (i-1) in
-   do_rec (Get.get_int ntimes)}
+   do_rec (Get.get_int_string ntimes)}
 | '|' {border := true ; emit out_table (Border "|") ; lexformat lexbuf}
 | '@'|'!'
     {let lxm = Lexing.lexeme_char lexbuf 0 in
@@ -204,7 +204,7 @@ and lexformat = parse
 | '#' ['1'-'9']
     {let lxm = lexeme lexbuf in
     let i = Char.code (lxm.[1]) - Char.code '1' in
-    Lexstate.scan_arg (scan_this_arg lexformat) i ;
+    Lexstate.scan_arg (scan_this_arg_list lexformat) i ;
     lexformat lexbuf}
 | eof
     {if MyStack.empty stack_lexbuf then
@@ -221,15 +221,15 @@ open Parse_opts
 
 let main {arg=s ; subst=env} =
   if !verbose > 1 then prerr_endline ("Table format: "^s);
-  let s =
+  let lexbuf =
     if String.length s > 0 && s.[0] = '\\' then
       match Latexmacros.find s with
-      | _, Lexstate.Subst s -> s
-      | _,_ -> s
+      | _, Lexstate.Subst s -> MyLexing.from_list s
+      | _,_ -> MyLexing.from_string s
     else
-      s in
+      MyLexing.from_string s in
   start_normal env ;
-  lexformat (Lexing.from_string s) ;
+  lexformat lexbuf ;
   end_normal () ;
   let r = check_vert (trim out_table) in
   begin match !destination with

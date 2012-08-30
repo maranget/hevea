@@ -12,7 +12,6 @@
 
 {
 open Lexing
-let _header = "$Id: length.mll,v 1.16 2012-06-05 14:55:39 maranget Exp $" 
 
 exception Cannot
 ;;

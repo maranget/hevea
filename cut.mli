@@ -21,6 +21,7 @@ module type Config = sig
   val name_out : string
   val toc_style : toc_style
   val cross_links : bool
+  val small_length : int
 end
 
 module Make (Config:Config) :

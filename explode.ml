@@ -44,8 +44,9 @@ let rec tree env t k = match t with
               of_styles now (Node ([s],ts))::k
       end
 | ONode (so,sc,ts) ->
-    ONode
-      (so,sc, List.fold_right (tree env) ts [])::k
+    of_styles env
+      (ONode
+         (so,sc, List.fold_right (tree []) ts []))::k
 
 
 let trees ts =  List.fold_right (tree []) ts []

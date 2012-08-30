@@ -1,7 +1,7 @@
 LATEX=latex
 HEVEA=hevea
 BIBHVA=bibhva
-HEVEAOPTS=-fix -O
+HEVEAOPTS=-fix -O -rsz 16
 HACHA=hacha
 EXDIR=$(HOME)/public_html/hevea/examples
 TEX=$(HTML:.html=.tex)
@@ -37,7 +37,7 @@ test-opt:
 	export HEVEADIR=.. ;\
 	$(MAKE) $(MFLAGS) HEVEAOPTS="$(HEVEAOPTS)" HEVEA=../hevea.opt HACHA=../hacha.opt BIBHVA=../bibhva.opt test
 
-test: $(SUITE) cart-index.html cart-bis-index.html cbook-index.html
+test: $(SUITE) cart-index.html cart-bis-index.html cart-ter-index.html cbook-index.html
 
 TDIR=$(HOME)/public_html/vrac/test
 install-test:
@@ -47,10 +47,11 @@ install-test:
 	cp *_motif.gif $(TDIR)
 	cp cart-index.html cart.css cart[0-9][0-9][0-9].html  $(TDIR)
 	cp cart-bis-index.html cart-bis.css cart-bis[0-9][0-9][0-9].html  $(TDIR)
+	cp cart-ter-index.html cart-ter.css cart-ter[0-9][0-9][0-9].html  $(TDIR)
 	cp cbook-index.html cbook.css cbook[0-9][0-9][0-9].html  $(TDIR)
 
 clean-test::
-	/bin/rm -f $(SUITE) cart.html  cart-bis.html cbook.html natbib.hbbl
+	/bin/rm -f $(SUITE) cart.html  cart-ter.html cart-bis.html cbook.html natbib.hbbl
 
 cart-index.html: cart.html
 	$(HACHA) -o cart-index.html cart.html
@@ -58,12 +59,16 @@ cart-index.html: cart.html
 cart-bis-index.html: cart-bis.html
 	$(HACHA) -tocbis -o cart-bis-index.html cart-bis.html
 
+cart-ter-index.html: cart-ter.html
+	$(HACHA) -tocbis -o cart-ter-index.html cart-ter.html
+
 cbook-index.html: cbook.html
 	$(HACHA) -o cbook-index.html cbook.html
 
 clean-test::
 	/bin/rm -f cart[0-9][0-9][0-9].html cart.css cart-index.html cart.htoc
 	/bin/rm -f cart-bis[0-9][0-9][0-9].html cart-bis.css cart-bis-index.html cart-bis.htoc
+	/bin/rm -f cart-ter[0-9][0-9][0-9].html cart-ter.css cart-ter-index.html cart-ter.htoc
 	/bin/rm -f cbook[0-9][0-9][0-9].html cbook.css cbook-index.html cbook.htoc
 	/bin/rm -f natbib.blg natbib.htoc suite.htoc sym.htoc
 

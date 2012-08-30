@@ -1,0 +1,62 @@
+%%%% Hevea support for babel option 'french'.
+%%%% Support for
+%%%%    - date
+%%%%    - names of various part descriptors (contentsname etc.)
+%%%%    - special quotations (\glqq et.)
+%
+\newcommand{\french@quotes}
+{\def{\flqq}{\@print@u{0171}}%
+\def{\glqq}{\@print@u{8222}}%
+\def{\glqq}{\@print@u{8222}}%
+\def{\grqq}{\@print@u{8220}}%
+\def{\glq}{\@print@u{8218}}%
+\def{\grq}{\@print@u{8216}}%
+\def{\frqq}{\@print@u{0187}}%
+\def{\flq}{\@print@u{8249}}%
+\def{\frq}{\@print@u{8250}}%
+\let\og\flqq\let\fg\frqq%
+}%
+\newcommand{\french@babel}{%
+\french@quotes%
+\def\french@day
+{\ifthenelse{\value{day}=1}{\theday\textsuperscript{er}}{\theday}}%
+\def\csname f@month1\endcsname{janvier}%
+\def\csname f@month2\endcsname{f\'evrier}%
+\def\csname f@month3\endcsname{mars}%
+\def\csname f@month4\endcsname{avril}%
+\def\csname f@month5\endcsname{mai}%
+\def\csname f@month6\endcsname{juin}%
+\def\csname f@month7\endcsname{juillet}%
+\def\csname f@month8\endcsname{ao\^ut}%
+\def\csname f@month9\endcsname{septembre}%
+\def\csname f@month10\endcsname{octobre}%
+\def\csname f@month11\endcsname{novembre}%
+\def\csname f@month12\endcsname{d\'ecembre}%
+\def\french@month{\csname f@month\arabic{month}\endcsname}%
+\@ifundefined{theyear}{}{\def\today{\theday~\french@month~\theyear}}%
+\def\prefacename{Pr\'eface}%
+\def\refname{R\'ef\'erences}%
+\def\abstractname{R\'esum\'e}%
+\def\bibname{Bibliographie}%
+\def\chaptername{Chapitre}%
+\def\appendixname{Annexe}%
+\def\contentsname{Table des mati\`eres}%
+\def\listfigurename{Liste des figures}%
+\def\listtablename{Liste des tableaux}%
+\def\indexname{Index}%
+\def\figurename{Figure}%
+\def\tablename{Tableau}%
+\def\partname{Partie}%
+\def\enclname{P.~J.}%
+\def\ccname{Copie \`a}%
+\def\headtoname{A}%
+\def\pagename{Page}%
+\def\headpagename{Page}%
+\def\seename{voir}%
+\def\alsoseename{voir aussi}%
+\def\footertext{Ce document a \'et\'e traduit de \LaTeX{} par \ahref{\heveaurl}{\hevea}}%
+}%
+%%%
+\newif\ifFrenchItemizeSpacing
+\let\FrenchLabelItem\relax
+%%%

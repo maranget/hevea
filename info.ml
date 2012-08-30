@@ -10,11 +10,8 @@
 (***********************************************************************)
 
 
-let _header = "$Id: info.ml,v 1.42 2007-03-09 13:23:52 maranget Exp $"
-
 open Misc
 open Text
-open InfoRef
 
 exception Error of string
 type block = Text.block
@@ -97,7 +94,7 @@ let finalize check =
     let name,buf =
       if Parse_opts.filter then
         let texte = get_current_output () in 
-        "",Lexing.from_string texte
+        "",MyLexing.from_string texte
       else
       (* changer de nom de fichier (renommer ?) *)
         try

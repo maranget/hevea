@@ -1,0 +1,7 @@
+\usepackage{commongraphic}
+\@imagecommand{\includegraphics}
+  {\execafter{\imageflush{}}\execafter\@image@filearg\execafter\@imageopt\@imageopt}
+\@imagecommand{\includegraphics*}
+  {\execafter{\imageflush{}}\execafter\@image@filearg\execafter\@imageopt\@imageopt}
+\@imagecommand{\rotatebox}
+  {\execafter\imageflush\execafter\@imagearg\@imagearg}

@@ -6,7 +6,9 @@
 \def\contentsname{\aname{ftoc}{\oldcontentsname}}
 \newcommand{\BibTeX}{Bib\TeX}
 \newenvironment{showlatex}{\begin{toimage}}{\end{toimage}\imageflush}
-\newcommand{\myrule}{\@hr[NOSHADE SIZE=1 ALIGN=center]{}{}}
+%Not so nice to add rules to htmlout below
+%\newcommand{\myrule}{\@hr[style="height:2px;width:90\%;border-width:0;margin-left:0;margin-right:auto;color:black;background-color:black"]{}{}}
+\newcommand{\myrule}{}
 \newenvironment{htmlout}{\begin{quote}\myrule}{\myrule\end{quote}}
 \newenvironment{multicols}[1]{}{}
 \let\oldmeta=\@meta

@@ -19,12 +19,14 @@ Command defined inside \texttt{mathpar} environment.
 \end{mathpar}
 
 \subsection*{Font change (orange color)}
-First cell in \textbf{bold}.
-Three last cells in \textbf{bold \textcolor[named]{Orange}{orange}}.
-{\bfseries\begin{mathpar}
+First cell in black.
+Three last cells in {\textcolor[named]{Orange}{orange}}.
+No cell in bold font.
+{\bfseries This is bold. \begin{mathpar}
 F(0) = 1 \and \color[named]{Orange}F(1) = 1 \and F(2) = 2
 \\ F(n+2) = F(n+1) + F(n)
-\end{mathpar}}
-In black.
+\end{mathpar}
+This is bold also.}
+This is normal font in black.
 
 \end{document}

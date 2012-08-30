@@ -9,12 +9,15 @@
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
 (***********************************************************************)
+
 (* <Christian.Queinnec@lip6.fr>
  The plugin for HeVeA that implements the VideoC style.
- $Id: videoc.mll,v 1.32 2012-06-05 14:55:39 maranget Exp $ 
 *)
 
 {
+
+open Printf
+
 module type T =
   sig
   end;;
@@ -121,8 +124,8 @@ rule snippetenv = parse
       let exec = function
         | Subst body ->
             if !verbose > 2 then
-              prerr_endline ("user macro in snippet: "^body) ;
-            Lexstate.scan_this_may_cont Scan.main
+              eprintf "user macro in snippet: [%a]\n" pretty_body body ;
+            Lexstate.scan_this_list_may_cont Scan.main
               lexbuf cur_subst (string_to_arg body)
         | Toks l ->
             List.iter
@@ -392,17 +395,17 @@ and do_snip_run_hook lexbuf =
 
 and do_vicanchor lexbuf = begin
   let {arg=style} = Lexstate.save_opt "" lexbuf in
-  if !verbose > 2 then prerr_endline ("\\vicanchor"^style);
   let {arg=nfn}   = Lexstate.save_opt "0,filename,notename" lexbuf in
-  if !verbose > 2 then prerr_endline ("\\vicanchor"^style^nfn);
   let fields =
-    comma_separated_values (Lexing.from_string (nfn ^ ",")) in
+    comma_separated_values (MyLexing.from_list (nfn @ [","])) in
   match fields with
   | [number;filename;notename] -> 
       begin
         let uniqueNumber = (* Would be better: truncate(Unix.gettimeofday()) *)
           increment_internal_counter()
         and hintId = compute_hint_id number filename notename in
+        let style = String.concat "" style
+        and nfn = String.concat "" nfn in
         Dest.put_tag ("<A id=\"a" ^ string_of_int(uniqueNumber)
                       ^ "__" ^ hintId 
                       ^ "\" href=\"javascript: void showMessage('"
@@ -415,9 +418,10 @@ end
 
 and do_vicendanchor lexbuf = begin
   let {arg=nfn} = Lexstate.save_opt "0,filename,notename" lexbuf in
+  let nfn = String.concat "" nfn in
   if !verbose > 2 then prerr_endline ("\\vicendanchor"^nfn);
   let fields = 
-    comma_separated_values (Lexing.from_string (nfn ^ ",")) in
+    comma_separated_values (MyLexing.from_string (nfn ^ ",")) in
   match fields with
   | [_number;_filename;_notename] -> begin
       Dest.put_tag ("</SPAN></A>");

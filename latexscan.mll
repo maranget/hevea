@@ -13,7 +13,9 @@
 
 
 {
+
 open Printf
+
 module type S =
   sig
     (* external entry points *)
@@ -117,7 +119,7 @@ let top_open_display () =
        prerr_endline "open display" ;
     match !pre_format with
     | Some (Align {vert=s})   ->
-        Dest.open_display_varg ("VALIGN="^s)
+        Dest.open_display_varg (sprintf "style=\"vertical-align:%s\"" s)
     | _ ->
         Dest.open_display ()        
   end
@@ -158,8 +160,7 @@ let new_env env =
   after := [] ;
   if !verbose > 1 then begin
     Location.print_pos () ;
-    Printf.fprintf stderr "Begin : %s (%d)" env (get_level ());
-    prerr_endline ""
+    fprintf stderr "Begin: %s (%d)\n" env (get_level ())
   end
 
 let error_env close_e open_e =
@@ -169,8 +170,7 @@ let error_env close_e open_e =
 
 let close_env env  =
   if !verbose > 1 then begin
-    Printf.fprintf stderr "End: %s (%d)" env (get_level ());
-    prerr_endline  ""
+    fprintf stderr "End: %s (%d)\n" env (get_level ())
   end ;
   if env = !cur_env then begin  
     let e,a,_ = pop stack_env in    
@@ -260,26 +260,26 @@ let top_open_block block args =
   push stack_table !in_table ;
   in_table := NoTable ;
   begin match block with
-  | "PRE" ->
+  | "pre" ->
       push stack_display !display ;
       if !display then begin
         Dest.item_display () ;
         display := false
       end ;
-      Dest.open_block "PRE" args
-  | "DISPLAY" ->
+      Dest.open_block "pre" args
+  | "display" ->
       push stack_display !display ;
       display := true ;
       Dest.open_display_varg args
-  | "TABLE" ->
+  | "table" ->
       save_array_state () ;
       in_table := NoTable ;
       top_force_item_display () ;
-      Dest.open_block "TABLE" args
-  | "TR" ->
-      Dest.open_block "TR" args      
-  | "TD" ->
-      Dest.open_block "TD" args ;
+      Dest.open_block "table" args
+  | "tr" ->
+      Dest.open_block "tr" args      
+  | "td" ->
+      Dest.open_block "td" args ;
       top_open_display ()
   | _ ->
       if !display then begin
@@ -293,22 +293,22 @@ and top_close_block_aux close_fun block =
   if !verbose > 2 then prerr_endline ("Top close: "^block) ;
   in_table := pop stack_table ;
   begin match block with
-  | "PRE" ->
+  | "pre" ->
       display := pop stack_display ;
       close_fun block ;
       top_item_display ()
-  | "DISPLAY" ->
+  | "display" ->
       Dest.close_display () ;
       display := pop stack_display
-  | "TABLE" ->
-      close_fun "TABLE" ;
+  | "table" ->
+      close_fun "table" ;
       top_force_item_display () ;
       restore_array_state ()
-  | "TR" ->
-      close_fun "TR"
-  | "TD" ->
+  | "tr" ->
+      close_fun "tr"
+  | "td" ->
       top_close_display () ;
-      close_fun "TD"
+      close_fun "td"
   | _ ->
       if !display then begin
         Dest.close_display () ; close_fun block ; Dest.item_display ()
@@ -365,7 +365,7 @@ let do_get_this start_lexstate restore_lexstate
   if !verbose > 1 then
     prerr_endline ("get_this : '"^s^"'") ;  
   verbose := !verbose - 1;
-  let lexer = Lexing.from_string s in
+  let lexer = MyLexing.from_string s in
   let r = Dest.to_string (fun () ->
     if !display then  Dest.open_display () ;
     top_open_group () ;
@@ -373,10 +373,32 @@ let do_get_this start_lexstate restore_lexstate
     lexfun lexer ;
     top_close_group () ;
     if !display then Dest.close_display ()) in
-
   verbose := !verbose + 1 ;
   if !verbose > 1 then begin
     prerr_endline ("get_this '"^s^"' -> '"^r^"'")
+  end ;
+  restore_lexstate () ;
+  r
+
+let do_get_this_list start_lexstate restore_lexstate
+    make_style  lexfun {arg=s ; subst=subst} =
+  start_lexstate subst;
+  if !verbose > 1 then
+    eprintf "get_this_list get_this : '%a'\n" pretty_body s ;  
+  verbose := !verbose - 1;
+  let lexer = MyLexing.from_list s in
+  let r = Dest.to_string (fun () ->
+    if !display then  Dest.open_display () ;
+    top_open_group () ;
+    make_style () ;
+    lexfun lexer ;
+    top_close_group () ;
+    if !display then Dest.close_display ()) in
+  verbose := !verbose + 1 ;
+  if !verbose > 1 then begin
+    if !verbose > 1 then
+      eprintf "get_this_list get_this : '%a' -> '%s'\n"
+        pretty_body s r
   end ;
   restore_lexstate () ;
   r
@@ -405,6 +427,10 @@ let is_table = function
 and is_noborder_table = function
   | Table {border = b} -> not b
   | _                  -> false
+
+and is_border_table = function
+  | Table {border = b} -> b
+  | _ -> raise (Misc.Fatal "is_border_table")
 
 and is_tabbing = function
   | Tabbing -> true
@@ -447,7 +473,7 @@ let get_col format i =
     else if i = Array.length format then default_format
     else format.(i) in
   if !verbose > 2 then begin
-   Printf.fprintf stderr "get_col : %d: " i ;
+   fprintf stderr "get_col : %d: " i ;
    prerr_endline (pretty_format r) ;
    prerr_string " <- " ;
    pretty_formats format ;
@@ -542,7 +568,7 @@ let next_no_border format n =
 
 let do_open_col main format span insides =
   let save_table = !in_table in
-  Dest.open_cell format span insides;
+  Dest.open_cell format span insides (is_border_table !in_table);
   if not (as_wrap format) && math_table !in_table then begin
     display  := true ;
     Dest.open_display ()
@@ -596,7 +622,7 @@ and close_row () = Dest.close_row ()
 
 let do_hline main =
   if !verbose > 2 then begin
-    Printf.fprintf stderr "hline: %d %d" !cur_col (Array.length !cur_format) ;
+    fprintf stderr "hline: %d %d" !cur_col (Array.length !cur_format) ;
     prerr_newline ()
   end ;
   erase_col main ;
@@ -625,7 +651,7 @@ let do_multi n format main =
   let i = show_inside main format 0 true in
 
   Dest.open_cell_group () ;
-  do_open_col main (get_col format i) (end_span - start_span) insides;
+  do_open_col main (get_col format i) (end_span - start_span) insides ;
   push stack_multi (!cur_format,k) ;
   cur_format := format ;
   cur_col := i ;
@@ -679,7 +705,7 @@ and close_last_row () =
 
 let get_style lexfun {arg=s ; subst=env} =
   start_normal env ;
-  let lexer = Lexing.from_string s in
+  let lexer = MyLexing.from_string s in
   let r = Dest.to_style (fun () -> lexfun lexer) in
   end_normal () ;
   r
@@ -783,15 +809,16 @@ let rec do_expand_command main skip_blanks name lexbuf =
   let loca = Location.get_pos () in
   try
     if !verbose > 1 then begin
-      Printf.fprintf stderr "expand_command: '%s'\n" name
+      fprintf stderr "expand_command: '%s'\n" name
     end ;
     let cur_subst = get_subst () in
     let exec =
       if !alltt_loaded then
         function
           | Subst body ->
-              if !verbose > 2 then
-                prerr_endline ("user macro: "^body) ;            
+              if !verbose > 2 then begin
+                eprintf "user macro: [%a]\n%!" Lexstate.pretty_body body
+              end ;
               let old_alltt = !alltt in
               MyStack.push stack_alltt old_alltt ;        
               alltt :=
@@ -799,10 +826,10 @@ let rec do_expand_command main skip_blanks name lexbuf =
                  | Not -> Not
                  | _   -> Macro) ;
 (*
-  Printf.fprintf stderr
+  fprintf stderr
   "Enter: %s, %s -> %s\n" name (debug old_alltt) (debug !alltt) ;
   *)
-              scan_this_may_cont main lexbuf cur_subst (string_to_arg body) ;
+              scan_this_list_may_cont main lexbuf cur_subst (string_to_arg body) ;
               let _ =  MyStack.pop stack_alltt in
               alltt :=
                  (match old_alltt, !alltt with
@@ -810,7 +837,7 @@ let rec do_expand_command main skip_blanks name lexbuf =
                  | (Macro|Inside), Not -> Not
                  | _, _                -> old_alltt)
 (*
-  Printf.fprintf stderr
+  fprintf stderr
   "After: %s, %s -> %s\n" name (debug old_alltt) (debug !alltt)
   *)
           | Toks l -> expand_toks main l            
@@ -818,9 +845,10 @@ let rec do_expand_command main skip_blanks name lexbuf =
       else
         function
           | Subst body ->
-              if !verbose > 2 then
-                prerr_endline ("user macro: "^body) ;            
-              scan_this_may_cont main lexbuf cur_subst (string_to_arg body)
+              if !verbose > 2 then begin
+                eprintf "user macro: [%a]\n%!" Lexstate.pretty_body body
+              end ;
+              scan_this_list_may_cont main lexbuf cur_subst (string_to_arg body)
           | Toks l -> expand_toks main l            
           | CamlCode f -> f lexbuf in
 
@@ -849,7 +877,7 @@ let rec do_expand_command main skip_blanks name lexbuf =
     end ;
     scan_body exec body args ;
     if (!verbose > 1) then begin
-      Printf.eprintf "Cont after macro «%s», display=%B\n" name !display ;
+      eprintf "Cont after macro «%s», display=%B\n" name !display ;
       macro_depth := !macro_depth - 1
     end ;
     if saw_par then do_expand_command main skip_blanks "\\par" lexbuf
@@ -857,7 +885,7 @@ let rec do_expand_command main skip_blanks name lexbuf =
   | Misc.EndDocument|Misc.EndInput as e -> raise e
   | e ->
       Location.print_this_pos loca ;
-      Printf.eprintf "Giving up command: %s\n" name ;
+      eprintf "Giving up command: %s\n" name ;
       raise e
 ;;
 
@@ -892,19 +920,19 @@ let translate_put_unicode c next =
         raise
           (Error
              (if Latexmacros.exists "\\inputencodingname" then
-               Printf.sprintf
+               sprintf
                  "Encoding %s failed on '%c'"
                     (match Latexmacros.find "\\inputencodingname" with
-                    | _,Subst s -> s
+                    | _,Subst s -> Lexstate.body_to_string s
                     | _,_ -> assert false) c
              else
-               Printf.sprintf
+               sprintf
                   "Non-ascii '%c' in input, consider using package inputenc"
                   c)) in
     try Dest.put_unicode uni
     with Misc.CannotPut ->
       Misc.warning
-        (Printf.sprintf
+        (sprintf
            "Cannot output unicode %s (%c)" (OutUnicode.show uni) c) ;
       Dest.put_char c
   end
@@ -1012,11 +1040,11 @@ rule  main = parse
           (fun arg ->
             let old_alltt = !alltt in
             alltt := MyStack.pop stack_alltt ;
-            scan_this_may_cont main lexbuf (get_subst ()) arg ;
+            scan_this_list_may_cont main lexbuf (get_subst ()) arg ;
             alltt := old_alltt ;
             MyStack.push stack_alltt old_alltt)
         else
-          (fun arg -> scan_this_may_cont main lexbuf (get_subst ()) arg))
+          (fun arg -> scan_this_list_may_cont main lexbuf (get_subst ()) arg))
         i
     end ;
     main lexbuf}
@@ -1049,7 +1077,9 @@ rule  main = parse
 | ['a'-'z' 'A'-'Z']+ as lxm
     {let lxm = check_case lxm in
     if !in_math then begin
-      Dest.put_in_math lxm;
+      scan_this main "{\\it" ;
+      Dest.put lxm;
+      scan_this main "}"
     end else
       Dest.put lxm ;
     main lexbuf}
@@ -1128,7 +1158,7 @@ and latexonly = parse
       push stack_out arg ;
       begin match Latexmacros.find (end_env arg) with
         _,(Subst body) ->
-          scan_this_may_cont latexonly lexbuf (get_subst ())
+          scan_this_list_may_cont latexonly lexbuf (get_subst ())
             (string_to_arg body)
       |  _,_ ->
           raise (Misc.ScanError ("Bad closing macro in latexonly: '"^arg^"'"))
@@ -1161,7 +1191,7 @@ and image = parse
   | '#' ['1'-'9']
       {let lxm = lexeme lexbuf in
       let i = Char.code (lxm.[1]) - Char.code '1' in
-      scan_arg (scan_this_arg image) i ;
+      scan_arg (scan_this_arg_list image) i ;
       image lexbuf}
   |  "\\end"
       {let lxm = lexeme lexbuf in
@@ -1176,7 +1206,7 @@ and image = parse
 	push stack_out arg ;
 	begin match Latexmacros.find (end_env arg) with
           _,(Subst body) ->
-            scan_this_may_cont  image lexbuf (get_subst ())
+            scan_this_list_may_cont  image lexbuf (get_subst ())
               (string_to_arg body)
 	|  _,_ -> raise (Misc.ScanError ("Bad closing macro in image: '"^arg^"'"))
 	end
@@ -1545,8 +1575,10 @@ def_code "\\@hevea@excl"
        Dest.put_char '!')
 ;;
 
-def_code "\\@hevea@dquote" (fun _lexbuf -> Dest.put_char '"')
+def_code "\\@hevea@dquote" (fun _lexbuf -> Dest.put_char '"') (* '"' *)
 ;;
+
+
 
 let get_this_main arg = get_this_string main arg
 
@@ -1554,20 +1586,22 @@ let check_this_main s =
   if !verbose > 1 then
     prerr_endline ("check_this: '"^s^"'");
   start_normal (get_subst ()) ;
-  Dest.open_block "TEMP" "";
+  Dest.open_block "temp" "";
   let r =
     try
       scan_this main s ;
       true
     with
     |  _ -> false in
-  Dest.erase_block "TEMP" ;
+  Dest.erase_block "temp" ;
   end_normal () ;
   if !verbose > 1 then
     prerr_endline ("check_this: '"^s^"' = "^sbool r);
   r
-  
-let get_prim_onarg arg =
+
+(* '"' *)
+
+let do_get_prim_onarg f arg =
   let plain_sub = is_plain '_'
   and plain_sup = is_plain '^'
   and plain_dollar = is_plain '$'
@@ -1581,16 +1615,17 @@ let get_prim_onarg arg =
   set_plain '"' ;
   let old_raw = !raw_chars in
   raw_chars := true ;
-  let r = do_get_this
-    start_normal end_normal
-    Dest.nostyle
-    main arg in
+  let r = f start_normal end_normal Dest.nostyle main arg in
   raw_chars := old_raw ;
   plain_back plain_sub '_' ; plain_back plain_sup '^' ;
   plain_back plain_dollar '$' ; plain_back plain_amper '&' ;
   plain_back plain_quote '\'' ; plain_back plain_backquote  '`' ;
   plain_back plain_minus '-' ; plain_back plain_dquote '"' ; (* '"' *)
   r
+
+let get_prim_onarg arg = do_get_prim_onarg do_get_this arg
+let get_prim_onarg_list arg = do_get_prim_onarg do_get_this_list arg
+
 
 let get_prim s = get_prim_onarg (string_to_arg s)
 
@@ -1600,7 +1635,7 @@ let get_prim_arg lexbuf =
 
 and get_prim_opt def lexbuf =
   let arg = save_opt def lexbuf in
-  get_prim_onarg arg
+  get_prim_onarg_list arg
 
 
 let get_csname lexbuf =
@@ -1608,7 +1643,7 @@ let get_csname lexbuf =
     protect_save_string
       (fun lexbuf -> Save.csname get_prim Subst.subst_this lexbuf)
       lexbuf in
-(*  Printf.eprintf "GET CSNAME: '%s'\n" r ; *)
+(*  eprintf "GET CSNAME: '%s'\n" r ; *)
   r
 
 
@@ -1659,7 +1694,7 @@ let after_input lexbuf old_toks =
     expand_command_no_skip ateof lexbuf
   with e ->
     Misc.warning
-      (Printf.sprintf "Exception '%s' raised by input handler"
+      (sprintf "Exception '%s' raised by input handler"
 	 (Printexc.to_string e))
   end ;
   ignore (Latexmacros.replace ateof old_toks)
@@ -1691,7 +1726,8 @@ let do_documentclass command lexbuf =
   if command = "\\documentstyle" then begin
     List.iter
       (fun pack -> scan_this main ("\\usepackage{"^pack^"}"))
-      (Save.cite_arg (Lexing.from_string ("{"^opt_arg^"}")))
+      (Save.cite_arg
+         (MyLexing.from_list ("{"::opt_arg@["}"])))
   end ;
   Image.start () ;
   Image.put "\\newif\\ifimagen\\imagentrue\n" ;
@@ -1743,11 +1779,12 @@ let do_newcommand lxm lexbuf =
     [a1 ; a2] ->
       Get.get_int (from_ok a1),
       (match a2 with
-      | {arg=No s ; subst=env} -> false,mkarg s env
+      | {arg=No s ; subst=env} -> false,mkarg [s] env
       | {arg=Yes s ; subst=env} -> true,mkarg s env)
   | _ -> assert false in
   let pat =
-    latex_pat (if def then [do_subst_this defval] else []) nargs in
+    latex_pat
+      (if def then [do_subst_this_list defval] else []) nargs in
   match lxm with
   | "\\@forcecommand" -> Latexmacros.def name pat (Subst body)
   | "\\newcommand"|"\\newcommand*"    ->
@@ -1818,7 +1855,7 @@ let do_newenvironment lxm lexbuf =
       (latex_pat
          (match optdef with
          | {arg=No _}    -> []
-         | {arg=Yes s ; subst=env} -> [do_subst_this (mkarg s env)])
+         | {arg=Yes s ; subst=env} -> [do_subst_this_list (mkarg s env)])
          (match nargs with 
          | {arg=No _} -> 0
          | {arg=Yes s ; subst=env} -> Get.get_int (mkarg s env)))
@@ -1855,7 +1892,7 @@ let do_newcounter name within =
   try
     Counter.def_counter name within ;
     Latexmacros.global_def
-      ("\\the"^name) zero_pat (Subst ("\\arabic{"^name^"}"))
+      ("\\the"^name) zero_pat (Subst (["\\arabic{"^name^"}"]))
   with
   | Failed -> ()
 
@@ -1875,19 +1912,18 @@ let do_newtheorem lxm lexbuf =
     {arg=No _},{arg=No _} ->
       do_newcounter  name "" ; name
   | _,{arg=Yes _} ->
-      let within = get_prim_onarg (from_ok within) in
+      let within = get_prim_onarg_list (from_ok within) in
       do_newcounter name within ; name
   | {arg=Yes _},_ ->
-      get_prim_onarg (from_ok numbered_like) in
+      get_prim_onarg_list (from_ok numbered_like) in
   do_expand_command main no_skip ("\\set@th")
-    (Lexing.from_string ("{"^name^"}")) ;
+    (MyLexing.from_string ("{"^name^"}")) ;
   Latexmacros.global_def
     (start_env name) zero_pat     
-    (Subst
-       ("\\begin{th@env}{"^name^"}{"^cname^"}{"^caption^"}")) ;
+    (Subst ["\\begin{th@env}{"^name^"}{"^cname^"}{"^caption^"}"]) ;
   Latexmacros.global_def
     (end_env name) zero_pat
-    (Subst "\\end{th@env}")
+    (Subst ["\\end{th@env}"])
 ;;
 
 def_name_code "\\newtheorem" do_newtheorem ;
@@ -1900,24 +1936,24 @@ let do_def global lxm lexbuf =
   Save.start_echo () ;
   let name = get_csname lexbuf in
   Save.skip_blanks_init lexbuf ;
-  let name,args_pat,body =
+  let args_pat,body =
     if top_level () then
       let args_pat = Save.defargs lexbuf in
-      let {arg=body} = save_arg lexbuf in
-      name,args_pat,body
+      let {arg=body} = save_body lexbuf in
+      args_pat,body
     else
       let args_pat =
         Save.defargs
-          (Lexing.from_string
+          (MyLexing.from_string
              (subst_this (Save.get_defargs lexbuf))) in
       let body = subst_body lexbuf in
-      name,args_pat,body in
+      args_pat,body in
   let real_args = Save.get_echo () in
   if echo_toimage () || (global && echo_global_toimage ()) then begin    
     Image.put  (lxm^real_args) ;
     Image.put_char '\n'
   end ;
-  (if global then global_def else def)
+  (if global then  Latexmacros.global_def else Latexmacros.def)
     name ([],args_pat) (Subst body)
 ;;
 
@@ -2012,7 +2048,7 @@ def_code "\\string"
 ;;
 
 let get_num_arg lexbuf =
-  Save.num_arg lexbuf (fun s -> Get.get_int (string_to_arg s))
+  Save.num_arg lexbuf (fun s -> Get.get_int_string (string_to_arg s))
 ;;
 
 
@@ -2032,7 +2068,7 @@ and top_unplain c =
 def_code "\\catcode"
    (fun lexbuf ->
      let arg = save_arg_with_delim "=" lexbuf in
-     let char = Char.chr (Get.get_int arg) in
+     let char = Char.chr (Get.get_int_string arg) in
      let code = get_num_arg lexbuf in
      begin match char,code with
      | ('\\',0) | ('{',1) | ('}',2) | ('$',3) | ('&' ,4) |
@@ -2053,7 +2089,7 @@ def_code "\\chardef"
     let csname = get_csname lexbuf in
     Save.skip_equal lexbuf ;
     let i = get_num_arg lexbuf in
-    Latexmacros.def csname zero_pat (Subst (string_of_int i)))
+    Latexmacros.def csname zero_pat (Subst [string_of_int i]))
 ;;
 
 (* Complicated use of output blocks *)
@@ -2163,7 +2199,7 @@ def_code "\\@open"
   (fun lexbuf ->
     let tag = get_prim_arg lexbuf in
     let arg = get_prim_arg lexbuf in
-(*    Printf.eprintf "\\@open{%s}{%s}\n" tag arg ; *)
+(*    eprintf "\\@open{%s}{%s}\n" tag arg ; *)
     top_open_block tag arg)
 ;;
 
@@ -2224,7 +2260,7 @@ let put_unicode_default uc =
     scan_this main txt
   with Not_found ->
     Misc.warning
-      (Printf.sprintf
+      (sprintf
          "Cannot output that numerical entity: %s" (OutUnicode.show uc)) ;
     Dest.put_char '?'
 ;;
@@ -2277,13 +2313,17 @@ def_code "\\@getprintnostyle"
 def_code "\\@getprint"
   (fun lexbuf ->
     let arg = get_prim_arg lexbuf in
-    let buff = Lexing.from_string arg in
+    let buff = MyLexing.from_string arg in
     Dest.put (Save.tagout buff)) ;
 ;;
 
 def_code "\\@subst"
   (fun lexbuf ->
     let arg = subst_arg lexbuf in
+    Dest.put arg) ;
+def_code "\\@subst@expn"
+  (fun lexbuf ->
+    let arg = subst_expn_arg lexbuf in
     Dest.put arg)
 ;;
 
@@ -2303,10 +2343,21 @@ def_code "\\@addtocsec"
      let level = get_num_arg lexbuf in
      let {arg=title} = save_arg lexbuf in
      Auxx.addtoc suf level
-       (Printf.sprintf "\\@locref{%s%s}{\\begin{@norefs}%s\\end{@norefs}}"
+       (sprintf "\\@locref{%s%s}{\\begin{@norefs}%s\\end{@norefs}}"
           suf anchor title))
 ;;
 
+(* Second version with anchor disconnected from toc suffix *)
+def_code "\\@@addtocsec"
+  (fun lexbuf ->
+     let suf = get_prim_arg lexbuf in
+     let anchor = get_prim_arg lexbuf in
+     let level = get_num_arg lexbuf in
+     let {arg=title} = save_arg lexbuf in
+     Auxx.addtoc suf level
+       (sprintf "\\@locref{%s}{\\begin{@norefs}%s\\end{@norefs}}"
+          anchor title))
+;;
 def_code "\\@addcontentsline"
   (fun lexbuf ->
      let suf = get_prim_arg lexbuf in
@@ -2320,7 +2371,7 @@ def_code "\\@notags"
     let arg = save_arg lexbuf in
     let arg = get_this_arg main arg in
     let r =
-      let buff = Lexing.from_string arg in
+      let buff = MyLexing.from_string arg in
       Save.tagout buff in
     Dest.put r)
 ;;
@@ -2368,7 +2419,7 @@ def_code "\\@styleattr"
 def_code "\\@span"
  (fun lexbuf ->
     let attr = get_prim_arg lexbuf in
-    Dest.open_mod (StyleAttr ("SPAN", attr)))
+    Dest.open_mod (StyleAttr ("span", attr)))
 ;;
 
 def_code "\\@fontcolor"  
@@ -2385,25 +2436,25 @@ def_code "\\@styleset"
 *)
 def_code "\\@fontsize"  
   (fun lexbuf ->
-    let arg = save_arg lexbuf in
+    let arg = save_body lexbuf in
     Dest.open_mod (Font (Get.get_int arg)) )
 ;;
 
 def_code "\\@nostyle"
-        (fun lexbuf -> Dest.nostyle () ; check_alltt_skip lexbuf)
+  (fun lexbuf -> Dest.nostyle () ; check_alltt_skip lexbuf)
 ;;
 def_code "\\@clearstyle"
-        (fun lexbuf -> Dest.clearstyle ()  ; check_alltt_skip lexbuf)
+  (fun lexbuf -> Dest.clearstyle ()  ; check_alltt_skip lexbuf)
 ;;
 def_code "\\@incsize"
   (fun lexbuf ->
-          let arg = save_arg lexbuf in
-          inc_size (Get.get_int arg) )
+    let arg = save_body lexbuf in
+    inc_size (Get.get_int arg) )
 ;;
 def_code "\\htmlcolor"
   (fun lexbuf ->
-          let arg = get_prim_arg lexbuf in
-          Dest.open_mod (Color ("\"#"^arg^"\"")) )
+    let arg = get_prim_arg lexbuf in
+    Dest.open_mod (Color ("\"#"^arg^"\"")) )
 ;;
 
 def_code "\\usecounter"
@@ -2427,7 +2478,7 @@ def_code "\\@imageflush"
 
 def_code "\\textalltt"
   (fun lexbuf ->
-       let opt = get_prim_opt "CODE" lexbuf in
+       let opt = get_prim_opt "code" lexbuf in
        let arg = save_arg lexbuf in
        let old = !alltt in
        scan_this main "\\mbox{" ;
@@ -2475,7 +2526,7 @@ let tbool  = function
 
 let tverb name cell lexbuf =
   if !verbose > 1 then
-  Printf.fprintf stderr
+  fprintf stderr
     "Testing %s -> %s\n" name (tbool !cell) ;
   testif cell lexbuf
 ;;
@@ -2501,6 +2552,35 @@ let newif lexbuf =
 exception FailedFirst
 ;;
 
+let rec norm_body k b = match b with
+  | [] -> 0,b
+  | x::xs ->
+      if k >= String.length x then norm_body 0 xs
+      else k,b
+
+let same_body =
+  let rec do_rec k1 k2 b1 b2 = match norm_body k1 b1, norm_body k2 b2 with
+  | (_,[]),(_,[]) -> true
+  | ((_,[]),(_,_::_))
+  | ((_,_::_),(_,[])) -> false
+  | (k1,(x1::_ as b1)),(k2,(x2::_ as b2)) ->
+      let c1 =  x1.[k1] and c2 = x2.[k2] in
+(*      eprintf "k1=%i, c1='%c', k2=%i, c2='%c'\n" k1 c1 k2 c2 ; *)
+      c1 = c2 && do_rec (k1+1) (k2+1) b1 b2 in
+  do_rec 0 0
+
+let same_expn (p1,a1) (p2,a2) =
+  (p1 = p2) &&
+  (match a1,a2 with
+  | Subst b1,Subst b2 ->
+(*
+      eprintf "Check: [%a] [%a]\n"
+        Lexstate.pretty_body b1 Lexstate.pretty_body b2 ;
+*)
+      same_body b1 b2
+  | _,_ -> a1 = a2)
+;;
+
 def_code "\\ifx"
   (fun lexbuf ->
     let arg1 = get_csname lexbuf in
@@ -2511,7 +2591,7 @@ def_code "\\ifx"
           try Latexmacros.find_fail arg1 with
           |  Failed -> raise FailedFirst in
         let m2 = Latexmacros.find_fail arg2 in
-        m1 = m2
+        same_expn m1 m2
       with
       | FailedFirst ->
           begin
@@ -2629,8 +2709,9 @@ def_code "\\cite"
     Dest.open_group "" ;
     scan_this main "\\@open@cite@one" ;
     if has_opt1 && has_opt2 then begin
-      if opt1 <> "" then begin
-        scan_this main ("\\@cite@pre{"^opt1^"}")
+      if not (is_empty_list opt1) then begin
+        scan_this_list main
+          ("\\@cite@pre{"::opt1@["}"])
       end
     end ;
     scan_this main "\\@open@cite@two" ;
@@ -2640,7 +2721,7 @@ def_code "\\cite"
         else if has_opt1 then Some opt1
         else None in
       match opt with
-      | Some s -> s
+      | Some s -> String.concat "" s
       | None   -> "" in
     let rec do_rec = function
         [] -> ()
@@ -2665,18 +2746,18 @@ def_code "\\includeonly"
 
 def_code "\\@stepanchor"
   (fun lexbuf ->
-    let mark = Get.get_int (save_arg lexbuf) in
+    let mark = Get.get_int (save_body lexbuf) in
     Foot.step_anchor mark) ;
 def_code "\\@anchorval"
   (fun lexbuf ->
-    let mark = Get.get_int (save_arg lexbuf) in
+    let mark = Get.get_int (save_body lexbuf) in
     Dest.put (string_of_int (Foot.get_anchor mark)))
 ;;
 
 def_code "\\@footnotetext"
   (fun lexbuf ->
     start_lexstate () ; 
-    let mark = Get.get_int (save_arg lexbuf) in
+    let mark = Get.get_int (save_body lexbuf) in
     let text = save_arg lexbuf in
     let text =
       do_get_this
@@ -3013,7 +3094,7 @@ let pad p l s =
 def_code "\\@pad"
   (fun lexbuf ->
     let p = get_prim_arg lexbuf in
-    let l = Get.get_int (save_arg lexbuf) in
+    let l = Get.get_int (save_body lexbuf) in
     let arg = get_prim_arg lexbuf in
     pad p l arg ;
     translate_put_unicode_string arg)
@@ -3037,7 +3118,7 @@ def_code "\\addtocounter"
   (fun lexbuf ->
     Save.start_echo () ;
     let name = get_prim_arg lexbuf in
-    let arg = save_arg lexbuf in
+    let arg = save_body lexbuf in
     let real_args = Save.get_echo () in
     if echo_global_toimage () then begin
       Image.put "\\addtocounter" ;
@@ -3051,7 +3132,7 @@ def_code "\\setcounter"
   (fun lexbuf ->
     Save.start_echo () ;
     let name = get_prim_arg lexbuf in
-    let arg = save_arg lexbuf in
+    let arg = save_body lexbuf in
     let real_args = Save.get_echo () in
     if echo_global_toimage () then begin
       Image.put "\\setcounter" ;
@@ -3103,7 +3184,7 @@ def_code "\\@getlength"
       | Length.Pixel n -> n
       | Length.Char n -> Length.char_to_pixel n
       | _             -> 0 in
-(*    Printf.eprintf "GET LENGTH: %i\n" pxls ; *)
+(*    eprintf "GET LENGTH: %i\n" pxls ; *)
     Dest.put (string_of_int pxls))
 ;;
 
@@ -3113,7 +3194,7 @@ let do_space
     (doit:unit -> unit) lexbuf  = 
   let arg = subst_arg lexbuf in
   try
-    let n = match Length.main (Lexing.from_string arg) with
+    let n = match Length.main (MyLexing.from_string arg) with
     | Length.Char n -> n
     | Length.Pixel n -> Length.pixel_to_char n
     | _                 -> raise Cannot in
@@ -3168,12 +3249,12 @@ register_init "alltt"
           if !verbose > 1 then prerr_endline "begin alltt" ;
           alltt := Inside ;
           fun_register (fun () -> alltt := Not) ;
-          Dest.close_block "" ; Dest.open_block "PRE" "") ;
+          Dest.close_block "" ; Dest.open_block "pre" "") ;
 
       def_code "\\endalltt"
         (fun _ ->
           if !verbose > 1 then prerr_endline "end alltt" ;
-          Dest.close_block "PRE" ; Dest.open_block "" ""))
+          Dest.close_block "pre" ; Dest.open_block "" ""))
 ;;
 
 (* Multicolumn *)
@@ -3182,7 +3263,7 @@ def_code "\\multicolumn"
     (fun lexbuf ->
       if not (is_table !in_table) then
         raise (ScanError "\\multicolumn should occur in some array") ;
-      let n = Get.get_int (save_arg lexbuf) in      
+      let n = Get.get_int (save_body lexbuf) in      
       let format =  Tabular.main (save_arg lexbuf) in
       do_multi n  format main)
 ;;
@@ -3201,7 +3282,7 @@ def_code "\\hline"
 let do_tabul lexbuf =
   if is_tabbing !in_table then begin
     do_unskip () ;
-    Dest.close_cell ""; Dest.open_cell default_format 1 0
+    Dest.close_cell ""; Dest.open_cell default_format 1 0 false
   end ;
   skip_blanks_pop lexbuf
 ;;
@@ -3212,7 +3293,7 @@ let tabbing_kill lexbuf =
     Dest.close_cell "";
     Dest.erase_row () ;
     Dest.new_row () ;
-    Dest.open_cell default_format 1 0
+    Dest.open_cell default_format 1 0 false
   end ;
   skip_blanks_pop lexbuf
 ;;
@@ -3231,13 +3312,14 @@ let def_tabbing_commands () =
 
 let check_width = function
   | Length.Char x ->
-      " WIDTH="^string_of_int (Length.char_to_pixel x)
+      "width:" ^ string_of_int (Length.char_to_pixel x) ^ "px"
   | Length.Pixel x ->
-      " WIDTH="^string_of_int x
+      "width:" ^ string_of_int x ^ "px"
   | Length.Percent x ->
-      " WIDTH=\""^string_of_int x^"%\""
+      "width:" ^ string_of_int x^"%"
   | _ -> ""
 ;;
+
 
 let get_table_attributes border len =
   let attrs = get_prim
@@ -3245,15 +3327,15 @@ let get_table_attributes border len =
         "\\@table@attributes@border"
       else
         "\\@table@attributes") in
-  attrs^check_width len
+  Lexattr.add_style (check_width len) attrs
   
 
 let open_tabbing _lexbuf =
   let lexbuf = Lexstate.previous_lexbuf in
   let lexfun _lb =
-    Dest.open_table false "border=0 cellspacing=0 cellpadding=0" ;
+    Dest.open_table false "style=\"border:0;border-spacing:0\" class=\"cellpadding0\"" ;
     Dest.new_row ();
-    Dest.open_cell default_format 1 0 in
+    Dest.open_cell default_format 1 0 false in
   push stack_table !in_table ;
   in_table := Tabbing ;
   new_env "tabbing" ;
@@ -3320,10 +3402,10 @@ let open_array env lexbuf =
           (get_table_attributes false len)
 
   | _  ->
-       Dest.open_table !Tabular.border
-        (attributes^check_width len)
-  end ;
-  open_row() ;
+      Dest.open_table !Tabular.border
+        (Lexattr.add_style (check_width len) attributes)
+ end ;
+ open_row() ;
   open_first_col main ;
   skip_blanks_pop lexbuf ;
 ;;
@@ -3378,7 +3460,7 @@ and do_bsbs lexbuf =
     Dest.close_cell "";
     Dest.close_row () ;
     Dest.new_row () ;
-    Dest.open_cell default_format 1 0
+    Dest.open_cell default_format 1 0 false
   end else begin
     if !display then
       (*(Dest.put_nbsp ();Dest.put_nbsp ();Dest.put_nbsp ();Dest.put_nbsp ())*)
@@ -3396,10 +3478,33 @@ OutUnicode.def_default OutUnicode.emdash "\\@print{---}" ;
 ()
 ;;
 
-let has_tt () = Dest.has_mod (Element.Style "TT")
+let get_tt_mode () =
+  match 
+    get_style (fun _lex -> Dest.clearstyle () ; main _lex)
+      (string_to_arg "\\tt")
+  with
+  | [m] -> m
+  | m::_ ->
+      warning "tt_mode is a complex style"  ;
+      m
+  | [] ->
+      warning "tt_mode is an empty style" ;
+      raise Exit
+
+let tt_mode = ref (Style "tt")
+;;
+
+(* Will be called once command \tt is defined *)
+def_code "\\@set@ttmode"
+  (fun lexbuf ->
+    begin try tt_mode := get_tt_mode () with Exit -> () end ;
+    check_alltt_skip lexbuf)
+;;
+
+let has_tt () = Dest.has_mod !tt_mode
 
 let do_minus lexbuf = 
-  if is_plain '-' && not (has_tt ()) then
+  if  not (effective !alltt) && is_plain '-' && not (has_tt ()) then
     if Save.if_next_char '-' lexbuf then begin
       gobble_one_char lexbuf ;
       if  Save.if_next_char '-' lexbuf then begin
@@ -3616,9 +3721,9 @@ def_code "\\@try"
     let e1 = save_arg lexbuf in
     let e2 = save_arg lexbuf in
     try
-      top_open_block "TEMP" "" ;
+      top_open_block "temp" "" ;
       scan_this_arg main e1 ;
-      top_close_block "TEMP"
+      top_close_block "temp"
     with e -> begin
       Location.hot saved_location ;
       env_hot env_saved ;

@@ -52,9 +52,10 @@
 \newcommand{\htmlfoot}[1]{\sbox{\@htmlfoot}{#1}}
 %%%%%%%%%%% Footnotes text dependant part
 \newcommand{\@noteref}[4]{#4}
+\newcommand{\@notepointer}[3]{#3}
 \newcommand{\@notetextstyle}[1]{~(#1)}
 \newcommand{\@notenotestyle}[1]{(#1)}
-\newcommand{\footnoterule}{\@hr[ALIGN=left]{.5\textwidth}{1pt}}
+\newcommand{\footnoterule}{\@hr[align=left]{.5\textwidth}{1pt}}
 \newenvironment{thefootnotes}[2][]
   {\footnoterule\begin{list}{}{\renewcommand{\makelabel}[1]{##1}}}
   {\end{list}}
@@ -80,15 +81,15 @@
 %%%%%%%%%%%%%
 \newcommand{\title@tohaux}[1]{}
 \newcommand{\maketitle}{%
-\@open{ALIGN}{CENTER}
-\@open{HEAD}{*}%
+\@open{align}{center}
+\@open{head}{*}%
 \@title\\%
-\@close{HEAD}%
-\@open{HEAD}{=}%H3
+\@close{head}%
+\@open{head}{=}%H3
 \usebox{\@author}\par
 \usebox{\@date}
-\@close{HEAD}%
-\@close{ALIGN}%
+\@close{head}%
+\@close{align}%
 \global\let\maketitle\relax}
 %%%%%%%%%%%% Bibliography
 \newcommand{\@bibref}[3]{#2\@bib@post{#3}}
@@ -103,25 +104,25 @@
 \cutdef[\thecuttingdepth]{\cuttingunit}%
 }{%
 \@atenddocument\@final@footer\@footnoteflush{document}\@raise@enddocument}
-\newenvironment{center}{\@open{ALIGN}{CENTER}}{\@close{ALIGN}}
-\newenvironment{flushleft}{\@open{ALIGN}{LEFT}}{\@close{ALIGN}}
-\newenvironment{flushright}{\@open{ALIGN}{RIGHT}}{\@close{ALIGN}}
+\newenvironment{center}{\@open{align}{center}}{\@close{align}}
+\newenvironment{flushleft}{\@open{align}{left}}{\@close{align}}
+\newenvironment{flushright}{\@open{align}{right}}{\@close{align}}
 \newcommand{\centerline}[1]{\begin{center}#1\end{center}}
-\newenvironment{quote}{\@open{QUOTE}{}}{\@close{QUOTE}}
-\newenvironment{quotation}{\@open{QUOTATION}{}}{\@close{QUOTATION}}
-\newcommand{\centering}{\@insert{ALIGN}{CENTER}}
-\newcommand{\raggedleft}{\@insert{ALIGN}{RIGHT}}
-\newcommand{\raggedright}{\@insert{ALIGN}{LEFT}}
+\newenvironment{quote}{\@open{quote}{}}{\@close{quote}}
+\newenvironment{quotation}{\@open{quotation}{}}{\@close{quotation}}
+\newcommand{\centering}{\@insert{align}{center}}
+\newcommand{\raggedleft}{\@insert{align}{right}}
+\newcommand{\raggedright}{\@insert{align}{left}}
 %%%%%%%%%%% Figures
 
 %% Equations
 \newcommand{\rule}[3][]{\@printHR{left}{100}\@print{
 }}%
 %%%%%%%%%%%%%%%% LaTeX 2.09 style declarations
-\newenvironment{tt}{\@style{TT}}{}
-\newenvironment{bf}{\@style{B}}{}
-\newenvironment{em}{\@style{EM}}{}
-\newenvironment{it}{\@style{I}}{}
+\newenvironment{tt}{\@style{tt}}{}
+\newenvironment{bf}{\@style{b}}{}
+\newenvironment{em}{\@style{em}}{}
+\newenvironment{it}{\@style{i}}{}
 \newenvironment{rm}{\@anti{\sf,\tt}}{}
 \newenvironment{tiny}{\@fontsize{1}}{}
 \newenvironment{footnotesize}{\@fontsize{2}}{}

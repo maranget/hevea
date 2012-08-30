@@ -14,7 +14,10 @@ exception Failed
 type saved
 val checkpoint : unit -> saved
 val hot_start : saved -> unit
+val pretty_macro : Lexstate.pat -> Lexstate.action -> unit
 val pretty_table : unit -> unit
+val set_saved_macros : unit -> unit
+val get_saved_macro : string -> bool
 
 val register_init : string -> (unit -> unit) -> unit
 val exec_init : string -> unit
@@ -25,7 +28,7 @@ val get_level : unit -> int
 
 val exists : string -> bool
 val find : string -> Lexstate.pat * Lexstate.action
-val pretty_macro : Lexstate.pat -> Lexstate.action -> unit
+val pretty_command : string -> unit
 val def : string -> Lexstate.pat -> Lexstate.action -> unit
 val global_def : string -> Lexstate.pat -> Lexstate.action -> unit
 (* Undefine a command *)

@@ -1,0 +1,9 @@
+\@stopimage\@stopoutput%
+\usepackage{url}
+\def\url{\begingroup%
+\def\UrlLeft##1\UrlRight{\ahrefurl{##1}}%
+\urlstyle{tt}%
+\Url}
+\@restartoutput\@restartimage%
+
+

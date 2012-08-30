@@ -9,28 +9,32 @@
 (*                                                                     *)
 (*  $Id: htmltext.ml,v 1.13 2012-06-05 14:55:39 maranget Exp $          *)
 (***********************************************************************)
+
 open Emisc
 open Lexeme
 
 type tsize = Int of int | Big | Small
-
+    
 type nat =
   | Style of tag
   | Size of tsize
   | Color of string
   | Face of string
+  | Fstyle of fontstyle * string
   | Other
 
 type t_style = {nat : nat ; txt : string ; ctxt : string}
 type style = t_style list
 
-let rec do_cost seen_font r1 r2 = function
+let rec do_cost seen_span seen_font r1 r2 = function
   | [] -> r1,r2
   | {nat=(Size (Int _)|Color _|Face _);_}::rem ->
-      do_cost true (if seen_font then r1 else 1+r1) (1+r2) rem
-  | _::rem -> do_cost seen_font (1+r1) r2 rem
+      do_cost seen_span true (if seen_font then r1 else 1+r1) (1+r2) rem
+  | {nat=(Fstyle _);_}::rem ->
+      do_cost true seen_font (if seen_span then r1 else 1+r1) (1+r2) rem
+  | _::rem -> do_cost seen_span seen_font (1+r1) r2 rem
 
-let cost ss = do_cost false 0 0 ss
+let cost ss = do_cost false false 0 0 ss
 
 exception No
 
@@ -85,14 +89,17 @@ let same_style s1 s2 = match s1.nat, s2.nat with
 | Size s1, Size s2 -> s1=s2
 | Color c1, Color c2 -> c1=c2
 | Face f1, Face f2 -> f1=f2
+| Fstyle (a1,v1),Fstyle (a2,v2) -> a1 = a2 && v1 = v2
 | _,_ -> false
 
 let is_color = function
-  | Color _ -> true
+  | Color _
+  | Fstyle (Fcolor,_) -> true
   | _ -> false
 
 and is_size = function
-  | Size _ -> true
+  | Size _
+  | Fstyle (Fsize,_) -> true
   | _ -> false
 
 and is_face = function
@@ -103,8 +110,9 @@ exception NoProp
 
 let get_prop = function
   | Size _ -> is_size
-  | Face _ -> is_face
-  | Color _ -> is_color
+  |  Fstyle (Fsize,_)  -> is_size
+  | Face _-> is_face
+  | Color _ | Fstyle (Fcolor,_) -> is_color
   | _       -> raise NoProp
 
 let neutral_prop p = p (Color "")
@@ -113,7 +121,12 @@ let is_font = function
   | Size (Int _) | Face _ | Color _ -> true
   | _ -> false
 
+let is_span = function
+  | Fstyle _ -> true
+  | _ -> false
+
 let font_props = [is_size ; is_face ; is_color]
+let span_props = [is_size; is_face; ]
 
 exception Same 
 
@@ -134,6 +147,7 @@ let rec rem_style s = function
   | [] -> raise Same
 
 type env = t_style list
+let empty_env = []
 
 exception Split of t_style * env
 
@@ -164,30 +178,40 @@ let add s env =
   | _ -> new_env
 
 
-  
+(* For FONT tag *)  
 
 let add_fontattr txt ctxt a env =
   let nat = match a with
   | SIZE s  -> Size (Int (size_val s))
   | COLOR s -> Color (color_val s)
   | FACE s  -> Face s
-  | CLASS _|OTHER   -> raise No in
+  | ASTYLE _|CLASS _|OTHER   -> raise No in
   add {nat=nat ; txt=txt ; ctxt=ctxt} env
 
-let  add_fontattrs txt ctxt attrs env = match attrs with
+let do_addattrs  myadd txt ctxt attrs env = match attrs with
 | []  -> env
 | _   ->
     let rec do_rec = function
       | [] -> env
       | (a,atxt)::rem ->
-          add_fontattr
+          myadd
             atxt
             ctxt
             a
             (do_rec rem) in
     try do_rec attrs with
     | No -> add {nat=Other ; txt=txt ; ctxt=ctxt} env
-        
+
+let add_fontattrs = do_addattrs add_fontattr
+
+(* For SPAN tag *)
+let add_spanattr txt ctxt a env =
+  let nat = match a with
+  | ASTYLE (a,v) -> Fstyle (a,v)
+  | SIZE _| COLOR _| FACE _ |CLASS _|OTHER   -> raise No in
+  add {nat=nat ; txt=txt ; ctxt=ctxt} env
+
+let add_spanattrs = do_addattrs add_spanattr
 
 let add_style
     {Lexeme.tag=tag ; Lexeme.attrs=attrs ; Lexeme.txt=txt ; Lexeme.ctxt=ctxt}
@@ -206,6 +230,7 @@ let add_style
         add {nat=Size Small ; txt=txt ; ctxt=ctxt} env
       else
         add {nat=Other ; txt=txt ; ctxt=ctxt} env
+  | SPAN -> add_spanattrs txt ctxt attrs env
   | _ ->
       if attrs=[] then
         add {nat=Style tag ; txt=txt ; ctxt=ctxt} env
@@ -213,7 +238,8 @@ let add_style
         add {nat=Other ; txt=txt ; ctxt=ctxt} env
       
 let blanksNeutral s = match s.nat with
-| Size _ | Style (U|TT|CODE|SUB|SUP) | Other -> false
+| Size _ | Style (U|TT|CODE|SUB|SUP) | Other
+| Fstyle ((Fsize|Ffamily|Fvariant|Fbgcolor),_)-> false
 | _ -> true
 
 let partition_color styles =

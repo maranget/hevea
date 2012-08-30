@@ -9,13 +9,15 @@
 (*                                                                     *)
 (***********************************************************************)
 
-
 type action =
-  | Subst of string
+  | Subst of string list
   | Toks of string list
   | CamlCode of (Lexing.lexbuf -> unit)
-val pretty_action : action -> unit
 
+val pretty_body : out_channel -> string list -> unit
+val body_to_string : string list -> string
+val pretty_action : action -> unit
+val is_empty_list : string list -> bool
 
 type pat = string list * string list
 val pretty_pat : pat -> unit
@@ -69,9 +71,8 @@ val full_pretty_subst : subst -> unit
 val pretty_lexbuf : Lexing.lexbuf -> unit
 
 
-val scan_arg : (string arg -> 'a) -> int -> 'a
-val scan_body :
-  (action -> 'a) -> action -> subst -> 'a
+val scan_arg : (string list arg -> 'a) -> int -> 'a
+val scan_body : (action -> 'a) -> action -> subst -> 'a
 
 val stack_lexbuf : Lexing.lexbuf MyStack.t
 val previous_lexbuf : unit -> Lexing.lexbuf
@@ -116,13 +117,14 @@ val full_peek_char : Lexing.lexbuf -> char
 
 (* Argument parsing *)
 
-type ok = | No of string | Yes of string
-val from_ok : ok arg -> string arg
+type ok = | No of string | Yes of string list
+val from_ok : ok arg -> string list arg
 
 val save_arg : Lexing.lexbuf -> string arg
+val save_body : Lexing.lexbuf -> string list arg
 val save_filename : Lexing.lexbuf -> string arg
 val save_verbatim : Lexing.lexbuf -> string arg 
-val save_opt : string -> Lexing.lexbuf -> string arg
+val save_opt : string -> Lexing.lexbuf -> string list arg
 val save_opts : string list -> Lexing.lexbuf -> ok arg list
 val save_arg_with_delim : string -> Lexing.lexbuf -> string arg
 val save_xy_arg : Lexing.lexbuf -> string arg
@@ -137,10 +139,15 @@ val make_stack : string -> pat -> Lexing.lexbuf -> subst
 
 
 
-val scan_this : (Lexing.lexbuf -> 'a ) -> string -> 'a
+val scan_this
+ : (Lexing.lexbuf -> 'a ) -> string -> 'a
+val scan_this_list : (Lexing.lexbuf -> 'a ) -> string list -> 'a
 val scan_this_arg : (Lexing.lexbuf -> 'a ) -> string arg -> 'a
+val scan_this_arg_list : (Lexing.lexbuf -> 'a ) -> string list arg -> 'a
 val scan_this_may_cont :
     (Lexing.lexbuf -> 'a ) -> Lexing.lexbuf -> subst ->  string arg -> 'a
+val scan_this_list_may_cont :
+    (Lexing.lexbuf -> 'a ) -> Lexing.lexbuf -> subst ->  string list arg -> 'a
 
 val real_input_file :
     int -> (Lexing.lexbuf -> unit) -> string -> in_channel -> unit

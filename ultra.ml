@@ -10,6 +10,7 @@
 (*  $Id: ultra.ml,v 1.14 2012-06-05 14:55:39 maranget Exp $             *)
 (***********************************************************************)
 
+open Printf
 open Tree
 open Htmltext
 open Util
@@ -95,13 +96,16 @@ let get_sames ts fs =
           rem in
   do_rec [] fs
 
-
-         
 let group_font ts fs =
   let fonts,no_fonts =
     List.partition (fun (_,f) -> is_font f.nat) fs in
   get_sames ts fonts@no_fonts
 
+let group_span ts fs =
+  let span,no_span =
+    List.partition (fun (_,f) -> is_span f.nat) fs in
+  get_sames ts span@no_span
+                      
 let conflict_low i1 j1 i2 j2 =  i1 < i2 && i2 <= j1 && j1 < j2
 
 let correct_cfl_low ts i1 j1 i2 j2 =
@@ -200,6 +204,7 @@ let factorize low high ts =
       r in
   let r = do_rec low [] [] in
   let r = group_font ts r in
+  let r = group_span ts r in
   let r = extend_neutrals ts r in
   if r <> [] && !Emisc.verbose > 1 then begin
     Printf.fprintf stderr "Factors in %d %d\n" low high ;
@@ -475,7 +480,7 @@ and trees i j ts k =
 
 and opt_onodes ts i = match ts.(i) with
   |  ONode (o,c,args) -> begin match opt false (Array.of_list args) [] with
-      | [Node (s,args)] ->
+      | [Node (s,args)] when false ->
 	  let s1, s2 = partition_color s in
 	  ts.(i) <-
 	     begin match s1, s2 with
@@ -520,6 +525,12 @@ and extend_blanks pre ts post k = match ts with
 
 
 let main chan ts =
+  if !Emisc.verbose > 2 then begin
+    eprintf "**Ultra input **\n" ;
+    Pp.ptrees stderr ts ;
+    eprintf "** Ultra end**\n%!" ;
+    ()
+  end ;
   let ci = costs Htmllex.cost ts in
   let rs =  opt true (Array.of_list (Explode.trees ts)) [] in
   let cf = costs Htmltext.cost rs in
@@ -531,6 +542,12 @@ let main chan ts =
       Pp.trees stderr rs
     end ;
     Pp.ptrees chan ts
-  end else
+  end else begin
+    if !Emisc.verbose > 2 then begin
+      eprintf "** Ultra output **\n" ;
+      Pp.trees stderr rs ;
+      eprintf "** Ultra end**\n%!" ;
+      ()
+    end ;
     Pp.trees chan rs 
-
+  end

@@ -9,8 +9,6 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let _header = "$Id: location.ml,v 1.21 2012-06-05 14:55:39 maranget Exp $" 
-
 open MyStack
 
 type fileOption = No | Yes of in_channel
@@ -21,7 +19,7 @@ let stack = MyStack.create "location"
 
 
 
-let curlexbuf = ref (Lexing.from_string "")
+let curlexbuf = ref (MyLexing.from_string "")
 and curlexname = ref ""
 and curline = ref (0,1)
 and curfile = ref No
@@ -41,7 +39,7 @@ type saved = (string * Lexing.lexbuf * (int * int)  * fileOption) MyStack.saved
 
 let close_file = function
   | Yes f -> close_in f
-  | _ -> ()
+  | No -> ()
 
 let close_curfile () = close_file !curfile
 

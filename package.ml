@@ -10,6 +10,7 @@
 (***********************************************************************)
 
 (*  $Id: package.ml,v 1.112 2012-06-18 13:14:41 suzanne Exp $    *)
+open Printf
 
 module type S = sig  end
 
@@ -114,7 +115,7 @@ def_code "\\DisplayChoose"
 (**************)
 def_code "\\process@delim@one"
   (fun lexbuf ->
-    let n = Get.get_int (save_arg lexbuf) in
+    let n = Get.get_int (save_body lexbuf) in
     let n = if n < 2 then 2 else n in
     let mid = get_csname lexbuf in
     for _i = 1 to n-1 do
@@ -126,7 +127,7 @@ def_code "\\process@delim@one"
 
 def_code "\\process@delim@top"
   (fun lexbuf ->
-    let n = Get.get_int (save_arg lexbuf) in
+    let n = Get.get_int (save_body lexbuf) in
     let top = get_csname lexbuf in
     let mid = get_csname lexbuf in
     scan_this main top ;
@@ -140,7 +141,7 @@ def_code "\\process@delim@top"
 
 def_code "\\process@delim@dow"
   (fun lexbuf ->
-    let n = Get.get_int (save_arg lexbuf) in
+    let n = Get.get_int (save_body lexbuf) in
     let mid = get_csname lexbuf in
     let dow = get_csname lexbuf in
     for _i = 1 to n-1 do
@@ -151,7 +152,7 @@ def_code "\\process@delim@dow"
 
 def_code "\\process@delim@three"
   (fun lexbuf ->
-    let n = Get.get_int (save_arg lexbuf) in
+    let n = Get.get_int (save_body lexbuf) in
     let top = get_csname lexbuf in
     let mid = get_csname lexbuf in
     let dow = get_csname lexbuf in
@@ -164,7 +165,7 @@ def_code "\\process@delim@three"
 
 def_code "\\process@delim@four"
   (fun lexbuf ->
-    let n = Get.get_int (save_arg lexbuf) in
+    let n = Get.get_int (save_body lexbuf) in
     let ext = get_csname lexbuf in
     let top = get_csname lexbuf in
     let mid = get_csname lexbuf in
@@ -181,7 +182,7 @@ def_code "\\process@delim@four"
 ;;
 
 let int_sup_sub lexbuf =
-  let n = Get.get_int (save_arg lexbuf) in
+  let n = Get.get_int (save_body lexbuf) in
   if !display then begin
     let {limits=_limits ; sup=sup ; sub=sub} = save_sup_sub lexbuf in
     Dest.int_sup_sub false n
@@ -192,10 +193,10 @@ let int_sup_sub lexbuf =
 def_code "\\int@sup@sub" int_sup_sub
 ;;
 
-(* Direct ahustement of vsize *)
+(* Direct ajustement of vsize *)
 def_code "\\@addvsize"
   (fun lexbuf ->
-    let n =  Get.get_int (save_arg lexbuf) in
+    let n =  Get.get_int (save_body lexbuf) in
     Dest.addvsize n)
 ;;
 
@@ -221,9 +222,23 @@ def_code "\\@lexbuf"
 ;;
 
 def_code "\\@macros"
-  (fun _ -> Latexmacros.pretty_table ())
+  (fun lexbuf ->
+    Latexmacros.pretty_table () ;
+    check_alltt_skip lexbuf)
 ;;
 
+def_code "\\show@macro"
+  (fun lexbuf ->
+    let cmd = get_csname lexbuf in
+    Latexmacros.pretty_command cmd)
+;;
+
+(* Save the names of all macros defined up to now *)
+def_code "\\@save@macros"
+  (fun lexbuf ->
+    Latexmacros.set_saved_macros () ;
+    check_alltt_skip lexbuf)
+;;
 
 let def_print name s =
   def_code name (fun _ -> Scan.translate_put_unicode_string s)
@@ -242,8 +257,9 @@ def_print "\\@hevealibdir" Mylib.libdir
 
 def_code "\\@heveaverbose"
   (fun lexbuf ->    
-    let lvl = Get.get_int (save_arg lexbuf) in
-    Misc.verbose := lvl)
+    let lvl = Get.get_int (save_body lexbuf) in
+    Misc.verbose := lvl ;
+    DoOut.verbose := lvl)
 ;;
 
 
@@ -264,6 +280,20 @@ def_code "\\@find@file"
 	name in
      Scan.translate_put_unicode_string real_name)
 ;;
+
+(* Translate to URL fragment part to %encoding *)
+
+def_code "\\@tr@url"
+(fun lexbuf ->
+  let x = get_prim_arg lexbuf in
+  scan_this main "{\\@nostyle" ;
+  Url.encode_fragment Dest.put_char Dest.put x ;
+  scan_this main "}")
+;;
+
+(*******)
+(* CSS *)
+(*******)
 
 (* External style-sheet *)
 
@@ -301,12 +331,22 @@ def_code "\\css@length"
     Dest.put len)
 ;;
 
+(* Add elements to style attributes *)
+def_code
+  "\\@addstyle"
+(fun lexbuf ->
+  let add = get_prim_arg lexbuf in
+  let attr = get_prim_arg lexbuf in
+  let attr = Lexattr.add_style add attr in
+  scan_this main (sprintf "\\@printnostyle{%s}" attr))
+;;
+
 (* A few subst definitions, with 2 optional arguments *)
 
 def "\\makebox" (latex_pat ["" ; ""] 3)
-    (Subst "\\hva@warn{makebox}\\mbox{#3}") ;
+    (Subst ["\\hva@warn{makebox}\\mbox{#3}"]) ;
 def "\\framebox" (latex_pat ["" ; ""] 3)
-    (Subst "\\hva@warn{framebox}\\fbox{#3}")
+    (Subst ["\\hva@warn{framebox}\\fbox{#3}"])
 ;;
 
 (*********************)
@@ -428,16 +468,14 @@ def_code "\\hva@newstack"
 
 let call_subst lexbuf =
   let csname = get_csname lexbuf in
-  let arg = subst_arg lexbuf in
-  let exec = csname^" "^arg in
+  let arg = subst_arg_list lexbuf in
+  let exec = csname::" "::arg in
   if !verbose > 1 then begin
-    prerr_string "\\@callsubst: " ;
-    prerr_endline exec ;
+    eprintf "\\@callsubst: %a\n%!" pretty_body exec
   end ;
-  scan_this  main exec
+  scan_this_list  main exec
 
-
-and call_prim lexbuf =
+let call_prim lexbuf =
   let csname = get_csname lexbuf in
   let arg = get_prim_arg lexbuf in
   let exec = csname^" "^arg in
@@ -451,7 +489,7 @@ and call_subst_opt lexbuf =
   let csname = get_csname lexbuf in  
   let default = subst_arg lexbuf in
   let arg = subst_arg lexbuf in
-  let lb = Lexing.from_string arg in
+  let lb = MyLexing.from_string arg in
   let opt = try Save.opt lb with Save.NoOpt -> default in
   let rem = Save.remain lb in
   let exec = csname ^ "{" ^ opt ^ "}"  ^ rem  in
@@ -472,7 +510,7 @@ def_code "\\@calloptsimple"
   (fun lexbuf ->
     let csname = get_csname lexbuf in
     let arg = subst_arg lexbuf in
-    let lb = Lexing.from_string arg in
+    let lb = MyLexing.from_string arg in
     let opt = try Some (Save.opt lb) with Save.NoOpt -> None in
     let rem =  Save.remain lb in
     let exec =
@@ -517,12 +555,36 @@ def_code "\\@newlabel"
     Auxx.rset name arg)
 ;;
 
+def_code "\\@new@anchor@label"
+  (fun lexbuf ->
+    let anchor = get_raw lexbuf in
+    let name = get_raw lexbuf in
+    let arg = get_raw lexbuf in
+    Auxx.rset2 anchor name arg)
+;;
+
+def_code "\\@check@anchor@label"
+ (fun lexbuf ->
+    let name = get_raw lexbuf in
+    let anchor = Auxx.rget2 name in
+    scan_this main "{\\@nostyle" ;
+    scan_this main anchor ;
+    scan_this main "}")
+;;
 
 def_code "\\@auxwrite"
   (fun lexbuf ->
     let lab = get_raw lexbuf in
     let theref = get_prim_arg lexbuf in
     Auxx.rwrite lab theref)
+;;
+
+def_code "\\@@auxwrite"
+  (fun lexbuf ->
+    let anchor =  get_raw lexbuf in
+    let lab = get_raw lexbuf in
+    let theref = get_prim_arg lexbuf in
+    Auxx.rwrite2 anchor lab theref)
 ;;
 
 
@@ -562,13 +624,17 @@ def_code "\\bibcite"
 
 register_init "index"
   (fun () ->
+   let put_lbl lbl =
+     scan_this main "{\\@nostyle" ;
+     Dest.put lbl ;
+     scan_this main "}" in
    def_code "\\@indexwrite"
       (fun lexbuf ->
         let tag = get_prim_opt "default" lexbuf in
         let arg = Subst.subst_arg lexbuf in
         let theref = get_prim_arg lexbuf in
         let lbl = Index.treat  tag arg theref in
-        Dest.put lbl) ;
+        put_lbl lbl ) ;
 
    (* Special indexwrite that does not put an anchor.
       Instead, the anchor is given as an extra argument *)
@@ -590,7 +656,7 @@ register_init "index"
         let theref = get_prim_arg lexbuf in
         let arg = key ^ "@" ^ nice in
         let lbl = Index.treat  tag arg theref in
-        Dest.put lbl) ;
+        put_lbl lbl) ;
     def_code "\\@printindex"
       (fun lexbuf ->
         let tag =  get_prim_opt "default" lexbuf in
@@ -682,7 +748,7 @@ register_init "color"
         | Color.Name n -> Dest.put n
       end ;
       Dest.put c in
-    def_code "\\@getcolor" (do_getcolor "\"") ;
+    def_code "\\@getcolor" (do_getcolor "") ;
     def_code "\\@getstylecolor" (do_getcolor "") ;
     ())
 ;;
@@ -697,11 +763,12 @@ register_init "colortbl"
           let mdl = get_prim_opt "!*!" lexbuf in    
           let clr = get_prim_arg lexbuf in
           let htmlval = match mdl with
-          | "!*!" -> Color.retrieve clr
-          | _     -> Color.compute mdl clr in
+            | "!*!" -> Color.retrieve clr
+            | _     -> Color.compute mdl clr in
           skip_opt lexbuf ;
           skip_opt lexbuf ;
-          Dest.insert_attr "TD" ("bgcolor=\""^color_to_string htmlval^"\"")) ;
+          Dest.insert_block "div" ("style=\"background-color:" ^ color_to_string htmlval ^ "\"");
+        );
       def_code "\\rowcolor"
         (fun lexbuf ->
           let mdl = get_prim_opt "!*!" lexbuf in    
@@ -711,7 +778,7 @@ register_init "colortbl"
           | _     -> Color.compute mdl clr in
           skip_opt lexbuf ;
           skip_opt lexbuf ;
-          Dest.insert_attr "TR" ("bgcolor=\""^color_to_string htmlval^"\"")))
+          Dest.insert_attr "TR" ("style=\"background-color:"^color_to_string htmlval^"\"")))
 ;;
 
 (* xspace package *)
@@ -894,23 +961,21 @@ let do_definekey lexbuf =
           Latexmacros.def
             (keyval_name family key^"@default") zero_pat
             (Subst
-               ((keyval_name family key^
-                "{"^do_subst_this (mkarg opt subst))^"}"))
+               [(keyval_name family key^"{"^do_subst_this_list (mkarg opt subst))^"}"])
       | _ -> assert false
       end
   | [{arg=Yes nargs ; subst=subst} ; opt] ->
       let nargs = Get.get_int (mkarg nargs subst) in
       let extra = keyval_extra key family in
       Latexmacros.def (keyval_name family key) one_pat
-        (Subst
-           ("\\@funcall{"^extra^"}{#1}")) ;
+        (Subst ["\\@funcall{"^extra^"}{#1}"]) ;
       begin match opt with
       | {arg=No _} ->
           Latexmacros.def extra (latex_pat [] nargs) (Subst body)
       | {arg=Yes opt ; subst=o_subst} ->
           Latexmacros.def
             extra
-            (latex_pat [do_subst_this (mkarg opt o_subst)] nargs)
+            (latex_pat [do_subst_this_list (mkarg opt o_subst)] nargs)
             (Subst body)
       end
   | _ -> assert false
@@ -920,11 +985,11 @@ let do_definekey lexbuf =
 let do_setkey lexbuf =
   let family = get_prim_arg lexbuf in
   let arg = subst_arg lexbuf^",," in
-  let abuff = Lexing.from_string arg in
+  let abuff = MyLexing.from_string arg in
   let rec do_rec () =
     let {arg=x} = save_arg_with_delim "," abuff in
     if x <>  "" then begin
-      let xbuff = Lexing.from_string (x^"==") in
+      let xbuff = MyLexing.from_string (x^"==") in
       check_alltt_skip xbuff ;
       let {arg=key} = save_arg_with_delim "=" xbuff in
       let {arg=value} = save_arg_with_delim "=" xbuff in

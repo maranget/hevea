@@ -1,0 +1,71 @@
+\@ifundefined{@base}{\typeout{'fancysection.hva' must be loaded after base style}\endinput}{}
+\usepackage{color}
+%%% Color section
+\def\fcs@hue{}
+\newcommand{\colorsections}[1]{
+\def\fcs@hue{#1}%
+\definecolor{title}{hsv}{#1,1,.7}
+\definecolor{titlemain}{hsv}{#1,1,.7}
+\definecolor{titlerest}{hsv}{#1,1,.7}
+\definecolor{part}{hsv}{#1, 1, .8}
+\ifthenelse{\equal{\@base}{article}}{%
+\definecolor{section}{hsv}{#1, .8, .9}%
+\definecolor{subsection}{hsv}{#1, .6, 1}%
+\definecolor{subsubsection}{hsv}{#1, .4, 1}%
+\definecolor{paragraph}{hsv}{#1, .2, 1}%
+}{%
+\definecolor{chapter}{hsv}{#1, .8, .9}%
+\definecolor{section}{hsv}{#1, .6, 1}%
+\definecolor{subsection}{hsv}{#1, .5, 1}%
+\definecolor{subsubsection}{hsv}{#1, .4, 1}%
+}%
+\definecolor{paragraph}{hsv}{#1, .2, 1}}%
+\colorsections{120}%
+%% Define sectioning comands
+\AtBeginDocument
+{\newstyle{BODY}{background:white;}%
+\newstyle{.title}
+	{padding:1ex;background:\@getstylecolor{title};}%
+\newstyle{.titlemain}
+	{padding:1ex;background:\@getstylecolor{titlemain};}%
+\newstyle{.titlerest}
+	{padding:1ex;background:\@getstylecolor{titlerest};}%
+\newstyle{.part}
+	{padding:1ex;background:\@getstylecolor{part};}%
+\newstyle{.section}
+	{padding:.5ex;background:\@getstylecolor{section};}%
+\newstyle{.subsection}
+	{padding:0.3ex;background:\@getstylecolor{subsection};}%
+\newstyle{.subsubsection}
+	{padding:0.5ex;background:\@getstylecolor{subsubsection};}%
+\newstyle{.paragraph}
+	{padding:0.5ex;background:\@getstylecolor{paragraph};}%
+\ifthenelse{\equal{\@base}{book}}
+{\newstyle{.chapter}{padding:0.5ex;background:\@getstylecolor{chapter};}}
+{}%
+\newstyle{.fmarginpar}
+{border:solid thin \@getstylecolor{subsection}; width:20\%; text-align:left;}%
+\newstyle{.ffootnoterule}
+{border:none;margin:1em auto 1em 0px;width:50\%;background:\@getstylecolor{part};}}
+\setenvclass{marginpar}{fmarginpar}
+\setenvclass{footnoterule}{ffootnoterule}
+\newcounter{tocstyle}
+\renewenvironment{tocenv}
+  {\setenvclass{itemize}{ftoc\thetocstyle}%
+   \setenvclass{li-itemize}{\getenvclass{li-toc}}%
+   \stepcounter{tocstyle}%
+   \begin{itemize}}
+  {\end{itemize}\addtocounter{tocstyle}{-1}}
+\newcommand{\newftocstyle}[3][0ex]
+  {\newstyle{.ftoc#2}{list-style:none;margin:#1 1ex;padding:0ex 1ex;border-left:1ex solid \@getstylecolor{#3};}}
+\AtBeginDocument
+{\newftocstyle{1}{part}%
+\ifthenelse{\equal{\@base}{book}}
+{\newftocstyle[1ex]{2}{chapter}\newftocstyle{3}{section}%
+ \newftocstyle{4}{subsection}%
+ \newftocstyle{5}{subsubsection}%
+ \newftocstyle{6}{paragraph}}
+{\newftocstyle[1ex]{2}{section}%
+ \newftocstyle{3}{subsection}%
+ \newftocstyle{4}{subsubsection}%
+ \newftocstyle{5}{paragraph}}}

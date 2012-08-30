@@ -20,9 +20,9 @@
 \renewcommand{\stackrel}[2]{\ifdisplay
 \@print{
 <mover>}%
-\@open{DISPLAY}{}#2\@close{DISPLAY}{}
+\@open{display}{}#2\@close{display}{}
 
-\@open{DISPLAY}{}#1\@close{DISPLAY}{}%
+\@open{display}{}#1\@close{display}{}%
 \@print{
 </mover>}
 \else
@@ -31,7 +31,7 @@
 \renewcommand\overline[1]{\ifdisplay
 \@print{
 <mover accent="true">}%
-\@open{DISPLAY}{}#1\@close{DISPLAY}{}%
+\@open{display}{}#1\@close{display}{}%
 \@print{<mo> &horbar; </mo>
 </mover>}
 \else\textoverline{#1}\fi}
@@ -39,7 +39,7 @@
 \renewcommand\underline[1]{\ifdisplay
 \@print{
 <munder accentunder="true">}%
-\@open{DISPLAY}{}#1\@close{DISPLAY}{}%
+\@open{display}{}#1\@close{display}{}%
 \@print{<mo> &horbar; </mo>
 </munder>}
 \else\textunderline{#1}\fi}
@@ -52,12 +52,12 @@
 #2\@print{
 </msqrt>}%
 }{\@print{<mroot>
-}\@open{DISPLAY}{}%
+}\@open{display}{}%
 #2
-\@close{DISPLAY}{}%
-\@open{DISPLAY}{}%
+\@close{display}{}%
+\@open{display}{}%
 #1%
-\@close{DISPLAY}{}%
+\@close{display}{}%
 \@print{
 </mroot>
 }}}

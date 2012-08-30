@@ -8,7 +8,7 @@
 \refstepcounter{slide}%
 \cuthere{section}{\slidename{} \theslide}%
 \ifplanche\@hr{\linewidth}{2pt}%
-\@open{H3}{CLASS="flushright"}\slidename{} \theslide\@close{H3}
+\@open{H3}{class="flushright"}\slidename{} \theslide\@close{H3}
 \@hr{\linewidth}{2pt}\fi
 }{}
 \newenvironment{slide*}[1][]{\begin{slide}}{\end{slide}}

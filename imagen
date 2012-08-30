@@ -9,8 +9,8 @@ EXTRA=" "
 MARGIN="-bordercolor none -border 2 "
 TOGIF="-background white -flatten -interlace Plane gif:-"
 TOPNG="-interlace Plane -quality 90 png:-"
-TOEXT=${TOGIF}
-EXT=gif
+TOEXT=${TOPNG}
+EXT=png
 TODIR="."
 RM="/bin/rm -f"
 
@@ -28,7 +28,7 @@ do
         EXT=gif
         ;;
      -png)
-        TOEXT="-quality 90 png:-"
+        TOEXT=${TOPNG}
         EXT=png
         ;;
      -pnm)

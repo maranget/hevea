@@ -6,9 +6,11 @@ b\newcommand{\relax}{}
 %%%%%% Iter #1 on #3, a #2 separated list of non-empty elements
 \def\@iter
   #1#2#3{%
+    %\hva@warn{\@iter '#1' '#2' '#3'}%
     \def\@test{#3}%   
     \ifx\@test\@empty\else
       \def\@@iter##1#2{%
+        %\hva@warn{\@@iter '##1'}%
         \def\@test{##1}%
         \ifx\@test\@empty
         \let\@next\relax\else

@@ -17,6 +17,7 @@ type nat =
   | Size of tsize
   | Color of string
   | Face of string
+  | Fstyle of Lexeme.fontstyle * string
   | Other
 
 type t_style = { nat : nat; txt : string; ctxt : string; } 
@@ -26,11 +27,15 @@ val cost : style -> int * int
 exception NoProp
 val get_prop : nat -> (nat -> bool)
 val is_font : nat -> bool
+val is_span : nat -> bool
 val font_props : (nat -> bool) list
+val span_props : (nat -> bool) list
 val neutral_prop : (nat -> bool) -> bool
 val same_style : t_style -> t_style -> bool
 
 type env = t_style list
+val empty_env : env
+
 exception Split of t_style * env
 
 val add_style : Lexeme.style -> env -> env

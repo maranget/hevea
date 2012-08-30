@@ -1,0 +1,12 @@
+%%%% Hevea support for babel option 'austrian'.
+\@ifundefined{common@austrian@babel}{\input{german-common.hva}}{}
+\newcommand{\austrian@babel}{%
+  \common@austrian@babel%
+  \def\glqq{\@print{&#8222;}}%
+  \def\grqq{\@print{&#8220;}}%
+  \def\glq{\@print{&#8218;}}%
+  \def\grq{\@print{&#8216;}}%
+  \def\flqq{\@print{&#0171;}}%
+  \def\frqq{\@print{&#0187;}}%
+  \def\flq{\@print{&#8249;}}%
+  \def\frq{\@print{&#8250;}}}

@@ -1,0 +1,21 @@
+\@primitives{graphics}
+\newcommand{\@image@filearg}[1]
+{\ifx\@imp@dir\@empty
+\@imagearg{#1}\else
+\begin{toimage}{\end{toimage}%
+\@prim@toimage{\@find@file{#1}}%
+\begin{toimage}}\end{toimage}%
+\fi}
+%%%%%%%%%%%%%
+\@imagecommand{\graphicspath}{\@imagearg}
+\@imagecommand{\DeclareGraphicsExtensions}{\@imagearg}
+\@imagecommand{\DeclareGraphicsRule}
+  {\execafter\@verbimagearg\execafter\@imagearg\execafter\@imagearg\@imagearg}
+\@imagecommand{\scalebox}
+  {\execafter{\imageflush{}}\execafter\@imagearg\execafter\@imageopt\@imagearg}
+\@imagecommand{\resizebox}
+  {\execafter{\imageflush{}}\execafter\@imagearg\execafter\@imagearg\@imagearg}
+\@imagecommand{\resizebox*}
+  {\execafter{\imageflush{}}\execafter\@imagearg\execafter\@imagearg\@imagearg}
+\@imagecommand{\reflectbox}
+  {\execafter{\imageflush{}}\@imagearg}

@@ -1,12 +1,13 @@
 \documentclass{article}
 \usepackage{a4wide}
 \usepackage{latexsym}
-\usepackage{isolatin1}
+\usepackage[latin1]{inputenc}
 \usepackage{../hevea}
+\usepackage{url}
 \usepackage{makeidx}
 \usepackage{color,colortbl}
 \usepackage{ifthen,calc,array,alltt,comment}
-
+\usepackage{suite-macros}
 
 \title{Test\thanks{Une étoile} de \hevea\thanks{Autre chose}}
 \makeindex
@@ -29,6 +30,14 @@ Roman
 
 \texttt{\textsl{TT family, slanted shape}}
 
+\end{center}
+
+
+\subsection*{Test des tailles}
+\begin{center}%
+\newcommand{\tst}[1]{\csname #1\endcsname{}#1}
+\tst{tiny} \tst{footnotesize} \tst{scriptsize} \tst{small} \tst{normalsize} \tst{large} \tst{Large} \tst{huge} \tst{Huge}
+\tst{huge} \tst{Large}  \tst{large} \tst{normalsize} \tst{small} \tst{scriptsize} \tst{footnotesize} \tst{tiny}
 \end{center}
 
 \begin{htmlonly}
@@ -83,6 +92,15 @@ Roman
 \whiledo{\value{hue}<360}
 {\textcolor[hsv]{\thehue,1,1}{\thehue}
 \addtocounter{hue}{1}}
+
+Link colors for the \textsf{fancysection} package:
+\begin{center}
+\setcounter{hue}{0}
+\whiledo{\value{hue}<360}
+{\textcolor[hsv]{\thehue,1,.4}{\underline{visited}}
+\textcolor[hsv]{\thehue,1,.7}{\underline{link}}
+\addtocounter{hue}{10}}
+\end{center}
 
 \subsubsection{Modèle \texttt{named}}
 \newcommand{\testNamed}[1]{\textcolor[named]{#1}{#1}}
@@ -154,6 +172,66 @@ Roman
 \testNamed{Gray}
 \testNamed{Black}
 \testNamed{White}
+\end{htmlonly}
+
+\begin{htmlonly}
+\subsection{Optimizer test}
+\subsubsection{Testing a direct class definition}
+Let us consider class ``\texttt{tst}'', {\cls Sans oblique maroon, \hevea}.
+
+Below, colors and style in URL's, small ``E'' in \hevea.
+
+\begin{itemize}
+\item
+Without class: the url~\ahref{\heveaurl}{\hevea} is redirected to~\ahrefurl{\heveasecret}.
+\item Styled, outside:
+{\cls
+the url~\ahref{\heveaurl}{\hevea} is redirected to~\ahrefurl{\heveasecret}.
+}
+\item Style, inside:
+the url~\ahref{\heveaurl}{{\cls\hevea}} is redirected to~\ahrefurl{{\cls\heveasecret}}.
+\end{itemize}
+\subsubsection{Testing a direct style definition}
+Let us consider style ``\texttt{\@tst}'', {\sty Sans oblique maroon, \hevea}.
+
+Below, colors and style in URL's, small ``E'' in \hevea.
+
+\begin{itemize}
+\item
+Without class: the url~\ahref{\heveaurl}{\hevea} is redirected to~\ahrefurl{\heveasecret}.
+\item Styled, outside:
+{\sty
+the url~\ahref{\heveaurl}{\hevea} is redirected to~\ahrefurl{\heveasecret}.
+}
+\item Style, inside:
+the url~\ahref{\heveaurl}{{\sty\hevea}} is redirected to~\ahrefurl{{\sty\heveasecret}}.
+\end{itemize}
+
+\subsubsection{Color mix}
+\def\col@item{\color@name\textcolor{red}{red}}
+\newcommand{\color@mix}[1]
+{{#1{\col@item\color{\color@name}\col@item{\col@item\color{\color@name}\col@item}}\color@name}}
+\begin{itemize}
+\item With class: \color@mix{\clshigh}
+\item With style: \color@mix{\styhigh}
+\item With color: \color@mix{\color{\color@name}}
+\item With macro: \color@mix{\green}
+\end{itemize}
+One may notice that macro {\green green} and color
+\textcolor{green}{green}\footnote{Indeed \textcolor{green}{green}
+is macro {\lime{}\texttt{\backslash{}lime}}.
+Similarily, \textcolor{magenta}{magenta} is macro
+{\fuchsia{}\texttt{\backslash{}fuchsia}},
+\textcolor{cyan}{cyan} is macro
+{\aqua{}\texttt{\backslash{}aqua}}}.
+are different\ldots{} And now
+the same in monospace font
+\begin{itemize}\ttfamily
+\item With class: \color@mix{\clshigh}
+\item With style: \color@mix{\styhigh}
+\item With color: \color@mix{\color{\color@name}}
+\item With macro: \color@mix{\green}
+\end{itemize}
 \end{htmlonly}
 
 \section{Paragraphs}
@@ -359,7 +437,7 @@ $\begin{array}{@{\hspace{0ex}}l@{\hspace{0.6ex}}l}
 \sum_{3 \leq k \leq N} {2 \over {k+1}} \\[1.7ex]
 
                   &\simeq 2 \sum_{1 \leq k \leq N} {1 \over k} \simeq
-2 \int_1^N {1 \over x} dx =  2 \ln N 
+2 \int_1^N {1 \over x} dx =  2 \ln N
 \end{array}$
 }
 \subsection{Brisset}
@@ -450,7 +528,7 @@ $$
 \begin{tabular}{|rl}
   zobi & zobi \\
 \multicolumn{2}{c}{coucou-coucou} \\
-\multicolumn{1}{c}{zobi-1} & \multicolumn{1}{c}{zobi-2} 
+\multicolumn{1}{c}{zobi-1} & \multicolumn{1}{c}{zobi-2}
 \end{tabular}
 
 \begin{center}
@@ -469,7 +547,7 @@ $$
 
 \begin{center}
 \begin{tabular}{|r|rl|l|} \hline
-\multicolumn{1}{|c}{$n$} & \multicolumn{1}{|c}{$N$} &  & 
+\multicolumn{1}{|c}{$n$} & \multicolumn{1}{|c}{$N$} &  &
                                              \multicolumn{1}{|c|}{Exemple}\\
 \hline
 16 & 65 536                      &  $= \; 6 \times 10^4$  & Macintosh SE/30 \\
@@ -511,16 +589,15 @@ typeset \textit{address} in typewriter font\\ \hline
 
 \subsection{Les attributs des tables}
 \begin{center}
-\ifhevea\renewcommand{\@table@attributes}{WIDTH="50\%" BORDER=10}\fi
+\ifhevea\renewcommand{\@table@attributes}{style="width:50\%;border:ridge 10px"}\fi
 \begin{tabular}{cc}
 coucou & foo \\
 argl   & bar
 \end{tabular}
 
-\ifhevea\renewcommand{\@table@attributes}{BGCOLOR=gray  CELLSPACING=0
-CELLPADDING=0 BORDER=0}
+\ifhevea\renewcommand{\@table@attributes}{style="background:gray;border-spacing:0;border:0"}
 \newenvironment{bg}[1]
-  {\begin{bgcolor}[CELLSPACING=0 CELLPADDING=4 BORDER=0]{#1}}
+  {\begin{bgcolor}[style="border-spacing:0;border:0"]{#1}}
   {\end{bgcolor}}
 \begin{tabular}{cc}
 \begin{bg}{red}coucou\end{bg} & \begin{bg}{white}foo\end{bg}\\
@@ -532,14 +609,14 @@ argl   & \raggedleft
 
 \newcommand{\pair}[2]
   {\@open{TR}{}%
-  \@open{TD}{BGCOLOR=yellow}#1\@close{TD}%
+  \@open{TD}{style="background-color:yellow"}#1\@close{TD}%
   \@open{TD}{}#2\@close{TD}\@close{TR}}
 \newcommand{\impair}[2]
   {\@open{TR}{}%
   \@open{TD}{}#1\@close{TD}%
-  \@open{TD}{BGCOLOR=yellow}#2\@close{TD}\@close{TR}}
+  \@open{TD}{style="background-color:yellow"}#2\@close{TD}\@close{TR}}
 \newenvironment{damier}
-  {\@open{TABLE}{BGCOLOR=lime CELLSPACING=0 CELLPADDING=3 BORDER=0}}
+  {\@open{TABLE}{style="background:lime;border-spacing:0;border:0"}}
   {\@close{TABLE}}
 \newcounter{damier}
 \begin{damier}
@@ -556,7 +633,7 @@ argl   & \raggedleft
 \newcolumntype{C}{>{\columncolor{cyan}}c}
 \newcolumntype{Y}{>{\columncolor{yellow}}c}
 \newenvironment{damier}[1]
-  {\ifhevea\renewcommand{\@table@attributes}{CELLSPACING=0 CELLPADDING=4 BORDER=0}\fi
+  {\ifhevea\renewcommand{\@table@attributes}{style="border-spacing:0;border:0"}\fi
   \setcounter{damierbis}{#1}\begin{tabular}{YC}}
   {\end{tabular}}
 \newcommand{\pair}[2]{#1 & #2}
@@ -691,7 +768,7 @@ $+$ \\ \hline
 $+$    \\
 71    \\
 $*$  \\
-$+$ \\ \hline   
+$+$ \\ \hline
 \end{tabular} &
 % + 781
 \begin{tabular}{|@{\enspace}c@{\enspace}|}
@@ -710,7 +787,7 @@ $+$ \\ \hline
 $*$    \\
 781  \\
 $+$ \\ \hline
-\end{tabular} & 
+\end{tabular} &
 % + 781 * +
 \begin{tabular}{|@{\enspace}c@{\enspace}|}
     \\
@@ -746,7 +823,7 @@ $*$ \\
 $*$ \\
 781  \\
 $+$ \\ \hline
-\end{tabular} 
+\end{tabular}
 % 1996
 \end{tabular}
 \end{center}
@@ -840,7 +917,7 @@ fois un \verb+\label+ et un \verb+\ref+ dans son titre.
 \section{Quelques notes de bas de page}\label{labas}
 Coucou\footnote{coucou}
 \textsl{et là ??\footnote{Une autre}}.
-Une note recomposée\footnotemark\footnotetext{Numéro trois}.
+Une note recomposée\footnotemark\footnotetext{Numéro \ifhevea{}quatre\else{}trois\fi}.
 
 \begin{table*}
 \begin{flushleft}
@@ -1276,14 +1353,14 @@ Coucou & \Gamma_A \\
 \def\testtwo[#1]#2{\texttt{testtwo}(#1,#2)}
 \def\argument{argument}
 
-\noindent 
+\noindent
 \testone{argument}; \\
 \testone[bracketed argument]{argument}. \\
 \testtwo[bracketed {\bf argument]}]{argument}.
 
-\noindent 
+\noindent
 \testone{\argument}; \\
-\testone 
+\testone
      [bracketed \argument]
      {\argument}. \\
 \testtwo[bracketed \argument]{\argument}.
@@ -1351,7 +1428,7 @@ Et voici une macro qui fait des indices A\under{1}.
 \end{alltt}
 
 Bon y avait un problème avec les arguments dont le caractère alltt ou
-pas est à considérer là où il apparaîssent en tant qu'arguments.
+pas est à considérer là où il apparaissent en tant qu'arguments.
 Bref ya des \verb+$$+ là dessous:
 \begin{alltt}
 \rien{\rien{\rien{$$}}}
@@ -1359,6 +1436,12 @@ Bref ya des \verb+$$+ là dessous:
 
 %\newenvironment{vicieux}{\begin{alltt}\Large}{\end{alltt}}
 %\begin{vicieux}\rien{\rien{$$}}\end{vicieux}
+
+Normalement on a des tirets genre \verb+-- & --+,
+ici \texttt{-- \& ---}, et dessous aussi~:
+\begin{alltt}
+-- & --
+\end{alltt}
 
 \section{Les notes de bas de page en folie}
 I hate this footnote\footnote{this is the footnote}

@@ -10,6 +10,7 @@
 (***********************************************************************)
 
 {
+open Printf
 open Misc
 open Lexing
 open Latexmacros
@@ -18,7 +19,6 @@ open MyStack
 open Length
 
 (* Compute functions *)
-let _header = "$Id: get.mll,v 1.33 2012-06-05 14:55:39 maranget Exp $"
 
 exception Error of string
 
@@ -117,7 +117,7 @@ rule result = parse
     result lexbuf}
 | '`'
     {let token = !get_csname lexbuf in
-    after_quote (Lexing.from_string token) ;
+    after_quote (MyLexing.from_string token) ;
     result lexbuf}
 |  "true"
     {push bool_stack true ;
@@ -211,15 +211,14 @@ rule result = parse
 |  '#' ['1'-'9']
     {let lxm = lexeme lexbuf in
     let i = Char.code (lxm.[1]) - Char.code '1' in
-    scan_arg (scan_this_arg result) i ;
+    scan_arg (scan_this_arg_list result) i ;
     result lexbuf} 
-| command_name
-    {let lxm = lexeme lexbuf in
-    let pat,body = Latexmacros.find lxm in
+| command_name as lxm
+    {let pat,body = Latexmacros.find lxm in
     let args = make_stack lxm pat lexbuf in
     scan_body
       (function
-        | Subst body -> scan_this result body
+        | Subst body -> scan_this_list result body
         | Toks l ->
             List.iter
               (scan_this result)
@@ -274,7 +273,7 @@ let def_commands_int () =
       (fun lexbuf ->
         let length =
           Length.main
-            (Lexing.from_string
+            (MyLexing.from_string
                (!get_this (save_arg lexbuf))) in        
         let r = match length with
         | Length.Char x -> x
@@ -388,49 +387,53 @@ let def_commands_bool () =
 
 
 
-let first_try s =
-  let l = String.length s in
-  if l <= 0 then raise (Failure "first_try") ;
-  let rec try_rec r i =
-    if i >= l then r
-    else match s.[i] with
-    | '0'|'1'|'2'|'3'|'4'|'5'|'6'|'7'|'8'|'9' ->
-        try_rec (10*r + Char.code s.[i] - Char.code '0') (i+1)
-    | _ -> raise (Failure ("first_try")) in
-  try_rec 0 0
-;;
+type 'a funs =
+  { pp : out_channel -> 'a -> unit ;
+    to_string : 'a -> string ;
+    scan_this : (Lexing.lexbuf -> unit) -> 'a -> unit; }
 
-let get_int {arg=expr ; subst=subst} =
-  if !verbose > 1 then
-    prerr_endline ("get_int : "^expr) ;
+let string_funs =
+  { pp = output_string ;
+    to_string = (fun x -> x) ;
+    scan_this = scan_this; }
+let list_funs =
+  { pp = pretty_body ;
+    to_string = String.concat "";
+    scan_this = scan_this_list; }
+
+let do_get_int f {arg=expr ; subst=subst} =
+  if !verbose > 1 then  eprintf "get_int : '%a'\n%!" f.pp expr ;
   let r =
-    try first_try expr with Failure _ -> begin
-      let old_int = !int_out in
-      int_out := true ;
-      start_normal subst ;
-      !open_env "*int*" ;
-      let _ = def_commands_int () in
-      open_ngroups 2 ;
-      begin try scan_this result expr with
-      | x ->
-          begin
-            prerr_endline
-              ("Error while scanning ``"^expr^"'' for integer result");
-            raise x
-          end
-      end ;
-      close_ngroups 2 ;
-      !close_env "*int*" ;
-      end_normal () ;
-      if MyStack.empty int_stack then
-        raise (Error ("``"^expr^"'' has no value as an integer"));
-      let r = pop int_stack in
-      int_out := old_int ;
-      r end in
-  if !verbose > 1 then
-    prerr_endline ("get_int: "^expr^" = "^string_of_int r) ;
+    let old_int = !int_out in
+    int_out := true ;
+    start_normal subst ;
+    !open_env "*int*" ;
+    let _ = def_commands_int () in
+    open_ngroups 2 ;
+    begin try f.scan_this result expr with
+    | x ->
+        begin
+          eprintf
+            "Error while scanning '%a' for integer result\n%!"
+            f.pp expr ;
+          raise x
+        end
+    end ;
+    close_ngroups 2 ;
+    !close_env "*int*" ;
+    end_normal () ;
+    if MyStack.empty int_stack then
+      raise
+        (Error
+           (sprintf "'%s'' has no value as an integer" (f.to_string expr))) ;
+    let r = pop int_stack in
+    int_out := old_int ;
+    r in
+  if !verbose > 1 then eprintf "get_int: '%a' -> %i\n%!" f.pp expr r ;
   r
   
+let get_int_string a = do_get_int string_funs a
+let get_int a = do_get_int list_funs a
 
 let get_bool {arg=expr ; subst=subst} =
   if !verbose > 1 then
@@ -463,7 +466,7 @@ let get_bool {arg=expr ; subst=subst} =
 let get_length arg =
   if !verbose > 1 then
     prerr_endline ("get_length : "^arg) ;
-  let r = Length.main (Lexing.from_string arg) in
+  let r = Length.main (MyLexing.from_string arg) in
   if !verbose > 2 then begin
     prerr_string ("get_length : "^arg^" -> ") ;
     prerr_endline (Length.pretty r)

@@ -9,8 +9,6 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let _header = "$Id: mysys.ml,v 1.3 2012-06-05 14:55:39 maranget Exp $" 
-
 exception Error of string
 
 let put_from_file name put =
@@ -53,7 +51,5 @@ let rename s1 s2 =
     Sys.remove s2 ;
   Sys.rename s1 s2
 
-let remove s =
-  if Sys.file_exists s then
-    Sys.remove s
+let remove s = if Sys.file_exists s then Sys.remove s
 

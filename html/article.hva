@@ -1,27 +1,28 @@
 \ifstyleloaded\relax
 \else
 \input{articlecommon.hva}
+\newcommand{\@art@attr}[1]{\@secid\envclass@attr{#1}}
 \@makesection
   {\part}{-1}{part}
-  {\@opencell{CLASS="center"}{}{}\@open{H1}{\envclass@attr{part}}}
+  {\@opencell{class="center"}{}{}\@open{h1}{\@art@attr{part}}}
   {\partname~\thepart}{\\}
-  {\@close{H1}\@closecell}
+  {\@close{h1}\@closecell}
 \newstyle{.part}{margin:2ex auto;text-align:center}
 \@makesection
   {\section}{0}{section}
-  {\@open{H2}{\envclass@attr{section}}}{\thesection}{\quad}{\@close{H2}}%
+  {\@open{h2}{\@art@attr{section}}}{\thesection}{\quad}{\@close{h2}}%
 \@makesection
   {\subsection}{1}{subsection}
-  {\@open{H3}{\envclass@attr{subsection}}}{\thesubsection}{\quad}{\@close{H3}}%
+  {\@open{h3}{\@art@attr{subsection}}}{\thesubsection}{\quad}{\@close{h3}}%
 \@makesection
   {\subsubsection}{2}{subsubsection}
-  {\@open{H4}{\envclass@attr{subsubsection}}}{\thesubsubsection}{\quad}{\@close{H4}}%
+  {\@open{h4}{\@art@attr{subsubsection}}}{\thesubsubsection}{\quad}{\@close{h4}}%
 \@makesection
   {\paragraph}{3}{paragraph}
-  {\@open{H5}{\envclass@attr{paragraph}}}{\theparagraph}{\quad}{\@close{H5}}%
+  {\@open{h5}{\@art@attr{paragraph}}}{\theparagraph}{\quad}{\@close{h5}}%
 \@makesection
   {\subparagraph}{4}{subparagraph}
-  {\@open{H6}{\envclass@attr{subparagraph}}}{\thesubparagraph}{\quad}{\@close{H6}}%
+  {\@open{h6}{\@art@attr{subparagraph}}}{\thesubparagraph}{\quad}{\@close{h6}}%
 \newcommand{\hacha@style}{article}%
 \styleloadedtrue
 \fi

@@ -9,6 +9,14 @@
 (*                                                                     *)
 (***********************************************************************)
 
+
+module type Config = sig
+  val small_length : int
+end
+
+module Make(C:Config) = struct
+module Out = DoOut.Make(struct let small_length = 256 end)
+
 type t = { out : Out.t ; name : string }
 
 let get_name { name = name } = name
@@ -29,3 +37,4 @@ and to_chan chan { out = out } = Out.to_chan chan out
 and copy { out = out1 } { out = out2 } = Out.copy out1 out2
 and flush { out = out } = Out.flush out
 
+end

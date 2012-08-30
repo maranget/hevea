@@ -1,0 +1,674 @@
+%%%% Une précaution.
+\ifhtml\else\hva@warn{html/hevea is for html mode !!!}\endinput\fi
+%%%% package used by all packages
+\input{plain.hva}
+\newif\ififthen\ifthenfalse
+\input{ifthen.hva}
+%%%%%%%%%%%%%%%%%%%%%%%
+%%Style-sheet support %
+%%%%%%%%%%%%%%%%%%%%%%%
+%% External/internal style declarations are accumulated into approriate
+%% token registers
+% Linking to external style sheets
+\newtokens{\css@link}%
+\newcommand{\addcssfile}[1]{\addtokens{\css@link}{#1}}%
+\newcommand{\loadcssfile}[1]{\addcssfile{\@print{<}\@getprint{LINK REL=STYLESHEET type=\char34 text/css\char34\@print{ }HREF=\char34#1\char34\char62\@print{
+}}}}%
+%%%%%%
+% Styles definition in the <HEAD> element
+\newtokens{\hevea@css}%
+\newcommand{\addstyle}[1]{\addtokens{\hevea@css}{#1}}%
+\newcommand{\newstyle}[2]{\addstyle{\@getprint{#1\char123#2\char125\@print{
+}}}}%
+\newif\ifexternalcss\externalcssfalse
+%
+%%Style attributes are normaly set through an indirection.
+%% Ie the class of the BLOCK elt that translates environment 'env' is
+%%    \'env'@class
+\newcommand{\class@attr}[2]{\ife#1\else\@getprint{CLASS="#1"#2}\fi}
+\newcommand{\setenvclass}[3][]{#1\def\csname{}#2@class\endcsname{#3}}
+\newcommand{\getenvclass}[1]{\csname{}#1@class\endcsname}
+\newcommand{\envclass@attr}[2][]{\class@attr{\getenvclass{#2}}{#1}}
+%% Packages
+\input{packages.hva}
+%%%%%% Spacing
+\input{spaces.hva}
+\input{latexcommon.hva}
+%%% Basic symbols
+%%% Logos
+\def\TeX{\@print{T<sub>E</sub>X}}
+\def\LaTeX{\@print{L<sup>A</sup>T<sub>E</sub>X}}
+\def\LaTeXe{\mbox{\@print{L<sup>A</sup>T<sub>E</sub>X}~$2\epsilon$}}
+\newcommand{\hevea}{\@print{H}{\@incsize{-1}\@print{<sup>E</sup>}}\@print{V}%
+{\@incsize{-1}\@print{<sup>E</sup>}}\@print{A}}
+\newcommand{\hacha}{\@print{H}{\@incsize{-1}\@print{<sup>A</sup>}}\@print{C}%
+{\@incsize{-1}\@print{<sup>H</sup>}}\@print{A}}
+\newcommand{\html}{HTML}
+%%% HTML related stuff (TEX equivalents are in the hevea.sty file)
+\newcommand{\@doaelement}[2]
+{{\@nostyle\@print{<A }\@getprint{#1}\@print{>}}{#2}{\@nostyle\@print{</A>}}}
+\newcommand{\@nestedaelement}[2]{\hva@warn{Suppressing nested A element}#2}
+\newcommand{\@aelement}[2]
+{\bgroup\let\@aelement\@nestedaelement\@doaelement{#1}{#2}\egroup}
+\newcommand{\ahref}[2]{\@aelement{HREF="#1"}{#2}}
+\def\ahrefurl#1{\@aelement{HREF="#1"}{\texttt{#1}}}
+\let\footahref\ahref
+\newcommand{\mailto}[1]{\@aelement{HREF="mailto:#1"}{#1}}
+\newcommand{\imgsrc}[2][]
+{\@print{<IMG SRC="}\@getprint{#2}\ifpedantic\@print{" ALT="}\@getprint{#2}\fi
+\ifthenelse{\equal{#1}{}}{\@print{"}}{\@print{" }\@getprint{#1}}\@print{>}}
+%% Hyper-text references inside the document, internal usage
+\newcommand{\@locref}[2]{\@aelement{HREF="\@print{#}#1"}{#2}}
+\newcommand{\@locname}[2]{\@aelement{NAME="#1"}{#2}}
+\newcommand{\@locnameref}[3]{\@aelement{NAME="#1" HREF="\@print{#}#2"}{#3}}
+%% Two exported commands
+\let\ahrefloc\@locref
+\let\aname\@locname
+\newcommand{\anchor}[1]{\@locname{#1}{}}
+%% Html footer, header and prefix for titles
+\newsavebox{\@htmlhead}
+\newsavebox{\@htmlfoot}
+\newsavebox{\@htmlprefix}
+\newcommand{\htmlhead}[1]{\sbox{\@htmlhead}{#1}}
+\newcommand{\htmlfoot}[1]{\sbox{\@htmlfoot}{#1}}
+\newcommand{\htmlprefix}[1]{\sbox{\@htmlprefix}{#1}}
+\AtEndDocument
+{\@close@par{\@nostyle\@print{<!--HTMLFOOT-->
+}}%
+\usebox{\@htmlfoot}%
+{\@nostyle\@print{<!--ENDHTML-->
+}}}
+%%%%% Footnotes, html dependant part
+\newcommand{\@noteref}[4]{\@locnameref{#2#3}{#1#3}{#4}}
+\newcommand{\@notetextstyle}[1]
+  {{\@nostyle\@print{<SUP>}}#1{{\@nostyle\@print{</SUP>}}}}
+\newcommand{\@notenotestyle}[1]{{\@clearstyle{}#1}}
+\setenvclass{thefootnotes}{thefootnotes}
+\setenvclass{dt-thefootnotes}{dt-thefootnotes}
+\setenvclass{dd-thefootnotes}{dd-thefootnotes}
+\setenvclass{footnoterule}{footnoterule}
+\newstyle{.thefootnotes}{text-align:left;margin:0ex;}
+\newstyle{.dt-thefootnotes}{margin:0em;}
+\newstyle{.dd-thefootnotes}{margin:0em 0em 0em 2em;}
+\newstyle{.footnoterule}{margin:1em auto 1em 0px;width:50\%;}
+\newcommand{\footnoterule}{\@hr[\envclass@attr{footnoterule}]{}{}}
+\newenvironment{thefootnotes}[2][]
+  {\@out@par{{\@nostyle\@print{<!--BEGIN }\@getprint{#1}\@print{NOTES }\@getprint{#2}\@print{-->
+}}}\footnoterule%
+  \setlistclass{thefootnotes}%
+  \begin{list}{}{\renewcommand{\makelabel}[1]{##1}}}
+  {\end{list}\@out@par{{\@nostyle\@print{
+<!--END NOTES-->
+}}}}
+%%% Captions html dependent part
+\newstyle{.caption}
+{padding-left:2ex; padding-right:2ex; margin-left:auto; margin-right:auto}
+\setenvclass{caption}{caption}
+\newenvironment{hva@capted}
+  {\@open{DIV}{\envclass@attr{caption}}\begin{tabular}{p{\linewidth}}}
+  {\end{tabular}\@close{DIV}}
+%%% for HaChA
+\newcounter{cuttingdepth}
+\setcounter{cuttingdepth}{1}
+%% Old cutdef/cutend, no footnote managment
+\newcommand{\cutdef*}[2][]
+{\@out@par{{\@nostyle\@print{<!--CUT DEF }#2\@print{ }#1\@print{ -->}}}}
+\newcommand{\cutend*}
+{\@out@par{{\@nostyle\@print{<!--CUT END -->
+}}}}
+%%% New cutdef/cutend, with footnote managment
+\hva@newstack{@foot}
+\newcommand{\cutdef}[2][]{%
+\@footnotesub\@push@foot{\@footnotelevel}\flushdef{#2}%
+\@out@par{{\@nostyle\@print{<!--CUT DEF }#2\@print{ }#1\@print{ -->}}}}
+\newcommand{\cutend}{%
+\footnoteflush{\@footnotelevel}%
+\@out@par{{\@nostyle\@print{<!--CUT END -->
+}}}%
+\@endfootnotesub\@pop@foot{\@footnotelevel}}
+%%%Close/Re-open toplevel pars
+\newcommand{\@secbegin}{\@close@par}
+\newcommand{\@secend}{{\@nostyle\@print{<!--SEC END -->}}\@open@par}
+\newcommand{\@secanchor}{{\@nostyle\@print{<!--SEC ANCHOR -->}}}
+\newcommand{\cuthere}[2]{%
+\@footnoteflush{#1}%
+{\@out@par{{\@nostyle\@print{<!--TOC }\@getprint{#1}\@print{ }}%
+\begin{@norefs}#2\end{@norefs}{\@nostyle\@print{-->
+}}}}}
+\newcommand{\@hacha@arg}[2]
+{{\@nostyle\@print{<ARG }\@getprint{#1}\@print{>}{#2}\@print{</ARG>}}}
+\newenvironment{@cutflow}[2]
+{\@out@par{\@printnostyle{<!--FLOW }%
+\@hacha@arg{FOOTER}{#1}%
+\@hacha@arg{TITLE}{#2}%
+\@printnostyle{-->
+}}}
+{\@out@par{\@printnostyle{<!--END FLOW-->
+}}}
+\newenvironment{cutflow}[1]{\begin{@cutflow}{YES}{#1}}{\end{@cutflow}}
+\newenvironment{cutflow*}[1]{\begin{@cutflow}{NO}{#1}}{\end{@cutflow}}
+\newcommand{\cutname}[1]
+{\@out@par{{\@nostyle\@print{<!--NAME }\@getprint{#1}\@print{-->
+}}}}
+\newcommand{\@link@arg}[2]
+  {\ifthenelse{\equal{#2}{}}{}
+  {\@hacha@arg{#1}{#2}}}
+\newsavebox{\@toplinks}
+\newcommand{\toplinks}[3]
+  {\sbox{\@toplinks}
+    {\@printnostyle{<!--LINKS }%
+    \@link@arg{PREV}{#1}%
+    \@link@arg{UP}{#2}%
+    \@link@arg{NEXT}{#3}%
+    \@printnostyle{-->
+}}}
+\newsavebox{\@linkstext}
+\newcommand{\setlinkstext}[3]
+  {\sbox{\@linkstext}
+    {\@printnostyle{<!--SETENV }%
+    \@link@arg{PREVTXT}{#1}%
+    \@link@arg{UPTXT}{#2}%
+    \@link@arg{NEXTTXT}{#3}%
+    \@printnostyle{-->
+}}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Using style CLASSES with DIV for local style-setting   %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+\newenvironment{divstyle}[1]
+  {\@open{DIV}{\class@attr{#1}{}}}{\@close{DIV}}%
+\newenvironment{cellstyle}[2]
+  {\@open{TABLE}{\class@attr{#1}{}}\@open{TR}{}\@open{TD}{\class@attr{#2}{}}}
+  {\@close{TD}\@close{TR}\@close{TABLE}}
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Echoing to the image file %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+\def\@iopt@def{!*!}
+\newcommand{\@imageopt}[1][!*!]
+{\def\@itmp{#1}\ifx\@itmp\@iopt@def\else\begin{toimage}[#1]\end{toimage}\fi}
+\newcommand{\@imagearg}[1]{\begin{toimage}{#1}\end{toimage}}
+\newcommand{\@imagecommand}[2]
+  {\@forcecommand{#1}{\begin{toimage}#1\end{toimage}#2}}
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   \maketitle (is no longer redefined by fancysection)		%
+%   Thus defining different styles explicitly will have to 	%
+%     be done using the respective classes :			%
+%     .title     : table containing the title and supplements   %
+%     .titlemain : H1 containing title name		        %
+%     .titlerest : H3 containing other fields (author,date,etc.)%
+%   'checkbox' now takes three instead of two arguments,        %
+%     one for the class.					%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+\newcommand{\title@tohaux}[1]
+{\@auxdowrite{\@print{\@titleaux}\{\@subst{#1}\}
+}}
+\newstyle{.title}{margin:2ex auto;text-align:center}
+\let\title@flush@hook\relax
+\newcommand{\maketitle}{%
+  \bgroup
+  \newcommand{\checkcmd}[4]
+    {\@ifundefined{@##3}{##4{No ##3 given}}
+     {\@open{##1}{\class@attr{##2}{}}%
+      \@fmt@title{\csname @##3\endcsname}%
+      \@close{##1}}}%
+  \@opencell{CLASS="title"}{}{}%
+  \checkcmd{H1}{titlemain}{title}{\hva@warn}%
+  \checkcmd{H3}{titlerest}{author}{\hva@warn}%
+  \checkcmd{H3}{titlerest}{date}{\@gooble}%
+  \@closecell%
+  \egroup%
+  \ifthenelse{\equal{\@footnotelevel}{document}}{}
+  {\@footnotesub%
+   \gdef\title@flush@hook{\@endfootnotesub\@footnoteflush@sticky{document}}}%
+\let\maketitle\relax}%
+%
+%%%%%%%%%
+% Maths %
+%%%%%%%%%
+\ifmathml
+\input{html/symb-mathml.hva}
+\else
+\ifsymbtext\input{iso-text.hva}\else\input{iso-html.hva}\fi
+\fi
+\renewcommand{\&}{\ifraw\@print{&}\else\@print{&amp;}\fi}
+\renewcommand{\textless}{\ifraw\@print{<}\else\@print{&lt;}\fi}
+\renewcommand{\textgreater}{\ifraw\@print{>}\else\@print{&gt;}\fi}
+%%%%%%%%%%%% Bibliography
+\newcommand{\@bibref}[3]
+  {\@locref{#1}{\ifx#2\@empty\@verbarg{#1}\else#2\fi}\@bib@post{#3}}
+\newsavebox{\@bibbox}
+\newcommand{\@biblabel}[1]{\@locname{\bibtaghook{#1}}{\purple[\@bibread{\bibtaghook{#1}}]}}
+%%% Environment document.
+\newcommand{\@charset}{US-ASCII}
+\newcommand{\@def@charset}[1]
+{\renewcommand{\@charset}{#1}\@set@out@translator{mappings/#1.map}}
+\newcommand{\@bodyargs}{}
+\newcommand{\@meta}
+{\@print{<META http-equiv="Content-Type" content="text/html; charset=}%
+\@getprint{\@charset}%
+\@print{">
+<META name="GENERATOR" content="hevea }%
+\@getprint{\usebox{\@heveaversion}}\@print{">
+}%
+\ife\hevea@css\else
+\ifexternalcss\loadcssfile{\hva@dump@css}\else
+\@print{<STYLE type="text/css">}
+\hevea@css\@print{</STYLE>
+}\fi\fi
+\ife\css@link\else\css@link\fi
+\undef\hevea@css\undef\newstyle}
+
+\newenvironment{document}{%
+\@end{document}%
+\@atbegindocument%
+\@restartoutput\unskip%
+\@print{<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+            "http://www.w3.org/TR/REC-html40/loose.dtd">
+}\@print{<HTML>
+<HEAD>}
+\@print{<TITLE>}%
+\ifu\@title\jobname\else
+\@notags{\begin{@norefs}\let\@print@u\@print@u@default\@getprint{\@title}\end{@norefs}}
+\fi
+\@print{</TITLE>
+}
+\@meta%
+\ifmathml\@print{<STYLE type="text/css">
+  math.centered { text-align: center}
+</STYLE>
+}\fi
+\@print{</HEAD>
+}%
+\@print{<BODY }\@notags{\@bodyargs}\@print{>
+}%
+\@print{<!--HEVEA command line is: }\usebox{\@heveacomline}\@print{-->
+}%
+{\@nostyle\@print{<!--CUT STYLE }\hacha@style\@print{-->}}%
+\ife\@htmlhead\else{\@nostyle\@print{<!--HTMLHEAD-->
+}}%
+\usebox{\@htmlhead}%
+{\@nostyle\@print{<!--ENDHTML-->
+}}\fi%
+\ife\@htmlprefix\else\@printnostyle{<!--PREFIX }%
+\@hacha@arg{}{\usebox{\@htmlprefix}}%
+\@printnostyle{-->
+}\fi%
+\usebox{\@toplinks}\usebox{\@linkstext}%
+\cutdef*[\thecuttingdepth]{\cuttingunit}%
+\renewcommand{\addstyle}[1]{\hva@warn{\addstyle{} must be used in document preamble}}%
+\@open@par%Open first paragraph
+}{%
+\@clearstyle\@footnoteflush{\@footnotelevel}\cutend*\title@flush@hook%
+\@atenddocument%
+\@final@footer%
+\@clearstyle%
+\@print{</BODY>
+</HTML>
+}\@raise@enddocument}
+\newstyle{.center}{text-align:center;margin-left:auto;margin-right:auto;}%
+\newstyle{.flushleft}{text-align:left;margin-left:0ex;margin-right:auto;}%
+\newstyle{.flushright}{text-align:right;margin-left:auto;margin-right:0ex;}%
+\newstyle{DIV TABLE}{margin-left:inherit;margin-right:inherit;}
+\newstyle{PRE}{text-align:left;margin-left:0ex;margin-right:auto;}
+\newstyle{BLOCKQUOTE}{margin-left:4ex;margin-right:4ex;text-align:left;}
+%Paragraphs in table cells are special (close to latex rendering)
+\newstyle{TD P}{margin:0px;}
+\setenvclass{center}{center}%
+\newenvironment{center}{\@open{DIV}{\envclass@attr{center}}}{\@close{DIV}}
+\setenvclass{flushleft}{flushleft}
+\newenvironment{flushleft}
+  {\@open{DIV}{\envclass@attr{flushleft}}}
+  {\@close{DIV}}
+\setenvclass{flushright}{flushright}%
+\newenvironment{flushright}
+  {\@open{DIV}{\envclass@attr{flushright}}}
+  {\@close{DIV}}%
+\newcommand{\centerline}[1]{\begin{center}#1\end{center}}
+\setenvclass{quote}{quote}%
+\newenvironment{quote}
+{\@close{}\@open{BLOCKQUOTE}{\envclass@attr{quote}}}
+{\@close{BLOCKQUOTE}\@open{}{}}%
+\setenvclass{quotation}{quotation}%
+\newenvironment{quotation}
+{\@open{BLOCKQUOTE}{\envclass@attr{quotation}}}{\@close{BLOCKQUOTE}}
+\newcommand{\centering}{\@insert{DIV}{\envclass@attr{center}}}
+\newcommand{\raggedleft}{\@insert{DIV}{\envclass@attr{flushright}}}
+\newcommand{\raggedright}{\@insert{DIV}{\envclass@attr{flushleft}}}
+\newcommand{\rule}[3][]{\@printHR{}{}}%
+%%%%%%%%%%%%%%%% LaTeX 2.09 style declarations
+\newenvironment{tt}{\@style{TT}}{}
+\newenvironment{bf}{\@style{B}}{}
+\newenvironment{em}{\@style{EM}}{}
+\newenvironment{it}{\@style{I}}{}
+\newenvironment{rm}{\@anti{\it,\bf,\em,\sf,\tt}}{}
+\newenvironment{tiny}{\@fontsize{1}}{}
+\newenvironment{footnotesize}{\@fontsize{2}}{}
+\newenvironment{scriptsize}{\@fontsize{2}}{}
+\newenvironment{small}{\@fontsize{3}}{}
+\newenvironment{normalsize}{\@fontsize{3}}{}
+\newenvironment{large}{\@fontsize{4}}{}
+\newenvironment{Large}{\@fontsize{5}}{}
+\newenvironment{LARGE}{\@fontsize{5}}{}
+\newenvironment{huge}{\@fontsize{6}}{}
+\newenvironment{Huge}{\@fontsize{7}}{}
+%%%%%% Colors
+\newenvironment{purple}{\@fontcolor{purple}}{}
+\newenvironment{black}{\@fontcolor{black}}{}
+\newenvironment{silver}{\@fontcolor{silver}}{}
+\newenvironment{gray}{\@fontcolor{gray}}{}
+\newenvironment{white}{\@fontcolor{white}}{}
+\newenvironment{maroon}{\@fontcolor{maroon}}{}
+\newenvironment{red}{\@fontcolor{red}}{}
+\newenvironment{fuchsia}{\@fontcolor{fuchsia}}{}
+\newenvironment{green}{\@fontcolor{green}}{}
+\newenvironment{lime}{\@fontcolor{lime}}{}
+\newenvironment{olive}{\@fontcolor{olive}}{}
+\newenvironment{yellow}{\@fontcolor{yellow}}{}
+\newenvironment{navy}{\@fontcolor{navy}}{}
+\newenvironment{blue}{\@fontcolor{blue}}{}
+\newenvironment{teal}{\@fontcolor{teal}}{}
+\newenvironment{aqua}{\@fontcolor{aqua}}{}
+\def\cal{\ifmath\ifmathml\@style{font-family: cursive }%
+\else\red\fi\else\red\fi}
+\def\sf{\ifmath\ifmathml\@style{font-family: sans-serif }%
+\else\purple\fi\else\purple\fi}
+\def\sl{\ifmath\ifmathml\@style{font-family: fantasy; font-style: italic }%
+\else\it\maroon\fi\else\it\maroon\fi}
+\def\sc{\@styleattr{SPAN}{STYLE="font-variant:small-caps"}}%
+%%%% LaTeX2e verbose declarations
+\newenvironment{mdseries}{\@anti{\bf}}{}
+\newenvironment{bfseries}{\bf}{}
+\newenvironment{rmfamily}{\rm}{}
+\newenvironment{sffamily}{\@anti{\tt}\sf}{}
+\newenvironment{ttfamily}{\@anti{\sf}\tt}{}
+\newenvironment{upshape}{\@anti{\it,\sl,\sc}}{}
+\newenvironment{itshape}{\@anti{\sl,\sc}\it}{}
+\newenvironment{slshape}{\@anti{\it,\sc}\sl}{}
+\newenvironment{scshape}{\@anti{\it,\sl}\sc}{}
+\newenvironment{normalfont}{\rm\mdseries\upshape}{}
+%%%%%%%%%%%%%%%%
+\def\textrm#1{\mbox{\rmfamily#1}}
+\def\textup#1{\mbox{\upshape#1}}
+\def\textmd#1{\mbox{\mdseries#1}}
+\def\textnormal#1{\mbox{\normalfont#1}}
+\def\texttt#1{\mbox{\ttfamily#1}}
+\def\textit#1{\mbox{\itshape#1}}
+\def\textbf#1{\mbox{\bfseries#1}}
+\def\textsf#1{\mbox{\sffamily#1}}
+\def\textsl#1{\mbox{\slshape#1}}
+\def\textsc#1{\mbox{\scshape#1}}
+\newcommand{\emph}[1]{\mbox{\em#1}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  New implementation of \sc & \textsc using "small-caps" style. %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%
+%%%%%%%%%%%%%%% Multicolumns index formating
+\newcommand{\setindexpos}[2]
+{\providesavebox{\csname indexpos#1\endcsname}%
+\sbox{\csname indexpos#1\endcsname}{\@nostyle #2}}
+\newcommand{\getindexpos}[1]{\usebox{\csname indexpos#1\endcsname}}
+\newcounter{indexcols}\setcounter{indexcols}{2}
+\newcounter{indexcount}\newcounter{indexdepth}
+\newcounter{indexbox}
+\newcommand{\indexitem}
+{\stepcounter{indexcount}%
+\end{lrbox}%
+\setindexpos{\theindexbox}{\theindexcount}%
+\stepcounter{indexbox}%
+\providesavebox{\csname indexbox\theindexbox\endcsname}%
+\begin{lrbox}{\csname indexbox\theindexbox\endcsname}}
+\newcommand{\indexspace}{\indexitem}
+{\stepcounter{indexcount}}
+\setenvclass{indexenv}{indexenv}
+\setenvclass{li-indexenv}{li-indexenv}
+\newenvironment{indexenv}
+  {\setenvclass{itemize}{\getenvclass{indexenv}}%
+   \setenvclass{li-itemize}{\getenvclass{li-indexenv}}%
+   \stepcounter{indexdepth}%
+%IF
+   \ifthenelse{\value{indexdepth}>1}
+%THEN
+     {\begin{itemize}%
+      \renewcommand{\indexitem}{\stepcounter{indexcount}\item}%
+      \renewcommand{\indexspace}{\stepcounter{indexcount}\vspace*{2ex}}}
+%ELSE
+     {\setcounter{indexbox}{0}\setcounter{indexcount}{0}%
+      \providesavebox{\csname indexbox0\endcsname}%
+      \begin{lrbox}{\csname indexbox0\endcsname}}}
+{\ifthenelse{\value{indexdepth}>1}
+{\end{itemize}\addtocounter{indexdepth}{-1}}
+{\end{lrbox}%
+\setindexpos{\theindexbox}{\theindexcount}%
+\stepcounter{indexbox}%
+\addtocounter{indexdepth}{-1}\printindexboxes}}
+\newcounter{indexwork}\newcounter{indexlimit}
+\newcounter{indexlines}
+\newboolean{spaceallowed}
+\newcounter{indexclines}\newcounter{indexprev}\newcounter{indexnow}%
+\newcommand{\printindexboxes}
+{\setcounter{indexwork}{1}%
+\setcounter{indexlimit}
+  {(\value{indexcount}+\value{indexcols}-1)/\value{indexcols}}%
+\setcounter{indexclines}{0}%
+\setcounter{indexprev}{0}%
+\setcounter{indexnow}{0}%
+\begin{tabular}{*{\value{indexcols}}{X}}
+\begin{itemize}
+\whiledo{\value{indexwork}<\value{indexbox}}
+{\setcounter{indexnow}{\pushint{\getindexpos{\theindexwork}}}%
+\addtocounter{indexclines}{\value{indexnow}-\value{indexprev}}%
+\ifthenelse{\equal{\usebox{\csname indexbox\theindexwork\endcsname}}{}}
+{\ifthenelse{\boolean{spaceallowed}}{\vspace*{2ex}}{}}
+{\item}%
+\setboolean{spaceallowed}{true}%
+\usebox{\csname indexbox\theindexwork\endcsname}%
+\stepcounter{indexwork}%
+\ifthenelse{\value{indexclines}>\value{indexlimit}}
+  {\ifthenelse{\value{indexwork}<\value{indexbox}}
+     {\end{itemize}&\begin{itemize}\setboolean{spaceallowed}{false}%
+      \setcounter{indexclines}{0}}
+     {}}%
+  {}%
+\setcounter{indexprev}{\value{indexnow}}}%
+\end{itemize}\end{tabular}}
+%%%%%% Default TABLE attribute for array and tabular
+\newcommand{\@table@attributes}{CELLSPACING=6 CELLPADDING=0}
+\newcommand{\@table@attributes@border}{CELLSPACING=0 CELLPADDING=1}
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   Redefining \textoverline of latexcommon.hva			%
+%   Here we can use HTML primitives				%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+\newcommand{\overlinedbox}[1]%
+     {{\@styleattr{SPAN}{style="text-decoration:overline"}#1}}% 
+\renewcommand{\textoverline}[1]{\overlinedbox{#1}}%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   Redefining \fbox of latexcommon.hva	         		%
+%   Here we can use HTML primitives				%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newstyle{.boxed}{border:1px solid black}
+\newstyle{.textboxed}{border:1px solid black}
+\NewcommandHtml{\@@boxed}[1]
+{\@start@text\@open{TABLE}{CLASS="boxed"}\@open{TR}{}\@open{TD}{}%
+#1%
+\@close{TD}\@close{TR}\@close{TABLE}\@end@text}
+\NewcommandHtml{\@boxed}[1]{{\@styleattr{SPAN}{CLASS="textboxed"}#1}}
+\RenewcommandHtml{\fbox}{\DisplayChoose\@@boxed\@boxed}
+%%Style of bars
+\def\@barsz{2px}
+\def\@@barsz{4px}%2 x
+\def\@@@barsz{6px}%3 x
+\def\@@@@barsz{8px}%3 x
+\newstyle{.vbar}
+{border:none;width:\@barsz;background-color:black;}
+\newstyle{.hbar}
+{border:none;height:\@barsz;width:100\%;background-color:black;}
+\newstyle{.hfill}
+{border:none;height:1px;width:200\%;background-color:black;}
+%%%Bars with HR
+\newcommand{\@hfill}{{\@nostyle\@print{<HR CLASS="hfill"}}}
+\newcommand{\@hbar}[1][]
+{{\@clearstyle\def\@tmp{#1}\@print{<HR CLASS="hbar"}%
+\@getprint{\ifx\@tmp\@empty\else{} #1\fi}\@print{>}}}
+\newcommand{\@vbar}[1][]
+{{\@clearstyle\def\@tmp{#1}\@print{<HR CLASS="vbar"}%
+\@getprint{\ifx\@tmp\@empty\else{} #1\fi}\@print{>}}}
+%%Bars with DIV
+\newcommand{\@@hbar}[1][]
+{{\@clearstyle\def\@tmp{#1}%
+\@open{DIV}{CLASS="hbar"\ifx\@tmp\@empty\else{} #1\fi}\@force{DIV}}}
+\newcommand{\@@vbar}[1][]
+{{\@clearstyle\def\@tmp{#1}%
+\@open{DIV}{CLASS="vbar"\ifx\@tmp\@empty\else{} #1\fi}\@force{DIV}}}
+%%Style of paragraphs
+\ifverbd\newstyle{P}{border:1px solid gray}\fi
+\ifverbd\newstyle{DIV}{border:1px dotted gray}\fi
+%%Style of display
+\def\@orange{\@print{#}FF8000}
+\def\@magenta{fuchsia}
+\def\@dtstyle{border-collapse:separate;border-spacing:\@barsz;width:auto;}
+\def\@dcstyle{white-space:nowrap;padding:0px;width:auto;}
+\newstyle{.vdisplay}{\@dtstyle{} empty-cells:show; border:2px solid red;}
+\newstyle{.vdcell}{\@dcstyle{} border:2px solid green;}
+\newstyle{.display}{\@dtstyle{} border:none;}
+\newstyle{.dcell}{\@dcstyle{} border:none;}
+\newstyle{.dcenter}{margin:0ex auto;}
+\newstyle{.vdcenter}{border:solid \@orange{} 2px; margin:0ex auto;}
+%%% And we can get something similar for extensible arrows accents.
+\newcommand{\@vd}{\ifverbd{}v\fi}
+\newcommand{\@dclass}{CLASS="\@vd{}display"}
+\DeclareSymbolHtml{\hva@righthead}{X25B8}
+\DeclareSymbolHtml{\hva@lefthead}{X25C2}
+\DeclareSymbolHtml{\hva@uphead}{X25B4}
+\DeclareSymbolHtml{\hva@downhead}{X25BE}
+\DeclareSymbolHtml{\hva@lrt}{X25E2}
+\DeclareSymbolHtml{\hva@llt}{X25E3}
+\DeclareSymbolHtml{\hva@ult}{X25E4}
+\DeclareSymbolHtml{\hva@urt}{X25E5}
+\DeclareSymbolHtml{\hva@utr}{X25B2}
+\DeclareSymbolHtml{\hva@dtr}{X25BC}
+\newcommand{\@open@dcell}[1]
+{\def\@tmp{#1}%
+\@open{TD}{CLASS="\@vd{}dcell" ALIGN="center"\ifx\@tmp\@empty\else{} #1\fi}}
+\newcommand{\@close@dcell}{\@close{TD}}
+\newcommand{\d@cell}[2][]{\@open@dcell{#1}#2\@close@dcell}
+\newcommand{\@open@display}
+{\@open{TABLE}{CLASS="\@vd{}display" STYLE="width:100\%;"}\@open{TR}{}}
+\newcommand{\@close@display}{\@close{TR}\@close{TABLE}}
+\newcommand{\@open@sizer}{}
+\newcommand{\@close@sizer}{}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Generic positioning of extensible upper accent
+%% Beware need to open display inside itemdisplays.
+%% Need also to open two displays so as to avoid 100% to
+%% mean all page width, in case command is alone in
+%% display!
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\@over@arrow}[3][2]
+{\@open@sizer\@open@display%
+#2%
+\@close{TR}\@open{TR}{}%
+\d@cell[COLSPAN="#1"]{#3}%
+\@close{TR}\@open{TR}{}%
+\d@cell[COLSPAN="#1"]{~}%
+\@close@display\@close@sizer}
+\newcommand{\textoverleftarrow}[1]
+{\hva@warn{\overleftarrow outside display mode}#1}
+\newcommand{\@overleftarrow}[1]
+{\mathop{\@over@arrow
+  {\d@cell[STYLE="width:10\%;"]{\hva@lefthead}%
+   \d@cell[STYLE="width:90\%;"]{\@hbar}}
+  {#1}}\intlimits}
+\newcommand{\overleftarrow}{\DisplayChoose\@overleftarrow\textoverleftarrow}
+\newcommand{\textoverrightarrow}[1]
+{\hva@warn{\overrightarrow outside display mode}#1}
+\newcommand{\@overrightarrow}[1]
+{\mathop{\@over@arrow
+  {\d@cell[STYLE="width:90\%;"]{\@hbar}\d@cell[STYLE="width:10\%;"]{\hva@righthead}}
+  {#1}}\intlimits}
+\newcommand{\overrightarrow}{\DisplayChoose\@overrightarrow\textoverrightarrow}
+\newcommand{\textoverbrace}[1]
+{\hva@warn{\overbrace in non-display mode}#1}
+\newcommand{\@overbrace}[1]
+{\mathop{\@over@arrow[5]
+  {\d@cell[STYLE="width:5\%;"]{\hva@lrt}%
+   \d@cell[STYLE="width:40\%;"]{\@hbar}%
+   \d@cell[STYLE="width:10\%;"]{\hva@utr}%
+   \d@cell[STYLE="width:40\%;"]{\@hbar}%
+   \d@cell[STYLE="width:5\%;"]{\hva@llt}}
+  {#1}}}
+\newcommand{\overbrace}{\DisplayChoose\@overbrace\textoverbrace}
+\newcommand{\@under@arrow}[3][2]
+{\@open@sizer\@open@display%
+\d@cell[COLSPAN="#1"]{~}\@close{TR}%
+\@open{TR}{}\d@cell[COLSPAN="#1"]{#3}\@close{TR}%
+\@open{TR}{}#2%
+\@close@display\@close@sizer}
+\newcommand{\textunderbrace}[1]
+{\hva@warn{\underbrace in non-display mode}#1}
+\newcommand{\@underbrace}[1]
+{\mathop{\@under@arrow[5]
+  {\d@cell[STYLE="width:5\%;"]{\hva@urt}%
+   \d@cell[STYLE="width:40\%;"]{\@hbar}%
+   \d@cell[STYLE="width:10\%;"]{\hva@dtr}%
+   \d@cell[STYLE="width:40\%;"]{\@hbar}%
+   \d@cell[STYLE="width:5\%;"]{\hva@ult}}
+  {#1}}}
+\newcommand{\underbrace}{\DisplayChoose\@underbrace\textunderbrace}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%concrete minipage
+\newstyle{.minipage}{text-align:left; margin-left:0em; margin-right:auto;}
+\setenvclass{minipage}{minipage}
+\newenvironment{@minipage}
+{\@open{DIV}{CLASS="\getenvclass{minipage}"}}
+{\@close{DIV}}
+%%%%%%%%margin par
+\newstyle{.marginpar}
+{border:solid thin black; width:20\%; text-align:left;}
+\newstyle{.marginparleft}
+  {float:left; margin-left:0ex; margin-right:1ex;}
+\newstyle{.marginparright}
+  {float:right; margin-left:1ex; margin-right:0ex;}
+\newif\ifmarginright\marginrighttrue
+\setenvclass{marginpar}{marginpar}
+\setenvclass{marginparside}{marginparright}
+\newcommand{\normalmarginpar}
+  {\setenvclass{marginparside}{marginparright}\marginrighttrue}
+\newcommand{\reversemarginpar}
+  {\setenvclass{marginparside}{marginparleft}\marginrightfalse}
+\newcommand{\hva@mtemp}{}
+\newcommand{\marginpar}[2][]
+{\def\hva@mtemp{#1}%
+\@open{DIV}{CLASS="\getenvclass{marginpar} \getenvclass{marginparside}"}%
+\ifx\hva@mtemp\@empty%
+#2%
+\else\ifmarginright
+#2%
+\else
+#1%
+\fi\fi
+\@close{DIV}}
+%%%%%%%%Default env class for verbatim
+\setenvclass{verbatim}{verbatim}
+%%%%%% format theorems
+\newcommand{\set@th@font}[1]{\def\th@font{#1}}
+\let\th@font\em
+\newstyle{.theorem}{text-align:left;margin:1ex auto 1ex 0ex;}
+\newcommand{\set@th}[1]
+{\global\let\csname#1@font\endcsname\th@font%
+\setenvclass[\global]{#1}{theorem}}
+\newenvironment{th@env}[3]
+{\@open{DIV}{CLASS="\getenvclass{#1}"}%
+\refstepcounter{#2}\textbf{#3~\csname{}the#2\endcsname}%
+\def\th@tmp{#1}\th@kont}
+{\@close{DIV}}
+\newcommand{\th@kont}[1][]
+{\ifoptarg~\textbf{(#1)}\fi\quad\csname\th@tmp{}@font\endcsname}
+%%%%%% Do not load hevea.hva again !
+\def\csname hevea@loaded\endcsname{}

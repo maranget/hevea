@@ -14,15 +14,11 @@ open Lexing
 open Lexeme
 open Buff
 
+
 let txt_level = ref 0
 and txt_stack = MyStack.create "htmllex"
 
-exception Error of string
-;;
-
-
-let error msg _lb = 
-  raise (Error msg)
+let error msg _lb =  raise (Emisc.LexError msg)
 
 
 let init table (s,t)= Hashtbl.add table s t
@@ -32,11 +28,11 @@ let block = Hashtbl.create 17
 ;;
 
 List.iter (init block)
-  ["CENTER", () ; "DIV", (); "BLOCKQUOTE", () ;
-  "H1", () ; "H2", () ;"H3", () ;"H4", () ;"H5", () ;"H6", () ;
-  "PRE", () ; "TABLE", () ; "TR",() ; "TD", () ; "TH",() ; 
-  "OL",() ; "UL",(); "P",() ; "LI",() ;
-  "DL",() ; "DT", () ; "DD",() ;
+  ["center", () ; "div", (); "blockquote", () ;
+  "h1", () ; "h2", () ;"h3", () ;"h4", () ;"h5", () ;"h6", () ;
+  "pre", () ; "table", () ; "tr",() ; "td", () ; "th",() ; 
+  "ol",() ; "ul",(); "p",() ; "li",() ;
+  "dl",() ; "dt", () ; "dd",() ;
   ]
 ;;
 
@@ -51,7 +47,7 @@ let warnings = ref true
 
 let check_nesting _lb name =
   try
-    Hashtbl.find block (String.uppercase name) ;
+    Hashtbl.find block (String.lowercase name) ;
     if !txt_level <> 0 && !warnings then begin
       Location.print_fullpos () ;
       prerr_endline 
@@ -66,28 +62,28 @@ let text = Hashtbl.create 17
 
 
 List.iter (init text)
-  ["TT",TT ; "I",I ; "B",B ; "BIG",BIG ; "SMALL",SMALL ;
-   "STRIKE",STRIKE ; "S",S ; "U",U ; "FONT",FONT ;
-   "EM",EM ; "STRONG",STRONG ; "DFN",DFN ; "CODE",CODE ; "SAMP",SAMP ;
-   "KBD",KBD ; "VAR",VAR ; "CITE",CITE ; "ABBR",ABBR ; "ACRONYM",ACRONYM ; 
-   "Q",Q ; "SUB",SUB ; "SUP",SUP ; "A", A ; "SPAN", SPAN ; "SCRIPT", SCRIPT;
-    "STYLE", STYLE; ]
+  ["tt",TT ; "i",I ; "b",B ; "big",BIG ; "small",SMALL ;
+   "strike",STRIKE ; "s",S ; "u",U ; "font",FONT ;
+   "em",EM ; "strong",STRONG ; "dfn",DFN ; "code",CODE ; "samp",SAMP ;
+   "kbd",KBD ; "var",VAR ; "cite",CITE ; "abbr",ABBR ; "acronym",ACRONYM ; 
+   "q",Q ; "sub",SUB ; "sup",SUP ; "a", A ; "span", SPAN ; "script", SCRIPT;
+    "style", STYLE; ]
 ;;
 
 let is_textlevel name =
   try
-    let _ = Hashtbl.find text (String.uppercase name) in
+    let _ = Hashtbl.find text (String.lowercase name) in
     true
   with
   | Not_found -> false
 
-let is_br name = "BR" = (String.uppercase name)
-let is_basefont name = "BASEFONT" = (String.uppercase name)
+let is_br name = "br" = (String.lowercase name)
+let is_basefont name = "basefont" = (String.lowercase name)
 
 let set_basefont attrs lb = 
   List.iter
-    (fun (name,v,_) -> match String.uppercase name,v with
-    | "SIZE",Some s ->
+    (fun (name,v,_) -> match String.lowercase name,v with
+    | "size",Some s ->
         begin try
           Emisc.basefont := int_of_string s
         with
@@ -100,30 +96,72 @@ let get_value lb = function
   | Some s -> s
   | _ -> error "Bad attribute syntax" lb
 
+let is_size_relative v =
+  match v with
+  | "xx-small" | "x-small" | "small" | "medium"
+  | "large" | "x-large" | "xx-large" 
+      -> false
+  | _ -> true
+  
+let font_value lb v =  
+  let v = get_value lb v in
+  try
+    let k = String.index v ':' in
+    let tag = String.sub v 0 k
+    and v = String.sub v (k+1) (String.length v - (k+1)) in
+    let tag =
+      match String.lowercase tag with
+      | "font-family" -> Ffamily
+      | "font-style" -> Fstyle
+      | "font-variant" -> Fvariant
+      | "font-weight" -> Fweight
+      | "font-size" ->
+(* Catch case 'font-size:xxx%' which does not commute
+   (with other font-size styles *)
+          if is_size_relative v then raise Exit
+          else Fsize
+      | "color" -> Fcolor
+      | "background-color" -> Fbgcolor
+      | _ -> raise Exit in
+    begin (* checks just one style *)
+      try ignore (String.index v ';') ; raise Exit
+      with
+      | Exit -> raise Exit
+      | _ -> ()
+    end ;
+    tag,v
+  with _ -> raise Exit
+
 let norm_attrs lb attrs =
    List.map
         (fun (name,value,txt) ->
-          match String.uppercase name with
-          | "SIZE" ->  SIZE (get_value lb value),txt
-          | "COLOR" -> COLOR (get_value lb value),txt
-          | "FACE" -> FACE (get_value lb value),txt
+          match String.lowercase name with
+          | "size" ->  SIZE (get_value lb value),txt
+          | "color" -> COLOR (get_value lb value),txt
+          | "face" -> FACE (get_value lb value),txt
+          | "style" ->
+              begin try
+                let st,v = font_value lb value in
+                ASTYLE (st,v),txt
+              with Exit -> OTHER,txt
+              end
           | _      -> OTHER, txt)
     attrs
 
 let ouvre lb name attrs txt =
-  let uname = String.uppercase name in
+  let uname = String.lowercase name in
   try
     let tag = Hashtbl.find text uname in
     let attrs = norm_attrs lb attrs in
     incr txt_level ;
     MyStack.push txt_stack (Location.get_pos ()) ;
-    Open (tag, attrs,txt)
+    Open (tag,attrs,txt)
   with
   | Not_found -> assert false
 
 and ferme _lb name txt =
   try
-    let tag = Hashtbl.find text (String.uppercase name) in
+    let tag = Hashtbl.find text (String.lowercase name) in
     decr txt_level ;
     begin if not (MyStack.empty txt_stack) then
       let _  = MyStack.pop txt_stack in ()
@@ -131,10 +169,6 @@ and ferme _lb name txt =
     Close (tag,txt)
   with
   | Not_found -> Text txt
-  
-              
-  
-
 
 let buff = Buff.create ()
 and abuff = Buff.create ()
@@ -223,6 +257,7 @@ and read_aavalue = parse
 | '#'?['a'-'z''A'-'Z''0'-'9''-''+''_'':''.']+ as lxm
     {aput lxm ;
     lxm}
+(* '"' *)
 | "" {error "Attribute syntax" lexbuf}
 
 and in_tag = parse
@@ -242,8 +277,9 @@ and styles = parse
 | blank+ { styles lexbuf }
 | eof    { [] }
 | blank* '.' ([^'{'' ''\t''\n']+ as name) blank*
+    ((tag blank*)+ as addname)?
     ('{' [^'}']* '}' as cl)
-  { Css.Class (name, cl) :: styles lexbuf }
+  { Css.Class (name, addname, cl) :: styles lexbuf }
 | blank* ([^'{']+ '{' [^'}']* '}' as lxm)
   {Css.Other lxm :: styles lexbuf}
 
@@ -274,13 +310,14 @@ and skip_value = parse
 | '#'?['a'-'z''A'-'Z''0'-'9''-''+''_'':''.']+
    { () }
 | "" { error "Attribute syntax" lexbuf }
+(* '"' *)
 
 and extract_value cls = parse
 | ['a'-'z''A'-'Z''0'-'9''-''+''_'':''.']+ as name
    { Emisc.Strings.add name cls }
 | '\''
     { extract_values_q cls lexbuf }
-| '"'
+| '"' (* '"' *)
     { extract_values_qq cls lexbuf }
 | "" { error "Attribute syntax" lexbuf }
 
@@ -293,7 +330,7 @@ and extract_values_q cls = parse
 and extract_values_qq cls = parse
 | blank+ { extract_values_qq cls lexbuf }
 | class_name as cl { extract_values_qq (Emisc.Strings.add cl cls) lexbuf }
-| '"' { cls }
+| '"' { cls } (* '"' *)
 | ""  { error "Class value syntax" lexbuf }
 
 and extract_attrs cls = parse
@@ -362,6 +399,7 @@ let next_token lb =
       raise e
 
 let classes lexbuf =
-  extract_classes Emisc.Strings.empty lexbuf
+  let r = extract_classes Emisc.Strings.empty lexbuf in
+  r
 
 } 

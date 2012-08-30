@@ -9,9 +9,8 @@
 (*                                                                     *)
 (***********************************************************************)
 
+open Printf
 open Misc
-
-let _header = "$Id: parse_opts.ml,v 1.39 2012-06-05 14:55:39 maranget Exp $" 
 
 type input = File of string | Prog of string
 
@@ -44,19 +43,13 @@ and pedantic = ref false
 and destination = ref Html
 and fixpoint = ref false
 and optimize = ref false
-;;
+
 
 let width = ref 72
-;;
-
 let except = ref []
-;;
-
 let path = ref []
-;;
-
 let outname = ref ""
-;;
+let small_length = ref 1024
 
 let check_displayverb n = if n > 1 then displayverb := true
 
@@ -108,6 +101,10 @@ let _ = Arg.parse
    "output info file(s)");
   ("-w", Arg.String (fun s -> width := int_of_string s),
    "width, set the output width for text or info output");
+  ("-rsz", Arg.Int (fun i -> small_length := i),
+   (sprintf
+     "size of leaves in rope implementation (default %i)"
+      !small_length));
   ("-o", Arg.String (fun s -> outname := s),
    "filename, make hevea output go into file 'filename'")
 ]
@@ -155,7 +152,7 @@ let base_in,name_in,styles = match !files with
         base,x,rest
       with Invalid_argument _ -> base_file, x,rest
       end
-| _ -> "","",!files
+| []|Prog _::_ -> "","",!files
 
 let filter = match base_in with "" -> true | _ ->  false
 ;;

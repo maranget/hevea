@@ -2,7 +2,7 @@
 %%vert
 \newcommand{\@vert@table}[2][\@@barsz]
 {\setcounter{@c}{(#2)}%
-\@open{DIV}{CLASS="vbar" STYLE="height:\arabic{@c}em; margin:0ex #1;"}\@force{DIV}}%
+\@open{div}{class="vbar" style="height:\arabic{@c}em; margin:0ex #1;"}\@force{div}}%
 \renewcommand{\csname\delim@name{\vert}\endcsname}[1]
 {\@vert@table{#1}}%
 \renewcommand{\csname\delim@name{|}\endcsname}[1]
@@ -22,67 +22,71 @@
 \let\top@parright\top@parright@txt
 \let\mid@parright\mid@parright@txt
 \let\dow@parright\dow@parright@txt
+%cell align
+\newcommand{\win@left@cell}{style="text-align:left"}
+\newcommand{\win@right@cell}{style="text-align:right"}
+\newcommand{\win@center@cell}{style="text-align:center"}
 %%Square brackets
 %Left
 \newcommand{\@bracell}[2][]
-{\@open{TR}{}\@open{TD}{CLASS="bracell"#1}%
-#2\@close{TD}\@close{TR}}
+{\@open{tr}{}\@open{td}{class="bracell"#1}%
+#2\@close{td}\@close{tr}}
 \newcommand{\@hbarcell}[1]
-{\@open{TR}{}\@open{TD}{CLASS="bracell hbar" STYLE="width:#1;"}%
-\@force{TD}\@close{TR}}
+{\@open{tr}{}\@open{td}{class="bracell hbar" style="width:#1;"}%
+\@force{td}\@close{tr}}
 \newcommand{\@leftsqbra@table}[1]
 {\setcounter{@c}{(#1)}%
-\@open{TABLE}{CLASS="delimleft"}%
+\@open{table}{class="delimleft"}%
 \@hbarcell{\@@@barsz}%
-\@bracell[ ALIGN="left"]{\@@vbar[STYLE="height:\arabic{@c}em;"]}%
+\@bracell[ \win@left@cell]{\@@vbar[style="height:\arabic{@c}em;"]}%
 \@hbarcell{\@@@barsz}%
-\@close{TABLE}}%
+\@close{table}}%
 \renewcommand{\csname\delim@name{[}\endcsname}[1]
 {\@leftsqbra@table{#1}}%
 %Right
 \newcommand{\@rightsqbra@table}[1]
 {\setcounter{@c}{(#1)}%
-\@open{TABLE}{CLASS="delimright"}%
+\@open{table}{class="delimright"}%
 \@hbarcell{\@@@barsz}%
-\@bracell[ ALIGN="right"]{\@@vbar[STYLE="height:\arabic{@c}em;"]}%
+\@bracell[ \win@right@cell]{\@@vbar[style="height:\arabic{@c}em;"]}%
 \@hbarcell{\@@@barsz}%
-\@close{TABLE}}%
+\@close{table}}%
 \renewcommand{\csname\delim@name{]}\endcsname}[1]
 {\@rightsqbra@table{#1}}%
 %Left ceil
 \newcommand{\@lceil@table}[1]
 {\setcounter{@c}{(#1)}%
-\@open{TABLE}{CLASS="delimleft"}%
+\@open{table}{class="delimleft"}%
 \@hbarcell{\@@@@barsz}%
-\@bracell[ ALIGN="left"]{\@@vbar[STYLE="height:\arabic{@c}em;"]}%
-\@close{TABLE}}%
+\@bracell[ \win@left@cell]{\@@vbar[style="height:\arabic{@c}em;"]}%
+\@close{table}}%
 \renewcommand{\csname\delim@name{\lceil}\endcsname}[1]
 {\@lceil@table{#1}}%
 %Left floor
 \newcommand{\@lfloor@table}[1]
 {\setcounter{@c}{(#1)}%
-\@open{TABLE}{CLASS="delimleft"}%
-\@bracell[ ALIGN="left"]{\@@vbar[STYLE="height:\arabic{@c}em;"]}%
+\@open{table}{class="delimleft"}%
+\@bracell[ \win@left@cell]{\@@vbar[style="height:\arabic{@c}em;"]}%
 \@hbarcell{\@@@@barsz}%
-\@close{TABLE}}%
+\@close{table}}%
 \renewcommand{\csname\delim@name{\lfloor}\endcsname}[1]
 {\@lfloor@table{#1}}%
 %Right ceil
 \newcommand{\@rceil@table}[1]
 {\setcounter{@c}{(#1)}%
-\@open{TABLE}{CLASS="delimright"}%
+\@open{table}{class="delimright"}%
 \@hbarcell{\@@@@barsz}%
-\@bracell[ ALIGN="right"]{\@@vbar[STYLE="height:\arabic{@c}em;"]}%
-\@close{TABLE}}%
+\@bracell[ \win@right@cell]{\@@vbar[style="height:\arabic{@c}em;"]}%
+\@close{table}}%
 \renewcommand{\csname\delim@name{\rceil}\endcsname}[1]
 {\@rceil@table{#1}}%
 %Right floor
 \newcommand{\@rfloor@table}[1]
 {\setcounter{@c}{(#1)}%
-\@open{TABLE}{CLASS="delimright"}%
-\@bracell[ ALIGN="right"]{\@@vbar[STYLE="height:\arabic{@c}em;"]}%
+\@open{table}{class="delimright"}%
+\@bracell[ \win@right@cell"]{\@@vbar[style="height:\arabic{@c}em;"]}%
 \@hbarcell{\@@@@barsz}%
-\@close{TABLE}}%
+\@close{table}}%
 \renewcommand{\csname\delim@name{\rfloor}\endcsname}[1]
 {\@rfloor@table{#1}}%
 %%Curly braces
@@ -105,26 +109,26 @@
 %%Arrows
 \newcommand{\@uparrow@table}[1]
 {\setcounter{@c}{(#1)}%
-\@open{TABLE}{CLASS="delim"}%
+\@open{table}{class="delim"}%
 \@bracell{\@print@u{X25B2}}%
-\@bracell[ALIGN="center"]
+\@bracell[ \win@center@cell]
 {\@vert@table{\arabic{@c}}}%
-\@close{TABLE}}%
+\@close{table}}%
 \newcommand{\@downarrow@table}[1]
 {\setcounter{@c}{(#1)}%
-\@open{TABLE}{CLASS="delim"}%
-\@bracell[ALIGN="center"]
-{\@open{DIV}{CLASS="vbar" STYLE="height:\arabic{@c}em;"}\@force{DIV}}%
+\@open{table}{class="delim"}%
+\@bracell[ \win@center@cell]
+{\@open{div}{class="vbar" style="height:\arabic{@c}em;"}\@force{div}}%
 \@bracell{\@print@u{X25BC}}%
-\@close{TABLE}}%
+\@close{table}}%
 \newcommand{\@updownarrow@table}[1]
 {\setcounter{@c}{(#1)}%
-\@open{TABLE}{CLASS="delim"}%
+\@open{table}{class="delim"}%
 \@bracell{\@print@u{X25B2}}%
-\@bracell[ALIGN="center"]
-{\@open{DIV}{CLASS="vbar" STYLE="height:\arabic{@c}em;"}\@force{DIV}}%
+\@bracell[ \win@center@cell]
+{\@open{div}{class="vbar" style="height:\arabic{@c}em;"}\@force{div}}%
 \@bracell{\@print@u{X25BC}}%
-\@close{TABLE}}%
+\@close{table}}%
 \renewcommand{\csname\delim@name{\uparrow}\endcsname}[1]
 {\@uparrow@table{#1}}%
 \renewcommand{\csname\delim@name{\downarrow}\endcsname}[1]
@@ -133,32 +137,32 @@
 {\@updownarrow@table{#1}}%
 %%%Double arrows
 \newcommand{\@Mid@table}[1]
-{\@open{TABLE}{CLASS="delim"}\@open{TR}{VALIGN="middle"}%
-\@open{TD}{CLASS="bracell"}\@vert@table[1px]{#1}\@close{TD}%
-\@open{TD}{CLASS="bracell"}\@vert@table[1px]{#1}\@close{TD}%
-\@close{TR}\@close{TABLE}}
+{\@open{table}{class="delim"}\@open{tr}{ style="vertical-align:middle"}%
+\@open{td}{class="bracell"}\@vert@table[1px]{#1}\@close{td}%
+\@open{td}{class="bracell"}\@vert@table[1px]{#1}\@close{td}%
+\@close{tr}\@close{table}}
 \newcommand{\@Uparrow@table}[1]
 {\setcounter{@c}{(#1)}%
-\@open{TABLE}{CLASS="delim"}%
+\@open{table}{class="delim"}%
 \@bracell{\@print@u{X25B2}}%
-\@bracell[ALIGN="center"]
+\@bracell[ \win@center@cell]
 {\@Mid@table{\arabic{@c}}}%
-\@close{TABLE}}%
+\@close{table}}%
 \newcommand{\@Downarrow@table}[1]
 {\setcounter{@c}{(#1)}%
-\@open{TABLE}{CLASS="delim"}%
-\@bracell[ALIGN="center"]
+\@open{table}{class="delim"}%
+\@bracell[ \win@center@cell]
 {\@Mid@table{\arabic{@c}}}%
 \@bracell{\@print@u{X25BC}}%
-\@close{TABLE}}%
+\@close{table}}%
 \newcommand{\@Updownarrow@table}[1]
 {\setcounter{@c}{(#1)}%
-\@open{TABLE}{CLASS="delim"}%
+\@open{table}{class="delim"}%
 \@bracell{\@print@u{X25B2}}%
-\@bracell[ALIGN="center"]
+\@bracell[ \win@center@cell]
 {\@Mid@table{\arabic{@c}}}%
 \@bracell{\@print@u{X25BC}}%
-\@close{TABLE}}%
+\@close{table}}%
 \renewcommand{\csname\delim@name{\Uparrow}\endcsname}[1]
 {\@Uparrow@table{#1}}%
 \renewcommand{\csname\delim@name{\Downarrow}\endcsname}[1]

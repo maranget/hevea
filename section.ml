@@ -11,8 +11,6 @@
 
 open Printf
 
-let _header = "$Id: section.ml,v 1.7 2012-06-05 14:55:39 maranget Exp $" 
-
 type style = Article | Book
 
 let style = ref Book

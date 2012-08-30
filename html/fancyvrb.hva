@@ -1,8 +1,8 @@
 \@primitives{fancyvrb}
 \usepackage{keyval}
 %%%%%%%% Helper
-\def\verb@table#1{\@open{TABLE}{#1}\@open{TR}{}\@open{TD}{}}
-\def\verb@elbat{\@close{TD}\@close{TR}\@close{TABLE}}
+\def\verb@table#1{\@open{table}{#1}\@open{tr}{}\@open{td}{}}
+\def\verb@elbat{\@close{td}\@close{tr}\@close{table}}
 %%%%%%%%% Font size
 \define@key{fancyvrb}{fontsize}{\def\verb@size{#1}}
 \def\verb@size{}
@@ -10,7 +10,7 @@
 \def\verb@shape{}
 %%%%%%% Labels
 \def\verb@label@
-  #1{\@open{TR}{}\@open{TH}{ALIGN=center COLSPAN=3}#1\@close{TH}\@close{TR}}
+  #1{\@open{tr}{}\@open{th}{style="text-align:center" colspan=3}#1\@close{th}\@close{tr}}
 \def\verb@toplabel{}\def\verb@bottomlabel{}
 \def\verb@deftop#1{\def\verb@toplabel{\ifverb@top\verb@horiz@line\verb@label@{#1}\fi}}
 \def\verb@defbottom#1{\def\verb@bottomlabel{\ifverb@bottom\verb@label@{#1}\verb@horiz@line\fi}}
@@ -39,16 +39,16 @@
 \define@key{fancyvrb}{fillcolor}{\verb@fillcolor@key{#1}}
 \def\verb@fillcolor{}
 \def\verb@horiz@line
-  {\@open{TR}{}\verb@vert@line[3]\@close{TR}}
+  {\@open{tr}{}\verb@vert@line[3]\@close{tr}}
 \newcommand{\verb@vert@line}[1][1]
-  {\@open{TD}{BGCOLOR=\verb@rulecolor{} COLSPAN="\@getprint{#1}"}%
-   \verb@table{CELLSPACING="\verb@framesize" CELLPADDING=0 BORDER=0}
-   \verb@elbat\@close{TD}}
+  {\@open{td}{style="background-color:\verb@rulecolor{}" colspan="\@getprint{#1}"}%
+   \verb@table{style="border-spacing:\verb@framesize;border:0;border-collapse:separate" class="cellpadding0"}
+   \verb@elbat\@close{td}}
 \define@key{fancyvrb}{frame}{\def\verb@frame{#1}}
 \def\verb@frame{none}
-\def\begin@frame@{\@open{TABLE}{BORDER=0 CELLSPACING=0 CELLPADDING=0}\verb@toplabel\@open{TR}{}\@open{TD}{}\@open{TABLE}{\@getprint{\verb@fillcolor} BORDER=0 CELLPADDING=0
-  CELLSPACING=0}\ifverb@top\verb@horiz@line\fi\@open{TR}{}\ifverb@left\verb@vert@line\fi\@open{TD}{}\@open{TABLE}{BORDER=0 CELLPADDING="\verb@framesep" CELLSPACING=0}\@open{TR}{}\@open{TD}{}}
-\def\end@frame@{\@close{TD}\@close{TR}\@close{TABLE}\@close{TD}\ifverb@right\verb@vert@line\fi\@close{TR}\ifverb@bottom\verb@horiz@line\fi\@close{TABLE}\@close{TD}\@close{TR}\verb@bottomlabel\@close{TABLE}}
+\def\begin@frame@{\@open{table}{style="border:0;border-spacing:0" class="cellpadding0"}\verb@toplabel\@open{tr}{}\@open{td}{}\@open{table}{\@getprint{\verb@fillcolor} style="border:0;border-spacing:0" class="cellpadding0"
+ }\ifverb@top\verb@horiz@line\fi\@open{tr}{}\ifverb@left\verb@vert@line\fi\@open{td}{}\@open{table}{style="border:0;border-spacing:0"}\@open{tr}{}\@open{td}{style="padding:\verb@framesep"}}
+\def\end@frame@{\@close{td}\@close{tr}\@close{table}\@close{td}\ifverb@right\verb@vert@line\fi\@close{tr}\ifverb@bottom\verb@horiz@line\fi\@close{table}\@close{td}\@close{tr}\verb@bottomlabel\@close{table}}
 \newif\ifverb@left\newif\ifverb@bottom\newif\ifverb@top\newif\ifverb@right
 \def\reset@frame
   {\setcounter{verb@count}{0}%

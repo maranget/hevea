@@ -9,7 +9,6 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let _header = "$Id: index.ml,v 1.45 2012-06-05 14:55:39 maranget Exp $"
 open Misc
 open Entry
 
@@ -49,6 +48,7 @@ let pretty_key (l,p) =
 type t_index =
   {mutable name : string ;
   mutable onebad : bool ;
+  mutable counter : int ;
   sufin : string ; sufout : string ;
   from_file : entry array option ;
   from_doc : entry Table.t ;
@@ -66,7 +66,7 @@ let read_index_file name file =
       let arg1,arg2 = read_indexentry lexbuf in
       let entry =
         try
-          let k,see = read_key (Lexing.from_string arg1) in
+          let k,see = read_key (MyLexing.from_string arg1) in
           Good {key=k ; see=see ; item = arg2}
         with Entry.NoGood ->
           Misc.warning
@@ -91,7 +91,7 @@ let changename tag name =
     idx.name <- name
   with Not_found -> missing_index tag
 
-let index_lbl tag i = "@"^tag^string_of_int i
+let index_lbl tag i = "hevea_"^tag^string_of_int i
 let index_filename suff = Parse_opts.base_out^".h"^suff
 
 let do_treat tag arg refvalue anchor =
@@ -102,7 +102,7 @@ let do_treat tag arg refvalue anchor =
     let lbl =
       match anchor with
       | Some lbl -> lbl
-      | None     -> index_lbl tag (Table.get_size from_doc) in    
+      | None     -> index_lbl tag idx.counter in    
     let refvalue = match refvalue with "" -> "??" | s -> s in
     let item = "\\@locref{"^lbl^"}{"^refvalue^"}" in
     Out.put out "\\indexentry{" ;
@@ -111,7 +111,7 @@ let do_treat tag arg refvalue anchor =
     Out.put out item ;
     Out.put out "}\n" ;
     
-    let lexbuf = Lexing.from_string arg in
+    let lexbuf = MyLexing.from_string arg in
     let entry =
       try
         let key,see = read_key lexbuf in
@@ -122,6 +122,7 @@ let do_treat tag arg refvalue anchor =
           Misc.warning ("Bad index syntax: '"^arg^"'") ;
           Bad in
     Table.emit from_doc entry ;
+    idx.counter <- idx.counter + 1 ;
     lbl
   with
   | Not_found -> missing_index tag ; ""
@@ -324,6 +325,7 @@ let newindex tag sufin sufout name =
   Hashtbl.add itable tag
     {name = name ;
     onebad = false ;
+    counter = 0 ;
     sufin = sufin ; sufout = sufout ;
     from_file = from_file ;
     from_doc = Table.create Bad ;

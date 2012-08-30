@@ -9,9 +9,6 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let _header = "$Id: text.ml,v 1.84 2012-06-05 14:55:39 maranget Exp $"
-
-
 open Misc
 open Element
 open Lexstate
@@ -1258,7 +1255,7 @@ let change_format format = match format with
 | _       ->  raise (Misc.Fatal ("as_align"))
 ;;
 
-let open_cell format span insides =
+let open_cell format span insides _border =
   open_block "TEMP" "";
     
   (* preparation du formattage : les flags de position sont sauvegardes par l'ouverture du bloc TEMP *)
@@ -1444,7 +1441,7 @@ let make_inside s _ =
 
 let make_hline _ _ =
   new_row();
-  open_cell center_format 0 0;
+  open_cell center_format 0 0 false;
   close_mods ();
   !cell.w <- 0;
   !cell.wrap <- Fill;
@@ -1753,7 +1750,7 @@ let open_display _ =
   open_table (!verbose>1) "";
   new_row ();
   if !verbose > 1 then make_border "{";
-  open_cell cm_format 1 0;
+  open_cell cm_format 1 0 false;
   open_cell_group ();
 ;;
 
@@ -1774,7 +1771,7 @@ let item_display () =
   if !verbose > 1 then make_border "|";
   close_cell ();
   close_cell_group ();
-  open_cell cm_format 1 0;
+  open_cell cm_format 1 0 false;
   open_cell_group ();
   if is_freeze then freeze f;
 ;;
@@ -1784,7 +1781,7 @@ let item_display_format format =
   if !verbose > 1 then make_border "|";
   close_cell ();
   close_cell_group ();
-  open_cell (formated format) 1 0;
+  open_cell (formated format) 1 0 false;
   open_cell_group ();
   if is_freeze then freeze f;
 ;;
@@ -1833,7 +1830,7 @@ and close_vdisplay () =
 and open_vdisplay_row s =
   new_row ();
   if !verbose > 0 then make_border "[";
-  open_cell (formated s) 1 0;
+  open_cell (formated s) 1 0 false;
   open_cell_group ();
   open_display "";
 

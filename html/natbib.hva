@@ -1,5 +1,7 @@
 \ProvidesPackage{natbib}
 \input{natbib-common.hva}
+\renewcommand{\@NAT@os}{{\@nostyle\@print{<sup>}}}
+\renewcommand{\@NAT@cs}{{\@nostyle\@print{</sup>}}}
 \renewcommand{\@biblabel}[1]
 {\@locname{#1}{\NAT@bibread{#1}\purple\NAT@format@item{#1}{\NAT@num}{\NAT@auth}{\NAT@year}}}
 \newcommand{\NAT@fmt}[3]

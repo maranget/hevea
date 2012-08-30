@@ -9,7 +9,6 @@
 (*                                                                     *)
 (*  $Id: htmllex.mli,v 1.6 2006-10-09 08:25:16 maranget Exp $          *)
 (***********************************************************************)
-exception Error of string
 
 val ptop : unit -> unit
 val to_string : Lexeme.token -> string

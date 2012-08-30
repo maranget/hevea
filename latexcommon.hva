@@ -96,14 +96,14 @@
 \newcommand{\@figrule}{\begin{center}\@hr{.8\linewidth}{2pt}\end{center}}
 \newenvironment{figure}[1][]
 {\@forcecommand{\caption}[2][]{\hva@caption{figure}{##2}}%
-\@open{BLOCKQUOTE}{\envclass@attr{figure}}\@figrule}
-{\@figrule\@close{BLOCKQUOTE}}
+\@open{blockquote}{\envclass@attr{figure}}\@figrule}
+{\@figrule\@close{blockquote}}
 \newenvironment{figure*}[1][]{\begin{figure}[#1]}{\end{figure}}
 \setenvclass{table}{table}
 \newenvironment{table}[1][]
 {\@forcecommand{\caption}[2][]{\hva@caption{table}{##2}}%
-\@open{BLOCKQUOTE}{\envclass@attr{table}}\@figrule%
-}{\@figrule\@close{BLOCKQUOTE}}
+\@open{blockquote}{\envclass@attr{table}}\@figrule%
+}{\@figrule\@close{blockquote}}
 \newenvironment{table*}[1][]{\begin{table}[#1]}{\end{table}}
 \@forcecommand{\suppressfloats}[1][]{}
 \newcounter{topnumber}
@@ -128,7 +128,7 @@
 \newcommand{\stackrel}[2]{\mathop{#2}\limits^{\scriptsize{}#1}\nolimits}
 \def\space@varray{1}
 \newenvironment{@varray}
-  {\prim@def{\@table@attributes}{border=0 cellspacing=\space@varray{} cellpadding=0}\def\space@varray{0}%
+  {\prim@def{\@table@attributes}{style="border:0;border-spacing:\space@varray{};border-collapse:separate" class="cellpadding0"}\def\space@varray{0}%
   \begin{array}{c}}
   {\end{array}}
 %%% OLD DEFINITIONS : rediscovered, only \textoverline redefined in hevea.hva
@@ -164,8 +164,8 @@
 %environement itemize
 \setenvclass{itemize}{itemize}
 \newenvironment{itemize}
-  {\@open{UL}{\envclass@attr{itemize}}\let\item\@itemitemize}
-  {\@close{UL}}
+  {\@open{ul}{\envclass@attr{itemize}}\let\item\@itemitemize}
+  {\@close{ul}}
 \newcounter{enumcount}
 \newcommand{\@enumstyle}
 {\ifthenelse{\value{enumcount}=1}{type=1}{}%
@@ -203,9 +203,9 @@
   {\@close{OL}\addtocounter{enumcount}{-1}}
 %
 %% Modified to support styles e.g. 
-%%                <DL CLASS=list>,
-%%                <DT CLASS=dt-list>
-%% ONLY CHANGES : 1) CLASS=list added to \@open{DL} argument
+%%                <DL class=list>,
+%%                <DT class=dt-list>
+%% ONLY CHANGES : 1) class=list added to \@open{DL} argument
 %%                2) \@dt replaced by \@list@dtdd 
 %% Remove these to get original behaviour
 %
@@ -217,22 +217,22 @@
 \setenvclass{dt-list}{dt-list}
 \setenvclass{dd-list}{dd-list}
 \newenvironment{list}[2]
-  {\@open{DL}{\envclass@attr{list}}
+  {\@open{dl}{\envclass@attr{list}}
   \renewcommand{\item}[1][#1]{\@dtdd{##1}{\envclass@attr{dt-list}}{\envclass@attr{dd-list}}}%
   \@forcecommand{\makelabel}[1]{##1}%
   #2%exec
-}{\@close{DL}}
+}{\@close{dl}}
 \setenvclass{description}{description}
 \setenvclass{dt-description}{dt-description}
 \setenvclass{dd-description}{dd-description}
 \newstyle{.dd-description}{margin:0ex 0ex 1ex 4ex;}
 \newstyle{.dt-description}{margin:0ex;}
 \newenvironment{@list@description}[2]
-  {\@open{DL}{\envclass@attr{description}}%
+  {\@open{dl}{\envclass@attr{description}}%
   \renewcommand{\item}[1][#1]{\@dtdd{##1}{\envclass@attr{dt-description}}{\envclass@attr{dd-description}}}%
   \@forcecommand{\makelabel}[1]{##1}%
   #2%exec
-}{\@close{DL}}
+}{\@close{dl}}
 \newenvironment{description}{\begin{@list@description}{}{\renewcommand{\makelabel}[1]{\textbf{##1}}}}{\end{@list@description}}
 \setenvclass{trivlist}{trivlist}
 \setenvclass{dt-trivlist}{dt-trivlist}
@@ -313,7 +313,8 @@
 \newcommand{\AtBeginDocument}[1]{\addtokens{\@atbegindocument}{#1}}
 \AtBeginDocument{\@begin@document}
 \AtBeginDocument
-{\begin{toimage}
+{\@set@ttmode%set the value of tt_mode in Lexscan now that \tt is defined.
+\begin{toimage}
 \pagestyle{empty}
 \thispagestyle{empty}
 \begin{document}
@@ -359,10 +360,15 @@
 %%% Aux files
 \newcommand{\@fst}[2]{#1}
 \newcommand{\newlabel}[2]{\@newlabel{#1}{\@funcall{\@fst}{#2}}}
+\newcommand{\new@anchor@label}[3]
+{\@new@anchor@label{#1}{#2}{\@funcall{\@fst}{#3}}}
 \newcommand{\@writefile}[2]{}
 \newcommand{\@setckpt}[2]{}
-\newcommand{\label}[2][]{\@locname{#2}{#1}\@auxwrite{#2}{\@currentlabel}}
-\newcommand{\ref}[1]{\@locref{#1}{\@auxread{#1}}}
+\newcommand{\std@label}[2][]{\@locname{#2}{#1}\@auxwrite{#2}{\@currentlabel}}
+\newcommand{\label}[2][]
+{\ife\@the@sec\std@label[#1]{#2}\else
+#1\@@auxwrite{\@the@sec}{#2}{\@currentlabel}\fi}
+\newcommand{\ref}[1]{\@locref{\@check@anchor@label{#1}}{\@auxread{#1}}}
 \newcommand{\pageref}[1]{\@locref{#1}{??}}
 \let\@input\input%appears inside aux files
 \newcommand{\@readhaux}[1]
@@ -381,7 +387,7 @@
   {\@readhaux{#2}}%
 \@restartoutput\@restartimage}
 \AtBeginDocument
-{\@sawdocumenttrue\@readauxorhaux{\@basein}{\jobname}}
+{\@sawdocumenttrue\@save@macros\@readauxorhaux{\@basein}{\jobname}}
 %%%%%%%%%%% Bibliography
 \newcommand{\bibdata}[1]{}
 \newcommand{\bibliography}[1]
@@ -449,14 +455,21 @@
 \ifthenelse{\equal{#1}{!*!}}%
   {\stepcounter{\footnote@c}\@stepanchor{\value{\footnote@c}}\setcounter{onemark}{\value{\footnote@c}}}%
   {\setcounter{onemark}{#1}}%
+\ifu\csname text@seen@\@anchorval{\value{onemark}}\endcsname%
+\global\let\csname text@seen@\@anchorval{\value{onemark}}\endcsname\relax
+%\typeout{Defined text@seen@\@anchorval{\value{onemark}}}%
 \@notetextstyle{\@noteref{note}{text}
   {\@anchorval{\value{onemark}}}
-  {\@fnmarktext{\value{onemark}}}}}
-%Text of footnote in a DIV, because of possible \par in it
+  {\@fnmarktext{\value{onemark}}}}\else
+\@notetextstyle{\@notepointer{note}
+  {\@anchorval{\value{onemark}}}
+  {\@fnmarktext{\value{onemark}}}}\fi
+}
+%Text of footnote in a div, because of possible \par in it
 \newcommand{\footnotetext}[2][\value{\footnote@c}]
-{\@footnotetext{#1}{\@open{DIV}{CLASS="footnotetext"}#2\@close{DIV}}}
+{\@footnotetext{#1}{\@open{div}{class="footnotetext"}#2\@close{div}}}
 \newstyle{.footnotetext}{margin:0ex; padding 0ex;}
-\newstyle{DIV.footnotetext P}{margin:0px; text-indent:1em;}
+\newstyle{div.footnotetext P}{margin:0px; text-indent:1em;}
 \newcommand{\footnote}[2][!*!]{%
 \ifthenelse{\equal{#1}{!*!}}
   {\footnotemark\footnotetext{#2}}
@@ -464,7 +477,7 @@
 %%% For defining Sectioning commands
 \newif\if@refs\@refstrue
 \newenvironment{@norefs}
-  {\@refsfalse\renewcommand{\@aelement}[2]{##2}\renewcommand{\label}[2][]{}\renewcommand{\ref}[1]{\@auxread{##1}}\renewcommand{\footnote}[1]{}}
+  {\@refsfalse\renewcommand{\@aelement}[3][]{##3}\renewcommand{\label}[2][]{}\renewcommand{\ref}[1]{\@auxread{##1}}\renewcommand{\footnote}[1]{}}
   {}
 \newcounter{secnumdepth}\setcounter{secnumdepth}{3}%
 \newcounter{tocdepth}\setcounter{tocdepth}{2}%
@@ -479,25 +492,40 @@
 \newcommand{\notocnumber}{\let\@addsecnumber\@addsecnumber@no}
 \notocnumber
 \newcounter{tocanchor}
+%\newcommand{\@doaddtoc}[3]
+%{%\stepcounter{tocanchor}%
+%\@auxdowrite{\@print{\@@addtocsec{htoc}}\{\@fmt@sec\}\{#1\}\{\@checkdepth{#1}{\@print{\@print}\{#2\}\@print{\quad{}}}\begin{@norefs}\@subst@expn{#3}\end{@norefs}\}\@print{
+%}}}
 \newcommand{\@doaddtoc}[3]
-{\stepcounter{tocanchor}%
-\@auxdowrite{\@print{\@addtocsec{htoc}}\{\thetocanchor\}\{#1\}\{\@checkdepth{#1}{\@print{\@print}\{#2\}\@print{\quad{}}}\@subst{#3}\}\@print{
+{%\stepcounter{tocanchor}%
+\@auxdowrite{\@print{\@@addtocsec{htoc}}\{\@fmt@sec\}\{#1\}\{\@checkdepth{#1}{\@print{\@print}\{#2\}\@print{\quad{}}}\begin{@norefs}\@subst@expn{#3}\end{@norefs}\}\@print{
 }}}
+%%section identifiers
+\newcounter{@sec}
+\newcommand{\@fmt@sec}{sec\arabic{@sec}}
+\newcommand{\@step@sec}
+{\stepcounter{@sec}%
+\let\@the@sec\@fmt@sec
+\def\@secid{\@getprint{id="\@fmt@sec" }\let\@secid\relax}}
+\let\@secid\relax
+\newcommand{\end@step@sec}{\let\@the@sec\relax}
+\let\@the@sec\relax
+%%
 \newcommand{\@makesection}[7]{%
 \newcommand{\csname @#3@level\endcsname}{#2}%
 \newcommand{#1}[2][]{%
-\@secbegin\@checkdepth{#2}{\refstepcounter{#3}}%
-\ifoptarg\@checktocdepth{#2}{\@doaddtoc{#2}{#5}{##1}}\else
-\@checktocdepth{#2}{\@doaddtoc{#2}{#5}{##2{}}}\fi
-\ifoptarg\cuthere{#3}{\@addsecnumber{#2}{#5}{##1}}\else
+\@secbegin\@step@sec\@checkdepth{#2}{\refstepcounter{#3}}%
+\ifoptarg\@checktocdepth{#2}{\@doaddtoc{#2}{#5}{##1}}%
+\cuthere{#3}{\@addsecnumber{#2}{#5}{##1}}\else
+\@checktocdepth{#2}{\@doaddtoc{#2}{#5}{##2{}}}
 \cuthere{#3}{\@addsecnumber{#2}{#5}{\begin{@norefs}##2{}\end{@norefs}}}\fi
 #4\@secanchor%
-\@altdepth{#2}
-{\@alttocdepth{#2}{\@locname{htoc\thetocanchor}{#5}#6}{#5#6}}
-{\@checktocdepth{#2}{\@locname{htoc\thetocanchor}{}}}%
-##2{}#7\@secend}%
+\@altdepth{#2}{#5#6}{}%
+%{\@alttocdepth{#2}{\@locname{htoc\thetocanchor}{#5}#6}{#5#6}}
+%{\@checktocdepth{#2}{\@locname{htoc\thetocanchor}{}}}%
+##2{}#7\end@step@sec\@secend}%
 \newcommand{#1*}[1]{%
-\@secbegin\cuthere{#3}{##1}%
+\@secbegin\@step@sec\cuthere{#3}{##1}%
 #4\@secanchor{}##1{}#7\@secend}}%
 %%%%%%%%%%%%%%
 % Images     %
@@ -566,8 +594,8 @@
 \newcommand{\@skipopt}[1][!*!]{}
 \newcommand{\@skiparg}[1]{}
 %%%%Utility
-\newcommand{\@opencell}[3]{\@open{TABLE}{#1}\@open{TR}{#2}\@open{TD}{#3}}
-\newcommand{\@closecell}{\@force{TD}\@close{TR}\@close{TABLE}}
+\newcommand{\@opencell}[3]{\@open{table}{#1}\@open{tr}{#2}\@open{td}{#3}}
+\newcommand{\@closecell}{\@force{td}\@close{tr}\@close{table}}
 %%%%%%%%%%%%%%%%% Length as percent
 \def\linewidth{@percent}
 \def\textwidth{@percent}
@@ -588,7 +616,7 @@
 \newcommand{\contentsname}{Contents}
 \newcommand{\@readtoc}[2]
 {\@tocsection{#2}
-\@iffileexists{\jobname.#1}{\input{\jobname.#1}}{\hva@warn{File \jobname.#1 not found}}}
+\@iffileexists{\jobname.#1}{\input{\jobname.#1}}{}}
 \newcommand{\tableofcontents}{\@readtoc{htoc}{\contentsname}}
 \newcommand{\addcontentsline}[3]
 {\@auxdowrite{\@print{\@addcontentsline}{\{\@nostyle{}h#1\}\{\csname @#2@level\endcsname\}}\{\@subst{#3}\}\@print{

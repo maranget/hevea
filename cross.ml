@@ -9,7 +9,6 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: cross.ml,v 1.12 2006-01-30 08:56:26 maranget Exp $" 
 let verbose = ref 0
 ;;
 
@@ -29,15 +28,20 @@ let add name file =
 ;;
 
 
+let decode_fragment frag =
+  let buff = Buff.create () in
+  Url.decode_fragment (Buff.put_char buff) (Buff.put buff) frag ;
+  Buff.to_string buff
+
 let fullname change myfilename name =
   try
-    let filename = Hashtbl.find table name in
+    let filename = Hashtbl.find table (decode_fragment name) in
     let newname =
       if myfilename = filename  then
 	"#"^name
       else
         change filename^"#"^name in
-    if !verbose > 0 then
+    if !verbose > 1 then
       prerr_endline ("From "^name^" to "^newname) ;
     newname
   with Not_found -> begin

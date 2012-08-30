@@ -9,6 +9,7 @@
 (*                                                                     *)
 (*  $Id: htmlparse.ml,v 1.11 2008-01-22 18:08:37 maranget Exp $         *)
 (***********************************************************************)
+
 open Lexeme
 open Htmllex
 open Tree
@@ -51,7 +52,7 @@ let rec tree cls lexbuf =
       let txt =	match cls with
       | None -> txt
       | Some cls ->
-	  let css = Htmllex.styles (Lexing.from_string txt) in
+	  let css = Htmllex.styles (MyLexing.from_string txt) in
           let buff = Buff.create () in
           Buff.put_char buff '\n' ;
           List.iter
@@ -59,10 +60,16 @@ let rec tree cls lexbuf =
             | Css.Other txt ->
                 Buff.put buff txt ;
                 Buff.put_char buff '\n'
-            | Css.Class (name, txt) ->
+            | Css.Class (name, addname, txt) ->
                 if Emisc.Strings.mem name cls then begin
                   Buff.put_char buff '.' ;
                   Buff.put buff name ;
+                  begin match addname with
+                  | None -> ()
+                  | Some n -> 
+                      Buff.put_char buff ' ' ;
+                      Buff.put buff n
+                  end ;
                   Buff.put buff txt ;
                   Buff.put_char buff '\n'
                 end)

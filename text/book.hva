@@ -4,32 +4,32 @@
 \newcommand{\@forcenewline}{\\{}~\\{}}
 \@makesection
   {\part}{-2}{part}
-  {\@forcenewline\@open{ALIGN}{CENTER}\@open{HEAD}{*}}
+  {\@forcenewline\@open{align}{center}\@open{head}{*}}
   {\partname:~\thepart}{\\}
-  {\@close{HEAD}\@close{ALIGN}}
+  {\@close{head}\@close{align}}
 \@makesection
   {\chapter}{-1}{chapter}
-  {\@forcenewline\@open{HEAD}{*}}
+  {\@forcenewline\@open{head}{*}}
   {\chaptername~\thechapter}{\qquad}
-  {\@close{HEAD}}
+  {\@close{head}}
 \@makesection
   {\section}{0}{section}
-  {\@forcenewline\@open{HEAD}{*=}}
+  {\@forcenewline\@open{head}{*=}}
   {\thesection}{\quad}
-  {\@forcenewline\@close{HEAD}}
+  {\@forcenewline\@close{head}}
 \@makesection
   {\subsection}{1}{subsection}
-  {\@forcenewline\@open{HEAD}{=}}
+  {\@forcenewline\@open{head}{=}}
   {\thesubsection}{\quad}
-  {\@close{HEAD}}
+  {\@close{head}}
 \@makesection
   {\subsubsection}{2}{subsubsection}
-  {\@forcenewline\@open{HEAD}{-}}{\thesubsubsection}{\quad}{\@close{HEAD}}
+  {\@forcenewline\@open{head}{-}}{\thesubsubsection}{\quad}{\@close{head}}
 \@makesection
   {\paragraph}{3}{paragraph}
-  {\@open{HEAD}{}}{\theparagraph}{\quad}{\@close{HEAD}}
+  {\@open{head}{}}{\theparagraph}{\quad}{\@close{head}}
 \@makesection
   {\subparagraph}{4}{subparagraph}
-  {\@open{HEAD}{}}{\thesubparagraph}{\quad}{\@close{HEAD}}
+  {\@open{head}{}}{\thesubparagraph}{\quad}{\@close{head}}
 \styleloadedtrue
 \fi

@@ -9,8 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let _header = "$Id: lexstate.ml,v 1.72 2012-06-05 14:55:39 maranget Exp $"
-
+open Printf
 open Misc
 open Lexing
 open MyStack
@@ -19,19 +18,27 @@ open MyStack
 
 (* Commands nature *)
 type action =
-  | Subst of string
+  | Subst of string list
   | Toks of string list
   | CamlCode of (Lexing.lexbuf -> unit)
 
+let body_to_string = String.concat ""
+
+let pretty_body chan = List.iter(fprintf chan "%s")
 
 let pretty_action acs =
    match acs with
-   | Subst s    -> Printf.fprintf stderr "{%s}" s
+   | Subst s    ->
+       eprintf "{%a}" (fun chan -> List.iter (fprintf chan "\"%s\" ")) s
    | Toks l ->
        List.iter
          (fun s -> Printf.fprintf stderr "{%s}, " s)
          l
    | CamlCode _ -> prerr_string "*code*"
+
+let rec is_empty_list = function
+  | [] -> true
+  | x::xs -> String.length x = 0 && is_empty_list xs
 
 type pat = string list * string list
 
@@ -54,7 +61,7 @@ let zero_pat = latex_pat [] 0
 and one_pat  = latex_pat [] 1
 
 (* Environments *)
-type subst = Top | Env of string arg array
+type subst = Top | Env of string list arg array
 and 'a arg = {arg : 'a ; subst : subst }
 
 let mkarg arg subst = {arg=arg ; subst=subst }
@@ -84,9 +91,9 @@ let pretty_subst = function
       if Array.length args <> 0 then begin
         prerr_endline "Env: " ;
         for i = 0 to Array.length args - 1 do
-          prerr_string "\t``" ;
-          prerr_string args.(i).arg  ;
-          prerr_endline "''"
+          prerr_string "\t'" ;
+          eprintf "%a" pretty_body args.(i).arg  ;
+          prerr_endline "'"
         done
       end
 
@@ -99,7 +106,7 @@ let rec pretty_subst_rec indent = function
         for i = 0 to Array.length args - 1 do
           prerr_string indent ;
           prerr_string ("  #"^string_of_int (i+1)^" ``");
-          prerr_string  args.(i).arg ;
+          pretty_body stderr args.(i).arg ;
           prerr_endline "''" ;
           pretty_subst_rec ("  "^indent) args.(i).subst
         done
@@ -222,7 +229,8 @@ let scan_arg lexfun i =
   let arg = args.(i) in
 
   if !verbose > 1 then begin
-    prerr_string ("Subst arg #"^string_of_int (i+1)^" -> ``"^arg.arg^"''")
+    eprintf
+      "Subst arg #%i -> %a\n" i pretty_body arg.arg
   end ;
   let r = lexfun arg in
   r
@@ -421,14 +429,15 @@ let full_save_arg_limits eoferror parg lexfun lexbuf =
 ;;
 
 
-type ok = No of string | Yes of string
+type ok = No of string | Yes of string list
 ;;
 
 let parg {arg=arg} = arg
 and pargs {arg=args} = String.concat ", " args
+and parg_list {arg=xs} = body_to_string xs
 
 and pok = function
-  | {arg=Yes s} -> s
+  | {arg=Yes s} -> String.concat "" s
   | {arg=No s} -> "* default arg: ["^s^"] *"
 
 
@@ -437,9 +446,9 @@ let eof_arg () =
   raise (Error "Eof while looking for argument")
 
 let save_arg lexbuf =
-  let r = full_save_arg eof_arg mkarg parg Save.arg lexbuf in
-  r
-
+  full_save_arg eof_arg mkarg parg Save.arg lexbuf
+and save_body lexbuf =
+    full_save_arg eof_arg mkarg parg_list Save.arg_list lexbuf
 and save_arg_with_delim delim lexbuf =
   full_save_arg eof_arg mkarg parg (Save.with_delim delim) lexbuf
 and save_filename lexbuf =
@@ -450,7 +459,7 @@ and save_xy_arg lexbuf =
   full_save_arg eof_arg mkarg parg Save.xy_arg lexbuf
 and save_cite_arg lexbuf =
   full_save_arg eof_arg mkarg pargs Save.cite_arg lexbuf
-  
+
 type sup_sub = {
   limits : Misc.limits option ;
   sup : string arg ;
@@ -529,7 +538,7 @@ let save_arg_opt default lexbuf =
       mkarg
       pok
       (fun lexbuf ->
-        try Yes (Save.opt lexbuf) with          
+        try Yes (Save.opt_list lexbuf) with          
         | Save.NoOpt -> No default)
       lexbuf in
   match r.arg with
@@ -546,10 +555,10 @@ let from_ok okarg = match okarg.arg with
       mkarg s okarg.subst
   | No s  ->
       optarg := false ;
-      mkarg s okarg.subst
+      mkarg [s] okarg.subst
 
 let pretty_ok = function
-  Yes s -> "+"^s^"+"
+  Yes s -> "+"^String.concat "" s^"+"
 | No s  -> "-"^s^"-"
 ;;
 
@@ -558,20 +567,22 @@ let norm_arg s =
   String.length s = 2 && s.[0] = '#' &&
   ('0' <= s.[1] && s.[1] <= '9')
 
+let list_arg a = { a with arg = [a.arg] }
+
 let rec parse_args_norm pat lexbuf = match pat with
 |   [] -> []
 | s :: (ss :: _ as pat) when norm_arg s && norm_arg ss ->
-    let arg = save_arg lexbuf in
+    let arg = save_body lexbuf in
     let r = parse_args_norm pat lexbuf in
      arg :: r
 | s :: ss :: pat when norm_arg s && not (norm_arg ss) ->
     let arg = save_arg_with_delim ss lexbuf in
-    arg :: parse_args_norm pat lexbuf
+    list_arg arg :: parse_args_norm pat lexbuf
 | s :: pat when not (norm_arg s) ->
     Save.skip_delim s lexbuf ;
     parse_args_norm pat lexbuf
 | _ :: pat ->
-    let arg = save_arg lexbuf in
+    let arg = save_body lexbuf in
     let r = parse_args_norm pat lexbuf in
     arg :: r
 ;;
@@ -586,7 +597,7 @@ let skip_opt lexbuf =
   let _ =  save_arg_opt "" lexbuf  in
   ()
 
-and save_opt def lexbuf = from_ok (save_arg_opt def  lexbuf)
+and save_opt def lexbuf = from_ok (save_arg_opt def lexbuf)
 ;;
 
 let rec save_opts pat lexbuf = match pat with
@@ -619,7 +630,7 @@ let make_stack name pat lexbuf =
       pretty_pat pat ;
       prerr_endline "";
       for i = 0 to Array.length args-1 do
-        Printf.fprintf stderr "\t#%d = %s\n" (i+1) (args.(i).arg) ;
+        Printf.fprintf stderr "\t#%d = %a\n" (i+1) pretty_body args.(i).arg ;
         pretty_subst (args.(i).subst)
       done
     end ;
@@ -638,10 +649,25 @@ let scan_this lexfun s =
     Printf.fprintf stderr "scan_this : [%s]" s ;
     prerr_endline ""  
   end ;
-  let lexbuf = Lexing.from_string s in
+  let lexbuf = MyLexing.from_string s in
   let r = lexfun lexbuf in
   if !verbose > 1 then begin
     Printf.fprintf stderr "scan_this : over" ;
+    prerr_endline ""
+  end ;
+  restore_lexstate ();
+  r
+
+and scan_this_list lexfun xs =
+  start_lexstate ();
+  if !verbose > 1 then begin
+    eprintf "scan_this_list : [%a]" pretty_body xs ;
+    prerr_endline ""  
+  end ;
+  let lexbuf = MyLexing.from_list xs in
+  let r = lexfun lexbuf in
+  if !verbose > 1 then begin
+    Printf.fprintf stderr "scan_this_list : over" ;
     prerr_endline ""
   end ;
   restore_lexstate ();
@@ -654,7 +680,7 @@ and scan_this_arg lexfun {arg=s ; subst=this_subst } =
     Printf.fprintf stderr "scan_this_arg : [%s]" s ;
     prerr_endline ""  
   end ;
-  let lexbuf = Lexing.from_string s in
+  let lexbuf = MyLexing.from_string s in
   let r = lexfun lexbuf in
   if !verbose > 1 then begin
     Printf.fprintf stderr "scan_this_arg : over" ;
@@ -662,6 +688,22 @@ and scan_this_arg lexfun {arg=s ; subst=this_subst } =
   end ;
   restore_lexstate ();
   r
+
+and scan_this_arg_list lexfun {arg=xs ; subst=this_subst } =
+  start_lexstate () ;
+  subst := this_subst ;
+  if !verbose > 1 then begin
+    Printf.fprintf stderr "scan_this_arg_list : [%a]\n%!"
+      pretty_body xs
+  end ;
+  let lexbuf = MyLexing.from_list xs in
+  let r = lexfun lexbuf in
+  if !verbose > 1 then begin
+    Printf.fprintf stderr "scan_this_arg : over\n%!"
+  end ;
+  restore_lexstate ();
+  r
+
 ;;
 
 let scan_this_may_cont lexfun lexbuf cur_subst
@@ -678,12 +720,35 @@ let scan_this_may_cont lexfun lexbuf cur_subst
   save_lexstate ();
   record_lexbuf lexbuf cur_subst ;
   subst := env ;
-  let lexer = Lexing.from_string s in
+  let lexer = MyLexing.from_string s in
   let r = lexfun lexer in
 
   restore_lexstate ();
   if !verbose > 1 then begin
     Printf.fprintf stderr "scan_this_may_cont : over" ;
+    prerr_endline ""
+  end ;
+  r
+
+let scan_this_list_may_cont lexfun lexbuf cur_subst
+    {arg=s ; subst=env } =
+  if !verbose > 1 then begin
+    eprintf "scan_this_list_may_cont : [%a]\n%!" pretty_body s ;
+    if !verbose > 1 then begin
+      prerr_endline "Pushing lexbuf and env" ;
+      pretty_lexbuf lexbuf ;
+      pretty_subst !subst
+    end
+  end ;
+  save_lexstate ();
+  record_lexbuf lexbuf cur_subst ;
+  subst := env ;
+  let lexer = MyLexing.from_list s in
+  let r = lexfun lexer in
+
+  restore_lexstate ();
+  if !verbose > 1 then begin
+    Printf.fprintf stderr "scan_this_list_may_cont : over" ;
     prerr_endline ""
   end ;
   r

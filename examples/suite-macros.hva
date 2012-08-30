@@ -1,0 +1,14 @@
+%%Class test
+\urldef{\heveaurl}{\url}{http://hevea.inria.fr/}
+\urldef{\heveasecret}{\url}{http://moscova.inria.fr/~maranget/hevea/}
+\newcommand{\@tst}{font-family:sans;font-style:oblique;color:maroon}
+\newstyle{.tst}{\@tst}
+\newcommand{\cls}{\@span{class="tst"}}
+\newcommand{\sty}{\@span{style="\@tst"}}
+%%Color test
+\newcommand{\color@name}{green}
+\newcommand{\@color}{color:\@getstylecolor{\color@name}}
+\newstyle{.highlight}{\@color}
+\newcommand{\clshigh}{\@span{class="highlight"}}
+\newcommand{\styhigh}{\@span{style="\@color"}}
+%%%%

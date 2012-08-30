@@ -20,7 +20,8 @@
 % Helpers %
 %%%%%%%%%%%
 \def\lstinfo#1{\typeout{LST, #1}}
-\def\lst@iter#1#2{\@iter#1,{#2}}
+\def\lst@iter#1#2{%\hva@warn{\lst@iter '#1' '#2'}%
+\@iter#1,{#2}}
 %For getting rid of two (optional) levels of braces
 \def\lst@eat@again#1XXX#2{\@callsubst{#2}{#1\@empty\@empty\@empty\@empty\@empty}}
 \def\lst@eat@key#1XXX#2{\@callsubst{\lst@eat@again}{#1XXX#2}}
@@ -73,7 +74,7 @@
 \providecommand{\csname lst@allkwd@#1\endcsname}{}%
 \lst@AddTo,{\csname lst@allkwd@#1\endcsname}{\lst@normalize{#2}}}
 \def\lst@delete@kwd@class#1{%
-%\hva@warn{DELETE «#1»}%
+%\hva@warn{DELETE '#1'}%
 \ifu\csname lst@allkwd@#1\endcsname\else
 \@callprim{\lst@delete@kwds}{\{\csname lst@allkwd@#1\endcsname\}}%
 \lst@Empty{\csname lst@allkwd@#1\endcsname}\fi}
@@ -108,11 +109,13 @@
     \lst@record@okwds{#2}%
     \lst@iter{\lst@install@kwd{#1}}{#2}}
 \def\lst@delete@kwd#1{%
+%\hva@warn{DELETE #1}%
 \def\csname lstk@\@rawchars{#1}\endcsname{\lst@identifierstyle}}
 \def\lst@delete@directive
   #1{\def\csname lstd@\@rawchars{#1}\endcsname{}}
 \def\lst@delete@okwds#1{\lst@iter{\lst@delete@okwd}{#1}}
-\def\lst@delete@kwds#1{\lst@iter{\lst@delete@kwd}{#1}}
+\def\lst@delete@kwds#1{%\hva@warn{\lst@delete@kwds '#1'}%
+\lst@iter{\lst@delete@kwd}{#1}}
 \def\lst@delete@directives#1{\lst@iter{\lst@delete@directive}{#1}}
 \def\lst@delete@okwd
   #1{\def\csname lstk@\@rawchars{#1}\endcsname{}}
@@ -265,7 +268,7 @@
    \ifu\lst@bgcolor\def\lst@temp@bgcolor{}\else\lst@bgcolor@in@temp\fi%
    \ifu\lst@rulecolor\def\lst@temp@rulecolor{}\else\lst@rulecolor@in@temp\fi%
    \ifu\lst@frame\def\lst@temp@frame{}\else\lst@frame@in@temp\fi%
-   \def\@@open@lstbox{\@opencell{\envclass@attr[ ]{lstframe}STYLE="padding:1ex;\lst@temp@bgcolor\lst@temp@frame\lst@temp@rulecolor"}{}{\envclass@attr{lstlisting}}}%
+   \def\@@open@lstbox{\@opencell{\envclass@attr[ ]{lstframe}style="padding:1ex;\lst@temp@bgcolor\lst@temp@frame\lst@temp@rulecolor"}{}{\envclass@attr{lstlisting}}}%
    \def\@close@lstbox{\@closecell}%
    \fi
    \def\@open@lstbox{\@@open@lstbox\lst@whitepre}}
@@ -595,7 +598,9 @@ breakindent,breakautoindent}
 \newcommand{\lst@moredelim@s}[3][\@empty]{\lst@SD@key{visible}{#1}{#2}{#3}}
 \newcommand{\lst@moredelim@is}[3][\@empty]{\lst@SD@key{invisible}{#1}{#2}{#3}}
 %Awfull hack to ignore moredelim=*[directive]\# present in lstlang?.sty files
-\newcommand{\lst@moredelim@}[3][\@empty]{}
+%In that case the argument of \lst@moredelim@key is empty
+%and \lst@moredelim@ is called to eat all arguments up to the final \@empty
+\newcommand{\lst@moredelim@}{\let\lst@next\lst@till@empty\lst@next}
 \newcommand{\lst@moredelim@key}[1][]
 {\ifu\csname lst@moredelim@#1\endcsname
 \hva@warn{Unknown delimiter type '#1'}%

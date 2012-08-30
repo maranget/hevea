@@ -1,0 +1,12 @@
+%%%% Hevea support for babel option 'german'.
+\@ifundefined{common@german@babel}{\input{german-common.hva}}{}
+\newcommand{\german@babel}{%
+\common@german@babel%
+\def\glqq{\@print{&#8222;}}%
+\def\grqq{\@print{&#8220;}}%
+\def\glq{\@print{&#8218;}}%
+\def\grq{\@print{&#8216;}}%
+\def\flqq{\@print{&#0171;}}%
+\def\frqq{\@print{&#0187;}}%
+\def\flq{\@print{&#8249;}}%
+\def\frq{\@print{&#8250;}}}

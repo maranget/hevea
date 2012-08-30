@@ -10,4 +10,6 @@
 (*  $Id: css.mli,v 1.1 2005-06-24 08:32:21 maranget Exp $           *)
 (***********************************************************************)
 
-type id = Class of string * string | Other of string
+type id =
+  | Class of string * string option * string
+  | Other of string

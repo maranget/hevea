@@ -9,28 +9,25 @@
 (*                                                                     *)
 (***********************************************************************)
 
-open Printf
-
-let _header = "$Id: html.ml,v 1.116 2012-06-05 14:55:39 maranget Exp $" 
-
 (* Output function for a strange html model :
-     - Text elements can occur anywhere and are given as in latex
-     - A new grouping construct is given (open_group () ; close_group ())
+   - Text elements can occur anywhere and are given as in latex
+   - A new grouping construct is given (open_group () ; close_group ())
 *)
 
 open Misc
 open HtmlCommon
+open Printf
 
 exception Error of string
 
 type block = HtmlCommon.block
 
-let addvsize x = flags.vsize <- flags.vsize + x 
+let addvsize x = flags.vsize <- flags.vsize + x
 
 (* Calls to other modules that are in the interface *)
 
-let 
-  over,
+let
+    over,
   erase_display,
   _begin_item_display,
   _end_item_display,
@@ -40,13 +37,13 @@ let
   do_open_display_varg,
   do_open_display,
   do_close_maths,
-  do_open_maths, 
+  do_open_maths,
   put_in_math,
   math_put,
   math_put_char,
   left,
   right
-    =
+  =
   if !Parse_opts.mathml then begin
     MathML.over,
     MathML.erase_display,
@@ -82,13 +79,12 @@ let
     HtmlMath.left,
     HtmlMath.right
   end
-;;
 
 let
-  int_sup_sub,
+    int_sup_sub,
   limit_sup_sub,
   standard_sup_sub
-    =
+  =
   if !Parse_opts.mathml then
     MathML.int_sup_sub,
     MathML.limit_sup_sub,
@@ -97,7 +93,6 @@ let
     HtmlMath.int_sup_sub,
     HtmlMath.limit_sup_sub,
     HtmlMath.standard_sup_sub
-;;
 
 
 
@@ -109,56 +104,48 @@ and stop () =
 
 and restart () =
   !cur_out.out <- MyStack.pop stacks.s_active
-;;
 
 
 (* acces to flags *)
 let is_empty () = flags.empty
-;;
 
-    
 
-let put s = 
+
+let put s =
   if flags.in_math then math_put s
   else HtmlCommon.put s
-  
-;;
+
 
 let put_char c =
   if flags.in_math then math_put_char c
   else HtmlCommon.put_char c
-;;
 
 let put_unicode i =  OutUnicode.html_put put put_char i
 
 let loc_name _ = ()
 
-  
+
 (* freeze everyting and change output file *)
 
 let open_chan chan =
   open_group "" ;
-  free !cur_out ;
-  !cur_out.out <- Out.create_chan chan ;
-;;
+  !cur_out.out <- Out.create_chan chan
 
 let close_chan () =
   Out.close !cur_out.out ;
   !cur_out.out <- Out.create_buff () ;
   close_group ()
-;;
 
 
 let to_style f =
   let old_flags = copy_flags flags in
   open_block INTERN "" ;
-(*  clearstyle () ; *)
+  (*  clearstyle () ; *)
   f () ;
   let r = to_pending !cur_out.pending !cur_out.active in
   erase_block INTERN ;
   set_flags flags old_flags ;
   r
-;;
 
 let get_current_output () = Out.to_string !cur_out.out
 
@@ -171,71 +158,62 @@ let finalize check =
     let rec close_rec () =
       if not (MyStack.empty out_stack) then begin
         match MyStack.pop out_stack with
-        | Freeze _ -> close_rec ()
-        | Normal (_,_,pout) ->
-            Out.copy !cur_out.out pout.out ;
-            cur_out := pout ;
-            close_rec ()
+          | Freeze _ -> close_rec ()
+          | Normal (_,_,pout) ->
+              Out.copy !cur_out.out pout.out ;
+              cur_out := pout ;
+              close_rec ()
       end in
     close_rec ()
   end ;
   Out.close !cur_out.out ;
   !cur_out.out <- Out.create_null ()
-;;
 
 
 let put_separator () = put "\n"
-;;
 
-let unskip () = 
+let unskip () =
   Out.unskip !cur_out.out;
   if flags.blank then
-    flags.empty <- true;
-;;
-  
+    flags.empty <- true
+
 let put_tag tag = put tag
-;;
 
 let put_nbsp () =
   if !Lexstate.whitepre || (flags.in_math && !Parse_opts.mathml) then begin
     put_char ' '
   end else
     put_unicode OutUnicode.nbsp
-;;
 
 let put_open_group () =
   put_char '{'
-;;
 
 let put_close_group () =
   put_char '}'
-;;
 
 
 let infomenu _ = ()
 and infonode _opt _num _arg = ()
 and infoextranode _num _arg _text = ()
-;;
 
 
-let image arg n = 
+let image arg n =
   if flags.in_pre && !Parse_opts.pedantic then begin
     warning "Image tag inside preformatted block, ignored"
   end else begin
-    put "<IMG " ;
+    put "<img " ;
     if arg <> "" then begin
       put arg;
       put_char ' '
     end ;
-    put "SRC=\"" ;
+    put "src=\"" ;
     put n ;
     if !Parse_opts.pedantic then begin
-      put "\" ALT=\"" ;
+      put "\" alt=\"" ;
       put n
     end ;
     put "\">"
   end
-;;
 
 type saved = HtmlCommon.saved
 
@@ -245,84 +223,84 @@ and hot = HtmlCommon.hot
 let forget_par () = None
 
 let rec do_open_par () = match pblock () with
-| GROUP ->
-    let pending = to_pending !cur_out.pending !cur_out.active in
-    let a,b,_ = top_out out_stack in
-    ignore (close_block_loc check_empty GROUP) ;
-    do_open_par () ;
-    open_block a b ;
-    !cur_out.pending <- pending
-| P ->
-    Misc.warning "Opening P twice" (* An error in fact ! *)
-| s ->
-    if !verbose > 2 then
-      Printf.eprintf "Opening par below: '%s'\n" (string_of_block s) ;
-    open_block P ""
-    
+  | GROUP ->
+      let pending = to_pending !cur_out.pending !cur_out.active in
+      let a,b,_ = top_out out_stack in
+      ignore (close_block_loc check_empty GROUP) ;
+      do_open_par () ;
+      open_block a b ;
+      !cur_out.pending <- pending
+  | P ->
+      Misc.warning "Opening P twice" (* An error in fact ! *)
+  | s ->
+      if !verbose > 2 then
+        Printf.eprintf "Opening par below: '%s'\n" (string_of_block s) ;
+      open_block P ""
+
 let open_par () = do_open_par ()
 
 let rec do_close_par () = match pblock () with
-| GROUP ->
-    let pending = to_pending !cur_out.pending !cur_out.active in
-    let a,b,_ = top_out out_stack in
-    ignore (close_block_loc check_empty GROUP) ;
-    let r = do_close_par () in
-    open_block a b ;
-    !cur_out.pending <- pending ;
-    r
-| P ->
-    ignore (close_flow_loc check_blank P) ;
-    true
-| _ ->
-    false
+  | GROUP ->
+      let pending = to_pending !cur_out.pending !cur_out.active in
+      let a,b,_ = top_out out_stack in
+      ignore (close_block_loc check_empty GROUP) ;
+      let r = do_close_par () in
+      open_block a b ;
+      !cur_out.pending <- pending ;
+      r
+  | P ->
+      ignore (close_flow_loc check_blank P) ;
+      true
+  | _ ->
+      false
 
 
 let close_par () = do_close_par ()
 
 (* Find P, maybe above groups *)
 let rec find_prev_par () = match pblock () with
-| P -> true
-| GROUP ->
-    let x = pop_out out_stack in
-    let r = find_prev_par () in
-    push_out out_stack x ;
-    r
-| _ -> false
+  | P -> true
+  | GROUP ->
+      let x = pop_out out_stack in
+      let r = find_prev_par () in
+      push_out out_stack x ;
+      r
+  | _ -> false
 
 let rec do_close_prev_par () = match pblock () with
-| P ->
-    ignore (close_flow_loc check_blank P)
-| GROUP ->
-    let pending = to_pending !cur_out.pending !cur_out.active in
-    let b,a,_ = top_out out_stack in
-    ignore (close_block_loc check_empty GROUP) ;
-    do_close_prev_par () ;
-    open_block b a ;
-    !cur_out.pending <- pending
-| _ -> assert false
+  | P ->
+      ignore (close_flow_loc check_blank P)
+  | GROUP ->
+      let pending = to_pending !cur_out.pending !cur_out.active in
+      let b,a,_ = top_out out_stack in
+      ignore (close_block_loc check_empty GROUP) ;
+      do_close_prev_par () ;
+      open_block b a ;
+      !cur_out.pending <- pending
+  | _ -> assert false
 
 let close_prev_par () =
   do_close_prev_par () ;
   flags.saw_par <- true
 
 let rec do_par () = match pblock () with
-| P ->
-    ignore (close_flow_loc check_blank P) ; open_block P ""
-| GROUP ->
-    let pending = to_pending !cur_out.pending !cur_out.active in
-    let b,a,_ = top_out out_stack in
-    ignore (close_block_loc check_empty GROUP) ;
-    do_par () ;
-    open_block b a ;
-    !cur_out.pending <- pending
-| s ->
-    if !verbose > 2 then
-      Printf.eprintf "Opening par below: '%s'\n" (string_of_block s) ;
-    open_block P ""
-    
+  | P ->
+      ignore (close_flow_loc check_blank P) ; open_block P ""
+  | GROUP ->
+      let pending = to_pending !cur_out.pending !cur_out.active in
+      let b,a,_ = top_out out_stack in
+      ignore (close_block_loc check_empty GROUP) ;
+      do_par () ;
+      open_block b a ;
+      !cur_out.pending <- pending
+  | s ->
+      if !verbose > 2 then
+        Printf.eprintf "Opening par below: '%s'\n" (string_of_block s) ;
+      open_block P ""
+
 let par _ = do_par ()
 
-(* Interface open block: manage par above *)    
+(* Interface open block: manage par above *)
 let open_block_loc = open_block (* save a reference to basic open_block *)
 
 let open_block_with_par ss s a =
@@ -337,7 +315,7 @@ let open_block_with_par ss s a =
       Printf.eprintf "AFTER: " ;
       pretty_stack out_stack
     end
-  end ;  
+  end ;
   open_block_loc s a
 
 let open_block ss a = open_block_with_par ss (find_block ss) a
@@ -358,7 +336,7 @@ and close_display () =
   do_close_display () ;
   if flags.saw_par then begin
     flags.saw_par <- false ;
-    open_par () 
+    open_par ()
   end
 
 let open_maths display =
@@ -379,17 +357,17 @@ let wrap_close close_block s =
   let s = find_block s in
   begin match s with GROUP -> () | _ -> ignore (close_par ()) end ;
   begin match s with
-  | UL|OL ->
-      if flags.nitems > 0 then
-	close_block LI	
-      else
-	warning "List with no item"
-  | DL ->
-      if flags.nitems > 0 then
-	close_block DD
-      else
-	warning "List with no item"
-  | _ -> ()
+    | UL|OL ->
+        if flags.nitems > 0 then
+          close_block LI
+        else
+          warning "List with no item"
+    | DL ->
+        if flags.nitems > 0 then
+          close_block DD
+        else
+          warning "List with no item"
+    | _ -> ()
   end ;
   close_block s ;
   if flags.saw_par then begin
@@ -443,7 +421,6 @@ and clearstyle = clearstyle
 and nostyle = nostyle
 and get_fontsize = get_fontsize
 and to_string = to_string
-;;
 
 (****************************************)
 (* Table stuff, must take P into acount *)
@@ -453,18 +430,16 @@ let open_table border htmlargs =
   let _,arg_b, arg =
     if flags.in_math && !Parse_opts.mathml then
       "mtable","frame = \"solid\"",""
-    else "TABLE","BORDER=1",htmlargs
+    else "table","border=1",htmlargs
   in
   (* open_block will close P (and record that) if appropriate *)
-  if border then open_block_with_par "TABLE" TABLE (arg_b^" "^arg)
-  else open_block_with_par "TABLE" TABLE arg
-;;
+  if border then open_block_with_par "table" TABLE (arg_b^" "^arg)
+  else open_block_with_par "table" TABLE arg
 
 let new_row () =
   if flags.in_math && !Parse_opts.mathml then
     open_block_loc (OTHER "mtr") ""
   else open_block_loc TR ""
-;;
 
 
 let attribut name = function
@@ -472,30 +447,33 @@ let attribut name = function
   | s  -> " "^name^"="^s
 and as_colspan = function
   |  1  -> ""
-  |  n -> " COLSPAN="^string_of_int n
+  |  n -> " colspan="^string_of_int n
 and as_colspan_mathml = function
   |  1  -> ""
   |  n -> " columnspan= \""^string_of_int n^"\""
+and style param value =
+  if value = "" then ""
+  else sprintf "%s:%s;" param value
 
-let as_align f span = match f with
-  Tabular.Align
-    {Tabular.vert=v ; Tabular.hor=h ;
-     Tabular.wrap=w ; Tabular.width=_} ->
-    attribut "VALIGN" v^
-    attribut "ALIGN" h^
-    (if w then "" else " NOWRAP")^
-    as_colspan span
-| _       ->  raise (Misc.Fatal ("as_align"))
-;;
+let as_align f span border = match f with
+    Tabular.Align
+      {Tabular.vert=v ; Tabular.hor=h ;
+       Tabular.wrap=w ; Tabular.width=_} ->
+        sprintf "style=\"%s%s%s%s\" %s"
+          (style "vertical-align" v)
+          (style "text-align" h)
+          (if border then "border:solid 1px;" else "")
+          (if w then "" else "white-space:nowrap")
+          (as_colspan span)
+  | _       ->  raise (Misc.Fatal ("as_align"))
 
 let as_align_mathml f span = match f with
-  Tabular.Align
-    {Tabular.vert=v ; Tabular.hor=h } ->
-    attribut "rowalign" ("\""^v^"\"")^
-    attribut "columnalign" ("\""^h^"\"")^
-    as_colspan_mathml span
-| _       ->  raise (Misc.Fatal ("as_align_mathml"))
-;;
+    Tabular.Align
+      {Tabular.vert=v ; Tabular.hor=h } ->
+        attribut "rowalign" ("\""^v^"\"")^
+          attribut "columnalign" ("\""^h^"\"")^
+          as_colspan_mathml span
+  | _       ->  raise (Misc.Fatal ("as_align_mathml"))
 
 let open_direct_cell attrs span =
   if flags.in_math && !Parse_opts.mathml then begin
@@ -503,98 +481,91 @@ let open_direct_cell attrs span =
     do_open_display ()
   end else open_block_loc TD (attrs^as_colspan span)
 
-let open_cell format span _= 
+let open_cell format span _ border =
   if flags.in_math && !Parse_opts.mathml then begin
     open_block_loc (OTHER "mtd") (as_align_mathml format span);
     do_open_display ()
-  end else open_block_loc TD (as_align format span)
-;;
+  end else open_block_loc TD (as_align format span border)
 
 (* By contrast closing/erasing TD, may in some occasions
    implies closing some internal P => use wrapped close functions *)
-let erase_cell () =  
+let erase_cell () =
   if flags.in_math && !Parse_opts.mathml then begin
     erase_display ();
     erase_block_with_par (OTHER "mtd")
   end else erase_block_with_par TD
 
-and close_cell content = 
+and close_cell content =
   if flags.in_math && !Parse_opts.mathml then begin
     do_close_display ();
     force_block_with_par (OTHER "mtd") ""
   end else force_block_with_par TD content
 
-and do_close_cell () = 
-    if flags.in_math && !Parse_opts.mathml then begin
-      do_close_display ();
-      close_block_with_par (OTHER "mtd")
-    end else close_block_with_par TD
+and do_close_cell () =
+  if flags.in_math && !Parse_opts.mathml then begin
+    do_close_display ();
+    close_block_with_par (OTHER "mtd")
+  end else close_block_with_par TD
 
 and open_cell_group () = open_group ""
 and close_cell_group () = close_group ()
 and erase_cell_group () = erase_group ()
-;;
 
 
-let erase_row () = 
+let erase_row () =
   if flags.in_math && !Parse_opts.mathml then
     HtmlCommon.erase_block (OTHER "mtr")
   else HtmlCommon.erase_block TR
 
-and close_row () = 
+and close_row () =
   if flags.in_math && !Parse_opts.mathml then
     HtmlCommon.close_block (OTHER "mtr")
   else HtmlCommon.close_block TR
-;;
 
-let close_table () = 
+let close_table () =
   begin if flags.in_math && !Parse_opts.mathml then
-    HtmlCommon.close_block (OTHER "mtable")
-  else HtmlCommon.close_block TABLE
+      HtmlCommon.close_block (OTHER "mtable")
+    else HtmlCommon.close_block TABLE
   end ;
   if flags.saw_par then begin
     flags.saw_par <- false ;
     open_par ()
   end
-;;
 
 let make_border _ = ()
-;;
 
 
 let inside_format =
   Tabular.Align  {Tabular.hor="center" ; Tabular.vert = "" ;
-		   Tabular.wrap = false ; Tabular.pre = "" ; 
-		   Tabular.post = "" ; Tabular.width = Length.Default} 
+                  Tabular.wrap = false ; Tabular.pre = "" ;
+                  Tabular.post = "" ; Tabular.width = Length.Default}
 and hline_format =
- Tabular.Align  {Tabular.hor="center" ; Tabular.vert = "top" ;
-		   Tabular.wrap = false ; Tabular.pre = "" ; 
-		   Tabular.post = "" ; Tabular.width = Length.Default} 
-;;
+  Tabular.Align  {Tabular.hor="center" ; Tabular.vert = "top" ;
+                  Tabular.wrap = false ; Tabular.pre = "" ;
+                  Tabular.post = "" ; Tabular.width = Length.Default}
 
 let make_inside s multi =
   if not (multi) then begin
     if pblock ()=TD || pblock() = (OTHER "mtd") then begin
       close_cell "&nbsp;";
-      open_cell inside_format 1 0;
+      open_cell inside_format 1 0 false;
       put s;
     end else begin
-      open_cell inside_format 1 0;
+      open_cell inside_format 1 0 false;
       put s;
       close_cell "&nbsp;"
     end;
   end
-;;
 
 
 let make_hline w noborder =
   if noborder then begin
     new_row ();
     if not (flags.in_math && !Parse_opts.mathml) then begin
-      open_direct_cell "CLASS=\"hbar\"" w ;
+      open_direct_cell "class=\"hbar\"" w ;
       close_cell ""
     end else begin
-      open_cell hline_format w 0;
+      open_cell hline_format w 0 false;
       close_mods () ;
       put "<mo stretchy=\"true\" > &horbar; </mo>";
       force_item_display ();
@@ -602,7 +573,6 @@ let make_hline w noborder =
     end;
     close_row ();
   end
-;;
 
 (* HR is not correct inside P *)
 let horizontal_line attr width height =
@@ -617,25 +587,25 @@ let horizontal_line attr width height =
 
 (* Lists also have to take P into account *)
 let rec do_li s = match pblock () with
-| P ->
-    let pend = to_pending !cur_out.pending !cur_out.active in
-    ignore (close_flow_loc check_blank P) ;
-    do_li s ;
-    !cur_out.pending <- pend
-| LI ->
-    ignore (close_flow_loc no_check LI) ;
-    open_block_loc LI s
-| GROUP ->
-    let pend = to_pending !cur_out.pending !cur_out.active in
-    let a,b,_ = top_out out_stack in
-    ignore (close_block_loc check_empty GROUP) ;
-    do_li s ;
-    open_block_loc a b ;
-    !cur_out.pending <- pend
-| _ -> assert false    
-    
-    
-  
+  | P ->
+      let pend = to_pending !cur_out.pending !cur_out.active in
+      ignore (close_flow_loc check_blank P) ;
+      do_li s ;
+      !cur_out.pending <- pend
+  | LI ->
+      ignore (close_flow_loc no_check LI) ;
+      open_block_loc LI s
+  | GROUP ->
+      let pend = to_pending !cur_out.pending !cur_out.active in
+      let a,b,_ = top_out out_stack in
+      ignore (close_block_loc check_empty GROUP) ;
+      do_li s ;
+      open_block_loc a b ;
+      !cur_out.pending <- pend
+  | _ -> assert false
+
+
+
 let item s =
   if !verbose > 2 then begin
     prerr_string "=> item: stack=" ;
@@ -657,13 +627,12 @@ let item s =
   if !verbose > 2 then begin
     prerr_string "<= item: stack=" ;
     pretty_stack out_stack
-  end ;  
+  end ;
   flags.nitems <- flags.nitems+1
 
 let nitem = item
 
 and set_dcount s = flags.dcount <- s
-;;
 
 (*********************************************)
 (*  s1 and s2 below are attributes to DR/DD  *)
@@ -675,26 +644,26 @@ let emit_dt_dd scan true_scan arg s1 s2 =
   true_scan ("\\makelabel{"^arg^"}") ;
   ignore (close_block_loc no_check DT) ;
   open_block_loc DD s2
-    
-  
+
+
 let rec do_dt_dd scan true_scan arg s1 s2 = match pblock () with
-| P ->
-    let pend = to_pending !cur_out.pending !cur_out.active in
-    ignore (close_flow_loc check_blank P) ;
-    do_dt_dd scan true_scan arg s1 s2  ;
-    !cur_out.pending <- pend
-| DD ->
-    ignore (close_flow_loc no_check DD) ;
-    emit_dt_dd scan true_scan arg s1 s2
-| GROUP ->
-    let pend = to_pending !cur_out.pending !cur_out.active in
-    let a,b,_ = top_out out_stack in
-    ignore (close_block_loc check_empty GROUP) ;
-    do_dt_dd scan true_scan arg s1 s2 ;
-    open_block_loc a b ;
-    !cur_out.pending <- pend
-| _ -> assert false    
-    
+  | P ->
+      let pend = to_pending !cur_out.pending !cur_out.active in
+      ignore (close_flow_loc check_blank P) ;
+      do_dt_dd scan true_scan arg s1 s2  ;
+      !cur_out.pending <- pend
+  | DD ->
+      ignore (close_flow_loc no_check DD) ;
+      emit_dt_dd scan true_scan arg s1 s2
+  | GROUP ->
+      let pend = to_pending !cur_out.pending !cur_out.active in
+      let a,b,_ = top_out out_stack in
+      ignore (close_block_loc check_empty GROUP) ;
+      do_dt_dd scan true_scan arg s1 s2 ;
+      open_block_loc a b ;
+      !cur_out.pending <- pend
+  | _ -> assert false
+
 let ditem scan arg s1 s2 =
   if !verbose > 2 then begin
     Printf.eprintf "=> DITEM: «%s» «%s» «%s»\n" arg s1 s2 ;
@@ -712,9 +681,9 @@ let ditem scan arg s1 s2 =
     end
     else scan in
   begin if flags.nitems > 0 then
-    do_dt_dd scan true_scan arg s1 s2
-  else
-    emit_dt_dd scan true_scan arg s1 s2
+      do_dt_dd scan true_scan arg s1 s2
+    else
+      emit_dt_dd scan true_scan arg s1 s2
   end ;
   flags.nitems <- flags.nitems+1 ;
   if !verbose > 2 then begin
@@ -722,5 +691,3 @@ let ditem scan arg s1 s2 =
     prerr_string "ditem: stack=" ;
     pretty_stack out_stack
   end ;
-
-

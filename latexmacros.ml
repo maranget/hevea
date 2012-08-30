@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let _header = "$Id: latexmacros.ml,v 1.74 2012-06-05 14:55:39 maranget Exp $" 
+open Printf
 open Misc
 open Lexstate
 
@@ -26,6 +26,7 @@ module Strings = Set.Make (OString)
 let local_table = Hashtbl.create 97
 and global_table = Hashtbl.create 97
 and prim_table = Hashtbl.create 5
+and known_macros = ref Strings.empty
 
 let purge = ref Strings.empty
 and purge_stack = MyStack.create "purge"
@@ -36,7 +37,7 @@ type ctable = (string, pat * action) Hashtbl.t
 type ptable = (string, (unit -> unit)) Hashtbl.t
 type saved = 
     int * Strings.t * Strings.t MyStack.saved *
-    ptable * ctable * ctable
+    ptable * ctable * ctable * Strings.t
 
 
 let pretty_macro n acs =
@@ -80,17 +81,20 @@ let pretty_table () =
 let checkpoint () =
   !group_level, !purge, MyStack.save purge_stack,
   Hashtbl.copy prim_table,
-  Hashtbl.copy global_table, Hashtbl.copy local_table
+  Hashtbl.copy global_table, Hashtbl.copy local_table,
+  !known_macros
 
 and hot_start (level_checked, purge_checked, purge_stack_checked,
                prim_checked,
-               global_checked, local_checked) = 
+               global_checked, local_checked,
+               known_checked) =
   group_level := level_checked ;
   purge := purge_checked ;
   MyStack.restore purge_stack purge_stack_checked ;
   Misc.copy_hashtbl prim_checked prim_table ;
   Misc.copy_hashtbl global_checked global_table ;
-  Misc.copy_hashtbl local_checked local_table
+  Misc.copy_hashtbl local_checked local_table ;
+  known_macros := known_checked
 
 (* Controlling scope *)
 let open_group () =
@@ -146,6 +150,14 @@ let hidden_find name =
   end else
     Hashtbl.find global_table name
 
+let set_saved_macros () =
+  known_macros :=
+    Hashtbl.fold
+      (fun name _ -> Strings.add name)
+      global_table Strings.empty
+
+let get_saved_macro name = Strings.mem name !known_macros
+  
 (* Primitives *)
 let register_init name f =
   if !verbose > 1 then
@@ -185,11 +197,17 @@ let find name =
   try hidden_find name with
   | Not_found ->
       warning ("Command not found: "^name) ;
-      ([],[]),Subst ""
+      ([],[]),Subst []
 
 and find_fail name =
   try hidden_find name with
   | Not_found -> raise Failed
+
+let pretty_command name =
+  let n,acc = find name in
+  eprintf "%s: " name ;
+  pretty_macro n acc ;
+  prerr_endline ""
 
 let def name pat action =
   if !verbose > 1 then begin

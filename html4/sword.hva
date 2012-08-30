@@ -1,0 +1,4 @@
+\@primitives{sword}
+\def\swEXT{.gif}  %graphics extension
+\def\swFRAME#1{\imgsrc{#1\swEXT}}
+\newcommand{\swUNICODE}[2]{{\@nostyle\@print{&#}\@getprint{#2}\@print{;}}}

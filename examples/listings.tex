@@ -1,0 +1,90 @@
+\documentclass{article}
+\usepackage{listings}
+\usepackage{color}
+
+\title{Listings}
+\author{}
+
+\newstyle{.clisting}{border-left:solid green 2px;white-space:pre;padding-left:4px;font-family:monospace}
+\newstyle{.camllisting}{border:double red 10px;white-space:pre;padding:4px;
+  font-family:monospace;border-radius:300px;padding-left:60px}
+
+\begin{document}
+
+\maketitle
+
+\lstdefinestyle{colors}{keywordstyle={\bf\color{blue}}, commentstyle={\em\color{magenta}}}
+
+\lstnewenvironment{clisting}
+  {\setenvclass{lstlisting}{clisting}\lstset{language=C, style=colors}}
+  {}
+
+\lstnewenvironment{camllisting}
+  {\setenvclass{lstlisting}{camllisting}\lstset{language=caml, style=colors}}
+  {}
+
+C code, with a green left border :
+
+\begin{clisting}
+/* Compute, guess what! */
+int fact(int n) {
+  int r = 1 ;
+  for ( ; n > 0 ; n--) {
+    r *= n ;
+  }
+  return r ;
+}
+\end{clisting}
+
+OCaml code, with a double red round border (ugly!):
+
+\begin{camllisting}
+(* Hello there *)
+module MyList (E : sig type t end) : sig
+  type t
+  val nil : t
+  val cons : E.t -> t -> t
+end
+  = 
+struct
+  type t = E.t list
+  let nil = []
+  let cons x xs = x :: xs
+end
+\end{camllisting}
+
+Listing in a listing, no style :
+
+\lstset{style=colors}
+
+\begin{lstlisting}
+\documentclass{article}
+\usepackage{listings}
+\usepackage{color}
+
+\title{Listings}
+\author{}
+
+\newstyle{.clisting}{border-left:solid green 2px;white-space:pre;padding-left:4px;font-family:monospace}
+\newstyle{.camllisting}{border:ridge red 10px;white-space:pre;padding:4px;
+  font-family:monospace;border-radius:300px;padding-left:60px}
+
+\begin{document}
+
+\begin{camllisting}
+(* Hello there *)
+module MyList (E : sig type t end) : sig
+  type t
+  val nil : t
+  val cons : E.t -> t -> t
+end
+  = 
+struct
+  type t = E.t list
+  let nil = []
+  let cons x xs = x :: xs
+end
+\end{camllisting}
+\end{lstlisting}
+
+\end{document}

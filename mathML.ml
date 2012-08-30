@@ -82,7 +82,6 @@ and close_display () =
       do_close_mods () ;
       Out.copy old_out.out !cur_out.out ;
       flags.empty <- false ; flags.blank <- false ;
-      free old_out ;
       !cur_out.pending <- to_pending pending active
     end else if (n=1 (*&& flags.blank*)) then begin
       if !verbose > 2 then begin
@@ -101,7 +100,6 @@ and close_display () =
       if flags.blank then Out.copy_no_tag old_out.out !cur_out.out
       else Out.copy old_out.out !cur_out.out;
       flags.empty <- false ; flags.blank <- false ;
-      free old_out ;
       !cur_out.pending <- to_pending pending active
     end else begin
       if !verbose > 2 then begin
@@ -198,7 +196,6 @@ let insert_vdisplay open_fun =
     open_fun () ;
     do_put (Out.to_string new_out.out) ;
     flags.empty <- false ; flags.blank <- false ;
-    free new_out ;    
     if !verbose > 2 then begin
       prerr_string "insert_vdisplay -> " ;
       pretty_mods stderr mods ;
