@@ -10,7 +10,7 @@
 (***********************************************************************)
 
 
-let header = "$Id: info.ml,v 1.42 2007-03-09 13:23:52 maranget Exp $"
+let _header = "$Id: info.ml,v 1.42 2007-03-09 13:23:52 maranget Exp $"
 
 open Misc
 open Text

@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: noimage.ml,v 1.7 1999-12-01 19:04:50 maranget Exp $" 
+let _header = "$Id: noimage.ml,v 1.7 1999-12-01 19:04:50 maranget Exp $" 
 let start () = ()
 and stop () = ()
 and restart () = ()

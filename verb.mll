@@ -250,7 +250,7 @@ let init_char_table_delim chars wrapper =
       (c,old_process))
   chars
 
-let rec restore_char_table to_restore =
+let restore_char_table to_restore =
   let rec do_rec = function
     | [] -> ()
     | (c,f)::rest ->
@@ -344,7 +344,7 @@ let rec end_mode mode = match mode with
 
 
 (* Utilities *)
-let rec zyva_all xs ys zyva =
+let zyva_all xs ys zyva =
   List.iter
     (fun x -> List.iter (fun y -> zyva x y) ys)
     xs
@@ -500,7 +500,7 @@ and set_next_linerange mode = match !lst_linerange with
         lst_last := x
     | Marker all_E ->
         lst_last := 99999 ;
-	let rec zyva pref suf =
+	let zyva pref suf =
 	  let all_E = pref ^ all_E ^ suf in
           let head_E = all_E.[0]
           and rest_E =

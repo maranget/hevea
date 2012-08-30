@@ -917,19 +917,6 @@ let do_definekey lexbuf =
   end
 ;;
 
-let do_definekeyopt lexbuf =
-  let familly = get_prim_arg lexbuf in
-  let key =  get_prim_arg lexbuf in
-  let opt = subst_arg lexbuf in
-  let body = subst_body lexbuf in
-  let name = keyval_name familly key in
-  let extra = keyval_extra key familly in
-  Latexmacros.def name one_pat
-    (Subst
-       ("\\@funcall{"^extra^"}{"^opt^"}")) ;
-  Latexmacros.def extra one_pat (Subst body)
-     
-  
 let do_setkey lexbuf =
   let family = get_prim_arg lexbuf in
   let arg = subst_arg lexbuf^",," in

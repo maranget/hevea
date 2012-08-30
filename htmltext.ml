@@ -26,7 +26,7 @@ type style = t_style list
 
 let rec do_cost seen_font r1 r2 = function
   | [] -> r1,r2
-  | {nat=(Size (Int _)|Color _|Face _)}::rem ->
+  | {nat=(Size (Int _)|Color _|Face _);_}::rem ->
       do_cost true (if seen_font then r1 else 1+r1) (1+r2) rem
   | _::rem -> do_cost seen_font (1+r1) r2 rem
 

@@ -12,9 +12,9 @@
 open Lexeme
 open Tree
 
-let  potag chan ({txt=txt} as s)= output_string chan txt ; s
+let  potag chan ({txt=txt;_} as s)= output_string chan txt ; s
 
-let pctag chan  {ctxt=txt} = output_string chan txt
+let pctag chan  {ctxt=txt;_} = output_string chan txt
 
 
 let rec tree po pc chan = function

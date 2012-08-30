@@ -320,7 +320,7 @@ let to_string = function
   | Eof -> "Eof"
 
 let cost = function
-  | {tag=FONT ; attrs=attrs} -> (1,List.length attrs)
+  | {tag=FONT ; attrs=attrs;_} -> (1,List.length attrs)
   | _          -> (1,0)
 
 let tok_buff = ref None

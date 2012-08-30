@@ -23,7 +23,7 @@ let bottom msg s = match s.bottom with
 | None -> raise (Fatal (msg^": "^s.name))
 | Some x -> x
 
-let name {name=name} = name
+let name {name=name;_} = name
 
 and push s x = s.l <- x :: s.l
 
@@ -68,10 +68,10 @@ let map s f =  s.l <- List.map f s.l
 type 'a saved = 'a list
 
 let empty_saved = []
-and save {l=l} = l
+and save {l=l;_} = l
 and restore s x = s.l <- x
 
-let finalize {l=now} p f =
+let finalize {l=now;_} p f =
   let rec f_rec = function
     | [] -> ()
     | nx::n -> 

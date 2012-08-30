@@ -200,31 +200,5 @@ let erase t pred =
         else append t1 t2 in
   do_rec t
 
-(* Attempt: build lexbuff *)
-
-type buff = { rope : t ; mutable pos : int }
-
-let rec blit t src buff dst len = match t with
-| Str s ->
-    String.blit s src buff dst len ;
-    len
-| App (t1,t2,_) ->
-    let n1 = length t1 in
-    if src >= n1 then
-      blit t2 (src-n1) buff dst len
-    else if n1 <= len then
-      blit t1 src buff dst len
-    else begin
-      let m1 = blit t1  src buff dst (n1-src) in
-      let m2 = blit t2 0 buff (dst+m1) (len-m1) in
-      m1+m2
-    end
-
-let fill_buff b s n =
-  let m = blit b.rope b.pos s 0 n in
-  b.pos <- b.pos + m ;
-  m
-
-
 
 

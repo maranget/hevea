@@ -9,7 +9,7 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let header = "$Id: image.ml,v 1.31 2007-02-09 09:18:36 maranget Exp $" 
+let _header = "$Id: image.ml,v 1.31 2007-02-09 09:18:36 maranget Exp $" 
 open Misc
 
 let base = Parse_opts.base_out
@@ -56,8 +56,6 @@ let open_chan () =
   buff := Out.create_chan chan
 
 and close_chan () = Out.close !buff
-
-let my_string_of_int n = Printf.sprintf "%03d" n
 
 let page () =
   let n = !count in

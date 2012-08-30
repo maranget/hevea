@@ -1,2 +1,2 @@
-true: dtypes
+true: annot
 <mylib.ml> : pp(../expandlib.sh)
