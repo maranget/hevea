@@ -122,8 +122,9 @@
 \newcommand{\raggedleft}{\@insert{align}{right}}
 \newcommand{\raggedright}{\@insert{align}{left}}
 %%%%%%%%%%% Figures
-
-%% Equations
+%For figure & tables
+\newcommand{\@open@quote}[1]{\@open{quote}{}}
+\newcommand{\@close@quote}{\@close{quote}}
 \newcommand{\rule}[3][]{\@printHR{left}{100}\@print{
 }}%
 %%%%%%%%%%%%%%%% LaTeX 2.09 style declarations

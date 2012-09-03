@@ -342,6 +342,7 @@
   {\@open{div}{\envclass@attr{flushright}}}
   {\@close{div}}%
 \newcommand{\centerline}[1]{\begin{center}#1\end{center}}
+%%quotations env.
 \setenvclass{quote}{quote}%
 \newenvironment{quote}
 {\@close{}\@open{blockquote}{\envclass@attr{quote}}}
@@ -353,6 +354,9 @@
 \newcommand{\raggedleft}{\@insert{div}{\envclass@attr{flushright}}}
 \newcommand{\raggedright}{\@insert{div}{\envclass@attr{flushleft}}}
 \newcommand{\rule}[3][]{\@printHR{}{}}%
+%For figure & tables
+\newcommand{\@open@quote}[1]{\@open{blockquote}{#1}}
+\newcommand{\@close@quote}{\@close{blockquote}}
 %%%%%%%%%%%%%%%% LaTeX 2.09 style declarations
 \newenvironment{tt}{\@span{style="font-family:monospace"}}{}
 \newenvironment{bf}{\@span{style="font-weight:bold"}}{}
