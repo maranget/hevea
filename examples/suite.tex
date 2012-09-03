@@ -589,7 +589,9 @@ typeset \textit{address} in typewriter font\\ \hline
 
 \subsection{Les attributs des tables}
 \begin{center}
-\ifhevea\renewcommand{\@table@attributes}{style="width:50\%;border:ridge 10px"}\fi
+\ifhevea
+\renewcommand{\@table@attributes}{style="width:50\%;border:ridge 10px"}%
+\fi
 \begin{tabular}{cc}
 coucou & foo \\
 argl   & bar
