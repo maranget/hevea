@@ -83,15 +83,21 @@
 %%%%%%%%%%%%%
 \newcommand{\title@tohaux}[1]{}
 \newcommand{\maketitle}{%
-\@open{align}{center}
+\bgroup
+\newcommand{\checkcmd}[2]
+{\@ifundefined{@##1}
+  {\hva@warn{No ##1 given}}
+  {\usebox{\csname @##1\endcsname}##2}}%
+\@open{align}{center}%
 \@open{head}{*}%
-\@title\\%
+\usebox{\@title}\\%
 \@close{head}%
 \@open{head}{=}%H3
-\usebox{\@author}\par
-\usebox{\@date}
+\checkcmd{author}{\par}%
+\checkcmd{date}{}%
 \@close{head}%
 \@close{align}%
+\egroup%
 \global\let\maketitle\relax}
 %%%%%%%%%%%% Bibliography
 \newcommand{\@bibref}[3]{#2\@bib@post{#3}}

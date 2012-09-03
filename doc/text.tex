@@ -82,14 +82,7 @@ a \ahref{\ftpbase/hevea-\locversion-manual.tar.gz}{bundle of HTML files}.
 The input language is a fairly complete subset of \LaTeXe{} (old
 \LaTeX{} style is also accepted) and the
 output language is {\html} that is (hopefully) correct with respect to
-version 5.
-
-Recent versions of most browsers offer support for Unicode (ISO~10646)
-characters, albeit to different extents. \hevea{} exploits this fact
-to translate various math symbols used in \LaTeX. As a result, almost
-the entire set of math symbols, including the {\tt amssymb} ones, are
-correctly rendered. The use of the symbol font browsers is no longer
-the default.
+version 5\ifhevea{} \cite{html,htmlb} \else.\fi
 
 \hevea{} understands \LaTeX{} macro definitions. Simple user style
 files are understood with little or no modifications.
@@ -2755,10 +2748,11 @@ formatting \textit{arg} produces block-level elements.
 
 \index{text-level elements}
 Text-level elements are managed differently. They are not seen
-as blocks that must be closed explicitly and they are replaced by the
-internal text-level declarations \verb+\@style+ (and
-\verb+\@styleattr+), \verb+\@fontsize+ and
-\verb+\@fontcolor+. Block-level elements (and \html{} groups)
+as blocks that must be closed explicitly.
+Instead they follow a ``declaration'' style, similar
+to the one of \LaTeX{} ``text-style declarations'' --- namely,
+\verb+\itshape+, \verb+\em+ etc.
+Block-level elements (and \html{} groups)
 delimit the effect of such declarations.
 \begin{description}
 \item[{{\tt\char92 @span\char123}{\it attr}{\tt\char125}}]
@@ -2777,38 +2771,95 @@ to block-level elements.
 \item[{\tt\char92 @style\char123}{\it shape}{\tt\char125}] Declare the
 text shape \textit{shape} (which must be lowercase) as active. Text
 shapes are known as font style elements (\verb+i+, \verb+tt+, etc.;
-\textbf{warning}: some of them are depreciated in \html{}5, and some
-of them are no longer valid, prefer CSS in \verb+span+ tags) or phrase
-elements (\verb+em+, etc.) in the \html{} terminology, they are part
-of the more general class of text-level elements.
+\textbf{warning}:most of font style elements are depreciated in \html{}5,
+and some of them are no longer valid, prefer CSS in \verb+span+ tags)
+or phrase elements (\verb+em+, etc.) in the \html{} terminology.
+
 
 \item[{\tt\char92 @styleattr\char123}{\it name}{\tt\char125\char123}{\it
 attr}{\tt\char125}]
-A generalisation of \verb+\@span+ above.
-This primitive may prove useful for introducing \texttt{span} elements.
-Note that both argument are processed.
-A shorthand for \verb+\@styleattr{span}{+\textit{attr}\verb+}+.
+This command generalises both \verb+\@span+ and \verb+\@style+,
+as both a text-level element name \textit{name} and attributes are specified.
+More specifically, 
+\verb+\@span{+\textit{attr}\verb+}+ can be seen as a shorthand for
+\verb+\@styleattr{span}{+\textit{attr}\verb+}+;
+while
+\verb+\@style{+\textit{name}\verb+}+ can be seen as
+a shorthand for
+\verb+\@styleattr{+\textit{name}\verb+}{}+.
 
 \item[{\tt\char92 @fontsize\char123}{\it int}{\tt\char125}] Declare
 the text-level element \verb+span+ with attribute
-\verb+style="font-size:+\textit{int}\verb+"+ as active. Note that
+\verb+style="font-size:+\textit{font-size}\verb+"+ as active.
+The argument
 \textit{int} must be a small integer in the range
-\texttt{1},\texttt{2}, \ldots{} , \texttt{7}. \verb+size+ is the CSS
-notation (from \verb+x-small+ to \verb+120%+ included in
-a \verb+xx-large+) corresponding to \textit{int}, 3 being the 
-default size (\verb+medium+).
+\texttt{1},\texttt{2}, \ldots{} , \texttt{7}.
+\texttt{hevea} computes \textit{font-size}, a CSS fontsize value,
+ from \textit{int}.
+More specifically, \textit{font-size} will
+range from \verb+x-small+ to \verb+120%+ included in
+a \verb+xx-large+, 3 being the  default size \verb+medium+.
+Notice that \verb+\@fontsize+ is deprecated in favor of
+\verb+\@span+ with proper fontsize declarations:
+\verb+\@span{style="font-size=xx-small"}+,
+\verb+\@span{style="font-size=x-small"}+,
+\verb+\@span{style="font-size=small"}+,
+etc.
+
 
 \item[{\tt\char92 @fontcolor\char123}{\it color}{\tt\char125}]
-Declare the text-level element \verb+FONT+ with attribute
-\verb+COLOR=+\textit{color} as active.
-Note that \textit{color} must be a color attribute value in the \html{}
+Declare the text-level element \verb+span+ with attribute
+\verb+"style=+\textit{color}\verb+"+ as active.
+The argument \textit{color} must be a color attribute value in the \html{}
 style. That is either one of the sixteen conventional colors
 \verb+black+, \verb+silver+ etc, or a RGB hexadecimal color specification
 of the form
-\verb+"#+\textit{XXXXXX}\verb+"+ (yes, quotes are needed).
+\verb+#+\textit{XXXXXX}.
 Note that the argument \textit{color} is processed, as a consequence
-numerical color arguments should be given as \verb+"\#+\textit{XXXXXX}\verb+"+.
+numerical color arguments should be given as \verb+\#+\textit{XXXXXX}.
 
+
+
+\item[{\tt\char92 @nostyle}]
+Close active text-level declarations and ignore further text-level
+declarations.
+The effect stops when the enclosing block-level element is closed.
+\item[{\tt\char92 @clearstyle}]
+Simply close active text-level declarations.
+\end{description}
+
+\subsubsection*{Notice on font styling with CSS}
+
+The prefered way to style text in new versions of the \html{} ``standard''
+is using style-sheet specifications. Those can be given as argument to
+a ``\texttt{style}'' attributes of \html{} elements, most noticeably
+of the \texttt{span} elements.
+For instance, to get italics in old versions of \html{} one used
+the text-level ``\texttt{i}'' element as in
+\verb+<i>+\ldots\verb+</i>+. Now, for the same results of getting
+ italics one may write:
+\verb+<span style="font-style:italic">+\ldots\verb+</span>+.
+An indeed \texttt{hevea} styles text in that manner,
+starting from version~2.00.
+Such (verbose) declations are then abstracted into style class declarations
+by \hevea{} optimiser \texttt{esponja}, which is invoked by \texttt{hevea}
+when given option ``\texttt{-O}''.
+
+Notice that style attributes can be given to elements other than \texttt{span}.
+However, combining style attributes requires a little care as only one style
+attribute is allowed.
+Namely \verb+<cite style="font-weight:bold" style="color:red">+
+is illegal and should be written 
+\verb+<cite style="font-weight:bold;color:red">+.
+\ifhevea
+For instance:
+{\@styleattr{cite}{style="font-weight:bold;color:red"}Das Kapital}.
+\fi
+
+\index{"@addstyle@\texttt{\char92"@addstyle}}
+The command \verb+\@addtyle+ can be handy for adding style to
+already style elements:
+\begin{description}
 \item[{\tt\char92 @addstyle\char123}{\it name:val}{\tt\char125\char123}{\it attrs}{\tt\char125}]
 Echo the space-separated attributes \textit{attrs} of a tag with the
 \textit{name:val} style declaration added to these attributes. The
@@ -2818,14 +2869,36 @@ Echo the space-separated attributes \textit{attrs} of a tag with the
 \verb+\@addstyle{color:red}{href="#" style="font-style:italic"}+ will
 produce \verb+href="#"  style="font-style:italic;color:red"+. Note
 that an unnecessary extra space can be added in some cases.
-
-\item[{\tt\char92 @nostyle}]
-Close active text-level declarations and ignore further text-level
-declarations.
-The effect stops when the enclosing block-level element is closed.
-\item[{\tt\char92 @clearstyle}]
-Simply close active text-level declarations.
 \end{description}
+As an example, consider the following definition of a command
+for typesetting citation in bold, written directlty in \html:
+\begin{verbatim}
+\newcommand{\styledcite}[2][]
+{{\@styleattr{cite}{\@addstyle{#1}{style="font-weight:bold"}}#2}}
+\end{verbatim}
+The puprpose of the optional argument is to add style to specific citations,
+as in:
+\begin{verbatim}
+Two fundamental works: \styledcite{The Holy Bible} and
+\styledcite[color:red]{Das Kapital}.
+\end{verbatim}
+\ifhevea We get: {\newcommand{\styledcite}[2][]
+{{\@styleattr{cite}{\@addstyle{#1}{style="font-weight:bold"}}#2}}%
+Two fundamental works: \styledcite{The Holy Bible} and
+\styledcite[color:red]{Das Kapital}.}\fi
+
+Notice that the example is  given for illustrating the usage of the
+\verb+\@addstyle+ macros, which is intended for package writers.
+A probably simpler way to proceed would be to use
+\LaTeX{} text-style declarations:
+\begin{verbatim}
+\newcommand{styledcite}[2][]{{\@style{cite}#1\bf{}#2}}
+Two fundamental works: \styledcite{The Holy Bible} and
+\styledcite[\color{red}]{Das Kapital}.
+\end{verbatim}
+\ifhevea We get:{\newcommand{\styledcite}[2][]{{\@style{cite}#1\bf{}#2}}
+Two fundamental works: \styledcite{The Holy Bible} and
+\styledcite[\color{red}]{Das Kapital}.}\fi
 
 \subsection{The \texttt{rawhtml}\label{rawhtml} environment}
 \envindex{rawhtml}\comindex{rawhtmlinput}
@@ -3418,10 +3491,11 @@ Good Morning & Bonjour\\ Thank You & Merci\\ Good Bye & Au Revoir\\
 \end{tabular}\end{center}
 \end{divstyle}
 \end{htmlonly}
-We have two problems here: first the text is black, and second,
-the brown background extend on all the width of the displayed page.
+In the \html{} version of this document,
+one sees that the brown background extend on all the width
+of the displayed page.
 
-The second problem is solved by introducing an extra table.
+This problem can be solved by introducing an extra table.
 We first open an extra centered table and then only open the
 \texttt{divstyle} environment.
 \begin{verbatim}
@@ -3451,59 +3525,6 @@ Good Morning & Bonjour\\ Thank You & Merci\\ Good Bye & Au Revoir\\
 \end{divstyle}
 \end{tabular}\end{center}
 \end{htmlonly}
-As regards text color, one can rely on explicit color change.
-For instance, one can add a \verb+\maroon+ declaration, after the
-opening command~\verb+\begin{divstyle}{ruled}+.
-\begin{htmlonly}
-Then we get:
-\begin{center}\begin{tabular}{c}
-\begin{divstyle}{ruled}\maroon
-\begin{tabular}{|c|c|}
-\hline \bf English & \bf French\\ \hline
-Good Morning & Bonjour\\ Thank You & Merci\\ Good Bye & Au Revoir\\
-\hline
-\end{tabular}
-\end{divstyle}
-\end{tabular}\end{center}
-\end{htmlonly}
-But then, we do not use style sheets anymore.
-
-\subsubsection{Enclosing things in a styled cell}%
-\index{styles for!miscellaneous objects}%
-\index{style-sheets!\verb+\cellstyle+}\envdefindex{cellstyle}%
-Given the differences in styling \verb+div+ and table elements, \hevea{}
-provides a mean to issue a one-cell \verb+table+ element with one cell,
-with style applied to the outer \verb+table+ element and the inner
-\verb+td+ element.
-For instance, the previous example can be styled as follows, thereby
-avoiding the outer \texttt{tabular} environment.
-\begin{verbatim}
-\begin{center}
-\begin{cellstyle}{ruled}{}
-\begin{tabular}{|c|c|}
-\hline \bf English & \bf French\\ \hline
-Good Morning & Bonjour\\ Thank You & Merci\\ Good Bye & Au Revoir\\
-\hline
-\end{tabular}
-\end{cellstyle}
-\end{center}
-\end{verbatim}
-\begin{htmlonly}
-\begin{center}
-\begin{cellstyle}{ruled}{}
-\begin{tabular}{|c|c|}
-\hline \bf English & \bf French\\ \hline
-Good Morning & Bonjour\\ Thank You & Merci\\ Good Bye & Au Revoir\\
-\hline
-\end{tabular}
-\end{cellstyle}
-\end{center}
-\end{htmlonly}
-\begin{latexonly}
-\begin{center}\image{table-good}\end{center}
-\end{latexonly}
-
-
 
 
 \subsubsection{Styling the \texttt{itemize} environment}
@@ -7812,19 +7833,33 @@ Tools, 1995.
 \newblock Available on the web at
 \ahrefurl{\url{http://cristal.inria.fr/~xleroy/w4g.html}}
 
-\bibitem[HTML-4.0]{html}
+\bibitem[HTML-4.0]{html4}
 D.~Ragget, A.~Le~Hors and I.~Jacobs.
 {\em HTML 4.0 Reference Specification}. Available on the web at
 \ahrefurl{\url{http://www.w3.org/TR/REC-html40}}, 1997.
 
-\bibitem[CSS-2]{css}
-Bert Bos,  H{\aa}kon Wium Lie,
-Chris Lilley and Ian Jacobs.
-{\em Cascading Style Sheets, level 2 CSS2 Specification}. Available on
-the web at
-\ahrefurl{\url{http://www.w3.org/TR/REC-CSS2/}}, 1998.
+\bibitem[HTML-5a]{html}
+W3C HTML Working groups.
+{\em HTML5 A vocabulary and associated APIs for HTML and XHTML}
+\ahrefurl{\url{http://dev.w3.org/html5/spec/spec.html}}, 2012.
 
+
+\bibitem[HTML-5b]{htmlb}
+{\em HTML Living Standard}
+\ahrefurl{\url{http://www.whatwg.org/specs/web-apps/current-work/multipage/}},
+2012.
+
+\bibitem[CSS-2]{css}
+Bert Bos,
+Tantek \c{C}elik,
+Ian Hickson
+and
+H{\aa}kon Wium Lie.
+{\em Cascading Style Sheets, Level~2 Revision~2 Specification}. Available on
+the web at
+\ahrefurl{\url{http://www.w3.org/TR/REC-CSS2/}}, 2011.
 \end{thebibliography}
+
 \printindex
 \cutend\cutend
 %HEVEA\@stopimage\let\@footnoteflush\@footnoteflush@sticky\@restartimage
