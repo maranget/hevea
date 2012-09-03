@@ -1,4 +1,4 @@
-Edit README, CHANGES
+Edit README, CHANGES, Makefile (suppress -warn-errors)
 Edit version.ml
 commit everything
 sh release/mktag.sh > release/tag.sh
