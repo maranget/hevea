@@ -11,7 +11,7 @@ TEXT=a.txt pat.txt suite.txt env.txt
 INFO=$(TEXT:.txt=.info)
 
 
-all: dvi html text info
+all: dvi html text info test-opt
 
 opt:
 	export HEVEADIR=.. ;\
@@ -91,7 +91,7 @@ info: $(INFO)
 install:
 	/bin/rm -rf $(EXDIR)
 	mkdir $(EXDIR)
-	cp *.gif $(HTML) index.html sym.html tmp.css tmp*.html conclusion.html benchmarks.html hp.c $(EXDIR)
+	cp *.gif *.png $(HTML) index.html sym.html tmp.css tmp*.html conclusion.html benchmarks.html hp.c $(EXDIR)
 	-cp $(TEXT) $(EXDIR)
 	cp Makefile $(TEX) pat.def env.hva pat.hva smile.hva $(EXDIR)
 	cp $(DVI) $(EXDIR)
