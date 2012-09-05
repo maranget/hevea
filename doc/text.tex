@@ -53,9 +53,10 @@ Chesnay Cedex. {\tt \mailto{Luc.Maranget@inria.fr}}}}
 \emitstyle{3}{\@getstylecolor{Tan}}
 \emitstyle{4}{\@getstylecolor{Melon}}
 \newstyle{.xtitle}
-  {text-align:center;margin:1ex auto;padding:2ex;color:navy;border:solid navy;}
+  {text-align:center;margin:1ex auto;color:navy;border:solid navy;}
 \newstyle{.xtitlerest}{font-variant:small-caps;}
 \newstyle{.ruled}{border:solid black;padding:1ex;background:\#eeddbb;color:maroon}
+\newstyle{.ruledbis}{border:solid black;padding:1ex;background:\#eeddbb;color:maroon;display:inline-block}
 \setlinkstext
   {\imgsrc[alt="Previous"]{previous_motif.gif}}
   {\imgsrc[alt="Up"]{contents_motif.gif}}
@@ -3399,10 +3400,10 @@ information (author, date) are displayed inside block \verb+h3+, with class
 \begin{verbatim}
 <table class="title">
  <tr>
-  <td>
-   <h1 style="text-align:center" class="titlemain">..title here..</h1>
-   <h3 style="text-align:center" class="titlerest">..author here..</h3>
-   <h3 style="text-align:center" class="titlerest">..date here..</h3>
+  <td style="padding:1ex">
+   <h1 class="titlemain">..title here..</h1>
+   <h3 class="titlerest">..author here..</h3>
+   <h3 class="titlerest">..date here..</h3>
   </td>
  </tr>
 </table>
@@ -3412,13 +3413,13 @@ appropriate style classes.
 For instance the following style class definitions:
 \begin{verbatim}
 \newstyle{.title}
-  {text-align:center;margin:1ex auto;padding:2ex;color:navy;border:solid navy;}
+  {text-align:center;margin:1ex auto;color:navy;border:solid navy;}
 \newstyle{.titlerest}{font-variant:small-caps;}
 \end{verbatim}
 will normally produce a title in dark blue, centered in a box, with
 author and date in small-caps.
 \begin{htmlonly}
-\@open{table}{class="xtitle"}\@open{tr}{}\@open{td}{}
+\@open{table}{class="xtitle"}\@open{tr}{}\@open{td}{style="padding:1ex;"}
 \@open{h1}{class="xtitlemain"}Title\@close{h1}
 \@open{h3}{class="xtitlerest"}Date\@close{h3}
 \@open{h3}{class="xtitlerest"}Author\@close{h3}
@@ -3526,6 +3527,23 @@ Good Morning & Bonjour\\ Thank You & Merci\\ Good Bye & Au Revoir\\
 \end{tabular}\end{center}
 \end{htmlonly}
 
+Another solution is to specify the \texttt{display} property
+of the styling \texttt{div} block as being \texttt{inline-block}:
+\begin{verbatim}
+\newstyle{.ruledbis}
+  {border:solid black;padding:1ex;background:\#eeddbb;color:maroon;display:inline-block;}
+\end{verbatim}
+\begin{htmlonly}
+\begin{center}
+\begin{divstyle}{ruledbis}
+\begin{tabular}{|c|c|}
+\hline \bf English & \bf French\\ \hline
+Good Morning & Bonjour\\ Thank You & Merci\\ Good Bye & Au Revoir\\
+\hline
+\end{tabular}
+\end{divstyle}
+\end{center}
+\end{htmlonly}
 
 \subsubsection{Styling the \texttt{itemize} environment}
 \index{styles for!lists}
@@ -5824,7 +5842,8 @@ he said \frenchquote(Alors cette accolade ouvrante {``\{''}~?).
 
 Another issue regards comments: ``\%'' in arguments may give undefined
 behaviors, while comments are better avoided while defining
-macros. As an example, the following code will not be handled properly
+macros. As an example, the following code will \emph{not}
+be handled properly
 by \hevea:
 \begin{verbatim}
 \def\x%
@@ -6018,7 +6037,8 @@ Windows users should enjoy the same features with the version of
 
 
 \subsection{Fancy \label{fancysection}sectioning commands}
-\index{color!of section headings}
+\index{color!of section headings}%
+\ttindex{fancysection}{package}%
 Loading the \texttt{fancysection.hva} file will radically change the
 style of sectional units headers: they appear over a green
 backgroud, the backgrould color saturation decreases as the sectioning
@@ -6027,8 +6047,15 @@ Additionnaly, the document background color is white.
 
 \textbf{Note : }Fancy section has been re-implemented using style-sheets. While it respects the old behavior, users are encouraged to try out style-sheets for more flexibility. See Section~\ref{style:sheets} for details.
 
+
 The \texttt{fancysection.hva} file is intended to be loaded after
-the document base style. Thus, to use fancy section style in
+the document base style.
+Hence the easiest way to load the \texttt{fancysection.hva} file
+is by issuing \verb+\usepackage{fancysection}+ in the document preamble.
+To allow processing by \LaTeX, one may for instance create
+an empty \texttt{fancysection.sty} file.
+
+As an alternative, to use fancy section style in
 \texttt{doc.tex} whose base style is \textit{article}
 you should issue the command:
 \begin{verbatim}
@@ -6069,6 +6096,10 @@ For instance,
 \colorsections{20}
 \end{verbatim}
 will yield sectionnal headers on a red-orange background.
+
+\ttindex{undersection}{package}
+\hevea{} distribution features another style for fancy sectioning commands:
+the \texttt{undersection} package provides underlined sectional headers.
 
 \subsection{Targetting \label{winfonts}Windows}
 \index{display problems!for authors}%
@@ -6124,7 +6155,7 @@ symbols (\emph{e.g.} use \verb+\leq+ [$\leq$]
 in place of \verb+\preceq+ [$\preceq$]) and, above all,
 they should control the rendering of their documents using several browsers.
 
-
+\iffalse
 \subsection{\hevea{} as a Back-End for VideoC}
 \hevea{} is one of the back-ends of the VideoC system for producing
 educational CDROM to teach programming languages.
@@ -6141,7 +6172,7 @@ typesetting source code or to annotate text in sophisticated ways.
 \hevea{} internal engine implements some of the core constructs needed
 by VideoC. The rest of VideoC constructs are implemented by
 the \texttt{.hva} files from VideoC distribution.
-
+\fi
 
 \section{Implemented Packages}\label{implemented:package}
 \cutname{manual-packages.html}%
@@ -6428,7 +6459,7 @@ with version~8.0 of the \texttt{natbib} package
 (with the \texttt{keyval} style command \verb+\setcitestyle+).
 
 Unimplemented features are the sorting and compression of references.
-Automatic generation of an index of citatations is handled, but
+Automatic generation of an index of citations is handled, but
 the current implementation probably is quite fragile.
 
 \subsection{Multiple bibliographies}

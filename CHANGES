@@ -1,3 +1,5 @@
+version 2.01
+     - Added undersection package, for underlined section headers.
 version 2.00
      - HTML 5.0 output.
 version 1.99

@@ -1,0 +1,18 @@
+%Attempt to understand some box model properties.
+\documentstyle{article}
+\newstyle{.external}
+{display:inline-block;text-align:center;color:red;border:1px solid;padding:2ex;}
+\newstyle{.internal}
+{color:navy;border:1px solid;margin:1ex 0ex;}
+\newenvironment{external}
+{\@open{div}{class="external"}}
+{\@close{div}}
+\begin{document}
+\begin{center}
+\begin{external}
+\@open{h1}{class="internal"}Title\@close{h1}
+\@open{h3}{class="internal"}Author\@close{h3}
+\@open{h3}{class="internal"}Date\@close{h3}
+\end{external}
+\end{center}
+\end{document}

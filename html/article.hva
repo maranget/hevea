@@ -19,10 +19,10 @@
   {\@open{h4}{\@art@attr{subsubsection}}}{\thesubsubsection}{\quad}{\@close{h4}}%
 \@makesection
   {\paragraph}{3}{paragraph}
-  {\@open{h5}{\@art@attr{paragraph}}}{\theparagraph}{\quad}{\@close{h5}}%
+  {\@open{h4}{\@art@attr{paragraph}}}{\theparagraph}{\quad}{\@close{h4}}%
 \@makesection
   {\subparagraph}{4}{subparagraph}
-  {\@open{h6}{\@art@attr{subparagraph}}}{\thesubparagraph}{\quad}{\@close{h6}}%
+  {\@open{h5}{\@art@attr{subparagraph}}}{\thesubparagraph}{\quad}{\@close{h5}}%
 \newcommand{\hacha@style}{article}%
 \styleloadedtrue
 \fi

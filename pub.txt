@@ -1,4 +1,4 @@
-It is my pleasure to anounce the new, 1.09, release of HEVEA.
+It is my pleasure to announce the new, 2.00 release of HEVEA.
 
     HEVEA is a LaTeX to HTML translator.  The input language is a
     fairly complete subset of LaTeX2e and the output
@@ -7,32 +7,8 @@ It is my pleasure to anounce the new, 1.09, release of HEVEA.
 
     HEVEA web page is <http://hevea.inria.fr/>
 
+This release is a major one as hevea output has changed from
+HTML 4.01 transitional to HTML version 5.
 
-With respect to previous version 1.08, there are numerous changes,
-including :
+--Luc
 
-   * Added packages,
-        ifpdf, chngcntr, inputenc (support for latin 8 bit encodings)
-        eurosym, textcomp, longtable, supertabular.
-
-   * A long standing misfeature is now  corrected
-     (you can now put \title{...} after \begin{document})
-
-   * On the HTML side, CSS usage have been extended and
-     paragraphs are now translated with P elements.
-
-
-WARNING
-  To compile hevea 1.09, you need ocaml 3.07.
-
-  Thanks to Ph. Viton. the (compiled) windows version 1.09  is
-  available
-  <http://facweb.knowlton.ohio-state.edu/pviton/support/winport.html>
-
-  Packagers for various Linux distributions
-  will update their packages at their convenience.
-
-
-
-
---Luc Maranget

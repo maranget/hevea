@@ -24,6 +24,8 @@
 }%
 \definecolor{paragraph}{hsv}{#1, .2, 1}}%
 \colorsections{120}%
+%%
+\renewcommand{\@bibtagstyle}{\@span{style="color:\@getstylecolor{visited}"}}%
 %% Define sectioning comands
 \AtBeginDocument
 {\newstyle{body}{background-color:white}%
@@ -34,11 +36,11 @@
 \newstyle{a:hover}
   {color:black;text-decoration:none;background-color:\@getstylecolor{hover}}
 \newstyle{.title}
-  {padding:1ex;background-color:\@getstylecolor{title}}%
+  {background-color:\@getstylecolor{title}}%
 \newstyle{.titlemain}
-  {padding:1ex;background-color:\@getstylecolor{titlemain}}%
+  {background-color:\@getstylecolor{titlemain}}%
 \newstyle{.titlerest}
-  {padding:1ex;background-color:\@getstylecolor{titlerest}}%
+  {ackground-color:\@getstylecolor{titlerest}}%
 \newstyle{.part}
   {padding:1ex;background-color:\@getstylecolor{part}}%
 \newstyle{.section}

@@ -216,6 +216,8 @@
 {\@auxdowrite{\@print{\@titleaux}\{\@subst{#1}\}
 }}
 \newstyle{.title}{margin:2ex auto;text-align:center}
+\newstyle{.titlemain}{margin:1ex 2ex 2ex 1ex;}
+\newstyle{.titlerest}{margin:0ex 2ex;}
 \let\title@flush@hook\relax
 \newcommand{\maketitle}{%
   \bgroup
@@ -224,7 +226,7 @@
      {\@open{##1}{\class@attr{##2}{}}%
       \@fmt@title{\csname @##3\endcsname}%
       \@close{##1}}}%
-  \@opencell{class="title"}{}{}%
+  \@opencell{class="title"}{}{style="padding:1ex"}%
   \checkcmd{h1}{titlemain}{title}{\hva@warn}%
   \checkcmd{h3}{titlerest}{author}{\hva@warn}%
   \checkcmd{h3}{titlerest}{date}{\@gooble}%
@@ -247,10 +249,11 @@
 \renewcommand{\textless}{\ifraw\@print{<}\else\@print{&lt;}\fi}
 \renewcommand{\textgreater}{\ifraw\@print{>}\else\@print{&gt;}\fi}
 %%%%%%%%%%%% Bibliography
+\newcommand{\@bibtagstyle}{}
 \newcommand{\@bibref}[3]
   {\@locref{#1}{\ifx#2\@empty\@verbarg{#1}\else#2\fi}\@bib@post{#3}}
 \newsavebox{\@bibbox}
-\newcommand{\@biblabel}[1]{\@locname{\bibtaghook{#1}}{\purple[\@bibread{\bibtaghook{#1}}]}}
+\newcommand{\@biblabel}[1]{\@locname{\bibtaghook{#1}}{\@bibtagstyle[\@bibread{\bibtaghook{#1}}]}}
 %%% Environment document.
 \newcommand{\@charset}{US-ASCII}
 \newcommand{\@def@charset}[1]
