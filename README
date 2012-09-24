@@ -44,7 +44,7 @@ DISTRIBUTION
 
 
 REQUIREMENTS
-     HEVEA is written in Objective Caml version 3.10 or later
+     HEVEA is written in Objective Caml version 3.11 or later
      (Ocaml). It compiles under Ocaml, which should thus be properly
      installed.
 
@@ -126,6 +126,6 @@ MAKE
 
 IN CASE OF TROUBLE.
 
-  - You do need version 3.10 of the Objective Caml System. Older versions
+  - You do need version 3.12 of the Objective Caml System. Older versions
     of OCaml cannot compile hevea 2.00.
 
