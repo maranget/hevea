@@ -126,6 +126,6 @@ MAKE
 
 IN CASE OF TROUBLE.
 
-  - You do need version 3.12 of the Objective Caml System. Older versions
-    of OCaml cannot compile hevea 2.00.
+  - You do need version 3.12 (or newer) of the Objective Caml System.
+    Older versions of OCaml cannot compile hevea 2.00.
 
