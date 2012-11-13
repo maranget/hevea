@@ -34,6 +34,7 @@ byte: ocb-byte
 opt: ocb-opt
 both: ocb-both
 
+include libs.def
 
 config.sh: Makefile libs.def
 	@(echo PGM=\"$(PGM)\" &&\
