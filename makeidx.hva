@@ -1,15 +1,18 @@
 \@primitives{index}
 \newsavebox{\@indexbox}
-\newcommand{\index}[1]
+%%%% index citations that point to index commands
+\newcommand{\@index@loc}[1]
 {\if@refs%
 \sbox{\@indexbox}{\@indexwrite[default]{#1}{\@indexlabel}}%force evaluation
 \@locname{\usebox{\@indexbox}}{}%
 \fi}
-%%%% uncomment this to get index citations that point to section titles.
-%\renewcommand{\index}[1]
-%{\if@refs\@saveclosed%
-%\@@indexwrite[default]{#1}{\@currentlabel}{htoc\thetocanchor}%force evaluation
-%\@restoreclosed\fi}
+%%%% index citations that point to section titles.
+\newcommand{\@index@sec}[1]
+{\if@refs%
+\@@indexwrite[default]{#1}{\@currentlabel}{\@fmt@sec}%force evaluation
+\fi}
+\newif\ifindexsec\indexsecfalse
+\newcommand{\index}[1]{\ifindexsec\@index@sec{#1}\else\@index@loc{#1}}
 \newcommand{\printindex}{\@printindex[default]}
 \newcommand{\makeindex}{\newindex{default}{idx}{ind}{Index}}
 \newcommand{\see}[2]{\seename\ \textit{#1}}
