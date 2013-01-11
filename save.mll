@@ -77,7 +77,7 @@ let space = [' ''\t''\r']
 
 rule skip_comment = parse
   | eof       {()}
-  | '\n' space* {()}
+  | '\n' space* {check_comment lexbuf}
   | _         {skip_comment lexbuf}
 
 and check_comment = parse

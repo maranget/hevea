@@ -985,6 +985,8 @@ let do_definekey lexbuf =
 let do_setkey lexbuf =
   let family = get_prim_arg lexbuf in
   let arg = subst_arg lexbuf^",," in
+  if  !verbose > 1 then
+    Printf.eprintf "SETKEY, family='%s', arg='%s'\n" family arg ;
   let abuff = MyLexing.from_string arg in
   let rec do_rec () =
     let {arg=x} = save_arg_with_delim "," abuff in
@@ -994,7 +996,7 @@ let do_setkey lexbuf =
       let {arg=key} = save_arg_with_delim "=" xbuff in
       let {arg=value} = save_arg_with_delim "=" xbuff in
       if !verbose > 1 then
-        Printf.fprintf stderr "SETKEY, key='%s', value='%s'\n" key value ;
+        Printf.eprintf "Found KEY, key='%s', value='%s'\n" key value ;
       if key <> "" then begin
         let csname = keyval_name family key in
         if Latexmacros.exists csname then begin

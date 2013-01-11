@@ -158,6 +158,7 @@ let to_string t = match t with
 (***********************)
 (* To list (of string) *)
 (***********************)
+
 let rec do_to_list k = function
   | Str s -> if String.length s > 0 then (s::k) else k
   | App (t1,t2,_) ->
@@ -166,6 +167,7 @@ let rec do_to_list k = function
 
 let to_list t = do_to_list [] t
 let to_list_append t k = do_to_list k t
+
 (*******************)
 (* Index functions *)
 (*******************)
