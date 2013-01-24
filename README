@@ -1,4 +1,4 @@
-      This is HEVEA, version 2.01 a fast Latex to HTML translator.
+      This is HEVEA, version 2.02 a fast Latex to HTML translator.
 
 
 ADVERTISEMENT
@@ -44,7 +44,7 @@ DISTRIBUTION
 
 
 REQUIREMENTS
-     HEVEA is written in Objective Caml version 3.11 or later
+     HEVEA is written in Objective Caml version 3.12 or later
      (Ocaml). It compiles under Ocaml, which should thus be properly
      installed.
 
@@ -68,16 +68,16 @@ REQUIREMENTS
 INSTALLATION FROM THE SOURCE DISTRIBUTION
 
   Download the source distribution
-    http://hevea.inria.fr/distri/hevea-2.01.tar.gz
+    http://hevea.inria.fr/distri/hevea-2.02.tar.gz
 
   Unzip,
-    gunzip hevea-2.01.tar.gz
+    gunzip hevea-2.02.tar.gz
 
   Untar,
-    tar xf  hevea-2.01.tar
+    tar xf  hevea-2.02.tar
 
   Go to the source directory
-    cd hevea-2.01
+    cd hevea-2.02
 
 CONFIGURATION
     There are a few configuration variables at the beginning of
@@ -127,5 +127,5 @@ MAKE
 IN CASE OF TROUBLE.
 
   - You do need version 3.12 (or newer) of the Objective Caml System.
-    Older versions of OCaml cannot compile hevea 2.01.
+    Older versions of OCaml cannot compile hevea 2.02.
 

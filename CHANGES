@@ -1,3 +1,5 @@
+version 2.02
+     - Correct ocaml minimal version number in README
 version 2.01
      - In delimited argument parsing, skip several comments (only one
        was allowed before).

@@ -57,6 +57,7 @@ then
   /bin/rm -rf ${HTMLDIR}/distri/unstable
   cp -r $DFTP ${HTMLDIR}/distri
 else
+  cp ${HTMLDIR}/distri/hevea-[0-9].[0-9][0-9].tar.gz ${HTMLDIR}/old
   /bin/rm -rf ${HTMLDIR}/distri
   mkdir ${HTMLDIR}/distri
   ( cd $DFTP &&\
