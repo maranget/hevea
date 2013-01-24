@@ -1,8 +1,0 @@
-\@primitives{xypic}
-\@imagecommand{\xymatrix}{\execafter{\imageflush{}}\execafter\@imagearg\@xyarg}
-\@imagecommand{\xymatrix@}{\execafter{\imageflush{}}\execafter\@imagearg\@xyarg}
-\@imagecommand{\xymatrixnocompile}{\execafter{\imageflush{}}\@imagearg}
-\def\CompileMatrices{}
-\def\NoCompileMatrices{}
-\@imagecommand{\entrymodifiers}{\@imagearg}
-\@imagecommand{\SelectTips}{\execafter\@imagearg\@imagearg}

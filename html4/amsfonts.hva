@@ -1,8 +1,0 @@
-\def\@mathbb#1{%
-\ifx#1\@empty\let\@next\@empty\else\@doublestruck#1\let\@next\@mathbb\fi
-\@next}
-\newcommand{\mathbb}[1]{\@callprim{\@mathbb}{#1\@print{\@empty}}}
-\DeclareSymbolHtml{\ulcorner}{X231C}
-\DeclareSymbolHtml{\urcorner}{X231D}
-\DeclareSymbolHtml{\llcorner}{X231E}
-\DeclareSymbolHtml{\lrcorner}{X231F}
