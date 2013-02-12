@@ -184,12 +184,50 @@ let close_env env  =
     error_env env !cur_env
 ;;
 
+type env_saved =
+    string * (unit -> unit) list *
+      (string * (unit -> unit) list * Location.t) MyStack.saved
+
 let env_check () = !cur_env, !after, MyStack.save stack_env
+
 and env_hot (e,a,s) =
   cur_env := e ;
   after := a ;
   MyStack.restore stack_env s
         
+type full_save =
+    { hot : Hot.saved;
+      location : Location.saved;
+      env : env_saved ;
+      lexstate : Lexstate.saved_lexstate ;
+      dest : Dest.saved;
+      get : Get.saved;
+      aux : Auxx.saved;      
+    }
+;;
+
+(* Complete internal check/hot start *)
+let check_all () =
+  {
+   location = Location.check () ;
+   env = env_check () ;
+   hot = Hot.checkpoint () ;
+   lexstate = Lexstate.check_lexstate () ;
+   dest = Dest.check () ;
+   get = Get.check () ;
+   aux = Auxx.check () ;
+  }
+
+and hot_all s =
+  Location.hot s.location ;
+  env_hot s.env ;
+  Lexstate.hot_lexstate s.lexstate ;
+  Dest.hot s.dest ;
+  Get.hot s.get ;
+  Auxx.hot s.aux ;
+  Hot.start s.hot ;
+  ()
+;;
 
 (* Top functions for blocks *)
 
@@ -2359,10 +2397,18 @@ def_code "\\@@addtocsec"
 ;;
 def_code "\\@addcontentsline"
   (fun lexbuf ->
+    let saved = check_all () in
+    try
      let suf = get_prim_arg lexbuf in
      let level =  get_num_arg lexbuf in
      let {arg=title} = save_arg lexbuf in
-     Auxx.addtoc suf level title)
+     Auxx.addtoc suf level title
+    with e ->
+      hot_all saved ;
+      Misc.warning
+        (sprintf "Failure of \\@addcontentsline: %s"
+           (Printexc.to_string e)))
+      
 ;;
 
 def_code "\\@notags"
@@ -3708,15 +3754,10 @@ def_code "\\@primitives"
 
 (* try e1 with _ -> e2 *)
 
+
 def_code "\\@try"
   (fun lexbuf ->
-    let saved_location = Location.check ()
-    and env_saved = env_check ()
-    and saved = Hot.checkpoint ()
-    and saved_lexstate = Lexstate.check_lexstate ()
-    and saved_out = Dest.check ()
-    and saved_get = Get.check ()
-    and saved_aux = Auxx.check () in
+    let saved = check_all () in
     let e1 = save_arg lexbuf in
     let e2 = save_arg lexbuf in
     try
@@ -3724,15 +3765,9 @@ def_code "\\@try"
       scan_this_arg main e1 ;
       top_close_block "temp"
     with e -> begin
-      Location.hot saved_location ;
-      env_hot env_saved ;
+      hot_all saved ;
       Misc.print_verb 0
         ("\\@try caught exception : "^Printexc.to_string e) ;
-      Lexstate.hot_lexstate saved_lexstate ;
-      Dest.hot saved_out ;
-      Get.hot saved_get ;
-      Auxx.hot saved_aux ;
-      Hot.start saved ;
       scan_this_arg main e2
     end)
 ;;

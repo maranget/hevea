@@ -617,8 +617,8 @@
 \@iffileexists{\jobname.#1}{\input{\jobname.#1}}{}}
 \newcommand{\tableofcontents}{\@readtoc{htoc}{\contentsname}}
 \newcommand{\addcontentsline}[3]
-{\@auxdowrite{\@print{\@addcontentsline}{\{\@nostyle{}h#1\}\{\csname @#2@level\endcsname\}}\{\@subst{#3}\}\@print{
-}}}
+{\@auxdowrite{{\@nostyle\@print{\@addcontentsline}{\{h#1\}\{\csname @#2@level\endcsname\}}\{\@subst{#3}\}\@print{
+}}}}
 %%%%%%%%% Minipage
 %Manage footnotes in minipage, as latex does
 % 1. Use counter mpfootnote

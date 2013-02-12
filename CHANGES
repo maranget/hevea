@@ -1,3 +1,6 @@
+version 2.03
+     - Correct \addcontentsline so as to avoid any style, in .haux
+       and make  \@addcontentsline  armoured (useless?)
 version 2.02
      - Correct ocaml minimal version number in README
 version 2.01
