@@ -560,7 +560,14 @@ def_code "\\@new@anchor@label"
     let anchor = get_raw lexbuf in
     let name = get_raw lexbuf in
     let arg = get_raw lexbuf in
-    Auxx.rset2 anchor name arg)
+    let is_new = Auxx.rset2 anchor name arg in
+    if is_new then
+    let com = 
+      sprintf "\\gdef\\csname %s@named@sec\\endcsname{%s}" anchor name in
+(*    eprintf "COM: %s\n" com ; *)
+    scan_this main com ;
+    ())
+
 ;;
 
 def_code "\\@check@anchor@label"

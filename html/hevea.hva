@@ -141,7 +141,7 @@
 \newcommand{\cuthere}[2]{%
 \@footnoteflush{#1}%
 {\@out@par{{\@nostyle\@print{<!--TOC }\@getprint{#1}\@print{ }}%
-{\@nostyle{}id=\@fmt@sec\@print{ }}%
+{\@nostyle{}\@print{id="}\@sec@id@attr\@print{" }}%
 \begin{@norefs}#2\end{@norefs}{\@nostyle\@print{-->
 }}}}}
 \newcommand{\@hacha@arg}[2]

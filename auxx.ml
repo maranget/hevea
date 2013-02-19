@@ -18,7 +18,13 @@ and atable = Hashtbl.create 17
 let rset name value = Hashtbl.add rtable name value
 let rset2 anchor name value =
   Hashtbl.add rtable name value ;
-  Hashtbl.add atable name anchor
+  begin try
+    ignore (Hashtbl.find atable anchor) ;
+    false
+  with Not_found ->
+    Hashtbl.add atable anchor name ;
+    true
+  end
 ;;
 
   
@@ -27,8 +33,7 @@ let rget name =
     warning ("Undefined label: '"^name^"'") ; "??"
   end
 
-and rget2 name =
-  try Hashtbl.find atable name with Not_found -> name
+and rget2 name = name
 ;;
 
 let btable = Hashtbl.create 17

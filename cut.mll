@@ -195,7 +195,10 @@ and itemanchor fst_item filename label s out =
   Out.put out "<a href=\"" ;
   Out.put out filename ;
   Out.put_char out '#' ;
-  Out.put out label ;
+  Url.encode_fragment
+    (fun c -> Out.put_char out c)
+    (fun s -> Out.put out s)
+    label ;
   Out.put out "\">" ;
   Out.put out s ;
   Out.put out "</a>\n"
@@ -628,7 +631,7 @@ rule main = parse
     {really_putanchor () ; main lexbuf }
 *)
 |  "<!--" ("TOC"|"toc") blank+ (secname as arg) blank+
-    ("id=" (anchor as a) blank+)?
+    ("id=" ((anchor as a)|('"' ([^'"']+ as a) '"')) blank+)? (* '"' *)
     {let sn = 
       if String.uppercase arg = "NOW" then !chapter
       else Section.value arg in

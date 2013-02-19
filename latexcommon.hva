@@ -365,9 +365,15 @@
 \newcommand{\@writefile}[2]{}
 \newcommand{\@setckpt}[2]{}
 \newcommand{\std@label}[2][]{\@locname{#2}{#1}\@auxwrite{#2}{\@currentlabel}}
+\newcommand{\insec@label}[2][]
+{\ifu\csname\@the@sec{}@label@seen\endcsname
+\def\csname\@the@sec{}@label@seen\endcsname{#2}%
+#1\@@auxwrite{\@the@sec}{#2}{\@currentlabel}\else
+\def\@tmp{#2}%
+\ifx\@tmp\csname\@the@sec{}@label@seen\endcsname\else
+\std@label[#1]{#2}\fi\fi}
 \newcommand{\label}[2][]
-{\ife\@the@sec\std@label[#1]{#2}\else
-#1\@@auxwrite{\@the@sec}{#2}{\@currentlabel}\fi}
+{\ife\@the@sec\std@label[#1]{#2}\else\insec@label[#1]{#2}\fi}
 \newcommand{\ref}[1]{\@locref{\@check@anchor@label{#1}}{\@auxread{#1}}}
 \newcommand{\pageref}[1]{\@locref{#1}{??}}
 \let\@input\input%appears inside aux files
@@ -496,15 +502,17 @@
 %}}}
 \newcommand{\@doaddtoc}[3]
 {%\stepcounter{tocanchor}%
-\@auxdowrite{\@print{\@@addtocsec{htoc}}\{\@fmt@sec\}\{#1\}\{\@checkdepth{#1}{\@print{\@print}\{#2\}\@print{\quad{}}}\begin{@norefs}\@subst@expn{#3}\end{@norefs}\}\@print{
+\@auxdowrite{\@print{\@@addtocsec{htoc}}\{\@sec@id@attr\}\{#1\}\{\@checkdepth{#1}{\@print{\@print}\{#2\}\@print{\quad{}}}\begin{@norefs}\@subst@expn{#3}\end{@norefs}\}\@print{
 }}}
 %%section identifiers
 \newcounter{@sec}
 \newcommand{\@fmt@sec}{sec\arabic{@sec}}
 \newcommand{\@step@sec}
 {\stepcounter{@sec}%
+\ifu\csname\@fmt@sec{}@named@sec\endcsname\def\@sec@id@attr{\@fmt@sec}\else
+\def\@sec@id@attr{\csname\@fmt@sec{}@named@sec\endcsname}\fi
 \let\@the@sec\@fmt@sec
-\def\@secid{\@getprint{id="\@fmt@sec" }\let\@secid\relax}}
+\def\@secid{\@getprint{id="\@sec@id@attr" }\let\@secid\relax}}
 \let\@secid\relax
 \newcommand{\end@step@sec}{\let\@the@sec\relax}
 \let\@the@sec\relax

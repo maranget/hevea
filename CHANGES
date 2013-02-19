@@ -1,3 +1,10 @@
+version 2.04
+     - Change in \label management: if \label{lbl} occurs in the argument
+       of a sectionning command (a.k.a section title),
+       then the tag lbl will be used as the id
+       of the enclosing <h...> element in html output.
+       A specific warning is introduced to flag multiple occurences
+       of \label in section titles.
 version 2.03
      - Correct \addcontentsline so as to avoid any style, in .haux
        and make  \@addcontentsline  armoured (useless?)
