@@ -162,6 +162,11 @@ module Make(C:Config) = struct
     | Chan _ -> output_string chan "*CHAN*"
     | Null -> output_string chan "*NULL*"
 
+  let pp_type = function
+    | Rope _out -> "*Rope*"
+    | Chan _ -> "*CHAN*"
+    | Null -> "*NULL*"
+
   let create_buff () =  Rope (alloc_buff ())
   let create_chan chan = Chan chan
   let create_null () = Null
@@ -249,6 +254,7 @@ module Make(C:Config) = struct
         let s = to_string_buff b in
         reset_buff b ;
         s
+    | Null -> ""
     | _ -> raise (Misc.fatal "Out.to_string")
 
   let to_list = function
@@ -269,13 +275,16 @@ module Make(C:Config) = struct
         end ;
         reset_buff b ;
         xs
+    | Null -> []
     | _ -> raise (Misc.fatal "Out.to_list")
 
   let to_chan chan = function
     | Rope b ->
         dump_buff chan b ;
         reset_buff b
-    | _ -> raise (Misc.fatal "Out.to_chan")
+    | Null -> ()
+    | b ->
+       raise (Misc.fatal (sprintf "Out.to_chan: %s" (pp_type b)))
 
   let hidden_copy from_rope to_buff = match to_buff with
   | Null -> ()

@@ -392,8 +392,13 @@ let close_chapter () =
     begin match toc_style with
     | Both|Special ->
       let real_out = real_open_out !outname in
-      Out.to_chan real_out !out_prefix ;
+(* Those hacking try with avoid failure for cuttingsection = document *)
+      begin try
+        Out.to_chan real_out !out_prefix 
+      with Misc.Fatal _ -> () end ;
+      begin try
       Out.to_chan real_out !out ;
+      with Misc.Fatal _ -> () end ;
       close_out real_out
     | Normal -> ()
     end ;
