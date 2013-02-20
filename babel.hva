@@ -10,7 +10,7 @@
 {\let\csname bbl@#1@loaded\endcsname\relax%
 \@iffileexists{#1.hva}
   {\input{#1.hva}\def\bbl@main@language{#1}}
-  {\hva@warn{Hevea babel '#1' not found, loading 'english' intead}%
+  {\hva@warn{Hevea babel '#1' not found, loading 'english' instead}%
    \input{english.hva}\def\bbl@main@language{english}}}
 {}}
 %

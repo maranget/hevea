@@ -1765,7 +1765,12 @@ let do_documentclass command lexbuf =
       (fun pack -> scan_this main ("\\usepackage{"^pack^"}"))
       (Save.cite_arg
          (MyLexing.from_list ("{"::opt_arg@["}"])))
+  end  else if  command = "\\documentclass"  then begin
+    let opts = String.concat "" opt_arg in
+    scan_this main
+      (sprintf "\\sbox{\\@document@opts}{%s}" opts)
   end ;
+(* Save gobal options *)
   Image.start () ;
   Image.put "\\newif\\ifimagen\\imagentrue\n" ;
   Image.put command ;

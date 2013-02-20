@@ -1,0 +1,10 @@
+\ProvidesPackage{cleveref}
+\RequirePackage{labeltype}
+\newcommand{\@deflabeltype}[2]{\def\csname @cf@#1@type\endcsname{#2}}
+%%% section names from type
+\newcommand{\@cf@getname}[1]{\ifu#1??\else#1\fi}
+%%%
+\newcommand{\cref}[1]{\@cf@getname{\csname @cf@#1@type\endcsname}~\ref{#1}}
+\let\Cref\cref
+\ProcessOptions*%
+

@@ -1,5 +1,6 @@
 \ProvidesPackage{hyperref}
 \RequirePackage{url}
+\RequirePackage{labeltype}
 \@primitives{hyperref}
 \newcommand{\@hr@expand}[1]
 {\begingroup\catcode`\%=12\catcode`\~=12#1\endgroup}
@@ -18,3 +19,43 @@
 \urlstyle{tt}%
 \Url}
 \newcommand{\hypersetup}[1]{}
+%%%%%%%%%%%%%%%%%
+%%Autoref stuff%%
+%%%%%%%%%%%%%%%%%
+%%Load list of words according to language
+\input{hrlang.hva}
+\newcommand{\HyLang@DeclareLang}[3]
+{\DeclareOption{#1}{\csname HyLang@#2\endcsname}}
+\HyLang@DeclareLang{english}{english}{}
+\HyLang@DeclareLang{UKenglish}{english}{}
+\HyLang@DeclareLang{british}{english}{}
+\HyLang@DeclareLang{USenglish}{english}{}
+\HyLang@DeclareLang{american}{english}{}
+\HyLang@DeclareLang{german}{german}{}
+\HyLang@DeclareLang{austrian}{german}{}
+\HyLang@DeclareLang{ngerman}{german}{}
+\HyLang@DeclareLang{naustrian}{german}{}
+\HyLang@DeclareLang{brazil}{portuges}{}
+\HyLang@DeclareLang{brazilian}{portuges}{}
+\HyLang@DeclareLang{portuguese}{portuges}{}
+\HyLang@DeclareLang{spanish}{spanish}{}
+\HyLang@DeclareLang{afrikaans}{afrikaans}{}
+\HyLang@DeclareLang{french}{french}{}
+\HyLang@DeclareLang{frenchb}{french}{}
+\HyLang@DeclareLang{francais}{french}{}
+\HyLang@DeclareLang{acadian}{french}{}
+\HyLang@DeclareLang{canadien}{french}{}
+\HyLang@DeclareLang{italian}{italian}{}
+\HyLang@DeclareLang{magyar}{magyar}{}
+\HyLang@DeclareLang{hungarian}{magyar}{}
+%%English default
+\HyLang@english
+%%Get the right sectionname macro from type
+\newcommand{\@hr@name}[1]
+{\ifu\csname #1autorefname\endcsname\csname #1name\endcsname\else
+\csname #1autorefname\endcsname\fi}
+\def\@deflabeltype#1#2{%
+\def\csname @hr@#1@name\endcsname{\@hr@name{#2}}%
+}
+\newcommand{\autoref}[1]{\csname @hr@#1@name\endcsname~\ref{#1}}
+\ProcessOptions*

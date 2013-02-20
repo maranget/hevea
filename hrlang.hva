@@ -1,0 +1,184 @@
+%%Taken from hyperref source
+%% This is file `hyperref.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% hyperref.dtx  (with options: `package')
+%% 
+%% File: hyperref.dtx Copyright 1995-2001 Sebastian Rahtz,
+%% with portions written by David Carlisle and Heiko Oberdiek,
+%% 2001-2009 Heiko Oberdiek.
+%%
+%% This file is part of the `Hyperref Bundle'.
+%% -------------------------------------------
+%%
+%% It may be distributed under the conditions of the LaTeX Project Public
+%% License, either version 1.2 of this license or (at your option) any
+%% later version.  The latest version of this license is in
+%%    http://www.latex-project.org/lppl.txt
+%% and version 1.2 or later is part of all distributions of LaTeX
+%% version 1999/12/01 or later.
+%%
+\def\HyLang@afrikaans{%
+  \def\equationautorefname{Vergelyking}%
+  \def\footnoteautorefname{Voetnota}%
+  \def\itemautorefname{Item}%
+  \def\figureautorefname{Figuur}%
+  \def\tableautorefname{Tabel}%
+  \def\partautorefname{Deel}%
+  \def\appendixautorefname{Bylae}%
+  \def\chapterautorefname{Hoofstuk}%
+  \def\sectionautorefname{Afdeling}%
+  \def\subsectionautorefname{Subafdeling}%
+  \def\subsubsectionautorefname{Subsubafdeling}%
+  \def\paragraphautorefname{Paragraaf}%
+  \def\subparagraphautorefname{Subparagraaf}%
+  \def\FancyVerbLineautorefname{Lyn}%
+  \def\theoremautorefname{Teorema}%
+  \def\pageautorefname{Bladsy}%
+}
+\def\HyLang@english{%
+  \def\equationautorefname{Equation}%
+  \def\footnoteautorefname{footnote}%
+  \def\itemautorefname{item}%
+  \def\figureautorefname{Figure}%
+  \def\tableautorefname{Table}%
+  \def\partautorefname{Part}%
+  \def\appendixautorefname{Appendix}%
+  \def\chapterautorefname{chapter}%
+  \def\sectionautorefname{section}%
+  \def\subsectionautorefname{subsection}%
+  \def\subsubsectionautorefname{subsubsection}%
+  \def\paragraphautorefname{paragraph}%
+  \def\subparagraphautorefname{subparagraph}%
+  \def\FancyVerbLineautorefname{line}%
+  \def\theoremautorefname{Theorem}%
+  \def\pageautorefname{page}%
+}
+\def\HyLang@french{%
+  \def\equationautorefname{\'Equation}%
+  \def\footnoteautorefname{note}%
+  \def\itemautorefname{item}%
+  \def\figureautorefname{Figure}%
+  \def\tableautorefname{Tableau}%
+  \def\partautorefname{Partie}%
+  \def\appendixautorefname{Appendice}%
+  \def\chapterautorefname{chapitre}%
+  \def\sectionautorefname{section}%
+  \def\subsectionautorefname{sous-section}%
+  \def\subsubsectionautorefname{sous-sous-section}%
+  \def\paragraphautorefname{paragraphe}%
+  \def\subparagraphautorefname{sous-paragraphe}%
+  \def\FancyVerbLineautorefname{ligne}%
+  \def\theoremautorefname{Th\'eor\`eme}%
+  \def\pageautorefname{page}%
+}
+\def\HyLang@german{%
+  \def\equationautorefname{Gleichung}%
+  \def\footnoteautorefname{Fu\ss note}%
+  \def\itemautorefname{Punkt}%
+  \def\figureautorefname{Abbildung}%
+  \def\tableautorefname{Tabelle}%
+  \def\partautorefname{Teil}%
+  \def\appendixautorefname{Anhang}%
+  \def\chapterautorefname{Kapitel}%
+  \def\sectionautorefname{Abschnitt}%
+  \def\subsectionautorefname{Unterabschnitt}%
+  \def\subsubsectionautorefname{Unterunterabschnitt}%
+  \def\paragraphautorefname{Absatz}%
+  \def\subparagraphautorefname{Unterabsatz}%
+  \def\FancyVerbLineautorefname{Zeile}%
+  \def\theoremautorefname{Theorem}%
+  \def\pageautorefname{Seite}%
+}
+\def\HyLang@italian{%
+  \def\equationautorefname{Equazione}%
+  \def\footnoteautorefname{nota}%
+  \def\itemautorefname{punto}%
+  \def\figureautorefname{Figura}%
+  \def\tableautorefname{Tabella}%
+  \def\partautorefname{Parte}%
+  \def\appendixautorefname{Appendice}%
+  \def\chapterautorefname{Capitolo}%
+  \def\sectionautorefname{sezione}%
+  \def\subsectionautorefname{sottosezione}%
+  \def\subsubsectionautorefname{sottosottosezione}%
+  \def\paragraphautorefname{paragrafo}%
+  \def\subparagraphautorefname{sottoparagrafo}%
+  \def\FancyVerbLineautorefname{linea}%
+  \def\theoremautorefname{Teorema}%
+  \def\pageautorefname{Pag.\@}%
+}
+\def\HyLang@magyar{%
+  \def\equationautorefname{Egyenlet}%
+  \def\footnoteautorefname{l\'abjegyzet}%
+  \def\itemautorefname{Elem}%
+  \def\figureautorefname{\'Abra}%
+  \def\tableautorefname{T\'abl\'azat}%
+  \def\partautorefname{R\'esz}%
+  \def\appendixautorefname{F\"uggel\'ek}%
+  \def\chapterautorefname{fejezet}%
+  \def\sectionautorefname{szakasz}%
+  \def\subsectionautorefname{alszakasz}%
+  \def\subsubsectionautorefname{alalszakasz}%
+  \def\paragraphautorefname{bekezd\'es}%
+  \def\subparagraphautorefname{albekezd\'es}%
+  \def\FancyVerbLineautorefname{sor}%
+  \def\theoremautorefname{T\'etel}%
+  \def\pageautorefname{oldal}%
+}
+\def\HyLang@portuges{%
+  \def\equationautorefname{Equa\c c\~ao}%
+  \def\footnoteautorefname{Nota de rodap\'e}%
+  \def\itemautorefname{Item}%
+  \def\figureautorefname{Figura}%
+  \def\tableautorefname{Tabela}%
+  \def\partautorefname{Parte}%
+  \def\appendixautorefname{Ap\^endice}%
+  \def\chapterautorefname{Cap\'itulo}%
+  \def\sectionautorefname{Se\c c\~ao}%
+  \def\subsectionautorefname{Subse\c c\~ao}%
+  \def\subsubsectionautorefname{Subsubse\c c\~ao}%
+  \def\paragraphautorefname{par\'agrafo}%
+  \def\subparagraphautorefname{subpar\'agrafo}%
+  \def\FancyVerbLineautorefname{linha}%
+  \def\theoremautorefname{Teorema}%
+  \def\pageautorefname{P\'agina}%
+}
+\def\HyLang@spanish{%
+  \def\equationautorefname{Ecuaci\'on}%
+  \def\footnoteautorefname{Nota a pie de p\'agina}%
+  \def\itemautorefname{Elemento}%
+  \def\figureautorefname{Figura}%
+  \def\tableautorefname{Tabla}%
+  \def\partautorefname{Parte}%
+  \def\appendixautorefname{Ap\'endice}%
+  \def\chapterautorefname{Cap\'itulo}%
+  \def\sectionautorefname{Secci\'on}%
+  \def\subsectionautorefname{Subsecci\'on}%
+  \def\subsubsectionautorefname{Subsubsecci\'on}%
+  \def\paragraphautorefname{P\'arrafo}%
+  \def\subparagraphautorefname{Subp\'arrafo}%
+  \def\FancyVerbLineautorefname{L\'inea}%
+  \def\theoremautorefname{Teorema}%
+  \def\pageautorefname{P\'agina}%
+}
+\def\HyLang@vietnamese{%
+  \def\equationautorefname{Ph\uhorn{}\ohorn{}ng tr\`inh}%
+  \def\footnoteautorefname{Ch\'u th\'ich}%
+  \def\itemautorefname{m\d{u}c}%
+  \def\figureautorefname{H\`inh}%
+  \def\tableautorefname{B\h{a}ng}%
+  \def\partautorefname{Ph\`\acircumflex{}n}%
+  \def\appendixautorefname{Ph\d{u} l\d{u}c}%
+  \def\chapterautorefname{ch\uhorn{}\ohorn{}ng}%
+  \def\sectionautorefname{m\d{u}c}%
+  \def\subsectionautorefname{m\d{u}c}%
+  \def\subsubsectionautorefname{m\d{u}c}%
+  \def\paragraphautorefname{\dj{}o\d{a}n}%
+  \def\subparagraphautorefname{\dj{}o\d{a}n}%
+  \def\FancyVerbLineautorefname{d\`ong}%
+  \def\theoremautorefname{\DJ{}\d{i}nh l\'y}%
+  \def\pageautorefname{Trang}%
+}

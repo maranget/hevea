@@ -39,8 +39,15 @@
         \ifu\csname\@pkg@opt@name{\pkg@opt}\endcsname
          \hva@warn{Ignoring option: '#1'}\else
 	 \csname\@pkg@opt@name{\pkg@opt}\endcsname\fi}%
+%%Do not warn
+\newcommand{\@@process@option}[1]%
+	{\def\pkg@opt{{\@nostyle\@callprim{\@eatspaces}{#1,}}}%
+        \ifu\csname\@pkg@opt@name{\pkg@opt}\endcsname\else
+	 \csname\@pkg@opt@name{\pkg@opt}\endcsname\fi}%
 \newcommand{\ProcessOptions*}
 {\@callprim{\@iter}
+  {\string\@@process@option,{\char123\usebox{\@document@opts}\char125}}%
+\@callprim{\@iter}
   {\string\@process@option,{\char123\usebox{\@pkg@opts}\char125}}}
 %%%% Packages in packages
 \newcommand{\@GoobleOpt}[1][]{}%

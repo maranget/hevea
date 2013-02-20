@@ -1,4 +1,7 @@
-version 2.04
+     - started to implement hyperef autoref
+     - added hidden labeltype package to specify label types  in .haux files
+     - implemented global options
+version 2.03+dev
      - Change in \label management: if \label{lbl} occurs in the argument
        of a sectionning command (a.k.a section title),
        then the tag lbl will be used as the id

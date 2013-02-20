@@ -308,6 +308,8 @@
 \newcolumntype{X}{p{}}
 %%% AtEof
 \newcommand{\AtEndOfFile}[1]{\addtokens{\@ateof}{#1}}
+%%% To save global options
+\newsavebox{\@document@opts}
 %%% AtBeginDocument and AtEndDocument
 \newtokens{\@atbegindocument}
 \newcommand{\AtBeginDocument}[1]{\addtokens{\@atbegindocument}{#1}}
