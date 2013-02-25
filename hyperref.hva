@@ -57,5 +57,7 @@
 \def\@deflabeltype#1#2{%
 \def\csname @hr@#1@name\endcsname{\@hr@name{#2}}%
 }
-\newcommand{\autoref}[1]{\csname @hr@#1@name\endcsname~\ref{#1}}
+%%expand \ref so as to include section name in link.
+\newcommand{\autoref}[1]{%
+\@locref{\@check@anchor@label{#1}}{\csname @hr@#1@name\endcsname~\@auxread{#1}}}
 \ProcessOptions*
