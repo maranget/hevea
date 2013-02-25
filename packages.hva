@@ -34,6 +34,7 @@
 \newcommand{\@pkg@opt@name}[1]{@pkg\@pkg@me{}@#1}
 \newcommand{\DeclareOption}[2]
   {\newcommand{\csname\@pkg@opt@name{#1}\endcsname}{#2}}
+\newcommand{\ExecuteOption}[1]{\csname\@pkg@opt@name{#1}\endcsname}
 \newcommand{\@process@option}[1]%
 	{\def\pkg@opt{{\@nostyle\@callprim{\@eatspaces}{#1,}}}%
         \ifu\csname\@pkg@opt@name{\pkg@opt}\endcsname
@@ -56,3 +57,5 @@
 %%%%No op ProvidesFile
 \newcommand{\@eatopt}[1][]{}
 \newcommand{\ProvidesFile}[1]{\@eatopt}
+%%%%Misc
+\newcommand{\PackageInfo}[2]{\hva@warn{Package #1 info: #2}}

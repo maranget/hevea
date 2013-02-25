@@ -1,10 +1,55 @@
 \ProvidesPackage{cleveref}
 \RequirePackage{labeltype}
-\newcommand{\@deflabeltype}[2]{\def\csname @cf@#1@type\endcsname{#2}}
+\renewcommand{\@deflabeltype}[2]{\def\csname @cf@#1@type\endcsname{#2}}
+%%Some internal conditions, with defaults
+\newif\if@cref@capitalise\@cref@capitalisefalse
+\newif\if@cref@abbrev\@cref@abbrevtrue
 %%% section names from type
-\newcommand{\@cf@getname}[1]{\ifu#1??\else#1\fi}
+%Ignore multi-language hooks support, instead will execute for specified
+%language
+\newcommand{\cref@addlanguagedefs}[2]
+{\def\csname cref@language@#1@defs\endcsname{#2}}
+%Define internal names
+%#1 cref/Cref #2 type #3 name #4 plural #5 extension (ignored)
+\newcommand{\@crefname}[5]
+{%\hva@warn{@crefname '#1' '#2' #3' '#4' '#5'}%
+\def\csname @#1@#2\endcsname{#3}%
+\def\csname @#1@#2@plural\endcsname{#4}%
+}
+\newcommand{\crefname}[3]{\@crefname{cref}{#1}{#2}{#3}{}}
+\newcommand{\Crefname}[3]{\@crefname{Cref}{#1}{#2}{#3}{}}
+\newcommand{\crefname@preamble}[3]{\@crefname{cref}{#1}{#2}{#3}{@preamble}}
+\newcommand{\Crefname@preamble}[3]{\@crefname{Cref}{#1}{#2}{#3}{@preamble}}
+%For some reason all this must be defined...
+\iftrue
+\newcommand{\crefrangeconjunction}{ to\nobreakspace}%
+\newcommand\crefrangepreconjunction{}%
+\newcommand\crefrangepostconjunction{}%
+\newcommand{\crefpairconjunction}{ and\nobreakspace}%
+\newcommand{\crefmiddleconjunction}{, }%
+\newcommand{\creflastconjunction}{ and\nobreakspace}%
+\newcommand{\crefpairgroupconjunction}{ and\nobreakspace}%
+\newcommand{\crefmiddlegroupconjunction}{, }%
+\newcommand{\creflastgroupconjunction}{, and\nobreakspace}%
+\fi
+\input{crlang.hva}
+%Must come afterwards...
+\def\cref@language{english}%if no language option
 %%%
-\newcommand{\cref}[1]{\@cf@getname{\csname @cf@#1@type\endcsname}~\ref{#1}}
-\let\Cref\cref
+\newcommand{\@cr@secname}[2]
+{%\hva@warn{SEC: '#1' '#2'}%
+%\typeout{TYPE: '#2'}%
+\ifu#2 ++\else\ifu\csname @#1@#2\endcsname ??\else
+\csname @#1@#2\endcsname\fi\fi}
+\newcommand{\cref}[1]
+{\@cr@secname{cref}{\csname @cf@#1@type\endcsname}~\ref{#1}}
+\newcommand{\Cref}[1]
+{\@cr@secname{Cref}{\csname @cf@#1@type\endcsname}~\ref{#1}}
+%%%%%%%
+\ExecuteOption{english}
 \ProcessOptions*%
-
+%%%After we processed options
+\AtBeginDocument
+{\typeout{CREFLANG: \cref@language}%
+\csname cref@language@\cref@language{}@defs\endcsname}
+%\newcommand{\@cf@getname}[1]{\ifu#1??\else#1\fi}

@@ -841,6 +841,7 @@ let rec expand_toks main = function
   | [] -> ()
   | s::rem ->
       expand_toks main rem ;
+(*      eprintf "Executing tokens: '%s'\n" s ; *)
       scan_this main s
 
 let rec do_expand_command main skip_blanks name lexbuf =
