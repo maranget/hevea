@@ -1178,16 +1178,46 @@ let cr_split arg =
     if k < len then
       match arg.[k] with
       | ',' ->
-          begin let rem = do_rec (k+1) (k+1) in
+          begin let fst,rem = do_rec (k+1) (k+1) in
           match extract start k with
-          | None -> rem
-          | Some x -> x::rem
+          | None -> [],fst::rem
+          | Some x -> (x::fst),rem
           end
       | _ -> do_rec start (k+1)
     else match extract start k with
-    | None -> []
-    | Some x -> [x] in
-  do_rec 0 0
+    | None -> [],[]
+    | Some x -> [x],[] in
+  let fst,rem = do_rec 0 0 in
+  match fst with
+  | [] -> rem
+  | _  -> fst::rem
+;;
+
+let cr_fmt kind lbls = match lbls with
+| [] -> ()
+| [lbl] -> cr_fmt_one kind lbl
+| _  ->
+    warning (sprintf "cleverref multi-label: %s" (String.concat "," lbls)) ;
+    List.iter (cr_fmt_one kind) lbls
+;;
+
+let cr_add_types lbls =
+  List.map
+    (fun lbl ->
+      let tymacro =  sprintf "\\@cf@%s@type" lbl in
+      let tycsname = sprintf "\\csname @cf@%s@type\\endcsname" lbl in
+      let ty =
+        if Latexmacros.exists tymacro then
+          let ty = get_prim tycsname in
+(*          eprintf "Type: %s -> %s\n" lbl ty ; *)
+          Some ty
+        else None in
+      lbl,ty)
+    lbls
+
+let cr_sort_labels lbls =
+  let _xs = List.map cr_add_types lbls in
+  lbls
 ;;
 
 register_init "cleveref"
@@ -1198,8 +1228,9 @@ register_init "cleveref"
         let kind = get_prim_arg lexbuf in
         let label = get_prim_arg lexbuf in
         let lbls = cr_split label in
+        let lbls = cr_sort_labels lbls in
         List.iter
-          (fun label -> cr_fmt_one kind label) lbls);
+          (fun label -> cr_fmt kind label) lbls);
 (* This special \def macro does not expand body *)
     def_code "\\@cr@def"
       (fun lexbuf ->
