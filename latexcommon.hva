@@ -361,21 +361,31 @@
 \stepcounter{#1}}
 %%% Aux files
 \newcommand{\@fst}[2]{#1}
-\newcommand{\newlabel}[2]{\@newlabel{#1}{\@funcall{\@fst}{#2}}}
+\newcounter{labelorder}
+\newcommand{\newlabel}[2]
+{\stepcounter{labelorder}%
+\@prim@def\csname#1@label@order\endcsname{\thelabelorder}%
+\@newlabel{#1}{\@funcall{\@fst}{#2}}}
+%Also define section id to change
 \newcommand{\new@anchor@label}[3]
-{\@new@anchor@label{#1}{#2}{\@funcall{\@fst}{#3}}}
+{\def\csname #1@named@sec\endcsname{#2}%
+\newlabel{#2}{#3}}
 \newcommand{\@writefile}[2]{}
 \newcommand{\@setckpt}[2]{}
 \newcommand{\std@label}[2][]{\@locname{#2}{#1}\@auxwrite{#2}{\@currentlabel}}
 \newcommand{\insec@label}[2][]
 {\ifu\csname\@the@sec{}@label@seen\endcsname
 \def\csname\@the@sec{}@label@seen\endcsname{#2}%
+\def\csname\@the@sec{}@named@sec\endcsname{#2}%
 #1\@@auxwrite{\@the@sec}{#2}{\@currentlabel}\else
 \def\@tmp{#2}%
 \ifx\@tmp\csname\@the@sec{}@label@seen\endcsname\else
 \std@label[#1]{#2}\fi\fi}
 \newcommand{\label}[2][]
 {\ife\@the@sec\std@label[#1]{#2}\else\insec@label[#1]{#2}\fi}
+
+%%No label translation any longer
+\newcommand{\@check@anchor@label}[1]{#1}
 \newcommand{\ref}[1]{\@locref{\@check@anchor@label{#1}}{\@auxread{#1}}}
 \newcommand{\pageref}[1]{\@locref{#1}{??}}
 \let\@input\input%appears inside aux files

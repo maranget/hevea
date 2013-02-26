@@ -10,9 +10,7 @@
 (***********************************************************************)
 
 val rset : string -> string -> unit
-val rset2 : string -> string -> string -> bool
 val rget : string -> string
-val rget2 : string -> string
 val bset : string -> string -> unit
 val bget : bool -> string -> string option
 val init : string -> unit

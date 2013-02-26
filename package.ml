@@ -349,6 +349,20 @@ def "\\framebox" (latex_pat ["" ; ""] 3)
     (Subst ["\\hva@warn{framebox}\\fbox{#3}"])
 ;;
 
+
+(***********************)
+(* Special definitions *)
+(***********************)
+
+def_code "\\@prim@def"
+  (fun lexbuf ->
+    let name = get_csname lexbuf in
+    let body = get_prim_arg lexbuf in
+(*    eprintf "PRIM DEF: '%s' -> '%s'\n" name body ; *)
+    Latexmacros.def name zero_pat
+      (CamlCode (fun _ -> Dest.put body)))
+;;
+
 (*********************)
 (* 'Token' registers *)
 (*********************)
@@ -555,36 +569,13 @@ def_code "\\@newlabel"
     Auxx.rset name arg)
 ;;
 
-def_code "\\@new@anchor@label"
-  (fun lexbuf ->
-    let anchor = get_raw lexbuf in
-    let name = get_raw lexbuf in
-    let arg = get_raw lexbuf in
-    let is_new = Auxx.rset2 anchor name arg in
-    if is_new then
-    let com = 
-      sprintf "\\gdef\\csname %s@named@sec\\endcsname{%s}" anchor name in
-(*    eprintf "COM: %s\n" com ; *)
-    scan_this main com ;
-    ())
-
-;;
-
-def_code "\\@check@anchor@label"
- (fun lexbuf ->
-    let name = get_raw lexbuf in
-    let anchor = Auxx.rget2 name in
-    scan_this main "{\\@nostyle" ;
-    scan_this main anchor ;
-    scan_this main "}")
-;;
-
 def_code "\\@auxwrite"
   (fun lexbuf ->
     let lab = get_raw lexbuf in
     let theref = get_prim_arg lexbuf in
     Auxx.rwrite lab theref)
 ;;
+
 
 def_code "\\@@auxwrite"
   (fun lexbuf ->
@@ -593,7 +584,6 @@ def_code "\\@@auxwrite"
     let theref = get_prim_arg lexbuf in
     Auxx.rwrite2 anchor lab theref)
 ;;
-
 
 def_code "\\@auxread"
   (fun lexbuf ->
@@ -1169,7 +1159,79 @@ register_init "import"
     ())
 ;;
 
-    
+(************)
+(* Cleveref *)
+(************)
+
+let cr_fmt_one kind label =
+  let com = sprintf  "\\@cr@fmt@one{%s}{%s}" kind label in
+  scan_this main com
+;;
+
+let cr_split arg =
+  let len = String.length arg in
+  let extract k1 k2 =
+    let len = k2-k1 in
+    if len <= 0 then None
+    else Some (String.sub arg k1 len) in
+  let rec do_rec start k =
+    if k < len then
+      match arg.[k] with
+      | ',' ->
+          begin let rem = do_rec (k+1) (k+1) in
+          match extract start k with
+          | None -> rem
+          | Some x -> x::rem
+          end
+      | _ -> do_rec start (k+1)
+    else match extract start k with
+    | None -> []
+    | Some x -> [x] in
+  do_rec 0 0
+;;
+
+register_init "cleveref"
+  (fun () ->
+(* Sort labels *)
+    def_code "\\@cr@sort@labels"
+      (fun lexbuf ->
+        let kind = get_prim_arg lexbuf in
+        let label = get_prim_arg lexbuf in
+        let lbls = cr_split label in
+        List.iter
+          (fun label -> cr_fmt_one kind label) lbls);
+(* This special \def macro does not expand body *)
+    def_code "\\@cr@def"
+      (fun lexbuf ->
+        let name = get_csname lexbuf in
+        let nargs = save_arg lexbuf in
+        let nargs = Get.get_int_string nargs in
+        let  {arg=body} = save_body lexbuf in
+        Latexmacros.def
+            name
+            (latex_pat [] nargs)
+            (Subst body)) ;
+    def_code "\\@cr@def@withother"
+      (fun lexbuf ->
+        let oname = get_csname lexbuf in
+        let ocom =  get_csname lexbuf in
+        let name = get_csname lexbuf in
+        let nargs = save_arg lexbuf in
+        let nargs = Get.get_int_string nargs in
+        let  {arg=body} = save_body lexbuf in
+(*        eprintf "oname=%s, ocom=%s\n" oname ocom ; *)
+        Latexmacros.def
+            name
+            (latex_pat [] nargs)
+            (Subst body) ;
+       if not (Latexmacros.exists oname) then begin
+         Latexmacros.def
+            oname
+            (latex_pat [] nargs)
+            (Subst (ocom::" "::body)) ;
+       end) ;
+    ())
+;;
 (*************************************)
 (* Extra font changes, from abisheck *)
 (*************************************)

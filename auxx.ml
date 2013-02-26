@@ -12,28 +12,15 @@
 open Misc
 
 let rtable = Hashtbl.create 17
-and atable = Hashtbl.create 17
 ;;
 
 let rset name value = Hashtbl.add rtable name value
-let rset2 anchor name value =
-  Hashtbl.add rtable name value ;
-  begin try
-    ignore (Hashtbl.find atable anchor) ;
-    false
-  with Not_found ->
-    Hashtbl.add atable anchor name ;
-    true
-  end
 ;;
-
   
 let rget name =
   try Hashtbl.find rtable name with Not_found -> begin
     warning ("Undefined label: '"^name^"'") ; "??"
   end
-
-and rget2 name = name
 ;;
 
 let btable = Hashtbl.create 17
@@ -64,6 +51,7 @@ let read_digest name =
   with
   | Sys_error _ -> None
 
+let labelcount = ref 0
 let rseen = Hashtbl.create 17
 and bseen = Hashtbl.create 17
 ;;
@@ -108,11 +96,13 @@ let rcheck key =
   try
     let _ = Hashtbl.find rseen key in
     warning ("Multiple definitions for label: "^key) ;
-    false
+    -1
   with
   | Not_found ->
-      Hashtbl.add rseen key () ;
-      true
+      let x = !labelcount in
+      incr labelcount ;
+      Hashtbl.add rseen key x ;
+      x
 
 let swrite msg = match !auxfile with
 | None -> ()
@@ -131,7 +121,8 @@ let bwrite key pretty =
         output_string file "}\n")
 
 and rwrite key pretty =
-  if rcheck key then
+  let idx = rcheck key in
+  if idx >= 0 then
     write
       (fun file ->
         output_string file "\\newlabel{" ;
@@ -140,7 +131,8 @@ and rwrite key pretty =
         output_string file pretty ;
         output_string file "}{X}}\n")
 and rwrite2 anchor key pretty =
-  if rcheck key then
+  let idx =  rcheck key in
+  if idx >= 0 then
     write
       (fun file ->
         output_string file "\\new@anchor@label{" ;
@@ -226,21 +218,23 @@ let final base =
 
 
 type saved =
-(string, string) Hashtbl.t * (string, string) Hashtbl.t *
-  (string, unit) Hashtbl.t *
+(string, string) Hashtbl.t *
+  int * (string, int) Hashtbl.t *
   (string, string) Hashtbl.t * (string, unit) Hashtbl.t *
   out_channel option * string * bool * Digest.t option
 
 let check () =
-  Hashtbl.copy rtable,  Hashtbl.copy atable,
+  Hashtbl.copy rtable,
+  !labelcount,
   Hashtbl.copy rseen,
   Hashtbl.copy btable,  Hashtbl.copy  bseen,
   !auxfile, !auxname, !something, !digest
 
 let hot
- (srtable, satable, srseen, sbtable, sbseen,
+ (srtable, slabelcount, srseen, sbtable, sbseen,
   sauxfile, sauxname, ssomething, sdigest) =
-  Misc.copy_hashtbl srtable rtable ;  Misc.copy_hashtbl satable atable ;
+  Misc.copy_hashtbl srtable rtable ;
+  labelcount := slabelcount  ;
   Misc.copy_hashtbl srseen rseen ;
   Misc.copy_hashtbl sbtable btable ; Misc.copy_hashtbl sbseen bseen ;
   auxfile := sauxfile ;
@@ -250,7 +244,7 @@ let hot
 
 (* Valid only juste before reading main input file *)
 let hot_start () =
-  Hashtbl.clear rtable ; Hashtbl.clear atable ;Hashtbl.clear rseen ;
+  Hashtbl.clear rtable ; labelcount := 0 ; Hashtbl.clear rseen ;
   Hashtbl.clear btable ; Hashtbl.clear bseen ;
   auxfile :=  None ;
   auxname := "" ;

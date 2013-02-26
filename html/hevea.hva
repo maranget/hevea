@@ -45,13 +45,20 @@
 {\@incsize{-1}\@print{<sup>H</sup>}}\@print{A}}
 \newcommand{\html}{html}
 %%% HTML related stuff (TEX equivalents are in the hevea.sty file)
+%separate opening & closing of a elements (for cleveref)
 \newcommand{\@openlocref}[1]{{\@nostyle\@print{<a href="#}\@getprint{\@tr@url{#1}}\@print{">}}}
 \newcommand{\@closelocref}{{\@nostyle\@print{</a>}}}
+%usual a elements
 \newcommand{\@doaelement}[3][]
 {{\@nostyle\@print{<a }\@getprint{#1}\@getprint{#2}\@print{>}}{#3}{\@nostyle\@print{</a>}}}
 \newcommand{\@nestedaelement}[3][]{\hva@warn{Suppressing nested a element}#3}
 \newcommand{\@aelement}[3][]
-{\bgroup\let\@aelement\@nestedaelement\@doaelement[#1]{#2}{#3}\egroup}
+{\bgroup%
+\let\@aelement\@nestedaelement%
+\let\@openlocref\@gooble%
+\let\@closelocref\relax%
+\@doaelement[#1]{#2}{#3}\egroup}
+%high level, html vision
 \newcommand{\ahref}[3][]{\@aelement[#1]{href="#2"}{#3}}
 \newcommand{\ahrefurl}[2][]{\@aelement[#1]{href="#2"}{\texttt{#2}}}
 \let\footahref\ahref

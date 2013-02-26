@@ -939,7 +939,7 @@ let count_newlines s =
 
 let check_case s = match !case with
 | Lower ->  String.lowercase s
-| Upper -> String.uppercase s
+| Upper ->  String.uppercase s
 | Neutral -> s
 
 and check_case_char c = match !case with
@@ -1652,14 +1652,21 @@ let do_get_prim_onarg f arg =
   unset_plain '\'' ; unset_plain '`' ; unset_plain  '-' ;
   set_plain '"' ;
   let old_raw = !raw_chars in
+  let old_case = !case in
+  case := Neutral ;
   raw_chars := true ;
-  let r = f start_normal end_normal Dest.nostyle main arg in
-  raw_chars := old_raw ;
-  plain_back plain_sub '_' ; plain_back plain_sup '^' ;
-  plain_back plain_dollar '$' ; plain_back plain_amper '&' ;
-  plain_back plain_quote '\'' ; plain_back plain_backquote  '`' ;
-  plain_back plain_minus '-' ; plain_back plain_dquote '"' ; (* '"' *)
-  r
+  let restore () =
+    raw_chars := old_raw ;
+    case := old_case ;
+    plain_back plain_sub '_' ; plain_back plain_sup '^' ;
+    plain_back plain_dollar '$' ; plain_back plain_amper '&' ;
+    plain_back plain_quote '\'' ; plain_back plain_backquote  '`' ;
+    plain_back plain_minus '-' ; plain_back plain_dquote '"' ; (* '"' *) in    
+  try
+    let r = f start_normal end_normal Dest.nostyle main arg in
+    restore () ;
+    r
+  with e -> restore () ; raise e
 
 let get_prim_onarg arg = do_get_prim_onarg do_get_this arg
 let get_prim_onarg_list arg = do_get_prim_onarg do_get_this_list arg
