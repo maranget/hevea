@@ -62,17 +62,17 @@
 %\def\cref@language{english}%if no language option
 %%%
 \newcommand{\@@cr@secname}[2]
-{%\hva@warn{SEC: '#1' '#2'}%
+{%\hva@warn@prim{SEC: '#1' '#2'}%
 %\typeout{TYPE: '#2'}%
 \ifu#2 ??\else\ifu\csname #1@#2\endcsname
-\hva@warn{No name for type #2}??\else
+\hva@warn@prim{No name for type #2}??\else
 \csname #1@#2\endcsname\fi\fi}
 %%
 \newcommand{\@@cr@secname@plural}[2]
 {%\hva@warn{SEC: '#1' '#2'}%
 %\typeout{TYPE: '#2'}%
 \ifu#2 ??\else\ifu\csname #1@#2@plural\endcsname
-\hva@warn{No name for type #2}??\else
+\hva@warn@prim{No name for type #2}??\else
 \csname #1@#2@plural\endcsname\fi\fi}
 \newcommand{\@cr@secname}[2]{\@@cr@secname{#1}{\csname @cf@#2@type\endcsname}}
 \newcommand{\@cr@secname@plural}[2]{\@@cr@secname@plural{#1}{\csname @cf@#2@type\endcsname}}
@@ -115,4 +115,11 @@
 %%%After we processed options
 \AtBeginDocument
 {%\typeout{CREFLANG: \cref@language}%
-\csname cref@language@\cref@language{}@defs\endcsname}
+\csname cref@language@\cref@language{}@defs\endcsname
+\crefname{item}
+  {\csname cref@enumi\endcsname}
+  {\csname cref@enumi@plural\endcsname}%
+\Crefname{item}
+  {\csname Cref@enumi\endcsname}
+  {\csname Cref@enumi@plural\endcsname}%
+}

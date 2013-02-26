@@ -213,6 +213,11 @@ def_code "\\typeout"
 def_code "\\hva@warn"
   (fun lexbuf ->
     let what = Subst.subst_arg lexbuf in
+    warning what ) ;
+
+def_code "\\hva@warn@prim"
+  (fun lexbuf ->
+    let what = get_prim_arg lexbuf in
     warning what )
 ;;
 
