@@ -34,7 +34,6 @@
 \newcommand{\@pkg@opt@name}[1]{@pkg\@pkg@me{}@#1}
 \newcommand{\DeclareOption}[2]
   {\newcommand{\csname\@pkg@opt@name{#1}\endcsname}{#2}}
-\newcommand{\ExecuteOption}[1]{\csname\@pkg@opt@name{#1}\endcsname}
 \newcommand{\@process@option}[1]%
 	{\def\pkg@opt{{\@nostyle\@callprim{\@eatspaces}{#1,}}}%
         \ifu\csname\@pkg@opt@name{\pkg@opt}\endcsname
@@ -50,6 +49,8 @@
   {\string\@@process@option,{\char123\usebox{\@document@opts}\char125}}%
 \@callprim{\@iter}
   {\string\@process@option,{\char123\usebox{\@pkg@opts}\char125}}}
+\newcommand{\ExecuteOptions}[1]
+{\@callprim{\@iter}{\string\@process@option,{\{#1\}}}}
 %%%% Packages in packages
 \newcommand{\@GoobleOpt}[1][]{}%
 \newcommand{\RequirePackage}[2][!*!]

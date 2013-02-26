@@ -54,7 +54,9 @@
 \newcommand{\@hr@name}[1]
 {\ifu\csname #1autorefname\endcsname\csname #1name\endcsname\else
 \csname #1autorefname\endcsname\fi}
+\let\@hr@deflabeltype\@deflabeltype
 \def\@deflabeltype#1#2{%
+\@hr@deflabeltype{#1}{#2}
 \def\csname @hr@#1@name\endcsname{\@hr@name{#2}}%
 }
 %%expand \ref so as to include section name in link.

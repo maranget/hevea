@@ -483,7 +483,9 @@
 %%% For defining Sectioning commands
 \newif\if@refs\@refstrue
 \newenvironment{@norefs}
-  {\@refsfalse\renewcommand{\@aelement}[3][]{##3}\renewcommand{\label}[2][]{}\renewcommand{\ref}[1]{\@auxread{##1}}\renewcommand{\footnote}[1]{}}
+  {\@refsfalse%
+  \renewcommand{\@openlocref}[1]{}\renewcommand{\@closelocref}{}%
+  \renewcommand{\@aelement}[3][]{##3}\renewcommand{\label}[2][]{}\renewcommand{\ref}[1]{\@auxread{##1}}\renewcommand{\footnote}[1]{}}
   {}
 \newcounter{secnumdepth}\setcounter{secnumdepth}{3}%
 \newcounter{tocdepth}\setcounter{tocdepth}{2}%

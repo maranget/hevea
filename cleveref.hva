@@ -1,6 +1,9 @@
 \ProvidesPackage{cleveref}
 \RequirePackage{labeltype}
-\renewcommand{\@deflabeltype}[2]{\def\csname @cf@#1@type\endcsname{#2}}
+\let\@cr@old@deflabeltype\@deflabeltype
+\renewcommand{\@deflabeltype}[2]
+{\@cr@old@deflabeltype{#1}{#2}%
+\def\csname @cf@#1@type\endcsname{#2}}
 %%Some internal conditions, with defaults
 \newif\if@cref@capitalise\@cref@capitalisefalse
 \newif\if@cref@abbrev\@cref@abbrevtrue
@@ -34,22 +37,25 @@
 \fi
 \input{crlang.hva}
 %Must come afterwards...
-\def\cref@language{english}%if no language option
+%\def\cref@language{english}%if no language option
 %%%
 \newcommand{\@cr@secname}[2]
 {%\hva@warn{SEC: '#1' '#2'}%
 %\typeout{TYPE: '#2'}%
-\ifu#2 ++\else\ifu\csname @#1@#2\endcsname ??\else
+\ifu#2 ??\else\ifu\csname @#1@#2\endcsname
+\hva@warn{No name for type #2}??\else
 \csname @#1@#2\endcsname\fi\fi}
+\newcommand{\@cr@fmt}[3]{#2#1#3}
+\newcommand{\@cr@ref}[1]
+{\@cr@fmt{\@auxread{#1}}{\@openlocref{\@check@anchor@label{#1}}}{\@closelocref}}
 \newcommand{\cref}[1]
-{\@cr@secname{cref}{\csname @cf@#1@type\endcsname}~\ref{#1}}
+{\@cr@secname{cref}{\csname @cf@#1@type\endcsname}~\@cr@ref{#1}}
 \newcommand{\Cref}[1]
-{\@cr@secname{Cref}{\csname @cf@#1@type\endcsname}~\ref{#1}}
+{\@cr@secname{Cref}{\csname @cf@#1@type\endcsname}~\@cr@ref{#1}}
 %%%%%%%
-\ExecuteOption{english}
+\ExecuteOptions{english}
 \ProcessOptions*%
 %%%After we processed options
 \AtBeginDocument
-{\typeout{CREFLANG: \cref@language}%
+{%\typeout{CREFLANG: \cref@language}%
 \csname cref@language@\cref@language{}@defs\endcsname}
-%\newcommand{\@cf@getname}[1]{\ifu#1??\else#1\fi}

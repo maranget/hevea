@@ -8,9 +8,9 @@
 {\def\currentlabeltype{#1}\@rt@oldrefstepcounter{#1}}
 \let\@rt@old@label\label
 \renewcommand{\label}[2][]
-{\@auxdowrite{\@print{\@deflabeltype}\{#2\}\{\currentlabeltype\}\@print{
-}}%
-\@rt@old@label[#1]{#2}}
+{\@rt@old@label[#1]{#2}%
+\@auxdowrite{\@print{\@deflabeltype}\{#2\}\{\currentlabeltype\}\@print{
+}}}
 %%Hum also redefines \enumerate...
 \let\@rt@oldenumerate\enumerate
 \renewcommand{\enumerate}{\def\currentlabeltype{item}\@rt@oldenumerate}

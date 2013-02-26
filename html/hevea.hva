@@ -45,6 +45,8 @@
 {\@incsize{-1}\@print{<sup>H</sup>}}\@print{A}}
 \newcommand{\html}{html}
 %%% HTML related stuff (TEX equivalents are in the hevea.sty file)
+\newcommand{\@openlocref}[1]{{\@nostyle\@print{<a href="#}\@getprint{\@tr@url{#1}}\@print{">}}}
+\newcommand{\@closelocref}{{\@nostyle\@print{</a>}}}
 \newcommand{\@doaelement}[3][]
 {{\@nostyle\@print{<a }\@getprint{#1}\@getprint{#2}\@print{>}}{#3}{\@nostyle\@print{</a>}}}
 \newcommand{\@nestedaelement}[3][]{\hva@warn{Suppressing nested a element}#3}
