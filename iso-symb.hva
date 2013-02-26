@@ -6,6 +6,7 @@
 \def\_{\@print{_}}
 \def\{{\char123}
 \def\}{\char125}
+\def\nobreakspace{~}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Table 2: Predefined text-mode commands%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

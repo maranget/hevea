@@ -354,15 +354,6 @@ def "\\framebox" (latex_pat ["" ; ""] 3)
 (* Special definitions *)
 (***********************)
 
-def_code "\\@prim@def"
-  (fun lexbuf ->
-    let name = get_csname lexbuf in
-    let body = get_prim_arg lexbuf in
-(*    eprintf "PRIM DEF: '%s' -> '%s'\n" name body ; *)
-    Latexmacros.def name zero_pat
-      (CamlCode (fun _ -> Dest.put body)))
-;;
-
 (*********************)
 (* 'Token' registers *)
 (*********************)
@@ -1166,6 +1157,33 @@ register_init "import"
 let cr_fmt_one kind label =
   let com = sprintf  "\\@cr@fmt@one{%s}{%s}" kind label in
   scan_this main com
+
+and cr_fmt_two kind l1 l2 =
+  let com = sprintf  "\\@cr@fmt@two{%s}{%s}{%s}" kind l1 l2 in
+  scan_this main com
+
+and cr_fmt_many kind lbl1 lbl2 rem  =
+  let fmt_lbl lbl = sprintf "\\@cr@apply@fmt{%s}" lbl in
+  let buff = Buffer.create 16 in
+  Buffer.add_string buff "{" ;
+  let name = sprintf "\\@cr@secname@plural{%s}{%s}" kind lbl1 in
+  Buffer.add_string buff name ;
+  Buffer.add_string buff " " ;
+  Buffer.add_string buff (fmt_lbl lbl1) ;
+  Buffer.add_string buff "\\crefmiddleconjunction" ;  
+  Buffer.add_string buff (fmt_lbl lbl2) ;
+  let rec do_rec = function
+    | [] -> ()
+    | [lbl] ->
+        Buffer.add_string buff "\\creflastconjunction" ; 
+        Buffer.add_string buff (fmt_lbl lbl)
+    | lbl::rem ->
+        Buffer.add_string buff "\\crefmiddleconjunction" ; 
+        Buffer.add_string buff (fmt_lbl lbl) ;
+        do_rec rem in        
+  do_rec rem ;
+  Buffer.add_string buff "}" ;
+  scan_this main (Buffer.contents buff)
 ;;
 
 let cr_split arg =
@@ -1188,36 +1206,90 @@ let cr_split arg =
     | None -> [],[]
     | Some x -> [x],[] in
   let fst,rem = do_rec 0 0 in
-  match fst with
-  | [] -> rem
-  | _  -> fst::rem
+  let r =
+    match fst with
+    | [] -> rem
+    | _  -> fst::rem in
+  List.concat r
 ;;
 
 let cr_fmt kind lbls = match lbls with
 | [] -> ()
 | [lbl] -> cr_fmt_one kind lbl
-| _  ->
-    warning (sprintf "cleverref multi-label: %s" (String.concat "," lbls)) ;
-    List.iter (cr_fmt_one kind) lbls
+| [lbl1;lbl2] -> cr_fmt_two kind lbl1 lbl2
+| lbl1::lbl2::rem ->  cr_fmt_many kind lbl1 lbl2 rem
 ;;
 
-let cr_add_types lbls =
+let cr_add_info mk_info lbls =
   List.map
     (fun lbl ->
-      let tymacro =  sprintf "\\@cf@%s@type" lbl in
-      let tycsname = sprintf "\\csname @cf@%s@type\\endcsname" lbl in
+      let tymacro =  sprintf "\\%s" (mk_info lbl) in
+      let tycsname = sprintf "\\csname %s\\endcsname" (mk_info lbl) in
       let ty =
         if Latexmacros.exists tymacro then
           let ty = get_prim tycsname in
-(*          eprintf "Type: %s -> %s\n" lbl ty ; *)
+(*          eprintf "Info: %s -> %s\n" lbl ty ; *)
           Some ty
         else None in
       lbl,ty)
     lbls
 
+let cr_add_types = cr_add_info (sprintf "@cf@%s@type")
+let cr_add_orders = cr_add_info (sprintf "%s@label@order")
+
+let rec cr_group_types k = function
+  | [] -> k
+  | (lbl,t1)::rem ->
+      let t1s =
+        List.fold_left
+          (fun k (y,t2) -> if t1 = t2 then (y::k) else k)
+          [lbl] rem in
+      let rem =
+        List.fold_left
+          (fun k (_,t2 as c) -> if t1 = t2 then k else (c::k))
+          [] rem in
+      t1s::cr_group_types k rem
+
+let protect_int_of_string o = match o with
+| Some o ->
+    begin try int_of_string o
+    with _ -> -1 end
+| None -> -1
+
+
 let cr_sort_labels lbls =
-  let _xs = List.map cr_add_types lbls in
+  let xs = cr_add_types lbls in
+  let lbls = cr_group_types [] xs in
+  let ys = List.map cr_add_orders lbls in
+  let ys =
+    List.map (List.map (fun (lbl,o) -> lbl,protect_int_of_string  o)) ys in
+  let ys =
+    List.map
+      (List.sort
+         (fun (_,o1) (_,o2) -> Pervasives.compare o1 o2)) ys in
+  let lbls = List.map (List.map fst) ys in
   lbls
+;;
+
+let cr_fmt_groups kind = function
+  | [] -> ()
+  | [lbls] -> cr_fmt kind lbls
+  | [lbls1;lbls2] ->
+      cr_fmt kind lbls1 ;
+      scan_this main "\\crefpairgroupconjunction" ;
+      cr_fmt "cref" lbls2
+  | lbls1::(_::_ as rem) ->
+      cr_fmt kind lbls1 ;
+      let rec do_rec = function
+        | [] -> ()
+        | [lbls] ->
+            scan_this main "\\creflastgroupconjunction" ;
+            cr_fmt "cref" lbls
+        | lbls::rem ->
+            scan_this main "\\crefmiddlegroupconjunction" ;
+            cr_fmt "cref" lbls ;
+            do_rec rem in
+      do_rec rem
 ;;
 
 register_init "cleveref"
@@ -1229,8 +1301,7 @@ register_init "cleveref"
         let label = get_prim_arg lexbuf in
         let lbls = cr_split label in
         let lbls = cr_sort_labels lbls in
-        List.iter
-          (fun label -> cr_fmt kind label) lbls);
+        cr_fmt_groups kind lbls) ;
 (* This special \def macro does not expand body *)
     def_code "\\@cr@def"
       (fun lexbuf ->

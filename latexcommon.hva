@@ -364,7 +364,7 @@
 \newcounter{labelorder}
 \newcommand{\newlabel}[2]
 {\stepcounter{labelorder}%
-\@prim@def\csname#1@label@order\endcsname{\thelabelorder}%
+\prim@def\csname #1@label@order\endcsname{\thelabelorder}%
 \@newlabel{#1}{\@funcall{\@fst}{#2}}}
 %Also define section id to change
 \newcommand{\new@anchor@label}[3]
