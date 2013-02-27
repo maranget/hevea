@@ -269,7 +269,17 @@ let replace name new_def =
   end ;
   old_def
           
-        
+(* addto *)
+let addto name body =
+  let old = try Some (hidden_find name) with Not_found -> None in
+  match old with
+  | Some (pat,Subst obody) ->
+      hidden_local_def name (pat,Subst (obody@("%\n"::body)))
+  | Some (_,_) ->
+      warning "\\addto on non-subst macro"
+  | None ->
+      hidden_local_def name (zero_pat,Subst body)
+      
       
 
 (* macro static properties *)

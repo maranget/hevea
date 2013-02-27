@@ -14,5 +14,7 @@
 %%Hum also redefines \enumerate...
 \let\@rt@oldenumerate\enumerate
 \renewcommand{\enumerate}{\def\currentlabeltype{item}\@rt@oldenumerate}
-%NB:It is up to client packages to redefine/extend \@deflabeltype
+%NB:It is up to client packages to
+% (1) redefine/extend \@deflabeltype
+% (2) define \@lt@item@type
 \newcommand{\@deflabeltype}[2]{}

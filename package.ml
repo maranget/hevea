@@ -359,6 +359,13 @@ def "\\framebox" (latex_pat ["" ; ""] 3)
 (* Special definitions *)
 (***********************)
 
+def_code "\\addto"
+  (fun lexbuf ->
+    let name = get_csname lexbuf in
+    let body = subst_body lexbuf in
+    Latexmacros.addto name body)
+;;
+
 (*********************)
 (* 'Token' registers *)
 (*********************)
@@ -1246,13 +1253,13 @@ let rec cr_group_types k = function
   | [] -> k
   | (lbl,t1)::rem ->
       let t1s =
-        List.fold_left
-          (fun k (y,t2) -> if t1 = t2 then (y::k) else k)
-          [lbl] rem in
+        List.fold_right
+          (fun (y,t2) k -> if t1 = t2 then (y::k) else k)
+          rem [lbl]  in
       let rem =
-        List.fold_left
-          (fun k (_,t2 as c) -> if t1 = t2 then k else (c::k))
-          [] rem in
+        List.fold_right
+          (fun (_,t2 as c) k -> if t1 = t2 then k else (c::k))
+          rem [] in
       t1s::cr_group_types k rem
 
 let protect_int_of_string o = match o with

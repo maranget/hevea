@@ -1,36 +1,61 @@
 \ProvidesPackage{cleveref}
 \RequirePackage{labeltype}
 \@primitives{cleveref}
+%%alias mechanism
+\newcommand{\crefalias}[2]{\def\csname @cr@#1@alias\endcsname{#2}}
+\newcommand{\@cr@alias}[1]
+{\ifu\csname @cr@#1@alias\endcsname{}#1\else\csname @cr@#1@alias\endcsname\fi}
+\crefalias{item}{enumi}
+%%extend \@deflabeltype from labeltype
 \let\@cr@old@deflabeltype\@deflabeltype
 \renewcommand{\@deflabeltype}[2]
 {\@cr@old@deflabeltype{#1}{#2}%
-\def\csname @cf@#1@type\endcsname{#2}}
+\prim@def\csname @cf@#1@type\endcsname{\@cr@alias{#2}}}
+%%Use alias mechanism for appendix
+%%rely on \@base being either article or book
+\newcommand{\@cr@article@appendix}{%
+\@auxdowrite{\@print{\crefalias}\{section\}\{appendix\}\newline}%
+\@auxdowrite{\@print{\crefalias}\{subsection\}\{subappendix\}\newline}%
+\@auxdowrite{\@print{\crefalias}\{subsubsection\}\{subsubappendix\}\newline}%
+}
+\newcommand{\@cr@book@appendix}{%
+\@auxdowrite{\@print{\crefalias}\{chapter\}\{appendix\}\newline}%
+\@auxdowrite{\@print{\crefalias}\{section\}\{subappendix\}\newline}%
+\@auxdowrite{\@print{\crefalias}\{subsection\}\{subsubappendix\}\newline}%
+}
+\let\@cr@old@appendix\appendix
+\renewcommand{\appendix}
+{\@cr@old@appendix%
+\csname @cr@\@base{}@appendix\endcsname}
 %%Some internal conditions, with defaults
 \newif\if@cref@capitalise\@cref@capitalisefalse
 \newif\if@cref@abbrev\@cref@abbrevtrue
 \newif\if@cref@nameinlink\@cref@nameinlinkfalse
 \DeclareOption{nameinlink}{\@cref@nameinlinktrue}
-%%% section names from type
-%Ignore multi-language hooks support, instead will execute for specified
-%language
+\DeclareOption{capitalise}{\@cref@capitalisetrue}
+\DeclareOption{capitalize}{\@cref@capitalisetrue}
+%Ignore multi-language hooks support
 \newcommand{\cref@addlanguagedefs}[2]
 {\def\csname cref@language@#1@defs\endcsname{#2}}
 %Define internal names
 %#1 cref/Cref #2 type #3 name #4 plural #5 extension (ignored)
+%%% section names from type
 \newcommand{\@@crefname}[5]
-{%\hva@warn{@crefname '#1' '#2' #3' '#4' '#5'}%
-\def\csname #1@#2\endcsname{#3}%
-\def\csname #1@#2@plural\endcsname{#4}%
-}
+{%\hva@warn{@@crefname '#1' '#2' #3' '#4' '#5'}%
+\def\csname #1@#2@name\endcsname{#3}%
+\def\csname #1@#2@name@plural\endcsname{#4}}
 \newcommand{\@@crefname@nondef}[5]
-{\ifu\csname #1@#2\endcsname\def\csname #1@#2\endcsname{#3}\fi%
-\ifu\csname  #1@#2@plural\endcsname\def\csname #1@#2@plural\endcsname{#4}\fi}
+{%\hva@warn{@@crefname@nondef '#1' '#2' #3' '#4' '#5'}%
+\ifu\csname #1@#2@name\endcsname\def\csname #1@#2@name\endcsname{#3}\else
+%\hva@warn{NO DEF for '#1' '#2'}
+\fi%
+\ifu\csname  #1@#2@name@plural\endcsname\def\csname #1@#2@name@plural\endcsname{#4}\fi}
 %%Define others
 \def\@cr@cref@other{Cref}
 \def\@cr@Cref@other{cref}
 \newcommand{\@cr@other}[1]{\csname @cr@#1@other\endcsname}
 \let\@cr@cref@othercom\MakeUppercase
-\let\@cr@Cref@othercom\MakeLowercase
+\def\@cr@Cref@othercom{\if@cref@capitalise\let\@next\relax\else\let\@next\MakeLowercase\fi\@next}
 \newcommand{\@@crefname@other}[5]{
 \@@crefname@nondef
   {\csname @cr@#1@other\endcsname}
@@ -58,22 +83,20 @@
 \newcommand{\creflastgroupconjunction}{, and\nobreakspace}%
 \fi
 \input{crlang.hva}
-%Must come afterwards...
-%\def\cref@language{english}%if no language option
 %%%
 \newcommand{\@@cr@secname}[2]
 {%\hva@warn@prim{SEC: '#1' '#2'}%
 %\typeout{TYPE: '#2'}%
-\ifu#2 ??\else\ifu\csname #1@#2\endcsname
+\ifu#2 ??\else\ifu\csname #1@#2@name\endcsname
 \hva@warn@prim{No name for type #2}??\else
-\csname #1@#2\endcsname\fi\fi}
+\csname #1@#2@name\endcsname\fi\fi}
 %%
 \newcommand{\@@cr@secname@plural}[2]
 {%\hva@warn{SEC: '#1' '#2'}%
 %\typeout{TYPE: '#2'}%
-\ifu#2 ??\else\ifu\csname #1@#2@plural\endcsname
+\ifu#2 ??\else\ifu\csname #1@#2@name@plural\endcsname
 \hva@warn@prim{No name for type #2}??\else
-\csname #1@#2@plural\endcsname\fi\fi}
+\csname #1@#2@name@plural\endcsname\fi\fi}
 \newcommand{\@cr@secname}[2]{\@@cr@secname{#1}{\csname @cf@#2@type\endcsname}}
 \newcommand{\@cr@secname@plural}[2]{\@@cr@secname@plural{#1}{\csname @cf@#2@type\endcsname}}
 \newcommand{\namecref}[1]{\@cr@secname{cref}{#1}}
@@ -110,16 +133,18 @@
 \newcommand{\cref}[1]{\@cr@ref{cref}{#1}}
 \newcommand{\Cref}[1]{\@cr@ref{Cref}{#1}}
 %%%%%%%
+%%We redefine \AtBeginDocument  so as to collect lask invokation
+%%That way, last language def is executed now
+%%and preamble \crefname will override it
+\let\@cr@AtBeginDocument\AtBeginDocument
+\newtokens{\@cr@at}
+\renewcommand{\AtBeginDocument}[1]{\addtokens{\@cr@at}{#1}}
 \ExecuteOptions{english}
 \ProcessOptions*%
-%%%After we processed options
-\AtBeginDocument
-{%\typeout{CREFLANG: \cref@language}%
-\csname cref@language@\cref@language{}@defs\endcsname
-\crefname{item}
-  {\csname cref@enumi\endcsname}
-  {\csname cref@enumi@plural\endcsname}%
-\Crefname{item}
-  {\csname Cref@enumi\endcsname}
-  {\csname Cref@enumi@plural\endcsname}%
-}
+\let\AtBeginDocument\@cr@AtBeginDocument
+\undef\@cr@AtBeginDocument
+%%%execute option, code, notice that we do execute all of it
+\@cr@at\csname cref@language@\cref@language{}@defs\endcsname
+\undef\@cr@at
+%%%The only problem is the non automatic definition of Capitalized
+%%%counterparts for \crfename

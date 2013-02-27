@@ -1,4 +1,6 @@
-     - started to implement hyperef autoref
+     - added \addto command to augment macros
+     - partial implementation of cleveref
+     - implemented hyperef \autoref
      - added hidden labeltype package to specify label types  in .haux files
      - implemented global options
 version 2.03+dev

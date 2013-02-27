@@ -54,6 +54,9 @@ val find_fail : string -> Lexstate.pat * Lexstate.action
 val replace : string -> (Lexstate.pat * Lexstate.action) option ->
   (Lexstate.pat * Lexstate.action) option
 
+(* Add tokens at the end of subst macros, created with zero args
+   if non-existing *)
+val addto : string -> string list -> unit
 
 
 val invisible : string -> bool
