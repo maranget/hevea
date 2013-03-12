@@ -7145,6 +7145,17 @@ That is, in any paragraph inside the environment,
 all lines except the first get indented by~\textit{wd}.
 
 
+\subsection{The \texttt{cleveref} package}
+\ttindex{cleveref}{package}%
+The \ahref{\catalog/cleveref.html}{\texttt{cleveref}} package
+attempts (and mostly succeeds) typesetting references
+cleverly. Its main feature is a \verb+\cref+ command that accepts several,
+comma separated, label references and typesets them as a list
+(which can be one-element long, of course) prefixed with sectional unit names.
+The \hevea{} implementation is quite complete, but it does not support some
+of the subtleties of the \LaTeX{} implementations, especially as regards
+customisation.
+
 
 \subsection{Other packages}
 The \texttt{fancyverb} and \texttt{colortbl}

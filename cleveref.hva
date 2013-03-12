@@ -132,6 +132,11 @@
 %%%
 \newcommand{\cref}[1]{\@cr@ref{cref}{#1}}
 \newcommand{\Cref}[1]{\@cr@ref{Cref}{#1}}
+%%%%%%%Ranges, much easier no customisation (yet ?)
+\newcommand{\@cr@range}[3]
+{\@cr@secname@plural{#1}{#2}~\crefrangepreconjunction\@cr@apply@fmt{#2}\crefrangeconjunction\@cr@apply@fmt{#3}\crefrangepostconjunction}
+\newcommand{\crefrange}[2]{\@cr@range{cref}{#1}{#2}}
+\newcommand{\Crefrange}[2]{\@cr@range{Cref}{#1}{#2}}
 %%%%%%%
 %%We redefine \AtBeginDocument  so as to collect lask invokation
 %%That way, last language def is executed now

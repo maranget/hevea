@@ -1,3 +1,4 @@
+version 2.04
      - added \addto command to augment macros
      - partial implementation of cleveref
      - implemented hyperef \autoref
