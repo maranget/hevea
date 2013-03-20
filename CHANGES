@@ -1,3 +1,5 @@
+version 2.04+dev1
+     - patch by C Deleuze for a few fixes in info mode.
 version 2.04
      - added \addto command to augment macros
      - partial implementation of cleveref

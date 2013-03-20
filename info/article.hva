@@ -1,4 +1,15 @@
 \ifstyleloaded\relax\else
+
+% << slight change from text/ included below
+% emacs info mode does not fontify level 1 headers if they're not
+% underlined by a line of *s
+\@makesection
+  {\section}{0}{section}
+%  {\@forcenewline\@open{head}{*=}}
+  {\@forcenewline\@open{head}{*}}
+  {\thesection}{\quad}
+  {\@forcenewline\@close{head}}
+% >> end
 \input{text/article.hva}
 \setcounter{menudepth}{2}
 \newcommand{\sectionname}{Section}

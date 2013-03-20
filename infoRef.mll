@@ -295,7 +295,7 @@ let affiche_node nom =
   end;
   noeud.pos <- abs_pos ();
   put "\n";
-  put ("Node: "^noeud_name noeud);
+  put ("File: "^Parse_opts.base_out^", Node: "^noeud_name noeud);
   (match noeud.next with
   | None -> ()
   | Some n -> put (",\tNext: "^noeud_name n));
@@ -307,7 +307,8 @@ let affiche_node nom =
       if noeud.name = "Top" then begin
         put ",\tUp: (dir)" ;
         top_node := true
-      end
+      end else
+	put ",\tUp: Top"
   | Some n -> put (",\tUp: "^noeud_name n));
   put_char '\n';
   if !verbose >1 then
@@ -446,24 +447,20 @@ let rec do_finalize_menus = function
   | [] -> ()
   | m::reste ->
       if m.nodes <> [] then begin
-	do_finalize_nodes 
-	  (match m.nod with
-	    None -> None
-	  | Some n -> n.next)
-	  m.nodes;
+	do_finalize_nodes None m.nodes;
 	(match m.nod with
-	  None -> ()
-	|	 Some n -> 
-	    let first_node = List.hd (List.rev m.nodes) in
-	    n.next <- Some first_node;
-	    first_node.previous <- Some n;
-	  (* On descend dans l'arborescence des menus *)
-	    let last_node = List.hd m.nodes in
-	    (match last_node.next with
-	    | None -> ()
-	    | Some suiv -> suiv.previous <- Some n);
-          (* On remonte les menus au meme niveau *)
-	  );
+	    None -> ()
+	  | Some n -> if n.name = "Top" then
+	      let first_node = List.hd (List.rev m.nodes) in
+	      n.next <- Some first_node;
+	      first_node.previous <- Some n;
+	       (* On descend dans l'arborescence des menus *)
+	      let last_node = List.hd m.nodes in
+	      match last_node.next with
+		| None -> ()
+		| Some suiv -> suiv.previous <- Some n;
+        (* On remonte les menus au meme niveau *)
+	);
 	do_finalize_menus reste;
       end
 ;;

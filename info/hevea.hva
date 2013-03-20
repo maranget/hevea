@@ -1,4 +1,25 @@
 \input{text/hevea.hva}
+% << slight change from text/
+% emacs info mode does not fontify title if it's not flushed left
+% redefine \maketitle without env align{center}
+\renewcommand{\maketitle}{%
+\bgroup
+\newcommand{\checkcmd}[2]
+{\@ifundefined{@##1}
+  {\hva@warn{No ##1 given}}
+  {\usebox{\csname @##1\endcsname}##2}}%
+%   \@open{align}{center}%
+\@open{head}{*}%
+\usebox{\@title}\\%
+\@close{head}%
+\@open{head}{=}%H3
+\checkcmd{author}{\par}%
+\checkcmd{date}{}%
+\@close{head}%
+%   \@close{align}%
+\egroup%
+\global\let\maketitle\relax}
+%>>
 \renewcommand{\@locname}[2]{\@infoname{#1}#2}
 \renewcommand{\@locref}[2]
 {#2{\@nostyle\@print{\@reference}\{#1\}}}
