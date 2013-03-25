@@ -80,7 +80,7 @@ let lex_this_out vdef f name_in name_out =
         Emisc.reset () ;
         output_protect
           (fun out ->
-            let r = f out input lexbuf in
+            let r = f out lexbuf in
             Location.restore () ;
             r)
           name_out)
@@ -169,25 +169,36 @@ let do_mk_out name ext =
 let mk_out in_name = do_mk_out  in_name ".tmp"
 and mk_esp in_name = do_mk_out  in_name ".esp"
 
-let check_output ok in_name size_in out_name size_out =
+let read_size name = input_protect in_channel_length name
+(* Move output file to final destination if optimiser yields some gain *)
+let check_output ok in_name out_name =
   let final_name =
-    if ok && size_in > size_out then begin
-      let dst =
-        if C.move then in_name
-        else mk_esp in_name in
-      rename out_name dst ;
-      dst
+    if ok then begin
+      let size_in = read_size in_name
+      and size_out = read_size out_name in
+      let final_name =
+        if size_in > size_out then begin
+          let dst =
+            if C.move then in_name
+            else mk_esp in_name in
+          rename out_name dst ;
+          dst
+        end else begin
+          remove out_name ;
+          in_name
+        end in
+      if !Emisc.verbose > 0  then begin
+        eprintf "Optimized %s: %d -> %d, %0.2f%%\n"
+          final_name
+          size_in size_out
+          ((float (size_in-size_out) *. 100.0) /.
+           float size_in)
+      end ;
+      final_name
     end else begin
       remove out_name ;
       in_name
-    end in
-  if !Emisc.verbose > 0  && ok then begin
-    eprintf "Optimized %s: %d -> %d, %0.2f%%\n"
-      final_name
-      size_in size_out
-        ((float (size_in-size_out) *. 100.0) /.
-         float size_in)
-  end ;
+    end in  
   final_name
   
   
@@ -205,15 +216,12 @@ let phase1 in_name =
       try open_out out_name
       with Sys_error _ as e ->
         close_in input ; raise e in
-    let size_in = in_channel_length input in
     let ok =
       try process cls in_name input out
       with e -> close_in input ; close_out out ; raise e in
     close_in input ;
-    flush out ;
-    let size_out = out_channel_length out in
     close_out out ;
-    check_output ok in_name size_in out_name size_out
+    check_output ok in_name out_name
   with
   | Sys_error msg ->
       Printf.fprintf stderr "File error: %s\n" msg ;
@@ -246,15 +254,11 @@ let phase2 name =
       ()
     end ;
     let out_name = mk_out name in
-    lex_this_out name
-      (fun out input lexbuf ->
-        let ok = Lexstyle.set m out lexbuf in
-        flush out ;
-        check_output
-          ok  name (in_channel_length input)
-          out_name (out_channel_length out))
-      name out_name
-    
+    let ok =
+      lex_this_out false
+        (fun out lexbuf -> Lexstyle.set m out lexbuf)
+        name out_name in
+    check_output ok  name out_name    
   with
   | Sys_error msg ->
       Printf.fprintf stderr "File error: %s\n" msg ;

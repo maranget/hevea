@@ -1,3 +1,6 @@
+vesrion 2.04+dev2
+     - Correct esponja bug for windows : in windows you cannot
+       remove a file when it is still open !
 version 2.04+dev1
      - patch by C Deleuze for a few fixes in info mode.
 version 2.04
