@@ -1494,7 +1494,7 @@ let sub_sup lxm lexbuf =
   if effective !alltt || not (is_plain lxm) then Dest.put_char lxm
   else if not !in_math then begin
     if !warn_under then
-      warning ("'"^Char.escaped lxm^"'occuring outside math mode") ;
+      warning ("'"^Char.escaped lxm^"' occurring outside math mode") ;
     Dest.put_char lxm
   end else begin
     let sup,sub = match lxm with
@@ -1650,7 +1650,7 @@ let do_get_prim_onarg f arg =
   and plain_dquote = is_plain '"' in
   unset_plain '_' ; unset_plain '^' ; unset_plain '$' ; unset_plain '&' ;
   unset_plain '\'' ; unset_plain '`' ; unset_plain  '-' ;
-  set_plain '"' ;
+  unset_plain '"' ;
   let old_raw = !raw_chars in
   let old_case = !case in
   case := Neutral ;
@@ -2371,6 +2371,7 @@ def_code "\\@subst"
   (fun lexbuf ->
     let arg = subst_arg lexbuf in
     Dest.put arg) ;
+
 def_code "\\@subst@expn"
   (fun lexbuf ->
     let arg = subst_expn_arg lexbuf in

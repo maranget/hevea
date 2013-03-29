@@ -201,9 +201,15 @@ let plain_of_char = function
 and plain = Array.create 14 true
 
 let is_plain c = plain.(plain_of_char c)
-and set_plain c = plain.(plain_of_char c) <- true
-and unset_plain c = plain.(plain_of_char c) <- false
-and plain_back b c = plain.(plain_of_char c) <- b
+and set_plain c =
+(*  if c = '_' then eprintf "set_plain %c\n" c ; *)
+  plain.(plain_of_char c) <- true
+and unset_plain c =
+(*  if c = '_' then eprintf "unset_plain %c\n" c ; *)
+  plain.(plain_of_char c) <- false
+and plain_back b c =
+(*  if c = '_' then eprintf "plain_back %c <- %b\n" c b ; *)
+  plain.(plain_of_char c) <- b
 
 
 let top_level () = match !subst with Top -> true | _ -> false

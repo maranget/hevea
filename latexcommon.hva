@@ -516,7 +516,7 @@
 %}}}
 \newcommand{\@doaddtoc}[3]
 {%\stepcounter{tocanchor}%
-\@auxdowrite{\@print{\@@addtocsec{htoc}}\{\@sec@id@attr\}\{#1\}\{\@checkdepth{#1}{\@print{\@print}\{#2\}\@print{\quad{}}}\begin{@norefs}\@subst@expn{#3}\end{@norefs}\}\@print{
+\@auxdowrite{\@print{\@@addtocsec{htoc}}\{\@getprintnostyle{\@sec@id@attr}\}\{#1\}\{\@checkdepth{#1}{\@print{\@print}\{#2\}\@print{\quad{}}}\begin{@norefs}\@subst@expn{#3}\end{@norefs}\}\@print{
 }}}
 %%section identifiers
 \newcounter{@sec}

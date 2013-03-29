@@ -1,4 +1,13 @@
+version 2.06
+     * Two bugs reported by Michael Ernst fixed *
+     - Some spaces dissapeared in toc's FIX -> add braces around macro
+       expansion in subst_expn
+     - Spurious '_' outside of math mode warnings when \label{..._...}
+       occurs in section titles FIX -> add \@getprint around
+       \sec@id@attr in \@doaddtoc [latexcommon.hva] and \cuthere
+       [html/hevea.hva].
 version 2.05
+     - Promote to official release
 version 2.04+dev2
      - Correct esponja bug for windows : in windows you cannot
        remove a file when it is still open !

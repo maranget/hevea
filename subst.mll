@@ -55,11 +55,13 @@ rule subst expn = parse
          | Subst _ when not (Latexmacros.get_saved_macro cmd) ->
              if !verbose > 2 then eprintf "EXPAND: %s\n" cmd ;
              let args = make_stack cmd pat lexbuf in
+             Out.put_char subst_buff '{' ;
              scan_body
                (function
                  | Subst body -> scan_this_list (subst expn) body
                  | _ -> assert false)
-               body args
+               body args ;
+              Out.put_char subst_buff '}'
          | _ -> Out.put subst_buff cmd
          end
        with Latexmacros.Failed -> Out.put subst_buff cmd
