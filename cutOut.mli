@@ -30,4 +30,5 @@ type t
   val to_chan : out_channel -> t -> unit
   val copy : t -> t -> unit
   val flush : t -> unit
+  val debug : out_channel -> t -> unit
 end

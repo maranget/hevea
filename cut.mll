@@ -148,10 +148,12 @@ and otherout = ref !out
 
 let close_loc _ctx _name out =  Out.close out
 
+let dont_change = ref ""
+
 let change_name oldname name =
-  if !phase <= 0 then begin
+  if !phase <= 0 && oldname <> !dont_change then begin
     if verbose > 0 then
-      prerr_endline ("Change "^oldname^" into "^name) ;
+      eprintf "Change '%s' into '%s'\n" oldname name ;
     record_changed oldname name ;
   end
 
@@ -160,6 +162,7 @@ let start_phase () =
   if verbose > 0 then
     prerr_endline ("Starting phase number: "^string_of_int !phase);
   let base_out = Filename.basename name_out in
+  dont_change := base_out ;
   outname := base_out ;
   tocname := base_out ;
   otheroutname := "" ;
@@ -388,19 +391,28 @@ let close_chapter () =
   if verbose > 0 then
     prerr_endline ("Close chapter out="^ !outname^" toc="^ !tocname) ;
   if !phase > 0 then begin
-    if !outname <> !tocname then closehtml std_file_opt !outname !out ;
-    begin match toc_style with
-    | Both|Special ->
-      let real_out = real_open_out !outname in
+    if !outname <> !tocname then begin
+      closehtml std_file_opt !outname !out ;
+      let doout out what =
+        if false then begin
+          eprintf "DEBUG:\n" ;
+          Out.debug stderr what ;
+          eprintf "\n"
+        end ;
+        Out.to_chan out what in
+      begin match toc_style with
+      | Both|Special ->
+          let real_out = real_open_out !outname in
 (* Those hacking try with avoid failure for cuttingsection = document *)
-      begin try
-        Out.to_chan real_out !out_prefix 
-      with Misc.Fatal _ -> () end ;
-      begin try
-      Out.to_chan real_out !out ;
-      with Misc.Fatal _ -> () end ;
-      close_out real_out
-    | Normal -> ()
+          begin try
+            doout real_out !out_prefix 
+          with Misc.Fatal _ -> () end ;
+          begin try
+            doout real_out !out ;
+          with Misc.Fatal _ -> () end ;
+          close_out real_out
+      | Normal -> ()
+      end ;
     end ;
     out := !toc
   end else begin
@@ -783,7 +795,7 @@ and save_html = parse
 | "<!--END" ' '* ['A'-'Z']+ ' '* "-->" '\n'?
     {let s = Out.to_string html_buff in
     if verbose > 0 then
-      prerr_endline ("save_html -> ``"^s^"''");
+      eprintf "save_html -> '%s'\n" s;
     s}
 |  _
     {let lxm = lexeme_char lexbuf 0 in    

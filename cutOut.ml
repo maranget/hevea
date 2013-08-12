@@ -36,5 +36,8 @@ and to_string { out = out } = Out.to_string out
 and to_chan chan { out = out } = Out.to_chan chan out
 and copy { out = out1 } { out = out2 } = Out.copy out1 out2
 and flush { out = out } = Out.flush out
-
+let debug chan { out; name; } =
+  Printf.fprintf chan "Out=%s\n" name ;
+  Out.debug chan out ;
+  ()
 end

@@ -1,3 +1,5 @@
+     * bug in hacha -tocbis/-tocter when no cut induced by section.
+     * Do not change (\cutname) the name of toplevel file.
 version 2.06
      * Two bugs reported by Michael Ernst fixed *
      - Some spaces dissapeared in toc's FIX -> add braces around macro
