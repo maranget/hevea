@@ -1,3 +1,4 @@
+version 2.07
      * bug in hacha -tocbis/-tocter when no cut induced by section.
      * Do not change (\cutname) the name of toplevel file.
 version 2.06
