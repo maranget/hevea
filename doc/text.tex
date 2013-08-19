@@ -5545,15 +5545,16 @@ the technique described in Section~\ref{imgsrc}.
 %END LATEX
 \hevea{} partly implements the \texttt{color} package.
 Implemented commands are \verb+\definecolor+, \verb+\color+,
-\verb+\colorbox+ and
-\verb+\textcolor+. Other commands from the \texttt{color} package do
-not exist.
+\verb+\colorbox+,
+\verb+\textcolor+, \verb+\colorbox+ and~\verb+\fcolorbox+.
+Other commands do not exist.
 At startup,
 colours \showcolor{black}, \showcolor{white},
 \showcolor{red}, \showcolor{green}, \showcolor{blue},
 \showcolor{cyan}, \showcolor{yellow} and \showcolor{magenta} are
 pre-defined.
 
+\comindex{color}\comindex{textcolor}%
 Colours are defined by
 \verb+\definecolor{+\textit{name}\verb+}{+\textit{model}\verb+}{+\textit{spec}\verb+}+,
 where \textit{name} is the color name, \textit{model} is the color
@@ -5568,6 +5569,7 @@ accepts color specifications directly
 when invoked as
 \verb+\color[+\textit{model}\verb+]{+\textit{spec}\verb+}+.
 The \verb+\textcolor+ command has a similar feature.
+
 
 As regards color models, \hevea{} implements the \texttt{rgb},
 \texttt{cmyk}, \texttt{hsv} and \texttt{hls} color models.
@@ -5681,6 +5683,25 @@ That is:
 \item \textcolor{BrickRed}{Text as another brick}.
 \end{enumerate}\fi
 
+
+\comindex{colorbox}\comindex{fcolorbox}%
+\hevea{} also implements the \verb+\colorbox+ and \verb+\fcolorbox+ commands.
+\begin{verbatim}
+\colorbox{red}{Red background},
+\fcolorbox{magenta}{red}{Red background, magenta border}.
+\end{verbatim}
+\begin{center}
+\colorbox{red}{Red background},
+\fcolorbox{magenta}{red}{Red background, magenta border}.
+\end{center}
+Those two commands accept an optional first argument that specifies
+the color model, as \verb+\textcolor+ does:
+\begin{verbatim}
+\fcolorbox[named]{RedOrange}{Apricot}{Apricot background, RedOrange border}.
+\end{verbatim}
+\begin{center}
+\fcolorbox[named]{RedOrange}{Apricot}{Apricot background, RedOrange border}.
+\end{center}
 
 Colours should be used carefully. Too many colours
 hinders clarity and some of the colours may not be readable on the
