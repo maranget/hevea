@@ -33,7 +33,7 @@ mv  ${WORKDIR}/${HEVEA}  ${WORKDIR}/${RELEASENAME}
   gzip -f --best final/${RELEASENAME}.tar &&
   /bin/rm -rf ${RELEASENAME} )
 #Now install files
-TOINSTALL="${RELEASENAME}-manual.tar.gz ${RELEASENAME}-manual.ps.gz ${RELEASENAME}-manual.pdf  ${RELEASENAME}.tar.gz"
+TOINSTALL="${RELEASENAME}-manual.tar.gz ${RELEASENAME}-manual.ps.gz ${RELEASENAME}-manual.pdf ${RELEASENAME}.tar.gz"
 EXTRA="LICENSE README CHANGES hevea.sty"
 #FTP
 FTPDIR=/tmp/ftp.$$
@@ -57,11 +57,11 @@ then
   /bin/rm -rf ${HTMLDIR}/distri/unstable
   cp -r $DFTP ${HTMLDIR}/distri
 else
-  cp ${HTMLDIR}/distri/hevea-[0-9].[0-9][0-9].tar.gz ${HTMLDIR}/old
   /bin/rm -rf ${HTMLDIR}/distri
   mkdir ${HTMLDIR}/distri
   ( cd $DFTP &&\
     cp  ${TOINSTALL} ${EXTRA} ${HTMLDIR}/distri )
+  cp ${HTMLDIR}/distri/${RELEASENAME}.tar.gz ${HTMLDIR}/old
 fi
 #HTTP DOC
 ( cd $WORKDIR/final && tar zxf ${RELEASENAME}-manual.tar.gz )
