@@ -7871,6 +7871,7 @@ make it accessible to \LaTeX.
 \pdfsection{Other translators}
 This short section gives pointers to a few other translators. I
 performed not extensive testing and make no thorough comparison.
+
 \begin{description}
 \item[LaTeX2html]
 LaTeX2html is a full system. It is written in perl and
@@ -7900,6 +7901,17 @@ TTH can be found at
 \ahrefurl{http://hutchinson.belmont.ma.us/tth/}.
 \end{center}
 
+\item[\texttt{TeX4ht}]
+TeX4ht is a highly configurable TeX-based authoring system dedicated
+mainly to produce hypertext.
+It interacts with TeX-based applications through style files
+and postprocessors, leaving the processing of the source files
+to the native TeX compiler. As a result, TeX4ht may be more powerful
+than \hevea{}, but may also be more difficult to configure.
+More information on TeX4ht can be found at:
+\begin{center}
+\ahrefurl{http://www.tug.org/tex4ht/}
+\end{center}
 \item[\texttt{htmlgen}] The \texttt{htmlgen} translator is specialized
 for producing the Caml manuals. This is \hevea{} direct ancestor and I
 owe much to its author, X.~Leroy. See \cite{htmlgen} for a description
@@ -7990,4 +8002,3 @@ the web at
 \cutend\cutend
 %HEVEA\@stopimage\let\@footnoteflush\@footnoteflush@sticky\@restartimage
 \end{document}
-`

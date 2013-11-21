@@ -1,3 +1,4 @@
+     * typo-bug in text/hevea.hva
 version 2.09
      * Corrected a very unfortunate bug in german babel:
       \@german@dquote has to consider the case when '"' is not active..

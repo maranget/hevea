@@ -39,8 +39,8 @@
 \newcommand{\imgsrc}[2][]{\hva@warn{Image in text}*#2*}
 \newcommand{\anchor}[1]{}
 %% Hyper-text references inside the document:
-\newcomand{\@openlocref}[1]{}
-\newcomand{\@closelocref}[1]{}
+\newcommand{\@openlocref}[1]{}
+\newcommand{\@closelocref}[1]{}
 \newcommand{\@locref}[2]{{#2}}
 \newcommand{\@locname}[2]{{#2}}
 \newcommand{\@locnameref}[3]{{#3}}

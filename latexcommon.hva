@@ -160,7 +160,7 @@
 \newstyle{.li-enumerate}{margin:1ex 0ex;}
 \newcommand{\@itemenumerate}[1][!*!]
 {\let\@currentlabel\csname the\@enumcitem\endcsname%
-\stepcounter{\@itemcount}\@enumerate@linum{\envclass@attr{li-enumerate}}\ifthenelse{\equal{#1}{!*!}}{}{\hva@warn{Ignored optional argument to \item in enumerate enironment}}}
+\stepcounter{\@itemcount}\@enumerate@linum{\envclass@attr{li-enumerate}}\ifthenelse{\equal{#1}{!*!}}{}{\hva@warn{Ignored optional argument to \item in enumerate environment}}}
 %environement itemize
 \setenvclass{itemize}{itemize}
 \newenvironment{itemize}
