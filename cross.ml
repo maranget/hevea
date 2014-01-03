@@ -34,21 +34,26 @@ let decode_fragment frag =
   Buff.to_string buff
 
 let fullname change myfilename name =
-  try
-    let filename = Hashtbl.find table (decode_fragment name) in
-    let newname =
-      if myfilename = filename  then
-	"#"^name
-      else
-        change filename^"#"^name in
+  if !verbose > 1 then
+    Printf.eprintf "FULL: filename=%s, name=%s ->" myfilename name ;
+  let r = 
+    try
+      let filename = Hashtbl.find table (decode_fragment name) in
+      let newname =
+        if myfilename = filename  then
+	  "#"^name
+        else
+          change filename^"#"^name in
     if !verbose > 1 then
       prerr_endline ("From "^name^" to "^newname) ;
-    newname
-  with Not_found -> begin
-    Location.print_pos () ;
-    prerr_endline ("Warning, cannot find anchor: "^name) ;
-    raise Not_found
-  end
+      newname
+    with Not_found -> begin
+      Location.print_pos () ;
+      prerr_endline ("Warning, cannot find anchor: "^name) ;
+      raise Not_found
+    end in
+  if !verbose > 1 then Printf.eprintf " %s\n" r ;
+  r
 ;;
 
 let dump outname change =

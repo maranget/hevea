@@ -546,7 +546,7 @@
 ##2{}#7\end@step@sec\@secend}%
 \newcommand{#1*}[1]{%
 \@secbegin\@step@sec\cuthere{#3}{##1}%
-#4\@secanchor{}##1{}#7\@secend}}%
+#4\@secanchor{}##1{}#7\end@step@sec\@secend}}%
 %%%%%%%%%%%%%%
 % Images     %
 %%%%%%%%%%%%%%

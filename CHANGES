@@ -1,3 +1,8 @@
+version 2.10
+     * Bug in \@makesection (latexcommon.hva). \end@sec@step was
+       absent from the definition of stared sectionning comamnd.
+       As a result the first label in section was used as the id of the
+       section.
      * typo-bug in text/hevea.hva
 version 2.09
      * Corrected a very unfortunate bug in german babel:
