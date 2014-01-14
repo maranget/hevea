@@ -1,3 +1,5 @@
+version 2.11
+     * hacha: allow ':' in attribute names.
 version 2.10
      * Bug in \@makesection (latexcommon.hva). \end@sec@step was
        absent from the definition of stared sectionning comamnd.

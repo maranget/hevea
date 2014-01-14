@@ -590,7 +590,7 @@ let blank = [' ''\t''\n']
 let tag = ['a'-'z''A'-'Z''0'-'9']+
 let anchor = ['a'-'z''A'-'Z''0'-'9']+
 let class_name = ['a'-'z''A'-'Z''0'-'9''-']+
-let attr_name = ['a'-'z''A'-'Z''-''0'-'9']+ 
+let attr_name = ['a'-'z''A'-'Z']['a'-'z''A'-'Z''-''0'-'9'':']*
 
 rule main = parse
 | "<!--HEVEA" [^'>']* "-->" '\n'?

@@ -187,6 +187,8 @@ let aput s = Buff.put abuff s
 let blank = [' ''\t''\n''\r']
 let tag = ['a'-'z''A'-'Z''0'-'9']+
 let class_name = ['a'-'z''A'-'Z''0'-'9''-']+
+let attr_name = ['a'-'z''A'-'Z']['a'-'z''A'-'Z''-''0'-'9'':']*
+
 rule main = parse
 | (blank|"&nbsp;"|"&XA0;")+ as lxm {Blanks lxm}
 | "<!--"
@@ -233,7 +235,7 @@ and text = parse
 and read_attrs = parse
 | blank+ as lxm
     {aput lxm ; read_attrs lexbuf}
-| ['a'-'z''A'-'Z''-''0'-'9']+ as name
+| attr_name as name
   {aput name ;
   let v = read_avalue lexbuf in
   let atxt = Buff.to_string abuff in
