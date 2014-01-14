@@ -242,7 +242,7 @@ and read_attrs = parse
   put atxt ;
   (name,v,atxt)::read_attrs lexbuf}
 | '>' {put_char buff '>' ; []}
-| ""  {error "Attribute syntax" lexbuf}
+| ""  {error "Attribute syntax (read_attrs)" lexbuf}
 
 and read_avalue = parse
 | blank* '=' blank*
@@ -260,7 +260,7 @@ and read_aavalue = parse
     {aput lxm ;
     lxm}
 (* '"' *)
-| "" {error "Attribute syntax" lexbuf}
+| "" {error "Attribute syntax (read_aavalue)" lexbuf}
 
 and in_tag = parse
 | '>' {putc '>'}
@@ -311,7 +311,7 @@ and skip_value = parse
 | '"'  [^'"']*  '"'
 | '#'?['a'-'z''A'-'Z''0'-'9''-''+''_'':''.']+
    { () }
-| "" { error "Attribute syntax" lexbuf }
+| "" { error "Attribute syntax (skip_value)" lexbuf }
 (* '"' *)
 
 and extract_value cls = parse
@@ -321,7 +321,7 @@ and extract_value cls = parse
     { extract_values_q cls lexbuf }
 | '"' (* '"' *)
     { extract_values_qq cls lexbuf }
-| "" { error "Attribute syntax" lexbuf }
+| "" { error "Attribute syntax (extract_value)" lexbuf }
 
 and extract_values_q cls = parse
 | blank+ { extract_values_q cls lexbuf }
@@ -344,12 +344,12 @@ and extract_attrs cls = parse
    { let cls = extract_value cls lexbuf in
      extract_attrs cls lexbuf }
 (* Other attributes with a value *)
-| ['a'-'z''A'-'Z''-''0'-'9']+ blank* '=' blank*
+| attr_name blank* '=' blank*
    { skip_value lexbuf ;
      extract_attrs cls lexbuf }
 (* End of tag *)
 | '/'? '>' { cls }
-| ""  { error "Attribute syntax" lexbuf }
+| ""  { error "Attribute syntax (extract_attrs)" lexbuf }
 
 
 {

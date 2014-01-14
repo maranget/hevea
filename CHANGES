@@ -1,3 +1,5 @@
+version 2.12
+     * esponja: allow ':' in attribute names.
 version 2.11
      * hacha: allow ':' in attribute names.
 version 2.10

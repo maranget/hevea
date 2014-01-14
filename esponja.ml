@@ -33,14 +33,15 @@ module E =
 let process name = try E.file name with Esp.Failed -> ()
 
 let main () =
-  try
+(*  try *)
     List.iter process (List.rev !arg) ;
     exit 0
-  with
+(*  with
   | e ->
       Printf.fprintf stderr "Unexpected exception: %s\n"
         (Printexc.to_string e) ;
       exit 2
+*)
 ;;
 
 main ()
