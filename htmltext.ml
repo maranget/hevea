@@ -121,7 +121,7 @@ let is_font = function
   | Size (Int _) | Face _ | Color _ -> true
   | _ -> false
 
-let is_span = function
+let is_span (n:nat) = match n with
   | Fstyle _ -> true
   | _ -> false
 
@@ -206,7 +206,7 @@ let add_fontattrs = do_addattrs add_fontattr
 
 (* For SPAN tag *)
 let add_spanattr txt ctxt a env =
-  let nat = match a with
+  let (nat:nat) = match a with
   | ASTYLE (a,v) -> Fstyle (a,v)
   | SIZE _| COLOR _| FACE _ |CLASS _|OTHER   -> raise No in
   add {nat=nat ; txt=txt ; ctxt=ctxt} env

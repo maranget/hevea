@@ -23,9 +23,8 @@ open Lexing
 open Lexstate
 open Latexmacros
 open Subst
-open MyStack
 open Scan
-;;
+
 
 (*********************************************************)
 (* Accents are here, to make latexscan.mll a bit smaller *)
@@ -291,6 +290,7 @@ def_code "\\@find@file"
 def_code "\\@tr@url"
 (fun lexbuf ->
   let x = get_prim_arg lexbuf in
+(*  eprintf "TR URL: '%s'\n" x ; *)
   scan_this main "{\\@nostyle" ;
   Url.encode_fragment Dest.put_char Dest.put x ;
   scan_this main "}")
@@ -479,7 +479,7 @@ def_code "\\hva@newstack"
          try
            let pat,body = MyStack.pop stack in
            Latexmacros.def cmd pat body
-         with Fatal _ ->
+         with MyStack.Fatal _ ->
            warning (Printf.sprintf "Pop empty stack '%s'" name)))
 ;;
 

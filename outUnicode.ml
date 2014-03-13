@@ -90,8 +90,8 @@ let translate_utf8_in c next = match c with
     let n1 = Char.code c in
     let n2 = next () in
     let n3 = next () in
-    if n2 < 128 or n2 > 191 then cannot();
-    if n3 < 128 or n3 > 191 then cannot();
+    if n2 < 128 || n2 > 191 then cannot();
+    if n3 < 128 || n3 > 191 then cannot();
     let p =
       ((n1 land 0b1111) lsl 12) lor
       ((n2 land 0b111111) lsl 6) lor
@@ -107,9 +107,9 @@ let translate_utf8_in c next = match c with
     let n2 = next () in
     let n3 = next () in
     let n4 = next () in
-    if n2 < 128 or n2 > 191 then cannot();
-    if n3 < 128 or n3 > 191 then cannot();
-    if n4 < 128 or n4 > 191 then cannot();
+    if n2 < 128 || n2 > 191 then cannot();
+    if n3 < 128 || n3 > 191 then cannot();
+    if n4 < 128 || n4 > 191 then cannot();
     let p =
       ((n1 land 0b111) lsl 18) lor
       ((n2 land 0b111111) lsl 12) lor

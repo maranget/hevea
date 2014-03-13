@@ -871,9 +871,9 @@ let rec do_expand_command main skip_blanks name lexbuf =
               scan_this_list_may_cont main lexbuf cur_subst (string_to_arg body) ;
               let _ =  MyStack.pop stack_alltt in
               alltt :=
-                 (match old_alltt, !alltt with
-                 | Not, Inside         -> Inside
-                 | (Macro|Inside), Not -> Not
+                  (match old_alltt, !alltt with
+                 | Not, Lexstate.Inside         -> Inside
+                 | (Macro|Lexstate.Inside), Not -> Not
                  | _, _                -> old_alltt)
 (*
   fprintf stderr
@@ -2363,6 +2363,7 @@ def_code "\\@getprintnostyle"
 def_code "\\@getprint"
   (fun lexbuf ->
     let arg = get_prim_arg lexbuf in
+(*    eprintf "GET PRINT: '%s'\n" arg ; *)
     let buff = MyLexing.from_string arg in
     Dest.put (Save.tagout buff)) ;
 ;;
@@ -2541,7 +2542,7 @@ def_code "\\textalltt"
        let arg = save_arg lexbuf in
        let old = !alltt in
        scan_this main "\\mbox{" ;
-       alltt := Inside ;
+       alltt := Lexstate.Inside ;
        Dest.open_group opt ;
        scan_this_arg main arg ;
        Dest.close_group () ;
@@ -3306,7 +3307,7 @@ register_init "alltt"
       def_code "\\alltt"
         (fun _ ->
           if !verbose > 1 then prerr_endline "begin alltt" ;
-          alltt := Inside ;
+          alltt := Lexstate.Inside ;
           fun_register (fun () -> alltt := Not) ;
           Dest.close_block "" ; Dest.open_block "pre" "") ;
 
