@@ -1,7 +1,7 @@
 #! /bin/sh -
 
 cd `dirname $0`/..
-REPOS=svn+ssh://yquem.inria.fr/home/yquem/moscova/maranget/repos
+REPOS=svn+ssh://yquem.inria.fr/home/nas/gallium/maranget/repos
 VERSIONFILE=version.ml
 VERSION=`sed -n -e 's/^let real_version = "\(.*\)".*$/\1/p' ${VERSIONFILE}`
 DATE=`date +%Y-%m-%d`
