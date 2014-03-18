@@ -1,3 +1,5 @@
+version 2.13
+     * More effort to skip comments in arguments.
 version 2.12
      * esponja: allow ':' in attribute names.
 version 2.11

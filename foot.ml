@@ -79,7 +79,7 @@ let sub_notes () =
   some := false
 
 
-let flush sticky lexer sec_notes sec_here =
+let flush sticky lexer out sec_notes sec_here =
   if !some && Section.value sec_here <= Section.value sec_notes then begin
 (*
     Misc.warning
@@ -108,7 +108,7 @@ let flush sticky lexer sec_notes sec_here =
            "\\@noteref{text}{note}{"^
            string_of_int anchor^
            "}{\\@print{"^themark^"}}]") ;
-        lexer ("\\@print{"^text^"\n}"))
+        out text)
       !all ;
     lexer "\\end{thefootnotes}" ;
     List.iter

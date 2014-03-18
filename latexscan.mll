@@ -2834,7 +2834,8 @@ let foot_noteflush sticky lexbuf =
   let sec_here = get_prim_arg lexbuf
   and sec_notes = get_prim "\\@footnotelevel" in
   start_lexstate () ;
-  Foot.flush sticky (scan_this main) sec_notes sec_here ;
+  Foot.flush sticky (scan_this main)
+    Dest.put sec_notes sec_here ;
   restore_lexstate ()
 ;;
 
@@ -3119,7 +3120,7 @@ let fnsymbol_of_int = function
   0 -> " "
 | 1 -> "*"
 | 2 -> "#"
-| 3 -> "%"
+| 3 -> "\\%"
 | 4 -> "\167"
 | 5 -> "\182"
 | 6 -> "||"

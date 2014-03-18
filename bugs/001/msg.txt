@@ -1,0 +1,34 @@
+From luc.maranget@inria.fr  Tue Mar 18 12:21:13 2014
+From: David Brydon <david@brydon.us>
+To: Luc.Maranget@inria.fr
+Subject: hevea bug: commented macro
+
+Thank you for hevea!  I have tried a few tools for LaTeX to html and find
+it the best.
+
+This is a real example from our actual books that is crashing.
+
+I noticed it seems to parse macros after %, but it usually does not cause
+an error.  Sometimes it does.
+
+Here is the Minimum Working Example:
+
+\documentclass[11pt]{book}
+
+\begin{document}
+WORKS:
+
+\textit{
+ The following ...
+ }
+
+BREAKS:
+
+ \textit{
+%\textbf{
+ The following ...
+ }
+
+\end{document}
+
+???

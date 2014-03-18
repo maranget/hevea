@@ -18,7 +18,8 @@ val step_anchor : int -> unit
 val get_anchor : int -> int
 val register : int -> string -> string -> unit
 val sub_notes : unit -> unit
-val flush : bool -> (string -> unit)  -> string -> string -> unit
+val flush : bool -> (string -> unit) (* lexer *) ->
+  (string -> unit) (* just output *) -> string -> string -> unit
 val end_notes : unit -> unit
 
 

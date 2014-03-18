@@ -38,6 +38,7 @@ rule opt = parse
 | space* '\n'? space* '['
     {put_echo (lexeme lexbuf) ;
     opt2 lexbuf}
+| '%' { skip_comment lexbuf ; opt lexbuf }
 |  eof  {raise Eof}
 |  ""   {raise NoOpt}
 
@@ -58,6 +59,7 @@ and opt2 =  parse
       put_echo_char ']' ;
       C.of_out arg_buff
     end}
+| '%' { skip_comment lexbuf ; opt2 lexbuf }
 | command_name as lxm
    {put_both lxm ; opt2 lexbuf }
 | _ as lxm 
@@ -124,8 +126,10 @@ and arg2 = parse
        put_echo_char '}' ;
        C.of_out arg_buff
      end}
-| "\\{" | "\\}" | "\\\\"
-| [^'\\''{''}']+
+| '%'
+     {skip_comment lexbuf  ; arg2 lexbuf}
+| command_name
+| [^'\\''{''}''%']+
       {blit_both lexbuf ; arg2 lexbuf }
 | _
     {let c = lexeme_char lexbuf 0 in
