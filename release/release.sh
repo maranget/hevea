@@ -11,7 +11,7 @@ HEVEA=hevea-${RELEASETAG}
 #build source tar (with doc) 
 ( cd $WORKDIR && \
 svn export ${SVNEXPORT} ${HEVEA} && \
-/bin/rm -rf ${HEVEA}/examples ${HEVEA}/release )
+/bin/rm -rf ${HEVEA}/examples ${HEVEA}/release ${HEVEA}/bugs )
 #Recompile (test)
 ( cd $WORKDIR/${HEVEA} && make opt )
 #Recompile (produce doc)
