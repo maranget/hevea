@@ -39,7 +39,7 @@ test-opt:
 
 test: $(SUITE) cart-index.html cart-bis-index.html cart-ter-index.html cbook-index.html
 
-TDIR=$(HOME)/public_html/vrac/test
+TDIR=$(HOME)/public_html/hevea/examples/test
 install-test:
 	-mkdir -p $(TDIR)
 	cp $(SUITE) $(TDIR)
