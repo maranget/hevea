@@ -124,16 +124,14 @@ let ajoute_node_dans_menu n m =
 
 
 let verifie name =
-  let nom = String.copy name in
-  for i = 0 to String.length name -1 do
-    match nom.[i] with
-    | '\t' -> nom.[i] <- ' '
-    | ',' -> nom.[i] <- ' '
-    | '.' -> nom.[i] <- '-'
-    | '\n' -> nom.[i] <- ' '
-    |  _ -> ()
-  done;
-  nom
+  String.map
+    (fun c -> match c  with
+    | '\t'
+    | ',' 
+    | '\n' -> ' '
+    | '.' -> '-'
+    |  _ -> c)
+    name
 ;;
 
 
