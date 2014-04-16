@@ -7,13 +7,26 @@
 (*  Copyright 2001 Institut National de Recherche en Informatique et   *)
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
-(*  $Id: htmllex.mll,v 1.15 2012-06-05 14:55:39 maranget Exp $          *)
 (***********************************************************************)
-{
-open Lexing
-open Lexeme
-open Buff
 
+
+{
+
+open Lexeme
+
+let to_string = function
+  | Open (_,_,txt)  | Close (_,txt)  | Text txt  | Blanks txt -> txt
+  | Eof -> "Eof"
+
+let cost = function
+  | {tag=FONT ; attrs=attrs;_} -> (1,List.length attrs)
+  | _          -> (1,0)
+
+
+module Make(C:DoOut.Config) = struct
+open Lexing
+
+module Out = DoOut.Make(C)
 
 let txt_level = ref 0
 and txt_stack = MyStack.create "htmllex"
@@ -170,13 +183,13 @@ and ferme _lb name txt =
   with
   | Not_found -> Text txt
 
-let buff = Buff.create ()
-and abuff = Buff.create ()
+let buff = Out.create_buff ()
+and abuff = Out.create_buff ()
 
-let put s = Buff.put buff s
-and putc c = Buff.put_char buff c
+let put s = Out.put buff s
+and putc c = Out.put_char buff c
 
-let aput s = Buff.put abuff s
+let aput s = Out.put abuff s
 
 
 
@@ -193,24 +206,24 @@ rule main = parse
 | "<!--"
   {put (lexeme lexbuf) ;
   in_comment lexbuf ;
-  Text (Buff.to_string buff)}
+  Text (Out.to_string buff)}
 | "<!"
   {put (lexeme lexbuf) ;
   in_tag lexbuf ;
-  Text (Buff.to_string buff)}
+  Text (Out.to_string buff)}
 | '<' (tag as tag) as lxm
     {put lxm ;
     if is_textlevel tag then begin
       let attrs = read_attrs lexbuf in    
-      ouvre lexbuf tag attrs (Buff.to_string buff)
+      ouvre lexbuf tag attrs (Out.to_string buff)
     end else if is_basefont tag then begin
       let attrs = read_attrs lexbuf in    
       set_basefont attrs lexbuf ;
-      Text (Buff.to_string buff)          
+      Text (Out.to_string buff)          
     end else begin
       check_nesting lexbuf tag ;
       in_tag lexbuf ;
-      let txt = Buff.to_string buff in
+      let txt = Out.to_string buff in
       if is_br tag then 
         Blanks txt
       else
@@ -219,12 +232,12 @@ rule main = parse
 |  "</"  (tag as tag) as lxm
     {put lxm ;
     in_tag lexbuf ;
-    ferme lexbuf tag (Buff.to_string buff)}
+    ferme lexbuf tag (Out.to_string buff)}
 | eof {Eof}
 | _ as c
     {putc c ;
     text lexbuf ;
-    Text (Buff.to_string buff)}
+    Text (Out.to_string buff)}
 
 and text = parse
 | [^'<'] as c
@@ -237,10 +250,10 @@ and read_attrs = parse
 | attr_name as name
   {aput name ;
   let v = read_avalue lexbuf in
-  let atxt = Buff.to_string abuff in
+  let atxt = Out.to_string abuff in
   put atxt ;
   (name,v,atxt)::read_attrs lexbuf}
-| '>' {put_char buff '>' ; []}
+| '>' {Out.put_char buff '>' ; []}
 | ""  {error "Attribute syntax (read_attrs)" lexbuf}
 
 and read_avalue = parse
@@ -353,27 +366,19 @@ and extract_attrs cls = parse
 
 {
 
-let to_string = function
-  | Open (_,_,txt)  | Close (_,txt)  | Text txt  | Blanks txt -> txt
-  | Eof -> "Eof"
-
-let cost = function
-  | {tag=FONT ; attrs=attrs;_} -> (1,List.length attrs)
-  | _          -> (1,0)
-
 let tok_buff = ref None
 ;;
 
-let txt_buff = Buff.create ()
+let txt_buff = Out.create_buff ()
 ;;
 
 let rec read_tokens blanks lb =
   let t = main lb in
   match t with
-  | Text txt -> Buff.put txt_buff txt ; read_tokens false lb
-  | Blanks txt -> Buff.put txt_buff txt ; read_tokens blanks lb
+  | Text txt -> Out.put txt_buff txt ; read_tokens false lb
+  | Blanks txt -> Out.put txt_buff txt ; read_tokens blanks lb
   | _ ->
-      let txt = Buff.to_string txt_buff in
+      let txt = Out.to_string txt_buff in
       match txt with
       | "" -> t
       | _  ->
@@ -386,9 +391,9 @@ let rec read_tokens blanks lb =
 let reset () =
   txt_level := 0 ;
   MyStack.reset txt_stack ;
-  Buff.reset txt_buff ;
-  Buff.reset buff ;
-  Buff.reset abuff
+  Out.reset txt_buff ;
+  Out.reset buff ;
+  Out.reset abuff
 
 let next_token lb =
   try match !tok_buff with
@@ -402,5 +407,5 @@ let next_token lb =
 let classes lexbuf =
   let r = extract_classes Emisc.Strings.empty lexbuf in
   r
-
+end
 } 

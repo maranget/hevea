@@ -14,7 +14,7 @@
 {
 
  exception Error
- let buff = Buff.create ()
+ let buff = Buffer.create 32
 
 }
 let blank = [' ''\t''\n''\r']
@@ -25,8 +25,8 @@ let attr_name = ['a'-'z''A'-'Z''-''0'-'9']+
 rule tagout = parse
 | ('<' | "</") tag { skiptag lexbuf ; tagout lexbuf }
 | [^'<']+ as lxm
-    { Buff.put buff lxm ; tagout lexbuf }
-| eof { Buff.to_string buff }
+    { Buffer.add_string buff lxm ; tagout lexbuf }
+| eof { Buffer.contents buff }
 | "" { raise Error }
 
 and skiptag = parse
@@ -41,5 +41,7 @@ and skiptag = parse
 | "" { raise Error }
 
 {
-let tagout s = tagout (MyLexing.from_string s)
+let tagout s =
+  Buffer.reset buff ;
+  tagout (MyLexing.from_string s)
 }

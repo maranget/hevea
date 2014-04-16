@@ -17,6 +17,7 @@ exception Failed
 module type Config = sig
   val pess : bool
   val move : bool
+  val small_length : int
 end
 
 module Make(C:Config) = struct
@@ -98,10 +99,10 @@ let lex_this_out vdef f name_in name_out =
       Location.restore () ;
       raise e
       
-
+module Parse = Htmlparse.Make(C)
 
 let process cls in_name input output =
-  let rec do_rec lexbuf = match Htmlparse.main cls lexbuf with
+  let rec do_rec lexbuf = match Parse.main cls lexbuf with
   | [] -> ()
   | ts ->
       if C.pess then
@@ -129,8 +130,8 @@ let process cls in_name input output =
         output_char stderr '\n' ;
       Location.print_fullpos () ;
       Printf.fprintf stderr "Parser error: %s\n" s ;
-      Htmllex.ptop () ;
-      Htmllex.reset () ;
+      Parse.ptop () ;
+      Parse.reset () ;
       Location.restore () ;
       false
   | e ->
@@ -142,7 +143,7 @@ let classes in_name input =
     let lexbuf = Lexing.from_channel input in
     Location.set in_name lexbuf ;
     Emisc.reset () ;
-    let cls = Htmllex.classes lexbuf in
+    let cls = Parse.classes lexbuf in
     Location.restore () ;
     Some cls
   with

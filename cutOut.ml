@@ -15,7 +15,8 @@ module type Config = sig
 end
 
 module Make(C:Config) = struct
-module Out = DoOut.Make(struct let small_length = 256 end)
+
+module Out = DoOut.Make(C)
 
 type t = { out : Out.t ; name : string }
 

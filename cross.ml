@@ -29,9 +29,9 @@ let add name file =
 
 
 let decode_fragment frag =
-  let buff = Buff.create () in
-  Url.decode_fragment (Buff.put_char buff) (Buff.put buff) frag ;
-  Buff.to_string buff
+  let buff = Buffer.create 32 in
+  Url.decode_fragment (Buffer.add_char buff) (Buffer.add_string buff) frag ;
+  Buffer.contents buff
 
 let fullname change myfilename name =
   if !verbose > 1 then

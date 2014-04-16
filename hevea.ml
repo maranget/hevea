@@ -190,6 +190,7 @@ let main () =
                 (struct
                   let pess = false
                   let move = true
+                  let small_length = !small_length
                 end) in
             begin try E.file name_out
             with Esp.Failed ->

@@ -11,7 +11,10 @@
 (***********************************************************************)
 exception Error of string
 
-val reset : unit -> unit
-val main :
-    Emisc.Strings.t option -> Lexing.lexbuf -> Lexeme.style Tree.t list
-
+module Make(C:DoOut.Config) : sig
+  val ptop : unit -> unit
+  val reset : unit -> unit
+  val main :
+      Emisc.Strings.t option -> Lexing.lexbuf -> Lexeme.style Tree.t list
+  val classes :  Lexing.lexbuf -> Emisc.Strings.t
+end

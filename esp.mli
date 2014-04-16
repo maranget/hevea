@@ -15,12 +15,10 @@ exception Failed
 module type Config = sig
   val pess : bool
   val move : bool
+  val small_length : int
 end
 
 module Make(C:Config) : sig
-val file : string -> unit
+  val file : string -> unit
 end
-(*
-val process : Emisc.Strings.t option -> string -> in_channel -> out_channel -> bool
-*)
 

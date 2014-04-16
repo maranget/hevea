@@ -11,35 +11,38 @@
 (***********************************************************************)
 
 open Lexeme
-open Htmllex
 open Tree
 
 exception Error of string
 
+module Make(C:DoOut.Config) = struct
 let error msg _lb = raise (Error msg)
 ;;
+
+module Out = DoOut.Make(C)
+module Lex = Htmllex.Make(C)
 
 let buff = ref None
 
 let next_token lexbuf = match !buff with
 | Some tok -> buff := None ; tok
-| None -> Htmllex.next_token lexbuf
+| None -> Lex.next_token lexbuf
 
 and put_back lexbuf tok = match !buff with
 | None -> buff := Some tok
 | _    -> error "Put back" lexbuf
 
-let txt_buff = Buff.create ()
+let txt_buff = Out.create_buff ()
 
 let rec to_close tag lb = match next_token lb with
 | Close (t,_) as tok when t=tag -> tok
 | Open (t,_,txt) when t=tag ->
-    Buff.put txt_buff txt ;
-    Buff.put txt_buff (Htmllex.to_string (to_close tag lb)) ;
+    Out.put txt_buff txt ;
+    Out.put txt_buff (Htmllex.to_string (to_close tag lb)) ;
     to_close tag lb
 | Eof -> error ("Eof in to_close") lb
 | tok ->
-    Buff.put txt_buff (Htmllex.to_string tok);
+    Out.put txt_buff (Htmllex.to_string tok);
     to_close tag lb
     
 let rec tree cls lexbuf =
@@ -48,38 +51,38 @@ let rec tree cls lexbuf =
   | Open (STYLE,_,txt) ->
       let otxt = txt
       and ctxt = Htmllex.to_string (to_close STYLE lexbuf) in
-      let txt = Buff.to_string txt_buff in
+      let txt = Out.to_string txt_buff in
       let txt =	match cls with
       | None -> txt
       | Some cls ->
-	  let css = Htmllex.styles (MyLexing.from_string txt) in
-          let buff = Buff.create () in
-          Buff.put_char buff '\n' ;
+	  let css = Lex.styles (MyLexing.from_string txt) in
+          let buff = Out.create_buff () in
+          Out.put_char buff '\n' ;
           List.iter
             (fun cl -> match cl with
             | Css.Other txt ->
-                Buff.put buff txt ;
-                Buff.put_char buff '\n'
+                Out.put buff txt ;
+                Out.put_char buff '\n'
             | Css.Class (name, addname, txt) ->
                 if Emisc.Strings.mem name cls then begin
-                  Buff.put_char buff '.' ;
-                  Buff.put buff name ;
+                  Out.put_char buff '.' ;
+                  Out.put buff name ;
                   begin match addname with
                   | None -> ()
                   | Some n -> 
-                      Buff.put_char buff ' ' ;
-                      Buff.put buff n
+                      Out.put_char buff ' ' ;
+                      Out.put buff n
                   end ;
-                  Buff.put buff txt ;
-                  Buff.put_char buff '\n'
+                  Out.put buff txt ;
+                  Out.put_char buff '\n'
                 end)
             css ;
-          Buff.to_string buff in
+          Out.to_string buff in
       Some (Text (otxt^txt^ctxt))
   | Open (SCRIPT,_,txt) ->
-      Buff.put txt_buff txt ;
-      Buff.put txt_buff (Htmllex.to_string (to_close SCRIPT lexbuf)) ;
-      Some (Text (Buff.to_string txt_buff))
+      Out.put txt_buff txt ;
+      Out.put txt_buff (Htmllex.to_string (to_close SCRIPT lexbuf)) ;
+      Some (Text (Out.to_string txt_buff))
   | Open (tag,attrs,txt) ->
       let fils = trees cls lexbuf in
       begin match next_token lexbuf with
@@ -105,12 +108,16 @@ let rec do_main cls lexbuf = match tree cls lexbuf with
 | None ->
     begin match next_token lexbuf with
     | Eof ->  []
-    | tok  -> error ("Unexpected " ^ to_string tok) lexbuf
+    | tok  -> error ("Unexpected " ^ Htmllex.to_string tok) lexbuf
     end
 | Some (Text _ as last) -> [last]
 | Some t -> t :: do_main cls lexbuf
 
-let reset () =  Buff.reset txt_buff 
+let ptop () = Lex.ptop ()
+
+let reset () = 
+  Lex.reset() ;
+  Out.reset txt_buff 
 
 let main cls lexbuf =
   try
@@ -118,3 +125,5 @@ let main cls lexbuf =
   with
   | e -> reset () ; raise e
 
+let classes = Lex.classes
+end
