@@ -1496,7 +1496,7 @@ let insert_block tag arg =
         !cur_out.top <- Insert (false,[])
     | ActivateClosed {top_active=active ; top_pending=pending}->
         !cur_out.top <- Insert (false,to_pending pending active)
-    | NotMe -> ()
+    | NotMe
     | Insert _ -> ()
   end ;
   flags.insert <- Some (tag,arg)

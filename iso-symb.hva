@@ -1,5 +1,5 @@
 %% Escapable special characters
-\def\%{\@print{\char045}}
+\def\%{\char37}
 \def\${\@print{$}}%$
 \def\#{\@print{#}}
 \def\&{\@print{&}}

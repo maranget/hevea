@@ -2386,6 +2386,12 @@ def_code "\\@auxdowrite"
      let s = get_this_arg main what in
      Auxx.swrite s)
 ;;
+(* Idem, with no evaluation *)
+def_code "\\@auxdowritesubst"
+  (fun lexbuf ->
+     let what = subst_arg lexbuf in
+     Auxx.swrite what)
+;;
 
 (* format toc file *)
 def_code "\\@addtocsec"
