@@ -1,3 +1,5 @@
+version 2.15
+     * Correct bug : define \% as \char037 not as \@print{\char045} !
 version 2.14
      * Rationalize buffer usage and suppress private buff module.
 version 2.13
