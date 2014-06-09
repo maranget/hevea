@@ -1,3 +1,4 @@
+version 2.16
      * Patchy: change fnsymbol from '%' to '$'
 version 2.15
      * Correct definition of \@addstyle as '%' can now occur
