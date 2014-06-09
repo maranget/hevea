@@ -3128,13 +3128,13 @@ let fnsymbol_of_int = function
   0 -> " "
 | 1 -> "*"
 | 2 -> "#"
-| 3 -> "\\%"
+| 3 -> "$"
 | 4 -> "\167"
 | 5 -> "\182"
 | 6 -> "||"
 | 7 -> "**"
 | 8 -> "##"
-| 9 -> "%%"
+| 9 -> "$$"
 | i -> alpha_of_int (i-9)
 ;;
 
@@ -3143,7 +3143,8 @@ let def_printcount name f =
     (fun lexbuf ->
       let cname = get_prim_arg lexbuf in
       let cval = Counter.value_counter cname in
-      Dest.put (f cval))
+      let pp = f cval in
+      Dest.put pp)
 ;;
 
 def_printcount "\\arabic" string_of_int ;
