@@ -32,6 +32,8 @@ module type S =
     val newif_ref : string -> bool ref -> unit
     val top_open_block : string -> string -> unit
     val top_close_block : string -> unit
+    val top_open_group : unit -> unit
+    val top_close_group : unit -> unit
     val check_alltt_skip : Lexing.lexbuf -> unit
     val skip_pop : Lexing.lexbuf -> unit
 (* 'def' functions for initialisation only *)

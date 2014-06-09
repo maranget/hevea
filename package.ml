@@ -343,7 +343,10 @@ def_code
   let add = get_prim_arg lexbuf in
   let attr = get_prim_arg lexbuf in
   let attr = Lexattr.add_style add attr in
-  scan_this main (sprintf "\\@printnostyle{%s}" attr))
+  Scan.top_open_group () ;
+  Dest.nostyle () ;
+  Dest.put attr ;
+  Scan.top_close_group ())
 ;;
 
 (* A few subst definitions, with 2 optional arguments *)
