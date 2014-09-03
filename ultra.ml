@@ -278,24 +278,22 @@ let slen f =
   else
     0) + String.length f.txt + String.length f.ctxt
 
-let order_factors (((_i1,_j1),f1),c1) (((_i2,_j2),f2),c2) =
-  if c1 < c2 then true
-  else if c1=c2 then
-    slen f1 >= slen f2
-  else
-    false
+let order_factors (((_i1,_j1),f1),(c1:int)) (((_i2,_j2),f2),c2) =
+  match compare c1 c2 with
+  | 0 -> compare (slen f2) (slen f1) (* NB comparison reversed *)
+  | r -> r
 
 let select_factors fs =
   let fs1 = put_conflicts fs in
   let fs2 = biggest fs1 in
-  let fs3 = Sort.list order_factors fs2 in
+  let fs3 = List.sort order_factors fs2 in
   if !Emisc.verbose > 1 then begin
     prerr_string "fs1:" ; pfactorc stderr fs1 ;
     prerr_string "fs2:" ; pfactorc stderr fs2 ;
     prerr_string "fs3:" ; pfactorc stderr fs3
   end ;
-  Sort.list
-    (fun ((_,j1),_) ((i2,_),_) -> j1 <= i2)
+  List.sort
+    (fun ((_,j1),_) ((i2,_),_) -> Pervasives.compare (j1:int) i2)
     (get_them fs3)
 
 

@@ -97,10 +97,10 @@ let flush sticky lexer out sec_notes sec_here =
         if anchor > fst then
         all := ((mark,anchor),(themark,text)) :: !all)
       anchor_to_note ;
-    all := Sort.list
-         (fun ((m1,a1),_) ((m2,a2),_) ->
-           (a1 < a2) ||
-           ((a1 = a2) && (m1 <= m2))) !all ;
+    all := List.sort
+        (fun (((m1:int),(a1:int)),_) ((m2,a2),_) -> match Pervasives.compare a1 a2 with
+        | 0 ->  Pervasives.compare m1 m2
+        | r -> r) !all ;
     List.iter
       (fun ((_,anchor),(themark,text)) ->
         lexer

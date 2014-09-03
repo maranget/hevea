@@ -51,7 +51,7 @@ let wrap_eat_fst_nl process =
 let lst_process_error _ lxm =
    warning ("listings, unknown character: '"^Char.escaped lxm^"'")
 
-let lst_char_table = Array.create 256 lst_process_error
+let lst_char_table = Array.make 256 lst_process_error
 ;;
 
 let lst_init_char c f =
@@ -1749,7 +1749,7 @@ let init_listings () =
     def_code "\\lst@see@frame"
      (fun lexbuf ->
        let arg = get_prim_arg lexbuf in
-       let bs = Array.create 4 None in
+       let bs = Array.make 4 None in
        for i = 0 to String.length arg-1 do
          match arg.[i] with
          | 't' -> bs.(0) <- Solid

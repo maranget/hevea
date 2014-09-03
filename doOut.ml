@@ -57,6 +57,8 @@ module Make(C:Config) = struct
 (* Rope with a front buffer of size C.small_length *)
 (***************************************************)
 
+  let string_create sz = String.make sz ' '
+
   let max_sz = C.small_length
 
   type buff =
@@ -66,7 +68,7 @@ module Make(C:Config) = struct
   let start_sz = min 16 max_sz
 
   let alloc_buff () =
-    { b = String.create start_sz ; p = 0 ; sz=start_sz; r = S.empty ; }
+    { b = string_create start_sz ; p = 0 ; sz=start_sz; r = S.empty ; }
 
   let dump_buff chan b =
     S.output chan b.r ;
@@ -77,13 +79,13 @@ module Make(C:Config) = struct
   let length_buff b = b.p + S.length b.r
 
   let to_string_buff b =
-    let r = String.create (length_buff b) in
+    let r = string_create (length_buff b) in
     S.blit b.r r 0  ;
     String.unsafe_blit b.b 0 r (S.length b.r) b.p ;
     r
 
   let do_flush_buff b =
-    let s = String.create b.p in
+    let s = string_create b.p in
     String.unsafe_blit b.b 0 s 0 b.p ;
     b.r <- S.append_string b.r s ;
     b.p <- 0
@@ -92,7 +94,7 @@ module Make(C:Config) = struct
 
   let realloc b =
     let nsz = 2 * b.sz in
-    let nbuff = String.create nsz in
+    let nbuff = string_create nsz in
     String.unsafe_blit b.b 0 nbuff 0 b.p ;
     b.b <- nbuff ; b.sz <- nsz
 
@@ -104,7 +106,7 @@ module Make(C:Config) = struct
       realloc b ;
       vput_buff b s pos len
     end else if b.p = 0 then
-      let bsz = String.create b.sz in
+      let bsz = string_create b.sz in
       String.unsafe_blit s pos bsz 0 b.sz ;      
       b.r <- S.append_string b.r bsz ;
       vput_buff b s (pos+b.sz) (len-b.sz)

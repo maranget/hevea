@@ -151,7 +151,7 @@ let rec blit t buff pos = match t with
 let to_string t = match t with
 | Str s -> s
 | App (_,_,len) ->
-    let buff = String.create len in
+    let buff = String.make len ' ' in
     blit t buff 0 ;
     buff
 

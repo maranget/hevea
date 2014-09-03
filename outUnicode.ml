@@ -151,7 +151,7 @@ let make_out_translator ps =
     with Not_found -> raise CannotTranslate)
 
 and make_in_translator ps =
-  let t = Array.create 256 0 in
+  let t = Array.make 256 0 in
   List.iter (fun (iso, uni) -> t.(iso) <- uni) ps ;
   (fun c _ -> t.(Char.code c))
 

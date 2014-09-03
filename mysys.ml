@@ -14,7 +14,7 @@ exception Error of string
 let put_from_file name put =
   try
     let size = 1024 in
-    let buff = String.create size in
+    let buff = String.make size ' ' in
     let chan_in = open_in_bin name in
     let rec do_rec () =
       let i = input chan_in buff 0 size in

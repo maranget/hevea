@@ -198,7 +198,7 @@ let plain_of_char = function
       raise
         (Fatal ("Internal catcode table error: '"^String.make 1 c^"'"))
 
-and plain = Array.create 14 true
+and plain = Array.make 14 true
 
 let is_plain c = plain.(plain_of_char c)
 and set_plain c =

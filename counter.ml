@@ -57,7 +57,7 @@ let checkpoint () =
     with
     | Not_found -> Misc.fatal "Counter.checkpoint" in
 
-  let t = Array.create !count cbidon in
+  let t = Array.make !count cbidon in
 
   RevHash.iter
     (fun {count = value ; related = related} (name, i) ->

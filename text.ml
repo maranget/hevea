@@ -408,7 +408,7 @@ let check_stacks () = match stacks with
   check_stack after
 
 (* Buffer for one line *)
-let line = String.create (!Parse_opts.width +2);;
+let line = String.make (!Parse_opts.width +2) ' '
 
 type saved = string * flags_t * saved_stacks * saved_out
 
@@ -1179,8 +1179,8 @@ let table =  ref {
   cols = 0;
   width = 0;
   taille = Table.create 0;
-  tailles = Array.create 0 0;
-  table = Table.create {haut = 0; cells = Arr (Array.create 0 !cell)};
+  tailles = Array.make 0 0;
+  table = Table.create {haut = 0; cells = Arr (Array.make 0 !cell)};
   line = 0;
   col = 0;
   in_cell = false;
@@ -1215,8 +1215,8 @@ let open_table _ _ =
     cols = 0;
     width = 0;
     taille = Table.create 0;
-    tailles = Array.create 0 0;
-    table = Table.create {haut = 0; cells = Arr (Array.create 0 !cell)};
+    tailles = Array.make 0 0;
+    table = Table.create {haut = 0; cells = Arr (Array.make 0 !cell)};
     line = -1;
     col = -1;
     in_cell = false;
@@ -1252,7 +1252,7 @@ let register_taille table =
   and cur_len = Array.length cur in
   let dest = 
     if cur_len > old_len then begin
-      let t = Array.create cur_len 0 in
+      let t = Array.make cur_len 0 in
       Array.blit old 0 t 0 old_len ;
       t
     end else
@@ -1644,7 +1644,7 @@ let close_table () =
     (* affichage de la ligne *)
     (* il faut envoyer ligne apres ligne dans chaque cellule, en tenant compte de l'alignement vertical et horizontal..*)
     if !verbose> 2 then prerr_endline ("line "^string_of_int i^", columns:"^string_of_int (Array.length ligne)^", height:"^string_of_int tab.(i).haut);
-    let pos = Array.create (Array.length ligne) 0 in
+    let pos = Array.make (Array.length ligne) 0 in
     !row.haut <-0;
     for j = 0 to tab.(i).haut -1 do
       if not ( i=0 && j=0) then do_put_char '\n';

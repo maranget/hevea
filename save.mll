@@ -404,7 +404,7 @@ exception Error = SaveUtils.Error
 
 let init_kmp s =
   let l = String.length s in
-  let r = Array.create l (-1) in  
+  let r = Array.make l (-1) in  
   let rec init_rec i j =
 
     if i+1 < l then begin

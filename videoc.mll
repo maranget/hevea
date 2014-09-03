@@ -86,6 +86,7 @@ let snipRunHook parsing name =
 
 let compute_hint_id number filename _notename =
   let result = number ^ "_" ^ filename in
+(*DEPRECATED
   let rec convert i = begin
     if i<String.length(result)
     then let c = String.get result i in
@@ -97,6 +98,7 @@ let compute_hint_id number filename _notename =
          convert (i+1);
     end in
   convert 0;
+*)
   result;;
 
 let increment_internal_counter =
