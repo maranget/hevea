@@ -1,3 +1,5 @@
+version 2.17
+     * Adapt to ocaml 4.02 (suppress a few 'Deprecated' warnings)
 version 2.16
      * Patchy: change fnsymbol from '%' to '$'
 version 2.15
