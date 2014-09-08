@@ -189,7 +189,7 @@ let check_output ok in_name out_name =
           in_name
         end in
       if !Emisc.verbose > 0  then begin
-        eprintf "Optimized %s: %d -> %d, %0.2f%%\n"
+        eprintf "Optimized %s: %d -> %d, %.2f%%\n"
           final_name
           size_in size_out
           ((float (size_in-size_out) *. 100.0) /.

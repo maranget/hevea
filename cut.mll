@@ -130,7 +130,7 @@ and html = ref "<html>"
 
 let new_filename _from =  
   incr count ;
-  Printf.sprintf "%s%0.3d.html" base !count
+  Printf.sprintf "%s%03d.html" base !count
 
 let out = ref (Out.create_null ())
 and out_prefix = ref (Out.create_null ())

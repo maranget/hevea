@@ -15,7 +15,7 @@ ADVERTISEMENT
     files are understood with little or no modifications.
     Furthermore, HEVEA customization is done by writing LaTeX code.
     
-    HEVEA is written in Objective Caml, as many lexers. It is quite fast
+    HEVEA is written in OCaml, as many lexers. It is quite fast
     and flexible. Using HEVEA it is possible to translate large documents
     such as manuals, books, etc. very quickly. All documents are
     translated as one single HTML file. Then, the output file can be cut
@@ -45,10 +45,10 @@ DISTRIBUTION
 
 REQUIREMENTS
      HEVEA is written in Objective Caml version 3.12 or later
-     (Ocaml). It compiles under Ocaml, which should thus be properly
+     (OCaml). It compiles under OCaml, which should thus be properly
      installed.
 
-     More information on Ocaml can be found at
+     More information on OCaml can be found at
        http://caml.inria.fr/ocaml/
 
      However there exists binary distributions of HEVEA for PCs
@@ -85,14 +85,14 @@ CONFIGURATION
      * TARGET
 
       TARGET=opt makes hevea compile under ocamlopt, the
-      Objective Caml compiler that produces native code. This is
+      OCaml compiler that produces native code. This is
       the default.
 
       TARGET=byte makes hevea compile under ocamlc, the
-      Objective Caml compiler that produces bytecode.
+      OCaml compiler that produces bytecode.
 
-      Using opt, hevea is about three times as fast than
-      using byte. However, some Ocaml installations may only
+      Using opt, hevea is about three times faster than
+      using byte. However, some OCaml installations may only
       provide ocamlc.
 
      * LIBDIR is the library directory of hevea, that contains
@@ -127,5 +127,5 @@ MAKE
 IN CASE OF TROUBLE.
 
   - You do need version 3.12 (or newer) of the Objective Caml System.
-    Older versions of OCaml cannot compile hevea 2.17.
+    Older versions of Objective Caml cannot compile hevea 2.17.
 
