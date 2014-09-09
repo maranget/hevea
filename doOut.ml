@@ -57,18 +57,16 @@ module Make(C:Config) = struct
 (* Rope with a front buffer of size C.small_length *)
 (***************************************************)
 
-  let string_create sz = String.make sz ' '
-
   let max_sz = C.small_length
 
   type buff =
-      { mutable b : string ; mutable p : int ;
+      { mutable b : Bytes.t ; mutable p : int ;
         mutable sz : int ; mutable r : S.t; }
 
   let start_sz = min 16 max_sz
 
   let alloc_buff () =
-    { b = string_create start_sz ; p = 0 ; sz=start_sz; r = S.empty ; }
+    { b = Bytes.create start_sz ; p = 0 ; sz=start_sz; r = S.empty ; }
 
   let dump_buff chan b =
     S.output chan b.r ;
@@ -79,36 +77,36 @@ module Make(C:Config) = struct
   let length_buff b = b.p + S.length b.r
 
   let to_string_buff b =
-    let r = string_create (length_buff b) in
+    let r = Bytes.create (length_buff b) in
     S.blit b.r r 0  ;
-    String.unsafe_blit b.b 0 r (S.length b.r) b.p ;
-    r
+    Bytes.unsafe_blit b.b 0 r (S.length b.r) b.p ;
+    Bytes.unsafe_to_string r
 
   let do_flush_buff b =
-    let s = string_create b.p in
-    String.unsafe_blit b.b 0 s 0 b.p ;
-    b.r <- S.append_string b.r s ;
+    let s = Bytes.create b.p in
+    Bytes.unsafe_blit b.b 0 s 0 b.p ;
+    b.r <- S.append_string b.r (Bytes.unsafe_to_string s) ;
     b.p <- 0
 
   let flush_buff b = if b.p > 0 then do_flush_buff b
 
   let realloc b =
     let nsz = 2 * b.sz in
-    let nbuff = string_create nsz in
-    String.unsafe_blit b.b 0 nbuff 0 b.p ;
+    let nbuff = Bytes.create nsz in
+    Bytes.unsafe_blit b.b 0 nbuff 0 b.p ;
     b.b <- nbuff ; b.sz <- nsz
 
   let rec vput_buff b s pos len =
     if b.p + len < b.sz then begin
-      String.unsafe_blit s pos b.b b.p len ;
+      Bytes.blit_string s pos b.b b.p len ;
       b.p <- b.p + len
     end else if b.sz < max_sz then begin
       realloc b ;
       vput_buff b s pos len
     end else if b.p = 0 then
-      let bsz = string_create b.sz in
-      String.unsafe_blit s pos bsz 0 b.sz ;      
-      b.r <- S.append_string b.r bsz ;
+      let bsz = Bytes.create b.sz in
+      Bytes.blit_string s pos bsz 0 b.sz ;      
+      b.r <- S.append_string b.r (Bytes.unsafe_to_string bsz) ;
       vput_buff b s (pos+b.sz) (len-b.sz)
     else begin
       let tr = b.sz-b.p in
@@ -129,24 +127,26 @@ module Make(C:Config) = struct
       (String.sub s pos len) dump_buff b S.debug b.r ;
     ()
 
+  let put_bytes b s pos len = put_buff b (Bytes.unsafe_to_string s) pos len
+
   let put_buff_char b c =
     if b.p >= b.sz then begin
       if b.sz < max_sz then realloc b
       else do_flush_buff b
     end ;
-    String.unsafe_set b.b b.p c ;
+    Bytes.unsafe_set b.b b.p c ;
     b.p <- b.p + 1
 
   let get_buff b k =
     let len = S.length b.r in
     if k < len then S.get b.r k
-    else String.unsafe_get b.b (k-len)
+    else Bytes.unsafe_get b.b (k-len)
 
   (* Append src at the end of dst *)
   let copy_buff src dst = 
     flush_buff dst ;
     dst.r <- S.append dst.r src.r ;
-    put_buff dst src.b 0 src.p
+    put_bytes dst src.b 0 src.p
 
 (*******************)
 
@@ -204,7 +204,7 @@ module Make(C:Config) = struct
     match out with
     | Rope b ->
         let len = lexbuf.lex_curr_pos - lexbuf.lex_start_pos in
-        put_buff b lexbuf.lex_buffer lexbuf.lex_start_pos len
+        put_bytes b lexbuf.lex_buffer lexbuf.lex_start_pos len
     | Chan chan ->
         let len = lexbuf.lex_curr_pos - lexbuf.lex_start_pos in
         output chan lexbuf.lex_buffer lexbuf.lex_start_pos len
@@ -227,7 +227,7 @@ module Make(C:Config) = struct
     | Rope  b ->
         S.iter f b.r ;
         let bb = b.b in
-        for k = 0 to b.p-1 do f (String.unsafe_get bb k) done ;
+        for k = 0 to b.p-1 do f (Bytes.unsafe_get bb k) done ;
         ()
 
   let iter_next f = function
@@ -262,7 +262,7 @@ module Make(C:Config) = struct
   let to_list = function
     | Rope b ->
         let xs =
-          if b.p > 0 then [String.sub b.b 0 b.p]
+          if b.p > 0 then [Bytes.sub_string b.b 0 b.p]
           else [] in
         let xs = S.to_list_append b.r xs in
         if !verbose > 2 then begin

@@ -1,2 +1,3 @@
 true: annot
+true: safe_string
 <mylib.ml> : pp(../expandlib.sh)

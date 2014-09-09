@@ -157,17 +157,17 @@ let stack_lexbuf = MyStack.create "stack_lexbuf"
 ;;
 
 let pretty_lexbuf lb =
-  let  pos = lb.lex_curr_pos and len = String.length lb.lex_buffer in
+  let  pos = lb.lex_curr_pos and len = Bytes.length lb.lex_buffer in
   prerr_endline "Buff contents:" ;
   let size = if !verbose > 3 then len-pos else min (len-pos) 80 in
   if size <> len-pos then begin
     prerr_string "<<" ;
-    prerr_string (String.sub lb.lex_buffer pos (size/2)) ;
+    prerr_string (Bytes.sub_string lb.lex_buffer pos (size/2)) ;
     prerr_string "... (omitted) ..." ;
-    prerr_string (String.sub lb.lex_buffer (len-size/2-1) (size/2)) ;
+    prerr_string (Bytes.sub_string lb.lex_buffer (len-size/2-1) (size/2)) ;
     prerr_endline ">>"
   end else
-    prerr_endline ("<<"^String.sub lb.lex_buffer pos size^">>");
+    prerr_endline ("<<"^Bytes.sub_string lb.lex_buffer pos size^">>");
   prerr_endline ("curr_pos="^string_of_int lb.lex_curr_pos);
   prerr_endline "End of buff"
 ;;

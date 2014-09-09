@@ -408,7 +408,7 @@ let check_stacks () = match stacks with
   check_stack after
 
 (* Buffer for one line *)
-let line = String.make (!Parse_opts.width +2) ' '
+let line = Bytes.make (!Parse_opts.width +2) ' '
 
 type saved = string * flags_t * saved_stacks * saved_out
 
@@ -416,7 +416,7 @@ let check () =
   let saved_flags = copy_flags flags
   and saved_stacks = save_stacks ()
   and saved_out = save_out () in
-  String.copy line, saved_flags, saved_stacks, saved_out
+  Bytes.to_string line, saved_flags, saved_stacks, saved_out
 
   
 and hot (l,f,s,o) =
@@ -440,7 +440,6 @@ let do_do_put_char c =
 let do_do_put  s =
   Out.put !cur_out.out s;;
 
-
 let do_put_line s =
   (* Ligne a formatter selon flags.align, avec les parametres courants.*)
   (* soulignage eventuel *)
@@ -456,10 +455,10 @@ let do_put_line s =
   | Left -> s
   | Center ->
       let sp = (flags.hsize - (length -flags.x_start))/2 in
-      String.concat "" [String.make sp ' '; s]
+      String.make sp ' ' ^ s
   | Right ->
       let sp = flags.hsize - length + flags.x_start in
-      String.concat "" [ String.make sp ' '; s]
+      String.make sp ' ' ^ s
   in
   if !verbose > 3 then prerr_endline ("line :"^ligne);
   do_do_put ligne;
@@ -467,35 +466,35 @@ let do_put_line s =
 
   if !soul then begin
     let souligne =
-      let l = String.make taille ' ' in
+      let l = Bytes.create taille in
       let len = String.length flags.underline in
       if len = 0 then raise (Misc.Fatal ("cannot underline with nothing:#"
 					 ^String.escaped flags.underline^"#"^
 					 (if  (flags.underline <> "") then "true" else "false"
 					   )));
       for i = flags.x_start to length -1 do
-	l.[i]<-flags.underline.[(i-flags.x_start) mod len]
+	Bytes.set l i  flags.underline.[(i-flags.x_start) mod len]
       done;
-      if taille <> length then l.[length]<-'\n';
+      if taille <> length then Bytes.set l length '\n';
       match flags.align with
       | Left -> l
       | Center ->
 	  let sp = (flags.hsize - length)/2 +flags.x_start/2 in
-	  String.concat "" [String.make sp ' '; l]
+	  Bytes.cat (Bytes.make sp ' ') l
       | Right ->
 	  let sp = (flags.hsize - length) + flags.x_start in
-	  String.concat "" [ String.make sp ' '; l]
+	  Bytes.cat (Bytes.make sp ' ') l
     in
-    if !verbose >3 then prerr_endline ("line underlined:"^souligne); 
+    if !verbose >3 then prerr_endline ("line underlined:"^ Bytes.to_string souligne); 
  
-    do_do_put souligne;
+    do_do_put (Bytes.unsafe_to_string souligne);
   end
 ;;
 
 let do_flush () =
   if !verbose>3 && flags.x >0 then
-    prerr_endline ("flush :#"^(String.sub line 0 (flags.x))^"#");
-  if flags.x >0 then do_put_line (String.sub line 0 (flags.x)) ;
+    prerr_endline ("flush :#"^(Bytes.sub_string line 0 (flags.x))^"#");
+  if flags.x >0 then do_put_line (Bytes.sub_string line 0 flags.x) ;
   flags.x <- -1;
 ;;
   
@@ -509,16 +508,16 @@ let do_put_char_format nbsp c =
 (*    eprintf "FIRST LINE: %i %i\n" flags.x_start flags.first_line ; *)
     flags.x<-flags.x_start + flags.first_line;   
     for i = 0 to flags.x-1 do
-      line.[i]<-' ';
+      Bytes.set line i ' '
     done;
     flags.last_space<-flags.x-1;
   end;
-  line.[flags.x]<-c;
+  Bytes.set line flags.x c;
   if c='\n' then begin
 	(* Ligne prete *)
     if !verbose > 2 then
-      prerr_endline("line not cut :["^line^"]");
-    do_put_line (String.sub line 0 (flags.x +1));
+      prerr_endline("line not cut :["^Bytes.to_string line^"]");
+    do_put_line (Bytes.sub_string line 0 (flags.x +1));
     flags.x <- -1;
   end else
     flags.x<-flags.x + 1;
@@ -526,39 +525,39 @@ let do_put_char_format nbsp c =
     if (flags.x - flags.last_space) >= flags.hsize then begin
 	  (* On coupe brutalement le mot trop long *)
       if !verbose > 2 then
-	prerr_endline ("line cut :"^line);
+	prerr_endline ("line cut :"^ Bytes.to_string line);
       warning ("line too long");
-      line.[flags.x-1]<-'\n';
+      Bytes.set line (flags.x-1) '\n';
 	  (* La ligne est prete et complete*)
-      do_put_line (String.sub line 0 (flags.x));
-      for i = 0 to flags.x_start-1 do line.[i]<-' ' done;
-      line.[flags.x_start]<-c;
+      do_put_line (Bytes.sub_string line 0 flags.x);
+      for i = 0 to flags.x_start-1 do Bytes.set line i ' ' done;
+      Bytes.set line flags.x_start c;
       flags.x<-flags.x_start + 1;
       flags.last_space<-flags.x_start-1;
     end else begin
       if !verbose > 2 then begin
-	prerr_endline ("Line and the beginning of the next word :"^line);
+	prerr_endline ("Line and the beginning of the next word :"^Bytes.to_string line);
 	prerr_endline ("x ="^string_of_int flags.x);
 	prerr_endline ("x_start ="^string_of_int flags.x_start);
 	prerr_endline ("x_end ="^string_of_int flags.x_end);
 	prerr_endline ("hsize ="^string_of_int flags.hsize);
 	prerr_endline ("last_space ="^string_of_int flags.last_space);
-	prerr_endline ("line size ="^string_of_int (String.length line));
+	prerr_endline ("line size ="^string_of_int (Bytes.length line));
       end;
 	  (* On repart du dernier espace *)
       let reste = 
 	let len = flags.x - flags.last_space -1 in
 	if len = 0 then ""
 	else
-	  String.sub line (flags.last_space +1) len
+	  Bytes.sub_string line (flags.last_space +1) len
       in
 	  (* La ligne est prete et incomplete*)
-      line.[flags.last_space]<-'\n';
-      do_put_line (String.sub line 0 (flags.last_space+1));
+      Bytes.set line flags.last_space '\n';
+      do_put_line (Bytes.sub_string line 0 (flags.last_space+1));
       
-      for i = 0 to flags.x_start-1 do line.[i]<-' ' done;
+      for i = 0 to flags.x_start-1 do Bytes.set line i ' ' done;
       for i = flags.x_start to (flags.x_start+ String.length reste -1) do
-	line.[i]<- reste.[i-flags.x_start];
+	Bytes.set line i reste.[i-flags.x_start];
       done;
       flags.x<- flags.x_start + (String.length reste);
       flags.last_space <- flags.x_start-1;
@@ -592,13 +591,13 @@ let do_unskip () =
   if !cur_out.temp || (Out.is_null !cur_out.out) then
     Out.unskip !cur_out.out
   else begin
-    while flags.x > flags.x_start && line.[flags.x-1] = ' ' do
+    while flags.x > flags.x_start && Bytes.get line (flags.x-1) = ' ' do
       flags.x <- flags.x - 1
     done ;
     flags.last_space <-  flags.x ;
     while
       flags.last_space >=  flags.x_start &&
-      line.[flags.last_space] <> ' '
+      Bytes.get line flags.last_space <> ' '
     do
       flags.last_space <- flags.last_space - 1
     done;
@@ -1338,7 +1337,7 @@ let open_cell format span insides _border =
   !cell.post <- "";
   !cell.post_inside <- [];
   open_block "" "";
-  if !cell.w > String.length line then raise ( Error "Column too wide");
+  if !cell.w > Bytes.length line then raise ( Error "Column too wide");
   if (!cell.wrap=Wtrue) then begin (* preparation de l'alignement *)
     !cur_out.temp <- false;
     flags.x_start <- 0;

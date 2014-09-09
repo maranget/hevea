@@ -59,8 +59,42 @@ module Make(C:Config) = struct
 
 
   let append r1 r2 = app r1 r2
-  let append_string r s = app r (of_string s)
-  and append_char r c = app r (singleton c)
+
+  let rec app_string r s slen = match r with
+  | Str rs ->
+      if String.length rs < small_length then Str (rs ^ s)
+      else raise Exit
+  | App (r1,r2,len) ->
+      let r2 = app_string r2 s slen in
+      App (r1,r2,len+slen)
+
+  let append_string r s =
+    let slen = String.length s in
+    if slen < small_length then
+      try app_string r s slen
+      with Exit -> App (r,Str s,length r+slen)
+    else App (r,Str s,length r+slen)
+
+  let sc2c s len c =
+    let b = Bytes.create (len+1) in
+    Bytes.blit_string s 0 b 0 len ;
+    Bytes.set b len c ;
+    Bytes.unsafe_to_string b
+
+  let rec app_char r c = match r with
+  | Str s ->
+      let len = String.length s in
+      if len < small_length then begin
+        Str (sc2c s len c)
+      end else
+        raise Exit
+  | App (r1,r2,len) ->
+      let r2 = app_char r2 c in
+      App (r1,r2,len+1)
+
+  let append_char r c =
+    try app_char r c
+    with Exit -> App (r,Str (String.make 1 c),length r+1)
 
 (*************)
 (* Substring *)
@@ -142,18 +176,17 @@ let debug = debug_rec ""
 
 let rec blit t buff pos = match t with
  | Str s ->
-     String.unsafe_blit s 0 buff pos (String.length s)
+     Bytes.blit_string s 0 buff pos (String.length s)
  | App (t1,t2,_) ->
      blit t1 buff pos ;
      blit t2 buff (pos+length t1)
 
-
 let to_string t = match t with
 | Str s -> s
 | App (_,_,len) ->
-    let buff = String.make len ' ' in
+    let buff = Bytes.create len in
     blit t buff 0 ;
-    buff
+    Bytes.unsafe_to_string buff
 
 (***********************)
 (* To list (of string) *)

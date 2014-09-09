@@ -14,7 +14,7 @@ SUF=
 DIR=
 OCAMLC=$(DIR)ocamlc$(SUF)
 #OCAMLFLAGS=-w +a-4-9 -warn-error +a
-OCAMLFLAGS=-w +a-3-4-9-41-45
+OCAMLFLAGS=-w +a-4-9-41-45
 OCBFLAGS=-j 4 -classic-display
 
 #### End of configuration parameters
@@ -33,8 +33,9 @@ both: ocb-both
 
 include libs.def
 
-config.sh: Makefile libs.def
-	@(echo PGM=\"$(PGM)\" &&\
+config.sh: Makefile libs.def handle402.sh
+	@( cat handle402.sh &&\
+	echo PGM=\"$(PGM)\" &&\
 	echo PGMNATIVE=\"$(PGMNATIVE)\" &&\
 	echo BINDIR=$(BINDIR) &&\
 	echo LIBDIR=$(LIBDIR) &&\
@@ -44,7 +45,7 @@ config.sh: Makefile libs.def
 	echo ALLLIB=\"$(ALLLIB)\" && \
 	echo HTMLLIB=\"$(HTMLLIB)\" && \
 	echo TEXTLIB=\"$(TEXTLIB)\" && \
-	echo INFOLIB=\"$(INFOLIB)\" ) > $@
+	echo INFOLIB=\"$(INFOLIB)\") > $@
 
 clean:: config.sh
 	sh ocb.sh clean && rm config.sh

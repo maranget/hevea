@@ -165,7 +165,7 @@ and tfmiddle = parse
 | eof {()}
 | ""
   {let rest =
-    String.sub lexbuf.lex_buffer lexbuf.lex_curr_pos
+    Bytes.sub_string lexbuf.lex_buffer lexbuf.lex_curr_pos
       (lexbuf.lex_buffer_len - lexbuf.lex_curr_pos) in
   raise (Error ("Syntax of array format near: "^rest))}
 

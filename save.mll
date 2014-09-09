@@ -26,13 +26,14 @@ let rec peek_next_char lb =
       peek_next_char lb
     end
   end else
-    lb.lex_buffer.[pos]
+    Bytes.unsafe_get lb.lex_buffer pos
 
 let if_next_char  c lb =
   try
      peek_next_char lb = c
   with
   | Not_found -> false
+
 
 let rec if_next_string s lb =
   if s = "" then
@@ -49,8 +50,13 @@ let rec if_next_string s lb =
         if_next_string s lb
       end
     end else
-      let lb_s = String.sub lb.lex_buffer pos slen in
-      lb_s = s
+      let b = lb.lex_buffer in
+      let rec do_rec k =
+        if k >= slen then true
+        else
+          Bytes.get b (pos+k) = String.get s k &&
+          do_rec (k+1) in
+      do_rec 0
   
 
 type kmp_t = Continue of int | Stop of string

@@ -14,12 +14,12 @@ exception Error of string
 let put_from_file name put =
   try
     let size = 1024 in
-    let buff = String.make size ' ' in
+    let buff = Bytes.create size in
     let chan_in = open_in_bin name in
     let rec do_rec () =
       let i = input chan_in buff 0 size in
       if i > 0 then begin
-        put (String.sub buff 0 i) ;
+        put (Bytes.sub_string buff 0 i) ;
         do_rec ()
       end in
     do_rec () ;

@@ -77,6 +77,6 @@ let main lexbuf =
   try main_rule lexbuf with
   | Cannot ->
       let sbuf = lexbuf.lex_buffer in
-      No (String.sub sbuf 0 lexbuf.lex_buffer_len)
+      No (Bytes.sub_string sbuf 0 lexbuf.lex_buffer_len)
 
 } 

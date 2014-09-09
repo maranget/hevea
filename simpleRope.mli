@@ -38,7 +38,7 @@ type t
 (* Translations *)
   val output : out_channel -> t -> unit
   val debug : out_channel -> t -> unit
-  val blit : t -> string -> int -> unit
+  val blit : t -> Bytes.t -> int -> unit
   val to_string : t -> string
   val to_list : t -> string list
   val to_list_append : t -> string list -> string list

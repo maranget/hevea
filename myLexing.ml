@@ -26,7 +26,7 @@ let zero_pos = {
 
 let from_string s =
   { refill_buff = (fun lexbuf -> lexbuf.lex_eof_reached <- true);
-    lex_buffer = s ;
+    lex_buffer = Bytes.of_string s ;
     lex_buffer_len = String.length s;
     lex_abs_pos = 0;
     lex_start_pos = 0;
