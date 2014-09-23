@@ -1,4 +1,5 @@
 version 2.18
+     * PREFIX?=/usr/local in Makefile, to allow overriding by environment variable.
      * Adapt to ocaml 4.02, use 'Bytes' module + backward compatibility
        hack.
      * Some patches by Damien: typos + illegal format strings.
