@@ -268,6 +268,7 @@
 \newcommand{\@def@charset}[1]
 {\renewcommand{\@charset}{#1}\@set@out@translator{mappings/#1.map}}
 \newcommand{\@bodyargs}{}
+\newcommand{\@htmlargs}{}
 \newcommand{\@meta}
 {\@print{<meta http-equiv="Content-Type" content="text/html; charset=}%
 \@getprint{\@charset}%
@@ -282,13 +283,12 @@
 }\fi\fi
 \ife\css@link\else\css@link\fi
 \undef\hevea@css\undef\newstyle}
-
 \newenvironment{document}{%
 \@end{document}%
 \@atbegindocument%
 \@restartoutput\unskip%
 \@print{<!DOCTYPE html>
-}\@print{<html>
+}\@print{<html }\@getprint{\@htmlargs}\@print{>
 <head>}
 \@meta%
 \@print{<title>}%

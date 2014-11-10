@@ -25,6 +25,7 @@
 \input{version.tex}
 %HEVEA\usepackage{color}%for echo to image file
 %\colorsections{20}
+%\renewcommand{\@htmlargs{ style="color:red;"}
 \newtheorem{example}{Example}
 \title{\hevea{} User Documentation\\
 {\normalsize Version~\heveaversion}}
@@ -4176,12 +4177,13 @@ in the document preamble:
 
 \index{color!of background|see{\texttt{\char92"@bodyargs}}}
 \index{"@bodyargs@\texttt{\char92"@bodyargs}}
+\index{"@htmlargs@\texttt{\char92"@htmlargs}}
 \index{"@meta@\texttt{\char92"@meta}}\label{metadef}
 The \verb+\htmlhead+ command cannot be used for changing anything outside of
 the \html{} document body, there are specific commands for doing this.
 Those command must be used in the document preamble.
 One can
-change \hevea{} default (empty) attribute for
+change \hevea{} default (empty) attribute of
 the opening \verb+<body ...>+ tag by redefining
 \verb+\@bodyargs+.
 For instance, you get black text on a white background, when the
@@ -4194,6 +4196,14 @@ Since version 1.08, a recommended alternative is to use style sheets:
 \newstyle{body}{color:black; background:white;}
 \end{verbatim}
 
+One can also change the default (empty) attribute of the opening
+\verb+<html ...>+ tag by redefining
+\verb+\@htmlargs+. For instance you can set the language attribute
+of teh whole document by issuing the following redefinition in
+the docment preamble:
+\begin{verbatim}
+\renewcommand{\@htmlargs}{lang=en}
+\end{verbatim}
 
 \comindex{let}\envindex{rawhtml}
 \label{exlet}Similarly, some elements can be inserted into the output file
