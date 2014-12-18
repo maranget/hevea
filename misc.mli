@@ -62,3 +62,7 @@ val next_of_string : string -> (unit -> int)
 
 (* two digit hexa -> int *)
 val hexa_code : char -> char  -> int
+
+(* Some strinmh utilities (backward compatibility) *)
+
+val string_map : (char -> char) -> string -> string

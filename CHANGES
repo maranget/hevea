@@ -1,7 +1,9 @@
+version 2.20
+     * Correct  2.09 correction, the test for the status of char '"' was
+       negated... (PR #004)
 version 2.19
      * Add a command \@htmlargs for re-defining the <html...> opening tag
        attributes.
-
 version 2.18
      * PREFIX?=/usr/local in Makefile, to allow overriding by environment variable.
      * Adapt to ocaml 4.02, use 'Bytes' module + backward compatibility

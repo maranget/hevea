@@ -1,0 +1,183 @@
+From luc.maranget@inria.fr  Tue Dec 16 14:43:30 2014
+Return-Path: <luc.maranget@inria.fr>
+X-Original-To: maranget@yquem.inria.fr
+Delivered-To: maranget@yquem.inria.fr
+Received: from mail3-relais-sop.national.inria.fr (mail3-relais-sop.national.inria.fr [192.134.164.104])
+	by yquem.inria.fr (Postfix) with ESMTPS id 1FF24E19F9
+	for <maranget@yquem.inria.fr>; Tue, 16 Dec 2014 14:43:30 +0100 (CET)
+X-IronPort-AV: E=Sophos;i="5.07,587,1413237600"; 
+   d="p7s'?scan'208";a="93732844"
+Received: from zmbs1.inria.fr ([128.93.142.14])
+  by mail3-relais-sop.national.inria.fr with ESMTP; 16 Dec 2014 14:43:29 +0100
+Received: from zfront2.inria.fr (LHLO zfront2.inria.fr) (193.51.193.148) by
+ zmbs1.inria.fr with LMTP; Tue, 16 Dec 2014 14:43:29 +0100 (CET)
+Received: from zfront2.inria.fr (localhost [127.0.0.1])
+	by zfront2.inria.fr (Postfix) with ESMTP id B9134A2CE1
+	for <luc.maranget@inria.fr>; Tue, 16 Dec 2014 14:43:29 +0100 (CET)
+Received: from mail2-relais-roc.national.inria.fr (mail2-relais-roc.national.inria.fr [192.134.164.83])
+	by zfront2.inria.fr (Postfix) with ESMTPS id B6516A2C96
+	for <maranget@zimbra.inria.fr>; Tue, 16 Dec 2014 14:43:29 +0100 (CET)
+X-IronPort-Anti-Spam-Filtered: true
+X-IronPort-Anti-Spam-Result: AoEFAH02kFRV1ubn/2dsb2JhbABagwZSWMVrAoV6gRoWAQEBAQF9hBY9AQE4YjszGogWvRCFUgEFkgkGigqFQgs4ghcMQB2BE44fgTKHJYV2i0Mig21tgkMBAQE
+X-IPAS-Result: AoEFAH02kFRV1ubn/2dsb2JhbABagwZSWMVrAoV6gRoWAQEBAQF9hBY9AQE4YjszGogWvRCFUgEFkgkGigqFQgs4ghcMQB2BE44fgTKHJYV2i0Mig21tgkMBAQE
+X-IronPort-AV: E=Sophos;i="5.07,587,1413237600"; 
+   d="p7s'?scan'208";a="113639789"
+Received: from wobsta.de ([85.214.230.231])
+  by mail2-smtp-roc.national.inria.fr with ESMTP/TLS/AES256-SHA; 16 Dec 2014 14:43:29 +0100
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=wobsta.de; s=rsa1;
+	h=Mime-Version:To:Date:Message-Id:Subject:Content-Type:From; bh=04KLvJcCVuZhHr73dDnS58SNr0cQXXufbfB3p+GVxa8=;
+	b=lg/ezAYRR2ncokieJM2TyrJ4bj5vsUs8pPEEe/6S5NqnjldkJFAMcXiXPA0AvgM/EMlMAUd+3/xapFi3v97r/7s8MWFK8UWa3uWca/Fr9eY5HEi02xizWb7THzj0soIHXo8ng6qmYhG8wOuILf7Lon6KFK/Ci4ixA3m41rrKamq+6Kki2AWwJ/xDYC0z9OS2X/eC7DGLaq0kejkulwZ0L2r9p9Nkc+pbGc1Hs/1bghk+8W3u4OzkXJhfrV7LS8z5iy4iM1EpdQ17kojxP2yIeRcWLwDL/mEsvq7h3QDQISAaNbhv4JRPm19nlZPPcSKdK3/UViI014Yx0mrhUE+bHg==;
+Received: from ppp-93-104-80-78.dynamic.mnet-online.de ([93.104.80.78]:56071 helo=[192.168.175.100])
+	by wobsta.de with esmtpsa (TLS1.0:RSA_AES_128_CBC_SHA1:16)
+	(Exim 4.76)
+	(envelope-from <contact@wobsta.de>)
+	id 1Y0sPP-00026l-CD
+	for Luc.Maranget@inria.fr; Tue, 16 Dec 2014 14:43:27 +0100
+From: Andre Wobst <contact@wobsta.de>
+Content-Type: multipart/signed; boundary="Apple-Mail=_6F0D5C20-AC2F-4812-A7B0-656C86CEA824"; protocol="application/pkcs7-signature"; micalg=sha1
+Subject: hevea german umlaut with quote only-bug
+Message-Id: <8D1A7C55-20DF-4BD8-8DC9-8B1E71BA9D8E@wobsta.de>
+Date: Tue, 16 Dec 2014 14:43:17 +0100
+To: Luc.Maranget@inria.fr
+MIME-Version: 1.0
+X-Mailer: Apple Mail (2.1878.6)
+X-SA-Exim-Connect-IP: 93.104.80.78
+X-SA-Exim-Mail-From: contact@wobsta.de
+X-SA-Exim-Scanned: No (on wobsta.de); SAEximRunCond expanded to false
+X-Zimbra-Forwarded: luc.maranget@inria.fr
+X-Spam: no; 0.00; hevea:01 hevea:01 usepackage:01 2.09:01 2.09:01 089:01 089:01 3396:01 begin:02 fix:02 versions:02 versions:02 output:03 end:06 bug:07 
+X-Attachments: type="application/pkcs7-signature" name="smime.p7s" name="smime.p7s" 
+Status: RO
+Content-Length: 7026
+Lines: 129
+
+
+--Apple-Mail=_6F0D5C20-AC2F-4812-A7B0-656C86CEA824
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain;
+	charset=iso-8859-1
+
+Hi Luc,
+
+I observed a problem with newer versions of hevea on the following input =
+file:
+
+    \documentclass{article}
+    \usepackage[german]{babel}
+    \begin{document}
+    test "a \"a
+    \end{document}
+
+I tested hevea 2.09 and 2.13 resulting in the wrong output: text "a =E4, =
+whereas for hevea 1.10 I get: text =E4 =E4.
+
+I hope you can reproduce the issue and it would be great if you could =
+fix it. Thanks in advance.
+
+With best wishes for the holiday season,
+
+
+Andr=E9
+
+
+PS: Unfortunately I can't easily test other versions, I just check the =
+changes file and noticed:
+
+version 2.09
+     * Corrected a very unfortunate bug in german babel:
+      \@german@dquote has to consider the case when '"' is not active..
+
+Maybe this is related. No other news whether this has already been =
+noticed or fixed in more recent versions.
+
+--=20
+by  _ _      _    Dr. Andr=E9 Wobst, Amselweg 22, 85716 Unterschlei=DFheim=
+
+   / \ \    / )   contact@wobsta.de, http://www.wobsta.de/
+  / _ \ \/\/ /    Tel: (089) 5480 3394, Fax: (089) 5480 3396
+ (_/ \_)_/\_/     Handy: (0160) 9380 4217
+
+
+--Apple-Mail=_6F0D5C20-AC2F-4812-A7B0-656C86CEA824
+Content-Disposition: attachment;
+	filename=smime.p7s
+Content-Type: application/pkcs7-signature;
+	name=smime.p7s
+Content-Transfer-Encoding: base64
+
+MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIMXTCCBiEw
+ggUJoAMCAQICAwtXwTANBgkqhkiG9w0BAQsFADCBjDELMAkGA1UEBhMCSUwxFjAUBgNVBAoTDVN0
+YXJ0Q29tIEx0ZC4xKzApBgNVBAsTIlNlY3VyZSBEaWdpdGFsIENlcnRpZmljYXRlIFNpZ25pbmcx
+ODA2BgNVBAMTL1N0YXJ0Q29tIENsYXNzIDEgUHJpbWFyeSBJbnRlcm1lZGlhdGUgQ2xpZW50IENB
+MB4XDTE0MDkyNzAwMzQzMFoXDTE1MDkyODExNDkzMlowPjEaMBgGA1UEAwwRY29udGFjdEB3b2Jz
+dGEuZGUxIDAeBgkqhkiG9w0BCQEWEWNvbnRhY3RAd29ic3RhLmRlMIIBIjANBgkqhkiG9w0BAQEF
+AAOCAQ8AMIIBCgKCAQEAuTd+TXUNRkBklPjkL45AkFs54OZMMaGl0+T3zFJHwb7s4FuYTbbhzFn0
+ner3BCzDNHkGA4EJl21PntsfqeKl4oUc6YyREd4TJ1C9XjC8LGMx1KGpXHFLULBjz1FofjC6pjkW
+Avzu8Z2eNTlV38/CnyVc7qNiJZwSx2GryhBzyMmm7KyuNkpu3cZvs898v17xS0y/FFvw6sgm7h62
+JnGZPcwt+gusaI9j08Fg2qSShoLnXj6Xzw/S+37M95hIUj8eAbjXkoWl6H0eQbZmrorMk4Jg/Zq3
+ybcT+1avnG4WCY5bR6+ELkI2ApUdIa7+wezW1jplgAc/hbrc2uSwm/5A2wIDAQABo4IC1zCCAtMw
+CQYDVR0TBAIwADALBgNVHQ8EBAMCBLAwHQYDVR0lBBYwFAYIKwYBBQUHAwIGCCsGAQUFBwMEMB0G
+A1UdDgQWBBTHYMe8EL9EG00mZuMWOMNOaN1F3zAfBgNVHSMEGDAWgBRTcu2SnODaywFcfH6WNU7y
+1LhRgjAcBgNVHREEFTATgRFjb250YWN0QHdvYnN0YS5kZTCCAUwGA1UdIASCAUMwggE/MIIBOwYL
+KwYBBAGBtTcBAgMwggEqMC4GCCsGAQUFBwIBFiJodHRwOi8vd3d3LnN0YXJ0c3NsLmNvbS9wb2xp
+Y3kucGRmMIH3BggrBgEFBQcCAjCB6jAnFiBTdGFydENvbSBDZXJ0aWZpY2F0aW9uIEF1dGhvcml0
+eTADAgEBGoG+VGhpcyBjZXJ0aWZpY2F0ZSB3YXMgaXNzdWVkIGFjY29yZGluZyB0byB0aGUgQ2xh
+c3MgMSBWYWxpZGF0aW9uIHJlcXVpcmVtZW50cyBvZiB0aGUgU3RhcnRDb20gQ0EgcG9saWN5LCBy
+ZWxpYW5jZSBvbmx5IGZvciB0aGUgaW50ZW5kZWQgcHVycG9zZSBpbiBjb21wbGlhbmNlIG9mIHRo
+ZSByZWx5aW5nIHBhcnR5IG9ibGlnYXRpb25zLjA2BgNVHR8ELzAtMCugKaAnhiVodHRwOi8vY3Js
+LnN0YXJ0c3NsLmNvbS9jcnR1MS1jcmwuY3JsMIGOBggrBgEFBQcBAQSBgTB/MDkGCCsGAQUFBzAB
+hi1odHRwOi8vb2NzcC5zdGFydHNzbC5jb20vc3ViL2NsYXNzMS9jbGllbnQvY2EwQgYIKwYBBQUH
+MAKGNmh0dHA6Ly9haWEuc3RhcnRzc2wuY29tL2NlcnRzL3N1Yi5jbGFzczEuY2xpZW50LmNhLmNy
+dDAjBgNVHRIEHDAahhhodHRwOi8vd3d3LnN0YXJ0c3NsLmNvbS8wDQYJKoZIhvcNAQELBQADggEB
+AG9BpRL0eIdhrR3sUD1rVjCTyuz7iQx92JiiWHEJefmgH8GBVVVb+5n9567Paog7oWwesKhnKvHF
+AQB3roeSmxQqH0RqWq59GTG+hrYemtSkCvp0ynOL1Dksh/4b6VPpzFO6pZcdN5H1HI3Jxxfzb7VD
+XHNeXqcrMiT7AdKjTwIK1ox6hWIcK5DHsBuPQXxjMqpJ5AVgb4mxbiQmP0rLAdBsw+JMzFUVg+gB
+6MYi+jCJwjFFy7rHDmoDduLSSk2lLrrjfLDD5fF/ZHsKJSW+E7aPm6ZGSnss/C1vv5DcIirtZ+5I
+bHb0kXsQUocyAfsVTYAM5SirVK8Lz3yvngGhDYQwggY0MIIEHKADAgECAgEeMA0GCSqGSIb3DQEB
+BQUAMH0xCzAJBgNVBAYTAklMMRYwFAYDVQQKEw1TdGFydENvbSBMdGQuMSswKQYDVQQLEyJTZWN1
+cmUgRGlnaXRhbCBDZXJ0aWZpY2F0ZSBTaWduaW5nMSkwJwYDVQQDEyBTdGFydENvbSBDZXJ0aWZp
+Y2F0aW9uIEF1dGhvcml0eTAeFw0wNzEwMjQyMTAxNTVaFw0xNzEwMjQyMTAxNTVaMIGMMQswCQYD
+VQQGEwJJTDEWMBQGA1UEChMNU3RhcnRDb20gTHRkLjErMCkGA1UECxMiU2VjdXJlIERpZ2l0YWwg
+Q2VydGlmaWNhdGUgU2lnbmluZzE4MDYGA1UEAxMvU3RhcnRDb20gQ2xhc3MgMSBQcmltYXJ5IElu
+dGVybWVkaWF0ZSBDbGllbnQgQ0EwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDHCYPM
+zi3YGrEppC4Tq5a+ijKDjKaIQZZVR63UbxIP6uq/I0fhCu+cQhoUfE6ERKKnu8zPf1Jwuk0tsvVC
+k6U9b+0UjM0dLep3ZdE1gblK/1FwYT5Pipsu2yOMluLqwvsuz9/9f1+1PKHG/FaR/wpbfuIqu54q
+zHDYeqiUfsYzoVflR80DAC7hmJ+SmZnNTWyUGHJbBpA8Q89lGxahNvuryGaC/o2/ceD2uYDX9U8E
+g5DpIpGQdcbQeGarV04WgAUjjXX5r/2dabmtxWMZwhZna//jdiSyrrSMTGKkDiXm6/3/4ebfeZuC
+YKzN2P8O2F/Xe2AC/Y7zeEsnR7FOp+uXAgMBAAGjggGtMIIBqTAPBgNVHRMBAf8EBTADAQH/MA4G
+A1UdDwEB/wQEAwIBBjAdBgNVHQ4EFgQUU3Ltkpzg2ssBXHx+ljVO8tS4UYIwHwYDVR0jBBgwFoAU
+TgvvGqRAW6UXaYcwyjRoQ9BBrvIwZgYIKwYBBQUHAQEEWjBYMCcGCCsGAQUFBzABhhtodHRwOi8v
+b2NzcC5zdGFydHNzbC5jb20vY2EwLQYIKwYBBQUHMAKGIWh0dHA6Ly93d3cuc3RhcnRzc2wuY29t
+L3Nmc2NhLmNydDBbBgNVHR8EVDBSMCegJaAjhiFodHRwOi8vd3d3LnN0YXJ0c3NsLmNvbS9zZnNj
+YS5jcmwwJ6AloCOGIWh0dHA6Ly9jcmwuc3RhcnRzc2wuY29tL3Nmc2NhLmNybDCBgAYDVR0gBHkw
+dzB1BgsrBgEEAYG1NwECATBmMC4GCCsGAQUFBwIBFiJodHRwOi8vd3d3LnN0YXJ0c3NsLmNvbS9w
+b2xpY3kucGRmMDQGCCsGAQUFBwIBFihodHRwOi8vd3d3LnN0YXJ0c3NsLmNvbS9pbnRlcm1lZGlh
+dGUucGRmMA0GCSqGSIb3DQEBBQUAA4ICAQAKgwh9eKssBly4Y4xerhy5I3dNoXHYfYa8PlVLL/qt
+XnkFgdtY1o95CfegFJTwqBBmf8pyTUnFsukDFUI22zF5bVHzuJ+GxhnSqN2sD1qetbYwBYK2iyYA
+5Pg7Er1A+hKMIzEzcduRkIMmCeUTyMyikfbUFvIBivtvkR8ZFAk22BZy+pJfAoedO61HTz4qSfQo
+CRcLN5A0t4DkuVhTMXIzuQ8CnykhExD6x4e6ebIbrjZLb7L+ocR0y4YjCl/Pd4MXU91y0vTipgr/
+O75CDUHDRHCCKBVmz/Rzkc/b970MEeHt5LC3NiWTgBSvrLEuVzBKM586YoRD9Dy3OHQgWI270g+5
+MYA8GfgI/EPT5G7xPbCDz+zjdH89PeR3U4So4lSXur6H6vp+m9TQXPF3a0LwZrp8MQ+Z77U1uL7T
+elWO5lApsbAonrqASfTpaprFVkL4nyGH+NHST2ZJPWIBk81i6Vw0ny0qZW2Niy/QvVNKbb43A43n
+y076khXO7cNbBIRdJ/6qQNq9Bqb5C0Q5nEsFcj75oxQRqlKf6TcvGbjxkJh8BYtv9ePsXklAxtm8
+J7GCUBthHSQgepbkOexhJ0wP8imUkyiPHQ0GvEnd83129fZjoEhdGwXV27ioRKbj/cIq7JRXun0N
+beY+UdMYu9jGfIpDLtUUGSgsg2zMGs5R4jGCA28wggNrAgEBMIGUMIGMMQswCQYDVQQGEwJJTDEW
+MBQGA1UEChMNU3RhcnRDb20gTHRkLjErMCkGA1UECxMiU2VjdXJlIERpZ2l0YWwgQ2VydGlmaWNh
+dGUgU2lnbmluZzE4MDYGA1UEAxMvU3RhcnRDb20gQ2xhc3MgMSBQcmltYXJ5IEludGVybWVkaWF0
+ZSBDbGllbnQgQ0ECAwtXwTAJBgUrDgMCGgUAoIIBrzAYBgkqhkiG9w0BCQMxCwYJKoZIhvcNAQcB
+MBwGCSqGSIb3DQEJBTEPFw0xNDEyMTYxMzQzMTdaMCMGCSqGSIb3DQEJBDEWBBS8GrDPjnjLs9J8
+vXvJ0QOHqliS0jCBpQYJKwYBBAGCNxAEMYGXMIGUMIGMMQswCQYDVQQGEwJJTDEWMBQGA1UEChMN
+U3RhcnRDb20gTHRkLjErMCkGA1UECxMiU2VjdXJlIERpZ2l0YWwgQ2VydGlmaWNhdGUgU2lnbmlu
+ZzE4MDYGA1UEAxMvU3RhcnRDb20gQ2xhc3MgMSBQcmltYXJ5IEludGVybWVkaWF0ZSBDbGllbnQg
+Q0ECAwtXwTCBpwYLKoZIhvcNAQkQAgsxgZeggZQwgYwxCzAJBgNVBAYTAklMMRYwFAYDVQQKEw1T
+dGFydENvbSBMdGQuMSswKQYDVQQLEyJTZWN1cmUgRGlnaXRhbCBDZXJ0aWZpY2F0ZSBTaWduaW5n
+MTgwNgYDVQQDEy9TdGFydENvbSBDbGFzcyAxIFByaW1hcnkgSW50ZXJtZWRpYXRlIENsaWVudCBD
+QQIDC1fBMA0GCSqGSIb3DQEBAQUABIIBAFbY7JSTn0RaXCXf2alkRm/YA3iyWCmUtvGLiLxTjaDF
+lJzLmrr6lLdo+GJIv8wqG6dshm3AScM46G59mjvN9wPcc0V8jf0WOnhtRTaEkAmH24UzbZ8zXFhk
+NC6AOpl+Ng5E2tgXqhIKprfXgcDVjKsjG34zm9667eDtdS15SHDc/ROKiNtU5FoEMwDFn+UuCLec
+8KN5u2WnRaMHC1QsxQcLxrq3MAGVdfjEyl7DBuVB0vXju2kr66K8sWznieWcW98HX34HbrI7e6gs
+gABDMiOv+7qoAuJu7v24cWQYfPpMgeTRKqtoiKx0fiZjemWXYbaymeOsIpxfocY0Gb/skKUAAAAA
+AAA=
+
+--Apple-Mail=_6F0D5C20-AC2F-4812-A7B0-656C86CEA824--
+

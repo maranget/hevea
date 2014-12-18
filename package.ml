@@ -1081,7 +1081,7 @@ register_init "german"
   (fun () ->
       def_code "\\@german@dquote"
         (fun lexbuf ->
-          if effective !alltt || not (is_plain '"') then (* '"' *)
+          if effective !alltt || is_plain '"' then (* '"' *)
             Dest.put_char '"' (* '"' *)
           else try
             let c = Save.peek_next_char lexbuf  in

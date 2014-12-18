@@ -122,9 +122,8 @@ let ajoute_node_dans_menu n m =
   with _ -> None
 ;;
 
-
 let verifie name =
-  String.map
+  Misc.string_map
     (fun c -> match c  with
     | '\t'
     | ',' 

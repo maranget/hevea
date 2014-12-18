@@ -129,3 +129,13 @@ let hexa c = match c with
   | _ -> assert false
 
 let hexa_code c1 c2 = 16 * hexa c1 + hexa c2
+
+(* String utilities *)
+
+let string_map f s =
+  let len = String.length s in
+  let out = Buffer.create len in
+  for k = 0 to len-1 do
+    Buffer.add_char out (f (String.get s k))
+  done ;
+  Buffer.contents out
