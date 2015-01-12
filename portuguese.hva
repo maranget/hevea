@@ -1,0 +1,47 @@
+%%%% Hevea support for babel option 'portuguese'.
+
+%%%% Support for
+%%%%    a) date
+%%%%    b) names of various part descriptors (contentsname etc.)
+%\@primitives{portuguese}%no primitives (yet ?)
+\newcommand{\common@common@portuguese@babel}{
+  \renewcommand\prefacename{Pref\'acio}%
+  \renewcommand\refname{Refer\^encias}%
+  \renewcommand\abstractname{Resumo}%
+  \renewcommand\bibname{Bibliografia}%
+  \renewcommand\chaptername{Cap\'itulo}%
+  \renewcommand\appendixname{Ap\^endice}%
+  \renewcommand\contentsname{Conte\'udo}%
+  \renewcommand\listfigurename{Lista de Figuras}%
+  \renewcommand\listtablename{Lista de Tabelas}%
+  \renewcommand\indexname{\'Indice}%
+  \renewcommand\figurename{Figura}%
+  \renewcommand\tablename{Tabela}%
+  \renewcommand\partname{Parte}%
+  \renewcommand\enclname{encl}%
+  \renewcommand\ccname{cc}%
+  \renewcommand\headtoname{An}%
+  \renewcommand\pagename{P\'agina}%
+  \renewcommand\headpagename{P\'agina}%
+  \renewcommand\seename{veja}%
+  \renewcommand\alsoseename{veja tamb\'em}%
+}
+\newcommand{\common@portuguese@babel}{%
+\common@common@portuguese@babel%
+\def\portuguese@month
+{\ifthenelse{\value{month}=1}{Janeiro}
+{\ifthenelse{\value{month}=2}{Fevereiro}
+{\ifthenelse{\value{month}=3}{Mar\c{c}o}
+{\ifthenelse{\value{month}=4}{Abril}
+{\ifthenelse{\value{month}=5}{Maio}
+{\ifthenelse{\value{month}=6}{Junho}
+{\ifthenelse{\value{month}=7}{Julho}
+{\ifthenelse{\value{month}=8}{Agosto}
+{\ifthenelse{\value{month}=9}{Setembro}
+{\ifthenelse{\value{month}=10}{Outubro}
+{\ifthenelse{\value{month}=11}{Novembro}
+{\ifthenelse{\value{month}=12}{Dezembro}{}
+}}}}}}}}}}}}%
+\renewcommand\today{\theday.~\portuguese@month~\theyear}}
+%%%
+\newcommand{\portuguese@babel}{\common@portuguese@babel}

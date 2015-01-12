@@ -1,3 +1,6 @@
+version 2.21
+     * Preliminary support for the portuguese language (credit Carlos Camarao)
+
 version 2.20
      * Correct  2.09 correction, the test for the status of char '"' was
        negated... (PR #004)

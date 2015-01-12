@@ -1,0 +1,104 @@
+From luc.maranget@inria.fr  Mon Jan 12 09:45:50 2015
+Return-Path: <luc.maranget@inria.fr>
+X-Original-To: maranget@yquem.inria.fr
+Delivered-To: maranget@yquem.inria.fr
+Received: from mail2-relais-roc.national.inria.fr (mail2-relais-roc.national.inria.fr [192.134.164.83])
+	by yquem.inria.fr (Postfix) with ESMTPS id 75BEDE19A4
+	for <maranget@yquem.inria.fr>; Mon, 12 Jan 2015 09:45:50 +0100 (CET)
+X-IronPort-AV: E=Sophos;i="5.07,742,1413237600"; 
+   d="scan'208";a="116577066"
+Received: from zmbs1.inria.fr ([128.93.142.14])
+  by mail2-relais-roc.national.inria.fr with ESMTP; 12 Jan 2015 09:45:50 +0100
+Received: from zfront2.inria.fr (LHLO zfront2.inria.fr) (193.51.193.148) by
+ zmbs1.inria.fr with LMTP; Mon, 12 Jan 2015 09:45:50 +0100 (CET)
+Received: from zfront2.inria.fr (localhost [127.0.0.1])
+	by zfront2.inria.fr (Postfix) with ESMTP id 4DBA1A2F62
+	for <luc.maranget@inria.fr>; Mon, 12 Jan 2015 09:45:50 +0100 (CET)
+Received: from mail2-relais-roc.national.inria.fr (mail2-relais-roc.national.inria.fr [192.134.164.83])
+	by zfront2.inria.fr (Postfix) with ESMTPS id 4B5C1A2EB0
+	for <maranget@zimbra.inria.fr>; Mon, 12 Jan 2015 09:45:50 +0100 (CET)
+From: Luc Maranget <luc.maranget@inria.fr>
+X-IronPort-AV: E=Sophos;i="5.07,742,1413237600"; 
+   d="scan'208";a="116577065"
+Received: from yquem.inria.fr ([128.93.8.37])
+  by mail2-relais-roc.national.inria.fr with ESMTP; 12 Jan 2015 09:45:50 +0100
+Received: by yquem.inria.fr (Postfix, from userid 18041)
+	id 3F8B4278C; Mon, 12 Jan 2015 09:45:50 +0100 (CET)
+Date: Mon, 12 Jan 2015 09:45:50 +0100
+To: Kevin Ryde <user42_kevin@yahoo.com.au>
+Cc: Luc.Maranget@inria.fr
+Subject: Re: hevea html links and anchors
+Message-ID: <20150112084550.GC28228@yquem.inria.fr>
+References: <87r3v3pgxg.fsf@blah.blah>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87r3v3pgxg.fsf@blah.blah>
+Content-Transfer-Encoding: 7bit
+User-Agent: Mutt/1.5.21 (2010-09-15)
+X-Zimbra-Forwarded: luc.maranget@inria.fr
+X-Spam: no; 0.00; hevea:01 encoded:01 lacking:01 hevea:01 foo:01 tex:01 foo:01 tex:01 usepackage:01 --luc:01 debian:02 begin:02 href:95 href:95 arguments:04 
+Content-Length: 1590
+Lines: 60
+
+Dear Kevin,
+
+Although I cannot find the reference I followed to apply encoding to
+<a href=...> arguments and not to < .. id=...> arguments, I think this
+is the right way to  proceed.  Notice that It may be that w3m is wrong.
+More precisely, firefox expects encoded URL as arguments to href attributes and
+translates them correctly, whether the link is local or not.
+
+Hence, I am sorry not follow your recommendation at the moment.
+If I am wrong, please provide me with some authoritative
+reference that solves the issue. I am lacking time to start a
+search for finding a standard compliant solution.
+I'd appreciate if you could could help me to find some definitive
+statement on the issue.
+
+
+All the best,
+
+--Luc
+
+
+
+
+> (I saw your name on the hevea page for bug reports, I hope that's right.)
+> 
+> With recent i386 debian packaged hevea 2.18 the file foo.tex below
+> processed
+> 
+>     hevea foo.tex
+>     hevea foo.tex
+> 
+> gives foo.html with
+> 
+>     <a id="sec/one"></a>
+>     ...
+>     to section <a href="#sec%2Fone">1</a>
+> 
+> It might be good for maximum inter-operation to have the anchor name and
+> the href with the same amount of % encoding.
+> 
+> w3m for example is literal about the fragment and the anchor and does
+> not follow to a percent decode or normalize.  I struck this in the
+> whizzytex manual where w3m would not follow link "#sec%2Flocal-custom"
+> to go to anchor "sec/local-custom".
+> 
+> 
+
+> \documentclass{article}
+> \usepackage{hevea}
+> \begin{document}
+> 
+> \section{Section One}\label{sec/one}
+> 
+> Link to section \ref{sec/one}.
+> 
+> \end{document}
+
+
+-- 
+Luc
+

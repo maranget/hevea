@@ -40,7 +40,7 @@
 \DeclareOption{norsk}{\InitiateOption{norsk}}%
 \DeclareOption{nynorsk}{\InitiateOption{nynorsk}}%
 \DeclareOption{polish}{\InitiateOption{polish}}%
-\DeclareOption{portuges}{\InitiateOption{portuges}}%
+\DeclareOption{portuguese}{\InitiateOption{portuguese}}%
 \DeclareOption{romanian}{\InitiateOption{romanian}}%
 \DeclareOption{russian}{\InitiateOption{russian}}%
 \DeclareOption{slovak}{\InitiateOption{slovak}}%
@@ -78,7 +78,7 @@
 \newcommand\norsk@language{norsk}%
 \newcommand\nynorsk@language{nynorsk}%
 \newcommand\polish@language{polish}%
-\newcommand\portuges@language{portuges}%
+\newcommand\portuguese@language{portuguese}%
 \newcommand\romanian@language{romanian}%
 \newcommand\russian@language{russian}%
 \newcommand\slovak@language{slovak}%
@@ -139,8 +139,8 @@
 	\let\current@language\nynorsk@language   \nynorsk@babel   } {%
   \ifthenelse{\equal{#1}{polish}} {%
 	\let\current@languagepolish\@language    \polish@babel    } {%
-  \ifthenelse{\equal{#1}{protuges}} {%
-	\let\current@language\portuges@language  \portuges@babel  } {%
+  \ifthenelse{\equal{#1}{portuguese}} {%
+	\let\current@language\portuguese@language  \portuguese@babel  } {%
   \ifthenelse{\equal{#1}{romanian}} {%
 	\let\current@language\romanian@language  \romanian@babel  } {%
   \ifthenelse{\equal{#1}{russian}} {%
