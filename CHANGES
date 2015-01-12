@@ -1,3 +1,5 @@
+     * \indexname now used in packages makeidx and multind as teh default
+       index name (Was 'Index')
 version 2.21
      * Preliminary support for the portuguese language (credit Carlos Camarao)
 
