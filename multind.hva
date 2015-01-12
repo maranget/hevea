@@ -1,5 +1,5 @@
 \usepackage{index}
-\renewcommand{\makeindex}[1]{\newindex{#1}{#1}{#1.hind}{Index}}
+\renewcommand{\makeindex}[1]{\newindex{#1}{#1}{#1.hind}{\indexname}}
 \let\oldprintindex=\printindex
 \renewcommand{\printindex}[2]{\@indexname[#1]{#2}\oldprintindex[#1]}
 \let\oldindex=\index

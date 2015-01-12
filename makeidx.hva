@@ -14,6 +14,6 @@
 \newif\ifindexsec\indexsecfalse
 \newcommand{\index}[1]{\ifindexsec\@index@sec{#1}\else\@index@loc{#1}}
 \newcommand{\printindex}{\@printindex[default]}
-\newcommand{\makeindex}{\newindex{default}{idx}{ind}{Index}}
+\newcommand{\makeindex}{\newindex{default}{idx}{ind}{\indexname}}
 \newcommand{\see}[2]{\seename\ \textit{#1}}
 
