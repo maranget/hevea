@@ -1,0 +1,56 @@
+From luc.maranget@inria.fr  Mon Feb 16 15:25:19 2015
+From: Patrice Moreaux <patrice.moreaux@univ-savoie.fr>
+To: Luc.Maranget@inria.fr
+Subject: HEVEA et \specialcomment de comment.sty
+
+Bonjour Luc
+
+Tout d'abord un grand MERCI pour hevea que j'utilise depuis que
+j'utilise LaTeX soit ... bientôt 20 ans!
+
+Actuellement, je suis en train de rédiger des documentations en LaTeX
+-bien sûr- et je prévois de les mettre en ligne avec Hevea.
+
+Elles seront multilangue, en particulier français et anglais.
+
+J'utilise donc comment.sty.
+
+J'utilise aussi Babel pour régler les détails de chaque langue.
+J'ai donc construit une commande spéciale prévue par comment.sty:
+\specialcomment{French}{\begingroup\selectlanguage{french}}{\endgroup}
+qui commute automatiquement en environnement Babel français.
+
+Hélas, hevea me renvoie une erreur:
+======================================================================
+./root.tex:78: Warning: Command not found: \specialcomment
+./root.tex:78: Giving up command: \@hevea@cbrace
+./root.tex:78: Environment nesting error: Latex env error: '' closes
+'command-group'
+./root.tex:78: Latex environment 'command-group' is pending
+Adios
+======================================================================
+
+Avez-vous une idée pour que Hevea accepte la commande \specialcomment?
+Sinon, j'ai toujours bien sûr la possibilité de coder l'appel au
+français à l'intérieur d'un groupe \begin{French} \end{French}
+mais j'aurais aimé ne pas avoir à le faire justement!
+
+ps: je suis sous OpenSUSE 13.1 64bits à jour, Hevea version 2.21
+fraichement compilé (sans aucune erreur: encore bravo!).
+
+Merci d'avance
+Bien cordialement
+Patrice.
+
+
+
+--
+---------------------------------------------------------
+Patrice Moreaux
+Professeur
+patrice.moreaux@univ-savoie.fr
+http://www.listic.univ-savoie.fr
+LISTIC/Polytech Annecy-Chambéry, Université de Savoie
+BP 80439 - 74944 Annecy le Vieux Cedex - FRANCE
+Phone/tél.: (+33/0) 450 096 524 - fax:(+33/0) 450 096 559
+---------------------------------------------------------

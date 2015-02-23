@@ -1,0 +1,19 @@
+\documentclass{article}
+\usepackage[french,english]{babel}
+ \usepackage[T1]{fontenc}
+\usepackage[latin1]{inputenc}
+
+\usepackage{comment}
+\specialcomment{French}{\begingroup\selectlanguage{french}\tt}{\endgroup}
+\begin{document}
+This is english.
+\begin{French}
+C'est du français.
+\end{French}
+\begin{toimage}
+\begin{French}
+Fran\c{c}ais en image.
+\end{French}
+\end{toimage}
+\imageflush
+\end{document}

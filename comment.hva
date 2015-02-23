@@ -4,8 +4,8 @@
 {\begin{toimage}\includecomment{#1}\end{toimage}%
 \typeout{Include comment '#1'}%
 \@stopimage%
-\def{\csname #1\endcsname}{\@end{#1}}%
-\def{\csname end#1\endcsname}{\@begin{#1}}%
+\def\csname #1\endcsname{\@end{#1}}%
+\def\csname end#1\endcsname{\@begin{#1}}%
 \@restartimage}
 \newcommand{\excludecomment}[1]
 {\begin{toimage}\excludecomment{#1}\end{toimage}%
@@ -15,3 +15,10 @@
 \let{\csname end#1\endcsname}\end@excludecomment%
 \@restartimage}
 \excludecomment{comment}
+\newcommand{\specialcomment}[3]
+{\begin{toimage}\specialcomment{#1}{#2}{#3}\end{toimage}%
+\typeout{Special comment '#1'}%
+\@stopimage%
+\def\csname #1\endcsname{\@end{#1}#2}%
+\def\csname end#1\endcsname{#3\@begin{#1}}%
+\@restartimage}

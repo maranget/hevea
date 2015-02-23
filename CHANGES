@@ -1,4 +1,6 @@
-     * \indexname now used in packages makeidx and multind as teh default
+version 2.22
+     * Attempt umplementation of \specialcomment (comment package).
+     * \indexname now used in packages makeidx and multind as the default
        index name (Was 'Index')
 version 2.21
      * Preliminary support for the portuguese language (credit Carlos Camarao)
