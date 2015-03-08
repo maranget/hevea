@@ -5,8 +5,8 @@ HEVEAOPTS=-fix -O -rsz 16
 HACHA=hacha
 EXDIR=$(HOME)/public_html/hevea/examples
 HTML=a.html pat.html suite.html env.html smile.html amstex.html graphics.html graphicx.html verbs.html style-test.html amssymb-test.html
-HVA=suite-macros
-STY=$(HVA:.hva=.sty)
+HVA=env.hva  pat.hva  smile.hva  st.hva  suite-macros.hva
+STY=suite-macros.sty hevea.sty
 TEX=$(HTML:.html=.tex)
 DVI=a.dvi pat.dvi suite.dvi amstex.dvi verbs.dvi
 TEXT=a.txt pat.txt suite.txt env.txt

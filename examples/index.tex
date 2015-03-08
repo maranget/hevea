@@ -36,7 +36,8 @@ manual. MlDoc is a literate programming tool.
 
 
 \section*{Examples from the distribution}
-
+Source for these examples is included in the distribution in
+sub-directory \texttt{examples}.
 \begin{itemize}
 \item The \ahrefurl{Makefile}
 
@@ -51,10 +52,13 @@ While the text output generated with:
 # hevea -text a.tex
 \end{verbatim}
 
-\item The test suite: \ahrefurl{suite.tex} and \ahrefurl{suite.html} (see
+\item The test suite: \ahrefurl{suite.tex}
+(\hevea{} style file \ahref{suite-macros.hva}, \LaTeX{} style file
+\ahref{suite-macros.sty})
+and \ahrefurl{suite.html} (see
 also \ahrefurl{suite.dvi} and \ahrefurl{suite.txt}).
 
-\item A full article, cut into pieces , with images (source is
+\item A complete article, cut into pieces , with images (source is
 \ahrefurl{pat.tex}, output is \ahrefurl{pat.dvi}, 
 \ahrefurl{pat.html} and \ahrefurl{pat.txt}). To yield this result, \verb+gpic+ is first
 applied to \verb+pat.tex+, yielding \verb+tmp.tex+; \LaTeX\ and
