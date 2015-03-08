@@ -5,6 +5,8 @@ HEVEAOPTS=-fix -O -rsz 16
 HACHA=hacha
 EXDIR=$(HOME)/public_html/hevea/examples
 HTML=a.html pat.html suite.html env.html smile.html amstex.html graphics.html graphicx.html verbs.html style-test.html amssymb-test.html
+HVA=suite-macros
+STY=$(HVA:.hva=.sty)
 TEX=$(HTML:.html=.tex)
 DVI=a.dvi pat.dvi suite.dvi amstex.dvi verbs.dvi
 TEXT=a.txt pat.txt suite.txt env.txt
@@ -93,8 +95,10 @@ install:
 	mkdir $(EXDIR)
 	cp *.gif *.png $(HTML) index.html sym.html tmp.css tmp*.html conclusion.html benchmarks.html hp.c $(EXDIR)
 	-cp $(TEXT) $(EXDIR)
-	cp Makefile $(TEX) pat.def env.hva pat.hva smile.hva $(EXDIR)
+	cp Makefile $(TEX) pat.def  $(EXDIR)
 	cp $(DVI) $(EXDIR)
+	cp $(HVA) $(EXDIR)
+	cp $(STY) $(EXDIR)
 	$(MAKE) $(MFLAGS) install-test TDIR="$(EXDIR)/test"
 
 a.dvi: a.tex

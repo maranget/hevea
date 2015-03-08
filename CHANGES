@@ -1,3 +1,5 @@
+version 2.23
+     * include examples in the source library
 version 2.22
      * Attempt umplementation of \specialcomment (comment package).
      * \indexname now used in packages makeidx and multind as the default
