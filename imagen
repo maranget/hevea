@@ -12,6 +12,7 @@ TOPNG="-interlace Plane -quality 90 png:-"
 TOEXT=${TOPNG}
 EXT=png
 TODIR="."
+SVG=false
 RM="/bin/rm -f"
 
 
@@ -34,7 +35,10 @@ do
      -pnm)
         TOEXT="pnm:-"
         EXT=pnm
-        ;;  
+        ;;
+     -svg)
+        SVG=true
+        ;;
      -quant)
         shift
         echo "Warning: option -quant deprecated" 1>&2
@@ -57,7 +61,6 @@ do
         ;;
      -pdflatex|-pdf)
          LATEX=pdflatex
-         DVIPS=cat
        ;;
     -raw)
        EXTRA=''
@@ -117,5 +120,18 @@ else
   ${DVIPS} ${DVIPSOPTS} -o - ${NAME}.dvi
 fi |\
 ${GS} ${GSOPTS} -sOutputFile="| sh ${COM} > ${FINAL}" -
+
+if $SVG
+then
+  pdflatex  ${NAME}.tex
+  if [ ${NAMEDIR} != "." ]
+  then
+    mv `basename ${NAME}.pdf` ${NAME}.pdf
+  fi
+  pdfcrop ${NAME}.pdf ${NAME}.crop.pdf
+  pdf2svg ${NAME}.crop.pdf "${TODIR}/${BASE}%03d.svg" all
+  ${RM} ${NAME}.crop.pdf
+fi
+
 ${RM} ${COM} ${NAME}.dvi ${NAME}.pdf  head.tmp body.tmp
 ${RM} `basename ${NAME}.log` `basename ${NAME}.aux`

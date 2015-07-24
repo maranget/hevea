@@ -3861,8 +3861,7 @@ This can be achieved as follows:
 
 \subsection{Changing the format of images}
 \index{image inclusion!output format}
-\index{PNG}
-\index{GIF}
+\index{PNG}\index{GIF}\index{SVG}
 \comindex{imageflush}
 \comindex{imgsrc}
 Semi-automatic generation of included images is described in
@@ -3893,9 +3892,30 @@ A convenient alternative is to invoke \texttt{hevea} as:
 \end{flushleft}
 Then \texttt{hevea} will invoke \texttt{imagen} with the appropriate
 option when it thinks images need to be rebuild.
+An even more convenient alternative is to load \texttt{gif.hva}
+from within document source, for instance with the \verb+\usepackage+
+command.
 
+\hevea{} also  provides support for the alternative SVG image file format.
+As for GIF images, it is more convenient to use option \texttt{-fix}
+to combine \texttt{hevea} and \texttt{imagen} invocations:
+\begin{flushleft}
+\texttt{\#~hevea~-fix~svg.hva}~\textit{doc.tex}
+\end{flushleft}
+Notice that \texttt{imagen} production chain of SVG images always
+call \texttt{pdflatex}, even when \emph{not} given
+the \ahrefloc{imagenoptions}{\texttt{-pdf} command-line option}.
+Hence the source code of images must be processable
+by \texttt{pdflatex}. This precludes using \texttt{latex}-only packages
+such as pstricks for instance.
 
-\subsection{Storing images in a separate directory}
+As not all browsers display SVG images, \texttt{hevea} and
+\texttt{imagen} and  bit special:
+\texttt{imagen} produces both PNG\footnote{or GIF, if \texttt{gif.hva} is loaded} and SVG~images; while \texttt{hevea} offers both images sources
+letting client browser select the most appropriate one by the means of
+teh \verb+srcset+ attribute of the \verb+img+ element.
+
+\subsection{Storing images in a separate directory} 
 \comindex{heveaimagedir}
 By redefining the \verb+\heveaimagedir+ command, users can specify a
 directory for images.
@@ -7543,7 +7563,7 @@ Postscript files are interpreted by ghostscript (\texttt{gs}) that
 outputs \texttt{ppm} images, which are then fed into a series of
 transformations that change them into \texttt{.png} files.
 
-The \texttt{imagen} script recognises the following options:
+\aname{imagenoptions}{The} \texttt{imagen} script recognises the following options:
 \begin{description}
 \item[{\tt -mag} {\sl nnnn}] Change the enlarging ratio that is applied
 while translating DVI into Postscript.
@@ -7573,6 +7593,10 @@ Note that \texttt{hevea} should have been previously run as
 \texttt{.gif} filename
 extension is given to image file references from within the \html{}
 document).
+\item[{\tt -svg}]\index{SVG}
+Output SVG images in addition to PNG (or GIF) images.
+Note that \texttt{hevea} should have been previously run as
+\texttt{hevea svg.hva} \textit{base}\texttt{.tex}.
 \item[{\tt -pnm}] Output PPM images. This option mostly serves
 debugging purposes. Experimented users can also take advantage
 of it for performing additional image transformation or
