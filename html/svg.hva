@@ -1,0 +1,6 @@
+\@addimagenopt{-svg}
+\newcommand{\@svg@src}[1]{\ife\heveaimagedir\else\heveaimagedir/\fi\jobname@base\theimage{}#1}
+\newcommand{\@svg@srcset}{\@getprint{srcset=\@print{"}\@svg@src{.svg}, \@svg@src{\heveaimageext}\@print{"}}}
+\let\@svg@imageflush\imageflush
+\renewcommand{\imageflush}[1][]
+{\ife#1\@svg@imageflush[\@svg@srcset]\else\@svg@imageflush[#1 \@svg@srcset]\fi}

@@ -1,3 +1,5 @@
+version 2.25
+     * Oups !! Forgot to add svg.hva, corrected.
 version 2.24
      * Add svg.hva style file, to produce svg images.
      * More robust build.
