@@ -109,7 +109,7 @@
 \newcommand{\crefdefaultlabelformat}{\@cr@def{\@cr@fmt}{3}}
 \newcommand{\@@cr@fmt}[5]
 {\if@cref@nameinlink
-\@cr@fmt{\@@cr@secname{#1}{#2}~#3}{#4}{#5}
+\@cr@fmt{\@@cr@secname{#1}{#2}~#3}{#4}{#5}%
 \else\@@cr@secname{#1}{#2}~\@cr@fmt{#3}{#4}{#5}\fi}
 \newcommand{\@cr@def@fmt}[2]
 {\@cr@def@withother
