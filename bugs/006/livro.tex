@@ -1,0 +1,168 @@
+\documentclass[a4paper,10pt]{book}
+
+\usepackage{fancyheadings}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{psfig}
+\usepackage{fancybox}
+\usepackage{makeidx}
+\usepackage{subfigure}
+\usepackage{psboxit}
+\usepackage{color}
+\usepackage[latin1]{inputenc}
+%\usepackage[portuguese]{babel}
+
+% \selectlanguage{portuguese}
+
+%\usepackage[T1]{fontenc}
+\usepackage{hevea-epsfbox-def} 
+\usepackage{epsfig} 
+\usepackage{indentfirst}
+
+\htmlhead{\sffamily\bfseries{Programa\c{c}\~ao de Computadores em C}}
+
+\newcommand{\eqdef}{\overset{\text{def}}{=}}
+\newcommand{\und}{\textbf}
+
+\newcommand{\graybox}[1]{\begin{minipage}{\textwidth}\psboxit{box 0.95 setgray fill}{
+  {\spbox{#1}}}\end{minipage}}
+
+\makeindex
+
+\setcounter{tocdepth}{3}
+
+%----- text format parameters -----
+\setlength\textwidth{150mm}
+\setlength\textheight{241mm}
+\setlength\oddsidemargin{5.4mm}
+\setlength\evensidemargin{5.4mm}
+%\setlength\marginparsep{5mm}
+%\setlength\marginparwidth{15mm}
+\addtolength\voffset{-5mm}
+\addtolength\topmargin{-3mm}
+\addtolength\headsep{2mm}
+\setlength\footskip{10mm}
+
+%---------------- pagestyle ----------
+\pagestyle{fancyplain}
+\addtolength\headwidth{\marginparsep}
+\renewcommand{\chaptermark}[1]
+             {\markboth{#1}{}}
+\renewcommand{\sectionmark}[1]
+             {\markright{\thesection\ #1}}
+\lhead[\fancyplain{}{\bfseries\thepage}]
+      {\fancyplain{}{\bfseries\rightmark}}
+\rhead[\fancyplain{}{\bfseries\leftmark}]
+      {\fancyplain{}{\bfseries\thepage}}
+
+\cfoot{}
+
+%----- lista de exercicios ---------------
+%\newenvironment{exerc}
+%   {\renewcommand{\labelenumi}{\textbf{\theenumi.}}
+%    \begin{enumerate}
+%   }
+%   {\end{enumerate}}                    
+
+\begin{document}
+
+\pagestyle{empty}
+\begin{center}
+\begin{tabular}{c}
+\Huge{\sffamily\bfseries{Programa\c{c}\~ao de Computadores}}\\
+\Huge{\sffamily\bfseries{em {\tt C}}}\\ \\
+\end{tabular}
+\end{center}
+
+%\begin{figure}[!b]
+%\centering \begin{minipage}{3cm} \psfig{file=LOGO.ps} \end{minipage}
+%\end{figure}
+%\newpage
+
+%\pagebreak
+
+%\vfill
+
+%\begin{center}
+%\begin{tabular}{c}
+%\Huge{\sffamily\bfseries{Programa\c{c}\~ao de Computadores }}\\
+%\Huge{\sffamily\bfseries{em C}}\\ 
+%\huge{\sffamily\bfseries{Primeira edi\c{c}\~ao}}
+%\end{tabular}
+%\end{center}
+
+%\vfill
+
+\begin{tabular}{l}
+{\Large{\sffamily\bfseries{Carlos Camarão}}} \\
+{\small Universidade Federal de Minas Gerais}\\
+{\small Doutor em Ci\^encia da Computa\c{c}\~ao pela Universidade de Manchester, Inglaterra} \\ \\
+{\Large{\sffamily\bfseries{Anolan Milanés}}}\\
+{\small Universidade Federal de Minas Gerais}\\
+{\small Doutora em Ci\^encia da Computa\c{c}\~ao pela PUC-Rio}\\ \\
+{\Large{\sffamily\bfseries{Lucília Figueiredo}}}\\
+{\small Universidade Federal de Ouro Preto}\\
+{\small Doutora em Ci\^encia da Computa\c{c}\~ao pela UFMG}
+\end{tabular}
+
+\begin{tabular}{l}
+Direitos exclusivos\\
+Copyright \copyright\ 2009 by Carlos Camar\~ao, Anolan Milan\'es e Luc\'{\i}lia Figueiredo
+\end{tabular}
+
+\'E permitida a duplica\c{c}\~ao ou reprodu\c{c}\~ao, no todo ou em
+parte, sob quaisquer formas ou por quaisquer meios (eletr\^onico,
+mec\^anico, grava\c{c}\~ao, fotoc\'opia, distribui\c{c}\~ao na Web ou
+outros), desde que seja para fins n\~ao comerciais.
+
+\pagestyle{fancy}
+\pagenumbering{roman}
+%\setcounter{page}{5}
+
+%\renewcommand{\chaptername}{Capítulo}
+%\renewcommand{\tablename}{Tabela}
+%\renewcommand{\figurename}{Figura}
+%\renewcommand{\contentsname}{Sumário}
+
+\tableofcontents
+
+\chapter{Let us have a try}
+
+\setcounter{secnumdepth}{-2}
+\input{prefacioA}
+
+\input{meta.keys}
+
+\pagestyle{fancy}
+\setcounter{secnumdepth}{10}
+\pagenumbering{arabic}
+
+\chapter{Let us have a try}
+
+\input{introA}
+	
+\input{visao-geral-parteI}
+
+\input{conceitos-basicos}
+
+\input{recursao-e-iteracao}
+
+\input{valores-compostos-parteI}
+
+\input{Exercicios}
+
+\input{ES-arquivos}
+
+\pagebreak
+\thispagestyle{empty}
+\pagebreak
+\pagestyle{fancyplain}
+
+\bibliographystyle{plain}
+\bibliography{livro,formal,plang,math,ml,haskell,logic}
+\input{porqueC}
+
+\printindex
+
+\end{document}

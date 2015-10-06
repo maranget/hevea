@@ -1,0 +1,52 @@
+\documentclass[a4paper,10pt]{book}
+
+\usepackage{hevea}
+\usepackage{hevea-epsfbox-def}  
+
+\usepackage[latin1]{inputenc}
+\usepackage[portuguese]{babel}
+
+\usepackage{listings}                                 
+
+\newstyle{.myclisting}{font-family:monospace;white-space:pre;margin:lex;padding:2ex;}
+
+\lst@definelanguage{myHaskell}{language={Haskell},
+morekeywords={if,then,else,case,class,data,default,deriving,%
+              hiding,in,infix,infixl,infixr,import,instance,let,module,%
+              newtype,of,qualified,type,where,do}} %Bug in Hevea (?): if I put last '}' in the next line, keywords do not work!
+{}
+ % Bug in Hevea (?): I have to repeat here the haskell keywords, 
+ % copied from lstlang2.sty (more specifically, from lst@definelanguage{Haskell}{keywords={if,...}})
+
+\lstnewenvironment{hask}[2]{
+\lstset{language=myHaskell,emph={#1},
+backgroundcolor={\color{#2}}
+}}
+
+{} % Bug in Hevea: if I comment this line, Hevea causes a fatal error, and asks reporting bug to Luc...
+\newcommand{\inh}{\lstinline[language=myHaskell]}
+
+
+% listings e lstinline para C 
+\lst@definelanguage{myAlg}{language={C++},%
+morekeywords={with,to}}
+
+\lstnewenvironment{alg}[2]{
+\lstset{language={myAlg},emph={#1},
+backgroundcolor={\color{#2}}}}
+{}
+
+\newcommand{\ina}{\lstinline[language=myAlg]}
+%-----------------------------------------------
+
+\begin{document}
+
+\ina{§$c$§) 
+
+\begin{enumerate}
+
+%\epsfbox{/home/camarao/ipcc/fig/hanoi-sol.eps} % bbllx=0pt,bblly=0pt,bburx=1031pt,bbury=1027pt} % height=9cm,width=.9\textwidth}
+
+\end{enumerate}
+
+\end{document}
