@@ -332,6 +332,8 @@
 \begin{toimage}
 \end{document}
 \end{toimage}}
+\def\@end@document@seen{NO}%
+\AtEndDocument{\gdef\@end@document@seen{OK}}
 %%% Boxes
 \newcommand{\textfbox}[1]{\hva@warn{\fbox in text}\mbox{#1}}
 \def\fbox#1{%

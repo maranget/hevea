@@ -1,3 +1,5 @@
+version 2.26
+     * add a warning in case of missing \end{document}
      * cleveref.hva patch (removes extra white space), credit: Tim Bourke.
 version 2.25
      * Oups !! Forgot to add svg.hva, corrected.

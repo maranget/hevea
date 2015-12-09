@@ -125,7 +125,13 @@ let read_tex name_in =
   begin try
     match name_in with
     | "" -> Lexstate.real_input_file !verbose scan_main "" stdin
-    | _  -> Lexstate.input_file !verbose scan_main name_in
+    | _  ->
+        Lexstate.input_file !verbose scan_main name_in ;
+        let ok = scan_get_prim "\\@end@document@seen" in
+        begin match ok with
+        | "OK" -> ()
+        | _ -> prerr_endline "Warning: \\end{document} is missing"
+        end
   with
   | Misc.EndDocument -> () 
   end
