@@ -1,3 +1,6 @@
+version 2.27
+     * info: Add initial capitals for some words (workaround against
+             (reported) info reader v 6.0 bug
 version 2.26
      * add a warning in case of missing \end{document}
      * cleveref.hva patch (removes extra white space), credit: Tim Bourke.

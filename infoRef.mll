@@ -249,12 +249,17 @@ let affiche_menu num =
 ;;
     
 
+let put_node n = 
+  put ("Node: "^noeud_name n^""^string_of_int n.pos^"\n")
+;;
+
 let  do_affiche_tag_table s = 
-  put ("\n\nTag table:\n"^(if s<> "" then s^"\n" else "")) ;
+  put ("\n\nTag Table:\n"^(if s<> "" then s^"\n" else "")) ;  
   Hashtbl.iter
-    (fun _ n ->
-      put ("Node: "^noeud_name n^""^string_of_int n.pos^"\n")) nodes;
-  put "\nEnd tag table\n";
+    (fun _ n -> match n.name with | "Top" -> put_node n | _ -> ()) nodes ;
+  Hashtbl.iter
+    (fun _ n -> match n.name with | "Top" -> ()| _ ->  put_node n) nodes;
+  put "\nEnd Tag Table\n";
 ;;
 
 
