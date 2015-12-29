@@ -1,3 +1,5 @@
+version 2.28
+     * lstlisting: find files lstlang?.sty in path (as latex does).
 version 2.27
      * info: Add initial capitals for some words (workaround against
              (reported) info reader v 6.0 bug
