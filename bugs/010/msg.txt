@@ -1,0 +1,49 @@
+Hi,
+
+I attached the sample code. You can switch out the \usepackage[..]{babel}
+line with the commented out version to see the difference.
+
+Regards,
+Alex Biehl
+
+
+Luc Maranget <luc.maranget@inria.fr> schrieb am Do., 21. Juli 2016 um
+16:23 Uhr:
+
+> Hi,
+>
+> Could you please send me some latex code that exhibits the problem you
+> report.
+> This will greatly help me to correct the problem.
+>
+>
+> All the best,
+>
+> --Luc
+>
+>
+>
+> > Bonsoir Monsieur Maranget,
+> >
+> > I have tried your excellent hevea program and thought I'd use it for my
+> > next seminar. However, one thing I noticed is with
+> >
+> > ```
+> > \usepackage[english]{babel}
+> > ```
+> >
+> > `\maketitle` looks fine and is centered nicely. With
+> > `\usepackage[ngerman]{babel}` it isn't centered anymore.
+> >
+> > I attached a screenshot. Note the the `class` attribute of the `table`
+> > element in the DOM inspector. You can see that there is an additional
+> > double-quote.
+> >
+> > Unfortunately I have no clue where to look for the offending quote. But I
+> > hope it is enough for you to track down the issue.
+> >
+> > Keep up the good work and have a nice day
+> > Alex Biehl
+>
+>
+>

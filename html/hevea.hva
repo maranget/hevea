@@ -235,7 +235,7 @@
      {\@open{##1}{\class@attr{##2}{}}%
       \@fmt@title{\csname @##3\endcsname}%
       \@close{##1}}}%
-  \@opencell{class="title"}{}{style="padding:1ex"}%
+  \@opencell{class=\@print{"title"}}{}{style=\@print{"padding:1ex"}}%
   \checkcmd{h1}{titlemain}{title}{\hva@warn}%
   \checkcmd{h3}{titlerest}{author}{\hva@warn}%
   \checkcmd{h3}{titlerest}{date}{\@gooble}%

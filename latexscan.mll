@@ -1652,7 +1652,7 @@ let do_get_prim_onarg f arg =
   and plain_dquote = is_plain '"' in
   unset_plain '_' ; unset_plain '^' ; unset_plain '$' ; unset_plain '&' ;
   unset_plain '\'' ; unset_plain '`' ; unset_plain  '-' ;
-  unset_plain '"' ;
+  set_plain '"' ; (* For double quotes, plain is inactive... *)
   let old_raw = !raw_chars in
   let old_case = !case in
   case := Neutral ;
