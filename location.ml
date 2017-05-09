@@ -51,7 +51,7 @@ let check () =
 
 and hot saved =
   let to_finalize = stack in
-  MyStack.restore stack saved ;  
+  MyStack.restore stack saved ;
   let _,_,_,file_now = MyStack.top stack in
   MyStack.finalize to_finalize
     (fun (_,_,_,file) -> file == file_now)
@@ -97,7 +97,7 @@ type t = string * int * int
 let do_get_pos () =  match !curfile with
   No -> -1,-1
 | Yes file ->
-    try 
+    try
       let  char_pos = Lexing.lexeme_start !curlexbuf
       and last_pos,last_line = !curline in
       let last_pos,last_line =
@@ -115,6 +115,10 @@ let get_pos () =
   let nline,nchars = do_get_pos () in
   !curlexname,nline,nchars
 ;;
+
+let get_lineno () =
+  let nline,_ = do_get_pos () in
+  nline
 
 let do_print_pos full (s,nline,nchars) =
   if nline >= 0 then
@@ -136,5 +140,3 @@ and print_fullpos () =
 
 and print_this_pos p = do_print_pos false p
 and print_this_fullpos p = do_print_pos true p
-
-

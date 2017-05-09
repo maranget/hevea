@@ -1,0 +1,16 @@
+\ProvidesPackage{mathjax}
+\@primitives{mathjax}
+\let\jax@meta=\@meta
+\renewcommand{\@meta}
+{\jax@meta\begin{rawhtml}<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+\end{rawhtml}}
+\newenvironment{displayjax}
+{\@nostyle\@print{\[}\mathjax}
+{\endmathjax\@print{\]}}
+\newenvironment{eqnarrayjax}
+{\@nostyle\@print{\begin{eqnarray}}\mathjax}
+{\endmathjax\@print{\end{eqnarray}}}
+\newenvironment{eqnarrayjax*}
+{\@nostyle\@print{\begin{eqnarray*}}\mathjax}
+{\endmathjax\@print{\end{eqnarray*}}}

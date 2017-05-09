@@ -1811,6 +1811,31 @@ let init_longtable () =
 register_init "longtable" init_longtable
 ;;
 
+(* mathjax *)
+
+register_init "mathjax"
+  (fun () ->
+    def_code "\\mathjax"
+      (fun lexbuf ->
+        Dest.open_group "*mathjax*" ;
+        Dest.clearstyle () ;
+        open_raw lexbuf) ;
+    def_code "\\endmathjax"
+      (fun _lexbuf ->
+        Dest.close_group ()) ;
+    def_code "\\textjax"
+      (fun lexbuf ->
+        Save.start_echo () ;
+        let _ = save_verbatim lexbuf in
+        let arg = Save.get_echo () in
+        Dest.open_group "*mathjax*" ;
+        Dest.clearstyle () ;
+        Dest.put "\\(" ;
+        Dest.put arg ;
+        Dest.put "\\)" ;
+        Dest.close_group ()) ;        
+    ())
+;;
 
 def_code "\\@scaninput"
   (fun lexbuf ->

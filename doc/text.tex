@@ -57,6 +57,7 @@ Chesnay Cedex. {\tt \mailto{Luc.Maranget@inria.fr}}}}
 \newstyle{.xtitlerest}{font-variant:small-caps;}
 \newstyle{.ruled}{border:solid black;padding:1ex;background:\#eeddbb;color:maroon}
 \newstyle{.ruledbis}{border:solid black;padding:1ex;background:\#eeddbb;color:maroon;display:inline-block}
+\newstyle{.show}{border:solid black; border-width:thin; margin:2ex;}
 \setlinkstext
   {\imgsrc[alt="Previous"]{previous_motif.gif}}
   {\imgsrc[alt="Up"]{contents_motif.gif}}
@@ -6269,6 +6270,47 @@ a wide audience should first limit themselves to the most common
 symbols (\emph{e.g.} use \verb+\leq+ [$\leq$]
 in place of \verb+\preceq+ [$\preceq$]) and, above all,
 they should control the rendering of their documents using several browsers.
+
+\subsection{\textsf{MathJax} \label{mathjax}support}
+\ttindex{mathjax}{package}\envdefindex{dsiplayjax}\comdefindex{textjax}
+
+\ahref{https://www.mathjax.org/}{MathJax} support is enabled by loading the
+\textsf{mathjax} package. That is, \verb+\usepackage{mathjax}+ appears in document preamble, or \hevea{} is invoked as \verb+hevea mathjax.hva+\ldots
+Basic support consists in one environment
+\texttt{displayjax} and one command~\verb+\textjax+.
+
+The environment is appropriate for displayed maths.
+As an example, the following source
+\begin{verbatim}
+A displayed formula:
+\begin{displayjax}
+\frac{\pi}{4} = \left[1 - \frac{1}{3} + \frac{1}{5} - \frac{1}{7} + \frac{1}{9} + \cdots + \frac{(-1)^n}{2n+1} + \cdots \right]
+\end{displayjax}
+\end{verbatim}
+is displayed as follows:
+\begin{divstyle}{show}
+A displayed formula:
+\begin{displayjax}
+\frac{\pi}{4} = \left[1 - \frac{1}{3} + \frac{1}{5} - \frac{1}{7} + \frac{1}{9} + \cdots + \frac{(-1)^n}{2n+1} + \cdots \right]
+\end{displayjax}
+\end{divstyle}
+
+The \verb+\textjax+ command is appropriate for inline mathematical contents.
+For instance, the following source
+\begin{verbatim}
+``A nice inline formula: \textjax{\frac{\pi}{4} = \left[1 - \frac{1}{3} + \frac{1}{5} - \frac{1}{7} + \frac{1}{9} + \cdots + \frac{(-1)^n}{2n+1} + \cdots \right]}.''
+\end{verbatim}
+is typeset as: ``A nice inline formula: \textjax{\frac{\pi}{4} = \left[1 - \frac{1}{3} + \frac{1}{5} - \frac{1}{7} + \frac{1}{9} + \cdots + \frac{(-1)^n}{2n+1} + \cdots \right]}.''
+
+\iffalse
+\begin{mathjax}
+\begin{eqnarray*}
+\textsf{Fib}(0) & = & 1\\
+\textsf{Fib}(1) & = & 1\\
+\textsf{Fib}(n+2) & = & \textsf{Fib}(n+1) + \textsf{Fib}(n) 
+\end{eqnarray*}
+\end{mathjax}
+\fi
 
 \iffalse
 \subsection{\hevea{} as a Back-End for VideoC}

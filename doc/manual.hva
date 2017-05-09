@@ -1,5 +1,6 @@
 \input{article.hva}
 \input{fancysection.hva}
+\input{mathjax.hva}
 %\colorsections{160}
 %\usepackage{deepcut}\usepackage[show]{figcut}
 \let\oldcontentsname\contentsname

@@ -3142,6 +3142,10 @@ let def_printcount name f =
   def_code name
     (fun lexbuf ->
       let cname = get_prim_arg lexbuf in
+      let cval =
+        match cname with
+        | "inputlineno" -> Location.get_lineno ()            
+        | _ -> Counter.value_counter cname in
       let cval = Counter.value_counter cname in
       let pp = f cval in
       Dest.put pp)
