@@ -120,6 +120,7 @@ exception Error of string
 let display = ref false
 and raw_chars = ref false
 and in_math = ref false
+and jaxauto = ref false
 and whitepre = ref false
 and optarg = ref false
 and styleloaded = ref false
@@ -291,7 +292,7 @@ and restore_flags () =
   in_math := pop stack_in_math ;
   display := pop stack_display
 
-(* Total ckeckpoint of lexstate *)
+(* Total checkpoint of lexstate *)
 type saved_lexstate = 
 (Lexing.lexbuf MyStack.saved * subst MyStack.saved) MyStack.saved *
 bool MyStack.saved * bool MyStack.saved

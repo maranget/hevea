@@ -43,7 +43,7 @@ case $1 in
 esac
 
 install . $LIBDIR imagen xxcharset.exe xxdate.exe contents_motif.gif next_motif.gif previous_motif.gif $ALLLIB
-install . $LATEXLIBDIR hevea.sty
+install . $LATEXLIBDIR hevea.sty mathjax.sty
 install html $LIBDIR/html $HTMLLIB
 install text $LIBDIR/text $TEXTLIB
 install info $LIBDIR/info $INFOLIB

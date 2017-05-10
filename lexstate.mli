@@ -41,6 +41,7 @@ val effective : alltt -> bool
 val raw_chars : bool ref
 val display : bool ref
 val in_math : bool ref
+val jaxauto : bool ref
 val alltt : alltt ref
 val whitepre: bool ref
 val optarg : bool ref

@@ -987,31 +987,41 @@ let translate_put_unicode_string s =
   let next = Misc.next_of_string s in
   translate_next next
 
-let top_open_maths main dodo =
-  push stack_in_math !in_math ;
-  in_math := true ;
-  if !display then  Dest.item_display () ;
-  push stack_display !display ;
-  if dodo then begin
-    display  := true ;
-    Dest.open_maths dodo;
+let top_open_maths main dodo =  
+  if !jaxauto then begin
+    scan_this main "\\bgroup\\@nostyle" ;
+    Dest.put (if dodo then "\\[" else "\\(")
   end else begin
-    Dest.open_maths dodo;
-    top_open_display () ;
-  end ;
-  scan_this main "\\normalfont"
-
+    push stack_in_math !in_math ;
+    in_math := true ;
+    if !display then  Dest.item_display () ;
+    push stack_display !display ;
+    if dodo then begin
+      display  := true ;
+      Dest.open_maths dodo;
+    end else begin
+      Dest.open_maths dodo;
+      top_open_display () ;
+    end ;
+    scan_this main "\\normalfont"
+  end
+      
 and top_close_maths dodo =
-  in_math := pop stack_in_math ;
-  if dodo then begin
-    Dest.close_maths dodo
+  if !jaxauto then begin
+    Dest.put (if dodo then "\\]" else "\\)") ;
+    top_close_group ()
   end else begin
-    top_close_display () ;
-    Dest.close_maths dodo
-  end ;
-  display := pop stack_display ;
-  if !display then begin
-    Dest.item_display ()
+    in_math := pop stack_in_math ;
+    if dodo then begin
+      Dest.close_maths dodo
+    end else begin
+      top_close_display () ;
+      Dest.close_maths dodo
+    end ;
+    display := pop stack_display ;
+    if !display then begin
+      Dest.item_display ()
+    end
   end
 ;;
 
@@ -1061,7 +1071,8 @@ rule  main = parse
 	if dodo then ignore (skip_blanks lexbuf)
       end
     end ;
-    main lexbuf }
+    if !jaxauto then inmathjax dodo lexbuf
+    else main lexbuf }
 
 (* Definitions of  simple macros *)
 (* inside tables and array *)
@@ -1423,6 +1434,15 @@ and skip_to_end_latex = parse
 | _ 
     {skip_to_end_latex lexbuf}
 | eof {fatal ("End of file in %BEGIN LATEX ... %END LATEX")}
+
+and inmathjax dodo = parse
+| "$$"|"\\]"
+  { top_close_maths true ; close_env "*display"; main lexbuf }
+| '$'|"\\)"
+  { top_close_maths false ; close_env "*math" ; main lexbuf }    
+| _ as lxm
+  { Dest.put_char lxm ; inmathjax dodo lexbuf }
+
 {
 
 let () = ()

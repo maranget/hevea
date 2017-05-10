@@ -1,0 +1,9 @@
+\ProvidesPackage{mathjax}
+\newcommand{\jax@auto}{\newcommand{\jax@auto@ok}{}}
+\newcommand{\jax@std}
+{\newenvironment{mathjax}{}{}%
+\newenvironment{displayjax}{\[}{\]}%
+\newcommand{\textjax}[1]{\(##1\)}}
+\DeclareOption{auto}{\jax@auto}
+\ProcessOptions%
+\@ifundefined{jax@auto@ok}{\jax@std}{}

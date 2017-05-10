@@ -1,16 +1,27 @@
 \ProvidesPackage{mathjax}
-\@primitives{mathjax}
 \let\jax@meta=\@meta
 \renewcommand{\@meta}
 {\jax@meta\begin{rawhtml}<script type="text/javascript" async
   src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
 \end{rawhtml}}
+%%%Standard
+\newcommand{\jax@std}
+{\@primitives{mathjax@std}%
 \newenvironment{displayjax}
 {\@nostyle\@print{\[}\mathjax}
-{\endmathjax\@print{\]}}
-\newenvironment{eqnarrayjax}
-{\@nostyle\@print{\begin{eqnarray}}\mathjax}
-{\endmathjax\@print{\end{eqnarray}}}
-\newenvironment{eqnarrayjax*}
-{\@nostyle\@print{\begin{eqnarray*}}\mathjax}
-{\endmathjax\@print{\end{eqnarray*}}}
+{\endmathjax\@print{\]}}}%
+%%%Auto
+\newcommand{\jax@defenv}[1]
+{\ifu\csname #1\endcsname\else
+\renewenvironment{#1}
+{\@nostyle\@print{\begin}\{#1\}\mathjax}
+{\endmathjax\@print{\end}\{#1\}}\fi}
+\newcommand{\jax@auto@redef}
+{\jax@defenv{eqnarray}\jax@defenv{eqnarray*}\jax@defenv{displaymath}%
+\jax@defenv{equation}\jax@defenv{equation*}}
+\newcommand{\jax@auto}
+{\@primitives{mathjax@auto}\AtBeginDocument{\jax@auto@redef}}
+%%%Selection
+\DeclareOption{auto}{\def\jax@auto@selected{}\jax@auto}
+\ProcessOptions*
+\ifu\jax@auto@selected\jax@std\else\fi
