@@ -6362,13 +6362,13 @@ This can be done simply by having the line \verb+\usepackage{mathjax}+ in
 teh document preamble. Then, \hevea{} and \LaTeX{} will react appropriately
 (see sections~\ref{usepackage:both} and~\ref{usepackage}).
 
-\subsubsection{Implicit mode}
+\subsubsection{Automatic mode}
 \ttindex{mathjaxauto.hva}{file}%
-Implicit mode is enabled when \verb+\usepackage[auto]{mathjax}+
+Automatic mode is enabled when \verb+\usepackage[auto]{mathjax}+
 appears in the document preamble,
 or when \hevea{} is invoked as ``\verb+hevea mathjaxauto.hva+\ldots''.
 
-In implicit mode, \hevea{} will pass all mathematical text to \textsf{MathJax}.
+In automatic mode, \hevea{} will pass all mathematical text to \textsf{MathJax}.
 This mode seems by far the most practical, but beware:
 \begin{enumerate}
 \item There is no communication back from \textsf{MathJax} to \hevea{}.
