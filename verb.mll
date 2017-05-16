@@ -866,7 +866,7 @@ and scan_byline process finish = parse
       scan_this Scan.main ("\\end"^env) ;
       Scan.top_close_block "" ;
       Scan.close_env !Scan.cur_env ;
-      Scan.check_alltt_skip lexbuf
+      ()
     end else begin
       Out.put line_buff lxm ;
       scan_byline process finish lexbuf
@@ -882,8 +882,7 @@ and scan_byline process finish = parse
       scan_byline process finish lexbuf
     end else begin
       finish () ;
-      raise
-        (Eof "scan_byline")
+      raise (Eof "scan_byline")
     end} 
 
 and scan_bycommand out is_cmd = parse
@@ -1063,7 +1062,6 @@ let put_subst () =
 (*  eprintf "put_subst: '%s'\n" line ; *)
   Out.reset line_buff ;
   Dest.put (Subst.subst_this line) ;
-  Dest.put_char '\n' ;
   ()
 ;;
 
@@ -1829,6 +1827,7 @@ register_init "longtable" init_longtable
 
 let init_mathjax auto =
   (fun () ->
+    Lexstate.jaxauto := auto ;
     def_code "\\@textjax"
       (fun lexbuf ->
         let arg = subst_arg lexbuf in
@@ -1838,16 +1837,14 @@ let init_mathjax auto =
         Dest.put arg ;
         Dest.put "\\)" ;
         Dest.close_group ()) ;
-    if not auto then begin
-      def_code "\\mathjax"
-        (fun lexbuf ->
-          Dest.open_group "*mathjax*" ;
-          Dest.clearstyle () ;
-          open_subst lexbuf) ;
+    def_code "\\mathjax"
+      (fun lexbuf ->
+        Dest.open_group "*mathjax*" ;
+        Dest.clearstyle () ;
+        open_subst lexbuf) ;
       def_code "\\endmathjax"
-        (fun _lexbuf ->
-          Dest.close_group ())
-    end ;
+      (fun _lexbuf ->
+        Dest.close_group ()) ;
     ())
 ;;
 

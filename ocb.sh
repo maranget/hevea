@@ -1,5 +1,6 @@
 #!/bin/sh -e
-
+CHECK=yes
+export CHECK
 . ./config.sh
 
 OCBOCAMLFLAGS=''
