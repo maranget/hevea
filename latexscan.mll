@@ -70,6 +70,10 @@ open Lexstate
 open MyStack
 open Subst
 
+let error_subst_top lxm =
+  raise
+    (Error (sprintf "macro argument '%s' at top level" lxm))
+    
 let sbool = function
   | false -> "false"
   | true  -> "true"
@@ -958,7 +962,7 @@ let translate_put_unicode c next =
       try OutUnicode.translate_in c next
       with OutUnicode.CannotTranslate ->
         raise
-          (Error
+          (Misc.ScanError
              (if Latexmacros.exists "\\inputencodingname" then
                sprintf
                  "Encoding %s failed on '%c'"
@@ -1086,17 +1090,20 @@ rule  main = parse
       Dest.put lxm
     else
       let i = Char.code lxm.[1] - Char.code '1' in
-      scan_arg
-        (if !alltt_loaded then
-          (fun arg ->
-            let old_alltt = !alltt in
-            alltt := MyStack.pop stack_alltt ;
-            scan_this_list_may_cont main lexbuf (get_subst ()) arg ;
-            alltt := old_alltt ;
-            MyStack.push stack_alltt old_alltt)
-        else
-          (fun arg -> scan_this_list_may_cont main lexbuf (get_subst ()) arg))
-        i
+      begin try
+        scan_arg
+          (if !alltt_loaded then
+            (fun arg ->
+              let old_alltt = !alltt in
+              alltt := MyStack.pop stack_alltt ;
+              scan_this_list_may_cont main lexbuf (get_subst ()) arg ;
+              alltt := old_alltt ;
+              MyStack.push stack_alltt old_alltt)
+          else
+            (fun arg -> scan_this_list_may_cont main lexbuf (get_subst ()) arg))
+          i
+      with SubstTop -> error_subst_top lxm
+      end
     end ;
     main lexbuf}
 (* Commands *)
@@ -1242,7 +1249,8 @@ and image = parse
   | '#' ['1'-'9']
       {let lxm = lexeme lexbuf in
       let i = Char.code (lxm.[1]) - Char.code '1' in
-      scan_arg (scan_this_arg_list image) i ;
+      begin try scan_arg (scan_this_arg_list image) i
+      with SubstTop -> error_subst_top lxm end ;
       image lexbuf}
   |  "\\end"
       {let lxm = lexeme lexbuf in
@@ -1406,7 +1414,8 @@ and skip_false = parse
 	skip_false lexbuf
       end}
   | _  {skip_false lexbuf}
-  | "" {raise (Error "End of entry while skipping TeX conditional macro")}
+  | "" {raise
+          (Misc.ScanError "End of entry while skipping TeX conditional macro")}
 
 and comment = parse
 |  ['%'' ']* ("BEGIN"|"begin") ' '+ ("IMAGE"|"image")
@@ -1436,12 +1445,39 @@ and skip_to_end_latex = parse
 | eof {fatal ("End of file in %BEGIN LATEX ... %END LATEX")}
 
 and inmathjax dodo = parse
-| "$$"|"\\]"
-  { top_close_maths true ; close_env "*display"; main lexbuf }
-| '$'|"\\)"
-  { top_close_maths false ; close_env "*math" ; main lexbuf }    
+| "$$"|"\\]" as lxm
+    { if dodo then begin
+      top_close_maths true ;
+      close_env "*display";
+      main lexbuf
+    end else begin
+      Dest.put lxm ;
+      inmathjax dodo lexbuf
+    end }
+| '$'|"\\)" as lxm
+    { if not dodo then begin
+      top_close_maths false ;
+      close_env "*math" ;
+      main lexbuf
+    end else begin
+      Dest.put lxm ;
+      inmathjax dodo lexbuf
+    end }
+(* Substitution  *)
+| '#' ['1'-'9']
+    {let lxm = lexeme lexbuf in
+    let i = Char.code lxm.[1] - Char.code '1' in
+    begin try
+      scan_arg
+        (fun arg ->
+          scan_this_list_may_cont (inmathjax dodo) lexbuf (get_subst ()) arg)
+        i
+    with SubstTop -> Dest.put lxm
+    end ;
+    inmathjax dodo lexbuf }
 | _ as lxm
   { Dest.put_char lxm ; inmathjax dodo lexbuf }
+| eof { () }
 
 {
 
@@ -2600,7 +2636,7 @@ let setif cell b lexbuf =
 let extract_if name =
   let l = String.length name in
   if l <= 3 || String.sub name 0 3 <> "\\if" then
-    raise (Error ("Bad newif: "^name)) ;
+    raise (Misc.ScanError ("Bad newif: "^name)) ;
   String.sub name 3 (l-3)
 ;;
 
@@ -3166,7 +3202,6 @@ let def_printcount name f =
         match cname with
         | "inputlineno" -> Location.get_lineno ()            
         | _ -> Counter.value_counter cname in
-      let cval = Counter.value_counter cname in
       let pp = f cval in
       Dest.put pp)
 ;;

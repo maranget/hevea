@@ -1058,6 +1058,12 @@ let put_html () =
   Out.reset line_buff
 ;;
 
+let put_subst () =
+  let line = Out.to_string line_buff ^ "\n" in
+  Out.reset line_buff ;
+  Dest.put (Subst.subst_this line)
+;;
+
 let open_forget lexbuf =
   let process = (fun () -> Out.reset line_buff)
   and finish = (fun () -> Out.reset line_buff) in
@@ -1067,7 +1073,12 @@ let open_raw lexbuf =
   let process = (fun () -> put_html () ; Dest.put_char '\n')
   and finish = put_html in
   noeof (scan_byline process finish) lexbuf
-  
+
+let open_subst lexbuf  =
+  let process = (fun () -> put_subst () ; Dest.put_char '\n')
+  and finish = put_subst in
+  noeof (scan_byline process finish) lexbuf
+       
 let open_rawhtml lexbuf = match !Parse_opts.destination with
     | Parse_opts.Html -> open_raw lexbuf
     | _ -> open_forget lexbuf
@@ -1815,32 +1826,30 @@ register_init "longtable" init_longtable
 
 let init_mathjax auto =
   (fun () ->
-    def_code "\\mathjax"
+    def_code "\\@textjax"
       (fun lexbuf ->
+        let arg = subst_arg lexbuf in
         Dest.open_group "*mathjax*" ;
         Dest.clearstyle () ;
-        open_raw lexbuf) ;
-    def_code "\\endmathjax"
-      (fun _lexbuf ->
+        Dest.put "\\(" ;
+        Dest.put arg ;
+        Dest.put "\\)" ;
         Dest.close_group ()) ;
-    if auto then begin
-      Lexstate.jaxauto := true ;
-      def_code "\\textjax"
+    if not auto then begin
+      def_code "\\mathjax"
         (fun lexbuf ->
-          Save.start_echo () ;
-          let _ = save_verbatim lexbuf in
-          let arg = Save.get_echo () in
           Dest.open_group "*mathjax*" ;
           Dest.clearstyle () ;
-          Dest.put "\\(" ;
-          Dest.put arg ;
-          Dest.put "\\)" ;
+          open_subst lexbuf) ;
+      def_code "\\endmathjax"
+        (fun _lexbuf ->
           Dest.close_group ())
-    end)
+    end ;
+    ())
 ;;
 
 register_init "mathjax@auto" (init_mathjax true);
-register_init "mathjax@std" (init_mathjax true)
+register_init "mathjax@std" (init_mathjax false)
 ;;
 
 def_code "\\@scaninput"

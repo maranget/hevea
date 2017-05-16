@@ -115,6 +115,7 @@ let rec pretty_subst_rec indent = function
 let full_pretty_subst s = pretty_subst_rec "  " s
 
 exception Error of string
+exception SubstTop
 
 (* Status flags *)
 let display = ref false
@@ -222,25 +223,23 @@ and is_top = function
 let prerr_args () = pretty_subst !subst
 
 
-let scan_arg lexfun i =
-  let args = match !subst with
-  | Top -> [||]
-  | Env args -> args in
-  if i >= Array.length args then begin
-    if !verbose > 1 then begin
-      prerr_string ("Subst arg #"^string_of_int (i+1)^" -> not found") ;
-      pretty_subst !subst
-    end ;
-    raise (Error "Macro argument not found")
-  end;
-  let arg = args.(i) in
-
-  if !verbose > 1 then begin
-    eprintf
-      "Subst arg #%i -> %a\n" i pretty_body arg.arg
-  end ;
-  let r = lexfun arg in
-  r
+let scan_arg lexfun i  = match !subst with
+  | Top ->  raise SubstTop
+  | Env args ->
+      if i >= Array.length args then begin
+        if !verbose > 1 then begin
+          prerr_string ("Subst arg #"^string_of_int (i+1)^" -> not found") ;
+          pretty_subst !subst
+        end ;
+        raise (Error "Macro argument not found")
+      end;
+      let arg = args.(i) in
+      if !verbose > 1 then begin
+        eprintf
+          "Subst arg #%i -> %a\n" i pretty_body arg.arg
+      end ;
+      let r = lexfun arg in
+      r
 
 and scan_body do_exec body args = match body with
 | CamlCode _|Toks _ -> do_exec body

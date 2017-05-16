@@ -54,7 +54,7 @@ let error s =
 
 let my_int_of_string s =
   try int_of_string s
-  with Failure "int_of_string" ->
+  with Failure _ ->
     error ("Integer argument expected: ``"^s^"''")
 
 exception Eof

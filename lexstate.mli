@@ -35,6 +35,7 @@ val top_subst : subst
 val get_subst : unit -> subst
 
 exception Error of string
+exception SubstTop
 type alltt = Not | Inside | Macro
 val effective : alltt -> bool
 
