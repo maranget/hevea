@@ -859,8 +859,8 @@ and start_inverb put = parse
 
 and scan_byline process finish = parse
 |  "\\end" [' ''\t']* '{' ([^'}']+ as env) '}' as lxm
-    {if
-      (not !input_verb || MyStack.empty stack_lexbuf)
+    { (* eprintf "by_line: lxm='%s' cur_env=%s\n" lxm !Scan.cur_env ; *)
+     if (not !input_verb || MyStack.empty stack_lexbuf)
         && env = !Scan.cur_env then begin
       finish () ;
       scan_this Scan.main ("\\end"^env) ;
@@ -1059,9 +1059,12 @@ let put_html () =
 ;;
 
 let put_subst () =
-  let line = Out.to_string line_buff ^ "\n" in
+  let line =  Out.to_string line_buff in
+(*  eprintf "put_subst: '%s'\n" line ; *)
   Out.reset line_buff ;
-  Dest.put (Subst.subst_this line)
+  Dest.put (Subst.subst_this line) ;
+  Dest.put_char '\n' ;
+  ()
 ;;
 
 let open_forget lexbuf =

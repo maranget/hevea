@@ -283,7 +283,8 @@ all the useful macros of \texttt{mymacro.tex}.
 
 
 
-\subsubsection{Files loaded with \texttt{\char92 usepackage}}
+\subsubsection{Files \label{usepackage:both}loaded with \texttt{\char92 usepackage}}
+\comindex{usepackage}
 As far as I know, \LaTeX{} reacts to the construct
 \verb+\usepackage{+\textit{name}\verb+}+ by loading the file
 \textit{name}\texttt{.sty}.
@@ -1206,6 +1207,7 @@ the definitions from \textit{file}\texttt{.sty} in the strict sense.
 
 
 \subsection{The \label{heveastyle}\protect\texttt{hevea} package}
+\ttindex{hevea.sty}{\LaTeX{} style file}%
 The \texttt{hevea.sty} style file is intended to be loaded by \LaTeX{}
 and not by \hevea{}.
 It provides \LaTeX{} with means to ignore or process some parts of the
@@ -5903,7 +5905,7 @@ The \verb+\symbol{+{\it num}\verb+}+ outputs character number {\it num}
 This departs from \LaTeX{}, which output symbol number \textit{num} in
 the current font.
 
-\section{Extra Features}
+\section{Extra Features}\cutname{extras.html}
 This section describes \hevea{} functionalities that extends on plain \LaTeX{},
 as defined in \cite{latex}.
 Most of the features described here are performed by default.
@@ -6272,13 +6274,25 @@ in place of \verb+\preceq+ [$\preceq$]) and, above all,
 they should control the rendering of their documents using several browsers.
 
 \subsection{\textsf{MathJax} \label{mathjax}support}
-\ttindex{mathjax}{package}\envdefindex{dsiplayjax}\comdefindex{textjax}
+\ttindex{mathjax}{package}\envdefindex{displayjax}\comdefindex{textjax}%
+\ttindex{mathjax.sty}{\LaTeX{} style file}%
 
 \ahref{https://www.mathjax.org/}{MathJax} support is enabled by loading the
-\textsf{mathjax} package. That is, \verb+\usepackage{mathjax}+ appears in document preamble, or \hevea{} is invoked as \verb+hevea mathjax.hva+\ldots
-Basic support consists in one environment
-\texttt{displayjax} and one command~\verb+\textjax+.
+\textsf{mathjax} package. Two operating mode modes are provided:
+explicit and automatic. Notice that \hevea{} distribution includes a innocuous
+\texttt{mathjax.sty} for \LaTeX{} compatibility --- see also Sec.~\ref{installsty}.
 
+\subsubsection{Explicit mode}
+\index{mathjax@\texttt{mathjax} package!displayjax@\texttt{displayjax} environment}%
+\ttdefindex{displayjax}{environment}%
+\index{mathjax@\texttt{mathjax} package!textjax@\verb+\textjax+}%
+\comdefindex{textjax}%
+Explicit mode is enabled when \verb+\usepackage{mathjax}+
+appears in the document preamble,
+or when \hevea{} is invoked as ``\verb+hevea mathjax.hva+\ldots''.
+
+Basic consists in one environment \texttt{displayjax}
+and one command~\verb+\textjax+.
 The environment is appropriate for displayed maths.
 As an example, the following source
 \begin{verbatim}
@@ -6304,6 +6318,65 @@ For instance, the following source
 \frac{1}{9} + \cdots + \frac{(-1)^n}{2n+1} + \cdots \right]}.''
 \end{verbatim}
 is typeset as: ``A nice inline formula: \textjax{\frac{\pi}{4} = \left[1 - \frac{1}{3} + \frac{1}{5} - \frac{1}{7} + \frac{1}{9} + \cdots + \frac{(-1)^n}{2n+1} + \cdots \right]}.''
+
+\index{mathjax@\texttt{mathjax} package!mathjax@\texttt{mathjax} environment}%
+\ttdefindex{mathjax}{environment}%
+Advanced support consists in the \texttt{mathjax} environment. Source code
+enclosed in \verb+\begin{mathjax}\ldots\end{mathjax}+ will be
+reproduced into output for the \textsf{MathJax} script to handle it.
+However, \hevea{} does not start any other action.
+Thanks to this feature, users can have any (recognised by \textsf{MathJax})
+displayed math environment processed by~\textsf{MathJax}. For instance,
+the following source
+\begin{verbatim}
+\begin{mathjax}
+\begin{eqnarray*}
+z^2  & = & x^2 + y^2\\
+\end{eqnarray*}
+\end{mathjax}
+\end{verbatim}
+will be displayed as:
+\begin{divstyle}{show}
+\begin{mathjax}
+\begin{eqnarray*}
+z^2  & = & x^2 + y^2\\
+\end{eqnarray*}
+\end{mathjax}
+\end{divstyle}
+
+\iffalse
+\newenvironment{greenjax}
+{\divstyle{verbatim}\@print{\[}\mathjax}
+{\endmathjax\@print{\]}\enddivstyle}
+
+\begin{greenjax}
+\frac{\pi}{4} = \sum_{n=0}^{\infty} \frac{(-1)^n}{2n+1}
+\end{greenjax}
+\fi
+
+Finally, notice that a document that uses the explicit \textsf{MathJax}
+constructs can be processed by \LaTeX, provided
+it loads the \texttt{mathjax.sty} file present in \hevea{} distribution.
+This can be done simply by having the line \verb+\usepackage{mathjax}+ in
+teh document preamble. Then, \hevea{} and \LaTeX{} will react appropriately
+(see sections~\ref{usepackage:both} and~\ref{usepackage}).
+
+\subsubsection{Implicit mode}
+\ttindex{mathjaxauto.hva}{file}%
+Implicit mode is enabled when \verb+\usepackage[auto]{mathjax}+
+appears in the document preamble,
+or when \hevea{} is invoked as ``\verb+hevea mathjaxauto.hva+\ldots''.
+
+In implicit mode, \hevea{} will pass all mathematical text to \textsf{MathJax}.
+This mode seems by far the most practical, but beware:
+\begin{enumerate}
+\item There is no communication between back from \textsf{MathJax} to \hevea{}.
+As result, equation numbers, as generated for instance by the
+\texttt{equation} environment, will not find their way to the final display.
+\item Some constructs, such as \verb+\mbox+, are not handled
+by~\textsf{MathJax}.
+\end{enumerate}
+
 
 
 \iffalse
@@ -7946,10 +8019,12 @@ times as fast as the one produced by \texttt{ocamlc}.
 Thus, default compilation mode is \texttt{opt}, however it may be the
 case on some systems that only \texttt{ocamlc} is available.
 
-Note that, when installing \hevea{} from the source distribution, the
-\texttt{hevea.sty} file is simply copied to \hevea{}
-library directory. It remains users responsibility to
-make it accessible to \LaTeX.
+
+\label{installsty}Note that, when installing \hevea{} from the source distribution, the
+\texttt{hevea.sty} (and \texttt{mathjax.sty}) style files are
+simply copied to \hevea{} library directory.
+It remains users (and package maintainers) responsibility to make those
+files accessible to \LaTeX.
 
 \latexsection{Other \LaTeX{} to \html{} translators}
 \pdfsection{Other translators}
