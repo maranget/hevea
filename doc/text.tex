@@ -6278,7 +6278,8 @@ they should control the rendering of their documents using several browsers.
 \ttindex{mathjax}{package}\envdefindex{displayjax}\comdefindex{textjax}%
 \ttindex{mathjax.sty}{\LaTeX{} style file}%
 
-\ahref{https://www.mathjax.org/}{MathJax} support is enabled by loading the
+\ahref{https://www.mathjax.org/}{\textsf{MathJax}}
+support is enabled by loading the
 \textsf{mathjax} package. Two operating mode modes are provided:
 explicit and automatic. Notice that \hevea{} distribution includes a innocuous
 \texttt{mathjax.sty} for \LaTeX{} compatibility --- see also Sec.~\ref{installsty}.
@@ -6378,7 +6379,13 @@ As result, equation numbers, as generated for instance by the
 by~\textsf{MathJax}.
 \end{enumerate}
 
-
+\subsubsection{Customising the \ahref{https://www.mathjax.org/}{\textsf{MathJax}} script}
+By default \hevea{} insert a reference to the ``default''
+\ahref{https://www.mathjax.org/}{\textsf{MathJax}} script
+with ``default'' configuration parameters.
+Advanced users can change this setting by redefining the \verb+\jax@meta+
+command, which must contain the appropriate \verb+<script>+ element.
+See the file \verb+html/mathjax.hva+ for details.
 
 \iffalse
 \begin{mathjax}
