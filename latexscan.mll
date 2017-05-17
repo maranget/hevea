@@ -1058,8 +1058,8 @@ rule  main = parse
       main lexbuf}
 (* Math mode *)
 | "$" | "$$" as lxm
-    {let dodo = lxm <> "$" in
-    if effective !alltt || not (is_plain '$') then begin
+    {let dodo = lxm = "$$" in
+     if effective !alltt || not (is_plain '$') then begin
       Dest.put lxm
      (* vicious case '$x$$y$' *)
     end else if dodo && not !display && !in_math then begin
@@ -1075,8 +1075,10 @@ rule  main = parse
 	if dodo then ignore (skip_blanks lexbuf)
       end
     end ;
-    if !jaxauto then inmathjax dodo lexbuf
-    else main lexbuf }
+    if !jaxauto then begin
+      injaxauto := (if dodo then JaxDisplay else JaxInline) ;
+      inmathjax dodo lexbuf
+    end else main lexbuf }
 
 (* Definitions of  simple macros *)
 (* inside tables and array *)
@@ -1110,7 +1112,11 @@ rule  main = parse
 | command_name
     {let name = lexeme lexbuf in
     do_expand_command main skip_blanks name lexbuf ;
-    main lexbuf}
+    begin match !injaxauto with
+    | JaxOut -> main lexbuf
+    | JaxInline -> inmathjax false lexbuf
+    | JaxDisplay -> inmathjax true lexbuf
+    end }
 (* Groups *)
 | '{'
     {do_expand_command main skip_blanks "\\@hevea@obrace" lexbuf ;
@@ -1449,6 +1455,7 @@ and inmathjax dodo = parse
     { if dodo then begin
       top_close_maths true ;
       close_env "*display";
+      injaxauto := JaxOut ;
       main lexbuf
     end else begin
       Dest.put lxm ;
@@ -1458,6 +1465,7 @@ and inmathjax dodo = parse
     { if not dodo then begin
       top_close_maths false ;
       close_env "*math" ;
+      injaxauto := JaxOut ;
       main lexbuf
     end else begin
       Dest.put lxm ;

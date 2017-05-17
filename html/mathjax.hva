@@ -1,9 +1,9 @@
 \ProvidesPackage{mathjax}
-\let\jax@meta=\@meta
-\renewcommand{\@meta}
-{\jax@meta\begin{rawhtml}<script type="text/javascript" async
-  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+\let\jax@old@meta=\@meta
+\newcommand{\jax@meta}
+{\begin{rawhtml}<script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
 \end{rawhtml}}
+\renewcommand{\@meta}{\jax@old@meta\jax@meta}
 %%%Standard
 \newcommand{\jax@std}
 {\@primitives{mathjax@std}%
@@ -18,6 +18,7 @@
 \newcommand{\jax@ensuremath}[1]{\ifmath#1\else\@textjax{#1}\fi}
 \newcommand{\jax@auto@redef}
 {\let\ensuremath\jax@ensuremath%
+\renewcommand{\[}{$$}%
 \jax@defenv{math}\jax@defenv{displaymath}%
 \jax@defenv{eqnarray}\jax@defenv{eqnarray*}%
 \jax@defenv{equation}\jax@defenv{equation*}%

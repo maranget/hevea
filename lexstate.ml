@@ -116,12 +116,14 @@ let full_pretty_subst s = pretty_subst_rec "  " s
 
 exception Error of string
 exception SubstTop
-
+type jax = JaxOut | JaxInline | JaxDisplay
+  
 (* Status flags *)
 let display = ref false
 and raw_chars = ref false
 and in_math = ref false
 and jaxauto = ref false
+and injaxauto = ref JaxOut
 and whitepre = ref false
 and optarg = ref false
 and styleloaded = ref false

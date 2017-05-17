@@ -38,6 +38,7 @@ rule extract styles = parse
     extract styles lexbuf }
 | [^'<']+ { extract styles lexbuf }
 | eof { styles }
+| "" { error "extract" lexbuf }
 
 and extract_tag tag styles = parse
 | '>' { styles }
@@ -54,6 +55,7 @@ and extract_tag tag styles = parse
   | '#'?['a'-'z''A'-'Z''0'-'9''-''+''_'':''.']+))?
 (* '"' *)
   {  extract_tag tag styles lexbuf }
+| "" { error "extract_tag"lexbuf }
 
 and skip_tag = parse
 | [^'>']* '>' { () }
@@ -65,6 +67,7 @@ and skip_comment = parse
    {skip_comment lexbuf}
 | eof
    {error "End of file in comment" lexbuf}   
+| "" { error "comment" lexbuf }
 
 and dump m out = parse
 | "<style" blank+ "type" blank* "=" blank* '"' "text/css" '"' blank* '>' '\n'?
@@ -92,11 +95,13 @@ and dump m out = parse
 | [^'<']+ as lxm 
    { output_string out lxm ; dump m out lexbuf }
 | eof { true }
-
+| "" { error "dump" lexbuf }
+    
 and dump_comment out = parse
 | "-->" '\n'? as lxm { output_string out lxm }
 | _ as c             { output_char out c ; dump_comment out lexbuf }
 | eof                {error "End of file in comment" lexbuf}   
+| "" { error "dump_comment" lexbuf }
 
 and dump_tag out = parse
 | [^'>']* '>' as lxm { output_string out lxm }

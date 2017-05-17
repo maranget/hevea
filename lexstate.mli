@@ -36,6 +36,8 @@ val get_subst : unit -> subst
 
 exception Error of string
 exception SubstTop
+type jax = JaxOut | JaxInline | JaxDisplay
+  
 type alltt = Not | Inside | Macro
 val effective : alltt -> bool
 
@@ -43,6 +45,7 @@ val raw_chars : bool ref
 val display : bool ref
 val in_math : bool ref
 val jaxauto : bool ref
+val injaxauto : jax ref
 val alltt : alltt ref
 val whitepre: bool ref
 val optarg : bool ref

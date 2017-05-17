@@ -308,6 +308,7 @@ and extract_classes cls = parse
       extract_classes cls lexbuf }
 | [^'<']+ { extract_classes cls lexbuf }
 | eof      { cls }
+| "" { error "Extract classes" lexbuf }
 
 and skip_comment = parse
 | "-->" { () }
