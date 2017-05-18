@@ -67,7 +67,7 @@ fi
 ( cd $WORKDIR/final && tar zxf ${RELEASENAME}-manual.tar.gz )
 if $DEV
 then
-  DHTML=${HTMLDIR}/newdoc
+  DHTML=${HTMLDIR}/distri/unstable/doc
 else
   DHTML=${HTMLDIR}/doc
 fi
