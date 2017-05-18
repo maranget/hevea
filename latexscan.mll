@@ -1060,10 +1060,12 @@ rule  main = parse
 | "$" | "$$" as lxm
     {let dodo = lxm = "$$" in
      if effective !alltt || not (is_plain '$') then begin
-      Dest.put lxm
+       Dest.put lxm ;
+       main lexbuf
      (* vicious case '$x$$y$' *)
     end else if dodo && not !display && !in_math then begin
-      scan_this main "${}$"
+      scan_this main "${}$" ;
+      main lexbuf
     end else begin (* General case *)
       let math_env = if dodo then "*display" else "*math" in
       if !in_math then begin
@@ -1073,12 +1075,12 @@ rule  main = parse
         new_env math_env ;
 	top_open_maths main dodo ;
 	if dodo then ignore (skip_blanks lexbuf)
-      end
-    end ;
-    if !jaxauto then begin
-      injaxauto := (if dodo then JaxDisplay else JaxInline) ;
-      inmathjax dodo lexbuf
-    end else main lexbuf }
+      end ;
+      if !jaxauto then begin
+        injaxauto := (if dodo then JaxDisplay else JaxInline) ;
+        inmathjax dodo lexbuf
+      end else main lexbuf
+    end }
 
 (* Definitions of  simple macros *)
 (* inside tables and array *)
@@ -2429,7 +2431,7 @@ def_code "\\@getprintnostyle"
 def_code "\\@getprint"
   (fun lexbuf ->
     let arg = get_prim_arg lexbuf in
-(*    eprintf "GET PRINT: '%s'\n" arg ; *)
+(*    eprintf "GET PRINT: '%s'\n" arg ;*)
     let buff = MyLexing.from_string arg in
     Dest.put (Save.tagout buff)) ;
 ;;
