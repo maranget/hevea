@@ -1825,7 +1825,12 @@ let input_file loc_verb main filename lexbuf  =
   
 	      
 (* Styles and packages *)
+let saw_doc = "\\hva@doc"
+    
 let do_documentclass command lexbuf =
+  if Latexmacros.exists saw_doc then
+    raise (Misc.ScanError (sprintf "Multiple occurrences of %s" command)) ;
+  Latexmacros.global_def saw_doc zero_pat (Subst []) ;
   Save.start_echo () ;
   let {arg=opt_arg} = save_opt "" lexbuf in
   let {arg=arg} =  save_arg lexbuf in

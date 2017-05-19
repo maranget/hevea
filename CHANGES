@@ -1,3 +1,6 @@
+     * Better error message when several \documentclass are present.
+version 2.29+5
+version 2.29+4
 version 2.29+3
 version 2.29+2
      * mathjax 'automatic' support
