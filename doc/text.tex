@@ -5986,10 +5986,10 @@ For instance, the following source will give different results in
 \othercs{coucouA}
 \end{verbatim}
 \LaTeX{} output is ``coucou''A, while \hevea{} output is ``coucouA''.
-Here is \ifhevea\hevea\else\LaTeX\fi{} output:
+For instance, here is \ifhevea\hevea\else\LaTeX\fi{} output:
 {\def\cs#1A{``#1''}
 \def\othercs#1{\cs#1A}
-\othercs{coucouA}}
+\othercs{coucouA}.}
 Please note that in most situations this discrepancy will make
 \hevea{} crash. 
 
@@ -8047,7 +8047,7 @@ As a consequence, LaTeX2html is powerful but it may fail on
 large documents, for speed and memory reasons.
 More information on LaTeX2html can be found at
 \begin{center}
-\ahrefurl{http://www-dsed.llnl.gov/files/programs/unix/latex2html/}
+\ahrefurl{http://www.latex2html.org/}
 \end{center}
 
 \item[TTH] The principle behind TTH is the same as the one of

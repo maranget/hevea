@@ -10,6 +10,7 @@ DOCDIR=$(HTMLDIR)/doc
 DISTRIDIR=$(HTMLDIR)/distri
 
 all: doc doc/index.html thai
+html: doc/index.html
 
 doc:
 	mkdir -p doc
