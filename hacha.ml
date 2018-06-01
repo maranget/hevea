@@ -18,6 +18,7 @@ let filename = ref None
 let outname = ref "index.html"
 let log = ref false
 let toc_style = ref Cut.Normal
+let svg_arrows = ref false
 let cross_links = ref true
 let verbose = ref 0
 let small_length = ref 1024
@@ -31,6 +32,8 @@ let main () =
        ", Duplicate table of contents at the begining of files");      
      ("-tocter", Arg.Unit (fun () -> toc_style := Cut.Special),
        ", Insert most of table of contents at the beginning of files");
+     ("-svg-arrows", Arg.Unit (fun () ->  svg_arrows := true ),
+       ", Use svg arrows for the previous/up/next links in generated pages");
      ("-nolinks", Arg.Unit (fun () -> cross_links := false),
        ", Suppress the prevous/up/next links in generated pages");
      ("-hrf", Arg.Unit (fun () -> log := true),
@@ -65,6 +68,7 @@ let main () =
     let name_in = filename
     let name_out = !outname
     let toc_style = !toc_style
+    let svg_arrows = !svg_arrows
     let cross_links = !cross_links 
     let small_length = !small_length
   end in
@@ -82,7 +86,12 @@ let main () =
   let some_links = C.do_lex buf in
   close_in chan ;
   if !log then Cross.dump (C.real_name (C.base^".hrf")) C.check_changed ;
-  if some_links then begin
+  if some_links && !svg_arrows then begin
+    Mysys.copy_from_lib_to_dir Mylib.libdir C.dir "previous_motif.svg" ;
+    Mysys.copy_from_lib_to_dir Mylib.libdir C.dir "next_motif.svg" ;
+    Mysys.copy_from_lib_to_dir Mylib.libdir C.dir "contents_motif.svg"
+  end
+  else if some_links then begin
     Mysys.copy_from_lib_to_dir Mylib.libdir C.dir "previous_motif.gif" ;  
     Mysys.copy_from_lib_to_dir Mylib.libdir C.dir "next_motif.gif" ;  
     Mysys.copy_from_lib_to_dir Mylib.libdir C.dir "contents_motif.gif"
