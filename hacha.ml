@@ -18,7 +18,7 @@ let filename = ref None
 let outname = ref "index.html"
 let log = ref false
 let toc_style = ref Cut.Normal
-let svg_arrows = ref false
+let svg_arrows = ref true
 let cross_links = ref true
 let verbose = ref 0
 let small_length = ref 1024
@@ -32,8 +32,8 @@ let main () =
        ", Duplicate table of contents at the begining of files");      
      ("-tocter", Arg.Unit (fun () -> toc_style := Cut.Special),
        ", Insert most of table of contents at the beginning of files");
-     ("-svg-arrows", Arg.Unit (fun () ->  svg_arrows := true ),
-       ", Use svg arrows for the previous/up/next links in generated pages");
+     ("-no-svg-arrows", Arg.Unit (fun () ->  svg_arrows := false ),
+       ", Use gif arrows for the previous/up/next links in generated pages");
      ("-nolinks", Arg.Unit (fun () -> cross_links := false),
        ", Suppress the prevous/up/next links in generated pages");
      ("-hrf", Arg.Unit (fun () -> log := true),
