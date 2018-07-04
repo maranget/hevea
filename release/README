@@ -1,6 +1,6 @@
 Edit README, CHANGES, Makefile (suppress -warn-errors)
 Edit version.ml
-commit everything
+commit everything et make a github release, with proper name (vX.YY)
 sh release/mktag.sh > release/tag.sh
 sh release/release.sh
 

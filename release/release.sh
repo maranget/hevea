@@ -7,11 +7,10 @@ cd `dirname $0`/..
 
 #Clean-up 
 /bin/rm -rf ${WORKDIR}/htmlgen ${WORKDIR}/${RELEASENAME}
-HEVEA=hevea-${RELEASETAG}
+HEVEA=${RELEASENAME}
+TAR=$(basename $SRC)
 #build source tar (with doc) 
-( cd $WORKDIR && \
-svn export ${SVNEXPORT} ${HEVEA} && \
-/bin/rm -rf ${HEVEA}/release ${HEVEA}/bugs )
+( cd $WORKDIR && rm -rf ${TAR} ${HEVEA} && wget $SRC && tar zxmf $TAR && rm -rf bugs release )
 #Recompile (test)
 ( cd $WORKDIR/${HEVEA} && make opt )
 #Recompile (produce doc)
@@ -28,7 +27,6 @@ mv ${WORKDIR}/${HEVEA}/doc/doc ${WORKDIR}/final/${RELEASENAME}-manual
   gzip -f --best ${RELEASENAME}-manual.tar &&
   /bin/rm -rf ${RELEASENAME}-manual )
 ( cd  ${WORKDIR}/${HEVEA} && make clean && /bin/rm -r doc )
-mv  ${WORKDIR}/${HEVEA}  ${WORKDIR}/${RELEASENAME}
 ( cd  ${WORKDIR} && tar cf final/${RELEASENAME}.tar ${RELEASENAME} &&\
   gzip -f --best final/${RELEASENAME}.tar &&
   /bin/rm -rf ${RELEASENAME} )
