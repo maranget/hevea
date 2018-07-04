@@ -59,10 +59,6 @@ Chesnay Cedex. {\tt \mailto{Luc.Maranget@inria.fr}}}}
 \newstyle{.ruled}{border:solid black;padding:1ex;background:\#eeddbb;color:maroon}
 \newstyle{.ruledbis}{border:solid black;padding:1ex;background:\#eeddbb;color:maroon;display:inline-block}
 \newstyle{.show}{border:solid black; border-width:thin; margin:2ex;}
-\setlinkstext
-  {\imgsrc[alt="Previous"]{previous_motif.gif}}
-  {\imgsrc[alt="Up"]{contents_motif.gif}}
-  {\imgsrc[alt="Next"]{next_motif.gif}}
 %%DOCUMENT START HERE
 \begin{document}
 \flushdef{document}
@@ -2154,9 +2150,9 @@ source.
 For instance the default behaviour is equivalent to:
 \begin{verbatim}
 \setlinkstext
-  {\imgsrc[alt="Previous"]{previous_motif.gif}}
-  {\imgsrc[alt="Up"]{contents_motif.gif}}
-  {\imgsrc[alt="Next"]{next_motif.gif}}
+  {\imgsrc[alt="Previous"]{previous_motif.svg}}
+  {\imgsrc[alt="Up"]{contents_motif.svg}}
+  {\imgsrc[alt="Next"]{next_motif.svg}}
 \end{verbatim}
 Command \verb+\setlinkstext+ behaves as \verb+\toplinks+ does.
 That is, it must occur in document preamble, arguments are processed
@@ -7584,6 +7580,8 @@ every file.
 Like \texttt{-tocbis} above, except that
 sub-tables do not appear in the main table of contents
 (see Section~\ref{table:link:style}).
+\item[{\tt -no-svg-arrows}] Use GIF arrows for the Previous/Up/Next links,
+in place of the default SVG arrows.
 \item[{\tt -nolinks}] Do not insert Previous/Up/Next links in
 generated pages.
 \item[{\tt -hrf}] Output a \textit{base}\texttt{.hrf} file, showing
