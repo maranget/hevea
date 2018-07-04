@@ -9,8 +9,8 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let real_version = "2.31"
-let release_date = "2017-10-09"
+let real_version = "2.32"
+let release_date = "2018-07-04"
 
 
 let version =
