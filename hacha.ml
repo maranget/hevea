@@ -72,6 +72,7 @@ let main () =
     let cross_links = !cross_links 
     let small_length = !small_length
   end in
+
   let module C = Cut.Make(Config) in
   let buf = Lexing.from_channel chan in
   Location.set filename buf ;

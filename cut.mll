@@ -77,24 +77,21 @@ let some_links = ref false
 
 let env = Hashtbl.create 17
 
-let imgsrc img alt =
-  Printf.sprintf "<img src=\"%s\" alt=\"%s\">" img alt
+let add_env key v = Hashtbl.add env key v
 
+let replace_env key v = Hashtbl.replace env key v
 
-let _ =
- if Config.svg_arrows then begin
-   Hashtbl.add env "UPTXT" (imgsrc "contents_motif.svg" "Up") ;
-   Hashtbl.add env "PREVTXT" (imgsrc "previous_motif.svg" "Previous") ;
-   Hashtbl.add env "NEXTTXT" (imgsrc "next_motif.svg" "Next")
- end else begin
-   Hashtbl.add env "UPTXT" (imgsrc "contents_motif.gif" "Up") ;
-   Hashtbl.add env "PREVTXT" (imgsrc "previous_motif.gif" "Previous") ;
-   Hashtbl.add env "NEXTTXT" (imgsrc "next_motif.gif" "Next")
- end ;
+let imgsrc img alt = Printf.sprintf "<img src=\"%s\" alt=\"%s\">" img alt
+
+let () =
+  let ext = if Config.svg_arrows then "svg" else "gif" in
+  let add_ext f = sprintf "%s.%s" f ext in
+  add_env "UPTXT" (imgsrc (add_ext "contents_motif") "Up") ;
+  add_env "PREVTXT" (imgsrc (add_ext "previous_motif") "Previous") ;
+  add_env "NEXTTXT" (imgsrc (add_ext "next_motif")  "Next") ;
   ()
 
-let get_env key =
-  try Hashtbl.find env key with Not_found -> assert false
+let get_env key = try Hashtbl.find env key with Not_found -> assert false
   
 (* Accumulate all META, link and similar tags that appear in the preamble
    in order to output them in the preamble of every generated page. *)
@@ -620,7 +617,7 @@ rule main = parse
    { let pairs = getargs lexbuf in
      if !phase = 0 then begin
        List.iter
-         (fun (name, v) -> Hashtbl.replace env name v)
+         (fun (name, v) -> replace_env name v)
          pairs
      end ;
      main lexbuf }
