@@ -20,6 +20,7 @@ module type Config = sig
   val name_in : string
   val name_out : string
   val toc_style : toc_style
+  val svg_arrows: bool
   val cross_links : bool
   val small_length : int
 end

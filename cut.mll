@@ -23,6 +23,7 @@ module type Config = sig
   val name_in : string
   val name_out : string
   val toc_style : toc_style
+  val svg_arrows: bool
   val cross_links : bool
   val small_length : int
 end
@@ -81,9 +82,15 @@ let imgsrc img alt =
 
 
 let _ =
-  Hashtbl.add env "UPTXT" (imgsrc "contents_motif.gif" "Up") ;
-  Hashtbl.add env "PREVTXT" (imgsrc "previous_motif.gif" "Previous") ;
-  Hashtbl.add env "NEXTTXT" (imgsrc "next_motif.gif" "Next") ;
+ if Config.svg_arrows then begin
+   Hashtbl.add env "UPTXT" (imgsrc "contents_motif.svg" "Up") ;
+   Hashtbl.add env "PREVTXT" (imgsrc "previous_motif.svg" "Previous") ;
+   Hashtbl.add env "NEXTTXT" (imgsrc "next_motif.svg" "Next")
+ end else begin
+   Hashtbl.add env "UPTXT" (imgsrc "contents_motif.gif" "Up") ;
+   Hashtbl.add env "PREVTXT" (imgsrc "previous_motif.gif" "Previous") ;
+   Hashtbl.add env "NEXTTXT" (imgsrc "next_motif.gif" "Next")
+ end ;
   ()
 
 let get_env key =
