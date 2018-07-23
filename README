@@ -1,8 +1,7 @@
 This is HEVEA, version 2.32, a fast Latex to HTML translator.
 
 
-ADVERTISEMENT
-
+NOTE
     HEVEA is a LaTeX to HTML translator.  The input language is a fairly
     complete subset of LaTeX2e (old LaTeX style is also accepted) and the
     output language is HTML that is (hopefully) correct with respect to
