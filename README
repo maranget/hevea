@@ -2,7 +2,6 @@ This is HEVEA, version 2.32, a fast Latex to HTML translator.
 
 
 ADVERTISEMENT
-
     HEVEA is a LaTeX to HTML translator.  The input language is a fairly
     complete subset of LaTeX2e (old LaTeX style is also accepted) and the
     output language is HTML that is (hopefully) correct with respect to
@@ -36,8 +35,6 @@ DOCUMENTATION
     http://hevea.inria.fr/doc/
 
 DISTRIBUTION
-    By FTP
-      ftp://ftp.inria.fr/INRIA/moscova/hevea/
     By HTTP
       http://hevea.inria.fr/distri/
 
@@ -125,7 +122,6 @@ MAKE
 
 
 IN CASE OF TROUBLE.
-
   - You do need version 3.12 (or newer) of the Objective Caml System.
     Older versions of Objective Caml cannot compile hevea.
 
