@@ -950,7 +950,7 @@ and intag = parse
 (* '"' *)
   { if !phase > 0 then put lxm ;
     intag lexbuf }
-| '>' as lxm { if !phase > 0 then put_char lxm  }
+| '/'? '>' as lxm { if !phase > 0 then put lxm  }
 | ""  { raise (Error "intag: attribute syntax")}
 
 and refname = parse
