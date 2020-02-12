@@ -139,3 +139,7 @@ let string_map f s =
     Buffer.add_char out (f (String.get s k))
   done ;
   Buffer.contents out
+
+
+(* Useful module signature, output of functors called for initialisation *)
+module type Rien = sig val rien : unit end

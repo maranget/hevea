@@ -11,8 +11,6 @@
 
 (*  $Id: package.mli,v 1.2 1999-10-13 08:21:26 maranget Exp $    *)
 
-module type S = sig  end
-
 module Make
     (Dest : OutManager.S) (Image : ImageManager.S)
-    (Scan : Latexscan.S) : S
+    (Scan : Latexscan.S) : Misc.Rien

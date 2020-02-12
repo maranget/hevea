@@ -12,7 +12,7 @@
 (*  $Id: package.ml,v 1.112 2012-06-18 13:14:41 suzanne Exp $    *)
 open Printf
 
-module type S = sig  end
+module type S = sig  val rien : unit end
 
 module Make
   (Dest : OutManager.S)  (Image : ImageManager.S)
@@ -1449,5 +1449,5 @@ def_code "\\@mathtt"
   )
 ;;
 
-
+let rien = ()
 end

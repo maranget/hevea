@@ -18,14 +18,10 @@
 
 open Printf
 
-module type T =
-  sig
-  end;;
-
 module Make
     (Dest : OutManager.S)
     (Image : ImageManager.S)
-    (Scan : Latexscan.S) =
+    (Scan : Latexscan.S) : Misc.Rien =
 struct
 open Misc
 open Lexing
@@ -465,6 +461,8 @@ let init = function () ->
 
 register_init "videoc" init
 ;;
+
+let rien = ()
 
 end}
 

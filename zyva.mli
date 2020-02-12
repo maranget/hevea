@@ -12,12 +12,12 @@
 
 module type S =
   functor (Dest : OutManager.S) ->
-
     functor (Image : ImageManager.S) ->
-      functor (Scan : Latexscan.S) -> sig  end
+      functor (Scan : Latexscan.S) ->
+        Misc.Rien
 
 module Make :
   functor (Dest : OutManager.S) ->
     functor (Image : ImageManager.S) ->
       functor (Scan : Latexscan.S) ->
-        functor (ToMake : S) -> sig module Rien : sig  end end
+        functor (ToMake : S) -> sig module Rien : sig end val rien : unit end

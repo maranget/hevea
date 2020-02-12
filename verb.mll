@@ -12,11 +12,9 @@
 {
 exception VError of string
 
-module type S = sig  end
-;;
 module Make
   (Dest : OutManager.S) (Image : ImageManager.S)
-  (Scan : Latexscan.S) : S =
+  (Scan : Latexscan.S) : Misc.Rien =
 struct
 open Printf
 open Misc
@@ -1886,5 +1884,6 @@ def_code "\\@scaninput"
         warning ("Not opening file: "^file)
     | Myfiles.Error s ->
         warning s)
+let rien = ()
 end
 } 

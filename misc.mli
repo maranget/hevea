@@ -63,6 +63,8 @@ val next_of_string : string -> (unit -> int)
 (* two digit hexa -> int *)
 val hexa_code : char -> char  -> int
 
-(* Some strinmh utilities (backward compatibility) *)
-
+(* Some string utilities (backward compatibility) *)
 val string_map : (char -> char) -> string -> string
+
+(* Useful module signature, output of functors called for initialisation *)
+module type Rien = sig val rien : unit end

@@ -159,7 +159,7 @@ let factorize low high ts =
 
   let correct_prop f i j env =
     try
-      let _ = Htmltext.get_prop f.nat in
+      let _f = Htmltext.get_prop f.nat in
       let rec find_same  k = match ts.(k) with
         | Node (s,_) when there f s -> k
         | _ -> find_same (k-1) in

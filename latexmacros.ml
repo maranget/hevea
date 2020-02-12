@@ -163,7 +163,7 @@ let register_init name f =
   if !verbose > 1 then
     prerr_endline ("Registering primitives for package: "^name);
   try
-    let _ = Hashtbl.find prim_table name in
+    let _f = Hashtbl.find prim_table name in
     fatal
       ("Attempt to initlialize primitives for package "^name^" twice")
   with

@@ -65,7 +65,7 @@ open Element
 open Lexing
 open Latexmacros
 open Save
-open Tabular
+
 open Lexstate
 open MyStack
 open Subst
@@ -124,7 +124,7 @@ let top_open_display () =
     if !verbose > 1 then
        prerr_endline "open display" ;
     match !pre_format with
-    | Some (Align {vert=s})   ->
+    | Some (Tabular.Align {Tabular.vert=s})   ->
         Dest.open_display_varg (sprintf "style=\"vertical-align:%s\"" s)
     | _ ->
         Dest.open_display ()        
@@ -267,7 +267,7 @@ let pretty_array_type = function
 let prerr_array_state () =
   prerr_endline (pretty_array_type !in_table) ;
   prerr_string "  format:";
-  pretty_formats !cur_format ;
+  Tabular.pretty_formats !cur_format ;
   prerr_endline "" ;
   prerr_endline ("  cur_col="^string_of_int !cur_col) ;
   prerr_endline ("  first_col="^
@@ -459,7 +459,7 @@ let more_buff = Out.create_buff ()
 
 let default_format =
   Tabular.Align
-    {hor="left" ; vert = "" ; wrap = false ;
+    {Tabular.hor="left" ; vert = "" ; wrap = false ;
       pre = "" ; post = "" ; width = Length.Default}
 ;;
 
@@ -498,16 +498,16 @@ let is_border = function
   | _ -> false
 
 and as_wrap = function
-  | Tabular.Align {wrap = w} -> w
+  | Tabular.Align {Tabular.wrap = w} -> w
   | _ -> false
 
 and as_pre = function
-  | Tabular.Align {pre=s} -> s
+  | Tabular.Align {Tabular.pre=s} -> s
   | _ -> raise (Misc.Fatal "as_pre")
 
 and as_post = function
-  | Tabular.Align {post=s} -> s
-  | f -> raise (Misc.Fatal ("as_post "^pretty_format f))
+  | Tabular.Align {Tabular.post=s} -> s
+  | f -> raise (Misc.Fatal ("as_post "^Tabular.pretty_format f))
 ;;
 
 let get_col format i =
@@ -518,9 +518,9 @@ let get_col format i =
     else format.(i) in
   if !verbose > 2 then begin
    fprintf stderr "get_col : %d: " i ;
-   prerr_endline (pretty_format r) ;
+   prerr_endline (Tabular.pretty_format r) ;
    prerr_string " <- " ;
-   pretty_formats format ;
+   Tabular.pretty_formats format ;
    prerr_newline ()
   end ;
   r
@@ -530,7 +530,7 @@ let get_col format i =
 let par_val t =
   if is_table t then
     match get_col !cur_format !cur_col with
-    | Tabular.Align {wrap=false} -> None
+    | Tabular.Align {Tabular.wrap=false} -> None
     | _                          -> Some 0
   else
     Some 1
@@ -680,7 +680,7 @@ let do_multi n format main =
   if !verbose > 2 then begin
     prerr_string
       ("multicolumn: n="^string_of_int n^" format:") ;
-    pretty_formats format ;
+    Tabular.pretty_formats format ;
     prerr_endline ""
   end ;
 

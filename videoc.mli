@@ -15,10 +15,6 @@
  $Id: videoc.mli,v 1.7 2001-05-25 12:37:34 maranget Exp $
 *)
 
-module type T =
-  sig
-  end;;
-
 module Make
     (Dest : OutManager.S) (Image : ImageManager.S)
-    (Scan : Latexscan.S) : T
+    (Scan : Latexscan.S) : Misc.Rien

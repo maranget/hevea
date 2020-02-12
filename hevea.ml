@@ -26,27 +26,33 @@ let
 	let module Scan = Latexscan.Make (Html) (Image) in
 	let module MakeIt = Zyva.Make (Html) (Image) (Scan) in
 	let module Rien = MakeIt (Videoc.Make) in
+        Rien.rien ;
 	let module RienBis  = MakeIt (Package.Make) in
+        RienBis.rien ;
 	let module RienTer = MakeIt (Verb.Make) in
-	  Scan.get_prim, Scan.main, Scan.no_prelude, Scan.print_env_pos,
+        RienTer.rien ;
+	Scan.get_prim, Scan.main, Scan.no_prelude, Scan.print_env_pos,
 	  Html.finalize, Image.finalize
     | Html  ->
 	let module Scan = Latexscan.Make (Html) (Noimage) in
 	let module Otherscan = Videoc.Make (Html) (Noimage) (Scan) in
 	let module Verbscan = Verb.Make  (Html) (Noimage) (Scan) in
 	let module OptScan = Package.Make  (Html) (Image) (Scan) in
-	  Scan.get_prim, Scan.main, Scan.no_prelude, Scan.print_env_pos,
+        Otherscan.rien ; Verbscan.rien ; OptScan.rien ;
+	Scan.get_prim, Scan.main, Scan.no_prelude, Scan.print_env_pos,
 	  Html.finalize, Noimage.finalize
     | Text ->
 	let module Scan = Latexscan.Make (Text) (Noimage) in
 	let module Verbscan = Verb.Make  (Text) (Noimage) (Scan) in
 	let module OptScan = Package.Make (Text) (Image) (Scan)  in
+        Verbscan.rien ; OptScan.rien ;
 	  Scan.get_prim, Scan.main, Scan.no_prelude, Scan.print_env_pos,
 	  Text.finalize,Noimage.finalize
     | Info ->
 	let module Scan = Latexscan.Make (Info) (Noimage) in
 	let module Verbscan = Verb.Make  (Info) (Noimage) (Scan) in
 	let module OptScan = Package.Make (Info) (Image) (Scan) in
+        Verbscan.rien ; OptScan.rien ;
 	  Scan.get_prim, Scan.main, Scan.no_prelude, Scan.print_env_pos,
 	  Info.finalize, Noimage.finalize
 ;;
