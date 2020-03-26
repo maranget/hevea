@@ -1,4 +1,6 @@
-varsion 2.33
+version 2.34
+     * Add command \formatlinks for greater control over navigation links.
+version 2.33
      * Compatibility from 4.02.3 to 4.10.0
 version 2.32
      * Introduce SVG arrows, contribution by Florian Angeletti
