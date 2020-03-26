@@ -299,8 +299,8 @@ and styles = parse
 
 (* Extract classes: values of the CLASS attribute *)
 and extract_classes cls = parse
-| "<!--"
-  { skip_comment lexbuf ; extract_classes cls lexbuf}
+| "<!--" | "-->" (* ignore comment markers *)
+  { extract_classes cls lexbuf}
 | "<!"|"</"
   { skip_tag lexbuf ; extract_classes cls lexbuf }
 | '<' tag
@@ -309,11 +309,6 @@ and extract_classes cls = parse
 | [^'<']+ { extract_classes cls lexbuf }
 | eof      { cls }
 | "" { error "Extract classes" lexbuf }
-
-and skip_comment = parse
-| "-->" { () }
-| _     { skip_comment lexbuf }
-| eof   { error "End of file in comment" lexbuf }
 
 and skip_tag = parse
 | [^'>']* '>' { () }

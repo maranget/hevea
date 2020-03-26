@@ -2811,6 +2811,7 @@ newif_ref "filter" (ref filter) ;
 newif_ref "@sawdocument" sawdocument ;
 newif_ref "@warnunder" warn_under ;
 newif_ref "@dumpindex" Misc.dump_index ;
+newif_ref "@silent" Misc.silent ;
 def_code "\\iftrue" (testif (ref true)) ;
 def_code "\\iffalse" (testif (ref false)) ;
 ;;

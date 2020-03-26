@@ -2139,7 +2139,7 @@ This feature can prove useful to
 relate documents that are generated independently by
 \hevea{} and \hacha{}.
 
-\subsubsection{Controlling link aspect from the document}
+\subsubsection{Controlling link contents from the document}
 \comdefindex{setlinkstext}%
 By default the links to the previous, up and next pages show a small
 icon (an appropriate arrow). This can be changed with the command
@@ -2157,6 +2157,27 @@ For instance the default behaviour is equivalent to:
 Command \verb+\setlinkstext+ behaves as \verb+\toplinks+ does.
 That is, it must occur in document preamble, arguments are processed
 and empty arguments yield no effect (\emph{i.e.}\ defaults apply).
+
+\subsubsection{Complete control over navigation links}
+\comdefindex{formatlinks}%
+The previous commands only impact the contents of the navigation links.
+It is possible, although reserved to avanced users,  to achieve greater control
+by using the \verb+\formatlinks+ command. The \verb+\formatlinks+ command
+takes four arguments which are command themselves. The last three command
+format the ``previous'', ``up'' and ``next'' links respectively,
+while the first argument formats the resulting group of links.
+For instance, one can avoid images and for arrows and typeset the full set of navivation links in a purple border
+(see Section~\ref{style:sheets} for styling techniques) as follows:
+\begin{verbatim}
+\newstyle{a.navarrow}{font-family:monospace;font-size:x-large;color:purple}
+\newstyle{div.navarrows}{border:solid purple;display:inline-block;padding:1ex;}
+\newcommand{\myprev}[1]{\ahref[class="navarrow" title="Previous" ]{#1}{$\rightarrow$}\quad}
+\newcommand{\myup}[1]{\quad\ahref[class="navarrow" title="Up" ]{#1}{$\uparrow$}\quad}
+\newcommand{\mynext}[1]{\quad\ahref[class="navarrow" title="Next" ]{#1}{$\writearrow$}}
+
+\newcommand{\mylinks}[1]{\@open{div}{class="navarrows"}#1\@close{div}\end{center}}
+\formatlinks{\mylinks}{\myprev}{\myup}{\mynext}
+\end{verbatim}
 
 \subsubsection{Cutting a document anywhere}
 \envdefindex{cutflow}
@@ -2780,7 +2801,7 @@ to block-level elements.
 \item[{\tt\char92 @style\char123}{\it shape}{\tt\char125}] Declare the
 text shape \textit{shape} (which must be lowercase) as active. Text
 shapes are known as font style elements (\verb+i+, \verb+tt+, etc.;
-\textbf{warning}:most of font style elements are depreciated in \html{}5,
+\textbf{warning:} most of font style elements are depreciated in \html{}5,
 and some of them are no longer valid, prefer CSS in \verb+span+ tags)
 or phrase elements (\verb+em+, etc.) in the \html{} terminology.
 

@@ -189,6 +189,12 @@
     \@link@arg{NEXTTXT}{#3}%
     \@printnostyle{-->
 }}}
+%%Pass some information to hacha
+\newtokens{\@hacha@defs}
+\newcommand{\@add@hacha@def}[2]{\addtokens{\@hacha@defs}{\@hacha@arg{#1}{#2}}}
+\newcommand{\formatlinks}[4]
+{\@add@hacha@def{LINKS}{#1{VAR}}\@add@hacha@def{PREVLINK}{#2{VAR}}%
+\@add@hacha@def{UPLINK}{#3{VAR}}\@add@hacha@def{NEXTLINK}{#4{VAR}}}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Using style CLASSES with DIV for local style-setting   %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -319,6 +325,8 @@
 }\fi%
 \usebox{\@toplinks}\usebox{\@linkstext}%
 \cutdef*[\thecuttingdepth]{\cuttingunit}%
+\ife\@hacha@defs\else\@printnostyle{<!--SETENV }\@hacha@defs\@printnostyle{-->
+}\undef\@hacha@defs\fi
 \renewcommand{\addstyle}[1]{\hva@warn{\addstyle{} must be used in document preamble}}%
 \@open@par%Open first paragraph
 }{%
