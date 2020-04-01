@@ -1,3 +1,6 @@
+version 2.34+01
+     * Correct bug in text mode (012 by Florian Angeletti). On bad combination of indentation and
+       underlining. 
 version 2.34
      * Add command \formatlinks for greater control over navigation links.
 version 2.33

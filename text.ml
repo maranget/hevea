@@ -472,6 +472,9 @@ let do_put_line s =
 					 ^String.escaped flags.underline^"#"^
 					 (if  (flags.underline <> "") then "true" else "false"
 					   )));
+      for i = 0 to flags.x-1 do
+        Bytes.set l i ' '
+      done;
       for i = flags.x_start to length -1 do
 	Bytes.set l i  flags.underline.[(i-flags.x_start) mod len]
       done;
@@ -485,7 +488,8 @@ let do_put_line s =
 	  let sp = (flags.hsize - length) + flags.x_start in
 	  Bytes.cat (Bytes.make sp ' ') l
     in
-    if !verbose >3 then prerr_endline ("line underlined:"^ Bytes.to_string souligne); 
+    if !verbose > 3 then
+      eprintf "line underlined: '%s' with '%S'\n"  s (Bytes.to_string souligne); 
  
     do_do_put (Bytes.unsafe_to_string souligne);
   end
