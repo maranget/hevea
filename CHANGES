@@ -1,3 +1,6 @@
+version 2.34+02
+     * Some petty optimisation in text output (replace ' '+ '\n' by '\n').
+     * Correct bug in text mode (012 by Florian Angeletti). On bad combination of indentation and
 version 2.34+01
      * Correct bug in text mode (012 by Florian Angeletti). On bad combination of indentation and
        underlining. 
