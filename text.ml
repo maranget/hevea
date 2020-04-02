@@ -437,8 +437,17 @@ and restart () =
 let do_do_put_char c =
   Out.put_char !cur_out.out c;;
 
-let do_do_put  s =
-  Out.put !cur_out.out s;;
+let is_empty_line s =
+  let len = String.length s in
+  let rec do_rec k =
+    if k >= len then false
+    else if k = len-1 then s.[k] = '\n'
+    else s.[k] = ' ' && do_rec (k+1) in
+  do_rec 0
+
+let tr_empty s = if is_empty_line s then "\n" else s
+  
+let do_do_put s =  Out.put !cur_out.out (tr_empty s);;
 
 let do_put_line s =
   (* Ligne a formatter selon flags.align, avec les parametres courants.*)
