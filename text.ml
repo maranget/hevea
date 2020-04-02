@@ -466,15 +466,12 @@ let do_put_line s =
 
   if !soul then begin
     let souligne =
-      let l = Bytes.create taille in
+      let l = Bytes.make taille ' ' in
       let len = String.length flags.underline in
       if len = 0 then raise (Misc.Fatal ("cannot underline with nothing:#"
 					 ^String.escaped flags.underline^"#"^
 					 (if  (flags.underline <> "") then "true" else "false"
 					   )));
-      for i = 0 to flags.x-1 do
-        Bytes.set l i ' '
-      done;
       for i = flags.x_start to length -1 do
 	Bytes.set l i  flags.underline.[(i-flags.x_start) mod len]
       done;
