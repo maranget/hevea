@@ -99,7 +99,6 @@
 \newstyle{.footnotetext}{margin:0ex; padding:0ex;}
 \newstyle{div.footnotetext P}{margin:0px; text-indent:1em;}
 %Other styles
-\newstyle{body}{margin-left:20\%; margin-right:20\%;}
 \setenvclass{thefootnotes}{thefootnotes}
 \setenvclass{dt-thefootnotes}{dt-thefootnotes}
 \setenvclass{dd-thefootnotes}{dd-thefootnotes}
@@ -669,9 +668,12 @@
 {\@open{div}{class="\getenvclass{minipage}"}}
 {\@close{div}}
 %%%%%%%%margin par
-\newstyle{.marginpar}{margin-bottom:1ex; width:18\%;}
-\newstyle{.marginparleft}{clear:left; float:left; margin-left:-22\%; margin-right:1em;}
-\newstyle{.marginparright}{clear:right; float:right; margin-left:1em; margin-right:-22\%;}
+\newstyle{.marginpar}
+{border:solid thin black; width:20\%; text-align:left;}
+\newstyle{.marginparleft}
+  {float:left; margin-left:0ex; margin-right:1ex;}
+\newstyle{.marginparright}
+  {float:right; margin-left:1ex; margin-right:0ex;}
 \newif\ifmarginright\marginrighttrue
 \setenvclass{marginpar}{marginpar}
 \setenvclass{marginparside}{marginparright}
@@ -682,9 +684,7 @@
 \newcommand{\hva@mtemp}{}
 \newcommand{\marginpar}[2][]
 {\def\hva@mtemp{#1}%
-\push@styles
-\@clearstyle
-\@open{span}{class="\getenvclass{marginpar} \getenvclass{marginparside}"}%
+\@open{div}{class="\getenvclass{marginpar} \getenvclass{marginparside}"}%
 \ifx\hva@mtemp\@empty%
 #2%
 \else\ifmarginright
@@ -692,8 +692,7 @@
 \else
 #1%
 \fi\fi
-\@close{span}
-\pop@styles}
+\@close{div}}
 %%%%%%%%Default env class for verbatim
 \setenvclass{verbatim}{verbatim}
 %%%%%% format theorems
