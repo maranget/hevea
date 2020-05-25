@@ -5368,8 +5368,24 @@ and two extended packages that allow the production of several indexes
 (see section~\ref{multind}).
 
 Formatting of indexes in \hevea{} departs from \LaTeX{} behaviour.
-More precisely the \verb+theindex+ environment does not exist.
-Instead, indexes are formatted using special
+The \verb+theindex+~environment is replaced by \verb+the@hevea@index+,
+which places all index entries in class~\verb+theindex+.  The environment
+can be modified with the usual magic:
+
+\begin{verbatim}
+\let\OldTheIndex\the@hevea@index
+\let\OldEndTheIndex\endthe@hevea@index
+\renewenvironment{the@hevea@index}%
+                 {\OldTheIndex ...}%
+                 {\OldEndTheIndex}
+\end{verbatim}
+
+\noindent For the common task of adding a prolog to the index the
+\footahref{https://www.ctan.org/pkg/imakeidx}{imakeidx}-package
+compatible macro \verb+\indexprologue+ is available.
+
+
+The index entries themselves are formatted using special
 \texttt{indexenv} environments.
 Those details do not normally concern users.
 However, the
