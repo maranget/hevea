@@ -99,7 +99,6 @@
 \newstyle{.footnotetext}{margin:0ex; padding:0ex;}
 \newstyle{div.footnotetext P}{margin:0px; text-indent:1em;}
 %Other styles
-\newstyle{body}{margin-left:20\%; margin-right:20\%;}
 \setenvclass{thefootnotes}{thefootnotes}
 \setenvclass{dt-thefootnotes}{dt-thefootnotes}
 \setenvclass{dd-thefootnotes}{dd-thefootnotes}
@@ -672,6 +671,7 @@
 \newstyle{.marginpar}{margin-bottom:1ex; width:18\%;}
 \newstyle{.marginparleft}{clear:left; float:left; margin-left:-22\%; margin-right:1em;}
 \newstyle{.marginparright}{clear:right; float:right; margin-left:1em; margin-right:-22\%;}
+\newif\ifmarginparhere\marginparherefalse
 \newif\ifmarginright\marginrighttrue
 \setenvclass{marginpar}{marginpar}
 \setenvclass{marginparside}{marginparright}
@@ -693,7 +693,10 @@
 #1%
 \fi\fi
 \@close{span}
-\pop@styles}
+\pop@styles%
+\ifmarginparhere\else
+\@auxdowrite{\@print{\newstyle{body}{margin-left:20\%; margin-right:20\%}}}\marginparheretrue
+\fi}
 %%%%%%%%Default env class for verbatim
 \setenvclass{verbatim}{verbatim}
 %%%%%% format theorems
