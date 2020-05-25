@@ -62,4 +62,11 @@
 %%expand \ref so as to include section name in link.
 \newcommand{\autoref}[1]{%
 \@locref{\@check@anchor@label{#1}}{\csname @hr@#1@name\endcsname~\@auxread{#1}}}
+\newcommand{\autopageref}[1]{%
+\@locref{\@check@anchor@label{#1}}{\pageautorefname~??}}
+%%non-referencing forms
+\newcommand{\ref*}[1]{\begin{@norefs}\ref{#1}\end{@norefs}}
+\newcommand{\pageref*}[1]{\begin{@norefs}\pageref{#1}\end{@norefs}}
+\newcommand{\autoref*}[1]{\begin{@norefs}\autoref{#1}\end{@norefs}}
+\newcommand{\autopageref*}[1]{\begin{@norefs}\autopageref{#1}\end{@norefs}}
 \ProcessOptions*
