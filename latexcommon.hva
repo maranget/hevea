@@ -363,7 +363,6 @@
 \stepcounter{#1}}
 \setenvclass{theindex}{theindex}
 \newcommand{\hevea@indexprologue}{}
-\newcommand{\indexprologue}[1]{\gdef\hevea@indexprologue{#1}}
 \newenvironment{the@hevea@index}%
 {\@open{div}{class="\getenvclass{theindex}"}\@open@par\hevea@indexprologue\@close@par}%
 {\@close{div}}

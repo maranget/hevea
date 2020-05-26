@@ -1,0 +1,7 @@
+\input{makeidx.hva}
+\newcommand{\indexsetup}[1]{}
+\newcommand{\splitindexoptions}[1]{}
+\newcommand{\indexprologue}[2][]{\gdef\hevea@indexprologue{#2}}
+\renewcommand{\makeindex}[1][]{% imakeidx defines \makeindex w/optional argument
+  \newindex{default}{idx}{ind}{\indexname}
+}
