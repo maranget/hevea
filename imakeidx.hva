@@ -31,8 +31,7 @@
 \define@key{imakeidx@makeindex}{intoc}[false]{\setboolean{imakeidx@makeindex@intoc}{#1}}
 \define@key{imakeidx@makeindex}{columns}{\setcounter{indexcols}{#1}}
 \define@key{imakeidx@makeindex}{columnsep}{}
-\newboolean{imakeidx@makeindex@columnseprule}
-\define@key{imakeidx@makeindex}{columnseprule}{\setboolean{imakeidx@makeindex@columnseprule}{#1}}
+\define@key{imakeidx@makeindex}{columnseprule}{\setboolean{indexcolseprule}{#1}}
 \renewcommand{\makeindex}[1][]{% imakeidx defines \makeindex w/optional argument
   \@setkeys{imakeidx@makeindex}{#1}%
   \newindex{\imakeidx@makeindex@name}{idx}{ind}{\indexname}%

@@ -488,6 +488,9 @@
 \newcounter{indexwork}\newcounter{indexlimit}
 \newcounter{indexlines}
 \newboolean{spaceallowed}
+\newboolean{indexcolseprule}
+\newcounter{numsep}
+\setcounter{numsep}{\value{indexcols}-1}
 \newcounter{indexclines}\newcounter{indexprev}\newcounter{indexnow}%
 \newcommand{\printindexboxes}
 {\setcounter{indexwork}{1}%
@@ -496,7 +499,9 @@
 \setcounter{indexclines}{0}%
 \setcounter{indexprev}{0}%
 \setcounter{indexnow}{0}%
-\begin{tabular}{*{\value{indexcols}}{X}}
+\ifthenelse{\boolean{indexcolseprule}}%
+           {\begin{tabular}{X*{\value{numsep}}{|X}}}%
+           {\begin{tabular}{*{\value{indexcols}}{X}}}
 \begin{itemize}
 \whiledo{\value{indexwork}<\value{indexbox}}
 {\setcounter{indexnow}{\pushint{\getindexpos{\theindexwork}}}%
