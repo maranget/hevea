@@ -315,6 +315,8 @@ let top_open_block block args =
       push stack_display !display ;
       display := true ;
       Dest.open_display_varg args
+  | "span@inline@block" ->
+      Dest.open_block ~force_inline:true "span" args
   | "table" ->
       save_array_state () ;
       in_table := NoTable ;
@@ -344,6 +346,8 @@ and top_close_block_aux close_fun block =
   | "display" ->
       Dest.close_display () ;
       display := pop stack_display
+  | "span@inline@block" ->
+      close_fun "span"
   | "table" ->
       close_fun "table" ;
       top_force_item_display () ;
