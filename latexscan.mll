@@ -2360,7 +2360,8 @@ def_code "\\@close@par"
     check_alltt_skip lexbuf) ;
 def_code "\\@open@par"
   (fun lexbuf ->
-    Dest.open_par () ;
+    let attributes = get_prim_opt "" lexbuf in
+    Dest.open_par ~attr:attributes () ;
     check_alltt_skip lexbuf) ;
 (* Some material (eg hacha directives) must appear outside P *)
 def_code "\\@out@par"

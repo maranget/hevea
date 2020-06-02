@@ -361,6 +361,11 @@
 \ifu\csname #1@idx@counter\endcsname\else%
 \let\@indexlabel\csname the#1\endcsname\fi%
 \stepcounter{#1}}
+\setenvclass{theindex}{theindex}
+\newcommand{\hevea@indexprologue}{}
+\newenvironment{the@hevea@index}%
+{\@open{div}{class="\getenvclass{theindex}"}\@open@par[id="indexprologue"]\hevea@indexprologue\@close@par}%
+{\@close{div}}
 %%% Aux files
 \newcommand{\@fst}[2]{#1}
 \newcounter{labelorder}
