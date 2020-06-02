@@ -672,7 +672,7 @@ let close_mods () =
   !cur_out.active <- []
 ;;
 
-let open_par () = ()
+let [@warning "-27"] open_par ?(attr="") () = ()
 and close_par () = false
 
 let par = function (*Nombre de lignes a sauter avant le prochain put*)

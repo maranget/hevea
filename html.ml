@@ -221,12 +221,12 @@ and hot = HtmlCommon.hot
 
 let forget_par () = None
 
-let rec do_open_par () = match pblock () with
+let rec do_open_par ~attr () = match pblock () with
   | GROUP ->
       let pending = to_pending !cur_out.pending !cur_out.active in
       let a,b,_ = top_out out_stack in
       ignore (close_block_loc check_empty GROUP) ;
-      do_open_par () ;
+      do_open_par ~attr () ;
       open_block a b ;
       !cur_out.pending <- pending
   | P ->
@@ -234,9 +234,9 @@ let rec do_open_par () = match pblock () with
   | s ->
       if !verbose > 2 then
         Printf.eprintf "Opening par below: '%s'\n" (string_of_block s) ;
-      open_block P ""
+      open_block P attr
 
-let open_par () = do_open_par ()
+let open_par ?(attr="") () = do_open_par ~attr ()
 
 let rec do_close_par () = match pblock () with
   | GROUP ->

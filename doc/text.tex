@@ -2762,10 +2762,16 @@ Open \html{} block-level element \textit{block} with attributes
 \textit{attributes}. The block name \textit{block} \textbf{must} be
 lowercase.
 As a special case \textit{block} may be the empty string, then a \html{}
-\emph{group} is opened.
+\emph{group} is opened.  Argument~\textit{block} cannot be \verb+p+; use
+ \verb+\@open@par+ to open a paragraph element.
 \item[{\tt\char92 @close\char123}{\it block}{\tt\char125}]
 Close \html{} block-level element \textit{block}.
 Note that \verb+\@open+ and \verb+\@close+ must be properly balanced.
+\item[{\tt\char92 @open@par[}{\it attributes}{\tt ]}] Open a paragraph
+block element, which optionally gets attributes~\textit{attributes}.
+\item[{\tt\char92 @close@par}]  Close a paragraph block element.
+Note that \verb+\@open@par+ and \verb+\@close@par+ also must be
+properly balanced.
 \item[{\tt\char92 @out@par\char123}{\it arg}{\tt\char125}]
 If occurring inside a \verb+p+ element,
 that is if a \verb+<p>+ opening tag is active,
