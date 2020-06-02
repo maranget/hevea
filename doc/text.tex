@@ -5376,9 +5376,9 @@ two extended packages that allow the production of several indexes
 
 Formatting of indexes in \hevea{} departs from \LaTeX{} behaviour:
 environment \verb+the@hevea@index+ replaces
-the \verb+theindex+~environment; \verb+the@hevea@index+
-places all index entries in class~\verb+theindex+.  The environment
-can be modified with the commonly accepted magic:
+the \verb+theindex+~environment; \verb+the@hevea@index+ places all
+index entries in class~\verb+theindex+.  The environment can be
+modified with the commonly accepted magic:
 
 \begin{verbatim}
 \let\OldTheIndex\the@hevea@index
@@ -5386,6 +5386,16 @@ can be modified with the commonly accepted magic:
 \renewenvironment{the@hevea@index}%
                  {\OldTheIndex ...}%
                  {... \OldEndTheIndex}
+\end{verbatim}
+
+\noindent An optional index prolog paragraph gets the
+ID~\verb+indexprologue+ such that it can be manipulated with CSS as,
+for example:
+
+\begin{verbatim}
+p#indexprologue {
+  font-size: smaller;
+}
 \end{verbatim}
 
 \noindent The index entries themselves are formatted using special
