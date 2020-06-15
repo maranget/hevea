@@ -309,7 +309,7 @@
 }\fi
 \@print{</head>
 }%
-\@print{<body }\@notags{\@bodyargs}\@print{>
+\@print{<body class="serif" }\@notags{\@bodyargs}\@print{>
 }%
 \@print{<!--HEVEA command line is: }\usebox{\@heveacomline}\@print{-->
 }%
@@ -378,11 +378,19 @@
 \newcommand{\@open@quote}[1]{\@open{blockquote}{#1}}
 \newcommand{\@close@quote}{\@close{blockquote}}
 %%%%%%%%%%%%%%%% LaTeX 2.09 style declarations
-\newenvironment{tt}{\@span{style="font-family:monospace"}}{}
+\newstyle{.serif}{font-family: serif}
+\newstyle{.sansserif}{font-family: sans-serif}
+\newstyle{.monospace}{font-family: monospace}
+\newstyle{.italic}{font-style: italic}
+\newstyle{.slanted}{font-style: oblique}
+\newstyle{.smallcaps}{font-variant: small-caps}
+%
+\newenvironment{tt}{\@span{class="monospace"}}{}
 \newenvironment{bf}{\@span{style="font-weight:bold"}}{}
 \newenvironment{em}{\@style{em}}{}
-\newenvironment{it}{\@span{style="font-style:italic"}}{}
-\newenvironment{rm}{\@anti{\it,\bf,\em,\sf,\tt}}{}
+\newenvironment{it}{\@span{class="italic"}}{}
+\newenvironment{rm}{\@anti{\it,\bf,\em,\sf,\tt}\@span{class="serif"}}{}
+\newenvironment{oldstyle}{\@span{class="oldstyle"}}{}
 \newenvironment{tiny}{\@fontsize{1}}{}
 \newenvironment{footnotesize}{\@fontsize{2}}{}
 \newenvironment{scriptsize}{\@fontsize{2}}{}
@@ -411,13 +419,13 @@
 \newenvironment{blue}{\@fontcolor{blue}}{}
 \newenvironment{teal}{\@fontcolor{teal}}{}
 \newenvironment{aqua}{\@fontcolor{aqua}}{}
-\def\cal{\ifmath\ifmathml\@style{font-family: cursive }%
+\def\cal{\ifmath\ifmathml\@style{font-family: cursive}%
 \else\red\fi\else\red\fi}
-\def\sf{\ifmath\ifmathml\@style{font-family: sans-serif }%
-\else\@span{style="font-family:sans-serif"}\fi\else\@span{style="font-family:sans-serif"}\fi}
-\def\sl{\ifmath\ifmathml\@style{font-family: fantasy; font-style: italic }%
-\else\@span{style="font-style:oblique"}\fi\else\@span{style="font-style:oblique"}\fi}
-\def\sc{\@span{style="font-variant:small-caps"}}%
+\def\sf{\ifmath\ifmathml\@style{font-family: sans-serif}%
+\else\@span{class="sansserif"}\fi\else\@span{class="sansserif"}\fi}
+\def\sl{\ifmath\ifmathml\@style{font-family: fantasy; font-style: italic}%
+\else\@span{class="slanted"}\fi\else\@span{class="slanted"}\fi}
+\def\sc{\@span{class="smallcaps"}}%
 %%%% LaTeX2e verbose declarations
 \newenvironment{mdseries}{\@anti{\bf}}{}
 \newenvironment{bfseries}{\bf}{}
@@ -441,6 +449,7 @@
 \def\textsl#1{\mbox{\slshape#1}}
 \def\textsc#1{\mbox{\scshape#1}}
 \newcommand{\emph}[1]{\mbox{\em#1}}
+\newcommand{\oldstylenums}[1]{\mbox{\oldstyle#1}}%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %  New implementation of \sc & \textsc using "small-caps" style. %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

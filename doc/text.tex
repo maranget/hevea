@@ -5832,66 +5832,63 @@ Section~\ref{getstylecolor:example} for an example.
 \section{Font Selection}
 
 \subsection{Changing the Type Style}\label{type-style}
-All \LaTeXe{} declarations and environments for changing type style
-are recognised. Aspect is rather like \LaTeXe{} output, but there is
-no guarantee.
+All \LaTeXe{} declarations and environments for changing the type
+style are recognised.  Visual appearance resembles that of \LaTeX's
+output, but there is no guarantee for far-reaching concordance.
 
-As \html{} does not provide the same variety of type styles as
-\LaTeX{} does.
-However \css{} provide a wide variety of font properties.
-\hevea{} uses generic properties, proper rendering will then depend
-upon user agent.
-For instance, it belongs to the user agent
-to make a difference between
-\textit{italics} (rendered by the font style ``italic'')
-and \textsl{slanted} (rendered by the font style ``oblique'').
+HTML does not offer the same repertory of type styles as \LaTeX{}
+does.  However, CSS provide a wide variety of font
+properties.  \hevea{} uses generic properties, proper rendering will
+then depend upon user agent.  For instance, it belongs to the user
+agent to make a difference between \textit{italics} (rendered by
+font~style ``italic'') and
+\textsl{slanted} (rendered by font~style ``oblique''), but also see
+Sec.~\ref{sec:italics-vs-slanted} below.
 
-Here is how \hevea{} implements text-style declarations by default:
+Here is a table that shows how \hevea{} implements text-style
+declarations.  See Sec.~\ref{sec:controlling-font-selection-with-css}
+for the default definitions of all CSS-classes.
+
 \begin{center}
-\newcommand{\heveastyle}[2]{{\ifhevea#1\fi#2}}
-\begin{tabular}{*{3}{p{.3\linewidth}}}
-\begin{tabular}{l@{\quad}l} \hline
-\verb+\itshape+ &  \heveastyle{\itshape}{font-style:italic}\\
-\verb+\slshape+ &  \heveastyle{\slshape}{font-style:oblique}\\
-\verb+\scshape+ &  \heveastyle{\scshape}{font-variant:small-caps}\\
-\verb+\upshape+ &  \heveastyle{\upshape}{no style}\\ \hline
-\end{tabular}
- &
-\begin{tabular}{l@{\quad}l} \hline
-\verb+\ttfamily+ & \heveastyle{\ttfamily}{font-family:monospace}\\
-\verb+\sffamily+ & \heveastyle{\sffamily}{font-family:sans-serif}\\
-\verb+\rmfamily+ &  \heveastyle{\rmfamily}{no style}\\ \hline
-\end{tabular}
-
-&
-\begin{tabular}{l@{\quad}l} \hline
-\verb+\bfseries+ & \heveastyle{\bfseries}{font-weight:bold}\\
-\verb+\mdseries+ & \heveastyle{\mdseries}{no style}\\ \hline
-\end{tabular}
+\newcommand{\samplephrase}{White Handgloves}
+\begin{tabular}{l@{\quad}l@{\quad}l@{\quad}l@{\quad}l@{\quad}l@{\quad}l}
+Axis      &  Name        &  Generator         &  \multicolumn{2}{c}{Macro}       &  Implementation                   &  Font-Sample  \\
+          &              &                    &  \LaTeXe          &  Old         &  ``Style-''Attribute              &  \\
+\hline
+Family    &  normal      &  \verb+\rmfamily+  &  \verb+\textrm+   &  \verb+\rm+  &  \verb+class: serif+              &  \textrm{\samplephrase}  \\
+          &  sans serif  &  \verb+\sffamily+  &  \verb+\textsf+   &  \verb+\sf+  &  \verb+class: sans-serif+         &  \textsf{\samplephrase}  \\
+          &  typewriter  &  \verb+\ttfamily+  &  \verb+\texttt+   &  \verb+\tt+  &  \verb+class: monospace+          &  \texttt{\samplephrase}  \\
+Variant   &  upright     &  \verb+\upshape+   &  \verb+\upshape+  &  \verb+\up+  &  \textit{no style}                &  \upshape{\samplephrase}  \\
+          &  italics     &  \verb+\itshape+   &  \verb+\textit+   &  \verb+\it+  &  \verb+class: italic+             &  \textit{\samplephrase}  \\
+          &  slanted     &  \verb+\slshape+   &  \verb+\textsl+   &  \verb+\sl+  &  \verb+class: slanted+            &  \textsl{\samplephrase}  \\
+          &  small caps  &  \verb+\scshape+   &  \verb+\textsc+   &  \verb+\sc+  &  \verb+class: smallcaps+          &  \textsc{\samplephrase}  \\
+          &  emphasized  &  \verb+\em+        &  \verb+\emph+     &  \verb+\em+  &  HTML-element ``em''              &  \emph{\samplephrase}  \\
+Weight    &  normal      &  \verb+\mdseries+  &  \verb+\textmd+   &  \verb+\md+  &  \textit{no style}                &  \mdseries{\samplephrase}  \\
+          &  bold        &  \verb+\bfseries+  &  \verb+\textbf+   &  \verb+\bf+  &  \verb+font-weight: bold+         &  \textbf{\samplephrase}  \\
 \end{tabular}
 \end{center}
 
 
-Text-style commands also exists, they are defined as
-\verb+\mbox{\+\textit{decl}\ldots\verb+}+. For instance,
-\verb+\texttt+ is defined as a command with one argument whose body is
-\verb+\mbox{\ttfamily#1}+.
-Finally, the \verb+\emph+ command for emphasised text also exists,
-it yields text-level \verb+em+ elements.
+Text-style commands exist as well; they are defined
+as \verb+\mbox{\+\textit{decl}\ldots\verb+}+.  For
+instance, \verb+\texttt+ is defined as a command with one argument
+whose body is \verb+\mbox{\ttfamily #1}+.  Finally,
+the \verb+\emph+~command for emphasised text also exists, it yields
+text-level \verb+em+~elements.
 
 
-As in \LaTeX{}, type styles consists in three components:
-\emph{shape}, \emph{series} and \emph{family}.
-\hevea{} implements the three components by making one declaration to
-cancel the effect of other declarations of the same kind.
+As in \LaTeX{}, type styles consist of three
+components: \emph{shape}, \emph{series} and \emph{family}.  \hevea{}
+implements the three components by making one declaration to cancel
+the effect of other declarations of the same kind.
 \begin{htmlonly}
 For instance consider the following source, that exhibits shape changes:
 \begin{verbatim}
 {\itshape italic shape \slshape slanted shape
 \scshape small caps shape \upshape upright shape}
 \end{verbatim}
-Then, in the rendering below, ``small caps shape'' appears in small caps shape
-only and not in italics:
+Then, in the rendering below, ``small caps shape'' appears in small
+caps shape only and not in italics:
 \begin{htmlout}
 {\itshape italic shape \slshape slanted shape
 \scshape small caps shape \upshape upright shape}
@@ -5900,28 +5897,355 @@ only and not in italics:
 
 
 Old style declarations are also recognised, they translate to
-text-level elements. However, no elements are cancelled when using
-old style declaration. Thus, the source
-``\verb+{\sl\sc slanted and small caps}+'' yields ``slanted''
-small caps\ifhevea: ``{\sl\sc slanted and small caps}''\fi.
-Users need probably not worry about this. However this has an
-important practical consequence: to change the default rendering of
-type styles, one should redefine old style declaration in order to
-benefit from the cancellation mechanism. See
+text-level elements.  However, no elements are cancelled when using
+old style declaration.  Thus, the source ``\verb+{\sl\sc slanted and
+small caps}+'' yields ``slanted'' small~caps\ifhevea: ``{\sl\sc
+slanted and small caps}''\fi.  Users do not need not worry about this,
+though it has an important practical consequence: to change the
+default rendering of type styles, one should redefine old style
+declaration in order to benefit from the cancellation mechanism.  See
 section~\ref{customize-style} for a more thorough description.
 
 
 \subsection{Changing the Type Size}
 All declarations, from \verb+\tiny+ to \verb+\Huge+ are recognised.
-Output is not satisfactory inside headers elements
-generated by sectioning commands.
+Output is not satisfactory inside header elements generated by
+sectioning commands.
 
 \subsection{Special Symbols}
+The \verb+\symbol{+\textit{num}\verb+}+ outputs character
+number~\textit{num} (decimal) from the Unicode character set.  This
+departs from \LaTeX{} which outputs symbol number~\textit{num} in the
+current font.
 
-The \verb+\symbol{+{\it num}\verb+}+ outputs character number {\it num}
-(decimal) from the Unicode character set.
-This departs from \LaTeX{}, which output symbol number \textit{num} in
-the current font.
+\subsection{\label{sec:controlling-font-selection-with-css}%
+  Controlling Font Selection with CSS}
+\hevea{} predefines CSS~classes that control the font selection of an
+HTML-document.
+
+\begin{center}
+\begin{tabular}{l@{\quad}l@{\quad}lp{.5\linewidth}}
+Class             &  Default                          &  Application  \\
+\hline
+\verb+serif+      &  \verb+font-family: serif+        &  Body text and math; used by \verb+\textrm+.  \\
+\verb+sansserif+  &  \verb+font-family: sans-serif+   &  Text tagged with \verb+\textsf+.  \\
+\verb+monospace+  &  \verb+font-family: monospace+    &  Any typewriter text and in particular environment~\verb+verbatim+, macros~\verb+\verb+, and \verb+\texttt+.  \\
+\verb+italic+     &  \verb+font-style: italic+        &  Text tagged with \verb+\textit+.  \\
+\verb+slanted+    &  \verb+font-style: oblique+       &  Text tagged with \verb+\textsl+.  \\
+\verb+smallcaps+  &  \verb+font-variant: small-caps+  &  Text tagged with \verb+\textsc+.  \\
+\end{tabular}
+\end{center}
+
+The defaults for classes \verb+serif+, \verb+sansserif+, and
+\verb+monospace+ are the browser's defaults, namely \verb+serif+,
+\verb+sans-serif+, and \verb+monospace+.  Users can simply override
+the classes in the document preamble.  Moreover, as these are
+CSS~classes \emph{all} properties apply.  Besides gaudy effects this
+comes in handy to adjust the base size of the typewriter font to match
+the body text, for example with
+
+\begin{verbatim}
+\newstyle{.monospace}{font-family: "Courier New", Courier, monospace; font-size: 120\%}
+\end{verbatim}
+
+\noindent or to fine-tune \verb+font-stretch+ and \verb+font-weight+.
+
+Despite their names the classes can host any font chosen from any
+family:
+
+\begin{verbatim}
+\newstyle{.serif}{font-family: Go, sans-serif}
+\newstyle{.sansserif}{font-family: Go, sans-serif}
+\newstyle{.monospace}{font-family: "Go Mono", monospace}
+\end{verbatim}
+
+Furthermore, the \verb+monospace+~class does not need to reference
+mono-spaced fonts, though proportional fonts probably will skew output
+that aligns for fonts with a fixed width.
+
+To achieve consistency in font selection it is constructive to define
+a macro for each family and then use these to set the document's font
+families as well as selected elements as, for example, the chapter and
+section headings.
+
+\begin{verbatim}
+\newcommand{\seriffontfamily}{"Noto Serif", serif}
+\newcommand{\sansfontfamily}{"Noto Sans", sans-serif}
+\newcommand{\fixedfontfamily}{"Noto Mono", monospace}
+
+\newstyle{.serif}{font-family: \seriffontfamily}
+\newstyle{.sansserif}{font-family: \sansfontfamily}
+\newstyle{.monospace}{font-family: \fixedfontfamily}
+
+\newstyle{.chapter, .section, .subsection, .subsubsection}{font-family: \sansfontfamily}
+\end{verbatim}
+
+\subsubsection{\label{sec:italics-vs-slanted}%
+  Italics vs.\ Slanted}
+
+\TeX{} serves separate fonts for italics and slanted characters in the
+same superfamily ``Latin Modern'', for example, ``Latin Modern Roman
+10~Italic'' and ``Latin Modern Roman Slanted 10~Regular''.  Needless
+to say all members in the superfamily are extremely well matched!  On
+the HTML-side it is hard to recreate this kind of super-pairing; most
+often a font family will \emph{lack} a ``slanted'' variant and --
+depending on the font-synthesis settings -- browsers substitute
+``italic''.  This means \verb+\textit+ and \verb+\textsl+ will be
+mapped to the \emph{same} font.
+
+To remedy this, \hevea{} supports two separate, dedicated CSS-classes
+for italics and slanted type, appropriately called \verb+italic+ and
+\verb+slanted+.  These can be overridden by users in concert with the
+three font-family classes~\verb+serif+, \verb+sansserif+, and
+\verb+monospace+ either to approximate the output of \LaTeX{} or to
+create enough of visual distinction (``contrast'') of \verb+italic+
+and \verb+slanted+ to convey the semantic differences of
+\verb+\textit+ and \verb+\textsl+.
+
+\begin{verbatim}
+\newstyle{.serif}{font-family: "FreeSerif", serif}
+\newstyle{.sansserif}{font-family: "FreeSans", sans-serif}
+\newstyle{.monospace}{font-family: "FreeMono", monospace}
+\newstyle{.slanted}{font-family: "Liberation Serif", "FreeSerif", serif; font-style: oblique}
+\end{verbatim}
+
+\noindent In the example above there is no need to redefine
+\verb+italic+ as the italics of \verb+FreeSerif+ and
+\verb+Liberation Serif+ are quite distinct.
+
+A complementary approach is to use the default italics for
+class~\verb+slanted+ and supply a different font family for
+\verb+italic+:
+
+\begin{verbatim}
+\newstyle{.serif}{font-family: "FreeSerif", serif}
+\newstyle{.sansserif}{font-family: "FreeSans", sans-serif}
+\newstyle{.monospace}{font-family: "FreeMono", monospace}
+\newstyle{.italic}{font-family: "Accanthis ADF Std No3", serif; font-style: italic}
+\newstyle{.slanted}{font-family: "FreeSerif", serif; font-style: oblique}
+\end{verbatim}
+
+\subsubsection{Dedicated Smallcaps}
+
+\hevea{} translates \verb+\textsc+ into CSS~class \verb+smallcaps+,
+which in turn activates \verb+font-variant: small-caps+ by default.
+This instructs the browser to look for small-capital letters in the
+\emph{currently selected font}, but no further.  Regrettably, only few
+fonts come with small~caps included (look for, e.g., ``Pro'' or
+``Expert'' series), for all others the browser synthesizes the glyphs
+based on the selected font.  See also
+\footahref{https://developer.mozilla.org/en-US/docs/Web/CSS/font-variant-caps}{font-variant-caps}.
+
+\paragraph{Separate Small-Caps Fonts.} What is more common today are
+regular fonts that pair with separate fonts that cover their
+small~caps.  Here are some representative examples:
+
+\begin{itemize}
+\item Cormorant -- Cormorant SC
+\item Go -- Go Smallcaps
+\item Latin Modern Roman -- Latin Modern Roman Caps
+\end{itemize}
+
+\noindent By overriding the default definition of
+CSS~class \verb+smallcaps+ these font pairings can be lifted
+into \hevea.
+
+\begin{verbatim}
+\newstyle{.serif}{font-family: "Berenis ADF Pro", serif}
+\newstyle{.smallcaps}{font-family: "Berenis ADF Pro SC", serif; font-variant: normal}
+\end{verbatim}
+
+It is important to set \verb+font-variant: normal+ with a small~caps
+font so that the default is overridden and font synthesis does
+\emph{not} kick in!  Otherwise the browser uses the uppercase letters
+of a resized variant of the small~caps font to synthesize the small
+caps, which defeats the very purpose of the class override and -- on
+top of that -- generally looks ugly.
+
+If you latch a non-smallcaps font, stick with the default as here
+glyph synthesis in fact is desired.
+
+\begin{verbatim}
+\newstyle{.smallcaps}{font-family: "Baskervville", serif; font-variant: small-caps}
+\end{verbatim}
+
+\noindent Note that \hevea's default acts like an operator -- only
+setting \verb+font-variant: small-caps+ means: whatever font is
+current, use its downsized uppercase letters as small caps.  When the
+default of class~\verb+smallcaps+ is replaced with a definition that
+contains a \verb+font-family+ the operator character is lost and the
+original \LaTeX{} behavior is recovered.
+
+\paragraph{OpenType Feature: \verb+smcp+.}
+
+Some OpenType~fonts harbor their own small caps.  Not all browsers
+support the access of OpenType~features from CSS, but for those that
+do the following code activates the small caps in an sufficently
+``enriched'' OpenType~font.  See also the
+\footahref{https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Fonts/OpenType_fonts_guide}{OpenType~fonts
+  guide} and help on
+\footahref{https://helpx.adobe.com/fonts/using/use-open-type-features.html}{using
+  OpenType~features}.
+
+\begin{verbatim}
+\newstyle{.smallcaps}{%
+  font-variant-caps: small-caps;
+  font-feature-settings: "smcp";
+}
+\end{verbatim}
+
+\noindent Note: In the example right above any other
+font-feature-settings than \verb+smcp+ are cleared!
+
+If the browser supports the CSS at-rule \verb+@supports+ the recipe is
+improved by
+
+\begin{verbatim}
+\newstyle{.smallcaps}{font-feature-settings: "smcp"}
+\newstyle{@supports (font-variant-caps: small-caps)}{%
+  .smallcaps \{font-variant-caps: small-caps\}
+}
+\end{verbatim}
+
+\subsubsection{Oldstyle Numerals}
+
+\LaTeX{} \verb+\oldstylenums+ are not easily translated to the web
+because their glyphs cannot be synthesized.  The \hevea{} macro
+\verb+\oldstylenums+ accesses class~\verb+oldstyle+, which has no
+definition by default.  The most straightforward way to get oldstyle
+numerals is to rely on OpenType~font features with the following
+definitions:
+
+\begin{verbatim}
+\newstyle{.oldstyle}{font-feature-settings: "onum"}
+\newstyle{@supports (font-variant-numeric: oldstyle-nums)}{%
+  .oldstyle \{font-variant-numeric: oldstyle-nums\}
+}
+\end{verbatim}
+
+\noindent If a font has no oldstyle-nums the common numerals will be
+used.  In a pinch another font's numerals can be borrowed given the
+other font is highly similar.
+
+\subsubsection{Variable Typewriter Variant}
+
+\TeX{} offers a ``variable typewriter'' variant.  In fact this is a
+proportional font.  We can mimick this font with proportional
+typewriter fonts.
+
+\begin{verbatim}
+\ifhevea
+  \newstyle{.varispace}{font-family: Typewriter, monospace}
+  \newcommand{\textvtt}[1]{\mbox{\@span{class="varispace"}#1}}%
+\else
+  \newcommand{\variabletypewriter}{\fontfamily{cmvtt}\defaulthyphenchar=127\selectfont}%
+  \DeclareTextFontCommand{\textvtt}{\variabletypewriter}%
+\fi
+\end{verbatim}
+
+\noindent Now, macro~\verb+\textvtt+ could be used as a drop-in
+replacement for \verb+\texttt+.
+
+If no proportional typewriter font is readily available on the
+HTML-side, a similar effect is achieved with a slab-serif,
+proportional font, like for example ``Zilla Slab''.
+
+\subsubsection{Hints to Practitioners}
+
+Some hints to get legible and portable output.
+
+\begin{itemize}
+\item Restrict the selection to fonts that cover the the required set
+  of special characters (accented, mathematics, \dots).
+  H\aa{}mb\"urg\'ef\o{}\~ns!
+
+\item Choose families with at least four variations for
+  classes~\verb+serif+ and \verb+sansserif+:
+
+  \begin{enumerate}
+  \item regular,
+  \item italic/oblique,
+  \item bold, and
+  \item bold italic/bold oblique.
+  \end{enumerate}
+
+  If a variation is not available a browser may substitute a different
+  font or even try to synthesize the font, something typographers call
+  ``fake scaling, embolding and slanting''.  See also
+  CSS~\footahref{https://developer.mozilla.org/en-US/docs/Web/CSS/font-synthesis}{font-synthesis}.
+
+\item Class~\verb+monospace+ often is only needed in variants
+
+  \begin{enumerate}
+  \item regular and
+  \item oblique
+  \end{enumerate}
+
+  However, some authors like to typeset the reserved words of a
+  programming language in boldface.  They load package~``bold-extra''
+  for additional, bold typewriter fonts.  In this case it is also
+  advisable to use font families with four variations as described
+  above.
+
+\item Write down the full set of font-name aliases where applicable,
+  for example,
+
+  \begin{itemize}
+  \item \verb+"Courier New"+ and \verb+"Courier"+
+  \item \verb+"Trebuchet MS"+ and \verb+"Trebuchet"+
+  \item \verb+"Times New Roman"+ and \verb+"Times"+
+  \end{itemize}
+
+  Different operating systems may use different names for exactly the
+  same family.
+
+\item Pass attribute~\verb+font-style+ with classes~\verb+italic+ and
+  \verb+slanted+.  Override the default font~variant of
+  class~\verb+smallcaps+ with \verb+normal+ if the font~family
+  designates genuine small-caps fonts.
+
+\item Always put the default family in the last position of any
+  \verb+font-family+.
+
+\item Starting points for CSS~font selection.
+
+  \begin{itemize}
+    \newcommand{\tablenotesymbol}{\dagger}
+    \newcommand{\tablenotemark}{$^\tablenotesymbol$}
+    \newcommand{\tablenote}[1]{\tablenotemark:~{\footnotesize #1}}
+    \item Some ``workhorse'' font families that all have been designed
+      with online readability in mind.
+
+      \begin{tabular}{l@{\quad}l@{\quad}l@{\quad}l}
+        Family                    &  Serif             &  Sans Serif           &  Monospace  \\
+        \hline
+        %%  Prefer `DejaVu' to `Bitstream Vera'.
+        %Bitstream Vera            &  Bitstream Vera    &  Bitstream Vera Sans  &  Bitstream Vera Sans Mono  \\
+        DejaVu                    &  DejaVu Serif      &  DejaVu Sans          &  DejaVu Sans Mono  \\
+        Free                      &  FreeSerif         &  FreeSans             &  FreeMono  \\
+        IBM Plex                  &  IBM Plex Serif    &  IBM Plex Sans        &  IBM Plex Mono  \\
+        Lucida                    &  Lucida Bright     &  Lucida Sans          &  Lucida Sans Typewriter  \\
+        Noto\tablenotemark        &  Noto Serif        &  Noto Sans            &  Noto Mono  \\
+        Source Pro\tablenotemark  &  Source Serif Pro  &  Source Sans Pro      &  Source Code Pro  \\
+      \end{tabular}
+
+      \noindent\tablenote{OpenType-compliant font family, supporting for example oldstyle numerals.}
+
+    \item If the result looks too ``oldstyle'' try the sans serif font
+      also in the serif position or interchange sans serif and serif.
+
+    \item If the monospace font does not convey enough of an ``at the
+      terminal'' feeling give Anonymous Pro or Inconsolata a spin.
+      The latter font family also comes to the rescue when program
+      listings constantly are ``too wide'', this is, they overflow to
+      the right.  Inconsolata has variants ``Semi Condensed'',
+      ``Condensed'', ``Extra Condensed'', and ``Ultra Condensed''
+      among many others.
+  \end{itemize}
+
+\item Check the results with different browsers preferably on multiple
+  systems.
+\end{itemize}
 
 \section{Extra Features}\cutname{extras.html}
 This section describes \hevea{} functionalities that extends on plain \LaTeX{},
