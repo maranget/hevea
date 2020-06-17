@@ -248,9 +248,30 @@
 \newcommand{\fussy}{}
 \newenvironment{sloppypar}{}{}
 \newcommand{\goodbreak}{}
-%%%%%%%%%%%% Ignore hyphenation
-\newcommand{\-}{}
+%%%%%%%%%%%% Emulate hyphenation
+\newcommand{\soft@hyphen}{\@print{&#173;}}
+\newcommand{\zero@width@space}{\@print{&#8203;}}
+\newcommand{\tag@wordbreak}{\@print{<wbr>}}
+\newcommand{\word@break@opportunity}{\tag@wordbreak}% use e.g. `\zero@width@space' or `\tag@wordbreak'
+\newcommand{\-}{\soft@hyphen}
 \newcommand{\hyphenation}[1]{}
+\newcommand{\discretionary}[3]{%
+  \def\twoargs{#2#3}%
+  \def\threeargs{#1#2#3}%
+  \ifx\threeargs\@empty
+    \word@break@opportunity
+  \else
+    \ifx\twoargs\@empty
+      \ifx#1-%
+        \soft@hyphen
+      \else
+        #3%
+      \fi
+    \else
+      #3%
+    \fi
+  \fi
+}
 %% Page Breaking
 \newcommand{\pagebreak}[1][]{}
 \newcommand{\nopagebreak}[1][]{}
