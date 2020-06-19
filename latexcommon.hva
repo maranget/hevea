@@ -251,27 +251,16 @@
 %%%%%%%%%%%% Emulate hyphenation
 \newcommand{\soft@hyphen}{\@print{&#173;}}
 \newcommand{\zero@width@space}{\@print{&#8203;}}
+\newcommand{\breakable@hyphen}{\@print{&#8208;}}
 \newcommand{\tag@wordbreak}{\@print{<wbr>}}
 \newcommand{\word@break@opportunity}{\tag@wordbreak}% use e.g. `\zero@width@space' or `\tag@wordbreak'
 \newcommand{\-}{\soft@hyphen}
 \newcommand{\hyphenation}[1]{}
 \newcommand{\discretionary}[3]{%
-  \def\twoargs{#2#3}%
-  \def\threeargs{#1#2#3}%
-  \ifx\threeargs\@empty
-    \word@break@opportunity
-  \else
-    \ifx\twoargs\@empty
-      \ifx#1-%
-        \soft@hyphen
-      \else
-        #3%
-      \fi
-    \else
-      #3%
-    \fi
-  \fi
-}
+  \ifthenelse{\equal{#1#2#3}{}}{\word@break@opportunity}{%
+    \ifthenelse{\equal{#1}{-}\and\equal{#2#3}{}}{\soft@hyphen}{%
+      \ifthenelse{\equal{#1}{-}\and\equal{#2}{}\and\equal{#3}{-}}{\breakable@hyphen}{%
+        #3}}}}
 %% Page Breaking
 \newcommand{\pagebreak}[1][]{}
 \newcommand{\nopagebreak}[1][]{}
