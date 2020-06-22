@@ -673,12 +673,9 @@
 {\@open{div}{class="\getenvclass{minipage}"}}
 {\@close{div}}
 %%%%%%%%margin par
-\newstyle{.marginpar}
-{border:solid thin black; width:20\%; text-align:left;}
-\newstyle{.marginparleft}
-  {float:left; margin-left:0ex; margin-right:1ex;}
-\newstyle{.marginparright}
-  {float:right; margin-left:1ex; margin-right:0ex;}
+\newstyle{.marginpar}{border:solid thin black; margin-bottom:1ex; width:20\%; text-align:left;}
+\newstyle{.marginparleft}{float:left; clear:left; margin-left:0ex; margin-right:1ex;}
+\newstyle{.marginparright}{float:right; clear:right; margin-left:1ex; margin-right:0ex;}
 \newif\ifmarginright\marginrighttrue
 \setenvclass{marginpar}{marginpar}
 \setenvclass{marginparside}{marginparright}
@@ -689,7 +686,7 @@
 \newcommand{\hva@mtemp}{}
 \newcommand{\marginpar}[2][]
 {\def\hva@mtemp{#1}%
-\@open{div}{class="\getenvclass{marginpar} \getenvclass{marginparside}"}%
+\@open{span@inline@block}{class="\getenvclass{marginpar} \getenvclass{marginparside}"}%
 \ifx\hva@mtemp\@empty%
 #2%
 \else\ifmarginright
@@ -697,7 +694,7 @@
 \else
 #1%
 \fi\fi
-\@close{div}}
+\@close{span@inline@block}}
 %%%%%%%%Default env class for verbatim
 \setenvclass{verbatim}{verbatim}
 %%%%%% format theorems

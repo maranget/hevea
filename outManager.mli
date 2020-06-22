@@ -27,7 +27,7 @@ val forget_par : unit -> int option
 val close_par : unit -> bool
 val open_par : ?attr:string -> unit -> unit
 val par : int option -> unit
-val open_block : string -> string -> unit
+val open_block : ?force_inline:bool -> string -> string -> unit
 val close_block : string -> unit
 val force_block : string -> string -> unit
 val close_flow : string -> unit

@@ -851,7 +851,7 @@ let try_close_block s =
   flags.in_align <- ia
 ;;
 
-let open_block s arg =  
+let [@warning "-27"] open_block ?(force_inline=false) s arg =
   let s = tr_block s arg in
   (* Cree et se place dans le bloc de nom s et d'arguments args *)
   if !verbose > 2 then eprintf "=> open_block '%s'\n" (pp_block s);

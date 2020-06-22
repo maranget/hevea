@@ -317,7 +317,12 @@ let open_block_with_par ss s a =
   end ;
   open_block_loc s a
 
-let open_block ss a = open_block_with_par ss (find_block ss) a
+let open_block ?(force_inline=false) ss a =
+  let s = find_block ss in
+    if force_inline then
+      open_block_loc s a
+    else
+      open_block_with_par ss s a
 
 let open_display () =
   if find_prev_par () then begin
