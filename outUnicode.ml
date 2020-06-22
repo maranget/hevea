@@ -44,14 +44,14 @@ let rec parse16 len str i r =
 
 let do_parse str =
   let len = String.length str in
-  if len = 0 then begin 
+  if len = 0 then begin
     raise (Failed "Cannot parse unicode entity: empty")
   end else
     match str.[0] with
     | 'X'|'x' -> parse16 len str 1 0
     | '0'..'9' -> parse10 len str 0 0
     | c -> bad_char c
-	
+
 let parse str =
   try do_parse str
   with Failed msg ->
@@ -60,22 +60,23 @@ let parse str =
 
 exception CannotTranslate
 
+let cannot () = raise CannotTranslate
+
+
 let translate_ascii_out i put =
   if i < 128 then put (Char.unsafe_chr i)
-  else raise CannotTranslate
+  else cannot ()
 
 and translate_ascii_in c _ =
   let i = Char.code c in
   if i < 128 then i
-  else raise CannotTranslate    
+  else  cannot ()
 
 let translate_latin1_out i put =
   if i < 256 then put (Char.unsafe_chr i)
-  else raise CannotTranslate
+  else  cannot ()
 
 and translate_latin1_in c _ = Char.code c
-
-let cannot () = raise CannotTranslate
 
 let translate_utf8_in c next = match c with
 | '\000'..'\127' -> Char.code c
@@ -138,7 +139,7 @@ and translate_utf8_out p put =
     put (Char.chr (0x80 lor (p land 0x3f))) ;
   end
 
-    
+
 
 let translate_out_fun = ref translate_ascii_out
 and translate_in_fun = ref translate_ascii_in
@@ -172,7 +173,7 @@ let read_mapping name chan =
            "Error '%s' while loading mapping: %s\n"
            msg name) ;
       raise (Misc.Fatal "Mapping")
- 
+
 let open_mapping name =
   try
     let real_name = Myfiles.find name in
@@ -240,8 +241,8 @@ and set_translators name =
       close_mapping chan ;
       translate_out_fun := make_out_translator ps ;
       translate_in_fun := make_in_translator ps
-  
-  
+
+
 let translate_out i = !translate_out_fun i
 and translate_in c (next:unit -> int) = !translate_in_fun c next
 
@@ -250,7 +251,7 @@ and translate_in c (next:unit -> int) = !translate_in_fun c next
 (*
   Tables from ftp://ftp.unicode.org/Public/MAPPINGS/ISO8859
   Mapping from NAME LIST of the www.unicode.org site.
-    
+
   Got functions by:
     egrep 'WITH GRAVE$' NamesList.txt | grep LATIN | awk -f a.awk
 
@@ -794,9 +795,9 @@ and doublestruck = function
       | '7' -> 0x1D7DF
       | '8' -> 0x1D7E0
       | '9' -> 0x1D7E1
-      | _ -> raise CannotTranslate 
+      | _ -> raise CannotTranslate
       end else
-	raise CannotTranslate
+        raise CannotTranslate
 (* Text rendering *)
 let def_t = Hashtbl.create 101
 
@@ -836,7 +837,7 @@ and caron_alone = 0x2C7
 and circled_alone = 0x25EF
 and eszett = 0xDF
 and iques = 0xBF
-and iexcl = 0xA10
+and iexcl = 0xA1
 and minus = 0x2212
 and endash = 0x2013
 and emdash = 0x2014
@@ -850,3 +851,14 @@ and tprime = 0x2034
 and rprime = 0x2035
 and rdprime = 0x2036
 and rtprime = 0x2037
+
+(* Combining *)
+
+let comb_cedilla = function
+  | 'o'|'O' -> 0x0327
+  | _ -> raise CannotTranslate
+
+
+(* Double accents *)
+
+let double_inverted_breve = 0x0361

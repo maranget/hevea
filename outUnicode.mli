@@ -93,3 +93,9 @@ val tprime : unichar
 val rprime : unichar
 val rdprime : unichar
 val rtprime : unichar
+
+(* Combinations *)
+val comb_cedilla : char -> unichar
+
+(* Double diacritics *)
+val double_inverted_breve : unichar
