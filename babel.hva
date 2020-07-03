@@ -8,6 +8,8 @@
 \newcommand{\InitiateOption}[1]{%
 \@ifundefined{bbl@#1@loaded}
 {\let\csname bbl@#1@loaded\endcsname\relax%
+\newenvironment{#1}{\begin{foreign@language@block}{#1}}{\end{foreign@language@block}}%
+\newenvironment{#1*}{\begin{foreign@language@block}{#1}}{\end{foreign@language@block}}%
 \@iffileexists{#1.hva}
   {\input{#1.hva}\def\bbl@main@language{#1}}
   {\hva@warn{Hevea babel '#1' not found, loading 'english' instead}%
@@ -96,6 +98,7 @@
 %Save definition of double quote (altered by german)
 \let\@hevea@saved@dquote\@hevea@dquote
 \newcommand{\selectlanguage}[1]{%
+\def\language@packages{#1}%
 \let\@hevea@dquote\@hevea@saved@dquote%Restore inocuous definition
   \ifthenelse{\equal{#1}{german}} {%
 	\let\current@language\german@language    \german@babel    } {%
@@ -157,6 +160,21 @@
 	\let\current@language\turkish@language   \turkish@babel   } {%
   }}}}}}}}}}}}}}}}}}}}}}}}}}}}}%
 }%
+%
+\newenvironment{foreign@language@block}[1]%
+{\let\outer@language=\current@language%
+  \@open{div}{class="foreignlanguage" lang="\map@lang@code{#1}"}%
+  \selectlanguage{#1}}%
+{\@close{div}\selectlanguage{\outer@language}}
+\newenvironment{foreign@language@inline}[1]%
+{\let\outer@language=\current@language%
+  \@open{span}{class="foreignlanguage" lang="\map@lang@code{#1}"}%
+  \selectlanguage{#1}}%
+{\@close{span}\selectlanguage{\outer@language}}
+\newcommand{\foreignlanguage}[2]{%
+  \begin{foreign@language@inline}{#1}#2\end{foreign@language@inline}
+}
+\newenvironment{hyphenrules}[1]{\@span{lang="\map@lang@code{#1}"}}{}
 %
 %%%% Support for the 'babel' command for querying the current language.
 %

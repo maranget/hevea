@@ -10,8 +10,10 @@
        {}%
     \fi}}
 \newsavebox{\@pkg@opts}
+\newcommand{\usepackagehook}[2]{}
 \newcommand{\usepackage}[2][!*!]
 {%\hva@warn{\usepackage '#1' '#2'}
+\usepackagehook{#1}{#2}%
 \ifthenelse{\equal{#1}{!*!}}
   {\sbox{\@pkg@opts}{}\begin{toimage}\usepackage{#2}\end{toimage}}
 {\sbox{\@pkg@opts}{#1}\begin{toimage}\usepackage[#1]{#2}\end{toimage}}%

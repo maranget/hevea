@@ -269,6 +269,8 @@
   {\@locref{#1}{\ifx#2\@empty\@verbarg{#1}\else#2\fi}\@bib@post{#3}}
 \newsavebox{\@bibbox}
 \newcommand{\@biblabel}[1]{\@locname{\bibtaghook{#1}}{\@bibtagstyle[\@bibread{\bibtaghook{#1}}]}}
+%%%%%%%%%%%% Language translation
+\input{html/lang.hva}
 %%% Environment document.
 \newcommand{\@charset}{US-ASCII}
 \newcommand{\@def@charset}[1]

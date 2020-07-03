@@ -6778,30 +6778,72 @@ to change the sectioning command introduced by bibliographies.
 
 
 \subsection{Support for \texttt{babel}}\ttindex{babel}{package}
-\subsubsection{Basics}
+\subsubsection{Basics\label{sec:babel-basics}}
+
 \hevea{} offers support for the \LaTeX{} package {\tt babel}. When it reads the command
+
 \begin{verbatim}
-  \usepackage[lang-list]{babel}
+  \usepackage[LANG-LIST]{babel}
 \end{verbatim}
-it loads {\tt babel.hva}, and sends it the saved {\tt lang-list}. The
-file {\tt babel.hva} then looks at each language (say {\tt{}x}) in it, and loads {\tt x.hva}, which offers support for the language {\tt x}. As in \LaTeX, the last language in the list is selected as default. As an example the command
+
+it loads {\tt babel.hva}, and sends it the saved {\tt LANG-LIST}.  The
+file {\tt babel.hva} then looks at each language (say {\tt{}x}) in it,
+and loads {\tt x.hva}, which offers support for the language {\tt x}.
+As in \LaTeX, the last language in the list is selected as default; it
+also determines the document's language, this is,
+the \verb+lang+~attribute of its \verb+html+~element.  As an example
+the command
+
 \begin{verbatim}
 \usepackage[english,french,german]{babel}
 \end{verbatim}
-would load {\tt babel.hva}, then the files {\tt english.hva,french.hva,german.hva} containing the respective definitions, and finally activate the definitions in {\tt german.hva} and sets the current language to german.
+
+would load {\tt babel.hva}, then the files {\tt
+english.hva, french.hva, german.hva} containing the respective
+definitions, and finally activate the definitions in {\tt german.hva}
+and sets the current language to german.
 
 \subsubsection{Commands and languages}
-The following babel commands for changing and querying the language work as in \LaTeX{} :
-\begin{enumerate}
-\item {\verb+\selectlanguage+ : to change the language}
-\item {\verb+\iflanguage+ : to branch after comparing with current language}
-\end{enumerate}  
 
-The language specific details are described in the corresponding
-\verb+.hva+ file, just as in the \verb+.sty+ file for \LaTeX. Users
-need to supply this file for their language, or modify/check the files
-if they are already supplied with the distribution. The list of
-languages is given below.
+The following babel commands for changing and querying the language
+work as in \LaTeX:
+
+\begin{enumerate}
+\item \verb+\selectlanguage{LANG}+: Change the language
+to \verb+LANG+.
+
+\item \verb+\iflanguage{LANG}+: Branch after comparing \verb+LANG+
+with current language.
+
+\item \label{it:macro-foreignlanguage}%
+\verb+\foreignlanguage{LANG}{TEXT}+: Switch to
+language~\verb+LANG+ and then typeset \verb+TEXT+.
+
+\item \label{it:environment-other-language}%
+\verb+\begin{OTHER-LANG}+\quad\verb+\end{OTHER-LANG}+: Select
+language~\verb+OTHER-LANG+ in an environment.  \hevea{} is frugal --
+only those languages are allowed for \verb+OTHER-LANG+ that have been
+announced in the \verb+LANG-LIST+; see section~\ref{sec:babel-basics}.
+
+\item \label{it:environment-other-language-star}%
+\verb+\begin{OTHER-LANG*}+\quad\verb+\end{OTHER-LANG*}+: Same as above.
+
+\item \verb+\begin{hyphenrules}{LANG}+\quad\verb+\end{hyphenrules}+:
+Switch \emph{only} the hyphenation rules to those of \verb+LANG+.
+
+\item \verb+\hyphenrules{LANG}+: Same as above in the form of a macro.
+\end{enumerate}
+
+Items~\ref{it:macro-foreignlanguage}, \ref{it:environment-other-language},
+and \ref{it:environment-other-language-star} use
+CSS~class \verb+foreignlanguage+, which can be defined by the user (it
+is not defined by \hevea).
+
+The language specific details are described in the
+corresponding \verb+.hva+ file, just as in the \verb+.sty+ file
+for \LaTeX. Users need to supply this file for their language, or
+modify/check the files if they are already supplied with the
+distribution. The list of languages is given below.
 
 \begin{center}\index{babel!languages}
 \begin{tabular}{|l|l|l|l|}
