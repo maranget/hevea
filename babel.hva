@@ -1,4 +1,5 @@
 \ProvidesPackage{babel}
+\RequirePackage{keyval}
 %%%%
 %%%% A simple command that takes language (say l) and 
 %%%%    a) checks for existence and includes l.hva 
@@ -15,6 +16,10 @@
   {\hva@warn{Hevea babel '#1' not found, loading 'english' instead}%
    \input{english.hva}\def\bbl@main@language{english}}}
 {}}
+%%%Default option (parses main=<lang>)
+\define@key{babel}{main}{\def\bbl@realmain@language{#1}\InitiateOption{#1}}
+\newcommand{\DefaultOption}[1]{\@setkeys{babel}{#1}}
+\DeclareOption{@defopt}{\DefaultOption}%
 %
 %%%% Processing information for each optional argument
 %
@@ -186,4 +191,5 @@
 %%%% For each option (language l), checks for l.hva and 'includes' it.
 %
 \ProcessOptions*%
+\ifu\bbl@realmain@language\else\let\bbl@main@language\bbl@realmain@language\fi
 \selectlanguage{\bbl@main@language}
