@@ -1,4 +1,5 @@
 \ProvidesPackage{babel}
+\RequirePackage{keyval}
 %%%%
 %%%% A simple command that takes language (say l) and 
 %%%%    a) checks for existence and includes l.hva 
@@ -8,11 +9,17 @@
 \newcommand{\InitiateOption}[1]{%
 \@ifundefined{bbl@#1@loaded}
 {\let\csname bbl@#1@loaded\endcsname\relax%
+\newenvironment{#1}{\begin{foreign@language@block}{#1}}{\end{foreign@language@block}}%
+\newenvironment{#1*}{\begin{foreign@language@block}{#1}}{\end{foreign@language@block}}%
 \@iffileexists{#1.hva}
   {\input{#1.hva}\def\bbl@main@language{#1}}
   {\hva@warn{Hevea babel '#1' not found, loading 'english' instead}%
    \input{english.hva}\def\bbl@main@language{english}}}
 {}}
+%%%Default option (parses main=<lang>)
+\define@key{babel}{main}{\def\bbl@realmain@language{#1}\InitiateOption{#1}}
+\newcommand{\DefaultOption}[1]{\@setkeys{babel}{#1}}
+\DeclareOption{@defopt}{\DefaultOption}%
 %
 %%%% Processing information for each optional argument
 %
@@ -96,6 +103,7 @@
 %Save definition of double quote (altered by german)
 \let\@hevea@saved@dquote\@hevea@dquote
 \newcommand{\selectlanguage}[1]{%
+\def\language@packages{#1}%
 \let\@hevea@dquote\@hevea@saved@dquote%Restore inocuous definition
   \ifthenelse{\equal{#1}{german}} {%
 	\let\current@language\german@language    \german@babel    } {%
@@ -158,6 +166,21 @@
   }}}}}}}}}}}}}}}}}}}}}}}}}}}}}%
 }%
 %
+\newenvironment{foreign@language@block}[1]%
+{\let\outer@language=\current@language%
+  \@open{div}{class="foreignlanguage" lang="\map@lang@code{#1}"}%
+  \selectlanguage{#1}}%
+{\@close{div}\selectlanguage{\outer@language}}
+\newenvironment{foreign@language@inline}[1]%
+{\let\outer@language=\current@language%
+  \@open{span}{class="foreignlanguage" lang="\map@lang@code{#1}"}%
+  \selectlanguage{#1}}%
+{\@close{span}\selectlanguage{\outer@language}}
+\newcommand{\foreignlanguage}[2]{%
+  \begin{foreign@language@inline}{#1}#2\end{foreign@language@inline}
+}
+\newenvironment{hyphenrules}[1]{\@span{lang="\map@lang@code{#1}"}}{}
+%
 %%%% Support for the 'babel' command for querying the current language.
 %
 \newcommand{\iflanguage}[3]{%
@@ -168,4 +191,5 @@
 %%%% For each option (language l), checks for l.hva and 'includes' it.
 %
 \ProcessOptions*%
+\ifu\bbl@realmain@language\else\let\bbl@main@language\bbl@realmain@language\fi
 \selectlanguage{\bbl@main@language}

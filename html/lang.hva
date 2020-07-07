@@ -1,0 +1,105 @@
+\usepackage{ifthen}
+\usepackage{keyval}
+\newcommand{\map@lang@code}[1]{%
+  \ifthenelse{\equal{#1}{afrikaans}}{af}{%
+  \ifthenelse{\equal{#1}{austrian}}{de-AT}{%
+  \ifthenelse{\equal{#1}{brazil}}{pt-BR}{%
+  \ifthenelse{\equal{#1}{british}}{en-GB}{%
+  \ifthenelse{\equal{#1}{bulgarian}}{bg}{%
+  \ifthenelse{\equal{#1}{catalan}}{ca}{%
+  \ifthenelse{\equal{#1}{croatian}}{hr}{%
+  \ifthenelse{\equal{#1}{czech}}{cs}{%
+  \ifthenelse{\equal{#1}{danish}}{da}{%
+  \ifthenelse{\equal{#1}{dutch}}{nl}{%
+  \ifthenelse{\equal{#1}{english}}{en}{%
+  \ifthenelse{\equal{#1}{esperanto}}{eo}{%
+  \ifthenelse{\equal{#1}{finnish}}{fi}{%
+  \ifthenelse{\equal{#1}{francais}}{fr}{%
+  \ifthenelse{\equal{#1}{frenchb}}{fr}{%
+  \ifthenelse{\equal{#1}{french}}{fr}{%
+  \ifthenelse{\equal{#1}{galician}}{gl}{%
+  \ifthenelse{\equal{#1}{german}}{de}{%
+  \ifthenelse{\equal{#1}{greek}}{el}{%
+  \ifthenelse{\equal{#1}{hungarian}}{hu}{%
+  \ifthenelse{\equal{#1}{icelandic}}{is}{%
+  \ifthenelse{\equal{#1}{irish}}{ga}{%
+  \ifthenelse{\equal{#1}{italian}}{it}{%
+  \ifthenelse{\equal{#1}{latin}}{la}{%
+  \ifthenelse{\equal{#1}{magyar}}{hu}{%
+  \ifthenelse{\equal{#1}{ngerman}}{de}{%
+  \ifthenelse{\equal{#1}{norsk}}{no}{%
+  \ifthenelse{\equal{#1}{nynorsk}}{nn}{%
+  \ifthenelse{\equal{#1}{polish}}{pl}{%
+  \ifthenelse{\equal{#1}{portuguese}}{pt}{%
+  \ifthenelse{\equal{#1}{romanian}}{ro}{%
+  \ifthenelse{\equal{#1}{russian}}{ru}{%
+  \ifthenelse{\equal{#1}{slovak}}{sk}{%
+  \ifthenelse{\equal{#1}{slovene}}{sl}{%
+  \ifthenelse{\equal{#1}{slovenian}}{sl}{%
+  \ifthenelse{\equal{#1}{spanish}}{sp}{%
+  \ifthenelse{\equal{#1}{swedish}}{se}{%
+  \ifthenelse{\equal{#1}{swissgerman}}{de-CH}{%
+  \ifthenelse{\equal{#1}{turkish}}{tr}{%
+  \ifthenelse{\equal{#1}{ukenglish}}{en-UK}{%
+  \ifthenelse{\equal{#1}{usenglish}}{en-US}{%
+  \ifthenelse{\equal{#1}{welsh}}{cy}{%
+  {}%
+  }}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}%
+}
+\def\document@language@code{}
+\newcommand{\set@language@var}[1]{%
+  \def\code{\map@lang@code{#1}}%
+  \ifthenelse{\equal{\code}{}}%
+             {}%
+             {\def\document@language@code{\code}}%
+}
+\newboolean{valid@equ@separated@pair}
+\def\check@for@equ@delimiter#1=#2\@empty{%
+  \def\value@arg{#2}%
+  \ifx\value@arg\@empty
+    \setboolean{valid@equ@separated@pair}{false}%
+  \else
+    \setboolean{valid@equ@separated@pair}{true}%
+  \fi
+}
+\def\force@main@language#1=#2\@empty{%
+  \ifthenelse{\equal{#1}{main}}%
+             {\def\forced@main@lang{#2}}%
+             {\hva@warn{\force@main@language: unknown key '#1' -- ignored}}%
+}
+\def\language@packages{}
+\newcommand{\quirky@setlang}[1]{%
+  \@funcall{\check@for@equ@delimiter}{#1=\@empty}%
+  \ifvalid@equ@separated@pair
+    \@funcall{\force@main@language}{#1\@empty}%
+  \else
+    \def\language@packages{#1}%
+  \fi
+}
+\let\old@usepackagehook\usepackagehook
+\renewcommand{\usepackagehook}[2]{%
+  \ifthenelse{\equal{\map@lang@code{#2}}{}}%
+             {\ifthenelse{\equal{#2}{babel}}%
+                         {\@callprim{\@iter}{\string\quirky@setlang,{\char123 #1\char125}}%
+                          \ifu\forced@main@lang
+                            \relax
+                          \else
+                            \def\language@packages{\forced@main@lang}%
+                          \fi}%
+                         {}}%
+             {\def\language@packages{#2}}%
+  \old@usepackagehook{#1}{#2}%
+}
+\newcommand{\main@lang}{%
+  \@callprim{\@iter}{\string\set@language@var,{\char123\usebox{\@document@opts}\char125}}%
+  \@callprim{\@iter}{\string\set@language@var,{\char123\language@packages\char125}}%
+  \ifthenelse{\equal{\document@language@code}{}}%
+             {en}% default
+             {\document@language@code}%
+}
+\AtBeginDocument{%
+  \ifthenelse{\equal{\@htmlargs}{}}%
+             {\renewcommand{\@htmlargs}{lang="\main@lang"}}%
+             {\let\old@args=\@htmlargs
+              \renewcommand{\@htmlargs}{lang="\main@lang" \old@args}}%
+}
