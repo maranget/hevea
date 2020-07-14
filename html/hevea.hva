@@ -578,7 +578,7 @@
 %%Style of display
 \def\@orange{\@print{#}FF8000}
 \def\@magenta{fuchsia}
-\def\@dtstyle{border-collapse:separate;border-spacing:\@barsz;width:auto;}
+\def\@dtstyle{border-collapse:separate;border-spacing:\@barsz;line-height:1.1;width:auto;}
 \def\@dcstyle{white-space:nowrap;padding:0px;}%;width:auto;}
 \newstyle{.vdisplay}{\@dtstyle{} empty-cells:show; border:2px solid red;}
 \newstyle{.vdcell}{\@dcstyle{} border:2px solid green;}
