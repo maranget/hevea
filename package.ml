@@ -39,10 +39,6 @@ open Scan
 (* See iso-sym.hva, for the definition of \text@accent   *)
 (*********************************************************)
 
-let put_empty empty =
-  if empty <> OutUnicode.null then Dest.put_unicode empty
-  else raise OutUnicode.CannotTranslate
-
 exception DiacriticFailed of string * string
 
 let do_def_diacritic _verb _name f optg empty =
@@ -50,24 +46,17 @@ let do_def_diacritic _verb _name f optg empty =
     let arg0 = save_arg lexbuf in
     let arg = get_prim_onarg arg0 in
     try match String.length arg with
-    | 0 -> put_empty empty
+    | 0 -> OutUnicode.put_empty Dest.put_unicode empty
     | 1 ->
-        let c = arg.[0] in
-        begin try
-          if c = ' ' then put_empty empty
-          else Dest.put_unicode (f c)
-        with OutUnicode.CannotTranslate ->
-          begin match optg with
-          | None -> raise OutUnicode.CannotTranslate
-          | Some g ->
-              let ext = g c in
-              Dest.put_char c ; Dest.put_unicode ext
-          end
-        end
-    | _ -> raise OutUnicode.CannotTranslate
+        OutUnicode.apply_accent
+          Dest.put_char Dest.put_unicode f optg empty arg.[0]
+    | _ ->
+        OutUnicode.on_entity
+          Dest.put_char Dest.put_unicode f optg empty arg
     with
     | OutUnicode.CannotTranslate
     | Misc.CannotPut ->	raise (DiacriticFailed (Subst.do_subst_this arg0,arg)))
+;;
 
 let full_def_diacritic  name internal f optg empty =
   def_code name
@@ -79,16 +68,17 @@ let full_def_diacritic  name internal f optg empty =
 ;;
 
 let def_diacritic  name internal f empty =
-  full_def_diacritic  name internal f None empty
+  full_def_diacritic name internal f None empty
 
 and def_diacritic_opt  name internal f g empty =
   full_def_diacritic  name internal f (Some g) empty
 
+
 open OutUnicode
 
 let () =
-  def_diacritic "\\'"  "acute" OutUnicode.acute acute_alone ;
-  def_diacritic "\\`"  "grave" OutUnicode.grave grave_alone ;
+  def_diacritic_opt "\\'"  "acute" OutUnicode.acute comb_acute acute_alone ;
+  def_diacritic_opt "\\`"  "grave" OutUnicode.grave  comb_grave grave_alone ;
   def_diacritic "\\^"  "circumflex" OutUnicode.circumflex circum_alone ;
   def_diacritic "\\\"" "diaeresis" OutUnicode.diaeresis diaeresis_alone ;
   def_diacritic_opt "\\c"  "cedilla" OutUnicode.cedilla

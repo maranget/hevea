@@ -192,7 +192,6 @@ let open_mapping name =
 
 and close_mapping chan = try close_in chan with _ -> ()
 
-
 let set_output_translator name =
   let key = Filename.basename name in
   match key with
@@ -247,6 +246,25 @@ let translate_out i = !translate_out_fun i
 and translate_in c (next:unit -> int) = !translate_in_fun c next
 
 (* Diacritical marks *)
+let null = 0x00
+
+let put_empty put_unicode empty =
+  if empty <> null then put_unicode empty
+  else raise CannotTranslate
+
+let apply_accent put_char put_unicode f optg empty c =
+  begin try
+    if c = ' ' then put_empty put_unicode empty
+    else put_unicode (f c)
+  with CannotTranslate ->
+    begin match optg with
+    | None -> raise CannotTranslate
+    | Some g ->
+        let ext = g c in
+        put_char c ; put_unicode ext
+    end
+  end
+
 
 (*
   Tables from ftp://ftp.unicode.org/Public/MAPPINGS/ISO8859
@@ -816,8 +834,7 @@ let html_put put put_char i = match i with
 
 (* Constants *)
 
-let null = 0x00
-and space = 0X20
+let space = 0X20
 and nbsp = 0XA0
 and acute_alone = 0xB4
 and grave_alone = 0X60
@@ -858,7 +875,26 @@ let comb_cedilla = function
   | 'o'|'O' -> 0x0327
   | _ -> raise CannotTranslate
 
+let comb_grave = function
+  | 'j'|'J' -> 0x0300
+  | _ -> raise CannotTranslate
+
+let comb_acute = function
+  | 'j'|'J' -> 0x0301
+  | _ -> raise CannotTranslate
+
+
 
 (* Double accents *)
 
 let double_inverted_breve = 0x0361
+
+(* Accent over numerical entities  *)
+
+let tr_entity = function
+  | "&#X131;"|"&#305;" -> 'i'
+  | "&#X237;"|"&#567;" -> 'j'
+  | _ -> raise CannotTranslate
+
+let on_entity put_char put_unicode f optg empty s =
+  apply_accent  put_char put_unicode f optg empty (tr_entity s)
