@@ -50,8 +50,19 @@
 \def\@changelabel
   {\let\@oldlabel\label%
   \renewcommand{\label}[1]{\@oldlabel[~]{##1}}}
-\newcommand{\eqno}[1]{\qquad#1}
-\newenvironment{equation}{\[\@changelabel\refstepcounter{equation}}{\eqno{(\theequation)}\]}
+\newstyle{.equationcontainer}{position:relative;}
+\def\@eqnnumstyle{float:right;left:auto;position:absolute;right:0}
+\newstyle{.equationnumber}{\@eqnnumstyle}
+\newstyle{.equationnumber-valign}{\@eqnnumstyle;margin-top:-0.5em;}
+\def\@equationnumber@class{equationnumber}
+\newcommand{\set@equ@num@align}[1]{%
+  \ifthenelse{\equal{#1}{leqno}}{\def\@eqnnumstyle{float:left;left:0;position:absolute;right:auto}}{}%
+}
+\newcommand{\honor@leqno@option}{%
+  \@callprim{\@iter}{\string\set@equ@num@align,{\char123\usebox{\@document@opts}\char125}}
+}
+\newcommand{\eqno}[1]{\@open{span@inline@block}{class="\@equationnumber@class"}#1\@close{span@inline@block}}
+\newenvironment{equation}{\@open{div}{class="equationcontainer"}\[\@changelabel\refstepcounter{equation}}{\eqno{(\theequation)}\]\@close{div}}
 \newenvironment{eqnarray*}{$$\begin{array}{rcl}}{\end{array}$$}
 \gdef\@yes@number{\eqno{(\theequation)}}
 \gdef\@no@number{\addtocounter{equation}{-1}}
@@ -63,7 +74,8 @@
 \let\@HEVEA@lefteqn\lefteqn
 \newenvironment{eqnarray}
 {\@ifundefined{@eqna@inside}{\def\@eqna@inside{}}{\hva@warn{Nested eqnarray}}%
-\[\@changelabel\def\@currentlabel{\theequation}%
+\def\@equationnumber@class{equationnumber-valign}%
+\@open{div}{class="equationcontainer"}\[\@changelabel\def\@currentlabel{\theequation}%
 \setcounter{@eqna@col}{0}\@yesnumber\stepcounter{equation}
 \let\@PBS=\@HEVEA@bsbs
 \let\@PAM=\@HEVEA@amper
@@ -76,7 +88,7 @@
     {\hva@warn{Extra column in eqnarray}}}     
 \renewcommand{\\}[1][]{\@eqna@complete\@PAM\@number\setcounter{@eqna@col}{0}\@yesnumber\stepcounter{equation}\@PBS}
 \@array{rclr}}
-{\\{}\addtocounter{equation}{-1}\end@array\]}
+{\\{}\addtocounter{equation}{-1}\end@array\]\@close{div}}
 \def\mathrm#1{{\rm#1}}
 \def\mathtt#1{{\tt#1}}
 \def\mathit#1{{\it#1}}
@@ -344,6 +356,8 @@
 %%% Paragraphs
 \let\par\@empty
 \AtBeginDocument{\let\par\hva@par}
+%%% Equations
+\AtBeginDocument{\honor@leqno@option}
 %%% References
 \newcommand{\@currentlabel}{}
 %%% Index references
