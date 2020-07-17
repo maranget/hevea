@@ -36,7 +36,8 @@
 \newcommand\abstractname{Abstract}
 \setenvclass{abstract}{abstract}
 \newenvironment{abstract}
-{\setenvclass{quote}{abstract}\begin{quote}{\bf \abstractname: }}
+{\setenvclass{quote}{abstract}
+\begin{quote}\ifthenelse{\equal{\abstractname}{}}{}{{\bf \abstractname:} }}
 {\end{quote}}
 \newcommand{\@indexsection}[1]{\section*{#1}}
 \newcommand{\@bibliosection}[1]{\section*{#1}}
