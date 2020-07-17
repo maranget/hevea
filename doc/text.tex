@@ -4529,35 +4529,45 @@ implementations by themselves.
 
 
 \subsection{The Title Page and Abstract}
-All title related commands exist, with the following peculiarities:
+
+All title related commands exist with the following peculiarities:
+
 \begin{itemize}
-  \item
-  The argument to the \verb+\title+\comindex{title} command appears
-  in the \html{}~document header. As a consequence, titles should
-  remain simple. Normal design (as regards \hevea{}) is for
-  \verb+\title+ to occur in the document preamble, so that the title
-  is known at the time when the document header is emitted (while
-  processing \verb+\begin{document}+). However, there are two subtleties.
+\item The argument of the \verb+\title+\comindex{title}~command
+  appears in the \html~document header.  As a consequence titles
+  should remain simple.  Normal design (as regards \hevea) is
+  for \verb+\title+ to occur in the document preamble, so that the
+  title is known at the time when the document header is emitted, this
+  is, while processing \verb+\begin{document}+.  However, there are
+  two subtleties.
 
-  If no \verb+\title+
-  command occurs in document preamble and that one \verb+\title+
-  command appears in the document, then the title is saved into the
-  \texttt{.haux} file for a next run of \hevea{} to put it in the
-  \html{}~document header.
+  \begin{enumerate}
+  \item If no \verb+\title+~command occurs in document preamble and
+    that one \verb+\title+~command appears in the document, then the
+    title is saved into the \texttt{.haux}~file for the next run of
+    \hevea{} to put it in the \html~document header.
 
-  If \verb+\title+ commands are present both in preamble and after
- \verb+\begin{document}+, then the former takes precedence.
+  \item If \verb+\title+~commands are present both in preamble and
+    after \verb+\begin{document}+ the former takes precedence.
+  \end{enumerate}
 
- \item When not present the date is left empty. The
- \verb+\today+\comindex{today} command generates will work properly
- only if \texttt{hevea} is invoked with the \verb+-exec xxdate.exe+
- option.  Otherwise \verb+\today+ generates nothing and a warning is
- issued.
+\item When not present the date is left empty.  The
+  \verb+\today+\comindex{today}~command generates will work properly
+  only if \texttt{hevea} is invoked with the
+  \verb+-exec xxdate.exe+~option.  Otherwise \verb+\today+ generates
+  nothing and a warning is issued.
 \end{itemize}
 
-The \verb+abstract+ environment is present is all base styles,
-including the \filename{book} style.
-The \verb+titlepage+ environment does nothing.
+The \verb+abstract+ environment is present in all base styles,
+including the \filename{book}~style.  The \verb+titlepage+~environment
+does nothing.
+
+\hevea{} places the \verb+\title+~argument into an \verb+h1+-element
+with class~\verb+titlemain+ and puts the arguments of \verb+\author+
+and \verb+\date+ into a \verb+h3+-element with class~\verb+titlerest+.
+The abstract goes into a \verb+blockquote+-element with
+class~\verb+abstract+.
+
 
 \section{Displayed Paragraphs}
 Displayed-paragraph environments translate to block-level
