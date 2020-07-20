@@ -4583,13 +4583,18 @@ appear directly inside a displayed-paragraph environment or inside an array
 element.
 
 
-
 \subsection{Quotation and Verse}
-The \verb+quote+ and \verb+quotation+ environments are the same thing: they
-translate to \verb+BLOCKQUOTE+ elements.
-The \verb+verse+ environment is not supported.
+
+The \verb+quote+ and \verb+quotation+~environments are similar; they
+translate to \verb+BLOCKQUOTE+~elements with associated
+classes~\verb+quote+ and \verb+quotation+, respectively.
+
+The \verb+verse+~environment is supported as \verb+BLOCKQUOTE+~element
+with class~\verb+verse+.
+
 
 \subsection{List-Making environments}
+
 The \verb+itemize+, \verb+enumerate+ and \verb+description+
 environments translate to the \verb+ul+, \verb+ol+, and
 \verb+DL+ elements and this is the whole story.
