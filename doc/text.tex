@@ -5948,10 +5948,17 @@ the body text, for example with
 \newstyle{.monospace}{font-family: "Courier New", Courier, monospace; font-size: 120\%}
 \end{verbatim}
 
-\noindent or to fine-tune \verb+font-stretch+ and \verb+font-weight+.
+\noindent or to fine-tune \verb+font-stretch+ and \verb+font-weight+;
+it is also the perfect place to activate (or deactivate)
+OpenType~features exactly for one specific family
 
-Despite their names the classes can host any font chosen from any
-family:
+\begin{verbatim}
+\newstyle{.sansserif}{font-family: Jost, sans-serif;
+                      font-feature-settings: "ss01"}% Futura-like single-storey "a"
+\end{verbatim}
+
+\noindent Despite their names the classes can host any font chosen
+from any family:
 
 \begin{verbatim}
 \newstyle{.serif}{font-family: Go, sans-serif}
@@ -6157,7 +6164,7 @@ Some hints to get legible and portable output.
 \begin{itemize}
 \item Restrict the selection to fonts that cover the the required set
   of special characters (accented, mathematics, \dots).
-  H\aa{}mb\"urg\'ef\o{}\~ns!
+  !`H\aa{}mb\"urg\'ef\o{}\~ns!
 
 \item Choose families with at least four variations for
   classes~\verb+serif+ and \verb+sansserif+:
