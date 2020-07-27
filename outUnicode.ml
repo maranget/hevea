@@ -834,11 +834,12 @@ let html_put put put_char i = match i with
 
 (* Constants *)
 
-let space = 0X20
-and nbsp = 0XA0
+let space = 0x20
+and nbsp = 0xA0
+and visible_space = 0x2423
 and acute_alone = 0xB4
-and grave_alone = 0X60
-and circum_alone = 0X5E
+and grave_alone = 0x60
+and circum_alone = 0x5E
 and diaeresis_alone = 0xA8
 and cedilla_alone = 0xB8
 and tilde_alone = 0x7E
