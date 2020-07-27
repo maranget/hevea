@@ -995,20 +995,20 @@ let _ = ()
 ;;
 
 let put_char_star c next = match c with
-  | ' '|'\t' -> Dest.put_char '_' ;
+  | ' ' | '\t' -> Dest.put_unicode OutUnicode.visible_space;
   | c -> Scan.translate_put_unicode c next
 
 and put_char c next = match c with
-  |  '\t' -> Dest.put_char ' '
-  | c ->  Scan.translate_put_unicode c next
+  | '\t' -> Dest.put_char ' '
+  | c -> Scan.translate_put_unicode c next
 ;;
 
 
 let open_verb put lexbuf =
-  Dest.open_group "code" ;
+  Dest.open_group "code class=\"verb\"";
   start_inverb put lexbuf
 ;;
-  
+
 def_code "\\verb" (open_verb put_char) ;
 def_code "\\verb*" (open_verb put_char_star);
 ();;
