@@ -1,9 +1,10 @@
 \def\@{}
 \def\ { }
-\def\:{ }
-\def\,{~}
+\def\:{\@print@u{8287}}% LaTeX: medium space, 2/9 quad; Unicode: MediumSpace, 2/9 quad.
+\def\thinspace{\@print@u{8239}}% TeX: 1/6 quad; Unicode: six-per-em non-breaking space
+\let\,=\thinspace
 \def\!{}
-\def\;{~}
+\def\;{\@print@u{8196}}% TeX: thick space: 5/18 quad; Unicode: emsp13, 6/18 quad!
 \def\
 {\@print{
 }}
@@ -17,9 +18,10 @@
 \def\smallskip{\vspace*{1em}}
 \def\medskip{\vspace*{1em}}
 \def\bigskip{\vspace*{2em}}
-\def\enspace{\hspace*{1em}}
-\def\quad{\hspace*{2em}}
-\def\qquad{\hspace*{4em}}
+\def\enspace{\@print@u{8288}\@print@u{8194}\@print@u{8288}}% TeX: 1/2 quad; Unicode: word-joiner + ensp + word-joiner  =>  non-breaking en-space.
+\def\enskip{\@print@u{8194}}% TeX: 1/2 quad; Unicode: ensp, 1/2 quad.
+\def\quad{\@print@u{8195}}% TeX: 1 quad; Unicode: emsp, 1 quad.
+\def\qquad{\@print@u{8195}\@print@u{8195}}% TeX: 2 quad; Unicode: emsp + emsp, 2 quad.
 %% Paragraphs
 \def\noindent{}
 \def\indent{}
