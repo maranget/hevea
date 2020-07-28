@@ -1133,16 +1133,15 @@ rule  main = parse
 | eof {()}
 | ' '+ as lxm
     {if effective !alltt then
-      Dest.put lxm
-    else begin
-      if !display then
-	for _i = 1 to String.length lxm do
-	  Dest.put_hspace ()
-	done
-      else
-	Dest.put_char ' '
-    end ;
-      main lexbuf}
+       Dest.put lxm
+     else
+       begin
+         if !display then
+           Dest.put_hspace false (Length.Char (String.length lxm))
+         else
+	   Dest.put_char ' '
+       end;
+     main lexbuf}
 (* Alphabetic characters *)
 | ['a'-'z' 'A'-'Z']+ as lxm
     {let lxm = check_case lxm in
@@ -1662,7 +1661,8 @@ def_code "\\@hevea@tilde"
   (fun _lexbuf ->
     if effective !alltt || not (is_plain '~') then
       Dest.put_char '~'
-    else Dest.put_hspace ())
+    else
+      Dest.put_hspace true (Length.Char 1))
 ;;
 
 def_code "\\@hevea@question"
@@ -3338,21 +3338,32 @@ def_code "\\@getlength"
     Dest.put (string_of_int pxls))
 ;;
 
-
-let do_space (warn:string -> unit) (doit:unit -> unit) lexbuf =
+let insert_horizontal_space persistent (warn : string -> unit) (insert : bool -> Length.t -> unit) lexbuf =
   let arg = subst_arg lexbuf in
-  try
-    let n = match Length.main (MyLexing.from_string arg) with
-    | Length.Char n -> n
-    | Length.Pixel n -> Length.pixel_to_char n
-    | _                 -> raise Cannot in
-    for _i=1 to n do
-      doit ()
-    done
-  with Cannot -> warn arg
+    try
+      begin
+        match Length.main (MyLexing.from_string arg) with
+        | Length.Percent _ | Length.NotALength _ | Length.Default -> raise_notrace Cannot
+        | length -> insert persistent length
+      end
+    with Cannot -> warn arg
 ;;
 
-let warn_space name arg = warning (name^" with arg '"^arg^"'")
+let do_space (warn : string -> unit) (doit : unit -> unit) lexbuf =
+  let arg = subst_arg lexbuf in
+    try
+      let n = match Length.main (MyLexing.from_string arg) with
+        | Length.Char n -> n
+        | Length.Pixel n -> Length.pixel_to_char n
+        | _ -> raise Cannot
+      in
+        for _i = 1 to n do
+          doit ()
+        done
+    with Cannot -> warn arg
+;;
+
+let warn_space name arg = warning (name ^ " with arg '" ^ arg ^ "'")
 ;;
 
 let warn_hspace = warn_space "\\hspace"
@@ -3360,9 +3371,11 @@ and warn_vspace = warn_space "\\vspace"
 ;;
 
 def_code "\\hspace"
-    (fun lexbuf -> do_space warn_hspace Dest.put_hspace lexbuf) ;
-def_code "\\vspace" 
-    (fun lexbuf -> do_space warn_vspace Dest.skip_line lexbuf) ;
+    (fun lexbuf -> insert_horizontal_space false warn_hspace Dest.put_hspace lexbuf);
+def_code "\\hspace*"
+    (fun lexbuf -> insert_horizontal_space true warn_hspace Dest.put_hspace lexbuf);
+def_code "\\vspace"
+    (fun lexbuf -> do_space warn_vspace Dest.skip_line lexbuf);
 def_code "\\@vdotsfill"
   (fun lexbuf ->
     do_space

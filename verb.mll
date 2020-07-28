@@ -1362,15 +1362,13 @@ let parse_linerange s =
 
 let code_spaces _lexbuf =
   let n = Counter.value_counter "lst@spaces" in
-  if !lst_showspaces then
-    for _i = n - 1 downto 0 do
-      Dest.put_char '_'
-    done
-  else
-    for _i = n - 1 downto 0 do
-      Dest.put_hspace ()
-    done;
-  Counter.set_counter "lst@spaces" 0
+    if !lst_showspaces then
+      for _i = 1 to n do
+        Dest.put_char '_'
+      done
+    else
+      Dest.put_hspace true (Length.Char n);
+    Counter.set_counter "lst@spaces" 0
 ;;
 
 let check_style sty =

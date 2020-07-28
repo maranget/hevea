@@ -1086,9 +1086,11 @@ let put_separator () = put " "
 let put_tag _ = ()
 ;;
 
-let put_hspace () =
+let put_hspace _persistent length =
   do_pending ();
-  do_put_nbsp ()
+  for _i = 1 to Length.as_number_of_chars length do
+    do_put_nbsp ()
+  done
 ;;
 
 let put_open_group () = ()

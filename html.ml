@@ -178,11 +178,92 @@ let unskip () =
 
 let put_tag tag = put tag
 
-let put_hspace () =
+module HorizontalSpace =
+  struct
+    (* Width of a character ("gauge") given in multiples of an [em]
+       and the Unicode which generates the character. *)
+    type gauged_character = float * OutUnicode.unichar
+
+    type configuration = {
+        normal : gauged_character list;
+        minimal : OutUnicode.unichar; (* smallest space possible -- unspecified gauge *)
+        zero : OutUnicode.unichar (* zero gauge but same line-braking behavior as other spaces *)
+      }
+
+    (* https://en.wikipedia.org/wiki/whitespace_character#spaces_in_unicode *)
+    let emsp = OutUnicode.parse "8195"; (* emsp *)
+    and ensp = OutUnicode.parse "8194"; (* ensp *)
+    and emsp13 = OutUnicode.parse "8196"; (* emsp13 *)
+    and emsp14 = OutUnicode.parse "8197"; (* emsp14 *)
+    and six_per_em_space = OutUnicode.parse "8198"
+    and hairsp = OutUnicode.parse "8202" (* hairsp *)
+    (* https://en.wikipedia.org/wiki/zero-width_space *)
+    and zero_width_space = OutUnicode.parse "8203" (* ZeroWidthSpace (an explicit breakpoint) *)
+    and zero_width_joiner = OutUnicode.parse "8205" (* zwj *)
+
+    let html_spaces = {
+        normal = [1.0, emsp;
+                  0.5, ensp;
+                  1.0 /. 3.0, emsp13;
+                  0.25, emsp14;
+                  1.0 /. 6.0, six_per_em_space];
+        minimal = hairsp;
+        zero = zero_width_space
+      }
+
+    let approximate_hspace persistent space_configuration length =
+      let join_if_persistent () = if persistent then put_unicode zero_width_joiner in
+        let rec iter has_put_normal_space available_normal_spaces remaining_width =
+          match available_normal_spaces with
+          | [] ->
+             (* if remaining_width > 0.0 then
+               Printf.eprintf
+                 "+ approximate_hspace: %s -- remaining error %fem = %fpx\n"
+                 (Length.pretty length) remaining_width (remaining_width *. 16.0); *)
+             if remaining_width > 0.0 && not has_put_normal_space then
+               begin
+                 put_unicode space_configuration.minimal;
+                 join_if_persistent ()
+               end
+          | (space_char_width, space_char) :: remaining_normal_spaces ->
+             let number_of_spaces = floor (remaining_width /. space_char_width) in
+               let remaining_width' = remaining_width -. number_of_spaces *. space_char_width
+               and n = int_of_float number_of_spaces in
+                 for _i = 1 to n do
+                   put_unicode space_char;
+                   join_if_persistent ()
+                 done;
+                 iter (has_put_normal_space || n >= 1) remaining_normal_spaces remaining_width'
+        in
+          match length with
+          | Length.Char n ->
+             (* Printf.eprintf "+ approximate_hspace: Char %d\n" n; *)
+             if n = 0 then
+               put_unicode space_configuration.zero
+             else
+               for _i = 1 to n do
+                 put_unicode emsp13;
+                 join_if_persistent ()
+               done
+          | Length.Pixel x ->
+             (* Printf.eprintf "+ approximate_hspace: Pixel %d\n" x; *)
+             if x < 0 then
+               failwith "approximate_hspace: negative space"
+             else if x = 0 then
+               put_unicode space_configuration.zero
+             else
+               iter false space_configuration.normal (Length.pixel_to_char_float x)
+          | Length.Percent _ | Length.NotALength _ | Length.Default ->
+             failwith "approximate_hspace: never reached"
+  end (* HorizontalSpace *)
+
+let put_hspace persistent length =
   if !Lexstate.whitepre || (flags.in_math && !Parse_opts.mathml) then
-    put_char ' '
+    for _i = 1 to Length.as_number_of_chars length do
+      put_char ' '
+    done
   else
-    put_unicode OutUnicode.nbsp
+    HorizontalSpace.(approximate_hspace persistent html_spaces length)
 
 let put_open_group () =
   put_char '{'

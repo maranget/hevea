@@ -11,7 +11,6 @@
 \def\frenchspacing{}
 \def\nonfrenchspacing{}
 \def\/{}
-\newcommand{\hspace*}[1]{\hspace{#1}}
 \newcommand{\vspace*}[1]{\vspace{#1}}
 \newcommand{\addvspace}[1]{\vspace{#1}}
 \def\cr{\\}
