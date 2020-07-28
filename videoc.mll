@@ -142,7 +142,7 @@ rule snippetenv = parse
      snippetRunHook Scan.main "BeforeLine";
      snippetenv lexbuf}
 | ' '|'\t'
-    {Dest.put_nbsp ();
+    {Dest.put_hspace ();
      snippetenv lexbuf}
 | ';' + 
     {Dest.put (lexeme lexbuf);

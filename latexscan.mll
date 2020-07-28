@@ -1137,7 +1137,7 @@ rule  main = parse
     else begin
       if !display then
 	for _i = 1 to String.length lxm do
-	  Dest.put_nbsp ()
+	  Dest.put_hspace ()
 	done
       else
 	Dest.put_char ' '
@@ -1662,7 +1662,7 @@ def_code "\\@hevea@tilde"
   (fun _lexbuf ->
     if effective !alltt || not (is_plain '~') then
       Dest.put_char '~'
-    else Dest.put_nbsp ())
+    else Dest.put_hspace ())
 ;;
 
 def_code "\\@hevea@question"
@@ -3339,9 +3339,7 @@ def_code "\\@getlength"
 ;;
 
 
-let do_space 
-    (warn:string -> unit)
-    (doit:unit -> unit) lexbuf  = 
+let do_space (warn:string -> unit) (doit:unit -> unit) lexbuf =
   let arg = subst_arg lexbuf in
   try
     let n = match Length.main (MyLexing.from_string arg) with
@@ -3362,7 +3360,7 @@ and warn_vspace = warn_space "\\vspace"
 ;;
 
 def_code "\\hspace"
-    (fun lexbuf -> do_space warn_hspace Dest.put_nbsp lexbuf) ;
+    (fun lexbuf -> do_space warn_hspace Dest.put_hspace lexbuf) ;
 def_code "\\vspace" 
     (fun lexbuf -> do_space warn_vspace Dest.skip_line lexbuf) ;
 def_code "\\@vdotsfill"
@@ -3520,7 +3518,7 @@ let open_array env lexbuf =
     | "tabular*"|"Tabular*" ->
         let arg = save_arg lexbuf in
         begin match Get.get_length (get_prim_onarg arg) with
-        | Length.No _ ->
+        | Length.NotALength _ ->
             warning ("'tabular*' with length argument: "^
                      do_subst_this arg) ;
             Length.Default
@@ -3613,7 +3611,7 @@ and do_bsbs lexbuf =
     Dest.open_cell default_format 1 0 false
   end else begin
     if !display then
-      (*(Dest.put_nbsp ();Dest.put_nbsp ();Dest.put_nbsp ();Dest.put_nbsp ())*)
+      (*(Dest.put_hspace ();Dest.put_hspace ();Dest.put_hspace ();Dest.put_hspace ())*)
       warning "\\\\ in display mode, ignored"
     else
       Dest.skip_line ()
@@ -3815,7 +3813,7 @@ def_code "\\@infoname"
 ;;
 
 let safe_len = function
-  | Length.No _ -> Length.Default
+  | Length.NotALength _ -> Length.Default
   | l    -> l
 ;;
 

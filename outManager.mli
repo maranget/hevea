@@ -82,7 +82,7 @@ val horizontal_line : string -> Length.t -> Length.t -> unit
 val put_separator : unit -> unit
 val unskip : unit -> unit
 val put_tag : string -> unit
-val put_nbsp : unit -> unit
+val put_hspace : unit -> unit
 val put_open_group : unit -> unit
 val put_close_group : unit -> unit
 val put_in_math : string -> unit

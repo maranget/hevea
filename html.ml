@@ -178,10 +178,10 @@ let unskip () =
 
 let put_tag tag = put tag
 
-let put_nbsp () =
-  if !Lexstate.whitepre || (flags.in_math && !Parse_opts.mathml) then begin
+let put_hspace () =
+  if !Lexstate.whitepre || (flags.in_math && !Parse_opts.mathml) then
     put_char ' '
-  end else
+  else
     put_unicode OutUnicode.nbsp
 
 let put_open_group () =
@@ -670,7 +670,7 @@ let rec do_dt_dd scan true_scan arg s1 s2 = match pblock () with
 
 let ditem scan arg s1 s2 =
   if !verbose > 2 then begin
-    Printf.eprintf "=> DITEM: «%s» «%s» «%s»\n" arg s1 s2 ;
+    Printf.eprintf "=> DITEM: `%s' `%s' `%s'\n" arg s1 s2 ;
     prerr_string "ditem: stack=" ;
     pretty_stack out_stack
   end ;
@@ -691,7 +691,7 @@ let ditem scan arg s1 s2 =
   end ;
   flags.nitems <- flags.nitems+1 ;
   if !verbose > 2 then begin
-    Printf.eprintf "<= DITEM: «%s» «%s» «%s»\n" arg s1 s2 ;
+    Printf.eprintf "<= DITEM: `%s' `%s' `%s'\n" arg s1 s2 ;
     prerr_string "ditem: stack=" ;
     pretty_stack out_stack
   end ;

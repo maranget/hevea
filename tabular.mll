@@ -67,7 +67,7 @@ let check_vert f =
 and check_length f =
   for i = 0 to Array.length f - 1 do
     match f.(i) with
-    | Align ({wrap=true ; width=Length.No _} as r) ->
+    | Align ({wrap=true ; width=Length.NotALength _} as r) ->
         f.(i) <-
            Align
              {r with
