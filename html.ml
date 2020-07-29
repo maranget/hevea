@@ -187,32 +187,23 @@ module HorizontalSpace =
     type configuration = {
         normal : gauged_character list;
         minimal : OutUnicode.unichar; (* smallest space possible -- unspecified gauge *)
-        zero : OutUnicode.unichar (* zero gauge but same line-braking behavior as other spaces *)
+        zero : OutUnicode.unichar (* zero width but same line-braking behavior as other spaces *)
       }
 
-    (* https://en.wikipedia.org/wiki/whitespace_character#spaces_in_unicode *)
-    let emsp = OutUnicode.parse "8195"; (* emsp *)
-    and ensp = OutUnicode.parse "8194"; (* ensp *)
-    and emsp13 = OutUnicode.parse "8196"; (* emsp13 *)
-    and emsp14 = OutUnicode.parse "8197"; (* emsp14 *)
-    and six_per_em_space = OutUnicode.parse "8198"
-    and hairsp = OutUnicode.parse "8202" (* hairsp *)
-    (* https://en.wikipedia.org/wiki/zero-width_space *)
-    and zero_width_space = OutUnicode.parse "8203" (* ZeroWidthSpace (an explicit breakpoint) *)
-    and zero_width_joiner = OutUnicode.parse "8205" (* zwj *)
-
+    (* https://en.wikipedia.org/wiki/whitespace_character#spaces_in_unicode
+       https://en.wikipedia.org/wiki/zero-width_space *)
     let html_spaces = {
-        normal = [1.0, emsp;
-                  0.5, ensp;
-                  1.0 /. 3.0, emsp13;
-                  0.25, emsp14;
-                  1.0 /. 6.0, six_per_em_space];
-        minimal = hairsp;
-        zero = zero_width_space
+        normal = [1.0, OutUnicode.emsp;
+                  0.5, OutUnicode.ensp;
+                  1.0 /. 3.0, OutUnicode.emsp13;
+                  0.25, OutUnicode.emsp14;
+                  1.0 /. 6.0, OutUnicode.six_per_em_space];
+        minimal = OutUnicode.hairsp;
+        zero = OutUnicode.zero_width_space
       }
 
     let approximate_hspace persistent space_configuration length =
-      let join_if_persistent () = if persistent then put_unicode zero_width_joiner in
+      let join_if_persistent () = if persistent then put_unicode OutUnicode.zero_width_joiner in
         let rec iter has_put_normal_space available_normal_spaces remaining_width =
           match available_normal_spaces with
           | [] ->
@@ -242,13 +233,13 @@ module HorizontalSpace =
                put_unicode space_configuration.zero
              else
                for _i = 1 to n do
-                 put_unicode emsp13;
+                 put_unicode OutUnicode.emsp13;
                  join_if_persistent ()
                done
           | Length.Pixel x ->
              (* Printf.eprintf "+ approximate_hspace: Pixel %d\n" x; *)
              if x < 0 then
-               failwith "approximate_hspace: negative space"
+               Misc.warning "ignoring \\hspace or \\hspace* with negative length"
              else if x = 0 then
                put_unicode space_configuration.zero
              else
