@@ -549,16 +549,17 @@ and hline_format =
                   Tabular.post = "" ; Tabular.width = Length.Default}
 
 let make_inside s multi =
-  if not (multi) then begin
-    if pblock ()=TD || pblock() = (OTHER "mtd") then begin
+  if not multi then begin
+    let pb =  pblock () in
+    match pb with
+    | TD|OTHER "mtd"|P ->
       close_cell "&nbsp;";
       open_cell inside_format 1 0 false;
-      put s;
-    end else begin
+      put s
+    | _ ->
       open_cell inside_format 1 0 false;
       put s;
       close_cell "&nbsp;"
-    end;
   end
 
 
