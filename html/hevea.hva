@@ -704,8 +704,9 @@
 #1%
 \fi\fi
 \@close{span@inline@block}}
-%%%%%%%%Default env class for verbatim
+%%%%%%%%Default env classes for verbatim and verb
 \setenvclass{verbatim}{verbatim}
+\setenvclass{verb}{verb}
 %%%%%% format theorems
 \newcommand{\set@th@font}[1]{\def\th@font{#1}}
 \let\th@font\em
