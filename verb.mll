@@ -834,7 +834,7 @@ let command_name =
 rule inverb verb_delim put = parse
 |  (_ as c)
     {if c = verb_delim then begin
-      Dest.close_group () ;
+      Dest.close_block "code";
     end else begin
       put c (fun () -> read_lexbuf lexbuf) ;
       inverb verb_delim put lexbuf
@@ -1004,8 +1004,10 @@ and put_char c next = match c with
 ;;
 
 
+let getclass env = Scan.get_prim (Printf.sprintf "\\envclass@attr{%s}" env)
+
 let open_verb put lexbuf =
-  Dest.open_group "code class=\"verb\"";
+  Dest.open_block ~force_inline:true "code" (getclass "verb");
   start_inverb put lexbuf
 ;;
 
@@ -1030,8 +1032,6 @@ let noeof lexer lexbuf =
         (Misc.Close
            ("End of file in environment: ``"^ !Scan.cur_env^"'' ("^s^")"))
   | EndVerb -> ()
-
-let getclass env = Scan.get_prim (Printf.sprintf "\\envclass@attr{%s}" env)
 
 let open_verbenv star =
   Scan.top_open_block "pre" (getclass "verbatim") ;
