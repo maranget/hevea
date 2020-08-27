@@ -5852,19 +5852,19 @@ for the default definitions of all CSS-classes.
 \begin{center}
 \newcommand{\samplephrase}{White Handgloves}
 \begin{tabular}{l@{\quad}l@{\quad}l@{\quad}l@{\quad}l@{\quad}l@{\quad}l}
-Axis      &  Name        &  Generator         &  \multicolumn{2}{c}{Macro}       &  Implementation                   &  Font-Sample  \\
-          &              &                    &  \LaTeXe          &  Old         &  ``Style-''Attribute              &  \\
+Axis      &  Name        &  Generator         &  \multicolumn{2}{c}{Macro}       &  Implementation              &  Font-Sample  \\
+          &              &                    &  \LaTeXe          &  Old         &  ``Style-''Attribute         &  \\
 \hline
-Family    &  normal      &  \verb+\rmfamily+  &  \verb+\textrm+   &  \verb+\rm+  &  \verb+class: serif+              &  \textrm{\samplephrase}  \\
-          &  sans serif  &  \verb+\sffamily+  &  \verb+\textsf+   &  \verb+\sf+  &  \verb+class: sans-serif+         &  \textsf{\samplephrase}  \\
-          &  typewriter  &  \verb+\ttfamily+  &  \verb+\texttt+   &  \verb+\tt+  &  \verb+class: monospace+          &  \texttt{\samplephrase}  \\
-Variant   &  upright     &  \verb+\upshape+   &  \verb+\upshape+  &  \verb+\up+  &  \textit{no style}                &  \upshape{\samplephrase}  \\
-          &  italics     &  \verb+\itshape+   &  \verb+\textit+   &  \verb+\it+  &  \verb+class: italic+             &  \textit{\samplephrase}  \\
-          &  slanted     &  \verb+\slshape+   &  \verb+\textsl+   &  \verb+\sl+  &  \verb+class: slanted+            &  \textsl{\samplephrase}  \\
-          &  small caps  &  \verb+\scshape+   &  \verb+\textsc+   &  \verb+\sc+  &  \verb+class: smallcaps+          &  \textsc{\samplephrase}  \\
-          &  emphasized  &  \verb+\em+        &  \verb+\emph+     &  \verb+\em+  &  HTML-element ``em''              &  \emph{\samplephrase}  \\
-Weight    &  normal      &  \verb+\mdseries+  &  \verb+\textmd+   &  \verb+\md+  &  \textit{no style}                &  \mdseries{\samplephrase}  \\
-          &  bold        &  \verb+\bfseries+  &  \verb+\textbf+   &  \verb+\bf+  &  \verb+font-weight: bold+         &  \textbf{\samplephrase}  \\
+Family    &  normal      &  \verb+\rmfamily+  &  \verb+\textrm+   &  \verb+\rm+  &  \verb+class: serif+         &  \textrm{\samplephrase}  \\
+          &  sans serif  &  \verb+\sffamily+  &  \verb+\textsf+   &  \verb+\sf+  &  \verb+class: sans-serif+    &  \textsf{\samplephrase}  \\
+          &  typewriter  &  \verb+\ttfamily+  &  \verb+\texttt+   &  \verb+\tt+  &  \verb+class: monospace+     &  \texttt{\samplephrase}  \\
+Variant   &  upright     &  \verb+\upshape+   &  \verb+\upshape+  &  \verb+\up+  &  \textit{no style}           &  \upshape{\samplephrase}  \\
+          &  italics     &  \verb+\itshape+   &  \verb+\textit+   &  \verb+\it+  &  \verb+class: italic+        &  \textit{\samplephrase}  \\
+          &  slanted     &  \verb+\slshape+   &  \verb+\textsl+   &  \verb+\sl+  &  \verb+class: slanted+       &  \textsl{\samplephrase}  \\
+          &  small caps  &  \verb+\scshape+   &  \verb+\textsc+   &  \verb+\sc+  &  \verb+class: smallcaps+     &  \textsc{\samplephrase}  \\
+          &  emphasized  &  \verb+\em+        &  \verb+\emph+     &  \verb+\em+  &  HTML-element ``em''         &  \emph{\samplephrase}  \\
+Weight    &  normal      &  \verb+\mdseries+  &  \verb+\textmd+   &  \verb+\md+  &  \textit{no style}           &  \mdseries{\samplephrase}  \\
+          &  bold        &  \verb+\bfseries+  &  \verb+\textbf+   &  \verb+\bf+  &  \verb+font-weight: bold+    &  \textbf{\samplephrase}  \\
 \end{tabular}
 \end{center}
 
@@ -5873,7 +5873,7 @@ Text-style commands exist as well; they are defined
 as \verb+\mbox{\+\textit{decl}\ldots\verb+}+.  For
 instance, \verb+\texttt+ is defined as a command with one argument
 whose body is \verb+\mbox{\ttfamily #1}+.  Finally,
-the \verb+\emph+~command for emphasised text also exists, it yields
+the \verb+\emph+~command for emphasized text also exists, it yields
 text-level \verb+em+~elements.
 
 
@@ -5945,7 +5945,8 @@ comes in handy to adjust the base size of the typewriter font to match
 the body text, for example with
 
 \begin{verbatim}
-\newstyle{.monospace}{font-family: "Courier New", Courier, monospace; font-size: 120\%}
+\newstyle{.monospace}{font-family: "Courier New", Courier, monospace;
+                      font-size: calc(19 / 16)}
 \end{verbatim}
 
 \noindent or to fine-tune \verb+font-stretch+ and \verb+font-weight+;
@@ -5971,7 +5972,7 @@ mono-spaced fonts, though proportional fonts probably will skew output
 that aligns for fonts with a fixed width.
 
 To achieve consistency in font selection it is constructive to define
-a macro for each family and then use these to set the document's font
+macros for each family and then use these to set the document's font
 families as well as selected elements as, for example, the chapter and
 section headings.
 
@@ -5995,10 +5996,10 @@ same superfamily ``Latin Modern'', for example, ``Latin Modern Roman
 10~Italic'' and ``Latin Modern Roman Slanted 10~Regular''.  Needless
 to say all members in the superfamily are extremely well matched!  On
 the HTML-side it is hard to recreate this kind of super-pairing; most
-often a font family will \emph{lack} a ``slanted'' variant and --
-depending on the font-synthesis settings -- browsers substitute
-``italic''.  This means \verb+\textit+ and \verb+\textsl+ will be
-mapped to the \emph{same} font.
+often a font family will lack a ``slanted'' variant and -- depending
+on the font-synthesis settings -- browsers substitute ``italic''.
+This means \verb+\textit+ and \verb+\textsl+ will be mapped to
+the \emph{same} font.
 
 To remedy this, \hevea{} supports two separate, dedicated CSS-classes
 for italics and slanted type, appropriately called \verb+italic+ and
@@ -6009,11 +6010,34 @@ create enough of visual distinction (``contrast'') of \verb+italic+
 and \verb+slanted+ to convey the semantic differences of
 \verb+\textit+ and \verb+\textsl+.
 
+\begin{quote}\small
+  \hevea{} propagates font styles inward in scope and the controlling
+  CSS~class arguments accumulate.  For example
+  \verb+\textit{\textrm{emphasized text}}+ as well as
+  \verb+\textrm{\textit{emphasized text}}+ as well associate classes
+  \verb+serif+ (font family~serif) \emph{and} \verb+italic+ (font
+  style~italic) with ``emphasized text''.  Of course one or both
+  classes could have been redefined by the user.
+\end{quote}
+
+\noindent The CSS~selector to target \emph{exactly} the \verb+italic+
+or \verb+slanted+ variant of the \verb+serif+~family takes a bit care
+to construct.  Simple matching \verb+.italic+ or \verb+.slanted+ also
+would change the fonts used for sans-serif and monospace families,
+which probably is not intended.  So, we use a conjunctive CSS~selector
+to specifically overide the slanted version of the serif~class only:
+\verb+.slanted.serif+ (order does not matter).  Note that there is
+\emph{no} space between the two class~selectors!  This is the prudent
+way to replace a font-family for any predefined class that does not
+itself set the font-family; currently these are \verb+italic+,
+\verb+slanted+, and \verb+smallcaps+.
+
 \begin{verbatim}
 \newstyle{.serif}{font-family: "FreeSerif", serif}
 \newstyle{.sansserif}{font-family: "FreeSans", sans-serif}
 \newstyle{.monospace}{font-family: "FreeMono", monospace}
-\newstyle{.slanted}{font-family: "Liberation Serif", "FreeSerif", serif; font-style: oblique}
+\newstyle{.serif.slanted}{font-family: "Liberation Serif", "FreeSerif", serif;
+                          font-style: oblique}
 \end{verbatim}
 
 \noindent In the example above there is no need to redefine
@@ -6028,9 +6052,12 @@ class~\verb+slanted+ and supply a different font family for
 \newstyle{.serif}{font-family: "FreeSerif", serif}
 \newstyle{.sansserif}{font-family: "FreeSans", sans-serif}
 \newstyle{.monospace}{font-family: "FreeMono", monospace}
-\newstyle{.italic}{font-family: "Accanthis ADF Std No3", serif; font-style: italic}
-\newstyle{.slanted}{font-family: "FreeSerif", serif; font-style: oblique}
+\newstyle{.serif.italic}{font-family: "Accanthis ADF Std No3", serif;
+                         font-style: italic}
+\newstyle{.serif.slanted}{font-family: "FreeSerif", serif;
+                          font-style: oblique}
 \end{verbatim}
+
 
 \subsubsection{Dedicated Smallcaps}
 
@@ -6039,8 +6066,10 @@ which in turn activates \verb+font-variant: small-caps+ by default.
 This instructs the browser to look for small-capital letters in the
 \emph{currently selected font}, but no further.  Regrettably, only few
 fonts come with small~caps included (look for, e.g., ``Pro'' or
-``Expert'' series), for all others the browser synthesizes the glyphs
-based on the selected font.  See also
+``Expert'' series or check with tools like, e.g.\ \textbf{otfinfo(1)}
+for \textsc{OpenType}~feature ``\verb+smcp+'' -- small capitals).  For
+all others the browser synthesizes the glyphs based on the selected
+font; see also
 \footahref{https://developer.mozilla.org/en-US/docs/Web/CSS/font-variant-caps}{font-variant-caps}.
 
 \paragraph{Separate Small-Caps Fonts.} What is more common today are
@@ -6058,8 +6087,12 @@ CSS~class \verb+smallcaps+ these font pairings can be lifted
 into \hevea.
 
 \begin{verbatim}
-\newstyle{.serif}{font-family: "Berenis ADF Pro", serif}
-\newstyle{.smallcaps}{font-family: "Berenis ADF Pro SC", serif; font-variant: normal}
+\newstyle{.serif}{font-family: "Alegreya", serif}
+\newstyle{.serif.smallcaps}{font-family: "Alegreya SC", serif;
+                            font-variant: normal}
+\newstyle{.sansserif}{"Alegreya Sans", sans-serif}
+\newstyle{.sansserif.smallcaps}{font-family: "Alegreya Sans SC", serif;
+                                font-variant: normal}
 \end{verbatim}
 
 It is important to set \verb+font-variant: normal+ with a small~caps
@@ -6067,32 +6100,35 @@ font so that the default is overridden and font synthesis does
 \emph{not} kick in!  Otherwise the browser uses the uppercase letters
 of a resized variant of the small~caps font to synthesize the small
 caps, which defeats the very purpose of the class override and -- on
-top of that -- generally looks ugly.
+top of that -- generally looks ugly.  Furthermore, the example
+demonstrates selective override of the serif and the sans~serif fonts.
 
-If you latch a non-smallcaps font, stick with the default as here
+If you latch a non-small~caps font, stick with the default as here
 glyph synthesis in fact is desired.
 
 \begin{verbatim}
-\newstyle{.smallcaps}{font-family: "Baskervville", serif; font-variant: small-caps}
+\newstyle{.serif.smallcaps}{font-family: "Baskervville", serif;
+                            font-variant: small-caps}
 \end{verbatim}
 
 \noindent Note that \hevea's default acts like an operator -- only
 setting \verb+font-variant: small-caps+ means: whatever font is
-current, use its downsized uppercase letters as small caps.  When the
-default of class~\verb+smallcaps+ is replaced with a definition that
-contains a \verb+font-family+ the operator character is lost and the
-original \LaTeX{} behavior is recovered.
+current, generate small-caps by accessing the font's own small capital
+letters, use its downsized uppercase letters as small caps, or another
+technique.  When the default of class~\verb+smallcaps+ is replaced
+with a definition that contains a \verb+font-family+ the operator
+character is lost and the original \LaTeX{} behavior is recovered.
 
-\paragraph{OpenType Feature: \verb+smcp+.}
+\paragraph{\textsc{OpenType} Feature: \verb+smcp+.}
 
-Some OpenType~fonts harbor their own small caps.  Not all browsers
-support the access of OpenType~features from CSS, but for those that
-do the following code activates the small caps in an sufficently
-``enriched'' OpenType~font.  See also the
-\footahref{https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Fonts/OpenType_fonts_guide}{OpenType~fonts
+Some \textsc{OpenType}~fonts harbor their own small caps.  Not all
+browsers support the access of \textsc{OpenType}~features from CSS,
+but for those that do the following code activates the small caps in
+an sufficently ``enriched'' \textsc{OpenType}~font.  See also the
+\footahref{https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Fonts/OpenType_fonts_guide}{\textsc{OpenType}~fonts
   guide} and help on
 \footahref{https://helpx.adobe.com/fonts/using/use-open-type-features.html}{using
-  OpenType~features}.
+  \textsc{OpenType}~features}.
 
 \begin{verbatim}
 \newstyle{.smallcaps}{%
@@ -6120,8 +6156,8 @@ improved by
 because their glyphs cannot be synthesized.  The \hevea{} macro
 \verb+\oldstylenums+ accesses class~\verb+oldstyle+, which has no
 definition by default.  The most straightforward way to get oldstyle
-numerals is to rely on OpenType~font features with the following
-definitions:
+numerals is to rely on \textsc{OpenType}~font features with the
+following definitions:
 
 \begin{verbatim}
 \newstyle{.oldstyle}{font-feature-settings: "onum"}
@@ -6220,34 +6256,29 @@ Some hints to get legible and portable output.
     \newcommand{\tablenotesymbol}{\dagger}
     \newcommand{\tablenotemark}{$^\tablenotesymbol$}
     \newcommand{\tablenote}[1]{\tablenotemark:~{\footnotesize #1}}
-    \item Some ``workhorse'' font families that all have been designed
-      with online readability in mind.
+  \item Some ``workhorse'' font families that all have been designed
+    with online readability in mind.
 
-      \begin{tabular}{l@{\quad}l@{\quad}l@{\quad}l}
-        Family                    &  Serif             &  Sans Serif           &  Monospace  \\
-        \hline
-        %%  Prefer `DejaVu' to `Bitstream Vera'.
-        %Bitstream Vera            &  Bitstream Vera    &  Bitstream Vera Sans  &  Bitstream Vera Sans Mono  \\
-        DejaVu                    &  DejaVu Serif      &  DejaVu Sans          &  DejaVu Sans Mono  \\
-        Free                      &  FreeSerif         &  FreeSans             &  FreeMono  \\
-        IBM Plex                  &  IBM Plex Serif    &  IBM Plex Sans        &  IBM Plex Mono  \\
-        Lucida                    &  Lucida Bright     &  Lucida Sans          &  Lucida Sans Typewriter  \\
-        Noto\tablenotemark        &  Noto Serif        &  Noto Sans            &  Noto Mono  \\
-        Source Pro\tablenotemark  &  Source Serif Pro  &  Source Sans Pro      &  Source Code Pro  \\
-      \end{tabular}
+    \begin{tabular}{l@{\quad}l@{\quad}l@{\quad}l}
+      Family                    &  Serif             &  Sans Serif       &  Monospace  \\
+      \hline
+      DejaVu                    &  DejaVu Serif      &  DejaVu Sans      &  DejaVu Sans Mono  \\
+      Fira\tablenotemark        &                    &  Fira Sans        &  Fira Mono  \\
+      Go                        &                    &  Go               &  Go Mono  \\
+      IBM Plex                  &  IBM Plex Serif    &  IBM Plex Sans    &  IBM Plex Mono  \\
+      Liberation                &  Liberation Serif  &  Liberation Sans  &  Liberation Mono  \\
+      Lucida                    &  Lucida Bright     &  Lucida Sans      &  Lucida Sans Typewriter  \\
+      Noto\tablenotemark        &  Noto Serif        &  Noto Sans        &  Noto Mono  \\
+      Roboto                    &  Roboto Slab       &  Roboto           &  Roboto Mono  \\
+      Source Pro\tablenotemark  &  Source Serif Pro  &  Source Sans Pro  &  Source Code Pro  \\
+      Ubuntu                    &                    &  Ubuntu           &  Ubuntu Mono  \\
+    \end{tabular}
 
-      \noindent\tablenote{OpenType-compliant font family, supporting for example oldstyle numerals.}
+    \noindent\tablenote{\textsc{OpenType}-compliant font family,
+      supporting oldstyle numerals.}
 
-    \item If the result looks too ``oldstyle'' try the sans serif font
-      also in the serif position or interchange sans serif and serif.
-
-    \item If the monospace font does not convey enough of an ``at the
-      terminal'' feeling give Anonymous Pro or Inconsolata a spin.
-      The latter font family also comes to the rescue when program
-      listings constantly are ``too wide'', this is, they overflow to
-      the right.  Inconsolata has variants ``Semi Condensed'',
-      ``Condensed'', ``Extra Condensed'', and ``Ultra Condensed''
-      among many others.
+  \item If the result looks too ``oldstyle'' try the sans-serif font
+    also in the serif position or interchange sans-serif and serif.
   \end{itemize}
 
 \item Check the results with different browsers preferably on multiple

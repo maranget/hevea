@@ -385,11 +385,18 @@
 \newstyle{.slanted}{font-style: oblique}
 \newstyle{.smallcaps}{font-variant: small-caps}
 %
+\newsavebox{\@pending@style}
+\newcommand{\@main@styles}{serif,sansserif,monospace,cursive,fantasy}
+\newcommand{\@main@modifier@styles}{italic,slanted,smallcaps}
+\newcommand{\@save@top@style}{\sbox{\@pending@style}{\@top@pending@style{\@main@styles}}}
+\newcommand{\@save@all@styles}{\sbox{\@pending@style}{\@all@pending@styles{\@main@modifier@styles}}}
+\newcommand{\@use@pending@style}{\@getprint{\@pending@style}}
+%
 \newenvironment{tt}{\@span{class="monospace"}}{}
 \newenvironment{bf}{\@span{style="font-weight:bold"}}{}
 \newenvironment{em}{\@style{em}}{}
-\newenvironment{it}{\@span{class="italic"}}{}
-\newenvironment{rm}{\@anti{\it,\bf,\em,\sf,\tt}\@span{class="serif"}}{}
+\newenvironment{it}{\@save@top@style\@span{class="\@use@pending@style italic"}}{}
+\newenvironment{rm}{\@anti{\em,\sf,\tt}\@save@all@styles\@span{class="\@use@pending@style serif"}}{}
 \newenvironment{oldstyle}{\@span{class="oldstyle"}}{}
 \newenvironment{tiny}{\@fontsize{1}}{}
 \newenvironment{footnotesize}{\@fontsize{2}}{}
@@ -424,8 +431,8 @@
 \def\sf{\ifmath\ifmathml\@style{font-family: sans-serif}%
 \else\@span{class="sansserif"}\fi\else\@span{class="sansserif"}\fi}
 \def\sl{\ifmath\ifmathml\@style{font-family: fantasy; font-style: italic}%
-\else\@span{class="slanted"}\fi\else\@span{class="slanted"}\fi}
-\def\sc{\@span{class="smallcaps"}}%
+\else\@span{class="slanted"}\fi\else\@save@top@style\@span{class="\@use@pending@style slanted"}\fi}
+\def\sc{\@save@top@style\@span{class="\@use@pending@style smallcaps"}}%
 %%%% LaTeX2e verbose declarations
 \newenvironment{mdseries}{\@anti{\bf}}{}
 \newenvironment{bfseries}{\bf}{}

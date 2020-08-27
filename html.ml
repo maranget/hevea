@@ -419,6 +419,7 @@ and has_mod = has_mod
 and clearstyle = clearstyle
 and nostyle = nostyle
 and get_fontsize = get_fontsize
+and get_pending_styles = get_pending_styles
 and to_string = to_string
 
 (****************************************)

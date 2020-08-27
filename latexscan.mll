@@ -2529,6 +2529,44 @@ def_code "\\@anti"
     Dest.erase_mods envs)
 ;;
 
+def_code "\\@all@pending@styles"
+  (fun lexbuf ->
+    let wanted_styles = String.split_on_char ',' (get_prim_arg lexbuf)
+    and pending_styles = Dest.get_pending_styles () in
+      let rec iter = function
+        | top :: rest ->
+           if wanted_styles = [] || List.mem top wanted_styles then
+             begin
+               Dest.put top;
+               Dest.put_char ' '
+             end;
+           iter rest
+        | [] -> ()
+      in
+        iter pending_styles)
+;;
+
+def_code "\\@top@pending@style"
+  (fun lexbuf ->
+    let wanted_styles = String.split_on_char ',' (get_prim_arg lexbuf)
+    and pending_styles = Dest.get_pending_styles () in
+      let rec iter = function
+        | top :: rest ->
+           if List.mem top wanted_styles then
+             begin
+               Dest.put top;
+               Dest.put_char ' '
+             end
+           else
+             iter rest
+        | [] -> ()
+      in
+        (*prerr_endline ("@top@pending@style: " ^ String.concat ", " pending_styles);*)
+        (* This is an ugly heuristic: if we find no style pending, assume the first
+           of the [wanted_styles] is active. *)
+        iter (if pending_styles = [] then wanted_styles else pending_styles))
+;;
+
 let styles_stack = MyStack.create "styles"
 ;;
 

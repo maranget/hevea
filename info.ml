@@ -22,6 +22,7 @@ let restart = Text.restart;;
 let is_empty=Text.is_empty;;
 
 let get_fontsize=Text.get_fontsize;;
+let get_pending_styles=Text.get_pending_styles;;
 let nostyle=Text.nostyle;;
 let clearstyle=Text.clearstyle;;
 let open_mod=open_mod;;

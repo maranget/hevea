@@ -18,6 +18,7 @@ val restart : unit -> unit
 val is_empty : unit -> bool
     
 val get_fontsize : unit -> int
+val get_pending_styles : unit -> string list
 val nostyle : unit -> unit
 val clearstyle : unit -> unit
 val open_mod : Element.text -> unit
