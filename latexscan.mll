@@ -3339,7 +3339,7 @@ def_code "\\@getlength"
 ;;
 
 let insert_horizontal_space persistent (warn : string -> unit) (insert : bool -> Length.t -> unit) lexbuf =
-  let arg = subst_arg lexbuf in
+  let arg = get_prim (subst_arg lexbuf) in
     try
       begin
         match Length.main (MyLexing.from_string arg) with
