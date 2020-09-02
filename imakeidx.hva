@@ -40,7 +40,7 @@
   \ifthenelse{\boolean{imakeidx@makeindex@intoc}}%
              {\addcontentsline{toc}%
                {\imakeidx@indexsetup@toclevel}%
-               {\ahrefloc{section@the@hevea@index}{\indexname}}}%
+               {\ahrefloc{section@the@hevea@index@\imakeidx@makeindex@name}{\indexname}}}%
              {}%
   \@printindex[\imakeidx@makeindex@name]%
 }
