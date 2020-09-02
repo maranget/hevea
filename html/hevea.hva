@@ -384,16 +384,17 @@
 \newstyle{.italic}{font-style: italic}
 \newstyle{.slanted}{font-style: oblique}
 \newstyle{.smallcaps}{font-variant: small-caps}
+\newstyle{.bold}{font-weight: bold}
 %
 \newsavebox{\@pending@style}
 \newcommand{\@main@styles}{serif,sansserif,monospace,cursive,fantasy}
-\newcommand{\@main@modifier@styles}{italic,slanted,smallcaps}
+\newcommand{\@main@modifier@styles}{bold,italic,slanted,smallcaps}
 \newcommand{\@save@top@style}{\sbox{\@pending@style}{\@top@pending@style{\@main@styles}}}
 \newcommand{\@save@all@styles}{\sbox{\@pending@style}{\@all@pending@styles{\@main@modifier@styles}}}
 \newcommand{\@use@pending@style}{\@getprint{\@pending@style}}
 %
-\newenvironment{tt}{\@span{class="monospace"}}{}
-\newenvironment{bf}{\@span{style="font-weight:bold"}}{}
+\newenvironment{tt}{\@save@all@styles\@span{class="\@use@pending@style monospace"}}{}
+\newenvironment{bf}{\@save@top@style\@span{class="\@use@pending@style bold"}}{}
 \newenvironment{em}{\@style{em}}{}
 \newenvironment{it}{\@save@top@style\@span{class="\@use@pending@style italic"}}{}
 \newenvironment{rm}{\@anti{\em,\sf,\tt}\@save@all@styles\@span{class="\@use@pending@style serif"}}{}

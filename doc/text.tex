@@ -5864,7 +5864,7 @@ Variant   &  upright     &  \verb+\upshape+   &  \verb+\upshape+  &  \verb+\up+ 
           &  small caps  &  \verb+\scshape+   &  \verb+\textsc+   &  \verb+\sc+  &  \verb+class: smallcaps+     &  \textsc{\samplephrase}  \\
           &  emphasized  &  \verb+\em+        &  \verb+\emph+     &  \verb+\em+  &  HTML-element ``em''         &  \emph{\samplephrase}  \\
 Weight    &  normal      &  \verb+\mdseries+  &  \verb+\textmd+   &  \verb+\md+  &  \textit{no style}           &  \mdseries{\samplephrase}  \\
-          &  bold        &  \verb+\bfseries+  &  \verb+\textbf+   &  \verb+\bf+  &  \verb+font-weight: bold+    &  \textbf{\samplephrase}  \\
+          &  bold        &  \verb+\bfseries+  &  \verb+\textbf+   &  \verb+\bf+  &  \verb+class: bold+          &  \textbf{\samplephrase}  \\
 \end{tabular}
 \end{center}
 
@@ -5930,6 +5930,7 @@ Class             &  Default                          &  Application  \\
 \verb+serif+      &  \verb+font-family: serif+        &  Body text and math; used by \verb+\textrm+.  \\
 \verb+sansserif+  &  \verb+font-family: sans-serif+   &  Text tagged with \verb+\textsf+.  \\
 \verb+monospace+  &  \verb+font-family: monospace+    &  Any typewriter text and in particular environment~\verb+verbatim+, macros~\verb+\verb+, and \verb+\texttt+.  \\
+\verb+bold+       &  \verb+font-weight: bold+         &  Text tagged with \verb+\textbf+.  \\
 \verb+italic+     &  \verb+font-style: italic+        &  Text tagged with \verb+\textit+.  \\
 \verb+slanted+    &  \verb+font-style: oblique+       &  Text tagged with \verb+\textsl+.  \\
 \verb+smallcaps+  &  \verb+font-variant: small-caps+  &  Text tagged with \verb+\textsc+.  \\
@@ -5949,7 +5950,7 @@ the body text, for example with
                       font-size: calc(19 / 16)}
 \end{verbatim}
 
-\noindent or to fine-tune \verb+font-stretch+ and \verb+font-weight+;
+\noindent or to fine-tune \verb+font-variant+ and \verb+font-weight+;
 it is also the perfect place to activate (or deactivate)
 OpenType~features exactly for one specific family
 
@@ -5988,6 +5989,29 @@ section headings.
 \newstyle{.chapter, .section, .subsection, .subsubsection}{font-family: \sansfontfamily}
 \end{verbatim}
 
+\subsubsection{Selective Overrides}
+
+\hevea{} propagates font styles inward in scope and the controlling
+CSS~class arguments accumulate.  For example
+\verb+\textit{\textrm{emphasized text}}+ as well as
+\verb+\textrm{\textit{emphasized text}}+ associate classes
+\verb+serif+ (font family~serif) \emph{and} \verb+italic+ (font
+style~italic) with ``emphasized text''.  Of course one or both classes
+could have been redefined by the user.
+
+Another use-case arises if the bold-face chosen by \verb+\textbf+ --
+translated to HTML-element \verb+b+ -- in \verb+verbatim+,
+\verb+\verb+, or \verb+\texttt+ is too heavy (default weight: 700).
+We can tell the browser to use a medium weight \emph{only} for the
+typewriter font with
+
+\begin{verbatim}
+\newstyle{.monospace.bold}{font-weight: 500}
+\end{verbatim}
+
+\noindent Other applications of selective overrides are discussed in
+some of the following sections.
+
 \subsubsection{\label{sec:italics-vs-slanted}%
   Italics vs.\ Slanted}
 
@@ -5995,7 +6019,7 @@ section headings.
 same superfamily ``Latin Modern'', for example, ``Latin Modern Roman
 10~Italic'' and ``Latin Modern Roman Slanted 10~Regular''.  Needless
 to say all members in the superfamily are extremely well matched!  On
-the HTML-side it is hard to recreate this kind of super-pairing; most
+the HTML-side it is hard to recreate this kind of super-pairing.  Most
 often a font family will lack a ``slanted'' variant and -- depending
 on the font-synthesis settings -- browsers substitute ``italic''.
 This means \verb+\textit+ and \verb+\textsl+ will be mapped to
@@ -6010,27 +6034,17 @@ create enough of visual distinction (``contrast'') of \verb+italic+
 and \verb+slanted+ to convey the semantic differences of
 \verb+\textit+ and \verb+\textsl+.
 
-\begin{quote}\small
-  \hevea{} propagates font styles inward in scope and the controlling
-  CSS~class arguments accumulate.  For example
-  \verb+\textit{\textrm{emphasized text}}+ as well as
-  \verb+\textrm{\textit{emphasized text}}+ as well associate classes
-  \verb+serif+ (font family~serif) \emph{and} \verb+italic+ (font
-  style~italic) with ``emphasized text''.  Of course one or both
-  classes could have been redefined by the user.
-\end{quote}
-
-\noindent The CSS~selector to target \emph{exactly} the \verb+italic+
-or \verb+slanted+ variant of the \verb+serif+~family takes a bit care
-to construct.  Simple matching \verb+.italic+ or \verb+.slanted+ also
+The CSS~selector to target \emph{exactly} the \verb+italic+ or
+\verb+slanted+ variant of the \verb+serif+~family takes a bit care to
+construct.  Simple matching of \verb+.italic+ or \verb+.slanted+ also
 would change the fonts used for sans-serif and monospace families,
 which probably is not intended.  So, we use a conjunctive CSS~selector
-to specifically overide the slanted version of the serif~class only:
+to specifically override the slanted version of the serif~class only:
 \verb+.slanted.serif+ (order does not matter).  Note that there is
 \emph{no} space between the two class~selectors!  This is the prudent
 way to replace a font-family for any predefined class that does not
-itself set the font-family; currently these are \verb+italic+,
-\verb+slanted+, and \verb+smallcaps+.
+itself set the font-family; currently these are \verb+bold+,
+\verb+italic+, \verb+slanted+, and \verb+smallcaps+.
 
 \begin{verbatim}
 \newstyle{.serif}{font-family: "FreeSerif", serif}
@@ -6061,16 +6075,16 @@ class~\verb+slanted+ and supply a different font family for
 
 \subsubsection{Dedicated Smallcaps}
 
-\hevea{} translates \verb+\textsc+ into CSS~class \verb+smallcaps+,
-which in turn activates \verb+font-variant: small-caps+ by default.
+\hevea{} translates \verb+\textsc+ into \verb+span+s with
+class~\verb+smallcaps+ which in turn activate
+\verb+font-variant: small-caps+ by default.  (See also
+\footahref{https://developer.mozilla.org/en-US/docs/Web/CSS/font-variant-caps}{font-variant-caps}.)
 This instructs the browser to look for small-capital letters in the
 \emph{currently selected font}, but no further.  Regrettably, only few
-fonts come with small~caps included (look for, e.g., ``Pro'' or
-``Expert'' series or check with tools like, e.g.\ \textbf{otfinfo(1)}
-for \textsc{OpenType}~feature ``\verb+smcp+'' -- small capitals).  For
-all others the browser synthesizes the glyphs based on the selected
-font; see also
-\footahref{https://developer.mozilla.org/en-US/docs/Web/CSS/font-variant-caps}{font-variant-caps}.
+fonts come with small~caps included (e.g.\ some ``Pro'' or ``Expert''
+series).  For all others the browser synthesizes the glyphs based on
+the selected font -- depending on the browser even if the font
+supports \textsc{OpenType}~feature ``\verb+smcp+''.
 
 \paragraph{Separate Small-Caps Fonts.} What is more common today are
 regular fonts that pair with separate fonts that cover their
@@ -6101,7 +6115,7 @@ font so that the default is overridden and font synthesis does
 of a resized variant of the small~caps font to synthesize the small
 caps, which defeats the very purpose of the class override and -- on
 top of that -- generally looks ugly.  Furthermore, the example
-demonstrates selective override of the serif and the sans~serif fonts.
+demonstrates selective overrides of the serif and the sans~serif fonts.
 
 If you latch a non-small~caps font, stick with the default as here
 glyph synthesis in fact is desired.
@@ -6132,19 +6146,20 @@ an sufficently ``enriched'' \textsc{OpenType}~font.  See also the
 
 \begin{verbatim}
 \newstyle{.smallcaps}{%
-  font-variant-caps: small-caps;
   font-feature-settings: "smcp";
-}
+  font-variant: normal}
 \end{verbatim}
 
-\noindent Note: In the example right above any other
-font-feature-settings than \verb+smcp+ are cleared!
+\noindent Note: In the example right above any other font-feature
+settings than \verb+smcp+ are cleared!
 
 If the browser supports the CSS at-rule \verb+@supports+ the recipe is
 improved by
 
 \begin{verbatim}
-\newstyle{.smallcaps}{font-feature-settings: "smcp"}
+\newstyle{.smallcaps}{%
+  font-feature-settings: "smcp";
+  font-variant: normal}
 \newstyle{@supports (font-variant-caps: small-caps)}{%
   .smallcaps \{font-variant-caps: small-caps\}
 }
@@ -6186,12 +6201,12 @@ typewriter fonts.
 \fi
 \end{verbatim}
 
-\noindent Now, macro~\verb+\textvtt+ could be used as a drop-in
+\noindent Now, macro~\verb+\textvtt+ can be used as a drop-in
 replacement for \verb+\texttt+.
 
 If no proportional typewriter font is readily available on the
-HTML-side, a similar effect is achieved with a slab-serif,
-proportional font, like for example ``Zilla Slab''.
+HTML-side, a similar effect may be achieved with a slab-serif,
+proportional font.
 
 \subsubsection{Hints to Practitioners}
 
@@ -6253,32 +6268,50 @@ Some hints to get legible and portable output.
 \item Starting points for CSS~font selection.
 
   \begin{itemize}
-    \newcommand{\tablenotesymbol}{\dagger}
-    \newcommand{\tablenotemark}{$^\tablenotesymbol$}
-    \newcommand{\tablenote}[1]{\tablenotemark:~{\footnotesize #1}}
-  \item Some ``workhorse'' font families that all have been designed
-    with online readability in mind.
+    \newcommand{\divider}{$\bullet$}
+    \newcommand{\tablenotemark}[1]{$^{#1}$}
+    \newcommand{\tablenote}[2]{#1~{\footnotesize #2}}
+    \newcommand{\hasoldstylenums}{\tablenotemark{\S}}
+    \newcommand{\hassmallcapitals}{\tablenotemark{\dagger}}
+    \newcommand{\substitutesans}{\tablenotemark{\ast}}
+  \item Some font families that all have been designed with onscreen
+    readability in mind.
 
-    \begin{tabular}{l@{\quad}l@{\quad}l@{\quad}l}
-      Family                    &  Serif             &  Sans Serif       &  Monospace  \\
+    \begin{tabular}{rl@{\quad}l@{\quad}l@{\quad}l}
+                &  Family                   &  Serif             &  Sans Serif         &  Monospace  \\
       \hline
-      DejaVu                    &  DejaVu Serif      &  DejaVu Sans      &  DejaVu Sans Mono  \\
-      Fira\tablenotemark        &                    &  Fira Sans        &  Fira Mono  \\
-      Go                        &                    &  Go               &  Go Mono  \\
-      IBM Plex                  &  IBM Plex Serif    &  IBM Plex Sans    &  IBM Plex Mono  \\
-      Liberation                &  Liberation Serif  &  Liberation Sans  &  Liberation Mono  \\
-      Lucida                    &  Lucida Bright     &  Lucida Sans      &  Lucida Sans Typewriter  \\
-      Noto\tablenotemark        &  Noto Serif        &  Noto Sans        &  Noto Mono  \\
-      Roboto                    &  Roboto Slab       &  Roboto           &  Roboto Mono  \\
-      Source Pro\tablenotemark  &  Source Serif Pro  &  Source Sans Pro  &  Source Code Pro  \\
-      Ubuntu                    &                    &  Ubuntu           &  Ubuntu Mono  \\
+      \divider  &  \multicolumn{3}{l}{\textit{Families of two or three fonts belonging together.}}  \\
+                &  DejaVu                   &  DejaVu Serif      &  DejaVu Sans        &  DejaVu Sans Mono  \\
+                &  Fira\hasoldstylenums     &  \substitutesans   &  Fira Sans          &  Fira Mono  \\
+                &  Go                       &  \substitutesans   &  Go                 &  Go Mono  \\
+                &  IBM Plex                 &  IBM Plex Serif    &  IBM Plex Sans      &  IBM Plex Mono  \\
+                &  Liberation               &  Liberation Serif  &  Liberation Sans    &  Liberation Mono  \\
+                &  Lucida                   &  Lucida Bright     &  Lucida Sans        &  Lucida Sans Typewriter  \\
+                &  Noto\hasoldstylenums     &  Noto Serif        &  Noto Sans          &  Noto Mono  \\
+                &  Roboto\hassmallcapitals  &  Roboto Slab       &  Roboto             &  Roboto Mono  \\
+                &  Source Pro\hasoldstylenums\hassmallcapitals
+                                            &  Source Serif Pro  &  Source Sans Pro    &  Source Code Pro  \\
+                &  Ubuntu                   &  \substitutesans   &  Ubuntu             &  Ubuntu Mono  \\
+      \divider  &  \multicolumn{3}{l}{\textit{Two-font families with visually matching monospace fonts.}}  \\
+                &  Inria\hasoldstylenums/Fira
+                                            &  Inria Serif       &  Inria Sans         &  Fira Code  \\
+                &  Merriweather\hasoldstylenums/League
+                                            &  Merriweather      &  Merriweather Sans  &  League Mono  \\
     \end{tabular}
 
-    \noindent\tablenote{\textsc{OpenType}-compliant font family,
-      supporting oldstyle numerals.}
+    \begin{trivlist}
+    \item\tablenote{\substitutesans}{Use the sans-serif font in the
+      \verb+serif+~class, too.}
+
+    \item\tablenote{\hasoldstylenums}{\textsc{OpenType}-compliant
+      font family supporting oldstyle numerals (\verb+onum+).}
+
+    \item\tablenote{\hassmallcapitals}{\textsc{OpenType}-compliant font
+      family supporting small capitals (\verb+smcp+).}
+    \end{trivlist}
 
   \item If the result looks too ``oldstyle'' try the sans-serif font
-    also in the serif position or interchange sans-serif and serif.
+    also in the serif position or swap sans-serif and serif.
   \end{itemize}
 
 \item Check the results with different browsers preferably on multiple
