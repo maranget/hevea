@@ -334,8 +334,8 @@ let newindex tag sufin sufout name =
 let print main tag =
   try
     let idx = find_index tag in
-    main "\\label{section@the@hevea@index}";
-    main ("\\@indexsection{"^idx.name^"}") ;
+    main ("\\label{section@the@hevea@index@" ^ tag ^ "}");
+    main ("\\@indexsection{" ^ idx.name ^ "}") ;
     main "\\begin{the@hevea@index}";
     let indname = index_filename idx.sufout in
     begin match idx.from_file with
