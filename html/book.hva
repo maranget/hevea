@@ -1,6 +1,5 @@
 \ifstyleloaded\relax
 \else
-\input{ifthen.hva}
 \input{bookcommon.hva}
 \newcommand{\@book@attr}[1]{\@secid\envclass@attr{#1}}
 \@makesection
