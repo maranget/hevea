@@ -68,6 +68,14 @@ val null : unichar
 val space : unichar
 val nbsp : unichar
 val visible_space : unichar
+val emsp : unichar
+val ensp : unichar
+val emsp13 : unichar
+val emsp14 : unichar
+val six_per_em_space : unichar
+val hairsp : unichar
+val zero_width_space : unichar
+val zero_width_joiner : unichar
 val acute_alone : unichar
 val grave_alone : unichar
 val circum_alone : unichar

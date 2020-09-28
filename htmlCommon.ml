@@ -1589,11 +1589,11 @@ let skip_line () =
   put "<br>\n"
 
 let put_length which  = function
-  | Pixel x -> put (which^string_of_int x)
-  | Char x -> put (which^string_of_int (Length.font * x))
-  | Percent x  -> put (which ^ string_of_int x ^ "%")
-  | Default    -> ()
-  | No s       -> raise (Misc.Fatal ("No-length '"^s^"' in outManager"))
+  | Pixel x -> put (which ^ string_of_int x)
+  | Char x -> put (which ^ string_of_int (Length.base_font_size * x))
+  | Percent x -> put (which ^ string_of_int x ^ "%")
+  | Default -> ()
+  | NotALength s -> raise (Misc.Fatal ("No-length '" ^ s ^ "' in outManager"))
 
 let horizontal_line attr width height =
   open_block GROUP "" ;

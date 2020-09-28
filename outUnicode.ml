@@ -834,10 +834,22 @@ let html_put put put_char i = match i with
 
 (* Constants *)
 
+(* Spaces and Manipulators *)
 let space = 0x20
 and nbsp = 0xA0
 and visible_space = 0x2423
-and acute_alone = 0xB4
+and emsp = 0x2003
+and ensp = 0x2002
+and emsp13 = 0x2004
+and emsp14 = 0x2005
+and six_per_em_space = 0x2006
+and hairsp = 0x200A
+and zero_width_space = 0x200B
+and zero_width_joiner = 0x200D (* zwj *)
+
+(* Accents and the like *)
+
+let acute_alone = 0xB4
 and grave_alone = 0x60
 and circum_alone = 0x5E
 and diaeresis_alone = 0xA8
@@ -853,7 +865,10 @@ and ogonek_alone = 0x2DB
 and ring_alone =  0x2DA
 and caron_alone = 0x2C7
 and circled_alone = 0x25EF
-and eszett = 0xDF
+
+(* Special Characters and Punctuation *)
+
+let eszett = 0xDF
 and iques = 0xBF
 and iexcl = 0xA1
 and minus = 0x2212
