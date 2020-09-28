@@ -12,7 +12,7 @@
 \@makesection
   {\chapter}{-1}{chapter}
    {\@open{h1}{\@book@attr{chapter}}}%
-   {\ifthenelse{\equal{\chaptername}{}}{}{\chaptername~}\thechapter}{\quad}{\@close{h1}}
+   {\ife\chaptername{}\else\chaptername~\fi\thechapter}{\quad}{\@close{h1}}
 \@makesection
   {\section}{0}{section}
   {\@open{h2}{\@book@attr{section}}}{\thesection}{\quad}{\@close{h2}}%
