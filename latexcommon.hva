@@ -143,6 +143,19 @@
   {\prim@def{\@table@attributes}{style="border:0;border-spacing:\space@varray{};border-collapse:separate" class="cellpadding0"}\def\space@varray{0}%
   \begin{array}{c}}
   {\end{array}}
+%% Phantom
+\newstyle{.phantom}{display: inline-block; visibility: hidden}
+\newstyle{.hphantom}{display: inline-block; height: 0; visibility: hidden}
+\newstyle{.vphantom}{display: inline-block; visibility: hidden; width: 0}
+\newstyle{.smash}{display: inline-block; height: 0; line-height: 0}
+\setenvclass{phantom}{phantom}
+\setenvclass{hphantom}{hphantom}
+\setenvclass{vphantom}{vphantom}
+\setenvclass{smash}{smash}
+\newcommand{\phantom}[1]{\@open{span@inline@block}{\envclass@attr{phantom}}#1\@close{span@inline@block}}
+\newcommand{\hphantom}[1]{\@open{span@inline@block}{\envclass@attr{hphantom}}#1\@close{span@inline@block}}
+\newcommand{\vphantom}[1]{\@open{span@inline@block}{\envclass@attr{vphantom}}#1\@close{span@inline@block}}
+\newcommand{\smash}[1]{\@open{span@inline@block}{\envclass@attr{smash}}#1\@close{span@inline@block}}
 %%% OLD DEFINITIONS : rediscovered, only \textoverline redefined in hevea.hva
 %%%
 \newcommand{\textoverline}[1]{\hva@warn{overline ignored in text mode}#1}
