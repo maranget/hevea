@@ -444,7 +444,7 @@
 \newenvironment{itshape}{\@anti{\sl,\sc}\it}{}
 \newenvironment{slshape}{\@anti{\it,\sc}\sl}{}
 \newenvironment{scshape}{\@anti{\it,\sl}\sc}{}
-\newenvironment{normalfont}{\rm\mdseries\upshape}{}
+\newenvironment{normalfont}{\@anti{\em,\bf,\sf,\tt}\upshape}{}
 %%%%%%%%%%%%%%%%
 \def\textrm#1{\mbox{\rmfamily#1}}
 \def\textup#1{\mbox{\upshape#1}}
