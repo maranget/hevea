@@ -251,6 +251,7 @@
 %%%%%%%%%%%% Emulate hyphenation
 \newcommand{\soft@hyphen}{\@print{&#173;}}
 \newcommand{\zero@width@space}{\@print{&#8203;}}
+\newcommand{\zero@width@non@joiner}{\@print{&#8204;}}
 \newcommand{\breakable@hyphen}{\@print{&#8208;}}
 \newcommand{\tag@wordbreak}{\@print{<wbr>}}
 \newcommand{\word@break@opportunity}{\tag@wordbreak}% use e.g. `\zero@width@space' or `\tag@wordbreak'
