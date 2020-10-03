@@ -252,7 +252,6 @@
 \newcommand{\soft@hyphen}{\@print{&#173;}}
 \newcommand{\zero@width@space}{\@print{&#8203;}}
 \newcommand{\breakable@hyphen}{\@print{&#8208;}}
-\newcommand{\word@joiner}{\@print{&#8288;}}
 \newcommand{\tag@wordbreak}{\@print{<wbr>}}
 \newcommand{\word@break@opportunity}{\tag@wordbreak}% use e.g. `\zero@width@space' or `\tag@wordbreak'
 \newcommand{\-}{\soft@hyphen}
