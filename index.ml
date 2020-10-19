@@ -334,14 +334,17 @@ let newindex tag sufin sufout name =
 let print main tag =
   try
     let idx = find_index tag in
-    main ("\\@indexsection{"^idx.name^"}") ;
+    main ("\\label{section@the@hevea@index@" ^ tag ^ "}");
+    main ("\\@indexsection{" ^ idx.name ^ "}") ;
+    main "\\begin{the@hevea@index}";
     let indname = index_filename idx.sufout in
     begin match idx.from_file with
     | None ->
         create_hind  (Table.trim idx.from_doc) tag idx.sufout
     | _ -> ()
     end ;
-    main ("\\input{"^indname^"}")
+    main ("\\input{"^indname^"}");
+    main "\\end{the@hevea@index}"
   with
   | Not_found -> missing_index tag
 

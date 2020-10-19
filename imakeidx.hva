@@ -1,0 +1,46 @@
+\usepackage{ifthen}
+\usepackage{keyval}
+\input{makeidx.hva}
+\def\imakeidx@indexsetup@level{\@ifundefined{\chapter*}{\section*}{\chapter*}}
+\define@key{imakeidx@indexsetup}{level}{\def\imakeidx@indexsetup@level{#1}}
+\def\imakeidx@indexsetup@toclevel{section}
+\define@key{imakeidx@indexsetup}{toclevel}{\def\imakeidx@indexsetup@toclevel{#1}}
+\newboolean{imakeidx@indexsetup@noclearpage}
+\define@key{imakeidx@indexsetup}{noclearpage}{\setboolean{imakeidx@indexsetup@noclearpage}{#1}}
+\define@key{imakeidx@indexsetup}{firstpagestyle}{}
+\define@key{imakeidx@indexsetup}{headers}{}
+\def\imakeidx@indexsetup@othercode{}
+\define@key{imakeidx@indexsetup}{othercode}{%
+  \def\imakeidx@indexsetup@othercode{#1}%
+  \let\OldTheIndex\the@hevea@index
+  \let\OldEndTheIndex\endthe@hevea@index
+  \renewenvironment{the@hevea@index}%
+                   {\OldTheIndex\imakeidx@indexsetup@othercode}%
+                   {\OldEndTheIndex}}
+\newcommand{\indexsetup}[1]{\@setkeys{imakeidx@indexsetup}{#1}}
+\newcommand{\splitindexoptions}[1]{}
+\newcommand{\indexprologue}[2][]{\gdef\hevea@indexprologue{#2}}
+\def\imakeidx@makeindex@name{default}
+\define@key{imakeidx@makeindex}{name}{\imakeidx@makeindex@name{#1}}
+\define@key{imakeidx@makeindex}{title}{\def\indexname{#1}}
+\define@key{imakeidx@makeindex}{program}{}
+\define@key{imakeidx@makeindex}{options}{}
+\newboolean{imakeidx@makeindex@noautomatic}
+\define@key{imakeidx@makeindex}{noautomatic}[false]{\setboolean{imakeidx@makeindex@noautomatic}{#1}}
+\newboolean{imakeidx@makeindex@intoc}
+\define@key{imakeidx@makeindex}{intoc}[false]{\setboolean{imakeidx@makeindex@intoc}{#1}}
+\define@key{imakeidx@makeindex}{columns}{\setcounter{indexcols}{#1}}
+\define@key{imakeidx@makeindex}{columnsep}{}
+\define@key{imakeidx@makeindex}{columnseprule}{\setboolean{indexcolseprule}{#1}}
+\renewcommand{\makeindex}[1][]{% imakeidx defines \makeindex w/optional argument
+  \@setkeys{imakeidx@makeindex}{#1}%
+  \newindex{\imakeidx@makeindex@name}{idx}{ind}{\indexname}%
+}
+\renewcommand{\printindex}{%
+  \ifthenelse{\boolean{imakeidx@makeindex@intoc}}%
+             {\addcontentsline{toc}%
+               {\imakeidx@indexsetup@toclevel}%
+               {\ahrefloc{section@the@hevea@index@\imakeidx@makeindex@name}{\indexname}}}%
+             {}%
+  \@printindex[\imakeidx@makeindex@name]%
+}

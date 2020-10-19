@@ -1,0 +1,11 @@
+*.haux
+*.aux
+*.html
+*.txt
+*.toc
+*.htoc
+*.log
+*.bbl
+*.dvi
+*.hind
+tmp.*

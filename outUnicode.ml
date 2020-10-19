@@ -44,14 +44,14 @@ let rec parse16 len str i r =
 
 let do_parse str =
   let len = String.length str in
-  if len = 0 then begin 
+  if len = 0 then begin
     raise (Failed "Cannot parse unicode entity: empty")
   end else
     match str.[0] with
     | 'X'|'x' -> parse16 len str 1 0
     | '0'..'9' -> parse10 len str 0 0
     | c -> bad_char c
-	
+
 let parse str =
   try do_parse str
   with Failed msg ->
@@ -60,22 +60,23 @@ let parse str =
 
 exception CannotTranslate
 
+let cannot () = raise CannotTranslate
+
+
 let translate_ascii_out i put =
   if i < 128 then put (Char.unsafe_chr i)
-  else raise CannotTranslate
+  else cannot ()
 
 and translate_ascii_in c _ =
   let i = Char.code c in
   if i < 128 then i
-  else raise CannotTranslate    
+  else  cannot ()
 
 let translate_latin1_out i put =
   if i < 256 then put (Char.unsafe_chr i)
-  else raise CannotTranslate
+  else  cannot ()
 
 and translate_latin1_in c _ = Char.code c
-
-let cannot () = raise CannotTranslate
 
 let translate_utf8_in c next = match c with
 | '\000'..'\127' -> Char.code c
@@ -138,7 +139,7 @@ and translate_utf8_out p put =
     put (Char.chr (0x80 lor (p land 0x3f))) ;
   end
 
-    
+
 
 let translate_out_fun = ref translate_ascii_out
 and translate_in_fun = ref translate_ascii_in
@@ -172,7 +173,7 @@ let read_mapping name chan =
            "Error '%s' while loading mapping: %s\n"
            msg name) ;
       raise (Misc.Fatal "Mapping")
- 
+
 let open_mapping name =
   try
     let real_name = Myfiles.find name in
@@ -190,7 +191,6 @@ let open_mapping name =
       raise (Misc.Fatal "Mapping")
 
 and close_mapping chan = try close_in chan with _ -> ()
-
 
 let set_output_translator name =
   let key = Filename.basename name in
@@ -240,17 +240,36 @@ and set_translators name =
       close_mapping chan ;
       translate_out_fun := make_out_translator ps ;
       translate_in_fun := make_in_translator ps
-  
-  
+
+
 let translate_out i = !translate_out_fun i
 and translate_in c (next:unit -> int) = !translate_in_fun c next
 
 (* Diacritical marks *)
+let null = 0x00
+
+let put_empty put_unicode empty =
+  if empty <> null then put_unicode empty
+  else raise CannotTranslate
+
+let apply_accent put_char put_unicode f optg empty c =
+  begin try
+    if c = ' ' then put_empty put_unicode empty
+    else put_unicode (f c)
+  with CannotTranslate ->
+    begin match optg with
+    | None -> raise CannotTranslate
+    | Some g ->
+        let ext = g c in
+        put_char c ; put_unicode ext
+    end
+  end
+
 
 (*
   Tables from ftp://ftp.unicode.org/Public/MAPPINGS/ISO8859
   Mapping from NAME LIST of the www.unicode.org site.
-    
+
   Got functions by:
     egrep 'WITH GRAVE$' NamesList.txt | grep LATIN | awk -f a.awk
 
@@ -794,9 +813,9 @@ and doublestruck = function
       | '7' -> 0x1D7DF
       | '8' -> 0x1D7E0
       | '9' -> 0x1D7E1
-      | _ -> raise CannotTranslate 
+      | _ -> raise CannotTranslate
       end else
-	raise CannotTranslate
+        raise CannotTranslate
 (* Text rendering *)
 let def_t = Hashtbl.create 101
 
@@ -815,12 +834,24 @@ let html_put put put_char i = match i with
 
 (* Constants *)
 
-let null = 0x00
-and space = 0X20
-and nbsp = 0XA0
-and acute_alone = 0xB4
-and grave_alone = 0X60
-and circum_alone = 0X5E
+(* Spaces and Manipulators *)
+let space = 0x20
+and nbsp = 0xA0
+and visible_space = 0x2423
+and emsp = 0x2003
+and ensp = 0x2002
+and emsp13 = 0x2004
+and emsp14 = 0x2005
+and six_per_em_space = 0x2006
+and hairsp = 0x200A
+and zero_width_space = 0x200B
+and zero_width_joiner = 0x200D (* zwj *)
+
+(* Accents and the like *)
+
+let acute_alone = 0xB4
+and grave_alone = 0x60
+and circum_alone = 0x5E
 and diaeresis_alone = 0xA8
 and cedilla_alone = 0xB8
 and tilde_alone = 0x7E
@@ -834,9 +865,12 @@ and ogonek_alone = 0x2DB
 and ring_alone =  0x2DA
 and caron_alone = 0x2C7
 and circled_alone = 0x25EF
-and eszett = 0xDF
+
+(* Special Characters and Punctuation *)
+
+let eszett = 0xDF
 and iques = 0xBF
-and iexcl = 0xA10
+and iexcl = 0xA1
 and minus = 0x2212
 and endash = 0x2013
 and emdash = 0x2014
@@ -850,3 +884,33 @@ and tprime = 0x2034
 and rprime = 0x2035
 and rdprime = 0x2036
 and rtprime = 0x2037
+
+(* Combining *)
+
+let comb_cedilla = function
+  | 'o'|'O' -> 0x0327
+  | _ -> raise CannotTranslate
+
+let comb_grave = function
+  | 'j'|'J' -> 0x0300
+  | _ -> raise CannotTranslate
+
+let comb_acute = function
+  | 'j'|'J' -> 0x0301
+  | _ -> raise CannotTranslate
+
+
+
+(* Double accents *)
+
+let double_inverted_breve = 0x0361
+
+(* Accent over numerical entities  *)
+
+let tr_entity = function
+  | "&#X131;"|"&#305;" -> 'i'
+  | "&#X237;"|"&#567;" -> 'j'
+  | _ -> raise CannotTranslate
+
+let on_entity put_char put_unicode f optg empty s =
+  apply_accent  put_char put_unicode f optg empty (tr_entity s)

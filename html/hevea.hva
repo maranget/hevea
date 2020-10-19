@@ -269,6 +269,8 @@
   {\@locref{#1}{\ifx#2\@empty\@verbarg{#1}\else#2\fi}\@bib@post{#3}}
 \newsavebox{\@bibbox}
 \newcommand{\@biblabel}[1]{\@locname{\bibtaghook{#1}}{\@bibtagstyle[\@bibread{\bibtaghook{#1}}]}}
+%%%%%%%%%%%% Language translation
+\input{html/lang.hva}
 %%% Environment document.
 \newcommand{\@charset}{US-ASCII}
 \newcommand{\@def@charset}[1]
@@ -363,13 +365,20 @@
   {\@close{div}}%
 \newcommand{\centerline}[1]{\begin{center}#1\end{center}}
 %%quotations env.
+\newstyle{.quote}{margin-left:3em;margin-right:3em;text-align:inherit;text-indent:0pt}
 \setenvclass{quote}{quote}%
 \newenvironment{quote}
 {\@close{}\@open{blockquote}{\envclass@attr{quote}}}
 {\@close{blockquote}\@open{}{}}%
+\newstyle{.quotation}{margin-left:3em;margin-right:3em;text-align:inherit;text-indent:1.5em}
 \setenvclass{quotation}{quotation}%
 \newenvironment{quotation}
 {\@open{blockquote}{\envclass@attr{quotation}}}{\@close{blockquote}}
+\newstyle{.verse}{margin-left:3em;margin-right:3em;text-indent:1.5em hanging each-line}
+\setenvclass{verse}{verse}%
+\newenvironment{verse}
+{\@close{}\@open{blockquote}{\envclass@attr{verse}}}
+{\@close{blockquote}\@open{}{}}%
 \newcommand{\centering}{\@insert{div}{\envclass@attr{center}}}
 \newcommand{\raggedleft}{\@insert{div}{\envclass@attr{flushright}}}
 \newcommand{\raggedright}{\@insert{div}{\envclass@attr{flushleft}}}
@@ -488,6 +497,9 @@
 \newcounter{indexwork}\newcounter{indexlimit}
 \newcounter{indexlines}
 \newboolean{spaceallowed}
+\newboolean{indexcolseprule}
+\newcounter{numsep}
+\setcounter{numsep}{\value{indexcols}-1}
 \newcounter{indexclines}\newcounter{indexprev}\newcounter{indexnow}%
 \newcommand{\printindexboxes}
 {\setcounter{indexwork}{1}%
@@ -496,7 +508,9 @@
 \setcounter{indexclines}{0}%
 \setcounter{indexprev}{0}%
 \setcounter{indexnow}{0}%
-\begin{tabular}{*{\value{indexcols}}{X}}
+\ifthenelse{\boolean{indexcolseprule}}%
+           {\begin{tabular}{X*{\value{numsep}}{|X}}}%
+           {\begin{tabular}{*{\value{indexcols}}{X}}}
 \begin{itemize}
 \whiledo{\value{indexwork}<\value{indexbox}}
 {\setcounter{indexnow}{\pushint{\getindexpos{\theindexwork}}}%
@@ -571,7 +585,7 @@
 %%Style of display
 \def\@orange{\@print{#}FF8000}
 \def\@magenta{fuchsia}
-\def\@dtstyle{border-collapse:separate;border-spacing:\@barsz;width:auto;}
+\def\@dtstyle{border-collapse:separate;border-spacing:\@barsz;line-height:1.1;width:auto;}
 \def\@dcstyle{white-space:nowrap;padding:0px;}%;width:auto;}
 \newstyle{.vdisplay}{\@dtstyle{} empty-cells:show; border:2px solid red;}
 \newstyle{.vdcell}{\@dcstyle{} border:2px solid green;}
@@ -668,12 +682,9 @@
 {\@open{div}{class="\getenvclass{minipage}"}}
 {\@close{div}}
 %%%%%%%%margin par
-\newstyle{.marginpar}
-{border:solid thin black; width:20\%; text-align:left;}
-\newstyle{.marginparleft}
-  {float:left; margin-left:0ex; margin-right:1ex;}
-\newstyle{.marginparright}
-  {float:right; margin-left:1ex; margin-right:0ex;}
+\newstyle{.marginpar}{border:solid thin black; margin-bottom:1ex; width:20\%; text-align:left;}
+\newstyle{.marginparleft}{float:left; clear:left; margin-left:0ex; margin-right:1ex;}
+\newstyle{.marginparright}{float:right; clear:right; margin-left:1ex; margin-right:0ex;}
 \newif\ifmarginright\marginrighttrue
 \setenvclass{marginpar}{marginpar}
 \setenvclass{marginparside}{marginparright}
@@ -684,7 +695,7 @@
 \newcommand{\hva@mtemp}{}
 \newcommand{\marginpar}[2][]
 {\def\hva@mtemp{#1}%
-\@open{div}{class="\getenvclass{marginpar} \getenvclass{marginparside}"}%
+\@open{span@inline@block}{class="\getenvclass{marginpar} \getenvclass{marginparside}"}%
 \ifx\hva@mtemp\@empty%
 #2%
 \else\ifmarginright
@@ -692,9 +703,10 @@
 \else
 #1%
 \fi\fi
-\@close{div}}
-%%%%%%%%Default env class for verbatim
+\@close{span@inline@block}}
+%%%%%%%%Default env classes for verbatim and verb
 \setenvclass{verbatim}{verbatim}
+\setenvclass{verb}{verb}
 %%%%%% format theorems
 \newcommand{\set@th@font}[1]{\def\th@font{#1}}
 \let\th@font\em

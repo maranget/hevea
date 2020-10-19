@@ -2762,10 +2762,16 @@ Open \html{} block-level element \textit{block} with attributes
 \textit{attributes}. The block name \textit{block} \textbf{must} be
 lowercase.
 As a special case \textit{block} may be the empty string, then a \html{}
-\emph{group} is opened.
+\emph{group} is opened.  Argument~\textit{block} cannot be \verb+p+; use
+ \verb+\@open@par+ to open a paragraph element.
 \item[{\tt\char92 @close\char123}{\it block}{\tt\char125}]
 Close \html{} block-level element \textit{block}.
 Note that \verb+\@open+ and \verb+\@close+ must be properly balanced.
+\item[{\tt\char92 @open@par[}{\it attributes}{\tt ]}] Open a paragraph
+block element, which optionally gets attributes~\textit{attributes}.
+\item[{\tt\char92 @close@par}]  Close a paragraph block element.
+Note that \verb+\@open@par+ and \verb+\@close@par+ also must be
+properly balanced.
 \item[{\tt\char92 @out@par\char123}{\it arg}{\tt\char125}]
 If occurring inside a \verb+p+ element,
 that is if a \verb+<p>+ opening tag is active,
@@ -4523,35 +4529,45 @@ implementations by themselves.
 
 
 \subsection{The Title Page and Abstract}
-All title related commands exist, with the following peculiarities:
+
+All title related commands exist with the following peculiarities:
+
 \begin{itemize}
-  \item
-  The argument to the \verb+\title+\comindex{title} command appears
-  in the \html{}~document header. As a consequence, titles should
-  remain simple. Normal design (as regards \hevea{}) is for
-  \verb+\title+ to occur in the document preamble, so that the title
-  is known at the time when the document header is emitted (while
-  processing \verb+\begin{document}+). However, there are two subtleties.
+\item The argument of the \verb+\title+\comindex{title}~command
+  appears in the \html~document header.  As a consequence titles
+  should remain simple.  Normal design (as regards \hevea) is
+  for \verb+\title+ to occur in the document preamble, so that the
+  title is known at the time when the document header is emitted, this
+  is, while processing \verb+\begin{document}+.  However, there are
+  two subtleties.
 
-  If no \verb+\title+
-  command occurs in document preamble and that one \verb+\title+
-  command appears in the document, then the title is saved into the
-  \texttt{.haux} file for a next run of \hevea{} to put it in the
-  \html{}~document header.
+  \begin{enumerate}
+  \item If no \verb+\title+~command occurs in document preamble and
+    that one \verb+\title+~command appears in the document, then the
+    title is saved into the \texttt{.haux}~file for the next run of
+    \hevea{} to put it in the \html~document header.
 
-  If \verb+\title+ commands are present both in preamble and after
- \verb+\begin{document}+, then the former takes precedence.
+  \item If \verb+\title+~commands are present both in preamble and
+    after \verb+\begin{document}+ the former takes precedence.
+  \end{enumerate}
 
- \item When not present the date is left empty. The
- \verb+\today+\comindex{today} command generates will work properly
- only if \texttt{hevea} is invoked with the \verb+-exec xxdate.exe+
- option.  Otherwise \verb+\today+ generates nothing and a warning is
- issued.
+\item When not present the date is left empty.  The
+  \verb+\today+\comindex{today}~command generates will work properly
+  only if \texttt{hevea} is invoked with the
+  \verb+-exec xxdate.exe+~option.  Otherwise \verb+\today+ generates
+  nothing and a warning is issued.
 \end{itemize}
 
-The \verb+abstract+ environment is present is all base styles,
-including the \filename{book} style.
-The \verb+titlepage+ environment does nothing.
+The \verb+abstract+ environment is present in all base styles,
+including the \filename{book}~style.  The \verb+titlepage+~environment
+does nothing.
+
+\hevea{} places the \verb+\title+~argument into an \verb+h1+-element
+with class~\verb+titlemain+ and puts the arguments of \verb+\author+
+and \verb+\date+ into a \verb+h3+-element with class~\verb+titlerest+.
+The abstract goes into a \verb+blockquote+-element with
+class~\verb+abstract+.
+
 
 \section{Displayed Paragraphs}
 Displayed-paragraph environments translate to block-level
@@ -4567,13 +4583,18 @@ appear directly inside a displayed-paragraph environment or inside an array
 element.
 
 
-
 \subsection{Quotation and Verse}
-The \verb+quote+ and \verb+quotation+ environments are the same thing: they
-translate to \verb+BLOCKQUOTE+ elements.
-The \verb+verse+ environment is not supported.
+
+The \verb+quote+ and \verb+quotation+~environments are similar; they
+translate to \verb+BLOCKQUOTE+~elements with associated
+classes~\verb+quote+ and \verb+quotation+, respectively.
+
+The \verb+verse+~environment is supported as \verb+BLOCKQUOTE+~element
+with class~\verb+verse+.
+
 
 \subsection{List-Making environments}
+
 The \verb+itemize+, \verb+enumerate+ and \verb+description+
 environments translate to the \verb+ul+, \verb+ol+, and
 \verb+DL+ elements and this is the whole story.
@@ -4636,21 +4657,21 @@ This yields:
 \item Second item.
 \end{list}
 
-
 The \verb+trivlist+ environment is also supported. It is equivalent to
 the \verb+description+ environment.
+
 
 \subsection{Verbatim}
 
 The \verb+verbatim+ and \verb+verbatim*+ environments translate to
-the \verb+PRE+ element.
-Inside \verb+verbatim*+, spaces are replaced by underscores (``\verb*+ +'').
-
-
-Similarly, \verb+\verb+ and \verb+\verb*+
-translate to the \verb+CODE+ text element.
+the \verb+PRE+~elements.  Inside \verb+verbatim*+, spaces are replaced
+by visual spaces (``\verb*+ +'').  Similarly, \verb+\verb+
+and \verb+\verb*+ translate to \verb+CODE+ text elements.  The
+environments are associated with CSS~classes of the same names, this
+is, \verb+verbatim+ and \verb+\verb+, respectively.
 
 The \verb+alltt+ environment is supported.
+
 
 \section{Mathematical Formulae}
 
@@ -5348,7 +5369,7 @@ The \verb+\listfiles+ command is a null command.
 
 \subsection{Index and Glossary}\label{index}
 \envdefindex{indexenv}\countindex{indexcols}
-Glossaries are not handled (who uses them ?).
+Glossaries are not handled.  (Who uses them anyhow?)
 
 While processing a document \filename{doc}\texttt{.tex}, index
 entries go into the file \filename{doc}\texttt{.hidx}, while
@@ -5357,25 +5378,48 @@ the formatted index gets written into the file
 As with \LaTeX{}, two runs of \hevea{} are normally needed to format
 the index.
 However, if all index producing commands (normally \verb+\index+)
-occur before the index formatting command (normally
+occur before the index formatting command (usually
 \verb+\printindex+), then only one run is needed.
 
 As in \LaTeX, index processing is not enabled by default and
 some  package has to be loaded explicitly in the
 document preamble.
-To that aim, \hevea{} provides the standard package \texttt{makeidx},
-and two extended packages that allow the production of several indexes
+To that aim, \hevea{} provides the standard packages \texttt{makeidx}
+and \texttt{imakeidx}, as well as
+two extended packages that allow the production of several indexes
 (see section~\ref{multind}).
 
-Formatting of indexes in \hevea{} departs from \LaTeX{} behaviour.
-More precisely the \verb+theindex+ environment does not exist.
-Instead, indexes are formatted using special
-\texttt{indexenv} environments.
-Those details do not normally concern users.
-However, the
-number of columns in the presentation  of the index can be controlled
-by setting the value of the \texttt{indexcols} counter (default value
-is two).
+Formatting of indexes in \hevea{} departs from \LaTeX{} behaviour:
+environment \verb+the@hevea@index+ replaces
+the \verb+theindex+~environment; \verb+the@hevea@index+ places all
+index entries in class~\verb+theindex+.  The environment can be
+modified with the commonly accepted magic:
+
+\begin{verbatim}
+\let\OldTheIndex\the@hevea@index
+\let\OldEndTheIndex\endthe@hevea@index
+\renewenvironment{the@hevea@index}%
+                 {\OldTheIndex ...}%
+                 {... \OldEndTheIndex}
+\end{verbatim}
+
+\noindent An optional index prolog paragraph gets the
+ID~\verb+indexprologue+ such that it can be manipulated with CSS as,
+for example:
+
+\begin{verbatim}
+p#indexprologue {
+  font-size: smaller;
+}
+\end{verbatim}
+
+\noindent The index entries themselves are formatted using special
+\texttt{indexenv}~environments.
+Those details do not normally concern users.  However, the number of
+columns in the presentation of the index can be controlled by setting
+the value of the \texttt{indexcols} counter (default value is two).
+And the boolean~\texttt{indexcolseprule} toggles typesetting rules
+between index columns (default is false, which means no rules).
 
 \subsection{Terminal Input and Output}
 
@@ -6755,30 +6799,72 @@ to change the sectioning command introduced by bibliographies.
 
 
 \subsection{Support for \texttt{babel}}\ttindex{babel}{package}
-\subsubsection{Basics}
+\subsubsection{Basics\label{sec:babel-basics}}
+
 \hevea{} offers support for the \LaTeX{} package {\tt babel}. When it reads the command
+
 \begin{verbatim}
-  \usepackage[lang-list]{babel}
+  \usepackage[LANG-LIST]{babel}
 \end{verbatim}
-it loads {\tt babel.hva}, and sends it the saved {\tt lang-list}. The
-file {\tt babel.hva} then looks at each language (say {\tt{}x}) in it, and loads {\tt x.hva}, which offers support for the language {\tt x}. As in \LaTeX, the last language in the list is selected as default. As an example the command
+
+it loads {\tt babel.hva}, and sends it the saved {\tt LANG-LIST}.  The
+file {\tt babel.hva} then looks at each language (say {\tt{}x}) in it,
+and loads {\tt x.hva}, which offers support for the language {\tt x}.
+As in \LaTeX, the last language in the list is selected as default; it
+also determines the document's language, this is,
+the \verb+lang+~attribute of its \verb+html+~element.  As an example
+the command
+
 \begin{verbatim}
 \usepackage[english,french,german]{babel}
 \end{verbatim}
-would load {\tt babel.hva}, then the files {\tt english.hva,french.hva,german.hva} containing the respective definitions, and finally activate the definitions in {\tt german.hva} and sets the current language to german.
+
+would load {\tt babel.hva}, then the files {\tt
+english.hva, french.hva, german.hva} containing the respective
+definitions, and finally activate the definitions in {\tt german.hva}
+and sets the current language to german.
 
 \subsubsection{Commands and languages}
-The following babel commands for changing and querying the language work as in \LaTeX{} :
-\begin{enumerate}
-\item {\verb+\selectlanguage+ : to change the language}
-\item {\verb+\iflanguage+ : to branch after comparing with current language}
-\end{enumerate}  
 
-The language specific details are described in the corresponding
-\verb+.hva+ file, just as in the \verb+.sty+ file for \LaTeX. Users
-need to supply this file for their language, or modify/check the files
-if they are already supplied with the distribution. The list of
-languages is given below.
+The following babel commands for changing and querying the language
+work as in \LaTeX:
+
+\begin{enumerate}
+\item \verb+\selectlanguage{LANG}+: Change the language
+to \verb+LANG+.
+
+\item \verb+\iflanguage{LANG}+: Branch after comparing \verb+LANG+
+with current language.
+
+\item \label{it:macro-foreignlanguage}%
+\verb+\foreignlanguage{LANG}{TEXT}+: Switch to
+language~\verb+LANG+ and then typeset \verb+TEXT+.
+
+\item \label{it:environment-other-language}%
+\verb+\begin{OTHER-LANG}+\quad\verb+\end{OTHER-LANG}+: Select
+language~\verb+OTHER-LANG+ in an environment.  \hevea{} is frugal --
+only those languages are allowed for \verb+OTHER-LANG+ that have been
+announced in the \verb+LANG-LIST+; see section~\ref{sec:babel-basics}.
+
+\item \label{it:environment-other-language-star}%
+\verb+\begin{OTHER-LANG*}+\quad\verb+\end{OTHER-LANG*}+: Same as above.
+
+\item \verb+\begin{hyphenrules}{LANG}+\quad\verb+\end{hyphenrules}+:
+Switch \emph{only} the hyphenation rules to those of \verb+LANG+.
+
+\item \verb+\hyphenrules{LANG}+: Same as above in the form of a macro.
+\end{enumerate}
+
+Items~\ref{it:macro-foreignlanguage}, \ref{it:environment-other-language},
+and \ref{it:environment-other-language-star} use
+CSS~class \verb+foreignlanguage+, which can be defined by the user (it
+is not defined by \hevea).
+
+The language specific details are described in the
+corresponding \verb+.hva+ file, just as in the \verb+.sty+ file
+for \LaTeX. Users need to supply this file for their language, or
+modify/check the files if they are already supplied with the
+distribution. The list of languages is given below.
 
 \begin{center}\index{babel!languages}
 \begin{tabular}{|l|l|l|l|}

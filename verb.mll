@@ -834,7 +834,7 @@ let command_name =
 rule inverb verb_delim put = parse
 |  (_ as c)
     {if c = verb_delim then begin
-      Dest.close_group () ;
+      Dest.close_block "code";
     end else begin
       put c (fun () -> read_lexbuf lexbuf) ;
       inverb verb_delim put lexbuf
@@ -995,20 +995,22 @@ let _ = ()
 ;;
 
 let put_char_star c next = match c with
-  | ' '|'\t' -> Dest.put_char '_' ;
+  | ' ' | '\t' -> Dest.put_unicode OutUnicode.visible_space;
   | c -> Scan.translate_put_unicode c next
 
 and put_char c next = match c with
-  |  '\t' -> Dest.put_char ' '
-  | c ->  Scan.translate_put_unicode c next
+  | '\t' -> Dest.put_char ' '
+  | c -> Scan.translate_put_unicode c next
 ;;
 
+
+let getclass env = Scan.get_prim (Printf.sprintf "\\envclass@attr{%s}" env)
 
 let open_verb put lexbuf =
-  Dest.open_group "code" ;
+  Dest.open_block ~force_inline:true "code" (getclass "verb");
   start_inverb put lexbuf
 ;;
-  
+
 def_code "\\verb" (open_verb put_char) ;
 def_code "\\verb*" (open_verb put_char_star);
 ();;
@@ -1030,8 +1032,6 @@ let noeof lexer lexbuf =
         (Misc.Close
            ("End of file in environment: ``"^ !Scan.cur_env^"'' ("^s^")"))
   | EndVerb -> ()
-
-let getclass env = Scan.get_prim (Printf.sprintf "\\envclass@attr{%s}" env)
 
 let open_verbenv star =
   Scan.top_open_block "pre" (getclass "verbatim") ;
@@ -1362,16 +1362,13 @@ let parse_linerange s =
 
 let code_spaces _lexbuf =
   let n = Counter.value_counter "lst@spaces" in
-  if !lst_showspaces then
-    for _i = n-1 downto 0 do
-      Dest.put_char '_'
-    done
-  else begin
-    for _i = n-1 downto 0 do
-      Dest.put_nbsp ()
-    done
-  end ;
-  Counter.set_counter "lst@spaces" 0
+    if !lst_showspaces then
+      for _i = 1 to n do
+        Dest.put_char '_'
+      done
+    else
+      Dest.put_hspace true (Length.Char n);
+    Counter.set_counter "lst@spaces" 0
 ;;
 
 let check_style sty =

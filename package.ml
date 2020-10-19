@@ -29,7 +29,7 @@ open Scan
 (*********************************************************)
 (* Accents are here, to make latexscan.mll a bit smaller *)
 (* Accent commands use a mapping from ascii to           *)
-(* unicode entities with accents                         *)   
+(* unicode entities with accents                         *)
 (*  - When no char with accent exists (html) or can      *)
 (*    be outputed (text), command                        *)
 (*    \text@accent{\cmd}{name}{arg} is scanned           *)
@@ -39,44 +39,50 @@ open Scan
 (* See iso-sym.hva, for the definition of \text@accent   *)
 (*********************************************************)
 
-let put_empty empty =
-  if empty <> OutUnicode.null then Dest.put_unicode empty
-  else raise OutUnicode.CannotTranslate 
-
 exception DiacriticFailed of string * string
 
-let do_def_diacritic _verb _name f empty = 
-  (fun lexbuf ->    
+let do_def_diacritic _verb _name f optg empty =
+  (fun lexbuf ->
     let arg0 = save_arg lexbuf in
     let arg = get_prim_onarg arg0 in
     try match String.length arg with
-    | 0 -> put_empty empty
+    | 0 -> OutUnicode.put_empty Dest.put_unicode empty
     | 1 ->
-        let c = arg.[0] in
-        if c = ' ' then put_empty empty
-        else Dest.put_unicode (f arg.[0])
-    | _ -> raise OutUnicode.CannotTranslate
+        OutUnicode.apply_accent
+          Dest.put_char Dest.put_unicode f optg empty arg.[0]
+    | _ ->
+        OutUnicode.on_entity
+          Dest.put_char Dest.put_unicode f optg empty arg
     with
     | OutUnicode.CannotTranslate
     | Misc.CannotPut ->	raise (DiacriticFailed (Subst.do_subst_this arg0,arg)))
+;;
 
-let def_diacritic name internal f empty =
+let full_def_diacritic  name internal f optg empty =
   def_code name
     (fun lexbuf ->
-      try do_def_diacritic true name f empty lexbuf
+      try do_def_diacritic true name f optg empty lexbuf
       with DiacriticFailed (p,input) ->
-	scan_this main
-	  ("\\text@accent{"^internal^"}{"^name^"}{\\@print{"^input^"}}{"^p^"}"))
+        scan_this main
+          ("\\text@accent{"^internal^"}{"^name^"}{\\@print{"^input^"}}{"^p^"}"))
 ;;
+
+let def_diacritic  name internal f empty =
+  full_def_diacritic name internal f None empty
+
+and def_diacritic_opt  name internal f g empty =
+  full_def_diacritic  name internal f (Some g) empty
+
 
 open OutUnicode
 
 let () =
-  def_diacritic "\\'"  "acute" OutUnicode.acute acute_alone ;
-  def_diacritic "\\`"  "grave" OutUnicode.grave grave_alone ;
+  def_diacritic_opt "\\'"  "acute" OutUnicode.acute comb_acute acute_alone ;
+  def_diacritic_opt "\\`"  "grave" OutUnicode.grave  comb_grave grave_alone ;
   def_diacritic "\\^"  "circumflex" OutUnicode.circumflex circum_alone ;
   def_diacritic "\\\"" "diaeresis" OutUnicode.diaeresis diaeresis_alone ;
-  def_diacritic "\\c"  "cedilla" OutUnicode.cedilla cedilla_alone ;
+  def_diacritic_opt "\\c"  "cedilla" OutUnicode.cedilla
+    OutUnicode.comb_cedilla cedilla_alone ;
   def_diacritic "\\~"  "tilde" OutUnicode.tilde tilde_alone ;
   def_diacritic "\\="  "macron" OutUnicode.macron macron_alone ;
   def_diacritic "\\H"  "doubleacute" OutUnicode.doubleacute doubleacute_alone ;
@@ -95,10 +101,50 @@ let () =
   ()
 ;;
 
+(* Double diacritics, much less checking *)
+
+let do_def_diacritic2 name comb =
+  (fun lexbuf ->
+    let arg0 = save_arg lexbuf in
+    let arg = get_prim_onarg arg0 in
+    try
+      let len = String.length arg in
+      if len >= 2 then begin
+        let fst = String.sub arg 0 1 in
+        Dest.put fst ;
+        begin try
+          Dest.put_unicode comb ;
+        with OutUnicode.CannotTranslate ->
+          Misc.warning
+            (Printf.sprintf "Ingoring double accent '%s' on '%s'" name fst)
+        end ;
+        let rem = String.sub arg 1 (len-1) in
+        Dest.put rem
+      end else raise OutUnicode.CannotTranslate
+    with
+    | OutUnicode.CannotTranslate
+    | Misc.CannotPut ->	raise (DiacriticFailed (Subst.do_subst_this arg0,arg)))
+
+let def_diacritic2 name internal comb =
+  def_code name
+    (fun lexbuf ->
+      try do_def_diacritic2 name comb lexbuf
+      with DiacriticFailed (p,input) ->
+        scan_this main
+          ("\\text@accent{"^internal^"}{"^name^"}{\\@print{"^input^"}}{"^p^"}"))
+
+let () =
+  def_diacritic2 "\\t"
+    "inverted double breve" OutUnicode.double_inverted_breve ;
+  ()
+;;
+
+
 (*
  Specialized version of \IfDisplay (plain.hva) for command names,
  so as to avoid inserting \fi at end of scanned text
 *)
+
 def_code "\\DisplayChoose"
   (fun lexbuf ->
     let cmd1 = get_csname lexbuf in
@@ -260,7 +306,7 @@ def_print "\\@hevealibdir" Mylib.libdir
 ;;
 
 def_code "\\@heveaverbose"
-  (fun lexbuf ->    
+  (fun lexbuf ->
     let lvl = Get.get_int (save_body lexbuf) in
     Misc.verbose := lvl ;
     DoOut.verbose := lvl)
@@ -280,8 +326,8 @@ def_code "\\@find@file"
       let name = Scan.get_prim_arg lexbuf in
       try Myfiles.find name
       with Not_found ->
-	Misc.warning ("Cannot find file: "^name) ;
-	name in
+        Misc.warning ("Cannot find file: "^name) ;
+        name in
      Scan.translate_put_unicode_string real_name)
 ;;
 
@@ -312,7 +358,7 @@ def_code "\\hva@dump@css"
      | base -> base ^ ".css" in
      begin try
        let stys =
-         Dest.to_string 
+         Dest.to_string
            (fun () -> scan_this main "\\hevea@css") in
        let chan = open_out name in
        output_string chan stys ;
@@ -378,7 +424,7 @@ def_code "\\newtokens"
   (fun lexbuf ->
     let toks = Scan.get_csname lexbuf in
     if Latexmacros.exists toks then
-      Misc.warning ("\\newtokens redefines command ``"^toks^"''") ;      
+      Misc.warning ("\\newtokens redefines command ``"^toks^"''") ;
     Latexmacros.def toks zero_pat (Toks []))
 ;;
 
@@ -389,7 +435,7 @@ let get_tokens toks = match Latexmacros.find_fail toks with
 
 def_code "\\resettokens"
   (fun lexbuf ->
-    let toks = Scan.get_csname lexbuf in 
+    let toks = Scan.get_csname lexbuf in
     try
       ignore (get_tokens toks) ;
       Latexmacros.def toks zero_pat (Toks [])
@@ -413,7 +459,7 @@ def_code "\\addrevtokens"
   (fun lexbuf ->
     let toks = Scan.get_csname lexbuf in
     let arg = Subst.subst_arg lexbuf in
-    begin try 
+    begin try
       let l = get_tokens toks in
       Latexmacros.def toks zero_pat (Toks (l@[arg]))
     with Failed ->
@@ -506,7 +552,7 @@ let call_prim lexbuf =
   scan_this  main exec
 
 and call_subst_opt lexbuf =
-  let csname = get_csname lexbuf in  
+  let csname = get_csname lexbuf in
   let default = subst_arg lexbuf in
   let arg = subst_arg lexbuf in
   let lb = MyLexing.from_string arg in
@@ -622,7 +668,7 @@ def_code "\\bibcite"
     let arg = Subst.subst_arg lexbuf in
     Auxx.bset name arg)
 ;;
-    
+
 (* Index primitives *)
 
 register_init "index"
@@ -679,10 +725,10 @@ register_init "index"
       let name = get_prim_arg lexbuf in
       Index.newindex tag sufin sufout name in
     def_code "\\newindex" new_index ;
-    def_code "\\renewindex" new_index)    
+    def_code "\\renewindex" new_index)
 ;;
 
-(* ifthen package *)    
+(* ifthen package *)
 register_init "ifthen"
   (fun () ->
     def_code "\\ifthenelse"
@@ -714,7 +760,7 @@ register_init "ifthen"
     ())
 ;;
 
-                          
+
 (* color package *)
 register_init "color"
   (fun () ->
@@ -740,7 +786,7 @@ register_init "color"
         Color.define_named clr mdl value) ;
 
     let do_getcolor c lexbuf =
-      let mdl = get_prim_opt "!*!" lexbuf in    
+      let mdl = get_prim_opt "!*!" lexbuf in
       let clr = get_prim_arg lexbuf in
       let htmlval = match mdl with
       | "!*!"|"" -> Color.retrieve clr
@@ -763,7 +809,7 @@ register_init "colortbl"
         | Color.Name n -> n in
       def_code "\\columncolor"
         (fun lexbuf ->
-          let mdl = get_prim_opt "!*!" lexbuf in    
+          let mdl = get_prim_opt "!*!" lexbuf in
           let clr = get_prim_arg lexbuf in
           let htmlval = match mdl with
             | "!*!" -> Color.retrieve clr
@@ -774,7 +820,7 @@ register_init "colortbl"
         );
       def_code "\\rowcolor"
         (fun lexbuf ->
-          let mdl = get_prim_opt "!*!" lexbuf in    
+          let mdl = get_prim_opt "!*!" lexbuf in
           let clr = get_prim_arg lexbuf in
           let htmlval = match mdl with
           | "!*!" -> Color.retrieve clr
@@ -804,7 +850,7 @@ register_init "sword"
         (fun lexbuf ->
           let _ = lexeme lexbuf in
           (* discard the first 7 arguments *)
-          let _ = save_arg lexbuf in 
+          let _ = save_arg lexbuf in
           let _ = save_arg lexbuf in
           let _ = save_arg lexbuf in
           let _ = save_arg lexbuf in
@@ -840,7 +886,7 @@ name *)
       (* output: call to \swUNICODE{arg1}{arg2} where: *)
       (*    arg1 = hex number w/o leading 0, eg x23ab *)
       (*    arg2 = decimal equivalent, eg 9131 *)
-      (* it is up to \swUNICODE (in sword.hva) to do final formatting *) 
+      (* it is up to \swUNICODE (in sword.hva) to do final formatting *)
       let _ = lexeme lexbuf in
       let t = Subst.subst_arg lexbuf in
       let s = string_of_int (int_of_string (t)) in
@@ -902,7 +948,7 @@ register_init "url"
 
     def_code "\\urldef" do_urldef ;
     ())
-;;         
+;;
 
 
 (* hyperref (not implemented in fact) *)
@@ -911,11 +957,11 @@ register_init "hyperref"
 
     let get_url lexbuf =
       if Lexstate.top_level () then begin
-	Save.start_echo () ;
-	ignore (save_arg lexbuf) ;
-	Save.get_echo ()
+        Save.start_echo () ;
+        ignore (save_arg lexbuf) ;
+        Save.get_echo ()
       end else
-	subst_arg lexbuf in
+        subst_arg lexbuf in
 
     def_code "\\href"
       (fun lexbuf ->
@@ -1028,7 +1074,7 @@ register_init "keyval"
 
 register_init "xypic"
   (fun () ->
-    def_code "\\@xyarg" 
+    def_code "\\@xyarg"
       (fun lexbuf ->
         Save.start_echo () ;
         let _ = Lexstate.save_xy_arg lexbuf in
@@ -1060,7 +1106,7 @@ register_init "natbib"
           | Some s -> s in
         scan_this main ("\\NAT@args" ^ arg)) ;
     ())
-;;            
+;;
 
 let gput lexbuf c =
   Save.gobble_one_char lexbuf ;
@@ -1146,9 +1192,9 @@ register_init "chngcntr"
   (fun () ->
     def_code "\\@removefromreset"
       (fun lexbuf ->
-	let name = get_prim_arg lexbuf in
-	let within = get_prim_arg lexbuf in
-	Counter.removefromreset name within) ;
+        let name = get_prim_arg lexbuf in
+        let within = get_prim_arg lexbuf in
+        Counter.removefromreset name within) ;
     ())
 ;;
 
@@ -1160,8 +1206,8 @@ register_init "import"
   (fun () ->
     def_code "\\@imp@set"
       (fun lexbuf ->
-	let imp = get_prim_arg lexbuf in
-	Myfiles.set_import imp) ;
+        let imp = get_prim_arg lexbuf in
+        Myfiles.set_import imp) ;
     ())
 ;;
 
@@ -1185,17 +1231,17 @@ and cr_fmt_many kind lbl1 lbl2 rem  =
   Buffer.add_string buff name ;
   Buffer.add_string buff " " ;
   Buffer.add_string buff (fmt_lbl lbl1) ;
-  Buffer.add_string buff "\\crefmiddleconjunction" ;  
+  Buffer.add_string buff "\\crefmiddleconjunction" ;
   Buffer.add_string buff (fmt_lbl lbl2) ;
   let rec do_rec = function
     | [] -> ()
     | [lbl] ->
-        Buffer.add_string buff "\\creflastconjunction" ; 
+        Buffer.add_string buff "\\creflastconjunction" ;
         Buffer.add_string buff (fmt_lbl lbl)
     | lbl::rem ->
-        Buffer.add_string buff "\\crefmiddleconjunction" ; 
+        Buffer.add_string buff "\\crefmiddleconjunction" ;
         Buffer.add_string buff (fmt_lbl lbl) ;
-        do_rec rem in        
+        do_rec rem in
   do_rec rem ;
   Buffer.add_string buff "}" ;
   scan_this main (Buffer.contents buff)
@@ -1353,19 +1399,19 @@ register_init "cleveref"
 (* Extra font changes, from abisheck *)
 (*************************************)
 
-let get_elements str = 
+let get_elements str =
     let len = String.length str in
     let rec all_elements l = match l with
       0 -> []
     | n -> (all_elements (n-1))@[(String.sub str (n-1) 1)] in
     all_elements len
-;;   
+;;
 
 let str_cat x y = x^y
 ;;
 
 def_code "\\@mathbb"
-  (fun lexbuf -> 
+  (fun lexbuf ->
     let arg1 = save_arg lexbuf in
     let str = arg1.arg in
     (*let dummy = print_string str in*)
@@ -1375,13 +1421,13 @@ def_code "\\@mathbb"
     let format x = Scan.get_this_main ("\\"^"one@mathbb{"^x^"}") in
     let formatted_list = List.map format str_list in
     let formatted_text = List.fold_left str_cat "" formatted_list in
-    (*print_string ("<<"^formatted_text^">>\n") ;*) 
+    (*print_string ("<<"^formatted_text^">>\n") ;*)
     Dest.put formatted_text
   )
 ;;
 
 def_code "\\@mathfrak"
-  (fun lexbuf -> 
+  (fun lexbuf ->
     let str = subst_arg lexbuf in
     let str_list = get_elements str in
     let format x = Scan.get_this_main ("\\"^"one@mathfrak{"^x^"}") in
@@ -1392,7 +1438,7 @@ def_code "\\@mathfrak"
 ;;
 
 def_code "\\@mathsf"
-  (fun lexbuf -> 
+  (fun lexbuf ->
     let str = subst_arg lexbuf in
     let str_list = get_elements str in
     let format x = Scan.get_this_main ("\\"^"one@mathsf{"^x^"}") in
@@ -1403,7 +1449,7 @@ def_code "\\@mathsf"
 ;;
 
 def_code "\\@mathbf"
-  (fun lexbuf -> 
+  (fun lexbuf ->
     let str = subst_arg lexbuf in
     (*let str_list = get_elements str in
     let format x = Scan.get_this_main ("\\"^"one@mathbf{"^x^"}") in
@@ -1414,7 +1460,7 @@ def_code "\\@mathbf"
 ;;
 
 def_code "\\@mathrm"
-  (fun lexbuf -> 
+  (fun lexbuf ->
     let arg1 = save_arg lexbuf in
     let str = arg1.arg in
     (*let str_list = get_elements str in
@@ -1426,7 +1472,7 @@ def_code "\\@mathrm"
 ;;
 
 def_code "\\@mathcal"
-  (fun lexbuf -> 
+  (fun lexbuf ->
     let arg1 = save_arg lexbuf in
     let str = arg1.arg in
     let str_list = get_elements str in
@@ -1438,7 +1484,7 @@ def_code "\\@mathcal"
 ;;
 
 def_code "\\@mathtt"
-  (fun lexbuf -> 
+  (fun lexbuf ->
     let arg1 = save_arg lexbuf in
     let str = arg1.arg in
     let str_list = get_elements str in
