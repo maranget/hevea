@@ -398,9 +398,9 @@ def_code
 (* A few subst definitions, with 2 optional arguments *)
 
 def "\\makebox" (latex_pat ["" ; ""] 3)
-    (Subst ["\\hva@warn{makebox}\\mbox{#3}"]) ;
+    (Subst ["\\@makebox{#1}{#2}{#3}"]) ;
 def "\\framebox" (latex_pat ["" ; ""] 3)
-    (Subst ["\\hva@warn{framebox}\\fbox{#3}"])
+    (Subst ["\\@framebox{#1}{#2}{#3}"])
 ;;
 
 

@@ -545,14 +545,80 @@
 %   Redefining \fbox of latexcommon.hva	         		%
 %   Here we can use HTML primitives				%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\newstyle{.boxed}{border:1px solid black}
-\newstyle{.textboxed}{border:1px solid black}
-\NewcommandHtml{\@@boxed}[1]
-{\@start@text\@open{table}{class="boxed"}\@open{tr}{}\@open{td}{}%
-#1%
-\@close{td}\@close{tr}\@close{table}\@end@text}
-\NewcommandHtml{\@boxed}[1]{{\@styleattr{span}{class="textboxed"}#1}}
-\RenewcommandHtml{\fbox}{\DisplayChoose\@@boxed\@boxed}
+\newstyle{.lrbox}{box-sizing:border-box;display:inline-block;overflow:visible;white-space:nowrap;}
+\newstyle{.center-lrbox}{display:inline-block;margin-left:50\%;transform:translateX(-50\%);}
+\newstyle{.makebox}{}
+\newstyle{.framebox}{border:1px solid black;padding:0.25em;}
+\def\@lrbox@alignment@spec@center{c}
+\def\@lrbox@alignment@spec@left{l}
+\def\@lrbox@alignment@spec@right{r}
+\newcommand{\@lr@box@attr}[2]{%
+  \ife#1%
+    \relax
+  \else
+    \def\@flush@alignment{}%
+    \ife#2%
+      \relax
+    \else
+      \def\@alignment@spec{#2}%
+      \ifx\@alignment@spec\@lrbox@alignment@spec@center
+        \relax
+      \else
+        \ifx\@alignment@spec\@lrbox@alignment@spec@left
+          \def\@flush@alignment{text-align:left;}%
+        \else
+          \ifx\@alignment@spec\@lrbox@alignment@spec@right
+            \def\@flush@alignment{text-align:right;direction:rtl;}%
+          \else
+            \hva@warn{unknown lr-box alignment}%
+          \fi
+        \fi
+      \fi
+    \fi
+    style="width:#1;\@flush@alignment"%
+  \fi
+}
+\newenvironment{@center@lrbox}%
+  {\@open{span@inline@block}{class="center-lrbox"}}%
+  {\@close{span@inline@block}}
+\newcommand{\@conditionally@center@lrbox@begin}[2]{%
+  \ife#1
+    \relax
+  \else
+    \ife#2%
+      \@center@lrbox
+    \else
+      \def\@alignment@spec{#2}%
+      \ifx\@alignment@spec\@lrbox@alignment@spec@center
+        \@center@lrbox
+      \fi
+    \fi
+  \fi
+}
+\newcommand{\@conditionally@center@lrbox@end}[2]{%
+  \ife#1
+    \relax
+  \else
+    \ife#2%
+      \end@center@lrbox
+    \else
+      \def\@alignment@spec{#2}%
+      \ifx\@alignment@spec\@lrbox@alignment@spec@center
+        \end@center@lrbox
+      \fi
+    \fi
+  \fi
+}
+\newcommand{\@lr@box}[4]{%
+  \@open{span@inline@block}{\@lr@box@attr{#1}{#2} class="lrbox #4"}%
+  \@conditionally@center@lrbox@begin{#1}{#2}%
+  \textnormal{#3}%
+  \@conditionally@center@lrbox@end{#1}{#2}%
+  \@close{span@inline@block}%
+}
+\RenewcommandHtml{\@makebox}[3]{\@lr@box{#1}{#2}{#3}{makebox}}
+\RenewcommandHtml{\@framebox}[3]{\@lr@box{#1}{#2}{#3}{framebox}}
+\RenewcommandHtml{\fbox}[1]{\framebox{#1}}
 %%Style of bars
 \def\@barsz{2px}
 \def\@@barsz{4px}%2 x
