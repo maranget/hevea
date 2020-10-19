@@ -10,7 +10,8 @@
 \newstyle{.part}{margin:2ex auto;text-align:center}
 \@makesection
   {\chapter}{-1}{chapter}
-   {\@open{h1}{\@book@attr{chapter}}}{\chaptername~\thechapter}{\quad}{\@close{h1}}
+   {\@open{h1}{\@book@attr{chapter}}}%
+   {\ife\chaptername{}\else\chaptername~\fi\thechapter}{\quad}{\@close{h1}}
 \@makesection
   {\section}{0}{section}
   {\@open{h2}{\@book@attr{section}}}{\thesection}{\quad}{\@close{h2}}%
