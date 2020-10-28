@@ -575,7 +575,7 @@
         \fi
       \fi
     \fi
-    style="width:#1;\@flush@alignment"%
+    style="width:\css@length{#1};\@flush@alignment"%
   \fi
 }
 \newenvironment{@center@lrbox}%
