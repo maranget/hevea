@@ -636,7 +636,7 @@
 {\setcounter{@c}{(#1-5)*2}%
 \@open{TABLE}{style="border-spacing:0" class="cellpadding0"}%
 \@open{TR}{}\@open{TD}{ALIGN="right"}%
-\@open{DIV}{CLASS="vbar" STYLE="height:\arabic{@c}em;"}\@force{DIV}%
+\@open{DIV}{CLASS="vertical-rule" STYLE="height:\arabic{@c}em;"}\@force{DIV}%
 \@close{TD}\@close{TR}%
 \@open{TR}{}\@open{TD}{}%
 {\Huge#2}%

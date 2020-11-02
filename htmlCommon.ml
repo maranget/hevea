@@ -1611,7 +1611,7 @@ let horizontal_line attr width height =
     | Default, Default ->
        put_char '>'
     | _, _ ->
-       put " class=\"hbar\" style=\"";
+       put " class=\"horizontal-rule\" style=\"";
        put_length "width:" width;
        if width <> Default then put ";";
        put_length "height:" height;
@@ -1620,7 +1620,7 @@ let horizontal_line attr width height =
   close_block GROUP
 
 let line_in_table () =
-  put "<hr class=\"hbar\">";
+  put "<hr class=\"horizontal-rule\">";
   flags.vsize <- flags.vsize - 1
 
 let freeze f =
