@@ -1,0 +1,116 @@
+\documentclass{article}
+\title{Boxes, boxes, \dots}
+\author{Chris Spiel}
+\date{}
+
+\newenvironment{markerbar}{\begingroup$|$}{$|$\endgroup}
+
+\begin{document}\maketitle
+
+\section{Text Mode}
+
+\begin{itemize}
+\item \texttt{\textbackslash mbox}:
+  \mbox{typeset text in LR-mode};
+
+\item \texttt{\textbackslash makebox}
+  \begin{itemize}
+  \item without optional arguments:
+    \begin{markerbar}\makebox{text in LR-mode}\end{markerbar};
+  \item with fixed width:
+    \begin{markerbar}\makebox[12em]{text in LR-mode}\end{markerbar};
+    \begin{markerbar}\makebox[12em][c]{text in LR-mode}\end{markerbar};
+  \item fixed width, left-aligned:
+    \begin{markerbar}\makebox[12em][l]{text in LR-mode}\end{markerbar};
+  \item fixed width, right-aligned:
+    \begin{markerbar}\makebox[12em][r]{text in LR-mode}\end{markerbar};
+  \item fixed width, too wide:
+    \begin{markerbar}\makebox[1em]{CENTERED}\end{markerbar};
+  \item fixed width, too wide, left-aligned:
+    \begin{markerbar}\makebox[1em][l]{LEFT-ALIGNED}\end{markerbar};
+  \item fixed width, too wide, right-aligned:
+    \begin{markerbar}\makebox[1em][r]{RIGHT-ALIGNED}\end{markerbar};
+  \end{itemize}
+
+\item \texttt{\textbackslash fbox}:
+  \fbox{typeset text in LR-mode and frame it};
+
+\item \texttt{\textbackslash framebox}
+  \begin{itemize}
+  \item without optional arguments: \framebox{text in LR-mode};
+  \item with fixed width: \framebox[12em]{text in LR-mode};  \framebox[12em][c]{text in LR-mode};
+  \item fixed width, left-aligned: \framebox[12em][l]{text in LR-mode};
+  \item fixed width, right-aligned: \framebox[12em][r]{text in LR-mode};
+  \item fixed width, too wide: \framebox[1em]{CENTERED};
+  \item fixed width, too wide, left-aligned: \framebox[1em][l]{LEFT-ALIGNED};
+  \item fixed width, too wide, right-aligned: \framebox[1em][r]{RIGHT-ALIGNED};
+  \end{itemize}
+\end{itemize}
+
+
+\section{Framebox Nesting}
+
+\begin{itemize}
+\item \texttt{\textbackslash fbox}:
+  \fbox{E\fbox{F\fbox{G\fbox{H\fbox{I\fbox{J\fbox{K\fbox{L\fbox{M}N}O}P}Q}R}S}T}U}
+
+\item \texttt{\textbackslash framebox}:
+  \framebox{E\framebox{F\framebox{%
+        G\framebox{H\framebox{I\framebox{%
+              J\framebox[9em][l]{K\framebox[5em][r]{L\framebox[2em][c]{M}N}O}P%
+            }Q}R}S%
+      }T}U}
+\end{itemize}
+
+
+\section{Math Mode}
+
+Check whether \texttt{\textbackslash normalfont} works inside of a
+math environment:
+$r_{\mathrm{s}} c^2 = 2 G M\textnormal{ with Schwarzschild radius}~r_{\mathrm{s}}$.
+
+\begin{equation}
+    E = \hbar \omega\quad\makebox{de~Broglie}\ \mbox{I}
+\end{equation}
+
+\[
+    p = \hbar k\quad\framebox{de~Broglie}\ \fbox{II}
+\]
+
+\begin{eqnarray}
+  E  &  =  &
+  \frac{p^2}{2m}  \\
+  E  &  \rightarrow  &
+  i \hbar \frac{\partial}{\partial{}t}\ \framebox{N.~Bohr}, \makebox{M.~Planck: $\hbar$}  \\
+  p  &  \rightarrow  &
+  -i \hbar \frac{\partial}{\partial{}x}\ \framebox{N.~Bohr}, \makebox{M.~Planck: $\hbar$}  \\
+  -\frac{1}{2m} \frac{\partial^2}{\partial{}x^2} \Psi(x, t)  &  =  &
+  i \frac{\partial}{\partial{}t}\Psi(x, t)\quad\makebox{Schr\"odinger Equ.}
+\end{eqnarray}
+
+\newcommand*{\samplephrase}{The quick brown fox jumps over the lazy
+  dog.  Heavy boxes per\-form quick waltzes and jigs.  Sphinx of black
+  quartz, judge my vow!}
+
+\section{Raised and Lowered Boxes}
+
+\begin{itemize}
+\item Some \raisebox{0.25em}{raised} text
+\item and also some \raisebox{-0.125em}{lowered} text.
+\item Again \raisebox{1.5em}[1pt]{raised (ht)} text, but with
+  artificial height
+\item and \raisebox{-0.25em}[2pt][0pt]{lowered (ht, dp)} text
+  with artificial height and depth.
+\end{itemize}
+
+\section{Parboxes}
+
+Parbox w/o optional parameter.\quad\parbox{14em}{\samplephrase}
+
+\noindent Bottom-aligned parbox.\quad\parbox[b]{14em}{\samplephrase}
+
+\noindent Top-aligned parbox.\quad\parbox[t]{14em}{\samplephrase}
+
+\noindent \parbox{10em}{\samplephrase}\quad
+Some funny stuff.\quad\parbox{10em}{\samplephrase}
+\end{document}
