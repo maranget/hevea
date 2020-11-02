@@ -383,6 +383,50 @@
 \newcommand{\raggedleft}{\@insert{div}{\envclass@attr{flushright}}}
 \newcommand{\raggedright}{\@insert{div}{\envclass@attr{flushleft}}}
 \newcommand{\rule}[3][]{\@printHR{}{}}%
+%%special boxes
+\newstyle{.parbox}{
+  box-sizing: border-box;
+  display: inline-block;
+  text-indent: 0;
+}
+\def\@parbox@alignment@spec@bottom{b}
+\def\@parbox@alignment@spec@center{c}
+\def\@parbox@alignment@spec@top{t}
+\RenewcommandHtml{\parbox}[3][]{%
+  \def\@align{middle}%
+  \def\@align@spec{#1}%
+  \ife#1%
+    \relax
+  \else
+    \ifx\@parbox@alignment@spec@center
+      \relax
+    \else
+      \ifx\@align@spec\@parbox@alignment@spec@bottom
+        \def\@align{text-bottom}%
+      \else
+        \ifx\@align@spec\@parbox@alignment@spec@top
+          \def\@align{text-top}%
+        \else
+          \hva@warn{parbox: unknown alignment}%
+        \fi
+      \fi
+    \fi
+  \fi
+  \@open{span@inline@block}{class="parbox" style="vertical-align:\@align;width:\css@length{#2}"}%
+  #3%
+  \@close{span@inline@block}%
+}
+\RenewcommandHtml{\@raisebox}[4]{%
+  \def\@height{max-content}%
+  \ife#2%
+    \relax
+  \else
+    \def\@height{\css@length{#2}}%
+  \fi
+  \@open{div}{style="display:inline-block;height:\@height;transform:translateY(calc(0pt - ( \css@length{#1} )))"}%
+  #4%
+  \@close{div}%
+}
 %For figure & tables
 \newcommand{\@open@quote}[1]{\@open{blockquote}{#1}}
 \newcommand{\@close@quote}{\@close{blockquote}}

@@ -404,6 +404,16 @@ def "\\framebox" (latex_pat ["" ; ""] 3)
 ;;
 
 
+def_code "\\raisebox"
+  (fun lexbuf ->
+    let raise_len = get_prim_arg lexbuf in
+      let hght = get_prim_opt "" lexbuf in
+        let dpth = get_prim_opt "" lexbuf in
+          let text = get_prim_arg lexbuf in
+            scan_this main ("\\@raisebox{" ^ raise_len ^ "}{" ^ hght ^ "}{" ^ dpth ^ "}{" ^ text ^ "}"))
+;;
+
+
 (***********************)
 (* Special definitions *)
 (***********************)
