@@ -5484,7 +5484,7 @@ arguments.  Such arguments get converted to a number of non-breaking
 spaces or line breaks.
 Basically, the value of \verb+1em+ or \verb+1ex+ is one space or one
 line-break. For other length units, a simple conversion based upon a
-10pt font is used.
+12pt font is used.
 
 
 \hevea{} cannot interpret more complicated length arguments
@@ -5500,28 +5500,21 @@ breaks.
 Stretchable lengths do not exist, thus the \verb+\hfill+ and
 \verb+\vfill+ macros are undefined.
 
+
 \subsection{Boxes}
 
-Box contents is typeset in text mode (\emph{i.e.}\ non-math and non-display
-mode).
-Both \LaTeX{} boxing commands \verb+\mbox+ and \verb+\makebox+
-commands exist.
-However  \verb+\makebox+ generates a specific warning, since \hevea{}
-ignore the length and positioning instructions given as optional
-argument.
+Box contents is typeset in text mode (\emph{i.e.} non-math,
+non-display mode).  Both \LaTeX{} boxing commands \verb+\mbox+ and
+\verb+\makebox+ exist.  The latter is associated with
+class~\verb+makebox+, which is empty by default and can be redefined
+by the user.
 
-Similarly, the boxing with frame \verb+\fbox+ and \verb+\framebox+
-commands are recognised and
-\verb+\framebox+ issues a warning.
-When in display mode, \verb+\fbox+ frames its argument by
-enclosing it in a
-table with borders. Otherwise, \verb+\fbox+ calls the \verb+\textfbox+
-command, which issues a warning and typesets its argument
-inside a \verb+\mbox+ (and thus no frame is drawn).
-Users can alter the behaviour of \verb+\fbox+ in non-display mode by
-redefining \verb+\textfbox+.
+Similarly, the boxing-with-frame commands \verb+\fbox+ and
+\verb+\framebox+ are recognized.  Here both, long and short forms
+refer to class~\verb+framebox+, which also can be redefined by the
+user.
 
-
+\smallskip
 
 Boxes can be saved for latter usage by storing them in {\em bins}.
 New bins are defined by \verb+\newsavebox{+{\it cmd}\verb+}+.
@@ -5539,8 +5532,10 @@ optional arguments.
 The \verb+\rule+ commands translate to a \html{} horizontal rule
 (\verb+<HR>+)  regardless of its arguments.
 
+\smallskip
 
-All other box-related commands do not exist.
+No other box-related commands are implemented.
+
 
 \section{Pictures and Colours}
 

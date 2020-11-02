@@ -371,6 +371,10 @@
 \def\@end@document@seen{NO}%
 \AtEndDocument{\gdef\@end@document@seen{OK}}
 %%% Boxes
+\newcommand{\@makebox}[3]{\hva@warn{makebox}\mbox{#3}}
+\newcommand{\@framebox}[3]{\hva@warn{framebox}\fbox{#3}}
+\newcommand{\@raisebox}[4]{\hva@warn{raisebox}\mbox{#4}}
+\newcommand{\parbox}[3][]{\hva@warn{parbox}#3}
 \newcommand{\textfbox}[1]{\hva@warn{\fbox in text}\mbox{#1}}
 \def\fbox#1{%
 \ifdisplay\begin{tabular}{|c|}\hline#1\end{array}\else

@@ -179,7 +179,7 @@
 %%%%%%%%%%%%%%%%%
 % \boxed command%
 %%%%%%%%%%%%%%%%%
-\NewcommandHtml{\boxed}{\DisplayChoose\@@boxed\@boxed}
+\NewcommandHtml{\boxed}[1]{\fbox{#1}}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Table 48: AMS Variable-sized Math Operators %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

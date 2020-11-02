@@ -398,9 +398,19 @@ def_code
 (* A few subst definitions, with 2 optional arguments *)
 
 def "\\makebox" (latex_pat ["" ; ""] 3)
-    (Subst ["\\hva@warn{makebox}\\mbox{#3}"]) ;
+    (Subst ["\\@makebox{#1}{#2}{#3}"]) ;
 def "\\framebox" (latex_pat ["" ; ""] 3)
-    (Subst ["\\hva@warn{framebox}\\fbox{#3}"])
+    (Subst ["\\@framebox{#1}{#2}{#3}"])
+;;
+
+
+def_code "\\raisebox"
+  (fun lexbuf ->
+    let raise_len = get_prim_arg lexbuf in
+      let hght = get_prim_opt "" lexbuf in
+        let dpth = get_prim_opt "" lexbuf in
+          let text = get_prim_arg lexbuf in
+            scan_this main ("\\@raisebox{" ^ raise_len ^ "}{" ^ hght ^ "}{" ^ dpth ^ "}{" ^ text ^ "}"))
 ;;
 
 
