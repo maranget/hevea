@@ -687,7 +687,8 @@ Running \hevea{} on this input produces a warning:
 \begin{verbatim}
 # hevea manual.tex
 ...
-manual.tex:507: Warning: \hspace with arg '\mylength'
+manual.tex:697: Warning: Command not found: \mylength
+manual.tex:697: Warning: \hspace with arg ''
 ...
 \end{verbatim}
 However the final rendering is correct:
@@ -810,7 +811,13 @@ Note that this style is recommended anyway, since it facilitates
 document maintenance.
 
 \subsection{\hevea{} does not know a macro}\label{dontknow}
+\begin{quote}\em
+This section has been outdated by the implementation of
+\verb+\raisebox+ by C.~Spiel. Nevertheless, the method illustrated here is still highly valuable. This method can be summarised as ``if \hevea{} does not know about a macro, you may solve the problem a simple one yourself'' and ``do not ignore warnings''.
+\end{quote}
+
 Consider the following \LaTeX{} source excerpt:
+
 \begin{verbatim}
 You can \raisebox{.6ex}{\em raise} text.
 \end{verbatim}
@@ -837,9 +844,8 @@ You can .6ex{\em raise} text.
 
 To correct this, you should provide a macro that has more or less the effect of
 \verb+\raisebox+. It is impossible to write a generic
-\verb+\raisebox+ macro for \hevea, because of \html{} limitations.
-However, in this case, the effect
-of \verb+\raisebox+ is to raise the box {\em a little}.
+\verb+\raisebox+ macro for \hevea, because of \html{} limitations.\footnote{Clearly the author of those lines was wrong, as demonstrated \ahref{https://github.com/maranget/hevea/pull/45}{here}.}
+However, in this case, the effect of \verb+\raisebox+ is to raise the box {\em a little}.
 Thus, the first, numerical, argument to \verb+\raisebox+  can be
 ignored in a private \verb+\raisebox+ macro defined in \texttt{trouble.hva}:
 \begin{verbatim}
