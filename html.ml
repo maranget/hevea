@@ -639,7 +639,7 @@ let make_hline w noborder =
   if noborder then begin
     new_row ();
     if not (flags.in_math && !Parse_opts.mathml) then begin
-      open_direct_cell "class=\"hbar\"" w ;
+      open_direct_cell "class=\"horizontal-rule\"" w ;
       close_cell ""
     end else begin
       open_cell hline_format w 0 false;

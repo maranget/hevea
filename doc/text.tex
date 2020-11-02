@@ -2733,53 +2733,64 @@ break or the internal display may get cancelled.
 \index{"@fontsize@\texttt{\char92"@fontsize}|defocc}
 \index{"@fontcolor@\texttt{\char92"@fontcolor}|defocc}
 It is important to notice that primitive arguments \emph{are}
-processed (except for the \verb+\@print+ primitive, and for some of
-the basic style primitives). Thus,
-some characters cannot be given directly (e.g. \verb+#+ and
-\verb+%+ must be given as \verb+\#+ and \verb+\%+).
+processed (except for the \verb+\@print+~primitive, and for some of
+the basic style primitives).  Thus, some characters cannot be given
+directly (e.g. \verb+#+ and \verb+%+ must be given as \verb+\#+ and
+\verb+\%+).
+
 \begin{description}
-\item[{\tt\char92 @print\char123}{\it text}{\tt\char125}]
-Echo \textit{text} verbatim. As a consequence use only ascii
-in \textit{text}.
-\item[{\tt\char92 @getprint\char123}{\it text}{\tt\char125}]
-Process \textit{text} using a special output mode that strips off
-\html~tags. This macro is the one to use for processed attributes of
-\html~tags.
+\item[{\tt\char92 @print\char123}{\it text}{\tt\char125}] Echo
+  \textit{text} verbatim.  As a consequence use only ASCII in
+  \textit{text}.
+
+\item[{\tt\char92 @getprint\char123}{\it text}{\tt\char125}] Process
+  \textit{text} using a special output mode that strips off
+  \html~tags.  This macro is the one to use for processed attributes
+  of \html~tags.
+
 \item[{\tt\char92 @hr[}{\it attr}{\tt]\char123}{\it
-width}{\tt\char125\char123}{\it height}{\tt\char125}]
-Output an \html{} horizontal rule, \textit{attr} is attributes given
-directly (e.g. \verb+SIZE=3 HOSHADE+), while \textit{width} and
-\textit{height} are length arguments given in the \LaTeX{} style
-(e.g. \verb+2pt+ or~\verb+.5\linewidth+).
-\item[{\tt\char92 @print@u\char123}{\it n}{\tt\char125}]
-Output the (Unicode) character ``\textit{n}'', which can
-be given either as a decimal number or an hexadecimal number prefixed
-by ``\texttt{X}''.
+    width}{\tt\char125\char123}{\it height}{\tt\char125}] Output an
+  \verb+hr+~element, this is, a horizontal rule.  Optional
+  argument~\textit{attr} are attributes passed on directly
+  (e.g. \verb+size=3 noshade+), while \textit{width} and
+  \textit{height} are length arguments given in \LaTeX~style
+  (e.g. \verb+2pt+ or~\verb+.5\linewidth+).
+
+  Users can style the rules generated with \verb+\@hr+ by overriding
+  class~\verb+horizontal-rule+.
+
+\item[{\tt\char92 @print@u\char123}{\it n}{\tt\char125}] Output
+  Unicode character~``\textit{n}'' which can be given either as a
+  decimal number or as a hexadecimal number prefixed with
+  ``\texttt{X}''.
 
 \item[{\tt\char92 @open\char123}{\it block}{\tt\char125\char123}{\it
-attributes}{\tt\char125}]
-Open \html{} block-level element \textit{block} with attributes
-\textit{attributes}. The block name \textit{block} \textbf{must} be
-lowercase.
-As a special case \textit{block} may be the empty string, then a \html{}
-\emph{group} is opened.  Argument~\textit{block} cannot be \verb+p+; use
- \verb+\@open@par+ to open a paragraph element.
-\item[{\tt\char92 @close\char123}{\it block}{\tt\char125}]
-Close \html{} block-level element \textit{block}.
-Note that \verb+\@open+ and \verb+\@close+ must be properly balanced.
+    attributes}{\tt\char125}] Open \html{} block-level element
+  \textit{block} with attributes \textit{attributes}.  The block name
+  \textit{block} \textbf{must} be lowercase.
+
+  As a special case, \textit{block} may be the empty string, then an
+  \html~\emph{group} is opened.  Argument~\textit{block} cannot be
+  \verb+p+; use \verb+\@open@par+ to open a paragraph element.
+
+\item[{\tt\char92 @close\char123}{\it block}{\tt\char125}] Close
+  \html{} block-level element~\textit{block}.  Note that \verb+\@open+
+  and \verb+\@close+ must be properly balanced.
+
 \item[{\tt\char92 @open@par[}{\it attributes}{\tt ]}] Open a paragraph
-block element, which optionally gets attributes~\textit{attributes}.
-\item[{\tt\char92 @close@par}]  Close a paragraph block element.
-Note that \verb+\@open@par+ and \verb+\@close@par+ also must be
-properly balanced.
-\item[{\tt\char92 @out@par\char123}{\it arg}{\tt\char125}]
-If occurring inside a \verb+p+ element,
-that is if a \verb+<p>+ opening tag is active,
-\verb+\@out@par+  first closes it (by emitting \verb+</p>+),
-then formats \textit{arg}, and then re-open a \verb+p+ element.
-Otherwise \verb+\@out@par+ simply formats \textit{arg}.
-This command is adequate when
-formatting \textit{arg} produces block-level elements.
+  block element, which optionally gets attributes~\textit{attributes}.
+
+\item[{\tt\char92 @close@par}] Close a paragraph block element.  Note
+  that \verb+\@open@par+ and \verb+\@close@par+ also must be properly
+  balanced.
+
+\item[{\tt\char92 @out@par\char123}{\it arg}{\tt\char125}] If
+  occurring inside a \verb+p+~element, that is, if a \verb+<p>+
+  opening tag is active, \verb+\@out@par+ first closes it (by emitting
+  \verb+</p>+), formats \textit{arg}, and then re-opens a \verb+p+
+  element.  Otherwise, \verb+\@out@par+ simply formats \textit{arg}.
+  This command is adequate when formatting \textit{arg} produces
+  block-level elements.
 \end{description}
 
 \index{text-level elements}
