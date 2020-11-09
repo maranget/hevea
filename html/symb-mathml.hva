@@ -47,20 +47,17 @@
 
 % Roots
 \newcommand{\sqrt}[2][!*!]{\ifthenelse{\equal{#1}{!*!}}%
-{\@print{<msqrt>
-}%
+{\@print@endline{<msqrt>}%
 #2\@print{
 </msqrt>}%
-}{\@print{<mroot>
-}\@open{display}{}%
+}{\@print@endline{<mroot>}\@open{display}{}%
 #2
 \@close{display}{}%
 \@open{display}{}%
 #1%
 \@close{display}{}%
-\@print{
-</mroot>
-}}}
+\@print@endline{
+</mroot>}}}
 
 % Ellipsis
 \renewcommand{\ldots}{\ifmath\@mop{TripleDot}\else{...}\fi}

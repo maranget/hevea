@@ -85,7 +85,7 @@
 \renewcommand{\@hevea@amper}
   {\ifthenelse{\value{@eqna@col}<2}
     {\stepcounter{@eqna@col}\@PAM}
-    {\hva@warn{Extra column in eqnarray}}}     
+    {\hva@warn{Extra column in eqnarray}}}
 \renewcommand{\\}[1][]{\@eqna@complete\@PAM\@number\setcounter{@eqna@col}{0}\@yesnumber\stepcounter{equation}\@PBS}
 \@array{rclr}}
 {\\{}\addtocounter{equation}{-1}\end@array\]\@close{div}}
@@ -227,11 +227,11 @@
   \setcounter{\@itemcount}{0}}
   {\@close{OL}\addtocounter{enumcount}{-1}}
 %
-%% Modified to support styles e.g. 
+%% Modified to support styles e.g.
 %%                <DL class=list>,
 %%                <DT class=dt-list>
 %% ONLY CHANGES : 1) class=list added to \@open{DL} argument
-%%                2) \@dt replaced by \@list@dtdd 
+%%                2) \@dt replaced by \@list@dtdd
 %% Remove these to get original behaviour
 %
 \newcommand{\setlistclass}[1]
@@ -565,8 +565,7 @@
 %}}}
 \newcommand{\@doaddtoc}[3]
 {%\stepcounter{tocanchor}%
-\@auxdowrite{\@print{\@@addtocsec{htoc}}\{\@getprintnostyle{\@sec@id@attr}\}\{#1\}\{\@checkdepth{#1}{\@print{\@print}\{#2\}\@print{\quad{}}}\begin{@norefs}\@subst@expn{#3}\end{@norefs}\}\@print{
-}}}
+\@auxdowrite{\@print{\@@addtocsec{htoc}}\{\@getprintnostyle{\@sec@id@attr}\}\{#1\}\{\@checkdepth{#1}{\@print{\@print}\{#2\}\@print{\quad{}}}\begin{@norefs}\@subst@expn{#3}\end{@norefs}\}\@print@endline{}}}
 %%section identifiers
 \newcounter{@sec}
 \newcommand{\@fmt@sec}{sec\arabic{@sec}}
@@ -688,8 +687,7 @@
 \@iffileexists{\jobname.#1}{\input{\jobname.#1}}{}}
 \newcommand{\tableofcontents}{\@readtoc{htoc}{\contentsname}}
 \newcommand{\addcontentsline}[3]
-{\@auxdowrite{{\@nostyle\@print{\@addcontentsline}{\{h#1\}\{\csname @#2@level\endcsname\}}\{\@subst{#3}\}\@print{
-}}}}
+{\@auxdowrite{{\@nostyle\@print{\@addcontentsline}{\{h#1\}\{\csname @#2@level\endcsname\}}\{\@subst{#3}\}\@print@endline{}}}}
 %%%%%%%%% Minipage
 %Manage footnotes in minipage, as latex does
 % 1. Use counter mpfootnote

@@ -1,8 +1,8 @@
 \let\chapterbib@include\include
 \newcounter{chap@included}
 \newcommand{\maketocbibitem}{}
-\newcommand{\@sectionbib@maketocbibitem}{\@auxdowrite{\@print{\@addcontentsline{htoc}}\{0\}\{\@print{\ahrefloc}\{bib:chap\thechap@included\}\{\refname{}\}\}\@print{
-}}}
+\newcommand{\@sectionbib@maketocbibitem}{%
+  \@auxdowrite{\@print{\@addcontentsline{htoc}}\{0\}\{\@print{\ahrefloc}\{bib:chap\thechap@included\}\{\refname{}\}\}\@print@endline{}}}
 \renewcommand{\include}[1]
 {\stepcounter{chap@included}%
 \def\chapterbib@include@name{#1}%
