@@ -668,12 +668,9 @@
 \def\@@barsz{4px}%2 x
 \def\@@@barsz{6px}%3 x
 \def\@@@@barsz{8px}%3 x
-\newstyle{.vertical-rule}
-{border:none;width:\@barsz;background-color:black;}
-\newstyle{.horizontal-rule}
-{border:none;height:\@barsz;width:100\%;background-color:black;}
-\newstyle{.hfill}
-{border:none;height:1px;width:200\%;background-color:black;}
+\newstyle{.vertical-rule}{border:none;width:\@barsz;background-color:black;}
+\newstyle{.horizontal-rule}{border:none;background-color:black;}
+\newstyle{.hfill}{border:none;height:1px;width:200\%;background-color:black;}
 %%%Bars with HR
 \newcommand{\@hfill}{{\@nostyle\@print{<hr class="hfill"}}}
 \newcommand{\@hbar}[1][]
