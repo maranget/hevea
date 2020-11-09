@@ -2726,6 +2726,7 @@ break or the internal display may get cancelled.
 
 
 \index{"@print@\texttt{\char92"@print}|defocc}
+\index{"@print"@endline@\texttt{\char92"@print"@endline}|defocc}
 \index{"@getprint@\texttt{\char92"@getprint}|defocc}
 \index{"@print"@u@\texttt{\char92"@print"@u}|defocc}
 \index{"@hr@\texttt{\char92"@hr}|defocc}
@@ -2739,7 +2740,7 @@ break or the internal display may get cancelled.
 \index{"@fontsize@\texttt{\char92"@fontsize}|defocc}
 \index{"@fontcolor@\texttt{\char92"@fontcolor}|defocc}
 It is important to notice that primitive arguments \emph{are}
-processed (except for the \verb+\@print+~primitive, and for some of
+processed (except for the \verb+\@print+~primitives, and for some of
 the basic style primitives).  Thus, some characters cannot be given
 directly (e.g. \verb+#+ and \verb+%+ must be given as \verb+\#+ and
 \verb+\%+).
@@ -2748,6 +2749,9 @@ directly (e.g. \verb+#+ and \verb+%+ must be given as \verb+\#+ and
 \item[{\tt\char92 @print\char123}{\it text}{\tt\char125}] Echo
   \textit{text} verbatim.  As a consequence use only ASCII in
   \textit{text}.
+
+\item[{\tt\char92 @print@endline\char123}{\it text}{\tt\char125}] Same
+  as \verb+\@print+ but appends a newline character to the output.
 
 \item[{\tt\char92 @getprint\char123}{\it text}{\tt\char125}] Process
   \textit{text} using a special output mode that strips off
