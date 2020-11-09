@@ -859,8 +859,7 @@ and collect_header = parse
     end}
 | '\n'? "<title" [^'>']* '>'
     {skip_title lexbuf ; collect_header lexbuf}
-| "<style" blank+ "type" blank* '=' blank* '"' "text/css" '"' blank* '>'
-    '\n'?
+| "<style>" '\n'?
     {collect_style lexbuf ;  collect_header lexbuf}
 | _ as lxm
     {adjoin_to_header_char lxm;
@@ -869,7 +868,7 @@ and collect_header = parse
 and repeat_header = parse
 | "</head>" as lxm
     {put (!link_style) ; put lxm }
-| "<style" blank+ "type" blank* '=' blank* '"' "text/css" '"' blank* '>'
+| "<style>"
     {skip_style lexbuf ; repeat_header lexbuf}
 | _ as lxm
     {put_char lxm ; repeat_header lexbuf}

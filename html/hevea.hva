@@ -12,7 +12,9 @@
 % Linking to external style sheets
 \newtokens{\css@link}%
 \newcommand{\addcssfile}[1]{\addtokens{\css@link}{#1}}%
-\newcommand{\loadcssfile}[1]{\addcssfile{\@print{<}\@getprint{link rel="stylesheet" type=\char34 text/css\char34\@print{ }href=\char34#1\char34\char62\@print@endline{}}}}%
+\newcommand{\loadcssfile}[1]{%
+  \addcssfile{\@print{<link rel="stylesheet" type="text/css" href="}\@getprint{#1}\@print@endline{">}}%
+}
 %%%%%%
 % Styles definition in the <HEAD> element
 \newtokens{\hevea@css}%
@@ -264,23 +266,32 @@
 %%%%%%%%%%%% Language translation
 \input{html/lang.hva}
 %%% Environment document.
-\newcommand{\@charset}{US-ASCII}
-\newcommand{\@def@charset}[1]
-{\renewcommand{\@charset}{#1}\@set@out@translator{mappings/#1.map}}
+\newcommand{\@charset}{utf-8}
+\newcommand{\@def@charset}[1]{\renewcommand{\@charset}{#1}\@set@out@translator{mappings/#1.map}}
 \newcommand{\@bodyargs}{}
 \newcommand{\@htmlargs}{}
-\newcommand{\@meta}
-{\@print{<meta http-equiv="Content-Type" content="text/html; charset=}%
-\@getprint{\@charset}%
-\@print{">
-<meta name="generator" content="hevea }%
-\@getprint{\usebox{\@heveaversion}}\@print@endline{">}%
-\ife\hevea@css\else
-\ifexternalcss\loadcssfile{\hva@dump@css}\else
-\@print{<style type="text/css">}
-\hevea@css\@print@endline{</style>}\fi\fi
-\ife\css@link\else\css@link\fi
-\undef\hevea@css\undef\newstyle}
+\newcommand{\@meta}{%
+  \@print{<meta charset="}\@getprint{\@charset}\@print@endline{">}%
+  \@print{<meta name="generator" content="hevea }\@getprint{\usebox{\@heveaversion}}\@print@endline{">}%
+  \ife\hevea@css
+    \relax
+  \else
+    \ifexternalcss
+      \loadcssfile{\hva@dump@css}%
+    \else
+      \@print@endline{<style>}%
+      \hevea@css
+      \@print@endline{</style>}%
+    \fi
+  \fi
+  \ife\css@link
+    \relax
+  \else
+    \css@link
+  \fi
+  \undef\hevea@css
+  \undef\newstyle
+}
 \newenvironment{document}{%
 \@end{document}%
 \@atbegindocument%
@@ -294,8 +305,8 @@
 \@notags{\begin{@norefs}\let\@print@u\@print@u@default\@getprint{\@title}\end{@norefs}}
 \fi
 \@print@endline{</title>}%
-\ifmathml\@print@endline{<style type="text/css">
-  math.centered { text-align: center}
+\ifmathml\@print@endline{<style>
+  math.centered {text-align: center}
 </style>}\fi
 \@print@endline{</head>}%
 \@print{<body }\@notags{\@bodyargs}\@print@endline{>}%
