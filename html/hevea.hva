@@ -668,27 +668,39 @@
 \def\@@barsz{4px}%2 x
 \def\@@@barsz{6px}%3 x
 \def\@@@@barsz{8px}%3 x
-\newstyle{.vertical-rule}
-{border:none;width:\@barsz;background-color:black;}
-\newstyle{.horizontal-rule}
-{border:none;height:\@barsz;width:100\%;background-color:black;}
-\newstyle{.hfill}
-{border:none;height:1px;width:200\%;background-color:black;}
+\newstyle{.vertical-rule}{border:none;width:\@barsz;background-color:black;}
+\newstyle{.horizontal-rule}{border:none;background-color:black;}
+\newstyle{.hrule}{border:none;height:\@barsz;width:100\%;background-color:black;}
+\newstyle{.hfill}{border:none;height:1px;width:200\%;background-color:black;}
 %%%Bars with HR
 \newcommand{\@hfill}{{\@nostyle\@print{<hr class="hfill"}}}
-\newcommand{\@hbar}[1][]
-{{\@clearstyle\def\@tmp{#1}\@print{<hr class="horizontal-rule"}%
-\@getprint{\ifx\@tmp\@empty\else{} #1\fi}\@print{>}}}
-\newcommand{\@vbar}[1][]
-{{\@clearstyle\def\@tmp{#1}\@print{<hr class="vertical-rule"}%
-\@getprint{\ifx\@tmp\@empty\else{} #1\fi}\@print{>}}}
+\newcommand{\@hbar}[1][]{%
+  {\@clearstyle
+   \def\@tmp{#1}%
+   \@print{<hr class="horizontal-rule"}%
+   \@getprint{\ifx\@tmp\@empty\else{} #1\fi}%
+   \@print{>}}%
+}
+\newcommand{\@vbar}[1][]{%
+  {\@clearstyle
+   \def\@tmp{#1}%
+   \@print{<hr class="vertical-rule"}%
+   \@getprint{\ifx\@tmp\@empty\else{} #1\fi}%
+   \@print{>}}%
+}
 %%Bars with div
-\newcommand{\@@hbar}[1][]
-{{\@clearstyle\def\@tmp{#1}%
-\@open{div}{class="horizontal-rule"\ifx\@tmp\@empty\else{} #1\fi}\@force{div}}}
-\newcommand{\@@vbar}[1][]
-{{\@clearstyle\def\@tmp{#1}%
-\@open{div}{class="vertical-rule"\ifx\@tmp\@empty\else{} #1\fi}\@force{div}}}
+\newcommand{\@@hbar}[1][]{%
+  {\@clearstyle
+   \def\@tmp{#1}%
+   \@open{div}{class="horizontal-rule"\ifx\@tmp\@empty\else{} #1\fi}%
+   \@force{div}}%
+}
+\newcommand{\@@vbar}[1][]{%
+  {\@clearstyle
+   \def\@tmp{#1}%
+   \@open{div}{class="vertical-rule"\ifx\@tmp\@empty\else{} #1\fi}%
+   \@force{div}}%
+}
 %%Style of paragraphs
 \ifverbd\newstyle{p}{border:1px solid gray}\fi
 \ifverbd\newstyle{div}{border:1px dotted gray}\fi
