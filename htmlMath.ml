@@ -451,7 +451,7 @@ let insert_vdisplay open_fun =
 
 let line_in_vdisplay_row () =
   open_block TR "" ;
-  open_block TD "class=\"horizontal-rule\"" ;
+  open_block TD "class=\"hrule\"" ;
   (*
     close_mods () ;
     line_in_table () ;

@@ -1620,7 +1620,7 @@ let horizontal_line attr width height =
   close_block GROUP
 
 let line_in_table () =
-  put "<hr class=\"horizontal-rule\">";
+  put "<hr class=\"hrule\">";
   flags.vsize <- flags.vsize - 1
 
 let freeze f =
