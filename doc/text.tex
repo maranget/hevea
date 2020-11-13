@@ -19,6 +19,7 @@
 \usepackage{mathpartir}
 \usepackage{alltt}
 \usepackage{moreverb}
+\usepackage{ragged2e}
 \usepackage[dvips]{color}
 \definecolor{abricot}{cmyk}{0,0.32,0.52,0}
 \input{macros.tex}
@@ -6661,55 +6662,133 @@ of the \textit{len} argument to the \verb+\setlength+ and
 \hevea{} does not implement this extension, since it does not
 implement length registers in the first place.
 
-\subsection{Specifying \label{inputenc}the document input encoding, the \texttt{inputenc} package}
+\subsection{\label{inputenc}Specifying the document input encoding:
+  package \texttt{inputenc}}
 \ttindex{inputenc}{package}%
-The \ahref{\catalog/inputenc.html}{\texttt{inputenc}}
-package enables \LaTeX{} to process a file
-according to various \emph{8~bits} encodings, plus \texttt{UTF-8}.
-The one used encoding is specified as an option while loading the package
-\verb+\usepackage[+\textit{encoding}\verb+]{inputenc}+.
-At the moment, \hevea{} recognises ten latin encodings
-(from \texttt{latin1} to \texttt{latin10}),
-the \texttt{koi8-r} encoding,
-the \texttt{ascii} encoding,
-four windows encodings, the \texttt{applemac} encoding, and the
-\texttt{utf8} encoding.
-It is important to notice that loading the \verb+inputenc+ package
-alters the \html{} document charset.
-For instance if the \texttt{latin9} input encoding is selected by:
+
+The \ahref{\catalog/inputenc.html}{\texttt{inputenc}} package enables
+\LaTeX{} to process a file according to various \emph{8-bit}
+encodings, plus UTF-8.  The encoding to be applied is specified as an
+option while loading the package
+\verb+\usepackage[+\textit{encoding}\verb+]{inputenc}+.  At the
+moment, \hevea{} recognizes several Latin encodings, KOI8-R, ASCII,
+Macintosh, UTF-8 and also some windows encodings.
+Table~\ref{tab:encoding} summarizes the supported encodings.
+
+\begin{table}[htbp]
+  \newcommand*{\tabelnoteref}[1]{\mbox{$^{\ref{#1}}$}}
+  \newcommand*{\htmlcharset}{\tabelnoteref{enum:html-meta-charset}}
+  \newcommand*{\na}{\tabelnoteref{enum:encoding-not-available-in-latex}}
+  \newcommand*{\pref}{\tabelnoteref{enum:utf8-is-preferred}}
+  \centering
+  \begin{tabular}{l@{\quad}l@{\quad}l}
+    Encoding  &  Character Set\htmlcharset  &  Languages covered  \\
+    \hline
+    \texttt{ansinew}    &  windows-1252  &  West European  \\
+    \texttt{applemac}   &  macintosh     &  English and others  \\
+    \texttt{ascii}      &  US-ASCII      &  English  \\
+    \texttt{cp1250}     &  windows-1250  &  Central and East European  \\
+    \texttt{cp1251}\na  &  windows-1251  &  Cyrillic/Russian, Bulgarian, Serbian  \\
+    \texttt{cp1252}     &  windows-1252  &  West European  \\
+    \texttt{cp1257}     &  windows-1257  &  Estonian, Latvian, Lithuanian  \\
+    \texttt{koi8-r}\na  &  KOI8-R        &  Cyrillic/Russian  \\
+    \texttt{latin1}     &  ISO-8859-1    &  West European (Latin-1)  \\
+    \texttt{latin2}     &  ISO-8859-2    &  Central and East European (Latin-2)  \\
+    \texttt{latin3}     &  ISO-8859-3    &  Southeast European and other (Latin-3)  \\
+    \texttt{latin4}     &  ISO-8859-4    &  Scandinavian/Baltic (Latin-4)  \\
+    \texttt{latin5}     &  ISO-8859-9    &  Latin-1 modification for Turkish (Latin-5)  \\
+    \texttt{latin6}\na  &  ISO-8859-10   &  Lappish/Nordic/Eskimo (Latin-6)  \\
+    \texttt{latin7}\na  &  ISO-8859-13   &  Baltic Rim (Latin-7)  \\
+    \texttt{latin8}\na  &  ISO-8859-14   &  Celtic (Latin-8)  \\
+    \texttt{latin9}     &  ISO-8859-15   &  West European (Latin-9)  \\
+    \texttt{latin10}    &  ISO-8859-16   &  Romanian (Latin-10)  \\
+    \texttt{thai}\na, \texttt{tis-620}\na
+    {}                  &  ISO-8859-11   &  Latin/Thai  \\
+    \texttt{utf8}\pref, \texttt{utf8x}\na
+    {}                  &  UTF-8         &  \textit{Really many!}
+  \end{tabular}
+
+  \begin{quote}
+    \begin{RaggedRight}\footnotesize
+      \textbf{Notes}
+      \begin{enumerate}
+      \item\label{enum:html-meta-charset}For
+        \verb+\usepackage[+\textit{encoding}\verb+]{inputenc}+ this
+        will become the HTML~document's character set as in
+        \verb+<meta charset="+\textit{encoding}\verb+">+ unless
+        overridden with \verb+\@def@charset{...}+ as explained in the
+        text.
+
+      \item\label{enum:encoding-not-available-in-latex}The encoding is
+        available in \hevea{} but may not have been installed for all
+        \LaTeX~distributions.
+
+      \item\label{enum:utf8-is-preferred}The UTF-8 encoding is
+        preferred.  Existing \LaTeX{} sources can be converted to
+        UTF-8 for example with
+        \footahref{https://pubs.opengroup.org/onlinepubs/9699919799/utilities/iconv.html}{\textbf{iconv}}
+        (POSIX) or \textbf{recode}.
+      \end{enumerate}
+    \end{RaggedRight}
+  \end{quote}
+
+  \caption[Input/output encodings]{\label{tab:encoding}Encodings known
+    to \hevea, the output character sets they induce, and a selection
+    of languages which can be expressed with these encodings.}
+\end{table}
+
+\noindent It is important to keep in mind that loading the
+\verb+inputenc+~package alters the \html~document's charset!  For
+instance, if the \texttt{latin9}~input encoding is selected by
+
 \begin{verbatim}
 \usepackage[latin9]{inputenc}
 \end{verbatim}
-Then, the document charset is \verb+ISO-8859-15+, which is an
-enhanced version of \verb+ISO-8859-1+ with some characters
-for \OE, \oe{} and \texteuro.
-The rationale behind changing the output document charset at the same
-time as changing the input encoding is to allow
-non-ascii bytes in the input file to be replicated as
-themselves in the output file.
 
-\index{"@def"@charset@\texttt{\char92"@def"@charset}}
-However, one can change the document charset (and the output
+\noindent the document charset will be \verb+ISO-8859-15+, an enhanced
+version of \verb+ISO-8859-1+ with, for example, characters for
+``\OE'', ``\oe'', and ``\texteuro''.  The rationale behind changing
+the output document charset at the same time as changing the input
+encoding is to allow non-ASCII bytes in the input file to be
+replicated as themselves in the output file.
+
+\index{"@def"@charset@\texttt{\char92"@def"@charset}}%
+However, the user can change the document charset (and the output
 translator) by using the internal command \verb+\@def@charset+.
-For instance, one can specify \texttt{latin1} encoding, while
-producing \html{} pages in ascii:
+For instance, one can specify \texttt{latin1}~encoding, while
+producing \html{} pages in ASCII:
+
 \begin{verbatim}
 \usepackage[latin1]{inputenc}
 %HEVEA\@def@charset{US-ASCII}
 \end{verbatim}
-See section~\ref{encodings} for a more thorough description of \html{}
-charset management.
 
-\comdefindex{inputencoding}The \texttt{inputenc} package also provides the
-command~\verb+\inputcoding{+\textit{encoding}\verb+}+ that
-changes the input encoding at any time.
-The argument \textit{encoding} can be any of the options accepted
-by \verb+\usepackage[+\textit{encoding}\verb+]{inputenc}+.
-The command~\verb+\inputcoding+ of \hevea{}
-follows the behaviour of its \LaTeX{} counterpart, it the sense
-that it obeys scope rules.
-Notice that \verb+\inputcoding+ does not change the document output
-encoding and charset.
+\noindent or equivalently, if package~\texttt{hevea.sty} has already
+been imported in the document
+
+\begin{verbatim}
+\usepackage{hevea}
+\usepackage[latin1]{inputenc}
+
+\ifhevea
+  \@def@charset{US-ASCII}
+\fi
+\end{verbatim}
+
+\noindent See section~\ref{encodings} for a more thorough description
+of \html~charset management.
+
+\comdefindex{inputencoding}%
+The \texttt{inputenc}~package also provides the
+command~\verb+\inputcoding{+\textit{encoding}\verb+}+ that changes the
+input encoding at any time.  The argument~\textit{encoding} can be any
+of the options accepted by
+\verb+\usepackage[+\textit{encoding}\verb+]{inputenc}+ (see
+Table~\ref{tab:encoding} for valid \textit{encoding\/}s).  The
+command~\verb+\inputcoding+ of \hevea{} follows the behavior of its
+\LaTeX{} counterpart, it the sense that it obeys scope rules.  Notice
+that \verb+\inputcoding+ neither changes the document output encoding
+nor the character set.
 
 \subsection{The \texttt{hyphenat} package}
 Control of hyphenation on the HTML-side is much more limited than on
