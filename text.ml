@@ -633,7 +633,7 @@ let is_list = function
 ;;
 
 let get_fontsize () = 3;;
-
+let get_pending_styles () = [];;
 let nostyle () = !cur_out.nostyle<-true
 ;;
 

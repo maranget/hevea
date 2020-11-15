@@ -311,7 +311,7 @@
 }\fi
 \@print{</head>
 }%
-\@print{<body }\@notags{\@bodyargs}\@print{>
+\@print{<body class="serif" }\@notags{\@bodyargs}\@print{>
 }%
 \@print{<!--HEVEA command line is: }\usebox{\@heveacomline}\@print{-->
 }%
@@ -431,11 +431,27 @@
 \newcommand{\@open@quote}[1]{\@open{blockquote}{#1}}
 \newcommand{\@close@quote}{\@close{blockquote}}
 %%%%%%%%%%%%%%%% LaTeX 2.09 style declarations
-\newenvironment{tt}{\@span{style="font-family:monospace"}}{}
-\newenvironment{bf}{\@span{style="font-weight:bold"}}{}
+\newstyle{.serif}{font-family: serif}
+\newstyle{.sansserif}{font-family: sans-serif}
+\newstyle{.monospace}{font-family: monospace}
+\newstyle{.italic}{font-style: italic}
+\newstyle{.slanted}{font-style: oblique}
+\newstyle{.smallcaps}{font-variant: small-caps}
+\newstyle{.bold}{font-weight: bold}
+%
+\newsavebox{\@pending@style}
+\newcommand{\@main@styles}{serif,sansserif,monospace,cursive,fantasy}
+\newcommand{\@main@modifier@styles}{bold,italic,slanted,smallcaps}
+\newcommand{\@save@top@style}{\sbox{\@pending@style}{\@top@pending@style{\@main@styles}}}
+\newcommand{\@save@all@styles}{\sbox{\@pending@style}{\@all@pending@styles{\@main@modifier@styles}}}
+\newcommand{\@use@pending@style}{\@getprint{\@pending@style}}
+%
+\newenvironment{tt}{\@save@all@styles\@span{class="\@use@pending@style monospace"}}{}
+\newenvironment{bf}{\@save@top@style\@span{class="\@use@pending@style bold"}}{}
 \newenvironment{em}{\@style{em}}{}
-\newenvironment{it}{\@span{style="font-style:italic"}}{}
-\newenvironment{rm}{\@anti{\it,\bf,\em,\sf,\tt}}{}
+\newenvironment{it}{\@save@top@style\@span{class="\@use@pending@style italic"}}{}
+\newenvironment{rm}{\@anti{\em,\sf,\tt}\@save@all@styles\@span{class="\@use@pending@style serif"}}{}
+\newenvironment{oldstyle}{\@span{class="oldstyle"}}{}
 \newenvironment{tiny}{\@fontsize{1}}{}
 \newenvironment{footnotesize}{\@fontsize{2}}{}
 \newenvironment{scriptsize}{\@fontsize{2}}{}
@@ -464,13 +480,13 @@
 \newenvironment{blue}{\@fontcolor{blue}}{}
 \newenvironment{teal}{\@fontcolor{teal}}{}
 \newenvironment{aqua}{\@fontcolor{aqua}}{}
-\def\cal{\ifmath\ifmathml\@style{font-family: cursive }%
+\def\cal{\ifmath\ifmathml\@style{font-family: cursive}%
 \else\red\fi\else\red\fi}
-\def\sf{\ifmath\ifmathml\@style{font-family: sans-serif }%
-\else\@span{style="font-family:sans-serif"}\fi\else\@span{style="font-family:sans-serif"}\fi}
-\def\sl{\ifmath\ifmathml\@style{font-family: fantasy; font-style: italic }%
-\else\@span{style="font-style:oblique"}\fi\else\@span{style="font-style:oblique"}\fi}
-\def\sc{\@span{style="font-variant:small-caps"}}%
+\def\sf{\ifmath\ifmathml\@style{font-family: sans-serif}%
+\else\@span{class="sansserif"}\fi\else\@span{class="sansserif"}\fi}
+\def\sl{\ifmath\ifmathml\@style{font-family: fantasy; font-style: italic}%
+\else\@span{class="slanted"}\fi\else\@save@top@style\@span{class="\@use@pending@style slanted"}\fi}
+\def\sc{\@save@top@style\@span{class="\@use@pending@style smallcaps"}}%
 %%%% LaTeX2e verbose declarations
 \newenvironment{mdseries}{\@anti{\bf}}{}
 \newenvironment{bfseries}{\bf}{}
@@ -481,7 +497,7 @@
 \newenvironment{itshape}{\@anti{\sl,\sc}\it}{}
 \newenvironment{slshape}{\@anti{\it,\sc}\sl}{}
 \newenvironment{scshape}{\@anti{\it,\sl}\sc}{}
-\newenvironment{normalfont}{\rm\mdseries\upshape}{}
+\newenvironment{normalfont}{\@anti{\em,\bf,\sf,\tt}\upshape}{}
 %%%%%%%%%%%%%%%%
 \def\textrm#1{\mbox{\rmfamily#1}}
 \def\textup#1{\mbox{\upshape#1}}
@@ -494,6 +510,7 @@
 \def\textsl#1{\mbox{\slshape#1}}
 \def\textsc#1{\mbox{\scshape#1}}
 \newcommand{\emph}[1]{\mbox{\em#1}}
+\newcommand{\oldstylenums}[1]{\mbox{\oldstyle#1}}%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %  New implementation of \sc & \textsc using "small-caps" style. %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

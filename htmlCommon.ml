@@ -824,6 +824,28 @@ let all_to_pending out =
 
 let all_to_active out = activate "all_to_active" (all_to_pending out)
 
+let get_pending_styles () =
+  let {pending = pending_styles; active = _active_environments; top = _top_info} = !cur_out in
+    List.fold_left
+      (fun accumulator style ->
+        match style with
+        | StyleAttr (_element, attribute) ->
+           (*prerr_endline ("get_pending_styles: StyleAttr: " ^ element ^ ", " ^ attribute);*)
+           List.fold_left
+             (fun a {Scanattr.name = attribute_name; value = attribute_value} ->
+               match attribute_name with
+               | "class" -> a @ String.split_on_char ' ' attribute_value
+               | _other -> a)
+             accumulator
+             (Scanattr.scan_html_attribute (Lexing.from_string attribute))
+        | Style _s ->
+           (*prerr_endline ("get_pending_styles: Style " ^ s);*)
+           accumulator
+        | Font _index -> accumulator
+        | Color _name -> accumulator)
+      []
+      pending_styles
+
 (* Clear styles *)
 let clearstyle () =
   close_active_mods !cur_out.active ;
