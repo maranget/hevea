@@ -2,7 +2,7 @@
 %%vert
 \newcommand{\@vert@table}[2][\@@barsz]
 {\setcounter{@c}{(#2)}%
-\@open{div}{class="vbar" style="height:\arabic{@c}em; margin:0ex #1;"}\@force{div}}%
+\@open{div}{class="vertical-rule" style="height:\arabic{@c}em; margin:0ex #1;"}\@force{div}}%
 \renewcommand{\csname\delim@name{\vert}\endcsname}[1]
 {\@vert@table{#1}}%
 \renewcommand{\csname\delim@name{|}\endcsname}[1]
@@ -32,7 +32,7 @@
 {\@open{tr}{}\@open{td}{class="bracell"#1}%
 #2\@close{td}\@close{tr}}
 \newcommand{\@hbarcell}[1]
-{\@open{tr}{}\@open{td}{class="bracell hbar" style="width:#1;"}%
+{\@open{tr}{}\@open{td}{class="bracell horizontal-rule" style="width:#1;"}%
 \@force{td}\@close{tr}}
 \newcommand{\@leftsqbra@table}[1]
 {\setcounter{@c}{(#1)}%
@@ -118,7 +118,7 @@
 {\setcounter{@c}{(#1)}%
 \@open{table}{class="delim"}%
 \@bracell[ \win@center@cell]
-{\@open{div}{class="vbar" style="height:\arabic{@c}em;"}\@force{div}}%
+{\@open{div}{class="vertical-rule" style="height:\arabic{@c}em;"}\@force{div}}%
 \@bracell{\@print@u{X25BC}}%
 \@close{table}}%
 \newcommand{\@updownarrow@table}[1]
@@ -126,7 +126,7 @@
 \@open{table}{class="delim"}%
 \@bracell{\@print@u{X25B2}}%
 \@bracell[ \win@center@cell]
-{\@open{div}{class="vbar" style="height:\arabic{@c}em;"}\@force{div}}%
+{\@open{div}{class="vertical-rule" style="height:\arabic{@c}em;"}\@force{div}}%
 \@bracell{\@print@u{X25BC}}%
 \@close{table}}%
 \renewcommand{\csname\delim@name{\uparrow}\endcsname}[1]

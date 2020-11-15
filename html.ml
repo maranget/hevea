@@ -178,11 +178,83 @@ let unskip () =
 
 let put_tag tag = put tag
 
-let put_nbsp () =
-  if !Lexstate.whitepre || (flags.in_math && !Parse_opts.mathml) then begin
-    put_char ' '
-  end else
-    put_unicode OutUnicode.nbsp
+module HorizontalSpace =
+  struct
+    (* Width of a character ("gauge") given in multiples of an [em]
+       and the Unicode which generates the character. *)
+    type gauged_character = float * OutUnicode.unichar
+
+    type configuration = {
+        normal : gauged_character list;
+        minimal : OutUnicode.unichar; (* smallest space possible -- unspecified gauge *)
+        zero : OutUnicode.unichar (* zero width but same line-braking behavior as other spaces *)
+      }
+
+    (* https://en.wikipedia.org/wiki/whitespace_character#spaces_in_unicode
+       https://en.wikipedia.org/wiki/zero-width_space *)
+    let html_spaces = {
+        normal = [1.0, OutUnicode.emsp;
+                  0.5, OutUnicode.ensp;
+                  1.0 /. 3.0, OutUnicode.emsp13;
+                  0.25, OutUnicode.emsp14;
+                  1.0 /. 6.0, OutUnicode.six_per_em_space];
+        minimal = OutUnicode.hairsp;
+        zero = OutUnicode.zero_width_space
+      }
+
+    let approximate_hspace persistent space_configuration length =
+      let join_if_persistent () = if persistent then put_unicode OutUnicode.zero_width_joiner in
+        let rec iter has_put_normal_space available_normal_spaces remaining_width =
+          match available_normal_spaces with
+          | [] ->
+             (* if remaining_width > 0.0 then
+               Printf.eprintf
+                 "+ approximate_hspace: %s -- remaining error %fem = %fpx\n"
+                 (Length.pretty length) remaining_width (remaining_width *. 16.0); *)
+             if remaining_width > 0.0 && not has_put_normal_space then
+               begin
+                 put_unicode space_configuration.minimal;
+                 join_if_persistent ()
+               end
+          | (space_char_width, space_char) :: remaining_normal_spaces ->
+             let number_of_spaces = floor (remaining_width /. space_char_width) in
+               let remaining_width' = remaining_width -. number_of_spaces *. space_char_width
+               and n = int_of_float number_of_spaces in
+                 for _i = 1 to n do
+                   put_unicode space_char;
+                   join_if_persistent ()
+                 done;
+                 iter (has_put_normal_space || n >= 1) remaining_normal_spaces remaining_width'
+        in
+          match length with
+          | Length.Char n ->
+             (* Printf.eprintf "+ approximate_hspace: Char %d\n" n; *)
+             if n = 0 then
+               put_unicode space_configuration.zero
+             else
+               for _i = 1 to n do
+                 put_unicode OutUnicode.emsp13;
+                 join_if_persistent ()
+               done
+          | Length.Pixel x ->
+             (* Printf.eprintf "+ approximate_hspace: Pixel %d\n" x; *)
+             if x < 0 then
+               Misc.warning "ignoring \\hspace or \\hspace* with negative length"
+             else if x = 0 then
+               put_unicode space_configuration.zero
+             else
+               iter false space_configuration.normal (Length.pixel_to_char_float x)
+          | Length.Percent _ | Length.NotALength _ | Length.Default ->
+             failwith "approximate_hspace: never reached"
+  end (* HorizontalSpace *)
+
+let put_hspace persistent length =
+  if !Lexstate.whitepre || (flags.in_math && !Parse_opts.mathml) then
+    for _i = 1 to Length.as_number_of_chars length do
+      put_char ' '
+    done
+  else
+    HorizontalSpace.(approximate_hspace persistent html_spaces length)
 
 let put_open_group () =
   put_char '{'
@@ -221,12 +293,12 @@ and hot = HtmlCommon.hot
 
 let forget_par () = None
 
-let rec do_open_par () = match pblock () with
+let rec do_open_par ~attr () = match pblock () with
   | GROUP ->
       let pending = to_pending !cur_out.pending !cur_out.active in
       let a,b,_ = top_out out_stack in
       ignore (close_block_loc check_empty GROUP) ;
-      do_open_par () ;
+      do_open_par ~attr () ;
       open_block a b ;
       !cur_out.pending <- pending
   | P ->
@@ -234,9 +306,9 @@ let rec do_open_par () = match pblock () with
   | s ->
       if !verbose > 2 then
         Printf.eprintf "Opening par below: '%s'\n" (string_of_block s) ;
-      open_block P ""
+      open_block P attr
 
-let open_par () = do_open_par ()
+let open_par ?(attr="") () = do_open_par ~attr ()
 
 let rec do_close_par () = match pblock () with
   | GROUP ->
@@ -317,7 +389,12 @@ let open_block_with_par ss s a =
   end ;
   open_block_loc s a
 
-let open_block ss a = open_block_with_par ss (find_block ss) a
+let open_block ?(force_inline=false) ss a =
+  let s = find_block ss in
+    if force_inline then
+      open_block_loc s a
+    else
+      open_block_with_par ss s a
 
 let open_display () =
   if find_prev_par () then begin
@@ -545,16 +622,17 @@ and hline_format =
                   Tabular.post = "" ; Tabular.width = Length.Default}
 
 let make_inside s multi =
-  if not (multi) then begin
-    if pblock ()=TD || pblock() = (OTHER "mtd") then begin
+  if not multi then begin
+    let pb =  pblock () in
+    match pb with
+    | TD|OTHER "mtd"|P ->
       close_cell "&nbsp;";
       open_cell inside_format 1 0 false;
-      put s;
-    end else begin
+      put s
+    | _ ->
       open_cell inside_format 1 0 false;
       put s;
       close_cell "&nbsp;"
-    end;
   end
 
 
@@ -562,7 +640,7 @@ let make_hline w noborder =
   if noborder then begin
     new_row ();
     if not (flags.in_math && !Parse_opts.mathml) then begin
-      open_direct_cell "class=\"hbar\"" w ;
+      open_direct_cell "class=\"hrule\"" w ;
       close_cell ""
     end else begin
       open_cell hline_format w 0 false;
@@ -666,7 +744,7 @@ let rec do_dt_dd scan true_scan arg s1 s2 = match pblock () with
 
 let ditem scan arg s1 s2 =
   if !verbose > 2 then begin
-    Printf.eprintf "=> DITEM: «%s» «%s» «%s»\n" arg s1 s2 ;
+    Printf.eprintf "=> DITEM: `%s' `%s' `%s'\n" arg s1 s2 ;
     prerr_string "ditem: stack=" ;
     pretty_stack out_stack
   end ;
@@ -687,7 +765,7 @@ let ditem scan arg s1 s2 =
   end ;
   flags.nitems <- flags.nitems+1 ;
   if !verbose > 2 then begin
-    Printf.eprintf "<= DITEM: «%s» «%s» «%s»\n" arg s1 s2 ;
+    Printf.eprintf "<= DITEM: `%s' `%s' `%s'\n" arg s1 s2 ;
     prerr_string "ditem: stack=" ;
     pretty_stack out_stack
   end ;

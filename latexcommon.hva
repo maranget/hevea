@@ -50,8 +50,19 @@
 \def\@changelabel
   {\let\@oldlabel\label%
   \renewcommand{\label}[1]{\@oldlabel[~]{##1}}}
-\newcommand{\eqno}[1]{\qquad#1}
-\newenvironment{equation}{\[\@changelabel\refstepcounter{equation}}{\eqno{(\theequation)}\]}
+\newstyle{.equationcontainer}{position:relative;}
+\def\@eqnnumstyle{float:right;left:auto;position:absolute;right:0}
+\newstyle{.equationnumber}{\@eqnnumstyle}
+\newstyle{.equationnumber-valign}{\@eqnnumstyle;margin-top:-0.5em;}
+\def\@equationnumber@class{equationnumber}
+\newcommand{\set@equ@num@align}[1]{%
+  \ifthenelse{\equal{#1}{leqno}}{\def\@eqnnumstyle{float:left;left:0;position:absolute;right:auto}}{}%
+}
+\newcommand{\honor@leqno@option}{%
+  \@callprim{\@iter}{\string\set@equ@num@align,{\char123\usebox{\@document@opts}\char125}}
+}
+\newcommand{\eqno}[1]{\@open{span@inline@block}{class="\@equationnumber@class"}#1\@close{span@inline@block}}
+\newenvironment{equation}{\@open{div}{class="equationcontainer"}\[\@changelabel\refstepcounter{equation}}{\eqno{(\theequation)}\]\@close{div}}
 \newenvironment{eqnarray*}{$$\begin{array}{rcl}}{\end{array}$$}
 \gdef\@yes@number{\eqno{(\theequation)}}
 \gdef\@no@number{\addtocounter{equation}{-1}}
@@ -63,7 +74,8 @@
 \let\@HEVEA@lefteqn\lefteqn
 \newenvironment{eqnarray}
 {\@ifundefined{@eqna@inside}{\def\@eqna@inside{}}{\hva@warn{Nested eqnarray}}%
-\[\@changelabel\def\@currentlabel{\theequation}%
+\def\@equationnumber@class{equationnumber-valign}%
+\@open{div}{class="equationcontainer"}\[\@changelabel\def\@currentlabel{\theequation}%
 \setcounter{@eqna@col}{0}\@yesnumber\stepcounter{equation}
 \let\@PBS=\@HEVEA@bsbs
 \let\@PAM=\@HEVEA@amper
@@ -76,7 +88,7 @@
     {\hva@warn{Extra column in eqnarray}}}     
 \renewcommand{\\}[1][]{\@eqna@complete\@PAM\@number\setcounter{@eqna@col}{0}\@yesnumber\stepcounter{equation}\@PBS}
 \@array{rclr}}
-{\\{}\addtocounter{equation}{-1}\end@array\]}
+{\\{}\addtocounter{equation}{-1}\end@array\]\@close{div}}
 \def\mathrm#1{{\rm#1}}
 \def\mathtt#1{{\tt#1}}
 \def\mathit#1{{\it#1}}
@@ -131,6 +143,19 @@
   {\prim@def{\@table@attributes}{style="border:0;border-spacing:\space@varray{};border-collapse:separate" class="cellpadding0"}\def\space@varray{0}%
   \begin{array}{c}}
   {\end{array}}
+%% Phantom
+\newstyle{.phantom}{display: inline-block; visibility: hidden}
+\newstyle{.hphantom}{display: inline-block; height: 0; visibility: hidden}
+\newstyle{.vphantom}{display: inline-block; visibility: hidden; width: 0}
+\newstyle{.smash}{display: inline-block; height: 0; line-height: 0}
+\setenvclass{phantom}{phantom}
+\setenvclass{hphantom}{hphantom}
+\setenvclass{vphantom}{vphantom}
+\setenvclass{smash}{smash}
+\newcommand{\phantom}[1]{\@open{span@inline@block}{\envclass@attr{phantom}}#1\@close{span@inline@block}}
+\newcommand{\hphantom}[1]{\@open{span@inline@block}{\envclass@attr{hphantom}}#1\@close{span@inline@block}}
+\newcommand{\vphantom}[1]{\@open{span@inline@block}{\envclass@attr{vphantom}}#1\@close{span@inline@block}}
+\newcommand{\smash}[1]{\@open{span@inline@block}{\envclass@attr{smash}}#1\@close{span@inline@block}}
 %%% OLD DEFINITIONS : rediscovered, only \textoverline redefined in hevea.hva
 %%%
 \newcommand{\textoverline}[1]{\hva@warn{overline ignored in text mode}#1}
@@ -248,9 +273,20 @@
 \newcommand{\fussy}{}
 \newenvironment{sloppypar}{}{}
 \newcommand{\goodbreak}{}
-%%%%%%%%%%%% Ignore hyphenation
-\newcommand{\-}{}
+%%%%%%%%%%%% Emulate hyphenation
+\newcommand{\soft@hyphen}{\@print{&#173;}}
+\newcommand{\zero@width@space}{\@print{&#8203;}}
+\newcommand{\zero@width@non@joiner}{\@print{&#8204;}}
+\newcommand{\breakable@hyphen}{\@print{&#8208;}}
+\newcommand{\tag@wordbreak}{\@print{<wbr>}}
+\newcommand{\word@break@opportunity}{\tag@wordbreak}% use e.g. `\zero@width@space' or `\tag@wordbreak'
+\newcommand{\-}{\soft@hyphen}
 \newcommand{\hyphenation}[1]{}
+\newcommand{\discretionary}[3]{%
+  \ifthenelse{\equal{#1#2#3}{}}{\word@break@opportunity}{%
+    \ifthenelse{\equal{#1}{-}\and\equal{#2#3}{}}{\soft@hyphen}{%
+      \ifthenelse{\equal{#1}{-}\and\equal{#2}{}\and\equal{#3}{-}}{\breakable@hyphen}{%
+        #3}}}}
 %% Page Breaking
 \newcommand{\pagebreak}[1][]{}
 \newcommand{\nopagebreak}[1][]{}
@@ -335,6 +371,10 @@
 \def\@end@document@seen{NO}%
 \AtEndDocument{\gdef\@end@document@seen{OK}}
 %%% Boxes
+\newcommand{\@makebox}[3]{\hva@warn{makebox}\mbox{#3}}
+\newcommand{\@framebox}[3]{\hva@warn{framebox}\fbox{#3}}
+\newcommand{\@raisebox}[4]{\hva@warn{raisebox}\mbox{#4}}
+\newcommand{\parbox}[3][]{\hva@warn{parbox}#3}
 \newcommand{\textfbox}[1]{\hva@warn{\fbox in text}\mbox{#1}}
 \def\fbox#1{%
 \ifdisplay\begin{tabular}{|c|}\hline#1\end{array}\else
@@ -344,6 +384,8 @@
 %%% Paragraphs
 \let\par\@empty
 \AtBeginDocument{\let\par\hva@par}
+%%% Equations
+\AtBeginDocument{\honor@leqno@option}
 %%% References
 \newcommand{\@currentlabel}{}
 %%% Index references
@@ -361,6 +403,11 @@
 \ifu\csname #1@idx@counter\endcsname\else%
 \let\@indexlabel\csname the#1\endcsname\fi%
 \stepcounter{#1}}
+\setenvclass{theindex}{theindex}
+\newcommand{\hevea@indexprologue}{}
+\newenvironment{the@hevea@index}%
+{\@open{div}{class="\getenvclass{theindex}"}\@open@par[id="indexprologue"]\hevea@indexprologue\@close@par}%
+{\@close{div}}
 %%% Aux files
 \newcommand{\@fst}[2]{#1}
 \newcounter{labelorder}

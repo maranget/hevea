@@ -1,0 +1,12 @@
+\documentstyle{article}
+%Reported by C. Spiel, @{...} format should close previous cell,
+%also when a P element is nested inside TD.
+\begin{document}
+\begin{tabular}{p{0.25\linewidth}@{\qquad}l}
+  Head1  &  Head2  \\
+  \relax% macro call plus following blank lines[s] screw up the output.
+
+  Data11  &  Data12  \\
+  Data21  &  Data22  \\
+\end{tabular}
+\end{document}

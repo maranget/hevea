@@ -1611,32 +1611,38 @@ let skip_line () =
   put "<br>\n"
 
 let put_length which  = function
-  | Pixel x -> put (which^string_of_int x)
-  | Char x -> put (which^string_of_int (Length.font * x))
-  | Percent x  -> put (which ^ string_of_int x ^ "%")
-  | Default    -> ()
-  | No s       -> raise (Misc.Fatal ("No-length '"^s^"' in outManager"))
+  | Pixel x -> put (which ^ string_of_int x ^ "px")
+  | Char x -> put (which ^ string_of_int (Length.base_font_size * x) ^ "pt")
+  | Percent x -> put (which ^ string_of_int x ^ "%")
+  | Default -> ()
+  | NotALength s -> raise (Misc.Fatal ("No-length '" ^ s ^ "' in outManager"))
 
 let horizontal_line attr width height =
-  open_block GROUP "" ;
-  nostyle () ;
-  put "<hr" ;
-  begin match attr with "" -> () | _ -> put_char ' ' ; put attr end ;
-  begin match width,height with
-  | Default,Default ->
-      put_char '>'
-  | _,_ ->
-      put " style=\"";
-      put_length "width:" width;
-      if width <> Default then put ";";
-      put_length "height:" height;
-      put "\">"
-  end ;
+  open_block GROUP "";
+  nostyle ();
+  put "<hr";
+  begin
+    match attr with
+    | "" -> ()
+    | _ ->
+       put_char ' ';
+       put attr
+  end;
+  begin
+    match width, height with
+    | Default, Default ->
+       put_char '>'
+    | _, _ ->
+       put " class=\"horizontal-rule\" style=\"";
+       put_length "width:" width;
+       if width <> Default then put ";";
+       put_length "height:" height;
+       put "\">"
+  end;
   close_block GROUP
 
 let line_in_table () =
-  (*  put "<DIV class=\"hbar\"></DIV>" ; *)
-  put "<hr class=\"hbar\">" ;
+  put "<hr class=\"hrule\">";
   flags.vsize <- flags.vsize - 1
 
 let freeze f =

@@ -1,0 +1,16 @@
+version.tex
+/doc/
+*~
+*.css
+*.svg
+*.haux
+*.aux
+*.html
+*.txt
+*.toc
+*.htoc
+*.log
+*.bbl
+*.dvi
+*.hind
+tmp.*

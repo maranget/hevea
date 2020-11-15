@@ -315,6 +315,8 @@ let top_open_block block args =
       push stack_display !display ;
       display := true ;
       Dest.open_display_varg args
+  | "span@inline@block" ->
+      Dest.open_block ~force_inline:true "span" args
   | "table" ->
       save_array_state () ;
       in_table := NoTable ;
@@ -344,6 +346,8 @@ and top_close_block_aux close_fun block =
   | "display" ->
       Dest.close_display () ;
       display := pop stack_display
+  | "span@inline@block" ->
+      close_fun "span"
   | "table" ->
       close_fun "table" ;
       top_force_item_display () ;
@@ -1129,16 +1133,15 @@ rule  main = parse
 | eof {()}
 | ' '+ as lxm
     {if effective !alltt then
-      Dest.put lxm
-    else begin
-      if !display then
-	for _i = 1 to String.length lxm do
-	  Dest.put_nbsp ()
-	done
-      else
-	Dest.put_char ' '
-    end ;
-      main lexbuf}
+       Dest.put lxm
+     else
+       begin
+         if !display then
+           Dest.put_hspace false (Length.Char (String.length lxm))
+         else
+	   Dest.put_char ' '
+       end;
+     main lexbuf}
 (* Alphabetic characters *)
 | ['a'-'z' 'A'-'Z']+ as lxm
     {let lxm = check_case lxm in
@@ -1658,7 +1661,8 @@ def_code "\\@hevea@tilde"
   (fun _lexbuf ->
     if effective !alltt || not (is_plain '~') then
       Dest.put_char '~'
-    else Dest.put_nbsp ())
+    else
+      Dest.put_hspace true (Length.Char 1))
 ;;
 
 def_code "\\@hevea@question"
@@ -2360,7 +2364,8 @@ def_code "\\@close@par"
     check_alltt_skip lexbuf) ;
 def_code "\\@open@par"
   (fun lexbuf ->
-    Dest.open_par () ;
+    let attributes = get_prim_opt "" lexbuf in
+    Dest.open_par ~attr:attributes () ;
     check_alltt_skip lexbuf) ;
 (* Some material (eg hacha directives) must appear outside P *)
 def_code "\\@out@par"
@@ -3371,23 +3376,32 @@ def_code "\\@getlength"
     Dest.put (string_of_int pxls))
 ;;
 
-
-let do_space 
-    (warn:string -> unit)
-    (doit:unit -> unit) lexbuf  = 
-  let arg = subst_arg lexbuf in
-  try
-    let n = match Length.main (MyLexing.from_string arg) with
-    | Length.Char n -> n
-    | Length.Pixel n -> Length.pixel_to_char n
-    | _                 -> raise Cannot in
-    for _i=1 to n do
-      doit ()
-    done
-  with Cannot -> warn arg
+let insert_horizontal_space persistent (warn : string -> unit) (insert : bool -> Length.t -> unit) lexbuf =
+  let arg = get_prim (subst_arg lexbuf) in
+    try
+      begin
+        match Length.main (MyLexing.from_string arg) with
+        | Length.Percent _ | Length.NotALength _ | Length.Default -> raise_notrace Cannot
+        | length -> insert persistent length
+      end
+    with Cannot -> warn arg
 ;;
 
-let warn_space name arg = warning (name^" with arg '"^arg^"'")
+let do_space (warn : string -> unit) (doit : unit -> unit) lexbuf =
+  let arg = subst_arg lexbuf in
+    try
+      let n = match Length.main (MyLexing.from_string arg) with
+        | Length.Char n -> n
+        | Length.Pixel n -> Length.pixel_to_char n
+        | _ -> raise Cannot
+      in
+        for _i = 1 to n do
+          doit ()
+        done
+    with Cannot -> warn arg
+;;
+
+let warn_space name arg = warning (name ^ " with arg '" ^ arg ^ "'")
 ;;
 
 let warn_hspace = warn_space "\\hspace"
@@ -3395,9 +3409,11 @@ and warn_vspace = warn_space "\\vspace"
 ;;
 
 def_code "\\hspace"
-    (fun lexbuf -> do_space warn_hspace Dest.put_nbsp lexbuf) ;
-def_code "\\vspace" 
-    (fun lexbuf -> do_space warn_vspace Dest.skip_line lexbuf) ;
+    (fun lexbuf -> insert_horizontal_space false warn_hspace Dest.put_hspace lexbuf);
+def_code "\\hspace*"
+    (fun lexbuf -> insert_horizontal_space true warn_hspace Dest.put_hspace lexbuf);
+def_code "\\vspace"
+    (fun lexbuf -> do_space warn_vspace Dest.skip_line lexbuf);
 def_code "\\@vdotsfill"
   (fun lexbuf ->
     do_space
@@ -3553,7 +3569,7 @@ let open_array env lexbuf =
     | "tabular*"|"Tabular*" ->
         let arg = save_arg lexbuf in
         begin match Get.get_length (get_prim_onarg arg) with
-        | Length.No _ ->
+        | Length.NotALength _ ->
             warning ("'tabular*' with length argument: "^
                      do_subst_this arg) ;
             Length.Default
@@ -3646,7 +3662,7 @@ and do_bsbs lexbuf =
     Dest.open_cell default_format 1 0 false
   end else begin
     if !display then
-      (*(Dest.put_nbsp ();Dest.put_nbsp ();Dest.put_nbsp ();Dest.put_nbsp ())*)
+      (*(Dest.put_hspace ();Dest.put_hspace ();Dest.put_hspace ();Dest.put_hspace ())*)
       warning "\\\\ in display mode, ignored"
     else
       Dest.skip_line ()
@@ -3848,7 +3864,7 @@ def_code "\\@infoname"
 ;;
 
 let safe_len = function
-  | Length.No _ -> Length.Default
+  | Length.NotALength _ -> Length.Default
   | l    -> l
 ;;
 

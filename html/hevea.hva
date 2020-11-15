@@ -269,6 +269,8 @@
   {\@locref{#1}{\ifx#2\@empty\@verbarg{#1}\else#2\fi}\@bib@post{#3}}
 \newsavebox{\@bibbox}
 \newcommand{\@biblabel}[1]{\@locname{\bibtaghook{#1}}{\@bibtagstyle[\@bibread{\bibtaghook{#1}}]}}
+%%%%%%%%%%%% Language translation
+\input{html/lang.hva}
 %%% Environment document.
 \newcommand{\@charset}{US-ASCII}
 \newcommand{\@def@charset}[1]
@@ -363,17 +365,68 @@
   {\@close{div}}%
 \newcommand{\centerline}[1]{\begin{center}#1\end{center}}
 %%quotations env.
+\newstyle{.quote}{margin-left:3em;margin-right:3em;text-align:inherit;text-indent:0pt}
 \setenvclass{quote}{quote}%
 \newenvironment{quote}
 {\@close{}\@open{blockquote}{\envclass@attr{quote}}}
 {\@close{blockquote}\@open{}{}}%
+\newstyle{.quotation}{margin-left:3em;margin-right:3em;text-align:inherit;text-indent:1.5em}
 \setenvclass{quotation}{quotation}%
 \newenvironment{quotation}
 {\@open{blockquote}{\envclass@attr{quotation}}}{\@close{blockquote}}
+\newstyle{.verse}{margin-left:3em;margin-right:3em;text-indent:1.5em hanging each-line}
+\setenvclass{verse}{verse}%
+\newenvironment{verse}
+{\@close{}\@open{blockquote}{\envclass@attr{verse}}}
+{\@close{blockquote}\@open{}{}}%
 \newcommand{\centering}{\@insert{div}{\envclass@attr{center}}}
 \newcommand{\raggedleft}{\@insert{div}{\envclass@attr{flushright}}}
 \newcommand{\raggedright}{\@insert{div}{\envclass@attr{flushleft}}}
 \newcommand{\rule}[3][]{\@printHR{}{}}%
+%%special boxes
+\newstyle{.parbox}{
+  box-sizing: border-box;
+  display: inline-block;
+  text-indent: 0;
+}
+\def\@parbox@alignment@spec@bottom{b}
+\def\@parbox@alignment@spec@center{c}
+\def\@parbox@alignment@spec@top{t}
+\RenewcommandHtml{\parbox}[3][]{%
+  \def\@align{middle}%
+  \def\@align@spec{#1}%
+  \ife#1%
+    \relax
+  \else
+    \ifx\@parbox@alignment@spec@center
+      \relax
+    \else
+      \ifx\@align@spec\@parbox@alignment@spec@bottom
+        \def\@align{text-bottom}%
+      \else
+        \ifx\@align@spec\@parbox@alignment@spec@top
+          \def\@align{text-top}%
+        \else
+          \hva@warn{parbox: unknown alignment}%
+        \fi
+      \fi
+    \fi
+  \fi
+  \@open{span@inline@block}{class="parbox" style="vertical-align:\@align;width:\css@length{#2}"}%
+  #3%
+  \@close{span@inline@block}%
+}
+\RenewcommandHtml{\@raisebox}[4]{%
+  \def\@height{max-content}%
+  \ife#2%
+    \relax
+  \else
+    \def\@height{\css@length{#2}}%
+  \fi
+  \@open{div}{style="display:inline-block;height:\@height;transform:translateY(calc(0pt - ( \css@length{#1} )))"}%
+  #4%
+  \@close{div}%
+}
 %For figure & tables
 \newcommand{\@open@quote}[1]{\@open{blockquote}{#1}}
 \newcommand{\@close@quote}{\@close{blockquote}}
@@ -505,6 +558,9 @@
 \newcounter{indexwork}\newcounter{indexlimit}
 \newcounter{indexlines}
 \newboolean{spaceallowed}
+\newboolean{indexcolseprule}
+\newcounter{numsep}
+\setcounter{numsep}{\value{indexcols}-1}
 \newcounter{indexclines}\newcounter{indexprev}\newcounter{indexnow}%
 \newcommand{\printindexboxes}
 {\setcounter{indexwork}{1}%
@@ -513,7 +569,9 @@
 \setcounter{indexclines}{0}%
 \setcounter{indexprev}{0}%
 \setcounter{indexnow}{0}%
-\begin{tabular}{*{\value{indexcols}}{X}}
+\ifthenelse{\boolean{indexcolseprule}}%
+           {\begin{tabular}{X*{\value{numsep}}{|X}}}%
+           {\begin{tabular}{*{\value{indexcols}}{X}}}
 \begin{itemize}
 \whiledo{\value{indexwork}<\value{indexbox}}
 {\setcounter{indexnow}{\pushint{\getindexpos{\theindexwork}}}%
@@ -548,47 +606,125 @@
 %   Redefining \fbox of latexcommon.hva	         		%
 %   Here we can use HTML primitives				%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\newstyle{.boxed}{border:1px solid black}
-\newstyle{.textboxed}{border:1px solid black}
-\NewcommandHtml{\@@boxed}[1]
-{\@start@text\@open{table}{class="boxed"}\@open{tr}{}\@open{td}{}%
-#1%
-\@close{td}\@close{tr}\@close{table}\@end@text}
-\NewcommandHtml{\@boxed}[1]{{\@styleattr{span}{class="textboxed"}#1}}
-\RenewcommandHtml{\fbox}{\DisplayChoose\@@boxed\@boxed}
+\newstyle{.lrbox}{box-sizing:border-box;display:inline-block;overflow:visible;white-space:nowrap;}
+\newstyle{.center-lrbox}{display:inline-block;margin-left:50\%;transform:translateX(-50\%);}
+\newstyle{.makebox}{}
+\newstyle{.framebox}{border:1px solid black;padding:0.25em;}
+\def\@lrbox@alignment@spec@center{c}
+\def\@lrbox@alignment@spec@left{l}
+\def\@lrbox@alignment@spec@right{r}
+\newcommand{\@lr@box@attr}[2]{%
+  \ife#1%
+    \relax
+  \else
+    \def\@flush@alignment{}%
+    \ife#2%
+      \relax
+    \else
+      \def\@alignment@spec{#2}%
+      \ifx\@alignment@spec\@lrbox@alignment@spec@center
+        \relax
+      \else
+        \ifx\@alignment@spec\@lrbox@alignment@spec@left
+          \def\@flush@alignment{text-align:left;}%
+        \else
+          \ifx\@alignment@spec\@lrbox@alignment@spec@right
+            \def\@flush@alignment{text-align:right;direction:rtl;}%
+          \else
+            \hva@warn{unknown lr-box alignment}%
+          \fi
+        \fi
+      \fi
+    \fi
+    style="width:\css@length{#1};\@flush@alignment"%
+  \fi
+}
+\newenvironment{@center@lrbox}%
+  {\@open{span@inline@block}{class="center-lrbox"}}%
+  {\@close{span@inline@block}}
+\newcommand{\@conditionally@center@lrbox@begin}[2]{%
+  \ife#1
+    \relax
+  \else
+    \ife#2%
+      \@center@lrbox
+    \else
+      \def\@alignment@spec{#2}%
+      \ifx\@alignment@spec\@lrbox@alignment@spec@center
+        \@center@lrbox
+      \fi
+    \fi
+  \fi
+}
+\newcommand{\@conditionally@center@lrbox@end}[2]{%
+  \ife#1
+    \relax
+  \else
+    \ife#2%
+      \end@center@lrbox
+    \else
+      \def\@alignment@spec{#2}%
+      \ifx\@alignment@spec\@lrbox@alignment@spec@center
+        \end@center@lrbox
+      \fi
+    \fi
+  \fi
+}
+\newcommand{\@lr@box}[4]{%
+  \@open{span@inline@block}{\@lr@box@attr{#1}{#2} class="lrbox #4"}%
+  \@conditionally@center@lrbox@begin{#1}{#2}%
+  \textnormal{#3}%
+  \@conditionally@center@lrbox@end{#1}{#2}%
+  \@close{span@inline@block}%
+}
+\RenewcommandHtml{\@makebox}[3]{\@lr@box{#1}{#2}{#3}{makebox}}
+\RenewcommandHtml{\@framebox}[3]{\@lr@box{#1}{#2}{#3}{framebox}}
+\RenewcommandHtml{\fbox}[1]{\framebox{#1}}
 %%Style of bars
 \def\@barsz{2px}
 \def\@@barsz{4px}%2 x
 \def\@@@barsz{6px}%3 x
 \def\@@@@barsz{8px}%3 x
-\newstyle{.vbar}
-{border:none;width:\@barsz;background-color:black;}
-\newstyle{.hbar}
-{border:none;height:\@barsz;width:100\%;background-color:black;}
-\newstyle{.hfill}
-{border:none;height:1px;width:200\%;background-color:black;}
+\newstyle{.vertical-rule}{border:none;width:\@barsz;background-color:black;}
+\newstyle{.horizontal-rule}{border:none;background-color:black;}
+\newstyle{.hrule}{border:none;height:\@barsz;width:100\%;background-color:black;}
+\newstyle{.hfill}{border:none;height:1px;width:200\%;background-color:black;}
 %%%Bars with HR
 \newcommand{\@hfill}{{\@nostyle\@print{<hr class="hfill"}}}
-\newcommand{\@hbar}[1][]
-{{\@clearstyle\def\@tmp{#1}\@print{<hr class="hbar"}%
-\@getprint{\ifx\@tmp\@empty\else{} #1\fi}\@print{>}}}
-\newcommand{\@vbar}[1][]
-{{\@clearstyle\def\@tmp{#1}\@print{<hr class="vbar"}%
-\@getprint{\ifx\@tmp\@empty\else{} #1\fi}\@print{>}}}
+\newcommand{\@hbar}[1][]{%
+  {\@clearstyle
+   \def\@tmp{#1}%
+   \@print{<hr class="horizontal-rule"}%
+   \@getprint{\ifx\@tmp\@empty\else{} #1\fi}%
+   \@print{>}}%
+}
+\newcommand{\@vbar}[1][]{%
+  {\@clearstyle
+   \def\@tmp{#1}%
+   \@print{<hr class="vertical-rule"}%
+   \@getprint{\ifx\@tmp\@empty\else{} #1\fi}%
+   \@print{>}}%
+}
 %%Bars with div
-\newcommand{\@@hbar}[1][]
-{{\@clearstyle\def\@tmp{#1}%
-\@open{div}{class="hbar"\ifx\@tmp\@empty\else{} #1\fi}\@force{div}}}
-\newcommand{\@@vbar}[1][]
-{{\@clearstyle\def\@tmp{#1}%
-\@open{div}{class="vbar"\ifx\@tmp\@empty\else{} #1\fi}\@force{div}}}
+\newcommand{\@@hbar}[1][]{%
+  {\@clearstyle
+   \def\@tmp{#1}%
+   \@open{div}{class="horizontal-rule"\ifx\@tmp\@empty\else{} #1\fi}%
+   \@force{div}}%
+}
+\newcommand{\@@vbar}[1][]{%
+  {\@clearstyle
+   \def\@tmp{#1}%
+   \@open{div}{class="vertical-rule"\ifx\@tmp\@empty\else{} #1\fi}%
+   \@force{div}}%
+}
 %%Style of paragraphs
 \ifverbd\newstyle{p}{border:1px solid gray}\fi
 \ifverbd\newstyle{div}{border:1px dotted gray}\fi
 %%Style of display
 \def\@orange{\@print{#}FF8000}
 \def\@magenta{fuchsia}
-\def\@dtstyle{border-collapse:separate;border-spacing:\@barsz;width:auto;}
+\def\@dtstyle{border-collapse:separate;border-spacing:\@barsz;line-height:1.1;width:auto;}
 \def\@dcstyle{white-space:nowrap;padding:0px;}%;width:auto;}
 \newstyle{.vdisplay}{\@dtstyle{} empty-cells:show; border:2px solid red;}
 \newstyle{.vdcell}{\@dcstyle{} border:2px solid green;}
@@ -685,12 +821,9 @@
 {\@open{div}{class="\getenvclass{minipage}"}}
 {\@close{div}}
 %%%%%%%%margin par
-\newstyle{.marginpar}
-{border:solid thin black; width:20\%; text-align:left;}
-\newstyle{.marginparleft}
-  {float:left; margin-left:0ex; margin-right:1ex;}
-\newstyle{.marginparright}
-  {float:right; margin-left:1ex; margin-right:0ex;}
+\newstyle{.marginpar}{border:solid thin black; margin-bottom:1ex; width:20\%; text-align:left;}
+\newstyle{.marginparleft}{float:left; clear:left; margin-left:0ex; margin-right:1ex;}
+\newstyle{.marginparright}{float:right; clear:right; margin-left:1ex; margin-right:0ex;}
 \newif\ifmarginright\marginrighttrue
 \setenvclass{marginpar}{marginpar}
 \setenvclass{marginparside}{marginparright}
@@ -701,7 +834,7 @@
 \newcommand{\hva@mtemp}{}
 \newcommand{\marginpar}[2][]
 {\def\hva@mtemp{#1}%
-\@open{div}{class="\getenvclass{marginpar} \getenvclass{marginparside}"}%
+\@open{span@inline@block}{class="\getenvclass{marginpar} \getenvclass{marginparside}"}%
 \ifx\hva@mtemp\@empty%
 #2%
 \else\ifmarginright
@@ -709,9 +842,10 @@
 \else
 #1%
 \fi\fi
-\@close{div}}
-%%%%%%%%Default env class for verbatim
+\@close{span@inline@block}}
+%%%%%%%%Default env classes for verbatim and verb
 \setenvclass{verbatim}{verbatim}
+\setenvclass{verb}{verb}
 %%%%%% format theorems
 \newcommand{\set@th@font}[1]{\def\th@font{#1}}
 \let\th@font\em

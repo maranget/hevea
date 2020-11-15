@@ -1,0 +1,19 @@
+\newcommand{\textntt}[1]{\begin{no@hyphens}\texttt{#1}\end{no@hyphens}}
+\let\nhtttfamily=\ttfamily
+\newenvironment{no@hyphens}{\@style{hyphens:none}}{}
+\newcommand{\nohyphens}[1]{\no@hyphens #1}
+%
+\newcommand{\shyp}{\ifmmode\relax\else\soft@hyphen\fi}
+\def\_{\char95\shyp}
+%
+\newcommand{\breakable@backslash}{\textbackslash\soft@hyphen}
+\newcommand{\breakable@colon}{:\soft@hyphen}
+\newcommand{\breakable@dot}{.\soft@hyphen}
+\newcommand{\breakable@slash}{/\soft@hyphen}
+%
+\newcommand{\bshyp}{\ifmmode\backslash\else\breakable@backslash\fi}
+\newcommand{\fshyp}{\ifmmode/\else\breakable@slash\fi}
+\newcommand{\dothyp}{\ifmmode.\else\breakable@dot\fi}
+\newcommand{\colonhyp}{\ifmmode:\else\breakable@colon\fi}
+\newcommand{\BreakableHyphen}{\@print{&#8208;}}
+\newcommand{\hyp}{\ifmmode-\else\BreakableHyphen\fi}

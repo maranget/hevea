@@ -672,7 +672,7 @@ let close_mods () =
   !cur_out.active <- []
 ;;
 
-let open_par () = ()
+let [@warning "-27"] open_par ?(attr="") () = ()
 and close_par () = false
 
 let par = function (*Nombre de lignes a sauter avant le prochain put*)
@@ -851,7 +851,7 @@ let try_close_block s =
   flags.in_align <- ia
 ;;
 
-let open_block s arg =  
+let [@warning "-27"] open_block ?(force_inline=false) s arg =
   let s = tr_block s arg in
   (* Cree et se place dans le bloc de nom s et d'arguments args *)
   if !verbose > 2 then eprintf "=> open_block '%s'\n" (pp_block s);
@@ -1086,7 +1086,11 @@ let put_separator () = put " "
 let put_tag _ = ()
 ;;
 
-let put_nbsp () =  do_pending (); do_put_nbsp() 
+let put_hspace _persistent length =
+  do_pending ();
+  for _i = 1 to Length.as_number_of_chars length do
+    do_put_nbsp ()
+  done
 ;;
 
 let put_open_group () = ()
@@ -1319,10 +1323,10 @@ let change_format format = match format with
       !cell.w <- 
 	(match size with
 	| Length.Char l -> l
-	| Length.Pixel l -> l / Length.font
+	| Length.Pixel l -> l / Length.base_font_size
 	| Length.Percent l -> l * !Parse_opts.width / 100              
 	| Length.Default -> !cell.wrap <- Wfalse; warning "cannot wrap column with no width"; 0
-        | Length.No s ->
+        | Length.NotALength s ->
             raise (Misc.Fatal ("No-length ``"^s^"'' in out-manager")))
     else !cell.w <- 0;
 | _       ->  raise (Misc.Fatal ("as_align"))
@@ -1743,10 +1747,10 @@ let horizontal_line s width height =
     finit_ligne ();
     let taille = match width with
     | Char x -> x
-    | Pixel x -> x / Length.font
+    | Pixel x -> x / Length.base_font_size
     | Percent x -> (flags.hsize -1) * x / 100
-    | Default   -> flags.hsize - 1
-    | No s      -> raise (Fatal ("No-length ``"^s^"'' in out-manager")) in
+    | Default -> flags.hsize - 1
+    | NotALength s -> raise (Fatal ("No-length ``"^s^"'' in out-manager")) in
     let ligne = String.concat "" 
 	[(match s with
 	|	"right" -> String.make (flags.hsize - taille -1) ' '

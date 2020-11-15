@@ -348,11 +348,10 @@
 \DeclareSymbolHtml[\mbox{Re}]{\Re}{X211C}
 \DeclareSymbolHtml{\top}{X22A4}
 \DeclareSymbolHtml{\wp}{X2118}
-\newcommand{\i}{i}%To have \^{\i} work. (No accent as fct of U-chars yet)
+%Dotless 'i' and 'j'
+\DeclareSymbolHtml[i]{\i}{X131}
 \let\imath\i
-%\DeclareSymbolHtml[i]{\imath}{X131}
-\newcommand{\j}{j}
-%\DeclareSymbolHtml[j]{\jmath}{X237}
+\DeclareSymbolHtml[j]{\j}{X237}
 \let\jmath\j
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Table 122: Math-mode Accents %
@@ -637,7 +636,7 @@
 {\setcounter{@c}{(#1-5)*2}%
 \@open{TABLE}{style="border-spacing:0" class="cellpadding0"}%
 \@open{TR}{}\@open{TD}{ALIGN="right"}%
-\@open{DIV}{CLASS="vbar" STYLE="height:\arabic{@c}em;"}\@force{DIV}%
+\@open{DIV}{CLASS="vertical-rule" STYLE="height:\arabic{@c}em;"}\@force{DIV}%
 \@close{TD}\@close{TR}%
 \@open{TR}{}\@open{TD}{}%
 {\Huge#2}%
