@@ -5954,12 +5954,13 @@ caps shape only and not in italics:
 
 Old style declarations are also recognised, they translate to
 text-level elements.  However, no elements are cancelled when using
-old style declaration.  Thus, the source ``\verb+{\sl\sc slanted and
-small caps}+'' yields ``slanted'' small~caps\ifhevea: ``{\sl\sc
-slanted and small caps}''\fi.  Users do not need not worry about this,
-though it has an important practical consequence: to change the
-default rendering of type styles, one should redefine old style
-declaration in order to benefit from the cancellation mechanism.  See
+old style declaration.  Thus, the source
+``\verb+{\sl\sc slanted and small caps}+''
+yields ``slanted'' small~caps\ifhevea: ``{\sl\sc slanted and small
+  caps}''\fi.  Users do not need not worry about this, though it has
+an important practical consequence: to change the default rendering of
+type styles, one should redefine old style declaration in order to
+benefit from the cancellation mechanism.  See
 section~\ref{customize-style} for a more thorough description.
 
 
@@ -6010,9 +6011,7 @@ necessary here)
 \newstyle{.monospace.italic}{font-size: inherit}
 \end{verbatim}
 
-\noindent or to fine-tune a family's \verb+font-weight+.
-It is also the perfect place to activate (or deactivate)
-OpenType~features exactly for one specific family
+\noindent or to fine-tune a family's \verb+font-weight+
 
 \begin{verbatim}
 \newstyle{.serif.bold}{font-weight: 600}% semi bold
@@ -6196,13 +6195,13 @@ technique.  When the default of class~\verb+smallcaps+ is replaced
 with a definition that contains a \verb+font-family+ the operator
 character is lost and the original \LaTeX{} behavior is recovered.
 
-\paragraph{\textsc{OpenType} Feature: \verb+smcp+.}
+\paragraph{\textsc{OpenType} Feature: \texttt{smcp}.}
 
 Some \textsc{OpenType}~fonts harbor their own small caps.  Not all
 browsers support the access of \textsc{OpenType}~features from CSS,
 but for those that do the following code activates the small caps in
 an sufficently enriched \textsc{OpenType}~font.  See also the
-\footahref{https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Fonts/OpenType_fonts_guide}{\textsc{OpenType}~fonts
+\footahref{https://developer.mozilla.org/en-US/docs/Web/CSS/CSS\_Fonts/OpenType\_fonts\_guide}{\textsc{OpenType}~fonts
   guide} and help on
 \footahref{https://helpx.adobe.com/fonts/using/use-open-type-features.html}{using
   \textsc{OpenType}~features}.
@@ -6322,14 +6321,14 @@ proportional font.
 \subsubsection{Dangerous Bend: Compounding\label{sec:dangerous-bend-compounding}}
 
 Font sizes can be specified in absolute or relative
-\footahref{https://www.w3schools.com/cssref/css_units.asp}{CSS units}.
+\footahref{https://www.w3schools.com/cssref/css\_units.asp}{CSS units}.
 However, absolute lengths preclude fonts from being scaled by \hevea's
 size-changing macros.  Absolute lengths may even defy browsers'
 ``zoom'' functionalities.  Relative lengths react properly to
 size-changing macros and zoom but suffer from compounding which means
 their effective values change depending on their scope; see also MDN
 Web Docs on
-\footahref{https://developer.mozilla.org/en-US/docs/Web/CSS/font-size#Description}{font-size}.
+\footahref{https://developer.mozilla.org/en-US/docs/Web/CSS/font-size\#Description}{font-size}.
 
 The \verb+monospace+ example in
 section~\ref{sec:controlling-font-selection-with-css} uses the
@@ -6395,7 +6394,7 @@ always redefines the whole set.  So, if we define
 our smallcaps class looses font-features~\verb+ss01+ and \verb+ss04+.
 
 Solutions of the problem are the use of
-\footahref{https://www.w3schools.com/css/css3_variables.asp}{CSS~variables}
+\footahref{https://www.w3schools.com/css/css3\_variables.asp}{CSS~variables}
 or \LaTeX~macros.  Let us fix the last example with a macro.
 
 \begin{verbatim}
