@@ -382,7 +382,6 @@
 \newcommand{\centering}{\@insert{div}{\envclass@attr{center}}}
 \newcommand{\raggedleft}{\@insert{div}{\envclass@attr{flushright}}}
 \newcommand{\raggedright}{\@insert{div}{\envclass@attr{flushleft}}}
-\newcommand{\rule}[3][]{\@printHR{}{}}%
 %%special boxes
 \newstyle{.parbox}{
   box-sizing: border-box;
@@ -415,6 +414,14 @@
   \@open{span@inline@block}{class="parbox" style="vertical-align:\@align;width:\css@length{#2}"}%
   #3%
   \@close{span@inline@block}%
+}
+\newstyle{.rule-rect}{fill: black;}
+\newcommand{\rule}[3][]{%
+  \ife#1\relax\else\@open{div}{style="display:inline-block;transform:translateY(calc(0pt - ( \css@length{#1} )))"}\fi
+  \@open{svg}{height="\css@length{#3}" width="\css@length{#2}"}%
+  \@print{<rect class="rule-rect" }height="100\%" width="100\%\@print{"></rect>}%
+  \@close{svg}%
+  \ife#1\relax\else\@close{div}\fi
 }
 \RenewcommandHtml{\@raisebox}[4]{%
   \def\@height{max-content}%
