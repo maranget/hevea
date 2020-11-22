@@ -187,6 +187,19 @@
 \def\textsl#1{\mbox{\slshape#1}}
 \def\textsc#1{\mbox{\scshape#1}}
 \newcommand{\emph}[1]{\mbox{\em#1}}
+%%%%%%%%%%%% Emulate hyphenation
+\newcommand{\soft@hyphen}{}
+\newcommand{\zero@width@space}{}
+\newcommand{\zero@width@non@joiner}{}
+\newcommand{\breakable@hyphen}{-}
+\newcommand{\zero@width@joiner}{}
+\newcommand{\word@break@opportunity}{}
+\newcommand{\-}{}
+\newcommand{\discretionary}[3]{%
+  \ifthenelse{\equal{#1#2#3}{}}{}{%
+    \ifthenelse{\equal{#1}{-}\and\equal{#2#3}{}}{}{%
+      \ifthenelse{\equal{#1}{-}\and\equal{#2}{}\and\equal{#3}{-}}{-}{%
+        #3}}}}
 %%%%%%%%% Index formating
 \newenvironment{indexenv}{\begin{itemize}}{\end{itemize}}
 \newcommand{\indexitem}{\item}
@@ -194,6 +207,18 @@
 %%%%%%%%concrete minipage
 \setenvclass{minipage}{minipage}
 \newenvironment{@minipage}{}{}
+%%%%%%%%margin par
+\newif\ifmarginright\marginrighttrue
+\newcommand{\normalmarginpar}{\marginrighttrue}
+\newcommand{\reversemarginpar}{\marginrightfalse}
+\newcommand{\marginpar}[2][]{%
+  \def\hva@mtemp{#1}%
+  \ifmarginright
+    \@print{ >>}#2\@print{>> }%
+  \else
+    \@print{ <<}\ifx\hva@mtemp\@empty #2\else #1\fi\@print{<< }%
+  \fi
+}
 %%%%%% format theorems
 \let\th@font\em
 \newcommand{\set@th}[1]
@@ -208,5 +233,7 @@
 %%%%%%%%%% No attributes for arrays and tabular
 \newcommand{\@table@attributes}{}
 \newcommand{\@table@attributes@border}{}
+%%%%%%%%%% No CSS styles of course
+\newenvironment{divstyle}[1]{\begingroup}{\endgroup}
 %% Over
 \def\csname hevea@loaded\endcsname{}
