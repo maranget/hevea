@@ -995,7 +995,7 @@ let _ = ()
 ;;
 
 let put_char_star c next = match c with
-  | ' ' | '\t' -> Dest.put_unicode OutUnicode.visible_space;
+  | ' ' | '\t' -> Dest.put (Scan.get_prim "\\textvisiblespace")
   | c -> Scan.translate_put_unicode c next
 
 and put_char c next = match c with

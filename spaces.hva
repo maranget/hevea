@@ -17,7 +17,7 @@
 \def\smallskip{\vspace*{1em}}
 \def\medskip{\vspace*{1em}}
 \def\bigskip{\vspace*{2em}}
-\def\enspace{\@print@u{8288}\@print@u{8194}\@print@u{8288}}% TeX: 1/2 quad; Unicode: word-joiner + ensp + word-joiner  =>  non-breaking en-space.
+\def\enspace{\zero@width@joiner\@print@u{8194}\zero@width@joiner}% TeX: 1/2 quad; Unicode: word-joiner + ensp + word-joiner  =>  non-breaking en-space.
 \def\enskip{\@print@u{8194}}% TeX: 1/2 quad; Unicode: ensp, 1/2 quad.
 \def\quad{\@print@u{8195}}% TeX: 1 quad; Unicode: emsp, 1 quad.
 \def\qquad{\@print@u{8195}\@print@u{8195}}% TeX: 2 quad; Unicode: emsp + emsp, 2 quad.

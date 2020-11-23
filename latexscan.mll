@@ -3388,6 +3388,26 @@ def_code "\\@vdotsfill"
         lexbuf)
 ;;
 
+let single_space = "\\@print{ }" in
+  OutUnicode.def_default OutUnicode.emsp single_space;
+  OutUnicode.def_default OutUnicode.ensp single_space;
+  OutUnicode.def_default OutUnicode.emsp13 single_space;
+  OutUnicode.def_default OutUnicode.emsp14 single_space;
+  OutUnicode.def_default OutUnicode.six_per_em_space single_space;
+  OutUnicode.def_default OutUnicode.hairsp single_space;
+  OutUnicode.def_default OutUnicode.six_per_em_nbsp single_space;
+  OutUnicode.def_default OutUnicode.medium_space single_space;
+;;
+
+OutUnicode.def_default OutUnicode.visible_space "\\@print{_}";
+;;
+
+OutUnicode.def_default OutUnicode.zero_width_space "";
+OutUnicode.def_default OutUnicode.zero_width_joiner "";
+OutUnicode.def_default OutUnicode.word_joiner "";
+;;
+
+
 (* Explicit groups *)
 def_code "\\begingroup"
   (fun lexbuf  ->

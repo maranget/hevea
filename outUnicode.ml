@@ -70,11 +70,11 @@ let translate_ascii_out i put =
 and translate_ascii_in c _ =
   let i = Char.code c in
   if i < 128 then i
-  else  cannot ()
+  else cannot ()
 
 let translate_latin1_out i put =
   if i < 256 then put (Char.unsafe_chr i)
-  else  cannot ()
+  else cannot ()
 
 and translate_latin1_in c _ = Char.code c
 
@@ -846,6 +846,9 @@ and six_per_em_space = 0x2006
 and hairsp = 0x200A
 and zero_width_space = 0x200B
 and zero_width_joiner = 0x200D (* zwj *)
+and six_per_em_nbsp = 0x202F
+and medium_space = 0x205F
+and word_joiner = 0x2060
 
 (* Accents and the like *)
 

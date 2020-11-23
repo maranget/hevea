@@ -274,19 +274,7 @@
 \newenvironment{sloppypar}{}{}
 \newcommand{\goodbreak}{}
 %%%%%%%%%%%% Emulate hyphenation
-\newcommand{\soft@hyphen}{\@print{&#173;}}
-\newcommand{\zero@width@space}{\@print{&#8203;}}
-\newcommand{\zero@width@non@joiner}{\@print{&#8204;}}
-\newcommand{\breakable@hyphen}{\@print{&#8208;}}
-\newcommand{\tag@wordbreak}{\@print{<wbr>}}
-\newcommand{\word@break@opportunity}{\tag@wordbreak}% use e.g. `\zero@width@space' or `\tag@wordbreak'
-\newcommand{\-}{\soft@hyphen}
 \newcommand{\hyphenation}[1]{}
-\newcommand{\discretionary}[3]{%
-  \ifthenelse{\equal{#1#2#3}{}}{\word@break@opportunity}{%
-    \ifthenelse{\equal{#1}{-}\and\equal{#2#3}{}}{\soft@hyphen}{%
-      \ifthenelse{\equal{#1}{-}\and\equal{#2}{}\and\equal{#3}{-}}{\breakable@hyphen}{%
-        #3}}}}
 %% Page Breaking
 \newcommand{\pagebreak}[1][]{}
 \newcommand{\nopagebreak}[1][]{}
@@ -377,8 +365,16 @@
 \newcommand{\parbox}[3][]{\hva@warn{parbox}#3}
 \newcommand{\textfbox}[1]{\hva@warn{\fbox in text}\mbox{#1}}
 \def\fbox#1{%
-\ifdisplay\begin{tabular}{|c|}\hline#1\end{array}\else
-\textfbox{#1}\fi}
+  \ifdisplay
+    \begin{array}{|c|}%
+      \hline
+      #1%
+      \hline
+    \end{array}%
+  \else
+    \textfbox{#1}%
+  \fi
+}
 \newcommand{\hbox}[1]{\hva@warn{\hbox}\mbox{#1}}
 \newcommand{\displaystyle}{\ifdisplay\else\hva@warn{\displaystyle ignored}\fi}
 %%% Paragraphs

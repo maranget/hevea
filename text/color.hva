@@ -4,3 +4,5 @@
 \newcommand{\color}[2][!*!]{}
 \newcommand{\textcolor}[3][!*!]{{#3}}
 \newenvironment{bgcolor}[2][]{}{}
+\newcommand{\colorbox}[3][!*!]{{#3}}
+\newcommand{\fcolorbox}[4][!*!]{{#4}}

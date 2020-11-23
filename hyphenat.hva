@@ -15,5 +15,5 @@
 \newcommand{\fshyp}{\ifmmode/\else\breakable@slash\fi}
 \newcommand{\dothyp}{\ifmmode.\else\breakable@dot\fi}
 \newcommand{\colonhyp}{\ifmmode:\else\breakable@colon\fi}
-\newcommand{\BreakableHyphen}{\@print{&#8208;}}
+\newcommand{\BreakableHyphen}{\breakable@hyphen}
 \newcommand{\hyp}{\ifmmode-\else\BreakableHyphen\fi}

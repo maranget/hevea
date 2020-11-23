@@ -19,8 +19,8 @@
 \let\textbraceright\}
 \DeclareSymbol[*]{\textbullet}{X2022}
 \DeclareSymbol[(c)]{\textcopyright}{XA9}
-\DeclareSymbolHtml{\textdagger}{8224}
-\DeclareSymbolHtml{\textdaggerdbl}{8225}
+\DeclareSymbol[\@print{+}]{\textdagger}{8224}
+\DeclareSymbol[\@print{++}]{\textdaggerdbl}{8225}
 \let\textdollar\$
 \DeclareSymbol[...]{\textellipsis}{X2026}
 \DeclareSymbolHtml[\@print{--}]{\textemdash}{X2014}
