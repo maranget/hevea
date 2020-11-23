@@ -1,0 +1,56 @@
+.TH ESPONJA 1 "2020-11-16"
+.\"
+.SH NAME
+esponja \- optimize HTML files
+.\"
+.SH SYNOPSIS
+.B esponja
+.RI [ OPTION... ] " HTML-FILE" ...
+.\"
+.SH DESCRIPTION
+Optimize
+.I HTML-FILE
+for
+.I page size
+by factoring common CSS styles and by removing unused CSS-class
+definitions.
+.\" Sort options in alphabetical order!
+.\" See the section labeled `esponjaoptions' in "text.tex".
+.SH OPTIONS
+.TP
+.B \-help
+Display a list of all options and exit.
+.TP
+.B \-n
+Dry run \(en do not actually change any input files, instead write the
+output to
+.IR HTML-FILE.esp .
+.TP
+.BI \-rsz " SIZE"
+Adjust the
+.I SIZE
+of leaves in rope implementation.  The default rarely needs changing.
+.TP
+.B \-u
+Pessimize the assumptions of the optimizer, this is, optimize less
+aggressively.
+.TP
+.B \-v
+Report progress.  Repeat to increase verbosity.
+.TP
+.B \-version
+Show the version of Esponja and exit.
+.\"
+.SH NOTES
+Esponja
+.I replaces
+the contents of
+.I HTML-FILE...
+with the optimized versions (if the translation is successful) unless
+option
+.B \-n
+is in effect!
+.\"
+.SH SEE ALSO
+.BR hevea (1),
+.BR hacha (1).
