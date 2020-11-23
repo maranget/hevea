@@ -2382,6 +2382,13 @@ def_code "\\@print"
     Dest.put arg)
 ;;
 
+def_code "\\@print@endline"
+  (fun lexbuf ->
+    let {arg=arg} = save_arg lexbuf in
+    Dest.put arg;
+    Dest.put_char '\n')
+;;
+
 let put_unicode_default uc =
   try
     let txt = OutUnicode.get_default uc in

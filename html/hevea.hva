@@ -12,14 +12,14 @@
 % Linking to external style sheets
 \newtokens{\css@link}%
 \newcommand{\addcssfile}[1]{\addtokens{\css@link}{#1}}%
-\newcommand{\loadcssfile}[1]{\addcssfile{\@print{<}\@getprint{link rel="stylesheet" type=\char34 text/css\char34\@print{ }href=\char34#1\char34\char62\@print{
-}}}}%
+\newcommand{\loadcssfile}[1]{%
+  \addcssfile{\@print{<link rel="stylesheet" type="text/css" href="}\@getprint{#1}\@print@endline{">}}%
+}
 %%%%%%
 % Styles definition in the <HEAD> element
 \newtokens{\hevea@css}%
 \newcommand{\addstyle}[1]{\addtokens{\hevea@css}{#1}}%
-\newcommand{\newstyle}[2]{\addstyle{\@getprint{#1\char123#2\char125\@print{
-}}}}%
+\newcommand{\newstyle}[2]{\addstyle{\@getprint{#1\char123#2\char125\@print@endline{}}}}%
 \newif\ifexternalcss\externalcssfalse
 %
 %%Style attributes are normaly set through an indirection.
@@ -82,11 +82,9 @@
 \newcommand{\htmlfoot}[1]{\sbox{\@htmlfoot}{#1}}
 \newcommand{\htmlprefix}[1]{\sbox{\@htmlprefix}{#1}}
 \AtEndDocument
-{\@close@par{\@nostyle\@print{<!--HTMLFOOT-->
-}}%
+{\@close@par{\@nostyle\@print@endline{<!--HTMLFOOT-->}}%
 \usebox{\@htmlfoot}%
-{\@nostyle\@print{<!--ENDHTML-->
-}}}
+{\@nostyle\@print@endline{<!--ENDHTML-->}}}
 %%%%% Footnotes, html dependant part
 \newcommand{\@noteref}[4]{\@locnameref{#2#3}{#1#3}{#4}}
 \newcommand{\@notepointer}[3]{\@locref{#1#2}{#3}}
@@ -109,13 +107,13 @@
 \newstyle{.footnoterule}{margin:1em auto 1em 0px;width:50\%;}
 \newcommand{\footnoterule}{\@hr[\envclass@attr{footnoterule}]{}{}}
 \newenvironment{thefootnotes}[2][]
-  {\@out@par{{\@nostyle\@print{<!--BEGIN }\@getprint{#1}\@print{NOTES }\@getprint{\@footnotelevel}\@print{-->
-}}}\footnoterule%
-  \setlistclass{thefootnotes}%
-  \begin{list}{}{\renewcommand{\makelabel}[1]{##1}}}
-  {\end{list}\@out@par{{\@nostyle\@print{
-<!--END NOTES-->
-}}}}
+  {\@out@par{{\@nostyle\@print{<!--BEGIN }%
+   \@getprint{#1}\@print{NOTES }\@getprint{\@footnotelevel}%
+   \@print@endline{-->}}}\footnoterule%
+   \setlistclass{thefootnotes}%
+   \begin{list}{}{\renewcommand{\makelabel}[1]{##1}}}
+  {\end{list}\@out@par{{\@nostyle\@print@endline{
+<!--END NOTES-->}}}}
 %%% Captions html dependent part
 \newstyle{.caption}
 {padding-left:2ex; padding-right:2ex; margin-left:auto; margin-right:auto}
@@ -130,8 +128,7 @@
 \newcommand{\cutdef*}[2][]
 {\@out@par{{\@nostyle\@print{<!--CUT DEF }#2\@print{ }#1\@print{ -->}}}}
 \newcommand{\cutend*}
-{\@out@par{{\@nostyle\@print{<!--CUT END -->
-}}}}
+{\@out@par{{\@nostyle\@print@endline{<!--CUT END -->}}}}
 %%% New cutdef/cutend, with footnote managment
 \hva@newstack{@foot}
 \newcommand{\cutdef}[2][]{%
@@ -139,8 +136,7 @@
 \@out@par{{\@nostyle\@print{<!--CUT DEF }#2\@print{ }#1\@print{ -->}}}}
 \newcommand{\cutend}{%
 \footnoteflush{\@footnotelevel}%
-\@out@par{{\@nostyle\@print{<!--CUT END -->
-}}}%
+\@out@par{{\@nostyle\@print@endline{<!--CUT END -->}}}%
 \@endfootnotesub\@pop@foot{\@footnotelevel}}
 %%%Close/Re-open toplevel pars
 \newcommand{\@secbegin}{\@close@par}
@@ -151,8 +147,7 @@
 \@footnoteflush{#1}%
 {\@out@par{{\@nostyle\@print{<!--TOC }\@getprint{#1}\@print{ }}%
 {\@nostyle{}\@print{id="}\@getprint{\@sec@id@attr}\@print{" }}%
-\begin{@norefs}#2\end{@norefs}{\@nostyle\@print{-->
-}}}}}
+\begin{@norefs}#2\end{@norefs}{\@nostyle\@print@endline{-->}}}}}
 \newcommand{\@hacha@arg}[2]
 {{\@nostyle\@print{<arg }\@getprint{#1}\@print{>}{#2}\@print{</arg>}}}
 \newenvironment{@cutflow}[2]
@@ -166,8 +161,7 @@
 \newenvironment{cutflow}[1]{\begin{@cutflow}{YES}{#1}}{\end{@cutflow}}
 \newenvironment{cutflow*}[1]{\begin{@cutflow}{NO}{#1}}{\end{@cutflow}}
 \newcommand{\cutname}[1]
-{\@out@par{{\@nostyle\@print{<!--NAME }\@getprint{#1}\@print{-->
-}}}}
+{\@out@par{{\@nostyle\@print{<!--NAME }\@getprint{#1}\@print@endline{-->}}}}
 \newcommand{\@link@arg}[2]
   {\ifthenelse{\equal{#2}{}}{}
   {\@hacha@arg{#1}{#2}}}
@@ -217,14 +211,14 @@
   {\@forcecommand{#1}{\begin{toimage}#1\end{toimage}#2}}
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%   \maketitle (is no longer redefined by fancysection)		%
-%   Thus defining different styles explicitly will have to 	%
-%     be done using the respective classes :			%
+%   \maketitle (is no longer redefined by fancysection)         %
+%   Thus defining different styles explicitly will have to      %
+%     be done using the respective classes :                    %
 %     .title     : table containing the title and supplements   %
-%     .titlemain : h1 containing title name		        %
+%     .titlemain : h1 containing title name                     %
 %     .titlerest : h3 containing other fields (author,date,etc.)%
 %   'checkbox' now takes three instead of two arguments,        %
-%     one for the class.					%
+%     one for the class.                                        %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 \newcommand{\title@tohaux}[1]
@@ -272,55 +266,55 @@
 %%%%%%%%%%%% Language translation
 \input{html/lang.hva}
 %%% Environment document.
-\newcommand{\@charset}{US-ASCII}
-\newcommand{\@def@charset}[1]
-{\renewcommand{\@charset}{#1}\@set@out@translator{mappings/#1.map}}
+\newcommand{\@charset}{utf-8}
+\newcommand{\@def@charset}[1]{\renewcommand{\@charset}{#1}\@set@out@translator{mappings/#1.map}}
 \newcommand{\@bodyargs}{}
 \newcommand{\@htmlargs}{}
-\newcommand{\@meta}
-{\@print{<meta http-equiv="Content-Type" content="text/html; charset=}%
-\@getprint{\@charset}%
-\@print{">
-<meta name="generator" content="hevea }%
-\@getprint{\usebox{\@heveaversion}}\@print{">
-}%
-\ife\hevea@css\else
-\ifexternalcss\loadcssfile{\hva@dump@css}\else
-\@print{<style type="text/css">}
-\hevea@css\@print{</style>
-}\fi\fi
-\ife\css@link\else\css@link\fi
-\undef\hevea@css\undef\newstyle}
+\newcommand{\@meta}{%
+  \@print{<meta charset="}\@getprint{\@charset}\@print@endline{">}%
+  \@print{<meta name="generator" content="hevea }\@getprint{\usebox{\@heveaversion}}\@print@endline{">}%
+  \ife\hevea@css
+    \relax
+  \else
+    \ifexternalcss
+      \loadcssfile{\hva@dump@css}%
+    \else
+      \@print@endline{<style>}%
+      \hevea@css
+      \@print@endline{</style>}%
+    \fi
+  \fi
+  \ife\css@link
+    \relax
+  \else
+    \css@link
+  \fi
+  \undef\hevea@css
+  \undef\newstyle
+}
 \newenvironment{document}{%
 \@end{document}%
 \@atbegindocument%
 \@restartoutput\unskip%
-\@print{<!DOCTYPE html>
-}\@print{<html }\@getprint{\@htmlargs}\@print{>
+\@print@endline{<!DOCTYPE html>}%
+\@print{<html }\@getprint{\@htmlargs}\@print{>
 <head>}
 \@meta%
 \@print{<title>}%
 \ifu\@title\jobname\else
 \@notags{\begin{@norefs}\let\@print@u\@print@u@default\@getprint{\@title}\end{@norefs}}
 \fi
-\@print{</title>
-}%
-\ifmathml\@print{<style type="text/css">
-  math.centered { text-align: center}
-</style>
-}\fi
-\@print{</head>
-}%
-\@print{<body }\@notags{\@bodyargs}\@print{>
-}%
-\@print{<!--HEVEA command line is: }\usebox{\@heveacomline}\@print{-->
-}%
+\@print@endline{</title>}%
+\ifmathml\@print@endline{<style>
+  math.centered {text-align: center}
+</style>}\fi
+\@print@endline{</head>}%
+\@print{<body }\@notags{\@bodyargs}\@print@endline{>}%
+\@print{<!--HEVEA command line is: }\usebox{\@heveacomline}\@print@endline{-->}%
 {\@nostyle\@print{<!--CUT STYLE }\hacha@style\@print{-->}}%
-\ife\@htmlhead\else{\@nostyle\@print{<!--HTMLHEAD-->
-}}%
+\ife\@htmlhead\else{\@nostyle\@print@endline{<!--HTMLHEAD-->}}%
 \usebox{\@htmlhead}%
-{\@nostyle\@print{<!--ENDHTML-->
-}}\fi%
+{\@nostyle\@print@endline{<!--ENDHTML-->}}\fi%
 \ife\@htmlprefix\else\@printnostyle{<!--PREFIX }%
 \@hacha@arg{}{\usebox{\@htmlprefix}}%
 \@printnostyle{-->
@@ -336,9 +330,9 @@
 \@atenddocument%
 \@final@footer%
 \@clearstyle%
-\@print{</body>
-</html>
-}\@raise@enddocument}
+\@print@endline{</body>
+</html>}%
+\@raise@enddocument}
 \newstyle{.center}{text-align:center;margin-left:auto;margin-right:auto;}%
 \newstyle{.flushleft}{text-align:left;margin-left:0ex;margin-right:auto;}%
 \newstyle{.flushright}{text-align:right;margin-left:auto;margin-right:0ex;}%
@@ -587,16 +581,16 @@
 \newcommand{\@table@attributes@border}{style="border-spacing:0" class="cellpadding1"}
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%   Redefining \textoverline of latexcommon.hva			%
-%   Here we can use HTML primitives				%
+%   Redefining \textoverline of latexcommon.hva                 %
+%   Here we can use HTML primitives                             %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 \newcommand{\overlinedbox}[1]%
-     {{\@styleattr{span}{style="text-decoration:overline"}#1}}% 
+     {{\@styleattr{span}{style="text-decoration:overline"}#1}}%
 \renewcommand{\textoverline}[1]{\overlinedbox{#1}}%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%   Redefining \fbox of latexcommon.hva	         		%
-%   Here we can use HTML primitives				%
+%   Redefining \fbox of latexcommon.hva                         %
+%   Here we can use HTML primitives                             %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newstyle{.lrbox}{box-sizing:border-box;display:inline-block;overflow:visible;white-space:nowrap;}
 \newstyle{.center-lrbox}{display:inline-block;margin-left:50\%;transform:translateX(-50\%);}

@@ -70,8 +70,7 @@ and skip_comment = parse
 | "" { error "comment" lexbuf }
 
 and dump m out = parse
-| "<style" blank+ "type" blank* "=" blank* '"' "text/css" '"' blank* '>' '\n'?
-  as lxm
+| "<style>" '\n'? as lxm
    { fprintf out "%s" lxm ;
      Emisc.StringMap.iter
        (fun st cl -> Emisc.dump_class out cl st)

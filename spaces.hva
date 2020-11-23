@@ -6,8 +6,7 @@
 \def\!{}
 \def\;{\@print@u{8196}}% TeX: thick space: 5/18 quad; Unicode: emsp13, 6/18 quad!
 \def\
-{\@print{
-}}
+{\@print@endline{}}
 \def\frenchspacing{}
 \def\nonfrenchspacing{}
 \def\/{}
