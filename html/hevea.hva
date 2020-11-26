@@ -387,6 +387,7 @@
 \newstyle{.parbox}{
   box-sizing: border-box;
   display: inline-block;
+  text-align: justify;
   text-indent: 0;
 }
 \def\@parbox@alignment@spec@bottom{b}

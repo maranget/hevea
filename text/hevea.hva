@@ -123,6 +123,7 @@
 \newcommand{\centering}{\@insert{align}{center}}
 \newcommand{\raggedleft}{\@insert{align}{right}}
 \newcommand{\raggedright}{\@insert{align}{left}}
+\let\justifying\raggedright
 %%%%%%%%%%% Figures
 %For figure & tables
 \newcommand{\@open@quote}[1]{\@open{quote}{}}
