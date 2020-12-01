@@ -1,29 +1,35 @@
+\usepackage{a4}
+\usepackage{alltt}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{array}
+\usepackage[dvipsnames]{color}
+\usepackage[T1]{fontenc}
+\usepackage{fullpage}
+\usepackage{graphics}
+\usepackage{hevea}
 \usepackage{ifpdf}
 %HEVEA\pdffalse
-\usepackage{a4}
+\usepackage{ifthen}
+\usepackage{imakeidx}
 \usepackage[latin1]{inputenc}
 %HEVEA\@def@charset{US-ASCII}
-\usepackage{fullpage}
-\usepackage{makeidx}
-\usepackage{texnames}
-\usepackage{url}
-\usepackage{hevea}
-\usepackage{mathjax}
 \usepackage{listings}
-\usepackage[T1]{fontenc}
-\usepackage{textcomp}
-\usepackage{amssymb}
-\usepackage{amsmath}
-\usepackage{ifthen}\usepackage{array}
-\usepackage{graphics}
+\usepackage{lmodern}
+\usepackage{mathjax}
 \usepackage{mathpartir}
-\usepackage{alltt}
+\usepackage{microtype}
 \usepackage{moreverb}
-\usepackage[dvips]{color}
+\usepackage{texnames}
+\usepackage{textcomp}
+\usepackage{url}
+
 \definecolor{abricot}{cmyk}{0,0.32,0.52,0}
+
 \input{macros.tex}
-\makeindex
 \input{version.tex}
+
+\makeindex
 %HEVEA\usepackage{color}%for echo to image file
 %\colorsections{20}
 \newtheorem{example}{Example}
@@ -111,9 +117,7 @@ includes a small \ahrefloc{@index}{index}.
 
 \clearpage
 \cutdef{part}
-\part{Tutorial}
-\pdfpart{10}{Tutorial}
-\label{usermanual}
+\part{\label{usermanual}Tutorial}
 \cutdef{section}
 \section{How to get\label{getstarted} started}
 Assume that you have a file, \texttt{a.tex}, written in \LaTeX, using the
@@ -1124,11 +1128,7 @@ that triggers the bug (the shorter, the better) and mention
 \hevea{} version number.
 
 
-
-
-\latexsection{Making \hevea{} and \LaTeX{} both happy}
-\pdfsection{Making HeVeA and LaTeX both happy}
-\label{both}
+\section{\label{both}Making \hevea{} and \LaTeX{} both happy}
 A satisfactory translation from \LaTeX{} to \html{} often requires
 giving instructions to \hevea{}.
 Typically, these instructions are macro definitions and
@@ -1451,8 +1451,7 @@ comments. However, no environment is opened and closed and no scope is
 created while using comment equivalents.
 
 
-\latexsection{With\label{imagen} a little help from \LaTeX}
-\pdfsection{With\label{imagen} a little help from LaTeX}
+\section{\label{imagen}With a little help from \LaTeX}
 Sometimes,
 \hevea{} just cannot process its input, but it remains acceptable to
 have \LaTeX{} process it, to produce an image from
@@ -1757,8 +1756,7 @@ environment and refuses to override its own definition for that
 environment.
 
 
-\latexsection{Cutting\label{hacha} your document into pieces with \hacha{}}
-\pdfsection{Cutting\label{hacha} your document into pieces with HaChA}
+\section{\label{hacha}Cutting your document into pieces with \hacha}
 \hevea{} outputs a single \texttt{.html} file. This file can be
 cut into pieces at various sectional units by {\hacha}
 
@@ -2397,9 +2395,8 @@ a separate file}
 \cutend
 \fi
 
-\latexsection{Generating \html{} constructs}
-\pdfsection{Generating HTML constructs}
-\hevea{} output language being \html{}, it is normal for users to insert
+\section{Generating \html{} constructs}
+\hevea{} output language being \html, it is normal for users to insert
 hypertext constructs their documents, or to control colours.
 
 \subsection{High-Level Commands}
@@ -3762,8 +3759,7 @@ Then, linking with external style sheets can prove useful to
 promote uniform styling of several documents produced by \hevea{}.
 
 
-\latexsection{Customising \hevea}
-\pdfsection{Customising HeVeA}
+\section{Customising \hevea}
 \hevea{} can be controlled by writing \LaTeX{} code. In this section,
 we examine how users can change \hevea{} default behaviour or add
 functionalities. In all this section we assume that a document
@@ -4079,8 +4075,7 @@ As a consequence all cross references lead to sectional unit headers.
 \renewcommand{\thesection}{\thepart.\arabic{section}}
 \cutend
 
-\part{Reference manual}
-\pdfpart{-17}{Reference manual}\label{referencemanual}
+\part{\label{referencemanual}Reference manual}
 \cutdef{section}
 This part follows the pattern of the \LaTeX{} reference
 manual~\cite[Appendix~C]{latex}.
@@ -7486,8 +7481,7 @@ This package provides nicer rulers in tables as specific commands.
 \cutend
 \setcounter{section}{0}
 
-\part{Practical \label{practical}information}
-\pdfpart{-6}{Practical \label{practical}information}
+\part{\label{practical}Practical information}
 \cutdef{section}
 
 \section{Usage}
@@ -8157,8 +8151,7 @@ simply copied to \hevea{} library directory.
 It remains users (and package maintainers) responsibility to make those
 files accessible to \LaTeX.
 
-\latexsection{Other \LaTeX{} to \html{} translators}
-\pdfsection{Other translators}
+\section{Other \LaTeX{} to \html{} translators}
 This short section gives pointers to a few other translators. I
 performed not extensive testing and make no thorough comparison.
 

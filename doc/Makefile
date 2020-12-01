@@ -10,8 +10,8 @@ LATEX = latex
 LATEXOPTS = -file-line-error -interaction nonstopmode -halt-on-error
 MAKEINDEX = makeindex
 MAKEINDEXOPTS =
-PS2PDF = ps2pdf
-PS2PDFOPTS =
+PDFLATEX = pdflatex
+PDFLATEXOPTS = $(LATEXOPTS) # -synctex=15
 
 HTMLDIR = $(HOME)/public_html/hevea
 DISTRIDIR = $(HTMLDIR)/distri
@@ -68,12 +68,13 @@ doc/manual.html: doc manual.hva $(MANUAL_DEPENDENCIES)
 doc/index.html: doc/manual.html
 	$(HACHA) $(HACHAOPTS) -o $@ $<
 
+LATEX_LABEL_WARNING = 'LaTeX Warning: Label(s) may have changed'
+
 manual.dvi: $(MANUAL_DEPENDENCIES)
 	$(LATEX) $(LATEXOPTS) $<
-	$(MAKEINDEX) $(MAKEINDEXOPTS) $*.idx
-	$(LATEX) $(LATEXOPTS) $<
+	$(LATEX) $(LATEXOPTS) $< > /dev/null 2>&1
 	@ITER=2; MAXITER=10;  \
-        while test -e $*.log && grep -q 'LaTeX Warning: Label(s) may have changed' $*.log; do  \
+        while test -e $*.log && grep -q $(LATEX_LABEL_WARNING) $*.log; do  \
             test $$ITER -le $$MAXITER || { printf 'Excessive number of iterations (%d) to reach fixpoint.  Aborted!\n' "$$MAXITER" 1>&2; exit 1; };  \
             printf 'Run LaTeX again.\n'  \
             $(LATEX) $(LATEXOPTS) $< > /dev/null 2>&1;  \
@@ -84,8 +85,17 @@ manual.dvi: $(MANUAL_DEPENDENCIES)
 manual.ps: manual.dvi
 	$(DVIPS) $(DVIPSOPTS) -o $@ $<
 
-manual.pdf: manual.ps
-	$(PS2PDF) $(PS2PDFOPTS) $<
+manual.pdf: $(MANUAL_DEPENDENCIES)
+	$(PDFLATEX) $(PDFLATEXOPTS) $<
+	$(PDFLATEX) $(PDFLATEXOPTS) $< > /dev/null 2>&1
+	@ITER=2; MAXITER=10;  \
+        while test -e $*.log && grep -q $(LATEX_LABEL_WARNING) $*.log; do  \
+            test $$ITER -le $$MAXITER || { printf 'Excessive number of iterations (%d) to reach fixpoint.  Aborted!\n' "$$MAXITER" 1>&2; exit 1; };  \
+            printf 'Run PDFLaTeX again.\n'  \
+            $(PDFLATEX) $(PDFLATEXOPTS) $< > /dev/null 2>&1;  \
+            : $$((ITER += 1));  \
+	done;  \
+        printf 'Fixpoint reached after %d iteration(s).\n' "$$ITER"
 
 manual.info: $(MANUAL_DEPENDENCIES)
 	$(HEVEA) $(HEVEAOPTS) -info -o $@ $<
@@ -115,7 +125,7 @@ version.tex: $(VERSIONFILE)
 
 .PHONY: clean
 clean:
-	$(RM) ./*.aux ./*.idx ./*.ilg ./*.ind ./*.log ./*.toc
+	$(RM) ./*.aux ./*.idx ./*.ilg ./*.ind ./*.log ./*.synctex ./*.toc
 	$(RM) ./*.haux ./*.hidx ./*.hind ./*.hrf ./*.htoc
 
 .PHONY: cleanall
