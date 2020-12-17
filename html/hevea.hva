@@ -106,7 +106,7 @@
 \newstyle{.thefootnotes}{text-align:left;margin:0ex;}
 \newstyle{.dt-thefootnotes}{margin:0em;}
 \newstyle{.dd-thefootnotes}{margin:0em 0em 0em 2em;}
-\newstyle{.footnoterule}{margin:1em auto 1em 0px;width:50\%;}
+\newstyle{.footnoterule}{background-color: black; border: none; height: 1px; margin: 1em auto 1em 0px; width: 40\%}
 \newcommand{\footnoterule}{\@hr[\envclass@attr{footnoterule}]{}{}}
 \newenvironment{thefootnotes}[2][]
   {\@out@par{{\@nostyle\@print{<!--BEGIN }\@getprint{#1}\@print{NOTES }\@getprint{\@footnotelevel}\@print{-->
