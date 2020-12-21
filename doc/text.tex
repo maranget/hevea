@@ -802,7 +802,7 @@ in the document preamble. Then, given \hevea{} semantics for
 \verb+\usepackage+ (see Section~\ref{usepackage}),
 \hevea{}-specific commands should be placed in
 the file ``\texttt{trouble.hva}'' file, while \LaTeX{}-specific commands
-should be placed in teh file ``\texttt{trouble.sty}''.
+should be placed in the file ``\texttt{trouble.sty}''.
 
 Of course, adapting a document to \hevea{} processing
 will be easier if the \LaTeX{} source is written in a
@@ -908,7 +908,9 @@ since by \hevea{} semantics for \verb+\newcommand+ (see
 section~\ref{usermacro})
 the new definition will not overwrite the old one.
 
-\subsection{\hevea{} incorrectly interprets a macro}\label{blob}
+\subsection{\hevea{} incorrectly interprets a macro}\label{blob}\comindex{rule}
+\textbf{Note~:} \hevea{} now renders the \verb+\rule+ command very similarly to \LaTeX. Hence the forthcomming section is in some sense obsolete. Nevertheless, the technique described is useful and the section is still worth reading.
+
 
 Sometimes \hevea{} knows about a macro, but the produced \html{}
 does not look good when seen through a browser.
@@ -935,7 +937,7 @@ Which \LaTeX{} typesets as follows:
 \hevea{} always translates \verb+\rule+ as \verb+<hr>+, ignoring size
 arguments.
 Hence, it produces the following, wrong, output:
-\begin{htmlout}\newcommand{\blob}{\rule[.2ex]{1ex}{1ex}}
+\begin{htmlout}\newcommand{\blob}{\@print{<hr>}}
 \begin{htmlonly}
 \blob\ Blob \blob
 \end{htmlonly}
@@ -985,6 +987,13 @@ seems ok.
 \end{latexonly}%
 \end{htmlout}
 However, beware that not all browsers display all of Unicode\ldots
+
+Finally, users that experience poor rendering of the \verb+\rule+ command can also upgrade \hevea, so as to benefit from the new implementation of this
+command:
+\begin{center}
+\newcommand{\blob}{\rule[.2ex]{1ex}{1ex}}
+\blob\ Blob \blob
+\end{center}
 
 
 \subsection{\hevea{} crashes}
@@ -3957,7 +3966,7 @@ As not all browsers display SVG images, \texttt{hevea} and
 \texttt{imagen} are  bit special:
 \texttt{imagen} produces both PNG\footnote{or GIF, if \texttt{gif.hva} is loaded} and SVG~images; while \texttt{hevea} offers both image sources,
 letting client browser select the most appropriate one by the means of
-teh \verb+srcset+ attribute of the \verb+img+ element.
+the \verb+srcset+ attribute of the \verb+img+ element.
 
 \subsection{Storing images in a separate directory} 
 \comindex{heveaimagedir}
@@ -6430,7 +6439,7 @@ Finally, notice that a document that uses the explicit \textsf{MathJax}
 constructs can be processed by \LaTeX, provided
 it loads the \texttt{mathjax.sty} file present in \hevea{} distribution.
 This can be done simply by having the line \verb+\usepackage{mathjax}+ in
-teh document preamble. Then, \hevea{} and \LaTeX{} will react appropriately
+the document preamble. Then, \hevea{} and \LaTeX{} will react appropriately
 (see sections~\ref{usepackage:both} and~\ref{usepackage}).
 
 \subsubsection{Automatic mode}
