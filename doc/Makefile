@@ -107,7 +107,7 @@ manual.txt: $(MANUAL_DEPENDENCIES)
 thai: doc/thaihevea.html
 
 doc/thaihevea.html: doc thai/thaihevea.ttex
-	TEXINPUTS="thai:" $(HEVEA) $(HEVEAOPTS) -o $@ $<
+	TEXINPUTS="thai:" $(HEVEA) $(HEVEAOPTS) -o $@ thai/thaihevea.ttex
 
 docclean::
 	$(RM) doc/thaihevea.h{aux,ind,toc} doc/thaihevea.image.tex
