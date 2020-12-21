@@ -484,11 +484,7 @@ and flush_out = flush_out
 and close_group = close_group
 and open_aftergroup = open_aftergroup
 and open_group = open_group
-and insert_block s attr =
-  if find_prev_par () then
-    warning "Ignoring \\centering or \\ragged..."
-  else
-    insert_block (find_block s) attr
+and insert_block s attr = insert_block (find_block s) attr
 and insert_attr s = insert_attr (find_block s)
 and erase_mods = erase_mods
 and open_mod = open_mod
