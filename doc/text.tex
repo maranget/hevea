@@ -4326,7 +4326,7 @@ Paragraph are rendered by \verb+p+ elements.
 In some occasions, this technique may produce spurious paragraphs
 (see~\ref{spurious:par}).
 
-\subsection{Footnotes}
+\subsection{Footnotes\label{sec:footnotes}}
 The commands \verb+\footnote+,
 \verb+\footnotetext+ and \verb+\footnotemark+ (with or without
 optional arguments) are supported.
@@ -5055,19 +5055,44 @@ with the boolean registers of the \texttt{ifthen} package, as it is
 the case in \LaTeX.
 
 
-\section{Figures and Other Floating Bodies}
+\section{Figures, Tables, and Other Floating Bodies}
 
-Figures and tables are put where they appear in source, regardless of
-their placement arguments.
-They are outputted  inside a \verb+BLOCKQUOTE+ element and they are
-separated from enclosing text by two
-horizontal rules.
+\subsection{Figures And Tables}
 
-Captions and cross referencing are handled.
-However captions are not moved at end of figures: instead, they appear
-where the \verb+\caption+ commands occur in source code.
-The \verb+\suppressfloats+ command does nothing and the
-figure related counters (such as \verb+topnumber+) exist but are useless.
+Figures and tables are put where they appear in the source
+(location~``\verb+h+''), regardless of their placement arguments.
+\hevea{} wraps them in \verb+BLOCKQUOTE+~elements that are associated
+with CSS~classes \verb+figure+ and \verb+table+ respectively.  Figures
+and tables are separated from enclosing text by two horizontal rules
+(CSS~class \verb+floatrule+).  If the capabilities of \verb+floatrule+
+prove insufficient users can create their own separators by defining
+the parameter-less macro~\verb+\floatseparator+, like for example,
+
+\begin{verbatim}
+\newcommand{\floatseparator}{\begin{center}\ast\end{center}}
+\end{verbatim}
+
+\noindent or even drop them completely by supplying an empty expansion
+and thereby recover the original \LaTeX{} layout.
+
+Captions and cross referencing are handled.  However, captions are not
+moved at end of figures or tables: instead, they appear where the
+\verb+\caption+~commands occur in source.
+
+The \verb+\suppressfloats+ command does nothing; the figure related
+counters (such as \verb+topnumber+) exist but are useless.
+
+
+\subsection{Footnotes}
+
+The basics of footnotes are discussed in section~\ref{sec:footnotes}.
+
+\hevea{} puts the text of every footnote in a block associated with
+CSS~class \verb+footnotetext+.  The rule that separates the body text
+from the footnotes can by styled with CSS~class \verb+footnoterule+.
+
+
+\subsection{Marginal Notes}
 
 \comdefindex{marginpar}%
 \comdefindex{reversemarginpar}%
