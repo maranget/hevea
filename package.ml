@@ -378,7 +378,10 @@ def_code "\\css@length"
       match Get.get_length arg with
       | Length.Pixel n -> Printf.sprintf "%ipx" n
       | Length.Char n ->  Printf.sprintf "%iem" n
-      | _ -> warning "\\css@length cannot interpret this length" ; "0px" in
+      | Length.Percent n -> Printf.sprintf "%i%%" n
+      | _not_a_length ->
+         warning ("\\css@length cannot interpret \"" ^ arg ^ "\" as length; substituting 0px");
+         "0px" in
     Dest.put len)
 ;;
 

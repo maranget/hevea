@@ -730,6 +730,6 @@
 {This document was translated from \LaTeX{} by
 \footahref{\heveaurl/index.html}{\hevea}.}
 \newcommand{\@footer}
-{\rule{}{}\begin{quote}\em\footertext\end{quote}}
+{\@printHR{}{}\begin{quote}\em\footertext\end{quote}}
 %%%%% Compat
 %\let\@hva@newstack\hva@newstack
