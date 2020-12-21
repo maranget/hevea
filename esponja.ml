@@ -9,33 +9,43 @@
 (*                                                                     *)
 (***********************************************************************)
 
-open Printf
+
+let default_small_length = 1024
 
 let arg = ref []
-let pess = ref false
-let move = ref true
-let small_length = ref 1024
+and pess = ref false
+and move = ref true
+and small_length = ref default_small_length
 
 let () =
-  Arg.parse
-    [
-     ("-version", Arg.Unit
-     (fun () ->
-       print_endline ("esponja "^Version.version) ;
-       print_endline ("library directory: "^Mylib.static_libdir) ;
-       exit 0),
-     "show version and exit") ;
-     ("-rsz", Arg.Int (fun i -> small_length := i),
-      (sprintf
-         "size of leaves in rope implementation (default %i)"
-         !small_length)) ;
-     "-u", Arg.Set pess, "pessimize" ;
-     "-v", Arg.Unit (fun () -> incr Emisc.verbose),"be verbose" ;
+  let usage =
+    "Usage: esponja [OPTION...] HTML-FILE...\n\
+     \n\
+     Optimize HTML-FILE by factoring common CSS-styles and removing\n\
+     unused CSS-class definitions.\n\
+     \n\
+     Options:"
+  and spec =
+    ["-u", Arg.Set pess,
+     " pessimize optimizer";
      "-n", Arg.Unit (fun () -> move := false ; incr Emisc.verbose),
-     "do not change files"; ]
-    (fun s -> arg :=  s :: !arg)
-  ("Usage: esponja [option*] files\noptions are:")
-;;
+     " dry run - do not change files";
+     "-rsz", Arg.Set_int small_length,
+     (Printf.sprintf "SIZE set SIZE (default: %i) of leaves in rope implementation" default_small_length);
+     "-v", Arg.Unit (fun () -> incr Emisc.verbose),
+     " report progress";
+     "-version",
+     Arg.Unit
+       (fun () ->
+         print_endline ("esponja " ^ Version.version);
+         print_endline ("library directory: " ^ Mylib.static_libdir);
+         exit 0),
+     " output version information, library directory and exit"]
+  in
+    Arg.parse
+      (Arg.align spec)
+      (fun s -> arg :=  s :: !arg)
+      usage;
 
 module E =
   Esp.Make

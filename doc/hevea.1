@@ -1,0 +1,209 @@
+.TH HEVEA 1 "2020-11-16"
+.\"
+.SH NAME
+hevea \- convert LaTeX file to HTML
+.\"
+.SH SYNOPSIS
+.B hevea
+.RI [ OPTION... ] " " [ HVA-FILE... | LATEX-FILE... ]
+.\"
+.SH DESCRIPTION
+.TP
+.B Normal Mode
+Consult
+.IR HVA-FILEs " and " LATEX-FILE s.
+The last
+.I LATEX-FILE
+in the command line is designated main-input file and it is expected
+to contain the
+.BR \(rsdocumentclass " macro."
+All temporary and output filenames are derived from this main-input
+filename (unless overridden with option
+.BR \-o ).
+Translate the main-input file to HTML given the definitions in the
+other
+.IR HVA-FILE "s and " LATEX-FILE s.
+.TP
+.B Filter Mode
+If the last file on the command line is not a
+.I LATEX-FILE
+or no file is given at all Hevea operates in filter mode.  It then
+consults all
+.IR HVA-FILE "s and " LATEX-FILE s
+if any are passed on the command line then reads LaTeX-source from
+standard input and writes to standard output (unless overridden with
+option
+.BR \-o ).
+.PP
+Options
+.RB \(oq \-info "\(cq and \(oq" \-text \(cq
+change the output format to GNU Info and plain text, respectively.
+.\" Sort options in case-insensitive alphabetical order!
+.SH OPTIONS
+.TP
+.B \-dv
+Add borders to some block-level elements.  This option is mainly
+interesting for the Hevea developers.
+.TP
+.BI \-e " FILENAME"
+Exclude
+.I FILENAME
+from being processed.
+.TP
+.B \-entities
+Render symbols by using entities.  This is the default.
+.TP
+.BI \-exec " PROGRAM"
+Execute external
+.IR PROGRAM ,
+then read its result.
+.TP
+.B \-fix
+Iterate Hevea until reaching a fixpoint.  This option does not work in
+\(lqFilter Mode\(rq.
+.TP
+.B \-francais
+French mode (deprecated).
+.TP
+.B \-help
+Display a list of all options and exit.
+.TP
+.BI \-I " DIRECTORY"
+Prepend
+.I DIRECTORY
+to search path for input files
+.RI ( *.tex ", " *.sty ", and " *.hva ).
+.TP
+.B \-info
+Output GNU Info files.  Note that Hevea unconditionally splits the
+output Info files in parts like
+.B makeinfo
+without the
+.B \-\-no\-split
+flag!  The default output filename extension is
+.I .info
+for the root Info file and
+.I .info-#
+for all leaf-files with
+.I #
+being a decimal number.
+.TP
+.B \-mathml
+Generate MathML output for equations.  This feature is very
+experimental!
+.TP
+.B \-moreentities
+Enable the output of some rare entities.
+.TP
+.B \-noiso
+Deprecated \(en does nothing.
+.TP
+.B \-O
+Call esponja to optimize HTML output for minimal size.
+.TP
+.BI \-o " FILENAME"
+Redirect Hevea output to
+.IR FILENAME .
+If
+.I FILENAME
+is a path, this is, expands to
+.IR DIRECTORY/FILENAME ,
+all output goes into
+.I DIRECTORY
+and the output file therin will be called
+.IR FILENAME.
+A single dash
+.RB ( \- )
+as
+.I FILENAME
+redirects output to standard output.
+.TP
+.B \-pedantic
+Be pedantic in interpreting the HTML 4.0 transitional definition.
+.TP
+.BI \-rsz " SIZE"
+Adjust the
+.I SIZE
+of leaves in rope implementation.  The default rarely needs changing.
+.TP
+.B \-s
+Suppress warnings.
+.TP
+.B \-text
+Output plain text.  The default output filename extension is
+.IR .txt .
+.TP
+.B \-textsymbols
+Render symbols by English text.
+.TP
+.B \-v
+Verbose flag; repeat to increase verbosity.
+.TP
+.B \-version
+Show Hevea version and library directory.
+.TP
+.BI \-w " WIDTH"
+Set the output
+.I WIDTH
+for plain text or GNU Info output.  This option has no effect in HTML
+mode.
+.\"
+.SH ENVIRONMENT
+.TP
+.B HEVEADIR
+If
+.RB $ HEVEADIR
+is set, its value is used as the Hevea library directory.  This
+directory contains specific style files, supporting graphics files,
+and some auxiliary binaries needed for the translation.
+.\"
+.SH EXAMPLES
+.IP \(bu 2
+Translate the LaTeX file
+.I paper.tex
+to HTML:
+.IP
+.EX
+.RS 8
+hevea paper.tex
+.RE
+.EE
+.IP
+The result goes into file
+.IR paper.html .
+.IP \(bu 2
+Convert the LaTeX file
+.I text.tex
+to HTML and use
+.I manual.hva
+as additional source of definitions; write the result to
+.IR manual.html .
+.IP
+.EX
+.RS 8
+hevea -o manual.html manual.hva text.tex
+.RE
+.EE
+.IP \(bu 2
+Generate
+.I text.html
+of the LaTeX source
+.IR text.tex ,
+re-run
+.B hevea
+until all labels have definite values.  Finally run
+.B esponia
+on the output of
+.B hevea
+to optimize the resulting HTML file.
+.IP
+.EX
+.RS 8
+hevea -fix -O text.tex
+.RE
+.EE
+.\"
+.SH SEE ALSO
+.BR esponja (1),
+.BR hacha (1),
+.BR makeinfo (1).
