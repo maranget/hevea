@@ -1,29 +1,4 @@
 %%%%%%%%%%% PDF stuff
-%%BEGIN LATEX
-\ifpdf
-\newcount\pdflabel
-\pdflabel=1
-\def\pdfpart#1#2{
-\pdfdest num \pdflabel fit
-\pdfoutline goto num \pdflabel count #1 {\Alph{part}. #2}
-\global\advance\pdflabel by 1
-}
-\def\pdfsection#1{
-\pdfdest num \pdflabel fit
-\pdfoutline goto num \pdflabel {\thesection. #1}
-\global\advance\pdflabel by 1
-}
-\let\latexsection\section
-\renewcommand{\section}[2][!*!]
-  {\ifthenelse{\equal{#2}{*}}{\latexsection#2}
-  {\ifthenelse{\equal{#1}{!*!}}{\latexsection{#2}}{\latexsection[#1]{#2}}
-  \pdfsection{#2}}}
-\else
-\let\latexsection\section
-\newcommand{\pdfsection}[1]{}
-\newcommand{\pdfpart}[2]{}
-\fi
-%%END LATEX
 %%%%%% Numbering
 \renewcommand{\thepart}{\Alph{part}}
 \renewcommand{\numberline}[1]{#1\quad}
