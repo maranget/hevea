@@ -398,7 +398,7 @@ def_code
   Scan.top_close_group ())
 ;;
 
-(* A few subst definitions, with 2 optional arguments *)
+(* A few subst definitions, with 2 or more optional arguments *)
 
 def "\\makebox" (latex_pat ["" ; ""] 3)
     (Subst ["\\@makebox{#1}{#2}{#3}"]) ;
@@ -414,6 +414,11 @@ def_code "\\raisebox"
         let dpth = get_prim_opt "" lexbuf in
           let text = get_prim_arg lexbuf in
             scan_this main ("\\@raisebox{" ^ raise_len ^ "}{" ^ hght ^ "}{" ^ dpth ^ "}{" ^ text ^ "}"))
+;;
+
+
+def "\\minipage" (latex_pat ["" ; ""; ""] 4)
+  (Subst ["\\@minipage{#1}{#2}{#3}{#4}"])
 ;;
 
 
