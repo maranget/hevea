@@ -47,6 +47,10 @@
 %%% Two exported commands
 \let\ahrefloc\@locref
 \let\aname\@locname
+%%%Set output translator
+\newcommand{\@charset}{US-ASCII}
+\newcommand{\@def@charset}[1]
+{\renewcommand{\@charset}{#1}\@set@out@translator{mappings/#1.map}}
 %%% footer and header, useful ???
 \newsavebox{\@htmlhead}
 \newsavebox{\@htmlfoot}
