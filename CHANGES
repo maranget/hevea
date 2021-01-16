@@ -1,3 +1,5 @@
+version 2.35
+     * Release
 version 2.34+02
      * Some petty optimisation in text output (replace ' '+ '\n' by '\n').
      * Correct bug in text mode (012 by Florian Angeletti). On bad combination of indentation and
