@@ -48,7 +48,7 @@ config.sh: Makefile libs.def handle402.sh
 	echo INFOLIB=\"$(INFOLIB)\") > $@
 
 clean:: config.sh
-	sh ocb.sh clean && rm config.sh
+	sh ocb.sh clean && rm -f config.sh
 
 ocb-byte: config.sh
 	sh ocb.sh byte
