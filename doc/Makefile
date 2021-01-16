@@ -75,8 +75,8 @@ manual.dvi: $(MANUAL_DEPENDENCIES)
 	$(LATEX) $(LATEXOPTS) $< > /dev/null 2>&1
 	@ITER=2; MAXITER=10;  \
         while test -e $*.log && grep -q $(LATEX_LABEL_WARNING) $*.log; do  \
-            test $$ITER -le $$MAXITER || { printf 'Excessive number of iterations (%d) to reach fixpoint.  Aborted!\n' "$$MAXITER" 1>&2; exit 1; };  \
-            printf 'Run LaTeX again.\n'  \
+            test $$ITER -le $$MAXITER || { printf 'Excessive number of iterations (%d) to reach fixpoint.  Aborted!\n' "$$ITER" 1>&2; exit 1; };  \
+            printf 'Run LaTeX again.\n' ; \
             $(LATEX) $(LATEXOPTS) $< > /dev/null 2>&1;  \
             : $$((ITER += 1));  \
 	done;  \
@@ -91,7 +91,7 @@ manual.pdf: $(MANUAL_DEPENDENCIES)
 	@ITER=2; MAXITER=10;  \
         while test -e $*.log && grep -q $(LATEX_LABEL_WARNING) $*.log; do  \
             test $$ITER -le $$MAXITER || { printf 'Excessive number of iterations (%d) to reach fixpoint.  Aborted!\n' "$$MAXITER" 1>&2; exit 1; };  \
-            printf 'Run PDFLaTeX again.\n'  \
+            printf 'Run PDFLaTeX again.\n' ; \
             $(PDFLATEX) $(PDFLATEXOPTS) $< > /dev/null 2>&1;  \
             : $$((ITER += 1));  \
 	done;  \
