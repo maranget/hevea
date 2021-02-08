@@ -41,9 +41,8 @@ DISTRIBUTION
 
 
 REQUIREMENTS
-     HEVEA is written in Objective Caml version 3.12 or later
-     (OCaml). It compiles under OCaml, which should thus be properly
-     installed.
+     HEVEA is written in Objective Caml (OCaml).
+     It compiles under OCaml, which should thus be properly installed.
 
      More information on OCaml can be found at
        http://caml.inria.fr/ocaml/
@@ -63,6 +62,12 @@ REQUIREMENTS
     However, these softwares are optional and hevea runs without them.
     
 INSTALLATION FROM THE SOURCE DISTRIBUTION
+  Prerequisite, install OCaml and ocamlbuild.
+  The easiest method for doing so is using opam.
+
+  Once opam is installed (see https://opam.ocaml.org/doc/Install.html),
+  install ocamlbuild with:
+    opam install ocamlbuild
 
   Download the source distribution
     http://hevea.inria.fr/distri/hevea-2.35.tar.gz
