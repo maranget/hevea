@@ -192,6 +192,7 @@ module HorizontalSpace =
 
     (* https://en.wikipedia.org/wiki/whitespace_character#spaces_in_unicode
        https://en.wikipedia.org/wiki/zero-width_space *)
+
     let html_spaces = {
         normal = [1.0, OutUnicode.emsp;
                   0.5, OutUnicode.ensp;
@@ -199,11 +200,17 @@ module HorizontalSpace =
                   0.25, OutUnicode.emsp14;
                   1.0 /. 6.0, OutUnicode.six_per_em_space];
         minimal = OutUnicode.hairsp;
-        zero = OutUnicode.zero_width_space
+        zero = OutUnicode.zero_width_space;
       }
 
+    let html_nbsp = {
+        normal = [0.25, OutUnicode.nbsp ; 1.0 /. 6.0, OutUnicode.six_per_em_nbsp;];
+        minimal = OutUnicode.six_per_em_nbsp;
+        zero = OutUnicode.word_joiner;
+    }
+
     let approximate_hspace persistent space_configuration length =
-      let join_if_persistent () = if persistent then put_unicode OutUnicode.zero_width_joiner in
+
         let rec iter has_put_normal_space available_normal_spaces remaining_width =
           match available_normal_spaces with
           | [] ->
@@ -214,7 +221,6 @@ module HorizontalSpace =
              if remaining_width > 0.0 && not has_put_normal_space then
                begin
                  put_unicode space_configuration.minimal;
-                 join_if_persistent ()
                end
           | (space_char_width, space_char) :: remaining_normal_spaces ->
              let number_of_spaces = floor (remaining_width /. space_char_width) in
@@ -222,8 +228,7 @@ module HorizontalSpace =
                and n = int_of_float number_of_spaces in
                  for _i = 1 to n do
                    put_unicode space_char;
-                   join_if_persistent ()
-                 done;
+                   done;
                  iter (has_put_normal_space || n >= 1) remaining_normal_spaces remaining_width'
         in
           match length with
@@ -232,9 +237,9 @@ module HorizontalSpace =
              if n = 0 then
                put_unicode space_configuration.zero
              else
+               let c = if persistent then OutUnicode.nbsp else  OutUnicode.emsp13 in
                for _i = 1 to n do
-                 put_unicode OutUnicode.emsp13;
-                 join_if_persistent ()
+                 put_unicode c
                done
           | Length.Pixel x ->
              (* Printf.eprintf "+ approximate_hspace: Pixel %d\n" x; *)
@@ -254,7 +259,7 @@ let put_hspace persistent length =
       put_char ' '
     done
   else
-    HorizontalSpace.(approximate_hspace persistent html_spaces length)
+    HorizontalSpace.(approximate_hspace persistent (if persistent then html_nbsp else html_spaces) length)
 
 let put_open_group () =
   put_char '{'
