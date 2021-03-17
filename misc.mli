@@ -66,5 +66,8 @@ val hexa_code : char -> char  -> int
 (* Some string utilities (backward compatibility) *)
 val string_map : (char -> char) -> string -> string
 
+(* Eat trailing space and one newline *)
+val chop_trailing_spaces : string -> string
+
 (* Useful module signature, output of functors called for initialisation *)
 module type Rien = sig val rien : unit end
