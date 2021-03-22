@@ -704,7 +704,7 @@ let item s =
       !cur_out.pending <- pending ;
       r in
     open_block_loc LI s ;
-    do_put saved
+    do_put (Misc.chop_trailing_spaces saved)
   end ;
   if !verbose > 2 then begin
     prerr_string "<= item: stack=" ;
@@ -759,7 +759,7 @@ let ditem scan arg s1 s2 =
       ignore (close_par ()) ; (* in case some par opened before first \item *)
       let saved = Out.to_string !cur_out.out in
       !cur_out.pending <- pending ;
-      (fun arg -> do_put saved ; scan arg)
+      (fun arg -> do_put (Misc.chop_trailing_spaces saved) ; scan arg)
     end
     else scan in
   begin if flags.nitems > 0 then

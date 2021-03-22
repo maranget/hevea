@@ -140,6 +140,29 @@ let string_map f s =
   done ;
   Buffer.contents out
 
+(* Return first non-space from the end *)
+let chop_trailing_spaces s =
+  let rec spaces_only k =
+    if k < 0 then k
+    else match s.[k] with
+    | ' ' -> spaces_only (k-1)
+    | _ -> k in
+  let nl k =
+    if k < 0 then k
+    else match s.[k] with
+    | '\n' -> k+1 (* keep paragraph *)
+    | ' ' -> spaces_only (k-1)
+    | _ -> k in
+  let rec no_nl  k =
+    if k < 0 then k
+    else match s.[k] with
+    | '\n' -> nl (k-1)
+    | ' ' -> no_nl (k-1)
+    | _ -> k in
+  let len = String.length s in
+  let j = no_nl (len-1) in
+  let len0 = j+1 in
+  if len=len0 then s else String.sub s 0 len0
 
 (* Useful module signature, output of functors called for initialisation *)
 module type Rien = sig val rien : unit end
