@@ -27,6 +27,9 @@ all: $(TARGET)
 install: config.sh
 	./install.sh $(TARGET)
 
+uninstall: config.sh
+	./uninstall.sh
+
 byte: ocb-byte
 opt: ocb-opt
 both: ocb-both
