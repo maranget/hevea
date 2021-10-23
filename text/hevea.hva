@@ -1,4 +1,4 @@
-%%% Une précaution.
+%%% Une prÃ©caution.
 \ifhtml\hva@warn{text/hevea is for text and info mode !!!}\endinput\fi
 %%%% package used by all packages
 \input{plain.hva}
