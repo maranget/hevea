@@ -116,7 +116,7 @@ let do_def_diacritic2 name comb =
           Dest.put_unicode comb ;
         with OutUnicode.CannotTranslate ->
           Misc.warning
-            (Printf.sprintf "Ingoring double accent '%s' on '%s'" name fst)
+            (Printf.sprintf "Ignoring double accent '%s' on '%s'" name fst)
         end ;
         let rem = String.sub arg 1 (len-1) in
         Dest.put rem
@@ -353,7 +353,7 @@ def_code "\\hva@dump@css"
      let name = match Parse_opts.base_out with
      | "" ->
          let r = "out.css" in
-         warning ("Outputing style sheet to default file: "^r) ;
+         warning ("Outputting style sheet to default file: "^r) ;
          r
      | base -> base ^ ".css" in
      begin try
@@ -365,7 +365,7 @@ def_code "\\hva@dump@css"
        close_out chan
      with
      | Sys_error msg ->
-         warning ("Trouble while outputing style sheet: "^msg)
+         warning ("Trouble while outputting style sheet: "^msg)
      end ;
      scan_this main (Printf.sprintf "\\@getprintnostyle{%s}" name))
 ;;

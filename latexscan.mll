@@ -151,7 +151,7 @@ let top_close_display () =
 
 let print_env_pos () =
   if MyStack.empty stack_env then begin
-    prerr_endline "No Latex environement is pending"
+    prerr_endline "No Latex environment is pending"
   end else begin
     let _,_,pos = MyStack.pop stack_env in
     Location.print_this_pos pos ;
@@ -3936,7 +3936,7 @@ def_code "\\newwrite"
               let name = get_this_nostyle main (save_filename lexbuf) in
               file := open_out name
           | _ ->
-              warning ("Unkown file operation: "^op)
+              warning ("Unknown file operation: "^op)
         with Sys_error s ->
           warning ("TeX file error : "^s)))
 ;;

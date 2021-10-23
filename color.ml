@@ -115,7 +115,7 @@ let do_compute mdl value =
       begin
         try Hashtbl.find table ("named@"^value) with
         | Not_found -> begin
-            Misc.warning ("Unkown name in the named color model: "^value) ;
+            Misc.warning ("Unknown name in the named color model: "^value) ;
             raise Failed
         end
       end

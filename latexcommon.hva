@@ -202,7 +202,7 @@
 \newcommand{\@itemenumerate}[1][!*!]
 {\let\@currentlabel\csname the\@enumcitem\endcsname%
 \stepcounter{\@itemcount}\@enumerate@linum{\envclass@attr{li-enumerate}}\ifthenelse{\equal{#1}{!*!}}{}{\hva@warn{Ignored optional argument to \item in enumerate environment}}}
-%environement itemize
+%environment itemize
 \setenvclass{itemize}{itemize}
 \newenvironment{itemize}
   {\@open{ul}{\envclass@attr{itemize}}\let\item\@itemitemize}

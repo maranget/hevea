@@ -1411,7 +1411,7 @@ let do_code_line is_com lexbuf =
   let visi =  check_visi (get_prim_arg lexbuf) in
   let visi =
     if is_com && not visi then begin
-      Misc.warning "invisible commments not available" ;
+      Misc.warning "invisible comments not available" ;
       true 
     end else visi in
   let sty = subst_arg lexbuf in

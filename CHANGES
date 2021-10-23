@@ -161,7 +161,7 @@ version 1.10+10
        does not work revert.
      - added option -dAutoRotate=/None in gs invokation by imagen.
        (suggestion of Sebastien Flicker)
-     - amsmaths.hva: corrected bug in split environemnt.
+     - amsmaths.hva: corrected bug in split environment.
      - \refstepcounter in \bititem -> set \theref, allow
        a hack [\ref{...}] \sim \cite{...} (Some do that).
 version 1.10+9
@@ -667,7 +667,7 @@ version 1.04
   - Better list-making environment and better documentation for them.
   - Suppressed ``Videoc'' when in text mode.
   - Added \csname ... \endcsname,
-    environement names such as ``list1'' are supported
+    environment names such as ``list1'' are supported
   - Symbols defined as .hva source files.
   - All internal macros can now be redefined.
   - Simplified internal macro values (-> 2 constructor only,

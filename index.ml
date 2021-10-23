@@ -80,7 +80,7 @@ let read_index_file name file =
 
   let r = do_rec () in
   if !verbose > 0 then
-    prerr_endline ("Index file: "^name^" succesfully read");
+    prerr_endline ("Index file: "^name^" successfully read");
   Some r
 
 let find_index tag = Hashtbl.find itable tag
