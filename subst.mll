@@ -151,7 +151,7 @@ let translate f s =
   let lexbuf = MyLexing.from_string s in
   do_translate lexbuf f
 
-let lowercase s = translate Char.lowercase s
-and uppercase s = translate Char.uppercase s
+let lowercase s = translate Char.lowercase_ascii s
+and uppercase s = translate Char.uppercase_ascii s
 
 } 

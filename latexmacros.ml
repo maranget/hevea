@@ -15,12 +15,7 @@ open Lexstate
 
 exception Failed
 
-module OString = struct
-  type t = string
-  let compare = Pervasives.compare
-end
-
-module Strings = Set.Make (OString)
+module Strings = Set.Make (String)
 
 (* Data structures for TeX macro  model *)
 let local_table = Hashtbl.create 97

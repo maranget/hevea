@@ -141,7 +141,7 @@ let is_alpha c =  ('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z')
 
 let compare_char c1 c2 =
   if is_alpha c1 && is_alpha c2 then
-    let r = compare (Char.uppercase c1) (Char.uppercase c2) in
+    let r = compare (Char.uppercase_ascii c1) (Char.uppercase_ascii c2) in
     if r <> 0 then r
     else compare c1 c2
   else if is_alpha c1 then 1
@@ -239,7 +239,7 @@ let rec open_this out k = match k with
 let start_change s1 s2 = match s1,s2 with
 | "",_ -> false
 | _,"" -> false
-| _,_  -> Char.uppercase s1.[0] <> Char.uppercase s2.[0]
+| _,_  -> Char.uppercase_ascii s1.[0] <> Char.uppercase_ascii s2.[0]
 
 let print_entry out _ entries bk k xs  =
   let rp,rt = common bk k in

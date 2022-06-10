@@ -179,8 +179,8 @@ let dest_string = Scan.translate_put_unicode_string
 let dest_case s =
   Dest.put
     (match !case with
-    | Upper -> String.uppercase s
-    | Lower -> String.lowercase s
+    | Upper -> String.uppercase_ascii s
+    | Lower -> String.lowercase_ascii s
     | _     -> s)
 
 (* Keywords *)

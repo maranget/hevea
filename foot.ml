@@ -98,8 +98,8 @@ let flush sticky lexer out sec_notes sec_here =
         all := ((mark,anchor),(themark,text)) :: !all)
       anchor_to_note ;
     all := List.sort
-        (fun (((m1:int),(a1:int)),_) ((m2,a2),_) -> match Pervasives.compare a1 a2 with
-        | 0 ->  Pervasives.compare m1 m2
+        (fun (((m1:int),(a1:int)),_) ((m2,a2),_) -> match Stdlib.compare a1 a2 with
+        | 0 ->  Stdlib.compare m1 m2
         | r -> r) !all ;
     List.iter
       (fun ((_,anchor),(themark,text)) ->

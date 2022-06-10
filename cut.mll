@@ -697,7 +697,7 @@ rule main = parse
 |  "<!--" ("TOC"|"toc") blank+ (secname as arg) blank+
     ("id=" ((anchor as a)|('"' ([^'"']+ as a) '"')) blank+)? (* '"' *)
     {let sn =
-      if String.uppercase arg = "NOW" then !chapter
+      if String.uppercase_ascii arg = "NOW" then !chapter
       else Section.value arg in
     let name = tocline lexbuf in
     if verbose > 1 then begin
@@ -737,7 +737,7 @@ rule main = parse
      main lexbuf
     }
 | "<!--CUT DEF" ' '+ (secname as name) ' '* (['0'-'9']+ as i_opt)?
-    {let chapter = Section.value (String.uppercase name) in
+    {let chapter = Section.value (String.uppercase_ascii name) in
     let depth = match i_opt with
     | None -> !depth
     | Some s -> int_of_string s in

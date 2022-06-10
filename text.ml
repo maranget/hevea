@@ -70,7 +70,7 @@ let () =
     blocks
 
 let tr_block s a =
-  let s = String.uppercase s in
+  let s = String.uppercase_ascii s in
   try
     Hashtbl.find s2b s
   with Not_found ->
@@ -762,7 +762,7 @@ let try_open_block s args =
 	finit_ligne ();	
 	flags.in_align<-true;
 	flags.first_line <-2;
-	match String.uppercase args with
+	match String.uppercase_ascii args with
 	  "LEFT" -> flags.align <- Left
 	| "CENTER" -> flags.align <- Center
 	| "RIGHT" -> flags.align <- Right
@@ -907,7 +907,7 @@ let close_flow s =
 ;;
 
 
-let insert_block _ arg =  match String.uppercase arg with
+let insert_block _ arg =  match String.uppercase_ascii arg with
 | "LEFT" -> flags.align <- Left
 | "CENTER" -> flags.align <- Center
 | "RIGHT" -> flags.align <- Right

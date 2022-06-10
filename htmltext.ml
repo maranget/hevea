@@ -64,7 +64,7 @@ let size_val = function
   | "7" -> 7
   | _   -> raise No
 
-let color_val s = match String.lowercase s with
+let color_val s = match String.lowercase_ascii s with
 | "#000000" -> "black"
 | "#c0c0c0" -> "silver"
 | "#808080" -> "gray"
