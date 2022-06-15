@@ -60,7 +60,7 @@ let warnings = ref true
 
 let check_nesting _lb name =
   try
-    Hashtbl.find block (String.lowercase name) ;
+    Hashtbl.find block (String.lowercase_ascii name) ;
     if !txt_level <> 0 && !warnings then begin
       Location.print_fullpos () ;
       prerr_endline 
@@ -85,17 +85,17 @@ List.iter (init text)
 
 let is_textlevel name =
   try
-    let _ = Hashtbl.find text (String.lowercase name) in
+    let _ = Hashtbl.find text (String.lowercase_ascii name) in
     true
   with
   | Not_found -> false
 
-let is_br name = "br" = (String.lowercase name)
-let is_basefont name = "basefont" = (String.lowercase name)
+let is_br name = "br" = (String.lowercase_ascii name)
+let is_basefont name = "basefont" = (String.lowercase_ascii name)
 
 let set_basefont attrs lb = 
   List.iter
-    (fun (name,v,_) -> match String.lowercase name,v with
+    (fun (name,v,_) -> match String.lowercase_ascii name,v with
     | "size",Some s ->
         begin try
           Emisc.basefont := int_of_string s
@@ -123,7 +123,7 @@ let font_value lb v =
     let tag = String.sub v 0 k
     and v = String.sub v (k+1) (String.length v - (k+1)) in
     let tag =
-      match String.lowercase tag with
+      match String.lowercase_ascii tag with
       | "font-family" -> Ffamily
       | "font-style" -> Fstyle
       | "font-variant" -> Fvariant
@@ -148,7 +148,7 @@ let font_value lb v =
 let norm_attrs lb attrs =
    List.map
         (fun (name,value,txt) ->
-          match String.lowercase name with
+          match String.lowercase_ascii name with
           | "size" ->  SIZE (get_value lb value),txt
           | "color" -> COLOR (get_value lb value),txt
           | "face" -> FACE (get_value lb value),txt
@@ -162,7 +162,7 @@ let norm_attrs lb attrs =
     attrs
 
 let ouvre lb name attrs txt =
-  let uname = String.lowercase name in
+  let uname = String.lowercase_ascii name in
   try
     let tag = Hashtbl.find text uname in
     let attrs = norm_attrs lb attrs in
@@ -174,7 +174,7 @@ let ouvre lb name attrs txt =
 
 and ferme _lb name txt =
   try
-    let tag = Hashtbl.find text (String.lowercase name) in
+    let tag = Hashtbl.find text (String.lowercase_ascii name) in
     decr txt_level ;
     begin if not (MyStack.empty txt_stack) then
       let _  = MyStack.pop txt_stack in ()

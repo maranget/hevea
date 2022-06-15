@@ -1340,7 +1340,7 @@ let cr_sort_labels lbls =
   let ys =
     List.map
       (List.sort
-         (fun (_,o1) (_,o2) -> Pervasives.compare o1 o2)) ys in
+         (fun (_,o1) (_,o2) -> Stdlib.compare o1 o2)) ys in
   let lbls = List.map (List.map fst) ys in
   lbls
 ;;

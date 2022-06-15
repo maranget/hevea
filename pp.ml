@@ -104,7 +104,7 @@ let as_fontstyle = function
 let fmtfontsyles fs =
   let fs =
     List.sort
-      (fun f1 f2 -> Pervasives.compare (as_fontstyle f1) (as_fontstyle f2))
+      (fun f1 f2 -> Stdlib.compare (as_fontstyle f1) (as_fontstyle f2))
       fs in
   sprintf " style=\"%s\"" (String.concat ";" (List.map fmtfontsyle fs))
 

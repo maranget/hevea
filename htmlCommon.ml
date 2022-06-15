@@ -113,7 +113,7 @@ let failclose s b1 b2=
                        string_of_block b2^"'"))
 
 let find_block s =
-  let s = String.lowercase s in
+  let s = String.lowercase_ascii s in
   try Hashtbl.find block_t s with
     | Not_found -> OTHER s
 

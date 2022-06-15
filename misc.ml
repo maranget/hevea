@@ -58,7 +58,7 @@ let copy_hashtbl from_table to_table =
   let module OString =
     struct
       type t = string
-      let compare = Pervasives.compare
+      let compare = Stdlib.compare
     end in
   let module Strings = Set.Make (OString) in
   let keys = ref Strings.empty in

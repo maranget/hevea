@@ -948,13 +948,13 @@ let count_newlines s =
 ;;
 
 let check_case s = match !case with
-| Lower ->  String.lowercase s
-| Upper ->  String.uppercase s
+| Lower ->  String.lowercase_ascii s
+| Upper ->  String.uppercase_ascii s
 | Neutral -> s
 
 and check_case_char c = match !case with
-| Lower -> Char.lowercase c
-| Upper -> Char.uppercase c
+| Lower -> Char.lowercase_ascii c
+| Upper -> Char.uppercase_ascii c
 | Neutral -> c
 
 
@@ -3198,7 +3198,7 @@ let rec roman_of_int = function
      String.make d 'x'^roman_of_int u
 ;;
 
-let uproman_of_int i = String.uppercase (roman_of_int i)
+let uproman_of_int i = String.uppercase_ascii (roman_of_int i)
 ;;
 
 let fnsymbol_of_int = function

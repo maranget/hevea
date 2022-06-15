@@ -15,7 +15,7 @@ type style = Article | Book
 
 let style = ref Book
 
-let set_style sty = match String.uppercase sty with
+let set_style sty = match String.uppercase_ascii sty with
 | "ARTICLE" -> style := Article
 | "BOOK" -> style := Book
 | _ ->
@@ -52,7 +52,7 @@ let value s =
   (match !style with
   | Article -> value_article
   | Book -> value_book)
-    (String.uppercase s)
+    (String.uppercase_ascii s)
 
 let pretty_article = function
 | 0 -> "document"

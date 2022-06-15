@@ -293,7 +293,7 @@ let select_factors fs =
     prerr_string "fs3:" ; pfactorc stderr fs3
   end ;
   List.sort
-    (fun ((_,j1),_) ((i2,_),_) -> Pervasives.compare (j1:int) i2)
+    (fun ((_,j1),_) ((i2,_),_) -> Stdlib.compare (j1:int) i2)
     (get_them fs3)
 
 
