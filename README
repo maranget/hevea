@@ -1,4 +1,4 @@
-This is HEVEA, version 2.35, a fast Latex to HTML translator.
+This is HEVEA, version 2.36, a fast Latex to HTML translator.
 
 
 ADVERTISEMENT
@@ -70,16 +70,16 @@ INSTALLATION FROM THE SOURCE DISTRIBUTION
     opam install ocamlbuild
 
   Download the source distribution
-    http://hevea.inria.fr/distri/hevea-2.35.tar.gz
+    https://github.com/maranget/hevea/archive/refs/tags/v2.36.tar.gz
 
   Unzip,
-    gunzip hevea-2.35.tar.gz
+    gunzip v2.36.tar.gz
 
   Untar,
-    tar xf  hevea-2.35.tar
+    tar xf  hevea-2.36.tar
 
   Go to the source directory
-    cd hevea-2.35
+    cd hevea-2.36
 
 CONFIGURATION
     There are a few configuration variables at the beginning of
@@ -124,6 +124,5 @@ MAKE
 
 
 IN CASE OF TROUBLE.
-  - You do need version 4.02.3 (or newer) of the Objective Caml System.
+  - You do need version 4.08 (or newer) of the Objective Caml System.
     Older versions of Objective Caml may not compile hevea.
-
