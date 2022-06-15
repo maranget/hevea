@@ -71,7 +71,8 @@ let empty_saved = []
 and save {l=l;_} = l
 and restore s x = s.l <- x
 
-let finalize {l=now;_} p f =
+let finalize x p f =
+  let {l=now;_} = x in
   let rec f_rec = function
     | [] -> ()
     | nx::n -> 

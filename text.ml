@@ -1133,7 +1133,7 @@ type cell_set = Tabl of cell_t Table.t | Arr of cell_t array
 
 type row_t = {
     mutable haut : int;
-    mutable cells : cell_set;
+    cells : cell_set;
   } 
 ;;
 
@@ -1141,9 +1141,9 @@ type table_t = {
     mutable lines : int;
     mutable cols : int;
     mutable width : int;
-    mutable taille : int Table.t;
+    taille : int Table.t;
     mutable tailles : int array;
-    mutable table : row_t Table.t;
+    table : row_t Table.t;
     mutable line : int;
     mutable col : int;
     mutable in_cell : bool;

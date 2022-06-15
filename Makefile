@@ -14,7 +14,7 @@ SUF=
 DIR=
 OCAMLC=$(DIR)ocamlc$(SUF)
 #OCAMLFLAGS=-w +a-4-9 -warn-error +a
-OCAMLFLAGS=-w +a-4-9-41-45-67
+OCAMLFLAGS=-w +a-4-9-41-45-67-70
 OCBFLAGS=-j 4 -classic-display
 
 #### End of configuration parameters

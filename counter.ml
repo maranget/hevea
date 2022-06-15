@@ -60,7 +60,8 @@ let checkpoint () =
   let t = Array.make !count cbidon in
 
   RevHash.iter
-    (fun {count = value ; related = related} (name, i) ->
+    (fun c (name, i) ->
+      let {count = value ; related = related} = c in
       t.(i) <-
          {cname = name ;
          cvalue = value ;
