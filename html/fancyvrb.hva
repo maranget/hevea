@@ -89,5 +89,5 @@
   \def\endVerbatim{\@endVerbatim\end@frame}%
   \check@frame\begin@frame\verb@shape\verb@size\@Verbatim}
   {}
-\newcommand{\VerbatimInput}[1]
-  {\@scaninput{\begin{Verbatim}}{#1}{\end{Verbatim}}}
+\newcommand{\VerbatimInput}[2][]
+  {\@scaninput{\begin{Verbatim}[#1]}{#2}{\end{Verbatim}}}
