@@ -285,7 +285,6 @@ all the useful macros of \texttt{mymacro.tex}.
 
 
 \subsubsection{Files \label{usepackage:both}loaded with \texttt{\char92 usepackage}}
-\comindex{usepackage}
 As far as I know, \LaTeX{} reacts to the construct
 \verb+\usepackage{+\textit{name}\verb+}+ by loading the file
 \textit{name}\texttt{.sty}.
@@ -1166,7 +1165,6 @@ differences:
   considering different file extensions.  
 \end{itemize}
 
-
 As a consequence, for having a file \filename{latexonly} loaded by
 \LaTeX{} only, it suffices 
 to use \verb+\input{+\filename{latexonly}\verb+}+
@@ -1182,7 +1180,7 @@ simple: it  suffices to invoke \hevea{} as follows:
 \end{flushleft}
 
 
-Finally, if one has an \hevea{} equivalent \textit{style}\texttt{.hva}
+\comindex{usepackage}\aname{usepackage:ref}{Finally}, if one has an \hevea{} equivalent \textit{style}\texttt{.hva}
 for a \LaTeX{} style file \textit{style}\texttt{.sty},
 then one should load the file as follows:
 \begin{flushleft}
@@ -1428,7 +1426,7 @@ purple rain, purple rain%
 \ldots
 
 Comments thus provide an alternative to loading the
-\texttt{hevea} package. For user convenience, comment equivalents to
+\texttt{hevea} package. Comment equivalents to
 the \verb+latexonly+ and \verb+toimage+ environment are also provided:
 \index{comment!begin latex@\texttt{\%BEGIN LATEX}}
 \index{comment!begin image@\texttt{\%BEGIN IMAGE}}
@@ -1456,9 +1454,10 @@ equivalent}\\ \hline
 Note that \LaTeX{}, by ignoring comments, naturally performs the action
 of processing text between \verb+%BEGIN+\texttt{\ldots} and %
 \verb+%END+\texttt{\ldots} %
-comments. However, no environment is opened and closed and no scope is
-created while using comment equivalents.
+comments. As a result comment equivalent may be very practical in the document preamble, although we rather recommend using the \ahrefloc{usepackage:ref}{\verb+\usepackage+} command to define \hevea-specific commands.
 
+Finally, It is to be noticed that, by contrast with environments, no scope is
+created while using comment equivalents.
 
 \section{\label{imagen}With a little help from \LaTeX}
 Sometimes,
