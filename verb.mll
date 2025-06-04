@@ -861,7 +861,7 @@ and scan_byline process finish = parse
      if (not !input_verb || MyStack.empty stack_lexbuf)
         && env = !Scan.cur_env then begin
       finish () ;
-      scan_this Scan.main ("\\end"^env) ;
+      scan_this Scan.main ("\\csname end"^env^"\\endcsname") ;
       Scan.top_close_block "" ;
       Scan.close_env !Scan.cur_env ;
       ()
