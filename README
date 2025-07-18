@@ -1,4 +1,4 @@
-This is HEVEA, version 2.36, a fast Latex to HTML translator.
+This is HEVEA, version 2.37, a fast Latex to HTML translator.
 
 
 ADVERTISEMENT
@@ -70,16 +70,16 @@ INSTALLATION FROM THE SOURCE DISTRIBUTION
     opam install ocamlbuild
 
   Download the source distribution
-    https://github.com/maranget/hevea/archive/refs/tags/v2.36.tar.gz
+    https://github.com/maranget/hevea/archive/refs/tags/v2.37.tar.gz
 
   Unzip,
-    gunzip v2.36.tar.gz
+    gunzip v2.37.tar.gz
 
   Untar,
-    tar xf  hevea-2.36.tar
+    tar xf  hevea-2.37.tar
 
   Go to the source directory
-    cd hevea-2.36
+    cd hevea-2.37
 
 CONFIGURATION
     There are a few configuration variables at the beginning of

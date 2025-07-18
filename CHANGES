@@ -1,3 +1,5 @@
+version 2.37
+     * Bug fix (PR #77, bug reported by Moshen Banan)
 version 2.36
      * OCaml 5.0 compatibility (PR #68 by Florian Angeletti)
 version 2.35
