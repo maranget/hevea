@@ -1,10 +1,13 @@
-\let\RaggedRight\raggedright
-\let\RaggedLeft\raggedleft
 \let\Centering\centering
+\let\endCentering\relax
+\let\RaggedLeft\raggedleft
+\let\endRaggedLeft\relax
+\let\RaggedRight\raggedright
+\let\endRaggedRight\relax
 \newstyle{.justify}{text-align:justify;margin-left:auto;margin-right:auto;}
 \newcommand{\justifying}{\@insert{div}{\envclass@attr{justify}}}
 \newenvironment{Center}{\begin{center}}{\end{center}}
 \newenvironment{FlushLeft}{\begin{flushleft}}{\end{flushleft}}
-\newenvironment{FlushLeftRight}{\begin{flushright}}{\end{flushright}}
+\newenvironment{FlushRight}{\begin{flushright}}{\end{flushright}}
 \setenvclass{justify}{justify}
 \newenvironment{justify}{\@open{div}{\envclass@attr{justify}}}{\@close{div}}
