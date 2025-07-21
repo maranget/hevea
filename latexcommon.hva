@@ -2,6 +2,11 @@
 \let\ifimage\iffalse
 \newenvironment{htmlonly}{}{}
 \newcommand{\home}[1]{\~{}#1}
+%%%%%%%%%%%%%%%% TeX execution modes
+\newcommand{\batchmode}{}
+\newcommand{\errorstopmode}{}
+\newcommand{\nonstopmode}{}
+\newcommand{\scrollmode}{}
 %%%%%%%%%%%%%%%% Maths environments and TeXisms
 \newcommand{\@dot}{.}
 \newcommand{\textright}[1]{\def\@tmp{#1}\ifx\@tmp\@dot\else#1\fi}
