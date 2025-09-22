@@ -4,11 +4,11 @@ TARGET=opt
 # Install prefix
 PREFIX?=/usr/local
 # Library directory of hevea
-LIBDIR=$(PREFIX)/lib/hevea
+LIBDIR="$(PREFIX)/lib/hevea"
 # Where to install programms
-BINDIR=$(PREFIX)/bin
+BINDIR="$(PREFIX)/bin"
 #Where to install hevea.sty
-LATEXLIBDIR=$(PREFIX)/lib/hevea
+LATEXLIBDIR="$(PREFIX)/lib/hevea"
 ##### Advanced configuration parameters
 SUF=
 DIR=
@@ -40,9 +40,9 @@ config.sh: Makefile libs.def handle402.sh
 	@( cat handle402.sh &&\
 	echo PGM=\"$(PGM)\" &&\
 	echo PGMNATIVE=\"$(PGMNATIVE)\" &&\
-	echo BINDIR=$(BINDIR) &&\
-	echo LIBDIR=$(LIBDIR) &&\
-	echo LATEXLIBDIR=$(LATEXLIBDIR) &&\
+	echo BINDIR=\"$(BINDIR)\" &&\
+	echo LIBDIR=\"$(LIBDIR)\" &&\
+	echo LATEXLIBDIR=\"$(LATEXLIBDIR)\" &&\
 	echo OCAMLFLAGS=\"$(OCAMLFLAGS)\" &&\
 	echo OCBFLAGS=\"$(OCBFLAGS)\" &&\
 	echo ALLLIB=\"$(ALLLIB)\" && \
