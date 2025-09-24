@@ -97,8 +97,8 @@ let () =
      " French mode (deprecated)";
      "-noiso", Arg.Unit (fun () -> Misc.warning "-noiso is deprecated, by default hevea output is ASCII"),
      " deprecated, does nothing";
-     "-mathml", Arg.Set mathml,
-     " generate MathML output for equations; VERY EXPERIMENTAL";
+     "-mathml", Arg.Unit (fun () -> Misc.warning "-mathml is deprecated"),
+     " deprecated, does nothing";
      "-moreentities", Arg.Set moreentities,
      " enable the output of some rare entities";
      "-pedantic", Arg.Set pedantic,
