@@ -209,9 +209,10 @@
 \newcommand{\lst@define@dd}[2][]
   {\newcommand{\csname lstdd@\MakeLowercase{#2}\endcsname}{\MakeLowercase{#1}}}
 \newcommand{\lst@mklang}[2][]
-  {\ifthenelse{\equal{#1}{}}
-    {lstlang@\MakeLowercase{#2}@\csname lstdd@\MakeLowercase{#2}\endcsname}
-    {lstlang@\MakeLowercase{#2}@\MakeLowercase{#1}}}
+{\def\@tmp{\lst@check@alias{#2}}%
+\ifthenelse{\equal{#1}{}}
+  {lstlang@\@tmp @\csname lstdd@\@tmp\endcsname}
+  {lstlang@\@tmp @\MakeLowercase{#1}}}
 \newcommand{\lst@language@key}[2][]
   {\lst@UseHook{SetLanguage}%
   \csname\lst@mklang[#1]{#2}\endcsname%
@@ -231,6 +232,23 @@
 %    \lst@UseHook{AfterSetLanguage}\lst@ResetHook{AfterSetLanguage}%
     \lstset{#5}}}
 \lst@define@key@opt{defaultdialect}{\lst@define@dd}{}
+%Language aliases
+\newcommand{\lst@alias}[2][]
+{\ifoptarg\let\lst@alias@next\lst@alias@dialect\else
+\let\lst@alias@next\lst@alias@lang\fi
+\def\lst@ddialect{#1}\def\lst@dlang{#2}%
+\lst@alias@next}
+\newcommand{\def@lang@alias}[2]
+{\def\csname\MakeLowercase{#1}@alias\endcsname{\MakeLowercase{#2}}}
+\newcommand{\lst@check@alias}[1]
+{\@ifundefined{\MakeLowercase{#1}@alias}
+  {\MakeLowercase{#1}}
+  {\csname\MakeLowercase{#1}@alias\endcsname}}
+\newcommand{\lst@alias@lang}[1]{\def@lang@alias{\lst@dlang}{#1}}
+\newcommand{\lst@alias@dialect}[2][]
+{\lst@checkdd{\lst@dlang}{\lst@ddialect}%
+\def\csname\lst@mklang[\lst@ddialect]{\lst@dlang}\endcsname{\csname\lst@mklang[#1]{#2}\endcsname}}
+\let\lstalias\lst@alias
 %%%%%%% Frames
 \newstyle{.lstlisting}{font-family:monospace;white-space:pre;margin-right:auto;margin-left:0pt;text-align:left}
 \setenvclass{lstlisting}{lstlisting}
