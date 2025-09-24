@@ -14,3 +14,4 @@ version.tex
 *.dvi
 *.hind
 tmp.*
+manual.ps
