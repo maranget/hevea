@@ -451,12 +451,13 @@ let do_get_this_list start_lexstate restore_lexstate
   restore_lexstate () ;
   r
 
-let get_this_arg =
-  do_get_this start_lexstate_subst restore_lexstate (fun () -> ())
+let do_get_this_arg = do_get_this start_lexstate_subst restore_lexstate
 
-and get_this_string main s =
-  do_get_this start_lexstate_subst restore_lexstate (fun () -> ())
-    main (string_to_arg s)
+let get_this_arg = do_get_this_arg (fun () -> ())
+
+and get_this_arg_nostyle =  do_get_this_arg Dest.nostyle
+
+let get_this_string main s = get_this_arg main (string_to_arg s)
 
 let more_buff = Out.create_buff ()
 ;;
@@ -2461,7 +2462,7 @@ def_code "\\@subst@expn"
 def_code "\\@auxdowrite"
   (fun lexbuf ->
      let what = save_arg lexbuf in
-     let s = get_this_arg main what in
+     let s = get_this_arg_nostyle main what in
      Auxx.swrite s)
 ;;
 (* Idem, with no evaluation *)
