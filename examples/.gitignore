@@ -6,6 +6,8 @@
 *.htoc
 *.log
 *.bbl
+*.fls
+*.fdb_latexmk
 *.dvi
 *.hind
 *.bbl

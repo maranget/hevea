@@ -1,7 +1,6 @@
-\def\@mathbb#1{%
-\ifx#1\@empty\let\@next\@empty\else\@doublestruck#1\let\@next\@mathbb\fi
-\@next}
-\newcommand{\mathbb}[1]{\@callprim{\@mathbb}{#1\@print{\@empty}}}
+\@primitives{amsfonts}
+\def\mathbb{\apply@chars{\one@mathbb}}
+\def\frak{\apply@chars{\one@frak}}
 \DeclareSymbolHtml{\ulcorner}{X231C}
 \DeclareSymbolHtml{\urcorner}{X231D}
 \DeclareSymbolHtml{\llcorner}{X231E}

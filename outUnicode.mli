@@ -53,7 +53,8 @@ val ringabove : char -> unichar
 val ogonek : char -> unichar
 val circled : char -> unichar
 val doublestruck : char -> unichar
-
+val calligraphic : char -> unichar
+val fraktur : char -> unichar
 
 (* Default rendering *)
 val def_default : unichar -> string -> unit
