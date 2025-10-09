@@ -73,6 +73,13 @@ let def_diacritic  name internal f empty =
 and def_diacritic_opt  name internal f g empty =
   full_def_diacritic  name internal f (Some g) empty
 
+and def_diacritic_def name f _internal default =
+  def_code name
+    (fun lexbuf ->
+      try do_def_diacritic true name f None OutUnicode.null lexbuf
+      with DiacriticFailed (_,input) ->
+        scan_this main
+          (sprintf "%s{%s}" default input))
 
 open OutUnicode
 
@@ -86,6 +93,8 @@ let () =
   def_diacritic "\\~"  "tilde" OutUnicode.tilde tilde_alone ;
   def_diacritic "\\="  "macron" OutUnicode.macron macron_alone ;
   def_diacritic "\\H"  "doubleacute" OutUnicode.doubleacute doubleacute_alone ;
+  def_diacritic_def "\\one@mathcal"  OutUnicode.calligraphic "\\mathcal"
+    "\\mathcal@default"  ;
 (* package fc, see later ? *)
 (* def_diacritic "\\G"  "doublegrave" OutUnicode.doublegrave 0x2F5 ; *)
   def_diacritic "\\u"  "breve" OutUnicode.breve breve_alone ;
@@ -96,10 +105,18 @@ let () =
   def_diacritic "\\r"  "ringabove" OutUnicode.ring ring_alone ;
   def_diacritic "\\v"  "caron" OutUnicode.caron  caron_alone ;
   def_diacritic "\\textcircled" "circled" OutUnicode.circled circled_alone ;
-(* activated by amssymb *)
-  def_diacritic "\\@doublestruck" "doublestruck" OutUnicode.doublestruck null ;
   ()
 ;;
+
+let () =
+(* activated by amsfonts *)
+  register_init "amsfonts"
+    (fun () ->
+       def_diacritic "\\one@mathbb" "doublestruck"
+         OutUnicode.doublestruck null;
+       def_diacritic "\\one@frak" "fraktur"
+         OutUnicode.fraktur null;
+       ())
 
 (* Double diacritics, much less checking *)
 
@@ -1408,9 +1425,11 @@ register_init "cleveref"
        end) ;
     ())
 ;;
-(*************************************)
-(* Extra font changes, from abisheck *)
-(*************************************)
+
+(******************************************)
+(* Extra font changes, from abisheck      *)
+(* Obsolete, see common-math for entities *)
+(******************************************)
 
 let get_elements str =
     let len = String.length str in
@@ -1420,93 +1439,20 @@ let get_elements str =
     all_elements len
 ;;
 
-let str_cat x y = x^y
-;;
+(* Apply command #1 on every characher of #2 *)
 
-def_code "\\@mathbb"
+def_code"\\apply@chars"
   (fun lexbuf ->
-    let arg1 = save_arg lexbuf in
-    let str = arg1.arg in
-    (*let dummy = print_string str in*)
-    let str_list = get_elements str in
-    (*let h = List.hd str_list in
-    let dummy = print_string h in*)
-    let format x = Scan.get_this_main ("\\"^"one@mathbb{"^x^"}") in
-    let formatted_list = List.map format str_list in
-    let formatted_text = List.fold_left str_cat "" formatted_list in
-    (*print_string ("<<"^formatted_text^">>\n") ;*)
-    Dest.put formatted_text
-  )
-;;
-
-def_code "\\@mathfrak"
-  (fun lexbuf ->
+    let cmd = get_csname lexbuf in
     let str = subst_arg lexbuf in
     let str_list = get_elements str in
-    let format x = Scan.get_this_main ("\\"^"one@mathfrak{"^x^"}") in
+    let format x = sprintf "%s{%s}" cmd x |> Scan.get_this_main in
     let formatted_list = List.map format str_list in
-    let formatted_text = List.fold_left str_cat "" formatted_list in
-    Dest.put formatted_text
-  )
+    let formatted_text = String.concat "" formatted_list in
+    Dest.put formatted_text)
 ;;
 
-def_code "\\@mathsf"
-  (fun lexbuf ->
-    let str = subst_arg lexbuf in
-    let str_list = get_elements str in
-    let format x = Scan.get_this_main ("\\"^"one@mathsf{"^x^"}") in
-    let formatted_list = List.map format str_list in
-    let formatted_text = List.fold_left str_cat "" formatted_list in
-    Dest.put formatted_text
-  )
-;;
-
-def_code "\\@mathbf"
-  (fun lexbuf ->
-    let str = subst_arg lexbuf in
-    (*let str_list = get_elements str in
-    let format x = Scan.get_this_main ("\\"^"one@mathbf{"^x^"}") in
-    let formatted_list = List.map format str_list in
-    let formatted_text = List.fold_left str_cat "" formatted_list in*)
-    Dest.put ("<B>"^str^"</B>")
-  )
-;;
-
-def_code "\\@mathrm"
-  (fun lexbuf ->
-    let arg1 = save_arg lexbuf in
-    let str = arg1.arg in
-    (*let str_list = get_elements str in
-    let format x = Scan.get_this_main ("\\"^"one@mathbf{"^x^"}") in
-    let formatted_list = List.map format str_list in
-    let formatted_text = List.fold_left str_cat "" formatted_list in*)
-    Dest.put (str)
-  )
-;;
-
-def_code "\\@mathcal"
-  (fun lexbuf ->
-    let arg1 = save_arg lexbuf in
-    let str = arg1.arg in
-    let str_list = get_elements str in
-    let format x = Scan.get_this_main ("\\"^"one@mathcal{"^x^"}") in
-    let formatted_list = List.map format str_list in
-    let formatted_text = List.fold_left str_cat "" formatted_list in
-    Dest.put formatted_text
-  )
-;;
-
-def_code "\\@mathtt"
-  (fun lexbuf ->
-    let arg1 = save_arg lexbuf in
-    let str = arg1.arg in
-    let str_list = get_elements str in
-    let format x = Scan.get_this_main ("\\"^"one@mathtt{"^x^"}") in
-    let formatted_list = List.map format str_list in
-    let formatted_text = List.fold_left str_cat "" formatted_list in
-    Dest.put formatted_text
-  )
-;;
 
 let rien = ()
+
 end

@@ -263,6 +263,11 @@
 \renewcommand{\&}{\ifraw\@print{&}\else\@print{&amp;}\fi}
 \renewcommand{\textless}{\ifraw\@print{<}\else\@print{&lt;}\fi}
 \renewcommand{\textgreater}{\ifraw\@print{>}\else\@print{&gt;}\fi}
+%redefine mathcal
+\let\old@mathcal\mathcal
+\newcommand{\mathcal@default}[1]
+{\hva@warn{applying \mathcal@default on #1}\old@mathcal{#1}}
+\def\mathcal{\apply@chars{\one@mathcal}}
 %%%%%%%%%%%% Bibliography
 \newcommand{\@bibtagstyle}{}
 \newcommand{\@bibref}[3]

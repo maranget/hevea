@@ -756,66 +756,147 @@ and doublestruck = function
   | 'Q' -> 0x211A
   | 'R' -> 0x211D
   | 'Z' -> 0x2124
-  | 'D' -> 0x2145
+  | 'D' -> 0x1D53B
   | 'd' -> 0x2146
   | 'e' -> 0x2147
   | 'i' -> 0x2148
   | 'j' -> 0x2149
-  |  c ->
-      if !Parse_opts.moreentities then begin match c with
-      | 'A' -> 0x1D538
-      | 'B' -> 0x1D539
-      | 'E' -> 0x1D53C
-      | 'F' -> 0x1D53D
-      | 'G' -> 0x1D53E
-      | 'I' -> 0x1D540
-      | 'J' -> 0x1D541
-      | 'K' -> 0x1D542
-      | 'L' -> 0x1D543
-      | 'M' -> 0x1D544
-      | 'O' -> 0x1D546
-      | 'S' -> 0x1D54A
-      | 'T' -> 0x1D54B
-      | 'U' -> 0x1D54C
-      | 'V' -> 0x1D54D
-      | 'W' -> 0x1D54E
-      | 'X' -> 0x1D54F
-      | 'Y' -> 0x1D550
-      | 'a' -> 0x1D552
-      | 'b' -> 0x1D553
-      | 'c' -> 0x1D554
-      | 'f' -> 0x1D557
-      | 'g' -> 0x1D558
-      | 'h' -> 0x1D559
-      | 'k' -> 0x1D55C
-      | 'l' -> 0x1D55D
-      | 'm' -> 0x1D55E
-      | 'n' -> 0x1D55F
-      | 'o' -> 0x1D560
-      | 'p' -> 0x1D561
-      | 'q' -> 0x1D562
-      | 'r' -> 0x1D563
-      | 's' -> 0x1D564
-      | 't' -> 0x1D565
-      | 'u' -> 0x1D566
-      | 'v' -> 0x1D567
-      | 'w' -> 0x1D568
-      | 'x' -> 0x1D569
-      | 'y' -> 0x1D56A
-      | 'z' -> 0x1D56B
-      | '0' -> 0x1D7D8
-      | '1' -> 0x1D7D9
-      | '2' -> 0x1D7DA
-      | '3' -> 0x1D7DB
-      | '4' -> 0x1D7DC
-      | '5' -> 0x1D7DD
-      | '6' -> 0x1D7DE
-      | '7' -> 0x1D7DF
-      | '8' -> 0x1D7E0
-      | '9' -> 0x1D7E1
-      | _ -> raise CannotTranslate
-      end else
-        raise CannotTranslate
+  | 'A' -> 0x1D538
+  | 'B' -> 0x1D539
+  | 'E' -> 0x1D53C
+  | 'F' -> 0x1D53D
+  | 'G' -> 0x1D53E
+  | 'I' -> 0x1D540
+  | 'J' -> 0x1D541
+  | 'K' -> 0x1D542
+  | 'L' -> 0x1D543
+  | 'M' -> 0x1D544
+  | 'O' -> 0x1D546
+  | 'S' -> 0x1D54A
+  | 'T' -> 0x1D54B
+  | 'U' -> 0x1D54C
+  | 'V' -> 0x1D54D
+  | 'W' -> 0x1D54E
+  | 'X' -> 0x1D54F
+  | 'Y' -> 0x1D550
+  | 'a' -> 0x1D552
+  | 'b' -> 0x1D553
+  | 'c' -> 0x1D554
+  | 'f' -> 0x1D557
+  | 'g' -> 0x1D558
+  | 'h' -> 0x1D559
+  | 'k' -> 0x1D55C
+  | 'l' -> 0x1D55D
+  | 'm' -> 0x1D55E
+  | 'n' -> 0x1D55F
+  | 'o' -> 0x1D560
+  | 'p' -> 0x1D561
+  | 'q' -> 0x1D562
+  | 'r' -> 0x1D563
+  | 's' -> 0x1D564
+  | 't' -> 0x1D565
+  | 'u' -> 0x1D566
+  | 'v' -> 0x1D567
+  | 'w' -> 0x1D568
+  | 'x' -> 0x1D569
+  | 'y' -> 0x1D56A
+  | 'z' -> 0x1D56B
+  | '0' -> 0x1D7D8
+  | '1' -> 0x1D7D9
+  | '2' -> 0x1D7DA
+  | '3' -> 0x1D7DB
+  | '4' -> 0x1D7DC
+  | '5' -> 0x1D7DD
+  | '6' -> 0x1D7DE
+  | '7' -> 0x1D7DF
+  | '8' -> 0x1D7E0
+  | '9' -> 0x1D7E1
+  | _ -> raise CannotTranslate
+
+and calligraphic = function
+  | 'A' -> 0x1D49C
+  | 'B' -> 0x212C
+  | 'C' -> 0x1D49E
+  | 'D' -> 0x1D49F
+  | 'E' -> 0x2130
+  | 'F' -> 0x2131
+  | 'G' -> 0x1D4A2
+  | 'H' -> 0x210B
+  | 'I' -> 0x2110
+  | 'J' -> 0x1D4A5
+  | 'K' -> 0x1D4A6
+  | 'L' -> 0x2112
+  | 'M' -> 0x2133
+  | 'N' -> 0x1D4A9
+  | 'O' -> 0x1D4AA
+  | 'P' -> 0x1D4AB
+  | 'Q' -> 0x1D4AC
+  | 'R' -> 0x211B
+  | 'S' -> 0x1D4AE
+  | 'T' -> 0x1D4AF
+  | 'U' -> 0x1D4B0
+  | 'V' -> 0x1D4B1
+  | 'W' -> 0x1D4B2
+  | 'X' -> 0x1D4B3
+  | 'Y' -> 0x1D4B4
+  | 'Z' -> 0x1D4B5
+  | _ -> raise CannotTranslate
+
+and fraktur = function
+  | 'A' -> 0x1D56C
+  | 'B' -> 0x1D56D
+  | 'C' -> 0x1D56E
+  | 'D' -> 0x1D56F
+  | 'E' -> 0x1D570
+  | 'F' -> 0x1D571
+  | 'G' -> 0x1D572
+  | 'H' -> 0x1D573
+  | 'I' -> 0x1D574
+  | 'J' -> 0x1D575
+  | 'K' -> 0x1D576
+  | 'L' -> 0x1D577
+  | 'M' -> 0x1D578
+  | 'N' -> 0x1D579
+  | 'O' -> 0x1D57A
+  | 'P' -> 0x1D57B
+  | 'Q' -> 0x1D57C
+  | 'R' -> 0x1D57D
+  | 'S' -> 0x1D57E
+  | 'T' -> 0x1D57F
+  | 'U' -> 0x1D580
+  | 'V' -> 0x1D581
+  | 'W' -> 0x1D582
+  | 'X' -> 0x1D583
+  | 'Y' -> 0x1D584
+  | 'Z' -> 0x1D585
+  | 'a' -> 0x1D586
+  | 'b' -> 0x1D587
+  | 'c' -> 0x1D588
+  | 'd' -> 0x1D589
+  | 'e' -> 0x1D58A
+  | 'f' -> 0x1D58B
+  | 'g' -> 0x1D58C
+  | 'h' -> 0x1D58D
+  | 'i' -> 0x1D58E
+  | 'j' -> 0x1D58F
+  | 'k' -> 0x1D590
+  | 'l' -> 0x1D591
+  | 'm' -> 0x1D592
+  | 'n' -> 0x1D593
+  | 'o' -> 0x1D594
+  | 'p' -> 0x1D595
+  | 'q' -> 0x1D596
+  | 'r' -> 0x1D597
+  | 's' -> 0x1D598
+  | 't' -> 0x1D599
+  | 'u' -> 0x1D59A
+  | 'v' -> 0x1D59B
+  | 'w' -> 0x1D59C
+  | 'x' -> 0x1D59D
+  | 'y' -> 0x1D59E
+  | 'z' -> 0x1D59F
+  | _ -> raise CannotTranslate
+
 (* Text rendering *)
 let def_t = Hashtbl.create 101
 

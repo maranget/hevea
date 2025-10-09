@@ -173,47 +173,6 @@
 \ifthenelse{\equal{#1}{0}}{\@print{0}}{%
 }}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}%
 %%%
-%%% Calligraphic letters (no lowercase)
-%%%
-\newcommand{\one@mathcal}[1]{%
-\ifthenelse{\equal{#1}{A}}{\@print{&#119964;}}{%
-\ifthenelse{\equal{#1}{B}}{\@print{&#119965;}}{% not currently supported 
-\ifthenelse{\equal{#1}{C}}{\@print{&#119966;}}{%
-\ifthenelse{\equal{#1}{D}}{\@print{&#119967;}}{%
-\ifthenelse{\equal{#1}{E}}{\@print{&#119968;}}{% not currently supported
-\ifthenelse{\equal{#1}{F}}{\@print{&#119969;}}{% not currently supported
-\ifthenelse{\equal{#1}{G}}{\@print{&#119970;}}{%
-\ifthenelse{\equal{#1}{H}}{\@print{&#119971;}}{% not currently supported
-\ifthenelse{\equal{#1}{I}}{\@print{&#119972;}}{% not currently supported
-\ifthenelse{\equal{#1}{J}}{\@print{&#119973;}}{%
-\ifthenelse{\equal{#1}{K}}{\@print{&#119974;}}{%
-\ifthenelse{\equal{#1}{L}}{\@print{&#119975;}}{% not currently supported
-\ifthenelse{\equal{#1}{M}}{\@print{&#119976;}}{% not currently supported
-\ifthenelse{\equal{#1}{N}}{\@print{&#119977;}}{%
-\ifthenelse{\equal{#1}{O}}{\@print{&#119978;}}{%
-\ifthenelse{\equal{#1}{P}}{\@print{&#119979;}}{%
-\ifthenelse{\equal{#1}{Q}}{\@print{&#119980;}}{%
-\ifthenelse{\equal{#1}{R}}{\@print{&#119981;}}{% not currently supported
-\ifthenelse{\equal{#1}{S}}{\@print{&#119982;}}{%
-\ifthenelse{\equal{#1}{T}}{\@print{&#119983;}}{%
-\ifthenelse{\equal{#1}{U}}{\@print{&#119984;}}{%
-\ifthenelse{\equal{#1}{V}}{\@print{&#119985;}}{%
-\ifthenelse{\equal{#1}{W}}{\@print{&#119986;}}{%
-\ifthenelse{\equal{#1}{X}}{\@print{&#119987;}}{%
-\ifthenelse{\equal{#1}{Y}}{\@print{&#119988;}}{%
-\ifthenelse{\equal{#1}{Z}}{\@print{&#119989;}}{%
-\ifthenelse{\equal{#1}{1}}{\@print{1}}{%
-\ifthenelse{\equal{#1}{2}}{\@print{2}}{%
-\ifthenelse{\equal{#1}{3}}{\@print{3}}{%
-\ifthenelse{\equal{#1}{4}}{\@print{4}}{%
-\ifthenelse{\equal{#1}{5}}{\@print{5}}{%
-\ifthenelse{\equal{#1}{6}}{\@print{6}}{%
-\ifthenelse{\equal{#1}{7}}{\@print{7}}{%
-\ifthenelse{\equal{#1}{8}}{\@print{8}}{%
-\ifthenelse{\equal{#1}{9}}{\@print{9}}{%
-\ifthenelse{\equal{#1}{0}}{\@print{0}}{%
-}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}%
-%%%
 %%% Typewriter style letters (allows lowercase and digits)
 %%%
 \newcommand{\one@mathtt}[1]{%

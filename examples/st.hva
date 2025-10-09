@@ -83,7 +83,7 @@
 \def\idxCTAN{}
 \newcommand{\vphantom}[1]{#1}
 \renewcommand{\hbox}[1]{}
-\newcommand{\AMS}{\mbox{\cal{}AMS}}
+\newcommand{\AMS}{AMS}
 \iftext\usepackage[latin1]{inputenc}\fi
 \renewcommand{\cite}[1]{}
 \newcommand{\unavail}[1]{No}
