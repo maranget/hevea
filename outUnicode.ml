@@ -333,7 +333,8 @@ and acute = function
   | 'p' -> 0x1E55
   | 'W' -> 0x1E82
   | 'w' -> 0x1E83
-  | _ -> raise CannotTranslate
+  | _ ->
+      raise CannotTranslate
 
 and circumflex = function
   | 'A' -> 0x00C2
@@ -975,26 +976,20 @@ let comb_cedilla = function
   | 'o'|'O' -> 0x0327
   | _ -> raise CannotTranslate
 
-let comb_grave = function
-  | 'j'|'J' -> 0x0300
+let comb_alpha ent c =
+  match c with
+  | 'a'..'z'|'A'..'Z' -> ent
   | _ -> raise CannotTranslate
 
-let comb_acute = function
-  | 'j'|'J' -> 0x0301
-  | _ -> raise CannotTranslate
+let comb_grave = comb_alpha 0x0300
 
+let comb_acute = comb_alpha 0x0301  
 
+let comb_circumflex = comb_alpha 0x0302
+
+let comb_tilde = comb_alpha 0x0303
 
 (* Double accents *)
 
 let double_inverted_breve = 0x0361
 
-(* Accent over numerical entities  *)
-
-let tr_entity = function
-  | "&#X131;"|"&#305;" -> 'i'
-  | "&#X237;"|"&#567;" -> 'j'
-  | _ -> raise CannotTranslate
-
-let on_entity put_char put_unicode f optg empty s =
-  apply_accent  put_char put_unicode f optg empty (tr_entity s)
