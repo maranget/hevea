@@ -107,6 +107,7 @@ val end_normal : unit -> unit
 (* Super/Sub-script parsing *)
   type sup_sub = {
     limits : Misc.limits option;
+    space : bool; (* Some space has been eaten *)
     sup : string arg;
     sub : string arg;
   } 

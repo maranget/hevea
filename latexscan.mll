@@ -1588,45 +1588,29 @@ def_code "\\@hevea@circ" (fun lexbuf -> sub_sup '^' lexbuf)
 ;;
 
 def_code "\\mathop"
-  (fun lexbuf ->
-    let symbol = save_arg lexbuf in
-    let {limits=limits ; sup=sup ; sub=sub} = save_sup_sub lexbuf in
-    begin match limits with
-    | (Some Limits|None) when !display ->
-        Dest.limit_sup_sub
-          (scan_this_arg main)
-          (fun _ -> scan_this_arg main symbol) sup sub !display
-    | (Some IntLimits) when !display ->
-        Dest.int_sup_sub true 3
-          (scan_this_arg main)
-          (fun () -> scan_this_arg main symbol)
-          sup sub !display        
-    | _ ->
-        scan_this_arg main symbol ;
-        Dest.standard_sup_sub
-          (scan_this_arg main)
-          (fun _ -> ()) sup sub !display
-    end) ;
-def_code "\\@mathop"
-  (fun lexbuf ->
-    let symbol = save_arg lexbuf in
-    let {limits=limits ; sup=sup ; sub=sub} = save_sup_sub lexbuf in
-    begin match limits with
-    | (Some Limits) when !display ->
-        Dest.limit_sup_sub
-          (scan_this_arg main)
-          (fun _ -> scan_this_arg main symbol) sup sub !display
-    | (Some IntLimits|None) when !display ->
-        Dest.int_sup_sub true 3
-          (scan_this_arg main)
-          (fun () -> scan_this_arg main symbol)
-          sup sub !display        
-    | _ ->
-        scan_this_arg main symbol ;
-        Dest.standard_sup_sub
-          (scan_this_arg main)
-          (fun _ -> ()) sup sub !display
-    end)
+  begin
+    let add_space space =  if space then scan_this main " "  in
+    (fun lexbuf ->
+       let symbol = save_arg lexbuf in
+       let {limits; space; sup; sub; } = save_sup_sub lexbuf in
+       begin match limits with
+         | (Some Limits|None) when !display ->
+             Dest.limit_sup_sub
+               (scan_this_arg main)
+               (fun _ -> scan_this_arg main symbol) sup sub !display
+         | (Some IntLimits) when !display ->
+             Dest.int_sup_sub true 3
+               (scan_this_arg main)
+               (fun () -> scan_this_arg main symbol)
+               sup sub !display
+         | _ ->
+             scan_this_arg main symbol ;
+             add_space space ;
+             Dest.standard_sup_sub
+               (scan_this_arg main)
+               (fun _ -> ()) sup sub !display
+       end)
+  end
 ;;
 
 

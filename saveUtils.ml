@@ -59,7 +59,7 @@ let my_int_of_string s =
 
 exception Eof
 ;;
-exception LimitEof of Misc.limits option
+exception LimitEof of Misc.limits option * bool
 ;;
 exception NoOpt
 ;;

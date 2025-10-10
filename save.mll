@@ -229,13 +229,13 @@ and filename = parse
 and remain = parse
  _ * eof {Lexing.lexeme lexbuf}
 
-and get_limits r = parse
-  space+        {get_limits r lexbuf}
-| "\\limits"    {get_limits (Some Limits) lexbuf}
-| "\\nolimits"  {get_limits (Some NoLimits) lexbuf}
-| "\\intlimits" {get_limits (Some IntLimits) lexbuf}
-| eof           {raise (LimitEof r)}
-| ""            {r}
+and get_limits r some_space = parse
+  space+        {get_limits r true lexbuf}
+| "\\limits"    {get_limits (Some Limits) some_space lexbuf}
+| "\\nolimits"  {get_limits (Some NoLimits) some_space lexbuf}
+| "\\intlimits" {get_limits (Some IntLimits) some_space lexbuf}
+| eof           {raise (LimitEof (r,some_space))}
+| ""            {r,some_space}
 
 and get_sup = parse
 | space* '^'  {try Some (Saver.String.arg lexbuf) with Eof -> error "End of file after ^"}
