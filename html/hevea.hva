@@ -353,7 +353,7 @@
 \newstyle{table}{border-collapse:collapse;}
 \newstyle{td}{padding:0;}
 \newstyle{.cellpadding0 tr td}{padding:0;}
-\newstyle{.cellpadding1 tr td}{padding:1px;}
+\newstyle{.cellpadding1 tr td}{padding:0.5em}
 \newstyle{pre}{text-align:left;margin-left:0ex;margin-right:auto;}
 \newstyle{blockquote}{margin-left:4ex;margin-right:4ex;text-align:left;}
 %Paragraphs in table cells are special (close to latex rendering)
@@ -690,7 +690,7 @@
 \def\@@@barsz{6px}%3 x
 \def\@@@@barsz{8px}%3 x
 \newstyle{.vertical-rule}{border:none;width:\@barsz;background-color:black;}
-\newstyle{.horizontal-rule}{border:none;background-color:black;}
+\newstyle{.horizontal-rule}{border:none;height:\@barsz;background-color:black;}
 \newstyle{.hrule}{border:none;height:\@barsz;width:100\%;background-color:black;}
 \newstyle{.hfill}{border:none;height:1px;width:200\%;background-color:black;}
 %%%Bars with HR
