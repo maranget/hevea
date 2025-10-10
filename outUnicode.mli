@@ -117,12 +117,8 @@ val rtprime : unichar
 val comb_cedilla : char -> unichar
 val comb_grave : char -> unichar
 val comb_acute : char -> unichar
+val comb_circumflex : char -> unichar
+val comb_tilde : char -> unichar
 
 (* Double diacritics *)
 val double_inverted_breve : unichar
-
-(* Apply accent on unicode entity *)
-val on_entity :
-    (char -> unit) -> (unichar -> unit) ->
-      (char -> unichar) -> (char -> unichar) option ->
-        unichar -> string -> unit

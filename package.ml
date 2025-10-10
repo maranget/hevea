@@ -41,21 +41,25 @@ open Scan
 
 exception DiacriticFailed of string * string
 
+let tr_csname = function
+  | "\\i" -> 'i'
+  | "\\j" -> 'j'
+  | _ ->  raise OutUnicode.CannotTranslate    
+
 let do_def_diacritic _verb _name f optg empty =
+  let zyva c =
+    OutUnicode.apply_accent
+      Dest.put_char Dest.put_unicode f optg empty c in
   (fun lexbuf ->
-    let arg0 = save_arg lexbuf in
-    let arg = get_prim_onarg arg0 in
+    let arg0 = Subst.subst_arg lexbuf in
+    let arg = get_prim arg0 in    
     try match String.length arg with
     | 0 -> OutUnicode.put_empty Dest.put_unicode empty
-    | 1 ->
-        OutUnicode.apply_accent
-          Dest.put_char Dest.put_unicode f optg empty arg.[0]
-    | _ ->
-        OutUnicode.on_entity
-          Dest.put_char Dest.put_unicode f optg empty arg
+    | 1 -> zyva arg.[0]
+    | _ -> tr_csname arg0 |> zyva
     with
     | OutUnicode.CannotTranslate
-    | Misc.CannotPut ->	raise (DiacriticFailed (Subst.do_subst_this arg0,arg)))
+    | Misc.CannotPut ->	raise (DiacriticFailed (arg0,arg)))
 ;;
 
 let full_def_diacritic  name internal f optg empty =
@@ -86,11 +90,13 @@ open OutUnicode
 let () =
   def_diacritic_opt "\\'"  "acute" OutUnicode.acute comb_acute acute_alone ;
   def_diacritic_opt "\\`"  "grave" OutUnicode.grave  comb_grave grave_alone ;
-  def_diacritic "\\^"  "circumflex" OutUnicode.circumflex circum_alone ;
+  def_diacritic_opt "\\^"  "circumflex"
+    OutUnicode.circumflex comb_circumflex circum_alone ;
   def_diacritic "\\\"" "diaeresis" OutUnicode.diaeresis diaeresis_alone ;
   def_diacritic_opt "\\c"  "cedilla" OutUnicode.cedilla
     OutUnicode.comb_cedilla cedilla_alone ;
-  def_diacritic "\\~"  "tilde" OutUnicode.tilde tilde_alone ;
+  def_diacritic_opt "\\~"  "tilde"
+    OutUnicode.tilde comb_tilde tilde_alone ;
   def_diacritic "\\="  "macron" OutUnicode.macron macron_alone ;
   def_diacritic "\\H"  "doubleacute" OutUnicode.doubleacute doubleacute_alone ;
   def_diacritic_def "\\one@mathcal"  OutUnicode.calligraphic "\\mathcal"
