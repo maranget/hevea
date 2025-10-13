@@ -396,14 +396,14 @@ let full_save_arg eoferror mkarg parg lexfun lexbuf =
 ;;
 
 let full_save_arg_limits eoferror parg lexfun lexbuf =
-  let rec save_rec opt lexbuf =
+  let rec save_rec opt some_space lexbuf =
     try
-      lexfun opt lexbuf
-    with Save.LimitEof r -> begin
+      lexfun opt some_space lexbuf
+    with Save.LimitEof (lim,some_space) -> begin
         if MyStack.empty stack_lexbuf then
-          match r with
+          match lim with
           | None -> eoferror () 
-          | _ -> r
+          | _ -> (lim,some_space)
         else begin
           let lexbuf = previous_lexbuf () in
           if !verbose > 1 then begin
@@ -411,7 +411,7 @@ let full_save_arg_limits eoferror parg lexfun lexbuf =
             pretty_lexbuf lexbuf ;
             prerr_args ()
           end;
-          save_rec r lexbuf
+          save_rec lim some_space lexbuf
         end
     end in
 
@@ -419,7 +419,7 @@ let full_save_arg_limits eoferror parg lexfun lexbuf =
   try 
     Save.seen_par := false ;
     save_lexstate () ;
-    let r = save_rec None lexbuf in
+    let r = save_rec None false lexbuf in
     restore_lexstate () ;
     if !verbose > 2 then
       prerr_endline ("Arg parsed: '"^parg r^"'") ;
@@ -469,32 +469,35 @@ and save_cite_arg lexbuf =
   full_save_arg eof_arg mkarg pargs Save.cite_arg lexbuf
 
 type sup_sub = {
-  limits : Misc.limits option ;
+  limits : Misc.limits option;
+  space : bool; (* Some space has been eaten *)
   sup : string arg ;
   sub : string arg ;
 } 
 
-let plimits = function
+let plimits (lim,sp) =
+  (match lim with
   | Some Limits ->    "\\limits"
   | Some NoLimits ->  "\\nolimits"
   | Some IntLimits -> "\\intlimits"
-  | None          -> "*no limit info*"
+  | None          -> "*no limit info*")
+  ^ (if sp then "+spaces" else "")
 
 exception Over
 let eof_over () = raise Over
 
 let save_limits lexbuf =
-  let rec do_rec res =
+  let rec do_rec (res:Misc.limits option * bool) =
     try
       let r =
         full_save_arg_limits
-          eof_over plimits Save.get_limits lexbuf in
+          eof_over plimits  Save.get_limits lexbuf in
       match r with
-      | None -> res
-      | Some _ -> do_rec r
+      | None,_ -> res
+      | Some _,_ -> do_rec r
     with
     | Over -> res in
-  do_rec None
+  do_rec (None,false)
 
 let mkoptionarg opt subst = match opt with
 | None -> None
@@ -521,15 +524,15 @@ let unoption = function
   | Some a -> a
 
 let save_sup_sub lexbuf =
-  let limits = save_limits lexbuf in
+  let limits,space = save_limits lexbuf in
   match save_sup lexbuf with
   | None ->
       let sub = save_sub lexbuf in
       let sup = save_sup lexbuf in
-      {limits=limits  ; sup = unoption sup ; sub = unoption sub}
+      {limits; space; sup = unoption sup; sub = unoption sub; }
   | Some sup ->
       let sub = save_sub lexbuf in
-      {limits=limits  ; sup = sup ; sub = unoption sub}
+      {limits; space; sup = sup; sub = unoption sub; }
 
 let protect_save_string lexfun lexbuf =
   full_save_arg eof_arg

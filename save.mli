@@ -22,7 +22,7 @@ val seen_par : bool ref
 val gobble_one_char : Lexing.lexbuf -> unit
 
 exception Eof
-exception LimitEof of Misc.limits option
+exception LimitEof of Misc.limits option * bool
 exception NoOpt
 
 val get_echo : unit -> string
@@ -44,7 +44,8 @@ val check_equal : Lexing.lexbuf -> bool
 val filename : Lexing.lexbuf -> string
 val remain : Lexing.lexbuf -> string
 (* Superscript and subscripts *)
-val get_limits : Misc.limits option -> Lexing.lexbuf -> Misc.limits option
+val get_limits :
+  Misc.limits option -> bool -> Lexing.lexbuf -> Misc.limits option * bool
 val get_sup : Lexing.lexbuf -> string option
 val get_sub : Lexing.lexbuf -> string option
 
