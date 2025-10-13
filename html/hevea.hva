@@ -443,11 +443,19 @@
 \newcommand{\@open@quote}[1]{\@open{blockquote}{#1}}
 \newcommand{\@close@quote}{\@close{blockquote}}
 %%%%%%%%%%%%%%%% LaTeX 2.09 style declarations
-\newenvironment{tt}{\@span{style="font-family:monospace"}}{}
-\newenvironment{bf}{\@span{style="font-weight:bold"}}{}
+\newcommand{\style@env}[2]
+ {\newstyle{.#1}{#2}%
+ \setenvclass{#1}{#1}%
+ \newenvironment{#1}{\@span{\envclass@attr{#1}}}{}}
+\style@env{tt}{font-family:monospace}
+\style@env{bf}{font-weight:bold}
+\style@env{it}{font-style:italic}
+\style@env{cal}{color:red}
+\style@env{sf}{font-family:sans-serif}
+\style@env{sl}{font-style:oblique}
+\style@env{sc}{font-variant:small-caps}
 \newenvironment{em}{\@style{em}}{}
-\newenvironment{it}{\@span{style="font-style:italic"}}{}
-\newenvironment{rm}{\@anti{\it,\bf,\em,\sf,\tt}}{}
+\newenvironment{rm}{\@anti{\it,\bf,\em,\sf,\tt,\sl,\sc}}{}
 \newenvironment{tiny}{\@fontsize{1}}{}
 \newenvironment{footnotesize}{\@fontsize{2}}{}
 \newenvironment{scriptsize}{\@fontsize{2}}{}
@@ -476,13 +484,6 @@
 \newenvironment{blue}{\@fontcolor{blue}}{}
 \newenvironment{teal}{\@fontcolor{teal}}{}
 \newenvironment{aqua}{\@fontcolor{aqua}}{}
-\def\cal{\ifmath\ifmathml\@style{font-family: cursive }%
-\else\red\fi\else\red\fi}
-\def\sf{\ifmath\ifmathml\@style{font-family: sans-serif }%
-\else\@span{style="font-family:sans-serif"}\fi\else\@span{style="font-family:sans-serif"}\fi}
-\def\sl{\ifmath\ifmathml\@style{font-family: fantasy; font-style: italic }%
-\else\@span{style="font-style:oblique"}\fi\else\@span{style="font-style:oblique"}\fi}
-\def\sc{\@span{style="font-variant:small-caps"}}%
 %%%% LaTeX2e verbose declarations
 \newenvironment{mdseries}{\@anti{\bf}}{}
 \newenvironment{bfseries}{\bf}{}

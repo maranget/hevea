@@ -65,6 +65,8 @@ Cedex~12. {\tt \mailto{Luc.Maranget@inria.fr}}}}
 \newstyle{.ruled}{border:solid black;padding:1ex;background:\#eeddbb;color:maroon}
 \newstyle{.ruledbis}{border:solid black;padding:1ex;background:\#eeddbb;color:maroon;display:inline-block}
 \newstyle{.show}{border:solid black; border-width:thin; margin:2ex;}
+\newstyle{.mytt}{font-family:"Noto Sans Mono", monospace; color:\@getstylecolor[named]{OliveGreen}}
+\newstyle{.mysl}{font-style:oblique; font-family:monospace}
 %%DOCUMENT START HERE
 \begin{document}
 \flushdef{document}
@@ -279,10 +281,6 @@ This is done by invoking \texttt{hevea} as follows:
 
 Of course, \texttt{mymacros.hva} must now contain replacements for
 all the useful macros of \texttt{mymacro.tex}.
-
-
-
-
 
 \subsubsection{Files \label{usepackage:both}loaded with \texttt{\char92 usepackage}}
 As far as I know, \LaTeX{} reacts to the construct
@@ -2637,12 +2635,9 @@ mechanism (see section~\ref{imagen}),
 which will translate the image back from
 Postscript to bitmap format and will thus degrade it.
 
-
-
-
 \subsection{Internal \label{internal}macros}
 In this section a few of \hevea{} internal macros are
-described.
+described.a
 Internal macros occur at the final expansion stage of \hevea{} and
 invoke Objective Caml code.
 
@@ -2897,7 +2892,11 @@ the text-level ``\texttt{i}'' element as in
 \verb+<i>+\ldots\verb+</i>+. Now, for the same results of getting
  italics one may write:
 \verb+<span style="font-style:italic">+\ldots\verb+</span>+.
-An indeed \texttt{hevea} styles text in that manner,
+
+And indeed, \texttt{hevea} styles text in that manner\footnote{Starting from version 2.38, \texttt{hevea}
+uses explicit style classes (see Section~\ref{typestyle:css})
+for most style declarations. However some elements such as \texttt{cite}
+are still styled directly with the atttribute ``\texttt{style}''}
 starting from version~2.00.
 Such (verbose) declarations are then abstracted into style class declarations
 by \hevea{} optimiser \texttt{esponja}, which is invoked by \texttt{hevea}
@@ -3394,6 +3393,83 @@ style.
 \end{flashyverbatim}
 \end{htmlonly}
 
+\subsection{Styling \label{typestyle:css}type-styles}
+The old style declarations \verb+\tt+, \verb+\bf+, \verb+\it+, \verb+\sf+,
+\verb+\sl+, \verb+\sc+ are managed by the same mechanism as environments.
+For instance the \verb+\tt+ declaration issues \verb+span+ elements styled through the default \verb+tt+ class. As a consequence, one can change the effect of this declaration by using the \verb+\newsyle+ command in the document preamble:
+\begin{verbatim}
+\newstyle{.tt}{font-family: "Noto Sans Mono", monospace}
+\end{verbatim}
+The declaration above will make all text styled
+with \verb+\tt+, \verb+\ttfamily+ or~\verb+\textttt+ appear in
+an alternative monospace font, if available.
+\begin{htmlonly}
+\begin{flushleft}
+\setenvclass{tt}{newtt}\texttt{Alternative monospace font}
+\end{flushleft}
+\end{htmlonly}
+
+It is to be noticed that class declarations accumulate and that later
+declaration of identical attributes take precedence over previous
+ones.  As a consequence, the declaration of the \verb+font-family+
+attribute above of the \verb+.tt+ class is in fact a redefinition
+that overrides the default of \verb+monospace+.
+It may be safer to redefine the class associated to \verb+\tt+. The
+technique is the same as for environments, as depicted in
+Section~\ref{css:change}.
+First define a new style with a fresh name in the document preamble:
+\begin{verbatim}
+\newstyle{.mytt}{font-family:  "Noto Sans Mono", monospace; color:\@getstylecolor[named]{OliveGreen}}
+\end{verbatim}
+And then change the class associated to \verb+\tt+ with
+the \verb+\setenvclass+ command.
+As for environments, the technique is adequate for local redefinitions:
+\begin{verbatim}
+\bgroup\setenvclass{tt}{mytt}%
+\texttt{This text appears in alternative monospace font and its color is OliveGreen.}
+\egroup
+\texttt{This text is formatted with the default ``tt'' style.}
+\end{verbatim}
+\begin{htmlonly}
+We have:
+\bgroup
+\setenvclass{tt}{mytt}%
+\texttt{This text appears in an alternative monospace font and its color is OliveGreen.}
+\egroup\texttt{This text is formatted with the default ``tt'' style.}
+\end{htmlonly}
+
+The declaration~\verb+\em+ is special in the sense that it translates to
+\verb+em+~elements styled directly, \emph{i.e.} without an intermediate style class. As a consequence, affecting the all emphasised text in the document can be done by styling the \verb+em+ element directly:
+\begin{verbatim}
+\newstyle{em}{color:\@getstylecolor[named]{OliveGreen}}
+\end{verbatim}
+Notice the absence of a dot before the first argument of \verb+\newstyle+.
+\begin{htmlonly}
+\begin{htmlout}
+\def\em{\@styleattr{em}{style="color:\@getstylecolor[named]{OliveGreen}"}}
+\em Emphasised text and Olive Green.
+\end{htmlout}
+\end{htmlonly}
+
+\index{"@styleattr@\texttt{\char92"@styleattr}}%
+For local changes, one should redefine the \verb+\em+ command itself. For instance one can obtain the local effect of typesetting emphasized text in Olive Green
+as follows:
+\begin{verbatim}
+\def\em{\@styleattr{em}{style="color:\@getstylecolor[named]{OliveGreen}"}}
+\end{verbatim}
+Using the internal macros \verb+\@styleattr+ and \verb+\@getstylecolor+
+(see Section~\ref{internal}) is indeed involved.
+One may prefer the simple, all-\LaTeX style:
+\begin{verbatim}
+\let\oldem\em\def\em{\oldem\color[named]{OliveGreen}}
+\end{verbatim}
+\begin{htmlonly}
+\begin{htmlout}
+\let\oldem\em\def\em{\oldem\color[named]{OliveGreen}}%
+\em Emphasised text and Olive Green.
+\end{htmlout}
+\end{htmlonly}
+
 \subsection{Which class affects\label{whatclass} what}
 
 Generally, the styling of environment~\textit{env} is performed through
@@ -3767,7 +3843,7 @@ Then, linking with external style sheets can prove useful to
 promote uniform styling of several documents produced by \hevea{}.
 
 
-\section{Customising \hevea}
+\section{Customising\label{macros.hva} \hevea}
 \hevea{} can be controlled by writing \LaTeX{} code. In this section,
 we examine how users can change \hevea{} default behaviour or add
 functionalities. In all this section we assume that a document
@@ -3840,24 +3916,39 @@ For instance, in the example, small caps shapes is small caps (no italics here).
 \end{htmlonly}
 
 If one wishes to change the rendering of some of the shapes (say slanted
-caps), then one should redefine the old-style \verb+\sl+ declaration.
-For instance, to render slanted as Helvetica (why so?), one should
-redefine \verb+\sl+ by \verb+\renewcommand{\sl}{\@span{style="font-family:Helvetica"}}+ in
-\texttt{macros.hva}.
-
+caps), then one should affect the old-style \verb+\sl+ declaration.
+The recommended technique CSS classes.
+For instance, to render all slanted text in the complete document
+as slanted monospace font (why so?), one can
+add the following command in the~\texttt{macros.hva} file:
+\begin{verbatim}
+\newstyle{.sl}{font-family:monospace}
+\end{verbatim}
+(See section~\ref{typestyle:css} for the whole story on redefining
+old-style declarations.)
 
 \begin{htmlonly}
 And now, the shape example above gets rendered as follows:
-\begin{htmlout}\renewcommand{\sl}{\@span{style="font-family:Helvetica"}}
+\begin{htmlout}\setenvclass{sl}{mysl}
+{\itshape italic shape \slshape slanted shape
+\scshape small caps shape \upshape upright shape}
+\end{htmlout}
+One sees that the monospace font change remains confined to ``slanted shape''.
+
+A deprecated alternative would be to bypass the CSS classes and to
+redefine the command \verb+\sl+ with
+\verb+\renewcommand{\sl}{\@span{style="font-family:monospace; font-style:oblique"}}+, resulting in the same rendering:
+\begin{htmlout}
+\renewcommand{\sl}{\@span{style="font-family:monospace; font-style:oblique"}}
 {\itshape italic shape \slshape slanted shape
 \scshape small caps shape \upshape upright shape}
 \end{htmlout}
 
-Redefining the old-style \verb+\sl+ is compatible with the cancellation
+Changing \verb+\sl+ is compatible with the cancellation
 mechanism, redefining \verb+\slshape+ is not.
 Thus, redefining directly \LaTeXe{} \verb+\slshape+ with
-\verb+\renewcommand{\slshape}{}+ would yield:
-\begin{htmlout}\renewcommand{\slshape}{\@span{style="font-family:Helvetica"}}
+\verb+\renewcommand{\slshape}{\tt}+ would yield:
+\begin{htmlout}\renewcommand{\slshape}{\tt}
 {\itshape italic shape \slshape slanted shape
 \scshape small caps shape \upshape upright shape}
 \end{htmlout}
