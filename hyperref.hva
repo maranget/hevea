@@ -1,6 +1,7 @@
 \ProvidesPackage{hyperref}
 \RequirePackage{url}
 \RequirePackage{labeltype}
+\RequirePackage{nameref}
 \@primitives{hyperref}
 \newcommand{\@hr@expand}[1]
 {\begingroup\catcode`\%=12\catcode`\~=12#1\endgroup}
@@ -69,4 +70,6 @@
 \newcommand{\pageref*}[1]{\begin{@norefs}\pageref{#1}\end{@norefs}}
 \newcommand{\autoref*}[1]{\begin{@norefs}\autoref{#1}\end{@norefs}}
 \newcommand{\autopageref*}[1]{\begin{@norefs}\autopageref{#1}\end{@norefs}}
+%%Activate nameref liks
+\let\@hr@nameref\@locref
 \ProcessOptions*

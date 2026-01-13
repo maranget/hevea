@@ -421,12 +421,13 @@
 {\@open{div}{class="\getenvclass{theindex}"}\@open@par[id="indexprologue"]\hevea@indexprologue\@close@par}%
 {\@close{div}}
 %%% Aux files
-\newcommand{\@fst}[2]{#1}
+\newcommand{\@fstofthree}[3]{#1}
+\newcommand{\@lstofthree}[3]{#3}
 \newcounter{labelorder}
 \newcommand{\newlabel}[2]
 {\stepcounter{labelorder}%
 \prim@def\csname #1@label@order\endcsname{\thelabelorder}%
-\@newlabel{#1}{\@funcall{\@fst}{#2}}}
+\@newlabel{#1}{\@funcall{\@fstofthree}{#2}}{\@funcall{\@lstofthree}{#2}}}
 %Also define section id to change
 \newcommand{\new@anchor@label}[3]
 {\def\csname #1@named@sec\endcsname{#2}%
@@ -595,6 +596,7 @@
 \newcommand{\@makesection}[7]{%
 \newcommand{\csname @#3@level\endcsname}{#2}%
 \newcommand{#1}[2][]{%
+\def\@currentname{##2}%
 \@secbegin\@step@sec\@checkdepth{#2}{\refstepcounter{#3}}%
 \ifoptarg\@checktocdepth{#2}{\@doaddtoc{#2}{#5}{##1}}%
 \cuthere{#3}{\@addsecnumber{#2}{#5}{##1}}\else

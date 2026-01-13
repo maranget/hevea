@@ -654,14 +654,16 @@ def_code "\\@newlabel"
   (fun lexbuf ->
     let name = get_raw lexbuf in
     let arg = get_raw lexbuf in
-    Auxx.rset name arg)
+    let title = subst_arg lexbuf in
+    Auxx.rset name arg title)
 ;;
 
 def_code "\\@auxwrite"
   (fun lexbuf ->
     let lab = get_raw lexbuf in
     let theref = get_prim_arg lexbuf in
-    Auxx.rwrite lab theref)
+    let title = Latexmacros.get_zero_body "\\@currentname" in
+    Auxx.rwrite lab theref title)
 ;;
 
 
@@ -670,7 +672,8 @@ def_code "\\@@auxwrite"
     let anchor =  get_raw lexbuf in
     let lab = get_raw lexbuf in
     let theref = get_prim_arg lexbuf in
-    Auxx.rwrite2 anchor lab theref)
+    let title = Latexmacros.get_zero_body "\\@currentname" in
+    Auxx.rwrite2 anchor lab theref title)
 ;;
 
 def_code "\\@auxread"
@@ -987,7 +990,18 @@ register_init "url"
 ;;
 
 
-(* hyperref (not implemented in fact) *)
+(* hyperref (partial implementation) *)
+register_init "nameref"
+  (fun () ->
+     def_code "\\@@auxread"
+       (fun lexbuf ->
+          let lab = get_raw lexbuf in
+          let _,title = Auxx.full_rget lab in
+          scan_this main
+          @@ Printf.sprintf
+            "\\@hr@nameref{%s}{\\begin{@norefs}%s\\end{@norefs}}" lab title))
+;;
+
 register_init "hyperref"
   (fun () ->
 

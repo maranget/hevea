@@ -1,0 +1,6 @@
+\ProvidesPackage{nameref}
+%%%\nameref{lbl} -> title of the section associated to lbl
+\@primitives{nameref}
+\newcommand{\@hr@nameref}[2]{#2}
+\newcommand{\nameref}[1]{\@@auxread{#1}}
+

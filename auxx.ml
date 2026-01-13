@@ -14,14 +14,23 @@ open Misc
 let rtable = Hashtbl.create 17
 ;;
 
-let rset name value = Hashtbl.add rtable name value
+let rset name value title = Hashtbl.add rtable name (value,title)
 ;;
   
-let rget name =
-  try Hashtbl.find rtable name with Not_found -> begin
-    warning ("Undefined label: '"^name^"'") ; "??"
-  end
+let do_rget name =
+  let reference,title =
+    try Hashtbl.find rtable name with Not_found ->
+      warning ("Undefined label: '"^name^"'") ;
+      "??","??" in
+  if !verbose > 1 then
+    Printf.eprintf "Rget: name='%s', ref='%s', title='%s'\n%!"
+      name reference title ;
+  reference,title
 ;;
+
+let rget name = do_rget name |> fst
+
+let full_rget = do_rget
 
 let btable = Hashtbl.create 17
 ;;
@@ -120,7 +129,7 @@ let bwrite key pretty =
         output_string file pretty ;
         output_string file "}\n")
 
-and rwrite key pretty =
+and rwrite key pretty title =
   let idx = rcheck key in
   if idx >= 0 then
     write
@@ -129,8 +138,10 @@ and rwrite key pretty =
         output_string file key ;
         output_string file "}{{" ;
         output_string file pretty ;
-        output_string file "}{X}}\n")
-and rwrite2 anchor key pretty =
+        output_string file "}{X}{" ;
+        output_string file title ;
+        output_string file "}}\n")
+and rwrite2 anchor key pretty title =
   let idx =  rcheck key in
   if idx >= 0 then
     write
@@ -141,7 +152,9 @@ and rwrite2 anchor key pretty =
         output_string file key ;
         output_string file "}{{" ;
         output_string file pretty ;
-        output_string file "}{X}}\n")
+        output_string file "}{X}{" ;
+        output_string file title ;
+        output_string file "}}\n")
 ;;
 
 type toc_t =
@@ -176,7 +189,7 @@ let do_addtoc toc level what =
  (* Then ouput toc item *)
   Printf.fprintf toc.chan "\\tocitem %s\n" what
 
-let addtoc suf level what = 
+let addtoc suf level what =
   try
     try
       let toc = Hashtbl.find toctable suf in
@@ -218,7 +231,7 @@ let final base =
 
 
 type saved =
-(string, string) Hashtbl.t *
+(string, (string * string)) Hashtbl.t *
   int * (string, int) Hashtbl.t *
   (string, string) Hashtbl.t * (string, unit) Hashtbl.t *
   out_channel option * string * bool * Digest.t option
