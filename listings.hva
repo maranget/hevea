@@ -88,7 +88,7 @@
   \@callprim{\lst@delete@directives}{\{\lst@alldirectives\}}}
 \def\lst@install@kwd#1#2{%
 %\hva@warn{INSTALL: #2 -> #1}%
-\def\csname lstk@\lst@normalize{#2}\endcsname{#1}}
+\def\csname lstk@\lst@normalize{\lst@eatspaces{#2}}\endcsname{#1}}
 \def\lst@install@kwds#1#2{%
 %     \hva@warn{RESET: «#1»}%
     \lst@delete@kwd@class{#1}%
@@ -98,7 +98,7 @@
 %    \hva@warn{MORE: «#1»}%
     \lst@record@kwd@class{#1}{#2}%
     \lst@iter{\lst@install@kwd{\csname lst@keywordstyle#1\endcsname}}{#2}}
-\def\lst@install@directive#1#2{\def\csname lstd@\lst@normalize{#2}\endcsname{#1}}
+\def\lst@install@directive#1#2{\def\csname lstd@\lst@normalize{\lst@eatspaces{#2}}\endcsname{#1}}
 \def\lst@install@directives
   #1#2{%
     \lst@directivestrue%
@@ -696,6 +696,9 @@ breakindent,breakautoindent}
 \def\lst@output@space{\stepcounter{lst@spaces}}
 \lst@AddToHook{Init}{\setcounter{lst@spaces}{0}}
 \newsavebox{\normalize@box}
+%Eat space(s) before keywords references
+\newcommand{\lst@eatspaces}[1]{\@callprim{\@eatspaces}{#1,}}
+%In case if case insensitive
 \def\lst@normalize#1{%
   \sbox{\normalize@box}
   {\iflst@sensitive\@rawchars{#1}\else\@rawchars{\MakeLowercase{#1}}\fi}%
