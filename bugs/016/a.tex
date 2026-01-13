@@ -1,0 +1,41 @@
+\documentclass{article}
+\usepackage{color}
+\usepackage{listings}
+
+\lstdefinelanguage{ASL}
+{
+  morekeywords={begin,
+    var,
+    end},
+    morecomment=[l][\color{blue}]{//},
+    morecomment=[s][\color{blue}]{/*}{*/},
+    morestring=[b][\color{cyan}]",
+    morestring=[d][\color{cyan}]',
+}
+\definecolor{lightyellow}{cmyk}{0.0, 0.0, 0.20, 0.0}
+
+\lstset{
+  keywordstyle=\bf,
+}
+
+\begin{document}
+Keywords un bold. Previously, only the first keyword was recognised as such when the list of key words was given with newlines after commas. For instance:
+\begin{verbatim}
+\lstset{
+keywords={begin,
+  var,
+  end
+}
+\end{verbatim}
+
+\begin{lstlisting}[language=ASL]
+  begin
+// Variable declaration   
+    var x = 1;
+  end
+\end{lstlisting}
+
+\begin{lstlisting}[language=Caml]
+let x = 1
+\end{lstlisting}
+\end{document}
