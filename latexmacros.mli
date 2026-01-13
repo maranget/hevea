@@ -58,6 +58,8 @@ val replace : string -> (Lexstate.pat * Lexstate.action) option ->
    if non-existing *)
 val addto : string -> string list -> unit
 
+(* Get a string saved as a zero-arg macro *)
+val get_zero_body : string -> string
 
 val invisible : string -> bool
 

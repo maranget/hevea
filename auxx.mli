@@ -9,16 +9,17 @@
 (*                                                                     *)
 (***********************************************************************)
 
-val rset : string -> string -> unit
+val rset : string -> string -> string -> unit
 val rget : string -> string
+val full_rget : string -> string * string
 val bset : string -> string -> unit
 val bget : bool -> string -> string option
 val init : string -> unit
 val final : string -> unit
 val finalize : bool -> bool
 val bwrite : string -> string -> unit
-val rwrite : string -> string -> unit
-val rwrite2 : string -> string -> string -> unit
+val rwrite : string -> string -> string -> unit
+val rwrite2 : string -> string -> string -> string -> unit
 val swrite : string -> unit
 
 val addtoc : string -> int -> string -> unit

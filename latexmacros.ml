@@ -276,6 +276,13 @@ let addto name body =
       hidden_local_def name (zero_pat,Subst body)
       
       
+let get_zero_body name =
+  try
+    match find_fail name with
+    | ([],[]),Lexstate.Subst body -> body_to_string body
+    | _,_ -> raise Exit
+  with Exit|Failed -> "??"
+;;
 
 (* macro static properties *)
 
