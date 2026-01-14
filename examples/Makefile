@@ -26,7 +26,7 @@ byte:
 dvi: $(DVI)
 
 SUITE=suite.html test.html di.html mp.html lis.html lis2.html\
- acc.html sym.html natbib.html list.html
+ acc.html sym.html natbib.html list.html braces.html
 
 sym.html:sym.tex st.hva
 
