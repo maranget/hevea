@@ -1,0 +1,26 @@
+\ProvidesPackage{mathtools}
+%% Very partial implementation.
+%% Brackets
+\DeclareSymbolHtml{\hva@tlhb}{X2E22}
+\DeclareSymbolHtml{\hva@trhb}{X2E23}
+\newcommand{\textoverbracket}[1]
+{\hva@warn{\overbracket in non-display mode}#1}
+\newcommand{\@overbracket}[1]
+{\mathop{\@over@arrow[3]
+  {\d@cell[style="width:5\%"]{\hva@tlhb}%
+   \d@cell[style="width:90\%;"]{\@hbar[style="margin-top:0;"]}%
+   \d@cell[style="width:5\%"]{\hva@trhb}}
+  {#1}}}
+\newcommand{\overbracket}{\DisplayChoose\@overbracket\textoverbracket}
+\DeclareSymbolHtml{\hva@blhb}{X2E24}
+\DeclareSymbolHtml{\hva@brhb}{X2E25}
+\newcommand{\textunderbracket}[1]
+{\hva@warn{\underbracket in non-display mode}#1}
+\newcommand{\@underbracket}[1]
+{\mathop{\@under@arrow[3]
+  {\d@cell[style="width:5\%"]{\hva@blhb}%
+   \d@cell[style="width:90\%"]{\@hbar[style="margin-bottom:0;margin-top:2ex;"]}%
+   \d@cell[style="width:5\%"]{\hva@brhb}}
+  {#1}}}
+\newcommand{\underbracket}{\DisplayChoose\@underbracket\textunderbracket}
+
