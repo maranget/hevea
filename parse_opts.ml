@@ -40,6 +40,7 @@ let symbol_mode = ref Entity
 and pedantic = ref false
 and destination = ref Html
 and fixpoint = ref false
+and fix0 = ref false
 and optimize = ref false
 
 let default_width = 72
@@ -77,6 +78,8 @@ let () =
      "FILE exclude FILE from being processed";
      "-fix", Arg.Set fixpoint,
      " iterate Hevea until reaching a fixpoint";
+     "-fix0", Arg.Unit (fun () -> fixpoint := true; fix0 := true),
+     " execute one iteration step";
      "-info", Arg.Unit (fun () -> symbol_mode := SText; destination := Info),
      " output GNU Info file(s)";
      "-text", Arg.Unit (fun () -> symbol_mode := SText; destination := Text),

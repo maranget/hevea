@@ -166,23 +166,27 @@ let main () =
       let image_changed = ref false in
       let saved = Hot.checkpoint () in
       let rec do_rec i =
-        read_tex name_in ;
-        let changed,image_changed_now = finalize true in
-        image_changed := !image_changed || image_changed_now ;
-        if changed then begin
-          Hot.start saved ;
-          Auxx.hot_start () ;
-          Misc.message ("Run, run, again...") ;
-          do_rec (i+1)
-        end else begin
-          Misc.message
-            ("Fixpoint reached in "^string_of_int i^" step(s)") ;
-          if !image_changed then begin
+        if i > 1 && !Parse_opts.fix0 then
+          Misc.message "Fixpoint not reached yet"
+        else begin
+          read_tex name_in ;
+          let changed,image_changed_now = finalize true in
+          image_changed := !image_changed || image_changed_now ;
+          if changed then begin
+            Hot.start saved ;
+            Auxx.hot_start () ;
+            Misc.message ("Run, run, again...") ;
+            do_rec (i+1)
+          end else begin
             Misc.message
-              ("Now, I am running imagen for you") ;
-            let _ = Sys.command
-                (Filename.concat Mylib.libdir "imagen"^
-                 " "^Misc.get_image_opt ()^" "^base_out) in ()
+              ("Fixpoint reached in "^string_of_int i^" step(s)") ;
+            if !image_changed then begin
+              Misc.message
+                ("Now, I am running imagen for you") ;
+              let _ = Sys.command
+                  (Filename.concat Mylib.libdir "imagen"^
+                   " "^Misc.get_image_opt ()^" "^base_out) in ()
+            end
           end
         end in
       do_rec 1
