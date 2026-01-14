@@ -54,7 +54,11 @@ http://www.lunatech-research.com/archives/2009/02/03/what-every-web-developer-mu
  let do_encode_fragment putc put c =  match c with
  |  'a'..'z' | 'A'..'Z' | '0'..'9' | '-' | '_' | '~' | '.'
    -> putc c
- | _ -> put (sprintf "%%%02X" (Char.code c))
+ | _ ->
+    let c = match c with
+    | '\n'|'\t' -> ' '
+    | _ -> c in
+    put (sprintf "%%%02X" (Char.code c))
 
  let do_encode putc put specific u =
    let len = String.length u in
