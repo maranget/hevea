@@ -393,22 +393,22 @@
   display: inline-block;
   text-indent: 0;
 }
-\def\@parbox@alignment@spec@bottom{b}
-\def\@parbox@alignment@spec@center{c}
-\def\@parbox@alignment@spec@top{t}
+\def\@box@alignment@spec@bottom{b}
+\def\@box@alignment@spec@center{c}
+\def\@box@alignment@spec@top{t}
 \RenewcommandHtml{\parbox}[3][]{%
   \def\@align{middle}%
   \def\@align@spec{#1}%
   \ife#1%
     \relax
   \else
-    \ifx\@parbox@alignment@spec@center
+    \ifx\@box@alignment@spec@center
       \relax
     \else
-      \ifx\@align@spec\@parbox@alignment@spec@bottom
+      \ifx\@align@spec\@box@alignment@spec@bottom
         \def\@align{text-bottom}%
       \else
-        \ifx\@align@spec\@parbox@alignment@spec@top
+        \ifx\@align@spec\@box@alignment@spec@top
           \def\@align{text-top}%
         \else
           \hva@warn{parbox: unknown alignment}%
@@ -825,11 +825,57 @@
 \newcommand{\underbrace}{\DisplayChoose\@underbrace\textunderbrace}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%concrete minipage
-\newstyle{.minipage}{text-align:left; margin-left:0em; margin-right:auto;}
-\setenvclass{minipage}{minipage}
-\newenvironment{@minipage}
-{\@open{div}{class="\getenvclass{minipage}"}}
-{\@close{div}}
+\newstyle{.minipage-container}{box-sizing: border-box; display: inline-block; position: relative;}
+\newstyle{.minipage}{box-sizing: border-box; display: inline-block; text-align: justify;}
+\newstyle{div.minipage p}{margin: 0; text-indent: 0;}
+\newenvironment{minipage@implementation}[4]{%
+  %--\hva@warn{minipage: 1: `#1', 2: `#2', 3: `#3', 4: `#4'}%
+  \def\@align{middle}%
+  \def\@align@spec{#1}%
+  \def\@inner@align@spec{#3}%
+  \ife#1%
+    \relax
+  \else
+    \ifx\@align@spec\@box@alignment@spec@center
+      \relax
+    \else
+      \ifx\@align@spec\@box@alignment@spec@bottom
+        \def\@align{text-bottom}%
+      \else
+        \ifx\@align@spec\@box@alignment@spec@top
+          \def\@align{text-top}%
+        \else
+          \hva@warn{minipage: unknown alignment}%
+        \fi
+      \fi
+    \fi
+  \fi
+  \def\@optional@inner@align{}%
+  \ife#2%
+    \def\@optional@height{}%
+  \else
+    \def\@optional@height{height:\css@length{#2};}%
+    \ife#3%
+      \relax
+    \else
+      \ifx\@inner@align@spec\@box@alignment@spec@center
+        \def\@optional@inner@align{ style="position: absolute; top: 50\%; transform: translateY(-50\%);"}
+      \else
+        \ifx\@inner@align@spec\@box@alignment@spec@bottom
+          \def\@optional@inner@align{ style="position: absolute; bottom: 0;"}
+        \else
+          \ifx\@inner@align@spec\@box@alignment@spec@top
+            \relax
+          \else
+            \hva@warn{minipage: unknown inner alignment}%
+          \fi
+        \fi
+      \fi
+    \fi
+  \fi
+  \@open{div}{class="minipage-container" style="\@optional@height vertical-align:\@align; width:\css@length{#4};"}%
+  \@open{div}{class="\getenvclass{minipage}"\@optional@inner@align}\@open@par}%
+{\@close{div}\@close{div}}
 %%%%%%%%margin par
 \newstyle{.marginpar}{border:solid thin black; margin-bottom:1ex; width:20\%; text-align:left;}
 \newstyle{.marginparleft}{float:left; clear:left; margin-left:0ex; margin-right:1ex;}
