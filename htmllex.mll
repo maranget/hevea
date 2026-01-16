@@ -51,9 +51,9 @@ List.iter (init block)
 
 let ptop () =
   if not (MyStack.empty txt_stack) then begin
-    let pos = MyStack.top txt_stack in
+    let pos,txt = MyStack.top txt_stack in
     Location.print_this_fullpos pos ;
-    prerr_endline "This opening tag is pending"
+    Printf.eprintf "Tag \"%s\" is pending\n%!" txt
   end
 
 let warnings = ref true
@@ -167,7 +167,7 @@ let ouvre lb name attrs txt =
     let tag = Hashtbl.find text uname in
     let attrs = norm_attrs lb attrs in
     incr txt_level ;
-    MyStack.push txt_stack (Location.get_pos ()) ;
+    MyStack.push txt_stack (Location.get_pos (),txt) ;
     Open (tag,attrs,txt)
   with
   | Not_found -> assert false
