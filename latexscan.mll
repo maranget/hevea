@@ -1137,7 +1137,7 @@ rule  main = parse
        Dest.put lxm
      else
        begin
-         if !display then
+         if !display && !spaced_display then
            Dest.put_hspace false (Length.Char (String.length lxm))
          else
 	   Dest.put_char ' '
@@ -2783,6 +2783,7 @@ newif_ref "math" in_math ;
 newif_ref "whitepre" whitepre ;
 newif_ref "mmode" in_math ;
 newif_ref "display" display ;
+newif_ref "spaced@display" spaced_display ;
 newif_ref "verbd" displayverb ;
 (* NO NEED AFTER BABEL SUPPORT *)
 (*newif_ref "french" french ;*)

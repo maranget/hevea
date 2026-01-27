@@ -120,6 +120,7 @@ type jax = JaxOut | JaxInline | JaxDisplay
   
 (* Status flags *)
 let display = ref false
+and spaced_display = ref false
 and raw_chars = ref false
 and in_math = ref false
 and jaxauto = ref false
