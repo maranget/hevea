@@ -141,7 +141,7 @@
 \@close{tr}\@open{tr}{}%
 \@open@dcell{}%
 {\def\@tmp{#1}\ifx\@tmp\@empty\@hbar\else
-\@hbar[style="height:\@getlength{#1}px;"]\fi}%
+\@hbar[style="height:\@getlength{#1};"]\fi}%
 \@close@dcell%
 \@close{tr}\@open{tr}{class="bot"}%
 \d@cell[style="background-color:lime;"]{#3}%

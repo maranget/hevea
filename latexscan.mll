@@ -3312,16 +3312,29 @@ def_code "\\@restoreclosed"
 exception Cannot
 ;;
 
+let sz_ok s =
+  let len = String.length s in
+  if len > 2 then
+    let u = String.sub s (len-2) 2 in
+    match u with
+    | "mm"|"cm"|"em"|"ex"|"in"|"pt"|"px" -> true
+    | _ -> false
+  else false
+;;
+
 def_code "\\@getlength"
   (fun lexbuf ->
     let arg = get_prim_arg lexbuf in
-    let pxls = 
-      match Get.get_length arg with
-      | Length.Pixel n -> n
-      | Length.Char n -> Length.char_to_pixel n
-      | _             -> 0 in
-(*    eprintf "GET LENGTH: %i\n" pxls ; *)
-    Dest.put (string_of_int pxls))
+    let sz =
+      if sz_ok arg then arg
+      else
+        let pxls = 
+          match Get.get_length arg with
+          | Length.Pixel n -> n
+          | Length.Char n -> Length.char_to_pixel n
+          | _             -> 0 in
+        string_of_int pxls ^ "px" in
+    Dest.put sz)
 ;;
 
 let insert_horizontal_space persistent (warn : string -> unit) (insert : bool -> Length.t -> unit) lexbuf =
