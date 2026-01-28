@@ -1033,8 +1033,9 @@ let noeof lexer lexbuf =
            ("End of file in environment: ``"^ !Scan.cur_env^"'' ("^s^")"))
   | EndVerb -> ()
 
-let open_verbenv star =
-  Scan.top_open_block "pre" (getclass "verbatim") ;
+let open_verbenv ?(style="") star =
+  let attr = if style = "" then getclass "verbatim" else sprintf {| style="%s" |} style in
+  Scan.top_open_block "pre" attr ;
   let process =
     wrap_eat_fst_nl
       (if star then
@@ -1791,12 +1792,19 @@ let init_listings () =
 register_init "listings" init_listings
 ;;
 
-
 register_init "fancyvrb"
     (fun () ->
       def_code "\\@Verbatim"
         (fun lexbuf ->
-          let p, f = open_verbenv false in
+          let style= get_prim_arg lexbuf in
+          let p, f = open_verbenv ~style false in
+          let p =
+            let nxt = ref false in
+            fun () ->
+              if !nxt then scan_this Scan.main {|\bgroup\verb@start@line|} ;
+              p () ;
+              if !nxt then scan_this Scan.main {|\egroup|} ;
+              nxt := true in
           noeof (scan_byline p f) lexbuf) ;
       def_code "\\@endVerbatim" close_verbenv)
 ;;
