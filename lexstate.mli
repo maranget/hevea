@@ -43,6 +43,7 @@ val effective : alltt -> bool
 
 val raw_chars : bool ref
 val display : bool ref
+val spaced_display : bool ref
 val in_math : bool ref
 val jaxauto : bool ref
 val injaxauto : jax ref
