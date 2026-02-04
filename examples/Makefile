@@ -46,7 +46,7 @@ install-test:
 	-mkdir -p $(TDIR)
 	cp $(SUITE) $(TDIR)
 	mv $(TDIR)/test.html $(TDIR)/index.html
-	cp *_motif.gif $(TDIR)
+	-cp *_motif.{gif,svg} $(TDIR)
 	cp cart-index.html cart.css cart[0-9][0-9][0-9].html  $(TDIR)
 	cp cart-bis-index.html cart-bis.css cart-bis[0-9][0-9][0-9].html  $(TDIR)
 	cp cart-ter-index.html cart-ter.css cart-ter[0-9][0-9][0-9].html  $(TDIR)
