@@ -1,0 +1,49 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{fancyvrb}
+\usepackage{color}
+\definecolor{foo}{rgb}{.5,.2,.99}
+\fvset{frame=single,rulecolor=\color{foo}}
+\title{Quelques exemples de jolis verbatims}
+\date{}
+\author{}
+\begin{document}\maketitle
+\begin{Verbatim}[fillcolor=\color{red},numbers=right]
+  Coucou!!!
+Première ligne.
+Seconde ligne.
+\end{Verbatim}
+
+\begin{Verbatim}[frame=none,numbers=left]
+No border!
+\end{Verbatim}
+
+\begin{Verbatim}[frame=lines,numbers=none]
+En haut et en bas!
+\end{Verbatim}
+
+\begin{Verbatim}[numbers=left,firstnumber=last]
+Some border!
+\end{Verbatim}
+
+\begin{Verbatim}[frame=leftline,numbers=left,firstnumber=last]
+Une ligne
+Seconde ligne
+Troisième ligne
+\end{Verbatim}
+
+\begin{Verbatim}[frame=bottomline,numbers=left,firstnumber=99]
+Une ligne
+Seconde ligne
+Troisième ligne
+\end{Verbatim}
+
+\begin{Verbatim}[frame=topline,framerule=4mm,framesep=8mm,rulecolor=\color{green}]
+Une ligne
+Seconde ligne
+Troisième ligne
+\end{Verbatim}
+
+\VerbatimInput[frame=leftline,framerule=1mm,rulecolor=\color{black}]{fancyvrb-test.tex}
+
+\end{document}

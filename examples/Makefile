@@ -4,14 +4,14 @@ BIBHVA=bibhva
 HEVEAOPTS=-fix -O -rsz 16
 HACHA=hacha
 EXDIR=$(HOME)/public_html/hevea/examples
-HTML=a.html pat.html suite.html env.html smile.html amstex.html graphics.html graphicx.html verbs.html style-test.html amssymb-test.html boxes.html
+HTML=a.html pat.html suite.html env.html smile.html amstex.html graphics.html graphicx.html verbs.html style-test.html amssymb-test.html boxes.html fancyvrb-test.html
 HVA=env.hva  pat.hva  smile.hva  st.hva  suite-macros.hva
 STY=suite-macros.sty hevea.sty
 TEX=$(HTML:.html=.tex)
 DVI=a.dvi pat.dvi suite.dvi amstex.dvi verbs.dvi
 TEXT=a.txt pat.txt suite.txt env.txt
 INFO=$(TEXT:.txt=.info)
-PDF=boxes.pdf
+PDF=boxes.pdf fancyvrb-test.pdf
 
 all: dvi html text info test-opt
 
@@ -235,4 +235,4 @@ clean:: cleanhtml cleantext cleaninfo cleanpdf
 	$(HEVEA) -fix $(HEVEAOPTS) $<
 
 .tex.pdf:
-	rubber -d -f  $<
+	latexmk -pdf  $<
