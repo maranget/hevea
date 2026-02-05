@@ -1,3 +1,16 @@
+version 2.38
+     * Fix some minor bugs of add minor enhancements PR #104, #102, #99.
+     * Important change of behaviour: spaces are no longer replicated
+       in output as non-breaking spaces in display mode, PR #103.
+         Math-display now behaves as inline-math in that aspect.
+     * New implementation of the fancyvrb package using CSS, PR #102.
+     * Minor improvements for the mathpartir package, PR #100.
+     * New option `-fix0` for performing one step of main
+       fixpoint loop (option `-fix`), PR #97 and #98 (by Chris Spiel).
+     * Many changes and improvements suggested by Xaver Leroy, PR #96--#80
+     * Option `-mathml` that was barely usable is deprecated, PR #79.
+     * Windows adaptation, PR #78 by Mohamed Hernouf.
+     
 version 2.37
      * Bug fix (PR #77, bug reported by Moshen Banan)
 version 2.36
