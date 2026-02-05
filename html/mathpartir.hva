@@ -109,6 +109,9 @@
 \def\mpr@emptyL{\ifx\mpr@label\mpr@L\@open{td}{}\@force{td}\fi}
 \def\mpr@emptyR{\ifx\mpr@label\mpr@R\@open{td}{}\@force{td}\fi}
 \newcommand{\@mpr@table}{\@open{table}{style="border:0;border-spacing:1px;border-collapse:separate" class="cellpadding0"}}
+%Vertical alignement of premise and conclusion
+\newcommand{\mpr@vert@premise}{bottom}
+\newcommand{\mpr@vert@conclusion}{bottom}
 \newcommand {\@inferrule}[2]
    {\bgroup
     \let \\ \latexcr%
@@ -124,9 +127,9 @@
       \def \@@arg{#2}\ifx \@@arg \mpr@empty%
       \mpr@line{}#1\endmpr@line%
     \else
-      \mpr@line{bottom}#1\endmpr@line%
+      \mpr@line{\mpr@vert@premise}#1\endmpr@line%
       \@hhline%
-      \mpr@line{top}#2\endmpr@line%
+      \mpr@line{\mpr@vert@conclusion}#2\endmpr@line%
     \fi\fi%
     \ifmpr@vdots%
       \@open{tr}{style="vertical-align:middle"}%
@@ -155,7 +158,7 @@
 \newcommand {\inferrule}[3][]{%
    \def\mpr@arg{#1}\ifx\mpr@arg\mpr@empty
    \inferrule*{#2}{#3}\else
-   \inferrule*[before={\let\@tir@name\TirName},lab=#1,center]{#2}{#3}\fi}
+   \inferrule*[before={\let\@tir@name\TirName},lab={#1},center]{#2}{#3}\fi}
 
 \def \mprset {\setkeys{mprset}}
 \define@key {mprset}{flushleft}[]{\mpr@centerfalse}
