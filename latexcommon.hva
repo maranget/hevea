@@ -710,13 +710,20 @@
 % 2. Flush notes at end
 \newcounter{mpfootnote}
 \renewcommand{\thempfootnote}{\alph{mpfootnote}}
-\newenvironment{minipage}[2][]
-  {\hva@warn{minipage, output may be poor}%
-  \renewcommand{\@footnotelevel}{document}\@footnotesub%
+\setenvclass{minipage}{minipage}
+\newcommand{\@minipage}[4]{%
+  \hva@warn{minipage -- layout may be poor}%
+  \begingroup
+  \renewcommand{\@footnotelevel}{document}\@footnotesub
   \setcounter{mpfootnote}{0}%
   \def\footnote@c{mpfootnote}%
-  \@minipage\@start@text}
-  {\@end@text\@footnoteflush@sticky{document}\@endfootnotesub\end@minipage}
+  \minipage@implementation{#1}{#2}{#3}{#4}\@start@text
+}
+\newcommand{\endminipage}{%
+  \@end@text\@footnoteflush@sticky{document}\@endfootnotesub
+  \endminipage@implementation
+  \endgroup
+}
 %%%%% Extension des environnments hevea en lecture de fichier
 \newcommand{\rawhtmlinput}[1]
 {\@scaninput{\begin{rawhtml}}{#1}{\end{rawhtml}}}
