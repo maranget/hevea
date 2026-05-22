@@ -1829,7 +1829,7 @@ let open_display _ =
   open_cell_group ();
 ;;
 
-let open_display_varg _ = open_display ""
+let open_display_varg _ _ = open_display ""
 
 let close_display () =
   if not (flush_freeze ()) then begin
@@ -2048,7 +2048,7 @@ let insert_vdisplay open_fun =
 let addvsize x = flags.vsize <- flags.vsize + x
 
 let over _ =
-  let _=insert_vdisplay 
+  let _ = insert_vdisplay
       ( fun () -> 
 	begin
 	  open_vdisplay display;

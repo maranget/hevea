@@ -108,12 +108,12 @@ and end_item_display () =
                                                          *                                                       *
 *********************************************************)
 
-let open_display_varg centering varg =
+let open_display_varg centering harg varg =
   if !verbose > 2 then begin
     Printf.fprintf stderr "open_display: "
   end ;
   try_open_display () ;
-  open_block (DISPLAY centering) varg ;
+  open_block (DISPLAY (centering,harg)) varg ;
   open_display_cell "" ;
   open_block DFLOW "" ;
   if !verbose > 2 then begin
@@ -137,12 +137,26 @@ let open_display_varg centering varg =
   end
 *)
 
-let open_display centering = open_display_varg centering "style=\"vertical-align:middle\""
+let open_display centering =
+  open_display_varg centering "" "style=\"vertical-align:middle\""
 
 (* argument force forces the display structure,
    when false, the TABLE/TR/TD may be spared in two situation
    1. No display cell at all (n=0)
    2. One display cell, one empty cell *)
+
+(* At display end, stack is [DFLOW; DISPLAY; ....].
+   Hence to get the attribute of display, one has
+   to look at the second stack element, not the top one. *)
+
+let has_display_attr () =
+  try
+    let ps,_,_ = top2_out out_stack in
+    match ps with
+    | DISPLAY (_,attr) -> attr <> ""
+    | _ -> false
+  with MyStack.Fatal _ -> false
+
 let close_display force =
   if !verbose > 2 then begin
     prerr_flags "=> close_display " ; pretty_stack out_stack ;
@@ -174,7 +188,7 @@ let close_display force =
       begin match ps with
         | DISPLAY _ -> ()
         | _ ->
-            failclose "close_display" ps (DISPLAY false)
+            failclose "close_display" ps default_display
       end;
       try_close_block ps ;
       let old_out = !cur_out in
@@ -183,7 +197,9 @@ let close_display force =
       Out.copy old_out.out !cur_out.out ;
       flags.empty <- false ; flags.blank <- false ;
       !cur_out.pending <- as_envs active pending
-    end else if (n=1 && flags.blank && not force) then begin
+    end else if
+      n=1 && flags.blank && not force && not (has_display_attr ())
+    then begin
       if !verbose > 2 then begin
         prerr_string "No display n=1";
         (Out.debug stderr !cur_out.out);
@@ -195,7 +211,7 @@ let close_display force =
       begin match ps with
         | DISPLAY _ -> ()
         | _ ->
-            failclose "close_display" ps (DISPLAY false)
+            failclose "close_display" ps default_display
       end ;
       try_close_block ps ;
       let old_out = !cur_out in
@@ -212,7 +228,7 @@ let close_display force =
       end;
       flags.empty <- flags.blank ;
       close_flow TD ;
-      close_flow (DISPLAY false)
+      close_flow default_display
     end ;
     try_close_display ()
   end ;
@@ -259,7 +275,7 @@ and force_item_display () = do_item_display true
 let erase_display () =
   erase_block DFLOW ;
   erase_block TD ;
-  erase_block (DISPLAY false);
+  erase_block default_display ;
   try_close_display ()
 
 
@@ -277,11 +293,13 @@ let close_maths display =
 
 (* vertical display *)
 
-let open_vdisplay center display =
+let open_vdisplay center hstyle display =
   if !verbose > 1 then
     prerr_endline "open_vdisplay";
   if not display then  raise (Misc.Fatal ("VDISPLAY in non-display mode"));
-  open_block TABLE (display_arg center !verbose)
+  open_block
+    TABLE
+    (display_arg center hstyle !verbose)
 
 and close_vdisplay () =
   if !verbose > 1 then
@@ -339,7 +357,7 @@ let standard_sup_sub scanner what sup sub display =
 
   if display && (fsub.table_inside || fsup.table_inside) then begin
     force_item_display () ;
-    open_vdisplay false display ;
+    open_vdisplay false "" display ;
     if sup <> "" then begin
       open_vdisplay_row "" "" ;
       clearstyle () ;
@@ -371,7 +389,7 @@ let limit_sup_sub scanner what sup sub display =
     what ()
   else begin
     force_item_display () ;
-    open_vdisplay false display ;
+    open_vdisplay false "" display ;
     open_vdisplay_row "" "style=\"text-align:center\"" ;
     put sup ;
     close_vdisplay_row () ;
@@ -394,7 +412,7 @@ let int_sup_sub something vsize scanner what sup sub display =
     force_item_display ()
   end ;
   if sup <> "" || sub <> "" then begin
-    open_vdisplay false display ;
+    open_vdisplay false "" display ;
     open_vdisplay_row "" "style=\"text-align:left\"" ;
     put sup ;
     close_vdisplay_row () ;
@@ -426,10 +444,10 @@ let insert_vdisplay open_fun =
     let pps,ppargs,ppout = pop_out out_stack  in
     let center =
       match pps with
-        | DISPLAY b -> b
-        | _ -> failclose "insert_vdisplay" pps (DISPLAY false) in
+        | DISPLAY (b,_) -> b
+        | _ -> failclose "insert_vdisplay" pps default_display in
     let new_out = create_status_from_scratch false [] in
-    push_out out_stack (DISPLAY false,ppargs,new_out) ;
+    push_out out_stack (default_display,ppargs,new_out) ;
     push_out out_stack (ps,pargs,pout) ;
     push_out out_stack (bs,bargs,bout) ;
     close_display false ;
@@ -459,10 +477,10 @@ let line_in_vdisplay_row () =
   force_block TD "" ;
   force_block TR ""
 
-let over _lexbuf =
+let over  _lexbuf =
   let mods = insert_vdisplay
     (fun center ->
-      open_vdisplay center true ;
+      open_vdisplay center "" true ;
       open_vdisplay_row "" "style=\"text-align:center\"") in
   close_vdisplay_row () ;
   line_in_vdisplay_row () ;

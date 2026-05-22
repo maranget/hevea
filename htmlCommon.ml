@@ -25,7 +25,7 @@ type block =
   | H1 | H2 | H3 | H4 | H5 | H6
   | PRE
   | TABLE | TR | TD
-  | DISPLAY of bool | DFLOW
+  | DISPLAY of bool * string | DFLOW
   | QUOTE | BLOCKQUOTE
   | DIV
   | UL | OL | DL
@@ -35,6 +35,8 @@ type block =
   | P
   | NADA
   | OTHER of string
+
+let default_display = DISPLAY (false,"")
 
 let string_of_block = function
   | H1 -> "h1"
@@ -47,8 +49,14 @@ let string_of_block = function
   | TABLE -> "table"
   | TR -> "tr"
   | TD  -> "td"
-  | DISPLAY false -> "display"
-  | DISPLAY true -> "display (center)"
+  | DISPLAY (center,attr) ->
+      let pp =
+        if center then "display (center)" else "display" in
+      begin
+        match attr with
+        | "" -> pp
+        | _ -> pp ^ ":" ^ attr
+      end
   | DFLOW -> "dflow"
   | QUOTE -> "quote"
   | BLOCKQUOTE -> "blockquote"
@@ -73,8 +81,7 @@ let block_t = Hashtbl.create 17
 let no_opt = false
 
 
-let add b =
-  Hashtbl.add block_t (string_of_block b) b
+let add b = Hashtbl.add block_t (string_of_block b) b
 
 and add_verb s b = Hashtbl.add block_t s b
 
@@ -89,7 +96,7 @@ let () =
   add TABLE ;
   add TR ;
   add TD ;
-  add (DISPLAY false) ;
+  add (default_display) ;
   add QUOTE ;
   add BLOCKQUOTE ;
   add DIV ;
@@ -126,7 +133,7 @@ let check_block_closed opentag closetag =
     not (opentag = AFTER && closetag = GROUP) then
     failclose "html" closetag opentag
 
-let display_arg centering _verbose =
+let display_arg centering attr _verbose =
   let cl =
     if !displayverb then "vdisplay"
     else "display" in
@@ -135,7 +142,10 @@ let display_arg centering _verbose =
       cl^(if  !displayverb then " vdcenter" else " dcenter")
     else cl in
   let arg = "class=\""^cl^"\"" in
-  arg
+  match attr with
+  | "" -> arg
+  | _ -> arg ^ " " ^ attr
+
 
 (* output globals *)
 type t_env = {here : bool ; env : text}
@@ -228,14 +238,14 @@ let pretty_stack s = MyStack.pretty
   (function Normal (s,args,_) -> "["^string_of_block s^"]-{"^args^"}"
     | Freeze _   -> "Freeze") s
 
-let pop_out s = match pop s with
+let unfreeze f s =
+  match f s with
   | Normal (a,b,c) -> a,b,c
   | Freeze _       -> raise PopFreeze
 
-and top_out s = match top s with
-  | Normal (a,b,c) -> a,b,c
-  | Freeze _       -> raise PopFreeze
-
+let pop_out s = unfreeze pop s
+and top_out s = unfreeze top s
+and top2_out s = unfreeze top2 s
 
 let out_stack =
   MyStack.create_init "out_stack" (Normal (NADA,"",!cur_out))
@@ -1144,12 +1154,12 @@ let rec do_open_block insert s args = match s with
         | Some (tag,iargs) -> do_do_open_block tag iargs
         | _ -> ()
       end
-  | DISPLAY centering ->
-      do_open_block insert TABLE (display_arg centering !verbose) ;
+  | DISPLAY (centering,attr) ->
+      do_open_block insert TABLE (display_arg centering attr !verbose) ;
       do_open_block None TR args
   | _  -> begin match insert with
       | Some (tag,iargs) ->
-          if is_list s || s = TABLE || s = P then begin
+            if is_list s || s = TABLE || s = P then begin
             do_do_open_block tag iargs ;
             do_do_open_block s args
           end else begin

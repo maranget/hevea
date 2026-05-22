@@ -22,6 +22,9 @@ val pop : 'a t -> 'a
 val top : 'a t -> 'a
 val top2 : 'a t -> 'a
 val pretty : ('a -> string) -> 'a t -> unit
+
+
+
 val length : 'a t -> int
 val empty : 'a t -> bool
 val rev : 'a t -> unit
