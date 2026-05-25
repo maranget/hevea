@@ -485,7 +485,19 @@ A_1 + \frac{A_1}{1} &
 \end{array}
 $$
 
-
+Même idée, mais en \texttt{rcl} et avec des formules plus compliquées.
+Noter que les fractions et vecteur colonnes sont au bon endroit --- poussées à droite à
+gauche, poussées à gauche à droite.
+\[\newcommand{\coucou}[2]{\frac{#2+1}{#1}}
+\begin{array}{rcl}
+\left[ \int \frac{x}{e^x-x} dx \right] &\ne & \sin\left(\frac{e^\pi}{\mbox{blah}}\right) + \sum_{k=1}^{N} \frac{k}{k+1} \\
+\frac{1}{x} & \ne & 0\\
+0 & \ne & \coucou{1}{x}\\
+\begin{array}{c} 1\\ 2\\ 3\\\end{array}
+ & \ne  &
+\begin{array}{c} 3\\ 2\\ 1\\\end{array}
+\end{array}
+\]
 \section{Les tableaux}
 
 \subsection{Environnement définissant un tableau}

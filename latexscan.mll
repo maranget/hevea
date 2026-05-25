@@ -116,36 +116,6 @@ let inc_size i =
   Dest.open_mod (Font new_size)
 ;;
 
-(* Horizontal display *)
-let pre_format = ref None
-
-let top_open_display () =
-  if !display then begin
-    if !verbose > 1 then
-       prerr_endline "open display" ;
-    match !pre_format with
-    | Some (Tabular.Align {Tabular.vert=s})   ->
-        Dest.open_display_varg (sprintf "style=\"vertical-align:%s\"" s)
-    | _ ->
-        Dest.open_display ()        
-  end
-
-and top_item_display () =
-  if !display then begin
-    Dest.item_display ()
-  end
-
-and top_force_item_display () =
-  if !display then begin
-    Dest.force_item_display ()
-  end
-;;
-
-let top_close_display () =
-  if !display then begin
-    Dest.close_display ()
-  end
-
 
 (* Latex environment stuff *)
 
@@ -239,7 +209,11 @@ and hot_all s =
 
 type array_type = {math : bool ; border : bool}
 type in_table = Table of array_type | NoTable | Tabbing
-;;
+
+let is_math_table = function
+  | Table {math; _} -> math
+  | _ -> false
+
 
 let cur_format = ref [||]
 and stack_format = MyStack.create "stack_format"
@@ -300,6 +274,78 @@ and restore_array_state () =
   end  
 ;;
 
+(* Horizontal display *)
+let pre_format = ref None
+
+let default_format =
+  Tabular.Align
+    {Tabular.hor="left" ; vert = "" ; wrap = false ;
+      pre = "" ; post = "" ; width = Length.Default}
+;;
+
+let get_col format i =
+  let r =
+    if i >= Array.length format+1 then
+      raise (Misc.ScanError ("This array/tabular column has no specification"))
+    else if i = Array.length format then default_format
+    else format.(i) in
+  if !verbose > 2 then begin
+   fprintf stderr "get_col : %d: " i ;
+   prerr_endline (Tabular.pretty_format r) ;
+   prerr_string " <- " ;
+   Tabular.pretty_formats format ;
+   prerr_newline ()
+  end ;
+  r
+;;
+
+let to_style = function
+  | None -> ""
+  | Some s -> Printf.sprintf "style=\"%s\"" s
+
+let do_get_hstyle in_table =
+  if is_math_table in_table then
+    match get_col !cur_format !cur_col with
+    | Tabular.Align {Tabular.hor=("right"|"left" as s);_}
+        -> Some (Printf.sprintf "float:%s" s)
+    | _ -> None
+  else None
+
+let get_hstyle () = do_get_hstyle !in_table
+
+let top_open_display () =
+  if !display then begin
+    if !verbose > 1 then
+       prerr_endline "open display" ;
+    let hstyle = get_hstyle () in
+    let vstyle =
+      match !pre_format with
+      |  Some (Tabular.Align {Tabular.vert=s})   ->
+          Some (Printf.sprintf "vertical-align:%s" s)
+      | _ -> None in
+    match hstyle,vstyle with
+    | None,None ->  Dest.open_display ()
+    | _,_ ->
+        Dest.open_display_varg
+         (to_style hstyle) (to_style vstyle)
+  end
+
+and top_item_display () =
+  if !display then begin
+    Dest.item_display ()
+  end
+
+and top_force_item_display () =
+  if !display then begin
+    Dest.force_item_display ()
+  end
+;;
+
+let top_close_display () =
+  if !display then begin
+    Dest.close_display ()
+  end
+
 let top_open_block block args =
   push stack_table !in_table ;
   in_table := NoTable ;
@@ -314,7 +360,7 @@ let top_open_block block args =
   | "display" ->
       push stack_display !display ;
       display := true ;
-      Dest.open_display_varg args
+      Dest.open_display_varg "" args ;
   | "span@inline@block" ->
       Dest.open_block ~force_inline:true "span" args
   | "table" ->
@@ -462,13 +508,6 @@ let get_this_string main s = get_this_arg main (string_to_arg s)
 let more_buff = Out.create_buff ()
 ;;
 
-let default_format =
-  Tabular.Align
-    {Tabular.hor="left" ; vert = "" ; wrap = false ;
-      pre = "" ; post = "" ; width = Length.Default}
-;;
-
-
 let is_table = function
   | Table _ -> true
   | _       -> false
@@ -515,21 +554,6 @@ and as_post = function
   | f -> raise (Misc.Fatal ("as_post "^Tabular.pretty_format f))
 ;;
 
-let get_col format i =
-  let r = 
-    if i >= Array.length format+1 then
-      raise (Misc.ScanError ("This array/tabular column has no specification"))
-    else if i = Array.length format then default_format
-    else format.(i) in
-  if !verbose > 2 then begin
-   fprintf stderr "get_col : %d: " i ;
-   prerr_endline (Tabular.pretty_format r) ;
-   prerr_string " <- " ;
-   Tabular.pretty_formats format ;
-   prerr_newline ()
-  end ;
-  r
-;;
 
 (* Paragraph breaks are different in tables *)
 let par_val t =
@@ -2253,11 +2277,11 @@ def_code "\\right"
     else expand_command "\\textright" lexbuf)
 ;;
 
-
 def_code "\\over"
    (fun lexbuf ->
-     if !display then  Dest.over lexbuf
-     else Dest.put_char '/' ;
+     if !display then begin
+       Dest.over lexbuf
+     end else Dest.put_char '/' ;
      ignore (skip_blanks lexbuf))
 ;;
 

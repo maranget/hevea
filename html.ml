@@ -407,11 +407,11 @@ let open_display () =
   end ;
   do_open_display ()
 
-and open_display_varg a =
+and open_display_varg h v =
   if find_prev_par () then begin
     close_prev_par ()
   end ;
-  do_open_display_varg a
+  do_open_display_varg h v
 
 and close_display () =
   do_close_display () ;

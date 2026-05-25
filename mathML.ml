@@ -117,7 +117,7 @@ and close_display () =
     prerr_flags ("<= close_display")
 ;;
 
-let open_display_varg _ = open_display ()
+let open_display_varg _ _ = open_display ()
 
   
 let do_item_display _force =

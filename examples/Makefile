@@ -4,7 +4,9 @@ BIBHVA=bibhva
 HEVEAOPTS=-fix -O -rsz 16
 HACHA=hacha
 EXDIR=$(HOME)/public_html/hevea/examples
-HTML=a.html pat.html suite.html env.html smile.html amstex.html graphics.html graphicx.html verbs.html style-test.html amssymb-test.html boxes.html fancyvrb-test.html
+SUITE=suite.html test.html di.html mp.html lis.html lis2.html\
+ acc.html sym.html natbib.html list.html braces.html
+HTML= $(SUITE) a.html pat.html env.html smile.html amstex.html graphics.html graphicx.html verbs.html style-test.html amssymb-test.html boxes.html fancyvrb-test.html
 HVA=env.hva  pat.hva  smile.hva  st.hva  suite-macros.hva
 STY=suite-macros.sty hevea.sty
 TEX=$(HTML:.html=.tex)
@@ -25,8 +27,6 @@ byte:
 
 dvi: $(DVI)
 
-SUITE=suite.html test.html di.html mp.html lis.html lis2.html\
- acc.html sym.html natbib.html list.html braces.html
 
 sym.html:sym.tex st.hva
 
