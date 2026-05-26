@@ -48,7 +48,7 @@
 {\setcounter{@c}{(#1)}%
 \@open{table}{class="delimright"}%
 \@hbarcell{\@@@barsz}%
-\@bracell[ \win@right@cell]{\@@vbar[style="height:\arabic{@c}em;"]}%
+\@bracell[ \win@right@cell]{\@@vbar[style="height:\arabic{@c}em;float:right;"]}%
 \@hbarcell{\@@@barsz}%
 \@close{table}}%
 \renewcommand{\csname\delim@name{]}\endcsname}[1]
