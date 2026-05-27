@@ -1,3 +1,3 @@
-\newcommand{\newstyle}[2]{}%
+\renewcommand{\newstyle}[2]{}%
 \input{winfonts.hva}%
 \undef\newstyle

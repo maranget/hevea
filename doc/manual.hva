@@ -11,8 +11,7 @@
 \newcommand{\myrule}{}
 \newenvironment{htmlout}{\begin{quote}\myrule}{\myrule\end{quote}}
 \newenvironment{multicols}[1]{}{}
-\addto{\@meta}{\@print{<meta name="Author" content="Luc Maranget">}
-}
+\newmeta{name="Author" content="Luc Maranget"}
 \newcommand{\showcolor}[1]{\textcolor{#1}{\texttt{#1}}}
 \renewcommand{\cuttingunit}{part}
 \setcounter{cuttingdepth}{1}

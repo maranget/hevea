@@ -20,6 +20,9 @@
 \newcommand{\addstyle}[1]{\addtokens{\hevea@css}{#1}}%
 \newcommand{\newstyle}[2]{\addstyle{\@getprint{#1\char123#2\char125\@print{
 }}}}%
+\newtokens{\hevea@meta}%
+\newcommand{\newmeta}[1]{\addtokens{\hevea@meta}{\@print{<meta }\@getprint{#1}\@print{>
+}}}%
 \newif\ifexternalcss\externalcssfalse
 %
 %%Style attributes are normaly set through an indirection.
@@ -289,13 +292,15 @@
 <meta name="generator" content="hevea }%
 \@getprint{\usebox{\@heveaversion}}\@print{">
 }%
+\ife\hevea@meta\else\hevea@meta\fi
+\undef\hevea@meta%
 \ife\hevea@css\else
 \ifexternalcss\loadcssfile{\hva@dump@css}\else
 \@print{<style type="text/css">}
 \hevea@css\@print{</style>
 }\fi\fi
 \ife\css@link\else\css@link\fi
-\undef\hevea@css\undef\newstyle}
+\undef\hevea@css}
 \newenvironment{document}{%
 \@end{document}%
 \@atbegindocument%
@@ -334,7 +339,8 @@
 \cutdef*[\thecuttingdepth]{\cuttingunit}%
 \ife\@hacha@defs\else\@printnostyle{<!--SETENV }\@hacha@defs\@printnostyle{-->
 }\undef\@hacha@defs\fi
-\renewcommand{\addstyle}[1]{\hva@warn{\addstyle{} must be used in document preamble}}%
+\renewcommand{\newstyle}[2]{\hva@warn{\newstyle{} must be used in document preamble}}%
+\renewcommand{\newmeta}[1]{\hva@warn{\newmeta{} must be used in document preamble}}%
 \@open@par%Open first paragraph
 }{%
 \@clearstyle\@footnoteflush{\@footnotelevel}\cutend*\title@flush@hook%

@@ -45,6 +45,7 @@ Cedex~12. {\tt \mailto{Luc.Maranget@inria.fr}}}}
 \urldef{\ftpbase}{\url}{http://hevea.inria.fr/distri}
 \fi
 \urldef{\httpbase}{\url}{http://hevea.inria.fr/}
+\newmeta{name="viewport" content="width=device-width, initial-scale=1"}
 \def\stylex{padding:1ex;color:navy;border:solid navy;}
 \newstyle{.subsectionex}{\stylex}
 \def\verbstyle{margin:1ex 1ex;padding:1ex;background:\@getstylecolor{paragraph};}%
@@ -4382,6 +4383,19 @@ Note how \verb+\@meta+ is first bound to
 invoked in the new definition of \verb+\@meta+.
 Namely, simply overriding the old definition of \verb+\@meta+ would
 imply not outputting default meta-information.
+
+\comindex{newmeta}
+We provide a simpler and more direct mean to add \verb+meta+ elements into
+the \html{} document preamble: the \verb+\newmeta+ command that
+takes attributes as its argument. In other words a simpler technique for adding the ``Author''  meta-information to the document is as follows:
+\begin{verbatim}
+\newmeta{name="Author" content="Luc Maranget"}
+\end{verbatim}
+In some sense, the command  \verb+\newmeta+ is aware that its argument
+consists of attributes and its definition takes care of issuing verbarim text.
+As a consequence there is no need for using a quoting mecanism as in the
+previous paragraph.
+
 
 \index{"@charset@\texttt{\char92"@charset}}
 The \verb+\@charset+ command holds the value of the (\html) document character
